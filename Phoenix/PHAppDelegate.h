@@ -10,4 +10,7 @@
 
 @interface PHAppDelegate : NSObject <NSApplicationDelegate>
 
+@property IBOutlet NSMenu *statusItemMenu;
+@property NSStatusItem *statusItem;
+
 @end

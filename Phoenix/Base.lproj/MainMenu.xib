@@ -646,7 +646,43 @@
                 </menuItem>
             </items>
         </menu>
-        <customObject id="494" customClass="PHAppDelegate"/>
+        <customObject id="494" customClass="PHAppDelegate">
+            <connections>
+                <outlet property="statusItemMenu" destination="nou-Xh-13P" id="nth-ph-tM3"/>
+            </connections>
+        </customObject>
         <customObject id="420" customClass="NSFontManager"/>
+        <menu id="nou-Xh-13P">
+            <items>
+                <menuItem title="Reload Config" id="zbr-9r-dih">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="reloadConfig:" target="494" id="m36-el-fHs"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="073-tk-0GS"/>
+                <menuItem title="About Phoenix" id="gbV-5V-Bf7">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="showAboutPanel:" target="494" id="4d7-hk-h8D"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Open at Login" id="AgE-UP-cNe">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="toggleOpenAtLogin:" target="494" id="e3B-nb-ST2"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Quit" id="d8j-11-cqL">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="terminate:" target="-3" id="WqH-05-Hd6"/>
+                    </connections>
+                </menuItem>
+            </items>
+            <connections>
+                <outlet property="delegate" destination="494" id="IMD-wU-bso"/>
+            </connections>
+        </menu>
     </objects>
 </document>

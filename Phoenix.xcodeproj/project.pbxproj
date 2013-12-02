@@ -17,6 +17,14 @@
 		94C602441849D3B9005E7DB3 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 94C602421849D3B9005E7DB3 /* MainMenu.xib */; };
 		94C602461849D3B9005E7DB3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 94C602451849D3B9005E7DB3 /* Images.xcassets */; };
 		94CF94BE184C231900E63DE0 /* underscore-min.js in Resources */ = {isa = PBXBuildFile; fileRef = 94CF94BC184C22C500E63DE0 /* underscore-min.js */; };
+		94CF94C5184C45FA00E63DE0 /* NSScreen+SilicaExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94C0184C45FA00E63DE0 /* NSScreen+SilicaExtension.m */; };
+		94CF94C6184C45FA00E63DE0 /* SDApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94C2184C45FA00E63DE0 /* SDApp.m */; };
+		94CF94C7184C45FA00E63DE0 /* SDWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94C4184C45FA00E63DE0 /* SDWindow.m */; };
+		94CF94CA184C4E7D00E63DE0 /* SDUniversalAccessHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94C9184C4E7D00E63DE0 /* SDUniversalAccessHelper.m */; };
+		94CF94CD184C509100E63DE0 /* statusitem.png in Resources */ = {isa = PBXBuildFile; fileRef = 94CF94CB184C509100E63DE0 /* statusitem.png */; };
+		94CF94CE184C509100E63DE0 /* statusitem@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 94CF94CC184C509100E63DE0 /* statusitem@2x.png */; };
+		94CF94D1184C50C700E63DE0 /* SDAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */; };
+		94CF94D4184C527A00E63DE0 /* SDOpenAtLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */; };
 		94FF5A74184B142B001A0315 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94FF5A73184B142A001A0315 /* JavaScriptCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -40,6 +48,20 @@
 		94C602451849D3B9005E7DB3 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		94C6024C1849D3B9005E7DB3 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		94CF94BC184C22C500E63DE0 /* underscore-min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "underscore-min.js"; sourceTree = "<group>"; };
+		94CF94BF184C45FA00E63DE0 /* NSScreen+SilicaExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScreen+SilicaExtension.h"; sourceTree = "<group>"; };
+		94CF94C0184C45FA00E63DE0 /* NSScreen+SilicaExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScreen+SilicaExtension.m"; sourceTree = "<group>"; };
+		94CF94C1184C45FA00E63DE0 /* SDApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDApp.h; sourceTree = "<group>"; };
+		94CF94C2184C45FA00E63DE0 /* SDApp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDApp.m; sourceTree = "<group>"; };
+		94CF94C3184C45FA00E63DE0 /* SDWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDWindow.h; sourceTree = "<group>"; };
+		94CF94C4184C45FA00E63DE0 /* SDWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDWindow.m; sourceTree = "<group>"; };
+		94CF94C8184C4E7D00E63DE0 /* SDUniversalAccessHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDUniversalAccessHelper.h; sourceTree = "<group>"; };
+		94CF94C9184C4E7D00E63DE0 /* SDUniversalAccessHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDUniversalAccessHelper.m; sourceTree = "<group>"; };
+		94CF94CB184C509100E63DE0 /* statusitem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusitem.png; sourceTree = "<group>"; };
+		94CF94CC184C509100E63DE0 /* statusitem@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusitem@2x.png"; sourceTree = "<group>"; };
+		94CF94CF184C50C700E63DE0 /* SDAlertWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDAlertWindowController.h; sourceTree = "<group>"; };
+		94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDAlertWindowController.m; sourceTree = "<group>"; };
+		94CF94D2184C527A00E63DE0 /* SDOpenAtLogin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDOpenAtLogin.h; sourceTree = "<group>"; };
+		94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDOpenAtLogin.m; sourceTree = "<group>"; };
 		94FF5A73184B142A001A0315 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -99,12 +121,26 @@
 		94C602331849D3B9005E7DB3 /* Phoenix */ = {
 			isa = PBXGroup;
 			children = (
-				94CF94BC184C22C500E63DE0 /* underscore-min.js */,
+				94C602421849D3B9005E7DB3 /* MainMenu.xib */,
 				94C6023F1849D3B9005E7DB3 /* PHAppDelegate.h */,
 				94C602401849D3B9005E7DB3 /* PHAppDelegate.m */,
+				94CF94D2184C527A00E63DE0 /* SDOpenAtLogin.h */,
+				94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */,
+				94CF94CF184C50C700E63DE0 /* SDAlertWindowController.h */,
+				94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */,
+				94CF94CB184C509100E63DE0 /* statusitem.png */,
+				94CF94CC184C509100E63DE0 /* statusitem@2x.png */,
+				94CF94BC184C22C500E63DE0 /* underscore-min.js */,
 				941AAC02184C100600E19E33 /* PHHotKey.h */,
 				941AAC03184C100600E19E33 /* PHHotKey.m */,
-				94C602421849D3B9005E7DB3 /* MainMenu.xib */,
+				94CF94C8184C4E7D00E63DE0 /* SDUniversalAccessHelper.h */,
+				94CF94C9184C4E7D00E63DE0 /* SDUniversalAccessHelper.m */,
+				94CF94BF184C45FA00E63DE0 /* NSScreen+SilicaExtension.h */,
+				94CF94C0184C45FA00E63DE0 /* NSScreen+SilicaExtension.m */,
+				94CF94C1184C45FA00E63DE0 /* SDApp.h */,
+				94CF94C2184C45FA00E63DE0 /* SDApp.m */,
+				94CF94C3184C45FA00E63DE0 /* SDWindow.h */,
+				94CF94C4184C45FA00E63DE0 /* SDWindow.m */,
 				94C602451849D3B9005E7DB3 /* Images.xcassets */,
 				94C602341849D3B9005E7DB3 /* Supporting Files */,
 			);
@@ -176,9 +212,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				94CF94CD184C509100E63DE0 /* statusitem.png in Resources */,
 				94C602381849D3B9005E7DB3 /* InfoPlist.strings in Resources */,
 				94C602461849D3B9005E7DB3 /* Images.xcassets in Resources */,
 				94C6023E1849D3B9005E7DB3 /* Credits.rtf in Resources */,
+				94CF94CE184C509100E63DE0 /* statusitem@2x.png in Resources */,
 				94C602441849D3B9005E7DB3 /* MainMenu.xib in Resources */,
 				94CF94BE184C231900E63DE0 /* underscore-min.js in Resources */,
 			);
@@ -193,7 +231,13 @@
 			files = (
 				94C602411849D3B9005E7DB3 /* PHAppDelegate.m in Sources */,
 				941AAC04184C100600E19E33 /* PHHotKey.m in Sources */,
+				94CF94C7184C45FA00E63DE0 /* SDWindow.m in Sources */,
+				94CF94C6184C45FA00E63DE0 /* SDApp.m in Sources */,
+				94CF94CA184C4E7D00E63DE0 /* SDUniversalAccessHelper.m in Sources */,
 				94C6023A1849D3B9005E7DB3 /* main.m in Sources */,
+				94CF94D4184C527A00E63DE0 /* SDOpenAtLogin.m in Sources */,
+				94CF94C5184C45FA00E63DE0 /* NSScreen+SilicaExtension.m in Sources */,
+				94CF94D1184C50C700E63DE0 /* SDAlertWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -303,10 +347,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Phoenix/Phoenix-Prefix.pch";
 				INFOPLIST_FILE = "Phoenix/Phoenix-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/sdegutis/Dropbox/Steven/projects/Phoenix2/Phoenix/lib,
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -320,10 +360,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Phoenix/Phoenix-Prefix.pch";
 				INFOPLIST_FILE = "Phoenix/Phoenix-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/sdegutis/Dropbox/Steven/projects/Phoenix2/Phoenix/lib,
-				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
