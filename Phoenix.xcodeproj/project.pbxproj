@@ -25,7 +25,6 @@
 		94CF94CE184C509100E63DE0 /* statusitem@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 94CF94CC184C509100E63DE0 /* statusitem@2x.png */; };
 		94CF94D1184C50C700E63DE0 /* SDAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */; };
 		94CF94D4184C527A00E63DE0 /* SDOpenAtLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */; };
-		94CF94DC184C598E00E63DE0 /* PHAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94DB184C598E00E63DE0 /* PHAPI.m */; };
 		94CF94DF184C5F7700E63DE0 /* PHConfigLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94DE184C5F7700E63DE0 /* PHConfigLoader.m */; };
 		94FF5A74184B142B001A0315 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94FF5A73184B142A001A0315 /* JavaScriptCore.framework */; };
 /* End PBXBuildFile section */
@@ -64,8 +63,6 @@
 		94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDAlertWindowController.m; sourceTree = "<group>"; };
 		94CF94D2184C527A00E63DE0 /* SDOpenAtLogin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDOpenAtLogin.h; sourceTree = "<group>"; };
 		94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDOpenAtLogin.m; sourceTree = "<group>"; };
-		94CF94DA184C598E00E63DE0 /* PHAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHAPI.h; sourceTree = "<group>"; };
-		94CF94DB184C598E00E63DE0 /* PHAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHAPI.m; sourceTree = "<group>"; };
 		94CF94DD184C5F7700E63DE0 /* PHConfigLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHConfigLoader.h; sourceTree = "<group>"; };
 		94CF94DE184C5F7700E63DE0 /* PHConfigLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHConfigLoader.m; sourceTree = "<group>"; };
 		94FF5A73184B142A001A0315 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -179,8 +176,6 @@
 				94CF94C2184C45FA00E63DE0 /* SDApp.m */,
 				94CF94C3184C45FA00E63DE0 /* SDWindow.h */,
 				94CF94C4184C45FA00E63DE0 /* SDWindow.m */,
-				94CF94DA184C598E00E63DE0 /* PHAPI.h */,
-				94CF94DB184C598E00E63DE0 /* PHAPI.m */,
 			);
 			name = Features;
 			sourceTree = "<group>";
@@ -264,7 +259,6 @@
 				94CF94D4184C527A00E63DE0 /* SDOpenAtLogin.m in Sources */,
 				94CF94DF184C5F7700E63DE0 /* PHConfigLoader.m in Sources */,
 				94CF94C5184C45FA00E63DE0 /* NSScreen+SilicaExtension.m in Sources */,
-				94CF94DC184C598E00E63DE0 /* PHAPI.m in Sources */,
 				94CF94D1184C50C700E63DE0 /* SDAlertWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

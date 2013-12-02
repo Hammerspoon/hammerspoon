@@ -9,7 +9,6 @@
 #import "PHConfigLoader.h"
 
 #import <JavaScriptCore/JavaScriptCore.h>
-#import "PHAPI.h"
 #import "SDWindow.h"
 
 @implementation PHConfigLoader
@@ -21,9 +20,13 @@
     NSString* _js = [NSString stringWithContentsOfURL:_jsURL encoding:NSUTF8StringEncoding error:NULL];
     [ctx evaluateScript:_js];
     
-    id x = [[PHAPI alloc] init];
+    JSValue* api = [JSValue valueWithNewObjectInContext:ctx];
+    ctx[@"api"] = api;
     
-    ctx[@"api"] = x;
+    api[@"log"] = ^(NSString* str) {
+        NSLog(@"%@", str);
+    };
+    
     
     ctx[@"Window"] = [SDWindow self];
     
@@ -32,5 +35,16 @@
     
     [ctx evaluateScript:config];
 }
+
+
+
+
+
+
+//- (PHHotKey*) withKey:(NSString*)key mods:(NSArray*)mods handler:(JSValue*)handler {
+//    return [PHHotKey withKey:key mods:mods handler:^BOOL(PHHotKey* hotkey) {
+//        return [[handler callWithArguments:@[hotkey]] toBool];
+//    }];
+//}
 
 @end
