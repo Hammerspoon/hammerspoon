@@ -24,16 +24,16 @@ api.bind('E', ['cmd'], function() {
 });
 ```
 
-#### Current Status
+#### Current status
 
 Perfectly usable, but not convenient. What's left:
 
 - In-app upgrade
 - API docs are totally MIA
 
-#### Future
+#### Future plans
 
-Get [Beowulf](https://github.com/sdegutis/beowulf) up to par, and fork Phoenix to use that instead of JavaScript.
+- Get [Beowulf](https://github.com/sdegutis/beowulf) up to par, and fork Phoenix to use that instead of JavaScript.
 
 #### License
 
