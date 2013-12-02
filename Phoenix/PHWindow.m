@@ -268,7 +268,8 @@ AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
         return NO;
     }
     
-    return [[NSRunningApplication runningApplicationWithProcessIdentifier:[self processIdentifier]] activateWithOptions:0];
+    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:[self processIdentifier]];
+    return [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
 }
 
 - (pid_t) processIdentifier {
