@@ -18,6 +18,6 @@
 
 @end
 
-@interface PHAPI : NSObject <PHHotKeyJSExport>
+@interface PHAPI : NSObject// <PHHotKeyJSExport>
 
 @end

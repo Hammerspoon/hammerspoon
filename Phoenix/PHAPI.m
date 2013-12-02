@@ -11,9 +11,7 @@
 @implementation PHAPI
 
 - (PHHotKey*) withKey:(NSString*)key mods:(NSArray*)mods handler:(JSValue*)handler {
-    NSLog(@"registering.");
     return [PHHotKey withKey:key mods:mods handler:^BOOL(PHHotKey* hotkey) {
-        NSLog(@"getting called.");
         return [[handler callWithArguments:@[hotkey]] toBool];
     }];
 }
