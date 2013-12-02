@@ -16,23 +16,9 @@
 		94C602411849D3B9005E7DB3 /* PHAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C602401849D3B9005E7DB3 /* PHAppDelegate.m */; };
 		94C602441849D3B9005E7DB3 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 94C602421849D3B9005E7DB3 /* MainMenu.xib */; };
 		94C602461849D3B9005E7DB3 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 94C602451849D3B9005E7DB3 /* Images.xcassets */; };
-		94C6024D1849D3B9005E7DB3 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C6024C1849D3B9005E7DB3 /* XCTest.framework */; };
-		94C6024E1849D3B9005E7DB3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C6022D1849D3B9005E7DB3 /* Cocoa.framework */; };
-		94C602561849D3B9005E7DB3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 94C602541849D3B9005E7DB3 /* InfoPlist.strings */; };
-		94C602581849D3B9005E7DB3 /* PhoenixTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C602571849D3B9005E7DB3 /* PhoenixTests.m */; };
 		94CF94BE184C231900E63DE0 /* underscore-min.js in Resources */ = {isa = PBXBuildFile; fileRef = 94CF94BC184C22C500E63DE0 /* underscore-min.js */; };
 		94FF5A74184B142B001A0315 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94FF5A73184B142A001A0315 /* JavaScriptCore.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		94C6024F1849D3B9005E7DB3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 94C602221849D3B9005E7DB3 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 94C602291849D3B9005E7DB3;
-			remoteInfo = Phoenix;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		941AABFD184BFE0A00E19E33 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
@@ -52,11 +38,7 @@
 		94C602401849D3B9005E7DB3 /* PHAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PHAppDelegate.m; sourceTree = "<group>"; };
 		94C602431849D3B9005E7DB3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		94C602451849D3B9005E7DB3 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		94C6024B1849D3B9005E7DB3 /* PhoenixTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PhoenixTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		94C6024C1849D3B9005E7DB3 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		94C602531849D3B9005E7DB3 /* PhoenixTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PhoenixTests-Info.plist"; sourceTree = "<group>"; };
-		94C602551849D3B9005E7DB3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		94C602571849D3B9005E7DB3 /* PhoenixTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PhoenixTests.m; sourceTree = "<group>"; };
 		94CF94BC184C22C500E63DE0 /* underscore-min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "underscore-min.js"; sourceTree = "<group>"; };
 		94FF5A73184B142A001A0315 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -72,15 +54,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		94C602481849D3B9005E7DB3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				94C6024E1849D3B9005E7DB3 /* Cocoa.framework in Frameworks */,
-				94C6024D1849D3B9005E7DB3 /* XCTest.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -88,7 +61,6 @@
 			isa = PBXGroup;
 			children = (
 				94C602331849D3B9005E7DB3 /* Phoenix */,
-				94C602511849D3B9005E7DB3 /* PhoenixTests */,
 				94C6022C1849D3B9005E7DB3 /* Frameworks */,
 				94C6022B1849D3B9005E7DB3 /* Products */,
 			);
@@ -98,7 +70,6 @@
 			isa = PBXGroup;
 			children = (
 				94C6022A1849D3B9005E7DB3 /* Phoenix.app */,
-				94C6024B1849D3B9005E7DB3 /* PhoenixTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -152,24 +123,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		94C602511849D3B9005E7DB3 /* PhoenixTests */ = {
-			isa = PBXGroup;
-			children = (
-				94C602571849D3B9005E7DB3 /* PhoenixTests.m */,
-				94C602521849D3B9005E7DB3 /* Supporting Files */,
-			);
-			path = PhoenixTests;
-			sourceTree = "<group>";
-		};
-		94C602521849D3B9005E7DB3 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				94C602531849D3B9005E7DB3 /* PhoenixTests-Info.plist */,
-				94C602541849D3B9005E7DB3 /* InfoPlist.strings */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -190,24 +143,6 @@
 			productReference = 94C6022A1849D3B9005E7DB3 /* Phoenix.app */;
 			productType = "com.apple.product-type.application";
 		};
-		94C6024A1849D3B9005E7DB3 /* PhoenixTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 94C6025E1849D3B9005E7DB3 /* Build configuration list for PBXNativeTarget "PhoenixTests" */;
-			buildPhases = (
-				94C602471849D3B9005E7DB3 /* Sources */,
-				94C602481849D3B9005E7DB3 /* Frameworks */,
-				94C602491849D3B9005E7DB3 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				94C602501849D3B9005E7DB3 /* PBXTargetDependency */,
-			);
-			name = PhoenixTests;
-			productName = PhoenixTests;
-			productReference = 94C6024B1849D3B9005E7DB3 /* PhoenixTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -217,11 +152,6 @@
 				CLASSPREFIX = PH;
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = Steven;
-				TargetAttributes = {
-					94C6024A1849D3B9005E7DB3 = {
-						TestTargetID = 94C602291849D3B9005E7DB3;
-					};
-				};
 			};
 			buildConfigurationList = 94C602251849D3B9005E7DB3 /* Build configuration list for PBXProject "Phoenix" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -237,7 +167,6 @@
 			projectRoot = "";
 			targets = (
 				94C602291849D3B9005E7DB3 /* Phoenix */,
-				94C6024A1849D3B9005E7DB3 /* PhoenixTests */,
 			);
 		};
 /* End PBXProject section */
@@ -255,14 +184,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		94C602491849D3B9005E7DB3 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				94C602561849D3B9005E7DB3 /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -276,23 +197,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		94C602471849D3B9005E7DB3 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				94C602581849D3B9005E7DB3 /* PhoenixTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		94C602501849D3B9005E7DB3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 94C602291849D3B9005E7DB3 /* Phoenix */;
-			targetProxy = 94C6024F1849D3B9005E7DB3 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		94C602361849D3B9005E7DB3 /* InfoPlist.strings */ = {
@@ -317,14 +222,6 @@
 				94C602431849D3B9005E7DB3 /* Base */,
 			);
 			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-		94C602541849D3B9005E7DB3 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				94C602551849D3B9005E7DB3 /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -432,46 +329,6 @@
 			};
 			name = Release;
 		};
-		94C6025F1849D3B9005E7DB3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Phoenix.app/Contents/MacOS/Phoenix";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Phoenix/Phoenix-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "PhoenixTests/PhoenixTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Debug;
-		};
-		94C602601849D3B9005E7DB3 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Phoenix.app/Contents/MacOS/Phoenix";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Phoenix/Phoenix-Prefix.pch";
-				INFOPLIST_FILE = "PhoenixTests/PhoenixTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -489,15 +346,6 @@
 			buildConfigurations = (
 				94C6025C1849D3B9005E7DB3 /* Debug */,
 				94C6025D1849D3B9005E7DB3 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		94C6025E1849D3B9005E7DB3 /* Build configuration list for PBXNativeTarget "PhoenixTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				94C6025F1849D3B9005E7DB3 /* Debug */,
-				94C602601849D3B9005E7DB3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
