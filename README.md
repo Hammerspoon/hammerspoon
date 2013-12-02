@@ -30,6 +30,7 @@ Note: Phoenix can only be scripted in JavaScript.
 
 #### Todo
 
+- Needs an app icon and status bar icon
 - In-app upgrade
 - Way better API (the current one is just a quick port of Zephyros)
 - API docs (they're totally MIA)
