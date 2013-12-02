@@ -9,7 +9,7 @@
 
 * Download [Zephyros-LATEST.app.tar.gz](https://raw.github.com/sdegutis/zephyros/master/Builds/Zephyros-LATEST.app.tar.gz), unzip, right-click app, choose "Open"
 
-#### How you use it
+#### Usage
 
 Create `~/.phoenix.js`. Then add stuff like this in it:
 
@@ -26,7 +26,7 @@ api.bind('E', ['cmd'], function() {
 
 #### Current status
 
-Perfectly usable, but not convenient. What's left:
+Perfectly usable. What's left:
 
 - In-app upgrade
 - API docs are totally MIA
