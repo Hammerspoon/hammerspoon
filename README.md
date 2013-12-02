@@ -28,17 +28,13 @@ For more ideas, see [the author's config](https://gist.github.com/sdegutis/77565
 
 Note: Phoenix can only be scripted in JavaScript.
 
-#### Current status
-
-Perfectly usable. What's left:
+#### Todo
 
 - In-app upgrade
 - Way better API (the current one is just a quick port of Zephyros)
 - API docs (they're totally MIA)
-
-#### Future plans
-
-- Get [Beowulf](https://github.com/sdegutis/beowulf) up to par, and fork Phoenix to use that instead of JavaScript.
+- Currently crashes (probably, haven't tried it) if you start it before creating `~/.phoenix.js`
+- Long term: Get [Beowulf](https://github.com/sdegutis/beowulf) up to par, and fork Phoenix to use that instead of JavaScript.
 
 #### License
 
