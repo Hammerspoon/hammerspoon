@@ -8,11 +8,19 @@
 
 #import <Foundation/Foundation.h>
 
+#import <JavaScriptCore/JavaScriptCore.h>
+
+@protocol PHHotKeyJSExport2 <JSExport>
+
+- (BOOL) enable;
+
+@end
+
 @class PHHotKey;
 
 typedef BOOL(^PHHotKeyHandler)(PHHotKey*);
 
-@interface PHHotKey : NSObject
+@interface PHHotKey : NSObject <PHHotKeyJSExport2>
 
 + (void) setup;
 

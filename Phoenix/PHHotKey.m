@@ -145,10 +145,10 @@ static NSMutableDictionary *relocatableKeys;
     
     UInt32 result = 0;
     
-    if ([strs containsObject:@"SHIFT"]) result |= NSShiftKeyMask;
-    if ([strs containsObject:@"CTRL"]) result |= NSControlKeyMask;
-    if ([strs containsObject:@"ALT"]) result |= NSAlternateKeyMask;
-    if ([strs containsObject:@"CMD"]) result |= NSCommandKeyMask;
+    if ([strs containsObject:@"SHIFT"]) result |= shiftKey;
+    if ([strs containsObject:@"CTRL"]) result |= controlKey;
+    if ([strs containsObject:@"ALT"]) result |= optionKey;
+    if ([strs containsObject:@"CMD"]) result |= cmdKey;
     
     return result;
 }

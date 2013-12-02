@@ -17,18 +17,11 @@
 #import "SDUniversalAccessHelper.h"
 #import "SDOpenAtLogin.h"
 
+#import "PHAPI.h"
+
 @implementation PHAppDelegate
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-//    PHHotKey* key = [PHHotKey withKey:@"w" mods:@[] handler:^BOOL(PHHotKey* hotKey) {
-//        NSLog(@"hi");
-//        NSLog(@"%@", hotKey);
-//        [hotKey disable];
-//        return NO;
-//    }];
-//    
-//    [key enable];
-    
+- (void) setupStatusItem {
     NSImage* img = [NSImage imageNamed:@"statusitem"];
     [img setTemplate:YES];
     
@@ -36,12 +29,17 @@
     [self.statusItem setHighlightMode:YES];
     [self.statusItem setImage:img];
     [self.statusItem setMenu:self.statusItemMenu];
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    if ([SDUniversalAccessHelper complainIfNeeded])
+        [NSApp terminate:self];
+    
+    [self setupStatusItem];
     
     
     
     
-    
-    [SDUniversalAccessHelper complainIfNeeded];
     
     
     JSContext* ctx = [[JSContext alloc] initWithVirtualMachine:[[JSVirtualMachine alloc] init]];
@@ -60,9 +58,21 @@
     
     
     
-    ctx[@"HotKey"] = [PHHotKey self];
+    ctx[@"api"] = [[PHAPI alloc] init];
     
-    NSLog(@"%@", [[ctx evaluateScript:@"HotKey"] toObject]);
+    NSLog(@"%@", [[ctx evaluateScript:@"x = api.withKeyModsHandler('e', ['cmd'], function(hotkey) { api.log('foo'); return true; }); x.enable();"] toObject]);
+    
+    
+    
+    
+//    SDWindow* win = [SDWindow focusedWindow];
+//    NSLog(@"%@", win);
+//    
+//    ctx[@"win"] = win;
+//    
+//    JSValue* x = [ctx evaluateScript:@"win.app().allWindows()[1].frame();"];
+//    NSLog(@"%@", NSStringFromRect([x toRect]));
+    
     
     
     

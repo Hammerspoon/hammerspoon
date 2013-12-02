@@ -25,6 +25,7 @@
 		94CF94CE184C509100E63DE0 /* statusitem@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 94CF94CC184C509100E63DE0 /* statusitem@2x.png */; };
 		94CF94D1184C50C700E63DE0 /* SDAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */; };
 		94CF94D4184C527A00E63DE0 /* SDOpenAtLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */; };
+		94CF94DC184C598E00E63DE0 /* PHAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94DB184C598E00E63DE0 /* PHAPI.m */; };
 		94FF5A74184B142B001A0315 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94FF5A73184B142A001A0315 /* JavaScriptCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -62,6 +63,8 @@
 		94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDAlertWindowController.m; sourceTree = "<group>"; };
 		94CF94D2184C527A00E63DE0 /* SDOpenAtLogin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDOpenAtLogin.h; sourceTree = "<group>"; };
 		94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDOpenAtLogin.m; sourceTree = "<group>"; };
+		94CF94DA184C598E00E63DE0 /* PHAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHAPI.h; sourceTree = "<group>"; };
+		94CF94DB184C598E00E63DE0 /* PHAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHAPI.m; sourceTree = "<group>"; };
 		94FF5A73184B142A001A0315 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -124,23 +127,8 @@
 				94C602421849D3B9005E7DB3 /* MainMenu.xib */,
 				94C6023F1849D3B9005E7DB3 /* PHAppDelegate.h */,
 				94C602401849D3B9005E7DB3 /* PHAppDelegate.m */,
-				94CF94D2184C527A00E63DE0 /* SDOpenAtLogin.h */,
-				94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */,
-				94CF94CF184C50C700E63DE0 /* SDAlertWindowController.h */,
-				94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */,
-				94CF94CB184C509100E63DE0 /* statusitem.png */,
-				94CF94CC184C509100E63DE0 /* statusitem@2x.png */,
-				94CF94BC184C22C500E63DE0 /* underscore-min.js */,
-				941AAC02184C100600E19E33 /* PHHotKey.h */,
-				941AAC03184C100600E19E33 /* PHHotKey.m */,
-				94CF94C8184C4E7D00E63DE0 /* SDUniversalAccessHelper.h */,
-				94CF94C9184C4E7D00E63DE0 /* SDUniversalAccessHelper.m */,
-				94CF94BF184C45FA00E63DE0 /* NSScreen+SilicaExtension.h */,
-				94CF94C0184C45FA00E63DE0 /* NSScreen+SilicaExtension.m */,
-				94CF94C1184C45FA00E63DE0 /* SDApp.h */,
-				94CF94C2184C45FA00E63DE0 /* SDApp.m */,
-				94CF94C3184C45FA00E63DE0 /* SDWindow.h */,
-				94CF94C4184C45FA00E63DE0 /* SDWindow.m */,
+				94CF94D5184C546300E63DE0 /* FireAndForget */,
+				94CF94D6184C547400E63DE0 /* Features */,
 				94C602451849D3B9005E7DB3 /* Images.xcassets */,
 				94C602341849D3B9005E7DB3 /* Supporting Files */,
 			);
@@ -157,6 +145,39 @@
 				94C6023C1849D3B9005E7DB3 /* Credits.rtf */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		94CF94D5184C546300E63DE0 /* FireAndForget */ = {
+			isa = PBXGroup;
+			children = (
+				94CF94BC184C22C500E63DE0 /* underscore-min.js */,
+				94CF94CF184C50C700E63DE0 /* SDAlertWindowController.h */,
+				94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */,
+				94CF94CB184C509100E63DE0 /* statusitem.png */,
+				94CF94CC184C509100E63DE0 /* statusitem@2x.png */,
+				94CF94D2184C527A00E63DE0 /* SDOpenAtLogin.h */,
+				94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */,
+				94CF94C8184C4E7D00E63DE0 /* SDUniversalAccessHelper.h */,
+				94CF94C9184C4E7D00E63DE0 /* SDUniversalAccessHelper.m */,
+			);
+			name = FireAndForget;
+			sourceTree = "<group>";
+		};
+		94CF94D6184C547400E63DE0 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				941AAC02184C100600E19E33 /* PHHotKey.h */,
+				941AAC03184C100600E19E33 /* PHHotKey.m */,
+				94CF94BF184C45FA00E63DE0 /* NSScreen+SilicaExtension.h */,
+				94CF94C0184C45FA00E63DE0 /* NSScreen+SilicaExtension.m */,
+				94CF94C1184C45FA00E63DE0 /* SDApp.h */,
+				94CF94C2184C45FA00E63DE0 /* SDApp.m */,
+				94CF94C3184C45FA00E63DE0 /* SDWindow.h */,
+				94CF94C4184C45FA00E63DE0 /* SDWindow.m */,
+				94CF94DA184C598E00E63DE0 /* PHAPI.h */,
+				94CF94DB184C598E00E63DE0 /* PHAPI.m */,
+			);
+			name = Features;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -237,6 +258,7 @@
 				94C6023A1849D3B9005E7DB3 /* main.m in Sources */,
 				94CF94D4184C527A00E63DE0 /* SDOpenAtLogin.m in Sources */,
 				94CF94C5184C45FA00E63DE0 /* NSScreen+SilicaExtension.m in Sources */,
+				94CF94DC184C598E00E63DE0 /* PHAPI.m in Sources */,
 				94CF94D1184C50C700E63DE0 /* SDAlertWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
