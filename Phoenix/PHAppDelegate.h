@@ -8,9 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "PHConfigLoader.h"
+
 @interface PHAppDelegate : NSObject <NSApplicationDelegate>
 
 @property IBOutlet NSMenu *statusItemMenu;
 @property NSStatusItem *statusItem;
+
+@property PHConfigLoader* configLoader;
 
 @end

@@ -26,6 +26,7 @@
 		94CF94D1184C50C700E63DE0 /* SDAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94D0184C50C700E63DE0 /* SDAlertWindowController.m */; };
 		94CF94D4184C527A00E63DE0 /* SDOpenAtLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */; };
 		94CF94DC184C598E00E63DE0 /* PHAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94DB184C598E00E63DE0 /* PHAPI.m */; };
+		94CF94DF184C5F7700E63DE0 /* PHConfigLoader.m in Sources */ = {isa = PBXBuildFile; fileRef = 94CF94DE184C5F7700E63DE0 /* PHConfigLoader.m */; };
 		94FF5A74184B142B001A0315 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94FF5A73184B142A001A0315 /* JavaScriptCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -65,6 +66,8 @@
 		94CF94D3184C527A00E63DE0 /* SDOpenAtLogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDOpenAtLogin.m; sourceTree = "<group>"; };
 		94CF94DA184C598E00E63DE0 /* PHAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHAPI.h; sourceTree = "<group>"; };
 		94CF94DB184C598E00E63DE0 /* PHAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHAPI.m; sourceTree = "<group>"; };
+		94CF94DD184C5F7700E63DE0 /* PHConfigLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHConfigLoader.h; sourceTree = "<group>"; };
+		94CF94DE184C5F7700E63DE0 /* PHConfigLoader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHConfigLoader.m; sourceTree = "<group>"; };
 		94FF5A73184B142A001A0315 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -168,6 +171,8 @@
 			children = (
 				941AAC02184C100600E19E33 /* PHHotKey.h */,
 				941AAC03184C100600E19E33 /* PHHotKey.m */,
+				94CF94DD184C5F7700E63DE0 /* PHConfigLoader.h */,
+				94CF94DE184C5F7700E63DE0 /* PHConfigLoader.m */,
 				94CF94BF184C45FA00E63DE0 /* NSScreen+SilicaExtension.h */,
 				94CF94C0184C45FA00E63DE0 /* NSScreen+SilicaExtension.m */,
 				94CF94C1184C45FA00E63DE0 /* SDApp.h */,
@@ -257,6 +262,7 @@
 				94CF94CA184C4E7D00E63DE0 /* SDUniversalAccessHelper.m in Sources */,
 				94C6023A1849D3B9005E7DB3 /* main.m in Sources */,
 				94CF94D4184C527A00E63DE0 /* SDOpenAtLogin.m in Sources */,
+				94CF94DF184C5F7700E63DE0 /* PHConfigLoader.m in Sources */,
 				94CF94C5184C45FA00E63DE0 /* NSScreen+SilicaExtension.m in Sources */,
 				94CF94DC184C598E00E63DE0 /* PHAPI.m in Sources */,
 				94CF94D1184C50C700E63DE0 /* SDAlertWindowController.m in Sources */,

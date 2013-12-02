@@ -8,16 +8,8 @@
 
 #import "PHAppDelegate.h"
 
-#import <JavaScriptCore/JavaScriptCore.h>
-
-#import "PHHotKey.h"
-
-#import "SDWindow.h"
-
 #import "SDUniversalAccessHelper.h"
 #import "SDOpenAtLogin.h"
-
-#import "PHAPI.h"
 
 @implementation PHAppDelegate
 
@@ -37,56 +29,12 @@
     
     [self setupStatusItem];
     
-    
-    
-    
-    
-    
-    JSContext* ctx = [[JSContext alloc] initWithVirtualMachine:[[JSVirtualMachine alloc] init]];
-    
-    NSURL* _jsURL = [[NSBundle mainBundle] URLForResource:@"underscore-min" withExtension:@"js"];
-    NSString* _js = [NSString stringWithContentsOfURL:_jsURL encoding:NSUTF8StringEncoding error:NULL];
-    [ctx evaluateScript:_js];
-    
-    
-    
-    
-//    ctx[@"foo"] = [JSValue valueWithObject:[[Foo alloc] init] inContext:ctx];
-    
-//    JSValue* x = [ctx evaluateScript:@"(function(){ return 7; });"];
-//    NSLog(@"%@", [x callWithArguments:@[]]);
-    
-    
-    
-    ctx[@"api"] = [[PHAPI alloc] init];
-    
-    NSLog(@"%@", [[ctx evaluateScript:@"x = api.withKeyModsHandler('e', ['cmd'], function(hotkey) { api.log('foo'); return true; }); x.enable();"] toObject]);
-    
-    
-    
-    
-//    SDWindow* win = [SDWindow focusedWindow];
-//    NSLog(@"%@", win);
-//    
-//    ctx[@"win"] = win;
-//    
-//    JSValue* x = [ctx evaluateScript:@"win.app().allWindows()[1].frame();"];
-//    NSLog(@"%@", NSStringFromRect([x toRect]));
-    
-    
-    
-    
-//    SDWindow* win = [SDWindow focusedWindow];
-//    NSLog(@"%@", win);
-//    
-//    ctx[@"win"] = win;
-//    
-//    x = [ctx evaluateScript:@"_.map(win.app().allWindows(), function(w) { return w.title(); });"];
-//    NSLog(@"%@", [x toObject]);
+    self.configLoader = [[PHConfigLoader alloc] init];
+    [self.configLoader reload];
 }
 
 - (IBAction) reloadConfig:(id)sender {
-    
+    [self.configLoader reload];
 }
 
 - (IBAction) showAboutPanel:(id)sender {
