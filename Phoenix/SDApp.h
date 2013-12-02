@@ -10,14 +10,7 @@
 
 #import <JavaScriptCore/JavaScriptCore.h>
 
-@protocol SDAppJSExport <JSExport>
-
-- (NSString*) title;
-- (NSArray*) allWindows;
-
-@end
-
-@interface SDApp : NSObject <SDAppJSExport>
+@protocol SuperDuperLame <JSExport>
 
 - (id) initWithPID:(pid_t)pid;
 - (id) initWithRunningApp:(NSRunningApplication*)app;
@@ -36,5 +29,9 @@
 
 - (void) kill;
 - (void) kill9;
+
+@end
+
+@interface SDApp : NSObject <SuperDuperLame>
 
 @end

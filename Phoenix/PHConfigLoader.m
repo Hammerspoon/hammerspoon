@@ -10,6 +10,7 @@
 
 #import <JavaScriptCore/JavaScriptCore.h>
 #import "PHAPI.h"
+#import "SDWindow.h"
 
 @implementation PHConfigLoader
 
@@ -23,6 +24,8 @@
     id x = [[PHAPI alloc] init];
     
     ctx[@"api"] = x;
+    
+    ctx[@"Window"] = [SDWindow self];
     
     NSString* filename = [@"~/.phoenix.js" stringByStandardizingPath];
     NSString* config = [NSString stringWithContentsOfFile:filename encoding:NSUTF8StringEncoding error:NULL];

@@ -10,19 +10,10 @@
 
 #import <JavaScriptCore/JavaScriptCore.h>
 
-@protocol PHHotKeyJSExport2 <JSExport>
-
-- (BOOL) enable;
-
-@end
-
 @class PHHotKey;
-
 typedef BOOL(^PHHotKeyHandler)(PHHotKey*);
 
-@interface PHHotKey : NSObject <PHHotKeyJSExport2>
-
-+ (void) setup;
+@protocol ThisIsReallyStupid <JSExport>
 
 @property NSString* key;
 @property NSArray* mods;
@@ -32,5 +23,13 @@ typedef BOOL(^PHHotKeyHandler)(PHHotKey*);
 
 - (BOOL) enable;
 - (void) disable;
+
+@end
+
+@interface PHHotKey : NSObject <ThisIsReallyStupid>
+
+@property NSString* key;
+@property NSArray* mods;
+@property (copy) PHHotKeyHandler handler;
 
 @end

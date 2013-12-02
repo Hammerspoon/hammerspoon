@@ -12,14 +12,9 @@
 
 #import <JavaScriptCore/JavaScriptCore.h>
 
-@protocol SDWindowJSExport <JSExport>
+@class SDWindow;
 
-- (NSString*) title;
-- (SDApp*) app;
-
-@end
-
-@interface SDWindow : NSObject <SDWindowJSExport>
+@protocol WhyDontYouGiveMeANicePaperCutAndPourLemonJuiceOnIt <JSExport>
 
 - (id) initWithElement:(AXUIElementRef)win;
 
@@ -75,5 +70,9 @@
 
 - (NSString*) title;
 - (BOOL) isWindowMinimized;
+
+@end
+
+@interface SDWindow : NSObject <WhyDontYouGiveMeANicePaperCutAndPourLemonJuiceOnIt>
 
 @end

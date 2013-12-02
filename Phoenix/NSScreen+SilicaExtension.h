@@ -8,7 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSScreen (SilicaExtension)
+#import <JavaScriptCore/JavaScriptCore.h>
+@protocol NSScreenJSExport <JSExport>
 
 - (CGRect) frameIncludingDockAndMenu;
 - (CGRect) frameWithoutDockOrMenu;
@@ -16,6 +17,8 @@
 - (NSScreen*) nextScreen;
 - (NSScreen*) previousScreen;
 
-//- (BOOL) rotateTo:(int)degrees;
+@end
+
+@interface NSScreen (SilicaExtension) <NSScreenJSExport>
 
 @end

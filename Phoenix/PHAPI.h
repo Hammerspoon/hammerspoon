@@ -11,13 +11,13 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 #import "PHHotKey.h"
 
-@protocol PHHotKeyJSExport <JSExport>
+@protocol SeriouslyAppleQuestionMarkSeriouslyQuestionMark <JSExport>
 
 - (PHHotKey*) withKey:(NSString*)key mods:(NSArray*)mods handler:(JSValue*)handler;
 - (void) log:(NSString*)str;
 
 @end
 
-@interface PHAPI : NSObject// <PHHotKeyJSExport>
+@interface PHAPI : NSObject <SeriouslyAppleQuestionMarkSeriouslyQuestionMark>
 
 @end
