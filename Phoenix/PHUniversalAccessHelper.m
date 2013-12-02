@@ -10,21 +10,13 @@
 
 @implementation PHUniversalAccessHelper
 
-+ (BOOL) complainIfNeeded {
-    static BOOL shouldAsk = YES;
++ (void) complainIfNeeded {
+    BOOL enabled = AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)@{(__bridge id)kAXTrustedCheckOptionPrompt: @(YES)});
     
-    BOOL enabled = AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)@{(__bridge id)kAXTrustedCheckOptionPrompt: @(shouldAsk)});
-    
-    if (shouldAsk) {
-        shouldAsk = NO;
-        double delayInSeconds = 5.0;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            shouldAsk = YES;
-        });
+    if (!enabled) {
+        NSRunAlertPanel(@"Enable Accessibility First", @"Find the little popup right behind this one, click \"Open System Preferences\" and enable Phoenix. Then launch Phoenix again.", @"Quit", nil, nil);
+        [NSApp terminate:self];
     }
-    
-    return !enabled;
 }
 
 @end

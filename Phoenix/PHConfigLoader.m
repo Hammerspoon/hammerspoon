@@ -67,10 +67,6 @@ static NSString* PHConfigPath = @"~/.phoenix.js";
     JSValue* api = [JSValue valueWithNewObjectInContext:ctx];
     ctx[@"api"] = api;
     
-    api[@"log"] = ^(NSString* str) {
-        NSLog(@"%@", str);
-    };
-    
     api[@"reload"] = ^(NSString* str) {
         [self reload];
     };

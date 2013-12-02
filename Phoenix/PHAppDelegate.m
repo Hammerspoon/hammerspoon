@@ -24,8 +24,7 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    if ([PHUniversalAccessHelper complainIfNeeded])
-        [NSApp terminate:self];
+    [PHUniversalAccessHelper complainIfNeeded];
     
     [self setupStatusItem];
     
