@@ -10,10 +10,22 @@
 
 #import <JavaScriptCore/JavaScriptCore.h>
 #import "SDWindow.h"
+#import "PHHotKey.h"
+
+
+@interface PHConfigLoader ()
+
+@property NSMutableArray* hotkeys;
+
+@end
+
 
 @implementation PHConfigLoader
 
 - (void) reload {
+    [self.hotkeys makeObjectsPerformSelector:@selector(disable)];
+    self.hotkeys = [NSMutableArray array];
+    
     JSContext* ctx = [[JSContext alloc] initWithVirtualMachine:[[JSVirtualMachine alloc] init]];
     
     NSURL* _jsURL = [[NSBundle mainBundle] URLForResource:@"underscore-min" withExtension:@"js"];
@@ -27,6 +39,19 @@
         NSLog(@"%@", str);
     };
     
+    api[@"reload"] = ^(NSString* str) {
+        [self reload];
+    };
+    
+    api[@"bind"] = ^(NSString* key, NSArray* mods, JSValue* handler) {
+        PHHotKey* hotkey = [PHHotKey withKey:key mods:mods handler:^BOOL(PHHotKey* hotkey) {
+            return [[handler callWithArguments:@[hotkey]] toBool];
+        }];
+        [self.hotkeys addObject:hotkey];
+        [hotkey enable];
+        return hotkey;
+    };
+    
     
     ctx[@"Window"] = [SDWindow self];
     
@@ -35,16 +60,5 @@
     
     [ctx evaluateScript:config];
 }
-
-
-
-
-
-
-//- (PHHotKey*) withKey:(NSString*)key mods:(NSArray*)mods handler:(JSValue*)handler {
-//    return [PHHotKey withKey:key mods:mods handler:^BOOL(PHHotKey* hotkey) {
-//        return [[handler callWithArguments:@[hotkey]] toBool];
-//    }];
-//}
 
 @end
