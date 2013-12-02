@@ -31,7 +31,8 @@ Phoenix can only be scripted in JavaScript.
 Perfectly usable. What's left:
 
 - In-app upgrade
-- API docs are totally MIA
+- Way better API (the current one is just a quick port of Zephyros)
+- API docs (they're totally MIA)
 
 #### Future plans
 
