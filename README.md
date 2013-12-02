@@ -24,7 +24,9 @@ api.bind('E', ['cmd'], function() {
 });
 ```
 
-Phoenix can only be scripted in JavaScript.
+For more ideas, see [the author's config](https://gist.github.com/sdegutis/7756583).
+
+Note: Phoenix can only be scripted in JavaScript.
 
 #### Current status
 
