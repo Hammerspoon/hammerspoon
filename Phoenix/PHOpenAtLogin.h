@@ -5,7 +5,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SDOpenAtLogin : NSObject
+@interface PHOpenAtLogin : NSObject
 
 + (BOOL) opensAtLogin;
 + (void) setOpensAtLogin:(BOOL)opensAtLogin;

@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Steven Degutis. All rights reserved.
 //
 
-#import "SDUniversalAccessHelper.h"
+#import "PHUniversalAccessHelper.h"
 
-@implementation SDUniversalAccessHelper
+@implementation PHUniversalAccessHelper
 
 + (BOOL) complainIfNeeded {
     static BOOL shouldAsk = YES;

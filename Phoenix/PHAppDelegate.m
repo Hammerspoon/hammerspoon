@@ -8,8 +8,8 @@
 
 #import "PHAppDelegate.h"
 
-#import "SDUniversalAccessHelper.h"
-#import "SDOpenAtLogin.h"
+#import "PHUniversalAccessHelper.h"
+#import "PHOpenAtLogin.h"
 
 @implementation PHAppDelegate
 
@@ -24,7 +24,7 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    if ([SDUniversalAccessHelper complainIfNeeded])
+    if ([PHUniversalAccessHelper complainIfNeeded])
         [NSApp terminate:self];
     
     [self setupStatusItem];
@@ -43,11 +43,11 @@
 }
 
 - (IBAction) toggleOpenAtLogin:(NSMenuItem*)sender {
-    [SDOpenAtLogin setOpensAtLogin:[sender state] == NSOffState];
+    [PHOpenAtLogin setOpensAtLogin:[sender state] == NSOffState];
 }
 
 - (void) menuNeedsUpdate:(NSMenu *)menu {
-    [[menu itemWithTitle:@"Open at Login"] setState:([SDOpenAtLogin opensAtLogin] ? NSOnState : NSOffState)];
+    [[menu itemWithTitle:@"Open at Login"] setState:([PHOpenAtLogin opensAtLogin] ? NSOnState : NSOffState)];
 }
 
 @end

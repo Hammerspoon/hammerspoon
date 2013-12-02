@@ -174,10 +174,15 @@ static OSStatus PHHotKeyCarbonCallback(EventHandlerCallRef inHandlerCallRef, Eve
     GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
     
     PHHotKey* hotkey = PHHotKeys[@(eventID.id)];
-    return (hotkey.handler(hotkey) ? noErr : eventNotHandledErr);
+    return (hotkey.handler() ? noErr : eventNotHandledErr);
 }
 
 + (void) setup {
+    static BOOL settedUp;
+    if (settedUp)
+        return;
+    settedUp = YES;
+    
     PHHotKeys = [NSMutableDictionary dictionary];
     EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
     InstallEventHandler(GetEventDispatcherTarget(), PHHotKeyCarbonCallback, 1, &hotKeyPressedSpec, NULL, NULL);

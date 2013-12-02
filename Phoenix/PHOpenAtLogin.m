@@ -3,9 +3,9 @@
 //  Copyright (c) 2013 Steven Degutis. All rights reserved.
 //
 
-#import "SDOpenAtLogin.h"
+#import "PHOpenAtLogin.h"
 
-@implementation SDOpenAtLogin
+@implementation PHOpenAtLogin
 
 + (LSSharedFileListRef) sharedFileList {
     static LSSharedFileListRef sharedFileList;

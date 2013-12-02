@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Giant Robot Software. All rights reserved.
 //
 
-#import "NSScreen+SilicaExtension.h"
+#import "NSScreen+PHExtension.h"
 
-@implementation NSScreen (SilicaExtension)
+@implementation NSScreen (PHExtension)
 
 - (CGRect) frameIncludingDockAndMenu {
     NSScreen* primaryScreen = [[NSScreen screens] objectAtIndex:0];

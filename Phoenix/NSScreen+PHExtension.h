@@ -8,17 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import <JavaScriptCore/JavaScriptCore.h>
-@protocol NSScreenJSExport <JSExport>
+#import "NSScreen+JSExport.h"
+
+@interface NSScreen (PHExtension) <NSScreenJSExport>
 
 - (CGRect) frameIncludingDockAndMenu;
 - (CGRect) frameWithoutDockOrMenu;
 
 - (NSScreen*) nextScreen;
 - (NSScreen*) previousScreen;
-
-@end
-
-@interface NSScreen (SilicaExtension) <NSScreenJSExport>
 
 @end

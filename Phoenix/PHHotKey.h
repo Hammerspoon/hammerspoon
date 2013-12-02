@@ -10,10 +10,15 @@
 
 #import <JavaScriptCore/JavaScriptCore.h>
 
-@class PHHotKey;
-typedef BOOL(^PHHotKeyHandler)(PHHotKey*);
 
-@protocol ThisIsReallyStupid <JSExport>
+
+typedef BOOL(^PHHotKeyHandler)(void);
+@class PHHotKey;
+
+
+
+
+@protocol PHHotKeyJSExport <JSExport>
 
 @property NSString* key;
 @property NSArray* mods;
@@ -26,7 +31,12 @@ typedef BOOL(^PHHotKeyHandler)(PHHotKey*);
 
 @end
 
-@interface PHHotKey : NSObject <ThisIsReallyStupid>
+
+
+
+
+
+@interface PHHotKey : NSObject <PHHotKeyJSExport>
 
 @property NSString* key;
 @property NSArray* mods;

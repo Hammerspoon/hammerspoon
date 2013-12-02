@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 Giant Robot Software. All rights reserved.
 //
 
-#import "SDApp.h"
+#import "PHApp.h"
 
-#import "SDWindow.h"
+#import "PHWindow.h"
 //#import "SDUniversalAccessHelper.h"
 
 //#import "SDAppStalker.h"
@@ -16,7 +16,7 @@
 //#import "SDObserver.h"
 
 
-@interface SDApp ()
+@interface PHApp ()
 
 @property AXUIElementRef app;
 @property (readwrite) pid_t pid;
@@ -28,13 +28,13 @@
 @end
 
 
-@implementation SDApp
+@implementation PHApp
 
 + (NSArray*) runningApps {
     NSMutableArray* apps = [NSMutableArray array];
     
     for (NSRunningApplication* runningApp in [[NSWorkspace sharedWorkspace] runningApplications]) {
-        SDApp* app = [[SDApp alloc] initWithPID:[runningApp processIdentifier]];
+        PHApp* app = [[PHApp alloc] initWithPID:[runningApp processIdentifier]];
         [apps addObject:app];
     }
     
@@ -67,7 +67,7 @@
         CFRelease(self.app);
 }
 
-- (BOOL) isEqual:(SDApp*)object {
+- (BOOL) isEqual:(PHApp*)object {
     return ([self isKindOfClass: [object class]] &&
             self.pid == object.pid);
 }
@@ -77,7 +77,7 @@
 }
 
 - (NSArray*) visibleWindows {
-    return [[self allWindows] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(SDWindow* win, NSDictionary *bindings) {
+    return [[self allWindows] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(PHWindow* win, NSDictionary *bindings) {
         return ![[win app] isHidden]
         && ![win isWindowMinimized]
         && [win isNormalWindow];
@@ -93,7 +93,7 @@
         for (NSInteger i = 0; i < CFArrayGetCount(_windows); i++) {
             AXUIElementRef win = CFArrayGetValueAtIndex(_windows, i);
             
-            SDWindow* window = [[SDWindow alloc] initWithElement:win];
+            PHWindow* window = [[PHWindow alloc] initWithElement:win];
             [windows addObject:window];
         }
         CFRelease(_windows);
@@ -131,10 +131,10 @@
     [[NSRunningApplication runningApplicationWithProcessIdentifier:self.pid] forceTerminate];
 }
 
-- (void) sendJustOneNotification:(NSString*)name withThing:(id)thing {
-    NSNotification* note = [NSNotification notificationWithName:name object:nil userInfo:@{@"thing": thing}];
-    [[NSNotificationQueue defaultQueue] enqueueNotification:note postingStyle:NSPostNow];
-}
+//- (void) sendJustOneNotification:(NSString*)name withThing:(id)thing {
+//    NSNotification* note = [NSNotification notificationWithName:name object:nil userInfo:@{@"thing": thing}];
+//    [[NSNotificationQueue defaultQueue] enqueueNotification:note postingStyle:NSPostNow];
+//}
 
 - (id) getAppProperty:(NSString*)propType withDefaultValue:(id)defaultValue {
     CFTypeRef _someProperty;

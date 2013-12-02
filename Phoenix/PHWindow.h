@@ -8,13 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-#import "SDApp.h"
+#import "PHApp.h"
 
-#import <JavaScriptCore/JavaScriptCore.h>
+#import "PHWindow+JSExport.h"
 
-@class SDWindow;
-
-@protocol WhyDontYouGiveMeANicePaperCutAndPourLemonJuiceOnIt <JSExport>
+@interface PHWindow : NSObject <PHWindowJSExport>
 
 - (id) initWithElement:(AXUIElementRef)win;
 
@@ -22,7 +20,7 @@
 
 + (NSArray*) allWindows;
 + (NSArray*) visibleWindows;
-+ (SDWindow*) focusedWindow;
++ (PHWindow*) focusedWindow;
 + (NSArray*) visibleWindowsMostRecentFirst;
 - (NSArray*) otherWindowsOnSameScreen;
 - (NSArray*) otherWindowsOnAllScreens;
@@ -47,7 +45,7 @@
 // other
 
 - (NSScreen*) screen;
-- (SDApp*) app;
+- (PHApp*) app;
 
 - (BOOL) isNormalWindow;
 
@@ -70,9 +68,5 @@
 
 - (NSString*) title;
 - (BOOL) isWindowMinimized;
-
-@end
-
-@interface SDWindow : NSObject <WhyDontYouGiveMeANicePaperCutAndPourLemonJuiceOnIt>
 
 @end

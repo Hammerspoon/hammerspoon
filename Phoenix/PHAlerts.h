@@ -8,9 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface SDAlerts : NSObject
+@interface PHAlerts : NSObject
 
-+ (SDAlerts*) sharedAlerts;
++ (PHAlerts*) sharedAlerts;
 
 - (void) show:(NSString*)oneLineMsg;
 - (void) show:(NSString*)oneLineMsg duration:(CGFloat)duration;

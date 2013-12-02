@@ -6,14 +6,14 @@
 //  Copyright (c) 2013 Giant Robot Software. All rights reserved.
 //
 
-#import "SDAlertWindowController.h"
+#import "PHAlerts.h"
 
 #import <QuartzCore/QuartzCore.h>
 
 
 
 
-@protocol SDAlertHoraMortisNostraeDelegate <NSObject>
+@protocol PHAlertHoraMortisNostraeDelegate <NSObject>
 
 - (void) oraPro:(id)nobis;
 
@@ -21,11 +21,11 @@
 
 
 
-@interface SDAlertWindowController : NSWindowController
+@interface PHAlertWindowController : NSWindowController
 
 - (void) show:(NSString*)oneLineMsg duration:(CGFloat)duration pushDownBy:(CGFloat)adjustment;
 
-@property (weak) id<SDAlertHoraMortisNostraeDelegate> delegate;
+@property (weak) id<PHAlertHoraMortisNostraeDelegate> delegate;
 
 @end
 
@@ -33,20 +33,20 @@
 
 
 
-@interface SDAlerts () <SDAlertHoraMortisNostraeDelegate>
+@interface PHAlerts () <PHAlertHoraMortisNostraeDelegate>
 
 @property NSMutableArray* visibleAlerts;
 
 @end
 
 
-@implementation SDAlerts
+@implementation PHAlerts
 
-+ (SDAlerts*) sharedAlerts {
-    static SDAlerts* sharedAlerts;
++ (PHAlerts*) sharedAlerts {
+    static PHAlerts* sharedAlerts;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedAlerts = [[SDAlerts alloc] init];
+        sharedAlerts = [[PHAlerts alloc] init];
         sharedAlerts.alertDisappearDelay = 1.0;
         sharedAlerts.visibleAlerts = [NSMutableArray array];
     });
@@ -67,14 +67,14 @@
         absoluteTop = screenRect.size.height / 1.55; // pretty good spot
     }
     else {
-        SDAlertWindowController* ctrl = [self.visibleAlerts lastObject];
+        PHAlertWindowController* ctrl = [self.visibleAlerts lastObject];
         absoluteTop = NSMinY([[ctrl window] frame]) - 3.0;
     }
     
     if (absoluteTop <= 0)
         absoluteTop = NSMaxY([currentScreen visibleFrame]);
     
-    SDAlertWindowController* alert = [[SDAlertWindowController alloc] init];
+    PHAlertWindowController* alert = [[PHAlertWindowController alloc] init];
     alert.delegate = self;
     [alert show:oneLineMsg duration:duration pushDownBy:absoluteTop];
     [self.visibleAlerts addObject:alert];
@@ -94,14 +94,14 @@
 
 
 
-@interface SDAlertWindowController ()
+@interface PHAlertWindowController ()
 
 @property IBOutlet NSTextField* textField;
 @property IBOutlet NSBox* box;
 
 @end
 
-@implementation SDAlertWindowController
+@implementation PHAlertWindowController
 
 - (NSString*) windowNibName {
     return @"AlertWindow";
@@ -113,7 +113,7 @@
     self.window.opaque = NO;
     self.window.level = NSFloatingWindowLevel;
     self.window.ignoresMouseEvents = YES;
-    self.window.animationBehavior = ([SDAlerts sharedAlerts].alertAnimates ? NSWindowAnimationBehaviorAlertPanel : NSWindowAnimationBehaviorNone);
+    self.window.animationBehavior = ([PHAlerts sharedAlerts].alertAnimates ? NSWindowAnimationBehaviorAlertPanel : NSWindowAnimationBehaviorNone);
 //    self.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorStationary;
 }
 

@@ -8,9 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-#import <JavaScriptCore/JavaScriptCore.h>
+#import "PHApp+JSExport.h"
 
-@protocol SuperDuperLame <JSExport>
+@interface PHApp : NSObject <PHAppJSExport>
 
 - (id) initWithPID:(pid_t)pid;
 - (id) initWithRunningApp:(NSRunningApplication*)app;
@@ -29,9 +29,5 @@
 
 - (void) kill;
 - (void) kill9;
-
-@end
-
-@interface SDApp : NSObject <SuperDuperLame>
 
 @end
