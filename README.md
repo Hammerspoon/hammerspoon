@@ -1,6 +1,6 @@
 ## About Phoenix
 
-*Faster, stronger, better fork of Zephyros.*
+*The lightweight OS X window manager for hackers*
 
 * Current version: **1.0**
 * Requires: OS X 10.9 and up
@@ -23,6 +23,8 @@ api.bind('E', ['cmd'], function() {
   return true;
 });
 ```
+
+Phoenix can only be scripted in JavaScript.
 
 #### Current status
 
