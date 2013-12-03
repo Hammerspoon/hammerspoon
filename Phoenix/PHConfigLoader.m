@@ -16,7 +16,7 @@
 
 #import "PHWindow.h"
 #import "PHApp.h"
-#import "NSScreen+JSExport.h"
+#import "NSScreen+PHExtension.h"
 
 @interface PHConfigLoader ()
 

@@ -8,12 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "PHApp+JSExport.h"
+#import <JavaScriptCore/JavaScriptCore.h>
+@class PHApp;
 
-@interface PHApp : NSObject <PHAppJSExport>
-
-- (id) initWithPID:(pid_t)pid;
-- (id) initWithRunningApp:(NSRunningApplication*)app;
+@protocol PHAppJSExport <JSExport>
 
 + (NSArray*) runningApps;
 
@@ -29,5 +27,14 @@
 
 - (void) kill;
 - (void) kill9;
+
+@end
+
+@interface PHApp : NSObject <PHAppJSExport>
+
+- (id) initWithPID:(pid_t)pid;
+- (id) initWithRunningApp:(NSRunningApplication*)app;
+
+@property (readonly) pid_t pid;
 
 @end

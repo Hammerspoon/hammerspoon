@@ -35,9 +35,6 @@
 		941AABFD184BFE0A00E19E33 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		941AAC02184C100600E19E33 /* PHHotKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHHotKey.h; sourceTree = "<group>"; };
 		941AAC03184C100600E19E33 /* PHHotKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHHotKey.m; sourceTree = "<group>"; };
-		949D56D9184CF5F9008E92DE /* PHWindow+JSExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PHWindow+JSExport.h"; sourceTree = "<group>"; };
-		949D56DC184CF676008E92DE /* PHApp+JSExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PHApp+JSExport.h"; sourceTree = "<group>"; };
-		949D56DF184CF6D1008E92DE /* NSScreen+JSExport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSScreen+JSExport.h"; sourceTree = "<group>"; };
 		949D56E0184D016E008E92DE /* AlertWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AlertWindow.xib; sourceTree = "<group>"; };
 		949D56E3184D0B30008E92DE /* PHPathWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHPathWatcher.h; sourceTree = "<group>"; };
 		949D56E4184D0B30008E92DE /* PHPathWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHPathWatcher.m; sourceTree = "<group>"; };
@@ -99,19 +96,8 @@
 				94CF94C2184C45FA00E63DE0 /* PHApp.m */,
 				94CF94C3184C45FA00E63DE0 /* PHWindow.h */,
 				94CF94C4184C45FA00E63DE0 /* PHWindow.m */,
-				949D56D8184CF5ED008E92DE /* WhatTheHellApple */,
 			);
 			name = Resources;
-			sourceTree = "<group>";
-		};
-		949D56D8184CF5ED008E92DE /* WhatTheHellApple */ = {
-			isa = PBXGroup;
-			children = (
-				949D56D9184CF5F9008E92DE /* PHWindow+JSExport.h */,
-				949D56DC184CF676008E92DE /* PHApp+JSExport.h */,
-				949D56DF184CF6D1008E92DE /* NSScreen+JSExport.h */,
-			);
-			name = WhatTheHellApple;
 			sourceTree = "<group>";
 		};
 		949D56E2184D0176008E92DE /* Alerts */ = {

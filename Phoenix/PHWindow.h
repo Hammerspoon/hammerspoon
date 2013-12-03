@@ -10,11 +10,11 @@
 
 #import "PHApp.h"
 
-#import "PHWindow+JSExport.h"
+#import <JavaScriptCore/JavaScriptCore.h>
+@class PHWindow;
+@class PHApp;
 
-@interface PHWindow : NSObject <PHWindowJSExport>
-
-- (id) initWithElement:(AXUIElementRef)win;
+@protocol PHWindowJSExport <JSExport>
 
 // getting windows
 
@@ -68,5 +68,11 @@
 
 - (NSString*) title;
 - (BOOL) isWindowMinimized;
+
+@end
+
+@interface PHWindow : NSObject <PHWindowJSExport>
+
+- (id) initWithElement:(AXUIElementRef)win;
 
 @end
