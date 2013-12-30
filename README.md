@@ -7,7 +7,7 @@
 
 #### Install
 
-* Download [Zephyros-LATEST.app.tar.gz](https://raw.github.com/sdegutis/zephyros/master/Builds/Zephyros-LATEST.app.tar.gz), unzip, right-click app, choose "Open"
+* Download [Phoenix-LATEST.app.tar.gz](https://raw.github.com/sdegutis/phoenix/master/Builds/Phoenix-LATEST.app.tar.gz), unzip, right-click app, choose "Open"
 
 #### Usage
 
