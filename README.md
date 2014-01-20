@@ -2,6 +2,8 @@
 
 *The lightweight OS X window manager for hackers*
 
+Phoenix is a fork of Zephyros that aims for efficiency and a very small footprint.
+
 * Current version: **1.0**
 * Requires: OS X 10.9 and up
 
@@ -26,7 +28,7 @@ api.bind('E', ['cmd'], function() {
 
 For more ideas, see [the author's config](https://gist.github.com/sdegutis/7756583).
 
-Note: Phoenix can only be scripted in JavaScript.
+**Note:** Phoenix can only be scripted in JavaScript.
 
 #### Todo
 
@@ -34,7 +36,6 @@ Note: Phoenix can only be scripted in JavaScript.
 - In-app upgrade
 - Way better API (the current one is just a quick port of Zephyros)
 - API docs (they're totally MIA)
-- Long term: Get [Beowulf](https://github.com/sdegutis/beowulf) up to par, and fork Phoenix to use that instead of JavaScript.
 
 #### License
 
