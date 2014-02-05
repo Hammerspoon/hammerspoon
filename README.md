@@ -28,14 +28,16 @@ api.bind('E', ['cmd'], function() {
 
 For more ideas, see [the author's config](https://gist.github.com/sdegutis/7756583).
 
+#### Documentation
+
+- [JavaScript API Documentation](https://github.com/sdegutis/Phoenix/wiki/JavaScript-API-documentation)
+
 **Note:** Phoenix can only be scripted in JavaScript.
 
 #### Todo
 
 - Needs an app icon and status bar icon
 - In-app upgrade
-- Way better API (the current one is just a quick port of Zephyros)
-- API docs (they're totally MIA)
 
 #### License
 
