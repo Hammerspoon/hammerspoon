@@ -26,7 +26,7 @@ api.bind('E', ['cmd'], function() {
 });
 ```
 
-* For more ideas, either look in [the wiki](https://github.com/sdegutis/Phoenix/wiki) or read [the author's config](https://gist.github.com/sdegutis/7756583).
+* For more ideas, read other people's configs [in the wiki](https://github.com/sdegutis/Phoenix/wiki).
 
 #### Documentation
 
