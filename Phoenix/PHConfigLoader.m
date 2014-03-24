@@ -14,6 +14,8 @@
 #import "PHAlerts.h"
 #import "PHPathWatcher.h"
 
+#import "PHMousePosition.h"
+
 #import "PHWindow.h"
 #import "PHApp.h"
 #import "NSScreen+PHExtension.h"
@@ -102,6 +104,7 @@ static NSString* PHConfigPath = @"~/.phoenix.js";
     ctx[@"Window"] = [PHWindow self];
     ctx[@"App"] = [PHApp self];
     ctx[@"Screen"] = [NSScreen self];
+    ctx[@"MousePosition"] = [PHMousePosition self];
 }
 
 @end

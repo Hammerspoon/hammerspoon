@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		941AABFE184BFE0A00E19E33 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 941AABFD184BFE0A00E19E33 /* Carbon.framework */; };
 		941AAC04184C100600E19E33 /* PHHotKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 941AAC03184C100600E19E33 /* PHHotKey.m */; };
+		9451791118E0DA2B00FB2B4B /* PHMousePosition.m in Sources */ = {isa = PBXBuildFile; fileRef = 9451791018E0DA2B00FB2B4B /* PHMousePosition.m */; };
 		949D56E1184D016E008E92DE /* AlertWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949D56E0184D016E008E92DE /* AlertWindow.xib */; };
 		949D56E5184D0B30008E92DE /* PHPathWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 949D56E4184D0B30008E92DE /* PHPathWatcher.m */; };
 		94C6022E1849D3B9005E7DB3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94C6022D1849D3B9005E7DB3 /* Cocoa.framework */; };
@@ -35,6 +36,8 @@
 		941AABFD184BFE0A00E19E33 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		941AAC02184C100600E19E33 /* PHHotKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHHotKey.h; sourceTree = "<group>"; };
 		941AAC03184C100600E19E33 /* PHHotKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHHotKey.m; sourceTree = "<group>"; };
+		9451790F18E0DA2B00FB2B4B /* PHMousePosition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHMousePosition.h; sourceTree = "<group>"; };
+		9451791018E0DA2B00FB2B4B /* PHMousePosition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHMousePosition.m; sourceTree = "<group>"; };
 		949D56E0184D016E008E92DE /* AlertWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AlertWindow.xib; sourceTree = "<group>"; };
 		949D56E3184D0B30008E92DE /* PHPathWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHPathWatcher.h; sourceTree = "<group>"; };
 		949D56E4184D0B30008E92DE /* PHPathWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHPathWatcher.m; sourceTree = "<group>"; };
@@ -96,6 +99,8 @@
 				94CF94C2184C45FA00E63DE0 /* PHApp.m */,
 				94CF94C3184C45FA00E63DE0 /* PHWindow.h */,
 				94CF94C4184C45FA00E63DE0 /* PHWindow.m */,
+				9451790F18E0DA2B00FB2B4B /* PHMousePosition.h */,
+				9451791018E0DA2B00FB2B4B /* PHMousePosition.m */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -269,6 +274,7 @@
 			files = (
 				94C602411849D3B9005E7DB3 /* PHAppDelegate.m in Sources */,
 				941AAC04184C100600E19E33 /* PHHotKey.m in Sources */,
+				9451791118E0DA2B00FB2B4B /* PHMousePosition.m in Sources */,
 				949D56E5184D0B30008E92DE /* PHPathWatcher.m in Sources */,
 				94CF94C7184C45FA00E63DE0 /* PHWindow.m in Sources */,
 				94CF94C6184C45FA00E63DE0 /* PHApp.m in Sources */,
