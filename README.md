@@ -10,6 +10,7 @@ Phoenix is a fork of Zephyros that aims for efficiency and a very small footprin
 #### Install
 
 * Download [Phoenix-LATEST.app.tar.gz](https://raw.github.com/sdegutis/phoenix/master/Builds/Phoenix-LATEST.app.tar.gz), unzip, right-click app, choose "Open"
+* Or, install via [Homebrew Cask](https://github.com/phinze/homebrew-cask) - `brew cask install phoenix`
 
 #### Usage
 
