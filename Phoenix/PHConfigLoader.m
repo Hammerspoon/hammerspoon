@@ -100,6 +100,17 @@ static NSString* PHConfigPath = @"~/.phoenix.js";
         [hotkey enable];
         return hotkey;
     };
+
+    api[@"runCommand"] = ^(NSString* path, NSArray *args) {
+        NSTask *task = [[NSTask alloc] init];
+
+        [task setArguments:args];
+        [task setLaunchPath:path];
+        [task launch];
+
+        while([task isRunning]);
+    };
+
     
     ctx[@"Window"] = [PHWindow self];
     ctx[@"App"] = [PHApp self];
