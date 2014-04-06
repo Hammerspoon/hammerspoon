@@ -120,6 +120,18 @@ static NSString* PHConfigPath = @"~/.phoenix.js";
             CGSetDisplayTransferByTable(CGMainDisplayID(), sizeof(table) / sizeof(table[0]), table, table, table);
         }
     };
+    
+    api[@"setRedTint"] = ^(BOOL tinted) {
+        if (tinted) {
+            CGGammaValue table[] = {0, 1};
+            CGGammaValue table2[] = {0.2, 0.8};
+            CGGammaValue table3[] = {0.2, 0.8};
+            CGSetDisplayTransferByTable(CGMainDisplayID(), sizeof(table) / sizeof(table[0]), table, table2, table3);
+        } else {
+            CGGammaValue table[] = {0, 1};
+            CGSetDisplayTransferByTable(CGMainDisplayID(), sizeof(table) / sizeof(table[0]), table, table, table);
+        }
+    };
 
     
     ctx[@"Window"] = [PHWindow self];
