@@ -110,6 +110,16 @@ static NSString* PHConfigPath = @"~/.phoenix.js";
 
         while([task isRunning]);
     };
+    
+    api[@"setInvertedColors"] = ^(BOOL inverted) {
+        if (inverted) {
+            CGGammaValue table[] = {1, 0};
+            CGSetDisplayTransferByTable(CGMainDisplayID(), sizeof(table) / sizeof(table[0]), table, table, table);
+        } else {
+            CGGammaValue table[] = {0, 1};
+            CGSetDisplayTransferByTable(CGMainDisplayID(), sizeof(table) / sizeof(table[0]), table, table, table);
+        }
+    };
 
     
     ctx[@"Window"] = [PHWindow self];
