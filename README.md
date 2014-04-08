@@ -1,4 +1,8 @@
-## About Phoenix
+## Looking for new developer
+
+Want to take over development of Phoenix? Open an issue and let me know.
+
+# Phoenix
 
 *The lightweight OS X window manager for hackers*
 
