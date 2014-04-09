@@ -111,26 +111,20 @@ static NSString* PHConfigPath = @"~/.phoenix.js";
         while([task isRunning]);
     };
     
-    api[@"setInvertedColors"] = ^(BOOL inverted) {
-        if (inverted) {
-            CGGammaValue table[] = {1, 0};
-            CGSetDisplayTransferByTable(CGMainDisplayID(), sizeof(table) / sizeof(table[0]), table, table, table);
-        } else {
-            CGGammaValue table[] = {0, 1};
-            CGSetDisplayTransferByTable(CGMainDisplayID(), sizeof(table) / sizeof(table[0]), table, table, table);
+    api[@"setTint"] = ^(NSArray *red, NSArray *green, NSArray *blue) {
+        CGGammaValue cred[red.count];
+        for (int i = 0; i < red.count; ++i) {
+            cred[i] = [[red objectAtIndex:i] floatValue];
         }
-    };
-    
-    api[@"setRedTint"] = ^(BOOL tinted) {
-        if (tinted) {
-            CGGammaValue table[] = {0, 1};
-            CGGammaValue table2[] = {0.2, 0.8};
-            CGGammaValue table3[] = {0.2, 0.8};
-            CGSetDisplayTransferByTable(CGMainDisplayID(), sizeof(table) / sizeof(table[0]), table, table2, table3);
-        } else {
-            CGGammaValue table[] = {0, 1};
-            CGSetDisplayTransferByTable(CGMainDisplayID(), sizeof(table) / sizeof(table[0]), table, table, table);
+        CGGammaValue cgreen[green.count];
+        for (int i = 0; i < green.count; ++i) {
+            cgreen[i] = [[green objectAtIndex:i] floatValue];
         }
+        CGGammaValue cblue[blue.count];
+        for (int i = 0; i < blue.count; ++i) {
+            cblue[i] = [[blue objectAtIndex:i] floatValue];
+        }
+        CGSetDisplayTransferByTable(CGMainDisplayID(), (int)sizeof(cred) / sizeof(cred[0]), cred, cgreen, cblue);
     };
 
     
