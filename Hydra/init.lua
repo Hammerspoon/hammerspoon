@@ -8,14 +8,11 @@ hotkey.setup(function(n)
 end)
 
 local hotkey_instance = {}
+local hotkey_metatable = {__index = hotkey_instance}
 
 function hotkey.new(key, mods, f)
-   local hk = {
-      key = key,
-      mods = mods,
-      f = f,
-   }
-   return setmetatable(hk, {__index = hotkey_instance})
+   local hk = { key = key, mods = mods, f = f }
+   return setmetatable(hk, hotkey_metatable)
 end
 
 function hotkey.bind(...)
