@@ -7,6 +7,8 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     NSString* resourcePath = [[NSBundle mainBundle] resourcePath];
+    const char* core_dir = [[resourcePath stringByAppendingPathComponent:@"?.lua"] fileSystemRepresentation];
+    const char* user_dir = [[@"~/.hydra/?.lua" stringByStandardizingPath] fileSystemRepresentation];
     
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
@@ -20,9 +22,9 @@
     
     lua_getfield(L, -1, "path"); // push path
     lua_pushliteral(L, ";"); // push separator
-    lua_pushstring(L, [[resourcePath stringByAppendingPathComponent:@"?.lua"] fileSystemRepresentation]); // push string
+    lua_pushstring(L, core_dir); // push string
     lua_pushliteral(L, ";"); // push separator
-    lua_pushstring(L, [[@"~/.hydra/?.lua" stringByStandardizingPath] fileSystemRepresentation]); // push string
+    lua_pushstring(L, user_dir); // push string
     lua_concat(L, 5); // concat all 5 strings, leaving 1 string on top of package
     lua_setfield(L, -2, "path"); // push string onto package, leaving only package
     
