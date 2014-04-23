@@ -28,8 +28,7 @@
     
     lua_pop(L, 1); // pop package
     
-    NSString* file = [resourcePath stringByAppendingPathComponent:@"hydra_init.lua"];
-    luaL_dofile(L, [file fileSystemRepresentation]);
+    luaL_dostring(L, "require('hydra_init')");
 }
 
 @end
