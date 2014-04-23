@@ -187,7 +187,7 @@ static int hk_register(lua_State *L) {
     
     UInt32 key = hydra_keyCodeForString([NSString stringWithUTF8String:strkey]);
     
-	EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = internalRegistrationNumber };
+    EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = internalRegistrationNumber };
     EventHotKeyRef carbonHotKey = NULL;
     RegisterEventHotKey(key, mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &carbonHotKey);
     
