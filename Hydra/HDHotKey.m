@@ -125,14 +125,22 @@ static UInt32 hydra_keyCodeForString(NSString* str) {
     return -1;
 }
 
+struct luahotkey_callback_data {
+    lua_State* L;
+    int i;
+};
+
 static OSStatus hydra_hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {
     EventHotKeyID eventID;
     GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
     
-    lua_State* L = inUserData;
-    lua_getglobal(L, "hotkey");
-    lua_getfield(L, -1, "callback");
-    lua_remove(L, -2);
+    struct luahotkey_callback_data* cb = inUserData;
+    lua_State* L = cb->L;
+    
+    // callback function
+    lua_rawgeti(L, LUA_REGISTRYINDEX, cb->i);
+    
+    // arg
     lua_pushnumber(L, eventID.id);
     
     if (lua_pcall(L, 1, 1, 0) == LUA_OK) {
@@ -142,6 +150,17 @@ static OSStatus hydra_hotkey_callback(EventHandlerCallRef inHandlerCallRef, Even
     else {
         return noErr;
     }
+}
+
+// args: fn(n)
+static int hk_setup(lua_State *L) {
+    struct luahotkey_callback_data* cb = malloc(sizeof(struct luahotkey_callback_data));
+    cb->L = L;
+    cb->i = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
+    InstallEventHandler(GetEventDispatcherTarget(), hydra_hotkey_callback, 1, &hotKeyPressedSpec, cb, NULL);
+    return 0;
 }
 
 // args: uid, key, mods
@@ -185,15 +204,13 @@ static int hk_unregister(lua_State *L) {
 }
 
 static const luaL_Reg hklib[] = {
+    {"setup", hk_setup},
     {"register", hk_register},
     {"unregister", hk_unregister},
     {NULL, NULL}
 };
 
-void hydra_hotkey_setup(lua_State* L) {
-    EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
-    InstallEventHandler(GetEventDispatcherTarget(), hydra_hotkey_callback, 1, &hotKeyPressedSpec, L, NULL);
-    
+int luaopen_hotkey(lua_State * L) {
     luaL_newlib(L, hklib);
-    lua_setglobal(L, "hotkey");
+    return 1;
 }

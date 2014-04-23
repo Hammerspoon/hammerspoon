@@ -8,7 +8,13 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
-    hydra_hotkey_setup(L);
+    
+    lua_getglobal(L, "package");
+    lua_getfield(L, -1, "preload");
+    lua_pushcfunction(L, luaopen_hotkey);
+    lua_setfield(L, -2, "hotkey");
+    lua_remove(L, -1);
+    lua_remove(L, -1);
     
     NSString* file = [[NSBundle mainBundle] pathForResource:@"init" ofType:@"lua"];
     luaL_dofile(L, [file fileSystemRepresentation]);

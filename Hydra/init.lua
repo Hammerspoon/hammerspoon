@@ -1,9 +1,11 @@
+local hotkey = require("hotkey")
+
 hotkey.keys = {}
 
-function hotkey.callback(n)
+hotkey.setup(function(n)
    local hk = hotkey.keys[n]
    return hk.f()
-end
+end)
 
 local hotkey_instance = {}
 
