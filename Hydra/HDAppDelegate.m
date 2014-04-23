@@ -13,8 +13,7 @@
     lua_getfield(L, -1, "preload");
     lua_pushcfunction(L, luaopen_hotkey);
     lua_setfield(L, -2, "hotkey");
-    lua_remove(L, -1);
-    lua_remove(L, -1);
+    lua_pop(L, 2);
     
     NSString* file = [[NSBundle mainBundle] pathForResource:@"init" ofType:@"lua"];
     luaL_dofile(L, [file fileSystemRepresentation]);
