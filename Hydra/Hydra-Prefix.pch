@@ -1,3 +1,5 @@
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+#define LUA_USE_MKSTEMP 1
