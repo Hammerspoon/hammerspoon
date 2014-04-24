@@ -237,12 +237,10 @@ static int hk_disable(lua_State *L) {
     UnregisterEventHotKey(carbonHotKey);
     lua_pop(L, 1);
     
-    // TODO: the following code has no effect :(
-    
     lua_getfield(L, 1, "_keys");    // [self, self._keys]
     lua_getfield(L, 1, "_id");      // [self, self._keys, self._id]
     lua_pushnil(L);                 // [self, self._keys, self._id, nil]
-    lua_settable(L, 1);             // [self, self._keys]
+    lua_settable(L, -3);            // [self, self._keys]
     lua_pop(L, 1);
     
     return 0;
