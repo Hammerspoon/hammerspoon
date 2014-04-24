@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		94075A31190860A30055919A /* setup_hotkeys.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94075A30190860A30055919A /* setup_hotkeys.lua */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9445CA1B19083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA1A19083251002568BB /* main.m */; };
 		9445CA2219083251002568BB /* HDAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA2119083251002568BB /* HDAppDelegate.m */; };
@@ -50,7 +49,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		94075A30190860A30055919A /* setup_hotkeys.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = setup_hotkeys.lua; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Hydra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hydra.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		9445CA1119083251002568BB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -184,7 +182,6 @@
 				9445CAA1190835F9002568BB /* HDHotKey.h */,
 				9445CAA2190835F9002568BB /* HDHotKey.m */,
 				9445CAA4190847CB002568BB /* hydra_init.lua */,
-				94075A30190860A30055919A /* setup_hotkeys.lua */,
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
 				9445CA1519083251002568BB /* Supporting Files */,
@@ -319,7 +316,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				94075A31190860A30055919A /* setup_hotkeys.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
 				9445CAA5190847CB002568BB /* hydra_init.lua in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,

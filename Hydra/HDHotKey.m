@@ -125,22 +125,22 @@ static UInt32 hydra_keyCodeForString(NSString* str) {
     return -1;
 }
 
-struct luahotkey_callback_data {
+typedef struct _luahotkey_callback_data {
     lua_State* L;
     int i;
-};
+} luahotkey_callback_data;
 
 static OSStatus hydra_hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {
     EventHotKeyID eventID;
     GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
     
-    struct luahotkey_callback_data* cb = inUserData;
+    luahotkey_callback_data* cb = inUserData;
     lua_State* L = cb->L;
     
-    // callback function
+    // push callback function
     lua_rawgeti(L, LUA_REGISTRYINDEX, cb->i);
     
-    // arg
+    // push arg
     lua_pushnumber(L, eventID.id);
     
     if (lua_pcall(L, 1, 1, 0) == LUA_OK) {
@@ -152,23 +152,56 @@ static OSStatus hydra_hotkey_callback(EventHandlerCallRef inHandlerCallRef, Even
     }
 }
 
-// args: fn(n)
-static int hk_setup(lua_State *L) {
-    struct luahotkey_callback_data* cb = malloc(sizeof(struct luahotkey_callback_data));
-    cb->L = L;
-    cb->i = luaL_ref(L, LUA_REGISTRYINDEX);
-    
-    EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
-    InstallEventHandler(GetEventDispatcherTarget(), hydra_hotkey_callback, 1, &hotKeyPressedSpec, cb, NULL);
-    return 0;
+static int hk_handle_callback(lua_State *L) {
+    lua_gettable(L, lua_upvalueindex(1));  // [n, key]
+    lua_getfield(L, -1, "fn");             // [n, key, fn]
+    lua_pcall(L, 0, 1, 0);                 // [n, key, handled?]
+    return 1;
 }
 
-// args: uid, key, mods
-// returns: carbonkey
-static int hk_register(lua_State *L) {
+static int hk_enable(lua_State *L) {
+    // stack = [self]
     
-    int internalRegistrationNumber = lua_tonumber(L, 1);
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        lua_getfield(L, 1, "_keys");                 // push keys table
+        lua_pushcclosure(L, hk_handle_callback, 1);  // push closure (pops keys table)
+        int i = luaL_ref(L, LUA_REGISTRYINDEX);      // reference closure (pops closure)
+        
+        luahotkey_callback_data* cb = malloc(sizeof(luahotkey_callback_data));
+        cb->L = L;
+        cb->i = i;
+        
+        EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
+        InstallEventHandler(GetEventDispatcherTarget(), hydra_hotkey_callback, 1, &hotKeyPressedSpec, cb, NULL);
+    });
+    
+    
+    /*
+     table.insert(self._keys, self)
+     self._id = #self._keys
+     [...]
+     self._carbonkey = carbonkey
+     */
+    
+    lua_getglobal(L, "table");      // [self, table]
+    lua_getfield(L, -1, "insert");  // [self, table, table.insert]
+    lua_getfield(L, 1, "_keys");    // [self, table, table.insert, self._keys]
+    lua_pushvalue(L, 1);            // [self, table, table.insert, self._keys, self]
+    lua_pcall(L, 2, 0, 0);          // [self, table]
+    lua_pop(L, 1);                  // [self]
+    lua_getfield(L, 1, "_keys");    // [self, self._keys]
+    lua_len(L, -1);                 // [self, self._keys, len]
+    int uid = lua_tonumber(L, -1);  //
+    lua_setfield(L, 1, "_id");      // [self, self._keys]
+    lua_pop(L, 1);                  // [self]
+    
+    // push key (string)
+    lua_getfield(L, 1, "key");
     const char* strkey = lua_tostring(L, 2);
+    
+    // push mods (table)
+    lua_getfield(L, 1, "mods");
     
     UInt32 mods = 0;
     
@@ -187,30 +220,70 @@ static int hk_register(lua_State *L) {
     
     UInt32 key = hydra_keyCodeForString([NSString stringWithUTF8String:strkey]);
     
-    EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = internalRegistrationNumber };
+    EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = uid };
     EventHotKeyRef carbonHotKey = NULL;
     RegisterEventHotKey(key, mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &carbonHotKey);
     
     lua_pushlightuserdata(L, carbonHotKey);
+    lua_setfield(L, 1, "_carbonkey");
     
     return 1;
 }
 
-// args: carbonkey
-static int hk_unregister(lua_State *L) {
-    EventHotKeyRef carbonHotKey = lua_touserdata(L, 1);
+static int hk_disable(lua_State *L) {
+    lua_getfield(L, 1, "_carbonkey");
+    EventHotKeyRef carbonHotKey = lua_touserdata(L, -1);
     UnregisterEventHotKey(carbonHotKey);
+    lua_pop(L, 1);
+    
+    // TODO: the following code has no effect :(
+    
+    lua_getfield(L, 1, "_keys");    // [self, self._keys]
+    lua_getfield(L, 1, "_id");      // [self, self._keys, self._id]
+    lua_pushnil(L);                 // [self, self._keys, self._id, nil]
+    lua_settable(L, 1);             // [self, self._keys]
+    lua_pop(L, 1);
+    
     return 0;
 }
 
 static const luaL_Reg hklib[] = {
-    {"setup", hk_setup},
-    {"register", hk_register},
-    {"unregister", hk_unregister},
+    {"enable", hk_enable},
+    {"disable", hk_disable},
     {NULL, NULL}
 };
 
+// args: key, mods, fn
+// returns: table
+static int hk_newhotkey(lua_State *L) {
+    lua_newtable(L); // this table is always on top in this fn
+    
+    lua_pushvalue(L, 2); lua_setfield(L, -2, "key");
+    lua_pushvalue(L, 3); lua_setfield(L, -2, "mods");
+    lua_pushvalue(L, 4); lua_setfield(L, -2, "fn");
+    
+    lua_pushvalue(L, lua_upvalueindex(1)); lua_setfield(L, -2, "_keys");
+    lua_pushvalue(L, lua_upvalueindex(2)); lua_setmetatable(L, -2);
+    
+    return 1;
+}
+
+void hotkey_create_instance_metatable(lua_State* L) {
+    lua_newtable(L);                 // [..., {}]
+    luaL_newlib(L, hklib);           // [..., {}, {...}]
+    lua_setfield(L, -2, "__index");  // [..., {__index = {...}}]
+}
+
 int luaopen_hotkey(lua_State * L) {
-    luaL_newlib(L, hklib);
+    lua_newtable(L);                       // [hotkey]
+    lua_newtable(L);                       // [hotkey, {}]
+    lua_setfield(L, -2, "keys");           // [hotkey]
+    lua_newtable(L);                       // [hotkey, metatable]
+    lua_getfield(L, -2, "keys");           // [hotkey, metatable, keys]
+    hotkey_create_instance_metatable(L);   // [hotkey, metatable, keys, instance_metatable]
+    lua_pushcclosure(L, hk_newhotkey, 2);  // [hotkey, metatable, newhotkey_closure]
+    lua_setfield(L, -2, "__call");         // [hotkey, metatable]
+    lua_setmetatable(L, -2);               // [hotkey]
+    
     return 1;
 }
