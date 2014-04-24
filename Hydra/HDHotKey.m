@@ -178,23 +178,22 @@ static int hk_enable(lua_State *L) {
     
     
     /*
-     table.insert(self._keys, self)
-     self._id = #self._keys
+     self._id = #self._keys + 1
+     self._keys[self._id] = self
      [...]
      self._carbonkey = carbonkey
      */
     
-    lua_getglobal(L, "table");      // [self, table]
-    lua_getfield(L, -1, "insert");  // [self, table, table.insert]
-    lua_getfield(L, 1, "_keys");    // [self, table, table.insert, self._keys]
-    lua_pushvalue(L, 1);            // [self, table, table.insert, self._keys, self]
-    lua_pcall(L, 2, 0, 0);          // [self, table]
-    lua_pop(L, 1);                  // [self]
-    lua_getfield(L, 1, "_keys");    // [self, self._keys]
-    lua_len(L, -1);                 // [self, self._keys, len]
-    int uid = lua_tonumber(L, -1);  //
-    lua_setfield(L, 1, "_id");      // [self, self._keys]
-    lua_pop(L, 1);                  // [self]
+    lua_getfield(L, 1, "_keys");       // [self, _keys]
+    lua_len(L, -1);                    // [self, _keys, len]
+    int uid = lua_tonumber(L, -1) + 1;
+    lua_pop(L, 1);                     // [self, _keys]
+    lua_pushnumber(L, uid);            // [self, _keys, uid]
+    lua_pushvalue(L, 1);               // [self, _keys, uid, self]
+    lua_settable(L, -3);               // [self, _keys]
+    lua_pushnumber(L, uid);            // [self, _keys, uid]
+    lua_setfield(L, 1, "_id");         // [self, _keys]
+    lua_pop(L, 1);                     // [self]
     
     // push key (string)
     lua_getfield(L, 1, "key");
@@ -231,6 +230,8 @@ static int hk_enable(lua_State *L) {
 }
 
 static int hk_disable(lua_State *L) {
+    // stack = [self]
+    
     lua_getfield(L, 1, "_carbonkey");
     EventHotKeyRef carbonHotKey = lua_touserdata(L, -1);
     UnregisterEventHotKey(carbonHotKey);

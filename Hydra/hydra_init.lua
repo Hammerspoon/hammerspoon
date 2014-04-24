@@ -1,6 +1,5 @@
 -- local hotkey = require("hotkey")
 -- hotkey("D", {"cmd", "shift"}, function()
---    h:disable()
 --    print("it works")
 -- end):enable()
 
