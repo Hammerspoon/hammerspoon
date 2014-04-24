@@ -1,10 +1,12 @@
 #import "HDAppDelegate.h"
 #import "HDHotKey.h"
+#import "HDApp.h"
 #import "lua/lauxlib.h"
 #import "lua/lualib.h"
 
 static const luaL_Reg builtinlibs[] = {
     {"hotkey", luaopen_hotkey},
+    {"app", luaopen_app},
     {NULL, NULL}
 };
 

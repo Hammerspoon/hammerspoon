@@ -46,6 +46,7 @@
 		9445CA9F190833C1002568BB /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7C190833C1002568BB /* lzio.c */; };
 		9445CAA3190835F9002568BB /* HDHotKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CAA2190835F9002568BB /* HDHotKey.m */; };
 		9445CAA5190847CB002568BB /* hydra_init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* hydra_init.lua */; };
+		94BDB49C19094B7A00BD0553 /* HDApp.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* HDApp.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -122,6 +123,8 @@
 		9445CAA1190835F9002568BB /* HDHotKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDHotKey.h; sourceTree = "<group>"; };
 		9445CAA2190835F9002568BB /* HDHotKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDHotKey.m; sourceTree = "<group>"; };
 		9445CAA4190847CB002568BB /* hydra_init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hydra_init.lua; sourceTree = "<group>"; };
+		94BDB49A19094B7A00BD0553 /* HDApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDApp.h; sourceTree = "<group>"; };
+		94BDB49B19094B7A00BD0553 /* HDApp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDApp.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -181,6 +184,8 @@
 				9445CA2119083251002568BB /* HDAppDelegate.m */,
 				9445CAA1190835F9002568BB /* HDHotKey.h */,
 				9445CAA2190835F9002568BB /* HDHotKey.m */,
+				94BDB49A19094B7A00BD0553 /* HDApp.h */,
+				94BDB49B19094B7A00BD0553 /* HDApp.m */,
 				9445CAA4190847CB002568BB /* hydra_init.lua */,
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
@@ -356,6 +361,7 @@
 				9445CA87190833C1002568BB /* ldo.c in Sources */,
 				9445CA90190833C1002568BB /* loadlib.c in Sources */,
 				9445CA91190833C1002568BB /* lobject.c in Sources */,
+				94BDB49C19094B7A00BD0553 /* HDApp.m in Sources */,
 				9445CA99190833C1002568BB /* ltablib.c in Sources */,
 				9445CA97190833C1002568BB /* lstrlib.c in Sources */,
 				9445CA8E190833C1002568BB /* lmathlib.c in Sources */,
