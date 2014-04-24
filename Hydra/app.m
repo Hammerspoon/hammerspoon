@@ -1,4 +1,3 @@
-#import "HDApp.h"
 #import "lua/lauxlib.h"
 
 static pid_t app_get_app_pid(lua_State* L) {

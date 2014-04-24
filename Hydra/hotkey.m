@@ -1,4 +1,3 @@
-#import "HDHotKey.h"
 #import <Carbon/Carbon.h>
 #import "lua/lauxlib.h"
 
