@@ -3,6 +3,11 @@
 #import "lua/lauxlib.h"
 #import "lua/lualib.h"
 
+static const luaL_Reg builtinlibs[] = {
+    {"hotkey", luaopen_hotkey},
+    {NULL, NULL}
+};
+
 @implementation HDAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -13,13 +18,11 @@
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
+    lua_getfield(L, LUA_REGISTRYINDEX, "_PRELOAD"); // [preload]
+    luaL_setfuncs(L, builtinlibs, 0);               // [preload]
+    lua_pop(L, 1);                                  // []
+    
     lua_getglobal(L, "package");          // [package]
-    
-    lua_getfield(L, -1, "preload");       // [package, preload]
-    lua_pushcfunction(L, luaopen_hotkey); // [package, preload, luaopen_hotkey]
-    lua_setfield(L, -2, "hotkey");        // [package, preload]
-    lua_pop(L, 1);                        // [package]
-    
     lua_getfield(L, -1, "path");          // [package, path]
     lua_pushliteral(L, ";");              // [package, path, ";"]
     lua_pushstring(L, core_dir);          // [package, path, ";", coredir]
