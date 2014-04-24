@@ -13,22 +13,22 @@
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
-    lua_getglobal(L, "package");
+    lua_getglobal(L, "package");          // [package]
     
-    lua_getfield(L, -1, "preload"); // push preload
-    lua_pushcfunction(L, luaopen_hotkey); // push c function
-    lua_setfield(L, -2, "hotkey"); // pop off c function, leaving preload
-    lua_pop(L, 1); // pop off preload, leaving package
+    lua_getfield(L, -1, "preload");       // [package, preload]
+    lua_pushcfunction(L, luaopen_hotkey); // [package, preload, luaopen_hotkey]
+    lua_setfield(L, -2, "hotkey");        // [package, preload]
+    lua_pop(L, 1);                        // [package]
     
-    lua_getfield(L, -1, "path"); // push path
-    lua_pushliteral(L, ";"); // push separator
-    lua_pushstring(L, core_dir); // push string
-    lua_pushliteral(L, ";"); // push separator
-    lua_pushstring(L, user_dir); // push string
-    lua_concat(L, 5); // concat all 5 strings, leaving 1 string on top of package
-    lua_setfield(L, -2, "path"); // push string onto package, leaving only package
+    lua_getfield(L, -1, "path");          // [package, path]
+    lua_pushliteral(L, ";");              // [package, path, ";"]
+    lua_pushstring(L, core_dir);          // [package, path, ";", coredir]
+    lua_pushliteral(L, ";");              // [package, path, ";", coredir, ";"]
+    lua_pushstring(L, user_dir);          // [package, path, ";", coredir, ";", userdir]
+    lua_concat(L, 5);                     // [package, newpath]
+    lua_setfield(L, -2, "path");          // [package]
     
-    lua_pop(L, 1); // pop package
+    lua_pop(L, 1);                        // []
     
     luaL_dostring(L, "require('hydra_init')");
 }
