@@ -14,29 +14,19 @@ static const luaL_Reg builtinlibs[] = {
 @implementation PHAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    NSString* resourcePath = [[NSBundle mainBundle] resourcePath];
-    const char* core_dir = [[resourcePath stringByAppendingPathComponent:@"?.lua"] fileSystemRepresentation];
-    const char* user_dir = [[@"~/.phoenix/?.lua" stringByStandardizingPath] fileSystemRepresentation];
+    const char* app_init_file = [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"phoenix_init.lua"] fileSystemRepresentation];
     
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
-    lua_getfield(L, LUA_REGISTRYINDEX, "_PRELOAD"); // [preload]
-    luaL_setfuncs(L, builtinlibs, 0);               // [preload]
-    lua_pop(L, 1);                                  // []
+    luaL_newlib(L, builtinlibs);
+    lua_setglobal(L, "rawapi");
     
-    lua_getglobal(L, "package");          // [package]
-    lua_getfield(L, -1, "path");          // [package, path]
-    lua_pushliteral(L, ";");              // [package, path, ";"]
-    lua_pushstring(L, core_dir);          // [package, path, ";", coredir]
-    lua_pushliteral(L, ";");              // [package, path, ";", coredir, ";"]
-    lua_pushstring(L, user_dir);          // [package, path, ";", coredir, ";", userdir]
-    lua_concat(L, 5);                     // [package, newpath]
-    lua_setfield(L, -2, "path");          // [package]
-    
-    lua_pop(L, 1);                        // []
-    
-    luaL_dostring(L, "require('phoenix_init')");
+    int result = luaL_dofile(L, app_init_file);
+    if (result != LUA_OK) {
+        const char* err_msg = lua_tostring(L, -1);
+        NSLog(@"ERR: %s", err_msg);
+    }
 }
 
 @end
