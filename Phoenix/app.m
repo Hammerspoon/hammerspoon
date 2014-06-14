@@ -1,5 +1,10 @@
 #import "lua/lauxlib.h"
 
+void SDSetAppProperty(AXUIElementRef app, NSString* propType, id value) {
+    AXUIElementSetAttributeValue(app, (__bridge CFStringRef)(propType), (__bridge CFTypeRef)(value));
+    // yes, we ignore the return value; life is too short to constantly handle rare edge-cases
+}
+
 // stack: [table]
 static pid_t app_get_app_pid(lua_State* L) {
     lua_getfield(L, -1, "pid");
@@ -24,6 +29,18 @@ static int app_title(lua_State* L) {
     NSRunningApplication* app = app_get_app(L);
     lua_pushstring(L, [[app localizedName] UTF8String]);
     return 1;
+}
+
+static int app_show(lua_State* L) {
+    AXUIElementRef app = app_get_app_carbonapp(L);
+    SDSetAppProperty(app, NSAccessibilityHiddenAttribute, @NO);
+    return 0;
+}
+
+static int app_hide(lua_State* L) {
+    AXUIElementRef app = app_get_app_carbonapp(L);
+    SDSetAppProperty(app, NSAccessibilityHiddenAttribute, @YES);
+    return 0;
 }
 
 static int app_is_hidden(lua_State* L) {
@@ -78,6 +95,8 @@ static int app_running_apps(lua_State* L) {
 
 static const luaL_Reg applib[] = {
     {"title", app_title},
+    {"show", app_show},
+    {"hide", app_hide},
     {"is_hidden", app_is_hidden},
     {NULL, NULL}
 };
