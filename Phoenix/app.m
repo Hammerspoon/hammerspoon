@@ -88,10 +88,11 @@ static int app_running_apps(lua_State* L) {
         lua_setfield(L, -2, "pid");                                       // [apps, i, {}]
         
         AXUIElementRef* ud = lua_newuserdata(L, sizeof(AXUIElementRef));  // [apps, i, {}, userdata]
-        *ud = carbonapp;                                                  // [apps, i, {}, userdata]
-        lua_pushvalue(L, lua_upvalueindex(2));                            // [apps, i, {}, userdata, userdata_mt]
+        *ud = carbonapp;                                                  // [apps, i, {}, carbonapp]
         
-        lua_setmetatable(L, -2);                                          // [apps, i, {}, userdata]
+        lua_pushvalue(L, lua_upvalueindex(2));                            // [apps, i, {}, carbonapp, userdata_mt]
+        lua_setmetatable(L, -2);                                          // [apps, i, {}, carbonapp]
+        
         lua_setfield(L, -2, "_carbonapp");                                // [apps, i, {}]
         
         lua_pushvalue(L, lua_upvalueindex(1));                            // [apps, i, {}, mt]
