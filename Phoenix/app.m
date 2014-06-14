@@ -43,6 +43,16 @@ static int app_hide(lua_State* L) {
     return 0;
 }
 
+static int app_kill(lua_State* L) {
+    [[NSRunningApplication runningApplicationWithProcessIdentifier:app_get_app_pid(L)] terminate];
+    return 0;
+}
+
+static int app_kill9(lua_State* L) {
+    [[NSRunningApplication runningApplicationWithProcessIdentifier:app_get_app_pid(L)] forceTerminate];
+    return 0;
+}
+
 static int app_is_hidden(lua_State* L) {
     AXUIElementRef carbonapp = app_get_app_carbonapp(L);
     
@@ -97,6 +107,8 @@ static const luaL_Reg applib[] = {
     {"title", app_title},
     {"show", app_show},
     {"hide", app_hide},
+    {"kill", app_kill},
+    {"kill9", app_kill9},
     {"is_hidden", app_is_hidden},
     {NULL, NULL}
 };
