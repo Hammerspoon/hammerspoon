@@ -1,4 +1,4 @@
-#import "HDAppDelegate.h"
+#import "PHAppDelegate.h"
 #import "lua/lauxlib.h"
 #import "lua/lualib.h"
 
@@ -11,12 +11,12 @@ static const luaL_Reg builtinlibs[] = {
     {NULL, NULL}
 };
 
-@implementation HDAppDelegate
+@implementation PHAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     NSString* resourcePath = [[NSBundle mainBundle] resourcePath];
     const char* core_dir = [[resourcePath stringByAppendingPathComponent:@"?.lua"] fileSystemRepresentation];
-    const char* user_dir = [[@"~/.hydra/?.lua" stringByStandardizingPath] fileSystemRepresentation];
+    const char* user_dir = [[@"~/.phoenix/?.lua" stringByStandardizingPath] fileSystemRepresentation];
     
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
@@ -36,7 +36,7 @@ static const luaL_Reg builtinlibs[] = {
     
     lua_pop(L, 1);                        // []
     
-    luaL_dostring(L, "require('hydra_init')");
+    luaL_dostring(L, "require('phoenix_init')");
 }
 
 @end
