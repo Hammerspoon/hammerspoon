@@ -129,7 +129,31 @@ int window_size(lua_State* L) {
     return 2;
 }
 
+int window_settopleft(lua_State* L) {
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    CGPoint thePoint = CGPointMake(lua_tonumber(L, 2),
+                                   lua_tonumber(L, 3));
+    
+    CFTypeRef positionStorage = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&thePoint));
+    AXUIElementSetAttributeValue(*winptr, (CFStringRef)NSAccessibilityPositionAttribute, positionStorage);
+    if (positionStorage)
+        CFRelease(positionStorage);
+    
+    return 0;
+}
 
+int window_setsize(lua_State* L) {
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    CGSize theSize = CGSizeMake(lua_tonumber(L, 2),
+                                lua_tonumber(L, 3));
+    
+    CFTypeRef sizeStorage = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&theSize));
+    AXUIElementSetAttributeValue(*winptr, (CFStringRef)NSAccessibilitySizeAttribute, sizeStorage);
+    if (sizeStorage)
+        CFRelease(sizeStorage);
+    
+    return 0;
+}
 
 
 
@@ -206,20 +230,6 @@ int window_size(lua_State* L) {
 //}
 //
 //
-//
-//- (void) setTopLeft:(CGPoint)thePoint {
-//    CFTypeRef positionStorage = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&thePoint));
-//    AXUIElementSetAttributeValue(self.window, (CFStringRef)NSAccessibilityPositionAttribute, positionStorage);
-//    if (positionStorage)
-//        CFRelease(positionStorage);
-//}
-//
-//- (void) setSize:(CGSize)theSize {
-//    CFTypeRef sizeStorage = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&theSize));
-//    AXUIElementSetAttributeValue(self.window, (CFStringRef)NSAccessibilitySizeAttribute, sizeStorage);
-//    if (sizeStorage)
-//        CFRelease(sizeStorage);
-//}
 //
 //- (NSScreen*) screen {
 //    CGRect windowFrame = [self frame];

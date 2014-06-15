@@ -35,6 +35,8 @@ int window_title(lua_State* L);
 int window_is_standard(lua_State* L);
 int window_topleft(lua_State* L);
 int window_size(lua_State* L);
+int window_settopleft(lua_State* L);
+int window_setsize(lua_State* L);
 
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
@@ -69,6 +71,8 @@ static const luaL_Reg phoenix_lib[] = {
     {"window_is_standard", window_is_standard},
     {"window_topleft", window_topleft},
     {"window_size", window_size},
+    {"window_settopleft", window_settopleft},
+    {"window_setsize", window_setsize},
     
     {NULL, NULL}
 };
