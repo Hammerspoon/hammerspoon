@@ -1,7 +1,4 @@
-#import "PHKeyTranslator.h"
 #import <Carbon/Carbon.h>
-
-@implementation PHKeyTranslator
 
 static NSMutableDictionary *SDRelocatableKeys;
 
@@ -49,7 +46,7 @@ static void SDHotkeyInitialize() {
     CFRelease(currentKeyboard);
 }
 
-+ (UInt32) codeFor:(NSString*)str {
+UInt32 PHKeyCodeForString(NSString* str) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         SDHotkeyInitialize();
@@ -125,5 +122,3 @@ static void SDHotkeyInitialize() {
     
     return -1;
 }
-
-@end
