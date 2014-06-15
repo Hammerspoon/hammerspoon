@@ -1,6 +1,7 @@
 -- set both require-paths
 local thisdir = ...
-package.path = thisdir .. "/?.lua;" .. os.getenv("HOME") .. "/.phoenix/?.lua;" .. package.path
+package.path = os.getenv("HOME") .. "/.phoenix/?.lua;" .. package.path -- user configs
+package.path = thisdir .. "/?.lua;" .. package.path                    -- built-in configs
 
 -- welcome user
 __api.alert_show("Phoenix config loaded", 1.5)
