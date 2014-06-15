@@ -42,11 +42,9 @@ int app_get_windows(lua_State* L) {
                 lua_pushcfunction(L, window_gc);
                 lua_setfield(L, -2, "__gc");
             }
-            
             lua_setmetatable(L, -2); // [{}, i, ud]
-            NSLog(@"A");
-            lua_settable(L, -2); // [{}]
-            NSLog(@"B"); // crap
+            
+            lua_settable(L, -3); // [{}]
         }
         CFRelease(_windows);
     }

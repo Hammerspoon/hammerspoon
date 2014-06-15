@@ -4,7 +4,7 @@ package.path = os.getenv("HOME") .. "/.phoenix/?.lua;" .. package.path -- user c
 package.path = thisdir .. "/?.lua;" .. package.path                    -- built-in configs
 
 -- welcome user
-__api.alert_show("Phoenix config loaded", 1.5)
+-- __api.alert_show("Phoenix config loaded", 1.5)
 
 -- load user's config
 local ok, error = pcall(function()
@@ -14,7 +14,7 @@ local ok, error = pcall(function()
 
 -- report error in user's config
 if not ok then
-   __api.alert_show(error, 5)
+   -- __api.alert_show(error, 5)
 end
 
 
@@ -42,15 +42,17 @@ end
 
 -- if false then
 
---    -- TODO: fix this!
+-- TODO: fix this!
 
---    for k, pid in pairs(__api.app_running_apps()) do
---       local x = __api.app_get_windows(pid)
---       print(__api.app_title(pid))
---       for k, v in pairs(x) do
---          print(k, v)
---       end
---    end
+for k, pid in pairs(__api.app_running_apps()) do
+   local x = __api.app_get_windows(pid)
+   print(__api.app_title(pid))
+   for k, v in pairs(x) do
+      print(k, v)
+   end
+end
+
+collectgarbage()
 
 -- end
 
