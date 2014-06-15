@@ -47,9 +47,6 @@ int hotkey_register(lua_State *L) {
     BOOL shift      = lua_toboolean(L, 4);
     const char* key = lua_tostring(L, 5);
     
-    static UInt32 highestUID;
-    UInt32 uid = ++highestUID;
-    
     UInt32 mods = 0;
     if (cmd)   mods |= cmdKey;
     if (ctrl)  mods |= controlKey;
@@ -57,6 +54,9 @@ int hotkey_register(lua_State *L) {
     if (shift) mods |= shiftKey;
     
     UInt32 code = PHKeyCodeForString([NSString stringWithUTF8String:key]);
+    
+    static UInt32 highestUID;
+    UInt32 uid = ++highestUID;
     
     EventHotKeyID hotKeyID = { .signature = 'PHNX', .id = uid };
     EventHotKeyRef carbonHotKey = NULL;
