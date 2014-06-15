@@ -62,6 +62,7 @@
 		94C36942194DD94D00EE3A2D /* updater.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C36941194DD94D00EE3A2D /* updater.lua */; };
 		94E8E7A0194E0AB10064CF6C /* screen.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E8E79F194E0AB10064CF6C /* screen.m */; };
 		94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7A1194E0B2B0064CF6C /* hotkey.lua */; };
+		94E8E7AE194E0C940064CF6C /* Phoenix.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Phoenix.icns */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -152,6 +153,7 @@
 		94C36941194DD94D00EE3A2D /* updater.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = updater.lua; sourceTree = "<group>"; };
 		94E8E79F194E0AB10064CF6C /* screen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = screen.m; sourceTree = "<group>"; };
 		94E8E7A1194E0B2B0064CF6C /* hotkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey.lua; sourceTree = "<group>"; };
+		94E8E7AD194E0C940064CF6C /* Phoenix.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Phoenix.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,7 +208,6 @@
 		9445CA1419083251002568BB /* Phoenix */ = {
 			isa = PBXGroup;
 			children = (
-				9445CA42190833C1002568BB /* lua */,
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2119083251002568BB /* app_delegate.m */,
 				9445CAA4190847CB002568BB /* phoenix_init.lua */,
@@ -220,8 +221,8 @@
 				94E8E7AA194E0B5F0064CF6C /* menu_icon */,
 				94E8E7AB194E0B630064CF6C /* screen */,
 				94E8E7AC194E0B670064CF6C /* window */,
-				9445CA2619083251002568BB /* Images.xcassets */,
 				9445CA1519083251002568BB /* Supporting Files */,
+				9445CA42190833C1002568BB /* lua */,
 			);
 			path = Phoenix;
 			sourceTree = "<group>";
@@ -229,6 +230,8 @@
 		9445CA1519083251002568BB /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				9445CA2619083251002568BB /* Images.xcassets */,
+				94E8E7AD194E0C940064CF6C /* Phoenix.icns */,
 				9445CA1619083251002568BB /* Phoenix-Info.plist */,
 				9445CA1A19083251002568BB /* main.m */,
 				9445CA1C19083251002568BB /* Phoenix-Prefix.pch */,
@@ -442,6 +445,7 @@
 			files = (
 				94C36942194DD94D00EE3A2D /* updater.lua in Resources */,
 				94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */,
+				94E8E7AE194E0C940064CF6C /* Phoenix.icns in Resources */,
 				945212A0194D697100217584 /* AlertWindow.xib in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
