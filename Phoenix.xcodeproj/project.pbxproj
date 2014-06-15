@@ -47,6 +47,8 @@
 		9445CAA5190847CB002568BB /* phoenix_init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* phoenix_init.lua */; };
 		9452129A194D59F800217584 /* mouse.m in Sources */ = {isa = PBXBuildFile; fileRef = 94521299194D59F800217584 /* mouse.m */; };
 		9452129C194D5B8F00217584 /* login.m in Sources */ = {isa = PBXBuildFile; fileRef = 9452129B194D5B8F00217584 /* login.m */; };
+		9452129E194D65BF00217584 /* alert.m in Sources */ = {isa = PBXBuildFile; fileRef = 9452129D194D65BF00217584 /* alert.m */; };
+		945212A0194D697100217584 /* AlertWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9452129F194D697100217584 /* AlertWindow.xib */; };
 		9459B58F194CEB07008BC904 /* key_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* key_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		94BDB49C19094B7A00BD0553 /* app.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* app.m */; };
@@ -125,6 +127,8 @@
 		9445CAA4190847CB002568BB /* phoenix_init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = phoenix_init.lua; sourceTree = "<group>"; };
 		94521299194D59F800217584 /* mouse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mouse.m; sourceTree = "<group>"; };
 		9452129B194D5B8F00217584 /* login.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = login.m; sourceTree = "<group>"; };
+		9452129D194D65BF00217584 /* alert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = alert.m; sourceTree = "<group>"; };
+		9452129F194D697100217584 /* AlertWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AlertWindow.xib; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* key_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = key_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* app.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = app.m; sourceTree = "<group>"; };
@@ -189,6 +193,8 @@
 				94BDB49B19094B7A00BD0553 /* app.m */,
 				94521299194D59F800217584 /* mouse.m */,
 				9452129B194D5B8F00217584 /* login.m */,
+				9452129D194D65BF00217584 /* alert.m */,
+				9452129F194D697100217584 /* AlertWindow.xib */,
 				9445CAA4190847CB002568BB /* phoenix_init.lua */,
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
@@ -324,6 +330,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				945212A0194D697100217584 /* AlertWindow.xib in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
 				9445CAA5190847CB002568BB /* phoenix_init.lua in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
@@ -355,6 +362,7 @@
 				9445CA9E190833C1002568BB /* lvm.c in Sources */,
 				9445CA8F190833C1002568BB /* lmem.c in Sources */,
 				9445CA88190833C1002568BB /* ldump.c in Sources */,
+				9452129E194D65BF00217584 /* alert.m in Sources */,
 				9445CA96190833C1002568BB /* lstring.c in Sources */,
 				9445CA7E190833C1002568BB /* lapi.c in Sources */,
 				9445CA9F190833C1002568BB /* lzio.c in Sources */,

@@ -1,107 +1,55 @@
-//
-//  SDAlertWindowController.m
-//  Zephyros
-//
-//  Created by Steven on 4/14/13.
-//  Copyright (c) 2013 Giant Robot Software. All rights reserved.
-//
+#import <Cocoa/Cocoa.h>
+#import "lua/lauxlib.h"
 
-#import "PHAlerts.h"
+static NSMutableArray* visibleAlerts;
 
-#import <QuartzCore/QuartzCore.h>
-
-
-
-
-@protocol PHAlertHoraMortisNostraeDelegate <NSObject>
-
-- (void) oraPro:(id)nobis;
-
+@interface PHAlert : NSWindowController
 @end
 
-
-
-@interface PHAlertWindowController : NSWindowController
-
-- (void) show:(NSString*)oneLineMsg duration:(CGFloat)duration pushDownBy:(CGFloat)adjustment;
-
-@property (weak) id<PHAlertHoraMortisNostraeDelegate> delegate;
-
-@end
-
-
-
-
-
-@interface PHAlerts () <PHAlertHoraMortisNostraeDelegate>
-
-@property NSMutableArray* visibleAlerts;
-
-@end
-
-
-@implementation PHAlerts
-
-+ (PHAlerts*) sharedAlerts {
-    static PHAlerts* sharedAlerts;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedAlerts = [[PHAlerts alloc] init];
-        sharedAlerts.alertDisappearDelay = 1.0;
-        sharedAlerts.visibleAlerts = [NSMutableArray array];
-    });
-    return sharedAlerts;
-}
-
-- (void) show:(NSString*)oneLineMsg {
-    [self show:oneLineMsg duration:self.alertDisappearDelay];
-}
-
-- (void) show:(NSString*)oneLineMsg duration:(CGFloat)duration {
-    CGFloat absoluteTop;
-    
-    NSScreen* currentScreen = [NSScreen mainScreen];
-    
-    if ([self.visibleAlerts count] == 0) {
-        CGRect screenRect = [currentScreen frame];
-        absoluteTop = screenRect.size.height / 1.55; // pretty good spot
-    }
-    else {
-        PHAlertWindowController* ctrl = [self.visibleAlerts lastObject];
-        absoluteTop = NSMinY([[ctrl window] frame]) - 3.0;
-    }
-    
-    if (absoluteTop <= 0)
-        absoluteTop = NSMaxY([currentScreen visibleFrame]);
-    
-    PHAlertWindowController* alert = [[PHAlertWindowController alloc] init];
-    alert.delegate = self;
-    [alert show:oneLineMsg duration:duration pushDownBy:absoluteTop];
-    [self.visibleAlerts addObject:alert];
-}
-
-- (void) oraPro:(id)nobis {
-    [self.visibleAlerts removeObject:nobis];
-}
-
-@end
-
-
-
-
-
-
-
-
-
-@interface PHAlertWindowController ()
+@interface PHAlert ()
 
 @property IBOutlet NSTextField* textField;
 @property IBOutlet NSBox* box;
 
 @end
 
-@implementation PHAlertWindowController
+@implementation PHAlert
+
+int alert_show(lua_State* L) {
+    const char* str = lua_tostring(L, 1);
+    double duration = lua_tonumber(L, 2);
+    
+    PHShowAlert([NSString stringWithUTF8String:str], duration);
+    
+    return 0;
+}
+
+void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        visibleAlerts = [NSMutableArray array];
+    });
+    
+    CGFloat absoluteTop;
+    
+    NSScreen* currentScreen = [NSScreen mainScreen];
+    
+    if ([visibleAlerts count] == 0) {
+        CGRect screenRect = [currentScreen frame];
+        absoluteTop = screenRect.size.height / 1.55; // pretty good spot
+    }
+    else {
+        PHAlert* ctrl = [visibleAlerts lastObject];
+        absoluteTop = NSMinY([[ctrl window] frame]) - 3.0;
+    }
+    
+    if (absoluteTop <= 0)
+        absoluteTop = NSMaxY([currentScreen visibleFrame]);
+    
+    PHAlert* alert = [[PHAlert alloc] init];
+    [alert show:oneLineMsg duration:duration pushDownBy:absoluteTop];
+    [visibleAlerts addObject:alert];
+}
 
 - (NSString*) windowNibName {
     return @"AlertWindow";
@@ -113,7 +61,7 @@
     self.window.opaque = NO;
     self.window.level = NSFloatingWindowLevel;
     self.window.ignoresMouseEvents = YES;
-    self.window.animationBehavior = ([PHAlerts sharedAlerts].alertAnimates ? NSWindowAnimationBehaviorAlertPanel : NSWindowAnimationBehaviorNone);
+    self.window.animationBehavior = (/* TODO: make me a variable */ YES ? NSWindowAnimationBehaviorAlertPanel : NSWindowAnimationBehaviorNone);
 //    self.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorStationary;
 }
 
@@ -157,7 +105,7 @@
     [[self window] orderOut:nil];
     [[self window] setAlphaValue:1.0];
     
-    [self.delegate oraPro:self];
+    [visibleAlerts removeObject: self];
 }
 
 - (void) useTitleAndResize:(NSString*)title {

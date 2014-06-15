@@ -6,7 +6,7 @@
 -- end
 
 
-
+__api.alert_show("hi!", 1)
 
 if false then
 

@@ -22,6 +22,8 @@ int mouse_set(lua_State* L);
 int open_at_login_get(lua_State* L);
 int open_at_login_set(lua_State* L);
 
+int alert_show(lua_State* L);
+
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
     {"hotkey_register", hotkey_register},
@@ -41,6 +43,8 @@ static const luaL_Reg phoenix_lib[] = {
     
     {"open_at_login_get", open_at_login_get},
     {"open_at_login_set", open_at_login_set},
+    
+    {"alert_show", alert_show},
     
     {NULL, NULL}
 };
