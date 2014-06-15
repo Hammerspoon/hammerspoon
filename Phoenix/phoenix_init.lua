@@ -1,5 +1,15 @@
 __api.alert_show("Phoenix config loaded", 1.5)
 
+package.path = os.getenv("HOME") .. "/.phoenix/" .. "?.lua;" .. package.path
+print(package.path)
+
+local ok, error = pcall(function()
+                           require("init")
+                        end)
+
+if not ok then
+   __api.alert_show(error, 5)
+end
 
 
 
