@@ -18,6 +18,9 @@ int app_is_hidden(lua_State* L);
 int mouse_get(lua_State* L);
 int mouse_set(lua_State* L);
 
+int open_at_login_get(lua_State* L);
+int open_at_login_set(lua_State* L);
+
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
     {"hotkey_register", hotkey_register},
@@ -33,6 +36,9 @@ static const luaL_Reg phoenix_lib[] = {
     
     {"mouse_get", mouse_get},
     {"mouse_set", mouse_set},
+    
+    {"open_at_login_get", open_at_login_get},
+    {"open_at_login_set", open_at_login_set},
     
     {NULL, NULL}
 };
