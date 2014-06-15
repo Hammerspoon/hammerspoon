@@ -32,6 +32,9 @@ int pathwatcher_start(lua_State* L);
 
 int window_get_focused_window(lua_State* L);
 int window_title(lua_State* L);
+int window_is_standard(lua_State* L);
+int window_topleft(lua_State* L);
+int window_size(lua_State* L);
 
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
@@ -63,6 +66,9 @@ static const luaL_Reg phoenix_lib[] = {
     
     {"window_get_focused_window", window_get_focused_window},
     {"window_title", window_title},
+    {"window_is_standard", window_is_standard},
+    {"window_topleft", window_topleft},
+    {"window_size", window_size},
     
     {NULL, NULL}
 };
