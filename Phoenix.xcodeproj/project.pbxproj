@@ -56,6 +56,7 @@
 		945212AA194D6CF700217584 /* misc.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A9194D6CF700217584 /* misc.m */; };
 		9459B58F194CEB07008BC904 /* key_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* key_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
+		94A1537C194D77A400F29F8F /* window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94A1537B194D77A400F29F8F /* window.lua */; };
 		94BDB49C19094B7A00BD0553 /* app.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* app.m */; };
 /* End PBXBuildFile section */
 
@@ -141,6 +142,7 @@
 		945212A9194D6CF700217584 /* misc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = misc.m; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* key_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = key_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
+		94A1537B194D77A400F29F8F /* window.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window.lua; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* app.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = app.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -211,6 +213,7 @@
 				945212A5194D6B5900217584 /* statusitem.png */,
 				945212A6194D6B5900217584 /* statusitem@2x.png */,
 				9445CAA4190847CB002568BB /* phoenix_init.lua */,
+				94A1537B194D77A400F29F8F /* window.lua */,
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
 				9445CA1519083251002568BB /* Supporting Files */,
@@ -346,6 +349,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				945212A0194D697100217584 /* AlertWindow.xib in Resources */,
+				94A1537C194D77A400F29F8F /* window.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
 				945212A7194D6B5900217584 /* statusitem.png in Resources */,
 				9445CAA5190847CB002568BB /* phoenix_init.lua in Resources */,

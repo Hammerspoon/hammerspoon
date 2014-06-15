@@ -1,12 +1,17 @@
+-- set both require-paths
+local thisdir = ...
+package.path = thisdir .. "/?.lua;" .. os.getenv("HOME") .. "/.phoenix/?.lua;" .. package.path
+
+-- welcome user
 __api.alert_show("Phoenix config loaded", 1.5)
 
-package.path = os.getenv("HOME") .. "/.phoenix/" .. "?.lua;" .. package.path
-print(package.path)
-
+-- load user's config
 local ok, error = pcall(function()
+                           require("window")
                            require("init")
                         end)
 
+-- report error in user's config
 if not ok then
    __api.alert_show(error, 5)
 end
