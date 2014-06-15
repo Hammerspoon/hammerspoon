@@ -1,6 +1,4 @@
 #import <Carbon/Carbon.h>
-#import "lua/lua.h"
-
 #import "lua/lauxlib.h"
 
 UInt32 PHKeyCodeForString(NSString* str);
