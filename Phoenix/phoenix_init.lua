@@ -7,9 +7,12 @@
 
 print("done")
 
+-- local x, y = __api.mouse_get()
+
 -- __api.hotkey_setup(function(uid)
---     print("got: " .. tostring(uid))
--- end)
+--                       __api.mouse_set(x, y)
+--                       print("got: " .. tostring(uid))
+--                    end)
 
 -- local uid, carbonkey = __api.hotkey_register(true, true, true, false, "s")
 

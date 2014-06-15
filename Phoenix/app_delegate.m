@@ -15,6 +15,9 @@ int app_kill(lua_State* L);
 int app_kill9(lua_State* L);
 int app_is_hidden(lua_State* L);
 
+int mouse_get(lua_State* L);
+int mouse_set(lua_State* L);
+
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
     {"hotkey_register", hotkey_register},
@@ -27,6 +30,9 @@ static const luaL_Reg phoenix_lib[] = {
     {"app_kill", app_kill},
     {"app_kill9", app_kill9},
     {"app_is_hidden", app_is_hidden},
+    
+    {"mouse_get", mouse_get},
+    {"mouse_set", mouse_set},
     
     {NULL, NULL}
 };

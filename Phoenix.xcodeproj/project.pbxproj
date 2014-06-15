@@ -45,6 +45,7 @@
 		9445CA9E190833C1002568BB /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7A190833C1002568BB /* lvm.c */; };
 		9445CA9F190833C1002568BB /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7C190833C1002568BB /* lzio.c */; };
 		9445CAA5190847CB002568BB /* phoenix_init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* phoenix_init.lua */; };
+		9452129A194D59F800217584 /* mouse.m in Sources */ = {isa = PBXBuildFile; fileRef = 94521299194D59F800217584 /* mouse.m */; };
 		9459B58F194CEB07008BC904 /* key_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* key_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		94BDB49C19094B7A00BD0553 /* app.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* app.m */; };
@@ -121,6 +122,7 @@
 		9445CA7D190833C1002568BB /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		9445CAA019083402002568BB /* lua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lua.h; sourceTree = "<group>"; };
 		9445CAA4190847CB002568BB /* phoenix_init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = phoenix_init.lua; sourceTree = "<group>"; };
+		94521299194D59F800217584 /* mouse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mouse.m; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* key_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = key_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* app.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = app.m; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 				9459B58E194CEB07008BC904 /* key_translator.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94BDB49B19094B7A00BD0553 /* app.m */,
+				94521299194D59F800217584 /* mouse.m */,
 				9445CAA4190847CB002568BB /* phoenix_init.lua */,
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
@@ -332,6 +335,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9445CA82190833C1002568BB /* lcode.c in Sources */,
+				9452129A194D59F800217584 /* mouse.m in Sources */,
 				9459B592194CEE1E008BC904 /* hotkey.m in Sources */,
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
