@@ -71,7 +71,11 @@ static const luaL_Reg phoenix_lib[] = {
     BOOL enabled = AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)@{(__bridge id)kAXTrustedCheckOptionPrompt: @(YES)});
     
     if (!enabled) {
-        NSRunAlertPanel(@"Enable Accessibility First", @"Find the little popup right behind this one, click \"Open System Preferences\" and enable Phoenix. Then launch Phoenix again.", @"Quit", nil, nil);
+        NSRunAlertPanel(@"Enable Accessibility First",
+                        @"Find the little popup right behind this one, click \"Open System Preferences\" and enable Phoenix. Then launch Phoenix again.",
+                        @"Quit",
+                        nil,
+                        nil);
         [NSApp terminate:self];
     }
 }
