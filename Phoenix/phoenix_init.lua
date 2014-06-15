@@ -5,8 +5,9 @@
 --    print(k, __api.app_title(v))
 -- end
 
+__api.menu_icon_show()
 
-__api.alert_show("hi!", 1)
+-- __api.alert_show("hi!", 1)
 
 if false then
 
@@ -21,6 +22,12 @@ if false then
    end
 
 end
+
+-- __api.hotkey_setup(function(uid)
+--                       __api.menu_icon_hide()
+--                    end)
+-- __api.hotkey_register(true, true, true, false, "s")
+
 
 print("done")
 

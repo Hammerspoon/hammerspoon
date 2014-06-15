@@ -49,6 +49,10 @@
 		9452129C194D5B8F00217584 /* login.m in Sources */ = {isa = PBXBuildFile; fileRef = 9452129B194D5B8F00217584 /* login.m */; };
 		9452129E194D65BF00217584 /* alert.m in Sources */ = {isa = PBXBuildFile; fileRef = 9452129D194D65BF00217584 /* alert.m */; };
 		945212A0194D697100217584 /* AlertWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9452129F194D697100217584 /* AlertWindow.xib */; };
+		945212A2194D69E700217584 /* path_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A1194D69E700217584 /* path_watcher.m */; };
+		945212A4194D6A6000217584 /* menu_icon.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A3194D6A6000217584 /* menu_icon.m */; };
+		945212A7194D6B5900217584 /* statusitem.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A5194D6B5900217584 /* statusitem.png */; };
+		945212A8194D6B5900217584 /* statusitem@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A6194D6B5900217584 /* statusitem@2x.png */; };
 		9459B58F194CEB07008BC904 /* key_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* key_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		94BDB49C19094B7A00BD0553 /* app.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* app.m */; };
@@ -129,6 +133,10 @@
 		9452129B194D5B8F00217584 /* login.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = login.m; sourceTree = "<group>"; };
 		9452129D194D65BF00217584 /* alert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = alert.m; sourceTree = "<group>"; };
 		9452129F194D697100217584 /* AlertWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AlertWindow.xib; sourceTree = "<group>"; };
+		945212A1194D69E700217584 /* path_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = path_watcher.m; sourceTree = "<group>"; };
+		945212A3194D6A6000217584 /* menu_icon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = menu_icon.m; sourceTree = "<group>"; };
+		945212A5194D6B5900217584 /* statusitem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusitem.png; sourceTree = "<group>"; };
+		945212A6194D6B5900217584 /* statusitem@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusitem@2x.png"; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* key_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = key_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* app.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = app.m; sourceTree = "<group>"; };
@@ -194,7 +202,11 @@
 				94521299194D59F800217584 /* mouse.m */,
 				9452129B194D5B8F00217584 /* login.m */,
 				9452129D194D65BF00217584 /* alert.m */,
+				945212A1194D69E700217584 /* path_watcher.m */,
+				945212A3194D6A6000217584 /* menu_icon.m */,
 				9452129F194D697100217584 /* AlertWindow.xib */,
+				945212A5194D6B5900217584 /* statusitem.png */,
+				945212A6194D6B5900217584 /* statusitem@2x.png */,
 				9445CAA4190847CB002568BB /* phoenix_init.lua */,
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
@@ -332,8 +344,10 @@
 			files = (
 				945212A0194D697100217584 /* AlertWindow.xib in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
+				945212A7194D6B5900217584 /* statusitem.png in Resources */,
 				9445CAA5190847CB002568BB /* phoenix_init.lua in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
+				945212A8194D6B5900217584 /* statusitem@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +361,7 @@
 				9445CA82190833C1002568BB /* lcode.c in Sources */,
 				9452129A194D59F800217584 /* mouse.m in Sources */,
 				9459B592194CEE1E008BC904 /* hotkey.m in Sources */,
+				945212A4194D6A6000217584 /* menu_icon.m in Sources */,
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
 				9445CA2219083251002568BB /* app_delegate.m in Sources */,
@@ -357,6 +372,7 @@
 				9445CA80190833C1002568BB /* lbaselib.c in Sources */,
 				9445CA9A190833C1002568BB /* ltm.c in Sources */,
 				9445CA85190833C1002568BB /* ldblib.c in Sources */,
+				945212A2194D69E700217584 /* path_watcher.m in Sources */,
 				9445CA81190833C1002568BB /* lbitlib.c in Sources */,
 				9445CA8B190833C1002568BB /* linit.c in Sources */,
 				9445CA9E190833C1002568BB /* lvm.c in Sources */,
