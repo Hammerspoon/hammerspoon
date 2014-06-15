@@ -14,7 +14,7 @@
 static NSStatusItem *statusItem;
 
 int menu_icon_show(lua_State* L) {
-    NSImage* img = [NSImage imageNamed:@"statusitem"];
+    NSImage* img = [NSImage imageNamed:@"menu"];
     [img setTemplate:YES];
     
     if (!statusItem) {

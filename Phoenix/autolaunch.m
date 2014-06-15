@@ -9,7 +9,7 @@ static LSSharedFileListRef shared_file_list() {
     return sharedFileList;
 }
 
-int open_at_login_get(lua_State* L) {
+int autolaunch_get(lua_State* L) {
     NSURL *appURL = [[[NSBundle mainBundle] bundleURL] fileReferenceURL];
     
     UInt32 seed;
@@ -35,7 +35,7 @@ int open_at_login_get(lua_State* L) {
     return 1;
 }
 
-int open_at_login_set(lua_State* L) {
+int autolaunch_set(lua_State* L) {
     BOOL opensAtLogin = lua_tonumber(L, 1);
     
     NSURL *appURL = [[[NSBundle mainBundle] bundleURL] fileReferenceURL];

@@ -52,7 +52,7 @@ void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
 }
 
 - (NSString*) windowNibName {
-    return @"AlertWindow";
+    return @"alert";
 }
 
 - (void) windowDidLoad {

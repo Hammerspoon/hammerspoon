@@ -19,16 +19,16 @@ int app_is_hidden(lua_State* L);
 int mouse_get(lua_State* L);
 int mouse_set(lua_State* L);
 
-int open_at_login_get(lua_State* L);
-int open_at_login_set(lua_State* L);
+int autolaunch_get(lua_State* L);
+int autolaunch_set(lua_State* L);
 
 int alert_show(lua_State* L);
 
 int menu_icon_show(lua_State* L);
 int menu_icon_hide(lua_State* L);
 
-int path_watcher_stop(lua_State* L);
-int path_watcher_start(lua_State* L);
+int pathwatcher_stop(lua_State* L);
+int pathwatcher_start(lua_State* L);
 
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
@@ -47,16 +47,16 @@ static const luaL_Reg phoenix_lib[] = {
     {"mouse_get", mouse_get},
     {"mouse_set", mouse_set},
     
-    {"open_at_login_get", open_at_login_get},
-    {"open_at_login_set", open_at_login_set},
+    {"autolaunch_get", autolaunch_get},
+    {"autolaunch_set", autolaunch_set},
     
     {"alert_show", alert_show},
     
     {"menu_icon_show", menu_icon_show},
     {"menu_icon_hide", menu_icon_hide},
     
-    {"path_watcher_stop", path_watcher_stop},
-    {"path_watcher_start", path_watcher_start},
+    {"pathwatcher_stop", pathwatcher_stop},
+    {"pathwatcher_start", pathwatcher_start},
     
     {NULL, NULL}
 };

@@ -46,13 +46,13 @@
 		9445CA9F190833C1002568BB /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7C190833C1002568BB /* lzio.c */; };
 		9445CAA5190847CB002568BB /* phoenix_init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* phoenix_init.lua */; };
 		9452129A194D59F800217584 /* mouse.m in Sources */ = {isa = PBXBuildFile; fileRef = 94521299194D59F800217584 /* mouse.m */; };
-		9452129C194D5B8F00217584 /* login.m in Sources */ = {isa = PBXBuildFile; fileRef = 9452129B194D5B8F00217584 /* login.m */; };
+		9452129C194D5B8F00217584 /* autolaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 9452129B194D5B8F00217584 /* autolaunch.m */; };
 		9452129E194D65BF00217584 /* alert.m in Sources */ = {isa = PBXBuildFile; fileRef = 9452129D194D65BF00217584 /* alert.m */; };
-		945212A0194D697100217584 /* AlertWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9452129F194D697100217584 /* AlertWindow.xib */; };
-		945212A2194D69E700217584 /* path_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A1194D69E700217584 /* path_watcher.m */; };
-		945212A4194D6A6000217584 /* menu_icon.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A3194D6A6000217584 /* menu_icon.m */; };
-		945212A7194D6B5900217584 /* statusitem.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A5194D6B5900217584 /* statusitem.png */; };
-		945212A8194D6B5900217584 /* statusitem@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A6194D6B5900217584 /* statusitem@2x.png */; };
+		945212A0194D697100217584 /* alert.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9452129F194D697100217584 /* alert.xib */; };
+		945212A2194D69E700217584 /* pathwatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A1194D69E700217584 /* pathwatcher.m */; };
+		945212A4194D6A6000217584 /* menu.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A3194D6A6000217584 /* menu.m */; };
+		945212A7194D6B5900217584 /* menu.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A5194D6B5900217584 /* menu.png */; };
+		945212A8194D6B5900217584 /* menu@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A6194D6B5900217584 /* menu@2x.png */; };
 		9459B58F194CEB07008BC904 /* key_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* key_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		94A1537C194D77A400F29F8F /* window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94A1537B194D77A400F29F8F /* window.lua */; };
@@ -63,6 +63,13 @@
 		94E8E7A0194E0AB10064CF6C /* screen.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E8E79F194E0AB10064CF6C /* screen.m */; };
 		94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7A1194E0B2B0064CF6C /* hotkey.lua */; };
 		94E8E7AE194E0C940064CF6C /* Phoenix.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Phoenix.icns */; };
+		94E8E7B0194E24FC0064CF6C /* mouse.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AF194E24FC0064CF6C /* mouse.lua */; };
+		94E8E7B2194E25020064CF6C /* autolaunch.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B1194E25020064CF6C /* autolaunch.lua */; };
+		94E8E7B4194E25080064CF6C /* alert.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B3194E25080064CF6C /* alert.lua */; };
+		94E8E7B6194E25120064CF6C /* pathwatcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B5194E25120064CF6C /* pathwatcher.lua */; };
+		94E8E7B8194E25190064CF6C /* menu.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B7194E25190064CF6C /* menu.lua */; };
+		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
+		94E8E7BC194E25300064CF6C /* app.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* app.lua */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -137,13 +144,13 @@
 		9445CAA019083402002568BB /* lua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lua.h; sourceTree = "<group>"; };
 		9445CAA4190847CB002568BB /* phoenix_init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = phoenix_init.lua; sourceTree = "<group>"; };
 		94521299194D59F800217584 /* mouse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mouse.m; sourceTree = "<group>"; };
-		9452129B194D5B8F00217584 /* login.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = login.m; sourceTree = "<group>"; };
+		9452129B194D5B8F00217584 /* autolaunch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = autolaunch.m; sourceTree = "<group>"; };
 		9452129D194D65BF00217584 /* alert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = alert.m; sourceTree = "<group>"; };
-		9452129F194D697100217584 /* AlertWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AlertWindow.xib; sourceTree = "<group>"; };
-		945212A1194D69E700217584 /* path_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = path_watcher.m; sourceTree = "<group>"; };
-		945212A3194D6A6000217584 /* menu_icon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = menu_icon.m; sourceTree = "<group>"; };
-		945212A5194D6B5900217584 /* statusitem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusitem.png; sourceTree = "<group>"; };
-		945212A6194D6B5900217584 /* statusitem@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusitem@2x.png"; sourceTree = "<group>"; };
+		9452129F194D697100217584 /* alert.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = alert.xib; sourceTree = "<group>"; };
+		945212A1194D69E700217584 /* pathwatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = pathwatcher.m; sourceTree = "<group>"; };
+		945212A3194D6A6000217584 /* menu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = menu.m; sourceTree = "<group>"; };
+		945212A5194D6B5900217584 /* menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = menu.png; sourceTree = "<group>"; };
+		945212A6194D6B5900217584 /* menu@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu@2x.png"; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* key_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = key_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		94A1537B194D77A400F29F8F /* window.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window.lua; sourceTree = "<group>"; };
@@ -154,6 +161,13 @@
 		94E8E79F194E0AB10064CF6C /* screen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = screen.m; sourceTree = "<group>"; };
 		94E8E7A1194E0B2B0064CF6C /* hotkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey.lua; sourceTree = "<group>"; };
 		94E8E7AD194E0C940064CF6C /* Phoenix.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Phoenix.icns; sourceTree = "<group>"; };
+		94E8E7AF194E24FC0064CF6C /* mouse.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mouse.lua; sourceTree = "<group>"; };
+		94E8E7B1194E25020064CF6C /* autolaunch.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = autolaunch.lua; sourceTree = "<group>"; };
+		94E8E7B3194E25080064CF6C /* alert.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = alert.lua; sourceTree = "<group>"; };
+		94E8E7B5194E25120064CF6C /* pathwatcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pathwatcher.lua; sourceTree = "<group>"; };
+		94E8E7B7194E25190064CF6C /* menu.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = menu.lua; sourceTree = "<group>"; };
+		94E8E7B9194E25290064CF6C /* screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = screen.lua; sourceTree = "<group>"; };
+		94E8E7BB194E25300064CF6C /* app.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = app.lua; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,10 +229,10 @@
 				94E8E7A3194E0B310064CF6C /* hotkey */,
 				94E8E7A6194E0B4E0064CF6C /* app */,
 				94E8E7A5194E0B4A0064CF6C /* mouse */,
-				94E8E7A7194E0B520064CF6C /* login */,
+				94E8E7A7194E0B520064CF6C /* autolaunch */,
 				94E8E7A8194E0B550064CF6C /* alert */,
-				94E8E7A9194E0B590064CF6C /* path_watcher */,
-				94E8E7AA194E0B5F0064CF6C /* menu_icon */,
+				94E8E7A9194E0B590064CF6C /* pathwatcher */,
+				94E8E7AA194E0B5F0064CF6C /* menu */,
 				94E8E7AB194E0B630064CF6C /* screen */,
 				94E8E7AC194E0B670064CF6C /* window */,
 				9445CA1519083251002568BB /* Supporting Files */,
@@ -306,9 +320,9 @@
 		94E8E7A3194E0B310064CF6C /* hotkey */ = {
 			isa = PBXGroup;
 			children = (
-				9459B58E194CEB07008BC904 /* key_translator.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94E8E7A1194E0B2B0064CF6C /* hotkey.lua */,
+				9459B58E194CEB07008BC904 /* key_translator.m */,
 			);
 			name = hotkey;
 			sourceTree = "<group>";
@@ -326,6 +340,7 @@
 			isa = PBXGroup;
 			children = (
 				94521299194D59F800217584 /* mouse.m */,
+				94E8E7AF194E24FC0064CF6C /* mouse.lua */,
 			);
 			name = mouse;
 			sourceTree = "<group>";
@@ -334,49 +349,55 @@
 			isa = PBXGroup;
 			children = (
 				94BDB49B19094B7A00BD0553 /* app.m */,
+				94E8E7BB194E25300064CF6C /* app.lua */,
 			);
 			name = app;
 			sourceTree = "<group>";
 		};
-		94E8E7A7194E0B520064CF6C /* login */ = {
+		94E8E7A7194E0B520064CF6C /* autolaunch */ = {
 			isa = PBXGroup;
 			children = (
-				9452129B194D5B8F00217584 /* login.m */,
+				9452129B194D5B8F00217584 /* autolaunch.m */,
+				94E8E7B1194E25020064CF6C /* autolaunch.lua */,
 			);
-			name = login;
+			name = autolaunch;
 			sourceTree = "<group>";
 		};
 		94E8E7A8194E0B550064CF6C /* alert */ = {
 			isa = PBXGroup;
 			children = (
 				9452129D194D65BF00217584 /* alert.m */,
-				9452129F194D697100217584 /* AlertWindow.xib */,
+				94E8E7B3194E25080064CF6C /* alert.lua */,
+				9452129F194D697100217584 /* alert.xib */,
 			);
 			name = alert;
 			sourceTree = "<group>";
 		};
-		94E8E7A9194E0B590064CF6C /* path_watcher */ = {
+		94E8E7A9194E0B590064CF6C /* pathwatcher */ = {
 			isa = PBXGroup;
 			children = (
-				945212A1194D69E700217584 /* path_watcher.m */,
+				945212A1194D69E700217584 /* pathwatcher.m */,
+				94E8E7B5194E25120064CF6C /* pathwatcher.lua */,
 			);
-			name = path_watcher;
+			name = pathwatcher;
 			sourceTree = "<group>";
 		};
-		94E8E7AA194E0B5F0064CF6C /* menu_icon */ = {
+		94E8E7AA194E0B5F0064CF6C /* menu */ = {
 			isa = PBXGroup;
 			children = (
-				945212A3194D6A6000217584 /* menu_icon.m */,
-				945212A5194D6B5900217584 /* statusitem.png */,
-				945212A6194D6B5900217584 /* statusitem@2x.png */,
+				945212A3194D6A6000217584 /* menu.m */,
+				94E8E7B7194E25190064CF6C /* menu.lua */,
+				945212A5194D6B5900217584 /* menu.png */,
+				945212A6194D6B5900217584 /* menu@2x.png */,
 			);
-			name = menu_icon;
+			name = menu;
 			sourceTree = "<group>";
 		};
 		94E8E7AB194E0B630064CF6C /* screen */ = {
 			isa = PBXGroup;
 			children = (
 				94E8E79F194E0AB10064CF6C /* screen.m */,
+				94E8E7B9194E25290064CF6C /* screen.lua */,
 			);
 			name = screen;
 			sourceTree = "<group>";
@@ -444,15 +465,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				94C36942194DD94D00EE3A2D /* updater.lua in Resources */,
+				94E8E7B0194E24FC0064CF6C /* mouse.lua in Resources */,
 				94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */,
 				94E8E7AE194E0C940064CF6C /* Phoenix.icns in Resources */,
-				945212A0194D697100217584 /* AlertWindow.xib in Resources */,
+				94E8E7B6194E25120064CF6C /* pathwatcher.lua in Resources */,
+				945212A0194D697100217584 /* alert.xib in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
-				945212A7194D6B5900217584 /* statusitem.png in Resources */,
+				945212A7194D6B5900217584 /* menu.png in Resources */,
+				94E8E7BC194E25300064CF6C /* app.lua in Resources */,
 				9445CAA5190847CB002568BB /* phoenix_init.lua in Resources */,
+				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
+				94E8E7B8194E25190064CF6C /* menu.lua in Resources */,
+				94E8E7B4194E25080064CF6C /* alert.lua in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
-				945212A8194D6B5900217584 /* statusitem@2x.png in Resources */,
+				94E8E7B2194E25020064CF6C /* autolaunch.lua in Resources */,
+				945212A8194D6B5900217584 /* menu@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -466,18 +494,18 @@
 				9445CA82190833C1002568BB /* lcode.c in Sources */,
 				9452129A194D59F800217584 /* mouse.m in Sources */,
 				9459B592194CEE1E008BC904 /* hotkey.m in Sources */,
-				945212A4194D6A6000217584 /* menu_icon.m in Sources */,
+				945212A4194D6A6000217584 /* menu.m in Sources */,
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
 				9445CA2219083251002568BB /* app_delegate.m in Sources */,
 				9445CA86190833C1002568BB /* ldebug.c in Sources */,
 				9445CA8C190833C1002568BB /* liolib.c in Sources */,
 				9445CA93190833C1002568BB /* loslib.c in Sources */,
-				9452129C194D5B8F00217584 /* login.m in Sources */,
+				9452129C194D5B8F00217584 /* autolaunch.m in Sources */,
 				9445CA80190833C1002568BB /* lbaselib.c in Sources */,
 				9445CA9A190833C1002568BB /* ltm.c in Sources */,
 				9445CA85190833C1002568BB /* ldblib.c in Sources */,
-				945212A2194D69E700217584 /* path_watcher.m in Sources */,
+				945212A2194D69E700217584 /* pathwatcher.m in Sources */,
 				9445CA81190833C1002568BB /* lbitlib.c in Sources */,
 				9445CA8B190833C1002568BB /* linit.c in Sources */,
 				9445CA9E190833C1002568BB /* lvm.c in Sources */,

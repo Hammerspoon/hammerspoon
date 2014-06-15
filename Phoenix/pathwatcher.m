@@ -1,12 +1,12 @@
 #import <Foundation/Foundation.h>
 #import "lua/lauxlib.h"
 
-void fsEventsCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]) {
+void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]) {
     dispatch_block_t block = (__bridge dispatch_block_t)clientCallBackInfo;
     block();
 }
 
-int path_watcher_stop(lua_State* L) {
+int pathwatcher_stop(lua_State* L) {
     FSEventStreamRef stream = lua_touserdata(L, 1);
     
     FSEventStreamStop(stream);
@@ -16,7 +16,7 @@ int path_watcher_stop(lua_State* L) {
     return 0;
 }
 
-int path_watcher_start(lua_State* L) {
+int pathwatcher_start(lua_State* L) {
     NSString* path = [NSString stringWithUTF8String: lua_tostring(L, 1)];
     
     int i = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -32,7 +32,7 @@ int path_watcher_start(lua_State* L) {
     context.release = NULL;
     context.copyDescription = NULL;
     FSEventStreamRef stream = FSEventStreamCreate(NULL,
-                                                  fsEventsCallback,
+                                                  event_callback,
                                                   &context,
                                                   (__bridge CFArrayRef)@[[path stringByStandardizingPath]],
                                                   kFSEventStreamEventIdSinceNow,
