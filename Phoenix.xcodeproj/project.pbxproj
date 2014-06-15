@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9445CA1B19083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA1A19083251002568BB /* main.m */; };
-		9445CA2219083251002568BB /* PHAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA2119083251002568BB /* PHAppDelegate.m */; };
+		9445CA2219083251002568BB /* app_delegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA2119083251002568BB /* app_delegate.m */; };
 		9445CA2519083251002568BB /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9445CA2319083251002568BB /* MainMenu.xib */; };
 		9445CA2719083251002568BB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9445CA2619083251002568BB /* Images.xcassets */; };
 		9445CA7E190833C1002568BB /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA43190833C1002568BB /* lapi.c */; };
@@ -59,8 +59,7 @@
 		9445CA1619083251002568BB /* Phoenix-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Phoenix-Info.plist"; sourceTree = "<group>"; };
 		9445CA1A19083251002568BB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9445CA1C19083251002568BB /* Phoenix-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Phoenix-Prefix.pch"; sourceTree = "<group>"; };
-		9445CA2019083251002568BB /* PHAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PHAppDelegate.h; sourceTree = "<group>"; };
-		9445CA2119083251002568BB /* PHAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PHAppDelegate.m; sourceTree = "<group>"; };
+		9445CA2119083251002568BB /* app_delegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = app_delegate.m; sourceTree = "<group>"; };
 		9445CA2419083251002568BB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9445CA2619083251002568BB /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		9445CA2D19083251002568BB /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -181,8 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				9445CA42190833C1002568BB /* lua */,
-				9445CA2019083251002568BB /* PHAppDelegate.h */,
-				9445CA2119083251002568BB /* PHAppDelegate.m */,
+				9445CA2119083251002568BB /* app_delegate.m */,
 				9459B58D194CEB07008BC904 /* key_translator.h */,
 				9459B58E194CEB07008BC904 /* key_translator.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
@@ -339,7 +337,7 @@
 				9459B592194CEE1E008BC904 /* hotkey.m in Sources */,
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
-				9445CA2219083251002568BB /* PHAppDelegate.m in Sources */,
+				9445CA2219083251002568BB /* app_delegate.m in Sources */,
 				9445CA86190833C1002568BB /* ldebug.c in Sources */,
 				9445CA8C190833C1002568BB /* liolib.c in Sources */,
 				9445CA93190833C1002568BB /* loslib.c in Sources */,

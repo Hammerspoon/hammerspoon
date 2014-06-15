@@ -1,4 +1,5 @@
-#import "PHAppDelegate.h"
+#import <Cocoa/Cocoa.h>
+
 #import "lua/lauxlib.h"
 #import "lua/lualib.h"
 
@@ -6,13 +7,33 @@ int hotkey_setup(lua_State *L);
 int hotkey_register(lua_State *L);
 int hotkey_unregister(lua_State *L);
 
+int app_running_apps(lua_State* L);
+int app_title(lua_State* L);
+int app_show(lua_State* L);
+int app_hide(lua_State* L);
+int app_kill(lua_State* L);
+int app_kill9(lua_State* L);
+int app_is_hidden(lua_State* L);
+
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
     {"hotkey_register", hotkey_register},
     {"hotkey_unregister", hotkey_unregister},
+    
+    {"app_running_apps", app_running_apps},
+    {"app_title", app_title},
+    {"app_show", app_show},
+    {"app_hide", app_hide},
+    {"app_kill", app_kill},
+    {"app_kill9", app_kill9},
+    {"app_is_hidden", app_is_hidden},
+    
     {NULL, NULL}
 };
 
+
+@interface PHAppDelegate : NSObject <NSApplicationDelegate>
+@end
 
 @implementation PHAppDelegate
 
