@@ -27,6 +27,9 @@ int alert_show(lua_State* L);
 int menu_icon_show(lua_State* L);
 int menu_icon_hide(lua_State* L);
 
+int path_watcher_stop(lua_State* L);
+int path_watcher_start(lua_State* L);
+
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
     {"hotkey_register", hotkey_register},
@@ -51,6 +54,9 @@ static const luaL_Reg phoenix_lib[] = {
     
     {"menu_icon_show", menu_icon_show},
     {"menu_icon_hide", menu_icon_hide},
+    
+    {"path_watcher_stop", path_watcher_stop},
+    {"path_watcher_start", path_watcher_start},
     
     {NULL, NULL}
 };

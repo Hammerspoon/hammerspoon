@@ -1,60 +1,47 @@
-//#import <Foundation/Foundation.h>
-//
-//@interface PHPathWatcher : NSObject
-//
-//+ (PHPathWatcher*) watcherFor:(NSString*)path handler:(void(^)())handler;
-//
-//@end
-//
-//@interface PHPathWatcher ()
-//
-//@property FSEventStreamRef stream;
-//@property (copy) void(^handler)();
-//
-//@end
-//
-//@implementation PHPathWatcher
-//
-//void fsEventsCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]) {
-//    PHPathWatcher* watcher = (__bridge PHPathWatcher*)clientCallBackInfo;
-//    [watcher fileChanged];
-//}
-//
-//- (void) dealloc {
-//    if (self.stream) {
-//        FSEventStreamStop(self.stream);
-//        FSEventStreamInvalidate(self.stream);
-//        FSEventStreamRelease(self.stream);
-//    }
-//}
-//
-//+ (PHPathWatcher*) watcherFor:(NSString*)path handler:(void(^)())handler {
-//    PHPathWatcher* watcher = [[PHPathWatcher alloc] init];
-//    watcher.handler = handler;
-//    [watcher setup:path];
-//    return watcher;
-//}
-//
-//- (void) setup:(NSString*)path {
-//    FSEventStreamContext context;
-//    context.info = (__bridge void*)self;
-//    context.version = 0;
-//    context.retain = NULL;
-//    context.release = NULL;
-//    context.copyDescription = NULL;
-//    self.stream = FSEventStreamCreate(NULL,
-//                                      fsEventsCallback,
-//                                      &context,
-//                                      (__bridge CFArrayRef)@[[path stringByStandardizingPath]],
-//                                      kFSEventStreamEventIdSinceNow,
-//                                      0.4,
-//                                      kFSEventStreamCreateFlagWatchRoot | kFSEventStreamCreateFlagNoDefer | kFSEventStreamCreateFlagFileEvents);
-//    FSEventStreamScheduleWithRunLoop(self.stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-//    FSEventStreamStart(self.stream);
-//}
-//
-//- (void) fileChanged {
-//    self.handler();
-//}
-//
-//@end
+#import <Foundation/Foundation.h>
+#import "lua/lauxlib.h"
+
+void fsEventsCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]) {
+    dispatch_block_t block = (__bridge dispatch_block_t)clientCallBackInfo;
+    block();
+}
+
+int path_watcher_stop(lua_State* L) {
+    FSEventStreamRef stream = lua_touserdata(L, 1);
+    
+    FSEventStreamStop(stream);
+    FSEventStreamInvalidate(stream);
+    FSEventStreamRelease(stream);
+    
+    return 0;
+}
+
+int path_watcher_start(lua_State* L) {
+    NSString* path = [NSString stringWithUTF8String: lua_tostring(L, 1)];
+    
+    int i = luaL_ref(L, LUA_REGISTRYINDEX);
+    dispatch_block_t block = ^{
+        lua_rawgeti(L, LUA_REGISTRYINDEX, i);
+        lua_call(L, 0, 0);
+    };
+    
+    FSEventStreamContext context;
+    context.info = (__bridge_retained void*)[block copy];
+    context.version = 0;
+    context.retain = NULL;
+    context.release = NULL;
+    context.copyDescription = NULL;
+    FSEventStreamRef stream = FSEventStreamCreate(NULL,
+                                                  fsEventsCallback,
+                                                  &context,
+                                                  (__bridge CFArrayRef)@[[path stringByStandardizingPath]],
+                                                  kFSEventStreamEventIdSinceNow,
+                                                  0.4,
+                                                  kFSEventStreamCreateFlagWatchRoot | kFSEventStreamCreateFlagNoDefer | kFSEventStreamCreateFlagFileEvents);
+    FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    FSEventStreamStart(stream);
+    
+    lua_pushlightuserdata(L, stream);
+    
+    return 1;
+}
