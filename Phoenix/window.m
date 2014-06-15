@@ -72,18 +72,6 @@ int window_title(lua_State* L) {
 
 
 
-//#import <Foundation/Foundation.h>
-//
-//#import "PHApp.h"
-//
-//#import <JavaScriptCore/JavaScriptCore.h>
-//@class PHWindow;
-//@class PHApp;
-//
-//@protocol PHWindowJSExport <JSExport>
-//
-//// getting windows
-//
 //+ (NSArray*) allWindows;
 //+ (NSArray*) visibleWindows;
 //+ (PHWindow*) focusedWindow;
@@ -91,8 +79,6 @@ int window_title(lua_State* L) {
 //- (NSArray*) otherWindowsOnSameScreen;
 //- (NSArray*) otherWindowsOnAllScreens;
 //
-//
-//// window position & size
 //
 //- (CGRect) frame;
 //- (CGPoint) topLeft;
@@ -108,14 +94,10 @@ int window_title(lua_State* L) {
 //- (void) unMinimize;
 //
 //
-//// other
-//
 //- (NSScreen*) screen;
 //- (PHApp*) app;
 //
 //- (BOOL) isNormalWindow;
-//
-//// focus
 //
 //- (BOOL) focusWindow;
 //
@@ -130,17 +112,8 @@ int window_title(lua_State* L) {
 //- (NSArray*) windowsToSouth;
 //
 //
-//// other window properties
-//
 //- (BOOL) isWindowMinimized;
 //
-//@end
-//
-//@interface PHWindow : NSObject <PHWindowJSExport>
-//
-//- (id) initWithElement:(AXUIElementRef)win;
-//
-//@end
 //
 //
 //
@@ -149,26 +122,8 @@ int window_title(lua_State* L) {
 //
 //
 //
-//
-////
-////  MyWindow.m
-////  Zephyros
-////
-////  Created by Steven Degutis on 2/28/13.
-////  Copyright (c) 2013 Steven Degutis. All rights reserved.
-////
-//
-//#import "PHWindow.h"
-//
-//#import "PHApp.h"
-//
-//#import "NSScreen+PHExtension.h"
-//
-//@interface PHWindow ()
 //
 //@property CFTypeRef window;
-//
-//@end
 //
 //@implementation PHWindow
 //
