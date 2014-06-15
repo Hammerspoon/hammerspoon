@@ -61,6 +61,7 @@
 		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
 		94C36940194DD94700EE3A2D /* updater.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693F194DD94700EE3A2D /* updater.m */; };
 		94C36942194DD94D00EE3A2D /* updater.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C36941194DD94D00EE3A2D /* updater.lua */; };
+		94E8E7A0194E0AB10064CF6C /* screen.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E8E79F194E0AB10064CF6C /* screen.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -150,6 +151,7 @@
 		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
 		94C3693F194DD94700EE3A2D /* updater.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = updater.m; sourceTree = "<group>"; };
 		94C36941194DD94D00EE3A2D /* updater.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = updater.lua; sourceTree = "<group>"; };
+		94E8E79F194E0AB10064CF6C /* screen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = screen.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -217,6 +219,7 @@
 				9452129D194D65BF00217584 /* alert.m */,
 				945212A1194D69E700217584 /* path_watcher.m */,
 				945212A3194D6A6000217584 /* menu_icon.m */,
+				94E8E79F194E0AB10064CF6C /* screen.m */,
 				94C3693D194DD93600EE3A2D /* window.m */,
 				94A1537B194D77A400F29F8F /* window.lua */,
 				9452129F194D697100217584 /* AlertWindow.xib */,
@@ -404,6 +407,7 @@
 				9445CA92190833C1002568BB /* lopcodes.c in Sources */,
 				9445CA8D190833C1002568BB /* llex.c in Sources */,
 				94C3693E194DD93600EE3A2D /* window.m in Sources */,
+				94E8E7A0194E0AB10064CF6C /* screen.m in Sources */,
 				9445CA9D190833C1002568BB /* lundump.c in Sources */,
 				9445CA1B19083251002568BB /* main.m in Sources */,
 				9445CA87190833C1002568BB /* ldo.c in Sources */,
