@@ -1,5 +1,16 @@
 #import "lua/lauxlib.h"
 
+@interface PHMenuItemDelegator : NSObject
+@property (copy) dispatch_block_t handler;
+@end
+
+@implementation PHMenuItemDelegator
+- (void) callCustomPhoenixMenuItemDelegator:(id)sender {
+    self.handler();
+}
+@end
+
+
 static NSStatusItem *statusItem;
 
 int menu_icon_show(lua_State* L) {
@@ -11,7 +22,23 @@ int menu_icon_show(lua_State* L) {
         [statusItem setHighlightMode:YES];
         [statusItem setImage:img];
         
-//        [statusItem setMenu:self.statusItemMenu];
+        NSMenu* menu = [[NSMenu alloc] init];
+        
+        NSMenuItem* item = [[NSMenuItem alloc] init];
+        PHMenuItemDelegator* delegator = [[PHMenuItemDelegator alloc] init];
+        
+        item.title = @"foobar";
+        item.action = @selector(callCustomPhoenixMenuItemDelegator:);
+        item.target = delegator;
+        item.representedObject = delegator;
+        
+        delegator.handler = ^{
+            NSLog(@"called!");
+        };
+        
+        [menu addItem:item];
+        
+        [statusItem setMenu: menu];
     }
     
     return 0;

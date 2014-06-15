@@ -5,7 +5,7 @@
 --    print(k, __api.app_title(v))
 -- end
 
--- __api.menu_icon_show()
+__api.menu_icon_show()
 
 -- lol = __api.path_watcher_start("/Users/sdegutis/projects/phoenix", function()
 --                             print(lol)
