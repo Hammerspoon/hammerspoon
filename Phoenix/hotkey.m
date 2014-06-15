@@ -33,7 +33,7 @@ int hotkey_setup(lua_State *L) {
     };
     
     EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
-    InstallEventHandler(GetEventDispatcherTarget(), SDHotkeyCallback, 1, &hotKeyPressedSpec, (__bridge void*)[blk copy], NULL);
+    InstallEventHandler(GetEventDispatcherTarget(), SDHotkeyCallback, 1, &hotKeyPressedSpec, (__bridge_retained void*)[blk copy], NULL);
     return 0;
 }
 
