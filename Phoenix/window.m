@@ -7,18 +7,20 @@ int window_gc(lua_State* L) {
 }
 
 void window_push_window_as_userdata(lua_State* L, AXUIElementRef win) {
-    // [ud]
     AXUIElementRef* winptr = lua_newuserdata(L, sizeof(AXUIElementRef));
     *winptr = win;
-    
-    // [ud, md]
-    if (luaL_newmetatable(L, "window")) {
-        lua_pushcfunction(L, window_gc);
-        lua_setfield(L, -2, "__gc");
-    }
-    
     // [ud]
+    
+    if (luaL_newmetatable(L, "window"))
+    // [ud, md]
+    {
+        lua_pushcfunction(L, window_gc); // [ud, md, gc]
+        lua_setfield(L, -2, "__gc");     // [ud, md]
+    }
+    // [ud, md]
+    
     lua_setmetatable(L, -2);
+    // [ud]
 }
 
 static AXUIElementRef system_wide_element() {
@@ -58,8 +60,8 @@ static id get_window_prop(AXUIElementRef win, NSString* propType, id defaultValu
 }
 
 int window_title(lua_State* L) {
-    AXUIElementRef win = lua_touserdata(L, 1);
-    NSString* title = get_window_prop(win, NSAccessibilityTitleAttribute, @"");
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    NSString* title = get_window_prop(*winptr, NSAccessibilityTitleAttribute, @"");
     lua_pushstring(L, [title UTF8String]);
     return 1;
 }
