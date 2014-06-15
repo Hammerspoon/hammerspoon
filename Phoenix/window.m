@@ -76,13 +76,27 @@ int window_title(lua_State* L) {
     return 1;
 }
 
-static NSString* window_subrole(AXUIElementRef win) {
-    return get_window_prop(win, NSAccessibilitySubroleAttribute, @"");
+int window_subrole(lua_State* L) {
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    NSString* str = get_window_prop(*winptr, NSAccessibilitySubroleAttribute, @"");
+    
+    lua_pushstring(L, [str UTF8String]);
+    return 1;
 }
 
-int window_is_standard(lua_State* L) {
+int window_role(lua_State* L) {
     AXUIElementRef* winptr = lua_touserdata(L, 1);
-    BOOL is_standard = [window_subrole(*winptr) isEqualToString: (__bridge NSString*)kAXStandardWindowSubrole];
+    NSString* str = get_window_prop(*winptr, NSAccessibilityRoleAttribute, @"");
+    
+    lua_pushstring(L, [str UTF8String]);
+    return 1;
+}
+
+// args: [subrole]
+int window_is_standard(lua_State* L) {
+    const char* subrole = lua_tostring(L, 2);
+    
+    BOOL is_standard = [[NSString stringWithUTF8String:subrole] isEqualToString: (__bridge NSString*)kAXStandardWindowSubrole];
     lua_pushboolean(L, is_standard);
     return 1;
 }
@@ -319,10 +333,6 @@ int window_focus(lua_State* L) {
 //    return [[PHApp alloc] initWithPID:[self processIdentifier]];
 //}
 //
-//
-//- (NSString *) role {
-//    return [self getWindowProperty:NSAccessibilityRoleAttribute withDefaultValue:@""];
-//}
 //
 //
 //

@@ -42,6 +42,8 @@ int window_unminimize(lua_State* L);
 int window_isminimized(lua_State* L);
 int window_pid(lua_State* L);
 int window_focus(lua_State* L);
+int window_subrole(lua_State* L);
+int window_role(lua_State* L);
 
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
@@ -83,6 +85,8 @@ static const luaL_Reg phoenix_lib[] = {
     {"window_isminimized", window_isminimized},
     {"window_pid", window_pid},
     {"window_focus", window_focus},
+    {"window_subrole", window_subrole},
+    {"window_role", window_role},
     
     {NULL, NULL}
 };
