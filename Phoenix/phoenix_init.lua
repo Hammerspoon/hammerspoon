@@ -5,12 +5,21 @@
 --    print(k, __api.app_title(v))
 -- end
 
-for k, pid in pairs(__api.app_running_apps()) do
-   local x = __api.app_get_windows(pid)
-   print(__api.app_title(pid))
-   for k, v in pairs(x) do
-      print(k, v)
+
+
+
+if false then
+
+   -- TODO: fix this!
+
+   for k, pid in pairs(__api.app_running_apps()) do
+      local x = __api.app_get_windows(pid)
+      print(__api.app_title(pid))
+      for k, v in pairs(x) do
+         print(k, v)
+      end
    end
+
 end
 
 print("done")
