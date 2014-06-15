@@ -38,28 +38,29 @@ end
 -- --                             __api.path_watcher_stop(lol)
 -- --                                                              end)
 
+
+
 -- -- __api.alert_show("hi!", 1)
 
--- if false then
 
--- TODO: fix this!
 
-for k, pid in pairs(__api.app_running_apps()) do
-   local x = __api.app_get_windows(pid)
-   print(__api.app_title(pid))
-   for k, v in pairs(x) do
-      print(k, v)
-   end
-end
-
-collectgarbage()
-
+-- for k, pid in pairs(__api.app_running_apps()) do
+--    local x = __api.app_get_windows(pid)
+--    print(__api.app_title(pid))
+--    for k, v in pairs(x) do
+--       print(k, v)
+--    end
 -- end
 
--- -- __api.hotkey_setup(function(uid)
--- --                       __api.menu_icon_hide()
--- --                    end)
--- -- __api.hotkey_register(true, true, true, false, "s")
+-- collectgarbage()
+
+
+
+__api.hotkey_setup(function(uid)
+                      local w = __api.window_get_focused_window()
+                      print(__api.window_title(w)) -- TODO: this is broken
+                   end)
+__api.hotkey_register(true, true, true, false, "s")
 
 
 -- print("done")

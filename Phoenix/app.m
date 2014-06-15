@@ -1,10 +1,6 @@
 #import "lua/lauxlib.h"
 
-int window_gc(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
-    CFRelease(*winptr);
-    return 0;
-}
+void window_push_window_as_userdata(lua_State* L, AXUIElementRef win);
 
 int app_running_apps(lua_State* L) {
     lua_newtable(L);
@@ -29,21 +25,11 @@ int app_get_windows(lua_State* L) {
     AXError result = AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, 100, &_windows);
     if (result == kAXErrorSuccess) {
         for (NSInteger i = 0; i < CFArrayGetCount(_windows); i++) {
-            // [{}, i]
-            lua_pushnumber(L, i + 1);
+            AXUIElementRef win = CFArrayGetValueAtIndex(_windows, i);
+            CFRetain(win);
             
-            // [{}, i, ud]
-            AXUIElementRef* winptr = lua_newuserdata(L, sizeof(AXUIElementRef));
-            *winptr = CFArrayGetValueAtIndex(_windows, i);
-            CFRetain(*winptr);
-            
-            // [{}, i, ud, md]
-            if (luaL_newmetatable(L, "window")) {
-                lua_pushcfunction(L, window_gc);
-                lua_setfield(L, -2, "__gc");
-            }
-            lua_setmetatable(L, -2); // [{}, i, ud]
-            
+            lua_pushnumber(L, i + 1); // [{}, i]
+            window_push_window_as_userdata(L, win); // [{}, i, ud]
             lua_settable(L, -3); // [{}]
         }
         CFRelease(_windows);

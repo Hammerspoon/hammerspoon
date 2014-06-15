@@ -1,3 +1,77 @@
+#import "lua/lauxlib.h"
+
+int window_gc(lua_State* L) {
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    CFRelease(*winptr);
+    return 0;
+}
+
+static const luaL_Reg window_lib[] = {
+    {"__gc", window_gc},
+//    {"__eq", window_eq},
+    {NULL, NULL}
+};
+
+void window_push_window_as_userdata(lua_State* L, AXUIElementRef win) {
+    // [ud]
+    AXUIElementRef* winptr = lua_newuserdata(L, sizeof(AXUIElementRef));
+    *winptr = win;
+    
+    // [ud, md]
+    if (luaL_newmetatable(L, "window"))
+        luaL_newlib(L, window_lib);
+    
+    // [ud]
+    lua_setmetatable(L, -2);
+}
+
+static AXUIElementRef system_wide_element() {
+    static AXUIElementRef element;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        element = AXUIElementCreateSystemWide();
+    });
+    return element;
+}
+
+int window_get_focused_window(lua_State* L) {
+    CFTypeRef app;
+    AXUIElementCopyAttributeValue(system_wide_element(), kAXFocusedApplicationAttribute, &app);
+    
+    if (app) {
+        CFTypeRef win;
+        AXError result = AXUIElementCopyAttributeValue(app, (CFStringRef)NSAccessibilityFocusedWindowAttribute, &win);
+        
+        CFRelease(app);
+        
+        if (result == kAXErrorSuccess) {
+            window_push_window_as_userdata(L, win);
+            return 1;
+        }
+    }
+    
+    return 0;
+}
+
+static id get_window_prop(AXUIElementRef win, NSString* propType, id defaultValue) {
+    CFTypeRef _someProperty;
+    if (AXUIElementCopyAttributeValue(win, (__bridge CFStringRef)propType, &_someProperty) == kAXErrorSuccess)
+        return CFBridgingRelease(_someProperty);
+    
+    return defaultValue;
+}
+
+int window_title(lua_State* L) {
+    AXUIElementRef win = lua_touserdata(L, 1);
+    NSString* title = get_window_prop(win, NSAccessibilityTitleAttribute, @"");
+    lua_pushstring(L, [title UTF8String]);
+    return 1;
+}
+
+
+
+
+
 //#import <Foundation/Foundation.h>
 //
 //#import "PHApp.h"
@@ -58,7 +132,6 @@
 //
 //// other window properties
 //
-//- (NSString*) title;
 //- (BOOL) isWindowMinimized;
 //
 //@end
@@ -207,35 +280,6 @@
 //    }]];
 //}
 //
-//+ (AXUIElementRef) systemWideElement {
-//    static AXUIElementRef systemWideElement;
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        systemWideElement = AXUIElementCreateSystemWide();
-//    });
-//    return systemWideElement;
-//}
-//
-//+ (PHWindow*) focusedWindow {
-//    CFTypeRef app;
-//    AXUIElementCopyAttributeValue([self systemWideElement], kAXFocusedApplicationAttribute, &app);
-//    
-//    if (app) {
-//        CFTypeRef win;
-//        AXError result = AXUIElementCopyAttributeValue(app, (CFStringRef)NSAccessibilityFocusedWindowAttribute, &win);
-//        
-//        CFRelease(app);
-//        
-//        if (result == kAXErrorSuccess) {
-//            PHWindow* window = [[PHWindow alloc] init];
-//            window.window = win;
-//            return window;
-//        }
-//    }
-//    
-//    return nil;
-//}
-//
 //- (CGRect) frame {
 //    CGRect r;
 //    r.origin = [self topLeft];
@@ -364,14 +408,6 @@
 //    return [[PHApp alloc] initWithPID:[self processIdentifier]];
 //}
 //
-//- (id) getWindowProperty:(NSString*)propType withDefaultValue:(id)defaultValue {
-//    CFTypeRef _someProperty;
-//    if (AXUIElementCopyAttributeValue(self.window, (__bridge CFStringRef)propType, &_someProperty) == kAXErrorSuccess)
-//        return CFBridgingRelease(_someProperty);
-//    
-//    return defaultValue;
-//}
-//
 //- (BOOL) setWindowProperty:(NSString*)propType withValue:(id)value {
 //    if ([value isKindOfClass:[NSNumber class]]) {
 //        AXError result = AXUIElementSetAttributeValue(self.window, (__bridge CFStringRef)(propType), (__bridge CFTypeRef)(value));
@@ -379,10 +415,6 @@
 //            return YES;
 //    }
 //    return NO;
-//}
-//
-//- (NSString *) title {
-//    return [self getWindowProperty:NSAccessibilityTitleAttribute withDefaultValue:@""];
 //}
 //
 //- (NSString *) role {
