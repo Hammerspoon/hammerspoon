@@ -59,6 +59,16 @@ static id get_window_prop(AXUIElementRef win, NSString* propType, id defaultValu
     return defaultValue;
 }
 
+static BOOL set_window_prop(AXUIElementRef win, NSString* propType, id value) {
+    if ([value isKindOfClass:[NSNumber class]]) {
+        AXError result = AXUIElementSetAttributeValue(win, (__bridge CFStringRef)(propType), (__bridge CFTypeRef)(value));
+        if (result == kAXErrorSuccess)
+            return YES;
+    }
+    return NO;
+}
+
+
 int window_title(lua_State* L) {
     AXUIElementRef* winptr = lua_touserdata(L, 1);
     NSString* title = get_window_prop(*winptr, NSAccessibilityTitleAttribute, @"");
@@ -155,10 +165,59 @@ int window_setsize(lua_State* L) {
     return 0;
 }
 
+static void set_window_minimized(AXUIElementRef win, NSNumber* minimized) {
+    set_window_prop(win, NSAccessibilityMinimizedAttribute, minimized);
+}
 
+int window_minimize(lua_State* L) {
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    set_window_minimized(*winptr, @YES);
+    return 0;
+}
 
+int window_unminimize(lua_State* L) {
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    set_window_minimized(*winptr, @NO);
+    return 0;
+}
 
+int window_isminimized(lua_State* L) {
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    BOOL minimized = [get_window_prop(*winptr, NSAccessibilityMinimizedAttribute, @(NO)) boolValue];
+    lua_pushboolean(L, minimized);
+    return 1;
+}
 
+int window_pid(lua_State* L) {
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    
+    pid_t pid = 0;
+    if (AXUIElementGetPid(*winptr, &pid) == kAXErrorSuccess) {
+        lua_pushnumber(L, pid);
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+// args: [win, pid]
+int window_focus(lua_State* L) {
+    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    pid_t pid = lua_tonumber(L, 2);
+    
+    AXError changedMainWindowResult = AXUIElementSetAttributeValue(*winptr, (CFStringRef)NSAccessibilityMainAttribute, kCFBooleanTrue);
+    if (changedMainWindowResult != kAXErrorSuccess) {
+        NSLog(@"ERROR: Could not change focus to window");
+        return NO;
+    }
+    
+    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+    
+    lua_pushboolean(L, success);
+    return 1;
+}
 
 
 
@@ -256,59 +315,16 @@ int window_setsize(lua_State* L) {
 //    [self setFrame: screenRect];
 //}
 //
-//- (void) minimize {
-//    [self setWindowMinimized:YES];
-//}
-//
-//- (void) unMinimize {
-//    [self setWindowMinimized:NO];
-//}
-//
-//- (BOOL) focusWindow {
-//    AXError changedMainWindowResult = AXUIElementSetAttributeValue(self.window, (CFStringRef)NSAccessibilityMainAttribute, kCFBooleanTrue);
-//    if (changedMainWindowResult != kAXErrorSuccess) {
-//        NSLog(@"ERROR: Could not change focus to window");
-//        return NO;
-//    }
-//    
-//    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:[self processIdentifier]];
-//    return [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
-//}
-//
-//- (pid_t) processIdentifier {
-//    pid_t pid = 0;
-//    AXError result = AXUIElementGetPid(self.window, &pid);
-//    if (result == kAXErrorSuccess)
-//        return pid;
-//    else
-//        return 0;
-//}
-//
 //- (PHApp*) app {
 //    return [[PHApp alloc] initWithPID:[self processIdentifier]];
 //}
 //
-//- (BOOL) setWindowProperty:(NSString*)propType withValue:(id)value {
-//    if ([value isKindOfClass:[NSNumber class]]) {
-//        AXError result = AXUIElementSetAttributeValue(self.window, (__bridge CFStringRef)(propType), (__bridge CFTypeRef)(value));
-//        if (result == kAXErrorSuccess)
-//            return YES;
-//    }
-//    return NO;
-//}
 //
 //- (NSString *) role {
 //    return [self getWindowProperty:NSAccessibilityRoleAttribute withDefaultValue:@""];
 //}
 //
-//- (BOOL) isWindowMinimized {
-//    return [[self getWindowProperty:NSAccessibilityMinimizedAttribute withDefaultValue:@(NO)] boolValue];
-//}
 //
-//- (void) setWindowMinimized:(BOOL)flag
-//{
-//    [self setWindowProperty:NSAccessibilityMinimizedAttribute withValue:[NSNumber numberWithLong:flag]];
-//}
 //
 //// focus
 //
