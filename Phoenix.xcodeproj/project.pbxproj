@@ -58,6 +58,9 @@
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		94A1537C194D77A400F29F8F /* window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94A1537B194D77A400F29F8F /* window.lua */; };
 		94BDB49C19094B7A00BD0553 /* app.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* app.m */; };
+		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
+		94C36940194DD94700EE3A2D /* updater.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693F194DD94700EE3A2D /* updater.m */; };
+		94C36942194DD94D00EE3A2D /* updater.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C36941194DD94D00EE3A2D /* updater.lua */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -144,6 +147,9 @@
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		94A1537B194D77A400F29F8F /* window.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window.lua; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* app.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = app.m; sourceTree = "<group>"; };
+		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
+		94C3693F194DD94700EE3A2D /* updater.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = updater.m; sourceTree = "<group>"; };
+		94C36941194DD94D00EE3A2D /* updater.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = updater.lua; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +206,8 @@
 			children = (
 				9445CA42190833C1002568BB /* lua */,
 				9445CA2119083251002568BB /* app_delegate.m */,
+				94C3693F194DD94700EE3A2D /* updater.m */,
+				94C36941194DD94D00EE3A2D /* updater.lua */,
 				9459B58E194CEB07008BC904 /* key_translator.m */,
 				945212A9194D6CF700217584 /* misc.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
@@ -209,11 +217,12 @@
 				9452129D194D65BF00217584 /* alert.m */,
 				945212A1194D69E700217584 /* path_watcher.m */,
 				945212A3194D6A6000217584 /* menu_icon.m */,
+				94C3693D194DD93600EE3A2D /* window.m */,
+				94A1537B194D77A400F29F8F /* window.lua */,
 				9452129F194D697100217584 /* AlertWindow.xib */,
 				945212A5194D6B5900217584 /* statusitem.png */,
 				945212A6194D6B5900217584 /* statusitem@2x.png */,
 				9445CAA4190847CB002568BB /* phoenix_init.lua */,
-				94A1537B194D77A400F29F8F /* window.lua */,
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
 				9445CA1519083251002568BB /* Supporting Files */,
@@ -348,6 +357,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				94C36942194DD94D00EE3A2D /* updater.lua in Resources */,
 				945212A0194D697100217584 /* AlertWindow.xib in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
@@ -389,9 +399,11 @@
 				9445CA96190833C1002568BB /* lstring.c in Sources */,
 				9445CA7E190833C1002568BB /* lapi.c in Sources */,
 				9445CA9F190833C1002568BB /* lzio.c in Sources */,
+				94C36940194DD94700EE3A2D /* updater.m in Sources */,
 				9445CA95190833C1002568BB /* lstate.c in Sources */,
 				9445CA92190833C1002568BB /* lopcodes.c in Sources */,
 				9445CA8D190833C1002568BB /* llex.c in Sources */,
+				94C3693E194DD93600EE3A2D /* window.m in Sources */,
 				9445CA9D190833C1002568BB /* lundump.c in Sources */,
 				9445CA1B19083251002568BB /* main.m in Sources */,
 				9445CA87190833C1002568BB /* ldo.c in Sources */,
