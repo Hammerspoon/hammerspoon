@@ -427,7 +427,7 @@
 			dependencies = (
 			);
 			name = Phoenix;
-			productName = Hydra;
+			productName = Phoenix;
 			productReference = 9445CA0B19083251002568BB /* Phoenix.app */;
 			productType = "com.apple.product-type.application";
 		};
