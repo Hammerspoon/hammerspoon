@@ -252,14 +252,10 @@ int window_focus(lua_State* L) {
 //- (NSArray*) otherWindowsOnAllScreens;
 //
 //- (void) maximize;
-//- (void) minimize;
-//- (void) unMinimize;
 //
 //
 //- (NSScreen*) screen;
 //- (PHApp*) app;
-//
-//- (BOOL) focusWindow;
 //
 //- (void) focusWindowLeft;
 //- (void) focusWindowRight;
@@ -272,7 +268,6 @@ int window_focus(lua_State* L) {
 //- (NSArray*) windowsToSouth;
 //
 //
-//- (BOOL) isWindowMinimized;
 //
 //
 //
@@ -282,25 +277,6 @@ int window_focus(lua_State* L) {
 //
 //
 //
-//+ (NSArray*) visibleWindows {
-//    return [[self allWindows] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(PHWindow* win, NSDictionary *bindings) {
-//        return ![[win app] isHidden]
-//        && ![win isWindowMinimized]
-//        && [win isNormalWindow];
-//    }]];
-//}
-//
-//- (NSArray*) otherWindowsOnSameScreen {
-//    return [[PHWindow visibleWindows] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(PHWindow* win, NSDictionary *bindings) {
-//        return !CFEqual(self.window, win.window) && [[self screen] isEqual: [win screen]];
-//    }]];
-//}
-//
-//- (NSArray*) otherWindowsOnAllScreens {
-//    return [[PHWindow visibleWindows] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(PHWindow* win, NSDictionary *bindings) {
-//        return !CFEqual(self.window, win.window);
-//    }]];
-//}
 //
 //
 //
