@@ -1,8 +1,9 @@
 #import <Carbon/Carbon.h>
 #import "lua/lua.h"
 
-#import "key_translator.h"
 #import "lua/lauxlib.h"
+
+UInt32 PHKeyCodeForString(NSString* str);
 
 typedef OSStatus(^SDHotKeyClosure)(UInt32 uid);
 
