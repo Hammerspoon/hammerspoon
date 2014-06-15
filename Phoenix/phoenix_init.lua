@@ -8,9 +8,9 @@ package.path = thisdir .. "/?.lua;" .. package.path                    -- built-
 
 -- load user's config
 local ok, error = pcall(function()
-                           require("window")
-                           require("init")
-                        end)
+      require("window")
+      require("init")
+end)
 
 -- report error in user's config
 if not ok then
