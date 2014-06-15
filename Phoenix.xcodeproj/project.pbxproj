@@ -53,6 +53,7 @@
 		945212A4194D6A6000217584 /* menu_icon.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A3194D6A6000217584 /* menu_icon.m */; };
 		945212A7194D6B5900217584 /* statusitem.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A5194D6B5900217584 /* statusitem.png */; };
 		945212A8194D6B5900217584 /* statusitem@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A6194D6B5900217584 /* statusitem@2x.png */; };
+		945212AA194D6CF700217584 /* misc.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A9194D6CF700217584 /* misc.m */; };
 		9459B58F194CEB07008BC904 /* key_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* key_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		94BDB49C19094B7A00BD0553 /* app.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* app.m */; };
@@ -137,6 +138,7 @@
 		945212A3194D6A6000217584 /* menu_icon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = menu_icon.m; sourceTree = "<group>"; };
 		945212A5194D6B5900217584 /* statusitem.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusitem.png; sourceTree = "<group>"; };
 		945212A6194D6B5900217584 /* statusitem@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusitem@2x.png"; sourceTree = "<group>"; };
+		945212A9194D6CF700217584 /* misc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = misc.m; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* key_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = key_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* app.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = app.m; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 				9445CA42190833C1002568BB /* lua */,
 				9445CA2119083251002568BB /* app_delegate.m */,
 				9459B58E194CEB07008BC904 /* key_translator.m */,
+				945212A9194D6CF700217584 /* misc.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94BDB49B19094B7A00BD0553 /* app.m */,
 				94521299194D59F800217584 /* mouse.m */,
@@ -399,6 +402,7 @@
 				9445CA84190833C1002568BB /* lctype.c in Sources */,
 				9445CA7F190833C1002568BB /* lauxlib.c in Sources */,
 				9445CA94190833C1002568BB /* lparser.c in Sources */,
+				945212AA194D6CF700217584 /* misc.m in Sources */,
 				9445CA98190833C1002568BB /* ltable.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
