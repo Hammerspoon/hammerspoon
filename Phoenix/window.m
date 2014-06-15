@@ -154,16 +154,6 @@ int window_size(lua_State* L) {
 //- (NSArray*) otherWindowsOnSameScreen;
 //- (NSArray*) otherWindowsOnAllScreens;
 //
-//
-//- (CGRect) frame;
-//- (CGPoint) topLeft;
-//- (CGSize) size;
-//
-//- (void) setFrame:(CGRect)frame;
-//- (void) setTopLeft:(CGPoint)thePoint;
-//- (void) setSize:(CGSize)theSize;
-//
-//
 //- (void) maximize;
 //- (void) minimize;
 //- (void) unMinimize;
@@ -215,18 +205,6 @@ int window_size(lua_State* L) {
 //    }]];
 //}
 //
-//- (CGRect) frame {
-//    CGRect r;
-//    r.origin = [self topLeft];
-//    r.size = [self size];
-//    return r;
-//}
-//
-//- (void) setFrame:(CGRect)frame {
-//    [self setSize: frame.size];
-//    [self setTopLeft: frame.origin];
-//    [self setSize: frame.size];
-//}
 //
 //
 //- (void) setTopLeft:(CGPoint)thePoint {
