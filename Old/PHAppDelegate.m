@@ -1,12 +1,15 @@
-//
-//  PHAppDelegate.m
-//  Phoenix
-//
-//  Created by Steven on 11/30/13.
-//  Copyright (c) 2013 Steven. All rights reserved.
-//
+#import <Cocoa/Cocoa.h>
 
-#import "PHAppDelegate.h"
+#import "PHConfigLoader.h"
+
+@interface PHAppDelegate : NSObject <NSApplicationDelegate>
+
+@property IBOutlet NSMenu *statusItemMenu;
+@property NSStatusItem *statusItem;
+
+@property PHConfigLoader* configLoader;
+
+@end
 
 #import "PHUniversalAccessHelper.h"
 #import "PHOpenAtLogin.h"
@@ -16,7 +19,7 @@
 - (void) setupStatusItem {
     NSImage* img = [NSImage imageNamed:@"statusitem"];
     [img setTemplate:YES];
-    
+
     self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [self.statusItem setHighlightMode:YES];
     [self.statusItem setImage:img];
@@ -25,9 +28,9 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [PHUniversalAccessHelper complainIfNeeded];
-    
+
     [self setupStatusItem];
-    
+
     self.configLoader = [[PHConfigLoader alloc] init];
     [self.configLoader reload];
 }
