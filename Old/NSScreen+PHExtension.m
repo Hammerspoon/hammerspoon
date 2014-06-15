@@ -1,15 +1,3 @@
-//
-//  NSScreenProxy.m
-//  Zephyros
-//
-//  Created by Steven on 4/14/13.
-//  Copyright (c) 2013 Giant Robot Software. All rights reserved.
-//
-
-#import "NSScreen+PHExtension.h"
-
-@implementation NSScreen (PHExtension)
-
 - (CGRect) frameIncludingDockAndMenu {
     NSScreen* primaryScreen = [[NSScreen screens] objectAtIndex:0];
     CGRect f = [self frame];
@@ -45,5 +33,3 @@
 
     return [screens objectAtIndex:idx];
 }
-
-@end
