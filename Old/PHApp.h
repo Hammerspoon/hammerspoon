@@ -1,2 +1,0 @@
-- (NSArray*) allWindows;
-- (NSArray*) visibleWindows;
