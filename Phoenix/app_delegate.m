@@ -8,6 +8,7 @@ int hotkey_register(lua_State *L);
 int hotkey_unregister(lua_State *L);
 
 int app_running_apps(lua_State* L);
+int app_get_windows(lua_State* L);
 int app_title(lua_State* L);
 int app_show(lua_State* L);
 int app_hide(lua_State* L);
@@ -27,6 +28,7 @@ static const luaL_Reg phoenix_lib[] = {
     {"hotkey_unregister", hotkey_unregister},
     
     {"app_running_apps", app_running_apps},
+    {"app_get_windows", app_get_windows},
     {"app_title", app_title},
     {"app_show", app_show},
     {"app_hide", app_hide},

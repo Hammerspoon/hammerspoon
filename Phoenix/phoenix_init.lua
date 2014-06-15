@@ -5,6 +5,14 @@
 --    print(k, __api.app_title(v))
 -- end
 
+for k, pid in pairs(__api.app_running_apps()) do
+   local x = __api.app_get_windows(pid)
+   print(__api.app_title(pid))
+   for k, v in pairs(x) do
+      print(k, v)
+   end
+end
+
 print("done")
 
 -- local x, y = __api.mouse_get()
