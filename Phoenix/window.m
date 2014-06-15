@@ -6,20 +6,16 @@ int window_gc(lua_State* L) {
     return 0;
 }
 
-static const luaL_Reg window_lib[] = {
-    {"__gc", window_gc},
-//    {"__eq", window_eq},
-    {NULL, NULL}
-};
-
 void window_push_window_as_userdata(lua_State* L, AXUIElementRef win) {
     // [ud]
     AXUIElementRef* winptr = lua_newuserdata(L, sizeof(AXUIElementRef));
     *winptr = win;
     
     // [ud, md]
-    if (luaL_newmetatable(L, "window"))
-        luaL_newlib(L, window_lib);
+    if (luaL_newmetatable(L, "window")) {
+        lua_pushcfunction(L, window_gc);
+        lua_setfield(L, -2, "__gc");
+    }
     
     // [ud]
     lua_setmetatable(L, -2);
