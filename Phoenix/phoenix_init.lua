@@ -58,7 +58,7 @@ end
 
 __api.hotkey_setup(function(uid)
                       local w = __api.window_get_focused_window()
-                      print(__api.window_title(w)) -- TODO: this is broken
+                      print(__api.window_role(w))
                    end)
 __api.hotkey_register(true, true, true, false, "s")
 
