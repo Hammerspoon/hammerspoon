@@ -7,8 +7,8 @@ package.path = thisdir .. "/?.lua;" .. package.path                    -- built-
 -- __api.alert_show("Phoenix config loaded", 1.5)
 
 local function init()
-  local phoenix = require("phoenix")
-  phoenix.quit()
+  -- local phoenix = require("phoenix")
+  -- phoenix.quit()
 end
 
 -- load user's config
