@@ -19,6 +19,19 @@ if not ok then alert.show(err, 5) end
 
 
 
+-- test bed
+local ok, err = pcall(function()
+    local menu = require("menu")
+    local i = 0
+    menu.show(function()
+        i = i + 1
+        return {
+          {title = tostring(i)},
+          {title = "world"},
+        }
+    end)
+end)
+if not ok then alert.show(err, 5) end
 
 
 
