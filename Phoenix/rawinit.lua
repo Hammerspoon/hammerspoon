@@ -37,6 +37,13 @@ if not ok then alert.show(err, 5) end
 
 
 
+local window = require("window")
+local wins = window.allwindows()
+
+for i, win in pairs(wins) do
+  print(win:title())
+end
+
 
 
 

@@ -1,3 +1,5 @@
+local util = require("util")
+
 local window = {}
 
 local window_metadata = {__index = window}
@@ -18,6 +20,22 @@ end
 
 function window.focusedwindow()
   return window.rawinit(__api.window_get_focused_window())
+end
+
+function window.allwindows()
+  local application = require("application")
+  local wins = {}
+
+  for _, app in pairs(application.running_applications()) do
+    util.concat(wins, app:windows())
+    -- TODO: rewrite using util.mapcat (requires app:windows() == app.windows(app))
+  end
+
+  return wins
+end
+
+function window:title()
+  return __api.window_title(self.__win)
 end
 
 return window
