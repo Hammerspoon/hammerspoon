@@ -28,9 +28,9 @@ int app_get_windows(lua_State* L) {
             AXUIElementRef win = CFArrayGetValueAtIndex(_windows, i);
             CFRetain(win);
             
-            lua_pushnumber(L, i + 1); // [{}, i]
+            lua_pushnumber(L, i + 1);               // [{}, i]
             window_push_window_as_userdata(L, win); // [{}, i, ud]
-            lua_settable(L, -3); // [{}]
+            lua_settable(L, -3);                    // [{}]
         }
         CFRelease(_windows);
     }
