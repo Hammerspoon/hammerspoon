@@ -8,4 +8,37 @@ function phoenix.quit()
   __api.phoenix_quit()
 end
 
+local function file_exists(name)
+  local f = io.open(name, "r")
+  if f~=nil then
+    io.close(f)
+    return true
+  else
+    return false
+  end
+end
+
+local alert = require("alert")
+
+function phoenix.reload()
+  local initfile_exists = file_exists(os.getenv("HOME") .. ".phoenix/init.lua")
+
+  if initfile_exists then
+    local ok, err = pcall(function()
+        require("init")
+    end)
+    if not ok then
+      alert.show(err, 5)
+    end
+  else
+    alert.show("Can't find ~/.phoenix/init.lua", 5)
+  end
+end
+
 return phoenix
+
+
+
+
+
+-- alert.show("Phoenix config loaded", 1.5)

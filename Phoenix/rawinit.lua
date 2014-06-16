@@ -3,35 +3,16 @@ local thisdir = ...
 package.path = os.getenv("HOME") .. "/.phoenix/?.lua;" .. package.path -- user configs
 package.path = thisdir .. "/?.lua;" .. package.path                    -- built-in configs
 
--- welcome user
--- __api.alert_show("Phoenix config loaded", 1.5)
-
-local function init()
-  local util = require("util")
-  local alert = require("alert")
-  alert.show("hello", .5)
-  util.doafter(.5, function()
-                 alert.show("world", 1)
-  end)
-end
+local alert = require("alert")
 
 -- load user's config
-local ok, error = pcall(init)
+local ok, err = pcall(function()
+    local phoenix = require("phoenix")
+    phoenix.reload()
+end)
 
--- report error in user's config
-if not ok then
-  __api.alert_show(error, 5)
-end
-
-
--- local alert = require("alert")
--- alert.show("hello")
--- alert.show("foo", 0.5)
-
-
--- require("menu")
--- print("done")
-
+-- report err in user's config
+if not ok then alert.show(err, 5) end
 
 
 
