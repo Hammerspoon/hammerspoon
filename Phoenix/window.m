@@ -279,35 +279,11 @@ int window_focus(lua_State* L) {
 //
 //
 //
-//
-//- (NSScreen*) screen {
-//    CGRect windowFrame = [self frame];
-//    
-//    CGFloat lastVolume = 0;
-//    NSScreen* lastScreen = nil;
-//    
-//    for (NSScreen* screen in [NSScreen screens]) {
-//        CGRect screenFrame = [screen frameIncludingDockAndMenu];
-//        CGRect intersection = CGRectIntersection(windowFrame, screenFrame);
-//        CGFloat volume = intersection.size.width * intersection.size.height;
-//        
-//        if (volume > lastVolume) {
-//            lastVolume = volume;
-//            lastScreen = screen;
-//        }
-//    }
-//    
-//    return lastScreen;
-//}
-//
 //- (void) maximize {
 //    CGRect screenRect = [[self screen] frameWithoutDockOrMenu];
 //    [self setFrame: screenRect];
 //}
 //
-//- (PHApp*) app {
-//    return [[PHApp alloc] initWithPID:[self processIdentifier]];
-//}
 //
 //
 //
