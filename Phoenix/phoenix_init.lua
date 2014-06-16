@@ -7,15 +7,11 @@ package.path = thisdir .. "/?.lua;" .. package.path                    -- built-
 -- __api.alert_show("Phoenix config loaded", 1.5)
 
 local function init()
-  -- local screen = require("screen")
+  local screen = require("screen")
 
-  -- local mainscreen = screen.main()
-
-  -- local f = mainscreen:visibleframe()
-  -- print(f.x)
-  -- print(f.y)
-  -- print(f.w)
-  -- print(f.h)
+  local mainscreen = screen.main()
+  print(mainscreen:next() == mainscreen)
+  print(mainscreen:previous() == mainscreen)
 end
 
 -- load user's config

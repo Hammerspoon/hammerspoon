@@ -25,4 +25,13 @@ function fp.contains(t, el)
   return false
 end
 
+function fp.indexof(t, el)
+  for k, v in pairs(t) do
+    if v == el then
+      return k
+    end
+  end
+  return nil
+end
+
 return fp

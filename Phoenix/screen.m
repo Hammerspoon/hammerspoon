@@ -64,13 +64,19 @@ int screen_visible_frame(lua_State* L) {
     return 4;
 }
 
+int screen_equals(lua_State* L) {
+    NSScreen* screenA = (__bridge NSScreen*)*((void**)lua_touserdata(L, 1));
+    NSScreen* screenB = (__bridge NSScreen*)*((void**)lua_touserdata(L, 2));
+    return [screenA isEqual: screenB];
+}
 
 
 
 
 
 
-//int misc_set_tint(lua_State* L) {
+
+//int screen_set_tint(lua_State* L) {
 //    // args: NSArray *red, NSArray *green, NSArray *blue
 //
 //    CGGammaValue cred[red.count];
