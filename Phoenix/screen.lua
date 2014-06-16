@@ -1,55 +1,52 @@
 local util = require("util")
 
 local screen = {}
+local screen_metatable = {__index = screen}
 
-local screen_instance = {}
-
-function screen_instance:frame()
+function screen:frame()
   local x, y, w, h = __api.screen_frame(self.__screen)
   return {x = x, y = y, w = w, h = h}
 end
 
-function screen_instance:visible_frame()
+function screen:visible_frame()
   local x, y, w, h = __api.screen_visible_frame(self.__screen)
   return {x = x, y = y, w = w, h = h}
 end
 
-function screen_instance:frame_including_dock_and_menu()
+function screen:frame_including_dock_and_menu()
   local primary_screen = screen.all()[1]
   local f = self:frame()
   f.y = primary_screen:frame().h - f.h - f.y
   return f
 end
 
-function screen_instance:frame_without_dock_or_menu()
+function screen:frame_without_dock_or_menu()
   local primary_screen = screen.all()[1]
   local f = self:visible_frame()
   f.y = primary_screen:frame().h - f.h - f.y
   return f
 end
 
-function screen_instance:next()
+function screen:next()
   local screens = screen.all()
   local i = util.indexof(screens, self) + 1
   if i > # screens then i = 1 end
   return screens[i]
 end
 
-function screen_instance:previous()
+function screen:previous()
   local screens = screen.all()
   local i = util.indexof(screens, self) - 1
   if i < 1 then i = # screens end
   return screens[i]
 end
 
-local screen_instance_metadata = {__index = screen_instance}
-
-function screen_instance_metadata.__eq(a, b)
+function screen_metatable.__eq(a, b)
   return __api.screen_equals(a.__screen, b.__screen)
 end
 
 local function rawinit(s)
-  return setmetatable({__screen = s}, screen_instance_metadata)
+  return setmetatable({__screen = s}, screen_metatable)
 end
 
 function screen.all()

@@ -2,14 +2,14 @@ local util = require("util")
 
 local window = {}
 
-local window_metadata = {__index = window}
+local window_metatable = {__index = window}
 
-function window_metadata.__eq(a, b)
+function window_metatable.__eq(a, b)
   return __api.window_equals(a.__win, b.__win)
 end
 
 function window.rawinit(winuserdata)
-  return setmetatable({__win = winuserdata}, window_metadata)
+  return setmetatable({__win = winuserdata}, window_metatable)
 end
 
 function window:isvisible()

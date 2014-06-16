@@ -1,7 +1,7 @@
 local util = require("util")
 
 local application = {}
-local application_metadata = {__index = application}
+local application_metatable = {__index = application}
 
 function application:title() return __api.application_title(self.pid) end
 function application:ishidden() return __api.application_is_hidden(self.pid) end
@@ -20,12 +20,12 @@ function application:visible_windows()
   return util.filter(self:windows(), window.isvisible)
 end
 
-function application_metadata.__eq(a, b)
+function application_metatable.__eq(a, b)
   return a.pid == b.pid
 end
 
 function application.rawinit(pid)
-  return setmetatable({pid = pid}, application_metadata)
+  return setmetatable({pid = pid}, application_metatable)
 end
 
 function application.running_applications()
