@@ -1,11 +1,15 @@
-print("window!")
-
-
 local window = {}
 
 function window.rawinit(winuserdata)
   -- TODO
 end
+
+function window.isvisible(win)
+  -- TODO
+  return !win:application():ishidden() && !win:isminimized && win:isstandard()
+end
+
+-- TODO: win.__index == window
 
 return window
 

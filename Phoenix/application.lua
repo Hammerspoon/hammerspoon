@@ -17,8 +17,8 @@ function application_instance:windows()
 end
 
 function application_instance:visible_windows()
-  print("not implemented yet :(")
-  -- self:windows().filter(function(win) return !win:application().ishidden() && !win:isminimized && win:isstandard() )
+  local window = require("window")
+  return util.filter(self:windows(), window.isvisible)
 end
 
 local application_instance_metadata = {__index = application_instance}
