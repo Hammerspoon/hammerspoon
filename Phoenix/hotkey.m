@@ -36,7 +36,7 @@ int hotkey_setup(lua_State *L) {
     return 0;
 }
 
-// args: [cmd?, ctrl?, alt?, shift?, key_str]
+// args: [cmd?, ctrl?, alt?, shift?, key_str, uid]
 // returns: [uid, carbon_hotkey]
 int hotkey_register(lua_State *L) {
     BOOL cmd        = lua_toboolean(L, 1);
@@ -44,6 +44,7 @@ int hotkey_register(lua_State *L) {
     BOOL alt        = lua_toboolean(L, 3);
     BOOL shift      = lua_toboolean(L, 4);
     const char* key = lua_tostring(L, 5);
+    UInt32 uid      = lua_tonumber(L, 6);
     
     UInt32 mods = 0;
     if (cmd)   mods |= cmdKey;
@@ -51,24 +52,20 @@ int hotkey_register(lua_State *L) {
     if (alt)   mods |= optionKey;
     if (shift) mods |= shiftKey;
     
-    UInt32 code = PHKeyCodeForString([NSString stringWithUTF8String:key]);
-    
-    static UInt32 highestUID;
-    UInt32 uid = ++highestUID;
+    UInt32 keycode = PHKeyCodeForString([NSString stringWithUTF8String:key]);
     
     EventHotKeyID hotKeyID = { .signature = 'PHNX', .id = uid };
     EventHotKeyRef carbonHotKey = NULL;
-    RegisterEventHotKey(code, mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &carbonHotKey);
+    RegisterEventHotKey(keycode, mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &carbonHotKey);
     
-    lua_pushnumber(L, uid);
     lua_pushlightuserdata(L, carbonHotKey);
-    return 2;
+    return 1;
 }
 
 // args: [carbon_hotkey]
 // returns: []
 int hotkey_unregister(lua_State *L) {
-    EventHotKeyRef carbonHotKey = lua_touserdata(L, 1);
+    EventHotKeyRef carbonHotKey = *((EventHotKeyRef*)lua_touserdata(L, 1));
     UnregisterEventHotKey(carbonHotKey);
     return 0;
 }

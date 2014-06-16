@@ -21,10 +21,6 @@
     self.handler();
 }
 
-- (void) dealloc {
-    NSLog(@"bye");
-}
-
 @end
 
 

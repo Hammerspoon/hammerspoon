@@ -14,11 +14,24 @@ end)
 
 -- report error in user's config
 if not ok then
-   -- __api.alert_show(error, 5)
+   __api.alert_show(error, 5)
 end
 
 
 
+
+
+
+local hotkey = require("hotkey")
+
+k = hotkey.new({"cmd", "shift"}, "d", function()
+    print("called!")
+    k:disable()
+end)
+
+k:enable()
+
+print("here")
 
 
 
