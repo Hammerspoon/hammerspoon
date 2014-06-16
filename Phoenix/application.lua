@@ -1,7 +1,6 @@
-local application = {}
+local util = require("util")
 
-local window = require("window")
-local fp = require("fp")
+local application = {}
 
 local application_instance = {}
 
@@ -13,7 +12,8 @@ function application_instance:kill() __api.application_kill(self.pid) end
 function application_instance:kill9() __api.application_kill9(self.pid) end
 
 function application_instance:windows()
-  return fp.map(__api.application_get_windows(self.pid), window.rawinit)
+  local window = require("window")
+  return util.map(__api.application_get_windows(self.pid), window.rawinit)
 end
 
 function application_instance:visible_windows()
@@ -26,7 +26,7 @@ local function rawinit(pid)
 end
 
 function application.running_applications()
-  return fp.map(__api.application_running_applications(), rawinit)
+  return util.map(__api.application_running_applications(), rawinit)
 end
 
 return application

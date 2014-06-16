@@ -1,4 +1,4 @@
-local fp = require("fp")
+local util = require("util")
 
 local screen = {}
 
@@ -30,14 +30,14 @@ end
 
 function screen_instance:next()
   local screens = screen.all()
-  local i = fp.indexof(screens, self) + 1
+  local i = util.indexof(screens, self) + 1
   if i > # screens then i = 1 end
   return screens[i]
 end
 
 function screen_instance:previous()
   local screens = screen.all()
-  local i = fp.indexof(screens, self) - 1
+  local i = util.indexof(screens, self) - 1
   if i < 1 then i = # screens end
   return screens[i]
 end
@@ -53,7 +53,7 @@ local function rawinit(s)
 end
 
 function screen.all()
-  return fp.map(__api.screen_get_screens(), rawinit)
+  return util.map(__api.screen_get_screens(), rawinit)
 end
 
 function screen.main()

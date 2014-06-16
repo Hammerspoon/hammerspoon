@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		94202E3C194E933800F00DA1 /* fp.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94202E3B194E933800F00DA1 /* fp.lua */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9445CA1B19083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA1A19083251002568BB /* main.m */; };
 		9445CA2219083251002568BB /* app_delegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA2119083251002568BB /* app_delegate.m */; };
@@ -75,7 +74,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		94202E3B194E933800F00DA1 /* fp.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fp.lua; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Phoenix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Phoenix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		9445CA1119083251002568BB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -229,7 +227,6 @@
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2119083251002568BB /* app_delegate.m */,
 				9445CAA4190847CB002568BB /* phoenix_init.lua */,
-				94202E3B194E933800F00DA1 /* fp.lua */,
 				94DE5946194F11AD004D242E /* util.lua */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94E8E7A1194E0B2B0064CF6C /* hotkey.lua */,
@@ -392,7 +389,6 @@
 			files = (
 				94C36942194DD94D00EE3A2D /* updater.lua in Resources */,
 				94E8E7B0194E24FC0064CF6C /* mouse.lua in Resources */,
-				94202E3C194E933800F00DA1 /* fp.lua in Resources */,
 				94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */,
 				94E8E7AE194E0C940064CF6C /* Phoenix.icns in Resources */,
 				94E8E7B6194E25120064CF6C /* pathwatcher.lua in Resources */,

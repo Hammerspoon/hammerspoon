@@ -1,6 +1,6 @@
-local hotkey = {}
+local util = require("util")
 
-local fp = require("fp")
+local hotkey = {}
 
 hotkey.keys = {}
 
@@ -14,7 +14,7 @@ local hotkey_instance = {}
 
 function hotkey.new(mods, key, fn)
   local k = {}
-  k.mods = fp.map(mods, string.lower)
+  k.mods = util.map(mods, string.lower)
   k.key = key
   k.fn = fn
   return setmetatable(k, {__index = hotkey_instance})
@@ -29,10 +29,10 @@ end
 function hotkey_instance:enable()
   self.__uid = #hotkey.keys + 1
   hotkey.keys[self.__uid] = self
-  self.__carbonkey = __api.hotkey_register(fp.contains(self.mods, "cmd"),
-                                           fp.contains(self.mods, "ctrl"),
-                                           fp.contains(self.mods, "alt"),
-                                           fp.contains(self.mods, "shift"),
+  self.__carbonkey = __api.hotkey_register(util.contains(self.mods, "cmd"),
+                                           util.contains(self.mods, "ctrl"),
+                                           util.contains(self.mods, "alt"),
+                                           util.contains(self.mods, "shift"),
                                            self.key,
                                            self.__uid)
   return self
