@@ -26,26 +26,36 @@ end
 
 
 
-local hotkey = require("hotkey")
-local pathwatcher = require("pathwatcher")
 
-local m = nil
+-- local app = require("app")
 
-hotkey.new({"cmd", "shift"}, "a", function()
-    m = pathwatcher.new("/Users/sdegutis/projects/phoenix/Phoenix", function()
-                          print("here!")
-    end)
-end):enable()
+-- for i, a in pairs(app.running_apps()) do
+--   print(a)
+--   print(a.pid)
+--   print(a:title())
+-- end
 
-hotkey.new({"cmd", "shift"}, "b", function()
-    m:start()
-end):enable()
 
-hotkey.new({"cmd", "shift"}, "c", function()
-    m:stop()
-end):enable()
+-- local hotkey = require("hotkey")
+-- local pathwatcher = require("pathwatcher")
 
-print("ready")
+-- local m = nil
+
+-- hotkey.new({"cmd", "shift"}, "a", function()
+--     m = pathwatcher.new("/Users/sdegutis/projects/phoenix/Phoenix", function()
+--                           print("here!")
+--     end)
+-- end):enable()
+
+-- hotkey.new({"cmd", "shift"}, "b", function()
+--     m:start()
+-- end):enable()
+
+-- hotkey.new({"cmd", "shift"}, "c", function()
+--     m:stop()
+-- end):enable()
+
+-- print("ready")
 
 
 

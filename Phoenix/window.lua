@@ -1,5 +1,18 @@
 print("window!")
 
+
+local window = {}
+
+function window.rawinit(winuserdata)
+  -- TODO
+end
+
+return window
+
+
+
+
+
 -- + (NSArray*) allWindows {
 --     NSMutableArray* windows = [NSMutableArray array];
 --
