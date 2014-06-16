@@ -50,6 +50,7 @@ int screen_get_main_screen(lua_State* L);
 int screen_frame(lua_State* L);
 int screen_visible_frame(lua_State* L);
 int screen_equals(lua_State* L);
+int screen_set_tint(lua_State* L);
 
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
@@ -99,6 +100,7 @@ static const luaL_Reg phoenix_lib[] = {
     {"screen_frame", screen_frame},
     {"screen_visible_frame", screen_visible_frame},
     {"screen_equals", screen_equals},
+    {"screen_set_tint", screen_set_tint},
     
     {NULL, NULL}
 };
