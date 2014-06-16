@@ -18,6 +18,10 @@ if not ok then
 end
 
 
+-- local alert = require("alert")
+-- alert.show("hello")
+-- alert.show("foo", 0.5)
+
 
 
 
