@@ -26,22 +26,20 @@ end
 
 
 
--- local hotkey = require("hotkey")
--- local autolaunch = require("autolaunch")
+local hotkey = require("hotkey")
+local mouse = require("mouse")
 
--- hotkey.new({"cmd", "shift"}, "g", function()
---     print(autolaunch.get())
--- end):enable()
+local m = nil
 
--- hotkey.new({"cmd", "shift"}, "e", function()
---     print(autolaunch.enable())
--- end):enable()
+hotkey.new({"cmd", "shift"}, "g", function()
+    m = mouse.capture()
+end):enable()
 
--- hotkey.new({"cmd", "shift"}, "d", function()
---     print(autolaunch.disable())
--- end):enable()
+hotkey.new({"cmd", "shift"}, "s", function()
+    m:restore()
+end):enable()
 
--- print("ready")
+print("ready")
 
 
 
