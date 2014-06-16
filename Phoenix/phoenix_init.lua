@@ -27,16 +27,22 @@ end
 
 
 local hotkey = require("hotkey")
-local mouse = require("mouse")
+local pathwatcher = require("pathwatcher")
 
 local m = nil
 
-hotkey.new({"cmd", "shift"}, "g", function()
-    m = mouse.capture()
+hotkey.new({"cmd", "shift"}, "a", function()
+    m = pathwatcher.new("/Users/sdegutis/projects/phoenix/Phoenix", function()
+                          print("here!")
+    end)
 end):enable()
 
-hotkey.new({"cmd", "shift"}, "s", function()
-    m:restore()
+hotkey.new({"cmd", "shift"}, "b", function()
+    m:start()
+end):enable()
+
+hotkey.new({"cmd", "shift"}, "c", function()
+    m:stop()
 end):enable()
 
 print("ready")
