@@ -20,6 +20,12 @@ function hotkey.new(mods, key, fn)
   return setmetatable(k, {__index = hotkey_instance})
 end
 
+-- convenience function
+function hotkey.enable(...)
+  local k = hotkey.new(...)
+  return k:enable()
+end
+
 function hotkey_instance:enable()
   self.__uid = #hotkey.keys + 1
   hotkey.keys[self.__uid] = self
