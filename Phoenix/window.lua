@@ -24,14 +24,7 @@ end
 
 function window.allwindows()
   local application = require("application")
-  local wins = {}
-
-  for _, app in pairs(application.running_applications()) do
-    util.concat(wins, app:windows())
-    -- TODO: rewrite using util.mapcat (requires app:windows() == app.windows(app))
-  end
-
-  return wins
+  return util.mapcat(application.running_applications(), application.windows)
 end
 
 function window:title()
@@ -43,16 +36,6 @@ return window
 
 
 
-
--- + (NSArray*) allWindows {
---     NSMutableArray* windows = [NSMutableArray array];
---
---     for (PHApp* app in [PHApp runningApps]) {
---         [windows addObjectsFromArray:[app allWindows]];
---     }
---
---     return windows;
--- }
 
 -- - (CGRect) frame {
 --     CGRect r;

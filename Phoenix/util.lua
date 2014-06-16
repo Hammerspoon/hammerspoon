@@ -43,7 +43,11 @@ function util.concat(t1, t2)
 end
 
 function util.mapcat(t, fn)
-  -- TODO
+  local nt = {}
+  for k, v in pairs(t) do
+    util.concat(nt, fn(v))
+  end
+  return nt
 end
 
 return util
