@@ -7,7 +7,7 @@ void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, s
 }
 
 int pathwatcher_stop(lua_State* L) {
-    FSEventStreamRef stream = *((FSEventStreamRef*)lua_touserdata(L, 1));
+    FSEventStreamRef stream = lua_touserdata(L, 1);
     
     FSEventStreamStop(stream);
     FSEventStreamInvalidate(stream);
