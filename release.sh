@@ -36,3 +36,8 @@ echo "Created $LATEST"
 # echo "New contents of appcast.xml are:"
 # cat appcast.xml
 # echo "Updated appcast.xml"
+
+
+
+
+# TODO: write to latest_version.txt, date (unix is fine), and version number (human readable)
