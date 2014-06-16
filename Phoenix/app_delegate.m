@@ -45,6 +45,11 @@ int window_focus(lua_State* L);
 int window_subrole(lua_State* L);
 int window_role(lua_State* L);
 
+int screen_get_screens(lua_State* L);
+int screen_get_main_screen(lua_State* L);
+int screen_frame(lua_State* L);
+int screen_visible_frame(lua_State* L);
+
 static const luaL_Reg phoenix_lib[] = {
     {"hotkey_setup", hotkey_setup},
     {"hotkey_register", hotkey_register},
@@ -87,6 +92,11 @@ static const luaL_Reg phoenix_lib[] = {
     {"window_focus", window_focus},
     {"window_subrole", window_subrole},
     {"window_role", window_role},
+    
+    {"screen_get_screens", screen_get_screens},
+    {"screen_get_main_screen", screen_get_main_screen},
+    {"screen_frame", screen_frame},
+    {"screen_visible_frame", screen_visible_frame},
     
     {NULL, NULL}
 };
