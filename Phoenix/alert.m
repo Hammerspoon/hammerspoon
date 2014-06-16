@@ -24,7 +24,7 @@ int alert_show(lua_State* L) {
     return 0;
 }
 
-void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
+static void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         visibleAlerts = [NSMutableArray array];
