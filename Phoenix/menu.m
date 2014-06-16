@@ -71,12 +71,6 @@ int menu_icon_hide(lua_State* L) {
     return 0;
 }
 
-int phoenix_show_about_panel(lua_State* L) {
-    [NSApp activateIgnoringOtherApps:YES];
-    [NSApp orderFrontStandardAboutPanel:nil];
-    return 0;
-}
-
 //- (IBAction) toggleOpenAtLogin:(NSMenuItem*)sender {
 //    [PHOpenAtLogin setOpensAtLogin:[sender state] == NSOffState];
 //}
