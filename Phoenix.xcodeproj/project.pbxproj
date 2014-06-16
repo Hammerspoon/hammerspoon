@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		944419C1194F4A51000A55A7 /* timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 944419C0194F4A51000A55A7 /* timer.m */; };
+		944419C3194F4A55000A55A7 /* timer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 944419C2194F4A55000A55A7 /* timer.lua */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9445CA1B19083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA1A19083251002568BB /* main.m */; };
 		9445CA2219083251002568BB /* app_delegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA2119083251002568BB /* app_delegate.m */; };
@@ -77,6 +79,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		944419C0194F4A51000A55A7 /* timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = timer.m; sourceTree = "<group>"; };
+		944419C2194F4A55000A55A7 /* timer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = timer.lua; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Phoenix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Phoenix.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		9445CA1119083251002568BB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -261,6 +265,8 @@
 				94E8E7B7194E25190064CF6C /* menu.lua */,
 				945212A5194D6B5900217584 /* menu.png */,
 				945212A6194D6B5900217584 /* menu@2x.png */,
+				944419C0194F4A51000A55A7 /* timer.m */,
+				944419C2194F4A55000A55A7 /* timer.lua */,
 				9445CA1519083251002568BB /* Supporting Files */,
 				9445CA42190833C1002568BB /* lua */,
 			);
@@ -410,6 +416,7 @@
 				9445CAA5190847CB002568BB /* rawinit.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
 				94E8E7B8194E25190064CF6C /* menu.lua in Resources */,
+				944419C3194F4A55000A55A7 /* timer.lua in Resources */,
 				94E8E7B4194E25080064CF6C /* alert.lua in Resources */,
 				94DE5947194F11AD004D242E /* util.lua in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
@@ -428,6 +435,7 @@
 				9445CA82190833C1002568BB /* lcode.c in Sources */,
 				9452129A194D59F800217584 /* mouse.m in Sources */,
 				9459B592194CEE1E008BC904 /* hotkey.m in Sources */,
+				944419C1194F4A51000A55A7 /* timer.m in Sources */,
 				945212A4194D6A6000217584 /* menu.m in Sources */,
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,

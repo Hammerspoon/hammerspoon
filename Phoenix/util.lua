@@ -34,8 +34,4 @@ function util.indexof(t, el)
   return nil
 end
 
-function util.doafter(seconds, fn)
-  __api.util_do_after_delay(seconds, fn)
-end
-
 return util
