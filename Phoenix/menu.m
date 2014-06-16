@@ -57,30 +57,34 @@ int menu_show(lua_State* L) {
                     
                     // table is at top; enumerate each k/v pair
                     
-                    lua_pushnil(L);
-                    while (lua_next(L, -2) != 0) {
-                        NSString* key = [NSString stringWithUTF8String: lua_tostring(L, -2)];
-                        
-                        if ([key isEqualToString: @"title"]) {
-                            NSString* title = [NSString stringWithUTF8String: lua_tostring(L, -1)];
-                            
-                            NSMenuItem* item = [[NSMenuItem alloc] init];
-                            PHMenuItemDelegator* delegator = [[PHMenuItemDelegator alloc] init];
-                            
-                            item.title = title;
-                            item.action = @selector(callCustomPhoenixMenuItemDelegator:);
-                            item.target = delegator;
-                            item.representedObject = delegator;
-                            
-                            delegator.handler = ^{
-                                NSLog(@"called!");
-                            };
-                            
-                            [menu addItem:item];
-                        }
-                        
-                        lua_pop(L, 1);
+                    lua_getfield(L, -1, "title");
+                    NSString* title = [NSString stringWithUTF8String: lua_tostring(L, -1)];
+                    lua_pop(L, 1);
+                    
+                    
+                    
+                    if ([title isEqualToString: @"-"]) {
+                        [menu addItem:[NSMenuItem separatorItem]];
                     }
+                    else {
+                        NSMenuItem* item = [[NSMenuItem alloc] init];
+                        PHMenuItemDelegator* delegator = [[PHMenuItemDelegator alloc] init];
+                        
+                        item.title = title;
+                        item.action = @selector(callCustomPhoenixMenuItemDelegator:);
+                        item.target = delegator;
+                        item.representedObject = delegator;
+                        
+                        delegator.handler = ^{
+                            NSLog(@"called!");
+                        };
+                        
+                        [menu addItem:item];
+                    }
+                    
+                    
+                    
+                    
                     
                     lua_pop(L, 1);
                 }

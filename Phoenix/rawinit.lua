@@ -21,19 +21,18 @@ if not ok then alert.show(err, 5) end
 
 -- test bed
 local ok, err = pcall(function()
-
-
-    local util = require("util")
-    print(util.reduce({2, 3, 4}, function(a, b) return a + b end))
-
+    -- local util = require("util")
+    -- print(util.reduce({2, 3, 4}, function(a, b) return a + b end))
 
     local menu = require("menu")
     local i = 0
     menu.show(function()
         i = i + 1
         return {
-          {title = tostring(i)},
-          {title = "world"},
+          {title = tostring(i), fn = function() print("lol1") end},
+          {title = "hello", fn = function() print("lol2") end},
+          {title = "-", fn = function() print("lol3") end},
+          {title = "world", fn = function() print("lol4") end},
         }
     end)
 end)
