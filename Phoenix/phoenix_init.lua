@@ -7,11 +7,11 @@ package.path = thisdir .. "/?.lua;" .. package.path                    -- built-
 -- __api.alert_show("Phoenix config loaded", 1.5)
 
 local function init()
-  local screen = require("screen")
+  local application = require("application")
 
-  local mainscreen = screen.main()
-  print(mainscreen:next() == mainscreen)
-  print(mainscreen:previous() == mainscreen)
+  local app1 = application.rawinit(1)
+  local app2 = application.rawinit(1)
+  print(app1 == app2)
 end
 
 -- load user's config

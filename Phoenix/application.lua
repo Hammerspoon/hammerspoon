@@ -21,12 +21,18 @@ function application_instance:visible_windows()
   -- self:windows().filter(function(win) return !win:application().ishidden() && !win:isminimized && win:isstandard() )
 end
 
-local function rawinit(pid)
-  return setmetatable({pid = pid}, {__index = application_instance})
+local application_instance_metadata = {__index = application_instance}
+
+function application_instance_metadata.__eq(a, b)
+  return a.pid == b.pid
+end
+
+function application.rawinit(pid)
+  return setmetatable({pid = pid}, application_instance_metadata)
 end
 
 function application.running_applications()
-  return util.map(__api.application_running_applications(), rawinit)
+  return util.map(__api.application_running_applications(), application.rawinit)
 end
 
 return application
