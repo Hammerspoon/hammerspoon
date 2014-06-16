@@ -37,7 +37,7 @@ int hotkey_setup(lua_State *L) {
 }
 
 // args: [cmd?, ctrl?, alt?, shift?, key_str, uid]
-// returns: [uid, carbon_hotkey]
+// returns: [carbon_hotkey]
 int hotkey_register(lua_State *L) {
     BOOL cmd        = lua_toboolean(L, 1);
     BOOL ctrl       = lua_toboolean(L, 2);
@@ -65,7 +65,7 @@ int hotkey_register(lua_State *L) {
 // args: [carbon_hotkey]
 // returns: []
 int hotkey_unregister(lua_State *L) {
-    EventHotKeyRef carbonHotKey = *((EventHotKeyRef*)lua_touserdata(L, 1));
+    EventHotKeyRef carbonHotKey = lua_touserdata(L, 1);
     UnregisterEventHotKey(carbonHotKey);
     return 0;
 }
