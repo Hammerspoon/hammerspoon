@@ -1,12 +1,12 @@
 #import "lua/lauxlib.h"
 
 static LSSharedFileListRef shared_file_list() {
-    static LSSharedFileListRef sharedFileList;
+    static LSSharedFileListRef list;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedFileList = LSSharedFileListCreate(NULL, kLSSharedFileListSessionLoginItems, NULL);
+        list = LSSharedFileListCreate(NULL, kLSSharedFileListSessionLoginItems, NULL);
     });
-    return sharedFileList;
+    return list;
 }
 
 int autolaunch_get(lua_State* L) {
@@ -36,7 +36,7 @@ int autolaunch_get(lua_State* L) {
 }
 
 int autolaunch_set(lua_State* L) {
-    BOOL opensAtLogin = lua_tonumber(L, 1);
+    BOOL opensAtLogin = lua_toboolean(L, 1);
     
     NSURL *appURL = [[[NSBundle mainBundle] bundleURL] fileReferenceURL];
     

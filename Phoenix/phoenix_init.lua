@@ -23,17 +23,21 @@ end
 
 
 -- local hotkey = require("hotkey")
+-- local autolaunch = require("autolaunch")
 
--- k = hotkey.new({"cmd", "shift"}, "d", function()
---     print("called!")
---     k:disable()
--- end)
+-- hotkey.new({"cmd", "shift"}, "g", function()
+--     print(autolaunch.get())
+-- end):enable()
 
--- k:enable()
+-- hotkey.new({"cmd", "shift"}, "e", function()
+--     print(autolaunch.enable())
+-- end):enable()
 
--- print("here")
+-- hotkey.new({"cmd", "shift"}, "d", function()
+--     print(autolaunch.disable())
+-- end):enable()
 
-
+-- print("ready")
 
 
 
