@@ -29,8 +29,8 @@ int autolaunch_set(lua_State* L);
 
 int alert_show(lua_State* L);
 
-int menu_icon_show(lua_State* L);
-int menu_icon_hide(lua_State* L);
+int menu_show(lua_State* L);
+int menu_hide(lua_State* L);
 
 int pathwatcher_stop(lua_State* L);
 int pathwatcher_start(lua_State* L);
@@ -85,8 +85,8 @@ static const luaL_Reg phoenix_lib[] = {
     
     {"alert_show", alert_show},
     
-    {"menu_icon_show", menu_icon_show},
-    {"menu_icon_hide", menu_icon_hide},
+    {"menu_show", menu_show},
+    {"menu_hide", menu_hide},
     
     {"pathwatcher_stop", pathwatcher_stop},
     {"pathwatcher_start", pathwatcher_start},

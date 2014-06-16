@@ -27,7 +27,7 @@
 static NSStatusItem *statusItem;
 static PHMenuDelegate* menuDelegate;
 
-int menu_icon_show(lua_State* L) {
+int menu_show(lua_State* L) {
     NSImage* img = [NSImage imageNamed:@"menu"];
     [img setTemplate:YES];
     
@@ -63,7 +63,7 @@ int menu_icon_show(lua_State* L) {
     return 0;
 }
 
-int menu_icon_hide(lua_State* L) {
+int menu_hide(lua_State* L) {
     if (statusItem) {
         [[statusItem statusBar] removeStatusItem: statusItem];
         statusItem = nil;
