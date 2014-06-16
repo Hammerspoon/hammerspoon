@@ -31,7 +31,7 @@ end
 -- --    print(k, __api.app_title(v))
 -- -- end
 
--- __api.menu_icon_show()
+__api.menu_icon_show()
 
 -- -- lol = __api.path_watcher_start("/Users/sdegutis/projects/phoenix", function()
 -- --                             print(lol)
@@ -56,11 +56,11 @@ end
 
 
 
-__api.hotkey_setup(function(uid)
-                      local w = __api.window_get_focused_window()
-                      print(__api.window_role(w))
-                   end)
-__api.hotkey_register(true, true, true, false, "s")
+-- __api.hotkey_setup(function(uid)
+--                       local w = __api.window_get_focused_window()
+--                       print(__api.window_role(w))
+--                    end)
+-- __api.hotkey_register(true, true, true, false, "s")
 
 
 -- print("done")

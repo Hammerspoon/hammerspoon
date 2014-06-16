@@ -11,7 +11,25 @@
 @end
 
 
+@interface PHMenuDelegate : NSObject <NSMenuDelegate>
+@property (copy) dispatch_block_t handler;
+@end
+
+@implementation PHMenuDelegate
+
+- (void) menuNeedsUpdate:(NSMenu *)menu {
+    self.handler();
+}
+
+- (void) dealloc {
+    NSLog(@"bye");
+}
+
+@end
+
+
 static NSStatusItem *statusItem;
+static PHMenuDelegate* menuDelegate;
 
 int menu_icon_show(lua_State* L) {
     NSImage* img = [NSImage imageNamed:@"menu"];
@@ -24,20 +42,25 @@ int menu_icon_show(lua_State* L) {
         
         NSMenu* menu = [[NSMenu alloc] init];
         
-        NSMenuItem* item = [[NSMenuItem alloc] init];
-        PHMenuItemDelegator* delegator = [[PHMenuItemDelegator alloc] init];
-        
-        item.title = @"foobar";
-        item.action = @selector(callCustomPhoenixMenuItemDelegator:);
-        item.target = delegator;
-        item.representedObject = delegator;
-        
-        delegator.handler = ^{
-            NSLog(@"called!");
+        menuDelegate = [[PHMenuDelegate alloc] init];
+        menuDelegate.handler = ^{
+            [menu removeAllItems];
+            
+            NSMenuItem* item = [[NSMenuItem alloc] init];
+            PHMenuItemDelegator* delegator = [[PHMenuItemDelegator alloc] init];
+            
+            item.title = @"foobar";
+            item.action = @selector(callCustomPhoenixMenuItemDelegator:);
+            item.target = delegator;
+            item.representedObject = delegator;
+            
+            delegator.handler = ^{
+                NSLog(@"called!");
+            };
+            
+            [menu addItem:item];
         };
-        
-        [menu addItem:item];
-        
+        menu.delegate = menuDelegate;
         [statusItem setMenu: menu];
     }
     
