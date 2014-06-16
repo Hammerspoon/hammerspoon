@@ -233,87 +233,63 @@ int window_focus(lua_State* L) {
     return 1;
 }
 
+// XXX: undocumented API.  We need this to match dictionary entries returned by CGWindowListCopyWindowInfo (which
+// appears to be the *only* way to get a list of all windows on the system in "most-recently-used first" order) against
+// AXUIElementRef's returned by AXUIElementCopyAttributeValues
+AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 
+int window_visible_windows_sorted_by_recency(lua_State* L) {
+    lua_newtable(L);
+    
+    int i = 0;
+    
+    // This gets windows sorted by most-recently-used criteria.  The
+    // first one will be the active window.
+    CFArrayRef visible_win_info = CGWindowListCopyWindowInfo(
+                                                             kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements,
+                                                             kCGNullWindowID);
 
+    // But we only got some dictionaries containing info.  Need to get
+    // the actual AXUIMyHeadHurts for each of them and create SDWindow-s.
+    for (NSMutableDictionary* entry in (__bridge NSArray*)visible_win_info) {
+        // Tricky...  for Google Chrome we get one hidden window for
+        // each visible window, so we need to check alpha > 0.
+        int alpha = [[entry objectForKey:(id)kCGWindowAlpha] intValue];
+        int layer = [[entry objectForKey:(id)kCGWindowLayer] intValue];
 
+        if (layer == 0 && alpha > 0) {
+            CGWindowID win_id = [[entry objectForKey:(id)kCGWindowNumber] intValue];
 
+            // some AXUIElementCreateByWindowNumber would be soooo nice.  but nope, we have to take the pain below.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//// XXX: undocumented API.  We need this to match dictionary entries returned by CGWindowListCopyWindowInfo (which
-//// appears to be the *only* way to get a list of all windows on the system in "most-recently-used first" order) against
-//// AXUIElementRef's returned by AXUIElementCopyAttributeValues
-//AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
-//
-//+ (NSArray*) visibleWindowsMostRecentFirst {
-//    // This gets windows sorted by most-recently-used criteria.  The
-//    // first one will be the active window.
-//    CFArrayRef visible_win_info = CGWindowListCopyWindowInfo(
-//                                                             kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements,
-//                                                             kCGNullWindowID);
-//
-//    // But we only got some dictionaries containing info.  Need to get
-//    // the actual AXUIMyHeadHurts for each of them and create SDWindow-s.
-//    NSMutableArray* windows = [NSMutableArray array];
-//    for (NSMutableDictionary* entry in (__bridge NSArray*)visible_win_info) {
-//        // Tricky...  for Google Chrome we get one hidden window for
-//        // each visible window, so we need to check alpha > 0.
-//        int alpha = [[entry objectForKey:(id)kCGWindowAlpha] intValue];
-//        int layer = [[entry objectForKey:(id)kCGWindowLayer] intValue];
-//
-//        if (layer == 0 && alpha > 0) {
-//            CGWindowID win_id = [[entry objectForKey:(id)kCGWindowNumber] intValue];
-//
-//            // some AXUIElementCreateByWindowNumber would be soooo nice.  but nope, we have to take the pain below.
-//
-//            int pid = [[entry objectForKey:(id)kCGWindowOwnerPID] intValue];
-//            AXUIElementRef app = AXUIElementCreateApplication(pid);
-//            CFArrayRef appwindows;
-//            AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, 1000, &appwindows);
-//            if (appwindows) {
-//                // looks like appwindows can be NULL when this function is called during the
-//                // switch-workspaces animation
-//                for (id w in (__bridge NSArray*)appwindows) {
-//                    AXUIElementRef win = (__bridge AXUIElementRef)w;
-//                    CGWindowID tmp;
-//                    _AXUIElementGetWindow(win, &tmp); //XXX: undocumented API.  but the alternative is horrifying.
-//                    if (tmp == win_id) {
-//                        // finally got it, insert in the result array.
-//                        [windows addObject:[[PHWindow alloc] initWithElement:win]];
-//                        break;
-//                    }
-//                }
-//                CFRelease(appwindows);
-//            }
-//            CFRelease(app);
-//        }
-//    }
-//    CFRelease(visible_win_info);
-//
-//    return windows;
-//}
-//
+            int pid = [[entry objectForKey:(id)kCGWindowOwnerPID] intValue];
+            AXUIElementRef app = AXUIElementCreateApplication(pid);
+            CFArrayRef appwindows;
+            AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, 1000, &appwindows);
+            if (appwindows) {
+                // looks like appwindows can be NULL when this function is called during the
+                // switch-workspaces animation
+                for (id w in (__bridge NSArray*)appwindows) {
+                    AXUIElementRef win = (__bridge AXUIElementRef)w;
+                    CGWindowID tmp;
+                    _AXUIElementGetWindow(win, &tmp); //XXX: undocumented API.  but the alternative is horrifying.
+                    if (tmp == win_id) {
+                        // finally got it, insert in the result array.
+                        
+                        CFRetain(win);
+                        
+                        lua_pushnumber(L, i++);
+                        window_push_window_as_userdata(L, win);
+                        lua_settable(L, -3);
+                        break;
+                    }
+                }
+                CFRelease(appwindows);
+            }
+            CFRelease(app);
+        }
+    }
+    CFRelease(visible_win_info);
+    
+    return 1;
+}

@@ -47,6 +47,7 @@ int window_pid(lua_State* L);
 int window_focus(lua_State* L);
 int window_subrole(lua_State* L);
 int window_role(lua_State* L);
+int window_visible_windows_sorted_by_recency(lua_State* L);
 
 int screen_get_screens(lua_State* L);
 int screen_get_main_screen(lua_State* L);
@@ -100,6 +101,7 @@ static const luaL_Reg phoenix_lib[] = {
     {"window_focus", window_focus},
     {"window_subrole", window_subrole},
     {"window_role", window_role},
+    {"window_visible_windows_sorted_by_recency", window_visible_windows_sorted_by_recency},
     
     {"screen_get_screens", screen_get_screens},
     {"screen_get_main_screen", screen_get_main_screen},
