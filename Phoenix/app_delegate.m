@@ -146,7 +146,7 @@ static const luaL_Reg phoenix_lib[] = {
     lua_setglobal(L, "__api");
     
     NSString* bundlePath = [[NSBundle mainBundle] resourcePath];
-    NSString* initFile = [bundlePath stringByAppendingPathComponent:@"phoenix_init.lua"];
+    NSString* initFile = [bundlePath stringByAppendingPathComponent:@"rawinit.lua"];
     
     luaL_loadfile(L, [initFile fileSystemRepresentation]);
     lua_pushstring(L, [bundlePath fileSystemRepresentation]);
