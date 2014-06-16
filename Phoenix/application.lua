@@ -1,6 +1,7 @@
 local util = require("util")
 
 local application = {}
+local application_metadata = {__index = application}
 
 function application:title() return __api.application_title(self.pid) end
 function application:ishidden() return __api.application_is_hidden(self.pid) end
@@ -18,8 +19,6 @@ function application:visible_windows()
   local window = require("window")
   return util.filter(self:windows(), window.isvisible)
 end
-
-local application_metadata = {__index = application}
 
 function application_metadata.__eq(a, b)
   return a.pid == b.pid
