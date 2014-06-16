@@ -1,15 +1,24 @@
 local window = {}
 
+local window_metadata = {__index = window}
+
+function window_metadata.__eq(a, b)
+  return __api.window_equals(a.__win, b.__win)
+end
+
 function window.rawinit(winuserdata)
-  -- TODO
+  return setmetatable({__win = winuserdata}, window_metadata)
 end
 
-function window.isvisible(win)
-  -- TODO
-  return !win:application():ishidden() && !win:isminimized && win:isstandard()
+function window:isvisible()
+  return not self:application():ishidden() and
+    not self:isminimized() and
+    self:isstandard()
 end
 
--- TODO: win.__index == window
+function window.focusedwindow()
+  return window.rawinit(__api.window_get_focused_window())
+end
 
 return window
 

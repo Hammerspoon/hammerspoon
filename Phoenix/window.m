@@ -215,6 +215,13 @@ int window_pid(lua_State* L) {
     }
 }
 
+int window_equals(lua_State* L) {
+    AXUIElementRef winA = *((AXUIElementRef*)lua_touserdata(L, 1));
+    AXUIElementRef winB = *((AXUIElementRef*)lua_touserdata(L, 2));
+    lua_pushboolean(L, CFEqual(winA, winB));
+    return 1;
+}
+
 // args: [win, pid]
 int window_focus(lua_State* L) {
     AXUIElementRef* winptr = lua_touserdata(L, 1);

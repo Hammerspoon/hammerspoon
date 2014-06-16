@@ -36,6 +36,7 @@ int pathwatcher_stop(lua_State* L);
 int pathwatcher_start(lua_State* L);
 
 int window_get_focused_window(lua_State* L);
+int window_equals(lua_State* L);
 int window_title(lua_State* L);
 int window_is_standard(lua_State* L);
 int window_topleft(lua_State* L);
@@ -92,6 +93,7 @@ static const luaL_Reg phoenix_lib[] = {
     {"pathwatcher_start", pathwatcher_start},
     
     {"window_get_focused_window", window_get_focused_window},
+    {"window_equals", window_equals},
     {"window_title", window_title},
     {"window_is_standard", window_is_standard},
     {"window_topleft", window_topleft},
