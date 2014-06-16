@@ -6,15 +6,24 @@ package.path = thisdir .. "/?.lua;" .. package.path                    -- built-
 -- welcome user
 -- __api.alert_show("Phoenix config loaded", 1.5)
 
+local function init()
+  -- local screen = require("screen")
+
+  -- local mainscreen = screen.main()
+
+  -- local f = mainscreen:visibleframe()
+  -- print(f.x)
+  -- print(f.y)
+  -- print(f.w)
+  -- print(f.h)
+end
+
 -- load user's config
-local ok, error = pcall(function()
-      -- require("window")
-      -- require("init")
-end)
+local ok, error = pcall(init)
 
 -- report error in user's config
 if not ok then
-   __api.alert_show(error, 5)
+  __api.alert_show(error, 5)
 end
 
 
@@ -25,6 +34,20 @@ end
 
 -- require("menu")
 -- print("done")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
