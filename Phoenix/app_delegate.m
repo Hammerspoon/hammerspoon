@@ -7,14 +7,14 @@ int hotkey_setup(lua_State *L);
 int hotkey_register(lua_State *L);
 int hotkey_unregister(lua_State *L);
 
-int app_running_apps(lua_State* L);
-int app_get_windows(lua_State* L);
-int app_title(lua_State* L);
-int app_show(lua_State* L);
-int app_hide(lua_State* L);
-int app_kill(lua_State* L);
-int app_kill9(lua_State* L);
-int app_is_hidden(lua_State* L);
+int application_running_applications(lua_State* L);
+int application_get_windows(lua_State* L);
+int application_title(lua_State* L);
+int application_show(lua_State* L);
+int application_hide(lua_State* L);
+int application_kill(lua_State* L);
+int application_kill9(lua_State* L);
+int application_is_hidden(lua_State* L);
 
 int mouse_get(lua_State* L);
 int mouse_set(lua_State* L);
@@ -55,14 +55,14 @@ static const luaL_Reg phoenix_lib[] = {
     {"hotkey_register", hotkey_register},
     {"hotkey_unregister", hotkey_unregister},
     
-    {"app_running_apps", app_running_apps},
-    {"app_get_windows", app_get_windows},
-    {"app_title", app_title},
-    {"app_show", app_show},
-    {"app_hide", app_hide},
-    {"app_kill", app_kill},
-    {"app_kill9", app_kill9},
-    {"app_is_hidden", app_is_hidden},
+    {"application_running_applications", application_running_applications},
+    {"application_get_windows", application_get_windows},
+    {"application_title", application_title},
+    {"application_show", application_show},
+    {"application_hide", application_hide},
+    {"application_kill", application_kill},
+    {"application_kill9", application_kill9},
+    {"application_is_hidden", application_is_hidden},
     
     {"mouse_get", mouse_get},
     {"mouse_set", mouse_set},

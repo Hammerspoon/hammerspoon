@@ -27,13 +27,13 @@ end
 
 
 
--- local app = require("app")
+local application = require("application")
 
--- for i, a in pairs(app.running_apps()) do
---   print(a)
---   print(a.pid)
---   print(a:title())
--- end
+for i, app in pairs(application.running_applications()) do
+  print(app)
+  print(app.pid)
+  print(app:title())
+end
 
 
 -- local hotkey = require("hotkey")

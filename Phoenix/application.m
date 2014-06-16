@@ -2,7 +2,7 @@
 
 void window_push_window_as_userdata(lua_State* L, AXUIElementRef win);
 
-int app_running_apps(lua_State* L) {
+int application_running_applications(lua_State* L) {
     lua_newtable(L);
     int i = 1;
     
@@ -16,7 +16,7 @@ int app_running_apps(lua_State* L) {
     return 1;
 }
 
-int app_get_windows(lua_State* L) {
+int application_get_windows(lua_State* L) {
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, 1));
     
     lua_newtable(L); // [{}]
@@ -40,44 +40,44 @@ int app_get_windows(lua_State* L) {
     return 1;
 }
 
-int app_title(lua_State* L) {
+int application_title(lua_State* L) {
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, 1)];
     lua_pushstring(L, [[app localizedName] UTF8String]);
     return 1;
 }
 
-void SDSetAppProperty(AXUIElementRef app, NSString* propType, id value) {
+static void set_app_prop(AXUIElementRef app, NSString* propType, id value) {
     AXUIElementSetAttributeValue(app, (__bridge CFStringRef)(propType), (__bridge CFTypeRef)(value));
     // yes, we ignore the return value; life is too short to constantly handle rare edge-cases
 }
 
-int app_show(lua_State* L) {
+int application_show(lua_State* L) {
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, 1));
-    SDSetAppProperty(app, NSAccessibilityHiddenAttribute, @NO);
+    set_app_prop(app, NSAccessibilityHiddenAttribute, @NO);
     CFRelease(app);
     return 0;
 }
 
-int app_hide(lua_State* L) {
+int application_hide(lua_State* L) {
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, 1));
-    SDSetAppProperty(app, NSAccessibilityHiddenAttribute, @YES);
+    set_app_prop(app, NSAccessibilityHiddenAttribute, @YES);
     CFRelease(app);
     return 0;
 }
 
-int app_kill(lua_State* L) {
+int application_kill(lua_State* L) {
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, 1)];
     [app terminate];
     return 0;
 }
 
-int app_kill9(lua_State* L) {
+int application_kill9(lua_State* L) {
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, 1)];
     [app forceTerminate];
     return 0;
 }
 
-int app_is_hidden(lua_State* L) {
+int application_is_hidden(lua_State* L) {
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, 1));
     
     CFTypeRef _isHidden;
