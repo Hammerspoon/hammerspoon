@@ -50,4 +50,16 @@ function util.mapcat(t, fn)
   return nt
 end
 
+function util.reduce(t, fn)
+  local len = #t
+  if len == 0 then return nil end
+  if len == 1 then return t[1] end
+
+  local result = t[1]
+  for i = 2, #t do
+    result = fn(result, t[i])
+  end
+  return result
+end
+
 return util

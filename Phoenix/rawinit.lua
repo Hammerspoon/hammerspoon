@@ -21,6 +21,12 @@ if not ok then alert.show(err, 5) end
 
 -- test bed
 local ok, err = pcall(function()
+
+
+    local util = require("util")
+    print(util.reduce({2, 3, 4}, function(a, b) return a + b end))
+
+
     local menu = require("menu")
     local i = 0
     menu.show(function()
@@ -37,12 +43,16 @@ if not ok then alert.show(err, 5) end
 
 
 
-local window = require("window")
-local wins = window.allwindows()
 
-for i, win in pairs(wins) do
-  print(win:title())
-end
+
+
+
+-- local window = require("window")
+-- local wins = window.allwindows()
+
+-- for i, win in pairs(wins) do
+--   print(win:title())
+-- end
 
 
 
