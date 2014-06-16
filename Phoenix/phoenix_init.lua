@@ -22,16 +22,16 @@ end
 
 
 
-local hotkey = require("hotkey")
+-- local hotkey = require("hotkey")
 
-k = hotkey.new({"cmd", "shift"}, "d", function()
-    print("called!")
-    k:disable()
-end)
+-- k = hotkey.new({"cmd", "shift"}, "d", function()
+--     print("called!")
+--     k:disable()
+-- end)
 
-k:enable()
+-- k:enable()
 
-print("here")
+-- print("here")
 
 
 

@@ -33,7 +33,6 @@ function hotkey_instance:enable()
 end
 
 function hotkey_instance:disable()
-  print(self.__carbonkey)
   __api.hotkey_unregister(self.__carbonkey)
 end
 
