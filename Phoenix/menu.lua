@@ -1,0 +1,2 @@
+print("menu")
+require("updater")

@@ -8,8 +8,8 @@ package.path = thisdir .. "/?.lua;" .. package.path                    -- built-
 
 -- load user's config
 local ok, error = pcall(function()
-      require("window")
-      require("init")
+      -- require("window")
+      -- require("init")
 end)
 
 -- report error in user's config
@@ -23,17 +23,19 @@ end
 -- alert.show("foo", 0.5)
 
 
+-- require("menu")
+-- print("done")
 
 
 
 
-local application = require("application")
+-- local application = require("application")
 
-for i, app in pairs(application.running_applications()) do
-  print(app)
-  print(app.pid)
-  print(app:title())
-end
+-- for i, app in pairs(application.running_applications()) do
+--   print(app)
+--   print(app.pid)
+--   print(app:title())
+-- end
 
 
 -- local hotkey = require("hotkey")
