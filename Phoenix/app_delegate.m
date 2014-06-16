@@ -6,6 +6,8 @@
 int phoenix_show_about_panel(lua_State* L);
 int phoenix_quit(lua_State* L);
 
+int util_do_after_delay(lua_State* L);
+
 int hotkey_setup(lua_State *L);
 int hotkey_register(lua_State *L);
 int hotkey_unregister(lua_State *L);
@@ -59,6 +61,8 @@ int screen_set_tint(lua_State* L);
 static const luaL_Reg phoenix_lib[] = {
     {"phoenix_show_about_panel", phoenix_show_about_panel},
     {"phoenix_quit", phoenix_quit},
+    
+    {"util_do_after_delay", util_do_after_delay},
     
     {"hotkey_setup", hotkey_setup},
     {"hotkey_register", hotkey_register},

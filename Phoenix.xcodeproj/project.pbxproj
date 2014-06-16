@@ -63,6 +63,7 @@
 		94DE5947194F11AD004D242E /* util.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE5946194F11AD004D242E /* util.lua */; };
 		94DE5949194F1A31004D242E /* phoenix.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DE5948194F1A31004D242E /* phoenix.m */; };
 		94DE594B194F1A39004D242E /* phoenix.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE594A194F1A39004D242E /* phoenix.lua */; };
+		94DE594D194F2530004D242E /* util.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DE594C194F2530004D242E /* util.m */; };
 		94E8E7A0194E0AB10064CF6C /* screen.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E8E79F194E0AB10064CF6C /* screen.m */; };
 		94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7A1194E0B2B0064CF6C /* hotkey.lua */; };
 		94E8E7AE194E0C940064CF6C /* Phoenix.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Phoenix.icns */; };
@@ -164,6 +165,7 @@
 		94DE5946194F11AD004D242E /* util.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = util.lua; sourceTree = "<group>"; };
 		94DE5948194F1A31004D242E /* phoenix.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = phoenix.m; sourceTree = "<group>"; };
 		94DE594A194F1A39004D242E /* phoenix.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = phoenix.lua; sourceTree = "<group>"; };
+		94DE594C194F2530004D242E /* util.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = util.m; sourceTree = "<group>"; };
 		94E8E79F194E0AB10064CF6C /* screen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = screen.m; sourceTree = "<group>"; };
 		94E8E7A1194E0B2B0064CF6C /* hotkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey.lua; sourceTree = "<group>"; };
 		94E8E7AD194E0C940064CF6C /* Phoenix.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Phoenix.icns; sourceTree = "<group>"; };
@@ -231,6 +233,7 @@
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2119083251002568BB /* app_delegate.m */,
 				9445CAA4190847CB002568BB /* phoenix_init.lua */,
+				94DE594C194F2530004D242E /* util.m */,
 				94DE5946194F11AD004D242E /* util.lua */,
 				94DE5948194F1A31004D242E /* phoenix.m */,
 				94DE594A194F1A39004D242E /* phoenix.lua */,
@@ -461,6 +464,7 @@
 				94BDB49C19094B7A00BD0553 /* application.m in Sources */,
 				9445CA99190833C1002568BB /* ltablib.c in Sources */,
 				9445CA97190833C1002568BB /* lstrlib.c in Sources */,
+				94DE594D194F2530004D242E /* util.m in Sources */,
 				9445CA8E190833C1002568BB /* lmathlib.c in Sources */,
 				9445CA8A190833C1002568BB /* lgc.c in Sources */,
 				9459B58F194CEB07008BC904 /* hotkey_translator.m in Sources */,
