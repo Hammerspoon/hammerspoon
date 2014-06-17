@@ -2,7 +2,7 @@
 
 *The lightweight OS X window manager for hackers*
 
-Phoenix is a fork of Zephyros that aims for efficiency and a very small footprint.
+Phoenix is a lightweight window manager with a powerful API and an extremely small footprint.
 
 * Current version: **1.0**
 * Requires: OS X 10.9 and up
@@ -14,31 +14,28 @@ Phoenix is a fork of Zephyros that aims for efficiency and a very small footprin
 
 #### Usage
 
-Create `~/.phoenix.js`. Then add stuff like this in it:
+Create `~/.phoenix/init.lua`. Then add stuff like this in it:
 
-```javascript
-api.bind('E', ['cmd'], function() {
-  var win = Window.focusedWindow();
-  var frame = win.frame();
-  frame.x += 10;
-  frame.height -= 10;
-  win.setFrame(frame);
-  return true;
-});
-```
+~~~lua
+local hotkey = require("hotkey")
+local window = require("window")
+
+hotkey.bind({"cmd"}, "E", function()
+    local win = window.focusedwindow()
+    local frame = win:frame()
+    frame.x = frame.x + 10
+    frame.h = frame.h - 10
+    win:setframe(frame)
+end)
+~~~
+
+Or just run the app and it'll give you more ideas.
 
 * For more ideas, read other people's configs [in the wiki](https://github.com/sdegutis/Phoenix/wiki).
 
 #### Documentation
 
-- [JavaScript API Documentation](https://github.com/sdegutis/Phoenix/wiki/JavaScript-API-documentation)
-
-**Note:** Phoenix can only be scripted in JavaScript.
-
-#### Todo
-
-- Needs an app icon and status bar icon
-- In-app upgrade
+- [Phoenix 2.0 API](https://github.com/sdegutis/Phoenix/wiki/Phoenix-2.0-API)
 
 #### License
 
