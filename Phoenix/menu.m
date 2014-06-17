@@ -2,12 +2,22 @@
 
 @interface PHMenuItemDelegator : NSObject
 @property (copy) dispatch_block_t handler;
+@property BOOL disabled;
 @end
 
 @implementation PHMenuItemDelegator
+
+- (BOOL) respondsToSelector:(SEL)aSelector {
+    if (aSelector == @selector(callCustomPhoenixMenuItemDelegator:))
+        return !self.disabled;
+    else
+        return [super respondsToSelector:aSelector];
+}
+
 - (void) callCustomPhoenixMenuItemDelegator:(id)sender {
     self.handler();
 }
+
 @end
 
 
@@ -73,10 +83,13 @@ int menu_show(lua_State* L) {
                         BOOL checked = lua_toboolean(L, -1);
                         lua_pop(L, 1);
                         
-                        
+                        lua_getfield(L, -1, "disabled");
+                        BOOL disabled = lua_toboolean(L, -1);
+                        lua_pop(L, 1);
                         
                         NSMenuItem* item = [[NSMenuItem alloc] init];
                         PHMenuItemDelegator* delegator = [[PHMenuItemDelegator alloc] init];
+                        delegator.disabled = disabled;
                         
                         item.title = title;
                         item.state = checked ? NSOnState : NSOffState;

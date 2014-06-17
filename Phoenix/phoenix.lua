@@ -31,14 +31,9 @@ function phoenix.reload()
       alert.show(err, 5)
     end
   else
-    alert.show("Can't find ~/.phoenix/init.lua", 5)
+    local defaultinit = require("defaultinit")
+    defaultinit.run()
   end
 end
 
 return phoenix
-
-
-
-
-
--- alert.show("Phoenix config loaded", 1.5)

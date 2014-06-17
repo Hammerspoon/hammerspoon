@@ -1,9 +1,13 @@
--- set both require-paths
+-- save resources path
 local thisdir = ...
+
+-- set both require-paths
 package.path = os.getenv("HOME") .. "/.phoenix/?.lua;" .. package.path -- user configs
 package.path = thisdir .. "/?.lua;" .. package.path                    -- built-in configs
 
-local alert = require("alert")
+-- share resources path
+local phoenix = require("phoenix")
+phoenix.resourcesdir = thisdir
 
 -- load user's config
 local ok, err = pcall(function()
@@ -11,6 +15,7 @@ local ok, err = pcall(function()
     phoenix.reload()
 end)
 
+local alert = require("alert")
 -- report err in user's config
 if not ok then alert.show(err, 5) end
 
@@ -44,18 +49,6 @@ local ok, err = pcall(function()
     --     win:focus()
     --   end
     -- end
-
-    local menu = require("menu")
-    local i = 0
-    menu.show(function()
-        i = i + 1
-        return {
-          {title = "number "..tostring(i), fn = function() print("got a") end, checked = true},
-          {title = "hello", fn = function() print("got b") end},
-          {title = "-", fn = function() print("got c") end},
-          {title = "world", fn = function() print("got d") end},
-        }
-    end)
 
 end)
 if not ok then alert.show(err, 5) end
@@ -113,7 +106,6 @@ if not ok then alert.show(err, 5) end
 -- --    print(k, __api.app_title(v))
 -- -- end
 
-__api.menu_icon_show()
 
 -- -- lol = __api.path_watcher_start("/Users/sdegutis/projects/phoenix", function()
 -- --                             print(lol)
