@@ -8,6 +8,9 @@ void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, s
 
 int pathwatcher_stop(lua_State* L) {
     FSEventStreamRef stream = lua_touserdata(L, 1);
+    int closureref = lua_tonumber(L, 2);
+    
+    luaL_unref(L, LUA_REGISTRYINDEX, closureref);
     
     FSEventStreamStop(stream);
     FSEventStreamInvalidate(stream);
@@ -19,9 +22,9 @@ int pathwatcher_stop(lua_State* L) {
 int pathwatcher_start(lua_State* L) {
     NSString* path = [NSString stringWithUTF8String: lua_tostring(L, 1)];
     
-    int i = luaL_ref(L, LUA_REGISTRYINDEX);
+    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
     dispatch_block_t block = ^{
-        lua_rawgeti(L, LUA_REGISTRYINDEX, i);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
         lua_call(L, 0, 0);
     };
     
@@ -42,6 +45,6 @@ int pathwatcher_start(lua_State* L) {
     FSEventStreamStart(stream);
     
     lua_pushlightuserdata(L, stream);
-    
-    return 1;
+    lua_pushnumber(L, closureref);
+    return 2;
 }
