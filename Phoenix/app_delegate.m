@@ -60,6 +60,9 @@ int screen_visible_frame(lua_State* L);
 int screen_equals(lua_State* L);
 int screen_set_tint(lua_State* L);
 
+int timer_start(lua_State* L);
+int timer_stop(lua_State* L);
+
 static const luaL_Reg phoenix_lib[] = {
     {"phoenix_show_about_panel", phoenix_show_about_panel},
     {"phoenix_quit", phoenix_quit},
@@ -117,6 +120,9 @@ static const luaL_Reg phoenix_lib[] = {
     {"screen_visible_frame", screen_visible_frame},
     {"screen_equals", screen_equals},
     {"screen_set_tint", screen_set_tint},
+    
+    {"timer_start", timer_start},
+    {"timer_stop", timer_stop},
     
     {NULL, NULL}
 };
