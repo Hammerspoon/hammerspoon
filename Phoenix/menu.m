@@ -28,7 +28,9 @@ static NSStatusItem *statusItem;
 static PHMenuDelegate* menuDelegate;
 
 int menu_show(lua_State* L) {
-    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
+    // these are intentionally in reverse order, since they pop off the stack
+    int click_closureref = luaL_ref(L, LUA_REGISTRYINDEX);
+    int show_closureref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     NSImage* img = [NSImage imageNamed:@"menu"];
     [img setTemplate:YES];
@@ -44,13 +46,12 @@ int menu_show(lua_State* L) {
         menuDelegate.handler = ^{
             [menu removeAllItems];
             
-            lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
+            lua_rawgeti(L, LUA_REGISTRYINDEX, show_closureref);
             
             if (lua_pcall(L, 0, 1, 0) == LUA_OK) {
                 // table is at top; enumerate each row
                 
-                NSLog(@"%d", lua_gettop(L));
-                NSLog(@"%s", lua_typename(L, lua_type(L, -1)));
+                int menuitem_index = 0;
                 
                 lua_pushnil(L);
                 while (lua_next(L, -2) != 0) {
@@ -75,8 +76,17 @@ int menu_show(lua_State* L) {
                         item.target = delegator;
                         item.representedObject = delegator;
                         
+                        ++menuitem_index;
+                        
                         delegator.handler = ^{
-                            NSLog(@"called!");
+                            lua_rawgeti(L, LUA_REGISTRYINDEX, click_closureref);
+                            lua_pushnumber(L, menuitem_index);
+                            
+                            if (lua_pcall(L, 1, 0, 0) == LUA_OK) {
+                            }
+                            else {
+                                // handle handle-click error
+                            }
                         };
                         
                         [menu addItem:item];
@@ -89,18 +99,22 @@ int menu_show(lua_State* L) {
                     lua_pop(L, 1);
                 }
             }
+            else {
+                // handle show-menu error
+            }
         };
         menu.delegate = menuDelegate;
         [statusItem setMenu: menu];
     }
     
-    lua_pushnumber(L, closureref);
-    return 1;
+    lua_pushnumber(L, click_closureref);
+    lua_pushnumber(L, show_closureref);
+    return 2;
 }
 
 int menu_hide(lua_State* L) {
-    int closureref = lua_tonumber(L, 1);
-    luaL_unref(L, LUA_REGISTRYINDEX, closureref);
+    luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, 1));
+    luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, 2));
     
     if (statusItem) {
         [[statusItem statusBar] removeStatusItem: statusItem];

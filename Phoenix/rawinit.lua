@@ -34,6 +34,9 @@ local ok, err = pcall(function()
           {title = "-", fn = function() print("lol3") end},
           {title = "world", fn = function() print("lol4") end},
         }
+              end,
+      function(i)
+        print("selected " .. tostring(i))
     end)
 end)
 if not ok then alert.show(err, 5) end
