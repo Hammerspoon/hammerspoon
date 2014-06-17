@@ -51,11 +51,11 @@ function window.allwindows()
 end
 
 function window:other_windows_on_same_screen()
-  return util.filter(window.visiblewindows, function(win) self ~= win and self:screen() == win:screen() end)
+  return util.filter(window.visiblewindows, function(win) return self ~= win and self:screen() == win:screen() end)
 end
 
 function window:other_windows_on_all_screens()
-  return util.filter(window.visiblewindows, function(win) self ~= win end)
+  return util.filter(window.visiblewindows, function(win) return self ~= win end)
 end
 
 function window:pid()
