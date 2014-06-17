@@ -32,7 +32,7 @@ function app.rawinit(pid)
   return setmetatable({pid = pid}, application_metatable)
 end
 
-function app.running_applications()
+function app.running_app()
   return util.map(__api.application_running_applications(), app.rawinit)
 end
 
