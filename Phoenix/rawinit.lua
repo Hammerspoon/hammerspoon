@@ -29,10 +29,10 @@ local ok, err = pcall(function()
     menu.show(function()
         i = i + 1
         return {
-          {title = tostring(i), fn = function() print("lol1") end},
-          {title = "hello", fn = function() print("lol2") end},
-          {title = "-", fn = function() print("lol3") end},
-          {title = "world", fn = function() print("lol4") end},
+          {title = tostring(i)},
+          {title = "hello"},
+          {title = "-"},
+          {title = "world"},
         }
               end,
       function(i)
