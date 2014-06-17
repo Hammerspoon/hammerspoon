@@ -63,20 +63,26 @@ int menu_show(lua_State* L) {
                     lua_pop(L, 1);
                     
                     
+                    ++menuitem_index;
                     
                     if ([title isEqualToString: @"-"]) {
                         [menu addItem:[NSMenuItem separatorItem]];
                     }
                     else {
+                        lua_getfield(L, -1, "checked");
+                        BOOL checked = lua_toboolean(L, -1);
+                        lua_pop(L, 1);
+                        
+                        
+                        
                         NSMenuItem* item = [[NSMenuItem alloc] init];
                         PHMenuItemDelegator* delegator = [[PHMenuItemDelegator alloc] init];
                         
                         item.title = title;
+                        item.state = checked ? NSOnState : NSOffState;
                         item.action = @selector(callCustomPhoenixMenuItemDelegator:);
                         item.target = delegator;
                         item.representedObject = delegator;
-                        
-                        ++menuitem_index;
                         
                         delegator.handler = ^{
                             lua_rawgeti(L, LUA_REGISTRYINDEX, click_closureref);
@@ -122,11 +128,3 @@ int menu_hide(lua_State* L) {
     }
     return 0;
 }
-
-//- (IBAction) toggleOpenAtLogin:(NSMenuItem*)sender {
-//    [PHOpenAtLogin setOpensAtLogin:[sender state] == NSOffState];
-//}
-//
-//- (void) menuNeedsUpdate:(NSMenu *)menu {
-//    [[menu itemWithTitle:@"Open at Login"] setState:([PHOpenAtLogin opensAtLogin] ? NSOnState : NSOffState)];
-//}

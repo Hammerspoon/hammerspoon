@@ -24,41 +24,38 @@ local ok, err = pcall(function()
     -- local util = require("util")
     -- print(util.reduce({2, 3, 4}, function(a, b) return a + b end))
 
-    local window = require("window")
-    local screen = require("screen")
-    local hotkey = require("hotkey")
-    hotkey.bind({"cmd", "shift"}, "d", function()
-        local win = window.focusedwindow()
-        local f = win:frame()
-        f.x = f.x + 40
-        f.y = f.y + 40
-        f.w = f.w - 80
-        f.h = f.h - 80
-        win:setframe(f)
-    end)
-
-    for _, win in pairs(window.visiblewindows()) do
-      print("[" .. win:title() .. "]")
-
-      if win:title() == "sdegutis" then
-        win:focus()
-      end
-    end
-
-    -- local menu = require("menu")
-    -- local i = 0
-    -- menu.show(function()
-    --     i = i + 1
-    --     return {
-    --       {title = tostring(i)},
-    --       {title = "hello"},
-    --       {title = "-"},
-    --       {title = "world"},
-    --     }
-    --           end,
-    --   function(i)
-    --     print("selected " .. tostring(i))
+    -- local window = require("window")
+    -- local screen = require("screen")
+    -- local hotkey = require("hotkey")
+    -- hotkey.bind({"cmd", "shift"}, "d", function()
+    --     local win = window.focusedwindow()
+    --     local f = win:frame()
+    --     f.x = f.x + 40
+    --     f.y = f.y + 40
+    --     f.w = f.w - 80
+    --     f.h = f.h - 80
+    --     win:setframe(f)
     -- end)
+
+    -- for _, win in pairs(window.visiblewindows()) do
+    --   print("[" .. win:title() .. "]")
+
+    --   if win:title() == "sdegutis" then
+    --     win:focus()
+    --   end
+    -- end
+
+    local menu = require("menu")
+    local i = 0
+    menu.show(function()
+        i = i + 1
+        return {
+          {title = "number "..tostring(i), fn = function() print("got a") end, checked = true},
+          {title = "hello", fn = function() print("got b") end},
+          {title = "-", fn = function() print("got c") end},
+          {title = "world", fn = function() print("got d") end},
+        }
+    end)
 
 end)
 if not ok then alert.show(err, 5) end
