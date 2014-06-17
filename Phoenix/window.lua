@@ -46,8 +46,8 @@ function window.focusedwindow()
 end
 
 function window.allwindows()
-  local application = require("application")
-  return util.mapcat(application.running_applications(), application.windows)
+  local app = require("app")
+  return util.mapcat(app.running_applications(), app.windows)
 end
 
 function window:other_windows_on_same_screen()
@@ -62,9 +62,9 @@ function window:pid()
   return __api.window_pid(self.__win)
 end
 
-function window:application()
-  local application = require("application")
-  return application.rawinit(self:pid())
+function window:app()
+  local app = require("app")
+  return app.rawinit(self:pid())
 end
 
 function window:becomemain()
