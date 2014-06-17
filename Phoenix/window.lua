@@ -154,7 +154,6 @@ function window:setframe(f)
   self:setsize(f)
 end
 
-return window
 
 
 
@@ -162,56 +161,10 @@ return window
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- - (void) focusWindowLeft;
--- - (void) focusWindowRight;
--- - (void) focusWindowUp;
--- - (void) focusWindowDown;
---
--- - (NSArray*) windowsToWest;
--- - (NSArray*) windowsToEast;
--- - (NSArray*) windowsToNorth;
--- - (NSArray*) windowsToSouth;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- // focus
---
---
 -- NSPoint SDMidpoint(NSRect r) {
 --     return NSMakePoint(NSMidX(r), NSMidY(r));
 -- }
---
+
 -- - (NSArray*) windowsInDirectionFn:(double(^)(double angle))whichDirectionFn
 --                 shouldDisregardFn:(BOOL(^)(double deltaX, double deltaY))shouldDisregardFn
 -- {
@@ -249,48 +202,48 @@ return window
 --
 --     return sortedOtherWindows;
 -- }
---
--- - (void) focusFirstValidWindowIn:(NSArray*)closestWindows {
---     for (PHWindow* win in closestWindows) {
---         if ([win focusWindow])
---             break;
---     }
--- }
---
--- - (NSArray*) windowsToWest {
---     return [[self windowsInDirectionFn:^double(double angle) { return M_PI - abs(angle); }
---                      shouldDisregardFn:^BOOL(double deltaX, double deltaY) { return (deltaX >= 0); }] valueForKeyPath:@"win"];
--- }
---
--- - (NSArray*) windowsToEast {
---     return [[self windowsInDirectionFn:^double(double angle) { return 0.0 - angle; }
---                      shouldDisregardFn:^BOOL(double deltaX, double deltaY) { return (deltaX <= 0); }] valueForKeyPath:@"win"];
--- }
---
--- - (NSArray*) windowsToNorth {
---     return [[self windowsInDirectionFn:^double(double angle) { return -M_PI_2 - angle; }
---                      shouldDisregardFn:^BOOL(double deltaX, double deltaY) { return (deltaY >= 0); }] valueForKeyPath:@"win"];
--- }
---
--- - (NSArray*) windowsToSouth {
---     return [[self windowsInDirectionFn:^double(double angle) { return M_PI_2 - angle; }
---                      shouldDisregardFn:^BOOL(double deltaX, double deltaY) { return (deltaY <= 0); }] valueForKeyPath:@"win"];
--- }
---
--- - (void) focusWindowLeft {
---     [self focusFirstValidWindowIn:[self windowsToWest]];
--- }
---
--- - (void) focusWindowRight {
---     [self focusFirstValidWindowIn:[self windowsToEast]];
--- }
---
--- - (void) focusWindowUp {
---     [self focusFirstValidWindowIn:[self windowsToNorth]];
--- }
---
--- - (void) focusWindowDown {
---     [self focusFirstValidWindowIn:[self windowsToSouth]];
--- }
---
--- @end
+
+
+local function focus_first_valid_window(ordered_wins)
+  for _, win in pairs(ordered_wins) do
+    if win:focus() then break end
+  end
+end
+
+local function hypot(x, y)
+  return math.sqrt(x*x+y*y)
+end
+
+function window:windows_to_east()
+  -- TODO
+end
+
+function window:windows_to_west()
+  -- TODO
+end
+
+function window:windows_to_north()
+  -- TODO
+end
+
+function window:windows_to_south()
+  -- TODO
+end
+
+function window:focus_window_to_east()
+  return self:focus_first_valid_window(self:windows_to_east())
+end
+
+function window:focus_window_to_west()
+  return self:focus_first_valid_window(self:windows_to_west())
+end
+
+function window:focus_window_to_north()
+  return self:focus_first_valid_window(self:windows_to_north())
+end
+
+function window:focus_window_to_south()
+  return self:focus_first_valid_window(self:windows_to_south())
+end
+
+return window
