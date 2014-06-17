@@ -40,6 +40,13 @@ int application_get_windows(lua_State* L) {
     return 1;
 }
 
+int application_activate(lua_State* L) {
+    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, 1)];
+    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+    lua_pushboolean(L, success);
+    return 1;
+}
+
 int application_title(lua_State* L) {
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, 1)];
     lua_pushstring(L, [[app localizedName] UTF8String]);

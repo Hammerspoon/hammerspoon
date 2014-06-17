@@ -70,23 +70,23 @@ static BOOL set_window_prop(AXUIElementRef win, NSString* propType, id value) {
 
 
 int window_title(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
-    NSString* title = get_window_prop(*winptr, NSAccessibilityTitleAttribute, @"");
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
+    NSString* title = get_window_prop(win, NSAccessibilityTitleAttribute, @"");
     lua_pushstring(L, [title UTF8String]);
     return 1;
 }
 
 int window_subrole(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
-    NSString* str = get_window_prop(*winptr, NSAccessibilitySubroleAttribute, @"");
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
+    NSString* str = get_window_prop(win, NSAccessibilitySubroleAttribute, @"");
     
     lua_pushstring(L, [str UTF8String]);
     return 1;
 }
 
 int window_role(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
-    NSString* str = get_window_prop(*winptr, NSAccessibilityRoleAttribute, @"");
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
+    NSString* str = get_window_prop(win, NSAccessibilityRoleAttribute, @"");
     
     lua_pushstring(L, [str UTF8String]);
     return 1;
@@ -94,7 +94,7 @@ int window_role(lua_State* L) {
 
 // args: [subrole]
 int window_is_standard(lua_State* L) {
-    const char* subrole = lua_tostring(L, 2);
+    const char* subrole = lua_tostring(L, 1);
     
     BOOL is_standard = [[NSString stringWithUTF8String:subrole] isEqualToString: (__bridge NSString*)kAXStandardWindowSubrole];
     lua_pushboolean(L, is_standard);
@@ -102,10 +102,10 @@ int window_is_standard(lua_State* L) {
 }
 
 int window_topleft(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
     
     CFTypeRef positionStorage;
-    AXError result = AXUIElementCopyAttributeValue(*winptr, (CFStringRef)NSAccessibilityPositionAttribute, &positionStorage);
+    AXError result = AXUIElementCopyAttributeValue(win, (CFStringRef)NSAccessibilityPositionAttribute, &positionStorage);
 
     CGPoint topLeft;
     if (result == kAXErrorSuccess) {
@@ -128,10 +128,10 @@ int window_topleft(lua_State* L) {
 }
 
 int window_size(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
     
     CFTypeRef sizeStorage;
-    AXError result = AXUIElementCopyAttributeValue(*winptr, (CFStringRef)NSAccessibilitySizeAttribute, &sizeStorage);
+    AXError result = AXUIElementCopyAttributeValue(win, (CFStringRef)NSAccessibilitySizeAttribute, &sizeStorage);
 
     CGSize size;
     if (result == kAXErrorSuccess) {
@@ -154,12 +154,12 @@ int window_size(lua_State* L) {
 }
 
 int window_settopleft(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
     CGPoint thePoint = CGPointMake(lua_tonumber(L, 2),
                                    lua_tonumber(L, 3));
     
     CFTypeRef positionStorage = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&thePoint));
-    AXUIElementSetAttributeValue(*winptr, (CFStringRef)NSAccessibilityPositionAttribute, positionStorage);
+    AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilityPositionAttribute, positionStorage);
     if (positionStorage)
         CFRelease(positionStorage);
     
@@ -167,12 +167,12 @@ int window_settopleft(lua_State* L) {
 }
 
 int window_setsize(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
     CGSize theSize = CGSizeMake(lua_tonumber(L, 2),
                                 lua_tonumber(L, 3));
     
     CFTypeRef sizeStorage = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&theSize));
-    AXUIElementSetAttributeValue(*winptr, (CFStringRef)NSAccessibilitySizeAttribute, sizeStorage);
+    AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilitySizeAttribute, sizeStorage);
     if (sizeStorage)
         CFRelease(sizeStorage);
     
@@ -184,29 +184,29 @@ static void set_window_minimized(AXUIElementRef win, NSNumber* minimized) {
 }
 
 int window_minimize(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
-    set_window_minimized(*winptr, @YES);
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
+    set_window_minimized(win, @YES);
     return 0;
 }
 
 int window_unminimize(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
-    set_window_minimized(*winptr, @NO);
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
+    set_window_minimized(win, @NO);
     return 0;
 }
 
 int window_isminimized(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
-    BOOL minimized = [get_window_prop(*winptr, NSAccessibilityMinimizedAttribute, @(NO)) boolValue];
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
+    BOOL minimized = [get_window_prop(win, NSAccessibilityMinimizedAttribute, @(NO)) boolValue];
     lua_pushboolean(L, minimized);
     return 1;
 }
 
 int window_pid(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
     
     pid_t pid = 0;
-    if (AXUIElementGetPid(*winptr, &pid) == kAXErrorSuccess) {
+    if (AXUIElementGetPid(win, &pid) == kAXErrorSuccess) {
         lua_pushnumber(L, pid);
         return 1;
     }
@@ -222,20 +222,9 @@ int window_equals(lua_State* L) {
     return 1;
 }
 
-// args: [win, pid]
-int window_focus(lua_State* L) {
-    AXUIElementRef* winptr = lua_touserdata(L, 1);
-    pid_t pid = lua_tonumber(L, 2);
-    
-    AXError changedMainWindowResult = AXUIElementSetAttributeValue(*winptr, (CFStringRef)NSAccessibilityMainAttribute, kCFBooleanTrue);
-    if (changedMainWindowResult != kAXErrorSuccess) {
-        NSLog(@"ERROR: Could not change focus to window");
-        return NO;
-    }
-    
-    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
-    
+int window_makemain(lua_State* L) {
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, 1));
+    BOOL success = (AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilityMainAttribute, kCFBooleanTrue) == kAXErrorSuccess);
     lua_pushboolean(L, success);
     return 1;
 }

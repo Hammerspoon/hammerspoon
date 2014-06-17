@@ -20,6 +20,7 @@ int application_hide(lua_State* L);
 int application_kill(lua_State* L);
 int application_kill9(lua_State* L);
 int application_is_hidden(lua_State* L);
+int application_activate(lua_State* L);
 
 int mouse_get(lua_State* L);
 int mouse_set(lua_State* L);
@@ -47,7 +48,7 @@ int window_minimize(lua_State* L);
 int window_unminimize(lua_State* L);
 int window_isminimized(lua_State* L);
 int window_pid(lua_State* L);
-int window_focus(lua_State* L);
+int window_makemain(lua_State* L);
 int window_subrole(lua_State* L);
 int window_role(lua_State* L);
 int window_visible_windows_sorted_by_recency(lua_State* L);
@@ -77,6 +78,7 @@ static const luaL_Reg phoenix_lib[] = {
     {"application_kill", application_kill},
     {"application_kill9", application_kill9},
     {"application_is_hidden", application_is_hidden},
+    {"application_activate", application_activate},
     
     {"mouse_get", mouse_get},
     {"mouse_set", mouse_set},
@@ -104,7 +106,7 @@ static const luaL_Reg phoenix_lib[] = {
     {"window_unminimize", window_unminimize},
     {"window_isminimized", window_isminimized},
     {"window_pid", window_pid},
-    {"window_focus", window_focus},
+    {"window_makemain", window_makemain},
     {"window_subrole", window_subrole},
     {"window_role", window_role},
     {"window_visible_windows_sorted_by_recency", window_visible_windows_sorted_by_recency},

@@ -20,6 +20,10 @@ function application:visible_windows()
   return util.filter(self:windows(), window.isvisible)
 end
 
+function application:activate()
+  return __api.application_activate(self.pid)
+end
+
 function application_metatable.__eq(a, b)
   return a.pid == b.pid
 end
