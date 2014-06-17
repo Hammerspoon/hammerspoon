@@ -3,8 +3,19 @@
 local hotkey = require("hotkey")
 local window = require("window")
 local alert = require("alert")
+local menu = require("menu")
+local phoenix = require("phoenix")
 
 alert.show("Phoenix config loaded", 1.5)
+
+menu.show(function()
+    return {
+      {title = "Reload Config", fn = phoenix.reload},
+      {title = "-"},
+      {title = "About", fn = phoenix.show_about_panel},
+      {title = "Quit Phoenix", fn = phoenix.quit},
+    }
+end)
 
 hotkey.bind({"cmd", "ctrl", "alt"}, "J", function()
     -- move the window to the right a bit, and make it a little shorter
