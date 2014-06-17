@@ -21,7 +21,7 @@ end
 local alert = require("alert")
 
 function phoenix.reload()
-  local initfile_exists = file_exists(os.getenv("HOME") .. ".phoenix/init.lua")
+  local initfile_exists = file_exists(os.getenv("HOME") .. "/.phoenix/init.lua")
 
   if initfile_exists then
     local ok, err = pcall(function()
