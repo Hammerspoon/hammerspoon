@@ -19,6 +19,9 @@ Create `~/.phoenix/init.lua`. Then add stuff like this in it:
 ~~~lua
 local hotkey = require("hotkey")
 local window = require("window")
+local alert = require("alert")
+
+alert.show("Phoenix started!")
 
 hotkey.bind({"cmd"}, "E", function()
     local win = window.focusedwindow()
