@@ -10,4 +10,15 @@ function geometry.rectintersection(r1, r2)
   return {x = x, y = y, w = w, h = h}
 end
 
+-- rotates counter-clockwise, n times (default 1)
+function geometry.rotate(point, aroundpoint, ntimes)
+  local p = {x = point.x, y = point.y}
+  for i = 1, ntimes or 1 do
+    local px = p.x
+    p.x = (aroundpoint.x - (p.y - aroundpoint.y))
+    p.y = (aroundpoint.y + (px - aroundpoint.x))
+  end
+  return p
+end
+
 return geometry
