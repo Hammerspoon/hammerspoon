@@ -148,8 +148,10 @@ end
 
 
 
-
-
+-- assumes looking to east
+local function windows_in_direction(win, numrotations)
+  -- TODO
+end
 
 -- - (NSArray*) windowsInDirectionFn:(double(^)(double angle))whichDirectionFn
 --                 shouldDisregardFn:(BOOL(^)(double deltaX, double deltaY))shouldDisregardFn
@@ -197,19 +199,19 @@ local function focus_first_valid_window(ordered_wins)
 end
 
 function window:windows_to_east()
-  -- TODO
+  return windows_in_direction(self, 0)
 end
 
 function window:windows_to_west()
-  -- TODO
+  return windows_in_direction(self, 2)
 end
 
 function window:windows_to_north()
-  -- TODO
+  return windows_in_direction(self, 3)
 end
 
 function window:windows_to_south()
-  -- TODO
+  return windows_in_direction(self, 1)
 end
 
 function window:focus_window_to_east()
