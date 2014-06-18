@@ -21,4 +21,8 @@ function geometry.rotate(point, aroundpoint, ntimes)
   return p
 end
 
+function geometry.hypot(p)
+  return math.sqrt(p.x * p.x + p.y * p.y)
+end
+
 return geometry

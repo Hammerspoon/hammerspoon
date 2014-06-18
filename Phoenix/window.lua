@@ -196,10 +196,6 @@ local function focus_first_valid_window(ordered_wins)
   end
 end
 
-local function hypot(x, y)
-  return math.sqrt(x*x+y*y)
-end
-
 function window:windows_to_east()
   -- TODO
 end
