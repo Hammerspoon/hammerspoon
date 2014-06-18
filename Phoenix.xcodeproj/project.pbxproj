@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9400269519514372000D15C1 /* geometry.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9400269419514372000D15C1 /* geometry.lua */; };
+		940026971951437A000D15C1 /* geometry.m in Sources */ = {isa = PBXBuildFile; fileRef = 940026961951437A000D15C1 /* geometry.m */; };
 		944419C1194F4A51000A55A7 /* timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 944419C0194F4A51000A55A7 /* timer.m */; };
 		944419C3194F4A55000A55A7 /* timer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 944419C2194F4A55000A55A7 /* timer.lua */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
@@ -81,6 +83,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9400269419514372000D15C1 /* geometry.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = geometry.lua; sourceTree = "<group>"; };
+		940026961951437A000D15C1 /* geometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = geometry.m; sourceTree = "<group>"; };
 		944419C0194F4A51000A55A7 /* timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = timer.m; sourceTree = "<group>"; };
 		944419C2194F4A55000A55A7 /* timer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = timer.lua; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Phoenix.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Phoenix.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -260,6 +264,8 @@
 				94C36941194DD94D00EE3A2D /* updater.lua */,
 				94521299194D59F800217584 /* mouse.m */,
 				94E8E7AF194E24FC0064CF6C /* mouse.lua */,
+				940026961951437A000D15C1 /* geometry.m */,
+				9400269419514372000D15C1 /* geometry.lua */,
 				9452129B194D5B8F00217584 /* autolaunch.m */,
 				94E8E7B1194E25020064CF6C /* autolaunch.lua */,
 				9452129D194D65BF00217584 /* alert.m */,
@@ -412,6 +418,7 @@
 				94E8E7B0194E24FC0064CF6C /* mouse.lua in Resources */,
 				945200881950E6C10072DFEF /* sample_config.lua in Resources */,
 				94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */,
+				9400269519514372000D15C1 /* geometry.lua in Resources */,
 				94E8E7AE194E0C940064CF6C /* Phoenix.icns in Resources */,
 				94E8E7B6194E25120064CF6C /* pathwatcher.lua in Resources */,
 				945212A0194D697100217584 /* alert.xib in Resources */,
@@ -487,6 +494,7 @@
 				9445CA84190833C1002568BB /* lctype.c in Sources */,
 				9445CA7F190833C1002568BB /* lauxlib.c in Sources */,
 				9445CA94190833C1002568BB /* lparser.c in Sources */,
+				940026971951437A000D15C1 /* geometry.m in Sources */,
 				9445CA98190833C1002568BB /* ltable.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

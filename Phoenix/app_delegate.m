@@ -63,6 +63,9 @@ int screen_set_tint(lua_State* L);
 int timer_start(lua_State* L);
 int timer_stop(lua_State* L);
 
+int geometry_rectmidpoint(lua_State* L);
+int geometry_rectintersection(lua_State* L);
+
 static const luaL_Reg phoenix_lib[] = {
     {"phoenix_show_about_panel", phoenix_show_about_panel},
     {"phoenix_quit", phoenix_quit},
@@ -123,6 +126,9 @@ static const luaL_Reg phoenix_lib[] = {
     
     {"timer_start", timer_start},
     {"timer_stop", timer_stop},
+    
+    {"geometry_rectmidpoint", geometry_rectmidpoint},
+    {"geometry_rectintersection", geometry_rectintersection},
     
     {NULL, NULL}
 };

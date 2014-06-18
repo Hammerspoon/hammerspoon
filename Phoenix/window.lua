@@ -1,4 +1,5 @@
 local util = require("util")
+local geometry = require("geometry")
 
 local window = {}
 local window_metatable = {__index = window}
@@ -120,23 +121,12 @@ function window:screen()
   local screen = require("screen")
 
   local windowframe = self:frame()
-
   local lastvolume = 0
   local lastscreen = nil
 
-  local function rectintersection(r1, r2)
-    -- TODO: this is almost certainly incorrect; just add "geometry" module and shell out to C
-    return {
-      x = math.max(r1.x, r2.x),
-      y = math.max(r1.y, r2.y),
-      w = math.min(r1.w, r2.w),
-      h = math.min(r1.h, r2.h),
-    }
-  end
-
   for _, screen in pairs(screen.all()) do
     local screenframe = screen:frame_including_dock_and_menu()
-    local intersection = rectintersection(windowframe, screenframe)
+    local intersection = geometry.rectintersection(windowframe, screenframe)
     local volume = intersection.w * intersection.h
 
     if volume > lastvolume then
@@ -160,10 +150,6 @@ end
 
 
 
-
--- NSPoint SDMidpoint(NSRect r) {
---     return NSMakePoint(NSMidX(r), NSMidY(r));
--- }
 
 -- - (NSArray*) windowsInDirectionFn:(double(^)(double angle))whichDirectionFn
 --                 shouldDisregardFn:(BOOL(^)(double deltaX, double deltaY))shouldDisregardFn

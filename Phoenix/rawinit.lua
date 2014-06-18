@@ -29,6 +29,17 @@ local ok, err = pcall(function()
     -- local util = require("util")
     -- print(util.reduce({2, 3, 4}, function(a, b) return a + b end))
 
+    local geometry = require("geometry")
+
+    local m = geometry.rectintersection(
+      {x = 15, y = 20, w = 30, h = 40},
+      {x = 17, y = 10, w = 30, h = 40})
+
+    print(m.x)
+    print(m.y)
+    print(m.w)
+    print(m.h)
+
     -- local window = require("window")
     -- local screen = require("screen")
     -- local hotkey = require("hotkey")
