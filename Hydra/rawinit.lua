@@ -3,19 +3,14 @@ dofile(hydra.resourcesdir .. "/hydra.lua")
 dofile(hydra.resourcesdir .. "/fn.lua")
 dofile(hydra.resourcesdir .. "/geometry.lua")
 dofile(hydra.resourcesdir .. "/screen.lua")
+dofile(hydra.resourcesdir .. "/app.lua")
 
 
 -- everything below here is experimental
 
-print(hydra.menu.show)
-
-hydra.menu.show(function()
-    return {
-      {title = "a", fn = function() print('a') end},
-      {title = "-", fn = function() print('b') end},
-      {title = "c", fn = function() os.exit() end},
-    }
-end)
+for i, app in pairs(hydra.app.runningapps()) do
+  print(i, app.pid, app:title(), app == app)
+end
 
 print("done.")
 
