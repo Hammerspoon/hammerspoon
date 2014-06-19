@@ -7,12 +7,15 @@ dofile(hydra.resourcesdir .. "/screen.lua")
 
 -- everything below here is experimental
 
-hydra.alert("sup world")
+print(hydra.menu.show)
 
-t = hydra.hotkey({"cmd", "shift"}, "d", function()
-    print("hey sup")
-    t:disable()
-end):enable()
+hydra.menu.show(function()
+    return {
+      {title = "a", fn = function() print('a') end},
+      {title = "-", fn = function() print('b') end},
+      {title = "c", fn = function() os.exit() end},
+    }
+end)
 
 print("done.")
 

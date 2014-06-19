@@ -37,15 +37,20 @@
 static NSStatusItem *statusItem;
 static PHMenuDelegate* menuDelegate;
 
+static int show_closureref;
+
+// args: [showfn]
+// ret: []
 int menu_show(lua_State* L) {
-    // these are intentionally in reverse order, since they pop off the stack
-    int click_closureref = luaL_ref(L, LUA_REGISTRYINDEX);
-    int show_closureref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
-    NSImage* img = [NSImage imageNamed:@"menu"];
-    [img setTemplate:YES];
-    
     if (!statusItem) {
+        show_closureref = luaL_ref(L, LUA_REGISTRYINDEX);
+        
+        NSImage* img = [NSImage imageNamed:@"menu"];
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [img setTemplate:YES];
+        });
+        
         statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
         [statusItem setHighlightMode:YES];
         [statusItem setImage:img];
@@ -60,12 +65,13 @@ int menu_show(lua_State* L) {
             
             if (lua_pcall(L, 0, 1, 0) == LUA_OK) {
                 // table is at top; enumerate each row
+                lua_pushvalue(L, -1);
+                int tableref = luaL_ref(L, LUA_REGISTRYINDEX);
                 
                 int menuitem_index = 0;
                 
                 lua_pushnil(L);
                 while (lua_next(L, -2) != 0) {
-                    
                     // table is at top; enumerate each k/v pair
                     
                     lua_getfield(L, -1, "title");
@@ -98,14 +104,18 @@ int menu_show(lua_State* L) {
                         item.representedObject = delegator;
                         
                         delegator.handler = ^{
-                            lua_rawgeti(L, LUA_REGISTRYINDEX, click_closureref);
+                            // get clicked menu item
+                            lua_rawgeti(L, LUA_REGISTRYINDEX, tableref);
                             lua_pushnumber(L, menuitem_index);
+                            lua_gettable(L, -2);
                             
-                            if (lua_pcall(L, 1, 0, 0) == LUA_OK) {
-                            }
-                            else {
-                                // handle handle-click error
-                            }
+                            // call function
+                            lua_getfield(L, -1, "fn");
+                            lua_pcall(L, 0, 0, 0);
+                            
+                            // pop menu items table and menu item
+                            lua_pop(L, 2);
+                            luaL_unref(L, LUA_REGISTRYINDEX, tableref);
                         };
                         
                         [menu addItem:item];
@@ -126,20 +136,28 @@ int menu_show(lua_State* L) {
         [statusItem setMenu: menu];
     }
     
-    lua_pushnumber(L, click_closureref);
-    lua_pushnumber(L, show_closureref);
-    return 2;
+    return 0;
 }
 
+// args: []
+// ret: []
 int menu_hide(lua_State* L) {
-    luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, 1));
-    luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, 2));
-    
     if (statusItem) {
+        luaL_unref(L, LUA_REGISTRYINDEX, show_closureref);
+        
         [[statusItem statusBar] removeStatusItem: statusItem];
         statusItem = nil;
     }
     return 0;
 }
 
-int luaopen_menu(lua_State* L) { return 0; }
+static const luaL_Reg menulib[] = {
+    {"show", menu_show},
+    {"hide", menu_hide},
+    {NULL, NULL}
+};
+
+int luaopen_menu(lua_State* L) {
+    luaL_newlib(L, menulib);
+    return 1;
+}
