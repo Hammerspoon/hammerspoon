@@ -7,14 +7,7 @@ dofile(hydra.resourcedir .. "/geometry.lua")
 
 -- everything below here is experimental
 
-r1 = hydra.geometry.rect(10, 20, 30, 40)
-r2 = hydra.geometry.rect(12, 20, 30, 40)
-r3 = hydra.geometry.intersectionrect(r1, r2)
 
-print(r3.x)
-print(r3.y)
-print(r3.w)
-print(r3.h)
 
 print("done.")
 

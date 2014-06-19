@@ -71,7 +71,6 @@
 		94E8E7A0194E0AB10064CF6C /* screen.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E8E79F194E0AB10064CF6C /* screen.m */; };
 		94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7A1194E0B2B0064CF6C /* hotkey.lua */; };
 		94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Hydra.icns */; };
-		94E8E7B6194E25120064CF6C /* pathwatcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B5194E25120064CF6C /* pathwatcher.lua */; };
 		94E8E7B8194E25190064CF6C /* menu.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B7194E25190064CF6C /* menu.lua */; };
 		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
 		94E8E7BC194E25300064CF6C /* app.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* app.lua */; };
@@ -174,7 +173,6 @@
 		94E8E79F194E0AB10064CF6C /* screen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = screen.m; sourceTree = "<group>"; };
 		94E8E7A1194E0B2B0064CF6C /* hotkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey.lua; sourceTree = "<group>"; };
 		94E8E7AD194E0C940064CF6C /* Hydra.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Hydra.icns; sourceTree = "<group>"; };
-		94E8E7B5194E25120064CF6C /* pathwatcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pathwatcher.lua; sourceTree = "<group>"; };
 		94E8E7B7194E25190064CF6C /* menu.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = menu.lua; sourceTree = "<group>"; };
 		94E8E7B9194E25290064CF6C /* screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = screen.lua; sourceTree = "<group>"; };
 		94E8E7BB194E25300064CF6C /* app.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = app.lua; sourceTree = "<group>"; };
@@ -258,7 +256,6 @@
 				9452129D194D65BF00217584 /* alert.m */,
 				9452129F194D697100217584 /* alert.xib */,
 				945212A1194D69E700217584 /* pathwatcher.m */,
-				94E8E7B5194E25120064CF6C /* pathwatcher.lua */,
 				945212A3194D6A6000217584 /* menu.m */,
 				94E8E7B7194E25190064CF6C /* menu.lua */,
 				945212A5194D6B5900217584 /* menu.png */,
@@ -404,7 +401,6 @@
 				94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */,
 				9400269519514372000D15C1 /* geometry.lua in Resources */,
 				94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */,
-				94E8E7B6194E25120064CF6C /* pathwatcher.lua in Resources */,
 				945212A0194D697100217584 /* alert.xib in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
