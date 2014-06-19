@@ -1,27 +1,26 @@
-# Phoenix
+# Hydra
 
-*The lightweight OS X window manager for hackers*
+*Hack your OS X desktop environment*
 
-Phoenix is a lightweight window manager with a powerful API and an extremely small footprint.
+Hydra is a lightweight window manager with a powerful API and an extremely small footprint.
 
 * Current version: **1.0**
 * Requires: OS X 10.9 and up
 
 #### Install
 
-* Download [Phoenix-LATEST.app.tar.gz](https://raw.github.com/sdegutis/phoenix/master/Builds/Phoenix-LATEST.app.tar.gz), unzip, right-click app, choose "Open"
-* Or, install via [Homebrew Cask](https://github.com/phinze/homebrew-cask) - `brew cask install phoenix`
+Download [Hydra-LATEST.app.tar.gz](https://raw.github.com/sdegutis/hydra/master/Builds/Hydra-LATEST.app.tar.gz), unzip, right-click app, choose "Open"
 
 #### Usage
 
-Create `~/.phoenix/init.lua`. Then add stuff like this in it:
+Create `~/.hydra/init.lua`. Then add stuff like this in it:
 
 ~~~lua
 local hotkey = require("hotkey")
 local window = require("window")
 local alert = require("alert")
 
-alert.show("Phoenix started!")
+alert.show("Hydra started!")
 
 hotkey.bind({"cmd"}, "E", function()
     local win = window.focusedwindow()
@@ -34,11 +33,11 @@ end)
 
 Or just run the app and it'll give you more ideas.
 
-* For more ideas, read other people's configs [in the wiki](https://github.com/sdegutis/Phoenix/wiki).
+* For more ideas, read other people's configs [in the wiki](https://github.com/sdegutis/Hydra/wiki).
 
 #### Documentation
 
-- [Phoenix 2.0 API](https://github.com/sdegutis/Phoenix/wiki/Phoenix-2.0-API)
+- [Hydra 2.0 API](https://github.com/sdegutis/Hydra/wiki/Hydra-2.0-API)
 
 #### License
 
