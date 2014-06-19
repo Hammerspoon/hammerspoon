@@ -1,76 +1,42 @@
 #import "lua/lauxlib.h"
 
-int screen_gc(lua_State* L) {
-    void** screenptr = lua_touserdata(L, 1);
-    NSScreen* screen = (__bridge_transfer NSScreen*)*screenptr;
-    screen = nil;
-    return 0;
-}
-
-void screen_push_screen_as_userdata(lua_State* L, NSScreen* screen) {
-    void** screenptr = lua_newuserdata(L, sizeof(void*));
-    *screenptr = (__bridge_retained void*)screen;
-    // [ud]
-
-    if (luaL_newmetatable(L, "screen"))
-        // [ud, md]
-    {
-        lua_pushcfunction(L, screen_gc); // [ud, md, gc]
-        lua_setfield(L, -2, "__gc");     // [ud, md]
-    }
-    // [ud, md]
-    
-    lua_setmetatable(L, -2);
-    // [ud]
-}
-
-int screen_get_screens(lua_State* L) {
-    lua_newtable(L); // [{}]
-    
-    int i = 1;
-    for (NSScreen* screen in [NSScreen screens]) {
-        lua_pushnumber(L, i++);                    // [{}, i]
-        screen_push_screen_as_userdata(L, screen); // [{}, i, ud]
-        lua_settable(L, -3);                       // [{}]
-    }
-    
-    return 1;
-}
-
-int screen_get_main_screen(lua_State* L) {
-    screen_push_screen_as_userdata(L, [NSScreen mainScreen]);
-    return 1;
-}
-
+// args: [screen]
+// ret: [rect]
 int screen_frame(lua_State* L) {
-    NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, 1));
+    lua_getfield(L, 1, "__screen");
+    NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
     
     NSRect r = [screen frame];
-    lua_pushnumber(L, r.origin.x);
-    lua_pushnumber(L, r.origin.y);
-    lua_pushnumber(L, r.size.width);
-    lua_pushnumber(L, r.size.height);
-    return 4;
+    
+    lua_newtable(L);
+    lua_pushnumber(L, r.origin.x);    lua_setfield(L, -2, "x");
+    lua_pushnumber(L, r.origin.y);    lua_setfield(L, -2, "y");
+    lua_pushnumber(L, r.size.width);  lua_setfield(L, -2, "w");
+    lua_pushnumber(L, r.size.height); lua_setfield(L, -2, "h");
+    
+    return 1;
 }
 
-int screen_visible_frame(lua_State* L) {
-    NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, 1));
+// args: [screen]
+// ret: [rect]
+int screen_visibleframe(lua_State* L) {
+    lua_getfield(L, 1, "__screen");
+    NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
     
     NSRect r = [screen visibleFrame];
-    lua_pushnumber(L, r.origin.x);
-    lua_pushnumber(L, r.origin.y);
-    lua_pushnumber(L, r.size.width);
-    lua_pushnumber(L, r.size.height);
-    return 4;
+    
+    lua_newtable(L);
+    lua_pushnumber(L, r.origin.x);    lua_setfield(L, -2, "x");
+    lua_pushnumber(L, r.origin.y);    lua_setfield(L, -2, "y");
+    lua_pushnumber(L, r.size.width);  lua_setfield(L, -2, "w");
+    lua_pushnumber(L, r.size.height); lua_setfield(L, -2, "h");
+    
+    return 1;
 }
 
-int screen_equals(lua_State* L) {
-    NSScreen* screenA = (__bridge NSScreen*)*((void**)lua_touserdata(L, 1));
-    NSScreen* screenB = (__bridge NSScreen*)*((void**)lua_touserdata(L, 2));
-    return [screenA isEqual: screenB];
-}
-
-int screen_set_tint(lua_State* L) {
+// args: [redarray, greenarray, bluearray]
+// ret: []
+int screen_settint(lua_State* L) {
     lua_len(L, 1); int red_len = lua_tonumber(L, -1);
     lua_len(L, 2); int green_len = lua_tonumber(L, -1);
     lua_len(L, 3); int blue_len = lua_tonumber(L, -1);
@@ -101,8 +67,85 @@ int screen_set_tint(lua_State* L) {
     }
     
     CGSetDisplayTransferByTable(CGMainDisplayID(), red_len, c_red, c_green, c_blue);
-
+    
     return 0;
 }
 
-int luaopen_screen(lua_State* L) { return 0; }
+int screen_gc(lua_State* L) {
+    lua_getfield(L, 1, "__screen");
+    void** screenptr = lua_touserdata(L, -1);
+    NSScreen* screen = (__bridge_transfer NSScreen*)*screenptr;
+    screen = nil;
+    return 0;
+}
+
+int screen_eq(lua_State* L) {
+    lua_getfield(L, 1, "__screen");
+    NSScreen* screenA = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
+    
+    lua_getfield(L, 2, "__screen");
+    NSScreen* screenB = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
+    
+    lua_pushboolean(L, [screenA isEqual: screenB]);
+    return 1;
+}
+
+void new_screen(lua_State* L, NSScreen* screen) {
+    lua_newtable(L);
+    
+    void** screenptr = lua_newuserdata(L, sizeof(void*));
+    *screenptr = (__bridge_retained void*)screen;
+    lua_setfield(L, -2, "__screen");
+    
+    if (luaL_newmetatable(L, "screen")) {
+        lua_pushcfunction(L, screen_gc);
+        lua_setfield(L, -2, "__gc");
+        
+        lua_pushcfunction(L, screen_eq);
+        lua_setfield(L, -2, "__eq");
+        
+        lua_getglobal(L, "hydra");
+        lua_getfield(L, -1, "screen");
+        lua_setfield(L, -3, "__index");
+        lua_pop(L, 1); // hydra-global
+    }
+    lua_setmetatable(L, -2);
+}
+
+// args: []
+// returns: [screens]
+int screen_allscreens(lua_State* L) {
+    lua_newtable(L);
+    
+    int i = 1;
+    for (NSScreen* screen in [NSScreen screens]) {
+        lua_pushnumber(L, i++);
+        new_screen(L, screen);
+        lua_settable(L, -3);
+    }
+    
+    return 1;
+}
+
+// args: []
+// returns: [screen]
+int screen_mainscreen(lua_State* L) {
+    new_screen(L, [NSScreen mainScreen]);
+    return 1;
+}
+
+static const luaL_Reg screenlib[] = {
+    {"allscreens", screen_allscreens},
+    {"mainscreen", screen_mainscreen},
+    {"settint", screen_settint},
+    
+    {"frame", screen_frame},
+    {"visibleframe", screen_visibleframe},
+    
+    {NULL, NULL}
+};
+
+int luaopen_screen(lua_State* L) {
+    luaL_newlib(L, screenlib);
+    return 1;
+}

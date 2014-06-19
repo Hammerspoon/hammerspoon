@@ -2,12 +2,18 @@
 dofile(hydra.resourcedir .. "/hydra.lua")
 dofile(hydra.resourcedir .. "/fn.lua")
 dofile(hydra.resourcedir .. "/geometry.lua")
+dofile(hydra.resourcedir .. "/screen.lua")
 
 
 
 -- everything below here is experimental
 
-
+s = hydra.screen.mainscreen()
+r = s:frame_including_dock_and_menu()
+print(r.x)
+print(r.y)
+print(r.w)
+print(r.h)
 
 print("done.")
 
