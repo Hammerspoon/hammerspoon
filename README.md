@@ -37,7 +37,7 @@ Or just run the app and it'll give you more ideas.
 
 #### Documentation
 
-- [Hydra 1.0 API](https://github.com/sdegutis/Hydra/wiki/Hydra-2.0-API)
+- [Hydra 1.0 API](https://github.com/sdegutis/Hydra/wiki/Hydra-1.0-API)
 
 #### License
 
