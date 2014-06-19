@@ -12,3 +12,5 @@ int util_do_after_delay(lua_State* L) {
     
     return 0;
 }
+
+int luaopen_fn(lua_State* L) { return 0; }

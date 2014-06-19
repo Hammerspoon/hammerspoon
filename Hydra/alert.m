@@ -121,3 +121,5 @@ static void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
 }
 
 @end
+
+int luaopen_alert(lua_State* L) { return 0; }

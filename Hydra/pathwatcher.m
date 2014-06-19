@@ -48,3 +48,5 @@ int pathwatcher_start(lua_State* L) {
     lua_pushnumber(L, closureref);
     return 2;
 }
+
+int luaopen_pathwatcher(lua_State* L) { return 0; }

@@ -104,3 +104,5 @@ int screen_set_tint(lua_State* L) {
 
     return 0;
 }
+
+int luaopen_screen(lua_State* L) { return 0; }

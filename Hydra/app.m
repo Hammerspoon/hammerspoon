@@ -98,3 +98,5 @@ int application_is_hidden(lua_State* L) {
     lua_pushboolean(L, [isHidden boolValue]);
     return 1;
 }
+
+int luaopen_app(lua_State* L) { return 0; }

@@ -68,3 +68,5 @@ int autolaunch_set(lua_State* L) {
     }
     return 0;
 }
+
+int luaopen_autolaunch(lua_State* L) { return 0; }

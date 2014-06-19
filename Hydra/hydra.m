@@ -10,3 +10,5 @@ int hydra_quit(lua_State* L) {
     [NSApp terminate:nil];
     return 0; // lol
 }
+
+int luaopen_hydra(lua_State* L) { return 0; }

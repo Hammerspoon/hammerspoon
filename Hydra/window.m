@@ -289,3 +289,5 @@ int window_visible_windows_sorted_by_recency(lua_State* L) {
     
     return 1;
 }
+
+int luaopen_window(lua_State* L) { return 0; }

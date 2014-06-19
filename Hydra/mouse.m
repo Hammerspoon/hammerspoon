@@ -16,3 +16,5 @@ int mouse_set(lua_State* L) {
     CGWarpMouseCursorPosition(p);
     return 0;
 }
+
+int luaopen_mouse(lua_State* L) { return 0; }

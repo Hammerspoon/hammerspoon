@@ -141,3 +141,5 @@ int menu_hide(lua_State* L) {
     }
     return 0;
 }
+
+int luaopen_menu(lua_State* L) { return 0; }

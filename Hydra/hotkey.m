@@ -69,3 +69,5 @@ int hotkey_unregister(lua_State *L) {
     UnregisterEventHotKey(carbonHotKey);
     return 0;
 }
+
+int luaopen_hotkey(lua_State* L) { return 0; }

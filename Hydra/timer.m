@@ -38,3 +38,5 @@ int timer_stop(lua_State* L) {
     
     return 0;
 }
+
+int luaopen_timer(lua_State* L) { return 0; }

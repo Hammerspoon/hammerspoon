@@ -33,3 +33,5 @@ int geometry_rectintersection(lua_State* L) {
     lua_pushnumber(L, r3.size.height);
     return 4;
 }
+
+int luaopen_geometry(lua_State* L) { return 0; }

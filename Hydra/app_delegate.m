@@ -3,136 +3,19 @@
 #import "lua/lauxlib.h"
 #import "lua/lualib.h"
 
-int hydra_show_about_panel(lua_State* L);
-int hydra_quit(lua_State* L);
-
-int util_do_after_delay(lua_State* L);
-
-int hotkey_setup(lua_State *L);
-int hotkey_register(lua_State *L);
-int hotkey_unregister(lua_State *L);
-
-int application_running_applications(lua_State* L);
-int application_get_windows(lua_State* L);
-int application_title(lua_State* L);
-int application_show(lua_State* L);
-int application_hide(lua_State* L);
-int application_kill(lua_State* L);
-int application_kill9(lua_State* L);
-int application_is_hidden(lua_State* L);
-int application_activate(lua_State* L);
-
-int mouse_get(lua_State* L);
-int mouse_set(lua_State* L);
-
-int autolaunch_get(lua_State* L);
-int autolaunch_set(lua_State* L);
-
-int alert_show(lua_State* L);
-
-int menu_show(lua_State* L);
-int menu_hide(lua_State* L);
-
-int pathwatcher_stop(lua_State* L);
-int pathwatcher_start(lua_State* L);
-
-int window_get_focused_window(lua_State* L);
-int window_equals(lua_State* L);
-int window_title(lua_State* L);
-int window_is_standard(lua_State* L);
-int window_topleft(lua_State* L);
-int window_size(lua_State* L);
-int window_settopleft(lua_State* L);
-int window_setsize(lua_State* L);
-int window_minimize(lua_State* L);
-int window_unminimize(lua_State* L);
-int window_isminimized(lua_State* L);
-int window_pid(lua_State* L);
-int window_makemain(lua_State* L);
-int window_subrole(lua_State* L);
-int window_role(lua_State* L);
-int window_visible_windows_sorted_by_recency(lua_State* L);
-
-int screen_get_screens(lua_State* L);
-int screen_get_main_screen(lua_State* L);
-int screen_frame(lua_State* L);
-int screen_visible_frame(lua_State* L);
-int screen_equals(lua_State* L);
-int screen_set_tint(lua_State* L);
-
-int timer_start(lua_State* L);
-int timer_stop(lua_State* L);
-
-int geometry_rectmidpoint(lua_State* L);
-int geometry_rectintersection(lua_State* L);
-
-static const luaL_Reg hydra_lib[] = {
-    {"hydra_show_about_panel", hydra_show_about_panel},
-    {"hydra_quit", hydra_quit},
-    
-    {"util_do_after_delay", util_do_after_delay},
-    
-    {"hotkey_setup", hotkey_setup},
-    {"hotkey_register", hotkey_register},
-    {"hotkey_unregister", hotkey_unregister},
-    
-    {"application_running_applications", application_running_applications},
-    {"application_get_windows", application_get_windows},
-    {"application_title", application_title},
-    {"application_show", application_show},
-    {"application_hide", application_hide},
-    {"application_kill", application_kill},
-    {"application_kill9", application_kill9},
-    {"application_is_hidden", application_is_hidden},
-    {"application_activate", application_activate},
-    
-    {"mouse_get", mouse_get},
-    {"mouse_set", mouse_set},
-    
-    {"autolaunch_get", autolaunch_get},
-    {"autolaunch_set", autolaunch_set},
-    
-    {"alert_show", alert_show},
-    
-    {"menu_show", menu_show},
-    {"menu_hide", menu_hide},
-    
-    {"pathwatcher_stop", pathwatcher_stop},
-    {"pathwatcher_start", pathwatcher_start},
-    
-    {"window_get_focused_window", window_get_focused_window},
-    {"window_equals", window_equals},
-    {"window_title", window_title},
-    {"window_is_standard", window_is_standard},
-    {"window_topleft", window_topleft},
-    {"window_size", window_size},
-    {"window_settopleft", window_settopleft},
-    {"window_setsize", window_setsize},
-    {"window_minimize", window_minimize},
-    {"window_unminimize", window_unminimize},
-    {"window_isminimized", window_isminimized},
-    {"window_pid", window_pid},
-    {"window_makemain", window_makemain},
-    {"window_subrole", window_subrole},
-    {"window_role", window_role},
-    {"window_visible_windows_sorted_by_recency", window_visible_windows_sorted_by_recency},
-    
-    {"screen_get_screens", screen_get_screens},
-    {"screen_get_main_screen", screen_get_main_screen},
-    {"screen_frame", screen_frame},
-    {"screen_visible_frame", screen_visible_frame},
-    {"screen_equals", screen_equals},
-    {"screen_set_tint", screen_set_tint},
-    
-    {"timer_start", timer_start},
-    {"timer_stop", timer_stop},
-    
-    {"geometry_rectmidpoint", geometry_rectmidpoint},
-    {"geometry_rectintersection", geometry_rectintersection},
-    
-    {NULL, NULL}
-};
-
+int luaopen_hydra(lua_State* L);
+int luaopen_fn(lua_State* L);
+int luaopen_hotkey(lua_State* L);
+int luaopen_app(lua_State* L);
+int luaopen_mouse(lua_State* L);
+int luaopen_autolaunch(lua_State* L);
+int luaopen_alert(lua_State* L);
+int luaopen_menu(lua_State* L);
+int luaopen_pathwatcher(lua_State* L);
+int luaopen_window(lua_State* L);
+int luaopen_screen(lua_State* L);
+int luaopen_timer(lua_State* L);
+int luaopen_geometry(lua_State* L);
 
 @interface PHAppDelegate : NSObject <NSApplicationDelegate>
 @end
@@ -158,15 +41,34 @@ static const luaL_Reg hydra_lib[] = {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
-    luaL_newlib(L, hydra_lib);
-    lua_setglobal(L, "__api");
+    luaopen_hydra(L);
+    lua_pushvalue(L, -1);
+    lua_setglobal(L, "hydra");
     
-    NSString* bundlePath = [[NSBundle mainBundle] resourcePath];
-    NSString* initFile = [bundlePath stringByAppendingPathComponent:@"rawinit.lua"];
+    static const luaL_Reg hydralibs[] = {
+        {"fn",           luaopen_fn},
+        {"hotkey",       luaopen_hotkey},
+        {"app",          luaopen_app},
+        {"mouse",        luaopen_mouse},
+        {"autolaunch",   luaopen_autolaunch},
+        {"alert",        luaopen_alert},
+        {"menu",         luaopen_menu},
+        {"pathwatcher",  luaopen_pathwatcher},
+        {"window",       luaopen_window},
+        {"screen",       luaopen_screen},
+        {"timer",        luaopen_timer},
+        {"geometry",     luaopen_geometry},
+        {NULL, NULL},
+    };
     
-    luaL_loadfile(L, [initFile fileSystemRepresentation]);
-    lua_pushstring(L, [bundlePath fileSystemRepresentation]);
-    lua_pcall(L, 1, LUA_MULTRET, 0);
+    for (int i = 0; hydralibs[i].name; i++) {
+        luaL_Reg lib = hydralibs[i];
+        lib.func(L);
+        lua_setfield(L, -2, lib.name);
+    }
+    
+    const char* initfile = [[[NSBundle mainBundle] pathForResource:@"rawinit" ofType:@"lua"] fileSystemRepresentation];
+    luaL_dofile(L, initfile);
 }
 
 @end
