@@ -30,7 +30,7 @@ int luaopen_hydra(lua_State* L) {
     
     // no trailing slash
     lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);
-    lua_setfield(L, -2, "resourcedir");
+    lua_setfield(L, -2, "resourcesdir");
     
     return 1;
 }

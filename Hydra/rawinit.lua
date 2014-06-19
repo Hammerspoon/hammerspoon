@@ -1,19 +1,16 @@
 -- keep this stuff
-dofile(hydra.resourcedir .. "/hydra.lua")
-dofile(hydra.resourcedir .. "/fn.lua")
-dofile(hydra.resourcedir .. "/geometry.lua")
-dofile(hydra.resourcedir .. "/screen.lua")
-
+dofile(hydra.resourcesdir .. "/hydra.lua")
+dofile(hydra.resourcesdir .. "/fn.lua")
+dofile(hydra.resourcesdir .. "/geometry.lua")
+dofile(hydra.resourcesdir .. "/screen.lua")
 
 
 -- everything below here is experimental
 
-s = hydra.screen.mainscreen()
-r = s:frame_including_dock_and_menu()
-print(r.x)
-print(r.y)
-print(r.w)
-print(r.h)
+t = hydra.hotkey({"cmd", "shift"}, "d", function()
+    print("hey sup")
+    t:disable()
+end):enable()
 
 print("done.")
 
