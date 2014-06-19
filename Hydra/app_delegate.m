@@ -63,8 +63,8 @@ int luaopen_geometry(lua_State* L);
     
     for (int i = 0; hydralibs[i].name; i++) {
         luaL_Reg lib = hydralibs[i];
-        lib.func(L);
-        lua_setfield(L, -2, lib.name);
+        if (lib.func(L))
+            lua_setfield(L, -2, lib.name);
     }
     
     const char* initfile = [[[NSBundle mainBundle] pathForResource:@"rawinit" ofType:@"lua"] fileSystemRepresentation];

@@ -69,4 +69,13 @@ int autolaunch_set(lua_State* L) {
     return 0;
 }
 
-int luaopen_autolaunch(lua_State* L) { return 0; }
+static const luaL_Reg autolaunchlib[] = {
+    {"get", autolaunch_get},
+    {"set", autolaunch_set},
+    {NULL, NULL}
+};
+
+int luaopen_autolaunch(lua_State* L) {
+    luaL_newlib(L, autolaunchlib);
+    return 1;
+}

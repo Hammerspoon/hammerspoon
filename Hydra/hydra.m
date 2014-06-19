@@ -11,4 +11,13 @@ int hydra_quit(lua_State* L) {
     return 0; // lol
 }
 
-int luaopen_hydra(lua_State* L) { return 0; }
+static const luaL_Reg hydralib[] = {
+    {"showabout", hydra_show_about_panel},
+    {"quit", hydra_quit},
+    {NULL, NULL}
+};
+
+int luaopen_hydra(lua_State* L) {
+    luaL_newlib(L, hydralib);
+    return 1;
+}
