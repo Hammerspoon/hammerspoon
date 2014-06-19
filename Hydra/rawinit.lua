@@ -1,3 +1,11 @@
+-- keep this stuff
+dofile(hydra.resourcedir .. "/hydra.lua")
+dofile(hydra.resourcedir .. "/fn.lua")
+
+
+
+-- everything below here is experimental
+
 print("done.")
 
 

@@ -1,6 +1,6 @@
-local util = {}
+hydra.fn = {}
 
-function util.map(t, fn)
+function hydra.fn.map(t, fn)
   local nt = {}
   for k, v in pairs(t) do
     table.insert(nt, fn(v))
@@ -8,7 +8,7 @@ function util.map(t, fn)
   return nt
 end
 
-function util.filter(t, fn)
+function hydra.fn.filter(t, fn)
   local nt = {}
   for k, v in pairs(t) do
     if fn(v) then table.insert(nt, v) end
@@ -16,7 +16,7 @@ function util.filter(t, fn)
   return nt
 end
 
-function util.contains(t, el)
+function hydra.fn.contains(t, el)
   for k, v in pairs(t) do
     if v == el then
       return true
@@ -25,7 +25,7 @@ function util.contains(t, el)
   return false
 end
 
-function util.indexof(t, el)
+function hydra.fn.indexof(t, el)
   for k, v in pairs(t) do
     if v == el then
       return k
@@ -34,7 +34,7 @@ function util.indexof(t, el)
   return nil
 end
 
-function util.concat(t1, t2)
+function hydra.fn.concat(t1, t2)
   -- NOTE: mutates t1!
   for i = 1, #t2 do
     t1[#t1 + 1] = t2[i]
@@ -42,15 +42,15 @@ function util.concat(t1, t2)
   return t1
 end
 
-function util.mapcat(t, fn)
+function hydra.fn.mapcat(t, fn)
   local nt = {}
   for k, v in pairs(t) do
-    util.concat(nt, fn(v))
+    hydra.fn.concat(nt, fn(v))
   end
   return nt
 end
 
-function util.reduce(t, fn)
+function hydra.fn.reduce(t, fn)
   local len = #t
   if len == 0 then return nil end
   if len == 1 then return t[1] end
@@ -61,5 +61,3 @@ function util.reduce(t, fn)
   end
   return result
 end
-
-return util

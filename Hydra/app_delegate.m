@@ -4,7 +4,6 @@
 #import "lua/lualib.h"
 
 int luaopen_hydra(lua_State* L);
-int luaopen_fn(lua_State* L);
 int luaopen_hotkey(lua_State* L);
 int luaopen_app(lua_State* L);
 int luaopen_mouse(lua_State* L);
@@ -46,7 +45,6 @@ int luaopen_geometry(lua_State* L);
     lua_setglobal(L, "hydra");
     
     static const luaL_Reg hydralibs[] = {
-        {"fn",           luaopen_fn},
         {"hotkey",       luaopen_hotkey},
         {"app",          luaopen_app},
         {"mouse",        luaopen_mouse},

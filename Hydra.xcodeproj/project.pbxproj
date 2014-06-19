@@ -65,14 +65,12 @@
 		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
 		94C36940194DD94700EE3A2D /* updater.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693F194DD94700EE3A2D /* updater.m */; };
 		94C36942194DD94D00EE3A2D /* updater.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C36941194DD94D00EE3A2D /* updater.lua */; };
-		94DE5947194F11AD004D242E /* util.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE5946194F11AD004D242E /* util.lua */; };
+		94DE5947194F11AD004D242E /* fn.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE5946194F11AD004D242E /* fn.lua */; };
 		94DE5949194F1A31004D242E /* hydra.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DE5948194F1A31004D242E /* hydra.m */; };
 		94DE594B194F1A39004D242E /* hydra.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE594A194F1A39004D242E /* hydra.lua */; };
-		94DE594D194F2530004D242E /* util.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DE594C194F2530004D242E /* util.m */; };
 		94E8E7A0194E0AB10064CF6C /* screen.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E8E79F194E0AB10064CF6C /* screen.m */; };
 		94E8E7A2194E0B2B0064CF6C /* hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7A1194E0B2B0064CF6C /* hotkey.lua */; };
 		94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Hydra.icns */; };
-		94E8E7B4194E25080064CF6C /* alert.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B3194E25080064CF6C /* alert.lua */; };
 		94E8E7B6194E25120064CF6C /* pathwatcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B5194E25120064CF6C /* pathwatcher.lua */; };
 		94E8E7B8194E25190064CF6C /* menu.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B7194E25190064CF6C /* menu.lua */; };
 		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
@@ -170,14 +168,12 @@
 		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
 		94C3693F194DD94700EE3A2D /* updater.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = updater.m; sourceTree = "<group>"; };
 		94C36941194DD94D00EE3A2D /* updater.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = updater.lua; sourceTree = "<group>"; };
-		94DE5946194F11AD004D242E /* util.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = util.lua; sourceTree = "<group>"; };
+		94DE5946194F11AD004D242E /* fn.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fn.lua; sourceTree = "<group>"; };
 		94DE5948194F1A31004D242E /* hydra.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra.m; sourceTree = "<group>"; };
 		94DE594A194F1A39004D242E /* hydra.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hydra.lua; sourceTree = "<group>"; };
-		94DE594C194F2530004D242E /* util.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = util.m; sourceTree = "<group>"; };
 		94E8E79F194E0AB10064CF6C /* screen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = screen.m; sourceTree = "<group>"; };
 		94E8E7A1194E0B2B0064CF6C /* hotkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey.lua; sourceTree = "<group>"; };
 		94E8E7AD194E0C940064CF6C /* Hydra.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Hydra.icns; sourceTree = "<group>"; };
-		94E8E7B3194E25080064CF6C /* alert.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = alert.lua; sourceTree = "<group>"; };
 		94E8E7B5194E25120064CF6C /* pathwatcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pathwatcher.lua; sourceTree = "<group>"; };
 		94E8E7B7194E25190064CF6C /* menu.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = menu.lua; sourceTree = "<group>"; };
 		94E8E7B9194E25290064CF6C /* screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = screen.lua; sourceTree = "<group>"; };
@@ -243,8 +239,7 @@
 				945200871950E6C10072DFEF /* sample_config.lua */,
 				94DE5948194F1A31004D242E /* hydra.m */,
 				94DE594A194F1A39004D242E /* hydra.lua */,
-				94DE594C194F2530004D242E /* util.m */,
-				94DE5946194F11AD004D242E /* util.lua */,
+				94DE5946194F11AD004D242E /* fn.lua */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94E8E7A1194E0B2B0064CF6C /* hotkey.lua */,
 				9459B58E194CEB07008BC904 /* hotkey_translator.m */,
@@ -261,7 +256,6 @@
 				9400269419514372000D15C1 /* geometry.lua */,
 				9452129B194D5B8F00217584 /* autolaunch.m */,
 				9452129D194D65BF00217584 /* alert.m */,
-				94E8E7B3194E25080064CF6C /* alert.lua */,
 				9452129F194D697100217584 /* alert.xib */,
 				945212A1194D69E700217584 /* pathwatcher.m */,
 				94E8E7B5194E25120064CF6C /* pathwatcher.lua */,
@@ -421,8 +415,7 @@
 				945200861950E2760072DFEF /* defaultinit.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
 				94E8E7B8194E25190064CF6C /* menu.lua in Resources */,
-				94E8E7B4194E25080064CF6C /* alert.lua in Resources */,
-				94DE5947194F11AD004D242E /* util.lua in Resources */,
+				94DE5947194F11AD004D242E /* fn.lua in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
 				945212A8194D6B5900217584 /* menu@2x.png in Resources */,
 			);
@@ -475,7 +468,6 @@
 				94BDB49C19094B7A00BD0553 /* app.m in Sources */,
 				9445CA99190833C1002568BB /* ltablib.c in Sources */,
 				9445CA97190833C1002568BB /* lstrlib.c in Sources */,
-				94DE594D194F2530004D242E /* util.m in Sources */,
 				9445CA8E190833C1002568BB /* lmathlib.c in Sources */,
 				9445CA8A190833C1002568BB /* lgc.c in Sources */,
 				9459B58F194CEB07008BC904 /* hotkey_translator.m in Sources */,
