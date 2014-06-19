@@ -7,6 +7,8 @@ dofile(hydra.resourcesdir .. "/screen.lua")
 
 -- everything below here is experimental
 
+hydra.alert("sup world")
+
 t = hydra.hotkey({"cmd", "shift"}, "d", function()
     print("hey sup")
     t:disable()

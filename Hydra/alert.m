@@ -17,7 +17,10 @@ static NSMutableArray* visibleAlerts;
 
 int alert_show(lua_State* L) {
     const char* str = lua_tostring(L, 1);
-    double duration = lua_tonumber(L, 2);
+    
+    double duration = 2.0;
+    if (lua_isnumber(L, 2))
+        duration = lua_tonumber(L, 2);
     
     PHShowAlert([NSString stringWithUTF8String:str], duration);
     
@@ -122,4 +125,12 @@ static void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
 
 @end
 
-int luaopen_alert(lua_State* L) { return 0; }
+static const luaL_Reg alertlib[] = {
+    {"show", alert_show},
+    {NULL, NULL}
+};
+
+int luaopen_alert(lua_State* L) {
+    luaL_newlib(L, alertlib);
+    return 1;
+}

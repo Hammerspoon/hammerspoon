@@ -1,2 +1,0 @@
-print("updater")
-require("menu")

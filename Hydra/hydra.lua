@@ -14,3 +14,9 @@ function hydra.reload()
     defaultinit.run()
   end
 end
+
+local t = getmetatable(hydra.alert) or {}
+t.__call = function(self, msg, dur)
+  hydra.alert.show(msg, dur)
+end
+setmetatable(hydra.alert, t)
