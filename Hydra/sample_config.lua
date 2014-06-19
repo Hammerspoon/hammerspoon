@@ -1,19 +1,19 @@
--- Save this as ~/.phoenix/init.lua and choose Reload Config from the menu
+-- Save this as ~/.hydra/init.lua and choose Reload Config from the menu
 
 local hotkey = require("hotkey")
 local window = require("window")
 local alert = require("alert")
 local menu = require("menu")
-local phoenix = require("phoenix")
+local hydra = require("hydra")
 
-alert.show("Phoenix config loaded", 1.5)
+alert.show("Hydra config loaded", 1.5)
 
 menu.show(function()
     return {
-      {title = "Reload Config", fn = phoenix.reload},
+      {title = "Reload Config", fn = hydra.reload},
       {title = "-"},
-      {title = "About", fn = phoenix.show_about_panel},
-      {title = "Quit Phoenix", fn = phoenix.quit},
+      {title = "About", fn = hydra.show_about_panel},
+      {title = "Quit Hydra", fn = hydra.quit},
     }
 end)
 

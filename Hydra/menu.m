@@ -8,13 +8,13 @@
 @implementation PHMenuItemDelegator
 
 - (BOOL) respondsToSelector:(SEL)aSelector {
-    if (aSelector == @selector(callCustomPhoenixMenuItemDelegator:))
+    if (aSelector == @selector(callCustomHydraMenuItemDelegator:))
         return !self.disabled;
     else
         return [super respondsToSelector:aSelector];
 }
 
-- (void) callCustomPhoenixMenuItemDelegator:(id)sender {
+- (void) callCustomHydraMenuItemDelegator:(id)sender {
     self.handler();
 }
 
@@ -93,7 +93,7 @@ int menu_show(lua_State* L) {
                         
                         item.title = title;
                         item.state = checked ? NSOnState : NSOffState;
-                        item.action = @selector(callCustomPhoenixMenuItemDelegator:);
+                        item.action = @selector(callCustomHydraMenuItemDelegator:);
                         item.target = delegator;
                         item.representedObject = delegator;
                         

@@ -1,11 +1,11 @@
-local phoenix = {}
+local hydra = {}
 
-function phoenix.show_about_panel()
-  __api.phoenix_show_about_panel()
+function hydra.show_about_panel()
+  __api.hydra_show_about_panel()
 end
 
-function phoenix.quit()
-  __api.phoenix_quit()
+function hydra.quit()
+  __api.hydra_quit()
 end
 
 local function file_exists(name)
@@ -20,8 +20,8 @@ end
 
 local alert = require("alert")
 
-function phoenix.reload()
-  local userfile = os.getenv("HOME") .. "/.phoenix/init.lua"
+function hydra.reload()
+  local userfile = os.getenv("HOME") .. "/.hydra/init.lua"
   local initfile_exists = file_exists(userfile)
 
   if initfile_exists then
@@ -37,4 +37,4 @@ function phoenix.reload()
   end
 end
 
-return phoenix
+return hydra

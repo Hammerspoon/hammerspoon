@@ -2,17 +2,17 @@
 local thisdir = ...
 
 -- set both require-paths
-package.path = os.getenv("HOME") .. "/.phoenix/?.lua;" .. package.path -- user configs
+package.path = os.getenv("HOME") .. "/.hydra/?.lua;" .. package.path -- user configs
 package.path = thisdir .. "/?.lua;" .. package.path                    -- built-in configs
 
 -- share resources path
-local phoenix = require("phoenix")
-phoenix.resourcesdir = thisdir
+local hydra = require("hydra")
+hydra.resourcesdir = thisdir
 
 -- load user's config
 local ok, err = pcall(function()
-    local phoenix = require("phoenix")
-    phoenix.reload()
+    local hydra = require("hydra")
+    hydra.reload()
 end)
 
 local alert = require("alert")
@@ -93,7 +93,7 @@ if not ok then alert.show(err, 5) end
 -- local m = nil
 
 -- hotkey.new({"cmd", "shift"}, "a", function()
---     m = pathwatcher.new("/Users/sdegutis/projects/phoenix/Phoenix", function()
+--     m = pathwatcher.new("/Users/sdegutis/projects/hydra/Hydra", function()
 --                           print("here!")
 --     end)
 -- end):enable()
@@ -118,7 +118,7 @@ if not ok then alert.show(err, 5) end
 -- -- end
 
 
--- -- lol = __api.path_watcher_start("/Users/sdegutis/projects/phoenix", function()
+-- -- lol = __api.path_watcher_start("/Users/sdegutis/projects/hydra", function()
 -- --                             print(lol)
 -- --                             __api.path_watcher_stop(lol)
 -- --                                                              end)

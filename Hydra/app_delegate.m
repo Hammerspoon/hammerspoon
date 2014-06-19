@@ -3,8 +3,8 @@
 #import "lua/lauxlib.h"
 #import "lua/lualib.h"
 
-int phoenix_show_about_panel(lua_State* L);
-int phoenix_quit(lua_State* L);
+int hydra_show_about_panel(lua_State* L);
+int hydra_quit(lua_State* L);
 
 int util_do_after_delay(lua_State* L);
 
@@ -66,9 +66,9 @@ int timer_stop(lua_State* L);
 int geometry_rectmidpoint(lua_State* L);
 int geometry_rectintersection(lua_State* L);
 
-static const luaL_Reg phoenix_lib[] = {
-    {"phoenix_show_about_panel", phoenix_show_about_panel},
-    {"phoenix_quit", phoenix_quit},
+static const luaL_Reg hydra_lib[] = {
+    {"hydra_show_about_panel", hydra_show_about_panel},
+    {"hydra_quit", hydra_quit},
     
     {"util_do_after_delay", util_do_after_delay},
     
@@ -144,7 +144,7 @@ static const luaL_Reg phoenix_lib[] = {
     
     if (!enabled) {
         NSRunAlertPanel(@"Enable Accessibility First",
-                        @"Find the little popup right behind this one, click \"Open System Preferences\" and enable Phoenix. Then launch Phoenix again.",
+                        @"Find the little popup right behind this one, click \"Open System Preferences\" and enable Hydra. Then launch Hydra again.",
                         @"Quit",
                         nil,
                         nil);
@@ -158,7 +158,7 @@ static const luaL_Reg phoenix_lib[] = {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
-    luaL_newlib(L, phoenix_lib);
+    luaL_newlib(L, hydra_lib);
     lua_setglobal(L, "__api");
     
     NSString* bundlePath = [[NSBundle mainBundle] resourcePath];
