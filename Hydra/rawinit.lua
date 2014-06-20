@@ -9,16 +9,6 @@ dofile(hydra.resourcesdir .. "/window.lua")
 
 -- everything below here is experimental
 
-hydra.app.launchorfocus("Bahamut")
-
-for _, app in pairs(hydra.app.runningapps()) do
-  -- print(app.pid, app:title(), app == app)
-
-  for _, win in pairs(app:allwindows()) do
-    if win:isstandard() then print("", win:title()) end
-  end
-end
-
 print("done.")
 
 

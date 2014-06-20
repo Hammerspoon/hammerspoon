@@ -15,6 +15,7 @@ int luaopen_window(lua_State* L);
 int luaopen_screen(lua_State* L);
 int luaopen_timer(lua_State* L);
 int luaopen_geometry(lua_State* L);
+int luaopen_repl(lua_State* L);
 
 @interface PHAppDelegate : NSObject <NSApplicationDelegate>
 @end
@@ -56,13 +57,14 @@ int luaopen_geometry(lua_State* L);
         {"screen",       luaopen_screen},
         {"timer",        luaopen_timer},
         {"geometry",     luaopen_geometry},
+        {"repl",         luaopen_repl},
         {NULL, NULL},
     };
     
     for (int i = 0; hydralibs[i].name; i++) {
         luaL_Reg lib = hydralibs[i];
-        if (lib.func(L))
-            lua_setfield(L, -2, lib.name);
+        lib.func(L);
+        lua_setfield(L, -2, lib.name);
     }
     
     const char* initfile = [[[NSBundle mainBundle] pathForResource:@"rawinit" ofType:@"lua"] fileSystemRepresentation];
