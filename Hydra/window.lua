@@ -138,18 +138,18 @@ function hydra.window:windows_to_south()
   return windows_in_direction(self, 1)
 end
 
-function hydra.window:focus_window_to_east()
+function hydra.window:focuswindow_east()
   return self:focus_first_valid_window(self:windows_to_east())
 end
 
-function hydra.window:focus_window_to_west()
+function hydra.window:focuswindow_west()
   return self:focus_first_valid_window(self:windows_to_west())
 end
 
-function hydra.window:focus_window_to_north()
+function hydra.window:focuswindow_north()
   return self:focus_first_valid_window(self:windows_to_north())
 end
 
-function hydra.window:focus_window_to_south()
+function hydra.window:focuswindow_south()
   return self:focus_first_valid_window(self:windows_to_south())
 end
