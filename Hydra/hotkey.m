@@ -6,10 +6,10 @@ UInt32 PHKeyCodeForString(NSString* str);
 // args: [hotkey]
 // ret: [hotkey]
 int hotkey_enable(lua_State* L) {
-    // adds the hotkey to hydra.hotkey.keys and gives it a __uid field
+    // adds the hotkey to api.hotkey.keys and gives it a __uid field
     // this is so the callback can find the hotkey and call its fn
     
-    lua_getglobal(L, "hydra");
+    lua_getglobal(L, "api");
     lua_getfield(L, -1, "hotkey");
     lua_getfield(L, -1, "keys");
     lua_pushvalue(L, -1); // push keys on twice
@@ -89,7 +89,7 @@ int hotkey_new(lua_State* L) {
     lua_setfield(L, -2, "fn");
     
     if (luaL_newmetatable(L, "hotkey")) {
-        lua_getglobal(L, "hydra");
+        lua_getglobal(L, "api");
         lua_getfield(L, -1, "hotkey");
         lua_setfield(L, -3, "__index");
         lua_pop(L, 1);
@@ -120,7 +120,7 @@ static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef i
 
 void setup_hotkey_callback(lua_State *L) {
     hotkey_closure = ^OSStatus(UInt32 uid) {
-        lua_getglobal(L, "hydra");
+        lua_getglobal(L, "api");
         lua_getfield(L, -1, "hotkey");
         lua_getfield(L, -1, "keys");
         

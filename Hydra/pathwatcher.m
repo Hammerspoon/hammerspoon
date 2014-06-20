@@ -75,7 +75,7 @@ int pathwatcher_new(lua_State* L) {
     lua_setfield(L, -2, "fn");
     
     if (luaL_newmetatable(L, "pathwatcher")) {
-        lua_getglobal(L, "hydra");
+        lua_getglobal(L, "api");
         lua_getfield(L, -1, "pathwatcher");
         lua_setfield(L, -3, "__index");
         lua_pop(L, 1); // hydra-global

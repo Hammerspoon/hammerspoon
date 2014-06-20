@@ -1,6 +1,6 @@
 #import "lua/lauxlib.h"
 
-int hydra_showabout(lua_State* L) {
+int api_showabout(lua_State* L) {
     [NSApp activateIgnoringOtherApps:YES];
     [NSApp orderFrontStandardAboutPanel:nil];
     return 0;
@@ -8,7 +8,7 @@ int hydra_showabout(lua_State* L) {
 
 // args: [path]
 // return: [exists, isdir]
-int hydra_fileexists(lua_State* L) {
+int api_fileexists(lua_State* L) {
     NSString* path = [NSString stringWithUTF8String:lua_tostring(L, 1)];
     
     BOOL isdir;
@@ -19,14 +19,14 @@ int hydra_fileexists(lua_State* L) {
     return 2;
 }
 
-static const luaL_Reg hydralib[] = {
-    {"showabout", hydra_showabout},
-    {"fileexists", hydra_fileexists},
+static const luaL_Reg apilib[] = {
+    {"showabout", api_showabout},
+    {"fileexists", api_fileexists},
     {NULL, NULL}
 };
 
-int luaopen_hydra(lua_State* L) {
-    luaL_newlib(L, hydralib);
+int luaopen_api(lua_State* L) {
+    luaL_newlib(L, apilib);
     
     // no trailing slash
     lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);

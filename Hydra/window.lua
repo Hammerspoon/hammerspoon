@@ -1,54 +1,54 @@
-function hydra.window.allwindows()
-  return hydra.fn.mapcat(hydra.app.runningapps(), hydra.app.windows)
+function api.window.allwindows()
+  return api.fn.mapcat(api.app.runningapps(), api.app.windows)
 end
 
-function hydra.window:isvisible()
+function api.window:isvisible()
   return not self:app():ishidden() and
     not self:isminimized() and
     self:isstandard()
 end
 
-function hydra.window:frame()
+function api.window:frame()
   local s = self:size()
   local tl = self:topleft()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
 end
 
-function hydra.window:setframe(f)
+function api.window:setframe(f)
   self:setsize(f)
   self:settopleft(f)
   self:setsize(f)
 end
 
-function hydra.window:otherwindows_samescreen()
-  return hydra.fn.filter(hydra.window.visiblewindows, function(win) return self ~= win and self:screen() == win:screen() end)
+function api.window:otherwindows_samescreen()
+  return api.fn.filter(api.window.visiblewindows, function(win) return self ~= win and self:screen() == win:screen() end)
 end
 
-function hydra.window:otherwindows_allscreens()
-  return hydra.fn.filter(hydra.window.visiblewindows, function(win) return self ~= win end)
+function api.window:otherwindows_allscreens()
+  return api.fn.filter(api.window.visiblewindows, function(win) return self ~= win end)
 end
 
-function hydra.window:focus()
+function api.window:focus()
   return self:becomemain() and self:app():activate()
 end
 
-function hydra.window.visiblewindows()
-  return hydra.fn.filter(window:allwindows(), hydra.window.isvisible)
+function api.window.visiblewindows()
+  return api.fn.filter(window:allwindows(), api.window.isvisible)
 end
 
-function hydra.window:maximize()
+function api.window:maximize()
   local screenrect = self:screen():frame_without_dock_or_menu()
   self:setframe(screenrect)
 end
 
-function hydra.window:screen()
+function api.window:screen()
   local windowframe = self:frame()
   local lastvolume = 0
   local lastscreen = nil
 
-  for _, screen in pairs(hydra.screen.allscreens()) do
+  for _, screen in pairs(api.screen.allscreens()) do
     local screenframe = screen:frame_including_dock_and_menu()
-    local intersection = hydra.geometry.intersectionrect(windowframe, screenframe)
+    local intersection = api.geometry.intersectionrect(windowframe, screenframe)
     local volume = intersection.w * intersection.h
 
     if volume > lastvolume then
@@ -122,34 +122,34 @@ local function focus_first_valid_window(ordered_wins)
   end
 end
 
-function hydra.window:windows_to_east()
+function api.window:windows_to_east()
   return windows_in_direction(self, 0)
 end
 
-function hydra.window:windows_to_west()
+function api.window:windows_to_west()
   return windows_in_direction(self, 2)
 end
 
-function hydra.window:windows_to_north()
+function api.window:windows_to_north()
   return windows_in_direction(self, 3)
 end
 
-function hydra.window:windows_to_south()
+function api.window:windows_to_south()
   return windows_in_direction(self, 1)
 end
 
-function hydra.window:focuswindow_east()
+function api.window:focuswindow_east()
   return self:focus_first_valid_window(self:windows_to_east())
 end
 
-function hydra.window:focuswindow_west()
+function api.window:focuswindow_west()
   return self:focus_first_valid_window(self:windows_to_west())
 end
 
-function hydra.window:focuswindow_north()
+function api.window:focuswindow_north()
   return self:focus_first_valid_window(self:windows_to_north())
 end
 
-function hydra.window:focuswindow_south()
+function api.window:focuswindow_south()
   return self:focus_first_valid_window(self:windows_to_south())
 end

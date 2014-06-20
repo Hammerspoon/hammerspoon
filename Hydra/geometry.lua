@@ -1,5 +1,5 @@
 -- rotates counter-clockwise, n times (default 1)
-function hydra.geometry.rotate(point, aroundpoint, ntimes)
+function api.geometry.rotate(point, aroundpoint, ntimes)
   local p = {x = point.x, y = point.y}
   for i = 1, ntimes or 1 do
     local px = p.x
@@ -9,18 +9,18 @@ function hydra.geometry.rotate(point, aroundpoint, ntimes)
   return p
 end
 
-function hydra.geometry.hypot(p)
+function api.geometry.hypot(p)
   return math.sqrt(p.x * p.x + p.y * p.y)
 end
 
-function hydra.geometry.rect(x, y, w, h)
+function api.geometry.rect(x, y, w, h)
   return {x = x, y = y, w = w, h = h}
 end
 
-function hydra.geometry.point(x, y)
+function api.geometry.point(x, y)
   return {x = x, y = y}
 end
 
-function hydra.geometry.size(w, h)
+function api.geometry.size(w, h)
   return {w = w, h = h}
 end

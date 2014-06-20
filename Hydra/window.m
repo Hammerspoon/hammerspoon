@@ -33,7 +33,7 @@ void new_window(lua_State* L, AXUIElementRef win) {
         lua_pushcfunction(L, window_eq);
         lua_setfield(L, -2, "__eq");
         
-        lua_getglobal(L, "hydra");
+        lua_getglobal(L, "api");
         lua_getfield(L, -1, "window");
         lua_setfield(L, -3, "__index");
         lua_pop(L, 1); // hydra-global

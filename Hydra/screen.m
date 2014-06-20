@@ -104,7 +104,7 @@ void new_screen(lua_State* L, NSScreen* screen) {
         lua_pushcfunction(L, screen_eq);
         lua_setfield(L, -2, "__eq");
         
-        lua_getglobal(L, "hydra");
+        lua_getglobal(L, "api");
         lua_getfield(L, -1, "screen");
         lua_setfield(L, -3, "__index");
         lua_pop(L, 1); // hydra-global

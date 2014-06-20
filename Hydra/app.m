@@ -18,7 +18,7 @@ void new_app(lua_State* L, pid_t pid) {
     lua_setfield(L, -2, "pid");
     
     if (luaL_newmetatable(L, "app")) {
-        lua_getglobal(L, "hydra");
+        lua_getglobal(L, "api");
         lua_getfield(L, -1, "app");
         lua_setfield(L, -3, "__index");
         lua_pop(L, 1); // hydra-global

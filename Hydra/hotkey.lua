@@ -1,3 +1,3 @@
-function hydra.hotkey.bind(...)
-  return hydra.hotkey(...):enable()
+function api.hotkey.bind(...)
+  return api.hotkey(...):enable()
 end

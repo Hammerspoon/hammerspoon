@@ -3,7 +3,8 @@
 #import "lua/lauxlib.h"
 #import "lua/lualib.h"
 
-int luaopen_hydra(lua_State* L);
+int luaopen_api(lua_State* L);
+
 int luaopen_hotkey(lua_State* L);
 int luaopen_app(lua_State* L);
 int luaopen_mouse(lua_State* L);
@@ -27,7 +28,7 @@ int luaopen_repl(lua_State* L);
     
     if (!enabled) {
         NSRunAlertPanel(@"Enable Accessibility First",
-                        @"Find the little popup right behind this one, click \"Open System Preferences\" and enable Hydra. Then launch Hydra again.",
+                        @"Find the little popup right behind this one, click \"Open System Preferences\" and enable api. Then launch Hydra again.",
                         @"Quit",
                         nil,
                         nil);
@@ -41,9 +42,9 @@ int luaopen_repl(lua_State* L);
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
-    luaopen_hydra(L);
+    luaopen_api(L);
     lua_pushvalue(L, -1);
-    lua_setglobal(L, "hydra");
+    lua_setglobal(L, "api");
     
     static const luaL_Reg hydralibs[] = {
         {"hotkey",       luaopen_hotkey},

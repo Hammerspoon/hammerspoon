@@ -1,7 +1,7 @@
-function hydra.app:visiblewindows()
-  return hydra.fn.filter(self:allwindows(), hydra.window.isvisible)
+function api.app:visiblewindows()
+  return api.fn.filter(self:allwindows(), api.window.isvisible)
 end
 
-function hydra.app.launchorfocus(name)
+function api.app.launchorfocus(name)
   os.execute("open -a " .. name)
 end
