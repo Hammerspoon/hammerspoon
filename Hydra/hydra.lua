@@ -1,3 +1,13 @@
+function hydra.require(path)
+  local userfile = os.getenv("HOME") .. "/.hydra/" .. path .. ".lua"
+  local exists, isdir = hydra.fileexists(userfile)
+  if exists and not isdir then
+    dofile(userfile)
+  else
+    hydra.alert("Cannot find file: " .. path)
+  end
+end
+
 function hydra.reload()
   local userfile = os.getenv("HOME") .. "/.hydra/init.lua"
   local exists, isdir = hydra.fileexists(userfile)
