@@ -20,7 +20,7 @@ function hydra.reload()
       hydra.alert(err, 5)
     end
   else
-    local defaultinit = require("defaultinit")
+    local defaultinit = dofile(hydra.resourcesdir .. "/defaultinit.lua")
     defaultinit.run()
   end
 end

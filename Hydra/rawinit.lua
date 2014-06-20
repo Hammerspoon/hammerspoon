@@ -6,6 +6,18 @@ dofile(hydra.resourcesdir .. "/screen.lua")
 dofile(hydra.resourcesdir .. "/app.lua")
 dofile(hydra.resourcesdir .. "/window.lua")
 
+-- load user's config
+local ok, err = pcall(function()
+    hydra.reload()
+end)
+
+-- report err in user's config
+if not ok then hydra.alert(err, 5) end
+
+
+
+
+
 
 -- everything below here is experimental
 
@@ -15,29 +27,6 @@ print("done.")
 
 
 
-
-
-
--- -- save resources path
--- local thisdir = ...
-
--- -- set both require-paths
--- package.path = os.getenv("HOME") .. "/.hydra/?.lua;" .. package.path -- user configs
--- package.path = thisdir .. "/?.lua;" .. package.path                    -- built-in configs
-
--- -- share resources path
--- local hydra = require("hydra")
--- hydra.resourcesdir = thisdir
-
--- -- load user's config
--- local ok, err = pcall(function()
---     local hydra = require("hydra")
---     hydra.reload()
--- end)
-
--- local alert = require("alert")
--- -- report err in user's config
--- if not ok then alert.show(err, 5) end
 
 
 
