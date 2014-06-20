@@ -66,6 +66,7 @@
 		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
 		94C36940194DD94700EE3A2D /* updater.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693F194DD94700EE3A2D /* updater.m */; };
 		94C36942194DD94D00EE3A2D /* updater.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C36941194DD94D00EE3A2D /* updater.lua */; };
+		94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C96E6E19548ECB00DBD838 /* hotkey.lua */; };
 		94DE5947194F11AD004D242E /* fn.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE5946194F11AD004D242E /* fn.lua */; };
 		94DE5949194F1A31004D242E /* hydra.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DE5948194F1A31004D242E /* hydra.m */; };
 		94DE594B194F1A39004D242E /* hydra.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE594A194F1A39004D242E /* hydra.lua */; };
@@ -168,6 +169,7 @@
 		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
 		94C3693F194DD94700EE3A2D /* updater.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = updater.m; sourceTree = "<group>"; };
 		94C36941194DD94D00EE3A2D /* updater.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = updater.lua; sourceTree = "<group>"; };
+		94C96E6E19548ECB00DBD838 /* hotkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey.lua; sourceTree = "<group>"; };
 		94DE5946194F11AD004D242E /* fn.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fn.lua; sourceTree = "<group>"; };
 		94DE5948194F1A31004D242E /* hydra.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra.m; sourceTree = "<group>"; };
 		94DE594A194F1A39004D242E /* hydra.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hydra.lua; sourceTree = "<group>"; };
@@ -239,6 +241,7 @@
 				94DE594A194F1A39004D242E /* hydra.lua */,
 				94DE5946194F11AD004D242E /* fn.lua */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
+				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
 				9459B58E194CEB07008BC904 /* hotkey_translator.m */,
 				94C3693D194DD93600EE3A2D /* window.m */,
 				94A1537B194D77A400F29F8F /* window.lua */,
@@ -406,6 +409,7 @@
 				945212A7194D6B5900217584 /* menu.png in Resources */,
 				94E8E7BC194E25300064CF6C /* app.lua in Resources */,
 				94DE594B194F1A39004D242E /* hydra.lua in Resources */,
+				94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */,
 				9445CAA5190847CB002568BB /* rawinit.lua in Resources */,
 				945200861950E2760072DFEF /* defaultinit.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,

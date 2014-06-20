@@ -5,6 +5,7 @@ dofile(hydra.resourcesdir .. "/geometry.lua")
 dofile(hydra.resourcesdir .. "/screen.lua")
 dofile(hydra.resourcesdir .. "/app.lua")
 dofile(hydra.resourcesdir .. "/window.lua")
+dofile(hydra.resourcesdir .. "/hotkey.lua")
 
 -- load user's config
 local ok, err = pcall(function()
