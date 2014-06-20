@@ -138,7 +138,9 @@ void setup_hotkey_callback(lua_State *L) {
         lua_gettable(L, -2);
         
         lua_getfield(L, -1, "fn");
-        lua_pcall(L, 0, 0, 0);
+        if (lua_pcall(L, 0, 0, 0)) {
+            NSLog(@"problem?");
+        }
         
         lua_pop(L, 4);
         
