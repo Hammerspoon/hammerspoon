@@ -43,6 +43,40 @@ int app_runningapps(lua_State* L) {
     return 1;
 }
 
+// args: [pid]
+// ret: [app] or []
+int app_appforpid(lua_State* L) {
+    pid_t pid = lua_tonumber(L, 1);
+    
+    NSRunningApplication* runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+    
+    if (runningApp) {
+        new_app(L, [runningApp processIdentifier]);
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+// args: [bundleid]
+// ret: [apps]
+int app_appsforbundleid(lua_State* L) {
+    const char* bundleid = lua_tostring(L, 1);
+    NSString* bundleIdentifier = [NSString stringWithUTF8String:bundleid];
+    
+    lua_newtable(L);
+    int i = 1;
+    
+    NSArray* runningApps = [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleIdentifier];
+    for (NSRunningApplication* runningApp in runningApps) {
+        new_app(L, [runningApp processIdentifier]);
+        lua_rawseti(L, -2, i++);
+    }
+    
+    return 1;
+}
+
 // args: []
 // ret: []
 int app_allwindows(lua_State* L) {
@@ -87,6 +121,16 @@ int app_title(lua_State* L) {
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
     
     lua_pushstring(L, [[app localizedName] UTF8String]);
+    return 1;
+}
+
+// args: [app]
+// ret: [string]
+int app_bundleid(lua_State* L) {
+    lua_getfield(L, 1, "pid");
+    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
+    
+    lua_pushstring(L, [[app bundleIdentifier] UTF8String]);
     return 1;
 }
 
@@ -157,10 +201,13 @@ int app_ishidden(lua_State* L) {
 
 static const luaL_Reg applib[] = {
     {"runningapps", app_runningapps},
+    {"appforpid", app_appforpid},
+    {"appsforbundleid", app_appsforbundleid},
     
     {"allwindows", app_allwindows},
     {"activate", app_activate},
     {"title", app_title},
+    {"bundleid", app_bundleid},
     {"show", app_show},
     {"hide", app_hide},
     {"kill", app_kill},
