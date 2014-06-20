@@ -4,12 +4,17 @@ dofile(hydra.resourcesdir .. "/fn.lua")
 dofile(hydra.resourcesdir .. "/geometry.lua")
 dofile(hydra.resourcesdir .. "/screen.lua")
 dofile(hydra.resourcesdir .. "/app.lua")
+dofile(hydra.resourcesdir .. "/window.lua")
 
 
 -- everything below here is experimental
 
-for i, app in pairs(hydra.app.runningapps()) do
-  print(i, app.pid, app:title(), app == app)
+for _, app in pairs(hydra.app.runningapps()) do
+  -- print(app.pid, app:title(), app == app)
+
+  for _, win in pairs(app:allwindows()) do
+    if win:isstandard() then print("", win:title()) end
+  end
 end
 
 print("done.")

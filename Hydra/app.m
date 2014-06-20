@@ -45,7 +45,7 @@ int app_runningapps(lua_State* L) {
 
 // args: []
 // ret: []
-int application_allwindows(lua_State* L) {
+int app_allwindows(lua_State* L) {
     lua_getfield(L, 1, "pid");
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
     
@@ -158,7 +158,7 @@ int app_ishidden(lua_State* L) {
 static const luaL_Reg applib[] = {
     {"runningapps", app_runningapps},
     
-    {"runningapps", application_allwindows},
+    {"allwindows", app_allwindows},
     {"activate", app_activate},
     {"title", app_title},
     {"show", app_show},
