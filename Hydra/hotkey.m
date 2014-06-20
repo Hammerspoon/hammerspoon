@@ -76,14 +76,6 @@ int hotkey_disable(lua_State* L) {
 
 // args: [(self), mods, key, fn]
 // ret: [hotkey]
-static const luaL_Reg hotkeylib[] = {
-    {"enable", hotkey_enable},
-    {"disable", hotkey_disable},
-    {NULL, NULL}
-};
-
-// args: [(self), mods, key, fn]
-// ret: [hotkey]
 int hotkey_new(lua_State* L) {
     lua_newtable(L);
     
@@ -106,6 +98,22 @@ int hotkey_new(lua_State* L) {
     
     return 1;
 }
+
+// args: [mods, key, fn]
+// ret: [hotkey]
+int hotkey_bind(lua_State* L) {
+    lua_pushnil(L); // fake implicit "self" for __call
+    hotkey_new(L);
+    return hotkey_enable(L);
+}
+
+static const luaL_Reg hotkeylib[] = {
+    {"bind", hotkey_bind},
+    
+    {"enable", hotkey_enable},
+    {"disable", hotkey_disable},
+    {NULL, NULL}
+};
 
 static const luaL_Reg hotkeylib_meta[] = {
     {"__call", hotkey_new},
