@@ -192,6 +192,45 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		94320F411954C61F00D37BF1 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				9445CA2319083251002568BB /* MainMenu.xib */,
+				9445CA2119083251002568BB /* app_delegate.m */,
+				9445CAA4190847CB002568BB /* rawinit.lua */,
+				945200851950E2760072DFEF /* defaultinit.lua */,
+				945200871950E6C10072DFEF /* sample_config.lua */,
+				94DE5948194F1A31004D242E /* api.m */,
+				94DE594A194F1A39004D242E /* api.lua */,
+				94DE5946194F11AD004D242E /* fn.lua */,
+				9459B591194CEE1E008BC904 /* hotkey.m */,
+				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
+				9459B58E194CEB07008BC904 /* hotkey_translator.m */,
+				94C3693D194DD93600EE3A2D /* window.m */,
+				94A1537B194D77A400F29F8F /* window.lua */,
+				94BDB49B19094B7A00BD0553 /* app.m */,
+				94E8E7BB194E25300064CF6C /* app.lua */,
+				94E8E79F194E0AB10064CF6C /* screen.m */,
+				94E8E7B9194E25290064CF6C /* screen.lua */,
+				94C3693F194DD94700EE3A2D /* updater.m */,
+				94C36941194DD94D00EE3A2D /* updater.lua */,
+				94521299194D59F800217584 /* mouse.m */,
+				940026961951437A000D15C1 /* geometry.m */,
+				9400269419514372000D15C1 /* geometry.lua */,
+				9452129B194D5B8F00217584 /* autolaunch.m */,
+				9452129D194D65BF00217584 /* alert.m */,
+				9452129F194D697100217584 /* alert.xib */,
+				94EB483A1953F1130009BCB0 /* repl.m */,
+				941FCB5B1953F2A800049E19 /* repl.xib */,
+				945212A1194D69E700217584 /* pathwatcher.m */,
+				945212A3194D6A6000217584 /* menu.m */,
+				945212A5194D6B5900217584 /* menu.png */,
+				945212A6194D6B5900217584 /* menu@2x.png */,
+				944419C0194F4A51000A55A7 /* timer.m */,
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
@@ -232,38 +271,7 @@
 		9445CA1419083251002568BB /* Hydra */ = {
 			isa = PBXGroup;
 			children = (
-				9445CA2319083251002568BB /* MainMenu.xib */,
-				9445CA2119083251002568BB /* app_delegate.m */,
-				9445CAA4190847CB002568BB /* rawinit.lua */,
-				945200851950E2760072DFEF /* defaultinit.lua */,
-				945200871950E6C10072DFEF /* sample_config.lua */,
-				94DE5948194F1A31004D242E /* api.m */,
-				94DE594A194F1A39004D242E /* api.lua */,
-				94DE5946194F11AD004D242E /* fn.lua */,
-				9459B591194CEE1E008BC904 /* hotkey.m */,
-				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
-				9459B58E194CEB07008BC904 /* hotkey_translator.m */,
-				94C3693D194DD93600EE3A2D /* window.m */,
-				94A1537B194D77A400F29F8F /* window.lua */,
-				94BDB49B19094B7A00BD0553 /* app.m */,
-				94E8E7BB194E25300064CF6C /* app.lua */,
-				94E8E79F194E0AB10064CF6C /* screen.m */,
-				94E8E7B9194E25290064CF6C /* screen.lua */,
-				94C3693F194DD94700EE3A2D /* updater.m */,
-				94C36941194DD94D00EE3A2D /* updater.lua */,
-				94521299194D59F800217584 /* mouse.m */,
-				940026961951437A000D15C1 /* geometry.m */,
-				9400269419514372000D15C1 /* geometry.lua */,
-				9452129B194D5B8F00217584 /* autolaunch.m */,
-				9452129D194D65BF00217584 /* alert.m */,
-				9452129F194D697100217584 /* alert.xib */,
-				94EB483A1953F1130009BCB0 /* repl.m */,
-				941FCB5B1953F2A800049E19 /* repl.xib */,
-				945212A1194D69E700217584 /* pathwatcher.m */,
-				945212A3194D6A6000217584 /* menu.m */,
-				945212A5194D6B5900217584 /* menu.png */,
-				945212A6194D6B5900217584 /* menu@2x.png */,
-				944419C0194F4A51000A55A7 /* timer.m */,
+				94320F411954C61F00D37BF1 /* Source */,
 				9445CA1519083251002568BB /* Supporting Files */,
 				9445CA42190833C1002568BB /* lua */,
 			);
