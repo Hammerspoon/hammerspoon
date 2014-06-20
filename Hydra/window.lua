@@ -46,9 +46,9 @@ function hydra.window:screen()
   local lastvolume = 0
   local lastscreen = nil
 
-  for _, screen in pairs(hydra.screen.all()) do
+  for _, screen in pairs(hydra.screen.allscreens()) do
     local screenframe = screen:frame_including_dock_and_menu()
-    local intersection = hydra.geometry.rectintersection(windowframe, screenframe)
+    local intersection = hydra.geometry.intersectionrect(windowframe, screenframe)
     local volume = intersection.w * intersection.h
 
     if volume > lastvolume then
