@@ -20,7 +20,7 @@ int timer_doafter(lua_State* L) {
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
-        lua_call(L, 0, 0);
+        lua_pcall(L, 0, 0, 0);
         luaL_unref(L, LUA_REGISTRYINDEX, closureref);
     });
     
