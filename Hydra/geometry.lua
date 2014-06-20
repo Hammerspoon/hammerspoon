@@ -1,5 +1,4 @@
--- rotates counter-clockwise, n times (default 1)
-function api.geometry.rotate(point, aroundpoint, ntimes)
+function api.geometry.rotateccw(point, aroundpoint, ntimes)
   local p = {x = point.x, y = point.y}
   for i = 1, ntimes or 1 do
     local px = p.x
