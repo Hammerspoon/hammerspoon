@@ -14,7 +14,7 @@ local function load_default_config()
 end
 
 local function clear_old_state()
-  for _, hotkey in api.hotkey.keys do
+  for _, hotkey in pairs(api.hotkey.keys) do
     hotkey:disable()
   end
   api.hotkey.keys = {}
