@@ -78,12 +78,15 @@ static int textgrid_keydown(lua_State *L) {
 }
 
 // args: [textgrid]
-// ret: [w, h]
+// ret: [size]
 static int textgrid_getsize(lua_State *L) {
     HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
-    lua_pushnumber(L, [wc cols]);
-    lua_pushnumber(L, [wc rows]);
-    return 2;
+    
+    lua_newtable(L);
+    lua_pushnumber(L, [wc cols]); lua_setfield(L, -2, "w");
+    lua_pushnumber(L, [wc rows]); lua_setfield(L, -2, "h");
+    
+    return 1;
 }
 
 // args: [textgrid, char, x, y, fg, bg]
@@ -113,19 +116,23 @@ static int textgrid_clear(lua_State *L) {
     return 0;
 }
 
-// args: [textgrid, w, h]
+// args: [textgrid, size]
 // ret: []
 static int textgrid_resize(lua_State *L) {
     HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
-    int w = lua_tonumber(L, 2);
-    int h = lua_tonumber(L, 3);
+    lua_getfield(L, 2, "w");
+    int w = lua_tonumber(L, -1);
+    
+    lua_getfield(L, 2, "h");
+    int h = lua_tonumber(L, -1);
+    
     [wc useGridSize:NSMakeSize(w, h)];
     
     return 0;
 }
 
-// args: [textgrid, name, size]
+// args: [textgrid, name, pointsize]
 // ret: []
 static int textgrid_usefont(lua_State *L) {
     HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
@@ -140,7 +147,7 @@ static int textgrid_usefont(lua_State *L) {
 }
 
 // args: [textgrid]
-// returns: [name, size]
+// returns: [name, pointsize]
 static int textgrid_getfont(lua_State *L) {
     HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
@@ -187,7 +194,7 @@ static int textgrid_gc(lua_State *L) {
 
 // args: []
 // returns: [textgrid]
-static int textgrid_new(lua_State *L) {
+static int textgrid_open(lua_State *L) {
     HDTextGridWindowController* windowController = [[HDTextGridWindowController alloc] init];
     [windowController showWindow: nil];
     
@@ -211,7 +218,7 @@ static int textgrid_new(lua_State *L) {
 }
 
 static const luaL_Reg textgridlib[] = {
-    {"new", textgrid_new},
+    {"open", textgrid_open},
     
     // event handlers
     {"resized", textgrid_resized},

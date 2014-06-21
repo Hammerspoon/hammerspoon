@@ -1,7 +1,7 @@
 api.repl = {}
 
 function api.repl.open()
-  local win = api.textgrid.new()
+  local win = api.textgrid.open()
 
   local fg = "00FF00"
   local bg = "222222"
@@ -12,7 +12,9 @@ function api.repl.open()
   local stdin = ""
 
   local function printstr(x, y, str)
-    local w, h = win:getsize()
+    local size = win:getsize()
+    local w = size.w
+    local h = size.h
 
     for i = 1, #str do
       if x == w + 1 then
@@ -34,7 +36,9 @@ function api.repl.open()
   end
 
   local function clearbottom()
-    local w, h = win:getsize()
+    local size = win:getsize()
+    local w = size.w
+    local h = size.h
 
     for x = 1, w do
       win:set(string.byte(" "), x, h, fg, bg)
@@ -46,7 +50,9 @@ function api.repl.open()
   end
 
   local function redraw()
-    local w, h = win:getsize()
+    local size = win:getsize()
+    local w = size.w
+    local h = size.h
 
     win:clear(bg)
     printstr(1, 1, stdout)
