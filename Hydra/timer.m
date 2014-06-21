@@ -12,6 +12,17 @@
 }
 @end
 
+// args: [fn]
+// returns: []
+int timer_once(lua_State* L) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        lua_pcall(L, 0, 0, 0);
+    });
+    
+    return 0;
+}
+
 // args: [sec, fn]
 // returns: []
 int timer_doafter(lua_State* L) {
@@ -88,6 +99,7 @@ int timer_new(lua_State* L) {
 }
 
 static const luaL_Reg timerlib[] = {
+    {"once", timer_once},
     {"doafter", timer_doafter},
     {"start", timer_start},
     {"stop", timer_stop},
