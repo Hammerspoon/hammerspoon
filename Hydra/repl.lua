@@ -83,6 +83,7 @@ function api.repl.open()
   end)
 
   redraw()
+  win:focus()
 
   return win
 end

@@ -15,6 +15,11 @@ int api_showabout(lua_State* L) {
     return 0;
 }
 
+int api_focus(lua_State* L) {
+    [NSApp activateIgnoringOtherApps:YES];
+    return 0;
+}
+
 // args: [path]
 // return: [exists, isdir]
 int api_fileexists(lua_State* L) {
@@ -31,6 +36,7 @@ int api_fileexists(lua_State* L) {
 static const luaL_Reg apilib[] = {
     {"showabout", api_showabout},
     {"fileexists", api_fileexists},
+    {"focus", api_focus},
     {NULL, NULL}
 };
 

@@ -176,6 +176,14 @@ static int textgrid_close(lua_State *L) {
     return 0;
 }
 
+// args: [textgrid]
+static int textgrid_focus(lua_State *L) {
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    [NSApp activateIgnoringOtherApps:YES];
+    [[wc window] makeKeyAndOrderFront:nil];
+    return 0;
+}
+
 static int textgrid_gc(lua_State *L) {
     lua_getfield(L, 1, "__wc");
     HDTextGridWindowController* wc = (__bridge_transfer HDTextGridWindowController*)lua_touserdata(L, -1);
@@ -233,6 +241,7 @@ static const luaL_Reg textgridlib[] = {
     {"usefont", textgrid_usefont},
     {"getfont", textgrid_getfont},
     {"settitle", textgrid_settitle},
+    {"focus", textgrid_focus},
     
     {NULL, NULL}
 };
