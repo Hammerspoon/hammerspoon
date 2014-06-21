@@ -28,22 +28,24 @@ setmetatable(api.alert, t)
 
 
 function api.errorhandler(err)
-  api.alert("Error: " .. er, 5)
+  api.alert("Error: " .. err, 5)
+end
+
+function api.tryhandlingerror(firsterr)
+  local ok, seconderr = pcall(function()
+      api.errorhandler(firsterr)
+  end)
+
+  if not ok then
+    api.alert("Error while handling error: " .. seconderr, 10)
+    api.alert("Original error: " .. firsterr, 10)
+  end
 end
 
 function api.call(fn, ...)
   local results = table.pack(pcall(fn, ...))
   if not results[1] then
-    local firsterr = results[2]
-
-    local ok, seconderr = pcall(function()
-        api.errorhandler(firsterr)
-    end)
-
-    if not ok then
-      api.alert("Error while handling error: " .. seconderr, 10)
-      api.alert("Original error: " .. firsterr, 10)
-    end
+    api.tryhandlingerror(results[2])
   end
   return table.unpack(results)
 end

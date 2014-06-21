@@ -1,4 +1,5 @@
 #import "lua/lauxlib.h"
+void _hydra_handle_error(lua_State* L);
 
 @interface PHMenuItemDelegator : NSObject
 @property (copy) dispatch_block_t handler;
@@ -111,7 +112,8 @@ int menu_show(lua_State* L) {
                             
                             // call function
                             lua_getfield(L, -1, "fn");
-                            lua_pcall(L, 0, 0, 0);
+                            if (lua_pcall(L, 0, 0, 0))
+                                _hydra_handle_error(L);
                             
                             // pop menu items table and menu item
                             lua_pop(L, 2);
@@ -129,7 +131,7 @@ int menu_show(lua_State* L) {
                 }
             }
             else {
-                // handle show-menu error
+                _hydra_handle_error(L);
             }
         };
         menu.delegate = menuDelegate;

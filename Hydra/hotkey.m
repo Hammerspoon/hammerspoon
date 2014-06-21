@@ -1,6 +1,7 @@
 #import <Carbon/Carbon.h>
 #import "lua/lauxlib.h"
 UInt32 PHKeyCodeForString(NSString* str);
+void _hydra_handle_error(lua_State* L);
 
 
 // args: [hotkey]
@@ -128,9 +129,9 @@ void setup_hotkey_callback(lua_State *L) {
         lua_gettable(L, -2);
         
         lua_getfield(L, -1, "fn");
-        if (lua_pcall(L, 0, 0, 0)) {
-            NSLog(@"problem?");
-        }
+        
+        if (lua_pcall(L, 0, 0, 0))
+            _hydra_handle_error(L);
         
         lua_pop(L, 4);
         

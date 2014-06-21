@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "lua/lauxlib.h"
+void _hydra_handle_error(lua_State* L);
 
 void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]) {
     dispatch_block_t block = (__bridge dispatch_block_t)clientCallBackInfo;
@@ -17,7 +18,8 @@ int pathwatcher_start(lua_State* L) {
     
     dispatch_block_t block = ^{
         lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
-        lua_pcall(L, 0, 0, 0);
+        if (lua_pcall(L, 0, 0, 0))
+            _hydra_handle_error(L);
     };
     
     FSEventStreamContext context;

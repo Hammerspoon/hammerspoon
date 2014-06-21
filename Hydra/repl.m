@@ -1,4 +1,5 @@
 #import "lua/lauxlib.h"
+void _hydra_handle_error(lua_State* L);
 
 @interface HDReplWindowController : NSWindowController
 @property (copy) void(^messageHandler)(NSString* str);
@@ -34,10 +35,13 @@ int repl_show(lua_State* L) {
         repl_window_controller = [[HDReplWindowController alloc] init];
         repl_window_controller.messageHandler = ^(NSString* str) {
             luaL_loadstring(L, [str UTF8String]);
-            lua_pcall(L, 0, 1, 0);
-            
-            const char* result = luaL_tolstring(L, -1, NULL);
-            [repl_window_controller appendResult: [NSString stringWithUTF8String:result]];
+            if (lua_pcall(L, 0, 1, 0) == LUA_OK) {
+                const char* result = luaL_tolstring(L, -1, NULL);
+                [repl_window_controller appendResult: [NSString stringWithUTF8String:result]];
+            }
+            else {
+                _hydra_handle_error(L);
+            }
         };
     }
     

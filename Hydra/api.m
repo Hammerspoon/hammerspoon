@@ -1,5 +1,14 @@
 #import "lua/lauxlib.h"
 
+void _hydra_handle_error(lua_State* L) {
+    // original error is at top of stack
+    lua_getglobal(L, "api"); // pop this at the end
+    lua_getfield(L, -1, "tryhandlingerror");
+    lua_pushvalue(L, -3);
+    lua_pcall(L, 1, 0, 0); // trust me
+    lua_pop(L, 2);
+}
+
 int api_showabout(lua_State* L) {
     [NSApp activateIgnoringOtherApps:YES];
     [NSApp orderFrontStandardAboutPanel:nil];

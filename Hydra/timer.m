@@ -1,4 +1,5 @@
 #import "lua/lauxlib.h"
+void _hydra_handle_error(lua_State* L);
 
 @interface PHTimerDelegator : NSObject
 @property (copy) dispatch_block_t fired;
@@ -17,7 +18,8 @@
 int timer_once(lua_State* L) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        lua_pcall(L, 0, 0, 0);
+        if (lua_pcall(L, 0, 0, 0))
+            _hydra_handle_error(L);
     });
     
     return 0;
@@ -31,7 +33,8 @@ int timer_doafter(lua_State* L) {
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
-        lua_pcall(L, 0, 0, 0);
+        if (lua_pcall(L, 0, 0, 0))
+            _hydra_handle_error(L);
         luaL_unref(L, LUA_REGISTRYINDEX, closureref);
     });
     
@@ -48,7 +51,8 @@ int timer_start(lua_State* L) {
     delegator.closureRef = closureref;
     delegator.fired = ^{
         lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
-        lua_pcall(L, 0, 0, 0);
+        if (lua_pcall(L, 0, 0, 0))
+            _hydra_handle_error(L);
     };
     
     delegator.timer = [NSTimer scheduledTimerWithTimeInterval:sec target:delegator selector:@selector(fired:) userInfo:nil repeats:YES];
