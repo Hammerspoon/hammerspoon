@@ -102,8 +102,9 @@ end
 
 local function focus_first_valid_window(ordered_wins)
   for _, win in pairs(ordered_wins) do
-    if win:focus() then break end
+    if win:focus() then return true end
   end
+  return false
 end
 
 function api.window:windows_to_east()  return windows_in_direction(self, 0) end
