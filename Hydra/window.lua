@@ -62,6 +62,13 @@ end
 
 local function windows_in_direction(win, numrotations)
   -- assume looking to east
+
+  -- use the score distance/cos(A/2), where A is the angle by which it
+  -- differs from the straight line in the direction you're looking
+  -- for. (may have to manually prevent division by zero.)
+
+  -- thanks mark!
+
   local thiswindow = api.window.focusedwindow()
   local startingpoint = api.geometry.rectmidpoint(thiswindow:frame())
 
@@ -77,14 +84,16 @@ local function windows_in_direction(win, numrotations)
       y = otherpoint.y - startingpoint.y,
     }
 
-    local angle = math.atan2(delta.y, delta.x)
-    local distance = api.geometry.hypot(delta)
+    if delta.x > 0 then
+      local angle = math.atan2(delta.y, delta.x)
+      local distance = api.geometry.hypot(delta)
 
-    local anglediff = -angle
+      local anglediff = -angle
 
-    local score = distance / math.cos(anglediff / 2)
+      local score = distance / math.cos(anglediff / 2)
 
-    table.insert(closestwindows, {win = win, score = score})
+      table.insert(closestwindows, {win = win, score = score})
+    end
   end
 
   table.sort(closestwindows, function(a, b) return a.score < b.score end)
@@ -99,8 +108,8 @@ end
 
 function api.window:windows_to_east()  return windows_in_direction(self, 0) end
 function api.window:windows_to_west()  return windows_in_direction(self, 2) end
-function api.window:windows_to_north() return windows_in_direction(self, 3) end
-function api.window:windows_to_south() return windows_in_direction(self, 1) end
+function api.window:windows_to_north() return windows_in_direction(self, 1) end
+function api.window:windows_to_south() return windows_in_direction(self, 3) end
 
 function api.window:focuswindow_east()  return focus_first_valid_window(self:windows_to_east()) end
 function api.window:focuswindow_west()  return focus_first_valid_window(self:windows_to_west()) end
