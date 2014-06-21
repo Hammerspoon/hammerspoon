@@ -1,4 +1,5 @@
 #import "lua/lauxlib.h"
+void PHShowAlert(NSString* oneLineMsg, CGFloat duration);
 
 void _hydra_handle_error(lua_State* L) {
     // original error is at top of stack
@@ -20,6 +21,18 @@ int api_focus(lua_State* L) {
     return 0;
 }
 
+int api_alert(lua_State* L) {
+    const char* str = lua_tostring(L, 1);
+    
+    double duration = 2.0;
+    if (lua_isnumber(L, 2))
+        duration = lua_tonumber(L, 2);
+    
+    PHShowAlert([NSString stringWithUTF8String:str], duration);
+    
+    return 0;
+}
+
 // args: [path]
 // return: [exists, isdir]
 int api_fileexists(lua_State* L) {
@@ -37,6 +50,7 @@ static const luaL_Reg apilib[] = {
     {"showabout", api_showabout},
     {"fileexists", api_fileexists},
     {"focus", api_focus},
+    {"alert", api_alert},
     {NULL, NULL}
 };
 

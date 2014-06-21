@@ -9,7 +9,6 @@ int luaopen_hotkey(lua_State* L);
 int luaopen_app(lua_State* L);
 int luaopen_mouse(lua_State* L);
 int luaopen_autolaunch(lua_State* L);
-int luaopen_alert(lua_State* L);
 int luaopen_menu(lua_State* L);
 int luaopen_pathwatcher(lua_State* L);
 int luaopen_window(lua_State* L);
@@ -51,7 +50,6 @@ int luaopen_textgrid(lua_State* L);
         {"app",          luaopen_app},
         {"mouse",        luaopen_mouse},
         {"autolaunch",   luaopen_autolaunch},
-        {"alert",        luaopen_alert},
         {"menu",         luaopen_menu},
         {"pathwatcher",  luaopen_pathwatcher},
         {"window",       luaopen_window},

@@ -40,13 +40,6 @@ function api.reload()
   end
 end
 
-local t = getmetatable(api.alert) or {}
-t.__call = function(self, msg, dur)
-  api.alert.show(msg, dur)
-end
-setmetatable(api.alert, t)
-
-
 function api.errorhandler(err)
   api.alert("Error: " .. err, 5)
 end

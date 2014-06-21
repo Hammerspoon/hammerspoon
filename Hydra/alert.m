@@ -15,19 +15,7 @@ static NSMutableArray* visibleAlerts;
 
 @implementation PHAlert
 
-int alert_show(lua_State* L) {
-    const char* str = lua_tostring(L, 1);
-    
-    double duration = 2.0;
-    if (lua_isnumber(L, 2))
-        duration = lua_tonumber(L, 2);
-    
-    PHShowAlert([NSString stringWithUTF8String:str], duration);
-    
-    return 0;
-}
-
-static void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
+void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         visibleAlerts = [NSMutableArray array];
@@ -124,13 +112,3 @@ static void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
 }
 
 @end
-
-static const luaL_Reg alertlib[] = {
-    {"show", alert_show},
-    {NULL, NULL}
-};
-
-int luaopen_alert(lua_State* L) {
-    luaL_newlib(L, alertlib);
-    return 1;
-}
