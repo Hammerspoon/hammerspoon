@@ -15,7 +15,7 @@ function defaultinit.run()
       }
   end)
 
-  api.alert("Welcome to Hydra 2.0! Click the menu icon to find a sample config :)", 5)
+  api.alert("Welcome to Hydra 1.0! Click the menu icon to find a sample config :)", 10)
 end
 
 return defaultinit

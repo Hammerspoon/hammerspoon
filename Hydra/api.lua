@@ -8,15 +8,24 @@ function api.require(path)
   end
 end
 
+local function load_default_config()
+  local defaultinit = dofile(api.resourcesdir .. "/defaultinit.lua")
+  defaultinit.run()
+end
+
 function api.reload()
   local userfile = os.getenv("HOME") .. "/.hydra/init.lua"
   local exists, isdir = api.fileexists(userfile)
 
   if exists and not isdir then
-    api.call(function() dofile(userfile) end)
+    local ok, err = pcall(function() dofile(userfile) end)
+    if not ok then
+      api.alert("Error loading your config:\n" .. err .. "\nFalling back to sample config.", 10)
+      load_default_config()
+    end
   else
-    local defaultinit = dofile(api.resourcesdir .. "/defaultinit.lua")
-    defaultinit.run()
+    -- don't say (via alert) anything more than what the default config already says
+    load_default_config()
   end
 end
 
