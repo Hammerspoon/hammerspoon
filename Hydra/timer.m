@@ -15,7 +15,7 @@ void _hydra_handle_error(lua_State* L);
 
 // args: [fn]
 // returns: []
-int timer_once(lua_State* L) {
+int timer_runonce(lua_State* L) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         if (lua_pcall(L, 0, 0, 0))
@@ -103,7 +103,7 @@ int timer_new(lua_State* L) {
 }
 
 static const luaL_Reg timerlib[] = {
-    {"once", timer_once},
+    {"runonce", timer_runonce},
     {"doafter", timer_doafter},
     {"start", timer_start},
     {"stop", timer_stop},
