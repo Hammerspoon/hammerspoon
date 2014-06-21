@@ -6,6 +6,7 @@ dofile(api.resourcesdir .. "/screen.lua")
 dofile(api.resourcesdir .. "/app.lua")
 dofile(api.resourcesdir .. "/window.lua")
 dofile(api.resourcesdir .. "/hotkey.lua")
+dofile(api.resourcesdir .. "/repl.lua")
 
 -- make lives of third party authors easier
 api.ext = {}

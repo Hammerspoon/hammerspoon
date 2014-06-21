@@ -16,7 +16,7 @@ int luaopen_window(lua_State* L);
 int luaopen_screen(lua_State* L);
 int luaopen_timer(lua_State* L);
 int luaopen_geometry(lua_State* L);
-int luaopen_repl(lua_State* L);
+int luaopen_textgrid(lua_State* L);
 
 @interface PHAppDelegate : NSObject <NSApplicationDelegate>
 @end
@@ -58,7 +58,7 @@ int luaopen_repl(lua_State* L);
         {"screen",       luaopen_screen},
         {"timer",        luaopen_timer},
         {"geometry",     luaopen_geometry},
-        {"repl",         luaopen_repl},
+        {"textgrid",     luaopen_textgrid},
         {NULL, NULL},
     };
     

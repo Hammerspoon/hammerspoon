@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		9400269519514372000D15C1 /* geometry.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9400269419514372000D15C1 /* geometry.lua */; };
 		940026971951437A000D15C1 /* geometry.m in Sources */ = {isa = PBXBuildFile; fileRef = 940026961951437A000D15C1 /* geometry.m */; };
-		941FCB5C1953F2A800049E19 /* repl.xib in Resources */ = {isa = PBXBuildFile; fileRef = 941FCB5B1953F2A800049E19 /* repl.xib */; };
 		944419C1194F4A51000A55A7 /* timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 944419C0194F4A51000A55A7 /* timer.m */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9445CA1B19083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA1A19083251002568BB /* main.m */; };
@@ -61,6 +60,11 @@
 		945212A8194D6B5900217584 /* menu@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A6194D6B5900217584 /* menu@2x.png */; };
 		9459B58F194CEB07008BC904 /* hotkey_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* hotkey_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
+		948CAA031955AECC00A27D9D /* HDTextGridWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 948CA9F91955AECC00A27D9D /* HDTextGridWindowController.xib */; };
+		948CAA041955AECC00A27D9D /* HDTextGridWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FB1955AECC00A27D9D /* HDTextGridWindowController.m */; };
+		948CAA051955AECC00A27D9D /* HDTextGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FD1955AECC00A27D9D /* HDTextGridView.m */; };
+		948CAA061955AECC00A27D9D /* textgrid.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FE1955AECC00A27D9D /* textgrid.m */; };
+		948CAA081955AECC00A27D9D /* repl.lua in Resources */ = {isa = PBXBuildFile; fileRef = 948CAA001955AECC00A27D9D /* repl.lua */; };
 		94A1537C194D77A400F29F8F /* window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94A1537B194D77A400F29F8F /* window.lua */; };
 		94BDB49C19094B7A00BD0553 /* app.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* app.m */; };
 		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
@@ -74,13 +78,11 @@
 		94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Hydra.icns */; };
 		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
 		94E8E7BC194E25300064CF6C /* app.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* app.lua */; };
-		94EB483B1953F1130009BCB0 /* repl.m in Sources */ = {isa = PBXBuildFile; fileRef = 94EB483A1953F1130009BCB0 /* repl.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		9400269419514372000D15C1 /* geometry.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = geometry.lua; sourceTree = "<group>"; };
 		940026961951437A000D15C1 /* geometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = geometry.m; sourceTree = "<group>"; };
-		941FCB5B1953F2A800049E19 /* repl.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = repl.xib; sourceTree = "<group>"; };
 		944419C0194F4A51000A55A7 /* timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = timer.m; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Hydra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hydra.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -164,6 +166,13 @@
 		945212A6194D6B5900217584 /* menu@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu@2x.png"; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* hotkey_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
+		948CA9F91955AECC00A27D9D /* HDTextGridWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HDTextGridWindowController.xib; sourceTree = "<group>"; };
+		948CA9FA1955AECC00A27D9D /* HDTextGridWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDTextGridWindowController.h; sourceTree = "<group>"; };
+		948CA9FB1955AECC00A27D9D /* HDTextGridWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDTextGridWindowController.m; sourceTree = "<group>"; };
+		948CA9FC1955AECC00A27D9D /* HDTextGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDTextGridView.h; sourceTree = "<group>"; };
+		948CA9FD1955AECC00A27D9D /* HDTextGridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDTextGridView.m; sourceTree = "<group>"; };
+		948CA9FE1955AECC00A27D9D /* textgrid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = textgrid.m; sourceTree = "<group>"; };
+		948CAA001955AECC00A27D9D /* repl.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = repl.lua; sourceTree = "<group>"; };
 		94A1537B194D77A400F29F8F /* window.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window.lua; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* app.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = app.m; sourceTree = "<group>"; };
 		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
@@ -177,7 +186,6 @@
 		94E8E7AD194E0C940064CF6C /* Hydra.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Hydra.icns; sourceTree = "<group>"; };
 		94E8E7B9194E25290064CF6C /* screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = screen.lua; sourceTree = "<group>"; };
 		94E8E7BB194E25300064CF6C /* app.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = app.lua; sourceTree = "<group>"; };
-		94EB483A1953F1130009BCB0 /* repl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = repl.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,6 +207,7 @@
 				9445CA2119083251002568BB /* app_delegate.m */,
 				9445CAA4190847CB002568BB /* rawinit.lua */,
 				945200851950E2760072DFEF /* defaultinit.lua */,
+				948CA9F61955AE7B00A27D9D /* textgrid */,
 				945200871950E6C10072DFEF /* sample_config.lua */,
 				94DE5948194F1A31004D242E /* api.m */,
 				94DE594A194F1A39004D242E /* api.lua */,
@@ -220,8 +229,6 @@
 				9452129B194D5B8F00217584 /* autolaunch.m */,
 				9452129D194D65BF00217584 /* alert.m */,
 				9452129F194D697100217584 /* alert.xib */,
-				94EB483A1953F1130009BCB0 /* repl.m */,
-				941FCB5B1953F2A800049E19 /* repl.xib */,
 				945212A1194D69E700217584 /* pathwatcher.m */,
 				945212A3194D6A6000217584 /* menu.m */,
 				945212A5194D6B5900217584 /* menu.png */,
@@ -354,6 +361,20 @@
 			path = lua;
 			sourceTree = "<group>";
 		};
+		948CA9F61955AE7B00A27D9D /* textgrid */ = {
+			isa = PBXGroup;
+			children = (
+				948CA9F91955AECC00A27D9D /* HDTextGridWindowController.xib */,
+				948CA9FA1955AECC00A27D9D /* HDTextGridWindowController.h */,
+				948CA9FB1955AECC00A27D9D /* HDTextGridWindowController.m */,
+				948CA9FC1955AECC00A27D9D /* HDTextGridView.h */,
+				948CA9FD1955AECC00A27D9D /* HDTextGridView.m */,
+				948CA9FE1955AECC00A27D9D /* textgrid.m */,
+				948CAA001955AECC00A27D9D /* repl.lua */,
+			);
+			name = textgrid;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -421,9 +442,10 @@
 				9445CAA5190847CB002568BB /* rawinit.lua in Resources */,
 				945200861950E2760072DFEF /* defaultinit.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
+				948CAA081955AECC00A27D9D /* repl.lua in Resources */,
 				94DE5947194F11AD004D242E /* fn.lua in Resources */,
+				948CAA031955AECC00A27D9D /* HDTextGridWindowController.xib in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
-				941FCB5C1953F2A800049E19 /* repl.xib in Resources */,
 				945212A8194D6B5900217584 /* menu@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -442,6 +464,7 @@
 				945212A4194D6A6000217584 /* menu.m in Sources */,
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
+				948CAA041955AECC00A27D9D /* HDTextGridWindowController.m in Sources */,
 				9445CA2219083251002568BB /* app_delegate.m in Sources */,
 				9445CA86190833C1002568BB /* ldebug.c in Sources */,
 				9445CA8C190833C1002568BB /* liolib.c in Sources */,
@@ -470,6 +493,7 @@
 				9445CA9D190833C1002568BB /* lundump.c in Sources */,
 				9445CA1B19083251002568BB /* main.m in Sources */,
 				9445CA87190833C1002568BB /* ldo.c in Sources */,
+				948CAA051955AECC00A27D9D /* HDTextGridView.m in Sources */,
 				9445CA90190833C1002568BB /* loadlib.c in Sources */,
 				9445CA91190833C1002568BB /* lobject.c in Sources */,
 				94BDB49C19094B7A00BD0553 /* app.m in Sources */,
@@ -477,7 +501,7 @@
 				9445CA97190833C1002568BB /* lstrlib.c in Sources */,
 				9445CA8E190833C1002568BB /* lmathlib.c in Sources */,
 				9445CA8A190833C1002568BB /* lgc.c in Sources */,
-				94EB483B1953F1130009BCB0 /* repl.m in Sources */,
+				948CAA061955AECC00A27D9D /* textgrid.m in Sources */,
 				9459B58F194CEB07008BC904 /* hotkey_translator.m in Sources */,
 				9445CA84190833C1002568BB /* lctype.c in Sources */,
 				9445CA7F190833C1002568BB /* lauxlib.c in Sources */,
