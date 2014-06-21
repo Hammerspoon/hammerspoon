@@ -237,6 +237,7 @@
 				945212A6194D6B5900217584 /* menu@2x.png */,
 				944419C0194F4A51000A55A7 /* timer.m */,
 				948CAA0A19561D7300A27D9D /* timer.lua */,
+				948CAA001955AECC00A27D9D /* repl.lua */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -373,7 +374,6 @@
 				948CA9FC1955AECC00A27D9D /* HDTextGridView.h */,
 				948CA9FD1955AECC00A27D9D /* HDTextGridView.m */,
 				948CA9FE1955AECC00A27D9D /* textgrid.m */,
-				948CAA001955AECC00A27D9D /* repl.lua */,
 			);
 			name = textgrid;
 			sourceTree = "<group>";
