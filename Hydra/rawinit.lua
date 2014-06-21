@@ -11,9 +11,4 @@ dofile(api.resourcesdir .. "/hotkey.lua")
 api.ext = {}
 
 -- load user's config
-local ok, err = pcall(function()
-    api.reload()
-end)
-
--- report err in user's config
-if not ok then api.alert(err, 5) end
+api.call(api.reload)
