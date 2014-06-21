@@ -13,7 +13,18 @@ local function load_default_config()
   defaultinit.run()
 end
 
+local function clear_old_state()
+  for _, hotkey in api.hotkey.keys do
+    hotkey:disable()
+  end
+  api.hotkey.keys = {}
+
+  api.menu.hide()
+end
+
 function api.reload()
+  clear_old_state()
+
   local userfile = os.getenv("HOME") .. "/.hydra/init.lua"
   local exists, isdir = api.fileexists(userfile)
 
