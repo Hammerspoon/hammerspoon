@@ -1,5 +1,5 @@
 function api.window.allwindows()
-  return api.fn.mapcat(api.app.runningapps(), api.app.windows)
+  return api.fn.mapcat(api.app.runningapps(), api.app.allwindows)
 end
 
 function api.window:isvisible()
@@ -33,7 +33,7 @@ function api.window:focus()
 end
 
 function api.window.visiblewindows()
-  return api.fn.filter(window:allwindows(), api.window.isvisible)
+  return api.fn.filter(api.window:allwindows(), api.window.isvisible)
 end
 
 function api.window:maximize()
