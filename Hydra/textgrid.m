@@ -1,5 +1,6 @@
 #import "lua/lauxlib.h"
 #import "HDTextGridWindowController.h"
+void _hydra_handle_error(lua_State* L);
 
 static NSColor* HDColorFromHex(const char* hex) {
     static NSMutableDictionary* colors;
@@ -25,56 +26,70 @@ static NSColor* HDColorFromHex(const char* hex) {
     return color;
 }
 
-// args: [win, fn]
+static HDTextGridWindowController* get_textgrid_wc(lua_State* L, int idx) {
+    lua_getfield(L, idx, "__wc");
+    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+    return wc;
+}
+
+// args: [textgrid, fn]
 static int textgrid_resized(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
-    int i = luaL_ref(L, LUA_REGISTRYINDEX);
+    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    lua_pushnumber(L, closureref);
+    lua_setfield(L, 1, "__resizedclosureref");
     
     wc.windowResizedHandler = ^{
-        lua_rawgeti(L, LUA_REGISTRYINDEX, i);
-        lua_pcall(L, 0, 0, 0);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
+        if (lua_pcall(L, 0, 0, 0))
+            _hydra_handle_error(L);
     };
     
     return 0;
 }
 
-// args: [win, fn(t)]
+// args: [textgrid, fn(t)]
+// ret: []
 static int textgrid_keydown(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
-    int i = luaL_ref(L, LUA_REGISTRYINDEX);
+    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    lua_pushnumber(L, closureref);
+    lua_setfield(L, 1, "__keydownclosureref");
     
     [wc useKeyDownHandler:^(BOOL ctrl, BOOL alt, BOOL cmd, NSString *str) {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, i);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
         
         lua_newtable(L);
-        lua_pushboolean(L, ctrl);
-        lua_setfield(L, -2, "ctrl");
-        lua_pushboolean(L, alt);
-        lua_setfield(L, -2, "alt");
-        lua_pushboolean(L, cmd);
-        lua_setfield(L, -2, "cmd");
-        lua_pushstring(L, [str UTF8String]);
-        lua_setfield(L, -2, "key");
+        lua_pushboolean(L, ctrl);            lua_setfield(L, -2, "ctrl");
+        lua_pushboolean(L, alt);             lua_setfield(L, -2, "alt");
+        lua_pushboolean(L, cmd);             lua_setfield(L, -2, "cmd");
+        lua_pushstring(L, [str UTF8String]); lua_setfield(L, -2, "key");
         
-        lua_pcall(L, 1, 0, 0);
+        if (lua_pcall(L, 1, 0, 0))
+            _hydra_handle_error(L);
     }];
     
     return 0;
 }
 
-// args: [win]
+// args: [textgrid]
+// ret: [w, h]
 static int textgrid_getsize(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     lua_pushnumber(L, [wc cols]);
     lua_pushnumber(L, [wc rows]);
     return 2;
 }
 
-// args: [win, char, x, y, fg, bg]
+// args: [textgrid, char, x, y, fg, bg]
+// ret: []
 static int textgrid_set(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
     unsigned short c = lua_tonumber(L, 2);
     int x = lua_tonumber(L, 3) - 1;
@@ -87,9 +102,10 @@ static int textgrid_set(lua_State *L) {
     return 0;
 }
 
-// args: [win, bg]
+// args: [textgrid, bg]
+// ret: []
 static int textgrid_clear(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
     NSColor* bg = HDColorFromHex(lua_tostring(L, 2));
     [wc clear:bg];
@@ -97,9 +113,10 @@ static int textgrid_clear(lua_State *L) {
     return 0;
 }
 
-// args: [win, w, h]
+// args: [textgrid, w, h]
+// ret: []
 static int textgrid_resize(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
     int w = lua_tonumber(L, 2);
     int h = lua_tonumber(L, 3);
@@ -108,9 +125,10 @@ static int textgrid_resize(lua_State *L) {
     return 0;
 }
 
-// args: [win, name, size]
+// args: [textgrid, name, size]
+// ret: []
 static int textgrid_usefont(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
     NSString* name = [NSString stringWithUTF8String: lua_tostring(L, 2)];
     double size = lua_tonumber(L, 3);
@@ -121,10 +139,10 @@ static int textgrid_usefont(lua_State *L) {
     return 0;
 }
 
-// args: [win]
+// args: [textgrid]
 // returns: [name, size]
 static int textgrid_getfont(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
     NSFont* font = [wc font];
     
@@ -134,9 +152,9 @@ static int textgrid_getfont(lua_State *L) {
     return 2;
 }
 
-// args: [win, title]
+// args: [textgrid, title]
 static int textgrid_settitle(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     
     NSString* title = [NSString stringWithUTF8String: lua_tostring(L, 2)];
     [[wc window] setTitle:title];
@@ -144,79 +162,75 @@ static int textgrid_settitle(lua_State *L) {
     return 0;
 }
 
-// args: [win]
+// args: [textgrid]
 static int textgrid_close(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)*(void**)lua_touserdata(L, lua_upvalueindex(1));
-    
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     [wc close];
+    return 0;
+}
+
+static int textgrid_gc(lua_State *L) {
+    lua_getfield(L, 1, "__wc");
+    HDTextGridWindowController* wc = (__bridge_transfer HDTextGridWindowController*)lua_touserdata(L, -1);
+    [wc close];
+    
+    lua_getfield(L, 1, "__resizedclosureref");
+    if (lua_isnumber(L, -1))
+        luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, -1));
+    
+    lua_getfield(L, 1, "__keydownclosureref");
+    if (lua_isnumber(L, -1))
+        luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, -1));
     
     return 0;
 }
 
-static const luaL_Reg textgridlib_instance[] = {
+// args: []
+// returns: [textgrid]
+static int textgrid_new(lua_State *L) {
+    HDTextGridWindowController* windowController = [[HDTextGridWindowController alloc] init];
+    [windowController showWindow: nil];
+    
+    lua_newtable(L);
+    
+    lua_pushlightuserdata(L, (__bridge_retained void*)windowController);
+    lua_setfield(L, -2, "__wc");
+    
+    if (luaL_newmetatable(L, "textgrid")) {
+        lua_pushcfunction(L, textgrid_gc);
+        lua_setfield(L, -2, "__gc");
+        
+        lua_getglobal(L, "api");
+        lua_getfield(L, -1, "textgrid");
+        lua_setfield(L, -3, "__index");
+        lua_pop(L, 1); // api-global
+    }
+    lua_setmetatable(L, -2);
+    
+    return 1;
+}
+
+static const luaL_Reg textgridlib[] = {
+    {"new", textgrid_new},
+    
     // event handlers
     {"resized", textgrid_resized},
     {"keydown", textgrid_keydown},
     
     // methods
     {"close", textgrid_close},
-    
     {"getsize", textgrid_getsize},
     {"resize", textgrid_resize},
-    
     {"clear", textgrid_clear},
     {"set", textgrid_set},
-    
     {"usefont", textgrid_usefont},
     {"getfont", textgrid_getfont},
-    
     {"settitle", textgrid_settitle},
     
     {NULL, NULL}
 };
 
-static int textgrid_gc(lua_State *L) {
-    HDTextGridWindowController* wc = (__bridge_transfer HDTextGridWindowController*)*(void**)lua_touserdata(L, 1);
-    [wc close];
-    return 0;
-}
-
-// args: []
-// returns: [win]
-static int textgrid_new(lua_State *L) {
-    HDTextGridWindowController* wc = [[HDTextGridWindowController alloc] init];
-    [wc showWindow: nil];
-    void* ud = (__bridge_retained void*)wc;
-    
-    /*
-     - the __gc method /automatically/ gets the userdata as its arg
-     - predefined methods will share the userdata as an upvalue
-     */
-    
-    lua_newtable(L);                                  // [win]
-    lua_newtable(L);                                  // [win, {}]
-    luaL_newlibtable(L, textgridlib_instance);             // [win, {}, methods]
-    
-    *(void**)lua_newuserdata(L, sizeof(void*)) = ud;  // [win, {}, methods, ud]
-    lua_newtable(L);                                  // [win, {}, methods, ud, {}]
-    lua_pushcfunction(L, textgrid_gc);                     // [win, {}, methods, ud, {}, gc]
-    lua_setfield(L, -2, "__gc");                      // [win, {}, methods, ud, {...}]
-    lua_setmetatable(L, -2);                          // [win, {}, methods, ud]
-    
-    luaL_setfuncs(L, textgridlib_instance, 1);             // [win, {}, methods]
-    
-    lua_setfield(L, -2, "__index");                   // [win, {...}]
-    lua_setmetatable(L, -2);                          // [win]
-    
-    return 1;
-}
-
-static const luaL_Reg winlib[] = {
-    {"new", textgrid_new},
-    {NULL, NULL}
-};
-
 int luaopen_textgrid(lua_State* L) {
-    luaL_newlib(L, winlib);
+    luaL_newlib(L, textgridlib);
     return 1;
 }
