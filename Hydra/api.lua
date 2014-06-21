@@ -4,7 +4,7 @@ function api.require(path)
   if exists and not isdir then
     dofile(userfile)
   else
-    api.alert("Cannot find file: " .. path)
+    api.alert("Can't find file: " .. path)
   end
 end
 
