@@ -21,11 +21,11 @@ function api.window:setframe(f)
 end
 
 function api.window:otherwindows_samescreen()
-  return api.fn.filter(api.window.visiblewindows, function(win) return self ~= win and self:screen() == win:screen() end)
+  return api.fn.filter(api.window.visiblewindows(), function(win) return self ~= win and self:screen() == win:screen() end)
 end
 
 function api.window:otherwindows_allscreens()
-  return api.fn.filter(api.window.visiblewindows, function(win) return self ~= win end)
+  return api.fn.filter(api.window.visiblewindows(), function(win) return self ~= win end)
 end
 
 function api.window:focus()
