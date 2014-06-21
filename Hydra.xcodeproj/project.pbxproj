@@ -65,6 +65,7 @@
 		948CAA051955AECC00A27D9D /* HDTextGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FD1955AECC00A27D9D /* HDTextGridView.m */; };
 		948CAA061955AECC00A27D9D /* textgrid.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FE1955AECC00A27D9D /* textgrid.m */; };
 		948CAA081955AECC00A27D9D /* repl.lua in Resources */ = {isa = PBXBuildFile; fileRef = 948CAA001955AECC00A27D9D /* repl.lua */; };
+		948CAA0B19561D7300A27D9D /* timer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 948CAA0A19561D7300A27D9D /* timer.lua */; };
 		94A1537C194D77A400F29F8F /* window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94A1537B194D77A400F29F8F /* window.lua */; };
 		94BDB49C19094B7A00BD0553 /* app.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* app.m */; };
 		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
@@ -173,6 +174,7 @@
 		948CA9FD1955AECC00A27D9D /* HDTextGridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDTextGridView.m; sourceTree = "<group>"; };
 		948CA9FE1955AECC00A27D9D /* textgrid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = textgrid.m; sourceTree = "<group>"; };
 		948CAA001955AECC00A27D9D /* repl.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = repl.lua; sourceTree = "<group>"; };
+		948CAA0A19561D7300A27D9D /* timer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = timer.lua; sourceTree = "<group>"; };
 		94A1537B194D77A400F29F8F /* window.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window.lua; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* app.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = app.m; sourceTree = "<group>"; };
 		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 				945212A5194D6B5900217584 /* menu.png */,
 				945212A6194D6B5900217584 /* menu@2x.png */,
 				944419C0194F4A51000A55A7 /* timer.m */,
+				948CAA0A19561D7300A27D9D /* timer.lua */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -442,6 +445,7 @@
 				9445CAA5190847CB002568BB /* rawinit.lua in Resources */,
 				945200861950E2760072DFEF /* defaultinit.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
+				948CAA0B19561D7300A27D9D /* timer.lua in Resources */,
 				948CAA081955AECC00A27D9D /* repl.lua in Resources */,
 				94DE5947194F11AD004D242E /* fn.lua in Resources */,
 				948CAA031955AECC00A27D9D /* HDTextGridWindowController.xib in Resources */,
