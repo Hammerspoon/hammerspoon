@@ -60,61 +60,36 @@ function api.window:screen()
   return lastscreen
 end
 
-
-
-
-
-
-
-
-
-
-
-
-
--- assumes looking to east
 local function windows_in_direction(win, numrotations)
-  -- TODO
+  -- assume looking to east
+  local thiswindow = api.window.focusedwindow()
+  local startingpoint = api.geometry.rectmidpoint(thiswindow:frame())
+
+  local otherwindows = thiswindow:otherwindows_allscreens()
+  local closestwindows = {}
+
+  for _, win in pairs(otherwindows) do
+    local otherpoint = api.geometry.rectmidpoint(win:frame())
+    otherpoint = api.geometry.rotateccw(otherpoint, startingpoint, numrotations)
+
+    local delta = {
+      x = otherpoint.x - startingpoint.x,
+      y = otherpoint.y - startingpoint.y,
+    }
+
+    local angle = math.atan2(delta.y, delta.x)
+    local distance = api.geometry.hypot(delta)
+
+    local anglediff = -angle
+
+    local score = distance / math.cos(anglediff / 2)
+
+    table.insert(closestwindows, {win = win, score = score})
+  end
+
+  table.sort(closestwindows, function(a, b) return a.score < b.score end)
+  return api.fn.map(closestwindows, function(x) return x.win end)
 end
-
--- - (NSArray*) windowsInDirectionFn:(double(^)(double angle))whichDirectionFn
---                 shouldDisregardFn:(BOOL(^)(double deltaX, double deltaY))shouldDisregardFn
--- {
---     PHWindow* thisWindow = [PHWindow focusedWindow];
---     NSPoint startingPoint = SDMidpoint([thisWindow frame]);
---
---     NSArray* otherWindows = [thisWindow otherWindowsOnAllScreens];
---     NSMutableArray* closestOtherWindows = [NSMutableArray arrayWithCapacity:[otherWindows count]];
---
---     for (PHWindow* win in otherWindows) {
---         NSPoint otherPoint = SDMidpoint([win frame]);
---
---         double deltaX = otherPoint.x - startingPoint.x;
---         double deltaY = otherPoint.y - startingPoint.y;
---
---         if (shouldDisregardFn(deltaX, deltaY))
---             continue;
---
---         double angle = atan2(deltaY, deltaX);
---         double distance = hypot(deltaX, deltaY);
---
---         double angleDifference = whichDirectionFn(angle);
---
---         double score = distance / cos(angleDifference / 2.0);
---
---         [closestOtherWindows addObject:@{
---                                          @"score": @(score),
---                                          @"win": win,
---                                          }];
---     }
---
---     NSArray* sortedOtherWindows = [closestOtherWindows sortedArrayUsingComparator:^NSComparisonResult(NSDictionary* pair1, NSDictionary* pair2) {
---         return [[pair1 objectForKey:@"score"] compare: [pair2 objectForKey:@"score"]];
---     }];
---
---     return sortedOtherWindows;
--- }
-
 
 local function focus_first_valid_window(ordered_wins)
   for _, win in pairs(ordered_wins) do
@@ -122,34 +97,12 @@ local function focus_first_valid_window(ordered_wins)
   end
 end
 
-function api.window:windows_to_east()
-  return windows_in_direction(self, 0)
-end
+function api.window:windows_to_east()  return windows_in_direction(self, 0) end
+function api.window:windows_to_west()  return windows_in_direction(self, 2) end
+function api.window:windows_to_north() return windows_in_direction(self, 3) end
+function api.window:windows_to_south() return windows_in_direction(self, 1) end
 
-function api.window:windows_to_west()
-  return windows_in_direction(self, 2)
-end
-
-function api.window:windows_to_north()
-  return windows_in_direction(self, 3)
-end
-
-function api.window:windows_to_south()
-  return windows_in_direction(self, 1)
-end
-
-function api.window:focuswindow_east()
-  return self:focus_first_valid_window(self:windows_to_east())
-end
-
-function api.window:focuswindow_west()
-  return self:focus_first_valid_window(self:windows_to_west())
-end
-
-function api.window:focuswindow_north()
-  return self:focus_first_valid_window(self:windows_to_north())
-end
-
-function api.window:focuswindow_south()
-  return self:focus_first_valid_window(self:windows_to_south())
-end
+function api.window:focuswindow_east()  return focus_first_valid_window(self:windows_to_east()) end
+function api.window:focuswindow_west()  return focus_first_valid_window(self:windows_to_west()) end
+function api.window:focuswindow_north() return focus_first_valid_window(self:windows_to_north()) end
+function api.window:focuswindow_south() return focus_first_valid_window(self:windows_to_south()) end

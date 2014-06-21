@@ -8,6 +8,13 @@ function api.geometry.rotateccw(point, aroundpoint, ntimes)
   return p
 end
 
+function api.geometry.rectmidpoint(r)
+  return {
+    x = r.x + r.w * 0.5,
+    y = r.y + r.h * 0.5,
+  }
+end
+
 function api.geometry.hypot(p)
   return math.sqrt(p.x * p.x + p.y * p.y)
 end
