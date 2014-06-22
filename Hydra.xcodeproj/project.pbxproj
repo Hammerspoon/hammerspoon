@@ -64,8 +64,8 @@
 		945212A8194D6B5900217584 /* menu@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A6194D6B5900217584 /* menu@2x.png */; };
 		9459B58F194CEB07008BC904 /* hotkey_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* hotkey_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
-		948CAA031955AECC00A27D9D /* HDTextGridWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 948CA9F91955AECC00A27D9D /* HDTextGridWindowController.xib */; };
-		948CAA041955AECC00A27D9D /* HDTextGridWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FB1955AECC00A27D9D /* HDTextGridWindowController.m */; };
+		948CAA031955AECC00A27D9D /* textgrid.xib in Resources */ = {isa = PBXBuildFile; fileRef = 948CA9F91955AECC00A27D9D /* textgrid.xib */; };
+		948CAA041955AECC00A27D9D /* HDTextGridController.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FB1955AECC00A27D9D /* HDTextGridController.m */; };
 		948CAA051955AECC00A27D9D /* HDTextGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FD1955AECC00A27D9D /* HDTextGridView.m */; };
 		948CAA061955AECC00A27D9D /* textgrid.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FE1955AECC00A27D9D /* textgrid.m */; };
 		948CAA081955AECC00A27D9D /* repl.lua in Resources */ = {isa = PBXBuildFile; fileRef = 948CAA001955AECC00A27D9D /* repl.lua */; };
@@ -175,9 +175,9 @@
 		945212A6194D6B5900217584 /* menu@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu@2x.png"; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* hotkey_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
-		948CA9F91955AECC00A27D9D /* HDTextGridWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HDTextGridWindowController.xib; sourceTree = "<group>"; };
-		948CA9FA1955AECC00A27D9D /* HDTextGridWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDTextGridWindowController.h; sourceTree = "<group>"; };
-		948CA9FB1955AECC00A27D9D /* HDTextGridWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDTextGridWindowController.m; sourceTree = "<group>"; };
+		948CA9F91955AECC00A27D9D /* textgrid.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = textgrid.xib; sourceTree = "<group>"; };
+		948CA9FA1955AECC00A27D9D /* HDTextGridController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDTextGridController.h; sourceTree = "<group>"; };
+		948CA9FB1955AECC00A27D9D /* HDTextGridController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDTextGridController.m; sourceTree = "<group>"; };
 		948CA9FC1955AECC00A27D9D /* HDTextGridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDTextGridView.h; sourceTree = "<group>"; };
 		948CA9FD1955AECC00A27D9D /* HDTextGridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDTextGridView.m; sourceTree = "<group>"; };
 		948CA9FE1955AECC00A27D9D /* textgrid.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = textgrid.m; sourceTree = "<group>"; };
@@ -379,11 +379,11 @@
 		948CA9F61955AE7B00A27D9D /* textgrid */ = {
 			isa = PBXGroup;
 			children = (
-				948CA9F91955AECC00A27D9D /* HDTextGridWindowController.xib */,
-				948CA9FA1955AECC00A27D9D /* HDTextGridWindowController.h */,
-				948CA9FB1955AECC00A27D9D /* HDTextGridWindowController.m */,
+				948CA9FA1955AECC00A27D9D /* HDTextGridController.h */,
+				948CA9FB1955AECC00A27D9D /* HDTextGridController.m */,
 				948CA9FC1955AECC00A27D9D /* HDTextGridView.h */,
 				948CA9FD1955AECC00A27D9D /* HDTextGridView.m */,
+				948CA9F91955AECC00A27D9D /* textgrid.xib */,
 				948CA9FE1955AECC00A27D9D /* textgrid.m */,
 				94517BF81956FA5000F9CCB6 /* textgrid.lua */,
 			);
@@ -463,7 +463,7 @@
 				948CAA081955AECC00A27D9D /* repl.lua in Resources */,
 				94DE5947194F11AD004D242E /* fn.lua in Resources */,
 				94517BFB1957738100F9CCB6 /* log.lua in Resources */,
-				948CAA031955AECC00A27D9D /* HDTextGridWindowController.xib in Resources */,
+				948CAA031955AECC00A27D9D /* textgrid.xib in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
 				945212A8194D6B5900217584 /* menu@2x.png in Resources */,
 			);
@@ -483,7 +483,7 @@
 				945212A4194D6A6000217584 /* menu.m in Sources */,
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
-				948CAA041955AECC00A27D9D /* HDTextGridWindowController.m in Sources */,
+				948CAA041955AECC00A27D9D /* HDTextGridController.m in Sources */,
 				9445CA2219083251002568BB /* app_delegate.m in Sources */,
 				9445CA86190833C1002568BB /* ldebug.c in Sources */,
 				9445CA8C190833C1002568BB /* liolib.c in Sources */,

@@ -4,7 +4,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="HDTextGridWindowController">
+        <customObject id="-2" userLabel="File's Owner" customClass="HDTextGridController">
             <connections>
                 <outlet property="tv" destination="hOw-kz-pfV" id="Xit-wz-hZB"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>

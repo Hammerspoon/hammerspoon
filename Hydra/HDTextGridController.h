@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import "HDTextGridView.h"
 
-@interface HDTextGridWindowController : NSWindowController <NSWindowDelegate>
+@interface HDTextGridController : NSWindowController <NSWindowDelegate>
 
 - (void) useFont:(NSFont*)font;
 - (void) useGridSize:(NSSize)size;

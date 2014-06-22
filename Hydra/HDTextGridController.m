@@ -1,6 +1,6 @@
-#import "HDTextGridWindowController.h"
+#import "HDTextGridController.h"
 
-@interface HDTextGridWindowController ()
+@interface HDTextGridController ()
 
 @property (weak) IBOutlet HDTextGridView* tv;
 @property BOOL ignoreResizesForASecond;
@@ -8,10 +8,10 @@
 
 @end
 
-@implementation HDTextGridWindowController
+@implementation HDTextGridController
 
 - (NSString*) windowNibName {
-    return @"HDTextGridWindowController";
+    return @"textgrid";
 }
 
 - (void)windowDidLoad {

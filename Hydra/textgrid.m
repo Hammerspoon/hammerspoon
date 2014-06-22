@@ -1,5 +1,5 @@
 #import "lua/lauxlib.h"
-#import "HDTextGridWindowController.h"
+#import "HDTextGridController.h"
 void _hydra_handle_error(lua_State* L);
 
 static NSColor* HDColorFromHex(const char* hex) {
@@ -26,16 +26,16 @@ static NSColor* HDColorFromHex(const char* hex) {
     return color;
 }
 
-static HDTextGridWindowController* get_textgrid_wc(lua_State* L, int idx) {
+static HDTextGridController* get_textgrid_wc(lua_State* L, int idx) {
     lua_getfield(L, idx, "__wc");
-    HDTextGridWindowController* wc = (__bridge HDTextGridWindowController*)lua_touserdata(L, -1);
+    HDTextGridController* wc = (__bridge HDTextGridController*)lua_touserdata(L, -1);
     lua_pop(L, 1);
     return wc;
 }
 
 // args: [textgrid, fn]
 static int textgrid_resized(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
     
@@ -54,7 +54,7 @@ static int textgrid_resized(lua_State *L) {
 // args: [textgrid, fn(t)]
 // ret: []
 static int textgrid_keydown(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
     
@@ -80,7 +80,7 @@ static int textgrid_keydown(lua_State *L) {
 // args: [textgrid]
 // ret: [size]
 static int textgrid_getsize(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     lua_newtable(L);
     lua_pushnumber(L, [wc cols]); lua_setfield(L, -2, "w");
@@ -92,7 +92,7 @@ static int textgrid_getsize(lua_State *L) {
 // args: [textgrid, char, x, y, fg, bg]
 // ret: []
 static int textgrid_set(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     unsigned short c = lua_tonumber(L, 2);
     int x = lua_tonumber(L, 3) - 1;
@@ -108,7 +108,7 @@ static int textgrid_set(lua_State *L) {
 // args: [textgrid, bg]
 // ret: []
 static int textgrid_clear(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     NSColor* bg = HDColorFromHex(lua_tostring(L, 2));
     [wc clear:bg];
@@ -119,7 +119,7 @@ static int textgrid_clear(lua_State *L) {
 // args: [textgrid, size]
 // ret: []
 static int textgrid_resize(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     lua_getfield(L, 2, "w");
     int w = lua_tonumber(L, -1);
@@ -135,7 +135,7 @@ static int textgrid_resize(lua_State *L) {
 // args: [textgrid, name, pointsize]
 // ret: []
 static int textgrid_usefont(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     NSString* name = [NSString stringWithUTF8String: lua_tostring(L, 2)];
     double size = lua_tonumber(L, 3);
@@ -149,7 +149,7 @@ static int textgrid_usefont(lua_State *L) {
 // args: [textgrid]
 // returns: [name, pointsize]
 static int textgrid_getfont(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     NSFont* font = [wc font];
     
@@ -161,7 +161,7 @@ static int textgrid_getfont(lua_State *L) {
 
 // args: [textgrid, title]
 static int textgrid_settitle(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     NSString* title = [NSString stringWithUTF8String: lua_tostring(L, 2)];
     [[wc window] setTitle:title];
@@ -171,7 +171,7 @@ static int textgrid_settitle(lua_State *L) {
 
 // args: [textgrid]
 static int textgrid_focus(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     [NSApp activateIgnoringOtherApps:YES];
     [[wc window] makeKeyAndOrderFront:nil];
     return 0;
@@ -179,7 +179,7 @@ static int textgrid_focus(lua_State *L) {
 
 static int textgrid_gc(lua_State *L) {
     lua_getfield(L, 1, "__wc");
-    HDTextGridWindowController* wc = (__bridge_transfer HDTextGridWindowController*)lua_touserdata(L, -1);
+    HDTextGridController* wc = (__bridge_transfer HDTextGridController*)lua_touserdata(L, -1);
     [wc close];
     
     lua_getfield(L, 1, "__resizedclosureref");
@@ -196,7 +196,7 @@ static int textgrid_gc(lua_State *L) {
 // args: []
 // returns: [textgrid]
 static int textgrid_open(lua_State *L) {
-    HDTextGridWindowController* windowController = [[HDTextGridWindowController alloc] init];
+    HDTextGridController* windowController = [[HDTextGridController alloc] init];
     [windowController showWindow: nil];
     
     lua_newtable(L);
@@ -220,7 +220,7 @@ static int textgrid_open(lua_State *L) {
 
 // args: [textgrid]
 static int textgrid_close(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     [wc close];
     return 0;
 }
