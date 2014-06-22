@@ -10,9 +10,8 @@ local function new_hotkey(this, mods, key, fn)
 end
 setmetatable(api.hotkey, {__call = new_hotkey})
 
-local internal_enable = api.hotkey.enable
 function api.hotkey:enable()
   table.insert(api.hotkey.keys, self)
   self.__uid = #api.hotkey.keys
-  return internal_enable(self)
+  return self:_enable()
 end

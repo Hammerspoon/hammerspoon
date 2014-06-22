@@ -56,7 +56,7 @@ int hotkey_disable(lua_State* L) {
 }
 
 static const luaL_Reg hotkeylib[] = {
-    {"enable", hotkey_enable},
+    {"_enable", hotkey_enable},
     {"disable", hotkey_disable},
     {NULL, NULL}
 };
