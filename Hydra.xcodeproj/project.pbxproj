@@ -50,6 +50,8 @@
 		9445CAA5190847CB002568BB /* rawinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* rawinit.lua */; };
 		94517BF71956F05800F9CCB6 /* pathwatcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF61956F05800F9CCB6 /* pathwatcher.lua */; };
 		94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF81956FA5000F9CCB6 /* textgrid.lua */; };
+		94517BFB1957738100F9CCB6 /* log.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BFA1957738100F9CCB6 /* log.lua */; };
+		94517BFD195773A200F9CCB6 /* log.m in Sources */ = {isa = PBXBuildFile; fileRef = 94517BFC195773A200F9CCB6 /* log.m */; };
 		945200861950E2760072DFEF /* defaultinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945200851950E2760072DFEF /* defaultinit.lua */; };
 		945200881950E6C10072DFEF /* sample_config.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945200871950E6C10072DFEF /* sample_config.lua */; };
 		9452129A194D59F800217584 /* mouse.m in Sources */ = {isa = PBXBuildFile; fileRef = 94521299194D59F800217584 /* mouse.m */; };
@@ -159,6 +161,8 @@
 		9445CAA4190847CB002568BB /* rawinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rawinit.lua; sourceTree = "<group>"; };
 		94517BF61956F05800F9CCB6 /* pathwatcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pathwatcher.lua; sourceTree = "<group>"; };
 		94517BF81956FA5000F9CCB6 /* textgrid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = textgrid.lua; sourceTree = "<group>"; };
+		94517BFA1957738100F9CCB6 /* log.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = log.lua; sourceTree = "<group>"; };
+		94517BFC195773A200F9CCB6 /* log.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = log.m; sourceTree = "<group>"; };
 		945200851950E2760072DFEF /* defaultinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = defaultinit.lua; sourceTree = "<group>"; };
 		945200871950E6C10072DFEF /* sample_config.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample_config.lua; sourceTree = "<group>"; };
 		94521299194D59F800217584 /* mouse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mouse.m; sourceTree = "<group>"; };
@@ -217,6 +221,8 @@
 				945200871950E6C10072DFEF /* sample_config.lua */,
 				94DE5948194F1A31004D242E /* api.m */,
 				94DE594A194F1A39004D242E /* api.lua */,
+				94517BFC195773A200F9CCB6 /* log.m */,
+				94517BFA1957738100F9CCB6 /* log.lua */,
 				94DE5946194F11AD004D242E /* fn.lua */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
@@ -456,6 +462,7 @@
 				948CAA0B19561D7300A27D9D /* timer.lua in Resources */,
 				948CAA081955AECC00A27D9D /* repl.lua in Resources */,
 				94DE5947194F11AD004D242E /* fn.lua in Resources */,
+				94517BFB1957738100F9CCB6 /* log.lua in Resources */,
 				948CAA031955AECC00A27D9D /* HDTextGridWindowController.xib in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
 				945212A8194D6B5900217584 /* menu@2x.png in Resources */,
@@ -491,6 +498,7 @@
 				9445CA9E190833C1002568BB /* lvm.c in Sources */,
 				9445CA8F190833C1002568BB /* lmem.c in Sources */,
 				9445CA88190833C1002568BB /* ldump.c in Sources */,
+				94517BFD195773A200F9CCB6 /* log.m in Sources */,
 				9452129E194D65BF00217584 /* alert.m in Sources */,
 				94DE5949194F1A31004D242E /* api.m in Sources */,
 				9445CA96190833C1002568BB /* lstring.c in Sources */,

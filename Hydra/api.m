@@ -54,39 +54,8 @@ static const luaL_Reg apilib[] = {
     {NULL, NULL}
 };
 
-static void listen_to_stdout(lua_State* L) {
-    id handler = ^(NSFileHandle* standardOut) {
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            NSString* str = [[NSString alloc] initWithData:[standardOut availableData] encoding:NSUTF8StringEncoding];
-            
-            lua_getglobal(L, "api");
-            lua_getfield(L, -1, "_receivedstdout");
-            lua_pushstring(L, [str UTF8String]);
-            
-            if (lua_pcall(L, 1, 0, 0))
-                _hydra_handle_error(L);
-            
-            lua_pop(L, 1);
-        });
-    };
-    
-    static NSPipe* stdoutpipe; stdoutpipe = [NSPipe pipe];
-//    static NSPipe* stderrpipe; stderrpipe = [NSPipe pipe];
-    
-    [stdoutpipe fileHandleForReading].readabilityHandler = handler;
-//    [stderrpipe fileHandleForReading].readabilityHandler = handler;
-    
-    dup2([[stdoutpipe fileHandleForWriting] fileDescriptor], fileno(stdout));
-//    dup2([[stderrpipe fileHandleForWriting] fileDescriptor], fileno(stderr));
-}
-
 int luaopen_api(lua_State* L) {
     luaL_newlib(L, apilib);
-    
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        listen_to_stdout(L);
-    });
     
     // no trailing slash
     lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);

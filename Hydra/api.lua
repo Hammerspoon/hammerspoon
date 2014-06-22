@@ -84,29 +84,3 @@ function api.call(fn, ...)
   end
   return table.unpack(results)
 end
-
-api.stdout = {}
-api._stdoutbuffer = ""
-api.maxstdoutlen = 500
-
-function api.receivedstdout(str)
-  table.insert(api.stdout, str)
-
-  if # api.stdout == api.maxstdoutlen + 1 then
-    -- we get called once per line; can't ever be maxlen + 2
-    table.remove(api.stdout, 1)
-  end
-end
-
-function api._receivedstdout(str)
-  api._stdoutbuffer = api._stdoutbuffer .. str:gsub("\r", "\n")
-
-  while true do
-    local startindex, endindex = string.find(api._stdoutbuffer, "\n", 1, true)
-    if not startindex then break end
-
-    local newstr = string.sub(api._stdoutbuffer, 1, startindex - 1)
-    api._stdoutbuffer = string.sub(api._stdoutbuffer, endindex + 1, -1)
-    api.receivedstdout(newstr)
-  end
-end

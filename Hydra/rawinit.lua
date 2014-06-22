@@ -10,6 +10,7 @@ dofile(api.resourcesdir .. "/repl.lua")
 dofile(api.resourcesdir .. "/timer.lua")
 dofile(api.resourcesdir .. "/pathwatcher.lua")
 dofile(api.resourcesdir .. "/textgrid.lua")
+dofile(api.resourcesdir .. "/log.lua")
 
 -- make lives of third party authors easier
 api.ext = {}
