@@ -25,3 +25,49 @@ function api.log._gotline(str)
     api.log.gotline(newstr)
   end
 end
+
+function api.log.show()
+  local win = api.textgrid.open()
+  win:livelong()
+
+  local pos = 1 -- i.e. line currently at top of log textgrid
+
+  local fg = "00FF00"
+  local bg = "222222"
+
+  win:settitle("Hydra Logs")
+
+  local function redraw()
+    win:clear(bg)
+    -- TODO: draw api.log.lines in textgrid, starting with line `pos`
+  end
+
+  win:resized(redraw)
+
+  win:keydown(function(t)
+      local size = win:getsize()
+      local h = size.h
+
+      -- this can't be cached on account of the textgrid's height could change
+      local keytable = {
+        j = 1,
+        k = -1,
+        n = (h-1),
+        p = -(h-1),
+        -- TODO: add emacs keys too
+      }
+
+      local scrollby = keytable[t.key]
+      if scrollby then
+        pos = pos + scrollby
+        pos = math.min(pos, 1)
+        pos = math.max(pos, # api.log.lines)
+      end
+      redraw()
+  end)
+
+  redraw()
+  win:focus()
+
+  return win
+end
