@@ -7,28 +7,8 @@ void _hydra_handle_error(lua_State* L);
 // args: [hotkey]
 // ret: [hotkey]
 int hotkey_enable(lua_State* L) {
-    // adds the hotkey to api.hotkey.keys and gives it a __uid field
-    // this is so the callback can find the hotkey and call its fn
-    
-    lua_getglobal(L, "api");
-    lua_getfield(L, -1, "hotkey");
-    lua_getfield(L, -1, "keys");
-    lua_pushvalue(L, -1); // push keys on twice
-    
-    int uid = (int)lua_rawlen(L, -1) + 1;
-    lua_rawseti(L, -1, uid); // pops keys
-    
-    lua_pushnumber(L, uid);
-    lua_setfield(L, 1, "__uid");
-    
-    lua_pushnumber(L, uid);
-    lua_pushvalue(L, 1);
-    lua_settable(L, -3);
-    
-    lua_pop(L, 3); // not strictly necesary, but meh
-    
-    
-    // start doing the real work!
+    lua_getfield(L, 1, "__uid");
+    UInt32 uid = lua_tonumber(L, -1);
     
     lua_getfield(L, 1, "mods");
     
@@ -75,39 +55,9 @@ int hotkey_disable(lua_State* L) {
     return 1;
 }
 
-// args: [(self), mods, key, fn]
-// ret: [hotkey]
-int hotkey_new(lua_State* L) {
-    lua_newtable(L);
-    
-    lua_pushvalue(L, 2);
-    lua_setfield(L, -2, "mods");
-    
-    lua_pushvalue(L, 3);
-    lua_setfield(L, -2, "key");
-    
-    lua_pushvalue(L, 4);
-    lua_setfield(L, -2, "fn");
-    
-    if (luaL_newmetatable(L, "hotkey")) {
-        lua_getglobal(L, "api");
-        lua_getfield(L, -1, "hotkey");
-        lua_setfield(L, -3, "__index");
-        lua_pop(L, 1);
-    }
-    lua_setmetatable(L, -2);
-    
-    return 1;
-}
-
 static const luaL_Reg hotkeylib[] = {
     {"enable", hotkey_enable},
     {"disable", hotkey_disable},
-    {NULL, NULL}
-};
-
-static const luaL_Reg hotkeylib_meta[] = {
-    {"__call", hotkey_new},
     {NULL, NULL}
 };
 
@@ -144,12 +94,6 @@ void setup_hotkey_callback(lua_State *L) {
 
 int luaopen_hotkey(lua_State* L) {
     luaL_newlib(L, hotkeylib);
-    
-    lua_newtable(L);
-    lua_setfield(L, -2, "keys");
-    
-    luaL_newlib(L, hotkeylib_meta);
-    lua_setmetatable(L, -2);
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
