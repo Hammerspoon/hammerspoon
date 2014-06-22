@@ -6,7 +6,7 @@ function api.repl.open()
   local fg = "00FF00"
   local bg = "222222"
 
-  win:settitle("Developer Console")
+  win:settitle("Hydra REPL")
 
   local stdout = ""
   local stdin = ""
