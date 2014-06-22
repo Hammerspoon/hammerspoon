@@ -2,6 +2,7 @@ api.repl = {}
 
 function api.repl.open()
   local win = api.textgrid.open()
+  win:livelong()
 
   local fg = "00FF00"
   local bg = "222222"
