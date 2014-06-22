@@ -35,9 +35,7 @@ int luaopen_textgrid(lua_State* L);
     }
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    [self complainIfNeeded];
-    
+- (void) setupLua {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
@@ -68,6 +66,11 @@ int luaopen_textgrid(lua_State* L);
     
     const char* initfile = [[[NSBundle mainBundle] pathForResource:@"rawinit" ofType:@"lua"] fileSystemRepresentation];
     luaL_dofile(L, initfile);
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    [self complainIfNeeded];
+    [self setupLua];
 }
 
 @end

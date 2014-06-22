@@ -147,12 +147,12 @@ int window_topleft(lua_State* L) {
     CGPoint topLeft;
     if (result == kAXErrorSuccess) {
         if (!AXValueGetValue(positionStorage, kAXValueCGPointType, (void *)&topLeft)) {
-            NSLog(@"could not decode topLeft");
+//            NSLog(@"could not decode topLeft");
             topLeft = CGPointZero;
         }
     }
     else {
-        NSLog(@"could not get window topLeft");
+//        NSLog(@"could not get window topLeft");
         topLeft = CGPointZero;
     }
     
@@ -178,12 +178,12 @@ int window_size(lua_State* L) {
     CGSize size;
     if (result == kAXErrorSuccess) {
         if (!AXValueGetValue(sizeStorage, kAXValueCGSizeType, (void *)&size)) {
-            NSLog(@"could not decode topLeft");
+//            NSLog(@"could not decode topLeft");
             size = CGSizeZero;
         }
     }
     else {
-        NSLog(@"could not get window size");
+//        NSLog(@"could not get window size");
         size = CGSizeZero;
     }
     

@@ -84,3 +84,23 @@ function api.call(fn, ...)
   end
   return table.unpack(results)
 end
+
+api.stdout = {}
+api._stdoutbuffer = ""
+
+function api.receivedstdout(startingindex)
+  -- api.alert(startingindex)
+end
+
+function api._receivedstdout(str)
+  api._stdoutbuffer = api._stdoutbuffer .. str:gsub("\r", "\n")
+
+  while true do
+    local startindex, endindex = string.find(api._stdoutbuffer, "\n", 1, true)
+    if not startindex then break end
+
+    local newstr = string.sub(api._stdoutbuffer, 1, startindex - 1)
+    api._stdoutbuffer = string.sub(api._stdoutbuffer, endindex + 1, -1)
+    api.receivedstdout(newstr)
+  end
+end
