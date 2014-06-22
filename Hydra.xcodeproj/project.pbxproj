@@ -48,6 +48,7 @@
 		9445CA9E190833C1002568BB /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7A190833C1002568BB /* lvm.c */; };
 		9445CA9F190833C1002568BB /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7C190833C1002568BB /* lzio.c */; };
 		9445CAA5190847CB002568BB /* rawinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* rawinit.lua */; };
+		94517BF71956F05800F9CCB6 /* pathwatcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF61956F05800F9CCB6 /* pathwatcher.lua */; };
 		945200861950E2760072DFEF /* defaultinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945200851950E2760072DFEF /* defaultinit.lua */; };
 		945200881950E6C10072DFEF /* sample_config.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945200871950E6C10072DFEF /* sample_config.lua */; };
 		9452129A194D59F800217584 /* mouse.m in Sources */ = {isa = PBXBuildFile; fileRef = 94521299194D59F800217584 /* mouse.m */; };
@@ -155,6 +156,7 @@
 		9445CA7D190833C1002568BB /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		9445CAA019083402002568BB /* lua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lua.h; sourceTree = "<group>"; };
 		9445CAA4190847CB002568BB /* rawinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rawinit.lua; sourceTree = "<group>"; };
+		94517BF61956F05800F9CCB6 /* pathwatcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pathwatcher.lua; sourceTree = "<group>"; };
 		945200851950E2760072DFEF /* defaultinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = defaultinit.lua; sourceTree = "<group>"; };
 		945200871950E6C10072DFEF /* sample_config.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample_config.lua; sourceTree = "<group>"; };
 		94521299194D59F800217584 /* mouse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mouse.m; sourceTree = "<group>"; };
@@ -232,6 +234,7 @@
 				9452129D194D65BF00217584 /* alert.m */,
 				9452129F194D697100217584 /* alert.xib */,
 				945212A1194D69E700217584 /* pathwatcher.m */,
+				94517BF61956F05800F9CCB6 /* pathwatcher.lua */,
 				945212A3194D6A6000217584 /* menu.m */,
 				945212A5194D6B5900217584 /* menu.png */,
 				945212A6194D6B5900217584 /* menu@2x.png */,
@@ -432,6 +435,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				94C36942194DD94D00EE3A2D /* updater.lua in Resources */,
+				94517BF71956F05800F9CCB6 /* pathwatcher.lua in Resources */,
 				945200881950E6C10072DFEF /* sample_config.lua in Resources */,
 				9400269519514372000D15C1 /* geometry.lua in Resources */,
 				94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */,

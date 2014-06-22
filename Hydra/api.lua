@@ -14,12 +14,20 @@ local function load_default_config()
 end
 
 local function clear_old_state()
+  -- hotkeys
   for _, hotkey in pairs(api.hotkey.keys) do
     hotkey:disable()
   end
   api.hotkey.keys = {}
 
+  -- menu
   api.menu.hide()
+
+  -- pathwatchers
+  for i = # api.pathwatcher.pathwatchers, 1, -1 do
+    local pw = api.pathwatcher.pathwatchers[i]
+    pw:stop()
+  end
 end
 
 function api.reload()
@@ -41,6 +49,7 @@ function api.reload()
 end
 
 function api.errorhandler(err)
+  print("Error: " .. err)
   api.alert("Error: " .. err, 5)
 end
 
