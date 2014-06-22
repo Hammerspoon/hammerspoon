@@ -1,15 +1,12 @@
 api.pathwatcher.pathwatchers = {}
 
-local internal_start =  api.pathwatcher.start
-local internal_stop =  api.pathwatcher.stop
-
-function api.pathwatcher.start(pw)
-  table.insert(api.pathwatcher.pathwatchers, pw)
-  pw.__pos = # api.pathwatcher.pathwatchers
-  internal_start(pw)
+function api.pathwatcher:start()
+  table.insert(api.pathwatcher.pathwatchers, self)
+  self.__pos = # api.pathwatcher.pathwatchers
+  return self:_start()
 end
 
-function api.pathwatcher.stop(pw)
-  table.remove(api.pathwatcher.pathwatchers, pw.__pos)
-  internal_stop(pw)
+function api.pathwatcher:stop()
+  table.remove(api.pathwatcher.pathwatchers, self.__pos)
+  return self:_stop()
 end

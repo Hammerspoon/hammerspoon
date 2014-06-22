@@ -88,8 +88,8 @@ int pathwatcher_new(lua_State* L) {
 }
 
 static const luaL_Reg pathwatcherlib[] = {
-    {"start", pathwatcher_start},
-    {"stop", pathwatcher_stop},
+    {"_start", pathwatcher_start},
+    {"_stop", pathwatcher_stop},
     {NULL, NULL}
 };
 
