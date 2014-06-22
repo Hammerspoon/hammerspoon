@@ -39,7 +39,16 @@ function api.log.show()
 
   local function redraw()
     win:clear(bg)
-    -- TODO: draw api.log.lines in textgrid, starting with line `pos`
+
+    local size = win:getsize()
+
+    for linenum = pos, math.min(pos + size.h, # api.log.lines) do
+      local line = api.log.lines[linenum]
+      for i = 1, math.min(#line, size.w) do
+        local c = line:sub(i,i)
+        win:set(c:byte(), i, linenum - pos + 1, fg, bg)
+      end
+    end
   end
 
   win:resized(redraw)
@@ -60,8 +69,8 @@ function api.log.show()
       local scrollby = keytable[t.key]
       if scrollby then
         pos = pos + scrollby
-        pos = math.min(pos, 1)
-        pos = math.max(pos, # api.log.lines)
+        pos = math.max(pos, 1)
+        pos = math.min(pos, # api.log.lines)
       end
       redraw()
   end)
