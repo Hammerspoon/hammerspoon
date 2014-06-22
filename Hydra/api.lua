@@ -28,6 +28,12 @@ local function clear_old_state()
     local pw = api.pathwatcher.pathwatchers[i]
     pw:stop()
   end
+
+  -- timers
+  for i = # api.timer.timers, 1, -1 do
+    local t = api.timer.timers[i]
+    t:stop()
+  end
 end
 
 function api.reload()

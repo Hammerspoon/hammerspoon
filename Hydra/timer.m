@@ -105,8 +105,8 @@ int timer_new(lua_State* L) {
 static const luaL_Reg timerlib[] = {
     {"runonce", timer_runonce},
     {"doafter", timer_doafter},
-    {"start", timer_start},
-    {"stop", timer_stop},
+    {"_start", timer_start},
+    {"_stop", timer_stop},
     {NULL, NULL}
 };
 
