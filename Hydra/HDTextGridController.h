@@ -14,6 +14,7 @@
 - (void) clear:(NSColor*)bg;
 
 @property (copy) dispatch_block_t windowResizedHandler;
+@property (copy) dispatch_block_t windowClosedHandler;
 
 - (void) useKeyDownHandler:(KOKeyDownHandler)handler;
 

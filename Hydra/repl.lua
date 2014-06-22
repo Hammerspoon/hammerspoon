@@ -64,6 +64,10 @@ function api.repl.open()
 
   win:resized(redraw)
 
+  win:closed(function()
+      -- TODO: do stuff 'ere
+  end)
+
   win:keydown(function(t)
       if t.key == "return" then
         local command = stdin

@@ -43,6 +43,11 @@
     [self useGridSize:NSMakeSize(newGridWidth, newGridHeight)];
 }
 
+- (void) windowWillClose:(NSNotification *)notification {
+    if (self.windowClosedHandler)
+        self.windowClosedHandler();
+}
+
 - (void) useFont:(NSFont*)font {
     [self.tv useFont:font];
     [[self window] setContentResizeIncrements:NSMakeSize(floor(self.tv.charWidth), floor(self.tv.charHeight))];

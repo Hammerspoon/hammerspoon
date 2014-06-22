@@ -51,6 +51,24 @@ static int textgrid_resized(lua_State *L) {
     return 0;
 }
 
+// args: [textgrid, fn]
+static int textgrid_closed(lua_State *L) {
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
+    
+    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    lua_pushnumber(L, closureref);
+    lua_setfield(L, 1, "__closedclosureref");
+    
+    wc.windowClosedHandler = ^{
+        lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
+        if (lua_pcall(L, 0, 0, 0))
+            _hydra_handle_error(L);
+    };
+    
+    return 0;
+}
+
 // args: [textgrid, fn(t)]
 // ret: []
 static int textgrid_keydown(lua_State *L) {
@@ -190,6 +208,10 @@ static int textgrid_gc(lua_State *L) {
     if (lua_isnumber(L, -1))
         luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, -1));
     
+    lua_getfield(L, 1, "__closedclosureref");
+    if (lua_isnumber(L, -1))
+        luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, -1));
+    
     return 0;
 }
 
@@ -231,6 +253,7 @@ static const luaL_Reg textgridlib[] = {
     // event handlers
     {"resized", textgrid_resized},
     {"keydown", textgrid_keydown},
+    {"closed", textgrid_closed},
     
     // methods
     {"_close", textgrid_close},
