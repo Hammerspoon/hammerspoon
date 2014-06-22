@@ -170,13 +170,6 @@ static int textgrid_settitle(lua_State *L) {
 }
 
 // args: [textgrid]
-static int textgrid_close(lua_State *L) {
-    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
-    [wc close];
-    return 0;
-}
-
-// args: [textgrid]
 static int textgrid_focus(lua_State *L) {
     HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
     [NSApp activateIgnoringOtherApps:YES];
@@ -225,15 +218,22 @@ static int textgrid_open(lua_State *L) {
     return 1;
 }
 
+// args: [textgrid]
+static int textgrid_close(lua_State *L) {
+    HDTextGridWindowController* wc = get_textgrid_wc(L, 1);
+    [wc close];
+    return 0;
+}
+
 static const luaL_Reg textgridlib[] = {
-    {"open", textgrid_open},
+    {"_open", textgrid_open},
     
     // event handlers
     {"resized", textgrid_resized},
     {"keydown", textgrid_keydown},
     
     // methods
-    {"close", textgrid_close},
+    {"_close", textgrid_close},
     {"getsize", textgrid_getsize},
     {"resize", textgrid_resize},
     {"clear", textgrid_clear},

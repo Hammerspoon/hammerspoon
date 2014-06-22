@@ -34,6 +34,12 @@ local function clear_old_state()
     local t = api.timer.timers[i]
     t:stop()
   end
+
+  -- textgrids
+  for i = # api.textgrid.textgrids, 1, -1 do
+    local tg = api.textgrid.textgrids[i]
+    tg:close()
+  end
 end
 
 function api.reload()

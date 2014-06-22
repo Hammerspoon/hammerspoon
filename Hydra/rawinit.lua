@@ -9,6 +9,7 @@ dofile(api.resourcesdir .. "/hotkey.lua")
 dofile(api.resourcesdir .. "/repl.lua")
 dofile(api.resourcesdir .. "/timer.lua")
 dofile(api.resourcesdir .. "/pathwatcher.lua")
+dofile(api.resourcesdir .. "/textgrid.lua")
 
 -- make lives of third party authors easier
 api.ext = {}

@@ -49,6 +49,7 @@
 		9445CA9F190833C1002568BB /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7C190833C1002568BB /* lzio.c */; };
 		9445CAA5190847CB002568BB /* rawinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* rawinit.lua */; };
 		94517BF71956F05800F9CCB6 /* pathwatcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF61956F05800F9CCB6 /* pathwatcher.lua */; };
+		94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF81956FA5000F9CCB6 /* textgrid.lua */; };
 		945200861950E2760072DFEF /* defaultinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945200851950E2760072DFEF /* defaultinit.lua */; };
 		945200881950E6C10072DFEF /* sample_config.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945200871950E6C10072DFEF /* sample_config.lua */; };
 		9452129A194D59F800217584 /* mouse.m in Sources */ = {isa = PBXBuildFile; fileRef = 94521299194D59F800217584 /* mouse.m */; };
@@ -157,6 +158,7 @@
 		9445CAA019083402002568BB /* lua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lua.h; sourceTree = "<group>"; };
 		9445CAA4190847CB002568BB /* rawinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rawinit.lua; sourceTree = "<group>"; };
 		94517BF61956F05800F9CCB6 /* pathwatcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pathwatcher.lua; sourceTree = "<group>"; };
+		94517BF81956FA5000F9CCB6 /* textgrid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = textgrid.lua; sourceTree = "<group>"; };
 		945200851950E2760072DFEF /* defaultinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = defaultinit.lua; sourceTree = "<group>"; };
 		945200871950E6C10072DFEF /* sample_config.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample_config.lua; sourceTree = "<group>"; };
 		94521299194D59F800217584 /* mouse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mouse.m; sourceTree = "<group>"; };
@@ -377,6 +379,7 @@
 				948CA9FC1955AECC00A27D9D /* HDTextGridView.h */,
 				948CA9FD1955AECC00A27D9D /* HDTextGridView.m */,
 				948CA9FE1955AECC00A27D9D /* textgrid.m */,
+				94517BF81956FA5000F9CCB6 /* textgrid.lua */,
 			);
 			name = textgrid;
 			sourceTree = "<group>";
@@ -441,6 +444,7 @@
 				94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */,
 				945212A0194D697100217584 /* alert.xib in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
+				94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
 				945212A7194D6B5900217584 /* menu.png in Resources */,
 				94E8E7BC194E25300064CF6C /* app.lua in Resources */,
