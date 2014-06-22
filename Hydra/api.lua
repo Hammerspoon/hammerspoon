@@ -87,9 +87,15 @@ end
 
 api.stdout = {}
 api._stdoutbuffer = ""
+api.maxstdoutlen = 500
 
-function api.receivedstdout(startingindex)
-  -- api.alert(startingindex)
+function api.receivedstdout(str)
+  table.insert(api.stdout, str)
+
+  if # api.stdout == api.maxstdoutlen + 1 then
+    -- we get called once per line; can't ever be maxlen + 2
+    table.remove(api.stdout, 1)
+  end
 end
 
 function api._receivedstdout(str)
