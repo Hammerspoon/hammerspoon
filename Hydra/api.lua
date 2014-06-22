@@ -58,6 +58,7 @@ end
 function api.call(fn, ...)
   local results = table.pack(pcall(fn, ...))
   if not results[1] then
+    -- print(debug.traceback())
     api.tryhandlingerror(results[2])
   end
   return table.unpack(results)

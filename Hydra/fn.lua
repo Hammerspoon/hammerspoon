@@ -3,7 +3,7 @@ api.fn = {}
 function api.fn.map(t, fn)
   local nt = {}
   for k, v in pairs(t) do
-    table.insert(nt, fn(v))
+    table.insert(nt, fn(v) or nil)
   end
   return nt
 end
