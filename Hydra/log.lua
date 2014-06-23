@@ -1,14 +1,20 @@
+api.doc.log.lines = {"api.log.lines = {}", "List of lines logged so far; caps at api.log.maxlines. You may clear it by setting it to {} yourself."}
 api.log.lines = {}
+
 api.log._buffer = ""
+
+api.doc.log.maxlines = {"api.log.maxlines = 500", "Maximum number of lines to be logged."}
 api.log.maxlines = 500
 
 api.log.handlers = {}
 
+api.doc.log.addhandler = {"api.log.addhandler(fn(str)) -> index", "Registers a function to handle new log lines."}
 function api.log.addhandler(fn)
   table.insert(api.log.handlers, fn)
   return #api.log.handlers
 end
 
+api.doc.log.removehandler = {"api.log.removehandler(index)", "Unregisters a function that handles new log lines."}
 function api.log.removehandler(idx)
   api.log.handlers[idx] = nil
 end
@@ -42,6 +48,7 @@ function api.log._gotline(str)
   end
 end
 
+api.doc.log.show = {"api.log.show() -> textgrid", "Opens a textgrid that can browse all logs."}
 function api.log.show()
   local win = api.textgrid.open()
   win:livelong()

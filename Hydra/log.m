@@ -28,6 +28,8 @@ int luaopen_log(lua_State* L) {
         listen_to_stdout(L);
     });
     
+    hydra_add_doc_group(L, "log", "Functionality to assist with debugging and experimentation.");
+    
     lua_newtable(L);
     return 1;
 }
