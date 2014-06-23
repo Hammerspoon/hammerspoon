@@ -46,11 +46,8 @@ int timer_doafter(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_timer_start = {
-    "timer", "start", "api.timer:start(timer) -> timer",
-    "Begins to execute timer.fn every timer.seconds; calling this does not cause an initial firing of the timer immediately."
-};
-
+// args: [timer]
+// returns: [timer]
 int timer_start(lua_State* L) {
     NSTimeInterval sec = (lua_getfield(L, 1, "seconds"), lua_tonumber(L, -1));
     int closureref = (lua_getfield(L, 1, "fn"), luaL_ref(L, LUA_REGISTRYINDEX));
@@ -74,11 +71,6 @@ int timer_start(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_timer_stop = {
-    "timer", "stop", "api.timer:stop(timer) -> timer",
-    "Stops the timer's fn from getting called until started again."
-};
-
 // args: [timer]
 // returns: [timer]
 int timer_stop(lua_State* L) {
@@ -93,33 +85,6 @@ int timer_stop(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_timer_new = {
-    "timer", "new", "api.timer.new(seconds, fn) -> timer",
-    "Creates a new timer that can be started. Has the fields: seconds, fn."
-};
-
-// args: [(self), seconds, fn]
-// returns: [timer]
-int timer_new(lua_State* L) {
-    lua_newtable(L);
-    
-    lua_pushvalue(L, 2);
-    lua_setfield(L, -2, "seconds");
-    
-    lua_pushvalue(L, 3);
-    lua_setfield(L, -2, "fn");
-    
-    if (luaL_newmetatable(L, "timer")) {
-        lua_getglobal(L, "api");
-        lua_getfield(L, -1, "timer");
-        lua_setfield(L, -3, "__index");
-        lua_pop(L, 1); // hydra-global
-    }
-    lua_setmetatable(L, -2);
-    
-    return 1;
-}
-
 static const luaL_Reg timerlib[] = {
     {"runonce", timer_runonce},
     {"doafter", timer_doafter},
@@ -128,23 +93,11 @@ static const luaL_Reg timerlib[] = {
     {NULL, NULL}
 };
 
-static const luaL_Reg timerlib_meta[] = {
-    {"__call", timer_new},
-    {NULL, NULL}
-};
-
 int luaopen_timer(lua_State* L) {
-    luaL_newlib(L, timerlib);
-    
     hydra_add_doc_group(L, "timer", "Execute functions with various timing rules.");
     hydra_add_doc_item(L, &doc_timer_runonce);
     hydra_add_doc_item(L, &doc_timer_doafter);
-    hydra_add_doc_item(L, &doc_timer_start);
-    hydra_add_doc_item(L, &doc_timer_stop);
-    hydra_add_doc_item(L, &doc_timer_new);
     
-    luaL_newlib(L, timerlib_meta);
-    lua_setmetatable(L, -2);
-    
+    luaL_newlib(L, timerlib);
     return 1;
 }

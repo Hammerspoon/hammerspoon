@@ -11,7 +11,7 @@ api.menu.show(function()
     }
 end)
 
-api.hotkey({"cmd", "ctrl", "alt"}, "J", function()
+api.hotkey.new({"cmd", "ctrl", "alt"}, "J", function()
     -- move the window to the right a bit, and make it a little shorter
     local win = api.window.focusedwindow()
     local frame = win:frame()
