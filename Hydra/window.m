@@ -1,4 +1,4 @@
-#import "api.h"
+#import "hydra.h"
 void new_app(lua_State* L, pid_t pid);
 
 int window_gc(lua_State* L) {

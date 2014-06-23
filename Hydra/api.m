@@ -1,30 +1,10 @@
-#import "api.h"
+#import "hydra.h"
 void PHShowAlert(NSString* oneLineMsg, CGFloat duration);
 
-void _hydra_handle_error(lua_State* L) {
-    // original error is at top of stack
-    lua_getglobal(L, "api"); // pop this at the end
-    lua_getfield(L, -1, "tryhandlingerror");
-    lua_pushvalue(L, -3);
-    lua_pcall(L, 1, 0, 0); // trust me
-    lua_pop(L, 2);
-}
-
-void _hydra_add_doc_item(lua_State* L, char* name, char* definition, char* docstring) {
-    
-}
-
-void _hydra_add_doc_group(lua_State* L, char* name, char* docstring) {
-    lua_getglobal(L, "api");
-    lua_getfield(L, -1, "doc");
-    
-    lua_newtable(L);
-    lua_pushstring(L, docstring);
-    lua_setfield(L, -2, "__doc");
-    
-    lua_setfield(L, -2, name);
-    lua_pop(L, 2); // api and doc
-}
+static hydradoc doc_api_showabout = {
+    "api", "showabout", "api.showabout()",
+    "Displays the standard OS X about panel; implicitly focuses Hydra."
+};
 
 int api_showabout(lua_State* L) {
     [NSApp activateIgnoringOtherApps:YES];
@@ -32,10 +12,20 @@ int api_showabout(lua_State* L) {
     return 0;
 }
 
+static hydradoc doc_api_focushydra = {
+    "api", "focushydra", "api.focushydra()",
+    "Makes Hydra the currently focused app; useful in combination with textgrids."
+};
+
 int api_focushydra(lua_State* L) {
     [NSApp activateIgnoringOtherApps:YES];
     return 0;
 }
+
+static hydradoc doc_api_alert = {
+    "api", "alert", "api.alert(str, seconds = 2)",
+    "Shows a message in large words briefly in the middle of the screen."
+};
 
 int api_alert(lua_State* L) {
     const char* str = lua_tostring(L, 1);
@@ -48,6 +38,11 @@ int api_alert(lua_State* L) {
     
     return 0;
 }
+
+static hydradoc doc_api_fileexists = {
+    "api", "fileexists", "api.fileexists(path) -> exists, isdir",
+    "Checks if a file exists, and whether it's a directory."
+};
 
 // args: [path]
 // return: [exists, isdir]
@@ -64,9 +59,9 @@ int api_fileexists(lua_State* L) {
 
 static const luaL_Reg apilib[] = {
     {"showabout", api_showabout},
-    {"fileexists", api_fileexists},
     {"focushydra", api_focushydra},
     {"alert", api_alert},
+    {"fileexists", api_fileexists},
     {NULL, NULL}
 };
 
@@ -79,8 +74,10 @@ int luaopen_api(lua_State* L) {
     lua_setfield(L, -2, "doc");
     
     _hydra_add_doc_group(L, "api", "Top level API functions.");
-    _hydra_add_doc_item(L, "alert", "api.alert(str, seconds = 2)",
-                        "Shows a message in large words briefly in the middle of the screen.");
+    _hydra_add_doc_item(L, &doc_api_showabout);
+    _hydra_add_doc_item(L, &doc_api_focushydra);
+    _hydra_add_doc_item(L, &doc_api_alert);
+    _hydra_add_doc_item(L, &doc_api_fileexists);
     
     // no trailing slash
     lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);

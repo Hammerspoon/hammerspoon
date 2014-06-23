@@ -1,4 +1,4 @@
-#import "api.h"
+#import "hydra.h"
 
 int mouse_get(lua_State* L) {
     CGEventRef ourEvent = CGEventCreate(NULL);

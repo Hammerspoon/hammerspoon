@@ -1,4 +1,4 @@
-#import "api.h"
+#import "hydra.h"
 void new_window(lua_State* L, AXUIElementRef win);
 
 

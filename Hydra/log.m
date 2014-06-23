@@ -1,4 +1,4 @@
-#import "api.h"
+#import "hydra.h"
 
 static void listen_to_stdout(lua_State* L) {
     id handler = ^(NSFileHandle* standardOut) {
