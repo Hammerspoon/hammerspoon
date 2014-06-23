@@ -29,8 +29,11 @@ void new_app(lua_State* L, pid_t pid) {
     lua_setmetatable(L, -2);
 }
 
-// args: []
-// ret: [apps]
+static hydradoc doc_app_runningapps = {
+    "app", "runningapps", "api.app.runningapps() -> app[]",
+    "Returns all running apps."
+};
+
 int app_runningapps(lua_State* L) {
     lua_newtable(L);
     int i = 1;
@@ -43,24 +46,29 @@ int app_runningapps(lua_State* L) {
     return 1;
 }
 
-// args: [pid]
-// ret: [app] or []
+static hydradoc doc_app_appforpid = {
+    "app", "appforpid", "api.app.appforpid(pid) -> app or nil",
+    "Returns the running app for the given pid, if it exists."
+};
+
 int app_appforpid(lua_State* L) {
     pid_t pid = lua_tonumber(L, 1);
     
     NSRunningApplication* runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
     
-    if (runningApp) {
+    if (runningApp)
         new_app(L, [runningApp processIdentifier]);
-        return 1;
-    }
-    else {
-        return 0;
-    }
+    else
+        lua_pushnil(L);
+    
+    return 1;
 }
 
-// args: [bundleid]
-// ret: [apps]
+static hydradoc doc_app_appsforbundleid = {
+    "app", "appsforbundleid", "api.app.appsforbundleid(bundleid) -> app[]",
+    "Returns any running apps that have the given bundleid."
+};
+
 int app_appsforbundleid(lua_State* L) {
     const char* bundleid = lua_tostring(L, 1);
     NSString* bundleIdentifier = [NSString stringWithUTF8String:bundleid];
@@ -77,8 +85,11 @@ int app_appsforbundleid(lua_State* L) {
     return 1;
 }
 
-// args: []
-// ret: []
+static hydradoc doc_app_allwindows = {
+    "app", "allwindows", "api.app:allwindows() -> window[]",
+    "Returns all open windows owned by the given app."
+};
+
 int app_allwindows(lua_State* L) {
     lua_getfield(L, 1, "pid");
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
@@ -103,8 +114,11 @@ int app_allwindows(lua_State* L) {
     return 1;
 }
 
-// args: [app]
-// ret: [bool]
+static hydradoc doc_app_activate = {
+    "app", "activate", "api.app:activate() -> bool",
+    "Tries to activate the app (make it focused) and returns its success."
+};
+
 int app_activate(lua_State* L) {
     lua_getfield(L, 1, "pid");
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
@@ -114,8 +128,11 @@ int app_activate(lua_State* L) {
     return 1;
 }
 
-// args: [app]
-// ret: [string]
+static hydradoc doc_app_title = {
+    "app", "title", "api.app:title() -> string",
+    "Returns the localized name of the app (in UTF8)."
+};
+
 int app_title(lua_State* L) {
     lua_getfield(L, 1, "pid");
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
@@ -124,8 +141,11 @@ int app_title(lua_State* L) {
     return 1;
 }
 
-// args: [app]
-// ret: [string]
+static hydradoc doc_app_bundleid = {
+    "app", "bundleid", "api.app:bundleid() -> string",
+    "Returns the bundle identifier of the app."
+};
+
 int app_bundleid(lua_State* L) {
     lua_getfield(L, 1, "pid");
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
@@ -139,8 +159,11 @@ static void set_app_prop(AXUIElementRef app, NSString* propType, id value) {
     // yes, we ignore the return value; life is too short to constantly handle rare edge-cases
 }
 
-// args: [app]
-// ret: []
+static hydradoc doc_app_show = {
+    "app", "show", "api.app:show()",
+    "Unhides the app (and all its windows) if it's hidden. Yeah, this method name should probably be renamed."
+};
+
 int app_show(lua_State* L) {
     lua_getfield(L, 1, "pid");
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
@@ -149,6 +172,11 @@ int app_show(lua_State* L) {
     CFRelease(app);
     return 0;
 }
+
+static hydradoc doc_app_hide = {
+    "app", "hide", "api.app:hide()",
+    "Hides the app (and all its windows)."
+};
 
 // args: [app]
 // ret: []
@@ -161,6 +189,11 @@ int app_hide(lua_State* L) {
     return 0;
 }
 
+static hydradoc doc_app_kill = {
+    "app", "kill", "api.app:kill()",
+    "Tries to terminate the app."
+};
+
 // args: [app]
 // ret: []
 int app_kill(lua_State* L) {
@@ -171,6 +204,11 @@ int app_kill(lua_State* L) {
     return 0;
 }
 
+static hydradoc doc_app_kill9 = {
+    "app", "kill9", "api.app:kill9()",
+    "Assuredly terminates the app."
+};
+
 // args: [app]
 // ret: []
 int app_kill9(lua_State* L) {
@@ -180,6 +218,11 @@ int app_kill9(lua_State* L) {
     [app forceTerminate];
     return 0;
 }
+
+static hydradoc doc_app_ishidden = {
+    "app", "ishidden", "api.app:ishidden() -> bool",
+    "Returns whether the app is currently hidden."
+};
 
 // args: [app]
 // ret: [bool]
@@ -218,6 +261,20 @@ static const luaL_Reg applib[] = {
 };
 
 int luaopen_app(lua_State* L) {
+    hydra_add_doc_group(L, "app", "Manipulate running applications.");
+    hydra_add_doc_item(L, &doc_app_runningapps);
+    hydra_add_doc_item(L, &doc_app_appforpid);
+    hydra_add_doc_item(L, &doc_app_appsforbundleid);
+    hydra_add_doc_item(L, &doc_app_allwindows);
+    hydra_add_doc_item(L, &doc_app_activate);
+    hydra_add_doc_item(L, &doc_app_title);
+    hydra_add_doc_item(L, &doc_app_bundleid);
+    hydra_add_doc_item(L, &doc_app_show);
+    hydra_add_doc_item(L, &doc_app_hide);
+    hydra_add_doc_item(L, &doc_app_kill);
+    hydra_add_doc_item(L, &doc_app_kill9);
+    hydra_add_doc_item(L, &doc_app_ishidden);
+    
     luaL_newlib(L, applib);
     return 1;
 }
