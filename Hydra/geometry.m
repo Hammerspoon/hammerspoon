@@ -1,7 +1,11 @@
 #import "hydra.h"
 
-// args: [rect]
-// returns: [point]
+static hydradoc doc_geometry_rectmidpoint = {
+    "geometry", "rectmidpoint", "api.geometry.rectmidpoint(rect) -> point",
+    "Returns the midpoint of a rect."
+};
+
+// oh wait, this function is defined in Lua now. oops. oh well. just delete this one.
 int geometry_rectmidpoint(lua_State* L) {
     CGFloat x = (lua_getfield(L, 1, "x"), lua_tonumber(L, -1));
     CGFloat y = (lua_getfield(L, 1, "y"), lua_tonumber(L, -1));
@@ -17,8 +21,11 @@ int geometry_rectmidpoint(lua_State* L) {
     return 1;
 }
 
-// args: [rect]
-// returns: [point]
+static hydradoc doc_geometry_intersectionrect = {
+    "geometry", "intersectionrect", "api.geometry.intersectionrect(rect1, rect2) -> rect3",
+    "Returns the intersection of two rects as a new rect."
+};
+
 int geometry_intersectionrect(lua_State* L) {
     CGFloat x1 = (lua_getfield(L, 1, "x"), lua_tonumber(L, -1));
     CGFloat y1 = (lua_getfield(L, 1, "y"), lua_tonumber(L, -1));
@@ -50,6 +57,9 @@ static const luaL_Reg geometrylib[] = {
 };
 
 int luaopen_geometry(lua_State* L) {
+    hydra_add_doc_group(L, "geometry", "Mathy stuff.");
+    hydra_add_doc_item(L, &doc_geometry_rectmidpoint);
+    
     luaL_newlib(L, geometrylib);
     return 1;
 }
