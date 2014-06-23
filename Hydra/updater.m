@@ -27,7 +27,7 @@ cleanup:
 }
 
 
-static BOOL dostuff(NSString* sig, NSString* pubkeypath, NSString* zipfilepath) {
+static BOOL updates_verify_file(NSString* sig, NSString* pubkeypath, NSString* zipfilepath) {
     BOOL verified = NO;
     
     SecKeyRef security_key = NULL;
@@ -81,7 +81,7 @@ cleanup:
 
 int luaopen_updates(lua_State* L) {
 //    BOOL result =
-//    dostuff(@"MC0CFQCR5YCyNWgn3LrL0ZYbAdt3dkxfqQIUUk9fCV6Vr5KVDUuDUtQNwmdT7S0=",
+//    updates_verify_file(@"MC0CFQCR5YCyNWgn3LrL0ZYbAdt3dkxfqQIUUk9fCV6Vr5KVDUuDUtQNwmdT7S0=",
 //            @"/Users/sdegutis/Downloads/dsa_pub.cer",
 //            @"/Users/sdegutis/Downloads/Zephyros-LATEST.app.tar.gz");
 //    NSLog(@"%d", result);
