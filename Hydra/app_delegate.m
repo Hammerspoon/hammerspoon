@@ -1,5 +1,3 @@
-#import <Cocoa/Cocoa.h>
-
 #import "lua/lauxlib.h"
 #import "lua/lualib.h"
 
@@ -41,8 +39,6 @@ int luaopen_log(lua_State* L);
     luaL_openlibs(L);
     
     luaopen_api(L);
-    lua_pushvalue(L, -1);
-    lua_setglobal(L, "api");
     
     static const luaL_Reg hydralibs[] = {
         {"hotkey",       luaopen_hotkey},

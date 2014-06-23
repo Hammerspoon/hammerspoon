@@ -1,5 +1,4 @@
-#import "lua/lauxlib.h"
-void _hydra_handle_error(lua_State* L);
+#import "api.h"
 
 @interface PHMenuItemDelegator : NSObject
 @property (copy) dispatch_block_t handler;

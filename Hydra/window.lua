@@ -1,3 +1,4 @@
+api.doc.window.allwindows = {"api.window.allwindows()", "Returns all windows"}
 function api.window.allwindows()
   return api.fn.mapcat(api.app.runningapps(), api.app.allwindows)
 end

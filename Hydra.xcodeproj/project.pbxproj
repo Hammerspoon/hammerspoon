@@ -196,6 +196,7 @@
 		94E8E7AD194E0C940064CF6C /* Hydra.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Hydra.icns; sourceTree = "<group>"; };
 		94E8E7B9194E25290064CF6C /* screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = screen.lua; sourceTree = "<group>"; };
 		94E8E7BB194E25300064CF6C /* app.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = app.lua; sourceTree = "<group>"; };
+		94EF97711958603F00096A41 /* api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = api.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,6 +220,7 @@
 				945200851950E2760072DFEF /* defaultinit.lua */,
 				948CA9F61955AE7B00A27D9D /* textgrid */,
 				945200871950E6C10072DFEF /* sample_config.lua */,
+				94EF97711958603F00096A41 /* api.h */,
 				94DE5948194F1A31004D242E /* api.m */,
 				94DE594A194F1A39004D242E /* api.lua */,
 				94517BFC195773A200F9CCB6 /* log.m */,

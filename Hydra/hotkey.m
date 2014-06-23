@@ -1,7 +1,6 @@
 #import <Carbon/Carbon.h>
-#import "lua/lauxlib.h"
+#import "api.h"
 UInt32 PHKeyCodeForString(NSString* str);
-void _hydra_handle_error(lua_State* L);
 
 
 // args: [hotkey]

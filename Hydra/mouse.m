@@ -1,4 +1,4 @@
-#import "lua/lauxlib.h"
+#import "api.h"
 
 int mouse_get(lua_State* L) {
     CGEventRef ourEvent = CGEventCreate(NULL);

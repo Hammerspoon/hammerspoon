@@ -1,4 +1,4 @@
-#import "lua/lauxlib.h"
+#import "api.h"
 #import "HDTextGridController.h"
 void _hydra_handle_error(lua_State* L);
 

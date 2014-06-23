@@ -1,4 +1,4 @@
-#import "lua/lauxlib.h"
+#import "api.h"
 void new_app(lua_State* L, pid_t pid);
 
 int window_gc(lua_State* L) {
@@ -394,6 +394,8 @@ static const luaL_Reg windowlib[] = {
 };
 
 int luaopen_window(lua_State* L) {
+    _hydra_add_doc_group(L, "window", "Functions for managing any window");
+    
     luaL_newlib(L, windowlib);
     return 1;
 }

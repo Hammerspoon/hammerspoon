@@ -1,5 +1,4 @@
-#import <Cocoa/Cocoa.h>
-#import "lua/lauxlib.h"
+#import "api.h"
 
 static NSMutableArray* visibleAlerts;
 

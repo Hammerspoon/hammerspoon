@@ -1,4 +1,4 @@
-#import "lua/lauxlib.h"
+#import "api.h"
 void new_window(lua_State* L, AXUIElementRef win);
 
 

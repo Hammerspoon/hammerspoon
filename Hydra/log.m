@@ -1,5 +1,4 @@
-#import "lua/lauxlib.h"
-void _hydra_handle_error(lua_State* L);
+#import "api.h"
 
 static void listen_to_stdout(lua_State* L) {
     id handler = ^(NSFileHandle* standardOut) {

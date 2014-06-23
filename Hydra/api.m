@@ -1,4 +1,4 @@
-#import "lua/lauxlib.h"
+#import "api.h"
 void PHShowAlert(NSString* oneLineMsg, CGFloat duration);
 
 void _hydra_handle_error(lua_State* L) {
@@ -8,6 +8,22 @@ void _hydra_handle_error(lua_State* L) {
     lua_pushvalue(L, -3);
     lua_pcall(L, 1, 0, 0); // trust me
     lua_pop(L, 2);
+}
+
+void _hydra_add_doc_item(lua_State* L, char* name, char* definition, char* docstring) {
+    
+}
+
+void _hydra_add_doc_group(lua_State* L, char* name, char* docstring) {
+    lua_getglobal(L, "api");
+    lua_getfield(L, -1, "doc");
+    
+    lua_newtable(L);
+    lua_pushstring(L, docstring);
+    lua_setfield(L, -2, "__doc");
+    
+    lua_setfield(L, -2, name);
+    lua_pop(L, 2); // api and doc
 }
 
 int api_showabout(lua_State* L) {
@@ -56,6 +72,15 @@ static const luaL_Reg apilib[] = {
 
 int luaopen_api(lua_State* L) {
     luaL_newlib(L, apilib);
+    lua_pushvalue(L, -1);
+    lua_setglobal(L, "api");
+    
+    lua_newtable(L);
+    lua_setfield(L, -2, "doc");
+    
+    _hydra_add_doc_group(L, "api", "Top level API functions.");
+    _hydra_add_doc_item(L, "alert", "api.alert(str, seconds = 2)",
+                        "Shows a message in large words briefly in the middle of the screen.");
     
     // no trailing slash
     lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);
