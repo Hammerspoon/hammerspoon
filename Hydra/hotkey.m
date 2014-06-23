@@ -42,6 +42,11 @@ int hotkey_enable(lua_State* L) {
     return 1;
 }
 
+static hydradoc doc_hotkey_disable = {
+    "hotkey", "disable", "api.hotkey:disable() -> self",
+    "Disables the given hotkey; does not remove it from api.hotkey.keys."
+};
+
 // args: [hotkey]
 // ret: [hotkey]
 int hotkey_disable(lua_State* L) {
@@ -93,6 +98,9 @@ void setup_hotkey_callback(lua_State *L) {
 
 int luaopen_hotkey(lua_State* L) {
     luaL_newlib(L, hotkeylib);
+    
+    hydra_add_doc_group(L, "hotkey", "Manage global hotkeys.");
+    hydra_add_doc_item(L, &doc_hotkey_disable);
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
