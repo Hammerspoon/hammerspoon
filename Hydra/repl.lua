@@ -1,6 +1,8 @@
 api.repl = {}
 
-api.doc.repl.open = {"api.repl.open() -> textgrid", "Opens a REPL that has full access to Hydra's API"}
+api.doc.repl = {__doc = "Read-Eval-Print-Loop"}
+
+api.doc.repl.open = {"api.repl.open() -> textgrid", "Opens a (primitive) REPL that has full access to Hydra's API"}
 function api.repl.open()
   local win = api.textgrid.open()
   win:livelong()
