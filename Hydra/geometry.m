@@ -1,26 +1,5 @@
 #import "hydra.h"
 
-static hydradoc doc_geometry_rectmidpoint = {
-    "geometry", "rectmidpoint", "api.geometry.rectmidpoint(rect) -> point",
-    "Returns the midpoint of a rect."
-};
-
-// oh wait, this function is defined in Lua now. oops. oh well. just delete this one.
-int geometry_rectmidpoint(lua_State* L) {
-    CGFloat x = (lua_getfield(L, 1, "x"), lua_tonumber(L, -1));
-    CGFloat y = (lua_getfield(L, 1, "y"), lua_tonumber(L, -1));
-    CGFloat w = (lua_getfield(L, 1, "w"), lua_tonumber(L, -1));
-    CGFloat h = (lua_getfield(L, 1, "h"), lua_tonumber(L, -1));
-    
-    NSRect r = NSMakeRect(x, y, w, h);
-    
-    lua_newtable(L);
-    lua_pushnumber(L, NSMidX(r)); lua_setfield(L, -2, "x");
-    lua_pushnumber(L, NSMidY(r)); lua_setfield(L, -2, "y");
-    
-    return 1;
-}
-
 static hydradoc doc_geometry_intersectionrect = {
     "geometry", "intersectionrect", "api.geometry.intersectionrect(rect1, rect2) -> rect3",
     "Returns the intersection of two rects as a new rect."
@@ -52,13 +31,12 @@ int geometry_intersectionrect(lua_State* L) {
 
 static const luaL_Reg geometrylib[] = {
     {"intersectionrect", geometry_intersectionrect},
-    {"rectmidpoint", geometry_rectmidpoint},
     {NULL, NULL}
 };
 
 int luaopen_geometry(lua_State* L) {
     hydra_add_doc_group(L, "geometry", "Mathy stuff.");
-    hydra_add_doc_item(L, &doc_geometry_rectmidpoint);
+    hydra_add_doc_item(L, &doc_geometry_intersectionrect);
     
     luaL_newlib(L, geometrylib);
     return 1;
