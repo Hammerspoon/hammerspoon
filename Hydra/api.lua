@@ -84,3 +84,7 @@ function api.call(fn, ...)
   end
   return table.unpack(results)
 end
+
+function api.uuid()
+  return io.popen("uuidgen"):read()
+end
