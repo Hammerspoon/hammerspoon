@@ -23,3 +23,17 @@ function doc(item)
     print("Don't know what " .. tostring(item) .. " is supposed to be. Sorry!")
   end
 end
+
+function api.generatedocs(path)
+  local file = io.open(path, "w")
+  for groupname, group in pairs(api.doc) do
+    for itemname, item in pairs(group) do
+      local def, docstring = item[1], item[2]
+      if def and docstring then
+        file:write(def .. " -- " .. docstring .. "\n")
+      end
+    end
+    file:write("\n")
+  end
+  file:close()
+end
