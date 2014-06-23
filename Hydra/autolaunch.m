@@ -9,6 +9,11 @@ static LSSharedFileListRef shared_file_list() {
     return list;
 }
 
+static hydradoc doc_autolaunch_get = {
+    "autolaunch", "get", "api.autolaunch.get() -> bool",
+    "Returns whether Hydra launches when you login."
+};
+
 int autolaunch_get(lua_State* L) {
     NSURL *appURL = [[[NSBundle mainBundle] bundleURL] fileReferenceURL];
     
@@ -34,6 +39,11 @@ int autolaunch_get(lua_State* L) {
     lua_pushboolean(L, NO);
     return 1;
 }
+
+static hydradoc doc_autolaunch_set = {
+    "autolaunch", "set", "api.autolaunch.set(bool)",
+    "Sets whether Hydra launches when you login."
+};
 
 int autolaunch_set(lua_State* L) {
     BOOL opensAtLogin = lua_toboolean(L, 1);
@@ -76,6 +86,10 @@ static const luaL_Reg autolaunchlib[] = {
 };
 
 int luaopen_autolaunch(lua_State* L) {
+    hydra_add_doc_group(L, "autolaunch", "Functions for controlling whether Hydra launches at login.");
+    hydra_add_doc_item(L, &doc_autolaunch_get);
+    hydra_add_doc_item(L, &doc_autolaunch_set);
+    
     luaL_newlib(L, autolaunchlib);
     return 1;
 }

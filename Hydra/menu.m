@@ -39,8 +39,11 @@ static PHMenuDelegate* menuDelegate;
 
 static int show_closureref;
 
-// args: [showfn]
-// ret: []
+static hydradoc doc_menu_show = {
+    "menu", "show", "api.menu.show(fn() -> itemstable)",
+    "Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)"
+};
+
 int menu_show(lua_State* L) {
     if (!statusItem) {
         show_closureref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -140,8 +143,11 @@ int menu_show(lua_State* L) {
     return 0;
 }
 
-// args: []
-// ret: []
+static hydradoc doc_menu_hide = {
+    "menu", "hide", "api.menu.hide()",
+    "Hides Hydra's menubar icon."
+};
+
 int menu_hide(lua_State* L) {
     if (statusItem) {
         luaL_unref(L, LUA_REGISTRYINDEX, show_closureref);
@@ -159,6 +165,10 @@ static const luaL_Reg menulib[] = {
 };
 
 int luaopen_menu(lua_State* L) {
+    hydra_add_doc_group(L, "menu", "Control Hydra's menu-bar icon.");
+    hydra_add_doc_item(L, &doc_menu_show);
+    hydra_add_doc_item(L, &doc_menu_hide);
+    
     luaL_newlib(L, menulib);
     return 1;
 }
