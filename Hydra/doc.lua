@@ -1,5 +1,6 @@
 api.doc.doc = {__doc = "Documentation system."}
 
+api.doc.doc.doc = {"doc(thing)", "Prints documentation on the given thing."}
 function doc(item)
   if type(item) ~= "table" then
     -- wat
