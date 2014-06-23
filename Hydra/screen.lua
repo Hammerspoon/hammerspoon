@@ -1,3 +1,4 @@
+api.doc.screen.frame_including_dock_and_menu = {"api.screen:frame_including_dock_and_menu() -> rect", "Returns the screen's rect in absolute coordinates, including the dock and menu."}
 function api.screen:frame_including_dock_and_menu()
   local primary_screen = api.screen.allscreens()[1]
   local f = self:frame()
@@ -5,6 +6,7 @@ function api.screen:frame_including_dock_and_menu()
   return f
 end
 
+api.doc.screen.frame_without_dock_or_menu = {"api.screen:frame_without_dock_or_menu() -> rect", "Returns the screen's rect in absolute coordinates, without the dock or menu."}
 function api.screen:frame_without_dock_or_menu()
   local primary_screen = api.screen.allscreens()[1]
   local f = self:visibleframe()
@@ -12,6 +14,7 @@ function api.screen:frame_without_dock_or_menu()
   return f
 end
 
+api.doc.screen.next = {"api.screen:next() -> screen", "Returns the screen 'after' this one; I have no idea how they're ordered though."}
 function api.screen:next()
   local screens = api.screen.allscreens()
   local i = api.fn.indexof(screens, self) + 1
@@ -19,6 +22,7 @@ function api.screen:next()
   return screens[i]
 end
 
+api.doc.screen.previous = {"api.screen:previous() -> screen", "Returns the screen 'before' this one; I have no idea how they're ordered though."}
 function api.screen:previous()
   local screens = api.screen.allscreens()
   local i = api.fn.indexof(screens, self) - 1
