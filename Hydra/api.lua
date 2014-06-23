@@ -1,10 +1,14 @@
-function api.require(path)
-  local userfile = os.getenv("HOME") .. "/.hydra/" .. path .. ".lua"
+function api.userfile(name)
+  return os.getenv("HOME") .. "/.hydra/" .. name .. ".lua"
+end
+
+function api.douserfile(name)
+  local userfile = api.userfile(name)
   local exists, isdir = api.fileexists(userfile)
   if exists and not isdir then
     dofile(userfile)
   else
-    api.alert("Can't find file: " .. path)
+    api.alert("Can't find file: " .. name)
   end
 end
 
