@@ -91,11 +91,11 @@ function api.log.show()
       redraw()
   end)
 
-  win:closed(function()
-      api.log.removehandler(redraw)
-  end)
+  local loghandler = api.log.addhandler(redraw)
 
-  api.log.addhandler(redraw)
+  win:closed(function()
+      api.log.removehandler(loghandler)
+  end)
 
   redraw()
   win:focus()

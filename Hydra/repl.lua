@@ -64,8 +64,10 @@ function api.repl.open()
 
   win:resized(redraw)
 
+  local loghandler = api.log.addhandler(redraw)
+
   win:closed(function()
-      -- TODO: do stuff 'ere
+      api.log.removehandler(loghandler)
   end)
 
   win:keydown(function(t)
