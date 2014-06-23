@@ -23,7 +23,7 @@ local function addline(str)
 end
 
 api.log.addhandler(addline)
-api.log.addhandler(function(str) api.alert("log: " .. str) end)
+-- api.log.addhandler(function(str) api.alert("log: " .. str) end)
 
 function api.log._gotline(str)
   api.log._buffer = api.log._buffer .. str:gsub("\r", "\n")
@@ -90,6 +90,12 @@ function api.log.show()
       end
       redraw()
   end)
+
+  win:closed(function()
+      api.log.removehandler(redraw)
+  end)
+
+  api.log.addhandler(redraw)
 
   redraw()
   win:focus()
