@@ -17,7 +17,7 @@ int pathwatcher_start(lua_State* L) {
     dispatch_block_t block = ^{
         lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
         if (lua_pcall(L, 0, 0, 0))
-            _hydra_handle_error(L);
+            hydra_handle_error(L);
     };
     
     FSEventStreamContext context;

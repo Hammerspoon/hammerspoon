@@ -394,7 +394,7 @@ static const luaL_Reg windowlib[] = {
 };
 
 int luaopen_window(lua_State* L) {
-    _hydra_add_doc_group(L, "window", "Functions for managing any window");
+    hydra_add_doc_group(L, "window", "Functions for managing any window");
     
     luaL_newlib(L, windowlib);
     return 1;

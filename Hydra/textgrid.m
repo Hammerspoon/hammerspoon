@@ -1,6 +1,6 @@
 #import "hydra.h"
 #import "HDTextGridController.h"
-void _hydra_handle_error(lua_State* L);
+void hydra_handle_error(lua_State* L);
 
 static NSColor* HDColorFromHex(const char* hex) {
     static NSMutableDictionary* colors;
@@ -45,7 +45,7 @@ static int textgrid_resized(lua_State *L) {
     wc.windowResizedHandler = ^{
         lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
         if (lua_pcall(L, 0, 0, 0))
-            _hydra_handle_error(L);
+            hydra_handle_error(L);
     };
     
     return 0;
@@ -63,7 +63,7 @@ static int textgrid_closed(lua_State *L) {
     wc.windowClosedHandler = ^{
         lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
         if (lua_pcall(L, 0, 0, 0))
-            _hydra_handle_error(L);
+            hydra_handle_error(L);
     };
     
     return 0;
@@ -89,7 +89,7 @@ static int textgrid_keydown(lua_State *L) {
         lua_pushstring(L, [str UTF8String]); lua_setfield(L, -2, "key");
         
         if (lua_pcall(L, 1, 0, 0))
-            _hydra_handle_error(L);
+            hydra_handle_error(L);
     }];
     
     return 0;

@@ -11,7 +11,7 @@ static void listen_to_stdout(lua_State* L) {
             lua_pushstring(L, [str UTF8String]);
             
             if (lua_pcall(L, 1, 0, 0))
-                _hydra_handle_error(L);
+                hydra_handle_error(L);
             
             lua_pop(L, 2);
         });

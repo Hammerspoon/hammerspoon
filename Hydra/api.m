@@ -73,11 +73,11 @@ int luaopen_api(lua_State* L) {
     lua_newtable(L);
     lua_setfield(L, -2, "doc");
     
-    _hydra_add_doc_group(L, "api", "Top level API functions.");
-    _hydra_add_doc_item(L, &doc_api_showabout);
-    _hydra_add_doc_item(L, &doc_api_focushydra);
-    _hydra_add_doc_item(L, &doc_api_alert);
-    _hydra_add_doc_item(L, &doc_api_fileexists);
+    hydra_add_doc_group(L, "api", "Top level API functions.");
+    hydra_add_doc_item(L, &doc_api_showabout);
+    hydra_add_doc_item(L, &doc_api_focushydra);
+    hydra_add_doc_item(L, &doc_api_alert);
+    hydra_add_doc_item(L, &doc_api_fileexists);
     
     // no trailing slash
     lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);

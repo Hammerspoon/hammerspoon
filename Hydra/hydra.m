@@ -1,6 +1,6 @@
 #import "hydra.h"
 
-void _hydra_handle_error(lua_State* L) {
+void hydra_handle_error(lua_State* L) {
     // original error is at top of stack
     lua_getglobal(L, "api"); // pop this at the end
     lua_getfield(L, -1, "tryhandlingerror");
@@ -9,7 +9,7 @@ void _hydra_handle_error(lua_State* L) {
     lua_pop(L, 2);
 }
 
-void _hydra_add_doc_group(lua_State* L, char* name, char* docstring) {
+void hydra_add_doc_group(lua_State* L, char* name, char* docstring) {
     lua_getglobal(L, "api");
     lua_getfield(L, -1, "doc");
     
@@ -21,7 +21,7 @@ void _hydra_add_doc_group(lua_State* L, char* name, char* docstring) {
     lua_pop(L, 2); // api, doc
 }
 
-void _hydra_add_doc_item(lua_State* L, hydradoc* doc) {
+void hydra_add_doc_item(lua_State* L, hydradoc* doc) {
     lua_getglobal(L, "api");
     lua_getfield(L, -1, "doc");
     lua_getfield(L, -1, doc->group);

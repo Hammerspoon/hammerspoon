@@ -80,7 +80,7 @@ void setup_hotkey_callback(lua_State *L) {
         lua_getfield(L, -1, "fn");
         
         if (lua_pcall(L, 0, 0, 0))
-            _hydra_handle_error(L);
+            hydra_handle_error(L);
         
         lua_pop(L, 4);
         

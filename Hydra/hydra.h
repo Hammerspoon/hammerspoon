@@ -1,6 +1,6 @@
 #import "lua/lauxlib.h"
-void _hydra_handle_error(lua_State* L);
-void _hydra_add_doc_group(lua_State* L, char* name, char* docstring);
+void hydra_handle_error(lua_State* L);
+void hydra_add_doc_group(lua_State* L, char* name, char* docstring);
 
 typedef struct _hydradoc {
     char* group;
@@ -9,4 +9,4 @@ typedef struct _hydradoc {
     char* docstring;
 } hydradoc;
 
-void _hydra_add_doc_item(lua_State* L, hydradoc* doc);
+void hydra_add_doc_item(lua_State* L, hydradoc* doc);

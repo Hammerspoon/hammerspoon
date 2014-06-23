@@ -112,7 +112,7 @@ int menu_show(lua_State* L) {
                             // call function
                             lua_getfield(L, -1, "fn");
                             if (lua_pcall(L, 0, 0, 0))
-                                _hydra_handle_error(L);
+                                hydra_handle_error(L);
                             
                             // pop menu items table and menu item
                             lua_pop(L, 2);
@@ -130,7 +130,7 @@ int menu_show(lua_State* L) {
                 }
             }
             else {
-                _hydra_handle_error(L);
+                hydra_handle_error(L);
             }
         };
         menu.delegate = menuDelegate;
