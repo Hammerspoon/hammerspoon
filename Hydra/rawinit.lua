@@ -11,6 +11,7 @@ dofile(api.resourcesdir .. "/timer.lua")
 dofile(api.resourcesdir .. "/pathwatcher.lua")
 dofile(api.resourcesdir .. "/textgrid.lua")
 dofile(api.resourcesdir .. "/log.lua")
+dofile(api.resourcesdir .. "/doc.lua")
 
 package.path = api.userfile("?") .. ";" .. package.path
 

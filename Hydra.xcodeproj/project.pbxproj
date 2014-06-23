@@ -65,6 +65,7 @@
 		945212A8194D6B5900217584 /* menu@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A6194D6B5900217584 /* menu@2x.png */; };
 		9459B58F194CEB07008BC904 /* hotkey_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* hotkey_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
+		94668E951958B039009422D7 /* doc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94668E941958B039009422D7 /* doc.lua */; };
 		948CAA031955AECC00A27D9D /* textgrid.xib in Resources */ = {isa = PBXBuildFile; fileRef = 948CA9F91955AECC00A27D9D /* textgrid.xib */; };
 		948CAA041955AECC00A27D9D /* HDTextGridController.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FB1955AECC00A27D9D /* HDTextGridController.m */; };
 		948CAA051955AECC00A27D9D /* HDTextGridView.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FD1955AECC00A27D9D /* HDTextGridView.m */; };
@@ -177,6 +178,7 @@
 		945212A6194D6B5900217584 /* menu@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu@2x.png"; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* hotkey_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
+		94668E941958B039009422D7 /* doc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = doc.lua; sourceTree = "<group>"; };
 		948CA9F91955AECC00A27D9D /* textgrid.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = textgrid.xib; sourceTree = "<group>"; };
 		948CA9FA1955AECC00A27D9D /* HDTextGridController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDTextGridController.h; sourceTree = "<group>"; };
 		948CA9FB1955AECC00A27D9D /* HDTextGridController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDTextGridController.m; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 				94521299194D59F800217584 /* mouse.m */,
 				9452129B194D5B8F00217584 /* autolaunch.m */,
 				945212A3194D6A6000217584 /* menu.m */,
+				94668E941958B039009422D7 /* doc.lua */,
 				94DE5946194F11AD004D242E /* fn.lua */,
 				948CAA001955AECC00A27D9D /* repl.lua */,
 			);
@@ -469,6 +472,7 @@
 				94DE5947194F11AD004D242E /* fn.lua in Resources */,
 				94517BFB1957738100F9CCB6 /* log.lua in Resources */,
 				948CAA031955AECC00A27D9D /* textgrid.xib in Resources */,
+				94668E951958B039009422D7 /* doc.lua in Resources */,
 				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
 				945212A8194D6B5900217584 /* menu@2x.png in Resources */,
 			);
