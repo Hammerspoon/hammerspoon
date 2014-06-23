@@ -5,7 +5,7 @@ static void listen_to_stdout(lua_State* L) {
         dispatch_sync(dispatch_get_main_queue(), ^{
             NSString* str = [[NSString alloc] initWithData:[standardOut availableData] encoding:NSUTF8StringEncoding];
             
-//            NSLog(@"stdout: %@", str);
+            NSLog(@"stdout: %@", str);
             
             lua_getglobal(L, "api");
             lua_getfield(L, -1, "log");
