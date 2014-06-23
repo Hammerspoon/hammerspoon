@@ -50,8 +50,11 @@ static AXUIElementRef system_wide_element() {
     return element;
 }
 
-// args: []
-// ret: [win]
+static hydradoc doc_window_focusedwindow = {
+    "window", "focusedwindow", "api.window.focusedwindow() -> window",
+    "Returns the focused window, or nil."
+};
+
 int window_focusedwindow(lua_State* L) {
     CFTypeRef app;
     AXUIElementCopyAttributeValue(system_wide_element(), kAXFocusedApplicationAttribute, &app);
@@ -68,7 +71,8 @@ int window_focusedwindow(lua_State* L) {
         }
     }
     
-    return 0;
+    lua_pushnil(L);
+    return 1;
 }
 
 static id get_window_prop(AXUIElementRef win, NSString* propType, id defaultValue) {
@@ -88,8 +92,11 @@ static BOOL set_window_prop(AXUIElementRef win, NSString* propType, id value) {
     return NO;
 }
 
-// args: [win]
-// ret: [string]
+static hydradoc doc_window_title = {
+    "window", "title", "api.window:title() -> string",
+    "Returns the title of the window (as UTF8)."
+};
+
 int window_title(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -99,8 +106,11 @@ int window_title(lua_State* L) {
     return 1;
 }
 
-// args: [win]
-// ret: [string]
+static hydradoc doc_window_subrole = {
+    "window", "subrole", "api.window:subrole() -> string",
+    "Returns the subrole of the window, whatever that means."
+};
+
 int window_subrole(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -111,8 +121,11 @@ int window_subrole(lua_State* L) {
     return 1;
 }
 
-// args: [win]
-// ret: [string]
+static hydradoc doc_window_role = {
+    "window", "role", "api.window:role() -> string",
+    "Returns the role of the window, whatever that means."
+};
+
 int window_role(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -123,8 +136,11 @@ int window_role(lua_State* L) {
     return 1;
 }
 
-// args: [win]
-// ret: [bool]
+static hydradoc doc_window_isstandard = {
+    "window", "isstandard", "api.window:isstandard() -> bool",
+    "True if the window's subrole indicates it's 'a standard window'."
+};
+
 int window_isstandard(lua_State* L) {
     lua_getfield(L, 1, "__win");
     window_subrole(L);
@@ -135,8 +151,11 @@ int window_isstandard(lua_State* L) {
     return 1;
 }
 
-// args: [win]
-// ret: [point]
+static hydradoc doc_window_topleft = {
+    "window", "topleft", "api.window:topleft() -> point",
+    "The top-left corner of the window in absolute coordinates."
+};
+
 int window_topleft(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -166,8 +185,11 @@ int window_topleft(lua_State* L) {
     return 1;
 }
 
-// args: [win]
-// ret: [size]
+static hydradoc doc_window_size = {
+    "window", "size", "api.window:size() -> size",
+    "The size of the window."
+};
+
 int window_size(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -197,8 +219,11 @@ int window_size(lua_State* L) {
     return 1;
 }
 
-// args: [win, point]
-// ret: []
+static hydradoc doc_window_settopleft = {
+    "window", "settopleft", "api.window:settopleft(point)",
+    "Moves the window to the given point in absolute coordinate."
+};
+
 int window_settopleft(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -216,8 +241,11 @@ int window_settopleft(lua_State* L) {
     return 0;
 }
 
-// args: [win, size]
-// ret: []
+static hydradoc doc_window_setsize = {
+    "window", "setsize", "api.window:setsize(size)",
+    "Resizes the window."
+};
+
 int window_setsize(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -238,8 +266,11 @@ static void set_window_minimized(AXUIElementRef win, NSNumber* minimized) {
     set_window_prop(win, NSAccessibilityMinimizedAttribute, minimized);
 }
 
-// args: [win]
-// ret: []
+static hydradoc doc_window_minimize = {
+    "window", "minimize", "api.window:minimize()",
+    "Minimizes the window."
+};
+
 int window_minimize(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -248,8 +279,11 @@ int window_minimize(lua_State* L) {
     return 0;
 }
 
-// args: [win]
-// ret: []
+static hydradoc doc_window_unminimize = {
+    "window", "unminimize", "api.window:unminimize()",
+    "Un-minimizes the window."
+};
+
 int window_unminimize(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -258,8 +292,11 @@ int window_unminimize(lua_State* L) {
     return 0;
 }
 
-// args: [win]
-// ret: [bool]
+static hydradoc doc_window_isminimized = {
+    "window", "isminimized", "api.window:isminimized() -> bool",
+    "True if the window is currently minimized in the dock."
+};
+
 int window_isminimized(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
@@ -285,8 +322,11 @@ int window_pid(lua_State* L) {
     }
 }
 
-// args: [win]
-// ret: [app]
+static hydradoc doc_window_app = {
+    "window", "app", "api.window:app() -> app",
+    "Returns the app that the window belongs to."
+};
+
 int window_app(lua_State* L) {
     if (window_pid(L)) {
         pid_t pid = lua_tonumber(L, -1);
@@ -298,6 +338,11 @@ int window_app(lua_State* L) {
     }
 }
 
+static hydradoc doc_window_becomemain = {
+    "window", "becomemain", "api.window:becomemain() -> bool",
+    "Make this window the main window of the given application; deos not implicitly focus the app."
+};
+
 // args: [win]
 // ret: [bool]
 int window_becomemain(lua_State* L) {
@@ -308,6 +353,11 @@ int window_becomemain(lua_State* L) {
     lua_pushboolean(L, success);
     return 1;
 }
+
+static hydradoc doc_window_visible_windows_sorted_by_recency = {
+    "window", "visible_windows_sorted_by_recency", "api.window.visible_windows_sorted_by_recency() -> win[]",
+    "Experimental."
+};
 
 // XXX: undocumented API.  We need this to match dictionary entries returned by CGWindowListCopyWindowInfo (which
 // appears to be the *only* way to get a list of all windows on the system in "most-recently-used first" order) against
@@ -395,6 +445,21 @@ static const luaL_Reg windowlib[] = {
 
 int luaopen_window(lua_State* L) {
     hydra_add_doc_group(L, "window", "Functions for managing any window");
+    hydra_add_doc_item(L, &doc_window_focusedwindow);
+    hydra_add_doc_item(L, &doc_window_title);
+    hydra_add_doc_item(L, &doc_window_subrole);
+    hydra_add_doc_item(L, &doc_window_role);
+    hydra_add_doc_item(L, &doc_window_isstandard);
+    hydra_add_doc_item(L, &doc_window_topleft);
+    hydra_add_doc_item(L, &doc_window_size);
+    hydra_add_doc_item(L, &doc_window_settopleft);
+    hydra_add_doc_item(L, &doc_window_setsize);
+    hydra_add_doc_item(L, &doc_window_minimize);
+    hydra_add_doc_item(L, &doc_window_unminimize);
+    hydra_add_doc_item(L, &doc_window_isminimized);
+    hydra_add_doc_item(L, &doc_window_app);
+    hydra_add_doc_item(L, &doc_window_becomemain);
+    hydra_add_doc_item(L, &doc_window_visible_windows_sorted_by_recency);
     
     luaL_newlib(L, windowlib);
     return 1;
