@@ -223,6 +223,8 @@
 				94EF97711958603F00096A41 /* hydra.h */,
 				94276CA61958809C003BF95B /* hydra.m */,
 				948CA9F61955AE7B00A27D9D /* textgrid */,
+				948CA9FE1955AECC00A27D9D /* textgrid.m */,
+				94517BF81956FA5000F9CCB6 /* textgrid.lua */,
 				945200871950E6C10072DFEF /* sample_config.lua */,
 				94DE5948194F1A31004D242E /* api.m */,
 				94DE594A194F1A39004D242E /* api.lua */,
@@ -389,8 +391,6 @@
 				948CA9FC1955AECC00A27D9D /* HDTextGridView.h */,
 				948CA9FD1955AECC00A27D9D /* HDTextGridView.m */,
 				948CA9F91955AECC00A27D9D /* textgrid.xib */,
-				948CA9FE1955AECC00A27D9D /* textgrid.m */,
-				94517BF81956FA5000F9CCB6 /* textgrid.lua */,
 			);
 			name = textgrid;
 			sourceTree = "<group>";
