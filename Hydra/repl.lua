@@ -65,7 +65,7 @@ function api.repl.open()
     printcursor(3 + string.len(stdin), h)
   end
 
-  win:resized(redraw)
+  win.resized = redraw
 
   local function receivedlog(str)
     stdout = stdout .. str .. "\n"
@@ -74,28 +74,28 @@ function api.repl.open()
 
   local loghandler = api.log.addhandler(receivedlog)
 
-  win:closed(function()
-      api.log.removehandler(loghandler)
-  end)
+  function win.closed()
+    api.log.removehandler(loghandler)
+  end
 
-  win:keydown(function(t)
-      if t.key == "return" then
-        local command = stdin
-        stdin = ""
+  function win.keydown(t)
+    if t.key == "return" then
+      local command = stdin
+      stdin = ""
 
-        local fn = load(command)
-        local success, result = pcall(fn)
-        result = tostring(result)
-        if not success then result = "error: " .. result end
+      local fn = load(command)
+      local success, result = pcall(fn)
+      result = tostring(result)
+      if not success then result = "error: " .. result end
 
-        stdout = stdout .. "> " .. command .. "\n" .. result .. "\n"
-      elseif t.key == "delete" then -- i.e. backspace
-        stdin = stdin:sub(0, -2)
-      else
-        stdin = stdin .. t.key
-      end
-      redraw()
-  end)
+      stdout = stdout .. "> " .. command .. "\n" .. result .. "\n"
+    elseif t.key == "delete" then -- i.e. backspace
+      stdin = stdin:sub(0, -2)
+    else
+      stdin = stdin .. t.key
+    end
+    redraw()
+  end
 
   redraw()
   win:focus()

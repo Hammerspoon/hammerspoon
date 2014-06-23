@@ -74,35 +74,35 @@ function api.log.show()
     end
   end
 
-  win:resized(redraw)
+  win.resized = redraw
 
-  win:keydown(function(t)
-      local size = win:getsize()
-      local h = size.h
+  function win.keydown(t)
+    local size = win:getsize()
+    local h = size.h
 
-      -- this can't be cached on account of the textgrid's height could change
-      local keytable = {
-        j = 1,
-        k = -1,
-        n = (h-1),
-        p = -(h-1),
-        -- TODO: add emacs keys too
-      }
+    -- this can't be cached on account of the textgrid's height could change
+    local keytable = {
+      j = 1,
+      k = -1,
+      n = (h-1),
+      p = -(h-1),
+      -- TODO: add emacs keys too
+    }
 
-      local scrollby = keytable[t.key]
-      if scrollby then
-        pos = pos + scrollby
-        pos = math.max(pos, 1)
-        pos = math.min(pos, # api.log.lines)
-      end
-      redraw()
-  end)
+    local scrollby = keytable[t.key]
+    if scrollby then
+      pos = pos + scrollby
+      pos = math.max(pos, 1)
+      pos = math.min(pos, # api.log.lines)
+    end
+    redraw()
+  end
 
   local loghandler = api.log.addhandler(redraw)
 
-  win:closed(function()
-      api.log.removehandler(loghandler)
-  end)
+  function win.closed()
+    api.log.removehandler(loghandler)
+  end
 
   redraw()
   win:focus()

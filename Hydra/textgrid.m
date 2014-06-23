@@ -33,79 +33,6 @@ static HDTextGridController* get_textgrid_wc(lua_State* L, int idx) {
     return wc;
 }
 
-static hydradoc doc_textgrid_resized = {
-    "textgrid", "resized", "api.textgrid:resized(fn())",
-    "Calls the given function when the textgrid is resized."
-};
-
-static int textgrid_resized(lua_State *L) {
-    HDTextGridController* wc = get_textgrid_wc(L, 1);
-    
-    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
-    lua_pushnumber(L, closureref);
-    lua_setfield(L, 1, "__resizedclosureref");
-    
-    wc.windowResizedHandler = ^{
-        lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
-        if (lua_pcall(L, 0, 0, 0))
-            hydra_handle_error(L);
-    };
-    
-    return 0;
-}
-
-static hydradoc doc_textgrid_closed = {
-    "textgrid", "closed", "api.textgrid:closed(fn())",
-    "Calls the given function when the textgrid is closed."
-};
-
-static int textgrid_closed(lua_State *L) {
-    HDTextGridController* wc = get_textgrid_wc(L, 1);
-    
-    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
-    lua_pushnumber(L, closureref);
-    lua_setfield(L, 1, "__closedclosureref");
-    
-    wc.windowClosedHandler = ^{
-        lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
-        if (lua_pcall(L, 0, 0, 0))
-            hydra_handle_error(L);
-    };
-    
-    return 0;
-}
-
-static hydradoc doc_textgrid_keydown = {
-    "textgrid", "keydown", "api.textgrid:keydown(fn(t))",
-    "Calls the given function when a key is pressed in the focused textgrid. The table t contains keys {ctrl, alt, cmd, key}."
-};
-
-static int textgrid_keydown(lua_State *L) {
-    HDTextGridController* wc = get_textgrid_wc(L, 1);
-    
-    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
-    lua_pushnumber(L, closureref);
-    lua_setfield(L, 1, "__keydownclosureref");
-    
-    [wc useKeyDownHandler:^(BOOL ctrl, BOOL alt, BOOL cmd, NSString *str) {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
-        
-        lua_newtable(L);
-        lua_pushboolean(L, ctrl);            lua_setfield(L, -2, "ctrl");
-        lua_pushboolean(L, alt);             lua_setfield(L, -2, "alt");
-        lua_pushboolean(L, cmd);             lua_setfield(L, -2, "cmd");
-        lua_pushstring(L, [str UTF8String]); lua_setfield(L, -2, "key");
-        
-        if (lua_pcall(L, 1, 0, 0))
-            hydra_handle_error(L);
-    }];
-    
-    return 0;
-}
-
 static hydradoc doc_textgrid_getsize = {
     "textgrid", "getsize", "api.textgrid:getsize() -> size",
     "Returns the size (nubmer of rows and columns) as a size-table with keys {x,y}."
@@ -240,20 +167,23 @@ static int textgrid_gc(lua_State *L) {
     HDTextGridController* wc = (__bridge_transfer HDTextGridController*)lua_touserdata(L, -1);
     [wc close];
     
-    lua_getfield(L, 1, "__resizedclosureref");
-    if (lua_isnumber(L, -1))
-        luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, -1));
-    
-    lua_getfield(L, 1, "__keydownclosureref");
-    if (lua_isnumber(L, -1))
-        luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, -1));
-    
-    lua_getfield(L, 1, "__closedclosureref");
-    if (lua_isnumber(L, -1))
-        luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, -1));
-    
     return 0;
 }
+
+static hydradoc doc_textgrid_resized = {
+    "textgrid", "resized", "api.textgrid:resized = function()",
+    "Calls the given function when the textgrid is resized. Defaults to nil."
+};
+
+static hydradoc doc_textgrid_closed = {
+    "textgrid", "closed", "api.textgrid:closed = function()",
+    "Calls the given function when the textgrid is closed. Defaults to nil."
+};
+
+static hydradoc doc_textgrid_keydown = {
+    "textgrid", "keydown", "api.textgrid:keydown = function(t)",
+    "Calls the given function when a key is pressed in the focused textgrid. The table t contains keys {ctrl, alt, cmd, key}. Defaults to nil."
+};
 
 // args: []
 // returns: [textgrid]
@@ -262,6 +192,58 @@ static int textgrid_open(lua_State *L) {
     [windowController showWindow: nil];
     
     lua_newtable(L);
+    
+    // save it for later
+    lua_pushvalue(L, -1);
+    int tableref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    windowController.windowResizedHandler = ^{
+        lua_rawgeti(L, LUA_REGISTRYINDEX, tableref);
+        lua_getfield(L, -1, "resized");
+        if (lua_isfunction(L, -1)) {
+            if (lua_pcall(L, 0, 0, 0))
+                hydra_handle_error(L);
+            lua_pop(L, 1);
+        }
+        else {
+            lua_pop(L, 2);
+        }
+    };
+    
+    windowController.windowClosedHandler = ^{
+        lua_rawgeti(L, LUA_REGISTRYINDEX, tableref);
+        lua_getfield(L, -1, "closed");
+        if (lua_isfunction(L, -1)) {
+            if (lua_pcall(L, 0, 0, 0))
+                hydra_handle_error(L);
+            lua_pop(L, 1);
+        }
+        else {
+            lua_pop(L, 2);
+        }
+        
+        luaL_unref(L, LUA_REGISTRYINDEX, tableref);
+    };
+    
+    [windowController useKeyDownHandler:^(BOOL ctrl, BOOL alt, BOOL cmd, NSString *str) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, tableref);
+        lua_getfield(L, -1, "keydown");
+        if (lua_isfunction(L, -1)) {
+            lua_newtable(L);
+            lua_pushboolean(L, ctrl);            lua_setfield(L, -2, "ctrl");
+            lua_pushboolean(L, alt);             lua_setfield(L, -2, "alt");
+            lua_pushboolean(L, cmd);             lua_setfield(L, -2, "cmd");
+            lua_pushstring(L, [str UTF8String]); lua_setfield(L, -2, "key");
+            
+            if (lua_pcall(L, 1, 0, 0))
+                hydra_handle_error(L);
+            
+            lua_pop(L, 1);
+        }
+        else {
+            lua_pop(L, 2);
+        }
+    }];
     
     lua_pushlightuserdata(L, (__bridge_retained void*)windowController);
     lua_setfield(L, -2, "__wc");
@@ -289,11 +271,6 @@ static int textgrid_close(lua_State *L) {
 
 static const luaL_Reg textgridlib[] = {
     {"_open", textgrid_open},
-    
-    // event handlers
-    {"resized", textgrid_resized},
-    {"keydown", textgrid_keydown},
-    {"closed", textgrid_closed},
     
     // methods
     {"_close", textgrid_close},
