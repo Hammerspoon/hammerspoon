@@ -5,6 +5,11 @@ void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, s
     block();
 }
 
+static hydradoc doc_pathwatcher_start = {
+    "pathwatcher", "start", "api.pathwatcher:start()",
+    "Registers pathwatcher's fn as a callback when pathwatcher's path or any descendent changes."
+};
+
 // args: [patchwatcher]
 // returns: []
 int pathwatcher_start(lua_State* L) {
@@ -45,6 +50,11 @@ int pathwatcher_start(lua_State* L) {
     return 0;
 }
 
+static hydradoc doc_pathwatcher_stop = {
+    "pathwatcher", "stop", "api.pathwatcher:stop()",
+    "Unregisters pathwatcher's fn so it won't be called again until the pathwatcher is restarted."
+};
+
 // args: [patchwatcher]
 // returns: []
 int pathwatcher_stop(lua_State* L) {
@@ -62,6 +72,11 @@ int pathwatcher_stop(lua_State* L) {
     
     return 0;
 }
+
+static hydradoc doc_pathwatcher_new = {
+    "pathwatcher", "new", "api.pathwatcher.new(path, fn)",
+    "Returns a new pathwatcher that can be started and stopped. Contains fields: path, fn."
+};
 
 // args: [(self), path, fn]
 // returns: [pathwatcher]
@@ -97,6 +112,11 @@ static const luaL_Reg pathwatcherlib_meta[] = {
 };
 
 int luaopen_pathwatcher(lua_State* L) {
+    hydra_add_doc_group(L, "pathwatcher", "Watch paths recursively for changes.");
+    hydra_add_doc_item(L, &doc_pathwatcher_start);
+    hydra_add_doc_item(L, &doc_pathwatcher_stop);
+    hydra_add_doc_item(L, &doc_pathwatcher_new);
+    
     luaL_newlib(L, pathwatcherlib);
     
     luaL_newlib(L, pathwatcherlib_meta);
