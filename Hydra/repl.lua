@@ -64,7 +64,12 @@ function api.repl.open()
 
   win:resized(redraw)
 
-  local loghandler = api.log.addhandler(redraw)
+  local function receivedlog(str)
+    stdout = stdout .. str .. "\n"
+    redraw()
+  end
+
+  local loghandler = api.log.addhandler(receivedlog)
 
   win:closed(function()
       api.log.removehandler(loghandler)
