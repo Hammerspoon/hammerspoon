@@ -2,4 +2,4 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
-#define LUA_USE_MKSTEMP 1
+#define LUA_USE_MACOSX 1
