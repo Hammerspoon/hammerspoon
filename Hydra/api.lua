@@ -23,8 +23,8 @@ end
 
 local function clear_old_state()
   api.hotkey._clear()
-  api.menu.hide() -- done
-  api.pathwatcher._clear() -- done
+  api.menu.hide()
+  api.pathwatcher.stopall()
   api.timer._clear()
   api.textgrid.closeall()
   api.notify._clear()
