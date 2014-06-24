@@ -24,10 +24,21 @@ function doc(item)
   end
 end
 
+local function sortedtablekeys(t)
+  local keys = {}
+  for k, _ in pairs(t) do
+    table.insert(keys, k)
+  end
+  table.sort(keys)
+  return keys
+end
+
 function api.generatedocs(path)
   local file = io.open(path, "w")
-  for groupname, group in pairs(api.doc) do
-    for itemname, item in pairs(group) do
+  for _, groupname in pairs(sortedtablekeys(api.doc)) do
+    local group = api.doc[groupname]
+    for _, itemname in pairs(sortedtablekeys(group)) do
+      local item = group[itemname]
       local def, docstring = item[1], item[2]
       if def and docstring then
         file:write(def .. " -- " .. docstring .. "\n")
