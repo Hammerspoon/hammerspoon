@@ -32,10 +32,14 @@ local function clear_old_state()
   api.menu.hide()
 
   -- pathwatchers
-  for i = # api.pathwatcher.pathwatchers, 1, -1 do
+  for i = api.pathwatcher.pathwatchers.n, 1, -1 do
     local pw = api.pathwatcher.pathwatchers[i]
-    pw:stop()
+    if pw then
+      pw:stop()
+      api.pathwatcher.pathwatchers[i] = nil
+    end
   end
+  api.pathwatcher.pathwatchers.n = 0
 
   -- timers
   for i = # api.timer.timers, 1, -1 do
