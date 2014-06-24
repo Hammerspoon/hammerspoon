@@ -85,6 +85,7 @@
 		94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Hydra.icns */; };
 		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
 		94E8E7BC194E25300064CF6C /* app.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* app.lua */; };
+		94F7A98E1959096100CE7136 /* notify.m in Sources */ = {isa = PBXBuildFile; fileRef = 94F7A98D1959096100CE7136 /* notify.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -201,6 +202,7 @@
 		94E8E7B9194E25290064CF6C /* screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = screen.lua; sourceTree = "<group>"; };
 		94E8E7BB194E25300064CF6C /* app.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = app.lua; sourceTree = "<group>"; };
 		94EF97711958603F00096A41 /* hydra.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hydra.h; sourceTree = "<group>"; };
+		94F7A98D1959096100CE7136 /* notify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = notify.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -251,6 +253,7 @@
 				94521299194D59F800217584 /* mouse.m */,
 				9452129B194D5B8F00217584 /* autolaunch.m */,
 				945212A3194D6A6000217584 /* menu.m */,
+				94F7A98D1959096100CE7136 /* notify.m */,
 				94668E941958B039009422D7 /* doc.lua */,
 				94DE5946194F11AD004D242E /* fn.lua */,
 				948CAA001955AECC00A27D9D /* repl.lua */,
@@ -509,6 +512,7 @@
 				94276CA71958809C003BF95B /* hydra.m in Sources */,
 				9445CA88190833C1002568BB /* ldump.c in Sources */,
 				94517BFD195773A200F9CCB6 /* log.m in Sources */,
+				94F7A98E1959096100CE7136 /* notify.m in Sources */,
 				9452129E194D65BF00217584 /* PHAlert.m in Sources */,
 				94DE5949194F1A31004D242E /* api.m in Sources */,
 				9445CA96190833C1002568BB /* lstring.c in Sources */,
