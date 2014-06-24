@@ -70,9 +70,6 @@ int luaopen_api(lua_State* L) {
     lua_pushvalue(L, -1);
     lua_setglobal(L, "api");
     
-    lua_newtable(L);
-    lua_setfield(L, -2, "doc");
-    
     hydra_add_doc_group(L, "api", "Top level API functions.");
     hydra_add_doc_item(L, &doc_api_showabout);
     hydra_add_doc_item(L, &doc_api_focushydra);

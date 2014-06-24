@@ -40,6 +40,12 @@ int luaopen_notify(lua_State* L);
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
+    lua_newtable(L);
+    lua_pushvalue(L, -1);
+    lua_setglobal(L, "doc");
+    lua_newtable(L);
+    lua_setfield(L, -2, "api");
+    
     luaopen_api(L);
     
     static const luaL_Reg hydralibs[] = {

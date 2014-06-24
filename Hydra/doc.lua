@@ -1,7 +1,7 @@
-api.doc.doc = {__doc = "Documentation system."}
+-- doc.api.doc = {__doc = "Documentation system."}
 
-api.doc.doc.doc = {"doc(thing)", "Prints documentation on the given thing."}
-function doc(item)
+-- doc.api.doc.doc = {"doc(thing)", "Prints documentation on the given thing."}
+function _doc(item)
   if type(item) ~= "table" then
     -- wat
     print("It appears that " .. tostring(item) .. " is not in the documentation system.")
