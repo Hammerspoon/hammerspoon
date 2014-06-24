@@ -81,29 +81,99 @@ cleanup:
 
 static hydradoc doc_updates_check = {
     "updates", "check", "api.updates.check()",
-    "Checks (over the internet) for an update. If one is available, calls api.updates.available()."
+    "Checks (over the internet) for an update. If one is available, calls api.updates.available(newversion, currentversion, changelog)."
 };
 
-static NSString* update_address = @"https://raw.githubusercontent.com/sdegutis/Hydra/master/version.txt";
+static NSString* version_url = @"https://raw.githubusercontent.com/sdegutis/Hydra/master/version.txt";
+static NSString* download_url = @"https://raw.githubusercontent.com/sdegutis/Hydra/master/Builds/Hydra-LATEST.app.tar.gz";
+static NSString* changelog_url = @"https://raw.githubusercontent.com/sdegutis/Hydra/master/CHANGES.txt";
 
-int updates_check(lua_State* L) {
-    NSURL* url = [NSURL URLWithString:update_address];
+static NSString* tempDir(void) {
+    NSString* tmpdir = NSTemporaryDirectory();
+    if (tmpdir == nil) tmpdir = @"/tmp";
+    
+    NSString* template = [tmpdir stringByAppendingPathComponent:@"temp.XXXXXX"];
+    NSMutableData * bufferData = [[template dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
+    char* buffer = [bufferData mutableBytes];
+    mkdtemp(buffer);
+    return [NSString stringWithUTF8String:buffer];
+}
+
+void continue_check(lua_State* L, NSArray* parts) {
+    NSInteger releaseDate = [[parts objectAtIndex:0] integerValue];
+    NSInteger currentDate = [[NSDate date] timeIntervalSince1970];
+    
+    if (releaseDate <= currentDate) { printf("checked for update but found none yet\n"); return; }
+    
+    NSString* newVersion = [parts objectAtIndex:1];
+    NSString* currentVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+    
+    NSString* signature = [parts objectAtIndex:2];
+    NSInteger filesize = [[parts objectAtIndex:3] integerValue];
+    
+    NSString* pubkeypath = [[NSBundle mainBundle] pathForResource:@"dsa_pub" ofType:@"cer"];
+    
+    NSURL* url = [NSURL URLWithString:download_url];
     NSURLRequest* req = [NSURLRequest requestWithURL:url];
     [NSURLConnection sendAsynchronousRequest:req
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                               if ([(NSHTTPURLResponse*)response statusCode] != 200)
-                                   return;
+                               if ([(NSHTTPURLResponse*)response statusCode] != 200) { printf("checked for update but download url is broken(?)\n"); return; }
+                               
+                               if (filesize != [data length]) { printf("found update but filesize didn't match what was expected\n"); return; }
+                               
+                               NSString* temporaryDirectory = tempDir();
+                               NSString* zippath = [temporaryDirectory stringByAppendingPathComponent:@"Hydra-LATEST.app.tar.gz"];
+                               [data writeToFile:zippath atomically:YES];
+                               
+                               BOOL verified = updater_verify_file(signature, pubkeypath, zippath);
+                               
+                               if (!verified) { printf("found update but file didn't verify\n"); return; }
+                               
+                               NSURL* url = [NSURL URLWithString:changelog_url];
+                               NSURLRequest* req = [NSURLRequest requestWithURL:url];
+                               [NSURLConnection sendAsynchronousRequest:req
+                                                                  queue:[NSOperationQueue mainQueue]
+                                                      completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                                                          NSString* changelog = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                                          
+                                                          lua_getglobal(L, "api");
+                                                          lua_getfield(L, -1, "updates");
+                                                          lua_getfield(L, -1, "available");
+                                                          
+                                                          if (lua_isfunction(L, -1)) {
+                                                              lua_pushstring(L, [newVersion UTF8String]);
+                                                              lua_pushstring(L, [currentVersion UTF8String]);
+                                                              lua_pushstring(L, [changelog UTF8String]);
+                                                              
+                                                              if (lua_pcall(L, 3, 0, 0))
+                                                                  hydra_handle_error(L);
+                                                              
+                                                              lua_pop(L, 2);
+                                                          }
+                                                          else {
+                                                              lua_pop(L, 3);
+                                                              printf("found update but api.updates.available is nil; see the docs for it to fix this\n");
+                                                          }
+                                                      }];
+                           }];
+}
+
+int updates_check(lua_State* L) {
+    NSURL* url = [NSURL URLWithString:version_url];
+    NSURLRequest* req = [NSURLRequest requestWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:req
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               if ([(NSHTTPURLResponse*)response statusCode] != 200) { printf("checked for update but version url is broken(?)\n"); return; }
                                
                                NSString* str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                               
-                               if ([str length] == 0)
-                                   return;
+                               if ([str length] == 0) { printf("checked for update but version file is messed up somehow\n"); return; }
                                
                                NSArray* parts = [str componentsSeparatedByString:@"\n"];
+                               if ([parts count] != 5) { printf("checked for update but version file is all weird and stuff\n"); return; }
                                
-                               NSLog(@"%@", parts);
-                               
+                               continue_check(L, parts);
                            }];
     return 0;
 }
@@ -116,12 +186,6 @@ static const luaL_Reg updateslib[] = {
 int luaopen_updates(lua_State* L) {
     hydra_add_doc_group(L, "updates", "Check for and install Hydra updates.");
     hydra_add_doc_item(L, &doc_updates_check);
-    
-//    BOOL result =
-//    updates_verify_file(@"MC0CFQCR5YCyNWgn3LrL0ZYbAdt3dkxfqQIUUk9fCV6Vr5KVDUuDUtQNwmdT7S0=",
-//            @"/Users/sdegutis/Downloads/dsa_pub.cer",
-//            @"/Users/sdegutis/Downloads/Zephyros-LATEST.app.tar.gz");
-//    NSLog(@"%d", result);
     
     luaL_newlib(L, updateslib);
     return 1;

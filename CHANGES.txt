@@ -1,0 +1,7 @@
+1.0:
+
+- First public release
+
+0.9:
+
+- Added all the stuff
