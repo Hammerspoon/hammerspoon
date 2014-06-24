@@ -92,7 +92,7 @@ static NSString* tempDir(void) {
     NSString* tmpdir = NSTemporaryDirectory();
     if (tmpdir == nil) tmpdir = @"/tmp";
     
-    NSString* template = [tmpdir stringByAppendingPathComponent:@"temp.XXXXXX"];
+    NSString* template = [tmpdir stringByAppendingPathComponent:@"hydra.XXXXXX"];
     NSMutableData * bufferData = [[template dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
     char* buffer = [bufferData mutableBytes];
     mkdtemp(buffer);
@@ -146,6 +146,8 @@ void continue_check(lua_State* L, NSArray* parts) {
                                if (filesize != [data length]) { printf("found update but filesize didn't match what was expected\n"); return; }
                                
                                NSString* temporaryDirectory = tempDir();
+                               if (!temporaryDirectory) { printf("found update but couldn't save it to a temp dir for some reason\n"); return; }
+                               
                                app_zip_path = [temporaryDirectory stringByAppendingPathComponent:@"Hydra-LATEST.app.tar.gz"];
                                [data writeToFile:app_zip_path atomically:YES];
                                
