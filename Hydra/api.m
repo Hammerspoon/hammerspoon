@@ -57,11 +57,29 @@ int api_fileexists(lua_State* L) {
     return 2;
 }
 
+static hydradoc doc_api_check_accessibility = {
+    "api", "check_accessibility", "api.check_accessibility(shouldprompt) -> isenabled",
+    "Returns whether accessibility is enabled. If passed `true`, promtps the user to enable it."
+};
+
+int api_check_accessibility(lua_State* L) {
+    NSDictionary* opts = nil;
+    
+    if (lua_isboolean(L, -1))
+        opts = @{(__bridge id)kAXTrustedCheckOptionPrompt: @(lua_toboolean(L, -1))};
+    
+    BOOL enabled = AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)opts);
+    
+    lua_pushboolean(L, enabled);
+    return 1;
+}
+
 static const luaL_Reg apilib[] = {
     {"showabout", api_showabout},
     {"focushydra", api_focushydra},
     {"alert", api_alert},
     {"fileexists", api_fileexists},
+    {"check_accessibility", api_check_accessibility},
     {NULL, NULL}
 };
 
@@ -75,6 +93,7 @@ int luaopen_api(lua_State* L) {
     hydra_add_doc_item(L, &doc_api_focushydra);
     hydra_add_doc_item(L, &doc_api_alert);
     hydra_add_doc_item(L, &doc_api_fileexists);
+    hydra_add_doc_item(L, &doc_api_check_accessibility);
     
     // no trailing slash
     lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);

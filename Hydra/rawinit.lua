@@ -16,6 +16,10 @@ dofile(api.resourcesdir .. "/notify.lua")
 dofile(api.resourcesdir .. "/doc.lua")
 dofile(api.resourcesdir .. "/webview.lua")
 
+if not api.check_accessibility(true) then
+  api.notify.show("Enable accessibility first", "", "Otherwise Hydra can't do very much.", "needs_accessibility")
+end
+
 api._initiate_documentation_system()
 
 package.path = api.userfile("?") .. ";" .. package.path

@@ -24,19 +24,6 @@ int luaopen_webview(lua_State* L);
 
 @implementation PHAppDelegate
 
-- (void) complainIfNeeded {
-    BOOL enabled = AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)@{(__bridge id)kAXTrustedCheckOptionPrompt: @(YES)});
-    
-    if (!enabled) {
-        NSRunAlertPanel(@"Enable Accessibility First",
-                        @"Find the little popup right behind this one, click \"Open System Preferences\" and enable api. Then launch Hydra again.",
-                        @"Quit",
-                        nil,
-                        nil);
-        [NSApp terminate:self];
-    }
-}
-
 - (void) setupLua {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
@@ -79,7 +66,6 @@ int luaopen_webview(lua_State* L);
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    [self complainIfNeeded];
     [self setupLua];
 }
 
