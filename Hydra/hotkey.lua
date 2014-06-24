@@ -18,3 +18,10 @@ api.doc.hotkey.bind = {"api.hotkey.bind(...) -> hotkey", "Shortcut for: return a
 function api.hotkey.bind(...)
   return api.hotkey.new(...):enable()
 end
+
+function api.hotkey._clear()
+  for _, hotkey in pairs(api.hotkey.keys) do
+    hotkey:disable()
+  end
+  api.hotkey.keys = {}
+end

@@ -30,3 +30,10 @@ function api.timer:stop()
   table.remove(api.timer.timers, self.__pos)
   return self:_stop()
 end
+
+function api.timer._clear()
+  for i = # api.timer.timers, 1, -1 do
+    local t = api.timer.timers[i]
+    t:stop()
+  end
+end

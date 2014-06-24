@@ -22,40 +22,12 @@ local function load_default_config()
 end
 
 local function clear_old_state()
-  -- hotkeys
-  for _, hotkey in pairs(api.hotkey.keys) do
-    hotkey:disable()
-  end
-  api.hotkey.keys = {}
-
-  -- menu
+  api.hotkey._clear()
   api.menu.hide()
-
-  -- pathwatchers
-  for i = api.pathwatcher.pathwatchers.n, 1, -1 do
-    local pw = api.pathwatcher.pathwatchers[i]
-    if pw then
-      pw:stop()
-      api.pathwatcher.pathwatchers[i] = nil
-    end
-  end
-  api.pathwatcher.pathwatchers.n = 0
-
-  -- timers
-  for i = # api.timer.timers, 1, -1 do
-    local t = api.timer.timers[i]
-    t:stop()
-  end
-
-  -- textgrids
-  for i = # api.textgrid.textgrids, 1, -1 do
-    local tg = api.textgrid.textgrids[i]
-    tg:close()
-  end
-
-  -- notification watchers
-  api.notify.registry = {}
-  api.notify.registry.n = 0
+  api.pathwatcher._clear()
+  api.timer._clear()
+  api.textgrid._clear()
+  api.notify._clear()
 end
 
 api.doc.api.reload = {"api.reload()", "Reloads your init-file. Makes sure to clear any state that makes sense to clear (hotkeys, pathwatchers, etc)."}

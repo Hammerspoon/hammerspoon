@@ -24,3 +24,8 @@ function api.notify._clicked(tag)
     end
   end
 end
+
+function api.notify._clear()
+  api.notify.registry = {}
+  api.notify.registry.n = 0
+end

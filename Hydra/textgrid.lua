@@ -21,3 +21,10 @@ function api.textgrid:livelong()
   table.remove(api.textgrid.textgrids, self.__pos)
   self.__pos = nil
 end
+
+function api.textgrid._clear()
+  for i = # api.textgrid.textgrids, 1, -1 do
+    local tg = api.textgrid.textgrids[i]
+    tg:close()
+  end
+end

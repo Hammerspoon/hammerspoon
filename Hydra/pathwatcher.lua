@@ -20,3 +20,14 @@ function api.pathwatcher:stop()
   api.pathwatcher.pathwatchers[self.__id] = nil
   return self:_stop()
 end
+
+function api.pathwatcher._clear()
+  for i = api.pathwatcher.pathwatchers.n, 1, -1 do
+    local pw = api.pathwatcher.pathwatchers[i]
+    if pw then
+      pw:stop()
+      api.pathwatcher.pathwatchers[i] = nil
+    end
+  end
+  api.pathwatcher.pathwatchers.n = 0
+end
