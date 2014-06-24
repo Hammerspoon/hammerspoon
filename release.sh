@@ -4,6 +4,12 @@ set -e
 
 PRIVKEYFILE=$1
 
+if [ -z "$PRIVKEYFILE" ];
+then
+    echo "Usage: $0 <priv_key_file>"
+    exit 1
+fi
+
 # build app
 xcodebuild clean build
 VERSION=$(defaults read $(pwd)/Hydra/Hydra-Info CFBundleVersion)
