@@ -18,7 +18,7 @@ function api.hotkey:enable()
   return self:_enable()
 end
 
-doc.api.hotkey.disable = {"", ""}
+doc.api.hotkey.disable = {"api.hotkey:disable() -> self", "Disables the given hotkey; does not remove it from api.hotkey.keys."}
 function api.hotkey:disable()
   api.hotkey.keys[self.__uid] = nil
   self.__uid = nil
