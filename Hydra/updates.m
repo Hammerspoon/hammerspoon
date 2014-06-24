@@ -14,10 +14,12 @@ static SecKeyRef transform_public_key(NSString* pubkeypath) {
 	SecItemImportExportKeyParameters parameters = {};
     
 	OSStatus status = SecItemImport((__bridge CFDataRef)pubkeyData, NULL, &format, &itemType, 0, &parameters, NULL, &items);
-    if (status != noErr || items == NULL ||
-        format != kSecFormatOpenSSL || itemType != kSecItemTypePublicKey ||
-        CFArrayGetCount(items) != 1)
-        goto cleanup;
+    
+    if (status != noErr) { printf("invalid status: %d\n", status); goto cleanup; }
+    if (items == NULL) { printf("items were unexpectedly null\n"); goto cleanup; }
+    if (format != kSecFormatOpenSSL) { printf("format isn't kSecFormatOpenSSL: %d\n", format); goto cleanup; }
+    if (itemType != kSecItemTypePublicKey) { printf("item type isn't kSecItemTypePublicKey: %d\n", itemType); goto cleanup; }
+    if (CFArrayGetCount(items) != 1) { printf("items count isn't 1, it's: %ld\n", CFArrayGetCount(items)); goto cleanup; }
     
     security_key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
     
@@ -40,32 +42,36 @@ static BOOL updater_verify_file(NSString* sig, NSString* pubkeypath, NSString* z
 	SecTransformRef digest_transform = NULL;
 	SecTransformRef verify_transform = NULL;
 	CFErrorRef error = NULL;
+    CFBooleanRef success = NULL;
     
     security_key = transform_public_key(pubkeypath);
-    if (security_key == NULL) goto cleanup;
+    if (security_key == NULL) { printf("security key was null\n"); goto cleanup; }
     
 	signature = [[NSData alloc] initWithBase64EncodedString:[sig stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    if (signature == nil) goto cleanup;
+    if (signature == nil) { printf("signature was null\n"); goto cleanup; }
     
 	input_stream = [NSInputStream inputStreamWithFileAtPath:zipfilepath];
-    if (input_stream == nil) goto cleanup;
+    if (input_stream == nil) { printf("input stream was null\n"); goto cleanup; }
     
 	read_transform = SecTransformCreateReadTransformWithReadStream((__bridge CFReadStreamRef)input_stream);
-	if (read_transform == NULL) goto cleanup;
+	if (read_transform == NULL) { printf("read transform was null\n"); goto cleanup; }
     
 	digest_transform = SecDigestTransformCreate(kSecDigestSHA1, CC_SHA1_DIGEST_LENGTH, NULL);
-	if (digest_transform == NULL) goto cleanup;
+	if (digest_transform == NULL) { printf("digest transform was null\n"); goto cleanup; }
     
 	verify_transform = SecVerifyTransformCreate(security_key, (__bridge CFDataRef)signature, NULL);
-	if (verify_transform == NULL) goto cleanup;
+	if (verify_transform == NULL) { printf("verify transform was null\n"); goto cleanup; }
     
 	SecTransformConnectTransforms(read_transform, kSecTransformOutputAttributeName, digest_transform, kSecTransformInputAttributeName, group, &error);
-	if (error) goto cleanup;
+	if (error) { printf("read transform failed to connect to digest transform:\n"); CFShow(error); goto cleanup; }
     
 	SecTransformConnectTransforms(digest_transform, kSecTransformOutputAttributeName, verify_transform, kSecTransformInputAttributeName, group, &error);
-	if (error) goto cleanup;
+	if (error) { printf("digest transform failed to connect to verify transform:\n"); CFShow(error); goto cleanup; }
     
-	verified = [CFBridgingRelease(SecTransformExecute(group, NULL)) boolValue];
+    success = SecTransformExecute(group, &error);
+    if (error) { printf("executing transform failed: %ld\n", CFErrorGetCode(error)); CFShow(error); goto cleanup; }
+    
+	verified = CFBooleanGetValue(success);
     
 cleanup:
     
@@ -74,6 +80,7 @@ cleanup:
     if (read_transform) CFRelease(read_transform);
     if (digest_transform) CFRelease(digest_transform);
     if (verify_transform) CFRelease(verify_transform);
+    if (success) CFRelease(success);
     if (error) CFRelease(error);
     
     return verified;
