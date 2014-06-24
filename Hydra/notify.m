@@ -35,7 +35,7 @@
 @end
 
 static hydradoc doc_notify_show = {
-    "notify", "show", "notify.show(title, subtitle, text, tag)",
+    "notify", "show", "api.notify.show(title, subtitle, text, tag)",
     "Show an Apple notification. Tag is a unique string that identifies this notification, and will be passed to api.notify.clicked() if the notification is clicked. None of the strings are optional, though they may each be blank."
 };
 
@@ -61,7 +61,7 @@ int notify_show(lua_State* L) {
 }
 
 static hydradoc doc_notify_clicked = {
-    "notify", "clicked", "notify.clicked(tag)",
+    "notify", "clicked", "api.notify.clicked(tag)",
     "Called when an Apple notification created by Hydra is clicked. Tag is the string given when showing the notification, used for distinguishing notifications."
 };
 
