@@ -99,6 +99,8 @@ static NSString* tempDir(void) {
     return [NSString stringWithUTF8String:buffer];
 }
 
+static NSString* app_zip_path;
+
 void continue_check(lua_State* L, NSArray* parts) {
     NSInteger releaseDate = [[parts objectAtIndex:0] integerValue];
     NSInteger currentDate = [[NSDate date] timeIntervalSince1970];
@@ -123,10 +125,10 @@ void continue_check(lua_State* L, NSArray* parts) {
                                if (filesize != [data length]) { printf("found update but filesize didn't match what was expected\n"); return; }
                                
                                NSString* temporaryDirectory = tempDir();
-                               NSString* zippath = [temporaryDirectory stringByAppendingPathComponent:@"Hydra-LATEST.app.tar.gz"];
-                               [data writeToFile:zippath atomically:YES];
+                               app_zip_path = [temporaryDirectory stringByAppendingPathComponent:@"Hydra-LATEST.app.tar.gz"];
+                               [data writeToFile:app_zip_path atomically:YES];
                                
-                               BOOL verified = updater_verify_file(signature, pubkeypath, zippath);
+                               BOOL verified = updater_verify_file(signature, pubkeypath, app_zip_path);
                                
                                if (!verified) { printf("found update but file didn't verify\n"); return; }
                                
@@ -178,6 +180,25 @@ int updates_check(lua_State* L) {
     return 0;
 }
 
+static hydradoc doc_updates_install = {
+    "updates", "install", "api.updates.install()",
+    "Installs the update, if it was made available by api.updates.check(); restarts the app."
+};
+
+int updates_install(lua_State* L) {
+    NSString* destParentDir = [[[NSBundle mainBundle] bundlePath] stringByDeletingLastPathComponent];
+    NSString* horribleShellCommand = [NSString stringWithFormat:@"tar -zxf \"%@\" -C \"%@\"; sleep 0.5; open -a Hydra", app_zip_path, destParentDir];
+    
+    NSTask *task = [[NSTask alloc] init];
+    [task setLaunchPath:@"/bin/sh"];
+    [task setArguments: @[@"-c", horribleShellCommand]];
+    [task launch];
+    
+    [NSApp terminate: nil];
+    exit(0); // lol
+    return 0; // LOL
+}
+
 static const luaL_Reg updateslib[] = {
     {"check", updates_check},
     {NULL, NULL}
@@ -186,6 +207,7 @@ static const luaL_Reg updateslib[] = {
 int luaopen_updates(lua_State* L) {
     hydra_add_doc_group(L, "updates", "Check for and install Hydra updates.");
     hydra_add_doc_item(L, &doc_updates_check);
+    hydra_add_doc_item(L, &doc_updates_install);
     
     luaL_newlib(L, updateslib);
     return 1;
