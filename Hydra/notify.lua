@@ -9,7 +9,7 @@ function api.notify.register(tag, fn)
   return id
 end
 
-api.doc.notify.register = {"api.notify.unregister(id)", "Unregisters a function to no longer be called when an Apple notification with the given tag is clicked."}
+api.doc.notify.unregister = {"api.notify.unregister(id)", "Unregisters a function to no longer be called when an Apple notification with the given tag is clicked."}
 function api.notify.unregister(id)
   api.notify.registry[id] = nil
 end
