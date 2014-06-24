@@ -102,10 +102,15 @@ static NSString* tempDir(void) {
 static NSString* app_zip_path;
 
 void continue_check(lua_State* L, NSArray* parts) {
-    NSInteger releaseDate = [[parts objectAtIndex:0] integerValue];
-    NSInteger currentDate = [[NSDate date] timeIntervalSince1970];
+    NSString* versionPath = [[NSBundle mainBundle] pathForResource:@"version" ofType:@"txt"];
+    NSString* currentVersionInfo = [NSString stringWithContentsOfFile:versionPath encoding:NSUTF8StringEncoding error:NULL];
+    NSArray* currentVersionParts = [currentVersionInfo componentsSeparatedByString:@"\n"];
     
-    if (releaseDate <= currentDate) { printf("checked for update but found none yet\n"); return; }
+    NSInteger releaseDate = [[parts objectAtIndex:0] integerValue];
+    NSInteger currentDate = [[currentVersionParts objectAtIndex:0] integerValue];
+    
+    if (releaseDate == currentDate) { printf("checked for update but found none yet\n"); return; }
+    if (releaseDate < currentDate)  { printf("somehow you have a newer version than currently exists; congratulations\n"); return; }
     
     NSString* newVersion = [parts objectAtIndex:1];
     NSString* currentVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
