@@ -99,6 +99,22 @@ static NSString* tempDir(void) {
     return [NSString stringWithUTF8String:buffer];
 }
 
+void no_new_version_yet(lua_State* L) {
+    lua_getglobal(L, "api");
+    lua_getfield(L, -1, "updates");
+    lua_getfield(L, -1, "notyet");
+    
+    if (lua_isfunction(L, -1)) {
+        if (lua_pcall(L, 0, 0, 0))
+            hydra_handle_error(L);
+        
+        lua_pop(L, 2);
+    }
+    else {
+        lua_pop(L, 3);
+    }
+}
+
 static NSString* app_zip_path;
 
 void continue_check(lua_State* L, NSArray* parts) {
@@ -109,7 +125,7 @@ void continue_check(lua_State* L, NSArray* parts) {
     NSInteger releaseDate = [[parts objectAtIndex:0] integerValue];
     NSInteger currentDate = [[currentVersionParts objectAtIndex:0] integerValue];
     
-    if (releaseDate == currentDate) { printf("checked for update but found none yet\n"); return; }
+    if (releaseDate == currentDate) { printf("checked for update but found none yet\n"); no_new_version_yet(L); return; }
     if (releaseDate < currentDate)  { printf("somehow you have a newer version than currently exists; congratulations\n"); return; }
     
     NSString* newVersion = [parts objectAtIndex:1];

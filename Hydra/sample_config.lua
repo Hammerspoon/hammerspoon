@@ -37,6 +37,11 @@ local function showupdate()
   api.alert(str)
 end
 
+-- show not available
+function api.updates.notyet()
+  api.alert("No update available.")
+end
+
 -- check for updates every week
 api.timer.new(api.timer.weeks(1), api.updates.check):start()
 api.notify.register("showupdate", showupdate)
