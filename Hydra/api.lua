@@ -78,5 +78,8 @@ end
 
 doc.api.uuid = {"api.uuid() -> string", "Returns a UUID as a string"}
 function api.uuid()
-  return io.popen("uuidgen"):read()
+  local f = io.popen("uuidgen")
+  local str = f:read()
+  f:close()
+  return str
 end

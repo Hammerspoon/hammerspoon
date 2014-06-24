@@ -14,6 +14,7 @@ dofile(api.resourcesdir .. "/log.lua")
 dofile(api.resourcesdir .. "/updates.lua")
 dofile(api.resourcesdir .. "/notify.lua")
 dofile(api.resourcesdir .. "/doc.lua")
+dofile(api.resourcesdir .. "/webview.lua")
 
 api._initiate_documentation_system()
 

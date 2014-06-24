@@ -17,6 +17,7 @@ int luaopen_textgrid(lua_State* L);
 int luaopen_log(lua_State* L);
 int luaopen_updates(lua_State* L);
 int luaopen_notify(lua_State* L);
+int luaopen_webview(lua_State* L);
 
 @interface PHAppDelegate : NSObject <NSApplicationDelegate>
 @end
@@ -63,6 +64,7 @@ int luaopen_notify(lua_State* L);
         {"log",          luaopen_log},
         {"updates",      luaopen_updates},
         {"notify",       luaopen_notify},
+        {"webview",      luaopen_webview},
         {NULL, NULL},
     };
     
