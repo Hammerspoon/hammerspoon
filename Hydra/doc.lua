@@ -23,11 +23,11 @@ local function isgroup(thing)
 end
 
 local function group_tostring(group)
-  local items = {}
+  local subitems = {}
   local submodules = {}
 
   for name, subitem in pairs(group) do
-    if isitem(subitem) then table.insert(items, subitem[1]) end
+    if isitem(subitem) then table.insert(subitems, subitem[1]) end
   end
 
   for name, subgroup in pairs(group) do
@@ -36,8 +36,8 @@ local function group_tostring(group)
 
   local str = ""
 
-  if # items > 0 then
-    str = str .. "[items]\n" .. table.concat(items, "\n") .. "\n\n"
+  if # subitems > 0 then
+    str = str .. "[subitems]\n" .. table.concat(subitems, "\n") .. "\n\n"
   end
 
   if # submodules > 0 then
@@ -62,32 +62,38 @@ local function hackgroup(group)
   return setmetatable(group, {__tostring = group_tostring})
 end
 
-function api._initiate_documentation_system()
-  doc = setmetatable(doc, {__tostring = help_string})
-  doc.api = hackgroup(doc.api)
-end
+local function print_group(file, group)
+  local subitems = {}
+  local subgroups = {}
 
-local function sortedtablekeys(t)
-  local keys = {}
-  for k, _ in pairs(t) do
-    table.insert(keys, k)
+  for name, thing in pairs(group) do
+    if isitem(thing) then
+      table.insert(subitems, {name = name, def = thing[1], doc = thing[2]})
+    elseif isgroup(thing) then
+      table.insert(subgroups, {name = name, group = thing})
+    end
   end
-  table.sort(keys)
-  return keys
+
+  table.sort(subitems, function(a, b) return a.def < b.def end)
+  table.sort(subgroups, function(a, b) return a.name < b.name end)
+
+  for _, item in pairs(subitems) do
+    file:write(item.def .. " -- " .. item.doc .. "\n")
+  end
+  file:write("\n")
+
+  for _, group in pairs(subgroups) do
+    print_group(file, group.group)
+  end
 end
 
 function api.generatedocs(path)
   local file = io.open(path, "w")
-  for _, groupname in pairs(sortedtablekeys(doc.api)) do
-    local group = doc.api[groupname]
-    for _, itemname in pairs(sortedtablekeys(group)) do
-      local item = group[itemname]
-      local def, docstring = item[1], item[2]
-      if def and docstring then
-        file:write(def .. " -- " .. docstring .. "\n")
-      end
-    end
-    file:write("\n")
-  end
+  print_group(file, doc.api)
   file:close()
+end
+
+function api._initiate_documentation_system()
+  doc = setmetatable(doc, {__tostring = help_string})
+  doc.api = hackgroup(doc.api)
 end
