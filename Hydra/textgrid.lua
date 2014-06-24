@@ -1,5 +1,4 @@
 api.doc.textgrid.textgrids = {"api.textgrid.textgrids = {}", "All currently open textgrid windows; do not mutate this at all."}
-
 api.textgrid.textgrids = {}
 
 api.doc.textgrid.open = {"api.textgrid.open() -> textgrid", "Opens a new textgrid window."}
