@@ -1,4 +1,4 @@
-doc.api.resourcesdir = {"api.resourcesdir -> string", "The location of the built-in lua source files."}
+doc.api.resourcesdir = {"api.api.resourcesdir -> string", "The location of the built-in lua source files."}
 
 doc.api.userfile = {"api.userfile(name)", "Returns the full path to the file ~/.hydra/{name}.lua"}
 function api.userfile(name)
