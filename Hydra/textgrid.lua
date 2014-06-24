@@ -30,10 +30,7 @@ end
 api.doc.textgrid.closeall = {"api.textgrid.closeall()", "Closes all non-protected textgrids; called automatically when user config is reloaded."}
 function api.textgrid.closeall()
   for i, tg in pairs(api.textgrid.textgrids) do
-    if i ~= "n" and tg ~= nil then
-      api.textgrid.textgrids[i] = tg
-      tg:close()
-    end
+    if tg and i ~= "n" then tg:close() end
   end
   api.textgrid.textgrids.n = 0
 end

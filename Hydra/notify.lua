@@ -25,7 +25,8 @@ function api.notify._clicked(tag)
   end
 end
 
-function api.notify._clear()
+api.doc.notify.unregisterall = {"api.notify.unregisterall()", "Unregisters all functions registered for notification-clicks; called automatically when user config reloads."}
+function api.notify.unregisterall()
   api.notify.registry = {}
   api.notify.registry.n = 0
 end

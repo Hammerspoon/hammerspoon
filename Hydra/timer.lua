@@ -32,13 +32,10 @@ function api.timer:stop()
   return self:_stop()
 end
 
-api.doc.timer.stopall = {"api.timer.stopall() -> timer", "Stops all running timers; called automatically when user config reloads."}
+api.doc.timer.stopall = {"api.timer.stopall()", "Stops all running timers; called automatically when user config reloads."}
 function api.timer.stopall()
   for i, t in pairs(api.timer.timers) do
-    if t and i ~= "n" then
-      api.timer.timers[i] = nil
-      t:stop()
-    end
+    if t and i ~= "n" then t:stop() end
   end
   api.timer.timers.n = 0
 end

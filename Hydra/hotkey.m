@@ -3,8 +3,8 @@
 UInt32 PHKeyCodeForString(NSString* str);
 
 
-// args: [hotkey]
-// ret: [hotkey]
+// args: [self]
+// ret: [self]
 int hotkey_enable(lua_State* L) {
     lua_getfield(L, 1, "__uid");
     UInt32 uid = lua_tonumber(L, -1);
@@ -47,12 +47,11 @@ static hydradoc doc_hotkey_disable = {
     "Disables the given hotkey; does not remove it from api.hotkey.keys."
 };
 
-// args: [hotkey]
-// ret: [hotkey]
+// args: [self]
+// ret: [self]
 int hotkey_disable(lua_State* L) {
     lua_getfield(L, 1, "__carbonkey");
     EventHotKeyRef carbonHotKey = lua_touserdata(L, -1);
-    
     UnregisterEventHotKey(carbonHotKey);
     
     lua_pushvalue(L, 1);
@@ -61,7 +60,7 @@ int hotkey_disable(lua_State* L) {
 
 static const luaL_Reg hotkeylib[] = {
     {"_enable", hotkey_enable},
-    {"disable", hotkey_disable},
+    {"_disable", hotkey_disable},
     {NULL, NULL}
 };
 

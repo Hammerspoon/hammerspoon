@@ -23,13 +23,10 @@ function api.pathwatcher:stop()
   return self:_stop()
 end
 
-api.doc.pathwatcher.stopall = {"api.pathwatcher.stopall()", "Calls p:stop() for all started pathwatchers; called automatically at user config reload."}
+api.doc.pathwatcher.stopall = {"api.pathwatcher.stopall()", "Calls p:stop() for all started pathwatchers; called automatically when user config reloads."}
 function api.pathwatcher.stopall()
   for i, pw in pairs(api.pathwatcher.pathwatchers) do
-    if i ~= "n" and pw then
-      pw:stop()
-      api.pathwatcher.pathwatchers[i] = nil
-    end
+    if pw and i ~= "n" then pw:stop() end
   end
   api.pathwatcher.pathwatchers.n = 0
 end

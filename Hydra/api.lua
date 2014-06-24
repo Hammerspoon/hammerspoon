@@ -22,12 +22,12 @@ local function load_default_config()
 end
 
 local function clear_old_state()
-  api.hotkey._clear()
+  api.hotkey.disableall()
   api.menu.hide()
   api.pathwatcher.stopall()
   api.timer.stopall()
   api.textgrid.closeall()
-  api.notify._clear()
+  api.notify.unregisterall()
 end
 
 api.doc.api.reload = {"api.reload()", "Reloads your init-file. Makes sure to clear any state that makes sense to clear (hotkeys, pathwatchers, etc)."}
