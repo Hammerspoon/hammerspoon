@@ -10,8 +10,10 @@ api.doc.pathwatcher.start = {"api.pathwatcher:start()", "Registers pathwatcher's
 function api.pathwatcher:start()
   local id = api.pathwatcher.pathwatchers.n + 1
   self.__id = id
+
   api.pathwatcher.pathwatchers[id] = self
   api.pathwatcher.pathwatchers.n = id
+
   return self:_start()
 end
 
