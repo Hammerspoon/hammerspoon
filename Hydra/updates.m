@@ -231,6 +231,7 @@ int updates_install(lua_State* L) {
 
 static const luaL_Reg updateslib[] = {
     {"check", updates_check},
+    {"install", updates_install},
     {NULL, NULL}
 };
 
