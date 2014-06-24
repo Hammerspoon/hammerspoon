@@ -27,7 +27,7 @@ cleanup:
 }
 
 
-static BOOL updates_verify_file(NSString* sig, NSString* pubkeypath, NSString* zipfilepath) {
+static BOOL updater_verify_file(NSString* sig, NSString* pubkeypath, NSString* zipfilepath) {
     BOOL verified = NO;
     
     SecKeyRef security_key = NULL;
@@ -79,13 +79,50 @@ cleanup:
     return verified;
 }
 
+static hydradoc doc_updates_check = {
+    "updates", "check", "api.updates.check()",
+    "Checks (over the internet) for an update. If one is available, calls api.updates.available()."
+};
+
+static NSString* update_address = @"https://raw.githubusercontent.com/sdegutis/Hydra/master/version.txt";
+
+int updates_check(lua_State* L) {
+    NSURL* url = [NSURL URLWithString:update_address];
+    NSURLRequest* req = [NSURLRequest requestWithURL:url];
+    [NSURLConnection sendAsynchronousRequest:req
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               if ([(NSHTTPURLResponse*)response statusCode] != 200)
+                                   return;
+                               
+                               NSString* str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                               
+                               if ([str length] == 0)
+                                   return;
+                               
+                               NSArray* parts = [str componentsSeparatedByString:@"\n"];
+                               
+                               NSLog(@"%@", parts);
+                               
+                           }];
+    return 0;
+}
+
+static const luaL_Reg updateslib[] = {
+    {"check", updates_check},
+    {NULL, NULL}
+};
+
 int luaopen_updates(lua_State* L) {
+    hydra_add_doc_group(L, "updates", "Check for and install Hydra updates.");
+    hydra_add_doc_item(L, &doc_updates_check);
+    
 //    BOOL result =
 //    updates_verify_file(@"MC0CFQCR5YCyNWgn3LrL0ZYbAdt3dkxfqQIUUk9fCV6Vr5KVDUuDUtQNwmdT7S0=",
 //            @"/Users/sdegutis/Downloads/dsa_pub.cer",
 //            @"/Users/sdegutis/Downloads/Zephyros-LATEST.app.tar.gz");
 //    NSLog(@"%d", result);
     
-    lua_newtable(L);
+    luaL_newlib(L, updateslib);
     return 1;
 }

@@ -2,6 +2,8 @@
 
 set -e
 
+PRIVKEYFILE=$1
+
 # build app
 xcodebuild clean build
 VERSION=$(defaults read $(pwd)/Hydra/Hydra-Info CFBundleVersion)
@@ -18,26 +20,13 @@ rm -f $LATEST
 cp $FILENAME $LATEST
 echo "Created $LATEST"
 
-# # sign update
-# SIG=$(ruby ./AutoUpdating/sign_update.rb $FILENAME ~/Dropbox/STEVEN/zeph-keys/dsa_priv.pem)
-# FILESIZE=$(stat -f %z $FILENAME)
-# APPCASTITEM=$(cat AutoUpdating/template.xml \
-#     | perl -i -pe "s|<%version%>|$VERSION|g" \
-#     | perl -i -pe "s|<%signature%>|$SIG|g" \
-#     | perl -i -pe "s|<%date%>|$(date)|g" \
-#     | perl -i -pe "s|<%filesize%>|$FILESIZE|g")
+# sign update
+SIGNATURE=$(openssl dgst -sha1 -binary < $FILENAME | openssl dgst -dss1 -sign $PRIVKEYFILE | openssl enc -base64)
+FILESIZE=$(stat -f %z $FILENAME)
 
-# LINES=$(cat appcast.xml | wc -l)
-# TAILPOS=$(($LINES - 7))
-# TOPHALF=$(head -n 7 appcast.xml)
-# BOTTOMHALF=$(tail -n $TAILPOS appcast.xml)
-
-# echo $TOPHALF $APPCASTITEM $BOTTOMHALF | xmllint --format - > appcast.xml
-# echo "New contents of appcast.xml are:"
-# cat appcast.xml
-# echo "Updated appcast.xml"
-
-
-
-
-# TODO: write to latest_version.txt, date (unix is fine), and version number (human readable)
+cat <<EOF > version.txt
+$(date +%s)
+$VERSION
+$SIGNATURE
+$FILESIZE
+EOF
