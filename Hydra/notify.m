@@ -15,7 +15,7 @@
     
     lua_getglobal(L, "api");
     lua_getfield(L, -1, "notify");
-    lua_getfield(L, -1, "clicked");
+    lua_getfield(L, -1, "_clicked");
     
     if (lua_isfunction(L, -1)) {
         lua_pushstring(L, [tag UTF8String]);
@@ -60,11 +60,6 @@ int notify_show(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_notify_clicked = {
-    "notify", "clicked", "api.notify.clicked(tag)",
-    "Called when an Apple notification created by Hydra is clicked. Tag is the string given when showing the notification, used for distinguishing notifications."
-};
-
 static const luaL_Reg notifylib[] = {
     {"show", notify_show},
     {NULL, NULL}
@@ -73,7 +68,6 @@ static const luaL_Reg notifylib[] = {
 int luaopen_notify(lua_State* L) {
     hydra_add_doc_group(L, "notify", "Apple's built-in notifications system.");
     hydra_add_doc_item(L, &doc_notify_show);
-    hydra_add_doc_item(L, &doc_notify_clicked);
     
     luaL_newlib(L, notifylib);
     return 1;

@@ -48,6 +48,10 @@ local function clear_old_state()
     local tg = api.textgrid.textgrids[i]
     tg:close()
   end
+
+  -- notification watchers
+  api.notify.registry = {}
+  api.notify.registry.n = 0
 end
 
 api.doc.api.reload = {"api.reload()", "Reloads your init-file. Makes sure to clear any state that makes sense to clear (hotkeys, pathwatchers, etc)."}
