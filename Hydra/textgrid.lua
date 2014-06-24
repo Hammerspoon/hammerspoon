@@ -27,6 +27,7 @@ function api.textgrid:livelong()
   self.__id = nil
 end
 
+api.doc.textgrid.closeall = {"api.textgrid.closeall()", "Closes all non-protected textgrids; called automatically when user config is reloaded."}
 function api.textgrid.closeall()
   for i, tg in pairs(api.textgrid.textgrids) do
     if i ~= "n" and tg ~= nil then
