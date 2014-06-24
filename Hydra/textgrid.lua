@@ -35,4 +35,5 @@ function api.textgrid.closeall()
       tg:close()
     end
   end
+  api.textgrid.textgrids.n = 0
 end
