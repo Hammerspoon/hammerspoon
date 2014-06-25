@@ -1,0 +1,47 @@
+<html>
+
+  <head>
+    <title>Hydra docs: <%= group['namespace'] %> module</title>
+    <style type="text/css">
+      .def {
+      font-family: Menlo, Monaco, Inconsolata, monospace;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <h1>
+      <% group['prefix_pairs'].each do |prefix, combined| %>
+      <a href="<%= combined.join('.') %>.html"><%= prefix %></a>
+      <% end %>
+    </h1>
+
+    <h2><%= group['doc'] %></h2>
+
+    <% group['subitems'].each do |item| %>
+
+    <h3><%= item['name'] %></h3>
+    <div class='def'><%= item['def'] %></div>
+    <div class='doc'><%= item['doc'] %></div>
+
+    <% end %>
+
+    <h2>Submodules</h2>
+
+    <% if ! group['subgroups'].empty? %>
+
+    <ul>
+      <% group['subgroups'].each do |subgroup| %>
+      <li><a href="<%= combined_prefixes.join('.') + '.' + subgroup['name'] + '.html' %>"><%= subgroup['name'] %></a></li>
+      <% end %>
+    </ul>
+
+    <% else %>
+
+    None.
+
+    <% end %>
+
+  </body>
+</html>
