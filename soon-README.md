@@ -4,11 +4,11 @@
 
 Hydra is a lightweight window manager with a powerful API and an extremely small footprint.
 
-#### Install
+### Install
 
 Downloads are in the Releases link above.
 
-#### Usage
+### Usage
 
 Create `~/.hydra/init.lua`. Then add stuff like this in it:
 
@@ -28,11 +28,11 @@ Or just run the app and it'll give you more ideas.
 
 * For more ideas, read other people's configs [in the wiki](https://github.com/sdegutis/Hydra/wiki).
 
-#### Documentation
+### Documentation
 
 - [Hydra 1.0 API](https://github.com/sdegutis/Hydra/wiki/Hydra-1.0-API)
 
-#### License
+### License
 
 > Released under MIT license.
 >
