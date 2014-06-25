@@ -4,8 +4,13 @@ doc.api.log = {__doc = "Functionality to assist with debugging and experimentati
 api.log.rawprint = print
 function print(...)
   api.log.rawprint(...)
-  local strs = table.pack(...)
-  local str = table.concat(strs, "\t") .. "\n"
+  local vals = table.pack(...)
+
+  for k = 1, vals.n do
+    vals[k] = tostring(vals[k])
+  end
+
+  local str = table.concat(vals, "\t") .. "\n"
   api.log._gotline(str)
 end
 
