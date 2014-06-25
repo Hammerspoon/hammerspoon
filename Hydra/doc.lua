@@ -64,7 +64,7 @@ local function hackgroup(group)
   return setmetatable(group, {__tostring = group_tostring})
 end
 
-local function print_group(file, group)
+local function jsonify_group(groupname, group)
   local subitems = {}
   local subgroups = {}
 
@@ -79,20 +79,27 @@ local function print_group(file, group)
   table.sort(subitems, function(a, b) return a.def < b.def end)
   table.sort(subgroups, function(a, b) return a.name < b.name end)
 
-  for _, item in pairs(subitems) do
-    file:write(item.def .. " -- " .. item.doc .. "\n")
-  end
-  file:write("\n")
+  local str = '{"type": "group", "name": "'..groupname..'", "doc": "'..group.__doc..'", "subitems": ['
 
-  for _, group in pairs(subgroups) do
-    print_group(file, group.group)
+  for i, item in pairs(subitems) do
+    if i > 1 then str = str .. "," end
+    str = str .. '{"type": "item", "name": "'..item.name..'", "def": "'..item.def..'", "doc": "'..item.doc..'"}'
   end
+
+  str = str .. '], "subgroups": ['
+
+  for i, group in pairs(subgroups) do
+    if i > 1 then str = str .. "," end
+    str = str .. jsonify_group(group.name, group.group)
+  end
+
+  str = str .. ']}'
+  return str
 end
 
-function api.generatedocs(path)
-  local file = io.open(path, "w")
-  print_group(file, doc.api)
-  file:close()
+doc.api.jsondocs = {"api.jsondocs() -> string", "Returns the documentation as a JSON string for you to generate pretty docs with. The top-level is a group. Groups have keys: type ('group'), name (string), doc (string), subitems (list of items), subgroups (list of groups); Items have keys: type ('item'), name (string), def (string), doc (string)."}
+function api.jsondocs()
+  return jsonify_group("doc.api", doc.api)
 end
 
 function api._initiate_documentation_system()
