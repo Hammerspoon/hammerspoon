@@ -29,19 +29,21 @@ api.hotkey.bind({"cmd", "ctrl", "alt"}, "R", api.repl.open)
 
 -- show available updates
 local function showupdate()
-  local str = ""
-  str = str .. "New version available: " .. api.updates.newversion .. "\n"
-  str = str .. "Your version: " .. api.updates.currentversion .. "\n"
-  str = str .. "You can install it via the Hydra menu bar icon\n"
-  str = str .. "Changelog: " .. api.updates.changelog .. "\n"
-  api.alert(str)
+  os.execute('open https://github.com/sdegutis/Hydra/releases')
 end
 
--- show not available
-function api.updates.notyet()
-  api.alert("No update available.")
+-- what to do when an udpate is checked
+function api.updates.available(available)
+  if available then
+    api.notify.show("Hydra update available", "", "Click here to see the changelog and maybe even install it", "showupdate")
+  else
+    api.alert("No update available.")
+  end
 end
 
 -- check for updates every week
 api.timer.new(api.timer.weeks(1), api.updates.check):start()
 api.notify.register("showupdate", showupdate)
+
+-- also check right away
+api.updates.check()
