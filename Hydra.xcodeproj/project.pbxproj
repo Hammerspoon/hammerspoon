@@ -66,7 +66,6 @@
 		9459B58F194CEB07008BC904 /* hotkey_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* hotkey_translator.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		945F2BBC19599EA700D2DE7E /* dsa_pub.cer in Resources */ = {isa = PBXBuildFile; fileRef = 945F2BBB19599EA700D2DE7E /* dsa_pub.cer */; };
-		945F2BBE1959AE1A00D2DE7E /* version.txt in Resources */ = {isa = PBXBuildFile; fileRef = 945F2BBD1959AE1A00D2DE7E /* version.txt */; };
 		945F2BC01959AFA700D2DE7E /* notify.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945F2BBF1959AFA700D2DE7E /* notify.lua */; };
 		94668E951958B039009422D7 /* doc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94668E941958B039009422D7 /* doc.lua */; };
 		9473A7541959F6FC0080C329 /* webview.m in Sources */ = {isa = PBXBuildFile; fileRef = 9473A7531959F6FC0080C329 /* webview.m */; };
@@ -188,7 +187,6 @@
 		9459B58E194CEB07008BC904 /* hotkey_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey_translator.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		945F2BBB19599EA700D2DE7E /* dsa_pub.cer */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.cer; sourceTree = "<group>"; };
-		945F2BBD1959AE1A00D2DE7E /* version.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = version.txt; sourceTree = SOURCE_ROOT; };
 		945F2BBF1959AFA700D2DE7E /* notify.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = notify.lua; sourceTree = "<group>"; };
 		94668E941958B039009422D7 /* doc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = doc.lua; sourceTree = "<group>"; };
 		9473A7531959F6FC0080C329 /* webview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = webview.m; sourceTree = "<group>"; };
@@ -333,7 +331,6 @@
 		9445CA1519083251002568BB /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				945F2BBD1959AE1A00D2DE7E /* version.txt */,
 				945F2BBB19599EA700D2DE7E /* dsa_pub.cer */,
 				9445CA2619083251002568BB /* Images.xcassets */,
 				94E8E7AD194E0C940064CF6C /* Hydra.icns */,
@@ -494,7 +491,6 @@
 				945F2BC01959AFA700D2DE7E /* notify.lua in Resources */,
 				945212A7194D6B5900217584 /* menu.png in Resources */,
 				94E8E7BC194E25300064CF6C /* app.lua in Resources */,
-				945F2BBE1959AE1A00D2DE7E /* version.txt in Resources */,
 				94DE594B194F1A39004D242E /* api.lua in Resources */,
 				945F2BBC19599EA700D2DE7E /* dsa_pub.cer in Resources */,
 				94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */,
