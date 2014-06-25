@@ -16,3 +16,6 @@ profile
 *.moved-aside
 DerivedData
 .idea/
+
+Hydra-*.app
+Hydra-*.app.tar.gz
