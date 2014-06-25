@@ -4,8 +4,6 @@
 
 Hydra is a lightweight window manager with a powerful API and an extremely small footprint.
 
-* Requires: OS X 10.9 and up
-
 #### Install
 
 Downloads are in the Releases link above.
