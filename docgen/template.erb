@@ -19,6 +19,12 @@
 
     <h2><%= group['doc'] %></h2>
 
+    <ul>
+      <% group['subitems'].each do |item| %>
+      <li><%= group['namespace'] %>.<a href="#<%= item['name'] %>"><%= item['name'] %></a></li>
+      <% end %>
+    </ul>
+
     <% group['subitems'].each do |item| %>
 
     <a name="<%= item['name'] %>"></a>
