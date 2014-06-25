@@ -1,3 +1,14 @@
+api.log = {}
+doc.api.log = {__doc = "Functionality to assist with debugging and experimentation."}
+
+api.log.rawprint = print
+function print(...)
+  api.log.rawprint(...)
+  local strs = table.pack(...)
+  local str = table.concat(strs, "\t") .. "\n"
+  api.log._gotline(str)
+end
+
 doc.api.log.lines = {"api.log.lines = {}", "List of lines logged so far; caps at api.log.maxlines. You may clear it by setting it to {} yourself."}
 api.log.lines = {}
 

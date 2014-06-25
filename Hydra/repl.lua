@@ -83,12 +83,14 @@ function api.repl.open()
       local command = stdin
       stdin = ""
 
+      stdout = stdout .. "> " .. command .. "\n"
+
       local fn = load(command)
       local success, result = pcall(fn)
       result = tostring(result)
       if not success then result = "error: " .. result end
 
-      stdout = stdout .. "> " .. command .. "\n" .. result .. "\n"
+      stdout = stdout .. result .. "\n"
     elseif t.key == "delete" then -- i.e. backspace
       stdin = stdin:sub(0, -2)
     else
