@@ -18,5 +18,5 @@ def gengroup(_prefixes, group)
   File.write("docs/#{group['namespace']}.html", @template.result(binding))
 end
 
-`rm -f docs/*`
+`rm -f docs/api*html`
 gengroup [], JSON.load(File.read("hydra.json"))
