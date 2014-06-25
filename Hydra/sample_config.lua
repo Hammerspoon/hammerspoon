@@ -41,6 +41,9 @@ function api.updates.available(available)
   end
 end
 
+-- Uncomment this if you want Hydra to make sure it launches at login
+-- api.autolaunch.set(true)
+
 -- check for updates every week
 api.timer.new(api.timer.weeks(1), api.updates.check):start()
 api.notify.register("showupdate", showupdate)
