@@ -21,7 +21,8 @@
 
     <% group['subitems'].each do |item| %>
 
-    <h3><%= item['name'] %></h3>
+    <a name="<%= item['name'] %>"></a>
+    <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
     <div class='def'><%= item['def'] %></div>
     <div class='doc'><%= item['doc'] %></div>
 
