@@ -123,6 +123,27 @@ int webview_settitle(lua_State* L) {
     return 0;
 }
 
+static hydradoc doc_webview_setlevel = {
+    "webview", "setlevel", "api.webview:setlevel(level)",
+    "When level is -1, window is always below all others; when 0, window is normal; when 1, window is above all others."
+};
+
+int webview_setlevel(lua_State* L) {
+    PHWebViewController* wc = get_window_controller(L, 1);
+    
+    NSInteger level = lua_tonumber(L, 2);
+    NSWindowCollectionBehavior coBehave = NSWindowAnimationBehaviorDefault;
+    switch (level) {
+        case -1: level = kCGDesktopIconWindowLevel + 1; coBehave = NSWindowCollectionBehaviorStationary; break;
+        case  0: level = NSNormalWindowLevel; break;
+        case  1: level = NSFloatingWindowLevel; break;
+    }
+    [[wc window] setLevel:level];
+    [[wc window] setCollectionBehavior:coBehave];
+    
+    return 0;
+}
+
 static hydradoc doc_webview_setborderless = {
     "webview", "setborderless", "api.webview:setborderless(bool)",
     "Set whether a webview window has a border."
@@ -214,6 +235,7 @@ int webview_window(lua_State* L) {
 static const luaL_Reg webviewlib[] = {
     {"_open", webview_open},
     {"settitle", webview_settitle},
+    {"setlevel", webview_setlevel},
     {"setborderless", webview_setborderless},
     {"sethasshadow", webview_sethasshadow},
     {"loadstring", webview_loadstring},
@@ -226,6 +248,7 @@ static const luaL_Reg webviewlib[] = {
 int luaopen_webview(lua_State* L) {
     hydra_add_doc_group(L, "webview", "For showing stuff in web views!");
     hydra_add_doc_item(L, &doc_webview_settitle);
+    hydra_add_doc_item(L, &doc_webview_setlevel);
     hydra_add_doc_item(L, &doc_webview_setborderless);
     hydra_add_doc_item(L, &doc_webview_sethasshadow);
     hydra_add_doc_item(L, &doc_webview_loadstring);
