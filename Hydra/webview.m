@@ -158,8 +158,8 @@ int webview_sethasshadow(lua_State* L) {
 }
 
 static hydradoc doc_webview_loadstring = {
-    "webview", "loadfile", "api.webview:loadfile(path, basepath)",
-    "Loads the given file in the webview; must be an absolute path."
+    "webview", "loadstring", "api.webview:loadstring(string, basepath)",
+    "Loads the given string in the webview; basepath must be an absolute path."
 };
 
 int webview_loadstring(lua_State* L) {
