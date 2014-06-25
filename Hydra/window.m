@@ -20,6 +20,24 @@ int window_eq(lua_State* L) {
     return 1;
 }
 
+extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
+NSWindow* hydra_nswindow_for_accessibility_window(AXUIElementRef win) {
+    CGWindowID winid;
+    AXError err = _AXUIElementGetWindow(win, &winid);
+    
+    if (err) {
+        NSLog(@"error using undocumented function: %d", err);
+        return nil;
+    }
+    
+    for (NSWindow* window in [NSApp windows]) {
+        if ([window windowNumber] == winid)
+            return window;
+    }
+    
+    return nil;
+}
+
 void new_window(lua_State* L, AXUIElementRef win) {
     lua_newtable(L);
     
