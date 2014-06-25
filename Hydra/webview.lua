@@ -11,7 +11,7 @@ local function dirname(path)
   return str
 end
 
-doc.api.webview.loadfile = {"api.webview:loadfile(path)", "Loads the given file into the web view."}
+doc.api.webview.loadfile = {"api.webview:loadfile(path)", "Loads the given file in the web view."}
 function api.webview:loadfile(path)
   local f = io.open(path)
   local str = f:read('*a')

@@ -69,7 +69,6 @@
 		94668E951958B039009422D7 /* doc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94668E941958B039009422D7 /* doc.lua */; };
 		9473A7541959F6FC0080C329 /* webview.m in Sources */ = {isa = PBXBuildFile; fileRef = 9473A7531959F6FC0080C329 /* webview.m */; };
 		9473A7561959F7020080C329 /* webview.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9473A7551959F7020080C329 /* webview.lua */; };
-		9473A75A1959F8550080C329 /* PHWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9473A7581959F8550080C329 /* PHWebViewController.m */; };
 		9473A75B1959F8550080C329 /* webview.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9473A7591959F8550080C329 /* webview.xib */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
 		948CAA031955AECC00A27D9D /* textgrid.xib in Resources */ = {isa = PBXBuildFile; fileRef = 948CA9F91955AECC00A27D9D /* textgrid.xib */; };
@@ -189,8 +188,6 @@
 		94668E941958B039009422D7 /* doc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = doc.lua; sourceTree = "<group>"; };
 		9473A7531959F6FC0080C329 /* webview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = webview.m; sourceTree = "<group>"; };
 		9473A7551959F7020080C329 /* webview.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = webview.lua; sourceTree = "<group>"; };
-		9473A7571959F8550080C329 /* PHWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PHWebViewController.h; sourceTree = "<group>"; };
-		9473A7581959F8550080C329 /* PHWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHWebViewController.m; sourceTree = "<group>"; };
 		9473A7591959F8550080C329 /* webview.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = webview.xib; sourceTree = "<group>"; };
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		948CA9F91955AECC00A27D9D /* textgrid.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = textgrid.xib; sourceTree = "<group>"; };
@@ -415,8 +412,6 @@
 				9452129F194D697100217584 /* alert.xib */,
 				945212A5194D6B5900217584 /* menu.png */,
 				945212A6194D6B5900217584 /* menu@2x.png */,
-				9473A7571959F8550080C329 /* PHWebViewController.h */,
-				9473A7581959F8550080C329 /* PHWebViewController.m */,
 				9473A7591959F8550080C329 /* webview.xib */,
 			);
 			name = "Lower-level stuff";
@@ -533,7 +528,6 @@
 				9445CA8B190833C1002568BB /* linit.c in Sources */,
 				9445CA9E190833C1002568BB /* lvm.c in Sources */,
 				9473A7541959F6FC0080C329 /* webview.m in Sources */,
-				9473A75A1959F8550080C329 /* PHWebViewController.m in Sources */,
 				9445CA8F190833C1002568BB /* lmem.c in Sources */,
 				94276CA71958809C003BF95B /* hydra.m in Sources */,
 				9445CA88190833C1002568BB /* ldump.c in Sources */,

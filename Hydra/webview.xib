@@ -25,7 +25,12 @@
                     <webView id="IQB-B3-T4n">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12"/>
+                        <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12">
+                            <nil key="identifier"/>
+                        </webPreferences>
+                        <connections>
+                            <outlet property="policyDelegate" destination="-2" id="SI8-U4-5Qz"/>
+                        </connections>
                     </webView>
                 </subviews>
             </view>
