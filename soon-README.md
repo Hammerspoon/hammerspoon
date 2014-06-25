@@ -26,11 +26,10 @@ end)
 
 Or just run the app and it'll give you more ideas.
 
-* For more ideas, read other people's configs [in the wiki](https://github.com/sdegutis/Hydra/wiki).
-
 ### Documentation
 
-- [Hydra 1.0 API](https://github.com/sdegutis/Hydra/wiki/Hydra-1.0-API)
+Documentation, Lua API, third-party libraries, and everything else is
+[in the wiki](https://github.com/sdegutis/Hydra/wiki).
 
 ### License
 
