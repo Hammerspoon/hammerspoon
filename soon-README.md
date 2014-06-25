@@ -4,26 +4,21 @@
 
 Hydra is a lightweight window manager with a powerful API and an extremely small footprint.
 
-* Current version: **1.0**
 * Requires: OS X 10.9 and up
 
 #### Install
 
-Download [Hydra-LATEST.app.tar.gz](https://raw.github.com/sdegutis/hydra/master/Builds/Hydra-LATEST.app.tar.gz), unzip, right-click app, choose "Open"
+Downloads are in the Releases link above.
 
 #### Usage
 
 Create `~/.hydra/init.lua`. Then add stuff like this in it:
 
 ~~~lua
-local hotkey = require("hotkey")
-local window = require("window")
-local alert = require("alert")
+api.alert("Hydra started!")
 
-alert.show("Hydra started!")
-
-hotkey.bind({"cmd"}, "E", function()
-    local win = window.focusedwindow()
+api.hotkey.bind({"cmd"}, "E", function()
+    local win = api.window.focusedwindow()
     local frame = win:frame()
     frame.x = frame.x + 10
     frame.h = frame.h - 10
