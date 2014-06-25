@@ -59,8 +59,8 @@ int luaopen_webview(lua_State* L);
         lua_setfield(L, -2, lib.name);
     }
     
-    const char* initfile = [[[NSBundle mainBundle] pathForResource:@"rawinit" ofType:@"lua"] fileSystemRepresentation];
-    luaL_dofile(L, initfile);
+    NSString* initFile = [[NSBundle mainBundle] pathForResource:@"rawinit" ofType:@"lua"];
+    luaL_dofile(L, [initFile fileSystemRepresentation]);
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
