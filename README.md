@@ -32,7 +32,7 @@ http://sdegutis.github.io/hydra/api.html
 
 ### Lua API
 
-http://www.lua.org/manual/5.2/
+http://www.lua.org/manual/5.2/#functions
 
 ### Community Resources
 
