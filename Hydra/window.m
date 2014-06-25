@@ -1,20 +1,23 @@
 #import "hydra.h"
 void new_app(lua_State* L, pid_t pid);
 
-int window_gc(lua_State* L) {
-    lua_getfield(L, 1, "__win");
+static AXUIElementRef axref_for_window(lua_State* L, int idx) {
+    lua_getfield(L, idx, "__win");
     AXUIElementRef win = (*(AXUIElementRef*)lua_touserdata(L, -1));
+    lua_pop(L, 1);
+    return win;
+}
+
+int window_gc(lua_State* L) {
+    AXUIElementRef win = axref_for_window(L, 1);
     
     CFRelease(win);
     return 0;
 }
 
 int window_eq(lua_State* L) {
-    lua_getfield(L, 1, "__win");
-    AXUIElementRef winA = (*(AXUIElementRef*)lua_touserdata(L, -1));
-    
-    lua_getfield(L, 2, "__win");
-    AXUIElementRef winB = (*(AXUIElementRef*)lua_touserdata(L, -1));
+    AXUIElementRef winA = axref_for_window(L, 1);
+    AXUIElementRef winB = axref_for_window(L, 2);
     
     lua_pushboolean(L, CFEqual(winA, winB));
     return 1;
@@ -24,11 +27,7 @@ extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 NSWindow* hydra_nswindow_for_accessibility_window(AXUIElementRef win) {
     CGWindowID winid;
     AXError err = _AXUIElementGetWindow(win, &winid);
-    
-    if (err) {
-        NSLog(@"error using undocumented function: %d", err);
-        return nil;
-    }
+    if (err) return nil;
     
     for (NSWindow* window in [NSApp windows]) {
         if ([window windowNumber] == winid)
@@ -36,6 +35,27 @@ NSWindow* hydra_nswindow_for_accessibility_window(AXUIElementRef win) {
     }
     
     return nil;
+}
+
+void new_window_for_nswindow(lua_State* L, NSWindow* win) {
+    lua_getglobal(L, "api");
+    lua_getfield(L, -1, "window");
+    lua_getfield(L, -1, "allwindows");
+    lua_pcall(L, 0, 1, 0);
+    
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0) {
+        AXUIElementRef axwin = axref_for_window(L, -1);
+        if (hydra_nswindow_for_accessibility_window(axwin)) {
+            lua_remove(L, -2); // remove key
+            lua_remove(L, -2); // remove table
+            return; // leave window at top
+        }
+        
+        lua_pop(L, 1);
+    }
+    
+    lua_pushnil(L);
 }
 
 void new_window(lua_State* L, AXUIElementRef win) {

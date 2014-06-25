@@ -1,6 +1,6 @@
 #import "hydra.h"
 #import "HDTextGridController.h"
-void hydra_handle_error(lua_State* L);
+void new_window_for_nswindow(lua_State* L, NSWindow* win);
 
 static NSColor* HDColorFromHex(const char* hex) {
     static NSMutableDictionary* colors;
@@ -150,6 +150,17 @@ static int textgrid_settitle(lua_State *L) {
     return 0;
 }
 
+static hydradoc doc_textgrid_window = {
+    "textgrid", "window", "api.textgrid:window() -> window",
+    "Returns the api.window that represents this textgrid."
+};
+
+static int textgrid_window(lua_State *L) {
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
+    new_window_for_nswindow(L, [wc window]);
+    return 1;
+}
+
 static hydradoc doc_textgrid_focus = {
     "textgrid", "focus", "api.textgrid:focus()",
     "Brings the textgrid to front and focuses it; implicitly focuses Hydra."
@@ -282,6 +293,7 @@ static const luaL_Reg textgridlib[] = {
     {"getfont", textgrid_getfont},
     {"settitle", textgrid_settitle},
     {"focus", textgrid_focus},
+    {"window", textgrid_window},
     
     {NULL, NULL}
 };
@@ -299,6 +311,7 @@ int luaopen_textgrid(lua_State* L) {
     hydra_add_doc_item(L, &doc_textgrid_getfont);
     hydra_add_doc_item(L, &doc_textgrid_settitle);
     hydra_add_doc_item(L, &doc_textgrid_focus);
+    hydra_add_doc_item(L, &doc_textgrid_window);
     
     luaL_newlib(L, textgridlib);
     return 1;
