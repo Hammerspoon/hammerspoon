@@ -12,7 +12,7 @@ function api.douserfile(name)
   if exists and not isdir then
     dofile(userfile)
   else
-    api.alert("Can't find file: " .. name)
+    api.notify.show("Hydra user-file missing", "", "Can't find file: " .. name, "")
   end
 end
 
@@ -40,7 +40,7 @@ function api.reload()
   if exists and not isdir then
     local ok, err = pcall(function() dofile(userfile) end)
     if not ok then
-      api.alert("Error loading your config:\n" .. err .. "\nFalling back to sample config.", 10)
+      api.notify.show("Hydra config error", "", err .. " -- Falling back to sample config.", "")
       load_default_config()
     end
   else
@@ -52,7 +52,7 @@ end
 doc.api.errorhandler = {"api.errorhandler = function(err)", "Error handler for api.call; intended for you to set, not for third party libs"}
 function api.errorhandler(err)
   print("Error: " .. err)
-  api.alert("Error: " .. err, 5)
+  api.notify.show("Hydra Error", "", err, "error")
 end
 
 function api.tryhandlingerror(firsterr)
@@ -61,8 +61,7 @@ function api.tryhandlingerror(firsterr)
   end)
 
   if not ok then
-    api.alert("Error while handling error: " .. seconderr, 10)
-    api.alert("Original error: " .. firsterr, 10)
+    api.notify.show("Hydra error", "", "Error while handling error: " .. seconderr .. " -- Original error: " .. firsterr, "")
   end
 end
 
