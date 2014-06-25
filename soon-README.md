@@ -28,8 +28,15 @@ Or just run the app and it'll give you more ideas.
 
 ### Documentation
 
-Documentation, Lua API, third-party libraries, and everything else is
-[in the wiki](https://github.com/sdegutis/Hydra/wiki).
+http://sdegutis.github.io/hydra/api.html
+
+### Lua API
+
+http://www.lua.org/manual/5.2/
+
+### Community Resources
+
+https://github.com/sdegutis/hydra/wiki
 
 ### License
 
