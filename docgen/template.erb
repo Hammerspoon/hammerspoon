@@ -2,15 +2,49 @@
 
   <head>
     <title>Hydra docs: <%= group['namespace'] %> module</title>
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
     <style type="text/css">
-      .def {
-      font-family: Menlo, Monaco, Inconsolata, monospace;
+      * {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background-color: #eee;
+        font-family: 'Open Sans', sans-serif;
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      a {
+        color: #2e8b57;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .container {
+        max-width: 700px;
+        min-height: 100%;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        -webkit-box-shadow: 0px 0px 25px 0px rgba(50, 50, 50, 0.75);
+        -moz-box-shadow: 0px 0px 25px 0px rgba(50, 50, 50, 0.75);
+        box-shadow: 0px 0px 25px 0px rgba(50, 50, 50, 0.75);
       }
     </style>
   </head>
 
   <body>
 
+  <div class="container">
     <h1>
       <% group['prefix_pairs'].each do |prefix, combined| %>
       <a href="<%= combined.join('.') %>.html"><%= prefix %></a>
@@ -29,8 +63,8 @@
 
     <a name="<%= item['name'] %>"></a>
     <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
-    <div class='def'><%= item['def'] %></div>
-    <div class='doc'><%= item['doc'] %></div>
+    <code><%= item['def'] %></code>
+    <p><%= item['doc'] %></p>
 
     <% end %>
 
@@ -49,6 +83,8 @@
     None.
 
     <% end %>
+
+  </div>
 
   </body>
 </html>
