@@ -51,7 +51,7 @@ end
 doc.api.log.show = {"api.log.show() -> textgrid", "Opens a textgrid that can browse all logs."}
 function api.log.show()
   local win = api.textgrid.open()
-  win:livelong()
+  win:protect()
 
   local pos = 1 -- i.e. line currently at top of log textgrid
 

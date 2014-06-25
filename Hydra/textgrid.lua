@@ -21,8 +21,8 @@ function api.textgrid:close()
   return self:_close()
 end
 
-doc.api.textgrid.livelong = {"api.textgrid:livelong()", "Prevents the textgrid from closing when your config is reloaded."}
-function api.textgrid:livelong()
+doc.api.textgrid.protect = {"api.textgrid:protect()", "Prevents the textgrid from closing when your config is reloaded."}
+function api.textgrid:protect()
   api.textgrid.textgrids[self.__id] = nil
   self.__id = nil
 end

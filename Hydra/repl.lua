@@ -5,7 +5,7 @@ doc.api.repl = {__doc = "Read-Eval-Print-Loop"}
 doc.api.repl.open = {"api.repl.open() -> textgrid", "Opens a (primitive) REPL that has full access to Hydra's API"}
 function api.repl.open()
   local win = api.textgrid.open()
-  win:livelong()
+  win:protect()
 
   local fg = "00FF00"
   local bg = "222222"
