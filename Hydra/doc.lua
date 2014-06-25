@@ -79,11 +79,11 @@ local function jsonify_group(groupname, group)
   table.sort(subitems, function(a, b) return a.def < b.def end)
   table.sort(subgroups, function(a, b) return a.name < b.name end)
 
-  local str = '{"type": "group", "name": "'..groupname..'", "doc": "'..group.__doc..'", "subitems": ['
+  local str = '{"name": "'..groupname..'", "doc": "'..group.__doc..'", "subitems": ['
 
   for i, item in pairs(subitems) do
     if i > 1 then str = str .. "," end
-    str = str .. '{"type": "item", "name": "'..item.name..'", "def": "'..item.def..'", "doc": "'..item.doc..'"}'
+    str = str .. '{"name": "'..item.name..'", "def": "'..item.def..'", "doc": "'..item.doc..'"}'
   end
 
   str = str .. '], "subgroups": ['
@@ -97,7 +97,7 @@ local function jsonify_group(groupname, group)
   return str
 end
 
-doc.api.jsondocs = {"api.jsondocs() -> string", "Returns the documentation as a JSON string for you to generate pretty docs with. The top-level is a group. Groups have keys: type ('group'), name (string), doc (string), subitems (list of items), subgroups (list of groups); Items have keys: type ('item'), name (string), def (string), doc (string)."}
+doc.api.jsondocs = {"api.jsondocs() -> string", "Returns the documentation as a JSON string for you to generate pretty docs with. The top-level is a group. Groups have keys: name (string), doc (string), subitems (list of items), subgroups (list of groups); Items have keys: name (string), def (string), doc (string)."}
 function api.jsondocs()
   return jsonify_group("api", doc.api)
 end
