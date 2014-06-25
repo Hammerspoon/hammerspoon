@@ -99,7 +99,7 @@ end
 
 doc.api.jsondocs = {"api.jsondocs() -> string", "Returns the documentation as a JSON string for you to generate pretty docs with. The top-level is a group. Groups have keys: type ('group'), name (string), doc (string), subitems (list of items), subgroups (list of groups); Items have keys: type ('item'), name (string), def (string), doc (string)."}
 function api.jsondocs()
-  return jsonify_group("doc.api", doc.api)
+  return jsonify_group("api", doc.api)
 end
 
 function api._initiate_documentation_system()

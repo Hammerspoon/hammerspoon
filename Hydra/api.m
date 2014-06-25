@@ -2,7 +2,7 @@
 void PHShowAlert(NSString* oneLineMsg, CGFloat duration);
 
 static hydradoc doc_api_showabout = {
-    "api", "showabout", "api.showabout()",
+    NULL, "showabout", "api.showabout()",
     "Displays the standard OS X about panel; implicitly focuses Hydra."
 };
 
@@ -13,7 +13,7 @@ int api_showabout(lua_State* L) {
 }
 
 static hydradoc doc_api_focushydra = {
-    "api", "focushydra", "api.focushydra()",
+    NULL, "focushydra", "api.focushydra()",
     "Makes Hydra the currently focused app; useful in combination with textgrids."
 };
 
@@ -23,7 +23,7 @@ int api_focushydra(lua_State* L) {
 }
 
 static hydradoc doc_api_alert = {
-    "api", "alert", "api.alert(str, seconds = 2)",
+    NULL, "alert", "api.alert(str, seconds = 2)",
     "Shows a message in large words briefly in the middle of the screen."
 };
 
@@ -40,7 +40,7 @@ int api_alert(lua_State* L) {
 }
 
 static hydradoc doc_api_fileexists = {
-    "api", "fileexists", "api.fileexists(path) -> exists, isdir",
+    NULL, "fileexists", "api.fileexists(path) -> exists, isdir",
     "Checks if a file exists, and whether it's a directory."
 };
 
@@ -58,7 +58,7 @@ int api_fileexists(lua_State* L) {
 }
 
 static hydradoc doc_api_check_accessibility = {
-    "api", "check_accessibility", "api.check_accessibility(shouldprompt) -> isenabled",
+    NULL, "check_accessibility", "api.check_accessibility(shouldprompt) -> isenabled",
     "Returns whether accessibility is enabled. If passed `true`, promtps the user to enable it."
 };
 
@@ -88,7 +88,6 @@ int luaopen_api(lua_State* L) {
     lua_pushvalue(L, -1);
     lua_setglobal(L, "api");
     
-    hydra_add_doc_group(L, "api", "Top level API functions.");
     hydra_add_doc_item(L, &doc_api_showabout);
     hydra_add_doc_item(L, &doc_api_focushydra);
     hydra_add_doc_item(L, &doc_api_alert);

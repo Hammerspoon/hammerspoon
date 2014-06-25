@@ -24,7 +24,9 @@ void hydra_add_doc_group(lua_State* L, char* name, char* docstring) {
 void hydra_add_doc_item(lua_State* L, hydradoc* doc) {
     lua_getglobal(L, "doc");
     lua_getfield(L, -1, "api");
-    lua_getfield(L, -1, doc->group);
+    
+    if (doc->group)
+        lua_getfield(L, -1, doc->group);
     
     lua_newtable(L);
     lua_pushstring(L, doc->definition);
@@ -34,5 +36,5 @@ void hydra_add_doc_item(lua_State* L, hydradoc* doc) {
     
     lua_setfield(L, -2, doc->name);
     
-    lua_pop(L, 3); // api, doc, group
+    lua_pop(L, doc->group ? 3 : 2); // api, doc, maybe group
 }
