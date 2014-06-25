@@ -1,3 +1,5 @@
+doc.api.__doc = "The Hydra namespace."
+
 local function help_string()
   return
     "print(doc)                     print this help string\n" ..
@@ -34,7 +36,7 @@ local function group_tostring(group)
     if isgroup(subgroup) then table.insert(submodules, name) end
   end
 
-  local str = ""
+  local str = group.__doc .. "\n\n"
 
   if # subitems > 0 then
     str = str .. "[subitems]\n" .. table.concat(subitems, "\n") .. "\n\n"

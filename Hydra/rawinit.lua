@@ -16,16 +16,17 @@ dofile(api.resourcesdir .. "/notify.lua")
 dofile(api.resourcesdir .. "/doc.lua")
 dofile(api.resourcesdir .. "/webview.lua")
 
-if not api.check_accessibility(true) then
-  api.notify.show("Enable accessibility first", "", "Otherwise Hydra can't do very much.", "needs_accessibility")
-end
-
-api._initiate_documentation_system()
+-- make lives of third party authors easier
+doc.api.ext = {__doc = "Standard high-level namespace for third-party extensions."}
+api.ext = {}
 
 package.path = api.userfile("?") .. ";" .. package.path
 
--- make lives of third party authors easier
-api.ext = {}
+api._initiate_documentation_system()
+
+if not api.check_accessibility(true) then
+  api.notify.show("Enable accessibility first", "", "Otherwise Hydra can't do very much.", "needs_accessibility")
+end
 
 -- load user's config
 api.call(api.reload)
