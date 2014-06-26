@@ -75,12 +75,21 @@ function api.call(fn, ...)
   return table.unpack(results)
 end
 
+local function trimstring(s)
+  return s:gsub("^%s+", ""):gsub("%s+$", "")
+end
+
+doc.api.exec = {"api.exec(command) -> string", "Runs a shell function and returns stdout as a string (without trailing newline)."}
+function api.exec(command)
+  local f = io.popen(command)
+  local str = f:read("*a")
+  f:close()
+  return trimstring(str)
+end
+
 doc.api.uuid = {"api.uuid() -> string", "Returns a UUID as a string"}
 function api.uuid()
-  local f = io.popen("uuidgen")
-  local str = f:read()
-  f:close()
-  return str
+  return api.exec("uuidgen")
 end
 
 -- swizzle! this is necessary so api.settings can save keys on exit
