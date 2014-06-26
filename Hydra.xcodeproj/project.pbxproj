@@ -52,7 +52,7 @@
 		94517BF71956F05800F9CCB6 /* pathwatcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF61956F05800F9CCB6 /* pathwatcher.lua */; };
 		94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF81956FA5000F9CCB6 /* textgrid.lua */; };
 		94517BFB1957738100F9CCB6 /* log.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BFA1957738100F9CCB6 /* log.lua */; };
-		945200861950E2760072DFEF /* defaultinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945200851950E2760072DFEF /* defaultinit.lua */; };
+		945200861950E2760072DFEF /* fallback_init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945200851950E2760072DFEF /* fallback_init.lua */; };
 		945200881950E6C10072DFEF /* sample_config.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945200871950E6C10072DFEF /* sample_config.lua */; };
 		9452129A194D59F800217584 /* mouse.m in Sources */ = {isa = PBXBuildFile; fileRef = 94521299194D59F800217584 /* mouse.m */; };
 		9452129C194D5B8F00217584 /* autolaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 9452129B194D5B8F00217584 /* autolaunch.m */; };
@@ -170,7 +170,7 @@
 		94517BF61956F05800F9CCB6 /* pathwatcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pathwatcher.lua; sourceTree = "<group>"; };
 		94517BF81956FA5000F9CCB6 /* textgrid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = textgrid.lua; sourceTree = "<group>"; };
 		94517BFA1957738100F9CCB6 /* log.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = log.lua; sourceTree = "<group>"; };
-		945200851950E2760072DFEF /* defaultinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = defaultinit.lua; sourceTree = "<group>"; };
+		945200851950E2760072DFEF /* fallback_init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fallback_init.lua; sourceTree = "<group>"; };
 		945200871950E6C10072DFEF /* sample_config.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sample_config.lua; sourceTree = "<group>"; };
 		94521299194D59F800217584 /* mouse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = mouse.m; sourceTree = "<group>"; };
 		9452129B194D5B8F00217584 /* autolaunch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = autolaunch.m; sourceTree = "<group>"; };
@@ -232,7 +232,7 @@
 				9445CA2319083251002568BB /* MainMenu.xib */,
 				9445CA2119083251002568BB /* app_delegate.m */,
 				9445CAA4190847CB002568BB /* rawinit.lua */,
-				945200851950E2760072DFEF /* defaultinit.lua */,
+				945200851950E2760072DFEF /* fallback_init.lua */,
 				945200871950E6C10072DFEF /* sample_config.lua */,
 				94EF97711958603F00096A41 /* hydra.h */,
 				94276CA61958809C003BF95B /* hydra.m */,
@@ -484,7 +484,7 @@
 				94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */,
 				9473A7561959F7020080C329 /* webview.lua in Resources */,
 				9445CAA5190847CB002568BB /* rawinit.lua in Resources */,
-				945200861950E2760072DFEF /* defaultinit.lua in Resources */,
+				945200861950E2760072DFEF /* fallback_init.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
 				948CAA0B19561D7300A27D9D /* timer.lua in Resources */,
 				948CAA081955AECC00A27D9D /* repl.lua in Resources */,

@@ -17,8 +17,8 @@ function api.douserfile(name)
 end
 
 local function load_default_config()
-  local defaultinit = dofile(api.resourcesdir .. "/defaultinit.lua")
-  defaultinit.run()
+  local fallbackinit = dofile(api.resourcesdir .. "/fallback_init.lua")
+  fallbackinit.run()
 end
 
 local function clear_old_state()

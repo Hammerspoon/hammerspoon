@@ -1,13 +1,13 @@
-local defaultinit = {}
+local fallbackinit = {}
 
-function defaultinit.open_sample_config()
+function fallbackinit.open_sample_config()
   os.execute("open " .. api.resourcesdir .. "/sample_config.lua")
 end
 
-function defaultinit.run()
+function fallbackinit.run()
   api.menu.show(function()
       return {
-        {title = "Open Sample Config", fn = defaultinit.open_sample_config},
+        {title = "Open Sample Config", fn = fallbackinit.open_sample_config},
         {title = "Reload Config", fn = api.reload},
         {title = "-"},
         {title = "About", fn = api.showabout},
@@ -18,4 +18,4 @@ function defaultinit.run()
   api.alert("Welcome to Hydra 1.0! Click the menu icon to find a sample config :)", 10)
 end
 
-return defaultinit
+return fallbackinit
