@@ -2,7 +2,9 @@
 
   <head>
     <title>Hydra docs: <%= group['namespace'] %> module</title>
-    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css"/>
+    <link href="normalize.css" media="all" rel="stylesheet" type="text/css"/>
+
     <style type="text/css">
       * {
         -webkit-box-sizing: border-box;
@@ -13,11 +15,19 @@
       body {
         margin: 0;
         background-color: #eee;
-        font-family: 'Open Sans', sans-serif;
+        font-family: 'Helvetica Neue', sans-serif;
       }
 
       h1 {
         margin-top: 0;
+      }
+
+      section {
+        border-top: 1px solid #ccc;
+      }
+
+      section:last-of-type {
+        border-bottom: 1px solid #ccc;
       }
 
       a {
@@ -46,12 +56,14 @@
 
   <div class="container">
     <h1>
-      <% group['prefix_pairs'].each do |prefix, combined| %>
-      <a href="<%= combined.join('.') %>.html"><%= prefix %></a>
-      <% end %>
+<code>
+      <% group['prefix_pairs'].each_with_index do |(prefix, combined), i| %><%= if i > 0 then "." end %><a href="<%= combined.join('.') %>.html"><%= prefix %></a><% end %>
+</code>
     </h1>
 
-    <h2><%= group['doc'] %></h2>
+    <p><%= group['doc'] %></p>
+
+    <% unless group['subitems'].empty? %>
 
     <ul>
       <% group['subitems'].each do |item| %>
@@ -61,26 +73,26 @@
 
     <% group['subitems'].each do |item| %>
 
+    <section>
     <a name="<%= item['name'] %>"></a>
     <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
     <code><%= item['def'] %></code>
     <p><%= item['doc'] %></p>
+    </section>
 
     <% end %>
 
-    <h2>Submodules</h2>
+    <% end %>
 
-    <% if ! group['subgroups'].empty? %>
+    <% unless group['subgroups'].empty? %>
+
+    <h2>Submodules</h2>
 
     <ul>
       <% group['subgroups'].each do |subgroup| %>
       <li><a href="<%= combined_prefixes.join('.') + '.' + subgroup['name'] + '.html' %>"><%= subgroup['name'] %></a></li>
       <% end %>
     </ul>
-
-    <% else %>
-
-    None.
 
     <% end %>
 
