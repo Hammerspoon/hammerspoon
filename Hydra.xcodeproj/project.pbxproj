@@ -10,6 +10,7 @@
 		9400269519514372000D15C1 /* geometry.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9400269419514372000D15C1 /* geometry.lua */; };
 		940026971951437A000D15C1 /* geometry.m in Sources */ = {isa = PBXBuildFile; fileRef = 940026961951437A000D15C1 /* geometry.m */; };
 		94276CA71958809C003BF95B /* hydra.m in Sources */ = {isa = PBXBuildFile; fileRef = 94276CA61958809C003BF95B /* hydra.m */; };
+		943F212F195C527300066DCB /* settings.m in Sources */ = {isa = PBXBuildFile; fileRef = 943F212E195C527300066DCB /* settings.m */; };
 		944419C1194F4A51000A55A7 /* timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 944419C0194F4A51000A55A7 /* timer.m */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9445CA1B19083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA1A19083251002568BB /* main.m */; };
@@ -96,6 +97,7 @@
 		9400269419514372000D15C1 /* geometry.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = geometry.lua; sourceTree = "<group>"; };
 		940026961951437A000D15C1 /* geometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = geometry.m; sourceTree = "<group>"; };
 		94276CA61958809C003BF95B /* hydra.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra.m; sourceTree = "<group>"; };
+		943F212E195C527300066DCB /* settings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = settings.m; sourceTree = "<group>"; };
 		944419C0194F4A51000A55A7 /* timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = timer.m; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Hydra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hydra.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -262,6 +264,7 @@
 				94521299194D59F800217584 /* mouse.m */,
 				94F7A98D1959096100CE7136 /* notify.m */,
 				945212A1194D69E700217584 /* pathwatcher.m */,
+				943F212E195C527300066DCB /* settings.m */,
 				94E8E79F194E0AB10064CF6C /* screen.m */,
 				948CA9FE1955AECC00A27D9D /* textgrid.m */,
 				944419C0194F4A51000A55A7 /* timer.m */,
@@ -512,6 +515,7 @@
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
 				948CAA041955AECC00A27D9D /* HDTextGridController.m in Sources */,
+				943F212F195C527300066DCB /* settings.m in Sources */,
 				9445CA2219083251002568BB /* app_delegate.m in Sources */,
 				9445CA86190833C1002568BB /* ldebug.c in Sources */,
 				9445CA8C190833C1002568BB /* liolib.c in Sources */,

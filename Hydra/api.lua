@@ -82,3 +82,6 @@ function api.uuid()
   f:close()
   return str
 end
+
+-- swizzle! this is necessary so api.settings can save keys on exit
+os.exit = api.exit

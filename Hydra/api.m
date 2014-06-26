@@ -1,6 +1,14 @@
 #import "hydra.h"
 void PHShowAlert(NSString* oneLineMsg, CGFloat duration);
 
+int api_exit(lua_State* L) {
+    if (lua_isboolean(L, 2) && lua_toboolean(L, 2))
+        lua_close(L);
+    
+    [[NSApplication sharedApplication] terminate: nil];
+    return 0; // lol
+}
+
 static hydradoc doc_api_showabout = {
     NULL, "showabout", "api.showabout()",
     "Displays the standard OS X about panel; implicitly focuses Hydra."
@@ -75,6 +83,7 @@ int api_check_accessibility(lua_State* L) {
 }
 
 static const luaL_Reg apilib[] = {
+    {"exit", api_exit},
     {"showabout", api_showabout},
     {"focushydra", api_focushydra},
     {"alert", api_alert},
