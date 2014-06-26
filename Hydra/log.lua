@@ -10,6 +10,7 @@ function print(...)
     vals[k] = tostring(vals[k])
   end
 
+  -- using table.concat here is safe, because we just stringified all the values
   local str = table.concat(vals, "\t") .. "\n"
   api.log._gotline(str)
 end
