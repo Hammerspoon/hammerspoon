@@ -18,6 +18,7 @@ int luaopen_updates(lua_State* L);
 int luaopen_notify(lua_State* L);
 int luaopen_webview(lua_State* L);
 int luaopen_settings(lua_State* L);
+int luaopen_utf8(lua_State* L);
 
 @interface PHAppDelegate : NSObject <NSApplicationDelegate>
 @end
@@ -52,6 +53,7 @@ int luaopen_settings(lua_State* L);
         {"notify",       luaopen_notify},
         {"webview",      luaopen_webview},
         {"settings",     luaopen_settings},
+        {"utf8",         luaopen_utf8},
         {NULL, NULL},
     };
     
