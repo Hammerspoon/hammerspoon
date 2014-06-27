@@ -32,17 +32,18 @@ int api_focushydra(lua_State* L) {
 
 static hydradoc doc_api_alert = {
     NULL, "alert", "api.alert(str, seconds = 2)",
-    "Shows a message in large words briefly in the middle of the screen."
+    "Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.."
 };
 
 int api_alert(lua_State* L) {
-    const char* str = lua_tostring(L, 1);
+    size_t len;
+    const char* str = luaL_tolstring(L, 1, &len);
     
     double duration = 2.0;
     if (lua_isnumber(L, 2))
         duration = lua_tonumber(L, 2);
     
-    PHShowAlert([NSString stringWithUTF8String:str], duration);
+    PHShowAlert([[NSString alloc] initWithBytes:str length:len encoding:NSUTF8StringEncoding], duration);
     
     return 0;
 }
