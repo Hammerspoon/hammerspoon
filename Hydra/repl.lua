@@ -36,14 +36,16 @@ function api.repl.open()
         local chars = api.utf8.chars(line)
 
         for x = 1, math.min(#chars, size.w) do
-          win:set(chars[x], x, i, fg, bg)
+          win:setchar(chars[x], x, i)
         end
 
         if i + scrollpos == #pagetable then
           -- we're at the cursor line
           local c
           if cursorpos > #stdin then c = ' ' else c = stdin:sub(cursorpos,cursorpos) end
-          win:set(c, 2 + cursorpos, i, bg, fg)
+          win:setchar(c, 2 + cursorpos, i)
+          win:setcharfg(bg, 2 + cursorpos, i)
+          win:setcharbg(fg, 2 + cursorpos, i)
         end
       end
     end
@@ -55,7 +57,9 @@ function api.repl.open()
   end
 
   local function redraw()
-    win:clear(bg)
+    win:setbg(bg)
+    win:setfg(fg)
+    win:clear()
     printscrollback()
   end
 

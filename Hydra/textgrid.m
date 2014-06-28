@@ -50,12 +50,12 @@ static int textgrid_getsize(lua_State *L) {
     return 1;
 }
 
-static hydradoc doc_textgrid_set = {
-    "textgrid", "set", "api.textgrid:set(str, x, y, fg, bg)",
-    "Sets the given string at the given position; str is a 1-character UTF-8 encoded string; x and y are grid spaces; fg and bg are optional CSS-like strings."
+static hydradoc doc_textgrid_setchar = {
+    "textgrid", "set", "api.textgrid:setchar(str, x, y)",
+    "Sets the given 1-character UTF-8 encoded string at the given grid coordinates."
 };
 
-static int textgrid_set(lua_State *L) {
+static int textgrid_setchar(lua_State *L) {
     HDTextGridController* wc = get_textgrid_wc(L, 1);
     
     size_t len;
@@ -64,25 +64,78 @@ static int textgrid_set(lua_State *L) {
     
     int x = lua_tonumber(L, 3) - 1;
     int y = lua_tonumber(L, 4) - 1;
-    NSColor* fg = (lua_isstring(L, 5) ? HDColorFromHex(lua_tostring(L, 5)) : nil);
-    NSColor* bg = (lua_isstring(L, 6) ? HDColorFromHex(lua_tostring(L, 6)) : nil);
     
-    [wc setChar:str x:x y:y fg:fg bg:bg];
+    [wc setChar:str x:x y:y];
+    
+    return 0;
+}
+
+static hydradoc doc_textgrid_setcharfg = {
+    "textgrid", "setcharfg", "api.textgrid:setcharfg(str, x, y)",
+    "Sets the textgrid's foreground color to the given 6-digit hex string at the given coordinate."
+};
+
+static int textgrid_setcharfg(lua_State *L) {
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
+    
+    NSColor* fg = HDColorFromHex(lua_tostring(L, 2));
+    int x = lua_tonumber(L, 3) - 1;
+    int y = lua_tonumber(L, 4) - 1;
+    
+    [wc setForeground:fg x:x y:y];
+    
+    return 0;
+}
+
+static hydradoc doc_textgrid_setcharbg = {
+    "textgrid", "setcharbg", "api.textgrid:setcharbg(str, x, y)",
+    "Sets the textgrid's background color to the given 6-digit hex string at the given coordinate."
+};
+
+static int textgrid_setcharbg(lua_State *L) {
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
+    
+    NSColor* bg = HDColorFromHex(lua_tostring(L, 2));
+    int x = lua_tonumber(L, 3) - 1;
+    int y = lua_tonumber(L, 4) - 1;
+    
+    [wc setBackground:bg x:x y:y];
     
     return 0;
 }
 
 static hydradoc doc_textgrid_clear = {
-    "textgrid", "clear", "api.textgrid:clear(bg)",
-    "Clears the textgrid and sets its background color to bg, a CSS-like string."
+    "textgrid", "clear", "api.textgrid:clear()",
+    "Replaces all the textgrid's text with space characters."
 };
 
 static int textgrid_clear(lua_State *L) {
     HDTextGridController* wc = get_textgrid_wc(L, 1);
-    
+    [wc clear];
+    return 0;
+}
+
+static hydradoc doc_textgrid_setbg = {
+    "textgrid", "setbg", "api.textgrid:setbg(str)",
+    "Sets the textgrid's background color to the given 6-digit hex string."
+};
+
+static int textgrid_setbg(lua_State *L) {
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
     NSColor* bg = HDColorFromHex(lua_tostring(L, 2));
-    [wc clear:bg];
-    
+    [wc setBackground:bg];
+    return 0;
+}
+
+static hydradoc doc_textgrid_setfg = {
+    "textgrid", "setfg", "api.textgrid:setfg(str)",
+    "Sets the textgrid's foreground color to the given 6-digit hex string."
+};
+
+static int textgrid_setfg(lua_State *L) {
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
+    NSColor* fg = HDColorFromHex(lua_tostring(L, 2));
+    [wc setForeground:fg];
     return 0;
 }
 
@@ -291,7 +344,11 @@ static const luaL_Reg textgridlib[] = {
     {"getsize", textgrid_getsize},
     {"resize", textgrid_resize},
     {"clear", textgrid_clear},
-    {"set", textgrid_set},
+    {"setfg", textgrid_setfg},
+    {"setbg", textgrid_setbg},
+    {"setchar", textgrid_setchar},
+    {"setcharfg", textgrid_setcharfg},
+    {"setcharbg", textgrid_setcharbg},
     {"usefont", textgrid_usefont},
     {"getfont", textgrid_getfont},
     {"settitle", textgrid_settitle},
@@ -307,8 +364,12 @@ int luaopen_textgrid(lua_State* L) {
     hydra_add_doc_item(L, &doc_textgrid_closed);
     hydra_add_doc_item(L, &doc_textgrid_keydown);
     hydra_add_doc_item(L, &doc_textgrid_getsize);
-    hydra_add_doc_item(L, &doc_textgrid_set);
+    hydra_add_doc_item(L, &doc_textgrid_setchar);
+    hydra_add_doc_item(L, &doc_textgrid_setcharfg);
+    hydra_add_doc_item(L, &doc_textgrid_setcharbg);
     hydra_add_doc_item(L, &doc_textgrid_clear);
+    hydra_add_doc_item(L, &doc_textgrid_setfg);
+    hydra_add_doc_item(L, &doc_textgrid_setbg);
     hydra_add_doc_item(L, &doc_textgrid_resize);
     hydra_add_doc_item(L, &doc_textgrid_usefont);
     hydra_add_doc_item(L, &doc_textgrid_getfont);

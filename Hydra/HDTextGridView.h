@@ -19,10 +19,14 @@ typedef void(^KOKeyDownHandler)(BOOL ctrl, BOOL alt, BOOL cmd, NSString* str);
 
 - (NSSize) realViewSize;
 
-- (void) setChar:(NSString*)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg;
-
-- (void) clear:(NSColor*)bg;
+- (void) clear;
+- (void) setForeground:(NSColor*)fg;
+- (void) setBackground:(NSColor*)bg;
 
 - (void) postponeRedraws:(dispatch_block_t)blk;
+
+- (void) setChar:(NSString*)c x:(int)x y:(int)y;
+- (void) setForeground:(NSColor*)fg x:(int)x y:(int)y;
+- (void) setBackground:(NSColor*)bg x:(int)x y:(int)y;
 
 @end

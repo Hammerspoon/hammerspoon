@@ -10,8 +10,12 @@
 - (int) cols;
 - (int) rows;
 
-- (void) setChar:(NSString*)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg;
-- (void) clear:(NSColor*)bg;
+- (void) setChar:(NSString*)c x:(int)x y:(int)y;
+- (void) setForeground:(NSColor*)fg x:(int)x y:(int)y;
+- (void) setBackground:(NSColor*)bg x:(int)x y:(int)y;
+- (void) clear;
+- (void) setForeground:(NSColor*)fg;
+- (void) setBackground:(NSColor*)bg;
 
 @property (copy) dispatch_block_t windowResizedHandler;
 @property (copy) dispatch_block_t windowClosedHandler;

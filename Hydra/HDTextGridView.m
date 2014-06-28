@@ -154,17 +154,60 @@
     }
 }
 
-- (void) setChar:(NSString*)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg {
-    NSUInteger i = x + y * self.cols;
-    NSRange r = NSMakeRange(i, [c length]);
-    [self.buffer replaceCharactersInRange:r withString:c];
-    if (fg) [self.buffer addAttribute:NSForegroundColorAttributeName value:fg range:r];
-    if (bg) [self.buffer addAttribute:NSBackgroundColorAttributeName value:bg range:r];
-    
+- (void) redrawCharUnlessPostponed:(NSUInteger)i {
     if (!self.postponeRedraws) {
         NSRect r = [self rectForCharacterIndex:i];
         [self setNeedsDisplayInRect:r];
     }
+}
+
+- (void) setChar:(NSString*)c x:(int)x y:(int)y {
+    NSUInteger i = x + y * self.cols;
+    NSRange r = NSMakeRange(i, [c length]);
+    [self.buffer replaceCharactersInRange:r withString:c];
+    
+    [self redrawCharUnlessPostponed:i];
+}
+
+- (void) setForeground:(NSColor*)fg x:(int)x y:(int)y {
+    NSUInteger i = x + y * self.cols;
+    NSRange r = NSMakeRange(i, 1);
+    [self.buffer addAttribute:NSForegroundColorAttributeName value:fg range:r];
+    
+    [self redrawCharUnlessPostponed:i];
+}
+
+- (void) setBackground:(NSColor*)bg x:(int)x y:(int)y {
+    NSUInteger i = x + y * self.cols;
+    NSRange r = NSMakeRange(i, 1);
+    [self.buffer addAttribute:NSBackgroundColorAttributeName value:bg range:r];
+    
+    [self redrawCharUnlessPostponed:i];
+}
+
+- (void) clear {
+    NSString* padding = [@"" stringByPaddingToLength:[self.buffer length] withString:@" " startingAtIndex:0];
+    NSRange r = NSMakeRange(0, [self.buffer length]);
+    [self.buffer replaceCharactersInRange:r withString:padding];
+    
+    if (!self.postponeRedraws)
+        [self setNeedsDisplay:YES];
+}
+
+- (void) setForeground:(NSColor*)fg {
+    NSRange r = NSMakeRange(0, [self.buffer length]);
+    [self.buffer addAttribute:NSForegroundColorAttributeName value:fg range:r];
+    
+    if (!self.postponeRedraws)
+        [self setNeedsDisplay:YES];
+}
+
+- (void) setBackground:(NSColor*)bg {
+    NSRange r = NSMakeRange(0, [self.buffer length]);
+    [self.buffer addAttribute:NSBackgroundColorAttributeName value:bg range:r];
+    
+    if (!self.postponeRedraws)
+        [self setNeedsDisplay:YES];
 }
 
 - (void) clear:(NSColor*)bg {

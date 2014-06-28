@@ -66,8 +66,16 @@
     return self.tv.rows;
 }
 
-- (void) setChar:(NSString*)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg {
-    [self.tv setChar:c x:x y:y fg:fg bg:bg];
+- (void) setChar:(NSString*)c x:(int)x y:(int)y {
+    [self.tv setChar:c x:x y:y];
+}
+
+- (void) setForeground:(NSColor*)fg x:(int)x y:(int)y {
+    [self.tv setForeground:fg x:x y:y];
+}
+
+- (void) setBackground:(NSColor*)bg x:(int)x y:(int)y {
+    [self.tv setBackground:bg x:x y:y];
 }
 
 - (void) useGridSize:(NSSize)size {
@@ -103,9 +111,17 @@
     }];
 }
 
-- (void) clear:(NSColor*)bg {
+- (void) clear {
+    [self.tv clear];
+}
+
+- (void) setForeground:(NSColor*)fg {
+    [self.tv setForeground:fg];
+}
+
+- (void) setBackground:(NSColor*)bg {
     [[self window] setBackgroundColor:bg];
-    [self.tv clear:bg];
+    [self.tv setBackground:bg];
 }
 
 @end
