@@ -51,8 +51,8 @@ static int textgrid_getsize(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_set = {
-    "textgrid", "set", "api.textgrid:set(char, x, y, fg, bg)",
-    "Sets the given character in the given position, where char is a UTF8 character thingy, x and y are grid spaces, fg and bg are CSS-like strings."
+    "textgrid", "set", "api.textgrid:set(str, x, y, fg, bg)",
+    "Sets the given string at the given position; str is a 1-character UTF-8 encoded string; x and y are grid spaces; fg and bg are optional CSS-like strings."
 };
 
 static int textgrid_set(lua_State *L) {
@@ -64,8 +64,8 @@ static int textgrid_set(lua_State *L) {
     
     int x = lua_tonumber(L, 3) - 1;
     int y = lua_tonumber(L, 4) - 1;
-    NSColor* fg = HDColorFromHex(lua_tostring(L, 5));
-    NSColor* bg = HDColorFromHex(lua_tostring(L, 6));
+    NSColor* fg = (lua_isstring(L, 5) ? HDColorFromHex(lua_tostring(L, 5)) : nil);
+    NSColor* bg = (lua_isstring(L, 6) ? HDColorFromHex(lua_tostring(L, 6)) : nil);
     
     [wc setChar:str x:x y:y fg:fg bg:bg];
     
