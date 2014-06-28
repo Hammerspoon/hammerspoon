@@ -87,13 +87,24 @@ function api.repl.open()
 
     table.insert(stdout, "> " .. command)
 
-    local fn = load(command)
-    local success, result = pcall(fn)
-    result = tostring(result)
-    if not success then result = "error: " .. result end
+    local results = table.pack(pcall(load("return " .. command)))
+    if not results[1] then
+      results = table.pack(pcall(load(command)))
+    end
+
+    local success = results[1]
+    table.remove(results, 1)
+
+    local resultstr
+    if success then
+      for i = 1, results.n - 1 do results[i] = tostring(results[i]) end
+      resultstr = table.concat(results, ", ")
+    else
+      resultstr = "error: " .. results[2]
+    end
 
     -- add each line separately
-    for s in string.gmatch(result, "[^\n]+") do
+    for s in string.gmatch(resultstr, "[^\n]+") do
       table.insert(stdout, s)
     end
   end
