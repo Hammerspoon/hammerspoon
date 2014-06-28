@@ -69,3 +69,12 @@ function api.fn.reduce(t, fn)
   end
   return result
 end
+
+doc.api.fn.find = {"api.fn.find(t, fn) -> el", "Returns the first element where fn(el) is truthy."}
+function api.fn.find(t, fn)
+  local nt = {}
+  for k, v in pairs(t) do
+    if fn(v) then return v end
+  end
+  return nil
+end
