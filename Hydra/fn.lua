@@ -2,7 +2,7 @@ api.fn = {}
 
 doc.api.fn = {__doc = "Super-helpful functional programming utilities."}
 
-doc.api.fn.map = {"api.fn.map(t, fn) -> t", "Returns a table of the results of t(el) on every el in t."}
+doc.api.fn.map = {"api.fn.map(t, fn) -> t", "Returns a table of the results of fn(el) on every el in t."}
 function api.fn.map(t, fn)
   local nt = {}
   for k, v in pairs(t) do
@@ -11,7 +11,7 @@ function api.fn.map(t, fn)
   return nt
 end
 
-doc.api.fn.filter = {"api.fn.filter(t, fn) -> t", "Returns a table of the elements in t in which t(el) is truthy."}
+doc.api.fn.filter = {"api.fn.filter(t, fn) -> t", "Returns a table of the elements in t in which fn(el) is truthy."}
 function api.fn.filter(t, fn)
   local nt = {}
   for k, v in pairs(t) do
@@ -20,7 +20,7 @@ function api.fn.filter(t, fn)
   return nt
 end
 
-doc.api.fn.contains = {"api.fn.contains(t, el) -> bool", "Returns whether a table contains a given element."}
+doc.api.fn.contains = {"api.fn.contains(t, el) -> bool", "Returns whether the table contains the given element."}
 function api.fn.contains(t, el)
   for k, v in pairs(t) do
     if v == el then
