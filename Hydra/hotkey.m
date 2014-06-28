@@ -31,7 +31,7 @@ int hotkey_enable(lua_State* L) {
     
     UInt32 keycode = PHKeyCodeForString([NSString stringWithUTF8String:key]);
     
-    EventHotKeyID hotKeyID = { .signature = 'PHNX', .id = uid };
+    EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = uid };
     EventHotKeyRef carbonHotKey = NULL;
     RegisterEventHotKey(keycode, mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &carbonHotKey);
     
