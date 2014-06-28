@@ -4,7 +4,7 @@
 int luaopen_api(lua_State* L);
 
 int luaopen_hotkey(lua_State* L);
-int luaopen_app(lua_State* L);
+int luaopen_application(lua_State* L);
 int luaopen_mouse(lua_State* L);
 int luaopen_autolaunch(lua_State* L);
 int luaopen_menu(lua_State* L);
@@ -40,7 +40,7 @@ int luaopen_json(lua_State* L);
     
     static const luaL_Reg hydralibs[] = {
         {"hotkey",       luaopen_hotkey},
-        {"app",          luaopen_app},
+        {"application",  luaopen_application},
         {"mouse",        luaopen_mouse},
         {"autolaunch",   luaopen_autolaunch},
         {"menu",         luaopen_menu},

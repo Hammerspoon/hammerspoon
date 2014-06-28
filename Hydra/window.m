@@ -1,5 +1,5 @@
 #import "hydra.h"
-void new_app(lua_State* L, pid_t pid);
+void new_application(lua_State* L, pid_t pid);
 
 static AXUIElementRef axref_for_window(lua_State* L, int idx) {
     lua_getfield(L, idx, "__win");
@@ -360,15 +360,15 @@ int window_pid(lua_State* L) {
     }
 }
 
-static hydradoc doc_window_app = {
-    "window", "app", "api.window:app() -> app",
+static hydradoc doc_window_application = {
+    "window", "application", "api.window:application() -> app",
     "Returns the app that the window belongs to."
 };
 
-int window_app(lua_State* L) {
+int window_application(lua_State* L) {
     if (window_pid(L)) {
         pid_t pid = lua_tonumber(L, -1);
-        new_app(L, pid);
+        new_application(L, pid);
         return 1;
     }
     else {
@@ -475,7 +475,7 @@ static const luaL_Reg windowlib[] = {
     {"unminimize", window_unminimize},
     {"isminimized", window_isminimized},
     {"pid", window_pid},
-    {"app", window_app},
+    {"application", window_application},
     {"becomemain", window_becomemain},
     
     {NULL, NULL}
@@ -495,7 +495,7 @@ int luaopen_window(lua_State* L) {
     hydra_add_doc_item(L, &doc_window_minimize);
     hydra_add_doc_item(L, &doc_window_unminimize);
     hydra_add_doc_item(L, &doc_window_isminimized);
-    hydra_add_doc_item(L, &doc_window_app);
+    hydra_add_doc_item(L, &doc_window_application);
     hydra_add_doc_item(L, &doc_window_becomemain);
     hydra_add_doc_item(L, &doc_window_visible_windows_sorted_by_recency);
     

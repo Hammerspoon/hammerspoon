@@ -1,11 +1,11 @@
 doc.api.window.allwindows = {"api.window.allwindows() -> win[]", "Returns all windows"}
 function api.window.allwindows()
-  return api.fnutils.mapcat(api.app.runningapps(), api.app.allwindows)
+  return api.fnutils.mapcat(api.application.runningapps(), api.application.allwindows)
 end
 
 doc.api.window.isvisible = {"api.window:isvisible() -> bool", "True if the app is not hidden or minimized."}
 function api.window:isvisible()
-  return not self:app():ishidden() and not self:isminimized()
+  return not self:application():ishidden() and not self:isminimized()
 end
 
 doc.api.window.frame = {"api.window:frame() -> rect", "Get the frame of the window in absolute coordinates."}
@@ -34,7 +34,7 @@ end
 
 doc.api.window.focus = {"api.window:focus() -> bool", "Try to make this window focused."}
 function api.window:focus()
-  return self:becomemain() and self:app():activate()
+  return self:becomemain() and self:application():activate()
 end
 
 doc.api.window.visiblewindows = {"api.window.visiblewindows() -> win[]", "Get all windows on all screens that match api.window.isvisible."}

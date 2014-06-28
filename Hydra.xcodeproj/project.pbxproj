@@ -80,7 +80,7 @@
 		948CAA081955AECC00A27D9D /* repl.lua in Resources */ = {isa = PBXBuildFile; fileRef = 948CAA001955AECC00A27D9D /* repl.lua */; };
 		948CAA0B19561D7300A27D9D /* timer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 948CAA0A19561D7300A27D9D /* timer.lua */; };
 		94A1537C194D77A400F29F8F /* window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94A1537B194D77A400F29F8F /* window.lua */; };
-		94BDB49C19094B7A00BD0553 /* app.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* app.m */; };
+		94BDB49C19094B7A00BD0553 /* application.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* application.m */; };
 		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
 		94C36940194DD94700EE3A2D /* updates.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693F194DD94700EE3A2D /* updates.m */; };
 		94C36942194DD94D00EE3A2D /* updates.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C36941194DD94D00EE3A2D /* updates.lua */; };
@@ -91,7 +91,7 @@
 		94E8E7A0194E0AB10064CF6C /* screen.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E8E79F194E0AB10064CF6C /* screen.m */; };
 		94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Hydra.icns */; };
 		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
-		94E8E7BC194E25300064CF6C /* app.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* app.lua */; };
+		94E8E7BC194E25300064CF6C /* application.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* application.lua */; };
 		94F7A98E1959096100CE7136 /* notify.m in Sources */ = {isa = PBXBuildFile; fileRef = 94F7A98D1959096100CE7136 /* notify.m */; };
 /* End PBXBuildFile section */
 
@@ -203,7 +203,7 @@
 		948CAA001955AECC00A27D9D /* repl.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = repl.lua; sourceTree = "<group>"; };
 		948CAA0A19561D7300A27D9D /* timer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = timer.lua; sourceTree = "<group>"; };
 		94A1537B194D77A400F29F8F /* window.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window.lua; sourceTree = "<group>"; };
-		94BDB49B19094B7A00BD0553 /* app.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = app.m; sourceTree = "<group>"; };
+		94BDB49B19094B7A00BD0553 /* application.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = application.m; sourceTree = "<group>"; };
 		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
 		94C3693F194DD94700EE3A2D /* updates.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = updates.m; sourceTree = "<group>"; };
 		94C36941194DD94D00EE3A2D /* updates.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = updates.lua; sourceTree = "<group>"; };
@@ -214,7 +214,7 @@
 		94E8E79F194E0AB10064CF6C /* screen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = screen.m; sourceTree = "<group>"; };
 		94E8E7AD194E0C940064CF6C /* Hydra.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Hydra.icns; sourceTree = "<group>"; };
 		94E8E7B9194E25290064CF6C /* screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = screen.lua; sourceTree = "<group>"; };
-		94E8E7BB194E25300064CF6C /* app.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = app.lua; sourceTree = "<group>"; };
+		94E8E7BB194E25300064CF6C /* application.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = application.lua; sourceTree = "<group>"; };
 		94EF97711958603F00096A41 /* hydra.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hydra.h; sourceTree = "<group>"; };
 		94F7A98D1959096100CE7136 /* notify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = notify.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -244,7 +244,7 @@
 				94276CA61958809C003BF95B /* hydra.m */,
 				948CA9F61955AE7B00A27D9D /* Lower-level stuff */,
 				94DE594A194F1A39004D242E /* api.lua */,
-				94E8E7BB194E25300064CF6C /* app.lua */,
+				94E8E7BB194E25300064CF6C /* application.lua */,
 				94668E941958B039009422D7 /* doc.lua */,
 				94DE5946194F11AD004D242E /* fnutils.lua */,
 				9400269419514372000D15C1 /* geometry.lua */,
@@ -260,7 +260,7 @@
 				9473A7551959F7020080C329 /* webview.lua */,
 				94A1537B194D77A400F29F8F /* window.lua */,
 				94DE5948194F1A31004D242E /* api.m */,
-				94BDB49B19094B7A00BD0553 /* app.m */,
+				94BDB49B19094B7A00BD0553 /* application.m */,
 				9452129B194D5B8F00217584 /* autolaunch.m */,
 				940026961951437A000D15C1 /* geometry.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
@@ -488,7 +488,7 @@
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
 				945F2BC01959AFA700D2DE7E /* notify.lua in Resources */,
 				945212A7194D6B5900217584 /* menu.png in Resources */,
-				94E8E7BC194E25300064CF6C /* app.lua in Resources */,
+				94E8E7BC194E25300064CF6C /* application.lua in Resources */,
 				94DE594B194F1A39004D242E /* api.lua in Resources */,
 				94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */,
 				9473A7561959F7020080C329 /* webview.lua in Resources */,
@@ -557,7 +557,7 @@
 				948CAA051955AECC00A27D9D /* HDTextGridView.m in Sources */,
 				9445CA90190833C1002568BB /* loadlib.c in Sources */,
 				9445CA91190833C1002568BB /* lobject.c in Sources */,
-				94BDB49C19094B7A00BD0553 /* app.m in Sources */,
+				94BDB49C19094B7A00BD0553 /* application.m in Sources */,
 				9445CA99190833C1002568BB /* ltablib.c in Sources */,
 				943349CE195DB49700B2BE41 /* json.m in Sources */,
 				9445CA97190833C1002568BB /* lstrlib.c in Sources */,
