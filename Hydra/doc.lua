@@ -65,41 +65,30 @@ local function hackgroup(group)
 end
 
 local function jsonify_group(groupname, group)
-  local subitems = {}
-  local subgroups = {}
+  local obj = {}
+
+  obj.name = groupname
+  obj.doc = group.__doc
+  obj.subitems = {}
+  obj.subgroups = {}
 
   for name, thing in pairs(group) do
     if isitem(thing) then
-      table.insert(subitems, {name = name, def = thing[1], doc = thing[2]})
+      table.insert(obj.subitems, {name = name, def = thing[1], doc = thing[2]})
     elseif isgroup(thing) then
-      table.insert(subgroups, {name = name, group = thing})
+      table.insert(obj.subgroups, jsonify_group(name, thing))
     end
   end
 
-  table.sort(subitems, function(a, b) return a.def < b.def end)
-  table.sort(subgroups, function(a, b) return a.name < b.name end)
+  table.sort(obj.subitems, function(a, b) return a.def < b.def end)
+  table.sort(obj.subgroups, function(a, b) return a.name < b.name end)
 
-  local str = '{"name": "'..groupname..'", "doc": "'..group.__doc..'", "subitems": ['
-
-  for i, item in pairs(subitems) do
-    if i > 1 then str = str .. "," end
-    str = str .. '{"name": "'..item.name..'", "def": "'..item.def..'", "doc": "'..item.doc..'"}'
-  end
-
-  str = str .. '], "subgroups": ['
-
-  for i, group in pairs(subgroups) do
-    if i > 1 then str = str .. "," end
-    str = str .. jsonify_group(group.name, group.group)
-  end
-
-  str = str .. ']}'
-  return str
+  return obj
 end
 
 doc.api.jsondocs = {"api.jsondocs() -> string", "Returns the documentation as a JSON string for you to generate pretty docs with. The top-level is a group. Groups have keys: name (string), doc (string), subitems (list of items), subgroups (list of groups); Items have keys: name (string), def (string), doc (string)."}
 function api.jsondocs()
-  return jsonify_group("api", doc.api)
+  return api.json.encode(jsonify_group("api", doc.api))
 end
 
 function api._initiate_documentation_system()
