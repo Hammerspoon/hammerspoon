@@ -34,8 +34,16 @@ function api.repl.open()
       local line = pagetable[i + scrollpos]
       if line then
         local chars = api.utf8.chars(line)
+
         for x = 1, math.min(#chars, size.w) do
           win:set(chars[x], x, i, fg, bg)
+        end
+
+        if i + scrollpos == #pagetable then
+          -- we're at the cursor line
+          local c
+          if cursorpos > #stdin then c = ' ' else c = stdin[cursorpos] end
+          win:set(c, 2 + cursorpos, i, bg, fg)
         end
       end
     end
@@ -91,11 +99,24 @@ function api.repl.open()
   end
 
   function win.keydown(t)
-    if t.key == "return" then runcommand(); ensurecursorvisible()
-    elseif t.key == "delete" --[[i.e. backspace]] then stdin = stdin:sub(0, -2); ensurecursorvisible()
-    elseif t.key == 'p' and t.alt then scrollpos = scrollpos - 1; restrictscrollpos()
-    elseif t.key == 'n' and t.alt then scrollpos = scrollpos + 1; restrictscrollpos()
-    else stdin = stdin .. t.key; ensurecursorvisible()
+    if t.key == "return" then
+      cursorpos = 1
+      runcommand()
+      ensurecursorvisible()
+    elseif t.key == "delete" --[[i.e. backspace]] then
+      stdin = stdin:sub(0, -2)
+      cursorpos = math.max(cursorpos - 1, 1)
+      ensurecursorvisible()
+    elseif t.key == 'p' and t.alt then
+      scrollpos = scrollpos - 1
+      restrictscrollpos()
+    elseif t.key == 'n' and t.alt then
+      scrollpos = scrollpos + 1
+      restrictscrollpos()
+    else
+      cursorpos = cursorpos + 1
+      stdin = stdin .. t.key
+      ensurecursorvisible()
     end
     redraw()
   end
