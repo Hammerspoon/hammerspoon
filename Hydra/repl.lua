@@ -73,10 +73,10 @@ function api.repl()
     redraw()
   end
 
-  local loghandler = api.log.addhandler(receivedlog)
+  local loghandler = api.logger.addhandler(receivedlog)
 
   function win.closed()
-    api.log.removehandler(loghandler)
+    api.logger.removehandler(loghandler)
   end
 
   local function runcommand()
