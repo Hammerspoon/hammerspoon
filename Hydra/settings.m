@@ -31,8 +31,8 @@ static id nsobject_for_luavalue(lua_State* L, int idx) {
             return [list copy];
         }
         default: {
-            // TODO: make the following line work:
-            // hydra_throwerror(L, "non-serializable object given to api.settings");
+            lua_pushliteral(L, "non-serializable object given to api.settings");
+            lua_error(L);
         }
     }
     // unreachable
