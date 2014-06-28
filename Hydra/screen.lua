@@ -17,7 +17,7 @@ end
 doc.api.screen.next = {"api.screen:next() -> screen", "Returns the screen 'after' this one; I have no idea how they're ordered though."}
 function api.screen:next()
   local screens = api.screen.allscreens()
-  local i = api.fn.indexof(screens, self) + 1
+  local i = api.fnutils.indexof(screens, self) + 1
   if i > # screens then i = 1 end
   return screens[i]
 end
@@ -25,7 +25,7 @@ end
 doc.api.screen.previous = {"api.screen:previous() -> screen", "Returns the screen 'before' this one; I have no idea how they're ordered though."}
 function api.screen:previous()
   local screens = api.screen.allscreens()
-  local i = api.fn.indexof(screens, self) - 1
+  local i = api.fnutils.indexof(screens, self) - 1
   if i < 1 then i = # screens end
   return screens[i]
 end

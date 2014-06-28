@@ -1,6 +1,6 @@
 doc.api.window.allwindows = {"api.window.allwindows() -> win[]", "Returns all windows"}
 function api.window.allwindows()
-  return api.fn.mapcat(api.app.runningapps(), api.app.allwindows)
+  return api.fnutils.mapcat(api.app.runningapps(), api.app.allwindows)
 end
 
 doc.api.window.isvisible = {"api.window:isvisible() -> bool", "True if the app is not hidden or minimized."}
@@ -24,12 +24,12 @@ end
 
 doc.api.window.otherwindows_samescreen = {"api.window:otherwindows_samescreen() -> win[]", "Get other windows on the same screen as self."}
 function api.window:otherwindows_samescreen()
-  return api.fn.filter(api.window.visiblewindows(), function(win) return self ~= win and self:screen() == win:screen() end)
+  return api.fnutils.filter(api.window.visiblewindows(), function(win) return self ~= win and self:screen() == win:screen() end)
 end
 
 doc.api.window.otherwindows_allscreens = {"api.window:otherwindows_allscreens() -> win[]", "Get every window except this one."}
 function api.window:otherwindows_allscreens()
-  return api.fn.filter(api.window.visiblewindows(), function(win) return self ~= win end)
+  return api.fnutils.filter(api.window.visiblewindows(), function(win) return self ~= win end)
 end
 
 doc.api.window.focus = {"api.window:focus() -> bool", "Try to make this window focused."}
@@ -39,7 +39,7 @@ end
 
 doc.api.window.visiblewindows = {"api.window.visiblewindows() -> win[]", "Get all windows on all screens that match api.window.isvisible."}
 function api.window.visiblewindows()
-  return api.fn.filter(api.window:allwindows(), api.window.isvisible)
+  return api.fnutils.filter(api.window:allwindows(), api.window.isvisible)
 end
 
 doc.api.window.maximize = {"api.window:maximize()", "Make this window fill the whole screen its on, without covering the dock or menu."}
@@ -105,7 +105,7 @@ local function windows_in_direction(win, numrotations)
   end
 
   table.sort(closestwindows, function(a, b) return a.score < b.score end)
-  return api.fn.map(closestwindows, function(x) return x.win end)
+  return api.fnutils.map(closestwindows, function(x) return x.win end)
 end
 
 local function focus_first_valid_window(ordered_wins)
