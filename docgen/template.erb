@@ -28,7 +28,7 @@
       <section id="<%= item['name'] %>">
         <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
         <code><%= item['def'] %></code>
-        <p><%= item['doc'] %></p>
+        <p><%= item['doc'].gsub("\n", "<br>") %></p>
       </section>
 
       <% end %>
