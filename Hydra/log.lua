@@ -86,7 +86,7 @@ function api.log.show()
       local line = api.log.lines[linenum]
       for i = 1, math.min(#line, size.w) do
         local c = line:sub(i,i)
-        win:set(c:byte(), i, linenum - pos + 1, fg, bg)
+        win:set(c, i, linenum - pos + 1, fg, bg)
       end
     end
   end

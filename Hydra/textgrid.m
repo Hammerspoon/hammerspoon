@@ -58,13 +58,16 @@ static hydradoc doc_textgrid_set = {
 static int textgrid_set(lua_State *L) {
     HDTextGridController* wc = get_textgrid_wc(L, 1);
     
-    unsigned short c = lua_tonumber(L, 2);
+    size_t len;
+    const char* s = lua_tolstring(L, 2, &len);
+    NSString* str = [[NSString alloc] initWithBytes:s length:len encoding:NSUTF8StringEncoding];
+    
     int x = lua_tonumber(L, 3) - 1;
     int y = lua_tonumber(L, 4) - 1;
     NSColor* fg = HDColorFromHex(lua_tostring(L, 5));
     NSColor* bg = HDColorFromHex(lua_tostring(L, 6));
     
-    [wc setChar:c x:x y:y fg:fg bg:bg];
+    [wc setChar:str x:x y:y fg:fg bg:bg];
     
     return 0;
 }

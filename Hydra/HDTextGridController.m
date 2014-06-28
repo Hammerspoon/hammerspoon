@@ -66,7 +66,7 @@
     return self.tv.rows;
 }
 
-- (void) setChar:(unsigned short)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg {
+- (void) setChar:(NSString*)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg {
     [self.tv setChar:c x:x y:y fg:fg bg:bg];
 }
 

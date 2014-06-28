@@ -19,7 +19,7 @@ typedef void(^KOKeyDownHandler)(BOOL ctrl, BOOL alt, BOOL cmd, NSString* str);
 
 - (NSSize) realViewSize;
 
-- (void) setChar:(unsigned short)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg;
+- (void) setChar:(NSString*)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg;
 
 - (void) clear:(NSColor*)bg;
 

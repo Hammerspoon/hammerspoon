@@ -28,8 +28,8 @@ function api.repl.open()
 
       if y == h + 1 then break end
 
-      local c = str:sub(i,i):byte()
-      if c == string.byte("\n") then
+      local c = str:sub(i,i)
+      if c == "\n" then
         x = 1
         y = y + 1
       else
@@ -45,12 +45,12 @@ function api.repl.open()
     local h = size.h
 
     for x = 1, w do
-      win:set(string.byte(" "), x, h, fg, bg)
+      win:set(" ", x, h, fg, bg)
     end
   end
 
   local function printcursor(x, y)
-    win:set(string.byte(" "), x, y, bg, fg)
+    win:set(" ", x, y, bg, fg)
   end
 
   local function redraw()

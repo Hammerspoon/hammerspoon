@@ -153,10 +153,10 @@
     }
 }
 
-- (void) setChar:(unsigned short)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg {
+- (void) setChar:(NSString*)c x:(int)x y:(int)y fg:(NSColor*)fg bg:(NSColor*)bg {
     NSUInteger i = x + y * self.cols;
     NSRange r = NSMakeRange(i, 1);
-    [self.buffer replaceCharactersInRange:r withString:[NSString stringWithFormat:@"%C", c]];
+    [self.buffer replaceCharactersInRange:r withString:c];
     if (fg) [self.buffer addAttribute:NSForegroundColorAttributeName value:fg range:r];
     if (bg) [self.buffer addAttribute:NSBackgroundColorAttributeName value:bg range:r];
     
