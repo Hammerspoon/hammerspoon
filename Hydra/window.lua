@@ -3,11 +3,9 @@ function api.window.allwindows()
   return api.fn.mapcat(api.app.runningapps(), api.app.allwindows)
 end
 
-doc.api.window.isvisible = {"api.window:isvisible() -> bool", "True if the app is not hidden, not minimized, and is a standard window"}
+doc.api.window.isvisible = {"api.window:isvisible() -> bool", "True if the app is not hidden or minimized."}
 function api.window:isvisible()
-  return not self:app():ishidden() and
-    not self:isminimized() and
-    self:isstandard() -- TODO: this last one should probably not be in here (why is it?)
+  return not self:app():ishidden() and not self:isminimized()
 end
 
 doc.api.window.frame = {"api.window:frame() -> rect", "Get the frame of the window in absolute coordinates."}
