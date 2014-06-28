@@ -26,17 +26,11 @@ end)
 
 Or just run the app and it'll give you more ideas.
 
-### Documentation
+### Resources
 
-http://sdegutis.github.io/hydra/api.html
-
-### Lua API
-
-http://www.lua.org/manual/5.2/#functions
-
-### Community Resources
-
-https://github.com/sdegutis/hydra/wiki
+- Documentation: http://sdegutis.github.io/hydra/api.html
+- Lua API: http://www.lua.org/manual/5.2/#functions
+- Community Contributions: https://github.com/sdegutis/hydra/wiki
 
 ### License
 
