@@ -79,7 +79,7 @@ function api.repl.open()
 
     table.insert(stdout, "> " .. command)
 
-    local fn = load(command)
+    local fn = load("return " .. command)
     local success, result = pcall(fn)
     result = tostring(result)
     if not success then result = "error: " .. result end
