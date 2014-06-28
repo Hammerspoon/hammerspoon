@@ -42,7 +42,7 @@ function api.repl.open()
         if i + scrollpos == #pagetable then
           -- we're at the cursor line
           local c
-          if cursorpos > #stdin then c = ' ' else c = stdin[cursorpos] end
+          if cursorpos > #stdin then c = ' ' else c = stdin:sub(cursorpos,cursorpos) end
           win:set(c, 2 + cursorpos, i, bg, fg)
         end
       end
@@ -53,10 +53,6 @@ function api.repl.open()
     scrollpos = math.max(scrollpos, 0)
     scrollpos = math.min(scrollpos, #stdout)
   end
-
-  -- local function printcursor(x, y)
-  --   win:set(" ", x, y, bg, fg)
-  -- end
 
   local function redraw()
     win:clear(bg)
@@ -113,6 +109,12 @@ function api.repl.open()
     elseif t.key == 'n' and t.alt then
       scrollpos = scrollpos + 1
       restrictscrollpos()
+    elseif t.key == 'left' then
+      cursorpos = math.max(cursorpos - 1, 1)
+      ensurecursorvisible()
+    elseif t.key == 'right' then
+      cursorpos = math.min(cursorpos + 1, #stdin+1)
+      ensurecursorvisible()
     else
       cursorpos = cursorpos + 1
       stdin = stdin .. t.key
