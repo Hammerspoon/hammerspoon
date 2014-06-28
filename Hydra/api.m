@@ -68,7 +68,7 @@ int api_fileexists(lua_State* L) {
 
 static hydradoc doc_api_check_accessibility = {
     NULL, "check_accessibility", "api.check_accessibility(shouldprompt) -> isenabled",
-    "Returns whether accessibility is enabled. If passed `true`, promtps the user to enable it."
+    "Returns whether accessibility is enabled. If passed `true`, prompts the user to enable it."
 };
 
 int api_check_accessibility(lua_State* L) {
