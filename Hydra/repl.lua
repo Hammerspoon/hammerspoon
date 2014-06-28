@@ -5,70 +5,65 @@ doc.api.repl = {__doc = "Read-Eval-Print-Loop"}
 doc.api.repl.open = {"api.repl.open() -> textgrid", "Opens a (primitive) REPL that has full access to Hydra's API"}
 function api.repl.open()
   local win = api.textgrid.open()
+  win:settitle("Hydra REPL")
   win:protect()
 
   local fg = "00FF00"
   local bg = "222222"
 
-  win:settitle("Hydra REPL")
+  local scrollpos = 0
+  local cursorpos = 1
 
-  local stdout = ""
+  local stdout = {}
   local stdin = ""
 
-  local function printstr(x, y, str)
+  local function derivepagetable()
+    local t = {}
+    for i, v in ipairs(stdout) do
+      t[i] = v
+    end
+    table.insert(t, "> " .. stdin)
+    return t
+  end
+
+  local function printscrollback()
     local size = win:getsize()
-    local w = size.w
-    local h = size.h
+    local pagetable = derivepagetable()
 
-    for i = 1, #str do
-      if x == w + 1 then
-        x = 1
-        y = y + 1
-      end
-
-      if y == h + 1 then break end
-
-      local c = str:sub(i,i)
-      if c == "\n" then
-        x = 1
-        y = y + 1
-      else
-        win:set(c, x, y, fg, bg)
-        x = x + 1
+    for i = 1, math.min(#pagetable, size.h) do
+      local line = pagetable[i + scrollpos]
+      if line then
+        local chars = api.utf8.chars(line)
+        for x = 1, math.min(#chars, size.w) do
+          win:set(chars[x], x, i, fg, bg)
+        end
       end
     end
   end
 
-  local function clearbottom()
-    local size = win:getsize()
-    local w = size.w
-    local h = size.h
-
-    for x = 1, w do
-      win:set(" ", x, h, fg, bg)
-    end
+  local function restrictscrollpos()
+    scrollpos = math.max(scrollpos, 0)
+    scrollpos = math.min(scrollpos, #stdout)
   end
 
-  local function printcursor(x, y)
-    win:set(" ", x, y, bg, fg)
-  end
+  -- local function printcursor(x, y)
+  --   win:set(" ", x, y, bg, fg)
+  -- end
 
   local function redraw()
-    local size = win:getsize()
-    local w = size.w
-    local h = size.h
-
     win:clear(bg)
-    printstr(1, 1, stdout)
-    clearbottom()
-    printstr(1, h, "> " .. stdin)
-    printcursor(3 + string.len(stdin), h)
+    printscrollback()
+  end
+
+  local function ensurecursorvisible()
+    local size = win:getsize()
+    scrollpos = math.max(scrollpos, (#stdout+1) - size.h)
   end
 
   win.resized = redraw
 
   local function receivedlog(str)
-    stdout = stdout .. str .. "\n"
+    table.insert(stdout, str)
     redraw()
   end
 
@@ -78,23 +73,29 @@ function api.repl.open()
     api.log.removehandler(loghandler)
   end
 
+  local function runcommand()
+    local command = stdin
+    stdin = ""
+
+    table.insert(stdout, "> " .. command)
+
+    local fn = load(command)
+    local success, result = pcall(fn)
+    result = tostring(result)
+    if not success then result = "error: " .. result end
+
+    -- add each line separately
+    for s in string.gmatch(result, "[^\n]+") do
+      table.insert(stdout, s)
+    end
+  end
+
   function win.keydown(t)
-    if t.key == "return" then
-      local command = stdin
-      stdin = ""
-
-      stdout = stdout .. "> " .. command .. "\n"
-
-      local fn = load(command)
-      local success, result = pcall(fn)
-      result = tostring(result)
-      if not success then result = "error: " .. result end
-
-      stdout = stdout .. result .. "\n"
-    elseif t.key == "delete" then -- i.e. backspace
-      stdin = stdin:sub(0, -2)
-    else
-      stdin = stdin .. t.key
+    if t.key == "return" then runcommand(); ensurecursorvisible()
+    elseif t.key == "delete" --[[i.e. backspace]] then stdin = stdin:sub(0, -2); ensurecursorvisible()
+    elseif t.key == 'p' and t.alt then scrollpos = scrollpos - 1; restrictscrollpos()
+    elseif t.key == 'n' and t.alt then scrollpos = scrollpos + 1; restrictscrollpos()
+    else stdin = stdin .. t.key; ensurecursorvisible()
     end
     redraw()
   end
