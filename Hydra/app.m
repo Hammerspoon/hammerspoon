@@ -159,12 +159,12 @@ static void set_app_prop(AXUIElementRef app, NSString* propType, id value) {
     // yes, we ignore the return value; life is too short to constantly handle rare edge-cases
 }
 
-static hydradoc doc_app_show = {
-    "app", "show", "api.app:show()",
-    "Unhides the app (and all its windows) if it's hidden. Yeah, this method name should probably be renamed."
+static hydradoc doc_app_unhide = {
+    "app", "unhide", "api.app:unhide()",
+    "Unhides the app (and all its windows) if it's hidden."
 };
 
-int app_show(lua_State* L) {
+int app_unhide(lua_State* L) {
     lua_getfield(L, 1, "pid");
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
     
@@ -251,7 +251,7 @@ static const luaL_Reg applib[] = {
     {"activate", app_activate},
     {"title", app_title},
     {"bundleid", app_bundleid},
-    {"show", app_show},
+    {"unhide", app_unhide},
     {"hide", app_hide},
     {"kill", app_kill},
     {"kill9", app_kill9},
@@ -269,7 +269,7 @@ int luaopen_app(lua_State* L) {
     hydra_add_doc_item(L, &doc_app_activate);
     hydra_add_doc_item(L, &doc_app_title);
     hydra_add_doc_item(L, &doc_app_bundleid);
-    hydra_add_doc_item(L, &doc_app_show);
+    hydra_add_doc_item(L, &doc_app_unhide);
     hydra_add_doc_item(L, &doc_app_hide);
     hydra_add_doc_item(L, &doc_app_kill);
     hydra_add_doc_item(L, &doc_app_kill9);
