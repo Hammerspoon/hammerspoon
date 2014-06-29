@@ -80,7 +80,7 @@ local function windows_in_direction(win, numrotations)
   local thiswindow = api.window.focusedwindow()
   local startingpoint = api.geometry.rectmidpoint(thiswindow:frame())
 
-  local otherwindows = thiswindow:otherwindows_allscreens()
+  local otherwindows = api.fnutils.filter(thiswindow:otherwindows_allscreens(), function(win) return api.window.isvisible(win) and api.window.isstandard(win) end)
   local closestwindows = {}
 
   for _, win in pairs(otherwindows) do
