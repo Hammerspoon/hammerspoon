@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 void new_application(lua_State* L, pid_t pid);
 
 static AXUIElementRef axref_for_window(lua_State* L, int idx) {

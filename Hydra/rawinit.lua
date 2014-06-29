@@ -1,7 +1,7 @@
 local ok, err = pcall(function()
 
     -- core functions
-    dofile(hydra.resourcesdir .. "/api.lua")
+    dofile(hydra.resourcesdir .. "/hydra.lua")
     dofile(hydra.resourcesdir .. "/fnutils.lua")
     dofile(hydra.resourcesdir .. "/geometry.lua")
     dofile(hydra.resourcesdir .. "/screen.lua")

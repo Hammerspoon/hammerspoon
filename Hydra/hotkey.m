@@ -1,5 +1,5 @@
 #import <Carbon/Carbon.h>
-#import "hydra.h"
+#import "helpers.h"
 UInt32 PHKeyCodeForString(NSString* str);
 
 

@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 
 static hydradoc doc_mouse_get = {
     "mouse", "get", "mouse.get() -> point",

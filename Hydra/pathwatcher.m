@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 
 void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]) {
     dispatch_block_t block = (__bridge dispatch_block_t)clientCallBackInfo;

@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 #import <WebKit/WebKit.h>
 void new_window_for_nswindow(lua_State* L, NSWindow* win);
 

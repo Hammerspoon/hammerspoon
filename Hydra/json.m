@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 
 static BOOL is_sequential_table(lua_State* L, int idx) {
     NSMutableIndexSet* iset = [NSMutableIndexSet indexSet];

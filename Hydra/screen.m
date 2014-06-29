@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 
 static hydradoc doc_screen_frame = {
     "screen", "frame", "screen.frame(screen) -> rect",

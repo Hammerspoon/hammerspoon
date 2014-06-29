@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 
 static hydradoc doc_geometry_intersectionrect = {
     "geometry", "intersectionrect", "geometry.intersectionrect(rect1, rect2) -> rect3",

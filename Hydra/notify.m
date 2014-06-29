@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 
 // you hate us Apple, don't you
 @interface PHNotificationDelegate : NSObject <NSUserNotificationCenterDelegate>

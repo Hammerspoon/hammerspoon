@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 
 static hydradoc doc_updates_check = {
     "updates", "check", "updates.check()",

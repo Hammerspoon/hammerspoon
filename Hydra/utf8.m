@@ -1,4 +1,4 @@
-#import "hydra.h"
+#import "helpers.h"
 
 static hydradoc doc_utf8_count = {
     "utf8", "count", "utf8.count(str) -> int",
