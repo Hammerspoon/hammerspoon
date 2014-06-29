@@ -28,9 +28,11 @@ Or just run the app and it'll give you more ideas.
 
 ### Resources
 
-- Documentation: http://sdegutis.github.io/hydra/api.html
-- Lua API: http://www.lua.org/manual/5.2/#functions
-- Community Contributions: https://github.com/sdegutis/hydra/wiki
+Resource                 | Link
+-------------------------|------------------------------------------
+Documentation            | http://sdegutis.github.io/hydra/api.html
+Lua API                  | http://www.lua.org/manual/5.2/#functions
+Community Contributions  | https://github.com/sdegutis/hydra/wiki
 
 ### License
 
