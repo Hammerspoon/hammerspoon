@@ -1,7 +1,7 @@
 <html>
 
   <head>
-    <title>Hydra docs: <%= group['namespace'] %> module</title>
+    <title>Hydra docs: <%= group['name'] %> module</title>
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css"/>
     <link href="normalize.css" media="all" rel="stylesheet" type="text/css"/>
     <link href="styles.css" media="all" rel="stylesheet" type="text/css"/>
@@ -13,17 +13,17 @@
     <header>
       <h1>
         <code>
-          <% group['prefix_pairs'].each_with_index do |(prefix, combined), i| %><%= if i > 0 then "." end %><a href="<%= combined.join('.') %>.html"><%= prefix %></a><% end %>
+          <a href="<%= group['name'] %>.html"><%= group['name'] %> module</a>
         </code>
       </h1>
 
       <p><%= group['doc'] %></p>
     </header>
 
-    <% unless group['subitems'].empty? %>
+    <% unless group['items'].empty? %>
 
     <div class="container">
-      <% group['subitems'].each do |item| %>
+      <% group['items'].each do |item| %>
 
       <section id="<%= item['name'] %>">
         <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
@@ -37,21 +37,10 @@
     <div class="structure">
       <h2>Methods</h2>
       <ul>
-        <% group['subitems'].each do |item| %>
-        <li><%= group['namespace'] %>.<a href="#<%= item['name'] %>"><%= item['name'] %></a></li>
+        <% group['items'].each do |item| %>
+        <li><%= group['name'] %>.<a href="#<%= item['name'] %>"><%= item['name'] %></a></li>
         <% end %>
       </ul>
-
-      <% unless group['subgroups'].empty? %>
-
-        <h2>Submodules</h2>
-        <ul>
-          <% group['subgroups'].each do |subgroup| %>
-             <li><a href="<%= combined_prefixes.join('.') + '.' + subgroup['name'] + '.html' %>"><%= subgroup['name'] %></a></li>
-          <% end %>
-        </ul>
-
-      <% end %>
     </div>
 
     <% end %>

@@ -1,22 +1,12 @@
 require 'json'
 require 'erb'
 
-@template = ERB.new(File.read("template.erb"))
+template = ERB.new(File.read("template.erb"))
+system("mkdir -p docs && rm -f docs/api*html")
 
-def gengroup(_prefixes, group)
-  group['prefixes'] = _prefixes.dup << group['name']
-  group['namespace'] = group['prefixes'].join('.')
-
-  combined_prefixes = []
-  group['prefix_pairs'] = []
-  group['prefixes'].each do |prefix|
-    combined_prefixes << prefix
-    group['prefix_pairs'] << [prefix, combined_prefixes.dup]
-  end
-
-  group['subgroups'].each { |g| gengroup group['prefixes'], g }
-  File.write("docs/#{group['namespace']}.html", @template.result(binding))
+groups = JSON.load(File.read("hydra.json"))
+groups.each do |group|
+  # group: name, doc, items
+  # item: name, doc, def
+  File.write("docs/#{group['name']}.html", template.result(binding))
 end
-
-`mkdir -p docs && rm -f docs/api*html`
-gengroup [], JSON.load(File.read("hydra.json"))
