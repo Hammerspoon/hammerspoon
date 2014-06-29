@@ -30,7 +30,7 @@ Or just run the app and it'll give you more ideas.
 
 Resource                 | Link
 -------------------------|------------------------------------------
-Documentation            | http://sdegutis.github.io/hydra/api.html
+Documentation            | http://sdegutis.github.io/hydra/
 Lua API                  | http://www.lua.org/manual/5.2/#functions
 Community Contributions  | https://github.com/sdegutis/hydra/wiki
 
