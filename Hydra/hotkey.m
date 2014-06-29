@@ -67,21 +67,20 @@ static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef i
     return hotkey_closure(eventID.id);
 }
 
-void setup_hotkey_callback(lua_State *L) {
+void setup_hotkey_callback(lua_State *L, int idx) {
+    lua_pushvalue(L, idx);
+    int hotkeyref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
     hotkey_closure = ^OSStatus(UInt32 uid) {
-        lua_getglobal(L, "api");
-        lua_getfield(L, -1, "hotkey");
+        lua_rawgeti(L, LUA_REGISTRYINDEX, hotkeyref);
         lua_getfield(L, -1, "keys");
-        
-        lua_pushnumber(L, uid);
-        lua_gettable(L, -2);
-        
+        lua_rawgeti(L, -1, uid);
         lua_getfield(L, -1, "fn");
         
         if (lua_pcall(L, 0, 0, 0))
             hydra_handle_error(L);
         
-        lua_pop(L, 4);
+        lua_pop(L, 3);
         
         return noErr;
     };
@@ -91,13 +90,13 @@ void setup_hotkey_callback(lua_State *L) {
 }
 
 int luaopen_hotkey(lua_State* L) {
-    luaL_newlib(L, hotkeylib);
-    
     hydra_add_doc_group(L, "hotkey", "Manage global hotkeys.");
+    
+    luaL_newlib(L, hotkeylib);
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        setup_hotkey_callback(L);
+        setup_hotkey_callback(L, -1);
     });
     
     return 1;
