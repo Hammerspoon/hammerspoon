@@ -37,9 +37,6 @@ function hydra.repl()
 
         if i + scrollpos == #pagetable then
           -- we're at the cursor line
-          local c
-          if cursorpos > #stdin then c = ' ' else c = stdin:sub(cursorpos,cursorpos) end
-          win:setchar(c, 2 + cursorpos, i)
           win:setcharfg(bg, 2 + cursorpos, i)
           win:setcharbg(fg, 2 + cursorpos, i)
         end
