@@ -10,7 +10,7 @@ int hydra_exit(lua_State* L) {
 }
 
 static hydradoc doc_hydra_showabout = {
-    "hydra", "showabout", "showabout()",
+    "hydra", "showabout", "hydra.showabout()",
     "Displays the standard OS X about panel; implicitly focuses Hydra."
 };
 
@@ -21,7 +21,7 @@ int hydra_showabout(lua_State* L) {
 }
 
 static hydradoc doc_hydra_focushydra = {
-    "hydra", "focushydra", "focushydra()",
+    "hydra", "focushydra", "hydra.focushydra()",
     "Makes Hydra the currently focused app; useful in combination with textgrids."
 };
 
@@ -31,7 +31,7 @@ int hydra_focushydra(lua_State* L) {
 }
 
 static hydradoc doc_hydra_alert = {
-    "hydra", "alert", "alert(str, seconds = 2)",
+    "hydra", "alert", "hydra.alert(str, seconds = 2)",
     "Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.."
 };
 
@@ -49,7 +49,7 @@ int hydra_alert(lua_State* L) {
 }
 
 static hydradoc doc_hydra_fileexists = {
-    "hydra", "fileexists", "fileexists(path) -> exists, isdir",
+    "hydra", "fileexists", "hydra.fileexists(path) -> exists, isdir",
     "Checks if a file exists, and whether it's a directory."
 };
 
@@ -67,7 +67,7 @@ int hydra_fileexists(lua_State* L) {
 }
 
 static hydradoc doc_hydra_check_accessibility = {
-    "hydra", "check_accessibility", "check_accessibility(shouldprompt) -> isenabled",
+    "hydra", "check_accessibility", "hydra.check_accessibility(shouldprompt) -> isenabled",
     "Returns whether accessibility is enabled. If passed `true`, prompts the user to enable it."
 };
 
