@@ -6,7 +6,12 @@ system("mkdir -p docs && rm -f docs/api*html")
 
 groups = JSON.load(File.read("hydra.json"))
 groups.each do |group|
-  # group: name, doc, items
-  # item: name, doc, def
   File.write("docs/#{group['name']}.html", template.result(binding))
 end
+
+group = {}
+group['name'] = "<root>"
+group['doc'] = "Hydra documenetation"
+group['items'] = []
+
+File.write("docs/index.html", template.result(binding))
