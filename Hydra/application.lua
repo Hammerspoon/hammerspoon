@@ -1,9 +1,9 @@
--- doc.application.visiblewindows = {"application:visiblewindows() -> win[]", "Returns only the app's windows that are visible."}
+doc.application.visiblewindows = {"application:visiblewindows() -> win[]", "Returns only the app's windows that are visible."}
 function application:visiblewindows()
   return fnutils.filter(self:allwindows(), window.isvisible)
 end
 
--- doc.application.launchorfocus = {"application.launchorfocus(name)", "Launches the app with the given name, or activates it if it's already running."}
+doc.application.launchorfocus = {"application.launchorfocus(name)", "Launches the app with the given name, or activates it if it's already running."}
 function application.launchorfocus(name)
   os.execute("open -a " .. name)
 end

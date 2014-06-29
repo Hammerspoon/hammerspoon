@@ -1,7 +1,5 @@
-repl = {}
-
--- doc.repl = {"repl() -> textgrid", "Opens a readline-like REPL (Read-Eval-Print-Loop) that has full access to Hydra's API"}
-function repl()
+doc.hydra.repl = {"hydra.repl() -> textgrid", "Opens a readline-like REPL (Read-Eval-Print-Loop) that has full access to Hydra's API"}
+function hydra.repl()
   local win = textgrid.open()
   win:settitle("Hydra REPL")
   win:protect()

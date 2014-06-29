@@ -17,12 +17,12 @@ dofile(hydra.resourcesdir .. "/doc.lua")
 dofile(hydra.resourcesdir .. "/webview.lua")
 
 -- make lives of third party authors easier
--- doc.ext = {__doc = "Standard high-level namespace for third-party extensions."}
+doc.ext = {__doc = "Standard high-level namespace for third-party extensions."}
 ext = {}
 
 package.path = hydra.userfile("?") .. ";" .. package.path
 
--- hydra._initiate_documentation_system()
+hydra._initiate_documentation_system()
 
 if not hydra.check_accessibility(true) then
   notify.show("Enable accessibility first", "", "Otherwise Hydra can't do very much.", "needs_accessibility")

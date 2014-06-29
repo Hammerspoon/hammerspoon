@@ -26,38 +26,36 @@ int luaopen_json(lua_State* L);
 
 @implementation PHAppDelegate
 
+static const luaL_Reg hydralibs[] = {
+    {"hydra",        luaopen_hydra},
+    {"hotkey",       luaopen_hotkey},
+    {"application",  luaopen_application},
+    {"mouse",        luaopen_mouse},
+    {"autolaunch",   luaopen_autolaunch},
+    {"menu",         luaopen_menu},
+    {"pathwatcher",  luaopen_pathwatcher},
+    {"window",       luaopen_window},
+    {"screen",       luaopen_screen},
+    {"timer",        luaopen_timer},
+    {"geometry",     luaopen_geometry},
+    {"textgrid",     luaopen_textgrid},
+    {"updates",      luaopen_updates},
+    {"notify",       luaopen_notify},
+    {"webview",      luaopen_webview},
+    {"settings",     luaopen_settings},
+    {"utf8",         luaopen_utf8},
+    {"json",         luaopen_json},
+    {NULL, NULL},
+};
+
 - (void) setupLua {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
-    // todo: remove
-    lua_pushvalue(L, -1);
+    lua_newtable(L);
     lua_setglobal(L, "doc");
     
     lua_newtable(L);
-    
-    static const luaL_Reg hydralibs[] = {
-        {"hydra",        luaopen_hydra},
-        {"hotkey",       luaopen_hotkey},
-        {"application",  luaopen_application},
-        {"mouse",        luaopen_mouse},
-        {"autolaunch",   luaopen_autolaunch},
-        {"menu",         luaopen_menu},
-        {"pathwatcher",  luaopen_pathwatcher},
-        {"window",       luaopen_window},
-        {"screen",       luaopen_screen},
-        {"timer",        luaopen_timer},
-        {"geometry",     luaopen_geometry},
-        {"textgrid",     luaopen_textgrid},
-        {"updates",      luaopen_updates},
-        {"notify",       luaopen_notify},
-        {"webview",      luaopen_webview},
-        {"settings",     luaopen_settings},
-        {"utf8",         luaopen_utf8},
-        {"json",         luaopen_json},
-        {NULL, NULL},
-    };
-    
     for (int i = 0; hydralibs[i].name; i++) {
         luaL_Reg lib = hydralibs[i];
         lib.func(L);

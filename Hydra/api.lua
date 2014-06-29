@@ -1,11 +1,11 @@
--- doc.hydra.resourcesdir = {"hydra.resourcesdir -> string", "The path of the built-in lua source files, with no trailing slash."}
+doc.hydra.resourcesdir = {"hydra.resourcesdir -> string", "The path of the built-in lua source files, with no trailing slash."}
 
--- doc.hydra.userfile = {"hydra.userfile(name)", "Returns the full path to the file ~/.hydra/{name}.lua"}
+doc.hydra.userfile = {"hydra.userfile(name)", "Returns the full path to the file ~/.hydra/{name}.lua"}
 function hydra.userfile(name)
   return os.getenv("HOME") .. "/.hydra/" .. name .. ".lua"
 end
 
--- doc.hydra.douserfile = {"hydra.douserfile(name)", "Convenience wrapper around dofile() and hydra.userfile(name)"}
+doc.hydra.douserfile = {"hydra.douserfile(name)", "Convenience wrapper around dofile() and hydra.userfile(name)"}
 function hydra.douserfile(name)
   local userfile = hydra.userfile(name)
   local exists, isdir = hydra.fileexists(userfile)
@@ -30,7 +30,7 @@ local function clear_old_state()
   notify.unregisterall()
 end
 
--- doc.hydra.reload = {"hydra.reload()", "Reloads your init-file. Makes sure to clear any state that makes sense to clear (hotkeys, pathwatchers, etc)."}
+doc.hydra.reload = {"hydra.reload()", "Reloads your init-file. Makes sure to clear any state that makes sense to clear (hotkeys, pathwatchers, etc)."}
 function hydra.reload()
   clear_old_state()
 
@@ -49,7 +49,7 @@ function hydra.reload()
   end
 end
 
--- doc.hydra.errorhandler = {"hydra.errorhandler = function(err)", "Error handler for hydra.call; intended for you to set, not for third party libs"}
+doc.hydra.errorhandler = {"hydra.errorhandler = function(err)", "Error handler for hydra.call; intended for you to set, not for third party libs"}
 function hydra.errorhandler(err)
   print("Error: " .. err)
   notify.show("Hydra Error", "", tostring(err), "error")
@@ -65,7 +65,7 @@ function hydra.tryhandlingerror(firsterr)
   end
 end
 
--- doc.hydra.call = {"hydra.call(fn, ...) -> ...", "Just like pcall, except that failures are handled using hydra.errorhandler"}
+doc.hydra.call = {"hydra.call(fn, ...) -> ...", "Just like pcall, except that failures are handled using hydra.errorhandler"}
 function hydra.call(fn, ...)
   local results = table.pack(pcall(fn, ...))
   if not results[1] then
@@ -79,7 +79,7 @@ local function trimstring(s)
   return s:gsub("^%s+", ""):gsub("%s+$", "")
 end
 
--- doc.hydra.exec = {"hydra.exec(command) -> string", "Runs a shell function and returns stdout as a string (without trailing newline)."}
+doc.hydra.exec = {"hydra.exec(command) -> string", "Runs a shell function and returns stdout as a string (without trailing newline)."}
 function hydra.exec(command)
   local f = io.popen(command)
   local str = f:read("*a")
@@ -87,7 +87,7 @@ function hydra.exec(command)
   return trimstring(str)
 end
 
--- doc.hydra.uuid = {"hydra.uuid() -> string", "Returns a UUID as a string"}
+doc.hydra.uuid = {"hydra.uuid() -> string", "Returns a UUID as a string"}
 function hydra.uuid()
   return hydra.exec("uuidgen")
 end

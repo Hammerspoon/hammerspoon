@@ -1,8 +1,6 @@
 #import "hydra.h"
 
 void hydra_handle_error(lua_State* L) {
-    return;
-    
     // original error is at top of stack
     lua_getglobal(L, "hydra"); // pop this at the end
     lua_getfield(L, -1, "tryhandlingerror");
@@ -12,22 +10,17 @@ void hydra_handle_error(lua_State* L) {
 }
 
 void hydra_add_doc_group(lua_State* L, char* name, char* docstring) {
-    return;
-    
     lua_getglobal(L, "doc");
-    lua_getfield(L, -1, "api");
-    
     lua_newtable(L);
+    
     lua_pushstring(L, docstring);
     lua_setfield(L, -2, "__doc");
     
     lua_setfield(L, -2, name);
-    lua_pop(L, 2); // api, doc
+    lua_pop(L, 1); // doc
 }
 
 void hydra_add_doc_item(lua_State* L, hydradoc* doc) {
-    return;
-    
     lua_getglobal(L, "doc");
     lua_getfield(L, -1, doc->group);
     
