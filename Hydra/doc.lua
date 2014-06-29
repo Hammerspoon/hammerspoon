@@ -46,31 +46,29 @@ local function hackgroup(group)
   return setmetatable(group, {__tostring = group_tostring})
 end
 
-local function jsonify_group(groupname, group)
-  local obj = {}
+hydra.jsondocs = {"hydra.jsondocs() -> string", "Returns the documentation as a JSON string for you to generate pretty docs with. The top-level is a list of groups. Groups have keys: name (string), doc (string), items (list of items); Items have keys: name (string), def (string), doc (string)."}
+function hydra.jsondocs()
+  local groups = {}
 
-  obj.name = groupname
-  obj.doc = group.__doc
-  obj.subitems = {}
-  obj.subgroups = {}
+  for groupname, group in pairs(doc) do
+    local g = {}
+    g.name = groupname
+    g.doc = group.__doc
+    g.items = {}
 
-  for name, thing in pairs(group) do
-    if isitem(thing) then
-      table.insert(obj.subitems, {name = name, def = thing[1], doc = thing[2]})
-    elseif isgroup(thing) then
-      table.insert(obj.subgroups, jsonify_group(name, thing))
+    for itemname, item in pairs(group) do
+      if itemname ~= '__doc' and itemname ~= '__name' then
+        local i = {}
+        i.name = itemname
+        i.def = item[1]
+        i.doc = item[2]
+        table.insert(g.items, i)
+      end
     end
+    table.insert(groups, g)
   end
 
-  table.sort(obj.subitems, function(a, b) return a.def < b.def end)
-  table.sort(obj.subgroups, function(a, b) return a.name < b.name end)
-
-  return obj
-end
-
-hydra.jsondocs = {"hydra.jsondocs() -> string", "Returns the documentation as a JSON string for you to generate pretty docs with. The top-level is a group. Groups have keys: name (string), doc (string), subitems (list of items), subgroups (list of groups); Items have keys: name (string), def (string), doc (string)."}
-function hydra.jsondocs()
-  return json.encode(jsonify_group("doc", doc))
+  return json.encode(groups)
 end
 
 function hydra._initiate_documentation_system()
