@@ -1,7 +1,7 @@
 #import "hydra.h"
 
 static hydradoc doc_screen_frame = {
-    "screen", "frame", "api.screen.frame(screen) -> rect",
+    "screen", "frame", "screen.frame(screen) -> rect",
     "Returns a screen's frame in its own coordinate space."
 };
 
@@ -21,7 +21,7 @@ int screen_frame(lua_State* L) {
 }
 
 static hydradoc doc_screen_visibleframe = {
-    "screen", "vislbleframe", "api.screen.visibleframe(screen) -> rect",
+    "screen", "vislbleframe", "screen.visibleframe(screen) -> rect",
     "Returns a screen's frame in its own coordinate space, without the dock or menu."
 };
 
@@ -41,7 +41,7 @@ int screen_visibleframe(lua_State* L) {
 }
 
 static hydradoc doc_screen_settint = {
-    "screen", "settint", "api.screen.settint(redarray, greenarray, bluearray)",
+    "screen", "settint", "screen.settint(redarray, greenarray, bluearray)",
     "Set the tint on a screen; experimental."
 };
 
@@ -111,7 +111,7 @@ void new_screen(lua_State* L, NSScreen* screen) {
 }
 
 static hydradoc doc_screen_allscreens = {
-    "screen", "allscreens", "api.screen.allscreens() -> screen[]",
+    "screen", "allscreens", "screen.allscreens() -> screen[]",
     "Returns all the screens there are."
 };
 
@@ -129,7 +129,7 @@ int screen_allscreens(lua_State* L) {
 }
 
 static hydradoc doc_screen_mainscreen = {
-    "screen", "mainscreen", "api.screen.mainscreen() -> screen",
+    "screen", "mainscreen", "screen.mainscreen() -> screen",
     "Returns the 'main' screen, i.e. the one containing the currently focused window."
 };
 

@@ -40,7 +40,7 @@ static PHMenuDelegate* menuDelegate;
 static int show_closureref;
 
 static hydradoc doc_menu_show = {
-    "menu", "show", "api.menu.show(fn() -> itemstable)",
+    "menu", "show", "menu.show(fn() -> itemstable)",
     "Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)"
 };
 
@@ -144,7 +144,7 @@ int menu_show(lua_State* L) {
 }
 
 static hydradoc doc_menu_hide = {
-    "menu", "hide", "api.menu.hide()",
+    "menu", "hide", "menu.hide()",
     "Hides Hydra's menubar icon."
 };
 

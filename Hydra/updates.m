@@ -1,8 +1,8 @@
 #import "hydra.h"
 
 static hydradoc doc_updates_check = {
-    "updates", "check", "api.updates.check()",
-    "Checks for an update. If one is available, calls api.updates.available(true); otherwise calls api.updates.available(false)."
+    "updates", "check", "updates.check()",
+    "Checks for an update. If one is available, calls updates.available(true); otherwise calls updates.available(false)."
 };
 
 static NSString* updates_url = @"https://api.github.com/repos/sdegutis/hydra/releases";

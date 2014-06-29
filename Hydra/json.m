@@ -55,7 +55,7 @@ static id nsobject_for_luavalue(lua_State* L, int idx) {
             }
         }
         default: {
-            lua_pushliteral(L, "non-serializable object given to api.settings");
+            lua_pushliteral(L, "non-serializable object given to json");
             lua_error(L);
         }
     }
@@ -103,7 +103,7 @@ static void push_luavalue_for_nsobject(lua_State* L, id obj) {
 }
 
 static hydradoc doc_json_encode = {
-    "json", "encode", "api.json.encode(val[, prettyprint?]) -> str",
+    "json", "encode", "json.encode(val[, prettyprint?]) -> str",
     "Returns a JSON string representing the given value; if prettyprint is true, the resulting string will be quite beautiful."
 };
 
@@ -130,7 +130,7 @@ static int json_encode(lua_State* L) {
 }
 
 static hydradoc doc_json_decode = {
-    "json", "decode", "api.json.decode(str) -> val",
+    "json", "decode", "json.decode(str) -> val",
     "Returns a Lua value representing the given JSON string."
 };
 

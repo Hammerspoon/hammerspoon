@@ -38,8 +38,7 @@ NSWindow* hydra_nswindow_for_accessibility_window(AXUIElementRef win) {
 }
 
 void new_window_for_nswindow(lua_State* L, NSWindow* win) {
-    lua_getglobal(L, "api");
-    lua_getfield(L, -1, "window");
+    lua_getglobal(L, "window");
     lua_getfield(L, -1, "allwindows");
     lua_pcall(L, 0, 1, 0);
     
@@ -78,7 +77,7 @@ static AXUIElementRef system_wide_element() {
 }
 
 static hydradoc doc_window_focusedwindow = {
-    "window", "focusedwindow", "api.window.focusedwindow() -> window",
+    "window", "focusedwindow", "window.focusedwindow() -> window",
     "Returns the focused window, or nil."
 };
 
@@ -120,7 +119,7 @@ static BOOL set_window_prop(AXUIElementRef win, NSString* propType, id value) {
 }
 
 static hydradoc doc_window_title = {
-    "window", "title", "api.window:title() -> string",
+    "window", "title", "window:title() -> string",
     "Returns the title of the window (as UTF8)."
 };
 
@@ -134,7 +133,7 @@ int window_title(lua_State* L) {
 }
 
 static hydradoc doc_window_subrole = {
-    "window", "subrole", "api.window:subrole() -> string",
+    "window", "subrole", "window:subrole() -> string",
     "Returns the subrole of the window, whatever that means."
 };
 
@@ -149,7 +148,7 @@ int window_subrole(lua_State* L) {
 }
 
 static hydradoc doc_window_role = {
-    "window", "role", "api.window:role() -> string",
+    "window", "role", "window:role() -> string",
     "Returns the role of the window, whatever that means."
 };
 
@@ -164,7 +163,7 @@ int window_role(lua_State* L) {
 }
 
 static hydradoc doc_window_isstandard = {
-    "window", "isstandard", "api.window:isstandard() -> bool",
+    "window", "isstandard", "window:isstandard() -> bool",
     "True if the window's subrole indicates it's 'a standard window'."
 };
 
@@ -179,7 +178,7 @@ int window_isstandard(lua_State* L) {
 }
 
 static hydradoc doc_window_topleft = {
-    "window", "topleft", "api.window:topleft() -> point",
+    "window", "topleft", "window:topleft() -> point",
     "The top-left corner of the window in absolute coordinates."
 };
 
@@ -213,7 +212,7 @@ int window_topleft(lua_State* L) {
 }
 
 static hydradoc doc_window_size = {
-    "window", "size", "api.window:size() -> size",
+    "window", "size", "window:size() -> size",
     "The size of the window."
 };
 
@@ -247,7 +246,7 @@ int window_size(lua_State* L) {
 }
 
 static hydradoc doc_window_settopleft = {
-    "window", "settopleft", "api.window:settopleft(point)",
+    "window", "settopleft", "window:settopleft(point)",
     "Moves the window to the given point in absolute coordinate."
 };
 
@@ -269,7 +268,7 @@ int window_settopleft(lua_State* L) {
 }
 
 static hydradoc doc_window_setsize = {
-    "window", "setsize", "api.window:setsize(size)",
+    "window", "setsize", "window:setsize(size)",
     "Resizes the window."
 };
 
@@ -294,7 +293,7 @@ static void set_window_minimized(AXUIElementRef win, NSNumber* minimized) {
 }
 
 static hydradoc doc_window_minimize = {
-    "window", "minimize", "api.window:minimize()",
+    "window", "minimize", "window:minimize()",
     "Minimizes the window."
 };
 
@@ -307,7 +306,7 @@ int window_minimize(lua_State* L) {
 }
 
 static hydradoc doc_window_unminimize = {
-    "window", "unminimize", "api.window:unminimize()",
+    "window", "unminimize", "window:unminimize()",
     "Un-minimizes the window."
 };
 
@@ -320,7 +319,7 @@ int window_unminimize(lua_State* L) {
 }
 
 static hydradoc doc_window_isminimized = {
-    "window", "isminimized", "api.window:isminimized() -> bool",
+    "window", "isminimized", "window:isminimized() -> bool",
     "True if the window is currently minimized in the dock."
 };
 
@@ -350,7 +349,7 @@ int window_pid(lua_State* L) {
 }
 
 static hydradoc doc_window_application = {
-    "window", "application", "api.window:application() -> app",
+    "window", "application", "window:application() -> app",
     "Returns the app that the window belongs to."
 };
 
@@ -366,7 +365,7 @@ int window_application(lua_State* L) {
 }
 
 static hydradoc doc_window_becomemain = {
-    "window", "becomemain", "api.window:becomemain() -> bool",
+    "window", "becomemain", "window:becomemain() -> bool",
     "Make this window the main window of the given application; deos not implicitly focus the app."
 };
 
@@ -382,7 +381,7 @@ int window_becomemain(lua_State* L) {
 }
 
 static hydradoc doc_window_visible_windows_sorted_by_recency = {
-    "window", "visible_windows_sorted_by_recency", "api.window.visible_windows_sorted_by_recency() -> win[]",
+    "window", "visible_windows_sorted_by_recency", "window.visible_windows_sorted_by_recency() -> win[]",
     "Experimental."
 };
 

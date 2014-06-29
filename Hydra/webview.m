@@ -46,12 +46,12 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
 @end
 
 static hydradoc doc_webview_clicked = {
-    "webview", "clicked", "api.webview.clicked = function(str)",
+    "webview", "clicked", "webview.clicked = function(str)",
     "When a link is clicked with a URL like 'hydra:foo', this function is called (if set) with 'foo' as its argument."
 };
 
 static hydradoc doc_webview_closed = {
-    "webview", "closed", "api.webview.closed = function()",
+    "webview", "closed", "webview.closed = function()",
     "Called (if set) when the webview closes."
 };
 
@@ -110,7 +110,7 @@ static PHWebViewController* get_window_controller(lua_State* L, int idx) {
 }
 
 static hydradoc doc_webview_settitle = {
-    "webview", "settitle", "api.webview:settitle(string)",
+    "webview", "settitle", "webview:settitle(string)",
     "Set the title of a webview window."
 };
 
@@ -124,7 +124,7 @@ int webview_settitle(lua_State* L) {
 }
 
 static hydradoc doc_webview_setlevel = {
-    "webview", "setlevel", "api.webview:setlevel(level)",
+    "webview", "setlevel", "webview:setlevel(level)",
     "When level is -1, window is always below all others; when 0, window is normal; when 1, window is above all others."
 };
 
@@ -145,7 +145,7 @@ int webview_setlevel(lua_State* L) {
 }
 
 static hydradoc doc_webview_setborderless = {
-    "webview", "setborderless", "api.webview:setborderless(bool)",
+    "webview", "setborderless", "webview:setborderless(bool)",
     "Set whether a webview window has a border."
 };
 
@@ -164,7 +164,7 @@ int webview_setborderless(lua_State* L) {
 }
 
 static hydradoc doc_webview_sethasshadow = {
-    "webview", "sethasshadow", "api.webview:sethasshadow(bool)",
+    "webview", "sethasshadow", "webview:sethasshadow(bool)",
     "Set whether a webview window has a shadow."
 };
 
@@ -178,7 +178,7 @@ int webview_sethasshadow(lua_State* L) {
 }
 
 static hydradoc doc_webview_loadstring = {
-    "webview", "loadstring", "api.webview:loadstring(string, basepath)",
+    "webview", "loadstring", "webview:loadstring(string, basepath)",
     "Loads the given string in the webview; basepath must be an absolute path."
 };
 
@@ -193,7 +193,7 @@ int webview_loadstring(lua_State* L) {
 }
 
 static hydradoc doc_webview_loadurl = {
-    "webview", "loadurl", "api.webview:loadurl(url)",
+    "webview", "loadurl", "webview:loadurl(url)",
     "Loads the given URL in the webview."
 };
 
@@ -207,7 +207,7 @@ int webview_loadurl(lua_State* L) {
 }
 
 static hydradoc doc_webview_setignoresmouse = {
-    "webview", "setignoresmouse", "api.webview:setignoresmouse(bool)",
+    "webview", "setignoresmouse", "webview:setignoresmouse(bool)",
     "Set whether a webview window can be interacted with via the mouse."
 };
 
@@ -222,8 +222,8 @@ int webview_setignoresmouse(lua_State* L) {
 }
 
 static hydradoc doc_webview_window = {
-    "webview", "window", "api.webview:window() -> window",
-    "Return the api.window that represents the given webview."
+    "webview", "window", "webview:window() -> window",
+    "Return the window that represents the given webview."
 };
 
 int webview_window(lua_State* L) {

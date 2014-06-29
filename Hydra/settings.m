@@ -31,7 +31,7 @@ static id nsobject_for_luavalue(lua_State* L, int idx) {
             return [list copy];
         }
         default: {
-            lua_pushliteral(L, "non-serializable object given to api.settings");
+            lua_pushliteral(L, "non-serializable object given to settings");
             lua_error(L);
         }
     }
@@ -77,7 +77,7 @@ static void push_luavalue_for_nsobject(lua_State* L, id obj) {
 }
 
 static hydradoc doc_settings_set = {
-    "settings", "set", "api.settings.set(key, val)",
+    "settings", "set", "settings.set(key, val)",
     "Saves the given value for the string key; value must be a string, number, boolean, nil, or a table of any of these, recursively."
 };
 
@@ -90,7 +90,7 @@ int settings_set(lua_State* L) {
 }
 
 static hydradoc doc_settings_get = {
-    "settings", "get", "api.settings.get(key) -> val",
+    "settings", "get", "settings.get(key) -> val",
     "Gets the Lua value for the given string key."
 };
 

@@ -34,7 +34,7 @@ static HDTextGridController* get_textgrid_wc(lua_State* L, int idx) {
 }
 
 static hydradoc doc_textgrid_getsize = {
-    "textgrid", "getsize", "api.textgrid:getsize() -> size",
+    "textgrid", "getsize", "textgrid:getsize() -> size",
     "Returns the size (nubmer of rows and columns) as a size-table with keys {x,y}."
 };
 
@@ -51,7 +51,7 @@ static int textgrid_getsize(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_setchar = {
-    "textgrid", "set", "api.textgrid:setchar(str, x, y)",
+    "textgrid", "set", "textgrid:setchar(str, x, y)",
     "Sets the given 1-character UTF-8 encoded string at the given grid coordinates."
 };
 
@@ -71,7 +71,7 @@ static int textgrid_setchar(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_setcharfg = {
-    "textgrid", "setcharfg", "api.textgrid:setcharfg(str, x, y)",
+    "textgrid", "setcharfg", "textgrid:setcharfg(str, x, y)",
     "Sets the textgrid's foreground color to the given 6-digit hex string at the given coordinate."
 };
 
@@ -88,7 +88,7 @@ static int textgrid_setcharfg(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_setcharbg = {
-    "textgrid", "setcharbg", "api.textgrid:setcharbg(str, x, y)",
+    "textgrid", "setcharbg", "textgrid:setcharbg(str, x, y)",
     "Sets the textgrid's background color to the given 6-digit hex string at the given coordinate."
 };
 
@@ -105,7 +105,7 @@ static int textgrid_setcharbg(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_clear = {
-    "textgrid", "clear", "api.textgrid:clear()",
+    "textgrid", "clear", "textgrid:clear()",
     "Replaces all the textgrid's text with space characters."
 };
 
@@ -116,7 +116,7 @@ static int textgrid_clear(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_setbg = {
-    "textgrid", "setbg", "api.textgrid:setbg(str)",
+    "textgrid", "setbg", "textgrid:setbg(str)",
     "Sets the textgrid's background color to the given 6-digit hex string."
 };
 
@@ -128,7 +128,7 @@ static int textgrid_setbg(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_setfg = {
-    "textgrid", "setfg", "api.textgrid:setfg(str)",
+    "textgrid", "setfg", "textgrid:setfg(str)",
     "Sets the textgrid's foreground color to the given 6-digit hex string."
 };
 
@@ -140,7 +140,7 @@ static int textgrid_setfg(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_resize = {
-    "textgrid", "resize", "api.textgrid:resize(size)",
+    "textgrid", "resize", "textgrid:resize(size)",
     "Resizes the textgrid to the number of rows and columns given in the size-table with keys {x,y}."
 };
 
@@ -159,7 +159,7 @@ static int textgrid_resize(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_usefont = {
-    "textgrid", "usefont", "api.textgrid:usefont(name, pointsize)",
+    "textgrid", "usefont", "textgrid:usefont(name, pointsize)",
     "Sets the new font of the textgrid, potentially changing its visible size (no resize event is fired)."
 };
 
@@ -176,7 +176,7 @@ static int textgrid_usefont(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_getfont = {
-    "textgrid", "getfont", "api.textgrid:getfont() -> name, pointsize",
+    "textgrid", "getfont", "textgrid:getfont() -> name, pointsize",
     "Gets the name and pointsize currently used in the textgrid."
 };
 
@@ -192,7 +192,7 @@ static int textgrid_getfont(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_settitle = {
-    "textgrid", "settitle", "api.textgrid:settitle(title)",
+    "textgrid", "settitle", "textgrid:settitle(title)",
     "Changes the title of the textgrid window."
 };
 
@@ -207,8 +207,8 @@ static int textgrid_settitle(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_window = {
-    "textgrid", "window", "api.textgrid:window() -> window",
-    "Returns the api.window that represents this textgrid."
+    "textgrid", "window", "textgrid:window() -> window",
+    "Returns the window that represents this textgrid."
 };
 
 static int textgrid_window(lua_State *L) {
@@ -218,7 +218,7 @@ static int textgrid_window(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_focus = {
-    "textgrid", "focus", "api.textgrid:focus()",
+    "textgrid", "focus", "textgrid:focus()",
     "Brings the textgrid to front and focuses it; implicitly focuses Hydra."
 };
 
@@ -238,17 +238,17 @@ static int textgrid_gc(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_resized = {
-    "textgrid", "resized", "api.textgrid:resized = function()",
+    "textgrid", "resized", "textgrid:resized = function()",
     "Calls the given function when the textgrid is resized. Defaults to nil."
 };
 
 static hydradoc doc_textgrid_closed = {
-    "textgrid", "closed", "api.textgrid:closed = function()",
+    "textgrid", "closed", "textgrid:closed = function()",
     "Calls the given function when the textgrid is closed. Defaults to nil."
 };
 
 static hydradoc doc_textgrid_keydown = {
-    "textgrid", "keydown", "api.textgrid:keydown = function(t)",
+    "textgrid", "keydown", "textgrid:keydown = function(t)",
     "Calls the given function when a key is pressed in the focused textgrid. The table t contains keys {ctrl, alt, cmd, key}. Defaults to nil."
 };
 

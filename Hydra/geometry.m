@@ -1,7 +1,7 @@
 #import "hydra.h"
 
 static hydradoc doc_geometry_intersectionrect = {
-    "geometry", "intersectionrect", "api.geometry.intersectionrect(rect1, rect2) -> rect3",
+    "geometry", "intersectionrect", "geometry.intersectionrect(rect1, rect2) -> rect3",
     "Returns the intersection of two rects as a new rect."
 };
 

@@ -13,7 +13,7 @@
 @end
 
 static hydradoc doc_timer_runonce = {
-    "timer", "runonce", "api.timer.runonce(fn())",
+    "timer", "runonce", "timer.runonce(fn())",
     "Runs the function exactly once in the entire lifespan of Hydra; reset only when you quit/restart."
 };
 
@@ -28,7 +28,7 @@ int timer_runonce(lua_State* L) {
 }
 
 static hydradoc doc_timer_doafter = {
-    "timer", "doafter", "api.timer.doafter(sec, fn())",
+    "timer", "doafter", "timer.doafter(sec, fn())",
     "Runs the function after sec seconds."
 };
 

@@ -1,8 +1,8 @@
-api.repl = {}
+repl = {}
 
-doc.api.repl = {"api.repl() -> textgrid", "Opens a readline-like REPL (Read-Eval-Print-Loop) that has full access to Hydra's API"}
-function api.repl()
-  local win = api.textgrid.open()
+-- doc.repl = {"repl() -> textgrid", "Opens a readline-like REPL (Read-Eval-Print-Loop) that has full access to Hydra's API"}
+function repl()
+  local win = textgrid.open()
   win:settitle("Hydra REPL")
   win:protect()
 
@@ -31,7 +31,7 @@ function api.repl()
     for i = 1, math.min(#pagetable, size.h) do
       local line = pagetable[i + scrollpos]
       if line then
-        local chars = api.utf8.chars(line)
+        local chars = utf8.chars(line)
 
         for x = 1, math.min(#chars, size.w) do
           win:setchar(chars[x], x, i)
@@ -73,10 +73,10 @@ function api.repl()
     redraw()
   end
 
-  local loghandler = api.logger.addhandler(receivedlog)
+  local loghandler = logger.addhandler(receivedlog)
 
   function win.closed()
-    api.logger.removehandler(loghandler)
+    logger.removehandler(loghandler)
   end
 
   local function runcommand()

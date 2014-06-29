@@ -1,7 +1,7 @@
 #import "hydra.h"
 
 static hydradoc doc_mouse_get = {
-    "mouse", "get", "api.mouse.get() -> point",
+    "mouse", "get", "mouse.get() -> point",
     "Returns the current location of the mouse on the current screen as a point."
 };
 
@@ -16,7 +16,7 @@ int mouse_get(lua_State* L) {
 }
 
 static hydradoc doc_mouse_set = {
-    "mouse", "set", "api.mouse.set(point)",
+    "mouse", "set", "mouse.set(point)",
     "Moves the mouse to the given location on the current screen."
 };
 

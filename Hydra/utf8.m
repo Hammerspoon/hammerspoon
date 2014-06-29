@@ -1,7 +1,7 @@
 #import "hydra.h"
 
 static hydradoc doc_utf8_count = {
-    "utf8", "count", "api.utf8.count(str) -> int",
+    "utf8", "count", "utf8.count(str) -> int",
     "Returns the number of characters as humans would count them."
 };
 
@@ -19,7 +19,7 @@ int utf8_count(lua_State* L) {
 }
 
 static hydradoc doc_utf8_chars = {
-    "utf8", "chars", "api.utf8.chars(str) -> {str, ...}",
+    "utf8", "chars", "utf8.chars(str) -> {str, ...}",
     "Splits the string into groups of (UTF-8 encoded) strings representing what humans would consider individual characters.\n\nThe result is a sequential table, such that table.concat(result) produces the original string."
 };
 

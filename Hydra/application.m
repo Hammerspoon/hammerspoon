@@ -22,7 +22,7 @@ void new_application(lua_State* L, pid_t pid) {
 }
 
 static hydradoc doc_application_runningapps = {
-    "application", "runningapplications", "api.application.runningapplications() -> app[]",
+    "application", "runningapplications", "application.runningapplications() -> app[]",
     "Returns all running apps."
 };
 
@@ -39,7 +39,7 @@ int application_runningapplications(lua_State* L) {
 }
 
 static hydradoc doc_application_applicationforpid = {
-    "application", "applicationforpid", "api.application.applicationforpid(pid) -> app or nil",
+    "application", "applicationforpid", "application.applicationforpid(pid) -> app or nil",
     "Returns the running app for the given pid, if it exists."
 };
 
@@ -57,7 +57,7 @@ int application_applicationforpid(lua_State* L) {
 }
 
 static hydradoc doc_application_applicationsforbundleid = {
-    "application", "applicationsforbundleid", "api.app.applicationsforbundleid(bundleid) -> app[]",
+    "application", "applicationsforbundleid", "application.applicationsforbundleid(bundleid) -> app[]",
     "Returns any running apps that have the given bundleid."
 };
 
@@ -78,7 +78,7 @@ int application_applicationsforbundleid(lua_State* L) {
 }
 
 static hydradoc doc_application_allwindows = {
-    "application", "allwindows", "api.application:allwindows() -> window[]",
+    "application", "allwindows", "application:allwindows() -> window[]",
     "Returns all open windows owned by the given app."
 };
 
@@ -107,7 +107,7 @@ int application_allwindows(lua_State* L) {
 }
 
 static hydradoc doc_application_activate = {
-    "application", "activate", "api.application:activate() -> bool",
+    "application", "activate", "application:activate() -> bool",
     "Tries to activate the app (make it focused) and returns its success."
 };
 
@@ -121,7 +121,7 @@ int application_activate(lua_State* L) {
 }
 
 static hydradoc doc_application_title = {
-    "application", "title", "api.application:title() -> string",
+    "application", "title", "application:title() -> string",
     "Returns the localized name of the app (in UTF8)."
 };
 
@@ -134,7 +134,7 @@ int application_title(lua_State* L) {
 }
 
 static hydradoc doc_application_bundleid = {
-    "application", "bundleid", "api.application:bundleid() -> string",
+    "application", "bundleid", "application:bundleid() -> string",
     "Returns the bundle identifier of the app."
 };
 
@@ -152,7 +152,7 @@ static void set_app_prop(AXUIElementRef app, NSString* propType, id value) {
 }
 
 static hydradoc doc_application_unhide = {
-    "application", "unhide", "api.application:unhide()",
+    "application", "unhide", "application:unhide()",
     "Unhides the app (and all its windows) if it's hidden."
 };
 
@@ -166,7 +166,7 @@ int application_unhide(lua_State* L) {
 }
 
 static hydradoc doc_application_hide = {
-    "application", "hide", "api.application:hide()",
+    "application", "hide", "application:hide()",
     "Hides the app (and all its windows)."
 };
 
@@ -182,7 +182,7 @@ int application_hide(lua_State* L) {
 }
 
 static hydradoc doc_application_kill = {
-    "application", "kill", "api.application:kill()",
+    "application", "kill", "application:kill()",
     "Tries to terminate the app."
 };
 
@@ -197,7 +197,7 @@ int application_kill(lua_State* L) {
 }
 
 static hydradoc doc_application_kill9 = {
-    "application", "kill9", "api.application:kill9()",
+    "application", "kill9", "application:kill9()",
     "Assuredly terminates the app."
 };
 
@@ -212,7 +212,7 @@ int application_kill9(lua_State* L) {
 }
 
 static hydradoc doc_application_ishidden = {
-    "application", "ishidden", "api.application:ishidden() -> bool",
+    "application", "ishidden", "application:ishidden() -> bool",
     "Returns whether the app is currently hidden."
 };
 

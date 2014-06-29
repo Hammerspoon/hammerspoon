@@ -1,7 +1,7 @@
 #import "lua/lauxlib.h"
 #import "lua/lualib.h"
 
-int luaopen_api(lua_State* L);
+int luaopen_hydra(lua_State* L);
 
 int luaopen_hotkey(lua_State* L);
 int luaopen_application(lua_State* L);
@@ -30,15 +30,14 @@ int luaopen_json(lua_State* L);
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
-    lua_newtable(L);
+    // todo: remove
     lua_pushvalue(L, -1);
     lua_setglobal(L, "doc");
-    lua_newtable(L);
-    lua_setfield(L, -2, "api");
     
-    luaopen_api(L);
+    lua_newtable(L);
     
     static const luaL_Reg hydralibs[] = {
+        {"hydra",        luaopen_hydra},
         {"hotkey",       luaopen_hotkey},
         {"application",  luaopen_application},
         {"mouse",        luaopen_mouse},
@@ -62,7 +61,7 @@ int luaopen_json(lua_State* L);
     for (int i = 0; hydralibs[i].name; i++) {
         luaL_Reg lib = hydralibs[i];
         lib.func(L);
-        lua_setfield(L, -2, lib.name);
+        lua_setglobal(L, lib.name);
     }
     
     NSString* initFile = [[NSBundle mainBundle] pathForResource:@"rawinit" ofType:@"lua"];

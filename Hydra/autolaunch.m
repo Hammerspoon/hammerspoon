@@ -10,7 +10,7 @@ static LSSharedFileListRef shared_file_list() {
 }
 
 static hydradoc doc_autolaunch_get = {
-    "autolaunch", "get", "api.autolaunch.get() -> bool",
+    "autolaunch", "get", "autolaunch.get() -> bool",
     "Returns whether Hydra launches when you login."
 };
 
@@ -41,7 +41,7 @@ int autolaunch_get(lua_State* L) {
 }
 
 static hydradoc doc_autolaunch_set = {
-    "autolaunch", "set", "api.autolaunch.set(bool)",
+    "autolaunch", "set", "autolaunch.set(bool)",
     "Sets whether Hydra launches when you login."
 };
 
