@@ -315,15 +315,7 @@ static int textgrid_open(lua_State *L) {
     lua_pushlightuserdata(L, (__bridge_retained void*)windowController);
     lua_setfield(L, -2, "__wc");
     
-    if (luaL_newmetatable(L, "textgrid")) {
-        lua_pushcfunction(L, textgrid_gc);
-        lua_setfield(L, -2, "__gc");
-        
-        lua_getglobal(L, "api");
-        lua_getfield(L, -1, "textgrid");
-        lua_setfield(L, -3, "__index");
-        lua_pop(L, 1); // api-global
-    }
+    luaL_getmetatable(L, "textgrid");
     lua_setmetatable(L, -2);
     
     return 1;
@@ -378,5 +370,15 @@ int luaopen_textgrid(lua_State* L) {
     hydra_add_doc_item(L, &doc_textgrid_window);
     
     luaL_newlib(L, textgridlib);
+    
+    if (luaL_newmetatable(L, "textgrid")) {
+        lua_pushvalue(L, -2);
+        lua_setfield(L, -2, "__index");
+        
+        lua_pushcfunction(L, textgrid_gc);
+        lua_setfield(L, -2, "__gc");
+    }
+    lua_pop(L, 1);
+    
     return 1;
 }

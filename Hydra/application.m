@@ -17,15 +17,7 @@ void new_application(lua_State* L, pid_t pid) {
     lua_pushnumber(L, pid);
     lua_setfield(L, -2, "pid");
     
-    if (luaL_newmetatable(L, "application")) {
-        lua_getglobal(L, "api");
-        lua_getfield(L, -1, "application");
-        lua_setfield(L, -3, "__index");
-        lua_pop(L, 1); // hydra-global
-        
-        lua_pushcfunction(L, application_eq);
-        lua_setfield(L, -2, "__eq");
-    }
+    luaL_getmetatable(L, "application");
     lua_setmetatable(L, -2);
 }
 
@@ -276,5 +268,15 @@ int luaopen_application(lua_State* L) {
     hydra_add_doc_item(L, &doc_application_ishidden);
     
     luaL_newlib(L, applicationlib);
+    
+    if (luaL_newmetatable(L, "application")) {
+        lua_pushvalue(L, -2); // 'application' table
+        lua_setfield(L, -2, "__index");
+        
+        lua_pushcfunction(L, application_eq);
+        lua_setfield(L, -2, "__eq");
+    }
+    lua_pop(L, 1);
+    
     return 1;
 }

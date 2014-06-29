@@ -64,18 +64,7 @@ void new_window(lua_State* L, AXUIElementRef win) {
     (*(AXUIElementRef*)lua_newuserdata(L, sizeof(AXUIElementRef))) = win;
     lua_setfield(L, -2, "__win");
     
-    if (luaL_newmetatable(L, "window")) {
-        lua_pushcfunction(L, window_gc);
-        lua_setfield(L, -2, "__gc");
-        
-        lua_pushcfunction(L, window_eq);
-        lua_setfield(L, -2, "__eq");
-        
-        lua_getglobal(L, "api");
-        lua_getfield(L, -1, "window");
-        lua_setfield(L, -3, "__index");
-        lua_pop(L, 1); // hydra-global
-    }
+    luaL_getmetatable(L, "window");
     lua_setmetatable(L, -2);
 }
 
@@ -500,5 +489,18 @@ int luaopen_window(lua_State* L) {
     hydra_add_doc_item(L, &doc_window_visible_windows_sorted_by_recency);
     
     luaL_newlib(L, windowlib);
+    
+    if (luaL_newmetatable(L, "window")) {
+        lua_pushvalue(L, -2);
+        lua_setfield(L, -2, "__index");
+        
+        lua_pushcfunction(L, window_gc);
+        lua_setfield(L, -2, "__gc");
+        
+        lua_pushcfunction(L, window_eq);
+        lua_setfield(L, -2, "__eq");
+    }
+    lua_pop(L, 1);
+    
     return 1;
 }

@@ -106,18 +106,7 @@ void new_screen(lua_State* L, NSScreen* screen) {
     *screenptr = (__bridge_retained void*)screen;
     lua_setfield(L, -2, "__screen");
     
-    if (luaL_newmetatable(L, "screen")) {
-        lua_pushcfunction(L, screen_gc);
-        lua_setfield(L, -2, "__gc");
-        
-        lua_pushcfunction(L, screen_eq);
-        lua_setfield(L, -2, "__eq");
-        
-        lua_getglobal(L, "api");
-        lua_getfield(L, -1, "screen");
-        lua_setfield(L, -3, "__index");
-        lua_pop(L, 1); // hydra-global
-    }
+    luaL_getmetatable(L, "screen");
     lua_setmetatable(L, -2);
 }
 
@@ -169,5 +158,18 @@ int luaopen_screen(lua_State* L) {
     hydra_add_doc_item(L, &doc_screen_mainscreen);
     
     luaL_newlib(L, screenlib);
+    
+    if (luaL_newmetatable(L, "screen")) {
+        lua_pushvalue(L, -2);
+        lua_setfield(L, -2, "__index");
+        
+        lua_pushcfunction(L, screen_gc);
+        lua_setfield(L, -2, "__gc");
+        
+        lua_pushcfunction(L, screen_eq);
+        lua_setfield(L, -2, "__eq");
+    }
+    lua_pop(L, 1);
+    
     return 1;
 }
