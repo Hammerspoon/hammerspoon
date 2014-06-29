@@ -7,18 +7,19 @@ static hydradoc doc_updates_check = {
 
 static NSString* updates_url = @"https://api.github.com/repos/sdegutis/hydra/releases";
 
+static int updatesref;
+
 int updates_check(lua_State* L) {
-    lua_getglobal(L, "api");
-    lua_getfield(L, -1, "updates");
+    lua_rawgeti(L, LUA_REGISTRYINDEX, updatesref);
     lua_getfield(L, -1, "available");
     
     if (!lua_isfunction(L, -1)) {
-        lua_pop(L, 3);
+        lua_pop(L, 2);
         return 0;
     }
     
     int fnindex = luaL_ref(L, LUA_REGISTRYINDEX);
-    lua_pop(L, 2);
+    lua_pop(L, 1);
     
     NSURL* url = [NSURL URLWithString:updates_url];
     NSURLRequest* req = [NSURLRequest requestWithURL:url];
@@ -57,5 +58,9 @@ int luaopen_updates(lua_State* L) {
     hydra_add_doc_item(L, &doc_updates_check);
     
     luaL_newlib(L, updateslib);
+    
+    lua_pushvalue(L, -1);
+    updatesref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
     return 1;
 }
