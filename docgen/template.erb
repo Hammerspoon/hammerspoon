@@ -11,7 +11,7 @@
     <div id="modules">
       <h2>Modules</h2>
       <ul>
-        <% groups.each do |g| %>
+        <% groups.sort_by{|g|g['name']}.each do |g| %>
         <li><a href="<%= g['name'] %>.html"><%= g['name'] %></a></li>
 
         <% if g == group %>
