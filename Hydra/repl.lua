@@ -38,6 +38,12 @@ function Stdin:goline(dir)
   end
 end
 
+function Stdin:killtoend()
+  for i = self.pos, #self.chars do
+    self.chars[i] = nil
+  end
+end
+
 function Stdin:insertchar(char)
   table.insert(self.chars, self.pos, char)
   self.pos = self.pos + 1
@@ -182,6 +188,11 @@ function hydra.repl()
     ensurecursorvisible()
   end
 
+  local function killtoend(t)
+    stdin:killtoend()
+    ensurecursorvisible()
+  end
+
   local function insertchar(t)
     stdin:insertchar(t.key)
     ensurecursorvisible()
@@ -210,6 +221,8 @@ function hydra.repl()
 
     {"a", mods.ctrl, golinefirst},
     {"e", mods.ctrl, golinelast},
+
+    {"k", mods.ctrl, killtoend},
 
     {"left",  mods.none, gocharbackward},
     {"right", mods.none, gocharforward},
