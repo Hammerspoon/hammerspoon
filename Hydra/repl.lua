@@ -1,3 +1,40 @@
+local Stdin = {}
+function Stdin.new()
+  return setmetatable({pos = 1, chars = {}}, {__index = Stdin})
+end
+
+function Stdin:tostring()
+  return table.concat(self.chars)
+end
+
+function Stdin:reset()
+  self.chars = {}
+  self.pos = 1
+end
+
+function Stdin:deletechar(dir)
+  local delpos = self.pos
+  if dir < 0 then delpos = delpos - 1 end
+  if delpos < 1 or delpos > #self.chars then return end
+  table.remove(self.chars, delpos)
+  if dir < 0 then
+    self.pos = self.pos - 1
+  end
+end
+
+function Stdin:gochar(dir)
+  if dir < 0 then
+    self.pos = math.max(self.pos - 1, 1)
+  else
+    self.pos = math.min(self.pos + 1, #self.chars + 1)
+  end
+end
+
+function Stdin:insertchar(char)
+  table.insert(self.chars, self.pos, char)
+  self.pos = self.pos + 1
+end
+
 doc.hydra.repl = {"hydra.repl() -> textgrid", "Opens a readline-like REPL (Read-Eval-Print-Loop) that has full access to Hydra's API; type 'help' for more info."}
 function hydra.repl()
   local win = textgrid.open()
@@ -8,10 +45,9 @@ function hydra.repl()
   local bg = "222222"
 
   local scrollpos = 0
-  local cursorpos = 1
 
   local stdout = {}
-  local stdin = ""
+  local stdin = Stdin.new()
 
   local function printline(win, line, gridwidth, y)
     if line == nil then return end
@@ -29,9 +65,9 @@ function hydra.repl()
 
     local promptlocation = #stdout - scrollpos + 1
     if promptlocation <= size.h then
-      printline(win, "> " .. stdin, size.w, promptlocation)
-      win:setcharfg(bg, 2 + cursorpos, promptlocation)
-      win:setcharbg(fg, 2 + cursorpos, promptlocation)
+      printline(win, "> " .. stdin:tostring(), size.w, promptlocation)
+      win:setcharfg(bg, 2 + stdin.pos, promptlocation)
+      win:setcharbg(fg, 2 + stdin.pos, promptlocation)
     end
   end
 
@@ -66,8 +102,8 @@ function hydra.repl()
   end
 
   local function runcommand()
-    local command = stdin
-    stdin = ""
+    local command = stdin:tostring()
+    stdin:reset()
 
     table.insert(stdout, "> " .. command)
 
@@ -95,12 +131,14 @@ function hydra.repl()
 
   function win.keydown(t)
     if t.key == "return" then
-      cursorpos = 1
       runcommand()
       ensurecursorvisible()
-    elseif t.key == "delete" --[[i.e. backspace]] then
-      stdin = stdin:sub(0, -2)
-      cursorpos = math.max(cursorpos - 1, 1)
+    elseif t.key == "delete" or (t.key == 'h' and t.ctrl) then
+      -- backspace
+      stdin:deletechar(-1)
+      ensurecursorvisible()
+    elseif t.key == "d" and t.ctrl then
+      stdin:deletechar(1)
       ensurecursorvisible()
     elseif t.key == 'p' and t.alt then
       scrollpos = scrollpos - 1
@@ -109,14 +147,13 @@ function hydra.repl()
       scrollpos = scrollpos + 1
       restrictscrollpos()
     elseif t.key == 'left' then
-      cursorpos = math.max(cursorpos - 1, 1)
+      stdin:gochar(-1)
       ensurecursorvisible()
     elseif t.key == 'right' then
-      cursorpos = math.min(cursorpos + 1, #stdin+1)
+      stdin:gochar(1)
       ensurecursorvisible()
     else
-      cursorpos = cursorpos + 1
-      stdin = stdin .. t.key
+      stdin:insertchar(t.key)
       ensurecursorvisible()
     end
     redraw()
