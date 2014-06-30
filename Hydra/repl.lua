@@ -30,6 +30,14 @@ function Stdin:gochar(dir)
   end
 end
 
+function Stdin:goline(dir)
+  if dir < 0 then
+    self.pos = 1
+  else
+    self.pos = #self.chars + 1
+  end
+end
+
 function Stdin:insertchar(char)
   table.insert(self.chars, self.pos, char)
   self.pos = self.pos + 1
@@ -129,33 +137,107 @@ function hydra.repl()
     end
   end
 
+  local function runprompt()
+    runcommand()
+    ensurecursorvisible()
+  end
+
+  local function delcharbackward()
+    stdin:deletechar(-1)
+    ensurecursorvisible()
+  end
+
+  local function delcharforward()
+    stdin:deletechar(1)
+    ensurecursorvisible()
+  end
+
+  local function scrollcharup()
+    scrollpos = scrollpos - 1
+    restrictscrollpos()
+  end
+
+  local function scrollchardown()
+    scrollpos = scrollpos + 1
+    restrictscrollpos()
+  end
+
+  local function gocharforward()
+    stdin:gochar(1)
+    ensurecursorvisible()
+  end
+
+  local function gocharbackward()
+    stdin:gochar(-1)
+    ensurecursorvisible()
+  end
+
+  local function golinefirst()
+    stdin:goline(-1)
+    ensurecursorvisible()
+  end
+
+  local function golinelast()
+    stdin:goline(1)
+    ensurecursorvisible()
+  end
+
+  local function insertchar(t)
+    stdin:insertchar(t.key)
+    ensurecursorvisible()
+  end
+
+  local mods = {
+    none  = 0,
+    ctrl  = 1,
+    alt   = 2,
+    cmd   = 4,
+    shift = 8,
+  }
+
+  local keytable = {
+    {"return", mods.none, runprompt},
+    {"delete", mods.none, delcharbackward},
+
+    {"h", mods.ctrl, delcharbackward},
+    {"d", mods.ctrl, delcharforward},
+
+    {"p", mods.alt, scrollcharup},
+    {"n", mods.alt, scrollchardown},
+
+    {"b", mods.ctrl, gocharbackward},
+    {"f", mods.ctrl, gocharforward},
+
+    {"a", mods.ctrl, golinefirst},
+    {"e", mods.ctrl, golinelast},
+
+    {"left",  mods.none, gocharbackward},
+    {"right", mods.none, gocharforward},
+  }
+
   function win.keydown(t)
-    if t.key == "return" then
-      runcommand()
-      ensurecursorvisible()
-    elseif t.key == "delete" or (t.key == 'h' and t.ctrl) then
-      -- backspace
-      stdin:deletechar(-1)
-      ensurecursorvisible()
-    elseif t.key == "d" and t.ctrl then
-      stdin:deletechar(1)
-      ensurecursorvisible()
-    elseif t.key == 'p' and t.alt then
-      scrollpos = scrollpos - 1
-      restrictscrollpos()
-    elseif t.key == 'n' and t.alt then
-      scrollpos = scrollpos + 1
-      restrictscrollpos()
-    elseif t.key == 'left' then
-      stdin:gochar(-1)
-      ensurecursorvisible()
-    elseif t.key == 'right' then
-      stdin:gochar(1)
-      ensurecursorvisible()
-    else
-      stdin:insertchar(t.key)
-      ensurecursorvisible()
+    local mod = mods.none
+    if t.ctrl  then mod = bit32.bor(mod, mods.ctrl) end
+    if t.alt   then mod = bit32.bor(mod, mods.alt) end
+    if t.cmd   then mod = bit32.bor(mod, mods.cmd) end
+    if t.shift then mod = bit32.bor(mod, mods.shift) end
+
+    local fn
+    for _, maybe in pairs(keytable) do
+      if t.key == maybe[1] and mod == maybe[2] then
+        fn = maybe[3]
+        break
+      end
     end
+
+    if fn == nil and mod == mods.none or mod == mods.shift then
+      fn = insertchar
+    end
+
+    if fn then
+      fn(t)
+    end
+
     redraw()
   end
 
