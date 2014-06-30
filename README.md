@@ -10,13 +10,13 @@ Downloads are in the Releases link above.
 
 ### Usage
 
-Create `~/.hydra/init.lua`. Then add stuff like this in it:
+Here's a sample of what you might write:
 
 ~~~lua
-api.alert("Hydra started!")
+hydra.alert("Hydra started!")
 
-api.hotkey.bind({"cmd"}, "E", function()
-    local win = api.window.focusedwindow()
+hotkey.bind({"cmd"}, "E", function()
+    local win = window.focusedwindow()
     local frame = win:frame()
     frame.x = frame.x + 10
     frame.h = frame.h - 10
@@ -24,7 +24,7 @@ api.hotkey.bind({"cmd"}, "E", function()
 end)
 ~~~
 
-Or just run the app and it'll give you more ideas.
+Anyway, when you run the app, it'll give you a better sample config.
 
 ### Resources
 
