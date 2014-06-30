@@ -13,34 +13,25 @@ function hydra.repl()
   local stdout = {}
   local stdin = ""
 
-  local function derivepagetable()
-    local t = {}
-    for i, v in ipairs(stdout) do
-      t[i] = v
+  local function printline(win, line, gridwidth, y)
+    if line == nil then return end
+    local chars = utf8.chars(line)
+    for x = 1, math.min(#chars, gridwidth) do
+      win:setchar(chars[x], x, y)
     end
-    table.insert(t, "> " .. stdin)
-    return t
   end
 
   local function printscrollback()
     local size = win:getsize()
-    local pagetable = derivepagetable()
+    for y = 1, math.min(#stdout, size.h) do
+      printline(win, stdout[y + scrollpos], size.w, y)
+    end
 
-    for i = 1, math.min(#pagetable, size.h) do
-      local line = pagetable[i + scrollpos]
-      if line then
-        local chars = utf8.chars(line)
-
-        for x = 1, math.min(#chars, size.w) do
-          win:setchar(chars[x], x, i)
-        end
-
-        if i + scrollpos == #pagetable then
-          -- we're at the cursor line
-          win:setcharfg(bg, 2 + cursorpos, i)
-          win:setcharbg(fg, 2 + cursorpos, i)
-        end
-      end
+    local promptlocation = #stdout - scrollpos + 1
+    if promptlocation <= size.h then
+      printline(win, "> " .. stdin, size.w, promptlocation)
+      win:setcharfg(bg, 2 + cursorpos, promptlocation)
+      win:setcharbg(fg, 2 + cursorpos, promptlocation)
     end
   end
 
