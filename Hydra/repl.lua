@@ -1,6 +1,6 @@
 local Stdin = {}
 function Stdin.new()
-  return setmetatable({pos = 1, chars = {}}, {__index = Stdin})
+  return setmetatable({pos = 1, chars = {}, cmds = {}, cmdpos = 1}, {__index = Stdin})
 end
 
 function Stdin:tostring()
@@ -47,6 +47,46 @@ end
 function Stdin:insertchar(char)
   table.insert(self.chars, self.pos, char)
   self.pos = self.pos + 1
+end
+
+function Stdin:addcommand(cmd)
+  self.partialcmd = nil -- redundant?
+  table.insert(self.cmds, cmd)
+  self.cmdpos = #self.cmds + 1
+end
+
+function Stdin:maybesavecommand()
+  if self.cmdpos == #self.cmds + 1 then
+    self.partialcmd = self:tostring()
+  end
+end
+
+function Stdin:usecurrenthistory()
+  local partialcmd
+  if self.cmdpos == #self.cmds + 1 then
+    partialcmd = self.partialcmd
+  else
+    partialcmd = self.cmds[self.cmdpos]
+  end
+
+  self.chars = {}
+  for i = 1, partialcmd:len() do
+    local c = partialcmd:sub(i,i)
+    table.insert(self.chars, c)
+  end
+
+  self.pos = #partialcmd + 1
+end
+
+function Stdin:historynext()
+  self.cmdpos = math.min(self.cmdpos + 1, #self.cmds + 1)
+  self:usecurrenthistory()
+end
+
+function Stdin:historyprev()
+  self:maybesavecommand()
+  self.cmdpos = math.max(self.cmdpos - 1, 1)
+  self:usecurrenthistory()
 end
 
 doc.hydra.repl = {"hydra.repl() -> textgrid", "Opens a readline-like REPL (Read-Eval-Print-Loop) that has full access to Hydra's API; type 'help' for more info."}
@@ -118,6 +158,7 @@ function hydra.repl()
   local function runcommand()
     local command = stdin:tostring()
     stdin:reset()
+    stdin:addcommand(command)
 
     table.insert(stdout, "> " .. command)
 
@@ -198,6 +239,16 @@ function hydra.repl()
     ensurecursorvisible()
   end
 
+  local function historynext()
+    stdin:historynext()
+    ensurecursorvisible()
+  end
+
+  local function historyprev()
+    stdin:historyprev()
+    ensurecursorvisible()
+  end
+
   local mods = {
     none  = 0,
     ctrl  = 1,
@@ -215,6 +266,9 @@ function hydra.repl()
 
     {"p", mods.alt, scrollcharup},
     {"n", mods.alt, scrollchardown},
+
+    {"p", mods.ctrl, historyprev},
+    {"n", mods.ctrl, historynext},
 
     {"b", mods.ctrl, gocharbackward},
     {"f", mods.ctrl, gocharforward},
