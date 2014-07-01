@@ -1,5 +1,8 @@
 hydra.alert("Hydra sample config loaded", 1.5)
 
+-- open a repl
+hotkey.bind({"cmd", "ctrl", "alt"}, "R", hydra.repl)
+
 -- save the time when updates are checked
 function checkforupdates()
   updates.check()
@@ -29,9 +32,6 @@ hotkey.new({"cmd", "ctrl", "alt"}, "J", function()
     frame.h = frame.h - 10
     win:setframe(frame)
 end):enable()
-
--- open a repl
-hotkey.bind({"cmd", "ctrl", "alt"}, "R", hydra.repl())
 
 -- show available updates
 local function showupdate()
