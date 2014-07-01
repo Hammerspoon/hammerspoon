@@ -42,13 +42,11 @@ local function prevwordpos(str, pos)
 end
 
 function Stdin:goword(dir)
-  if dir > 0 then
-    local pos = nextwordpos(self:tostring(), self.pos)
-    self.pos = pos
-  else
-    local pos = prevwordpos(self:tostring(), self.pos)
-    self.pos = pos
-  end
+  local fn = nextwordpos
+  if dir < 0 then fn = prevwordpos end
+
+  local pos = fn(self:tostring(), self.pos)
+  self.pos = pos
 end
 
 function Stdin:delword(dir)
