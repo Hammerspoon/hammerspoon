@@ -30,24 +30,28 @@ function Stdin:gochar(dir)
   end
 end
 
-local function nextwordpos(stdin)
-  local str = stdin:tostring()
-  local _, _, pos = str:find("[%w_]+()", stdin.pos)
-  if pos == nil then pos = #stdin.chars + 1 end
+local function nextwordpos(str, pos)
+  local _, _, pos = str:find("[%w_]+()", pos)
+  if pos == nil then pos = str:len() + 1 end
   return pos
 end
 
 function Stdin:goword(dir)
-  local pos = nextwordpos(self)
-  self.pos = pos
+  if dir > 0 then
+    local pos = nextwordpos(self:tostring(), self.pos)
+    self.pos = pos
+  else
+  end
 end
 
 function Stdin:delword(dir)
-  local pos = nextwordpos(self)
-
-  pos = pos - 1
-  for i = self.pos, pos do
-    table.remove(self.chars, self.pos)
+  if dir > 0 then
+    local pos = nextwordpos(self:tostring(), self.pos)
+    pos = pos - 1
+    for i = self.pos, pos do
+      table.remove(self.chars, self.pos)
+    end
+  else
   end
 end
 
