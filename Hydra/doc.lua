@@ -1,7 +1,7 @@
 help =
-  "print(doc)                 print module names\n" ..
-  "print(doc.window)          print window subitems\n" ..
-  "print(doc.window.title)    print window.title function doc in full\n"
+  "doc                -- print module names\n" ..
+  "doc.window         -- print window subitems\n" ..
+  "doc.window.title   -- print window.title function doc in full\n"
 
 local function item_tostring(item)
   return
