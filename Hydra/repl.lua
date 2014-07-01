@@ -409,3 +409,5 @@ function hydra.repl(opts)
 
   return win
 end
+
+-- I'm sorry. I'm sorry for writing such ugly code. I know it's a mess. I've always known. But it /works/.
