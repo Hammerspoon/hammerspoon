@@ -38,7 +38,14 @@ int updates_check(lua_State* L) {
          
          NSArray* releases = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
          
-         BOOL updateAvailable = ([releases count] > 1);
+         int fullVersions = 0;
+         for (NSDictionary* release in releases) {
+             NSNumber* prerelease = [release objectForKey:@"prerelease"];
+             if ([prerelease boolValue] == NO)
+                 fullVersions++;
+         }
+         
+         BOOL updateAvailable = (fullVersions > 1);
          
          lua_pushboolean(L, updateAvailable);
          if (lua_pcall(L, 1, 0, 0))
