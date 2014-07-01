@@ -30,6 +30,27 @@ function Stdin:gochar(dir)
   end
 end
 
+local function nextwordpos(stdin)
+  local str = stdin:tostring()
+  local _, _, pos = str:find("[%w_]+()", stdin.pos)
+  if pos == nil then pos = #stdin.chars + 1 end
+  return pos
+end
+
+function Stdin:goword(dir)
+  local pos = nextwordpos(self)
+  self.pos = pos
+end
+
+function Stdin:delword(dir)
+  local pos = nextwordpos(self)
+
+  pos = pos - 1
+  for i = self.pos, pos do
+    table.remove(self.chars, self.pos)
+  end
+end
+
 function Stdin:goline(dir)
   if dir < 0 then
     self.pos = 1
@@ -234,6 +255,26 @@ function hydra.repl()
     ensurecursorvisible()
   end
 
+  local function gowordforward()
+    stdin:goword(1)
+    ensurecursorvisible()
+  end
+
+  local function gowordbackward()
+    stdin:goword(-1)
+    ensurecursorvisible()
+  end
+
+  local function delwordforward()
+    stdin:delword(1)
+    ensurecursorvisible()
+  end
+
+  local function delwordbackward()
+    stdin:delword(-1)
+    ensurecursorvisible()
+  end
+
   local function golinefirst()
     stdin:goline(-1)
     ensurecursorvisible()
@@ -293,6 +334,13 @@ function hydra.repl()
 
     {"b", mods.ctrl, gocharbackward},
     {"f", mods.ctrl, gocharforward},
+
+    {"b", mods.alt, gowordbackward},
+    {"f", mods.alt, gowordforward},
+
+    {"delete", mods.alt,  delwordbackward},
+    {"w",      mods.ctrl, delwordbackward},
+    {"d",      mods.alt,  delwordforward},
 
     {"a", mods.ctrl, golinefirst},
     {"e", mods.ctrl, golinelast},
