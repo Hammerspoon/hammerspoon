@@ -57,6 +57,11 @@ function Stdin:delword(dir)
       table.remove(self.chars, self.pos)
     end
   else
+    local pos = prevwordpos(self:tostring(), self.pos)
+    for i = pos, self.pos - 1 do
+      table.remove(self.chars, pos)
+      self.pos = self.pos - 1
+    end
   end
 end
 
