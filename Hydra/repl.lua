@@ -264,6 +264,7 @@ function hydra.repl()
 
   local keytable = {
     {"return", mods.none, runprompt},
+    {"tab",    mods.none, function(t) end},
     {"delete", mods.none, delcharbackward},
 
     {"h", mods.ctrl, delcharbackward},

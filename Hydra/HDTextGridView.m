@@ -43,6 +43,7 @@
     
     if ([str characterAtIndex:0] == 127) str = @"delete";
     if ([str characterAtIndex:0] == 13) str = @"return";
+    if ([str characterAtIndex:0] == 9) str = @"tab";
     if ([str characterAtIndex:0] == 63232) str = @"up";
     if ([str characterAtIndex:0] == 63233) str = @"down";
     if ([str characterAtIndex:0] == 63234) str = @"left";
