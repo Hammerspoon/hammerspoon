@@ -134,14 +134,16 @@ function Stdin:transposechar()
   self.chars[pos] = tmp
 end
 
-doc.hydra.repl = {"hydra.repl() -> textgrid", "Opens a readline-like REPL (Read-Eval-Print-Loop) that has full access to Hydra's API; type 'help' for more info."}
-function hydra.repl()
+doc.hydra.repl = {"hydra.repl([opts]) -> textgrid", "Opens a readline-like REPL (Read-Eval-Print-Loop) that has full access to Hydra's API; type 'help' for more info.\n\nOptional `opts` arg can be a table with keys: inputcolor, stdoutcolor, resultcolor, backgroundcolor."}
+function hydra.repl(opts)
   local win = textgrid.open()
   win:settitle("Hydra REPL")
   win:protect()
 
-  local fg = "00FF00"
-  local bg = "222222"
+  local inputcolor = opts and opts.inputcolor or "00FF00"
+  local backgroundcolor = opts and opts.backgroundcolor or "222222"
+  local stdoutcolor = opts and opts.stdoutcolor or 'FF00FF'
+  local resultcolor = opts and opts.resultcolor or '00FFFF'
 
   local scrollpos = 0
 
@@ -150,9 +152,16 @@ function hydra.repl()
 
   local function printline(win, line, gridwidth, y)
     if line == nil then return end
-    local chars = utf8.chars(line)
+    local chars = utf8.chars(line.str)
     for x = 1, math.min(#chars, gridwidth) do
       win:setchar(chars[x], x, y)
+      if line.kind == 'input' then
+        win:setcharfg(inputcolor, x, y)
+      elseif line.kind == 'printed' then
+        win:setcharfg(stdoutcolor, x, y)
+      elseif line.kind == 'result' then
+        win:setcharfg(resultcolor, x, y)
+      end
     end
   end
 
@@ -164,9 +173,9 @@ function hydra.repl()
 
     local promptlocation = #stdout - scrollpos + 1
     if promptlocation <= size.h then
-      printline(win, "> " .. stdin:tostring(), size.w, promptlocation)
-      win:setcharfg(bg, 2 + stdin.pos, promptlocation)
-      win:setcharbg(fg, 2 + stdin.pos, promptlocation)
+      printline(win, {str = "> " .. stdin:tostring(), kind = 'input'}, size.w, promptlocation)
+      win:setcharfg(backgroundcolor, 2 + stdin.pos, promptlocation)
+      win:setcharbg(inputcolor, 2 + stdin.pos, promptlocation)
     end
   end
 
@@ -176,8 +185,8 @@ function hydra.repl()
   end
 
   local function redraw()
-    win:setbg(bg)
-    win:setfg(fg)
+    win:setbg(backgroundcolor)
+    win:setfg(inputcolor)
     win:clear()
     printscrollback()
   end
@@ -189,13 +198,13 @@ function hydra.repl()
 
   win.resized = redraw
 
-  local function appendstdout(line)
+  local function appendstdout(line, kind)
     line = line:gsub("\t", "  ")
-    table.insert(stdout, line)
+    table.insert(stdout, {str = line, kind = kind})
   end
 
   local function receivedlog(str)
-    appendstdout(str)
+    appendstdout(str, 'printed')
     redraw()
   end
 
@@ -210,7 +219,7 @@ function hydra.repl()
     stdin:reset()
     stdin:addcommand(command)
 
-    appendstdout("> " .. command)
+    appendstdout("> " .. command, 'input')
 
     local results = table.pack(pcall(load("return " .. command)))
     if not results[1] then
@@ -230,8 +239,10 @@ function hydra.repl()
 
     -- add each line separately
     for s in string.gmatch(resultstr, "[^\n]+") do
-      appendstdout(s)
+      appendstdout(s, 'result')
     end
+
+    appendstdout("", 'result')
   end
 
   local function runprompt()
