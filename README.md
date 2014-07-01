@@ -6,7 +6,7 @@ Hydra is a lightweight window manager with a powerful API and an extremely small
 
 ### Install
 
-Downloads are in the Releases link above.
+Download from the [Releases](https://github.com/sdegutis/hydra/releases) page.
 
 ### Usage
 
