@@ -144,8 +144,13 @@ function hydra.repl()
 
   win.resized = redraw
 
+  local function appendstdout(line)
+    line = line:gsub("\t", "  ")
+    table.insert(stdout, line)
+  end
+
   local function receivedlog(str)
-    table.insert(stdout, str)
+    appendstdout(str)
     redraw()
   end
 
@@ -160,7 +165,7 @@ function hydra.repl()
     stdin:reset()
     stdin:addcommand(command)
 
-    table.insert(stdout, "> " .. command)
+    appendstdout("> " .. command)
 
     local results = table.pack(pcall(load("return " .. command)))
     if not results[1] then
@@ -180,7 +185,7 @@ function hydra.repl()
 
     -- add each line separately
     for s in string.gmatch(resultstr, "[^\n]+") do
-      table.insert(stdout, s)
+      appendstdout(s)
     end
   end
 
