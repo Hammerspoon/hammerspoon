@@ -83,6 +83,29 @@ int hydra_check_accessibility(lua_State* L) {
     return 1;
 }
 
+static hydradoc doc_hydra_indock = {
+    "hydra", "indock", "hydra.indock() -> bool",
+    "Returns whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab."
+};
+
+int hydra_indock(lua_State* L) {
+    BOOL indock = [[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular;
+    lua_pushboolean(L, indock);
+    return 1;
+}
+
+static hydradoc doc_hydra_putindock = {
+    "hydra", "putindock", "hydra.putindock(bool)",
+    "Sets whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab."
+};
+
+int hydra_putindock(lua_State* L) {
+    BOOL indock = lua_toboolean(L, 1);
+    NSApplicationActivationPolicy policy = indock ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory;
+    [[NSApplication sharedApplication] setActivationPolicy: policy];
+    return 0;
+}
+
 static const luaL_Reg hydralib[] = {
     {"exit", hydra_exit},
     {"showabout", hydra_showabout},
@@ -90,6 +113,8 @@ static const luaL_Reg hydralib[] = {
     {"alert", hydra_alert},
     {"fileexists", hydra_fileexists},
     {"check_accessibility", hydra_check_accessibility},
+    {"indock", hydra_indock},
+    {"putindock", hydra_putindock},
     {NULL, NULL}
 };
 
@@ -101,6 +126,8 @@ int luaopen_hydra(lua_State* L) {
     hydra_add_doc_item(L, &doc_hydra_alert);
     hydra_add_doc_item(L, &doc_hydra_fileexists);
     hydra_add_doc_item(L, &doc_hydra_check_accessibility);
+    hydra_add_doc_item(L, &doc_hydra_indock);
+    hydra_add_doc_item(L, &doc_hydra_putindock);
     
     luaL_newlib(L, hydralib);
     
