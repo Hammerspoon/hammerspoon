@@ -103,6 +103,11 @@ int hydra_putindock(lua_State* L) {
     BOOL indock = lua_toboolean(L, 1);
     NSApplicationActivationPolicy policy = indock ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory;
     [[NSApplication sharedApplication] setActivationPolicy: policy];
+    if (!indock) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSApplication sharedApplication] unhide:nil];
+        });
+    }
     return 0;
 }
 
