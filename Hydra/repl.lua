@@ -89,6 +89,16 @@ function Stdin:historyprev()
   self:usecurrenthistory()
 end
 
+function Stdin:transposechar()
+  if #self.chars < 2 or self.pos == 1 then return end
+  local pos = self.pos
+  if pos > #self.chars then pos = #self.chars end
+
+  local tmp = self.chars[pos-1]
+  self.chars[pos-1] = self.chars[pos]
+  self.chars[pos] = tmp
+end
+
 doc.hydra.repl = {"hydra.repl() -> textgrid", "Opens a readline-like REPL (Read-Eval-Print-Loop) that has full access to Hydra's API; type 'help' for more info."}
 function hydra.repl()
   local win = textgrid.open()
@@ -254,6 +264,11 @@ function hydra.repl()
     ensurecursorvisible()
   end
 
+  local function transposechar()
+    stdin:transposechar()
+    ensurecursorvisible()
+  end
+
   local mods = {
     none  = 0,
     ctrl  = 1,
@@ -283,6 +298,8 @@ function hydra.repl()
     {"e", mods.ctrl, golinelast},
 
     {"k", mods.ctrl, killtoend},
+
+    {"t", mods.ctrl, transposechar},
 
     {"left",  mods.none, gocharbackward},
     {"right", mods.none, gocharforward},
