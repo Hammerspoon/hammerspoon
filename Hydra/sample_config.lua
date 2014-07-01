@@ -4,6 +4,9 @@
 hydra.alert("Hydra sample config loaded", 1.5)
 
 -- open a repl
+--   the repl is a Lua prompt; type "print('hello world')"
+--   when you're in the repl, type "help" to get started
+--   almost all readline functionality works in the repl
 hotkey.bind({"cmd", "ctrl", "alt"}, "R", hydra.repl)
 
 -- save the time when updates are checked
