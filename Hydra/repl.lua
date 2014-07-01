@@ -36,11 +36,18 @@ local function nextwordpos(str, pos)
   return pos
 end
 
+local function prevwordpos(str, pos)
+  local pos = nextwordpos(str:reverse(), str:len() - pos + 2) - 1
+  return str:len() - pos + 1
+end
+
 function Stdin:goword(dir)
   if dir > 0 then
     local pos = nextwordpos(self:tostring(), self.pos)
     self.pos = pos
   else
+    local pos = prevwordpos(self:tostring(), self.pos)
+    self.pos = pos
   end
 end
 
