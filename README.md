@@ -57,8 +57,10 @@ end):enable()
 
 Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/master/mac/.hydra/init.lua):
 
-![grid.lua](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif)
-![dict.lua](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif)
+| Description                                              | Animated Screenshot                                                                       |
+|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| Using hotkeys to move and resize a window along a grid   | ![grid.lua](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
+| Using a hotkey to open Dictionary.app and show an alert  | ![dict.lua](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
 
 ### Principles
 
