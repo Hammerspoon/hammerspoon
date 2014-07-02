@@ -238,7 +238,7 @@ function repl.open(opts)
     local resultstr
     if fn then
       -- parsed okay, execute it
-      results = table.pack(pcall(fn))
+      local results = table.pack(pcall(fn))
 
       local success = results[1]
       table.remove(results, 1)
