@@ -4,6 +4,8 @@
 
 Hydra is a lightweight window manager with a powerful API and an extremely small footprint.
 
+[![Build Status](https://travis-ci.org/sdegutis/hydra.svg?branch=master)](https://travis-ci.org/sdegutis/hydra)
+
 ### Install
 
 Download from [Releases](https://github.com/sdegutis/hydra/releases)
