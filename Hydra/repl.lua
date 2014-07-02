@@ -229,20 +229,29 @@ function repl.open(opts)
 
     appendstdout("> " .. command, 'input')
 
-    local results = table.pack(pcall(load("return " .. command)))
-    if not results[1] then
-      results = table.pack(pcall(load(command)))
+    local fn, errmsg = load("return " .. command)
+    if not fn then
+      -- parsing failed, try without return
+      fn, errmsg = load(command)
     end
 
-    local success = results[1]
-    table.remove(results, 1)
-
     local resultstr
-    if success then
-      for i = 1, results.n - 1 do results[i] = tostring(results[i]) end
-      resultstr = table.concat(results, ", ")
+    if fn then
+      -- parsed okay, execute it
+      results = table.pack(pcall(fn))
+
+      local success = results[1]
+      table.remove(results, 1)
+
+      if success then
+        for i = 1, results.n - 1 do results[i] = tostring(results[i]) end
+        resultstr = table.concat(results, ", ")
+      else
+        resultstr = "error: " .. results[1]
+      end
     else
-      resultstr = "error: " .. results[2]
+      -- no fn, pass syntax error on
+      resultstr = "syntax error: " .. errmsg
     end
 
     -- add each line separately
