@@ -100,6 +100,7 @@ void PHShowAlert(NSString* oneLineMsg, CGFloat duration) {
 
 - (void) useTitleAndResize:(NSString*)title {
     [self window]; // sigh; required in case nib hasnt loaded yet
+    [[self window] setTitle:title];
     
     self.textField.stringValue = title;
     [self.textField sizeToFit];
