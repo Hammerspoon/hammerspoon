@@ -35,14 +35,14 @@
     <div id="module">
       <header>
         <h1><%= group['name'] %></h1>
-        <%= GitHub::Markup.render('.md', group['doc']) %>
+        <%= GitHub::Markdown.render_gfm(group['doc']) %>
       </header>
 
       <% group['items'].sort_by{|i|i['def']}.each do |item| %>
       <section id="<%= item['name'] %>">
         <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
         <code><%= item['def'] %></code>
-        <%= GitHub::Markup.render('.md', item['doc']) %>
+        <%= GitHub::Markdown.render_gfm(item['doc']) %>
       </section>
       <% end %>
     </div>

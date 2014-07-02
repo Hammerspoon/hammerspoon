@@ -1,5 +1,5 @@
-# gem install github-markdown redcarpet
-require 'github/markup'
+# gem install github-markdown
+require 'github/markdown'
 require 'json'
 require 'erb'
 
