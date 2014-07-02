@@ -9,7 +9,7 @@
   <body>
 
     <div id="modules">
-      <h2>Modules</h2>
+      <h2><a href="index.html">index</a></h2>
       <ul>
         <% groups.sort_by{|g|g['name']}.each do |g| %>
         <li><a href="<%= g['name'] %>.html"><%= g['name'] %></a></li>
@@ -31,17 +31,17 @@
     </div>
 
     <div id="module">
-      <h1><%= group['name'] %></h1>
-      <p><%= group['doc'] %></p>
+      <header>
+        <h1><%= group['name'] %></h1>
+        <%= GitHub::Markup.render('.md', group['doc']) %>
+      </header>
 
       <% group['items'].sort_by{|i|i['def']}.each do |item| %>
-
       <section id="<%= item['name'] %>">
         <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
         <code><%= item['def'] %></code>
-        <p><%= item['doc'].gsub("\n", "<br>") %></p>
+        <%= GitHub::Markup.render('.md', item['doc']) %>
       </section>
-
       <% end %>
     </div>
 

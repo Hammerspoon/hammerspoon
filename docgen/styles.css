@@ -73,8 +73,8 @@ body {
     padding-right: 40px;
 }
 
-#module > p {
-    margin-bottom: 50px;
+#module > header {
+    padding-bottom: 50px;
 }
 
 h2 {
