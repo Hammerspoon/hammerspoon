@@ -1,3 +1,2 @@
 language: objective-c
-xcode_project: Hydra.xcodeproj
-xcode_scheme: Hydra
+script: xcodebuild -scheme Hydra
