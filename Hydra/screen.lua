@@ -1,3 +1,13 @@
+doc.screen.__doc = [[
+Manipulate screens (i.e. monitors).
+
+You usually get a screen through a window (see `window.screen`). But you can get screens by themselves through this module, albeit not in any defined/useful order.
+
+Hydra's coordinate system assumes a grid that is the union of every screen's rect (see `screen.frame_including_dock_and_menu`).
+
+Every window's position (i.e. `topleft`) and size are relative to this grid, and they're usually within the grid. A window that's semi-offscreen only intersects the grid.]]
+
+
 doc.screen.frame_including_dock_and_menu = {"screen:frame_including_dock_and_menu() -> rect", "Returns the screen's rect in absolute coordinates, including the dock and menu."}
 function screen:frame_including_dock_and_menu()
   local primary_screen = screen.allscreens()[1]

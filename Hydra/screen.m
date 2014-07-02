@@ -150,7 +150,7 @@ static const luaL_Reg screenlib[] = {
 };
 
 int luaopen_screen(lua_State* L) {
-    hydra_add_doc_group(L, "screen", "Manipulate monitors (aka screens).");
+    hydra_add_doc_group(L, "screen", "(overwritten in screen.lua)");
     hydra_add_doc_item(L, &doc_screen_frame);
     hydra_add_doc_item(L, &doc_screen_visibleframe);
     hydra_add_doc_item(L, &doc_screen_settint);

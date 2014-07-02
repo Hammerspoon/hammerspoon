@@ -1,3 +1,11 @@
+doc.pathwatcher.__doc = [[
+Watch paths recursively for changes.
+
+This simple example watches your Hydra directory for changes, and when it sees a change, reloads your configs:
+
+    pathwatcher.new(os.getenv("HOME") .. "/.hydra/", hydra.reload):start()]]
+
+
 pathwatcher.pathwatchers = {}
 pathwatcher.pathwatchers.n = 0
 

@@ -441,7 +441,7 @@ static const luaL_Reg windowlib[] = {
 };
 
 int luaopen_window(lua_State* L) {
-    hydra_add_doc_group(L, "window", "Functions for managing any window");
+    hydra_add_doc_group(L, "window", "(overwritten in window.lua)");
     hydra_add_doc_item(L, &doc_window_focusedwindow);
     hydra_add_doc_item(L, &doc_window_title);
     hydra_add_doc_item(L, &doc_window_subrole);

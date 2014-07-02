@@ -86,7 +86,13 @@ static const luaL_Reg autolaunchlib[] = {
 };
 
 int luaopen_autolaunch(lua_State* L) {
-    hydra_add_doc_group(L, "autolaunch", "Functions for controlling whether Hydra launches at login.");
+    hydra_add_doc_group(L, "autolaunch",
+                        "Functions for controlling whether Hydra launches at login.\n"
+                        "\n"
+                        "To make sure Hydra launches at login, put this in your config:\n"
+                        "\n"
+                        "    autolaunch.set(true)"
+                        );
     hydra_add_doc_item(L, &doc_autolaunch_get);
     hydra_add_doc_item(L, &doc_autolaunch_set);
     

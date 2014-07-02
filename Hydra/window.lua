@@ -1,3 +1,17 @@
+doc.window.__doc = [[
+Functions for managing any window.
+
+To get windows, see `window.focusedwindow` and `window.visiblewindows`.
+
+To get window geometrical attributes, see `window.{frame,size,topleft}`.
+
+To move and resize windows, see `window.set{frame,size,topleft}`.
+
+It may be handy to get a window's app or screen via `window.application` and `window.screen`.
+
+See the `screen` module for detailed explanation of how Hydra uses window/screen coordinates.]]
+
+
 doc.window.allwindows = {"window.allwindows() -> win[]", "Returns all windows"}
 function window.allwindows()
   return fnutils.mapcat(application.runningapps(), application.allwindows)

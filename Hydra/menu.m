@@ -165,7 +165,19 @@ static const luaL_Reg menulib[] = {
 };
 
 int luaopen_menu(lua_State* L) {
-    hydra_add_doc_group(L, "menu", "Control Hydra's menu-bar icon.");
+    hydra_add_doc_group(L, "menu",
+                        "Control Hydra's menu-bar icon.\n"
+                        "\n"
+                        "Here's a simple example:\n"
+                        "\n"
+                        "    menu.show(function()\n"
+                        "      return {\n"
+                        "        {title = 'About Hydra', fn = hydra.showabout},\n"
+                        "        {title = '-'},\n"
+                        "        {title = 'Quit', fn = os.exit},\n"
+                        "      }\n"
+                        "    end)"
+                        );
     hydra_add_doc_item(L, &doc_menu_show);
     hydra_add_doc_item(L, &doc_menu_hide);
     

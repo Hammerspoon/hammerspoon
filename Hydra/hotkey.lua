@@ -7,7 +7,7 @@ function hotkey.new(mods, key, fn)
   return setmetatable({mods = mods, key = key, fn = fn}, hotkey_metatable)
 end
 
-doc.hotkey.enable = {"hotkey:enable() -> hotkey", "Registers the hotkey's fn as the callback when the user presses key while holding mods."}
+doc.hotkey.enable = {"hotkey:enable() -> self", "Registers the hotkey's fn as the callback when the user presses key while holding mods."}
 function hotkey:enable()
   local uid = hotkey.keys.n + 1
   hotkey.keys.n = uid
