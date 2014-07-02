@@ -11,6 +11,13 @@ function fnutils.map(t, fn)
   return nt
 end
 
+doc.fnutils.each = {"fnutils.each(t, fn) -> t", "Runs fn(el) for every el in t."}
+function fnutils.each(t, fn)
+  for k, v in pairs(t) do
+    fn(v)
+  end
+end
+
 doc.fnutils.filter = {"fnutils.filter(t, fn) -> t", "Returns a table of the elements in t in which fn(el) is truthy."}
 function fnutils.filter(t, fn)
   local nt = {}
