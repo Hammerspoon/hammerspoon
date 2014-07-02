@@ -95,6 +95,6 @@ table th, table td {
     padding: 10px 20px;
 }
 
-#module > header > p {
+p {
     max-width: 600px;
 }
