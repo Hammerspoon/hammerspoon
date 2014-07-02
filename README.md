@@ -55,7 +55,10 @@ end):enable()
 
 ### Screenshots
 
-Coming soon.
+Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/master/mac/.hydra/init.lua):
+
+![grid.lua](https://github.com/sdegutis/hydra/blob/master/screenshots/grid.gif)
+![dict.lua](https://github.com/sdegutis/hydra/blob/master/screenshots/dict.gif)
 
 ### Principles
 
