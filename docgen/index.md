@@ -1,3 +1,14 @@
+### Project links
+
+Resource                 | Link
+-------------------------|------------------------------------------
+Github page              | https://github.com/sdegutis/hydra/
+Hydra API                | http://sdegutis.github.io/hydra/
+Lua API                  | http://www.lua.org/manual/5.2/#functions
+Community Contributions  | https://github.com/sdegutis/hydra/wiki
+Mailing List             | https://groups.google.com/forum/#!forum/hydra-wm
+
+
 ### Some definitions
 
 When we say a function returns a `window` or `hotkey`, we're really
