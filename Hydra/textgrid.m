@@ -229,6 +229,39 @@ static int textgrid_focus(lua_State *L) {
     return 0;
 }
 
+static hydradoc doc_textgrid_sethasborder = {
+    "textgrid", "sethasborder", "textgrid:sethasborder(bool)",
+    "Set whether a textgrid window has a border."
+};
+
+int textgrid_sethasborder(lua_State* L) {
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
+    BOOL hasborder = lua_toboolean(L, 2);
+    
+    NSUInteger mask = [[wc window] styleMask];
+    
+    if (hasborder) mask = mask & NSBorderlessWindowMask;
+    else mask = mask ^ NSBorderlessWindowMask;
+    
+    [[wc window] setStyleMask:mask];
+    
+    return 0;
+}
+
+static hydradoc doc_textgrid_sethasshadow = {
+    "textgrid", "sethasshadow", "textgrid:sethasshadow(bool)",
+    "Set whether a textgrid window has a shadow."
+};
+
+int textgrid_sethasshadow(lua_State* L) {
+    HDTextGridController* wc = get_textgrid_wc(L, 1);
+    BOOL hasshadow = lua_toboolean(L, 2);
+    
+    [[wc window] setHasShadow:hasshadow];
+    
+    return 0;
+}
+
 static int textgrid_gc(lua_State *L) {
     lua_getfield(L, 1, "__wc");
     HDTextGridController* wc = (__bridge_transfer HDTextGridController*)lua_touserdata(L, -1);
@@ -346,6 +379,8 @@ static const luaL_Reg textgridlib[] = {
     {"settitle", textgrid_settitle},
     {"focus", textgrid_focus},
     {"window", textgrid_window},
+    {"sethasshadow", textgrid_sethasshadow},
+    {"sethasborder", textgrid_sethasborder},
     
     {NULL, NULL}
 };
@@ -368,6 +403,8 @@ int luaopen_textgrid(lua_State* L) {
     hydra_add_doc_item(L, &doc_textgrid_settitle);
     hydra_add_doc_item(L, &doc_textgrid_focus);
     hydra_add_doc_item(L, &doc_textgrid_window);
+    hydra_add_doc_item(L, &doc_textgrid_sethasshadow);
+    hydra_add_doc_item(L, &doc_textgrid_sethasborder);
     
     luaL_newlib(L, textgridlib);
     
