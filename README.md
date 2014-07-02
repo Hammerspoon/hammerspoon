@@ -6,31 +6,61 @@ Hydra is a lightweight window manager with a powerful API and an extremely small
 
 ### Install
 
-Download from the [Releases](https://github.com/sdegutis/hydra/releases) page.
+Download from [Releases](https://github.com/sdegutis/hydra/releases)
+page, unzip the downloaded file, and run the app.
 
 ### Usage
 
-Here's a sample of what you might write:
+Hydra will look for `~/.hydra/init.lua` and run it if it exists. But
+if you haven't written one yet, it will run a fallback config that
+gives you a menu bar icon that contains an option to open
+[this sample config](https://github.com/sdegutis/hydra/blob/master/Hydra/sample_config.lua).
+You can paste that into your `~/.hydra/init.lua` to get started with a
+really basic starter config.
+
+### Example
+
+https://github.com/sdegutis/hydra/blob/master/Hydra/sample_config.lua
+
+Here's a snippet:
+-- show a helpful menu
+menu.show(function()
+    local updatetitles = {[true] = "Install Update", [false] = "Check for Update..."}
+    local updatefns = {[true] = updates.install, [false] = checkforupdates}
+    local hasupdate = (updates.newversion ~= nil)
+
+    return {
+      {title = "Reload Config", fn = hydra.reload},
+      {title = "-"},
+      {title = "About", fn = hydra.showabout},
+      {title = updatetitles[hasupdate], fn = updatefns[hasupdate]},
+      {title = "Quit Hydra", fn = os.exit},
+    }
+end)
 
 ~~~lua
-hydra.alert("Hydra started!")
-
-hotkey.bind({"cmd"}, "E", function()
+-- move the window to the right a bit, and make it a little shorter
+hotkey.new({"cmd", "ctrl", "alt"}, "J", function()
     local win = window.focusedwindow()
     local frame = win:frame()
     frame.x = frame.x + 10
     frame.h = frame.h - 10
     win:setframe(frame)
-end)
+end):enable()
 ~~~
 
-Anyway, when you run the app, it'll give you a better sample config.
+### Screenshots
+
+It doesn't really make sense to show screenshots. Most of what you do
+is bind global hotkeys to functions that you write which move your
+windows around on your screen. So a screenshot would look like, well,
+a normal screen.
 
 ### Resources
 
 Resource                 | Link
 -------------------------|------------------------------------------
-Documentation            | http://sdegutis.github.io/hydra/
+Hydra API                | http://sdegutis.github.io/hydra/
 Lua API                  | http://www.lua.org/manual/5.2/#functions
 Community Contributions  | https://github.com/sdegutis/hydra/wiki
 
