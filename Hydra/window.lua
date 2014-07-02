@@ -42,6 +42,25 @@ function window.visiblewindows()
   return fnutils.filter(window:allwindows(), window.isvisible)
 end
 
+doc.window.orderedwindows = {"window.orderedwindows() -> win[]", "Returns all visible windows, ordered from front to back."}
+function window.orderedwindows()
+  local orderedwins = {}
+  local orderedwinids = window._orderedwinids()
+  local windows = window.visiblewindows()
+  fnutils.each(windows, function(win) win:_cachewinid() end)
+
+  for _, orderedwinid in pairs(orderedwinids) do
+    for _, win in pairs(windows) do
+      if orderedwinid == win._winid then
+        table.insert(orderedwins, win)
+        break
+      end
+    end
+  end
+
+  return orderedwins
+end
+
 doc.window.maximize = {"window:maximize()", "Make this window fill the whole screen its on, without covering the dock or menu."}
 function window:maximize()
   local screenrect = self:screen():frame_without_dock_or_menu()

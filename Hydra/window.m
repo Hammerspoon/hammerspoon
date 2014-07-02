@@ -380,76 +380,46 @@ int window_becomemain(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_window_visible_windows_sorted_by_recency = {
-    "window", "visible_windows_sorted_by_recency", "window.visible_windows_sorted_by_recency() -> win[]",
-    "Experimental."
-};
-
-// XXX: undocumented API.  We need this to match dictionary entries returned by CGWindowListCopyWindowInfo (which
-// appears to be the *only* way to get a list of all windows on the system in "most-recently-used first" order) against
-// AXUIElementRef's returned by AXUIElementCopyAttributeValues
-AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
-
-// args: []
-// ret: [wins]
-int window_visible_windows_sorted_by_recency(lua_State* L) {
+int window__orderedwinids(lua_State* L) {
     lua_newtable(L);
     
-    int i = 0;
+    CFArrayRef wins = CGWindowListCreate(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
     
-    // This gets windows sorted by most-recently-used criteria.  The
-    // first one will be the active window.
-    CFArrayRef visible_win_info = CGWindowListCopyWindowInfo(
-                                                             kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements,
-                                                             kCGNullWindowID);
-
-    // But we only got some dictionaries containing info.  Need to get
-    // the actual AXUIMyHeadHurts for each of them and create SDWindow-s.
-    for (NSMutableDictionary* entry in (__bridge NSArray*)visible_win_info) {
-        // Tricky...  for Google Chrome we get one hidden window for
-        // each visible window, so we need to check alpha > 0.
-        int alpha = [[entry objectForKey:(id)kCGWindowAlpha] intValue];
-        int layer = [[entry objectForKey:(id)kCGWindowLayer] intValue];
-
-        if (layer == 0 && alpha > 0) {
-            CGWindowID win_id = [[entry objectForKey:(id)kCGWindowNumber] intValue];
-
-            // some AXUIElementCreateByWindowNumber would be soooo nice.  but nope, we have to take the pain below.
-
-            int pid = [[entry objectForKey:(id)kCGWindowOwnerPID] intValue];
-            AXUIElementRef app = AXUIElementCreateApplication(pid);
-            CFArrayRef appwindows;
-            AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, 1000, &appwindows);
-            if (appwindows) {
-                // looks like appwindows can be NULL when this function is called during the
-                // switch-workspaces animation
-                for (id w in (__bridge NSArray*)appwindows) {
-                    AXUIElementRef win = (__bridge AXUIElementRef)w;
-                    CGWindowID tmp;
-                    _AXUIElementGetWindow(win, &tmp); //XXX: undocumented API.  but the alternative is horrifying.
-                    if (tmp == win_id) {
-                        // finally got it, insert in the result array.
-                        
-                        CFRetain(win);
-                        
-                        new_window(L, win);
-                        lua_rawseti(L, -2, i++);
-                        break;
-                    }
-                }
-                CFRelease(appwindows);
-            }
-            CFRelease(app);
-        }
+    for (int i = 0; i < CFArrayGetCount(wins); i++) {
+        int winid = (int)CFArrayGetValueAtIndex(wins, i);
+        
+        lua_pushnumber(L, winid);
+        lua_rawseti(L, -2, i+1);
     }
-    CFRelease(visible_win_info);
     
+    CFRelease(wins);
+    
+    return 1;
+}
+
+// caches _winid if possible, returns boolean of whether it now has one
+int window__cachewinid(lua_State* L) {
+    lua_getfield(L, 1, "_winid");
+    if (lua_isnumber(L, -1)) {
+        lua_pushboolean(L, YES);
+        return 1;
+    }
+    
+    CGWindowID winid;
+    AXUIElementRef win = axref_for_window(L, 1);
+    AXError err = _AXUIElementGetWindow(win, &winid);
+    if (!err) {
+        lua_pushnumber(L, winid);
+        lua_setfield(L, 1, "_winid");
+    }
+    
+    lua_pushboolean(L, (err == noErr));
     return 1;
 }
 
 static const luaL_Reg windowlib[] = {
     {"focusedwindow", window_focusedwindow},
-    {"visible_windows_sorted_by_recency", window_visible_windows_sorted_by_recency},
+    {"_orderedwinids", window__orderedwinids},
     
     {"title", window_title},
     {"subrole", window_subrole},
@@ -465,6 +435,7 @@ static const luaL_Reg windowlib[] = {
     {"pid", window_pid},
     {"application", window_application},
     {"becomemain", window_becomemain},
+    {"_cachewinid", window__cachewinid},
     
     {NULL, NULL}
 };
@@ -485,7 +456,6 @@ int luaopen_window(lua_State* L) {
     hydra_add_doc_item(L, &doc_window_isminimized);
     hydra_add_doc_item(L, &doc_window_application);
     hydra_add_doc_item(L, &doc_window_becomemain);
-    hydra_add_doc_item(L, &doc_window_visible_windows_sorted_by_recency);
     
     luaL_newlib(L, windowlib);
     
