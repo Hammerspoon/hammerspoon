@@ -59,8 +59,9 @@ Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob
 
 | Description                                              | Animated Screenshot                                                                       |
 |----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| Using hotkeys to move and resize a window along a grid   | ![grid.lua](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
-| Using a hotkey to open Dictionary.app and show an alert  | ![dict.lua](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
+| Using hotkeys to move and resize a window along a grid   | ![grid.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
+| Using a hotkey to open Dictionary.app and show an alert  | ![dict.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
+| Using the built-in REPL                                  | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
 
 ### Principles
 
