@@ -55,10 +55,25 @@ end):enable()
 
 ### Screenshots
 
-It doesn't really make sense to show screenshots. Most of what you do
-is bind global hotkeys to functions that you write which move your
-windows around on your screen. So a screenshot would look like, well,
-a normal screen.
+Coming soon.
+
+### Principles
+
+First and foremost, Hydra must be stable. It should never crash. You
+should only ever have to launch it once, and it should stay running
+into you quit it (or your compute restarts). No exceptions to this.
+
+Secondly, Hydra must be lightweight. It should never do anything that
+drains your computer's battery. It should never poll for anything. And
+it should practically never use more than 10 MB of memory.
+
+Thirdly, its API should be completely transparent. There should be no
+surprises in how it's behaving, or what's being executed and when. It
+should be fully predictable.
+
+Finally, the API must not be bloated. Nothing should be put into it
+except what's impossible or impractical to do in pure Lua, and what's
+extremely common and likely to be used in everyone's configs.
 
 ### Resources
 
