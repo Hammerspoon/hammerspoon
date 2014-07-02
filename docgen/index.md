@@ -86,5 +86,6 @@ Check out the sample configs to see many of these modules in action.
 
 ### Third party modules
 
-- The wiki is the definitive location for third party modules.
-- Third party modules are encouraged to reside under `ext`.
+The wiki is the definitive location for third party modules.
+
+Third party modules are encouraged to reside under `ext`.
