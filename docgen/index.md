@@ -10,6 +10,14 @@ Mailing List             | https://groups.google.com/forum/#!forum/hydra-wm
 IRC channel              | #hydrawm on freenode
 
 
+### Sample config
+
+Take a look through
+https://github.com/sdegutis/hydra/blob/master/Hydra/sample_config.lua
+to see a real-world example of a Hydra config. This is the same config
+that Hydra presents at your first launch as one you might want to try
+starting with.
+
 ### Some definitions
 
 When we say a function returns a `window` or `hotkey`, we're really
