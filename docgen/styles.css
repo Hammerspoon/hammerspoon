@@ -89,3 +89,8 @@ section:last-child {
 section:target {
     background-color: #F3F3DE;
 }
+
+table th, table td {
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+}
