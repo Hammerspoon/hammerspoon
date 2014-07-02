@@ -18,6 +18,8 @@ gives you a menu bar icon that contains an option to open
 You can paste that into your `~/.hydra/init.lua` to get started with a
 really basic starter config.
 
+The full documentation is linked under the "Resources" section below.
+
 ### Example
 
 https://github.com/sdegutis/hydra/blob/master/Hydra/sample_config.lua
@@ -60,7 +62,7 @@ a normal screen.
 
 Resource                 | Link
 -------------------------|------------------------------------------
-Hydra API                | http://sdegutis.github.io/hydra/
+Hydra Documentation      | http://sdegutis.github.io/hydra/
 Lua API                  | http://www.lua.org/manual/5.2/#functions
 Community Contributions  | https://github.com/sdegutis/hydra/wiki
 Mailing List             | https://groups.google.com/forum/#!forum/hydra-wm

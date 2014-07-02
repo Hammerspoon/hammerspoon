@@ -10,13 +10,11 @@ Mailing List             | https://groups.google.com/forum/#!forum/hydra-wm
 IRC channel              | #hydrawm on freenode
 
 
-### Sample config
-
-Take a look through [the official sample config](https://github.com/sdegutis/hydra/blob/master/Hydra/sample_config.lua) to see a real-world example of a Hydra config. This is the same config that Hydra presents at your first launch as one you might want to try starting with.
-
 ### Some definitions
 
-When we say a function returns a `window` or `hotkey`, we're really talking about a Lua table that represents these things. You're free to set any keys on it that you please. The only rule is that Hydra is free to store keys on them that start with an underscore for its internals, so don't use an underscore.
+Your "config" means your `~/.hydra/init.lua` file, and more generally anything it does. The directory `~/.hydra/` is automatically on your require-path, so you can require other files with `require` or the helpful functions in the `hydra` module.
+
+When we say a function returns a `window` or `hotkey` or basically any non-Lua type, we really mean it returns a Lua table that represents these things. You're free to set any keys on it that you please. The only rule is that Hydra is free to store keys on them that start with an underscore for its internals, so avoid using an underscore in your key names.
 
 Much of the Hydra API takes a few geometrical types, like `point`, `size`, and `rect`. These are just tables. Points have keys x and y, sizes have keys w and h, and rects have all four keys. So you could use a rect where a point or size is needed if you wanted.
 
@@ -55,6 +53,11 @@ If you want to read a scrollback of your errors, the `logger` module stores all 
 You probably won't ever need to touch the `json`, but it's there in case you need to. Hydra's internals use it for its documentation system.
 
 Check out the sample configs to see many of these modules in action.
+
+
+### Sample config
+
+Take a look through [the official sample config](https://github.com/sdegutis/hydra/blob/master/Hydra/sample_config.lua) to see a real-world example of a Hydra config. This is the same config that Hydra presents at your first launch as one you might want to try starting with.
 
 
 ### Third party modules
