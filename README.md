@@ -23,6 +23,7 @@ really basic starter config.
 https://github.com/sdegutis/hydra/blob/master/Hydra/sample_config.lua
 
 Here's a snippet:
+~~~lua
 -- show a helpful menu
 menu.show(function()
     local updatetitles = {[true] = "Install Update", [false] = "Check for Update..."}
@@ -38,7 +39,6 @@ menu.show(function()
     }
 end)
 
-~~~lua
 -- move the window to the right a bit, and make it a little shorter
 hotkey.new({"cmd", "ctrl", "alt"}, "J", function()
     local win = window.focusedwindow()
