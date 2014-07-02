@@ -144,12 +144,12 @@ int webview_setlevel(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_webview_setborderless = {
-    "webview", "setborderless", "webview:setborderless(bool)",
+static hydradoc doc_webview_sethasborder = {
+    "webview", "sethasborder", "webview:sethasborder(bool)",
     "Set whether a webview window has a border."
 };
 
-int webview_setborderless(lua_State* L) {
+int webview_sethasborder(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     BOOL hasborder = lua_toboolean(L, 2);
     
@@ -236,7 +236,7 @@ static const luaL_Reg webviewlib[] = {
     {"_open", webview_open},
     {"settitle", webview_settitle},
     {"setlevel", webview_setlevel},
-    {"setborderless", webview_setborderless},
+    {"sethasborder", webview_sethasborder},
     {"sethasshadow", webview_sethasshadow},
     {"loadstring", webview_loadstring},
     {"loadurl", webview_loadurl},
@@ -249,7 +249,7 @@ int luaopen_webview(lua_State* L) {
     hydra_add_doc_group(L, "webview", "For showing stuff in web views!");
     hydra_add_doc_item(L, &doc_webview_settitle);
     hydra_add_doc_item(L, &doc_webview_setlevel);
-    hydra_add_doc_item(L, &doc_webview_setborderless);
+    hydra_add_doc_item(L, &doc_webview_sethasborder);
     hydra_add_doc_item(L, &doc_webview_sethasshadow);
     hydra_add_doc_item(L, &doc_webview_loadstring);
     hydra_add_doc_item(L, &doc_webview_loadurl);
