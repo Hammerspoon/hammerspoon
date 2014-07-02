@@ -57,8 +57,8 @@ end):enable()
 
 Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/master/mac/.hydra/init.lua):
 
-![grid.lua](https://github.com/sdegutis/hydra/blob/master/screenshots/grid.gif)
-![dict.lua](https://github.com/sdegutis/hydra/blob/master/screenshots/dict.gif)
+![grid.lua](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif)
+![dict.lua](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif)
 
 ### Principles
 
