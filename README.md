@@ -79,9 +79,9 @@ Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob
 
 | Description                                                                                                                                     | Animated Screenshot                                                                       |
 |-------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| Using hotkeys to move and resize a window along a grid [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L42-L49)   | ![grid.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
-| Using a hotkey to open Dictionary.app and show an alert [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L19-L24)  | ![dict.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
-| Using the built-in REPL [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L52)                                      | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
+| Using hotkeys to move and resize a window along a grid [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L43-L50)   | ![grid.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
+| Using a hotkey to open Dictionary.app and show an alert [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L20-L25)  | ![dict.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
+| Using the built-in REPL [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L53)                                      | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
 
 ### Principles
 
