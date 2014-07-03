@@ -14,7 +14,7 @@ page, unzip the downloaded file, and run the app.
 Feel free to install the current pre-release (beta6). It's basically
 the version that's going to be released once we get the icon (see
 issue #1), since I haven't found any bugs yet and there are no other
-open issues. And if you run `update.check()`, you'll get notified
+open issues. And if you run `updates.check()`, you'll get notified
 when 1.0 is released. So go for it!
 
 ### Usage
@@ -145,7 +145,7 @@ productivity enhancement suite to keep and use long-term.
 
 ##### Hydra's API is missing such-and-such feature!
 
-Hey, that's not really a question ;) We're open to feature requests,
+Hey, that's not really a question ;) I'm open to feature requests,
 just file an issue! (But chances are it will probably be marked a
 duplicate.)
 
