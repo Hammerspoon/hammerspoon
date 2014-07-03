@@ -55,7 +55,7 @@ end):enable()
 
 ### Screenshots
 
-Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/master/mac/.hydra/init.lua):
+Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua):
 
 | Description                                              | Animated Screenshot                                                                       |
 |----------------------------------------------------------|-------------------------------------------------------------------------------------------|
