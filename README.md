@@ -11,6 +11,12 @@ Hydra is a lightweight window manager with a powerful API and an extremely small
 Download from [Releases](https://github.com/sdegutis/hydra/releases)
 page, unzip the downloaded file, and run the app.
 
+Feel free to install the current pre-release (beta4). It's basically
+the version that's going to be released once we get the icon (see
+issue #1), since I haven't found any bugs yet and there are no other
+open issues. And if you run `update.check()`, you'll get notified
+when 1.0 is released. So go for it!
+
 ### Usage
 
 Hydra will look for `~/.hydra/init.lua` and run it if it exists. But
