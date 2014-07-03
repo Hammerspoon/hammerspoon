@@ -11,7 +11,7 @@ Hydra is a lightweight window manager with a powerful API and an extremely small
 Download from [Releases](https://github.com/sdegutis/hydra/releases)
 page, unzip the downloaded file, and run the app.
 
-Feel free to install the current pre-release (beta5). It's basically
+Feel free to install the current pre-release (beta6). It's basically
 the version that's going to be released once we get the icon (see
 issue #1), since I haven't found any bugs yet and there are no other
 open issues. And if you run `update.check()`, you'll get notified
