@@ -59,6 +59,20 @@ hotkey.new({"cmd", "ctrl", "alt"}, "J", function()
 end):enable()
 ~~~
 
+Here's how you would push a window to the left side of the screen:
+
+~~~lua
+function movewindow_rightside()
+  local win = window.focusedwindow()
+  local newframe = win:screen():frame_without_dock_or_menu()
+  newframe.w = newframe.w / 2
+  -- newframe.x = newframe.w -- uncomment this line to push it to left side of screen
+  win:setframe(newframe)
+end
+
+hotkey.bind({"cmd", "ctrl", "alt"}, "L", movewindow_rightside)
+~~~
+
 ### Screenshots
 
 Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua):
