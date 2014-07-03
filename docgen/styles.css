@@ -23,6 +23,7 @@ body {
     width: 200px;
     height: 100%;
     background-color: #1570A6;
+    overflow-y: scroll;
 }
 
 #modules ul {
