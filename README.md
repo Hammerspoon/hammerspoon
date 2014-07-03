@@ -63,11 +63,11 @@ end):enable()
 
 Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua):
 
-| Description                                              | Animated Screenshot                                                                       |
-|----------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| Using hotkeys to move and resize a window along a grid   | ![grid.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
-| Using a hotkey to open Dictionary.app and show an alert  | ![dict.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
-| Using the built-in REPL                                  | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
+| Description                                                                                                                            | Animated Screenshot                                                                       |
+|----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| Using hotkeys to [move and resize a window along a grid](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L42-L49)   | ![grid.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
+| Using a hotkey to [open Dictionary.app and show an alert](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L19-L24)  | ![dict.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
+| Using [the built-in REPL](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L52)                                      | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
 
 ### Principles
 
