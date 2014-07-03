@@ -5,5 +5,5 @@ end
 
 doc.application.launchorfocus = {"application.launchorfocus(name)", "Launches the app with the given name, or activates it if it's already running."}
 function application.launchorfocus(name)
-  os.execute("open -a " .. name)
+  os.execute("open -a \"" .. name .. "\"")
 end
