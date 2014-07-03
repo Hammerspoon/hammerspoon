@@ -122,6 +122,30 @@ donate what you believe would have been a fair price for a license:
 
 [Donate via PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation)
 
+### FAQ
+
+##### How does Hydra compare to Slate, Zephyros, or Phoenix?
+
+Hydra aims to be very modular. Even the menu bar icon is a module you
+can customize very flexibly or skip altogether. Non-essential features
+are left up to third party extensions (see the github wiki for the
+official list).
+
+Hydra is written in Lua to stay lightweight, rather than interpreting
+JavaScript in a hidden WebView or being scripted over a TCP socket. It
+is very conscious of system resources, having an explicit goal to
+always be lightweight.
+
+Hydra's authors are open to any feature requests, just file an issue!
+(Chances are it will probably be marked a duplicate.)
+
+##### How does Hydra compare to Moom, SizeUp, Divvy, etc?
+
+Hydra is intended for programmers who want to write programs that
+customize their environment. It's not intended to be a quick-and-easy
+solution, it's meant to allow you to write your own very personalized
+productivity enhancement suite to keep and use long-term.
+
 ### License
 
 > Released under MIT license.
