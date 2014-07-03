@@ -24,6 +24,13 @@ Much of the Hydra API takes a few geometrical types, like `point`, `size`, and `
 First and foremost is the `repl` module, which is great for exploring and experimenting with Hydra's API. It's very similar to the terminal, having readline-like functionality built-in.
 
 
+### A note about modularization
+
+If you only have `~/.hydra/init.lua`, you can skip this section. But if you want to extract code into new files under `~/.hydra/` or put extensions there, there's a bit you should know first:
+
+You can use Lua's built-in `require` function to require files under `~/.hydra/`. But `require` has a caching mechanism! Don't use this if you're actively developing an extension, or if you're just splitting your `init.lua` file into multiple files. *It won't reload after the first time!* Instead, use the `hydra.douserfile` function. It combines the built-in `dofile` Lua function with `hydra.userfile` to find a file in `~/.hydra/` and run it with no caching behavior.
+
+
 ### Where to begin
 
 Since this is primarily a window manager, you'll probably want to look at the `window` and `hotkey` modules first. Even using just these two modules, you could make a very useful config.
