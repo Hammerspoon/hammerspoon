@@ -77,7 +77,8 @@ until you quit it (or your computer restarts). No exceptions to this.
 
 Secondly, Hydra must be lightweight. It should never do anything that
 drains your computer's battery. It should never poll for anything. And
-it should practically never use more than 10 MB of memory.
+it should practically never use more than 10 MB of memory. Everything
+it does should feel instant and snappy, never sluggish or delayed.
 
 Thirdly, its API should be completely transparent. There should be no
 surprises in how it's behaving, or what's being executed and when. It
