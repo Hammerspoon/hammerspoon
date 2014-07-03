@@ -136,15 +136,19 @@ JavaScript in a hidden WebView or being scripted over a TCP socket. It
 is very conscious of system resources, having an explicit goal to
 always be lightweight.
 
-Hydra's authors are open to any feature requests, just file an issue!
-(Chances are it will probably be marked a duplicate.)
-
 ##### How does Hydra compare to Moom, SizeUp, Divvy, etc?
 
 Hydra is intended for programmers who want to write programs that
 customize their environment. It's not intended to be a quick-and-easy
 solution, it's meant to allow you to write your own very personalized
 productivity enhancement suite to keep and use long-term.
+
+##### Hydra's API is missing such-and-such feature!
+
+Hey, that's not really a question ;) We're open to feature requests,
+just file an issue! (But chances are it will probably be marked a
+duplicate.)
+
 
 ### License
 
