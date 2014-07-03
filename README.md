@@ -73,7 +73,7 @@ Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob
 
 First and foremost, Hydra must be stable. It should never crash. You
 should only ever have to launch it once, and it should stay running
-into you quit it (or your compute restarts). No exceptions to this.
+until you quit it (or your computer restarts). No exceptions to this.
 
 Secondly, Hydra must be lightweight. It should never do anything that
 drains your computer's battery. It should never poll for anything. And
