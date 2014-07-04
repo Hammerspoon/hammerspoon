@@ -14,7 +14,7 @@ See the `screen` module for detailed explanation of how Hydra uses window/screen
 
 doc.window.allwindows = {"window.allwindows() -> win[]", "Returns all windows"}
 function window.allwindows()
-  return fnutils.mapcat(application.runningapps(), application.allwindows)
+  return fnutils.mapcat(application.runningapplications(), application.allwindows)
 end
 
 doc.window.isvisible = {"window:isvisible() -> bool", "True if the app is not hidden or minimized."}
