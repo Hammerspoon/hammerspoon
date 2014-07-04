@@ -16,11 +16,6 @@ function hydra.douserfile(name)
   end
 end
 
-local function load_default_config()
-  local fallbackinit = dofile(hydra.resourcesdir .. "/fallback_init.lua")
-  fallbackinit.run()
-end
-
 local function clear_old_state()
   hotkey.disableall()
   menu.hide()
@@ -30,18 +25,28 @@ local function clear_old_state()
   notify.unregisterall()
 end
 
+local function load_default_config()
+  clear_old_state()
+  local fallbackinit = dofile(hydra.resourcesdir .. "/fallback_init.lua")
+  fallbackinit.run()
+end
+
 doc.hydra.reload = {"hydra.reload()", "Reloads your init-file. Makes sure to clear any state that makes sense to clear (hotkeys, pathwatchers, etc)."}
 function hydra.reload()
-  clear_old_state()
-
   local userfile = os.getenv("HOME") .. "/.hydra/init.lua"
   local exists, isdir = hydra.fileexists(userfile)
 
   if exists and not isdir then
-    local ok, err = pcall(function() dofile(userfile) end)
-    if not ok then
-      notify.show("Hydra config error", "", tostring(err) .. " -- Falling back to sample config.", "")
-      load_default_config()
+    local fn, err = loadfile(userfile)
+    if fn then
+      clear_old_state()
+      local ok, err = pcall(fn)
+      if not ok then
+        notify.show("Hydra config runtime error", "", tostring(err) .. " -- Falling back to sample config.", "")
+        load_default_config()
+      end
+    else
+      notify.show("Hydra config syntax error", "", tostring(err) .. " -- Doing nothing.", "")
     end
   else
     -- don't say (via alert) anything more than what the default config already says
