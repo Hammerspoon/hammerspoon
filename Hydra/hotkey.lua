@@ -37,7 +37,7 @@ function hotkey:disable()
   return self:_disable()
 end
 
-doc.hotkey.bind = {"hotkey.bind(...) -> hotkey", "Shortcut for: return hotkey.new(...):enable()"}
+doc.hotkey.bind = {"hotkey.bind(mods, key, fn) -> hotkey", "Shortcut for: return hotkey.new(mods, key, fn):enable()"}
 function hotkey.bind(...)
   return hotkey.new(...):enable()
 end
