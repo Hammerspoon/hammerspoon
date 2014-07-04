@@ -382,6 +382,9 @@ function repl.open(opts)
     {"p", mods.ctrl, historyprev},
     {"n", mods.ctrl, historynext},
 
+    {"up",   mods.none, historyprev},
+    {"down", mods.none, historynext},
+
     {"b", mods.ctrl, gocharbackward},
     {"f", mods.ctrl, gocharforward},
 
