@@ -35,7 +35,7 @@ function movewindow_righthalf()
   local win = window.focusedwindow()
   local newframe = win:screen():frame_without_dock_or_menu()
   newframe.w = newframe.w / 2
-  -- newframe.x = newframe.w -- uncomment this line to push it to left side of screen
+  newframe.x = newframe.w -- comment this line to push it to left half of screen
   win:setframe(newframe)
 end
 
