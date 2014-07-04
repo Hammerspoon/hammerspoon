@@ -1,25 +1,14 @@
 #import "helpers.h"
 
-static hydradoc doc_updates_check = {
-    "updates", "check", "updates.check()",
-    "Checks for an update. If one is available, calls updates.available(true); otherwise calls updates.available(false)."
+static hydradoc doc_updates_getversions = {
+    "updates", "getversions", "updates.getversions(fn(versions))",
+    "Low-level function to get list of available Hydra versions; used by updates.check; you probably want to use updates.check instead of using this directly."
 };
 
 static NSString* updates_url = @"https://api.github.com/repos/sdegutis/hydra/releases";
 
-static int updatesref;
-
-int updates_check(lua_State* L) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, updatesref);
-    lua_getfield(L, -1, "available");
-    
-    if (!lua_isfunction(L, -1)) {
-        lua_pop(L, 2);
-        return 0;
-    }
-    
-    int fnindex = luaL_ref(L, LUA_REGISTRYINDEX);
-    lua_pop(L, 1);
+int updates_getversions(lua_State* L) {
+    int fnref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     NSURL* url = [NSURL URLWithString:updates_url];
     NSURLRequest* req = [NSURLRequest requestWithURL:url];
@@ -27,8 +16,8 @@ int updates_check(lua_State* L) {
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
      {
-         lua_rawgeti(L, LUA_REGISTRYINDEX, fnindex);
-         luaL_unref(L, LUA_REGISTRYINDEX, fnindex);
+         lua_rawgeti(L, LUA_REGISTRYINDEX, fnref);
+         luaL_unref(L, LUA_REGISTRYINDEX, fnref);
          
          if ([(NSHTTPURLResponse*)response statusCode] != 200) {
              printf("checked for update but github's api seems broken\n");
@@ -38,16 +27,15 @@ int updates_check(lua_State* L) {
          
          NSArray* releases = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
          
-         int full_releases = 0;
+         lua_newtable(L);
+         int i = 0;
+         
          for (NSDictionary* release in releases) {
-             NSNumber* prerelease = [release objectForKey:@"prerelease"];
-             if ([prerelease boolValue] == NO)
-                 full_releases++;
+             NSString* tag_name = [release objectForKey:@"tag_name"];
+             lua_pushstring(L, [tag_name UTF8String]);
+             lua_rawseti(L, -2, ++i);
          }
          
-         BOOL updateAvailable = (full_releases > 0);
-         
-         lua_pushboolean(L, updateAvailable);
          if (lua_pcall(L, 1, 0, 0))
              hydra_handle_error(L);
      }];
@@ -55,19 +43,27 @@ int updates_check(lua_State* L) {
     return 0;
 }
 
+static hydradoc doc_updates_currentversion = {
+    "updates", "currentversion", "updates.currentversion() -> string",
+    "Low-level function to get current Hydra version; used by updates.check; you probably want to use updates.check instead of using this directly."
+};
+
+int updates_currentversion(lua_State* L) {
+    lua_pushstring(L, [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] UTF8String]);
+    return 1;
+}
+
 static const luaL_Reg updateslib[] = {
-    {"check", updates_check},
+    {"getversions", updates_getversions},
+    {"currentversion", updates_currentversion},
     {NULL, NULL}
 };
 
 int luaopen_updates(lua_State* L) {
     hydra_add_doc_group(L, "updates", "Check for and install Hydra updates.");
-    hydra_add_doc_item(L, &doc_updates_check);
+    hydra_add_doc_item(L, &doc_updates_getversions);
+    hydra_add_doc_item(L, &doc_updates_currentversion);
     
     luaL_newlib(L, updateslib);
-    
-    lua_pushvalue(L, -1);
-    updatesref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
     return 1;
 }
