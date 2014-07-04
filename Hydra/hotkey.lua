@@ -1,7 +1,18 @@
+doc.hotkey.__doc = [[
+Create and manage global hotkeys.
+
+The `mods` field is case-insensitive and may any of the following strings: "cmd", "ctrl", "alt", or "shift".
+
+The `key` field is case-insensitive and may be any single-character string; it may also be any of the following strings:
+
+F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20
+PAD, PAD*, PAD+, PAD/, PAD-, PAD=, PAD0, PAD1, PAD2, PAD3, PAD4, PAD5, PAD6, PAD7, PAD8, PAD9, PAD_CLEAR, PAD_ENTER
+RETURN, TAB, SPACE, DELETE, ESCAPE, HELP, HOME, PAGE_UP, FORWARD_DELETE, END, PAGE_DOWN, LEFT, RIGHT, DOWN, UP]]
+
 hotkey.keys = {}
 hotkey.keys.n = 0
 
-doc.hotkey.new = {"hotkey.new(mods, key, fn) -> hotkey", "Creates a new hotkey that can be enabled. Mods is a table containing any of the elements {cmd, ctrl, alt, shift}. Key may be any 1-character string, or 'F1', 'Enter', etc. Both are case-insensitive. The hotkey has the public fields: key, mods, fn."}
+doc.hotkey.new = {"hotkey.new(mods, key, fn) -> hotkey", "Creates a new hotkey that can be enabled. The hotkey has the public fields: key, mods, fn."}
 local hotkey_metatable = {__index = hotkey}
 function hotkey.new(mods, key, fn)
   return setmetatable({mods = mods, key = key, fn = fn}, hotkey_metatable)
