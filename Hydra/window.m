@@ -288,6 +288,30 @@ int window_setsize(lua_State* L) {
     return 0;
 }
 
+static hydradoc doc_window_close = {
+    "window", "close", "window:close() -> bool",
+    "Closes the window; returns whether it succeeded."
+};
+
+int window_close(lua_State* L) {
+    lua_getfield(L, 1, "__win");
+    AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
+    
+    BOOL worked = NO;
+    AXUIElementRef button = NULL;
+    
+    if (AXUIElementCopyAttributeValue(win, kAXCloseButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
+    if (AXUIElementPerformAction(button, kAXPressAction) != noErr) goto cleanup;
+    
+    worked = YES;
+    
+cleanup:
+    if (button) CFRelease(button);
+    
+    lua_pushboolean(L, worked);
+    return 1;
+}
+
 static void set_window_minimized(AXUIElementRef win, NSNumber* minimized) {
     set_window_prop(win, NSAccessibilityMinimizedAttribute, minimized);
 }
@@ -440,6 +464,7 @@ static const luaL_Reg windowlib[] = {
     {"application", window_application},
     {"becomemain", window_becomemain},
     {"id", window_id},
+    {"close", window_close},
     
     {NULL, NULL}
 };
@@ -461,6 +486,7 @@ int luaopen_window(lua_State* L) {
     hydra_add_doc_item(L, &doc_window_application);
     hydra_add_doc_item(L, &doc_window_becomemain);
     hydra_add_doc_item(L, &doc_window_id);
+    hydra_add_doc_item(L, &doc_window_close);
     
     luaL_newlib(L, windowlib);
     
