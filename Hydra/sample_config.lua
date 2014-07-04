@@ -76,7 +76,14 @@ end
 -- donate what you believe would have been a fair price for a license:
 
 local function donate()
+  -- Donate via PayPal (default)
   os.execute("open 'https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation'")
+
+  -- Donate via Gittip (inherently recurring)
+  -- os.execute("open https://www.gittip.com/sdegutis/")
+
+  -- Donate via Bitcoin: 18LEhURYNgkC9PPdtdXShDoyaHXGaLENe7
+  -- hydra.alert("Bitcoin address: 18LEhURYNgkC9PPdtdXShDoyaHXGaLENe7")
 end
 
 hotkey.bind({"cmd", "alt", "ctrl"}, "D", donate)
