@@ -2,6 +2,22 @@
 void new_window(lua_State* L, AXUIElementRef win);
 
 
+static AXUIElementRef axref_for_app(lua_State* L, int idx) {
+    lua_getfield(L, idx, "pid");
+    AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+    return app;
+}
+
+
+static NSRunningApplication* nsobject_for_app(lua_State* L, int idx) {
+    lua_getfield(L, idx, "pid");
+    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
+    lua_pop(L, 1);
+    return app;
+}
+
+
 static int application_eq(lua_State* L) {
     lua_getfield(L, 1, "pid");
     lua_getfield(L, 2, "pid");
@@ -83,8 +99,7 @@ static hydradoc doc_application_allwindows = {
 };
 
 static int application_allwindows(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
+    AXUIElementRef app = axref_for_app(L, 1);
     
     lua_newtable(L);
     
@@ -112,8 +127,7 @@ static hydradoc doc_application_activate = {
 };
 
 static int application_activate(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
+    NSRunningApplication* app = nsobject_for_app(L, 1);
     
     BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
     lua_pushboolean(L, success);
@@ -126,8 +140,7 @@ static hydradoc doc_application_title = {
 };
 
 static int application_title(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
+    NSRunningApplication* app = nsobject_for_app(L, 1);
     
     lua_pushstring(L, [[app localizedName] UTF8String]);
     return 1;
@@ -139,8 +152,7 @@ static hydradoc doc_application_bundleid = {
 };
 
 static int application_bundleid(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
+    NSRunningApplication* app = nsobject_for_app(L, 1);
     
     lua_pushstring(L, [[app bundleIdentifier] UTF8String]);
     return 1;
@@ -157,8 +169,7 @@ static hydradoc doc_application_unhide = {
 };
 
 static int application_unhide(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
+    AXUIElementRef app = axref_for_app(L, 1);
     
     set_app_prop(app, NSAccessibilityHiddenAttribute, @NO);
     CFRelease(app);
@@ -173,8 +184,7 @@ static hydradoc doc_application_hide = {
 // args: [app]
 // ret: []
 static int application_hide(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
+    AXUIElementRef app = axref_for_app(L, 1);
     
     set_app_prop(app, NSAccessibilityHiddenAttribute, @YES);
     CFRelease(app);
@@ -189,8 +199,7 @@ static hydradoc doc_application_kill = {
 // args: [app]
 // ret: []
 static int application_kill(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
+    NSRunningApplication* app = nsobject_for_app(L, 1);
     
     [app terminate];
     return 0;
@@ -204,8 +213,7 @@ static hydradoc doc_application_kill9 = {
 // args: [app]
 // ret: []
 static int application_kill9(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
+    NSRunningApplication* app = nsobject_for_app(L, 1);
     
     [app forceTerminate];
     return 0;
@@ -219,8 +227,7 @@ static hydradoc doc_application_ishidden = {
 // args: [app]
 // ret: [bool]
 static int application_ishidden(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
+    AXUIElementRef app = axref_for_app(L, 1);
     
     CFTypeRef _isHidden;
     NSNumber* isHidden = @NO;
