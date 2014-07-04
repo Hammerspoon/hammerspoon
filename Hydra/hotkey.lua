@@ -5,9 +5,9 @@ The `mods` field is case-insensitive and may any of the following strings: "cmd"
 
 The `key` field is case-insensitive and may be any single-character string; it may also be any of the following strings:
 
-F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20
-PAD, PAD*, PAD+, PAD/, PAD-, PAD=, PAD0, PAD1, PAD2, PAD3, PAD4, PAD5, PAD6, PAD7, PAD8, PAD9, PAD_CLEAR, PAD_ENTER
-RETURN, TAB, SPACE, DELETE, ESCAPE, HELP, HOME, PAGE_UP, FORWARD_DELETE, END, PAGE_DOWN, LEFT, RIGHT, DOWN, UP]]
+    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15, F16, F17, F18, F19, F20
+    PAD, PAD*, PAD+, PAD/, PAD-, PAD=, PAD0, PAD1, PAD2, PAD3, PAD4, PAD5, PAD6, PAD7, PAD8, PAD9, PAD_CLEAR, PAD_ENTER
+    RETURN, TAB, SPACE, DELETE, ESCAPE, HELP, HOME, PAGE_UP, FORWARD_DELETE, END, PAGE_DOWN, LEFT, RIGHT, DOWN, UP]]
 
 hotkey.keys = {}
 hotkey.keys.n = 0
