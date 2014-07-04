@@ -144,7 +144,14 @@ It has most of the familiar readline-like keybindings, including C-b, C-f, M-b, 
 Type `help` in the REPL for info on how to use the documentation system.]]}
 doc.repl.open = {"repl.open([opts]) -> textgrid", "Opens a new REPL; the `opts` parameter is an optional table with keys: inputcolor, stdoutcolor, resultcolor, backgroundcolor; these are 6-digit CSS-like hex strings."}
 function repl.open(opts)
+  if repl._replwin then
+    repl._replwin:window():focus()
+    return
+  end
+
   local win = textgrid.open()
+  repl._replwin = win
+
   win:settitle("Hydra REPL")
   win:protect()
 
@@ -220,6 +227,7 @@ function repl.open(opts)
 
   function win.closed()
     logger.removehandler(loghandler)
+    repl._replwin = nil
   end
 
   local function runcommand()
