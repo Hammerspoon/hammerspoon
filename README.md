@@ -25,8 +25,8 @@ Hydra will look for `~/.hydra/init.lua` and run it if it exists. But
 if you haven't written one yet, it will run a fallback config that
 gives you a menu bar icon that contains an option to open
 [this sample config](https://github.com/sdegutis/hydra/blob/master/Hydra/sample_config.lua).
-You can paste that into your `~/.hydra/init.lua` to get started with a
-really basic starter config.
+You can paste its contents into your `~/.hydra/init.lua` to get
+started with a really basic starter config.
 
 The full documentation is linked under the "Resources" section below.
 
