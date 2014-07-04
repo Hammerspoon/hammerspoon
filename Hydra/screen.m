@@ -5,7 +5,7 @@ static hydradoc doc_screen_frame = {
     "Returns a screen's frame in its own coordinate space."
 };
 
-int screen_frame(lua_State* L) {
+static int screen_frame(lua_State* L) {
     lua_getfield(L, 1, "__screen");
     NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
     
@@ -25,7 +25,7 @@ static hydradoc doc_screen_visibleframe = {
     "Returns a screen's frame in its own coordinate space, without the dock or menu."
 };
 
-int screen_visibleframe(lua_State* L) {
+static int screen_visibleframe(lua_State* L) {
     lua_getfield(L, 1, "__screen");
     NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
     
@@ -45,7 +45,7 @@ static hydradoc doc_screen_settint = {
     "Set the tint on a screen; experimental."
 };
 
-int screen_settint(lua_State* L) {
+static int screen_settint(lua_State* L) {
     lua_len(L, 1); int red_len = lua_tonumber(L, -1);
     lua_len(L, 2); int green_len = lua_tonumber(L, -1);
     lua_len(L, 3); int blue_len = lua_tonumber(L, -1);
@@ -80,7 +80,7 @@ int screen_settint(lua_State* L) {
     return 0;
 }
 
-int screen_gc(lua_State* L) {
+static int screen_gc(lua_State* L) {
     lua_getfield(L, 1, "__screen");
     void** screenptr = lua_touserdata(L, -1);
     NSScreen* screen = (__bridge_transfer NSScreen*)*screenptr;
@@ -88,7 +88,7 @@ int screen_gc(lua_State* L) {
     return 0;
 }
 
-int screen_eq(lua_State* L) {
+static int screen_eq(lua_State* L) {
     lua_getfield(L, 1, "__screen");
     NSScreen* screenA = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
     
@@ -115,7 +115,7 @@ static hydradoc doc_screen_allscreens = {
     "Returns all the screens there are."
 };
 
-int screen_allscreens(lua_State* L) {
+static int screen_allscreens(lua_State* L) {
     lua_newtable(L);
     
     int i = 1;
@@ -133,7 +133,7 @@ static hydradoc doc_screen_mainscreen = {
     "Returns the 'main' screen, i.e. the one containing the currently focused window."
 };
 
-int screen_mainscreen(lua_State* L) {
+static int screen_mainscreen(lua_State* L) {
     new_screen(L, [NSScreen mainScreen]);
     return 1;
 }

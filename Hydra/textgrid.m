@@ -234,7 +234,7 @@ static hydradoc doc_textgrid_sethasborder = {
     "Set whether a textgrid window has a border."
 };
 
-int textgrid_sethasborder(lua_State* L) {
+static int textgrid_sethasborder(lua_State* L) {
     HDTextGridController* wc = get_textgrid_wc(L, 1);
     BOOL hasborder = lua_toboolean(L, 2);
     
@@ -253,7 +253,7 @@ static hydradoc doc_textgrid_sethasshadow = {
     "Set whether a textgrid window has a shadow."
 };
 
-int textgrid_sethasshadow(lua_State* L) {
+static int textgrid_sethasshadow(lua_State* L) {
     HDTextGridController* wc = get_textgrid_wc(L, 1);
     BOOL hasshadow = lua_toboolean(L, 2);
     

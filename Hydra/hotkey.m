@@ -5,7 +5,7 @@ UInt32 PHKeyCodeForString(NSString* str);
 
 // args: [self]
 // ret: [self]
-int hotkey_enable(lua_State* L) {
+static int hotkey_enable(lua_State* L) {
     lua_getfield(L, 1, "__uid");
     UInt32 uid = lua_tonumber(L, -1);
     
@@ -44,7 +44,7 @@ int hotkey_enable(lua_State* L) {
 
 // args: [self]
 // ret: [self]
-int hotkey_disable(lua_State* L) {
+static int hotkey_disable(lua_State* L) {
     lua_getfield(L, 1, "__carbonkey");
     EventHotKeyRef carbonHotKey = lua_touserdata(L, -1);
     UnregisterEventHotKey(carbonHotKey);

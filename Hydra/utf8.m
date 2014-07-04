@@ -5,7 +5,7 @@ static hydradoc doc_utf8_count = {
     "Returns the number of characters as humans would count them."
 };
 
-int utf8_count(lua_State* L) {
+static int utf8_count(lua_State* L) {
     NSString* str = [NSString stringWithUTF8String:lua_tostring(L, 1)];
 
     NSInteger len = 0;
@@ -23,7 +23,7 @@ static hydradoc doc_utf8_chars = {
     "Splits the string into groups of (UTF-8 encoded) strings representing what humans would consider individual characters.\n\nThe result is a sequential table, such that table.concat(result) produces the original string."
 };
 
-int utf8_chars(lua_State* L) {
+static int utf8_chars(lua_State* L) {
     NSString* str = [NSString stringWithUTF8String:lua_tostring(L, 1)];
 
     lua_newtable(L);

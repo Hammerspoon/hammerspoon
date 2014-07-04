@@ -8,14 +8,14 @@ static AXUIElementRef axref_for_window(lua_State* L, int idx) {
     return win;
 }
 
-int window_gc(lua_State* L) {
+static int window_gc(lua_State* L) {
     AXUIElementRef win = axref_for_window(L, 1);
     
     CFRelease(win);
     return 0;
 }
 
-int window_eq(lua_State* L) {
+static int window_eq(lua_State* L) {
     AXUIElementRef winA = axref_for_window(L, 1);
     AXUIElementRef winB = axref_for_window(L, 2);
     
@@ -81,7 +81,7 @@ static hydradoc doc_window_focusedwindow = {
     "Returns the focused window, or nil."
 };
 
-int window_focusedwindow(lua_State* L) {
+static int window_focusedwindow(lua_State* L) {
     CFTypeRef app;
     AXUIElementCopyAttributeValue(system_wide_element(), kAXFocusedApplicationAttribute, &app);
     
@@ -123,7 +123,7 @@ static hydradoc doc_window_title = {
     "Returns the title of the window (as UTF8)."
 };
 
-int window_title(lua_State* L) {
+static int window_title(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -137,7 +137,7 @@ static hydradoc doc_window_subrole = {
     "Returns the subrole of the window, whatever that means."
 };
 
-int window_subrole(lua_State* L) {
+static int window_subrole(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -152,7 +152,7 @@ static hydradoc doc_window_role = {
     "Returns the role of the window, whatever that means."
 };
 
-int window_role(lua_State* L) {
+static int window_role(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -167,7 +167,7 @@ static hydradoc doc_window_isstandard = {
     "True if the window's subrole indicates it's 'a standard window'."
 };
 
-int window_isstandard(lua_State* L) {
+static int window_isstandard(lua_State* L) {
     lua_getfield(L, 1, "__win");
     window_subrole(L);
     const char* subrole = lua_tostring(L, -1);
@@ -182,7 +182,7 @@ static hydradoc doc_window_topleft = {
     "The top-left corner of the window in absolute coordinates."
 };
 
-int window_topleft(lua_State* L) {
+static int window_topleft(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -216,7 +216,7 @@ static hydradoc doc_window_size = {
     "The size of the window."
 };
 
-int window_size(lua_State* L) {
+static int window_size(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -250,7 +250,7 @@ static hydradoc doc_window_settopleft = {
     "Moves the window to the given point in absolute coordinate."
 };
 
-int window_settopleft(lua_State* L) {
+static int window_settopleft(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -272,7 +272,7 @@ static hydradoc doc_window_setsize = {
     "Resizes the window."
 };
 
-int window_setsize(lua_State* L) {
+static int window_setsize(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -293,7 +293,7 @@ static hydradoc doc_window_close = {
     "Closes the window; returns whether it succeeded."
 };
 
-int window_close(lua_State* L) {
+static int window_close(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -321,7 +321,7 @@ static hydradoc doc_window_minimize = {
     "Minimizes the window."
 };
 
-int window_minimize(lua_State* L) {
+static int window_minimize(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -334,7 +334,7 @@ static hydradoc doc_window_unminimize = {
     "Un-minimizes the window."
 };
 
-int window_unminimize(lua_State* L) {
+static int window_unminimize(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -347,7 +347,7 @@ static hydradoc doc_window_isminimized = {
     "True if the window is currently minimized in the dock."
 };
 
-int window_isminimized(lua_State* L) {
+static int window_isminimized(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -358,7 +358,7 @@ int window_isminimized(lua_State* L) {
 
 // args: [win]
 // ret: [pid]
-int window_pid(lua_State* L) {
+static int window_pid(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -377,7 +377,7 @@ static hydradoc doc_window_application = {
     "Returns the app that the window belongs to."
 };
 
-int window_application(lua_State* L) {
+static int window_application(lua_State* L) {
     if (window_pid(L)) {
         pid_t pid = lua_tonumber(L, -1);
         new_application(L, pid);
@@ -395,7 +395,7 @@ static hydradoc doc_window_becomemain = {
 
 // args: [win]
 // ret: [bool]
-int window_becomemain(lua_State* L) {
+static int window_becomemain(lua_State* L) {
     lua_getfield(L, 1, "__win");
     AXUIElementRef win = *((AXUIElementRef*)lua_touserdata(L, -1));
     
@@ -404,7 +404,7 @@ int window_becomemain(lua_State* L) {
     return 1;
 }
 
-int window__orderedwinids(lua_State* L) {
+static int window__orderedwinids(lua_State* L) {
     lua_newtable(L);
     
     CFArrayRef wins = CGWindowListCreate(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
@@ -426,7 +426,7 @@ static hydradoc doc_window_id = {
     "Returns a unique number identifying this window."
 };
 
-int window_id(lua_State* L) {
+static int window_id(lua_State* L) {
     lua_getfield(L, 1, "_winid");
     if (lua_isnumber(L, -1))
         return 1;

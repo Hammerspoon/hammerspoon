@@ -7,7 +7,7 @@ static hydradoc doc_updates_getversions = {
 
 static NSString* updates_url = @"https://api.github.com/repos/sdegutis/hydra/releases";
 
-int updates_getversions(lua_State* L) {
+static int updates_getversions(lua_State* L) {
     int fnref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     NSURL* url = [NSURL URLWithString:updates_url];
@@ -48,7 +48,7 @@ static hydradoc doc_updates_currentversion = {
     "Low-level function to get current Hydra version; used by updates.check; you probably want to use updates.check instead of using this directly."
 };
 
-int updates_currentversion(lua_State* L) {
+static int updates_currentversion(lua_State* L) {
     lua_pushstring(L, [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] UTF8String]);
     return 1;
 }

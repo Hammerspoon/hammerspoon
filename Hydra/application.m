@@ -2,7 +2,7 @@
 void new_window(lua_State* L, AXUIElementRef win);
 
 
-int application_eq(lua_State* L) {
+static int application_eq(lua_State* L) {
     lua_getfield(L, 1, "pid");
     lua_getfield(L, 2, "pid");
     
@@ -26,7 +26,7 @@ static hydradoc doc_application_runningapplications = {
     "Returns all running apps."
 };
 
-int application_runningapplications(lua_State* L) {
+static int application_runningapplications(lua_State* L) {
     lua_newtable(L);
     int i = 1;
     
@@ -43,7 +43,7 @@ static hydradoc doc_application_applicationforpid = {
     "Returns the running app for the given pid, if it exists."
 };
 
-int application_applicationforpid(lua_State* L) {
+static int application_applicationforpid(lua_State* L) {
     pid_t pid = lua_tonumber(L, 1);
     
     NSRunningApplication* runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
@@ -61,7 +61,7 @@ static hydradoc doc_application_applicationsforbundleid = {
     "Returns any running apps that have the given bundleid."
 };
 
-int application_applicationsforbundleid(lua_State* L) {
+static int application_applicationsforbundleid(lua_State* L) {
     const char* bundleid = lua_tostring(L, 1);
     NSString* bundleIdentifier = [NSString stringWithUTF8String:bundleid];
     
@@ -82,7 +82,7 @@ static hydradoc doc_application_allwindows = {
     "Returns all open windows owned by the given app."
 };
 
-int application_allwindows(lua_State* L) {
+static int application_allwindows(lua_State* L) {
     lua_getfield(L, 1, "pid");
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
     
@@ -111,7 +111,7 @@ static hydradoc doc_application_activate = {
     "Tries to activate the app (make it focused) and returns its success."
 };
 
-int application_activate(lua_State* L) {
+static int application_activate(lua_State* L) {
     lua_getfield(L, 1, "pid");
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
     
@@ -125,7 +125,7 @@ static hydradoc doc_application_title = {
     "Returns the localized name of the app (in UTF8)."
 };
 
-int application_title(lua_State* L) {
+static int application_title(lua_State* L) {
     lua_getfield(L, 1, "pid");
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
     
@@ -138,7 +138,7 @@ static hydradoc doc_application_bundleid = {
     "Returns the bundle identifier of the app."
 };
 
-int application_bundleid(lua_State* L) {
+static int application_bundleid(lua_State* L) {
     lua_getfield(L, 1, "pid");
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
     
@@ -156,7 +156,7 @@ static hydradoc doc_application_unhide = {
     "Unhides the app (and all its windows) if it's hidden."
 };
 
-int application_unhide(lua_State* L) {
+static int application_unhide(lua_State* L) {
     lua_getfield(L, 1, "pid");
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
     
@@ -172,7 +172,7 @@ static hydradoc doc_application_hide = {
 
 // args: [app]
 // ret: []
-int application_hide(lua_State* L) {
+static int application_hide(lua_State* L) {
     lua_getfield(L, 1, "pid");
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
     
@@ -188,7 +188,7 @@ static hydradoc doc_application_kill = {
 
 // args: [app]
 // ret: []
-int application_kill(lua_State* L) {
+static int application_kill(lua_State* L) {
     lua_getfield(L, 1, "pid");
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
     
@@ -203,7 +203,7 @@ static hydradoc doc_application_kill9 = {
 
 // args: [app]
 // ret: []
-int application_kill9(lua_State* L) {
+static int application_kill9(lua_State* L) {
     lua_getfield(L, 1, "pid");
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
     
@@ -218,7 +218,7 @@ static hydradoc doc_application_ishidden = {
 
 // args: [app]
 // ret: [bool]
-int application_ishidden(lua_State* L) {
+static int application_ishidden(lua_State* L) {
     lua_getfield(L, 1, "pid");
     AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
     

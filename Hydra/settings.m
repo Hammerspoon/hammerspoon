@@ -81,7 +81,7 @@ static hydradoc doc_settings_set = {
     "Saves the given value for the string key; value must be a string, number, boolean, nil, or a table of any of these, recursively."
 };
 
-int settings_set(lua_State* L) {
+static int settings_set(lua_State* L) {
     id key = nsobject_for_luavalue(L, 1);
     id val = nsobject_for_luavalue(L, 2);
     [[NSUserDefaults standardUserDefaults] setObject:val forKey:key];
@@ -94,7 +94,7 @@ static hydradoc doc_settings_get = {
     "Gets the Lua value for the given string key."
 };
 
-int settings_get(lua_State* L) {
+static int settings_get(lua_State* L) {
     id key = nsobject_for_luavalue(L, 1);
     id val = [[NSUserDefaults standardUserDefaults] objectForKey:key];
     

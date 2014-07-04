@@ -5,7 +5,7 @@ static hydradoc doc_mouse_get = {
     "Returns the current location of the mouse on the current screen as a point."
 };
 
-int mouse_get(lua_State* L) {
+static int mouse_get(lua_State* L) {
     CGEventRef ourEvent = CGEventCreate(NULL);
     CGPoint p = CGEventGetLocation(ourEvent);
     
@@ -20,7 +20,7 @@ static hydradoc doc_mouse_set = {
     "Moves the mouse to the given location on the current screen."
 };
 
-int mouse_set(lua_State* L) {
+static int mouse_set(lua_State* L) {
     CGFloat x = (lua_getfield(L, 1, "x"), lua_tonumber(L, -1));
     CGFloat y = (lua_getfield(L, 1, "y"), lua_tonumber(L, -1));
     

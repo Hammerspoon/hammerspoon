@@ -14,7 +14,7 @@ static hydradoc doc_autolaunch_get = {
     "Returns whether Hydra launches when you login."
 };
 
-int autolaunch_get(lua_State* L) {
+static int autolaunch_get(lua_State* L) {
     NSURL *appURL = [[[NSBundle mainBundle] bundleURL] fileReferenceURL];
     
     UInt32 seed;
@@ -45,7 +45,7 @@ static hydradoc doc_autolaunch_set = {
     "Sets whether Hydra launches when you login."
 };
 
-int autolaunch_set(lua_State* L) {
+static int autolaunch_set(lua_State* L) {
     BOOL opensAtLogin = lua_toboolean(L, 1);
     
     NSURL *appURL = [[[NSBundle mainBundle] bundleURL] fileReferenceURL];

@@ -44,7 +44,7 @@ static hydradoc doc_menu_show = {
     "Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)"
 };
 
-int menu_show(lua_State* L) {
+static int menu_show(lua_State* L) {
     if (!statusItem) {
         show_closureref = luaL_ref(L, LUA_REGISTRYINDEX);
         
@@ -148,7 +148,7 @@ static hydradoc doc_menu_hide = {
     "Hides Hydra's menubar icon."
 };
 
-int menu_hide(lua_State* L) {
+static int menu_hide(lua_State* L) {
     if (statusItem) {
         luaL_unref(L, LUA_REGISTRYINDEX, show_closureref);
         

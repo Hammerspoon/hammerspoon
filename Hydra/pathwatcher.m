@@ -7,7 +7,7 @@ void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, s
 
 // args: [patchwatcher]
 // returns: []
-int pathwatcher_start(lua_State* L) {
+static int pathwatcher_start(lua_State* L) {
     lua_getfield(L, 1, "path");
     NSString* path = [NSString stringWithUTF8String: lua_tostring(L, -1)];
     
@@ -47,7 +47,7 @@ int pathwatcher_start(lua_State* L) {
 
 // args: [patchwatcher]
 // returns: []
-int pathwatcher_stop(lua_State* L) {
+static int pathwatcher_stop(lua_State* L) {
     lua_getfield(L, 1, "__stream");
     FSEventStreamRef stream = lua_touserdata(L, -1);
     

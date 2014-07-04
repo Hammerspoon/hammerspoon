@@ -17,7 +17,7 @@ static hydradoc doc_timer_runonce = {
     "Runs the function exactly once in the entire lifespan of Hydra; reset only when you quit/restart."
 };
 
-int timer_runonce(lua_State* L) {
+static int timer_runonce(lua_State* L) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         if (lua_pcall(L, 0, 0, 0))
@@ -32,7 +32,7 @@ static hydradoc doc_timer_doafter = {
     "Runs the function after sec seconds."
 };
 
-int timer_doafter(lua_State* L) {
+static int timer_doafter(lua_State* L) {
     double delayInSeconds = lua_tonumber(L, 1);
     int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
     
@@ -48,7 +48,7 @@ int timer_doafter(lua_State* L) {
 
 // args: [timer]
 // returns: [timer]
-int timer_start(lua_State* L) {
+static int timer_start(lua_State* L) {
     NSTimeInterval sec = (lua_getfield(L, 1, "seconds"), lua_tonumber(L, -1));
     int closureref = (lua_getfield(L, 1, "fn"), luaL_ref(L, LUA_REGISTRYINDEX));
     
@@ -73,7 +73,7 @@ int timer_start(lua_State* L) {
 
 // args: [timer]
 // returns: [timer]
-int timer_stop(lua_State* L) {
+static int timer_stop(lua_State* L) {
     lua_getfield(L, 1, "__timer");
     PHTimerDelegator* delegator = (__bridge_transfer PHTimerDelegator*)lua_touserdata(L, -1);
     

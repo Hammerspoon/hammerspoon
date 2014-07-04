@@ -1,7 +1,7 @@
 #import "helpers.h"
 void PHShowAlert(NSString* oneLineMsg, CGFloat duration);
 
-int hydra_exit(lua_State* L) {
+static int hydra_exit(lua_State* L) {
     if (lua_isboolean(L, 2) && lua_toboolean(L, 2))
         lua_close(L);
     
@@ -14,7 +14,7 @@ static hydradoc doc_hydra_showabout = {
     "Displays the standard OS X about panel; implicitly focuses Hydra."
 };
 
-int hydra_showabout(lua_State* L) {
+static int hydra_showabout(lua_State* L) {
     [NSApp activateIgnoringOtherApps:YES];
     [NSApp orderFrontStandardAboutPanel:nil];
     return 0;
@@ -25,7 +25,7 @@ static hydradoc doc_hydra_focushydra = {
     "Makes Hydra the currently focused app; useful in combination with textgrids."
 };
 
-int hydra_focushydra(lua_State* L) {
+static int hydra_focushydra(lua_State* L) {
     [NSApp activateIgnoringOtherApps:YES];
     return 0;
 }
@@ -35,7 +35,7 @@ static hydradoc doc_hydra_alert = {
     "Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.."
 };
 
-int hydra_alert(lua_State* L) {
+static int hydra_alert(lua_State* L) {
     size_t len;
     const char* str = luaL_tolstring(L, 1, &len);
     
@@ -55,7 +55,7 @@ static hydradoc doc_hydra_fileexists = {
 
 // args: [path]
 // return: [exists, isdir]
-int hydra_fileexists(lua_State* L) {
+static int hydra_fileexists(lua_State* L) {
     NSString* path = [NSString stringWithUTF8String:lua_tostring(L, 1)];
     
     BOOL isdir;
@@ -71,7 +71,7 @@ static hydradoc doc_hydra_check_accessibility = {
     "Returns whether accessibility is enabled. If passed `true`, prompts the user to enable it."
 };
 
-int hydra_check_accessibility(lua_State* L) {
+static int hydra_check_accessibility(lua_State* L) {
     NSDictionary* opts = nil;
     
     if (lua_isboolean(L, -1))
@@ -88,7 +88,7 @@ static hydradoc doc_hydra_indock = {
     "Returns whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab."
 };
 
-int hydra_indock(lua_State* L) {
+static int hydra_indock(lua_State* L) {
     BOOL indock = [[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular;
     lua_pushboolean(L, indock);
     return 1;
@@ -99,7 +99,7 @@ static hydradoc doc_hydra_putindock = {
     "Sets whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab."
 };
 
-int hydra_putindock(lua_State* L) {
+static int hydra_putindock(lua_State* L) {
     BOOL indock = lua_toboolean(L, 1);
     NSApplicationActivationPolicy policy = indock ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory;
     [[NSApplication sharedApplication] setActivationPolicy: policy];

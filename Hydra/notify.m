@@ -41,7 +41,7 @@ static hydradoc doc_notify_show = {
     "Show an Apple notification. Tag is a unique string that identifies this notification, and will be passed to notify.clicked() if the notification is clicked. None of the strings are optional, though they may each be blank."
 };
 
-int notify_show(lua_State* L) {
+static int notify_show(lua_State* L) {
     NSUserNotification* note = [[NSUserNotification alloc] init];
     note.title = [NSString stringWithUTF8String: lua_tostring(L, 1)];
     note.subtitle = [NSString stringWithUTF8String: lua_tostring(L, 2)];

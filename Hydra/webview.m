@@ -55,7 +55,7 @@ static hydradoc doc_webview_closed = {
     "Called (if set) when the webview closes."
 };
 
-int webview_open(lua_State* L) {
+static int webview_open(lua_State* L) {
     PHWebViewController* wc = [[PHWebViewController alloc] init];
     [wc showWindow: nil];
     
@@ -114,7 +114,7 @@ static hydradoc doc_webview_settitle = {
     "Set the title of a webview window."
 };
 
-int webview_settitle(lua_State* L) {
+static int webview_settitle(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     
     NSString* title = [NSString stringWithUTF8String: lua_tostring(L, 2)];
@@ -128,7 +128,7 @@ static hydradoc doc_webview_setlevel = {
     "When level is -1, window is always below all others; when 0, window is normal; when 1, window is above all others."
 };
 
-int webview_setlevel(lua_State* L) {
+static int webview_setlevel(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     
     NSInteger level = lua_tonumber(L, 2);
@@ -149,7 +149,7 @@ static hydradoc doc_webview_sethasborder = {
     "Set whether a webview window has a border."
 };
 
-int webview_sethasborder(lua_State* L) {
+static int webview_sethasborder(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     BOOL hasborder = lua_toboolean(L, 2);
     
@@ -168,7 +168,7 @@ static hydradoc doc_webview_sethasshadow = {
     "Set whether a webview window has a shadow."
 };
 
-int webview_sethasshadow(lua_State* L) {
+static int webview_sethasshadow(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     BOOL hasshadow = lua_toboolean(L, 2);
     
@@ -182,7 +182,7 @@ static hydradoc doc_webview_loadstring = {
     "Loads the given string in the webview; basepath must be an absolute path."
 };
 
-int webview_loadstring(lua_State* L) {
+static int webview_loadstring(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     NSString* string = [NSString stringWithUTF8String: lua_tostring(L, 2)];
     NSString* basepath = [NSString stringWithUTF8String: lua_tostring(L, 3)];
@@ -197,7 +197,7 @@ static hydradoc doc_webview_loadurl = {
     "Loads the given URL in the webview."
 };
 
-int webview_loadurl(lua_State* L) {
+static int webview_loadurl(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     NSString* url = [NSString stringWithUTF8String: lua_tostring(L, 2)];
     
@@ -211,7 +211,7 @@ static hydradoc doc_webview_setignoresmouse = {
     "Set whether a webview window can be interacted with via the mouse."
 };
 
-int webview_setignoresmouse(lua_State* L) {
+static int webview_setignoresmouse(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     BOOL ignoresmouse = lua_toboolean(L, 2);
     
@@ -226,7 +226,7 @@ static hydradoc doc_webview_window = {
     "Return the window that represents the given webview."
 };
 
-int webview_window(lua_State* L) {
+static int webview_window(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     new_window_for_nswindow(L, [wc window]);
     return 1;

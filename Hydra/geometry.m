@@ -5,7 +5,7 @@ static hydradoc doc_geometry_intersectionrect = {
     "Returns the intersection of two rects as a new rect."
 };
 
-int geometry_intersectionrect(lua_State* L) {
+static int geometry_intersectionrect(lua_State* L) {
     CGFloat x1 = (lua_getfield(L, 1, "x"), lua_tonumber(L, -1));
     CGFloat y1 = (lua_getfield(L, 1, "y"), lua_tonumber(L, -1));
     CGFloat w1 = (lua_getfield(L, 1, "w"), lua_tonumber(L, -1));
