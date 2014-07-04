@@ -15,11 +15,9 @@ Otherwise, you can always find the latest release as a binary on the
 downloaded file, move the app where you want it, and run it. You may
 need to right-click it and click "Open" the first time.
 
-Feel free to install the current pre-release (beta6). It's basically
-the version that's going to be released once we get the icon (see
-issue #1), since I haven't found any bugs yet and there are no other
-open issues. And if you run `updates.check()`, you'll get notified
-when 1.0 is released. So go for it!
+Feel free to install the current pre-release (beta 6). You can use the
+`updates` module to know when 1.0 is officially released, although I
+expect it should happen within a week.
 
 ### Usage
 
@@ -152,10 +150,6 @@ productivity enhancement suite to keep and use long-term.
 Hey, that's not really a question ;) I'm open to feature requests,
 just file an issue! (But chances are it will probably be marked a
 duplicate.)
-
-##### Where can I find a comprehensive and detailed list of alternatives to Hydra?
-
-https://news.ycombinator.com/item?id=7982514
 
 
 ### License
