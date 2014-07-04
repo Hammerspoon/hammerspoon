@@ -21,7 +21,7 @@ void new_application(lua_State* L, pid_t pid) {
     lua_setmetatable(L, -2);
 }
 
-static hydradoc doc_application_runningapps = {
+static hydradoc doc_application_runningapplications = {
     "application", "runningapplications", "application.runningapplications() -> app[]",
     "Returns all running apps."
 };
@@ -235,9 +235,9 @@ int application_ishidden(lua_State* L) {
 }
 
 static const luaL_Reg applicationlib[] = {
-    {"runningapps", application_runningapplications},
-    {"appforpid", application_applicationforpid},
-    {"appsforbundleid", application_applicationsforbundleid},
+    {"runningapplications", application_runningapplications},
+    {"applicationforpid", application_applicationforpid},
+    {"applicationsforbundleid", application_applicationsforbundleid},
     
     {"allwindows", application_allwindows},
     {"activate", application_activate},
@@ -254,7 +254,7 @@ static const luaL_Reg applicationlib[] = {
 
 int luaopen_application(lua_State* L) {
     hydra_add_doc_group(L, "application", "Manipulate running applications.");
-    hydra_add_doc_item(L, &doc_application_runningapps);
+    hydra_add_doc_item(L, &doc_application_runningapplications);
     hydra_add_doc_item(L, &doc_application_applicationforpid);
     hydra_add_doc_item(L, &doc_application_applicationsforbundleid);
     hydra_add_doc_item(L, &doc_application_allwindows);
