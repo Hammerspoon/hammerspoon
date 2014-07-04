@@ -153,6 +153,10 @@ Hey, that's not really a question ;) I'm open to feature requests,
 just file an issue! (But chances are it will probably be marked a
 duplicate.)
 
+##### Where can I find a comprehensive and detailed list of alternatives to Hydra?
+
+https://news.ycombinator.com/item?id=7982514
+
 
 ### License
 
