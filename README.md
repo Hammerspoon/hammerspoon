@@ -51,20 +51,8 @@ menu.show(function()
     }
 end)
 
--- move the window to the right a bit, and make it a little shorter
-hotkey.new({"cmd", "ctrl", "alt"}, "J", function()
-    local win = window.focusedwindow()
-    local frame = win:frame()
-    frame.x = frame.x + 10
-    frame.h = frame.h - 10
-    win:setframe(frame)
-end):enable()
-~~~
-
-Here's how you would push a window to the left side of the screen:
-
-~~~lua
-function movewindow_rightside()
+-- move the window to the right half of the screen
+function movewindow_righthalf()
   local win = window.focusedwindow()
   local newframe = win:screen():frame_without_dock_or_menu()
   newframe.w = newframe.w / 2
@@ -72,7 +60,7 @@ function movewindow_rightside()
   win:setframe(newframe)
 end
 
-hotkey.bind({"cmd", "ctrl", "alt"}, "L", movewindow_rightside)
+hotkey.new({"cmd", "ctrl", "alt"}, "L", movewindow_righthalf):enable()
 ~~~
 
 ### Screenshots
