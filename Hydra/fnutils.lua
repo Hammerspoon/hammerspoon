@@ -85,3 +85,24 @@ function fnutils.find(t, fn)
   end
   return nil
 end
+
+doc.fnutils.compose = {"fnutils.compose(...) -> fn", "Returns the composition of arg (...)."}
+function compose(...)
+   local arg = table.pack(...)
+   return function()
+      for _, fn in ipairs(arg) do
+         fn()
+      end
+   end
+end
+
+doc.fnutils.partial = {"fnutils.partial(fn, ...) -> fn'", "Returns fn partially applied to arg (...)."}
+function partial(fn, ...)
+   local args = table.pack(...)
+   return function(...)
+      for idx, val in ipairs(table.pack(...)) do
+         args[args.n + idx] = val
+      end
+      return fn(table.unpack(args))
+   end
+end
