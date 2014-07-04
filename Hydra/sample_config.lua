@@ -46,7 +46,7 @@ local function showupdate()
   os.execute('open https://github.com/sdegutis/Hydra/releases')
 end
 
--- what to do when an udpate is checked
+-- what to do when an update is checked
 function updates.available(available)
   if available then
     notify.show("Hydra update available", "", "Click here to see the changelog and maybe even install it", "showupdate")
