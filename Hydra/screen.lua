@@ -24,7 +24,7 @@ function screen:frame_without_dock_or_menu()
   return f
 end
 
-doc.screen.next = {"screen:next() -> screen", "Returns the screen 'after' this one; I have no idea how they're ordered though."}
+doc.screen.next = {"screen:next() -> screen", "Returns the screen 'after' this one (I have no idea how they're ordered though); this method wraps around to the first screen."}
 function screen:next()
   local screens = screen.allscreens()
   local i = fnutils.indexof(screens, self) + 1
@@ -32,7 +32,7 @@ function screen:next()
   return screens[i]
 end
 
-doc.screen.previous = {"screen:previous() -> screen", "Returns the screen 'before' this one; I have no idea how they're ordered though."}
+doc.screen.previous = {"screen:previous() -> screen", "Returns the screen 'before' this one (I have no idea how they're ordered though); this method wraps around to the last screen."}
 function screen:previous()
   local screens = screen.allscreens()
   local i = fnutils.indexof(screens, self) - 1
