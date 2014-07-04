@@ -397,23 +397,27 @@ int window__orderedwinids(lua_State* L) {
     return 1;
 }
 
-// caches _winid if possible, returns boolean of whether it now has one
-int window__cachewinid(lua_State* L) {
+static hydradoc doc_window_id = {
+    "window", "id", "window:id() -> number, sometimes nil",
+    "Returns a unique number identifying this window."
+};
+
+int window_id(lua_State* L) {
     lua_getfield(L, 1, "_winid");
-    if (lua_isnumber(L, -1)) {
-        lua_pushboolean(L, YES);
+    if (lua_isnumber(L, -1))
         return 1;
-    }
     
     CGWindowID winid;
     AXUIElementRef win = axref_for_window(L, 1);
     AXError err = _AXUIElementGetWindow(win, &winid);
-    if (!err) {
-        lua_pushnumber(L, winid);
-        lua_setfield(L, 1, "_winid");
+    if (err) {
+        lua_pushnil(L);
+        return 1;
     }
     
-    lua_pushboolean(L, (err == noErr));
+    lua_pushnumber(L, winid);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, 1, "_winid");
     return 1;
 }
 
@@ -435,7 +439,7 @@ static const luaL_Reg windowlib[] = {
     {"pid", window_pid},
     {"application", window_application},
     {"becomemain", window_becomemain},
-    {"_cachewinid", window__cachewinid},
+    {"id", window_id},
     
     {NULL, NULL}
 };
@@ -456,6 +460,7 @@ int luaopen_window(lua_State* L) {
     hydra_add_doc_item(L, &doc_window_isminimized);
     hydra_add_doc_item(L, &doc_window_application);
     hydra_add_doc_item(L, &doc_window_becomemain);
+    hydra_add_doc_item(L, &doc_window_id);
     
     luaL_newlib(L, windowlib);
     
