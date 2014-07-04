@@ -1,7 +1,7 @@
 local fallbackinit = {}
 
 function fallbackinit.open_sample_config()
-  os.execute("open " .. hydra.resourcesdir .. "/sample_config.lua")
+  os.execute("open \"" .. hydra.resourcesdir .. "/sample_config.lua\"")
 end
 
 function fallbackinit.run()
