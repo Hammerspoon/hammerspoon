@@ -2,7 +2,14 @@
 void new_application(lua_State* L, pid_t pid);
 
 static AXUIElementRef axref_for_window(lua_State* L, int idx) {
+    if (!lua_istable(L, idx))
+        luaL_error(L, "Expected window, got '%s'", luaL_typename(L, idx));
+    
     lua_getfield(L, idx, "__win");
+    
+    if (!lua_isuserdata(L, -1))
+        luaL_error(L, "Expected window, got another kind of table.");
+    
     AXUIElementRef win = (*(AXUIElementRef*)lua_touserdata(L, -1));
     lua_pop(L, 1);
     return win;
@@ -165,11 +172,10 @@ static hydradoc doc_window_isstandard = {
 };
 
 static int window_isstandard(lua_State* L) {
-    lua_getfield(L, 1, "__win");
-    window_subrole(L);
-    const char* subrole = lua_tostring(L, -1);
+    AXUIElementRef win = axref_for_window(L, 1);
+    NSString* subrole = get_window_prop(win, NSAccessibilitySubroleAttribute, @"");
     
-    BOOL is_standard = [[NSString stringWithUTF8String:subrole] isEqualToString: (__bridge NSString*)kAXStandardWindowSubrole];
+    BOOL is_standard = [subrole isEqualToString: (__bridge NSString*)kAXStandardWindowSubrole];
     lua_pushboolean(L, is_standard);
     return 1;
 }
