@@ -56,7 +56,7 @@ static hydradoc doc_hydra_fileexists = {
 // args: [path]
 // return: [exists, isdir]
 static int hydra_fileexists(lua_State* L) {
-    NSString* path = [NSString stringWithUTF8String:lua_tostring(L, 1)];
+    NSString* path = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
     
     BOOL isdir;
     BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isdir];
@@ -72,13 +72,8 @@ static hydradoc doc_hydra_check_accessibility = {
 };
 
 static int hydra_check_accessibility(lua_State* L) {
-    NSDictionary* opts = nil;
-    
-    if (lua_isboolean(L, -1))
-        opts = @{(__bridge id)kAXTrustedCheckOptionPrompt: @(lua_toboolean(L, -1))};
-    
+    NSDictionary* opts = @{(__bridge id)kAXTrustedCheckOptionPrompt: @(lua_toboolean(L, 1))};
     BOOL enabled = AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)opts);
-    
     lua_pushboolean(L, enabled);
     return 1;
 }
