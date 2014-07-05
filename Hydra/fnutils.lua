@@ -79,8 +79,7 @@ end
 
 doc.fnutils.find = {"fnutils.find(t, fn) -> el", "Returns the first element where fn(el) is truthy."}
 function fnutils.find(t, fn)
-  local nt = {}
-  for k, v in pairs(t) do
+  for _, v in pairs(t) do
     if fn(v) then return v end
   end
   return nil
