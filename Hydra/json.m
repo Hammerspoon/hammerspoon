@@ -135,7 +135,7 @@ static hydradoc doc_json_decode = {
 };
 
 static int json_decode(lua_State* L) {
-    const char* s = lua_tostring(L, 1);
+    const char* s = luaL_checkstring(L, 1);
     NSData* data = [[NSString stringWithUTF8String:s] dataUsingEncoding:NSUTF8StringEncoding];
     
     NSError* __autoreleasing error;
