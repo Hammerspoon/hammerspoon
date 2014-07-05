@@ -8,6 +8,7 @@ static hydradoc doc_updates_getversions = {
 static NSString* updates_url = @"https://api.github.com/repos/sdegutis/hydra/releases";
 
 static int updates_getversions(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TFUNCTION);
     int fnref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     NSURL* url = [NSURL URLWithString:updates_url];
