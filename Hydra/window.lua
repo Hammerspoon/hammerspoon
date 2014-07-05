@@ -17,6 +17,11 @@ function window.allwindows()
   return fnutils.mapcat(application.runningapplications(), application.allwindows)
 end
 
+doc.window.windowforid = {"window.windowforid() -> win or nil", "Returns the window for the given id, or nil if it's an invalid id."}
+function window.windowforid(id)
+  return fnutils.find(window.allwindows(), function(win) return win:id() == id end)
+end
+
 doc.window.isvisible = {"window:isvisible() -> bool", "True if the app is not hidden or minimized."}
 function window:isvisible()
   return not self:application():ishidden() and not self:isminimized()
