@@ -34,3 +34,31 @@ void hydra_add_doc_item(lua_State* L, hydradoc* doc) {
     
     lua_pop(L, 2); // api, group
 }
+
+
+// TODO: use this pattern for all types; use them everywhere!
+NSSize hydra_tosize(lua_State* L, int idx) {
+    luaL_checktype(L, idx, LUA_TTABLE);
+    CGFloat w = (lua_getfield(L, idx, "w"), luaL_checknumber(L, -1));
+    CGFloat h = (lua_getfield(L, idx, "h"), luaL_checknumber(L, -1));
+    lua_pop(L, 2);
+    return NSMakeSize(w, h);
+}
+
+NSRect hydra_torect(lua_State* L, int idx) {
+    luaL_checktype(L, idx, LUA_TTABLE);
+    CGFloat x = (lua_getfield(L, idx, "x"), luaL_checknumber(L, -1));
+    CGFloat y = (lua_getfield(L, idx, "y"), luaL_checknumber(L, -1));
+    CGFloat w = (lua_getfield(L, idx, "w"), luaL_checknumber(L, -1));
+    CGFloat h = (lua_getfield(L, idx, "h"), luaL_checknumber(L, -1));
+    lua_pop(L, 4);
+    return NSMakeRect(x, y, w, h);
+}
+
+NSPoint hydra_topoint(lua_State* L, int idx) {
+    luaL_checktype(L, idx, LUA_TTABLE);
+    CGFloat x = (lua_getfield(L, idx, "x"), luaL_checknumber(L, -1));
+    CGFloat y = (lua_getfield(L, idx, "y"), luaL_checknumber(L, -1));
+    lua_pop(L, 2);
+    return NSMakePoint(x, y);
+}

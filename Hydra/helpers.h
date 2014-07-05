@@ -10,3 +10,7 @@ typedef struct _hydradoc {
 } hydradoc;
 
 void hydra_add_doc_item(lua_State* L, hydradoc* doc);
+
+NSSize hydra_tosize(lua_State* L, int idx);
+NSRect hydra_torect(lua_State* L, int idx);
+NSPoint hydra_topoint(lua_State* L, int idx);

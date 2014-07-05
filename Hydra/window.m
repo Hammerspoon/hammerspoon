@@ -219,11 +219,7 @@ static hydradoc doc_window_settopleft = {
 
 static int window_settopleft(lua_State* L) {
     AXUIElementRef win = hydra_window(1);
-    
-    CGFloat x = (lua_getfield(L, 2, "x"), lua_tonumber(L, -1));
-    CGFloat y = (lua_getfield(L, 2, "y"), lua_tonumber(L, -1));
-    
-    CGPoint thePoint = CGPointMake(x, y);
+    NSPoint thePoint = hydra_topoint(L, 2);
     
     CFTypeRef positionStorage = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&thePoint));
     AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilityPositionAttribute, positionStorage);
@@ -240,10 +236,7 @@ static hydradoc doc_window_setsize = {
 
 static int window_setsize(lua_State* L) {
     AXUIElementRef win = hydra_window(1);
-    
-    CGFloat w = (lua_getfield(L, 2, "w"), lua_tonumber(L, -1));
-    CGFloat h = (lua_getfield(L, 2, "h"), lua_tonumber(L, -1));
-    CGSize theSize = CGSizeMake(w, h);
+    NSSize theSize = hydra_tosize(L, 2);
     
     CFTypeRef sizeStorage = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&theSize));
     AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilitySizeAttribute, sizeStorage);

@@ -1,21 +1,5 @@
 #import "helpers.h"
 
-/*
- 
-// TODO: use this pattern for all types; put them all in this file; use them in all helpers.h :)
-static NSRect hydra_torect(lua_State* L, int idx) {
-    luaL_checktype(L, idx, LUA_TTABLE);
-    CGFloat x = (lua_getfield(L, idx, "x"), luaL_checknumber(L, -1));
-    CGFloat y = (lua_getfield(L, idx, "y"), luaL_checknumber(L, -1));
-    CGFloat w = (lua_getfield(L, idx, "w"), luaL_checknumber(L, -1));
-    CGFloat h = (lua_getfield(L, idx, "h"), luaL_checknumber(L, -1));
-    lua_pop(L, 4);
-    return NSMakeRect(x, y, w, h);
-}
- 
- */
-
-
 static hydradoc doc_geometry_intersectionrect = {
     "geometry", "intersectionrect", "geometry.intersectionrect(rect1, rect2) -> rect3",
     "Returns the intersection of two rects as a new rect."
