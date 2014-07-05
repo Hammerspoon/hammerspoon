@@ -28,7 +28,9 @@ gives you a menu bar icon that contains an option to open
 You can paste its contents into your `~/.hydra/init.lua` to get
 started with a really basic starter config.
 
-The full documentation is linked under the "Resources" section below.
+Bookmark the [official online docs](http://sdegutis.github.io/hydra/)!
+The index page has very handy and valuable information that's not
+found in this readme or the in-app documentation system.
 
 ### Example
 
