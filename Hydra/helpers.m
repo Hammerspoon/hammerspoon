@@ -62,3 +62,23 @@ NSPoint hydra_topoint(lua_State* L, int idx) {
     lua_pop(L, 2);
     return NSMakePoint(x, y);
 }
+
+void hydra_pushsize(lua_State* L, NSSize size) {
+    lua_newtable(L);
+    lua_pushnumber(L, size.width);  lua_setfield(L, -2, "w");
+    lua_pushnumber(L, size.height); lua_setfield(L, -2, "h");
+}
+
+void hydra_pushpoint(lua_State* L, NSPoint point) {
+    lua_newtable(L);
+    lua_pushnumber(L, point.x); lua_setfield(L, -2, "x");
+    lua_pushnumber(L, point.y); lua_setfield(L, -2, "y");
+}
+
+void hydra_pushrect(lua_State* L, NSRect rect) {
+    lua_newtable(L);
+    lua_pushnumber(L, rect.origin.x);    lua_setfield(L, -2, "x");
+    lua_pushnumber(L, rect.origin.y);    lua_setfield(L, -2, "y");
+    lua_pushnumber(L, rect.size.width);  lua_setfield(L, -2, "w");
+    lua_pushnumber(L, rect.size.height); lua_setfield(L, -2, "h");
+}

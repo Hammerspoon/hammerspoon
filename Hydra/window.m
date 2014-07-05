@@ -172,10 +172,7 @@ static int window_topleft(lua_State* L) {
     if (positionStorage)
         CFRelease(positionStorage);
     
-    lua_newtable(L);
-    lua_pushnumber(L, topLeft.x); lua_setfield(L, -2, "x");
-    lua_pushnumber(L, topLeft.y); lua_setfield(L, -2, "y");
-    
+    hydra_pushpoint(L, topLeft);
     return 1;
 }
 
@@ -205,10 +202,7 @@ static int window_size(lua_State* L) {
     if (sizeStorage)
         CFRelease(sizeStorage);
     
-    lua_newtable(L);
-    lua_pushnumber(L, size.width);  lua_setfield(L, -2, "w");
-    lua_pushnumber(L, size.height); lua_setfield(L, -2, "h");
-    
+    hydra_pushsize(L, size);
     return 1;
 }
 
