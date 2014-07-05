@@ -8,15 +8,7 @@ static hydradoc doc_screen_frame = {
 static int screen_frame(lua_State* L) {
     lua_getfield(L, 1, "__screen");
     NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
-    
-    NSRect r = [screen frame];
-    
-    lua_newtable(L);
-    lua_pushnumber(L, r.origin.x);    lua_setfield(L, -2, "x");
-    lua_pushnumber(L, r.origin.y);    lua_setfield(L, -2, "y");
-    lua_pushnumber(L, r.size.width);  lua_setfield(L, -2, "w");
-    lua_pushnumber(L, r.size.height); lua_setfield(L, -2, "h");
-    
+    hydra_pushrect(L, [screen frame]);
     return 1;
 }
 
@@ -28,15 +20,7 @@ static hydradoc doc_screen_visibleframe = {
 static int screen_visibleframe(lua_State* L) {
     lua_getfield(L, 1, "__screen");
     NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
-    
-    NSRect r = [screen visibleFrame];
-    
-    lua_newtable(L);
-    lua_pushnumber(L, r.origin.x);    lua_setfield(L, -2, "x");
-    lua_pushnumber(L, r.origin.y);    lua_setfield(L, -2, "y");
-    lua_pushnumber(L, r.size.width);  lua_setfield(L, -2, "w");
-    lua_pushnumber(L, r.size.height); lua_setfield(L, -2, "h");
-    
+    hydra_pushrect(L, [screen visibleFrame]);
     return 1;
 }
 
