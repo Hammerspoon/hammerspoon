@@ -1,18 +1,18 @@
 #import "helpers.h"
 void new_application(lua_State* L, pid_t pid);
 
-#define hydra_window(idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "window"))
+#define hydra_window(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "window"))
 
 static int window_gc(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     CFRelease(win);
     return 0;
 }
 
 static int window_eq(lua_State* L) {
-    AXUIElementRef winA = hydra_window(1);
-    AXUIElementRef winB = hydra_window(2);
+    AXUIElementRef winA = hydra_window(L, 1);
+    AXUIElementRef winB = hydra_window(L, 2);
     
     lua_pushboolean(L, CFEqual(winA, winB));
     return 1;
@@ -97,7 +97,7 @@ static hydradoc doc_window_title = {
 };
 
 static int window_title(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     NSString* title = get_window_prop(win, NSAccessibilityTitleAttribute, @"");
     lua_pushstring(L, [title UTF8String]);
@@ -110,7 +110,7 @@ static hydradoc doc_window_subrole = {
 };
 
 static int window_subrole(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     NSString* str = get_window_prop(win, NSAccessibilitySubroleAttribute, @"");
     
@@ -124,7 +124,7 @@ static hydradoc doc_window_role = {
 };
 
 static int window_role(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     NSString* str = get_window_prop(win, NSAccessibilityRoleAttribute, @"");
     
@@ -138,7 +138,7 @@ static hydradoc doc_window_isstandard = {
 };
 
 static int window_isstandard(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     NSString* subrole = get_window_prop(win, NSAccessibilitySubroleAttribute, @"");
     
     BOOL is_standard = [subrole isEqualToString: (__bridge NSString*)kAXStandardWindowSubrole];
@@ -152,7 +152,7 @@ static hydradoc doc_window_topleft = {
 };
 
 static int window_topleft(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     CFTypeRef positionStorage;
     AXError result = AXUIElementCopyAttributeValue(win, (CFStringRef)NSAccessibilityPositionAttribute, &positionStorage);
@@ -182,7 +182,7 @@ static hydradoc doc_window_size = {
 };
 
 static int window_size(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     CFTypeRef sizeStorage;
     AXError result = AXUIElementCopyAttributeValue(win, (CFStringRef)NSAccessibilitySizeAttribute, &sizeStorage);
@@ -212,7 +212,7 @@ static hydradoc doc_window_settopleft = {
 };
 
 static int window_settopleft(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     NSPoint thePoint = hydra_topoint(L, 2);
     
     CFTypeRef positionStorage = (CFTypeRef)(AXValueCreate(kAXValueCGPointType, (const void *)&thePoint));
@@ -229,7 +229,7 @@ static hydradoc doc_window_setsize = {
 };
 
 static int window_setsize(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     NSSize theSize = hydra_tosize(L, 2);
     
     CFTypeRef sizeStorage = (CFTypeRef)(AXValueCreate(kAXValueCGSizeType, (const void *)&theSize));
@@ -246,7 +246,7 @@ static hydradoc doc_window_close = {
 };
 
 static int window_close(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     BOOL worked = NO;
     AXUIElementRef button = NULL;
@@ -273,7 +273,7 @@ static hydradoc doc_window_minimize = {
 };
 
 static int window_minimize(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     set_window_minimized(win, @YES);
     return 0;
@@ -285,7 +285,7 @@ static hydradoc doc_window_unminimize = {
 };
 
 static int window_unminimize(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     set_window_minimized(win, @NO);
     return 0;
@@ -297,7 +297,7 @@ static hydradoc doc_window_isminimized = {
 };
 
 static int window_isminimized(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     BOOL minimized = [get_window_prop(win, NSAccessibilityMinimizedAttribute, @(NO)) boolValue];
     lua_pushboolean(L, minimized);
@@ -307,7 +307,7 @@ static int window_isminimized(lua_State* L) {
 // args: [win]
 // ret: [pid]
 static int window_pid(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     pid_t pid = 0;
     if (AXUIElementGetPid(win, &pid) == kAXErrorSuccess) {
@@ -343,7 +343,7 @@ static hydradoc doc_window_becomemain = {
 // args: [win]
 // ret: [bool]
 static int window_becomemain(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     BOOL success = (AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilityMainAttribute, kCFBooleanTrue) == kAXErrorSuccess);
     lua_pushboolean(L, success);
@@ -373,7 +373,7 @@ static hydradoc doc_window_id = {
 };
 
 static int window_id(lua_State* L) {
-    AXUIElementRef win = hydra_window(1);
+    AXUIElementRef win = hydra_window(L, 1);
     
     if (luaL_getmetafield(L, 1, "id"))
         return 1;
