@@ -38,6 +38,9 @@ void new_window(lua_State* L, AXUIElementRef win) {
     
     luaL_getmetatable(L, "window");
     lua_setmetatable(L, -2);
+    
+    lua_newtable(L);
+    lua_setuservalue(L, -2);
 }
 
 static AXUIElementRef system_wide_element() {
@@ -373,10 +376,16 @@ static hydradoc doc_window_id = {
 };
 
 static int window_id(lua_State* L) {
+    lua_settop(L, 1);
     AXUIElementRef win = hydra_window(L, 1);
     
-    if (luaL_getmetafield(L, 1, "id"))
+    lua_getuservalue(L, 1);
+    r
+    lua_getfield(L, -1, "id");
+    if (lua_isnumber(L, -1))
         return 1;
+    else
+        lua_pop(L, 1);
     
     CGWindowID winid;
     AXError err = _AXUIElementGetWindow(win, &winid);
@@ -385,12 +394,11 @@ static int window_id(lua_State* L) {
         return 1;
     }
     
-    // set it on metatable and return it
-    lua_getmetatable(L, 1);
+    // cache it
     lua_pushnumber(L, winid);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -3, "id");
+    lua_setfield(L, -2, "id");
     
+    lua_pushnumber(L, winid);
     return 1;
 }
 
