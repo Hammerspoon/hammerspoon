@@ -12,6 +12,13 @@ It may be handy to get a window's app or screen via `window.application` and `wi
 See the `screen` module for detailed explanation of how Hydra uses window/screen coordinates.]]
 
 
+local function _checktype(x, expected)
+  if getmetatable(x) ~= debug.getregistry()[expected] then
+    error(string.format("got %s, expected %s", type(x), expected), 3)
+  end
+end
+
+
 doc.window.allwindows = {"window.allwindows() -> win[]", "Returns all windows"}
 function window.allwindows()
   return fnutils.mapcat(application.runningapplications(), application.allwindows)
@@ -19,6 +26,8 @@ end
 
 doc.window.isvisible = {"window:isvisible() -> bool", "True if the app is not hidden or minimized."}
 function window:isvisible()
+  _checktype(self, "window")
+
   return not self:application():ishidden() and not self:isminimized()
 end
 
