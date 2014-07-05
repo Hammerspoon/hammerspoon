@@ -21,8 +21,5 @@ end
 
 doc.webview.window = {"webview:window() -> window", "Return the window that represents the given webview."}
 function webview:window()
-  for _, win in window.allwindows() do
-    if self:id() == win:id() then return win end
-  end
-  return nil
+  return fnutils.find(window.allwindows(), function(win) return win:id() == self:id() end)
 end
