@@ -20,6 +20,7 @@ static hydradoc doc_timer_runonce = {
 static int timer_runonce(lua_State* L) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        luaL_checktype(L, 1, LUA_TFUNCTION);
         if (lua_pcall(L, 0, 0, 0))
             hydra_handle_error(L);
     });
@@ -33,7 +34,8 @@ static hydradoc doc_timer_doafter = {
 };
 
 static int timer_doafter(lua_State* L) {
-    double delayInSeconds = lua_tonumber(L, 1);
+    double delayInSeconds = luaL_checknumber(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION);
     int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -46,11 +48,13 @@ static int timer_doafter(lua_State* L) {
     return 0;
 }
 
-// args: [timer]
-// returns: [timer]
+// args: [fn, sec]
+// returns: [rawtimer]
 static int timer_start(lua_State* L) {
-    NSTimeInterval sec = (lua_getfield(L, 1, "seconds"), lua_tonumber(L, -1));
-    int closureref = (lua_getfield(L, 1, "fn"), luaL_ref(L, LUA_REGISTRYINDEX));
+    luaL_checktype(L, 1, LUA_TFUNCTION);
+    NSTimeInterval sec = luaL_checknumber(L, 2);
+    lua_settop(L, 2); // just to be safe
+    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     PHTimerDelegator* delegator = [[PHTimerDelegator alloc] init];
     delegator.closureRef = closureref;
@@ -62,27 +66,22 @@ static int timer_start(lua_State* L) {
     
     delegator.timer = [NSTimer scheduledTimerWithTimeInterval:sec target:delegator selector:@selector(fired:) userInfo:nil repeats:YES];
     
-    // set the timer as a field
     lua_pushlightuserdata(L, (__bridge_retained void*)delegator);
-    lua_setfield(L, 1, "__timer");
-    
-    // return the original arg, as a convenience to the user
-    lua_pushvalue(L, 1);
     return 1;
 }
 
-// args: [timer]
-// returns: [timer]
+// args: [rawtimer]
+// returns: []
 static int timer_stop(lua_State* L) {
-    lua_getfield(L, 1, "__timer");
-    PHTimerDelegator* delegator = (__bridge_transfer PHTimerDelegator*)lua_touserdata(L, -1);
+    luaL_checktype(L, 1, LUA_TUSERDATA);
+    PHTimerDelegator* delegator = (__bridge_transfer PHTimerDelegator*)lua_touserdata(L, 1);
     
     [delegator.timer invalidate];
     delegator.timer = nil;
     luaL_unref(L, LUA_REGISTRYINDEX, delegator.closureRef);
+    delegator = nil;
     
-    lua_pushvalue(L, 1);
-    return 1;
+    return 0;
 }
 
 static const luaL_Reg timerlib[] = {

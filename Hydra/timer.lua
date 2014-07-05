@@ -18,18 +18,20 @@ function timer.new(seconds, fn)
   return setmetatable({seconds = seconds, fn = fn}, {__index = timer})
 end
 
-doc.timer.start = {"timer:start() -> timer", "Begins to execute timer.fn every timer.seconds; calling this does not cause an initial firing of the timer immediately."}
+doc.timer.start = {"timer:start() -> self", "Begins to execute timer.fn every timer.seconds; calling this does not cause an initial firing of the timer immediately."}
 function timer:start()
   local id = timer.timers.n + 1
   timer.timers.n = id
   self.__id = id
-  return self:_start()
+  self.__rawtimer = timer._start(self.fn, self.seconds)
+  return self
 end
 
-doc.timer.stop = {"timer:stop() -> timer", "Stops the timer's fn from getting called until started again."}
+doc.timer.stop = {"timer:stop() -> self", "Stops the timer's fn from getting called until started again."}
 function timer:stop()
   timer.timers[self.__id] = nil
-  return self:_stop()
+  timer._stop(self.__rawtimer)
+  return self
 end
 
 doc.timer.stopall = {"timer.stopall()", "Stops all running timers; called automatically when user config reloads."}
