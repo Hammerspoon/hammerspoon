@@ -1,26 +1,22 @@
 #import "helpers.h"
 void new_window(lua_State* L, AXUIElementRef win);
 
-
-static AXUIElementRef axref_for_app(lua_State* L, int idx) {
-    lua_getfield(L, idx, "pid");
-    AXUIElementRef app = AXUIElementCreateApplication(lua_tonumber(L, -1));
-    lua_pop(L, 1);
-    return app;
-}
-
+#define hydra_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "application"))
 
 static NSRunningApplication* nsobject_for_app(lua_State* L, int idx) {
-    lua_getfield(L, idx, "pid");
+    hydra_app(L, idx); // for type checking
+    luaL_getmetafield(L, idx, "pid");
     NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
     lua_pop(L, 1);
     return app;
 }
 
-
 static int application_eq(lua_State* L) {
-    lua_getfield(L, 1, "pid");
-    lua_getfield(L, 2, "pid");
+    hydra_app(L, 1); // for type checking
+    hydra_app(L, 2); // for type checking
+    
+    luaL_getmetafield(L, 1, "pid");
+    luaL_getmetafield(L, 2, "pid");
     
     BOOL equal = (lua_tonumber(L, -1) == lua_tonumber(L, -2));
     lua_pushboolean(L, equal);
@@ -28,12 +24,16 @@ static int application_eq(lua_State* L) {
 }
 
 void new_application(lua_State* L, pid_t pid) {
-    lua_newtable(L);
+    AXUIElementRef app = AXUIElementCreateApplication(pid);
+    
+    AXUIElementRef* appptr = lua_newuserdata(L, sizeof(AXUIElementRef));
+    *appptr = app;
+    
+    luaL_getmetatable(L, "application");
     
     lua_pushnumber(L, pid);
     lua_setfield(L, -2, "pid");
     
-    luaL_getmetatable(L, "application");
     lua_setmetatable(L, -2);
 }
 
@@ -99,7 +99,7 @@ static hydradoc doc_application_allwindows = {
 };
 
 static int application_allwindows(lua_State* L) {
-    AXUIElementRef app = axref_for_app(L, 1);
+    AXUIElementRef app = hydra_app(L, 1);
     
     lua_newtable(L);
     
@@ -169,7 +169,7 @@ static hydradoc doc_application_unhide = {
 };
 
 static int application_unhide(lua_State* L) {
-    AXUIElementRef app = axref_for_app(L, 1);
+    AXUIElementRef app = hydra_app(L, 1);
     
     set_app_prop(app, NSAccessibilityHiddenAttribute, @NO);
     CFRelease(app);
@@ -181,10 +181,8 @@ static hydradoc doc_application_hide = {
     "Hides the app (and all its windows)."
 };
 
-// args: [app]
-// ret: []
 static int application_hide(lua_State* L) {
-    AXUIElementRef app = axref_for_app(L, 1);
+    AXUIElementRef app = hydra_app(L, 1);
     
     set_app_prop(app, NSAccessibilityHiddenAttribute, @YES);
     CFRelease(app);
@@ -196,8 +194,6 @@ static hydradoc doc_application_kill = {
     "Tries to terminate the app."
 };
 
-// args: [app]
-// ret: []
 static int application_kill(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     
@@ -210,8 +206,6 @@ static hydradoc doc_application_kill9 = {
     "Assuredly terminates the app."
 };
 
-// args: [app]
-// ret: []
 static int application_kill9(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     
@@ -224,10 +218,8 @@ static hydradoc doc_application_ishidden = {
     "Returns whether the app is currently hidden."
 };
 
-// args: [app]
-// ret: [bool]
 static int application_ishidden(lua_State* L) {
-    AXUIElementRef app = axref_for_app(L, 1);
+    AXUIElementRef app = hydra_app(L, 1);
     
     CFTypeRef _isHidden;
     NSNumber* isHidden = @NO;
@@ -238,6 +230,17 @@ static int application_ishidden(lua_State* L) {
     CFRelease(app);
     
     lua_pushboolean(L, [isHidden boolValue]);
+    return 1;
+}
+
+static hydradoc doc_application_pid = {
+    "application", "pid", "application:pid() -> number",
+    "Returns the app's process identifier."
+};
+
+static int application_pid(lua_State* L) {
+    hydra_app(L, 1); // type checking
+    luaL_getmetafield(L, 1, "pid");
     return 1;
 }
 
@@ -255,6 +258,7 @@ static const luaL_Reg applicationlib[] = {
     {"kill", application_kill},
     {"kill9", application_kill9},
     {"ishidden", application_ishidden},
+    {"pid", application_pid},
     
     {NULL, NULL}
 };
@@ -273,6 +277,7 @@ int luaopen_application(lua_State* L) {
     hydra_add_doc_item(L, &doc_application_kill);
     hydra_add_doc_item(L, &doc_application_kill9);
     hydra_add_doc_item(L, &doc_application_ishidden);
+    hydra_add_doc_item(L, &doc_application_pid);
     
     luaL_newlib(L, applicationlib);
     
