@@ -2,14 +2,14 @@
 #import "helpers.h"
 UInt32 PHKeyCodeForString(NSString* str);
 
-static int hotkey_clojure_ref;
+static int hotkey_closure_ref;
 
 static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {
     EventHotKeyID eventID;
     GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
     
     lua_State* L = inUserData;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, hotkey_clojure_ref);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, hotkey_closure_ref);
     
     lua_pushnumber(L, eventID.id);
     
@@ -23,7 +23,7 @@ static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef i
 // ret: []
 static int hotkey_setup(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
-    hotkey_clojure_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    hotkey_closure_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
     InstallEventHandler(GetEventDispatcherTarget(), hotkey_callback, 1, &hotKeyPressedSpec, L, NULL);
