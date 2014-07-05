@@ -36,7 +36,6 @@ void hydra_add_doc_item(lua_State* L, hydradoc* doc) {
 }
 
 
-// TODO: use this pattern for all types; use them everywhere!
 NSSize hydra_tosize(lua_State* L, int idx) {
     luaL_checktype(L, idx, LUA_TTABLE);
     CGFloat w = (lua_getfield(L, idx, "w"), luaL_checknumber(L, -1));
