@@ -152,7 +152,8 @@ function repl.open(opts)
   local previousindockstate = hydra.indock()
   hydra.putindock(true)
 
-  local win = textgrid.open()
+  local win = textgrid.new()
+  win:show()
   repl._replwin = win
 
   win:settitle("Hydra REPL")
@@ -214,7 +215,7 @@ function repl.open(opts)
     scrollpos = math.max(scrollpos, (#stdout+1) - size.h)
   end
 
-  win.resized = redraw
+  win:resized(redraw)
 
   local function appendstdout(line, kind)
     line = line:gsub("\t", "  ")
@@ -228,11 +229,11 @@ function repl.open(opts)
 
   local loghandler = logger.addhandler(receivedlog)
 
-  function win.closed()
-    hydra.putindock(previousindockstate)
-    logger.removehandler(loghandler)
-    repl._replwin = nil
-  end
+  win:closed(function()
+      hydra.putindock(previousindockstate)
+      logger.removehandler(loghandler)
+      repl._replwin = nil
+  end)
 
   local function runcommand()
     local command = stdin:tostring()
@@ -410,7 +411,7 @@ function repl.open(opts)
     {"right", mods.none, gocharforward},
   }
 
-  function win.keydown(t)
+  local function handlekeypress(t)
     local mod = mods.none
     if t.ctrl  then mod = bit32.bor(mod, mods.ctrl) end
     if t.alt   then mod = bit32.bor(mod, mods.alt) end
@@ -435,6 +436,8 @@ function repl.open(opts)
 
     redraw()
   end
+
+  win:keydown(handlekeypress)
 
   redraw()
   win:focus()

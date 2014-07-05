@@ -93,9 +93,9 @@ function logger.show()
     end
   end
 
-  win.resized = redraw
+  win:resized(redraw)
 
-  function win.keydown(t)
+  local function handlekey(t)
     local size = win:getsize()
     local h = size.h
 
@@ -117,11 +117,11 @@ function logger.show()
     redraw()
   end
 
-  local loghandler = logger.addhandler(redraw)
+  win:keydown(handlekey)
 
-  function win.closed()
-    logger.removehandler(loghandler)
-  end
+  local loghandler = logger.addhandler(redraw)
+  local removeloghandler = function() logger.removehandler(loghandler) end
+  win:closed(removeloghandler)
 
   redraw()
   win:focus()
