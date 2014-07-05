@@ -1,6 +1,12 @@
 notify.registry = {}
 notify.registry.n = 0
 
+local function callback(tag)
+
+end
+
+timer.runonce(function() notify._setup(callback) end)
+
 doc.notify.register = {"notify.register(tag, fn()) -> id", "Registers a function to be called when an Apple notification with the given tag is clicked."}
 function notify.register(tag, fn)
   id = notify.registry.n + 1
