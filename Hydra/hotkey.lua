@@ -17,7 +17,10 @@ local function callback(uid)
   k.fn()
 end
 
-timer.runonce(function() hotkey._setup(callback) end)
+if not _timersetup then
+  hotkey._setup(callback)
+  _timersetup = true
+end
 
 doc.hotkey.new = {"hotkey.new(mods, key, fn) -> hotkey", "Creates a new hotkey that can be enabled. The hotkey has the public fields: key, mods, fn."}
 local hotkey_metatable = {__index = hotkey}

@@ -12,22 +12,6 @@
 }
 @end
 
-static hydradoc doc_timer_runonce = {
-    "timer", "runonce", "timer.runonce(fn())",
-    "Runs the function exactly once in the entire lifespan of Hydra; reset only when you quit/restart."
-};
-
-static int timer_runonce(lua_State* L) {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        luaL_checktype(L, 1, LUA_TFUNCTION);
-        if (lua_pcall(L, 0, 0, 0))
-            hydra_handle_error(L);
-    });
-    
-    return 0;
-}
-
 static hydradoc doc_timer_doafter = {
     "timer", "doafter", "timer.doafter(sec, fn())",
     "Runs the function after sec seconds."
@@ -85,7 +69,6 @@ static int timer_stop(lua_State* L) {
 }
 
 static const luaL_Reg timerlib[] = {
-    {"runonce", timer_runonce},
     {"doafter", timer_doafter},
     {"_start", timer_start},
     {"_stop", timer_stop},
@@ -94,7 +77,6 @@ static const luaL_Reg timerlib[] = {
 
 int luaopen_timer(lua_State* L) {
     hydra_add_doc_group(L, "timer", "Execute functions with various timing rules.");
-    hydra_add_doc_item(L, &doc_timer_runonce);
     hydra_add_doc_item(L, &doc_timer_doafter);
     
     luaL_newlib(L, timerlib);
