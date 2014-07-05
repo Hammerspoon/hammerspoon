@@ -7,11 +7,8 @@ static hydradoc doc_mouse_get = {
 
 static int mouse_get(lua_State* L) {
     CGEventRef ourEvent = CGEventCreate(NULL);
-    CGPoint p = CGEventGetLocation(ourEvent);
-    
-    lua_newtable(L);
-    lua_pushnumber(L, p.x); lua_setfield(L, -2, "x");
-    lua_pushnumber(L, p.y); lua_setfield(L, -2, "y");
+    hydra_pushpoint(L, CGEventGetLocation(ourEvent));
+    CFRelease(ourEvent);
     return 1;
 }
 
@@ -21,11 +18,7 @@ static hydradoc doc_mouse_set = {
 };
 
 static int mouse_set(lua_State* L) {
-    CGFloat x = (lua_getfield(L, 1, "x"), lua_tonumber(L, -1));
-    CGFloat y = (lua_getfield(L, 1, "y"), lua_tonumber(L, -1));
-    
-    CGPoint p = CGPointMake(x, y);
-    CGWarpMouseCursorPosition(p);
+    CGWarpMouseCursorPosition(hydra_topoint(L, 1));
     return 0;
 }
 
