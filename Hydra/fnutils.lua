@@ -86,13 +86,15 @@ function fnutils.find(t, fn)
   return nil
 end
 
-doc.fnutils.compose = {"fnutils.compose(...) -> fn", "Returns the composition of arg (...)."}
-function compose(...)
+doc.fnutils.sequence = {"fnutils.sequence(...) -> fn", "Returns a list of the results of the passed functions."}
+function sequence(...)
    local arg = table.pack(...)
    return function()
+      local results = {}
       for _, fn in ipairs(arg) do
-         fn()
+         table.insert(results, fn())
       end
+      return results
    end
 end
 
