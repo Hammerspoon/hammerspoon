@@ -380,7 +380,7 @@ static int window_id(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
     lua_getuservalue(L, 1);
-    r
+    
     lua_getfield(L, -1, "id");
     if (lua_isnumber(L, -1))
         return 1;
