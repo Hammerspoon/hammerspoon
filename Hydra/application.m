@@ -60,7 +60,7 @@ static hydradoc doc_application_applicationforpid = {
 };
 
 static int application_applicationforpid(lua_State* L) {
-    pid_t pid = lua_tonumber(L, 1);
+    pid_t pid = luaL_checknumber(L, 1);
     
     NSRunningApplication* runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
     
@@ -78,7 +78,7 @@ static hydradoc doc_application_applicationsforbundleid = {
 };
 
 static int application_applicationsforbundleid(lua_State* L) {
-    const char* bundleid = lua_tostring(L, 1);
+    const char* bundleid = luaL_checkstring(L, 1);
     NSString* bundleIdentifier = [NSString stringWithUTF8String:bundleid];
     
     lua_newtable(L);
