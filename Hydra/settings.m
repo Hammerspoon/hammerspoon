@@ -82,7 +82,7 @@ static hydradoc doc_settings_set = {
 };
 
 static int settings_set(lua_State* L) {
-    id key = nsobject_for_luavalue(L, 1);
+    NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     id val = nsobject_for_luavalue(L, 2);
     [[NSUserDefaults standardUserDefaults] setObject:val forKey:key];
     
@@ -95,7 +95,7 @@ static hydradoc doc_settings_get = {
 };
 
 static int settings_get(lua_State* L) {
-    id key = nsobject_for_luavalue(L, 1);
+    NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     id val = [[NSUserDefaults standardUserDefaults] objectForKey:key];
     
     push_luavalue_for_nsobject(L, val);
