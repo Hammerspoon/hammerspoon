@@ -1,13 +1,15 @@
 #import "helpers.h"
 
+#define hydra_screen(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "screen"))
+
+
 static hydradoc doc_screen_frame = {
     "screen", "frame", "screen.frame(screen) -> rect",
     "Returns a screen's frame in its own coordinate space."
 };
 
 static int screen_frame(lua_State* L) {
-    lua_getfield(L, 1, "__screen");
-    NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
+    NSScreen* screen = hydra_screen(L, 1);
     hydra_pushrect(L, [screen frame]);
     return 1;
 }
@@ -18,8 +20,7 @@ static hydradoc doc_screen_visibleframe = {
 };
 
 static int screen_visibleframe(lua_State* L) {
-    lua_getfield(L, 1, "__screen");
-    NSScreen* screen = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
+    NSScreen* screen = hydra_screen(L, 1);
     hydra_pushrect(L, [screen visibleFrame]);
     return 1;
 }
@@ -65,30 +66,21 @@ static int screen_settint(lua_State* L) {
 }
 
 static int screen_gc(lua_State* L) {
-    lua_getfield(L, 1, "__screen");
-    void** screenptr = lua_touserdata(L, -1);
-    NSScreen* screen = (__bridge_transfer NSScreen*)*screenptr;
+    NSScreen* screen = (__bridge_transfer NSScreen*)*((void**)luaL_checkudata(L, 1, "screen"));
     screen = nil;
     return 0;
 }
 
 static int screen_eq(lua_State* L) {
-    lua_getfield(L, 1, "__screen");
-    NSScreen* screenA = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
-    
-    lua_getfield(L, 2, "__screen");
-    NSScreen* screenB = (__bridge NSScreen*)*((void**)lua_touserdata(L, -1));
-    
+    NSScreen* screenA = hydra_screen(L, 1);
+    NSScreen* screenB = hydra_screen(L, 2);
     lua_pushboolean(L, [screenA isEqual: screenB]);
     return 1;
 }
 
 void new_screen(lua_State* L, NSScreen* screen) {
-    lua_newtable(L);
-    
     void** screenptr = lua_newuserdata(L, sizeof(void*));
     *screenptr = (__bridge_retained void*)screen;
-    lua_setfield(L, -2, "__screen");
     
     luaL_getmetatable(L, "screen");
     lua_setmetatable(L, -2);
