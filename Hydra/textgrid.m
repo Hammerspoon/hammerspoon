@@ -1,6 +1,5 @@
 #import "helpers.h"
 #import "HDTextGridController.h"
-void new_window_for_nswindow(lua_State* L, NSWindow* win);
 
 static NSColor* HDColorFromHex(const char* hex) {
     static NSMutableDictionary* colors;
@@ -206,14 +205,14 @@ static int textgrid_settitle(lua_State *L) {
     return 0;
 }
 
-static hydradoc doc_textgrid_window = {
-    "textgrid", "window", "textgrid:window() -> window",
-    "Returns the window that represents this textgrid."
+static hydradoc doc_textgrid_id = {
+    "textgrid", "id", "textgrid:id() -> number",
+    "Returns a unique identifier for the textgrid's window."
 };
 
-static int textgrid_window(lua_State *L) {
+static int textgrid_id(lua_State *L) {
     HDTextGridController* wc = get_textgrid_wc(L, 1);
-    new_window_for_nswindow(L, [wc window]);
+    lua_pushnumber(L, [[wc window] windowNumber]);
     return 1;
 }
 
@@ -378,7 +377,7 @@ static const luaL_Reg textgridlib[] = {
     {"getfont", textgrid_getfont},
     {"settitle", textgrid_settitle},
     {"focus", textgrid_focus},
-    {"window", textgrid_window},
+    {"id", textgrid_id},
     {"sethasshadow", textgrid_sethasshadow},
     {"sethasborder", textgrid_sethasborder},
     
@@ -402,7 +401,7 @@ int luaopen_textgrid(lua_State* L) {
     hydra_add_doc_item(L, &doc_textgrid_getfont);
     hydra_add_doc_item(L, &doc_textgrid_settitle);
     hydra_add_doc_item(L, &doc_textgrid_focus);
-    hydra_add_doc_item(L, &doc_textgrid_window);
+    hydra_add_doc_item(L, &doc_textgrid_id);
     hydra_add_doc_item(L, &doc_textgrid_sethasshadow);
     hydra_add_doc_item(L, &doc_textgrid_sethasborder);
     

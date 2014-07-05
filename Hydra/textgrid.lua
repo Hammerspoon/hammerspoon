@@ -34,3 +34,11 @@ function textgrid.closeall()
   end
   textgrid.textgrids.n = 0
 end
+
+doc.textgrid.window = {"textgrid:window() -> window", "Return the window that represents the given textgrid."}
+function textgrid:window()
+  for _, win in window.allwindows() do
+    if self:id() == win:id() then return win end
+  end
+  return nil
+end

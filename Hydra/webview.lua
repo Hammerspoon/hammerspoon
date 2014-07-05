@@ -18,3 +18,11 @@ function webview:loadfile(path)
   f:close()
   self:loadstring(str, dirname(path))
 end
+
+doc.webview.window = {"webview:window() -> window", "Return the window that represents the given webview."}
+function webview:window()
+  for _, win in window.allwindows() do
+    if self:id() == win:id() then return win end
+  end
+  return nil
+end

@@ -1,6 +1,5 @@
 #import "helpers.h"
 #import <WebKit/WebKit.h>
-void new_window_for_nswindow(lua_State* L, NSWindow* win);
 
 @interface PHWebViewController : NSWindowController <NSWindowDelegate>
 
@@ -221,14 +220,14 @@ static int webview_setignoresmouse(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_webview_window = {
-    "webview", "window", "webview:window() -> window",
-    "Return the window that represents the given webview."
+static hydradoc doc_webview_id = {
+    "webview", "id", "webview:id() -> number",
+    "Return a unique identifier for the webview's window."
 };
 
-static int webview_window(lua_State* L) {
+static int webview_id(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
-    new_window_for_nswindow(L, [wc window]);
+    lua_pushnumber(L, [[wc window] windowNumber]);
     return 1;
 }
 
@@ -241,7 +240,7 @@ static const luaL_Reg webviewlib[] = {
     {"loadstring", webview_loadstring},
     {"loadurl", webview_loadurl},
     {"setignoresmouse", webview_setignoresmouse},
-    {"window", webview_window},
+    {"id", webview_id},
     {NULL, NULL}
 };
 
@@ -256,7 +255,7 @@ int luaopen_webview(lua_State* L) {
     hydra_add_doc_item(L, &doc_webview_setignoresmouse);
     hydra_add_doc_item(L, &doc_webview_clicked);
     hydra_add_doc_item(L, &doc_webview_closed);
-    hydra_add_doc_item(L, &doc_webview_window);
+    hydra_add_doc_item(L, &doc_webview_id);
     
     luaL_newlib(L, webviewlib);
     return 1;
