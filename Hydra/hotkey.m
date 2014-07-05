@@ -2,6 +2,34 @@
 #import "helpers.h"
 UInt32 PHKeyCodeForString(NSString* str);
 
+static int hotkey_clojure_ref;
+
+static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {
+    EventHotKeyID eventID;
+    GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
+    
+    lua_State* L = inUserData;
+    lua_rawgeti(L, LUA_REGISTRYINDEX, hotkey_clojure_ref);
+    
+    lua_pushnumber(L, eventID.id);
+    
+    if (lua_pcall(L, 1, 0, 0))
+        hydra_handle_error(L);
+    
+    return noErr;
+}
+
+// args: [fn(int)]
+// ret: []
+static int hotkey_setup(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TFUNCTION);
+    hotkey_clojure_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
+    InstallEventHandler(GetEventDispatcherTarget(), hotkey_callback, 1, &hotKeyPressedSpec, L, NULL);
+    
+    return 0;
+}
 
 // args: [uid, key, ctrl, cmd, alt, shift]
 // ret: [carbonkey]
@@ -38,50 +66,15 @@ static int hotkey_unregister(lua_State* L) {
 }
 
 static const luaL_Reg hotkeylib[] = {
+    {"_setup", hotkey_setup},
     {"_register", hotkey_register},
     {"_unregister", hotkey_unregister},
     {NULL, NULL}
 };
 
-static OSStatus(^hotkey_closure)(UInt32 uid);
-
-static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {
-    EventHotKeyID eventID;
-    GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
-    return hotkey_closure(eventID.id);
-}
-
-void setup_hotkey_callback(lua_State *L, int idx) {
-    lua_pushvalue(L, idx);
-    int hotkeyref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
-    hotkey_closure = ^OSStatus(UInt32 uid) {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, hotkeyref);
-        lua_getfield(L, -1, "keys");
-        lua_rawgeti(L, -1, uid);
-        lua_getfield(L, -1, "fn");
-        
-        if (lua_pcall(L, 0, 0, 0))
-            hydra_handle_error(L);
-        
-        lua_pop(L, 3);
-        
-        return noErr;
-    };
-    
-    EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
-    InstallEventHandler(GetEventDispatcherTarget(), hotkey_callback, 1, &hotKeyPressedSpec, NULL, NULL);
-}
-
 int luaopen_hotkey(lua_State* L) {
     hydra_add_doc_group(L, "hotkey", "Manage global hotkeys.");
     
     luaL_newlib(L, hotkeylib);
-    
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        setup_hotkey_callback(L, -1);
-    });
-    
     return 1;
 }

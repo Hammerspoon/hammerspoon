@@ -12,6 +12,13 @@ The `key` field is case-insensitive and may be any single-character string; it m
 hotkey.keys = {}
 hotkey.keys.n = 0
 
+local function callback(uid)
+  local k = hotkey.keys[uid]
+  k.fn()
+end
+
+timer.runonce(function() hotkey._setup(callback) end)
+
 doc.hotkey.new = {"hotkey.new(mods, key, fn) -> hotkey", "Creates a new hotkey that can be enabled. The hotkey has the public fields: key, mods, fn."}
 local hotkey_metatable = {__index = hotkey}
 function hotkey.new(mods, key, fn)
