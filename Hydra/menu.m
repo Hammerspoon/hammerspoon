@@ -46,6 +46,7 @@ static hydradoc doc_menu_show = {
 
 static int menu_show(lua_State* L) {
     if (!statusItem) {
+        luaL_checktype(L, 1, LUA_TFUNCTION);
         show_closureref = luaL_ref(L, LUA_REGISTRYINDEX);
         
         NSImage* img = [NSImage imageNamed:@"menu"];
@@ -78,6 +79,7 @@ static int menu_show(lua_State* L) {
                     // table is at top; enumerate each k/v pair
                     
                     lua_getfield(L, -1, "title");
+                    if (!lua_isstring(L, -1)) luaL_error(L, "error in menu module: expected title to be string.");
                     NSString* title = [NSString stringWithUTF8String: lua_tostring(L, -1)];
                     lua_pop(L, 1);
                     
