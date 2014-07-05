@@ -149,6 +149,9 @@ function repl.open(opts)
     return
   end
 
+  local previousindockstate = hydra.indock()
+  hydra.putindock(true)
+
   local win = textgrid.open()
   repl._replwin = win
 
@@ -226,6 +229,7 @@ function repl.open(opts)
   local loghandler = logger.addhandler(receivedlog)
 
   function win.closed()
+    hydra.putindock(previousindockstate)
     logger.removehandler(loghandler)
     repl._replwin = nil
   end
