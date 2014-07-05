@@ -118,34 +118,29 @@ donate what you believe would have been a fair price for a license:
 
 ### FAQ
 
-##### How does Hydra compare to Slate, Zephyros, or Phoenix?
+##### How does Hydra compare to Zephyros or Phoenix?
 
-Hydra aims to be very modular. Even the menu bar icon is a module you
-can customize very flexibly or skip altogether. Non-essential features
-are left up to third party extensions (see the github wiki for the
-official list).
+Hydra is the successor to my older Phoenix and Zephyros projects.
 
-Hydra is written in Lua to stay lightweight, rather than interpreting
-JavaScript in a hidden WebView or being scripted over a TCP socket. It
-is very conscious of system resources, having an explicit goal to
-always be lightweight.
+##### How does Hydra compare to Slate?
 
-##### How does Hydra compare to Moom, SizeUp, Divvy, etc?
+They're both programmer-centric with mostly similar goals. Look over
+their APIs and see which one suits you better.
+
+##### How does Hydra compare to Spectacle, Moom, SizeUp, Divvy, etc?
 
 Hydra is intended for programmers who want to write programs that
 customize their environment. It's not intended to be a quick-and-easy
 solution, it's meant to allow you to write your own very personalized
 productivity enhancement suite to keep and use long-term.
 
-##### Hydra's API is missing such-and-such feature!
+##### Can you add ____ feature?
 
-Hey, that's not really a question ;) I'm open to feature requests,
-just file an issue! (But chances are it will probably be marked a
-duplicate.)
+Maybe. File an issue and we'll find out!
 
 ##### Where can I find a comprehensive and detailed list of alternatives to Hydra?
 
-https://news.ycombinator.com/item?id=7982514
+- https://news.ycombinator.com/item?id=7982514
 
 
 ### License
