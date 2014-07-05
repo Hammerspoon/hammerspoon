@@ -37,7 +37,6 @@ static int notify_show(lua_State* L) {
 
 static int notify_setup(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
-    
     int closure = luaL_ref(L, LUA_REGISTRYINDEX);
     
     notify_delegate = [[PHNotificationDelegate alloc] init];
