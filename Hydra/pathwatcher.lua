@@ -22,13 +22,13 @@ function pathwatcher:start()
   pathwatcher.pathwatchers[id] = self
   pathwatcher.pathwatchers.n = id
 
-  return self:_start()
+  self.__stream, self.__closure = pathwatcher._start(self.path, self.fn)
 end
 
 doc.pathwatcher.stop = {"pathwatcher:stop()", "Unregisters pathwatcher's fn so it won't be called again until the pathwatcher is restarted."}
 function pathwatcher:stop()
   pathwatcher.pathwatchers[self.__id] = nil
-  return self:_stop()
+  pathwatcher._stop(self.__stream, self.__closure)
 end
 
 doc.pathwatcher.stopall = {"pathwatcher.stopall()", "Calls p:stop() for all started pathwatchers; called automatically when user config reloads."}

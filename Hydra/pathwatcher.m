@@ -5,13 +5,12 @@ void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, s
     block();
 }
 
-// args: [patchwatcher]
-// returns: []
+// args: [path, fn]
+// returns: [stream, ref]
 static int pathwatcher_start(lua_State* L) {
-    lua_getfield(L, 1, "path");
-    NSString* path = [NSString stringWithUTF8String: lua_tostring(L, -1)];
-    
-    lua_getfield(L, 1, "fn");
+    NSString* path = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    luaL_checktype(L, 2, LUA_TFUNCTION);
+    lua_settop(L, 2);
     int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     dispatch_block_t block = ^{
@@ -37,22 +36,16 @@ static int pathwatcher_start(lua_State* L) {
     FSEventStreamStart(stream);
     
     lua_pushlightuserdata(L, stream);
-    lua_setfield(L, 1, "__stream");
-    
     lua_pushnumber(L, closureref);
-    lua_setfield(L, 1, "__closureref");
-    
-    return 0;
+    return 2;
 }
 
-// args: [patchwatcher]
+// args: [stream, ref]
 // returns: []
 static int pathwatcher_stop(lua_State* L) {
-    lua_getfield(L, 1, "__stream");
-    FSEventStreamRef stream = lua_touserdata(L, -1);
-    
-    lua_getfield(L, 1, "__closureref");
-    int closureref = lua_tonumber(L, 2);
+    luaL_checktype(L, 1, LUA_TUSERDATA);
+    FSEventStreamRef stream = lua_touserdata(L, 1);
+    int closureref = luaL_checknumber(L, 2);
     
     luaL_unref(L, LUA_REGISTRYINDEX, closureref);
     
