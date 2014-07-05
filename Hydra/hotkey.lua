@@ -26,15 +26,30 @@ function hotkey:enable()
   hotkey.keys[uid] = self
   self.__uid = uid
 
-  return self:_enable()
+  local ctrl = false
+  local alt = false
+  local cmd = false
+  local shift = false
+
+  for _, mod in pairs(self.mods) do
+    if mod:lower() == 'cmd' then cmd = true end
+    if mod:lower() == 'ctrl' then ctrl = true end
+    if mod:lower() == 'alt' then alt = true end
+    if mod:lower() == 'shift' then shift = true end
+  end
+
+  self.__carbonkey = hotkey._register(uid, self.key, ctrl, cmd, alt, shift)
+  return self
 end
 
 doc.hotkey.disable = {"hotkey:disable() -> self", "Disables the given hotkey; does not remove it from hotkey.keys."}
 function hotkey:disable()
+  hotkey._unregister(self.__carbonkey)
+
   hotkey.keys[self.__uid] = nil
   self.__uid = nil
 
-  return self:_disable()
+  return self
 end
 
 doc.hotkey.bind = {"hotkey.bind(mods, key, fn) -> hotkey", "Shortcut for: return hotkey.new(mods, key, fn):enable()"}

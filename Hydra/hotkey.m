@@ -3,31 +3,21 @@
 UInt32 PHKeyCodeForString(NSString* str);
 
 
-// args: [self]
-// ret: [self]
-static int hotkey_enable(lua_State* L) {
-    lua_getfield(L, 1, "__uid");
-    UInt32 uid = lua_tonumber(L, -1);
-    
-    lua_getfield(L, 1, "mods");
+// args: [uid, key, ctrl, cmd, alt, shift]
+// ret: [carbonkey]
+static int hotkey_register(lua_State* L) {
+    UInt32 uid = luaL_checknumber(L, 1);
+    const char* key = luaL_checkstring(L, 2);
+    BOOL ctrl  = lua_toboolean(L, 3);
+    BOOL cmd   = lua_toboolean(L, 4);
+    BOOL alt   = lua_toboolean(L, 5);
+    BOOL shift = lua_toboolean(L, 6);
     
     UInt32 mods = 0;
-    
-    lua_pushnil(L);
-    while (lua_next(L, -2) != 0) {
-        const char* cmod = lua_tostring(L, -1);
-        NSString* mod = [[NSString stringWithUTF8String: cmod ] lowercaseString];
-        
-        if ([mod isEqualToString: @"ctrl"]) mods |= controlKey;
-        else if ([mod isEqualToString: @"cmd"]) mods |= cmdKey;
-        else if ([mod isEqualToString: @"alt"]) mods |= optionKey;
-        else if ([mod isEqualToString: @"shift"]) mods |= shiftKey;
-        
-        lua_pop(L, 1);
-    }
-    
-    lua_getfield(L, 1, "key");
-    const char* key = lua_tostring(L, -1);
+    if (ctrl)  mods |= controlKey;
+    if (cmd)   mods |= cmdKey;
+    if (alt)   mods |= optionKey;
+    if (shift) mods |= shiftKey;
     
     UInt32 keycode = PHKeyCodeForString([NSString stringWithUTF8String:key]);
     
@@ -36,26 +26,20 @@ static int hotkey_enable(lua_State* L) {
     RegisterEventHotKey(keycode, mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &carbonHotKey);
     
     lua_pushlightuserdata(L, carbonHotKey);
-    lua_setfield(L, 1, "__carbonkey");
-    
-    lua_pushvalue(L, 1);
     return 1;
 }
 
-// args: [self]
-// ret: [self]
-static int hotkey_disable(lua_State* L) {
-    lua_getfield(L, 1, "__carbonkey");
-    EventHotKeyRef carbonHotKey = lua_touserdata(L, -1);
+// args: [carbonkey]
+// ret: []
+static int hotkey_unregister(lua_State* L) {
+    EventHotKeyRef carbonHotKey = lua_touserdata(L, 1);
     UnregisterEventHotKey(carbonHotKey);
-    
-    lua_pushvalue(L, 1);
-    return 1;
+    return 0;
 }
 
 static const luaL_Reg hotkeylib[] = {
-    {"_enable", hotkey_enable},
-    {"_disable", hotkey_disable},
+    {"_register", hotkey_register},
+    {"_unregister", hotkey_unregister},
     {NULL, NULL}
 };
 
