@@ -6,7 +6,7 @@ static hydradoc doc_utf8_count = {
 };
 
 static int utf8_count(lua_State* L) {
-    NSString* str = [NSString stringWithUTF8String:lua_tostring(L, 1)];
+    NSString* str = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
     NSInteger len = 0;
     for (NSInteger i = 0; i < [str length]; i++, len++) {
@@ -24,7 +24,7 @@ static hydradoc doc_utf8_chars = {
 };
 
 static int utf8_chars(lua_State* L) {
-    NSString* str = [NSString stringWithUTF8String:lua_tostring(L, 1)];
+    NSString* str = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
     lua_newtable(L);
     int pos = 0;
