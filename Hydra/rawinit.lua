@@ -15,6 +15,7 @@ local ok, err = pcall(function()
     dofile(hydra.resourcesdir .. "/logger.lua")
     dofile(hydra.resourcesdir .. "/updates.lua")
     dofile(hydra.resourcesdir .. "/notify.lua")
+    dofile(hydra.resourcesdir .. "/pprint.lua")
     dofile(hydra.resourcesdir .. "/doc.lua")
 
     -- make lives of third party authors easier
