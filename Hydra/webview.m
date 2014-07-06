@@ -116,7 +116,7 @@ static hydradoc doc_webview_settitle = {
 static int webview_settitle(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     
-    NSString* title = [NSString stringWithUTF8String: lua_tostring(L, 2)];
+    NSString* title = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
     [[wc window] setTitle:title];
     
     return 0;
@@ -130,7 +130,7 @@ static hydradoc doc_webview_setlevel = {
 static int webview_setlevel(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
     
-    NSInteger level = lua_tonumber(L, 2);
+    NSInteger level = luaL_checknumber(L, 2);
     NSWindowCollectionBehavior coBehave = NSWindowAnimationBehaviorDefault;
     switch (level) {
         case -1: level = kCGDesktopIconWindowLevel + 1; coBehave = NSWindowCollectionBehaviorStationary; break;
@@ -183,8 +183,8 @@ static hydradoc doc_webview_loadstring = {
 
 static int webview_loadstring(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
-    NSString* string = [NSString stringWithUTF8String: lua_tostring(L, 2)];
-    NSString* basepath = [NSString stringWithUTF8String: lua_tostring(L, 3)];
+    NSString* string = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
+    NSString* basepath = [NSString stringWithUTF8String: luaL_checkstring(L, 3)];
     
     [[[wc webview] mainFrame] loadHTMLString:string baseURL:[NSURL fileURLWithPath:basepath]];
     
@@ -198,7 +198,7 @@ static hydradoc doc_webview_loadurl = {
 
 static int webview_loadurl(lua_State* L) {
     PHWebViewController* wc = get_window_controller(L, 1);
-    NSString* url = [NSString stringWithUTF8String: lua_tostring(L, 2)];
+    NSString* url = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
     
     [[wc webview] setMainFrameURL:url];
     
