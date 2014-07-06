@@ -87,23 +87,23 @@ end
 
 doc.fnutils.sequence = {"fnutils.sequence(...) -> fn", "Returns a list of the results of the passed functions."}
 function sequence(...)
-   local arg = table.pack(...)
-   return function()
-      local results = {}
-      for _, fn in ipairs(arg) do
-         table.insert(results, fn())
-      end
-      return results
-   end
+  local arg = table.pack(...)
+  return function()
+    local results = {}
+    for _, fn in ipairs(arg) do
+      table.insert(results, fn())
+    end
+    return results
+  end
 end
 
 doc.fnutils.partial = {"fnutils.partial(fn, ...) -> fn'", "Returns fn partially applied to arg (...)."}
 function partial(fn, ...)
-   local args = table.pack(...)
-   return function(...)
-      for idx, val in ipairs(table.pack(...)) do
-         args[args.n + idx] = val
-      end
-      return fn(table.unpack(args))
-   end
+  local args = table.pack(...)
+  return function(...)
+    for idx, val in ipairs(table.pack(...)) do
+      args[args.n + idx] = val
+    end
+    return fn(table.unpack(args))
+  end
 end
