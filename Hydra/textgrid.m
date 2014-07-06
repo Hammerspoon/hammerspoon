@@ -33,8 +33,6 @@ static hydradoc doc_textgrid_getsize = {
     "Returns the size (nubmer of rows and columns) as a size-table with keys {x,y}."
 };
 
-// args: [textgrid]
-// ret: [size]
 static int textgrid_getsize(lua_State *L) {
     HDTextGridController* wc = hydra_textgrid(L, 1);
     
