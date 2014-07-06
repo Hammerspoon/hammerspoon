@@ -101,7 +101,9 @@ Resource                 | Link
 Hydra Documentation      | http://sdegutis.github.io/hydra/
 Lua API                  | http://www.lua.org/manual/5.2/#functions
 Community Contributions  | https://github.com/sdegutis/hydra/wiki
-Mailing List             | https://groups.google.com/forum/#!forum/hydra-wm
+Bug Reports              | https://github.com/sdegutis/hydra/issues
+Feature Requests         | https://github.com/sdegutis/hydra/issues
+General Discussion       | https://github.com/sdegutis/hydra/issues
 IRC channel              | #hydrawm on freenode
 
 ### Donate
