@@ -67,7 +67,7 @@ end
 
 doc.logger.show = {"logger.show() -> textgrid", "Opens a textgrid that can browse all logs."}
 function logger.show()
-  local win = textgrid.open()
+  local win = textgrid.create()
   win:protect()
 
   local pos = 1 -- i.e. line currently at top of log textgrid
