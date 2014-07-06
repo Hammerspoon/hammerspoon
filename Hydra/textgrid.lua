@@ -7,25 +7,25 @@ function textgrid.create()
   return tg
 end
 
-doc.textgrid.close = {"textgrid:close()", "Closes the given textgrid window; after calling this, it can no longer be used; to temporarily close it, use textgrid:hide() instead."}
-function textgrid:close()
+doc.textgrid.destroy = {"textgrid:destroy()", "Destroy the given textgrid window; after calling this, it can no longer be used; to temporarily hide it, use textgrid:hide() instead."}
+function textgrid:destroy()
+  self:hide()
   textgrid.textgrids[self:id()] = nil
-  return self:_close()
 end
 
-doc.textgrid.protect = {"textgrid:protect()", "Prevents the textgrid from being closed when your config is reloaded."}
+doc.textgrid.protect = {"textgrid:protect()", "Prevents the textgrid from being destroyed when your config is reloaded."}
 function textgrid:protect()
   textgrid.textgrids[self:id()] = nil
 end
 
-doc.textgrid.closeall = {"textgrid.closeall()", "Closes all non-protected textgrids; called automatically when user config is reloaded."}
-function textgrid.closeall()
+doc.textgrid.destroyall = {"textgrid.destroyall()", "Destroys all non-protected textgrids; called automatically when user config is reloaded."}
+function textgrid.destroyall()
   for _, tg in pairs(textgrid.textgrids) do
-    tg:close()
+    tg:destroy()
   end
 end
 
-doc.textgrid.window = {"textgrid:window() -> window", "Return the window that represents the given textgrid."}
+doc.textgrid.window = {"textgrid:window() -> window", "Return a window (i.e. of the `window` module) that represents the given textgrid."}
 function textgrid:window()
   return fnutils.find(window.allwindows(), function(win) return win:id() == self:id() end)
 end

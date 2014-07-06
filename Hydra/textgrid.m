@@ -226,14 +226,6 @@ static int textgrid_sethasshadow(lua_State* L) {
     return 0;
 }
 
-static int textgrid_gc(lua_State *L) {
-    HDTextGridController* wc = (__bridge_transfer HDTextGridController*)*((void**)luaL_checkudata(L, 1, "textgrid"));
-    [wc close];
-    wc = nil;
-    
-    return 0;
-}
-
 static hydradoc doc_textgrid_show = {
     "textgrid", "show", "textgrid:show()",
     "Shows the textgrid; does not focus it, use tg:window():focus() for that."
@@ -249,6 +241,16 @@ static hydradoc doc_textgrid_hide = {
     "textgrid", "hide", "textgrid:hide()",
     "Hides the textgrid; if shown again, will appear in same place."
 };
+
+static void replace_textgrid_callback(lua_State* L, const char* key, int ref) {
+    lua_getfield(L, -1, key);
+    if (lua_isnumber(L, -1))
+        luaL_unref(L, LUA_REGISTRYINDEX, lua_tonumber(L, -1));
+    lua_pop(L, 1);
+    
+    lua_pushnumber(L, ref);
+    lua_setfield(L, -2, key);
+}
 
 static int textgrid_hide(lua_State* L) {
     HDTextGridController* wc = hydra_textgrid(L, 1);
@@ -266,7 +268,8 @@ static int textgrid_resized(lua_State* L) {
     luaL_checktype(L, 2, LUA_TFUNCTION);
     int ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
-    // TODO: unref old one if set
+    lua_getuservalue(L, 1);
+    replace_textgrid_callback(L, "resized_ref", ref);
     
     wc.windowResizedHandler = ^{
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
@@ -287,7 +290,8 @@ static int textgrid_keydown(lua_State* L) {
     luaL_checktype(L, 2, LUA_TFUNCTION);
     int ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
-    // TODO: unref old one if set
+    lua_getuservalue(L, 1);
+    replace_textgrid_callback(L, "keydown_ref", ref);
     
     [wc useKeyDownHandler:^(BOOL ctrl, BOOL alt, BOOL cmd, NSString *str) {
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
@@ -317,30 +321,47 @@ static int textgrid_hidden(lua_State* L) {
     luaL_checktype(L, 2, LUA_TFUNCTION);
     int ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
-    // TODO: unref old one if set
+    lua_getuservalue(L, 1);
+    replace_textgrid_callback(L, "hidden_ref", ref);
     
     wc.windowClosedHandler = ^{
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
         if (lua_pcall(L, 0, 0, 0))
             hydra_handle_error(L);
-        
-//        luaL_unref(L, LUA_REGISTRYINDEX, tableref);
     };
+    
     return 0;
 }
 
 // args: []
 // returns: [textgrid]
 static int textgrid_create(lua_State *L) {
-    HDTextGridController* windowController = [[HDTextGridController alloc] init];
+    HDTextGridController* wc = [[HDTextGridController alloc] init];
     
     void** ptr = lua_newuserdata(L, sizeof(void*));
-    *ptr = (__bridge_retained void*)windowController;
+    *ptr = (__bridge_retained void*)wc;
     
     luaL_getmetatable(L, "textgrid");
     lua_setmetatable(L, -2);
     
+    lua_newtable(L);
+    lua_setuservalue(L, -2);
+    
     return 1;
+}
+
+static int textgrid_gc(lua_State *L) {
+    HDTextGridController* wc = (__bridge_transfer HDTextGridController*)*((void**)luaL_checkudata(L, 1, "textgrid"));
+    [wc close]; // just in case
+    wc = nil;
+    
+    lua_getuservalue(L, 1);
+    
+    replace_textgrid_callback(L, "hidden_ref", 0);
+    replace_textgrid_callback(L, "resized_ref", 0);
+    replace_textgrid_callback(L, "keydown_ref", 0);
+    
+    return 0;
 }
 
 static const luaL_Reg textgridlib[] = {

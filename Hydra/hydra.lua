@@ -21,7 +21,7 @@ local function clear_old_state()
   menu.hide()
   pathwatcher.stopall()
   timer.stopall()
-  textgrid.closeall()
+  textgrid.destroyall()
   notify.unregisterall()
 end
 

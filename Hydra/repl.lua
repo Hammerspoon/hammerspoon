@@ -152,7 +152,7 @@ function repl.open(opts)
   local previousindockstate = hydra.indock()
   hydra.putindock(true)
 
-  local win = textgrid.new()
+  local win = textgrid.create()
   win:show()
   repl._replwin = win
 
