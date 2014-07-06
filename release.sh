@@ -4,10 +4,10 @@ set -e
 
 # build app
 xcodebuild clean build
-VERSION=$(defaults read $(pwd)/Hydra/Hydra-Info CFBundleVersion)
-FILENAME="Hydra-$VERSION.app.tar.gz"
+VERSION=$(defaults read "$(pwd)/Hydra/Hydra-Info" CFBundleVersion)
+FILENAME="Hydra-$VERSION.app.zip"
 
 # build .zip
-rm -rf $FILENAME
-tar -zcf $FILENAME -C build/Release Hydra.app
+rm -rf "$FILENAME"
+zip "$FILENAME" build/Release/Hydra.app
 echo "Created $FILENAME"
