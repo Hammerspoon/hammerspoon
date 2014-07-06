@@ -229,7 +229,7 @@ function repl.open(opts)
 
   local loghandler = logger.addhandler(receivedlog)
 
-  win:closed(function()
+  win:hidden(function()
       hydra.putindock(previousindockstate)
       logger.removehandler(loghandler)
       repl._replwin = nil

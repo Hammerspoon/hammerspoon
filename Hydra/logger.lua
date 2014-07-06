@@ -121,7 +121,7 @@ function logger.show()
 
   local loghandler = logger.addhandler(redraw)
   local removeloghandler = function() logger.removehandler(loghandler) end
-  win:closed(removeloghandler)
+  win:hidden(removeloghandler)
 
   redraw()
   win:focus()

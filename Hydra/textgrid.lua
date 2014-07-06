@@ -1,11 +1,9 @@
 textgrid.textgrids = {}
 
-doc.textgrid.new = {"textgrid.new() -> textgrid", "Creates a new (hidden) textgrid window."}
-function textgrid.new()
-  local tg = textgrid._new()
-
+doc.textgrid.create = {"textgrid.create() -> textgrid", "Creates a new (hidden) textgrid window."}
+function textgrid.create()
+  local tg = textgrid._create()
   textgrid.textgrids[tg:id()] = tg
-
   return tg
 end
 

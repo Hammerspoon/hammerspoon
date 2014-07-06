@@ -307,12 +307,12 @@ static int textgrid_keydown(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_textgrid_closed = {
+static hydradoc doc_textgrid_hidden = {
     "textgrid", "closed", "textgrid:closed(fn())",
     "Calls the given function when the textgrid is closed."
 };
 
-static int textgrid_closed(lua_State* L) {
+static int textgrid_hidden(lua_State* L) {
     HDTextGridController* wc = hydra_textgrid(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
     int ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -331,7 +331,7 @@ static int textgrid_closed(lua_State* L) {
 
 // args: []
 // returns: [textgrid]
-static int textgrid_new(lua_State *L) {
+static int textgrid_create(lua_State *L) {
     HDTextGridController* windowController = [[HDTextGridController alloc] init];
     
     void** ptr = lua_newuserdata(L, sizeof(void*));
@@ -344,12 +344,12 @@ static int textgrid_new(lua_State *L) {
 }
 
 static const luaL_Reg textgridlib[] = {
-    {"_new", textgrid_new},
+    {"_create", textgrid_create},
     
     // callbacks
     {"resized", textgrid_resized},
     {"keydown", textgrid_keydown},
-    {"closed", textgrid_closed},
+    {"hidden", textgrid_hidden},
     
     // methods
     {"show", textgrid_show},
@@ -393,7 +393,7 @@ int luaopen_textgrid(lua_State* L) {
     hydra_add_doc_item(L, &doc_textgrid_sethasshadow);
     hydra_add_doc_item(L, &doc_textgrid_sethasborder);
     hydra_add_doc_item(L, &doc_textgrid_resized);
-    hydra_add_doc_item(L, &doc_textgrid_closed);
+    hydra_add_doc_item(L, &doc_textgrid_hidden);
     hydra_add_doc_item(L, &doc_textgrid_keydown);
     
     luaL_newlib(L, textgridlib);
