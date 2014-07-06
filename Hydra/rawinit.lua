@@ -16,7 +16,6 @@ local ok, err = pcall(function()
     dofile(hydra.resourcesdir .. "/updates.lua")
     dofile(hydra.resourcesdir .. "/notify.lua")
     dofile(hydra.resourcesdir .. "/doc.lua")
-    dofile(hydra.resourcesdir .. "/webview.lua")
 
     -- make lives of third party authors easier
     doc.ext = {__doc = "Standard high-level namespace for third-party extensions."}

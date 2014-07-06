@@ -16,7 +16,6 @@ int luaopen_geometry(lua_State* L);
 int luaopen_textgrid(lua_State* L);
 int luaopen_updates(lua_State* L);
 int luaopen_notify(lua_State* L);
-int luaopen_webview(lua_State* L);
 int luaopen_settings(lua_State* L);
 int luaopen_utf8(lua_State* L);
 int luaopen_json(lua_State* L);
@@ -41,7 +40,6 @@ static const luaL_Reg hydralibs[] = {
     {"textgrid",     luaopen_textgrid},
     {"updates",      luaopen_updates},
     {"notify",       luaopen_notify},
-    {"webview",      luaopen_webview},
     {"settings",     luaopen_settings},
     {"utf8",         luaopen_utf8},
     {"json",         luaopen_json},
