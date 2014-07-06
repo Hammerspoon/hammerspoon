@@ -45,16 +45,26 @@ decisionListener:(id<WebPolicyDecisionListener>)listener
 @end
 
 static hydradoc doc_webview_clicked = {
-    "webview", "clicked", "webview.clicked = function(str)",
-    "When a link is clicked with a URL like 'hydra:foo', this function is called (if set) with 'foo' as its argument."
+    "webview", "clicked", "webview:clicked(fn(str))",
+    "When a link is clicked with a URL like 'hydra:foo', the given function is called with 'foo' as its argument."
 };
 
-static hydradoc doc_webview_closed = {
-    "webview", "closed", "webview.closed = function()",
-    "Called (if set) when the webview closes."
+static int webview_clicked(lua_State* L) {
+    // TODO
+    return 0;
+}
+
+static hydradoc doc_webview_hidden = {
+    "webview", "hidden", "webview:hidden(fn())",
+    "Sets the callback for when the webview is hidden."
 };
 
-static int webview_open(lua_State* L) {
+static int webview_hidden(lua_State* L) {
+    // TODO
+    return 0;
+}
+
+static int webview_create(lua_State* L) {
     PHWebViewController* wc = [[PHWebViewController alloc] init];
     [wc showWindow: nil];
     
@@ -232,7 +242,7 @@ static int webview_id(lua_State* L) {
 }
 
 static const luaL_Reg webviewlib[] = {
-    {"_open", webview_open},
+    {"_create", webview_create},
     {"settitle", webview_settitle},
     {"setlevel", webview_setlevel},
     {"sethasborder", webview_sethasborder},
@@ -241,6 +251,8 @@ static const luaL_Reg webviewlib[] = {
     {"loadurl", webview_loadurl},
     {"setignoresmouse", webview_setignoresmouse},
     {"id", webview_id},
+    {"clicked", webview_clicked},
+    {"hidden", webview_hidden},
     {NULL, NULL}
 };
 
@@ -253,9 +265,9 @@ int luaopen_webview(lua_State* L) {
     hydra_add_doc_item(L, &doc_webview_loadstring);
     hydra_add_doc_item(L, &doc_webview_loadurl);
     hydra_add_doc_item(L, &doc_webview_setignoresmouse);
-    hydra_add_doc_item(L, &doc_webview_clicked);
-    hydra_add_doc_item(L, &doc_webview_closed);
     hydra_add_doc_item(L, &doc_webview_id);
+    hydra_add_doc_item(L, &doc_webview_clicked);
+    hydra_add_doc_item(L, &doc_webview_hidden);
     
     luaL_newlib(L, webviewlib);
     return 1;

@@ -1,6 +1,6 @@
-doc.webview.open = {"webview.open()", "Opens and returns a new webview instance; as with all other Hydra objects, it's just a table, and you're free to set whatever keys you want on it."}
-function webview.open()
-  local w = webview._open()
+doc.webview.create = {"webview.create()", "Creates and returns a new (hidden) webview instance."}
+function webview.create()
+  local w = webview._create()
   return setmetatable(w, {__index = webview})
 end
 
