@@ -9,14 +9,6 @@ function geometry.rotateccw(point, aroundpoint, ntimes)
   return p
 end
 
-doc.geometry.rectmidpoint = {"geometry.rectmidpoint(r) -> point", "Returns the midpoint of a rect."}
-function geometry.rectmidpoint(r)
-  return {
-    x = r.x + r.w * 0.5,
-    y = r.y + r.h * 0.5,
-  }
-end
-
 doc.geometry.hypot = {"geometry.hypot(point) -> number", "Returns hypotenuse of a line defined from 0,0 to point."}
 function geometry.hypot(p)
   return math.sqrt(p.x * p.x + p.y * p.y)
