@@ -57,7 +57,7 @@ static int timer_start(lua_State* L) {
 // args: [rawtimer]
 // returns: []
 static int timer_stop(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TUSERDATA);
+    luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
     PHTimerDelegator* delegator = (__bridge_transfer PHTimerDelegator*)lua_touserdata(L, 1);
     
     [delegator.timer invalidate];

@@ -43,7 +43,7 @@ static int pathwatcher_start(lua_State* L) {
 // args: [stream, ref]
 // returns: []
 static int pathwatcher_stop(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TUSERDATA);
+    luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
     FSEventStreamRef stream = lua_touserdata(L, 1);
     int closureref = luaL_checknumber(L, 2);
     
