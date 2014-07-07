@@ -13,6 +13,7 @@
 		94276CA71958809C003BF95B /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 94276CA61958809C003BF95B /* helpers.m */; };
 		943349CE195DB49700B2BE41 /* json.m in Sources */ = {isa = PBXBuildFile; fileRef = 943349CD195DB49700B2BE41 /* json.m */; };
 		943F212F195C527300066DCB /* settings.m in Sources */ = {isa = PBXBuildFile; fileRef = 943F212E195C527300066DCB /* settings.m */; };
+		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
 		9443F2AF1969CF7400E7219D /* pprint.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9443F2AE1969CF7400E7219D /* pprint.lua */; };
 		944419C1194F4A51000A55A7 /* timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 944419C0194F4A51000A55A7 /* timer.m */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
@@ -100,6 +101,7 @@
 		94276CA61958809C003BF95B /* helpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
 		943349CD195DB49700B2BE41 /* json.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = json.m; sourceTree = "<group>"; };
 		943F212E195C527300066DCB /* settings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = settings.m; sourceTree = "<group>"; };
+		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
 		9443F2AE1969CF7400E7219D /* pprint.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pprint.lua; sourceTree = "<group>"; };
 		944419C0194F4A51000A55A7 /* timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = timer.m; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Hydra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hydra.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -220,6 +222,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				94414F47196A1B280067D467 /* Carbon.framework in Frameworks */,
 				9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */,
 				9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */,
 			);
@@ -296,6 +299,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				94414F46196A1B280067D467 /* Carbon.framework */,
 				9473A75C1959F9AB0080C329 /* WebKit.framework */,
 				9445CA0E19083251002568BB /* Cocoa.framework */,
 				9445CA2D19083251002568BB /* XCTest.framework */,
@@ -657,7 +661,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hydra/Hydra-Prefix.pch";
 				INFOPLIST_FILE = "Hydra/Hydra-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Hydra;
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -670,7 +676,9 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hydra/Hydra-Prefix.pch";
 				INFOPLIST_FILE = "Hydra/Hydra-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Hydra;
+				SDKROOT = macosx10.8;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

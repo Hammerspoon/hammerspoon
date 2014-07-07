@@ -71,9 +71,27 @@ static hydradoc doc_hydra_check_accessibility = {
     "Returns whether accessibility is enabled. If passed `true`, prompts the user to enable it."
 };
 
+extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
+extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
+
 static int hydra_check_accessibility(lua_State* L) {
-    NSDictionary* opts = @{(__bridge id)kAXTrustedCheckOptionPrompt: @(lua_toboolean(L, 1))};
-    BOOL enabled = AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)opts);
+    BOOL shouldprompt = lua_toboolean(L, 1);
+    BOOL enabled;
+    
+    if (AXIsProcessTrustedWithOptions != NULL) {
+        NSDictionary* opts = @{(__bridge id)kAXTrustedCheckOptionPrompt: @(shouldprompt)};
+        enabled = AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)opts);
+    }
+    else {
+        enabled = AXAPIEnabled();
+        
+        if (shouldprompt) {
+            NSString* src = @"tell application \"System Preferences\"\nactivate\nset current pane to pane \"com.apple.preference.universalaccess\"\nend tell";
+            NSAppleScript *a = [[NSAppleScript alloc] initWithSource:src];
+            [a executeAndReturnError:nil];
+        }
+    }
+    
     lua_pushboolean(L, enabled);
     return 1;
 }
