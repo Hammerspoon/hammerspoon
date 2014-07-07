@@ -15,7 +15,7 @@ Otherwise, you can always find the latest release as a binary on the
 downloaded file, move the app where you want it, and run it. You may
 need to right-click it and click "Open" the first time.
 
-Feel free to install the current pre-release (beta 7). You can use the
+Feel free to install the current pre-release (beta 8). You can use the
 `updates` module to know when 1.0 is officially released, although I
 expect it should happen within a week.
 
