@@ -262,6 +262,7 @@
 				94A1537B194D77A400F29F8F /* window.lua */,
 				94BDB49B19094B7A00BD0553 /* application.m */,
 				9452129B194D5B8F00217584 /* autolaunch.m */,
+				2303FBEC196A410D00D2EFDE /* brightness.m */,
 				940026961951437A000D15C1 /* geometry.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94DE5948194F1A31004D242E /* hydra.m */,
@@ -277,7 +278,6 @@
 				94C3693F194DD94700EE3A2D /* updates.m */,
 				941FA8EB195DA14900F69AC9 /* utf8.m */,
 				94C3693D194DD93600EE3A2D /* window.m */,
-				2303FBEC196A410D00D2EFDE /* brightness.m */,
 			);
 			name = Source;
 			sourceTree = "<group>";
