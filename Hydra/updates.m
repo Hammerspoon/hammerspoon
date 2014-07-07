@@ -12,7 +12,7 @@ static int updates_getversions(lua_State* L) {
     int fnref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     NSURL* url = [NSURL URLWithString:updates_url];
-    NSURLRequest* req = [NSURLRequest requestWithURL:url];
+    NSURLRequest* req = [[NSURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5];
     [NSURLConnection sendAsynchronousRequest:req
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
