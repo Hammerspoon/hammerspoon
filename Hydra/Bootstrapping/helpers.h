@@ -1,4 +1,4 @@
-#import "lua/lauxlib.h"
+#import "../lua/lauxlib.h"
 void hydra_handle_error(lua_State* L);
 void hydra_add_doc_group(lua_State* L, char* name, char* docstring);
 

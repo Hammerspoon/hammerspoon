@@ -20,7 +20,6 @@
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9445CA1B19083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA1A19083251002568BB /* main.m */; };
 		9445CA2219083251002568BB /* app_delegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA2119083251002568BB /* app_delegate.m */; };
-		9445CA2519083251002568BB /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9445CA2319083251002568BB /* MainMenu.xib */; };
 		9445CA2719083251002568BB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9445CA2619083251002568BB /* Images.xcassets */; };
 		9445CA7E190833C1002568BB /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA43190833C1002568BB /* lapi.c */; };
 		9445CA7F190833C1002568BB /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA45190833C1002568BB /* lauxlib.c */; };
@@ -55,6 +54,7 @@
 		9445CA9E190833C1002568BB /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7A190833C1002568BB /* lvm.c */; };
 		9445CA9F190833C1002568BB /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7C190833C1002568BB /* lzio.c */; };
 		9445CAA5190847CB002568BB /* rawinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* rawinit.lua */; };
+		9451673F196B0C5700579B9C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9451673E196B0C5600579B9C /* MainMenu.xib */; };
 		94517BF71956F05800F9CCB6 /* pathwatcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF61956F05800F9CCB6 /* pathwatcher.lua */; };
 		94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF81956FA5000F9CCB6 /* textgrid.lua */; };
 		94517BFB1957738100F9CCB6 /* logger.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BFA1957738100F9CCB6 /* logger.lua */; };
@@ -115,7 +115,6 @@
 		9445CA1A19083251002568BB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9445CA1C19083251002568BB /* Hydra-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Hydra-Prefix.pch"; sourceTree = "<group>"; };
 		9445CA2119083251002568BB /* app_delegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = app_delegate.m; sourceTree = "<group>"; };
-		9445CA2419083251002568BB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		9445CA2619083251002568BB /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		9445CA2D19083251002568BB /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		9445CA43190833C1002568BB /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
@@ -176,6 +175,7 @@
 		9445CA7D190833C1002568BB /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		9445CAA019083402002568BB /* lua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lua.h; sourceTree = "<group>"; };
 		9445CAA4190847CB002568BB /* rawinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rawinit.lua; sourceTree = "<group>"; };
+		9451673E196B0C5600579B9C /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		94517BF61956F05800F9CCB6 /* pathwatcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pathwatcher.lua; sourceTree = "<group>"; };
 		94517BF81956FA5000F9CCB6 /* textgrid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = textgrid.lua; sourceTree = "<group>"; };
 		94517BFA1957738100F9CCB6 /* logger.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = logger.lua; sourceTree = "<group>"; };
@@ -236,48 +236,9 @@
 		94320F411954C61F00D37BF1 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				9445CA2319083251002568BB /* MainMenu.xib */,
-				9445CA2119083251002568BB /* app_delegate.m */,
-				9445CAA4190847CB002568BB /* rawinit.lua */,
-				945200851950E2760072DFEF /* fallback_init.lua */,
-				945200871950E6C10072DFEF /* sample_config.lua */,
-				94EF97711958603F00096A41 /* helpers.h */,
-				94276CA61958809C003BF95B /* helpers.m */,
-				948CA9F61955AE7B00A27D9D /* Lower-level stuff */,
-				94E8E7BB194E25300064CF6C /* application.lua */,
-				94668E941958B039009422D7 /* doc.lua */,
-				94DE5946194F11AD004D242E /* fnutils.lua */,
-				9400269419514372000D15C1 /* geometry.lua */,
-				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
-				94DE594A194F1A39004D242E /* hydra.lua */,
-				94517BFA1957738100F9CCB6 /* logger.lua */,
-				945F2BBF1959AFA700D2DE7E /* notify.lua */,
-				94517BF61956F05800F9CCB6 /* pathwatcher.lua */,
-				9443F2AE1969CF7400E7219D /* pprint.lua */,
-				948CAA001955AECC00A27D9D /* repl.lua */,
-				94E8E7B9194E25290064CF6C /* screen.lua */,
-				94517BF81956FA5000F9CCB6 /* textgrid.lua */,
-				948CAA0A19561D7300A27D9D /* timer.lua */,
-				94C36941194DD94D00EE3A2D /* updates.lua */,
-				94A1537B194D77A400F29F8F /* window.lua */,
-				94BDB49B19094B7A00BD0553 /* application.m */,
-				9452129B194D5B8F00217584 /* autolaunch.m */,
-				2303FBEC196A410D00D2EFDE /* brightness.m */,
-				940026961951437A000D15C1 /* geometry.m */,
-				9459B591194CEE1E008BC904 /* hotkey.m */,
-				94DE5948194F1A31004D242E /* hydra.m */,
-				943349CD195DB49700B2BE41 /* json.m */,
-				945212A3194D6A6000217584 /* menu.m */,
-				94521299194D59F800217584 /* mouse.m */,
-				94F7A98D1959096100CE7136 /* notify.m */,
-				945212A1194D69E700217584 /* pathwatcher.m */,
-				943F212E195C527300066DCB /* settings.m */,
-				94E8E79F194E0AB10064CF6C /* screen.m */,
-				948CA9FE1955AECC00A27D9D /* textgrid.m */,
-				944419C0194F4A51000A55A7 /* timer.m */,
-				94C3693F194DD94700EE3A2D /* updates.m */,
-				941FA8EB195DA14900F69AC9 /* utf8.m */,
-				94C3693D194DD93600EE3A2D /* window.m */,
+				94516740196B0C6700579B9C /* Bootstrapping */,
+				948CA9F61955AE7B00A27D9D /* ThirdParty */,
+				94516741196B0CB200579B9C /* API */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -325,22 +286,23 @@
 			isa = PBXGroup;
 			children = (
 				94320F411954C61F00D37BF1 /* Source */,
-				9445CA1519083251002568BB /* Supporting Files */,
 				9445CA42190833C1002568BB /* lua */,
+				9445CA1519083251002568BB /* XcodeCrap */,
 			);
 			path = Hydra;
 			sourceTree = "<group>";
 		};
-		9445CA1519083251002568BB /* Supporting Files */ = {
+		9445CA1519083251002568BB /* XcodeCrap */ = {
 			isa = PBXGroup;
 			children = (
+				9451673E196B0C5600579B9C /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
 				94E8E7AD194E0C940064CF6C /* Hydra.icns */,
 				9445CA1619083251002568BB /* Hydra-Info.plist */,
 				9445CA1A19083251002568BB /* main.m */,
 				9445CA1C19083251002568BB /* Hydra-Prefix.pch */,
 			);
-			name = "Supporting Files";
+			path = XcodeCrap;
 			sourceTree = "<group>";
 		};
 		9445CA42190833C1002568BB /* lua */ = {
@@ -407,7 +369,61 @@
 			path = lua;
 			sourceTree = "<group>";
 		};
-		948CA9F61955AE7B00A27D9D /* Lower-level stuff */ = {
+		94516740196B0C6700579B9C /* Bootstrapping */ = {
+			isa = PBXGroup;
+			children = (
+				9445CA2119083251002568BB /* app_delegate.m */,
+				9445CAA4190847CB002568BB /* rawinit.lua */,
+				945200851950E2760072DFEF /* fallback_init.lua */,
+				945200871950E6C10072DFEF /* sample_config.lua */,
+				94EF97711958603F00096A41 /* helpers.h */,
+				94276CA61958809C003BF95B /* helpers.m */,
+			);
+			path = Bootstrapping;
+			sourceTree = "<group>";
+		};
+		94516741196B0CB200579B9C /* API */ = {
+			isa = PBXGroup;
+			children = (
+				94E8E7BB194E25300064CF6C /* application.lua */,
+				94668E941958B039009422D7 /* doc.lua */,
+				94DE5946194F11AD004D242E /* fnutils.lua */,
+				9400269419514372000D15C1 /* geometry.lua */,
+				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
+				94DE594A194F1A39004D242E /* hydra.lua */,
+				94517BFA1957738100F9CCB6 /* logger.lua */,
+				945F2BBF1959AFA700D2DE7E /* notify.lua */,
+				94517BF61956F05800F9CCB6 /* pathwatcher.lua */,
+				9443F2AE1969CF7400E7219D /* pprint.lua */,
+				948CAA001955AECC00A27D9D /* repl.lua */,
+				94E8E7B9194E25290064CF6C /* screen.lua */,
+				94517BF81956FA5000F9CCB6 /* textgrid.lua */,
+				948CAA0A19561D7300A27D9D /* timer.lua */,
+				94C36941194DD94D00EE3A2D /* updates.lua */,
+				94A1537B194D77A400F29F8F /* window.lua */,
+				94BDB49B19094B7A00BD0553 /* application.m */,
+				9452129B194D5B8F00217584 /* autolaunch.m */,
+				2303FBEC196A410D00D2EFDE /* brightness.m */,
+				940026961951437A000D15C1 /* geometry.m */,
+				9459B591194CEE1E008BC904 /* hotkey.m */,
+				94DE5948194F1A31004D242E /* hydra.m */,
+				943349CD195DB49700B2BE41 /* json.m */,
+				945212A3194D6A6000217584 /* menu.m */,
+				94521299194D59F800217584 /* mouse.m */,
+				94F7A98D1959096100CE7136 /* notify.m */,
+				945212A1194D69E700217584 /* pathwatcher.m */,
+				943F212E195C527300066DCB /* settings.m */,
+				94E8E79F194E0AB10064CF6C /* screen.m */,
+				948CA9FE1955AECC00A27D9D /* textgrid.m */,
+				944419C0194F4A51000A55A7 /* timer.m */,
+				94C3693F194DD94700EE3A2D /* updates.m */,
+				941FA8EB195DA14900F69AC9 /* utf8.m */,
+				94C3693D194DD93600EE3A2D /* window.m */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		948CA9F61955AE7B00A27D9D /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
 				948CA9FA1955AECC00A27D9D /* HDTextGridController.h */,
@@ -421,7 +437,7 @@
 				945212A5194D6B5900217584 /* menu.png */,
 				945212A6194D6B5900217584 /* menu@2x.png */,
 			);
-			name = "Lower-level stuff";
+			path = ThirdParty;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -488,6 +504,7 @@
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
 				945F2BC01959AFA700D2DE7E /* notify.lua in Resources */,
 				945212A7194D6B5900217584 /* menu.png in Resources */,
+				9451673F196B0C5700579B9C /* MainMenu.xib in Resources */,
 				94E8E7BC194E25300064CF6C /* application.lua in Resources */,
 				94DE594B194F1A39004D242E /* hydra.lua in Resources */,
 				94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */,
@@ -501,7 +518,6 @@
 				94517BFB1957738100F9CCB6 /* logger.lua in Resources */,
 				948CAA031955AECC00A27D9D /* textgrid.xib in Resources */,
 				94668E951958B039009422D7 /* doc.lua in Resources */,
-				9445CA2519083251002568BB /* MainMenu.xib in Resources */,
 				945212A8194D6B5900217584 /* menu@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -574,17 +590,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXVariantGroup section */
-		9445CA2319083251002568BB /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				9445CA2419083251002568BB /* Base */,
-			);
-			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		9445CA3A19083251002568BB /* Debug */ = {
@@ -663,8 +668,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Hydra/Hydra-Prefix.pch";
-				INFOPLIST_FILE = "Hydra/Hydra-Info.plist";
+				GCC_PREFIX_HEADER = "Hydra/XcodeCrap/Hydra-Prefix.pch";
+				INFOPLIST_FILE = "Hydra/XcodeCrap/Hydra-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Hydra;
 				SDKROOT = macosx10.9;
@@ -678,8 +683,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Hydra/Hydra-Prefix.pch";
-				INFOPLIST_FILE = "Hydra/Hydra-Info.plist";
+				GCC_PREFIX_HEADER = "Hydra/XcodeCrap/Hydra-Prefix.pch";
+				INFOPLIST_FILE = "Hydra/XcodeCrap/Hydra-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Hydra;
 				SDKROOT = macosx10.9;

@@ -1,5 +1,5 @@
-#import "lua/lauxlib.h"
-#import "lua/lualib.h"
+#import "../lua/lauxlib.h"
+#import "../lua/lualib.h"
 
 int luaopen_hydra(lua_State* L);
 
