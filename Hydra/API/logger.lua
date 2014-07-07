@@ -1,5 +1,7 @@
 logger = {}
-doc.logger = {__doc = "Functionality to assist with debugging and experimentation."}
+--- logger
+---
+--- Functionality to assist with debugging and experimentation.
 
 logger.rawprint = print
 function print(...)
@@ -15,23 +17,27 @@ function print(...)
   logger._gotline(str)
 end
 
-doc.logger.lines = {"logger.lines = {}", "List of lines logged so far; caps at logger.maxlines. You may clear it by setting it to {} yourself."}
+--- logger.lines = {}
+--- List of lines logged so far; caps at logger.maxlines. You may clear it by setting it to {} yourself.
 logger.lines = {}
 
 logger._buffer = ""
 
-doc.logger.maxlines = {"logger.maxlines = 500", "Maximum number of lines to be logged."}
+--- logger.maxlines = 500
+--- Maximum number of lines to be logged.
 logger.maxlines = 500
 
 logger.handlers = {}
 
-doc.logger.addhandler = {"logger.addhandler(fn(str)) -> index", "Registers a function to handle new log lines."}
+--- logger.addhandler(fn(str)) -> index
+--- Registers a function to handle new log lines.
 function logger.addhandler(fn)
   table.insert(logger.handlers, fn)
   return #logger.handlers
 end
 
-doc.logger.removehandler = {"logger.removehandler(index)", "Unregisters a function that handles new log lines."}
+--- logger.removehandler(index)
+--- Unregisters a function that handles new log lines.
 function logger.removehandler(idx)
   logger.handlers[idx] = nil
 end
@@ -65,7 +71,8 @@ function logger._gotline(str)
   end
 end
 
-doc.logger.show = {"logger.show() -> textgrid", "Opens a textgrid that can browse all logs."}
+--- logger.show() -> textgrid
+--- Opens a textgrid that can browse all logs.
 function logger.show()
   local win = textgrid.create()
   win:protect()

@@ -1,5 +1,9 @@
 #import "helpers.h"
 
+/// notify
+///
+/// Apple's built-in notifications system.
+
 // you hate us Apple, don't you
 @interface PHNotificationDelegate : NSObject <NSUserNotificationCenterDelegate>
 @property (copy) void(^callback)(NSString* tag);
@@ -18,11 +22,9 @@ static PHNotificationDelegate* notify_delegate;
 
 @end
 
-static hydradoc doc_notify_show = {
-    "notify", "show", "notify.show(title, subtitle, text, tag)",
-    "Show an Apple notification. Tag is a unique string that identifies this notification, and will be passed to notify.clicked() if the notification is clicked. None of the strings are optional, though they may each be blank."
-};
 
+/// notify.show(title, subtitle, text, tag)
+/// Show an Apple notification. Tag is a unique string that identifies this notification, and will be passed to notify.clicked() if the notification is clicked. None of the strings are optional, though they may each be blank.
 static int notify_show(lua_State* L) {
     NSUserNotification* note = [[NSUserNotification alloc] init];
     note.title = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
@@ -59,9 +61,6 @@ static const luaL_Reg notifylib[] = {
 };
 
 int luaopen_notify(lua_State* L) {
-    hydra_add_doc_group(L, "notify", "Apple's built-in notifications system.");
-    hydra_add_doc_item(L, &doc_notify_show);
-    
     luaL_newlib(L, notifylib);
     return 1;
 }

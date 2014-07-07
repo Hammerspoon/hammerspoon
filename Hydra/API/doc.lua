@@ -32,20 +32,6 @@ local function doc_tostring(doc)
   return str
 end
 
-local function hackitem(item)
-  return setmetatable(item, {__tostring = item_tostring})
-end
-
-local function hackgroup(group)
-  for name, item in pairs(group) do
-    if name ~= '__doc' then
-      group[name] = hackitem(item)
-      item.__name = name
-    end
-  end
-  return setmetatable(group, {__tostring = group_tostring})
-end
-
 hydra.jsondocs = {"hydra.jsondocs() -> string", "Returns the documentation as a JSON string for you to generate pretty docs with. The top-level is a list of groups. Groups have keys: name (string), doc (string), items (list of items); Items have keys: name (string), def (string), doc (string)."}
 function hydra.jsondocs()
   local groups = {}
@@ -72,9 +58,19 @@ function hydra.jsondocs()
 end
 
 function hydra._initiate_documentation_system()
-  for name, t in pairs(doc) do
-    doc[name] = hackgroup(t)
-    doc[name].__name = name
+  local docsfile = hydra.resourcesdir .. '/docs.json'
+
+  local f = io.open(docsfile)
+  local content = f:read("*a")
+  f:close()
+
+  local rawdocs = json.decode(content)
+
+  doc = setmetatable({}, {__tostring = doc_tostring})
+  for _, mod in pairs(rawdocs) do
+    doc[mod.name] = setmetatable({__doc = mod.doc, __name = mod.name}, {__tostring = group_tostring})
+    for _, item in pairs(mod.items) do
+      doc[mod.name][item.name] = setmetatable({__name = item.name, item.def, item.doc}, {__tostring = item_tostring})
+    end
   end
-  doc = setmetatable(doc, {__tostring = doc_tostring})
 end

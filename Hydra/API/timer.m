@@ -1,5 +1,9 @@
 #import "helpers.h"
 
+/// timer
+///
+/// Execute functions with various timing rules.
+
 @interface PHTimerDelegator : NSObject
 @property (copy) dispatch_block_t fired;
 @property NSTimer* timer;
@@ -12,11 +16,9 @@
 }
 @end
 
-static hydradoc doc_timer_doafter = {
-    "timer", "doafter", "timer.doafter(sec, fn())",
-    "Runs the function after sec seconds."
-};
 
+/// timer.doafter(sec, fn())
+/// Runs the function after sec seconds.
 static int timer_doafter(lua_State* L) {
     double delayInSeconds = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
@@ -76,9 +78,6 @@ static const luaL_Reg timerlib[] = {
 };
 
 int luaopen_timer(lua_State* L) {
-    hydra_add_doc_group(L, "timer", "Execute functions with various timing rules.");
-    hydra_add_doc_item(L, &doc_timer_doafter);
-    
     luaL_newlib(L, timerlib);
     return 1;
 }

@@ -1,5 +1,9 @@
 #import "helpers.h"
 
+/// json
+///
+/// Functions for converting between Lua values and JSON strings.
+
 static BOOL is_sequential_table(lua_State* L, int idx) {
     NSMutableIndexSet* iset = [NSMutableIndexSet indexSet];
     
@@ -102,11 +106,8 @@ static void push_luavalue_for_nsobject(lua_State* L, id obj) {
     }
 }
 
-static hydradoc doc_json_encode = {
-    "json", "encode", "json.encode(val[, prettyprint?]) -> str",
-    "Returns a JSON string representing the given value; if prettyprint is true, the resulting string will be quite beautiful."
-};
-
+/// json.encode(val[, prettyprint?]) -> str
+/// Returns a JSON string representing the given value; if prettyprint is true, the resulting string will be quite beautiful.
 static int json_encode(lua_State* L) {
     id obj = nsobject_for_luavalue(L, 1);
     
@@ -129,11 +130,8 @@ static int json_encode(lua_State* L) {
     }
 }
 
-static hydradoc doc_json_decode = {
-    "json", "decode", "json.decode(str) -> val",
-    "Returns a Lua value representing the given JSON string."
-};
-
+/// json.decode(str) -> val
+/// Returns a Lua value representing the given JSON string.
 static int json_decode(lua_State* L) {
     const char* s = luaL_checkstring(L, 1);
     NSData* data = [[NSString stringWithUTF8String:s] dataUsingEncoding:NSUTF8StringEncoding];
@@ -159,10 +157,6 @@ static const luaL_Reg jsonlib[] = {
 };
 
 int luaopen_json(lua_State* L) {
-    hydra_add_doc_group(L, "json", "Functions for converting between Lua values and JSON strings.");
-    hydra_add_doc_item(L, &doc_json_encode);
-    hydra_add_doc_item(L, &doc_json_decode);
-    
     luaL_newlib(L, jsonlib);
     return 1;
 }

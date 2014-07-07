@@ -54,6 +54,7 @@
 		9445CA9E190833C1002568BB /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7A190833C1002568BB /* lvm.c */; };
 		9445CA9F190833C1002568BB /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7C190833C1002568BB /* lzio.c */; };
 		9445CAA5190847CB002568BB /* rawinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* rawinit.lua */; };
+		944C49CD196B2E5C00FF10DD /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 944C49CC196B2E5C00FF10DD /* docs.json */; };
 		9451673F196B0C5700579B9C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9451673E196B0C5600579B9C /* MainMenu.xib */; };
 		94517BF71956F05800F9CCB6 /* pathwatcher.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF61956F05800F9CCB6 /* pathwatcher.lua */; };
 		94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF81956FA5000F9CCB6 /* textgrid.lua */; };
@@ -175,6 +176,7 @@
 		9445CA7D190833C1002568BB /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		9445CAA019083402002568BB /* lua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lua.h; sourceTree = "<group>"; };
 		9445CAA4190847CB002568BB /* rawinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rawinit.lua; sourceTree = "<group>"; };
+		944C49CC196B2E5C00FF10DD /* docs.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = docs.json; sourceTree = "<group>"; };
 		9451673E196B0C5600579B9C /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		94517BF61956F05800F9CCB6 /* pathwatcher.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pathwatcher.lua; sourceTree = "<group>"; };
 		94517BF81956FA5000F9CCB6 /* textgrid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = textgrid.lua; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 		94320F411954C61F00D37BF1 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				944C49CB196B2E3D00FF10DD /* docgen */,
 				94516740196B0C6700579B9C /* Bootstrapping */,
 				948CA9F61955AE7B00A27D9D /* ThirdParty */,
 				94516741196B0CB200579B9C /* API */,
@@ -369,6 +372,14 @@
 			path = lua;
 			sourceTree = "<group>";
 		};
+		944C49CB196B2E3D00FF10DD /* docgen */ = {
+			isa = PBXGroup;
+			children = (
+				944C49CC196B2E5C00FF10DD /* docs.json */,
+			);
+			path = docgen;
+			sourceTree = "<group>";
+		};
 		94516740196B0C6700579B9C /* Bootstrapping */ = {
 			isa = PBXGroup;
 			children = (
@@ -449,6 +460,7 @@
 			buildPhases = (
 				9445CA0719083251002568BB /* Sources */,
 				9445CA0819083251002568BB /* Frameworks */,
+				944C49CE196B2E8E00FF10DD /* ShellScript */,
 				9445CA0919083251002568BB /* Resources */,
 			);
 			buildRules = (
@@ -509,6 +521,7 @@
 				94DE594B194F1A39004D242E /* hydra.lua in Resources */,
 				94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */,
 				9445CAA5190847CB002568BB /* rawinit.lua in Resources */,
+				944C49CD196B2E5C00FF10DD /* docs.json in Resources */,
 				945200861950E2760072DFEF /* fallback_init.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
 				9443F2AF1969CF7400E7219D /* pprint.lua in Resources */,
@@ -523,6 +536,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		944C49CE196B2E8E00FF10DD /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd ${SRCROOT}/Hydra/docgen/\n./scrape.rb";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9445CA0719083251002568BB /* Sources */ = {

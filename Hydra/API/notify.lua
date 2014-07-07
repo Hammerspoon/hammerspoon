@@ -17,7 +17,8 @@ if not _notifysetup then
   _notifysetup = true
 end
 
-doc.notify.register = {"notify.register(tag, fn()) -> id", "Registers a function to be called when an Apple notification with the given tag is clicked."}
+--- notify.register(tag, fn()) -> id
+--- Registers a function to be called when an Apple notification with the given tag is clicked.
 function notify.register(tag, fn)
   id = notify.registry.n + 1
   notify.registry[id] = {tag, fn}
@@ -25,12 +26,14 @@ function notify.register(tag, fn)
   return id
 end
 
-doc.notify.unregister = {"notify.unregister(id)", "Unregisters a function to no longer be called when an Apple notification with the given tag is clicked."}
+--- notify.unregister(id)
+--- Unregisters a function to no longer be called when an Apple notification with the given tag is clicked.
 function notify.unregister(id)
   notify.registry[id] = nil
 end
 
-doc.notify.unregisterall = {"notify.unregisterall()", "Unregisters all functions registered for notification-clicks; called automatically when user config reloads."}
+--- notify.unregisterall()
+--- Unregisters all functions registered for notification-clicks; called automatically when user config reloads.
 function notify.unregisterall()
   notify.registry = {}
   notify.registry.n = 0

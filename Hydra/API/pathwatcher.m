@@ -63,8 +63,6 @@ static const luaL_Reg pathwatcherlib[] = {
 };
 
 int luaopen_pathwatcher(lua_State* L) {
-    hydra_add_doc_group(L, "pathwatcher", "(overwritten in pathwatcher.lua)");
-    
     luaL_newlib(L, pathwatcherlib);
     return 1;
 }

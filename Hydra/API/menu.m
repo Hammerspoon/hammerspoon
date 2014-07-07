@@ -1,5 +1,21 @@
 #import "helpers.h"
 
+/// menu
+///
+/// Control Hydra's menu-bar icon.
+///
+/// Here's a simple example:
+///
+///     menu.show(function()
+///       return {
+///         {title = 'About Hydra', fn = hydra.showabout},
+///         {title = '-'},
+///         {title = 'Quit', fn = os.exit},
+///       }
+///     end)
+
+
+
 @interface PHMenuItemDelegator : NSObject
 @property (copy) dispatch_block_t handler;
 @property BOOL disabled;
@@ -39,11 +55,9 @@ static PHMenuDelegate* menuDelegate;
 
 static int show_closureref;
 
-static hydradoc doc_menu_show = {
-    "menu", "show", "menu.show(fn() -> itemstable)",
-    "Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)"
-};
 
+/// menu.show(fn() -> itemstable)
+/// Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)
 static int menu_show(lua_State* L) {
     if (!statusItem) {
         luaL_checktype(L, 1, LUA_TFUNCTION);
@@ -145,11 +159,8 @@ static int menu_show(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_menu_hide = {
-    "menu", "hide", "menu.hide()",
-    "Hides Hydra's menubar icon."
-};
-
+/// menu.hide()
+/// Hides Hydra's menubar icon.
 static int menu_hide(lua_State* L) {
     if (statusItem) {
         luaL_unref(L, LUA_REGISTRYINDEX, show_closureref);
@@ -167,22 +178,6 @@ static const luaL_Reg menulib[] = {
 };
 
 int luaopen_menu(lua_State* L) {
-    hydra_add_doc_group(L, "menu",
-                        "Control Hydra's menu-bar icon.\n"
-                        "\n"
-                        "Here's a simple example:\n"
-                        "\n"
-                        "    menu.show(function()\n"
-                        "      return {\n"
-                        "        {title = 'About Hydra', fn = hydra.showabout},\n"
-                        "        {title = '-'},\n"
-                        "        {title = 'Quit', fn = os.exit},\n"
-                        "      }\n"
-                        "    end)"
-                        );
-    hydra_add_doc_item(L, &doc_menu_show);
-    hydra_add_doc_item(L, &doc_menu_hide);
-    
     luaL_newlib(L, menulib);
     return 1;
 }

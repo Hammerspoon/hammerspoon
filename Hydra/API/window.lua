@@ -1,67 +1,78 @@
-doc.window.__doc = [[
-Functions for managing any window.
+--- window
+---
+--- Functions for managing any window.
+---
+--- To get windows, see `window.focusedwindow` and `window.visiblewindows`.
+---
+--- To get window geometrical attributes, see `window.{frame,size,topleft}`.
+---
+--- To move and resize windows, see `window.set{frame,size,topleft}`.
+---
+--- It may be handy to get a window's app or screen via `window.application` and `window.screen`.
+---
+--- See the `screen` module for detailed explanation of how Hydra uses window/screen coordinates.
 
-To get windows, see `window.focusedwindow` and `window.visiblewindows`.
 
-To get window geometrical attributes, see `window.{frame,size,topleft}`.
-
-To move and resize windows, see `window.set{frame,size,topleft}`.
-
-It may be handy to get a window's app or screen via `window.application` and `window.screen`.
-
-See the `screen` module for detailed explanation of how Hydra uses window/screen coordinates.]]
-
-
-doc.window.allwindows = {"window.allwindows() -> win[]", "Returns all windows"}
+--- window.allwindows() -> win[]
+--- Returns all windows
 function window.allwindows()
   return fnutils.mapcat(application.runningapplications(), application.allwindows)
 end
 
-doc.window.windowforid = {"window.windowforid() -> win or nil", "Returns the window for the given id, or nil if it's an invalid id."}
+--- window.windowforid() -> win or nil
+--- Returns the window for the given id, or nil if it's an invalid id.
 function window.windowforid(id)
   return fnutils.find(window.allwindows(), function(win) return win:id() == id end)
 end
 
-doc.window.isvisible = {"window:isvisible() -> bool", "True if the app is not hidden or minimized."}
+--- window:isvisible() -> bool
+--- True if the app is not hidden or minimized.
 function window:isvisible()
   return not self:application():ishidden() and not self:isminimized()
 end
 
-doc.window.frame = {"window:frame() -> rect", "Get the frame of the window in absolute coordinates."}
+--- window:frame() -> rect
+--- Get the frame of the window in absolute coordinates.
 function window:frame()
   local s = self:size()
   local tl = self:topleft()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
 end
 
-doc.window.setframe = {"window:setframe(rect)", "Set the frame of the window in absolute coordinates."}
+--- window:setframe(rect)
+--- Set the frame of the window in absolute coordinates.
 function window:setframe(f)
   self:setsize(f)
   self:settopleft(f)
   self:setsize(f)
 end
 
-doc.window.otherwindows_samescreen = {"window:otherwindows_samescreen() -> win[]", "Get other windows on the same screen as self."}
+--- window:otherwindows_samescreen() -> win[]
+--- Get other windows on the same screen as self.
 function window:otherwindows_samescreen()
   return fnutils.filter(window.visiblewindows(), function(win) return self ~= win and self:screen() == win:screen() end)
 end
 
-doc.window.otherwindows_allscreens = {"window:otherwindows_allscreens() -> win[]", "Get every window except this one."}
+--- window:otherwindows_allscreens() -> win[]
+--- Get every window except this one.
 function window:otherwindows_allscreens()
   return fnutils.filter(window.visiblewindows(), function(win) return self ~= win end)
 end
 
-doc.window.focus = {"window:focus() -> bool", "Try to make this window focused."}
+--- window:focus() -> bool
+--- Try to make this window focused.
 function window:focus()
   return self:becomemain() and self:application():activate()
 end
 
-doc.window.visiblewindows = {"window.visiblewindows() -> win[]", "Get all windows on all screens that match window.isvisible."}
+--- window.visiblewindows() -> win[]
+--- Get all windows on all screens that match window.isvisible.
 function window.visiblewindows()
   return fnutils.filter(window:allwindows(), window.isvisible)
 end
 
-doc.window.orderedwindows = {"window.orderedwindows() -> win[]", "Returns all visible windows, ordered from front to back."}
+--- window.orderedwindows() -> win[]
+--- Returns all visible windows, ordered from front to back.
 function window.orderedwindows()
   local orderedwins = {}
   local orderedwinids = window._orderedwinids()
@@ -80,13 +91,15 @@ function window.orderedwindows()
   return orderedwins
 end
 
-doc.window.maximize = {"window:maximize()", "Make this window fill the whole screen its on, without covering the dock or menu."}
+--- window:maximize()
+--- Make this window fill the whole screen its on, without covering the dock or menu.
 function window:maximize()
   local screenrect = self:screen():frame_without_dock_or_menu()
   self:setframe(screenrect)
 end
 
-doc.window.screen = {"window:screen()", "Get the screen which most contains this window (by area)."}
+--- window:screen()
+--- Get the screen which most contains this window (by area).
 function window:screen()
   local windowframe = self:frame()
   local lastvolume = 0
@@ -153,15 +166,30 @@ local function focus_first_valid_window(ordered_wins)
   return false
 end
 
-doc.window.windows_to_east = {"window:windows_to_east()", "Get all windows east of this one, ordered by closeness."}
-doc.window.windows_to_west = {"window:windows_to_west()", "Get all windows west of this one, ordered by closeness."}
-doc.window.windows_to_north = {"window:windows_to_north()", "Get all windows north of this one, ordered by closeness."}
-doc.window.windows_to_south = {"window:windows_to_south()", "Get all windows south of this one, ordered by closeness."}
+--- window:windows_to_east()
+--- Get all windows east of this one, ordered by closeness.
 
-doc.window.focuswindow_east = {"window:focuswindow_east()", "Focus the first focus-able window to the east of this one."}
-doc.window.focuswindow_west = {"window:focuswindow_west()", "Focus the first focus-able window to the west of this one."}
-doc.window.focuswindow_north = {"window:focuswindow_north()", "Focus the first focus-able window to the north of this one."}
-doc.window.focuswindow_south = {"window:focuswindow_south()", "Focus the first focus-able window to the south of this one."}
+--- window:windows_to_west()
+--- Get all windows west of this one, ordered by closeness.
+
+--- window:windows_to_north()
+--- Get all windows north of this one, ordered by closeness.
+
+--- window:windows_to_south()
+--- Get all windows south of this one, ordered by closeness.
+
+--- window:focuswindow_east()
+--- Focus the first focus-able window to the east of this one.
+
+--- window:focuswindow_west()
+--- Focus the first focus-able window to the west of this one.
+
+--- window:focuswindow_north()
+--- Focus the first focus-able window to the north of this one.
+
+--- window:focuswindow_south()
+--- Focus the first focus-able window to the south of this one.
+
 
 function window:windows_to_east()  return windows_in_direction(self, 0) end
 function window:windows_to_west()  return windows_in_direction(self, 2) end

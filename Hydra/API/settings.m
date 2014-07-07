@@ -1,5 +1,10 @@
 #import "helpers.h"
 
+/// settings
+///
+/// Functions for user-defined settings that persist across Hydra launches.
+
+
 /*
  
  encoding rules:
@@ -76,11 +81,8 @@ static void push_luavalue_for_nsobject(lua_State* L, id obj) {
     }
 }
 
-static hydradoc doc_settings_set = {
-    "settings", "set", "settings.set(key, val)",
-    "Saves the given value for the string key; value must be a string, number, boolean, nil, or a table of any of these, recursively."
-};
-
+/// settings.set(key, val)
+/// Saves the given value for the string key; value must be a string, number, boolean, nil, or a table of any of these, recursively.
 static int settings_set(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     id val = nsobject_for_luavalue(L, 2);
@@ -89,11 +91,8 @@ static int settings_set(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_settings_get = {
-    "settings", "get", "settings.get(key) -> val",
-    "Gets the Lua value for the given string key."
-};
-
+/// settings.get(key) -> val
+/// Gets the Lua value for the given string key.
 static int settings_get(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     id val = [[NSUserDefaults standardUserDefaults] objectForKey:key];
@@ -109,10 +108,6 @@ static const luaL_Reg settingslib[] = {
 };
 
 int luaopen_settings(lua_State* L) {
-    hydra_add_doc_group(L, "settings", "Functions for user-defined settings that persist across Hydra launches.");
-    hydra_add_doc_item(L, &doc_settings_set);
-    hydra_add_doc_item(L, &doc_settings_get);
-    
     luaL_newlib(L, settingslib);
     return 1;
 }

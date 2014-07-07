@@ -52,11 +52,8 @@ static AXUIElementRef system_wide_element() {
     return element;
 }
 
-static hydradoc doc_window_focusedwindow = {
-    "window", "focusedwindow", "window.focusedwindow() -> window",
-    "Returns the focused window, or nil."
-};
-
+/// window.focusedwindow() -> window
+/// Returns the focused window, or nil.
 static int window_focusedwindow(lua_State* L) {
     CFTypeRef app;
     AXUIElementCopyAttributeValue(system_wide_element(), kAXFocusedApplicationAttribute, &app);
@@ -94,11 +91,8 @@ static BOOL set_window_prop(AXUIElementRef win, NSString* propType, id value) {
     return NO;
 }
 
-static hydradoc doc_window_title = {
-    "window", "title", "window:title() -> string",
-    "Returns the title of the window (as UTF8)."
-};
-
+/// window:title() -> string
+/// Returns the title of the window (as UTF8).
 static int window_title(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -107,11 +101,8 @@ static int window_title(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_window_subrole = {
-    "window", "subrole", "window:subrole() -> string",
-    "Returns the subrole of the window, whatever that means."
-};
-
+/// window:subrole() -> string
+/// Returns the subrole of the window, whatever that means.
 static int window_subrole(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -121,11 +112,8 @@ static int window_subrole(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_window_role = {
-    "window", "role", "window:role() -> string",
-    "Returns the role of the window, whatever that means."
-};
-
+/// window:role() -> string
+/// Returns the role of the window, whatever that means.
 static int window_role(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -135,11 +123,8 @@ static int window_role(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_window_isstandard = {
-    "window", "isstandard", "window:isstandard() -> bool",
-    "True if the window's subrole indicates it's 'a standard window'."
-};
-
+/// window:isstandard() -> bool
+/// True if the window's subrole indicates it's 'a standard window'.
 static int window_isstandard(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     NSString* subrole = get_window_prop(win, NSAccessibilitySubroleAttribute, @"");
@@ -149,11 +134,8 @@ static int window_isstandard(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_window_topleft = {
-    "window", "topleft", "window:topleft() -> point",
-    "The top-left corner of the window in absolute coordinates."
-};
-
+/// window:topleft() -> point
+/// The top-left corner of the window in absolute coordinates.
 static int window_topleft(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -179,11 +161,8 @@ static int window_topleft(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_window_size = {
-    "window", "size", "window:size() -> size",
-    "The size of the window."
-};
-
+/// window:size() -> size
+/// The size of the window.
 static int window_size(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -209,11 +188,8 @@ static int window_size(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_window_settopleft = {
-    "window", "settopleft", "window:settopleft(point)",
-    "Moves the window to the given point in absolute coordinate."
-};
-
+/// window:settopleft(point)
+/// Moves the window to the given point in absolute coordinate.
 static int window_settopleft(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     NSPoint thePoint = hydra_topoint(L, 2);
@@ -226,11 +202,8 @@ static int window_settopleft(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_window_setsize = {
-    "window", "setsize", "window:setsize(size)",
-    "Resizes the window."
-};
-
+/// window:setsize(size)
+/// Resizes the window.
 static int window_setsize(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     NSSize theSize = hydra_tosize(L, 2);
@@ -243,11 +216,8 @@ static int window_setsize(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_window_close = {
-    "window", "close", "window:close() -> bool",
-    "Closes the window; returns whether it succeeded."
-};
-
+/// window:close() -> bool
+/// Closes the window; returns whether it succeeded.
 static int window_close(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -270,11 +240,8 @@ static void set_window_minimized(AXUIElementRef win, NSNumber* minimized) {
     set_window_prop(win, NSAccessibilityMinimizedAttribute, minimized);
 }
 
-static hydradoc doc_window_minimize = {
-    "window", "minimize", "window:minimize()",
-    "Minimizes the window."
-};
-
+/// window:minimize()
+/// Minimizes the window.
 static int window_minimize(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -282,11 +249,8 @@ static int window_minimize(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_window_unminimize = {
-    "window", "unminimize", "window:unminimize()",
-    "Un-minimizes the window."
-};
-
+/// window:unminimize()
+/// Un-minimizes the window.
 static int window_unminimize(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -294,11 +258,8 @@ static int window_unminimize(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_window_isminimized = {
-    "window", "isminimized", "window:isminimized() -> bool",
-    "True if the window is currently minimized in the dock."
-};
-
+/// window:isminimized() -> bool
+/// True if the window is currently minimized in the dock.
 static int window_isminimized(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -307,6 +268,7 @@ static int window_isminimized(lua_State* L) {
     return 1;
 }
 
+// private function
 // args: [win]
 // ret: [pid]
 static int window_pid(lua_State* L) {
@@ -322,11 +284,8 @@ static int window_pid(lua_State* L) {
     }
 }
 
-static hydradoc doc_window_application = {
-    "window", "application", "window:application() -> app",
-    "Returns the app that the window belongs to."
-};
-
+/// window:application() -> app
+/// Returns the app that the window belongs to.
 static int window_application(lua_State* L) {
     if (window_pid(L)) {
         pid_t pid = lua_tonumber(L, -1);
@@ -338,13 +297,8 @@ static int window_application(lua_State* L) {
     }
 }
 
-static hydradoc doc_window_becomemain = {
-    "window", "becomemain", "window:becomemain() -> bool",
-    "Make this window the main window of the given application; deos not implicitly focus the app."
-};
-
-// args: [win]
-// ret: [bool]
+/// window:becomemain() -> bool
+/// Make this window the main window of the given application; deos not implicitly focus the app.
 static int window_becomemain(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
@@ -370,11 +324,8 @@ static int window__orderedwinids(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_window_id = {
-    "window", "id", "window:id() -> number, sometimes nil",
-    "Returns a unique number identifying this window."
-};
-
+/// window:id() -> number, sometimes nil
+/// Returns a unique number identifying this window.
 static int window_id(lua_State* L) {
     lua_settop(L, 1);
     AXUIElementRef win = hydra_window(L, 1);
@@ -427,24 +378,6 @@ static const luaL_Reg windowlib[] = {
 };
 
 int luaopen_window(lua_State* L) {
-    hydra_add_doc_group(L, "window", "(overwritten in window.lua)");
-    hydra_add_doc_item(L, &doc_window_focusedwindow);
-    hydra_add_doc_item(L, &doc_window_title);
-    hydra_add_doc_item(L, &doc_window_subrole);
-    hydra_add_doc_item(L, &doc_window_role);
-    hydra_add_doc_item(L, &doc_window_isstandard);
-    hydra_add_doc_item(L, &doc_window_topleft);
-    hydra_add_doc_item(L, &doc_window_size);
-    hydra_add_doc_item(L, &doc_window_settopleft);
-    hydra_add_doc_item(L, &doc_window_setsize);
-    hydra_add_doc_item(L, &doc_window_minimize);
-    hydra_add_doc_item(L, &doc_window_unminimize);
-    hydra_add_doc_item(L, &doc_window_isminimized);
-    hydra_add_doc_item(L, &doc_window_application);
-    hydra_add_doc_item(L, &doc_window_becomemain);
-    hydra_add_doc_item(L, &doc_window_id);
-    hydra_add_doc_item(L, &doc_window_close);
-    
     luaL_newlib(L, windowlib);
     
     if (luaL_newmetatable(L, "window")) {

@@ -18,10 +18,6 @@ local ok, err = pcall(function()
     dofile(hydra.resourcesdir .. "/pprint.lua")
     dofile(hydra.resourcesdir .. "/doc.lua")
 
-    -- make lives of third party authors easier
-    doc.ext = {__doc = "Standard high-level namespace for third-party extensions."}
-    ext = {}
-
     package.path = hydra.userfile("?") .. ";" .. package.path
 
     hydra._initiate_documentation_system()

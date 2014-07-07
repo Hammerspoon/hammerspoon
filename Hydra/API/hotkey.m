@@ -73,8 +73,6 @@ static const luaL_Reg hotkeylib[] = {
 };
 
 int luaopen_hotkey(lua_State* L) {
-    hydra_add_doc_group(L, "hotkey", "Manage global hotkeys.");
-    
     luaL_newlib(L, hotkeylib);
     return 1;
 }

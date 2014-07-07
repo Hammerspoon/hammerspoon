@@ -1,35 +1,37 @@
 #import "helpers.h"
 
+/// screen
+///
+/// Manipulate screens (i.e. monitors).
+///
+/// You usually get a screen through a window (see `window.screen`). But you can get screens by themselves through this module, albeit not in any defined/useful order.
+///
+/// Hydra's coordinate system assumes a grid that is the union of every screen's rect (see `screen.frame_including_dock_and_menu`).
+///
+/// Every window's position (i.e. `topleft`) and size are relative to this grid, and they're usually within the grid. A window that's semi-offscreen only intersects the grid.
+
+
 #define hydra_screen(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "screen"))
 
 
-static hydradoc doc_screen_frame = {
-    "screen", "frame", "screen.frame(screen) -> rect",
-    "Returns a screen's frame in its own coordinate space."
-};
-
+/// screen.frame(screen) -> rect
+/// Returns a screen's frame in its own coordinate space.
 static int screen_frame(lua_State* L) {
     NSScreen* screen = hydra_screen(L, 1);
     hydra_pushrect(L, [screen frame]);
     return 1;
 }
 
-static hydradoc doc_screen_visibleframe = {
-    "screen", "vislbleframe", "screen.visibleframe(screen) -> rect",
-    "Returns a screen's frame in its own coordinate space, without the dock or menu."
-};
-
+/// screen.visibleframe(screen) -> rect
+/// Returns a screen's frame in its own coordinate space, without the dock or menu.
 static int screen_visibleframe(lua_State* L) {
     NSScreen* screen = hydra_screen(L, 1);
     hydra_pushrect(L, [screen visibleFrame]);
     return 1;
 }
 
-static hydradoc doc_screen_settint = {
-    "screen", "settint", "screen.settint(redarray, greenarray, bluearray)",
-    "Set the tint on a screen; experimental."
-};
-
+/// screen.settint(redarray, greenarray, bluearray)
+/// Set the tint on a screen; experimental.
 static int screen_settint(lua_State* L) {
     lua_len(L, 1); int red_len = lua_tonumber(L, -1);
     lua_len(L, 2); int green_len = lua_tonumber(L, -1);
@@ -86,11 +88,8 @@ void new_screen(lua_State* L, NSScreen* screen) {
     lua_setmetatable(L, -2);
 }
 
-static hydradoc doc_screen_allscreens = {
-    "screen", "allscreens", "screen.allscreens() -> screen[]",
-    "Returns all the screens there are."
-};
-
+/// screen.allscreens() -> screen[]
+/// Returns all the screens there are.
 static int screen_allscreens(lua_State* L) {
     lua_newtable(L);
     
@@ -104,11 +103,8 @@ static int screen_allscreens(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_screen_mainscreen = {
-    "screen", "mainscreen", "screen.mainscreen() -> screen",
-    "Returns the 'main' screen, i.e. the one containing the currently focused window."
-};
-
+/// screen.mainscreen() -> screen
+/// Returns the 'main' screen, i.e. the one containing the currently focused window.
 static int screen_mainscreen(lua_State* L) {
     new_screen(L, [NSScreen mainScreen]);
     return 1;
@@ -126,13 +122,6 @@ static const luaL_Reg screenlib[] = {
 };
 
 int luaopen_screen(lua_State* L) {
-    hydra_add_doc_group(L, "screen", "(overwritten in screen.lua)");
-    hydra_add_doc_item(L, &doc_screen_frame);
-    hydra_add_doc_item(L, &doc_screen_visibleframe);
-    hydra_add_doc_item(L, &doc_screen_settint);
-    hydra_add_doc_item(L, &doc_screen_allscreens);
-    hydra_add_doc_item(L, &doc_screen_mainscreen);
-    
     luaL_newlib(L, screenlib);
     
     if (luaL_newmetatable(L, "screen")) {

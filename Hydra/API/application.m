@@ -1,6 +1,10 @@
 #import "helpers.h"
 void new_window(lua_State* L, AXUIElementRef win);
 
+/// application
+///
+/// Manipulate running applications.
+
 #define hydra_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "application"))
 #define nsobject_for_app(L, idx) [NSRunningApplication runningApplicationWithProcessIdentifier: pid_for_app(L, idx)]
 
@@ -33,11 +37,8 @@ void new_application(lua_State* L, pid_t pid) {
     lua_setuservalue(L, -2);
 }
 
-static hydradoc doc_application_runningapplications = {
-    "application", "runningapplications", "application.runningapplications() -> app[]",
-    "Returns all running apps."
-};
-
+/// application.runningapplications() -> app[]
+/// Returns all running apps.
 static int application_runningapplications(lua_State* L) {
     lua_newtable(L);
     int i = 1;
@@ -50,11 +51,8 @@ static int application_runningapplications(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_application_applicationforpid = {
-    "application", "applicationforpid", "application.applicationforpid(pid) -> app or nil",
-    "Returns the running app for the given pid, if it exists."
-};
-
+/// application.applicationforpid(pid) -> app or nil
+/// Returns the running app for the given pid, if it exists.
 static int application_applicationforpid(lua_State* L) {
     pid_t pid = luaL_checknumber(L, 1);
     
@@ -68,11 +66,8 @@ static int application_applicationforpid(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_application_applicationsforbundleid = {
-    "application", "applicationsforbundleid", "application.applicationsforbundleid(bundleid) -> app[]",
-    "Returns any running apps that have the given bundleid."
-};
-
+/// application.applicationsforbundleid(bundleid) -> app[]
+/// Returns any running apps that have the given bundleid.
 static int application_applicationsforbundleid(lua_State* L) {
     const char* bundleid = luaL_checkstring(L, 1);
     NSString* bundleIdentifier = [NSString stringWithUTF8String:bundleid];
@@ -89,11 +84,8 @@ static int application_applicationsforbundleid(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_application_allwindows = {
-    "application", "allwindows", "application:allwindows() -> window[]",
-    "Returns all open windows owned by the given app."
-};
-
+/// application:allwindows() -> window[]
+/// Returns all open windows owned by the given app.
 static int application_allwindows(lua_State* L) {
     AXUIElementRef app = hydra_app(L, 1);
     
@@ -117,11 +109,8 @@ static int application_allwindows(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_application_activate = {
-    "application", "activate", "application:activate([allwindows]) -> bool",
-    "Tries to activate the app (make it focused) and returns its success; if optional arg allwindows is true, brings all the app's windows to front."
-};
-
+/// application:activate([allwindows]) -> bool
+/// Tries to activate the app (make it focused) and returns its success; if optional arg allwindows is true, brings all the app's windows to front.
 static int application_activate(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     
@@ -137,11 +126,8 @@ static int application_activate(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_application_title = {
-    "application", "title", "application:title() -> string",
-    "Returns the localized name of the app (in UTF8)."
-};
-
+/// application:title() -> string
+/// Returns the localized name of the app (in UTF8).
 static int application_title(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     
@@ -149,11 +135,8 @@ static int application_title(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_application_bundleid = {
-    "application", "bundleid", "application:bundleid() -> string",
-    "Returns the bundle identifier of the app."
-};
-
+/// application:bundleid() -> string
+/// Returns the bundle identifier of the app.
 static int application_bundleid(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     
@@ -166,11 +149,8 @@ static void set_app_prop(AXUIElementRef app, NSString* propType, id value) {
     // yes, we ignore the return value; life is too short to constantly handle rare edge-cases
 }
 
-static hydradoc doc_application_unhide = {
-    "application", "unhide", "application:unhide()",
-    "Unhides the app (and all its windows) if it's hidden."
-};
-
+/// application:unhide()
+/// Unhides the app (and all its windows) if it's hidden.
 static int application_unhide(lua_State* L) {
     AXUIElementRef app = hydra_app(L, 1);
     
@@ -179,11 +159,8 @@ static int application_unhide(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_application_hide = {
-    "application", "hide", "application:hide()",
-    "Hides the app (and all its windows)."
-};
-
+/// application:hide()
+/// Hides the app (and all its windows).
 static int application_hide(lua_State* L) {
     AXUIElementRef app = hydra_app(L, 1);
     
@@ -192,11 +169,8 @@ static int application_hide(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_application_kill = {
-    "application", "kill", "application:kill()",
-    "Tries to terminate the app."
-};
-
+/// application:kill()
+/// Tries to terminate the app.
 static int application_kill(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     
@@ -204,11 +178,8 @@ static int application_kill(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_application_kill9 = {
-    "application", "kill9", "application:kill9()",
-    "Assuredly terminates the app."
-};
-
+/// application:kill9()
+/// Assuredly terminates the app.
 static int application_kill9(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     
@@ -216,11 +187,8 @@ static int application_kill9(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_application_ishidden = {
-    "application", "ishidden", "application:ishidden() -> bool",
-    "Returns whether the app is currently hidden."
-};
-
+/// application:ishidden() -> bool
+/// Returns whether the app is currently hidden.
 static int application_ishidden(lua_State* L) {
     AXUIElementRef app = hydra_app(L, 1);
     
@@ -236,11 +204,8 @@ static int application_ishidden(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_application_pid = {
-    "application", "pid", "application:pid() -> number",
-    "Returns the app's process identifier."
-};
-
+/// application:pid() -> number
+/// Returns the app's process identifier.
 static int application_pid(lua_State* L) {
     lua_pushnumber(L, pid_for_app(L, 1));
     return 1;
@@ -266,21 +231,6 @@ static const luaL_Reg applicationlib[] = {
 };
 
 int luaopen_application(lua_State* L) {
-    hydra_add_doc_group(L, "application", "Manipulate running applications.");
-    hydra_add_doc_item(L, &doc_application_runningapplications);
-    hydra_add_doc_item(L, &doc_application_applicationforpid);
-    hydra_add_doc_item(L, &doc_application_applicationsforbundleid);
-    hydra_add_doc_item(L, &doc_application_allwindows);
-    hydra_add_doc_item(L, &doc_application_activate);
-    hydra_add_doc_item(L, &doc_application_title);
-    hydra_add_doc_item(L, &doc_application_bundleid);
-    hydra_add_doc_item(L, &doc_application_unhide);
-    hydra_add_doc_item(L, &doc_application_hide);
-    hydra_add_doc_item(L, &doc_application_kill);
-    hydra_add_doc_item(L, &doc_application_kill9);
-    hydra_add_doc_item(L, &doc_application_ishidden);
-    hydra_add_doc_item(L, &doc_application_pid);
-    
     luaL_newlib(L, applicationlib);
     
     if (luaL_newmetatable(L, "application")) {

@@ -1,5 +1,15 @@
 #import "helpers.h"
 
+/// autolaunch
+///
+/// Functions for controlling whether Hydra launches at login.
+///
+/// To make sure Hydra launches at login, put this in your config:
+///
+///     autolaunch.set(true)
+
+
+
 static LSSharedFileListRef shared_file_list() {
     static LSSharedFileListRef list;
     static dispatch_once_t onceToken;
@@ -9,11 +19,8 @@ static LSSharedFileListRef shared_file_list() {
     return list;
 }
 
-static hydradoc doc_autolaunch_get = {
-    "autolaunch", "get", "autolaunch.get() -> bool",
-    "Returns whether Hydra launches when you login."
-};
-
+/// autolaunch.get() -> bool
+/// Returns whether Hydra launches when you login.
 static int autolaunch_get(lua_State* L) {
     NSURL *appURL = [[[NSBundle mainBundle] bundleURL] fileReferenceURL];
     
@@ -40,11 +47,8 @@ static int autolaunch_get(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_autolaunch_set = {
-    "autolaunch", "set", "autolaunch.set(bool)",
-    "Sets whether Hydra launches when you login."
-};
-
+/// autolaunch.set(bool)
+/// Sets whether Hydra launches when you login.
 static int autolaunch_set(lua_State* L) {
     BOOL opensAtLogin = lua_toboolean(L, 1);
     
@@ -86,16 +90,6 @@ static const luaL_Reg autolaunchlib[] = {
 };
 
 int luaopen_autolaunch(lua_State* L) {
-    hydra_add_doc_group(L, "autolaunch",
-                        "Functions for controlling whether Hydra launches at login.\n"
-                        "\n"
-                        "To make sure Hydra launches at login, put this in your config:\n"
-                        "\n"
-                        "    autolaunch.set(true)"
-                        );
-    hydra_add_doc_item(L, &doc_autolaunch_get);
-    hydra_add_doc_item(L, &doc_autolaunch_set);
-    
     luaL_newlib(L, autolaunchlib);
     return 1;
 }

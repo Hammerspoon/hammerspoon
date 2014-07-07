@@ -1,10 +1,11 @@
 #import "helpers.h"
 
-static hydradoc doc_utf8_count = {
-    "utf8", "count", "utf8.count(str) -> int",
-    "Returns the number of characters as humans would count them."
-};
+/// utf8
+///
+/// Utilities for handling UTF-8 strings 'correctly'.
 
+/// utf8.count(str) -> int
+/// Returns the number of characters as humans would count them.
 static int utf8_count(lua_State* L) {
     NSString* str = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
@@ -18,11 +19,11 @@ static int utf8_count(lua_State* L) {
     return 1;
 }
 
-static hydradoc doc_utf8_chars = {
-    "utf8", "chars", "utf8.chars(str) -> {str, ...}",
-    "Splits the string into groups of (UTF-8 encoded) strings representing what humans would consider individual characters.\n\nThe result is a sequential table, such that table.concat(result) produces the original string."
-};
 
+/// utf8.chars(str) -> {str, ...}
+/// Splits the string into groups of (UTF-8 encoded) strings representing what humans would consider individual characters.
+///
+/// The result is a sequential table, such that table.concat(result) produces the original string.
 static int utf8_chars(lua_State* L) {
     NSString* str = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
@@ -48,10 +49,6 @@ static const luaL_Reg utf8lib[] = {
 };
 
 int luaopen_utf8(lua_State* L) {
-    hydra_add_doc_group(L, "utf8", "Utilities for handling UTF-8 strings 'correctly'.");
-    hydra_add_doc_item(L, &doc_utf8_count);
-    hydra_add_doc_item(L, &doc_utf8_chars);
-
     luaL_newlib(L, utf8lib);
     return 1;
 }

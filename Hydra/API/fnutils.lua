@@ -1,8 +1,12 @@
+--- fnutils
+---
+--- Super-helpful functional programming utilities.
+
 fnutils = {}
 
-doc.fnutils = {__doc = "Super-helpful functional programming utilities."}
 
-doc.fnutils.map = {"fnutils.map(t, fn) -> t", "Returns a table of the results of fn(el) on every el in t."}
+--- fnutils.map(t, fn) -> t
+--- Returns a table of the results of fn(el) on every el in t.
 function fnutils.map(t, fn)
   local nt = {}
   for k, v in pairs(t) do
@@ -11,14 +15,16 @@ function fnutils.map(t, fn)
   return nt
 end
 
-doc.fnutils.each = {"fnutils.each(t, fn) -> t", "Runs fn(el) for every el in t."}
+--- fnutils.each(t, fn) -> t
+--- Runs fn(el) for every el in t.
 function fnutils.each(t, fn)
   for k, v in pairs(t) do
     fn(v)
   end
 end
 
-doc.fnutils.filter = {"fnutils.filter(t, fn) -> t", "Returns a table of the elements in t in which fn(el) is truthy."}
+--- fnutils.filter(t, fn) -> t
+--- Returns a table of the elements in t in which fn(el) is truthy.
 function fnutils.filter(t, fn)
   local nt = {}
   for k, v in pairs(t) do
@@ -27,7 +33,8 @@ function fnutils.filter(t, fn)
   return nt
 end
 
-doc.fnutils.contains = {"fnutils.contains(t, el) -> bool", "Returns whether the table contains the given element."}
+--- fnutils.contains(t, el) -> bool
+--- Returns whether the table contains the given element.
 function fnutils.contains(t, el)
   for k, v in pairs(t) do
     if v == el then
@@ -37,7 +44,8 @@ function fnutils.contains(t, el)
   return false
 end
 
-doc.fnutils.indexof = {"fnutils.indexof(t, el) -> int or nil", "Returns the index of a given element in a table, or nil if not found."}
+--- fnutils.indexof(t, el) -> int or nil
+--- Returns the index of a given element in a table, or nil if not found.
 function fnutils.indexof(t, el)
   for k, v in pairs(t) do
     if v == el then
@@ -47,7 +55,8 @@ function fnutils.indexof(t, el)
   return nil
 end
 
-doc.fnutils.concat = {"fnutils.concat(t1, t2)", "Adds all elements of t2 to the end of t1."}
+--- fnutils.concat(t1, t2)
+--- Adds all elements of t2 to the end of t1.
 function fnutils.concat(t1, t2)
   for i = 1, #t2 do
     t1[#t1 + 1] = t2[i]
@@ -55,7 +64,8 @@ function fnutils.concat(t1, t2)
   return t1
 end
 
-doc.fnutils.mapcat = {"fnutils.mapcat(t, fn) -> t2", "Runs fn(el) for every el in t, and assuming the results are tables, combines them into a new table."}
+--- fnutils.mapcat(t, fn) -> t2
+--- Runs fn(el) for every el in t, and assuming the results are tables, combines them into a new table.
 function fnutils.mapcat(t, fn)
   local nt = {}
   for k, v in pairs(t) do
@@ -64,7 +74,8 @@ function fnutils.mapcat(t, fn)
   return nt
 end
 
-doc.fnutils.reduce = {"fnutils.reduce(t, fn) -> t2", "Runs fn(el1, el2) for every el in t, then fn(result, el3), etc, until there's only one left."}
+--- fnutils.reduce(t, fn) -> t2
+--- Runs fn(el1, el2) for every el in t, then fn(result, el3), etc, until there's only one left.
 function fnutils.reduce(t, fn)
   local len = #t
   if len == 0 then return nil end
@@ -77,7 +88,8 @@ function fnutils.reduce(t, fn)
   return result
 end
 
-doc.fnutils.find = {"fnutils.find(t, fn) -> el", "Returns the first element where fn(el) is truthy."}
+--- fnutils.find(t, fn) -> el
+--- Returns the first element where fn(el) is truthy.
 function fnutils.find(t, fn)
   for _, v in pairs(t) do
     if fn(v) then return v end
@@ -85,7 +97,8 @@ function fnutils.find(t, fn)
   return nil
 end
 
-doc.fnutils.sequence = {"fnutils.sequence(...) -> fn", "Returns a list of the results of the passed functions."}
+--- fnutils.sequence(...) -> fn
+--- Returns a list of the results of the passed functions.
 function sequence(...)
   local arg = table.pack(...)
   return function()
@@ -97,7 +110,8 @@ function sequence(...)
   end
 end
 
-doc.fnutils.partial = {"fnutils.partial(fn, ...) -> fn'", "Returns fn partially applied to arg (...)."}
+--- fnutils.partial(fn, ...) -> fn'
+--- Returns fn partially applied to arg (...).
 function partial(fn, ...)
   local args = table.pack(...)
   return function(...)

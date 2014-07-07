@@ -1,12 +1,15 @@
 #import "helpers.h"
 
-static hydradoc doc_updates_getversions = {
-    "updates", "getversions", "updates.getversions(fn(versions))",
-    "Low-level function to get list of available Hydra versions; used by updates.check; you probably want to use updates.check instead of using this directly."
-};
+/// updates
+///
+/// Check for and install Hydra updates.
+
+
 
 static NSString* updates_url = @"https://api.github.com/repos/sdegutis/hydra/releases";
 
+/// updates.getversions(fn(versions))
+/// Low-level function to get list of available Hydra versions; used by updates.check; you probably want to use updates.check instead of using this directly.
 static int updates_getversions(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
     int fnref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -44,15 +47,14 @@ static int updates_getversions(lua_State* L) {
     return 0;
 }
 
-static hydradoc doc_updates_currentversion = {
-    "updates", "currentversion", "updates.currentversion() -> string",
-    "Low-level function to get current Hydra version; used by updates.check; you probably want to use updates.check instead of using this directly."
-};
 
+/// updates.currentversion() -> string
+/// Low-level function to get current Hydra version; used by updates.check; you probably want to use updates.check instead of using this directly.
 static int updates_currentversion(lua_State* L) {
     lua_pushstring(L, [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] UTF8String]);
     return 1;
 }
+
 
 static const luaL_Reg updateslib[] = {
     {"getversions", updates_getversions},
@@ -61,10 +63,6 @@ static const luaL_Reg updateslib[] = {
 };
 
 int luaopen_updates(lua_State* L) {
-    hydra_add_doc_group(L, "updates", "Check for and install Hydra updates.");
-    hydra_add_doc_item(L, &doc_updates_getversions);
-    hydra_add_doc_item(L, &doc_updates_currentversion);
-    
     luaL_newlib(L, updateslib);
     return 1;
 }

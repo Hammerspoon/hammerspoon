@@ -1,3 +1,12 @@
+--- repl
+---
+--- The REPL (Read-Eval-Print-Loop) is excellent for exploring and experiment with Hydra's API.
+---
+--- It has most of the familiar readline-like keybindings, including C-b, C-f, M-b, M-f to navigate your text, C-p and C-n to browse command history, etc.
+---
+--- Type `help` in the REPL for info on how to use the documentation system.
+
+
 local Stdin = {}
 function Stdin.new()
   return setmetatable({pos = 1, chars = {}, cmds = {}, cmdpos = 1}, {__index = Stdin})
@@ -140,16 +149,10 @@ end
 
 
 repl = {}
-doc.repl = {}
-doc.repl.__doc = [[
-The REPL (Read-Eval-Print-Loop) is excellent for exploring and experiment with Hydra's API.
-
-It has most of the familiar readline-like keybindings, including C-b, C-f, M-b, M-f to navigate your text, C-p and C-n to browse command history, etc.
-
-Type `help` in the REPL for info on how to use the documentation system.]]
 
 
-doc.repl.open = {"repl.open([opts]) -> textgrid", "Opens a new REPL; the `opts` parameter is an optional table with keys: inputcolor, stdoutcolor, resultcolor, backgroundcolor; these are 6-digit CSS-like hex strings."}
+--- repl.open([opts]) -> textgrid
+--- Opens a new REPL; the `opts` parameter is an optional table with keys: inputcolor, stdoutcolor, resultcolor, backgroundcolor; these are 6-digit CSS-like hex strings.
 function repl.open(opts)
   if repl._replwin then
     repl._replwin:show()
