@@ -14,7 +14,7 @@ function geometry.hypot(p)
   return math.sqrt(p.x * p.x + p.y * p.y)
 end
 
-doc.geometry.rect = {"geometry.rect(x, y, w, y) -> rect", "Convenience function for creating a rect-table."}
+doc.geometry.rect = {"geometry.rect(x, y, w, h) -> rect", "Convenience function for creating a rect-table."}
 function geometry.rect(x, y, w, h)
   return {x = x, y = y, w = w, h = h}
 end
