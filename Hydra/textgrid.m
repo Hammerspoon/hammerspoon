@@ -119,7 +119,7 @@ static int textgrid_setfg(lua_State *L) {
 
 static hydradoc doc_textgrid_resize = {
     "textgrid", "resize", "textgrid:resize(size)",
-    "Resizes the textgrid to the number of rows and columns given in the size-table with keys {x,y}."
+    "Resizes the textgrid to the number of rows and columns given in the size-table with keys {w,h}."
 };
 
 static int textgrid_resize(lua_State *L) {
