@@ -9,5 +9,7 @@ FILENAME="Hydra-$VERSION.app.zip"
 
 # build .zip
 rm -rf "$FILENAME"
-zip "$FILENAME" build/Release/Hydra.app
+pushd build/Release/
+zip "../../$FILENAME" Hydra.app
+popd
 echo "Created $FILENAME"
