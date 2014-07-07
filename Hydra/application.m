@@ -122,14 +122,21 @@ static int application_allwindows(lua_State* L) {
 }
 
 static hydradoc doc_application_activate = {
-    "application", "activate", "application:activate() -> bool",
-    "Tries to activate the app (make it focused) and returns its success."
+    "application", "activate", "application:activate([allwindows]) -> bool",
+    "Tries to activate the app (make it focused) and returns its success; if optional arg allwindows is true, brings all the app's windows to front."
 };
 
 static int application_activate(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     
-    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+    BOOL allwindows = lua_toboolean(L, 2);
+    
+    NSApplicationActivationOptions opts = NSApplicationActivateIgnoringOtherApps;
+    if (allwindows)
+        opts |= NSApplicationActivateAllWindows;
+    
+    BOOL success = [app activateWithOptions:opts];
+    
     lua_pushboolean(L, success);
     return 1;
 }
