@@ -137,7 +137,7 @@ donate what you believe would have been a fair price for a license:
 
 4. **Can you add ____ feature?**
 
-   Maybe. File an issue and we'll find out!
+   Maybe. [File an issue](https://github.com/sdegutis/hydra/issues/new) and we'll find out!
 
 5. **Where can I find a comprehensive and detailed list of alternatives to Hydra?**
 
