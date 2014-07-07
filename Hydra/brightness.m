@@ -7,7 +7,7 @@ static hydradoc doc_brightness_set = {
 };
 
 static int brightness_set(lua_State* L) {
-    double level = MIN(MAX(lua_tonumber(L, 1) / 100.0, 0.0), 100.0);
+    double level = MIN(MAX(luaL_checknumber(L, 1) / 100.0, 0.0), 100.0);
     bool found = false;
     
     io_iterator_t iterator;
