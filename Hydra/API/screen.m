@@ -14,16 +14,20 @@
 #define hydra_screen(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "screen"))
 
 
-/// screen.frame(screen) -> rect
+/// screen:frame(screen) -> rect
 /// Returns a screen's frame in its own coordinate space.
+///
+/// NOTE: you probably want to use screen:frame_including_dock_and_menu() instead.
 static int screen_frame(lua_State* L) {
     NSScreen* screen = hydra_screen(L, 1);
     hydra_pushrect(L, [screen frame]);
     return 1;
 }
 
-/// screen.visibleframe(screen) -> rect
+/// screen:visibleframe(screen) -> rect
 /// Returns a screen's frame in its own coordinate space, without the dock or menu.
+///
+/// NOTE: you probably want to use screen:frame_without_dock_or_menu() instead.
 static int screen_visibleframe(lua_State* L) {
     NSScreen* screen = hydra_screen(L, 1);
     hydra_pushrect(L, [screen visibleFrame]);
