@@ -118,29 +118,30 @@ donate what you believe would have been a fair price for a license:
 
 ### FAQ
 
-##### How does Hydra compare to Zephyros or Phoenix?
+1. **How does Hydra compare to Zephyros or Phoenix?**
 
-Hydra is the successor to my older Phoenix and Zephyros projects.
+   Hydra is the successor to my older Phoenix and Zephyros projects.
 
-##### How does Hydra compare to Slate?
+2. **How does Hydra compare to Slate?**
 
-They're both programmer-centric with mostly similar goals. Look over
-their APIs and see which one suits you better.
+   They're both programmer-centric with mostly similar goals. Look
+   over their APIs and see which one suits you better.
 
-##### How does Hydra compare to Spectacle, Moom, SizeUp, Divvy, etc?
+3. **How does Hydra compare to Spectacle, Moom, SizeUp, Divvy, etc?**
 
-Hydra is intended for programmers who want to write programs that
-customize their environment. It's not intended to be a quick-and-easy
-solution, it's meant to allow you to write your own very personalized
-productivity enhancement suite to keep and use long-term.
+   Hydra is intended for programmers who want to write programs that
+   customize their environment. It's not intended to be a
+   quick-and-easy solution, it's meant to allow you to write your own
+   very personalized productivity enhancement suite to keep and use
+   long-term.
 
-##### Can you add ____ feature?
+4. **Can you add ____ feature?**
 
-Maybe. File an issue and we'll find out!
+   Maybe. File an issue and we'll find out!
 
-##### Where can I find a comprehensive and detailed list of alternatives to Hydra?
+5. **Where can I find a comprehensive and detailed list of alternatives to Hydra?**
 
-- https://news.ycombinator.com/item?id=7982514
+   https://news.ycombinator.com/item?id=7982514
 
 
 ### License
