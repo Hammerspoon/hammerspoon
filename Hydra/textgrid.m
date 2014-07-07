@@ -41,7 +41,7 @@ static int textgrid_getsize(lua_State *L) {
 }
 
 static hydradoc doc_textgrid_setchar = {
-    "textgrid", "set", "textgrid:setchar(str, x, y)",
+    "textgrid", "setchar", "textgrid:setchar(str, x, y)",
     "Sets the given 1-character UTF-8 encoded string at the given grid coordinates."
 };
 
