@@ -103,6 +103,10 @@ function Stdin:usecurrenthistory()
   else
     partialcmd = self.cmds[self.cmdpos]
   end
+  
+  if partialcmd == nil then
+    return
+  end
 
   self.chars = {}
   for i = 1, partialcmd:len() do
