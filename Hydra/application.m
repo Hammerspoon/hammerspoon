@@ -2,39 +2,35 @@
 void new_window(lua_State* L, AXUIElementRef win);
 
 #define hydra_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "application"))
+#define nsobject_for_app(L, idx) [NSRunningApplication runningApplicationWithProcessIdentifier: pid_for_app(L, idx)]
 
-static NSRunningApplication* nsobject_for_app(lua_State* L, int idx) {
-    hydra_app(L, idx); // for type checking
-    luaL_getmetafield(L, idx, "pid");
-    NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier: lua_tonumber(L, -1)];
-    lua_pop(L, 1);
-    return app;
+static pid_t pid_for_app(lua_State* L, int idx) {
+    hydra_app(L, idx); // type-checking
+    lua_getuservalue(L, idx);
+    lua_getfield(L, -1, "pid");
+    pid_t p = lua_tonumber(L, -1);
+    lua_pop(L, 2);
+    return p;
 }
 
 static int application_eq(lua_State* L) {
-    hydra_app(L, 1); // for type checking
-    hydra_app(L, 2); // for type checking
-    
-    luaL_getmetafield(L, 1, "pid");
-    luaL_getmetafield(L, 2, "pid");
-    
-    BOOL equal = (lua_tonumber(L, -1) == lua_tonumber(L, -2));
-    lua_pushboolean(L, equal);
+    pid_t p1 = pid_for_app(L, 1);
+    pid_t p2 = pid_for_app(L, 2);
+    lua_pushboolean(L, (p1 == p2));
     return 1;
 }
 
 void new_application(lua_State* L, pid_t pid) {
-    AXUIElementRef app = AXUIElementCreateApplication(pid);
-    
     AXUIElementRef* appptr = lua_newuserdata(L, sizeof(AXUIElementRef));
-    *appptr = app;
+    *appptr = AXUIElementCreateApplication(pid);
     
     luaL_getmetatable(L, "application");
+    lua_setmetatable(L, -2);
     
+    lua_newtable(L);
     lua_pushnumber(L, pid);
     lua_setfield(L, -2, "pid");
-    
-    lua_setmetatable(L, -2);
+    lua_setuservalue(L, -2);
 }
 
 static hydradoc doc_application_runningapplications = {
@@ -246,8 +242,7 @@ static hydradoc doc_application_pid = {
 };
 
 static int application_pid(lua_State* L) {
-    hydra_app(L, 1); // type checking
-    luaL_getmetafield(L, 1, "pid");
+    lua_pushnumber(L, pid_for_app(L, 1));
     return 1;
 }
 
