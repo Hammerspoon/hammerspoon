@@ -663,7 +663,7 @@
 				INFOPLIST_FILE = "Hydra/Hydra-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Hydra;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx10.9;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -678,7 +678,7 @@
 				INFOPLIST_FILE = "Hydra/Hydra-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Hydra;
-				SDKROOT = macosx10.8;
+				SDKROOT = macosx10.9;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
