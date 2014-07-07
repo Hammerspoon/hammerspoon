@@ -27,8 +27,6 @@ function updates.check()
         if normalizeversion(version) > thisversion then hasupdate = true end
       end
 
-      if hasupdate then
-        updates.available()
-      end
+      updates.available(hasupdate)
   end)
 end
