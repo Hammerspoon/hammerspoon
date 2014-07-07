@@ -86,7 +86,7 @@ function window:maximize()
   self:setframe(screenrect)
 end
 
-doc.window.screen = {"window:screen()", "Get the screen this window is mostly on."}
+doc.window.screen = {"window:screen()", "Get the screen which most contains this window (by area)."}
 function window:screen()
   local windowframe = self:frame()
   local lastvolume = 0
