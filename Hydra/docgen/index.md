@@ -30,15 +30,11 @@ First and foremost is the `repl` module, which is great for exploring and experi
 
 If you only have `~/.hydra/init.lua`, you can skip this section. But if you want to extract code into new files under `~/.hydra/` or put extensions there, there's a bit you should know first:
 
-The directory `~/.hydra/` is on the require-path, so if you do `require "grid"` then it will look for `~/.hydra/grid.lua` and load it if found. But `require` caches its modules by name, so requiring the same module twice will do nothing! To ensure that your module is loaded every time you run `hydra.reload()`, "uncache" it by deleting the module name from `package.loaded` like so:
+The directory `~/.hydra/` is on the require-path, so if you do `require "grid"` then it will look for `~/.hydra/grid.lua` and load it if found. But `require` caches its modules by name, so requiring the same module twice will do nothing! If you don't want caching behavior, use `dofile` instead:
 
 ~~~lua
---- ~/.hydra/init.lua
-
-require "grid"
-package.loaded["grid"] = nil
-
---- (the rest of your config is here...)
+require "grid"                                   -- caches "grid" module
+dofile(package.searchpath("grid", package.path)) -- doesn't cache "grid" module
 ~~~
 
 ### Where to begin
