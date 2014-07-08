@@ -4,25 +4,6 @@
 ext = {}
 
 
-
---- hydra.userfile(name)
---- Returns the full path to the file ~/.hydra/{name}.lua
-function hydra.userfile(name)
-  return os.getenv("HOME") .. "/.hydra/" .. name .. ".lua"
-end
-
---- hydra.douserfile(name)
---- Convenience wrapper around dofile() and hydra.userfile(name)
-function hydra.douserfile(name)
-  local userfile = hydra.userfile(name)
-  local exists, isdir = hydra.fileexists(userfile)
-  if exists and not isdir then
-    dofile(userfile)
-  else
-    notify.show("Hydra user-file missing", "", "Can't find file: " .. tostring(name), "")
-  end
-end
-
 local function clear_old_state()
   hotkey.disableall()
   menu.hide()

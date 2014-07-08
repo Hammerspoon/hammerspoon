@@ -18,7 +18,7 @@ local ok, err = pcall(function()
     dofile(hydra.resourcesdir .. "/pprint.lua")
     dofile(hydra.resourcesdir .. "/doc.lua")
 
-    package.path = hydra.userfile("?") .. ";" .. package.path
+    package.path = os.getenv("HOME") .. "/.hydra/?.lua" .. ';' .. package.path
 
     hydra._initiate_documentation_system()
 
