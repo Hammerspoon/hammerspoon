@@ -1,5 +1,7 @@
 #import "helpers.h"
 
+// stack in:  [..., error]
+// stack out: [...]
 void hydra_handle_error(lua_State* L) {
     // original error is at top of stack
     lua_getglobal(L, "hydra"); // pop this at the end
