@@ -1,7 +1,2 @@
 language: objective-c
 script: xcodebuild
-notifications:
-  irc:
-    channels: ["chat.freenode.net#hydrawm"]
-    template: ["%{author} -- %{result} -- %{commit_message} -- diff: %{compare_url}"]
-    skip_join: true
