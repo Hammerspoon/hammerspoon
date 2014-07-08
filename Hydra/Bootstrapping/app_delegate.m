@@ -2,7 +2,6 @@
 #import "../lua/lualib.h"
 
 int luaopen_hydra(lua_State* L);
-
 int luaopen_hotkey(lua_State* L);
 int luaopen_application(lua_State* L);
 int luaopen_mouse(lua_State* L);
@@ -51,9 +50,6 @@ static const luaL_Reg hydralibs[] = {
 - (void) setupLua {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
-    
-    lua_newtable(L);
-    lua_setglobal(L, "doc");
     
     lua_newtable(L);
     for (int i = 0; hydralibs[i].name; i++) {
