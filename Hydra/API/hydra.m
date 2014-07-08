@@ -136,9 +136,10 @@ static void setup_ipc(lua_State* L) {
     ipc_closure = [^const char*(const char* cmd) {
         lua_getglobal(L, "hydra");
         lua_getfield(L, -1, "_ipchandler");
-        lua_pushstring(L, cmd);
+        lua_pushboolean(L, cmd[0] == 'r');
+        lua_pushstring(L, cmd+1);
         const char* result = "";
-        if (lua_pcall(L, 1, 1, 0)) {
+        if (lua_pcall(L, 2, 1, 0)) {
             hydra_handle_error(L);
             lua_pop(L, 1); // global
         }

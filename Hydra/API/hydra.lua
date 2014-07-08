@@ -95,12 +95,16 @@ end
 --- You may override this function if for some reason you want to implement special evaluation rules for executing remote commands.
 --- The return value of this function is always turned into a string via tostring() and returned to hydra-cli.
 --- If an error occurs, the error message is returned instead.
-function hydra.ipchandler(str)
+local function rawipchandler(str)
   return load(str)()
 end
 
-function hydra._ipchandler(str)
-  local ok, str = hydra.call(function() return hydra.ipchandler(str) end)
+hydra.ipchandler = rawipchandler
+
+function hydra._ipchandler(raw, str)
+  local fn = hydra.ipchandler
+  if raw then fn = rawipchandler end
+  local ok, str = hydra.call(function() return fn(str) end)
   return str
 end
 
