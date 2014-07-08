@@ -5,7 +5,6 @@ void new_application(lua_State* L, pid_t pid);
 
 static int window_gc(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
-    
     CFRelease(win);
     return 0;
 }
@@ -13,7 +12,6 @@ static int window_gc(lua_State* L) {
 static int window_eq(lua_State* L) {
     AXUIElementRef winA = hydra_window(L, 1);
     AXUIElementRef winB = hydra_window(L, 2);
-    
     lua_pushboolean(L, CFEqual(winA, winB));
     return 1;
 }
