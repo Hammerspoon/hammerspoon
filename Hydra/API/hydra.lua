@@ -5,9 +5,6 @@ ext = {}
 
 
 
---- hydra.resourcesdir -> string
---- The path of the built-in lua source files, with no trailing slash.
-
 --- hydra.userfile(name)
 --- Returns the full path to the file ~/.hydra/{name}.lua
 function hydra.userfile(name)
