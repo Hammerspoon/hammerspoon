@@ -24,6 +24,12 @@ static int application_eq(lua_State* L) {
     return 1;
 }
 
+static int application_gc(lua_State* L) {
+    AXUIElementRef app = hydra_app(L, 1);
+    CFRelease(app);
+    return 0;
+}
+
 void new_application(lua_State* L, pid_t pid) {
     AXUIElementRef* appptr = lua_newuserdata(L, sizeof(AXUIElementRef));
     *appptr = AXUIElementCreateApplication(pid);
@@ -104,8 +110,6 @@ static int application_allwindows(lua_State* L) {
         CFRelease(_windows);
     }
     
-    CFRelease(app);
-    
     return 1;
 }
 
@@ -155,7 +159,6 @@ static int application_unhide(lua_State* L) {
     AXUIElementRef app = hydra_app(L, 1);
     
     set_app_prop(app, NSAccessibilityHiddenAttribute, @NO);
-    CFRelease(app);
     return 0;
 }
 
@@ -165,7 +168,6 @@ static int application_hide(lua_State* L) {
     AXUIElementRef app = hydra_app(L, 1);
     
     set_app_prop(app, NSAccessibilityHiddenAttribute, @YES);
-    CFRelease(app);
     return 0;
 }
 
@@ -197,8 +199,6 @@ static int application_ishidden(lua_State* L) {
     if (AXUIElementCopyAttributeValue(app, (CFStringRef)NSAccessibilityHiddenAttribute, (CFTypeRef *)&_isHidden) == kAXErrorSuccess) {
         isHidden = CFBridgingRelease(_isHidden);
     }
-    
-    CFRelease(app);
     
     lua_pushboolean(L, [isHidden boolValue]);
     return 1;
@@ -239,6 +239,9 @@ int luaopen_application(lua_State* L) {
         
         lua_pushcfunction(L, application_eq);
         lua_setfield(L, -2, "__eq");
+        
+        lua_pushcfunction(L, application_gc);
+        lua_setfield(L, -2, "__gc");
     }
     lua_pop(L, 1);
     
