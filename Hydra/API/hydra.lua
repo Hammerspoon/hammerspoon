@@ -90,5 +90,19 @@ function hydra.uuid()
   return hydra.exec("uuidgen")
 end
 
+--- hydra.ipchandler(str) -> value
+--- The default handler for IPC, called by hydra-cli. Default implementation evals the string and returns the result.
+--- You may override this function if for some reason you want to implement special evaluation rules for executing remote commands.
+--- The return value of this function is always turned into a string via tostring() and returned to hydra-cli.
+--- If an error occurs, the error message is returned instead.
+function hydra.ipchandler(str)
+  return load(str)()
+end
+
+function hydra._ipchandler(str)
+  local ok, str = hydra.call(function() return hydra.ipchandler(str) end)
+  return str
+end
+
 -- swizzle! this is necessary so hydra.settings can save keys on exit
 os.exit = hydra.exit
