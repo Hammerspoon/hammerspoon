@@ -46,6 +46,7 @@ menu.show(function()
 
     return {
       {title = "Reload Config", fn = hydra.reload},
+      {title = "Open REPL", fn = repl.open},
       {title = "-"},
       {title = "About", fn = hydra.showabout},
       {title = updatetitles[hasupdate], fn = updatefns[hasupdate]},
