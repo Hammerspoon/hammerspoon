@@ -2,7 +2,7 @@
 ---
 --- Create and manage global hotkeys.
 ---
---- The `mods` field is case-insensitive and may any of the following strings: "cmd", "ctrl", "alt", or "shift".
+--- The `mods` field is case-insensitive and may contain any of the following strings: "cmd", "ctrl", "alt", or "shift".
 ---
 --- The `key` field is case-insensitive and may be any single-character string; it may also be any of the following strings:
 ---
