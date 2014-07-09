@@ -58,4 +58,6 @@ function ipc.unlink(prefix, dryrun)
 
   fn(string.format('rm -f %s/hydra', hydradestdir))
   fn(string.format('rm -f %s/hydra.1', manpagedestdir))
+
+  print("Done.")
 end
