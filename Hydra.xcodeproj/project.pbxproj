@@ -78,6 +78,8 @@
 		94735C35196DC4FE002A258D /* hydra.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 94735C34196DC4FE002A258D /* hydra.1 */; };
 		94735C3C196DC569002A258D /* hydra-cli in Copy hydra-cli */ = {isa = PBXBuildFile; fileRef = 94735C2E196DC4FE002A258D /* hydra-cli */; };
 		94735C3E196DC64A002A258D /* hydra.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 94735C34196DC4FE002A258D /* hydra.1 */; };
+		94735C40196DCA9C002A258D /* ipc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94735C3F196DCA9C002A258D /* ipc.lua */; };
+		94735C43196DCAB4002A258D /* ipc.m in Sources */ = {isa = PBXBuildFile; fileRef = 94735C42196DCAB4002A258D /* ipc.m */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
 		948CAA031955AECC00A27D9D /* textgrid.xib in Resources */ = {isa = PBXBuildFile; fileRef = 948CA9F91955AECC00A27D9D /* textgrid.xib */; };
 		948CAA041955AECC00A27D9D /* HDTextGridController.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FB1955AECC00A27D9D /* HDTextGridController.m */; };
@@ -248,6 +250,8 @@
 		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		94735C32196DC4FE002A258D /* hydra.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hydra.c; sourceTree = "<group>"; };
 		94735C34196DC4FE002A258D /* hydra.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = hydra.1; sourceTree = "<group>"; };
+		94735C3F196DCA9C002A258D /* ipc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ipc.lua; sourceTree = "<group>"; };
+		94735C42196DCAB4002A258D /* ipc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ipc.m; sourceTree = "<group>"; };
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		948CA9F91955AECC00A27D9D /* textgrid.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = textgrid.xib; sourceTree = "<group>"; };
 		948CA9FA1955AECC00A27D9D /* HDTextGridController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDTextGridController.h; sourceTree = "<group>"; };
@@ -466,6 +470,7 @@
 				9400269419514372000D15C1 /* geometry.lua */,
 				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
 				94DE594A194F1A39004D242E /* hydra.lua */,
+				94735C3F196DCA9C002A258D /* ipc.lua */,
 				94517BFA1957738100F9CCB6 /* logger.lua */,
 				945F2BBF1959AFA700D2DE7E /* notify.lua */,
 				94517BF61956F05800F9CCB6 /* pathwatcher.lua */,
@@ -482,6 +487,7 @@
 				940026961951437A000D15C1 /* geometry.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94DE5948194F1A31004D242E /* hydra.m */,
+				94735C42196DCAB4002A258D /* ipc.m */,
 				943349CD195DB49700B2BE41 /* json.m */,
 				945212A3194D6A6000217584 /* menu.m */,
 				94521299194D59F800217584 /* mouse.m */,
@@ -606,6 +612,7 @@
 				94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */,
 				945212A0194D697100217584 /* alert.xib in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
+				94735C40196DCA9C002A258D /* ipc.lua in Resources */,
 				94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
 				945F2BC01959AFA700D2DE7E /* notify.lua in Resources */,
@@ -700,6 +707,7 @@
 				9445CA99190833C1002568BB /* ltablib.c in Sources */,
 				943349CE195DB49700B2BE41 /* json.m in Sources */,
 				9445CA97190833C1002568BB /* lstrlib.c in Sources */,
+				94735C43196DCAB4002A258D /* ipc.m in Sources */,
 				9445CA8E190833C1002568BB /* lmathlib.c in Sources */,
 				9445CA8A190833C1002568BB /* lgc.c in Sources */,
 				948CAA061955AECC00A27D9D /* textgrid.m in Sources */,
