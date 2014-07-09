@@ -75,14 +75,10 @@ hotkey.new({"cmd", "ctrl", "alt"}, "L", movewindow_righthalf):enable()
 #### Executing commands externally
 
 Hydra comes with a command line utility to allow execution of Lua code
-within Hydra from the command line or another process.
-
-Installation:
-
-In the REPL, type `ipc.link()`. The documentation can be found at
-`doc.ipc.link` from within the REPL, as usual.
-
-Usage:
+within Hydra from the command line or another process. To install it,
+type `ipc.link()` at the REPL. The documentation for this function can
+be found at `doc.ipc.link` from within the REPL, as usual. You'd use
+it like so:
 
 ~~~bash
 $ hydra "hydra.alert('hello world')"
