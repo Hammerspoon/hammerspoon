@@ -73,6 +73,11 @@
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		945F2BC01959AFA700D2DE7E /* notify.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945F2BBF1959AFA700D2DE7E /* notify.lua */; };
 		94668E951958B039009422D7 /* doc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94668E941958B039009422D7 /* doc.lua */; };
+		94735C30196DC4FE002A258D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94735C2F196DC4FE002A258D /* CoreFoundation.framework */; };
+		94735C33196DC4FE002A258D /* hydra.c in Sources */ = {isa = PBXBuildFile; fileRef = 94735C32196DC4FE002A258D /* hydra.c */; };
+		94735C35196DC4FE002A258D /* hydra.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 94735C34196DC4FE002A258D /* hydra.1 */; };
+		94735C3C196DC569002A258D /* hydra-cli in Copy hydra-cli */ = {isa = PBXBuildFile; fileRef = 94735C2E196DC4FE002A258D /* hydra-cli */; };
+		94735C3E196DC64A002A258D /* hydra.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 94735C34196DC4FE002A258D /* hydra.1 */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
 		948CAA031955AECC00A27D9D /* textgrid.xib in Resources */ = {isa = PBXBuildFile; fileRef = 948CA9F91955AECC00A27D9D /* textgrid.xib */; };
 		948CAA041955AECC00A27D9D /* HDTextGridController.m in Sources */ = {isa = PBXBuildFile; fileRef = 948CA9FB1955AECC00A27D9D /* HDTextGridController.m */; };
@@ -95,6 +100,50 @@
 		94E8E7BC194E25300064CF6C /* application.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* application.lua */; };
 		94F7A98E1959096100CE7136 /* notify.m in Sources */ = {isa = PBXBuildFile; fileRef = 94F7A98D1959096100CE7136 /* notify.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		94735C39196DC535002A258D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 94735C2D196DC4FE002A258D;
+			remoteInfo = "hydra-cli";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		94735C2C196DC4FE002A258D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				94735C35196DC4FE002A258D /* hydra.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		94735C3B196DC563002A258D /* Copy hydra-cli */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				94735C3C196DC569002A258D /* hydra-cli in Copy hydra-cli */,
+			);
+			name = "Copy hydra-cli";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		94735C3D196DC63E002A258D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				94735C3E196DC64A002A258D /* hydra.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2303FBEC196A410D00D2EFDE /* brightness.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = brightness.m; sourceTree = "<group>"; };
@@ -195,6 +244,10 @@
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		945F2BBF1959AFA700D2DE7E /* notify.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = notify.lua; sourceTree = "<group>"; };
 		94668E941958B039009422D7 /* doc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = doc.lua; sourceTree = "<group>"; };
+		94735C2E196DC4FE002A258D /* hydra-cli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "hydra-cli"; sourceTree = BUILT_PRODUCTS_DIR; };
+		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		94735C32196DC4FE002A258D /* hydra.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hydra.c; sourceTree = "<group>"; };
+		94735C34196DC4FE002A258D /* hydra.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = hydra.1; sourceTree = "<group>"; };
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		948CA9F91955AECC00A27D9D /* textgrid.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = textgrid.xib; sourceTree = "<group>"; };
 		948CA9FA1955AECC00A27D9D /* HDTextGridController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDTextGridController.h; sourceTree = "<group>"; };
@@ -232,6 +285,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		94735C2B196DC4FE002A258D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				94735C30196DC4FE002A258D /* CoreFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -250,6 +311,7 @@
 			isa = PBXGroup;
 			children = (
 				9445CA1419083251002568BB /* Hydra */,
+				94735C31196DC4FE002A258D /* hydra-cli */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
 			);
@@ -259,6 +321,7 @@
 			isa = PBXGroup;
 			children = (
 				9445CA0B19083251002568BB /* Hydra.app */,
+				94735C2E196DC4FE002A258D /* hydra-cli */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -270,6 +333,7 @@
 				9473A75C1959F9AB0080C329 /* WebKit.framework */,
 				9445CA0E19083251002568BB /* Cocoa.framework */,
 				9445CA2D19083251002568BB /* XCTest.framework */,
+				94735C2F196DC4FE002A258D /* CoreFoundation.framework */,
 				9445CA1019083251002568BB /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -434,6 +498,15 @@
 			path = API;
 			sourceTree = "<group>";
 		};
+		94735C31196DC4FE002A258D /* hydra-cli */ = {
+			isa = PBXGroup;
+			children = (
+				94735C32196DC4FE002A258D /* hydra.c */,
+				94735C34196DC4FE002A258D /* hydra.1 */,
+			);
+			path = "hydra-cli";
+			sourceTree = "<group>";
+		};
 		948CA9F61955AE7B00A27D9D /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
@@ -462,15 +535,35 @@
 				9445CA0819083251002568BB /* Frameworks */,
 				944C49CE196B2E8E00FF10DD /* ShellScript */,
 				9445CA0919083251002568BB /* Resources */,
+				94735C3B196DC563002A258D /* Copy hydra-cli */,
+				94735C3D196DC63E002A258D /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				94735C3A196DC535002A258D /* PBXTargetDependency */,
 			);
 			name = Hydra;
 			productName = Hydra;
 			productReference = 9445CA0B19083251002568BB /* Hydra.app */;
 			productType = "com.apple.product-type.application";
+		};
+		94735C2D196DC4FE002A258D /* hydra-cli */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 94735C38196DC4FE002A258D /* Build configuration list for PBXNativeTarget "hydra-cli" */;
+			buildPhases = (
+				94735C2A196DC4FE002A258D /* Sources */,
+				94735C2B196DC4FE002A258D /* Frameworks */,
+				94735C2C196DC4FE002A258D /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "hydra-cli";
+			productName = "hydra-cli";
+			productReference = 94735C2E196DC4FE002A258D /* hydra-cli */;
+			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -496,6 +589,7 @@
 			projectRoot = "";
 			targets = (
 				9445CA0A19083251002568BB /* Hydra */,
+				94735C2D196DC4FE002A258D /* hydra-cli */,
 			);
 		};
 /* End PBXProject section */
@@ -618,7 +712,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		94735C2A196DC4FE002A258D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				94735C33196DC4FE002A258D /* hydra.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		94735C3A196DC535002A258D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 94735C2D196DC4FE002A258D /* hydra-cli */;
+			targetProxy = 94735C39196DC535002A258D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		9445CA3A19083251002568BB /* Debug */ = {
@@ -721,6 +831,24 @@
 			};
 			name = Release;
 		};
+		94735C36196DC4FE002A258D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "${TARGET_NAME}";
+			};
+			name = Debug;
+		};
+		94735C37196DC4FE002A258D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "${TARGET_NAME}";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -741,6 +869,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		94735C38196DC4FE002A258D /* Build configuration list for PBXNativeTarget "hydra-cli" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				94735C36196DC4FE002A258D /* Debug */,
+				94735C37196DC4FE002A258D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};

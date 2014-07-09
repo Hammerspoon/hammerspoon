@@ -1,0 +1,42 @@
+.Dd 7/8/14
+.Dt hydra 1
+.Os Darwin
+.Sh NAME
+.Nm hydra
+.Nd Command line interface to Hydra.app
+.Sh SYNOPSIS
+.Nm
+.Op Fl r | Fl Fl raw
+.Op Ar code ...
+.Sh DESCRIPTION
+Executes
+.Ar code
+in Hydra's environment. If
+.Ar code
+is not given, the contents of stdin are used.
+.Pp
+Normally,
+.Ar code
+is passed through the config function "hydra.ipchandler" which by
+default evaluates it as plain Lua code. This function may be overridden by the user to interpret
+.Ar code
+in some other way, and it may return any value.
+.Pp
+If the
+.Fl Fl raw
+option is given,
+.Ar code
+is always interpreted as raw Lua code, and the function
+"hydra.ipchandler" is not called.
+.Pp
+The result (or error string if it fails) is passed through tostring()
+and printed to stdout.
+.Pp
+.Sh EXIT STATUS
+The
+.Nm
+utility exits 0 on success, and >0 if an error occurs.
+.Pp
+.Sh MORE INFO
+Visit
+.Pa https://github.com/sdegutis/hydra-cli/
