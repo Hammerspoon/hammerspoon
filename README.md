@@ -8,16 +8,16 @@ Hydra is a lightweight window manager with a powerful API and an extremely small
 
 ### Install
 
-If you use [cask](http://caskroom.io/), run `brew cask install hydra`.
+Don't install Hydra via [cask](http://caskroom.io/). Instead, download
+the zipped binary directly from the
+[the latest-release page](https://github.com/sdegutis/hydra/releases/latest);
+unzip the downloaded file, put the app somewhere permanent, and run
+it. You may need to right-click it and click "Open" the first time.
 
-Otherwise, you can always find the latest release as a binary on the
-[Releases](https://github.com/sdegutis/hydra/releases) page; unzip the
-downloaded file, move the app where you want it, and run it. You may
-need to right-click it and click "Open" the first time.
-
-Feel free to install the current beta (11), it's very stable. You can
-use the `updates` module to know when 1.0 is officially released,
-although I expect it should happen within a week.
+Hydra is currently in beta, but is very stable, seeing minor releases
+every day. While in beta, the API is subject to change. Within a week,
+it will come out of beta. You can check for updates via the `updates`
+module, to be notified when an update (beta or not) is available.
 
 ### Usage
 
