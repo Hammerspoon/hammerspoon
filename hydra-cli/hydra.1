@@ -2,7 +2,7 @@
 .Dt hydra 1
 .Os Darwin
 .Sh NAME
-.Nm hydra
+.Nm hydra-cli
 .Nd Command line interface to Hydra.app
 .Sh SYNOPSIS
 .Nm
@@ -30,13 +30,15 @@ is always interpreted as raw Lua code, and the function
 "hydra.ipchandler" is not called.
 .Pp
 The result (or error string if it fails) is passed through tostring()
-and printed to stdout.
+and printed to stdout by this command.
 .Pp
 .Sh EXIT STATUS
 The
 .Nm
 utility exits 0 on success, and >0 if an error occurs.
 .Pp
+.Sh BUGS
+None, except the ones it has.
 .Sh MORE INFO
 Visit
-.Pa https://github.com/sdegutis/hydra-cli/
+.Pa https://github.com/sdegutis/hydra/
