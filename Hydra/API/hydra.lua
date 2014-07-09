@@ -96,7 +96,8 @@ end
 --- The return value of this function is always turned into a string via tostring() and returned to hydra-cli.
 --- If an error occurs, the error message is returned instead.
 local function rawipchandler(str)
-  return load(str)()
+  local fn, err = load(str)
+  if fn then return fn() else return err end
 end
 
 hydra.ipchandler = rawipchandler
