@@ -77,11 +77,10 @@ function window.orderedwindows()
   local orderedwins = {}
   local orderedwinids = window._orderedwinids()
   local windows = window.visiblewindows()
-  fnutils.each(windows, function(win) win:_cachewinid() end)
 
   for _, orderedwinid in pairs(orderedwinids) do
     for _, win in pairs(windows) do
-      if orderedwinid == win._winid then
+      if orderedwinid == win:id() then
         table.insert(orderedwins, win)
         break
       end
