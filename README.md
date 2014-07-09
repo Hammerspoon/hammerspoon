@@ -81,8 +81,9 @@ be found at `doc.ipc.link` from within the REPL, as usual. You'd use
 it like so:
 
 ~~~bash
-$ hydra "hydra.alert('hello world')"
-$ echo "hydra.alert('hello world')" | hydra
+$ hydra "hydra.alert('hello world')"          ## give it args
+$ echo "hydra.alert('hello world')" | hydra   ## or stdin
+$ man hydra                                   ## it even has a man-page!
 ~~~
 
 ### Screenshots
