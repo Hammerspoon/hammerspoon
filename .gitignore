@@ -18,5 +18,4 @@ DerivedData
 .idea/
 
 /Hydra.app
-/Hydra-*.app.tar.gz
-/Hydra-*.app.zip
+/Hydra-*.zip
