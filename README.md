@@ -34,7 +34,7 @@ found in this readme or the in-app documentation system.
 
 ### Example
 
-https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_config.lua ([raw source](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_config.lua))
+[sample_config.lua](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_config.lua) ([raw source](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_config.lua))
 
 Here's a snippet:
 ~~~lua
