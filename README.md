@@ -66,6 +66,10 @@ end
 hotkey.new({"cmd", "ctrl", "alt"}, "L", movewindow_righthalf):enable()
 ~~~
 
+#### Executing commands externally
+
+You can also use the command line utility `hydra-cli` ([github page](https://github.com/sdegutis/hydra-cli)) to execute Lua code inside Hydra from the command line. You can download a precompiled binary from the github page's Releases section. Alternatively, once someone adds this to homebrew, you'll also be able to install it via `brew install hydra-cli`.
+
 ### Screenshots
 
 Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua):

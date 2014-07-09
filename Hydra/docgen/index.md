@@ -78,3 +78,8 @@ Take a look through [the official sample config](https://github.com/sdegutis/hyd
 The wiki is the definitive location for third party modules.
 
 Third party modules are encouraged to reside under `ext`.
+
+
+### Executing commands externally
+
+You can also use the command line utility `hydra-cli` ([github page](https://github.com/sdegutis/hydra-cli)) to execute Lua code inside Hydra from the command line. You can download a precompiled binary from the github page's Releases section. Alternatively, once someone adds this to homebrew, you'll also be able to install it via `brew install hydra-cli`.
