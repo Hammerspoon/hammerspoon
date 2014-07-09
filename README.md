@@ -79,7 +79,8 @@ within Hydra from the command line or another process.
 
 Installation:
 
-* TBD
+In the REPL, type `ipc.link()`. The documentation can be found at
+`doc.ipc.link` from within the REPL, as usual.
 
 Usage:
 
