@@ -36,6 +36,12 @@ found in this readme or the in-app documentation system.
 
 [sample_config.lua](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_config.lua) ([raw source](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_config.lua))
 
+Here's a convenient way to set it up with `wget`:
+
+~~~bash
+$ mkdir -p ~/.hydra && cd $_ && wget -O https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_config.lua init.lua
+~~~
+
 Here's a snippet:
 ~~~lua
 -- show a helpful menu
