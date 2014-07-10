@@ -31,14 +31,13 @@ static int hydra_focushydra(lua_State* L) {
 /// hydra.alert(str, seconds = 2)
 /// Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience..
 static int hydra_alert(lua_State* L) {
-    size_t len;
-    const char* str = luaL_tolstring(L, 1, &len);
+    const char* str = luaL_checkstring(L, 1);
     
     double duration = 2.0;
     if (lua_isnumber(L, 2))
         duration = lua_tonumber(L, 2);
     
-    PHShowAlert([[NSString alloc] initWithBytes:str length:len encoding:NSUTF8StringEncoding], duration);
+    PHShowAlert([[NSString alloc] initWithUTF8String:str], duration);
     
     return 0;
 }

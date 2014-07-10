@@ -31,7 +31,7 @@ static void setup_ipc(lua_State* L) {
             lua_pop(L, 1); // ipcmod
         }
         else {
-            result = luaL_tolstring(L, -1, NULL);
+            result = lua_tostring(L, -1);
             lua_pop(L, 2); // return value and ipcmod
         }
         return result;
