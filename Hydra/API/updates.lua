@@ -26,9 +26,13 @@ function updates.check()
       local thisversion = normalizeversion(updates.currentversion())
 
       for _, version in pairs(versions) do
-        if normalizeversion(version) > thisversion then hasupdate = true end
+        if normalizeversion(version.version) > thisversion then hasupdate = true end
       end
 
       updates.available(hasupdate)
   end)
 end
+
+--- updates.changelogurl
+--- String of the URL that contains the changelog, rendered via Markdown
+updates.changelogurl = "https://github.com/sdegutis/hydra/releases"

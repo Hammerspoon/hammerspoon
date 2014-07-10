@@ -124,8 +124,41 @@ static int updates_getversions(lua_State* L) {
          int i = 0;
          
          for (NSDictionary* release in releases) {
-             NSString* tag_name = [release objectForKey:@"tag_name"];
-             lua_pushstring(L, [tag_name UTF8String]);
+             lua_newtable(L);
+             
+             NSArray* assets = [release objectForKey:@"assets"];
+             NSDictionary* asset = [assets objectAtIndex:0];
+             
+             lua_pushnumber(L, [[release objectForKey:@"id"] doubleValue]);
+             lua_setfield(L, -2, "id");
+             
+             lua_pushstring(L, [[release objectForKey:@"tag_name"] UTF8String]);
+             lua_setfield(L, -2, "version");
+             
+             lua_pushstring(L, [[release objectForKey:@"name"] UTF8String]);
+             lua_setfield(L, -2, "name");
+             
+             lua_pushstring(L, [[release objectForKey:@"body"] UTF8String]);
+             lua_setfield(L, -2, "changelog");
+             
+             lua_pushstring(L, [[release objectForKey:@"published_at"] UTF8String]);
+             lua_setfield(L, -2, "date");
+             
+             lua_pushboolean(L, [[release objectForKey:@"prerelease"] boolValue]);
+             lua_setfield(L, -2, "beta");
+             
+             lua_pushstring(L, [[release objectForKey:@"html_url"] UTF8String]);
+             lua_setfield(L, -2, "html_url");
+             
+             lua_pushstring(L, [[asset objectForKey:@"browser_download_url"] UTF8String]);
+             lua_setfield(L, -2, "download_url");
+             
+             lua_pushnumber(L, [[asset objectForKey:@"download_count"] doubleValue]);
+             lua_setfield(L, -2, "download_count");
+             
+             lua_pushnumber(L, [[asset objectForKey:@"size"] doubleValue]);
+             lua_setfield(L, -2, "download_size");
+             
              lua_rawseti(L, -2, ++i);
          }
          
