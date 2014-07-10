@@ -93,6 +93,7 @@
 		94C36940194DD94700EE3A2D /* updates.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693F194DD94700EE3A2D /* updates.m */; };
 		94C36942194DD94D00EE3A2D /* updates.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C36941194DD94D00EE3A2D /* updates.lua */; };
 		94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C96E6E19548ECB00DBD838 /* hotkey.lua */; };
+		94D86A7D196E231C001B6F05 /* dsa_pub.cer in Resources */ = {isa = PBXBuildFile; fileRef = 94D86A7C196E231C001B6F05 /* dsa_pub.cer */; };
 		94DE5947194F11AD004D242E /* fnutils.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE5946194F11AD004D242E /* fnutils.lua */; };
 		94DE5949194F1A31004D242E /* hydra.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DE5948194F1A31004D242E /* hydra.m */; };
 		94DE594B194F1A39004D242E /* hydra.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE594A194F1A39004D242E /* hydra.lua */; };
@@ -258,6 +259,7 @@
 		94C3693F194DD94700EE3A2D /* updates.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = updates.m; sourceTree = "<group>"; };
 		94C36941194DD94D00EE3A2D /* updates.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = updates.lua; sourceTree = "<group>"; };
 		94C96E6E19548ECB00DBD838 /* hotkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey.lua; sourceTree = "<group>"; };
+		94D86A7C196E231C001B6F05 /* dsa_pub.cer */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.cer; sourceTree = "<group>"; };
 		94DE5946194F11AD004D242E /* fnutils.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fnutils.lua; sourceTree = "<group>"; };
 		94DE5948194F1A31004D242E /* hydra.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra.m; sourceTree = "<group>"; };
 		94DE594A194F1A39004D242E /* hydra.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hydra.lua; sourceTree = "<group>"; };
@@ -362,6 +364,7 @@
 				94E8E7AD194E0C940064CF6C /* Hydra.icns */,
 				9445CA1619083251002568BB /* Hydra-Info.plist */,
 				9445CA1A19083251002568BB /* main.m */,
+				94D86A7C196E231C001B6F05 /* dsa_pub.cer */,
 				9445CA1C19083251002568BB /* Hydra-Prefix.pch */,
 			);
 			path = XcodeCrap;
@@ -600,6 +603,7 @@
 				945200881950E6C10072DFEF /* sample_config.lua in Resources */,
 				9400269519514372000D15C1 /* geometry.lua in Resources */,
 				94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */,
+				94D86A7D196E231C001B6F05 /* dsa_pub.cer in Resources */,
 				945212A0194D697100217584 /* alert.xib in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
 				94735C40196DCA9C002A258D /* ipc.lua in Resources */,
@@ -875,6 +879,7 @@
 				94735C37196DC4FE002A258D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
