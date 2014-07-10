@@ -29,7 +29,7 @@ end
 puts "Created #{filename}"
 
 # sign zip
-signature = `openssl dgst -sha1 -binary < #{filename} | openssl dgst -dss1 -sign #{privkeyfile} | openssl`
+signature = `openssl dgst -sha1 -binary < #{filename} | openssl dgst -dss1 -sign #{privkeyfile} | openssl enc -base64`
 
 # template
 template = <<END
