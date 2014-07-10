@@ -3,6 +3,14 @@ require 'fileutils'
 require 'json'
 require 'io/console'
 
+# ensure private key is given
+if ARGV.length < 2
+  echo "Usage: release.sh <priv_key_file>"
+  exit 1
+end
+privkeyfile = ARGV[1]
+
+# get password
 print "github password: "
 pass = STDIN.noecho(&:gets).chomp
 
@@ -21,6 +29,9 @@ FileUtils.cd("build/Release/") do
 end
 puts "Created #{filename}"
 
+# sign zip
+signature = `openssl dgst -sha1 -binary < #{filename} | openssl dgst -dss1 -sign #{privkeyfile} | openssl`
+
 # template
 template = <<END
 #### Additions
@@ -31,8 +42,11 @@ template = <<END
 
 #### Thanks!
 
-You rock.
+- You rock.
+
+Signature: #{signature}
 END
+
 
 # create release
 create_release_json = {
