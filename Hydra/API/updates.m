@@ -36,7 +36,12 @@ cleanup:
     return security_key;
 }
 
-static BOOL updater_verify_file(NSString* sig, NSString* zipfilepath) {
+/// updates.verifyfile(sig, path) -> bool
+/// Verifies the DSA signatue against the file at the given absolute path using Hydra's public key.
+static int updates_verifyfile(lua_State* L) {
+    NSString* sig = [NSString stringWithUTF8String:luaL_checklstring(L, 1, NULL)];
+    NSString* path = [NSString stringWithUTF8String:luaL_checklstring(L, 2, NULL)];
+    
     BOOL verified = NO;
     
     SecKeyRef security_key = NULL;
@@ -57,7 +62,7 @@ static BOOL updater_verify_file(NSString* sig, NSString* zipfilepath) {
     signature = [[NSData alloc] initWithBase64EncodedString:[sig stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] options:NSDataBase64DecodingIgnoreUnknownCharacters];
     if (signature == nil) { printf("signature was null\n"); goto cleanup; }
     
-    input_stream = [NSInputStream inputStreamWithFileAtPath:zipfilepath];
+    input_stream = [NSInputStream inputStreamWithFileAtPath:path];
     if (input_stream == nil) { printf("input stream was null\n"); goto cleanup; }
     
     read_transform = SecTransformCreateReadTransformWithReadStream((__bridge CFReadStreamRef)input_stream);
@@ -90,7 +95,8 @@ cleanup:
     if (success) CFRelease(success);
     if (error) CFRelease(error);
     
-    return verified;
+    lua_pushboolean(L, verified);
+    return 1;
 }
 
 static NSString* make_tmp_dir(void) {
@@ -194,6 +200,7 @@ static int updates_currentversion(lua_State* L) {
 static const luaL_Reg updateslib[] = {
     {"getversions", updates_getversions},
     {"currentversion", updates_currentversion},
+    {"verifyfile", updates_verifyfile},
     {NULL, NULL}
 };
 
