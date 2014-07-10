@@ -146,7 +146,7 @@ static int updates_getversions(lua_State* L) {
              lua_setfield(L, -2, "id");
              
              lua_pushstring(L, [[release objectForKey:@"tag_name"] UTF8String]);
-             lua_setfield(L, -2, "version");
+             lua_setfield(L, -2, "number");
              
              lua_pushstring(L, [[release objectForKey:@"name"] UTF8String]);
              lua_setfield(L, -2, "name");

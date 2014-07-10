@@ -26,7 +26,7 @@ function updates.check()
       local thisversion = normalizeversion(updates.currentversion())
 
       for _, version in pairs(versions) do
-        if normalizeversion(version.version) > thisversion then hasupdate = true end
+        if normalizeversion(version.number) > thisversion then hasupdate = true end
       end
 
       updates.available(hasupdate)
