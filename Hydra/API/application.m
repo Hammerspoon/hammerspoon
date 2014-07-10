@@ -116,15 +116,16 @@ static int application_allwindows(lua_State* L) {
 /// application:activate([allwindows]) -> bool
 /// Tries to activate the app (make it focused) and returns its success; if optional arg allwindows is true, brings all the app's windows to front.
 static int application_activate(lua_State* L) {
-    NSRunningApplication* app = nsobject_for_app(L, 1);
-    
+    AXUIElementRef app = hydra_app(L, 1);
     BOOL allwindows = lua_toboolean(L, 2);
     
-    NSApplicationActivationOptions opts = NSApplicationActivateIgnoringOtherApps;
-    if (allwindows)
-        opts |= NSApplicationActivateAllWindows;
+    BOOL success = (AXUIElementSetAttributeValue(app, (__bridge CFStringRef)NSAccessibilityFrontmostAttribute, kCFBooleanTrue) == kAXErrorSuccess);
     
-    BOOL success = [app activateWithOptions:opts];
+    if (success && allwindows) {
+        NSRunningApplication* app = nsobject_for_app(L, 1);
+        NSApplicationActivationOptions opts = NSApplicationActivateIgnoringOtherApps | NSApplicationActivateAllWindows;
+        [app activateWithOptions:opts];
+    }
     
     lua_pushboolean(L, success);
     return 1;
