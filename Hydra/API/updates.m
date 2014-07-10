@@ -7,8 +7,9 @@
 
 
 
-// assumes pubkeypath is legit
-static SecKeyRef transform_public_key(NSString* pubkeypath) {
+static SecKeyRef create_public_key(void) {
+    NSString* pubkeypath = [[NSBundle mainBundle] pathForResource:@"dsa_pub" ofType:@"cer"];
+    
     CFArrayRef items = NULL;
     SecKeyRef security_key = NULL;
     
@@ -35,7 +36,7 @@ cleanup:
     return security_key;
 }
 
-static BOOL updater_verify_file(NSString* sig, NSString* pubkeypath, NSString* zipfilepath) {
+static BOOL updater_verify_file(NSString* sig, NSString* zipfilepath) {
     BOOL verified = NO;
     
     SecKeyRef security_key = NULL;
@@ -50,7 +51,7 @@ static BOOL updater_verify_file(NSString* sig, NSString* pubkeypath, NSString* z
     CFErrorRef error = NULL;
     CFBooleanRef success = NULL;
     
-    security_key = transform_public_key(pubkeypath);
+    security_key = create_public_key();
     if (security_key == NULL) { printf("security key was null\n"); goto cleanup; }
     
     signature = [[NSData alloc] initWithBase64EncodedString:[sig stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] options:NSDataBase64DecodingIgnoreUnknownCharacters];
