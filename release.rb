@@ -4,11 +4,11 @@ require 'json'
 require 'io/console'
 
 # ensure private key is given
-if ARGV.length < 2
-  echo "Usage: release.sh <priv_key_file>"
+if ARGV.length < 1
+  puts "Usage: release.sh <priv_key_file>"
   exit 1
 end
-privkeyfile = ARGV[1]
+privkeyfile = ARGV[0]
 
 # get password
 print "github password: "
@@ -18,7 +18,6 @@ pass = STDIN.noecho(&:gets).chomp
 system "xcodebuild clean build"
 
 # get details
-humanversion = `defaults read "$(pwd)/Hydra/XcodeCrap/Hydra-Info" CFBundleShortVersionString`.strip
 version = `defaults read "$(pwd)/Hydra/XcodeCrap/Hydra-Info" CFBundleVersion`.strip
 filename = "Hydra-#{version}.zip"
 
@@ -34,15 +33,9 @@ signature = `openssl dgst -sha1 -binary < #{filename} | openssl dgst -dss1 -sign
 
 # template
 template = <<END
-#### Additions
-
 #### Changes
 
-#### Deletions
-
-#### Thanks!
-
-- You rock.
+#### Download Verification
 
 Signature: #{signature}
 END
@@ -51,7 +44,7 @@ END
 # create release
 create_release_json = {
   tag_name: version,
-  name: "Hydra #{humanversion}",
+  name: "Hydra #{version}",
   body: template,
   draft: true,
   prerelease: false
