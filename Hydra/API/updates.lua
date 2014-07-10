@@ -1,35 +1,14 @@
-local function normalizeversion(str)
-  local fn = str:gmatch("(b?)(%d+)")
-  local _, major = fn()
-  local _, minor = fn()
-  local bug = 0
-  local beta = 0
-  for a, b in fn do
-    if a == 'b' then beta = b else bug = b end
-  end
-  return string.format("%02d-%02d-%02d-%02d", major, minor, bug, beta)
+local function normalize(str)
+  return str:gsub("(%d+)", function(n) return ("%02d"):format(n) end)
 end
 
---- updates.available = function(isavailable)
---- Called after updates.check() runs, with a boolean parameter specifying whether an update is available. Default implementation pushes a notification when an update is available with the tag 'showupdate'.
-function updates.available(available)
-  if available then
-    notify.show("Hydra update available", "", "", "showupdate")
-  end
-end
-
---- updates.check()
---- Checks for an update. If one is available, calls updates.available(true); otherwise calls updates.available(false).
-function updates.check()
+--- updates.check(fn(isavailable))
+--- Checks for an update. Calls the given function with a boolean representing whether a new update is available.
+function updates.check(fn)
   updates.getversions(function(versions)
-      local hasupdate = false
-      local thisversion = normalizeversion(updates.currentversion())
-
-      for _, version in pairs(versions) do
-        if normalizeversion(version.number) > thisversion then hasupdate = true end
-      end
-
-      updates.available(hasupdate)
+      table.sort(versions, function(a, b) return normalize(a.number) < normalize(b.number) end)
+      local hasupdate = normalize(versions[#versions].number) > normalize(updates.currentversion())
+      fn(hasupdate)
   end)
 end
 

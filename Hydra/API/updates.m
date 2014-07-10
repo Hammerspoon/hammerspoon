@@ -189,10 +189,11 @@ static int updates_getversions(lua_State* L) {
 }
 
 
-/// updates.currentversion() -> string
+/// updates.currentversion() -> number
 /// Low-level function to get current Hydra version; used by updates.check; you probably want to use updates.check instead of using this directly.
 static int updates_currentversion(lua_State* L) {
-    lua_pushstring(L, [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] UTF8String]);
+    NSString* ver = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
+    lua_pushstring(L, [ver UTF8String]);
     return 1;
 }
 
