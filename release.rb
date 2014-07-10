@@ -47,7 +47,7 @@ create_release_json = {
   name: "Hydra #{version}",
   body: template,
   draft: true,
-  prerelease: false
+  prerelease: true
 }.to_json
 create_url = "https://api.github.com/repos/sdegutis/hydra/releases"
 release = JSON.load(`curl -u sdegutis:#{pass} -X POST --data '#{create_release_json}' '#{create_url}'`)
