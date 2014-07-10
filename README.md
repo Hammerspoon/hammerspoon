@@ -2,7 +2,7 @@
 
 *Hack your OS X desktop environment*
 
-Hydra is a lightweight window manager with a powerful API and an extremely small footprint.
+Hydra lets you hack your OS X desktop using a powerful API, while having an extremely small footprint.
 
 [![Build Status](https://travis-ci.org/sdegutis/hydra.svg?branch=master)](https://travis-ci.org/sdegutis/hydra)
 
