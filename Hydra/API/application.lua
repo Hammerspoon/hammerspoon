@@ -15,9 +15,8 @@ end
 function application:activate(allwindows)
   local win = self:_focusedwindow()
   if win then
-    win:becomemain()
-    self:_bringtofront(allwindows)
+    return win:becomemain() and self:_bringtofront(allwindows)
   else
-    self:_activate(allwindows)
+    return self:_activate(allwindows)
   end
 end

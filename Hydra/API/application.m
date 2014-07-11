@@ -140,8 +140,9 @@ static int application__bringtofront(lua_State* L) {
     BOOL allwindows = lua_toboolean(L, 2);
     ProcessSerialNumber psn;
     GetProcessForPID(pid, &psn);
-    SetFrontProcessWithOptions(&psn, allwindows ? 0 : kSetFrontProcessFrontWindowOnly);
-    return 0;
+    BOOL success = (SetFrontProcessWithOptions(&psn, allwindows ? 0 : kSetFrontProcessFrontWindowOnly) == noErr);
+    lua_pushboolean(L, success);
+    return 1;
 }
 
 /// application:title() -> string

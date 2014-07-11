@@ -62,7 +62,7 @@ end
 --- window:focus() -> bool
 --- Try to make this window focused.
 function window:focus()
-  return self:becomemain() and self:application():activate()
+  return self:becomemain() and self:application():_bringtofront()
 end
 
 --- window.visiblewindows() -> win[]
