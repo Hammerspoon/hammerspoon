@@ -148,18 +148,16 @@ static void set_app_prop(AXUIElementRef app, NSString* propType, id value) {
 /// application:unhide()
 /// Unhides the app (and all its windows) if it's hidden.
 static int application_unhide(lua_State* L) {
-    AXUIElementRef app = hydra_app(L, 1);
-    
-    set_app_prop(app, NSAccessibilityHiddenAttribute, @NO);
+    NSRunningApplication* app = nsobject_for_app(L, 1);
+    [app unhide];
     return 0;
 }
 
 /// application:hide()
 /// Hides the app (and all its windows).
 static int application_hide(lua_State* L) {
-    AXUIElementRef app = hydra_app(L, 1);
-    
-    set_app_prop(app, NSAccessibilityHiddenAttribute, @YES);
+    NSRunningApplication* app = nsobject_for_app(L, 1);
+    [app hide];
     return 0;
 }
 
