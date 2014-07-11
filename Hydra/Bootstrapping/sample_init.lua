@@ -11,7 +11,7 @@ hotkey.bind({"cmd", "ctrl", "alt"}, "R", repl.open)
 
 -- save the time when updates are checked
 function checkforupdates()
-  updates.check()
+  updates.check(updates.available)
   settings.set('lastcheckedupdates', os.time())
 end
 
