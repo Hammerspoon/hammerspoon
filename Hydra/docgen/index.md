@@ -70,7 +70,7 @@ Check out the sample configs to see many of these modules in action.
 
 ### Sample config
 
-Take a look through [the official sample config](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_config.lua) to see a real-world example of a Hydra config. This is the same config that Hydra presents at your first launch as one you might want to try starting with.
+Take a look through [the official sample init](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_init.lua) to see a real-world example of a Hydra config. This is the same config that Hydra presents at your first launch as one you might want to try starting with.
 
 
 ### Third party modules

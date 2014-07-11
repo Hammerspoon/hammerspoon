@@ -1,13 +1,13 @@
 local fallbackinit = {}
 
-function fallbackinit.open_sample_config()
-  os.execute("open \"" .. hydra.resourcesdir .. "/sample_config.lua\"")
+function fallbackinit.open_sample_init()
+  os.execute("open \"" .. hydra.resourcesdir .. "/sample_init.lua\"")
 end
 
 function fallbackinit.run()
   menu.show(function()
       return {
-        {title = "Open Sample Config", fn = fallbackinit.open_sample_config},
+        {title = "Open Sample Init", fn = fallbackinit.open_sample_init},
         {title = "Reload Config", fn = hydra.reload},
         {title = "-"},
         {title = "About", fn = hydra.showabout},

@@ -24,7 +24,7 @@ module, to be notified when an update (beta or not) is available.
 Hydra will look for `~/.hydra/init.lua` and run it if it exists. But
 if you haven't written one yet, it will run a fallback config that
 gives you a menu bar icon that contains an option to open
-[this sample config](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_config.lua).
+[this sample init](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_init.lua).
 You can paste its contents into your `~/.hydra/init.lua` to get
 started with a really basic starter config.
 
@@ -34,12 +34,12 @@ found in this readme or the in-app documentation system.
 
 ### Example
 
-[sample_config.lua](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_config.lua) ([raw source](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_config.lua))
+[sample_init.lua](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_init.lua) ([raw source](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_init.lua))
 
 Here's a convenient way to set it up with `wget`:
 
 ~~~bash
-$ mkdir -p ~/.hydra && cd $_ && wget -O https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_config.lua init.lua
+$ mkdir -p ~/.hydra && cd $_ && wget -O https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_init.lua init.lua
 ~~~
 
 Here's a snippet:
