@@ -4,14 +4,21 @@
 hydra.alert("Hydra sample config loaded", 1.5)
 
 -- open a repl
---   the repl is a Lua prompt; type "print('hello world')"
---   when you're in the repl, type "help" to get started
---   almost all readline functionality works in the repl
+--   * the repl is a Lua prompt; type "print('hello world')"
+--   * when you're in the repl, type "help" to get started
+--   * almost all readline functionality works in the repl
 hotkey.bind({"cmd", "ctrl", "alt"}, "R", repl.open)
 
 -- save the time when updates are checked
 function checkforupdates()
-  updates.check(updates.available)
+  updates.check(function(available)
+      -- what to do when an update is checked
+      if available then
+        notify.show("Hydra update available", "", "Click here to see the changelog and maybe even install it", "showupdate")
+      else
+        hydra.alert("No update available.")
+      end
+  end)
   settings.set('lastcheckedupdates', os.time())
 end
 
@@ -47,15 +54,6 @@ local function showupdate()
   os.execute('open https://github.com/sdegutis/Hydra/releases')
 end
 
--- what to do when an update is checked
-function updates.available(available)
-  if available then
-    notify.show("Hydra update available", "", "Click here to see the changelog and maybe even install it", "showupdate")
-  else
-    hydra.alert("No update available.")
-  end
-end
-
 -- Uncomment this if you want Hydra to make sure it launches at login
 -- autolaunch.set(true)
 
@@ -63,7 +61,7 @@ end
 timer.new(timer.weeks(1), checkforupdates):start()
 notify.register("showupdate", showupdate)
 
--- if this is your first time running Hydra, you're launching it more than a week later, check now
+-- if this is your first time running Hydra, or you're launching it more than a week later, check now
 local lastcheckedupdates = settings.get('lastcheckedupdates')
 if lastcheckedupdates == nil or lastcheckedupdates <= os.time() - timer.days(7) then
   checkforupdates()
