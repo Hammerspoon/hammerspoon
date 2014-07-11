@@ -9,3 +9,15 @@ end
 function application.launchorfocus(name)
   os.execute("open -a \"" .. name .. "\"")
 end
+
+--- application:activate() -> bool
+--- Tries to activate the app (make it focused) and returns whether it succeeded.
+function application:activate()
+  local win = app:_focusedwindow()
+  if win then
+    win:becomemain()
+    app:_bringtofront()
+  else
+    app:_activate()
+  end
+end

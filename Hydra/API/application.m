@@ -97,36 +97,55 @@ static int application_allwindows(lua_State* L) {
     
     lua_newtable(L);
     
-    CFArrayRef _windows;
-    AXError result = AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, 100, &_windows);
+    CFArrayRef windows;
+    AXError result = AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, 100, &windows);
     if (result == kAXErrorSuccess) {
-        for (NSInteger i = 0; i < CFArrayGetCount(_windows); i++) {
-            AXUIElementRef win = CFArrayGetValueAtIndex(_windows, i);
+        for (NSInteger i = 0; i < CFArrayGetCount(windows); i++) {
+            AXUIElementRef win = CFArrayGetValueAtIndex(windows, i);
             CFRetain(win);
             
             new_window(L, win);
             lua_rawseti(L, -2, (int)(i + 1));
         }
-        CFRelease(_windows);
+        CFRelease(windows);
     }
     
     return 1;
 }
 
-/// application:activate() -> bool
-/// Tries to activate the app (make it focused) and returns whether it succeeded.
-static int application_activate(lua_State* L) {
+// a few private methods for app:activate(), defined in Lua
+
+static int application__activate(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
     lua_pushboolean(L, success);
     return 1;
 }
 
+static int application__focusedwindow(lua_State* L) {
+    AXUIElementRef app = hydra_app(L, 1);
+    CFTypeRef window;
+    if (AXUIElementCopyAttributeValue(app, (__bridge CFStringRef)NSAccessibilityFocusedWindowAttribute, &window) == kAXErrorSuccess) {
+        new_window(L, window);
+    }
+    else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
+static int application__bringtofront(lua_State* L) {
+    pid_t pid = pid_for_app(L, 1);
+    ProcessSerialNumber psn;
+    GetProcessForPID(pid, &psn);
+    SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
+    return 0;
+}
+
 /// application:title() -> string
 /// Returns the localized name of the app (in UTF8).
 static int application_title(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
-    
     lua_pushstring(L, [[app localizedName] UTF8String]);
     return 1;
 }
@@ -135,7 +154,6 @@ static int application_title(lua_State* L) {
 /// Returns the bundle identifier of the app.
 static int application_bundleid(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
-    
     lua_pushstring(L, [[app bundleIdentifier] UTF8String]);
     return 1;
 }
@@ -202,7 +220,9 @@ static const luaL_Reg applicationlib[] = {
     {"applicationsforbundleid", application_applicationsforbundleid},
     
     {"allwindows", application_allwindows},
-    {"activate", application_activate},
+    {"_activate", application__activate},
+    {"_focusedwindow", application__focusedwindow},
+    {"_bringtofront", application__bringtofront},
     {"title", application_title},
     {"bundleid", application_bundleid},
     {"unhide", application_unhide},
