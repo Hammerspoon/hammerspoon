@@ -117,7 +117,8 @@ static int application_allwindows(lua_State* L) {
 
 static int application__activate(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
-    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps];
+    BOOL allwindows = lua_toboolean(L, 2);
+    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps | (allwindows ? NSApplicationActivateAllWindows : 0)];
     lua_pushboolean(L, success);
     return 1;
 }
@@ -136,9 +137,10 @@ static int application__focusedwindow(lua_State* L) {
 
 static int application__bringtofront(lua_State* L) {
     pid_t pid = pid_for_app(L, 1);
+    BOOL allwindows = lua_toboolean(L, 2);
     ProcessSerialNumber psn;
     GetProcessForPID(pid, &psn);
-    SetFrontProcessWithOptions(&psn, kSetFrontProcessFrontWindowOnly);
+    SetFrontProcessWithOptions(&psn, allwindows ? 0 : kSetFrontProcessFrontWindowOnly);
     return 0;
 }
 

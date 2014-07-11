@@ -10,14 +10,14 @@ function application.launchorfocus(name)
   os.execute("open -a \"" .. name .. "\"")
 end
 
---- application:activate() -> bool
---- Tries to activate the app (make it focused) and returns whether it succeeded.
-function application:activate()
-  local win = app:_focusedwindow()
+--- application:activate(allwindows = false) -> bool
+--- Tries to activate the app (make its key window focused) and returns whether it succeeded; if allwindows is true, all windows of the application are brought forward as well.
+function application:activate(allwindows)
+  local win = self:_focusedwindow()
   if win then
     win:becomemain()
-    app:_bringtofront()
+    self:_bringtofront(allwindows)
   else
-    app:_activate()
+    self:_activate(allwindows)
   end
 end
