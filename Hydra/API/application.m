@@ -140,11 +140,6 @@ static int application_bundleid(lua_State* L) {
     return 1;
 }
 
-static void set_app_prop(AXUIElementRef app, NSString* propType, id value) {
-    AXUIElementSetAttributeValue(app, (__bridge CFStringRef)(propType), (__bridge CFTypeRef)(value));
-    // yes, we ignore the return value; life is too short to constantly handle rare edge-cases
-}
-
 /// application:unhide()
 /// Unhides the app (and all its windows) if it's hidden.
 static int application_unhide(lua_State* L) {
