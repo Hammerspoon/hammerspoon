@@ -37,7 +37,7 @@ found in this readme or the in-app documentation system.
 Here's a convenient way to set it up with `wget`:
 
 ~~~bash
-$ mkdir -p ~/.hydra && cd $_ && wget -O https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_init.lua init.lua
+$ mkdir -p ~/.hydra && cd $_ && wget https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_init.lua -O init.lua
 ~~~
 
 Here's a snippet:
