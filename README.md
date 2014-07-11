@@ -2,7 +2,7 @@
 
 *Hack your OS X desktop environment*
 
-Hydra lets you hack your OS X desktop using a powerful API, while having an extremely small footprint.
+Hydra is hard to describe.
 
 [![Build Status](https://travis-ci.org/sdegutis/hydra.svg?branch=master)](https://travis-ci.org/sdegutis/hydra)
 
