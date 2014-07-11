@@ -2,8 +2,6 @@
 
 *Hack your OS X desktop environment*
 
-Hydra is hard to describe.
-
 [![Build Status](https://travis-ci.org/sdegutis/hydra.svg?branch=master)](https://travis-ci.org/sdegutis/hydra)
 
 ### Install
