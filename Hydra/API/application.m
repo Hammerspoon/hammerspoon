@@ -179,20 +179,22 @@ static int application_bundleid(lua_State* L) {
     return 1;
 }
 
-/// application:unhide()
+/// application:unhide() -> success
 /// Unhides the app (and all its windows) if it's hidden.
 static int application_unhide(lua_State* L) {
-    NSRunningApplication* app = nsobject_for_app(L, 1);
-    [app unhide];
-    return 0;
+    AXUIElementRef app = hydra_app(L, 1);
+    BOOL success = (AXUIElementSetAttributeValue(app, (__bridge CFStringRef)NSAccessibilityHiddenAttribute, kCFBooleanFalse) == kAXErrorSuccess);
+    lua_pushboolean(L, success);
+    return 1;
 }
 
-/// application:hide()
+/// application:hide() -> success
 /// Hides the app (and all its windows).
 static int application_hide(lua_State* L) {
-    NSRunningApplication* app = nsobject_for_app(L, 1);
-    [app hide];
-    return 0;
+    AXUIElementRef app = hydra_app(L, 1);
+    BOOL success = (AXUIElementSetAttributeValue(app, (__bridge CFStringRef)NSAccessibilityHiddenAttribute, kCFBooleanTrue) == kAXErrorSuccess);
+    lua_pushboolean(L, success);
+    return 1;
 }
 
 /// application:kill()
