@@ -102,6 +102,7 @@
 		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
 		94E8E7BC194E25300064CF6C /* application.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* application.lua */; };
 		94F7A98E1959096100CE7136 /* notify.m in Sources */ = {isa = PBXBuildFile; fileRef = 94F7A98D1959096100CE7136 /* notify.m */; };
+		94FF83D61970DAD4005B47D7 /* event.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FF83D51970DAD4005B47D7 /* event.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -269,6 +270,7 @@
 		94E8E7BB194E25300064CF6C /* application.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = application.lua; sourceTree = "<group>"; };
 		94EF97711958603F00096A41 /* helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		94F7A98D1959096100CE7136 /* notify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = notify.m; sourceTree = "<group>"; };
+		94FF83D51970DAD4005B47D7 /* event.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = event.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -478,6 +480,7 @@
 				94BDB49B19094B7A00BD0553 /* application.m */,
 				9452129B194D5B8F00217584 /* autolaunch.m */,
 				2303FBEC196A410D00D2EFDE /* brightness.m */,
+				94FF83D51970DAD4005B47D7 /* event.m */,
 				940026961951437A000D15C1 /* geometry.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94DE5948194F1A31004D242E /* hydra.m */,
@@ -671,6 +674,7 @@
 				9445CA9A190833C1002568BB /* ltm.c in Sources */,
 				9445CA85190833C1002568BB /* ldblib.c in Sources */,
 				945212A2194D69E700217584 /* pathwatcher.m in Sources */,
+				94FF83D61970DAD4005B47D7 /* event.m in Sources */,
 				9445CA81190833C1002568BB /* lbitlib.c in Sources */,
 				9445CA8B190833C1002568BB /* linit.c in Sources */,
 				9445CA9E190833C1002568BB /* lvm.c in Sources */,
