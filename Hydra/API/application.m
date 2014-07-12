@@ -135,6 +135,24 @@ static int application__focusedwindow(lua_State* L) {
     return 1;
 }
 
+static int application_isunresponsive(lua_State* L) {
+    // lol apple
+    typedef int CGSConnectionID;
+    CG_EXTERN CGSConnectionID CGSMainConnectionID(void);
+    bool CGSEventIsAppUnresponsive(CGSConnectionID cid, const ProcessSerialNumber *psn);
+    // srsly come on now
+    
+    pid_t pid = pid_for_app(L, 1);
+    ProcessSerialNumber psn;
+    GetProcessForPID(pid, &psn);
+    
+    CGSConnectionID conn = CGSMainConnectionID();
+    bool is = CGSEventIsAppUnresponsive(conn, &psn);
+    
+    lua_pushboolean(L, is);
+    return 1;
+}
+
 static int application__bringtofront(lua_State* L) {
     pid_t pid = pid_for_app(L, 1);
     BOOL allwindows = lua_toboolean(L, 2);
@@ -234,6 +252,7 @@ static const luaL_Reg applicationlib[] = {
     {"kill9", application_kill9},
     {"ishidden", application_ishidden},
     {"pid", application_pid},
+    {"isunresponsive", application_isunresponsive},
     
     {NULL, NULL}
 };
