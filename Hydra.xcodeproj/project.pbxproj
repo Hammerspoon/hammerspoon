@@ -102,7 +102,7 @@
 		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
 		94E8E7BC194E25300064CF6C /* application.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* application.lua */; };
 		94F7A98E1959096100CE7136 /* notify.m in Sources */ = {isa = PBXBuildFile; fileRef = 94F7A98D1959096100CE7136 /* notify.m */; };
-		94FF83D61970DAD4005B47D7 /* event.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FF83D51970DAD4005B47D7 /* event.m */; };
+		94FF83D61970DAD4005B47D7 /* event.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FF83D51970DAD4005B47D7 /* event.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
