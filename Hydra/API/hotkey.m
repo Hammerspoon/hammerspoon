@@ -1,6 +1,7 @@
 #import <Carbon/Carbon.h>
 #import "helpers.h"
-UInt32 PHKeyCodeForString(NSString* str);
+
+void hydra_pushkeycodestable(lua_State* L);
 
 static int hotkey_closure_ref;
 
@@ -35,7 +36,7 @@ static int hotkey_setup(lua_State* L) {
 // ret: [carbonkey]
 static int hotkey_register(lua_State* L) {
     UInt32 uid = luaL_checknumber(L, 1);
-    const char* key = luaL_checkstring(L, 2);
+    UInt32 keycode = luaL_checknumber(L, 2);
     BOOL ctrl  = lua_toboolean(L, 3);
     BOOL cmd   = lua_toboolean(L, 4);
     BOOL alt   = lua_toboolean(L, 5);
@@ -46,8 +47,6 @@ static int hotkey_register(lua_State* L) {
     if (cmd)   mods |= cmdKey;
     if (alt)   mods |= optionKey;
     if (shift) mods |= shiftKey;
-    
-    UInt32 keycode = PHKeyCodeForString([NSString stringWithUTF8String:key]);
     
     EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = uid };
     EventHotKeyRef carbonHotKey = NULL;
@@ -74,5 +73,9 @@ static const luaL_Reg hotkeylib[] = {
 
 int luaopen_hotkey(lua_State* L) {
     luaL_newlib(L, hotkeylib);
+    
+    hydra_pushkeycodestable(L);
+    lua_setfield(L, -2, "keycodes");
+    
     return 1;
 }

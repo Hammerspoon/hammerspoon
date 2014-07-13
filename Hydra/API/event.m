@@ -118,8 +118,26 @@ static int event_eventtap(lua_State* L) {
     return 1;
 }
 
+static int event_post(lua_State* L) {
+    
+//    {
+//        CGEventRef event = CGEventCreateKeyboardEvent(NULL, 4, true);
+//        CGEventPost(kCGSessionEventTap, event);
+//        CFRelease(event);
+//    }
+//    
+//    {
+//        CGEventRef event = CGEventCreateKeyboardEvent(NULL, 4, false);
+//        CGEventPost(kCGSessionEventTap, event);
+//        CFRelease(event);
+//    }
+    
+    return 0;
+}
+
 static luaL_Reg eventlib[] = {
     {"eventtap", event_eventtap},
+    {"post", event_post},
     {NULL, NULL}
 };
 

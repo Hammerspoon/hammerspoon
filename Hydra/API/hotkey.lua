@@ -15,6 +15,14 @@
 hotkey.keys = {}
 hotkey.keys.n = 0
 
+--- hotkey.keycodes
+--- A mapping from string representation of a key to its keycode, and vice versa; not generally useful yet.
+--- For example: keycodes[1] == "s", and keycodes["s"] == 1, and so on
+
+for k, v in pairs(hotkey.keycodes) do
+  hotkey.keycodes[v] = k
+end
+
 local function callback(uid)
   local k = hotkey.keys[uid]
   k.fn()
@@ -53,7 +61,7 @@ function hotkey:enable()
     if mod:lower() == 'shift' then shift = true end
   end
 
-  self.__carbonkey = hotkey._register(uid, self.key, ctrl, cmd, alt, shift)
+  self.__carbonkey = hotkey._register(uid, hotkey.keycodes[self.key:lower()], ctrl, cmd, alt, shift)
   return self
 end
 
