@@ -8,7 +8,7 @@ version = `defaults read "$(pwd)/../XcodeCrap/Hydra-Info" CFBundleVersion`.strip
 template = ERB.new(File.read("template.erb"))
 system("mkdir -p docs/#{version} && rm -f docs/#{version}/api*html")
 
-groups = JSON.load(File.read("docs.json"))
+groups = JSON.load(File.read("docs-#{version}.json"))
 groups.each do |group|
   File.write("docs/#{version}/#{group['name']}.html", template.result(binding))
 end

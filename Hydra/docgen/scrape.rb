@@ -55,4 +55,6 @@ keys.each do |mod, key, head, body|
 end
 
 require 'json'
-File.write("docs.json", JSON.dump(docs))
+version = `defaults read "$(pwd)/../XcodeCrap/Hydra-Info" CFBundleVersion`.strip
+File.write("docs-#{version}.json", JSON.dump(docs))
+system("cp docs-#{version}.json docs.json")
