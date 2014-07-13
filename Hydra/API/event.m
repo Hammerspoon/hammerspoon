@@ -149,13 +149,10 @@ static luaL_Reg eventtaplib[] = {
 
 /// event.eventtaptypes
 /// Table for use with `event.eventtap`, with the following keys:
-///   leftmousedown, leftmouseup, leftmousedragged
-///   rightmousedown, rightmouseup, rightmousedragged
-///   middlemousedown, middlemouseup, middlemousedragged
-///   keydown, keyup
-///   mousemoved
-///   flagschanged
-///   scrollwheel
+///   leftmousedown, leftmouseup, leftmousedragged,
+///   rightmousedown, rightmouseup, rightmousedragged,
+///   middlemousedown, middlemouseup, middlemousedragged,
+///   keydown, keyup, mousemoved, flagschanged, scrollwheel
 
 int luaopen_event(lua_State* L) {
     luaL_newmetatable(L, "eventtap");
