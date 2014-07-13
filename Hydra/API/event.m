@@ -43,7 +43,21 @@ static int event_eventtap_start(lua_State* L) {
         int stack = lua_gettop(L);
         
         lua_rawgeti(L, LUA_REGISTRYINDEX, e->ref);
-        if (lua_pcall(L, 0, LUA_MULTRET, 0))
+        
+        int nargs = 0;
+        
+        if (e->mask == CGEventMaskBit(kCGEventFlagsChanged)) {
+            nargs++;
+            lua_newtable(L);
+            CGEventFlags curAltkey = CGEventGetFlags(event);
+            if (curAltkey & kCGEventFlagMaskAlternate) { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); }
+            if (curAltkey & kCGEventFlagMaskShift) { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); }
+            if (curAltkey & kCGEventFlagMaskControl) { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
+            if (curAltkey & kCGEventFlagMaskCommand) { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); }
+            if (curAltkey & kCGEventFlagMaskSecondaryFn) { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); } // no idea if 'fn' key counts here
+        }
+        
+        if (lua_pcall(L, nargs, LUA_MULTRET, 0))
             hydra_handle_error(L);
         
         int nret = lua_gettop(L) - stack;
@@ -95,10 +109,12 @@ static int event_eventtap_stop(lua_State* L) {
     return 0;
 }
 
-/// event.eventtap(type, fn(point)) -> event
+/// event.eventtap(type, callback) -> event
 /// Returns a new event tap with the given callback for the given events; is not started automatically.
 /// The type param must be one of the values from the table `event.eventtaptypes`.
 /// If the callback function returns nothing, the event is not modified; if it returns nil, the event is deleted from the OS X event system and not seen by any other apps; all other return values are reserved for future features to this API.
+/// The callback usually takes no params, except for certain events:
+///   flagschanged: takes a table with any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
 static int event_eventtap(lua_State* L) {
     CGEventMask type = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
