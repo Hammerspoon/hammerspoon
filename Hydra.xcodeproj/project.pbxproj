@@ -15,6 +15,7 @@
 		943349CE195DB49700B2BE41 /* json.m in Sources */ = {isa = PBXBuildFile; fileRef = 943349CD195DB49700B2BE41 /* json.m */; };
 		943F212F195C527300066DCB /* settings.m in Sources */ = {isa = PBXBuildFile; fileRef = 943F212E195C527300066DCB /* settings.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
+		944247341972410E0003EAFE /* event.lua in Resources */ = {isa = PBXBuildFile; fileRef = 944247331972410E0003EAFE /* event.lua */; };
 		9443F2AF1969CF7400E7219D /* pprint.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9443F2AE1969CF7400E7219D /* pprint.lua */; };
 		944419C1194F4A51000A55A7 /* timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 944419C0194F4A51000A55A7 /* timer.m */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
@@ -149,6 +150,7 @@
 		943349CD195DB49700B2BE41 /* json.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = json.m; sourceTree = "<group>"; };
 		943F212E195C527300066DCB /* settings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = settings.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
+		944247331972410E0003EAFE /* event.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = event.lua; sourceTree = "<group>"; };
 		9443F2AE1969CF7400E7219D /* pprint.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pprint.lua; sourceTree = "<group>"; };
 		944419C0194F4A51000A55A7 /* timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = timer.m; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Hydra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hydra.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -462,6 +464,7 @@
 			children = (
 				94E8E7BB194E25300064CF6C /* application.lua */,
 				94668E941958B039009422D7 /* doc.lua */,
+				944247331972410E0003EAFE /* event.lua */,
 				94DE5946194F11AD004D242E /* fnutils.lua */,
 				9400269419514372000D15C1 /* geometry.lua */,
 				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
@@ -608,6 +611,7 @@
 				94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */,
 				94D86A7D196E231C001B6F05 /* dsa_pub.cer in Resources */,
 				945212A0194D697100217584 /* alert.xib in Resources */,
+				944247341972410E0003EAFE /* event.lua in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
 				94735C40196DCA9C002A258D /* ipc.lua in Resources */,
 				94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */,
