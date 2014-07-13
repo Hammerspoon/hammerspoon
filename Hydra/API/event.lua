@@ -1,9 +1,12 @@
 --- event.postkey(keycode, mods, dir = "both")
---- Posts a keyboard event. Keycode is a numeric value from `hotkey.keycodes`; dir is either 'down', 'up', or 'both'; mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift'}
---- Sometimes doesn't work inside a hotkey callback for some reason.
-local dirs = {up = 1, down = 2, both = 3}
+--- Posts a keyboard event.
+---   keycode is a numeric value from `hotkey.keycodes`
+---   dir is either 'press', 'release', or 'pressrelease'
+---   mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift'}
+--- Sometimes this doesn't work inside a hotkey callback for some reason.
+local dirs = {press = 1, release = 2, pressrelease = 3}
 function event.postkey(mods, key, dir)
-  dir = dir or "both"
+  dir = dir or "pressrelease"
   local m = {}
   for _, mod in pairs(mods) do
     m[mod:lower()] = true
