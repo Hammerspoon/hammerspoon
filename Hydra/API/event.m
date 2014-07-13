@@ -141,41 +141,34 @@ static void postkeyevent(CGKeyCode virtualKey, CGEventFlags flags, bool keyDown)
     CFRelease(event);
 }
 
-/// event.postkey(keycode, mods, dir)
-/// Posts a keyboard event. Keycode is a numeric value from `hotkey.keycodes`; dir is either 'down', 'up', or 'both'; mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift'}
-/// Doesn't usually work inside a hotkey callback for some reason.
+// in:  [keycode, dir, ctrl, alt, cmd, shift]
+// out: []
+// dirs = {up = 1, down = 2, both = 3}
 static int event_postkey(lua_State* L) {
     CGKeyCode keycode = luaL_checknumber(L, 1);
-    luaL_checktype(L, 2, LUA_TTABLE);
-    const char* dir = luaL_checkstring(L, 3);
+    int dir = luaL_checknumber(L, 2);
     
     CGEventFlags flags = 0;
+    if (lua_toboolean(L, 3)) flags |= kCGEventFlagMaskControl;
+    if (lua_toboolean(L, 4)) flags |= kCGEventFlagMaskAlternate;
+    if (lua_toboolean(L, 5)) flags |= kCGEventFlagMaskCommand;
+    if (lua_toboolean(L, 6)) flags |= kCGEventFlagMaskShift;
     
-    lua_pushnil(L);
-    while (lua_next(L, 2) != 0) {
-        const char* key = lua_tostring(L, -1);
-        if (strcmp(key, "ctrl") == 0) flags |= kCGEventFlagMaskControl;
-        else if (strcmp(key, "alt") == 0) flags |= kCGEventFlagMaskAlternate;
-        else if (strcmp(key, "cmd") == 0) flags |= kCGEventFlagMaskCommand;
-        else if (strcmp(key, "shift") == 0) flags |= kCGEventFlagMaskShift;
-        lua_pop(L, 1);
-    }
-    
-    if (strcmp(dir, "both") == 0) {
+    if (dir == 3) {
         postkeyevent(keycode, flags, true);
         postkeyevent(keycode, flags, false);
     }
     else {
-        BOOL down = (strcmp(dir, "down") == 0);
-        postkeyevent(keycode, flags, down);
+        BOOL isdown = (dir == 2);
+        postkeyevent(keycode, flags, isdown);
     }
-
+    
     return 0;
 }
 
 static luaL_Reg eventlib[] = {
     {"eventtap", event_eventtap},
-    {"postkey", event_postkey},
+    {"_postkey", event_postkey},
     {NULL, NULL}
 };
 

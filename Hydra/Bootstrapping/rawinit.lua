@@ -17,6 +17,7 @@ local ok, err = pcall(function()
     dofile(hydra.resourcesdir .. "/notify.lua")
     dofile(hydra.resourcesdir .. "/pprint.lua")
     dofile(hydra.resourcesdir .. "/ipc.lua")
+    dofile(hydra.resourcesdir .. "/event.lua")
     dofile(hydra.resourcesdir .. "/doc.lua")
 
     package.path = os.getenv("HOME") .. "/.hydra/?.lua" .. ';' .. package.path

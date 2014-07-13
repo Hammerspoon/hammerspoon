@@ -32,7 +32,7 @@ static int hotkey_setup(lua_State* L) {
     return 0;
 }
 
-// args: [uid, key, ctrl, cmd, alt, shift]
+// args: [uid, key, ctrl, cmd, alt, shift, caps]
 // ret: [carbonkey]
 static int hotkey_register(lua_State* L) {
     UInt32 uid = luaL_checknumber(L, 1);
@@ -41,12 +41,14 @@ static int hotkey_register(lua_State* L) {
     BOOL cmd   = lua_toboolean(L, 4);
     BOOL alt   = lua_toboolean(L, 5);
     BOOL shift = lua_toboolean(L, 6);
+    BOOL caps  = lua_toboolean(L, 7);
     
     UInt32 mods = 0;
     if (ctrl)  mods |= controlKey;
     if (cmd)   mods |= cmdKey;
     if (alt)   mods |= optionKey;
     if (shift) mods |= shiftKey;
+    if (caps)  mods |= alphaLock;
     
     EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = uid };
     EventHotKeyRef carbonHotKey = NULL;

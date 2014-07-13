@@ -49,19 +49,12 @@ function hotkey:enable()
   hotkey.keys[uid] = self
   self.__uid = uid
 
-  local ctrl = false
-  local alt = false
-  local cmd = false
-  local shift = false
-
+  local mods = {}
   for _, mod in pairs(self.mods) do
-    if mod:lower() == 'cmd' then cmd = true end
-    if mod:lower() == 'ctrl' then ctrl = true end
-    if mod:lower() == 'alt' then alt = true end
-    if mod:lower() == 'shift' then shift = true end
+    mods[mod:lower()] = true
   end
 
-  self.__carbonkey = hotkey._register(uid, hotkey.keycodes[self.key:lower()], ctrl, cmd, alt, shift)
+  self.__carbonkey = hotkey._register(uid, hotkey.keycodes[self.key:lower()], mods.ctrl, mods.cmd, mods.alt, mods.shift, mods.caps)
   return self
 end
 
