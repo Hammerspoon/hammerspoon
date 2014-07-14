@@ -23,6 +23,11 @@ static PHNotificationDelegate* notify_delegate;
 @end
 
 
+// two-line class <3
+@interface HydraGlobalNotifyListener : NSObject @property (copy) void(^fn)(NSNotification* note); @end
+@implementation HydraGlobalNotifyListener - (void) heard:(NSNotification*)note { self.fn(note); } @end
+
+
 /// notify.show(title, subtitle, text, tag)
 /// Show an Apple notification. Tag is a unique string that identifies this notification; any functions registered for the given tag will be called if the notification is clicked. None of the strings are optional, though they may each be blank.
 static int notify_show(lua_State* L) {
@@ -54,9 +59,32 @@ static int notify_setup(lua_State* L) {
     return 0;
 }
 
+/// notify.listen(fn(notification)) -> listener
+/// Registers a listener function for inter-app notifications.
+static int notify_listen(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TFUNCTION);
+    
+    HydraGlobalNotifyListener* listener = [[HydraGlobalNotifyListener alloc] init];
+    
+    listener.fn = ^(NSNotification* note) {
+        
+    };
+    
+    void** ud = lua_newuserdata(L, sizeof(id*));
+    *ud = (__bridge_retained void*)listener;
+    
+    [[NSDistributedNotificationCenter defaultCenter] addObserver:listener
+                                                        selector:@selector(heard:)
+                                                            name:nil
+                                                          object:nil];
+    
+    return 0;
+}
+
 static const luaL_Reg notifylib[] = {
     {"show", notify_show},
     {"_setup", notify_setup},
+    {"listen", notify_listen},
     {NULL, NULL}
 };
 
