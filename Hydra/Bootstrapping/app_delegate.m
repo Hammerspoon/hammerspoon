@@ -20,7 +20,7 @@ int luaopen_utf8(lua_State* L);
 int luaopen_json(lua_State* L);
 int luaopen_brightness(lua_State* L);
 int luaopen_ipc(lua_State* L);
-int luaopen_input(lua_State* L);
+//int luaopen_eventtap(lua_State* L);
 
 @interface PHAppDelegate : NSObject <NSApplicationDelegate>
 @end
@@ -47,7 +47,7 @@ static const luaL_Reg hydralibs[] = {
     {"json",         luaopen_json},
     {"brightness",   luaopen_brightness},
     {"ipc",          luaopen_ipc},
-    {"input",        luaopen_input},
+//    {"eventtap",     luaopen_eventtap},
     {NULL, NULL},
 };
 

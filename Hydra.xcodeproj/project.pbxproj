@@ -15,7 +15,7 @@
 		943349CE195DB49700B2BE41 /* json.m in Sources */ = {isa = PBXBuildFile; fileRef = 943349CD195DB49700B2BE41 /* json.m */; };
 		943F212F195C527300066DCB /* settings.m in Sources */ = {isa = PBXBuildFile; fileRef = 943F212E195C527300066DCB /* settings.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
-		944247341972410E0003EAFE /* input.lua in Resources */ = {isa = PBXBuildFile; fileRef = 944247331972410E0003EAFE /* input.lua */; };
+		944247341972410E0003EAFE /* eventtap.lua in Resources */ = {isa = PBXBuildFile; fileRef = 944247331972410E0003EAFE /* eventtap.lua */; };
 		9443F2AF1969CF7400E7219D /* pprint.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9443F2AE1969CF7400E7219D /* pprint.lua */; };
 		944419C1194F4A51000A55A7 /* timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 944419C0194F4A51000A55A7 /* timer.m */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
@@ -103,7 +103,7 @@
 		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
 		94E8E7BC194E25300064CF6C /* application.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* application.lua */; };
 		94F7A98E1959096100CE7136 /* notify.m in Sources */ = {isa = PBXBuildFile; fileRef = 94F7A98D1959096100CE7136 /* notify.m */; };
-		94FF83D61970DAD4005B47D7 /* input.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FF83D51970DAD4005B47D7 /* input.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		94FF83D61970DAD4005B47D7 /* eventtap.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FF83D51970DAD4005B47D7 /* eventtap.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -150,7 +150,7 @@
 		943349CD195DB49700B2BE41 /* json.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = json.m; sourceTree = "<group>"; };
 		943F212E195C527300066DCB /* settings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = settings.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
-		944247331972410E0003EAFE /* input.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = input.lua; sourceTree = "<group>"; };
+		944247331972410E0003EAFE /* eventtap.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = eventtap.lua; sourceTree = "<group>"; };
 		9443F2AE1969CF7400E7219D /* pprint.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pprint.lua; sourceTree = "<group>"; };
 		944419C0194F4A51000A55A7 /* timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = timer.m; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Hydra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hydra.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -272,7 +272,7 @@
 		94E8E7BB194E25300064CF6C /* application.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = application.lua; sourceTree = "<group>"; };
 		94EF97711958603F00096A41 /* helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
 		94F7A98D1959096100CE7136 /* notify.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = notify.m; sourceTree = "<group>"; };
-		94FF83D51970DAD4005B47D7 /* input.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = input.m; sourceTree = "<group>"; };
+		94FF83D51970DAD4005B47D7 /* eventtap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = eventtap.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -464,7 +464,7 @@
 			children = (
 				94E8E7BB194E25300064CF6C /* application.lua */,
 				94668E941958B039009422D7 /* doc.lua */,
-				944247331972410E0003EAFE /* input.lua */,
+				944247331972410E0003EAFE /* eventtap.lua */,
 				94DE5946194F11AD004D242E /* fnutils.lua */,
 				9400269419514372000D15C1 /* geometry.lua */,
 				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
@@ -483,7 +483,7 @@
 				94BDB49B19094B7A00BD0553 /* application.m */,
 				9452129B194D5B8F00217584 /* autolaunch.m */,
 				2303FBEC196A410D00D2EFDE /* brightness.m */,
-				94FF83D51970DAD4005B47D7 /* input.m */,
+				94FF83D51970DAD4005B47D7 /* eventtap.m */,
 				940026961951437A000D15C1 /* geometry.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				94DE5948194F1A31004D242E /* hydra.m */,
@@ -611,7 +611,7 @@
 				94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */,
 				94D86A7D196E231C001B6F05 /* dsa_pub.cer in Resources */,
 				945212A0194D697100217584 /* alert.xib in Resources */,
-				944247341972410E0003EAFE /* input.lua in Resources */,
+				944247341972410E0003EAFE /* eventtap.lua in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
 				94735C40196DCA9C002A258D /* ipc.lua in Resources */,
 				94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */,
@@ -678,7 +678,7 @@
 				9445CA9A190833C1002568BB /* ltm.c in Sources */,
 				9445CA85190833C1002568BB /* ldblib.c in Sources */,
 				945212A2194D69E700217584 /* pathwatcher.m in Sources */,
-				94FF83D61970DAD4005B47D7 /* input.m in Sources */,
+				94FF83D61970DAD4005B47D7 /* eventtap.m in Sources */,
 				9445CA81190833C1002568BB /* lbitlib.c in Sources */,
 				9445CA8B190833C1002568BB /* linit.c in Sources */,
 				9445CA9E190833C1002568BB /* lvm.c in Sources */,
