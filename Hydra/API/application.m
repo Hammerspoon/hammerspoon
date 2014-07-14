@@ -237,6 +237,22 @@ static int application_pid(lua_State* L) {
     return 1;
 }
 
+/// application:kind() -> number
+/// Returns 1 if the app is in the dock, 0 if not, and -1 if it can't even have GUI elements if it wanted to.
+static int application_kind(lua_State* L) {
+    NSRunningApplication* app = nsobject_for_app(L, 1);
+    NSApplicationActivationPolicy pol = [app activationPolicy];
+    
+    int kind = 1;
+    switch (pol) {
+        case NSApplicationActivationPolicyAccessory:  kind =  0; break;
+        case NSApplicationActivationPolicyProhibited: kind = -1; break;
+    }
+    
+    lua_pushnumber(L, kind);
+    return 1;
+}
+
 static const luaL_Reg applicationlib[] = {
     {"runningapplications", application_runningapplications},
     {"applicationforpid", application_applicationforpid},
@@ -255,6 +271,7 @@ static const luaL_Reg applicationlib[] = {
     {"ishidden", application_ishidden},
     {"pid", application_pid},
     {"isunresponsive", application_isunresponsive},
+    {"kind", application_kind},
     
     {NULL, NULL}
 };
