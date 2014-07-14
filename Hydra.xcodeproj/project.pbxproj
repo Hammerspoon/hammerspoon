@@ -644,7 +644,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ${SRCROOT}/Hydra/docgen/\n./scrape.rb";
+			shellScript = "cd \"${SRCROOT}/Hydra/docgen/\"\n./scrape.rb";
 		};
 /* End PBXShellScriptBuildPhase section */
 
