@@ -134,7 +134,7 @@ with it as you please. So, instead of charging for licenses, I'm
 asking for donations. If you find it helpful, I encourage you to
 donate what you believe would have been a fair price for a license:
 
-[Donate via PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation)
+[Donate via PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation&no_shipping=1)
 
 ### FAQ
 

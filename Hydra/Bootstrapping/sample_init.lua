@@ -77,7 +77,7 @@ end
 -- donate what you believe would have been a fair price for a license:
 
 local function donate()
-  os.execute("open 'https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation'")
+  os.execute("open 'https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation&no_shipping=1'")
 end
 
 hotkey.bind({"cmd", "alt", "ctrl"}, "D", donate)
