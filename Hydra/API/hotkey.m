@@ -1,80 +1,185 @@
 #import <Carbon/Carbon.h>
 #import "helpers.h"
-
 void hydra_pushkeycodestable(lua_State* L);
 
-static int hotkey_closure_ref;
+/// hotkey
+///
+/// Create and manage global hotkeys.
+///
+/// The `mods` field is case-insensitive and may contain any of the following strings: "cmd", "ctrl", "alt", or "shift".
+///
+/// The `key` field is case-insensitive and may be any single-character string; it may also be any of the following strings:
+///
+///     F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,
+///     F16, F17, F18, F19, F20, PAD, PAD*, PAD+, PAD/, PAD-, PAD=,
+///     PAD0, PAD1, PAD2, PAD3, PAD4, PAD5, PAD6, PAD7, PAD8, PAD9,
+///     PAD_CLEAR, PAD_ENTER, RETURN, TAB, SPACE, DELETE, ESCAPE, HELP,
+///     HOME, PAGE_UP, FORWARD_DELETE, END, PAGE_DOWN, LEFT, RIGHT, DOWN, UP
+
+/// hotkey.keycodes
+/// A mapping from string representation of a key to its keycode, and vice versa; not generally useful yet.
+/// For example: keycodes[1] == "s", and keycodes["s"] == 1, and so on
+
+typedef struct _hotkey_t {
+    UInt32 mods;
+    UInt32 keycode;
+    UInt32 uid;
+    int fnref;
+    BOOL enabled;
+    EventHotKeyRef carbonHotKey;
+} hotkey_t;
+
+
 
 static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {
     EventHotKeyID eventID;
     GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
     
     lua_State* L = inUserData;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, hotkey_closure_ref);
     
-    lua_pushnumber(L, eventID.id);
+    lua_getglobal(L, "hotkey");
+    lua_getfield(L, -1, "keys");
+    lua_rawgeti(L, -1, eventID.id);
+    hotkey_t* hotkey = lua_touserdata(L, -1);
+    lua_pop(L, 3);
     
-    if (lua_pcall(L, 1, 0, 0))
+    lua_rawgeti(L, LUA_REGISTRYINDEX, hotkey->fnref);
+    if (lua_pcall(L, 0, 0, 0))
         hydra_handle_error(L);
     
     return noErr;
 }
 
-// args: [fn(int)]
-// ret: []
-static int hotkey_setup(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TFUNCTION);
-    hotkey_closure_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+/// hotkey:enable() -> self
+/// Registers the hotkey's fn as the callback when the user presses key while holding mods.
+static int hotkey_enable(lua_State* L) {
+    hotkey_t* hotkey = luaL_checkudata(L, 1, "hotkey");
+    lua_settop(L, 1);
     
-    EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
-    InstallEventHandler(GetEventDispatcherTarget(), hotkey_callback, 1, &hotKeyPressedSpec, L, NULL);
+    if (hotkey->enabled)
+        return 1;
     
-    return 0;
-}
-
-// args: [uid, key, ctrl, cmd, alt, shift, caps]
-// ret: [carbonkey]
-static int hotkey_register(lua_State* L) {
-    UInt32 uid = luaL_checknumber(L, 1);
-    UInt32 keycode = luaL_checknumber(L, 2);
-    BOOL ctrl  = lua_toboolean(L, 3);
-    BOOL cmd   = lua_toboolean(L, 4);
-    BOOL alt   = lua_toboolean(L, 5);
-    BOOL shift = lua_toboolean(L, 6);
-    BOOL caps  = lua_toboolean(L, 7);
+    hotkey->enabled = YES;
     
-    UInt32 mods = 0;
-    if (ctrl)  mods |= controlKey;
-    if (cmd)   mods |= cmdKey;
-    if (alt)   mods |= optionKey;
-    if (shift) mods |= shiftKey;
-    if (caps)  mods |= alphaLock;
+    // push keys table
+    lua_getglobal(L, "hotkey");
+    lua_getfield(L, -1, "keys");
     
-    EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = uid };
-    EventHotKeyRef carbonHotKey = NULL;
-    RegisterEventHotKey(keycode, mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &carbonHotKey);
+    // uid = keys.n + 1
+    lua_getfield(L, -1, "n");
+    hotkey->uid = lua_tonumber(L, -1) + 1;
+    lua_pop(L, 1);
     
-    lua_pushlightuserdata(L, carbonHotKey);
+    // keys.n = uid
+    lua_pushnumber(L, hotkey->uid);
+    lua_setfield(L, -2, "n");
+    
+    // keys[uid] = hotkey
+    lua_pushvalue(L, -3);
+    lua_rawseti(L, -2, hotkey->uid);
+    
+    // pop hotkey and hotkey.keys
+    lua_pop(L, 2);
+    
+    // start the event watcher!
+    EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = hotkey->uid };
+    hotkey->carbonHotKey = NULL;
+    RegisterEventHotKey(hotkey->keycode, hotkey->mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &hotkey->carbonHotKey);
+    
+    lua_pushvalue(L, 1);
     return 1;
 }
 
-// args: [carbonkey]
-// ret: []
-static int hotkey_unregister(lua_State* L) {
-    EventHotKeyRef carbonHotKey = lua_touserdata(L, 1);
-    UnregisterEventHotKey(carbonHotKey);
+/// hotkey:disable() -> self
+/// Disables the given hotkey; does not remove it from hotkey.keys.
+static int hotkey_disable(lua_State* L) {
+    hotkey_t* hotkey = luaL_checkudata(L, 1, "hotkey");
+    lua_settop(L, 1);
+    
+    if (!hotkey->enabled)
+        return 1;
+    
+    // remove from keys table
+    lua_getglobal(L, "hotkey");
+    lua_getfield(L, -1, "keys");
+    lua_rawseti(L, -1, hotkey->uid);
+    lua_pop(L, 2);
+    
+    UnregisterEventHotKey(hotkey->carbonHotKey);
+    
+    return 1;
+}
+
+/// hotkey.new(mods, key, fn) -> hotkey
+/// Creates a new hotkey that can be enabled.
+static int hotkey_new(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TTABLE);
+    const char* key = [[[NSString stringWithUTF8String:luaL_checkstring(L, 2)] lowercaseString] UTF8String];
+    luaL_checktype(L, 3, LUA_TFUNCTION);
+    
+    hotkey_t* hotkey = lua_newuserdata(L, sizeof(hotkey_t));
+    memset(hotkey, 0, sizeof(hotkey_t));
+    
+    // set global 'hotkey' as its metatable
+    luaL_getmetatable(L, "hotkey");
+    lua_setmetatable(L, -2);
+    
+    // store function
+    lua_pushvalue(L, 3);
+    hotkey->fnref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    // get keycode
+    lua_getglobal(L, "hotkey");
+    lua_getfield(L, -1, "keycodes");
+    lua_pushstring(L, key);
+    lua_gettable(L, -2);
+    hotkey->keycode = lua_tonumber(L, -1);
+    lua_pop(L, 3);
+    
+    // save mods
+    lua_pushnil(L);
+    while (lua_next(L, 1) != 0) {
+        NSString* mod = [[NSString stringWithUTF8String:luaL_checkstring(L, 2)] lowercaseString];
+        if ([mod isEqualToString: @"cmd"]) hotkey->mods |= cmdKey;
+        else if ([mod isEqualToString: @"ctrl"]) hotkey->mods = controlKey;
+        else if ([mod isEqualToString: @"alt"]) hotkey->mods = optionKey;
+        else if ([mod isEqualToString: @"shift"]) hotkey->mods = shiftKey;
+        lua_pop(L, 1);
+    }
+    
+    return 1;
+}
+
+static int hotkey_gc(lua_State* L) {
+    hotkey_t* hotkey = luaL_checkudata(L, 1, "hotkey");
+    luaL_unref(L, LUA_REGISTRYINDEX, hotkey->fnref);
     return 0;
 }
 
 static const luaL_Reg hotkeylib[] = {
-    {"_setup", hotkey_setup},
-    {"_register", hotkey_register},
-    {"_unregister", hotkey_unregister},
+    {"new", hotkey_new},
+    {"enable", hotkey_enable},
+    {"disable", hotkey_disable},
+    {"__gc", hotkey_gc},
     {NULL, NULL}
 };
 
 int luaopen_hotkey(lua_State* L) {
     luaL_newlib(L, hotkeylib);
+    
+    lua_newtable(L);
+    lua_pushnumber(L, 0);
+    lua_setfield(L, -2, "n");
+    lua_setfield(L, -2, "keys");
+    
+    EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
+    InstallEventHandler(GetEventDispatcherTarget(), hotkey_callback, 1, &hotKeyPressedSpec, L, NULL);
+    
+    lua_pushvalue(L, -1);
+    lua_setfield(L, LUA_REGISTRYINDEX, "hotkey");
+    
+    lua_pushvalue(L, -1); // hotkey.__index = hotkey
+    lua_setfield(L, -2, "__index");
     
     hydra_pushkeycodestable(L);
     lua_setfield(L, -2, "keycodes");
