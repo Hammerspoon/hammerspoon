@@ -1,6 +1,17 @@
 #import <Carbon/Carbon.h>
 #import "helpers.h"
 
+static void pushkeycode(lua_State* L, int code, const char* key) {
+    // t[key] = code
+    lua_pushnumber(L, code);
+    lua_setfield(L, -2, key);
+    
+    // t[code] = key
+    lua_pushstring(L, key);
+    lua_pushnumber(L, code);
+    lua_settable(L, -3);
+}
+
 void hydra_pushkeycodestable(lua_State* L) {
     lua_newtable(L);
     
@@ -39,8 +50,7 @@ void hydra_pushkeycodestable(lua_State* L) {
             
             const char* name = [[NSString stringWithCharacters:chars length:1] UTF8String];
             
-            lua_pushnumber(L, relocatableKeyCodes[i]);
-            lua_setfield(L, -2, name);
+            pushkeycode(L, relocatableKeyCodes[i], name);
         }
     }
     
@@ -48,61 +58,61 @@ void hydra_pushkeycodestable(lua_State* L) {
     
     // you should prefer typing these in upper-case in your config file,
     // since they look more unique (and less confusing) that way
-    lua_pushnumber(L, kVK_F1); lua_setfield(L, -2, "f1");
-    lua_pushnumber(L, kVK_F2); lua_setfield(L, -2, "f2");
-    lua_pushnumber(L, kVK_F3); lua_setfield(L, -2, "f3");
-    lua_pushnumber(L, kVK_F4); lua_setfield(L, -2, "f4");
-    lua_pushnumber(L, kVK_F5); lua_setfield(L, -2, "f5");
-    lua_pushnumber(L, kVK_F6); lua_setfield(L, -2, "f6");
-    lua_pushnumber(L, kVK_F7); lua_setfield(L, -2, "f7");
-    lua_pushnumber(L, kVK_F8); lua_setfield(L, -2, "f8");
-    lua_pushnumber(L, kVK_F9); lua_setfield(L, -2, "f9");
-    lua_pushnumber(L, kVK_F10); lua_setfield(L, -2, "f10");
-    lua_pushnumber(L, kVK_F11); lua_setfield(L, -2, "f11");
-    lua_pushnumber(L, kVK_F12); lua_setfield(L, -2, "f12");
-    lua_pushnumber(L, kVK_F13); lua_setfield(L, -2, "f13");
-    lua_pushnumber(L, kVK_F14); lua_setfield(L, -2, "f14");
-    lua_pushnumber(L, kVK_F15); lua_setfield(L, -2, "f15");
-    lua_pushnumber(L, kVK_F16); lua_setfield(L, -2, "f16");
-    lua_pushnumber(L, kVK_F17); lua_setfield(L, -2, "f17");
-    lua_pushnumber(L, kVK_F18); lua_setfield(L, -2, "f18");
-    lua_pushnumber(L, kVK_F19); lua_setfield(L, -2, "f19");
-    lua_pushnumber(L, kVK_F20); lua_setfield(L, -2, "f20");
+    pushkeycode(L, kVK_F1, "f1");
+    pushkeycode(L, kVK_F2, "f2");
+    pushkeycode(L, kVK_F3, "f3");
+    pushkeycode(L, kVK_F4, "f4");
+    pushkeycode(L, kVK_F5, "f5");
+    pushkeycode(L, kVK_F6, "f6");
+    pushkeycode(L, kVK_F7, "f7");
+    pushkeycode(L, kVK_F8, "f8");
+    pushkeycode(L, kVK_F9, "f9");
+    pushkeycode(L, kVK_F10, "f10");
+    pushkeycode(L, kVK_F11, "f11");
+    pushkeycode(L, kVK_F12, "f12");
+    pushkeycode(L, kVK_F13, "f13");
+    pushkeycode(L, kVK_F14, "f14");
+    pushkeycode(L, kVK_F15, "f15");
+    pushkeycode(L, kVK_F16, "f16");
+    pushkeycode(L, kVK_F17, "f17");
+    pushkeycode(L, kVK_F18, "f18");
+    pushkeycode(L, kVK_F19, "f19");
+    pushkeycode(L, kVK_F20, "f20");
     
     // you should prefer typing these in lower-case in your config file,
     // since there's no concern for ambiguity/confusion with words, just with chars.
-    lua_pushnumber(L, kVK_ANSI_KeypadDecimal); lua_setfield(L, -2, "pad.");
-    lua_pushnumber(L, kVK_ANSI_KeypadMultiply); lua_setfield(L, -2, "pad*");
-    lua_pushnumber(L, kVK_ANSI_KeypadPlus); lua_setfield(L, -2, "pad+");
-    lua_pushnumber(L, kVK_ANSI_KeypadDivide); lua_setfield(L, -2, "pad/");
-    lua_pushnumber(L, kVK_ANSI_KeypadMinus); lua_setfield(L, -2, "pad-");
-    lua_pushnumber(L, kVK_ANSI_KeypadEquals); lua_setfield(L, -2, "pad=");
-    lua_pushnumber(L, kVK_ANSI_Keypad0); lua_setfield(L, -2, "pad0");
-    lua_pushnumber(L, kVK_ANSI_Keypad1); lua_setfield(L, -2, "pad1");
-    lua_pushnumber(L, kVK_ANSI_Keypad2); lua_setfield(L, -2, "pad2");
-    lua_pushnumber(L, kVK_ANSI_Keypad3); lua_setfield(L, -2, "pad3");
-    lua_pushnumber(L, kVK_ANSI_Keypad4); lua_setfield(L, -2, "pad4");
-    lua_pushnumber(L, kVK_ANSI_Keypad5); lua_setfield(L, -2, "pad5");
-    lua_pushnumber(L, kVK_ANSI_Keypad6); lua_setfield(L, -2, "pad6");
-    lua_pushnumber(L, kVK_ANSI_Keypad7); lua_setfield(L, -2, "pad7");
-    lua_pushnumber(L, kVK_ANSI_Keypad8); lua_setfield(L, -2, "pad8");
-    lua_pushnumber(L, kVK_ANSI_Keypad9); lua_setfield(L, -2, "pad9");
-    lua_pushnumber(L, kVK_ANSI_KeypadClear); lua_setfield(L, -2, "padclear");
-    lua_pushnumber(L, kVK_ANSI_KeypadEnter); lua_setfield(L, -2, "padenter");
+    pushkeycode(L, kVK_ANSI_KeypadDecimal, "pad.");
+    pushkeycode(L, kVK_ANSI_KeypadMultiply, "pad*");
+    pushkeycode(L, kVK_ANSI_KeypadPlus, "pad+");
+    pushkeycode(L, kVK_ANSI_KeypadDivide, "pad/");
+    pushkeycode(L, kVK_ANSI_KeypadMinus, "pad-");
+    pushkeycode(L, kVK_ANSI_KeypadEquals, "pad=");
+    pushkeycode(L, kVK_ANSI_Keypad0, "pad0");
+    pushkeycode(L, kVK_ANSI_Keypad1, "pad1");
+    pushkeycode(L, kVK_ANSI_Keypad2, "pad2");
+    pushkeycode(L, kVK_ANSI_Keypad3, "pad3");
+    pushkeycode(L, kVK_ANSI_Keypad4, "pad4");
+    pushkeycode(L, kVK_ANSI_Keypad5, "pad5");
+    pushkeycode(L, kVK_ANSI_Keypad6, "pad6");
+    pushkeycode(L, kVK_ANSI_Keypad7, "pad7");
+    pushkeycode(L, kVK_ANSI_Keypad8, "pad8");
+    pushkeycode(L, kVK_ANSI_Keypad9, "pad9");
+    pushkeycode(L, kVK_ANSI_KeypadClear, "padclear");
+    pushkeycode(L, kVK_ANSI_KeypadEnter, "padenter");
     
-    lua_pushnumber(L, kVK_Return); lua_setfield(L, -2, "return");
-    lua_pushnumber(L, kVK_Tab); lua_setfield(L, -2, "tab");
-    lua_pushnumber(L, kVK_Space); lua_setfield(L, -2, "space");
-    lua_pushnumber(L, kVK_Delete); lua_setfield(L, -2, "delete");
-    lua_pushnumber(L, kVK_Escape); lua_setfield(L, -2, "escape");
-    lua_pushnumber(L, kVK_Help); lua_setfield(L, -2, "help");
-    lua_pushnumber(L, kVK_Home); lua_setfield(L, -2, "home");
-    lua_pushnumber(L, kVK_PageUp); lua_setfield(L, -2, "pageup");
-    lua_pushnumber(L, kVK_ForwardDelete); lua_setfield(L, -2, "forwarddelete");
-    lua_pushnumber(L, kVK_End); lua_setfield(L, -2, "end");
-    lua_pushnumber(L, kVK_PageDown); lua_setfield(L, -2, "pagedown");
-    lua_pushnumber(L, kVK_LeftArrow); lua_setfield(L, -2, "left");
-    lua_pushnumber(L, kVK_RightArrow); lua_setfield(L, -2, "right");
-    lua_pushnumber(L, kVK_DownArrow); lua_setfield(L, -2, "down");
-    lua_pushnumber(L, kVK_UpArrow); lua_setfield(L, -2, "up");
+    pushkeycode(L, kVK_Return, "return");
+    pushkeycode(L, kVK_Tab, "tab");
+    pushkeycode(L, kVK_Space, "space");
+    pushkeycode(L, kVK_Delete, "delete");
+    pushkeycode(L, kVK_Escape, "escape");
+    pushkeycode(L, kVK_Help, "help");
+    pushkeycode(L, kVK_Home, "home");
+    pushkeycode(L, kVK_PageUp, "pageup");
+    pushkeycode(L, kVK_ForwardDelete, "forwarddelete");
+    pushkeycode(L, kVK_End, "end");
+    pushkeycode(L, kVK_PageDown, "pagedown");
+    pushkeycode(L, kVK_LeftArrow, "left");
+    pushkeycode(L, kVK_RightArrow, "right");
+    pushkeycode(L, kVK_DownArrow, "down");
+    pushkeycode(L, kVK_UpArrow, "up");
 }

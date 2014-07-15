@@ -31,23 +31,44 @@ typedef struct _hotkey_t {
 
 
 
-static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {
-    EventHotKeyID eventID;
-    GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
+/// hotkey.new(mods, key, fn) -> hotkey
+/// Creates a new hotkey that can be enabled.
+static int hotkey_new(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TTABLE);
+    const char* key = [[[NSString stringWithUTF8String:luaL_checkstring(L, 2)] lowercaseString] UTF8String];
+    luaL_checktype(L, 3, LUA_TFUNCTION);
     
-    lua_State* L = inUserData;
+    hotkey_t* hotkey = lua_newuserdata(L, sizeof(hotkey_t));
+    memset(hotkey, 0, sizeof(hotkey_t));
     
+    // set global 'hotkey' as its metatable
+    luaL_getmetatable(L, "hotkey");
+    lua_setmetatable(L, -2);
+    
+    // store function
+    lua_pushvalue(L, 3);
+    hotkey->fnref = luaL_ref(L, LUA_REGISTRYINDEX);
+    
+    // get keycode
     lua_getglobal(L, "hotkey");
-    lua_getfield(L, -1, "keys");
-    lua_rawgeti(L, -1, eventID.id);
-    hotkey_t* hotkey = lua_touserdata(L, -1);
+    lua_getfield(L, -1, "keycodes");
+    lua_pushstring(L, key);
+    lua_gettable(L, -2);
+    hotkey->keycode = lua_tonumber(L, -1);
     lua_pop(L, 3);
     
-    lua_rawgeti(L, LUA_REGISTRYINDEX, hotkey->fnref);
-    if (lua_pcall(L, 0, 0, 0))
-        hydra_handle_error(L);
+    // save mods
+    lua_pushnil(L);
+    while (lua_next(L, 1) != 0) {
+        NSString* mod = [[NSString stringWithUTF8String:luaL_checkstring(L, -1)] lowercaseString];
+        if ([mod isEqualToString: @"cmd"]) hotkey->mods |= cmdKey;
+        else if ([mod isEqualToString: @"ctrl"]) hotkey->mods |= controlKey;
+        else if ([mod isEqualToString: @"alt"]) hotkey->mods |= optionKey;
+        else if ([mod isEqualToString: @"shift"]) hotkey->mods |= shiftKey;
+        lua_pop(L, 1);
+    }
     
-    return noErr;
+    return 1;
 }
 
 /// hotkey:enable() -> self
@@ -110,46 +131,6 @@ static int hotkey_disable(lua_State* L) {
     return 1;
 }
 
-/// hotkey.new(mods, key, fn) -> hotkey
-/// Creates a new hotkey that can be enabled.
-static int hotkey_new(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TTABLE);
-    const char* key = [[[NSString stringWithUTF8String:luaL_checkstring(L, 2)] lowercaseString] UTF8String];
-    luaL_checktype(L, 3, LUA_TFUNCTION);
-    
-    hotkey_t* hotkey = lua_newuserdata(L, sizeof(hotkey_t));
-    memset(hotkey, 0, sizeof(hotkey_t));
-    
-    // set global 'hotkey' as its metatable
-    luaL_getmetatable(L, "hotkey");
-    lua_setmetatable(L, -2);
-    
-    // store function
-    lua_pushvalue(L, 3);
-    hotkey->fnref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
-    // get keycode
-    lua_getglobal(L, "hotkey");
-    lua_getfield(L, -1, "keycodes");
-    lua_pushstring(L, key);
-    lua_gettable(L, -2);
-    hotkey->keycode = lua_tonumber(L, -1);
-    lua_pop(L, 3);
-    
-    // save mods
-    lua_pushnil(L);
-    while (lua_next(L, 1) != 0) {
-        NSString* mod = [[NSString stringWithUTF8String:luaL_checkstring(L, -1)] lowercaseString];
-        if ([mod isEqualToString: @"cmd"]) hotkey->mods |= cmdKey;
-        else if ([mod isEqualToString: @"ctrl"]) hotkey->mods |= controlKey;
-        else if ([mod isEqualToString: @"alt"]) hotkey->mods |= optionKey;
-        else if ([mod isEqualToString: @"shift"]) hotkey->mods |= shiftKey;
-        lua_pop(L, 1);
-    }
-    
-    return 1;
-}
-
 static int hotkey_gc(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, "hotkey");
     luaL_unref(L, LUA_REGISTRYINDEX, hotkey->fnref);
@@ -163,6 +144,25 @@ static const luaL_Reg hotkeylib[] = {
     {"__gc", hotkey_gc},
     {NULL, NULL}
 };
+
+static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData) {
+    EventHotKeyID eventID;
+    GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
+    
+    lua_State* L = inUserData;
+    
+    lua_getglobal(L, "hotkey");
+    lua_getfield(L, -1, "keys");
+    lua_rawgeti(L, -1, eventID.id);
+    hotkey_t* hotkey = lua_touserdata(L, -1);
+    lua_pop(L, 3);
+    
+    lua_rawgeti(L, LUA_REGISTRYINDEX, hotkey->fnref);
+    if (lua_pcall(L, 0, 0, 0))
+        hydra_handle_error(L);
+    
+    return noErr;
+}
 
 int luaopen_hotkey(lua_State* L) {
     luaL_newlib(L, hotkeylib);
