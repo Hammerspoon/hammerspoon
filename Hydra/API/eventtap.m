@@ -13,17 +13,52 @@
 typedef CGEventRef(^eventtap_closure)(CGEventRef event);
 
 typedef struct _eventtap {
+    lua_State* L;
     BOOL started;
     CFMachPortRef tap;
     CFRunLoopSourceRef runloopsrc;
     CGEventMask mask;
-    eventtap_closure fn;
     int ref;
 } eventtap;
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     eventtap* e = refcon;
-    return e->fn(event);
+    lua_State* L = e->L;
+    
+    int stack = lua_gettop(L);
+    
+    lua_rawgeti(L, LUA_REGISTRYINDEX, e->ref);
+    
+    int nargs = 0;
+    
+    if (e->mask == CGEventMaskBit(kCGEventFlagsChanged)) {
+        nargs++;
+        lua_newtable(L);
+        CGEventFlags curAltkey = CGEventGetFlags(event);
+        if (curAltkey & kCGEventFlagMaskAlternate) { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); }
+        if (curAltkey & kCGEventFlagMaskShift) { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); }
+        if (curAltkey & kCGEventFlagMaskControl) { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
+        if (curAltkey & kCGEventFlagMaskCommand) { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); }
+        if (curAltkey & kCGEventFlagMaskSecondaryFn) { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); } // no idea if 'fn' key counts here
+    }
+    
+    if (lua_pcall(L, nargs, LUA_MULTRET, 0))
+        hydra_handle_error(L);
+    
+    int nret = lua_gettop(L) - stack;
+    
+    if (nret == 1) {
+        if (lua_isnil(L, -1)) {
+            return NULL;
+        }
+        else {
+            // TODO: allow user to modify event somehow
+            return event;
+        }
+    }
+    else {
+        return event;
+    }
 }
 
 static int eventtap_start(lua_State* L) {
@@ -38,43 +73,6 @@ static int eventtap_start(lua_State* L) {
     lua_getfield(L, -1, "fn");
     e->ref = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_pop(L, 1);
-    
-    e->fn = Block_copy(^CGEventRef(CGEventRef event){
-        int stack = lua_gettop(L);
-        
-        lua_rawgeti(L, LUA_REGISTRYINDEX, e->ref);
-        
-        int nargs = 0;
-        
-        if (e->mask == CGEventMaskBit(kCGEventFlagsChanged)) {
-            nargs++;
-            lua_newtable(L);
-            CGEventFlags curAltkey = CGEventGetFlags(event);
-            if (curAltkey & kCGEventFlagMaskAlternate) { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); }
-            if (curAltkey & kCGEventFlagMaskShift) { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); }
-            if (curAltkey & kCGEventFlagMaskControl) { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
-            if (curAltkey & kCGEventFlagMaskCommand) { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); }
-            if (curAltkey & kCGEventFlagMaskSecondaryFn) { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); } // no idea if 'fn' key counts here
-        }
-        
-        if (lua_pcall(L, nargs, LUA_MULTRET, 0))
-            hydra_handle_error(L);
-        
-        int nret = lua_gettop(L) - stack;
-        
-        if (nret == 1) {
-            if (lua_isnil(L, -1)) {
-                return NULL;
-            }
-            else {
-                // TODO: allow user to modify event somehow
-                return event;
-            }
-        }
-        else {
-            return event;
-        }
-    });
     
     e->tap = CGEventTapCreate(kCGSessionEventTap,
                               kCGHeadInsertEventTap,
@@ -102,7 +100,6 @@ static int eventtap_stop(lua_State* L) {
     CFRelease(e->runloopsrc);
     CFRelease(e->tap);
     
-    Block_release(e->fn);
     luaL_unref(L, LUA_REGISTRYINDEX, e->ref);
     e->started = NO;
     
@@ -120,6 +117,7 @@ static int eventtap_new(lua_State* L) {
     luaL_checktype(L, 2, LUA_TFUNCTION);
     
     eventtap* e = lua_newuserdata(L, sizeof(eventtap));
+    e->L = L;
     e->started = NO;
     e->mask = type;
     

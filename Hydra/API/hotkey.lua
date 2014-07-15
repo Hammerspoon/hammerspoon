@@ -7,5 +7,6 @@ end
 --- hotkey.disableall()
 --- Disables all hotkeys; automatically called when user config reloads.
 function hotkey.disableall()
-  fnutils.each(fnutils.copy(hotkey._keys), hotkey.disable)
+  local function ishotkey(hk) return type(hk) == "userdata" end
+  fnutils.each(fnutils.filter(hotkey._keys, ishotkey), hotkey.disable)
 end
