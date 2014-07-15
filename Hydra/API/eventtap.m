@@ -107,6 +107,13 @@ static int eventtap_stop(lua_State* L) {
 }
 
 /// eventtap.new(type, callback) -> event
+/// Returns a new event tap with the given callback for the given event type; is not started automatically.
+/// The type param must be one of the values from the table `event.eventtaptypes`.
+/// If the callback function returns nothing, the event is not modified; if it returns nil, the event is deleted from the OS X event system and not seen by any other apps; all other return values are reserved for future features to this API.
+/// The callback usually takes no params, except for certain events:
+///   flagschanged: takes a table with any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
+
+/// eventtap.new(type, callback) -> event
 /// Returns a new event tap with the given callback for the given events; is not started automatically.
 /// The type param must be one of the values from the table `event.eventtaptypes`.
 /// If the callback function returns nothing, the event is not modified; if it returns nil, the event is deleted from the OS X event system and not seen by any other apps; all other return values are reserved for future features to this API.
@@ -140,9 +147,12 @@ static void postkeyevent(CGKeyCode virtualKey, CGEventFlags flags, bool keyDown)
     CFRelease(event);
 }
 
-// in:  [keycode, dir, ctrl, alt, cmd, shift]
-// out: []
-// dirs = {up = 1, down = 2, both = 3}
+/// eventtap.postkey(keycode, mods, dir = "pressrelease")
+/// Sends a keyboard event as if you did it manually.
+///   keycode is a numeric value from `hotkey.keycodes`
+///   dir is either 'press', 'release', or 'pressrelease'
+///   mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift'}
+/// Sometimes this doesn't work inside a hotkey callback for some reason.
 static int eventtap_postkey(lua_State* L) {
     CGKeyCode keycode = luaL_checknumber(L, 1);
     int dir = luaL_checknumber(L, 2);
@@ -167,7 +177,7 @@ static int eventtap_postkey(lua_State* L) {
 
 static luaL_Reg inputlib[] = {
     // class methods
-    {"tap", eventtap_new},
+    {"new", eventtap_new},
     {"_postkey", eventtap_postkey},
     
     // instance methods
