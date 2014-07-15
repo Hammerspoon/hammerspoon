@@ -22,7 +22,7 @@ timer.timers = {}
 timer.timers.n = 0
 
 --- timer.new(seconds, fn) -> timer
---- Creates a new timer that can be started. Has the fields: seconds, fn.
+--- Creates a new timer that can be started.
 function timer.new(seconds, fn)
   return setmetatable({seconds = seconds, fn = fn}, {__index = timer})
 end

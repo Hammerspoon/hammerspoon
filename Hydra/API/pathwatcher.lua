@@ -10,8 +10,8 @@
 pathwatcher.pathwatchers = {}
 pathwatcher.pathwatchers.n = 0
 
---- pathwatcher.new(path, fn())
---- Returns a new pathwatcher that can be started and stopped. Contains fields: path, fn.
+--- pathwatcher.new(path, fn()) -> pathwatcher
+--- Returns a new pathwatcher that can be started and stopped.
 function pathwatcher.new(path, fn)
   return setmetatable({path = path, fn = fn}, {__index = pathwatcher})
 end
