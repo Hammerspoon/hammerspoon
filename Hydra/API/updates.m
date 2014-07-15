@@ -99,21 +99,6 @@ cleanup:
     return 1;
 }
 
-static NSString* make_tmp_dir(void) {
-    NSString* tmpdir = NSTemporaryDirectory();
-    if (tmpdir == nil) tmpdir = @"/tmp";
-    
-    NSString* template = [tmpdir stringByAppendingPathComponent:@"hydra.XXXXXX"];
-    NSMutableData * bufferData = [[template dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
-    char* buffer = [bufferData mutableBytes];
-    mkdtemp(buffer);
-    return [NSString stringWithUTF8String:buffer];
-}
-
-
-
-
-
 static NSString* updates_url = @"https://api.github.com/repos/sdegutis/hydra/releases";
 
 /// updates.getversions(fn(versions))
