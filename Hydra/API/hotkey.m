@@ -1,45 +1,56 @@
 #import <Carbon/Carbon.h>
 #import "helpers.h"
-void hydra_pushkeycodestable(lua_State* L);
 
 /// hotkey
 ///
 /// Create and manage global hotkeys.
+
+
+typedef struct _hotkey_t {
+    UInt32 mods;
+    UInt32 keycode;
+    UInt32 uid;
+    int pressedfn;
+    int releasedfn;
+    BOOL enabled;
+    EventHotKeyRef carbonHotKey;
+} hotkey_t;
+
+
+/// hotkey.keycodes
+/// A mapping from string representation of a key to its keycode, and vice versa; not generally useful yet.
+/// For example: keycodes[1] == "s", and keycodes["s"] == 1, and so on
+void hydra_pushkeycodestable(lua_State* L); // defined in hotkey_translator.m
+
+
+/// hotkey.new(mods, key, pressedfn, releasedfn = nil) -> hotkey
+/// Creates a new hotkey that can be enabled.
 ///
-/// The `mods` field is case-insensitive and may contain any of the following strings: "cmd", "ctrl", "alt", or "shift".
+/// The `mods` parameter is case-insensitive and may contain any of the following strings: "cmd", "ctrl", "alt", or "shift".
 ///
-/// The `key` field is case-insensitive and may be any single-character string; it may also be any of the following strings:
+/// The `key` parameter is case-insensitive and may be any single-character string; it may also be any of the following strings:
 ///
 ///     F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,
 ///     F16, F17, F18, F19, F20, PAD, PAD*, PAD+, PAD/, PAD-, PAD=,
 ///     PAD0, PAD1, PAD2, PAD3, PAD4, PAD5, PAD6, PAD7, PAD8, PAD9,
 ///     PAD_CLEAR, PAD_ENTER, RETURN, TAB, SPACE, DELETE, ESCAPE, HELP,
 ///     HOME, PAGE_UP, FORWARD_DELETE, END, PAGE_DOWN, LEFT, RIGHT, DOWN, UP
-
-/// hotkey.keycodes
-/// A mapping from string representation of a key to its keycode, and vice versa; not generally useful yet.
-/// For example: keycodes[1] == "s", and keycodes["s"] == 1, and so on
-
-typedef struct _hotkey_t {
-    UInt32 mods;
-    UInt32 keycode;
-    UInt32 uid;
-    int fnref;
-    BOOL enabled;
-    EventHotKeyRef carbonHotKey;
-} hotkey_t;
-
-
-
-/// hotkey.new(mods, key, fn) -> hotkey
-/// Creates a new hotkey that can be enabled.
+///
+/// The `pressedfn` parameter is the function that will be called when this hotkey is pressed.
+///
+/// The `releasedfn` parameter is the function that will be called when this hotkey is released; this field is optional (may be nil or omitted).
 static int hotkey_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
     const char* key = [[[NSString stringWithUTF8String:luaL_checkstring(L, 2)] lowercaseString] UTF8String];
     luaL_checktype(L, 3, LUA_TFUNCTION);
+    lua_settop(L, 4);
     
     hotkey_t* hotkey = lua_newuserdata(L, sizeof(hotkey_t));
     memset(hotkey, 0, sizeof(hotkey_t));
+    
+    // push releasedfn
+    lua_pushvalue(L, 4);
+    hotkey->releasedfn = luaL_ref(L, LUA_REGISTRYINDEX);
     
     // set global 'hotkey' as its metatable
     luaL_getmetatable(L, "hotkey");
@@ -47,7 +58,7 @@ static int hotkey_new(lua_State* L) {
     
     // store function
     lua_pushvalue(L, 3);
-    hotkey->fnref = luaL_ref(L, LUA_REGISTRYINDEX);
+    hotkey->pressedfn = luaL_ref(L, LUA_REGISTRYINDEX);
     
     // get keycode
     lua_getglobal(L, "hotkey");
@@ -120,7 +131,8 @@ static int hotkey_disable(lua_State* L) {
 
 static int hotkey_gc(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, "hotkey");
-    luaL_unref(L, LUA_REGISTRYINDEX, hotkey->fnref);
+    luaL_unref(L, LUA_REGISTRYINDEX, hotkey->pressedfn);
+    luaL_unref(L, LUA_REGISTRYINDEX, hotkey->releasedfn);
     return 0;
 }
 
@@ -144,9 +156,12 @@ static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef i
     hotkey_t* hotkey = lua_touserdata(L, -1);
     lua_pop(L, 3);
     
-    lua_rawgeti(L, LUA_REGISTRYINDEX, hotkey->fnref);
-    if (lua_pcall(L, 0, 0, 0))
-        hydra_handle_error(L);
+    int ref = (GetEventKind(inEvent) == kEventHotKeyPressed ? hotkey->pressedfn : hotkey->releasedfn);
+    if (ref != LUA_REFNIL) {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+        if (lua_pcall(L, 0, 0, 0))
+            hydra_handle_error(L);
+    }
     
     return noErr;
 }
@@ -158,11 +173,8 @@ int luaopen_hotkey(lua_State* L) {
     lua_newtable(L);
     lua_setfield(L, -2, "_keys");
     
-    // watch for events
-    EventTypeSpec hotKeyPressedSpec[] = {
-        {kEventClassKeyboard, kEventHotKeyPressed},
-//        {kEventClassKeyboard, kEventHotKeyReleased},
-    };
+    // watch for hotkey events
+    EventTypeSpec hotKeyPressedSpec[] = {{kEventClassKeyboard, kEventHotKeyPressed}, {kEventClassKeyboard, kEventHotKeyReleased}};
     InstallEventHandler(GetEventDispatcherTarget(), hotkey_callback, sizeof(hotKeyPressedSpec) / sizeof(EventTypeSpec), hotKeyPressedSpec, L, NULL);
     
     // put hotkey in registry; necessary for luaL_checkudata()
