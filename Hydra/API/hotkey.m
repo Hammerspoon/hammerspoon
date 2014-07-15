@@ -139,11 +139,11 @@ static int hotkey_new(lua_State* L) {
     // save mods
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
-        NSString* mod = [[NSString stringWithUTF8String:luaL_checkstring(L, 2)] lowercaseString];
+        NSString* mod = [[NSString stringWithUTF8String:luaL_checkstring(L, -1)] lowercaseString];
         if ([mod isEqualToString: @"cmd"]) hotkey->mods |= cmdKey;
-        else if ([mod isEqualToString: @"ctrl"]) hotkey->mods = controlKey;
-        else if ([mod isEqualToString: @"alt"]) hotkey->mods = optionKey;
-        else if ([mod isEqualToString: @"shift"]) hotkey->mods = shiftKey;
+        else if ([mod isEqualToString: @"ctrl"]) hotkey->mods |= controlKey;
+        else if ([mod isEqualToString: @"alt"]) hotkey->mods |= optionKey;
+        else if ([mod isEqualToString: @"shift"]) hotkey->mods |= shiftKey;
         lua_pop(L, 1);
     }
     
