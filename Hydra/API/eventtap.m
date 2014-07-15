@@ -135,7 +135,8 @@ static int eventtap_new(lua_State* L) {
 }
 
 static void postkeyevent(CGKeyCode virtualKey, CGEventFlags flags, bool keyDown) {
-    CGEventRef event = CGEventCreateKeyboardEvent(NULL, virtualKey, keyDown);
+    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState); // UNTESTED; copied from Zephyros
+    CGEventRef event = CGEventCreateKeyboardEvent(source, virtualKey, keyDown);
     CGEventSetFlags(event, flags);
     CGEventPost(kCGSessionEventTap, event);
     CFRelease(event);
