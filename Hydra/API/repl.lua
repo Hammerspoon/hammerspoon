@@ -154,14 +154,14 @@ repl = {}
 --- repl.open([opts]) -> textgrid
 --- Opens a new REPL; the `opts` parameter is an optional table with keys: inputcolor, stdoutcolor, resultcolor, backgroundcolor; these are 6-digit CSS-like hex strings.
 function repl.open(opts)
+  local previousindockstate = hydra.indock()
+  hydra.putindock(true)
+
   if repl._replwin then
     repl._replwin:show()
     repl._replwin:window():focus()
     return
   end
-
-  local previousindockstate = hydra.indock()
-  hydra.putindock(true)
 
   local win = textgrid.create()
   win:show()
