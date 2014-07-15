@@ -7,8 +7,5 @@ end
 --- hotkey.disableall()
 --- Disables all hotkeys; automatically called when user config reloads.
 function hotkey.disableall()
-  hotkey.keys.n = nil
-  -- FIXME: can't mutate table while iterating it!
-  for _, hotkey in pairs(hotkey.keys) do hotkey:disable() end
-  hotkey.keys.n = 0
+  fnutils.each(fnutils.copy(hotkey._keys), hotkey.disable)
 end

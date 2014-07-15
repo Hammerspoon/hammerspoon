@@ -33,6 +33,16 @@ function fnutils.filter(t, fn)
   return nt
 end
 
+--- fnutils.copy(t) -> t2
+--- Returns a new copy of t using pairs(t).
+function fnutils.copy(t)
+  local nt = {}
+  for k, v in pairs(t) do
+    nt[k] = v
+  end
+  return nt
+end
+
 --- fnutils.contains(t, el) -> bool
 --- Returns whether the table contains the given element.
 function fnutils.contains(t, el)

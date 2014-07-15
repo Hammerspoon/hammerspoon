@@ -82,24 +82,11 @@ static int hotkey_enable(lua_State* L) {
     
     hotkey->enabled = YES;
     
-    // push keys table
+    // store hotkey in 'hotkey.keys'
     lua_getglobal(L, "hotkey");
-    lua_getfield(L, -1, "keys");
-    
-    // uid = keys.n + 1
-    lua_getfield(L, -1, "n");
-    hotkey->uid = lua_tonumber(L, -1) + 1;
-    lua_pop(L, 1);
-    
-    // keys.n = uid
-    lua_pushnumber(L, hotkey->uid);
-    lua_setfield(L, -2, "n");
-    
-    // keys[uid] = hotkey
+    lua_getfield(L, -1, "_keys");
     lua_pushvalue(L, -3);
-    lua_rawseti(L, -2, hotkey->uid);
-    
-    // pop hotkey and hotkey.keys
+    hotkey->uid = luaL_ref(L, -2);
     lua_pop(L, 2);
     
     // start the event watcher!
@@ -122,8 +109,8 @@ static int hotkey_disable(lua_State* L) {
     
     // remove from keys table
     lua_getglobal(L, "hotkey");
-    lua_getfield(L, -1, "keys");
-    lua_rawseti(L, -1, hotkey->uid);
+    lua_getfield(L, -1, "_keys");
+    luaL_unref(L, -1, hotkey->uid);
     lua_pop(L, 2);
     
     UnregisterEventHotKey(hotkey->carbonHotKey);
@@ -152,7 +139,7 @@ static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef i
     lua_State* L = inUserData;
     
     lua_getglobal(L, "hotkey");
-    lua_getfield(L, -1, "keys");
+    lua_getfield(L, -1, "_keys");
     lua_rawgeti(L, -1, eventID.id);
     hotkey_t* hotkey = lua_touserdata(L, -1);
     lua_pop(L, 3);
@@ -167,20 +154,26 @@ static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef i
 int luaopen_hotkey(lua_State* L) {
     luaL_newlib(L, hotkeylib);
     
+    // hotkey._keys = {}
     lua_newtable(L);
-    lua_pushnumber(L, 0);
-    lua_setfield(L, -2, "n");
-    lua_setfield(L, -2, "keys");
+    lua_setfield(L, -2, "_keys");
     
-    EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
-    InstallEventHandler(GetEventDispatcherTarget(), hotkey_callback, 1, &hotKeyPressedSpec, L, NULL);
+    // watch for events
+    EventTypeSpec hotKeyPressedSpec[] = {
+        {kEventClassKeyboard, kEventHotKeyPressed},
+//        {kEventClassKeyboard, kEventHotKeyReleased},
+    };
+    InstallEventHandler(GetEventDispatcherTarget(), hotkey_callback, sizeof(hotKeyPressedSpec) / sizeof(EventTypeSpec), hotKeyPressedSpec, L, NULL);
     
+    // put hotkey in registry; necessary for luaL_checkudata()
     lua_pushvalue(L, -1);
     lua_setfield(L, LUA_REGISTRYINDEX, "hotkey");
     
-    lua_pushvalue(L, -1); // hotkey.__index = hotkey
+    // hotkey.__index = hotkey
+    lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
     
+    // hotkey.keycodes = {...}
     hydra_pushkeycodestable(L);
     lua_setfield(L, -2, "keycodes");
     
