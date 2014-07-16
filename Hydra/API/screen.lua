@@ -70,12 +70,7 @@ local function first_screen_in_direction(screen, numrotations)
   end
 
   table.sort(closestscreens, function(a, b) return a.score < b.score end)
-
-  if #closestscreens > 0 then
-    return closestscreens[1]
-  else
-    return nil
-  end
+  return closestscreens[1]
 end
 
 --- screen:toeast()
