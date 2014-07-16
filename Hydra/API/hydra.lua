@@ -85,12 +85,6 @@ function hydra.exec(command)
   return trimstring(str)
 end
 
---- hydra.uuid() -> string
---- Returns a UUID as a string
-function hydra.uuid()
-  return hydra.exec("uuidgen")
-end
-
 --- hydra.licenses -> string
 --- Returns a string containing the licenses of all the third party software Hydra uses (i.e. Lua)
 hydra.licenses = [[
