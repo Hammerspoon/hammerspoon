@@ -127,10 +127,9 @@ local function windows_in_direction(win, numrotations)
 
   -- thanks mark!
 
-  local thiswindow = window.focusedwindow()
-  local startingpoint = geometry.rectmidpoint(thiswindow:frame())
+  local startingpoint = geometry.rectmidpoint(win:frame())
 
-  local otherwindows = fnutils.filter(thiswindow:otherwindows_allscreens(), function(win) return window.isvisible(win) and window.isstandard(win) end)
+  local otherwindows = fnutils.filter(win:otherwindows_allscreens(), function(win) return window.isvisible(win) and window.isstandard(win) end)
   local closestwindows = {}
 
   for _, win in pairs(otherwindows) do
