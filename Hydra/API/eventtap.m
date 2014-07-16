@@ -123,28 +123,41 @@ static void postkeyevent(CGKeyCode virtualKey, CGEventFlags flags, bool keyDown)
     CFRelease(event);
 }
 
-/// eventtap.postkey(keycode, mods, dir = "pressrelease")
+/// eventtap.postkey(mods, key, dir = "pressrelease")
 /// Sends a keyboard event as if you did it manually.
-///   keycode is a numeric value from `hotkey.keycodes`
-///   dir is either 'press', 'release', or 'pressrelease'
-///   mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift'}
+///   - key has the same meaning as in the `hotkey` module
+///   - dir is either 'press', 'release', or 'pressrelease'
+///   - mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift', 'fn'}
 /// Sometimes this doesn't work inside a hotkey callback for some reason.
 static int eventtap_postkey(lua_State* L) {
-    CGKeyCode keycode = luaL_checknumber(L, 1);
-    int dir = luaL_checknumber(L, 2);
+    luaL_checktype(L, 1, LUA_TTABLE);
+    const char* key = luaL_checkstring(L, 2);
+    const char* dir = luaL_checkstring(L, 3);
+    
+    lua_getglobal(L, "hotkey");
+    lua_getfield(L, -1, "keycodes");
+    lua_pushstring(L, key);
+    lua_gettable(L, -2);
+    CGKeyCode keycode = lua_tonumber(L, -1);
+    lua_pop(L, 2);
     
     CGEventFlags flags = 0;
-    if (lua_toboolean(L, 3)) flags |= kCGEventFlagMaskControl;
-    if (lua_toboolean(L, 4)) flags |= kCGEventFlagMaskAlternate;
-    if (lua_toboolean(L, 5)) flags |= kCGEventFlagMaskCommand;
-    if (lua_toboolean(L, 6)) flags |= kCGEventFlagMaskShift;
+    lua_pushnil(L);
+    while (lua_next(L, 1) != 0) {
+        if (strcmp(lua_tostring(L, -1), "cmd") == 0) flags |= kCGEventFlagMaskCommand;
+        else if (strcmp(lua_tostring(L, -1), "ctrl") == 0) flags |= kCGEventFlagMaskControl;
+        else if (strcmp(lua_tostring(L, -1), "alt") == 0) flags |= kCGEventFlagMaskAlternate;
+        else if (strcmp(lua_tostring(L, -1), "shift") == 0) flags |= kCGEventFlagMaskShift;
+        else if (strcmp(lua_tostring(L, -1), "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
+        lua_pop(L, 1);
+    }
     
-    if (dir == 3) {
+    if (dir == NULL || strcmp(dir, "pressrelease") == 0) {
         postkeyevent(keycode, flags, true);
         postkeyevent(keycode, flags, false);
     }
     else {
-        BOOL isdown = (dir == 2);
+        BOOL isdown = (strcmp(dir, "press") == 0);
         postkeyevent(keycode, flags, isdown);
     }
     
