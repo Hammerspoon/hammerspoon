@@ -116,7 +116,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
 }
 
 static void postkeyevent(CGKeyCode virtualKey, CGEventFlags flags, bool keyDown) {
-    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState); // UNTESTED; copied from Zephyros
+    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
     CGEventRef event = CGEventCreateKeyboardEvent(source, virtualKey, keyDown);
     CGEventSetFlags(event, flags);
     CGEventPost(kCGSessionEventTap, event);
