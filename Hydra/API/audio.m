@@ -2,6 +2,10 @@
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioToolbox.h>
 
+/// audio
+///
+/// Manipulate the system's audio devices.
+
 
 #define hydra_audio_device(L, idx) *(AudioDeviceID*)luaL_checkudata(L, idx, "audio_device")
 
@@ -36,6 +40,8 @@ void new_device(lua_State* L, AudioDeviceID deviceId) {
     lua_setmetatable(L, -2);
 }
 
+/// audio.alloutputdevices() -> audio[]
+/// Returns a list of all connected output devices.
 static int audio_alloutputdevices(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDevices,
@@ -87,6 +93,8 @@ end:
     return 1;
 }
 
+/// audio.defaultoutputdevice() -> audio or nil
+/// Gets the system's default audio device, or nil, it it does not exist.
 static int audio_defaultoutputdevice(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultOutputDevice,
@@ -116,6 +124,8 @@ end:
     return 1;
 }
 
+/// audio:setdefaultoutputdevice() -> bool
+/// Sets the system's default audio device to this device. Returns true if the audio device was successfully set.
 static int audio_setdefaultoutputdevice(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     
@@ -140,13 +150,15 @@ static int audio_setdefaultoutputdevice(lua_State* L) {
     goto end;
     
 error:
-    lua_pushnil(L);
+    lua_pushboolean(L, false);
     
 end:
     
     return 1;
 }
 
+/// audio:name() -> string or nil
+/// Returns the name of the audio device, or nil if it does not have a name.
 static int audio_device_name(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     
@@ -180,6 +192,8 @@ end:
     
 }
 
+/// audio:muted() -> bool or nil
+/// Returns true/false if the audio device is muted, or nil if it does not support being muted.
 static int audio_device_muted(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     
@@ -213,6 +227,8 @@ end:
     
 }
 
+/// audio:setmuted(bool) -> bool
+/// Returns true if the the device's muted status was set, or false if it does not support being muted.
 static int audio_device_setmuted(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     UInt32 muted = lua_toboolean(L, 2);
@@ -239,14 +255,15 @@ static int audio_device_setmuted(lua_State* L) {
     goto end;
     
 error:
-    lua_pushnil(L);
+    lua_pushboolean(L, false);
     
 end:
     return 1;
     
 }
 
-
+/// audio:volume() -> number or bool
+/// Returns a number between 0 and 100 inclusive, representing the volume percentage. Or nil, if the audio device does not have a volume level.
 static int audio_device_volume(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     
@@ -281,7 +298,8 @@ end:
 }
 
 
-
+/// audio:setvolume(level) -> bool
+/// Returns true if the volume was set, or false if the audio device does not support setting a volume level. Level is a percentage between 0 and 100.
 static int audio_device_setvolume(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     Float32 volume = MIN(MAX(luaL_checknumber(L, 2) / 100.0, 0.0), 1.0);
@@ -308,7 +326,7 @@ static int audio_device_setvolume(lua_State* L) {
     goto end;
     
 error:
-    lua_pushnil(L);
+    lua_pushboolean(L, false);
     
 end:
     return 1;
