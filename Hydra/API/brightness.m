@@ -10,7 +10,7 @@
 /// brightness.set(number) -> boolean
 /// Sets the display brightness. Number should be between 0 and 100.
 static int brightness_set(lua_State* L) {
-    double level = MIN(MAX(luaL_checknumber(L, 1) / 100.0, 0.0), 100.0);
+    double level = MIN(MAX(luaL_checknumber(L, 1) / 100.0, 0.0), 1.0);
     bool found = false;
     
     io_iterator_t iterator;
