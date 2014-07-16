@@ -70,7 +70,7 @@
 		945212A4194D6A6000217584 /* menu.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A3194D6A6000217584 /* menu.m */; };
 		945212A7194D6B5900217584 /* menu.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A5194D6B5900217584 /* menu.png */; };
 		945212A8194D6B5900217584 /* menu@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A6194D6B5900217584 /* menu@2x.png */; };
-		9459B58F194CEB07008BC904 /* hotkey_translator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* hotkey_translator.m */; };
+		9459B58F194CEB07008BC904 /* keycodes.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* keycodes.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		945F2BC01959AFA700D2DE7E /* notify.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945F2BBF1959AFA700D2DE7E /* notify.lua */; };
 		94668E951958B039009422D7 /* doc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94668E941958B039009422D7 /* doc.lua */; };
@@ -237,7 +237,7 @@
 		945212A3194D6A6000217584 /* menu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = menu.m; sourceTree = "<group>"; };
 		945212A5194D6B5900217584 /* menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = menu.png; sourceTree = "<group>"; };
 		945212A6194D6B5900217584 /* menu@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu@2x.png"; sourceTree = "<group>"; };
-		9459B58E194CEB07008BC904 /* hotkey_translator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey_translator.m; sourceTree = "<group>"; };
+		9459B58E194CEB07008BC904 /* keycodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = keycodes.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		945F2BBF1959AFA700D2DE7E /* notify.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = notify.lua; sourceTree = "<group>"; };
 		94668E941958B039009422D7 /* doc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = doc.lua; sourceTree = "<group>"; };
@@ -521,7 +521,7 @@
 				948CA9FC1955AECC00A27D9D /* HDTextGridView.h */,
 				948CA9FD1955AECC00A27D9D /* HDTextGridView.m */,
 				948CA9F91955AECC00A27D9D /* textgrid.xib */,
-				9459B58E194CEB07008BC904 /* hotkey_translator.m */,
+				9459B58E194CEB07008BC904 /* keycodes.m */,
 				9452129D194D65BF00217584 /* PHAlert.m */,
 				9452129F194D697100217584 /* alert.xib */,
 				945212A5194D6B5900217584 /* menu.png */,
@@ -713,7 +713,7 @@
 				9445CA8E190833C1002568BB /* lmathlib.c in Sources */,
 				9445CA8A190833C1002568BB /* lgc.c in Sources */,
 				948CAA061955AECC00A27D9D /* textgrid.m in Sources */,
-				9459B58F194CEB07008BC904 /* hotkey_translator.m in Sources */,
+				9459B58F194CEB07008BC904 /* keycodes.m in Sources */,
 				9445CA84190833C1002568BB /* lctype.c in Sources */,
 				9445CA7F190833C1002568BB /* lauxlib.c in Sources */,
 				9445CA94190833C1002568BB /* lparser.c in Sources */,
