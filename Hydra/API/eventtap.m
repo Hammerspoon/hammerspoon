@@ -15,25 +15,24 @@ typedef struct _eventtap {
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
 
-/// eventtap.new(type, callback) -> event
-/// Returns a new event tap with the given callback for the given event type; is not started automatically.
-/// The type param must be one of the values from the table `event.eventtaptypes`.
+/// eventtap.new(type, callback) -> eventtap
+/// Returns a new event tap with the given callback for the given event type; the eventtap not started automatically.
+/// The type param must be one of the values from the table `eventtap.types`.
 /// If the callback function returns nothing, the event is not modified; if it returns nil, the event is deleted from the OS X event system and not seen by any other apps; all other return values are reserved for future features to this API.
 /// The callback usually takes no params, except for certain events:
 ///   flagschanged: takes a table with any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
 static int eventtap_new(lua_State* L) {
     CGEventMask type = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
+    lua_settop(L, 2);
     
     eventtap_t* e = lua_newuserdata(L, sizeof(eventtap_t));
-    memset(&e, 0, sizeof(eventtap_t));
+    memset(e, 0, sizeof(eventtap_t));
     e->L = L;
     e->mask = type;
     
-    lua_newtable(L);
     lua_pushvalue(L, 2);
-    lua_setfield(L, -2, "fn");
-    lua_setuservalue(L, -2);
+    e->ref = luaL_ref(L, LUA_REGISTRYINDEX);
     
     luaL_getmetatable(L, "eventtap");
     lua_setmetatable(L, -2);
@@ -50,12 +49,6 @@ static int eventtap_start(lua_State* L) {
         return 0;
     
     e->started = YES;
-    
-    lua_getuservalue(L, 1);
-    lua_getfield(L, -1, "fn");
-    e->ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    lua_pop(L, 1);
-    
     e->tap = CGEventTapCreate(kCGSessionEventTap,
                               kCGHeadInsertEventTap,
                               kCGEventTapOptionDefault,
@@ -84,67 +77,16 @@ static int eventtap_stop(lua_State* L) {
     CFRelease(e->runloopsrc);
     CFRelease(e->tap);
     
-    luaL_unref(L, LUA_REGISTRYINDEX, e->ref);
     e->started = NO;
-    
-    return 0;
-}
-
-static void postkeyevent(CGKeyCode virtualKey, CGEventFlags flags, bool keyDown) {
-    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState); // UNTESTED; copied from Zephyros
-    CGEventRef event = CGEventCreateKeyboardEvent(source, virtualKey, keyDown);
-    CGEventSetFlags(event, flags);
-    CGEventPost(kCGSessionEventTap, event);
-    CFRelease(event);
-}
-
-/// eventtap.postkey(keycode, mods, dir = "pressrelease")
-/// Sends a keyboard event as if you did it manually.
-///   keycode is a numeric value from `hotkey.keycodes`
-///   dir is either 'press', 'release', or 'pressrelease'
-///   mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift'}
-/// Sometimes this doesn't work inside a hotkey callback for some reason.
-static int eventtap_postkey(lua_State* L) {
-    CGKeyCode keycode = luaL_checknumber(L, 1);
-    int dir = luaL_checknumber(L, 2);
-    
-    CGEventFlags flags = 0;
-    if (lua_toboolean(L, 3)) flags |= kCGEventFlagMaskControl;
-    if (lua_toboolean(L, 4)) flags |= kCGEventFlagMaskAlternate;
-    if (lua_toboolean(L, 5)) flags |= kCGEventFlagMaskCommand;
-    if (lua_toboolean(L, 6)) flags |= kCGEventFlagMaskShift;
-    
-    if (dir == 3) {
-        postkeyevent(keycode, flags, true);
-        postkeyevent(keycode, flags, false);
-    }
-    else {
-        BOOL isdown = (dir == 2);
-        postkeyevent(keycode, flags, isdown);
-    }
     
     return 0;
 }
 
 static int eventtap_gc(lua_State* L) {
     eventtap_t* e = luaL_checkudata(L, 1, "eventtap");
+    luaL_unref(L, LUA_REGISTRYINDEX, e->ref);
     return 0;
 }
-
-static luaL_Reg inputlib[] = {
-    // class methods
-    {"new", eventtap_new},
-    {"postkey", eventtap_postkey},
-    
-    // instance methods
-    {"start", eventtap_start},
-    {"stop", eventtap_stop},
-    
-    // metamethods
-    {"__gc", eventtap_gc},
-    
-    {NULL, NULL}
-};
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     eventtap_t* e = refcon;
@@ -186,6 +128,57 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     }
 }
 
+static void postkeyevent(CGKeyCode virtualKey, CGEventFlags flags, bool keyDown) {
+    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState); // UNTESTED; copied from Zephyros
+    CGEventRef event = CGEventCreateKeyboardEvent(source, virtualKey, keyDown);
+    CGEventSetFlags(event, flags);
+    CGEventPost(kCGSessionEventTap, event);
+    CFRelease(event);
+}
+
+/// eventtap.postkey(keycode, mods, dir = "pressrelease")
+/// Sends a keyboard event as if you did it manually.
+///   keycode is a numeric value from `hotkey.keycodes`
+///   dir is either 'press', 'release', or 'pressrelease'
+///   mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift'}
+/// Sometimes this doesn't work inside a hotkey callback for some reason.
+static int eventtap_postkey(lua_State* L) {
+    CGKeyCode keycode = luaL_checknumber(L, 1);
+    int dir = luaL_checknumber(L, 2);
+    
+    CGEventFlags flags = 0;
+    if (lua_toboolean(L, 3)) flags |= kCGEventFlagMaskControl;
+    if (lua_toboolean(L, 4)) flags |= kCGEventFlagMaskAlternate;
+    if (lua_toboolean(L, 5)) flags |= kCGEventFlagMaskCommand;
+    if (lua_toboolean(L, 6)) flags |= kCGEventFlagMaskShift;
+    
+    if (dir == 3) {
+        postkeyevent(keycode, flags, true);
+        postkeyevent(keycode, flags, false);
+    }
+    else {
+        BOOL isdown = (dir == 2);
+        postkeyevent(keycode, flags, isdown);
+    }
+    
+    return 0;
+}
+
+static luaL_Reg inputlib[] = {
+    // class methods
+    {"new", eventtap_new},
+    {"postkey", eventtap_postkey},
+    
+    // instance methods
+    {"start", eventtap_start},
+    {"stop", eventtap_stop},
+    
+    // metamethods
+    {"__gc", eventtap_gc},
+    
+    {NULL, NULL}
+};
+
 /// eventtap.types
 /// Table for use with `eventtap.new`, with the following keys:
 ///   leftmousedown, leftmouseup, leftmousedragged,
@@ -210,7 +203,7 @@ static void addtypestable(lua_State* L) {
     lua_pushnumber(L, CGEventMaskBit(kCGEventKeyUp));             lua_setfield(L, -2, "keyup");
 }
 
-int luaopen_input(lua_State* L) {
+int luaopen_eventtap(lua_State* L) {
     luaL_newlib(L, inputlib);
     
     // store in registry for metatables; necessary for luaL_checkudata()
