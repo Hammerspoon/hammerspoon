@@ -167,35 +167,32 @@ end
 
 --- window:windows_to_east()
 --- Get all windows east of this one, ordered by closeness.
+function window:windows_to_east()  return windows_in_direction(self, 0) end
 
 --- window:windows_to_west()
 --- Get all windows west of this one, ordered by closeness.
+function window:windows_to_west()  return windows_in_direction(self, 2) end
 
 --- window:windows_to_north()
 --- Get all windows north of this one, ordered by closeness.
+function window:windows_to_north() return windows_in_direction(self, 1) end
 
 --- window:windows_to_south()
 --- Get all windows south of this one, ordered by closeness.
+function window:windows_to_south() return windows_in_direction(self, 3) end
 
 --- window:focuswindow_east()
 --- Focus the first focus-able window to the east of this one.
+function window:focuswindow_east()  return focus_first_valid_window(self:windows_to_east()) end
 
 --- window:focuswindow_west()
 --- Focus the first focus-able window to the west of this one.
+function window:focuswindow_west()  return focus_first_valid_window(self:windows_to_west()) end
 
 --- window:focuswindow_north()
 --- Focus the first focus-able window to the north of this one.
+function window:focuswindow_north() return focus_first_valid_window(self:windows_to_north()) end
 
 --- window:focuswindow_south()
 --- Focus the first focus-able window to the south of this one.
-
-
-function window:windows_to_east()  return windows_in_direction(self, 0) end
-function window:windows_to_west()  return windows_in_direction(self, 2) end
-function window:windows_to_north() return windows_in_direction(self, 1) end
-function window:windows_to_south() return windows_in_direction(self, 3) end
-
-function window:focuswindow_east()  return focus_first_valid_window(self:windows_to_east()) end
-function window:focuswindow_west()  return focus_first_valid_window(self:windows_to_west()) end
-function window:focuswindow_north() return focus_first_valid_window(self:windows_to_north()) end
 function window:focuswindow_south() return focus_first_valid_window(self:windows_to_south()) end
