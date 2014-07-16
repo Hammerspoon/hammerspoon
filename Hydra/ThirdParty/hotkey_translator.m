@@ -53,6 +53,55 @@ void hydra_pushkeycodestable(lua_State* L) {
             pushkeycode(L, relocatableKeyCodes[i], name);
         }
     }
+    else {
+        pushkeycode(L, kVK_ANSI_A, "a");
+        pushkeycode(L, kVK_ANSI_B, "b");
+        pushkeycode(L, kVK_ANSI_C, "c");
+        pushkeycode(L, kVK_ANSI_D, "d");
+        pushkeycode(L, kVK_ANSI_E, "e");
+        pushkeycode(L, kVK_ANSI_F, "f");
+        pushkeycode(L, kVK_ANSI_G, "g");
+        pushkeycode(L, kVK_ANSI_H, "h");
+        pushkeycode(L, kVK_ANSI_I, "i");
+        pushkeycode(L, kVK_ANSI_J, "j");
+        pushkeycode(L, kVK_ANSI_K, "k");
+        pushkeycode(L, kVK_ANSI_L, "l");
+        pushkeycode(L, kVK_ANSI_M, "m");
+        pushkeycode(L, kVK_ANSI_N, "n");
+        pushkeycode(L, kVK_ANSI_O, "o");
+        pushkeycode(L, kVK_ANSI_P, "p");
+        pushkeycode(L, kVK_ANSI_Q, "q");
+        pushkeycode(L, kVK_ANSI_R, "r");
+        pushkeycode(L, kVK_ANSI_S, "s");
+        pushkeycode(L, kVK_ANSI_T, "t");
+        pushkeycode(L, kVK_ANSI_U, "u");
+        pushkeycode(L, kVK_ANSI_V, "v");
+        pushkeycode(L, kVK_ANSI_W, "w");
+        pushkeycode(L, kVK_ANSI_X, "x");
+        pushkeycode(L, kVK_ANSI_Y, "y");
+        pushkeycode(L, kVK_ANSI_Z, "z");
+        pushkeycode(L, kVK_ANSI_0, "0");
+        pushkeycode(L, kVK_ANSI_1, "1");
+        pushkeycode(L, kVK_ANSI_2, "2");
+        pushkeycode(L, kVK_ANSI_3, "3");
+        pushkeycode(L, kVK_ANSI_4, "4");
+        pushkeycode(L, kVK_ANSI_5, "5");
+        pushkeycode(L, kVK_ANSI_6, "6");
+        pushkeycode(L, kVK_ANSI_7, "7");
+        pushkeycode(L, kVK_ANSI_8, "8");
+        pushkeycode(L, kVK_ANSI_9, "9");
+        pushkeycode(L, kVK_ANSI_Grave, "`");
+        pushkeycode(L, kVK_ANSI_Equal, "=");
+        pushkeycode(L, kVK_ANSI_Minus, "-");
+        pushkeycode(L, kVK_ANSI_RightBracket, "]");
+        pushkeycode(L, kVK_ANSI_LeftBracket, "[");
+        pushkeycode(L, kVK_ANSI_Quote, "\"");
+        pushkeycode(L, kVK_ANSI_Semicolon, ";");
+        pushkeycode(L, kVK_ANSI_Backslash, "\\");
+        pushkeycode(L, kVK_ANSI_Comma, ",");
+        pushkeycode(L, kVK_ANSI_Slash, "/");
+        pushkeycode(L, kVK_ANSI_Period, ".");
+    }
     
     CFRelease(currentKeyboard);
     

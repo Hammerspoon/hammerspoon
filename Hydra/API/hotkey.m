@@ -136,11 +136,19 @@ static int hotkey_gc(lua_State* L) {
     return 0;
 }
 
+static int hotkey__cachekeycodes(lua_State* L) {
+    hydra_pushkeycodestable(L);
+    return 1;
+}
+
 static const luaL_Reg hotkeylib[] = {
     {"new", hotkey_new},
+    {"_cachekeycodes", hotkey__cachekeycodes},
+    
     {"enable", hotkey_enable},
     {"disable", hotkey_disable},
     {"__gc", hotkey_gc},
+    
     {NULL, NULL}
 };
 
@@ -184,10 +192,6 @@ int luaopen_hotkey(lua_State* L) {
     // hotkey.__index = hotkey
     lua_pushvalue(L, -1);
     lua_setfield(L, -2, "__index");
-    
-    // hotkey.keycodes = {...}
-    hydra_pushkeycodestable(L);
-    lua_setfield(L, -2, "keycodes");
     
     return 1;
 }

@@ -1,3 +1,5 @@
+hotkey.keycodes = hotkey._cachekeycodes()
+
 --- hotkey.bind(mods, key, fn) -> hotkey
 --- Shortcut for: return hotkey.new(mods, key, fn):enable()
 function hotkey.bind(...)
