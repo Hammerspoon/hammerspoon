@@ -67,7 +67,7 @@ static id nsobject_for_luavalue(lua_State* L, int idx) {
     return nil;
 }
 
-static void push_luavalue_for_nsobject(lua_State* L, id obj) {
+void push_luavalue_for_nsobject(lua_State* L, id obj) {
     if (obj == nil || [obj isEqual: [NSNull null]]) {
         lua_pushnil(L);
     }
@@ -92,6 +92,11 @@ static void push_luavalue_for_nsobject(lua_State* L, id obj) {
     else if ([obj isKindOfClass: [NSString class]]) {
         NSString* string = obj;
         lua_pushstring(L, [string UTF8String]);
+    }
+    else if ([obj isKindOfClass: [NSDate class]]) {
+        // not used for json, only in applistener; this should probably be moved to helpers
+        NSDate* string = obj;
+        lua_pushstring(L, [[string description] UTF8String]);
     }
     else if ([obj isKindOfClass: [NSArray class]]) {
         lua_newtable(L);
