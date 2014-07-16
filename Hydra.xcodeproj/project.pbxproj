@@ -77,6 +77,7 @@
 		946AF2CF1976941200A22EBF /* applistener.m in Sources */ = {isa = PBXBuildFile; fileRef = 946AF2CE1976941200A22EBF /* applistener.m */; };
 		946AF2D11976AA3900A22EBF /* applistener.lua in Resources */ = {isa = PBXBuildFile; fileRef = 946AF2D01976AA3900A22EBF /* applistener.lua */; };
 		946AF2D31976AB5D00A22EBF /* modalkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 946AF2D21976AB5D00A22EBF /* modalkey.lua */; };
+		946AF2D61976B87A00A22EBF /* pasteboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 946AF2D51976B87A00A22EBF /* pasteboard.m */; };
 		94735C30196DC4FE002A258D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94735C2F196DC4FE002A258D /* CoreFoundation.framework */; };
 		94735C33196DC4FE002A258D /* hydra.c in Sources */ = {isa = PBXBuildFile; fileRef = 94735C32196DC4FE002A258D /* hydra.c */; };
 		94735C35196DC4FE002A258D /* hydra.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 94735C34196DC4FE002A258D /* hydra.1 */; };
@@ -247,6 +248,7 @@
 		946AF2CE1976941200A22EBF /* applistener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = applistener.m; sourceTree = "<group>"; };
 		946AF2D01976AA3900A22EBF /* applistener.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = applistener.lua; sourceTree = "<group>"; };
 		946AF2D21976AB5D00A22EBF /* modalkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = modalkey.lua; sourceTree = "<group>"; };
+		946AF2D51976B87A00A22EBF /* pasteboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = pasteboard.m; sourceTree = "<group>"; };
 		94735C2E196DC4FE002A258D /* hydra */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = hydra; sourceTree = BUILT_PRODUCTS_DIR; };
 		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		94735C32196DC4FE002A258D /* hydra.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hydra.c; sourceTree = "<group>"; };
@@ -501,6 +503,7 @@
 				945212A3194D6A6000217584 /* menu.m */,
 				94521299194D59F800217584 /* mouse.m */,
 				94F7A98D1959096100CE7136 /* notify.m */,
+				946AF2D51976B87A00A22EBF /* pasteboard.m */,
 				945212A1194D69E700217584 /* pathwatcher.m */,
 				943F212E195C527300066DCB /* settings.m */,
 				94E8E79F194E0AB10064CF6C /* screen.m */,
@@ -729,6 +732,7 @@
 				9445CA7F190833C1002568BB /* lauxlib.c in Sources */,
 				9445CA94190833C1002568BB /* lparser.c in Sources */,
 				940026971951437A000D15C1 /* geometry.m in Sources */,
+				946AF2D61976B87A00A22EBF /* pasteboard.m in Sources */,
 				9445CA98190833C1002568BB /* ltable.c in Sources */,
 				946AF2CF1976941200A22EBF /* applistener.m in Sources */,
 			);
