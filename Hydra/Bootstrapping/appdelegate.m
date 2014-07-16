@@ -25,6 +25,7 @@ int luaopen_applistener(lua_State* L);
 int luaopen_pasteboard(lua_State* L);
 int luaopen_http(lua_State* L);
 int luaopen_dockicon(lua_State* L);
+int luaopen_audio(lua_State* L);
 
 @interface HydraAppDelegate : NSObject <NSApplicationDelegate>
 @end
@@ -56,6 +57,7 @@ static const luaL_Reg hydralibs[] = {
     {"pasteboard",   luaopen_pasteboard},
     {"http",         luaopen_http},
     {"dockicon",     luaopen_dockicon},
+    {"audio",        luaopen_audio},
     {NULL, NULL},
 };
 
