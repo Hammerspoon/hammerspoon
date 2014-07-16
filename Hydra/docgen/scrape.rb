@@ -56,5 +56,5 @@ end
 
 require 'json'
 version = `defaults read "$(pwd)/../XcodeCrap/Hydra-Info" CFBundleVersion`.strip
-File.write("docs-#{version}.json", JSON.dump(docs))
+File.write("docs-#{version}.json", JSON.pretty_generate(docs))
 system("cp docs-#{version}.json docs.json")
