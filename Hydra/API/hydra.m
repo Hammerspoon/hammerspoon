@@ -104,6 +104,13 @@ static int hydra_setosxshadows(lua_State* L) {
     return 0;
 }
 
+/// hydra.uuid() -> string
+/// Returns a UUID as a string
+static int hydra_uuid(lua_State* L) {
+    lua_pushstring(L, [[[NSUUID UUID] UUIDString] UTF8String]);
+    return 1;
+}
+
 static const luaL_Reg hydralib[] = {
     {"exit", hydra_exit},
     {"showabout", hydra_showabout},
@@ -112,6 +119,7 @@ static const luaL_Reg hydralib[] = {
     {"fileexists", hydra_fileexists},
     {"check_accessibility", hydra_check_accessibility},
     {"setosxshadows", hydra_setosxshadows},
+    {"uuid", hydra_uuid},
     {NULL, NULL}
 };
 
