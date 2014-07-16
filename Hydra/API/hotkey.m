@@ -118,6 +118,8 @@ static int hotkey_disable(lua_State* L) {
     if (!hotkey->enabled)
         return 1;
     
+    hotkey->enabled = NO;
+    
     // remove from keys table
     lua_getglobal(L, "hotkey");
     lua_getfield(L, -1, "_keys");
