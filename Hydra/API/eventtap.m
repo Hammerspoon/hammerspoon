@@ -4,14 +4,6 @@
 ///
 /// For tapping into input events (mouse, keyboard, trackpad) for observation and possibly overriding them.
 
-/// eventtap:start()
-/// Starts an event tap; must be in stopped state.
-
-/// eventtap:stop()
-/// Stops an event tap; must be in started state.
-
-typedef CGEventRef(^eventtap_closure)(CGEventRef event);
-
 typedef struct _eventtap {
     lua_State* L;
     BOOL started;
@@ -19,50 +11,40 @@ typedef struct _eventtap {
     CFRunLoopSourceRef runloopsrc;
     CGEventMask mask;
     int ref;
-} eventtap;
+} eventtap_t;
 
-CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
-    eventtap* e = refcon;
-    lua_State* L = e->L;
+CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon);
+
+/// eventtap.new(type, callback) -> event
+/// Returns a new event tap with the given callback for the given event type; is not started automatically.
+/// The type param must be one of the values from the table `event.eventtaptypes`.
+/// If the callback function returns nothing, the event is not modified; if it returns nil, the event is deleted from the OS X event system and not seen by any other apps; all other return values are reserved for future features to this API.
+/// The callback usually takes no params, except for certain events:
+///   flagschanged: takes a table with any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
+static int eventtap_new(lua_State* L) {
+    CGEventMask type = luaL_checknumber(L, 1);
+    luaL_checktype(L, 2, LUA_TFUNCTION);
     
-    int stack = lua_gettop(L);
+    eventtap_t* e = lua_newuserdata(L, sizeof(eventtap_t));
+    memset(&e, 0, sizeof(eventtap_t));
+    e->L = L;
+    e->mask = type;
     
-    lua_rawgeti(L, LUA_REGISTRYINDEX, e->ref);
+    lua_newtable(L);
+    lua_pushvalue(L, 2);
+    lua_setfield(L, -2, "fn");
+    lua_setuservalue(L, -2);
     
-    int nargs = 0;
+    luaL_getmetatable(L, "eventtap");
+    lua_setmetatable(L, -2);
     
-    if (e->mask == CGEventMaskBit(kCGEventFlagsChanged)) {
-        nargs++;
-        lua_newtable(L);
-        CGEventFlags curAltkey = CGEventGetFlags(event);
-        if (curAltkey & kCGEventFlagMaskAlternate) { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); }
-        if (curAltkey & kCGEventFlagMaskShift) { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); }
-        if (curAltkey & kCGEventFlagMaskControl) { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
-        if (curAltkey & kCGEventFlagMaskCommand) { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); }
-        if (curAltkey & kCGEventFlagMaskSecondaryFn) { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); } // no idea if 'fn' key counts here
-    }
-    
-    if (lua_pcall(L, nargs, LUA_MULTRET, 0))
-        hydra_handle_error(L);
-    
-    int nret = lua_gettop(L) - stack;
-    
-    if (nret == 1) {
-        if (lua_isnil(L, -1)) {
-            return NULL;
-        }
-        else {
-            // TODO: allow user to modify event somehow
-            return event;
-        }
-    }
-    else {
-        return event;
-    }
+    return 1;
 }
 
+/// eventtap:start()
+/// Starts an event tap; must be in stopped state.
 static int eventtap_start(lua_State* L) {
-    eventtap* e = luaL_checkudata(L, 1, "eventtap");
+    eventtap_t* e = luaL_checkudata(L, 1, "eventtap");
     
     if (e->started)
         return 0;
@@ -88,8 +70,10 @@ static int eventtap_start(lua_State* L) {
     return 0;
 }
 
+/// eventtap:stop()
+/// Stops an event tap; must be in started state.
 static int eventtap_stop(lua_State* L) {
-    eventtap* e = luaL_checkudata(L, 1, "eventtap");
+    eventtap_t* e = luaL_checkudata(L, 1, "eventtap");
     
     if (!e->started)
         return 0;
@@ -104,39 +88,6 @@ static int eventtap_stop(lua_State* L) {
     e->started = NO;
     
     return 0;
-}
-
-/// eventtap.new(type, callback) -> event
-/// Returns a new event tap with the given callback for the given event type; is not started automatically.
-/// The type param must be one of the values from the table `event.eventtaptypes`.
-/// If the callback function returns nothing, the event is not modified; if it returns nil, the event is deleted from the OS X event system and not seen by any other apps; all other return values are reserved for future features to this API.
-/// The callback usually takes no params, except for certain events:
-///   flagschanged: takes a table with any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
-
-/// eventtap.new(type, callback) -> event
-/// Returns a new event tap with the given callback for the given events; is not started automatically.
-/// The type param must be one of the values from the table `event.eventtaptypes`.
-/// If the callback function returns nothing, the event is not modified; if it returns nil, the event is deleted from the OS X event system and not seen by any other apps; all other return values are reserved for future features to this API.
-/// The callback usually takes no params, except for certain events:
-///   flagschanged: takes a table with any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
-static int eventtap_new(lua_State* L) {
-    CGEventMask type = luaL_checknumber(L, 1);
-    luaL_checktype(L, 2, LUA_TFUNCTION);
-    
-    eventtap* e = lua_newuserdata(L, sizeof(eventtap));
-    e->L = L;
-    e->started = NO;
-    e->mask = type;
-    
-    lua_newtable(L);
-    lua_pushvalue(L, 2);
-    lua_setfield(L, -2, "fn");
-    lua_setuservalue(L, -2);
-    
-    luaL_getmetatable(L, "eventtap");
-    lua_setmetatable(L, -2);
-    
-    return 1;
 }
 
 static void postkeyevent(CGKeyCode virtualKey, CGEventFlags flags, bool keyDown) {
@@ -175,17 +126,65 @@ static int eventtap_postkey(lua_State* L) {
     return 0;
 }
 
+static int eventtap_gc(lua_State* L) {
+    eventtap_t* e = luaL_checkudata(L, 1, "eventtap");
+    return 0;
+}
+
 static luaL_Reg inputlib[] = {
     // class methods
     {"new", eventtap_new},
-    {"_postkey", eventtap_postkey},
+    {"postkey", eventtap_postkey},
     
     // instance methods
     {"start", eventtap_start},
     {"stop", eventtap_stop},
     
+    // metamethods
+    {"__gc", eventtap_gc},
+    
     {NULL, NULL}
 };
+
+CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
+    eventtap_t* e = refcon;
+    lua_State* L = e->L;
+    
+    int stack = lua_gettop(L);
+    
+    lua_rawgeti(L, LUA_REGISTRYINDEX, e->ref);
+    
+    int nargs = 0;
+    
+    if (e->mask == CGEventMaskBit(kCGEventFlagsChanged)) {
+        nargs++;
+        lua_newtable(L);
+        CGEventFlags curAltkey = CGEventGetFlags(event);
+        if (curAltkey & kCGEventFlagMaskAlternate) { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); }
+        if (curAltkey & kCGEventFlagMaskShift) { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); }
+        if (curAltkey & kCGEventFlagMaskControl) { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
+        if (curAltkey & kCGEventFlagMaskCommand) { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); }
+        if (curAltkey & kCGEventFlagMaskSecondaryFn) { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); } // no idea if 'fn' key counts here
+    }
+    
+    if (lua_pcall(L, nargs, LUA_MULTRET, 0))
+        hydra_handle_error(L);
+    
+    int nret = lua_gettop(L) - stack;
+    
+    if (nret == 1) {
+        if (lua_isnil(L, -1)) {
+            return NULL;
+        }
+        else {
+            // TODO: allow user to modify event somehow
+            return event;
+        }
+    }
+    else {
+        return event;
+    }
+}
 
 /// eventtap.types
 /// Table for use with `eventtap.new`, with the following keys:
@@ -193,15 +192,7 @@ static luaL_Reg inputlib[] = {
 ///   rightmousedown, rightmouseup, rightmousedragged,
 ///   middlemousedown, middlemouseup, middlemousedragged,
 ///   keydown, keyup, mousemoved, flagschanged, scrollwheel
-
-int luaopen_input(lua_State* L) {
-    luaL_newlib(L, inputlib);
-    
-    luaL_newmetatable(L, "eventtap");
-    lua_pushvalue(L, -2);
-    lua_setfield(L, -2, "__index");
-    lua_pop(L, 1);
-    
+static void addtypestable(lua_State* L) {
     lua_newtable(L);
     lua_pushnumber(L, CGEventMaskBit(kCGEventLeftMouseDown));     lua_setfield(L, -2, "leftmousedown");
     lua_pushnumber(L, CGEventMaskBit(kCGEventLeftMouseUp));       lua_setfield(L, -2, "leftmouseup");
@@ -217,6 +208,21 @@ int luaopen_input(lua_State* L) {
     lua_pushnumber(L, CGEventMaskBit(kCGEventScrollWheel));       lua_setfield(L, -2, "scrollwheel");
     lua_pushnumber(L, CGEventMaskBit(kCGEventKeyDown));           lua_setfield(L, -2, "keydown");
     lua_pushnumber(L, CGEventMaskBit(kCGEventKeyUp));             lua_setfield(L, -2, "keyup");
+}
+
+int luaopen_input(lua_State* L) {
+    luaL_newlib(L, inputlib);
+    
+    // store in registry for metatables; necessary for luaL_checkudata()
+    lua_pushvalue(L, -1);
+    lua_setfield(L, LUA_REGISTRYINDEX, "eventtap");
+    
+    // eventtap.__index = eventtap
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    
+    // eventtap.types = {...}
+    addtypestable(L);
     lua_setfield(L, -2, "types");
     
     return 1;
