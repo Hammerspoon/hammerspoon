@@ -19,6 +19,7 @@ local ok, err = pcall(function()
     dofile(hydra.resourcesdir .. "/ipc.lua")
     dofile(hydra.resourcesdir .. "/eventtap.lua")
     dofile(hydra.resourcesdir .. "/applistener.lua")
+    dofile(hydra.resourcesdir .. "/http.lua")
     dofile(hydra.resourcesdir .. "/modalkey.lua")
     dofile(hydra.resourcesdir .. "/doc.lua")
 

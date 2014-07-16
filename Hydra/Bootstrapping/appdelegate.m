@@ -23,6 +23,7 @@ int luaopen_ipc(lua_State* L);
 int luaopen_eventtap(lua_State* L);
 int luaopen_applistener(lua_State* L);
 int luaopen_pasteboard(lua_State* L);
+int luaopen_http(lua_State* L);
 
 @interface HydraAppDelegate : NSObject <NSApplicationDelegate>
 @end
@@ -52,6 +53,7 @@ static const luaL_Reg hydralibs[] = {
     {"eventtap",     luaopen_eventtap},
     {"applistener",  luaopen_applistener},
     {"pasteboard",   luaopen_pasteboard},
+    {"http",         luaopen_http},
     {NULL, NULL},
 };
 
