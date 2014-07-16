@@ -6,7 +6,7 @@ void PHShowAlert(NSString* oneLineMsg, CGFloat duration);
 /// General stuff.
 
 static int hydra_exit(lua_State* L) {
-    if (lua_isboolean(L, 2) && lua_toboolean(L, 2))
+    if (lua_toboolean(L, 2))
         lua_close(L);
     
     [[NSApplication sharedApplication] terminate: nil];
@@ -83,28 +83,6 @@ static int hydra_check_accessibility(lua_State* L) {
     return 1;
 }
 
-/// hydra.indock() -> bool
-/// Returns whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab.
-static int hydra_indock(lua_State* L) {
-    BOOL indock = [[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular;
-    lua_pushboolean(L, indock);
-    return 1;
-}
-
-/// hydra.putindock(bool)
-/// Sets whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab.
-static int hydra_putindock(lua_State* L) {
-    BOOL indock = lua_toboolean(L, 1);
-    NSApplicationActivationPolicy policy = indock ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory;
-    [[NSApplication sharedApplication] setActivationPolicy: policy];
-    if (!indock) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSApplication sharedApplication] unhide:nil];
-        });
-    }
-    return 0;
-}
-
 /// hydra.setosxshadows(bool)
 /// Sets whether OSX apps have shadows.
 static int hydra_setosxshadows(lua_State* L) {
@@ -133,8 +111,6 @@ static const luaL_Reg hydralib[] = {
     {"alert", hydra_alert},
     {"fileexists", hydra_fileexists},
     {"check_accessibility", hydra_check_accessibility},
-    {"indock", hydra_indock},
-    {"putindock", hydra_putindock},
     {"setosxshadows", hydra_setosxshadows},
     {NULL, NULL}
 };

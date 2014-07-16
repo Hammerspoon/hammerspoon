@@ -117,7 +117,7 @@ static int json_encode(lua_State* L) {
     id obj = nsobject_for_luavalue(L, 1);
     
     NSJSONWritingOptions opts = 0;
-    if (lua_isboolean(L, 2) && lua_toboolean(L, 2))
+    if (lua_toboolean(L, 2))
         opts = NSJSONWritingPrettyPrinted;
     
     NSError* __autoreleasing error;
