@@ -39,6 +39,11 @@
         "doc": "Returns all open windows owned by the given app."
       },
       {
+        "def": "application:mainwindow() -> window",
+        "name": "mainwindow",
+        "doc": "Returns the main window of the given app, or nil."
+      },
+      {
         "def": "application:title() -> string",
         "name": "title",
         "doc": "Returns the localized name of the app (in UTF8)."
@@ -253,6 +258,16 @@
         "def": "eventtap.setflags(event, table)",
         "name": "setflags",
         "doc": "The table may have any of the strings {\"cmd\", \"alt\", \"shift\", \"ctrl\", \"fn\"} as keys pointing to the value `true`"
+      },
+      {
+        "def": "eventtap.getkeycode(event) -> keycode",
+        "name": "getkeycode",
+        "doc": "Gets the keycode for the given event; only applicable for key-related events.\nThe keycode is a numeric value from the `hotkey.keycodes` table."
+      },
+      {
+        "def": "eventtap.setkeycode(event, keycode)",
+        "name": "setkeycode",
+        "doc": "Sets the keycode for the given event; only applicable for key-related events.\nThe keycode is a numeric value from the `hotkey.keycodes` table."
       },
       {
         "def": "eventtap.types",
@@ -1203,6 +1218,16 @@
         "def": "window:close() -> bool",
         "name": "close",
         "doc": "Closes the window; returns whether it succeeded."
+      },
+      {
+        "def": "window:setfullscreen(bool) -> bool",
+        "name": "setfullscreen",
+        "doc": "Sets whether the window is full screen; returns whether it succeeded."
+      },
+      {
+        "def": "window:isfullscreen() -> bool or nil",
+        "name": "isfullscreen",
+        "doc": "Returns whether the window is full screen, or nil if asking that question fails."
       },
       {
         "def": "window:minimize()",
