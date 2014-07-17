@@ -234,23 +234,36 @@ cleanup:
     return 1;
 }
 
-/// window:makefullscreen() -> bool
-/// Makes the window full screen; returns whether it succeeded.
-static int window_makefullscreen(lua_State* L) {
+/// window:setfullscreen(bool) -> bool
+/// Sets whether the window is full screen; returns whether it succeeded.
+static int window_setfullscreen(lua_State* L) {
+    AXUIElementRef win = hydra_window(L, 1);
+    CFBooleanRef befullscreen = lua_toboolean(L, 2) ? kCFBooleanTrue : kCFBooleanFalse;
+    BOOL succeeded = (AXUIElementSetAttributeValue(win, CFSTR("AXFullScreen"), befullscreen) == noErr);
+    lua_pushboolean(L, succeeded);
+    return 1;
+}
+
+/// window:isfullscreen() -> bool or nil
+/// Returns whether the window is full screen, or nil if asking that question fails.
+static int window_isfullscreen(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
-    BOOL worked = NO;
-    AXUIElementRef button = NULL;
+    id isfullscreen = nil;
+    CFBooleanRef fullscreen = kCFBooleanFalse;
     
-    if (AXUIElementCopyAttributeValue(win, kAXFullScreenButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
-    if (AXUIElementPerformAction(button, kAXPressAction) != noErr) goto cleanup;
+    if (AXUIElementCopyAttributeValue(win, CFSTR("AXFullScreen"), (CFTypeRef*)&fullscreen) != noErr) goto cleanup;
     
-    worked = YES;
+    isfullscreen = @(CFBooleanGetValue(fullscreen));
     
 cleanup:
-    if (button) CFRelease(button);
+    if (fullscreen) CFRelease(fullscreen);
     
-    lua_pushboolean(L, worked);
+    if (isfullscreen)
+        lua_pushboolean(L, [isfullscreen boolValue]);
+    else
+        lua_pushnil(L);
+    
     return 1;
 }
 
@@ -391,7 +404,8 @@ static const luaL_Reg windowlib[] = {
     {"becomemain", window_becomemain},
     {"id", window_id},
     {"close", window_close},
-    {"makefullscreen", window_makefullscreen},
+    {"setfullscreen", window_setfullscreen},
+    {"isfullscreen", window_isfullscreen},
     
     {NULL, NULL}
 };
