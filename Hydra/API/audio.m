@@ -7,7 +7,7 @@
 /// Manipulate the system's audio devices.
 
 
-#define hydra_audio_device(L, idx) *(AudioDeviceID*)luaL_checkudata(L, idx, "audio_device")
+#define hydra_audio_device(L, idx) *(AudioDeviceID*)luaL_checkudata(L, idx, "audiodevice")
 
 static bool _check_audio_device_has_streams(AudioDeviceID deviceId, AudioObjectPropertyScope scope) {
     
@@ -36,7 +36,7 @@ void new_device(lua_State* L, AudioDeviceID deviceId) {
     AudioDeviceID* userData = (AudioDeviceID*) lua_newuserdata(L, sizeof(AudioDeviceID));
     *userData = deviceId;
     
-    luaL_getmetatable(L, "audio_device");
+    luaL_getmetatable(L, "audiodevice");
     lua_setmetatable(L, -2);
 }
 
@@ -360,7 +360,7 @@ static const luaL_Reg audiolib[] = {
 int luaopen_audio(lua_State* L) {
     luaL_newlib(L, audiolib);
     
-    if (luaL_newmetatable(L, "audio_device")) {
+    if (luaL_newmetatable(L, "audiodevice")) {
         lua_pushvalue(L, -2);
         lua_setfield(L, -2, "__index");
         
