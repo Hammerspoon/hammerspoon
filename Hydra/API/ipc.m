@@ -17,7 +17,7 @@ CFDataRef ipc_callback(CFMessagePortRef local, SInt32 msgid, CFDataRef data, voi
     lua_pcall(L, 2, 1, 0);
     const char* coutstr = luaL_tolstring(L, -1, NULL);
     CFStringRef outstr = CFStringCreateWithCString(NULL, coutstr, kCFStringEncodingUTF8);
-    lua_pop(L, 1); // ipc
+    lua_pop(L, 2); // returned value and ipc
     
     // this stays down here so commandstr can stay alive through the call
     CFRelease(instr);
