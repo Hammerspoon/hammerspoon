@@ -563,7 +563,6 @@
 			buildPhases = (
 				9445CA0719083251002568BB /* Sources */,
 				9445CA0819083251002568BB /* Frameworks */,
-				944C49CE196B2E8E00FF10DD /* ShellScript */,
 				9445CA0919083251002568BB /* Resources */,
 				94735C3B196DC563002A258D /* Copy hydra-cli stuff */,
 			);
@@ -665,22 +664,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		944C49CE196B2E8E00FF10DD /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd \"${SRCROOT}/Hydra/docgen/\"\n./scrape.rb";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		9445CA0719083251002568BB /* Sources */ = {
