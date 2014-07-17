@@ -1,5 +1,9 @@
 local function normalize(str)
-  return str:gsub("(%d+)", function(n) return ("%02d"):format(n) end)
+  if str == 'v1.0.b99' then -- yeah, i messed up
+    return '00.00'
+  else
+    return str:gsub("(%d+)", function(n) return ("%02d"):format(n) end)
+  end
 end
 
 --- updates.check(fn(isavailable))
