@@ -21,8 +21,7 @@
 		9443F2AF1969CF7400E7219D /* pprint.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9443F2AE1969CF7400E7219D /* pprint.lua */; };
 		944419C1194F4A51000A55A7 /* timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 944419C0194F4A51000A55A7 /* timer.m */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
-		9445CA1B19083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA1A19083251002568BB /* main.m */; };
-		9445CA2219083251002568BB /* appdelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA2119083251002568BB /* appdelegate.m */; };
+		9445CA2219083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA2119083251002568BB /* main.m */; };
 		9445CA2719083251002568BB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9445CA2619083251002568BB /* Images.xcassets */; };
 		9445CA7E190833C1002568BB /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA43190833C1002568BB /* lapi.c */; };
 		9445CA7F190833C1002568BB /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA45190833C1002568BB /* lauxlib.c */; };
@@ -169,9 +168,8 @@
 		9445CA1219083251002568BB /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		9445CA1319083251002568BB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		9445CA1619083251002568BB /* Hydra-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Hydra-Info.plist"; sourceTree = "<group>"; };
-		9445CA1A19083251002568BB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9445CA1C19083251002568BB /* Hydra-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Hydra-Prefix.pch"; sourceTree = "<group>"; };
-		9445CA2119083251002568BB /* appdelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = appdelegate.m; sourceTree = "<group>"; };
+		9445CA2119083251002568BB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9445CA2619083251002568BB /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		9445CA2D19083251002568BB /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		9445CA43190833C1002568BB /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
@@ -383,7 +381,6 @@
 				9445CA2619083251002568BB /* Images.xcassets */,
 				94E8E7AD194E0C940064CF6C /* Hydra.icns */,
 				9445CA1619083251002568BB /* Hydra-Info.plist */,
-				9445CA1A19083251002568BB /* main.m */,
 				94D86A7C196E231C001B6F05 /* dsa_pub.cer */,
 				9445CA1C19083251002568BB /* Hydra-Prefix.pch */,
 			);
@@ -465,7 +462,7 @@
 		94516740196B0C6700579B9C /* Bootstrapping */ = {
 			isa = PBXGroup;
 			children = (
-				9445CA2119083251002568BB /* appdelegate.m */,
+				9445CA2119083251002568BB /* main.m */,
 				9445CAA4190847CB002568BB /* rawinit.lua */,
 				945200851950E2760072DFEF /* fallback_init.lua */,
 				945200871950E6C10072DFEF /* sample_init.lua */,
@@ -679,7 +676,7 @@
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
 				948CAA041955AECC00A27D9D /* HDTextGridController.m in Sources */,
 				943F212F195C527300066DCB /* settings.m in Sources */,
-				9445CA2219083251002568BB /* appdelegate.m in Sources */,
+				9445CA2219083251002568BB /* main.m in Sources */,
 				9445CA86190833C1002568BB /* ldebug.c in Sources */,
 				9445CA8C190833C1002568BB /* liolib.c in Sources */,
 				9445CA93190833C1002568BB /* loslib.c in Sources */,
@@ -711,7 +708,6 @@
 				94C3693E194DD93600EE3A2D /* window.m in Sources */,
 				94E8E7A0194E0AB10064CF6C /* screen.m in Sources */,
 				9445CA9D190833C1002568BB /* lundump.c in Sources */,
-				9445CA1B19083251002568BB /* main.m in Sources */,
 				94022D691976DEAF00BF7CB3 /* dockicon.m in Sources */,
 				2303FBED196A410D00D2EFDE /* brightness.m in Sources */,
 				9445CA87190833C1002568BB /* ldo.c in Sources */,

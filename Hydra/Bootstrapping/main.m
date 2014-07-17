@@ -1,5 +1,10 @@
+#import <Cocoa/Cocoa.h>
 #import "../lua/lauxlib.h"
 #import "../lua/lualib.h"
+
+int main(int argc, const char * argv[]) {
+    return NSApplicationMain(argc, argv);
+}
 
 int luaopen_hydra(lua_State* L);
 int luaopen_hotkey(lua_State* L);
