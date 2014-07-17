@@ -234,6 +234,26 @@ cleanup:
     return 1;
 }
 
+/// window:makefullscreen() -> bool
+/// Makes the window full screen; returns whether it succeeded.
+static int window_makefullscreen(lua_State* L) {
+    AXUIElementRef win = hydra_window(L, 1);
+    
+    BOOL worked = NO;
+    AXUIElementRef button = NULL;
+    
+    if (AXUIElementCopyAttributeValue(win, kAXFullScreenButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
+    if (AXUIElementPerformAction(button, kAXPressAction) != noErr) goto cleanup;
+    
+    worked = YES;
+    
+cleanup:
+    if (button) CFRelease(button);
+    
+    lua_pushboolean(L, worked);
+    return 1;
+}
+
 static void set_window_minimized(AXUIElementRef win, NSNumber* minimized) {
     set_window_prop(win, NSAccessibilityMinimizedAttribute, minimized);
 }
@@ -371,6 +391,7 @@ static const luaL_Reg windowlib[] = {
     {"becomemain", window_becomemain},
     {"id", window_id},
     {"close", window_close},
+    {"makefullscreen", window_makefullscreen},
     
     {NULL, NULL}
 };
