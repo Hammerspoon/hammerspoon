@@ -18,7 +18,7 @@ function ipc._handler(raw, str)
   local fn = ipc.handler
   if raw then fn = rawhandler end
   local ok, val = hydra.call(function() return fn(str) end)
-  return tostring(val)
+  return val
 end
 
 local function envstuff(prefix, dryrun)
