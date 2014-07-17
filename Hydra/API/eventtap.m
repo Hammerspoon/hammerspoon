@@ -198,6 +198,26 @@ static int eventtap_setflags(lua_State* L) {
     return 0;
 }
 
+/// eventtap.getkeycode(event) -> keycode
+/// Gets the keycode for the given event; only applicable for key-related events.
+/// The keycode is a numeric value from the `hotkey.keycodes` table.
+static int eventtap_getkeycode(lua_State* L) {
+    CGEventRef event = lua_touserdata(L, 1);
+    CGKeyCode keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
+    lua_pushnumber(L, keycode);
+    return 1;
+}
+
+/// eventtap.setkeycode(event, keycode)
+/// Sets the keycode for the given event; only applicable for key-related events.
+/// The keycode is a numeric value from the `hotkey.keycodes` table.
+static int eventtap_setkeycode(lua_State* L) {
+    CGEventRef event = lua_touserdata(L, 1);
+    CGKeyCode keycode = luaL_checknumber(L, 2);
+    CGEventSetIntegerValueField(event, kCGKeyboardEventKeycode, (int64_t)keycode);
+    return 0;
+}
+
 static luaL_Reg eventtaplib[] = {
     // class methods
     {"new", eventtap_new},
@@ -213,6 +233,9 @@ static luaL_Reg eventtaplib[] = {
     // event methods
     {"getflags", eventtap_getflags},
     {"setflags", eventtap_setflags},
+    
+    {"getkeycode", eventtap_getkeycode},
+    {"setkeycode", eventtap_setkeycode},
     
     {NULL, NULL}
 };
