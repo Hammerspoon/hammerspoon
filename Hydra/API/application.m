@@ -113,6 +113,22 @@ static int application_allwindows(lua_State* L) {
     return 1;
 }
 
+/// application:mainwindow() -> window
+/// Returns the main window of the given app, or nil.
+static int application_mainwindow(lua_State* L) {
+    AXUIElementRef app = hydra_app(L, 1);
+    
+    CFTypeRef window;
+    if (AXUIElementCopyAttributeValue(app, kAXMainWindowAttribute, &window) == kAXErrorSuccess) {
+        new_window(L, window);
+    }
+    else {
+        lua_pushnil(L);
+    }
+    
+    return 1;
+}
+
 // a few private methods for app:activate(), defined in Lua
 
 static int application__activate(lua_State* L) {
@@ -259,6 +275,7 @@ static const luaL_Reg applicationlib[] = {
     {"applicationsforbundleid", application_applicationsforbundleid},
     
     {"allwindows", application_allwindows},
+    {"mainwindow", application_mainwindow},
     {"_activate", application__activate},
     {"_focusedwindow", application__focusedwindow},
     {"_bringtofront", application__bringtofront},
