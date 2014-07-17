@@ -58,20 +58,18 @@ def scrape
     }
   end
 
-  version = `defaults read "$(pwd)/../XcodeCrap/Hydra-Info" CFBundleVersion`.strip
-  File.write("docs-#{version}.json", JSON.pretty_generate(docs))
-  system("cp docs-#{version}.json docs.json")
+  File.write("docs.json", JSON.pretty_generate(docs))
 end
 
 def gendocs
   version = `defaults read "$(pwd)/../XcodeCrap/Hydra-Info" CFBundleVersion`.strip
 
   template = ERB.new(File.read("template.erb"))
-  system("mkdir -p docs/#{version} && rm -f docs/#{version}/api*html")
+  system("mkdir -p docs && rm -f docs/*html")
 
-  groups = JSON.load(File.read("docs-#{version}.json"))
+  groups = JSON.load(File.read("docs.json"))
   groups.each do |group|
-    File.write("docs/#{version}/#{group['name']}.html", template.result(binding))
+    File.write("docs/#{group['name']}.html", template.result(binding))
   end
 
   group = {}
@@ -79,7 +77,7 @@ def gendocs
   group['doc'] = File.read("index.md")
   group['items'] = []
 
-  File.write("docs/#{version}/index.html", template.result(binding))
+  File.write("docs/index.html", template.result(binding))
 end
 
 scrape
