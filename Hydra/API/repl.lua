@@ -159,7 +159,9 @@ function repl.open(opts)
 
   if repl._replwin then
     repl._replwin:show()
-    repl._replwin:window():focus()
+    timer.doafter(0.0, function()
+                    repl._replwin:window():focus()
+    end)
     return
   end
 
