@@ -281,3 +281,12 @@ int luaopen_eventtap(lua_State* L) {
     
     return 1;
 }
+
+/// === eventtap.event ===
+///
+/// For inspecting, modifying, and creating events for the `eventtap` module
+
+int luaopen_eventtap_event(lua_State* L) {
+    lua_newtable(L);
+    return 1;
+}
