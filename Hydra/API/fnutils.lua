@@ -109,7 +109,7 @@ end
 
 --- fnutils.sequence(...) -> fn
 --- Returns a list of the results of the passed functions.
-function sequence(...)
+function fnutils.sequence(...)
   local arg = table.pack(...)
   return function()
     local results = {}
@@ -122,7 +122,7 @@ end
 
 --- fnutils.partial(fn, ...) -> fn'
 --- Returns fn partially applied to arg (...).
-function partial(fn, ...)
+function fnutils.partial(fn, ...)
   local args = table.pack(...)
   return function(...)
     for idx, val in ipairs(table.pack(...)) do
