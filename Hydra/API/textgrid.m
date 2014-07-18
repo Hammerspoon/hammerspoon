@@ -165,8 +165,10 @@ static int textgrid_sethasborder(lua_State* L) {
     
     NSUInteger mask = [[wc window] styleMask];
     
-    if (hasborder) mask = mask & NSBorderlessWindowMask;
-    else mask = mask ^ NSBorderlessWindowMask;
+    if (hasborder)
+        mask &= ~NSBorderlessWindowMask;
+    else
+        mask |= NSBorderlessWindowMask;
     
     [[wc window] setStyleMask:mask];
     
