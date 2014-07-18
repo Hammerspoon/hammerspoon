@@ -2,7 +2,7 @@
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioToolbox.h>
 
-/// audio
+/// === audio ===
 ///
 /// Manipulate the system's audio devices.
 

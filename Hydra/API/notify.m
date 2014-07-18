@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// notify
+/// === notify ===
 ///
 /// Apple's built-in notifications system.
 

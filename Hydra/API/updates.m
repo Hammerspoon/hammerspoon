@@ -1,7 +1,7 @@
 #import "helpers.h"
 #include <CommonCrypto/CommonDigest.h>
 
-/// updates
+/// === updates ===
 ///
 /// Check for and install Hydra updates.
 

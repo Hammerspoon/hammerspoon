@@ -1,7 +1,7 @@
 #import "helpers.h"
 void PHShowAlert(NSString* oneLineMsg, CGFloat duration);
 
-/// hydra
+/// === hydra ===
 ///
 /// General stuff.
 

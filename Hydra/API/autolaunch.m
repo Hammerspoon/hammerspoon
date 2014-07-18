@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// autolaunch
+/// === autolaunch ===
 ///
 /// Functions for controlling whether Hydra launches at login.
 ///

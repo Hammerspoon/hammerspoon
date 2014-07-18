@@ -1,7 +1,7 @@
 #import <Carbon/Carbon.h>
 #import "helpers.h"
 
-/// hotkey
+/// === hotkey ===
 ///
 /// Create and manage global hotkeys.
 

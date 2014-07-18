@@ -28,11 +28,11 @@ def scrape
 
   comments.each do |c|
     header = c.shift
-    ismodule = !(header =~ /[.:]/)
+    ismodule = !!(header =~ /===/)
 
     if ismodule
       c.shift # whitespace
-      module_name = header
+      module_name = header.gsub('=', '').strip
       module_body = c.join("\n")
       docs << {
         name: module_name,

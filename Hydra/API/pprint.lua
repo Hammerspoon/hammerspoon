@@ -1,4 +1,4 @@
---- pprint
+--- === pprint ===
 ---
 --- Simple table printing module. pprint itself is callable on tables to pretty-print them.
 

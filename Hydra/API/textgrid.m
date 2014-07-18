@@ -1,7 +1,7 @@
 #import "helpers.h"
 #import "HDTextGridController.h"
 
-/// textgrid
+/// === textgrid ===
 ///
 /// Super easy in-Hydra GUI windows.
 

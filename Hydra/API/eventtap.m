@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// eventtap
+/// === eventtap ===
 ///
 /// For tapping into input events (mouse, keyboard, trackpad) for observation and possibly overriding them.
 

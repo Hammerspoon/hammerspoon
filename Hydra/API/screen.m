@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// screen
+/// === screen ===
 ///
 /// Manipulate screens (i.e. monitors).
 ///

@@ -1,4 +1,4 @@
---- modalkey
+--- === modalkey ===
 ---
 --- For conveniently binding modal hotkeys.
 ---

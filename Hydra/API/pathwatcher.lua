@@ -1,4 +1,4 @@
---- pathwatcher
+--- === pathwatcher ===
 ---
 --- Watch paths recursively for changes.
 ---

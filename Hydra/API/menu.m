@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// menu
+/// === menu ===
 ///
 /// Control Hydra's menu-bar icon.
 ///

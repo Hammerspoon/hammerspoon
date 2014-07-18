@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// utf8
+/// === utf8 ===
 ///
 /// Utilities for handling UTF-8 strings 'correctly'.
 

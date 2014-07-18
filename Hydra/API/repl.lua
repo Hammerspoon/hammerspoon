@@ -1,4 +1,4 @@
---- repl
+--- === repl ===
 ---
 --- The REPL (Read-Eval-Print-Loop) is excellent for exploring and experiment with Hydra's API.
 ---

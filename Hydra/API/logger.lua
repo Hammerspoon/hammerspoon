@@ -1,5 +1,5 @@
 logger = {}
---- logger
+--- === logger ===
 ---
 --- Functionality to assist with debugging and experimentation.
 

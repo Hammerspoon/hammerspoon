@@ -1,4 +1,4 @@
---- fnutils
+--- === fnutils ===
 ---
 --- Super-helpful functional programming utilities.
 

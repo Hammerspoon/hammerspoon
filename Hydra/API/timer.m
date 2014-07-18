@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// timer
+/// === timer ===
 ///
 /// Execute functions with various timing rules.
 

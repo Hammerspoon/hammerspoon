@@ -1,7 +1,7 @@
 #import "helpers.h"
 void push_luavalue_for_nsobject(lua_State* L, id obj);
 
-/// applistener
+/// === applistener ===
 ///
 /// Listen to notifications sent by other apps, and maybe send some yourself.
 

@@ -1,4 +1,4 @@
---- ipc
+--- === ipc ===
 ---
 --- Interface with Hydra from the command line.
 

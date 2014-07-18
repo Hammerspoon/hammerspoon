@@ -1,8 +1,8 @@
-/// geometry
+#import "helpers.h"
+
+/// === geometry ===
 ///
 /// Mathy stuff.
-
-#import "helpers.h"
 
 
 /// geometry.intersectionrect(rect1, rect2) -> rect3

@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// dockicon
+/// === dockicon ===
 ///
 /// Functions for controlling Hydra's own dock icon.
 

@@ -1,4 +1,4 @@
---- window
+--- === window ===
 ---
 --- Functions for managing any window.
 ---

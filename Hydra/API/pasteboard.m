@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// pasteboard
+/// === pasteboard ===
 ///
 /// Interfacing with the pasteboard (aka clipboard)
 

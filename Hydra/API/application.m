@@ -1,7 +1,7 @@
 #import "helpers.h"
 void new_window(lua_State* L, AXUIElementRef win);
 
-/// application
+/// === application ===
 ///
 /// Manipulate running applications.
 

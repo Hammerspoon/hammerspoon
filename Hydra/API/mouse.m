@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// mouse
+/// === mouse ===
 ///
 /// Functions for manipulating the mouse cursor.
 

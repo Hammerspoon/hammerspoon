@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// json
+/// === json ===
 ///
 /// Functions for converting between Lua values and JSON strings.
 

@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// settings
+/// === settings ===
 ///
 /// Functions for user-defined settings that persist across Hydra launches.
 

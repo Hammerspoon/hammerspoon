@@ -1,4 +1,4 @@
---- ext
+--- === ext ===
 ---
 --- Standard high-level namespace for third-party extensions.
 ext = {}

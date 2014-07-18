@@ -1,7 +1,7 @@
 #import "helpers.h"
 #include "math.h"
 
-/// brightness
+/// === brightness ===
 ///
 /// Functions for manipulating display brightness.
 
