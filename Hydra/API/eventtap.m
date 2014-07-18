@@ -94,7 +94,8 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     int stack = lua_gettop(L);
     
     lua_rawgeti(L, LUA_REGISTRYINDEX, e->ref);
-    lua_pushlightuserdata(L, event);
+    *(CGEventRef*)lua_newuserdata(L, sizeof(CGEventRef*)) = event;
+    CFRetain(event);
     
     lua_getfield(L, LUA_REGISTRYINDEX, "eventtap.event");
     lua_setmetatable(L, -2);
@@ -106,7 +107,8 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     if (nret == 1 && lua_isnil(L, -1))
         event = NULL;
     
-    lua_pop(L, nret);
+    if (nret > 0)
+        lua_pop(L, nret);
     
     return event;
 }
@@ -163,7 +165,7 @@ static int eventtap_postkey(lua_State* L) {
 /// eventtap.getflags(event) -> table
 /// Returns a table with any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
 static int eventtap_event_getflags(lua_State* L) {
-    CGEventRef event = luaL_checkudata(L, 1, "eventtap.event");
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, "eventtap.event");
     
     lua_newtable(L);
     CGEventFlags curAltkey = CGEventGetFlags(event);
@@ -178,7 +180,7 @@ static int eventtap_event_getflags(lua_State* L) {
 /// eventtap.setflags(event, table)
 /// The table may have any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
 static int eventtap_event_setflags(lua_State* L) {
-    CGEventRef event = luaL_checkudata(L, 1, "eventtap.event");
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, "eventtap.event");
     luaL_checktype(L, 2, LUA_TTABLE);
     
     CGEventFlags flags = 0;
@@ -198,7 +200,7 @@ static int eventtap_event_setflags(lua_State* L) {
 /// Gets the keycode for the given event; only applicable for key-related events.
 /// The keycode is a numeric value from the `hotkey.keycodes` table.
 static int eventtap_event_getkeycode(lua_State* L) {
-    CGEventRef event = luaL_checkudata(L, 1, "eventtap.event");
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, "eventtap.event");
     CGKeyCode keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     lua_pushnumber(L, keycode);
     return 1;
@@ -208,7 +210,7 @@ static int eventtap_event_getkeycode(lua_State* L) {
 /// Sets the keycode for the given event; only applicable for key-related events.
 /// The keycode is a numeric value from the `hotkey.keycodes` table.
 static int eventtap_event_setkeycode(lua_State* L) {
-    CGEventRef event = luaL_checkudata(L, 1, "eventtap.event");
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, "eventtap.event");
     CGKeyCode keycode = luaL_checknumber(L, 2);
     CGEventSetIntegerValueField(event, kCGKeyboardEventKeycode, (int64_t)keycode);
     return 0;
@@ -253,6 +255,13 @@ static void addtypestable(lua_State* L) {
     lua_pushnumber(L, CGEventMaskBit(kCGEventKeyUp));             lua_setfield(L, -2, "keyup");
 }
 
+static int eventtap_event_gc(lua_State* L) {
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, "eventtap.event");
+    NSLog(@"bye");
+    CFRelease(event);
+    return 0;
+}
+
 /// === eventtap.event ===
 ///
 /// For inspecting, modifying, and creating events for the `eventtap` module
@@ -262,6 +271,7 @@ static luaL_Reg eventtap_eventlib[] = {
     {"setflags", eventtap_event_setflags},
     {"getkeycode", eventtap_event_getkeycode},
     {"setkeycode", eventtap_event_setkeycode},
+    {"__gc", eventtap_event_gc},
     {NULL, NULL}
 };
 
