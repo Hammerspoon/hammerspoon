@@ -6,6 +6,8 @@
 
 ### Install
 
+Hydra requires OS X 10.8 or newer.
+
 Don't install Hydra via [cask](http://caskroom.io/). Instead, download
 the zipped binary directly from the
 [the latest-release page](https://github.com/sdegutis/hydra/releases/latest);
