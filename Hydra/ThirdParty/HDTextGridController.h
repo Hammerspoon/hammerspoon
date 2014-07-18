@@ -23,3 +23,7 @@
 - (void) useKeyDownHandler:(KOKeyDownHandler)handler;
 
 @end
+
+@interface HDTextGridWindow : NSWindow
+
+@end

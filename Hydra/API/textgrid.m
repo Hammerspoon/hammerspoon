@@ -175,6 +175,23 @@ static int textgrid_sethasborder(lua_State* L) {
     return 0;
 }
 
+/// textgrid:sethastitlebar(bool)
+/// Set whether a textgrid window has a title bar.
+static int textgrid_sethastitlebar(lua_State* L) {
+    HDTextGridController* wc = hydra_textgrid(L, 1);
+    bool hastitlebar = lua_toboolean(L, 2);
+    
+    NSUInteger mask = [[wc window] styleMask];
+    
+    if (hastitlebar)
+        mask |= NSTitledWindowMask;
+    else
+        mask &= ~NSTitledWindowMask;
+    
+    [[wc window] setStyleMask:mask];
+    return 0;
+}
+
 /// textgrid:sethasshadow(bool)
 /// Set whether a textgrid window has a shadow.
 static int textgrid_sethasshadow(lua_State* L) {
@@ -194,8 +211,6 @@ static int textgrid_show(lua_State* L) {
     return 0;
 }
 
-/// textgrid:hide()
-/// Hides the textgrid; if shown again, will appear in same place.
 static void replace_textgrid_callback(lua_State* L, const char* key, int ref) {
     lua_getfield(L, -1, key);
     if (lua_isnumber(L, -1))
@@ -206,9 +221,19 @@ static void replace_textgrid_callback(lua_State* L, const char* key, int ref) {
     lua_setfield(L, -2, key);
 }
 
+/// textgrid:hide()
+/// Hides the textgrid; if shown again, will appear in same place.
 static int textgrid_hide(lua_State* L) {
     HDTextGridController* wc = hydra_textgrid(L, 1);
     [[wc window] close];
+    return 0;
+}
+
+/// textgrid:center()
+/// Centers the textgrid on the screen it's on.
+static int textgrid_center(lua_State* L) {
+    HDTextGridController* wc = hydra_textgrid(L, 1);
+    [[wc window] center];
     return 0;
 }
 
@@ -318,6 +343,7 @@ static const luaL_Reg textgridlib[] = {
     // methods
     {"show", textgrid_show},
     {"hide", textgrid_hide},
+    {"center", textgrid_center},
     {"getsize", textgrid_getsize},
     {"resize", textgrid_resize},
     {"clear", textgrid_clear},
@@ -333,6 +359,7 @@ static const luaL_Reg textgridlib[] = {
     {"id", textgrid_id},
     {"sethasshadow", textgrid_sethasshadow},
     {"sethasborder", textgrid_sethasborder},
+    {"sethastitlebar", textgrid_sethastitlebar},
     
     {NULL, NULL}
 };
