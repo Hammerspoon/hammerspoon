@@ -96,23 +96,19 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     lua_rawgeti(L, LUA_REGISTRYINDEX, e->ref);
     lua_pushlightuserdata(L, event);
     
+    lua_getfield(L, LUA_REGISTRYINDEX, "eventtap.event");
+    lua_setmetatable(L, -2);
+    
     if (lua_pcall(L, 1, LUA_MULTRET, 0))
         hydra_handle_error(L);
     
     int nret = lua_gettop(L) - stack;
+    if (nret == 1 && lua_isnil(L, -1))
+        event = NULL;
     
-    if (nret == 1) {
-        if (lua_isnil(L, -1)) {
-            return NULL;
-        }
-        else {
-            // TODO: allow user to modify event somehow
-            return event;
-        }
-    }
-    else {
-        return event;
-    }
+    lua_pop(L, nret);
+    
+    return event;
 }
 
 static void postkeyevent(CGKeyCode virtualKey, CGEventFlags flags, bool keyDown) {
@@ -166,8 +162,8 @@ static int eventtap_postkey(lua_State* L) {
 
 /// eventtap.getflags(event) -> table
 /// Returns a table with any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
-static int eventtap_getflags(lua_State* L) {
-    CGEventRef event = lua_touserdata(L, 1);
+static int eventtap_event_getflags(lua_State* L) {
+    CGEventRef event = luaL_checkudata(L, 1, "eventtap.event");
     
     lua_newtable(L);
     CGEventFlags curAltkey = CGEventGetFlags(event);
@@ -181,8 +177,8 @@ static int eventtap_getflags(lua_State* L) {
 
 /// eventtap.setflags(event, table)
 /// The table may have any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
-static int eventtap_setflags(lua_State* L) {
-    CGEventRef event = lua_touserdata(L, 1);
+static int eventtap_event_setflags(lua_State* L) {
+    CGEventRef event = luaL_checkudata(L, 1, "eventtap.event");
     luaL_checktype(L, 2, LUA_TTABLE);
     
     CGEventFlags flags = 0;
@@ -201,8 +197,8 @@ static int eventtap_setflags(lua_State* L) {
 /// eventtap.getkeycode(event) -> keycode
 /// Gets the keycode for the given event; only applicable for key-related events.
 /// The keycode is a numeric value from the `hotkey.keycodes` table.
-static int eventtap_getkeycode(lua_State* L) {
-    CGEventRef event = lua_touserdata(L, 1);
+static int eventtap_event_getkeycode(lua_State* L) {
+    CGEventRef event = luaL_checkudata(L, 1, "eventtap.event");
     CGKeyCode keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
     lua_pushnumber(L, keycode);
     return 1;
@@ -211,8 +207,8 @@ static int eventtap_getkeycode(lua_State* L) {
 /// eventtap.setkeycode(event, keycode)
 /// Sets the keycode for the given event; only applicable for key-related events.
 /// The keycode is a numeric value from the `hotkey.keycodes` table.
-static int eventtap_setkeycode(lua_State* L) {
-    CGEventRef event = lua_touserdata(L, 1);
+static int eventtap_event_setkeycode(lua_State* L) {
+    CGEventRef event = luaL_checkudata(L, 1, "eventtap.event");
     CGKeyCode keycode = luaL_checknumber(L, 2);
     CGEventSetIntegerValueField(event, kCGKeyboardEventKeycode, (int64_t)keycode);
     return 0;
@@ -229,13 +225,6 @@ static luaL_Reg eventtaplib[] = {
     
     // metamethods
     {"__gc", eventtap_gc},
-    
-    // event methods
-    {"getflags", eventtap_getflags},
-    {"setflags", eventtap_setflags},
-    
-    {"getkeycode", eventtap_getkeycode},
-    {"setkeycode", eventtap_setkeycode},
     
     {NULL, NULL}
 };
@@ -264,8 +253,35 @@ static void addtypestable(lua_State* L) {
     lua_pushnumber(L, CGEventMaskBit(kCGEventKeyUp));             lua_setfield(L, -2, "keyup");
 }
 
+/// === eventtap.event ===
+///
+/// For inspecting, modifying, and creating events for the `eventtap` module
+
+static luaL_Reg eventtap_eventlib[] = {
+    {"getflags", eventtap_event_getflags},
+    {"setflags", eventtap_event_setflags},
+    {"getkeycode", eventtap_event_getkeycode},
+    {"setkeycode", eventtap_event_setkeycode},
+    {NULL, NULL}
+};
+
+int luaopen_eventtap_event(lua_State* L) {
+    luaL_newlib(L, eventtap_eventlib);
+    
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    
+    lua_pushvalue(L, -1);
+    lua_setfield(L, LUA_REGISTRYINDEX, "eventtap.event");
+    
+    return 1;
+}
+
 int luaopen_eventtap(lua_State* L) {
     luaL_newlib(L, eventtaplib);
+    
+    luaopen_eventtap_event(L);
+    lua_setfield(L, -2, "event");
     
     // store in registry for metatables; necessary for luaL_checkudata()
     lua_pushvalue(L, -1);
@@ -279,14 +295,5 @@ int luaopen_eventtap(lua_State* L) {
     addtypestable(L);
     lua_setfield(L, -2, "types");
     
-    return 1;
-}
-
-/// === eventtap.event ===
-///
-/// For inspecting, modifying, and creating events for the `eventtap` module
-
-int luaopen_eventtap_event(lua_State* L) {
-    lua_newtable(L);
     return 1;
 }
