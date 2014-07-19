@@ -303,6 +303,42 @@
     ]
   },
   {
+    "name": "hotkey.modal",
+    "doc": "For conveniently binding modal hotkeys.\n\nThis would be a simple example usage:\n\n    k = hotkey.modal.new({\"cmd\", \"shift\"}, \"d\")\n\n    function k:entered() hydra.alert('Entered mode') end\n    function k:exited()  hydra.alert('Exited mode')  end\n\n    k:bind({}, 'escape', function() k:exit() end)\n    k:bind({}, 'J', function() hydra.alert(\"Pressed J\") end)",
+    "items": [
+      {
+        "def": "hotkey.modal:entered()",
+        "doc": "Optional callback for when a modal is entered; default implementation does nothing.",
+        "name": "entered"
+      },
+      {
+        "def": "hotkey.modal:exited()",
+        "doc": "Optional callback for when a modal is exited; default implementation does nothing.",
+        "name": "exited"
+      },
+      {
+        "def": "hotkey.modal:bind(mods, key, pressedfn, releasedfn)",
+        "doc": "Registers a new hotkey that will be bound when the modal is enabled.",
+        "name": "bind"
+      },
+      {
+        "def": "hotkey.modal:enter()",
+        "doc": "Enables all hotkeys created via `modal:bind` and disables the modal itself.\nCalled automatically when the modal's hotkey is pressed.",
+        "name": "enter"
+      },
+      {
+        "def": "hotkey.modal:exit()",
+        "doc": "Disables all hotkeys created via `modal:bind` and re-enables the modal itself.",
+        "name": "exit"
+      },
+      {
+        "def": "hotkey.modal.new(mods, key) -> modal",
+        "doc": "Creates a new modal hotkey and enables it.\nWhen mods and key are pressed, all keys bound via `modal:bind` will be enabled.\nThey are disabled when the \"mode\" is exited via `modal:exit()`",
+        "name": "new"
+      }
+    ]
+  },
+  {
     "name": "http",
     "doc": "For making HTTP/HTTPS requests",
     "items": [
@@ -485,6 +521,37 @@
     ]
   },
   {
+    "name": "hydra.updates",
+    "doc": "Check for and install Hydra updates.",
+    "items": [
+      {
+        "def": "hydra.updates.verifyfile(sig, path) -> bool",
+        "doc": "Verifies the DSA signatue against the file at the given absolute path using Hydra's public key.",
+        "name": "verifyfile"
+      },
+      {
+        "def": "hydra.updates.getversions(fn(versions))",
+        "doc": "Low-level function to get list of available Hydra versions; used by hydra.updates.check; you probably want to use hydra.updates.check instead of using this directly.",
+        "name": "getversions"
+      },
+      {
+        "def": "hydra.updates.currentversion() -> number",
+        "doc": "Return the current Hydra version as a string.",
+        "name": "currentversion"
+      },
+      {
+        "def": "hydra.updates.check(fn(isavailable))",
+        "doc": "Checks for an update. Calls the given function with a boolean representing whether a new update is available.",
+        "name": "check"
+      },
+      {
+        "def": "hydra.updates.changelogurl",
+        "doc": "String of the URL that contains the changelog, rendered via Markdown",
+        "name": "changelogurl"
+      }
+    ]
+  },
+  {
     "name": "json",
     "doc": "Functions for converting between Lua values and JSON strings.",
     "items": [
@@ -528,42 +595,6 @@
         "def": "logger.show() -> textgrid",
         "doc": "Opens a textgrid that can browse all logs.",
         "name": "show"
-      }
-    ]
-  },
-  {
-    "name": "modalkey",
-    "doc": "For conveniently binding modal hotkeys.\n\nThis would be a simple example usage:\n\n    k = modalkey.new({\"cmd\", \"shift\"}, \"d\")\n\n    function k:entered() hydra.alert('Entered mode') end\n    function k:exited()  hydra.alert('Exited mode')  end\n\n    k:bind({}, 'escape', function() k:exit() end)\n    k:bind({}, 'J', function() hydra.alert(\"Pressed J\") end)",
-    "items": [
-      {
-        "def": "modalkey:entered()",
-        "doc": "Optional callback for when a modalkey is entered; default implementation does nothing.",
-        "name": "entered"
-      },
-      {
-        "def": "modalkey:exited()",
-        "doc": "Optional callback for when a modalkey is exited; default implementation does nothing.",
-        "name": "exited"
-      },
-      {
-        "def": "modalkey:bind(mods, key, pressedfn, releasedfn)",
-        "doc": "Registers a new hotkey that will be bound when the modalkey is enabled.",
-        "name": "bind"
-      },
-      {
-        "def": "modalkey:enter()",
-        "doc": "Enables all hotkeys created via `modalkey:bind` and disables the modalkey itself.\nCalled automatically when the modalkey's hotkey is pressed.",
-        "name": "enter"
-      },
-      {
-        "def": "modalkey:exit()",
-        "doc": "Disables all hotkeys created via `modalkey:bind` and re-enables the modalkey itself.",
-        "name": "exit"
-      },
-      {
-        "def": "modalkey.new(mods, key) -> modalkey",
-        "doc": "Creates a new modal hotkey and enables it.\nWhen mods and key are pressed, all keys bound via `modal:bind` will be enabled.\nThey are disabled when the \"mode\" is exited via `modalkey:exit()`",
-        "name": "new"
       }
     ]
   },
@@ -974,37 +1005,6 @@
         "def": "timer.stopall()",
         "doc": "Stops all running timers; called automatically when user config reloads.",
         "name": "stopall"
-      }
-    ]
-  },
-  {
-    "name": "updates",
-    "doc": "Check for and install Hydra updates.",
-    "items": [
-      {
-        "def": "updates.check(fn(isavailable))",
-        "doc": "Checks for an update. Calls the given function with a boolean representing whether a new update is available.",
-        "name": "check"
-      },
-      {
-        "def": "updates.changelogurl",
-        "doc": "String of the URL that contains the changelog, rendered via Markdown",
-        "name": "changelogurl"
-      },
-      {
-        "def": "updates.verifyfile(sig, path) -> bool",
-        "doc": "Verifies the DSA signatue against the file at the given absolute path using Hydra's public key.",
-        "name": "verifyfile"
-      },
-      {
-        "def": "updates.getversions(fn(versions))",
-        "doc": "Low-level function to get list of available Hydra versions; used by updates.check; you probably want to use updates.check instead of using this directly.",
-        "name": "getversions"
-      },
-      {
-        "def": "updates.currentversion() -> number",
-        "doc": "Low-level function to get current Hydra version; used by updates.check; you probably want to use updates.check instead of using this directly.",
-        "name": "currentversion"
       }
     ]
   },
