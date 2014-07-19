@@ -453,6 +453,22 @@
     ]
   },
   {
+    "name": "hydra.settings",
+    "doc": "Functions for user-defined settings that persist across Hydra launches.",
+    "items": [
+      {
+        "def": "hydra.settings.set(key, val)",
+        "doc": "Saves the given value for the string key; value must be a string, number, boolean, nil, or a table of any of these, recursively.",
+        "name": "set"
+      },
+      {
+        "def": "hydra.settings.get(key) -> val",
+        "doc": "Gets the Lua value for the given string key.",
+        "name": "get"
+      }
+    ]
+  },
+  {
     "name": "json",
     "doc": "Functions for converting between Lua values and JSON strings.",
     "items": [
@@ -761,22 +777,6 @@
         "def": "screen.mainscreen() -> screen",
         "doc": "Returns the 'main' screen, i.e. the one containing the currently focused window.",
         "name": "mainscreen"
-      }
-    ]
-  },
-  {
-    "name": "settings",
-    "doc": "Functions for user-defined settings that persist across Hydra launches.",
-    "items": [
-      {
-        "def": "settings.set(key, val)",
-        "doc": "Saves the given value for the string key; value must be a string, number, boolean, nil, or a table of any of these, recursively.",
-        "name": "set"
-      },
-      {
-        "def": "settings.get(key) -> val",
-        "doc": "Gets the Lua value for the given string key.",
-        "name": "get"
       }
     ]
   },

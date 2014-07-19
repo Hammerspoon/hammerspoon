@@ -1,6 +1,6 @@
 #import "helpers.h"
 
-/// === settings ===
+/// === hydra.settings ===
 ///
 /// Functions for user-defined settings that persist across Hydra launches.
 
@@ -81,7 +81,7 @@ static void push_luavalue_for_nsobject(lua_State* L, id obj) {
     }
 }
 
-/// settings.set(key, val)
+/// hydra.settings.set(key, val)
 /// Saves the given value for the string key; value must be a string, number, boolean, nil, or a table of any of these, recursively.
 static int settings_set(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
@@ -91,7 +91,7 @@ static int settings_set(lua_State* L) {
     return 0;
 }
 
-/// settings.get(key) -> val
+/// hydra.settings.get(key) -> val
 /// Gets the Lua value for the given string key.
 static int settings_get(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
@@ -107,7 +107,7 @@ static const luaL_Reg settingslib[] = {
     {NULL, NULL}
 };
 
-int luaopen_settings(lua_State* L) {
+int luaopen_hydra_settings(lua_State* L) {
     luaL_newlib(L, settingslib);
     return 1;
 }
