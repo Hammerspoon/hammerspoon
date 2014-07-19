@@ -45,10 +45,10 @@ $ mkdir -p ~/.hydra && cd $_ && wget https://raw.githubusercontent.com/sdegutis/
 Here's a snippet:
 ~~~lua
 -- show a helpful menu
-menu.show(function()
+hydra.menu.show(function()
     local updatetitles = {[true] = "Install Update", [false] = "Check for Update..."}
-    local updatefns = {[true] = updates.install, [false] = checkforupdates}
-    local hasupdate = (updates.newversion ~= nil)
+    local updatefns = {[true] = hydra.updates.install, [false] = checkforupdates}
+    local hasupdate = (hydra.updates.newversion ~= nil)
 
     return {
       {title = "Reload Config", fn = hydra.reload},
@@ -65,7 +65,7 @@ function movewindow_righthalf()
   local win = window.focusedwindow()
   local newframe = win:screen():frame_without_dock_or_menu()
   newframe.w = newframe.w / 2
-  -- newframe.x = newframe.w -- uncomment this line to push it to left side of screen
+  newframe.x = newframe.w -- comment this line to push it to left half of screen
   win:setframe(newframe)
 end
 
