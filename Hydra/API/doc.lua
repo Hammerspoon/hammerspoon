@@ -12,7 +12,14 @@ end
 local function group_tostring(group)
   local str = group.__doc .. "\n\n"
 
-  str = str .. "[subitems]\n"
+  str = str .. "[submodules]\n"
+  for name, item in pairs(group) do
+    if name ~= '__doc' and name ~= '__name' and getmetatable(item) == getmetatable(group) then
+      str = str .. item.__name .. "\n"
+    end
+  end
+
+  str = str .. "\n" .. "[subitems]\n"
   for name, item in pairs(group) do
     if name ~= '__doc' and name ~= '__name' and getmetatable(item) ~= getmetatable(group) then
       str = str .. item[1] .. "\n"
