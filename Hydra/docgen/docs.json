@@ -545,6 +545,11 @@
         "name": "check"
       },
       {
+        "def": "hydra.updates.install()",
+        "doc": "Currently just opens the page containing the update; in the future, this will actually install the update and restart Hydra.",
+        "name": "install"
+      },
+      {
         "def": "hydra.updates.changelogurl",
         "doc": "String of the URL that contains the changelog, rendered via Markdown",
         "name": "changelogurl"
