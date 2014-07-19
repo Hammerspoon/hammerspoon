@@ -1,7 +1,7 @@
 #import "helpers.h"
 #include <CommonCrypto/CommonDigest.h>
 
-/// === updates ===
+/// === hydra.updates ===
 ///
 /// Check for and install Hydra updates.
 
@@ -36,7 +36,7 @@ cleanup:
     return security_key;
 }
 
-/// updates.verifyfile(sig, path) -> bool
+/// hydra.updates.verifyfile(sig, path) -> bool
 /// Verifies the DSA signatue against the file at the given absolute path using Hydra's public key.
 static int updates_verifyfile(lua_State* L) {
     NSString* sig = [NSString stringWithUTF8String:luaL_checklstring(L, 1, NULL)];
@@ -101,8 +101,8 @@ cleanup:
 
 static NSString* updates_url = @"https://api.github.com/repos/sdegutis/hydra/releases";
 
-/// updates.getversions(fn(versions))
-/// Low-level function to get list of available Hydra versions; used by updates.check; you probably want to use updates.check instead of using this directly.
+/// hydra.updates.getversions(fn(versions))
+/// Low-level function to get list of available Hydra versions; used by hydra.updates.check; you probably want to use hydra.updates.check instead of using this directly.
 static int updates_getversions(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
     int fnref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -174,8 +174,8 @@ static int updates_getversions(lua_State* L) {
 }
 
 
-/// updates.currentversion() -> number
-/// Low-level function to get current Hydra version; used by updates.check; you probably want to use updates.check instead of using this directly.
+/// hydra.updates.currentversion() -> number
+/// Return the current Hydra version as a string.
 static int updates_currentversion(lua_State* L) {
     NSString* ver = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
     lua_pushstring(L, [ver UTF8String]);
@@ -190,7 +190,7 @@ static const luaL_Reg updateslib[] = {
     {NULL, NULL}
 };
 
-int luaopen_updates(lua_State* L) {
+int luaopen_hydra_updates(lua_State* L) {
     luaL_newlib(L, updateslib);
     return 1;
 }

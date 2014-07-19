@@ -19,6 +19,7 @@ int luaopen_hydra_dockicon(lua_State* L);
 int luaopen_hydra_ipc(lua_State* L);
 int luaopen_hydra_menu(lua_State* L);
 int luaopen_hydra_settings(lua_State* L);
+int luaopen_hydra_updates(lua_State* L);
 int luaopen_json(lua_State* L);
 int luaopen_mouse(lua_State* L);
 int luaopen_notify(lua_State* L);
@@ -28,7 +29,6 @@ int luaopen_pathwatcher(lua_State* L);
 int luaopen_screen(lua_State* L);
 int luaopen_textgrid(lua_State* L);
 int luaopen_timer(lua_State* L);
-int luaopen_updates(lua_State* L);
 int luaopen_utf8(lua_State* L);
 int luaopen_window(lua_State* L);
 
@@ -57,6 +57,7 @@ static const hydralib hydralibs[] = {
     {"hydra",        "ipc",         luaopen_hydra_ipc},
     {"hydra",        "menu",        luaopen_hydra_menu},
     {"hydra",        "settings",    luaopen_hydra_settings},
+    {"hydra",        "updates",     luaopen_hydra_updates},
     {"json",         NULL,          luaopen_json},
     {"mouse",        NULL,          luaopen_mouse},
     {"notify",       NULL,          luaopen_notify},
@@ -66,7 +67,6 @@ static const hydralib hydralibs[] = {
     {"screen",       NULL,          luaopen_screen},
     {"textgrid",     NULL,          luaopen_textgrid},
     {"timer",        NULL,          luaopen_timer},
-    {"updates",      NULL,          luaopen_updates},
     {"utf8",         NULL,          luaopen_utf8},
     {"window",       NULL,          luaopen_window},
     {NULL, NULL, NULL},

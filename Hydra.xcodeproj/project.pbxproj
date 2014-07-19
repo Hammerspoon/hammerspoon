@@ -96,7 +96,7 @@
 		94A1537C194D77A400F29F8F /* window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94A1537B194D77A400F29F8F /* window.lua */; };
 		94BDB49C19094B7A00BD0553 /* application.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* application.m */; };
 		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
-		94C36940194DD94700EE3A2D /* updates.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693F194DD94700EE3A2D /* updates.m */; };
+		94C36940194DD94700EE3A2D /* hydra_updates.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693F194DD94700EE3A2D /* hydra_updates.m */; };
 		94C36942194DD94D00EE3A2D /* updates.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C36941194DD94D00EE3A2D /* updates.lua */; };
 		94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C96E6E19548ECB00DBD838 /* hotkey.lua */; };
 		94D86A7D196E231C001B6F05 /* dsa_pub.cer in Resources */ = {isa = PBXBuildFile; fileRef = 94D86A7C196E231C001B6F05 /* dsa_pub.cer */; };
@@ -269,7 +269,7 @@
 		94A1537B194D77A400F29F8F /* window.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window.lua; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* application.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = application.m; sourceTree = "<group>"; };
 		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
-		94C3693F194DD94700EE3A2D /* updates.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = updates.m; sourceTree = "<group>"; };
+		94C3693F194DD94700EE3A2D /* hydra_updates.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_updates.m; sourceTree = "<group>"; };
 		94C36941194DD94D00EE3A2D /* updates.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = updates.lua; sourceTree = "<group>"; };
 		94C96E6E19548ECB00DBD838 /* hotkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey.lua; sourceTree = "<group>"; };
 		94D86A7C196E231C001B6F05 /* dsa_pub.cer */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.cer; sourceTree = "<group>"; };
@@ -503,6 +503,7 @@
 				94735C42196DCAB4002A258D /* hydra_ipc.m */,
 				945212A3194D6A6000217584 /* hydra_menu.m */,
 				943F212E195C527300066DCB /* hydra_settings.m */,
+				94C3693F194DD94700EE3A2D /* hydra_updates.m */,
 				943349CD195DB49700B2BE41 /* json.m */,
 				94521299194D59F800217584 /* mouse.m */,
 				94F7A98D1959096100CE7136 /* notify.m */,
@@ -512,7 +513,6 @@
 				94E8E79F194E0AB10064CF6C /* screen.m */,
 				948CA9FE1955AECC00A27D9D /* textgrid.m */,
 				944419C0194F4A51000A55A7 /* timer.m */,
-				94C3693F194DD94700EE3A2D /* updates.m */,
 				941FA8EB195DA14900F69AC9 /* utf8.m */,
 				94C3693D194DD93600EE3A2D /* window.m */,
 			);
@@ -691,7 +691,7 @@
 				9445CA96190833C1002568BB /* lstring.c in Sources */,
 				9445CA7E190833C1002568BB /* lapi.c in Sources */,
 				9445CA9F190833C1002568BB /* lzio.c in Sources */,
-				94C36940194DD94700EE3A2D /* updates.m in Sources */,
+				94C36940194DD94700EE3A2D /* hydra_updates.m in Sources */,
 				04FBC8221976C37000B33BE3 /* audiodevice.m in Sources */,
 				941FA8EC195DA14900F69AC9 /* utf8.m in Sources */,
 				9445CA95190833C1002568BB /* lstate.c in Sources */,
