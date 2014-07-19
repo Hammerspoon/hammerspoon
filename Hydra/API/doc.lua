@@ -14,7 +14,7 @@ local function group_tostring(group)
 
   str = str .. "[subitems]\n"
   for name, item in pairs(group) do
-    if name ~= '__doc' and name ~= '__name' then
+    if name ~= '__doc' and name ~= '__name' and getmetatable(item) ~= getmetatable(group) then
       str = str .. item[1] .. "\n"
     end
   end
@@ -31,6 +31,9 @@ local function doc_tostring(doc)
 
   return str
 end
+
+local group_metatable = {__tostring = group_tostring}
+local item_metatable = {__tostring = item_tostring}
 
 --- hydra.docsfile() -> string
 --- Returns the path of a JSON file containing the docs, for you to generate pretty docs with. The top-level is a list of groups. Groups have keys: name (string), doc (string), items (list of items); Items have keys: name (string), def (string), doc (string).
@@ -49,9 +52,24 @@ function hydra._initiate_documentation_system()
 
   doc = setmetatable({}, {__tostring = doc_tostring})
   for _, mod in pairs(rawdocs) do
-    doc[mod.name] = setmetatable({__doc = mod.doc, __name = mod.name}, {__tostring = group_tostring})
+    local parts = {}
+    for s in string.gmatch(mod.name, "%w+") do
+      table.insert(parts, s)
+    end
+
+    local parent = doc
+    local keyname = parts[#parts]
+    parts[#parts] = nil
+
+    for _, s in ipairs(parts) do
+      parent = parent[s]
+    end
+
+    m = setmetatable({__doc = mod.doc, __name = mod.name}, group_metatable)
+    parent[keyname] = m
+
     for _, item in pairs(mod.items) do
-      doc[mod.name][item.name] = setmetatable({__name = item.name, item.def, item.doc}, {__tostring = item_tostring})
+      m[item.name] = setmetatable({__name = item.name, item.def, item.doc}, item_metatable)
     end
   end
 end

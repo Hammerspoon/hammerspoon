@@ -5,160 +5,134 @@
     "items": [
       {
         "def": "application:visiblewindows() -> win[]",
-        "name": "visiblewindows",
-        "doc": "Returns only the app's windows that are visible."
+        "doc": "Returns only the app's windows that are visible.",
+        "name": "visiblewindows"
       },
       {
         "def": "application.launchorfocus(name)",
-        "name": "launchorfocus",
-        "doc": "Launches the app with the given name, or activates it if it's already running."
+        "doc": "Launches the app with the given name, or activates it if it's already running.",
+        "name": "launchorfocus"
       },
       {
         "def": "application:activate(allwindows = false) -> bool",
-        "name": "activate",
-        "doc": "Tries to activate the app (make its key window focused) and returns whether it succeeded; if allwindows is true, all windows of the application are brought forward as well."
+        "doc": "Tries to activate the app (make its key window focused) and returns whether it succeeded; if allwindows is true, all windows of the application are brought forward as well.",
+        "name": "activate"
       },
       {
         "def": "application.runningapplications() -> app[]",
-        "name": "runningapplications",
-        "doc": "Returns all running apps."
+        "doc": "Returns all running apps.",
+        "name": "runningapplications"
       },
       {
         "def": "application.applicationforpid(pid) -> app or nil",
-        "name": "applicationforpid",
-        "doc": "Returns the running app for the given pid, if it exists."
+        "doc": "Returns the running app for the given pid, if it exists.",
+        "name": "applicationforpid"
       },
       {
         "def": "application.applicationsforbundleid(bundleid) -> app[]",
-        "name": "applicationsforbundleid",
-        "doc": "Returns any running apps that have the given bundleid."
+        "doc": "Returns any running apps that have the given bundleid.",
+        "name": "applicationsforbundleid"
       },
       {
         "def": "application:allwindows() -> window[]",
-        "name": "allwindows",
-        "doc": "Returns all open windows owned by the given app."
+        "doc": "Returns all open windows owned by the given app.",
+        "name": "allwindows"
       },
       {
         "def": "application:mainwindow() -> window",
-        "name": "mainwindow",
-        "doc": "Returns the main window of the given app, or nil."
+        "doc": "Returns the main window of the given app, or nil.",
+        "name": "mainwindow"
       },
       {
         "def": "application:title() -> string",
-        "name": "title",
-        "doc": "Returns the localized name of the app (in UTF8)."
+        "doc": "Returns the localized name of the app (in UTF8).",
+        "name": "title"
       },
       {
         "def": "application:bundleid() -> string",
-        "name": "bundleid",
-        "doc": "Returns the bundle identifier of the app."
+        "doc": "Returns the bundle identifier of the app.",
+        "name": "bundleid"
       },
       {
         "def": "application:unhide() -> success",
-        "name": "unhide",
-        "doc": "Unhides the app (and all its windows) if it's hidden."
+        "doc": "Unhides the app (and all its windows) if it's hidden.",
+        "name": "unhide"
       },
       {
         "def": "application:hide() -> success",
-        "name": "hide",
-        "doc": "Hides the app (and all its windows)."
+        "doc": "Hides the app (and all its windows).",
+        "name": "hide"
       },
       {
         "def": "application:kill()",
-        "name": "kill",
-        "doc": "Tries to terminate the app."
+        "doc": "Tries to terminate the app.",
+        "name": "kill"
       },
       {
         "def": "application:kill9()",
-        "name": "kill9",
-        "doc": "Assuredly terminates the app."
+        "doc": "Assuredly terminates the app.",
+        "name": "kill9"
       },
       {
         "def": "application:ishidden() -> bool",
-        "name": "ishidden",
-        "doc": "Returns whether the app is currently hidden."
+        "doc": "Returns whether the app is currently hidden.",
+        "name": "ishidden"
       },
       {
         "def": "application:pid() -> number",
-        "name": "pid",
-        "doc": "Returns the app's process identifier."
+        "doc": "Returns the app's process identifier.",
+        "name": "pid"
       },
       {
         "def": "application:kind() -> number",
-        "name": "kind",
-        "doc": "Returns 1 if the app is in the dock, 0 if not, and -1 if it can't even have GUI elements if it wanted to."
+        "doc": "Returns 1 if the app is in the dock, 0 if not, and -1 if it can't even have GUI elements if it wanted to.",
+        "name": "kind"
       }
     ]
   },
   {
-    "name": "applistener",
-    "doc": "Listen to notifications sent by other apps, and maybe send some yourself.",
-    "items": [
-      {
-        "def": "applistener.stopall()",
-        "name": "stopall",
-        "doc": "Stops app applisteners; automatically called when user config reloads."
-      },
-      {
-        "def": "applistener.new(fn(notification)) -> applistener",
-        "name": "new",
-        "doc": "Registers a listener function for inter-app notifications."
-      },
-      {
-        "def": "applistener:start()",
-        "name": "start",
-        "doc": "Starts listening for notifications."
-      },
-      {
-        "def": "applistener:stop()",
-        "name": "stop",
-        "doc": "Stops listening for notifications."
-      }
-    ]
-  },
-  {
-    "name": "audio",
+    "name": "audiodevice",
     "doc": "Manipulate the system's audio devices.",
     "items": [
       {
-        "def": "audio.alloutputdevices() -> audio[]",
-        "name": "alloutputdevices",
-        "doc": "Returns a list of all connected output devices."
+        "def": "audiodevice.alloutputdevices() -> audio[]",
+        "doc": "Returns a list of all connected output devices.",
+        "name": "alloutputdevices"
       },
       {
-        "def": "audio.defaultoutputdevice() -> audio or nil",
-        "name": "defaultoutputdevice",
-        "doc": "Gets the system's default audio device, or nil, it it does not exist."
+        "def": "audiodevice.defaultoutputdevice() -> audio or nil",
+        "doc": "Gets the system's default audio device, or nil, it it does not exist.",
+        "name": "defaultoutputdevice"
       },
       {
-        "def": "audio:setdefaultoutputdevice() -> bool",
-        "name": "setdefaultoutputdevice",
-        "doc": "Sets the system's default audio device to this device. Returns true if the audio device was successfully set."
+        "def": "audiodevice:setdefaultoutputdevice() -> bool",
+        "doc": "Sets the system's default audio device to this device. Returns true if the audio device was successfully set.",
+        "name": "setdefaultoutputdevice"
       },
       {
-        "def": "audio:name() -> string or nil",
-        "name": "name",
-        "doc": "Returns the name of the audio device, or nil if it does not have a name."
+        "def": "audiodevice:name() -> string or nil",
+        "doc": "Returns the name of the audio device, or nil if it does not have a name.",
+        "name": "name"
       },
       {
-        "def": "audio:muted() -> bool or nil",
-        "name": "muted",
-        "doc": "Returns true/false if the audio device is muted, or nil if it does not support being muted."
+        "def": "audiodevice:muted() -> bool or nil",
+        "doc": "Returns true/false if the audio device is muted, or nil if it does not support being muted.",
+        "name": "muted"
       },
       {
-        "def": "audio:setmuted(bool) -> bool",
-        "name": "setmuted",
-        "doc": "Returns true if the the device's muted status was set, or false if it does not support being muted."
+        "def": "audiodevice:setmuted(bool) -> bool",
+        "doc": "Returns true if the the device's muted status was set, or false if it does not support being muted.",
+        "name": "setmuted"
       },
       {
-        "def": "audio:volume() -> number or bool",
-        "name": "volume",
-        "doc": "Returns a number between 0 and 100 inclusive, representing the volume percentage. Or nil, if the audio device does not have a volume level."
+        "def": "audiodevice:volume() -> number or bool",
+        "doc": "Returns a number between 0 and 100 inclusive, representing the volume percentage. Or nil, if the audio device does not have a volume level.",
+        "name": "volume"
       },
       {
-        "def": "audio:setvolume(level) -> bool",
-        "name": "setvolume",
-        "doc": "Returns true if the volume was set, or false if the audio device does not support setting a volume level. Level is a percentage between 0 and 100."
+        "def": "audiodevice:setvolume(level) -> bool",
+        "doc": "Returns true if the volume was set, or false if the audio device does not support setting a volume level. Level is a percentage between 0 and 100.",
+        "name": "setvolume"
       }
     ]
   },
@@ -168,13 +142,13 @@
     "items": [
       {
         "def": "autolaunch.get() -> bool",
-        "name": "get",
-        "doc": "Returns whether Hydra launches when you login."
+        "doc": "Returns whether Hydra launches when you login.",
+        "name": "get"
       },
       {
         "def": "autolaunch.set(bool)",
-        "name": "set",
-        "doc": "Sets whether Hydra launches when you login."
+        "doc": "Sets whether Hydra launches when you login.",
+        "name": "set"
       }
     ]
   },
@@ -184,13 +158,13 @@
     "items": [
       {
         "def": "brightness.set(number) -> boolean",
-        "name": "set",
-        "doc": "Sets the display brightness. Number should be between 0 and 100."
+        "doc": "Sets the display brightness. Number should be between 0 and 100.",
+        "name": "set"
       },
       {
         "def": "brightness.get() -> number",
-        "name": "get",
-        "doc": "Returns the current brightness of the display."
+        "doc": "Returns the current brightness of the display.",
+        "name": "get"
       }
     ]
   },
@@ -200,233 +174,28 @@
     "items": [
       {
         "def": "dockicon.visible() -> bool",
-        "name": "visible",
-        "doc": "Returns whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab."
+        "doc": "Returns whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab.",
+        "name": "visible"
       },
       {
         "def": "dockicon.show()",
-        "name": "show",
-        "doc": "Shows Hydra's dock icon; Hydra can then be switched to via Cmd-Tab."
+        "doc": "Shows Hydra's dock icon; Hydra can then be switched to via Cmd-Tab.",
+        "name": "show"
       },
       {
         "def": "dockicon.hide()",
-        "name": "hide",
-        "doc": "Hides Hydra's dock icon; Hydra will no longer show up when you Cmd-Tab."
+        "doc": "Hides Hydra's dock icon; Hydra will no longer show up when you Cmd-Tab.",
+        "name": "hide"
       },
       {
         "def": "dockicon.bounce(indefinitely = false)",
-        "name": "bounce",
-        "doc": "Bounces Hydra's dock icon; if indefinitely is true, won't stop until you click the dock icon."
+        "doc": "Bounces Hydra's dock icon; if indefinitely is true, won't stop until you click the dock icon.",
+        "name": "bounce"
       },
       {
         "def": "dockicon.setbadge(str)",
-        "name": "setbadge",
-        "doc": "Set's Hydra's dock icon's badge to the given string; pass an empty string to clear it."
-      }
-    ]
-  },
-  {
-    "name": "eventtap",
-    "doc": "For tapping into input events (mouse, keyboard, trackpad) for observation and possibly overriding them.",
-    "items": [
-      {
-        "def": "eventtap.new(type, event) -> eventtap",
-        "name": "new",
-        "doc": "Returns a new event tap with the given callback for the given event type; the eventtap not started automatically.\nThe type param must be one of the values from the table `eventtap.types`.\nThe callback always takes an event object as its only parameter.\nIf the callback function returns nothing, the event is not modified; if it returns nil, the event is deleted from the OS X event system and not seen by any other apps; all other return values are reserved for future features to this API."
-      },
-      {
-        "def": "eventtap:start()",
-        "name": "start",
-        "doc": "Starts an event tap; must be in stopped state."
-      },
-      {
-        "def": "eventtap:stop()",
-        "name": "stop",
-        "doc": "Stops an event tap; must be in started state."
-      },
-      {
-        "def": "eventtap.postkey(mods, key, dir = \"pressrelease\")",
-        "name": "postkey",
-        "doc": "Sends a keyboard event as if you did it manually.\n  - key has the same meaning as in the `hotkey` module\n  - dir is either 'press', 'release', or 'pressrelease'\n  - mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift', 'fn'}\nSometimes this doesn't work inside a hotkey callback for some reason."
-      },
-      {
-        "def": "eventtap.getflags(event) -> table",
-        "name": "getflags",
-        "doc": "Returns a table with any of the strings {\"cmd\", \"alt\", \"shift\", \"ctrl\", \"fn\"} as keys pointing to the value `true`"
-      },
-      {
-        "def": "eventtap.setflags(event, table)",
-        "name": "setflags",
-        "doc": "The table may have any of the strings {\"cmd\", \"alt\", \"shift\", \"ctrl\", \"fn\"} as keys pointing to the value `true`"
-      },
-      {
-        "def": "eventtap.getkeycode(event) -> keycode",
-        "name": "getkeycode",
-        "doc": "Gets the keycode for the given event; only applicable for key-related events.\nThe keycode is a numeric value from the `hotkey.keycodes` table."
-      },
-      {
-        "def": "eventtap.setkeycode(event, keycode)",
-        "name": "setkeycode",
-        "doc": "Sets the keycode for the given event; only applicable for key-related events.\nThe keycode is a numeric value from the `hotkey.keycodes` table."
-      },
-      {
-        "def": "eventtap.types",
-        "name": "types",
-        "doc": "Table for use with `eventtap.new`, with the following keys:\n  leftmousedown, leftmouseup, leftmousedragged,\n  rightmousedown, rightmouseup, rightmousedragged,\n  middlemousedown, middlemouseup, middlemousedragged,\n  keydown, keyup, mousemoved, flagschanged, scrollwheel"
-      }
-    ]
-  },
-  {
-    "name": "fnutils",
-    "doc": "Super-helpful functional programming utilities.",
-    "items": [
-      {
-        "def": "fnutils.map(t, fn) -> t",
-        "name": "map",
-        "doc": "Returns a table of the results of fn(el) on every el in t."
-      },
-      {
-        "def": "fnutils.each(t, fn) -> t",
-        "name": "each",
-        "doc": "Runs fn(el) for every el in t."
-      },
-      {
-        "def": "fnutils.filter(t, fn) -> t",
-        "name": "filter",
-        "doc": "Returns a table of the elements in t in which fn(el) is truthy."
-      },
-      {
-        "def": "fnutils.copy(t) -> t2",
-        "name": "copy",
-        "doc": "Returns a new copy of t using pairs(t)."
-      },
-      {
-        "def": "fnutils.contains(t, el) -> bool",
-        "name": "contains",
-        "doc": "Returns whether the table contains the given element."
-      },
-      {
-        "def": "fnutils.indexof(t, el) -> int or nil",
-        "name": "indexof",
-        "doc": "Returns the index of a given element in a table, or nil if not found."
-      },
-      {
-        "def": "fnutils.concat(t1, t2)",
-        "name": "concat",
-        "doc": "Adds all elements of t2 to the end of t1."
-      },
-      {
-        "def": "fnutils.mapcat(t, fn) -> t2",
-        "name": "mapcat",
-        "doc": "Runs fn(el) for every el in t, and assuming the results are tables, combines them into a new table."
-      },
-      {
-        "def": "fnutils.reduce(t, fn) -> t2",
-        "name": "reduce",
-        "doc": "Runs fn(el1, el2) for every el in t, then fn(result, el3), etc, until there's only one left."
-      },
-      {
-        "def": "fnutils.find(t, fn) -> el",
-        "name": "find",
-        "doc": "Returns the first element where fn(el) is truthy."
-      },
-      {
-        "def": "fnutils.sequence(...) -> fn",
-        "name": "sequence",
-        "doc": "Returns a list of the results of the passed functions."
-      },
-      {
-        "def": "fnutils.partial(fn, ...) -> fn'",
-        "name": "partial",
-        "doc": "Returns fn partially applied to arg (...)."
-      }
-    ]
-  },
-  {
-    "name": "geometry",
-    "doc": "Mathy stuff.",
-    "items": [
-      {
-        "def": "geometry.rotateccw(point, aroundpoint, ntimes = 1) -> point",
-        "name": "rotateccw",
-        "doc": "Rotates a point around another point N times."
-      },
-      {
-        "def": "geometry.hypot(point) -> number",
-        "name": "hypot",
-        "doc": "Returns hypotenuse of a line defined from 0,0 to point."
-      },
-      {
-        "def": "geometry.rect(x, y, w, h) -> rect",
-        "name": "rect",
-        "doc": "Convenience function for creating a rect-table."
-      },
-      {
-        "def": "geometry.point(x, y) -> point",
-        "name": "point",
-        "doc": "Convenience function for creating a point-table."
-      },
-      {
-        "def": "geometry.size(w, h) -> size",
-        "name": "size",
-        "doc": "Convenience function for creating a size-table."
-      },
-      {
-        "def": "geometry.intersectionrect(rect1, rect2) -> rect3",
-        "name": "intersectionrect",
-        "doc": "Returns the intersection of two rects as a new rect."
-      },
-      {
-        "def": "geometry.rectmidpoint(rect) -> point",
-        "name": "rectmidpoint",
-        "doc": "Returns the midpoint of a rect."
-      }
-    ]
-  },
-  {
-    "name": "hotkey",
-    "doc": "Create and manage global hotkeys.",
-    "items": [
-      {
-        "def": "hotkey.bind(mods, key, pressedfn, releasedfn) -> hotkey",
-        "name": "bind",
-        "doc": "Shortcut for: return hotkey.new(mods, key, pressedfn, releasedfn):enable()"
-      },
-      {
-        "def": "hotkey.disableall()",
-        "name": "disableall",
-        "doc": "Disables all hotkeys; automatically called when user config reloads."
-      },
-      {
-        "def": "hotkey.keycodes",
-        "name": "keycodes",
-        "doc": "A mapping from string representation of a key to its keycode, and vice versa; not generally useful yet.\nFor example: keycodes[1] == \"s\", and keycodes[\"s\"] == 1, and so on"
-      },
-      {
-        "def": "hotkey.new(mods, key, pressedfn, releasedfn = nil) -> hotkey",
-        "name": "new",
-        "doc": "Creates a new hotkey that can be enabled.\n\nThe `mods` parameter is case-insensitive and may contain any of the following strings: \"cmd\", \"ctrl\", \"alt\", or \"shift\".\n\nThe `key` parameter is case-insensitive and may be any single-character string; it may also be any of the following strings:\n\n    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,\n    F16, F17, F18, F19, F20, PAD, PAD*, PAD+, PAD/, PAD-, PAD=,\n    PAD0, PAD1, PAD2, PAD3, PAD4, PAD5, PAD6, PAD7, PAD8, PAD9,\n    PAD_CLEAR, PAD_ENTER, RETURN, TAB, SPACE, DELETE, ESCAPE, HELP,\n    HOME, PAGE_UP, FORWARD_DELETE, END, PAGE_DOWN, LEFT, RIGHT, DOWN, UP\n\nThe `pressedfn` parameter is the function that will be called when this hotkey is pressed.\n\nThe `releasedfn` parameter is the function that will be called when this hotkey is released; this field is optional (may be nil or omitted)."
-      },
-      {
-        "def": "hotkey:enable() -> self",
-        "name": "enable",
-        "doc": "Registers the hotkey's fn as the callback when the user presses key while holding mods."
-      },
-      {
-        "def": "hotkey:disable() -> self",
-        "name": "disable",
-        "doc": "Disables the given hotkey; does not remove it from hotkey.keys."
-      }
-    ]
-  },
-  {
-    "name": "http",
-    "doc": "For making HTTP/HTTPS requests",
-    "items": [
-      {
-        "def": "http.send(url, method, timeout, headers, body, fn(code, header, data, err))",
-        "name": "send",
-        "doc": "Send an HTTP request using the given method, with the following parameters:\n  url must be a string\n  method must be a string (i.e. \"GET\")\n  timeout must be a number\n  headers must be a table; may be empty; any keys and values present must both be strings\n  body may be a string or nil\n  fn must be a valid function, and is called with the following parameters:\n    code is a number (is sometimes 0, I think?)\n    header is a table of string->string pairs\n    data is a string on success, nil on failure\n    err is a string on failure, nil on success"
+        "doc": "Set's Hydra's dock icon's badge to the given string; pass an empty string to clear it.",
+        "name": "setbadge"
       }
     ]
   },
@@ -438,73 +207,227 @@
     ]
   },
   {
+    "name": "fnutils",
+    "doc": "Super-helpful functional programming utilities.",
+    "items": [
+      {
+        "def": "fnutils.map(t, fn) -> t",
+        "doc": "Returns a table of the results of fn(el) on every el in t.",
+        "name": "map"
+      },
+      {
+        "def": "fnutils.each(t, fn) -> t",
+        "doc": "Runs fn(el) for every el in t.",
+        "name": "each"
+      },
+      {
+        "def": "fnutils.filter(t, fn) -> t",
+        "doc": "Returns a table of the elements in t in which fn(el) is truthy.",
+        "name": "filter"
+      },
+      {
+        "def": "fnutils.copy(t) -> t2",
+        "doc": "Returns a new copy of t using pairs(t).",
+        "name": "copy"
+      },
+      {
+        "def": "fnutils.contains(t, el) -> bool",
+        "doc": "Returns whether the table contains the given element.",
+        "name": "contains"
+      },
+      {
+        "def": "fnutils.indexof(t, el) -> int or nil",
+        "doc": "Returns the index of a given element in a table, or nil if not found.",
+        "name": "indexof"
+      },
+      {
+        "def": "fnutils.concat(t1, t2)",
+        "doc": "Adds all elements of t2 to the end of t1.",
+        "name": "concat"
+      },
+      {
+        "def": "fnutils.mapcat(t, fn) -> t2",
+        "doc": "Runs fn(el) for every el in t, and assuming the results are tables, combines them into a new table.",
+        "name": "mapcat"
+      },
+      {
+        "def": "fnutils.reduce(t, fn) -> t2",
+        "doc": "Runs fn(el1, el2) for every el in t, then fn(result, el3), etc, until there's only one left.",
+        "name": "reduce"
+      },
+      {
+        "def": "fnutils.find(t, fn) -> el",
+        "doc": "Returns the first element where fn(el) is truthy.",
+        "name": "find"
+      },
+      {
+        "def": "fnutils.sequence(...) -> fn",
+        "doc": "Returns a list of the results of the passed functions.",
+        "name": "sequence"
+      },
+      {
+        "def": "fnutils.partial(fn, ...) -> fn'",
+        "doc": "Returns fn partially applied to arg (...).",
+        "name": "partial"
+      }
+    ]
+  },
+  {
+    "name": "geometry",
+    "doc": "Mathy stuff.",
+    "items": [
+      {
+        "def": "geometry.rotateccw(point, aroundpoint, ntimes = 1) -> point",
+        "doc": "Rotates a point around another point N times.",
+        "name": "rotateccw"
+      },
+      {
+        "def": "geometry.hypot(point) -> number",
+        "doc": "Returns hypotenuse of a line defined from 0,0 to point.",
+        "name": "hypot"
+      },
+      {
+        "def": "geometry.rect(x, y, w, h) -> rect",
+        "doc": "Convenience function for creating a rect-table.",
+        "name": "rect"
+      },
+      {
+        "def": "geometry.point(x, y) -> point",
+        "doc": "Convenience function for creating a point-table.",
+        "name": "point"
+      },
+      {
+        "def": "geometry.size(w, h) -> size",
+        "doc": "Convenience function for creating a size-table.",
+        "name": "size"
+      },
+      {
+        "def": "geometry.intersectionrect(rect1, rect2) -> rect3",
+        "doc": "Returns the intersection of two rects as a new rect.",
+        "name": "intersectionrect"
+      },
+      {
+        "def": "geometry.rectmidpoint(rect) -> point",
+        "doc": "Returns the midpoint of a rect.",
+        "name": "rectmidpoint"
+      }
+    ]
+  },
+  {
+    "name": "hotkey",
+    "doc": "Create and manage global hotkeys.",
+    "items": [
+      {
+        "def": "hotkey.bind(mods, key, pressedfn, releasedfn) -> hotkey",
+        "doc": "Shortcut for: return hotkey.new(mods, key, pressedfn, releasedfn):enable()",
+        "name": "bind"
+      },
+      {
+        "def": "hotkey.keycodes",
+        "doc": "A mapping from string representation of a key to its keycode, and vice versa; not generally useful yet.\nFor example: keycodes[1] == \"s\", and keycodes[\"s\"] == 1, and so on",
+        "name": "keycodes"
+      },
+      {
+        "def": "hotkey.new(mods, key, pressedfn, releasedfn = nil) -> hotkey",
+        "doc": "Creates a new hotkey that can be enabled.\n\nThe `mods` parameter is case-insensitive and may contain any of the following strings: \"cmd\", \"ctrl\", \"alt\", or \"shift\".\n\nThe `key` parameter is case-insensitive and may be any single-character string; it may also be any of the following strings:\n\n    F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,\n    F16, F17, F18, F19, F20, PAD, PAD*, PAD+, PAD/, PAD-, PAD=,\n    PAD0, PAD1, PAD2, PAD3, PAD4, PAD5, PAD6, PAD7, PAD8, PAD9,\n    PAD_CLEAR, PAD_ENTER, RETURN, TAB, SPACE, DELETE, ESCAPE, HELP,\n    HOME, PAGE_UP, FORWARD_DELETE, END, PAGE_DOWN, LEFT, RIGHT, DOWN, UP\n\nThe `pressedfn` parameter is the function that will be called when this hotkey is pressed.\n\nThe `releasedfn` parameter is the function that will be called when this hotkey is released; this field is optional (may be nil or omitted).",
+        "name": "new"
+      },
+      {
+        "def": "hotkey:enable() -> self",
+        "doc": "Registers the hotkey's fn as the callback when the user presses key while holding mods.",
+        "name": "enable"
+      },
+      {
+        "def": "hotkey:disable() -> self",
+        "doc": "Disables the given hotkey; does not remove it from hotkey.keys.",
+        "name": "disable"
+      },
+      {
+        "def": "hotkey.disableall()",
+        "doc": "Disables all hotkeys; automatically called when user config reloads.",
+        "name": "disableall"
+      }
+    ]
+  },
+  {
+    "name": "http",
+    "doc": "For making HTTP/HTTPS requests",
+    "items": [
+      {
+        "def": "http.send(url, method, timeout, headers, body, fn(code, header, data, err))",
+        "doc": "Send an HTTP request using the given method, with the following parameters:\n  url must be a string\n  method must be a string (i.e. \"GET\")\n  timeout must be a number\n  headers must be a table; may be empty; any keys and values present must both be strings\n  body may be a string or nil\n  fn must be a valid function, and is called with the following parameters:\n    code is a number (is sometimes 0, I think?)\n    header is a table of string->string pairs\n    data is a string on success, nil on failure\n    err is a string on failure, nil on success",
+        "name": "send"
+      }
+    ]
+  },
+  {
     "name": "hydra",
     "doc": "General stuff.",
     "items": [
       {
         "def": "hydra.docsfile() -> string",
-        "name": "docsfile",
-        "doc": "Returns the path of a JSON file containing the docs, for you to generate pretty docs with. The top-level is a list of groups. Groups have keys: name (string), doc (string), items (list of items); Items have keys: name (string), def (string), doc (string)."
+        "doc": "Returns the path of a JSON file containing the docs, for you to generate pretty docs with. The top-level is a list of groups. Groups have keys: name (string), doc (string), items (list of items); Items have keys: name (string), def (string), doc (string).",
+        "name": "docsfile"
       },
       {
         "def": "hydra.reload()",
-        "name": "reload",
-        "doc": "Reloads your init-file. Makes sure to clear any state that makes sense to clear (hotkeys, pathwatchers, etc)."
+        "doc": "Reloads your init-file. Makes sure to clear any state that makes sense to clear (hotkeys, pathwatchers, etc).",
+        "name": "reload"
       },
       {
         "def": "hydra.errorhandler = function(err)",
-        "name": "errorhandler",
-        "doc": "Error handler for hydra.call; intended for you to set, not for third party libs"
+        "doc": "Error handler for hydra.call; intended for you to set, not for third party libs",
+        "name": "errorhandler"
       },
       {
         "def": "hydra.call(fn, ...) -> ...",
-        "name": "call",
-        "doc": "Just like pcall, except that failures are handled using hydra.errorhandler"
+        "doc": "Just like pcall, except that failures are handled using hydra.errorhandler",
+        "name": "call"
       },
       {
         "def": "hydra.exec(command) -> string",
-        "name": "exec",
-        "doc": "Runs a shell function and returns stdout as a string (without trailing newline)."
+        "doc": "Runs a shell function and returns stdout as a string (without trailing newline).",
+        "name": "exec"
       },
       {
         "def": "hydra.licenses -> string",
-        "name": "licenses",
-        "doc": "Returns a string containing the licenses of all the third party software Hydra uses (i.e. Lua)"
+        "doc": "Returns a string containing the licenses of all the third party software Hydra uses (i.e. Lua)",
+        "name": "licenses"
       },
       {
         "def": "hydra.showabout()",
-        "name": "showabout",
-        "doc": "Displays the standard OS X about panel; implicitly focuses Hydra."
+        "doc": "Displays the standard OS X about panel; implicitly focuses Hydra.",
+        "name": "showabout"
       },
       {
         "def": "hydra.focushydra()",
-        "name": "focushydra",
-        "doc": "Makes Hydra the currently focused app; useful in combination with textgrids."
+        "doc": "Makes Hydra the currently focused app; useful in combination with textgrids.",
+        "name": "focushydra"
       },
       {
         "def": "hydra.alert(str, seconds = 2)",
-        "name": "alert",
-        "doc": "Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.."
+        "doc": "Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience..",
+        "name": "alert"
       },
       {
         "def": "hydra.fileexists(path) -> exists, isdir",
-        "name": "fileexists",
-        "doc": "Checks if a file exists, and whether it's a directory."
+        "doc": "Checks if a file exists, and whether it's a directory.",
+        "name": "fileexists"
       },
       {
         "def": "hydra.check_accessibility(shouldprompt) -> isenabled",
-        "name": "check_accessibility",
-        "doc": "Returns whether accessibility is enabled. If passed `true`, prompts the user to enable it."
+        "doc": "Returns whether accessibility is enabled. If passed `true`, prompts the user to enable it.",
+        "name": "check_accessibility"
       },
       {
         "def": "hydra.setosxshadows(bool)",
-        "name": "setosxshadows",
-        "doc": "Sets whether OSX apps have shadows."
+        "doc": "Sets whether OSX apps have shadows.",
+        "name": "setosxshadows"
       },
       {
         "def": "hydra.uuid() -> string",
-        "name": "uuid",
-        "doc": "Returns a UUID as a string"
+        "doc": "Returns a UUID as a string",
+        "name": "uuid"
       }
     ]
   },
@@ -514,18 +437,18 @@
     "items": [
       {
         "def": "ipc.handler(str) -> value",
-        "name": "handler",
-        "doc": "The default handler for IPC, called by hydra-cli. Default implementation evals the string and returns the result.\nYou may override this function if for some reason you want to implement special evaluation rules for executing remote commands.\nThe return value of this function is always turned into a string via tostring() and returned to hydra-cli.\nIf an error occurs, the error message is returned instead."
+        "doc": "The default handler for IPC, called by hydra-cli. Default implementation evals the string and returns the result.\nYou may override this function if for some reason you want to implement special evaluation rules for executing remote commands.\nThe return value of this function is always turned into a string via tostring() and returned to hydra-cli.\nIf an error occurs, the error message is returned instead.",
+        "name": "handler"
       },
       {
         "def": "ipc.link(prefix = \"/usr/local\", dryrun = nil)",
-        "name": "link",
-        "doc": "Symlinks ${prefix}/bin/hydra and ${prefix}/share/man/man1/hydra.1\nIf dryrun is true, prints the commands it would run."
+        "doc": "Symlinks ${prefix}/bin/hydra and ${prefix}/share/man/man1/hydra.1\nIf dryrun is true, prints the commands it would run.",
+        "name": "link"
       },
       {
         "def": "ipc.unlink(prefix = \"/usr/local\", dryrun = false)",
-        "name": "unlink",
-        "doc": "Removes ${prefix}/bin/hydra and ${prefix}/share/man/man1/hydra.1\nIf dryrun is true, prints the commands it would run."
+        "doc": "Removes ${prefix}/bin/hydra and ${prefix}/share/man/man1/hydra.1\nIf dryrun is true, prints the commands it would run.",
+        "name": "unlink"
       }
     ]
   },
@@ -535,13 +458,13 @@
     "items": [
       {
         "def": "json.encode(val[, prettyprint?]) -> str",
-        "name": "encode",
-        "doc": "Returns a JSON string representing the given value; if prettyprint is true, the resulting string will be quite beautiful."
+        "doc": "Returns a JSON string representing the given value; if prettyprint is true, the resulting string will be quite beautiful.",
+        "name": "encode"
       },
       {
         "def": "json.decode(str) -> val",
-        "name": "decode",
-        "doc": "Returns a Lua value representing the given JSON string."
+        "doc": "Returns a Lua value representing the given JSON string.",
+        "name": "decode"
       }
     ]
   },
@@ -551,28 +474,28 @@
     "items": [
       {
         "def": "logger.lines = {}",
-        "name": "lines",
-        "doc": "List of lines logged so far; caps at logger.maxlines. You may clear it by setting it to {} yourself."
+        "doc": "List of lines logged so far; caps at logger.maxlines. You may clear it by setting it to {} yourself.",
+        "name": "lines"
       },
       {
         "def": "logger.maxlines = 500",
-        "name": "maxlines",
-        "doc": "Maximum number of lines to be logged."
+        "doc": "Maximum number of lines to be logged.",
+        "name": "maxlines"
       },
       {
         "def": "logger.addhandler(fn(str)) -> index",
-        "name": "addhandler",
-        "doc": "Registers a function to handle new log lines."
+        "doc": "Registers a function to handle new log lines.",
+        "name": "addhandler"
       },
       {
         "def": "logger.removehandler(index)",
-        "name": "removehandler",
-        "doc": "Unregisters a function that handles new log lines."
+        "doc": "Unregisters a function that handles new log lines.",
+        "name": "removehandler"
       },
       {
         "def": "logger.show() -> textgrid",
-        "name": "show",
-        "doc": "Opens a textgrid that can browse all logs."
+        "doc": "Opens a textgrid that can browse all logs.",
+        "name": "show"
       }
     ]
   },
@@ -582,13 +505,13 @@
     "items": [
       {
         "def": "menu.show(fn() -> itemstable)",
-        "name": "show",
-        "doc": "Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)"
+        "doc": "Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)",
+        "name": "show"
       },
       {
         "def": "menu.hide()",
-        "name": "hide",
-        "doc": "Hides Hydra's menubar icon."
+        "doc": "Hides Hydra's menubar icon.",
+        "name": "hide"
       }
     ]
   },
@@ -598,33 +521,33 @@
     "items": [
       {
         "def": "modalkey:entered()",
-        "name": "entered",
-        "doc": "Optional callback for when a modalkey is entered; default implementation does nothing."
+        "doc": "Optional callback for when a modalkey is entered; default implementation does nothing.",
+        "name": "entered"
       },
       {
         "def": "modalkey:exited()",
-        "name": "exited",
-        "doc": "Optional callback for when a modalkey is exited; default implementation does nothing."
+        "doc": "Optional callback for when a modalkey is exited; default implementation does nothing.",
+        "name": "exited"
       },
       {
         "def": "modalkey:bind(mods, key, pressedfn, releasedfn)",
-        "name": "bind",
-        "doc": "Registers a new hotkey that will be bound when the modalkey is enabled."
+        "doc": "Registers a new hotkey that will be bound when the modalkey is enabled.",
+        "name": "bind"
       },
       {
         "def": "modalkey:enter()",
-        "name": "enter",
-        "doc": "Enables all hotkeys created via `modalkey:bind` and disables the modalkey itself.\nCalled automatically when the modalkey's hotkey is pressed."
+        "doc": "Enables all hotkeys created via `modalkey:bind` and disables the modalkey itself.\nCalled automatically when the modalkey's hotkey is pressed.",
+        "name": "enter"
       },
       {
         "def": "modalkey:exit()",
-        "name": "exit",
-        "doc": "Disables all hotkeys created via `modalkey:bind` and re-enables the modalkey itself."
+        "doc": "Disables all hotkeys created via `modalkey:bind` and re-enables the modalkey itself.",
+        "name": "exit"
       },
       {
         "def": "modalkey.new(mods, key) -> modalkey",
-        "name": "new",
-        "doc": "Creates a new modal hotkey and enables it.\nWhen mods and key are pressed, all keys bound via `modal:bind` will be enabled.\nThey are disabled when the \"mode\" is exited via `modalkey:exit()`"
+        "doc": "Creates a new modal hotkey and enables it.\nWhen mods and key are pressed, all keys bound via `modal:bind` will be enabled.\nThey are disabled when the \"mode\" is exited via `modalkey:exit()`",
+        "name": "new"
       }
     ]
   },
@@ -634,13 +557,13 @@
     "items": [
       {
         "def": "mouse.get() -> point",
-        "name": "get",
-        "doc": "Returns the current location of the mouse on the current screen as a point."
+        "doc": "Returns the current location of the mouse on the current screen as a point.",
+        "name": "get"
       },
       {
         "def": "mouse.set(point)",
-        "name": "set",
-        "doc": "Moves the mouse to the given location on the current screen."
+        "doc": "Moves the mouse to the given location on the current screen.",
+        "name": "set"
       }
     ]
   },
@@ -650,23 +573,49 @@
     "items": [
       {
         "def": "notify.register(tag, fn()) -> id",
-        "name": "register",
-        "doc": "Registers a function to be called when an Apple notification with the given tag is clicked."
+        "doc": "Registers a function to be called when an Apple notification with the given tag is clicked.",
+        "name": "register"
       },
       {
         "def": "notify.unregister(id)",
-        "name": "unregister",
-        "doc": "Unregisters a function to no longer be called when an Apple notification with the given tag is clicked."
+        "doc": "Unregisters a function to no longer be called when an Apple notification with the given tag is clicked.",
+        "name": "unregister"
       },
       {
         "def": "notify.unregisterall()",
-        "name": "unregisterall",
-        "doc": "Unregisters all functions registered for notification-clicks; called automatically when user config reloads."
+        "doc": "Unregisters all functions registered for notification-clicks; called automatically when user config reloads.",
+        "name": "unregisterall"
       },
       {
         "def": "notify.show(title, subtitle, text, tag)",
-        "name": "show",
-        "doc": "Show an Apple notification. Tag is a unique string that identifies this notification; any functions registered for the given tag will be called if the notification is clicked. None of the strings are optional, though they may each be blank."
+        "doc": "Show an Apple notification. Tag is a unique string that identifies this notification; any functions registered for the given tag will be called if the notification is clicked. None of the strings are optional, though they may each be blank.",
+        "name": "show"
+      }
+    ]
+  },
+  {
+    "name": "notify.applistener",
+    "doc": "Listen to notifications sent by other apps, and maybe send some yourself.",
+    "items": [
+      {
+        "def": "notify.applistener.new(fn(notification)) -> applistener",
+        "doc": "Registers a listener function for inter-app notifications.",
+        "name": "new"
+      },
+      {
+        "def": "notify.applistener:start()",
+        "doc": "Starts listening for notifications.",
+        "name": "start"
+      },
+      {
+        "def": "notify.applistener:stop()",
+        "doc": "Stops listening for notifications.",
+        "name": "stop"
+      },
+      {
+        "def": "notify.applistener.stopall()",
+        "doc": "Stops app applisteners; automatically called when user config reloads.",
+        "name": "stopall"
       }
     ]
   },
@@ -676,8 +625,8 @@
     "items": [
       {
         "def": "pasteboard.stringcontents() -> string",
-        "name": "stringcontents",
-        "doc": "Returns the contents of the pasteboard as a string, or nil if it can't be done"
+        "doc": "Returns the contents of the pasteboard as a string, or nil if it can't be done",
+        "name": "stringcontents"
       }
     ]
   },
@@ -687,23 +636,23 @@
     "items": [
       {
         "def": "pathwatcher.new(path, fn()) -> pathwatcher",
-        "name": "new",
-        "doc": "Returns a new pathwatcher that can be started and stopped."
+        "doc": "Returns a new pathwatcher that can be started and stopped.",
+        "name": "new"
       },
       {
         "def": "pathwatcher:start()",
-        "name": "start",
-        "doc": "Registers pathwatcher's fn as a callback when pathwatcher's path or any descendent changes."
+        "doc": "Registers pathwatcher's fn as a callback when pathwatcher's path or any descendent changes.",
+        "name": "start"
       },
       {
         "def": "pathwatcher:stop()",
-        "name": "stop",
-        "doc": "Unregisters pathwatcher's fn so it won't be called again until the pathwatcher is restarted."
+        "doc": "Unregisters pathwatcher's fn so it won't be called again until the pathwatcher is restarted.",
+        "name": "stop"
       },
       {
         "def": "pathwatcher.stopall()",
-        "name": "stopall",
-        "doc": "Calls p:stop() for all started pathwatchers; called automatically when user config reloads."
+        "doc": "Calls pathwatcher:stop() for all started pathwatchers; called automatically when user config reloads.",
+        "name": "stopall"
       }
     ]
   },
@@ -713,23 +662,23 @@
     "items": [
       {
         "def": "pprint.pairs(tbl)",
-        "name": "pairs",
-        "doc": "Pretty-prints the table."
+        "doc": "Pretty-prints the table.",
+        "name": "pairs"
       },
       {
         "def": "pprint.ipairs(tbl)",
-        "name": "ipairs",
-        "doc": "Pretty-prints the table as an array."
+        "doc": "Pretty-prints the table as an array.",
+        "name": "ipairs"
       },
       {
         "def": "pprint.keys(tbl)",
-        "name": "keys",
-        "doc": "Pretty-prints comma-separated list of keys."
+        "doc": "Pretty-prints comma-separated list of keys.",
+        "name": "keys"
       },
       {
         "def": "pprint.values(tbl)",
-        "name": "values",
-        "doc": "Pretty-prints comma-separated list of values."
+        "doc": "Pretty-prints comma-separated list of values.",
+        "name": "values"
       }
     ]
   },
@@ -739,8 +688,8 @@
     "items": [
       {
         "def": "repl.open([opts]) -> textgrid",
-        "name": "open",
-        "doc": "Opens a new REPL; the `opts` parameter is an optional table with keys: inputcolor, stdoutcolor, resultcolor, backgroundcolor; these are 6-digit CSS-like hex strings."
+        "doc": "Opens a new REPL; the `opts` parameter is an optional table with keys: inputcolor, stdoutcolor, resultcolor, backgroundcolor; these are 6-digit CSS-like hex strings.",
+        "name": "open"
       }
     ]
   },
@@ -750,68 +699,68 @@
     "items": [
       {
         "def": "screen:frame_including_dock_and_menu() -> rect",
-        "name": "frame_including_dock_and_menu",
-        "doc": "Returns the screen's rect in absolute coordinates, including the dock and menu."
+        "doc": "Returns the screen's rect in absolute coordinates, including the dock and menu.",
+        "name": "frame_including_dock_and_menu"
       },
       {
         "def": "screen:frame_without_dock_or_menu() -> rect",
-        "name": "frame_without_dock_or_menu",
-        "doc": "Returns the screen's rect in absolute coordinates, without the dock or menu."
+        "doc": "Returns the screen's rect in absolute coordinates, without the dock or menu.",
+        "name": "frame_without_dock_or_menu"
       },
       {
         "def": "screen:next() -> screen",
-        "name": "next",
-        "doc": "Returns the screen 'after' this one (I have no idea how they're ordered though); this method wraps around to the first screen."
+        "doc": "Returns the screen 'after' this one (I have no idea how they're ordered though); this method wraps around to the first screen.",
+        "name": "next"
       },
       {
         "def": "screen:previous() -> screen",
-        "name": "previous",
-        "doc": "Returns the screen 'before' this one (I have no idea how they're ordered though); this method wraps around to the last screen."
+        "doc": "Returns the screen 'before' this one (I have no idea how they're ordered though); this method wraps around to the last screen.",
+        "name": "previous"
       },
       {
         "def": "screen:toeast()",
-        "name": "toeast",
-        "doc": "Get the first screen to the east of this one, ordered by proximity."
+        "doc": "Get the first screen to the east of this one, ordered by proximity.",
+        "name": "toeast"
       },
       {
         "def": "screen:towest()",
-        "name": "towest",
-        "doc": "Get the first screen to the west of this one, ordered by proximity."
+        "doc": "Get the first screen to the west of this one, ordered by proximity.",
+        "name": "towest"
       },
       {
         "def": "screen:tonorth()",
-        "name": "tonorth",
-        "doc": "Get the first screen to the north of this one, ordered by proximity."
+        "doc": "Get the first screen to the north of this one, ordered by proximity.",
+        "name": "tonorth"
       },
       {
         "def": "screen:tosouth()",
-        "name": "tosouth",
-        "doc": "Get the first screen to the south of this one, ordered by proximity."
+        "doc": "Get the first screen to the south of this one, ordered by proximity.",
+        "name": "tosouth"
       },
       {
         "def": "screen:frame(screen) -> rect",
-        "name": "frame",
-        "doc": "Returns a screen's frame in its own coordinate space.\n\nNOTE: you probably want to use screen:frame_including_dock_and_menu() instead."
+        "doc": "Returns a screen's frame in its own coordinate space.\n\nNOTE: you probably want to use screen:frame_including_dock_and_menu() instead.",
+        "name": "frame"
       },
       {
         "def": "screen:visibleframe(screen) -> rect",
-        "name": "visibleframe",
-        "doc": "Returns a screen's frame in its own coordinate space, without the dock or menu.\n\nNOTE: you probably want to use screen:frame_without_dock_or_menu() instead."
+        "doc": "Returns a screen's frame in its own coordinate space, without the dock or menu.\n\nNOTE: you probably want to use screen:frame_without_dock_or_menu() instead.",
+        "name": "visibleframe"
       },
       {
         "def": "screen.settint(redarray, greenarray, bluearray)",
-        "name": "settint",
-        "doc": "Set the tint on a screen; experimental."
+        "doc": "Set the tint on a screen; experimental.",
+        "name": "settint"
       },
       {
         "def": "screen.allscreens() -> screen[]",
-        "name": "allscreens",
-        "doc": "Returns all the screens there are."
+        "doc": "Returns all the screens there are.",
+        "name": "allscreens"
       },
       {
         "def": "screen.mainscreen() -> screen",
-        "name": "mainscreen",
-        "doc": "Returns the 'main' screen, i.e. the one containing the currently focused window."
+        "doc": "Returns the 'main' screen, i.e. the one containing the currently focused window.",
+        "name": "mainscreen"
       }
     ]
   },
@@ -821,13 +770,13 @@
     "items": [
       {
         "def": "settings.set(key, val)",
-        "name": "set",
-        "doc": "Saves the given value for the string key; value must be a string, number, boolean, nil, or a table of any of these, recursively."
+        "doc": "Saves the given value for the string key; value must be a string, number, boolean, nil, or a table of any of these, recursively.",
+        "name": "set"
       },
       {
         "def": "settings.get(key) -> val",
-        "name": "get",
-        "doc": "Gets the Lua value for the given string key."
+        "doc": "Gets the Lua value for the given string key.",
+        "name": "get"
       }
     ]
   },
@@ -837,128 +786,138 @@
     "items": [
       {
         "def": "textgrid.create() -> textgrid",
-        "name": "create",
-        "doc": "Creates a new (hidden) textgrid window."
+        "doc": "Creates a new (hidden) textgrid window.",
+        "name": "create"
       },
       {
         "def": "textgrid:destroy()",
-        "name": "destroy",
-        "doc": "Destroy the given textgrid window; after calling this, it can no longer be used; to temporarily hide it, use textgrid:hide() instead."
+        "doc": "Destroy the given textgrid window; after calling this, it can no longer be used; to temporarily hide it, use textgrid:hide() instead.",
+        "name": "destroy"
       },
       {
         "def": "textgrid:protect()",
-        "name": "protect",
-        "doc": "Prevents the textgrid from being destroyed when your config is reloaded."
+        "doc": "Prevents the textgrid from being destroyed when your config is reloaded.",
+        "name": "protect"
       },
       {
         "def": "textgrid.destroyall()",
-        "name": "destroyall",
-        "doc": "Destroys all non-protected textgrids; called automatically when user config is reloaded."
+        "doc": "Destroys all non-protected textgrids; called automatically when user config is reloaded.",
+        "name": "destroyall"
       },
       {
         "def": "textgrid:window() -> window",
-        "name": "window",
-        "doc": "Return a window (i.e. of the `window` module) that represents the given textgrid."
+        "doc": "Return a window (i.e. of the `window` module) that represents the given textgrid.",
+        "name": "window"
       },
       {
         "def": "textgrid:getsize() -> size",
-        "name": "getsize",
-        "doc": "Returns the size (nubmer of rows and columns) as a size-table with keys {x,y}."
+        "doc": "Returns the size (nubmer of rows and columns) as a size-table with keys {x,y}.",
+        "name": "getsize"
       },
       {
         "def": "textgrid:setchar(str, x, y)",
-        "name": "setchar",
-        "doc": "Sets the given 1-character UTF-8 encoded string at the given grid coordinates."
+        "doc": "Sets the given 1-character UTF-8 encoded string at the given grid coordinates.",
+        "name": "setchar"
       },
       {
         "def": "textgrid:setcharfg(str, x, y)",
-        "name": "setcharfg",
-        "doc": "Sets the textgrid's foreground color to the given 6-digit hex string at the given coordinate."
+        "doc": "Sets the textgrid's foreground color to the given 6-digit hex string at the given coordinate.",
+        "name": "setcharfg"
       },
       {
         "def": "textgrid:setcharbg(str, x, y)",
-        "name": "setcharbg",
-        "doc": "Sets the textgrid's background color to the given 6-digit hex string at the given coordinate."
+        "doc": "Sets the textgrid's background color to the given 6-digit hex string at the given coordinate.",
+        "name": "setcharbg"
       },
       {
         "def": "textgrid:clear()",
-        "name": "clear",
-        "doc": "Replaces all the textgrid's text with space characters."
+        "doc": "Replaces all the textgrid's text with space characters.",
+        "name": "clear"
       },
       {
         "def": "textgrid:setbg(str)",
-        "name": "setbg",
-        "doc": "Sets the textgrid's background color to the given 6-digit hex string."
+        "doc": "Sets the textgrid's background color to the given 6-digit hex string.",
+        "name": "setbg"
       },
       {
         "def": "textgrid:setfg(str)",
-        "name": "setfg",
-        "doc": "Sets the textgrid's foreground color to the given 6-digit hex string."
+        "doc": "Sets the textgrid's foreground color to the given 6-digit hex string.",
+        "name": "setfg"
       },
       {
         "def": "textgrid:resize(size)",
-        "name": "resize",
-        "doc": "Resizes the textgrid to the number of rows and columns given in the size-table with keys {w,h}."
+        "doc": "Resizes the textgrid to the number of rows and columns given in the size-table with keys {w,h}.",
+        "name": "resize"
       },
       {
         "def": "textgrid:usefont(name, pointsize)",
-        "name": "usefont",
-        "doc": "Sets the new font of the textgrid, potentially changing its visible size (no resize event is fired)."
+        "doc": "Sets the new font of the textgrid, potentially changing its visible size (no resize event is fired).",
+        "name": "usefont"
       },
       {
         "def": "textgrid:getfont() -> name, pointsize",
-        "name": "getfont",
-        "doc": "Gets the name and pointsize currently used in the textgrid."
+        "doc": "Gets the name and pointsize currently used in the textgrid.",
+        "name": "getfont"
       },
       {
         "def": "textgrid:settitle(title)",
-        "name": "settitle",
-        "doc": "Changes the title of the textgrid window."
+        "doc": "Changes the title of the textgrid window.",
+        "name": "settitle"
       },
       {
         "def": "textgrid:id() -> number",
-        "name": "id",
-        "doc": "Returns a unique identifier for the textgrid's window."
+        "doc": "Returns a unique identifier for the textgrid's window.",
+        "name": "id"
       },
       {
         "def": "textgrid:focus()",
-        "name": "focus",
-        "doc": "Brings the textgrid to front and focuses it; implicitly focuses Hydra."
+        "doc": "Brings the textgrid to front and focuses it; implicitly focuses Hydra.",
+        "name": "focus"
       },
       {
         "def": "textgrid:sethasborder(bool)",
-        "name": "sethasborder",
-        "doc": "Set whether a textgrid window has a border."
+        "doc": "Set whether a textgrid window has a border.",
+        "name": "sethasborder"
+      },
+      {
+        "def": "textgrid:sethastitlebar(bool)",
+        "doc": "Set whether a textgrid window has a title bar.",
+        "name": "sethastitlebar"
       },
       {
         "def": "textgrid:sethasshadow(bool)",
-        "name": "sethasshadow",
-        "doc": "Set whether a textgrid window has a shadow."
+        "doc": "Set whether a textgrid window has a shadow.",
+        "name": "sethasshadow"
       },
       {
         "def": "textgrid:show()",
-        "name": "show",
-        "doc": "Shows the textgrid; does not focus it, use tg:window():focus() for that."
+        "doc": "Shows the textgrid; does not focus it, use tg:window():focus() for that.",
+        "name": "show"
       },
       {
         "def": "textgrid:hide()",
-        "name": "hide",
-        "doc": "Hides the textgrid; if shown again, will appear in same place."
+        "doc": "Hides the textgrid; if shown again, will appear in same place.",
+        "name": "hide"
+      },
+      {
+        "def": "textgrid:center()",
+        "doc": "Centers the textgrid on the screen it's on.",
+        "name": "center"
       },
       {
         "def": "textgrid:resized(fn())",
-        "name": "resized",
-        "doc": "Calls the given function when the textgrid is resized."
+        "doc": "Calls the given function when the textgrid is resized.",
+        "name": "resized"
       },
       {
         "def": "textgrid:keydown(fn(t))",
-        "name": "keydown",
-        "doc": "Calls the given function when a key is pressed in the focused textgrid. The table t contains keys {ctrl, alt, cmd, key}."
+        "doc": "Calls the given function when a key is pressed in the focused textgrid. The table t contains keys {ctrl, alt, cmd, key}.",
+        "name": "keydown"
       },
       {
         "def": "textgrid:hidden(fn())",
-        "name": "hidden",
-        "doc": "Calls the given function when the textgrid is hidden, whether by the user or through the API."
+        "doc": "Calls the given function when the textgrid is hidden, whether by the user or through the API.",
+        "name": "hidden"
       }
     ]
   },
@@ -968,53 +927,53 @@
     "items": [
       {
         "def": "timer.seconds(n) -> sec",
-        "name": "seconds",
-        "doc": "Returns the number of seconds in seconds."
+        "doc": "Returns the number of seconds in seconds.",
+        "name": "seconds"
       },
       {
         "def": "timer.minutes(n) -> sec",
-        "name": "minutes",
-        "doc": "Returns the number of minutes in seconds."
+        "doc": "Returns the number of minutes in seconds.",
+        "name": "minutes"
       },
       {
         "def": "timer.hours(n) -> sec",
-        "name": "hours",
-        "doc": "Returns the number of hours in seconds."
+        "doc": "Returns the number of hours in seconds.",
+        "name": "hours"
       },
       {
         "def": "timer.days(n) -> sec",
-        "name": "days",
-        "doc": "Returns the number of days in seconds."
+        "doc": "Returns the number of days in seconds.",
+        "name": "days"
       },
       {
         "def": "timer.weeks(n) -> sec",
-        "name": "weeks",
-        "doc": "Returns the number of weeks in seconds."
-      },
-      {
-        "def": "timer.new(seconds, fn) -> timer",
-        "name": "new",
-        "doc": "Creates a new timer that can be started."
-      },
-      {
-        "def": "timer:start() -> self",
-        "name": "start",
-        "doc": "Begins to execute timer.fn every timer.seconds; calling this does not cause an initial firing of the timer immediately."
-      },
-      {
-        "def": "timer:stop() -> self",
-        "name": "stop",
-        "doc": "Stops the timer's fn from getting called until started again."
-      },
-      {
-        "def": "timer.stopall()",
-        "name": "stopall",
-        "doc": "Stops all running timers; called automatically when user config reloads."
+        "doc": "Returns the number of weeks in seconds.",
+        "name": "weeks"
       },
       {
         "def": "timer.doafter(sec, fn())",
-        "name": "doafter",
-        "doc": "Runs the function after sec seconds."
+        "doc": "Runs the function after sec seconds.",
+        "name": "doafter"
+      },
+      {
+        "def": "timer.new(interval, fn) -> timer",
+        "doc": "Creates a new timer that can be started; interval is specified in seconds as a decimal number.",
+        "name": "new"
+      },
+      {
+        "def": "timer:start() -> self",
+        "doc": "Begins to execute timer.fn every timer.seconds; calling this does not cause an initial firing of the timer immediately.",
+        "name": "start"
+      },
+      {
+        "def": "timer:stop() -> self",
+        "doc": "Stops the timer's fn from getting called until started again.",
+        "name": "stop"
+      },
+      {
+        "def": "timer.stopall()",
+        "doc": "Stops all running timers; called automatically when user config reloads.",
+        "name": "stopall"
       }
     ]
   },
@@ -1024,28 +983,28 @@
     "items": [
       {
         "def": "updates.check(fn(isavailable))",
-        "name": "check",
-        "doc": "Checks for an update. Calls the given function with a boolean representing whether a new update is available."
+        "doc": "Checks for an update. Calls the given function with a boolean representing whether a new update is available.",
+        "name": "check"
       },
       {
         "def": "updates.changelogurl",
-        "name": "changelogurl",
-        "doc": "String of the URL that contains the changelog, rendered via Markdown"
+        "doc": "String of the URL that contains the changelog, rendered via Markdown",
+        "name": "changelogurl"
       },
       {
         "def": "updates.verifyfile(sig, path) -> bool",
-        "name": "verifyfile",
-        "doc": "Verifies the DSA signatue against the file at the given absolute path using Hydra's public key."
+        "doc": "Verifies the DSA signatue against the file at the given absolute path using Hydra's public key.",
+        "name": "verifyfile"
       },
       {
         "def": "updates.getversions(fn(versions))",
-        "name": "getversions",
-        "doc": "Low-level function to get list of available Hydra versions; used by updates.check; you probably want to use updates.check instead of using this directly."
+        "doc": "Low-level function to get list of available Hydra versions; used by updates.check; you probably want to use updates.check instead of using this directly.",
+        "name": "getversions"
       },
       {
         "def": "updates.currentversion() -> number",
-        "name": "currentversion",
-        "doc": "Low-level function to get current Hydra version; used by updates.check; you probably want to use updates.check instead of using this directly."
+        "doc": "Low-level function to get current Hydra version; used by updates.check; you probably want to use updates.check instead of using this directly.",
+        "name": "currentversion"
       }
     ]
   },
@@ -1055,13 +1014,13 @@
     "items": [
       {
         "def": "utf8.count(str) -> int",
-        "name": "count",
-        "doc": "Returns the number of characters as humans would count them."
+        "doc": "Returns the number of characters as humans would count them.",
+        "name": "count"
       },
       {
         "def": "utf8.chars(str) -> {str, ...}",
-        "name": "chars",
-        "doc": "Splits the string into groups of (UTF-8 encoded) strings representing what humans would consider individual characters.\n\nThe result is a sequential table, such that table.concat(result) produces the original string."
+        "doc": "Splits the string into groups of (UTF-8 encoded) strings representing what humans would consider individual characters.\n\nThe result is a sequential table, such that table.concat(result) produces the original string.",
+        "name": "chars"
       }
     ]
   },
@@ -1071,193 +1030,193 @@
     "items": [
       {
         "def": "window.allwindows() -> win[]",
-        "name": "allwindows",
-        "doc": "Returns all windows"
+        "doc": "Returns all windows",
+        "name": "allwindows"
       },
       {
         "def": "window.windowforid() -> win or nil",
-        "name": "windowforid",
-        "doc": "Returns the window for the given id, or nil if it's an invalid id."
+        "doc": "Returns the window for the given id, or nil if it's an invalid id.",
+        "name": "windowforid"
       },
       {
         "def": "window:isvisible() -> bool",
-        "name": "isvisible",
-        "doc": "True if the app is not hidden or minimized."
+        "doc": "True if the app is not hidden or minimized.",
+        "name": "isvisible"
       },
       {
         "def": "window:frame() -> rect",
-        "name": "frame",
-        "doc": "Get the frame of the window in absolute coordinates."
+        "doc": "Get the frame of the window in absolute coordinates.",
+        "name": "frame"
       },
       {
         "def": "window:setframe(rect)",
-        "name": "setframe",
-        "doc": "Set the frame of the window in absolute coordinates."
+        "doc": "Set the frame of the window in absolute coordinates.",
+        "name": "setframe"
       },
       {
         "def": "window:otherwindows_samescreen() -> win[]",
-        "name": "otherwindows_samescreen",
-        "doc": "Get other windows on the same screen as self."
+        "doc": "Get other windows on the same screen as self.",
+        "name": "otherwindows_samescreen"
       },
       {
         "def": "window:otherwindows_allscreens() -> win[]",
-        "name": "otherwindows_allscreens",
-        "doc": "Get every window except this one."
+        "doc": "Get every window except this one.",
+        "name": "otherwindows_allscreens"
       },
       {
         "def": "window:focus() -> bool",
-        "name": "focus",
-        "doc": "Try to make this window focused."
+        "doc": "Try to make this window focused.",
+        "name": "focus"
       },
       {
         "def": "window.visiblewindows() -> win[]",
-        "name": "visiblewindows",
-        "doc": "Get all windows on all screens that match window.isvisible."
+        "doc": "Get all windows on all screens that match window.isvisible.",
+        "name": "visiblewindows"
       },
       {
         "def": "window.orderedwindows() -> win[]",
-        "name": "orderedwindows",
-        "doc": "Returns all visible windows, ordered from front to back."
+        "doc": "Returns all visible windows, ordered from front to back.",
+        "name": "orderedwindows"
       },
       {
         "def": "window:maximize()",
-        "name": "maximize",
-        "doc": "Make this window fill the whole screen its on, without covering the dock or menu."
+        "doc": "Make this window fill the whole screen its on, without covering the dock or menu.",
+        "name": "maximize"
       },
       {
         "def": "window:screen()",
-        "name": "screen",
-        "doc": "Get the screen which most contains this window (by area)."
+        "doc": "Get the screen which most contains this window (by area).",
+        "name": "screen"
       },
       {
         "def": "window:windows_to_east()",
-        "name": "windows_to_east",
-        "doc": "Get all windows east of this one, ordered by closeness."
+        "doc": "Get all windows east of this one, ordered by closeness.",
+        "name": "windows_to_east"
       },
       {
         "def": "window:windows_to_west()",
-        "name": "windows_to_west",
-        "doc": "Get all windows west of this one, ordered by closeness."
+        "doc": "Get all windows west of this one, ordered by closeness.",
+        "name": "windows_to_west"
       },
       {
         "def": "window:windows_to_north()",
-        "name": "windows_to_north",
-        "doc": "Get all windows north of this one, ordered by closeness."
+        "doc": "Get all windows north of this one, ordered by closeness.",
+        "name": "windows_to_north"
       },
       {
         "def": "window:windows_to_south()",
-        "name": "windows_to_south",
-        "doc": "Get all windows south of this one, ordered by closeness."
+        "doc": "Get all windows south of this one, ordered by closeness.",
+        "name": "windows_to_south"
       },
       {
         "def": "window:focuswindow_east()",
-        "name": "focuswindow_east",
-        "doc": "Focus the first focus-able window to the east of this one."
+        "doc": "Focus the first focus-able window to the east of this one.",
+        "name": "focuswindow_east"
       },
       {
         "def": "window:focuswindow_west()",
-        "name": "focuswindow_west",
-        "doc": "Focus the first focus-able window to the west of this one."
+        "doc": "Focus the first focus-able window to the west of this one.",
+        "name": "focuswindow_west"
       },
       {
         "def": "window:focuswindow_north()",
-        "name": "focuswindow_north",
-        "doc": "Focus the first focus-able window to the north of this one."
+        "doc": "Focus the first focus-able window to the north of this one.",
+        "name": "focuswindow_north"
       },
       {
         "def": "window:focuswindow_south()",
-        "name": "focuswindow_south",
-        "doc": "Focus the first focus-able window to the south of this one."
+        "doc": "Focus the first focus-able window to the south of this one.",
+        "name": "focuswindow_south"
       },
       {
         "def": "window.focusedwindow() -> window",
-        "name": "focusedwindow",
-        "doc": "Returns the focused window, or nil."
+        "doc": "Returns the focused window, or nil.",
+        "name": "focusedwindow"
       },
       {
         "def": "window:title() -> string",
-        "name": "title",
-        "doc": "Returns the title of the window (as UTF8)."
+        "doc": "Returns the title of the window (as UTF8).",
+        "name": "title"
       },
       {
         "def": "window:subrole() -> string",
-        "name": "subrole",
-        "doc": "Returns the subrole of the window, whatever that means."
+        "doc": "Returns the subrole of the window, whatever that means.",
+        "name": "subrole"
       },
       {
         "def": "window:role() -> string",
-        "name": "role",
-        "doc": "Returns the role of the window, whatever that means."
+        "doc": "Returns the role of the window, whatever that means.",
+        "name": "role"
       },
       {
         "def": "window:isstandard() -> bool",
-        "name": "isstandard",
-        "doc": "True if the window's subrole indicates it's 'a standard window'."
+        "doc": "True if the window's subrole indicates it's 'a standard window'.",
+        "name": "isstandard"
       },
       {
         "def": "window:topleft() -> point",
-        "name": "topleft",
-        "doc": "The top-left corner of the window in absolute coordinates."
+        "doc": "The top-left corner of the window in absolute coordinates.",
+        "name": "topleft"
       },
       {
         "def": "window:size() -> size",
-        "name": "size",
-        "doc": "The size of the window."
+        "doc": "The size of the window.",
+        "name": "size"
       },
       {
         "def": "window:settopleft(point)",
-        "name": "settopleft",
-        "doc": "Moves the window to the given point in absolute coordinate."
+        "doc": "Moves the window to the given point in absolute coordinate.",
+        "name": "settopleft"
       },
       {
         "def": "window:setsize(size)",
-        "name": "setsize",
-        "doc": "Resizes the window."
+        "doc": "Resizes the window.",
+        "name": "setsize"
       },
       {
         "def": "window:close() -> bool",
-        "name": "close",
-        "doc": "Closes the window; returns whether it succeeded."
+        "doc": "Closes the window; returns whether it succeeded.",
+        "name": "close"
       },
       {
         "def": "window:setfullscreen(bool) -> bool",
-        "name": "setfullscreen",
-        "doc": "Sets whether the window is full screen; returns whether it succeeded."
+        "doc": "Sets whether the window is full screen; returns whether it succeeded.",
+        "name": "setfullscreen"
       },
       {
         "def": "window:isfullscreen() -> bool or nil",
-        "name": "isfullscreen",
-        "doc": "Returns whether the window is full screen, or nil if asking that question fails."
+        "doc": "Returns whether the window is full screen, or nil if asking that question fails.",
+        "name": "isfullscreen"
       },
       {
         "def": "window:minimize()",
-        "name": "minimize",
-        "doc": "Minimizes the window."
+        "doc": "Minimizes the window.",
+        "name": "minimize"
       },
       {
         "def": "window:unminimize()",
-        "name": "unminimize",
-        "doc": "Un-minimizes the window."
+        "doc": "Un-minimizes the window.",
+        "name": "unminimize"
       },
       {
         "def": "window:isminimized() -> bool",
-        "name": "isminimized",
-        "doc": "True if the window is currently minimized in the dock."
+        "doc": "True if the window is currently minimized in the dock.",
+        "name": "isminimized"
       },
       {
         "def": "window:application() -> app",
-        "name": "application",
-        "doc": "Returns the app that the window belongs to."
+        "doc": "Returns the app that the window belongs to.",
+        "name": "application"
       },
       {
         "def": "window:becomemain() -> bool",
-        "name": "becomemain",
-        "doc": "Make this window the main window of the given application; deos not implicitly focus the app."
+        "doc": "Make this window the main window of the given application; deos not implicitly focus the app.",
+        "name": "becomemain"
       },
       {
         "def": "window:id() -> number, sometimes nil",
-        "name": "id",
-        "doc": "Returns a unique number identifying this window."
+        "doc": "Returns a unique number identifying this window.",
+        "name": "id"
       }
     ]
   }

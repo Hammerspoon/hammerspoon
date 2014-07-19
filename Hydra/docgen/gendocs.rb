@@ -2,16 +2,16 @@
 require 'github/markdown'
 require 'json'
 require 'erb'
+require 'pp'
 
-def scrape
+def scrape_docstring_comments
   comments = []
-
   Dir["../API/*"].each do |file|
     partialcomment = []
-    lua = file.end_with?(".lua")
+    islua = file.end_with?(".lua")
+    comment = islua ? "---" : "///"
     incomment = false
     File.read(file).split("\n").each do |line|
-      comment = lua ? "---" : "///"
       if line.start_with?(comment) then
         incomment = true
         partialcomment << line[comment.size..-1].sub(/^\s/, '')
@@ -21,44 +21,49 @@ def scrape
         partialcomment = []
       end
     end
-  end
 
-  docs = []
-  keys = []
-
-  comments.each do |c|
-    header = c.shift
-    ismodule = !!(header =~ /===/)
-
-    if ismodule
-      c.shift # whitespace
-      module_name = header.gsub('=', '').strip
-      module_body = c.join("\n")
-      docs << {
-        name: module_name,
-        doc: module_body,
-        items: []
-      }
-    else
-      m = header.match /(\w+)[\.:](\w+)/
-      module_name = m[1]
-      key_name = m[2]
-      key_header = header
-      key_body = c.join("\n")
-      keys << [module_name, key_name, key_header, key_body]
+    if !partialcomment.empty? then
+      puts "Comment found at end of file (presumably):"
+      pp partialcomment
+      exit 1
     end
   end
+  return comments
+end
 
-  keys.each do |mod, key, head, body|
-    doc = docs.find{|doc| doc[:name] == mod}
-    doc[:items] << {
-      def: head,
-      name: key,
-      doc: body,
-    }
+def make_module c
+  {
+    name: c[0].gsub('=', '').strip,
+    doc: c[1..-1].join("\n").strip,
+    items: [],
+  }
+end
+
+def make_item c
+  {
+    def: c[0],
+    doc: c[1..-1].join("\n").strip,
+  }
+end
+
+def scrape
+  comments = scrape_docstring_comments
+
+  ismod = ->(c) { c[0].include?('===') }
+  mods  = comments.select(&ismod).map{|c| make_module c}
+  items = comments.reject(&ismod).map{|c| make_item c}
+
+  orderedmods = mods.sort_by{|m| m[:name]}.reverse
+
+  items.each do |item|
+    mod = orderedmods.find{|mod| item[:def].start_with?(mod[:name])}
+    item[:name] = item[:def][(mod[:name].size+1)..-1].match(/\w+/)[0]
+    mod[:items] << item
   end
 
-  File.write("docs.json", JSON.pretty_generate(docs))
+  mods.sort_by!{|m| m[:name]}
+
+  File.write("docs.json", JSON.pretty_generate(mods))
 end
 
 def gendocs
