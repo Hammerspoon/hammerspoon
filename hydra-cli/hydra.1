@@ -17,7 +17,7 @@ is not given, the contents of stdin are used.
 .Pp
 Normally,
 .Ar code
-is passed through the function "ipc.handler" inside Hydra, which by
+is passed through the function "hydra.ipc.handler" inside Hydra, which by
 default evaluates it as plain Lua code. This function may be
 overridden by the user to interpret
 .Ar code
@@ -28,7 +28,7 @@ If the
 option is given,
 .Ar code
 is always interpreted as raw Lua code, and the function
-"ipc.handler" is not called.
+"hydra.ipc.handler" is not called.
 .Pp
 The result (or error string if it fails) is passed through tostring()
 and printed to stdout by this command.

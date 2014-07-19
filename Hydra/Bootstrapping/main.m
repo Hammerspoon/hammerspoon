@@ -16,7 +16,7 @@ int luaopen_geometry(lua_State* L);
 int luaopen_hotkey(lua_State* L);
 int luaopen_http(lua_State* L);
 int luaopen_hydra(lua_State* L);
-int luaopen_ipc(lua_State* L);
+int luaopen_hydra_ipc(lua_State* L);
 int luaopen_json(lua_State* L);
 int luaopen_menu(lua_State* L);
 int luaopen_mouse(lua_State* L);
@@ -54,7 +54,7 @@ static const hydralib hydralibs[] = {
     {"hotkey",       NULL,          luaopen_hotkey},
     {"http",         NULL,          luaopen_http},
     {"hydra",        NULL,          luaopen_hydra},
-    {"ipc",          NULL,          luaopen_ipc},
+    {"hydra",        "ipc",         luaopen_hydra_ipc},
     {"json",         NULL,          luaopen_json},
     {"menu",         NULL,          luaopen_menu},
     {"mouse",        NULL,          luaopen_mouse},

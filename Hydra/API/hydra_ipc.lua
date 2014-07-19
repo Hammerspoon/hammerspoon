@@ -1,4 +1,4 @@
---- === ipc ===
+--- === hydra.ipc ===
 ---
 --- Interface with Hydra from the command line.
 
@@ -7,15 +7,15 @@ local function rawhandler(str)
   if fn then return fn() else return err end
 end
 
---- ipc.handler(str) -> value
+--- hydra.ipc.handler(str) -> value
 --- The default handler for IPC, called by hydra-cli. Default implementation evals the string and returns the result.
 --- You may override this function if for some reason you want to implement special evaluation rules for executing remote commands.
 --- The return value of this function is always turned into a string via tostring() and returned to hydra-cli.
 --- If an error occurs, the error message is returned instead.
-ipc.handler = rawhandler
+hydra.ipc.handler = rawhandler
 
-function ipc._handler(raw, str)
-  local fn = ipc.handler
+function hydra.ipc._handler(raw, str)
+  local fn = hydra.ipc.handler
   if raw then fn = rawhandler end
   local ok, val = hydra.call(function() return fn(str) end)
   return val
@@ -33,10 +33,10 @@ local function envstuff(prefix, dryrun)
   return fn, hydradestdir, manpagedestdir
 end
 
---- ipc.link(prefix = "/usr/local", dryrun = nil)
+--- hydra.ipc.link(prefix = "/usr/local", dryrun = nil)
 --- Symlinks ${prefix}/bin/hydra and ${prefix}/share/man/man1/hydra.1
 --- If dryrun is true, prints the commands it would run.
-function ipc.link(prefix, dryrun)
+function hydra.ipc.link(prefix, dryrun)
   local fn, hydradestdir, manpagedestdir = envstuff(prefix, dryrun)
 
   fn(string.format("mkdir -p %s", hydradestdir))
@@ -50,10 +50,10 @@ function ipc.link(prefix, dryrun)
   print([[$ man hydra]])
 end
 
---- ipc.unlink(prefix = "/usr/local", dryrun = false)
+--- hydra.ipc.unlink(prefix = "/usr/local", dryrun = false)
 --- Removes ${prefix}/bin/hydra and ${prefix}/share/man/man1/hydra.1
 --- If dryrun is true, prints the commands it would run.
-function ipc.unlink(prefix, dryrun)
+function hydra.ipc.unlink(prefix, dryrun)
   local fn, hydradestdir, manpagedestdir = envstuff(prefix, dryrun)
 
   fn(string.format('rm -f %s/hydra', hydradestdir))

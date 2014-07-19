@@ -81,8 +81,8 @@
 		94735C33196DC4FE002A258D /* hydra.c in Sources */ = {isa = PBXBuildFile; fileRef = 94735C32196DC4FE002A258D /* hydra.c */; };
 		94735C35196DC4FE002A258D /* hydra.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 94735C34196DC4FE002A258D /* hydra.1 */; };
 		94735C3C196DC569002A258D /* hydra in Copy hydra-cli stuff */ = {isa = PBXBuildFile; fileRef = 94735C2E196DC4FE002A258D /* hydra */; };
-		94735C40196DCA9C002A258D /* ipc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94735C3F196DCA9C002A258D /* ipc.lua */; };
-		94735C43196DCAB4002A258D /* ipc.m in Sources */ = {isa = PBXBuildFile; fileRef = 94735C42196DCAB4002A258D /* ipc.m */; };
+		94735C40196DCA9C002A258D /* hydra_ipc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94735C3F196DCA9C002A258D /* hydra_ipc.lua */; };
+		94735C43196DCAB4002A258D /* hydra_ipc.m in Sources */ = {isa = PBXBuildFile; fileRef = 94735C42196DCAB4002A258D /* hydra_ipc.m */; };
 		94735C44196DCDD1002A258D /* hydra.1 in Copy hydra-cli stuff */ = {isa = PBXBuildFile; fileRef = 94735C34196DC4FE002A258D /* hydra.1 */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
 		9480181A1976C0DC0024B39F /* http.m in Sources */ = {isa = PBXBuildFile; fileRef = 948018191976C0DC0024B39F /* http.m */; };
@@ -253,8 +253,8 @@
 		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		94735C32196DC4FE002A258D /* hydra.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hydra.c; sourceTree = "<group>"; };
 		94735C34196DC4FE002A258D /* hydra.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = hydra.1; sourceTree = "<group>"; };
-		94735C3F196DCA9C002A258D /* ipc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ipc.lua; sourceTree = "<group>"; };
-		94735C42196DCAB4002A258D /* ipc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ipc.m; sourceTree = "<group>"; };
+		94735C3F196DCA9C002A258D /* hydra_ipc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hydra_ipc.lua; sourceTree = "<group>"; };
+		94735C42196DCAB4002A258D /* hydra_ipc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_ipc.m; sourceTree = "<group>"; };
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		948018191976C0DC0024B39F /* http.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = http.m; sourceTree = "<group>"; };
 		9480181B1976CDFE0024B39F /* http.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = http.lua; sourceTree = "<group>"; };
@@ -479,7 +479,7 @@
 				94C96E6E19548ECB00DBD838 /* hotkey.lua */,
 				9480181B1976CDFE0024B39F /* http.lua */,
 				94DE594A194F1A39004D242E /* hydra.lua */,
-				94735C3F196DCA9C002A258D /* ipc.lua */,
+				94735C3F196DCA9C002A258D /* hydra_ipc.lua */,
 				94517BFA1957738100F9CCB6 /* logger.lua */,
 				946AF2D21976AB5D00A22EBF /* modalkey.lua */,
 				945F2BBF1959AFA700D2DE7E /* notify.lua */,
@@ -500,7 +500,7 @@
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				948018191976C0DC0024B39F /* http.m */,
 				94DE5948194F1A31004D242E /* hydra.m */,
-				94735C42196DCAB4002A258D /* ipc.m */,
+				94735C42196DCAB4002A258D /* hydra_ipc.m */,
 				943349CD195DB49700B2BE41 /* json.m */,
 				945212A3194D6A6000217584 /* menu.m */,
 				94521299194D59F800217584 /* mouse.m */,
@@ -627,7 +627,7 @@
 				945212A0194D697100217584 /* alert.xib in Resources */,
 				944247341972410E0003EAFE /* eventtap.lua in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
-				94735C40196DCA9C002A258D /* ipc.lua in Resources */,
+				94735C40196DCA9C002A258D /* hydra_ipc.lua in Resources */,
 				94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
 				945F2BC01959AFA700D2DE7E /* notify.lua in Resources */,
@@ -710,7 +710,7 @@
 				9445CA99190833C1002568BB /* ltablib.c in Sources */,
 				943349CE195DB49700B2BE41 /* json.m in Sources */,
 				9445CA97190833C1002568BB /* lstrlib.c in Sources */,
-				94735C43196DCAB4002A258D /* ipc.m in Sources */,
+				94735C43196DCAB4002A258D /* hydra_ipc.m in Sources */,
 				9445CA8E190833C1002568BB /* lmathlib.c in Sources */,
 				9445CA8A190833C1002568BB /* lgc.c in Sources */,
 				948CAA061955AECC00A27D9D /* textgrid.m in Sources */,

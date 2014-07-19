@@ -9,15 +9,16 @@ CFDataRef ipc_callback(CFMessagePortRef local, SInt32 msgid, CFDataRef data, voi
     BOOL israw = (cmd[0] == 'r');
     const char* commandstr = cmd+1;
     
-    // result = ipc._handler(israw, cmdstring)
-    lua_getglobal(L, "ipc");
+    // result = hydra.ipc._handler(israw, cmdstring)
+    lua_getglobal(L, "hydra");
+    lua_getfield(L, -1, "ipc");
     lua_getfield(L, -1, "_handler");
     lua_pushboolean(L, israw);
     lua_pushstring(L, commandstr);
     lua_pcall(L, 2, 1, 0);
     const char* coutstr = luaL_tolstring(L, -1, NULL);
     CFStringRef outstr = CFStringCreateWithCString(NULL, coutstr, kCFStringEncodingUTF8);
-    lua_pop(L, 3); // returned value, tostring() version, and ipc
+    lua_pop(L, 4); // returned value, tostring() version, ipc, and hydra
     
     // this stays down here so commandstr can stay alive through the call
     CFRelease(instr);
@@ -38,7 +39,7 @@ static void setup_ipc(lua_State* L) {
     CFRunLoopAddSource(CFRunLoopGetMain(), runloopSource, kCFRunLoopCommonModes);
 }
 
-int luaopen_ipc(lua_State* L) {
+int luaopen_hydra_ipc(lua_State* L) {
     lua_newtable(L);
     setup_ipc(L);
     return 1;
