@@ -82,7 +82,7 @@ function hydra.exec(command)
   local f = io.popen(command)
   local str = f:read("*a")
   f:close()
-  return trimstring(str)
+  return str and trimstring(str)
 end
 
 --- hydra.licenses -> string
