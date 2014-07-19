@@ -432,21 +432,21 @@
     ]
   },
   {
-    "name": "ipc",
+    "name": "hydra.ipc",
     "doc": "Interface with Hydra from the command line.",
     "items": [
       {
-        "def": "ipc.handler(str) -> value",
+        "def": "hydra.ipc.handler(str) -> value",
         "doc": "The default handler for IPC, called by hydra-cli. Default implementation evals the string and returns the result.\nYou may override this function if for some reason you want to implement special evaluation rules for executing remote commands.\nThe return value of this function is always turned into a string via tostring() and returned to hydra-cli.\nIf an error occurs, the error message is returned instead.",
         "name": "handler"
       },
       {
-        "def": "ipc.link(prefix = \"/usr/local\", dryrun = nil)",
+        "def": "hydra.ipc.link(prefix = \"/usr/local\", dryrun = nil)",
         "doc": "Symlinks ${prefix}/bin/hydra and ${prefix}/share/man/man1/hydra.1\nIf dryrun is true, prints the commands it would run.",
         "name": "link"
       },
       {
-        "def": "ipc.unlink(prefix = \"/usr/local\", dryrun = false)",
+        "def": "hydra.ipc.unlink(prefix = \"/usr/local\", dryrun = false)",
         "doc": "Removes ${prefix}/bin/hydra and ${prefix}/share/man/man1/hydra.1\nIf dryrun is true, prints the commands it would run.",
         "name": "unlink"
       }

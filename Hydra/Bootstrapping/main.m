@@ -10,12 +10,12 @@ int luaopen_application(lua_State* L);
 int luaopen_audiodevice(lua_State* L);
 int luaopen_autolaunch(lua_State* L);
 int luaopen_brightness(lua_State* L);
-int luaopen_dockicon(lua_State* L);
 //int luaopen_eventtap(lua_State* L);
 int luaopen_geometry(lua_State* L);
 int luaopen_hotkey(lua_State* L);
 int luaopen_http(lua_State* L);
 int luaopen_hydra(lua_State* L);
+int luaopen_hydra_dockicon(lua_State* L);
 int luaopen_hydra_ipc(lua_State* L);
 int luaopen_json(lua_State* L);
 int luaopen_menu(lua_State* L);
@@ -48,12 +48,12 @@ static const hydralib hydralibs[] = {
     {"audiodevice",  NULL,          luaopen_audiodevice},
     {"autolaunch",   NULL,          luaopen_autolaunch},
     {"brightness",   NULL,          luaopen_brightness},
-    {"dockicon",     NULL,          luaopen_dockicon},
 //    {"eventtap",     NULL,          luaopen_eventtap},
     {"geometry",     NULL,          luaopen_geometry},
     {"hotkey",       NULL,          luaopen_hotkey},
     {"http",         NULL,          luaopen_http},
     {"hydra",        NULL,          luaopen_hydra},
+    {"hydra",        "dockicon",    luaopen_hydra_dockicon},
     {"hydra",        "ipc",         luaopen_hydra_ipc},
     {"json",         NULL,          luaopen_json},
     {"menu",         NULL,          luaopen_menu},

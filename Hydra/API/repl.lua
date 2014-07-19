@@ -154,8 +154,8 @@ repl = {}
 --- repl.open([opts]) -> textgrid
 --- Opens a new REPL; the `opts` parameter is an optional table with keys: inputcolor, stdoutcolor, resultcolor, backgroundcolor; these are 6-digit CSS-like hex strings.
 function repl.open(opts)
-  local previousindockstate = dockicon.visible()
-  dockicon.show()
+  local previousindockstate = hydra.dockicon.visible()
+  hydra.dockicon.show()
 
   if repl._replwin then
     repl._replwin:show()
@@ -244,9 +244,9 @@ function repl.open(opts)
 
   win:hidden(function()
       if previousindockstate then
-        dockicon.show()
+        hydra.dockicon.show()
       else
-        dockicon.hide()
+        hydra.dockicon.hide()
       end
       logger.removehandler(loghandler)
   end)
