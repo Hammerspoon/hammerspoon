@@ -87,7 +87,7 @@ static const luaL_Reg applistenerlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_applistener(lua_State* L) {
+int luaopen_notify_applistener(lua_State* L) {
     luaL_newlib(L, applistenerlib);
     
     lua_pushvalue(L, -1);
