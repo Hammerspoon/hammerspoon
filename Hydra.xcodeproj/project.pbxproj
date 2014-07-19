@@ -67,7 +67,7 @@
 		9452129E194D65BF00217584 /* PHAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = 9452129D194D65BF00217584 /* PHAlert.m */; };
 		945212A0194D697100217584 /* alert.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9452129F194D697100217584 /* alert.xib */; };
 		945212A2194D69E700217584 /* pathwatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A1194D69E700217584 /* pathwatcher.m */; };
-		945212A4194D6A6000217584 /* menu.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A3194D6A6000217584 /* menu.m */; };
+		945212A4194D6A6000217584 /* hydra_menu.m in Sources */ = {isa = PBXBuildFile; fileRef = 945212A3194D6A6000217584 /* hydra_menu.m */; };
 		945212A7194D6B5900217584 /* menu.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A5194D6B5900217584 /* menu.png */; };
 		945212A8194D6B5900217584 /* menu@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 945212A6194D6B5900217584 /* menu@2x.png */; };
 		9459B58F194CEB07008BC904 /* keycodes.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* keycodes.m */; };
@@ -239,7 +239,7 @@
 		9452129D194D65BF00217584 /* PHAlert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PHAlert.m; sourceTree = "<group>"; };
 		9452129F194D697100217584 /* alert.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = alert.xib; sourceTree = "<group>"; };
 		945212A1194D69E700217584 /* pathwatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = pathwatcher.m; sourceTree = "<group>"; };
-		945212A3194D6A6000217584 /* menu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = menu.m; sourceTree = "<group>"; };
+		945212A3194D6A6000217584 /* hydra_menu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_menu.m; sourceTree = "<group>"; };
 		945212A5194D6B5900217584 /* menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = menu.png; sourceTree = "<group>"; };
 		945212A6194D6B5900217584 /* menu@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu@2x.png"; sourceTree = "<group>"; };
 		9459B58E194CEB07008BC904 /* keycodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = keycodes.m; sourceTree = "<group>"; };
@@ -501,9 +501,9 @@
 				9452129B194D5B8F00217584 /* hydra_autolaunch.m */,
 				94022D681976DEAF00BF7CB3 /* hydra_dockicon.m */,
 				94735C42196DCAB4002A258D /* hydra_ipc.m */,
+				945212A3194D6A6000217584 /* hydra_menu.m */,
 				943F212E195C527300066DCB /* hydra_settings.m */,
 				943349CD195DB49700B2BE41 /* json.m */,
-				945212A3194D6A6000217584 /* menu.m */,
 				94521299194D59F800217584 /* mouse.m */,
 				94F7A98D1959096100CE7136 /* notify.m */,
 				946AF2CE1976941200A22EBF /* notify_applistener.m */,
@@ -663,7 +663,7 @@
 				9452129A194D59F800217584 /* mouse.m in Sources */,
 				9459B592194CEE1E008BC904 /* hotkey.m in Sources */,
 				944419C1194F4A51000A55A7 /* timer.m in Sources */,
-				945212A4194D6A6000217584 /* menu.m in Sources */,
+				945212A4194D6A6000217584 /* hydra_menu.m in Sources */,
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
 				948CAA041955AECC00A27D9D /* HDTextGridController.m in Sources */,

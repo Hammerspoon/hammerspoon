@@ -17,9 +17,9 @@ int luaopen_hydra(lua_State* L);
 int luaopen_hydra_autolaunch(lua_State* L);
 int luaopen_hydra_dockicon(lua_State* L);
 int luaopen_hydra_ipc(lua_State* L);
+int luaopen_hydra_menu(lua_State* L);
 int luaopen_hydra_settings(lua_State* L);
 int luaopen_json(lua_State* L);
-int luaopen_menu(lua_State* L);
 int luaopen_mouse(lua_State* L);
 int luaopen_notify(lua_State* L);
 int luaopen_notify_applistener(lua_State* L);
@@ -55,9 +55,9 @@ static const hydralib hydralibs[] = {
     {"hydra",        "autolaunch",  luaopen_hydra_autolaunch},
     {"hydra",        "dockicon",    luaopen_hydra_dockicon},
     {"hydra",        "ipc",         luaopen_hydra_ipc},
+    {"hydra",        "menu",        luaopen_hydra_menu},
     {"hydra",        "settings",    luaopen_hydra_settings},
     {"json",         NULL,          luaopen_json},
-    {"menu",         NULL,          luaopen_menu},
     {"mouse",        NULL,          luaopen_mouse},
     {"notify",       NULL,          luaopen_notify},
     {"notify",       "applistener", luaopen_notify_applistener},

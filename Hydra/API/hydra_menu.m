@@ -1,12 +1,12 @@
 #import "helpers.h"
 
-/// === menu ===
+/// === hydra.menu ===
 ///
 /// Control Hydra's menu-bar icon.
 ///
 /// Here's a simple example:
 ///
-///     menu.show(function()
+///     hydra.menu.show(function()
 ///       return {
 ///         {title = 'About Hydra', fn = hydra.showabout},
 ///         {title = '-'},
@@ -56,7 +56,7 @@ static PHMenuDelegate* menuDelegate;
 static int show_closureref;
 
 
-/// menu.show(fn() -> itemstable)
+/// hydra.menu.show(fn() -> itemstable)
 /// Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)
 static int menu_show(lua_State* L) {
     if (!statusItem) {
@@ -159,7 +159,7 @@ static int menu_show(lua_State* L) {
     return 0;
 }
 
-/// menu.hide()
+/// hydra.menu.hide()
 /// Hides Hydra's menubar icon.
 static int menu_hide(lua_State* L) {
     if (statusItem) {
@@ -177,7 +177,7 @@ static const luaL_Reg menulib[] = {
     {NULL, NULL}
 };
 
-int luaopen_menu(lua_State* L) {
+int luaopen_hydra_menu(lua_State* L) {
     luaL_newlib(L, menulib);
     return 1;
 }

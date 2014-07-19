@@ -453,6 +453,22 @@
     ]
   },
   {
+    "name": "hydra.menu",
+    "doc": "Control Hydra's menu-bar icon.\n\nHere's a simple example:\n\n    hydra.menu.show(function()\n      return {\n        {title = 'About Hydra', fn = hydra.showabout},\n        {title = '-'},\n        {title = 'Quit', fn = os.exit},\n      }\n    end)",
+    "items": [
+      {
+        "def": "hydra.menu.show(fn() -> itemstable)",
+        "doc": "Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)",
+        "name": "show"
+      },
+      {
+        "def": "hydra.menu.hide()",
+        "doc": "Hides Hydra's menubar icon.",
+        "name": "hide"
+      }
+    ]
+  },
+  {
     "name": "hydra.settings",
     "doc": "Functions for user-defined settings that persist across Hydra launches.",
     "items": [
@@ -512,22 +528,6 @@
         "def": "logger.show() -> textgrid",
         "doc": "Opens a textgrid that can browse all logs.",
         "name": "show"
-      }
-    ]
-  },
-  {
-    "name": "menu",
-    "doc": "Control Hydra's menu-bar icon.\n\nHere's a simple example:\n\n    menu.show(function()\n      return {\n        {title = 'About Hydra', fn = hydra.showabout},\n        {title = '-'},\n        {title = 'Quit', fn = os.exit},\n      }\n    end)",
-    "items": [
-      {
-        "def": "menu.show(fn() -> itemstable)",
-        "doc": "Shows Hyra's menubar icon. The function should return a table of tables with keys: title, fn, checked (optional), disabled (optional)",
-        "name": "show"
-      },
-      {
-        "def": "menu.hide()",
-        "doc": "Hides Hydra's menubar icon.",
-        "name": "hide"
       }
     ]
   },

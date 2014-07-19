@@ -5,8 +5,8 @@ ext = {}
 
 
 local function clear_old_state()
+  hydra.menu.hide()
   hotkey.disableall()
-  menu.hide()
   pathwatcher.stopall()
   timer.stopall()
   textgrid.destroyall()
