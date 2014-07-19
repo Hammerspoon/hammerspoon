@@ -8,13 +8,13 @@ int main(int argc, const char * argv[]) {
 
 int luaopen_application(lua_State* L);
 int luaopen_audiodevice(lua_State* L);
-int luaopen_autolaunch(lua_State* L);
 int luaopen_brightness(lua_State* L);
 //int luaopen_eventtap(lua_State* L);
 int luaopen_geometry(lua_State* L);
 int luaopen_hotkey(lua_State* L);
 int luaopen_http(lua_State* L);
 int luaopen_hydra(lua_State* L);
+int luaopen_hydra_autolaunch(lua_State* L);
 int luaopen_hydra_dockicon(lua_State* L);
 int luaopen_hydra_ipc(lua_State* L);
 int luaopen_json(lua_State* L);
@@ -46,13 +46,13 @@ typedef struct _hydralib {
 static const hydralib hydralibs[] = {
     {"application",  NULL,          luaopen_application},
     {"audiodevice",  NULL,          luaopen_audiodevice},
-    {"autolaunch",   NULL,          luaopen_autolaunch},
     {"brightness",   NULL,          luaopen_brightness},
 //    {"eventtap",     NULL,          luaopen_eventtap},
     {"geometry",     NULL,          luaopen_geometry},
     {"hotkey",       NULL,          luaopen_hotkey},
     {"http",         NULL,          luaopen_http},
     {"hydra",        NULL,          luaopen_hydra},
+    {"hydra",        "autolaunch",  luaopen_hydra_autolaunch},
     {"hydra",        "dockicon",    luaopen_hydra_dockicon},
     {"hydra",        "ipc",         luaopen_hydra_ipc},
     {"json",         NULL,          luaopen_json},

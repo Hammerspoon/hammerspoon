@@ -137,22 +137,6 @@
     ]
   },
   {
-    "name": "autolaunch",
-    "doc": "Functions for controlling whether Hydra launches at login.\n\nTo make sure Hydra launches at login, put this in your config:\n\n    autolaunch.set(true)",
-    "items": [
-      {
-        "def": "autolaunch.get() -> bool",
-        "doc": "Returns whether Hydra launches when you login.",
-        "name": "get"
-      },
-      {
-        "def": "autolaunch.set(bool)",
-        "doc": "Sets whether Hydra launches when you login.",
-        "name": "set"
-      }
-    ]
-  },
-  {
     "name": "brightness",
     "doc": "Functions for manipulating display brightness.",
     "items": [
@@ -165,37 +149,6 @@
         "def": "brightness.get() -> number",
         "doc": "Returns the current brightness of the display.",
         "name": "get"
-      }
-    ]
-  },
-  {
-    "name": "dockicon",
-    "doc": "Functions for controlling Hydra's own dock icon.",
-    "items": [
-      {
-        "def": "dockicon.visible() -> bool",
-        "doc": "Returns whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab.",
-        "name": "visible"
-      },
-      {
-        "def": "dockicon.show()",
-        "doc": "Shows Hydra's dock icon; Hydra can then be switched to via Cmd-Tab.",
-        "name": "show"
-      },
-      {
-        "def": "dockicon.hide()",
-        "doc": "Hides Hydra's dock icon; Hydra will no longer show up when you Cmd-Tab.",
-        "name": "hide"
-      },
-      {
-        "def": "dockicon.bounce(indefinitely = false)",
-        "doc": "Bounces Hydra's dock icon; if indefinitely is true, won't stop until you click the dock icon.",
-        "name": "bounce"
-      },
-      {
-        "def": "dockicon.setbadge(str)",
-        "doc": "Set's Hydra's dock icon's badge to the given string; pass an empty string to clear it.",
-        "name": "setbadge"
       }
     ]
   },
@@ -428,6 +381,53 @@
         "def": "hydra.uuid() -> string",
         "doc": "Returns a UUID as a string",
         "name": "uuid"
+      }
+    ]
+  },
+  {
+    "name": "hydra.autolaunch",
+    "doc": "Functions for controlling whether Hydra launches at login.\n\nTo make sure Hydra launches at login, put this in your config:\n\n    hydra.autolaunch.set(true)",
+    "items": [
+      {
+        "def": "hydra.autolaunch.get() -> bool",
+        "doc": "Returns whether Hydra launches when you login.",
+        "name": "get"
+      },
+      {
+        "def": "hydra.autolaunch.set(bool)",
+        "doc": "Sets whether Hydra launches when you login.",
+        "name": "set"
+      }
+    ]
+  },
+  {
+    "name": "hydra.dockicon",
+    "doc": "Functions for controlling Hydra's own dock icon.",
+    "items": [
+      {
+        "def": "hydra.dockicon.visible() -> bool",
+        "doc": "Returns whether Hydra has a Dock icon, and thus can be switched to via Cmd-Tab.",
+        "name": "visible"
+      },
+      {
+        "def": "hydra.dockicon.show()",
+        "doc": "Shows Hydra's dock icon; Hydra can then be switched to via Cmd-Tab.",
+        "name": "show"
+      },
+      {
+        "def": "hydra.dockicon.hide()",
+        "doc": "Hides Hydra's dock icon; Hydra will no longer show up when you Cmd-Tab.",
+        "name": "hide"
+      },
+      {
+        "def": "hydra.dockicon.bounce(indefinitely = false)",
+        "doc": "Bounces Hydra's dock icon; if indefinitely is true, won't stop until you click the dock icon.",
+        "name": "bounce"
+      },
+      {
+        "def": "hydra.dockicon.setbadge(str)",
+        "doc": "Set's Hydra's dock icon's badge to the given string; pass an empty string to clear it.",
+        "name": "setbadge"
       }
     ]
   },
