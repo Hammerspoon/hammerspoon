@@ -16,6 +16,12 @@ function hydra.updates.check(fn)
   end)
 end
 
+--- hydra.updates.install()
+--- Currently just opens the page containing the update; in the future, this will actually install the update and restart Hydra.
+function hydra.updates.install()
+  os.execute("open https://github.com/sdegutis/hydra/releases")
+end
+
 --- hydra.updates.changelogurl
 --- String of the URL that contains the changelog, rendered via Markdown
 hydra.updates.changelogurl = "https://github.com/sdegutis/hydra/releases"
