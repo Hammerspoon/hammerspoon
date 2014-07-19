@@ -62,6 +62,15 @@ static int applistener_stop(lua_State* L) {
     return 0;
 }
 
+/// applistener.stopall()
+/// Stops app applisteners; automatically called when user config reloads.
+static int applistener_stopall(lua_State* L) {
+    lua_getglobal(L, "applistener");
+    lua_getfield(L, -1, "stop");
+    hydra_remove_all_handlers(L, "applistener");
+    return 0;
+}
+
 static int applistener_gc(lua_State* L) {
     HydraGlobalNotifyListener* applistener = (__bridge_transfer HydraGlobalNotifyListener*)(*(void**)luaL_checkudata(L, 1, "applistener"));
     applistener = nil;
@@ -72,6 +81,7 @@ static const luaL_Reg applistenerlib[] = {
     {"new", applistener_new},
     {"start", applistener_start},
     {"stop", applistener_stop},
+    {"stopall", applistener_stopall},
     {"__gc", applistener_gc},
     {NULL, NULL}
 };
