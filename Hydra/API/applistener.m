@@ -49,14 +49,7 @@ static int applistener_new(lua_State* L) {
 static int applistener_start(lua_State* L) {
     HydraGlobalNotifyListener* applistener = (__bridge HydraGlobalNotifyListener*)(*(void**)luaL_checkudata(L, 1, "applistener"));
     [[NSDistributedNotificationCenter defaultCenter] addObserver:applistener selector:@selector(heard:) name:nil object:nil];
-    
-    // store in registry
-    lua_getglobal(L, "applistener");
-    lua_getfield(L, -1, "_registry");
-    lua_pushvalue(L, 1);
-    applistener.ref = luaL_ref(L, -2);
-    lua_pop(L, 2);
-    
+    applistener.ref = hydra_store_handler(L, 1);
     return 0;
 }
 
@@ -65,13 +58,7 @@ static int applistener_start(lua_State* L) {
 static int applistener_stop(lua_State* L) {
     HydraGlobalNotifyListener* applistener = (__bridge HydraGlobalNotifyListener*)(*(void**)luaL_checkudata(L, 1, "applistener"));
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:applistener];
-    
-    // remove from registry
-    lua_getglobal(L, "applistener");
-    lua_getfield(L, -1, "_registry");
-    luaL_unref(L, -1, applistener.ref);
-    lua_pop(L, 2);
-    
+    hydra_remove_handler(L, applistener.ref);
     return 0;
 }
 
@@ -91,9 +78,6 @@ static const luaL_Reg applistenerlib[] = {
 
 int luaopen_applistener(lua_State* L) {
     luaL_newlib(L, applistenerlib);
-    
-    lua_newtable(L);
-    lua_setfield(L, -2, "_registry");
     
     lua_pushvalue(L, -1);
     lua_setfield(L, LUA_REGISTRYINDEX, "applistener");
