@@ -18,7 +18,7 @@
 		943F212F195C527300066DCB /* hydra_settings.m in Sources */ = {isa = PBXBuildFile; fileRef = 943F212E195C527300066DCB /* hydra_settings.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
 		944247341972410E0003EAFE /* eventtap.lua in Resources */ = {isa = PBXBuildFile; fileRef = 944247331972410E0003EAFE /* eventtap.lua */; };
-		9443F2AF1969CF7400E7219D /* pprint.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9443F2AE1969CF7400E7219D /* pprint.lua */; };
+		9443F2AF1969CF7400E7219D /* inspect.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9443F2AE1969CF7400E7219D /* inspect.lua */; };
 		944419C1194F4A51000A55A7 /* timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 944419C0194F4A51000A55A7 /* timer.m */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9445CA2219083251002568BB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA2119083251002568BB /* main.m */; };
@@ -158,7 +158,7 @@
 		943F212E195C527300066DCB /* hydra_settings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_settings.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
 		944247331972410E0003EAFE /* eventtap.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = eventtap.lua; sourceTree = "<group>"; };
-		9443F2AE1969CF7400E7219D /* pprint.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pprint.lua; sourceTree = "<group>"; };
+		9443F2AE1969CF7400E7219D /* inspect.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = inspect.lua; sourceTree = "<group>"; };
 		944419C0194F4A51000A55A7 /* timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = timer.m; sourceTree = "<group>"; };
 		9445CA0B19083251002568BB /* Hydra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hydra.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -484,7 +484,7 @@
 				94517BFA1957738100F9CCB6 /* logger.lua */,
 				946AF2D21976AB5D00A22EBF /* hotkey_modal.lua */,
 				945F2BBF1959AFA700D2DE7E /* notify.lua */,
-				9443F2AE1969CF7400E7219D /* pprint.lua */,
+				9443F2AE1969CF7400E7219D /* inspect.lua */,
 				948CAA001955AECC00A27D9D /* repl.lua */,
 				94E8E7B9194E25290064CF6C /* screen.lua */,
 				94517BF81956FA5000F9CCB6 /* textgrid.lua */,
@@ -640,7 +640,7 @@
 				944C49CD196B2E5C00FF10DD /* docs.json in Resources */,
 				945200861950E2760072DFEF /* fallback_init.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
-				9443F2AF1969CF7400E7219D /* pprint.lua in Resources */,
+				9443F2AF1969CF7400E7219D /* inspect.lua in Resources */,
 				948CAA0B19561D7300A27D9D /* timer.lua in Resources */,
 				948CAA081955AECC00A27D9D /* repl.lua in Resources */,
 				94DE5947194F11AD004D242E /* fnutils.lua in Resources */,

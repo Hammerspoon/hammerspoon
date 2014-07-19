@@ -12,7 +12,7 @@ def scrape_docstring_comments
     comment = islua ? "---" : "///"
     incomment = false
     File.read(file).split("\n").each do |line|
-      if line.start_with?(comment) then
+      if line.start_with?(comment) and !line.start_with?(comment + comment) then
         incomment = true
         partialcomment << line[comment.size..-1].sub(/^\s/, '')
       elsif incomment then
@@ -57,6 +57,9 @@ def scrape
 
   items.each do |item|
     mod = orderedmods.find{|mod| item[:def].start_with?(mod[:name])}
+    if mod.nil?
+      abort "error: couldn't find module for #{item[:def]}"
+    end
     item[:name] = item[:def][(mod[:name].size+1)..-1].match(/\w+/)[0]
     mod[:items] << item
   end

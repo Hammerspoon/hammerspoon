@@ -525,21 +525,6 @@
     "doc": "Check for and install Hydra updates.",
     "items": [
       {
-        "def": "hydra.updates.verifyfile(sig, path) -> bool",
-        "doc": "Verifies the DSA signatue against the file at the given absolute path using Hydra's public key.",
-        "name": "verifyfile"
-      },
-      {
-        "def": "hydra.updates.getversions(fn(versions))",
-        "doc": "Low-level function to get list of available Hydra versions; used by hydra.updates.check; you probably want to use hydra.updates.check instead of using this directly.",
-        "name": "getversions"
-      },
-      {
-        "def": "hydra.updates.currentversion() -> number",
-        "doc": "Return the current Hydra version as a string.",
-        "name": "currentversion"
-      },
-      {
         "def": "hydra.updates.check(fn(isavailable))",
         "doc": "Checks for an update. Calls the given function with a boolean representing whether a new update is available.",
         "name": "check"
@@ -553,6 +538,32 @@
         "def": "hydra.updates.changelogurl",
         "doc": "String of the URL that contains the changelog, rendered via Markdown",
         "name": "changelogurl"
+      },
+      {
+        "def": "hydra.updates.verifyfile(sig, path) -> bool",
+        "doc": "Verifies the DSA signatue against the file at the given absolute path using Hydra's public key.",
+        "name": "verifyfile"
+      },
+      {
+        "def": "hydra.updates.getversions(fn(versions))",
+        "doc": "Low-level function to get list of available Hydra versions; used by hydra.updates.check; you probably want to use hydra.updates.check instead of using this directly.",
+        "name": "getversions"
+      },
+      {
+        "def": "hydra.updates.currentversion() -> number",
+        "doc": "Return the current Hydra version as a string.",
+        "name": "currentversion"
+      }
+    ]
+  },
+  {
+    "name": "inspect",
+    "doc": "For inspecting tables and stuff.\nSee also:\n - http://github.com/kikito/inspect.lua\n - `hydra.licenses`",
+    "items": [
+      {
+        "def": "inspect.inspect(t) -> string",
+        "doc": "Returns a pretty-printed string of the table.\nYou can also use `inspect(t)` instead.",
+        "name": "inspect"
       }
     ]
   },
@@ -705,32 +716,6 @@
         "def": "pathwatcher.stopall()",
         "doc": "Calls pathwatcher:stop() for all started pathwatchers; called automatically when user config reloads.",
         "name": "stopall"
-      }
-    ]
-  },
-  {
-    "name": "pprint",
-    "doc": "Simple table printing module. pprint itself is callable on tables to pretty-print them.",
-    "items": [
-      {
-        "def": "pprint.pairs(tbl)",
-        "doc": "Pretty-prints the table.",
-        "name": "pairs"
-      },
-      {
-        "def": "pprint.ipairs(tbl)",
-        "doc": "Pretty-prints the table as an array.",
-        "name": "ipairs"
-      },
-      {
-        "def": "pprint.keys(tbl)",
-        "doc": "Pretty-prints comma-separated list of keys.",
-        "name": "keys"
-      },
-      {
-        "def": "pprint.values(tbl)",
-        "doc": "Pretty-prints comma-separated list of values.",
-        "name": "values"
       }
     ]
   },
