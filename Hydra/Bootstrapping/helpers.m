@@ -86,3 +86,35 @@ void* hydra_get_stored_handler(lua_State* L, int ref, const char* type) {
     lua_pop(L, 2);
     return handler;
 }
+
+// assumes stop-function is on top; leaves it there
+void hydra_remove_all_handlers(lua_State* L, const char* type) {
+    int stopfn = lua_absindex(L, -1);
+    
+    lua_newtable(L);
+    int filteredtable = lua_absindex(L, -1);
+    int filteredtable_count = 0;
+    
+    // filter registry
+    lua_getglobal(L, "_registry");
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0) {
+        if (lua_isuserdata(L, -1) && luaL_testudata(L, -1, type))
+            lua_rawseti(L, filteredtable, ++filteredtable_count);
+        else
+            lua_pop(L, 1);
+    }
+    lua_pop(L, 1); // pop _registry, leaving table
+    
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0) {
+        lua_pushvalue(L, stopfn);
+        lua_pushvalue(L, -2);
+        
+        if (lua_pcall(L, 1, 0, 0))
+            hydra_handle_error(L);
+        
+        lua_pop(L, 1);
+    }
+    lua_pop(L, 1); // pop filtered table
+}

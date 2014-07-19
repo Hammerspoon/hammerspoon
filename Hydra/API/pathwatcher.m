@@ -82,6 +82,15 @@ static int pathwatcher_stop(lua_State* L) {
     return 0;
 }
 
+/// pathwatcher.stopall()
+/// Calls pathwatcher:stop() for all started pathwatchers; called automatically when user config reloads.
+static int pathwatcher_stopall(lua_State* L) {
+    lua_getglobal(L, "pathwatcher");
+    lua_getfield(L, -1, "stop");
+    hydra_remove_all_handlers(L, "pathwatcher");
+    return 0;
+}
+
 static int pathwatcher_gc(lua_State* L) {
     pathwatcher_t* pathwatcher = luaL_checkudata(L, 1, "pathwatcher");
     luaL_unref(L, LUA_REGISTRYINDEX, pathwatcher->closureref);
@@ -90,6 +99,7 @@ static int pathwatcher_gc(lua_State* L) {
 
 static const luaL_Reg pathwatcherlib[] = {
     {"new", pathwatcher_new},
+    {"stopall", pathwatcher_stopall},
     
     {"start", pathwatcher_start},
     {"stop", pathwatcher_stop},

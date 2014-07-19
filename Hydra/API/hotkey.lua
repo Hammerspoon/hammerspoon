@@ -5,10 +5,3 @@ hotkey.keycodes = hotkey._cachekeycodes()
 function hotkey.bind(...)
   return hotkey.new(...):enable()
 end
-
---- hotkey.disableall()
---- Disables all hotkeys; automatically called when user config reloads.
-function hotkey.disableall()
-  local hotkeys = fnutils.filter(_registry, hydra._ishandlertypefn("hotkey"))
-  fnutils.each(hotkeys, hotkey.disable)
-end

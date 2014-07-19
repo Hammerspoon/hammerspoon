@@ -117,6 +117,15 @@ static int hotkey_disable(lua_State* L) {
     return 1;
 }
 
+/// hotkey.disableall()
+/// Disables all hotkeys; automatically called when user config reloads.
+static int hotkey_disableall(lua_State* L) {
+    lua_getglobal(L, "hotkey");
+    lua_getfield(L, -1, "disable");
+    hydra_remove_all_handlers(L, "hotkey");
+    return 0;
+}
+
 static int hotkey_gc(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, "hotkey");
     luaL_unref(L, LUA_REGISTRYINDEX, hotkey->pressedfn);
@@ -132,6 +141,7 @@ static int hotkey__cachekeycodes(lua_State* L) {
 static const luaL_Reg hotkeylib[] = {
     {"new", hotkey_new},
     {"_cachekeycodes", hotkey__cachekeycodes},
+    {"disableall", hotkey_disableall},
     
     {"enable", hotkey_enable},
     {"disable", hotkey_disable},
