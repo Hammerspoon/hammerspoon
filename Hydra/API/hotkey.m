@@ -111,7 +111,7 @@ static int hotkey_disable(lua_State* L) {
         return 1;
     
     hotkey->enabled = NO;
-    hydra_remove_handler(L, 1, hotkey->uid);
+    hydra_remove_handler(L, hotkey->uid);
     UnregisterEventHotKey(hotkey->carbonHotKey);
     
     return 1;

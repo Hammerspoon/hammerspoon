@@ -11,5 +11,5 @@ void hydra_pushrect(lua_State* L, NSRect rect);
 
 void hydra_setup_handler_storage(lua_State* L);
 int hydra_store_handler(lua_State* L, int idx);
-void hydra_remove_handler(lua_State* L, int idx, int ref);
+void hydra_remove_handler(lua_State* L, int ref);
 void* hydra_get_stored_handler(lua_State* L, int ref, const char* type);

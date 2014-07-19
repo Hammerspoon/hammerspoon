@@ -1,68 +1,112 @@
 #import "helpers.h"
 
+/// === pathwatcher ===
+///
+/// Watch paths recursively for changes.
+///
+/// This simple example watches your Hydra directory for changes, and when it sees a change, reloads your configs:
+///
+///     pathwatcher.new(os.getenv("HOME") .. "/.hydra/", hydra.reload):start()
+
+typedef struct _pathwatcher_t {
+    lua_State* L;
+    int closureref;
+    FSEventStreamRef stream;
+    int self;
+} pathwatcher_t;
+
 void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[]) {
-    dispatch_block_t block = (__bridge dispatch_block_t)clientCallBackInfo;
-    block();
+    
+    pathwatcher_t* pw = clientCallBackInfo;
+    lua_State* L = pw->L;
+    
+    lua_rawgeti(L, LUA_REGISTRYINDEX, pw->closureref);
+    if (lua_pcall(L, 0, 0, 0))
+        hydra_handle_error(L);
 }
 
-// args: [path, fn]
-// returns: [stream, ref]
-static int pathwatcher_start(lua_State* L) {
+/// pathwatcher.new(path, fn()) -> pathwatcher
+/// Returns a new pathwatcher that can be started and stopped.
+static int pathwatcher_new(lua_State* L) {
     NSString* path = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     luaL_checktype(L, 2, LUA_TFUNCTION);
     lua_settop(L, 2);
     int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
     
-    dispatch_block_t block = ^{
-        lua_rawgeti(L, LUA_REGISTRYINDEX, closureref);
-        if (lua_pcall(L, 0, 0, 0))
-            hydra_handle_error(L);
-    };
+    pathwatcher_t* pathwatcher = lua_newuserdata(L, sizeof(pathwatcher_t));
+    pathwatcher->L = L;
+    pathwatcher->closureref = closureref;
+    
+    lua_getfield(L, LUA_REGISTRYINDEX, "pathwatcher");
+    lua_setmetatable(L, -2);
     
     FSEventStreamContext context;
-    context.info = (__bridge_retained void*)[block copy];
+    context.info = pathwatcher;
     context.version = 0;
     context.retain = NULL;
     context.release = NULL;
     context.copyDescription = NULL;
-    FSEventStreamRef stream = FSEventStreamCreate(NULL,
-                                                  event_callback,
-                                                  &context,
-                                                  (__bridge CFArrayRef)@[[path stringByStandardizingPath]],
-                                                  kFSEventStreamEventIdSinceNow,
-                                                  0.4,
-                                                  kFSEventStreamCreateFlagWatchRoot | kFSEventStreamCreateFlagNoDefer | kFSEventStreamCreateFlagFileEvents);
-    FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-    FSEventStreamStart(stream);
+    pathwatcher->stream = FSEventStreamCreate(NULL,
+                                              event_callback,
+                                              &context,
+                                              (__bridge CFArrayRef)@[[path stringByStandardizingPath]],
+                                              kFSEventStreamEventIdSinceNow,
+                                              0.4,
+                                              kFSEventStreamCreateFlagWatchRoot | kFSEventStreamCreateFlagNoDefer | kFSEventStreamCreateFlagFileEvents);
     
-    lua_pushlightuserdata(L, stream);
-    lua_pushnumber(L, closureref);
-    return 2;
+    return 1;
 }
 
-// args: [stream, ref]
-// returns: []
-static int pathwatcher_stop(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
-    FSEventStreamRef stream = lua_touserdata(L, 1);
-    int closureref = luaL_checknumber(L, 2);
+/// pathwatcher:start()
+/// Registers pathwatcher's fn as a callback when pathwatcher's path or any descendent changes.
+static int pathwatcher_start(lua_State* L) {
+    pathwatcher_t* pathwatcher = luaL_checkudata(L, 1, "pathwatcher");
     
-    luaL_unref(L, LUA_REGISTRYINDEX, closureref);
-    
-    FSEventStreamStop(stream);
-    FSEventStreamInvalidate(stream);
-    FSEventStreamRelease(stream);
+    pathwatcher->self = hydra_store_handler(L, 1);
+    FSEventStreamScheduleWithRunLoop(pathwatcher->stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    FSEventStreamStart(pathwatcher->stream);
     
     return 0;
 }
 
+/// pathwatcher:stop()
+/// Unregisters pathwatcher's fn so it won't be called again until the pathwatcher is restarted.
+static int pathwatcher_stop(lua_State* L) {
+    pathwatcher_t* pathwatcher = luaL_checkudata(L, 1, "pathwatcher");
+    
+    hydra_remove_handler(L, pathwatcher->self);
+    FSEventStreamStop(pathwatcher->stream);
+    FSEventStreamInvalidate(pathwatcher->stream);
+    FSEventStreamRelease(pathwatcher->stream);
+    
+    return 0;
+}
+
+static int pathwatcher_gc(lua_State* L) {
+    pathwatcher_t* pathwatcher = luaL_checkudata(L, 1, "pathwatcher");
+    luaL_unref(L, LUA_REGISTRYINDEX, pathwatcher->closureref);
+    return 0;
+}
+
 static const luaL_Reg pathwatcherlib[] = {
-    {"_start", pathwatcher_start},
-    {"_stop", pathwatcher_stop},
+    {"new", pathwatcher_new},
+    
+    {"start", pathwatcher_start},
+    {"stop", pathwatcher_stop},
+    
+    {"__gc", pathwatcher_gc},
+    
     {NULL, NULL}
 };
 
 int luaopen_pathwatcher(lua_State* L) {
     luaL_newlib(L, pathwatcherlib);
+    
+    lua_pushvalue(L, -1);
+    lua_setfield(L, LUA_REGISTRYINDEX, "pathwatcher");
+    
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    
     return 1;
 }

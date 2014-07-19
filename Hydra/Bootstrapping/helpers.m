@@ -71,8 +71,7 @@ int hydra_store_handler(lua_State* L, int idx) {
     return next;
 }
 
-void hydra_remove_handler(lua_State* L, int idx, int ref) {
-    idx = lua_absindex(L, idx);
+void hydra_remove_handler(lua_State* L, int ref) {
     lua_getglobal(L, "_registry");
     luaL_unref(L, -1, ref);
     lua_pop(L, 1);
