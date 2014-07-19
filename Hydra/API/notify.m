@@ -1,4 +1,5 @@
 #import "helpers.h"
+int luaopen_applistener(lua_State* L);
 
 /// === notify ===
 ///
@@ -62,5 +63,9 @@ static const luaL_Reg notifylib[] = {
 
 int luaopen_notify(lua_State* L) {
     luaL_newlib(L, notifylib);
+    
+    luaopen_applistener(L);
+    lua_setfield(L, -2, "applistener");
+    
     return 1;
 }

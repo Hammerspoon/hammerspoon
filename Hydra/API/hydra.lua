@@ -11,7 +11,7 @@ local function clear_old_state()
   timer.stopall()
   textgrid.destroyall()
   notify.unregisterall()
-  applistener.stopall()
+  notify.applistener.stopall()
 end
 
 local function load_default_config()

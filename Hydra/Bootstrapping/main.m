@@ -26,7 +26,6 @@ int luaopen_json(lua_State* L);
 int luaopen_brightness(lua_State* L);
 int luaopen_ipc(lua_State* L);
 //int luaopen_eventtap(lua_State* L);
-int luaopen_applistener(lua_State* L);
 int luaopen_pasteboard(lua_State* L);
 int luaopen_http(lua_State* L);
 int luaopen_dockicon(lua_State* L);
@@ -58,7 +57,6 @@ static const luaL_Reg hydralibs[] = {
     {"brightness",   luaopen_brightness},
     {"ipc",          luaopen_ipc},
 //    {"eventtap",     luaopen_eventtap},
-    {"applistener",  luaopen_applistener},
     {"pasteboard",   luaopen_pasteboard},
     {"http",         luaopen_http},
     {"dockicon",     luaopen_dockicon},
