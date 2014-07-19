@@ -99,7 +99,6 @@ static int timer_stopall(lua_State* L) {
 }
 
 static int timer_gc(lua_State* L) {
-    NSLog(@"bye");
     timer_t* timer = luaL_checkudata(L, 1, "timer");
     luaL_unref(L, LUA_REGISTRYINDEX, timer->fn);
     CFRunLoopTimerInvalidate(timer->t);
