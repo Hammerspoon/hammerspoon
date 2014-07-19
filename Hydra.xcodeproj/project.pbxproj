@@ -75,7 +75,6 @@
 		945F2BC01959AFA700D2DE7E /* notify.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945F2BBF1959AFA700D2DE7E /* notify.lua */; };
 		94668E951958B039009422D7 /* doc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94668E941958B039009422D7 /* doc.lua */; };
 		946AF2CF1976941200A22EBF /* applistener.m in Sources */ = {isa = PBXBuildFile; fileRef = 946AF2CE1976941200A22EBF /* applistener.m */; };
-		946AF2D11976AA3900A22EBF /* applistener.lua in Resources */ = {isa = PBXBuildFile; fileRef = 946AF2D01976AA3900A22EBF /* applistener.lua */; };
 		946AF2D31976AB5D00A22EBF /* modalkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 946AF2D21976AB5D00A22EBF /* modalkey.lua */; };
 		946AF2D61976B87A00A22EBF /* pasteboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 946AF2D51976B87A00A22EBF /* pasteboard.m */; };
 		94735C30196DC4FE002A258D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94735C2F196DC4FE002A258D /* CoreFoundation.framework */; };
@@ -248,7 +247,6 @@
 		945F2BBF1959AFA700D2DE7E /* notify.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = notify.lua; sourceTree = "<group>"; };
 		94668E941958B039009422D7 /* doc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = doc.lua; sourceTree = "<group>"; };
 		946AF2CE1976941200A22EBF /* applistener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = applistener.m; sourceTree = "<group>"; };
-		946AF2D01976AA3900A22EBF /* applistener.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = applistener.lua; sourceTree = "<group>"; };
 		946AF2D21976AB5D00A22EBF /* modalkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = modalkey.lua; sourceTree = "<group>"; };
 		946AF2D51976B87A00A22EBF /* pasteboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = pasteboard.m; sourceTree = "<group>"; };
 		94735C2E196DC4FE002A258D /* hydra */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = hydra; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -474,7 +472,6 @@
 			isa = PBXGroup;
 			children = (
 				94E8E7BB194E25300064CF6C /* application.lua */,
-				946AF2D01976AA3900A22EBF /* applistener.lua */,
 				94668E941958B039009422D7 /* doc.lua */,
 				944247331972410E0003EAFE /* eventtap.lua */,
 				94DE5946194F11AD004D242E /* fnutils.lua */,
@@ -624,7 +621,6 @@
 				94C36942194DD94D00EE3A2D /* updates.lua in Resources */,
 				945200881950E6C10072DFEF /* sample_init.lua in Resources */,
 				9400269519514372000D15C1 /* geometry.lua in Resources */,
-				946AF2D11976AA3900A22EBF /* applistener.lua in Resources */,
 				94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */,
 				94D86A7D196E231C001B6F05 /* dsa_pub.cer in Resources */,
 				9480181C1976CDFE0024B39F /* http.lua in Resources */,
