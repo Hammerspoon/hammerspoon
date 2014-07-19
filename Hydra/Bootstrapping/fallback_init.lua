@@ -5,7 +5,7 @@ function fallbackinit.open_sample_init()
 end
 
 function fallbackinit.run()
-  menu.show(function()
+  hydra.menu.show(function()
       return {
         {title = "Open Sample Init", fn = fallbackinit.open_sample_init},
         {title = "Reload Config", fn = hydra.reload},
