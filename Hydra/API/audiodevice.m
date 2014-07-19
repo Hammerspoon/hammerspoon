@@ -2,7 +2,7 @@
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioToolbox.h>
 
-/// === audio ===
+/// === audiodevice ===
 ///
 /// Manipulate the system's audio devices.
 
@@ -40,9 +40,9 @@ void new_device(lua_State* L, AudioDeviceID deviceId) {
     lua_setmetatable(L, -2);
 }
 
-/// audio.alloutputdevices() -> audio[]
+/// audiodevice.alloutputdevices() -> audio[]
 /// Returns a list of all connected output devices.
-static int audio_alloutputdevices(lua_State* L) {
+static int audiodevice_alloutputdevices(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDevices,
         kAudioObjectPropertyScopeGlobal,
@@ -93,9 +93,9 @@ end:
     return 1;
 }
 
-/// audio.defaultoutputdevice() -> audio or nil
+/// audiodevice.defaultoutputdevice() -> audio or nil
 /// Gets the system's default audio device, or nil, it it does not exist.
-static int audio_defaultoutputdevice(lua_State* L) {
+static int audiodevice_defaultoutputdevice(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultOutputDevice,
         kAudioObjectPropertyScopeGlobal,
@@ -124,9 +124,9 @@ end:
     return 1;
 }
 
-/// audio:setdefaultoutputdevice() -> bool
+/// audiodevice:setdefaultoutputdevice() -> bool
 /// Sets the system's default audio device to this device. Returns true if the audio device was successfully set.
-static int audio_setdefaultoutputdevice(lua_State* L) {
+static int audiodevice_setdefaultoutputdevice(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     
     AudioObjectPropertyAddress propertyAddress = {
@@ -157,9 +157,9 @@ end:
     return 1;
 }
 
-/// audio:name() -> string or nil
+/// audiodevice:name() -> string or nil
 /// Returns the name of the audio device, or nil if it does not have a name.
-static int audio_device_name(lua_State* L) {
+static int audiodevice_name(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     
     AudioObjectPropertyAddress propertyAddress = {
@@ -192,9 +192,9 @@ end:
     
 }
 
-/// audio:muted() -> bool or nil
+/// audiodevice:muted() -> bool or nil
 /// Returns true/false if the audio device is muted, or nil if it does not support being muted.
-static int audio_device_muted(lua_State* L) {
+static int audiodevice_muted(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     
     AudioObjectPropertyAddress propertyAddress = {
@@ -227,9 +227,9 @@ end:
     
 }
 
-/// audio:setmuted(bool) -> bool
+/// audiodevice:setmuted(bool) -> bool
 /// Returns true if the the device's muted status was set, or false if it does not support being muted.
-static int audio_device_setmuted(lua_State* L) {
+static int audiodevice_setmuted(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     UInt32 muted = lua_toboolean(L, 2);
     
@@ -262,9 +262,9 @@ end:
     
 }
 
-/// audio:volume() -> number or bool
+/// audiodevice:volume() -> number or bool
 /// Returns a number between 0 and 100 inclusive, representing the volume percentage. Or nil, if the audio device does not have a volume level.
-static int audio_device_volume(lua_State* L) {
+static int audiodevice_volume(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     
     AudioObjectPropertyAddress propertyAddress = {
@@ -298,9 +298,9 @@ end:
 }
 
 
-/// audio:setvolume(level) -> bool
+/// audiodevice:setvolume(level) -> bool
 /// Returns true if the volume was set, or false if the audio device does not support setting a volume level. Level is a percentage between 0 and 100.
-static int audio_device_setvolume(lua_State* L) {
+static int audiodevice_setvolume(lua_State* L) {
     AudioDeviceID deviceId = hydra_audio_device(L, 1);
     Float32 volume = MIN(MAX(luaL_checknumber(L, 2) / 100.0, 0.0), 1.0);
     
@@ -333,38 +333,38 @@ end:
     
 }
 
-static int audio_device_eq(lua_State* L) {
+static int audiodevice_eq(lua_State* L) {
     AudioDeviceID deviceA = hydra_audio_device(L, 1);
     AudioDeviceID deviceB = hydra_audio_device(L, 2);
     lua_pushboolean(L, deviceA == deviceB);
     return 1;
 }
 
-static const luaL_Reg audiolib[] = {
+static const luaL_Reg audiodevicelib[] = {
     
-    {"alloutputdevices", audio_alloutputdevices},
-    {"defaultoutputdevice", audio_defaultoutputdevice},
-    {"setdefaultoutputdevice", audio_setdefaultoutputdevice},
+    {"alloutputdevices", audiodevice_alloutputdevices},
+    {"defaultoutputdevice", audiodevice_defaultoutputdevice},
+    {"setdefaultoutputdevice", audiodevice_setdefaultoutputdevice},
     
-    {"name", audio_device_name},
+    {"name", audiodevice_name},
     
-    {"volume", audio_device_volume},
-    {"setvolume", audio_device_setvolume},
+    {"volume", audiodevice_volume},
+    {"setvolume", audiodevice_setvolume},
     
-    {"muted", audio_device_muted},
-    {"setmuted", audio_device_setmuted},
+    {"muted", audiodevice_muted},
+    {"setmuted", audiodevice_setmuted},
     
     {NULL, NULL}
 };
 
-int luaopen_audio(lua_State* L) {
-    luaL_newlib(L, audiolib);
+int luaopen_audiodevice(lua_State* L) {
+    luaL_newlib(L, audiodevicelib);
     
     if (luaL_newmetatable(L, "audiodevice")) {
         lua_pushvalue(L, -2);
         lua_setfield(L, -2, "__index");
         
-        lua_pushcfunction(L, audio_device_eq);
+        lua_pushcfunction(L, audiodevice_eq);
         lua_setfield(L, -2, "__eq");
     }
     lua_pop(L, 1);
