@@ -5,12 +5,12 @@ void push_luavalue_for_nsobject(lua_State* L, id obj);
 ///
 /// Listen to notifications sent by other apps, and maybe send some yourself.
 
-@interface HydraGlobalNotifyListener : NSObject
+@interface HydraAppListenerClass : NSObject
 @property lua_State* L;
 @property int fn;
 @property int ref;
 @end
-@implementation HydraGlobalNotifyListener
+@implementation HydraAppListenerClass
 - (void) heard:(NSNotification*)note {
     lua_State* L = self.L;
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
@@ -29,7 +29,7 @@ void push_luavalue_for_nsobject(lua_State* L, id obj);
 static int applistener_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
     
-    HydraGlobalNotifyListener* listener = [[HydraGlobalNotifyListener alloc] init];
+    HydraAppListenerClass* listener = [[HydraAppListenerClass alloc] init];
     listener.L = L;
     
     lua_pushvalue(L, 1);
@@ -47,7 +47,7 @@ static int applistener_new(lua_State* L) {
 /// applistener:start()
 /// Starts listening for notifications.
 static int applistener_start(lua_State* L) {
-    HydraGlobalNotifyListener* applistener = (__bridge HydraGlobalNotifyListener*)(*(void**)luaL_checkudata(L, 1, "applistener"));
+    HydraAppListenerClass* applistener = (__bridge HydraAppListenerClass*)(*(void**)luaL_checkudata(L, 1, "applistener"));
     [[NSDistributedNotificationCenter defaultCenter] addObserver:applistener selector:@selector(heard:) name:nil object:nil];
     applistener.ref = hydra_store_handler(L, 1);
     return 0;
@@ -56,7 +56,7 @@ static int applistener_start(lua_State* L) {
 /// applistener:stop()
 /// Stops listening for notifications.
 static int applistener_stop(lua_State* L) {
-    HydraGlobalNotifyListener* applistener = (__bridge HydraGlobalNotifyListener*)(*(void**)luaL_checkudata(L, 1, "applistener"));
+    HydraAppListenerClass* applistener = (__bridge HydraAppListenerClass*)(*(void**)luaL_checkudata(L, 1, "applistener"));
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:applistener];
     hydra_remove_handler(L, applistener.ref);
     return 0;
@@ -72,7 +72,7 @@ static int applistener_stopall(lua_State* L) {
 }
 
 static int applistener_gc(lua_State* L) {
-    HydraGlobalNotifyListener* applistener = (__bridge_transfer HydraGlobalNotifyListener*)(*(void**)luaL_checkudata(L, 1, "applistener"));
+    HydraAppListenerClass* applistener = (__bridge_transfer HydraAppListenerClass*)(*(void**)luaL_checkudata(L, 1, "applistener"));
     applistener = nil;
     return 0;
 }
