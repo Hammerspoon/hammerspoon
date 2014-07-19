@@ -9,6 +9,6 @@ end
 --- hotkey.disableall()
 --- Disables all hotkeys; automatically called when user config reloads.
 function hotkey.disableall()
-  local function ishotkey(hk) return type(hk) == "userdata" end
-  fnutils.each(fnutils.filter(hotkey._keys, ishotkey), hotkey.disable)
+  local hotkeys = fnutils.filter(_registry, hydra._ishandlertypefn("hotkey"))
+  fnutils.each(hotkeys, hotkey.disable)
 end

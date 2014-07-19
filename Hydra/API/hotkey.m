@@ -92,15 +92,7 @@ static int hotkey_enable(lua_State* L) {
         return 1;
     
     hotkey->enabled = YES;
-    
-    // store hotkey in 'hotkey.keys'
-    lua_getglobal(L, "hotkey");
-    lua_getfield(L, -1, "_keys");
-    lua_pushvalue(L, -3);
-    hotkey->uid = luaL_ref(L, -2);
-    lua_pop(L, 2);
-    
-    // start the event watcher!
+    hotkey->uid = hydra_store_handler(L, 1);
     EventHotKeyID hotKeyID = { .signature = 'HDRA', .id = hotkey->uid };
     hotkey->carbonHotKey = NULL;
     RegisterEventHotKey(hotkey->keycode, hotkey->mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &hotkey->carbonHotKey);
@@ -119,13 +111,7 @@ static int hotkey_disable(lua_State* L) {
         return 1;
     
     hotkey->enabled = NO;
-    
-    // remove from keys table
-    lua_getglobal(L, "hotkey");
-    lua_getfield(L, -1, "_keys");
-    luaL_unref(L, -1, hotkey->uid);
-    lua_pop(L, 2);
-    
+    hydra_remove_handler(L, 1, hotkey->uid);
     UnregisterEventHotKey(hotkey->carbonHotKey);
     
     return 1;
@@ -160,11 +146,7 @@ static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef i
     
     lua_State* L = inUserData;
     
-    lua_getglobal(L, "hotkey");
-    lua_getfield(L, -1, "_keys");
-    lua_rawgeti(L, -1, eventID.id);
-    hotkey_t* hotkey = lua_touserdata(L, -1);
-    lua_pop(L, 3);
+    hotkey_t* hotkey = hydra_get_stored_handler(L, eventID.id, "hotkey");
     
     int ref = (GetEventKind(inEvent) == kEventHotKeyPressed ? hotkey->pressedfn : hotkey->releasedfn);
     if (ref != LUA_REFNIL) {
@@ -178,10 +160,6 @@ static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef i
 
 int luaopen_hotkey(lua_State* L) {
     luaL_newlib(L, hotkeylib);
-    
-    // hotkey._keys = {}
-    lua_newtable(L);
-    lua_setfield(L, -2, "_keys");
     
     // watch for hotkey events
     EventTypeSpec hotKeyPressedSpec[] = {{kEventClassKeyboard, kEventHotKeyPressed}, {kEventClassKeyboard, kEventHotKeyReleased}};

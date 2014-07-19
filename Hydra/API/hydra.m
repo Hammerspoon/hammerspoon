@@ -111,6 +111,13 @@ static int hydra_uuid(lua_State* L) {
     return 1;
 }
 
+// in:  [udata, str]
+// out: [bool]
+static int hydra__ishandlertype(lua_State* L) {
+    lua_pushboolean(L, luaL_testudata(L, 1, luaL_checkstring(L, 2)) != NULL);
+    return 1;
+}
+
 static const luaL_Reg hydralib[] = {
     {"exit", hydra_exit},
     {"showabout", hydra_showabout},
@@ -120,6 +127,7 @@ static const luaL_Reg hydralib[] = {
     {"check_accessibility", hydra_check_accessibility},
     {"setosxshadows", hydra_setosxshadows},
     {"uuid", hydra_uuid},
+    {"_ishandlertype", hydra__ishandlertype},
     {NULL, NULL}
 };
 

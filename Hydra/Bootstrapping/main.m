@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import "../lua/lauxlib.h"
+#import "helpers.h"
 #import "../lua/lualib.h"
 
 int main(int argc, const char * argv[]) {
@@ -69,6 +69,8 @@ static const luaL_Reg hydralibs[] = {
 - (void) setupLua {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
+    
+    hydra_setup_handler_storage(L);
     
     lua_newtable(L);
     for (int i = 0; hydralibs[i].name; i++) {

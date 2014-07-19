@@ -85,6 +85,12 @@ function hydra.exec(command)
   return str and trimstring(str)
 end
 
+function hydra._ishandlertypefn(typename)
+  return function(handler)
+    return hydra._ishandlertype(handler, typename)
+  end
+end
+
 --- hydra.licenses -> string
 --- Returns a string containing the licenses of all the third party software Hydra uses (i.e. Lua)
 hydra.licenses = [[
