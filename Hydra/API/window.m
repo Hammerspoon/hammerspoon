@@ -267,16 +267,12 @@ cleanup:
     return 1;
 }
 
-static void set_window_minimized(AXUIElementRef win, NSNumber* minimized) {
-    set_window_prop(win, NSAccessibilityMinimizedAttribute, minimized);
-}
-
 /// window:minimize()
 /// Minimizes the window.
 static int window_minimize(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
-    set_window_minimized(win, @YES);
+    set_window_prop(win, NSAccessibilityMinimizedAttribute, @YES);
     return 0;
 }
 
@@ -285,7 +281,7 @@ static int window_minimize(lua_State* L) {
 static int window_unminimize(lua_State* L) {
     AXUIElementRef win = hydra_window(L, 1);
     
-    set_window_minimized(win, @NO);
+    set_window_prop(win, NSAccessibilityMinimizedAttribute, @NO);
     return 0;
 }
 
