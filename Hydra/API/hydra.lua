@@ -12,6 +12,7 @@ local function clear_old_state()
   textgrid.destroyall()
   notify.unregisterall()
   notify.applistener.stopall()
+  battery.watcher.stopall()
 end
 
 local function load_default_config()
