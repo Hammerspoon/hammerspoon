@@ -12,7 +12,7 @@ typedef struct _timer_t {
     BOOL started;
 } timer_t;
 
-void callback(CFRunLoopTimerRef timer, void *info) {
+static void callback(CFRunLoopTimerRef timer, void *info) {
     timer_t* t = info;
     lua_State* L = t->L;
     lua_rawgeti(L, LUA_REGISTRYINDEX, t->fn);

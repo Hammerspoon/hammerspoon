@@ -9,6 +9,9 @@ int main(int argc, const char * argv[]) {
 int luaopen_application(lua_State* L);
 int luaopen_audiodevice(lua_State* L);
 int luaopen_brightness(lua_State* L);
+int luaopen_battery(lua_State* L);
+int luaopen_battery_watcher(lua_State* L);
+
 //int luaopen_eventtap(lua_State* L);
 int luaopen_geometry(lua_State* L);
 int luaopen_hotkey(lua_State* L);
@@ -46,6 +49,8 @@ typedef struct _hydralib {
 static const hydralib hydralibs[] = {
     {"application",  NULL,          luaopen_application},
     {"audiodevice",  NULL,          luaopen_audiodevice},
+    {"battery",      NULL,          luaopen_battery},
+    {"battery",      "watcher",     luaopen_battery_watcher},
     {"brightness",   NULL,          luaopen_brightness},
 //    {"eventtap",     NULL,          luaopen_eventtap},
     {"geometry",     NULL,          luaopen_geometry},
