@@ -63,80 +63,53 @@ NSDictionary* get_iopmps_battery_info() {
     return (__bridge_transfer NSDictionary *) battery;
 }
 
-// Helper function to yank a number from a dictionary by key, and push it onto the LUA stack.
-static int _get_number_value_or_nil(lua_State* L, NSDictionary* dict, NSString* key) {
-    NSNumber* value = [dict objectForKey:key];
-    if (value == nil)
-        lua_pushnil(L);
-    else
-        lua_pushnumber(L, [value doubleValue]);
-    
-    return 1;
-}
-
-// Helper function to yank a bool from a dictionary by key, and push it onto the LUA stack.
-static int _get_boolean_value_or_nil(lua_State* L, NSDictionary* dict, NSString* key) {
-    NSNumber* value = [dict objectForKey:key];
-    if (value == nil)
-        lua_pushnil(L);
-    else
-        lua_pushboolean(L, [value boolValue]);
-    
-    return 1;
-}
-
-
-// Helper function to yank a string from a dictionary by key and push it onto the LUA stack.
-static int _get_string_value_or_nil(lua_State* L, NSDictionary* dict, NSString* key) {
-    NSString* value = [dict objectForKey:key];
-    if (value == nil)
-        lua_pushnil(L);
-    else
-        lua_pushstring(L, [value UTF8String]);
-    
+// Helper function to yank an object from a dictionary by key, and push it onto the LUA stack.
+static int _push_dict_key_value(lua_State* L, NSDictionary* dict, NSString* key) {
+    id value = [dict objectForKey:key];
+    hydra_push_luavalue_for_nsobject(L, value);
     return 1;
 }
 
 /// battery.cycles() -> number
 /// Returns the number of cycles the connected battery has went through.
 static int battery_cycles(lua_State *L) {
-    return _get_number_value_or_nil(L, get_iopm_battery_info(), @kIOBatteryCycleCountKey);
+    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCycleCountKey);
 }
 
 /// battery.name() -> number
 /// Returns the name of the battery.
 static int battery_name(lua_State *L) {
-    return _get_string_value_or_nil(L, get_iops_battery_info(), @kIOPSNameKey);
+    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSNameKey);
 }
 
 /// battery.maxcapacity() -> number
 /// Returns the current maximum capacity of the battery in mAh.
 static int battery_maxcapacity(lua_State *L) {
-    return _get_number_value_or_nil(L, get_iopm_battery_info(), @kIOBatteryCapacityKey);
+    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCapacityKey);
 }
 
 /// battery.capacity() -> number
 /// Returns the current capacity of the battery in mAh.
 static int battery_capacity(lua_State *L) {
-    return _get_number_value_or_nil(L, get_iopm_battery_info(), @kIOBatteryCurrentChargeKey);
+    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCurrentChargeKey);
 }
 
 /// battery.designcapacity() -> number
 /// Returns the design capacity of the battery in mAh.
 static int battery_designcapacity(lua_State *L) {
-    return _get_number_value_or_nil(L, get_iopmps_battery_info(), @kIOPMPSDesignCapacityKey);
+    return _push_dict_key_value(L, get_iopmps_battery_info(), @kIOPMPSDesignCapacityKey);
 }
 
 /// battery.voltage() -> number
 /// Returns the voltage flow of the battery in mV.
 static int battery_voltage(lua_State *L) {
-    return _get_number_value_or_nil(L, get_iopm_battery_info(), @kIOBatteryVoltageKey);
+    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryVoltageKey);
 }
 
 /// battery.amperage() -> number
 /// Returns the amperage of the battery in mA. (will be negative if battery is discharging)
 static int battery_amperage(lua_State *L) {
-    return _get_number_value_or_nil(L, get_iopm_battery_info(), @kIOBatteryAmperageKey);
+    return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryAmperageKey);
 }
 
 /// battery.watts() -> number
@@ -159,13 +132,13 @@ static int battery_watts(lua_State *L) {
 /// battery.health() -> string
 /// Returns the health status of the battery. One of {Good, Fair, Poor}
 static int battery_health(lua_State *L) {
-    return _get_string_value_or_nil(L, get_iops_battery_info(), @kIOPSBatteryHealthKey);
+    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSBatteryHealthKey);
 }
 
 /// battery.healthcondition() -> string
 /// Returns the health condition status of the battery. One of {Check Battery, Permanent Battery Failure}. Nil if there is no health condition set.
 static int battery_healthcondition(lua_State *L) {
-    return _get_string_value_or_nil(L, get_iops_battery_info(), @kIOPSBatteryHealthConditionKey);
+    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSBatteryHealthConditionKey);
 }
 
 /// battery.percentage() -> number
@@ -203,25 +176,25 @@ static int battery_timeremaining(lua_State* L) {
 /// battery.timetofullcharge() -> number
 /// Returns the time remaining to a full charge in minutes. Or a negative value, -1 = calculating time remaining.
 static int battery_timetofullcharge(lua_State* L) {
-    return _get_number_value_or_nil(L, get_iops_battery_info(), @kIOPSTimeToFullChargeKey);
+    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSTimeToFullChargeKey);
 }
 
 /// battery.ischarging() -> boolean
 /// Returns true if the battery is charging.
 static int battery_ischarging(lua_State* L) {
-    return _get_boolean_value_or_nil(L, get_iops_battery_info(), @kIOPSIsChargingKey);
+    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsChargingKey);
 }
 
 /// battery.ischarged() -> boolean
 /// Returns true if battery is charged.
 static int battery_ischarged(lua_State* L) {
-    return _get_boolean_value_or_nil(L, get_iops_battery_info(), @kIOPSIsChargedKey);
+    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsChargedKey);
 }
 
 /// battery.isfinishingcharge() -> boolean
 /// Returns true if battery is finishing charge.
 static int battery_isfinishingcharge(lua_State* L) {
-    return _get_boolean_value_or_nil(L, get_iops_battery_info(), @kIOPSIsFinishingChargeKey);
+    return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsFinishingChargeKey);
 }
 
 static luaL_Reg batterylib[] = {
