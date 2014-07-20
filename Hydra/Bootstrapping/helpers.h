@@ -14,3 +14,5 @@ int hydra_store_handler(lua_State* L, int idx);
 void hydra_remove_handler(lua_State* L, int ref);
 void* hydra_get_stored_handler(lua_State* L, int ref, const char* type);
 void hydra_remove_all_handlers(lua_State* L, const char* type);
+void hydra_push_luavalue_for_nsobject(lua_State* L, id obj);
+id hydra_nsobject_for_luavalue(lua_State* L, int idx);
