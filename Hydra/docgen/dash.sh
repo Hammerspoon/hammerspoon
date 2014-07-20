@@ -24,7 +24,7 @@ cat > Hydra.docset/Contents/Info.plist << __EOF__
 </plist>
 __EOF__
 
-ruby ./gendocs.rb | sqlite3 Hydra.docset/Contents/Resources/docSet.dsidx
+ruby ./gendocs.rb --dash | sqlite3 Hydra.docset/Contents/Resources/docSet.dsidx
 cp -r docs/ Hydra.docset/Contents/Resources/Documents/
 cp *.css Hydra.docset/Contents/Resources/Documents/
 

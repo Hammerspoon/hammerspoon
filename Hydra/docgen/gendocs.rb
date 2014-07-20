@@ -70,20 +70,25 @@ def scrape
 end
 
 def gendocs
+  dash = ARGV.include?('--dash')
   version = `defaults read "$(pwd)/../XcodeCrap/Hydra-Info" CFBundleVersion`.strip
 
   template = ERB.new(File.read("template.erb"))
   system("mkdir -p docs && rm -f docs/*html")
 
-  puts "CREATE TABLE IF NOT EXISTS searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);"
-  puts "CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);"
+  if dash then
+    puts "CREATE TABLE IF NOT EXISTS searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);"
+    puts "CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);"
+  end
 
   groups = JSON.load(File.read("docs.json"))
   groups.each do |group|
     File.write("docs/#{group['name']}.html", template.result(binding))
-    puts "INSERT INTO searchIndex VALUES (NULL, '#{group['name']}', 'Module', '#{group['name']}.html');"
-    group['items'].each do |function|
-      puts "INSERT INTO searchIndex VALUES (NULL, '#{group['name']}.#{function['name']}', 'Function', '#{group['name']}.html##{function['name']}');"
+    if dash then
+      puts "INSERT INTO searchIndex VALUES (NULL, '#{group['name']}', 'Module', '#{group['name']}.html');"
+      group['items'].each do |function|
+        puts "INSERT INTO searchIndex VALUES (NULL, '#{group['name']}.#{function['name']}', 'Function', '#{group['name']}.html##{function['name']}');"
+      end
     end
   end
 
