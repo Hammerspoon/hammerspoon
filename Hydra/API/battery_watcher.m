@@ -22,7 +22,7 @@ static void callback(void *info) {
     
 }
 
-/// battery.watcher(fn) -> battery.watcher
+/// battery.watcher.new(fn) -> battery.watcher
 /// Creates a battery watcher that can be started. When started, fn will be called each time a battery attribute changes.
 static int battery_watcher_new(lua_State* L) {
     // Since we're calling this function via __call, we pop the "self" table.
@@ -94,6 +94,7 @@ static int battery_watcher_gc(lua_State* L) {
 }
 
 static luaL_Reg battery_watcherlib[] = {
+    {"new", battery_watcher_new},
     {"stop", battery_watcher_stop},
     {"stopall", battery_watcher_stopall},
     {"start", battery_watcher_start},
@@ -108,13 +109,6 @@ int luaopen_battery_watcher(lua_State* L) {
     
     lua_pushvalue(L, -1);
     lua_setfield(L, LUA_REGISTRYINDEX, "battery_watcher");
-    
-    if (luaL_newmetatable(L, "battery_watcher__mt")) {
-        lua_pushcfunction(L, battery_watcher_new);
-        lua_setfield(L, -2, "__call");
-    }
-    
-    lua_setmetatable(L, -2);
     
     return 1;
 }

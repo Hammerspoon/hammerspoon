@@ -137,6 +137,118 @@
     ]
   },
   {
+    "name": "battery",
+    "doc": "Functions for getting battery info. All functions here may return nil, if the information requested is not available.",
+    "items": [
+      {
+        "def": "battery.cycles() -> number",
+        "doc": "Returns the number of cycles the connected battery has went through.",
+        "name": "cycles"
+      },
+      {
+        "def": "battery.name() -> number",
+        "doc": "Returns the name of the battery.",
+        "name": "name"
+      },
+      {
+        "def": "battery.maxcapacity() -> number",
+        "doc": "Returns the current maximum capacity of the battery in mAh.",
+        "name": "maxcapacity"
+      },
+      {
+        "def": "battery.capacity() -> number",
+        "doc": "Returns the current capacity of the battery in mAh.",
+        "name": "capacity"
+      },
+      {
+        "def": "battery.designcapacity() -> number",
+        "doc": "Returns the design capacity of the battery in mAh.",
+        "name": "designcapacity"
+      },
+      {
+        "def": "battery.voltage() -> number",
+        "doc": "Returns the voltage flow of the battery in mV.",
+        "name": "voltage"
+      },
+      {
+        "def": "battery.amperage() -> number",
+        "doc": "Returns the amperage of the battery in mA. (will be negative if battery is discharging)",
+        "name": "amperage"
+      },
+      {
+        "def": "battery.watts() -> number",
+        "doc": "Returns the watts into or out of the battery in Watt (will be negative if battery is discharging)",
+        "name": "watts"
+      },
+      {
+        "def": "battery.health() -> string",
+        "doc": "Returns the health status of the battery. One of {Good, Fair, Poor}",
+        "name": "health"
+      },
+      {
+        "def": "battery.healthcondition() -> string",
+        "doc": "Returns the health condition status of the battery. One of {Check Battery, Permanent Battery Failure}. Nil if there is no health condition set.",
+        "name": "healthcondition"
+      },
+      {
+        "def": "battery.percentage() -> number",
+        "doc": "Returns the current percentage of the battery between 0 and 100.",
+        "name": "percentage"
+      },
+      {
+        "def": "battery.timeremaining() -> number",
+        "doc": "Returns the time remaining in minutes. Or a negative value: -1 = calculating time remaining, -2 = unlimited (i.e. you're charging, or apple has somehow discovered an infinite power source.)",
+        "name": "timeremaining"
+      },
+      {
+        "def": "battery.timetofullcharge() -> number",
+        "doc": "Returns the time remaining to a full charge in minutes. Or a negative value, -1 = calculating time remaining.",
+        "name": "timetofullcharge"
+      },
+      {
+        "def": "battery.ischarging() -> boolean",
+        "doc": "Returns true if the battery is charging.",
+        "name": "ischarging"
+      },
+      {
+        "def": "battery.ischarged() -> boolean",
+        "doc": "Returns true if battery is charged.",
+        "name": "ischarged"
+      },
+      {
+        "def": "battery.isfinishingcharge() -> boolean",
+        "doc": "Returns true if battery is finishing charge.",
+        "name": "isfinishingcharge"
+      }
+    ]
+  },
+  {
+    "name": "battery.watcher",
+    "doc": "Functions for watching battery state changes.",
+    "items": [
+      {
+        "def": "battery.watcher.new(fn) -> battery.watcher",
+        "doc": "Creates a battery watcher that can be started. When started, fn will be called each time a battery attribute changes.",
+        "name": "new"
+      },
+      {
+        "def": "battery.watcher:start() -> self",
+        "doc": "Starts the battery watcher, making it so fn is called each time a battery attribute changes.",
+        "name": "start"
+      },
+      {
+        "def": "battery.watcher:stop() -> self",
+        "doc": "Stops the battery watcher's fn from getting called until started again.",
+        "name": "stop"
+      },
+      {
+        "def": "battery.watcher.stopall()",
+        "doc": "Stops all running battery watchers; called automatically when user config reloads.",
+        "name": "stopall"
+      }
+    ]
+  },
+  {
     "name": "brightness",
     "doc": "Functions for manipulating display brightness.",
     "items": [
