@@ -258,6 +258,7 @@
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		948018191976C0DC0024B39F /* http.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = http.m; sourceTree = "<group>"; };
 		9480181B1976CDFE0024B39F /* http.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = http.lua; sourceTree = "<group>"; };
+		94804B08197B3E0D005DE830 /* CGSPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CGSPrivate.h; sourceTree = "<group>"; };
 		948CA9F91955AECC00A27D9D /* textgrid.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = textgrid.xib; sourceTree = "<group>"; };
 		948CA9FA1955AECC00A27D9D /* HDTextGridController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDTextGridController.h; sourceTree = "<group>"; };
 		948CA9FB1955AECC00A27D9D /* HDTextGridController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HDTextGridController.m; sourceTree = "<group>"; };
@@ -541,6 +542,7 @@
 				9452129F194D697100217584 /* alert.xib */,
 				945212A5194D6B5900217584 /* menu.png */,
 				945212A6194D6B5900217584 /* menu@2x.png */,
+				94804B08197B3E0D005DE830 /* CGSPrivate.h */,
 			);
 			path = ThirdParty;
 			sourceTree = "<group>";
