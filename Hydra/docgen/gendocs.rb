@@ -75,9 +75,16 @@ def gendocs
   template = ERB.new(File.read("template.erb"))
   system("mkdir -p docs && rm -f docs/*html")
 
+  puts "CREATE TABLE IF NOT EXISTS searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);"
+  puts "CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);"
+
   groups = JSON.load(File.read("docs.json"))
   groups.each do |group|
     File.write("docs/#{group['name']}.html", template.result(binding))
+    puts "INSERT INTO searchIndex VALUES (NULL, '#{group['name']}', 'Module', '#{group['name']}.html');"
+    group['items'].each do |function|
+      puts "INSERT INTO searchIndex VALUES (NULL, '#{group['name']}.#{function['name']}', 'Function', '#{group['name']}.html##{function['name']}');"
+    end
   end
 
   group = {}
