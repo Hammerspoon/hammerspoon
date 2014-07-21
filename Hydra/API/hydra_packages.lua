@@ -26,8 +26,10 @@ function hydra.packages.listinstalled()
   -- TODO
 end
 
---- hydra.packages.install(...)
+--- hydra.packages.install(name, version)
 --- Installs the given package.
-function hydra.packages.install(...)
+--- Multiple versions cannot be installed simultaneously; if another version of the same package is installed, this implies uninstalling it.
+--- Changes take effect immediately, so that you may use `require "packagename"` without restarting Hydra.
+function hydra.packages.install(name, version)
   -- TODO
 end
