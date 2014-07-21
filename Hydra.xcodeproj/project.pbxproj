@@ -75,6 +75,7 @@
 		9459B58F194CEB07008BC904 /* keycodes.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B58E194CEB07008BC904 /* keycodes.m */; };
 		9459B592194CEE1E008BC904 /* hotkey.m in Sources */ = {isa = PBXBuildFile; fileRef = 9459B591194CEE1E008BC904 /* hotkey.m */; };
 		945F2BC01959AFA700D2DE7E /* notify.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945F2BBF1959AFA700D2DE7E /* notify.lua */; };
+		946194C8197D49A60076F93C /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 946194C7197D49A60076F93C /* Credits.rtf */; };
 		94668E951958B039009422D7 /* doc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94668E941958B039009422D7 /* doc.lua */; };
 		946AF2CF1976941200A22EBF /* notify_applistener.m in Sources */ = {isa = PBXBuildFile; fileRef = 946AF2CE1976941200A22EBF /* notify_applistener.m */; };
 		946AF2D31976AB5D00A22EBF /* hotkey_modal.lua in Resources */ = {isa = PBXBuildFile; fileRef = 946AF2D21976AB5D00A22EBF /* hotkey_modal.lua */; };
@@ -249,6 +250,7 @@
 		9459B58E194CEB07008BC904 /* keycodes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = keycodes.m; sourceTree = "<group>"; };
 		9459B591194CEE1E008BC904 /* hotkey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hotkey.m; sourceTree = "<group>"; };
 		945F2BBF1959AFA700D2DE7E /* notify.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = notify.lua; sourceTree = "<group>"; };
+		946194C7197D49A60076F93C /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		94668E941958B039009422D7 /* doc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = doc.lua; sourceTree = "<group>"; };
 		946AF2CE1976941200A22EBF /* notify_applistener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = notify_applistener.m; sourceTree = "<group>"; };
 		946AF2D21976AB5D00A22EBF /* hotkey_modal.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey_modal.lua; sourceTree = "<group>"; };
@@ -382,6 +384,7 @@
 				9445CA2619083251002568BB /* Images.xcassets */,
 				94E8E7AD194E0C940064CF6C /* Hydra.icns */,
 				9445CA1619083251002568BB /* Hydra-Info.plist */,
+				946194C7197D49A60076F93C /* Credits.rtf */,
 				94D86A7C196E231C001B6F05 /* dsa_pub.cer */,
 				9445CA1C19083251002568BB /* Hydra-Prefix.pch */,
 			);
@@ -645,6 +648,7 @@
 				94DE594B194F1A39004D242E /* hydra.lua in Resources */,
 				94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */,
 				9445CAA5190847CB002568BB /* rawinit.lua in Resources */,
+				946194C8197D49A60076F93C /* Credits.rtf in Resources */,
 				944C49CD196B2E5C00FF10DD /* docs.json in Resources */,
 				945200861950E2760072DFEF /* fallback_init.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
