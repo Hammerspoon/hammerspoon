@@ -18,8 +18,13 @@ hydra.ipc.handler = rawhandler
 function hydra.ipc._handler(raw, str)
   local fn = hydra.ipc.handler
   if raw then fn = rawhandler end
-  local ok, val = hydra.call(function() return fn(str) end)
-  return val
+  local results = table.pack(pcall(function() return fn(str) end))
+
+  local str = tostring(results[2])
+  for i = 3, results.n do
+    str = str .. "\t" .. tostring(results[i])
+  end
+  return str
 end
 
 local function envstuff(prefix, dryrun)
