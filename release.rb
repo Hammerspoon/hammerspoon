@@ -13,6 +13,7 @@ privkeyfile = ARGV[0]
 # get password
 print "github password: "
 pass = STDIN.noecho(&:gets).chomp
+abort "wrong github password" unless system "curl -s --fail -u sdegutis:#{pass} https://api.github.com > /dev/null"
 
 # build app
 system "xcodebuild clean build"
