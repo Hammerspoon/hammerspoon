@@ -869,6 +869,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				OTHER_LDFLAGS = "-ledit";
 				PRODUCT_NAME = hydra;
 			};
 			name = Debug;
@@ -876,6 +877,7 @@
 		94735C37196DC4FE002A258D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				OTHER_LDFLAGS = "-ledit";
 				PRODUCT_NAME = hydra;
 			};
 			name = Release;

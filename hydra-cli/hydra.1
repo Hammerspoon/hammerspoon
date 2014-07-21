@@ -6,32 +6,36 @@
 .Nd Command line interface to Hydra.app
 .Sh SYNOPSIS
 .Nm
-.Op Fl r | Fl Fl raw
-.Op Ar code ...
+.Op Fl i | Fl s | Fl c Ar code
+.Op Fl r
 .Sh DESCRIPTION
-Executes
+Runs
 .Ar code
-in Hydra's environment. If
-.Ar code
-is not given, the contents of stdin are used.
+from within Hydra, and prints the results.
 .Pp
-Normally,
+For a description of how
 .Ar code
-is passed through the function "hydra.ipc.handler" inside Hydra, which by
-default evaluates it as plain Lua code. This function may be
-overridden by the user to interpret
-.Ar code
-in some other way, and it may return any value.
+is evaluated, see the documentation for the function "hydra.ipc.handler".
 .Pp
-If the
-.Fl Fl raw
-option is given,
-.Ar code
-is always interpreted as raw Lua code, and the function
-"hydra.ipc.handler" is not called.
+When no args are given,
+.Fl i
+is implied.
 .Pp
-The result (or error string if it fails) is passed through tostring()
-and printed to stdout by this command.
+.Bl -tag -width -indent
+.It Fl i
+Runs in interactive-mode; uses each line as
+.Ar code
+.It Fl c
+Uses the given argument as
+.Ar code
+.It Fl s
+Uses stdin as
+.Ar code
+.It Fl r
+Forces Hydra to interpret
+.Ar code
+as raw Lua code; the function "hydra.ipc.handler" is not called.
+.El
 .Pp
 .Sh EXIT STATUS
 The
@@ -39,7 +43,12 @@ The
 utility exits 0 on success, and >0 if an error occurs.
 .Pp
 .Sh BUGS
-None, except the ones it has.
+.Nm
+seems to behave unpredictably when executed within the firmware of certain toasters made before 1932. For best results, use
+.Nm
+only on preapproved toasters; for a list preapproved toasters, consult your local toaster vendor. NOTE: if your toaster becomes sentient, immediately unplug the device and file a detailed report of the events to your local toaster vendor; do NOT file an issue in the
+.Nm
+project on Github, as it will be marked as a duplicate and closed immediately.
 .Sh MORE INFO
 Visit
 .Pa https://github.com/sdegutis/hydra/
