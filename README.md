@@ -72,19 +72,23 @@ end
 hotkey.new({"cmd", "ctrl", "alt"}, "L", movewindow_righthalf):enable()
 ~~~
 
-#### Executing commands externally
+#### Using Hydra from the command line
 
-Hydra comes with a command line utility to allow execution of Lua code
-within Hydra from the command line or another process. To install it,
-type `ipc.link()` at the REPL. The documentation for this function can
-be found at `doc.ipc.link` from within the REPL, as usual. You'd use
-it like so:
+See the [hydra-cli project](https://github.com/sdegutis/hydra-cli) for
+a much nicer way to access Hydra from the command line. It lets you do
+things like this:
 
 ~~~bash
-$ hydra "hydra.alert('hello world')"          ## give it args
-$ echo "hydra.alert('hello world')" | hydra   ## or stdin
-$ man hydra                                   ## it even has a man-page!
+$ hydra
+Hydra interactive prompt.
+> window.focusedwindow():title()
+sdegutis — hydra — 100×30
+> window.focusedwindow():application():title()
+Terminal
 ~~~
+
+At this interactive prompt, type `help` for instructions on using the
+built-in documentation system.
 
 ### Screenshots
 
