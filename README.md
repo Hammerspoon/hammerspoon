@@ -147,9 +147,11 @@ donate what you believe would have been a fair price for a license:
    the accessibility checkbox for Hydra may be checked; just uncheck
    it and re-check it anyway, and then it should be fixed.
 
-2. **How does Hydra compare to Zephyros or Phoenix?**
+2. **How does Hydra compare to Phoenix or Zephyros?**
 
-   Hydra is the successor to my older Phoenix and Zephyros projects.
+   Hydra is the successor to Phoenix and Zephyros, my older projects
+   which I don't update anymore. Hydra is simpler and more efficient
+   (see the Principles section above).
 
 3. **How does Hydra compare to Slate?**
 
