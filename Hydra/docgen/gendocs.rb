@@ -4,6 +4,9 @@ require 'json'
 require 'erb'
 require 'pp'
 
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
+
 def scrape_docstring_comments
   comments = []
   Dir["../API/*"].each do |file|
