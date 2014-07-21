@@ -140,16 +140,23 @@ donate what you believe would have been a fair price for a license:
 
 ### FAQ
 
-1. **How does Hydra compare to Zephyros or Phoenix?**
+1. **I'm getting an error like this: attempt to index local 'win' (a nil value)**
+
+   It almost definitely means you need to enable accessibility. This
+   is especially true after upgrading to a new version of Hydra, since
+   the accessibility checkbox for Hydra may be checked; just uncheck
+   it and re-check it anyway, and then it should be fixed.
+
+2. **How does Hydra compare to Zephyros or Phoenix?**
 
    Hydra is the successor to my older Phoenix and Zephyros projects.
 
-2. **How does Hydra compare to Slate?**
+3. **How does Hydra compare to Slate?**
 
    They're both programmer-centric with mostly similar goals. Look
    over their APIs and see which one suits you better.
 
-3. **How does Hydra compare to Spectacle, Moom, SizeUp, Divvy, etc?**
+4. **How does Hydra compare to Spectacle, Moom, SizeUp, Divvy, etc?**
 
    Hydra is intended for programmers who want to write programs that
    customize their environment. It's not intended to be a
@@ -157,11 +164,11 @@ donate what you believe would have been a fair price for a license:
    very personalized productivity enhancement suite to keep and use
    long-term.
 
-4. **Can you add ____ feature?**
+5. **Can you add ____ feature?**
 
    Maybe. [File an issue](https://github.com/sdegutis/hydra/issues/new) and we'll find out!
 
-5. **Where can I find a comprehensive and detailed list of alternatives to Hydra?**
+6. **Where can I find a comprehensive and detailed list of alternatives to Hydra?**
 
    https://news.ycombinator.com/item?id=7982514
 
