@@ -3,7 +3,8 @@
 --- Interface with Hydra from the command line.
 
 local function rawhandler(str)
-  local fn, err = load(str)
+  local fn, err = load("return " .. str)
+  if not fn then fn, err = load(str) end
   if fn then return fn() else return err end
 end
 
