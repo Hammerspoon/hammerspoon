@@ -26,7 +26,7 @@ function hydra.packages.listinstalled()
   -- TODO
 end
 
---- hydra.packages.install(name, version = latest)
+--- hydra.packages.install(name[, version])
 --- Installs the given package.
 --- If version is omitted, defaults to the latest version.
 --- Changes take effect immediately, so that you may use `require "packagename"` without restarting Hydra.
