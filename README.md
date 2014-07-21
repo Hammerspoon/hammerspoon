@@ -99,7 +99,7 @@ Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob
 | Using hotkeys to move and resize a window along a grid [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L43-L50)   | ![grid.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
 | Using a hotkey to open Dictionary.app and show an alert [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L20-L25)  | ![dict.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
 | Using the built-in REPL [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L53)                                      | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
-| Using the `hydra` tool to control Hydra from the command line (see `ipc.link`)                                                                  | ![ipc.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/ipc.gif)   |
+| Using the `hydra` tool to control Hydra from the command line (see [hydra-cli]((https://github.com/sdegutis/hydra-cli)))                        | ![ipc.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/ipc.gif)   |
 
 ### Principles
 
