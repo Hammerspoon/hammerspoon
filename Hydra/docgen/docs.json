@@ -491,6 +491,11 @@
         "name": "exec"
       },
       {
+        "def": "hydra.version -> string",
+        "doc": "The current version of Hydra, as a human-readable string.",
+        "name": "version"
+      },
+      {
         "def": "hydra.licenses -> string",
         "doc": "Returns a string containing the licenses of all the third party software Hydra uses (i.e. Lua)",
         "name": "licenses"

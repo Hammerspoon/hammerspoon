@@ -86,6 +86,10 @@ function hydra.exec(command)
   return str and trimstring(str)
 end
 
+--- hydra.version -> string
+--- The current version of Hydra, as a human-readable string.
+hydra.version = hydra.updates.currentversion()
+
 --- hydra.licenses -> string
 --- Returns a string containing the licenses of all the third party software Hydra uses (i.e. Lua)
 hydra.licenses = [[
