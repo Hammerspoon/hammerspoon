@@ -27,7 +27,7 @@ local ok, err = pcall(function()
     hydra._initiate_documentation_system()
 
     if not hydra.check_accessibility(true) then
-      notify.show("Enable accessibility first", "", "Otherwise Hydra can't do very much.", "needs_accessibility")
+      hydra.alert("Enable accessibility, so Hydra can move windows.")
     end
 
     -- load user's config
