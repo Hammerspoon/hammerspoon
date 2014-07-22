@@ -1,3 +1,13 @@
+local fakestdout = ""
+local function ipcprint(...)
+  local things = table.pack(...)
+  for i = 1, things.n do
+    if i > 1 then fakestdout = fakestdout .. "\t" end
+    fakestdout = fakestdout .. tostring(things[i])
+  end
+  fakestdout = fakestdout .. "\n"
+end
+
 --- === hydra.ipc ===
 ---
 --- Interface with Hydra from the command line.
@@ -16,13 +26,19 @@ end
 hydra.ipc.handler = rawhandler
 
 function hydra.ipc._handler(raw, str)
+  local originalprint = print
+  fakestdout = ""
+  print = function(...) originalprint(...) ipcprint(...) end
+
   local fn = hydra.ipc.handler
   if raw then fn = rawhandler end
   local results = table.pack(pcall(function() return fn(str) end))
 
-  local str = tostring(results[2])
+  local str = fakestdout .. tostring(results[2])
   for i = 3, results.n do
     str = str .. "\t" .. tostring(results[i])
   end
+
+  print = originalprint
   return str
 end
