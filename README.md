@@ -90,6 +90,11 @@ Terminal
 At this interactive prompt, type `help` for instructions on using the
 built-in documentation system.
 
+**NOTE:** `hydra-cli` is guaranteed to be compatible with Hydra 1.x
+(and will most likely remain compatible with all future versions of
+Hydra). So you can upgrade `hydra-cli` mostly independently of the
+Hydra version you're using.
+
 ### Screenshots
 
 Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua):
