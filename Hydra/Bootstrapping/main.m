@@ -30,6 +30,7 @@ int luaopen_notify_applistener(lua_State* L);
 int luaopen_pasteboard(lua_State* L);
 int luaopen_pathwatcher(lua_State* L);
 int luaopen_screen(lua_State* L);
+int luaopen_spaces(lua_State* L);
 int luaopen_textgrid(lua_State* L);
 int luaopen_timer(lua_State* L);
 int luaopen_utf8(lua_State* L);
@@ -70,6 +71,7 @@ static const hydralib hydralibs[] = {
     {"pasteboard",   NULL,          luaopen_pasteboard},
     {"pathwatcher",  NULL,          luaopen_pathwatcher},
     {"screen",       NULL,          luaopen_screen},
+    {"spaces",       NULL,          luaopen_spaces},
     {"textgrid",     NULL,          luaopen_textgrid},
     {"timer",        NULL,          luaopen_timer},
     {"utf8",         NULL,          luaopen_utf8},
