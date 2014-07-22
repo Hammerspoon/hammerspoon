@@ -77,7 +77,7 @@ def gendocs
   version = `defaults read "$(pwd)/../XcodeCrap/Hydra-Info" CFBundleVersion`.strip
 
   template = ERB.new(File.read("template.erb"))
-  system("mkdir -p docs && rm -f docs/*html")
+  system("mkdir -p docs/docs/ && rm -f docs/docs/*html")
 
   if dash then
     puts "CREATE TABLE IF NOT EXISTS searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);"
@@ -86,7 +86,7 @@ def gendocs
 
   groups = JSON.load(File.read("docs.json"))
   groups.each do |group|
-    File.write("docs/#{group['name']}.html", template.result(binding))
+    File.write("docs/docs/#{group['name']}.html", template.result(binding))
     if dash then
       puts "INSERT INTO searchIndex VALUES (NULL, '#{group['name']}', 'Module', '#{group['name']}.html');"
       group['items'].each do |function|
@@ -100,7 +100,7 @@ def gendocs
   group['doc'] = File.read("index.md")
   group['items'] = []
 
-  File.write("docs/index.html", template.result(binding))
+  File.write("docs/docs/index.html", template.result(binding))
 end
 
 scrape
