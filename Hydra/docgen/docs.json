@@ -854,12 +854,17 @@
   },
   {
     "name": "repl",
-    "doc": "The REPL (Read-Eval-Print-Loop) is excellent for exploring and experiment with Hydra's API.\n\nIt has most of the familiar readline-like keybindings, including C-b, C-f, M-b, M-f to navigate your text, C-p and C-n to browse command history, etc.\n\nType `help` in the REPL for info on how to use the documentation system.",
+    "doc": "The REPL (Read-Eval-Print-Loop) is excellent for exploring and experiment with Hydra's API.\n\nIt has all of the familiar readline-like keybindings, including C-b, C-f, M-b, M-f, etc; use C-p and C-n to browse command history.\n\nType `help` in the REPL for info on how to use the documentation system.",
     "items": [
       {
-        "def": "repl.open([opts]) -> textgrid",
-        "doc": "Opens a new REPL; the `opts` parameter is an optional table with keys: inputcolor, stdoutcolor, resultcolor, backgroundcolor; these are 6-digit CSS-like hex strings.",
+        "def": "repl.open()",
+        "doc": "Opens a new REPL.\nIn beta versions of Hydra, the REPL was a textgrid; in Hydra 1.0, this function now opens hydra-cli; see https://github.com/sdegutis/hydra-cli\nWhen hydra-cli is installed, this function opens it in a new terminal window; see repl.path.\nWhen it's not installed, this function opens the github page for hydra-cli which includes installation instructions, as a convenience to the user.",
         "name": "open"
+      },
+      {
+        "def": "repl.path -> string",
+        "doc": "The path to the hydra-cli binary; defaults to \"/usr/local/bin/hydra\"",
+        "name": "path"
       }
     ]
   },
