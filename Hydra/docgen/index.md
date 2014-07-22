@@ -3,7 +3,7 @@
 Resource                 | Link
 -------------------------|------------------------------------------
 Github page              | https://github.com/sdegutis/hydra/
-Hydra API                | http://sdegutis.github.io/hydra/
+Hydra API                | http://sdegutis.github.io/hydra/docs/
 Lua API                  | http://www.lua.org/manual/5.2/#functions
 Community Contributions  | https://github.com/sdegutis/hydra/wiki
 Bug Reports              | https://github.com/sdegutis/hydra/issues

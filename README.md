@@ -28,7 +28,7 @@ gives you a menu bar icon that contains an option to open
 You can paste its contents into your `~/.hydra/init.lua` to get
 started with a really basic starter config.
 
-Bookmark the [official online docs](http://sdegutis.github.io/hydra/)!
+Bookmark the [official online docs](http://sdegutis.github.io/hydra/docs/)!
 The index page has very handy and valuable information that's not
 found in this readme or the in-app documentation system.
 
@@ -129,7 +129,7 @@ extremely common and likely to be used in everyone's configs.
 
 Resource                 | Link
 -------------------------|------------------------------------------
-Hydra Documentation      | http://sdegutis.github.io/hydra/
+Hydra API                | http://sdegutis.github.io/hydra/docs/
 Lua API                  | http://www.lua.org/manual/5.2/#functions
 Community Contributions  | https://github.com/sdegutis/hydra/wiki
 Bug Reports              | https://github.com/sdegutis/hydra/issues
