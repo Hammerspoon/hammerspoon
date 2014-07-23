@@ -4,7 +4,7 @@
 
 [![Build Status](https://travis-ci.org/sdegutis/hydra.svg?branch=master)](https://travis-ci.org/sdegutis/hydra)
 
-### Install
+## Install
 
 Hydra requires OS X 10.8 or newer.
 
@@ -19,7 +19,7 @@ every day. While in beta, the API is subject to change. Within a week,
 it will come out of beta. You can check for updates via the `updates`
 module, to be notified when an update (beta or not) is available.
 
-### Usage
+## Usage
 
 Hydra will look for `~/.hydra/init.lua` and run it if it exists. But
 if you haven't written one yet, it will run a fallback config that
@@ -32,7 +32,7 @@ Bookmark the [official online docs](http://sdegutis.github.io/hydra/docs/)!
 The index page has very handy and valuable information that's not
 found in this readme or the in-app documentation system.
 
-### Example
+## Example
 
 [sample_init.lua](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_init.lua) ([raw source](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_init.lua))
 
@@ -72,7 +72,7 @@ end
 hotkey.new({"cmd", "ctrl", "alt"}, "L", movewindow_righthalf):enable()
 ~~~
 
-#### Using Hydra from the command line
+### Using Hydra from the command line
 
 See the [hydra-cli project](https://github.com/sdegutis/hydra-cli) for
 a much nicer way to access Hydra from the command line. It lets you do
@@ -95,7 +95,7 @@ built-in documentation system.
 Hydra). So you can upgrade `hydra-cli` mostly independently of the
 Hydra version you're using.
 
-### Screenshots
+## Screenshots
 
 Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua):
 
@@ -106,7 +106,7 @@ Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob
 | Using the built-in REPL [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L53)                                      | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
 | Using the `hydra` tool to control Hydra from the command line (see [hydra-cli]((https://github.com/sdegutis/hydra-cli)))                        | ![ipc.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/ipc.gif)   |
 
-### Principles
+## Principles
 
 First and foremost, Hydra must be stable. It should never crash. You
 should only ever have to launch it once, and it should stay running
@@ -125,7 +125,7 @@ Finally, the API must not be bloated. Nothing should be put into it
 except what's impossible or impractical to do in pure Lua, and what's
 extremely common and likely to be used in everyone's configs.
 
-### Resources
+## Resources
 
 Resource                 | Link
 -------------------------|------------------------------------------
@@ -137,7 +137,7 @@ Feature Requests         | https://github.com/sdegutis/hydra/issues
 General Discussion       | https://github.com/sdegutis/hydra/issues
 IRC channel              | #hydrawm on freenode
 
-### Donate
+## Donate
 
 I've worked hard to make Hydra useful and easy to use. I've also
 released it with a liberal open source license, so that you can do
@@ -147,7 +147,7 @@ donate what you believe would have been a fair price for a license:
 
 [Donate via PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation&no_shipping=1)
 
-### FAQ
+## FAQ
 
 1. **I'm getting an error like this: attempt to index local 'win' (a nil value)**
 
@@ -184,7 +184,7 @@ donate what you believe would have been a fair price for a license:
    https://news.ycombinator.com/item?id=7982514
 
 
-### License
+## License
 
 > Released under MIT license.
 >
