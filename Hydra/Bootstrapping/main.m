@@ -41,64 +41,74 @@ int luaopen_window(lua_State* L);
 
 @implementation HydraAppDelegate
 
-typedef struct _hydralib {
+typedef struct _hydralib hydralib;
+struct _hydralib {
     const char *name;
-    const char *subname;
     lua_CFunction func;
-} hydralib;
-
-static const hydralib hydralibs[] = {
-    {"application",  NULL,          luaopen_application},
-    {"audiodevice",  NULL,          luaopen_audiodevice},
-    {"battery",      NULL,          luaopen_battery},
-    {"battery",      "watcher",     luaopen_battery_watcher},
-    {"brightness",   NULL,          luaopen_brightness},
-//    {"eventtap",     NULL,          luaopen_eventtap},
-    {"geometry",     NULL,          luaopen_geometry},
-    {"hotkey",       NULL,          luaopen_hotkey},
-    {"http",         NULL,          luaopen_http},
-    {"hydra",        NULL,          luaopen_hydra},
-    {"hydra",        "autolaunch",  luaopen_hydra_autolaunch},
-    {"hydra",        "dockicon",    luaopen_hydra_dockicon},
-    {"hydra",        "ipc",         luaopen_hydra_ipc},
-    {"hydra",        "menu",        luaopen_hydra_menu},
-    {"hydra",        "settings",    luaopen_hydra_settings},
-    {"hydra",        "updates",     luaopen_hydra_updates},
-    {"json",         NULL,          luaopen_json},
-    {"mouse",        NULL,          luaopen_mouse},
-    {"notify",       NULL,          luaopen_notify},
-    {"notify",       "applistener", luaopen_notify_applistener},
-    {"pasteboard",   NULL,          luaopen_pasteboard},
-    {"pathwatcher",  NULL,          luaopen_pathwatcher},
-    {"screen",       NULL,          luaopen_screen},
-    {"spaces",       NULL,          luaopen_spaces},
-    {"textgrid",     NULL,          luaopen_textgrid},
-    {"timer",        NULL,          luaopen_timer},
-    {"utf8",         NULL,          luaopen_utf8},
-    {"window",       NULL,          luaopen_window},
-    {NULL, NULL, NULL},
+    hydralib* sublib;
 };
+
+// always end a submodule with sentinals, or bad things will happen
+static const hydralib hydralibs[] = {
+    {"application",  luaopen_application},
+    {"audiodevice",  luaopen_audiodevice},
+    {"battery",      luaopen_battery, (hydralib[]){
+        {"watcher", luaopen_battery_watcher},
+        {},
+    }},
+    {"brightness",   luaopen_brightness},
+//    {"eventtap",     luaopen_eventtap},
+    {"geometry",     luaopen_geometry},
+    {"hotkey",       luaopen_hotkey},
+    {"http",         luaopen_http},
+    {"hydra",        luaopen_hydra, (hydralib[]){
+        {"autolaunch",  luaopen_hydra_autolaunch},
+        {"dockicon",    luaopen_hydra_dockicon},
+        {"ipc",         luaopen_hydra_ipc},
+        {"menu",        luaopen_hydra_menu},
+        {"settings",    luaopen_hydra_settings},
+        {"updates",     luaopen_hydra_updates},
+        {},
+    }},
+    {"json",         luaopen_json},
+    {"mouse",        luaopen_mouse},
+    {"notify",       luaopen_notify, (hydralib[]){
+        {"applistener", luaopen_notify_applistener},
+        {},
+    }},
+    {"pasteboard",   luaopen_pasteboard},
+    {"pathwatcher",  luaopen_pathwatcher},
+    {"screen",       luaopen_screen},
+    {"spaces",       luaopen_spaces},
+    {"textgrid",     luaopen_textgrid},
+    {"timer",        luaopen_timer},
+    {"utf8",         luaopen_utf8},
+    {"window",       luaopen_window},
+    {},
+};
+
+static void addmodules(lua_State* L, const hydralib* libs, bool toplevel) {
+    for (int i = 0; libs[i].func; i++) {
+        hydralib lib = libs[i];
+        
+        lib.func(L);
+        
+        if (lib.sublib)
+            addmodules(L, lib.sublib, false);
+        
+        if (toplevel)
+            lua_setglobal(L, lib.name);
+        else
+            lua_setfield(L, -2, lib.name);
+    }
+}
 
 - (void) setupLua {
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
     
     hydra_setup_handler_storage(L);
-    
-    for (int i = 0; hydralibs[i].func; i++) {
-        hydralib lib = hydralibs[i];
-        
-        if (lib.subname) {
-            lua_getglobal(L, lib.name);
-            lib.func(L);
-            lua_setfield(L, -2, lib.subname);
-            lua_pop(L, 1);
-        }
-        else {
-            lib.func(L);
-            lua_setglobal(L, lib.name);
-        }
-    }
+    addmodules(L, hydralibs, true);
     
     NSString* initFile = [[NSBundle mainBundle] pathForResource:@"rawinit" ofType:@"lua"];
     luaL_dofile(L, [initFile fileSystemRepresentation]);
