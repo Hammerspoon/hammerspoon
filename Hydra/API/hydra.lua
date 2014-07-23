@@ -73,17 +73,13 @@ function hydra.call(fn, ...)
   return table.unpack(results)
 end
 
-local function trimstring(s)
-  return s:gsub("^%s+", ""):gsub("%s+$", "")
-end
-
 --- hydra.exec(command) -> string
---- Runs a shell function and returns stdout as a string (without trailing newline).
+--- Runs a shell function and returns stdout as a string (may include trailing newline).
 function hydra.exec(command)
   local f = io.popen(command)
-  local str = f:read("*a")
+  local str = f:read('*a')
   f:close()
-  return str and trimstring(str)
+  return str
 end
 
 --- hydra.version -> string
