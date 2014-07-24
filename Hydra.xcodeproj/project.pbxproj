@@ -100,6 +100,7 @@
 		94C36942194DD94D00EE3A2D /* hydra_updates.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C36941194DD94D00EE3A2D /* hydra_updates.lua */; };
 		94C96E6F19548ECB00DBD838 /* hotkey.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94C96E6E19548ECB00DBD838 /* hotkey.lua */; };
 		94D86A7D196E231C001B6F05 /* dsa_pub.cer in Resources */ = {isa = PBXBuildFile; fileRef = 94D86A7C196E231C001B6F05 /* dsa_pub.cer */; };
+		94D8B5E51980819A003CB313 /* HydraLicense.m in Sources */ = {isa = PBXBuildFile; fileRef = 94D8B5E41980819A003CB313 /* HydraLicense.m */; };
 		94DE5947194F11AD004D242E /* fnutils.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE5946194F11AD004D242E /* fnutils.lua */; };
 		94DE5949194F1A31004D242E /* hydra.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DE5948194F1A31004D242E /* hydra.m */; };
 		94DE594B194F1A39004D242E /* hydra.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE594A194F1A39004D242E /* hydra.lua */; };
@@ -241,6 +242,8 @@
 		94C36941194DD94D00EE3A2D /* hydra_updates.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hydra_updates.lua; sourceTree = "<group>"; };
 		94C96E6E19548ECB00DBD838 /* hotkey.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hotkey.lua; sourceTree = "<group>"; };
 		94D86A7C196E231C001B6F05 /* dsa_pub.cer */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.cer; sourceTree = "<group>"; };
+		94D8B5E31980819A003CB313 /* HydraLicense.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HydraLicense.h; sourceTree = "<group>"; };
+		94D8B5E41980819A003CB313 /* HydraLicense.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HydraLicense.m; sourceTree = "<group>"; };
 		94DE5946194F11AD004D242E /* fnutils.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fnutils.lua; sourceTree = "<group>"; };
 		94DE5948194F1A31004D242E /* hydra.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra.m; sourceTree = "<group>"; };
 		94DE594A194F1A39004D242E /* hydra.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hydra.lua; sourceTree = "<group>"; };
@@ -496,6 +499,8 @@
 				945212A5194D6B5900217584 /* menu.png */,
 				945212A6194D6B5900217584 /* menu@2x.png */,
 				94804B08197B3E0D005DE830 /* CGSPrivate.h */,
+				94D8B5E31980819A003CB313 /* HydraLicense.h */,
+				94D8B5E41980819A003CB313 /* HydraLicense.m */,
 			);
 			path = ThirdParty;
 			sourceTree = "<group>";
@@ -603,6 +608,7 @@
 				945212A4194D6A6000217584 /* hydra_menu.m in Sources */,
 				9445CA83190833C1002568BB /* lcorolib.c in Sources */,
 				9445CA89190833C1002568BB /* lfunc.c in Sources */,
+				94D8B5E51980819A003CB313 /* HydraLicense.m in Sources */,
 				948CAA041955AECC00A27D9D /* HDTextGridController.m in Sources */,
 				943F212F195C527300066DCB /* hydra_settings.m in Sources */,
 				9445CA2219083251002568BB /* main.m in Sources */,

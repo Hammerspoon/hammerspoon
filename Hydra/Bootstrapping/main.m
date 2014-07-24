@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import "HydraLicense.h"
 #import "helpers.h"
 #import "../lua/lualib.h"
 
@@ -37,6 +38,7 @@ int luaopen_utf8(lua_State* L);
 int luaopen_window(lua_State* L);
 
 @interface HydraAppDelegate : NSObject <NSApplicationDelegate>
+@property HydraLicense* license;
 @end
 
 @implementation HydraAppDelegate
@@ -112,6 +114,9 @@ static void addmodules(lua_State* L, const hydralib* libs, bool toplevel) {
     
     NSString* initFile = [[NSBundle mainBundle] pathForResource:@"rawinit" ofType:@"lua"];
     luaL_dofile(L, [initFile fileSystemRepresentation]);
+    
+    self.license = [[HydraLicense alloc] init];
+    [self.license check];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
