@@ -1,3 +1,5 @@
+![](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_256x256.png)
+
 # Hydra
 
 *Hack your OS X desktop environment*
@@ -146,6 +148,15 @@ asking for donations. If you find it helpful, I encourage you to
 donate what you believe would have been a fair price for a license:
 
 [Donate via PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation&no_shipping=1)
+
+## Icon art
+
+![](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png)
+
+The icon/logo/statusitem was created by Jason Milkins (@jasonm23) with
+additional ideas and contributions from John Mercouris
+(@jmercouris). It's exclusively licenced to Steven Degutis and the
+Hydra.app project.
 
 ## FAQ
 
