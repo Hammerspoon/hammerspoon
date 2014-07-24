@@ -109,14 +109,16 @@ Hydra version you're using.
 
 ## Screenshots
 
-Some brief examples of [my own config](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua):
 
-| Description                                                                                                                                     | Animated Screenshot                                                                       |
-|-------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| Using hotkeys to move and resize a window along a grid [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L43-L50)   | ![grid.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
-| Using a hotkey to open Dictionary.app and show an alert [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L20-L25)  | ![dict.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
-| Using the built-in REPL [(source)](https://github.com/sdegutis/dotfiles/blob/osx/home/.hydra/init.lua#L53)                                      | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
-| Using the `hydra` tool to control Hydra from the command line (see [hydra-cli]((https://github.com/sdegutis/hydra-cli)))                        | ![ipc.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/ipc.gif)   |
+
+Some brief examples of what you can do with Hydra:
+
+| Description                                                                                                           | Animated Screenshot                                                                       |
+|-----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| Using hotkeys to move and resize a window along a grid (using [hydra-grid](https://github.com/sdegutis/hydra-grid))   | ![grid.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
+| Using a hotkey to open Dictionary.app and show an alert (using `application.launchorfocus`)                           | ![dict.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
+| Exploring the built-in docs                                                                                           | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
+| Using [hydra-cli](https://github.com/sdegutis/hydra-cli) to control Hydra from the command line                       | ![ipc.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/ipc.gif)   |
 
 ## Principles
 
