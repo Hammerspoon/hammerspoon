@@ -151,15 +151,6 @@ donate what you believe would have been a fair price for a license:
 
 [Donate via PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation&no_shipping=1)
 
-## Icon art
-
-![](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png)
-
-The icon/logo/statusitem was created by Jason Milkins (@jasonm23) with
-additional ideas and contributions from John Mercouris
-(@jmercouris). It's exclusively licenced to Steven Degutis and the
-Hydra.app project.
-
 ## FAQ
 
 1. **I'm getting an error like this: attempt to index local 'win' (a nil value)**
@@ -196,6 +187,21 @@ Hydra.app project.
 
    https://news.ycombinator.com/item?id=7982514
 
+
+## Credits
+
+### Programming
+
+Hydra was created by Steven Degutis with the help of [various contributors](https://github.com/sdegutis/hydra/graphs/contributors).
+
+### Artwork
+
+![](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png)
+
+The icon/logo/statusitem was created by Jason Milkins
+([@jasonm23](https://github.com/jasonm23)) with additional ideas and
+contributions from John Mercouris ([@jmercouris](jmercouris)). It's
+exclusively licenced to Steven Degutis and the Hydra.app project.
 
 ## License
 
