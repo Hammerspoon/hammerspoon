@@ -1,8 +1,8 @@
 # Hydra
 
-*Hack your OS X desktop environment*
-
 <img src="https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Hydra logo" title="Hydra logo" align="right"/>
+
+*Hack your OS X desktop environment*
 
 [![Build Status](https://travis-ci.org/sdegutis/hydra.svg?branch=master)](https://travis-ci.org/sdegutis/hydra)
 
