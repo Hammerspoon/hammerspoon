@@ -25,7 +25,7 @@ function fallbackinit.run()
 
   hydra.alert("Welcome to Hydra 1.0! Click the menu icon to find a sample config :)", 10)
 
-  hotkey.bind({"cmd", "alt", "ctrl"}, "r", repl.open)
+  hotkey.bind({"cmd", "alt", "ctrl"}, "r", hydra.reload)
 end
 
 return fallbackinit
