@@ -35,6 +35,7 @@ hydra.menu.show(function()
 
     if not hydra.license.haslicense() then
       table.insert(t, 1, {title = "Buy or Enter License...", fn = hydra.license.enter})
+      table.insert(t, 2, {title = "-"})
     end
 
     return t
