@@ -8,8 +8,14 @@ static int license_enter(lua_State* L) {
     return 0;
 }
 
+static int license_haslicense(lua_State* L) {
+    [license hasLicense];
+    return 0;
+}
+
 static luaL_Reg licenselib[] = {
     {"enter", license_enter},
+    {"haslicense", license_haslicense},
     {NULL, NULL}
 };
 

@@ -14,24 +14,16 @@
     return @"HydraLicenseRequester";
 }
 
-- (void)windowDidLoad {
-    [super windowDidLoad];
-    
-    // ...
-}
-
 - (void) request {
     return; // uncomment during commits, until its done.
     
-    [[NSApplication sharedApplication] setActivationPolicy:NSApplicationActivationPolicyRegular]; // so we can cmd-tab to it
+    // this is so we can cmd-tab to it; not ideal but too hard to get perfect
+    [[NSApplication sharedApplication] setActivationPolicy:NSApplicationActivationPolicyRegular];
     
-    if (![[self window] isVisible]) {
+    if (![[self window] isVisible])
         [[self window] center];
-    }
+    
     [[self window] orderFrontRegardless];
-    
-    
-    
 }
 
 - (IBAction) acquire:(id)sender {
@@ -46,9 +38,17 @@ static NSString* normalize(NSString* s) {
     self.email = normalize(self.email);
     self.license = normalize(self.license);
     
-    BOOL valid = [self.delegate tryingLicense:self.license forEmail:self.email];
+    BOOL valid = [self.delegate tryLicense:self.license forEmail:self.email];
     if (valid) {
-        // TODO: show an alert as a drop-down panel on this window saying thanks. then close the window.
+        NSAlert* alert = [[NSAlert alloc] init];
+        alert.icon = [NSImage imageNamed:@"thumbsup.png"];
+        alert.messageText = @"Your licensed verified successfully.";
+        alert.informativeText = @"Thank you for your support! I hope you have a ton of fun using Hydra to do really cool things and also I hope that it increases your productivity by a ton.";
+        [alert addButtonWithTitle:@"Continue Using Hydra"];
+        [alert beginSheetModalForWindow:[self window]
+                      completionHandler:^(NSModalResponse returnCode) {
+                          [self.delegate closed];
+                      }];
     }
     else {
         self.error = @"Invalid. Try again.";
@@ -62,24 +62,6 @@ static NSString* normalize(NSString* s) {
 
 + (NSSet*) keyPathsForValuesAffectingEnteredBothFields {
     return [NSSet setWithArray:@[@"email", @"license"]];
-}
-
-@end
-
-@interface SDLineView : NSView
-@end
-
-@implementation SDLineView
-
-- (void) drawRect:(NSRect)dirtyRect {
-    NSRect top, bottom;
-    NSDivideRect([self bounds], &top, &bottom, 1.0, NSMaxYEdge);
-    
-    [[NSColor lightGrayColor] setFill];
-    [NSBezierPath fillRect:top];
-    
-    [[NSColor whiteColor] setFill];
-    [NSBezierPath fillRect:bottom];
 }
 
 @end

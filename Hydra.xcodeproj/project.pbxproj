@@ -19,6 +19,7 @@
 		942C332D1980DD6000BAE9A7 /* HydraLicenseRequester.m in Sources */ = {isa = PBXBuildFile; fileRef = 942C332B1980DD6000BAE9A7 /* HydraLicenseRequester.m */; };
 		942C332E1980DD6000BAE9A7 /* HydraLicenseRequester.xib in Resources */ = {isa = PBXBuildFile; fileRef = 942C332C1980DD6000BAE9A7 /* HydraLicenseRequester.xib */; };
 		942C33311980E54C00BAE9A7 /* hydra_license.m in Sources */ = {isa = PBXBuildFile; fileRef = 942C33301980E54C00BAE9A7 /* hydra_license.m */; };
+		942C3335198155F900BAE9A7 /* thumbsup.png in Resources */ = {isa = PBXBuildFile; fileRef = 942C3334198155F900BAE9A7 /* thumbsup.png */; };
 		943349CE195DB49700B2BE41 /* json.m in Sources */ = {isa = PBXBuildFile; fileRef = 943349CD195DB49700B2BE41 /* json.m */; };
 		943F212F195C527300066DCB /* hydra_settings.m in Sources */ = {isa = PBXBuildFile; fileRef = 943F212E195C527300066DCB /* hydra_settings.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
@@ -130,6 +131,7 @@
 		942C332B1980DD6000BAE9A7 /* HydraLicenseRequester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HydraLicenseRequester.m; sourceTree = "<group>"; };
 		942C332C1980DD6000BAE9A7 /* HydraLicenseRequester.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HydraLicenseRequester.xib; sourceTree = "<group>"; };
 		942C33301980E54C00BAE9A7 /* hydra_license.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_license.m; sourceTree = "<group>"; };
+		942C3334198155F900BAE9A7 /* thumbsup.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = thumbsup.png; sourceTree = "<group>"; };
 		943349CD195DB49700B2BE41 /* json.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = json.m; sourceTree = "<group>"; };
 		943F212E195C527300066DCB /* hydra_settings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_settings.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
@@ -516,6 +518,7 @@
 				942C332A1980DD6000BAE9A7 /* HydraLicenseRequester.h */,
 				942C332B1980DD6000BAE9A7 /* HydraLicenseRequester.m */,
 				942C332C1980DD6000BAE9A7 /* HydraLicenseRequester.xib */,
+				942C3334198155F900BAE9A7 /* thumbsup.png */,
 			);
 			path = ThirdParty;
 			sourceTree = "<group>";
@@ -603,6 +606,7 @@
 				948CAA081955AECC00A27D9D /* repl.lua in Resources */,
 				94DE5947194F11AD004D242E /* fnutils.lua in Resources */,
 				94517BFB1957738100F9CCB6 /* logger.lua in Resources */,
+				942C3335198155F900BAE9A7 /* thumbsup.png in Resources */,
 				948CAA031955AECC00A27D9D /* textgrid.xib in Resources */,
 				946AF2D31976AB5D00A22EBF /* hotkey_modal.lua in Resources */,
 				94668E951958B039009422D7 /* doc.lua in Resources */,

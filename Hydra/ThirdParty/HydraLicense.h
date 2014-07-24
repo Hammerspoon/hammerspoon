@@ -4,5 +4,6 @@
 
 - (void) initialCheck;
 - (void) enter;
+- (BOOL) hasLicense;
 
 @end

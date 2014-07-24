@@ -6,6 +6,9 @@
 #define HYDRA_LICENSE_INITIAL_DELAY (60 * 60 * 36)
 #define HYDRA_LICENSE_DELAY         (60 * 60 * 16)
 
+// for testing
+//#define HYDRA_LICENSE_INITIAL_DELAY (0.1)
+
 static NSString* pubkey = @"-----BEGIN PUBLIC KEY-----\n"
 "MIHwMIGoBgcqhkjOOAQBMIGcAkEAzKaHbgkiRpZB2tz2hUpk7Y7icIh3Zd5Vi086\n"
 "tVK9vcp+1e9zU6lNvW1nM0rNJzGWWWLCKsNvXxaoPQUOib7k1wIVAK/W4Zv5zFz1\n"
@@ -95,12 +98,9 @@ cleanup:
     return [[NSUserDefaults standardUserDefaults] stringForKey:HydraLicenseKey];
 }
 
-- (BOOL) verify {
-    return verifylicense([self storedLicense], [self storedEmail]);
-}
-
-- (BOOL) isValid {
-    return [self storedEmail] && [self storedLicense] && [self verify];
+- (BOOL) hasLicense {
+    return NO;
+    return [self storedEmail] && [self storedLicense] && verifylicense([self storedLicense], [self storedEmail]);
 }
 
 - (HydraLicenseRequester*) lazyLoadedRequester {
@@ -116,14 +116,14 @@ cleanup:
 }
 
 - (void) check {
-    if ([self isValid])
+    if ([self hasLicense])
         return;
     
     [[self lazyLoadedRequester] request];
     [self performSelector:@selector(check) withObject:nil afterDelay:HYDRA_LICENSE_DELAY];
 }
 
-- (BOOL) tryingLicense:(NSString*)license forEmail:(NSString*)email {
+- (BOOL) tryLicense:(NSString*)license forEmail:(NSString*)email {
     BOOL valid = verifylicense(license, email);
     
     if (valid) {
@@ -139,6 +139,10 @@ cleanup:
     [[self lazyLoadedRequester] request];
     [[[self lazyLoadedRequester] window] makeKeyWindow];
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+}
+
+- (void) closed {
+    self.requester = nil;
 }
 
 @end

@@ -11,3 +11,5 @@ gaweTRsFFy6b6gHZHWndKl3lEUZhz/CFxHwOgg081yY/1da2AhRymfSCNd5Q/IAy\n\
 
 var intermediate = email.split("").reverse().join("");
 dsaSign(key, intermediate);
+
+// MCwCFHx82rhsrIRPGyvoiFcWPNZ6EE3IAhQv8Kbouk05NKnpXxXNcXPr/G1TwA==

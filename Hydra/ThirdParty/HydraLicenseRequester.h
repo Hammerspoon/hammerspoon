@@ -2,7 +2,8 @@
 
 @protocol HydraLicenseRequesterDelegate <NSObject>
 
-- (BOOL) tryingLicense:(NSString*)license forEmail:(NSString*)email;
+- (BOOL) tryLicense:(NSString*)license forEmail:(NSString*)email;
+- (void) closed;
 
 @end
 
