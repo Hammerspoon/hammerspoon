@@ -86,9 +86,8 @@ hydra.updates.check()
 
 ### Using Hydra from the command line
 
-See the [hydra-cli project](https://github.com/sdegutis/hydra-cli) for
-a much nicer way to access Hydra from the command line. It lets you do
-things like this:
+Install [hydra-cli](https://github.com/sdegutis/hydra-cli) to access
+Hydra from the command line. Then you can do things like this:
 
 ~~~bash
 $ hydra
