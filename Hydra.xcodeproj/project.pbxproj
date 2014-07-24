@@ -16,6 +16,8 @@
 		94022D691976DEAF00BF7CB3 /* hydra_dockicon.m in Sources */ = {isa = PBXBuildFile; fileRef = 94022D681976DEAF00BF7CB3 /* hydra_dockicon.m */; };
 		941FA8EC195DA14900F69AC9 /* utf8.m in Sources */ = {isa = PBXBuildFile; fileRef = 941FA8EB195DA14900F69AC9 /* utf8.m */; };
 		94276CA71958809C003BF95B /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 94276CA61958809C003BF95B /* helpers.m */; };
+		942C332D1980DD6000BAE9A7 /* HydraLicenseRequester.m in Sources */ = {isa = PBXBuildFile; fileRef = 942C332B1980DD6000BAE9A7 /* HydraLicenseRequester.m */; };
+		942C332E1980DD6000BAE9A7 /* HydraLicenseRequester.xib in Resources */ = {isa = PBXBuildFile; fileRef = 942C332C1980DD6000BAE9A7 /* HydraLicenseRequester.xib */; };
 		943349CE195DB49700B2BE41 /* json.m in Sources */ = {isa = PBXBuildFile; fileRef = 943349CD195DB49700B2BE41 /* json.m */; };
 		943F212F195C527300066DCB /* hydra_settings.m in Sources */ = {isa = PBXBuildFile; fileRef = 943F212E195C527300066DCB /* hydra_settings.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
@@ -123,6 +125,9 @@
 		94022D681976DEAF00BF7CB3 /* hydra_dockicon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_dockicon.m; sourceTree = "<group>"; };
 		941FA8EB195DA14900F69AC9 /* utf8.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = utf8.m; sourceTree = "<group>"; };
 		94276CA61958809C003BF95B /* helpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
+		942C332A1980DD6000BAE9A7 /* HydraLicenseRequester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HydraLicenseRequester.h; sourceTree = "<group>"; };
+		942C332B1980DD6000BAE9A7 /* HydraLicenseRequester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HydraLicenseRequester.m; sourceTree = "<group>"; };
+		942C332C1980DD6000BAE9A7 /* HydraLicenseRequester.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HydraLicenseRequester.xib; sourceTree = "<group>"; };
 		943349CD195DB49700B2BE41 /* json.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = json.m; sourceTree = "<group>"; };
 		943F212E195C527300066DCB /* hydra_settings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_settings.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
@@ -505,6 +510,9 @@
 				94804B08197B3E0D005DE830 /* CGSPrivate.h */,
 				94D8B5E31980819A003CB313 /* HydraLicense.h */,
 				94D8B5E41980819A003CB313 /* HydraLicense.m */,
+				942C332A1980DD6000BAE9A7 /* HydraLicenseRequester.h */,
+				942C332B1980DD6000BAE9A7 /* HydraLicenseRequester.m */,
+				942C332C1980DD6000BAE9A7 /* HydraLicenseRequester.xib */,
 			);
 			path = ThirdParty;
 			sourceTree = "<group>";
@@ -573,6 +581,7 @@
 				944247341972410E0003EAFE /* eventtap.lua in Resources */,
 				94A1537C194D77A400F29F8F /* window.lua in Resources */,
 				94735C40196DCA9C002A258D /* hydra_ipc.lua in Resources */,
+				942C332E1980DD6000BAE9A7 /* HydraLicenseRequester.xib in Resources */,
 				94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */,
 				9445CA2719083251002568BB /* Images.xcassets in Resources */,
 				945F2BC01959AFA700D2DE7E /* notify.lua in Resources */,
@@ -622,6 +631,7 @@
 				9452129C194D5B8F00217584 /* hydra_autolaunch.m in Sources */,
 				9445CA80190833C1002568BB /* lbaselib.c in Sources */,
 				9445CA9A190833C1002568BB /* ltm.c in Sources */,
+				942C332D1980DD6000BAE9A7 /* HydraLicenseRequester.m in Sources */,
 				9445CA85190833C1002568BB /* ldblib.c in Sources */,
 				945212A2194D69E700217584 /* pathwatcher.m in Sources */,
 				94FF83D61970DAD4005B47D7 /* eventtap.m in Sources */,

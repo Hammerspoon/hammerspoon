@@ -1,5 +1,9 @@
 #import "HydraLicense.h"
-#include <CommonCrypto/CommonDigest.h>
+#import <CommonCrypto/CommonDigest.h>
+#import "HydraLicenseRequester.h"
+
+// every 3 hours
+#define HYDRA_LICENSE_DELAY (60 * 60 * 3)
 
 static NSString* pubkey = @"-----BEGIN PUBLIC KEY-----\n"
 "MIHwMIGoBgcqhkjOOAQBMIGcAkEAzKaHbgkiRpZB2tz2hUpk7Y7icIh3Zd5Vi086\n"
@@ -74,25 +78,56 @@ cleanup:
 #define HydraEmailKey @"_HydraEmail"
 #define HydraLicenseKey @"_HydraLicense"
 
+@interface HydraLicense () <HydraLicenseRequesterDelegate>
+
+@property HydraLicenseRequester* requester;
+
+@end
+
 @implementation HydraLicense
 
-- (NSString*) email {
+- (NSString*) storedEmail {
     return [[NSUserDefaults standardUserDefaults] stringForKey:HydraEmailKey];
 }
 
-- (NSString*) license {
+- (NSString*) storedLicense {
     return [[NSUserDefaults standardUserDefaults] stringForKey:HydraLicenseKey];
 }
 
 - (BOOL) verify {
-    return verifylicense([self license], [self email]);
+    return verifylicense([self storedLicense], [self storedEmail]);
 }
 
 - (BOOL) isValid {
-    return [self email] && [self license] && [self verify];
+    return [self storedEmail] && [self storedLicense] && [self verify];
+}
+
+- (HydraLicenseRequester*) lazyLoadedRequester {
+    if (!self.requester) {
+        self.requester = [[HydraLicenseRequester alloc] init];
+        self.requester.delegate = self;
+    }
+    return self.requester;
 }
 
 - (void) check {
+    if ([self isValid])
+        return;
+    
+    [[self lazyLoadedRequester] request];
+    [self performSelector:@selector(check) withObject:nil afterDelay:HYDRA_LICENSE_DELAY];
+}
+
+- (BOOL) tryingLicense:(NSString*)license forEmail:(NSString*)email {
+    BOOL valid = verifylicense(license, email);
+    
+    if (valid) {
+        [[NSUserDefaults standardUserDefaults] setObject:email forKey:HydraEmailKey];
+        [[NSUserDefaults standardUserDefaults] setObject:license forKey:HydraLicenseKey];
+        [[self class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(check) object:nil];
+    }
+    
+    return valid;
 }
 
 @end
