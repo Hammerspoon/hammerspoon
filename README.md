@@ -142,9 +142,11 @@ extremely common and likely to be used in everyone's configs.
 Resource                 | Link
 -------------------------|------------------------------------------
 Fancy Website            | http://hackhydra.com/
+Github page              | https://github.com/sdegutis/hydra/
 Hydra API                | http://hackhydra.com/docs/
 Lua API                  | http://www.lua.org/manual/5.2/#functions
-Community Contributions  | https://github.com/sdegutis/hydra/wiki
+Third Party Extensions   | https://github.com/sdegutis/hydra-ext
+Community Resources      | https://github.com/sdegutis/hydra/wiki
 Bug Reports              | https://github.com/sdegutis/hydra/issues
 Feature Requests         | https://github.com/sdegutis/hydra/issues
 General Discussion       | https://github.com/sdegutis/hydra/issues
