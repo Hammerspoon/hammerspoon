@@ -1,7 +1,7 @@
 #import "HydraLicense.h"
 #include <CommonCrypto/CommonDigest.h>
 
-static const char* pubkey = "-----BEGIN DSA PUBLIC KEY-----\n"
+static NSString* pubkey = @"-----BEGIN DSA PUBLIC KEY-----\n"
 "MIHwMIGoBgcqhkjOOAQBMIGcAkEAhUA4RrIEKnAT0J2ZW/fWT9zT4GBVFVQxq+NV\n"
 "yk8eqiNdJXF4Y6VMnuohvMA6niQGdgKgwDmg7NTD26kZpyhB4wIVAOQjzXwOopx7\n"
 "fol961QqxK/PJSDlAkBILOfA5fupc/jg6SdgUmwWmlAurRoCmZHEn8JZ62zxUy3I\n"
@@ -11,87 +11,53 @@ static const char* pubkey = "-----BEGIN DSA PUBLIC KEY-----\n"
 "-----END DSA PUBLIC KEY-----\n";
 
 static SecKeyRef getpublickey(void) {
-//    CFDataRef privkeyData = CFBridgingRetain([pubkey dataUsingEncoding:NSUTF8StringEncoding]);
-//    SecExternalItemType itemType = kSecItemTypePublicKey;
-//    SecExternalFormat externalFormat = kSecFormatPEMSequence;
-//    int flags = 0;
-//    
-//    SecItemImportExportKeyParameters params;
-//    params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
-//    params.flags = 0; // See SecKeyImportExportFlags for details.
-//    params.passphrase = NULL;
-//    params.alertTitle = NULL;
-//    params.alertPrompt = NULL;
-//    params.accessRef = NULL;
-//    params.keyUsage = NULL;
-//    params.keyAttributes = NULL;
-//    params.keyUsage = NULL;
-//    params.keyAttributes = NULL;
-//    
-//    CFArrayRef items = NULL;
-//    OSStatus oserr = SecItemImport(privkeyData, NULL, &externalFormat, &itemType, flags, &params, NULL, &items);
-//    if (oserr) {
-//        fprintf(stderr, "SecItemImport failed (oserr=%d)\n", oserr);
-//        CFShow(items);
-//        exit(-1);
-//    }
-//    SecKeyRef key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
-    return NULL;
-    
-//    static SecKeyRef key = NULL;
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        SecExternalFormat format = kSecFormatOpenSSL;
-//        SecExternalItemType itemType = kSecItemTypePublicKey;
-//        SecItemImportExportKeyParameters parameters = {};
-//        CFArrayRef items = NULL;
-//        CFDataRef privkeyData = (__bridge CFDataRef)[pubkey dataUsingEncoding:NSUTF8StringEncoding];
-//        SecItemImport(privkeyData, CFSTR(".pem"), &format, &itemType, 0, &parameters, NULL, &items);
-//        key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
-//    });
-//    return key;
+    static SecKeyRef key;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        CFDataRef privkeyData = (__bridge CFDataRef)[pubkey dataUsingEncoding:NSUTF8StringEncoding];
+        SecExternalItemType itemType = kSecItemTypePublicKey;
+        SecExternalFormat externalFormat = kSecFormatPEMSequence;
+        int flags = 0;
+        
+        SecItemImportExportKeyParameters params = {0};
+        params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
+        params.flags = 0;
+        
+        CFArrayRef items = NULL;
+        OSStatus oserr = SecItemImport(privkeyData, NULL, &externalFormat, &itemType, flags, &params, NULL, &items);
+        if (oserr) {
+            fprintf(stderr, "SecItemImport failed (oserr=%d)\n", oserr);
+            CFShow(items);
+        }
+        key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
+    });
+    return key;
 }
 
 static BOOL verifylicense(NSString* sig, NSString* emailImmutable) {
-    
-    CFDataRef publicKeyData = CFDataCreate(NULL, pubkey, strlen(pubkey));
-    SecItemImportExportKeyParameters params = {};
-    SecExternalItemType keyType = kSecItemTypePublicKey;
-    SecExternalFormat keyFormat = kSecFormatPEMSequence;
-    CFArrayRef importArray = NULL;
-    
-    SecItemImport(publicKeyData,
-                  NULL,
-                  &keyFormat,
-                  &keyType,
-                  0,
-                  &params,
-                  NULL,
-                  &importArray);
-    
-    SecKeyRef publicKey = (SecKeyRef)CFArrayGetValueAtIndex(importArray, 0);
-    
-    CFShow(publicKey);
-    
-    
-    
-    NSData* sigd = [[NSData alloc] initWithBase64EncodedString:sig options:0];
+    BOOL result = NO;
     
     NSMutableString *email = [NSMutableString string];
     for (NSInteger i = [emailImmutable length] - 1; i >= 0; i--)
         [email appendFormat:@"%c", [emailImmutable characterAtIndex:i]];
     
+    NSData* sigData = [[NSData alloc] initWithBase64EncodedString:sig options:0];
+    
     CFErrorRef error = NULL;
-    SecKeyRef security_pubkey = publicKey;
-    SecTransformRef verifier = SecVerifyTransformCreate(security_pubkey, (__bridge CFDataRef)sigd, &error);
-    if (error) NSLog(@"crap 1");
+    SecKeyRef security_pubkey = getpublickey();
+    SecTransformRef verifier = SecVerifyTransformCreate(security_pubkey, (__bridge CFDataRef)sigData, &error);
+    if (error) { CFShow(error); goto cleanup; }
     
     CFDataRef emailDataToVerify = (__bridge CFDataRef)[email dataUsingEncoding:NSUTF8StringEncoding];
     SecTransformSetAttribute(verifier, kSecTransformInputAttributeName, emailDataToVerify, &error);
-    if (error) NSLog(@"crap 2");
+    if (error) { CFShow(error); goto cleanup; }
     
-    NSNumber* result = (__bridge NSNumber*)SecTransformExecute(verifier, &error);
-    return [result boolValue];
+    result = [(__bridge NSNumber*)SecTransformExecute(verifier, &error) boolValue];
+    if (error) { CFShow(error); goto cleanup; }
+    
+cleanup:
+    
+    return result;
 }
 
 #define HydraEmailKey @"HydraEmail"
