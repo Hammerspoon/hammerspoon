@@ -10,19 +10,6 @@
 * Requires: OS X 10.8 and up
 * Download: [get latest release](https://github.com/sdegutis/hydra/releases/latest), unzip, right-click app, choose "Open"
 
-## Install
-
-Don't install Hydra via [cask](http://caskroom.io/). Instead, download
-the zipped binary directly from the
-[the latest-release page](https://github.com/sdegutis/hydra/releases/latest);
-unzip the downloaded file, put the app somewhere permanent, and run
-it. You may need to right-click it and click "Open" the first time.
-
-Hydra is currently in beta, but is very stable, seeing minor releases
-every day. While in beta, the API is subject to change. Within a week,
-it will come out of beta. You can check for updates via the `updates`
-module, to be notified when an update (beta or not) is available.
-
 ## Usage
 
 Hydra will look for `~/.hydra/init.lua` and run it if it exists. But
@@ -38,30 +25,39 @@ found in this readme or the in-app documentation system.
 
 ## Example
 
-[sample_init.lua](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_init.lua) ([raw source](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_init.lua))
+When you install and run Hydra, you'll see a menu that has an option
+to open the sample config, which you can then save as your own
+initfile and modify. But for your convenience, I've pasted the entire
+sample config here. Feel free to copy it and run `pbpaste >
+~/.hydra/init.lua` if you want.
 
-Here's a convenient way to set it up with `wget`:
-
-~~~bash
-$ mkdir -p ~/.hydra && cd $_ && wget https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/Bootstrapping/sample_init.lua -O init.lua
-~~~
-
-Here's a snippet:
 ~~~lua
+-- Hi!
+-- Save this as ~/.hydra/init.lua and choose Reload Config from the menu (or press cmd-alt-ctrl R}
+
+-- show an alert to let you know Hydra's running
+hydra.alert("Hydra sample config loaded", 1.5)
+
+-- open a repl with mash-R; requires https://github.com/sdegutis/hydra-cli
+hotkey.bind({"cmd", "ctrl", "alt"}, "R", repl.open)
+
 -- show a helpful menu
 hydra.menu.show(function()
-    local updatetitles = {[true] = "Install Update", [false] = "Check for Update..."}
-    local updatefns = {[true] = hydra.updates.install, [false] = checkforupdates}
-    local hasupdate = (hydra.updates.newversion ~= nil)
-
-    return {
+    local t = {
       {title = "Reload Config", fn = hydra.reload},
       {title = "Open REPL", fn = repl.open},
       {title = "-"},
-      {title = "About", fn = hydra.showabout},
-      {title = updatetitles[hasupdate], fn = updatefns[hasupdate]},
-      {title = "Quit Hydra", fn = os.exit},
+      {title = "About Hydra", fn = hydra.showabout},
+      {title = "Check for Updates...", fn = function() hydra.updates.check(nil, true) end},
+      {title = "Quit", fn = os.exit},
     }
+
+    if not hydra.license.haslicense() then
+      table.insert(t, 1, {title = "Buy or Enter License...", fn = hydra.license.enter})
+      table.insert(t, 2, {title = "-"})
+    end
+
+    return t
 end)
 
 -- move the window to the right half of the screen
@@ -69,11 +65,23 @@ function movewindow_righthalf()
   local win = window.focusedwindow()
   local newframe = win:screen():frame_without_dock_or_menu()
   newframe.w = newframe.w / 2
-  newframe.x = newframe.w -- comment this line to push it to left half of screen
+  newframe.x = newframe.x + newframe.w -- comment out this line to push it to left half of screen
   win:setframe(newframe)
 end
 
+-- bind your custom function to a convenient hotkey
+-- note: it's good practice to keep hotkey-bindings separate from their functions, like we're doing here
 hotkey.new({"cmd", "ctrl", "alt"}, "L", movewindow_righthalf):enable()
+
+-- uncomment this line if you want Hydra to make sure it launches at login
+-- hydra.autolaunch.set(true)
+
+-- when the "update is available" notification is clicked, open the website
+notify.register("showupdate", function() os.execute('open https://github.com/sdegutis/Hydra/releases') end)
+
+-- check for updates every week, and also right now (when first launching)
+timer.new(timer.weeks(1), hydra.updates.check):start()
+hydra.updates.check()
 ~~~
 
 ### Using Hydra from the command line
@@ -142,15 +150,11 @@ Feature Requests         | https://github.com/sdegutis/hydra/issues
 General Discussion       | https://github.com/sdegutis/hydra/issues
 IRC channel              | #hydrawm on freenode
 
-## Donate
+## Free and Commercial Software
 
-I've worked hard to make Hydra useful and easy to use. I've also
-released it with a liberal open source license, so that you can do
-with it as you please. So, instead of charging for licenses, I'm
-asking for donations. If you find it helpful, I encourage you to
-donate what you believe would have been a fair price for a license:
-
-[Donate via PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Hydra.app%20donation&no_shipping=1)
+Hydra is open source, released under the MIT license. But it's also
+commercial, requiring you to eventually purchase a license. However,
+the trial period is not timed, and doesn't remove any functionality.
 
 ## FAQ
 
@@ -187,6 +191,12 @@ donate what you believe would have been a fair price for a license:
 6. **Where can I find a comprehensive and detailed list of alternatives to Hydra?**
 
    https://news.ycombinator.com/item?id=7982514
+
+7. **Can I install Hydra via Cask?**
+
+   Technically yes, but it will cause a lot of weird problems for
+   you. Wait until Cask finishes their "upgrade" feature first, so
+   that you can remove older copies of Hydra.app.
 
 
 ## Credits
