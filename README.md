@@ -196,7 +196,7 @@ Hydra was created by Steven Degutis with the help of [various contributors](http
 
 ### Artwork
 
-![](https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png)
+<img src="https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Hydra logo" title="Hydra logo" align="right"/>
 
 The icon/logo/statusitem was created by Jason Milkins
 ([@jasonm23](https://github.com/jasonm23)) with additional ideas and
