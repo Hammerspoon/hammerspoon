@@ -8,7 +8,7 @@
 
 * Current version: **0.13**
 * Requires: OS X 10.8 and up
-* Install: [get latest release](https://github.com/sdegutis/hydra/releases/latest), unzip, right-click app, choose "Open"
+* Download: [get latest release](https://github.com/sdegutis/hydra/releases/latest), unzip, right-click app, choose "Open"
 
 ## Install
 
