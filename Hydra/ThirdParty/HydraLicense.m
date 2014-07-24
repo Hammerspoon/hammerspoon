@@ -2,9 +2,8 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "HydraLicenseRequester.h"
 
-// first after 36 hours, then every 16 hours
-#define HYDRA_LICENSE_INITIAL_DELAY (60 * 60 * 36)
-#define HYDRA_LICENSE_DELAY         (60 * 60 * 16)
+#define HYDRA_LICENSE_INITIAL_DELAY (60 * 60 * 3)
+#define HYDRA_LICENSE_DELAY         (60 * 60 * 5)
 
 static NSString* hydra_pubkey = @"-----BEGIN PUBLIC KEY-----\n"
 "MIHwMIGoBgcqhkjOOAQBMIGcAkEAzKaHbgkiRpZB2tz2hUpk7Y7icIh3Zd5Vi086\n"
