@@ -108,8 +108,6 @@ Hydra version you're using.
 
 ## Screenshots
 
-
-
 Some brief examples of what you can do with Hydra:
 
 | Description                                                                                                           | Animated Screenshot                                                                       |
@@ -123,12 +121,12 @@ Some brief examples of what you can do with Hydra:
 
 First and foremost, Hydra must be stable. It should never crash. You
 should only ever have to launch it once, and it should stay running
-until you quit it (or your computer restarts). No exceptions to this.
+until you quit it. Period.
 
 Secondly, Hydra must be lightweight. It should never do anything that
-drains your computer's battery. It should never poll for anything. And
-it should practically never use more than 10 MB of memory. Everything
-it does should feel instant and snappy, never sluggish or delayed.
+drains your computer's battery. It should never poll for anything. It
+should use as little RAM as possible. Everything it does should feel
+instant and snappy, never sluggish or delayed.
 
 Thirdly, its API should be completely transparent. There should be no
 surprises in how it's behaving, or what's being executed and when. It
