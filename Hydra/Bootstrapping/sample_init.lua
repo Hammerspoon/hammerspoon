@@ -24,18 +24,20 @@ end
 
 -- show a helpful menu
 hydra.menu.show(function()
-    local updatetitles = {[true] = "Install Update", [false] = "Check for Update..."}
-    local updatefns = {[true] = hydra.updates.install, [false] = checkforupdates}
-    local hasupdate = (hydra.updates.newversion ~= nil)
-
-    return {
+    local t = {
       {title = "Reload Config", fn = hydra.reload},
       {title = "Open REPL", fn = repl.open},
       {title = "-"},
       {title = "About", fn = hydra.showabout},
-      {title = updatetitles[hasupdate], fn = updatefns[hasupdate]},
+      {title = "Check for Update...", fn = checkforupdates},
       {title = "Quit Hydra", fn = os.exit},
     }
+
+    if not hydra.license.haslicense() then
+      table.insert(t, 1, {title = "Buy or Enter License...", fn = hydra.license.enter})
+    end
+
+    return t
 end)
 
 -- move the window to the right half of the screen
