@@ -82,7 +82,7 @@ static BOOL verifylicense(NSString* sig, NSString* emailImmutable) {
         [email appendFormat:@"%c", [emailImmutable characterAtIndex:i]];
     
     CFErrorRef error = NULL;
-    SecKeyRef security_pubkey = getpublickey();
+    SecKeyRef security_pubkey = publicKey;
     SecTransformRef verifier = SecVerifyTransformCreate(security_pubkey, (__bridge CFDataRef)sigd, &error);
     if (error) NSLog(@"crap 1");
     
