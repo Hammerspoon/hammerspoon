@@ -1,6 +1,6 @@
 #import "HydraLicenseRequester.h"
 
-#define HYDRA_STORE_LINK @"http://hackhydra.com/"
+#define HYDRA_STORE_LINK @"https://sites.fastspring.com/sdegutis/instant/hydra"
 
 @interface HydraLicenseRequester ()
 @property NSString* email;
