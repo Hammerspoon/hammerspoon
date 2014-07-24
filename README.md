@@ -194,9 +194,9 @@ donate what you believe would have been a fair price for a license:
 
 Hydra was created by Steven Degutis with the help of [various contributors](https://github.com/sdegutis/hydra/graphs/contributors).
 
-<img src="https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Hydra logo" title="Hydra logo" align="right"/>
-
 ### Artwork
+
+<img src="https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Hydra logo" title="Hydra logo" align="right"/>
 
 The icon/logo/statusitem was created by Jason Milkins
 ([@jasonm23](https://github.com/jasonm23)) with additional ideas and
