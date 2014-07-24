@@ -1,7 +1,7 @@
 #import "HydraLicense.h"
 #include <CommonCrypto/CommonDigest.h>
 
-static const char* pubkey = "-----BEGIN PUBLIC KEY-----\n"
+static NSString* pubkey = @"-----BEGIN PUBLIC KEY-----\n"
 "MIHwMIGoBgcqhkjOOAQBMIGcAkEAhUA4RrIEKnAT0J2ZW/fWT9zT4GBVFVQxq+NV\n"
 "yk8eqiNdJXF4Y6VMnuohvMA6niQGdgKgwDmg7NTD26kZpyhB4wIVAOQjzXwOopx7\n"
 "fol961QqxK/PJSDlAkBILOfA5fupc/jg6SdgUmwWmlAurRoCmZHEn8JZ62zxUy3I\n"
@@ -10,36 +10,49 @@ static const char* pubkey = "-----BEGIN PUBLIC KEY-----\n"
 "y0k5\n"
 "-----END PUBLIC KEY-----\n";
 
-static SecKeyRef create_public_key(void) {
-    CFArrayRef items = NULL;
-    SecKeyRef security_key = NULL;
-    
-    NSData* privkeyData = [[NSString stringWithUTF8String:pubkey] dataUsingEncoding:NSUTF8StringEncoding];
-    if ([privkeyData length] == 0) goto cleanup;
-    
-    SecExternalFormat format = kSecFormatOpenSSL;
+static SecKeyRef getpublickey(void) {
+    CFDataRef privkeyData = CFBridgingRetain([pubkey dataUsingEncoding:NSUTF8StringEncoding]);
     SecExternalItemType itemType = kSecItemTypePublicKey;
-    SecItemImportExportKeyParameters parameters = {};
+    SecExternalFormat externalFormat = kSecFormatPEMSequence;
+    int flags = 0;
     
-    OSStatus status = SecItemImport((__bridge CFDataRef)privkeyData, NULL, &format, &itemType, 0, &parameters, NULL, &items);
+    SecItemImportExportKeyParameters params;
+    params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
+    params.flags = 0; // See SecKeyImportExportFlags for details.
+    params.passphrase = NULL;
+    params.alertTitle = NULL;
+    params.alertPrompt = NULL;
+    params.accessRef = NULL;
+    params.keyUsage = NULL;
+    params.keyAttributes = NULL;
+    params.keyUsage = NULL;
+    params.keyAttributes = NULL;
     
-    if (status != noErr) { printf("invalid status: %d\n", status); goto cleanup; }
-    if (items == NULL) { printf("items were unexpectedly null\n"); goto cleanup; }
-    if (format != kSecFormatOpenSSL) { printf("format isn't kSecFormatOpenSSL: %d\n", format); goto cleanup; }
-    if (itemType != kSecItemTypePublicKey) { printf("item type isn't kSecItemTypePublicKey: %d\n", itemType); goto cleanup; }
-    if (CFArrayGetCount(items) != 1) { printf("items count isn't 1, it's: %ld\n", CFArrayGetCount(items)); goto cleanup; }
+    CFArrayRef items = NULL;
+    OSStatus oserr = SecItemImport(privkeyData, NULL, &externalFormat, &itemType, flags, &params, NULL, &items);
+    if (oserr) {
+        fprintf(stderr, "SecItemImport failed (oserr=%d)\n", oserr);
+        CFShow(items);
+        exit(-1);
+    }
+    SecKeyRef key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
+    return key;
     
-    security_key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
-    
-cleanup:
-    if (items) CFRelease(items);
-    return security_key;
+//    static SecKeyRef key = NULL;
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        SecExternalFormat format = kSecFormatOpenSSL;
+//        SecExternalItemType itemType = kSecItemTypePublicKey;
+//        SecItemImportExportKeyParameters parameters = {};
+//        CFArrayRef items = NULL;
+//        CFDataRef privkeyData = (__bridge CFDataRef)[pubkey dataUsingEncoding:NSUTF8StringEncoding];
+//        SecItemImport(privkeyData, CFSTR(".pem"), &format, &itemType, 0, &parameters, NULL, &items);
+//        key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
+//    });
+//    return key;
 }
 
-
-
-
-static BOOL updates_verifyfile(NSString* sig, NSString* emailImmutable) {
+static BOOL verifylicense(NSString* sig, NSString* emailImmutable) {
     NSData* sigd = [[NSData alloc] initWithBase64EncodedString:sig options:0];
     
     NSMutableString *email = [NSMutableString string];
@@ -47,7 +60,7 @@ static BOOL updates_verifyfile(NSString* sig, NSString* emailImmutable) {
         [email appendFormat:@"%c", [emailImmutable characterAtIndex:i]];
     
     CFErrorRef error = NULL;
-    SecKeyRef security_pubkey = create_public_key();
+    SecKeyRef security_pubkey = getpublickey();
     SecTransformRef verifier = SecVerifyTransformCreate(security_pubkey, (__bridge CFDataRef)sigd, &error);
     if (error) NSLog(@"crap 1");
     
@@ -59,10 +72,29 @@ static BOOL updates_verifyfile(NSString* sig, NSString* emailImmutable) {
     return [result boolValue];
 }
 
+#define HydraEmailKey @"HydraEmail"
+#define HydraLicenseKey @"HydraLicense"
+
 @implementation HydraLicense
 
+- (NSString*) email {
+    return [[NSUserDefaults standardUserDefaults] stringForKey:HydraEmailKey];
+}
+
+- (NSString*) license {
+    return [[NSUserDefaults standardUserDefaults] stringForKey:HydraLicenseKey];
+}
+
+- (BOOL) verify {
+    return verifylicense([self license], [self email]);
+}
+
+- (BOOL) isValid {
+    return [self email] && [self license] && [self verify];
+}
+
 - (void) check {
-    NSLog(@"%d", updates_verifyfile(@"MC0CFQCcGckU7tNoN8H4IbyraKpEDedf4AIUV/7au5+vvtuorcvHJCY436BVPeY=", @"vagif.samadoghlu@example.com"));
+    NSLog(@"%d", verifylicense(@"MC0CFQCcGckU7tNoN8H4IbyraKpEDedf4AIUV/7au5+vvtuorcvHJCY436BVPeY=", @"vagif.samadoghlu@example.com"));
 }
 
 @end
