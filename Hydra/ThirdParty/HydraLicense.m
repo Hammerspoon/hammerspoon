@@ -1,14 +1,14 @@
 #import "HydraLicense.h"
 #include <CommonCrypto/CommonDigest.h>
 
-static NSString* pubkey = @"-----BEGIN DSA PUBLIC KEY-----\n"
-"MIHwMIGoBgcqhkjOOAQBMIGcAkEAhUA4RrIEKnAT0J2ZW/fWT9zT4GBVFVQxq+NV\n"
-"yk8eqiNdJXF4Y6VMnuohvMA6niQGdgKgwDmg7NTD26kZpyhB4wIVAOQjzXwOopx7\n"
-"fol961QqxK/PJSDlAkBILOfA5fupc/jg6SdgUmwWmlAurRoCmZHEn8JZ62zxUy3I\n"
-"7TNOSacpXeqw8ypeTFuJH63zCziQdUhTQEGRHDeCA0MAAkBdlN7MK6Rq90GN7yj6\n"
-"Us6JTKJm+x/GANMJVvhX9JL49RhXpx46HMs4tWG83XtC6+wjGFssIRuvnv2vbkWp\n"
-"y0k5\n"
-"-----END DSA PUBLIC KEY-----\n";
+static NSString* pubkey = @"-----BEGIN PUBLIC KEY-----\n"
+"MIHwMIGoBgcqhkjOOAQBMIGcAkEAzKaHbgkiRpZB2tz2hUpk7Y7icIh3Zd5Vi086\n"
+"tVK9vcp+1e9zU6lNvW1nM0rNJzGWWWLCKsNvXxaoPQUOib7k1wIVAK/W4Zv5zFz1\n"
+"UsFaKF6jz2xDkFCNAkBCuPlrBeNgFi9LeCre5ZRvV1DUpvPcB4/HdIZNznOJTAUq\n"
+"URuCB6su1gBBOTa82TfI2YyF0Sp5kKV0oLHWD69VA0MAAkBz3WE0WorE8zgVvupR\n"
+"/qwIw/J+ANM+kuxHuBg2gaweTRsFFy6b6gHZHWndKl3lEUZhz/CFxHwOgg081yY/\n"
+"1da2\n"
+"-----END PUBLIC KEY-----\n";
 
 static void getpublickey(SecKeyRef* keyptr, CFErrorRef* errorptr) {
     static SecKeyRef key = NULL;
@@ -93,7 +93,6 @@ cleanup:
 }
 
 - (void) check {
-    NSLog(@"%d", verifylicense(@"MC0CFQCcGckU7tNoN8H4IbyraKpEDedf4AIUV/7au5+vvtuorcvHJCY436BVPeY=", @"vagif.samadoghlu@example.com"));
 }
 
 @end
