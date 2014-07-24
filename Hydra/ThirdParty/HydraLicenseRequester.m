@@ -36,13 +36,11 @@ static NSString* normalize(NSString* s) {
     self.email = normalize(self.email);
     self.license = normalize(self.license);
     
-    BOOL valid = [self.delegate tryLicense:self.license forEmail:self.email];
-    if (valid) {
+    if ([self.delegate tryLicense:self.license forEmail:self.email]) {
         NSAlert* alert = [[NSAlert alloc] init];
         alert.icon = [NSImage imageNamed:@"thumbsup.png"];
         alert.messageText = @"Your licensed verified successfully.";
-        alert.informativeText = @"Thank you for your support! I hope you have a ton of fun using Hydra to do really cool things and also I hope that it increases your productivity by a ton.";
-        [alert addButtonWithTitle:@"Continue Using Hydra"];
+        alert.informativeText = @"Thank you for your support! I hope you have a lot of fun using Hydra to do really cool things.";
         [alert beginSheetModalForWindow:[self window]
                       completionHandler:^(NSModalResponse returnCode) {
                           [self.delegate closed];

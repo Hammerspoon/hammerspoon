@@ -15,10 +15,10 @@
         <window title="Hydra License Info" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="470" height="360"/>
+            <rect key="contentRect" x="196" y="240" width="470" height="292"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1418"/>
             <view key="contentView" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="470" height="360"/>
+                <rect key="frame" x="0.0" y="0.0" width="470" height="292"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" id="Az4-3L-yfJ">
@@ -110,24 +110,22 @@ DQ
                         </connections>
                     </button>
                     <box autoresizesSubviews="NO" title="Info" borderType="line" titlePosition="noTitle" id="JMz-88-9a6">
-                        <rect key="frame" x="17" y="117" width="436" height="225"/>
+                        <rect key="frame" x="17" y="117" width="436" height="157"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView">
-                            <rect key="frame" x="1" y="1" width="434" height="223"/>
+                            <rect key="frame" x="1" y="1" width="434" height="155"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" setsMaxLayoutWidthAtFirstLayout="YES" id="5CY-aC-Afw">
-                                    <rect key="frame" x="16" y="19" width="402" height="187"/>
+                                    <rect key="frame" x="16" y="19" width="402" height="119"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="MfK-ZP-VXD">
                                         <font key="font" metaFont="system"/>
-                                        <mutableString key="title">Hi! Thanks for trying out Hyda!
+                                        <mutableString key="title">Hi. Thanks for trying out Hyda!
 
-This is an unregistered evaluation version, and although the trial is untimed, a license must be purchased for continued use.
+This is an unregistered evaluation version. Although the trial isn't timed, a license must be purchased for continued use.
 
-By purchasing a Hydra license, you are helping me to make it an even more awesome program.
-
-You can enter a license now, or if you don't have one yet, the button below will take you to the page where you can buy one.</mutableString>
+You can enter a license here. If you don't have one yet, click the button below to go to the website where you can buy one.</mutableString>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>

@@ -9,8 +9,8 @@ static int license_enter(lua_State* L) {
 }
 
 static int license_haslicense(lua_State* L) {
-    [license hasLicense];
-    return 0;
+    lua_pushboolean(L, [license hasLicense]);
+    return 1;
 }
 
 static luaL_Reg licenselib[] = {
