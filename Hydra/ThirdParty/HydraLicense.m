@@ -4,6 +4,7 @@
 
 // every 3 hours
 #define HYDRA_LICENSE_DELAY (60 * 60 * 3)
+#define HYDRA_LICENSE_INITIAL_DELAY 3
 
 static NSString* pubkey = @"-----BEGIN PUBLIC KEY-----\n"
 "MIHwMIGoBgcqhkjOOAQBMIGcAkEAzKaHbgkiRpZB2tz2hUpk7Y7icIh3Zd5Vi086\n"
@@ -110,6 +111,10 @@ cleanup:
     return self.requester;
 }
 
+- (void) initialCheck {
+    [self performSelector:@selector(check) withObject:nil afterDelay:HYDRA_LICENSE_INITIAL_DELAY];
+}
+
 - (void) check {
     if ([self isValid])
         return;
@@ -128,6 +133,12 @@ cleanup:
     }
     
     return valid;
+}
+
+- (void) enter {
+    [[self lazyLoadedRequester] request];
+    [[[self lazyLoadedRequester] window] makeKeyWindow];
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
 }
 
 @end

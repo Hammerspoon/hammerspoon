@@ -2,6 +2,7 @@
 
 @interface HydraLicense : NSObject
 
-- (void) check;
+- (void) initialCheck;
+- (void) enter;
 
 @end

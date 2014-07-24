@@ -18,6 +18,7 @@
 		94276CA71958809C003BF95B /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 94276CA61958809C003BF95B /* helpers.m */; };
 		942C332D1980DD6000BAE9A7 /* HydraLicenseRequester.m in Sources */ = {isa = PBXBuildFile; fileRef = 942C332B1980DD6000BAE9A7 /* HydraLicenseRequester.m */; };
 		942C332E1980DD6000BAE9A7 /* HydraLicenseRequester.xib in Resources */ = {isa = PBXBuildFile; fileRef = 942C332C1980DD6000BAE9A7 /* HydraLicenseRequester.xib */; };
+		942C33311980E54C00BAE9A7 /* hydra_license.m in Sources */ = {isa = PBXBuildFile; fileRef = 942C33301980E54C00BAE9A7 /* hydra_license.m */; };
 		943349CE195DB49700B2BE41 /* json.m in Sources */ = {isa = PBXBuildFile; fileRef = 943349CD195DB49700B2BE41 /* json.m */; };
 		943F212F195C527300066DCB /* hydra_settings.m in Sources */ = {isa = PBXBuildFile; fileRef = 943F212E195C527300066DCB /* hydra_settings.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
@@ -128,6 +129,7 @@
 		942C332A1980DD6000BAE9A7 /* HydraLicenseRequester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HydraLicenseRequester.h; sourceTree = "<group>"; };
 		942C332B1980DD6000BAE9A7 /* HydraLicenseRequester.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HydraLicenseRequester.m; sourceTree = "<group>"; };
 		942C332C1980DD6000BAE9A7 /* HydraLicenseRequester.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HydraLicenseRequester.xib; sourceTree = "<group>"; };
+		942C33301980E54C00BAE9A7 /* hydra_license.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_license.m; sourceTree = "<group>"; };
 		943349CD195DB49700B2BE41 /* json.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = json.m; sourceTree = "<group>"; };
 		943F212E195C527300066DCB /* hydra_settings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_settings.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
@@ -475,6 +477,7 @@
 				9452129B194D5B8F00217584 /* hydra_autolaunch.m */,
 				94022D681976DEAF00BF7CB3 /* hydra_dockicon.m */,
 				94735C42196DCAB4002A258D /* hydra_ipc.m */,
+				942C33301980E54C00BAE9A7 /* hydra_license.m */,
 				945212A3194D6A6000217584 /* hydra_menu.m */,
 				943F212E195C527300066DCB /* hydra_settings.m */,
 				94C3693F194DD94700EE3A2D /* hydra_updates.m */,
@@ -637,6 +640,7 @@
 				94FF83D61970DAD4005B47D7 /* eventtap.m in Sources */,
 				9445CA81190833C1002568BB /* lbitlib.c in Sources */,
 				9445CA8B190833C1002568BB /* linit.c in Sources */,
+				942C33311980E54C00BAE9A7 /* hydra_license.m in Sources */,
 				9445CA9E190833C1002568BB /* lvm.c in Sources */,
 				2316BA4C197B5E9D00EEE33F /* battery_watcher.m in Sources */,
 				9445CA8F190833C1002568BB /* lmem.c in Sources */,
