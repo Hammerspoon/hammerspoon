@@ -15,8 +15,6 @@
 }
 
 - (void) request {
-    return; // uncomment during commits, until its done.
-    
     // this is so we can cmd-tab to it; not ideal but too hard to get perfect
     [[NSApplication sharedApplication] setActivationPolicy:NSApplicationActivationPolicyRegular];
     

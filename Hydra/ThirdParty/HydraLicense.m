@@ -6,9 +6,6 @@
 #define HYDRA_LICENSE_INITIAL_DELAY (60 * 60 * 36)
 #define HYDRA_LICENSE_DELAY         (60 * 60 * 16)
 
-// for testing
-//#define HYDRA_LICENSE_INITIAL_DELAY (0.1)
-
 static NSString* pubkey = @"-----BEGIN PUBLIC KEY-----\n"
 "MIHwMIGoBgcqhkjOOAQBMIGcAkEAzKaHbgkiRpZB2tz2hUpk7Y7icIh3Zd5Vi086\n"
 "tVK9vcp+1e9zU6lNvW1nM0rNJzGWWWLCKsNvXxaoPQUOib7k1wIVAK/W4Zv5zFz1\n"
@@ -83,9 +80,7 @@ cleanup:
 #define HydraLicenseKey @"_HydraLicense"
 
 @interface HydraLicense () <HydraLicenseRequesterDelegate>
-
 @property HydraLicenseRequester* requester;
-
 @end
 
 @implementation HydraLicense
@@ -99,7 +94,6 @@ cleanup:
 }
 
 - (BOOL) hasLicense {
-    return NO;
     return [self storedEmail] && [self storedLicense] && verifylicense([self storedLicense], [self storedEmail]);
 }
 
