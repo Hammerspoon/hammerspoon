@@ -1,42 +1,42 @@
 #import "HydraLicense.h"
 #include <CommonCrypto/CommonDigest.h>
 
-static NSString* pubkey = @"-----BEGIN PUBLIC KEY-----\n"
+static const char* pubkey = "-----BEGIN DSA PUBLIC KEY-----\n"
 "MIHwMIGoBgcqhkjOOAQBMIGcAkEAhUA4RrIEKnAT0J2ZW/fWT9zT4GBVFVQxq+NV\n"
 "yk8eqiNdJXF4Y6VMnuohvMA6niQGdgKgwDmg7NTD26kZpyhB4wIVAOQjzXwOopx7\n"
 "fol961QqxK/PJSDlAkBILOfA5fupc/jg6SdgUmwWmlAurRoCmZHEn8JZ62zxUy3I\n"
 "7TNOSacpXeqw8ypeTFuJH63zCziQdUhTQEGRHDeCA0MAAkBdlN7MK6Rq90GN7yj6\n"
 "Us6JTKJm+x/GANMJVvhX9JL49RhXpx46HMs4tWG83XtC6+wjGFssIRuvnv2vbkWp\n"
 "y0k5\n"
-"-----END PUBLIC KEY-----\n";
+"-----END DSA PUBLIC KEY-----\n";
 
 static SecKeyRef getpublickey(void) {
-    CFDataRef privkeyData = CFBridgingRetain([pubkey dataUsingEncoding:NSUTF8StringEncoding]);
-    SecExternalItemType itemType = kSecItemTypePublicKey;
-    SecExternalFormat externalFormat = kSecFormatPEMSequence;
-    int flags = 0;
-    
-    SecItemImportExportKeyParameters params;
-    params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
-    params.flags = 0; // See SecKeyImportExportFlags for details.
-    params.passphrase = NULL;
-    params.alertTitle = NULL;
-    params.alertPrompt = NULL;
-    params.accessRef = NULL;
-    params.keyUsage = NULL;
-    params.keyAttributes = NULL;
-    params.keyUsage = NULL;
-    params.keyAttributes = NULL;
-    
-    CFArrayRef items = NULL;
-    OSStatus oserr = SecItemImport(privkeyData, NULL, &externalFormat, &itemType, flags, &params, NULL, &items);
-    if (oserr) {
-        fprintf(stderr, "SecItemImport failed (oserr=%d)\n", oserr);
-        CFShow(items);
-        exit(-1);
-    }
-    SecKeyRef key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
-    return key;
+//    CFDataRef privkeyData = CFBridgingRetain([pubkey dataUsingEncoding:NSUTF8StringEncoding]);
+//    SecExternalItemType itemType = kSecItemTypePublicKey;
+//    SecExternalFormat externalFormat = kSecFormatPEMSequence;
+//    int flags = 0;
+//    
+//    SecItemImportExportKeyParameters params;
+//    params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
+//    params.flags = 0; // See SecKeyImportExportFlags for details.
+//    params.passphrase = NULL;
+//    params.alertTitle = NULL;
+//    params.alertPrompt = NULL;
+//    params.accessRef = NULL;
+//    params.keyUsage = NULL;
+//    params.keyAttributes = NULL;
+//    params.keyUsage = NULL;
+//    params.keyAttributes = NULL;
+//    
+//    CFArrayRef items = NULL;
+//    OSStatus oserr = SecItemImport(privkeyData, NULL, &externalFormat, &itemType, flags, &params, NULL, &items);
+//    if (oserr) {
+//        fprintf(stderr, "SecItemImport failed (oserr=%d)\n", oserr);
+//        CFShow(items);
+//        exit(-1);
+//    }
+//    SecKeyRef key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
+    return NULL;
     
 //    static SecKeyRef key = NULL;
 //    static dispatch_once_t onceToken;
@@ -53,6 +53,28 @@ static SecKeyRef getpublickey(void) {
 }
 
 static BOOL verifylicense(NSString* sig, NSString* emailImmutable) {
+    
+    CFDataRef publicKeyData = CFDataCreate(NULL, pubkey, strlen(pubkey));
+    SecItemImportExportKeyParameters params = {};
+    SecExternalItemType keyType = kSecItemTypePublicKey;
+    SecExternalFormat keyFormat = kSecFormatPEMSequence;
+    CFArrayRef importArray = NULL;
+    
+    SecItemImport(publicKeyData,
+                  NULL,
+                  &keyFormat,
+                  &keyType,
+                  0,
+                  &params,
+                  NULL,
+                  &importArray);
+    
+    SecKeyRef publicKey = (SecKeyRef)CFArrayGetValueAtIndex(importArray, 0);
+    
+    CFShow(publicKey);
+    
+    
+    
     NSData* sigd = [[NSData alloc] initWithBase64EncodedString:sig options:0];
     
     NSMutableString *email = [NSMutableString string];

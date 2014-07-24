@@ -93,6 +93,7 @@
 		948CAA081955AECC00A27D9D /* repl.lua in Resources */ = {isa = PBXBuildFile; fileRef = 948CAA001955AECC00A27D9D /* repl.lua */; };
 		948CAA0B19561D7300A27D9D /* timer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 948CAA0A19561D7300A27D9D /* timer.lua */; };
 		94A1537C194D77A400F29F8F /* window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94A1537B194D77A400F29F8F /* window.lua */; };
+		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
 		94BDB49C19094B7A00BD0553 /* application.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* application.m */; };
 		94BEAA58197EFD8300C4B1CF /* spaces.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BEAA57197EFD8300C4B1CF /* spaces.m */; };
 		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
@@ -235,6 +236,7 @@
 		948CAA001955AECC00A27D9D /* repl.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = repl.lua; sourceTree = "<group>"; };
 		948CAA0A19561D7300A27D9D /* timer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = timer.lua; sourceTree = "<group>"; };
 		94A1537B194D77A400F29F8F /* window.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window.lua; sourceTree = "<group>"; };
+		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		94BDB49B19094B7A00BD0553 /* application.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = application.m; sourceTree = "<group>"; };
 		94BEAA57197EFD8300C4B1CF /* spaces.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spaces.m; sourceTree = "<group>"; };
 		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */,
 				94414F47196A1B280067D467 /* Carbon.framework in Frameworks */,
 				9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */,
 				9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */,
@@ -301,6 +304,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				94ABF08E1980B41300FA68E9 /* Security.framework */,
 				94414F46196A1B280067D467 /* Carbon.framework */,
 				9473A75C1959F9AB0080C329 /* WebKit.framework */,
 				9445CA0E19083251002568BB /* Cocoa.framework */,
