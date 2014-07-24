@@ -6,7 +6,7 @@
 #define HYDRA_LICENSE_INITIAL_DELAY (60 * 60 * 36)
 #define HYDRA_LICENSE_DELAY         (60 * 60 * 16)
 
-static NSString* pubkey = @"-----BEGIN PUBLIC KEY-----\n"
+static NSString* hydra_pubkey = @"-----BEGIN PUBLIC KEY-----\n"
 "MIHwMIGoBgcqhkjOOAQBMIGcAkEAzKaHbgkiRpZB2tz2hUpk7Y7icIh3Zd5Vi086\n"
 "tVK9vcp+1e9zU6lNvW1nM0rNJzGWWWLCKsNvXxaoPQUOib7k1wIVAK/W4Zv5zFz1\n"
 "UsFaKF6jz2xDkFCNAkBCuPlrBeNgFi9LeCre5ZRvV1DUpvPcB4/HdIZNznOJTAUq\n"
@@ -15,49 +15,44 @@ static NSString* pubkey = @"-----BEGIN PUBLIC KEY-----\n"
 "1da2\n"
 "-----END PUBLIC KEY-----\n";
 
-static void getpublickey(SecKeyRef* keyptr, CFErrorRef* errorptr) {
-    static SecKeyRef key = NULL;
-    static CFErrorRef error = NULL;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        CFDataRef privkeyData = (__bridge CFDataRef)[pubkey dataUsingEncoding:NSUTF8StringEncoding];
-        SecExternalItemType itemType = kSecItemTypePublicKey;
-        SecExternalFormat externalFormat = kSecFormatPEMSequence;
-        int flags = 0;
-        
-        SecItemImportExportKeyParameters params = {0};
-        params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
-        params.flags = 0;
-        
-        CFArrayRef items = NULL;
-        OSStatus oserr = SecItemImport(privkeyData, NULL, &externalFormat, &itemType, flags, &params, NULL, &items);
-        if (oserr)
-            error = CFErrorCreate(NULL, kCFErrorDomainOSStatus, oserr, NULL);
-        else if (items)
-            key = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
-        
-        if (items)
-            CFRelease(items);
-    });
-    *keyptr = key;
-    *errorptr = error;
+static void createpublickey(NSString* publkeyString, SecKeyRef* keyptr, CFErrorRef* errorptr) {
+    CFDataRef privkeyData = (__bridge CFDataRef)[publkeyString dataUsingEncoding:NSUTF8StringEncoding];
+    SecExternalItemType itemType = kSecItemTypePublicKey;
+    SecExternalFormat externalFormat = kSecFormatPEMSequence;
+    int flags = 0;
+    
+    SecItemImportExportKeyParameters params = {0};
+    params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
+    params.flags = 0;
+    
+    CFArrayRef items = NULL;
+    OSStatus oserr = SecItemImport(privkeyData, NULL, &externalFormat, &itemType, flags, &params, NULL, &items);
+    if (oserr)
+        *errorptr = CFErrorCreate(NULL, kCFErrorDomainOSStatus, oserr, NULL);
+    else if (items)
+        *keyptr = (SecKeyRef)CFRetain(CFArrayGetValueAtIndex(items, 0));
+    
+    if (items)
+        CFRelease(items);
 }
 
-static BOOL verifylicense(NSString* sig, NSString* email) {
-    BOOL result = NO;
+BOOL hydra_verifylicense(NSString* pubkey, NSString* sig, NSString* email) {
+    if ([pubkey length] == 0 || [sig length] == 0 || [email length] == 0)
+        return NO;
     
     NSMutableString *transformedEmail = [NSMutableString string];
     for (NSInteger i = [email length] - 1; i >= 0; i--)
         [transformedEmail appendFormat:@"%c", [email characterAtIndex:i]];
     
+    BOOL result = NO;
     NSData* sigData = [[NSData alloc] initWithBase64EncodedString:sig options:0];
     CFErrorRef error = NULL;
+    SecKeyRef publickey = NULL;
     
-    SecKeyRef publibkey;
-    getpublickey(&publibkey, &error);
+    createpublickey(pubkey, &publickey, &error);
     if (error) goto cleanup;
     
-    SecTransformRef verifier = SecVerifyTransformCreate(publibkey, (__bridge CFDataRef)sigData, &error);
+    SecTransformRef verifier = SecVerifyTransformCreate(publickey, (__bridge CFDataRef)sigData, &error);
     if (error) goto cleanup;
     
     CFDataRef emailDataToVerify = (__bridge CFDataRef)[transformedEmail dataUsingEncoding:NSUTF8StringEncoding];
@@ -67,12 +62,9 @@ static BOOL verifylicense(NSString* sig, NSString* email) {
     result = [(__bridge NSNumber*)SecTransformExecute(verifier, &error) boolValue];
     
 cleanup:
-    
-    if (error) {
-        CFShow(error);
-        CFRelease(error);
-    }
-    
+    if (publickey) CFRelease(publickey);
+    if (verifier) CFRelease(verifier);
+    if (error) { CFShow(error); CFRelease(error); }
     return result;
 }
 
@@ -94,7 +86,7 @@ cleanup:
 }
 
 - (BOOL) hasLicense {
-    return [self storedEmail] && [self storedLicense] && verifylicense([self storedLicense], [self storedEmail]);
+    return hydra_verifylicense(hydra_pubkey, [self storedLicense], [self storedEmail]);
 }
 
 - (HydraLicenseRequester*) lazyLoadedRequester {
@@ -118,7 +110,7 @@ cleanup:
 }
 
 - (BOOL) tryLicense:(NSString*)license forEmail:(NSString*)email {
-    BOOL valid = verifylicense(license, email);
+    BOOL valid = hydra_verifylicense(hydra_pubkey, license, email);
     
     if (valid) {
         [[NSUserDefaults standardUserDefaults] setObject:email forKey:HydraEmailKey];
