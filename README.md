@@ -1,14 +1,16 @@
-<img src="https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Hydra logo" title="Hydra logo" align="right"/>
-
 # Hydra
 
 *Hack your OS X desktop environment*
 
+<img src="https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Hydra logo" title="Hydra logo" align="right"/>
+
 [![Build Status](https://travis-ci.org/sdegutis/hydra.svg?branch=master)](https://travis-ci.org/sdegutis/hydra)
 
-## Install
+* Current version: **0.13**
+* Requires: OS X 10.8 and up
+* Install: [get latest release](https://github.com/sdegutis/hydra/releases/latest), unzip, right-click app, choose "Open"
 
-Hydra requires OS X 10.8 or newer.
+## Install
 
 Don't install Hydra via [cask](http://caskroom.io/). Instead, download
 the zipped binary directly from the
