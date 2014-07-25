@@ -27,9 +27,8 @@ found in this readme or the in-app documentation system.
 
 When you install and run Hydra, you'll see a menu that has an option
 to open the sample config, which you can then save as your own
-initfile and modify. But for your convenience, I've pasted the entire
-sample config here. Feel free to copy it and run `pbpaste >
-~/.hydra/init.lua` if you want.
+initfile and modify. But so you can get an idea of what it looks like,
+I've pasted the entire sample config here.
 
 ~~~lua
 -- Hi!
