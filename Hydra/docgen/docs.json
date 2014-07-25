@@ -388,6 +388,11 @@
         "name": "bind"
       },
       {
+        "def": "hotkey.inputsourcechanged()",
+        "doc": "Called when your input source (i.e. qwerty, dvorak, colemac) changes.\nDefault implementation does nothing; you may override this to rebind your hotkeys or whatever.",
+        "name": "inputsourcechanged"
+      },
+      {
         "def": "hotkey.keycodes",
         "doc": "A mapping from string representation of a key to its keycode, and vice versa; not generally useful yet.\nFor example: keycodes[1] == \"s\", and keycodes[\"s\"] == 1, and so on",
         "name": "keycodes"
@@ -487,7 +492,7 @@
       },
       {
         "def": "hydra.exec(command) -> string",
-        "doc": "Runs a shell function and returns stdout as a string (without trailing newline).",
+        "doc": "Runs a shell function and returns stdout as a string (may include trailing newline).",
         "name": "exec"
       },
       {
@@ -616,13 +621,23 @@
     "doc": "Package management for third party Hydra libraries.\n\nPut `hydra.packages.setup()` at the top of your initfile; it does nothing if it's already been setup.\n\nSee `hydra.packages.list` and `hydra.packages.install` to get started.",
     "items": [
       {
+        "def": "hydra.packages.cachedirectory -> string",
+        "doc": "Absolute path of packages cache, unquoted; defaults to ~/.hydra-ext",
+        "name": "cachedirectory"
+      },
+      {
         "def": "hydra.packages.setup()",
-        "doc": "Clones https://github.com/sdegutis/hydra-ext into ~/.hydra-ext if it's not already there.",
+        "doc": "Clones https://github.com/sdegutis/hydra-ext into hydra.packages.cachedirectory if it's not already there.",
         "name": "setup"
       },
       {
         "def": "hydra.packages.list()",
         "doc": "Lists available and installed packages.",
+        "name": "list"
+      },
+      {
+        "def": "hydra.packages.list(name[, version])",
+        "doc": "Shows information about a given package.",
         "name": "list"
       },
       {
@@ -658,8 +673,8 @@
     "doc": "Check for and install Hydra updates.",
     "items": [
       {
-        "def": "hydra.updates.check(fn(isavailable))",
-        "doc": "Checks for an update. Calls the given function with a boolean representing whether a new update is available.",
+        "def": "hydra.updates.check(fn(isavailable) = nil, failverbosely = false)",
+        "doc": "Checks for an update. Calls the given function with a boolean representing whether a new update is available.\nDefault implementation of fn shows a user-notification when an update is available, with the tag \"showupdate\" (for use with notify.register).",
         "name": "check"
       },
       {
@@ -858,7 +873,7 @@
     "items": [
       {
         "def": "repl.open()",
-        "doc": "Opens a new REPL.\nIn beta versions of Hydra, the REPL was a textgrid; in Hydra 1.0, this function now opens hydra-cli; see https://github.com/sdegutis/hydra-cli\nWhen hydra-cli is installed, this function opens it in a new terminal window; see repl.path.\nWhen it's not installed, this function opens the github page for hydra-cli which includes installation instructions, as a convenience to the user.",
+        "doc": "Opens a new REPL.\nIn beta versions of Hydra, the REPL was a textgrid; in Hydra 1.0, this function now opens hydra-cli; see https://github.com/sdegutis/hydra-cli\nWhen hydra-cli is installed, this function opens it in a new terminal window; see repl.path.\nWhen it's not installed, this function opens the github page for hydra-cli which includes installation instructions, as a convenience to the user.\nNOTE: This seems to not work when you're using Bash version 4. In this case, you can use something like this intead:\n    os.execute([[osascript -e 'tell application \"Terminal\" to do script \"/usr/local/bin/hydra\" in do script \"\"']])",
         "name": "open"
       },
       {
@@ -936,6 +951,27 @@
         "def": "screen.mainscreen() -> screen",
         "doc": "Returns the 'main' screen, i.e. the one containing the currently focused window.",
         "name": "mainscreen"
+      }
+    ]
+  },
+  {
+    "name": "spaces",
+    "doc": "Experimental API for Spaces support.",
+    "items": [
+      {
+        "def": "spaces.count() -> number",
+        "doc": "The number of spaces you currently have.",
+        "name": "count"
+      },
+      {
+        "def": "spaces.currentspace() -> number",
+        "doc": "The index of the space you're currently on, 1-indexed (as usual).",
+        "name": "currentspace"
+      },
+      {
+        "def": "spaces.movetospace(number)",
+        "doc": "Switches to the space at the given index, 1-indexed (as usual).\nCAUTION: this behaves very strangely on 10.9, for me at least. It probably works better on 10.8, and may not work at all on 10.10. Use at your own risk!",
+        "name": "movetospace"
       }
     ]
   },
@@ -1168,7 +1204,7 @@
       },
       {
         "def": "window:isvisible() -> bool",
-        "doc": "True if the app is not hidden or minimized.",
+        "doc": "True if the app is not hidden and the window is not minimized.\nNOTE: some apps (e.g. in Adobe Creative Cloud) have literally-invisible windows and also like to put them very far offscreen; this method may return true for such windows.",
         "name": "isvisible"
       },
       {

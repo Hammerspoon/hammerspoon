@@ -2,14 +2,16 @@
 
 Resource                 | Link
 -------------------------|------------------------------------------
+Fancy Website            | http://hackhydra.com/
 Github page              | https://github.com/sdegutis/hydra/
-Hydra API                | http://sdegutis.github.io/hydra/docs/
+Hydra API                | http://hackhydra.com/docs/
 Lua API                  | http://www.lua.org/manual/5.2/#functions
-Community Contributions  | https://github.com/sdegutis/hydra/wiki
+Third Party Extensions   | https://github.com/sdegutis/hydra-ext
+Community Resources      | https://github.com/sdegutis/hydra/wiki
 Bug Reports              | https://github.com/sdegutis/hydra/issues
 Feature Requests         | https://github.com/sdegutis/hydra/issues
 General Discussion       | https://github.com/sdegutis/hydra/issues
-IRC channel              | #hydrawm on freenode
+IRC channel              | #hackhydra on freenode
 
 
 ### Some definitions

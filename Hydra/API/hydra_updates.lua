@@ -6,9 +6,20 @@ local function normalize(str)
   end
 end
 
---- hydra.updates.check(fn(isavailable))
+--- hydra.updates.check(fn(isavailable) = nil, failverbosely = false)
 --- Checks for an update. Calls the given function with a boolean representing whether a new update is available.
-function hydra.updates.check(fn)
+--- Default implementation of fn shows a user-notification when an update is available, with the tag "showupdate" (for use with notify.register).
+function hydra.updates.check(fn, failverbosely)
+  if not fn then
+    fn = function(available)
+      if available then
+        notify.show("Hydra update available", "", "Click here to see the changelog and maybe even install it", "showupdate")
+      elseif failverbosely then
+        hydra.alert("No update available.")
+      end
+    end
+  end
+
   hydra.updates.getversions(function(versions)
       table.sort(versions, function(a, b) return normalize(a.number) < normalize(b.number) end)
       local hasupdate = normalize(versions[#versions].number) > normalize(hydra.updates.currentversion())

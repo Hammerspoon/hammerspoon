@@ -168,12 +168,29 @@ static OSStatus hotkey_callback(EventHandlerCallRef inHandlerCallRef, EventRef i
     return noErr;
 }
 
+static void register_for_input_source_changes(lua_State* L) {
+    static id observer; observer =
+    [[NSNotificationCenter defaultCenter] addObserverForName:NSTextInputContextKeyboardSelectionDidChangeNotification
+                                                      object:nil
+                                                       queue:nil
+                                                  usingBlock:^(NSNotification *note) {
+                                                      lua_getglobal(L, "hotkey");
+                                                      lua_getfield(L, -1, "_inputsourcechanged");
+                                                      if (lua_pcall(L, 0, 0, 0))
+                                                          hydra_handle_error(L);
+                                                      lua_pop(L, 1);
+                                                  }];
+}
+
 int luaopen_hotkey(lua_State* L) {
     luaL_newlib(L, hotkeylib);
     
     // watch for hotkey events
     EventTypeSpec hotKeyPressedSpec[] = {{kEventClassKeyboard, kEventHotKeyPressed}, {kEventClassKeyboard, kEventHotKeyReleased}};
     InstallEventHandler(GetEventDispatcherTarget(), hotkey_callback, sizeof(hotKeyPressedSpec) / sizeof(EventTypeSpec), hotKeyPressedSpec, L, NULL);
+    
+    // register for input source changes lol
+    register_for_input_source_changes(L);
     
     // put hotkey in registry; necessary for luaL_checkudata()
     lua_pushvalue(L, -1);

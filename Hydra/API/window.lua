@@ -26,7 +26,8 @@ function window.windowforid(id)
 end
 
 --- window:isvisible() -> bool
---- True if the app is not hidden or minimized.
+--- True if the app is not hidden and the window is not minimized.
+--- NOTE: some apps (e.g. in Adobe Creative Cloud) have literally-invisible windows and also like to put them very far offscreen; this method may return true for such windows.
 function window:isvisible()
   return not self:application():ishidden() and not self:isminimized()
 end
