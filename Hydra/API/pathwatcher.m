@@ -20,8 +20,17 @@ void event_callback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, s
     pathwatcher_t* pw = clientCallBackInfo;
     lua_State* L = pw->L;
     
+    const char** changedFiles = eventPaths;
+    
     lua_rawgeti(L, LUA_REGISTRYINDEX, pw->closureref);
-    if (lua_pcall(L, 0, 0, 0))
+    
+    lua_newtable(L);
+    for(int i = 0 ; i < numEvents; i++) {
+        lua_pushstring(L, changedFiles[i]);
+        lua_rawseti(L, -2, i + 1);
+    }
+    
+    if (lua_pcall(L, 1, 0, 0))
         hydra_handle_error(L);
 }
 
