@@ -11,7 +11,6 @@ int luaopen_audiodevice(lua_State* L);
 int luaopen_brightness(lua_State* L);
 int luaopen_battery(lua_State* L);
 int luaopen_battery_watcher(lua_State* L);
-
 //int luaopen_eventtap(lua_State* L);
 int luaopen_geometry(lua_State* L);
 int luaopen_hotkey(lua_State* L);
