@@ -33,8 +33,8 @@ void hydra_pushkeycodestable(lua_State* L); // defined in hotkey_translator.m
 ///     F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15,
 ///     F16, F17, F18, F19, F20, PAD, PAD*, PAD+, PAD/, PAD-, PAD=,
 ///     PAD0, PAD1, PAD2, PAD3, PAD4, PAD5, PAD6, PAD7, PAD8, PAD9,
-///     PAD_CLEAR, PAD_ENTER, RETURN, TAB, SPACE, DELETE, ESCAPE, HELP,
-///     HOME, PAGE_UP, FORWARD_DELETE, END, PAGE_DOWN, LEFT, RIGHT, DOWN, UP
+///     PADCLEAR, PADENTER, RETURN, TAB, SPACE, DELETE, ESCAPE, HELP,
+///     HOME, PAGEUP, FORWARDDELETE, END, PAGEDOWN, LEFT, RIGHT, DOWN, UP
 ///
 /// The `pressedfn` parameter is the function that will be called when this hotkey is pressed.
 ///
