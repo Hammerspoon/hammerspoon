@@ -6,7 +6,7 @@
 
 [![Build Status](https://travis-ci.org/sdegutis/hydra.svg?branch=master)](https://travis-ci.org/sdegutis/hydra)
 
-* Current version: **1.0**
+* Current version: **1.1**
 * Requires: OS X 10.8 and up
 * Download: [get latest release](https://github.com/sdegutis/hydra/releases/latest), unzip, right-click app, choose "Open"
 
