@@ -14,14 +14,13 @@
 
 Hydra will look for `~/.hydra/init.lua` and run it if it exists. But
 if you haven't written one yet, it will run a fallback config that
-gives you a menu bar icon that contains an option to open
-[this sample init](https://github.com/sdegutis/hydra/blob/master/Hydra/Bootstrapping/sample_init.lua).
-You can paste its contents into your `~/.hydra/init.lua` to get
+gives you a menu bar icon that contains an option to open the sample
+initfile (shown below). You can save it to `~/.hydra/init.lua` to get
 started with a really basic starter config.
 
-Bookmark the [official online docs](http://hackhydra.com/docs/)!
-The index page has very handy and valuable information that's not
-found in this readme or the in-app documentation system.
+**NOTE:** Be sure to read the [overview](http://hackhydra.com/docs/)
+page of the documentation! It contains some very valuable information
+for getting started which isnt' found anywhere else in this project.
 
 ## Example
 
