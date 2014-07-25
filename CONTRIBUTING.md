@@ -6,5 +6,5 @@ Guidelines for contributing:
 4. *Thanks* for helping out!
 
 If you have a question about something in the codebase, feel free to
-stop by #hydrawm on freenode; sdegutis pops in every once in a while
+stop by #hackhydra on freenode; sdegutis pops in every once in a while
 and knows the whole codebase in and out.

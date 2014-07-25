@@ -11,7 +11,7 @@ Community Resources      | https://github.com/sdegutis/hydra/wiki
 Bug Reports              | https://github.com/sdegutis/hydra/issues
 Feature Requests         | https://github.com/sdegutis/hydra/issues
 General Discussion       | https://github.com/sdegutis/hydra/issues
-IRC channel              | #hydrawm on freenode
+IRC channel              | #hackhydra on freenode
 
 
 ### Some definitions
