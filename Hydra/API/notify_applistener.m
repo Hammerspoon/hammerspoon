@@ -1,5 +1,4 @@
 #import "helpers.h"
-void push_luavalue_for_nsobject(lua_State* L, id obj);
 
 /// === notify.applistener ===
 ///
@@ -16,8 +15,8 @@ void push_luavalue_for_nsobject(lua_State* L, id obj);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
     
     lua_pushstring(L, [[note name] UTF8String]);
-    push_luavalue_for_nsobject(L, [note object]);
-    push_luavalue_for_nsobject(L, [note userInfo]);
+    hydra_push_luavalue_for_nsobject(L, [note object]);
+    hydra_push_luavalue_for_nsobject(L, [note userInfo]);
     
     if (lua_pcall(L, 3, 0, 0))
         hydra_handle_error(L);
