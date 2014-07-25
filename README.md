@@ -119,22 +119,22 @@ Some brief examples of what you can do with Hydra:
 
 ## Principles
 
-First and foremost, Hydra must be stable. It should never crash. You
-should only ever have to launch it once, and it should stay running
-until you quit it. Period.
+1. Hydra must be stable. It should never crash. You should only ever
+   have to launch it once, and it should stay running until you quit
+   it. Period.
 
-Secondly, Hydra must be lightweight. It should never do anything that
-drains your computer's battery. It should never poll for anything. It
-should use as little RAM as possible. Everything it does should feel
-instant and snappy, never sluggish or delayed.
+2. Hydra must be lightweight. It should never do anything that drains
+   your computer's battery. It should never poll for anything. It
+   should use as little RAM as possible. Everything it does should
+   feel instant and snappy, never sluggish or delayed.
 
-Thirdly, its API should be completely transparent. There should be no
-surprises in how it's behaving, or what's being executed and when. It
-should be fully predictable.
+3. Hydra's API should be completely transparent. There should be no
+   surprises in how it's behaving, or what's being executed and
+   when. It should be fully predictable.
 
-Finally, the API must not be bloated. Nothing should be put into it
-except what's impossible or impractical to do in pure Lua, and what's
-extremely common and likely to be used in everyone's configs.
+4. Hydra's API must not be bloated. Functionality should be included
+   only if it can't be done in Lua or if it's extremely common and
+   likely to be used by the vast majority of users.
 
 ## Resources
 
