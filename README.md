@@ -212,8 +212,9 @@ Hydra was created by Steven Degutis with the help of [various contributors](http
 
 The icon/logo/statusitem was created by Jason Milkins
 ([@jasonm23](https://github.com/jasonm23)) with additional ideas and
-contributions from John Mercouris ([@jmercouris](jmercouris)). It's
-exclusively licenced to Steven Degutis and the Hydra.app project.
+contributions from John Mercouris
+([@jmercouris](https://github.com/jmercouris)). It's exclusively
+licenced to Steven Degutis and the Hydra.app project.
 
 ## License
 
