@@ -121,7 +121,7 @@ DQ
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="MfK-ZP-VXD">
                                         <font key="font" metaFont="system"/>
-                                        <mutableString key="title">Hi. Thanks for trying out Hyda!
+                                        <mutableString key="title">Hi. Thanks for trying out Hydra!
 
 This is an unregistered evaluation version. Although the trial isn't timed, a license must be purchased for continued use.
 
