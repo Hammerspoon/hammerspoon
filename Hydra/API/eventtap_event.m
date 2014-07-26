@@ -94,6 +94,14 @@ static int eventtap_event_post(lua_State* L) {
     return 0;
 }
 
+/// eventtap.event:gettype() -> number
+/// Gets the type of the given event; return value will be one of the values in the eventtap.event.types table.
+static int eventtap_event_gettype(lua_State* L) {
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, "eventtap_event");
+    lua_pushnumber(L, CGEventGetType(event));
+    return 1;
+}
+
 /// eventtap.event.newkeyevent(mods, key, isdown)
 /// Creates a keyboard event.
 ///   - mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift', 'fn'}
@@ -131,6 +139,30 @@ static int eventtap_event_newkeyevent(lua_State* L) {
     return 1;
 }
 
+/// eventtap.event.types -> table
+/// Table for use with `eventtap.new`, with the following keys:
+///   leftmousedown, leftmouseup, leftmousedragged,
+///   rightmousedown, rightmouseup, rightmousedragged,
+///   middlemousedown, middlemouseup, middlemousedragged,
+///   keydown, keyup, mousemoved, flagschanged, scrollwheel
+static void pushtypestable(lua_State* L) {
+    lua_newtable(L);
+    lua_pushnumber(L, kCGEventLeftMouseDown);     lua_setfield(L, -2, "leftmousedown");
+    lua_pushnumber(L, kCGEventLeftMouseUp);       lua_setfield(L, -2, "leftmouseup");
+    lua_pushnumber(L, kCGEventLeftMouseDragged);  lua_setfield(L, -2, "leftmousedragged");
+    lua_pushnumber(L, kCGEventRightMouseDown);    lua_setfield(L, -2, "rightmousedown");
+    lua_pushnumber(L, kCGEventRightMouseUp);      lua_setfield(L, -2, "rightmouseup");
+    lua_pushnumber(L, kCGEventRightMouseDragged); lua_setfield(L, -2, "rightmousedragged");
+    lua_pushnumber(L, kCGEventOtherMouseDown);    lua_setfield(L, -2, "middlemousedown");
+    lua_pushnumber(L, kCGEventOtherMouseUp);      lua_setfield(L, -2, "middlemouseup");
+    lua_pushnumber(L, kCGEventOtherMouseDragged); lua_setfield(L, -2, "middlemousedragged");
+    lua_pushnumber(L, kCGEventMouseMoved);        lua_setfield(L, -2, "mousemoved");
+    lua_pushnumber(L, kCGEventFlagsChanged);      lua_setfield(L, -2, "flagschanged");
+    lua_pushnumber(L, kCGEventScrollWheel);       lua_setfield(L, -2, "scrollwheel");
+    lua_pushnumber(L, kCGEventKeyDown);           lua_setfield(L, -2, "keydown");
+    lua_pushnumber(L, kCGEventKeyUp);             lua_setfield(L, -2, "keyup");
+}
+
 static luaL_Reg eventtapeventlib[] = {
     // module methods
     {"newkeyevent", eventtap_event_newkeyevent},
@@ -141,6 +173,7 @@ static luaL_Reg eventtapeventlib[] = {
     {"setflags", eventtap_event_setflags},
     {"getkeycode", eventtap_event_getkeycode},
     {"setkeycode", eventtap_event_setkeycode},
+    {"gettype", eventtap_event_gettype},
     {"post", eventtap_event_post},
     
     // metamethods
@@ -157,6 +190,9 @@ int luaopen_eventtap_event(lua_State* L) {
     
     lua_pushvalue(L, -1);
     lua_setfield(L, LUA_REGISTRYINDEX, "eventtap_event");
+    
+    pushtypestable(L);
+    lua_setfield(L, -2, "types");
     
     return 1;
 }

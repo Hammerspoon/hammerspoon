@@ -47,19 +47,25 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
         return event;
 }
 
-/// eventtap.new(eventmask, callback(event) -> ignoreevent, moreevents) -> eventtap
+/// eventtap.new(types, callback(event) -> ignoreevent, moreevents) -> eventtap
 /// Returns a new event tap with the given callback for the given event type; the eventtap not started automatically.
-/// The eventmask param must be one of the values from the table `eventtap.types`, or multiple bitwise-OR'd together.
+/// The types param is a table which may contain values from table `eventtap.event.types`.
 /// The callback takes an event object as its only parameter. It can optionally return two values: if the first one is truthy, this event is deleted from the system input event stream and not seen by any other app; if the second one is a table of events, they will each be posted along with this event.
 static int eventtap_new(lua_State* L) {
-    int mask = luaL_checknumber(L, 1);
+    luaL_checktype(L, 1, LUA_TTABLE);
     luaL_checktype(L, 2, LUA_TFUNCTION);
     
     eventtap_t* eventtap = lua_newuserdata(L, sizeof(eventtap_t));
     memset(eventtap, 0, sizeof(eventtap_t));
     
     eventtap->L = L;
-    eventtap->mask = mask;
+    
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0) {
+        CGEventType type = lua_tonumber(L, -1);
+        eventtap->mask |= CGEventMaskBit(type);
+        lua_pop(L, 1);
+    }
     
     lua_pushvalue(L, 2);
     eventtap->fn = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -129,30 +135,6 @@ static int eventtap_gc(lua_State* L) {
     return 0;
 }
 
-/// eventtap.types
-/// Table for use with `eventtap.new`, with the following keys:
-///   leftmousedown, leftmouseup, leftmousedragged,
-///   rightmousedown, rightmouseup, rightmousedragged,
-///   middlemousedown, middlemouseup, middlemousedragged,
-///   keydown, keyup, mousemoved, flagschanged, scrollwheel
-static void pushtypestable(lua_State* L) {
-    lua_newtable(L);
-    lua_pushnumber(L, CGEventMaskBit(kCGEventLeftMouseDown));     lua_setfield(L, -2, "leftmousedown");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventLeftMouseUp));       lua_setfield(L, -2, "leftmouseup");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventLeftMouseDragged));  lua_setfield(L, -2, "leftmousedragged");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventRightMouseDown));    lua_setfield(L, -2, "rightmousedown");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventRightMouseUp));      lua_setfield(L, -2, "rightmouseup");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventRightMouseDragged)); lua_setfield(L, -2, "rightmousedragged");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventOtherMouseDown));    lua_setfield(L, -2, "middlemousedown");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventOtherMouseUp));      lua_setfield(L, -2, "middlemouseup");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventOtherMouseDragged)); lua_setfield(L, -2, "middlemousedragged");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventMouseMoved));        lua_setfield(L, -2, "mousemoved");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventFlagsChanged));      lua_setfield(L, -2, "flagschanged");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventScrollWheel));       lua_setfield(L, -2, "scrollwheel");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventKeyDown));           lua_setfield(L, -2, "keydown");
-    lua_pushnumber(L, CGEventMaskBit(kCGEventKeyUp));             lua_setfield(L, -2, "keyup");
-}
-
 static luaL_Reg eventtaplib[] = {
     // module methods
     {"new", eventtap_new},
@@ -177,9 +159,6 @@ int luaopen_eventtap(lua_State* L) {
     
     lua_pushvalue(L, -1);
     lua_setfield(L, LUA_REGISTRYINDEX, "eventtap");
-    
-    pushtypestable(L);
-    lua_setfield(L, -2, "types");
     
     return 1;
 }
