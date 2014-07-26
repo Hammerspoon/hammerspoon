@@ -8,8 +8,7 @@ static void pushkeycode(lua_State* L, int code, const char* key) {
     
     // t[code] = key
     lua_pushstring(L, key);
-    lua_pushnumber(L, code);
-    lua_settable(L, -3);
+    lua_rawseti(L, -2, code);
 }
 
 void hydra_pushkeycodestable(lua_State* L) {
