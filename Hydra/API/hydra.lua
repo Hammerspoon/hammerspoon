@@ -13,6 +13,7 @@ local function clear_old_state()
   notify.unregisterall()
   notify.applistener.stopall()
   battery.watcher.stopall()
+  eventtap.stopall()
 end
 
 local function load_default_config()
