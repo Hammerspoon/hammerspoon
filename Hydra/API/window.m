@@ -41,20 +41,11 @@ void new_window(lua_State* L, AXUIElementRef win) {
     lua_setuservalue(L, -2);
 }
 
-static AXUIElementRef system_wide_element() {
-    static AXUIElementRef element;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        element = AXUIElementCreateSystemWide();
-    });
-    return element;
-}
-
 /// window.focusedwindow() -> window
 /// Returns the focused window, or nil.
 static int window_focusedwindow(lua_State* L) {
     CFTypeRef app;
-    AXUIElementCopyAttributeValue(system_wide_element(), kAXFocusedApplicationAttribute, &app);
+    AXUIElementCopyAttributeValue(hydra_system_wide_element(), kAXFocusedApplicationAttribute, &app);
     
     if (app) {
         CFTypeRef win;

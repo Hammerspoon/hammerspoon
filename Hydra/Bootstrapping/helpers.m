@@ -229,3 +229,11 @@ id hydra_nsobject_for_luavalue(lua_State* L, int idx) {
 }
 
 
+AXUIElementRef hydra_system_wide_element() {
+    static AXUIElementRef element;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        element = AXUIElementCreateSystemWide();
+    });
+    return element;
+}

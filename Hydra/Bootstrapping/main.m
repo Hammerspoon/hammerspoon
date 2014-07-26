@@ -116,6 +116,7 @@ static void addmodules(lua_State* L, const hydralib* libs, bool toplevel) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    AXUIElementSetMessagingTimeout(hydra_system_wide_element(), 1.0);
     [self setupLua];
 }
 
