@@ -102,7 +102,7 @@ static int eventtap_event_gettype(lua_State* L) {
     return 1;
 }
 
-/// eventtap.event.newkeyevent(mods, key, isdown)
+/// eventtap.event.newkeyevent(mods, key, isdown) -> event
 /// Creates a keyboard event.
 ///   - mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift', 'fn'}
 ///   - key has the same meaning as in the `hotkey` module
@@ -139,6 +139,31 @@ static int eventtap_event_newkeyevent(lua_State* L) {
     return 1;
 }
 
+/// eventtap.event.newmouseevent(type, point, button) -> event
+/// Creates a new mouse event.
+///   - type is one of the values in eventtap.event.types
+///   - point is a table with keys {x,y}
+///   - button is a string of one of the values: {'left', 'right', 'middle'}
+static int eventtap_event_newmouseevent(lua_State* L) {
+    CGEventType type = luaL_checknumber(L, 1);
+    CGPoint point = hydra_topoint(L, 2);
+    const char* buttonString = luaL_checkstring(L, 3);
+    
+    CGMouseButton button = kCGMouseButtonLeft;
+    
+    if (strcmp(buttonString, "right") == 0)
+        button = kCGMouseButtonRight;
+    else if (strcmp(buttonString, "middle") == 0)
+        button = kCGMouseButtonCenter;
+    
+    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+    CGEventRef event = CGEventCreateMouseEvent(source, type, point, button);
+    new_eventtap_event(L, event);
+    CFRelease(event);
+    
+    return 1;
+}
+
 /// eventtap.event.types -> table
 /// Table for use with `eventtap.new`, with the following keys:
 ///   leftmousedown, leftmouseup, leftmousedragged,
@@ -166,6 +191,7 @@ static void pushtypestable(lua_State* L) {
 static luaL_Reg eventtapeventlib[] = {
     // module methods
     {"newkeyevent", eventtap_event_newkeyevent},
+    {"newmouseevent", eventtap_event_newmouseevent},
     
     // instance methods
     {"copy", eventtap_event_copy},
