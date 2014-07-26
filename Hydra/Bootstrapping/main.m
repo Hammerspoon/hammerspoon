@@ -11,7 +11,7 @@ int luaopen_audiodevice(lua_State* L);
 int luaopen_brightness(lua_State* L);
 int luaopen_battery(lua_State* L);
 int luaopen_battery_watcher(lua_State* L);
-//int luaopen_eventtap(lua_State* L);
+int luaopen_eventtap(lua_State* L);
 int luaopen_geometry(lua_State* L);
 int luaopen_hotkey(lua_State* L);
 int luaopen_http(lua_State* L);
@@ -57,7 +57,7 @@ static const hydralib hydralibs[] = {
         {},
     }},
     {"brightness",   luaopen_brightness},
-//    {"eventtap",     luaopen_eventtap},
+    {"eventtap",     luaopen_eventtap},
     {"geometry",     luaopen_geometry},
     {"hotkey",       luaopen_hotkey},
     {"http",         luaopen_http},

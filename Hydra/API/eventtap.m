@@ -20,24 +20,28 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     eventtap_t* e = refcon;
     lua_State* L = e->L;
     
-    int stack = lua_gettop(L);
+//    int stack = lua_gettop(L);
     
     lua_rawgeti(L, LUA_REGISTRYINDEX, e->fn);
-    *(CGEventRef*)lua_newuserdata(L, sizeof(CGEventRef*)) = event;
-    CFRetain(event);
     
-    lua_getfield(L, LUA_REGISTRYINDEX, "eventtap.event");
-    lua_setmetatable(L, -2);
+    lua_pcall(L, 0, 0, 0);
     
-    if (lua_pcall(L, 1, LUA_MULTRET, 0))
-        hydra_handle_error(L);
     
-    int nret = lua_gettop(L) - stack;
-    if (nret == 1 && lua_isnil(L, -1))
-        event = NULL;
+//    *(CGEventRef*)lua_newuserdata(L, sizeof(CGEventRef*)) = event;
+//    CFRetain(event);
     
-    if (nret > 0)
-        lua_pop(L, nret);
+//    lua_getfield(L, LUA_REGISTRYINDEX, "eventtap.event");
+//    lua_setmetatable(L, -2);
+    
+//    if (lua_pcall(L, 1, LUA_MULTRET, 0))
+//        hydra_handle_error(L);
+//    
+//    int nret = lua_gettop(L) - stack;
+//    if (nret == 1 && lua_isnil(L, -1))
+//        event = NULL;
+//    
+//    if (nret > 0)
+//        lua_pop(L, nret);
     
     return event;
 }
