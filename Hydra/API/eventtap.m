@@ -1,4 +1,5 @@
 #import "helpers.h"
+void new_eventtap_event(lua_State* L, CGEventRef event);
 
 /// === eventtap ===
 ///
@@ -20,11 +21,13 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     eventtap_t* e = refcon;
     lua_State* L = e->L;
     
-//    int stack = lua_gettop(L);
+    int stackbefore = lua_gettop(L);
     
     lua_rawgeti(L, LUA_REGISTRYINDEX, e->fn);
     
-    lua_pcall(L, 0, 0, 0);
+    new_eventtap_event(L, event);
+    
+    lua_pcall(L, 1, 0, 0);
     
     
 //    *(CGEventRef*)lua_newuserdata(L, sizeof(CGEventRef*)) = event;

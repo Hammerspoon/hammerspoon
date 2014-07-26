@@ -12,6 +12,7 @@ int luaopen_brightness(lua_State* L);
 int luaopen_battery(lua_State* L);
 int luaopen_battery_watcher(lua_State* L);
 int luaopen_eventtap(lua_State* L);
+int luaopen_eventtap_event(lua_State* L);
 int luaopen_geometry(lua_State* L);
 int luaopen_hotkey(lua_State* L);
 int luaopen_http(lua_State* L);
@@ -54,10 +55,11 @@ static const hydralib hydralibs[] = {
     {"audiodevice",  luaopen_audiodevice},
     {"battery",      luaopen_battery, (hydralib[]){
         {"watcher", luaopen_battery_watcher},
-        {},
-    }},
+        {}}},
     {"brightness",   luaopen_brightness},
-    {"eventtap",     luaopen_eventtap},
+    {"eventtap",     luaopen_eventtap, (hydralib[]){
+        {"event", luaopen_eventtap_event},
+        {}}},
     {"geometry",     luaopen_geometry},
     {"hotkey",       luaopen_hotkey},
     {"http",         luaopen_http},
@@ -69,14 +71,12 @@ static const hydralib hydralibs[] = {
         {"menu",        luaopen_hydra_menu},
         {"settings",    luaopen_hydra_settings},
         {"updates",     luaopen_hydra_updates},
-        {},
-    }},
+        {}}},
     {"json",         luaopen_json},
     {"mouse",        luaopen_mouse},
     {"notify",       luaopen_notify, (hydralib[]){
         {"applistener", luaopen_notify_applistener},
-        {},
-    }},
+        {}}},
     {"pasteboard",   luaopen_pasteboard},
     {"pathwatcher",  luaopen_pathwatcher},
     {"screen",       luaopen_screen},

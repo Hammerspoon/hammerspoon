@@ -88,6 +88,7 @@
 		94735C40196DCA9C002A258D /* hydra_ipc.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94735C3F196DCA9C002A258D /* hydra_ipc.lua */; };
 		94735C43196DCAB4002A258D /* hydra_ipc.m in Sources */ = {isa = PBXBuildFile; fileRef = 94735C42196DCAB4002A258D /* hydra_ipc.m */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
+		947AA3D519843C6300E90EF8 /* eventtap_event.m in Sources */ = {isa = PBXBuildFile; fileRef = 947AA3D419843C6300E90EF8 /* eventtap_event.m */; };
 		9480181A1976C0DC0024B39F /* http.m in Sources */ = {isa = PBXBuildFile; fileRef = 948018191976C0DC0024B39F /* http.m */; };
 		9480181C1976CDFE0024B39F /* http.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9480181B1976CDFE0024B39F /* http.lua */; };
 		948CAA031955AECC00A27D9D /* textgrid.xib in Resources */ = {isa = PBXBuildFile; fileRef = 948CA9F91955AECC00A27D9D /* textgrid.xib */; };
@@ -233,6 +234,7 @@
 		94735C3F196DCA9C002A258D /* hydra_ipc.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hydra_ipc.lua; sourceTree = "<group>"; };
 		94735C42196DCAB4002A258D /* hydra_ipc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_ipc.m; sourceTree = "<group>"; };
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		947AA3D419843C6300E90EF8 /* eventtap_event.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = eventtap_event.m; sourceTree = "<group>"; };
 		948018191976C0DC0024B39F /* http.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = http.m; sourceTree = "<group>"; };
 		9480181B1976CDFE0024B39F /* http.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = http.lua; sourceTree = "<group>"; };
 		94804B08197B3E0D005DE830 /* CGSPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CGSPrivate.h; sourceTree = "<group>"; };
@@ -472,6 +474,7 @@
 				2316BA4B197B5E9D00EEE33F /* battery_watcher.m */,
 				2303FBEC196A410D00D2EFDE /* brightness.m */,
 				94FF83D51970DAD4005B47D7 /* eventtap.m */,
+				947AA3D419843C6300E90EF8 /* eventtap_event.m */,
 				940026961951437A000D15C1 /* geometry.m */,
 				9459B591194CEE1E008BC904 /* hotkey.m */,
 				948018191976C0DC0024B39F /* http.m */,
@@ -646,6 +649,7 @@
 				9445CA8B190833C1002568BB /* linit.c in Sources */,
 				942C33311980E54C00BAE9A7 /* hydra_license.m in Sources */,
 				9445CA9E190833C1002568BB /* lvm.c in Sources */,
+				947AA3D519843C6300E90EF8 /* eventtap_event.m in Sources */,
 				2316BA4C197B5E9D00EEE33F /* battery_watcher.m in Sources */,
 				9445CA8F190833C1002568BB /* lmem.c in Sources */,
 				94276CA71958809C003BF95B /* helpers.m in Sources */,
