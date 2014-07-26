@@ -7,7 +7,7 @@
 
 @end
 
-@interface HydraLicenseRequester : NSWindowController
+@interface HydraLicenseRequester : NSWindowController <NSWindowDelegate>
 
 - (void) request;
 

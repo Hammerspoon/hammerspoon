@@ -6,6 +6,7 @@
 @property NSString* email;
 @property NSString* license;
 @property NSString* error;
+@property NSApplicationActivationPolicy previousPolicy;
 @end
 
 @implementation HydraLicenseRequester
@@ -15,13 +16,19 @@
 }
 
 - (void) request {
-    // this is so we can cmd-tab to it; not ideal but too hard to get perfect
+    if (![[self window] isVisible]) {
+        self.previousPolicy = [[NSApplication sharedApplication] activationPolicy];
+        [[self window] center];
+    }
+    
+    // so the user can cmd-tab to this window
     [[NSApplication sharedApplication] setActivationPolicy:NSApplicationActivationPolicyRegular];
     
-    if (![[self window] isVisible])
-        [[self window] center];
-    
     [[self window] orderFrontRegardless];
+}
+
+- (void) windowWillClose:(NSNotification *)notification {
+    [[NSApplication sharedApplication] setActivationPolicy:self.previousPolicy];
 }
 
 - (IBAction) acquire:(id)sender {
@@ -43,6 +50,7 @@ static NSString* normalize(NSString* s) {
         alert.informativeText = @"Thank you for your support! I hope you have a lot of fun using Hydra to do really cool things.";
         [alert beginSheetModalForWindow:[self window]
                       completionHandler:^(NSModalResponse returnCode) {
+                          [[self window] close];
                           [self.delegate closed];
                       }];
     }
