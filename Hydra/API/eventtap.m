@@ -1,5 +1,6 @@
 #import "helpers.h"
 void new_eventtap_event(lua_State* L, CGEventRef event);
+CGEventRef hydra_to_eventtap_event(lua_State* L, int idx);
 
 /// === eventtap ===
 ///
@@ -21,30 +22,35 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     eventtap_t* e = refcon;
     lua_State* L = e->L;
     
-    int stacktopbefore = lua_gettop(L);
-    
     lua_rawgeti(L, LUA_REGISTRYINDEX, e->fn);
-    
     new_eventtap_event(L, event);
     
-    if (lua_pcall(L, 1, LUA_MULTRET, 0))
+    if (lua_pcall(L, 1, 2, 0))
         hydra_handle_error(L);
     
-    int nret = lua_gettop(L) - stacktopbefore;
-    if (nret == 1 && lua_isnil(L, -1))
-        event = NULL;
+    bool ignoreevent = lua_toboolean(L, -2);
     
-    if (nret > 0)
-        lua_pop(L, nret);
+    if (lua_istable(L, -1)) {
+        lua_pushnil(L);
+        while (lua_next(L, -2) != 0) {
+            CGEventRef event = hydra_to_eventtap_event(L, -1);
+            CGEventTapPostEvent(proxy, event);
+            lua_pop(L, 1);
+        }
+    }
     
-    return event;
+    lua_pop(L, 2);
+    
+    if (ignoreevent)
+        return NULL;
+    else
+        return event;
 }
 
-/// eventtap.new(eventmask, callback(event)) -> eventtap
+/// eventtap.new(eventmask, callback(event) -> ignoreevent, moreevents) -> eventtap
 /// Returns a new event tap with the given callback for the given event type; the eventtap not started automatically.
 /// The eventmask param must be one of the values from the table `eventtap.types`, or multiple bitwise-OR'd together.
-/// The callback takes an event object as its only parameter.
-/// If the callback function returns no values, the event is not modified; if it returns nil as its first value, the event is deleted from the OS X event system and not seen by any other apps; all other return values are reserved for future changes to this API.
+/// The callback takes an event object as its only parameter. It can optionally return two values: if the first one is truthy, this event is deleted from the system input event stream and not seen by any other app; if the second one is a table of events, they will each be posted along with this event.
 static int eventtap_new(lua_State* L) {
     int mask = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);

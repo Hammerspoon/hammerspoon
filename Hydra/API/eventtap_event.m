@@ -4,6 +4,10 @@
 ///
 /// Functionality to inspect, modify, and create events; for use with the `eventtap` module
 
+CGEventRef hydra_to_eventtap_event(lua_State* L, int idx) {
+    return *(CGEventRef*)luaL_checkudata(L, idx, "eventtap_event");
+}
+
 void new_eventtap_event(lua_State* L, CGEventRef event) {
     CFRetain(event);
     *(CGEventRef*)lua_newuserdata(L, sizeof(CGEventRef*)) = event;
