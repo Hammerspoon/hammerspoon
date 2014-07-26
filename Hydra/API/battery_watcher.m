@@ -25,9 +25,6 @@ static void callback(void *info) {
 /// battery.watcher.new(fn) -> battery.watcher
 /// Creates a battery watcher that can be started. When started, fn will be called each time a battery attribute changes.
 static int battery_watcher_new(lua_State* L) {
-    // Since we're calling this function via __call, we pop the "self" table.
-    lua_remove(L, 1);
-    
     luaL_checktype(L, 1, LUA_TFUNCTION);
     
     battery_watcher_t* watcher = lua_newuserdata(L, sizeof(battery_watcher_t));
