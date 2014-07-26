@@ -11,8 +11,17 @@ static int pasteboard_stringcontents(lua_State* L) {
     return 1;
 }
 
+/// pasteboard.changecount() -> number
+/// The number of times the pasteboard owner changed
+/// (useful to see if the pasteboard was updated, by seeing if the value of this function changes).
+static int pasteboard_changecount(lua_State* L) {
+    lua_pushnumber(L, [[NSPasteboard generalPasteboard] changeCount]);
+    return 1;
+}
+
 static luaL_Reg pasteboardlib[] = {
     {"stringcontents", pasteboard_stringcontents},
+    {"changecount", pasteboard_changecount},
     {NULL, NULL}
 };
 
