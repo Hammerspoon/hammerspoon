@@ -34,6 +34,14 @@ static int screen_visibleframe(lua_State* L) {
     return 1;
 }
 
+/// screen:id(screen) -> number
+/// Returns a screen's unique ID.
+static int screen_id(lua_State* L) {
+    NSScreen* screen = hydra_screen(L, 1);
+    lua_pushstring(L, [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] UTF8String]);
+    return 1;
+}
+
 /// screen.settint(redarray, greenarray, bluearray)
 /// Set the tint on a screen; experimental.
 static int screen_settint(lua_State* L) {
@@ -121,6 +129,7 @@ static const luaL_Reg screenlib[] = {
     
     {"frame", screen_frame},
     {"visibleframe", screen_visibleframe},
+    {"id", screen_id},
     
     {NULL, NULL}
 };
