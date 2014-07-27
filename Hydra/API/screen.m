@@ -38,8 +38,25 @@ static int screen_visibleframe(lua_State* L) {
 /// Returns a screen's unique ID.
 static int screen_id(lua_State* L) {
     NSScreen* screen = hydra_screen(L, 1);
-    NSNumber* id = [[screen deviceDescription] objectForKey:@"NSScreenNumber"];
-    lua_pushnumber(L, [id doubleValue]);
+    lua_pushnumber(L, [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] doubleValue]);
+    return 1;
+}
+
+/// screen:name(screen) -> string
+/// Returns the preferred name for the screen set by the manufacturer.
+static int screen_name(lua_State* L) {
+    NSScreen* screen = hydra_screen(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    
+    NSDictionary *deviceInfo = (__bridge_transfer NSDictionary *)IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+    NSDictionary *localizedNames = [deviceInfo objectForKey:[NSString stringWithUTF8String:kDisplayProductName]];
+    
+    if ([localizedNames count])
+        lua_pushstring(L, [[localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] UTF8String]);
+    
+    else
+        lua_pushnil(L);
+
     return 1;
 }
 
@@ -131,6 +148,7 @@ static const luaL_Reg screenlib[] = {
     {"frame", screen_frame},
     {"visibleframe", screen_visibleframe},
     {"id", screen_id},
+    {"name", screen_name},
     
     {NULL, NULL}
 };
