@@ -99,6 +99,7 @@
 		948CAA0B19561D7300A27D9D /* timer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 948CAA0A19561D7300A27D9D /* timer.lua */; };
 		94A1537C194D77A400F29F8F /* window.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94A1537B194D77A400F29F8F /* window.lua */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
+		94B6A9A11984974F00158B7B /* screen_watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 94B6A9A01984974F00158B7B /* screen_watcher.m */; };
 		94BDB49C19094B7A00BD0553 /* application.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BDB49B19094B7A00BD0553 /* application.m */; };
 		94BEAA58197EFD8300C4B1CF /* spaces.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BEAA57197EFD8300C4B1CF /* spaces.m */; };
 		94C3693E194DD93600EE3A2D /* window.m in Sources */ = {isa = PBXBuildFile; fileRef = 94C3693D194DD93600EE3A2D /* window.m */; };
@@ -248,6 +249,7 @@
 		948CAA0A19561D7300A27D9D /* timer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = timer.lua; sourceTree = "<group>"; };
 		94A1537B194D77A400F29F8F /* window.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = window.lua; sourceTree = "<group>"; };
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		94B6A9A01984974F00158B7B /* screen_watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = screen_watcher.m; sourceTree = "<group>"; };
 		94BDB49B19094B7A00BD0553 /* application.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = application.m; sourceTree = "<group>"; };
 		94BEAA57197EFD8300C4B1CF /* spaces.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = spaces.m; sourceTree = "<group>"; };
 		94C3693D194DD93600EE3A2D /* window.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = window.m; sourceTree = "<group>"; };
@@ -493,6 +495,7 @@
 				946AF2D51976B87A00A22EBF /* pasteboard.m */,
 				945212A1194D69E700217584 /* pathwatcher.m */,
 				94E8E79F194E0AB10064CF6C /* screen.m */,
+				94B6A9A01984974F00158B7B /* screen_watcher.m */,
 				94BEAA57197EFD8300C4B1CF /* spaces.m */,
 				948CA9FE1955AECC00A27D9D /* textgrid.m */,
 				944419C0194F4A51000A55A7 /* timer.m */,
@@ -636,6 +639,7 @@
 				943F212F195C527300066DCB /* hydra_settings.m in Sources */,
 				9445CA2219083251002568BB /* main.m in Sources */,
 				9445CA86190833C1002568BB /* ldebug.c in Sources */,
+				94B6A9A11984974F00158B7B /* screen_watcher.m in Sources */,
 				9445CA8C190833C1002568BB /* liolib.c in Sources */,
 				9445CA93190833C1002568BB /* loslib.c in Sources */,
 				9452129C194D5B8F00217584 /* hydra_autolaunch.m in Sources */,
