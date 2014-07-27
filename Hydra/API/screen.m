@@ -38,7 +38,8 @@ static int screen_visibleframe(lua_State* L) {
 /// Returns a screen's unique ID.
 static int screen_id(lua_State* L) {
     NSScreen* screen = hydra_screen(L, 1);
-    lua_pushstring(L, [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] UTF8String]);
+    NSNumber* id = [[screen deviceDescription] objectForKey:@"NSScreenNumber"];
+    lua_pushnumber(L, [id doubleValue]);
     return 1;
 }
 
