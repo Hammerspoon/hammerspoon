@@ -131,3 +131,23 @@ function fnutils.partial(fn, ...)
     return fn(table.unpack(args))
   end
 end
+
+--- fnutils.cycle(t) -> fn() -> t[n]
+--- Returns a function that returns t[1], t[2], ... t[#t], t[1], ... on successive calls.
+--- Example:
+---     f = cycle({4, 5, 6})
+---     f() -- 4
+---     f() -- 5
+---     f() -- 6
+---     f() -- 4
+---     f() -- 5
+---     f() -- 6
+---     f() -- 4
+function fnutils.cycle(t)
+  local i = 1
+  return function()
+    local x = t[i]
+    i = i % #t + 1
+    return x
+  end
+end
