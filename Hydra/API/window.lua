@@ -203,10 +203,10 @@ function window:focuswindow_south() return focus_first_valid_window(self:windows
 --- Example: win:movetounit(x=0, y=0, w=0.5, h=0.5) -- window now fills top-left quarter of screen
 function window:movetounit(unit)
   local screenrect = self:screen():frame_without_dock_or_menu()
-  local x, y, w, h = table.unpack(unit)
-  x = screenrect.x + (x * screenrect.w)
-  y = screenrect.y + (y * screenrect.h)
-  w = w * screenrect.w
-  h = h * screenrect.h
-  self:setframe({x=x, y=y, w=w, h=h})
+  self:setframe({
+      x = screenrect.x + (unit.x * screenrect.w),
+      y = screenrect.y + (unit.y * screenrect.h),
+      w = unit.w * screenrect.w,
+      h = unit.h * screenrect.h,
+  })
 end
