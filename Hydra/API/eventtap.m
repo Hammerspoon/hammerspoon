@@ -61,7 +61,7 @@ static int eventtap_new(lua_State* L) {
     eventtap->L = L;
     
     lua_pushnil(L);
-    while (lua_next(L, -2) != 0) {
+    while (lua_next(L, 1) != 0) {
         CGEventType type = lua_tonumber(L, -1);
         eventtap->mask |= CGEventMaskBit(type);
         lua_pop(L, 1);
