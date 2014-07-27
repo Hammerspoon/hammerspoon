@@ -196,3 +196,17 @@ function window:focuswindow_north() return focus_first_valid_window(self:windows
 --- window:focuswindow_south()
 --- Focus the first focus-able window to the south of this one.
 function window:focuswindow_south() return focus_first_valid_window(self:windows_to_south()) end
+
+--- window:movetounit(rect)
+--- Moves and resizes the window to fit on the given portion of the screen.
+--- The argument is a rect with each key being between 0.0 and 1.0.
+--- Example: win:movetounit(x=0, y=0, w=0.5, h=0.5) -- window now fills top-left quarter of screen
+function window:movetounit(unit)
+  local screenrect = self:screen():frame_without_dock_or_menu()
+  local x, y, w, h = table.unpack(unit)
+  x = screenrect.x + (x * screenrect.w)
+  y = screenrect.y + (y * screenrect.h)
+  w = w * screenrect.w
+  h = h * screenrect.h
+  self:setframe({x=x, y=y, w=w, h=h})
+end
