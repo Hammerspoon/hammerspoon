@@ -85,11 +85,26 @@ static int eventtap_event_setkeycode(lua_State* L) {
     return 0;
 }
 
-/// eventtap.event:post()
+/// eventtap.event:post(app = nil)
 /// Posts the event to the system as if the user did it manually.
+/// If app is a valid application instance, posts this event only to that application (I think).
 static int eventtap_event_post(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, "eventtap_event");
-    CGEventPost(kCGSessionEventTap, event);
+    
+    if (luaL_testudata(L, 2, "application")) {
+        AXUIElementRef app = lua_touserdata(L, 2);
+        
+        pid_t pid;
+        AXUIElementGetPid(app, &pid);
+        
+        ProcessSerialNumber psn;
+        GetProcessForPID(pid, &psn);
+        CGEventPostToPSN(&psn, event);
+    }
+    else {
+        CGEventPost(kCGSessionEventTap, event);
+    }
+    
     return 0;
 }
 
