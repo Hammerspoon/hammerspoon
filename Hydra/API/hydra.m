@@ -111,18 +111,22 @@ static int hydra_uuid(lua_State* L) {
     return 1;
 }
 
-/// hydra.runapplescript(string) -> string
-/// Runs the given AppleScript string. If it succeeds, returns true; if it fails, returns false and a table containing information that hopefully explains why.
+/// hydra.runapplescript(string) -> (bool)success, (table)error | (string)result
+/// Runs the given AppleScript string. If it succeeds, returns true, and the string return value; if it fails, returns false and a table containing information that hopefully explains why.
 static int hydra_runapplescript(lua_State* L) {
     NSString* source = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
     
     NSAppleScript* script = [[NSAppleScript alloc] initWithSource:source];
     NSDictionary *__autoreleasing error;
     NSAppleEventDescriptor* result = [script executeAndReturnError:&error];
-    if (result) error = nil; // just to be safe
     
     lua_pushboolean(L, (result != nil));
-    hydra_push_luavalue_for_nsobject(L, error);
+    if (result == nil)
+        hydra_push_luavalue_for_nsobject(L, error);
+    
+    else
+        lua_pushstring(L, [[result stringValue] UTF8String]);
+    
     return 2;
 }
 
