@@ -35,7 +35,6 @@
 		944A2D431989737E00D8DC90 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3D1989737E00D8DC90 /* Credits.rtf */; };
 		944A2D441989737E00D8DC90 /* dsa_pub.cer in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3E1989737E00D8DC90 /* dsa_pub.cer */; };
 		944A2D451989737E00D8DC90 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3F1989737E00D8DC90 /* Images.xcassets */; };
-		944A2D461989737E00D8DC90 /* Penknife-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D401989737E00D8DC90 /* Penknife-Info.plist */; };
 		944A2D471989737E00D8DC90 /* Penknife.icns in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D421989737E00D8DC90 /* Penknife.icns */; };
 		944A2D84198973E900D8DC90 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D4B198973E900D8DC90 /* lapi.c */; };
 		944A2D85198973E900D8DC90 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D4D198973E900D8DC90 /* lauxlib.c */; };
@@ -69,6 +68,10 @@
 		944A2DA1198973E900D8DC90 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D7E198973E900D8DC90 /* lundump.c */; };
 		944A2DA2198973E900D8DC90 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D80198973E900D8DC90 /* lvm.c */; };
 		944A2DA3198973E900D8DC90 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D82198973E900D8DC90 /* lzio.c */; };
+		944A2DA6198975B000D8DC90 /* PKSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA5198975B000D8DC90 /* PKSettingsController.m */; };
+		944A2DA91989760400D8DC90 /* PKReplController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA81989760400D8DC90 /* PKReplController.m */; };
+		944A2DAC1989760D00D8DC90 /* PKDocsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DAB1989760D00D8DC90 /* PKDocsController.m */; };
+		944A2DAF1989761600D8DC90 /* PKExtensionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DAE1989761600D8DC90 /* PKExtensionsController.m */; };
 		944C49CD196B2E5C00FF10DD /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 944C49CC196B2E5C00FF10DD /* docs.json */; };
 		94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF81956FA5000F9CCB6 /* textgrid.lua */; };
 		94517BFB1957738100F9CCB6 /* logger.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BFA1957738100F9CCB6 /* logger.lua */; };
@@ -218,6 +221,14 @@
 		944A2D81198973E900D8DC90 /* lvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lvm.h; sourceTree = "<group>"; };
 		944A2D82198973E900D8DC90 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		944A2D83198973E900D8DC90 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
+		944A2DA4198975B000D8DC90 /* PKSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKSettingsController.h; sourceTree = "<group>"; };
+		944A2DA5198975B000D8DC90 /* PKSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKSettingsController.m; sourceTree = "<group>"; };
+		944A2DA71989760400D8DC90 /* PKReplController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKReplController.h; sourceTree = "<group>"; };
+		944A2DA81989760400D8DC90 /* PKReplController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKReplController.m; sourceTree = "<group>"; };
+		944A2DAA1989760D00D8DC90 /* PKDocsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKDocsController.h; sourceTree = "<group>"; };
+		944A2DAB1989760D00D8DC90 /* PKDocsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKDocsController.m; sourceTree = "<group>"; };
+		944A2DAD1989761600D8DC90 /* PKExtensionsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKExtensionsController.h; sourceTree = "<group>"; };
+		944A2DAE1989761600D8DC90 /* PKExtensionsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKExtensionsController.m; sourceTree = "<group>"; };
 		944C49CC196B2E5C00FF10DD /* docs.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = docs.json; sourceTree = "<group>"; };
 		94517BF81956FA5000F9CCB6 /* textgrid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = textgrid.lua; sourceTree = "<group>"; };
 		94517BFA1957738100F9CCB6 /* logger.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = logger.lua; sourceTree = "<group>"; };
@@ -376,6 +387,14 @@
 				944A2D361989735300D8DC90 /* MainWindow.xib */,
 				944A2D371989735300D8DC90 /* PKMainWindowController.h */,
 				944A2D381989735300D8DC90 /* PKMainWindowController.m */,
+				944A2DA4198975B000D8DC90 /* PKSettingsController.h */,
+				944A2DA5198975B000D8DC90 /* PKSettingsController.m */,
+				944A2DA71989760400D8DC90 /* PKReplController.h */,
+				944A2DA81989760400D8DC90 /* PKReplController.m */,
+				944A2DAA1989760D00D8DC90 /* PKDocsController.h */,
+				944A2DAB1989760D00D8DC90 /* PKDocsController.m */,
+				944A2DAD1989761600D8DC90 /* PKExtensionsController.h */,
+				944A2DAE1989761600D8DC90 /* PKExtensionsController.m */,
 			);
 			name = Main;
 			sourceTree = "<group>";
@@ -622,7 +641,6 @@
 				9445CAA5190847CB002568BB /* rawinit.lua in Resources */,
 				944C49CD196B2E5C00FF10DD /* docs.json in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
-				944A2D461989737E00D8DC90 /* Penknife-Info.plist in Resources */,
 				945200861950E2760072DFEF /* fallback_init.lua in Resources */,
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
 				9443F2AF1969CF7400E7219D /* inspect.lua in Resources */,
@@ -653,6 +671,7 @@
 				9459B592194CEE1E008BC904 /* hotkey.m in Sources */,
 				944A2D98198973E900D8DC90 /* lopcodes.c in Sources */,
 				944A2D90198973E900D8DC90 /* lgc.c in Sources */,
+				944A2DAF1989761600D8DC90 /* PKExtensionsController.m in Sources */,
 				944A2D391989735300D8DC90 /* main.m in Sources */,
 				944419C1194F4A51000A55A7 /* timer.m in Sources */,
 				945212A4194D6A6000217584 /* hydra_menu.m in Sources */,
@@ -672,6 +691,7 @@
 				9452129C194D5B8F00217584 /* hydra_autolaunch.m in Sources */,
 				942C332D1980DD6000BAE9A7 /* HydraLicenseRequester.m in Sources */,
 				945212A2194D69E700217584 /* pathwatcher.m in Sources */,
+				944A2DA91989760400D8DC90 /* PKReplController.m in Sources */,
 				944A2D99198973E900D8DC90 /* loslib.c in Sources */,
 				94FF83D61970DAD4005B47D7 /* eventtap.m in Sources */,
 				944A2D93198973E900D8DC90 /* llex.c in Sources */,
@@ -681,6 +701,7 @@
 				947AA3D519843C6300E90EF8 /* eventtap_event.m in Sources */,
 				2316BA4C197B5E9D00EEE33F /* battery_watcher.m in Sources */,
 				94276CA71958809C003BF95B /* helpers.m in Sources */,
+				944A2DA6198975B000D8DC90 /* PKSettingsController.m in Sources */,
 				944A2D3C1989735300D8DC90 /* PKMainWindowController.m in Sources */,
 				9480181A1976C0DC0024B39F /* http.m in Sources */,
 				944A2D9C198973E900D8DC90 /* lstring.c in Sources */,
@@ -717,6 +738,7 @@
 				944A2D94198973E900D8DC90 /* lmathlib.c in Sources */,
 				944A2D9F198973E900D8DC90 /* ltablib.c in Sources */,
 				940026971951437A000D15C1 /* geometry.m in Sources */,
+				944A2DAC1989760D00D8DC90 /* PKDocsController.m in Sources */,
 				946AF2D61976B87A00A22EBF /* pasteboard.m in Sources */,
 				946AF2CF1976941200A22EBF /* notify_applistener.m in Sources */,
 			);

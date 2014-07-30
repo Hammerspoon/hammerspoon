@@ -44,6 +44,8 @@ int luaopen_hydra_updates(lua_State* L);
 @property PKMainWindowController* mainWindowController;
 @end
 
+lua_State* PKLuaState;
+
 @implementation HydraAppDelegate
 
 - (IBAction) showSpecificWindow:(NSMenuItem*)item {
@@ -115,7 +117,7 @@ static void addmodules(lua_State* L, const hydralib* libs, bool toplevel) {
 }
 
 - (void) setupLua {
-    lua_State* L = luaL_newstate();
+    lua_State* L = PKLuaState = luaL_newstate();
     luaL_openlibs(L);
     
     hydra_setup_handler_storage(L);
@@ -129,8 +131,9 @@ static void addmodules(lua_State* L, const hydralib* libs, bool toplevel) {
     self.mainWindowController = [[PKMainWindowController alloc] init];
     [self.mainWindowController showWindow:self];
     
-//    AXUIElementSetMessagingTimeout(hydra_system_wide_element(), 1.0);
-//    [self setupLua];
+    AXUIElementSetMessagingTimeout(hydra_system_wide_element(), 1.0);
+    
+    [self setupLua];
 }
 
 @end
