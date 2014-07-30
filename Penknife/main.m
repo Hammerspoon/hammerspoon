@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "helpers.h"
-#import "../lua/lualib.h"
+#import "lua/lualib.h"
 
 #import "PKMainWindowController.h"
 
