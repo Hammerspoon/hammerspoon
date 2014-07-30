@@ -112,7 +112,7 @@
 		94DE5949194F1A31004D242E /* hydra.m in Sources */ = {isa = PBXBuildFile; fileRef = 94DE5948194F1A31004D242E /* hydra.m */; };
 		94DE594B194F1A39004D242E /* hydra.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94DE594A194F1A39004D242E /* hydra.lua */; };
 		94E8E7A0194E0AB10064CF6C /* screen.m in Sources */ = {isa = PBXBuildFile; fileRef = 94E8E79F194E0AB10064CF6C /* screen.m */; };
-		94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Hydra.icns */; };
+		94E8E7AE194E0C940064CF6C /* Penknife.icns in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7AD194E0C940064CF6C /* Penknife.icns */; };
 		94E8E7BA194E25290064CF6C /* screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7B9194E25290064CF6C /* screen.lua */; };
 		94E8E7BC194E25300064CF6C /* application.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94E8E7BB194E25300064CF6C /* application.lua */; };
 		94F7A98E1959096100CE7136 /* notify.m in Sources */ = {isa = PBXBuildFile; fileRef = 94F7A98D1959096100CE7136 /* notify.m */; };
@@ -140,13 +140,13 @@
 		944247331972410E0003EAFE /* eventtap.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = eventtap.lua; sourceTree = "<group>"; };
 		9443F2AE1969CF7400E7219D /* inspect.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = inspect.lua; sourceTree = "<group>"; };
 		944419C0194F4A51000A55A7 /* timer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = timer.m; sourceTree = "<group>"; };
-		9445CA0B19083251002568BB /* Hydra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hydra.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9445CA0B19083251002568BB /* Penknife.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Penknife.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		9445CA1119083251002568BB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		9445CA1219083251002568BB /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		9445CA1319083251002568BB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		9445CA1619083251002568BB /* Hydra-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Hydra-Info.plist"; sourceTree = "<group>"; };
-		9445CA1C19083251002568BB /* Hydra-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Hydra-Prefix.pch"; sourceTree = "<group>"; };
+		9445CA1619083251002568BB /* Penknife-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Penknife-Info.plist"; sourceTree = "<group>"; };
+		9445CA1C19083251002568BB /* Penknife-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Penknife-Prefix.pch"; sourceTree = "<group>"; };
 		9445CA2119083251002568BB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		9445CA2619083251002568BB /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		9445CA2D19083251002568BB /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -263,7 +263,7 @@
 		94DE5948194F1A31004D242E /* hydra.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra.m; sourceTree = "<group>"; };
 		94DE594A194F1A39004D242E /* hydra.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hydra.lua; sourceTree = "<group>"; };
 		94E8E79F194E0AB10064CF6C /* screen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = screen.m; sourceTree = "<group>"; };
-		94E8E7AD194E0C940064CF6C /* Hydra.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Hydra.icns; sourceTree = "<group>"; };
+		94E8E7AD194E0C940064CF6C /* Penknife.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Penknife.icns; sourceTree = "<group>"; };
 		94E8E7B9194E25290064CF6C /* screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = screen.lua; sourceTree = "<group>"; };
 		94E8E7BB194E25300064CF6C /* application.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = application.lua; sourceTree = "<group>"; };
 		94EF97711958603F00096A41 /* helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helpers.h; sourceTree = "<group>"; };
@@ -309,7 +309,7 @@
 		9445CA0C19083251002568BB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9445CA0B19083251002568BB /* Hydra.app */,
+				9445CA0B19083251002568BB /* Penknife.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -345,7 +345,8 @@
 				9445CA42190833C1002568BB /* lua */,
 				9445CA1519083251002568BB /* XcodeCrap */,
 			);
-			path = Hydra;
+			name = Hydra;
+			path = Penknife;
 			sourceTree = "<group>";
 		};
 		9445CA1519083251002568BB /* XcodeCrap */ = {
@@ -353,11 +354,11 @@
 			children = (
 				9451673E196B0C5600579B9C /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
-				94E8E7AD194E0C940064CF6C /* Hydra.icns */,
-				9445CA1619083251002568BB /* Hydra-Info.plist */,
+				94E8E7AD194E0C940064CF6C /* Penknife.icns */,
+				9445CA1619083251002568BB /* Penknife-Info.plist */,
 				946194C7197D49A60076F93C /* Credits.rtf */,
 				94D86A7C196E231C001B6F05 /* dsa_pub.cer */,
-				9445CA1C19083251002568BB /* Hydra-Prefix.pch */,
+				9445CA1C19083251002568BB /* Penknife-Prefix.pch */,
 			);
 			path = XcodeCrap;
 			sourceTree = "<group>";
@@ -532,9 +533,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		9445CA0A19083251002568BB /* Hydra */ = {
+		9445CA0A19083251002568BB /* Penknife */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hydra" */;
+			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Penknife" */;
 			buildPhases = (
 				9445CA0719083251002568BB /* Sources */,
 				9445CA0819083251002568BB /* Frameworks */,
@@ -544,9 +545,9 @@
 			);
 			dependencies = (
 			);
-			name = Hydra;
+			name = Penknife;
 			productName = Hydra;
-			productReference = 9445CA0B19083251002568BB /* Hydra.app */;
+			productReference = 9445CA0B19083251002568BB /* Penknife.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -559,7 +560,7 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = Steven;
 			};
-			buildConfigurationList = 9445CA0619083251002568BB /* Build configuration list for PBXProject "Hydra" */;
+			buildConfigurationList = 9445CA0619083251002568BB /* Build configuration list for PBXProject "Penknife" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -572,7 +573,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9445CA0A19083251002568BB /* Hydra */,
+				9445CA0A19083251002568BB /* Penknife */,
 			);
 		};
 /* End PBXProject section */
@@ -586,7 +587,7 @@
 				945200881950E6C10072DFEF /* sample_init.lua in Resources */,
 				9400269519514372000D15C1 /* geometry.lua in Resources */,
 				946194CA197D5AFB0076F93C /* hydra_packages.lua in Resources */,
-				94E8E7AE194E0C940064CF6C /* Hydra.icns in Resources */,
+				94E8E7AE194E0C940064CF6C /* Penknife.icns in Resources */,
 				94D86A7D196E231C001B6F05 /* dsa_pub.cer in Resources */,
 				9480181C1976CDFE0024B39F /* http.lua in Resources */,
 				945212A0194D697100217584 /* alert.xib in Resources */,
@@ -780,10 +781,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Hydra/XcodeCrap/Hydra-Prefix.pch";
-				INFOPLIST_FILE = "Hydra/XcodeCrap/Hydra-Info.plist";
+				GCC_PREFIX_HEADER = "Penknife/XcodeCrap/Penknife-Prefix.pch";
+				INFOPLIST_FILE = "Penknife/XcodeCrap/Penknife-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				PRODUCT_NAME = Hydra;
+				PRODUCT_NAME = Penknife;
 				SDKROOT = macosx10.9;
 				WRAPPER_EXTENSION = app;
 			};
@@ -795,10 +796,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Hydra/XcodeCrap/Hydra-Prefix.pch";
-				INFOPLIST_FILE = "Hydra/XcodeCrap/Hydra-Info.plist";
+				GCC_PREFIX_HEADER = "Penknife/XcodeCrap/Penknife-Prefix.pch";
+				INFOPLIST_FILE = "Penknife/XcodeCrap/Penknife-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				PRODUCT_NAME = Hydra;
+				PRODUCT_NAME = Penknife;
 				SDKROOT = macosx10.9;
 				WRAPPER_EXTENSION = app;
 			};
@@ -807,7 +808,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9445CA0619083251002568BB /* Build configuration list for PBXProject "Hydra" */ = {
+		9445CA0619083251002568BB /* Build configuration list for PBXProject "Penknife" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9445CA3A19083251002568BB /* Debug */,
@@ -816,7 +817,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hydra" */ = {
+		9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Penknife" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9445CA3D19083251002568BB /* Debug */,
