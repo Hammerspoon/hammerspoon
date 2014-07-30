@@ -62,6 +62,8 @@
 		9445CA9E190833C1002568BB /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7A190833C1002568BB /* lvm.c */; };
 		9445CA9F190833C1002568BB /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 9445CA7C190833C1002568BB /* lzio.c */; };
 		9445CAA5190847CB002568BB /* rawinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 9445CAA4190847CB002568BB /* rawinit.lua */; };
+		944A2D3219895C7100D8DC90 /* PKMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D3019895C7100D8DC90 /* PKMainWindowController.m */; };
+		944A2D3319895C7100D8DC90 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3119895C7100D8DC90 /* MainWindow.xib */; };
 		944C49CD196B2E5C00FF10DD /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 944C49CC196B2E5C00FF10DD /* docs.json */; };
 		9451673F196B0C5700579B9C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9451673E196B0C5600579B9C /* MainMenu.xib */; };
 		94517BF91956FA5000F9CCB6 /* textgrid.lua in Resources */ = {isa = PBXBuildFile; fileRef = 94517BF81956FA5000F9CCB6 /* textgrid.lua */; };
@@ -208,8 +210,11 @@
 		9445CA7D190833C1002568BB /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		9445CAA019083402002568BB /* lua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = lua.h; sourceTree = "<group>"; };
 		9445CAA4190847CB002568BB /* rawinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rawinit.lua; sourceTree = "<group>"; };
+		944A2D2F19895C7100D8DC90 /* PKMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKMainWindowController.h; sourceTree = "<group>"; };
+		944A2D3019895C7100D8DC90 /* PKMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKMainWindowController.m; sourceTree = "<group>"; };
+		944A2D3119895C7100D8DC90 /* MainWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
 		944C49CC196B2E5C00FF10DD /* docs.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = docs.json; sourceTree = "<group>"; };
-		9451673E196B0C5600579B9C /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
+		9451673E196B0C5600579B9C /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = ../XcodeCrap/MainMenu.xib; sourceTree = "<group>"; };
 		94517BF81956FA5000F9CCB6 /* textgrid.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = textgrid.lua; sourceTree = "<group>"; };
 		94517BFA1957738100F9CCB6 /* logger.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = logger.lua; sourceTree = "<group>"; };
 		945200851950E2760072DFEF /* fallback_init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fallback_init.lua; sourceTree = "<group>"; };
@@ -352,7 +357,6 @@
 		9445CA1519083251002568BB /* XcodeCrap */ = {
 			isa = PBXGroup;
 			children = (
-				9451673E196B0C5600579B9C /* MainMenu.xib */,
 				9445CA2619083251002568BB /* Images.xcassets */,
 				94E8E7AD194E0C940064CF6C /* Penknife.icns */,
 				9445CA1619083251002568BB /* Penknife-Info.plist */,
@@ -439,6 +443,10 @@
 			isa = PBXGroup;
 			children = (
 				9445CA2119083251002568BB /* main.m */,
+				944A2D2F19895C7100D8DC90 /* PKMainWindowController.h */,
+				944A2D3019895C7100D8DC90 /* PKMainWindowController.m */,
+				9451673E196B0C5600579B9C /* MainMenu.xib */,
+				944A2D3119895C7100D8DC90 /* MainWindow.xib */,
 				9445CAA4190847CB002568BB /* rawinit.lua */,
 				945200851950E2760072DFEF /* fallback_init.lua */,
 				945200871950E6C10072DFEF /* sample_init.lua */,
@@ -610,6 +618,7 @@
 				94E8E7BA194E25290064CF6C /* screen.lua in Resources */,
 				9443F2AF1969CF7400E7219D /* inspect.lua in Resources */,
 				948CAA0B19561D7300A27D9D /* timer.lua in Resources */,
+				944A2D3319895C7100D8DC90 /* MainWindow.xib in Resources */,
 				948CAA081955AECC00A27D9D /* repl.lua in Resources */,
 				94DE5947194F11AD004D242E /* fnutils.lua in Resources */,
 				94517BFB1957738100F9CCB6 /* logger.lua in Resources */,
@@ -659,6 +668,7 @@
 				9445CA8F190833C1002568BB /* lmem.c in Sources */,
 				94276CA71958809C003BF95B /* helpers.m in Sources */,
 				9445CA88190833C1002568BB /* ldump.c in Sources */,
+				944A2D3219895C7100D8DC90 /* PKMainWindowController.m in Sources */,
 				9480181A1976C0DC0024B39F /* http.m in Sources */,
 				94F7A98E1959096100CE7136 /* notify.m in Sources */,
 				9452129E194D65BF00217584 /* PHAlert.m in Sources */,
