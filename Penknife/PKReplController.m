@@ -4,13 +4,17 @@ extern lua_State* PKLuaState;
 
 @interface PKReplController : NSObject
 
+@property NSMutableArray* history;
+@property NSInteger historyIndex;
 @property IBOutlet NSTextView* outputView;
+@property (weak) IBOutlet NSTextField* inputField;
 
 @end
 
 @implementation PKReplController
 
 - (void) awakeFromNib {
+    self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
 }
@@ -46,8 +50,46 @@ extern lua_State* PKLuaState;
     [self appendString:[NSString stringWithFormat:@"%@\n\n", result] type:1];
     
     [sender setStringValue:@""];
-    
+    [self saveToHistory:command];
     [self.outputView scrollToEndOfDocument:self];
+}
+
+- (void) saveToHistory:(NSString*)cmd {
+    [self.history addObject:cmd];
+    self.historyIndex = [self.history count];
+    [self useCurrentHistoryIndex];
+}
+
+- (void) goPrevHistory {
+    self.historyIndex = MAX(self.historyIndex - 1, 0);
+    [self useCurrentHistoryIndex];
+}
+
+- (void) goNextHistory {
+    self.historyIndex = MIN(self.historyIndex + 1, [self.history count]);
+    [self useCurrentHistoryIndex];
+}
+
+- (void) useCurrentHistoryIndex {
+    if (self.historyIndex == [self.history count])
+        [self.inputField setStringValue: @""];
+    else
+        [self.inputField setStringValue: [self.history objectAtIndex:self.historyIndex]];
+    
+    NSText* editor = [[self.inputField window] fieldEditor:YES forObject:self.inputField];
+    [editor moveToEndOfDocument:self];
+}
+
+- (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)command {
+    if (command == @selector(moveUp:)) {
+        [self goPrevHistory];
+        return YES;
+    }
+    else if (command == @selector(moveDown:)) {
+        [self goNextHistory];
+        return YES;
+    }
+    return NO;
 }
 
 @end

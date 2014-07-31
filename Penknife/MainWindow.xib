@@ -143,7 +143,7 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="sZT-ew-Z8J">
-                                                <rect key="frame" x="443" y="1" width="16" height="228"/>
+                                                <rect key="frame" x="444" y="1" width="15" height="228"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                         </scrollView>
@@ -157,6 +157,7 @@
                                             </textFieldCell>
                                             <connections>
                                                 <action selector="tryMessage:" target="ZNF-Dj-p3R" id="UsW-jP-SZG"/>
+                                                <outlet property="delegate" destination="ZNF-Dj-p3R" id="f2c-Xb-8yB"/>
                                             </connections>
                                         </textField>
                                     </subviews>
@@ -284,6 +285,7 @@
         </customObject>
         <customObject id="ZNF-Dj-p3R" customClass="PKReplController">
             <connections>
+                <outlet property="inputField" destination="ZdL-cX-4KQ" id="lua-QQ-SGG"/>
                 <outlet property="outputView" destination="M9v-6B-bP0" id="bBy-nW-aEC"/>
             </connections>
         </customObject>
