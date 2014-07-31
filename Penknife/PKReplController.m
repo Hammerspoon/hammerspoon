@@ -17,6 +17,11 @@ extern lua_State* PKLuaState;
     self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
+    
+    [self appendString:@""
+     "Welcome to the Penknife REPL!\n"
+     "You can run any Lua code in here.\n"
+                  type:1];
 }
 
 - (void) appendString:(NSString*)str type:(int)type {
@@ -44,10 +49,10 @@ extern lua_State* PKLuaState;
 
 - (IBAction) tryMessage:(NSTextField*)sender {
     NSString* command = [sender stringValue];
-    [self appendString:[NSString stringWithFormat:@"> %@\n", command] type:0];
+    [self appendString:[NSString stringWithFormat:@"\n> %@\n", command] type:0];
     
     NSString* result = [self run:command];
-    [self appendString:[NSString stringWithFormat:@"%@\n\n", result] type:1];
+    [self appendString:[NSString stringWithFormat:@"%@\n", result] type:1];
     
     [sender setStringValue:@""];
     [self saveToHistory:command];
