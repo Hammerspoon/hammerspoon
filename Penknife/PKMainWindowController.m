@@ -1,10 +1,17 @@
-#import "PKMainWindowController.h"
-
-@interface PKMainWindowController ()
+@interface PKMainWindowController : NSWindowController
 @property (weak) IBOutlet NSTabView* tabView;
 @end
 
 @implementation PKMainWindowController
+
++ (PKMainWindowController*) sharedMainWindowController {
+    static PKMainWindowController* sharedMainWindowController;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedMainWindowController = [[PKMainWindowController alloc] init];
+    });
+    return sharedMainWindowController;
+}
 
 - (NSString*) windowNibName { return @"MainWindow"; }
 
@@ -16,8 +23,6 @@
 }
 
 - (void)windowDidLoad {
-    [super windowDidLoad];
-    
     [[[self window] toolbar] setSelectedItemIdentifier:@"settings"];
 }
 

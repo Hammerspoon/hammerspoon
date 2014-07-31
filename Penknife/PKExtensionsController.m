@@ -1,4 +1,5 @@
-#import "PKExtensionsController.h"
+@interface PKExtensionsController : NSObject
+@end
 
 @implementation PKExtensionsController
 

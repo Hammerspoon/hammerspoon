@@ -2,7 +2,10 @@
 #import "helpers.h"
 #import "lua/lualib.h"
 
-#import "PKMainWindowController.h"
+@interface PKMainWindowController : NSWindowController <NSToolbarDelegate>
++ (PKMainWindowController*) sharedMainWindowController;
+- (void) showAtTab:(NSString*)tab;
+@end
 
 int main(int argc, const char * argv[]) {
     return NSApplicationMain(argc, argv);
@@ -41,7 +44,6 @@ int luaopen_hydra_updates(lua_State* L);
 //int luaopen_window(lua_State* L);
 
 @interface HydraAppDelegate : NSObject <NSApplicationDelegate>
-@property PKMainWindowController* mainWindowController;
 @end
 
 lua_State* PKLuaState;
@@ -49,7 +51,7 @@ lua_State* PKLuaState;
 @implementation HydraAppDelegate
 
 - (IBAction) showSpecificWindow:(NSMenuItem*)item {
-    [self.mainWindowController showAtTab:[[item title] lowercaseString]];
+    [[PKMainWindowController sharedMainWindowController] showAtTab:[[item title] lowercaseString]];
 }
 
 typedef struct _hydralib hydralib;
@@ -128,8 +130,7 @@ static void addmodules(lua_State* L, const hydralib* libs, bool toplevel) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    self.mainWindowController = [[PKMainWindowController alloc] init];
-    [self.mainWindowController showWindow:self];
+    [[PKMainWindowController sharedMainWindowController] showWindow:nil];
     
     AXUIElementSetMessagingTimeout(hydra_system_wide_element(), 1.0);
     

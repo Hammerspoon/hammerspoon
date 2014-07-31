@@ -1,8 +1,12 @@
-#import "PKReplController.h"
 #import "lua/lua.h"
 #import "lua/lauxlib.h"
-
 extern lua_State* PKLuaState;
+
+@interface PKReplController : NSObject
+
+@property IBOutlet NSTextView* outputView;
+
+@end
 
 @implementation PKReplController
 
