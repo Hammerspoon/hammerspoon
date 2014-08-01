@@ -5,8 +5,12 @@
 
 + (PKExtManager*) sharedExtManager;
 
+- (void) setup;
+
 - (NSArray*) availableExts;
 - (NSArray*) installedExts;
 - (NSArray*) allExts;
+
+- (void) updateAvailableExts;
 
 @end

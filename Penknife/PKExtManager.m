@@ -11,6 +11,10 @@
     return sharedExtManager;
 }
 
+- (void) setup {
+    
+}
+
 - (NSArray*) availableExts {
     return nil;
 }
@@ -21,6 +25,10 @@
 
 - (NSArray*) allExts {
     return nil;
+}
+
+- (void) updateAvailableExts {
+    
 }
 
 @end
