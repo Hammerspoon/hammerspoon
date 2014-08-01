@@ -31,6 +31,10 @@
     // TOOD: get old copy first; then compare on disk.
     // NOTE: we may not have an old copy, if this is the first time.
     
+    NSString* masterShaURL = @"https://api.github.com/repos/penknife-io/ext/git/refs/heads/master";
+    // we need this to get the sha for the rawgithubcontent url, in case the 'master' cache fails us.
+    // result is NSDictionary; get its key path "object.sha"
+    
     NSString* treeListURL = @"https://api.github.com/repos/penknife-io/ext/git/trees/master";
     NSURL* url = [NSURL URLWithString:treeListURL];
     NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5.0];
@@ -48,6 +52,16 @@
                                        
                                        NSLog(@"tree: %@", file);
                                        // TODO: grab the json file's name and its sha; then do the normal comparison process.
+                                       
+                                       /*
+                                        
+                                        "sha" key = string i.e. "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+                                        "path" key = filename i.e. "core.application.json"
+                                        
+                                        https://raw.githubusercontent.com/penknife-io/ext/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391/core.application.json
+                                        
+                                        
+                                        */
                                    }
                                }
                            }];
