@@ -7,9 +7,8 @@
 
 - (void) setup;
 
-- (NSArray*) availableExts;
-- (NSArray*) installedExts;
-- (NSArray*) allExts;
+@property NSArray* availableExts;
+@property NSArray* installedExts;
 
 - (void) updateAvailableExts;
 
