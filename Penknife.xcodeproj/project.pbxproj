@@ -15,6 +15,7 @@
 		940026971951437A000D15C1 /* geometry.m in Sources */ = {isa = PBXBuildFile; fileRef = 940026961951437A000D15C1 /* geometry.m */; };
 		94022D691976DEAF00BF7CB3 /* hydra_dockicon.m in Sources */ = {isa = PBXBuildFile; fileRef = 94022D681976DEAF00BF7CB3 /* hydra_dockicon.m */; };
 		941FA8EC195DA14900F69AC9 /* utf8.m in Sources */ = {isa = PBXBuildFile; fileRef = 941FA8EB195DA14900F69AC9 /* utf8.m */; };
+		9423CA95198C3BE700647881 /* PKExtManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9423CA94198C3BE700647881 /* PKExtManager.m */; };
 		94276CA71958809C003BF95B /* helpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 94276CA61958809C003BF95B /* helpers.m */; };
 		942BF3911989E18600983892 /* PKAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* PKAutoLaunch.m */; };
 		942C332D1980DD6000BAE9A7 /* HydraLicenseRequester.m in Sources */ = {isa = PBXBuildFile; fileRef = 942C332B1980DD6000BAE9A7 /* HydraLicenseRequester.m */; };
@@ -134,6 +135,8 @@
 		940026961951437A000D15C1 /* geometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = geometry.m; sourceTree = "<group>"; };
 		94022D681976DEAF00BF7CB3 /* hydra_dockicon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = hydra_dockicon.m; sourceTree = "<group>"; };
 		941FA8EB195DA14900F69AC9 /* utf8.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = utf8.m; sourceTree = "<group>"; };
+		9423CA93198C3BE700647881 /* PKExtManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKExtManager.h; sourceTree = "<group>"; };
+		9423CA94198C3BE700647881 /* PKExtManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKExtManager.m; sourceTree = "<group>"; };
 		94276CA61958809C003BF95B /* helpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = helpers.m; sourceTree = "<group>"; };
 		942BF3901989E18600983892 /* PKAutoLaunch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKAutoLaunch.m; sourceTree = "<group>"; };
 		942C332A1980DD6000BAE9A7 /* HydraLicenseRequester.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HydraLicenseRequester.h; sourceTree = "<group>"; };
@@ -385,6 +388,8 @@
 				944A2DA81989760400D8DC90 /* PKReplController.m */,
 				944A2DAE1989761600D8DC90 /* PKExtensionsController.m */,
 				942BF3901989E18600983892 /* PKAutoLaunch.m */,
+				9423CA93198C3BE700647881 /* PKExtManager.h */,
+				9423CA94198C3BE700647881 /* PKExtManager.m */,
 			);
 			name = Main;
 			sourceTree = "<group>";
@@ -703,6 +708,7 @@
 				94DE5949194F1A31004D242E /* hydra.m in Sources */,
 				944A2D9B198973E900D8DC90 /* lstate.c in Sources */,
 				944A2D87198973E900D8DC90 /* lbitlib.c in Sources */,
+				9423CA95198C3BE700647881 /* PKExtManager.m in Sources */,
 				2316BA4A197B28B900EEE33F /* battery.m in Sources */,
 				94C36940194DD94700EE3A2D /* hydra_updates.m in Sources */,
 				04FBC8221976C37000B33BE3 /* audiodevice.m in Sources */,
