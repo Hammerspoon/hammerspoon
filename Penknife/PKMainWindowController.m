@@ -23,7 +23,7 @@
 }
 
 - (void)windowDidLoad {
-    [[[self window] toolbar] setSelectedItemIdentifier:@"settings"];
+    [[[self window] toolbar] setSelectedItemIdentifier:@"general"];
 }
 
 - (NSArray*) toolbarSelectableItemIdentifiers:(NSToolbar *)toolbar {

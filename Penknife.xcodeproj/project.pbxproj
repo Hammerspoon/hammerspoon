@@ -69,7 +69,7 @@
 		944A2DA1198973E900D8DC90 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D7E198973E900D8DC90 /* lundump.c */; };
 		944A2DA2198973E900D8DC90 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D80198973E900D8DC90 /* lvm.c */; };
 		944A2DA3198973E900D8DC90 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D82198973E900D8DC90 /* lzio.c */; };
-		944A2DA6198975B000D8DC90 /* PKSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA5198975B000D8DC90 /* PKSettingsController.m */; };
+		944A2DA6198975B000D8DC90 /* PKGeneralController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA5198975B000D8DC90 /* PKGeneralController.m */; };
 		944A2DA91989760400D8DC90 /* PKReplController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA81989760400D8DC90 /* PKReplController.m */; };
 		944A2DAF1989761600D8DC90 /* PKExtensionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DAE1989761600D8DC90 /* PKExtensionsController.m */; };
 		944C49CD196B2E5C00FF10DD /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 944C49CC196B2E5C00FF10DD /* docs.json */; };
@@ -221,7 +221,7 @@
 		944A2D81198973E900D8DC90 /* lvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lvm.h; sourceTree = "<group>"; };
 		944A2D82198973E900D8DC90 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		944A2D83198973E900D8DC90 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
-		944A2DA5198975B000D8DC90 /* PKSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKSettingsController.m; sourceTree = "<group>"; };
+		944A2DA5198975B000D8DC90 /* PKGeneralController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKGeneralController.m; sourceTree = "<group>"; };
 		944A2DA81989760400D8DC90 /* PKReplController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKReplController.m; sourceTree = "<group>"; };
 		944A2DAE1989761600D8DC90 /* PKExtensionsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKExtensionsController.m; sourceTree = "<group>"; };
 		944C49CC196B2E5C00FF10DD /* docs.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = docs.json; sourceTree = "<group>"; };
@@ -381,7 +381,7 @@
 				944A2D351989735300D8DC90 /* MainMenu.xib */,
 				944A2D361989735300D8DC90 /* MainWindow.xib */,
 				944A2D381989735300D8DC90 /* PKMainWindowController.m */,
-				944A2DA5198975B000D8DC90 /* PKSettingsController.m */,
+				944A2DA5198975B000D8DC90 /* PKGeneralController.m */,
 				944A2DA81989760400D8DC90 /* PKReplController.m */,
 				944A2DAE1989761600D8DC90 /* PKExtensionsController.m */,
 				942BF3901989E18600983892 /* PKAutoLaunch.m */,
@@ -582,9 +582,9 @@
 		9445CA0319083251002568BB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				CLASSPREFIX = "";
+				CLASSPREFIX = PK;
 				LastUpgradeCheck = 0510;
-				ORGANIZATIONNAME = Steven;
+				ORGANIZATIONNAME = Penknife;
 			};
 			buildConfigurationList = 9445CA0619083251002568BB /* Build configuration list for PBXProject "Penknife" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -692,7 +692,7 @@
 				947AA3D519843C6300E90EF8 /* eventtap_event.m in Sources */,
 				2316BA4C197B5E9D00EEE33F /* battery_watcher.m in Sources */,
 				94276CA71958809C003BF95B /* helpers.m in Sources */,
-				944A2DA6198975B000D8DC90 /* PKSettingsController.m in Sources */,
+				944A2DA6198975B000D8DC90 /* PKGeneralController.m in Sources */,
 				944A2D3C1989735300D8DC90 /* PKMainWindowController.m in Sources */,
 				9480181A1976C0DC0024B39F /* http.m in Sources */,
 				944A2D9C198973E900D8DC90 /* lstring.c in Sources */,

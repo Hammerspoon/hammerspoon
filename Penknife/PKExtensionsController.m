@@ -3,4 +3,8 @@
 
 @implementation PKExtensionsController
 
+- (void) awakeFromNib {
+    
+}
+
 @end

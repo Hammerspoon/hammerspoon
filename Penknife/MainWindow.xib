@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
@@ -28,7 +28,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
-                            <tabViewItem label="Settings" identifier="settings" id="Bp1-sn-aFS">
+                            <tabViewItem label="General" identifier="general" id="Bp1-sn-aFS">
                                 <view key="view" id="qb8-aI-Ulf">
                                     <rect key="frame" x="0.0" y="0.0" width="500" height="300"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -122,17 +122,17 @@
                                             <rect key="frame" x="20" y="50" width="460" height="230"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="fl9-64-74i">
-                                                <rect key="frame" x="1" y="1" width="443" height="228"/>
+                                                <rect key="frame" x="1" y="1" width="458" height="228"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="M9v-6B-bP0">
-                                                        <rect key="frame" x="0.0" y="0.0" width="443" height="228"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="458" height="228"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="443" height="228"/>
+                                                        <size key="minSize" width="458" height="228"/>
                                                         <size key="maxSize" width="529" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="443" height="228"/>
+                                                        <size key="minSize" width="458" height="228"/>
                                                         <size key="maxSize" width="529" height="10000000"/>
                                                     </textView>
                                                 </subviews>
@@ -243,7 +243,7 @@
                             <action selector="switchToTab:" target="-2" id="ZuW-al-1iP"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="4054D096-294F-4C1D-81F4-59D8F6BE7115" explicitItemIdentifier="settings" label="Settings" paletteLabel="Settings" tag="-1" image="NSPreferencesGeneral" selectable="YES" id="qDs-qe-MqU">
+                    <toolbarItem implicitItemIdentifier="4054D096-294F-4C1D-81F4-59D8F6BE7115" explicitItemIdentifier="general" label="General" paletteLabel="General" tag="-1" image="NSPreferencesGeneral" selectable="YES" id="qDs-qe-MqU">
                         <connections>
                             <action selector="switchToTab:" target="-2" id="xmo-5I-9CR"/>
                         </connections>
@@ -276,7 +276,7 @@
             <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
             <autoresizingMask key="autoresizingMask"/>
         </view>
-        <customObject id="dXd-DL-vp3" customClass="PKSettingsController">
+        <customObject id="dXd-DL-vp3" customClass="PKGeneralController">
             <connections>
                 <outlet property="checkForUpdatesCheckbox" destination="yhO-Yj-4wO" id="B39-yQ-bOc"/>
                 <outlet property="openAtLoginCheckbox" destination="CDe-ST-WL6" id="r84-zw-1GI"/>
