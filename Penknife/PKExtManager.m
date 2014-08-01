@@ -11,4 +11,16 @@
     return sharedExtManager;
 }
 
+- (NSArray*) availableExts {
+    return nil;
+}
+
+- (NSArray*) installedExts {
+    return nil;
+}
+
+- (NSArray*) allExts {
+    return nil;
+}
+
 @end
