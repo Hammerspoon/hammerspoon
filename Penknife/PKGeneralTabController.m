@@ -10,6 +10,8 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
 @property (weak) IBOutlet NSButton* checkForUpdatesCheckbox;
 
+@property BOOL isAccessibilityEnabled;
+
 @end
 
 #define PKCheckForUpdatesKey @"_checkforupdates"
@@ -21,15 +23,41 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     [[NSWorkspace sharedWorkspace] openURL:url];
 }
 
-- (void) hello:(NSNotification*)note {
-    NSLog(@"%@", note);
+- (void) accessibilityChanged:(NSNotification*)note {
+    [self cacheIsAccessibilityEnabled];
+}
+
+- (void) cacheIsAccessibilityEnabled {
+    if (AXIsProcessTrustedWithOptions != NULL)
+        self.isAccessibilityEnabled = AXIsProcessTrustedWithOptions(NULL);
+    else
+        self.isAccessibilityEnabled = AXAPIEnabled();
+}
+
+- (NSString*) maybeEnableAccessibilityString {
+    if (self.isAccessibilityEnabled)
+        return @"Accessibility is enabled, you're all set!";
+    else
+        return @"Enable Accessibility for best results.";
+}
+
++ (NSSet*) keyPathsForValuesAffectingMaybeEnableAccessibilityString {
+    return [NSSet setWithArray:@[@"isAccessibilityEnabled"]];
+}
+
+- (IBAction) openAccessibility:(id)sender {
+    if (AXIsProcessTrustedWithOptions != NULL) {
+        AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)@{(__bridge id)kAXTrustedCheckOptionPrompt: @YES});
+    }
+    else {
+        static NSString* script = @"tell application \"System Preferences\"\nactivate\nset current pane to pane \"com.apple.preference.universalaccess\"\nend tell";
+        [[[NSAppleScript alloc] initWithSource:script] executeAndReturnError:nil];
+    }
 }
 
 - (void) awakeFromNib {
-    
-    [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(hello:) name:nil object:nil];
-    // name="com.apple.accessibility.api" seems to happen if you change an app's accessibility!
-    
+    [self cacheIsAccessibilityEnabled];
+    [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
     
     [self.openAtLoginCheckbox setState:PKAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState:[[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular ? NSOnState : NSOffState];
@@ -60,27 +88,5 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 - (IBAction) reloadConfig:(id)sender {
     // TODO
 }
-
-//- (void) thing {
-//    BOOL shouldprompt = lua_toboolean(L, 1);
-//    BOOL enabled;
-//    
-//    if (AXIsProcessTrustedWithOptions != NULL) {
-//        NSDictionary* opts = @{(__bridge id)kAXTrustedCheckOptionPrompt: @(shouldprompt)};
-//        enabled = AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)opts);
-//    }
-//    else {
-//        enabled = AXAPIEnabled();
-//        
-//        if (shouldprompt) {
-//            NSString* src = @"tell application \"System Preferences\"\nactivate\nset current pane to pane \"com.apple.preference.universalaccess\"\nend tell";
-//            NSAppleScript *a = [[NSAppleScript alloc] initWithSource:src];
-//            [a executeAndReturnError:nil];
-//        }
-//    }
-//    
-//    lua_pushboolean(L, enabled);
-//    return 1;
-//}
 
 @end
