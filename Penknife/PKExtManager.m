@@ -77,11 +77,12 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     
     ext.sha = sha;
     ext.name = [namePath stringByReplacingOccurrencesOfString:@".json" withString:@""];
+    ext.author = [json objectForKey:@"author"];
     ext.version = [json objectForKey:@"version"];
     ext.license = [json objectForKey:@"license"];
     ext.tarfile = [json objectForKey:@"tarfile"];
     ext.website = [json objectForKey:@"website"];
-    ext.author = [json objectForKey:@"author"];
+    ext.description = [json objectForKey:@"description"];
 }
 
 - (void) doneUpdating {

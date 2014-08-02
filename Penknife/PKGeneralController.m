@@ -45,4 +45,8 @@ void PKAutoLaunchSet(BOOL opensAtLogin);
     [[NSUserDefaults standardUserDefaults] setBool:[sender state] == NSOnState forKey:PKCheckForUpdatesKey];
 }
 
+- (IBAction) reloadConfig:(id)sender {
+    // TODO
+}
+
 @end

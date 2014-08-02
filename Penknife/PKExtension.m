@@ -13,6 +13,7 @@
         self.tarfile = [decoder decodeObjectOfClass:[NSString class] forKey:@"tarfile"];
         self.website = [decoder decodeObjectOfClass:[NSString class] forKey:@"website"];
         self.license = [decoder decodeObjectOfClass:[NSString class] forKey:@"license"];
+        self.description = [decoder decodeObjectOfClass:[NSString class] forKey:@"description"];
     }
     return self;
 }
@@ -25,6 +26,7 @@
     [encoder encodeObject:self.tarfile forKey:@"tarfile"];
     [encoder encodeObject:self.website forKey:@"website"];
     [encoder encodeObject:self.license forKey:@"license"];
+    [encoder encodeObject:self.description forKey:@"description"];
 }
 
 @end

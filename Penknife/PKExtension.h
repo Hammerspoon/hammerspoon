@@ -9,5 +9,6 @@
 @property NSString* tarfile;
 @property NSString* website;
 @property NSString* license;
+@property NSString* description;
 
 @end

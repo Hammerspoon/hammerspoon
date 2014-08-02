@@ -34,7 +34,7 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <customView id="WEx-km-oq5">
-                                            <rect key="frame" x="46" y="64" width="409" height="172"/>
+                                            <rect key="frame" x="46" y="64" width="409" height="216"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <subviews>
                                                 <button verticalHuggingPriority="750" id="LSb-QH-ZQB">
@@ -46,6 +46,17 @@
                                                     </buttonCell>
                                                     <connections>
                                                         <action selector="openSampleConfig:" target="dXd-DL-vp3" id="rnE-gx-AM4"/>
+                                                    </connections>
+                                                </button>
+                                                <button verticalHuggingPriority="750" id="vpp-qq-nEI">
+                                                    <rect key="frame" x="128" y="165" width="129" height="32"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <buttonCell key="cell" type="push" title="Reload Config" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F0n-YJ-cVS">
+                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                        <font key="font" metaFont="system"/>
+                                                    </buttonCell>
+                                                    <connections>
+                                                        <action selector="reloadConfig:" target="dXd-DL-vp3" id="MYr-yo-OU7"/>
                                                     </connections>
                                                 </button>
                                                 <button id="ail-YE-MEe">
@@ -172,14 +183,14 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="u8G-fM-lCm">
-                                            <rect key="frame" x="20" y="20" width="460" height="260"/>
+                                            <rect key="frame" x="20" y="49" width="460" height="231"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="n1D-Xy-R1J">
-                                                <rect key="frame" x="1" y="17" width="458" height="242"/>
+                                                <rect key="frame" x="1" y="17" width="458" height="213"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" headerView="kqi-vN-wMw" id="wf6-Tx-sC2">
-                                                        <rect key="frame" x="0.0" y="0.0" width="458" height="242"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="458" height="213"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -223,7 +234,7 @@
                                                                 </textFieldCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
-                                                            <tableColumn identifier="action" width="64" minWidth="10" maxWidth="3.4028234663852886e+38" id="xX5-ue-QSo">
+                                                            <tableColumn identifier="action" width="183" minWidth="10" maxWidth="3.4028234663852886e+38" id="xX5-ue-QSo">
                                                                 <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                                     <font key="font" metaFont="smallSystem"/>
                                                                     <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -258,6 +269,24 @@
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </tableHeaderView>
                                         </scrollView>
+                                        <button verticalHuggingPriority="750" id="Nge-FY-eHu">
+                                            <rect key="frame" x="20" y="19" width="136" height="23"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="smallSquare" title="Update Extensions..." bezelStyle="smallSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="h7z-VL-Z7Y">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="updateExtensions:" target="XQ1-bX-gx8" id="9lM-jI-PMw"/>
+                                            </connections>
+                                        </button>
+                                        <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="Jot-cf-6ex">
+                                            <rect key="frame" x="164" y="22" width="16" height="16"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <connections>
+                                                <binding destination="XQ1-bX-gx8" name="animate" keyPath="self.extManager.updating" id="uNd-pX-0Ek"/>
+                                            </connections>
+                                        </progressIndicator>
                                     </subviews>
                                 </view>
                             </tabViewItem>

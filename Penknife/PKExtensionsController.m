@@ -1,4 +1,5 @@
 #import "PKExtManager.h"
+#import "PKExtension.h"
 
 @interface PKExtensionsController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 @property (weak) IBOutlet NSTableView* extsTable;
@@ -11,30 +12,38 @@
 }
 
 - (void) extensionsUpdated:(NSNotification*)note {
-    NSLog(@"ok");
+    [self.extsTable reloadData];
 }
 
-//- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-////    return [[[PKExtManager sharedExtManager] availableExts] count];
-//}
+- (PKExtManager*) extManager { // for use with binding progress animator
+    return [PKExtManager sharedExtManager];
+}
 
-//- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-////    NSDictionary* item = [[[PKExtManager sharedExtManager] availableExts] objectAtIndex:row];
-////    
-////    if ([[tableColumn identifier] isEqualToString: @"name"]) {
-////        
-////    }
-////    else if ([[tableColumn identifier] isEqualToString: @"installed"]) {
-////        
-////    }
-////    else if ([[tableColumn identifier] isEqualToString: @"version"]) {
-////        
-////    }
-////    else if ([[tableColumn identifier] isEqualToString: @"action"]) {
-////        
-////    }
-////    
-////    return [item objectForKey: @"path"];
-//}
+- (IBAction) updateExtensions:(id)sender {
+    [[PKExtManager sharedExtManager] update];
+}
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
+    return [[PKExtManager sharedExtManager].cache.extensions count];
+}
+
+- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+    PKExtension* ext = [[PKExtManager sharedExtManager].cache.extensions objectAtIndex:row];
+    
+    if ([[tableColumn identifier] isEqualToString: @"name"]) {
+        return ext.name;
+    }
+    else if ([[tableColumn identifier] isEqualToString: @"installed"]) {
+        return @NO;
+    }
+    else if ([[tableColumn identifier] isEqualToString: @"version"]) {
+        return ext.version;
+    }
+    else if ([[tableColumn identifier] isEqualToString: @"action"]) {
+        return @"";
+    }
+    
+    return nil;
+}
 
 @end
