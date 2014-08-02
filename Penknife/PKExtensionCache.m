@@ -37,11 +37,6 @@
 }
 
 - (void) save {
-    [[NSFileManager defaultManager] createDirectoryAtPath:[@"~/.penknife/" stringByStandardizingPath]
-                              withIntermediateDirectories:YES
-                                               attributes:nil
-                                                    error:NULL];
-    
     [[NSKeyedArchiver archivedDataWithRootObject:self] writeToFile:[PKExtensionCache file] atomically:YES];
 }
 

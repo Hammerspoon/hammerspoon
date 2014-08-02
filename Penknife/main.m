@@ -20,7 +20,18 @@ lua_State* PKLuaState;
     [[PKMainWindowController sharedMainWindowController] showAtTab:[[item title] lowercaseString]];
 }
 
+- (NSString*) configDir { return [@"~/.penknife/" stringByStandardizingPath]; }
+
+- (void) setupConfigDir {
+    [[NSFileManager defaultManager] createDirectoryAtPath:[self configDir]
+                              withIntermediateDirectories:YES
+                                               attributes:nil
+                                                    error:NULL];
+}
+
 - (void) setupLua {
+    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[self configDir]];
+    
     lua_State* L = PKLuaState = luaL_newstate();
     luaL_openlibs(L);
     
@@ -31,6 +42,7 @@ lua_State* PKLuaState;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    [self setupConfigDir];
     [[PKExtensionManager sharedManager] setup];
     [[PKMainWindowController sharedMainWindowController] showWindow:nil];
     [self setupLua];
