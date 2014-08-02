@@ -9,7 +9,7 @@ void PKAutoLaunchSet(BOOL opensAtLogin);
 
 @end
 
-#define PKCheckForUpdatesKey @"_checkforudpates"
+#define PKCheckForUpdatesKey @"_checkforupdates"
 
 @implementation PKGeneralController
 
