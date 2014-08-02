@@ -14,27 +14,27 @@
     NSLog(@"ok");
 }
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-    return [[[PKExtManager sharedExtManager] availableExts] count];
-}
+//- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
+////    return [[[PKExtManager sharedExtManager] availableExts] count];
+//}
 
-- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    NSDictionary* item = [[[PKExtManager sharedExtManager] availableExts] objectAtIndex:row];
-    
-    if ([[tableColumn identifier] isEqualToString: @"name"]) {
-        
-    }
-    else if ([[tableColumn identifier] isEqualToString: @"installed"]) {
-        
-    }
-    else if ([[tableColumn identifier] isEqualToString: @"version"]) {
-        
-    }
-    else if ([[tableColumn identifier] isEqualToString: @"action"]) {
-        
-    }
-    
-    return [item objectForKey: @"path"];
-}
+//- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+////    NSDictionary* item = [[[PKExtManager sharedExtManager] availableExts] objectAtIndex:row];
+////    
+////    if ([[tableColumn identifier] isEqualToString: @"name"]) {
+////        
+////    }
+////    else if ([[tableColumn identifier] isEqualToString: @"installed"]) {
+////        
+////    }
+////    else if ([[tableColumn identifier] isEqualToString: @"version"]) {
+////        
+////    }
+////    else if ([[tableColumn identifier] isEqualToString: @"action"]) {
+////        
+////    }
+////    
+////    return [item objectForKey: @"path"];
+//}
 
 @end

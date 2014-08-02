@@ -132,7 +132,6 @@ static void addmodules(lua_State* L, const hydralib* libs, bool toplevel) {
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [[PKExtManager sharedExtManager] setup];
-    [[PKExtManager sharedExtManager] updateAvailableExts];
     
     [[PKMainWindowController sharedMainWindowController] showWindow:nil];
     

@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "PKExtensionCache.h"
 
 extern NSString* PKExtensionsUpdatedNotification;
 
@@ -7,13 +8,9 @@ extern NSString* PKExtensionsUpdatedNotification;
 + (PKExtManager*) sharedExtManager;
 
 - (void) setup;
+- (void) update;
 
-@property NSArray* availableExts;
-@property NSArray* installedExts;
-@property NSString* latestSha;
-
-- (void) updateAvailableExts;
-
+@property PKExtensionCache* cache;
 @property BOOL updating;
 
 @end
