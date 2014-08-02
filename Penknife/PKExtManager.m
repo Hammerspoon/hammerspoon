@@ -19,9 +19,22 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 - (NSString*) extsAvailableFile { return [@"~/.penknife/.extcache/exts.available.json" stringByStandardizingPath]; }
 - (NSString*) extsInstalledFile { return [@"~/.penknife/.extcache/exts.isntalled.json" stringByStandardizingPath]; }
 - (NSString*) latestShaFile     { return [@"~/.penknife/.extcache/latest.sha.txt" stringByStandardizingPath]; }
+- (NSString*) localFileTemplate { return [@"~/.penknife/.extcache/ext-%@" stringByStandardizingPath]; }
 
-- (void) downloadURL:(NSString*)urlString toPath:(NSString*)path {
-    
+- (void) downloadURL:(NSString*)urlString toPath:(NSString*)path doneHandler:(dispatch_block_t)handler {
+    NSURL* url = [NSURL URLWithString:urlString];
+    NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5.0];
+    [NSURLConnection sendAsynchronousRequest:req
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               if (data) {
+                                   [data writeToFile:path atomically:YES];
+                               }
+                               else {
+                                   NSLog(@"connection error: %@", connectionError);
+                               }
+                               handler();
+                           }];
 }
 
 - (void) getURL:(NSString*)urlString handleJSON:(void(^)(id json))handler {
@@ -82,21 +95,42 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 }
 
 
-- (void) reflectAvailableExts:(NSArray*)exts {
-    for (NSDictionary* ext in exts) {
-        NSLog(@"%@", ext);
-        NSString* url = [NSString stringWithFormat:PKRawFilePathURLTemplate, self.latestSha, [ext objectForKey: @"path"]];
+- (void) reflectAvailableExts:(NSArray*)latestexts {
+    // 1. look for all old shas missing from the new batch and delete their represented local files
+    // 2. look for all new shas missing from old batch and download their files locally
+    
+    NSArray* latestshas = [latestexts valueForKeyPath:@"sha"];
+    for (NSDictionary* oldext in self.availableExts) {
+        if (![latestshas containsObject: [oldext objectForKey:@"sha"]]) {
+            NSString* path = [NSString stringWithFormat:[self localFileTemplate], [oldext objectForKey:@"path"]];
+            NSLog(@"deleting old: %@", path);
+            [[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
+        }
     }
+    
+    NSArray* oldshas = [self.availableExts valueForKeyPath:@"sha"];
+    for (NSDictionary* latestext in latestexts) {
+        if (![oldshas containsObject: [latestext objectForKey:@"sha"]]) {
+            NSString* url = [NSString stringWithFormat:PKRawFilePathURLTemplate, self.latestSha, [latestext objectForKey: @"path"]];
+            NSLog(@"downloading new: %@", url);
+            [self downloadURL:url
+                       toPath:[NSString stringWithFormat:[self localFileTemplate], [latestext objectForKey:@"path"]]
+                  doneHandler:^{ /* todo */ }];
+        }
+    }
+    
+    self.availableExts = latestexts;
+    [self saveExts:self.availableExts to:[self extsAvailableFile]];
 }
 
-- (void) saveInstalledExts:(NSArray*)exts {
+- (void) saveExts:(NSArray*)exts to:(NSString*)path {
     NSError* __autoreleasing error;
     NSData* data = [NSJSONSerialization dataWithJSONObject:exts options:NSJSONWritingPrettyPrinted error:&error];
     
     if (!data)
         NSLog(@"could not serialize json: %@", error);
     else
-        [data writeToFile:[self extsInstalledFile] atomically:YES];
+        [data writeToFile:path atomically:YES];
 }
 
 - (id) maybeJSONObjectFromFile:(NSString*)path {
