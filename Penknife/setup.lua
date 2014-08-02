@@ -1,5 +1,3 @@
-package.path = os.getenv("HOME") .. "/.penknife/ext/?.lua" .. ';' .. package.path
-
 os.exit = core.exit
 
 -- put this in ObjC maybe?
