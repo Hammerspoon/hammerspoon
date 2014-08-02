@@ -1,5 +1,7 @@
 #import "PKExtManager.h"
 
+NSString* PKExtensionsUpdatedNotification = @"PKExtensionsUpdatedNotification";
+
 static NSString* PKMasterShaURL = @"https://api.github.com/repos/penknife-io/ext/git/refs/heads/master";
 static NSString* PKTreeListURL  = @"https://api.github.com/repos/penknife-io/ext/git/trees/master";
 static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/penknife-io/ext/%@/%@";
@@ -17,11 +19,11 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 
 - (NSString*) extcacheDir       { return [@"~/.penknife/.extcache/" stringByStandardizingPath]; }
 - (NSString*) extsAvailableFile { return [@"~/.penknife/.extcache/exts.available.json" stringByStandardizingPath]; }
-- (NSString*) extsInstalledFile { return [@"~/.penknife/.extcache/exts.isntalled.json" stringByStandardizingPath]; }
+- (NSString*) extsInstalledFile { return [@"~/.penknife/.extcache/exts.installed.json" stringByStandardizingPath]; }
 - (NSString*) latestShaFile     { return [@"~/.penknife/.extcache/latest.sha.txt" stringByStandardizingPath]; }
 - (NSString*) localFileTemplate { return [@"~/.penknife/.extcache/ext-%@" stringByStandardizingPath]; }
 
-- (void) downloadURL:(NSString*)urlString toPath:(NSString*)path doneHandler:(dispatch_block_t)handler {
+- (void) downloadURL:(NSString*)urlString toPath:(NSString*)path {
     NSURL* url = [NSURL URLWithString:urlString];
     NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5.0];
     [NSURLConnection sendAsynchronousRequest:req
@@ -33,7 +35,6 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
                                else {
                                    NSLog(@"connection error: %@", connectionError);
                                }
-                               handler();
                            }];
 }
 
@@ -114,13 +115,14 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
             NSString* url = [NSString stringWithFormat:PKRawFilePathURLTemplate, self.latestSha, [latestext objectForKey: @"path"]];
             NSLog(@"downloading new: %@", url);
             [self downloadURL:url
-                       toPath:[NSString stringWithFormat:[self localFileTemplate], [latestext objectForKey:@"path"]]
-                  doneHandler:^{ /* todo */ }];
+                       toPath:[NSString stringWithFormat:[self localFileTemplate], [latestext objectForKey:@"path"]]];
         }
     }
     
     self.availableExts = latestexts;
     [self saveExts:self.availableExts to:[self extsAvailableFile]];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
 }
 
 - (void) saveExts:(NSArray*)exts to:(NSString*)path {
@@ -135,9 +137,13 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 
 - (id) maybeJSONObjectFromFile:(NSString*)path {
     NSError* __autoreleasing error;
-    NSData* data = [NSData dataWithContentsOfFile:[self extsInstalledFile] options:0 error:&error];
-    id result = nil;
-    if (data) result = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    
+    NSData* data = [NSData dataWithContentsOfFile:path options:0 error:&error];
+    if (!data) return nil;
+    
+    id result = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+    if (!result) NSLog(@"error converting json: %@", error);
+    
     return result;
 }
 
@@ -152,6 +158,8 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     self.installedExts = [self maybeJSONObjectFromFile:[self extsInstalledFile]];
     self.availableExts = [self maybeJSONObjectFromFile:[self extsAvailableFile]];
     self.latestSha = [NSString stringWithContentsOfFile:[self latestShaFile] encoding:NSUTF8StringEncoding error:NULL];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
 }
 
 - (void) saveLatestSha {

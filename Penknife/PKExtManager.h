@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
-#import "PKExtension.h"
+
+extern NSString* PKExtensionsUpdatedNotification;
 
 @interface PKExtManager : NSObject
 
