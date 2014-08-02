@@ -8,14 +8,14 @@ static int core_exit(lua_State* L) {
     return 0; // lol
 }
 
-static AXUIElementRef hydra_system_wide_element() {
-    static AXUIElementRef element;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        element = AXUIElementCreateSystemWide();
-    });
-    return element;
-}
+//static AXUIElementRef hydra_system_wide_element() {
+//    static AXUIElementRef element;
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        element = AXUIElementCreateSystemWide();
+//    });
+//    return element;
+//}
 
 static luaL_Reg corelib[] = {
     {"exit", core_exit},
