@@ -1,11 +1,11 @@
 #import "PKExtensionManager.h"
 #import "PKExtension.h"
 
-@interface PKExtensionsController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
+@interface PKExtensionsTabController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
 @property (weak) IBOutlet NSTableView* extsTable;
 @end
 
-@implementation PKExtensionsController
+@implementation PKExtensionsTabController
 
 - (void) awakeFromNib {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(extensionsUpdated:) name:PKExtensionsUpdatedNotification object:nil];

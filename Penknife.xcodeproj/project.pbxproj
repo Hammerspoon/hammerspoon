@@ -50,9 +50,9 @@
 		944A2DA1198973E900D8DC90 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D7E198973E900D8DC90 /* lundump.c */; };
 		944A2DA2198973E900D8DC90 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D80198973E900D8DC90 /* lvm.c */; };
 		944A2DA3198973E900D8DC90 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D82198973E900D8DC90 /* lzio.c */; };
-		944A2DA6198975B000D8DC90 /* PKGeneralController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA5198975B000D8DC90 /* PKGeneralController.m */; };
-		944A2DA91989760400D8DC90 /* PKReplController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA81989760400D8DC90 /* PKReplController.m */; };
-		944A2DAF1989761600D8DC90 /* PKExtensionsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DAE1989761600D8DC90 /* PKExtensionsController.m */; };
+		944A2DA6198975B000D8DC90 /* PKGeneralTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA5198975B000D8DC90 /* PKGeneralTabController.m */; };
+		944A2DA91989760400D8DC90 /* PKReplTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA81989760400D8DC90 /* PKReplTabController.m */; };
+		944A2DAF1989761600D8DC90 /* PKExtensionsTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DAE1989761600D8DC90 /* PKExtensionsTabController.m */; };
 		945B65AC198D2DDB002D2E30 /* core.m in Sources */ = {isa = PBXBuildFile; fileRef = 945B65AB198D2DDB002D2E30 /* core.m */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
 		94A7362D198CB5C7007E29A1 /* PKExtensionCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362C198CB5C7007E29A1 /* PKExtensionCache.m */; };
@@ -137,9 +137,9 @@
 		944A2D81198973E900D8DC90 /* lvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lvm.h; sourceTree = "<group>"; };
 		944A2D82198973E900D8DC90 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		944A2D83198973E900D8DC90 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
-		944A2DA5198975B000D8DC90 /* PKGeneralController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKGeneralController.m; sourceTree = "<group>"; };
-		944A2DA81989760400D8DC90 /* PKReplController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKReplController.m; sourceTree = "<group>"; };
-		944A2DAE1989761600D8DC90 /* PKExtensionsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKExtensionsController.m; sourceTree = "<group>"; };
+		944A2DA5198975B000D8DC90 /* PKGeneralTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKGeneralTabController.m; sourceTree = "<group>"; };
+		944A2DA81989760400D8DC90 /* PKReplTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKReplTabController.m; sourceTree = "<group>"; };
+		944A2DAE1989761600D8DC90 /* PKExtensionsTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKExtensionsTabController.m; sourceTree = "<group>"; };
 		945B65A9198D2C0B002D2E30 /* PKMainWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PKMainWindowController.h; sourceTree = "<group>"; };
 		945B65AB198D2DDB002D2E30 /* core.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = core.m; sourceTree = "<group>"; };
 		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -245,6 +245,7 @@
 				945B65AB198D2DDB002D2E30 /* core.m */,
 				945B65AE198D2E34002D2E30 /* Main Window */,
 				945B65AD198D2E2D002D2E30 /* Extension Management */,
+				945B65B0198D304F002D2E30 /* Auxiliary */,
 			);
 			name = Main;
 			sourceTree = "<group>";
@@ -341,12 +342,19 @@
 		945B65AF198D2E41002D2E30 /* Tabs */ = {
 			isa = PBXGroup;
 			children = (
-				944A2DA5198975B000D8DC90 /* PKGeneralController.m */,
-				944A2DA81989760400D8DC90 /* PKReplController.m */,
-				944A2DAE1989761600D8DC90 /* PKExtensionsController.m */,
-				942BF3901989E18600983892 /* PKAutoLaunch.m */,
+				944A2DA5198975B000D8DC90 /* PKGeneralTabController.m */,
+				944A2DA81989760400D8DC90 /* PKReplTabController.m */,
+				944A2DAE1989761600D8DC90 /* PKExtensionsTabController.m */,
 			);
 			name = Tabs;
+			sourceTree = "<group>";
+		};
+		945B65B0198D304F002D2E30 /* Auxiliary */ = {
+			isa = PBXGroup;
+			children = (
+				942BF3901989E18600983892 /* PKAutoLaunch.m */,
+			);
+			name = Auxiliary;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -421,7 +429,7 @@
 				944A2D89198973E900D8DC90 /* lcorolib.c in Sources */,
 				944A2D98198973E900D8DC90 /* lopcodes.c in Sources */,
 				944A2D90198973E900D8DC90 /* lgc.c in Sources */,
-				944A2DAF1989761600D8DC90 /* PKExtensionsController.m in Sources */,
+				944A2DAF1989761600D8DC90 /* PKExtensionsTabController.m in Sources */,
 				944A2D391989735300D8DC90 /* main.m in Sources */,
 				942BF3911989E18600983892 /* PKAutoLaunch.m in Sources */,
 				944A2D8E198973E900D8DC90 /* ldump.c in Sources */,
@@ -433,13 +441,13 @@
 				944A2D9D198973E900D8DC90 /* lstrlib.c in Sources */,
 				944A2D88198973E900D8DC90 /* lcode.c in Sources */,
 				944A2D96198973E900D8DC90 /* loadlib.c in Sources */,
-				944A2DA91989760400D8DC90 /* PKReplController.m in Sources */,
+				944A2DA91989760400D8DC90 /* PKReplTabController.m in Sources */,
 				944A2D99198973E900D8DC90 /* loslib.c in Sources */,
 				944A2D93198973E900D8DC90 /* llex.c in Sources */,
 				944A2D8B198973E900D8DC90 /* ldblib.c in Sources */,
 				944A2D8D198973E900D8DC90 /* ldo.c in Sources */,
 				94A73630198CB679007E29A1 /* PKExtension.m in Sources */,
-				944A2DA6198975B000D8DC90 /* PKGeneralController.m in Sources */,
+				944A2DA6198975B000D8DC90 /* PKGeneralTabController.m in Sources */,
 				944A2D3C1989735300D8DC90 /* PKMainWindowController.m in Sources */,
 				944A2D9C198973E900D8DC90 /* lstring.c in Sources */,
 				944A2D84198973E900D8DC90 /* lapi.c in Sources */,

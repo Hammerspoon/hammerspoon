@@ -2,7 +2,7 @@
 #import "lua/lauxlib.h"
 extern lua_State* PKLuaState;
 
-@interface PKReplController : NSObject
+@interface PKReplTabController : NSObject
 
 @property NSMutableArray* history;
 @property NSInteger historyIndex;
@@ -11,7 +11,7 @@ extern lua_State* PKLuaState;
 
 @end
 
-@implementation PKReplController
+@implementation PKReplTabController
 
 - (void) awakeFromNib {
     self.history = [NSMutableArray array];

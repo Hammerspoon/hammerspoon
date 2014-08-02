@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
@@ -133,17 +133,17 @@
                                             <rect key="frame" x="20" y="50" width="460" height="230"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="fl9-64-74i">
-                                                <rect key="frame" x="1" y="1" width="458" height="228"/>
+                                                <rect key="frame" x="1" y="1" width="443" height="228"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="M9v-6B-bP0">
-                                                        <rect key="frame" x="0.0" y="0.0" width="458" height="228"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="443" height="228"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="458" height="228"/>
+                                                        <size key="minSize" width="443" height="228"/>
                                                         <size key="maxSize" width="529" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="458" height="228"/>
+                                                        <size key="minSize" width="443" height="228"/>
                                                         <size key="maxSize" width="529" height="10000000"/>
                                                     </textView>
                                                 </subviews>
@@ -334,20 +334,20 @@
             <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
             <autoresizingMask key="autoresizingMask"/>
         </view>
-        <customObject id="dXd-DL-vp3" customClass="PKGeneralController">
+        <customObject id="dXd-DL-vp3" customClass="PKGeneralTabController">
             <connections>
                 <outlet property="checkForUpdatesCheckbox" destination="yhO-Yj-4wO" id="B39-yQ-bOc"/>
                 <outlet property="openAtLoginCheckbox" destination="CDe-ST-WL6" id="r84-zw-1GI"/>
                 <outlet property="showDockIconCheckbox" destination="ail-YE-MEe" id="TwC-cv-Z8N"/>
             </connections>
         </customObject>
-        <customObject id="ZNF-Dj-p3R" customClass="PKReplController">
+        <customObject id="ZNF-Dj-p3R" customClass="PKReplTabController">
             <connections>
                 <outlet property="inputField" destination="ZdL-cX-4KQ" id="lua-QQ-SGG"/>
                 <outlet property="outputView" destination="M9v-6B-bP0" id="bBy-nW-aEC"/>
             </connections>
         </customObject>
-        <customObject id="XQ1-bX-gx8" customClass="PKExtensionsController">
+        <customObject id="XQ1-bX-gx8" customClass="PKExtensionsTabController">
             <connections>
                 <outlet property="extsTable" destination="wf6-Tx-sC2" id="mb5-WU-SBM"/>
             </connections>

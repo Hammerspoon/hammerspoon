@@ -1,7 +1,7 @@
 BOOL PKAutoLaunchGet(void);
 void PKAutoLaunchSet(BOOL opensAtLogin);
 
-@interface PKGeneralController : NSObject
+@interface PKGeneralTabController : NSObject
 
 @property (weak) IBOutlet NSButton* openAtLoginCheckbox;
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
@@ -11,7 +11,7 @@ void PKAutoLaunchSet(BOOL opensAtLogin);
 
 #define PKCheckForUpdatesKey @"_checkforupdates"
 
-@implementation PKGeneralController
+@implementation PKGeneralTabController
 
 - (IBAction) openSampleConfig:(id)sender {
     NSURL* url = [[NSBundle mainBundle] URLForResource:@"sample_init" withExtension:@"lua"];
