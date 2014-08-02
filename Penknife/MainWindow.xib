@@ -307,7 +307,7 @@
                                             </tableHeaderView>
                                         </scrollView>
                                         <button verticalHuggingPriority="750" id="Nge-FY-eHu">
-                                            <rect key="frame" x="20" y="19" width="136" height="23"/>
+                                            <rect key="frame" x="20" y="19" width="145" height="23"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <buttonCell key="cell" type="smallSquare" title="Update Extensions..." bezelStyle="smallSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="h7z-VL-Z7Y">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -318,7 +318,7 @@
                                             </connections>
                                         </button>
                                         <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="Jot-cf-6ex">
-                                            <rect key="frame" x="164" y="22" width="16" height="16"/>
+                                            <rect key="frame" x="173" y="22" width="16" height="16"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                             <connections>
                                                 <binding destination="XQ1-bX-gx8" name="animate" keyPath="self.extManager.updating" id="uNd-pX-0Ek"/>
