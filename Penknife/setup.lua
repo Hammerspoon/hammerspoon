@@ -1,4 +1,7 @@
-print(os.exit)
 os.exit = core.exit
-print "hi! lol"
-print(os.exit)
+
+-- think about this better
+package.path = os.getenv("HOME") .. "/.hydra/?.lua" .. ';' .. package.path
+
+-- put this in ObjC maybe?
+-- hydra.call(hydra.reload)
