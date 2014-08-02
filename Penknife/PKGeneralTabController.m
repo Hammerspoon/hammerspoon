@@ -24,7 +24,9 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (void) accessibilityChanged:(NSNotification*)note {
-    [self cacheIsAccessibilityEnabled];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self cacheIsAccessibilityEnabled];
+    });
 }
 
 - (void) cacheIsAccessibilityEnabled {
