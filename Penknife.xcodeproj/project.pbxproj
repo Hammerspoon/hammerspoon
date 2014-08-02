@@ -59,6 +59,7 @@
 		94A7362D198CB5C7007E29A1 /* PKExtensionCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362C198CB5C7007E29A1 /* PKExtensionCache.m */; };
 		94A73630198CB679007E29A1 /* PKExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362F198CB679007E29A1 /* PKExtension.m */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
+		94D7A827198D82430005B88E /* Penknife.docset in Resources */ = {isa = PBXBuildFile; fileRef = 94D7A826198D82430005B88E /* Penknife.docset */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -151,6 +152,7 @@
 		94A7362E198CB679007E29A1 /* PKExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKExtension.h; sourceTree = "<group>"; };
 		94A7362F198CB679007E29A1 /* PKExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKExtension.m; sourceTree = "<group>"; };
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		94D7A826198D82430005B88E /* Penknife.docset */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Penknife.docset; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -235,6 +237,7 @@
 				944A2D401989737E00D8DC90 /* Penknife-Info.plist */,
 				944A2D411989737E00D8DC90 /* Penknife-Prefix.pch */,
 				944A2D421989737E00D8DC90 /* Penknife.icns */,
+				94D7A826198D82430005B88E /* Penknife.docset */,
 			);
 			name = XcodeCrap;
 			sourceTree = "<group>";
@@ -418,6 +421,7 @@
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
+				94D7A827198D82430005B88E /* Penknife.docset in Resources */,
 				944A2D471989737E00D8DC90 /* Penknife.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
