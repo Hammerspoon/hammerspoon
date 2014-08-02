@@ -136,9 +136,9 @@
                                                     </connections>
                                                 </button>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="jPi-HP-2Ue">
-                                                    <rect key="frame" x="132" y="41" width="261" height="17"/>
+                                                    <rect key="frame" x="132" y="41" width="241" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility is enabled, you're all set!" id="7YM-X4-IxS">
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility is enabled. You're all set!" id="7YM-X4-IxS">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -156,6 +156,14 @@
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                 </textField>
+                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="kJp-5U-jAS">
+                                                    <rect key="frame" x="291" y="14" width="16" height="16"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSStatusAvailable" id="bvN-6H-Upa"/>
+                                                    <connections>
+                                                        <binding destination="dXd-DL-vp3" name="value" keyPath="self.isAccessibilityEnabledImage" id="pLl-hk-rjM"/>
+                                                    </connections>
+                                                </imageView>
                                             </subviews>
                                         </customView>
                                     </subviews>
@@ -394,5 +402,6 @@
         <image name="NSAdvanced" width="32" height="32"/>
         <image name="NSComputer" width="32" height="32"/>
         <image name="NSPreferencesGeneral" width="32" height="32"/>
+        <image name="NSStatusAvailable" width="16" height="16"/>
     </resources>
 </document>

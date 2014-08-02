@@ -38,12 +38,23 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 - (NSString*) maybeEnableAccessibilityString {
     if (self.isAccessibilityEnabled)
-        return @"Accessibility is enabled, you're all set!";
+        return @"Accessibility is enabled. You're all set!";
     else
         return @"Enable Accessibility for best results.";
 }
 
+- (NSImage*) isAccessibilityEnabledImage {
+    if (self.isAccessibilityEnabled)
+        return [NSImage imageNamed:NSImageNameStatusAvailable];
+    else
+        return [NSImage imageNamed:NSImageNameStatusPartiallyAvailable];
+}
+
 + (NSSet*) keyPathsForValuesAffectingMaybeEnableAccessibilityString {
+    return [NSSet setWithArray:@[@"isAccessibilityEnabled"]];
+}
+
++ (NSSet*) keyPathsForValuesAffectingIsAccessibilityEnabledImage {
     return [NSSet setWithArray:@[@"isAccessibilityEnabled"]];
 }
 
