@@ -1,5 +1,4 @@
 dofile(hydra.resourcesdir .. "/hydra.lua")
-print('foo')
 
 
 -- local ok, err = pcall(function()

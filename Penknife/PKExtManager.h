@@ -9,7 +9,10 @@
 
 @property NSArray* availableExts;
 @property NSArray* installedExts;
+@property NSString* latestSha;
 
 - (void) updateAvailableExts;
+
+@property BOOL updating;
 
 @end
