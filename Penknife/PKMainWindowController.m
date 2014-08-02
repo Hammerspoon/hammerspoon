@@ -1,4 +1,6 @@
-@interface PKMainWindowController : NSWindowController
+#import "PKMainWindowController.h"
+
+@interface PKMainWindowController ()
 @property (weak) IBOutlet NSTabView* tabView;
 @end
 
