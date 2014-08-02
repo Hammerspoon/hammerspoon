@@ -1,5 +1,9 @@
 #import "lua/lauxlib.h"
 
+/// === core ===
+///
+/// Core Penknife functionality.
+
 static int core_exit(lua_State* L) {
     if (lua_toboolean(L, 2))
         lua_close(L);
