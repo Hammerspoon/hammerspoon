@@ -34,13 +34,13 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <customView id="WEx-km-oq5">
-                                            <rect key="frame" x="46" y="64" width="409" height="216"/>
+                                            <rect key="frame" x="46" y="9" width="409" height="271"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <subviews>
                                                 <button verticalHuggingPriority="750" id="LSb-QH-ZQB">
-                                                    <rect key="frame" x="128" y="99" width="169" height="32"/>
+                                                    <rect key="frame" x="136" y="154" width="154" height="32"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                    <buttonCell key="cell" type="push" title="Open Sample Config" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zva-R3-iyw">
+                                                    <buttonCell key="cell" type="push" title="Start Walkthrough" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zva-R3-iyw">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                         <font key="font" metaFont="system"/>
                                                     </buttonCell>
@@ -49,7 +49,7 @@
                                                     </connections>
                                                 </button>
                                                 <button verticalHuggingPriority="750" id="vpp-qq-nEI">
-                                                    <rect key="frame" x="128" y="165" width="129" height="32"/>
+                                                    <rect key="frame" x="128" y="220" width="129" height="32"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="push" title="Reload Config" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F0n-YJ-cVS">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -60,7 +60,7 @@
                                                     </connections>
                                                 </button>
                                                 <button id="ail-YE-MEe">
-                                                    <rect key="frame" x="132" y="58" width="122" height="18"/>
+                                                    <rect key="frame" x="132" y="113" width="122" height="18"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="check" title="Show Dock icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="CPV-1p-DPg">
                                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -71,7 +71,7 @@
                                                     </connections>
                                                 </button>
                                                 <button id="CDe-ST-WL6">
-                                                    <rect key="frame" x="132" y="38" width="111" height="18"/>
+                                                    <rect key="frame" x="132" y="93" width="111" height="18"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="check" title="Open at Login" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="2s7-9C-kvO">
                                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -82,7 +82,7 @@
                                                     </connections>
                                                 </button>
                                                 <button id="yhO-Yj-4wO">
-                                                    <rect key="frame" x="132" y="18" width="139" height="18"/>
+                                                    <rect key="frame" x="132" y="73" width="139" height="18"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="check" title="Check for Updates" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="KBe-c8-N1E">
                                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -93,16 +93,16 @@
                                                     </connections>
                                                 </button>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Bl3-lg-Nyq">
-                                                    <rect key="frame" x="131" y="135" width="261" height="17"/>
+                                                    <rect key="frame" x="131" y="190" width="273" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" title="You can copy this to ~/.penknife/init.lua" id="yvT-xe-aXQ">
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" title="Something about this walkthrough maybe?" id="yvT-xe-aXQ">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                 </textField>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="PM9-bG-Eql">
-                                                    <rect key="frame" x="55" y="59" width="62" height="17"/>
+                                                    <rect key="frame" x="55" y="114" width="62" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Behavior:" id="FIv-y6-t4x">
                                                         <font key="font" metaFont="system"/>
@@ -111,9 +111,38 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="35K-Vh-Zpi">
-                                                    <rect key="frame" x="17" y="135" width="100" height="17"/>
+                                                    <rect key="frame" x="17" y="190" width="89" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Sample Config:" id="m69-Xj-5pa">
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Walkthrough:" id="m69-Xj-5pa">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                </textField>
+                                                <button verticalHuggingPriority="750" id="A5o-Bu-Gme">
+                                                    <rect key="frame" x="127" y="5" width="162" height="32"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <buttonCell key="cell" type="push" title="Enable Accessibility" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9xk-v9-vur">
+                                                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                        <font key="font" metaFont="system"/>
+                                                    </buttonCell>
+                                                    <connections>
+                                                        <action selector="openSampleConfig:" target="dXd-DL-vp3" id="Y6l-zh-2sX"/>
+                                                    </connections>
+                                                </button>
+                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="jPi-HP-2Ue">
+                                                    <rect key="frame" x="132" y="41" width="261" height="17"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" title="Accessibility is enabled, you're all set!" id="7YM-X4-IxS">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                </textField>
+                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="J9h-s8-3k2">
+                                                    <rect key="frame" x="18" y="41" width="85" height="17"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility:" id="tyY-wc-IrY">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

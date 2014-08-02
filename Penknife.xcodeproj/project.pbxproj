@@ -54,6 +54,7 @@
 		944A2DA91989760400D8DC90 /* PKReplTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA81989760400D8DC90 /* PKReplTabController.m */; };
 		944A2DAF1989761600D8DC90 /* PKExtensionsTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DAE1989761600D8DC90 /* PKExtensionsTabController.m */; };
 		945B65AC198D2DDB002D2E30 /* core.m in Sources */ = {isa = PBXBuildFile; fileRef = 945B65AB198D2DDB002D2E30 /* core.m */; };
+		945B65B2198D31FC002D2E30 /* setup.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945B65B1198D31FC002D2E30 /* setup.lua */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
 		94A7362D198CB5C7007E29A1 /* PKExtensionCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362C198CB5C7007E29A1 /* PKExtensionCache.m */; };
 		94A73630198CB679007E29A1 /* PKExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362F198CB679007E29A1 /* PKExtension.m */; };
@@ -142,6 +143,7 @@
 		944A2DAE1989761600D8DC90 /* PKExtensionsTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKExtensionsTabController.m; sourceTree = "<group>"; };
 		945B65A9198D2C0B002D2E30 /* PKMainWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PKMainWindowController.h; sourceTree = "<group>"; };
 		945B65AB198D2DDB002D2E30 /* core.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = core.m; sourceTree = "<group>"; };
+		945B65B1198D31FC002D2E30 /* setup.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = setup.lua; sourceTree = "<group>"; };
 		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		94A7362B198CB5C7007E29A1 /* PKExtensionCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKExtensionCache.h; sourceTree = "<group>"; };
@@ -243,6 +245,7 @@
 				944A2D351989735300D8DC90 /* MainMenu.xib */,
 				944A2D341989735300D8DC90 /* main.m */,
 				945B65AB198D2DDB002D2E30 /* core.m */,
+				945B65B1198D31FC002D2E30 /* setup.lua */,
 				945B65AE198D2E34002D2E30 /* Main Window */,
 				945B65AD198D2E2D002D2E30 /* Extension Management */,
 				945B65B0198D304F002D2E30 /* Auxiliary */,
@@ -414,6 +417,7 @@
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
+				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
 				944A2D471989737E00D8DC90 /* Penknife.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
