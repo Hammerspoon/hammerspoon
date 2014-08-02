@@ -6,6 +6,7 @@
 - (void) save;
 
 @property NSString* sha;
-@property NSMutableArray* extensions;
+@property NSMutableArray* extensionsAvailable;
+@property NSMutableArray* extensionsInstalled;
 
 @end

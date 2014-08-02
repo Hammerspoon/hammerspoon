@@ -15,7 +15,8 @@
 
 - (id) init {
     if (self = [super init]) {
-        self.extensions = [NSMutableArray array];
+        self.extensionsAvailable = [NSMutableArray array];
+        self.extensionsInstalled = [NSMutableArray array];
     }
     return self;
 }
@@ -23,14 +24,16 @@
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
         self.sha = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha"];
-        self.extensions = [decoder decodeObjectOfClass:[NSMutableArray class] forKey:@"extensions"];
+        self.extensionsAvailable = [decoder decodeObjectOfClass:[NSMutableArray class] forKey:@"extensionsAvailable"];
+        self.extensionsInstalled = [decoder decodeObjectOfClass:[NSMutableArray class] forKey:@"extensionsInstalled"];
     }
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
     [encoder encodeObject:self.sha forKey:@"sha"];
-    [encoder encodeObject:self.extensions forKey:@"extensions"];
+    [encoder encodeObject:self.extensionsAvailable forKey:@"extensionsAvailable"];
+    [encoder encodeObject:self.extensionsInstalled forKey:@"extensionsInstalled"];
 }
 
 - (void) save {

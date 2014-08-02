@@ -72,7 +72,7 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 }
 
 - (void) doneUpdating {
-    [self.cache.extensions sortUsingComparator:^NSComparisonResult(PKExtension* a, PKExtension* b) {
+    [self.cache.extensionsAvailable sortUsingComparator:^NSComparisonResult(PKExtension* a, PKExtension* b) {
         return [a.name compare: b.name];
     }];
     
@@ -86,14 +86,14 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     // 1. look for all old shas missing from the new batch and delete their represented local files
     // 2. look for all new shas missing from old batch and download their files locally
     
-    NSArray* oldshas = [self.cache.extensions valueForKeyPath:@"sha"];
+    NSArray* oldshas = [self.cache.extensionsAvailable valueForKeyPath:@"sha"];
     NSArray* latestshas = [latestexts valueForKeyPath:@"sha"];
     
-    NSArray* removals = [self.cache.extensions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT self.sha IN %@", latestshas]];
+    NSArray* removals = [self.cache.extensionsAvailable filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT self.sha IN %@", latestshas]];
     NSArray* additions = [latestexts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT sha IN %@", oldshas]];
     
     for (PKExtension* oldext in removals)
-        [self.cache.extensions removeObject:oldext];
+        [self.cache.extensionsAvailable removeObject:oldext];
     
     __block NSUInteger waitingfor = [additions count];
     
@@ -108,7 +108,7 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         NSLog(@"downloading: %@", url);
         
         [self getURL:url handleJSON:^(NSDictionary* json) {
-            [self.cache.extensions addObject: [PKExtension extensionWithShortJSON:ext longJSON:json]];
+            [self.cache.extensionsAvailable addObject: [PKExtension extensionWithShortJSON:ext longJSON:json]];
             
             if (--waitingfor == 0)
                 [self doneUpdating];

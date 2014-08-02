@@ -24,11 +24,11 @@
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-    return [[PKExtensionManager sharedManager].cache.extensions count];
+    return [[PKExtensionManager sharedManager].cache.extensionsAvailable count];
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    PKExtension* ext = [[PKExtensionManager sharedManager].cache.extensions objectAtIndex:row];
+    PKExtension* ext = [[PKExtensionManager sharedManager].cache.extensionsAvailable objectAtIndex:row];
     
     if ([[tableColumn identifier] isEqualToString: @"name"]) {
         return ext.name;
