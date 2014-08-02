@@ -1,9 +1,11 @@
 #import "PKExtManager.h"
+#import "PKExtension.h"
 
 NSString* PKExtensionsUpdatedNotification = @"PKExtensionsUpdatedNotification";
 
 static NSString* PKMasterShaURL = @"https://api.github.com/repos/penknife-io/ext/git/refs/heads/master";
 static NSString* PKTreeListURL  = @"https://api.github.com/repos/penknife-io/ext/git/trees/master";
+static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/penknife-io/ext/%@/%@";
 
 @implementation PKExtManager
 
@@ -26,12 +28,10 @@ static NSString* PKTreeListURL  = @"https://api.github.com/repos/penknife-io/ext
                                if (data) {
                                    NSError* __autoreleasing jsonError;
                                    id obj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-                                   if (obj) {
+                                   if (obj)
                                        handler(obj);
-                                   }
-                                   else {
+                                   else
                                        NSLog(@"json error: %@", jsonError);
-                                   }
                                }
                                else {
                                    NSLog(@"connection error: %@", connectionError);
@@ -67,53 +67,66 @@ static NSString* PKTreeListURL  = @"https://api.github.com/repos/penknife-io/ext
                     [newlist addObject:@{@"path": path, @"sha": [file objectForKey:@"sha"]}];
             }
             [self reflectAvailableExts:newlist];
-            self.updating = NO;
         }];
     }];
+}
+
+- (void) storeJSON:(NSDictionary*)json inExt:(NSString*)namePath sha:(NSString*)sha {
+    PKExtension* ext = [[PKExtension alloc] init];
+    [self.cache.extensions addObject:ext];
+    
+    ext.sha = sha;
+    ext.name = [namePath stringByReplacingOccurrencesOfString:@".json" withString:@""];
+    ext.version = [json objectForKey:@"version"];
+    ext.license = [json objectForKey:@"license"];
+    ext.tarfile = [json objectForKey:@"tarfile"];
+    ext.website = [json objectForKey:@"website"];
+    ext.author = [json objectForKey:@"author"];
+}
+
+- (void) doneUpdating {
+    [self.cache.extensions sortUsingComparator:^NSComparisonResult(PKExtension* a, PKExtension* b) {
+        return [a.name compare: b.name];
+    }];
+    
+    NSLog(@"done updating.");
+    self.updating = NO;
+    [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
+    [self.cache save];
 }
 
 - (void) reflectAvailableExts:(NSArray*)latestexts {
     // 1. look for all old shas missing from the new batch and delete their represented local files
     // 2. look for all new shas missing from old batch and download their files locally
     
-    NSLog(@"in here");
+    NSArray* oldshas = [self.cache.extensions valueForKeyPath:@"sha"];
+    NSArray* latestshas = [latestexts valueForKeyPath:@"sha"];
     
-    // TODO: only save this after all things are done.
-    [self.cache save];
+    NSArray* removals = [self.cache.extensions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT self.sha IN %@", latestshas]];
+    NSArray* additions = [latestexts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT sha IN %@", oldshas]];
     
-//    NSMutableDictionary* newextensions = [self.availableExts mutableCopy];
+    for (PKExtension* oldext in removals)
+        [self.cache.extensions removeObject:oldext];
     
-//    NSArray* latestshas = [latestexts valueForKeyPath:@"sha"];
-//    for (NSDictionary* oldext in self.availableExts) {
-//        if (![latestshas containsObject: [oldext objectForKey:@"sha"]]) {
-//            
-////            [newextensions removeo
-//            
-//            NSString* path = [NSString stringWithFormat:[self localFileTemplate], [oldext objectForKey:@"path"]];
-//            NSLog(@"deleting old: %@", path);
-//            [[NSFileManager defaultManager] removeItemAtPath:path error:NULL];
-//        }
-//    }
-//    
-//    NSArray* oldshas = [self.availableExts valueForKeyPath:@"sha"];
-//    for (NSDictionary* latestext in latestexts) {
-//        if (![oldshas containsObject: [latestext objectForKey:@"sha"]]) {
-//            NSString* url = [NSString stringWithFormat:PKRawFilePathURLTemplate, self.latestSha, [latestext objectForKey: @"path"]];
-//            NSLog(@"downloading new: %@", url);
-//            
-//            [self getURL:url handleJSON:^(NSDictionary* json) {
-//                NSLog(@"%@", json);
-//            }];
-//            
-////            [self downloadURL:url
-////                       toPath:[NSString stringWithFormat:[self localFileTemplate], [latestext objectForKey:@"path"]]];
-//        }
-//    }
-//    
-//    self.availableExts = latestexts;
-//    [self saveExts:self.availableExts to:[self extsAvailableFile]];
-//    
-//    [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
+    __block NSUInteger waitingfor = [additions count];
+    
+    if (waitingfor == 0) {
+        [self doneUpdating];
+    }
+    
+    for (NSDictionary* ext in additions) {
+        NSString* extNamePath = [ext objectForKey: @"path"];
+        NSString* url = [NSString stringWithFormat:PKRawFilePathURLTemplate, self.cache.sha, extNamePath];
+        NSLog(@"downloading: %@", url);
+        
+        [self getURL:url handleJSON:^(NSDictionary* json) {
+            [self storeJSON:json inExt:extNamePath sha:[ext objectForKey: @"sha"]];
+            
+            if (--waitingfor == 0) {
+                [self doneUpdating];
+            }
+        }];
+    }
 }
 
 - (void) setup {
