@@ -29,4 +29,19 @@
     [encoder encodeObject:self.description forKey:@"description"];
 }
 
++ (PKExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON {
+    PKExtension* ext = [[PKExtension alloc] init];
+    
+    ext.sha = [shortJSON objectForKey: @"sha"];
+    ext.name = [[shortJSON objectForKey: @"path"] stringByReplacingOccurrencesOfString:@".json" withString:@""];
+    ext.author = [longJSON objectForKey:@"author"];
+    ext.version = [longJSON objectForKey:@"version"];
+    ext.license = [longJSON objectForKey:@"license"];
+    ext.tarfile = [longJSON objectForKey:@"tarfile"];
+    ext.website = [longJSON objectForKey:@"website"];
+    ext.description = [longJSON objectForKey:@"description"];
+    
+    return ext;
+}
+
 @end

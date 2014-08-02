@@ -11,4 +11,6 @@
 @property NSString* license;
 @property NSString* description;
 
++ (PKExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON;
+
 @end

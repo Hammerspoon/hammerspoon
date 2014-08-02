@@ -71,20 +71,6 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     }];
 }
 
-- (void) storeJSON:(NSDictionary*)json inExt:(NSString*)namePath sha:(NSString*)sha {
-    PKExtension* ext = [[PKExtension alloc] init];
-    [self.cache.extensions addObject:ext];
-    
-    ext.sha = sha;
-    ext.name = [namePath stringByReplacingOccurrencesOfString:@".json" withString:@""];
-    ext.author = [json objectForKey:@"author"];
-    ext.version = [json objectForKey:@"version"];
-    ext.license = [json objectForKey:@"license"];
-    ext.tarfile = [json objectForKey:@"tarfile"];
-    ext.website = [json objectForKey:@"website"];
-    ext.description = [json objectForKey:@"description"];
-}
-
 - (void) doneUpdating {
     [self.cache.extensions sortUsingComparator:^NSComparisonResult(PKExtension* a, PKExtension* b) {
         return [a.name compare: b.name];
@@ -113,6 +99,7 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     
     if (waitingfor == 0) {
         [self doneUpdating];
+        return;
     }
     
     for (NSDictionary* ext in additions) {
@@ -121,11 +108,10 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         NSLog(@"downloading: %@", url);
         
         [self getURL:url handleJSON:^(NSDictionary* json) {
-            [self storeJSON:json inExt:extNamePath sha:[ext objectForKey: @"sha"]];
+            [self.cache.extensions addObject: [PKExtension extensionWithShortJSON:ext longJSON:json]];
             
-            if (--waitingfor == 0) {
+            if (--waitingfor == 0)
                 [self doneUpdating];
-            }
         }];
     }
 }
