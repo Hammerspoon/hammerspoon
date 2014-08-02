@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import "PKExtManager.h"
+#import "PKExtensionManager.h"
 #import "helpers.h"
 #import "lua/lualib.h"
 
@@ -131,7 +131,7 @@ static void addmodules(lua_State* L, const hydralib* libs, bool toplevel) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    [[PKExtManager sharedExtManager] setup];
+    [[PKExtensionManager sharedManager] setup];
     
     [[PKMainWindowController sharedMainWindowController] showWindow:nil];
     

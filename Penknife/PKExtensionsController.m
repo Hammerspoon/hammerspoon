@@ -1,4 +1,4 @@
-#import "PKExtManager.h"
+#import "PKExtensionManager.h"
 #import "PKExtension.h"
 
 @interface PKExtensionsController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
@@ -15,20 +15,20 @@
     [self.extsTable reloadData];
 }
 
-- (PKExtManager*) extManager { // for use with binding progress animator
-    return [PKExtManager sharedExtManager];
+- (PKExtensionManager*) extManager { // for use with binding progress animator
+    return [PKExtensionManager sharedManager];
 }
 
 - (IBAction) updateExtensions:(id)sender {
-    [[PKExtManager sharedExtManager] update];
+    [[PKExtensionManager sharedManager] update];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-    return [[PKExtManager sharedExtManager].cache.extensions count];
+    return [[PKExtensionManager sharedManager].cache.extensions count];
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    PKExtension* ext = [[PKExtManager sharedExtManager].cache.extensions objectAtIndex:row];
+    PKExtension* ext = [[PKExtensionManager sharedManager].cache.extensions objectAtIndex:row];
     
     if ([[tableColumn identifier] isEqualToString: @"name"]) {
         return ext.name;

@@ -3,9 +3,9 @@
 
 extern NSString* PKExtensionsUpdatedNotification;
 
-@interface PKExtManager : NSObject
+@interface PKExtensionManager : NSObject
 
-+ (PKExtManager*) sharedExtManager;
++ (PKExtensionManager*) sharedManager;
 
 - (void) setup;
 - (void) update;

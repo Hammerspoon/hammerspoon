@@ -1,4 +1,4 @@
-#import "PKExtManager.h"
+#import "PKExtensionManager.h"
 #import "PKExtension.h"
 
 NSString* PKExtensionsUpdatedNotification = @"PKExtensionsUpdatedNotification";
@@ -7,13 +7,13 @@ static NSString* PKMasterShaURL = @"https://api.github.com/repos/penknife-io/ext
 static NSString* PKTreeListURL  = @"https://api.github.com/repos/penknife-io/ext/git/trees/master";
 static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/penknife-io/ext/%@/%@";
 
-@implementation PKExtManager
+@implementation PKExtensionManager
 
-+ (PKExtManager*) sharedExtManager {
-    static PKExtManager* sharedExtManager;
++ (PKExtensionManager*) sharedManager {
+    static PKExtensionManager* sharedExtManager;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedExtManager = [[PKExtManager alloc] init];
+        sharedExtManager = [[PKExtensionManager alloc] init];
     });
     return sharedExtManager;
 }
