@@ -21,7 +21,16 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     [[NSWorkspace sharedWorkspace] openURL:url];
 }
 
+- (void) hello:(NSNotification*)note {
+    NSLog(@"%@", note);
+}
+
 - (void) awakeFromNib {
+    
+    [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(hello:) name:nil object:nil];
+    // name="com.apple.accessibility.api" seems to happen if you change an app's accessibility!
+    
+    
     [self.openAtLoginCheckbox setState:PKAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState:[[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:PKCheckForUpdatesKey] ? NSOnState : NSOffState];
