@@ -82,65 +82,115 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-    NSLog(@"%@", self.cache);
-    return 37;
-//    return [self.cache count];
+    return [self.cache count];
 }
 
-- (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-//    row = 0;
-//    PKExtension* ext = [[PKExtensionManager sharedManager].cache.extensionsAvailable objectAtIndex:row];
-    
-//    if ([[tableColumn identifier] isEqualToString: @"name"]) {
-//        return ext.name;
-//    }
-//    else if ([[tableColumn identifier] isEqualToString: @"installed"]) {
-//        return @NO;
-//    }
-//    else if ([[tableColumn identifier] isEqualToString: @"version"]) {
-//        return ext.version;
-//    }
-//    else if ([[tableColumn identifier] isEqualToString: @"action"]) {
-//        return @"";
-//    }
-    
-    if (row == 0 || row == 3) {
-        NSLog(@"%@", [tableColumn identifier]);
-        NSTextField *result = [tableView makeViewWithIdentifier:@"header" owner:self];
-        if (result == nil) {
-            result = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 0)];
-            [result setBordered:NO];
-            [result setBezelStyle:NSTextFieldRoundedBezel];
-            [result setEditable:NO];
-            result.identifier = @"header";
-        }
-        result.stringValue = @"Installed";
-        return result;
+- (NSTextField*) headerRow:(NSTableView*)tableView {
+    NSTextField *result = [tableView makeViewWithIdentifier:@"header" owner:self];
+    if (!result) {
+        result = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 0)];
+        [result setBordered:NO];
+        [result setBezelStyle:NSTextFieldRoundedBezel];
+        [result setEditable:NO];
+        result.identifier = @"header";
     }
-    
-    NSButton* button = [tableView makeViewWithIdentifier:@"button" owner:self];
+    return result;
+}
+
+- (NSTextField*) attrRow:(NSTableView*)tableView {
+    NSTextField *result = [tableView makeViewWithIdentifier:@"attr" owner:self];
+    if (!result) {
+        result = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 0)];
+        [result setBordered:NO];
+//        [result setBezelStyle:NSTextFieldRoundedBezel];
+        [result setEditable:NO];
+        result.identifier = @"attr";
+    }
+    return result;
+}
+
+- (NSButton*) actionRow:(NSTableView*)tableView {
+    NSButton* button = [tableView makeViewWithIdentifier:@"useraction" owner:self];
     if (!button) {
         button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 100, 0)];
-        [button setAllowsMixedState:YES];
         [button setButtonType:NSSwitchButton];
         [button setTitle:@""];
-        button.identifier = @"button";
+        button.identifier = @"useraction";
+        button.target = self;
+        button.action = @selector(toggleExtAction:);
     }
-    [button setState:NSMixedState];
-    
     return button;
 }
 
-- (IBAction) toggleInstalled:(id)sender {
-//    NSInteger row = [self.extsTable clickedRow];
+- (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+    PKCacheItem* item = [self.cache objectAtIndex:row];
+    
+    if (item.type == PKCacheItemTypeHeader) {
+        NSTextField* header = [self headerRow:tableView];
+        header.stringValue = item.header;
+        return header;
+    }
+    else if ([[tableColumn identifier] isEqualToString: @"name"]) {
+        NSTextField* attr = [self attrRow:tableView];
+        attr.stringValue = [NSString stringWithFormat:@"%@ %@", item.ext.name, item.ext.version];
+        return attr;
+    }
+    else if ([[tableColumn identifier] isEqualToString: @"author"]) {
+        NSTextField* attr = [self attrRow:tableView];
+        attr.stringValue = item.ext.author;
+        return attr;
+    }
+    else if ([[tableColumn identifier] isEqualToString: @"website"]) {
+        NSTextField* attr = [self attrRow:tableView];
+        attr.stringValue = item.ext.website;
+        return attr;
+    }
+    else if ([[tableColumn identifier] isEqualToString: @"license"]) {
+        NSTextField* attr = [self attrRow:tableView];
+        attr.stringValue = item.ext.license;
+        return attr;
+    }
+    else if ([[tableColumn identifier] isEqualToString: @"desc"]) {
+        NSTextField* attr = [self attrRow:tableView];
+        attr.stringValue = item.ext.desc;
+        return attr;
+    }
+    else if ([[tableColumn identifier] isEqualToString: @"action"]) {
+        NSString* title;
+        switch (item.type) {
+            case PKCacheItemTypeNeedsUpgrade:    title = @"Upgrade"; break;
+            case PKCacheItemTypeNotInstalled:    title = @"Install"; break;
+            case PKCacheItemTypeRemovedRemotely: title = @"Uninstall"; break;
+            case PKCacheItemTypeUpToDate:        title = @"Uninstall"; break;
+            default: break;
+        }
+        NSButton* action = [self actionRow:tableView];
+        action.title = title;
+        action.state = NSOffState;
+        return action;
+    }
+    
+    return nil; // unreachable (I hope)
+}
+
+- (IBAction) toggleExtAction:(id)sender {
+    NSInteger row = [self.extsTable clickedRow];
+    NSLog(@"%ld", row);
+    
 //    row = 0;
 //    PKExtension* ext = [[PKExtensionManager sharedManager].cache.extensionsAvailable objectAtIndex:row];
 //    
 //    NSLog(@"%@", ext);
 }
 
+- (BOOL) tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row {
+    PKCacheItem* item = [self.cache objectAtIndex:row];
+    return item.type != PKCacheItemTypeHeader;
+}
+
 - (BOOL)tableView:(NSTableView *)tableView isGroupRow:(NSInteger)row {
-    return row == 3 || row == 0;
+    PKCacheItem* item = [self.cache objectAtIndex:row];
+    return item.type == PKCacheItemTypeHeader;
 }
 
 @end
