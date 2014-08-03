@@ -174,14 +174,12 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     return nil; // unreachable (I hope)
 }
 
-- (IBAction) toggleExtAction:(id)sender {
-    NSInteger row = [self.extsTable clickedRow];
-    NSLog(@"%ld", row);
+- (IBAction) toggleExtAction:(NSButton*)sender {
+    NSInteger row = [self.extsTable rowForView:sender];
+    PKCacheItem* item = [self.cache objectAtIndex:row];
+    PKExtension* ext = item.ext;
     
-//    row = 0;
-//    PKExtension* ext = [[PKExtensionManager sharedManager].cache.extensionsAvailable objectAtIndex:row];
-//    
-//    NSLog(@"%@", ext);
+    // TODO: toggle ext
 }
 
 - (BOOL) tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row {
