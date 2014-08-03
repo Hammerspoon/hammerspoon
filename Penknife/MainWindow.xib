@@ -34,11 +34,11 @@
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <customView id="WEx-km-oq5">
-                                            <rect key="frame" x="46" y="9" width="409" height="271"/>
+                                            <rect key="frame" x="31" y="12" width="436" height="279"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <subviews>
                                                 <button verticalHuggingPriority="750" id="LSb-QH-ZQB">
-                                                    <rect key="frame" x="131" y="154" width="212" height="32"/>
+                                                    <rect key="frame" x="134" y="165" width="210" height="32"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="push" title="Add Penknife Docs to Dash" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zva-R3-iyw">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -49,7 +49,7 @@
                                                     </connections>
                                                 </button>
                                                 <button verticalHuggingPriority="750" id="vpp-qq-nEI">
-                                                    <rect key="frame" x="128" y="220" width="129" height="32"/>
+                                                    <rect key="frame" x="134" y="231" width="129" height="32"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="push" title="Reload Config" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="F0n-YJ-cVS">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -60,7 +60,7 @@
                                                     </connections>
                                                 </button>
                                                 <button id="ail-YE-MEe">
-                                                    <rect key="frame" x="132" y="113" width="122" height="18"/>
+                                                    <rect key="frame" x="138" y="134" width="122" height="18"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="check" title="Show Dock icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="CPV-1p-DPg">
                                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -71,7 +71,7 @@
                                                     </connections>
                                                 </button>
                                                 <button id="CDe-ST-WL6">
-                                                    <rect key="frame" x="132" y="93" width="111" height="18"/>
+                                                    <rect key="frame" x="138" y="114" width="111" height="18"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="check" title="Open at Login" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="2s7-9C-kvO">
                                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -82,7 +82,7 @@
                                                     </connections>
                                                 </button>
                                                 <button id="yhO-Yj-4wO">
-                                                    <rect key="frame" x="132" y="73" width="139" height="18"/>
+                                                    <rect key="frame" x="138" y="94" width="139" height="18"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="check" title="Check for Updates" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="KBe-c8-N1E">
                                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -93,7 +93,7 @@
                                                     </connections>
                                                 </button>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Bl3-lg-Nyq">
-                                                    <rect key="frame" x="131" y="190" width="273" height="17"/>
+                                                    <rect key="frame" x="138" y="201" width="250" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" title="Penknife uses Dash for documentation." id="yvT-xe-aXQ">
                                                         <font key="font" metaFont="system"/>
@@ -102,7 +102,7 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="PM9-bG-Eql">
-                                                    <rect key="frame" x="55" y="114" width="62" height="17"/>
+                                                    <rect key="frame" x="72" y="135" width="62" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Behavior:" id="FIv-y6-t4x">
                                                         <font key="font" metaFont="system"/>
@@ -111,18 +111,18 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="35K-Vh-Zpi">
-                                                    <rect key="frame" x="17" y="190" width="105" height="17"/>
+                                                    <rect key="frame" x="95" y="201" width="39" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Documentation:" id="m69-Xj-5pa">
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Docs:" id="m69-Xj-5pa">
                                                         <font key="font" metaFont="system"/>
                                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                     </textFieldCell>
                                                 </textField>
                                                 <button verticalHuggingPriority="750" id="A5o-Bu-Gme">
-                                                    <rect key="frame" x="127" y="5" width="162" height="32"/>
+                                                    <rect key="frame" x="134" y="23" width="162" height="32"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                                    <buttonCell key="cell" type="push" title="Enable Accessibility" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9xk-v9-vur">
+                                                    <buttonCell key="cell" type="push" title="Enable Accessibility" bezelStyle="rounded" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9xk-v9-vur">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                         <font key="font" metaFont="system"/>
                                                     </buttonCell>
@@ -136,7 +136,7 @@
                                                     </connections>
                                                 </button>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="jPi-HP-2Ue">
-                                                    <rect key="frame" x="132" y="41" width="241" height="17"/>
+                                                    <rect key="frame" x="138" y="59" width="241" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility is enabled. You're all set!" id="7YM-X4-IxS">
                                                         <font key="font" metaFont="system"/>
@@ -148,7 +148,7 @@
                                                     </connections>
                                                 </textField>
                                                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="J9h-s8-3k2">
-                                                    <rect key="frame" x="18" y="41" width="85" height="17"/>
+                                                    <rect key="frame" x="49" y="59" width="85" height="17"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility:" id="tyY-wc-IrY">
                                                         <font key="font" metaFont="system"/>
@@ -157,7 +157,7 @@
                                                     </textFieldCell>
                                                 </textField>
                                                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="kJp-5U-jAS">
-                                                    <rect key="frame" x="291" y="14" width="16" height="16"/>
+                                                    <rect key="frame" x="298" y="32" width="16" height="16"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSStatusAvailable" id="bvN-6H-Upa"/>
                                                     <connections>
