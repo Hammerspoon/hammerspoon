@@ -59,6 +59,7 @@
 		94A7362D198CB5C7007E29A1 /* PKExtensionCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362C198CB5C7007E29A1 /* PKExtensionCache.m */; };
 		94A73630198CB679007E29A1 /* PKExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362F198CB679007E29A1 /* PKExtension.m */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
+		94BC27AD198DF08900B3998F /* PKDocsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BC27AC198DF08900B3998F /* PKDocsManager.m */; };
 		94D7A827198D82430005B88E /* Penknife.docset in Resources */ = {isa = PBXBuildFile; fileRef = 94D7A826198D82430005B88E /* Penknife.docset */; };
 /* End PBXBuildFile section */
 
@@ -152,6 +153,8 @@
 		94A7362E198CB679007E29A1 /* PKExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKExtension.h; sourceTree = "<group>"; };
 		94A7362F198CB679007E29A1 /* PKExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKExtension.m; sourceTree = "<group>"; };
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		94BC27AB198DF08900B3998F /* PKDocsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKDocsManager.h; sourceTree = "<group>"; };
+		94BC27AC198DF08900B3998F /* PKDocsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKDocsManager.m; sourceTree = "<group>"; };
 		94D7A826198D82430005B88E /* Penknife.docset */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Penknife.docset; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -359,6 +362,8 @@
 			isa = PBXGroup;
 			children = (
 				942BF3901989E18600983892 /* PKAutoLaunch.m */,
+				94BC27AB198DF08900B3998F /* PKDocsManager.h */,
+				94BC27AC198DF08900B3998F /* PKDocsManager.m */,
 			);
 			name = Auxiliary;
 			sourceTree = "<group>";
@@ -437,6 +442,7 @@
 				944A2D89198973E900D8DC90 /* lcorolib.c in Sources */,
 				944A2D98198973E900D8DC90 /* lopcodes.c in Sources */,
 				944A2D90198973E900D8DC90 /* lgc.c in Sources */,
+				94BC27AD198DF08900B3998F /* PKDocsManager.m in Sources */,
 				944A2DAF1989761600D8DC90 /* PKExtensionsTabController.m in Sources */,
 				944A2D391989735300D8DC90 /* main.m in Sources */,
 				942BF3911989E18600983892 /* PKAutoLaunch.m in Sources */,
