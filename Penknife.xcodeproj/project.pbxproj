@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9423CA95198C3BE700647881 /* PKExtensionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9423CA94198C3BE700647881 /* PKExtensionManager.m */; };
+		9428C7EC198EB7E200CDFA00 /* PKConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9428C7EB198EB7E200CDFA00 /* PKConfigManager.m */; };
 		942BF3911989E18600983892 /* PKAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* PKAutoLaunch.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
@@ -67,6 +68,8 @@
 		9423CA93198C3BE700647881 /* PKExtensionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKExtensionManager.h; sourceTree = "<group>"; };
 		9423CA94198C3BE700647881 /* PKExtensionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKExtensionManager.m; sourceTree = "<group>"; };
 		9428C7E9198EB76E00CDFA00 /* PKAutoLaunch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PKAutoLaunch.h; sourceTree = "<group>"; };
+		9428C7EA198EB7E200CDFA00 /* PKConfigManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKConfigManager.h; sourceTree = "<group>"; };
+		9428C7EB198EB7E200CDFA00 /* PKConfigManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKConfigManager.m; sourceTree = "<group>"; };
 		942BF3901989E18600983892 /* PKAutoLaunch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKAutoLaunch.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
 		9445CA0B19083251002568BB /* Penknife.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Penknife.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -366,6 +369,8 @@
 				942BF3901989E18600983892 /* PKAutoLaunch.m */,
 				94BC27AB198DF08900B3998F /* PKDocsManager.h */,
 				94BC27AC198DF08900B3998F /* PKDocsManager.m */,
+				9428C7EA198EB7E200CDFA00 /* PKConfigManager.h */,
+				9428C7EB198EB7E200CDFA00 /* PKConfigManager.m */,
 			);
 			name = Auxiliary;
 			sourceTree = "<group>";
@@ -476,6 +481,7 @@
 				944A2D95198973E900D8DC90 /* lmem.c in Sources */,
 				944A2DA3198973E900D8DC90 /* lzio.c in Sources */,
 				94A7362D198CB5C7007E29A1 /* PKExtensionCache.m in Sources */,
+				9428C7EC198EB7E200CDFA00 /* PKConfigManager.m in Sources */,
 				944A2D86198973E900D8DC90 /* lbaselib.c in Sources */,
 				944A2D8C198973E900D8DC90 /* ldebug.c in Sources */,
 				944A2D9A198973E900D8DC90 /* lparser.c in Sources */,

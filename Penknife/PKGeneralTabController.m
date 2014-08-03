@@ -1,5 +1,5 @@
 #import "PKAutoLaunch.h"
-NSURL* PKDocsetDestinationURL;
+#import "PKDocsManager.h"
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
 extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
@@ -19,7 +19,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 @implementation PKGeneralTabController
 
 - (IBAction) openDocsInDash:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:PKDocsetDestinationURL];
+    [[NSWorkspace sharedWorkspace] openURL:[PKDocsManager userLocation]];
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"dash://penknife:"]];
 }
 

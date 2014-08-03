@@ -2,4 +2,9 @@
 
 @interface PKDocsManager : NSObject
 
++ (PKDocsManager*) sharedManager;
+
++ (NSURL*) userLocation;
++ (void) copyDocsIfNeeded;
+
 @end
