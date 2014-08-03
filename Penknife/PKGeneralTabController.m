@@ -69,7 +69,11 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (void) awakeFromNib {
-    [self cacheIsAccessibilityEnabled];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // I think this is what was sometimes slowing launch down (spinning-rainbow for a few seconds).
+        [self cacheIsAccessibilityEnabled];
+    });
+    
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
     
     [self.openAtLoginCheckbox setState:PKAutoLaunchGet() ? NSOnState : NSOffState];

@@ -116,7 +116,11 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 - (void) setup {
     self.cache = [PKExtensionCache cache];
     [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
-    [self update];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        // This also could have been what was sometimes slowing launch down (spinning-rainbow for a few seconds).
+        [self update];
+    });
 }
 
 @end
