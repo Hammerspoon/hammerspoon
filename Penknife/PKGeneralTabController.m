@@ -1,5 +1,4 @@
-BOOL PKAutoLaunchGet(void);
-void PKAutoLaunchSet(BOOL opensAtLogin);
+#import "PKAutoLaunch.h"
 NSURL* PKDocsetDestinationURL;
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
