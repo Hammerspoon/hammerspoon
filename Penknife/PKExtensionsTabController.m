@@ -101,6 +101,7 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     NSTextField *result = [tableView makeViewWithIdentifier:@"attr" owner:self];
     if (!result) {
         result = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 0)];
+        [result setDrawsBackground:NO];
         [result setBordered:NO];
 //        [result setBezelStyle:NSTextFieldRoundedBezel];
         [result setEditable:NO];
