@@ -1,4 +1,5 @@
 #import "PKExtensionCache.h"
+#import "PKExtension.h"
 
 @implementation PKExtensionCache
 

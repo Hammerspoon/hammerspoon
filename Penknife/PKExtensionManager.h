@@ -10,7 +10,11 @@ extern NSString* PKExtensionsUpdatedNotification;
 - (void) setup;
 - (void) update;
 
-@property PKExtensionCache* cache;
 @property BOOL updating;
+
+@property NSArray* extsNotInstalled;
+@property NSArray* extsUpToDate;
+@property NSArray* extsNeedingUpgrade;
+@property NSArray* extsRemovedRemotely;
 
 @end

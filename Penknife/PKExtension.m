@@ -13,7 +13,7 @@
         self.tarfile = [decoder decodeObjectOfClass:[NSString class] forKey:@"tarfile"];
         self.website = [decoder decodeObjectOfClass:[NSString class] forKey:@"website"];
         self.license = [decoder decodeObjectOfClass:[NSString class] forKey:@"license"];
-        self.description = [decoder decodeObjectOfClass:[NSString class] forKey:@"description"];
+        self.desc = [decoder decodeObjectOfClass:[NSString class] forKey:@"description"];
         self.dependencies = [decoder decodeObjectOfClass:[NSArray class] forKey:@"dependencies"];
     }
     return self;
@@ -27,7 +27,7 @@
     [encoder encodeObject:self.tarfile forKey:@"tarfile"];
     [encoder encodeObject:self.website forKey:@"website"];
     [encoder encodeObject:self.license forKey:@"license"];
-    [encoder encodeObject:self.description forKey:@"description"];
+    [encoder encodeObject:self.desc forKey:@"description"];
     [encoder encodeObject:self.dependencies forKey:@"dependencies"];
 }
 
@@ -40,9 +40,21 @@
     ext.license = [longJSON objectForKey:@"license"];
     ext.tarfile = [longJSON objectForKey:@"tarfile"];
     ext.website = [longJSON objectForKey:@"website"];
-    ext.description = [longJSON objectForKey:@"description"];
+    ext.desc = [longJSON objectForKey:@"description"];
     ext.dependencies = [longJSON objectForKey:@"deps"];
     return ext;
+}
+
+- (BOOL) isEqual:(PKExtension*)other {
+    return [self isKindOfClass:[other class]] && [self.sha isEqualToString: other.sha];
+}
+
+- (NSUInteger) hash {
+    return [self.sha hash];
+}
+
+- (NSString*) description {
+    return [NSString stringWithFormat:@"<Ext: %@ %@ - %@>", self.name, self.version, self.sha];
 }
 
 @end

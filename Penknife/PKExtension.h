@@ -9,7 +9,7 @@
 @property NSString* tarfile;
 @property NSString* website;
 @property NSString* license;
-@property NSString* description;
+@property NSString* desc;
 @property NSArray* dependencies;
 
 + (PKExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON;

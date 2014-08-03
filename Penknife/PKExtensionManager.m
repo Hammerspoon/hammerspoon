@@ -7,6 +7,10 @@ static NSString* PKMasterShaURL = @"https://api.github.com/repos/penknife-io/ext
 static NSString* PKTreeListURL  = @"https://api.github.com/repos/penknife-io/ext/git/trees/master";
 static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/penknife-io/ext/%@/%@";
 
+@interface PKExtensionManager ()
+@property PKExtensionCache* cache;
+@end
+
 @implementation PKExtensionManager
 
 + (PKExtensionManager*) sharedManager {
@@ -75,8 +79,8 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     
     NSLog(@"done updating.");
     self.updating = NO;
-    [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
     [self.cache save];
+    [self rebuildMemoryCache];
 }
 
 - (void) reflectAvailableExts:(NSArray*)latestexts {
@@ -115,12 +119,44 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 
 - (void) setup {
     self.cache = [PKExtensionCache cache];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
+    [self rebuildMemoryCache];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         // This also could have been what was sometimes slowing launch down (spinning-rainbow for a few seconds).
         [self update];
     });
+}
+
+- (void) rebuildMemoryCache {
+    NSMutableArray* extsAvailable = [self.cache.extensionsAvailable mutableCopy];
+    NSMutableArray* extsUpToDate = [NSMutableArray array];
+    NSMutableArray* extsNeedingUpgrade = [NSMutableArray array];
+    NSMutableArray* extsRemovedRemotely = [NSMutableArray array];
+    
+    for (PKExtension* ext in self.cache.extensionsInstalled) {
+        if ([extsAvailable containsObject: ext]) {
+            [extsUpToDate addObject: ext];
+            [extsAvailable removeObject: ext];
+            continue;
+        }
+        
+        NSArray* upgradedVersionsOfThis = [extsAvailable filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self.sha == %@", ext.sha]];
+        if ([upgradedVersionsOfThis count] == 1) {
+            [extsNeedingUpgrade addObject: ext];
+            [extsAvailable removeObject: ext];
+            continue;
+        }
+        
+        [extsRemovedRemotely addObject: ext];
+        [extsAvailable removeObject: ext];
+    }
+    
+    self.extsNotInstalled = extsAvailable;
+    self.extsUpToDate = extsUpToDate;
+    self.extsNeedingUpgrade = extsNeedingUpgrade;
+    self.extsRemovedRemotely = extsRemovedRemotely;
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
 }
 
 @end
