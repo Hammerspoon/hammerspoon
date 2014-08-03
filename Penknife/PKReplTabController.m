@@ -1,6 +1,6 @@
 #import "lua/lua.h"
 #import "lua/lauxlib.h"
-extern lua_State* PKLuaState;
+lua_State* PKLuaState;
 
 @interface PKReplTabController : NSObject
 

@@ -1,4 +1,7 @@
 #import "lua/lauxlib.h"
+#import "lua/lualib.h"
+
+lua_State* PKLuaState;
 
 /// === core ===
 ///
@@ -38,7 +41,12 @@ static luaL_Reg corelib[] = {
 
 //    hydra_setup_handler_storage(L); // TODO: turn into core.addhandler(), and set it up in setup.lua etc...
 
-int luaopen_core(lua_State* L) {
+void PKSetupLua(void) {
+    lua_State* L = PKLuaState = luaL_newstate();
+    luaL_openlibs(L);
+    
     luaL_newlib(L, corelib);
-    return 1;
+    lua_setglobal(L, "core");
+    
+    luaL_dofile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
 }
