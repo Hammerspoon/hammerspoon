@@ -263,6 +263,9 @@
                                                                 <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="4iL-oL-YPE">
                                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                                     <font key="font" metaFont="system"/>
+                                                                    <connections>
+                                                                        <action selector="toggleInstalled:" target="XQ1-bX-gx8" id="ySS-W9-kH0"/>
+                                                                    </connections>
                                                                 </buttonCell>
                                                                 <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             </tableColumn>
@@ -370,15 +373,6 @@
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>
         </window>
-        <collectionViewItem id="jsI-YK-JUi">
-            <connections>
-                <outlet property="view" destination="Pbv-Ew-k5l" id="wRJ-V5-PJh"/>
-            </connections>
-        </collectionViewItem>
-        <view id="Pbv-Ew-k5l">
-            <rect key="frame" x="0.0" y="0.0" width="100" height="100"/>
-            <autoresizingMask key="autoresizingMask"/>
-        </view>
         <customObject id="dXd-DL-vp3" customClass="PKGeneralTabController">
             <connections>
                 <outlet property="checkForUpdatesCheckbox" destination="yhO-Yj-4wO" id="B39-yQ-bOc"/>

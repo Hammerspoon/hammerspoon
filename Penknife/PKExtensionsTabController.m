@@ -46,4 +46,11 @@
     return nil;
 }
 
+- (IBAction) toggleInstalled:(id)sender {
+    NSInteger row = [self.extsTable clickedRow];
+    PKExtension* ext = [[PKExtensionManager sharedManager].cache.extensionsAvailable objectAtIndex:row];
+    
+    NSLog(@"%@", ext);
+}
+
 @end

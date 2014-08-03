@@ -46,9 +46,6 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     [self getURL:PKMasterShaURL handleJSON:^(NSDictionary* json) {
         NSString* newsha = [[json objectForKey:@"object"] objectForKey:@"sha"];
         
-        // we need this to get the sha for the rawgithubcontent url (can't just use 'master' in case github's cache fails us)
-        // we can also use it to quickly know if we need to fetch the full file dir.
-        
         if ([newsha isEqualToString: self.cache.sha]) {
             NSLog(@"no update found.");
             self.updating = NO;
