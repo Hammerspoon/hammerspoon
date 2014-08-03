@@ -11,16 +11,16 @@
     return sharedManager;
 }
 
-+ (NSURL*) userLocation {
++ (NSURL*) docsFile {
     return [NSURL fileURLWithPath:[@"~/.penknife/Penknife.docset" stringByStandardizingPath]];
 }
 
 + (void) copyDocsIfNeeded {
-    if ([[NSFileManager defaultManager] fileExistsAtPath:[[PKDocsManager userLocation] path]])
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[[PKDocsManager docsFile] path]])
         return;
     
     NSURL* docsetSourceURL = [[NSBundle mainBundle] URLForResource:@"Penknife" withExtension:@"docset"];
-    [[NSFileManager defaultManager] copyItemAtURL:docsetSourceURL toURL:[PKDocsManager userLocation] error:NULL];
+    [[NSFileManager defaultManager] copyItemAtURL:docsetSourceURL toURL:[PKDocsManager docsFile] error:NULL];
 }
 
 @end

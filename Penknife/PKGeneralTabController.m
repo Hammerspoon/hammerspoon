@@ -19,7 +19,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 @implementation PKGeneralTabController
 
 - (IBAction) openDocsInDash:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[PKDocsManager userLocation]];
+    [[NSWorkspace sharedWorkspace] openURL:[PKDocsManager docsFile]];
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"dash://penknife:"]];
 }
 

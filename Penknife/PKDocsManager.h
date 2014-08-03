@@ -4,7 +4,7 @@
 
 + (PKDocsManager*) sharedManager;
 
-+ (NSURL*) userLocation;
++ (NSURL*) docsFile;
 + (void) copyDocsIfNeeded;
 
 @end
