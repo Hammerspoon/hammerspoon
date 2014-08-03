@@ -5,6 +5,9 @@
 #import "lua/lualib.h"
 int luaopen_core(lua_State* L);
 
+NSString* PKConfigDir;
+NSURL* PKDocsetDestinationURL;
+
 int main(int argc, const char * argv[]) {
     return NSApplicationMain(argc, argv);
 }
@@ -20,17 +23,23 @@ lua_State* PKLuaState;
     [[PKMainWindowController sharedMainWindowController] showAtTab:[[item title] lowercaseString]];
 }
 
-- (NSString*) configDir { return [@"~/.penknife/" stringByStandardizingPath]; }
-
 - (void) setupConfigDir {
-    [[NSFileManager defaultManager] createDirectoryAtPath:[self configDir]
+    [[NSFileManager defaultManager] createDirectoryAtPath:PKConfigDir
                               withIntermediateDirectories:YES
                                                attributes:nil
                                                     error:NULL];
 }
 
+- (void) copyDocsIfNeeded {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[PKDocsetDestinationURL path]])
+        return;
+    
+    NSURL* docsetSourceURL = [[NSBundle mainBundle] URLForResource:@"Penknife" withExtension:@"docset"];
+    [[NSFileManager defaultManager] copyItemAtURL:docsetSourceURL toURL:PKDocsetDestinationURL error:NULL];
+}
+
 - (void) setupLua {
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[self configDir]];
+    [[NSFileManager defaultManager] changeCurrentDirectoryPath:PKConfigDir];
     
     lua_State* L = PKLuaState = luaL_newstate();
     luaL_openlibs(L);
@@ -42,7 +51,11 @@ lua_State* PKLuaState;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    PKConfigDir = [@"~/.penknife/" stringByStandardizingPath];
+    PKDocsetDestinationURL = [NSURL fileURLWithPath:[@"~/.penknife/Penknife.docset" stringByStandardizingPath]];
+    
     [self setupConfigDir];
+    [self copyDocsIfNeeded];
     [[PKExtensionManager sharedManager] setup];
     [[PKMainWindowController sharedMainWindowController] showWindow:nil];
     [self setupLua];

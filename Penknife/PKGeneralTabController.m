@@ -1,5 +1,6 @@
 BOOL PKAutoLaunchGet(void);
 void PKAutoLaunchSet(BOOL opensAtLogin);
+NSURL* PKDocsetDestinationURL;
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
 extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
@@ -18,21 +19,8 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 @implementation PKGeneralTabController
 
-- (NSURL*) docsetDestinationURL {
-    return [NSURL fileURLWithPath:[@"~/.penknife/Penknife.docset" stringByStandardizingPath]];
-}
-
-- (void) copyDocsIfNeeded {
-    if ([[NSFileManager defaultManager] fileExistsAtPath:[[self docsetDestinationURL] path]])
-        return;
-    
-    NSURL* docsetSourceURL = [[NSBundle mainBundle] URLForResource:@"Penknife" withExtension:@"docset"];
-    [[NSFileManager defaultManager] copyItemAtURL:docsetSourceURL toURL:[self docsetDestinationURL] error:NULL];
-}
-
 - (IBAction) openDocsInDash:(id)sender {
-    [self copyDocsIfNeeded];
-    [[NSWorkspace sharedWorkspace] openURL:[self docsetDestinationURL]];
+    [[NSWorkspace sharedWorkspace] openURL:PKDocsetDestinationURL];
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"dash://penknife:"]];
 }
 
