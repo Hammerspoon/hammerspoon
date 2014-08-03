@@ -10,6 +10,7 @@
 @property NSString* website;
 @property NSString* license;
 @property NSString* description;
+@property NSArray* dependencies;
 
 + (PKExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON;
 
