@@ -11,6 +11,7 @@
         self.author = [decoder decodeObjectOfClass:[NSString class] forKey:@"author"];
         self.version = [decoder decodeObjectOfClass:[NSString class] forKey:@"version"];
         self.tarfile = [decoder decodeObjectOfClass:[NSString class] forKey:@"tarfile"];
+        self.tarsha = [decoder decodeObjectOfClass:[NSString class] forKey:@"tarsha"];
         self.website = [decoder decodeObjectOfClass:[NSString class] forKey:@"website"];
         self.license = [decoder decodeObjectOfClass:[NSString class] forKey:@"license"];
         self.desc = [decoder decodeObjectOfClass:[NSString class] forKey:@"description"];
@@ -25,6 +26,7 @@
     [encoder encodeObject:self.author forKey:@"author"];
     [encoder encodeObject:self.version forKey:@"version"];
     [encoder encodeObject:self.tarfile forKey:@"tarfile"];
+    [encoder encodeObject:self.tarsha forKey:@"tarsha"];
     [encoder encodeObject:self.website forKey:@"website"];
     [encoder encodeObject:self.license forKey:@"license"];
     [encoder encodeObject:self.desc forKey:@"description"];
@@ -33,12 +35,13 @@
 
 + (PKExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON {
     PKExtension* ext = [[PKExtension alloc] init];
-    ext.sha = [shortJSON objectForKey: @"sha"];
-    ext.name = [[shortJSON objectForKey: @"path"] stringByReplacingOccurrencesOfString:@".json" withString:@""];
+    ext.sha = [shortJSON objectForKey:@"sha"];
+    ext.name = [[shortJSON objectForKey:@"path"] stringByReplacingOccurrencesOfString:@".json" withString:@""];
     ext.author = [longJSON objectForKey:@"author"];
     ext.version = [longJSON objectForKey:@"version"];
     ext.license = [longJSON objectForKey:@"license"];
     ext.tarfile = [longJSON objectForKey:@"tarfile"];
+    ext.tarsha = [longJSON objectForKey:@"sha"];
     ext.website = [longJSON objectForKey:@"website"];
     ext.desc = [longJSON objectForKey:@"description"];
     ext.dependencies = [longJSON objectForKey:@"deps"];

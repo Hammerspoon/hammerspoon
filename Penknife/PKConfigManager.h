@@ -9,4 +9,6 @@
 + (void) installExtension:(PKExtension*)ext;
 + (void) uninstallExtension:(PKExtension*)ext;
 
++ (NSString*) dirForExt:(PKExtension*)ext;
+
 @end

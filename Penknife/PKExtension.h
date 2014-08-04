@@ -3,6 +3,7 @@
 @interface PKExtension : NSObject <NSSecureCoding>
 
 @property NSString* sha;
+@property NSString* tarsha;
 @property NSString* name;
 @property NSString* author;
 @property NSString* version;
