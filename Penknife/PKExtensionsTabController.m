@@ -1,6 +1,8 @@
 #import "PKExtensionManager.h"
 #import "PKExtension.h"
 
+#define PKSkipRecommendRestartAlertKey @"PKSkipRecommendRestartAlertKey"
+
 typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     PKCacheItemTypeHeader,
     PKCacheItemTypeNotInstalled,
@@ -42,7 +44,6 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
 - (void) awakeFromNib {
     [self.extsTable setTarget:self];
     [self.extsTable setDoubleAction:@selector(extensionItemRowDoubleClicked:)];
-    NSLog(@"%@", self.extsTable);
     [self rebuildCache];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(extensionsUpdated:)
@@ -206,32 +207,39 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
 }
 
 - (void) applyChangesAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
-    if (returnCode == NSAlertFirstButtonReturn)
-        [self applyChanges];
+    BOOL skipNextTime = ([[alert suppressionButton] state] == NSOnState);
+    [[NSUserDefaults standardUserDefaults] setBool:skipNextTime forKey:PKSkipRecommendRestartAlertKey];
+    
+    [self applyChanges];
 }
 
 - (IBAction) applyActions:(NSButton*)sender {
-    BOOL requiresRestart = NO;
-    for (PKCacheItem* item in self.cache) {
-        if (item.type == PKCacheItemTypeRemovedRemotely || item.type == PKCacheItemTypeUpToDate)
-            requiresRestart = YES;
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:PKSkipRecommendRestartAlertKey]) {
+        [self applyChanges];
+        return;
     }
     
-    if (requiresRestart) {
-        NSAlert* alert = [[NSAlert alloc] init];
-        alert.alertStyle = NSCriticalAlertStyle;
-        alert.messageText = @"Restart Required";
-        alert.informativeText = @"Because some extensions will be uninstalled, Mjolnir must be restarted.";
-        [alert addButtonWithTitle:@"Apply Changes and Restart"];
-        [alert addButtonWithTitle:@"Edit Changes"];
-        [alert beginSheetModalForWindow:[sender window]
-                          modalDelegate:self
-                         didEndSelector:@selector(applyChangesAlertDidEnd:returnCode:contextInfo:)
-                            contextInfo:NULL];
+    BOOL recommendRestart = NO;
+    for (PKCacheItem* item in self.cache) {
+        if (item.type == PKCacheItemTypeRemovedRemotely || item.type == PKCacheItemTypeUpToDate)
+            recommendRestart = YES;
     }
-    else {
+    
+    if (!recommendRestart) {
         [self applyChanges];
+        return;
     }
+    
+    NSAlert* alert = [[NSAlert alloc] init];
+    [alert setAlertStyle: NSCriticalAlertStyle];
+    [alert setMessageText: @"Restart Recommended"];
+    [alert setInformativeText: @"When uninstalling or upgrading any extensions, Mjolnir may need to be restarted; otherwise, strange things may happen."];
+    [alert setShowsSuppressionButton:YES];
+    [alert addButtonWithTitle:@"OK"];
+    [alert beginSheetModalForWindow:[sender window]
+                      modalDelegate:self
+                     didEndSelector:@selector(applyChangesAlertDidEnd:returnCode:contextInfo:)
+                        contextInfo:NULL];
 }
 
 - (void) extensionItemRowDoubleClicked:(id)sender {

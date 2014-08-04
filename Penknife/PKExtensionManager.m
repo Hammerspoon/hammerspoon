@@ -2,7 +2,6 @@
 #import "PKExtension.h"
 #import "PKDocsManager.h"
 #import "PKConfigManager.h"
-#import "PKRestarter.h"
 void PKLoadModule(NSString* fullname);
 
 NSString* PKExtensionsUpdatedNotification = @"PKExtensionsUpdatedNotification";
@@ -183,9 +182,6 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     
     [self.cache save];
     [self rebuildMemoryCache];
-    
-    if ([uninstall count] > 0)
-        [PKRestarter restart];
 }
 
 - (void) install:(PKExtension*)ext {

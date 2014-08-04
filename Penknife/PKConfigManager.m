@@ -58,7 +58,7 @@ void PKLoadModule(NSString* fullname);
 }
 
 + (void) uninstallExtension:(PKExtension*)ext {
-    // don't bother tearing down Lua module stuff; we'll just restart
+    // TODO: tear down Lua module stuff
     [[NSFileManager defaultManager] removeItemAtPath:[self dirForExt:ext] error:NULL];
 }
 
