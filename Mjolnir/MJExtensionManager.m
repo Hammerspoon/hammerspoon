@@ -6,9 +6,9 @@ void MJLoadModule(NSString* fullname);
 
 NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
 
-static NSString* MJMasterShaURL = @"https://api.github.com/repos/penknife-io/ext/git/refs/heads/master";
-static NSString* MJTreeListURL  = @"https://api.github.com/repos/penknife-io/ext/git/trees/master";
-static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/penknife-io/ext/%@/%@";
+static NSString* MJMasterShaURL = @"https://api.github.com/repos/mjolnir-io/ext/git/refs/heads/master";
+static NSString* MJTreeListURL  = @"https://api.github.com/repos/mjolnir-io/ext/git/trees/master";
+static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/mjolnir-io/ext/%@/%@";
 
 @interface MJExtensionManager ()
 @property MJExtensionCache* cache;
