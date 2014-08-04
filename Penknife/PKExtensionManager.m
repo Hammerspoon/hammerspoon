@@ -3,6 +3,7 @@
 #import "PKDocsManager.h"
 #import "PKConfigManager.h"
 #import "PKRestarter.h"
+void PKLoadModule(NSString* fullname);
 
 NSString* PKExtensionsUpdatedNotification = @"PKExtensionsUpdatedNotification";
 
@@ -128,6 +129,11 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         // This also could have been what was sometimes slowing launch down (spinning-rainbow for a few seconds).
         [self update];
     });
+}
+
+- (void) loadInstalledModules {
+    for (PKExtension* ext in self.cache.extensionsInstalled)
+        PKLoadModule(ext.name);
 }
 
 - (void) rebuildMemoryCache {

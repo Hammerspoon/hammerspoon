@@ -1,6 +1,6 @@
 #import "PKConfigManager.h"
 #include <CommonCrypto/CommonDigest.h>
-void PKLoadModule(const char* fullname);
+void PKLoadModule(NSString* fullname);
 
 @implementation PKConfigManager
 
@@ -54,7 +54,7 @@ void PKLoadModule(const char* fullname);
     [untar launch];
     [untar waitUntilExit];
     
-    PKLoadModule([ext.name UTF8String]);
+    PKLoadModule(ext.name);
 }
 
 + (void) uninstallExtension:(PKExtension*)ext {

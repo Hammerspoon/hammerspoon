@@ -21,6 +21,7 @@ void PKSetupLua(void);
     [[PKExtensionManager sharedManager] setup];
     [[PKMainWindowController sharedMainWindowController] showWindow:nil];
     PKSetupLua();
+    [[PKExtensionManager sharedManager] loadInstalledModules];
 }
 
 @end

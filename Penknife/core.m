@@ -51,11 +51,11 @@ void PKSetupLua(void) {
     luaL_dofile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
 }
 
-void PKLoadModule(const char* fullname) {
+void PKLoadModule(NSString* fullname) {
     lua_State* L = PKLuaState;
     lua_getglobal(L, "core");
     lua_getfield(L, -1, "_loadmodule");
     lua_remove(L, -2);
-    lua_pushstring(L, fullname);
+    lua_pushstring(L, [fullname UTF8String]);
     lua_call(L, 1, 0);
 }

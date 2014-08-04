@@ -9,6 +9,7 @@ extern NSString* PKExtensionsUpdatedNotification;
 
 - (void) setup;
 - (void) update;
+- (void) loadInstalledModules;
 
 @property BOOL updating;
 

@@ -40,12 +40,5 @@ function core._loadmodule(dotname)
     t = intermediate
   end
 
-  print(t, lastkey)
   t[lastkey] = mod
-end
-
-local o = core._loadmodule
-function core._loadmodule(...)
-  local ok, err = pcall(o, ...)
-  print(ok, err)
 end
