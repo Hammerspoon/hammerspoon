@@ -1,0 +1,628 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9423CA95198C3BE700647881 /* MJExtensionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9423CA94198C3BE700647881 /* MJExtensionManager.m */; };
+		9428C7EC198EB7E200CDFA00 /* MJConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9428C7EB198EB7E200CDFA00 /* MJConfigManager.m */; };
+		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
+		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
+		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
+		944A2D391989735300D8DC90 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D341989735300D8DC90 /* main.m */; };
+		944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D351989735300D8DC90 /* MainMenu.xib */; };
+		944A2D3B1989735300D8DC90 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D361989735300D8DC90 /* MainWindow.xib */; };
+		944A2D3C1989735300D8DC90 /* MJMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D381989735300D8DC90 /* MJMainWindowController.m */; };
+		944A2D431989737E00D8DC90 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3D1989737E00D8DC90 /* Credits.rtf */; };
+		944A2D451989737E00D8DC90 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3F1989737E00D8DC90 /* Images.xcassets */; };
+		944A2D471989737E00D8DC90 /* Mjolnir.icns in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D421989737E00D8DC90 /* Mjolnir.icns */; };
+		944A2D84198973E900D8DC90 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D4B198973E900D8DC90 /* lapi.c */; };
+		944A2D85198973E900D8DC90 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D4D198973E900D8DC90 /* lauxlib.c */; };
+		944A2D86198973E900D8DC90 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D4F198973E900D8DC90 /* lbaselib.c */; };
+		944A2D87198973E900D8DC90 /* lbitlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D50198973E900D8DC90 /* lbitlib.c */; };
+		944A2D88198973E900D8DC90 /* lcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D51198973E900D8DC90 /* lcode.c */; };
+		944A2D89198973E900D8DC90 /* lcorolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D53198973E900D8DC90 /* lcorolib.c */; };
+		944A2D8A198973E900D8DC90 /* lctype.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D54198973E900D8DC90 /* lctype.c */; };
+		944A2D8B198973E900D8DC90 /* ldblib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D56198973E900D8DC90 /* ldblib.c */; };
+		944A2D8C198973E900D8DC90 /* ldebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D57198973E900D8DC90 /* ldebug.c */; };
+		944A2D8D198973E900D8DC90 /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D59198973E900D8DC90 /* ldo.c */; };
+		944A2D8E198973E900D8DC90 /* ldump.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D5B198973E900D8DC90 /* ldump.c */; };
+		944A2D8F198973E900D8DC90 /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D5C198973E900D8DC90 /* lfunc.c */; };
+		944A2D90198973E900D8DC90 /* lgc.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D5E198973E900D8DC90 /* lgc.c */; };
+		944A2D91198973E900D8DC90 /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D60198973E900D8DC90 /* linit.c */; };
+		944A2D92198973E900D8DC90 /* liolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D61198973E900D8DC90 /* liolib.c */; };
+		944A2D93198973E900D8DC90 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D62198973E900D8DC90 /* llex.c */; };
+		944A2D94198973E900D8DC90 /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D65198973E900D8DC90 /* lmathlib.c */; };
+		944A2D95198973E900D8DC90 /* lmem.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D66198973E900D8DC90 /* lmem.c */; };
+		944A2D96198973E900D8DC90 /* loadlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D68198973E900D8DC90 /* loadlib.c */; };
+		944A2D97198973E900D8DC90 /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D69198973E900D8DC90 /* lobject.c */; };
+		944A2D98198973E900D8DC90 /* lopcodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D6B198973E900D8DC90 /* lopcodes.c */; };
+		944A2D99198973E900D8DC90 /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D6D198973E900D8DC90 /* loslib.c */; };
+		944A2D9A198973E900D8DC90 /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D6E198973E900D8DC90 /* lparser.c */; };
+		944A2D9B198973E900D8DC90 /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D70198973E900D8DC90 /* lstate.c */; };
+		944A2D9C198973E900D8DC90 /* lstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D72198973E900D8DC90 /* lstring.c */; };
+		944A2D9D198973E900D8DC90 /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D74198973E900D8DC90 /* lstrlib.c */; };
+		944A2D9E198973E900D8DC90 /* ltable.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D75198973E900D8DC90 /* ltable.c */; };
+		944A2D9F198973E900D8DC90 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D77198973E900D8DC90 /* ltablib.c */; };
+		944A2DA0198973E900D8DC90 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D78198973E900D8DC90 /* ltm.c */; };
+		944A2DA1198973E900D8DC90 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D7E198973E900D8DC90 /* lundump.c */; };
+		944A2DA2198973E900D8DC90 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D80198973E900D8DC90 /* lvm.c */; };
+		944A2DA3198973E900D8DC90 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D82198973E900D8DC90 /* lzio.c */; };
+		944A2DA6198975B000D8DC90 /* MJGeneralTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA5198975B000D8DC90 /* MJGeneralTabController.m */; };
+		944A2DA91989760400D8DC90 /* MJReplTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA81989760400D8DC90 /* MJReplTabController.m */; };
+		944A2DAF1989761600D8DC90 /* MJExtensionsTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DAE1989761600D8DC90 /* MJExtensionsTabController.m */; };
+		945B65AC198D2DDB002D2E30 /* core.m in Sources */ = {isa = PBXBuildFile; fileRef = 945B65AB198D2DDB002D2E30 /* core.m */; };
+		945B65B2198D31FC002D2E30 /* setup.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945B65B1198D31FC002D2E30 /* setup.lua */; };
+		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
+		94A7362D198CB5C7007E29A1 /* MJExtensionCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362C198CB5C7007E29A1 /* MJExtensionCache.m */; };
+		94A73630198CB679007E29A1 /* MJExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362F198CB679007E29A1 /* MJExtension.m */; };
+		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
+		94BC27AD198DF08900B3998F /* MJDocsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BC27AC198DF08900B3998F /* MJDocsManager.m */; };
+		94D36C02198F27A000F3547D /* MJRestarter.m in Sources */ = {isa = PBXBuildFile; fileRef = 94D36C01198F27A000F3547D /* MJRestarter.m */; };
+		94D7A827198D82430005B88E /* Mjolnir.docset in Resources */ = {isa = PBXBuildFile; fileRef = 94D7A826198D82430005B88E /* Mjolnir.docset */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9423CA93198C3BE700647881 /* MJExtensionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtensionManager.h; sourceTree = "<group>"; };
+		9423CA94198C3BE700647881 /* MJExtensionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionManager.m; sourceTree = "<group>"; };
+		9428C7E9198EB76E00CDFA00 /* MJAutoLaunch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJAutoLaunch.h; sourceTree = "<group>"; };
+		9428C7EA198EB7E200CDFA00 /* MJConfigManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJConfigManager.h; sourceTree = "<group>"; };
+		9428C7EB198EB7E200CDFA00 /* MJConfigManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJConfigManager.m; sourceTree = "<group>"; };
+		942BF3901989E18600983892 /* MJAutoLaunch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAutoLaunch.m; sourceTree = "<group>"; };
+		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
+		9445CA0B19083251002568BB /* Mjolnir.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mjolnir.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		9445CA1119083251002568BB /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		9445CA1219083251002568BB /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		9445CA1319083251002568BB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		9445CA2D19083251002568BB /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		944A2D341989735300D8DC90 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		944A2D351989735300D8DC90 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
+		944A2D361989735300D8DC90 /* MainWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainWindow.xib; sourceTree = "<group>"; };
+		944A2D381989735300D8DC90 /* MJMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJMainWindowController.m; sourceTree = "<group>"; };
+		944A2D3D1989737E00D8DC90 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
+		944A2D3F1989737E00D8DC90 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		944A2D401989737E00D8DC90 /* Mjolnir-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Mjolnir-Info.plist"; sourceTree = "<group>"; };
+		944A2D411989737E00D8DC90 /* Mjolnir-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Mjolnir-Prefix.pch"; sourceTree = "<group>"; };
+		944A2D421989737E00D8DC90 /* Mjolnir.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Mjolnir.icns; sourceTree = "<group>"; };
+		944A2D4B198973E900D8DC90 /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
+		944A2D4C198973E900D8DC90 /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lapi.h; sourceTree = "<group>"; };
+		944A2D4D198973E900D8DC90 /* lauxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lauxlib.c; sourceTree = "<group>"; };
+		944A2D4E198973E900D8DC90 /* lauxlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lauxlib.h; sourceTree = "<group>"; };
+		944A2D4F198973E900D8DC90 /* lbaselib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lbaselib.c; sourceTree = "<group>"; };
+		944A2D50198973E900D8DC90 /* lbitlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lbitlib.c; sourceTree = "<group>"; };
+		944A2D51198973E900D8DC90 /* lcode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lcode.c; sourceTree = "<group>"; };
+		944A2D52198973E900D8DC90 /* lcode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lcode.h; sourceTree = "<group>"; };
+		944A2D53198973E900D8DC90 /* lcorolib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lcorolib.c; sourceTree = "<group>"; };
+		944A2D54198973E900D8DC90 /* lctype.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lctype.c; sourceTree = "<group>"; };
+		944A2D55198973E900D8DC90 /* lctype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lctype.h; sourceTree = "<group>"; };
+		944A2D56198973E900D8DC90 /* ldblib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldblib.c; sourceTree = "<group>"; };
+		944A2D57198973E900D8DC90 /* ldebug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldebug.c; sourceTree = "<group>"; };
+		944A2D58198973E900D8DC90 /* ldebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ldebug.h; sourceTree = "<group>"; };
+		944A2D59198973E900D8DC90 /* ldo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldo.c; sourceTree = "<group>"; };
+		944A2D5A198973E900D8DC90 /* ldo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ldo.h; sourceTree = "<group>"; };
+		944A2D5B198973E900D8DC90 /* ldump.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldump.c; sourceTree = "<group>"; };
+		944A2D5C198973E900D8DC90 /* lfunc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lfunc.c; sourceTree = "<group>"; };
+		944A2D5D198973E900D8DC90 /* lfunc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lfunc.h; sourceTree = "<group>"; };
+		944A2D5E198973E900D8DC90 /* lgc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lgc.c; sourceTree = "<group>"; };
+		944A2D5F198973E900D8DC90 /* lgc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lgc.h; sourceTree = "<group>"; };
+		944A2D60198973E900D8DC90 /* linit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = linit.c; sourceTree = "<group>"; };
+		944A2D61198973E900D8DC90 /* liolib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = liolib.c; sourceTree = "<group>"; };
+		944A2D62198973E900D8DC90 /* llex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = llex.c; sourceTree = "<group>"; };
+		944A2D63198973E900D8DC90 /* llex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = llex.h; sourceTree = "<group>"; };
+		944A2D64198973E900D8DC90 /* llimits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = llimits.h; sourceTree = "<group>"; };
+		944A2D65198973E900D8DC90 /* lmathlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lmathlib.c; sourceTree = "<group>"; };
+		944A2D66198973E900D8DC90 /* lmem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lmem.c; sourceTree = "<group>"; };
+		944A2D67198973E900D8DC90 /* lmem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lmem.h; sourceTree = "<group>"; };
+		944A2D68198973E900D8DC90 /* loadlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loadlib.c; sourceTree = "<group>"; };
+		944A2D69198973E900D8DC90 /* lobject.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lobject.c; sourceTree = "<group>"; };
+		944A2D6A198973E900D8DC90 /* lobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lobject.h; sourceTree = "<group>"; };
+		944A2D6B198973E900D8DC90 /* lopcodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lopcodes.c; sourceTree = "<group>"; };
+		944A2D6C198973E900D8DC90 /* lopcodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lopcodes.h; sourceTree = "<group>"; };
+		944A2D6D198973E900D8DC90 /* loslib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loslib.c; sourceTree = "<group>"; };
+		944A2D6E198973E900D8DC90 /* lparser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lparser.c; sourceTree = "<group>"; };
+		944A2D6F198973E900D8DC90 /* lparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lparser.h; sourceTree = "<group>"; };
+		944A2D70198973E900D8DC90 /* lstate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lstate.c; sourceTree = "<group>"; };
+		944A2D71198973E900D8DC90 /* lstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lstate.h; sourceTree = "<group>"; };
+		944A2D72198973E900D8DC90 /* lstring.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lstring.c; sourceTree = "<group>"; };
+		944A2D73198973E900D8DC90 /* lstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lstring.h; sourceTree = "<group>"; };
+		944A2D74198973E900D8DC90 /* lstrlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lstrlib.c; sourceTree = "<group>"; };
+		944A2D75198973E900D8DC90 /* ltable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltable.c; sourceTree = "<group>"; };
+		944A2D76198973E900D8DC90 /* ltable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ltable.h; sourceTree = "<group>"; };
+		944A2D77198973E900D8DC90 /* ltablib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltablib.c; sourceTree = "<group>"; };
+		944A2D78198973E900D8DC90 /* ltm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltm.c; sourceTree = "<group>"; };
+		944A2D79198973E900D8DC90 /* ltm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ltm.h; sourceTree = "<group>"; };
+		944A2D7A198973E900D8DC90 /* lua.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lua.h; sourceTree = "<group>"; };
+		944A2D7B198973E900D8DC90 /* lua.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = lua.hpp; sourceTree = "<group>"; };
+		944A2D7C198973E900D8DC90 /* luaconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = luaconf.h; sourceTree = "<group>"; };
+		944A2D7D198973E900D8DC90 /* lualib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lualib.h; sourceTree = "<group>"; };
+		944A2D7E198973E900D8DC90 /* lundump.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lundump.c; sourceTree = "<group>"; };
+		944A2D7F198973E900D8DC90 /* lundump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lundump.h; sourceTree = "<group>"; };
+		944A2D80198973E900D8DC90 /* lvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lvm.c; sourceTree = "<group>"; };
+		944A2D81198973E900D8DC90 /* lvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lvm.h; sourceTree = "<group>"; };
+		944A2D82198973E900D8DC90 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
+		944A2D83198973E900D8DC90 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
+		944A2DA5198975B000D8DC90 /* MJGeneralTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJGeneralTabController.m; sourceTree = "<group>"; };
+		944A2DA81989760400D8DC90 /* MJReplTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJReplTabController.m; sourceTree = "<group>"; };
+		944A2DAE1989761600D8DC90 /* MJExtensionsTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionsTabController.m; sourceTree = "<group>"; };
+		945B65A9198D2C0B002D2E30 /* MJMainWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJMainWindowController.h; sourceTree = "<group>"; };
+		945B65AB198D2DDB002D2E30 /* core.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = core.m; sourceTree = "<group>"; };
+		945B65B1198D31FC002D2E30 /* setup.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = setup.lua; sourceTree = "<group>"; };
+		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		94A7362B198CB5C7007E29A1 /* MJExtensionCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtensionCache.h; sourceTree = "<group>"; };
+		94A7362C198CB5C7007E29A1 /* MJExtensionCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionCache.m; sourceTree = "<group>"; };
+		94A7362E198CB679007E29A1 /* MJExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtension.h; sourceTree = "<group>"; };
+		94A7362F198CB679007E29A1 /* MJExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtension.m; sourceTree = "<group>"; };
+		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		94BC27AB198DF08900B3998F /* MJDocsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJDocsManager.h; sourceTree = "<group>"; };
+		94BC27AC198DF08900B3998F /* MJDocsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJDocsManager.m; sourceTree = "<group>"; };
+		94D36C00198F27A000F3547D /* MJRestarter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJRestarter.h; sourceTree = "<group>"; };
+		94D36C01198F27A000F3547D /* MJRestarter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJRestarter.m; sourceTree = "<group>"; };
+		94D7A826198D82430005B88E /* Mjolnir.docset */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Mjolnir.docset; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9445CA0819083251002568BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */,
+				94414F47196A1B280067D467 /* Carbon.framework in Frameworks */,
+				9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */,
+				9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		94320F411954C61F00D37BF1 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Source;
+			sourceTree = "<group>";
+		};
+		9445CA0219083251002568BB = {
+			isa = PBXGroup;
+			children = (
+				9445CA1419083251002568BB /* Mjolnir */,
+				9445CA0D19083251002568BB /* Frameworks */,
+				9445CA0C19083251002568BB /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9445CA0C19083251002568BB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9445CA0B19083251002568BB /* Mjolnir.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9445CA0D19083251002568BB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				94ABF08E1980B41300FA68E9 /* Security.framework */,
+				94414F46196A1B280067D467 /* Carbon.framework */,
+				9473A75C1959F9AB0080C329 /* WebKit.framework */,
+				9445CA0E19083251002568BB /* Cocoa.framework */,
+				9445CA2D19083251002568BB /* XCTest.framework */,
+				94735C2F196DC4FE002A258D /* CoreFoundation.framework */,
+				9445CA1019083251002568BB /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9445CA1019083251002568BB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				944A2D4A198973E900D8DC90 /* lua */,
+				9445CA1119083251002568BB /* AppKit.framework */,
+				9445CA1219083251002568BB /* CoreData.framework */,
+				9445CA1319083251002568BB /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		9445CA1419083251002568BB /* Mjolnir */ = {
+			isa = PBXGroup;
+			children = (
+				944A2D49198973A400D8DC90 /* Main */,
+				944A2D481989739B00D8DC90 /* XcodeCrap */,
+				94320F411954C61F00D37BF1 /* Source */,
+			);
+			path = Mjolnir;
+			sourceTree = "<group>";
+		};
+		944A2D481989739B00D8DC90 /* XcodeCrap */ = {
+			isa = PBXGroup;
+			children = (
+				944A2D3D1989737E00D8DC90 /* Credits.rtf */,
+				944A2D3F1989737E00D8DC90 /* Images.xcassets */,
+				944A2D401989737E00D8DC90 /* Mjolnir-Info.plist */,
+				944A2D411989737E00D8DC90 /* Mjolnir-Prefix.pch */,
+				944A2D421989737E00D8DC90 /* Mjolnir.icns */,
+				94D7A826198D82430005B88E /* Mjolnir.docset */,
+			);
+			name = XcodeCrap;
+			sourceTree = "<group>";
+		};
+		944A2D49198973A400D8DC90 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				944A2D351989735300D8DC90 /* MainMenu.xib */,
+				944A2D341989735300D8DC90 /* main.m */,
+				945B65AB198D2DDB002D2E30 /* core.m */,
+				945B65B1198D31FC002D2E30 /* setup.lua */,
+				945B65AE198D2E34002D2E30 /* Main Window */,
+				945B65AD198D2E2D002D2E30 /* Extension Management */,
+				945B65B0198D304F002D2E30 /* Auxiliary */,
+			);
+			name = Main;
+			sourceTree = "<group>";
+		};
+		944A2D4A198973E900D8DC90 /* lua */ = {
+			isa = PBXGroup;
+			children = (
+				944A2D4B198973E900D8DC90 /* lapi.c */,
+				944A2D4C198973E900D8DC90 /* lapi.h */,
+				944A2D4D198973E900D8DC90 /* lauxlib.c */,
+				944A2D4E198973E900D8DC90 /* lauxlib.h */,
+				944A2D4F198973E900D8DC90 /* lbaselib.c */,
+				944A2D50198973E900D8DC90 /* lbitlib.c */,
+				944A2D51198973E900D8DC90 /* lcode.c */,
+				944A2D52198973E900D8DC90 /* lcode.h */,
+				944A2D53198973E900D8DC90 /* lcorolib.c */,
+				944A2D54198973E900D8DC90 /* lctype.c */,
+				944A2D55198973E900D8DC90 /* lctype.h */,
+				944A2D56198973E900D8DC90 /* ldblib.c */,
+				944A2D57198973E900D8DC90 /* ldebug.c */,
+				944A2D58198973E900D8DC90 /* ldebug.h */,
+				944A2D59198973E900D8DC90 /* ldo.c */,
+				944A2D5A198973E900D8DC90 /* ldo.h */,
+				944A2D5B198973E900D8DC90 /* ldump.c */,
+				944A2D5C198973E900D8DC90 /* lfunc.c */,
+				944A2D5D198973E900D8DC90 /* lfunc.h */,
+				944A2D5E198973E900D8DC90 /* lgc.c */,
+				944A2D5F198973E900D8DC90 /* lgc.h */,
+				944A2D60198973E900D8DC90 /* linit.c */,
+				944A2D61198973E900D8DC90 /* liolib.c */,
+				944A2D62198973E900D8DC90 /* llex.c */,
+				944A2D63198973E900D8DC90 /* llex.h */,
+				944A2D64198973E900D8DC90 /* llimits.h */,
+				944A2D65198973E900D8DC90 /* lmathlib.c */,
+				944A2D66198973E900D8DC90 /* lmem.c */,
+				944A2D67198973E900D8DC90 /* lmem.h */,
+				944A2D68198973E900D8DC90 /* loadlib.c */,
+				944A2D69198973E900D8DC90 /* lobject.c */,
+				944A2D6A198973E900D8DC90 /* lobject.h */,
+				944A2D6B198973E900D8DC90 /* lopcodes.c */,
+				944A2D6C198973E900D8DC90 /* lopcodes.h */,
+				944A2D6D198973E900D8DC90 /* loslib.c */,
+				944A2D6E198973E900D8DC90 /* lparser.c */,
+				944A2D6F198973E900D8DC90 /* lparser.h */,
+				944A2D70198973E900D8DC90 /* lstate.c */,
+				944A2D71198973E900D8DC90 /* lstate.h */,
+				944A2D72198973E900D8DC90 /* lstring.c */,
+				944A2D73198973E900D8DC90 /* lstring.h */,
+				944A2D74198973E900D8DC90 /* lstrlib.c */,
+				944A2D75198973E900D8DC90 /* ltable.c */,
+				944A2D76198973E900D8DC90 /* ltable.h */,
+				944A2D77198973E900D8DC90 /* ltablib.c */,
+				944A2D78198973E900D8DC90 /* ltm.c */,
+				944A2D79198973E900D8DC90 /* ltm.h */,
+				944A2D7A198973E900D8DC90 /* lua.h */,
+				944A2D7B198973E900D8DC90 /* lua.hpp */,
+				944A2D7C198973E900D8DC90 /* luaconf.h */,
+				944A2D7D198973E900D8DC90 /* lualib.h */,
+				944A2D7E198973E900D8DC90 /* lundump.c */,
+				944A2D7F198973E900D8DC90 /* lundump.h */,
+				944A2D80198973E900D8DC90 /* lvm.c */,
+				944A2D81198973E900D8DC90 /* lvm.h */,
+				944A2D82198973E900D8DC90 /* lzio.c */,
+				944A2D83198973E900D8DC90 /* lzio.h */,
+			);
+			name = lua;
+			path = Mjolnir/lua;
+			sourceTree = "<group>";
+		};
+		945B65AD198D2E2D002D2E30 /* Extension Management */ = {
+			isa = PBXGroup;
+			children = (
+				9423CA93198C3BE700647881 /* MJExtensionManager.h */,
+				9423CA94198C3BE700647881 /* MJExtensionManager.m */,
+				94A7362B198CB5C7007E29A1 /* MJExtensionCache.h */,
+				94A7362C198CB5C7007E29A1 /* MJExtensionCache.m */,
+				94A7362E198CB679007E29A1 /* MJExtension.h */,
+				94A7362F198CB679007E29A1 /* MJExtension.m */,
+			);
+			name = "Extension Management";
+			sourceTree = "<group>";
+		};
+		945B65AE198D2E34002D2E30 /* Main Window */ = {
+			isa = PBXGroup;
+			children = (
+				944A2D361989735300D8DC90 /* MainWindow.xib */,
+				945B65A9198D2C0B002D2E30 /* MJMainWindowController.h */,
+				944A2D381989735300D8DC90 /* MJMainWindowController.m */,
+				945B65AF198D2E41002D2E30 /* Tabs */,
+			);
+			name = "Main Window";
+			sourceTree = "<group>";
+		};
+		945B65AF198D2E41002D2E30 /* Tabs */ = {
+			isa = PBXGroup;
+			children = (
+				944A2DA5198975B000D8DC90 /* MJGeneralTabController.m */,
+				944A2DA81989760400D8DC90 /* MJReplTabController.m */,
+				944A2DAE1989761600D8DC90 /* MJExtensionsTabController.m */,
+			);
+			name = Tabs;
+			sourceTree = "<group>";
+		};
+		945B65B0198D304F002D2E30 /* Auxiliary */ = {
+			isa = PBXGroup;
+			children = (
+				9428C7E9198EB76E00CDFA00 /* MJAutoLaunch.h */,
+				942BF3901989E18600983892 /* MJAutoLaunch.m */,
+				94BC27AB198DF08900B3998F /* MJDocsManager.h */,
+				94BC27AC198DF08900B3998F /* MJDocsManager.m */,
+				9428C7EA198EB7E200CDFA00 /* MJConfigManager.h */,
+				9428C7EB198EB7E200CDFA00 /* MJConfigManager.m */,
+				94D36C00198F27A000F3547D /* MJRestarter.h */,
+				94D36C01198F27A000F3547D /* MJRestarter.m */,
+			);
+			name = Auxiliary;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9445CA0A19083251002568BB /* Mjolnir */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Mjolnir" */;
+			buildPhases = (
+				9445CA0719083251002568BB /* Sources */,
+				9445CA0819083251002568BB /* Frameworks */,
+				9445CA0919083251002568BB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Mjolnir;
+			productName = Hydra;
+			productReference = 9445CA0B19083251002568BB /* Mjolnir.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9445CA0319083251002568BB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = MJ;
+				LastUpgradeCheck = 0510;
+				ORGANIZATIONNAME = "Steven Degutis";
+			};
+			buildConfigurationList = 9445CA0619083251002568BB /* Build configuration list for PBXProject "Mjolnir" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9445CA0219083251002568BB;
+			productRefGroup = 9445CA0C19083251002568BB /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9445CA0A19083251002568BB /* Mjolnir */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9445CA0919083251002568BB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				944A2D3B1989735300D8DC90 /* MainWindow.xib in Resources */,
+				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
+				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
+				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
+				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
+				94D7A827198D82430005B88E /* Mjolnir.docset in Resources */,
+				944A2D471989737E00D8DC90 /* Mjolnir.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9445CA0719083251002568BB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				944A2D8F198973E900D8DC90 /* lfunc.c in Sources */,
+				944A2D89198973E900D8DC90 /* lcorolib.c in Sources */,
+				944A2D98198973E900D8DC90 /* lopcodes.c in Sources */,
+				944A2D90198973E900D8DC90 /* lgc.c in Sources */,
+				94BC27AD198DF08900B3998F /* MJDocsManager.m in Sources */,
+				944A2DAF1989761600D8DC90 /* MJExtensionsTabController.m in Sources */,
+				944A2D391989735300D8DC90 /* main.m in Sources */,
+				942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */,
+				944A2D8E198973E900D8DC90 /* ldump.c in Sources */,
+				944A2D85198973E900D8DC90 /* lauxlib.c in Sources */,
+				944A2D8A198973E900D8DC90 /* lctype.c in Sources */,
+				944A2D97198973E900D8DC90 /* lobject.c in Sources */,
+				944A2D9E198973E900D8DC90 /* ltable.c in Sources */,
+				944A2DA2198973E900D8DC90 /* lvm.c in Sources */,
+				944A2D9D198973E900D8DC90 /* lstrlib.c in Sources */,
+				944A2D88198973E900D8DC90 /* lcode.c in Sources */,
+				944A2D96198973E900D8DC90 /* loadlib.c in Sources */,
+				944A2DA91989760400D8DC90 /* MJReplTabController.m in Sources */,
+				944A2D99198973E900D8DC90 /* loslib.c in Sources */,
+				944A2D93198973E900D8DC90 /* llex.c in Sources */,
+				944A2D8B198973E900D8DC90 /* ldblib.c in Sources */,
+				944A2D8D198973E900D8DC90 /* ldo.c in Sources */,
+				94A73630198CB679007E29A1 /* MJExtension.m in Sources */,
+				944A2DA6198975B000D8DC90 /* MJGeneralTabController.m in Sources */,
+				944A2D3C1989735300D8DC90 /* MJMainWindowController.m in Sources */,
+				944A2D9C198973E900D8DC90 /* lstring.c in Sources */,
+				944A2D84198973E900D8DC90 /* lapi.c in Sources */,
+				944A2D92198973E900D8DC90 /* liolib.c in Sources */,
+				94D36C02198F27A000F3547D /* MJRestarter.m in Sources */,
+				944A2D9B198973E900D8DC90 /* lstate.c in Sources */,
+				945B65AC198D2DDB002D2E30 /* core.m in Sources */,
+				944A2D87198973E900D8DC90 /* lbitlib.c in Sources */,
+				9423CA95198C3BE700647881 /* MJExtensionManager.m in Sources */,
+				944A2D91198973E900D8DC90 /* linit.c in Sources */,
+				944A2D95198973E900D8DC90 /* lmem.c in Sources */,
+				944A2DA3198973E900D8DC90 /* lzio.c in Sources */,
+				94A7362D198CB5C7007E29A1 /* MJExtensionCache.m in Sources */,
+				9428C7EC198EB7E200CDFA00 /* MJConfigManager.m in Sources */,
+				944A2D86198973E900D8DC90 /* lbaselib.c in Sources */,
+				944A2D8C198973E900D8DC90 /* ldebug.c in Sources */,
+				944A2D9A198973E900D8DC90 /* lparser.c in Sources */,
+				944A2DA1198973E900D8DC90 /* lundump.c in Sources */,
+				944A2DA0198973E900D8DC90 /* ltm.c in Sources */,
+				944A2D94198973E900D8DC90 /* lmathlib.c in Sources */,
+				944A2D9F198973E900D8DC90 /* ltablib.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9445CA3A19083251002568BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9445CA3B19083251002568BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		9445CA3D19083251002568BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Mjolnir/Mjolnir-Prefix.pch";
+				INFOPLIST_FILE = "Mjolnir/Mjolnir-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = Mjolnir;
+				SDKROOT = macosx10.9;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		9445CA3E19083251002568BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Mjolnir/Mjolnir-Prefix.pch";
+				INFOPLIST_FILE = "Mjolnir/Mjolnir-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = Mjolnir;
+				SDKROOT = macosx10.9;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9445CA0619083251002568BB /* Build configuration list for PBXProject "Mjolnir" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9445CA3A19083251002568BB /* Debug */,
+				9445CA3B19083251002568BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Mjolnir" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9445CA3D19083251002568BB /* Debug */,
+				9445CA3E19083251002568BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9445CA0319083251002568BB /* Project object */;
+}
