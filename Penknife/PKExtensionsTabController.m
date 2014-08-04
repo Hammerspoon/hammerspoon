@@ -40,6 +40,9 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
 @implementation PKExtensionsTabController
 
 - (void) awakeFromNib {
+    [self.extsTable setTarget:self];
+    [self.extsTable setDoubleAction:@selector(extensionItemRowDoubleClicked:)];
+    NSLog(@"%@", self.extsTable);
     [self rebuildCache];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(extensionsUpdated:)
@@ -114,7 +117,6 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
         result = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 100, 0)];
         [result setDrawsBackground:NO];
         [result setBordered:NO];
-//        [result setBezelStyle:NSTextFieldRoundedBezel];
         [result setEditable:NO];
         result.identifier = @"attr";
     }
@@ -150,11 +152,6 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     else if ([[tableColumn identifier] isEqualToString: @"author"]) {
         NSTextField* attr = [self attrRow:tableView];
         attr.stringValue = item.ext.author;
-        return attr;
-    }
-    else if ([[tableColumn identifier] isEqualToString: @"website"]) {
-        NSTextField* attr = [self attrRow:tableView];
-        attr.stringValue = item.ext.website;
         return attr;
     }
     else if ([[tableColumn identifier] isEqualToString: @"license"]) {
@@ -235,6 +232,18 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     else {
         [self applyChanges];
     }
+}
+
+- (void) extensionItemRowDoubleClicked:(id)sender {
+    NSInteger row = [self.extsTable clickedRow];
+    if (row == -1)
+        return;
+    
+    PKCacheItem* item = [self.cache objectAtIndex:row];
+    if (item.type == PKCacheItemTypeHeader)
+        return;
+    
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:item.ext.website]];
 }
 
 - (IBAction) toggleExtAction:(NSButton*)sender {
