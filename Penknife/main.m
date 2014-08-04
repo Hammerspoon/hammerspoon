@@ -15,8 +15,8 @@ void PKSetupLua(void);
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[PKConfigManager configPath]];
     [PKConfigManager setupConfigDir];
+    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[PKConfigManager configPath]];
     [PKDocsManager copyDocsIfNeeded];
     [[PKExtensionManager sharedManager] setup];
     [[PKMainWindowController sharedMainWindowController] showWindow:nil];
