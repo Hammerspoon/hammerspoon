@@ -1,6 +1,6 @@
 os.exit = core.exit
 
--- put this in ObjC maybe?
+-- TODO: figure out how core.pcall and core.reload should work and where they should go (maybe in objc)?
 -- core.pcall(core.reload)
 
 function core.runstring(s)
@@ -15,4 +15,37 @@ function core.runstring(s)
     str = str .. tostring(results[i])
   end
   return str
+end
+
+function core._loadmodule(dotname)
+  local requirepath = 'ext.' .. dotname:gsub('%.', '_') .. '.init'
+  local mod = require(requirepath)
+
+  local keys = {}
+  for key in string.gmatch(dotname, "%a+") do
+    table.insert(keys, key)
+  end
+
+  local t = _G[keys[1]]
+  table.remove(keys, 1)
+  local lastkey = keys[#keys]
+  keys[#keys] = nil
+
+  for _, k in ipairs(keys) do
+    local intermediate = t[k]
+    if intermediate == nil then
+      intermediate = {}
+      t[k] = intermediate
+    end
+    t = intermediate
+  end
+
+  print(t, lastkey)
+  t[lastkey] = mod
+end
+
+local o = core._loadmodule
+function core._loadmodule(...)
+  local ok, err = pcall(o, ...)
+  print(ok, err)
 end

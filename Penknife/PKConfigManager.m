@@ -1,5 +1,6 @@
 #import "PKConfigManager.h"
 #include <CommonCrypto/CommonDigest.h>
+void PKLoadModule(const char* fullname);
 
 @implementation PKConfigManager
 
@@ -15,7 +16,7 @@
 }
 
 + (NSString*) dirForExt:(PKExtension*)ext {
-    NSString* nameWithDashes = [ext.name stringByReplacingOccurrencesOfString:@"." withString:@"-"];
+    NSString* nameWithDashes = [ext.name stringByReplacingOccurrencesOfString:@"." withString:@"_"];
     return [[PKConfigManager configPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"ext/%@/", nameWithDashes]];
 }
 
@@ -53,7 +54,7 @@
     [untar launch];
     [untar waitUntilExit];
     
-    // TODO: setup Lua module stuff too
+    PKLoadModule([ext.name UTF8String]);
 }
 
 + (void) uninstallExtension:(PKExtension*)ext {
