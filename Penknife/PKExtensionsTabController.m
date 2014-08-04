@@ -178,7 +178,7 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
         }
         NSButton* action = [self actionRow:tableView];
         action.title = title;
-        action.state = NSOffState;
+        action.state = item.actionize ? NSOnState : NSOffState;
         return action;
     }
     
@@ -191,6 +191,9 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     NSMutableArray* uninstall = [NSMutableArray array];
     
     for (PKCacheItem* item in self.cache) {
+        if (!item.actionize)
+            continue;
+        
         switch (item.type) {
             case PKCacheItemTypeHeader: continue;
             case PKCacheItemTypeNeedsUpgrade:    [upgrade addObject: item.ext]; break;
