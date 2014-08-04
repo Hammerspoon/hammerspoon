@@ -20,7 +20,7 @@ end
 --- notify.register(tag, fn()) -> id
 --- Registers a function to be called when an Apple notification with the given tag is clicked.
 function notify.register(tag, fn)
-  id = notify.registry.n + 1
+  local id = notify.registry.n + 1
   notify.registry[id] = {tag, fn}
   notify.registry.n = id
   return id
