@@ -190,8 +190,10 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     [PKDocsManager installExtension:ext];
 }
 
-- (void) upgrade:(PKExtension*)ext {
-    // TODO: get the other extension too. also, is this the old one or the new one? i forogt.
+- (void) upgrade:(PKExtension*)oldext {
+    PKExtension* newext = [[self.cache.extensionsAvailable filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name == %@", oldext.name]] firstObject];
+    [self uninstall:oldext];
+    [self install:newext];
 }
 
 - (void) uninstall:(PKExtension*)ext {
