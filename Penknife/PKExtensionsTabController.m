@@ -221,6 +221,9 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     
     BOOL recommendRestart = NO;
     for (PKCacheItem* item in self.cache) {
+        if (!item.actionize)
+            continue;
+        
         if (item.type == PKCacheItemTypeRemovedRemotely || item.type == PKCacheItemTypeUpToDate)
             recommendRestart = YES;
     }
