@@ -2,13 +2,13 @@
 #import "MJExtension.h"
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
-void PKLoadModule(NSString* fullname);
+void MJLoadModule(NSString* fullname);
 
-NSString* PKExtensionsUpdatedNotification = @"PKExtensionsUpdatedNotification";
+NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
 
-static NSString* PKMasterShaURL = @"https://api.github.com/repos/penknife-io/ext/git/refs/heads/master";
-static NSString* PKTreeListURL  = @"https://api.github.com/repos/penknife-io/ext/git/trees/master";
-static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/penknife-io/ext/%@/%@";
+static NSString* MJMasterShaURL = @"https://api.github.com/repos/penknife-io/ext/git/refs/heads/master";
+static NSString* MJTreeListURL  = @"https://api.github.com/repos/penknife-io/ext/git/trees/master";
+static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/penknife-io/ext/%@/%@";
 
 @interface MJExtensionManager ()
 @property MJExtensionCache* cache;
@@ -50,7 +50,7 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     if (self.updating) return;
     self.updating = YES;
     
-    [self getURL:PKMasterShaURL handleJSON:^(NSDictionary* json) {
+    [self getURL:MJMasterShaURL handleJSON:^(NSDictionary* json) {
         NSString* newsha = [[json objectForKey:@"object"] objectForKey:@"sha"];
         
         if ([newsha isEqualToString: self.cache.sha]) {
@@ -63,7 +63,7 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         
         self.cache.sha = newsha;
         
-        [self getURL:PKTreeListURL handleJSON:^(NSDictionary* json) {
+        [self getURL:MJTreeListURL handleJSON:^(NSDictionary* json) {
             NSMutableArray* newlist = [NSMutableArray array];
             for (NSDictionary* file in [json objectForKey:@"tree"]) {
                 NSString* path = [file objectForKey:@"path"];
@@ -108,7 +108,7 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     
     for (NSDictionary* ext in additions) {
         NSString* extNamePath = [ext objectForKey: @"path"];
-        NSString* url = [NSString stringWithFormat:PKRawFilePathURLTemplate, self.cache.sha, extNamePath];
+        NSString* url = [NSString stringWithFormat:MJRawFilePathURLTemplate, self.cache.sha, extNamePath];
         NSLog(@"downloading: %@", url);
         
         [self getURL:url handleJSON:^(NSDictionary* json) {
@@ -132,7 +132,7 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 
 - (void) loadInstalledModules {
     for (MJExtension* ext in self.cache.extensionsInstalled)
-        PKLoadModule(ext.name);
+        MJLoadModule(ext.name);
 }
 
 - (void) rebuildMemoryCache {
@@ -164,7 +164,7 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     self.extsNeedingUpgrade = extsNeedingUpgrade;
     self.extsRemovedRemotely = extsRemovedRemotely;
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:MJExtensionsUpdatedNotification object:nil];
 }
 
 - (void) upgrade:(NSArray*)upgrade

@@ -51,7 +51,7 @@ void MJSetupLua(void) {
     luaL_dofile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
 }
 
-void PKLoadModule(NSString* fullname) {
+void MJLoadModule(NSString* fullname) {
     lua_State* L = MJLuaState;
     lua_getglobal(L, "core");
     lua_getfield(L, -1, "_loadmodule");

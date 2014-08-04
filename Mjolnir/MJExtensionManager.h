@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "MJExtensionCache.h"
 
-extern NSString* PKExtensionsUpdatedNotification;
+extern NSString* MJExtensionsUpdatedNotification;
 
 @interface MJExtensionManager : NSObject
 

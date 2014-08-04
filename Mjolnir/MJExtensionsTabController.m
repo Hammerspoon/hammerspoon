@@ -1,32 +1,32 @@
 #import "MJExtensionManager.h"
 #import "MJExtension.h"
 
-#define PKSkipRecommendRestartAlertKey @"PKSkipRecommendRestartAlertKey"
+#define MJSkipRecommendRestartAlertKey @"MJSkipRecommendRestartAlertKey"
 
-typedef NS_ENUM(NSUInteger, PKCacheItemType) {
-    PKCacheItemTypeHeader,
-    PKCacheItemTypeNotInstalled,
-    PKCacheItemTypeUpToDate,
-    PKCacheItemTypeNeedsUpgrade,
-    PKCacheItemTypeRemovedRemotely,
+typedef NS_ENUM(NSUInteger, MJCacheItemType) {
+    MJCacheItemTypeHeader,
+    MJCacheItemTypeNotInstalled,
+    MJCacheItemTypeUpToDate,
+    MJCacheItemTypeNeedsUpgrade,
+    MJCacheItemTypeRemovedRemotely,
 };
 
 // oh swift, I do wish you were here already
-@interface PKCacheItem : NSObject
-@property PKCacheItemType type;
+@interface MJCacheItem : NSObject
+@property MJCacheItemType type;
 @property MJExtension* ext;
 @property NSString* header;
 @property BOOL actionize;
 @end
-@implementation PKCacheItem
-+ (PKCacheItem*) header:(NSString*)title {
-    PKCacheItem* item = [[PKCacheItem alloc] init];
-    item.type = PKCacheItemTypeHeader;
+@implementation MJCacheItem
++ (MJCacheItem*) header:(NSString*)title {
+    MJCacheItem* item = [[MJCacheItem alloc] init];
+    item.type = MJCacheItemTypeHeader;
     item.header = title;
     return item;
 }
-+ (PKCacheItem*) ext:(MJExtension*)ext type:(PKCacheItemType)type {
-    PKCacheItem* item = [[PKCacheItem alloc] init];
++ (MJCacheItem*) ext:(MJExtension*)ext type:(MJCacheItemType)type {
+    MJCacheItem* item = [[MJCacheItem alloc] init];
     item.type = type;
     item.ext = ext;
     return item;
@@ -47,7 +47,7 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     [self rebuildCache];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(extensionsUpdated:)
-                                                 name:PKExtensionsUpdatedNotification
+                                                 name:MJExtensionsUpdatedNotification
                                                object:nil];
 }
 
@@ -55,27 +55,27 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     NSMutableArray* cache = [NSMutableArray array];
     
     if ([[MJExtensionManager sharedManager].extsNotInstalled count] > 0) {
-        [cache addObject: [PKCacheItem header: @"Available"]];
+        [cache addObject: [MJCacheItem header: @"Available"]];
         for (MJExtension* ext in [MJExtensionManager sharedManager].extsNotInstalled)
-            [cache addObject: [PKCacheItem ext:ext type:PKCacheItemTypeNotInstalled]];
+            [cache addObject: [MJCacheItem ext:ext type:MJCacheItemTypeNotInstalled]];
     }
     
     if ([[MJExtensionManager sharedManager].extsUpToDate count] > 0) {
-        [cache addObject: [PKCacheItem header: @"Installed - Up to Date"]];
+        [cache addObject: [MJCacheItem header: @"Installed - Up to Date"]];
         for (MJExtension* ext in [MJExtensionManager sharedManager].extsUpToDate)
-            [cache addObject: [PKCacheItem ext:ext type:PKCacheItemTypeUpToDate]];
+            [cache addObject: [MJCacheItem ext:ext type:MJCacheItemTypeUpToDate]];
     }
     
     if ([[MJExtensionManager sharedManager].extsNeedingUpgrade count] > 0) {
-        [cache addObject: [PKCacheItem header: @"Installed - Upgrade Available"]];
+        [cache addObject: [MJCacheItem header: @"Installed - Upgrade Available"]];
         for (MJExtension* ext in [MJExtensionManager sharedManager].extsNeedingUpgrade)
-            [cache addObject: [PKCacheItem ext:ext type:PKCacheItemTypeNeedsUpgrade]];
+            [cache addObject: [MJCacheItem ext:ext type:MJCacheItemTypeNeedsUpgrade]];
     }
     
     if ([[MJExtensionManager sharedManager].extsRemovedRemotely count] > 0) {
-        [cache addObject: [PKCacheItem header: @"Installed - No longer offered publicly!"]];
+        [cache addObject: [MJCacheItem header: @"Installed - No longer offered publicly!"]];
         for (MJExtension* ext in [MJExtensionManager sharedManager].extsRemovedRemotely)
-            [cache addObject: [PKCacheItem ext:ext type:PKCacheItemTypeRemovedRemotely]];
+            [cache addObject: [MJCacheItem ext:ext type:MJCacheItemTypeRemovedRemotely]];
     }
     
     self.hasActionsToApply = NO;
@@ -138,9 +138,9 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    PKCacheItem* item = [self.cache objectAtIndex:row];
+    MJCacheItem* item = [self.cache objectAtIndex:row];
     
-    if (item.type == PKCacheItemTypeHeader) {
+    if (item.type == MJCacheItemTypeHeader) {
         NSTextField* header = [self headerRow:tableView];
         header.stringValue = item.header;
         return header;
@@ -168,10 +168,10 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     else if ([[tableColumn identifier] isEqualToString: @"action"]) {
         NSString* title;
         switch (item.type) {
-            case PKCacheItemTypeNeedsUpgrade:    title = @"Upgrade"; break;
-            case PKCacheItemTypeNotInstalled:    title = @"Install"; break;
-            case PKCacheItemTypeRemovedRemotely: title = @"Uninstall"; break;
-            case PKCacheItemTypeUpToDate:        title = @"Uninstall"; break;
+            case MJCacheItemTypeNeedsUpgrade:    title = @"Upgrade"; break;
+            case MJCacheItemTypeNotInstalled:    title = @"Install"; break;
+            case MJCacheItemTypeRemovedRemotely: title = @"Uninstall"; break;
+            case MJCacheItemTypeUpToDate:        title = @"Uninstall"; break;
             default: break;
         }
         NSButton* action = [self actionRow:tableView];
@@ -188,16 +188,16 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     NSMutableArray* install = [NSMutableArray array];
     NSMutableArray* uninstall = [NSMutableArray array];
     
-    for (PKCacheItem* item in self.cache) {
+    for (MJCacheItem* item in self.cache) {
         if (!item.actionize)
             continue;
         
         switch (item.type) {
-            case PKCacheItemTypeHeader: continue;
-            case PKCacheItemTypeNeedsUpgrade:    [upgrade addObject: item.ext]; break;
-            case PKCacheItemTypeNotInstalled:    [install addObject: item.ext]; break;
-            case PKCacheItemTypeRemovedRemotely: [uninstall addObject: item.ext]; break;
-            case PKCacheItemTypeUpToDate:        [uninstall addObject: item.ext]; break;
+            case MJCacheItemTypeHeader: continue;
+            case MJCacheItemTypeNeedsUpgrade:    [upgrade addObject: item.ext]; break;
+            case MJCacheItemTypeNotInstalled:    [install addObject: item.ext]; break;
+            case MJCacheItemTypeRemovedRemotely: [uninstall addObject: item.ext]; break;
+            case MJCacheItemTypeUpToDate:        [uninstall addObject: item.ext]; break;
         }
     }
     
@@ -208,23 +208,23 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
 
 - (void) applyChangesAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
     BOOL skipNextTime = ([[alert suppressionButton] state] == NSOnState);
-    [[NSUserDefaults standardUserDefaults] setBool:skipNextTime forKey:PKSkipRecommendRestartAlertKey];
+    [[NSUserDefaults standardUserDefaults] setBool:skipNextTime forKey:MJSkipRecommendRestartAlertKey];
     
     [self applyChanges];
 }
 
 - (IBAction) applyActions:(NSButton*)sender {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:PKSkipRecommendRestartAlertKey]) {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:MJSkipRecommendRestartAlertKey]) {
         [self applyChanges];
         return;
     }
     
     BOOL recommendRestart = NO;
-    for (PKCacheItem* item in self.cache) {
+    for (MJCacheItem* item in self.cache) {
         if (!item.actionize)
             continue;
         
-        if (item.type == PKCacheItemTypeRemovedRemotely || item.type == PKCacheItemTypeUpToDate)
+        if (item.type == MJCacheItemTypeRemovedRemotely || item.type == MJCacheItemTypeUpToDate)
             recommendRestart = YES;
     }
     
@@ -250,8 +250,8 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
     if (row == -1)
         return;
     
-    PKCacheItem* item = [self.cache objectAtIndex:row];
-    if (item.type == PKCacheItemTypeHeader)
+    MJCacheItem* item = [self.cache objectAtIndex:row];
+    if (item.type == MJCacheItemTypeHeader)
         return;
     
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:item.ext.website]];
@@ -259,7 +259,7 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
 
 - (IBAction) toggleExtAction:(NSButton*)sender {
     NSInteger row = [self.extsTable rowForView:sender];
-    PKCacheItem* item = [self.cache objectAtIndex:row];
+    MJCacheItem* item = [self.cache objectAtIndex:row];
     item.actionize = ([sender state] == NSOnState);
     [self recacheHasActionsToApply];
 }
@@ -269,13 +269,13 @@ typedef NS_ENUM(NSUInteger, PKCacheItemType) {
 }
 
 - (BOOL) tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row {
-    PKCacheItem* item = [self.cache objectAtIndex:row];
-    return item.type != PKCacheItemTypeHeader;
+    MJCacheItem* item = [self.cache objectAtIndex:row];
+    return item.type != MJCacheItemTypeHeader;
 }
 
 - (BOOL) tableView:(NSTableView *)tableView isGroupRow:(NSInteger)row {
-    PKCacheItem* item = [self.cache objectAtIndex:row];
-    return item.type == PKCacheItemTypeHeader;
+    MJCacheItem* item = [self.cache objectAtIndex:row];
+    return item.type == MJCacheItemTypeHeader;
 }
 
 @end

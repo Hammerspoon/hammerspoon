@@ -1,6 +1,6 @@
 #import "MJConfigManager.h"
 #include <CommonCrypto/CommonDigest.h>
-void PKLoadModule(NSString* fullname);
+void MJLoadModule(NSString* fullname);
 
 @implementation MJConfigManager
 
@@ -54,7 +54,7 @@ void PKLoadModule(NSString* fullname);
     [untar launch];
     [untar waitUntilExit];
     
-    PKLoadModule(ext.name);
+    MJLoadModule(ext.name);
 }
 
 + (void) uninstallExtension:(MJExtension*)ext {

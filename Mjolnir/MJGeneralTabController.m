@@ -14,7 +14,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 @end
 
-#define PKCheckForUpdatesKey @"_checkforupdates"
+#define MJCheckForUpdatesKey @"_checkforupdates"
 
 @implementation MJGeneralTabController
 
@@ -78,7 +78,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState:[[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular ? NSOnState : NSOffState];
-    [self.checkForUpdatesCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:PKCheckForUpdatesKey] ? NSOnState : NSOffState];
+    [self.checkForUpdatesCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:MJCheckForUpdatesKey] ? NSOnState : NSOffState];
 }
 
 - (IBAction) toggleOpensAtLogin:(NSButton*)sender {
@@ -99,7 +99,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) toggleCheckForUpdates:(NSButton*)sender {
-    [[NSUserDefaults standardUserDefaults] setBool:[sender state] == NSOnState forKey:PKCheckForUpdatesKey];
+    [[NSUserDefaults standardUserDefaults] setBool:[sender state] == NSOnState forKey:MJCheckForUpdatesKey];
 }
 
 - (IBAction) reloadConfig:(id)sender {
