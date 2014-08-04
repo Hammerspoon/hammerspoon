@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment defaultVersion="1080" identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
@@ -178,17 +178,17 @@
                                             <rect key="frame" x="20" y="50" width="460" height="230"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="fl9-64-74i">
-                                                <rect key="frame" x="1" y="1" width="443" height="228"/>
+                                                <rect key="frame" x="1" y="1" width="458" height="228"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" spellingCorrection="YES" smartInsertDelete="YES" id="M9v-6B-bP0">
-                                                        <rect key="frame" x="0.0" y="0.0" width="443" height="228"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="458" height="228"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="443" height="228"/>
+                                                        <size key="minSize" width="458" height="228"/>
                                                         <size key="maxSize" width="529" height="10000000"/>
                                                         <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                                        <size key="minSize" width="443" height="228"/>
+                                                        <size key="minSize" width="458" height="228"/>
                                                         <size key="maxSize" width="529" height="10000000"/>
                                                     </textView>
                                                 </subviews>
@@ -231,11 +231,11 @@
                                             <rect key="frame" x="20" y="49" width="460" height="231"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <clipView key="contentView" id="n1D-Xy-R1J">
-                                                <rect key="frame" x="1" y="17" width="458" height="198"/>
+                                                <rect key="frame" x="1" y="17" width="458" height="213"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" headerView="kqi-vN-wMw" viewBased="YES" id="wf6-Tx-sC2">
-                                                        <rect key="frame" x="0.0" y="0.0" width="650" height="198"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="650" height="213"/>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <size key="intercellSpacing" width="3" height="2"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -448,7 +448,7 @@
                                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                             </clipView>
                                             <scroller key="horizontalScroller" verticalHuggingPriority="750" horizontal="YES" id="dLh-eo-sAZ">
-                                                <rect key="frame" x="1" y="215" width="458" height="15"/>
+                                                <rect key="frame" x="1" y="214" width="458" height="16"/>
                                                 <autoresizingMask key="autoresizingMask"/>
                                             </scroller>
                                             <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="gwZ-Fc-PiB">
@@ -461,8 +461,8 @@
                                             </tableHeaderView>
                                         </scrollView>
                                         <button verticalHuggingPriority="750" id="Nge-FY-eHu">
-                                            <rect key="frame" x="20" y="19" width="145" height="23"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <rect key="frame" x="335" y="19" width="145" height="23"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <buttonCell key="cell" type="smallSquare" title="Update Extensions..." bezelStyle="smallSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="h7z-VL-Z7Y">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -471,9 +471,21 @@
                                                 <action selector="updateExtensions:" target="XQ1-bX-gx8" id="9lM-jI-PMw"/>
                                             </connections>
                                         </button>
-                                        <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="Jot-cf-6ex">
-                                            <rect key="frame" x="173" y="22" width="16" height="16"/>
+                                        <button verticalHuggingPriority="750" id="oRt-D7-hxd">
+                                            <rect key="frame" x="20" y="19" width="105" height="23"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="smallSquare" title="Apply Actions" bezelStyle="smallSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="UJC-lf-t8f">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="applyActions:" target="XQ1-bX-gx8" id="Ua4-hp-W9O"/>
+                                                <binding destination="XQ1-bX-gx8" name="enabled" keyPath="self.hasActionsToApply" id="iC9-C2-PKg"/>
+                                            </connections>
+                                        </button>
+                                        <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="Jot-cf-6ex">
+                                            <rect key="frame" x="311" y="22" width="16" height="16"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <connections>
                                                 <binding destination="XQ1-bX-gx8" name="animate" keyPath="self.extManager.updating" id="uNd-pX-0Ek"/>
                                             </connections>

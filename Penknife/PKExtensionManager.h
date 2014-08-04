@@ -17,4 +17,8 @@ extern NSString* PKExtensionsUpdatedNotification;
 @property NSArray* extsNeedingUpgrade;
 @property NSArray* extsRemovedRemotely;
 
+- (void) upgrade:(NSArray*)upgrade
+         install:(NSArray*)install
+       uninstall:(NSArray*)uninstall;
+
 @end

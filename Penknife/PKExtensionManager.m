@@ -159,4 +159,33 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     [[NSNotificationCenter defaultCenter] postNotificationName:PKExtensionsUpdatedNotification object:nil];
 }
 
+- (void) upgrade:(NSArray*)upgrade
+         install:(NSArray*)install
+       uninstall:(NSArray*)uninstall
+{
+    for (PKExtension* ext in upgrade)
+        [self upgrade: ext];
+    
+    for (PKExtension* ext in install)
+        [self install: ext];
+    
+    for (PKExtension* ext in uninstall)
+        [self uninstall: ext];
+    
+    [self.cache save];
+    [self rebuildMemoryCache];
+}
+
+- (void) install:(PKExtension*)ext {
+    
+}
+
+- (void) upgrade:(PKExtension*)ext {
+    
+}
+
+- (void) uninstall:(PKExtension*)ext {
+    
+}
+
 @end
