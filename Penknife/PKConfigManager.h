@@ -1,10 +1,12 @@
 #import <Foundation/Foundation.h>
+#import "PKExtension.h"
 
 @interface PKConfigManager : NSObject
 
-+ (PKConfigManager*) sharedManager;
-
 + (NSString*) configPath;
 + (void) setupConfigDir;
+
++ (void) installExtension:(PKExtension*)ext;
++ (void) uninstallExtension:(PKExtension*)ext;
 
 @end

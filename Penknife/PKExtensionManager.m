@@ -1,5 +1,8 @@
 #import "PKExtensionManager.h"
 #import "PKExtension.h"
+#import "PKDocsManager.h"
+#import "PKConfigManager.h"
+#import "PKRestarter.h"
 
 NSString* PKExtensionsUpdatedNotification = @"PKExtensionsUpdatedNotification";
 
@@ -174,18 +177,29 @@ static NSString* PKRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     
     [self.cache save];
     [self rebuildMemoryCache];
+    
+    if ([uninstall count] > 0)
+        [PKRestarter restart];
 }
 
 - (void) install:(PKExtension*)ext {
+    [self.cache.extensionsInstalled addObject: ext];
     
+    // order matters
+    [PKConfigManager installExtension:ext];
+    [PKDocsManager installExtension:ext];
 }
 
 - (void) upgrade:(PKExtension*)ext {
-    
+    // TODO: get the other extension too. also, is this the old one or the new one? i forogt.
 }
 
 - (void) uninstall:(PKExtension*)ext {
+    [self.cache.extensionsInstalled removeObject: ext];
     
+    // order matters
+    [PKDocsManager uninstallExtension:ext];
+    [PKConfigManager uninstallExtension:ext];
 }
 
 @end

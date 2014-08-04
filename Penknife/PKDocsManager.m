@@ -2,15 +2,6 @@
 
 @implementation PKDocsManager
 
-+ (PKDocsManager*) sharedManager {
-    static PKDocsManager* sharedManager;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedManager = [[PKDocsManager alloc] init];
-    });
-    return sharedManager;
-}
-
 + (NSURL*) docsFile {
     return [NSURL fileURLWithPath:[@"~/.penknife/Penknife.docset" stringByStandardizingPath]];
 }
@@ -21,6 +12,14 @@
     
     NSURL* docsetSourceURL = [[NSBundle mainBundle] URLForResource:@"Penknife" withExtension:@"docset"];
     [[NSFileManager defaultManager] copyItemAtURL:docsetSourceURL toURL:[PKDocsManager docsFile] error:NULL];
+}
+
++ (void) installExtension:(PKExtension*)ext {
+    
+}
+
++ (void) uninstallExtension:(PKExtension*)ext {
+    
 }
 
 @end

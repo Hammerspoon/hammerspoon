@@ -2,15 +2,6 @@
 
 @implementation PKConfigManager
 
-+ (PKConfigManager*) sharedManager {
-    static PKConfigManager* sharedManager;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedManager = [[PKConfigManager alloc] init];
-    });
-    return sharedManager;
-}
-
 + (NSString*) configPath {
     return [@"~/.penknife/" stringByStandardizingPath];
 }
@@ -20,6 +11,14 @@
                               withIntermediateDirectories:YES
                                                attributes:nil
                                                     error:NULL];
+}
+
++ (void) installExtension:(PKExtension*)ext {
+    
+}
+
++ (void) uninstallExtension:(PKExtension*)ext {
+    
 }
 
 @end

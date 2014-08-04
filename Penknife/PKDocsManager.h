@@ -1,10 +1,12 @@
 #import <Foundation/Foundation.h>
+#import "PKExtension.h"
 
 @interface PKDocsManager : NSObject
 
-+ (PKDocsManager*) sharedManager;
-
 + (NSURL*) docsFile;
 + (void) copyDocsIfNeeded;
+
++ (void) installExtension:(PKExtension*)ext;
++ (void) uninstallExtension:(PKExtension*)ext;
 
 @end

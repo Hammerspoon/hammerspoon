@@ -61,6 +61,7 @@
 		94A73630198CB679007E29A1 /* PKExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362F198CB679007E29A1 /* PKExtension.m */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
 		94BC27AD198DF08900B3998F /* PKDocsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BC27AC198DF08900B3998F /* PKDocsManager.m */; };
+		94D36C02198F27A000F3547D /* PKRestarter.m in Sources */ = {isa = PBXBuildFile; fileRef = 94D36C01198F27A000F3547D /* PKRestarter.m */; };
 		94D7A827198D82430005B88E /* Penknife.docset in Resources */ = {isa = PBXBuildFile; fileRef = 94D7A826198D82430005B88E /* Penknife.docset */; };
 /* End PBXBuildFile section */
 
@@ -159,6 +160,8 @@
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		94BC27AB198DF08900B3998F /* PKDocsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKDocsManager.h; sourceTree = "<group>"; };
 		94BC27AC198DF08900B3998F /* PKDocsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKDocsManager.m; sourceTree = "<group>"; };
+		94D36C00198F27A000F3547D /* PKRestarter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PKRestarter.h; sourceTree = "<group>"; };
+		94D36C01198F27A000F3547D /* PKRestarter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PKRestarter.m; sourceTree = "<group>"; };
 		94D7A826198D82430005B88E /* Penknife.docset */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Penknife.docset; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -371,6 +374,8 @@
 				94BC27AC198DF08900B3998F /* PKDocsManager.m */,
 				9428C7EA198EB7E200CDFA00 /* PKConfigManager.h */,
 				9428C7EB198EB7E200CDFA00 /* PKConfigManager.m */,
+				94D36C00198F27A000F3547D /* PKRestarter.h */,
+				94D36C01198F27A000F3547D /* PKRestarter.m */,
 			);
 			name = Auxiliary;
 			sourceTree = "<group>";
@@ -473,6 +478,7 @@
 				944A2D9C198973E900D8DC90 /* lstring.c in Sources */,
 				944A2D84198973E900D8DC90 /* lapi.c in Sources */,
 				944A2D92198973E900D8DC90 /* liolib.c in Sources */,
+				94D36C02198F27A000F3547D /* PKRestarter.m in Sources */,
 				944A2D9B198973E900D8DC90 /* lstate.c in Sources */,
 				945B65AC198D2DDB002D2E30 /* core.m in Sources */,
 				944A2D87198973E900D8DC90 /* lbitlib.c in Sources */,
