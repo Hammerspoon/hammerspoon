@@ -16,6 +16,7 @@
         self.license = [decoder decodeObjectOfClass:[NSString class] forKey:@"license"];
         self.desc = [decoder decodeObjectOfClass:[NSString class] forKey:@"description"];
         self.dependencies = [decoder decodeObjectOfClass:[NSArray class] forKey:@"dependencies"];
+        self.changelog = [decoder decodeObjectOfClass:[NSArray class] forKey:@"changelog"];
     }
     return self;
 }
@@ -31,6 +32,7 @@
     [encoder encodeObject:self.license forKey:@"license"];
     [encoder encodeObject:self.desc forKey:@"description"];
     [encoder encodeObject:self.dependencies forKey:@"dependencies"];
+    [encoder encodeObject:self.changelog forKey:@"changelog"];
 }
 
 + (MJExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON {
@@ -45,6 +47,7 @@
     ext.website = [longJSON objectForKey:@"website"];
     ext.desc = [longJSON objectForKey:@"description"];
     ext.dependencies = [longJSON objectForKey:@"deps"];
+    ext.changelog = [longJSON objectForKey:@"changelog"];
     return ext;
 }
 

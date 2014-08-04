@@ -38,7 +38,7 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
                                    if (obj)
                                        handler(obj);
                                    else
-                                       NSLog(@"json error: %@", jsonError);
+                                       NSLog(@"json error: %@ - %@", jsonError, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                                }
                                else {
                                    NSLog(@"connection error: %@", connectionError);

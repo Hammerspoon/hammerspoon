@@ -11,6 +11,7 @@
 @property NSString* website;
 @property NSString* license;
 @property NSString* desc;
+@property NSArray* changelog;
 @property NSArray* dependencies;
 
 + (MJExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON;
