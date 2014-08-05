@@ -151,7 +151,7 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         NSArray* upgradedVersionsOfThis = [extsAvailable filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self.name == %@", ext.name]];
         if ([upgradedVersionsOfThis count] == 1) {
             [extsNeedingUpgrade addObject: ext];
-            [extsAvailable removeObject: ext];
+            [extsAvailable removeObject: [upgradedVersionsOfThis firstObject]];
             continue;
         }
         
