@@ -1,10 +1,17 @@
-Guidelines for contributing:
+### Contributing to existing extensions
 
-1. Test your changes and anything it might break
-2. Follow existing conventions in the code
-3. Stick to the simplest thing possible
-4. *Thanks* for helping out!
+Extensions are independent of Mjolnir and have their own authors and
+release timelines. Your best bet is to go to an extension's webpage
+and try to contact the author about contributing. The webpage can be
+found in the Extensions tab inside Mjolnir.
 
-If you have a question about something in the codebase, feel free to
-stop by #hackhydra on freenode; sdegutis pops in every once in a while
-and knows the whole codebase in and out.
+### Contributing new extensions
+
+See https://github.com/mjolnir-io/ext for instructions.
+
+### Contributing to Mjolnir.app
+
+First check the Issues page to see if someone's already working on
+your idea. (I'd hate to have anyone doing extra work!) Then file an
+issue about it letting us know you'd like to work on something, and we
+can discuss it there.
