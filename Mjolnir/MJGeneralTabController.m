@@ -22,6 +22,11 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 @implementation MJGeneralTabController
 
+@synthesize initialFirstResponder;
+- (NSString*) nibName { return @"GeneralTab"; }
+- (NSString*) title   { return @"General"; }
+- (NSImage*)  icon    { return [NSImage imageNamed:NSImageNamePreferencesGeneral]; }
+
 - (IBAction) openDocsInDash:(id)sender {
     if (!self.hasInstalledDocs) {
         self.hasInstalledDocs = YES;

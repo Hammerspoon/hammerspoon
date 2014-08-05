@@ -11,7 +11,7 @@ void MJSetupLua(void);
 @implementation MJAppDelegate
 
 - (IBAction) showSpecificWindow:(NSMenuItem*)item {
-    [[MJMainWindowController sharedMainWindowController] showAtTab:[[item title] lowercaseString]];
+    [[MJMainWindowController sharedMainWindowController] showAtTab:[item title]];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {

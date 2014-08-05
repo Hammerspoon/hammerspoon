@@ -14,6 +14,11 @@ extern lua_State* MJLuaState;
 
 @implementation MJReplTabController
 
+@synthesize initialFirstResponder;
+- (NSString*) nibName { return @"ReplTab"; }
+- (NSString*) title   { return @"REPL"; }
+- (NSImage*)  icon    { return [NSImage imageNamed:NSImageNameComputer]; }
+
 - (void) awakeFromNib {
     self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];

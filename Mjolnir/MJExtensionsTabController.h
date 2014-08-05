@@ -1,2 +1,3 @@
-@interface MJExtensionsTabController : NSObject
+#import "MJTabController.h"
+@interface MJExtensionsTabController : NSViewController <MJTabController>
 @end

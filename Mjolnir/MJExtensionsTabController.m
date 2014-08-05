@@ -42,6 +42,11 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 
 @implementation MJExtensionsTabController
 
+@synthesize initialFirstResponder;
+- (NSString*) nibName { return @"ExtensionsTab"; }
+- (NSString*) title   { return @"Extensions"; }
+- (NSImage*)  icon    { return [NSImage imageNamed:NSImageNameAdvanced]; }
+
 - (void) awakeFromNib {
     [self.extsTable setTarget:self];
     [self.extsTable setDoubleAction:@selector(extensionItemRowDoubleClicked:)];

@@ -57,6 +57,9 @@
 		945B65AC198D2DDB002D2E30 /* core.m in Sources */ = {isa = PBXBuildFile; fileRef = 945B65AB198D2DDB002D2E30 /* core.m */; };
 		945B65B2198D31FC002D2E30 /* setup.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945B65B1198D31FC002D2E30 /* setup.lua */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
+		949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFD1990747B00906CCE /* GeneralTab.xib */; };
+		949CDC001990759B00906CCE /* ReplTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ReplTab.xib */; };
+		949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDC011990761700906CCE /* ExtensionsTab.xib */; };
 		94A7362D198CB5C7007E29A1 /* MJExtensionCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362C198CB5C7007E29A1 /* MJExtensionCache.m */; };
 		94A73630198CB679007E29A1 /* MJExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362F198CB679007E29A1 /* MJExtension.m */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
@@ -66,6 +69,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		942050C1199078BA00FC4839 /* MJTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJTabController.h; sourceTree = "<group>"; };
 		9423CA93198C3BE700647881 /* MJExtensionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtensionManager.h; sourceTree = "<group>"; };
 		9423CA94198C3BE700647881 /* MJExtensionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionManager.m; sourceTree = "<group>"; };
 		9428C7E9198EB76E00CDFA00 /* MJAutoLaunch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJAutoLaunch.h; sourceTree = "<group>"; };
@@ -156,6 +160,9 @@
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		949CDBFB1990739800906CCE /* MJReplTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJReplTabController.h; sourceTree = "<group>"; };
 		949CDBFC199073A000906CCE /* MJGeneralTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJGeneralTabController.h; sourceTree = "<group>"; };
+		949CDBFD1990747B00906CCE /* GeneralTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GeneralTab.xib; sourceTree = "<group>"; };
+		949CDBFF1990759B00906CCE /* ReplTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReplTab.xib; sourceTree = "<group>"; };
+		949CDC011990761700906CCE /* ExtensionsTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ExtensionsTab.xib; sourceTree = "<group>"; };
 		94A7362B198CB5C7007E29A1 /* MJExtensionCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtensionCache.h; sourceTree = "<group>"; };
 		94A7362C198CB5C7007E29A1 /* MJExtensionCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionCache.m; sourceTree = "<group>"; };
 		94A7362E198CB679007E29A1 /* MJExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtension.h; sourceTree = "<group>"; };
@@ -183,6 +190,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		942050C219907AF700FC4839 /* Repl Tab */ = {
+			isa = PBXGroup;
+			children = (
+				949CDBFF1990759B00906CCE /* ReplTab.xib */,
+				949CDBFB1990739800906CCE /* MJReplTabController.h */,
+				944A2DA81989760400D8DC90 /* MJReplTabController.m */,
+			);
+			name = "Repl Tab";
+			sourceTree = "<group>";
+		};
+		942050C319907AFC00FC4839 /* Extensions Tab */ = {
+			isa = PBXGroup;
+			children = (
+				949CDC011990761700906CCE /* ExtensionsTab.xib */,
+				9429F5E1199072B600A9552F /* MJExtensionsTabController.h */,
+				944A2DAE1989761600D8DC90 /* MJExtensionsTabController.m */,
+			);
+			name = "Extensions Tab";
+			sourceTree = "<group>";
+		};
 		94320F411954C61F00D37BF1 /* Source */ = {
 			isa = PBXGroup;
 			children = (
@@ -353,22 +380,22 @@
 				944A2D361989735300D8DC90 /* MainWindow.xib */,
 				945B65A9198D2C0B002D2E30 /* MJMainWindowController.h */,
 				944A2D381989735300D8DC90 /* MJMainWindowController.m */,
-				945B65AF198D2E41002D2E30 /* Tabs */,
+				942050C1199078BA00FC4839 /* MJTabController.h */,
+				945B65AF198D2E41002D2E30 /* General Tab */,
+				942050C219907AF700FC4839 /* Repl Tab */,
+				942050C319907AFC00FC4839 /* Extensions Tab */,
 			);
 			name = "Main Window";
 			sourceTree = "<group>";
 		};
-		945B65AF198D2E41002D2E30 /* Tabs */ = {
+		945B65AF198D2E41002D2E30 /* General Tab */ = {
 			isa = PBXGroup;
 			children = (
+				949CDBFD1990747B00906CCE /* GeneralTab.xib */,
 				949CDBFC199073A000906CCE /* MJGeneralTabController.h */,
 				944A2DA5198975B000D8DC90 /* MJGeneralTabController.m */,
-				949CDBFB1990739800906CCE /* MJReplTabController.h */,
-				944A2DA81989760400D8DC90 /* MJReplTabController.m */,
-				9429F5E1199072B600A9552F /* MJExtensionsTabController.h */,
-				944A2DAE1989761600D8DC90 /* MJExtensionsTabController.m */,
 			);
-			name = Tabs;
+			name = "General Tab";
 			sourceTree = "<group>";
 		};
 		945B65B0198D304F002D2E30 /* Auxiliary */ = {
@@ -440,9 +467,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				944A2D3B1989735300D8DC90 /* MainWindow.xib in Resources */,
+				949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
+				949CDC001990759B00906CCE /* ReplTab.xib in Resources */,
+				949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
 				94D7A827198D82430005B88E /* Mjolnir.docset in Resources */,
 				944A2D471989737E00D8DC90 /* Mjolnir.icns in Resources */,
