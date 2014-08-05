@@ -71,6 +71,7 @@
 		9428C7E9198EB76E00CDFA00 /* MJAutoLaunch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJAutoLaunch.h; sourceTree = "<group>"; };
 		9428C7EA198EB7E200CDFA00 /* MJConfigManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJConfigManager.h; sourceTree = "<group>"; };
 		9428C7EB198EB7E200CDFA00 /* MJConfigManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJConfigManager.m; sourceTree = "<group>"; };
+		9429F5E1199072B600A9552F /* MJExtensionsTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJExtensionsTabController.h; sourceTree = "<group>"; };
 		942BF3901989E18600983892 /* MJAutoLaunch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAutoLaunch.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
 		9445CA0B19083251002568BB /* Mjolnir.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mjolnir.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -360,6 +361,7 @@
 			children = (
 				944A2DA5198975B000D8DC90 /* MJGeneralTabController.m */,
 				944A2DA81989760400D8DC90 /* MJReplTabController.m */,
+				9429F5E1199072B600A9552F /* MJExtensionsTabController.h */,
 				944A2DAE1989761600D8DC90 /* MJExtensionsTabController.m */,
 			);
 			name = Tabs;

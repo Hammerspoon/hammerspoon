@@ -1,3 +1,4 @@
+#import "MJExtensionsTabController.h"
 #import "MJExtensionManager.h"
 #import "MJExtension.h"
 
@@ -33,7 +34,7 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 }
 @end
 
-@interface MJExtensionsTabController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
+@interface MJExtensionsTabController ()
 @property (weak) IBOutlet NSTableView* extsTable;
 @property NSArray* cache;
 @property BOOL hasActionsToApply;
