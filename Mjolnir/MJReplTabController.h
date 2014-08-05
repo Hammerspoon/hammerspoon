@@ -1,0 +1,2 @@
+@interface MJReplTabController : NSObject
+@end

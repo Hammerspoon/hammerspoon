@@ -1,8 +1,9 @@
+#import "MJReplTabController.h"
 #import "lua/lua.h"
 #import "lua/lauxlib.h"
 extern lua_State* MJLuaState;
 
-@interface MJReplTabController : NSObject
+@interface MJReplTabController ()
 
 @property NSMutableArray* history;
 @property NSInteger historyIndex;

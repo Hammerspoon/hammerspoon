@@ -1,3 +1,4 @@
+#import "MJGeneralTabController.h"
 #import "MJAutoLaunch.h"
 #import "MJDocsManager.h"
 
@@ -6,7 +7,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 #define MJHasInstalledDocsKey @"MJHasInstalledDocsKey"
 
-@interface MJGeneralTabController : NSObject
+@interface MJGeneralTabController ()
 
 @property (weak) IBOutlet NSButton* openAtLoginCheckbox;
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;

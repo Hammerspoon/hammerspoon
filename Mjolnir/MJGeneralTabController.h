@@ -1,0 +1,2 @@
+@interface MJGeneralTabController : NSObject
+@end

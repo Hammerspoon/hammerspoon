@@ -154,6 +154,8 @@
 		945B65B1198D31FC002D2E30 /* setup.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = setup.lua; sourceTree = "<group>"; };
 		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		949CDBFB1990739800906CCE /* MJReplTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJReplTabController.h; sourceTree = "<group>"; };
+		949CDBFC199073A000906CCE /* MJGeneralTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJGeneralTabController.h; sourceTree = "<group>"; };
 		94A7362B198CB5C7007E29A1 /* MJExtensionCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtensionCache.h; sourceTree = "<group>"; };
 		94A7362C198CB5C7007E29A1 /* MJExtensionCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionCache.m; sourceTree = "<group>"; };
 		94A7362E198CB679007E29A1 /* MJExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtension.h; sourceTree = "<group>"; };
@@ -359,7 +361,9 @@
 		945B65AF198D2E41002D2E30 /* Tabs */ = {
 			isa = PBXGroup;
 			children = (
+				949CDBFC199073A000906CCE /* MJGeneralTabController.h */,
 				944A2DA5198975B000D8DC90 /* MJGeneralTabController.m */,
+				949CDBFB1990739800906CCE /* MJReplTabController.h */,
 				944A2DA81989760400D8DC90 /* MJReplTabController.m */,
 				9429F5E1199072B600A9552F /* MJExtensionsTabController.h */,
 				944A2DAE1989761600D8DC90 /* MJExtensionsTabController.m */,
