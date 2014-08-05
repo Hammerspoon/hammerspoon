@@ -79,4 +79,8 @@ void MJUnloadModule(NSString* fullname);
     return [[sha lowercaseString] isEqualToString: [gotsha lowercaseString]];
 }
 
++ (void) reload {
+    // TODO
+}
+
 @end

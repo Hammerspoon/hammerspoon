@@ -11,4 +11,6 @@
 
 + (NSString*) dirForExt:(MJExtension*)ext;
 
++ (void) reload;
+
 @end

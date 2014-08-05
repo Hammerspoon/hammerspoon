@@ -1,6 +1,7 @@
 #import "MJGeneralTabController.h"
 #import "MJAutoLaunch.h"
 #import "MJDocsManager.h"
+#import "MJConfigManager.h"
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
 extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
@@ -129,7 +130,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) reloadConfig:(id)sender {
-    // TODO
+    [MJConfigManager reload];
 }
 
 @end
