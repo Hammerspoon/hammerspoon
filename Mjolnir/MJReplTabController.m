@@ -21,7 +21,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 @synthesize initialFirstResponder;
 - (NSString*) nibName { return @"ReplTab"; }
 - (NSString*) title   { return @"REPL"; }
-- (NSImage*)  icon    { return [NSImage imageNamed:NSImageNameComputer]; }
+- (NSImage*)  icon    { return [NSImage imageNamed:@"REPL"]; }
 
 - (void) awakeFromNib {
     self.history = [NSMutableArray array];

@@ -60,7 +60,7 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 @synthesize initialFirstResponder;
 - (NSString*) nibName { return @"ExtensionsTab"; }
 - (NSString*) title   { return @"Extensions"; }
-- (NSImage*)  icon    { return [NSImage imageNamed:NSImageNameAdvanced]; }
+- (NSImage*)  icon    { return [NSImage imageNamed:@"Extensions"]; }
 
 - (void) awakeFromNib {
     [NSTimer scheduledTimerWithTimeInterval:MJCheckForExtensionUpdatesInterval

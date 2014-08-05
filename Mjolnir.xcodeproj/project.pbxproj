@@ -64,6 +64,8 @@
 		94A73630198CB679007E29A1 /* MJExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362F198CB679007E29A1 /* MJExtension.m */; };
 		94AB413819914DDA00055603 /* MJDonateTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94AB413619914DDA00055603 /* MJDonateTabController.m */; };
 		94AB413919914DDA00055603 /* DonateTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413719914DDA00055603 /* DonateTab.xib */; };
+		94AB413C199156B000055603 /* Extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413A199156B000055603 /* Extensions.png */; };
+		94AB413D199156B000055603 /* REPL.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413B199156B000055603 /* REPL.png */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
 		94BC27AD198DF08900B3998F /* MJDocsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BC27AC198DF08900B3998F /* MJDocsManager.m */; };
 		94D36C02198F27A000F3547D /* MJRestarter.m in Sources */ = {isa = PBXBuildFile; fileRef = 94D36C01198F27A000F3547D /* MJRestarter.m */; };
@@ -173,6 +175,8 @@
 		94AB413519914DDA00055603 /* MJDonateTabController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJDonateTabController.h; sourceTree = "<group>"; };
 		94AB413619914DDA00055603 /* MJDonateTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJDonateTabController.m; sourceTree = "<group>"; };
 		94AB413719914DDA00055603 /* DonateTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DonateTab.xib; sourceTree = "<group>"; };
+		94AB413A199156B000055603 /* Extensions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Extensions.png; sourceTree = "<group>"; };
+		94AB413B199156B000055603 /* REPL.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = REPL.png; sourceTree = "<group>"; };
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		94BC27AB198DF08900B3998F /* MJDocsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJDocsManager.h; sourceTree = "<group>"; };
 		94BC27AC198DF08900B3998F /* MJDocsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJDocsManager.m; sourceTree = "<group>"; };
@@ -283,6 +287,8 @@
 				944A2D401989737E00D8DC90 /* Mjolnir-Info.plist */,
 				944A2D411989737E00D8DC90 /* Mjolnir-Prefix.pch */,
 				944A2D421989737E00D8DC90 /* Mjolnir.icns */,
+				94AB413A199156B000055603 /* Extensions.png */,
+				94AB413B199156B000055603 /* REPL.png */,
 				94D7A826198D82430005B88E /* Mjolnir.docset */,
 			);
 			name = XcodeCrap;
@@ -493,8 +499,10 @@
 				94AB413919914DDA00055603 /* DonateTab.xib in Resources */,
 				949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
+				94AB413C199156B000055603 /* Extensions.png in Resources */,
 				94D7A827198D82430005B88E /* Mjolnir.docset in Resources */,
 				944A2D471989737E00D8DC90 /* Mjolnir.icns in Resources */,
+				94AB413D199156B000055603 /* REPL.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
