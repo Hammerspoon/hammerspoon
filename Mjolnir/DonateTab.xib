@@ -43,11 +43,11 @@
                             </connections>
                         </button>
                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" id="dyg-eQ-sY6">
-                            <rect key="frame" x="18" y="103" width="339" height="187"/>
+                            <rect key="frame" x="18" y="120" width="338" height="170"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="T3Q-Ry-FSY">
                                 <font key="font" metaFont="system"/>
-                                <string key="title">Hi there. I'm the principal author of Mjolnir. This app is the result of years of my work automating OS X.
+                                <string key="title">Hi there. I'm the principal author of Mjolnir.
 
 I've worked hard to make Mjolnir useful and easy to use. I've also released it with a liberal open source license, so that you can do with it as you please.
 

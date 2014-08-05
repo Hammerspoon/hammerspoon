@@ -11,7 +11,7 @@
 @synthesize initialFirstResponder;
 - (NSString*) nibName { return @"DonateTab"; }
 - (NSString*) title   { return @"Donate"; }
-- (NSImage*)  icon    { return [NSImage imageNamed:NSImageNameUser]; }
+- (NSImage*)  icon    { return [NSImage imageNamed:NSImageNameInfo]; }
 
 - (IBAction) donateWithPayPal:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:MJPayPalDonationURL]];
