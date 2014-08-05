@@ -4,7 +4,7 @@
 
 *Hack your OS X desktop environment*
 
-[![Build Status](https://travis-ci.org/sdegutis/hydra.svg?branch=master)](https://travis-ci.org/sdegutis/hydra)
+[![Build Status](https://travis-ci.org/mjolnir-io/mjolnir.svg?branch=master)](https://travis-ci.org/mjolnir-io/mjolnir)
 
 * Current version: **1.1**
 * Requires: OS X 10.8 and up
