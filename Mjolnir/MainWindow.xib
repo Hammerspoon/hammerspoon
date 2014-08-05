@@ -38,7 +38,7 @@
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <subviews>
                                                 <button verticalHuggingPriority="750" id="LSb-QH-ZQB">
-                                                    <rect key="frame" x="134" y="23" width="201" height="32"/>
+                                                    <rect key="frame" x="134" y="23" width="209" height="32"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                     <buttonCell key="cell" type="push" title="Add Mjolnir Docs to Dash" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zva-R3-iyw">
                                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -46,6 +46,7 @@
                                                     </buttonCell>
                                                     <connections>
                                                         <action selector="openDocsInDash:" target="dXd-DL-vp3" id="l0i-ue-Z9c"/>
+                                                        <binding destination="dXd-DL-vp3" name="title" keyPath="self.hasInstalledDocsButtonTitle" id="zRA-I4-3Lm"/>
                                                     </connections>
                                                 </button>
                                                 <button verticalHuggingPriority="750" id="vpp-qq-nEI">

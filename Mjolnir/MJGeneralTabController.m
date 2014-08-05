@@ -4,6 +4,8 @@
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
 extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
+#define MJHasInstalledDocsKey @"MJHasInstalledDocsKey"
+
 @interface MJGeneralTabController : NSObject
 
 @property (weak) IBOutlet NSButton* openAtLoginCheckbox;
@@ -11,6 +13,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 @property (weak) IBOutlet NSButton* checkForUpdatesCheckbox;
 
 @property BOOL isAccessibilityEnabled;
+@property BOOL hasInstalledDocs;
 
 @end
 
@@ -19,8 +22,23 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 @implementation MJGeneralTabController
 
 - (IBAction) openDocsInDash:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[MJDocsManager docsFile]];
+    if (!self.hasInstalledDocs) {
+        self.hasInstalledDocs = YES;
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:MJHasInstalledDocsKey];
+        [[NSWorkspace sharedWorkspace] openURL:[MJDocsManager docsFile]];
+    }
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"dash://mjolnir:"]];
+}
+
+- (NSString*) hasInstalledDocsButtonTitle {
+    if (self.hasInstalledDocs)
+        return @"Open Mjolnir docs in Dash";
+    else
+        return @"Add Mjolnir docs to Dash";
+}
+
++ (NSSet*) keyPathsForValuesAffectingHasInstalledDocsButtonTitle {
+    return [NSSet setWithArray:@[@"hasInstalledDocs"]];
 }
 
 - (void) accessibilityChanged:(NSNotification*)note {
@@ -69,6 +87,8 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (void) awakeFromNib {
+    self.hasInstalledDocs = [[NSUserDefaults standardUserDefaults] boolForKey:MJHasInstalledDocsKey];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         // I think this is what was sometimes slowing launch down (spinning-rainbow for a few seconds).
         [self cacheIsAccessibilityEnabled];
