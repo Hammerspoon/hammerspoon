@@ -1,7 +1,6 @@
 #import "MJConfigManager.h"
 #include <CommonCrypto/CommonDigest.h>
-void MJLoadModule(NSString* fullname);
-void MJUnloadModule(NSString* fullname);
+#import "core.h"
 
 @implementation MJConfigManager
 

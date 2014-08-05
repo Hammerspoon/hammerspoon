@@ -2,7 +2,7 @@
 #import "MJExtension.h"
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
-void MJLoadModule(NSString* fullname);
+#import "core.h"
 
 NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
 

@@ -47,3 +47,17 @@ function core._unloadmodule(dotname)
   local fn = load(dotname.." = nil")
   fn()
 end
+
+local rawprint = print
+function print(...)
+  rawprint(...)
+  local vals = table.pack(...)
+
+  for k = 1, vals.n do
+    vals[k] = tostring(vals[k])
+  end
+
+  -- using table.concat here is safe, because we just stringified all the values
+  local str = table.concat(vals, "\t") .. "\n"
+  core._logmessage(str)
+end

@@ -1,7 +1,5 @@
 #import "MJReplTabController.h"
-#import "lua/lua.h"
-#import "lua/lauxlib.h"
-extern lua_State* MJLuaState;
+#import "core.h"
 
 @interface MJReplTabController ()
 
@@ -11,6 +9,12 @@ extern lua_State* MJLuaState;
 @property (weak) IBOutlet NSTextField* inputField;
 
 @end
+
+typedef NS_ENUM(NSUInteger, MJReplLineType) {
+    MJReplLineTypeCommand,
+    MJReplLineTypeResult,
+    MJReplLineTypeStdout,
+};
 
 @implementation MJReplTabController
 
@@ -24,15 +28,25 @@ extern lua_State* MJLuaState;
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
     
+    MJSetupLogHandler(^(NSString* str){
+        [self appendString:str type:MJReplLineTypeStdout];
+    });
+    
     [self appendString:@""
      "Welcome to the Mjolnir REPL!\n"
      "You can run any Lua code in here.\n"
-                  type:1];
+                  type:MJReplLineTypeStdout];
 }
 
-- (void) appendString:(NSString*)str type:(int)type {
-    NSDictionary* attrs = @{NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0],
-                            NSForegroundColorAttributeName: type == 0 ? [NSColor redColor] : [NSColor blueColor]};
+- (void) appendString:(NSString*)str type:(MJReplLineType)type {
+    NSColor* color = nil;
+    switch (type) {
+        case MJReplLineTypeStdout:  color = [NSColor magentaColor]; break;
+        case MJReplLineTypeCommand: color = [NSColor redColor]; break;
+        case MJReplLineTypeResult:  color = [NSColor blueColor]; break;
+    }
+    
+    NSDictionary* attrs = @{NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0], NSForegroundColorAttributeName: color};
     NSAttributedString* attrstr = [[NSAttributedString alloc] initWithString:str attributes:attrs];
     [[self.outputView textStorage] appendAttributedString:attrstr];
 }
@@ -55,10 +69,10 @@ extern lua_State* MJLuaState;
 
 - (IBAction) tryMessage:(NSTextField*)sender {
     NSString* command = [sender stringValue];
-    [self appendString:[NSString stringWithFormat:@"\n> %@\n", command] type:0];
+    [self appendString:[NSString stringWithFormat:@"\n> %@\n", command] type:MJReplLineTypeCommand];
     
     NSString* result = [self run:command];
-    [self appendString:[NSString stringWithFormat:@"%@\n", result] type:1];
+    [self appendString:[NSString stringWithFormat:@"%@\n", result] type:MJReplLineTypeResult];
     
     [sender setStringValue:@""];
     [self saveToHistory:command];

@@ -3,7 +3,7 @@
 #import "MJExtensionManager.h"
 #import "MJConfigManager.h"
 #import "MJDocsManager.h"
-void MJSetupLua(void);
+#import "core.h"
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
 @end

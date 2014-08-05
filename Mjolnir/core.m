@@ -1,11 +1,15 @@
-#import "lua/lauxlib.h"
-#import "lua/lualib.h"
+#import "core.h"
 
 lua_State* MJLuaState;
 
 /// === core ===
 ///
 /// Core functionality.
+
+static void(^loghandler)(NSString* str);
+void MJSetupLogHandler(void(^blk)(NSString* str)) {
+    loghandler = blk;
+}
 
 static int core_exit(lua_State* L) {
     if (lua_toboolean(L, 2))
@@ -33,9 +37,18 @@ static int core_setaccessibilitytimeout(lua_State* L) {
     return 0;
 }
 
+static int core__logmessage(lua_State* L) {
+    size_t len;
+    const char* s = lua_tolstring(L, 1, &len);
+    NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
+    loghandler(str);
+    return 0;
+}
+
 static luaL_Reg corelib[] = {
     {"exit", core_exit},
     {"setaccessibilitytimeout", core_setaccessibilitytimeout},
+    {"_logmessage", core__logmessage},
     {}
 };
 
