@@ -53,15 +53,17 @@
     NSInteger sepIndex1 = [windowmenu indexOfItem:[windowmenu itemWithTag:1]];
     NSInteger sepIndex2 = [windowmenu indexOfItem:[windowmenu itemWithTag:2]];
     NSMenuItem* shortcut = [[NSMenuItem alloc] initWithTitle:[controller title]
-                                                      action:@selector(chooseTab:)
+                                                      action:@selector(chooseTabFromWindowsMenu:)
                                                keyEquivalent:[NSString stringWithFormat:@"%ld", sepIndex2 - sepIndex1]];
     [shortcut setKeyEquivalentModifierMask:NSCommandKeyMask];
     [shortcut setTarget:self];
     [windowmenu insertItem:shortcut atIndex:sepIndex2];
 }
 
-- (IBAction) chooseTab:(NSMenuItem*)item {
-    [self showAtTab:[item title]];
+- (IBAction) chooseTabFromWindowsMenu:(NSMenuItem*)item {
+    [self showWindow:self];
+    [[[self window] toolbar] setSelectedItemIdentifier:[item title]];
+    [self showTab:[item title]];
 }
 
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar*)toolbar {
@@ -96,12 +98,6 @@
     [self.tabView selectTabViewItemWithIdentifier:tab];
     NSTabViewItem* item = [self.tabView selectedTabViewItem];
     [[[item initialFirstResponder] window] makeFirstResponder:[item initialFirstResponder]];
-}
-
-- (void) showAtTab:(NSString*)tab {
-    [self showWindow:self];
-    [[[self window] toolbar] setSelectedItemIdentifier:tab];
-    [self showTab:tab];
 }
 
 @end
