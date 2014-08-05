@@ -2,6 +2,8 @@
 #import "MJExtensionManager.h"
 #import "MJExtension.h"
 
+#define MJCheckForExtensionUpdatesInterval (60.0 * 60.0 * 24.0)
+
 #define MJSkipRecommendRestartAlertKey @"MJSkipRecommendRestartAlertKey"
 
 typedef NS_ENUM(NSUInteger, MJCacheItemType) {
@@ -49,11 +51,22 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 - (NSImage*)  icon    { return [NSImage imageNamed:NSImageNameAdvanced]; }
 
 - (void) awakeFromNib {
+    [NSTimer scheduledTimerWithTimeInterval:MJCheckForExtensionUpdatesInterval
+                                     target:self
+                                   selector:@selector(checkForUpdatesTimerFired:)
+                                   userInfo:nil
+                                    repeats:YES];
+    
     [self rebuildCache];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(extensionsUpdated:)
                                                  name:MJExtensionsUpdatedNotification
                                                object:nil];
+}
+
+- (void) checkForUpdatesTimerFired:(NSTimer*)timer {
+    if (!self.hasActionsToApply)
+        [[MJExtensionManager sharedManager] update];
 }
 
 - (void) rebuildCache {
