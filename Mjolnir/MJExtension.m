@@ -52,15 +52,15 @@
 }
 
 - (BOOL) isEqual:(MJExtension*)other {
-    return [self isKindOfClass:[other class]] && [self.sha isEqualToString: other.sha];
+    return [self isKindOfClass:[other class]] && [self.tarsha isEqualToString: other.tarsha];
 }
 
 - (NSUInteger) hash {
-    return [self.sha hash];
+    return [self.tarsha hash];
 }
 
 - (NSString*) description {
-    return [NSString stringWithFormat:@"<Ext: %@ %@ - %@>", self.name, self.version, self.sha];
+    return [NSString stringWithFormat:@"<Ext: %@ %@ - %@>", self.name, self.version, self.tarsha];
 }
 
 @end
