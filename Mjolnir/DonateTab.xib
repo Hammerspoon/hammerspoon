@@ -17,11 +17,11 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <customView id="tEw-n6-W77">
-                    <rect key="frame" x="100" y="20" width="375" height="310"/>
+                    <rect key="frame" x="47" y="20" width="480" height="310"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <subviews>
                         <button verticalHuggingPriority="750" id="vVc-hA-e52">
-                            <rect key="frame" x="95" y="46" width="150" height="32"/>
+                            <rect key="frame" x="148" y="46" width="150" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Donate via PayPal" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="94P-Bb-esk">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -32,7 +32,7 @@
                             </connections>
                         </button>
                         <button verticalHuggingPriority="750" id="L2R-c6-4Ue">
-                            <rect key="frame" x="95" y="13" width="184" height="32"/>
+                            <rect key="frame" x="148" y="13" width="184" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Donate via Credit Card" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Gwp-1V-Whl">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -43,15 +43,15 @@
                             </connections>
                         </button>
                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" id="dyg-eQ-sY6">
-                            <rect key="frame" x="18" y="120" width="338" height="170"/>
+                            <rect key="frame" x="18" y="103" width="444" height="187"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="T3Q-Ry-FSY">
                                 <font key="font" metaFont="system"/>
-                                <string key="title">Hi there. I'm the principal author of Mjolnir.
+                                <mutableString key="title">Hi there. I'm the principal author of Mjolnir. I've worked hard to make this app useful and easy to use. I've also released it with a liberal open source license, so that you can do with it as you please.
 
-I've worked hard to make Mjolnir useful and easy to use. I've also released it with a liberal open source license, so that you can do with it as you please.
+So, instead of charging for licenses, I'm asking for donations. If you find Mjolnir genuinely beneficial to your productivity, I encourage you to donate what you believe is a fair price.
 
-So, instead of charging for licenses, I'm asking for donations. If you find Mjolnir helpful or beneficial to your workflow, I encourage you to donate what you believe would have been a fair price for a license.</string>
+Your donations will fund the time I'll be spending making Mjolnir even better, and will be used to compensate volunteers for the time and skills which they have generously contributed to the project.</mutableString>
                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                             </textFieldCell>

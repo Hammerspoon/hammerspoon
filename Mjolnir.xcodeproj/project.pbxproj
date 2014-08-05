@@ -66,6 +66,7 @@
 		94AB413919914DDA00055603 /* DonateTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413719914DDA00055603 /* DonateTab.xib */; };
 		94AB413C199156B000055603 /* Extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413A199156B000055603 /* Extensions.png */; };
 		94AB413D199156B000055603 /* REPL.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413B199156B000055603 /* REPL.png */; };
+		94AB413F19915AFF00055603 /* Donate.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413E19915AFF00055603 /* Donate.png */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
 		94BC27AD198DF08900B3998F /* MJDocsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BC27AC198DF08900B3998F /* MJDocsManager.m */; };
 		94D36C02198F27A000F3547D /* MJRestarter.m in Sources */ = {isa = PBXBuildFile; fileRef = 94D36C01198F27A000F3547D /* MJRestarter.m */; };
@@ -177,6 +178,7 @@
 		94AB413719914DDA00055603 /* DonateTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DonateTab.xib; sourceTree = "<group>"; };
 		94AB413A199156B000055603 /* Extensions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Extensions.png; sourceTree = "<group>"; };
 		94AB413B199156B000055603 /* REPL.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = REPL.png; sourceTree = "<group>"; };
+		94AB413E19915AFF00055603 /* Donate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Donate.png; sourceTree = "<group>"; };
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		94BC27AB198DF08900B3998F /* MJDocsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJDocsManager.h; sourceTree = "<group>"; };
 		94BC27AC198DF08900B3998F /* MJDocsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJDocsManager.m; sourceTree = "<group>"; };
@@ -289,6 +291,7 @@
 				944A2D421989737E00D8DC90 /* Mjolnir.icns */,
 				94AB413A199156B000055603 /* Extensions.png */,
 				94AB413B199156B000055603 /* REPL.png */,
+				94AB413E19915AFF00055603 /* Donate.png */,
 				94D7A826198D82430005B88E /* Mjolnir.docset */,
 			);
 			name = XcodeCrap;
@@ -494,6 +497,7 @@
 				949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
+				94AB413F19915AFF00055603 /* Donate.png in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
 				949CDC001990759B00906CCE /* ReplTab.xib in Resources */,
 				94AB413919914DDA00055603 /* DonateTab.xib in Resources */,
