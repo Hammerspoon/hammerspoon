@@ -34,6 +34,18 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     item.ext = ext;
     return item;
 }
+- (NSString*) displayVersion {
+    if (self.ext.previous)
+        return [NSString stringWithFormat:@"%@ (current version: %@)", self.ext.version, self.ext.previous.version];
+    else
+        return self.ext.version;
+}
+- (NSString*) currentVersion {
+    if (self.ext.previous)
+        return self.ext.previous.version;
+    else
+        return self.ext.version;
+}
 @end
 
 @interface MJExtensionsTabController () <NSTableViewDataSource, NSTableViewDelegate>
@@ -170,7 +182,7 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     }
     else if ([[tableColumn identifier] isEqualToString: @"version"]) {
         NSTextField* attr = [self attrRow:tableView];
-        attr.stringValue = [NSString stringWithFormat:@"%@", item.ext.version];
+        attr.stringValue = [NSString stringWithFormat:@"%@", [item currentVersion]];
         return attr;
     }
     else if ([[tableColumn identifier] isEqualToString: @"action"]) {

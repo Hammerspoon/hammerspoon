@@ -150,8 +150,10 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         
         NSArray* upgradedVersionsOfThis = [extsAvailable filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self.name == %@", ext.name]];
         if ([upgradedVersionsOfThis count] == 1) {
-            [extsNeedingUpgrade addObject: ext];
-            [extsAvailable removeObject: [upgradedVersionsOfThis firstObject]];
+            MJExtension* newer = [upgradedVersionsOfThis firstObject];
+            newer.previous = ext;
+            [extsNeedingUpgrade addObject: newer];
+            [extsAvailable removeObject: newer];
             continue;
         }
         
@@ -192,10 +194,11 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     [MJDocsManager installExtension:ext];
 }
 
-- (void) upgrade:(MJExtension*)oldext {
-    MJExtension* newext = [[self.cache.extensionsAvailable filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name == %@", oldext.name]] firstObject];
-    [self uninstall:oldext];
-    [self install:newext];
+- (void) upgrade:(MJExtension*)newext {
+    MJExtension* oldext = [[self.cache.extensionsInstalled filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name == %@", newext.name]] firstObject];
+    newext.previous = nil;
+    [self uninstall:newext];
+    [self install:oldext];
 }
 
 - (void) uninstall:(MJExtension*)ext {

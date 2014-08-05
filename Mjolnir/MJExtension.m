@@ -17,6 +17,7 @@
         self.desc = [decoder decodeObjectOfClass:[NSString class] forKey:@"description"];
         self.dependencies = [decoder decodeObjectOfClass:[NSArray class] forKey:@"dependencies"];
         self.changelog = [decoder decodeObjectOfClass:[NSString class] forKey:@"changelog"];
+        self.previous = [decoder decodeObjectOfClass:[NSString class] forKey:@"previous"];
     }
     return self;
 }
@@ -33,6 +34,7 @@
     [encoder encodeObject:self.desc forKey:@"description"];
     [encoder encodeObject:self.dependencies forKey:@"dependencies"];
     [encoder encodeObject:self.changelog forKey:@"changelog"];
+    [encoder encodeObject:self.previous forKey:@"previous"];
 }
 
 + (MJExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON {
@@ -48,6 +50,7 @@
     ext.desc = [longJSON objectForKey:@"description"];
     ext.dependencies = [longJSON objectForKey:@"deps"];
     ext.changelog = [longJSON objectForKey:@"changelog"];
+    ext.previous = [longJSON objectForKey:@"previous"];
     return ext;
 }
 

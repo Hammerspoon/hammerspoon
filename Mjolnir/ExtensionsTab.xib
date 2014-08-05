@@ -217,7 +217,7 @@
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                     <connections>
-                        <binding destination="5qv-wg-2L3" name="value" keyPath="selection.ext.version" id="kcl-h4-8Al"/>
+                        <binding destination="5qv-wg-2L3" name="value" keyPath="selection.displayVersion" id="jhU-yx-8b2"/>
                     </connections>
                 </textField>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="rlx-kL-cGn">
