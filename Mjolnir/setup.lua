@@ -42,3 +42,8 @@ function core._loadmodule(dotname)
 
   t[lastkey] = mod
 end
+
+function core._unloadmodule(dotname)
+  local fn = load(dotname.." = nil")
+  fn()
+end

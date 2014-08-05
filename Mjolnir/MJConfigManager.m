@@ -1,6 +1,7 @@
 #import "MJConfigManager.h"
 #include <CommonCrypto/CommonDigest.h>
 void MJLoadModule(NSString* fullname);
+void MJUnloadModule(NSString* fullname);
 
 @implementation MJConfigManager
 
@@ -58,7 +59,7 @@ void MJLoadModule(NSString* fullname);
 }
 
 + (void) uninstallExtension:(MJExtension*)ext {
-    // TODO: tear down Lua module stuff
+    MJUnloadModule(ext.name);
     [[NSFileManager defaultManager] removeItemAtPath:[self dirForExt:ext] error:NULL];
 }
 

@@ -49,8 +49,6 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 - (NSImage*)  icon    { return [NSImage imageNamed:NSImageNameAdvanced]; }
 
 - (void) awakeFromNib {
-//    [self.extsTable setTarget:self];
-//    [self.extsTable setDoubleAction:@selector(extensionItemRowDoubleClicked:)];
     [self rebuildCache];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(extensionsUpdated:)
@@ -62,7 +60,7 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     NSMutableArray* cache = [NSMutableArray array];
     
     if ([[MJExtensionManager sharedManager].extsNotInstalled count] > 0) {
-        [cache addObject: [MJCacheItem header: @"Available"]];
+        [cache addObject: [MJCacheItem header: @"Not Installed"]];
         for (MJExtension* ext in [MJExtensionManager sharedManager].extsNotInstalled)
             [cache addObject: [MJCacheItem ext:ext type:MJCacheItemTypeNotInstalled]];
     }
@@ -162,21 +160,6 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
         attr.stringValue = [NSString stringWithFormat:@"%@", item.ext.version];
         return attr;
     }
-//    else if ([[tableColumn identifier] isEqualToString: @"author"]) {
-//        NSTextField* attr = [self attrRow:tableView];
-//        attr.stringValue = item.ext.author;
-//        return attr;
-//    }
-//    else if ([[tableColumn identifier] isEqualToString: @"license"]) {
-//        NSTextField* attr = [self attrRow:tableView];
-//        attr.stringValue = item.ext.license;
-//        return attr;
-//    }
-//    else if ([[tableColumn identifier] isEqualToString: @"desc"]) {
-//        NSTextField* attr = [self attrRow:tableView];
-//        attr.stringValue = item.ext.desc;
-//        return attr;
-//    }
     else if ([[tableColumn identifier] isEqualToString: @"action"]) {
         NSString* title;
         switch (item.type) {
@@ -247,8 +230,8 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     
     NSAlert* alert = [[NSAlert alloc] init];
     [alert setAlertStyle: NSCriticalAlertStyle];
-    [alert setMessageText: @"Restart Recommended"];
-    [alert setInformativeText: @"When uninstalling or upgrading any extensions, Mjolnir may need to be restarted; otherwise, strange things may happen."];
+    [alert setMessageText: @"Restart recommended"];
+    [alert setInformativeText: @"When you uninstall or upgrade an extension, you may need to restart Mjolnir; otherwise, strange things may happen."];
     [alert setShowsSuppressionButton:YES];
     [alert addButtonWithTitle:@"OK"];
     [alert beginSheetModalForWindow:[sender window]
@@ -256,19 +239,6 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
                      didEndSelector:@selector(applyChangesAlertDidEnd:returnCode:contextInfo:)
                         contextInfo:NULL];
 }
-
-//- (void) extensionItemRowDoubleClicked:(id)sender {
-//    // TODO: uhh...
-//    NSInteger row = [self.extsTable clickedRow];
-//    if (row == -1)
-//        return;
-//    
-//    MJCacheItem* item = [self.cache objectAtIndex:row];
-//    if (item.type == MJCacheItemTypeHeader)
-//        return;
-//    
-//    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:item.ext.website]];
-//}
 
 - (IBAction) toggleExtAction:(NSButton*)sender {
     NSInteger row = [self.extsTable rowForView:sender];

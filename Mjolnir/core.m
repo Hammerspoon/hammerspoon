@@ -59,3 +59,12 @@ void MJLoadModule(NSString* fullname) {
     lua_pushstring(L, [fullname UTF8String]);
     lua_call(L, 1, 0);
 }
+
+void MJUnloadModule(NSString* fullname) {
+    lua_State* L = MJLuaState;
+    lua_getglobal(L, "core");
+    lua_getfield(L, -1, "_unloadmodule");
+    lua_remove(L, -2);
+    lua_pushstring(L, [fullname UTF8String]);
+    lua_call(L, 1, 0);
+}
