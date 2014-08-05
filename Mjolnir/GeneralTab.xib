@@ -16,11 +16,11 @@
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application"/>
         <view id="GZF-5M-36L">
-            <rect key="frame" x="0.0" y="0.0" width="500" height="300"/>
+            <rect key="frame" x="0.0" y="0.0" width="575" height="350"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <customView id="GbP-Ho-APx">
-                    <rect key="frame" x="31" y="12" width="436" height="279"/>
+                    <rect key="frame" x="69" y="41" width="436" height="279"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <subviews>
                         <button verticalHuggingPriority="750" id="jg5-ga-lac">
