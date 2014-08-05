@@ -10,10 +10,6 @@
 
 @implementation MJAppDelegate
 
-- (IBAction) showSpecificWindow:(NSMenuItem*)item {
-    [[MJMainWindowController sharedMainWindowController] showAtTab:[item title]];
-}
-
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [MJConfigManager setupConfigDir];
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:[MJConfigManager configPath]];

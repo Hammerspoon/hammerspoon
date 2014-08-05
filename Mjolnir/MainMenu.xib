@@ -639,23 +639,8 @@
                                     <action selector="performZoom:" target="-1" id="DIl-cC-cCs"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
-                            <menuItem title="General" keyEquivalent="1" id="iyO-Bl-5tl">
-                                <connections>
-                                    <action selector="showSpecificWindow:" target="Voe-Tx-rLC" id="Rhu-Qi-tBG"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="REPL" keyEquivalent="2" id="qmt-3G-hzS">
-                                <connections>
-                                    <action selector="showSpecificWindow:" target="Voe-Tx-rLC" id="Y80-0U-G3Z"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Extensions" keyEquivalent="3" id="cIu-lG-EYp">
-                                <connections>
-                                    <action selector="showSpecificWindow:" target="Voe-Tx-rLC" id="ynY-Bq-TzO"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem isSeparatorItem="YES" id="v4w-6d-bpK"/>
+                            <menuItem isSeparatorItem="YES" tag="1" id="eu3-7i-yIM"/>
+                            <menuItem isSeparatorItem="YES" tag="2" id="v4w-6d-bpK"/>
                             <menuItem title="Bring All to Front" id="LE2-aR-0XJ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

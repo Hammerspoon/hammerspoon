@@ -3,6 +3,7 @@
 #import "MJGeneralTabController.h"
 #import "MJReplTabController.h"
 #import "MJExtensionsTabController.h"
+#import "MJDonateTabController.h"
 
 @interface MJMainWindowController ()
 @property (weak) IBOutlet NSTabView* tabView;
@@ -47,6 +48,20 @@
     [self.tabIcons setObject:toolbaritem forKey:[controller title]];
     NSToolbar* toolbar = [[self window] toolbar];
     [toolbar insertItemWithItemIdentifier:[controller title] atIndex:[[toolbar items] count]];
+    
+    NSMenu* windowmenu = [[[[NSApplication sharedApplication] mainMenu] itemWithTitle:@"Window"] submenu];
+    NSInteger sepIndex1 = [windowmenu indexOfItem:[windowmenu itemWithTag:1]];
+    NSInteger sepIndex2 = [windowmenu indexOfItem:[windowmenu itemWithTag:2]];
+    NSMenuItem* shortcut = [[NSMenuItem alloc] initWithTitle:[controller title]
+                                                      action:@selector(chooseTab:)
+                                               keyEquivalent:[NSString stringWithFormat:@"%ld", sepIndex2 - sepIndex1]];
+    [shortcut setKeyEquivalentModifierMask:NSCommandKeyMask];
+    [shortcut setTarget:self];
+    [windowmenu insertItem:shortcut atIndex:sepIndex2];
+}
+
+- (IBAction) chooseTab:(NSMenuItem*)item {
+    [self showAtTab:[item title]];
 }
 
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar*)toolbar {
@@ -64,6 +79,7 @@
     [self addTabController:[[MJGeneralTabController alloc] init]];
     [self addTabController:[[MJReplTabController alloc] init]];
     [self addTabController:[[MJExtensionsTabController alloc] init]];
+    [self addTabController:[[MJDonateTabController alloc] init]];
     
     [[[self window] toolbar] setSelectedItemIdentifier:[[self.tabControllers firstObject] title]];
 }
