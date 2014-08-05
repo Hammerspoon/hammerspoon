@@ -38,6 +38,7 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 @property (weak) IBOutlet NSTableView* extsTable;
 @property NSArray* cache;
 @property BOOL hasActionsToApply;
+@property MJCacheItem* selectedCacheItem;
 @end
 
 @implementation MJExtensionsTabController
@@ -48,8 +49,8 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 - (NSImage*)  icon    { return [NSImage imageNamed:NSImageNameAdvanced]; }
 
 - (void) awakeFromNib {
-    [self.extsTable setTarget:self];
-    [self.extsTable setDoubleAction:@selector(extensionItemRowDoubleClicked:)];
+//    [self.extsTable setTarget:self];
+//    [self.extsTable setDoubleAction:@selector(extensionItemRowDoubleClicked:)];
     [self rebuildCache];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(extensionsUpdated:)
@@ -153,24 +154,29 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     }
     else if ([[tableColumn identifier] isEqualToString: @"name"]) {
         NSTextField* attr = [self attrRow:tableView];
-        attr.stringValue = [NSString stringWithFormat:@"%@ (%@)", item.ext.name, item.ext.version];
+        attr.stringValue = [NSString stringWithFormat:@"%@", item.ext.name];
         return attr;
     }
-    else if ([[tableColumn identifier] isEqualToString: @"author"]) {
+    else if ([[tableColumn identifier] isEqualToString: @"version"]) {
         NSTextField* attr = [self attrRow:tableView];
-        attr.stringValue = item.ext.author;
+        attr.stringValue = [NSString stringWithFormat:@"%@", item.ext.version];
         return attr;
     }
-    else if ([[tableColumn identifier] isEqualToString: @"license"]) {
-        NSTextField* attr = [self attrRow:tableView];
-        attr.stringValue = item.ext.license;
-        return attr;
-    }
-    else if ([[tableColumn identifier] isEqualToString: @"desc"]) {
-        NSTextField* attr = [self attrRow:tableView];
-        attr.stringValue = item.ext.desc;
-        return attr;
-    }
+//    else if ([[tableColumn identifier] isEqualToString: @"author"]) {
+//        NSTextField* attr = [self attrRow:tableView];
+//        attr.stringValue = item.ext.author;
+//        return attr;
+//    }
+//    else if ([[tableColumn identifier] isEqualToString: @"license"]) {
+//        NSTextField* attr = [self attrRow:tableView];
+//        attr.stringValue = item.ext.license;
+//        return attr;
+//    }
+//    else if ([[tableColumn identifier] isEqualToString: @"desc"]) {
+//        NSTextField* attr = [self attrRow:tableView];
+//        attr.stringValue = item.ext.desc;
+//        return attr;
+//    }
     else if ([[tableColumn identifier] isEqualToString: @"action"]) {
         NSString* title;
         switch (item.type) {
@@ -251,23 +257,44 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
                         contextInfo:NULL];
 }
 
-- (void) extensionItemRowDoubleClicked:(id)sender {
-    NSInteger row = [self.extsTable clickedRow];
-    if (row == -1)
-        return;
-    
-    MJCacheItem* item = [self.cache objectAtIndex:row];
-    if (item.type == MJCacheItemTypeHeader)
-        return;
-    
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:item.ext.website]];
-}
+//- (void) extensionItemRowDoubleClicked:(id)sender {
+//    // TODO: uhh...
+//    NSInteger row = [self.extsTable clickedRow];
+//    if (row == -1)
+//        return;
+//    
+//    MJCacheItem* item = [self.cache objectAtIndex:row];
+//    if (item.type == MJCacheItemTypeHeader)
+//        return;
+//    
+//    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:item.ext.website]];
+//}
 
 - (IBAction) toggleExtAction:(NSButton*)sender {
     NSInteger row = [self.extsTable rowForView:sender];
     MJCacheItem* item = [self.cache objectAtIndex:row];
     item.actionize = ([sender state] == NSOnState);
     [self recacheHasActionsToApply];
+}
+
+- (void) toggleExtViaSpacebar {
+    NSInteger row = [self.extsTable selectedRow];
+    if (row == -1)
+        return;
+    
+    MJCacheItem* item = [self.cache objectAtIndex:row];
+    item.actionize = !item.actionize;
+    [self.extsTable reloadData];
+    [self.extsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+    [self recacheHasActionsToApply];
+}
+
+- (void) tableViewSelectionDidChange:(NSNotification *)notification {
+    NSInteger row = [self.extsTable selectedRow];
+    if (row == -1)
+        self.selectedCacheItem = nil;
+    else
+        self.selectedCacheItem = [self.cache objectAtIndex:row];
 }
 
 - (void) recacheHasActionsToApply {
@@ -282,6 +309,45 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 - (BOOL) tableView:(NSTableView *)tableView isGroupRow:(NSInteger)row {
     MJCacheItem* item = [self.cache objectAtIndex:row];
     return item.type == MJCacheItemTypeHeader;
+}
+
+@end
+
+@interface MJExtensionsTableView : NSTableView
+@end
+
+@implementation MJExtensionsTableView
+
+- (void) keyDown:(NSEvent *)theEvent {
+    if ([[theEvent characters] isEqualToString: @" "]) {
+        MJExtensionsTabController* controller = (id)[self delegate];
+        [controller toggleExtViaSpacebar];
+    }
+    else {
+        [super keyDown:theEvent];
+    }
+}
+
+@end
+
+@interface MJLinkTextField : NSTextField
+@end
+
+@implementation MJLinkTextField
+
+- (id) initWithCoder:(NSCoder *)aDecoder {
+    if (self = [super initWithCoder:aDecoder]) {
+        [[self cell] setTextColor:[NSColor blueColor]];
+    }
+    return self;
+}
+
+- (void)resetCursorRects {
+    [self addCursorRect:[self bounds] cursor:[NSCursor pointingHandCursor]];
+}
+
+- (void) mouseDown:(NSEvent *)theEvent {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[self stringValue]]];
 }
 
 @end

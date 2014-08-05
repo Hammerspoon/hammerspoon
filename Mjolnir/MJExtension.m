@@ -16,7 +16,7 @@
         self.license = [decoder decodeObjectOfClass:[NSString class] forKey:@"license"];
         self.desc = [decoder decodeObjectOfClass:[NSString class] forKey:@"description"];
         self.dependencies = [decoder decodeObjectOfClass:[NSArray class] forKey:@"dependencies"];
-        self.changelog = [decoder decodeObjectOfClass:[NSArray class] forKey:@"changelog"];
+        self.changelog = [decoder decodeObjectOfClass:[NSString class] forKey:@"changelog"];
     }
     return self;
 }
