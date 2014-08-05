@@ -34,7 +34,7 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 }
 @end
 
-@interface MJExtensionsTabController ()
+@interface MJExtensionsTabController () <NSTableViewDataSource, NSTableViewDelegate>
 @property (weak) IBOutlet NSTableView* extsTable;
 @property NSArray* cache;
 @property BOOL hasActionsToApply;

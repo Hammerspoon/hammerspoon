@@ -1,2 +1,2 @@
-@interface MJExtensionsTabController : NSObject <NSTableViewDataSource, NSTableViewDelegate>
+@interface MJExtensionsTabController : NSObject
 @end
