@@ -49,25 +49,45 @@
     return YES;
 }
 
-+ (BOOL) verifyData:(NSData*)tgzdata sha:(NSString*)sha {
-    // TODO: check for more errors and don't leak memories
+NSString* MJDataToHexString(NSData* shadata) {
+    const unsigned char* shabuf = [shadata bytes];
+    NSMutableString *newsha = [NSMutableString stringWithCapacity:([shadata length] * 2)];
+    for (int i = 0; i < [shadata length]; ++i)
+        [newsha appendString:[NSString stringWithFormat:@"%02lx", (unsigned long)shabuf[i]]];
+    return newsha;
+}
+
++ (BOOL) verifyData:(NSData*)tgzdata sha:(NSString*)sha error:(NSError*__autoreleasing*)error {
     NSInputStream* inputStream = [NSInputStream inputStreamWithData:tgzdata];
     
-    SecTransformRef readTransform = SecTransformCreateReadTransformWithReadStream((__bridge CFReadStreamRef)inputStream);
-    SecTransformRef digestTransform = SecDigestTransformCreate(kSecDigestSHA1, CC_SHA1_DIGEST_LENGTH, NULL);
-    
     SecGroupTransformRef group = SecTransformCreateGroupTransform();
-    SecTransformConnectTransforms(readTransform, kSecTransformOutputAttributeName, digestTransform, kSecTransformInputAttributeName, group, NULL);
-    NSData* data = (__bridge_transfer NSData*)SecTransformExecute(group, NULL);
+    SecTransformRef readTransform = SecTransformCreateReadTransformWithReadStream((__bridge CFReadStreamRef)inputStream);
+    SecTransformRef digestTransform;
+    CFErrorRef cferror = NULL;
+    BOOL verified = NO;
+    NSData* gotsha;
     
-    const unsigned char *buf = [data bytes];
-    NSMutableString *gotsha = [NSMutableString stringWithCapacity:([data length] * 2)];
-    for (int i = 0; i < [data length]; ++i)
-        [gotsha appendString:[NSString stringWithFormat:@"%02lx", (unsigned long)buf[i]]];
+    digestTransform = SecDigestTransformCreate(kSecDigestSHA1, CC_SHA1_DIGEST_LENGTH, &cferror);
+    if (!digestTransform) goto cleanup;
+    
+    cferror = NULL; // overkill? can't tell; docs are ambiguous
+    SecTransformConnectTransforms(readTransform, kSecTransformOutputAttributeName, digestTransform, kSecTransformInputAttributeName, group, &cferror);
+    if (cferror) goto cleanup;
+    
+    cferror = NULL; // overkill? can't tell; docs are ambiguous
+    gotsha = (__bridge_transfer NSData*)SecTransformExecute(group, &cferror);
+    if (cferror) goto cleanup;
+    
+    verified = [[sha lowercaseString] isEqualToString: [MJDataToHexString(gotsha) lowercaseString]];
+    
+cleanup:
     
     CFRelease(group);
+    CFRelease(readTransform);
+    if (digestTransform) CFRelease(digestTransform);
+    if (cferror) *error = (__bridge_transfer NSError*)cferror;
     
-    return [[sha lowercaseString] isEqualToString: [gotsha lowercaseString]];
+    return verified;
 }
 
 + (void) reload {

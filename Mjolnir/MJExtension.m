@@ -76,12 +76,12 @@
             return;
         }
         
-        if (![MJConfigManager verifyData:tgzdata sha:self.tarsha]) {
-            done([NSError errorWithDomain:@"Mjolnir" code:0 userInfo:@{NSLocalizedDescriptionKey: @"SHA1 doesn't match."}]);
+        NSError* __autoreleasing error;
+        if (![MJConfigManager verifyData:tgzdata sha:self.tarsha error:&error]) {
+            done([NSError errorWithDomain:@"Mjolnir" code:0 userInfo:@{NSLocalizedDescriptionKey: @"SHA1 doesn't match.", NSUnderlyingErrorKey: error}]);
             return;
         }
         
-        NSError* __autoreleasing error;
         NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
         BOOL success = [MJConfigManager untarData:tgzdata intoDirectory:extdir error:&error];
         if (!success) {
