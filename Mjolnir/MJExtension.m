@@ -1,4 +1,7 @@
 #import "MJExtension.h"
+#import "MJDocsManager.h"
+#import "MJConfigManager.h"
+#import "core.h"
 
 @implementation MJExtension
 
@@ -64,6 +67,46 @@
 
 - (NSString*) description {
     return [NSString stringWithFormat:@"<Ext: %@ %@ - %@>", self.name, self.version, self.tarsha];
+}
+
+- (void) install:(void(^)(NSError*))done {
+    [MJConfigManager downloadExtension:self.tarfile handler:^(NSError *err, NSData *data) {
+        if (err) {
+            done(err);
+            return;
+        }
+        
+        NSError* __autoreleasing error;
+        NSString* tmpfile = [MJConfigManager saveDataToTempFile:data error:&error];
+        if (!tmpfile) {
+            done(error);
+            return;
+        }
+        
+        if (![MJConfigManager verifyFile:tmpfile sha:self.tarsha]) {
+            done([NSError errorWithDomain:@"Mjolnir" code:0 userInfo:@{NSLocalizedDescriptionKey: @"SHA1 doesn't match."}]);
+            return;
+        }
+        
+        NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
+        [MJConfigManager untarFile:tmpfile intoDirectory:extdir];
+        
+        MJLoadModule(self.name);
+        
+        [MJDocsManager installExtension:self];
+        
+        done(nil);
+    }];
+}
+
+- (void) uninstall:(void(^)(NSError*))done {
+    [MJDocsManager uninstallExtension:self];
+    
+    MJUnloadModule(self.name);
+    
+    [[NSFileManager defaultManager] removeItemAtPath:[MJConfigManager dirForExtensionName:self.name] error:NULL];
+    
+    done(nil);
 }
 
 @end

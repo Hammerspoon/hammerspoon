@@ -20,6 +20,7 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 @property MJExtension* ext;
 @property NSString* header;
 @property BOOL actionize;
+@property BOOL actionizing;
 @end
 @implementation MJCacheItem
 + (MJCacheItem*) header:(NSString*)title {
@@ -167,6 +168,19 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     return button;
 }
 
+- (NSProgressIndicator*) progressRow:(NSTableView*)tableView {
+    NSProgressIndicator* progress = [tableView makeViewWithIdentifier:@"progress" owner:self];
+    if (!progress) {
+        progress = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(0, 0, 100, 0)];
+        progress.identifier = @"progress";
+        [progress setIndeterminate:YES];
+        [progress setStyle:NSProgressIndicatorSpinningStyle];
+        [progress setControlSize:NSSmallControlSize];
+        [progress startAnimation:nil];
+    }
+    return progress;
+}
+
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     MJCacheItem* item = [self.cache objectAtIndex:row];
     
@@ -186,18 +200,23 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
         return attr;
     }
     else if ([[tableColumn identifier] isEqualToString: @"action"]) {
-        NSString* title;
-        switch (item.type) {
-            case MJCacheItemTypeNeedsUpgrade:    title = @"Upgrade"; break;
-            case MJCacheItemTypeNotInstalled:    title = @"Install"; break;
-            case MJCacheItemTypeRemovedRemotely: title = @"Uninstall"; break;
-            case MJCacheItemTypeUpToDate:        title = @"Uninstall"; break;
-            default: break;
+        if (item.actionizing) {
+            return [self progressRow:tableView];
         }
-        NSButton* action = [self actionRow:tableView];
-        action.title = title;
-        action.state = item.actionize ? NSOnState : NSOffState;
-        return action;
+        else {
+            NSString* title;
+            switch (item.type) {
+                case MJCacheItemTypeNeedsUpgrade:    title = @"Upgrade"; break;
+                case MJCacheItemTypeNotInstalled:    title = @"Install"; break;
+                case MJCacheItemTypeRemovedRemotely: title = @"Uninstall"; break;
+                case MJCacheItemTypeUpToDate:        title = @"Uninstall"; break;
+                default: break;
+            }
+            NSButton* action = [self actionRow:tableView];
+            action.title = title;
+            action.state = item.actionize ? NSOnState : NSOffState;
+            return action;
+        }
     }
     
     return nil; // unreachable (I hope)
@@ -212,6 +231,8 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
         if (!item.actionize)
             continue;
         
+        item.actionizing = YES;
+        
         switch (item.type) {
             case MJCacheItemTypeHeader: continue;
             case MJCacheItemTypeNeedsUpgrade:    [upgrade addObject: item.ext]; break;
@@ -220,6 +241,8 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
             case MJCacheItemTypeUpToDate:        [uninstall addObject: item.ext]; break;
         }
     }
+    
+    [self.extsTable reloadData];
     
     [[MJExtensionManager sharedManager] upgrade:upgrade
                                         install:install

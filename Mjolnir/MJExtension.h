@@ -17,4 +17,7 @@
 
 + (MJExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON;
 
+- (void) install:(void(^)(NSError*))done;
+- (void) uninstall:(void(^)(NSError*))done;
+
 @end

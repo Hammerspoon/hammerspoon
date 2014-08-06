@@ -1,7 +1,5 @@
 #import "MJExtensionManager.h"
 #import "MJExtension.h"
-#import "MJDocsManager.h"
-#import "MJConfigManager.h"
 #import "core.h"
 
 NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
@@ -173,40 +171,66 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
          install:(NSArray*)install
        uninstall:(NSArray*)uninstall
 {
-    for (MJExtension* ext in upgrade)
-        [self upgrade: ext];
+    NSMutableArray* errors = [NSMutableArray array];
+    dispatch_group_t g = dispatch_group_create();
+    dispatch_group_enter(g);
     
-    for (MJExtension* ext in install)
-        [self install: ext];
+    dispatch_group_notify(g, dispatch_get_main_queue(), ^{
+        [self.cache save];
+        [self rebuildMemoryCache];
+        NSLog(@"%@", errors);
+        // TODO: present errors to the user
+    });
     
     for (MJExtension* ext in uninstall)
-        [self uninstall: ext];
+        [self uninstall:ext errors:errors group:g];
     
-    [self.cache save];
-    [self rebuildMemoryCache];
+    for (MJExtension* ext in install)
+        [self install:ext errors:errors group:g];
+    
+    for (MJExtension* newext in upgrade)
+        [self upgrade:newext errors:errors group:g];
+    
+    dispatch_group_leave(g);
 }
 
-- (void) install:(MJExtension*)ext {
-    [self.cache.extensionsInstalled addObject: ext];
-    
-    // order matters
-    [MJConfigManager installExtension:ext];
-    [MJDocsManager installExtension:ext];
+- (void) install:(MJExtension*)ext errors:(NSMutableArray*)errors group:(dispatch_group_t)g {
+    dispatch_group_enter(g);
+    [ext install:^(NSError* err) {
+        if (!err)
+            [self.cache.extensionsInstalled addObject: ext];
+        else
+            [errors addObject: err];
+        
+        dispatch_group_leave(g);
+    }];
 }
 
-- (void) upgrade:(MJExtension*)newext {
-    MJExtension* oldext = [[self.cache.extensionsInstalled filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name == %@", newext.name]] firstObject];
-    newext.previous = nil;
-    [self uninstall:newext];
-    [self install:oldext];
+- (void) uninstall:(MJExtension*)ext errors:(NSMutableArray*)errors group:(dispatch_group_t)g {
+    dispatch_group_enter(g);
+    [ext uninstall:^(NSError* err) {
+        if (!err)
+            [self.cache.extensionsInstalled removeObject: ext];
+        else
+            [errors addObject: err];
+        
+        dispatch_group_leave(g);
+    }];
 }
 
-- (void) uninstall:(MJExtension*)ext {
-    [self.cache.extensionsInstalled removeObject: ext];
-    
-    // order matters
-    [MJDocsManager uninstallExtension:ext];
-    [MJConfigManager uninstallExtension:ext];
+- (void) upgrade:(MJExtension*)ext errors:(NSMutableArray*)errors group:(dispatch_group_t)g {
+    dispatch_group_enter(g);
+    [ext uninstall:^(NSError* err) {
+        if (!err) {
+            [self.cache.extensionsInstalled removeObject: ext];
+            ext.previous = nil;
+            [self install:ext errors:errors group:g];
+        }
+        else {
+            [errors addObject: err];
+        }
+        dispatch_group_leave(g);
+    }];
 }
 
 @end

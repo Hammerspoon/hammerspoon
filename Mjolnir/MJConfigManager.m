@@ -1,6 +1,5 @@
 #import "MJConfigManager.h"
 #include <CommonCrypto/CommonDigest.h>
-#import "core.h"
 
 @implementation MJConfigManager
 
@@ -15,54 +14,48 @@
                                                     error:NULL];
 }
 
-+ (NSString*) dirForExt:(MJExtension*)ext {
-    NSString* nameWithDashes = [ext.name stringByReplacingOccurrencesOfString:@"." withString:@"_"];
++ (NSString*) dirForExtensionName:(NSString*)extname {
+    NSString* nameWithDashes = [extname stringByReplacingOccurrencesOfString:@"." withString:@"_"];
     return [[MJConfigManager configPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"ext/%@/", nameWithDashes]];
 }
 
-+ (void) installExtension:(MJExtension*)ext {
-    NSURL* url = [NSURL URLWithString:ext.tarfile];
-    NSURLRequest* req = [NSURLRequest requestWithURL:url];
-    NSURLResponse* __autoreleasing response;
-    NSError* __autoreleasing error;
-    NSData* tgz_data = [NSURLConnection sendSynchronousRequest:req returningResponse:&response error:&error];
-    // yes, we just did a sync call. worst case scenario, the app freezes up for a second or two. we can change it later if it proves to be seriously annoying.
-    
++ (void) downloadExtension:(NSString*)url handler:(void(^)(NSError* err, NSData* data))handler {
+    NSURLRequest* req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+    [NSURLConnection sendAsynchronousRequest:req
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                               handler(connectionError, data);
+                           }];
+}
+
++ (NSString*) saveDataToTempFile:(NSData*)tgz_data error:(NSError*__autoreleasing*)error {
     const char* tempFileTemplate = [[NSTemporaryDirectory() stringByAppendingPathComponent:@"ext.XXXXXX.tgz"] fileSystemRepresentation];
     char* tempFileName = malloc(strlen(tempFileTemplate) + 1);
     strcpy(tempFileName, tempFileTemplate);
     int fd = mkstemps(tempFileName, 4);
-    if (fd == -1) perror(NULL);
+    if (fd == -1) {
+        *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+        return nil;
+    }
     NSString* tempFilePath = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tempFileName length:strlen(tempFileName)];
     free(tempFileName);
     NSFileHandle* tempFileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fd];
     [tempFileHandle writeData:tgz_data];
     [tempFileHandle closeFile];
-    
-    // if it doesnt work? well then, we just like, stop i guess...?
-    if (![self verifyFile:tempFilePath sha:ext.tarsha]) {
-        NSLog(@"sha1 doesn't match; bailing."); // TODO: lol
-        return;
-    }
-    
-    NSString* untarDestDir = [self dirForExt:ext];
-    [[NSFileManager defaultManager] createDirectoryAtPath:untarDestDir withIntermediateDirectories:YES attributes:nil error:NULL];
-    
-    NSTask* untar = [[NSTask alloc] init];
-    [untar setLaunchPath:@"/usr/bin/tar"];
-    [untar setArguments:@[@"-xzf", tempFilePath, @"-C", untarDestDir]];
-    [untar launch];
-    [untar waitUntilExit];
-    
-    MJLoadModule(ext.name);
+    return tempFilePath;
 }
 
-+ (void) uninstallExtension:(MJExtension*)ext {
-    MJUnloadModule(ext.name);
-    [[NSFileManager defaultManager] removeItemAtPath:[self dirForExt:ext] error:NULL];
++ (void) untarFile:(NSString*)tarfile intoDirectory:(NSString*)dir {
+    [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:NULL];
+    NSTask* untar = [[NSTask alloc] init];
+    [untar setLaunchPath:@"/usr/bin/tar"];
+    [untar setArguments:@[@"-xzf", tarfile, @"-C", dir]];
+    [untar launch];
+    [untar waitUntilExit];
 }
 
 + (BOOL) verifyFile:(NSString*)path sha:(NSString*)sha {
+    // TODO: check for more errors
     SecGroupTransformRef group = SecTransformCreateGroupTransform();
     NSInputStream* inputStream = [NSInputStream inputStreamWithFileAtPath:path];
     SecTransformRef readTransform = SecTransformCreateReadTransformWithReadStream((__bridge CFReadStreamRef)inputStream);

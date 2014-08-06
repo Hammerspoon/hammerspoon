@@ -6,10 +6,11 @@
 + (NSString*) configPath;
 + (void) setupConfigDir;
 
-+ (void) installExtension:(MJExtension*)ext;
-+ (void) uninstallExtension:(MJExtension*)ext;
-
-+ (NSString*) dirForExt:(MJExtension*)ext;
++ (void) downloadExtension:(NSString*)url handler:(void(^)(NSError* err, NSData* data))handler;
++ (NSString*) saveDataToTempFile:(NSData*)tgz_data error:(NSError*__autoreleasing*)error;
++ (BOOL) verifyFile:(NSString*)path sha:(NSString*)sha;
++ (void) untarFile:(NSString*)tarfile intoDirectory:(NSString*)dir;
++ (NSString*) dirForExtensionName:(NSString*)extname;
 
 + (void) reload;
 

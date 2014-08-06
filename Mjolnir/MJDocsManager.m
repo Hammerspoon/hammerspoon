@@ -20,7 +20,7 @@
 }
 
 + (void) installExtension:(MJExtension*)ext {
-    NSString* extdir = [MJConfigManager dirForExt:ext];
+    NSString* extdir = [MJConfigManager dirForExtensionName:ext.name];
     NSString* htmlSourceDir = [extdir stringByAppendingPathComponent:@"docs.html.d"];
     NSArray* files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:htmlSourceDir error:NULL];
     NSString* htmlDestDir = [[[self docsFile] URLByAppendingPathComponent:@"Contents/Resources/Documents"] path];
@@ -40,7 +40,7 @@
 }
 
 + (void) uninstallExtension:(MJExtension*)ext {
-    NSString* extdir = [MJConfigManager dirForExt:ext];
+    NSString* extdir = [MJConfigManager dirForExtensionName:ext.name];
     
     NSTask* inTask = [[NSTask alloc] init];
     [inTask setLaunchPath:@"/usr/bin/sqlite3"];
