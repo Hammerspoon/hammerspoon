@@ -6,9 +6,10 @@
 
 [![Build Status](https://travis-ci.org/mjolnir-io/mjolnir.svg?branch=master)](https://travis-ci.org/mjolnir-io/mjolnir)
 
-* Current version: **1.1**
+* Current version: **0.1**
 * Requires: OS X 10.8 and up
 * Download: [get latest release](https://github.com/sdegutis/hydra/releases/latest), unzip, right-click app, choose "Open"
+* Mailing list: https://groups.google.com/forum/#!forum/mjolnir-io
 
 ## Usage
 
