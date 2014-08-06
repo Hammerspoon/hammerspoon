@@ -195,42 +195,48 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 }
 
 - (void) install:(MJExtension*)ext errors:(NSMutableArray*)errors group:(dispatch_group_t)g {
-    dispatch_group_enter(g);
-    [ext install:^(NSError* err) {
-        if (!err)
-            [self.cache.extensionsInstalled addObject: ext];
-        else
-            [errors addObject: err];
-        
-        dispatch_group_leave(g);
-    }];
+    dispatch_group_async(g, dispatch_get_main_queue(), ^{
+        dispatch_group_enter(g);
+        [ext install:^(NSError* err) {
+            if (!err)
+                [self.cache.extensionsInstalled addObject: ext];
+            else
+                [errors addObject: err];
+            
+            dispatch_group_leave(g);
+        }];
+    });
 }
 
 - (void) uninstall:(MJExtension*)ext errors:(NSMutableArray*)errors group:(dispatch_group_t)g {
-    dispatch_group_enter(g);
-    [ext uninstall:^(NSError* err) {
-        if (!err)
-            [self.cache.extensionsInstalled removeObject: ext];
-        else
-            [errors addObject: err];
-        
-        dispatch_group_leave(g);
-    }];
+    dispatch_group_async(g, dispatch_get_main_queue(), ^{
+        dispatch_group_enter(g);
+        [ext uninstall:^(NSError* err) {
+            if (!err)
+                [self.cache.extensionsInstalled removeObject: ext];
+            else
+                [errors addObject: err];
+            
+            dispatch_group_leave(g);
+        }];
+    });
 }
 
 - (void) upgrade:(MJExtension*)ext errors:(NSMutableArray*)errors group:(dispatch_group_t)g {
-    dispatch_group_enter(g);
-    [ext uninstall:^(NSError* err) {
-        if (!err) {
-            [self.cache.extensionsInstalled removeObject: ext];
-            ext.previous = nil;
-            [self install:ext errors:errors group:g];
-        }
-        else {
-            [errors addObject: err];
-        }
-        dispatch_group_leave(g);
-    }];
+    dispatch_group_async(g, dispatch_get_main_queue(), ^{
+        dispatch_group_enter(g);
+        [ext uninstall:^(NSError* err) {
+            if (!err) {
+                [self.cache.extensionsInstalled removeObject: ext];
+                ext.previous = nil;
+                [self install:ext errors:errors group:g];
+            }
+            else {
+                [errors addObject: err];
+            }
+            dispatch_group_leave(g);
+        }];
+    });
 }
 
 @end
