@@ -33,14 +33,13 @@
     if (!success) return NO;
     
     NSPipe* pipe = [NSPipe pipe];
-    [[pipe fileHandleForWriting] writeData:tardata];
-    [[pipe fileHandleForWriting] closeFile];
-    
     NSTask* untar = [[NSTask alloc] init];
     [untar setLaunchPath:@"/usr/bin/tar"];
     [untar setArguments:@[@"-xzf-", @"-C", dir]];
     [untar setStandardInput:pipe];
     [untar launch];
+    [[pipe fileHandleForWriting] writeData:tardata];
+    [[pipe fileHandleForWriting] closeFile];
     [untar waitUntilExit];
     if ([untar terminationStatus]) {
         *error = [NSError errorWithDomain:@"tar" code:[untar terminationStatus] userInfo:@{NSLocalizedDescriptionKey: @"could not extract the extension archive"}];
