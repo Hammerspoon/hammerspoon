@@ -23,23 +23,29 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     return sharedExtManager;
 }
 
-- (void) getURL:(NSString*)urlString handleJSON:(void(^)(id json))handler {
+- (void) getURL:(NSString*)urlString done:(void(^)(id json, NSError* error))done {
     // come on apple srsly
     NSURL* url = [NSURL URLWithString:urlString];
     NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5.0];
     [NSURLConnection sendAsynchronousRequest:req
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                               if (data) {
+                               NSString* limitRemaining = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-RateLimit-Remaining"];
+                               if (limitRemaining && [limitRemaining integerValue] < 1) {
+                                   done(nil, [NSError errorWithDomain:@"Github API"
+                                                                 code:0
+                                                             userInfo:@{NSLocalizedDescriptionKey: @"Github's API needs time to recover from you."}]);
+                               }
+                               else if (data) {
                                    NSError* __autoreleasing jsonError;
                                    id obj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
                                    if (obj)
-                                       handler(obj);
+                                       done(obj, nil);
                                    else
-                                       NSLog(@"json error: %@ - %@", jsonError, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                                       done(nil, jsonError);
                                }
                                else {
-                                   NSLog(@"connection error: %@", connectionError);
+                                   done(nil, connectionError);
                                }
                            }];
 }
@@ -48,7 +54,13 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     if (self.updating) return;
     self.updating = YES;
     
-    [self getURL:MJMasterShaURL handleJSON:^(NSDictionary* json) {
+    [self getURL:MJMasterShaURL done:^(NSDictionary* json, NSError* error) {
+        if (error) {
+            NSLog(@"%@", error);
+            self.updating = NO;
+            return;
+        }
+        
         NSString* newsha = [[json objectForKey:@"object"] objectForKey:@"sha"];
         
         if ([newsha isEqualToString: self.cache.sha]) {
@@ -61,7 +73,13 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         
         self.cache.sha = newsha;
         
-        [self getURL:MJTreeListURL handleJSON:^(NSDictionary* json) {
+        [self getURL:MJTreeListURL done:^(NSDictionary* json, NSError* error) {
+            if (error) {
+                NSLog(@"%@", error);
+                self.updating = NO;
+                return;
+            }
+            
             NSMutableArray* newlist = [NSMutableArray array];
             for (NSDictionary* file in [json objectForKey:@"tree"]) {
                 NSString* path = [file objectForKey:@"path"];
@@ -109,7 +127,7 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         NSString* url = [NSString stringWithFormat:MJRawFilePathURLTemplate, self.cache.sha, extNamePath];
         NSLog(@"downloading: %@", url);
         
-        [self getURL:url handleJSON:^(NSDictionary* json) {
+        [self getURL:url done:^(NSDictionary* json, NSError* error) {
             [self.cache.extensionsAvailable addObject: [MJExtension extensionWithShortJSON:ext longJSON:json]];
             
             if (--waitingfor == 0)
