@@ -45,17 +45,25 @@
     return tempFilePath;
 }
 
-+ (void) untarFile:(NSString*)tarfile intoDirectory:(NSString*)dir {
-    [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:NULL];
++ (BOOL) untarFile:(NSString*)tarfile intoDirectory:(NSString*)dir error:(NSError*__autoreleasing*)error {
+    BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:error];
+    if (!success) return NO;
+    
     NSTask* untar = [[NSTask alloc] init];
     [untar setLaunchPath:@"/usr/bin/tar"];
     [untar setArguments:@[@"-xzf", tarfile, @"-C", dir]];
     [untar launch];
     [untar waitUntilExit];
+    if ([untar terminationStatus]) {
+        *error = [NSError errorWithDomain:@"tar" code:[untar terminationStatus] userInfo:@{NSLocalizedDescriptionKey: @"could not extract the extension archive"}];
+        return NO;
+    }
+    
+    return YES;
 }
 
 + (BOOL) verifyFile:(NSString*)path sha:(NSString*)sha {
-    // TODO: check for more errors
+    // TODO: check for more errors and don't leak memories
     SecGroupTransformRef group = SecTransformCreateGroupTransform();
     NSInputStream* inputStream = [NSInputStream inputStreamWithFileAtPath:path];
     SecTransformRef readTransform = SecTransformCreateReadTransformWithReadStream((__bridge CFReadStreamRef)inputStream);

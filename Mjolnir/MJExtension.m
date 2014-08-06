@@ -89,7 +89,11 @@
         }
         
         NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
-        [MJConfigManager untarFile:tmpfile intoDirectory:extdir];
+        BOOL success = [MJConfigManager untarFile:tmpfile intoDirectory:extdir error:&error];
+        if (!success) {
+            done(error);
+            return;
+        }
         
         MJLoadModule(self.name);
         
