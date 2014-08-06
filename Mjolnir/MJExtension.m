@@ -70,26 +70,20 @@
 }
 
 - (void) install:(void(^)(NSError*))done {
-    [MJConfigManager downloadExtension:self.tarfile handler:^(NSError *err, NSData *data) {
+    [MJConfigManager downloadExtension:self.tarfile handler:^(NSError *err, NSData *tgzdata) {
         if (err) {
             done(err);
             return;
         }
         
-        NSError* __autoreleasing error;
-        NSString* tmpfile = [MJConfigManager saveDataToTempFile:data error:&error];
-        if (!tmpfile) {
-            done(error);
-            return;
-        }
-        
-        if (![MJConfigManager verifyFile:tmpfile sha:self.tarsha]) {
+        if (![MJConfigManager verifyData:tgzdata sha:self.tarsha]) {
             done([NSError errorWithDomain:@"Mjolnir" code:0 userInfo:@{NSLocalizedDescriptionKey: @"SHA1 doesn't match."}]);
             return;
         }
         
+        NSError* __autoreleasing error;
         NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
-        BOOL success = [MJConfigManager untarFile:tmpfile intoDirectory:extdir error:&error];
+        BOOL success = [MJConfigManager untarData:tgzdata intoDirectory:extdir error:&error];
         if (!success) {
             done(error);
             return;

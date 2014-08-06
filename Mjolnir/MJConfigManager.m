@@ -28,30 +28,18 @@
                            }];
 }
 
-+ (NSString*) saveDataToTempFile:(NSData*)tgz_data error:(NSError*__autoreleasing*)error {
-    const char* tempFileTemplate = [[NSTemporaryDirectory() stringByAppendingPathComponent:@"ext.XXXXXX.tgz"] fileSystemRepresentation];
-    char* tempFileName = malloc(strlen(tempFileTemplate) + 1);
-    strcpy(tempFileName, tempFileTemplate);
-    int fd = mkstemps(tempFileName, 4);
-    if (fd == -1) {
-        *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
-        return nil;
-    }
-    NSString* tempFilePath = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tempFileName length:strlen(tempFileName)];
-    free(tempFileName);
-    NSFileHandle* tempFileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fd];
-    [tempFileHandle writeData:tgz_data];
-    [tempFileHandle closeFile];
-    return tempFilePath;
-}
-
-+ (BOOL) untarFile:(NSString*)tarfile intoDirectory:(NSString*)dir error:(NSError*__autoreleasing*)error {
++ (BOOL) untarData:(NSData*)tardata intoDirectory:(NSString*)dir error:(NSError*__autoreleasing*)error {
     BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:error];
     if (!success) return NO;
     
+    NSPipe* pipe = [NSPipe pipe];
+    [[pipe fileHandleForWriting] writeData:tardata];
+    [[pipe fileHandleForWriting] closeFile];
+    
     NSTask* untar = [[NSTask alloc] init];
     [untar setLaunchPath:@"/usr/bin/tar"];
-    [untar setArguments:@[@"-xzf", tarfile, @"-C", dir]];
+    [untar setArguments:@[@"-xzf-", @"-C", dir]];
+    [untar setStandardInput:pipe];
     [untar launch];
     [untar waitUntilExit];
     if ([untar terminationStatus]) {
@@ -62,19 +50,23 @@
     return YES;
 }
 
-+ (BOOL) verifyFile:(NSString*)path sha:(NSString*)sha {
++ (BOOL) verifyData:(NSData*)tgzdata sha:(NSString*)sha {
     // TODO: check for more errors and don't leak memories
-    SecGroupTransformRef group = SecTransformCreateGroupTransform();
-    NSInputStream* inputStream = [NSInputStream inputStreamWithFileAtPath:path];
+    NSInputStream* inputStream = [NSInputStream inputStreamWithData:tgzdata];
+    
     SecTransformRef readTransform = SecTransformCreateReadTransformWithReadStream((__bridge CFReadStreamRef)inputStream);
     SecTransformRef digestTransform = SecDigestTransformCreate(kSecDigestSHA1, CC_SHA1_DIGEST_LENGTH, NULL);
+    
+    SecGroupTransformRef group = SecTransformCreateGroupTransform();
     SecTransformConnectTransforms(readTransform, kSecTransformOutputAttributeName, digestTransform, kSecTransformInputAttributeName, group, NULL);
     NSData* data = (__bridge_transfer NSData*)SecTransformExecute(group, NULL);
     
-    const unsigned char *buf = (const unsigned char *)[data bytes];
+    const unsigned char *buf = [data bytes];
     NSMutableString *gotsha = [NSMutableString stringWithCapacity:([data length] * 2)];
     for (int i = 0; i < [data length]; ++i)
         [gotsha appendString:[NSString stringWithFormat:@"%02lx", (unsigned long)buf[i]]];
+    
+    CFRelease(group);
     
     return [[sha lowercaseString] isEqualToString: [gotsha lowercaseString]];
 }
