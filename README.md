@@ -6,7 +6,7 @@
 
 * Current version: **0.1**
 * Requires: OS X 10.8 and up
-* Download: [not yet available for download; still in early development]
+* Download: [not yet available; still in early development]
 * Mailing list: https://groups.google.com/forum/#!forum/mjolnir-io
 
 ## What is Mjolnir?
