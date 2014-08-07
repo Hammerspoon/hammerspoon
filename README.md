@@ -30,7 +30,7 @@ Mjolnir uses the very fine [Dash](http://kapeli.com/dash) app for all
 its documentation. When launching Mjolnir, there will be a button for
 you to open Mjolnir's documentation in Dash. Click that and read the
 intro page when getting started. You'll also find documentation for
-extensions in Dash once they're installed, under `mjolnir:`.
+extensions in Dash once they're installed, within the Mjolnir docset.
 
 ## Extensions
 
