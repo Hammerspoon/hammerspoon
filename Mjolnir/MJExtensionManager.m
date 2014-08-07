@@ -189,24 +189,31 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
          install:(NSMutableArray*)toinstall
        uninstall:(NSMutableArray*)touninstall
 {
+    // for all extensions that are about to be installed or upgraded:
     for (MJExtension* ext in [toinstall arrayByAddingObjectsFromArray: toupgrade]) {
-        NSPredicate* containsDeps = [NSPredicate predicateWithFormat:@"self.name IN %@", [ext dependencies]];
-        
-        if ([[ext dependencies] count] == 0)
+        // if it has no dependencies, move on to the next one
+        if ([ext.dependencies count] == 0)
             continue;
         
+        NSPredicate* containsDeps = [NSPredicate predicateWithFormat:@"self.name IN %@", ext.dependencies];
+        
+        // if any of its dependencies were going to be uninstalled, remove it from that list and move on
+        // we know it cant be in any other list, since we know it's already installed
         NSArray* uninstallingDeps = [touninstall filteredArrayUsingPredicate:containsDeps];
         if ([uninstallingDeps count] > 0) {
             [touninstall removeObjectsInArray:uninstallingDeps];
             continue;
         }
         
+        // otherwise, if any of its dependencies are going to be installed or upgraded, we're all good, so move on
         if ([[[toinstall arrayByAddingObjectsFromArray:toupgrade] filteredArrayUsingPredicate:containsDeps] count] > 0)
             continue;
         
+        // otherwise, if its already installed, we're all good, move on
         if ([[self.cache.extensionsInstalled filteredArrayUsingPredicate:containsDeps] count] > 0)
             continue;
         
+        // otherwise, it isnt installed or going to be installed, so add it to the to-be-installed list
         for (MJExtension* ext in [self.cache.extensionsAvailable filteredArrayUsingPredicate:containsDeps])
             [toinstall addObject: ext];
     }
