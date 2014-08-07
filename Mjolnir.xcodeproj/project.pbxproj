@@ -475,7 +475,8 @@
 			children = (
 				94BF76E81993418C001BDA77 /* main.m */,
 			);
-			path = MjolnirRestarter;
+			name = MjolnirRestarter;
+			path = Mjolnir/MjolnirRestarter;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
