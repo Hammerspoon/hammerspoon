@@ -191,7 +191,14 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 {
     for (MJExtension* ext in [install arrayByAddingObjectsFromArray: upgrade]) {
         for (NSString* depname in [ext dependencies]) {
-            // TODO: make sure depname is installed somehow
+            /*
+             
+             if dep is in to-uninstall, remove it from to-uninstall
+             if dep is in to-upgrade or to-install, leave it alone
+             if dep is in already-installed, leave it alone
+             otherwise, add it to to-install
+             
+             */
         }
     }
     
