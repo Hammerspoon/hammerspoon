@@ -15,9 +15,19 @@ Mjolnir is an app that lets you automate common tasks using the
 language Lua and pluggable extensions. At its core, this is all it
 does; all the power lies in the extensions that you can install.
 
+You use Lua and the extensions in your "config", which just means the
+Lua file `~/.mjolnir/init.lua`. This file has full access to the
+built-in `core` module and all Mjolnir extensions that are installed.
+
 Some extensions that you might want to install are `core.window`,
 `core.hotkey`, and `core.application`. But there are plenty more, and
 there's really no limit to what an extension can do.
+
+Mjolnir uses the very fine [Dash](http://kapeli.com/dash) app for all
+its documentation. When launching Mjolnir, there will be a button for
+you to open Mjolnir's documentation in Dash. Click that and read the
+intro page when getting started. You'll also find documentation for
+extensions in Dash once they're installed, under `mjolnir:`.
 
 ## Extensions
 
