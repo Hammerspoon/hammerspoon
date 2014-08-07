@@ -61,3 +61,7 @@ function print(...)
   local str = table.concat(vals, "\t") .. "\n"
   core._logmessage(str)
 end
+
+function core.reload()
+  print "okie"
+end

@@ -18,6 +18,7 @@
     [[MJMainWindowController sharedMainWindowController] showWindow:nil];
     MJSetupLua();
     [[MJExtensionManager sharedManager] loadInstalledModules];
+    MJReloadConfig();
 }
 
 @end
