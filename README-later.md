@@ -1,219 +1,133 @@
-# Hydra
+# Mjolnir
 
-<img src="https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Hydra logo" title="Hydra logo" align="right"/>
-
-*Hack your OS X desktop environment*
+*Lightweight automation and productivity power-tool for OS X*
 
 [![Build Status](https://travis-ci.org/mjolnir-io/mjolnir.svg?branch=master)](https://travis-ci.org/mjolnir-io/mjolnir)
 
 * Current version: **0.1**
 * Requires: OS X 10.8 and up
-* Download: [get latest release](https://github.com/sdegutis/hydra/releases/latest), unzip, right-click app, choose "Open"
+* Download: [not yet available for download; still in early development]
 * Mailing list: https://groups.google.com/forum/#!forum/mjolnir-io
 
-## Usage
+## What is Mjolnir?
 
-Hydra will look for `~/.hydra/init.lua` and run it if it exists. But
-if you haven't written one yet, it will run a fallback config that
-gives you a menu bar icon that contains an option to open the sample
-initfile (shown below). You can save it to `~/.hydra/init.lua` to get
-started with a really basic starter config.
+Mjolnir is an app that lets you automate common tasks using the
+language Lua and pluggable extensions. At its core, this is all it
+does; all the power lies in the extensions that you can install.
 
-**NOTE:** Be sure to read the [overview](http://hackhydra.com/docs/)
-page of the documentation! It contains some very valuable information
-for getting started which isnt' found anywhere else in this project.
+Some extensions that you might want to install are `core.window`,
+`core.hotkey`, and `core.application`. But there are plenty more, and
+there's really no limit to what an extension can do.
 
-## Example
+## Extensions
 
-When you install and run Hydra, you'll see a menu that has an option
-to open the sample config, which you can then save as your own
-initfile and modify. But so you can get an idea of what it looks like,
-I've pasted the entire sample config here.
+The `core` extensions (those that match the pattern `core.*`) are
+developed by the same author as Mjolnir (see the credits below).
 
-~~~lua
--- Hi!
--- Save this as ~/.hydra/init.lua and choose Reload Config from the menu (or press cmd-alt-ctrl R}
+But anyone is free to send pull requests for their own extensions,
+which will be considered for inclusion into Mjolnir's extensions
+repository. If merged, it will be available for everyone to install.
 
--- show an alert to let you know Hydra's running
-hydra.alert("Hydra sample config loaded", 1.5)
+If you're interested in contributing an extension, see the file
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
--- open a repl with mash-R; requires https://github.com/sdegutis/hydra-cli
-hotkey.bind({"cmd", "ctrl", "alt"}, "R", repl.open)
+## How is Mjolnir related to Hydra?
 
--- show a helpful menu
-hydra.menu.show(function()
-    local t = {
-      {title = "Reload Config", fn = hydra.reload},
-      {title = "Open REPL", fn = repl.open},
-      {title = "-"},
-      {title = "About Hydra", fn = hydra.showabout},
-      {title = "Check for Updates...", fn = function() hydra.updates.check(nil, true) end},
-      {title = "Quit", fn = os.exit},
-    }
-
-    if not hydra.license.haslicense() then
-      table.insert(t, 1, {title = "Buy or Enter License...", fn = hydra.license.enter})
-      table.insert(t, 2, {title = "-"})
-    end
-
-    return t
-end)
-
--- move the window to the right half of the screen
-function movewindow_righthalf()
-  local win = window.focusedwindow()
-  local newframe = win:screen():frame_without_dock_or_menu()
-  newframe.w = newframe.w / 2
-  newframe.x = newframe.x + newframe.w -- comment out this line to push it to left half of screen
-  win:setframe(newframe)
-end
-
--- bind your custom function to a convenient hotkey
--- note: it's good practice to keep hotkey-bindings separate from their functions, like we're doing here
-hotkey.new({"cmd", "ctrl", "alt"}, "L", movewindow_righthalf):enable()
-
--- uncomment this line if you want Hydra to make sure it launches at login
--- hydra.autolaunch.set(true)
-
--- when the "update is available" notification is clicked, open the website
-notify.register("showupdate", function() os.execute('open https://github.com/sdegutis/Hydra/releases') end)
-
--- check for updates every week, and also right now (when first launching)
-timer.new(timer.weeks(1), hydra.updates.check):start()
-hydra.updates.check()
-~~~
-
-### Using Hydra from the command line
-
-Install [hydra-cli](https://github.com/sdegutis/hydra-cli) to access
-Hydra from the command line. Then you can do things like this:
-
-~~~bash
-$ hydra
-Hydra interactive prompt.
-> window.focusedwindow():title()
-sdegutis — hydra — 100×30
-> window.focusedwindow():application():title()
-Terminal
-~~~
-
-At this interactive prompt, type `help` for instructions on using the
-built-in documentation system.
-
-**NOTE:** `hydra-cli` is guaranteed to be compatible with Hydra 1.x
-(and will most likely remain compatible with all future versions of
-Hydra). So you can upgrade `hydra-cli` mostly independently of the
-Hydra version you're using.
-
-## Screenshots
-
-Some brief examples of what you can do with Hydra:
-
-| Description                                                                                                           | Animated Screenshot                                                                       |
-|-----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| Using hotkeys to move and resize a window along a grid (using [hydra-grid](https://github.com/sdegutis/hydra-grid))   | ![grid.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/grid.gif) |
-| Using a hotkey to open Dictionary.app and show an alert (using `application.launchorfocus` and `hydra.alert`)         | ![dict.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/dict.gif) |
-| Exploring the built-in docs                                                                                           | ![repl.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/repl.gif) |
-| Using [hydra-cli](https://github.com/sdegutis/hydra-cli) to control Hydra from the command line                       | ![ipc.gif](https://raw.githubusercontent.com/sdegutis/hydra/master/screenshots/ipc.gif)   |
+1. Hydra has been renamed to Mjolnir (due to trademark infringement issues)
+2. Nearly all of Hydra's modules have been extracted out into opt-in extensions
+3. Extensions can now be updated at their own rate, independent of Mjolnir releases
+4. A minimal GUI has been added to make Mjolnir more convenient to use
+5. Most Mjolnir modules will be almost identical to their Hydra counterparts
+6. Your configs will still work, but consult the changelogs as you install each extension
+7. APIs for controlling Hydra's GUI have been removed in favor of the new minimal built-in GUI
 
 ## Principles
 
-1. Hydra must be stable. It should never crash. You should only ever
-   have to launch it once, and it should stay running until you quit
-   it. Period.
+Development of Mjolnir.app and the extensions under the `core`
+namespace follow these principles:
 
-2. Hydra must be lightweight. It should never do anything that drains
-   your computer's battery. It should never poll for anything. It
-   should use as little RAM as possible. Everything it does should
-   feel instant and snappy, never sluggish or delayed.
+1. Mjolnir and the `core` extensions must be stable. It should never
+   crash. You should only ever have to launch it once, and it should
+   stay running until you quit. Period.
 
-3. Hydra's API should be completely transparent. There should be no
-   surprises in how it's behaving, or what's being executed and
+2. Mjolnir and the `core` extensions must be lightweight. They should
+   never do anything that drains your computer's battery. They should
+   never poll for anything. They should use as little RAM as
+   possible. Everything they do should feel instant and snappy, never
+   sluggish or delayed.
+
+3. A `core` extension should be completely transparent. There should
+   be no surprises in how it's behaving, or what's being executed and
    when. It should be fully predictable.
 
-4. Hydra's API must not be bloated. Functionality should be included
-   only if it can't be done in Lua or if it's extremely common and
-   likely to be used by the vast majority of users.
+4. A `core` extension must not be bloated. Functionality should be
+   included only if it can't be done in Lua or if it's extremely
+   common and likely to be used by the vast majority of users. Any
+   convenience functionality should go in a non-`core` namespace.
 
 ## Resources
 
 Resource                 | Link
 -------------------------|------------------------------------------
-Fancy Website            | http://hackhydra.com/
-Github page              | https://github.com/sdegutis/hydra/
-Hydra API                | http://hackhydra.com/docs/
-Lua API                  | http://www.lua.org/manual/5.2/#functions
-Third Party Extensions   | https://github.com/sdegutis/hydra-ext
-Community Resources      | https://github.com/sdegutis/hydra/wiki
-Bug Reports              | https://github.com/sdegutis/hydra/issues
-Feature Requests         | https://github.com/sdegutis/hydra/issues
-General Discussion       | https://github.com/sdegutis/hydra/issues
-IRC channel              | #hackhydra on freenode
-
-## Free and Commercial Software
-
-Hydra is open source, released under the MIT license. But it's also
-commercial, requiring you to eventually purchase a license. However,
-the trial period is not timed, and doesn't remove any functionality.
+Fancy Website            | http://mjolnir.io/
+Github page              | https://github.com/mjolnir-io/mjolnir/
+IRC channel              | #penknife on freenode (yeah, it's not a typo; sorry about that)
+Mailing list             | https://groups.google.com/forum/#!forum/mjolnir-io
 
 ## FAQ
 
 1. **I'm getting an error like this: attempt to index local 'win' (a nil value)**
 
    It almost definitely means you need to enable accessibility. This
-   is especially true after upgrading to a new version of Hydra, since
-   the accessibility checkbox for Hydra may be checked; just uncheck
+   is especially true after upgrading to a new version of Mjolnir, since
+   the accessibility checkbox for Mjolnir may be checked; just uncheck
    it and re-check it anyway, and then it should be fixed.
 
-2. **How does Hydra compare to Phoenix or Zephyros?**
+2. **How does Mjolnir compare to Hydra, Phoenix, or Zephyros?**
 
-   Hydra is the successor to Phoenix and Zephyros, my older projects
-   which I don't update anymore. Hydra is simpler and more efficient
-   (see the Principles section above).
+   Mjolnir is the successor to Hydra, Phoenix, or Zephyros, my older
+   projects which I don't update anymore. Mjolnir is more modular,
+   simpler, and more efficient (see the Principles section above).
 
-3. **How does Hydra compare to Slate?**
+3. **How does Mjolnir compare to Slate?**
 
    They're both programmer-centric with mostly similar goals. Look
    over their APIs and see which one suits you better.
 
-4. **How does Hydra compare to Spectacle, Moom, SizeUp, Divvy, etc?**
+4. **How does Mjolnir compare to Spectacle, Moom, SizeUp, Divvy, etc?**
 
-   Hydra is intended for programmers who want to write programs that
-   customize their environment. It's not intended to be a
-   quick-and-easy solution, it's meant to allow you to write your own
-   very personalized productivity enhancement suite to keep and use
-   long-term.
+   Mjolnir is intended for programmers who want to write programs that
+   customize their environment. It's not intended to be a drag-n-drop
+   solution; it's meant to allow you to write your own personalized
+   productivity enhancement suite to keep and use long-term.
 
 5. **Can you add ____ feature?**
 
-   Maybe. [File an issue](https://github.com/sdegutis/hydra/issues/new) and we'll find out!
+   Maybe. [File an issue](https://github.com/mjolnir-io/mjolnir/issues/new)
+   and we'll find out!
 
-6. **Where can I find a comprehensive and detailed list of alternatives to Hydra?**
+6. **Where can I find a comprehensive and detailed list of alternatives to Mjolnir?**
 
    https://news.ycombinator.com/item?id=7982514
 
-7. **Can I install Hydra via Cask?**
+7. **Can I install Mjolnir via Cask?**
 
    Technically yes, but it will cause a lot of weird problems for
    you. Wait until Cask finishes their "upgrade" feature first, so
-   that you can remove older copies of Hydra.app.
+   that you can remove older copies of Mjolnir.app.
 
 
 ## Credits
 
-### Programming
-
-Hydra was created by Steven Degutis with the help of [various contributors](https://github.com/sdegutis/hydra/graphs/contributors).
+Mjolnir is developed by Steven Degutis with the help of [various contributors](https://github.com/mjolnir-io/mjolnir/graphs/contributors).
 
 ### Artwork
-
-<img src="https://raw.githubusercontent.com/sdegutis/hydra/master/Hydra/XcodeCrap/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Hydra logo" title="Hydra logo" align="right"/>
 
 The icon/logo/statusitem was created by Jason Milkins
 ([@jasonm23](https://github.com/jasonm23)) with additional ideas and
 contributions from John Mercouris
 ([@jmercouris](https://github.com/jmercouris)). It's exclusively
-licenced to Steven Degutis and the Hydra.app project.
+licenced to Steven Degutis and the Mjolnir.app project.
 
 ## License
 
