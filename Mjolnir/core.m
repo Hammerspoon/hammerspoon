@@ -81,3 +81,11 @@ void MJUnloadModule(NSString* fullname) {
     lua_pushstring(L, [fullname UTF8String]);
     lua_call(L, 1, 0);
 }
+
+void MJReloadConfig(void) {
+    lua_State* L = MJLuaState;
+    lua_getglobal(L, "core");
+    lua_getfield(L, -1, "reload");
+    lua_call(L, 0, 0);
+    lua_pop(L, 1);
+}

@@ -1,4 +1,5 @@
 #import "MJConfigManager.h"
+#import "core.h"
 
 @implementation MJConfigManager
 
@@ -19,7 +20,7 @@
 }
 
 + (void) reload {
-    // TODO
+    MJReloadConfig();
 }
 
 @end
