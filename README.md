@@ -111,11 +111,9 @@ Mailing list             | https://groups.google.com/forum/#!forum/mjolnir-io
 
 ## Credits
 
-Mjolnir is developed by Steven Degutis with the help of [various contributors](https://github.com/mjolnir-io/mjolnir/graphs/contributors).
-
-### Artwork
-
-The icon/logo/statusitem was created by Jason Milkins
+Mjolnir is developed by Steven Degutis with the help of
+[various contributors](https://github.com/mjolnir-io/mjolnir/graphs/contributors). The
+icon/logo/statusitem was created by Jason Milkins
 ([@jasonm23](https://github.com/jasonm23)) with additional ideas and
 contributions from John Mercouris
 ([@jmercouris](https://github.com/jmercouris)). It's exclusively
