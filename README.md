@@ -35,13 +35,15 @@ extensions in Dash once they're installed, within the Mjolnir docset.
 ## Extensions
 
 The `core` extensions (those that match the pattern `core.*`) are
-developed by the same author as Mjolnir (see the credits below).
+developed by the same author as Mjolnir (see the credits below) and
+adhere to the same principles and minimalist philosophy.
 
 But anyone is free to send pull requests for their own extensions,
 which will be considered for inclusion into Mjolnir's extensions
-repository. If merged, it will be available for everyone to install.
+repository. If merged, it will be available for everyone to install
+from the Extensions tab.
 
-If you're interested in contributing an extension, see the file
+If you're interested in contributing an extension, consult the file
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Principles
