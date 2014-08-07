@@ -47,6 +47,39 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     else
         return self.ext.version;
 }
+- (NSAttributedString*) details {
+    CGFloat fontsize = 12.0;
+    NSDictionary* normal = @{NSFontAttributeName: [NSFont systemFontOfSize:fontsize]};
+    NSDictionary* bold = @{NSFontAttributeName: [NSFont boldSystemFontOfSize:fontsize]};
+    NSDictionary* website = @{NSFontAttributeName: [NSFont systemFontOfSize:fontsize], NSLinkAttributeName: [NSURL URLWithString:self.ext.website]};
+    
+    NSMutableAttributedString* mastr = [[NSMutableAttributedString alloc] init];
+    [mastr beginEditing];
+    
+    void(^add)(NSString* title, NSString* body, NSDictionary* attrs) = ^(NSString* title, NSString* body, NSDictionary* attrs) {
+        [mastr appendAttributedString:[[NSAttributedString alloc] initWithString:title attributes:bold]];
+        [mastr appendAttributedString:[[NSAttributedString alloc] initWithString:body attributes:attrs]];
+        [mastr appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n\n" attributes:attrs]];
+    };
+    
+    NSString* deps;
+    if ([self.ext.dependencies count] > 0)
+        deps = [self.ext.dependencies componentsJoinedByString:@", "];
+    else
+        deps = @"<none>";
+    
+    add(@"Name: ", self.ext.name, normal);
+    add(@"Version: ", self.ext.version, normal);
+    add(@"License: ", self.ext.license, normal);
+    add(@"Website: ", self.ext.website, website);
+    add(@"Description: ", self.ext.desc, normal);
+    add(@"Depends on: ", deps, normal);
+    add(@"Changes:\n\n", self.ext.changelog, normal);
+    
+    [mastr endEditing];
+    
+    return mastr;
+}
 @end
 
 @interface MJExtensionsTabController () <NSTableViewDataSource, NSTableViewDelegate>
@@ -344,28 +377,6 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     else {
         [super keyDown:theEvent];
     }
-}
-
-@end
-
-@interface MJLinkTextField : NSTextField
-@end
-
-@implementation MJLinkTextField
-
-- (id) initWithCoder:(NSCoder *)aDecoder {
-    if (self = [super initWithCoder:aDecoder]) {
-        [[self cell] setTextColor:[NSColor blueColor]];
-    }
-    return self;
-}
-
-- (void)resetCursorRects {
-    [self addCursorRect:[self bounds] cursor:[NSCursor pointingHandCursor]];
-}
-
-- (void) mouseDown:(NSEvent *)theEvent {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[self stringValue]]];
 }
 
 @end
