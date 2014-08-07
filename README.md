@@ -116,7 +116,7 @@ Mjolnir is developed by Steven Degutis with the help of
 icon/logo/statusitem was created by Jason Milkins
 ([@jasonm23](https://github.com/jasonm23)) with additional ideas and
 contributions from John Mercouris
-([@jmercouris](https://github.com/jmercouris)). It's exclusively
+([@jmercouris](https://github.com/jmercouris)) and is exclusively
 licenced to Steven Degutis and the Mjolnir.app project.
 
 ## License
