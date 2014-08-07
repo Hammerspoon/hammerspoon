@@ -4,10 +4,13 @@
 
 [![Build Status](https://travis-ci.org/mjolnir-io/mjolnir.svg?branch=master)](https://travis-ci.org/mjolnir-io/mjolnir)
 
-* Current version: **0.1**
-* Requires: OS X 10.8 and up
-* Download: [not yet available; still in early development]
-* Mailing list: https://groups.google.com/forum/#!forum/mjolnir-io
+|                 |                                                                 |
+|-----------------|-----------------------------------------------------------------|
+| Current version | **0.1**                                                         |
+| Requires        | OS X 10.8 and up                                                |
+| Download        | [not yet available; still in early development]                 |
+| Mailing list    | https://groups.google.com/forum/#!forum/mjolnir-io              |
+| IRC channel     | #penknife [sic] on freenode                                     |
 
 ## What is Mjolnir?
 
@@ -64,15 +67,6 @@ namespace follow these principles:
    included only if it can't be done in Lua or if it's extremely
    common and likely to be used by the vast majority of users. Any
    convenience functionality should go in a non-`core` namespace.
-
-## Resources
-
-Resource                 | Link
--------------------------|------------------------------------------
-Fancy Website            | http://mjolnir.io/
-Github page              | https://github.com/mjolnir-io/mjolnir/
-IRC channel              | #penknife on freenode (yeah, it's not a typo; sorry about that)
-Mailing list             | https://groups.google.com/forum/#!forum/mjolnir-io
 
 ## FAQ
 
