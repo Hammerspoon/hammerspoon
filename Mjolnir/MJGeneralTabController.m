@@ -26,7 +26,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 @synthesize initialFirstResponder;
 - (NSString*) nibName { return @"GeneralTab"; }
 - (NSString*) title   { return @"General"; }
-- (NSImage*)  icon    { return [NSImage imageNamed:NSImageNamePreferencesGeneral]; }
+- (NSImage*)  icon    { return [NSImage imageNamed:@"Settings"]; }
 
 - (IBAction) openDocsInDash:(id)sender {
     if (!self.hasInstalledDocs) {
