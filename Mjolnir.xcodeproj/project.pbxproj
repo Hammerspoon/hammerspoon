@@ -60,6 +60,9 @@
 		949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFD1990747B00906CCE /* GeneralTab.xib */; };
 		949CDC001990759B00906CCE /* ReplTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ReplTab.xib */; };
 		949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDC011990761700906CCE /* ExtensionsTab.xib */; };
+		94A1E5421993AB00003AEB26 /* MJSHA1Verifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5411993AB00003AEB26 /* MJSHA1Verifier.m */; };
+		94A1E5451993AB8E003AEB26 /* MJArchiveManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5441993AB8E003AEB26 /* MJArchiveManager.m */; };
+		94A1E5481993AC5C003AEB26 /* MJFileDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileDownloader.m */; };
 		94A7362D198CB5C7007E29A1 /* MJExtensionCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362C198CB5C7007E29A1 /* MJExtensionCache.m */; };
 		94A73630198CB679007E29A1 /* MJExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362F198CB679007E29A1 /* MJExtension.m */; };
 		94AB413819914DDA00055603 /* MJDonateTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94AB413619914DDA00055603 /* MJDonateTabController.m */; };
@@ -183,6 +186,12 @@
 		949CDBFD1990747B00906CCE /* GeneralTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GeneralTab.xib; sourceTree = "<group>"; };
 		949CDBFF1990759B00906CCE /* ReplTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ReplTab.xib; sourceTree = "<group>"; };
 		949CDC011990761700906CCE /* ExtensionsTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ExtensionsTab.xib; sourceTree = "<group>"; };
+		94A1E5401993AB00003AEB26 /* MJSHA1Verifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJSHA1Verifier.h; sourceTree = "<group>"; };
+		94A1E5411993AB00003AEB26 /* MJSHA1Verifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJSHA1Verifier.m; sourceTree = "<group>"; };
+		94A1E5431993AB8E003AEB26 /* MJArchiveManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJArchiveManager.h; sourceTree = "<group>"; };
+		94A1E5441993AB8E003AEB26 /* MJArchiveManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJArchiveManager.m; sourceTree = "<group>"; };
+		94A1E5461993AC5C003AEB26 /* MJFileDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJFileDownloader.h; sourceTree = "<group>"; };
+		94A1E5471993AC5C003AEB26 /* MJFileDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJFileDownloader.m; sourceTree = "<group>"; };
 		94A7362B198CB5C7007E29A1 /* MJExtensionCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtensionCache.h; sourceTree = "<group>"; };
 		94A7362C198CB5C7007E29A1 /* MJExtensionCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionCache.m; sourceTree = "<group>"; };
 		94A7362E198CB679007E29A1 /* MJExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtension.h; sourceTree = "<group>"; };
@@ -454,6 +463,12 @@
 				94BC27AC198DF08900B3998F /* MJDocsManager.m */,
 				9428C7EA198EB7E200CDFA00 /* MJConfigManager.h */,
 				9428C7EB198EB7E200CDFA00 /* MJConfigManager.m */,
+				94A1E5401993AB00003AEB26 /* MJSHA1Verifier.h */,
+				94A1E5411993AB00003AEB26 /* MJSHA1Verifier.m */,
+				94A1E5431993AB8E003AEB26 /* MJArchiveManager.h */,
+				94A1E5441993AB8E003AEB26 /* MJArchiveManager.m */,
+				94A1E5461993AC5C003AEB26 /* MJFileDownloader.h */,
+				94A1E5471993AC5C003AEB26 /* MJFileDownloader.m */,
 				94D36C00198F27A000F3547D /* MJRestarter.h */,
 				94D36C01198F27A000F3547D /* MJRestarter.m */,
 			);
@@ -577,6 +592,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				944A2D8F198973E900D8DC90 /* lfunc.c in Sources */,
+				94A1E5451993AB8E003AEB26 /* MJArchiveManager.m in Sources */,
 				944A2D89198973E900D8DC90 /* lcorolib.c in Sources */,
 				944A2D98198973E900D8DC90 /* lopcodes.c in Sources */,
 				944A2D90198973E900D8DC90 /* lgc.c in Sources */,
@@ -599,9 +615,11 @@
 				944A2D8B198973E900D8DC90 /* ldblib.c in Sources */,
 				944A2D8D198973E900D8DC90 /* ldo.c in Sources */,
 				94A73630198CB679007E29A1 /* MJExtension.m in Sources */,
+				94A1E5481993AC5C003AEB26 /* MJFileDownloader.m in Sources */,
 				944A2DA6198975B000D8DC90 /* MJGeneralTabController.m in Sources */,
 				944A2D3C1989735300D8DC90 /* MJMainWindowController.m in Sources */,
 				944A2D9C198973E900D8DC90 /* lstring.c in Sources */,
+				94A1E5421993AB00003AEB26 /* MJSHA1Verifier.m in Sources */,
 				944A2D84198973E900D8DC90 /* lapi.c in Sources */,
 				944A2D92198973E900D8DC90 /* liolib.c in Sources */,
 				94D36C02198F27A000F3547D /* MJRestarter.m in Sources */,
@@ -792,6 +810,7 @@
 				94BF76EF1993418C001BDA77 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

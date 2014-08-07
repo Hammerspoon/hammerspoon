@@ -1,6 +1,9 @@
 #import "MJExtension.h"
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
+#import "MJSHA1Verifier.h"
+#import "MJArchiveManager.h"
+#import "MJFileDownloader.h"
 #import "core.h"
 
 @implementation MJExtension
@@ -70,20 +73,20 @@
 }
 
 - (void) install:(void(^)(NSError*))done {
-    [MJConfigManager downloadExtension:self.tarfile handler:^(NSError *err, NSData *tgzdata) {
+    [MJFileDownloader downloadExtension:self.tarfile handler:^(NSError *err, NSData *tgzdata) {
         if (err) {
             done(err);
             return;
         }
         
         NSError* __autoreleasing error;
-        if (![MJConfigManager verifyData:tgzdata sha:self.tarsha error:&error]) {
+        if (![MJSHA1Verifier verifyTgzData:tgzdata sha:self.tarsha error:&error]) {
             done([NSError errorWithDomain:@"Mjolnir" code:0 userInfo:@{NSLocalizedDescriptionKey: @"SHA1 doesn't match.", NSUnderlyingErrorKey: error}]);
             return;
         }
         
         NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
-        if (![MJConfigManager untarData:tgzdata intoDirectory:extdir error:&error]) {
+        if (![MJArchiveManager untarData:tgzdata intoDirectory:extdir error:&error]) {
             done(error);
             return;
         }

@@ -31,7 +31,7 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
                                NSString* limitRemaining = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-RateLimit-Remaining"];
-                               if (limitRemaining && [limitRemaining integerValue] < 1) {
+                               if (limitRemaining && [limitRemaining integerValue] <= 1) {
                                    done(nil, [NSError errorWithDomain:@"Github API"
                                                                  code:0
                                                              userInfo:@{NSLocalizedDescriptionKey: @"Github's API needs time to recover from you."}]);
