@@ -56,10 +56,10 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     NSMutableAttributedString* mastr = [[NSMutableAttributedString alloc] init];
     [mastr beginEditing];
     
-    void(^add)(NSString* title, NSString* body, NSDictionary* attrs) = ^(NSString* title, NSString* body, NSDictionary* attrs) {
+    void(^add)(NSString* title, NSString* sep, NSString* body, NSDictionary* attrs) = ^(NSString* title, NSString* sep, NSString* body, NSDictionary* attrs) {
         [mastr appendAttributedString:[[NSAttributedString alloc] initWithString:title attributes:bold]];
         [mastr appendAttributedString:[[NSAttributedString alloc] initWithString:body attributes:attrs]];
-        [mastr appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n\n" attributes:attrs]];
+        [mastr appendAttributedString:[[NSAttributedString alloc] initWithString:sep attributes:attrs]];
     };
     
     NSString* deps;
@@ -68,13 +68,13 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     else
         deps = @"<none>";
     
-    add(@"Name: ", self.ext.name, normal);
-    add(@"Version: ", self.ext.version, normal);
-    add(@"License: ", self.ext.license, normal);
-    add(@"Website: ", self.ext.website, website);
-    add(@"Description: ", self.ext.desc, normal);
-    add(@"Depends on: ", deps, normal);
-    add(@"Changes:\n\n", self.ext.changelog, normal);
+    add(@"Name: ", @"\n", self.ext.name, normal);
+    add(@"Version: ", @"\n", self.ext.version, normal);
+    add(@"License: ", @"\n\n", self.ext.license, normal);
+    add(@"", @"\n\n", self.ext.website, website);
+    add(@"", @"\n\n", self.ext.desc, normal);
+    add(@"Depends on: ", @"\n\n", deps, normal);
+    add(@"Changes:\n\n", @"\n\n", self.ext.changelog, normal);
     
     [mastr endEditing];
     
@@ -144,11 +144,12 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     
     self.hasActionsToApply = NO;
     self.cache = cache;
+    self.selectedCacheItem = nil;
+    [self.extsTable reloadData];
 }
 
 - (void) extensionsUpdated:(NSNotification*)note {
     [self rebuildCache];
-    [self.extsTable reloadData];
 }
 
 - (MJExtensionManager*) extManager {
@@ -224,12 +225,7 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     }
     else if ([[tableColumn identifier] isEqualToString: @"name"]) {
         NSTextField* attr = [self attrRow:tableView];
-        attr.stringValue = [NSString stringWithFormat:@"%@", item.ext.name];
-        return attr;
-    }
-    else if ([[tableColumn identifier] isEqualToString: @"version"]) {
-        NSTextField* attr = [self attrRow:tableView];
-        attr.stringValue = [NSString stringWithFormat:@"%@", [item currentVersion]];
+        attr.stringValue = [NSString stringWithFormat:@"%@ (%@)", item.ext.name, [item currentVersion]];
         return attr;
     }
     else if ([[tableColumn identifier] isEqualToString: @"action"]) {
