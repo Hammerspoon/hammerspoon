@@ -62,6 +62,21 @@ function print(...)
   core._logmessage(str)
 end
 
+local function resetstate()
+  -- TODO
+end
+
+--- core.reload()
+--- Reloads your init-file. Clears any state from extensions, i.e. disables all hotkeys, etc.
 function core.reload()
-  print "okie"
+  local fn, err = loadfile "init.lua"
+  if fn then
+    resetstate()
+    fn() -- TODO: wrap with our own pcall-wrapper that shows errors in the REPL
+  elseif err:find "No such file or directory" then
+    -- TODO: file doesnt exist; do something like this: print "Cannot find ~/.mjolnir/init.lua"
+  else
+    print(tostring(err))
+    -- TODO: maybe also send a user-notification that an error happened? clicking it would open the REPL
+  end
 end
