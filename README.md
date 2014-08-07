@@ -31,16 +31,6 @@ repository. If merged, it will be available for everyone to install.
 If you're interested in contributing an extension, see the file
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## How is Mjolnir related to Hydra?
-
-1. Hydra has been renamed to Mjolnir (due to trademark infringement issues)
-2. Nearly all of Hydra's modules have been extracted out into opt-in extensions
-3. Extensions can now be updated at their own rate, independent of Mjolnir releases
-4. A minimal GUI has been added to make Mjolnir more convenient to use
-5. Most Mjolnir modules will be almost identical to their Hydra counterparts
-6. Your configs will still work, but consult the changelogs as you install each extension
-7. APIs for controlling Hydra's GUI have been removed in favor of the new minimal built-in GUI
-
 ## Principles
 
 Development of Mjolnir.app and the extensions under the `core`
@@ -75,6 +65,16 @@ IRC channel              | #penknife on freenode (yeah, it's not a typo; sorry a
 Mailing list             | https://groups.google.com/forum/#!forum/mjolnir-io
 
 ## FAQ
+
+1. **How is Mjolnir related to Hydra?**
+
+   1. Hydra has been renamed to Mjolnir (due to trademark infringement issues)
+   2. Nearly all of Hydra's modules have been extracted out into opt-in extensions
+   3. Extensions can now be updated at their own rate, independent of Mjolnir releases
+   4. A minimal GUI has been added to make Mjolnir more convenient to use
+   5. Most Mjolnir modules will be almost identical to their Hydra counterparts
+   6. Your configs will still work, but consult the changelogs as you install each extension
+   7. APIs for controlling Hydra's GUI have been removed in favor of the new minimal built-in GUI
 
 1. **I'm getting an error like this: attempt to index local 'win' (a nil value)**
 
