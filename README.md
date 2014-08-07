@@ -4,10 +4,10 @@
 
 [![Build Status](https://travis-ci.org/mjolnir-io/mjolnir.svg?branch=master)](https://travis-ci.org/mjolnir-io/mjolnir)
 
-* **Current version:** 0.1
-* **Requires:** OS X 10.8 and up
-* **Download:** [not yet available; still in early development]
-* **Mailing list:** https://groups.google.com/forum/#!forum/mjolnir-io
+* Current version: **0.1**
+* Requires: **OS X 10.8 and up**
+* Download: **[not yet available; still in early development]**
+* Mailing list: https://groups.google.com/forum/#!forum/mjolnir-io
 
 ## What is Mjolnir?
 
