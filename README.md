@@ -76,6 +76,8 @@ Mailing list             | https://groups.google.com/forum/#!forum/mjolnir-io
    6. Your configs will still work, but consult the changelogs as you install each extension
    7. APIs for controlling Hydra's GUI have been removed in favor of the new minimal built-in GUI
 
+   Besides these (mostly superficial) changes, Mjolnir is basically still Hydra.
+
 1. **I'm getting an error like this: attempt to index local 'win' (a nil value)**
 
    It almost definitely means you need to enable accessibility. This
@@ -83,9 +85,9 @@ Mailing list             | https://groups.google.com/forum/#!forum/mjolnir-io
    the accessibility checkbox for Mjolnir may be checked; just uncheck
    it and re-check it anyway, and then it should be fixed.
 
-2. **How does Mjolnir compare to Hydra, Phoenix, or Zephyros?**
+2. **How does Mjolnir compare to Phoenix, or Zephyros?**
 
-   Mjolnir is the successor to Hydra, Phoenix, or Zephyros, my older
+   Mjolnir is the successor to Phoenix, or Zephyros, my older
    projects which I don't update anymore. Mjolnir is more modular,
    simpler, and more efficient (see the Principles section above).
 
