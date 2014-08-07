@@ -185,21 +185,27 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     [[NSNotificationCenter defaultCenter] postNotificationName:MJExtensionsUpdatedNotification object:nil];
 }
 
-- (void) upgrade:(NSArray*)upgrade
-         install:(NSArray*)install
-       uninstall:(NSArray*)uninstall
+- (void) upgrade:(NSMutableArray*)toupgrade
+         install:(NSMutableArray*)toinstall
+       uninstall:(NSMutableArray*)touninstall
 {
-    for (MJExtension* ext in [install arrayByAddingObjectsFromArray: upgrade]) {
-        for (NSString* depname in [ext dependencies]) {
-            /*
-             
-             if dep is in to-uninstall, remove it from to-uninstall
-             if dep is in to-upgrade or to-install, leave it alone
-             if dep is in already-installed, leave it alone
-             otherwise, add it to to-install
-             
-             */
+    for (MJExtension* ext in [toinstall arrayByAddingObjectsFromArray: toupgrade]) {
+        NSPredicate* containsDeps = [NSPredicate predicateWithFormat:@"self.name IN %@", [ext dependencies]];
+        
+        NSArray* uninstallingDeps = [touninstall filteredArrayUsingPredicate:containsDeps];
+        if ([uninstallingDeps count] > 0) {
+            [touninstall removeObjectsInArray:uninstallingDeps];
+            continue;
         }
+        
+        if ([[[toinstall arrayByAddingObjectsFromArray:toupgrade] filteredArrayUsingPredicate:containsDeps] count] > 0)
+            continue;
+        
+        if ([[self.cache.extensionsInstalled filteredArrayUsingPredicate:containsDeps] count] > 0)
+            continue;
+        
+        for (MJExtension* ext in [self.cache.extensionsAvailable filteredArrayUsingPredicate:containsDeps])
+            [toinstall addObject: ext];
     }
     
     NSMutableArray* errors = [NSMutableArray array];
@@ -213,13 +219,13 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         // TODO: present errors to the user
     });
     
-    for (MJExtension* ext in uninstall)
+    for (MJExtension* ext in touninstall)
         [self uninstall:ext errors:errors group:g];
     
-    for (MJExtension* ext in install)
+    for (MJExtension* ext in toinstall)
         [self install:ext errors:errors group:g];
     
-    for (MJExtension* newext in upgrade)
+    for (MJExtension* newext in toupgrade)
         [self upgrade:newext errors:errors group:g];
     
     dispatch_group_leave(g);

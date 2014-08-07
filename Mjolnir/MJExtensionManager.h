@@ -18,8 +18,8 @@ extern NSString* MJExtensionsUpdatedNotification;
 @property NSArray* extsNeedingUpgrade;
 @property NSArray* extsRemovedRemotely;
 
-- (void) upgrade:(NSArray*)upgrade
-         install:(NSArray*)install
-       uninstall:(NSArray*)uninstall;
+- (void) upgrade:(NSMutableArray*)toupgrade
+         install:(NSMutableArray*)toinstall
+       uninstall:(NSMutableArray*)touninstall;
 
 @end
