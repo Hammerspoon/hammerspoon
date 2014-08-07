@@ -95,11 +95,11 @@ Mailing list             | https://groups.google.com/forum/#!forum/mjolnir-io
    the accessibility checkbox for Mjolnir may be checked; just uncheck
    it and re-check it anyway, and then it should be fixed.
 
-2. **How does Mjolnir compare to Phoenix, or Zephyros?**
+2. **How does Mjolnir compare to Phoenix and Zephyros?**
 
-   Mjolnir is the successor to Phoenix, or Zephyros, my older
-   projects which I don't update anymore. Mjolnir is more modular,
-   simpler, and more efficient (see the Principles section above).
+   Mjolnir is the successor to Phoenix and Zephyros, my older projects
+   which I don't update anymore. Mjolnir is more modular, simpler, and
+   more efficient (see the Principles section above).
 
 3. **How does Mjolnir compare to Slate?**
 
