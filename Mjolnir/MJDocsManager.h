@@ -6,7 +6,7 @@
 + (NSURL*) docsFile;
 + (void) copyDocsIfNeeded;
 
-+ (void) installExtension:(MJExtension*)ext;
-+ (void) uninstallExtension:(MJExtension*)ext;
++ (void) installExtensionInDirectory:(NSString*)extdir;
++ (void) uninstallExtensionInDirectory:(NSString*)extdir;
 
 @end

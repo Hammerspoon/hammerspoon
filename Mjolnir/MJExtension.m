@@ -91,18 +91,19 @@
         
         MJLoadModule(self.name);
         
-        [MJDocsManager installExtension:self];
+        [MJDocsManager installExtensionInDirectory:extdir];
         
         done(nil);
     }];
 }
 
 - (void) uninstall:(void(^)(NSError*))done {
-    [MJDocsManager uninstallExtension:self];
+    NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
+    [MJDocsManager uninstallExtensionInDirectory:extdir];
     
     MJUnloadModule(self.name);
     
-    [[NSFileManager defaultManager] removeItemAtPath:[MJConfigManager dirForExtensionName:self.name] error:NULL];
+    [[NSFileManager defaultManager] removeItemAtPath:extdir error:NULL];
     
     done(nil);
 }
