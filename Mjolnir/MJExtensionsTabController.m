@@ -82,7 +82,7 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 }
 @end
 
-@interface MJExtensionsTabController () <NSTableViewDataSource, NSTableViewDelegate>
+@interface MJExtensionsTabController () <NSTableViewDataSource, NSTableViewDelegate, NSSplitViewDelegate>
 @property (weak) IBOutlet NSTableView* extsTable;
 @property NSArray* cache;
 @property BOOL hasActionsToApply;
@@ -360,6 +360,20 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 - (BOOL) tableView:(NSTableView *)tableView isGroupRow:(NSInteger)row {
     MJCacheItem* item = [self.cache objectAtIndex:row];
     return item.type == MJCacheItemTypeHeader;
+}
+
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMin ofSubviewAt:(NSInteger)dividerIndex {
+    return MAX(proposedMin, 200.0);
+}
+
+- (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMax ofSubviewAt:(NSInteger)dividerIndex {
+    return MIN(proposedMax, [splitView frame].size.width - 250.0);
+}
+
+- (void)splitView:(NSSplitView*)sender resizeSubviewsWithOldSize:(NSSize)oldSize {
+    CGFloat w = [[[sender subviews] objectAtIndex:0] frame].size.width;
+    [sender adjustSubviews];
+    [sender setPosition:w ofDividerAtIndex:0];
 }
 
 @end
