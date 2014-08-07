@@ -192,6 +192,9 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     for (MJExtension* ext in [toinstall arrayByAddingObjectsFromArray: toupgrade]) {
         NSPredicate* containsDeps = [NSPredicate predicateWithFormat:@"self.name IN %@", [ext dependencies]];
         
+        if ([[ext dependencies] count] == 0)
+            continue;
+        
         NSArray* uninstallingDeps = [touninstall filteredArrayUsingPredicate:containsDeps];
         if ([uninstallingDeps count] > 0) {
             [touninstall removeObjectsInArray:uninstallingDeps];
