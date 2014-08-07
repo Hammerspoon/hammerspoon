@@ -6,7 +6,7 @@
 + (NSURL*) docsFile;
 + (void) copyDocsIfNeeded;
 
-+ (void) installExtensionInDirectory:(NSString*)extdir;
-+ (void) uninstallExtensionInDirectory:(NSString*)extdir;
++ (BOOL) installExtensionInDirectory:(NSString*)extdir error:(NSError* __autoreleasing*)error;
++ (BOOL) uninstallExtensionInDirectory:(NSString*)extdir error:(NSError* __autoreleasing*)error;
 
 @end

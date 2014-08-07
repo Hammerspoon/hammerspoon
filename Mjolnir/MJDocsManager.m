@@ -7,7 +7,7 @@
     return [NSURL fileURLWithPath:[[MJConfigManager configPath] stringByAppendingPathComponent:@"Mjolnir.docset"]];
 }
 
-+ (NSString*) sqlFile {
++ (NSString*) masterSqlFile {
     return [[[self docsFile] URLByAppendingPathComponent:@"Contents/Resources/docSet.dsidx"] path];
 }
 
@@ -19,20 +19,23 @@
     [[NSFileManager defaultManager] copyItemAtURL:docsetSourceURL toURL:[MJDocsManager docsFile] error:NULL];
 }
 
-+ (NSString*) copyToTempFile:(NSString*)originalpath {
++ (NSString*) copyToTempFile:(NSString*)originalpath error:(NSError* __autoreleasing*)error {
+    NSData* indata = [NSData dataWithContentsOfFile:originalpath options:0 error:error];
+    if (!indata) return nil;
+    
     const char* tempFileTemplate = [[NSTemporaryDirectory() stringByAppendingPathComponent:@"ext.XXXXXX.tgz"] fileSystemRepresentation];
     char* tempFileName = malloc(strlen(tempFileTemplate) + 1);
     strcpy(tempFileName, tempFileTemplate);
     int fd = mkstemps(tempFileName, 4);
     if (fd == -1) {
-        NSLog(@"%@", [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil]);
+        *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
         return nil;
     }
     NSString* tempFilePath = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tempFileName length:strlen(tempFileName)];
     free(tempFileName);
     
     NSFileHandle* tempFileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fd];
-    [tempFileHandle writeData:[NSData dataWithContentsOfFile:originalpath]];
+    [tempFileHandle writeData:indata];
     [tempFileHandle closeFile];
     
     return tempFilePath;
@@ -46,9 +49,9 @@
     return [extdir stringByAppendingPathComponent:@"docs.html.d"];
 }
 
-+ (void) runSqlFile:(NSString*)sqlfile inDir:(NSString*)extdir {
-    NSString* masterSqlFile = [self sqlFile];
-    NSString* masterSqlFileCopy = [self copyToTempFile:[self sqlFile]];
++ (BOOL) runSqlFile:(NSString*)sqlfile inDir:(NSString*)extdir error:(NSError* __autoreleasing*)error {
+    NSString* masterSqlFile = [self masterSqlFile];
+    NSString* masterSqlFileCopy = [self copyToTempFile:[self masterSqlFile] error:error];
     
     NSTask* inTask = [[NSTask alloc] init];
     [inTask setLaunchPath:@"/usr/bin/sqlite3"];
@@ -59,9 +62,11 @@
     
     [[NSFileManager defaultManager] removeItemAtPath:masterSqlFile error:NULL];
     [[NSFileManager defaultManager] copyItemAtPath:masterSqlFileCopy toPath:masterSqlFile error:NULL];
+    
+    return YES;
 }
 
-+ (void) installExtensionInDirectory:(NSString*)extdir {
++ (BOOL) installExtensionInDirectory:(NSString*)extdir error:(NSError* __autoreleasing*)error {
     NSString* htmlSourceDir = [self htmlDocsDirInExtensionDirectory:extdir];
     NSArray* files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:htmlSourceDir error:NULL];
     NSString* htmlDestDir = [self sharedHtmlDocsDir];
@@ -72,21 +77,21 @@
                                                  error:NULL];
     }
     
-    NSLog(@"in here");
-    
-    [self runSqlFile:@"docs.in.sql" inDir:extdir];
+    [self runSqlFile:@"docs.in.sql" inDir:extdir error:error];
+    return YES;
 }
 
-+ (void) uninstallExtensionInDirectory:(NSString*)extdir {
-    [self runSqlFile:@"docs.out.sql" inDir:extdir];
++ (BOOL) uninstallExtensionInDirectory:(NSString*)extdir error:(NSError* __autoreleasing*)error {
+    [self runSqlFile:@"docs.out.sql" inDir:extdir error:error];
     
     NSString* htmlSourceDir = [self htmlDocsDirInExtensionDirectory:extdir];
     NSArray* files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:htmlSourceDir error:NULL];
     NSString* htmlDestDir = [self sharedHtmlDocsDir];
     for (NSString* file in files) {
-        NSString* dest = [htmlDestDir stringByAppendingPathComponent:file];
-        [[NSFileManager defaultManager] removeItemAtPath:dest error:NULL];
+        [[NSFileManager defaultManager] removeItemAtPath:[htmlDestDir stringByAppendingPathComponent:file]
+                                                   error:NULL];
     }
+    return YES;
 }
 
 @end

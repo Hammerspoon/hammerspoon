@@ -83,29 +83,34 @@
         }
         
         NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
-        BOOL success = [MJConfigManager untarData:tgzdata intoDirectory:extdir error:&error];
-        if (!success) {
+        if (![MJConfigManager untarData:tgzdata intoDirectory:extdir error:&error]) {
             done(error);
             return;
         }
         
         MJLoadModule(self.name);
         
-        [MJDocsManager installExtensionInDirectory:extdir];
+        if (![MJDocsManager installExtensionInDirectory:extdir error:&error]) {
+            done(error);
+            return;
+        }
         
         done(nil);
     }];
 }
 
 - (void) uninstall:(void(^)(NSError*))done {
-    NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
-    [MJDocsManager uninstallExtensionInDirectory:extdir];
-    
     MJUnloadModule(self.name);
     
-    [[NSFileManager defaultManager] removeItemAtPath:extdir error:NULL];
+    NSError* __autoreleasing error;
+    NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
+    if ([MJDocsManager uninstallExtensionInDirectory:extdir error:&error])
+        error = nil;
     
-    done(nil);
+    if ([[NSFileManager defaultManager] removeItemAtPath:extdir error:&error])
+        error = nil;
+    
+    done(error);
 }
 
 @end
