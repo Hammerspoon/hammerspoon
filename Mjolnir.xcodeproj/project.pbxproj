@@ -68,11 +68,24 @@
 		94AB413F19915AFF00055603 /* Donate.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413E19915AFF00055603 /* Donate.png */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
 		94BC27AD198DF08900B3998F /* MJDocsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BC27AC198DF08900B3998F /* MJDocsManager.m */; };
+		94BF76E61993418C001BDA77 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94BF76E51993418C001BDA77 /* Foundation.framework */; };
+		94BF76E91993418C001BDA77 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BF76E81993418C001BDA77 /* main.m */; };
+		94BF76F6199344DA001BDA77 /* MjolnirRestarter in Resources */ = {isa = PBXBuildFile; fileRef = 94BF76E41993418C001BDA77 /* MjolnirRestarter */; };
 		94D36C02198F27A000F3547D /* MJRestarter.m in Sources */ = {isa = PBXBuildFile; fileRef = 94D36C01198F27A000F3547D /* MJRestarter.m */; };
 		94D7A827198D82430005B88E /* Mjolnir.docset in Resources */ = {isa = PBXBuildFile; fileRef = 94D7A826198D82430005B88E /* Mjolnir.docset */; };
 		94EEEFB31993085A00749B92 /* Settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB11993085A00749B92 /* Settings.png */; };
 		94EEEFB51993086F00749B92 /* Extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB41993086F00749B92 /* Extensions.png */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		94BF76F119934247001BDA77 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 94BF76E31993418C001BDA77;
+			remoteInfo = MjolnirRestarter;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		942050C1199078BA00FC4839 /* MJTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJTabController.h; sourceTree = "<group>"; };
@@ -182,6 +195,9 @@
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		94BC27AB198DF08900B3998F /* MJDocsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJDocsManager.h; sourceTree = "<group>"; };
 		94BC27AC198DF08900B3998F /* MJDocsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJDocsManager.m; sourceTree = "<group>"; };
+		94BF76E41993418C001BDA77 /* MjolnirRestarter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MjolnirRestarter; sourceTree = BUILT_PRODUCTS_DIR; };
+		94BF76E51993418C001BDA77 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		94BF76E81993418C001BDA77 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		94D36C00198F27A000F3547D /* MJRestarter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJRestarter.h; sourceTree = "<group>"; };
 		94D36C01198F27A000F3547D /* MJRestarter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJRestarter.m; sourceTree = "<group>"; };
 		94D7A826198D82430005B88E /* Mjolnir.docset */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Mjolnir.docset; sourceTree = "<group>"; };
@@ -198,6 +214,14 @@
 				94414F47196A1B280067D467 /* Carbon.framework in Frameworks */,
 				9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */,
 				9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		94BF76E11993418C001BDA77 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				94BF76E61993418C001BDA77 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +259,7 @@
 			isa = PBXGroup;
 			children = (
 				9445CA1419083251002568BB /* Mjolnir */,
+				94BF76E71993418C001BDA77 /* MjolnirRestarter */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
 			);
@@ -244,6 +269,7 @@
 			isa = PBXGroup;
 			children = (
 				9445CA0B19083251002568BB /* Mjolnir.app */,
+				94BF76E41993418C001BDA77 /* MjolnirRestarter */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -257,6 +283,7 @@
 				9445CA0E19083251002568BB /* Cocoa.framework */,
 				9445CA2D19083251002568BB /* XCTest.framework */,
 				94735C2F196DC4FE002A258D /* CoreFoundation.framework */,
+				94BF76E51993418C001BDA77 /* Foundation.framework */,
 				9445CA1019083251002568BB /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -443,6 +470,14 @@
 			name = "Donations Tab";
 			sourceTree = "<group>";
 		};
+		94BF76E71993418C001BDA77 /* MjolnirRestarter */ = {
+			isa = PBXGroup;
+			children = (
+				94BF76E81993418C001BDA77 /* main.m */,
+			);
+			path = MjolnirRestarter;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -457,11 +492,28 @@
 			buildRules = (
 			);
 			dependencies = (
+				94BF76F219934247001BDA77 /* PBXTargetDependency */,
 			);
 			name = Mjolnir;
 			productName = Hydra;
 			productReference = 9445CA0B19083251002568BB /* Mjolnir.app */;
 			productType = "com.apple.product-type.application";
+		};
+		94BF76E31993418C001BDA77 /* MjolnirRestarter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 94BF76F01993418C001BDA77 /* Build configuration list for PBXNativeTarget "MjolnirRestarter" */;
+			buildPhases = (
+				94BF76E01993418C001BDA77 /* Sources */,
+				94BF76E11993418C001BDA77 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MjolnirRestarter;
+			productName = MjolnirRestarter;
+			productReference = 94BF76E41993418C001BDA77 /* MjolnirRestarter */;
+			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -487,6 +539,7 @@
 			projectRoot = "";
 			targets = (
 				9445CA0A19083251002568BB /* Mjolnir */,
+				94BF76E31993418C001BDA77 /* MjolnirRestarter */,
 			);
 		};
 /* End PBXProject section */
@@ -496,6 +549,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				94BF76F6199344DA001BDA77 /* MjolnirRestarter in Resources */,
 				94EEEFB51993086F00749B92 /* Extensions.png in Resources */,
 				94EEEFB31993085A00749B92 /* Settings.png in Resources */,
 				944A2D3B1989735300D8DC90 /* MainWindow.xib in Resources */,
@@ -570,7 +624,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		94BF76E01993418C001BDA77 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				94BF76E91993418C001BDA77 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		94BF76F219934247001BDA77 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 94BF76E31993418C001BDA77 /* MjolnirRestarter */;
+			targetProxy = 94BF76F119934247001BDA77 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		9445CA3A19083251002568BB /* Debug */ = {
@@ -673,6 +743,26 @@
 			};
 			name = Release;
 		};
+		94BF76EE1993418C001BDA77 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		94BF76EF1993418C001BDA77 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -693,6 +783,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		94BF76F01993418C001BDA77 /* Build configuration list for PBXNativeTarget "MjolnirRestarter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				94BF76EE1993418C001BDA77 /* Debug */,
+				94BF76EF1993418C001BDA77 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
