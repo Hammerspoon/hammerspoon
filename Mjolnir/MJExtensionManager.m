@@ -189,6 +189,12 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
          install:(NSArray*)install
        uninstall:(NSArray*)uninstall
 {
+    for (MJExtension* ext in [install arrayByAddingObjectsFromArray: upgrade]) {
+        for (NSString* depname in [ext dependencies]) {
+            // TODO: make sure depname is installed somehow
+        }
+    }
+    
     NSMutableArray* errors = [NSMutableArray array];
     dispatch_group_t g = dispatch_group_create();
     dispatch_group_enter(g);
