@@ -195,7 +195,11 @@
                                 <size key="minSize" width="315" height="279"/>
                                 <size key="maxSize" width="463" height="10000000"/>
                                 <connections>
-                                    <binding destination="5qv-wg-2L3" name="attributedString" keyPath="selection.details" id="vsZ-JE-WcL"/>
+                                    <binding destination="5qv-wg-2L3" name="attributedString" keyPath="selection.details" id="tkc-1s-PAx">
+                                        <dictionary key="options">
+                                            <bool key="NSConditionallySetsEditable" value="NO"/>
+                                        </dictionary>
+                                    </binding>
                                 </connections>
                             </textView>
                         </subviews>
