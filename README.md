@@ -108,16 +108,6 @@ Mailing list             | https://groups.google.com/forum/#!forum/mjolnir-io
    Maybe. [File an issue](https://github.com/mjolnir-io/mjolnir/issues/new)
    and we'll find out!
 
-6. **Where can I find a comprehensive and detailed list of alternatives to Mjolnir?**
-
-   https://news.ycombinator.com/item?id=7982514
-
-7. **Can I install Mjolnir via Cask?**
-
-   Technically yes, but it will cause a lot of weird problems for
-   you. Wait until Cask finishes their "upgrade" feature first, so
-   that you can remove older copies of Mjolnir.app.
-
 
 ## Credits
 
