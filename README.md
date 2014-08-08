@@ -82,8 +82,6 @@ namespace follow these principles:
    6. Your configs will still work, but consult the changelogs as you install each extension
    7. APIs for controlling Hydra's GUI have been removed in favor of the new minimal built-in GUI
 
-   Besides these (mostly superficial) changes, Mjolnir is basically still Hydra.
-
 1. **I'm getting an error like this: attempt to index local 'win' (a nil value)**
 
    It almost definitely means you need to enable accessibility. This
