@@ -6,9 +6,12 @@
 
 [![Build Status](https://travis-ci.org/mjolnir-io/mjolnir.svg?branch=master)](https://travis-ci.org/mjolnir-io/mjolnir)
 
-* Current version:  0.1
-* Requires:         OS X 10.8 and up
-* Download:         [not yet available; still in early development]
+* Current version:  Mjolnir **0.1**
+* Requires:         OS X 10.8 or higher
+* Download:         (not yet available)
+
+These links also might be of interest:
+
 * Mailing list:     https://groups.google.com/forum/#!forum/mjolnir-io
 * IRC channel:      #penknife [sic] on freenode
 
@@ -116,12 +119,7 @@ namespace follow these principles:
 ## Credits
 
 Mjolnir is developed by Steven Degutis with the help of
-[various contributors](https://github.com/mjolnir-io/mjolnir/graphs/contributors). The
-icon/logo/statusitem was created by Jason Milkins
-([@jasonm23](https://github.com/jasonm23)) with additional ideas and
-contributions from John Mercouris
-([@jmercouris](https://github.com/jmercouris)) and is exclusively
-licenced to Steven Degutis and the Mjolnir.app project.
+[various contributors](https://github.com/mjolnir-io/mjolnir/graphs/contributors).
 
 ## License
 
