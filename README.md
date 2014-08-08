@@ -4,6 +4,8 @@
 
 [![Build Status](https://travis-ci.org/mjolnir-io/mjolnir.svg?branch=master)](https://travis-ci.org/mjolnir-io/mjolnir)
 
+<img src="https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/Mjolnir/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Mjolnir logo" title="Mjolnir logo" align="right"/>
+
 |                 |                                                                 |
 |-----------------|-----------------------------------------------------------------|
 | Current version | **0.1**                                                         |
@@ -11,8 +13,6 @@
 | Download        | [not yet available; still in early development]                 |
 | Mailing list    | https://groups.google.com/forum/#!forum/mjolnir-io              |
 | IRC channel     | #penknife [sic] on freenode                                     |
-
-<img src="https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/Mjolnir/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Mjolnir logo" title="Mjolnir logo" align="right"/>
 
 ## What is Mjolnir?
 
