@@ -114,8 +114,9 @@ namespace follow these principles:
 
 Our [mailing list](https://groups.google.com/forum/#!forum/mjolnir-io)
 is a fine place to discuss upcoming features and extensions, find out
-about new extensions, and share your cool ideas. We also have a
-growing IRC channel on freenode, #penknife [sic].
+about new extensions, discuss existing extensions, ask questions about
+how people are using Mjolnir, and share your cool ideas. We also have
+a growing IRC channel on freenode, #penknife [sic].
 
 ## Credits
 
