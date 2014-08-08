@@ -10,11 +10,6 @@
 * Requires:         OS X 10.8 or higher
 * Download:         (not yet available)
 
-These links also might be of interest:
-
-* Mailing list:     https://groups.google.com/forum/#!forum/mjolnir-io
-* IRC channel:      #penknife [sic] on freenode
-
 ## What is Mjolnir?
 
 Mjolnir is an app that lets you automate common tasks using the
@@ -48,6 +43,13 @@ from the Extensions tab.
 
 If you're interested in contributing an extension, consult the file
 [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Community
+
+Our [mailing list](https://groups.google.com/forum/#!forum/mjolnir-io)
+is a fine place to discuss upcoming features and extensions, find out
+about new extensions, and share your cool ideas. We also have a
+growing IRC channel on freenode, #penknife [sic].
 
 ## Principles
 
