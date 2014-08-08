@@ -57,6 +57,8 @@
 		945B65AC198D2DDB002D2E30 /* core.m in Sources */ = {isa = PBXBuildFile; fileRef = 945B65AB198D2DDB002D2E30 /* core.m */; };
 		945B65B2198D31FC002D2E30 /* setup.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945B65B1198D31FC002D2E30 /* setup.lua */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
+		9477D01A19953FE20020BE9D /* statusicon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9477D01819953FE20020BE9D /* statusicon.png */; };
+		9477D01B19953FE20020BE9D /* statusicon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9477D01919953FE20020BE9D /* statusicon@2x.png */; };
 		949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFD1990747B00906CCE /* GeneralTab.xib */; };
 		949CDC001990759B00906CCE /* ReplTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ReplTab.xib */; };
 		949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDC011990761700906CCE /* ExtensionsTab.xib */; };
@@ -181,6 +183,8 @@
 		945B65B1198D31FC002D2E30 /* setup.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = setup.lua; sourceTree = "<group>"; };
 		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		9477D01819953FE20020BE9D /* statusicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusicon.png; sourceTree = "<group>"; };
+		9477D01919953FE20020BE9D /* statusicon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusicon@2x.png"; sourceTree = "<group>"; };
 		949CDBFB1990739800906CCE /* MJReplTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJReplTabController.h; sourceTree = "<group>"; };
 		949CDBFC199073A000906CCE /* MJGeneralTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJGeneralTabController.h; sourceTree = "<group>"; };
 		949CDBFD1990747B00906CCE /* GeneralTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GeneralTab.xib; sourceTree = "<group>"; };
@@ -331,6 +335,8 @@
 				94EEEFB41993086F00749B92 /* Extensions.png */,
 				94AB413B199156B000055603 /* REPL.png */,
 				94AB413E19915AFF00055603 /* Donate.png */,
+				9477D01819953FE20020BE9D /* statusicon.png */,
+				9477D01919953FE20020BE9D /* statusicon@2x.png */,
 				94D7A826198D82430005B88E /* Mjolnir.docset */,
 			);
 			name = XcodeCrap;
@@ -572,8 +578,10 @@
 				949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
+				9477D01B19953FE20020BE9D /* statusicon@2x.png in Resources */,
 				94AB413F19915AFF00055603 /* Donate.png in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
+				9477D01A19953FE20020BE9D /* statusicon.png in Resources */,
 				949CDC001990759B00906CCE /* ReplTab.xib in Resources */,
 				94AB413919914DDA00055603 /* DonateTab.xib in Resources */,
 				949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */,

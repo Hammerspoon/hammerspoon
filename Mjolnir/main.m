@@ -10,7 +10,15 @@
 
 @implementation MJAppDelegate
 
+static NSStatusItem* statusItem;
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    NSImage* icon = [NSImage imageNamed:@"statusicon"];
+    [icon setTemplate:YES];
+    statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
+    [statusItem setImage:icon];
+    [statusItem setHighlightMode:YES];
+    
     [MJConfigManager setupConfigDir];
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:[MJConfigManager configPath]];
     [MJDocsManager copyDocsIfNeeded];
