@@ -44,13 +44,6 @@ from the Extensions tab.
 If you're interested in contributing an extension, consult the file
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Community
-
-Our [mailing list](https://groups.google.com/forum/#!forum/mjolnir-io)
-is a fine place to discuss upcoming features and extensions, find out
-about new extensions, and share your cool ideas. We also have a
-growing IRC channel on freenode, #penknife [sic].
-
 ## Principles
 
 Development of Mjolnir.app and the extensions under the `core`
@@ -117,6 +110,12 @@ namespace follow these principles:
    Maybe. [File an issue](https://github.com/mjolnir-io/mjolnir/issues/new)
    and we'll find out!
 
+## Community
+
+Our [mailing list](https://groups.google.com/forum/#!forum/mjolnir-io)
+is a fine place to discuss upcoming features and extensions, find out
+about new extensions, and share your cool ideas. We also have a
+growing IRC channel on freenode, #penknife [sic].
 
 ## Credits
 
