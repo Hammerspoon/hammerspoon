@@ -6,8 +6,10 @@ VERSION = $(shell defaults read `pwd`/Mjolnir/Mjolnir-Info CFBundleVersion)
 APPFILE = Mjolnir.app
 TGZFILE = Mjolnir-$(VERSION).tgz
 ZIPFILE = Mjolnir-$(VERSION).zip
+VERSIONFILE = LATESTVERSION
 
-all: $(TGZFILE) $(ZIPFILE) sign
+release: $(TGZFILE) $(ZIPFILE) $(VERSIONFILE)
+	open -R .
 
 $(APPFILE): $(shell find Mjolnir -type f)
 	rm -rf $@
@@ -20,10 +22,12 @@ $(TGZFILE): $(APPFILE)
 $(ZIPFILE): $(APPFILE)
 	zip -qr $@ $<
 
-sign: $(TGZFILE)
-	@openssl dgst -sha1 -binary < $(TGZFILE) | openssl dgst -dss1 -sign $(KEYFILE) | openssl enc -base64
+$(VERSIONFILE): $(TGZFILE)
+	echo $(VERSION) > $@
+	echo https://github.com/mjolnir-io/mjolnir/releases/download/$(VERSION)/Mjolnir-$(VERSION).tgz >> $@
+	echo openssl dgst -sha1 -binary < $(TGZFILE) | openssl dgst -dss1 -sign $(KEYFILE) | openssl enc -base64 >> $@
 
 clean:
 	rm -rf $(APPFILE) $(TGZFILE) $(ZIPFILE)
 
-.PHONY: all sign clean
+.PHONY: release clean
