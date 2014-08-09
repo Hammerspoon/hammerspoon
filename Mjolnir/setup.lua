@@ -19,7 +19,12 @@ end
 
 function core._loadmodule(dotname)
   local requirepath = 'ext.' .. dotname:gsub('%.', '_') .. '.init'
-  local mod = require(requirepath)
+  local ok, result = pcall(require, requirepath)
+  if not ok then
+    print("Something went wrong: " .. result)
+    return
+  end
+  local mod = result
 
   local keys = {}
   for key in string.gmatch(dotname, "%a+") do
