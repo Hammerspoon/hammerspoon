@@ -2,9 +2,6 @@
 #import "MJAutoLaunch.h"
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
-#import "MJUpdater.h"
-
-#define MJCheckForUpdatesInterval (60.0 * 60.0 * 24.0)
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
 extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
@@ -19,8 +16,6 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 @property BOOL isAccessibilityEnabled;
 @property BOOL hasInstalledDocs;
-
-@property NSTimer* autoupdateTimer;
 
 @end
 
@@ -45,40 +40,6 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState:[[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:MJCheckForUpdatesKey] ? NSOnState : NSOffState];
-    
-    self.autoupdateTimer = [NSTimer scheduledTimerWithTimeInterval:MJCheckForUpdatesInterval
-                                                            target:self
-                                                          selector:@selector(checkForUpdatesTimerFired:)
-                                                          userInfo:nil
-                                                           repeats:YES];
-    [self.autoupdateTimer fire];
-}
-
-- (void) checkForUpdatesTimerFired:(NSTimer*)timer {
-    [MJUpdater checkForUpdate:^(MJUpdater *updater) {
-        if (updater) {
-            NSAlert* alert = [[NSAlert alloc] init];
-            [alert setAlertStyle: NSCriticalAlertStyle];
-            [alert setMessageText: @"Update available"];
-            [alert setInformativeText: [NSString stringWithFormat: @"New version: %@ (you have version %@)\nHere's whats new:\n\n",
-                                        updater.newerVersion,
-                                        updater.yourVersion]];
-            [alert addButtonWithTitle:@"Update Now"];
-            [alert addButtonWithTitle:@"Remind Me Later"];
-            if ([alert runModal] == NSAlertFirstButtonReturn) {
-                // TODO: show spinner
-                
-                [updater install:^(NSString *error, NSString *reason) {
-                    NSAlert* alert = [[NSAlert alloc] init];
-                    [alert setAlertStyle: NSCriticalAlertStyle];
-                    [alert setMessageText: @"Update failed"];
-                    [alert setInformativeText: [NSString stringWithFormat: @"And here's why: %@\n\nMore details: %@", error, reason]];
-                    [alert addButtonWithTitle:@"OK"];
-                    [alert runModal];
-                }];
-            }
-        }
-    }];
 }
 
 - (IBAction) openDocsInDash:(id)sender {

@@ -4,7 +4,6 @@
 #import "MJArchiveManager.h"
 
 static NSString* MJUpdatesURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
-static NSString* MJReleaseNotesURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/CHANGES.md";
 
 @interface MJUpdater ()
 @property NSString* downloadURL;
