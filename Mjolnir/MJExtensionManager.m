@@ -24,7 +24,7 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
 
 - (void) getURL:(NSString*)urlString done:(void(^)(id json, NSError* error))done {
     NSURL* url = [NSURL URLWithString:urlString];
-    NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5.0];
+    NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData timeoutInterval:5.0];
     [NSURLConnection sendAsynchronousRequest:req
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
