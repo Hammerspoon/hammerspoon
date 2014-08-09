@@ -17,5 +17,6 @@ profile
 DerivedData
 .idea/
 
-/Hydra.app
-/Hydra-*.zip
+/Mjolnir.app
+/Mjolnir*.zip
+/Mjolnir*.tgz

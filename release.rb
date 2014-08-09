@@ -1,61 +1,38 @@
 #!/usr/bin/env ruby
 require 'fileutils'
 require 'json'
-require 'io/console'
+require 'openssl'
+require 'base64'
 
 # ensure private key is given
 if ARGV.length < 1
   puts "Usage: release.sh <priv_key_file>"
   exit 1
 end
-privkeyfile = ARGV[0]
-
-# get password
-print "github password: "
-pass = STDIN.noecho(&:gets).chomp
-abort "wrong github password" unless system "curl -s --fail -u sdegutis:#{pass} https://api.github.com > /dev/null"
+pkey = File.read(ARGV[0])
 
 # build app
-system "xcodebuild clean build"
+puts "Rebuilding app"
+system "xcodebuild clean build > /dev/null"
 
 # get details
-version = `defaults read "$(pwd)/Hydra/XcodeCrap/Hydra-Info" CFBundleVersion`.strip
-filename = "Hydra-#{version}.zip"
+version = `defaults read "$(pwd)/Mjolnir/Mjolnir-Info" CFBundleVersion`.strip
+zipfile = "Mjolnir-#{version}.zip"
+tgzfile = "Mjolnir-#{version}.tgz"
 
+puts "Creating #{zipfile} and #{tgzfile}"
 # build .zip
-FileUtils.rm_f(filename)
+FileUtils.rm_f(zipfile)
+FileUtils.rm_f(tgzfile)
 FileUtils.cd("build/Release/") do
-  system "zip -r '../../#{filename}' Hydra.app"
+  system "zip -qr  '../../#{zipfile}' Mjolnir.app"
+  system "tar -czf '../../#{tgzfile}' Mjolnir.app"
 end
-puts "Created #{filename}"
 
-# sign zip
-signature = `openssl dgst -sha1 -binary < #{filename} | openssl dgst -dss1 -sign #{privkeyfile} | openssl enc -base64`
-
-# template
-template = <<END
-#### Changes
-
-#### Download Verification
-
-Signature: #{signature}
-END
-
-
-# create release
-create_release_json = {
-  tag_name: version,
-  name: "Hydra #{version}",
-  body: template,
-  draft: true,
-  prerelease: true
-}.to_json
-create_url = "https://api.github.com/repos/sdegutis/hydra/releases"
-release = JSON.load(`curl -u sdegutis:#{pass} -X POST --data '#{create_release_json}' '#{create_url}'`)
-
-# upload zip
-upload_url = "https://uploads.github.com/repos/sdegutis/hydra/releases/#{release['id']}/assets?name=#{filename}"
-system "curl -u sdegutis:#{pass} -H 'Content-Type: application/zip' --data-binary @#{filename} '#{upload_url}'"
-
-# open in browser for me
-system "open #{release['html_url']}"
+puts "Signing #{tgzfile}"
+# sign tgz
+data = OpenSSL::Digest::SHA1.new.digest(File.read(zipfile))
+digest = OpenSSL::Digest::DSS1.new
+pkey = OpenSSL::PKey::DSA.new(pkey)
+signature = Base64.encode64(pkey.sign(digest, data)).tr("\n", '')
+puts "Signature: #{signature}"
