@@ -80,7 +80,9 @@
         
         NSError* __autoreleasing error;
         if (![MJSHA1Verifier verifyTgzData:tgzdata sha:self.tarsha error:&error]) {
-            done([NSError errorWithDomain:@"Mjolnir" code:0 userInfo:@{NSLocalizedDescriptionKey: @"SHA1 doesn't match.", NSUnderlyingErrorKey: error}]);
+            NSMutableDictionary* userinfo = [@{NSLocalizedDescriptionKey: @"Extension's SHA1 doesn't hold up."} mutableCopy];
+            if (error) [userinfo setObject:error forKey:NSUnderlyingErrorKey];
+            done([NSError errorWithDomain:@"Mjolnir" code:0 userInfo:userinfo]);
             return;
         }
         

@@ -64,7 +64,6 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
         }
         
         NSNumber* newtimestamp = [json objectForKey:@"timestamp"];
-        
         if ([newtimestamp unsignedLongValue] <= [self.cache.timestamp unsignedLongValue]) {
             NSLog(@"no update found.");
             self.updating = NO;
@@ -72,21 +71,20 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
         }
         
         NSLog(@"update found!");
-        
         self.cache.timestamp = newtimestamp;
         
-        for (NSDictionary* ext in [json objectForKey: @"extensions"]) {
+        for (NSDictionary* ext in [json objectForKey: @"extensions"])
             [self.cache.extensionsAvailable addObject: [MJExtension extensionWithJSON:ext]];
-        }
         
         [self.cache.extensionsAvailable sortUsingComparator:^NSComparisonResult(MJExtension* a, MJExtension* b) {
             return [a.name compare: b.name];
         }];
         
-        NSLog(@"done updating.");
-        self.updating = NO;
         [self.cache save];
         [self rebuildMemoryCache];
+        
+        self.updating = NO;
+        NSLog(@"done updating.");
     }];
 }
 
@@ -142,6 +140,7 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
 - (void) upgrade:(NSMutableArray*)toupgrade
          install:(NSMutableArray*)toinstall
        uninstall:(NSMutableArray*)touninstall
+         handler:(void(^)(NSDictionary* errors))handler
 {
     // for all extensions that are about to be installed or upgraded:
     for (MJExtension* ext in [toinstall arrayByAddingObjectsFromArray: toupgrade]) {
@@ -172,15 +171,14 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
             [toinstall addObject: ext];
     }
     
-    NSMutableArray* errors = [NSMutableArray array];
+    NSMutableDictionary* errors = [NSMutableDictionary dictionary];
     dispatch_group_t g = dispatch_group_create();
     dispatch_group_enter(g);
     
     dispatch_group_notify(g, dispatch_get_main_queue(), ^{
         [self.cache save];
         [self rebuildMemoryCache];
-        NSLog(@"%@", errors);
-        // TODO: present errors to the user
+        handler(errors);
     });
     
     for (MJExtension* ext in touninstall)
@@ -195,35 +193,35 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
     dispatch_group_leave(g);
 }
 
-- (void) install:(MJExtension*)ext errors:(NSMutableArray*)errors group:(dispatch_group_t)g {
+- (void) install:(MJExtension*)ext errors:(NSMutableDictionary*)errors group:(dispatch_group_t)g {
     dispatch_group_async(g, dispatch_get_main_queue(), ^{
         dispatch_group_enter(g);
         [ext install:^(NSError* err) {
             if (!err)
                 [self.cache.extensionsInstalled addObject: ext];
             else
-                [errors addObject: err];
+                [errors setObject:err forKey:ext.name];
             
             dispatch_group_leave(g);
         }];
     });
 }
 
-- (void) uninstall:(MJExtension*)ext errors:(NSMutableArray*)errors group:(dispatch_group_t)g {
+- (void) uninstall:(MJExtension*)ext errors:(NSMutableDictionary*)errors group:(dispatch_group_t)g {
     dispatch_group_async(g, dispatch_get_main_queue(), ^{
         dispatch_group_enter(g);
         [ext uninstall:^(NSError* err) {
             if (!err)
                 [self.cache.extensionsInstalled removeObject: ext];
             else
-                [errors addObject: err];
+                [errors setObject:err forKey:ext.name];
             
             dispatch_group_leave(g);
         }];
     });
 }
 
-- (void) upgrade:(MJExtension*)ext errors:(NSMutableArray*)errors group:(dispatch_group_t)g {
+- (void) upgrade:(MJExtension*)ext errors:(NSMutableDictionary*)errors group:(dispatch_group_t)g {
     dispatch_group_async(g, dispatch_get_main_queue(), ^{
         dispatch_group_enter(g);
         [ext uninstall:^(NSError* err) {
@@ -233,7 +231,7 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
                 [self install:ext errors:errors group:g];
             }
             else {
-                [errors addObject: err];
+                [errors setObject:err forKey:ext.name];
             }
             dispatch_group_leave(g);
         }];

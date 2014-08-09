@@ -20,6 +20,7 @@ extern NSString* MJExtensionsUpdatedNotification;
 
 - (void) upgrade:(NSMutableArray*)toupgrade
          install:(NSMutableArray*)toinstall
-       uninstall:(NSMutableArray*)touninstall;
+       uninstall:(NSMutableArray*)touninstall
+         handler:(void(^)(NSDictionary* errors))handler;
 
 @end

@@ -275,7 +275,27 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     
     [[MJExtensionManager sharedManager] upgrade:upgrade
                                         install:install
-                                      uninstall:uninstall];
+                                      uninstall:uninstall
+                                        handler:^(NSDictionary *errors) {
+                                            if ([errors count] > 0) {
+                                                NSMutableArray* errorStrings = [NSMutableArray array];
+                                                for (NSString* extname in errors) {
+                                                    NSError* error = [errors objectForKey:extname];
+                                                    [errorStrings addObject: [NSString stringWithFormat:@"%@: %@", extname, [error localizedDescription]]];
+                                                }
+                                                
+                                                NSString* errorString = [errorStrings componentsJoinedByString:@"\n\n"];
+                                                NSAlert* alert = [[NSAlert alloc] init];
+                                                [alert setAlertStyle: NSCriticalAlertStyle];
+                                                [alert setMessageText: @"Some errors happened"];
+                                                [alert setInformativeText: [NSString stringWithFormat: @"Here's a really rough overview of the problems:\n\n%@", errorString]];
+                                                [alert addButtonWithTitle:@"OK"];
+                                                [alert beginSheetModalForWindow:[self.view window]
+                                                                  modalDelegate:nil
+                                                                 didEndSelector:NULL
+                                                                    contextInfo:NULL];
+                                            }
+                                        }];
 }
 
 - (void) applyChangesAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
