@@ -43,20 +43,19 @@
     [encoder encodeObject:self.previous forKey:@"previous"];
 }
 
-+ (MJExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON {
++ (MJExtension*) extensionWithJSON:(NSDictionary*)json {
     MJExtension* ext = [[MJExtension alloc] init];
-    ext.sha = [shortJSON objectForKey:@"sha"];
-    ext.name = [[shortJSON objectForKey:@"path"] stringByReplacingOccurrencesOfString:@".json" withString:@""];
-    ext.author = [longJSON objectForKey:@"author"];
-    ext.version = [longJSON objectForKey:@"version"];
-    ext.license = [longJSON objectForKey:@"license"];
-    ext.tarfile = [longJSON objectForKey:@"tarfile"];
-    ext.tarsha = [longJSON objectForKey:@"sha"];
-    ext.website = [longJSON objectForKey:@"website"];
-    ext.desc = [longJSON objectForKey:@"description"];
-    ext.dependencies = [longJSON objectForKey:@"deps"];
-    ext.changelog = [longJSON objectForKey:@"changelog"];
-    ext.previous = [longJSON objectForKey:@"previous"];
+    ext.name = [json objectForKey:@"name"];
+    ext.author = [json objectForKey:@"author"];
+    ext.version = [json objectForKey:@"version"];
+    ext.license = [json objectForKey:@"license"];
+    ext.tarfile = [json objectForKey:@"tarfile"];
+    ext.tarsha = [json objectForKey:@"sha"];
+    ext.website = [json objectForKey:@"website"];
+    ext.desc = [json objectForKey:@"description"];
+    ext.dependencies = [json objectForKey:@"deps"];
+    ext.changelog = [json objectForKey:@"changelog"];
+    ext.previous = [json objectForKey:@"previous"];
     return ext;
 }
 

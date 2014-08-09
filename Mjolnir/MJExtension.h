@@ -15,7 +15,7 @@
 @property NSArray* dependencies;
 @property MJExtension* previous;
 
-+ (MJExtension*) extensionWithShortJSON:(NSDictionary*)shortJSON longJSON:(NSDictionary*)longJSON;
++ (MJExtension*) extensionWithJSON:(NSDictionary*)json;
 
 - (void) install:(void(^)(NSError*))done;
 - (void) uninstall:(void(^)(NSError*))done;

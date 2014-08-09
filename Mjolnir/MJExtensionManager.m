@@ -36,15 +36,15 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
                                    NSData* sig = [data subdataWithRange:NSMakeRange(0, r.location)];
                                    NSData* json = [data subdataWithRange:NSMakeRange(NSMaxRange(r), [data length] - NSMaxRange(r))];
                                    
-                                   NSLog(@"%@", [[NSString alloc] initWithData:sig encoding:NSUTF8StringEncoding]);
-                                   NSLog(@"%d", MJVerifySignedData(sig, json));
+                                   if (!MJVerifySignedData(sig, json)) {
+                                       done(nil, [NSError errorWithDomain:@"Mjolnir" code:0 userInfo:@{NSLocalizedDescriptionKey: @"manifest.json didn't pass the test"}]);
+                                       return;
+                                   }
                                    
                                    NSError* __autoreleasing jsonError;
                                    id obj = [NSJSONSerialization JSONObjectWithData:json options:0 error:&jsonError];
-                                   if (obj)
-                                       done(obj, nil);
-                                   else
-                                       done(nil, jsonError);
+                                   if (obj) jsonError = nil;
+                                   done(obj, jsonError);
                                }
                                else {
                                    done(nil, connectionError);
@@ -56,90 +56,38 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
     if (self.updating) return;
     self.updating = YES;
     
-    [self getURL:MJExtensionsManifestURL done:^(id json, NSError *error) {
-//        NSLog(@"%@", json);
+    [self getURL:MJExtensionsManifestURL done:^(NSDictionary* json, NSError *error) {
+        if (error) {
+            NSLog(@"%@", error);
+            self.updating = NO;
+            return;
+        }
+        
+        NSNumber* newtimestamp = [json objectForKey:@"timestamp"];
+        
+        if ([newtimestamp unsignedLongValue] <= [self.cache.timestamp unsignedLongValue]) {
+            NSLog(@"no update found.");
+            self.updating = NO;
+            return;
+        }
+        
+        NSLog(@"update found!");
+        
+        self.cache.timestamp = newtimestamp;
+        
+        for (NSDictionary* ext in [json objectForKey: @"extensions"]) {
+            [self.cache.extensionsAvailable addObject: [MJExtension extensionWithJSON:ext]];
+        }
+        
+        [self.cache.extensionsAvailable sortUsingComparator:^NSComparisonResult(MJExtension* a, MJExtension* b) {
+            return [a.name compare: b.name];
+        }];
+        
+        NSLog(@"done updating.");
+        self.updating = NO;
+        [self.cache save];
+        [self rebuildMemoryCache];
     }];
-    
-//    [self getURL:MJMasterShaURL done:^(NSDictionary* json, NSError* error) {
-//        if (error) {
-//            NSLog(@"%@", error);
-//            self.updating = NO;
-//            return;
-//        }
-//        
-//        NSString* newsha = [[json objectForKey:@"object"] objectForKey:@"sha"];
-//        
-//        if ([newsha isEqualToString: self.cache.sha]) {
-//            NSLog(@"no update found.");
-//            self.updating = NO;
-//            return;
-//        }
-//        
-//        NSLog(@"update found!");
-//        
-//        self.cache.sha = newsha;
-//        
-//        [self getURL:MJTreeListURL done:^(NSDictionary* json, NSError* error) {
-//            if (error) {
-//                NSLog(@"%@", error);
-//                self.updating = NO;
-//                return;
-//            }
-//            
-//            NSMutableArray* newlist = [NSMutableArray array];
-//            for (NSDictionary* file in [json objectForKey:@"tree"]) {
-//                NSString* path = [file objectForKey:@"path"];
-//                if ([path hasSuffix:@".json"])
-//                    [newlist addObject:@{@"path": path, @"sha": [file objectForKey:@"sha"]}];
-//            }
-//            [self reflectAvailableExts:newlist];
-//        }];
-//    }];
-}
-
-- (void) doneUpdating {
-    [self.cache.extensionsAvailable sortUsingComparator:^NSComparisonResult(MJExtension* a, MJExtension* b) {
-        return [a.name compare: b.name];
-    }];
-    
-    NSLog(@"done updating.");
-    self.updating = NO;
-    [self.cache save];
-    [self rebuildMemoryCache];
-}
-
-- (void) reflectAvailableExts:(NSArray*)latestexts {
-    // 1. look for all old shas missing from the new batch and delete their represented local files
-    // 2. look for all new shas missing from old batch and download their files locally
-    
-    NSArray* oldshas = [self.cache.extensionsAvailable valueForKeyPath:@"sha"];
-    NSArray* latestshas = [latestexts valueForKeyPath:@"sha"];
-    
-    NSArray* removals = [self.cache.extensionsAvailable filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT self.sha IN %@", latestshas]];
-    NSArray* additions = [latestexts filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT sha IN %@", oldshas]];
-    
-    for (MJExtension* oldext in removals)
-        [self.cache.extensionsAvailable removeObject:oldext];
-    
-    __block NSUInteger waitingfor = [additions count];
-    
-    if (waitingfor == 0) {
-        [self doneUpdating];
-        return;
-    }
-    
-//    for (NSDictionary* ext in additions) {
-//        NSString* extNamePath = [ext objectForKey: @"path"];
-//        NSString* url = [NSString stringWithFormat:MJExtensionsManifestURL, self.cache.sha, extNamePath];
-//        NSLog(@"downloading: %@", url);
-//        
-//        [self getURL:url done:^(NSDictionary* json, NSError* error) {
-//            [self.cache.extensionsAvailable addObject: [MJExtension extensionWithShortJSON:ext longJSON:json]];
-//            
-//            if (--waitingfor == 0)
-//                [self doneUpdating];
-//        }];
-//    }
 }
 
 - (void) setup {

@@ -5,7 +5,7 @@
 + (MJExtensionCache*) cache;
 - (void) save;
 
-@property NSString* sha;
+@property NSNumber* timestamp;
 @property NSMutableArray* extensionsAvailable;
 @property NSMutableArray* extensionsInstalled;
 

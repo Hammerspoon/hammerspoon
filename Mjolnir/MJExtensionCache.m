@@ -25,7 +25,7 @@
 
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
-        self.sha = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha"];
+        self.timestamp = [decoder decodeObjectOfClass:[NSNumber class] forKey:@"timestamp"];
         self.extensionsAvailable = [decoder decodeObjectOfClass:[NSMutableArray class] forKey:@"extensionsAvailable"];
         self.extensionsInstalled = [decoder decodeObjectOfClass:[NSMutableArray class] forKey:@"extensionsInstalled"];
     }
@@ -33,7 +33,7 @@
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:self.sha forKey:@"sha"];
+    [encoder encodeObject:self.timestamp forKey:@"timestamp"];
     [encoder encodeObject:self.extensionsAvailable forKey:@"extensionsAvailable"];
     [encoder encodeObject:self.extensionsInstalled forKey:@"extensionsInstalled"];
 }
