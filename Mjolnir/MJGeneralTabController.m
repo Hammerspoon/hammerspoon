@@ -19,7 +19,6 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 @end
 
-#define MJCheckForUpdatesKey @"_checkforupdates"
 
 @implementation MJGeneralTabController
 

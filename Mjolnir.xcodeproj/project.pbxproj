@@ -72,11 +72,11 @@
 		94AB413D199156B000055603 /* REPL.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413B199156B000055603 /* REPL.png */; };
 		94AB413F19915AFF00055603 /* Donate.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413E19915AFF00055603 /* Donate.png */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
+		94BB236F1995D738002C6AA7 /* MJUpdater.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BB236E1995D738002C6AA7 /* MJUpdater.m */; };
 		94BC27AD198DF08900B3998F /* MJDocsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BC27AC198DF08900B3998F /* MJDocsManager.m */; };
 		94BF76E61993418C001BDA77 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94BF76E51993418C001BDA77 /* Foundation.framework */; };
 		94BF76E91993418C001BDA77 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BF76E81993418C001BDA77 /* main.m */; };
 		94BF76F6199344DA001BDA77 /* MjolnirRestarter in Resources */ = {isa = PBXBuildFile; fileRef = 94BF76E41993418C001BDA77 /* MjolnirRestarter */; };
-		94D36C02198F27A000F3547D /* MJRestarter.m in Sources */ = {isa = PBXBuildFile; fileRef = 94D36C01198F27A000F3547D /* MJRestarter.m */; };
 		94D7A827198D82430005B88E /* Mjolnir.docset in Resources */ = {isa = PBXBuildFile; fileRef = 94D7A826198D82430005B88E /* Mjolnir.docset */; };
 		94EEEFB31993085A00749B92 /* Settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB11993085A00749B92 /* Settings.png */; };
 		94EEEFB51993086F00749B92 /* Extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB41993086F00749B92 /* Extensions.png */; };
@@ -206,13 +206,13 @@
 		94AB413B199156B000055603 /* REPL.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = REPL.png; sourceTree = "<group>"; };
 		94AB413E19915AFF00055603 /* Donate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Donate.png; sourceTree = "<group>"; };
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		94BB236D1995D738002C6AA7 /* MJUpdater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJUpdater.h; sourceTree = "<group>"; };
+		94BB236E1995D738002C6AA7 /* MJUpdater.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUpdater.m; sourceTree = "<group>"; };
 		94BC27AB198DF08900B3998F /* MJDocsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJDocsManager.h; sourceTree = "<group>"; };
 		94BC27AC198DF08900B3998F /* MJDocsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJDocsManager.m; sourceTree = "<group>"; };
 		94BF76E41993418C001BDA77 /* MjolnirRestarter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MjolnirRestarter; sourceTree = BUILT_PRODUCTS_DIR; };
 		94BF76E51993418C001BDA77 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		94BF76E81993418C001BDA77 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		94D36C00198F27A000F3547D /* MJRestarter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJRestarter.h; sourceTree = "<group>"; };
-		94D36C01198F27A000F3547D /* MJRestarter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJRestarter.m; sourceTree = "<group>"; };
 		94D7A826198D82430005B88E /* Mjolnir.docset */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Mjolnir.docset; sourceTree = "<group>"; };
 		94EEEFB11993085A00749B92 /* Settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Settings.png; sourceTree = "<group>"; };
 		94EEEFB41993086F00749B92 /* Extensions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Extensions.png; sourceTree = "<group>"; };
@@ -261,18 +261,10 @@
 			name = "Extensions Tab";
 			sourceTree = "<group>";
 		};
-		94320F411954C61F00D37BF1 /* Source */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Source;
-			sourceTree = "<group>";
-		};
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
 				9445CA1419083251002568BB /* Mjolnir */,
-				94BF76E71993418C001BDA77 /* MjolnirRestarter */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
 			);
@@ -317,8 +309,8 @@
 			isa = PBXGroup;
 			children = (
 				944A2D49198973A400D8DC90 /* Main */,
+				94BF76E71993418C001BDA77 /* MjolnirRestarter */,
 				944A2D481989739B00D8DC90 /* XcodeCrap */,
-				94320F411954C61F00D37BF1 /* Source */,
 			);
 			path = Mjolnir;
 			sourceTree = "<group>";
@@ -475,8 +467,8 @@
 				94A1E5441993AB8E003AEB26 /* MJArchiveManager.m */,
 				94A1E5461993AC5C003AEB26 /* MJFileDownloader.h */,
 				94A1E5471993AC5C003AEB26 /* MJFileDownloader.m */,
-				94D36C00198F27A000F3547D /* MJRestarter.h */,
-				94D36C01198F27A000F3547D /* MJRestarter.m */,
+				94BB236D1995D738002C6AA7 /* MJUpdater.h */,
+				94BB236E1995D738002C6AA7 /* MJUpdater.m */,
 			);
 			name = Auxiliary;
 			sourceTree = "<group>";
@@ -496,8 +488,7 @@
 			children = (
 				94BF76E81993418C001BDA77 /* main.m */,
 			);
-			name = MjolnirRestarter;
-			path = Mjolnir/MjolnirRestarter;
+			path = MjolnirRestarter;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -603,6 +594,7 @@
 				94A1E5451993AB8E003AEB26 /* MJArchiveManager.m in Sources */,
 				944A2D89198973E900D8DC90 /* lcorolib.c in Sources */,
 				944A2D98198973E900D8DC90 /* lopcodes.c in Sources */,
+				94BB236F1995D738002C6AA7 /* MJUpdater.m in Sources */,
 				944A2D90198973E900D8DC90 /* lgc.c in Sources */,
 				94BC27AD198DF08900B3998F /* MJDocsManager.m in Sources */,
 				944A2DAF1989761600D8DC90 /* MJExtensionsTabController.m in Sources */,
@@ -630,7 +622,6 @@
 				94A1E5421993AB00003AEB26 /* MJSHA1Verifier.m in Sources */,
 				944A2D84198973E900D8DC90 /* lapi.c in Sources */,
 				944A2D92198973E900D8DC90 /* liolib.c in Sources */,
-				94D36C02198F27A000F3547D /* MJRestarter.m in Sources */,
 				944A2D9B198973E900D8DC90 /* lstate.c in Sources */,
 				945B65AC198D2DDB002D2E30 /* core.m in Sources */,
 				944A2D87198973E900D8DC90 /* lbitlib.c in Sources */,

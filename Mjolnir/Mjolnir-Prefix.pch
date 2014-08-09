@@ -3,3 +3,5 @@
 #endif
 
 #define LUA_USE_MACOSX 1
+
+#define MJCheckForUpdatesKey @"_checkforupdates"

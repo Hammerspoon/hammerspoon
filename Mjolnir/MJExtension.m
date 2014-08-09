@@ -72,7 +72,7 @@
 }
 
 - (void) install:(void(^)(NSError*))done {
-    [MJFileDownloader downloadExtension:self.tarfile handler:^(NSError *err, NSData *tgzdata) {
+    [MJFileDownloader downloadFile:self.tarfile handler:^(NSError *err, NSData *tgzdata) {
         if (err) {
             done(err);
             return;

@@ -1,5 +1,6 @@
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
+#import "MJFileDownloader.h"
 
 @implementation MJDocsManager
 
@@ -19,28 +20,6 @@
     [[NSFileManager defaultManager] copyItemAtURL:docsetSourceURL toURL:[MJDocsManager docsFile] error:NULL];
 }
 
-+ (NSString*) copyToTempFile:(NSString*)originalpath error:(NSError* __autoreleasing*)error {
-    NSData* indata = [NSData dataWithContentsOfFile:originalpath options:0 error:error];
-    if (!indata) return nil;
-    
-    const char* tempFileTemplate = [[NSTemporaryDirectory() stringByAppendingPathComponent:@"ext.XXXXXX.tgz"] fileSystemRepresentation];
-    char* tempFileName = malloc(strlen(tempFileTemplate) + 1);
-    strcpy(tempFileName, tempFileTemplate);
-    int fd = mkstemps(tempFileName, 4);
-    if (fd == -1) {
-        *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
-        return nil;
-    }
-    NSString* tempFilePath = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tempFileName length:strlen(tempFileName)];
-    free(tempFileName);
-    
-    NSFileHandle* tempFileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fd];
-    [tempFileHandle writeData:indata];
-    [tempFileHandle closeFile];
-    
-    return tempFilePath;
-}
-
 + (NSString*) sharedHtmlDocsDir {
     return [[[self docsFile] URLByAppendingPathComponent:@"Contents/Resources/Documents"] path];
 }
@@ -50,8 +29,9 @@
 }
 
 + (BOOL) runSqlFile:(NSString*)sqlfile inDir:(NSString*)extdir error:(NSError* __autoreleasing*)error {
+    NSData* masterSqlFileData = [NSData dataWithContentsOfFile:[self masterSqlFile] options:0 error:error];
     NSString* masterSqlFile = [self masterSqlFile];
-    NSString* masterSqlFileCopy = [self copyToTempFile:[self masterSqlFile] error:error];
+    NSString* masterSqlFileCopy = [MJFileDownloader writeToTempFile:masterSqlFileData error:error];
     
     NSTask* inTask = [[NSTask alloc] init];
     [inTask setLaunchPath:@"/usr/bin/sqlite3"];
