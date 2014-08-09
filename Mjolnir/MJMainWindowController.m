@@ -5,8 +5,6 @@
 #import "MJExtensionsTabController.h"
 #import "MJDonateTabController.h"
 
-#import "MJUpdater.h"
-
 @interface MJMainWindowController ()
 @property (weak) IBOutlet NSTabView* tabView;
 @property NSMutableArray* tabControllers;
@@ -77,12 +75,6 @@
 }
 
 - (void)windowDidLoad {
-    [MJUpdater checkForUpdate:^(MJUpdater *updater) {
-        [updater install:^(NSString *error, NSString* reason) {
-            NSLog(@"ok");
-        }];
-    }];
-    
     self.tabControllers = [NSMutableArray array];
     self.tabIcons = [NSMutableDictionary dictionary];
     

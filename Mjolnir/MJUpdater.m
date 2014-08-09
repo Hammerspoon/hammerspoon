@@ -32,8 +32,6 @@ int MJVersionFromString(NSString* str) {
 }
 
 + (void) checkForUpdate:(void(^)(MJUpdater* updater))handler {
-    NSLog(@"testing...");
-    
     [MJFileDownloader downloadFile:MJUpdatesURL handler:^(NSError *connectionError, NSData *data) {
         if (!data) {
             NSLog(@"error looking for new Mjolnir release: %@", connectionError);
@@ -106,10 +104,20 @@ int MJVersionFromString(NSString* str) {
         NSString* thisparentdir = [thispath stringByDeletingLastPathComponent];
         
         NSError* __autoreleasing rmError;
-        [[NSFileManager defaultManager] removeItemAtPath:thispath error:&rmError];
+        BOOL rmSuccess = [[NSFileManager defaultManager] removeItemAtPath:thispath error:&rmError];
+        if (!rmSuccess) {
+            NSLog(@"rm failed: %@", rmError);
+            handler(@"Error updating Mjolnir release", [rmError localizedDescription]);
+            return;
+        }
         
         NSError* __autoreleasing untarError;
-        [MJArchiveManager untarData:tgzdata intoDirectory:thisparentdir error:&untarError];
+        BOOL untarSuccess = [MJArchiveManager untarData:tgzdata intoDirectory:thisparentdir error:&untarError];
+        if (!untarSuccess) {
+            NSLog(@"%@", untarError);
+            handler(@"Error updating Mjolnir release", [untarError localizedDescription]);
+            return;
+        }
         
         NSTask* task = [[NSTask alloc] init];
         [task setLaunchPath:[[NSBundle mainBundle] pathForResource:@"MjolnirRestarter" ofType:@""]];
