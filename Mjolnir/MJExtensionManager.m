@@ -1,12 +1,11 @@
 #import "MJExtensionManager.h"
 #import "MJExtension.h"
+#import "MJSHA1Verifier.h"
 #import "core.h"
 
 NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
 
-static NSString* MJMasterShaURL = @"https://api.github.com/repos/mjolnir-io/ext/git/refs/heads/master";
-static NSString* MJTreeListURL  = @"https://api.github.com/repos/mjolnir-io/ext/git/trees/master";
-static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/mjolnir-io/ext/%@/%@";
+static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir-ext/master/manifest.json";
 
 @interface MJExtensionManager ()
 @property MJExtensionCache* cache;
@@ -24,21 +23,24 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
 }
 
 - (void) getURL:(NSString*)urlString done:(void(^)(id json, NSError* error))done {
-    // come on apple srsly
     NSURL* url = [NSURL URLWithString:urlString];
     NSURLRequest* req = [NSURLRequest requestWithURL:url cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:5.0];
     [NSURLConnection sendAsynchronousRequest:req
                                        queue:[NSOperationQueue mainQueue]
                            completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-                               NSString* limitRemaining = [[(NSHTTPURLResponse*)response allHeaderFields] objectForKey:@"X-RateLimit-Remaining"];
-                               if (limitRemaining && [limitRemaining integerValue] <= 1) {
-                                   done(nil, [NSError errorWithDomain:@"Github API"
-                                                                 code:0
-                                                             userInfo:@{NSLocalizedDescriptionKey: @"Github's API needs time to recover from you."}]);
-                               }
-                               else if (data) {
+                               if (data) {
+                                   NSRange r = [data rangeOfData:[@"\n" dataUsingEncoding:NSUTF8StringEncoding]
+                                                         options:0
+                                                           range:NSMakeRange(0, [data length])];
+                                   
+                                   NSData* sig = [data subdataWithRange:NSMakeRange(0, r.location)];
+                                   NSData* json = [data subdataWithRange:NSMakeRange(NSMaxRange(r), [data length] - NSMaxRange(r))];
+                                   
+                                   NSLog(@"%@", [[NSString alloc] initWithData:sig encoding:NSUTF8StringEncoding]);
+                                   NSLog(@"%d", MJVerifySignedData([[NSString alloc] initWithData:sig encoding:NSUTF8StringEncoding], json));
+                                   
                                    NSError* __autoreleasing jsonError;
-                                   id obj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+                                   id obj = [NSJSONSerialization JSONObjectWithData:json options:0 error:&jsonError];
                                    if (obj)
                                        done(obj, nil);
                                    else
@@ -54,41 +56,45 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
     if (self.updating) return;
     self.updating = YES;
     
-    [self getURL:MJMasterShaURL done:^(NSDictionary* json, NSError* error) {
-        if (error) {
-            NSLog(@"%@", error);
-            self.updating = NO;
-            return;
-        }
-        
-        NSString* newsha = [[json objectForKey:@"object"] objectForKey:@"sha"];
-        
-        if ([newsha isEqualToString: self.cache.sha]) {
-            NSLog(@"no update found.");
-            self.updating = NO;
-            return;
-        }
-        
-        NSLog(@"update found!");
-        
-        self.cache.sha = newsha;
-        
-        [self getURL:MJTreeListURL done:^(NSDictionary* json, NSError* error) {
-            if (error) {
-                NSLog(@"%@", error);
-                self.updating = NO;
-                return;
-            }
-            
-            NSMutableArray* newlist = [NSMutableArray array];
-            for (NSDictionary* file in [json objectForKey:@"tree"]) {
-                NSString* path = [file objectForKey:@"path"];
-                if ([path hasSuffix:@".json"])
-                    [newlist addObject:@{@"path": path, @"sha": [file objectForKey:@"sha"]}];
-            }
-            [self reflectAvailableExts:newlist];
-        }];
+    [self getURL:MJExtensionsManifestURL done:^(id json, NSError *error) {
+//        NSLog(@"%@", json);
     }];
+    
+//    [self getURL:MJMasterShaURL done:^(NSDictionary* json, NSError* error) {
+//        if (error) {
+//            NSLog(@"%@", error);
+//            self.updating = NO;
+//            return;
+//        }
+//        
+//        NSString* newsha = [[json objectForKey:@"object"] objectForKey:@"sha"];
+//        
+//        if ([newsha isEqualToString: self.cache.sha]) {
+//            NSLog(@"no update found.");
+//            self.updating = NO;
+//            return;
+//        }
+//        
+//        NSLog(@"update found!");
+//        
+//        self.cache.sha = newsha;
+//        
+//        [self getURL:MJTreeListURL done:^(NSDictionary* json, NSError* error) {
+//            if (error) {
+//                NSLog(@"%@", error);
+//                self.updating = NO;
+//                return;
+//            }
+//            
+//            NSMutableArray* newlist = [NSMutableArray array];
+//            for (NSDictionary* file in [json objectForKey:@"tree"]) {
+//                NSString* path = [file objectForKey:@"path"];
+//                if ([path hasSuffix:@".json"])
+//                    [newlist addObject:@{@"path": path, @"sha": [file objectForKey:@"sha"]}];
+//            }
+//            [self reflectAvailableExts:newlist];
+//        }];
+//    }];
 }
 
 - (void) doneUpdating {
@@ -122,18 +128,18 @@ static NSString* MJRawFilePathURLTemplate = @"https://raw.githubusercontent.com/
         return;
     }
     
-    for (NSDictionary* ext in additions) {
-        NSString* extNamePath = [ext objectForKey: @"path"];
-        NSString* url = [NSString stringWithFormat:MJRawFilePathURLTemplate, self.cache.sha, extNamePath];
-        NSLog(@"downloading: %@", url);
-        
-        [self getURL:url done:^(NSDictionary* json, NSError* error) {
-            [self.cache.extensionsAvailable addObject: [MJExtension extensionWithShortJSON:ext longJSON:json]];
-            
-            if (--waitingfor == 0)
-                [self doneUpdating];
-        }];
-    }
+//    for (NSDictionary* ext in additions) {
+//        NSString* extNamePath = [ext objectForKey: @"path"];
+//        NSString* url = [NSString stringWithFormat:MJExtensionsManifestURL, self.cache.sha, extNamePath];
+//        NSLog(@"downloading: %@", url);
+//        
+//        [self getURL:url done:^(NSDictionary* json, NSError* error) {
+//            [self.cache.extensionsAvailable addObject: [MJExtension extensionWithShortJSON:ext longJSON:json]];
+//            
+//            if (--waitingfor == 0)
+//                [self doneUpdating];
+//        }];
+//    }
 }
 
 - (void) setup {

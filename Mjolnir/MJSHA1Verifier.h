@@ -5,3 +5,5 @@
 + (BOOL) verifyTgzData:(NSData*)tgzdata sha:(NSString*)sha error:(NSError*__autoreleasing*)error;
 
 @end
+
+BOOL MJVerifySignedData(NSString* sig, NSData* data);
