@@ -37,7 +37,7 @@ static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/m
                                    NSData* json = [data subdataWithRange:NSMakeRange(NSMaxRange(r), [data length] - NSMaxRange(r))];
                                    
                                    NSLog(@"%@", [[NSString alloc] initWithData:sig encoding:NSUTF8StringEncoding]);
-                                   NSLog(@"%d", MJVerifySignedData([[NSString alloc] initWithData:sig encoding:NSUTF8StringEncoding], json));
+                                   NSLog(@"%d", MJVerifySignedData(sig, json));
                                    
                                    NSError* __autoreleasing jsonError;
                                    id obj = [NSJSONSerialization JSONObjectWithData:json options:0 error:&jsonError];

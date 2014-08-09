@@ -88,7 +88,24 @@ cleanup:
     return security_key;
 }
 
-BOOL MJVerifySignedData(NSString* sig, NSData* data) {
+static NSData* MJDataFromBase64String(NSData* indata, CFErrorRef* error) {
+    CFDataRef result = NULL;
+    
+    SecTransformRef decoder = SecDecodeTransformCreate(kSecBase64Encoding, error);
+    if (!decoder) goto cleanup;
+    
+    SecTransformSetAttribute(decoder, kSecTransformInputAttributeName, (__bridge CFTypeRef)indata, error);
+    if (*error) goto cleanup;
+    
+    result = SecTransformExecute(decoder, error);
+    
+cleanup:
+    
+    if (decoder) CFRelease(decoder);
+    return (__bridge_transfer NSData*)result;
+}
+
+BOOL MJVerifySignedData(NSData* sig, NSData* data) {
     BOOL verified = NO;
     
     SecKeyRef security_key = NULL;
@@ -106,7 +123,7 @@ BOOL MJVerifySignedData(NSString* sig, NSData* data) {
     security_key = MJCreatePublicKey();
     if (security_key == NULL) { printf("security key was null\n"); goto cleanup; }
     
-    signature = [[NSData alloc] initWithBase64EncodedString:[sig stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    signature = MJDataFromBase64String(sig, &error);
     if (signature == nil) { printf("signature was null\n"); goto cleanup; }
     
     input_stream = [NSInputStream inputStreamWithData:data];

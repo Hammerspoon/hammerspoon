@@ -6,4 +6,4 @@
 
 @end
 
-BOOL MJVerifySignedData(NSString* sig, NSData* data);
+BOOL MJVerifySignedData(NSData* sig, NSData* data);
