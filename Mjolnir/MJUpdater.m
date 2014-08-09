@@ -3,7 +3,8 @@
 #import "MJSHA1Verifier.h"
 #import "MJArchiveManager.h"
 
-static NSString* MJUpdatesURL = @"https://api.github.com/repos/mjolnir-io/mjolnir/releases";
+static NSString* MJUpdatesURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
+static NSString* MJReleaseNotesURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/CHANGES.md";
 
 @interface MJUpdater ()
 @property NSString* downloadURL;
@@ -39,50 +40,22 @@ int MJVersionFromString(NSString* str) {
             return;
         }
         
-        NSError* __autoreleasing jsonError;
-        NSArray* releases = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-        if (!releases) {
-            NSLog(@"error parsing JSON when checking for new Mjolnir release: %@", jsonError);
-        }
+        NSString* wholeString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSArray* lines = [wholeString componentsSeparatedByString:@"\n"];
+        NSString* versionString = [lines objectAtIndex:0];
+        NSString* tgzURL = [lines objectAtIndex:1];
+        NSString* signature = [lines objectAtIndex:2];
         
-        NSDictionary* newerRelease = nil;
-        for (NSDictionary* release in releases) {
-            NSString* versionString = [release objectForKey:@"tag_name"];
-            if (MJVersionFromString(versionString) > MJCurrentVersion()) {
-                newerRelease = release;
-                break;
-            }
-        }
-        
-        if (!newerRelease) {
+        if (MJVersionFromString(versionString) <= MJCurrentVersion()) {
             NSLog(@"no new Mjolnir update");
             handler(nil);
             return;
         }
         
-        NSDictionary* tgzAsset = nil;
-        NSArray* assets = [newerRelease objectForKey:@"assets"];
-        for (NSDictionary* asset in assets) {
-            NSString* name = [asset objectForKey:@"name"];
-            if ([name hasSuffix:@".tgz"]) {
-                tgzAsset = asset;
-                break;
-            }
-        }
-        
-        if (!tgzAsset) {
-            NSLog(@"newer Mjolnir release doesn't have .tgz for some reason");
-            handler(nil);
-            return;
-        }
-        
-        NSString* body = [newerRelease objectForKey:@"body"];
-        
         MJUpdater* updater = [[MJUpdater alloc] init];
-        updater.signature = [[body componentsSeparatedByString:@"\n"] lastObject];
-        updater.downloadURL = [tgzAsset objectForKey: @"browser_download_url"];
-        updater.releaseNotes = body;
-        updater.newerVersion = [newerRelease objectForKey:@"tag_name"];
+        updater.signature = signature;
+        updater.downloadURL = tgzURL;
+        updater.newerVersion = versionString;
         updater.yourVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
         handler(updater);
     }];

@@ -60,10 +60,9 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
             NSAlert* alert = [[NSAlert alloc] init];
             [alert setAlertStyle: NSCriticalAlertStyle];
             [alert setMessageText: @"Update available"];
-            [alert setInformativeText: [NSString stringWithFormat: @"New version: %@ (you have version %@)\nHere's whats new:\n\n%@",
+            [alert setInformativeText: [NSString stringWithFormat: @"New version: %@ (you have version %@)\nHere's whats new:\n\n",
                                         updater.newerVersion,
-                                        updater.yourVersion,
-                                        updater.releaseNotes]];
+                                        updater.yourVersion]];
             [alert addButtonWithTitle:@"Update Now"];
             [alert addButtonWithTitle:@"Remind Me Later"];
             if ([alert runModal] == NSAlertFirstButtonReturn) {

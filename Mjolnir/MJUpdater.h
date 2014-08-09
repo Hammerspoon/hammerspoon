@@ -2,7 +2,6 @@
 
 @interface MJUpdater : NSObject
 
-@property NSString* releaseNotes;
 @property NSString* newerVersion;
 @property NSString* yourVersion;
 
