@@ -33,11 +33,6 @@ int MJVersionFromString(NSString* str) {
 }
 
 + (void) checkForUpdate:(void(^)(MJUpdater* updater))handler {
-    if (![[NSFileManager defaultManager] isDeletableFileAtPath:[[NSBundle mainBundle] bundlePath]]) {
-        NSLog(@"can't auto-update; bailing");
-        return;
-    }
-    
     [MJFileDownloader downloadFile:MJUpdatesURL handler:^(NSError *connectionError, NSData *data) {
         if (!data) {
             NSLog(@"error looking for new Mjolnir release: %@", connectionError);
@@ -62,6 +57,7 @@ int MJVersionFromString(NSString* str) {
         updater.downloadURL = tgzURL;
         updater.newerVersion = versionString;
         updater.yourVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
+        updater.canAutoInstall = [[NSFileManager defaultManager] isDeletableFileAtPath:[[NSBundle mainBundle] bundlePath]];
         handler(updater);
     }];
 }
