@@ -6,6 +6,8 @@ Current efforts are focused on making Hydra more modularized, by extracting all 
 
 Also, because of trademark issues, Hydra is being renamed to Mjolnir.
 
+See [The history and current state of AppGrid, Zephyros, Phoenix, Hydra, Penknife, and Mjolnir](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/) for more details.
+
 **Update:**
 
 I really enjoy working on Mjolnir, and choosing to not work on it when I could is very difficult for me. Therefore, I am halting all development of Mjolnir for the next 9 days, until August 18, as a sacrifice in contribution to [the Novena being held in the Diocese of Tulsa](http://cnsnews.com/sites/default/files/documents/Bp%20Slattery%20Letter.pdf) and probably elsewhere, in the hopes of preventing [a scheduled Black Mass](http://oklahomacity.eventful.com/events/black-mass-oklahoma-/E0-001-070800137-7) (which apparently even [has an actual consecrated Host](http://www.ncregister.com/daily-news/prayers-urged-as-black-mass-organizer-claims-consecrated-host/)).
