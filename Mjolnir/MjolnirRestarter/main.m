@@ -9,6 +9,8 @@ static NSString* temp_app_path;
 static pid_t parent_pid;
 
 static void MJRelaunch() {
+    NSLog(@"relaunching...");
+    NSLog(@"rm %@", live_app_path);
     NSError* __autoreleasing rmError;
     BOOL rmSuccess = [[NSFileManager defaultManager] removeItemAtPath:live_app_path error:&rmError];
     if (!rmSuccess) {
@@ -16,12 +18,14 @@ static void MJRelaunch() {
         return;
     }
     
+    NSLog(@"cp %@ %@", temp_app_path, live_app_path);
     NSError* __autoreleasing cpError;
-    if ([[NSFileManager defaultManager] copyItemAtPath:temp_app_path toPath:live_app_path error:&cpError]) {
+    if (![[NSFileManager defaultManager] copyItemAtPath:temp_app_path toPath:live_app_path error:&cpError]) {
         NSLog(@"cp failed: %@", [cpError localizedDescription]);
         return;
     }
     
+    NSLog(@"open %@", live_app_path);
     [[NSWorkspace sharedWorkspace] launchApplication:live_app_path];
     exit(0);
 }

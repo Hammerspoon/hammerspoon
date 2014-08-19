@@ -67,27 +67,22 @@ int MJVersionFromString(NSString* str) {
             return;
         }
         
-        NSLog(@"self.signature = %@", self.signature);
-        
         if (!MJVerifySignedData([self.signature dataUsingEncoding:NSUTF8StringEncoding], tgzdata)) {
             handler(@"newer Mjolnir release doesn't verify!", @"DSA signature did not match.");
             return;
         }
         
         NSError *__autoreleasing mkTempDirError;
-        NSString* tempDirectory = MJCreateEmptyTempDirectory(@"mjolnir-", @".d", &mkTempDirError);
+        NSString* tempDirectory = MJCreateEmptyTempDirectory(@"mjolnir-", &mkTempDirError);
         if (!tempDirectory) {
-            NSLog(@"%@", mkTempDirError);
             handler(@"Error extracting Mjolnir release", [mkTempDirError localizedDescription]);
             return;
         }
-        NSLog(@"tmpdir = %@", tempDirectory);
         
         NSError* __autoreleasing untarError;
         
         BOOL untarSuccess = MJUntar(tgzdata, tempDirectory, &untarError);
         if (!untarSuccess) {
-            NSLog(@"%@", untarError);
             handler(@"Error updating Mjolnir release", [untarError localizedDescription]);
             return;
         }
@@ -95,7 +90,6 @@ int MJVersionFromString(NSString* str) {
         NSString* thispath = [[NSBundle mainBundle] bundlePath];
         NSString* newpath = [tempDirectory stringByAppendingPathComponent:@"Mjolnir.app"];
         NSString* pidstring = [NSString stringWithFormat:@"%d", getpid()];
-        NSLog(@"newpath = %@", newpath);
         
         NSTask* task = [[NSTask alloc] init];
         [task setLaunchPath:[[NSBundle mainBundle] pathForResource:@"MjolnirRestarter" ofType:@""]];
