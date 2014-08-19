@@ -47,3 +47,24 @@ NSString* MJWriteToTempFile(NSData* indata, NSString* prefix, NSString* suffix, 
     
     return tempFilePath;
 }
+
+BOOL MJUntar(NSData* tardata, NSString* intoDirectory, NSError*__autoreleasing* error) {
+    BOOL success = [[NSFileManager defaultManager] createDirectoryAtPath:intoDirectory withIntermediateDirectories:YES attributes:nil error:error];
+    if (!success) return NO;
+    
+    NSPipe* pipe = [NSPipe pipe];
+    NSTask* untar = [[NSTask alloc] init];
+    [untar setLaunchPath:@"/usr/bin/tar"];
+    [untar setArguments:@[@"-xzf-", @"-C", intoDirectory]];
+    [untar setStandardInput:pipe];
+    [untar launch];
+    [[pipe fileHandleForWriting] writeData:tardata];
+    [[pipe fileHandleForWriting] closeFile];
+    [untar waitUntilExit];
+    if ([untar terminationStatus]) {
+        *error = [NSError errorWithDomain:@"tar" code:[untar terminationStatus] userInfo:@{NSLocalizedDescriptionKey: @"could not extract the tgz archive"}];
+        return NO;
+    }
+    
+    return YES;
+}

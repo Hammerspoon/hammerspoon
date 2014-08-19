@@ -2,7 +2,6 @@
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
 #import "MJSHA1Verifier.h"
-#import "MJArchiveManager.h"
 #import "MJFileUtils.h"
 #import "core.h"
 
@@ -87,7 +86,7 @@
         }
         
         NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
-        if (![MJArchiveManager untarData:tgzdata intoDirectory:extdir error:&error]) {
+        if (!MJUntar(tgzdata, extdir, &error)) {
             done(error);
             return;
         }

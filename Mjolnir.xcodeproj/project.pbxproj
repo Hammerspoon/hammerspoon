@@ -65,7 +65,6 @@
 		949CDC001990759B00906CCE /* ReplTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ReplTab.xib */; };
 		949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDC011990761700906CCE /* ExtensionsTab.xib */; };
 		94A1E5421993AB00003AEB26 /* MJSHA1Verifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5411993AB00003AEB26 /* MJSHA1Verifier.m */; };
-		94A1E5451993AB8E003AEB26 /* MJArchiveManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5441993AB8E003AEB26 /* MJArchiveManager.m */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
 		94A7362D198CB5C7007E29A1 /* MJExtensionCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362C198CB5C7007E29A1 /* MJExtensionCache.m */; };
 		94A73630198CB679007E29A1 /* MJExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A7362F198CB679007E29A1 /* MJExtension.m */; };
@@ -197,8 +196,6 @@
 		949CDC011990761700906CCE /* ExtensionsTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ExtensionsTab.xib; sourceTree = "<group>"; };
 		94A1E5401993AB00003AEB26 /* MJSHA1Verifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJSHA1Verifier.h; sourceTree = "<group>"; };
 		94A1E5411993AB00003AEB26 /* MJSHA1Verifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJSHA1Verifier.m; sourceTree = "<group>"; };
-		94A1E5431993AB8E003AEB26 /* MJArchiveManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJArchiveManager.h; sourceTree = "<group>"; };
-		94A1E5441993AB8E003AEB26 /* MJArchiveManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJArchiveManager.m; sourceTree = "<group>"; };
 		94A1E5461993AC5C003AEB26 /* MJFileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJFileUtils.h; sourceTree = "<group>"; };
 		94A1E5471993AC5C003AEB26 /* MJFileUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJFileUtils.m; sourceTree = "<group>"; };
 		94A7362B198CB5C7007E29A1 /* MJExtensionCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtensionCache.h; sourceTree = "<group>"; };
@@ -481,8 +478,6 @@
 				9428C7EB198EB7E200CDFA00 /* MJConfigManager.m */,
 				94A1E5401993AB00003AEB26 /* MJSHA1Verifier.h */,
 				94A1E5411993AB00003AEB26 /* MJSHA1Verifier.m */,
-				94A1E5431993AB8E003AEB26 /* MJArchiveManager.h */,
-				94A1E5441993AB8E003AEB26 /* MJArchiveManager.m */,
 				94A1E5461993AC5C003AEB26 /* MJFileUtils.h */,
 				94A1E5471993AC5C003AEB26 /* MJFileUtils.m */,
 			);
@@ -608,7 +603,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				944A2D8F198973E900D8DC90 /* lfunc.c in Sources */,
-				94A1E5451993AB8E003AEB26 /* MJArchiveManager.m in Sources */,
 				944A2D89198973E900D8DC90 /* lcorolib.c in Sources */,
 				944A2D98198973E900D8DC90 /* lopcodes.c in Sources */,
 				94BB236F1995D738002C6AA7 /* MJUpdater.m in Sources */,

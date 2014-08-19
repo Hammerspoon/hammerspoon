@@ -1,7 +1,6 @@
 #import "MJUpdater.h"
 #import "MJFileUtils.h"
 #import "MJSHA1Verifier.h"
-#import "MJArchiveManager.h"
 
 static NSString* MJUpdatesURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
 
@@ -82,7 +81,8 @@ int MJVersionFromString(NSString* str) {
         }
         
         NSError* __autoreleasing untarError;
-        BOOL untarSuccess = [MJArchiveManager untarData:tgzdata intoDirectory:tempDirectory error:&untarError];
+        
+        BOOL untarSuccess = MJUntar(tgzdata, tempDirectory, &untarError);
         if (!untarSuccess) {
             NSLog(@"%@", untarError);
             handler(@"Error updating Mjolnir release", [untarError localizedDescription]);
