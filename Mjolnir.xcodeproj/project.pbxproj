@@ -81,6 +81,8 @@
 		94D7A827198D82430005B88E /* Mjolnir.docset in Resources */ = {isa = PBXBuildFile; fileRef = 94D7A826198D82430005B88E /* Mjolnir.docset */; };
 		94EEEFB31993085A00749B92 /* Settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB11993085A00749B92 /* Settings.png */; };
 		94EEEFB51993086F00749B92 /* Extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB41993086F00749B92 /* Extensions.png */; };
+		94FA257419A310F700A2BA8B /* LVAutoUpdaterWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FA257219A310F700A2BA8B /* LVAutoUpdaterWindowController.m */; };
+		94FA257519A310F700A2BA8B /* AutoUpdaterWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 94FA257319A310F700A2BA8B /* AutoUpdaterWindow.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -218,6 +220,9 @@
 		94D7A826198D82430005B88E /* Mjolnir.docset */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Mjolnir.docset; sourceTree = "<group>"; };
 		94EEEFB11993085A00749B92 /* Settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Settings.png; sourceTree = "<group>"; };
 		94EEEFB41993086F00749B92 /* Extensions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Extensions.png; sourceTree = "<group>"; };
+		94FA257119A310F700A2BA8B /* LVAutoUpdaterWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LVAutoUpdaterWindowController.h; sourceTree = "<group>"; };
+		94FA257219A310F700A2BA8B /* LVAutoUpdaterWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LVAutoUpdaterWindowController.m; sourceTree = "<group>"; };
+		94FA257319A310F700A2BA8B /* AutoUpdaterWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AutoUpdaterWindow.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -425,6 +430,9 @@
 				945354D41996827400D89597 /* MJUpdaterWindowController.m */,
 				94BB236D1995D738002C6AA7 /* MJUpdater.h */,
 				94BB236E1995D738002C6AA7 /* MJUpdater.m */,
+				94FA257119A310F700A2BA8B /* LVAutoUpdaterWindowController.h */,
+				94FA257219A310F700A2BA8B /* LVAutoUpdaterWindowController.m */,
+				94FA257319A310F700A2BA8B /* AutoUpdaterWindow.xib */,
 			);
 			name = Updating;
 			sourceTree = "<group>";
@@ -577,6 +585,7 @@
 				94EEEFB51993086F00749B92 /* Extensions.png in Resources */,
 				94EEEFB31993085A00749B92 /* Settings.png in Resources */,
 				944A2D3B1989735300D8DC90 /* MainWindow.xib in Resources */,
+				94FA257519A310F700A2BA8B /* AutoUpdaterWindow.xib in Resources */,
 				949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
@@ -636,6 +645,7 @@
 				944A2D92198973E900D8DC90 /* liolib.c in Sources */,
 				944A2D9B198973E900D8DC90 /* lstate.c in Sources */,
 				945B65AC198D2DDB002D2E30 /* core.m in Sources */,
+				94FA257419A310F700A2BA8B /* LVAutoUpdaterWindowController.m in Sources */,
 				944A2D87198973E900D8DC90 /* lbitlib.c in Sources */,
 				9423CA95198C3BE700647881 /* MJExtensionManager.m in Sources */,
 				944A2D91198973E900D8DC90 /* linit.c in Sources */,
