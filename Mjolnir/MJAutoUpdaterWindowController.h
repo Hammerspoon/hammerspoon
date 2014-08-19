@@ -14,8 +14,6 @@
 @property NSString* upcomingVersion;
 @property NSString* oldVersion;
 
-@property NSURL* releaseNotesAddress;
-
 - (void) showWindow;
 
 - (void) showCheckingPage;

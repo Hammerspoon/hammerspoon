@@ -80,7 +80,6 @@ int MJVersionFromString(NSString* str) {
         }
         
         NSError* __autoreleasing untarError;
-        
         BOOL untarSuccess = MJUntar(tgzdata, tempDirectory, &untarError);
         if (!untarSuccess) {
             handler(@"Error updating Mjolnir release", [untarError localizedDescription]);

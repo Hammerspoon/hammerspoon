@@ -1,5 +1,7 @@
 #import "MJAutoUpdaterWindowController.h"
 
+static NSString* MJReleaseNotesURL = @"https://github.com/mjolnir-io/mjolnir/blob/master/CHANGES.md";
+
 @interface MJAutoUpdaterWindowController ()
 
 @property (weak) IBOutlet NSTabView* tabView;
@@ -29,7 +31,7 @@
     [self.textView setDrawsBackground:NO];
     [self.textView setEditable:NO];
     [[self.textView textContainer] setLineFragmentPadding:2.0];
-    [[self.textView textStorage] addAttribute:NSLinkAttributeName value:self.releaseNotesAddress range:r];
+    [[self.textView textStorage] addAttribute:NSLinkAttributeName value:[NSURL URLWithString:MJReleaseNotesURL] range:r];
     [self.textViewContainer addSubview:self.textView];
 }
 
