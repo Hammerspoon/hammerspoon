@@ -1,8 +1,7 @@
 #import "MJExtensionsTabController.h"
 #import "MJExtensionManager.h"
 #import "MJExtension.h"
-
-#define MJCheckForExtensionUpdatesInterval (60.0 * 60.0 * 24.0)
+#import "variables.h"
 
 #define MJSkipRecommendRestartAlertKey @"MJSkipRecommendRestartAlertKey"
 

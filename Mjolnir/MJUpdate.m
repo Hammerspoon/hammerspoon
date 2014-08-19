@@ -1,8 +1,7 @@
 #import "MJUpdate.h"
 #import "MJFileUtils.h"
 #import "MJVerifiers.h"
-
-static NSString* MJUpdatesURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
+#import "variables.h"
 
 @interface MJUpdate ()
 @property NSString* downloadURL;

@@ -188,6 +188,7 @@
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		9477D01819953FE20020BE9D /* statusicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusicon.png; sourceTree = "<group>"; };
 		9477D01919953FE20020BE9D /* statusicon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusicon@2x.png"; sourceTree = "<group>"; };
+		94787D1419A38A8B00540401 /* variables.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = variables.h; sourceTree = "<group>"; };
 		949CDBFB1990739800906CCE /* MJReplTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJReplTabController.h; sourceTree = "<group>"; };
 		949CDBFC199073A000906CCE /* MJGeneralTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJGeneralTabController.h; sourceTree = "<group>"; };
 		949CDBFD1990747B00906CCE /* GeneralTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GeneralTab.xib; sourceTree = "<group>"; };
@@ -345,6 +346,7 @@
 			children = (
 				944A2D351989735300D8DC90 /* MainMenu.xib */,
 				944A2D341989735300D8DC90 /* MJAppDelegate.m */,
+				94787D1419A38A8B00540401 /* variables.h */,
 				942050C41990940000FC4839 /* core.h */,
 				945B65AB198D2DDB002D2E30 /* core.m */,
 				945B65B1198D31FC002D2E30 /* setup.lua */,

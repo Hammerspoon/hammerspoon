@@ -1,7 +1,5 @@
 #import "MJAutoUpdaterWindowController.h"
-
-static NSString* MJReleaseNotesURL = @"https://github.com/mjolnir-io/mjolnir/blob/master/CHANGES.md";
-static NSString* MJDownloadPage = @"https://github.com/mjolnir-io/mjolnir/releases/latest";
+#import "variables.h"
 
 @interface MJAutoUpdaterWindowController ()
 

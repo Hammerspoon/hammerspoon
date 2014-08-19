@@ -2,10 +2,9 @@
 #import "MJExtension.h"
 #import "MJVerifiers.h"
 #import "core.h"
+#import "variables.h"
 
 NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
-
-static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir-ext/master/manifest.json";
 
 @interface MJExtensionManager ()
 @property MJExtensionCache* cache;

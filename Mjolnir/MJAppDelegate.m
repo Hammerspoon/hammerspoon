@@ -6,9 +6,7 @@
 #import "MJAutoUpdaterWindowController.h"
 #import "MJUpdate.h"
 #import "core.h"
-
-#define MJCheckForUpdatesDelay (0.0)
-#define MJCheckForUpdatesInterval (60.0 * 60.0 * 24.0)
+#import "variables.h"
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate, MJAutoUpdaterWindowControllerDelegate>
 @property NSTimer* autoupdateTimer;
