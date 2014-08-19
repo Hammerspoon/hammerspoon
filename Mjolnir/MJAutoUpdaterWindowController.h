@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
-@protocol LVAutoUpdaterWindowControllerDelegate <NSObject>
+@protocol MJAutoUpdaterWindowControllerDelegate <NSObject>
 
 - (void) userDismissedAutoUpdaterWindow;
 - (void) userWantsInstallAtQuit;
@@ -9,7 +9,7 @@
 
 @interface MJAutoUpdaterWindowController : NSWindowController
 
-@property (weak) id<LVAutoUpdaterWindowControllerDelegate> delegate;
+@property (weak) id<MJAutoUpdaterWindowControllerDelegate> delegate;
 
 @property NSString* upcomingVersion;
 @property NSString* oldVersion;
