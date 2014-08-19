@@ -7,9 +7,7 @@
 #import "MJUpdater.h"
 #import "core.h"
 
-#import "MJVerifiers.h"
-
-#define MJCheckForUpdatesDelay (5.0)
+#define MJCheckForUpdatesDelay (0.0)
 #define MJCheckForUpdatesInterval (60.0 * 60.0 * 24.0)
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
@@ -45,10 +43,6 @@ static NSStatusItem* statusItem;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    NSData* tgzdata = [NSData dataWithContentsOfFile:@"/Users/sdegutis/projects/mjolnir/Mjolnir-0.1.tgz"];
-    BOOL verified = MJVerifySignedData([@"MCwCFGMFozJWzloeHM649+4zU3W5rnfPAhRYCnXEH0hXNuUiREXIMHdz1DzwPg==" dataUsingEncoding:NSUTF8StringEncoding], tgzdata);
-    assert(verified); // "file isn't verifying for some reason"
-    
     NSImage* icon = [NSImage imageNamed:@"statusicon"];
     [icon setTemplate:YES];
     statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
