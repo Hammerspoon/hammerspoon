@@ -17,8 +17,8 @@ static char* mktemplate(NSString* prefix, NSString* suffix) {
     return tempFileName;
 }
 
-NSString* MJCreateEmptyTempDirectory(NSString* prefix, NSString* suffix, NSError* __autoreleasing* error) {
-    char* tempFileName = mktemplate(prefix, suffix);
+NSString* MJCreateEmptyTempDirectory(NSString* prefix, NSError* __autoreleasing* error) {
+    char* tempFileName = mktemplate(prefix, @"");
     NSString* path = nil;
     
     if (mkdtemp(tempFileName))
