@@ -3,7 +3,7 @@
 #import "MJExtensionManager.h"
 #import "MJConfigManager.h"
 #import "MJDocsManager.h"
-#import "MJUpdaterWindowController.h"
+#import "MJAutoUpdaterWindowController.h"
 #import "MJUpdate.h"
 #import "core.h"
 
@@ -12,7 +12,7 @@
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
 @property NSTimer* autoupdateTimer;
-@property MJUpdaterWindowController* updaterWindowController;
+@property MJAutoUpdaterWindowController* updaterWindowController;
 @end
 
 @implementation MJAppDelegate
@@ -24,13 +24,13 @@ static NSStatusItem* statusItem;
 }
 
 - (void) checkForUpdatesNow {
-    [MJUpdate checkForUpdate:^(MJUpdate *updater) {
-        if (updater) {
+    [MJUpdate checkForUpdate:^(MJUpdate *update) {
+        if (update) {
             if (!self.updaterWindowController)
-                self.updaterWindowController = [[MJUpdaterWindowController alloc] init];
+                self.updaterWindowController = [[MJAutoUpdaterWindowController alloc] init];
             
-            self.updaterWindowController.updater = updater;
-            [self.updaterWindowController showWindow:self];
+            self.updaterWindowController.update = update;
+            [self.updaterWindowController showWindow];
         }
     }];
 }

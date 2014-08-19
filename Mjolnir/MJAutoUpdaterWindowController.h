@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import "MJUpdate.h"
 
 @protocol MJAutoUpdaterWindowControllerDelegate <NSObject>
 
@@ -11,8 +12,7 @@
 
 @property (weak) id<MJAutoUpdaterWindowControllerDelegate> delegate;
 
-@property NSString* upcomingVersion;
-@property NSString* oldVersion;
+@property MJUpdate* update;
 
 - (void) showWindow;
 

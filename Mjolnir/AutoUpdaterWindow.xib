@@ -150,12 +150,12 @@ DQ
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                             <connections>
-                                                <binding destination="-2" name="displayPatternValue2" keyPath="oldVersion" previousBinding="fof-Dv-jiH" id="IuU-DM-Rjx">
+                                                <binding destination="-2" name="displayPatternValue1" keyPath="update.newerVersion" id="288-uz-mcH">
                                                     <dictionary key="options">
                                                         <string key="NSDisplayPattern">Mjolnir version %{value1}@ is available. (You have %{value2}@)</string>
                                                     </dictionary>
                                                 </binding>
-                                                <binding destination="-2" name="displayPatternValue1" keyPath="upcomingVersion" id="fof-Dv-jiH">
+                                                <binding destination="-2" name="displayPatternValue2" keyPath="update.yourVersion" previousBinding="288-uz-mcH" id="LaA-ze-sUB">
                                                     <dictionary key="options">
                                                         <string key="NSDisplayPattern">Mjolnir version %{value1}@ is available. (You have %{value2}@)</string>
                                                     </dictionary>

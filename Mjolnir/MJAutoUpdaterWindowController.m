@@ -17,12 +17,7 @@ static NSString* MJReleaseNotesURL = @"https://github.com/mjolnir-io/mjolnir/blo
     return @"AutoUpdaterWindow";
 }
 
-- (void)windowDidLoad {
-    [super windowDidLoad];
-    
-    self.oldVersion = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
-    [self.progressBar startAnimation:self];
-    
+- (void) showReleaseNotesLink {
     NSString* s = @"View Release Notes";
     NSRange r = NSMakeRange(0, [s length]);
     self.textView = [[NSTextView alloc] initWithFrame:[self.textViewContainer bounds]];
@@ -33,6 +28,12 @@ static NSString* MJReleaseNotesURL = @"https://github.com/mjolnir-io/mjolnir/blo
     [[self.textView textContainer] setLineFragmentPadding:2.0];
     [[self.textView textStorage] addAttribute:NSLinkAttributeName value:[NSURL URLWithString:MJReleaseNotesURL] range:r];
     [self.textViewContainer addSubview:self.textView];
+}
+
+- (void) windowDidLoad {
+    [super windowDidLoad];
+    [self.progressBar startAnimation:self];
+    [self showReleaseNotesLink];
 }
 
 - (IBAction) dismiss:(id)sender {
@@ -46,14 +47,17 @@ static NSString* MJReleaseNotesURL = @"https://github.com/mjolnir-io/mjolnir/blo
 }
 
 - (IBAction) upgradeOnQuit:(id)sender {
-    [self close];
-    [self.delegate userDismissedAutoUpdaterWindow];
-    [self.delegate userWantsInstallAtQuit];
+//    [self.spinner startAnimation:self];
+    [self.update install:^(NSString *error, NSString *reason) {
+//        self.error = [NSString stringWithFormat:@"%@ (%@)", error, reason];
+//        [self.spinner stopAnimation:self];
+    }];
 }
 
 - (void) showWindow {
     NSDisableScreenUpdates();
-    [[self window] center];
+    if (![[self window] isVisible])
+        [[self window] center];
     [[self window] orderFront:self];
     NSEnableScreenUpdates();
 }
