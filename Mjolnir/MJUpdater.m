@@ -67,6 +67,8 @@ int MJVersionFromString(NSString* str) {
             return;
         }
         
+        NSLog(@"self.signature = %@", self.signature);
+        
         if (!MJVerifySignedData([self.signature dataUsingEncoding:NSUTF8StringEncoding], tgzdata)) {
             handler(@"newer Mjolnir release doesn't verify!", @"DSA signature did not match.");
             return;
@@ -79,6 +81,7 @@ int MJVersionFromString(NSString* str) {
             handler(@"Error extracting Mjolnir release", [mkTempDirError localizedDescription]);
             return;
         }
+        NSLog(@"tmpdir = %@", tempDirectory);
         
         NSError* __autoreleasing untarError;
         
@@ -92,6 +95,7 @@ int MJVersionFromString(NSString* str) {
         NSString* thispath = [[NSBundle mainBundle] bundlePath];
         NSString* newpath = [tempDirectory stringByAppendingPathComponent:@"Mjolnir.app"];
         NSString* pidstring = [NSString stringWithFormat:@"%d", getpid()];
+        NSLog(@"newpath = %@", newpath);
         
         NSTask* task = [[NSTask alloc] init];
         [task setLaunchPath:[[NSBundle mainBundle] pathForResource:@"MjolnirRestarter" ofType:@""]];

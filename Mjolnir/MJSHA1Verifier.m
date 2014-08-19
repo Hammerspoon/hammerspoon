@@ -148,6 +148,7 @@ BOOL MJVerifySignedData(NSData* sig, NSData* data) {
     if (error) { printf("executing transform failed: %ld\n", CFErrorGetCode(error)); CFShow(error); goto cleanup; }
     
     verified = CFBooleanGetValue(success);
+    printf("finished executing verification transforms for data...\n");
     
 cleanup:
     
