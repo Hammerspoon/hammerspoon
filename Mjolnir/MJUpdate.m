@@ -1,15 +1,15 @@
-#import "MJUpdater.h"
+#import "MJUpdate.h"
 #import "MJFileUtils.h"
 #import "MJVerifiers.h"
 
 static NSString* MJUpdatesURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
 
-@interface MJUpdater ()
+@interface MJUpdate ()
 @property NSString* downloadURL;
 @property NSString* signature;
 @end
 
-@implementation MJUpdater
+@implementation MJUpdate
 
 int MJCurrentVersion(void) {
     NSString* ver = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
@@ -30,7 +30,7 @@ int MJVersionFromString(NSString* str) {
     return major * 10000 + minor * 100 + bugfix;
 }
 
-+ (void) checkForUpdate:(void(^)(MJUpdater* updater))handler {
++ (void) checkForUpdate:(void(^)(MJUpdate* updater))handler {
     MJDownloadFile(MJUpdatesURL, ^(NSError *connectionError, NSData *data) {
         if (!data) {
             NSLog(@"error looking for new Mjolnir release: %@", connectionError);
@@ -50,7 +50,7 @@ int MJVersionFromString(NSString* str) {
             return;
         }
         
-        MJUpdater* updater = [[MJUpdater alloc] init];
+        MJUpdate* updater = [[MJUpdate alloc] init];
         updater.signature = signature;
         updater.downloadURL = tgzURL;
         updater.newerVersion = versionString;

@@ -1,8 +1,8 @@
 #import <Cocoa/Cocoa.h>
-#import "MJUpdater.h"
+#import "MJUpdate.h"
 
 @interface MJUpdaterWindowController : NSWindowController
 
-@property MJUpdater* updater;
+@property MJUpdate* updater;
 
 @end

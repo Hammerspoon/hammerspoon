@@ -1,14 +1,6 @@
-//
-//  LVAutoUpdaterWindowController.m
-//  Leviathan
-//
-//  Created by Steven Degutis on 1/7/14.
-//  Copyright (c) 2014 Steven Degutis. All rights reserved.
-//
+#import "MJAutoUpdaterWindowController.h"
 
-#import "LVAutoUpdaterWindowController.h"
-
-@interface LVAutoUpdaterWindowController ()
+@interface MJAutoUpdaterWindowController ()
 
 @property (weak) IBOutlet NSTabView* tabView;
 @property (weak) IBOutlet NSProgressIndicator* progressBar;
@@ -17,7 +9,7 @@
 
 @end
 
-@implementation LVAutoUpdaterWindowController
+@implementation MJAutoUpdaterWindowController
 
 - (NSString*) windowNibName {
     return @"AutoUpdaterWindow";

@@ -4,7 +4,7 @@
 #import "MJConfigManager.h"
 #import "MJDocsManager.h"
 #import "MJUpdaterWindowController.h"
-#import "MJUpdater.h"
+#import "MJUpdate.h"
 #import "core.h"
 
 #define MJCheckForUpdatesDelay (0.0)
@@ -24,7 +24,7 @@ static NSStatusItem* statusItem;
 }
 
 - (void) checkForUpdatesNow {
-    [MJUpdater checkForUpdate:^(MJUpdater *updater) {
+    [MJUpdate checkForUpdate:^(MJUpdate *updater) {
         if (updater) {
             if (!self.updaterWindowController)
                 self.updaterWindowController = [[MJUpdaterWindowController alloc] init];
