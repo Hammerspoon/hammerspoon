@@ -37,8 +37,8 @@ int main(int argc, const char * argv[]) {
          object:nil
          queue:[NSOperationQueue mainQueue]
          usingBlock:^(NSNotification *note) {
-             pid_t pid = [[[note userInfo] valueForKey:@"NSApplicationProcessIdentifier"] intValue];
-             if (pid == parent_pid) {
+             NSRunningApplication* app = [[note userInfo] valueForKey:NSWorkspaceApplicationKey];
+             if ([app processIdentifier] == parent_pid) {
                  MJRelaunch();
              }
          }];
