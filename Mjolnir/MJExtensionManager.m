@@ -1,6 +1,6 @@
 #import "MJExtensionManager.h"
 #import "MJExtension.h"
-#import "MJSHA1Verifier.h"
+#import "MJVerifiers.h"
 #import "core.h"
 
 NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";

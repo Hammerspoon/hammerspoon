@@ -1,4 +1,4 @@
-#import "MJSHA1Verifier.h"
+#import "MJVerifiers.h"
 #import <CommonCrypto/CommonDigest.h>
 
 static NSString* MJPublicKey = @""
@@ -24,9 +24,7 @@ NSString* MJDataToHexString(NSData* shadata) {
     return newsha;
 }
 
-@implementation MJSHA1Verifier
-
-+ (BOOL) verifyTgzData:(NSData*)tgzdata sha:(NSString*)sha error:(NSError*__autoreleasing*)error {
+BOOL MJVerifyTgzData(NSData* tgzdata, NSString* sha, NSError*__autoreleasing* error) {
     NSInputStream* inputStream = [NSInputStream inputStreamWithData:tgzdata];
     
     SecGroupTransformRef group = SecTransformCreateGroupTransform();
@@ -58,9 +56,6 @@ cleanup:
     
     return verified;
 }
-
-@end
-
 
 static SecKeyRef MJCreatePublicKey(void) {
     CFArrayRef items = NULL;

@@ -1,7 +1,7 @@
 #import "MJExtension.h"
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
-#import "MJSHA1Verifier.h"
+#import "MJVerifiers.h"
 #import "MJFileUtils.h"
 #import "core.h"
 
@@ -78,7 +78,7 @@
         }
         
         NSError* __autoreleasing error;
-        if (![MJSHA1Verifier verifyTgzData:tgzdata sha:self.tarsha error:&error]) {
+        if (!MJVerifyTgzData(tgzdata, self.tarsha, &error)) {
             NSMutableDictionary* userinfo = [@{NSLocalizedDescriptionKey: @"Extension's SHA1 doesn't hold up."} mutableCopy];
             if (error) [userinfo setObject:error forKey:NSUnderlyingErrorKey];
             done([NSError errorWithDomain:@"Mjolnir" code:0 userInfo:userinfo]);

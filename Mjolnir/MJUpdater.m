@@ -1,6 +1,6 @@
 #import "MJUpdater.h"
 #import "MJFileUtils.h"
-#import "MJSHA1Verifier.h"
+#import "MJVerifiers.h"
 
 static NSString* MJUpdatesURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
 
@@ -75,7 +75,7 @@ int MJVersionFromString(NSString* str) {
         }
         
         NSError *__autoreleasing mkTempDirError;
-        NSString* tempDirectory = MJCreateEmptyTempDirectory(@"mjolnir", @"", &mkTempDirError);
+        NSString* tempDirectory = MJCreateEmptyTempDirectory(@"mjolnir-", @".d", &mkTempDirError);
         if (!tempDirectory) {
             NSLog(@"%@", mkTempDirError);
             handler(@"Error extracting Mjolnir release", [mkTempDirError localizedDescription]);
