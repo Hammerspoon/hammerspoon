@@ -25,7 +25,7 @@ $(ZIPFILE): $(APPFILE)
 $(VERSIONFILE): $(TGZFILE)
 	echo $(VERSION) > $@
 	echo https://github.com/mjolnir-io/mjolnir/releases/download/$(VERSION)/Mjolnir-$(VERSION).tgz >> $@
-	echo openssl dgst -sha1 -binary < $(TGZFILE) | openssl dgst -dss1 -sign $(KEYFILE) | openssl enc -base64 >> $@
+	openssl dgst -sha1 -binary < $(TGZFILE) | openssl dgst -dss1 -sign $(KEYFILE) | openssl enc -base64 >> $@
 
 clean:
 	rm -rf $(APPFILE) $(TGZFILE) $(ZIPFILE)
