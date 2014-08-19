@@ -4,26 +4,34 @@ static NSString* live_app_path;
 static NSString* temp_app_path;
 static pid_t parent_pid;
 
-static void MJRelaunch() {
-    NSLog(@"relaunching...");
-    NSLog(@"rm %@", live_app_path);
+static void MJShowError(NSString* command, NSString* error) {
+    NSAlert* alert = [[NSAlert alloc] init];
+    [alert setAlertStyle: NSCriticalAlertStyle];
+    [alert setMessageText:@"Error installing Mjolnir update"];
+    [alert setInformativeText:[NSString stringWithFormat:@"Command that failed: %@\n\nError: %@", command, error]];
+    [alert runModal];
+}
+
+static void MJOpenLiveApp(void) {
+    [[NSWorkspace sharedWorkspace] launchApplication:live_app_path];
+    exit(0);
+}
+
+static void MJRelaunch(void) {
     NSError* __autoreleasing rmError;
     BOOL rmSuccess = [[NSFileManager defaultManager] removeItemAtPath:live_app_path error:&rmError];
     if (!rmSuccess) {
-        NSLog(@"rm failed: %@", [rmError localizedDescription]);
-        return;
+        MJShowError([NSString stringWithFormat:@"rm %@", live_app_path], [rmError localizedDescription]);
+        MJOpenLiveApp();
     }
     
-    NSLog(@"cp %@ %@", temp_app_path, live_app_path);
     NSError* __autoreleasing cpError;
     if (![[NSFileManager defaultManager] copyItemAtPath:temp_app_path toPath:live_app_path error:&cpError]) {
-        NSLog(@"cp failed: %@", [cpError localizedDescription]);
-        return;
+        MJShowError([NSString stringWithFormat:@"cp %@ %@", temp_app_path, live_app_path], [cpError localizedDescription]);
+        exit(1);
     }
     
-    NSLog(@"open %@", live_app_path);
-    [[NSWorkspace sharedWorkspace] launchApplication:live_app_path];
-    exit(0);
+    MJOpenLiveApp();
 }
 
 int main(int argc, const char * argv[]) {
