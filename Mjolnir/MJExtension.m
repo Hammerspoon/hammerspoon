@@ -3,7 +3,7 @@
 #import "MJConfigManager.h"
 #import "MJSHA1Verifier.h"
 #import "MJArchiveManager.h"
-#import "MJFileDownloader.h"
+#import "MJFileUtils.h"
 #import "core.h"
 
 @implementation MJExtension
@@ -72,7 +72,7 @@
 }
 
 - (void) install:(void(^)(NSError*))done {
-    [MJFileDownloader downloadFile:self.tarfile handler:^(NSError *err, NSData *tgzdata) {
+    MJDownloadFile(self.tarfile, ^(NSError *err, NSData *tgzdata) {
         if (err) {
             done(err);
             return;
@@ -100,7 +100,7 @@
         }
         
         done(nil);
-    }];
+    });
 }
 
 - (void) uninstall:(void(^)(NSError*))done {

@@ -1,5 +1,5 @@
 #import "MJUpdater.h"
-#import "MJFileDownloader.h"
+#import "MJFileUtils.h"
 #import "MJSHA1Verifier.h"
 #import "MJArchiveManager.h"
 
@@ -32,7 +32,7 @@ int MJVersionFromString(NSString* str) {
 }
 
 + (void) checkForUpdate:(void(^)(MJUpdater* updater))handler {
-    [MJFileDownloader downloadFile:MJUpdatesURL handler:^(NSError *connectionError, NSData *data) {
+    MJDownloadFile(MJUpdatesURL, ^(NSError *connectionError, NSData *data) {
         if (!data) {
             NSLog(@"error looking for new Mjolnir release: %@", connectionError);
             handler(nil);
@@ -58,11 +58,11 @@ int MJVersionFromString(NSString* str) {
         updater.yourVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
         updater.canAutoInstall = [[NSFileManager defaultManager] isDeletableFileAtPath:[[NSBundle mainBundle] bundlePath]];
         handler(updater);
-    }];
+    });
 }
 
 - (void) install:(void(^)(NSString* error, NSString* reason))handler {
-    [MJFileDownloader downloadFile:self.downloadURL handler:^(NSError *connectionError, NSData *tgzdata) {
+    MJDownloadFile(self.downloadURL, ^(NSError *connectionError, NSData *tgzdata) {
         if (!tgzdata) {
             handler(@"Error downloading new Mjolnir release", [connectionError localizedDescription]);
             return;
@@ -73,31 +73,32 @@ int MJVersionFromString(NSString* str) {
             return;
         }
         
-        NSString* thispath = [[NSBundle mainBundle] bundlePath];
-        NSString* thisparentdir = [thispath stringByDeletingLastPathComponent];
-        
-        NSError* __autoreleasing rmError;
-        BOOL rmSuccess = [[NSFileManager defaultManager] removeItemAtPath:thispath error:&rmError];
-        if (!rmSuccess) {
-            NSLog(@"rm failed: %@", rmError);
-            handler(@"Error updating Mjolnir release", [rmError localizedDescription]);
+        NSError *__autoreleasing mkTempDirError;
+        NSString* tempDirectory = MJCreateEmptyTempDirectory(@"mjolnir", @"", &mkTempDirError);
+        if (!tempDirectory) {
+            NSLog(@"%@", mkTempDirError);
+            handler(@"Error extracting Mjolnir release", [mkTempDirError localizedDescription]);
             return;
         }
         
         NSError* __autoreleasing untarError;
-        BOOL untarSuccess = [MJArchiveManager untarData:tgzdata intoDirectory:thisparentdir error:&untarError];
+        BOOL untarSuccess = [MJArchiveManager untarData:tgzdata intoDirectory:tempDirectory error:&untarError];
         if (!untarSuccess) {
             NSLog(@"%@", untarError);
             handler(@"Error updating Mjolnir release", [untarError localizedDescription]);
             return;
         }
         
+        NSString* thispath = [[NSBundle mainBundle] bundlePath];
+        NSString* newpath = [tempDirectory stringByAppendingPathComponent:@"Mjolnir.app"];
+        NSString* pidstring = [NSString stringWithFormat:@"%d", getpid()];
+        
         NSTask* task = [[NSTask alloc] init];
         [task setLaunchPath:[[NSBundle mainBundle] pathForResource:@"MjolnirRestarter" ofType:@""]];
-        [task setArguments:@[thispath, [NSString stringWithFormat:@"%d", getpid()]]];
+        [task setArguments:@[pidstring, thispath, newpath]];
         [task launch];
         exit(0);
-    }];
+    });
 }
 
 @end

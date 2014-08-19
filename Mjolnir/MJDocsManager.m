@@ -1,6 +1,6 @@
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
-#import "MJFileDownloader.h"
+#import "MJFileUtils.h"
 
 @implementation MJDocsManager
 
@@ -31,7 +31,8 @@
 + (BOOL) runSqlFile:(NSString*)sqlfile inDir:(NSString*)extdir error:(NSError* __autoreleasing*)error {
     NSData* masterSqlFileData = [NSData dataWithContentsOfFile:[self masterSqlFile] options:0 error:error];
     NSString* masterSqlFile = [self masterSqlFile];
-    NSString* masterSqlFileCopy = [MJFileDownloader writeToTempFile:masterSqlFileData error:error];
+    
+    NSString* masterSqlFileCopy = MJWriteToTempFile(masterSqlFileData, @"master.", @".sql", error);
     
     NSTask* inTask = [[NSTask alloc] init];
     [inTask setLaunchPath:@"/usr/bin/sqlite3"];
