@@ -7,7 +7,8 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="MJAutoUpdaterWindowController">
             <connections>
-                <outlet property="progressBar" destination="cZe-Sc-ws0" id="YG2-ht-QLV"/>
+                <outlet property="checkingProgressBar" destination="cZe-Sc-ws0" id="ALo-W9-C5U"/>
+                <outlet property="installationProgressBar" destination="kGK-L9-duy" id="ojV-sN-cEP"/>
                 <outlet property="tabView" destination="Zbi-IB-fnx" id="9s3-Tw-o3t"/>
                 <outlet property="textViewContainer" destination="k2v-JG-LBm" id="Gsh-1I-k4c"/>
                 <outlet property="window" destination="1" id="HFd-jL-rGV"/>
@@ -119,9 +120,9 @@ DQ
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <button verticalHuggingPriority="750" id="4wh-U0-kiX">
-                                            <rect key="frame" x="269" y="13" width="145" height="32"/>
+                                            <rect key="frame" x="242" y="13" width="172" height="32"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
-                                            <buttonCell key="cell" type="push" title="Upgrade on Quit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="UOv-fj-3kv">
+                                            <buttonCell key="cell" type="push" title="Download and Install" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="UOv-fj-3kv">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
                                                 <string key="keyEquivalent" base64-UTF8="YES">
@@ -129,7 +130,7 @@ DQ
 </string>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="upgradeOnQuit:" target="-2" id="4qj-AR-ek1"/>
+                                                <action selector="install:" target="-2" id="xHb-Uq-RxD"/>
                                             </connections>
                                         </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="gdZ-fD-8Tb">
@@ -163,7 +164,7 @@ DQ
                                             </connections>
                                         </textField>
                                         <button verticalHuggingPriority="750" id="8xL-OK-HqI">
-                                            <rect key="frame" x="197" y="13" width="72" height="32"/>
+                                            <rect key="frame" x="170" y="13" width="72" height="32"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                                             <buttonCell key="cell" type="push" title="Later" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="rbU-M2-Wie">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -202,6 +203,20 @@ DQ
                                                 <action selector="dismiss:" target="-2" id="FK7-a1-uJd"/>
                                             </connections>
                                         </button>
+                                        <button verticalHuggingPriority="750" id="M1K-8k-5CH">
+                                            <rect key="frame" x="157" y="13" width="168" height="32"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                                            <buttonCell key="cell" type="push" title="Visit Download Page" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="kc9-da-hBA">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                                <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="visitDownloadPage:" target="-2" id="TIv-1d-jf5"/>
+                                            </connections>
+                                        </button>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="N8B-7j-ge1">
                                             <rect key="frame" x="18" y="128" width="203" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -212,14 +227,47 @@ DQ
                                             </textFieldCell>
                                         </textField>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="xK6-U7-Ng5">
-                                            <rect key="frame" x="18" y="74" width="387" height="34"/>
+                                            <rect key="frame" x="18" y="49" width="387" height="59"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Checking for updates failed, and I'm not sure why. Either try again later, or check the website." id="Had-lG-7gm">
+                                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Error string goes here." id="Had-lG-7gm">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                            <connections>
+                                                <binding destination="-2" name="value" keyPath="self.error" id="0TP-Zh-Zz2"/>
+                                            </connections>
+                                        </textField>
+                                    </subviews>
+                                </view>
+                            </tabViewItem>
+                            <tabViewItem label="Item 4" identifier="" id="tbq-wf-mqt">
+                                <view key="view" id="Ahh-Gp-UcZ">
+                                    <rect key="frame" x="0.0" y="0.0" width="428" height="165"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="N3h-Yc-xk0">
+                                            <rect key="frame" x="18" y="128" width="241" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Downloading and installing update" id="r4N-y1-KEE">
+                                                <font key="font" metaFont="systemBold"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="xDO-Fd-po4">
+                                            <rect key="frame" x="18" y="91" width="159" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="This shouldn't take long." id="azr-u1-6aH">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                             </textFieldCell>
                                         </textField>
+                                        <progressIndicator maxValue="100" indeterminate="YES" style="bar" id="kGK-L9-duy">
+                                            <rect key="frame" x="20" y="64" width="388" height="20"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                        </progressIndicator>
                                     </subviews>
                                 </view>
                             </tabViewItem>

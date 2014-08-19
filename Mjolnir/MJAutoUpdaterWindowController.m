@@ -1,11 +1,13 @@
 #import "MJAutoUpdaterWindowController.h"
 
 static NSString* MJReleaseNotesURL = @"https://github.com/mjolnir-io/mjolnir/blob/master/CHANGES.md";
+static NSString* MJDownloadPage = @"https://github.com/mjolnir-io/mjolnir/releases/latest";
 
 @interface MJAutoUpdaterWindowController ()
 
 @property (weak) IBOutlet NSTabView* tabView;
-@property (weak) IBOutlet NSProgressIndicator* progressBar;
+@property (weak) IBOutlet NSProgressIndicator* checkingProgressBar;
+@property (weak) IBOutlet NSProgressIndicator* installationProgressBar;
 @property IBOutlet NSView* textViewContainer;
 @property NSTextView* textView;
 
@@ -32,7 +34,8 @@ static NSString* MJReleaseNotesURL = @"https://github.com/mjolnir-io/mjolnir/blo
 
 - (void) windowDidLoad {
     [super windowDidLoad];
-    [self.progressBar startAnimation:self];
+    [self.checkingProgressBar startAnimation:self];
+    [self.installationProgressBar startAnimation:self];
     [self showReleaseNotesLink];
 }
 
@@ -46,36 +49,52 @@ static NSString* MJReleaseNotesURL = @"https://github.com/mjolnir-io/mjolnir/blo
     [self.delegate userDismissedAutoUpdaterWindow];
 }
 
-- (IBAction) upgradeOnQuit:(id)sender {
-//    [self.spinner startAnimation:self];
+- (IBAction) install:(id)sender {
+    [self showInstallingPage];
     [self.update install:^(NSString *error, NSString *reason) {
-//        self.error = [NSString stringWithFormat:@"%@ (%@)", error, reason];
-//        [self.spinner stopAnimation:self];
+        self.error = [NSString stringWithFormat:@"%@ (%@)", error, reason];
+        [self showErrorPage];
     }];
+}
+
+- (IBAction) visitDownloadPage:(id)sender {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:MJDownloadPage]];
 }
 
 - (void) showWindow {
     NSDisableScreenUpdates();
     if (![[self window] isVisible])
         [[self window] center];
-    [[self window] orderFront:self];
+    [[self window] makeKeyAndOrderFront: self];
     NSEnableScreenUpdates();
 }
 
 - (void) showCheckingPage {
+    self.error = nil;
+    [self showWindow];
     [self.tabView selectTabViewItemAtIndex:0];
 }
 
 - (void) showUpToDatePage {
+    self.error = nil;
+    [self showWindow];
     [self.tabView selectTabViewItemAtIndex:1];
 }
 
 - (void) showFoundPage {
+    self.error = nil;
+    [self showWindow];
     [self.tabView selectTabViewItemAtIndex:2];
 }
 
 - (void) showErrorPage {
+    [self showWindow];
     [self.tabView selectTabViewItemAtIndex:3];
+}
+
+- (void) showInstallingPage {
+    [self showWindow];
+    [self.tabView selectTabViewItemAtIndex:4];
 }
 
 @end

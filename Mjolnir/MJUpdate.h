@@ -6,7 +6,7 @@
 @property NSString* yourVersion;
 @property BOOL canAutoInstall;
 
-+ (void) checkForUpdate:(void(^)(MJUpdate* updater))handler;
++ (void) checkForUpdate:(void(^)(MJUpdate* updater, NSError* connError))handler;
 - (void) install:(void(^)(NSString* error, NSString* reason))handler;
 
 @end

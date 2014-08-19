@@ -30,11 +30,10 @@ int MJVersionFromString(NSString* str) {
     return major * 10000 + minor * 100 + bugfix;
 }
 
-+ (void) checkForUpdate:(void(^)(MJUpdate* updater))handler {
++ (void) checkForUpdate:(void(^)(MJUpdate* updater, NSError* connError))handler {
     MJDownloadFile(MJUpdatesURL, ^(NSError *connectionError, NSData *data) {
         if (!data) {
-            NSLog(@"error looking for new Mjolnir release: %@", connectionError);
-            handler(nil);
+            handler(nil, connectionError);
             return;
         }
         
@@ -45,8 +44,7 @@ int MJVersionFromString(NSString* str) {
         NSString* signature = [lines objectAtIndex:2];
         
         if (MJVersionFromString(versionString) <= MJCurrentVersion()) {
-            NSLog(@"no new Mjolnir update");
-            handler(nil);
+            handler(nil, nil);
             return;
         }
         
@@ -56,7 +54,7 @@ int MJVersionFromString(NSString* str) {
         updater.newerVersion = versionString;
         updater.yourVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
         updater.canAutoInstall = [[NSFileManager defaultManager] isDeletableFileAtPath:[[NSBundle mainBundle] bundlePath]];
-        handler(updater);
+        handler(updater, nil);
     });
 }
 

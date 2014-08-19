@@ -4,7 +4,6 @@
 @protocol MJAutoUpdaterWindowControllerDelegate <NSObject>
 
 - (void) userDismissedAutoUpdaterWindow;
-- (void) userWantsInstallAtQuit;
 
 @end
 
@@ -13,8 +12,7 @@
 @property (weak) id<MJAutoUpdaterWindowControllerDelegate> delegate;
 
 @property MJUpdate* update;
-
-- (void) showWindow;
+@property NSString* error;
 
 - (void) showCheckingPage;
 - (void) showUpToDatePage;
