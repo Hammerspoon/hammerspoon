@@ -19,10 +19,11 @@
 
 static NSStatusItem* statusItem;
 
+- (IBAction) checkForUpdates:(id)sender {
+    [self checkForUpdatesNow];
+}
+
 - (void) checkForUpdatesNow {
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:MJCheckForUpdatesKey])
-        return;
-    
     [MJUpdater checkForUpdate:^(MJUpdater *updater) {
         if (updater) {
             if (!self.updaterWindowController)
@@ -35,6 +36,9 @@ static NSStatusItem* statusItem;
 }
 
 - (void) checkForUpdatesTimerFired:(NSTimer*)timer {
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:MJCheckForUpdatesKey])
+        return;
+    
     [self checkForUpdatesNow];
 }
 
@@ -52,7 +56,7 @@ static NSStatusItem* statusItem;
                                                            repeats:YES];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MJCheckForUpdatesDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self checkForUpdatesNow];
+        [self checkForUpdatesTimerFired: nil];
     });
     
     [MJConfigManager setupConfigDir];
