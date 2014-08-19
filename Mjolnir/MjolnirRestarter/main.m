@@ -1,9 +1,5 @@
 #import <Cocoa/Cocoa.h>
 
-@interface MJRestartWaiter : NSObject
-@end
-
-static MJRestartWaiter* restarter;
 static NSString* live_app_path;
 static NSString* temp_app_path;
 static pid_t parent_pid;
@@ -30,25 +26,22 @@ static void MJRelaunch() {
     exit(0);
 }
 
-@implementation MJRestartWaiter
-
-- (void) applicationDidTerminate:(NSNotification*)note {
-    if ([[[note userInfo] valueForKey:@"NSApplicationProcessIdentifier"] intValue] == parent_pid)
-        MJRelaunch();
-}
-@end
-
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         parent_pid = atoi(argv[1]);
         live_app_path = [NSString stringWithUTF8String:argv[2]];
         temp_app_path = [NSString stringWithUTF8String:argv[3]];
-        restarter = [[MJRestartWaiter alloc] init];
         
-        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:restarter
-                                                               selector:@selector(applicationDidTerminate:)
-                                                                   name:NSWorkspaceDidTerminateApplicationNotification
-                                                                 object:nil];
+        [[[NSWorkspace sharedWorkspace] notificationCenter]
+         addObserverForName:NSWorkspaceDidTerminateApplicationNotification
+         object:nil
+         queue:[NSOperationQueue mainQueue]
+         usingBlock:^(NSNotification *note) {
+             pid_t pid = [[[note userInfo] valueForKey:@"NSApplicationProcessIdentifier"] intValue];
+             if (pid == parent_pid) {
+                 MJRelaunch();
+             }
+         }];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             if (getppid() == 1) {
