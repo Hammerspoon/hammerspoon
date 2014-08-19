@@ -60,26 +60,26 @@ int MJVersionFromString(NSString* str) {
 - (void) install:(void(^)(NSString* error, NSString* reason))handler {
     MJDownloadFile(self.downloadURL, ^(NSError *connectionError, NSData *tgzdata) {
         if (!tgzdata) {
-            handler(@"Error downloading new Mjolnir release", [connectionError localizedDescription]);
+            handler(@"Error downloading Mjolnir.tgz", [connectionError localizedDescription]);
             return;
         }
         
         if (!MJVerifySignedData([self.signature dataUsingEncoding:NSUTF8StringEncoding], tgzdata)) {
-            handler(@"newer Mjolnir release doesn't verify!", @"DSA signature did not match.");
+            handler(@"Mjolnir.tgz failed security verification!", @"DSA signature could not be verified.");
             return;
         }
         
         NSError *__autoreleasing mkTempDirError;
         NSString* tempDirectory = MJCreateEmptyTempDirectory(@"mjolnir-", &mkTempDirError);
         if (!tempDirectory) {
-            handler(@"Error extracting Mjolnir release", [mkTempDirError localizedDescription]);
+            handler(@"Error creating temporary directory for Mjolnir.tgz", [mkTempDirError localizedDescription]);
             return;
         }
         
         NSError* __autoreleasing untarError;
         BOOL untarSuccess = MJUntar(tgzdata, tempDirectory, &untarError);
         if (!untarSuccess) {
-            handler(@"Error updating Mjolnir release", [untarError localizedDescription]);
+            handler(@"Error extracting Mjolnir.tgz", [untarError localizedDescription]);
             return;
         }
         

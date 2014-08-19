@@ -37,14 +37,17 @@
     [self showReleaseNotesLink];
 }
 
-- (IBAction) dismiss:(id)sender {
+- (void) dismiss {
     [self close];
     [self.delegate userDismissedAutoUpdaterWindow];
 }
 
+- (IBAction) dismiss:(id)sender {
+    [self dismiss];
+}
+
 - (IBAction) cancel:(id)sender {
-    [self close];
-    [self.delegate userDismissedAutoUpdaterWindow];
+    [self dismiss];
 }
 
 - (IBAction) install:(id)sender {
@@ -57,42 +60,40 @@
 
 - (IBAction) visitDownloadPage:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:MJDownloadPage]];
+    [self dismiss];
 }
 
-- (void) showWindow {
+- (void) showTab:(int)n {
     NSDisableScreenUpdates();
     if (![[self window] isVisible])
         [[self window] center];
     [[self window] makeKeyAndOrderFront: self];
+    [self.tabView selectTabViewItemAtIndex:n];
     NSEnableScreenUpdates();
 }
 
 - (void) showCheckingPage {
     self.error = nil;
-    [self showWindow];
-    [self.tabView selectTabViewItemAtIndex:0];
+    [self showTab: 0];
 }
 
 - (void) showUpToDatePage {
     self.error = nil;
-    [self showWindow];
-    [self.tabView selectTabViewItemAtIndex:1];
+    [self showTab: 1];
 }
 
 - (void) showFoundPage {
     self.error = nil;
-    [self showWindow];
-    [self.tabView selectTabViewItemAtIndex:2];
+    [self showTab: 2];
 }
 
 - (void) showErrorPage {
-    [self showWindow];
-    [self.tabView selectTabViewItemAtIndex:3];
+    [self showTab: 3];
 }
 
 - (void) showInstallingPage {
-    [self showWindow];
-    [self.tabView selectTabViewItemAtIndex:4];
+    self.error = nil;
+    [self showTab: 4];
 }
 
 @end
