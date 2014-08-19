@@ -7,7 +7,7 @@ static pid_t parent_pid;
 static void MJShowError(NSString* command, NSString* error) {
     NSAlert* alert = [[NSAlert alloc] init];
     [alert setAlertStyle: NSCriticalAlertStyle];
-    [alert setMessageText:@"Error installing Mjolnir update"];
+    [alert setMessageText:@"Error installing update"];
     [alert setInformativeText:[NSString stringWithFormat:@"Command that failed: %@\n\nError: %@", command, error]];
     [alert runModal];
 }
@@ -34,11 +34,19 @@ static void MJRelaunch(void) {
     MJOpenLiveApp();
 }
 
+static void MJBorrowAppIcon() {
+    NSString* iconPath = [[NSBundle bundleWithPath:live_app_path] pathForResource:@"Mjolnir" ofType:@"icns"];
+    NSImage* icon = [[NSImage alloc] initWithContentsOfFile:iconPath];
+    [[NSApplication sharedApplication] setApplicationIconImage:icon];
+}
+
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         parent_pid = atoi(argv[1]);
         live_app_path = [NSString stringWithUTF8String:argv[2]];
         temp_app_path = [NSString stringWithUTF8String:argv[3]];
+        
+        MJBorrowAppIcon();
         
         [[[NSWorkspace sharedWorkspace] notificationCenter]
          addObserverForName:NSWorkspaceDidTerminateApplicationNotification
@@ -57,7 +65,8 @@ int main(int argc, const char * argv[]) {
             }
         });
         
-        dispatch_main();
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+        [[NSApplication sharedApplication] run];
     }
     return 0;
 }
