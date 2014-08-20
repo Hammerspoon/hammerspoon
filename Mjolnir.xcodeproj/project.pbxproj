@@ -14,6 +14,7 @@
 		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
 		943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */; };
 		943BF0F319A4BC730017F79D /* Images.xcassets in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D3F1989737E00D8DC90 /* Images.xcassets */; };
+		943BF0F619A4CD830017F79D /* MJLinkTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 943BF0F519A4CD830017F79D /* MJLinkTextField.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D341989735300D8DC90 /* MJAppDelegate.m */; };
@@ -108,6 +109,8 @@
 		942BF3901989E18600983892 /* MJAutoLaunch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAutoLaunch.m; sourceTree = "<group>"; };
 		943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJUserNotificationManager.h; sourceTree = "<group>"; };
 		943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUserNotificationManager.m; sourceTree = "<group>"; };
+		943BF0F419A4CD830017F79D /* MJLinkTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJLinkTextField.h; sourceTree = "<group>"; };
+		943BF0F519A4CD830017F79D /* MJLinkTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJLinkTextField.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
 		9445CA0B19083251002568BB /* Mjolnir.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mjolnir.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -489,6 +492,8 @@
 				94A1E5471993AC5C003AEB26 /* MJFileUtils.m */,
 				943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */,
 				943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */,
+				943BF0F419A4CD830017F79D /* MJLinkTextField.h */,
+				943BF0F519A4CD830017F79D /* MJLinkTextField.m */,
 			);
 			name = Auxiliary;
 			sourceTree = "<group>";
@@ -628,6 +633,7 @@
 				944A2D9D198973E900D8DC90 /* lstrlib.c in Sources */,
 				944A2D88198973E900D8DC90 /* lcode.c in Sources */,
 				944A2D96198973E900D8DC90 /* loadlib.c in Sources */,
+				943BF0F619A4CD830017F79D /* MJLinkTextField.m in Sources */,
 				944A2DA91989760400D8DC90 /* MJReplTabController.m in Sources */,
 				944A2D99198973E900D8DC90 /* loslib.c in Sources */,
 				944A2D93198973E900D8DC90 /* llex.c in Sources */,

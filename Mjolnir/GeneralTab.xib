@@ -8,6 +8,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="MJGeneralTabController">
             <connections>
                 <outlet property="checkForUpdatesCheckbox" destination="8hE-jn-yvO" id="Y2g-dk-QHg"/>
+                <outlet property="dashField" destination="nSb-Y9-Gb8" id="b7m-dC-BV4"/>
                 <outlet property="openAtLoginCheckbox" destination="e5P-fQ-lSS" id="ug0-D4-eSm"/>
                 <outlet property="showDockIconCheckbox" destination="LCE-lg-IdY" id="8xH-gB-Wng"/>
                 <outlet property="view" destination="GZF-5M-36L" id="I07-JV-Olg"/>
@@ -79,10 +80,10 @@
                                 <action selector="toggleCheckForUpdates:" target="-2" id="PxO-GG-Uvi"/>
                             </connections>
                         </button>
-                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="nSb-Y9-Gb8">
+                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="nSb-Y9-Gb8" customClass="MJLinkTextField">
                             <rect key="frame" x="138" y="59" width="241" height="17"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" title="Mjolnir uses Dash for documentation." id="9Nx-zo-Mmp">
+                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Mjolnir uses Dash for documentation." id="9Nx-zo-Mmp">
                                 <font key="font" metaFont="system"/>
                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

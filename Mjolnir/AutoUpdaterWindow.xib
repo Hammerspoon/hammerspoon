@@ -9,8 +9,8 @@
             <connections>
                 <outlet property="checkingProgressBar" destination="cZe-Sc-ws0" id="ALo-W9-C5U"/>
                 <outlet property="installationProgressBar" destination="kGK-L9-duy" id="ojV-sN-cEP"/>
+                <outlet property="releaseNotesLabel" destination="clz-IT-H20" id="CHN-2T-jmp"/>
                 <outlet property="tabView" destination="Zbi-IB-fnx" id="9s3-Tw-o3t"/>
-                <outlet property="textViewContainer" destination="k2v-JG-LBm" id="Gsh-1I-k4c"/>
                 <outlet property="window" destination="1" id="HFd-jL-rGV"/>
             </connections>
         </customObject>
@@ -163,6 +163,15 @@ DQ
                                                 </binding>
                                             </connections>
                                         </textField>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="clz-IT-H20" customClass="MJLinkTextField">
+                                            <rect key="frame" x="18" y="57" width="125" height="17"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="View Release Notes" id="qSf-An-JBL">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
                                         <button verticalHuggingPriority="750" id="8xL-OK-HqI">
                                             <rect key="frame" x="170" y="13" width="72" height="32"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
@@ -177,10 +186,6 @@ Gw
                                                 <action selector="dismiss:" target="-2" id="JUP-aY-1dW"/>
                                             </connections>
                                         </button>
-                                        <customView id="k2v-JG-LBm">
-                                            <rect key="frame" x="18" y="56" width="183" height="27"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                        </customView>
                                     </subviews>
                                 </view>
                             </tabViewItem>

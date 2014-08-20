@@ -2,6 +2,7 @@
 #import "MJAutoLaunch.h"
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
+#import "MJLinkTextField.h"
 #import "variables.h"
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
@@ -14,6 +15,8 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 @property (weak) IBOutlet NSButton* openAtLoginCheckbox;
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
 @property (weak) IBOutlet NSButton* checkForUpdatesCheckbox;
+
+@property (weak) IBOutlet MJLinkTextField* dashField;
 
 @property BOOL isAccessibilityEnabled;
 @property BOOL hasInstalledDocs;
@@ -29,6 +32,8 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 - (NSImage*)  icon    { return [NSImage imageNamed:@"Settings"]; }
 
 - (void) awakeFromNib {
+    [self linkifyDashLabel];
+    
     self.hasInstalledDocs = [[NSUserDefaults standardUserDefaults] boolForKey:MJHasInstalledDocsKey];
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -41,6 +46,11 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState:[[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:MJCheckForUpdatesKey] ? NSOnState : NSOffState];
+}
+
+- (void) linkifyDashLabel {
+    [self.dashField addLink: MJDashURL
+                    inRange: [[self.dashField stringValue] rangeOfString:@"Dash"]];
 }
 
 - (IBAction) openDocsInDash:(id)sender {

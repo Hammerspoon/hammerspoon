@@ -1,4 +1,5 @@
 #import "MJAutoUpdaterWindowController.h"
+#import "MJLinkTextField.h"
 #import "variables.h"
 
 @interface MJAutoUpdaterWindowController ()
@@ -6,8 +7,7 @@
 @property (weak) IBOutlet NSTabView* tabView;
 @property (weak) IBOutlet NSProgressIndicator* checkingProgressBar;
 @property (weak) IBOutlet NSProgressIndicator* installationProgressBar;
-@property IBOutlet NSView* textViewContainer;
-@property NSTextView* textView;
+@property (weak) IBOutlet MJLinkTextField* releaseNotesLabel;
 
 @end
 
@@ -18,16 +18,8 @@
 }
 
 - (void) showReleaseNotesLink {
-    NSString* s = @"View Release Notes";
-    NSRange r = NSMakeRange(0, [s length]);
-    self.textView = [[NSTextView alloc] initWithFrame:[self.textViewContainer bounds]];
-    [self.textView setFont:[NSFont systemFontOfSize:[NSFont systemFontSize]]];
-    [self.textView insertText:s];
-    [self.textView setDrawsBackground:NO];
-    [self.textView setEditable:NO];
-    [[self.textView textContainer] setLineFragmentPadding:2.0];
-    [[self.textView textStorage] addAttribute:NSLinkAttributeName value:[NSURL URLWithString:MJReleaseNotesURL] range:r];
-    [self.textViewContainer addSubview:self.textView];
+    [self.releaseNotesLabel addLink:MJReleaseNotesURL
+                            inRange:NSMakeRange(0, [[self.releaseNotesLabel stringValue] length])];
 }
 
 - (void) windowDidLoad {

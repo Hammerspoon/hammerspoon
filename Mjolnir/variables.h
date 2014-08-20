@@ -13,6 +13,7 @@ static NSString* MJReleaseNotesURL       = @"https://github.com/mjolnir-io/mjoln
 static NSString* MJDownloadPage          = @"https://github.com/mjolnir-io/mjolnir/releases/latest";
 static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir-ext/master/manifest.json";
 static NSString* MJUpdatesURL            = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
+static NSString* MJDashURL               = @"http://kapeli.com/dash";
 
 static NSString* MJPublicKey = @""
 "-----BEGIN PUBLIC KEY-----\n"
