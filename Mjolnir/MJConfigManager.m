@@ -15,7 +15,7 @@
 }
 
 + (NSString*) dirForExtensionName:(NSString*)extname {
-    NSString* nameWithDashes = [extname stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+    NSString* nameWithDashes = [extname stringByReplacingOccurrencesOfString:@"." withString:@"/"];
     return [[MJConfigManager configPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"ext/%@/", nameWithDashes]];
 }
 
