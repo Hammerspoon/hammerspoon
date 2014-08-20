@@ -18,6 +18,7 @@
 @implementation MJAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    [self registerDefaultDefaults];
     [self setupStatusItem];
     [self setupCheckUpdatesTimer];
     [MJConfigManager setupConfigDir];
@@ -28,6 +29,11 @@
     MJSetupLua();
     [[MJExtensionManager sharedManager] loadInstalledModules];
     MJReloadConfig();
+}
+
+- (void) registerDefaultDefaults {
+    NSDictionary* defaults = @{MJCheckForUpdatesKey: @YES};
+    [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
 }
 
 - (void) setupStatusItem {
