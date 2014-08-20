@@ -61,9 +61,13 @@
 }
 
 - (IBAction) chooseTabFromWindowsMenu:(NSMenuItem*)item {
+    [self forceOpenTab:[item title]];
+}
+
+- (void) forceOpenTab:(NSString*)title {
     [self showWindow:self];
-    [[[self window] toolbar] setSelectedItemIdentifier:[item title]];
-    [self showTab:[item title]];
+    [[[self window] toolbar] setSelectedItemIdentifier:title];
+    [self showTab:title];
 }
 
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar*)toolbar {
@@ -98,6 +102,10 @@
     [self.tabView selectTabViewItemWithIdentifier:tab];
     NSTabViewItem* item = [self.tabView selectedTabViewItem];
     [[[item initialFirstResponder] window] makeFirstResponder:[item initialFirstResponder]];
+}
+
+- (void) showREPL {
+    [self forceOpenTab: @"REPL"];
 }
 
 @end

@@ -1,8 +1,5 @@
 os.exit = core.exit
 
--- TODO: figure out how core.pcall and core.reload should work and where they should go (maybe in objc)?
--- core.pcall(core.reload)
-
 function core.runstring(s)
   local fn, err = load("return " .. s)
   if not fn then fn, err = load(s) end
@@ -46,6 +43,16 @@ function core._loadmodule(dotname)
   end
 
   t[lastkey] = mod
+end
+
+function core.errorhandler(err)
+  core._notify("Mjolnir error occurred")
+  print(err)
+  print(debug.traceback())
+end
+
+function core.pcall(f, ...)
+  return xpcall(f, core.errorhandler, ...)
 end
 
 function core._unloadmodule(dotname)

@@ -1,4 +1,6 @@
 #import "core.h"
+#import "MJUserNotificationManager.h"
+#import "MJMainWindowController.h"
 
 lua_State* MJLuaState;
 
@@ -27,13 +29,22 @@ static int core__logmessage(lua_State* L) {
     return 0;
 }
 
+static int core__notify(lua_State* L) {
+    size_t len;
+    const char* s = lua_tolstring(L, 1, &len);
+    NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
+    [[MJUserNotificationManager sharedManager] sendNotification:str handler:^{
+        [[MJMainWindowController sharedMainWindowController] showREPL];
+    }];
+    return 0;
+}
+
 static luaL_Reg corelib[] = {
     {"exit", core_exit},
     {"_logmessage", core__logmessage},
+    {"_notify", core__notify},
     {}
 };
-
-//    mjolnir_setup_handler_storage(L); // TODO: turn into core.addhandler(), and set it up in setup.lua etc...
 
 void MJSetupLua(void) {
     lua_State* L = MJLuaState = luaL_newstate();

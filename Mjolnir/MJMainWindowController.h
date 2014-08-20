@@ -4,4 +4,6 @@
 
 + (MJMainWindowController*) sharedMainWindowController;
 
+- (void) showREPL;
+
 @end
