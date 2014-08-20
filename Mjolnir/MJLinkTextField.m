@@ -1,8 +1,9 @@
 #import "MJLinkTextField.h"
 
+// Thanks to http://toomasvahter.wordpress.com/2012/12/25/embedding-hyperlinks-in-nstextfield/ for some key ideas
+
 @interface MJLinkTextField ()
 @property NSMutableArray* cachedLinks;
-@property NSTextView* cachedTextView;
 @end
 
 @implementation MJLinkTextField
@@ -40,7 +41,7 @@ static NSTextView* MJTextViewForField(NSTextField* self) {
     self.cachedLinks = [NSMutableArray array];
     
     NSRange r = NSMakeRange(0, [[self attributedStringValue] length]);
-    self.cachedTextView = MJTextViewForField(self);
+    NSTextView* tv = MJTextViewForField(self);
     [[self attributedStringValue]
      enumerateAttribute:NSLinkAttributeName
      inRange:r
@@ -50,14 +51,13 @@ static NSTextView* MJTextViewForField(NSTextField* self) {
              return;
          
          NSUInteger count;
-         NSRectArray array = [[self.cachedTextView layoutManager] rectArrayForCharacterRange:range
-                                                                withinSelectedCharacterRange:range
-                                                                             inTextContainer:[self.cachedTextView textContainer]
-                                                                                   rectCount:&count];
+         NSRectArray array = [[tv layoutManager] rectArrayForCharacterRange:range
+                                               withinSelectedCharacterRange:range
+                                                            inTextContainer:[tv textContainer]
+                                                                  rectCount:&count];
          
          for (NSUInteger i = 0; i < count; i++) {
              [self.cachedLinks addObject: @{@"rect": [NSValue valueWithRect:array[i]],
-                                            @"range": [NSValue valueWithRange:range],
                                             @"url": value}];
          }
      }];
@@ -67,22 +67,17 @@ static NSTextView* MJTextViewForField(NSTextField* self) {
     NSPoint p = [self convertPoint:[theEvent locationInWindow] fromView:nil];
     p.y--; // docs say it has base of 1 for some reason, not 0
     
-    NSUInteger idx = [[self.cachedTextView layoutManager] characterIndexForPoint:p
-                                                                 inTextContainer:[self.cachedTextView textContainer]
-                                        fractionOfDistanceBetweenInsertionPoints:NULL];
-    
-    if (idx == NSNotFound)
-        return;
-    
     for (NSDictionary* link in self.cachedLinks) {
-        NSValue* rangeValue = [link objectForKey:@"range"];
+        NSValue* rectValue = [link objectForKey:@"rect"];
         
-        if (NSLocationInRange(idx, [rangeValue rangeValue])) {
+        if (NSPointInRect(p, [rectValue rectValue])) {
             NSURL* url = [link objectForKey:@"url"];
             [[NSWorkspace sharedWorkspace] openURL:url];
             return;
         }
     }
+    
+    [super mouseUp:theEvent];
 }
 
 - (void) resetCursorRects {
