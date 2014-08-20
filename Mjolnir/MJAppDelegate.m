@@ -103,6 +103,10 @@
     [self checkForUpdatesInBackground];
 }
 
+- (IBAction) reloadConfig:(id)sender {
+    [MJConfigManager reload];
+}
+
 @end
 
 int main(int argc, const char * argv[]) {
