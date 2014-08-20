@@ -19,24 +19,6 @@ static int core_exit(lua_State* L) {
     return 0; // lol
 }
 
-static AXUIElementRef shared_system_wide_element() {
-    static AXUIElementRef element;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        element = AXUIElementCreateSystemWide();
-    });
-    return element;
-}
-
-/// core.setaccessibilitytimeout(sec)
-/// Change the timeout of accessibility operations; may reduce sluggishness.
-/// NOTE: this may be a dumb idea and might be removed before 1.0 is released.
-static int core_setaccessibilitytimeout(lua_State* L) {
-    float sec = luaL_checknumber(L, 1);
-    AXUIElementSetMessagingTimeout(shared_system_wide_element(), sec);
-    return 0;
-}
-
 static int core__logmessage(lua_State* L) {
     size_t len;
     const char* s = lua_tolstring(L, 1, &len);
@@ -47,7 +29,6 @@ static int core__logmessage(lua_State* L) {
 
 static luaL_Reg corelib[] = {
     {"exit", core_exit},
-    {"setaccessibilitytimeout", core_setaccessibilitytimeout},
     {"_logmessage", core__logmessage},
     {}
 };
