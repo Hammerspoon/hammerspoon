@@ -13,6 +13,7 @@
 		9428C7EC198EB7E200CDFA00 /* MJConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9428C7EB198EB7E200CDFA00 /* MJConfigManager.m */; };
 		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
 		943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */; };
+		943BF0F319A4BC730017F79D /* Images.xcassets in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D3F1989737E00D8DC90 /* Images.xcassets */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D341989735300D8DC90 /* MJAppDelegate.m */; };
@@ -21,7 +22,6 @@
 		944A2D3C1989735300D8DC90 /* MJMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D381989735300D8DC90 /* MJMainWindowController.m */; };
 		944A2D431989737E00D8DC90 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3D1989737E00D8DC90 /* Credits.rtf */; };
 		944A2D451989737E00D8DC90 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3F1989737E00D8DC90 /* Images.xcassets */; };
-		944A2D471989737E00D8DC90 /* Mjolnir.icns in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D421989737E00D8DC90 /* Mjolnir.icns */; };
 		944A2D84198973E900D8DC90 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D4B198973E900D8DC90 /* lapi.c */; };
 		944A2D85198973E900D8DC90 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D4D198973E900D8DC90 /* lauxlib.c */; };
 		944A2D86198973E900D8DC90 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D4F198973E900D8DC90 /* lbaselib.c */; };
@@ -123,7 +123,6 @@
 		944A2D3F1989737E00D8DC90 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		944A2D401989737E00D8DC90 /* Mjolnir-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Mjolnir-Info.plist"; sourceTree = "<group>"; };
 		944A2D411989737E00D8DC90 /* Mjolnir-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Mjolnir-Prefix.pch"; sourceTree = "<group>"; };
-		944A2D421989737E00D8DC90 /* Mjolnir.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Mjolnir.icns; sourceTree = "<group>"; };
 		944A2D4B198973E900D8DC90 /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
 		944A2D4C198973E900D8DC90 /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lapi.h; sourceTree = "<group>"; };
 		944A2D4D198973E900D8DC90 /* lauxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lauxlib.c; sourceTree = "<group>"; };
@@ -332,7 +331,6 @@
 				944A2D3F1989737E00D8DC90 /* Images.xcassets */,
 				944A2D401989737E00D8DC90 /* Mjolnir-Info.plist */,
 				944A2D411989737E00D8DC90 /* Mjolnir-Prefix.pch */,
-				944A2D421989737E00D8DC90 /* Mjolnir.icns */,
 				94EEEFB11993085A00749B92 /* Settings.png */,
 				94EEEFB41993086F00749B92 /* Extensions.png */,
 				94AB413B199156B000055603 /* REPL.png */,
@@ -601,7 +599,6 @@
 				949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
 				94D7A827198D82430005B88E /* Mjolnir.docset in Resources */,
-				944A2D471989737E00D8DC90 /* Mjolnir.icns in Resources */,
 				94AB413D199156B000055603 /* REPL.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -663,6 +660,7 @@
 				944A2DA0198973E900D8DC90 /* ltm.c in Sources */,
 				944A2D94198973E900D8DC90 /* lmathlib.c in Sources */,
 				944A2D9F198973E900D8DC90 /* ltablib.c in Sources */,
+				943BF0F319A4BC730017F79D /* Images.xcassets in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
