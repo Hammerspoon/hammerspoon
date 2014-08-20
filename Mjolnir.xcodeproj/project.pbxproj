@@ -65,6 +65,7 @@
 		9477D01B19953FE20020BE9D /* statusicon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9477D01919953FE20020BE9D /* statusicon@2x.png */; };
 		949B520019A5516900ED4F02 /* MJUpdateChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 949B51FF19A5516900ED4F02 /* MJUpdateChecker.m */; };
 		949B520319A5576E00ED4F02 /* MJDockIcon.m in Sources */ = {isa = PBXBuildFile; fileRef = 949B520219A5576E00ED4F02 /* MJDockIcon.m */; };
+		949B520619A55BF400ED4F02 /* MJMenuIcon.m in Sources */ = {isa = PBXBuildFile; fileRef = 949B520519A55BF400ED4F02 /* MJMenuIcon.m */; };
 		949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFD1990747B00906CCE /* GeneralTab.xib */; };
 		949CDC001990759B00906CCE /* ReplTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ReplTab.xib */; };
 		949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDC011990761700906CCE /* ExtensionsTab.xib */; };
@@ -200,6 +201,8 @@
 		949B51FF19A5516900ED4F02 /* MJUpdateChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUpdateChecker.m; sourceTree = "<group>"; };
 		949B520119A5576E00ED4F02 /* MJDockIcon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJDockIcon.h; sourceTree = "<group>"; };
 		949B520219A5576E00ED4F02 /* MJDockIcon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJDockIcon.m; sourceTree = "<group>"; };
+		949B520419A55BF400ED4F02 /* MJMenuIcon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJMenuIcon.h; sourceTree = "<group>"; };
+		949B520519A55BF400ED4F02 /* MJMenuIcon.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJMenuIcon.m; sourceTree = "<group>"; };
 		949CDBFB1990739800906CCE /* MJReplTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJReplTabController.h; sourceTree = "<group>"; };
 		949CDBFC199073A000906CCE /* MJGeneralTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJGeneralTabController.h; sourceTree = "<group>"; };
 		949CDBFD1990747B00906CCE /* GeneralTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GeneralTab.xib; sourceTree = "<group>"; };
@@ -504,6 +507,8 @@
 				943BF0F519A4CD830017F79D /* MJLinkTextField.m */,
 				949B520119A5576E00ED4F02 /* MJDockIcon.h */,
 				949B520219A5576E00ED4F02 /* MJDockIcon.m */,
+				949B520419A55BF400ED4F02 /* MJMenuIcon.h */,
+				949B520519A55BF400ED4F02 /* MJMenuIcon.m */,
 			);
 			name = Auxiliary;
 			sourceTree = "<group>";
@@ -674,6 +679,7 @@
 				944A2D8C198973E900D8DC90 /* ldebug.c in Sources */,
 				944A2D9A198973E900D8DC90 /* lparser.c in Sources */,
 				944A2DA1198973E900D8DC90 /* lundump.c in Sources */,
+				949B520619A55BF400ED4F02 /* MJMenuIcon.m in Sources */,
 				943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */,
 				944A2DA0198973E900D8DC90 /* ltm.c in Sources */,
 				944A2D94198973E900D8DC90 /* lmathlib.c in Sources */,

@@ -11,6 +11,7 @@
                 <outlet property="dashField" destination="nSb-Y9-Gb8" id="b7m-dC-BV4"/>
                 <outlet property="openAtLoginCheckbox" destination="e5P-fQ-lSS" id="ug0-D4-eSm"/>
                 <outlet property="showDockIconCheckbox" destination="LCE-lg-IdY" id="8xH-gB-Wng"/>
+                <outlet property="showMenuIconCheckbox" destination="onk-bV-cOj" id="OuW-dV-96B"/>
                 <outlet property="showWindowAtLaunchCheckbox" destination="A0k-Ak-YSY" id="AIi-QB-AD7"/>
                 <outlet property="view" destination="GZF-5M-36L" id="I07-JV-Olg"/>
             </connections>
@@ -22,11 +23,11 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <customView id="GbP-Ho-APx">
-                    <rect key="frame" x="69" y="11" width="436" height="309"/>
+                    <rect key="frame" x="104" y="21" width="366" height="309"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <subviews>
                         <button verticalHuggingPriority="750" id="jg5-ga-lac">
-                            <rect key="frame" x="134" y="33" width="209" height="32"/>
+                            <rect key="frame" x="103" y="13" width="209" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Add Mjolnir Docs to Dash" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XcV-Cr-mv1">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -38,7 +39,7 @@
                             </connections>
                         </button>
                         <button verticalHuggingPriority="750" id="yLD-uZ-JKh">
-                            <rect key="frame" x="134" y="261" width="129" height="32"/>
+                            <rect key="frame" x="103" y="261" width="129" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Reload Config" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ADh-3c-Zwh">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -49,7 +50,7 @@
                             </connections>
                         </button>
                         <button id="LCE-lg-IdY">
-                            <rect key="frame" x="138" y="230" width="121" height="18"/>
+                            <rect key="frame" x="107" y="170" width="121" height="18"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="check" title="Show dock icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="1Ay-Q1-93j">
                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -59,8 +60,19 @@
                                 <action selector="toggleShowDockIcon:" target="-2" id="UvC-Pk-hFl"/>
                             </connections>
                         </button>
+                        <button id="onk-bV-cOj">
+                            <rect key="frame" x="107" y="150" width="126" height="18"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <buttonCell key="cell" type="check" title="Show menu icon" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="uNE-4I-dRd">
+                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="toggleMenuDockIcon:" target="-2" id="Y4S-Ys-VCZ"/>
+                            </connections>
+                        </button>
                         <button id="e5P-fQ-lSS">
-                            <rect key="frame" x="138" y="210" width="108" height="18"/>
+                            <rect key="frame" x="107" y="230" width="108" height="18"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="check" title="Open at login" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="WYx-7x-qXj">
                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -71,7 +83,7 @@
                             </connections>
                         </button>
                         <button id="8hE-jn-yvO">
-                            <rect key="frame" x="138" y="190" width="139" height="18"/>
+                            <rect key="frame" x="107" y="210" width="137" height="18"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="check" title="Check for updates" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="eue-1N-zi1">
                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -82,7 +94,7 @@
                             </connections>
                         </button>
                         <button id="A0k-Ak-YSY">
-                            <rect key="frame" x="138" y="170" width="197" height="18"/>
+                            <rect key="frame" x="107" y="190" width="197" height="18"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="check" title="Show this window at launch" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3Yd-ta-zfL">
                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -93,7 +105,7 @@
                             </connections>
                         </button>
                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="nSb-Y9-Gb8" customClass="MJLinkTextField">
-                            <rect key="frame" x="138" y="69" width="241" height="17"/>
+                            <rect key="frame" x="107" y="49" width="241" height="17"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Mjolnir uses Dash for documentation." id="9Nx-zo-Mmp">
                                 <font key="font" metaFont="system"/>
@@ -102,7 +114,7 @@
                             </textFieldCell>
                         </textField>
                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="VQb-h7-4Va">
-                            <rect key="frame" x="72" y="231" width="62" height="17"/>
+                            <rect key="frame" x="41" y="231" width="62" height="17"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Behavior:" id="dha-iU-GWx">
                                 <font key="font" metaFont="system"/>
@@ -111,7 +123,7 @@
                             </textFieldCell>
                         </textField>
                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="jgw-5B-gOW">
-                            <rect key="frame" x="95" y="69" width="39" height="17"/>
+                            <rect key="frame" x="64" y="49" width="39" height="17"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Docs:" id="M6m-th-Jna">
                                 <font key="font" metaFont="system"/>
@@ -120,7 +132,7 @@
                             </textFieldCell>
                         </textField>
                         <button verticalHuggingPriority="750" id="4ho-hR-nJI">
-                            <rect key="frame" x="134" y="99" width="162" height="32"/>
+                            <rect key="frame" x="103" y="79" width="162" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Enable Accessibility" bezelStyle="rounded" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="cuD-Tg-hc1">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -136,7 +148,7 @@
                             </connections>
                         </button>
                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="fRb-9A-PSe">
-                            <rect key="frame" x="138" y="135" width="241" height="17"/>
+                            <rect key="frame" x="107" y="115" width="241" height="17"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility is enabled. You're all set!" id="PqP-7R-CO6">
                                 <font key="font" metaFont="system"/>
@@ -148,7 +160,7 @@
                             </connections>
                         </textField>
                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Ljs-s0-qtL">
-                            <rect key="frame" x="49" y="135" width="85" height="17"/>
+                            <rect key="frame" x="18" y="115" width="85" height="17"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Accessibility:" id="xX6-GD-rGt">
                                 <font key="font" metaFont="system"/>
@@ -157,7 +169,7 @@
                             </textFieldCell>
                         </textField>
                         <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" id="fzK-vc-sjF">
-                            <rect key="frame" x="298" y="108" width="16" height="16"/>
+                            <rect key="frame" x="267" y="88" width="16" height="16"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSStatusAvailable" id="6r9-hh-evU"/>
                             <connections>

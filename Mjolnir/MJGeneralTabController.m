@@ -5,6 +5,7 @@
 #import "MJLinkTextField.h"
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
+#import "MJMenuIcon.h"
 #import "variables.h"
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
@@ -16,6 +17,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 @property (weak) IBOutlet NSButton* openAtLoginCheckbox;
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
+@property (weak) IBOutlet NSButton* showMenuIconCheckbox;
 @property (weak) IBOutlet NSButton* checkForUpdatesCheckbox;
 @property (weak) IBOutlet NSButton* showWindowAtLaunchCheckbox;
 
@@ -48,6 +50,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState: [MJDockIcon sharedDockIcon].visible ? NSOnState : NSOffState];
+    [self.showMenuIconCheckbox setState: [MJMenuIcon sharedIcon].visible ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState: [MJUpdateChecker sharedChecker].checkingEnabled ? NSOnState : NSOffState];
     [self.showWindowAtLaunchCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:MJShowWindowAtLaunchKey] ? NSOnState : NSOffState];
 }
@@ -128,6 +131,10 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 - (IBAction) toggleShowDockIcon:(NSButton*)sender {
     [MJDockIcon sharedDockIcon].visible = [sender state] == NSOnState;
+}
+
+- (IBAction) toggleMenuDockIcon:(NSButton*)sender {
+    [MJMenuIcon sharedIcon].visible = [sender state] == NSOnState;
 }
 
 - (IBAction) toggleCheckForUpdates:(NSButton*)sender {

@@ -5,18 +5,18 @@
 #import "MJDocsManager.h"
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
+#import "MJMenuIcon.h"
 #import "core.h"
 #import "variables.h"
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
-@property NSStatusItem* statusItem;
 @end
 
 @implementation MJAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [self registerDefaultDefaults];
-    [self setupStatusItem];
+    [[MJMenuIcon sharedIcon] setup];
     [[MJDockIcon sharedDockIcon] setup];
     [[MJUpdateChecker sharedChecker] setup];
     [MJConfigManager setupConfigDir];
@@ -34,14 +34,6 @@
                                MJShowDockIconKey: @YES,
                                MJShowWindowAtLaunchKey: @YES};
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
-}
-
-- (void) setupStatusItem {
-    NSImage* icon = [NSImage imageNamed:@"statusicon"];
-    [icon setTemplate:YES];
-    self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
-    [self.statusItem setImage:icon];
-    [self.statusItem setHighlightMode:YES];
 }
 
 - (IBAction) reloadConfig:(id)sender {
