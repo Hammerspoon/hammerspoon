@@ -12,6 +12,7 @@
 		9423CA95198C3BE700647881 /* MJExtensionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9423CA94198C3BE700647881 /* MJExtensionManager.m */; };
 		9428C7EC198EB7E200CDFA00 /* MJConfigManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9428C7EB198EB7E200CDFA00 /* MJConfigManager.m */; };
 		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
+		943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D341989735300D8DC90 /* MJAppDelegate.m */; };
@@ -105,6 +106,8 @@
 		9428C7EB198EB7E200CDFA00 /* MJConfigManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJConfigManager.m; sourceTree = "<group>"; };
 		9429F5E1199072B600A9552F /* MJExtensionsTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJExtensionsTabController.h; sourceTree = "<group>"; };
 		942BF3901989E18600983892 /* MJAutoLaunch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAutoLaunch.m; sourceTree = "<group>"; };
+		943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJUserNotificationManager.h; sourceTree = "<group>"; };
+		943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUserNotificationManager.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
 		9445CA0B19083251002568BB /* Mjolnir.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mjolnir.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -486,6 +489,8 @@
 				94A1E5411993AB00003AEB26 /* MJVerifiers.m */,
 				94A1E5461993AC5C003AEB26 /* MJFileUtils.h */,
 				94A1E5471993AC5C003AEB26 /* MJFileUtils.m */,
+				943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */,
+				943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */,
 			);
 			name = Auxiliary;
 			sourceTree = "<group>";
@@ -654,6 +659,7 @@
 				944A2D8C198973E900D8DC90 /* ldebug.c in Sources */,
 				944A2D9A198973E900D8DC90 /* lparser.c in Sources */,
 				944A2DA1198973E900D8DC90 /* lundump.c in Sources */,
+				943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */,
 				944A2DA0198973E900D8DC90 /* ltm.c in Sources */,
 				944A2D94198973E900D8DC90 /* lmathlib.c in Sources */,
 				944A2D9F198973E900D8DC90 /* ltablib.c in Sources */,

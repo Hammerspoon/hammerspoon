@@ -4,15 +4,15 @@
 #import "MJConfigManager.h"
 #import "MJDocsManager.h"
 #import "MJAutoUpdaterWindowController.h"
+#import "MJUserNotificationManager.h"
 #import "MJUpdate.h"
 #import "core.h"
 #import "variables.h"
 
-@interface MJAppDelegate : NSObject <NSApplicationDelegate, MJAutoUpdaterWindowControllerDelegate, NSUserNotificationCenterDelegate>
+@interface MJAppDelegate : NSObject <NSApplicationDelegate, MJAutoUpdaterWindowControllerDelegate>
 @property NSTimer* autoupdateTimer;
 @property MJAutoUpdaterWindowController* updaterWindowController;
 @property NSStatusItem* statusItem;
-@property NSUserNotification* updateNote;
 @end
 
 @implementation MJAppDelegate
@@ -87,12 +87,9 @@
     
     [MJUpdate checkForUpdate:^(MJUpdate *update, NSError* connError) {
         if (update) {
-            self.updateNote = [[NSUserNotification alloc] init];
-            self.updateNote.title = @"Mjolnir update available";
-            
-            NSUserNotificationCenter* center = [NSUserNotificationCenter defaultUserNotificationCenter];
-            [center setDelegate: self];
-            [center deliverNotification: self.updateNote];
+            [[MJUserNotificationManager sharedManager] sendNotification:@"Mjolnir update available" handler:^{
+                [self.updaterWindowController showFoundPage];
+            }];
             
             if (!self.updaterWindowController)
                 self.updaterWindowController = [[MJAutoUpdaterWindowController alloc] init];
@@ -100,16 +97,6 @@
             self.updaterWindowController.update = update;
         }
     }];
-}
-
-- (void)userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:(NSUserNotification *)notification {
-    [[NSUserNotificationCenter defaultUserNotificationCenter] removeDeliveredNotification:self.updateNote];
-    self.updateNote = nil;
-    [self.updaterWindowController showFoundPage];
-}
-
-- (BOOL) userNotificationCenter:(NSUserNotificationCenter *)center shouldPresentNotification:(NSUserNotification *)notification {
-    return YES;
 }
 
 - (void) checkForUpdatesTimerFired:(NSTimer*)timer {
