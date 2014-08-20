@@ -4,6 +4,7 @@
 #import "MJConfigManager.h"
 #import "MJDocsManager.h"
 #import "MJUpdateChecker.h"
+#import "MJDockIcon.h"
 #import "core.h"
 #import "variables.h"
 
@@ -16,6 +17,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [self registerDefaultDefaults];
     [self setupStatusItem];
+    [[MJDockIcon sharedDockIcon] setup];
     [[MJUpdateChecker sharedChecker] setup];
     [MJConfigManager setupConfigDir];
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:[MJConfigManager configPath]];
@@ -28,7 +30,8 @@
 }
 
 - (void) registerDefaultDefaults {
-    NSDictionary* defaults = @{MJCheckForUpdatesKey: @YES};
+    NSDictionary* defaults = @{MJCheckForUpdatesKey: @YES,
+                               MJShowDockIconKey: @YES};
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
 }
 

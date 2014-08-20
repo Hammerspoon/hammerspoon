@@ -4,6 +4,7 @@
 #import "core.h"
 #import "MJLinkTextField.h"
 #import "MJUpdateChecker.h"
+#import "MJDockIcon.h"
 #import "variables.h"
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
@@ -45,7 +46,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
     
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
-    [self.showDockIconCheckbox setState:[[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular ? NSOnState : NSOffState];
+    [self.showDockIconCheckbox setState: [MJDockIcon sharedDockIcon].visible ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState: [MJUpdateChecker sharedChecker].checkingEnabled ? NSOnState : NSOffState];
 }
 
@@ -124,16 +125,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) toggleShowDockIcon:(NSButton*)sender {
-    NSDisableScreenUpdates();
-    
-    [[NSApplication sharedApplication] setActivationPolicy:[sender state] == NSOnState ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[NSApplication sharedApplication] unhide:self];
-        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-        
-        NSEnableScreenUpdates();
-    });
+    [MJDockIcon sharedDockIcon].visible = [sender state] == NSOnState;
 }
 
 - (IBAction) toggleCheckForUpdates:(NSButton*)sender {
