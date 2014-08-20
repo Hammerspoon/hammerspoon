@@ -57,7 +57,9 @@ end
 
 function core._unloadmodule(dotname)
   local fn = load(dotname.." = nil")
-  fn()
+  fn() -- this is cheating, I know; oh well
+
+  core.resetters[dotname] = nil
 end
 
 local rawprint = print
@@ -74,8 +76,15 @@ function print(...)
   core._logmessage(str)
 end
 
+--- core.resetters = {}
+--- If extensions need to reset any state when the user's config reloads, they must add a resetter function here.
+--- i.e. they should run `core.resetters["core.hotkey"] = function() ... end` at some point.
+core.resetters = {}
+
 local function resetstate()
-  -- TODO
+  for _, fn in pairs(core.resetters) do
+    fn()
+  end
 end
 
 --- core.reload()
