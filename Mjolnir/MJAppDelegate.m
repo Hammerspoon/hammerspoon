@@ -8,10 +8,11 @@
 #import "core.h"
 #import "variables.h"
 
-@interface MJAppDelegate : NSObject <NSApplicationDelegate, MJAutoUpdaterWindowControllerDelegate>
+@interface MJAppDelegate : NSObject <NSApplicationDelegate, MJAutoUpdaterWindowControllerDelegate, NSUserNotificationCenterDelegate>
 @property NSTimer* autoupdateTimer;
 @property MJAutoUpdaterWindowController* updaterWindowController;
 @property NSStatusItem* statusItem;
+@property NSUserNotification* updateNote;
 @end
 
 @implementation MJAppDelegate
@@ -45,7 +46,7 @@
                                                            repeats:YES];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MJCheckForUpdatesDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self checkForUpdatesTimerFired: nil];
+        [self checkForUpdatesInBackground];
     });
 }
 
@@ -74,19 +75,39 @@
     self.updaterWindowController = nil;
 }
 
-- (void) checkForUpdatesTimerFired:(NSTimer*)timer {
+- (void) checkForUpdatesInBackground {
     if (![[NSUserDefaults standardUserDefaults] boolForKey:MJCheckForUpdatesKey])
         return;
     
     [MJUpdate checkForUpdate:^(MJUpdate *update, NSError* connError) {
         if (update) {
+            self.updateNote = [[NSUserNotification alloc] init];
+            self.updateNote.title = @"Mjolnir update available";
+            
+            NSUserNotificationCenter* center = [NSUserNotificationCenter defaultUserNotificationCenter];
+            [center setDelegate: self];
+            [center deliverNotification: self.updateNote];
+            
             if (!self.updaterWindowController)
                 self.updaterWindowController = [[MJAutoUpdaterWindowController alloc] init];
             
             self.updaterWindowController.update = update;
-            [self.updaterWindowController showFoundPage];
         }
     }];
+}
+
+- (void)userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:(NSUserNotification *)notification {
+    [[NSUserNotificationCenter defaultUserNotificationCenter] removeDeliveredNotification:self.updateNote];
+    self.updateNote = nil;
+    [self.updaterWindowController showFoundPage];
+}
+
+- (BOOL) userNotificationCenter:(NSUserNotificationCenter *)center shouldPresentNotification:(NSUserNotification *)notification {
+    return YES;
+}
+
+- (void) checkForUpdatesTimerFired:(NSTimer*)timer {
+    [self checkForUpdatesInBackground];
 }
 
 @end
