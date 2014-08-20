@@ -19,8 +19,4 @@
     return [[MJConfigManager configPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"ext/%@/", nameWithDashes]];
 }
 
-+ (void) reload {
-    MJReloadConfig();
-}
-
 @end

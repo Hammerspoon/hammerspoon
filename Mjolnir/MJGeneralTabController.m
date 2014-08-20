@@ -1,8 +1,9 @@
 #import "MJGeneralTabController.h"
 #import "MJAutoLaunch.h"
 #import "MJDocsManager.h"
-#import "MJConfigManager.h"
+#import "core.h"
 #import "MJLinkTextField.h"
+#import "MJUpdateChecker.h"
 #import "variables.h"
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
@@ -45,7 +46,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState:[[NSApplication sharedApplication] activationPolicy] == NSApplicationActivationPolicyRegular ? NSOnState : NSOffState];
-    [self.checkForUpdatesCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:MJCheckForUpdatesKey] ? NSOnState : NSOffState];
+    [self.checkForUpdatesCheckbox setState: [MJUpdateChecker sharedChecker].checkingEnabled ? NSOnState : NSOffState];
 }
 
 - (void) linkifyDashLabel {
@@ -136,11 +137,13 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) toggleCheckForUpdates:(NSButton*)sender {
-    [[NSUserDefaults standardUserDefaults] setBool:[sender state] == NSOnState forKey:MJCheckForUpdatesKey];
+    [MJUpdateChecker sharedChecker].checkingEnabled = [sender state] == NSOnState;
+    if ([MJUpdateChecker sharedChecker].checkingEnabled)
+        [[MJUpdateChecker sharedChecker] checkForUpdatesInBackground];
 }
 
 - (IBAction) reloadConfig:(id)sender {
-    [MJConfigManager reload];
+    MJReloadConfig();
 }
 
 @end

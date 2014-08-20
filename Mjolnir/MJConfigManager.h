@@ -8,6 +8,4 @@
 
 + (NSString*) dirForExtensionName:(NSString*)extname;
 
-+ (void) reload;
-
 @end

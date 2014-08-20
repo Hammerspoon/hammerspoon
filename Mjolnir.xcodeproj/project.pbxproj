@@ -63,6 +63,7 @@
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
 		9477D01A19953FE20020BE9D /* statusicon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9477D01819953FE20020BE9D /* statusicon.png */; };
 		9477D01B19953FE20020BE9D /* statusicon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9477D01919953FE20020BE9D /* statusicon@2x.png */; };
+		949B520019A5516900ED4F02 /* MJUpdateChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 949B51FF19A5516900ED4F02 /* MJUpdateChecker.m */; };
 		949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFD1990747B00906CCE /* GeneralTab.xib */; };
 		949CDC001990759B00906CCE /* ReplTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ReplTab.xib */; };
 		949CDC021990761700906CCE /* ExtensionsTab.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDC011990761700906CCE /* ExtensionsTab.xib */; };
@@ -194,6 +195,8 @@
 		9477D01819953FE20020BE9D /* statusicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = statusicon.png; sourceTree = "<group>"; };
 		9477D01919953FE20020BE9D /* statusicon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "statusicon@2x.png"; sourceTree = "<group>"; };
 		94787D1419A38A8B00540401 /* variables.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = variables.h; sourceTree = "<group>"; };
+		949B51FE19A5516900ED4F02 /* MJUpdateChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJUpdateChecker.h; sourceTree = "<group>"; };
+		949B51FF19A5516900ED4F02 /* MJUpdateChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUpdateChecker.m; sourceTree = "<group>"; };
 		949CDBFB1990739800906CCE /* MJReplTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJReplTabController.h; sourceTree = "<group>"; };
 		949CDBFC199073A000906CCE /* MJGeneralTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJGeneralTabController.h; sourceTree = "<group>"; };
 		949CDBFD1990747B00906CCE /* GeneralTab.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = GeneralTab.xib; sourceTree = "<group>"; };
@@ -430,6 +433,8 @@
 		945354D81996827800D89597 /* Updating */ = {
 			isa = PBXGroup;
 			children = (
+				949B51FE19A5516900ED4F02 /* MJUpdateChecker.h */,
+				949B51FF19A5516900ED4F02 /* MJUpdateChecker.m */,
 				94FA257319A310F700A2BA8B /* AutoUpdaterWindow.xib */,
 				94FA257119A310F700A2BA8B /* MJAutoUpdaterWindowController.h */,
 				94FA257219A310F700A2BA8B /* MJAutoUpdaterWindowController.m */,
@@ -652,6 +657,7 @@
 				94FA257419A310F700A2BA8B /* MJAutoUpdaterWindowController.m in Sources */,
 				944A2D87198973E900D8DC90 /* lbitlib.c in Sources */,
 				9423CA95198C3BE700647881 /* MJExtensionManager.m in Sources */,
+				949B520019A5516900ED4F02 /* MJUpdateChecker.m in Sources */,
 				944A2D91198973E900D8DC90 /* linit.c in Sources */,
 				944A2D95198973E900D8DC90 /* lmem.c in Sources */,
 				944A2DA3198973E900D8DC90 /* lzio.c in Sources */,
