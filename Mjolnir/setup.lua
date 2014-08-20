@@ -95,7 +95,7 @@ function core.reload()
     resetstate()
     core.pcall(fn)
   elseif err:find "No such file or directory" then
-    print "Cannot find ~/.mjolnir/init.lua; skipping."
+    print "-- Cannot find ~/.mjolnir/init.lua; skipping."
   else
     print(tostring(err))
     core._notify("Syntax error in ~/.mjolnir/init.lua")
