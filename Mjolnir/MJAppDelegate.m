@@ -23,7 +23,7 @@
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:[MJConfigManager configPath]];
     [MJDocsManager copyDocsIfNeeded];
     [[MJExtensionManager sharedManager] setup];
-    [[MJMainWindowController sharedMainWindowController] showWindow:nil];
+    [[MJMainWindowController sharedMainWindowController] maybeShowWindow];
     MJSetupLua();
     [[MJExtensionManager sharedManager] loadInstalledModules];
     MJReloadConfig();
@@ -31,7 +31,8 @@
 
 - (void) registerDefaultDefaults {
     NSDictionary* defaults = @{MJCheckForUpdatesKey: @YES,
-                               MJShowDockIconKey: @YES};
+                               MJShowDockIconKey: @YES,
+                               MJShowWindowAtLaunchKey: @YES};
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
 }
 

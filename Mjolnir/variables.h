@@ -29,8 +29,9 @@ static NSString* MJPublicKey = @""
 "cohzwU5/305uivg=\n"
 "-----END PUBLIC KEY-----\n";
 
-#define MJCheckForUpdatesKey @"MJCheckForUpdatesKey"
-#define MJShowDockIconKey    @"MJShowDockIconKey"
+#define MJCheckForUpdatesKey    @"MJCheckForUpdatesKey"
+#define MJShowDockIconKey       @"MJShowDockIconKey"
+#define MJShowWindowAtLaunchKey @"MJShowWindowAtLaunchKey"
 
 
 #endif

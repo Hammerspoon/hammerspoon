@@ -4,6 +4,7 @@
 #import "MJReplTabController.h"
 #import "MJExtensionsTabController.h"
 #import "MJDonateTabController.h"
+#import "variables.h"
 
 @interface MJMainWindowController ()
 @property (weak) IBOutlet NSTabView* tabView;
@@ -20,6 +21,13 @@
         sharedMainWindowController = [[MJMainWindowController alloc] init];
     });
     return sharedMainWindowController;
+}
+
+- (void) maybeShowWindow {
+    [self window]; // temporary hack to force things to load
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey: MJShowWindowAtLaunchKey])
+        [self showWindow: nil];
 }
 
 - (NSString*) windowNibName { return @"MainWindow"; }

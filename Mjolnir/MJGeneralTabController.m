@@ -17,6 +17,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 @property (weak) IBOutlet NSButton* openAtLoginCheckbox;
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
 @property (weak) IBOutlet NSButton* checkForUpdatesCheckbox;
+@property (weak) IBOutlet NSButton* showWindowAtLaunchCheckbox;
 
 @property (weak) IBOutlet MJLinkTextField* dashField;
 
@@ -48,6 +49,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState: [MJDockIcon sharedDockIcon].visible ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState: [MJUpdateChecker sharedChecker].checkingEnabled ? NSOnState : NSOffState];
+    [self.showWindowAtLaunchCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:MJShowWindowAtLaunchKey] ? NSOnState : NSOffState];
 }
 
 - (void) linkifyDashLabel {
@@ -136,6 +138,11 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 - (IBAction) reloadConfig:(id)sender {
     MJReloadConfig();
+}
+
+- (IBAction) toggleShowWindowAtLaunch:(NSButton*)sender {
+    [[NSUserDefaults standardUserDefaults] setBool:[sender state] == NSOnState
+                                            forKey:MJShowWindowAtLaunchKey];
 }
 
 @end
