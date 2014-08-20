@@ -2,6 +2,7 @@
 #import "MJAutoLaunch.h"
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
+#import "variables.h"
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
 extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
