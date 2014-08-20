@@ -84,11 +84,11 @@ function core.reload()
   local fn, err = loadfile "init.lua"
   if fn then
     resetstate()
-    fn() -- TODO: wrap with our own pcall-wrapper that shows errors in the REPL
+    core.pcall(fn)
   elseif err:find "No such file or directory" then
-    -- TODO: file doesnt exist; do something like this: print "Cannot find ~/.mjolnir/init.lua"
+    print "Cannot find ~/.mjolnir/init.lua; skipping."
   else
     print(tostring(err))
-    -- TODO: maybe also send a user-notification that an error happened? clicking it would open the REPL
+    core._notify("Syntax error in ~/.mjolnir/init.lua")
   end
 end
