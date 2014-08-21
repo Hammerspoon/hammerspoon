@@ -1,4 +1,4 @@
-#import "MJVerifiers.h"
+#import "MJSecurityUtils.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "variables.h"
 

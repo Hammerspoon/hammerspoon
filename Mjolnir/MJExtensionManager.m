@@ -1,6 +1,6 @@
 #import "MJExtensionManager.h"
 #import "MJExtension.h"
-#import "MJVerifiers.h"
+#import "MJSecurityUtils.h"
 #import "core.h"
 #import "variables.h"
 

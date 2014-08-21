@@ -1,7 +1,7 @@
 #import "MJExtension.h"
 #import "MJDocsManager.h"
 #import "MJConfigManager.h"
-#import "MJVerifiers.h"
+#import "MJSecurityUtils.h"
 #import "MJFileUtils.h"
 #import "core.h"
 

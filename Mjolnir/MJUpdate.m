@@ -1,6 +1,6 @@
 #import "MJUpdate.h"
 #import "MJFileUtils.h"
-#import "MJVerifiers.h"
+#import "MJSecurityUtils.h"
 #import "variables.h"
 
 @interface MJUpdate ()
