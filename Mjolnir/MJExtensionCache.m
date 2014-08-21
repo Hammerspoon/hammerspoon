@@ -6,7 +6,7 @@
 
 + (BOOL)supportsSecureCoding { return YES; }
 
-+ (NSString*) file { return [[MJConfigManager configPath] stringByAppendingPathComponent:@".extcache"]; }
++ (NSString*) file { return [MJConfigPath() stringByAppendingPathComponent:@".extcache"]; }
 
 + (MJExtensionCache*) cache {
     if ([[NSFileManager defaultManager] fileExistsAtPath:[self file]])

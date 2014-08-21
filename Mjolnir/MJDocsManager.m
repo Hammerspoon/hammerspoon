@@ -34,7 +34,7 @@ static BOOL run_sql_file(NSString* sqlfile, NSString* extdir, NSError* __autorel
 }
 
 NSURL* MJDocsFile(void) {
-    return [NSURL fileURLWithPath:[[MJConfigManager configPath] stringByAppendingPathComponent:@"Mjolnir.docset"]];
+    return [NSURL fileURLWithPath:[MJConfigPath() stringByAppendingPathComponent:@"Mjolnir.docset"]];
 }
 
 void MJDocsCopyIfNeeded(void) {

@@ -19,8 +19,8 @@
     MJMenuIconSetup();
     MJDockIconSetup();
     [[MJUpdateChecker sharedChecker] setup];
-    [MJConfigManager setupConfigDir];
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:[MJConfigManager configPath]];
+    MJConfigSetupDir();
+    [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
     MJDocsCopyIfNeeded();
     [[MJExtensionManager sharedManager] setup];
     [[MJMainWindowController sharedMainWindowController] maybeShowWindow];

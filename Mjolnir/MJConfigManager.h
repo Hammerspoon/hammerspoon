@@ -1,11 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "MJExtension.h"
 
-@interface MJConfigManager : NSObject
-
-+ (NSString*) configPath;
-+ (void) setupConfigDir;
-
-+ (NSString*) dirForExtensionName:(NSString*)extname;
-
-@end
+NSString* MJConfigPath(void);
+void MJConfigSetupDir(void);
+NSString* MJConfigDirForExtensionName(NSString* extname);

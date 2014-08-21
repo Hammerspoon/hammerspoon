@@ -1,22 +1,18 @@
 #import "MJConfigManager.h"
 #import "core.h"
 
-@implementation MJConfigManager
-
-+ (NSString*) configPath {
+NSString* MJConfigPath(void) {
     return [@"~/.mjolnir/" stringByStandardizingPath];
 }
 
-+ (void) setupConfigDir {
-    [[NSFileManager defaultManager] createDirectoryAtPath:[MJConfigManager configPath]
+void MJConfigSetupDir(void) {
+    [[NSFileManager defaultManager] createDirectoryAtPath:MJConfigPath()
                               withIntermediateDirectories:YES
                                                attributes:nil
                                                     error:NULL];
 }
 
-+ (NSString*) dirForExtensionName:(NSString*)extname {
+NSString* MJConfigDirForExtensionName(NSString* extname) {
     NSString* nameWithDashes = [extname stringByReplacingOccurrencesOfString:@"." withString:@"/"];
-    return [[MJConfigManager configPath] stringByAppendingPathComponent:[NSString stringWithFormat:@"ext/%@/", nameWithDashes]];
+    return [MJConfigPath() stringByAppendingPathComponent:[NSString stringWithFormat:@"ext/%@/", nameWithDashes]];
 }
-
-@end

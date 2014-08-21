@@ -85,7 +85,7 @@
             return;
         }
         
-        NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
+        NSString* extdir = MJConfigDirForExtensionName(self.name);
         if (!MJUntar(tgzdata, extdir, &error)) {
             done(error);
             return;
@@ -106,7 +106,7 @@
     MJUnloadModule(self.name);
     
     NSError* __autoreleasing error;
-    NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
+    NSString* extdir = MJConfigDirForExtensionName(self.name);
     if (MJDocsUninstall(extdir, &error))
         error = nil;
     
