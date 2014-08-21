@@ -1,3 +1,5 @@
+#import "MJAutoLaunch.h"
+
 static LSSharedFileListRef shared_file_list() {
     static LSSharedFileListRef list;
     static dispatch_once_t onceToken;
