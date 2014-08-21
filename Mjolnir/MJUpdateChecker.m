@@ -12,10 +12,19 @@ void callback(CFRunLoopTimerRef timer, void *info) {
     MJUpdateCheckerCheckSilently();
 }
 
+static void reflect_defaults(void) {
+    if (MJUpdateCheckerEnabled())
+        CFRunLoopAddTimer(CFRunLoopGetMain(), autoupdateTimer, kCFRunLoopCommonModes);
+    else
+        CFRunLoopRemoveTimer(CFRunLoopGetMain(), autoupdateTimer, kCFRunLoopCommonModes);
+}
+
 void MJUpdateCheckerSetup(void) {
     autoupdateTimer = CFRunLoopTimerCreate(NULL, 0, MJCheckForUpdatesInterval, 0, 0, &callback, NULL);
-    CFRunLoopTimerSetNextFireDate(autoupdateTimer, CFAbsoluteTimeGetCurrent() + MJCheckForUpdatesDelay);
-    CFRunLoopAddTimer(CFRunLoopGetMain(), autoupdateTimer, kCFRunLoopCommonModes);
+    reflect_defaults();
+    
+    if (MJUpdateCheckerEnabled())
+        CFRunLoopTimerSetNextFireDate(autoupdateTimer, CFAbsoluteTimeGetCurrent() + MJCheckForUpdatesDelay);
 }
 
 static MJAutoUpdaterWindowController* definitelyRealWindowController(void) {
@@ -60,6 +69,7 @@ BOOL MJUpdateCheckerEnabled(void) {
 void MJUpdateCheckerSetEnabled(BOOL checkingEnabled) {
     [[NSUserDefaults standardUserDefaults] setBool:checkingEnabled
                                             forKey:MJCheckForUpdatesKey];
+    reflect_defaults();
 }
 
 void MJUpdateCheckerCheckVerbosely(void) {
