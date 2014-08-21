@@ -4,8 +4,10 @@
 static void reflect_defaults(void);
 
 static NSStatusItem* statusItem;
+static NSMenu* menuItemMenu;
 
-void MJMenuIconSetup() {
+void MJMenuIconSetup(NSMenu* menu) {
+    menuItemMenu = menu;
     reflect_defaults();
 }
 
@@ -27,6 +29,7 @@ static void reflect_defaults(void) {
         statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
         [statusItem setImage:icon];
         [statusItem setHighlightMode:YES];
+        [statusItem setMenu: menuItemMenu];
     }
     else {
         if (statusItem) {

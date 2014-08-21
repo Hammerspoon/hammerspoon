@@ -8,11 +8,16 @@
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
             <connections>
                 <outlet property="delegate" destination="Voe-Tx-rLC" id="GzC-gU-4Uq"/>
+                <outlet property="dockMenu" destination="dnA-SP-ejc" id="zhN-QV-O3Z"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application"/>
-        <customObject id="Voe-Tx-rLC" customClass="MJAppDelegate"/>
+        <customObject id="Voe-Tx-rLC" customClass="MJAppDelegate">
+            <connections>
+                <outlet property="menuBarMenu" destination="QDI-lT-VMy" id="4Dj-Eu-yzI"/>
+            </connections>
+        </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
@@ -23,7 +28,7 @@
                             <menuItem title="About Mjolnir" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="orderFrontStandardAboutPanel:" target="-1" id="Exp-CZ-Vem"/>
+                                    <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="bG4-ba-EWj"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Check for Updates..." id="BOF-NM-1cW">
@@ -57,7 +62,6 @@
                                     <action selector="unhideAllApplications:" target="-1" id="Dhg-Le-xox"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
                             <menuItem title="Quit Mjolnir" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="terminate:" target="-1" id="Te7-pn-YzF"/>
@@ -73,6 +77,11 @@
                             <menuItem title="Reload Config" keyEquivalent="r" id="Was-JA-tGl">
                                 <connections>
                                     <action selector="reloadConfig:" target="Voe-Tx-rLC" id="9tp-b3-puT"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Main Window" keyEquivalent="0" id="8rK-CR-NrT">
+                                <connections>
+                                    <action selector="showMainWindow:" target="Voe-Tx-rLC" id="udY-fl-qER"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
@@ -352,6 +361,62 @@
                             </menuItem>
                         </items>
                     </menu>
+                </menuItem>
+            </items>
+        </menu>
+        <menu id="QDI-lT-VMy" userLabel="Status Item Menu">
+            <items>
+                <menuItem title="Reload Config" id="57b-po-9Xy">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="reloadConfig:" target="Voe-Tx-rLC" id="Stb-gf-5Fa"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Main Window" id="RGq-yR-Y0Q">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="showMainWindow:" target="Voe-Tx-rLC" id="j9C-vf-VYI"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
+                <menuItem title="About Mjolnir" id="VlO-eE-8tv">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="g7P-RJ-eOC"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Check for Updates..." id="zC2-p9-aqe">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="checkForUpdates:" target="Voe-Tx-rLC" id="5As-xU-SRB"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="tOT-wg-m6d"/>
+                <menuItem title="Quit Mjolnir" id="MPd-JN-QB1">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="terminate:" target="-1" id="HYa-rl-Vrg"/>
+                    </connections>
+                </menuItem>
+            </items>
+        </menu>
+        <menu id="dnA-SP-ejc" userLabel="Dock Menu">
+            <items>
+                <menuItem title="Reload Config" id="tWz-S0-B04">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="reloadConfig:" target="Voe-Tx-rLC" id="4px-Gt-cjY"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Main Window" id="kBp-eH-E8o">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="showMainWindow:" target="Voe-Tx-rLC" id="DH3-Gr-L7e"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="vhg-UM-JI9"/>
+                <menuItem title="Quit Mjolnir" id="SsV-lF-fRo">
+                    <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
             </items>
         </menu>

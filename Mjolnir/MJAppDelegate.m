@@ -10,13 +10,15 @@
 #import "variables.h"
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
+@property IBOutlet NSMenu* menuBarMenu;
+@property IBOutlet NSMenu* dockIconMenu;
 @end
 
 @implementation MJAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [self registerDefaultDefaults];
-    MJMenuIconSetup();
+    MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
     MJUpdateCheckerSetup();
     MJConfigSetupDir();
@@ -29,10 +31,15 @@
     MJReloadConfig();
 }
 
+- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
+    return self.dockIconMenu;
+}
+
 - (void) registerDefaultDefaults {
     NSDictionary* defaults = @{MJCheckForUpdatesKey: @YES,
                                MJShowDockIconKey: @YES,
-                               MJShowWindowAtLaunchKey: @YES};
+                               MJShowWindowAtLaunchKey: @YES,
+                               MJShowMenuIconKey: @NO};
     [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
 }
 
@@ -40,7 +47,18 @@
     MJReloadConfig();
 }
 
+- (IBAction) showMainWindow:(id)sender {
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    [[MJMainWindowController sharedMainWindowController] showWindow: nil];
+}
+
+- (IBAction) showAboutPanel:(id)sender {
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
+}
+
 - (IBAction) checkForUpdates:(id)sender {
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     MJUpdateCheckerCheckVerbosely();
 }
 
