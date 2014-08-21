@@ -341,6 +341,8 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     NSInteger row = [self.extsTable rowForView:sender];
     MJCacheItem* item = [self.cache objectAtIndex:row];
     
+    [self.extsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+    
     if (![item.ext canInstall]) {
         [sender setState: NSOffState];
         [self warnAboutExtensionMinOS];
