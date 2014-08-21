@@ -80,11 +80,9 @@
 		94AB413F19915AFF00055603 /* Donate.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413E19915AFF00055603 /* Donate.png */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
 		94BB236F1995D738002C6AA7 /* MJUpdate.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BB236E1995D738002C6AA7 /* MJUpdate.m */; };
-		94BC27AD198DF08900B3998F /* MJDocsUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BC27AC198DF08900B3998F /* MJDocsUtils.m */; };
 		94BF76E61993418C001BDA77 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94BF76E51993418C001BDA77 /* Foundation.framework */; };
 		94BF76E91993418C001BDA77 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BF76E81993418C001BDA77 /* main.m */; };
 		94BF76F6199344DA001BDA77 /* MjolnirRestarter in Resources */ = {isa = PBXBuildFile; fileRef = 94BF76E41993418C001BDA77 /* MjolnirRestarter */; };
-		94D7A827198D82430005B88E /* Mjolnir.docset in Resources */ = {isa = PBXBuildFile; fileRef = 94D7A826198D82430005B88E /* Mjolnir.docset */; };
 		94EEEFB31993085A00749B92 /* Settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB11993085A00749B92 /* Settings.png */; };
 		94EEEFB51993086F00749B92 /* Extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB41993086F00749B92 /* Extensions.png */; };
 		94FA257419A310F700A2BA8B /* MJAutoUpdaterWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FA257219A310F700A2BA8B /* MJAutoUpdaterWindowController.m */; };
@@ -227,12 +225,9 @@
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		94BB236D1995D738002C6AA7 /* MJUpdate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJUpdate.h; sourceTree = "<group>"; };
 		94BB236E1995D738002C6AA7 /* MJUpdate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUpdate.m; sourceTree = "<group>"; };
-		94BC27AB198DF08900B3998F /* MJDocsUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJDocsUtils.h; sourceTree = "<group>"; };
-		94BC27AC198DF08900B3998F /* MJDocsUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJDocsUtils.m; sourceTree = "<group>"; };
 		94BF76E41993418C001BDA77 /* MjolnirRestarter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MjolnirRestarter; sourceTree = BUILT_PRODUCTS_DIR; };
 		94BF76E51993418C001BDA77 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		94BF76E81993418C001BDA77 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		94D7A826198D82430005B88E /* Mjolnir.docset */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Mjolnir.docset; sourceTree = "<group>"; };
 		94EEEFB11993085A00749B92 /* Settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Settings.png; sourceTree = "<group>"; };
 		94EEEFB41993086F00749B92 /* Extensions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Extensions.png; sourceTree = "<group>"; };
 		94FA257119A310F700A2BA8B /* MJAutoUpdaterWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJAutoUpdaterWindowController.h; sourceTree = "<group>"; };
@@ -352,7 +347,6 @@
 				94AB413E19915AFF00055603 /* Donate.png */,
 				9477D01819953FE20020BE9D /* statusicon.png */,
 				9477D01919953FE20020BE9D /* statusicon@2x.png */,
-				94D7A826198D82430005B88E /* Mjolnir.docset */,
 			);
 			name = XcodeCrap;
 			sourceTree = "<group>";
@@ -496,8 +490,6 @@
 			children = (
 				9428C7E9198EB76E00CDFA00 /* MJAutoLaunch.h */,
 				942BF3901989E18600983892 /* MJAutoLaunch.m */,
-				94BC27AB198DF08900B3998F /* MJDocsUtils.h */,
-				94BC27AC198DF08900B3998F /* MJDocsUtils.m */,
 				9428C7EA198EB7E200CDFA00 /* MJConfigUtils.h */,
 				9428C7EB198EB7E200CDFA00 /* MJConfigUtils.m */,
 				94A1E5401993AB00003AEB26 /* MJSecurityUtils.h */,
@@ -623,7 +615,6 @@
 				94AB413919914DDA00055603 /* DonateTab.xib in Resources */,
 				949CDBFE1990747B00906CCE /* GeneralTab.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
-				94D7A827198D82430005B88E /* Mjolnir.docset in Resources */,
 				94AB413D199156B000055603 /* REPL.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -640,7 +631,6 @@
 				944A2D98198973E900D8DC90 /* lopcodes.c in Sources */,
 				94BB236F1995D738002C6AA7 /* MJUpdate.m in Sources */,
 				944A2D90198973E900D8DC90 /* lgc.c in Sources */,
-				94BC27AD198DF08900B3998F /* MJDocsUtils.m in Sources */,
 				944A2DAF1989761600D8DC90 /* MJExtensionsTabController.m in Sources */,
 				944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */,
 				942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */,

@@ -1,6 +1,5 @@
 #import "MJGeneralTabController.h"
 #import "MJAutoLaunch.h"
-#import "MJDocsUtils.h"
 #import "core.h"
 #import "MJLinkTextField.h"
 #import "MJUpdateChecker.h"
@@ -10,8 +9,6 @@
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
 extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
-
-#define MJHasInstalledDocsKey @"MJHasInstalledDocsKey"
 
 @interface MJGeneralTabController ()
 
@@ -24,7 +21,6 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 @property (weak) IBOutlet MJLinkTextField* dashField;
 
 @property BOOL isAccessibilityEnabled;
-@property BOOL hasInstalledDocs;
 
 @end
 
@@ -38,8 +34,6 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 - (void) awakeFromNib {
     [self linkifyDashLabel];
-    
-    self.hasInstalledDocs = [[NSUserDefaults standardUserDefaults] boolForKey:MJHasInstalledDocsKey];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self cacheIsAccessibilityEnabled];
@@ -56,26 +50,6 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 - (void) linkifyDashLabel {
     MJLinkTextFieldAddLink(self.dashField, MJDashURL, [[self.dashField stringValue] rangeOfString:@"Dash"]);
-}
-
-- (IBAction) openDocsInDash:(id)sender {
-    if (!self.hasInstalledDocs) {
-        self.hasInstalledDocs = YES;
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:MJHasInstalledDocsKey];
-        [[NSWorkspace sharedWorkspace] openURL:MJDocsFile()];
-    }
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"dash://mjolnir:"]];
-}
-
-- (NSString*) hasInstalledDocsButtonTitle {
-    if (self.hasInstalledDocs)
-        return @"Open Mjolnir docs in Dash";
-    else
-        return @"Add Mjolnir docs to Dash";
-}
-
-+ (NSSet*) keyPathsForValuesAffectingHasInstalledDocsButtonTitle {
-    return [NSSet setWithArray:@[@"hasInstalledDocs"]];
 }
 
 - (void) accessibilityChanged:(NSNotification*)note {

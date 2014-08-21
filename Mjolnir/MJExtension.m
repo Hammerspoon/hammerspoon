@@ -1,5 +1,4 @@
 #import "MJExtension.h"
-#import "MJDocsUtils.h"
 #import "MJConfigUtils.h"
 #import "MJSecurityUtils.h"
 #import "MJFileUtils.h"
@@ -101,11 +100,6 @@
         
         MJLoadModule(self.name);
         
-        if (!MJDocsInstall(extdir, &error)) {
-            done(error);
-            return;
-        }
-        
         done(nil);
     });
 }
@@ -115,9 +109,6 @@
     
     NSError* __autoreleasing error;
     NSString* extdir = MJConfigDirForExtensionName(self.name);
-    if (MJDocsUninstall(extdir, &error))
-        error = nil;
-    
     if ([[NSFileManager defaultManager] removeItemAtPath:extdir error:&error])
         error = nil;
     

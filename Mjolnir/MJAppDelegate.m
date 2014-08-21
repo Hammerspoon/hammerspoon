@@ -2,7 +2,6 @@
 #import "MJMainWindowController.h"
 #import "MJExtensionManager.h"
 #import "MJConfigUtils.h"
-#import "MJDocsUtils.h"
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
@@ -23,7 +22,6 @@
     MJUpdateCheckerSetup();
     MJConfigSetupDir();
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
-    MJDocsCopyIfNeeded();
     [[MJExtensionManager sharedManager] setup];
     [[MJMainWindowController sharedMainWindowController] maybeShowWindow];
     MJSetupLua();
