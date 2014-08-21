@@ -92,8 +92,7 @@
             return;
         }
         
-        NSString* extdir = MJConfigDirForExtensionName(self.name);
-        if (!MJUntar(tgzdata, extdir, &error)) {
+        if (!MJUntar(tgzdata, MJConfigExtensionDir(self.name), &error)) {
             done(error);
             return;
         }
@@ -108,8 +107,7 @@
     MJUnloadModule(self.name);
     
     NSError* __autoreleasing error;
-    NSString* extdir = MJConfigDirForExtensionName(self.name);
-    if ([[NSFileManager defaultManager] removeItemAtPath:extdir error:&error])
+    if ([[NSFileManager defaultManager] removeItemAtPath:MJConfigExtensionDir(self.name) error:&error])
         error = nil;
     
     done(error);

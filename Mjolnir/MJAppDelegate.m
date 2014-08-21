@@ -20,7 +20,7 @@
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
     MJUpdateCheckerSetup();
-    MJConfigSetupDir();
+    MJConfigEnsureDirExists();
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
     [[MJExtensionManager sharedManager] setup];
     [[MJMainWindowController sharedMainWindowController] maybeShowWindow];

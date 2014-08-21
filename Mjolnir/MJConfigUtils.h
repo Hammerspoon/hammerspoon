@@ -2,5 +2,5 @@
 #import "MJExtension.h"
 
 NSString* MJConfigPath(void);
-void MJConfigSetupDir(void);
-NSString* MJConfigDirForExtensionName(NSString* extname);
+void MJConfigEnsureDirExists(void);
+NSString* MJConfigExtensionDir(NSString* extname);
