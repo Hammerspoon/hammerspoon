@@ -1,50 +1,37 @@
 #import "MJMenuIcon.h"
 #import "variables.h"
 
-@interface MJMenuIcon ()
-@property NSStatusItem* statusItem;
-@end
+static void reflect_defaults(void);
 
-@implementation MJMenuIcon
+static NSStatusItem* statusItem;
 
-+ (MJMenuIcon*) sharedIcon {
-    static MJMenuIcon* sharedIcon;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedIcon = [[MJMenuIcon alloc] init];
-    });
-    return sharedIcon;
+void MJMenuIconSetup() {
+    reflect_defaults();
 }
 
-- (void) setup {
-    [self reflectDefaults];
-}
-
-- (BOOL) visible {
+BOOL MJMenuIconVisible(void) {
     return [[NSUserDefaults standardUserDefaults] boolForKey:MJShowMenuIconKey];
 }
 
-- (void) setVisible:(BOOL)visible {
+void MJMenuIconSetVisible(BOOL visible) {
     [[NSUserDefaults standardUserDefaults] setBool:visible
                                             forKey:MJShowMenuIconKey];
-    [self reflectDefaults];
+    reflect_defaults();
 }
 
-- (void) reflectDefaults {
-    if (self.visible) {
+static void reflect_defaults(void) {
+    if (MJMenuIconVisible()) {
         NSImage* icon = [NSImage imageNamed:@"statusicon"];
         [icon setTemplate:YES];
         
-        self.statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
-        [self.statusItem setImage:icon];
-        [self.statusItem setHighlightMode:YES];
+        statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSSquareStatusItemLength];
+        [statusItem setImage:icon];
+        [statusItem setHighlightMode:YES];
     }
     else {
-        if (self.statusItem) {
-            [[NSStatusBar systemStatusBar] removeStatusItem:self.statusItem];
-            self.statusItem = nil;
+        if (statusItem) {
+            [[NSStatusBar systemStatusBar] removeStatusItem: statusItem];
+            statusItem = nil;
         }
     }
 }
-
-@end

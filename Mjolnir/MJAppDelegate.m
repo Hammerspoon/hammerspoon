@@ -16,7 +16,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [self registerDefaultDefaults];
-    [[MJMenuIcon sharedIcon] setup];
+    MJMenuIconSetup();
     [[MJDockIcon sharedDockIcon] setup];
     [[MJUpdateChecker sharedChecker] setup];
     [MJConfigManager setupConfigDir];
