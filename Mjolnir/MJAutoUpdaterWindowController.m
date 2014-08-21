@@ -28,17 +28,12 @@
     [self showReleaseNotesLink];
 }
 
-- (void) dismiss {
-    [self close];
-    [self.delegate userDismissedAutoUpdaterWindow];
-}
-
 - (IBAction) dismiss:(id)sender {
-    [self dismiss];
+    [self close];
 }
 
 - (IBAction) cancel:(id)sender {
-    [self dismiss];
+    [self close];
 }
 
 - (IBAction) install:(id)sender {
@@ -51,7 +46,7 @@
 
 - (IBAction) visitDownloadPage:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:MJDownloadPage]];
-    [self dismiss];
+    [self close];
 }
 
 - (void) showTab:(int)n {

@@ -1,12 +1,9 @@
 #import <Foundation/Foundation.h>
 
-@interface MJUpdateChecker : NSObject
+void MJUpdateCheckerSetup(void);
 
-+ (MJUpdateChecker*) sharedChecker;
+void MJUpdateCheckerCheckSilently(void);
+void MJUpdateCheckerCheckVerbosely(void);
 
-- (void) setup;
-- (void) checkForUpdatesInBackground;
-
-@property BOOL checkingEnabled;
-
-@end
+BOOL MJUpdateCheckerEnabled(void);
+void MJUpdateCheckerSetEnabled(BOOL checkingEnabled);

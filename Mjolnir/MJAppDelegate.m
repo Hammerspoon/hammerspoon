@@ -18,7 +18,7 @@
     [self registerDefaultDefaults];
     MJMenuIconSetup();
     MJDockIconSetup();
-    [[MJUpdateChecker sharedChecker] setup];
+    MJUpdateCheckerSetup();
     MJConfigSetupDir();
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
     MJDocsCopyIfNeeded();
@@ -38,6 +38,10 @@
 
 - (IBAction) reloadConfig:(id)sender {
     MJReloadConfig();
+}
+
+- (IBAction) checkForUpdates:(id)sender {
+    MJUpdateCheckerCheckVerbosely();
 }
 
 @end

@@ -4,49 +4,66 @@
 #import "MJUpdate.h"
 #import "variables.h"
 
-@interface MJUpdateChecker () <MJAutoUpdaterWindowControllerDelegate>
-@property NSTimer* autoupdateTimer;
-@property MJAutoUpdaterWindowController* updaterWindowController;
-@end
+static CFRunLoopTimerRef autoupdateTimer;
+static MJAutoUpdaterWindowController* updaterWindowController;
+static id closedObserver;
 
-@implementation MJUpdateChecker
-
-+ (MJUpdateChecker*) sharedChecker {
-    static MJUpdateChecker* sharedChecker;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedChecker = [[MJUpdateChecker alloc] init];
-    });
-    return sharedChecker;
+void callback(CFRunLoopTimerRef timer, void *info) {
+    MJUpdateCheckerCheckSilently();
 }
 
-- (void) setup {
-    [self setupTimer];
+void MJUpdateCheckerSetup(void) {
+    autoupdateTimer = CFRunLoopTimerCreate(NULL, 0, MJCheckForUpdatesInterval, 0, 0, &callback, NULL);
+    CFRunLoopTimerSetNextFireDate(autoupdateTimer, CFAbsoluteTimeGetCurrent() + MJCheckForUpdatesDelay);
+    CFRunLoopAddTimer(CFRunLoopGetMain(), autoupdateTimer, kCFRunLoopCommonModes);
 }
 
-- (void) setupTimer {
-    self.autoupdateTimer = [NSTimer scheduledTimerWithTimeInterval:MJCheckForUpdatesInterval
-                                                            target:self
-                                                          selector:@selector(checkForUpdatesTimerFired:)
-                                                          userInfo:nil
-                                                           repeats:YES];
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MJCheckForUpdatesDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self checkForUpdatesInBackground];
-    });
-}
-
-- (MJAutoUpdaterWindowController*) definitelyRealWindowController {
-    if (!self.updaterWindowController) {
-        self.updaterWindowController = [[MJAutoUpdaterWindowController alloc] init];
-        self.updaterWindowController.delegate = self;
+static MJAutoUpdaterWindowController* definitelyRealWindowController(void) {
+    if (!updaterWindowController) {
+        updaterWindowController = [[MJAutoUpdaterWindowController alloc] init];
+        closedObserver = [[NSNotificationCenter defaultCenter]
+                          addObserverForName:NSWindowWillCloseNotification
+                          object:[updaterWindowController window]
+                          queue:[NSOperationQueue mainQueue]
+                          usingBlock:^(NSNotification *note) {
+                              updaterWindowController = nil;
+                              
+                              [[NSNotificationCenter defaultCenter]
+                               removeObserver:closedObserver];
+                              closedObserver = nil;
+                          }];
     }
     
-    return self.updaterWindowController;
+    return updaterWindowController;
 }
 
-- (IBAction) checkForUpdates:(id)sender {
-    MJAutoUpdaterWindowController* wc = [self definitelyRealWindowController];
+void MJUpdateCheckerCheckSilently(void) {
+    if (!MJUpdateCheckerEnabled())
+        return;
+    
+    [MJUpdate checkForUpdate:^(MJUpdate *update, NSError* connError) {
+        if (update) {
+            MJAutoUpdaterWindowController* wc = definitelyRealWindowController();
+            wc.update = update;
+            
+            [[MJUserNotificationManager sharedManager] sendNotification:@"Mjolnir update available" handler:^{
+                [wc showFoundPage];
+            }];
+        }
+    }];
+}
+
+BOOL MJUpdateCheckerEnabled(void) {
+    return [[NSUserDefaults standardUserDefaults] boolForKey:MJCheckForUpdatesKey];
+}
+
+void MJUpdateCheckerSetEnabled(BOOL checkingEnabled) {
+    [[NSUserDefaults standardUserDefaults] setBool:checkingEnabled
+                                            forKey:MJCheckForUpdatesKey];
+}
+
+void MJUpdateCheckerCheckVerbosely(void) {
+    MJAutoUpdaterWindowController* wc = definitelyRealWindowController();
     
     [wc showCheckingPage];
     
@@ -64,38 +81,3 @@
         }
     }];
 }
-
-- (void) userDismissedAutoUpdaterWindow {
-    self.updaterWindowController = nil;
-}
-
-- (void) checkForUpdatesInBackground {
-    if (!self.checkingEnabled)
-        return;
-    
-    [MJUpdate checkForUpdate:^(MJUpdate *update, NSError* connError) {
-        if (update) {
-            MJAutoUpdaterWindowController* wc = [self definitelyRealWindowController];
-            wc.update = update;
-            
-            [[MJUserNotificationManager sharedManager] sendNotification:@"Mjolnir update available" handler:^{
-                [wc showFoundPage];
-            }];
-        }
-    }];
-}
-
-- (void) checkForUpdatesTimerFired:(NSTimer*)timer {
-    [self checkForUpdatesInBackground];
-}
-
-- (BOOL) checkingEnabled {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:MJCheckForUpdatesKey];
-}
-
-- (void) setCheckingEnabled:(BOOL)checkingEnabled {
-    [[NSUserDefaults standardUserDefaults] setBool:checkingEnabled
-                                            forKey:MJCheckForUpdatesKey];
-}
-
-@end

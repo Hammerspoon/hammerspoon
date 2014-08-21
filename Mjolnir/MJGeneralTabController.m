@@ -51,7 +51,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
     [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
-    [self.checkForUpdatesCheckbox setState: [MJUpdateChecker sharedChecker].checkingEnabled ? NSOnState : NSOffState];
+    [self.checkForUpdatesCheckbox setState: MJUpdateCheckerEnabled() ? NSOnState : NSOffState];
     [self.showWindowAtLaunchCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:MJShowWindowAtLaunchKey] ? NSOnState : NSOffState];
 }
 
@@ -137,9 +137,9 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) toggleCheckForUpdates:(NSButton*)sender {
-    [MJUpdateChecker sharedChecker].checkingEnabled = [sender state] == NSOnState;
-    if ([MJUpdateChecker sharedChecker].checkingEnabled)
-        [[MJUpdateChecker sharedChecker] checkForUpdatesInBackground];
+    MJUpdateCheckerSetEnabled([sender state] == NSOnState);
+    if (MJUpdateCheckerEnabled())
+        MJUpdateCheckerCheckSilently();
 }
 
 - (IBAction) reloadConfig:(id)sender {
