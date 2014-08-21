@@ -9,16 +9,12 @@ void MJDownloadFile(NSString* url, void(^handler)(NSError* err, NSData* data)) {
                            }];
 }
 
-static char* mktemplate(NSString* prefix, NSString* suffix) {
-    NSString* relativeTemplate = [NSString stringWithFormat:@"%@XXXXXX%@", prefix, suffix];
+NSString* MJCreateEmptyTempDirectory(NSString* prefix, NSError* __autoreleasing* error) {
+    NSString* relativeTemplate = [NSString stringWithFormat:@"%@XXXXXX", prefix];
     const char* tempFileTemplate = [[NSTemporaryDirectory() stringByAppendingPathComponent:relativeTemplate] fileSystemRepresentation];
     char* tempFileName = malloc(strlen(tempFileTemplate) + 1);
     strcpy(tempFileName, tempFileTemplate);
-    return tempFileName;
-}
-
-NSString* MJCreateEmptyTempDirectory(NSString* prefix, NSError* __autoreleasing* error) {
-    char* tempFileName = mktemplate(prefix, @"");
+    
     NSString* path = nil;
     
     if (mkdtemp(tempFileName))
@@ -28,24 +24,6 @@ NSString* MJCreateEmptyTempDirectory(NSString* prefix, NSError* __autoreleasing*
     
     free(tempFileName);
     return path;
-}
-
-NSString* MJWriteToTempFile(NSData* indata, NSString* prefix, NSString* suffix, NSError* __autoreleasing* error) {
-    char* tempFileName = mktemplate(prefix, suffix);
-    
-    int fd = mkstemps(tempFileName, (int)[suffix length]);
-    if (fd == -1) {
-        *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
-        return nil;
-    }
-    NSString* tempFilePath = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tempFileName length:strlen(tempFileName)];
-    free(tempFileName);
-    
-    NSFileHandle* tempFileHandle = [[NSFileHandle alloc] initWithFileDescriptor:fd];
-    [tempFileHandle writeData:indata];
-    [tempFileHandle closeFile];
-    
-    return tempFilePath;
 }
 
 BOOL MJUntar(NSData* tardata, NSString* intoDirectory, NSError*__autoreleasing* error) {
