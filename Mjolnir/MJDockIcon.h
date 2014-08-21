@@ -1,11 +1,5 @@
 #import <Foundation/Foundation.h>
 
-@interface MJDockIcon : NSObject
-
-+ (MJDockIcon*) sharedDockIcon;
-
-@property BOOL visible;
-
-- (void) setup;
-
-@end
+void MJDockIconSetup(void);
+BOOL MJDockIconVisible(void);
+void MJDockIconSetVisible(BOOL visible);

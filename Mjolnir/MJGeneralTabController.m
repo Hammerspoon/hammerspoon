@@ -49,7 +49,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
     
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
-    [self.showDockIconCheckbox setState: [MJDockIcon sharedDockIcon].visible ? NSOnState : NSOffState];
+    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
     [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState: [MJUpdateChecker sharedChecker].checkingEnabled ? NSOnState : NSOffState];
     [self.showWindowAtLaunchCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:MJShowWindowAtLaunchKey] ? NSOnState : NSOffState];
@@ -130,7 +130,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) toggleShowDockIcon:(NSButton*)sender {
-    [MJDockIcon sharedDockIcon].visible = [sender state] == NSOnState;
+    MJDockIconSetVisible([sender state] == NSOnState);
 }
 
 - (IBAction) toggleMenuDockIcon:(NSButton*)sender {

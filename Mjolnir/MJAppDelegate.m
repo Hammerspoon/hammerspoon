@@ -17,7 +17,7 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [self registerDefaultDefaults];
     MJMenuIconSetup();
-    [[MJDockIcon sharedDockIcon] setup];
+    MJDockIconSetup();
     [[MJUpdateChecker sharedChecker] setup];
     [MJConfigManager setupConfigDir];
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:[MJConfigManager configPath]];

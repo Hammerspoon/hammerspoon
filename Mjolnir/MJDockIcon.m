@@ -1,40 +1,29 @@
 #import "MJDockIcon.h"
 #import "variables.h"
 
-@implementation MJDockIcon
+static void reflect_defaults(void);
 
-+ (MJDockIcon*) sharedDockIcon {
-    static MJDockIcon* sharedDockIcon;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedDockIcon = [[MJDockIcon alloc] init];
-    });
-    return sharedDockIcon;
+void MJDockIconSetup(void) {
+    reflect_defaults();
 }
 
-- (BOOL) visible {
+BOOL MJDockIconVisible(void) {
     return [[NSUserDefaults standardUserDefaults] boolForKey:MJShowDockIconKey];
 }
 
-- (void) setVisible:(BOOL)visible {
+void MJDockIconSetVisible(BOOL visible) {
     [[NSUserDefaults standardUserDefaults] setBool:visible
                                             forKey:MJShowDockIconKey];
-    [self reflectDefaults];
+    reflect_defaults();
 }
 
-- (void) setup {
-    [self reflectDefaults];
-}
-
-- (void) reflectDefaults {
+static void reflect_defaults(void) {
     NSApplication* app = [NSApplication sharedApplication]; // NSApp is typed to 'id'; lame
     NSDisableScreenUpdates();
-    [app setActivationPolicy: self.visible ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory];
+    [app setActivationPolicy: MJDockIconVisible() ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyAccessory];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [app unhide:self];
+        [app unhide: nil];
         [app activateIgnoringOtherApps:YES];
         NSEnableScreenUpdates();
     });
 }
-
-@end
