@@ -78,6 +78,9 @@ void MJUpdateCheckerCheckVerbosely(void) {
     [wc showCheckingPage];
     
     [MJUpdate checkForUpdate:^(MJUpdate *update, NSError* connError) {
+        if (!updaterWindowController)
+            return;
+        
         if (update) {
             wc.update = update;
             [wc showFoundPage];

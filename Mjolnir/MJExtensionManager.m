@@ -92,7 +92,6 @@ NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
     [self rebuildMemoryCache];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        // This also could have been what was sometimes slowing launch down (spinning-rainbow for a few seconds).
         [self update];
     });
 }

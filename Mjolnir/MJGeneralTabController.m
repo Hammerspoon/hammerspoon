@@ -42,7 +42,6 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     self.hasInstalledDocs = [[NSUserDefaults standardUserDefaults] boolForKey:MJHasInstalledDocsKey];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        // I think this is what was sometimes slowing launch down (spinning-rainbow for a few seconds).
         [self cacheIsAccessibilityEnabled];
     });
     
