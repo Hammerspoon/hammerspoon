@@ -63,7 +63,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     if (!self.hasInstalledDocs) {
         self.hasInstalledDocs = YES;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:MJHasInstalledDocsKey];
-        [[NSWorkspace sharedWorkspace] openURL:[MJDocsManager docsFile]];
+        [[NSWorkspace sharedWorkspace] openURL:MJDocsFile()];
     }
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"dash://mjolnir:"]];
 }

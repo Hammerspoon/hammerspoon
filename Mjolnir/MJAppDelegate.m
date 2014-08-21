@@ -21,7 +21,7 @@
     [[MJUpdateChecker sharedChecker] setup];
     [MJConfigManager setupConfigDir];
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:[MJConfigManager configPath]];
-    [MJDocsManager copyDocsIfNeeded];
+    MJDocsCopyIfNeeded();
     [[MJExtensionManager sharedManager] setup];
     [[MJMainWindowController sharedMainWindowController] maybeShowWindow];
     MJSetupLua();

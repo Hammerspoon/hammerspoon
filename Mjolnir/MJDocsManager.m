@@ -2,35 +2,21 @@
 #import "MJConfigManager.h"
 #import "MJFileUtils.h"
 
-@implementation MJDocsManager
-
-+ (NSURL*) docsFile {
-    return [NSURL fileURLWithPath:[[MJConfigManager configPath] stringByAppendingPathComponent:@"Mjolnir.docset"]];
+static NSString* master_sql_file(void) {
+    return [[MJDocsFile() URLByAppendingPathComponent:@"Contents/Resources/docSet.dsidx"] path];
 }
 
-+ (NSString*) masterSqlFile {
-    return [[[self docsFile] URLByAppendingPathComponent:@"Contents/Resources/docSet.dsidx"] path];
+static NSString* shared_html_docs_dir(void) {
+    return [[MJDocsFile() URLByAppendingPathComponent:@"Contents/Resources/Documents"] path];
 }
 
-+ (void) copyDocsIfNeeded {
-    if ([[NSFileManager defaultManager] fileExistsAtPath:[[MJDocsManager docsFile] path]])
-        return;
-    
-    NSURL* docsetSourceURL = [[NSBundle mainBundle] URLForResource:@"Mjolnir" withExtension:@"docset"];
-    [[NSFileManager defaultManager] copyItemAtURL:docsetSourceURL toURL:[MJDocsManager docsFile] error:NULL];
-}
-
-+ (NSString*) sharedHtmlDocsDir {
-    return [[[self docsFile] URLByAppendingPathComponent:@"Contents/Resources/Documents"] path];
-}
-
-+ (NSString*) htmlDocsDirInExtensionDirectory:(NSString*)extdir {
+static NSString* html_docs_dir_in_extension_directory(NSString* extdir) {
     return [extdir stringByAppendingPathComponent:@"docs.html.d"];
 }
 
-+ (BOOL) runSqlFile:(NSString*)sqlfile inDir:(NSString*)extdir error:(NSError* __autoreleasing*)error {
-    NSData* masterSqlFileData = [NSData dataWithContentsOfFile:[self masterSqlFile] options:0 error:error];
-    NSString* masterSqlFile = [self masterSqlFile];
+static BOOL run_sql_file(NSString* sqlfile, NSString* extdir, NSError* __autoreleasing* error) {
+    NSData* masterSqlFileData = [NSData dataWithContentsOfFile:master_sql_file() options:0 error:error];
+    NSString* _masterSqlFile = master_sql_file();
     
     NSString* masterSqlFileCopy = MJWriteToTempFile(masterSqlFileData, @"master.", @".sql", error);
     
@@ -41,16 +27,28 @@
     [inTask launch];
     [inTask waitUntilExit];
     
-    [[NSFileManager defaultManager] removeItemAtPath:masterSqlFile error:NULL];
-    [[NSFileManager defaultManager] copyItemAtPath:masterSqlFileCopy toPath:masterSqlFile error:NULL];
+    [[NSFileManager defaultManager] removeItemAtPath:_masterSqlFile error:NULL];
+    [[NSFileManager defaultManager] copyItemAtPath:masterSqlFileCopy toPath:_masterSqlFile error:NULL];
     
     return YES;
 }
 
-+ (BOOL) installExtensionInDirectory:(NSString*)extdir error:(NSError* __autoreleasing*)error {
-    NSString* htmlSourceDir = [self htmlDocsDirInExtensionDirectory:extdir];
+NSURL* MJDocsFile(void) {
+    return [NSURL fileURLWithPath:[[MJConfigManager configPath] stringByAppendingPathComponent:@"Mjolnir.docset"]];
+}
+
+void MJDocsCopyIfNeeded(void) {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[MJDocsFile() path]])
+        return;
+    
+    NSURL* docsetSourceURL = [[NSBundle mainBundle] URLForResource:@"Mjolnir" withExtension:@"docset"];
+    [[NSFileManager defaultManager] copyItemAtURL:docsetSourceURL toURL:MJDocsFile() error:NULL];
+}
+
+BOOL MJDocsInstall(NSString* extdir, NSError* __autoreleasing* error) {
+    NSString* htmlSourceDir = html_docs_dir_in_extension_directory(extdir);
     NSArray* files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:htmlSourceDir error:NULL];
-    NSString* htmlDestDir = [self sharedHtmlDocsDir];
+    NSString* htmlDestDir = shared_html_docs_dir();
     
     for (NSString* file in files) {
         [[NSFileManager defaultManager] copyItemAtPath:[htmlSourceDir stringByAppendingPathComponent:file]
@@ -58,21 +56,19 @@
                                                  error:NULL];
     }
     
-    [self runSqlFile:@"docs.in.sql" inDir:extdir error:error];
+    run_sql_file(@"docs.in.sql", extdir, error);
     return YES;
 }
 
-+ (BOOL) uninstallExtensionInDirectory:(NSString*)extdir error:(NSError* __autoreleasing*)error {
-    [self runSqlFile:@"docs.out.sql" inDir:extdir error:error];
+BOOL MJDocsUninstall(NSString* extdir, NSError* __autoreleasing* error) {
+    run_sql_file(@"docs.out.sql", extdir, error);
     
-    NSString* htmlSourceDir = [self htmlDocsDirInExtensionDirectory:extdir];
+    NSString* htmlSourceDir = html_docs_dir_in_extension_directory(extdir);
     NSArray* files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:htmlSourceDir error:NULL];
-    NSString* htmlDestDir = [self sharedHtmlDocsDir];
+    NSString* htmlDestDir = shared_html_docs_dir();
     for (NSString* file in files) {
         [[NSFileManager defaultManager] removeItemAtPath:[htmlDestDir stringByAppendingPathComponent:file]
                                                    error:NULL];
     }
     return YES;
 }
-
-@end

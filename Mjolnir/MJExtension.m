@@ -93,7 +93,7 @@
         
         MJLoadModule(self.name);
         
-        if (![MJDocsManager installExtensionInDirectory:extdir error:&error]) {
+        if (!MJDocsInstall(extdir, &error)) {
             done(error);
             return;
         }
@@ -107,7 +107,7 @@
     
     NSError* __autoreleasing error;
     NSString* extdir = [MJConfigManager dirForExtensionName:self.name];
-    if ([MJDocsManager uninstallExtensionInDirectory:extdir error:&error])
+    if (MJDocsUninstall(extdir, &error))
         error = nil;
     
     if ([[NSFileManager defaultManager] removeItemAtPath:extdir error:&error])

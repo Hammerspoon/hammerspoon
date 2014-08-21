@@ -1,12 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "MJExtension.h"
 
-@interface MJDocsManager : NSObject
-
-+ (NSURL*) docsFile;
-+ (void) copyDocsIfNeeded;
-
-+ (BOOL) installExtensionInDirectory:(NSString*)extdir error:(NSError* __autoreleasing*)error;
-+ (BOOL) uninstallExtensionInDirectory:(NSString*)extdir error:(NSError* __autoreleasing*)error;
-
-@end
+NSURL* MJDocsFile(void);
+void MJDocsCopyIfNeeded(void);
+BOOL MJDocsInstall(NSString* extdir, NSError* __autoreleasing* error);
+BOOL MJDocsUninstall(NSString* extdir, NSError* __autoreleasing* error);
