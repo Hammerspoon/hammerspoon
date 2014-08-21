@@ -3,6 +3,7 @@
 #import "MJConfigManager.h"
 #import "MJSecurityUtils.h"
 #import "MJFileUtils.h"
+#import "MJVersionUtils.h"
 #import "core.h"
 
 @implementation MJExtension
@@ -57,21 +58,13 @@
     ext.dependencies = [json objectForKey:@"deps"];
     ext.changelog = [json objectForKey:@"changelog"];
     ext.previous = [json objectForKey:@"previous"];
-    NSLog(@"%@", [json objectForKey:@"minosx"]);
-    NSLog(@"%@", json);
     ext.minosx = [json objectForKey:@"minosx"];
     return ext;
 }
 
-//- (NSString*) osxVersion {
-//    static NSString *versionString;
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        NSDictionary * sv = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
-//        versionString = [sv objectForKey:@"ProductVersion"];
-//    });
-//    return versionString;
-//}
+- (BOOL) canInstall {
+    return (MJOSXVersion() >= MJVersionFromString(self.minosx));
+}
 
 - (BOOL) isEqual:(MJExtension*)other {
     return [self isKindOfClass:[other class]] && [self.tarsha isEqualToString: other.tarsha];

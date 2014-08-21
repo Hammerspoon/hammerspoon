@@ -132,7 +132,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 - (IBAction) toggleShowDockIcon:(NSButton*)sender {
     BOOL enabled = [sender state] == NSOnState;
     if (!enabled && !MJMenuIconVisible()) {
-        [sender setState: YES];
+        [sender setState: NSOnState];
         [self warnAboutDockMenuProblem];
         return;
     }
@@ -143,7 +143,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 - (IBAction) toggleMenuDockIcon:(NSButton*)sender {
     BOOL enabled = [sender state] == NSOnState;
     if (!enabled && !MJDockIconVisible()) {
-        [sender setState: YES];
+        [sender setState: NSOnState];
         [self warnAboutDockMenuProblem];
         return;
     }

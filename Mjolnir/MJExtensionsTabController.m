@@ -340,8 +340,26 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
 - (IBAction) toggleExtAction:(NSButton*)sender {
     NSInteger row = [self.extsTable rowForView:sender];
     MJCacheItem* item = [self.cache objectAtIndex:row];
+    
+    if (![item.ext canInstall]) {
+        [sender setState: NSOffState];
+        [self warnAboutExtensionMinOS];
+        return;
+    }
+    
     item.actionize = ([sender state] == NSOnState);
     [self recacheHasActionsToApply];
+}
+
+- (void) warnAboutExtensionMinOS {
+    NSAlert* alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert setMessageText:@"Extension can't be installed"];
+    [alert setInformativeText:@"This extension requires a minimum OS X version that is newer than what you have. So it can't be installed."];
+    [alert beginSheetModalForWindow:[[self view] window]
+                      modalDelegate:nil
+                     didEndSelector:NULL
+                        contextInfo:NULL];
 }
 
 - (void) toggleExtViaSpacebar {
@@ -350,6 +368,12 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
         return;
     
     MJCacheItem* item = [self.cache objectAtIndex:row];
+    
+    if (![item.ext canInstall]) {
+        [self warnAboutExtensionMinOS];
+        return;
+    }
+    
     item.actionize = !item.actionize;
     [self.extsTable reloadData];
     [self.extsTable selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];

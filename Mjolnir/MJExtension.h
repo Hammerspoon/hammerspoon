@@ -21,4 +21,6 @@
 - (void) install:(void(^)(NSError*))done;
 - (void) uninstall:(void(^)(NSError*))done;
 
+- (BOOL) canInstall;
+
 @end

@@ -1,6 +1,7 @@
 #import "MJUpdate.h"
 #import "MJFileUtils.h"
 #import "MJSecurityUtils.h"
+#import "MJVersionUtils.h"
 #import "variables.h"
 
 @interface MJUpdate ()
@@ -9,25 +10,6 @@
 @end
 
 @implementation MJUpdate
-
-int MJCurrentVersion(void) {
-    NSString* ver = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
-    return MJVersionFromString(ver);
-}
-
-int MJVersionFromString(NSString* str) {
-    NSScanner* scanner = [NSScanner scannerWithString:str];
-    int major;
-    int minor;
-    int bugfix = 0;
-    [scanner scanInt:&major];
-    [scanner scanString:@"." intoString:NULL];
-    [scanner scanInt:&minor];
-    if ([scanner scanString:@"." intoString:NULL]) {
-        [scanner scanInt:&bugfix];
-    }
-    return major * 10000 + minor * 100 + bugfix;
-}
 
 + (void) checkForUpdate:(void(^)(MJUpdate* updater, NSError* connError))handler {
     MJDownloadFile(MJUpdatesURL, ^(NSError *connectionError, NSData *data) {
