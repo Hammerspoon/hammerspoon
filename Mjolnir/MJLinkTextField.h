@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
 @interface MJLinkTextField : NSTextField
-
-- (void) addLink:(NSString*)link inRange:(NSRange)r;
-
 @end
+
+void MJLinkTextFieldAddLink(MJLinkTextField* self, NSString* link, NSRange r);

@@ -18,8 +18,7 @@
 }
 
 - (void) showReleaseNotesLink {
-    [self.releaseNotesLabel addLink:MJReleaseNotesURL
-                            inRange:NSMakeRange(0, [[self.releaseNotesLabel stringValue] length])];
+    MJLinkTextFieldAddLink(self.releaseNotesLabel, MJReleaseNotesURL, NSMakeRange(0, [[self.releaseNotesLabel stringValue] length]));
 }
 
 - (void) windowDidLoad {

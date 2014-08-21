@@ -56,8 +56,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (void) linkifyDashLabel {
-    [self.dashField addLink: MJDashURL
-                    inRange: [[self.dashField stringValue] rangeOfString:@"Dash"]];
+    MJLinkTextFieldAddLink(self.dashField, MJDashURL, [[self.dashField stringValue] rangeOfString:@"Dash"]);
 }
 
 - (IBAction) openDocsInDash:(id)sender {

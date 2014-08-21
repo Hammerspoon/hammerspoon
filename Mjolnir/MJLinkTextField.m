@@ -8,7 +8,7 @@
 
 @implementation MJLinkTextField
 
-- (void) addLink:(NSString*)link inRange:(NSRange)r {
+void MJLinkTextFieldAddLink(MJLinkTextField* self, NSString* link, NSRange r) {
     NSString* text = [self stringValue];
     NSMutableAttributedString* mastr = [[NSMutableAttributedString alloc] initWithString: text];
     
