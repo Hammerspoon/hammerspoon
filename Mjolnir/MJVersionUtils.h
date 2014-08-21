@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
 
-int MJOSXVersion(void);
-int MJCurrentVersion(void);
+int MJVersionFromOSX(void);
+int MJVersionFromThisApp(void);
 int MJVersionFromString(NSString* str);

@@ -24,7 +24,7 @@
         NSString* tgzURL = [lines objectAtIndex:1];
         NSString* signature = [lines objectAtIndex:2];
         
-        if (MJVersionFromString(versionString) <= MJCurrentVersion()) {
+        if (MJVersionFromString(versionString) <= MJVersionFromThisApp()) {
             handler(nil, nil);
             return;
         }

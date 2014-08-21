@@ -62,7 +62,7 @@
 }
 
 - (BOOL) canInstall {
-    return (MJOSXVersion() >= MJVersionFromString(self.minosx));
+    return (MJVersionFromOSX() >= MJVersionFromString(self.minosx));
 }
 
 - (BOOL) isEqual:(MJExtension*)other {

@@ -1,11 +1,20 @@
 #import "MJVersionUtils.h"
 
-int MJOSXVersion(void) {
+int MJVersionFromOSX(void) {
     static int v;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSDictionary * sv = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
+        NSDictionary* sv = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
         v = MJVersionFromString([sv objectForKey:@"ProductVersion"]);
+    });
+    return v;
+}
+
+int MJVersionFromThisApp(void) {
+    static int v;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        v = MJVersionFromString([[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]);
     });
     return v;
 }
@@ -22,9 +31,4 @@ int MJVersionFromString(NSString* str) {
         [scanner scanInt:&bugfix];
     }
     return major * 10000 + minor * 100 + bugfix;
-}
-
-int MJCurrentVersion(void) {
-    NSString* ver = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
-    return MJVersionFromString(ver);
 }
