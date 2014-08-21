@@ -69,7 +69,8 @@ typedef NS_ENUM(NSUInteger, MJCacheItemType) {
     
     add(@"Name: ", @"\n", self.ext.name, normal);
     add(@"Version: ", @"\n", self.ext.version, normal);
-    add(@"License: ", @"\n\n", self.ext.license, normal);
+    add(@"License: ", @"\n", self.ext.license, normal);
+    add(@"Minimum OS X: ", @"\n\n", self.ext.minosx, normal);
     add(@"", @"\n\n", self.ext.website, website);
     add(@"", @"\n\n", self.ext.desc, normal);
     add(@"Depends on: ", @"\n\n", deps, normal);

@@ -23,6 +23,7 @@
         self.dependencies = [decoder decodeObjectOfClass:[NSArray class] forKey:@"dependencies"];
         self.changelog = [decoder decodeObjectOfClass:[NSString class] forKey:@"changelog"];
         self.previous = [decoder decodeObjectOfClass:[NSString class] forKey:@"previous"];
+        self.minosx = [decoder decodeObjectOfClass:[NSString class] forKey:@"minosx"];
     }
     return self;
 }
@@ -40,6 +41,7 @@
     [encoder encodeObject:self.dependencies forKey:@"dependencies"];
     [encoder encodeObject:self.changelog forKey:@"changelog"];
     [encoder encodeObject:self.previous forKey:@"previous"];
+    [encoder encodeObject:self.minosx forKey:@"minosx"];
 }
 
 + (MJExtension*) extensionWithJSON:(NSDictionary*)json {
@@ -55,8 +57,21 @@
     ext.dependencies = [json objectForKey:@"deps"];
     ext.changelog = [json objectForKey:@"changelog"];
     ext.previous = [json objectForKey:@"previous"];
+    NSLog(@"%@", [json objectForKey:@"minosx"]);
+    NSLog(@"%@", json);
+    ext.minosx = [json objectForKey:@"minosx"];
     return ext;
 }
+
+//- (NSString*) osxVersion {
+//    static NSString *versionString;
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        NSDictionary * sv = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
+//        versionString = [sv objectForKey:@"ProductVersion"];
+//    });
+//    return versionString;
+//}
 
 - (BOOL) isEqual:(MJExtension*)other {
     return [self isKindOfClass:[other class]] && [self.tarsha isEqualToString: other.tarsha];

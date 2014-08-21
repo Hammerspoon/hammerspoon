@@ -13,6 +13,7 @@
 @property NSString* desc;
 @property NSString* changelog;
 @property NSArray* dependencies;
+@property NSString* minosx;
 @property MJExtension* previous;
 
 + (MJExtension*) extensionWithJSON:(NSDictionary*)json;
