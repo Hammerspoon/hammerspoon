@@ -1,6 +1,6 @@
 #import "MJGeneralTabController.h"
 #import "MJAutoLaunch.h"
-#import "MJDocsManager.h"
+#import "MJDocsUtils.h"
 #import "core.h"
 #import "MJLinkTextField.h"
 #import "MJUpdateChecker.h"

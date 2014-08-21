@@ -1,6 +1,6 @@
 #import "MJExtension.h"
-#import "MJDocsManager.h"
-#import "MJConfigManager.h"
+#import "MJDocsUtils.h"
+#import "MJConfigUtils.h"
 #import "MJSecurityUtils.h"
 #import "MJFileUtils.h"
 #import "MJVersionUtils.h"

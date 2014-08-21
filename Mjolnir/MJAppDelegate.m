@@ -1,8 +1,8 @@
 #import <Cocoa/Cocoa.h>
 #import "MJMainWindowController.h"
 #import "MJExtensionManager.h"
-#import "MJConfigManager.h"
-#import "MJDocsManager.h"
+#import "MJConfigUtils.h"
+#import "MJDocsUtils.h"
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"

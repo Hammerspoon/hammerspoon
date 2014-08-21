@@ -1,5 +1,5 @@
-#import "MJDocsManager.h"
-#import "MJConfigManager.h"
+#import "MJDocsUtils.h"
+#import "MJConfigUtils.h"
 #import "MJFileUtils.h"
 
 static NSString* master_sql_file(void) {

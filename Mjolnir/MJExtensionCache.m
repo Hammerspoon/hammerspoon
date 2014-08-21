@@ -1,6 +1,6 @@
 #import "MJExtensionCache.h"
 #import "MJExtension.h"
-#import "MJConfigManager.h"
+#import "MJConfigUtils.h"
 
 @implementation MJExtensionCache
 

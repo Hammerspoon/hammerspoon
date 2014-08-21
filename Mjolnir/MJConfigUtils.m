@@ -1,4 +1,4 @@
-#import "MJConfigManager.h"
+#import "MJConfigUtils.h"
 #import "core.h"
 
 NSString* MJConfigPath(void) {
