@@ -6,4 +6,4 @@ Current efforts are focused on making Hydra more modularized, by extracting all 
 
 Also, because of trademark issues, Hydra is being renamed to Mjolnir.
 
-See [The history and current state of AppGrid, Zephyros, Phoenix, Hydra, Penknife, and Mjolnir](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/) for more details.
+For more details, see my blog post [The history and current state of AppGrid, Zephyros, Phoenix, Hydra, Penknife, and Mjolnir](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/).
