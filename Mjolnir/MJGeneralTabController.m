@@ -125,21 +125,47 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) toggleOpensAtLogin:(NSButton*)sender {
-    MJAutoLaunchSet([sender state] == NSOnState);
+    BOOL enabled = [sender state] == NSOnState;
+    MJAutoLaunchSet(enabled);
 }
 
 - (IBAction) toggleShowDockIcon:(NSButton*)sender {
-    MJDockIconSetVisible([sender state] == NSOnState);
+    BOOL enabled = [sender state] == NSOnState;
+    if (!enabled && !MJMenuIconVisible()) {
+        [sender setState: YES];
+        [self warnAboutDockMenuProblem];
+        return;
+    }
+    
+    MJDockIconSetVisible(enabled);
 }
 
 - (IBAction) toggleMenuDockIcon:(NSButton*)sender {
-    MJMenuIconSetVisible([sender state] == NSOnState);
+    BOOL enabled = [sender state] == NSOnState;
+    if (!enabled && !MJDockIconVisible()) {
+        [sender setState: YES];
+        [self warnAboutDockMenuProblem];
+        return;
+    }
+    
+    MJMenuIconSetVisible(enabled);
 }
 
 - (IBAction) toggleCheckForUpdates:(NSButton*)sender {
     MJUpdateCheckerSetEnabled([sender state] == NSOnState);
     if (MJUpdateCheckerEnabled())
         MJUpdateCheckerCheckSilently();
+}
+
+- (void) warnAboutDockMenuProblem {
+    NSAlert* alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert setMessageText:@"Can't have both disabled"];
+    [alert setInformativeText:@"Either the dock icon or menu icon need to be enabled. Otherwise you'd have no way of getting back to this window ever!"];
+    [alert beginSheetModalForWindow:[[self view] window]
+                      modalDelegate:nil
+                     didEndSelector:NULL
+                        contextInfo:NULL];
 }
 
 - (IBAction) reloadConfig:(id)sender {
