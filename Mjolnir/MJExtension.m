@@ -11,7 +11,6 @@
 
 - (id)initWithCoder:(NSCoder *)decoder {
     if (self = [super init]) {
-        self.sha = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha"];
         self.name = [decoder decodeObjectOfClass:[NSString class] forKey:@"name"];
         self.author = [decoder decodeObjectOfClass:[NSString class] forKey:@"author"];
         self.version = [decoder decodeObjectOfClass:[NSString class] forKey:@"version"];
@@ -29,7 +28,6 @@
 }
 
 - (void)encodeWithCoder:(NSCoder *)encoder {
-    [encoder encodeObject:self.sha forKey:@"sha"];
     [encoder encodeObject:self.name forKey:@"name"];
     [encoder encodeObject:self.author forKey:@"author"];
     [encoder encodeObject:self.version forKey:@"version"];
