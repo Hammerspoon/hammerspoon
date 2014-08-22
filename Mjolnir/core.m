@@ -2,7 +2,7 @@
 #import "MJUserNotificationManager.h"
 #import "MJMainWindowController.h"
 
-lua_State* MJLuaState;
+static lua_State* MJLuaState;
 
 /// === core ===
 ///
@@ -80,4 +80,20 @@ void MJReloadConfig(void) {
     lua_getfield(L, -1, "reload");
     lua_call(L, 0, 0);
     lua_pop(L, 1);
+}
+
+NSString* MJLuaRunString(NSString* command) {
+    lua_State* L = MJLuaState;
+    
+    lua_getglobal(L, "core");
+    lua_getfield(L, -1, "runstring");
+    lua_pushstring(L, [command UTF8String]);
+    lua_pcall(L, 1, 1, 0);
+    
+    size_t len;
+    const char* s = lua_tolstring(L, -1, &len);
+    NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
+    lua_pop(L, 2);
+    
+    return str;
 }

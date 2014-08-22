@@ -52,19 +52,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 }
 
 - (NSString*) run:(NSString*)command {
-    lua_State* L = MJLuaState;
-    
-    lua_getglobal(L, "core");
-    lua_getfield(L, -1, "runstring");
-    lua_pushstring(L, [command UTF8String]);
-    lua_pcall(L, 1, 1, 0);
-    
-    size_t len;
-    const char* s = lua_tolstring(L, -1, &len);
-    NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
-    lua_pop(L, 2);
-    
-    return str;
+    return MJLuaRunString(command);
 }
 
 - (IBAction) tryMessage:(NSTextField*)sender {
