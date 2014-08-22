@@ -59,7 +59,7 @@
 		944A2DA6198975B000D8DC90 /* MJGeneralTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA5198975B000D8DC90 /* MJGeneralTabController.m */; };
 		944A2DA91989760400D8DC90 /* MJReplTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA81989760400D8DC90 /* MJReplTabController.m */; };
 		944A2DAF1989761600D8DC90 /* MJExtensionsTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DAE1989761600D8DC90 /* MJExtensionsTabController.m */; };
-		945B65AC198D2DDB002D2E30 /* core.m in Sources */ = {isa = PBXBuildFile; fileRef = 945B65AB198D2DDB002D2E30 /* core.m */; };
+		945B65AC198D2DDB002D2E30 /* MJLua.m in Sources */ = {isa = PBXBuildFile; fileRef = 945B65AB198D2DDB002D2E30 /* MJLua.m */; };
 		945B65B2198D31FC002D2E30 /* setup.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945B65B1198D31FC002D2E30 /* setup.lua */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
 		9477D01A19953FE20020BE9D /* statusicon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9477D01819953FE20020BE9D /* statusicon.png */; };
@@ -103,7 +103,7 @@
 		9409202F19A5940600B9964E /* MJVersionUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJVersionUtils.h; sourceTree = "<group>"; };
 		9409203019A5940600B9964E /* MJVersionUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJVersionUtils.m; sourceTree = "<group>"; };
 		942050C1199078BA00FC4839 /* MJTabController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJTabController.h; sourceTree = "<group>"; };
-		942050C41990940000FC4839 /* core.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = core.h; sourceTree = "<group>"; };
+		942050C41990940000FC4839 /* MJLua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJLua.h; sourceTree = "<group>"; };
 		9423CA93198C3BE700647881 /* MJExtensionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtensionManager.h; sourceTree = "<group>"; };
 		9423CA94198C3BE700647881 /* MJExtensionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionManager.m; sourceTree = "<group>"; };
 		9428C7E9198EB76E00CDFA00 /* MJAutoLaunch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJAutoLaunch.h; sourceTree = "<group>"; };
@@ -191,7 +191,7 @@
 		944A2DA81989760400D8DC90 /* MJReplTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJReplTabController.m; sourceTree = "<group>"; };
 		944A2DAE1989761600D8DC90 /* MJExtensionsTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionsTabController.m; sourceTree = "<group>"; };
 		945B65A9198D2C0B002D2E30 /* MJMainWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJMainWindowController.h; sourceTree = "<group>"; };
-		945B65AB198D2DDB002D2E30 /* core.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = core.m; sourceTree = "<group>"; };
+		945B65AB198D2DDB002D2E30 /* MJLua.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJLua.m; sourceTree = "<group>"; };
 		945B65B1198D31FC002D2E30 /* setup.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = setup.lua; sourceTree = "<group>"; };
 		94735C2F196DC4FE002A258D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		9473A75C1959F9AB0080C329 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -354,11 +354,11 @@
 		944A2D49198973A400D8DC90 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				94787D1419A38A8B00540401 /* variables.h */,
 				944A2D351989735300D8DC90 /* MainMenu.xib */,
 				944A2D341989735300D8DC90 /* MJAppDelegate.m */,
-				94787D1419A38A8B00540401 /* variables.h */,
-				942050C41990940000FC4839 /* core.h */,
-				945B65AB198D2DDB002D2E30 /* core.m */,
+				942050C41990940000FC4839 /* MJLua.h */,
+				945B65AB198D2DDB002D2E30 /* MJLua.m */,
 				945B65B1198D31FC002D2E30 /* setup.lua */,
 				945B65AE198D2E34002D2E30 /* Main Window */,
 				945B65AD198D2E2D002D2E30 /* Extension Management */,
@@ -660,7 +660,7 @@
 				944A2D92198973E900D8DC90 /* liolib.c in Sources */,
 				949B520319A5576E00ED4F02 /* MJDockIcon.m in Sources */,
 				944A2D9B198973E900D8DC90 /* lstate.c in Sources */,
-				945B65AC198D2DDB002D2E30 /* core.m in Sources */,
+				945B65AC198D2DDB002D2E30 /* MJLua.m in Sources */,
 				94FA257419A310F700A2BA8B /* MJAutoUpdaterWindowController.m in Sources */,
 				944A2D87198973E900D8DC90 /* lbitlib.c in Sources */,
 				9423CA95198C3BE700647881 /* MJExtensionManager.m in Sources */,

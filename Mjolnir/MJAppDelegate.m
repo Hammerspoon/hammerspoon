@@ -5,7 +5,7 @@
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
-#import "core.h"
+#import "MJLua.h"
 #import "variables.h"
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
@@ -24,9 +24,9 @@
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
     [[MJExtensionManager sharedManager] setup];
     [[MJMainWindowController sharedMainWindowController] maybeShowWindow];
-    MJSetupLua();
+    MJLuaSetup();
     [[MJExtensionManager sharedManager] loadInstalledModules];
-    MJReloadConfig();
+    MJLuaReloadConfig();
 }
 
 - (NSMenu *)applicationDockMenu:(NSApplication *)sender {
@@ -42,7 +42,7 @@
 }
 
 - (IBAction) reloadConfig:(id)sender {
-    MJReloadConfig();
+    MJLuaReloadConfig();
 }
 
 - (IBAction) showMainWindow:(id)sender {

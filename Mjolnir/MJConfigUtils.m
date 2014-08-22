@@ -1,5 +1,4 @@
 #import "MJConfigUtils.h"
-#import "core.h"
 
 NSString* MJConfigPath(void) {
     return [@"~/.mjolnir/" stringByStandardizingPath];

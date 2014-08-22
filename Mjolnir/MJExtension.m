@@ -3,7 +3,7 @@
 #import "MJSecurityUtils.h"
 #import "MJFileUtils.h"
 #import "MJVersionUtils.h"
-#import "core.h"
+#import "MJLua.h"
 
 @implementation MJExtension
 
@@ -97,14 +97,14 @@
             return;
         }
         
-        MJLoadModule(self.name);
+        MJLuaLoadModule(self.name);
         
         done(nil);
     });
 }
 
 - (void) uninstall:(void(^)(NSError*))done {
-    MJUnloadModule(self.name);
+    MJLuaUnloadModule(self.name);
     
     NSError* __autoreleasing error;
     if ([[NSFileManager defaultManager] removeItemAtPath:MJConfigExtensionDir(self.name) error:&error])

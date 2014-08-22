@@ -1,6 +1,6 @@
 #import "MJGeneralTabController.h"
 #import "MJAutoLaunch.h"
-#import "core.h"
+#import "MJLua.h"
 #import "MJLinkTextField.h"
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
@@ -142,7 +142,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) reloadConfig:(id)sender {
-    MJReloadConfig();
+    MJLuaReloadConfig();
 }
 
 - (IBAction) toggleShowWindowAtLaunch:(NSButton*)sender {

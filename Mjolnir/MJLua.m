@@ -1,4 +1,4 @@
-#import "core.h"
+#import "MJLua.h"
 #import "MJUserNotificationManager.h"
 #import "MJMainWindowController.h"
 
@@ -9,7 +9,7 @@ static lua_State* MJLuaState;
 /// Core functionality.
 
 static void(^loghandler)(NSString* str);
-void MJSetupLogHandler(void(^blk)(NSString* str)) {
+void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
 
@@ -46,7 +46,7 @@ static luaL_Reg corelib[] = {
     {}
 };
 
-void MJSetupLua(void) {
+void MJLuaSetup(void) {
     lua_State* L = MJLuaState = luaL_newstate();
     luaL_openlibs(L);
     
@@ -56,7 +56,7 @@ void MJSetupLua(void) {
     luaL_dofile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
 }
 
-void MJLoadModule(NSString* fullname) {
+void MJLuaLoadModule(NSString* fullname) {
     lua_State* L = MJLuaState;
     lua_getglobal(L, "core");
     lua_getfield(L, -1, "_loadmodule");
@@ -65,7 +65,7 @@ void MJLoadModule(NSString* fullname) {
     lua_call(L, 1, 0);
 }
 
-void MJUnloadModule(NSString* fullname) {
+void MJLuaUnloadModule(NSString* fullname) {
     lua_State* L = MJLuaState;
     lua_getglobal(L, "core");
     lua_getfield(L, -1, "_unloadmodule");
@@ -74,7 +74,7 @@ void MJUnloadModule(NSString* fullname) {
     lua_call(L, 1, 0);
 }
 
-void MJReloadConfig(void) {
+void MJLuaReloadConfig(void) {
     lua_State* L = MJLuaState;
     lua_getglobal(L, "core");
     lua_getfield(L, -1, "reload");

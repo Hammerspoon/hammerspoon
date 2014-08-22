@@ -1,5 +1,5 @@
 #import "MJReplTabController.h"
-#import "core.h"
+#import "MJLua.h"
 
 @interface MJReplTabController ()
 
@@ -28,7 +28,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
     
-    MJSetupLogHandler(^(NSString* str){
+    MJLuaSetupLogHandler(^(NSString* str){
         [self appendString:str type:MJReplLineTypeStdout];
     });
     

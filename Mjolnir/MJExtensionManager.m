@@ -1,7 +1,7 @@
 #import "MJExtensionManager.h"
 #import "MJExtension.h"
 #import "MJSecurityUtils.h"
-#import "core.h"
+#import "MJLua.h"
 #import "variables.h"
 
 NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
@@ -98,7 +98,7 @@ NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
 
 - (void) loadInstalledModules {
     for (MJExtension* ext in self.cache.extensionsInstalled)
-        MJLoadModule(ext.name);
+        MJLuaLoadModule(ext.name);
 }
 
 - (void) rebuildMemoryCache {
