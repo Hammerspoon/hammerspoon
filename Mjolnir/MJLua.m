@@ -3,6 +3,7 @@
 #import "MJMainWindowController.h"
 
 static lua_State* MJLuaState;
+static int MJErrorHandlerIndex;
 
 /// === core ===
 ///
@@ -54,6 +55,9 @@ void MJLuaSetup(void) {
     lua_setglobal(L, "core");
     
     luaL_dofile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
+    
+    lua_getglobal(L, "_corelerrorhandler");
+    MJErrorHandlerIndex = luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
 void MJLuaLoadModule(NSString* fullname) {
@@ -96,4 +100,13 @@ NSString* MJLuaRunString(NSString* command) {
     lua_pop(L, 2);
     
     return str;
+}
+
+int mjolnir_pcall(lua_State *L, int nargs, int nresults) {
+    lua_rawgeti(L, LUA_REGISTRYINDEX, MJErrorHandlerIndex);
+    int msgh = lua_absindex(L, -(nargs + 2));
+    lua_insert(L, msgh);
+    int r = lua_pcall(L, nargs, nresults, msgh);
+    lua_remove(L, msgh);
+    return r;
 }

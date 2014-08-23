@@ -45,10 +45,15 @@ function core._loadmodule(dotname)
   t[lastkey] = mod
 end
 
+function _corelerrorhandler(err)
+  return core.errorhandler(err)
+end
+
 function core.errorhandler(err)
   core._notify("Mjolnir error occurred")
   print(err)
   print(debug.traceback())
+  return err
 end
 
 function core.pcall(f, ...)
