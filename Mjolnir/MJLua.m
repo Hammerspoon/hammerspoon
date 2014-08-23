@@ -63,7 +63,7 @@ void MJLuaSetup(void) {
 void MJLuaLoadModule(NSString* fullname) {
     lua_State* L = MJLuaState;
     lua_getglobal(L, "core");
-    lua_getfield(L, -1, "_loadmodule");
+    lua_getfield(L, -1, "_load");
     lua_remove(L, -2);
     lua_pushstring(L, [fullname UTF8String]);
     lua_call(L, 1, 0);
@@ -72,7 +72,7 @@ void MJLuaLoadModule(NSString* fullname) {
 void MJLuaUnloadModule(NSString* fullname) {
     lua_State* L = MJLuaState;
     lua_getglobal(L, "core");
-    lua_getfield(L, -1, "_unloadmodule");
+    lua_getfield(L, -1, "_unload");
     lua_remove(L, -2);
     lua_pushstring(L, [fullname UTF8String]);
     lua_call(L, 1, 0);

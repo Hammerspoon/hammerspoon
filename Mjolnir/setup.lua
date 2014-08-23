@@ -14,7 +14,7 @@ function core.runstring(s)
   return str
 end
 
-function core._loadmodule(dotname)
+function core._load(dotname)
   local requirepath = 'ext.' .. dotname:gsub('%.', '_') .. '.init'
   local ok, result = pcall(require, requirepath)
   if not ok then
@@ -60,7 +60,7 @@ function core.pcall(f, ...)
   return xpcall(f, core.errorhandler, ...)
 end
 
-function core._unloadmodule(dotname)
+function core._unload(dotname)
   local fn = load(dotname.." = nil")
   fn() -- this is cheating, I know; oh well
 
