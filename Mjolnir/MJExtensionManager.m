@@ -72,6 +72,8 @@ NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
         NSLog(@"update found!");
         self.cache.timestamp = newtimestamp;
         
+        self.cache.extensionsAvailable = [NSMutableArray array];
+        
         for (NSDictionary* ext in [json objectForKey: @"extensions"])
             [self.cache.extensionsAvailable addObject: [MJExtension extensionWithJSON:ext]];
         
