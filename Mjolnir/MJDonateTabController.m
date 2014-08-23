@@ -3,7 +3,7 @@
 #import "variables.h"
 
 @interface MJDonateTabController ()
-@property (weak) IBOutlet MJLinkTextField* label;
+@property IBOutlet NSTextView* message;
 @end
 
 @implementation MJDonateTabController
@@ -15,8 +15,14 @@
 
 - (void) awakeFromNib {
     [super awakeFromNib];
-    MJLinkTextFieldAddLink(self.label, MJPayPalDonationURL, [[self.label stringValue] rangeOfString:@"by PayPal"]);
-    MJLinkTextFieldAddLink(self.label, MJCreditCardDonationURL, [[self.label stringValue] rangeOfString:@"with a credit card"]);
+    [self.message setSelectable:YES];
+    
+    NSMutableAttributedString* s = [self.message textStorage];
+    [s beginEditing];
+    [s addAttribute:NSFontAttributeName value:[NSFont systemFontOfSize:[NSFont systemFontSize]] range:NSMakeRange(0, [s length])];
+    [s addAttribute:NSLinkAttributeName value:[NSURL URLWithString:MJPayPalDonationURL] range:[[s string] rangeOfString:@"by PayPal"]];
+    [s addAttribute:NSLinkAttributeName value:[NSURL URLWithString:MJCreditCardDonationURL] range:[[s string] rangeOfString:@"with a credit card"]];
+    [s endEditing];
 }
 
 @end

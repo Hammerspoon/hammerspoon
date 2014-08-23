@@ -7,7 +7,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="MJDonateTabController">
             <connections>
-                <outlet property="label" destination="dyg-eQ-sY6" id="bjN-Lp-Hx0"/>
+                <outlet property="message" destination="kfC-JW-bCw" id="bY1-71-dau"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -21,22 +21,50 @@
                     <rect key="frame" x="47" y="20" width="480" height="310"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <subviews>
-                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" id="dyg-eQ-sY6" customClass="MJLinkTextField">
-                            <rect key="frame" x="18" y="69" width="444" height="221"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="T3Q-Ry-FSY">
-                                <font key="font" metaFont="system"/>
-                                <mutableString key="title">Hi there. I'm the principal author of Mjolnir. I've worked hard to make this app useful and easy to use. I've also released it with a liberal open source license, so that you can do with it as you please.
+                        <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" hasVerticalScroller="NO" usesPredominantAxisScrolling="NO" id="p1t-Gd-nAA">
+                            <rect key="frame" x="20" y="20" width="440" height="270"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                            <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="3dm-Ht-X94">
+                                <rect key="frame" x="0.0" y="0.0" width="440" height="270"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <textView editable="NO" selectable="NO" drawsBackground="NO" importsGraphics="NO" findStyle="panel" verticallyResizable="YES" id="kfC-JW-bCw">
+                                        <rect key="frame" x="0.0" y="0.0" width="440" height="270"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <size key="minSize" width="440" height="270"/>
+                                        <size key="maxSize" width="463" height="10000000"/>
+                                        <attributedString key="textStorage">
+                                            <fragment>
+                                                <mutableString key="content">Hi there. I'm the principal author of Mjolnir. I've worked hard to make this app useful and easy to use. I've also released it with a liberal open source license, so that you can do with it as you please.
 
 So, instead of charging for licenses, I'm asking for donations. If you find Mjolnir genuinely beneficial to your productivity, I encourage you to donate what you believe is fair.
 
 Your donations will fund the time I'll be spending making Mjolnir even better, and will be used to compensate volunteers for the time and skills which they have generously contributed to the project.
 
 Currently, donations can be made by PayPal or with a credit card.</mutableString>
-                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                            </textFieldCell>
-                        </textField>
+                                                <attributes>
+                                                    <font key="NSFont" metaFont="toolTip"/>
+                                                    <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural"/>
+                                                </attributes>
+                                            </fragment>
+                                        </attributedString>
+                                        <color key="insertionPointColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                        <size key="minSize" width="440" height="270"/>
+                                        <size key="maxSize" width="463" height="10000000"/>
+                                    </textView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </clipView>
+                            <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="z9b-y0-2ma">
+                                <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                            </scroller>
+                            <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="eIG-Lk-5uz">
+                                <rect key="frame" x="-100" y="-100" width="15" height="219"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                            </scroller>
+                        </scrollView>
                     </subviews>
                 </customView>
             </subviews>
