@@ -15,7 +15,7 @@ function core.runstring(s)
 end
 
 function core._loadmodule(dotname)
-  local requirepath = 'ext.' .. dotname .. '.init'
+  local requirepath = 'ext.' .. dotname:gsub('%.', '_') .. '.init'
   local ok, result = pcall(require, requirepath)
   if not ok then
     print("Something went wrong: " .. result)

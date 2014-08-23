@@ -12,6 +12,6 @@ void MJConfigEnsureDirExists(void) {
 }
 
 NSString* MJConfigExtensionDir(NSString* extname) {
-    NSString* nameWithDashes = [extname stringByReplacingOccurrencesOfString:@"." withString:@"/"];
+    NSString* nameWithDashes = [extname stringByReplacingOccurrencesOfString:@"." withString:@"_"];
     return [MJConfigPath() stringByAppendingPathComponent:[NSString stringWithFormat:@"ext/%@/", nameWithDashes]];
 }
