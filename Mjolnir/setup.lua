@@ -65,6 +65,7 @@ function core._unload(dotname)
   fn() -- this is cheating, I know; oh well
 
   core.resetters[dotname] = nil
+  package.loaded[dotname] = nil
 end
 
 local rawprint = print
@@ -83,7 +84,7 @@ end
 
 --- core.resetters = {}
 --- If extensions need to reset any state when the user's config reloads, they must add a resetter function here.
---- i.e. they should run `core.resetters["core.hotkey"] = function() ... end` at some point.
+--- i.e. core.hotkey's init.lua file should run `core.resetters["core.hotkey"] = function() ... end` at some point.
 core.resetters = {}
 
 local function resetstate()
