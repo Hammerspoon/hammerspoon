@@ -26,18 +26,15 @@ void MJLinkTextFieldAddLink(MJLinkTextField* self, NSString* link, NSRange r) {
     [self setAttributedStringValue: mastr];
 }
 
-static NSTextView* MJTextViewForField(NSTextField* self) {
-    NSMutableAttributedString* mastr = [[self attributedStringValue] mutableCopy];
-    NSTextView* tv = [[NSTextView alloc] initWithFrame:[[self cell] drawingRectForBounds: [self bounds]]];
-    [[tv textStorage] setAttributedString: mastr];
-    return tv;
-}
-
 - (void) cacheLinks {
     self.cachedLinks = [NSMutableArray array];
     
     NSRange r = NSMakeRange(0, [[self attributedStringValue] length]);
-    NSTextView* tv = MJTextViewForField(self);
+    
+    NSTextView* tv = [[NSTextView alloc] initWithFrame: [[self cell] titleRectForBounds: [self bounds]]];
+    NSMutableAttributedString* mtvas = [[self attributedStringValue] mutableCopy]; // TODO: fix the display problem somehow
+    [[tv textStorage] setAttributedString: mtvas];
+    
     [[self attributedStringValue]
      enumerateAttribute:NSLinkAttributeName
      inRange:r
