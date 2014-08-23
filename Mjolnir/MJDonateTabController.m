@@ -1,7 +1,9 @@
 #import "MJDonateTabController.h"
+#import "MJLinkTextField.h"
 #import "variables.h"
 
 @interface MJDonateTabController ()
+@property (weak) IBOutlet MJLinkTextField* label;
 @end
 
 @implementation MJDonateTabController
@@ -11,12 +13,10 @@
 - (NSString*) title   { return @"Donate"; }
 - (NSImage*)  icon    { return [NSImage imageNamed:@"Donate"]; }
 
-- (IBAction) donateWithPayPal:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:MJPayPalDonationURL]];
-}
-
-- (IBAction) donateWithCreditCard:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:MJCreditCardDonationURL]];
+- (void) awakeFromNib {
+    [super awakeFromNib];
+    MJLinkTextFieldAddLink(self.label, MJPayPalDonationURL, [[self.label stringValue] rangeOfString:@"by PayPal"]);
+    MJLinkTextFieldAddLink(self.label, MJCreditCardDonationURL, [[self.label stringValue] rangeOfString:@"with a credit card"]);
 }
 
 @end

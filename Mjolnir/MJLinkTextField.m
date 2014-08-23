@@ -9,13 +9,18 @@
 @implementation MJLinkTextField
 
 void MJLinkTextFieldAddLink(MJLinkTextField* self, NSString* link, NSRange r) {
-    NSString* text = [self stringValue];
-    NSMutableAttributedString* mastr = [[NSMutableAttributedString alloc] initWithString: text];
+    NSMutableAttributedString* mastr;
+    NSAttributedString* oastr = [self attributedStringValue];
+    if (oastr)
+        mastr = [oastr mutableCopy];
+    else
+        mastr = [[NSMutableAttributedString alloc] initWithString: [self stringValue]];
     
     [mastr beginEditing];
     [mastr addAttribute:NSLinkAttributeName value:[NSURL URLWithString: link] range:r];
     [mastr addAttribute:NSForegroundColorAttributeName value:[NSColor blueColor] range:r];
     [mastr addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInt:NSSingleUnderlineStyle] range:r];
+    [mastr addAttribute:NSFontAttributeName value:[self font] range:NSMakeRange(0, [[self stringValue] length])];
     [mastr endEditing];
     
     [self setAttributedStringValue: mastr];
@@ -23,17 +28,8 @@ void MJLinkTextFieldAddLink(MJLinkTextField* self, NSString* link, NSRange r) {
 
 static NSTextView* MJTextViewForField(NSTextField* self) {
     NSMutableAttributedString* mastr = [[self attributedStringValue] mutableCopy];
-    NSFont* font = [mastr attribute:NSFontAttributeName atIndex:0 effectiveRange:NULL];
-    
-    if (!font) {
-        [mastr addAttribute:NSFontAttributeName
-                      value:[self font]
-                      range:NSMakeRange(0, [mastr length])];
-    }
-    
-    NSTextView* tv = [[NSTextView alloc] initWithFrame:[[self cell] titleRectForBounds:[self bounds]]];
+    NSTextView* tv = [[NSTextView alloc] initWithFrame:[[self cell] drawingRectForBounds: [self bounds]]];
     [[tv textStorage] setAttributedString: mastr];
-    
     return tv;
 }
 
