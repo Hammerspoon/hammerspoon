@@ -6,16 +6,12 @@ VERSION = $(shell defaults read `pwd`/Mjolnir/Mjolnir-Info CFBundleVersion)
 APPFILE = Mjolnir.app
 TGZFILE = Mjolnir-$(VERSION).tgz
 ZIPFILE = Mjolnir-$(VERSION).zip
-DOCSET  = Mjolnir/Mjolnir.docset
 VERSIONFILE = LATESTVERSION
 
 release: $(TGZFILE) $(ZIPFILE) $(VERSIONFILE)
 	open -R .
 
-$(DOCSET): Mjolnir/setup.lua Mjolnir/core.m
-	make -C Mjolnir all
-
-$(APPFILE): $(shell find Mjolnir -type f) $(DOCSET)
+$(APPFILE): $(shell find Mjolnir -type f)
 	rm -rf $@
 	xcodebuild clean build > /dev/null
 	cp -R build/Release/Mjolnir.app $@
