@@ -1,5 +1,6 @@
 #import "MJReplTabController.h"
 #import "MJLua.h"
+#import "MJColorUtils.h"
 
 @interface MJReplTabController ()
 
@@ -7,6 +8,10 @@
 @property NSInteger historyIndex;
 @property IBOutlet NSTextView* outputView;
 @property (weak) IBOutlet NSTextField* inputField;
+
+@property NSColor* colorForStdout;
+@property NSColor* colorForCommand;
+@property NSColor* colorForResult;
 
 @end
 
@@ -24,6 +29,10 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 - (NSImage*)  icon    { return [NSImage imageNamed:@"REPL"]; }
 
 - (void) awakeFromNib {
+    self.colorForStdout = MJColorFromHex("990073");
+    self.colorForCommand = [NSColor blackColor];
+    self.colorForResult = MJColorFromHex("0086b3");
+    
     self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
@@ -41,9 +50,9 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 - (void) appendString:(NSString*)str type:(MJReplLineType)type {
     NSColor* color = nil;
     switch (type) {
-        case MJReplLineTypeStdout:  color = [NSColor magentaColor]; break;
-        case MJReplLineTypeCommand: color = [NSColor redColor]; break;
-        case MJReplLineTypeResult:  color = [NSColor blueColor]; break;
+        case MJReplLineTypeStdout:  color = self.colorForStdout; break;
+        case MJReplLineTypeCommand: color = self.colorForCommand; break;
+        case MJReplLineTypeResult:  color = self.colorForResult; break;
     }
     
     NSDictionary* attrs = @{NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0], NSForegroundColorAttributeName: color};
