@@ -39,6 +39,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     
     MJLuaSetupLogHandler(^(NSString* str){
         [self appendString:str type:MJReplLineTypeStdout];
+        [self.outputView scrollToEndOfDocument:self];
     });
     
     [self appendString:@""
