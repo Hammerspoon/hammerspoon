@@ -34,11 +34,11 @@
 }
 
 - (void) registerDefaultDefaults {
-    NSDictionary* defaults = @{MJCheckForUpdatesKey: @YES,
-                               MJShowDockIconKey: @YES,
-                               MJShowWindowAtLaunchKey: @YES,
-                               MJShowMenuIconKey: @NO};
-    [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
+    [[NSUserDefaults standardUserDefaults]
+     registerDefaults: @{MJCheckForUpdatesKey: @YES,
+                         MJShowDockIconKey: @YES,
+                         MJShowWindowAtLaunchKey: @YES,
+                         MJShowMenuIconKey: @NO}];
 }
 
 - (IBAction) reloadConfig:(id)sender {
