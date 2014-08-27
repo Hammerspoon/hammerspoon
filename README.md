@@ -25,9 +25,12 @@ Some extensions that you might want to install are `core.window`,
 there's really no limit to what an extension can do.
 
 Mjolnir uses the very fine [Dash](http://kapeli.com/dash) app for all
-its documentation, which you can install from within Dash. Then read
-Mjolnir's index page to get started. You'll also find documentation
-for all available extensions within Mjolnir's Dash docset.
+its documentation, which you can install from within Dash. (To install
+it, open Dash's Preferences window, go to the Downloads tab, click the
+User Contributed section on the left, search for Mjolnir, and click
+Install.) Then read Mjolnir's index page to get started. You'll also
+find documentation for all available extensions within Mjolnir's Dash
+docset.
 
 ## Extensions
 
