@@ -8,7 +8,7 @@
 
 * Current version:  Mjolnir **0.1**
 * Requires:         OS X 10.8 or higher
-* Download:         (not yet available)
+* Download:         https://github.com/mjolnir-io/mjolnir/releases
 
 ## What is Mjolnir?
 
