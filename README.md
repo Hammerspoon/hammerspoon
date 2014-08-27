@@ -25,10 +25,9 @@ Some extensions that you might want to install are `core.window`,
 there's really no limit to what an extension can do.
 
 Mjolnir uses the very fine [Dash](http://kapeli.com/dash) app for all
-its documentation. When launching Mjolnir, there will be a button for
-you to open Mjolnir's documentation in Dash. Click that and read the
-intro page when getting started. You'll also find documentation for
-extensions in Dash once they're installed, within the Mjolnir docset.
+its documentation, which you can install from within Dash. Then read
+Mjolnir's index page to get started. You'll also find documentation
+for all available extensions within Mjolnir's Dash docset.
 
 ## Extensions
 
@@ -70,28 +69,9 @@ namespace follow these principles:
 
 ## FAQ
 
-1. **How is Mjolnir related to Hydra?**
+1. **How is Mjolnir related to Hydra, Phoenix, or Zephyros?**
 
-   1. Hydra has been renamed to Mjolnir (due to trademark infringement issues)
-   2. Nearly all of Hydra's modules have been extracted out into opt-in extensions
-   3. Extensions can now be updated at their own rate, independent of Mjolnir releases
-   4. A minimal GUI has been added to make Mjolnir more convenient to use
-   5. Most Mjolnir modules will be almost identical to their Hydra counterparts
-   6. Your configs will still work, but consult the changelogs as you install each extension
-   7. APIs for controlling Hydra's GUI have been removed in favor of the new minimal built-in GUI
-
-1. **I'm getting an error like this: attempt to index local 'win' (a nil value)**
-
-   It almost definitely means you need to enable accessibility. This
-   is especially true after upgrading to a new version of Mjolnir, since
-   the accessibility checkbox for Mjolnir may be checked; just uncheck
-   it and re-check it anyway, and then it should be fixed.
-
-2. **How does Mjolnir compare to Phoenix and Zephyros?**
-
-   Mjolnir is the successor to Phoenix and Zephyros, my older projects
-   which I don't update anymore. Mjolnir is more modular, simpler, and
-   more efficient (see the Principles section above).
+   The short of it is, Mjolnir is the successor to these older apps. Or check out [the full story](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/).
 
 3. **How does Mjolnir compare to Slate?**
 
@@ -105,18 +85,13 @@ namespace follow these principles:
    solution; it's meant to allow you to write your own personalized
    productivity enhancement suite to keep and use long-term.
 
-5. **Can you add ____ feature?**
-
-   Maybe. [File an issue](https://github.com/mjolnir-io/mjolnir/issues/new)
-   and we'll find out!
-
 ## Community
 
 Our [mailing list](https://groups.google.com/forum/#!forum/mjolnir-io)
 is a fine place to discuss upcoming features and extensions, find out
 about new extensions, discuss existing extensions, ask questions about
 how people are using Mjolnir, and share your cool ideas. We also have
-a growing IRC channel on freenode, #penknife [sic].
+a growing IRC channel on freenode, #mjolnir.
 
 ## Credits
 
