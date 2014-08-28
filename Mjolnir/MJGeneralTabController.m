@@ -8,6 +8,8 @@
 #import "MJConfigUtils.h"
 #import "variables.h"
 
+#define MJSkipDockMenuIconProblemAlertKey @"MJSkipDockMenuIconProblemAlertKey"
+
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
 extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
@@ -105,24 +107,14 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 - (IBAction) toggleShowDockIcon:(NSButton*)sender {
     BOOL enabled = [sender state] == NSOnState;
-    if (!enabled && !MJMenuIconVisible()) {
-        [sender setState: NSOnState];
-        [self warnAboutDockMenuProblem];
-        return;
-    }
-    
     MJDockIconSetVisible(enabled);
+    [self maybeWarnAboutDockMenuProblem];
 }
 
 - (IBAction) toggleMenuDockIcon:(NSButton*)sender {
     BOOL enabled = [sender state] == NSOnState;
-    if (!enabled && !MJDockIconVisible()) {
-        [sender setState: NSOnState];
-        [self warnAboutDockMenuProblem];
-        return;
-    }
-    
     MJMenuIconSetVisible(enabled);
+    [self maybeWarnAboutDockMenuProblem];
 }
 
 - (IBAction) toggleCheckForUpdates:(NSButton*)sender {
@@ -131,14 +123,26 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
         MJUpdateCheckerCheckSilently();
 }
 
-- (void) warnAboutDockMenuProblem {
+- (void) dockMenuProblemAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+    BOOL skipNextTime = ([[alert suppressionButton] state] == NSOnState);
+    [[NSUserDefaults standardUserDefaults] setBool:skipNextTime forKey:MJSkipDockMenuIconProblemAlertKey];
+}
+
+- (void) maybeWarnAboutDockMenuProblem {
+    if (MJMenuIconVisible() || MJDockIconVisible())
+        return;
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:MJSkipDockMenuIconProblemAlertKey])
+        return;
+    
     NSAlert* alert = [[NSAlert alloc] init];
     [alert setAlertStyle:NSWarningAlertStyle];
-    [alert setMessageText:@"Can't have both disabled"];
-    [alert setInformativeText:@"Either the dock icon or menu icon need to be enabled. Otherwise you'd have no way of getting back to this window ever!"];
+    [alert setMessageText:@"How to get back to this window"];
+    [alert setInformativeText:@"When both the dock icon and menu icon are disabled, you can get back to this window by activating Mjolnir from Spotlight or by running `open -a Mjolnir` from Terminal."];
+    [alert setShowsSuppressionButton:YES];
     [alert beginSheetModalForWindow:[[self view] window]
-                      modalDelegate:nil
-                     didEndSelector:NULL
+                      modalDelegate:self
+                     didEndSelector:@selector(dockMenuProblemAlertDidEnd:returnCode:contextInfo:)
                         contextInfo:NULL];
 }
 

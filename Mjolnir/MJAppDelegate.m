@@ -15,6 +15,12 @@
 
 @implementation MJAppDelegate
 
+- (BOOL) applicationOpenUntitledFile:(NSApplication *)sender {
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    [[MJMainWindowController sharedMainWindowController] showWindow: nil];
+    return YES;
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     [self registerDefaultDefaults];
     MJMenuIconSetup(self.menuBarMenu);
