@@ -1,5 +1,7 @@
 os.exit = core.exit
 
+package.path = package.path .. ';' .. './ext/?/init.lua'
+
 function core.runstring(s)
   local fn, err = load("return " .. s)
   if not fn then fn, err = load(s) end
