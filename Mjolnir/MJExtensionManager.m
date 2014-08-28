@@ -98,11 +98,6 @@ NSString* MJExtensionsUpdatedNotification = @"MJExtensionsUpdatedNotification";
     });
 }
 
-- (void) loadInstalledModules {
-    for (MJExtension* ext in self.cache.extensionsInstalled)
-        MJLuaLoadModule(ext.name);
-}
-
 - (void) rebuildMemoryCache {
     NSMutableArray* extsAvailable = [self.cache.extensionsAvailable mutableCopy];
     NSMutableArray* extsUpToDate = [NSMutableArray array];

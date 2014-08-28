@@ -37,7 +37,6 @@
     [[MJExtensionManager sharedManager] setup];
     [[MJMainWindowController sharedMainWindowController] setup];
     MJLuaSetup();
-    [[MJExtensionManager sharedManager] loadInstalledModules];
     MJLuaReloadConfig();
 }
 

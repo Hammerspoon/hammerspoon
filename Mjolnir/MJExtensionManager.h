@@ -9,7 +9,6 @@ extern NSString* MJExtensionsUpdatedNotification;
 
 - (void) setup;
 - (void) update;
-- (void) loadInstalledModules;
 
 @property BOOL updating;
 

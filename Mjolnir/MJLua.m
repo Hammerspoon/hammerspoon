@@ -69,24 +69,6 @@ void MJLuaSetup(void) {
     MJErrorHandlerIndex = luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
-void MJLuaLoadModule(NSString* fullname) {
-    lua_State* L = MJLuaState;
-    lua_getglobal(L, "core");
-    lua_getfield(L, -1, "_load");
-    lua_remove(L, -2);
-    lua_pushstring(L, [fullname UTF8String]);
-    lua_call(L, 1, 0);
-}
-
-void MJLuaUnloadModule(NSString* fullname) {
-    lua_State* L = MJLuaState;
-    lua_getglobal(L, "core");
-    lua_getfield(L, -1, "_unload");
-    lua_remove(L, -2);
-    lua_pushstring(L, [fullname UTF8String]);
-    lua_call(L, 1, 0);
-}
-
 void MJLuaReloadConfig(void) {
     lua_State* L = MJLuaState;
     lua_getglobal(L, "core");

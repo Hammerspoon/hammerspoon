@@ -14,37 +14,6 @@ function core.runstring(s)
   return str
 end
 
-function core._load(dotname)
-  local requirepath = 'ext.' .. dotname:gsub('%.', '_') .. '.init'
-  local ok, result = pcall(require, requirepath)
-  if not ok then
-    print("Something went wrong: " .. result)
-    return
-  end
-  local mod = result
-
-  local keys = {}
-  for key in string.gmatch(dotname, "%a+") do
-    table.insert(keys, key)
-  end
-
-  local t = _G[keys[1]]
-  table.remove(keys, 1)
-  local lastkey = keys[#keys]
-  keys[#keys] = nil
-
-  for _, k in ipairs(keys) do
-    local intermediate = t[k]
-    if intermediate == nil then
-      intermediate = {}
-      t[k] = intermediate
-    end
-    t = intermediate
-  end
-
-  t[lastkey] = mod
-end
-
 function _corelerrorhandler(err)
   return core.errorhandler(err)
 end
@@ -58,14 +27,6 @@ end
 
 function core.pcall(f, ...)
   return xpcall(f, core.errorhandler, ...)
-end
-
-function core._unload(dotname)
-  local fn = load(dotname.." = nil")
-  fn() -- this is cheating, I know; oh well
-
-  core.resetters[dotname] = nil
-  package.loaded[dotname] = nil
 end
 
 local rawprint = print

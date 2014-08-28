@@ -95,15 +95,11 @@
             return;
         }
         
-        MJLuaLoadModule(self.name);
-        
         done(nil);
     });
 }
 
 - (void) uninstall:(void(^)(NSError*))done {
-    MJLuaUnloadModule(self.name);
-    
     NSError* __autoreleasing error;
     if ([[NSFileManager defaultManager] removeItemAtPath:MJConfigExtensionDir(self.name) error:&error])
         error = nil;
