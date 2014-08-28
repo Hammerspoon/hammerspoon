@@ -10,6 +10,13 @@
 * Requires:         OS X 10.8 or higher
 * Download:         https://github.com/mjolnir-io/mjolnir/releases
 
+## Current Status
+
+**Mjolnir is in beta.** This means everything is subject to change,
+and upgrading may require you to make changes to your configs! Feel
+free to try it out if you like to live on the edge. Otherwise, you may
+want to wait until 1.0 is released.
+
 ## What is Mjolnir?
 
 Mjolnir is an app that lets you automate common tasks using the
