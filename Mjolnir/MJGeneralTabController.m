@@ -5,6 +5,7 @@
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
+#import "MJConfigUtils.h"
 #import "variables.h"
 
 extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
@@ -143,6 +144,19 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 - (IBAction) reloadConfig:(id)sender {
     MJLuaReloadConfig();
+}
+
+- (IBAction) openConfig:(id)sender {
+    if (![[NSWorkspace sharedWorkspace] openFile:[MJConfigPath() stringByAppendingPathComponent:@"init.lua"]]) {
+        NSAlert* alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setMessageText:@"Config file doesn't exist"];
+        [alert setInformativeText:@"You can fix this by creating an empty ~/.mjolnir/init.lua file."];
+        [alert beginSheetModalForWindow:[[self view] window]
+                          modalDelegate:nil
+                         didEndSelector:NULL
+                            contextInfo:NULL];
+    }
 }
 
 - (IBAction) toggleShowWindowAtLaunch:(NSButton*)sender {

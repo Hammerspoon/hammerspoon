@@ -23,11 +23,11 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <customView id="GbP-Ho-APx">
-                    <rect key="frame" x="104" y="27" width="366" height="297"/>
+                    <rect key="frame" x="104" y="10" width="366" height="330"/>
                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <subviews>
                         <button verticalHuggingPriority="750" id="yLD-uZ-JKh">
-                            <rect key="frame" x="103" y="249" width="129" height="32"/>
+                            <rect key="frame" x="103" y="282" width="129" height="32"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <buttonCell key="cell" type="push" title="Reload Config" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ADh-3c-Zwh">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -35,6 +35,17 @@
                             </buttonCell>
                             <connections>
                                 <action selector="reloadConfig:" target="-2" id="4LQ-h8-jas"/>
+                            </connections>
+                        </button>
+                        <button verticalHuggingPriority="750" id="sj7-HR-tje">
+                            <rect key="frame" x="103" y="249" width="120" height="32"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <buttonCell key="cell" type="push" title="Open Config" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="waO-fA-W8n">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="openConfig:" target="-2" id="h0J-zN-fTi"/>
                             </connections>
                         </button>
                         <button id="LCE-lg-IdY">
