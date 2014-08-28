@@ -99,7 +99,9 @@ function core.reload()
   local fn, err = loadfile "init.lua"
   if fn then
     resetstate()
-    core.pcall(fn)
+    if core.pcall(fn) then
+      print "-- Ran ~/.mjolnir/init.lua; success."
+    end
   elseif err:find "No such file or directory" then
     print "-- Cannot find ~/.mjolnir/init.lua; skipping."
   else
