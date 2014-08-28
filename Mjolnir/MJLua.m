@@ -22,6 +22,14 @@ static int core_exit(lua_State* L) {
     return 0; // lol
 }
 
+/// core.showrepl()
+/// Opens the Mjolnir main window in front, and switches to the REPL tab.
+static int core_showrepl(lua_State* L) {
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    [[MJMainWindowController sharedMainWindowController] showREPL];
+    return 0;
+}
+
 static int core__logmessage(lua_State* L) {
     size_t len;
     const char* s = lua_tolstring(L, 1, &len);
@@ -42,6 +50,7 @@ static int core__notify(lua_State* L) {
 
 static luaL_Reg corelib[] = {
     {"exit", core_exit},
+    {"showrepl", core_showrepl},
     {"_logmessage", core__logmessage},
     {"_notify", core__notify},
     {}
