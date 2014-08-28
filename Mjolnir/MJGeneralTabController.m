@@ -106,7 +106,12 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) toggleShowDockIcon:(NSButton*)sender {
-    BOOL enabled = [sender state] == NSOnState;
+    [[self class] cancelPreviousPerformRequestsWithTarget:self selector:@selector(actuallyToggleShowDockIcon) object:nil];
+    [self performSelector:@selector(actuallyToggleShowDockIcon) withObject:nil afterDelay:0.3];
+}
+
+- (void) actuallyToggleShowDockIcon {
+    BOOL enabled = [self.showDockIconCheckbox state] == NSOnState;
     MJDockIconSetVisible(enabled);
     [self maybeWarnAboutDockMenuProblem];
 }
