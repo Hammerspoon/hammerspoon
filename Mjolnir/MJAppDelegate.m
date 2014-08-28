@@ -11,17 +11,23 @@
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
 @property IBOutlet NSMenu* menuBarMenu;
 @property IBOutlet NSMenu* dockIconMenu;
+@property BOOL finishedLaunching;
 @end
 
 @implementation MJAppDelegate
 
 - (BOOL) applicationOpenUntitledFile:(NSApplication *)sender {
+    if (!self.finishedLaunching && ![[NSUserDefaults standardUserDefaults] boolForKey: MJShowWindowAtLaunchKey])
+        return NO;
+    
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[MJMainWindowController sharedMainWindowController] showWindow: nil];
     return YES;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    self.finishedLaunching = YES; // because Apple doesn't seem to keep track of this variable themselves
+    
     [self registerDefaultDefaults];
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
@@ -29,7 +35,7 @@
     MJConfigEnsureDirExists();
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
     [[MJExtensionManager sharedManager] setup];
-    [[MJMainWindowController sharedMainWindowController] maybeShowWindow];
+    [[MJMainWindowController sharedMainWindowController] setup];
     MJLuaSetup();
     [[MJExtensionManager sharedManager] loadInstalledModules];
     MJLuaReloadConfig();

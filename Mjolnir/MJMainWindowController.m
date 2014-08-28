@@ -23,13 +23,6 @@
     return sharedMainWindowController;
 }
 
-- (void) maybeShowWindow {
-    [self window]; // temporary hack to force things to load
-    
-    if ([[NSUserDefaults standardUserDefaults] boolForKey: MJShowWindowAtLaunchKey])
-        [self showWindow: nil];
-}
-
 - (NSString*) windowNibName { return @"MainWindow"; }
 
 - (void) showWindow:(id)sender {
@@ -37,6 +30,10 @@
         [[self window] center];
     
     [super showWindow:sender];
+}
+
+- (void) setup {
+    [self window]; // temporary hack to force things to load
 }
 
 - (void) addTabController:(id<MJTabController>)controller {

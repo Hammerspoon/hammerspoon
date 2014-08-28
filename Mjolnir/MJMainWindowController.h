@@ -4,7 +4,7 @@
 
 + (MJMainWindowController*) sharedMainWindowController;
 
-- (void) maybeShowWindow;
+- (void) setup;
 - (void) showREPL;
 
 @end
