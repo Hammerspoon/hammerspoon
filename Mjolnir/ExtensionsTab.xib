@@ -125,8 +125,8 @@
                             </scroller>
                         </scrollView>
                         <button verticalHuggingPriority="750" id="Ehl-Bf-kN4">
-                            <rect key="frame" x="45" y="19" width="26" height="23"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <rect key="frame" x="189" y="19" width="26" height="23"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
                             <buttonCell key="cell" type="smallSquare" title="Check for Extension Updates..." bezelStyle="smallSquare" image="NSRefreshTemplate" imagePosition="only" alignment="center" alternateImage="NSRefreshTemplate" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="fQ4-0U-5gS">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
@@ -136,9 +136,9 @@
                             </connections>
                         </button>
                         <button verticalHuggingPriority="750" id="gaF-Ps-u5K">
-                            <rect key="frame" x="20" y="19" width="26" height="23"/>
+                            <rect key="frame" x="20" y="19" width="106" height="23"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSMenuOnStateTemplate" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0GM-Bm-fWn">
+                            <buttonCell key="cell" type="smallSquare" title="Apply Changes" alternateTitle="Apply Changes" bezelStyle="smallSquare" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0GM-Bm-fWn">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
@@ -148,7 +148,7 @@
                             </connections>
                         </button>
                         <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" id="Ver-Lq-B8b">
-                            <rect key="frame" x="79" y="22" width="16" height="16"/>
+                            <rect key="frame" x="165" y="22" width="16" height="16"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <connections>
                                 <binding destination="-2" name="animate" keyPath="self.extManager.updating" id="E5T-QT-EPs"/>
@@ -209,7 +209,6 @@
         </splitView>
     </objects>
     <resources>
-        <image name="NSMenuOnStateTemplate" width="11" height="11"/>
         <image name="NSRefreshTemplate" width="10" height="12"/>
     </resources>
 </document>
