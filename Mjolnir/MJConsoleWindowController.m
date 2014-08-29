@@ -11,6 +11,7 @@
 @property NSInteger historyIndex;
 @property IBOutlet NSTextView* outputView;
 @property (weak) IBOutlet NSTextField* inputField;
+@property NSMutableArray* preshownStdouts;
 
 @end
 
@@ -36,11 +37,15 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 }
 
 - (void) setup {
-    [self window]; // HAX!
-    
+    self.preshownStdouts = [NSMutableArray array];
     MJLuaSetupLogHandler(^(NSString* str){
-        [self appendString:str type:MJReplLineTypeStdout];
-        [self.outputView scrollToEndOfDocument:self];
+        if (self.outputView) {
+            [self appendString:str type:MJReplLineTypeStdout];
+            [self.outputView scrollToEndOfDocument:self];
+        }
+        else {
+            [self.preshownStdouts addObject:str];
+        }
     });
 }
 
@@ -53,6 +58,12 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
      "Welcome to the Mjolnir REPL!\n"
      "You can run any Lua code in here.\n"
                   type:MJReplLineTypeStdout];
+    
+    for (NSString* str in self.preshownStdouts)
+        [self appendString:str type:MJReplLineTypeStdout];
+    
+    [self.outputView scrollToEndOfDocument:self];
+    self.preshownStdouts = nil;
 }
 
 - (void) appendString:(NSString*)str type:(MJReplLineType)type {
