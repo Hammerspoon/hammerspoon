@@ -60,18 +60,22 @@ void MJLuaSetup(void) {
     lua_State* L = MJLuaState = luaL_newstate();
     luaL_openlibs(L);
     
-    luaL_newlib(L, corelib);
-    lua_setglobal(L, "core");
+    lua_newtable(L);
+    for (luaL_Reg* l = corelib; l->name; l++) {
+        lua_pushcfunction(L, l->func);
+        lua_setfield(L, -2, l->name);
+    }
+    lua_setglobal(L, "mj");
     
     luaL_dofile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
     
-    lua_getglobal(L, "_corelerrorhandler");
+    lua_getglobal(L, "_mjerrorhandler");
     MJErrorHandlerIndex = luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
 void MJLuaReloadConfig(void) {
     lua_State* L = MJLuaState;
-    lua_getglobal(L, "core");
+    lua_getglobal(L, "mj");
     lua_getfield(L, -1, "reload");
     lua_call(L, 0, 0);
     lua_pop(L, 1);
@@ -80,7 +84,7 @@ void MJLuaReloadConfig(void) {
 NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState;
     
-    lua_getglobal(L, "core");
+    lua_getglobal(L, "mj");
     lua_getfield(L, -1, "runstring");
     lua_pushstring(L, [command UTF8String]);
     lua_pcall(L, 1, 1, 0);
@@ -95,7 +99,7 @@ NSString* MJLuaRunString(NSString* command) {
 
 int mjolnir_pcall(lua_State *L, int nargs, int nresults) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, MJErrorHandlerIndex);
-    int msgh = lua_absindex(L, -(nargs + 2));
+    int msgh = lua_gettop(L) - (nargs + 2);
     lua_insert(L, msgh);
     int r = lua_pcall(L, nargs, nresults, msgh);
     lua_remove(L, msgh);

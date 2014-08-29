@@ -1,14 +1,18 @@
-os.exit = core.exit
+os.exit = mj.exit
 
 package.path = package.path .. ';' .. './ext/?/init.lua'
 
-function core.runstring(s)
+local function pack(...)
+  {n = select("#", ...), ...}
+end
+
+function mj.runstring(s)
   local fn, err = load("return " .. s)
   if not fn then fn, err = load(s) end
   if not fn then return tostring(err) end
 
   local str = ""
-  local results = table.pack(pcall(fn))
+  local results = pack(pcall(fn))
   for i = 2,results.n do
     if i > 2 then str = str .. "\t" end
     str = str .. tostring(results[i])
@@ -16,25 +20,25 @@ function core.runstring(s)
   return str
 end
 
-function _corelerrorhandler(err)
-  return core.errorhandler(err)
+function _mjerrorhandler(err)
+  return mj.errorhandler(err)
 end
 
-function core.errorhandler(err)
-  core._notify("Mjolnir error occurred")
+function mj.errorhandler(err)
+  mj._notify("Mjolnir error occurred")
   print(err)
   print(debug.traceback())
   return err
 end
 
-function core.pcall(f, ...)
-  return xpcall(f, core.errorhandler, ...)
+function mj.pcall(f, ...)
+  return xpcall(f, mj.errorhandler, ...)
 end
 
 local rawprint = print
 function print(...)
   rawprint(...)
-  local vals = table.pack(...)
+  local vals = pack(...)
 
   for k = 1, vals.n do
     vals[k] = tostring(vals[k])
@@ -42,27 +46,15 @@ function print(...)
 
   -- using table.concat here is safe, because we just stringified all the values
   local str = table.concat(vals, "\t") .. "\n"
-  core._logmessage(str)
+  mj._logmessage(str)
 end
 
---- core.resetters = {}
---- If extensions need to reset any state when the user's config reloads, they must add a resetter function here.
---- i.e. core.hotkey's init.lua file should run `core.resetters["core.hotkey"] = function() ... end` at some point.
-core.resetters = {}
-
-local function resetstate()
-  for _, fn in pairs(core.resetters) do
-    fn()
-  end
-end
-
---- core.reload()
+--- mj.reload()
 --- Reloads your init-file. Clears any state from extensions, i.e. disables all hotkeys, etc.
-function core.reload()
+function mj.reload()
   local fn, err = loadfile "init.lua"
   if fn then
-    resetstate()
-    if core.pcall(fn) then
+    if mj.pcall(fn) then
       print "-- Load user settings: success."
     end
   elseif err:find "No such file or directory" then
@@ -70,6 +62,6 @@ function core.reload()
     print "-- See the documentation for more info about init.lua"
   else
     print(tostring(err))
-    core._notify("Syntax error in ~/.mjolnir/init.lua")
+    mj._notify("Syntax error in ~/.mjolnir/init.lua")
   end
 end
