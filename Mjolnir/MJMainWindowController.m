@@ -2,7 +2,6 @@
 #import "MJTabController.h"
 #import "MJGeneralTabController.h"
 #import "MJReplTabController.h"
-#import "MJExtensionsTabController.h"
 #import "MJDonateTabController.h"
 #import "variables.h"
 
@@ -89,7 +88,6 @@
     
     [self addTabController:[[MJGeneralTabController alloc] init]];
     [self addTabController:[[MJReplTabController alloc] init]];
-    [self addTabController:[[MJExtensionsTabController alloc] init]];
     [self addTabController:[[MJDonateTabController alloc] init]];
     
     [[[self window] toolbar] setSelectedItemIdentifier:[[self.tabControllers firstObject] title]];

@@ -1,15 +1,5 @@
 #import "MJVersionUtils.h"
 
-int MJVersionFromOSX(void) {
-    static int v;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        NSDictionary* sv = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
-        v = MJVersionFromString([sv objectForKey:@"ProductVersion"]);
-    });
-    return v;
-}
-
 int MJVersionFromThisApp(void) {
     static int v;
     static dispatch_once_t onceToken;

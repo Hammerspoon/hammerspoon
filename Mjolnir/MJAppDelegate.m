@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #import "MJMainWindowController.h"
-#import "MJExtensionManager.h"
 #import "MJConfigUtils.h"
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
@@ -34,7 +33,6 @@
     MJUpdateCheckerSetup();
     MJConfigEnsureDirExists();
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
-    [[MJExtensionManager sharedManager] setup];
     [[MJMainWindowController sharedMainWindowController] setup];
     MJLuaSetup();
     MJLuaReloadConfig();
