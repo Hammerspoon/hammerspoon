@@ -42,6 +42,10 @@ function print(...)
   mj._logmessage(str)
 end
 
+--- mj.print = print
+--- The original print function, before Mjolnir overrides it.
+mj.print = rawprint
+
 -- load user's init-file
 
 local fn, err = loadfile "init.lua"
