@@ -1,4 +1,4 @@
-#import "MJGeneralTabController.h"
+#import "MJPreferencesWindowController.h"
 #import "MJAutoLaunch.h"
 #import "MJLua.h"
 #import "MJLinkTextField.h"
@@ -6,14 +6,12 @@
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
 #import "MJConfigUtils.h"
+#import "MJAccessibilityUtils.h"
 #import "variables.h"
 
 #define MJSkipDockMenuIconProblemAlertKey @"MJSkipDockMenuIconProblemAlertKey"
 
-extern Boolean AXIsProcessTrustedWithOptions(CFDictionaryRef options) __attribute__((weak_import));
-extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
-
-@interface MJGeneralTabController ()
+@interface MJPreferencesWindowController ()
 
 @property (weak) IBOutlet NSButton* openAtLoginCheckbox;
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
@@ -27,15 +25,28 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 
 @end
 
+@implementation MJPreferencesWindowController
 
-@implementation MJGeneralTabController
++ (instancetype) singleton {
+    static MJPreferencesWindowController* s;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        s = [[MJPreferencesWindowController alloc] init];
+    });
+    return s;
+}
 
-@synthesize initialFirstResponder;
-- (NSString*) nibName { return @"GeneralTab"; }
-- (NSString*) title   { return @"General"; }
-- (NSImage*)  icon    { return [NSImage imageNamed:@"Settings"]; }
+- (void) showWindow:(id)sender {
+    if (![[self window] isVisible])
+        [[self window] center];
+    [super showWindow: sender];
+}
 
-- (void) awakeFromNib {
+- (NSString*) windowNibName {
+    return @"PreferencesWindow";
+}
+
+- (void)windowDidLoad {
     [self linkifyDashLabel];
     
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -62,10 +73,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (void) cacheIsAccessibilityEnabled {
-    if (AXIsProcessTrustedWithOptions != NULL)
-        self.isAccessibilityEnabled = AXIsProcessTrustedWithOptions(NULL);
-    else
-        self.isAccessibilityEnabled = AXAPIEnabled();
+    self.isAccessibilityEnabled = MJAccessibilityIsEnabled();
 }
 
 - (NSString*) maybeEnableAccessibilityString {
@@ -91,13 +99,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
 }
 
 - (IBAction) openAccessibility:(id)sender {
-    if (AXIsProcessTrustedWithOptions != NULL) {
-        AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)@{(__bridge id)kAXTrustedCheckOptionPrompt: @YES});
-    }
-    else {
-        static NSString* script = @"tell application \"System Preferences\"\nactivate\nset current pane to pane \"com.apple.preference.universalaccess\"\nend tell";
-        [[[NSAppleScript alloc] initWithSource:script] executeAndReturnError:nil];
-    }
+    MJAccessibilityOpenPanel();
 }
 
 - (IBAction) toggleOpensAtLogin:(NSButton*)sender {
@@ -145,7 +147,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
     [alert setMessageText:@"How to get back to this window"];
     [alert setInformativeText:@"When both the dock icon and menu icon are disabled, you can get back to this window by activating Mjolnir from Spotlight or by running `open -a Mjolnir` from Terminal."];
     [alert setShowsSuppressionButton:YES];
-    [alert beginSheetModalForWindow:[[self view] window]
+    [alert beginSheetModalForWindow:[self window]
                       modalDelegate:self
                      didEndSelector:@selector(dockMenuProblemAlertDidEnd:returnCode:contextInfo:)
                         contextInfo:NULL];
@@ -161,7 +163,7 @@ extern CFStringRef kAXTrustedCheckOptionPrompt __attribute__((weak_import));
         [alert setAlertStyle:NSWarningAlertStyle];
         [alert setMessageText:@"Config file doesn't exist"];
         [alert setInformativeText:@"You can fix this by creating an empty ~/.mjolnir/init.lua file."];
-        [alert beginSheetModalForWindow:[[self view] window]
+        [alert beginSheetModalForWindow:[self window]
                           modalDelegate:nil
                          didEndSelector:NULL
                             contextInfo:NULL];

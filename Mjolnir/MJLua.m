@@ -1,6 +1,6 @@
 #import "MJLua.h"
+#import "MJConsoleWindowController.h"
 #import "MJUserNotificationManager.h"
-#import "MJMainWindowController.h"
 
 static lua_State* MJLuaState;
 static int MJErrorHandlerIndex;
@@ -26,7 +26,7 @@ static int core_exit(lua_State* L) {
 /// Opens the Mjolnir main window in front, and switches to the REPL tab.
 static int core_showrepl(lua_State* L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-    [[MJMainWindowController sharedMainWindowController] showREPL];
+    [[MJConsoleWindowController singleton] showWindow: nil];
     return 0;
 }
 
@@ -43,7 +43,7 @@ static int core__notify(lua_State* L) {
     const char* s = lua_tolstring(L, 1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
     [[MJUserNotificationManager sharedManager] sendNotification:str handler:^{
-        [[MJMainWindowController sharedMainWindowController] showREPL];
+        [[MJConsoleWindowController singleton] showWindow: nil];
     }];
     return 0;
 }

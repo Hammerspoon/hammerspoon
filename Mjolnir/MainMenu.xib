@@ -8,7 +8,6 @@
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
             <connections>
                 <outlet property="delegate" destination="Voe-Tx-rLC" id="GzC-gU-4Uq"/>
-                <outlet property="dockMenu" destination="dnA-SP-ejc" id="zhN-QV-O3Z"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
@@ -38,7 +37,11 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                            <menuItem title="Preferences…" keyEquivalent="," id="9Kc-1f-Fv2"/>
+                            <menuItem title="Preferences…" keyEquivalent="," id="9Kc-1f-Fv2">
+                                <connections>
+                                    <action selector="showPreferencesWindow:" target="Voe-Tx-rLC" id="AdW-ZP-V8p"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                             <menuItem title="Services" id="NMo-om-nkz">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -79,9 +82,9 @@
                                     <action selector="reloadConfig:" target="Voe-Tx-rLC" id="9tp-b3-puT"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Main Window" keyEquivalent="0" id="8rK-CR-NrT">
+                            <menuItem title="Open Console" keyEquivalent="R" id="8rK-CR-NrT">
                                 <connections>
-                                    <action selector="showMainWindow:" target="Voe-Tx-rLC" id="udY-fl-qER"/>
+                                    <action selector="showConsoleWindow:" target="Voe-Tx-rLC" id="crn-jm-3G0"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
@@ -339,8 +342,7 @@
                                     <action selector="performZoom:" target="-1" id="DIl-cC-cCs"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" tag="1" id="eu3-7i-yIM"/>
-                            <menuItem isSeparatorItem="YES" tag="2" id="v4w-6d-bpK"/>
+                            <menuItem isSeparatorItem="YES" id="v4w-6d-bpK"/>
                             <menuItem title="Bring All to Front" id="LE2-aR-0XJ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
@@ -372,10 +374,17 @@
                         <action selector="reloadConfig:" target="Voe-Tx-rLC" id="Stb-gf-5Fa"/>
                     </connections>
                 </menuItem>
-                <menuItem title="Main Window" id="RGq-yR-Y0Q">
+                <menuItem isSeparatorItem="YES" id="C3i-ao-hBZ"/>
+                <menuItem title="Open Console" id="kQv-Ke-mdZ">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="showMainWindow:" target="Voe-Tx-rLC" id="j9C-vf-VYI"/>
+                        <action selector="showConsoleWindow:" target="Voe-Tx-rLC" id="1wg-Dg-jnP"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Preferences..." id="RGq-yR-Y0Q">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="showPreferencesWindow:" target="Voe-Tx-rLC" id="0WV-v0-6Fl"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
@@ -397,26 +406,6 @@
                     <connections>
                         <action selector="terminate:" target="-1" id="HYa-rl-Vrg"/>
                     </connections>
-                </menuItem>
-            </items>
-        </menu>
-        <menu id="dnA-SP-ejc" userLabel="Dock Menu">
-            <items>
-                <menuItem title="Reload Config" id="tWz-S0-B04">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="reloadConfig:" target="Voe-Tx-rLC" id="4px-Gt-cjY"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Main Window" id="kBp-eH-E8o">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="showMainWindow:" target="Voe-Tx-rLC" id="DH3-Gr-L7e"/>
-                    </connections>
-                </menuItem>
-                <menuItem isSeparatorItem="YES" id="vhg-UM-JI9"/>
-                <menuItem title="Quit Mjolnir" id="SsV-lF-fRo">
-                    <modifierMask key="keyEquivalentModifierMask"/>
                 </menuItem>
             </items>
         </menu>

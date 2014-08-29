@@ -1,16 +1,16 @@
-#import "MJReplTabController.h"
+#import "MJConsoleWindowController.h"
 #import "MJLua.h"
 
-@interface MJReplTabController ()
+#define MJColorForStdout [NSColor colorWithCalibratedHue:0.88 saturation:1.0 brightness:0.6 alpha:1.0]
+#define MJColorForCommand [NSColor blackColor]
+#define MJColorForResult [NSColor colorWithCalibratedHue:0.54 saturation:1.0 brightness:0.7 alpha:1.0]
+
+@interface MJConsoleWindowController ()
 
 @property NSMutableArray* history;
 @property NSInteger historyIndex;
 @property IBOutlet NSTextView* outputView;
 @property (weak) IBOutlet NSTextField* inputField;
-
-@property NSColor* colorForStdout;
-@property NSColor* colorForCommand;
-@property NSColor* colorForResult;
 
 @end
 
@@ -20,26 +20,34 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     MJReplLineTypeStdout,
 };
 
-@implementation MJReplTabController
+@implementation MJConsoleWindowController
 
-@synthesize initialFirstResponder;
-- (NSString*) nibName { return @"ReplTab"; }
-- (NSString*) title   { return @"REPL"; }
-- (NSImage*)  icon    { return [NSImage imageNamed:@"REPL"]; }
+- (NSString*) windowNibName {
+    return @"ConsoleWindow";
+}
 
-- (void) awakeFromNib {
-    self.colorForStdout = [NSColor colorWithCalibratedHue:0.88 saturation:1.0 brightness:0.6 alpha:1.0];
-    self.colorForCommand = [NSColor blackColor];
-    self.colorForResult = [NSColor colorWithCalibratedHue:0.54 saturation:1.0 brightness:0.7 alpha:1.0];
-    
-    self.history = [NSMutableArray array];
-    [self.outputView setEditable:NO];
-    [self.outputView setSelectable:YES];
++ (instancetype) singleton {
+    static MJConsoleWindowController* s;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        s = [[MJConsoleWindowController alloc] init];
+    });
+    return s;
+}
+
+- (void) setup {
+    [self window]; // HAX!
     
     MJLuaSetupLogHandler(^(NSString* str){
         [self appendString:str type:MJReplLineTypeStdout];
         [self.outputView scrollToEndOfDocument:self];
     });
+}
+
+- (void) windowDidLoad {
+    self.history = [NSMutableArray array];
+    [self.outputView setEditable:NO];
+    [self.outputView setSelectable:YES];
     
     [self appendString:@""
      "Welcome to the Mjolnir REPL!\n"
@@ -50,9 +58,9 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 - (void) appendString:(NSString*)str type:(MJReplLineType)type {
     NSColor* color = nil;
     switch (type) {
-        case MJReplLineTypeStdout:  color = self.colorForStdout; break;
-        case MJReplLineTypeCommand: color = self.colorForCommand; break;
-        case MJReplLineTypeResult:  color = self.colorForResult; break;
+        case MJReplLineTypeStdout:  color = MJColorForStdout; break;
+        case MJReplLineTypeCommand: color = MJColorForCommand; break;
+        case MJReplLineTypeResult:  color = MJColorForResult; break;
     }
     
     NSDictionary* attrs = @{NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0], NSForegroundColorAttributeName: color};

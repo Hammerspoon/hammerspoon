@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
-#import "MJMainWindowController.h"
+#import "MJConsoleWindowController.h"
+#import "MJPreferencesWindowController.h"
 #import "MJConfigUtils.h"
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
@@ -9,37 +10,30 @@
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
 @property IBOutlet NSMenu* menuBarMenu;
-@property IBOutlet NSMenu* dockIconMenu;
-@property BOOL finishedLaunching;
 @end
 
 @implementation MJAppDelegate
 
-- (BOOL) applicationOpenUntitledFile:(NSApplication *)sender {
-    if (!self.finishedLaunching && ![[NSUserDefaults standardUserDefaults] boolForKey: MJShowWindowAtLaunchKey])
-        return NO;
+- (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
+    if (!hasVisibleWindows)
+        [[MJPreferencesWindowController singleton] showWindow: nil];
     
-    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-    [[MJMainWindowController sharedMainWindowController] showWindow: nil];
-    return YES;
+    return NO;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    self.finishedLaunching = YES; // because Apple doesn't seem to keep track of this variable themselves
-    
     [self registerDefaultDefaults];
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
     MJUpdateCheckerSetup();
     MJConfigEnsureDirExists();
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
-    [[MJMainWindowController sharedMainWindowController] setup];
+    [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
     MJLuaReloadConfig();
-}
-
-- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
-    return self.dockIconMenu;
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey: MJShowWindowAtLaunchKey])
+        [[MJPreferencesWindowController singleton] showWindow: nil];
 }
 
 - (void) registerDefaultDefaults {
@@ -54,9 +48,14 @@
     MJLuaReloadConfig();
 }
 
-- (IBAction) showMainWindow:(id)sender {
+- (IBAction) showConsoleWindow:(id)sender {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-    [[MJMainWindowController sharedMainWindowController] showWindow: nil];
+    [[MJConsoleWindowController singleton] showWindow: nil];
+}
+
+- (IBAction) showPreferencesWindow:(id)sender {
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    [[MJPreferencesWindowController singleton] showWindow: nil];
 }
 
 - (IBAction) showAboutPanel:(id)sender {
