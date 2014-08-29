@@ -1,2 +1,0 @@
-language: objective-c
-script: xcodebuild
