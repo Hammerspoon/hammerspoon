@@ -18,10 +18,6 @@ function mj.runstring(s)
   return str
 end
 
-function _mjerrorhandler(err)
-  return mj.errorhandler(err)
-end
-
 function mj.errorhandler(err)
   mj._notify("Mjolnir error occurred")
   print(err)
