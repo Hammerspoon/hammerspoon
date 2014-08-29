@@ -4,8 +4,6 @@
 
 *Lightweight automation and productivity power-tool for OS X*
 
-[![Build Status](https://travis-ci.org/mjolnir-io/mjolnir.svg?branch=master)](https://travis-ci.org/mjolnir-io/mjolnir)
-
 * Current version:  Mjolnir **0.1**
 * Requires:         OS X 10.8 or higher
 * Download:         https://github.com/mjolnir-io/mjolnir/releases
