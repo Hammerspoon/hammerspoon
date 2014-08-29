@@ -14,7 +14,7 @@
 
 @implementation MJAppDelegate
 
-- (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
+- (BOOL) applicationShouldHandleReopen:(NSApplication*)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
     if (!hasVisibleWindows)
         [[MJPreferencesWindowController singleton] showWindow: nil];
     
@@ -38,8 +38,8 @@
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{MJCheckForUpdatesKey: @YES,
-                         MJShowDockIconKey: @YES,
                          MJShowWindowAtLaunchKey: @YES,
+                         MJShowDockIconKey: @YES,
                          MJShowMenuIconKey: @NO}];
 }
 

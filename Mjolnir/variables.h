@@ -6,12 +6,8 @@
 #define MJCheckForUpdatesInterval          (60.0 * 60.0 * 24.0)
 #define MJCheckForExtensionUpdatesInterval (60.0 * 60.0 * 24.0)
 
-static NSString* MJPayPalDonationURL     = @"https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com"
-                                            "&cmd=_donations&item_name=Mjolnir.app%20donation&no_shipping=1";
-static NSString* MJCreditCardDonationURL = @"https://sites.fastspring.com/sdegutis/instant/hydra";
 static NSString* MJReleaseNotesURL       = @"https://github.com/mjolnir-io/mjolnir/blob/master/CHANGES.md";
 static NSString* MJDownloadPage          = @"https://github.com/mjolnir-io/mjolnir/releases/latest";
-static NSString* MJExtensionsManifestURL = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir-ext/master/manifest.json";
 static NSString* MJUpdatesURL            = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
 static NSString* MJDashURL               = @"http://kapeli.com/dash";
 
