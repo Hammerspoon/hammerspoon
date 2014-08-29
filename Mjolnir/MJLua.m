@@ -3,7 +3,6 @@
 #import "MJUserNotificationManager.h"
 
 static lua_State* MJLuaState;
-static int MJErrorHandlerIndex;
 
 /// === mj ===
 ///
@@ -14,20 +13,29 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
 
-static int core_exit(lua_State* L) {
-    if (lua_toboolean(L, 2))
-        lua_close(L);
-    
-    [[NSApplication sharedApplication] terminate: nil];
-    return 0; // lol
-}
-
 /// mj.openconsole()
 /// Opens the Mjolnir Console window and focuses it.
 static int core_openconsole(lua_State* L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[MJConsoleWindowController singleton] showWindow: nil];
     return 0;
+}
+
+/// mj.reload()
+/// Reloads your init-file. Clears any state from extensions, i.e. disables all hotkeys, etc.
+static int core_reload(lua_State* L) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        MJLuaSetup();
+    });
+    return 0;
+}
+
+static int core_exit(lua_State* L) {
+    if (lua_toboolean(L, 2))
+        lua_close(L);
+    
+    [[NSApplication sharedApplication] terminate: nil];
+    return 0; // lol
 }
 
 static int core__logmessage(lua_State* L) {
@@ -50,6 +58,7 @@ static int core__notify(lua_State* L) {
 
 static luaL_Reg corelib[] = {
     {"openconsole", core_openconsole},
+    {"reload", core_reload},
     {"_exit", core_exit},
     {"_logmessage", core__logmessage},
     {"_notify", core__notify},
@@ -57,6 +66,9 @@ static luaL_Reg corelib[] = {
 };
 
 void MJLuaSetup(void) {
+    if (MJLuaState)
+        lua_close(MJLuaState);
+    
     lua_State* L = MJLuaState = luaL_newstate();
     luaL_openlibs(L);
     
@@ -68,17 +80,6 @@ void MJLuaSetup(void) {
     lua_setglobal(L, "mj");
     
     luaL_dofile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
-    
-    lua_getglobal(L, "_mjerrorhandler");
-    MJErrorHandlerIndex = luaL_ref(L, LUA_REGISTRYINDEX);
-}
-
-void MJLuaReloadConfig(void) {
-    lua_State* L = MJLuaState;
-    lua_getglobal(L, "mj");
-    lua_getfield(L, -1, "reload");
-    lua_call(L, 0, 0);
-    lua_pop(L, 1);
 }
 
 NSString* MJLuaRunString(NSString* command) {
@@ -98,7 +99,10 @@ NSString* MJLuaRunString(NSString* command) {
 }
 
 int mjolnir_pcall(lua_State *L, int nargs, int nresults) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, MJErrorHandlerIndex);
+    lua_getglobal(L, "mj");
+    lua_getfield(L, -1, "errorhandler");
+    lua_remove(L, -2);
+    
     int msgh = lua_gettop(L) - (nargs + 2);
     lua_insert(L, msgh);
     int r = lua_pcall(L, nargs, nresults, msgh);

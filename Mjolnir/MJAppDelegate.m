@@ -30,7 +30,6 @@
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
     [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
-    MJLuaReloadConfig();
     
     if ([[NSUserDefaults standardUserDefaults] boolForKey: MJShowWindowAtLaunchKey])
         [[MJPreferencesWindowController singleton] showWindow: nil];
@@ -45,7 +44,7 @@
 }
 
 - (IBAction) reloadConfig:(id)sender {
-    MJLuaReloadConfig();
+    MJLuaSetup();
 }
 
 - (IBAction) showConsoleWindow:(id)sender {

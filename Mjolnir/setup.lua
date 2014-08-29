@@ -42,24 +42,21 @@ function print(...)
     vals[k] = tostring(vals[k])
   end
 
-  -- using table.concat here is safe, because we just stringified all the values
   local str = table.concat(vals, "\t") .. "\n"
   mj._logmessage(str)
 end
 
---- mj.reload()
---- Reloads your init-file. Clears any state from extensions, i.e. disables all hotkeys, etc.
-function mj.reload()
-  local fn, err = loadfile "init.lua"
-  if fn then
-    if mj.pcall(fn) then
-      print "-- Load user settings: success."
-    end
-  elseif err:find "No such file or directory" then
-    print "-- Load personal settings: cannot find ~/.mjolnir/init.lua; skipping."
-    print "-- See the documentation for more info about init.lua"
-  else
-    print(tostring(err))
-    mj._notify("Syntax error in ~/.mjolnir/init.lua")
+-- load user's init-file
+
+local fn, err = loadfile "init.lua"
+if fn then
+  if mj.pcall(fn) then
+    print "-- Load user settings: success."
   end
+elseif err:find "No such file or directory" then
+  print "-- Load personal settings: cannot find ~/.mjolnir/init.lua; skipping."
+  print "-- See the documentation for more info about init.lua"
+else
+  print(tostring(err))
+  mj._notify("Syntax error in ~/.mjolnir/init.lua")
 end

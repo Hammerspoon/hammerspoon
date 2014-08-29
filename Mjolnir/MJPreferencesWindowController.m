@@ -154,7 +154,7 @@
 }
 
 - (IBAction) reloadConfig:(id)sender {
-    MJLuaReloadConfig();
+    MJLuaSetup();
 }
 
 - (IBAction) openConfig:(id)sender {
