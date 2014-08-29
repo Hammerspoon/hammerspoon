@@ -74,11 +74,11 @@ void MJLuaSetup(void) {
 }
 
 void MJLuaReloadConfig(void) {
-//    lua_State* L = MJLuaState;
-//    lua_getglobal(L, "mj");
-//    lua_getfield(L, -1, "reload");
-//    lua_call(L, 0, 0);
-//    lua_pop(L, 1);
+    lua_State* L = MJLuaState;
+    lua_getglobal(L, "mj");
+    lua_getfield(L, -1, "reload");
+    lua_call(L, 0, 0);
+    lua_pop(L, 1);
 }
 
 NSString* MJLuaRunString(NSString* command) {

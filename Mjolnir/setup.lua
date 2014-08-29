@@ -1,14 +1,12 @@
 os.exit = mj.exit
 
-package.path = package.path .. ';' .. './ext/?/init.lua'
-
 local function pack(...)
-  {n = select("#", ...), ...}
+  return {n = select("#", ...), ...}
 end
 
 function mj.runstring(s)
-  local fn, err = load("return " .. s)
-  if not fn then fn, err = load(s) end
+  local fn, err = loadstring("return " .. s)
+  if not fn then fn, err = loadstring(s) end
   if not fn then return tostring(err) end
 
   local str = ""
