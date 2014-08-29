@@ -63,10 +63,11 @@ function core.reload()
   if fn then
     resetstate()
     if core.pcall(fn) then
-      print "-- Ran ~/.mjolnir/init.lua; success."
+      print "-- Load user settings: success."
     end
   elseif err:find "No such file or directory" then
-    print "-- Cannot find ~/.mjolnir/init.lua; skipping."
+    print "-- Load personal settings: cannot find ~/.mjolnir/init.lua; skipping."
+    print "-- See the documentation for more info about init.lua"
   else
     print(tostring(err))
     core._notify("Syntax error in ~/.mjolnir/init.lua")
