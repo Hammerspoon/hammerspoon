@@ -51,11 +51,10 @@ mj.print = rawprint
 local fn, err = loadfile "init.lua"
 if fn then
   if mj.pcall(fn) then
-    print "-- Load user settings: success."
+    print "-- Loading ~/.mjolnir/init.lua; success."
   end
 elseif err:find "No such file or directory" then
-  print "-- Load personal settings: cannot find ~/.mjolnir/init.lua; skipping."
-  print "-- See the documentation for more info about init.lua"
+  print "-- Loading ~/.mjolnir/init.lua; file not found, skipping."
 else
   print(tostring(err))
   mj._notify("Syntax error in ~/.mjolnir/init.lua")
