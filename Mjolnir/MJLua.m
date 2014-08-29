@@ -5,9 +5,9 @@
 static lua_State* MJLuaState;
 static int MJErrorHandlerIndex;
 
-/// === core ===
+/// === mj ===
 ///
-/// Core functionality.
+/// Core Mjolnir functionality.
 
 static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
@@ -22,9 +22,9 @@ static int core_exit(lua_State* L) {
     return 0; // lol
 }
 
-/// core.showrepl()
-/// Opens the Mjolnir main window in front, and switches to the REPL tab.
-static int core_showrepl(lua_State* L) {
+/// mj.openconsole()
+/// Opens the Mjolnir Console window and focuses it.
+static int core_openconsole(lua_State* L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[MJConsoleWindowController singleton] showWindow: nil];
     return 0;
@@ -49,8 +49,8 @@ static int core__notify(lua_State* L) {
 }
 
 static luaL_Reg corelib[] = {
-    {"exit", core_exit},
-    {"showrepl", core_showrepl},
+    {"openconsole", core_openconsole},
+    {"_exit", core_exit},
     {"_logmessage", core__logmessage},
     {"_notify", core__notify},
     {}

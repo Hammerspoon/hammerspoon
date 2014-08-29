@@ -1,4 +1,4 @@
-os.exit = mj.exit
+os.exit = mj._exit
 
 local function pack(...)
   return {n = select("#", ...), ...}
