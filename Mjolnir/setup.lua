@@ -46,8 +46,8 @@ end
 --- The original print function, before Mjolnir overrides it.
 mj.print = rawprint
 
--- load user's init-file
 
+-- load user's init-file
 local fn, err = loadfile "init.lua"
 if fn then
   if mj.pcall(fn) then
