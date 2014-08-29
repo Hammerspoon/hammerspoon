@@ -25,7 +25,6 @@
 		944A2D451989737E00D8DC90 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 944A2D3F1989737E00D8DC90 /* Images.xcassets */; };
 		944A2DA6198975B000D8DC90 /* MJGeneralTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA5198975B000D8DC90 /* MJGeneralTabController.m */; };
 		944A2DA91989760400D8DC90 /* MJReplTabController.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2DA81989760400D8DC90 /* MJReplTabController.m */; };
-		9454E81619AB672A00426960 /* MJColorUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9454E81519AB672A00426960 /* MJColorUtils.m */; };
 		945B65AC198D2DDB002D2E30 /* MJLua.m in Sources */ = {isa = PBXBuildFile; fileRef = 945B65AB198D2DDB002D2E30 /* MJLua.m */; };
 		945B65B2198D31FC002D2E30 /* setup.lua in Resources */ = {isa = PBXBuildFile; fileRef = 945B65B1198D31FC002D2E30 /* setup.lua */; };
 		9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
@@ -93,8 +92,6 @@
 		944A2D411989737E00D8DC90 /* Mjolnir-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Mjolnir-Prefix.pch"; sourceTree = "<group>"; };
 		944A2DA5198975B000D8DC90 /* MJGeneralTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJGeneralTabController.m; sourceTree = "<group>"; };
 		944A2DA81989760400D8DC90 /* MJReplTabController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJReplTabController.m; sourceTree = "<group>"; };
-		9454E81419AB672A00426960 /* MJColorUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJColorUtils.h; sourceTree = "<group>"; };
-		9454E81519AB672A00426960 /* MJColorUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJColorUtils.m; sourceTree = "<group>"; };
 		945B65A9198D2C0B002D2E30 /* MJMainWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJMainWindowController.h; sourceTree = "<group>"; };
 		945B65AB198D2DDB002D2E30 /* MJLua.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJLua.m; sourceTree = "<group>"; };
 		945B65B1198D31FC002D2E30 /* setup.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = setup.lua; sourceTree = "<group>"; };
@@ -317,8 +314,6 @@
 				949B520519A55BF400ED4F02 /* MJMenuIcon.m */,
 				9409202F19A5940600B9964E /* MJVersionUtils.h */,
 				9409203019A5940600B9964E /* MJVersionUtils.m */,
-				9454E81419AB672A00426960 /* MJColorUtils.h */,
-				9454E81519AB672A00426960 /* MJColorUtils.m */,
 			);
 			name = Auxiliary;
 			sourceTree = "<group>";
@@ -454,7 +449,6 @@
 				949B520019A5516900ED4F02 /* MJUpdateChecker.m in Sources */,
 				9428C7EC198EB7E200CDFA00 /* MJConfigUtils.m in Sources */,
 				94AB413819914DDA00055603 /* MJDonateTabController.m in Sources */,
-				9454E81619AB672A00426960 /* MJColorUtils.m in Sources */,
 				949B520619A55BF400ED4F02 /* MJMenuIcon.m in Sources */,
 				943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */,
 				943BF0F319A4BC730017F79D /* Images.xcassets in Sources */,

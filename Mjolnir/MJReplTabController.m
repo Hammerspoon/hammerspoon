@@ -1,6 +1,5 @@
 #import "MJReplTabController.h"
 #import "MJLua.h"
-#import "MJColorUtils.h"
 
 @interface MJReplTabController ()
 
@@ -29,9 +28,9 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 - (NSImage*)  icon    { return [NSImage imageNamed:@"REPL"]; }
 
 - (void) awakeFromNib {
-    self.colorForStdout = MJColorFromHex("990073");
+    self.colorForStdout = [NSColor colorWithCalibratedHue:0.88 saturation:1.0 brightness:0.6 alpha:1.0];
     self.colorForCommand = [NSColor blackColor];
-    self.colorForResult = MJColorFromHex("0086b3");
+    self.colorForResult = [NSColor colorWithCalibratedHue:0.54 saturation:1.0 brightness:0.7 alpha:1.0];
     
     self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];
