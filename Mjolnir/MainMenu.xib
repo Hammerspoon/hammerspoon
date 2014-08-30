@@ -77,17 +77,23 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="Reload Config" keyEquivalent="r" id="Was-JA-tGl">
+                            <menuItem title="Load Config" keyEquivalent="l" id="Was-JA-tGl">
                                 <connections>
                                     <action selector="reloadConfig:" target="Voe-Tx-rLC" id="9tp-b3-puT"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Open Console" keyEquivalent="R" id="8rK-CR-NrT">
+                            <menuItem title="Open Config" keyEquivalent="o" id="gTe-IJ-37j">
+                                <connections>
+                                    <action selector="openConfig:" target="Voe-Tx-rLC" id="BnO-mw-Wbz"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
+                            <menuItem title="Open Console" keyEquivalent="r" id="8rK-CR-NrT">
                                 <connections>
                                     <action selector="showConsoleWindow:" target="Voe-Tx-rLC" id="crn-jm-3G0"/>
                                 </connections>
                             </menuItem>
-                            <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
+                            <menuItem isSeparatorItem="YES" id="q7Q-ls-0p4"/>
                             <menuItem title="Close" keyEquivalent="w" id="DVo-aG-piG">
                                 <connections>
                                     <action selector="performClose:" target="-1" id="HmO-Ls-i7Q"/>

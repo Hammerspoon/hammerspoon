@@ -31,14 +31,15 @@
     [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
     
-    if ([[NSUserDefaults standardUserDefaults] boolForKey: MJShowWindowAtLaunchKey])
+    if (![[NSUserDefaults standardUserDefaults] boolForKey: MJHasRunAlreadyKey]) {
         [[MJPreferencesWindowController singleton] showWindow: nil];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:MJHasRunAlreadyKey];
+    }
 }
 
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{MJCheckForUpdatesKey: @YES,
-                         MJShowWindowAtLaunchKey: @YES,
                          MJShowDockIconKey: @YES,
                          MJShowMenuIconKey: @NO}];
 }
@@ -65,6 +66,16 @@
 - (IBAction) checkForUpdates:(id)sender {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     MJUpdateCheckerCheckVerbosely();
+}
+
+- (IBAction) openConfig:(id)sender {
+    if (![[NSWorkspace sharedWorkspace] openFile:[MJConfigPath() stringByAppendingPathComponent:@"init.lua"]]) {
+        NSAlert* alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setMessageText:@"Config file doesn't exist"];
+        [alert setInformativeText:@"You can fix this by creating an empty ~/.mjolnir/init.lua file."];
+        [alert runModal];
+    }
 }
 
 @end

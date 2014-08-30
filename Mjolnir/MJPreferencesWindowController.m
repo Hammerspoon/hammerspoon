@@ -16,7 +16,6 @@
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
 @property (weak) IBOutlet NSButton* showMenuIconCheckbox;
 @property (weak) IBOutlet NSButton* checkForUpdatesCheckbox;
-@property (weak) IBOutlet NSButton* showWindowAtLaunchCheckbox;
 
 @property BOOL isAccessibilityEnabled;
 
@@ -54,7 +53,6 @@
     [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
     [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState: MJUpdateCheckerEnabled() ? NSOnState : NSOffState];
-    [self.showWindowAtLaunchCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:MJShowWindowAtLaunchKey] ? NSOnState : NSOffState];
 }
 
 - (void) accessibilityChanged:(NSNotification*)note {
@@ -142,28 +140,6 @@
                       modalDelegate:self
                      didEndSelector:@selector(dockMenuProblemAlertDidEnd:returnCode:contextInfo:)
                         contextInfo:NULL];
-}
-
-- (IBAction) reloadConfig:(id)sender {
-    MJLuaSetup();
-}
-
-- (IBAction) openConfig:(id)sender {
-    if (![[NSWorkspace sharedWorkspace] openFile:[MJConfigPath() stringByAppendingPathComponent:@"init.lua"]]) {
-        NSAlert* alert = [[NSAlert alloc] init];
-        [alert setAlertStyle:NSWarningAlertStyle];
-        [alert setMessageText:@"Config file doesn't exist"];
-        [alert setInformativeText:@"You can fix this by creating an empty ~/.mjolnir/init.lua file."];
-        [alert beginSheetModalForWindow:[self window]
-                          modalDelegate:nil
-                         didEndSelector:NULL
-                            contextInfo:NULL];
-    }
-}
-
-- (IBAction) toggleShowWindowAtLaunch:(NSButton*)sender {
-    [[NSUserDefaults standardUserDefaults] setBool:[sender state] == NSOnState
-                                            forKey:MJShowWindowAtLaunchKey];
 }
 
 @end
