@@ -2,7 +2,7 @@
 #define Mjolnir_variables_h
 
 
-static NSString* MJReleaseNotesURL       = @"https://github.com/mjolnir-io/mjolnir/blob/master/CHANGES.md";
+static NSString* MJReleaseNotesURL       = @"https://github.com/mjolnir-io/mjolnir#changes";
 static NSString* MJDownloadPage          = @"https://github.com/mjolnir-io/mjolnir/releases/latest";
 static NSString* MJUpdatesURL            = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
 
