@@ -88,7 +88,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
-                            <menuItem title="Open Console" keyEquivalent="r" id="8rK-CR-NrT">
+                            <menuItem title="Console" keyEquivalent="r" id="8rK-CR-NrT">
                                 <connections>
                                     <action selector="showConsoleWindow:" target="Voe-Tx-rLC" id="crn-jm-3G0"/>
                                 </connections>
@@ -380,8 +380,14 @@
                         <action selector="reloadConfig:" target="Voe-Tx-rLC" id="Stb-gf-5Fa"/>
                     </connections>
                 </menuItem>
+                <menuItem title="Open Config" id="H8w-tZ-oRN">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="openConfig:" target="Voe-Tx-rLC" id="HP4-um-M1o"/>
+                    </connections>
+                </menuItem>
                 <menuItem isSeparatorItem="YES" id="C3i-ao-hBZ"/>
-                <menuItem title="Open Console" id="kQv-Ke-mdZ">
+                <menuItem title="Console" id="kQv-Ke-mdZ">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="showConsoleWindow:" target="Voe-Tx-rLC" id="1wg-Dg-jnP"/>
