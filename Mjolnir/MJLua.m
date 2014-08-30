@@ -97,15 +97,3 @@ NSString* MJLuaRunString(NSString* command) {
     
     return str;
 }
-
-int mjolnir_pcall(lua_State *L, int nargs, int nresults) {
-    lua_getglobal(L, "mj");
-    lua_getfield(L, -1, "errorhandler");
-    lua_remove(L, -2);
-    
-    int msgh = lua_gettop(L) - (nargs + 2);
-    lua_insert(L, msgh);
-    int r = lua_pcall(L, nargs, nresults, msgh);
-    lua_remove(L, msgh);
-    return r;
-}
