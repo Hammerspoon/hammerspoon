@@ -24,10 +24,10 @@
         NSString* tgzURL = [lines objectAtIndex:1];
         NSString* signature = [lines objectAtIndex:2];
         
-//        if (MJVersionFromString(versionString) <= MJVersionFromThisApp()) {
-//            handler(nil, nil);
-//            return;
-//        }
+        if (MJVersionFromString(versionString) <= MJVersionFromThisApp()) {
+            handler(nil, nil);
+            return;
+        }
         
         MJUpdate* updater = [[MJUpdate alloc] init];
         updater.signature = signature;
