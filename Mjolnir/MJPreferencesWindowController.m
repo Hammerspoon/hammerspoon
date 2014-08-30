@@ -1,7 +1,6 @@
 #import "MJPreferencesWindowController.h"
 #import "MJAutoLaunch.h"
 #import "MJLua.h"
-#import "MJLinkTextField.h"
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
@@ -18,8 +17,6 @@
 @property (weak) IBOutlet NSButton* showMenuIconCheckbox;
 @property (weak) IBOutlet NSButton* checkForUpdatesCheckbox;
 @property (weak) IBOutlet NSButton* showWindowAtLaunchCheckbox;
-
-@property (weak) IBOutlet MJLinkTextField* dashField;
 
 @property BOOL isAccessibilityEnabled;
 
@@ -47,8 +44,6 @@
 }
 
 - (void)windowDidLoad {
-    [self linkifyDashLabel];
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self cacheIsAccessibilityEnabled];
     });
@@ -60,10 +55,6 @@
     [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState: MJUpdateCheckerEnabled() ? NSOnState : NSOffState];
     [self.showWindowAtLaunchCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:MJShowWindowAtLaunchKey] ? NSOnState : NSOffState];
-}
-
-- (void) linkifyDashLabel {
-    MJLinkTextFieldAddLink(self.dashField, MJDashURL, [[self.dashField stringValue] rangeOfString:@"Dash"]);
 }
 
 - (void) accessibilityChanged:(NSNotification*)note {

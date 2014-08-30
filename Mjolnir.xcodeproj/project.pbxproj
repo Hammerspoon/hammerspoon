@@ -16,7 +16,6 @@
 		942E71AA19B11176001BA156 /* MJAccessibilityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 942E71A919B11176001BA156 /* MJAccessibilityUtils.m */; };
 		943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */; };
 		943BF0F319A4BC730017F79D /* Images.xcassets in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D3F1989737E00D8DC90 /* Images.xcassets */; };
-		943BF0F619A4CD830017F79D /* MJLinkTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 943BF0F519A4CD830017F79D /* MJLinkTextField.m */; };
 		94414F47196A1B280067D467 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94414F46196A1B280067D467 /* Carbon.framework */; };
 		9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 944A2D341989735300D8DC90 /* MJAppDelegate.m */; };
@@ -73,8 +72,6 @@
 		942E71A919B11176001BA156 /* MJAccessibilityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAccessibilityUtils.m; sourceTree = "<group>"; };
 		943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJUserNotificationManager.h; sourceTree = "<group>"; };
 		943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJUserNotificationManager.m; sourceTree = "<group>"; };
-		943BF0F419A4CD830017F79D /* MJLinkTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJLinkTextField.h; sourceTree = "<group>"; };
-		943BF0F519A4CD830017F79D /* MJLinkTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJLinkTextField.m; sourceTree = "<group>"; };
 		94414F46196A1B280067D467 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Carbon.framework; sourceTree = DEVELOPER_DIR; };
 		9445CA0B19083251002568BB /* Mjolnir.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mjolnir.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9445CA0E19083251002568BB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -285,8 +282,6 @@
 				94A1E5471993AC5C003AEB26 /* MJFileUtils.m */,
 				943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */,
 				943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */,
-				943BF0F419A4CD830017F79D /* MJLinkTextField.h */,
-				943BF0F519A4CD830017F79D /* MJLinkTextField.m */,
 				949B520119A5576E00ED4F02 /* MJDockIcon.h */,
 				949B520219A5576E00ED4F02 /* MJDockIcon.m */,
 				949B520419A55BF400ED4F02 /* MJMenuIcon.h */,
@@ -406,7 +401,6 @@
 				944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */,
 				942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */,
 				9409203119A5940600B9964E /* MJVersionUtils.m in Sources */,
-				943BF0F619A4CD830017F79D /* MJLinkTextField.m in Sources */,
 				944A2DA91989760400D8DC90 /* MJConsoleWindowController.m in Sources */,
 				94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */,
 				94A1E5421993AB00003AEB26 /* MJSecurityUtils.m in Sources */,
