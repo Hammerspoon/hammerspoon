@@ -9,7 +9,6 @@ ZIPFILE = Mjolnir-$(VERSION).zip
 VERSIONFILE = LATESTVERSION
 
 release: $(TGZFILE) $(ZIPFILE) $(VERSIONFILE)
-	open -R .
 
 $(APPFILE): $(shell find Mjolnir -type f)
 	rm -rf $@
