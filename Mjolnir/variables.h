@@ -2,9 +2,7 @@
 #define Mjolnir_variables_h
 
 
-#define MJCheckForUpdatesDelay             (0.0)
 #define MJCheckForUpdatesInterval          (60.0 * 60.0 * 24.0)
-#define MJCheckForExtensionUpdatesInterval (60.0 * 60.0 * 24.0)
 
 static NSString* MJReleaseNotesURL       = @"https://github.com/mjolnir-io/mjolnir/blob/master/CHANGES.md";
 static NSString* MJDownloadPage          = @"https://github.com/mjolnir-io/mjolnir/releases/latest";

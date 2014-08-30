@@ -24,7 +24,7 @@ void MJUpdateCheckerSetup(void) {
     reflect_defaults();
     
     if (MJUpdateCheckerEnabled())
-        CFRunLoopTimerSetNextFireDate(autoupdateTimer, CFAbsoluteTimeGetCurrent() + MJCheckForUpdatesDelay);
+        CFRunLoopTimerSetNextFireDate(autoupdateTimer, CFAbsoluteTimeGetCurrent());
 }
 
 static MJAutoUpdaterWindowController* definitelyRealWindowController(void) {
