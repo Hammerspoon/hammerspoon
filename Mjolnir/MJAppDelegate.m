@@ -41,7 +41,8 @@
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{MJCheckForUpdatesKey: @YES,
                          MJShowDockIconKey: @YES,
-                         MJShowMenuIconKey: @NO}];
+                         MJShowMenuIconKey: @NO,
+                         MJCheckForUpdatesIntervalKey: @(60.0 * 60.0 * 24.0)}];
 }
 
 - (IBAction) reloadConfig:(id)sender {

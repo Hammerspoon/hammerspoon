@@ -20,7 +20,8 @@ static void reflect_defaults(void) {
 }
 
 void MJUpdateCheckerSetup(void) {
-    autoupdateTimer = CFRunLoopTimerCreate(NULL, 0, MJCheckForUpdatesInterval, 0, 0, &callback, NULL);
+    CFTimeInterval interval = [[NSUserDefaults standardUserDefaults] doubleForKey:MJCheckForUpdatesIntervalKey];
+    autoupdateTimer = CFRunLoopTimerCreate(NULL, 0, interval, 0, 0, &callback, NULL);
     reflect_defaults();
     
     if (MJUpdateCheckerEnabled())

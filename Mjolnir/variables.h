@@ -2,8 +2,6 @@
 #define Mjolnir_variables_h
 
 
-#define MJCheckForUpdatesInterval          (60.0 * 60.0 * 24.0)
-
 static NSString* MJReleaseNotesURL       = @"https://github.com/mjolnir-io/mjolnir/blob/master/CHANGES.md";
 static NSString* MJDownloadPage          = @"https://github.com/mjolnir-io/mjolnir/releases/latest";
 static NSString* MJUpdatesURL            = @"https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/LATESTVERSION";
@@ -22,10 +20,11 @@ static NSString* MJPublicKey = @""
 "cohzwU5/305uivg=\n"
 "-----END PUBLIC KEY-----\n";
 
-#define MJCheckForUpdatesKey    @"MJCheckForUpdatesKey"
-#define MJShowDockIconKey       @"MJShowDockIconKey"
-#define MJShowMenuIconKey       @"MJShowMenuIconKey"
-#define MJHasRunAlreadyKey      @"MJHasRunAlreadyKey"
+#define MJCheckForUpdatesKey         @"MJCheckForUpdatesKey"
+#define MJShowDockIconKey            @"MJShowDockIconKey"
+#define MJShowMenuIconKey            @"MJShowMenuIconKey"
+#define MJHasRunAlreadyKey           @"MJHasRunAlreadyKey"
+#define MJCheckForUpdatesIntervalKey @"MJCheckForUpdatesIntervalKey"
 
 
 #endif
