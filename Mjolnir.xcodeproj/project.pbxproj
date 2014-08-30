@@ -319,7 +319,7 @@
 				94BF76F219934247001BDA77 /* PBXTargetDependency */,
 			);
 			name = Mjolnir;
-			productName = Hydra;
+			productName = Mjolnir;
 			productReference = 9445CA0B19083251002568BB /* Mjolnir.app */;
 			productType = "com.apple.product-type.application";
 		};
