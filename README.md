@@ -6,7 +6,7 @@
 
 * Current version:  Mjolnir **0.1**
 * Requires:         OS X 10.8 or higher
-* Download:         https://github.com/mjolnir-io/mjolnir/releases
+* Download:         n/a (not available yet)
 
 ## Current Status
 
@@ -105,6 +105,12 @@ a growing IRC channel on freenode, #mjolnir.
 
 Mjolnir is developed by Steven Degutis with the help of
 [various contributors](https://github.com/mjolnir-io/mjolnir/graphs/contributors).
+
+## Changes
+
+### 0.1
+
+- First public release
 
 ## License
 
