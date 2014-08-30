@@ -8,6 +8,13 @@
 * Requires:         OS X 10.8 or higher
 * Download:         n/a (not available yet)
 
+## Contents
+
+* [Current Status](#current-status)
+* [What is Mjolnir?](#what-is-mjolnir)
+* [Extensions](#extensions)
+* [Principles](#principles)
+
 ## Current Status
 
 **Mjolnir is in beta.** This means everything is subject to change,
