@@ -55,7 +55,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     [self.outputView setSelectable:YES];
     
     [self appendString:@""
-     "Welcome to the Mjolnir REPL!\n"
+     "Welcome to the Mjolnir Console!\n"
      "You can run any Lua code in here.\n"
                   type:MJReplLineTypeStdout];
     
