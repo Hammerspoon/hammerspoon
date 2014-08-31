@@ -72,11 +72,7 @@ void MJLuaSetup(void) {
     lua_State* L = MJLuaState = luaL_newstate();
     luaL_openlibs(L);
     
-    lua_newtable(L);
-    for (luaL_Reg* l = corelib; l->name; l++) {
-        lua_pushcfunction(L, l->func);
-        lua_setfield(L, -2, l->name);
-    }
+    luaL_newlib(L, corelib);
     lua_setglobal(L, "mj");
     
     luaL_dofile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
