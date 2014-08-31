@@ -117,7 +117,7 @@ int mjolnir_pcall(lua_State *L, int nargs, int nresults) {
         lua_remove(L, -2);
         
         // push error and call
-        lua_pushvalue(L, -2); // push err
+        lua_pushvalue(L, -2);
         lua_call(L, 1, 0);
     }
     
