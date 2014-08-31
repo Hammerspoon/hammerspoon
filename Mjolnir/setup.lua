@@ -44,17 +44,20 @@ mj.print = rawprint
 
 
 -- load user's init-file
+print "-- Loading ~/.mjolnir/init.lua."
+
 local fn, err = loadfile "init.lua"
 if fn then
   local ok, err = xpcall(fn, debug.traceback)
   if ok then
-    print "-- Loading ~/.mjolnir/init.lua; success."
+    print "-- Success."
   else
     mj.showerror(err)
   end
 elseif err:find "No such file or directory" then
-  print "-- Loading ~/.mjolnir/init.lua; file not found, skipping."
+  print "-- File not found: ~/.mjolnir/init.lua; skipping."
 else
+  print "-- Syntax error:"
   print(tostring(err))
   mj._notify("Syntax error in ~/.mjolnir/init.lua")
 end
