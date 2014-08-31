@@ -23,6 +23,12 @@ function mj.showerror(err)
   print(err)
 end
 
+do
+  local r = debug.getregistry()
+  r.__mj_debug_traceback = debug.traceback
+  r.__mj_showerror = mj.showerror
+end
+
 local rawprint = print
 function print(...)
   rawprint(...)

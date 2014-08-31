@@ -100,9 +100,8 @@ NSString* MJLuaRunString(NSString* command) {
 
 int mjolnir_pcall(lua_State *L, int nargs, int nresults) {
     // push debug.traceback
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
+    lua_pushliteral(L, "__mj_debug_traceback");
+    lua_rawget(L, LUA_REGISTRYINDEX);
     
     // move it to below the function
     int msgh = lua_gettop(L) - (nargs + 2);
@@ -112,9 +111,8 @@ int mjolnir_pcall(lua_State *L, int nargs, int nresults) {
     int r = lua_pcall(L, nargs, nresults, msgh);
     if (r) {
         // push mj.showerror
-        lua_getglobal(L, "mj");
-        lua_getfield(L, -1, "showerror");
-        lua_remove(L, -2);
+        lua_pushliteral(L, "__mj_showerror");
+        lua_rawget(L, LUA_REGISTRYINDEX);
         
         // push error and call
         lua_pushvalue(L, -2);
