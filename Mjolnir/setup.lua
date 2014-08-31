@@ -1,16 +1,12 @@
 os.exit = mj._exit
 
-local function pack(...)
-  return {n = select("#", ...), ...}
-end
-
 function mj.runstring(s)
   local fn, err = loadstring("return " .. s)
   if not fn then fn, err = loadstring(s) end
   if not fn then return tostring(err) end
 
   local str = ""
-  local results = pack(pcall(fn))
+  local results = table.pack(pcall(fn))
   for i = 2,results.n do
     if i > 2 then str = str .. "\t" end
     str = str .. tostring(results[i])
@@ -32,7 +28,7 @@ end
 local rawprint = print
 function print(...)
   rawprint(...)
-  local vals = pack(...)
+  local vals = table.pack(...)
 
   for k = 1, vals.n do
     vals[k] = tostring(vals[k])
