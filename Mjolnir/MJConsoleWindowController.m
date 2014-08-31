@@ -50,13 +50,15 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 }
 
 - (void) windowDidLoad {
+    [[self window] center];
+    
     self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
     
     [self appendString:@""
      "Welcome to the Mjolnir Console!\n"
-     "You can run any Lua code in here.\n"
+     "You can run any Lua code in here.\n\n"
                   type:MJReplLineTypeStdout];
     
     for (NSString* str in self.preshownStdouts)
