@@ -1,8 +1,8 @@
 os.exit = mj._exit
 
 function mj.runstring(s)
-  local fn, err = loadstring("return " .. s)
-  if not fn then fn, err = loadstring(s) end
+  local fn, err = load("return " .. s)
+  if not fn then fn, err = load(s) end
   if not fn then return tostring(err) end
 
   local str = ""
