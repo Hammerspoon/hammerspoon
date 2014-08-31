@@ -50,8 +50,11 @@ mj.print = rawprint
 -- load user's init-file
 local fn, err = loadfile "init.lua"
 if fn then
-  if mj.pcall(fn) then
+  local ok, err = xpcall(fn, debug.traceback)
+  if ok then
     print "-- Loading ~/.mjolnir/init.lua; success."
+  else
+    mj.showerror(err)
   end
 elseif err:find "No such file or directory" then
   print "-- Loading ~/.mjolnir/init.lua; file not found, skipping."
