@@ -18,15 +18,9 @@ function mj.runstring(s)
   return str
 end
 
-function mj.errorhandler(err)
+function mj.showerror(err)
   mj._notify("Mjolnir error occurred")
   print(err)
-  print(debug.traceback())
-  return err
-end
-
-function mj.pcall(f, ...)
-  return xpcall(f, mj.errorhandler, ...)
 end
 
 local rawprint = print
