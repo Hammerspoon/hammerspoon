@@ -22,7 +22,7 @@ static int core_openconsole(lua_State* L) {
 }
 
 /// mj.reload()
-/// Reloads your init-file. Clears any state from extensions, i.e. disables all hotkeys, etc.
+/// Reloads your init-file in a fresh Lua environment.
 static int core_reload(lua_State* L) {
     dispatch_async(dispatch_get_main_queue(), ^{
         MJLuaSetup();
