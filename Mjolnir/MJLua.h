@@ -1,5 +1,5 @@
-#import <lauxlib.h>
-#import <lualib.h>
+#import "lauxlib.h"
+#import "lualib.h"
 
 void MJLuaSetup(void);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str));
