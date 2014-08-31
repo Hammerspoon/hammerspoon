@@ -15,9 +15,7 @@
 @implementation MJAppDelegate
 
 - (BOOL) applicationShouldHandleReopen:(NSApplication*)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
-    if (!hasVisibleWindows)
-        [[MJPreferencesWindowController singleton] showWindow: nil];
-    
+    [[MJConsoleWindowController singleton] showWindow: nil];
     return NO;
 }
 

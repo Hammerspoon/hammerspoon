@@ -134,7 +134,7 @@
     NSAlert* alert = [[NSAlert alloc] init];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert setMessageText:@"How to get back to this window"];
-    [alert setInformativeText:@"When both the dock icon and menu icon are disabled, you can get back to this window by activating Mjolnir from Spotlight or by running `open -a Mjolnir` from Terminal."];
+    [alert setInformativeText:@"When both the dock icon and menu icon are disabled, you can get back to this Preferences window by activating Mjolnir from Spotlight or by running `open -a Mjolnir` from Terminal, and then pressing Command + Comma."];
     [alert setShowsSuppressionButton:YES];
     [alert beginSheetModalForWindow:[self window]
                       modalDelegate:self
