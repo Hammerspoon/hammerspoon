@@ -1,4 +1,4 @@
-### 0.4
+### 0.3.1
 
 - Renamed global `mj` to `mjolnir`
 
