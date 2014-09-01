@@ -32,9 +32,9 @@
 
    ~~~lua
    mj.hotkey.bind({"cmd", "alt", "ctrl"}, "D", function()
-     local win = mj.window.focusedwindow()
-     local f = win:frame()
-     f.x += 10
-     win:setframe(f)
+      local win = mj.window.focusedwindow()
+      local f = win:frame()
+      f.x += 10
+      win:setframe(f)
    end)
    ~~~
