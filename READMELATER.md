@@ -60,12 +60,17 @@ Documentation is coming soon.
    end)
    ~~~
 
-## Useful modules
+## Finding modules
 
-The [mjolnir-core](https://github.com/mjolnir-io/mjolnir-core) modules
-contain functionality for binding global hotkeys, and inspecting and
-manipulating windows, applications, and screens. They also have
-generally useful functional programming and geometry functions.
+Check out https://rocks.moonscript.org/search?q=mjolnir for a list of
+published Mjolnir modules.
+
+Especially of note are `mjolnir.hotkey` for creating global hotkeys,
+and `mjolnir.application` for inspecting and manipulating running OS X
+applications and windows.
+
+If you publish a new Mjolnir module, please announce it on our mailing
+list.
 
 ## Documentation
 
