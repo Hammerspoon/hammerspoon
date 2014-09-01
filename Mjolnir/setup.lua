@@ -45,7 +45,7 @@ mj.print = rawprint
 
 
 -- load user's init-file
-print "-- Loading ~/.mjolnir/init.lua."
+print "-- Loading ~/.mjolnir/init.lua"
 
 local fn, err = loadfile "init.lua"
 if fn then
