@@ -4,7 +4,7 @@
 
 *Lightweight automation and productivity power-tool for OS X*
 
-* Current version:  Mjolnir **0.3**
+* Current version:  Mjolnir **0.3.1**
 * Requires:         OS X 10.8 or higher
 
 ## What is Mjolnir?
