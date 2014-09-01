@@ -1,6 +1,6 @@
-os.exit = mj._exit
+os.exit = mjolnir._exit
 
-function mj.runstring(s)
+function mjolnir.runstring(s)
   local fn, err = load("return " .. s)
   if not fn then fn, err = load(s) end
   if not fn then return tostring(err) end
@@ -14,15 +14,21 @@ function mj.runstring(s)
   return str
 end
 
-function mj.showerror(err)
-  mj._notify("Mjolnir error occurred")
+--- mjolnir.showerror(err)
+--- Function
+--- Presents an error to the user via Mjolnir's GUI.
+--- Useful for writing modules that take callbacks from the user, e.g.:
+---     local ok, err = xpcall(callbackfn, debug.traceback)
+---     if not ok then mjolnir.showerror(err) end
+function mjolnir.showerror(err)
+  mjolnir._notify("Mjolnir error occurred")
   print(err)
 end
 
 do
   local r = debug.getregistry()
   r.__mj_debug_traceback = debug.traceback
-  r.__mj_showerror = mj.showerror
+  r.__mj_showerror = mjolnir.showerror
 end
 
 local rawprint = print
@@ -35,13 +41,13 @@ function print(...)
   end
 
   local str = table.concat(vals, "\t") .. "\n"
-  mj._logmessage(str)
+  mjolnir._logmessage(str)
 end
 
---- mj.print = print
+--- mjolnir.print = print
 --- Function
 --- The original print function, before Mjolnir overrides it.
-mj.print = rawprint
+mjolnir.print = rawprint
 
 
 -- load user's init-file
@@ -53,12 +59,12 @@ if fn then
   if ok then
     print "-- Success."
   else
-    mj.showerror(err)
+    mjolnir.showerror(err)
   end
 elseif err:find "No such file or directory" then
   print "-- File not found: ~/.mjolnir/init.lua; skipping."
 else
   print "-- Syntax error:"
   print(tostring(err))
-  mj._notify("Syntax error in ~/.mjolnir/init.lua")
+  mjolnir._notify("Syntax error in ~/.mjolnir/init.lua")
 end

@@ -43,17 +43,17 @@ Documentation is coming soon.
 4. Create `~/.mjolnir/init.lua`, and at the top, require the modules you installed, e.g. like this:
 
    ~~~lua
-   mj.application = require "mj.application"
-   mj.window = require "mj.window"
-   mj.hotkey = require "mj.hotkey"
-   mj.fnutils = require "mj.fnutils"
+   mjolnir.application = require "mjolnir.application"
+   mjolnir.window = require "mjolnir.window"
+   mjolnir.hotkey = require "mjolnir.hotkey"
+   mjolnir.fnutils = require "mjolnir.fnutils"
    ~~~
 
 5. Start writing some fun stuff!
 
    ~~~lua
-   mj.hotkey.bind({"cmd", "alt", "ctrl"}, "D", function()
-      local win = mj.window.focusedwindow()
+   mjolnir.hotkey.bind({"cmd", "alt", "ctrl"}, "D", function()
+      local win = mjolnir.window.focusedwindow()
       local f = win:frame()
       f.x = f.x + 10
       win:setframe(f)
@@ -131,6 +131,10 @@ See the About-panel in the app for other credits including open source
 software Mjolnir uses.
 
 ## Changes
+
+### 0.4
+
+- Renamed global `mj` to `mjolnir`
 
 ### 0.3
 

@@ -1,8 +1,8 @@
-### Changes from Mjolnir 0.2
+### 0.4
 
-- Did anyone actually install 0.2 while it was available for those 5 minutes?
+- Renamed global `mj` to `mjolnir`
 
-### Changes from Mjolnir 0.1
+### 0.3
 
 - The UI has changed drastically. Expect nothing to be in the same
   place or look the same. Pretend it's a brand new app.

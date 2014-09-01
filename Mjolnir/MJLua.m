@@ -4,7 +4,7 @@
 
 static lua_State* MJLuaState;
 
-/// === mj ===
+/// === mjolnir ===
 ///
 /// Core Mjolnir functionality.
 
@@ -13,7 +13,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
 
-/// mj.openconsole()
+/// mjolnir.openconsole()
 /// Function
 /// Opens the Mjolnir Console window and focuses it.
 static int core_openconsole(lua_State* L) {
@@ -22,7 +22,7 @@ static int core_openconsole(lua_State* L) {
     return 0;
 }
 
-/// mj.reload()
+/// mjolnir.reload()
 /// Function
 /// Reloads your init-file in a fresh Lua environment.
 static int core_reload(lua_State* L) {
@@ -40,7 +40,7 @@ static int core_exit(lua_State* L) {
     return 0; // lol
 }
 
-static int core__logmessage(lua_State* L) {
+static int core_logmessage(lua_State* L) {
     size_t len;
     const char* s = lua_tolstring(L, 1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
@@ -48,7 +48,7 @@ static int core__logmessage(lua_State* L) {
     return 0;
 }
 
-static int core__notify(lua_State* L) {
+static int core_notify(lua_State* L) {
     size_t len;
     const char* s = lua_tolstring(L, 1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
@@ -62,8 +62,8 @@ static luaL_Reg corelib[] = {
     {"openconsole", core_openconsole},
     {"reload", core_reload},
     {"_exit", core_exit},
-    {"_logmessage", core__logmessage},
-    {"_notify", core__notify},
+    {"_logmessage", core_logmessage},
+    {"_notify", core_notify},
     {}
 };
 
@@ -108,7 +108,7 @@ int mjolnir_pcall(lua_State *L, int nargs, int nresults) {
     // call and store result
     int r = lua_pcall(L, nargs, nresults, msgh);
     if (r) {
-        // push mj.showerror
+        // push mjolnir.showerror
         lua_pushliteral(L, "__mj_showerror");
         lua_rawget(L, LUA_REGISTRYINDEX);
         
