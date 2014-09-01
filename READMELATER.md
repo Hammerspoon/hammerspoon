@@ -63,8 +63,16 @@ Documentation is coming soon.
 ## Useful modules
 
 The [mjolnir-core](https://github.com/mjolnir-io/mjolnir-core) modules
-are developed by the same author as Mjolnir (see the credits below)
-and adhere to the same principles and minimalist philosophy.
+contain functionality for binding global hotkeys, and inspecting and
+manipulating windows, applications, and screens. They also have
+generally useful functional programming and geometry functions.
+
+## Documentation
+
+Mjolnir and mjolnir-core use [Dash](http://kapeli.com/dash) for
+documentation. You can install the Mjolnir docset from inside Dash,
+under Preferences -> Downloads -> User Contributed. Then, type
+`mjolnir:` to limit your search scope to Mjolnir functions.
 
 ## Principles
 
