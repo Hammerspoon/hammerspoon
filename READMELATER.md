@@ -19,7 +19,7 @@
 
    Note: you don't need to install every module, since some of them have lower-level ones as dependencies, i.e. installing mjolnir-hotkey automatically installs mjolnir-keycodes, etc.
 
-4. Create `~/.mjolnir/init.lua`, and require these modules:
+4. Create `~/.mjolnir/init.lua`, and at the top, require the modules you installed, i.e. like this:
 
    ~~~lua
    mj.application = require "mj.application"
