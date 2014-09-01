@@ -6,6 +6,7 @@
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
 #import "MJLua.h"
+#import "MJVersionUtils.h"
 #import "variables.h"
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
@@ -13,6 +14,17 @@
 @end
 
 @implementation MJAppDelegate
+
+static BOOL MJFirstRunForCurrentVersion(void) {
+    NSString* key = [NSString stringWithFormat:@"%@_%d", MJHasRunAlreadyKey, MJVersionFromThisApp()];
+    
+    BOOL firstRun = ![[NSUserDefaults standardUserDefaults] boolForKey:key];
+    
+    if (firstRun)
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:key];
+    
+    return firstRun;
+}
 
 - (BOOL) applicationShouldHandleReopen:(NSApplication*)theApplication hasVisibleWindows:(BOOL)hasVisibleWindows {
     [[MJConsoleWindowController singleton] showWindow: nil];
@@ -29,10 +41,8 @@
     [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
     
-    if (![[NSUserDefaults standardUserDefaults] boolForKey: MJHasRunAlreadyKey]) {
+    if (MJFirstRunForCurrentVersion())
         [[MJPreferencesWindowController singleton] showWindow: nil];
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:MJHasRunAlreadyKey];
-    }
 }
 
 - (void) registerDefaultDefaults {
