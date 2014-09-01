@@ -25,13 +25,11 @@ function mjolnir.showerror(err)
   print(err)
 end
 
-do
-  local r = debug.getregistry()
-  r.__mj_debug_traceback = debug.traceback
-  r.__mj_showerror = mjolnir.showerror
-end
-
+--- mjolnir.print = print
+--- Function
+--- The original print function, before Mjolnir overrides it.
 local rawprint = print
+mjolnir.print = rawprint
 function print(...)
   rawprint(...)
   local vals = table.pack(...)
@@ -43,12 +41,6 @@ function print(...)
   local str = table.concat(vals, "\t") .. "\n"
   mjolnir._logmessage(str)
 end
-
---- mjolnir.print = print
---- Function
---- The original print function, before Mjolnir overrides it.
-mjolnir.print = rawprint
-
 
 -- load user's init-file
 print "-- Loading ~/.mjolnir/init.lua"
