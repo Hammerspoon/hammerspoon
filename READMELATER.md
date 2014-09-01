@@ -1,6 +1,6 @@
 ## Usage
 
-1. Download [Mjolnir](https://github.com/mjolnir-io/mjolnir/releases), unzip, right-click app, choose "Open"
+1. Download [the latest release](https://github.com/mjolnir-io/mjolnir/releases/latest), unzip, right-click `Mjolnir.app`, choose "Open"
 
 2. Install Lua 5.2 into /usr/local i.e. from Homebrew, and then install LuaRocks for Lua 5.2:
 
