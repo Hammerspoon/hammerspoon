@@ -35,8 +35,6 @@
 		949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ConsoleWindow.xib */; };
 		94A1E5421993AB00003AEB26 /* MJSecurityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5411993AB00003AEB26 /* MJSecurityUtils.m */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
-		94AB413D199156B000055603 /* REPL.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413B199156B000055603 /* REPL.png */; };
-		94AB413F19915AFF00055603 /* Donate.png in Resources */ = {isa = PBXBuildFile; fileRef = 94AB413E19915AFF00055603 /* Donate.png */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
 		94AE5BFC19B2B9D600769820 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 94AE5BC319B2B9D600769820 /* lapi.c */; };
 		94AE5BFD19B2B9D600769820 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 94AE5BC519B2B9D600769820 /* lauxlib.c */; };
@@ -74,8 +72,6 @@
 		94BF76E61993418C001BDA77 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94BF76E51993418C001BDA77 /* Foundation.framework */; };
 		94BF76E91993418C001BDA77 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BF76E81993418C001BDA77 /* main.m */; };
 		94BF76F6199344DA001BDA77 /* MjolnirRestarter in Resources */ = {isa = PBXBuildFile; fileRef = 94BF76E41993418C001BDA77 /* MjolnirRestarter */; };
-		94EEEFB31993085A00749B92 /* Settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB11993085A00749B92 /* Settings.png */; };
-		94EEEFB51993086F00749B92 /* Extensions.png in Resources */ = {isa = PBXBuildFile; fileRef = 94EEEFB41993086F00749B92 /* Extensions.png */; };
 		94FA257419A310F700A2BA8B /* MJAutoUpdaterWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 94FA257219A310F700A2BA8B /* MJAutoUpdaterWindowController.m */; };
 		94FA257519A310F700A2BA8B /* AutoUpdaterWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 94FA257319A310F700A2BA8B /* AutoUpdaterWindow.xib */; };
 /* End PBXBuildFile section */
@@ -138,8 +134,6 @@
 		94A1E5411993AB00003AEB26 /* MJSecurityUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJSecurityUtils.m; sourceTree = "<group>"; };
 		94A1E5461993AC5C003AEB26 /* MJFileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJFileUtils.h; sourceTree = "<group>"; };
 		94A1E5471993AC5C003AEB26 /* MJFileUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJFileUtils.m; sourceTree = "<group>"; };
-		94AB413B199156B000055603 /* REPL.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = REPL.png; sourceTree = "<group>"; };
-		94AB413E19915AFF00055603 /* Donate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Donate.png; sourceTree = "<group>"; };
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		94AE5BC319B2B9D600769820 /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
 		94AE5BC419B2B9D600769820 /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lapi.h; sourceTree = "<group>"; };
@@ -203,8 +197,6 @@
 		94BF76E41993418C001BDA77 /* MjolnirRestarter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MjolnirRestarter; sourceTree = BUILT_PRODUCTS_DIR; };
 		94BF76E51993418C001BDA77 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		94BF76E81993418C001BDA77 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		94EEEFB11993085A00749B92 /* Settings.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Settings.png; sourceTree = "<group>"; };
-		94EEEFB41993086F00749B92 /* Extensions.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Extensions.png; sourceTree = "<group>"; };
 		94FA257119A310F700A2BA8B /* MJAutoUpdaterWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJAutoUpdaterWindowController.h; sourceTree = "<group>"; };
 		94FA257219A310F700A2BA8B /* MJAutoUpdaterWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAutoUpdaterWindowController.m; sourceTree = "<group>"; };
 		94FA257319A310F700A2BA8B /* AutoUpdaterWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AutoUpdaterWindow.xib; sourceTree = "<group>"; };
@@ -316,10 +308,6 @@
 				944A2D3F1989737E00D8DC90 /* Images.xcassets */,
 				944A2D401989737E00D8DC90 /* Mjolnir-Info.plist */,
 				944A2D411989737E00D8DC90 /* Mjolnir-Prefix.pch */,
-				94EEEFB11993085A00749B92 /* Settings.png */,
-				94EEEFB41993086F00749B92 /* Extensions.png */,
-				94AB413B199156B000055603 /* REPL.png */,
-				94AB413E19915AFF00055603 /* Donate.png */,
 				9477D01819953FE20020BE9D /* statusicon.png */,
 				9477D01919953FE20020BE9D /* statusicon@2x.png */,
 			);
@@ -527,19 +515,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				94BF76F6199344DA001BDA77 /* MjolnirRestarter in Resources */,
-				94EEEFB51993086F00749B92 /* Extensions.png in Resources */,
-				94EEEFB31993085A00749B92 /* Settings.png in Resources */,
 				94FA257519A310F700A2BA8B /* AutoUpdaterWindow.xib in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				9477D01B19953FE20020BE9D /* statusicon@2x.png in Resources */,
-				94AB413F19915AFF00055603 /* Donate.png in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
 				9477D01A19953FE20020BE9D /* statusicon.png in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
-				94AB413D199156B000055603 /* REPL.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
