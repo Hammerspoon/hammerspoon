@@ -1,4 +1,25 @@
-## Usage
+# Mjolnir
+
+<img src="https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/Mjolnir/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Mjolnir logo" title="Mjolnir logo" align="right"/>
+
+*Lightweight automation and productivity power-tool for OS X*
+
+* Current version:  Mjolnir **0.3**
+* Requires:         OS X 10.8 or higher
+
+## What is Mjolnir?
+
+Mjolnir is an OS X app that lets you automate common tasks using the
+language Lua. At its core, this is all it does; the real power lies in
+all the useful modules that you can install.
+
+You write a "config", which just means `~/.mjolnir/init.lua`. This
+file, along with whatever modules it requires, have full access to the
+built-in `mj` module, and all Lua modules that you have installed.
+
+Documentation is coming soon.
+
+## Try it out
 
 1. Download [the latest release](https://github.com/mjolnir-io/mjolnir/releases/latest), unzip, right-click `Mjolnir.app`, choose "Open"
 
@@ -38,3 +59,124 @@
       win:setframe(f)
    end)
    ~~~
+
+## Useful modules
+
+The [mjolnir-core](https://github.com/mjolnir-io/mjolnir-core) modules
+are developed by the same author as Mjolnir (see the credits below)
+and adhere to the same principles and minimalist philosophy.
+
+## Principles
+
+Development of Mjolnir.app and the mjolnir-core modules follow these
+principles:
+
+1. They must be stable. The app should never crash. You should only
+   ever have to launch it once, and it should stay running until you
+   quit. Period.
+
+2. They must be lightweight. They should never do anything that drains
+   your computer's battery. They should never poll for anything. They
+   should use as little RAM as possible. Everything they do should
+   feel instant and snappy, never sluggish or delayed.
+
+3. They should be completely transparent. There should be no surprises
+   in how it's behaving, or what's being executed and when. Everything
+   should be fully predictable.
+
+4. They must not be bloated. The app and core modules must always
+   adhere to the minimalist philosophy, no excuses. Everything else
+   can be a separate Lua module.
+
+## FAQ
+
+1. **How is Mjolnir related to Hydra, Phoenix, or Zephyros?**
+
+   The short of it is, Mjolnir is the successor to these older apps. Or check out [the full story](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/).
+
+3. **How does Mjolnir compare to Slate?**
+
+   They're both programmer-centric with mostly similar goals but very
+   different approaches. Try them both and see which one suits you
+   better.
+
+4. **How does Mjolnir compare to Spectacle, Moom, SizeUp, Divvy, etc?**
+
+   Mjolnir is intended for programmers who want to write programs that
+   customize their environment. It's not intended to be a drag-n-drop
+   solution; it's meant to allow you to write your own personalized
+   productivity enhancement suite to keep and use long-term.
+
+## Community
+
+Our [mailing list](https://groups.google.com/forum/#!forum/mjolnir-io)
+is a fine place to share ideas, and follow releases and announcements.
+
+We also have a growing IRC channel on freenode, #mjolnir.
+
+## Credits
+
+Mjolnir is developed by Steven Degutis with the help of
+[various contributors](https://github.com/mjolnir-io/mjolnir/graphs/contributors).
+
+See the About-panel in the app for other credits including open source
+software Mjolnir uses.
+
+## Changes
+
+### 0.3
+
+- The UI has changed drastically. Expect nothing to be in the same
+  place or look the same. Pretend it's a brand new app.
+- Extensions are now handled by LuaRocks instead of by the app itself.
+- The "core" namespace has been renamed to "mj".
+- The 'mj.window' module has been merged into the 'mj.application'
+  module since they depend on each other.
+
+### 0.2
+
+- Did anyone actually use this?
+
+### 0.1
+
+- First public release
+
+## Donate
+
+I've worked hard to make this app useful and easy to use. I've also
+released it with a liberal open source license, so that you can do
+with it as you please.
+
+So, instead of charging for licenses, I'm asking for donations. If you
+find Mjolnir genuinely beneficial to your productivity, I encourage
+you to donate what you believe is fair.
+
+Your donations will fund the time I'll be spending making Mjolnir even
+better, and will be used to compensate volunteers for the time and
+skills which they have generously contributed to the project.
+
+Currently, donations can be made [by PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Mjolnir.app%20donation&no_shipping=1) or [with a credit card](https://sites.fastspring.com/sdegutis/instant/hydra).
+
+## License
+
+> Released under MIT license.
+>
+> Copyright (c) 2013 Steven Degutis
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in
+> all copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+> THE SOFTWARE.
