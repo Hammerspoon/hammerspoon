@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "MJConsoleWindowController.h"
 #import "MJPreferencesWindowController.h"
-#import "MJConfigUtils.h"
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
@@ -32,12 +31,12 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    [[NSFileManager defaultManager] changeCurrentDirectoryPath: NSHomeDirectory()];
+    
     [self registerDefaultDefaults];
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
     MJUpdateCheckerSetup();
-    MJConfigEnsureDirExists();
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigPath()];
     [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
     
@@ -78,13 +77,17 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (IBAction) openConfig:(id)sender {
-    if (![[NSWorkspace sharedWorkspace] openFile:[MJConfigPath() stringByAppendingPathComponent:@"init.lua"]]) {
-        NSAlert* alert = [[NSAlert alloc] init];
-        [alert setAlertStyle:NSWarningAlertStyle];
-        [alert setMessageText:@"Config file doesn't exist"];
-        [alert setInformativeText:@"You can fix this by creating an empty ~/.mjolnir/init.lua file."];
-        [alert runModal];
-    }
+    NSString* bare = [@"~/.mjolnir.lua" stringByStandardizingPath];
+    NSString* full = [@"~/.mjolnir/init.lua" stringByStandardizingPath];
+    
+    if ([[NSWorkspace sharedWorkspace] openFile: bare]) return;
+    if ([[NSWorkspace sharedWorkspace] openFile: full]) return;
+    
+    NSAlert* alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert setMessageText:@"Config file doesn't exist"];
+    [alert setInformativeText:@"Create an empty ~/.mjolnir.lua file and try again."];
+    [alert runModal];
 }
 
 @end

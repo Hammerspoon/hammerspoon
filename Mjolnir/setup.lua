@@ -42,21 +42,32 @@ function print(...)
   mjolnir._logmessage(str)
 end
 
--- load user's init-file
-print "-- Loading ~/.mjolnir/init.lua"
-
-local fn, err = loadfile "init.lua"
-if fn then
-  local ok, err = xpcall(fn, debug.traceback)
-  if ok then
-    print "-- Success."
-  else
-    mjolnir.showerror(err)
+function runconfig(files)
+  if #files == 0 then
+    print "-- Can't find valid init-file; skipping."
+    return
   end
-elseif err:find "No such file or directory" then
-  print "-- File not found: ~/.mjolnir/init.lua; skipping."
-else
-  print "-- Syntax error:"
-  print(tostring(err))
-  mjolnir._notify("Syntax error in ~/.mjolnir/init.lua")
+  local file = files[1]
+  table.remove(files, 1)
+
+  print("-- Loading ~/" .. file)
+  local fn, err = loadfile(file)
+  if fn then
+    local ok, err = xpcall(fn, debug.traceback)
+    if ok then
+      print "-- Success."
+    else
+      mjolnir.showerror(err)
+    end
+  elseif err:find "No such file or directory" then
+    print("-- File not found: ~/" .. file)
+    runconfig(files)
+  else
+    print "-- Syntax error:"
+    print(tostring(err))
+    mjolnir._notify("Syntax error in ~/.mjolnir/init.lua")
+  end
 end
+
+-- load user's init-file
+runconfig({".mjolnir.lua", ".mjolnir/init.lua"})

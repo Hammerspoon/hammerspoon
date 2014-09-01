@@ -4,7 +4,6 @@
 #import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
-#import "MJConfigUtils.h"
 #import "MJAccessibilityUtils.h"
 #import "variables.h"
 
