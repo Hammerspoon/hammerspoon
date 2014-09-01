@@ -34,8 +34,8 @@ Documentation is coming soon.
 3. Install some modules from the readme of [mjolnir-core](https://github.com/mjolnir-io/mjolnir-core):
 
    ~~~bash
-   $ moonrocks install mjolnir-hotkey
-   $ moonrocks install mjolnir-application
+   $ moonrocks install mjolnir.hotkey
+   $ moonrocks install mjolnir.application
    ~~~
 
    Note: you don't need to install every module, since some of them have lower-level ones as dependencies, e.g. installing mjolnir-hotkey automatically installs mjolnir-keycodes, etc.
