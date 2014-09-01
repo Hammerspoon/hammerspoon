@@ -5,7 +5,7 @@
 2. Install Lua 5.2 into /usr/local i.e. from Homebrew, and then install LuaRocks for Lua 5.2:
 
    ~~~bash
-   $ brew install lua52
+   $ brew install homebrew/versions/lua52
    $ brew install luarocks --with-lua52
    $ luarocks install --server=http://rocks.moonscript.org moonrocks
    ~~~
