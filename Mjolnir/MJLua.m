@@ -75,7 +75,7 @@ void MJLuaSetup(void) {
     luaL_openlibs(L);
     
     luaL_newlib(L, corelib);
-    lua_setglobal(L, "mj");
+    lua_setglobal(L, "mjolnir");
     
     luaL_dofile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
 }
@@ -83,10 +83,10 @@ void MJLuaSetup(void) {
 NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState;
     
-    lua_getglobal(L, "mj");
+    lua_getglobal(L, "mjolnir");
     lua_getfield(L, -1, "runstring");
     lua_pushstring(L, [command UTF8String]);
-    lua_pcall(L, 1, 1, 0);
+    lua_call(L, 1, 1);
     
     size_t len;
     const char* s = lua_tolstring(L, -1, &len);
