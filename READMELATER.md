@@ -130,8 +130,10 @@ software Mjolnir uses.
   place or look the same. Pretend it's a brand new app.
 - Modules are now handled by LuaRocks instead of by the app itself.
 - The "core" namespace has been renamed to "mj".
-- The 'mj.window' module has been merged into the 'mj.application'
-  module since they depend on each other.
+- The 'mj.window' module now ships with the 'mj.application' LuaRocks
+  package since they depend on each other.
+- `mj.screen:frame_without_dock_or_menu()` is now called `mj.screen:frame()`
+- `mj.screen:frame_including_dock_and_menu()` is now called `mj.screen:fullframe()`
 
 ### 0.2
 
