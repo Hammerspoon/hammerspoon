@@ -55,7 +55,7 @@ Documentation is coming soon.
    mj.hotkey.bind({"cmd", "alt", "ctrl"}, "D", function()
       local win = mj.window.focusedwindow()
       local f = win:frame()
-      f.x += 10
+      f.x = f.x + 10
       win:setframe(f)
    end)
    ~~~
