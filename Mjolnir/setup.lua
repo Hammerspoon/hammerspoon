@@ -39,6 +39,7 @@ function print(...)
 end
 
 --- mj.print = print
+--- Function
 --- The original print function, before Mjolnir overrides it.
 mj.print = rawprint
 

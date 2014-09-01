@@ -14,6 +14,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
 }
 
 /// mj.openconsole()
+/// Function
 /// Opens the Mjolnir Console window and focuses it.
 static int core_openconsole(lua_State* L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
@@ -22,6 +23,7 @@ static int core_openconsole(lua_State* L) {
 }
 
 /// mj.reload()
+/// Function
 /// Reloads your init-file in a fresh Lua environment.
 static int core_reload(lua_State* L) {
     dispatch_async(dispatch_get_main_queue(), ^{
