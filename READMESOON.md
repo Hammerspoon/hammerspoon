@@ -58,6 +58,14 @@ built-in `mj` module, and all Lua modules that you have installed.
    end)
    ~~~
 
+6. To undo everything in the above steps, for whatever reason:
+
+   ~~~bash
+   $ luarocks purge --tree=/usr/local
+   $ brew uninstall lua52 luarocks
+   $ rm ~/.luarocks/config.lua
+   ~~~
+
 ## Finding modules
 
 Check out https://rocks.moonscript.org/search?q=mjolnir for a list of
