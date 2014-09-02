@@ -17,8 +17,6 @@ You write a "config", which just means `~/.mjolnir/init.lua`. This
 file, along with whatever modules it requires, have full access to the
 built-in `mj` module, and all Lua modules that you have installed.
 
-Documentation is coming soon.
-
 ## Try it out
 
 1. Download [the latest release](https://github.com/mjolnir-io/mjolnir/releases/latest), unzip, right-click `Mjolnir.app`, choose "Open"
