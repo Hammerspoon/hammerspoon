@@ -154,6 +154,13 @@ principles:
    solution; it's meant to allow you to write your own personalized
    productivity enhancement suite to keep and to use long-term.
 
+## Upgrading from Hydra
+
+Only the core modules have been ported over. I'll be porting over the
+non-core modules over the next few days, so keep an eye out for
+them. You may also want to sign up for the mailing list (see below) to
+hear announcements of ported Hydra modules.
+
 ## Community
 
 Our [mailing list](https://groups.google.com/forum/#!forum/mjolnir-io)
