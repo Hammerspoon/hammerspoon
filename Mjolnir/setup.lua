@@ -24,14 +24,24 @@ mjolnir.configdir = configdir
 
 --- mjolnir.showerror(err)
 --- Function
---- Presents an error to the user via Mjolnir's GUI.
---- Useful for writing modules that take callbacks from the user, e.g.:
+---
+--- Presents an error to the user via Mjolnir's GUI. The default
+--- implementation prints the error, focuses Mjolnir, and opens
+--- Mjolnir's console.
+---
+--- Users can override this with a new function that shows errors in a
+--- custom way.
+---
+--- Modules can call this in the event of an error, e.g. in callbacks
+--- from the user:
 ---
 ---     local ok, err = xpcall(callbackfn, debug.traceback)
 ---     if not ok then mjolnir.showerror(err) end
 function mjolnir.showerror(err)
-  mjolnir._notify("Mjolnir error occurred")
+  mjolnir._notify("Mjolnir error occurred") -- undecided on this line
   print(err)
+  mjolnir.focus()
+  mjolnir.openconsole()
 end
 
 --- mjolnir.rawprint = print
