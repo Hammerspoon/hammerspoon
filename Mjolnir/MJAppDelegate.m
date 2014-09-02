@@ -6,6 +6,8 @@
 #import "MJMenuIcon.h"
 #import "MJLua.h"
 #import "MJVersionUtils.h"
+#import "MJConfigUtils.h"
+#import "MJFileUtils.h"
 #import "variables.h"
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
@@ -31,6 +33,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    MJEnsureDirectoryExists(MJConfigDir());
+    [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigDir()];
+    
     [self registerDefaultDefaults];
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
@@ -75,25 +80,18 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (IBAction) openConfig:(id)sender {
-    NSString* prettypath = MJFindInitFile();
-    if (!prettypath) {
-        NSMutableString* msg = [@"Create one of the following files and try again:\n" mutableCopy];
-        
-        for (const char** iter = MJInitPaths; *iter; iter++) {
-            const char* path = *iter;
-            [msg appendFormat:@"\n%s", path];
-        }
-        
+    NSString* path = MJConfigFileFullPath();
+    
+    if (path) {
+        [[NSWorkspace sharedWorkspace] openFile: path];
+    }
+    else {
         NSAlert* alert = [[NSAlert alloc] init];
         [alert setAlertStyle:NSWarningAlertStyle];
         [alert setMessageText:@"Config file doesn't exist"];
-        [alert setInformativeText:msg];
+        [alert setInformativeText: [NSString stringWithFormat: @"Create %@ and try again.", MJConfigFile]];
         [alert runModal];
-        return;
     }
-    
-    NSString* fullpath = [prettypath stringByStandardizingPath];
-    [[NSWorkspace sharedWorkspace] openFile: fullpath];
 }
 
 @end

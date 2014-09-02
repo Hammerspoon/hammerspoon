@@ -10,6 +10,7 @@
 		9404221619A3845B0069CDE0 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9404221719A385A30069CDE0 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA1119083251002568BB /* AppKit.framework */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
+		9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422ACBC19B6163800F06A90 /* MJConfigUtils.m */; };
 		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
 		942E71A619B1112F001BA156 /* MJPreferencesWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 942E71A419B1112F001BA156 /* MJPreferencesWindowController.m */; };
 		942E71AA19B11176001BA156 /* MJAccessibilityUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 942E71A919B11176001BA156 /* MJAccessibilityUtils.m */; };
@@ -89,6 +90,8 @@
 		9409202F19A5940600B9964E /* MJVersionUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJVersionUtils.h; sourceTree = "<group>"; };
 		9409203019A5940600B9964E /* MJVersionUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJVersionUtils.m; sourceTree = "<group>"; };
 		942050C41990940000FC4839 /* MJLua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJLua.h; sourceTree = "<group>"; };
+		9422ACBB19B6163800F06A90 /* MJConfigUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJConfigUtils.h; sourceTree = "<group>"; };
+		9422ACBC19B6163800F06A90 /* MJConfigUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJConfigUtils.m; sourceTree = "<group>"; };
 		9428C7E9198EB76E00CDFA00 /* MJAutoLaunch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJAutoLaunch.h; sourceTree = "<group>"; };
 		942BF3901989E18600983892 /* MJAutoLaunch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJAutoLaunch.m; sourceTree = "<group>"; };
 		942E71A319B1112F001BA156 /* MJPreferencesWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJPreferencesWindowController.h; sourceTree = "<group>"; };
@@ -345,22 +348,24 @@
 		945B65B0198D304F002D2E30 /* Auxiliary */ = {
 			isa = PBXGroup;
 			children = (
-				9428C7E9198EB76E00CDFA00 /* MJAutoLaunch.h */,
-				942BF3901989E18600983892 /* MJAutoLaunch.m */,
+				9422ACBB19B6163800F06A90 /* MJConfigUtils.h */,
+				9422ACBC19B6163800F06A90 /* MJConfigUtils.m */,
 				94A1E5401993AB00003AEB26 /* MJSecurityUtils.h */,
 				94A1E5411993AB00003AEB26 /* MJSecurityUtils.m */,
 				94A1E5461993AC5C003AEB26 /* MJFileUtils.h */,
 				94A1E5471993AC5C003AEB26 /* MJFileUtils.m */,
-				943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */,
-				943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */,
-				949B520119A5576E00ED4F02 /* MJDockIcon.h */,
-				949B520219A5576E00ED4F02 /* MJDockIcon.m */,
-				949B520419A55BF400ED4F02 /* MJMenuIcon.h */,
-				949B520519A55BF400ED4F02 /* MJMenuIcon.m */,
 				9409202F19A5940600B9964E /* MJVersionUtils.h */,
 				9409203019A5940600B9964E /* MJVersionUtils.m */,
 				942E71A819B11176001BA156 /* MJAccessibilityUtils.h */,
 				942E71A919B11176001BA156 /* MJAccessibilityUtils.m */,
+				949B520119A5576E00ED4F02 /* MJDockIcon.h */,
+				949B520219A5576E00ED4F02 /* MJDockIcon.m */,
+				949B520419A55BF400ED4F02 /* MJMenuIcon.h */,
+				949B520519A55BF400ED4F02 /* MJMenuIcon.m */,
+				943BF0F019A4B43E0017F79D /* MJUserNotificationManager.h */,
+				943BF0F119A4B43E0017F79D /* MJUserNotificationManager.m */,
+				9428C7E9198EB76E00CDFA00 /* MJAutoLaunch.h */,
+				942BF3901989E18600983892 /* MJAutoLaunch.m */,
 			);
 			name = Auxiliary;
 			sourceTree = "<group>";
@@ -575,6 +580,7 @@
 				94AE5C0919B2B9D600769820 /* linit.c in Sources */,
 				949B520619A55BF400ED4F02 /* MJMenuIcon.m in Sources */,
 				943BF0F219A4B43E0017F79D /* MJUserNotificationManager.m in Sources */,
+				9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */,
 				943BF0F319A4BC730017F79D /* Images.xcassets in Sources */,
 				942E71A619B1112F001BA156 /* MJPreferencesWindowController.m in Sources */,
 			);

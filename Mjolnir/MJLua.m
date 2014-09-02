@@ -1,6 +1,7 @@
 #import "MJLua.h"
 #import "MJConsoleWindowController.h"
 #import "MJUserNotificationManager.h"
+#import "MJConfigUtils.h"
 #import "variables.h"
 
 static lua_State* MJLuaState;
@@ -68,17 +69,6 @@ static luaL_Reg corelib[] = {
     {}
 };
 
-NSString* MJFindInitFile(void) {
-    for (const char** iter = MJInitPaths; *iter; iter++) {
-        const char* cpath = *iter;
-        NSString* prettypath = [NSString stringWithUTF8String: cpath];
-        NSString* fullpath = [prettypath stringByStandardizingPath];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:fullpath])
-            return prettypath;
-    }
-    return nil;
-}
-
 void MJLuaSetup(void) {
     if (MJLuaState)
         lua_close(MJLuaState);
@@ -90,23 +80,11 @@ void MJLuaSetup(void) {
     lua_setglobal(L, "mjolnir");
     
     luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
-    NSString* prettypath = MJFindInitFile();
-    NSString* fullpath = [prettypath stringByStandardizingPath];
     
-    NSString* dir = [fullpath stringByDeletingLastPathComponent];
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath: dir];
-    
-    lua_pushstring(L, [prettypath UTF8String]);
-    lua_pushstring(L, [fullpath UTF8String]);
-    lua_pushstring(L, [[prettypath stringByDeletingLastPathComponent] UTF8String]);
-    
-    lua_newtable(L);
-    int i = 1;
-    for (const char** iter = MJInitPaths; *iter; iter++) {
-        const char* path = *iter;
-        lua_pushstring(L, path);
-        lua_rawseti(L, -2, i++);
-    }
+    lua_pushstring(L, [MJConfigFile UTF8String]);
+    lua_pushstring(L, [MJConfigFileFullPath() UTF8String]);
+    lua_pushstring(L, [MJConfigDir() UTF8String]);
+    lua_pushboolean(L, [[NSFileManager defaultManager] fileExistsAtPath: MJConfigFileFullPath()]);
     
     lua_pcall(L, 4, 0, 0);
 }

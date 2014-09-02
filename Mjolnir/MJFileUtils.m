@@ -46,3 +46,10 @@ BOOL MJUntar(NSData* tardata, NSString* intoDirectory, NSError*__autoreleasing* 
     
     return YES;
 }
+
+BOOL MJEnsureDirectoryExists(NSString* dir) {
+    return [[NSFileManager defaultManager] createDirectoryAtPath:dir
+                                     withIntermediateDirectories:YES
+                                                      attributes:nil
+                                                           error:NULL];
+}

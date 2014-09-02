@@ -1,4 +1,4 @@
-local prettypath, fullpath, cwd, initpaths = ...
+local prettypath, fullpath, configdir, hasinitfile = ...
 
 os.exit = mjolnir._exit
 
@@ -16,10 +16,17 @@ function mjolnir.runstring(s)
   return str
 end
 
+--- mjolnir.configdir = "~/.mjolnir/"
+--- Constant
+--- The user's Mjolnir config directory. Modules may use it, assuming
+--- they've worked out a contract with the user about how to use it.
+mjolnir.configdir = configdir
+
 --- mjolnir.showerror(err)
 --- Function
 --- Presents an error to the user via Mjolnir's GUI.
 --- Useful for writing modules that take callbacks from the user, e.g.:
+---
 ---     local ok, err = xpcall(callbackfn, debug.traceback)
 ---     if not ok then mjolnir.showerror(err) end
 function mjolnir.showerror(err)
@@ -44,11 +51,8 @@ function print(...)
   mjolnir._logmessage(str)
 end
 
-if not prettypath then
-  print "-- Can't find initfile. Create one of the following files and reload your config:"
-  for _, path in pairs(initpaths) do
-    print("   " .. path)
-  end
+if not hasinitfile then
+  print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
   return
 end
 
@@ -58,7 +62,5 @@ if not fn then mjolnir.showerror(err) return end
 
 local ok, err = xpcall(fn, debug.traceback)
 if not ok then mjolnir.showerror(err) return end
-
-print("-- Working directory: " .. cwd)
 
 print "-- Done."
