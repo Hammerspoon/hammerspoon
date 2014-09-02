@@ -139,6 +139,11 @@ software Mjolnir uses.
 
 ## Changes
 
+**NOTE:** When upgrading, System Preferences will *pretend* like
+  Mjolnir's accessibility is enabled, showing a checked checkbox. But
+  in fact, you'll still need to be disable and re-enable it. This is a
+  bug in OS X.
+
 ### 0.3.1
 
 - Renamed global `mj` to `mjolnir`
