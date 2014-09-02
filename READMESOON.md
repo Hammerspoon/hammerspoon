@@ -29,7 +29,7 @@ built-in `mj` module, and all Lua modules that you have installed.
    $ echo 'rocks_servers = { "http://rocks.moonscript.org" }' > ~/.luarocks/config.lua
    ~~~
 
-3. Install some modules from the readme of [mjolnir-core](https://github.com/mjolnir-io/mjolnir-core):
+3. Install some modules from this list: https://rocks.moonscript.org/search?q=mjolnir
 
    ~~~bash
    $ luarocks install mjolnir.hotkey
@@ -72,7 +72,7 @@ list.
 
 ## Documentation
 
-Mjolnir and mjolnir-core use [Dash](http://kapeli.com/dash) for
+Mjolnir and mjolnir-modules use [Dash](http://kapeli.com/dash) for
 documentation. You can install the Mjolnir docset from inside Dash,
 under Preferences -> Downloads -> User Contributed. Then, type
 `mjolnir:` to limit your search scope to Mjolnir functions.
@@ -83,7 +83,7 @@ Check out [this sample Mjolnir plugin](https://github.com/mjolnir-io/mjolnir-sam
 
 ## Principles
 
-Development of Mjolnir.app and the mjolnir-core modules follow these
+Development of Mjolnir.app and the core Mjolnir modules follow these
 principles:
 
 1. They must be stable. The app should never crash. You should only
