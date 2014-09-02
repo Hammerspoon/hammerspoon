@@ -34,11 +34,11 @@ function mjolnir.showerror(err)
   print(err)
 end
 
---- mjolnir.print = print
+--- mjolnir.rawprint = print
 --- Function
 --- The original print function, before Mjolnir overrides it.
 local rawprint = print
-mjolnir.print = rawprint
+mjolnir.rawprint = rawprint
 function print(...)
   rawprint(...)
   local vals = table.pack(...)
