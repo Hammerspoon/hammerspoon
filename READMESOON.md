@@ -111,13 +111,13 @@ principles:
 
    The short of it is, Mjolnir is the successor to these older apps. Or check out [the full story](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/).
 
-3. **How does Mjolnir compare to Slate?**
+2. **How does Mjolnir compare to Slate?**
 
    They're both programmer-centric with mostly similar goals but very
    different approaches. Try them both and see which one suits you
    better.
 
-4. **How does Mjolnir compare to Spectacle, Moom, SizeUp, Divvy, etc?**
+3. **How does Mjolnir compare to Spectacle, Moom, SizeUp, Divvy, etc?**
 
    Mjolnir is intended for programmers who want to write programs that
    customize their environment. It's not intended to be a drag-n-drop
