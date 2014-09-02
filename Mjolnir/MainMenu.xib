@@ -77,7 +77,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="Load Config" keyEquivalent="l" id="Was-JA-tGl">
+                            <menuItem title="Reload Config" keyEquivalent="R" id="Was-JA-tGl">
                                 <connections>
                                     <action selector="reloadConfig:" target="Voe-Tx-rLC" id="9tp-b3-puT"/>
                                 </connections>
