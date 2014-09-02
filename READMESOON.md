@@ -42,10 +42,15 @@ built-in `mj` module, and all Lua modules that you have installed.
 
    ~~~lua
    local application = require "mjolnir.application"
-   local window = require "mjolnir.window"
    local hotkey = require "mjolnir.hotkey"
+   local window = require "mjolnir.window"
    local fnutils = require "mjolnir.fnutils"
    ~~~
+
+   NOTE: The `mjolnir.window` module comes with `mjolnir.application`,
+         so you don't need to (and can't) install it separately. Also,
+         `mjolnir.fnutils` is already installed as a dependency of the
+         other modules, so you don't need to explicitly install it.
 
 5. Start writing some fun stuff!
 
