@@ -41,10 +41,10 @@ built-in `mj` module, and all Lua modules that you have installed.
 4. Create `~/.mjolnir/init.lua`, and at the top, require the modules you installed, e.g. like this:
 
    ~~~lua
-   mjolnir.application = require "mjolnir.application"
-   mjolnir.window = require "mjolnir.window"
-   mjolnir.hotkey = require "mjolnir.hotkey"
-   mjolnir.fnutils = require "mjolnir.fnutils"
+   local application = require "mjolnir.application"
+   local window = require "mjolnir.window"
+   local hotkey = require "mjolnir.hotkey"
+   local fnutils = require "mjolnir.fnutils"
    ~~~
 
 5. Start writing some fun stuff!
