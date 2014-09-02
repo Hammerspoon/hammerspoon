@@ -120,22 +120,39 @@ principles:
 
 ## FAQ
 
-1. **How is Mjolnir related to Hydra, Phoenix, or Zephyros?**
+1. **I'm getting an error like this: "attempt to index field 'win' (a nil value)"**
 
-   The short of it is, Mjolnir is the successor to these older apps. Or check out [the full story](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/).
+   Disable and re-enable accessibility. It may look enabled, but do it
+   anyway. (This is an OS X bug, not a Mjolnir bug.)
 
-2. **How does Mjolnir compare to Slate?**
+1. **I don't have things in /usr/local, so I can't load modules!**
 
-   They're both programmer-centric with mostly similar goals but very
-   different approaches. Try them both and see which one suits you
-   better.
+   Add the path to `package.path` and `package.cpath` in your
+   init-file. For example, if you're using Boxen, add this:
 
-3. **How does Mjolnir compare to Spectacle, Moom, SizeUp, Divvy, etc?**
+   ~~~lua
+   package.path = package.path .. ';/opt/boxen/homebrew/share/lua/5.2/?.lua'
+   package.cpath = package.cpath .. ';/opt/boxen/homebrew/lib/lua/5.2/?.so'
+   ~~~
+
+## Mjolnir vs. other apps
+
+1. **Hydra, Phoenix, or Zephyros?**
+
+   The short of it is, Mjolnir is the successor to these older apps of mine. Or check out [the full story](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/).
+
+2. **Slate**
+
+   They're both programmer-centric with somewhat similar goals but
+   different approaches. Mjolnir is more modularized, Slate is more
+   all-in-one. Try them both and see which one suits you better.
+
+3. **Spectacle, Moom, SizeUp, Divvy**
 
    Mjolnir is intended for programmers who want to write programs that
    customize their environment. It's not intended to be a drag-n-drop
    solution; it's meant to allow you to write your own personalized
-   productivity enhancement suite to keep and use long-term.
+   productivity enhancement suite to keep and to use long-term.
 
 ## Community
 
