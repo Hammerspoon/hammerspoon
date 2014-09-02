@@ -1,11 +1,12 @@
-**Current Status:**
+### Current status
 
-Hydra has been taken down, because it's not quite ready yet, and was released prematurely.
+Mjolnir is now in **public beta**.
 
-Current efforts are focused on making Hydra more modularized, by extracting all its functionality into opt-in extensions.
+Sign up for [the mailing list](https://groups.google.com/forum/#!forum/mjolnir-io) for announcements.
 
-Also, because of trademark issues, Hydra is being renamed to Mjolnir.
+### Beta testing
 
-For more details, see my blog post [The history and current state of AppGrid, Zephyros, Phoenix, Hydra, Penknife, and Mjolnir](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/).
-
-When Mjolnir is ready, **it will be announced on [the mailing list](https://groups.google.com/forum/#!forum/mjolnir-io).**
+1. Sign up for the mailing list as noted above.
+2. Undo everything you've done with Mjolnir before, to avoid false bug reports.
+3. Read "READMESOON.md" as if it were "README.md".
+4. Report feedback!
