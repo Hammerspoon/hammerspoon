@@ -10,8 +10,9 @@
 ## What is Mjolnir?
 
 Mjolnir is an OS X app that lets you automate common tasks using the
-language Lua. At its core, this is all it does; the real power lies in
-all the useful modules that you can install.
+language Lua. At its core, it doesn't actually do anything besides
+load up a Lua environment; the real power lies in all the useful
+modules that you can install.
 
 You write a "config", which just means `~/.mjolnir/init.lua`. This
 file, along with whatever modules it requires, have full access to the
