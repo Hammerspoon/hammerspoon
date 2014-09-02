@@ -58,13 +58,13 @@ built-in `mj` module, and all Lua modules that you have installed.
    end)
    ~~~
 
-6. To undo everything in the above steps, for whatever reason:
+If for any reason you want to undo everything in the above steps, do:
 
-   ~~~bash
-   $ luarocks purge --tree=/usr/local
-   $ brew uninstall lua52 luarocks
-   $ rm ~/.luarocks/config.lua
-   ~~~
+~~~bash
+$ luarocks purge --tree=/usr/local
+$ brew uninstall lua52 luarocks
+$ rm ~/.luarocks/config.lua
+~~~
 
 ## Finding modules
 
