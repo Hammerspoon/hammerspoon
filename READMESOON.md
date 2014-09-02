@@ -26,14 +26,14 @@ built-in `mj` module, and all Lua modules that you have installed.
    ~~~bash
    $ brew install homebrew/versions/lua52
    $ brew install luarocks --with-lua52
-   $ luarocks install --server=http://rocks.moonscript.org moonrocks
+   $ echo 'rocks_servers = { "http://rocks.moonscript.org" }' > ~/.luarocks/config.lua
    ~~~
 
 3. Install some modules from the readme of [mjolnir-core](https://github.com/mjolnir-io/mjolnir-core):
 
    ~~~bash
-   $ moonrocks install mjolnir.hotkey
-   $ moonrocks install mjolnir.application
+   $ luarocks install mjolnir.hotkey
+   $ luarocks install mjolnir.application
    ~~~
 
    Note: you don't need to install every module, since some of them have lower-level ones as dependencies, e.g. installing mjolnir-hotkey automatically installs mjolnir-keycodes, etc.
