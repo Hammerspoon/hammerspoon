@@ -34,6 +34,14 @@ static int core_reload(lua_State* L) {
     return 0;
 }
 
+/// mjolnir.focus()
+/// Function
+/// Makes Mjolnir the foreground app.
+static int core_focus(lua_State* L) {
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    return 0;
+}
+
 static int core_exit(lua_State* L) {
     if (lua_toboolean(L, 2))
         lua_close(L);
@@ -63,6 +71,7 @@ static int core_notify(lua_State* L) {
 static luaL_Reg corelib[] = {
     {"openconsole", core_openconsole},
     {"reload", core_reload},
+    {"focus", core_focus},
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
     {"_notify", core_notify},
