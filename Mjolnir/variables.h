@@ -26,5 +26,10 @@ static NSString* MJPublicKey = @""
 #define MJHasRunAlreadyKey           @"MJHasRunAlreadyKey"
 #define MJCheckForUpdatesIntervalKey @"MJCheckForUpdatesIntervalKey"
 
+static const char* MJInitPaths[] = {
+    "~/.mjolnir.lua",
+    "~/.mjolnir/init.lua",
+    NULL
+};
 
 #endif

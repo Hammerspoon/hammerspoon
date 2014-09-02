@@ -1,3 +1,5 @@
+local prettypath, fullpath, cwd, initpaths = ...
+
 os.exit = mjolnir._exit
 
 function mjolnir.runstring(s)
@@ -42,32 +44,21 @@ function print(...)
   mjolnir._logmessage(str)
 end
 
-function runconfig(files)
-  if #files == 0 then
-    print "-- Can't find valid init-file; skipping."
-    return
+if not prettypath then
+  print "-- Can't find initfile. Create one of the following files and reload your config:"
+  for _, path in pairs(initpaths) do
+    print("   " .. path)
   end
-  local file = files[1]
-  table.remove(files, 1)
-
-  print("-- Loading ~/" .. file)
-  local fn, err = loadfile(file)
-  if fn then
-    local ok, err = xpcall(fn, debug.traceback)
-    if ok then
-      print "-- Success."
-    else
-      mjolnir.showerror(err)
-    end
-  elseif err:find "No such file or directory" then
-    print("-- File not found: ~/" .. file)
-    runconfig(files)
-  else
-    print "-- Syntax error:"
-    print(tostring(err))
-    mjolnir._notify("Syntax error in ~/.mjolnir/init.lua")
-  end
+  return
 end
 
--- load user's init-file
-runconfig({".mjolnir.lua", ".mjolnir/init.lua"})
+print("-- Loading " .. prettypath)
+local fn, err = loadfile(fullpath)
+if not fn then mjolnir.showerror(err) return end
+
+local ok, err = xpcall(fn, debug.traceback)
+if not ok then mjolnir.showerror(err) return end
+
+print("-- Working directory: " .. cwd)
+
+print "-- Done."

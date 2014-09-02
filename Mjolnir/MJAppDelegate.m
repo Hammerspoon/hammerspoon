@@ -31,8 +31,6 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    [[NSFileManager defaultManager] changeCurrentDirectoryPath: NSHomeDirectory()];
-    
     [self registerDefaultDefaults];
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
@@ -77,17 +75,25 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (IBAction) openConfig:(id)sender {
-    NSString* bare = [@"~/.mjolnir.lua" stringByStandardizingPath];
-    NSString* full = [@"~/.mjolnir/init.lua" stringByStandardizingPath];
+    NSString* prettypath = MJFindInitFile();
+    if (!prettypath) {
+        NSMutableString* msg = [@"Create one of the following files and try again:\n" mutableCopy];
+        
+        for (const char** iter = MJInitPaths; *iter; iter++) {
+            const char* path = *iter;
+            [msg appendFormat:@"\n%s", path];
+        }
+        
+        NSAlert* alert = [[NSAlert alloc] init];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setMessageText:@"Config file doesn't exist"];
+        [alert setInformativeText:msg];
+        [alert runModal];
+        return;
+    }
     
-    if ([[NSWorkspace sharedWorkspace] openFile: bare]) return;
-    if ([[NSWorkspace sharedWorkspace] openFile: full]) return;
-    
-    NSAlert* alert = [[NSAlert alloc] init];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    [alert setMessageText:@"Config file doesn't exist"];
-    [alert setInformativeText:@"Create an empty ~/.mjolnir.lua file and try again."];
-    [alert runModal];
+    NSString* fullpath = [prettypath stringByStandardizingPath];
+    [[NSWorkspace sharedWorkspace] openFile: fullpath];
 }
 
 @end
