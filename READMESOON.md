@@ -190,7 +190,7 @@ with it as you please.
 
 So, instead of charging for licenses, I'm asking for donations. If you
 find Mjolnir genuinely beneficial to your productivity, I encourage
-you to donate what you believe is fair.
+you to donate in proportion to the value you're getting out of it.
 
 Your donations will fund the time I'll be spending making Mjolnir even
 better, and will be used to compensate volunteers for the time and
