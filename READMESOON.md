@@ -16,7 +16,8 @@ modules that you can install.
 
 You write a "config", which just means `~/.mjolnir/init.lua`. This
 file, along with whatever modules it requires, have full access to the
-built-in `mj` module, and all Lua modules that you have installed.
+built-in `mjolnir` module, and all Lua modules that you have installed
+(e.g. from LuaRocks or any way you want to install them).
 
 ## Try it out
 
