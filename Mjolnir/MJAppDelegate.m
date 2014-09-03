@@ -79,6 +79,10 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     MJUpdateCheckerCheckVerbosely();
 }
 
+- (IBAction) donate:(id)sender {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:MJDonationURL]];
+}
+
 - (IBAction) openConfig:(id)sender {
     NSString* path = MJConfigFileFullPath();
     

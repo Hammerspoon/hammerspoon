@@ -118,6 +118,21 @@
         MJUpdateCheckerCheckSilently();
 }
 
+- (IBAction) donate:(id)sender {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:MJDonationURL]];
+}
+
+- (IBAction) showDonateHelp:(id)sender {
+    NSAlert* alert = [[NSAlert alloc] init];
+    [alert setAlertStyle:NSInformationalAlertStyle];
+    [alert setMessageText:@"What's this 'donate' stuff all about?"];
+    [alert setInformativeText:MJDonateMessage];
+    [alert beginSheetModalForWindow:[self window]
+                      modalDelegate:nil
+                     didEndSelector:NULL
+                        contextInfo:NULL];
+}
+
 - (void) dockMenuProblemAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
     BOOL skipNextTime = ([[alert suppressionButton] state] == NSOnState);
     [[NSUserDefaults standardUserDefaults] setBool:skipNextTime forKey:MJSkipDockMenuIconProblemAlertKey];

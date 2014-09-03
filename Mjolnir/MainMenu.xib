@@ -30,6 +30,13 @@
                                     <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="bG4-ba-EWj"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Donate ❤️" id="SWK-JB-caq">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="donate:" target="Voe-Tx-rLC" id="i6g-ti-2Yz"/>
+                                    <binding destination="b8h-DN-29z" name="hidden" keyPath="values.MJUserDonatedKey" id="DqM-60-IIC"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Check for Updates..." id="BOF-NM-1cW">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
@@ -399,11 +406,18 @@
                         <action selector="showPreferencesWindow:" target="Voe-Tx-rLC" id="0WV-v0-6Fl"/>
                     </connections>
                 </menuItem>
-                <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                <menuItem title="About Mjolnir" id="VlO-eE-8tv">
+                <menuItem isSeparatorItem="YES" id="47L-wL-Aut"/>
+                <menuItem title="About Mjolnir" id="2LS-Fs-g1y">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="g7P-RJ-eOC"/>
+                        <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="Vu4-C4-kcK"/>
+                    </connections>
+                </menuItem>
+                <menuItem title="Donate ❤️" id="VlO-eE-8tv">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="donate:" target="Voe-Tx-rLC" id="iR7-ak-iap"/>
+                        <binding destination="b8h-DN-29z" name="hidden" keyPath="values.MJUserDonatedKey" id="bMn-Da-RUh"/>
                     </connections>
                 </menuItem>
                 <menuItem title="Check for Updates..." id="zC2-p9-aqe">
@@ -421,5 +435,6 @@
                 </menuItem>
             </items>
         </menu>
+        <userDefaultsController representsSharedInstance="YES" id="b8h-DN-29z"/>
     </objects>
 </document>
