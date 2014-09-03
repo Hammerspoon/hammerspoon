@@ -143,7 +143,7 @@ DQ
                                             </textFieldCell>
                                         </textField>
                                         <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="5EZ-7o-48n">
-                                            <rect key="frame" x="18" y="91" width="294" height="17"/>
+                                            <rect key="frame" x="18" y="91" width="392" height="17"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Mjolnir version %@ is available. (You have %@)" id="ISP-9p-xCn">
                                                 <font key="font" metaFont="system"/>
