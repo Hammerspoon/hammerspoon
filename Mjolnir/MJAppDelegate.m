@@ -94,6 +94,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         [alert setAlertStyle:NSWarningAlertStyle];
         [alert setMessageText:@"Config file doesn't exist"];
         [alert setInformativeText: [NSString stringWithFormat: @"Create %@ and try again.", MJConfigFile]];
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
         [alert runModal];
     }
 }
