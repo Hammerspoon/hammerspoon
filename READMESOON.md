@@ -226,7 +226,7 @@ Currently, donations can be made [by PayPal](https://www.paypal.com/cgi-bin/webs
 
 > Released under MIT license.
 >
-> Copyright (c) 2013 Steven Degutis
+> Copyright (c) 2014 Steven Degutis
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal
