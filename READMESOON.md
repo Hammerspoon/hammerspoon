@@ -92,9 +92,10 @@ documentation. You can install the Mjolnir docset from inside Dash,
 under Preferences -> Downloads -> User Contributed. Then, type
 `mjolnir:` to limit your search scope to Mjolnir functions.
 
-## Writing Mjolnir plugins
+## Publishing modules
 
-Check out [this sample Mjolnir plugin](https://github.com/mjolnir-io/mjolnir-sample-plugin).
+Wrote an awesome module, and want to share with the world? Check out
+[this sample Mjolnir plugin](https://github.com/mjolnir-io/mjolnir-sample-plugin).
 
 ## Principles
 
