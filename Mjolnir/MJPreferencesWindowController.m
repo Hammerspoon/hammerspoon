@@ -5,6 +5,7 @@
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
 #import "MJAccessibilityUtils.h"
+#import "MJConsoleWindowController.h"
 #import "variables.h"
 
 #define MJSkipDockMenuIconProblemAlertKey @"MJSkipDockMenuIconProblemAlertKey"
@@ -15,6 +16,7 @@
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
 @property (weak) IBOutlet NSButton* showMenuIconCheckbox;
 @property (weak) IBOutlet NSButton* checkForUpdatesCheckbox;
+@property (weak) IBOutlet NSButton* keepConsoleOnTopCheckbox;
 
 @property BOOL isAccessibilityEnabled;
 
@@ -52,6 +54,7 @@
     [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
     [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
     [self.checkForUpdatesCheckbox setState: MJUpdateCheckerEnabled() ? NSOnState : NSOffState];
+    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
 }
 
 - (void) accessibilityChanged:(NSNotification*)note {
@@ -116,6 +119,10 @@
     MJUpdateCheckerSetEnabled([sender state] == NSOnState);
     if (MJUpdateCheckerEnabled())
         MJUpdateCheckerCheckSilently();
+}
+
+- (IBAction) toggleKeepConsoleOnTop:(id)sender {
+    MJConsoleWindowSetAlwaysOnTop([sender state] == NSOnState);
 }
 
 - (IBAction) donate:(id)sender {

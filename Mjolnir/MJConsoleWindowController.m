@@ -1,5 +1,6 @@
 #import "MJConsoleWindowController.h"
 #import "MJLua.h"
+#import "variables.h"
 
 #define MJColorForStdout [NSColor colorWithCalibratedHue:0.88 saturation:1.0 brightness:0.6 alpha:1.0]
 #define MJColorForCommand [NSColor blackColor]
@@ -47,6 +48,11 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
             [self.preshownStdouts addObject:str];
         }
     });
+    [self reflectDefaults];
+}
+
+- (void) reflectDefaults {
+    [[self window] setLevel: MJConsoleWindowAlwaysOnTop() ? NSFloatingWindowLevel : NSNormalWindowLevel];
 }
 
 - (void) windowDidLoad {
@@ -133,6 +139,16 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
         return YES;
     }
     return NO;
+}
+
+BOOL MJConsoleWindowAlwaysOnTop(void) {
+    return [[NSUserDefaults standardUserDefaults] boolForKey: MJKeepConsoleOnTopKey];
+}
+
+void MJConsoleWindowSetAlwaysOnTop(BOOL alwaysOnTop) {
+    [[NSUserDefaults standardUserDefaults] setBool:alwaysOnTop
+                                            forKey:MJKeepConsoleOnTopKey];
+    [[MJConsoleWindowController singleton] reflectDefaults];
 }
 
 @end

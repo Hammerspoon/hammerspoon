@@ -6,3 +6,6 @@
 - (void) setup;
 
 @end
+
+BOOL MJConsoleWindowAlwaysOnTop(void);
+void MJConsoleWindowSetAlwaysOnTop(BOOL alwaysOnTop);

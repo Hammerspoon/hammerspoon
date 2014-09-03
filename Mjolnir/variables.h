@@ -24,6 +24,7 @@ static NSString* MJPublicKey = @""
 #define MJCheckForUpdatesKey         @"MJCheckForUpdatesKey"
 #define MJShowDockIconKey            @"MJShowDockIconKey"
 #define MJShowMenuIconKey            @"MJShowMenuIconKey"
+#define MJKeepConsoleOnTopKey        @"MJKeepConsoleOnTopKey"
 #define MJHasRunAlreadyKey           @"MJHasRunAlreadyKey"
 #define MJCheckForUpdatesIntervalKey @"MJCheckForUpdatesIntervalKey"
 
