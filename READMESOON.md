@@ -125,7 +125,7 @@ principles:
    Disable and re-enable accessibility. It may look enabled, but do it
    anyway. (This is an OS X bug, not a Mjolnir bug.)
 
-1. **I don't have things in /usr/local, so I can't load modules!**
+2. **I don't have things in /usr/local, so I can't load modules!**
 
    Add the path to `package.path` and `package.cpath` in your
    init-file. For example, if you're using Boxen, add this:
