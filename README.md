@@ -41,7 +41,7 @@ little smaller. Oh and I unmuted it and turned the volume up a bit and
 made the computer talk to her using the "say" utility. Don't worry,
 she found it pretty funny :)
 
-### such amaze. so possibilities. wow.
+### such api. so possibilities. wow.
 
 There's really no limit to what you can do with Mjolnir. Like I said
 before, the heart of the app is actually just a Lua environment. You
@@ -56,6 +56,19 @@ devices, one to get/set your screen brightness, one to execute Mjolnir
 code from the command line or from other shell scripts, one to listen
 to window/application/screen events (i.e. window opened, application
 quit, application launched, etc.)
+
+## See it in action
+
+| Description                                                                                                              | Animated Screenshot                                                                           |
+|--------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
+| Using hotkeys to move and resize a window along a grid (using `mjolnir.sd.grid`)                                         | ![grid.gif](https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/screenshots/grid.gif) |
+| Using a hotkey to open Dictionary.app and show an alert (using `mjolnir.application.launchorfocus` and `mjolnir.alert`)  | ![dict.gif](https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/screenshots/dict.gif) |
+
+dict.gif
+  -rw-r--r--   1 sdegutis  staff  890581 Sep  4 13:19 grid.gif
+  -rw-r--r--   1 sdegutis  staff   82421 Sep  4 13:19 ipc.gif
+  -rw-r--r--   1 sdegutis  staff  368952 Sep  4 13:19 repl.gif
+
 
 ## How do you actually use Mjolnir?
 
