@@ -64,12 +64,6 @@ quit, application launched, etc.)
 | Using hotkeys to move and resize a window along a grid (using `mjolnir.sd.grid`)                                         | ![grid.gif](https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/screenshots/grid.gif) |
 | Using a hotkey to open Dictionary.app and show an alert (using `mjolnir.application.launchorfocus` and `mjolnir.alert`)  | ![dict.gif](https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/screenshots/dict.gif) |
 
-dict.gif
-  -rw-r--r--   1 sdegutis  staff  890581 Sep  4 13:19 grid.gif
-  -rw-r--r--   1 sdegutis  staff   82421 Sep  4 13:19 ipc.gif
-  -rw-r--r--   1 sdegutis  staff  368952 Sep  4 13:19 repl.gif
-
-
 ## How do you actually use Mjolnir?
 
 You write a "config", which just means `~/.mjolnir/init.lua`. This
