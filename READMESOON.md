@@ -88,9 +88,15 @@ list.
 ## Documentation
 
 Mjolnir and mjolnir-modules use [Dash](http://kapeli.com/dash) for
-documentation. You can install the Mjolnir docset from inside Dash,
-under Preferences -> Downloads -> User Contributed. Then, type
-`mjolnir:` to limit your search scope to Mjolnir functions.
+documentation.
+
+To install Mjolnir.docset, run this in your Terminal:
+
+~~~bash
+$ open dash-feed://https%3A%2F%2Fraw.githubusercontent.com%2Fmjolnir-io%2Fmjolnir-docs%2Fmaster%2FMjolnir.xml
+~~~
+
+It should generally update on its own.
 
 ## Publishing modules
 
