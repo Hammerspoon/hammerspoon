@@ -57,8 +57,8 @@ built-in `mjolnir` module, and all Lua modules that you have installed
 5. Start writing some fun stuff!
 
    ~~~lua
-   mjolnir.hotkey.bind({"cmd", "alt", "ctrl"}, "D", function()
-      local win = mjolnir.window.focusedwindow()
+   hotkey.bind({"cmd", "alt", "ctrl"}, "D", function()
+      local win = window.focusedwindow()
       local f = win:frame()
       f.x = f.x + 10
       win:setframe(f)
