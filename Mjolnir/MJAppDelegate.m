@@ -86,17 +86,13 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (IBAction) openConfig:(id)sender {
     NSString* path = MJConfigFileFullPath();
     
-    if (path) {
-        [[NSWorkspace sharedWorkspace] openFile: path];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+        [[NSFileManager defaultManager] createFileAtPath:path
+                                                contents:[NSData data]
+                                              attributes:nil];
     }
-    else {
-        NSAlert* alert = [[NSAlert alloc] init];
-        [alert setAlertStyle:NSWarningAlertStyle];
-        [alert setMessageText:@"Config file doesn't exist"];
-        [alert setInformativeText: [NSString stringWithFormat: @"Create %@ and try again.", MJConfigFile]];
-        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-        [alert runModal];
-    }
+    
+    [[NSWorkspace sharedWorkspace] openFile: path];
 }
 
 @end
