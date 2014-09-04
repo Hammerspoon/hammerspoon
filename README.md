@@ -26,8 +26,8 @@ crazy-productive in the long-term.
 ### Lightweight
 
 I'm just so tired of certain programs making my laptop sound like it's
-gonna take off in flight. So I made a point of it to make Hydra use as
-little system resources as possible. And I'm actually even kinda
+gonna take off in flight. So I made a point of it to make Mjolnir use
+as little system resources as possible. And I'm actually even kinda
 surprised at how small it is! It sure does help that Lua has the same
 idea in mind. There are some principles about this in the readme on
 the github page, you should totally check it out.
