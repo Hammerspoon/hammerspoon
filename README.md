@@ -213,6 +213,11 @@ Special thanks, in no special order:
 
 - @kapeli for his patience with my constant Dash questions and PRs
 
+- Everyone else who has helped who I've probably forgotten: thanks for
+  all your help!
+
+- Everyone who has donated: thank you so much for your support!
+
 See the in-app About panel for the open source licenses for the
 software Mjolnir uses internally (basically just Lua's license).
 
