@@ -273,7 +273,7 @@ Your donations will fund the time I'll be spending making Mjolnir even
 better, and will be used to compensate volunteers for the time and
 skills which they have generously contributed to the project.
 
-Currently, donations can be made [by PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Mjolnir.app%20donation&no_shipping=1) or [with a credit card](https://sites.fastspring.com/sdegutis/instant/hydra).
+Currently, donations can be made [by PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Mjolnir.app%20donation&no_shipping=1). If you don't have a PayPal account, they let you pay with a credit card too without having to sign up with them.
 
 ## License
 
