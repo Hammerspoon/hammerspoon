@@ -90,6 +90,8 @@ list.
 Mjolnir and mjolnir-modules use [Dash](http://kapeli.com/dash) for
 documentation.
 
+<a href="dash-feed://https%3A%2F%2Fraw.githubusercontent.com%2Fmjolnir-io%2Fmjolnir-docs%2Fmaster%2FMjolnir.xml">testing</a>
+
 To install Mjolnir.docset, run this in your Terminal:
 
 ~~~bash
