@@ -14,6 +14,51 @@ language Lua. At its core, it doesn't actually do anything besides
 load up a Lua environment; the real power lies in all the useful
 modules that you can install.
 
+### Powerful
+
+Apple has a bunch of APIs that let you do super cool things. But you
+usually need to know C and pointers and stuff to use them. But not
+anymore! Now we can just write some Lua and do cool things like
+get/set the mouse position, move windows, whatever! Anyway, this is
+useful because you get to write a short script that will make you
+crazy-productive in the long-term.
+
+### Lightweight
+
+I'm just so tired of certain programs making my laptop sound like it's
+gonna take off in flight. So I made a point of it to make Hydra use as
+little system resources as possible. And I'm actually even kinda
+surprised at how small it is! It sure does help that Lua has the same
+idea in mind. There are some principles about this in the readme on
+the github page, you should totally check it out.
+
+### Superfun
+
+The other day, I was on my laptop, and my wife was using the desktop
+(OS X of course), and I ssh'd into it and used a CLI module to like,
+move her mouse by a few pixels and stuff, and made her windows a
+little smaller. Oh and I unmuted it and turned the volume up a bit and
+made the computer talk to her using the "say" utility. Don't worry,
+she found it pretty funny :)
+
+### such amaze. so possibilities. wow.
+
+There's really no limit to what you can do with Mjolnir. Like I said
+before, the heart of the app is actually just a Lua environment. You
+can install more Mjolnir modules from LuaRocks or wherever. There's
+one that let's you get and set window positions for any OS X window,
+one that lets you bind global hotkeys, one that lets you move windows
+along a grid, open or quit applications, and more.
+
+We're working on creating some new ones, including a module to run
+AppleScripts or shell scripts, one to get/set volume on your audio
+devices, one to get/set your screen brightness, one to execute Mjolnir
+code from the command line or from other shell scripts, one to listen
+to window/application/screen events (i.e. window opened, application
+quit, application launched, etc.)
+
+## How do you actually use Mjolnir?
+
 You write a "config", which just means `~/.mjolnir/init.lua`. This
 file, along with whatever modules it requires, have full access to the
 built-in `mjolnir` module, and all Lua modules that you have installed
