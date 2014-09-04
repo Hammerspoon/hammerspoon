@@ -191,13 +191,30 @@ is a fine place to share ideas, and follow releases and announcements.
 
 We also have a growing IRC channel on freenode, #mjolnir.
 
-## Credits
+## Credits and Thanks
 
 Mjolnir is developed by Steven Degutis with the help of
 [various contributors](https://github.com/mjolnir-io/mjolnir/graphs/contributors).
 
-See the About-panel in the app for other credits including open source
-software Mjolnir uses.
+Special thanks, in no special order:
+
+- @Habbie for his constant help and support ever since the moment I
+  first jumped into #lua and said "anyone wanna try out an OS X window
+  manager scriptable in Lua?" and being the first person to join our
+  IRC channel and for helping with nearly every Lua question I had
+
+- @cmsj, @Keithbsmiley, @BrianGilbert, @muescha, @chdiza, @asmagill,
+  @splintax, @arxanas, and @DomT4 for all their help and support
+
+- @jasonm23 for writing, not one, not two, but *three* app icons for
+  this project
+
+- @jhgg for contributing so many awesome modules to the project
+
+- @kapeli for his patience with my constant Dash questions and PRs
+
+See the in-app About panel for the open source licenses for the
+software Mjolnir uses internally (basically just Lua's license).
 
 ## Changes
 
