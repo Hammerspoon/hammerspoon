@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <title>Mjolnir docs: <%= mod['name'] %> module</title>
+    <style type="text/css">
+      a { text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      header { padding-bottom: 50px; }
+      section { border-top: 1px solid #777; padding-bottom: 20px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1><%= mod['name'] %></h1>
+      <%= GitHub::Markdown.render_gfm(mod['doc']) %>
+    </header>
+    <% mod['items'].sort_by{|m|m['def']}.each do |item| %>
+    <section id="<%= item['name'] %>">
+      <a name="//apple_ref/cpp/<%= item['type'] %>/<%= item['name'] %>" class="dashAnchor"></a>
+      <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
+      <code><%= item['def'] %></code>
+      <%= GitHub::Markdown.render_gfm(item['doc']) %>
+    </section>
+    <% end %>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+# LuaRocks
+*.o
+*.so
+*.rock

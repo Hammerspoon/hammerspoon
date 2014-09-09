@@ -1,0 +1,10 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    github-markdown (0.6.6)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  github-markdown

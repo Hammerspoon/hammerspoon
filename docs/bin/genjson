@@ -1,0 +1,30 @@
+#!/usr/bin/env ruby
+require 'json'
+
+comments = JSON.load(STDIN.read)
+
+newmod  = ->(c) {{name: c[0].gsub('=', '').strip,
+                  doc: c[1..-1].join("\n").strip,
+                  items: []}}
+
+newitem = ->(c) {{type: c[1],
+                  name: nil,
+                  def: c[0],
+                  doc: c[2..-1].join("\n").strip}}
+
+ismod = ->(c) { c[0].include?('===') }
+mods  = comments.select(&ismod).map(&newmod)
+items = comments.reject(&ismod).map(&newitem)
+orderedmods = mods.sort_by{|m|m[:name]}.reverse
+
+items.each do |item|
+  mod = orderedmods.find{|mod| item[:def].start_with?(mod[:name])}
+  if mod.nil?
+    abort "error: couldn't find module for #{item[:def]}"
+  end
+  item[:name] = item[:def][(mod[:name].size+1)..-1].match(/\w+/)[0]
+  mod[:items] << item
+end
+
+mods.sort_by!{|m|m[:name]}
+puts JSON.pretty_generate(mods)

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+DEST=$1
+while read -r url; do
+    url=$(echo $url | tr -d '\r')
+    echo "### Cloning [${url}] to $DEST"
+    curl -L -s $url | tar -x -C $DEST
+done

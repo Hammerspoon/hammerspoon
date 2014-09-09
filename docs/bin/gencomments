@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+Encoding.default_external = Encoding::UTF_8
+Encoding.default_internal = Encoding::UTF_8
+
+require 'json'
+
+comments = []
+
+partialcomment = []
+incomment = false
+
+STDIN.read.split("\n").each do |line|
+  islua  = line.start_with?('-'*3) and !line.start_with?('-'*4)
+  isobjc = line.start_with?('/'*3) and !line.start_with?('/'*4)
+
+  if islua || isobjc then
+    incomment = true
+    partialcomment << line[3..-1].sub(/^\s/, '')
+  elsif incomment then
+    incomment = false
+    comments << partialcomment
+    partialcomment = []
+  end
+end
+
+puts JSON.pretty_generate(comments)
