@@ -1,10 +1,10 @@
-# Mjolnir Community Edition
+# Mjolnir
 
 <img src="https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/Mjolnir/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Mjolnir logo" title="Mjolnir logo" align="right"/>
 
 *Lightweight automation and productivity power-tool for OS X*
 
-* Current version:  Mjolnir Community Edition 0.4.2
+* Current version:  Mjolnir 0.4.2
 * Requires:         OS X 10.8 or higher
 
 ## What is Mjolnir?
