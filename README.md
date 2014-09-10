@@ -6,6 +6,6 @@
 
 ## Coming soon
 
-Mjolnir 1.0 is being actively worked on.
+Mjolnir 1.0 is a work-in-progress, and is not yet available.
 
-If you'd like to use the Community Edition, see [README_CE.md](README_CE.md).
+If you'd like to use the Community Edition, see the file README_CE.md.
