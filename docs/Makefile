@@ -37,7 +37,7 @@ build/repos.txt: build/wiki
 	cp build/wiki/Repos.md $@
 
 build/wiki:
-	git clone https://github.com/mjolnir-io/mjolnir-docs.wiki.git $@
+	git clone https://github.com/sdegutis/mjolnir.wiki.git $@
 
 clean:
 	rm -rf build/*
