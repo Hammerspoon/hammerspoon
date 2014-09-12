@@ -4,7 +4,7 @@
 
 *Lightweight automation and productivity power-tool for OS X*
 
-* Current version:  Mjolnir 0.4.2
+* Current version:  Mjolnir 0.4.3
 * Requires:         OS X 10.8 or higher
 
 ## What is Mjolnir?
@@ -222,7 +222,11 @@ software Mjolnir uses internally (basically just Lua's license).
   in fact, you'll still need to be disable and re-enable it. This is a
   bug in OS X.
 
-### 0.4.{0,1}
+### 0.4.3
+
+- Removed donation requests
+
+### 0.4.{0,1,2}
 
 - Default implementation of `mjolnir.showerror(err)` now opens the console and focuses Mjolnir
 - There's a new variable, `mjolnir.configdir = "~/.mjolnir/"` for users and modules to coordinate
