@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6246" systemVersion="14A329r" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <deployment defaultVersion="1080" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5056"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6246"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -11,7 +11,7 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3" userLabel="Application"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="Voe-Tx-rLC" customClass="MJAppDelegate">
             <connections>
                 <outlet property="menuBarMenu" destination="QDI-lT-VMy" id="4Dj-Eu-yzI"/>
@@ -28,13 +28,6 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="bG4-ba-EWj"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Donate ❤️" id="SWK-JB-caq">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="donate:" target="Voe-Tx-rLC" id="i6g-ti-2Yz"/>
-                                    <binding destination="b8h-DN-29z" name="hidden" keyPath="values.MJUserDonatedKey" id="DqM-60-IIC"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Check for Updates..." id="BOF-NM-1cW">
@@ -411,13 +404,6 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
                         <action selector="showAboutPanel:" target="Voe-Tx-rLC" id="Vu4-C4-kcK"/>
-                    </connections>
-                </menuItem>
-                <menuItem title="Donate ❤️" id="VlO-eE-8tv">
-                    <modifierMask key="keyEquivalentModifierMask"/>
-                    <connections>
-                        <action selector="donate:" target="Voe-Tx-rLC" id="iR7-ak-iap"/>
-                        <binding destination="b8h-DN-29z" name="hidden" keyPath="values.MJUserDonatedKey" id="bMn-Da-RUh"/>
                     </connections>
                 </menuItem>
                 <menuItem title="Check for Updates..." id="zC2-p9-aqe">

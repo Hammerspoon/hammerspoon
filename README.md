@@ -253,22 +253,6 @@ software Mjolnir uses internally (basically just Lua's license).
 
 - First public release
 
-## Donate
-
-I've worked hard to make this app useful and easy to use. I've also
-released it with a liberal open source license, so that you can do
-with it as you please.
-
-So, instead of charging for licenses, I'm asking for donations. If you
-find Mjolnir genuinely beneficial to your productivity, I encourage
-you to donate in proportion to the value you're getting out of it.
-
-Your donations will fund the time I'll be spending making Mjolnir even
-better, and will be used to compensate volunteers for the time and
-skills which they have generously contributed to the project.
-
-Currently, donations can be made [by PayPal](https://www.paypal.com/cgi-bin/webscr?business=sbdegutis@gmail.com&cmd=_donations&item_name=Mjolnir.app%20donation&no_shipping=1). If you don't have a PayPal account, they let you pay with a credit card too without having to sign up with them.
-
 ## License
 
 > Released under MIT license.
