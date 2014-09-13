@@ -5,6 +5,7 @@
 #import "variables.h"
 
 static lua_State* MJLuaState;
+static int evalfn;
 
 /// === mjolnir ===
 ///
@@ -95,21 +96,22 @@ void MJLuaSetup(void) {
     lua_pushstring(L, [MJConfigDir() UTF8String]);
     lua_pushboolean(L, [[NSFileManager defaultManager] fileExistsAtPath: MJConfigFileFullPath()]);
     
-    lua_pcall(L, 4, 0, 0);
+    lua_pcall(L, 4, 1, 0);
+    
+    evalfn = luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
 NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState;
     
-    lua_getglobal(L, "mjolnir");
-    lua_getfield(L, -1, "runstring");
+    lua_rawgeti(L, LUA_REGISTRYINDEX, evalfn);
     lua_pushstring(L, [command UTF8String]);
     lua_call(L, 1, 1);
     
     size_t len;
     const char* s = lua_tolstring(L, -1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
-    lua_pop(L, 2);
+    lua_pop(L, 1);
     
     return str;
 }

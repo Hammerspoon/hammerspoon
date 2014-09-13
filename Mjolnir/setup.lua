@@ -2,7 +2,7 @@ local prettypath, fullpath, configdir, hasinitfile = ...
 
 os.exit = mjolnir._exit
 
-function mjolnir.runstring(s)
+local function runstring(s)
   local fn, err = load("return " .. s)
   if not fn then fn, err = load(s) end
   if not fn then return tostring(err) end
@@ -63,14 +63,16 @@ end
 
 if not hasinitfile then
   print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
-  return
+  return runstring
 end
 
 print("-- Loading " .. prettypath)
 local fn, err = loadfile(fullpath)
-if not fn then mjolnir.showerror(err) return end
+if not fn then mjolnir.showerror(err) return runstring end
 
 local ok, err = xpcall(fn, debug.traceback)
-if not ok then mjolnir.showerror(err) return end
+if not ok then mjolnir.showerror(err) return runstring end
 
 print "-- Done."
+
+return runstring
