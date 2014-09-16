@@ -23,11 +23,11 @@ built-in `mjolnir` module, and all Lua modules that you have installed
 
 1. Download [the latest release](https://github.com/mjolnir-io/mjolnir/releases/latest), unzip, right-click `Mjolnir.app`, choose "Open"
 
-2. Install Lua 5.2 into /usr/local e.g. from Homebrew, and then install LuaRocks for Lua 5.2:
+2. Install Lua 5.2 into /usr/local e.g. from [Homebrew](http://brew.sh/), and then install LuaRocks for Lua 5.2:
 
    ~~~bash
-   $ brew install homebrew/versions/lua52
-   $ brew install luarocks --with-lua52
+   $ brew install lua
+   $ brew install luarocks
    $ echo 'rocks_servers = { "http://rocks.moonscript.org" }' > ~/.luarocks/config.lua
    ~~~
 
@@ -71,7 +71,7 @@ If for any reason you want to undo everything in the above steps, do:
 
 ~~~bash
 $ luarocks purge --tree=/usr/local
-$ brew uninstall lua52 luarocks
+$ brew uninstall lua luarocks
 $ rm ~/.luarocks/config.lua
 ~~~
 
