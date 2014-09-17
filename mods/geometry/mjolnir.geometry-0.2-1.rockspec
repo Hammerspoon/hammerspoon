@@ -1,6 +1,6 @@
 package = "mjolnir.geometry"
 version = "0.2-1"
-local url = "github.com/mjolnir-io/mjolnir-modules"
+local url = "github.com/sdegutis/mjolnir-modules"
 local desc = "Mjolnir module to help with mathy stuff."
 source = {url = "git://" .. url}
 description = {

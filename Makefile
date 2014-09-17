@@ -20,7 +20,7 @@ $(ZIPFILE): $(APPFILE)
 $(VERSIONFILE): $(TGZFILE)
 	test -n "$(KEYFILE)"
 	echo $(VERSION) > $@
-	echo https://github.com/mjolnir-io/mjolnir/releases/download/$(VERSION)/Mjolnir-$(VERSION).tgz >> $@
+	echo https://github.com/sdegutis/mjolnir/releases/download/$(VERSION)/Mjolnir-$(VERSION).tgz >> $@
 	openssl dgst -sha1 -binary < $(TGZFILE) | openssl dgst -dss1 -sign $(KEYFILE) | openssl enc -base64 >> $@
 
 clean:

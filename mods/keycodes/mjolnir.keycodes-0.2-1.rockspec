@@ -1,6 +1,6 @@
 package = "mjolnir.keycodes"
 version = "0.2-1"
-local url = "github.com/mjolnir-io/mjolnir-modules"
+local url = "github.com/sdegutis/mjolnir-modules"
 local desc = "Mjolnir module to convert between key-strings and key-codes."
 source = {url = "git://" .. url}
 description = {

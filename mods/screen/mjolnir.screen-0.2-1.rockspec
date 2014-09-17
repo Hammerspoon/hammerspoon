@@ -1,6 +1,6 @@
 package = "mjolnir.screen"
 version = "0.2-1"
-local url = "github.com/mjolnir-io/mjolnir-modules"
+local url = "github.com/sdegutis/mjolnir-modules"
 local desc = "Mjolnir module to inspect and manipulate screens (i.e. monitors)."
 source = {url = "git://" .. url}
 description = {

@@ -1,6 +1,6 @@
 # Mjolnir
 
-<img src="https://raw.githubusercontent.com/mjolnir-io/mjolnir/master/Mjolnir/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Mjolnir logo" title="Mjolnir logo" align="right"/>
+<img src="https://raw.githubusercontent.com/sdegutis/mjolnir/master/Mjolnir/Images.xcassets/AppIcon.appiconset/icon_128x128.png" alt="Mjolnir logo" title="Mjolnir logo" align="right"/>
 
 *Lightweight automation and productivity power-tool for OS X*
 
@@ -21,7 +21,7 @@ built-in `mjolnir` module, and all Lua modules that you have installed
 
 ## Try it out
 
-1. Download [the latest release](https://github.com/mjolnir-io/mjolnir/releases/latest), unzip, right-click `Mjolnir.app`, choose "Open"
+1. Download [the latest release](https://github.com/sdegutis/mjolnir/releases/latest), unzip, right-click `Mjolnir.app`, choose "Open"
 
 2. Install Lua 5.2 into /usr/local e.g. from [Homebrew](http://brew.sh/), and then install LuaRocks for Lua 5.2:
 
@@ -103,7 +103,7 @@ window. It should generally update on its own.
 ## Publishing modules
 
 Wrote an awesome module, and want to share with the world? Check out
-[this sample Mjolnir plugin](https://github.com/mjolnir-io/mjolnir-sample-plugin).
+the `mjolnir-sample-plugin` subdirectory.
 
 When it's published, please announce it on our mailing list :)
 
@@ -188,7 +188,7 @@ We also have a growing IRC channel on freenode, #mjolnir.
 ## Credits and Thanks
 
 Mjolnir is developed by Steven Degutis with the help of
-[various contributors](https://github.com/mjolnir-io/mjolnir/graphs/contributors).
+[various contributors](https://github.com/sdegutis/mjolnir/graphs/contributors).
 
 Special thanks, in no special order:
 
