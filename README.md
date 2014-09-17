@@ -103,7 +103,7 @@ window. It should generally update on its own.
 ## Publishing modules
 
 Wrote an awesome module, and want to share with the world? Check out
-the `mjolnir-sample-plugin` subdirectory.
+the `sample-plugin` subdirectory.
 
 When it's published, please announce it on our mailing list :)
 
