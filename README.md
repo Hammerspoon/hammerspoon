@@ -26,6 +26,7 @@ built-in `mjolnir` module, and all Lua modules that you have installed
 2. Install Lua 5.2 into /usr/local e.g. from [Homebrew](http://brew.sh/), and then install LuaRocks for Lua 5.2:
 
    ~~~bash
+   $ brew update
    $ brew install lua
    $ brew install luarocks
    $ echo 'rocks_servers = { "http://rocks.moonscript.org" }' > ~/.luarocks/config.lua
