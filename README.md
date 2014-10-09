@@ -157,7 +157,7 @@ principles:
 
 1. **Hydra, Phoenix, or Zephyros?**
 
-   The short of it is, Mjolnir is the successor to these older apps of mine. Or check out [the full story](http://sdegutis.github.io/2014/08/11/the-history-and-current-state-of-appgrid-zephyros-phoenix-hydra-penknife-and-mjolnir/).
+   Those are my old apps. Mjolnir is their spiritual successor.
 
 2. **Slate**
 
