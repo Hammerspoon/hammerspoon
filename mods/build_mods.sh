@@ -25,9 +25,10 @@ done
 
 for mfile in $(find . -type f -name '*.m')
 do
+    dir=$(dirname "${mfile}")
     modname=$(basename "${mfile}" | sed 's/\.m//')
     ofile="${T}/${modname}/internal.so"
-    if [ ! -e "./${modname}/${modname}.lua" ]
+    if [ ! -e "./${dir}/${modname}.lua" ]
     then
         ofile="${T}/${modname}.so"
     fi
