@@ -91,12 +91,13 @@ void MJLuaSetup(void) {
     
     luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
     
+    lua_pushstring(L, [[[NSBundle mainBundle] pathForResource:@"mods" ofType:nil] fileSystemRepresentation]);
     lua_pushstring(L, [MJConfigFile UTF8String]);
     lua_pushstring(L, [MJConfigFileFullPath() UTF8String]);
     lua_pushstring(L, [MJConfigDir() UTF8String]);
     lua_pushboolean(L, [[NSFileManager defaultManager] fileExistsAtPath: MJConfigFileFullPath()]);
     
-    lua_pcall(L, 4, 1, 0);
+    lua_pcall(L, 5, 1, 0);
     
     evalfn = luaL_ref(L, LUA_REGISTRYINDEX);
 }

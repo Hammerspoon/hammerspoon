@@ -1,4 +1,4 @@
-local prettypath, fullpath, configdir, hasinitfile = ...
+local modpath, prettypath, fullpath, configdir, hasinitfile = ...
 
 os.exit = mjolnir._exit
 
@@ -65,6 +65,10 @@ if not hasinitfile then
   print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
   return runstring
 end
+
+print("-- Augmenting require paths")
+package.path=package.path..";"..modpath.."/?.lua"
+package.cpath=package.cpath..";"..modpath.."/?.so"
 
 print("-- Loading " .. prettypath)
 local fn, err = loadfile(fullpath)
