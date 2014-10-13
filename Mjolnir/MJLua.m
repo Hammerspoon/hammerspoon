@@ -91,7 +91,7 @@ void MJLuaSetup(void) {
     
     luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
     
-    lua_pushstring(L, [[[NSBundle mainBundle] pathForResource:@"mods" ofType:nil] fileSystemRepresentation]);
+    lua_pushstring(L, [[[NSBundle mainBundle] pathForResource:@"extensions" ofType:nil] fileSystemRepresentation]);
     lua_pushstring(L, [MJConfigFile UTF8String]);
     lua_pushstring(L, [MJConfigFileFullPath() UTF8String]);
     lua_pushstring(L, [MJConfigDir() UTF8String]);

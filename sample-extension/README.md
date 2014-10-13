@@ -1,4 +1,4 @@
-This is a sample project to demonstrate writing a Mjolnir plugin.
+This is a sample project to demonstrate writing a Mjolnir extension.
 
 ### Your module's require-path
 

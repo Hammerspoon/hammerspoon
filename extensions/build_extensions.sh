@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#  build_mods.sh
+#  build_extensions.sh
 #  Mjolnir
 #
 #  Created by Peter van Dijk on 12/10/14.
@@ -9,10 +9,10 @@
 set -e -u -x
 
 # srcdir is ., makes things easy
-cd "${SRCROOT}/mods"
+cd "${SRCROOT}/extensions"
 
 # stick target-dir in T, keeps things short
-T="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/mods/mjolnir"
+T="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/mjolnir"
 
 rm -rf "${T}"
 
