@@ -409,7 +409,7 @@
                 <menuItem title="Check for Updates..." id="zC2-p9-aqe">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="checkForUpdates:" target="Voe-Tx-rLC" id="5As-xU-SRB"/>
+                        <action selector="checkForUpdates:" target="9hz-Cm-Er1" id="ffQ-zR-1tt"/>
                     </connections>
                 </menuItem>
                 <menuItem isSeparatorItem="YES" id="tOT-wg-m6d"/>

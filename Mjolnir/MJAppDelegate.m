@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "MJConsoleWindowController.h"
 #import "MJPreferencesWindowController.h"
-#import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
 #import "MJLua.h"
@@ -39,7 +38,6 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [self registerDefaultDefaults];
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
-    MJUpdateCheckerSetup();
     [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
     
@@ -49,10 +47,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
-     registerDefaults: @{MJCheckForUpdatesKey: @YES,
-                         MJShowDockIconKey: @YES,
+     registerDefaults: @{MJShowDockIconKey: @YES,
                          MJShowMenuIconKey: @NO,
-                         MJCheckForUpdatesIntervalKey: @(60.0 * 60.0 * 24.0)}];
+                         }];
 }
 
 - (IBAction) reloadConfig:(id)sender {
@@ -72,11 +69,6 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (IBAction) showAboutPanel:(id)sender {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
-}
-
-- (IBAction) checkForUpdates:(id)sender {
-    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-    MJUpdateCheckerCheckVerbosely();
 }
 
 - (IBAction) openConfig:(id)sender {
