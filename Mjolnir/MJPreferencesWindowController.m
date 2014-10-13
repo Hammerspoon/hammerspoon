@@ -1,7 +1,6 @@
 #import "MJPreferencesWindowController.h"
 #import "MJAutoLaunch.h"
 #import "MJLua.h"
-#import "MJUpdateChecker.h"
 #import "MJDockIcon.h"
 #import "MJMenuIcon.h"
 #import "MJAccessibilityUtils.h"
@@ -15,7 +14,6 @@
 @property (weak) IBOutlet NSButton* openAtLoginCheckbox;
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
 @property (weak) IBOutlet NSButton* showMenuIconCheckbox;
-@property (weak) IBOutlet NSButton* checkForUpdatesCheckbox;
 @property (weak) IBOutlet NSButton* keepConsoleOnTopCheckbox;
 
 @property BOOL isAccessibilityEnabled;
@@ -53,7 +51,6 @@
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
     [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
-    [self.checkForUpdatesCheckbox setState: MJUpdateCheckerEnabled() ? NSOnState : NSOffState];
     [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
 }
 
@@ -113,12 +110,6 @@
     BOOL enabled = [sender state] == NSOnState;
     MJMenuIconSetVisible(enabled);
     [self maybeWarnAboutDockMenuProblem];
-}
-
-- (IBAction) toggleCheckForUpdates:(NSButton*)sender {
-    MJUpdateCheckerSetEnabled([sender state] == NSOnState);
-    if (MJUpdateCheckerEnabled())
-        MJUpdateCheckerCheckSilently();
 }
 
 - (IBAction) toggleKeepConsoleOnTop:(id)sender {

@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6246" systemVersion="14A329r" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="6245" systemVersion="14A388a" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6246"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="6245"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="MJPreferencesWindowController">
             <connections>
-                <outlet property="checkForUpdatesCheckbox" destination="8hE-jn-yvO" id="Y2g-dk-QHg"/>
                 <outlet property="keepConsoleOnTopCheckbox" destination="pYS-Wj-7iw" id="D7c-7r-gAe"/>
                 <outlet property="openAtLoginCheckbox" destination="e5P-fQ-lSS" id="ug0-D4-eSm"/>
                 <outlet property="showDockIconCheckbox" destination="LCE-lg-IdY" id="8xH-gB-Wng"/>
@@ -67,11 +65,11 @@
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="toggleCheckForUpdates:" target="-2" id="PxO-GG-Uvi"/>
+                            <binding destination="aFN-bk-0DY" name="value" keyPath="automaticallyChecksForUpdates" id="Amo-eh-rBN"/>
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="VQb-h7-4Va">
-                        <rect key="frame" x="61" y="185" width="62" height="17"/>
+                        <rect key="frame" x="50" y="185" width="73" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Behavior:" id="dha-iU-GWx">
                             <font key="font" metaFont="system"/>
@@ -139,6 +137,7 @@
             </view>
             <point key="canvasLocation" x="333" y="345"/>
         </window>
+        <customObject id="aFN-bk-0DY" customClass="SUUpdater"/>
         <userDefaultsController representsSharedInstance="YES" id="dqg-7Y-qrg"/>
     </objects>
     <resources>
