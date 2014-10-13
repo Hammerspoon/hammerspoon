@@ -1,11 +1,11 @@
-all: build/Mjolnir.tgz
+all: build/Hammerspoon.tgz
 
-build/Mjolnir.tgz: build/Mjolnir.docset
-	tar --exclude='.DS_Store' -cvzf $@ -C build Mjolnir.docset
+build/Hammerspoon.tgz: build/Hammerspoon.docset
+	tar --exclude='.DS_Store' -cvzf $@ -C build Hammerspoon.docset
 
-build/Mjolnir.docset: build/docs.sql.out build/docs.html.d
+build/Hammerspoon.docset: build/docs.sql.out build/docs.html.d
 	rm -rf $@
-	cp -R templates/Mjolnir.docset $@
+	cp -R templates/Hammerspoon.docset $@
 	cp build/docs.sql.out $@/Contents/Resources/docSet.dsidx
 	cp build/docs.html.d/* $@/Contents/Resources/Documents/
 
@@ -37,7 +37,7 @@ build/repos.txt: build/wiki
 	cp build/wiki/Repos.md $@
 
 build/wiki:
-	git clone https://github.com/sdegutis/mjolnir.wiki.git $@
+	git clone https://github.com/hammerspoon/hammerspoon.wiki.git $@
 
 clean:
 	rm -rf build/*

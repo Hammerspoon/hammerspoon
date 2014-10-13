@@ -88,7 +88,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0510;
-				ORGANIZATIONNAME = Mjolnir;
+				ORGANIZATIONNAME = Hammerspoon;
 			};
 			buildConfigurationList = 94CA2A7319B23B54008A31A2 /* Build configuration list for PBXProject "Application" */;
 			compatibilityVersion = "Xcode 3.2";

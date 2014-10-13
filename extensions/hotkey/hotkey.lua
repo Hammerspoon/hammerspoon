@@ -1,17 +1,17 @@
---- === mjolnir.hotkey ===
+--- === hammerspoon.hotkey ===
 ---
 --- Create and manage global hotkeys.
 
-local hotkey = require "mjolnir.hotkey.internal"
-local keycodes = require "mjolnir.keycodes"
+local hotkey = require "hammerspoon.hotkey.internal"
+local keycodes = require "hammerspoon.keycodes"
 
---- mjolnir.hotkey.new(mods, key, pressedfn, releasedfn = nil) -> hotkey
+--- hammerspoon.hotkey.new(mods, key, pressedfn, releasedfn = nil) -> hotkey
 --- Constructor
 --- Creates a new hotkey that can be enabled.
 ---
 --- The `mods` parameter is case-insensitive and may contain any of the following strings: "cmd", "ctrl", "alt", or "shift".
 ---
---- The `key` parameter is case-insensitive and may be any string value found in mjolnir.keycodes.map
+--- The `key` parameter is case-insensitive and may be any string value found in hammerspoon.keycodes.map
 ---
 --- The `pressedfn` parameter is the function that will be called when this hotkey is pressed.
 ---
@@ -21,7 +21,7 @@ local function wrap(fn)
   return function()
     if fn then
       local ok, err = xpcall(fn, debug.traceback)
-      if not ok then mjolnir.showerror(err) end
+      if not ok then hammerspoon.showerror(err) end
     end
   end
 end
@@ -36,9 +36,9 @@ function hotkey.new(mods, key, pressedfn, releasedfn)
   return k
 end
 
---- mjolnir.hotkey.bind(mods, key, pressedfn, releasedfn) -> hotkey
+--- hammerspoon.hotkey.bind(mods, key, pressedfn, releasedfn) -> hotkey
 --- Constructor
---- Shortcut for: return mjolnir.hotkey.new(mods, key, pressedfn, releasedfn):enable()
+--- Shortcut for: return hammerspoon.hotkey.new(mods, key, pressedfn, releasedfn):enable()
 function hotkey.bind(...)
   return hotkey.new(...):enable()
 end

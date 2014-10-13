@@ -8,7 +8,7 @@ static void new_window(lua_State* L, AXUIElementRef win) {
     AXUIElementRef* winptr = lua_newuserdata(L, sizeof(AXUIElementRef));
     *winptr = win;
     
-    luaL_getmetatable(L, "mjolnir.window");
+    luaL_getmetatable(L, "hammerspoon.window");
     lua_setmetatable(L, -2);
     
     lua_newtable(L);

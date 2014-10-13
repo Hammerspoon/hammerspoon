@@ -4,7 +4,7 @@
 #import "application.h"
 #import "window.h"
 
-#define get_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "mjolnir.application"))
+#define get_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "hammerspoon.application"))
 #define nsobject_for_app(L, idx) [NSRunningApplication runningApplicationWithProcessIdentifier: pid_for_app(L, idx)]
 
 static pid_t pid_for_app(lua_State* L, int idx) {
@@ -29,7 +29,7 @@ static int application_gc(lua_State* L) {
     return 0;
 }
 
-/// mjolnir.application.runningapplications() -> app[]
+/// hammerspoon.application.runningapplications() -> app[]
 /// Constructor
 /// Returns all running apps.
 static int application_runningapplications(lua_State* L) {
@@ -44,7 +44,7 @@ static int application_runningapplications(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application.applicationforpid(pid) -> app or nil
+/// hammerspoon.application.applicationforpid(pid) -> app or nil
 /// Constructor
 /// Returns the running app for the given pid, if it exists.
 static int application_applicationforpid(lua_State* L) {
@@ -60,7 +60,7 @@ static int application_applicationforpid(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application.applicationsforbundleid(bundleid) -> app[]
+/// hammerspoon.application.applicationsforbundleid(bundleid) -> app[]
 /// Constructor
 /// Returns any running apps that have the given bundleid.
 static int application_applicationsforbundleid(lua_State* L) {
@@ -79,7 +79,7 @@ static int application_applicationsforbundleid(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application:allwindows() -> window[]
+/// hammerspoon.application:allwindows() -> window[]
 /// Method
 /// Returns all open windows owned by the given app.
 static int application_allwindows(lua_State* L) {
@@ -103,7 +103,7 @@ static int application_allwindows(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application:mainwindow() -> window
+/// hammerspoon.application:mainwindow() -> window
 /// Method
 /// Returns the main window of the given app, or nil.
 static int application_mainwindow(lua_State* L) {
@@ -170,7 +170,7 @@ static int application__bringtofront(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application:title() -> string
+/// hammerspoon.application:title() -> string
 /// Method
 /// Returns the localized name of the app (in UTF8).
 static int application_title(lua_State* L) {
@@ -179,7 +179,7 @@ static int application_title(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application:bundleid() -> string
+/// hammerspoon.application:bundleid() -> string
 /// Method
 /// Returns the bundle identifier of the app.
 static int application_bundleid(lua_State* L) {
@@ -188,7 +188,7 @@ static int application_bundleid(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application:unhide() -> success
+/// hammerspoon.application:unhide() -> success
 /// Method
 /// Unhides the app (and all its windows) if it's hidden.
 static int application_unhide(lua_State* L) {
@@ -198,7 +198,7 @@ static int application_unhide(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application:hide() -> success
+/// hammerspoon.application:hide() -> success
 /// Method
 /// Hides the app (and all its windows).
 static int application_hide(lua_State* L) {
@@ -208,7 +208,7 @@ static int application_hide(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application:kill()
+/// hammerspoon.application:kill()
 /// Method
 /// Tries to terminate the app.
 static int application_kill(lua_State* L) {
@@ -218,7 +218,7 @@ static int application_kill(lua_State* L) {
     return 0;
 }
 
-/// mjolnir.application:kill9()
+/// hammerspoon.application:kill9()
 /// Method
 /// Assuredly terminates the app.
 static int application_kill9(lua_State* L) {
@@ -228,7 +228,7 @@ static int application_kill9(lua_State* L) {
     return 0;
 }
 
-/// mjolnir.application:ishidden() -> bool
+/// hammerspoon.application:ishidden() -> bool
 /// Method
 /// Returns whether the app is currently hidden.
 static int application_ishidden(lua_State* L) {
@@ -244,7 +244,7 @@ static int application_ishidden(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application:pid() -> number
+/// hammerspoon.application:pid() -> number
 /// Method
 /// Returns the app's process identifier.
 static int application_pid(lua_State* L) {
@@ -252,7 +252,7 @@ static int application_pid(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application:kind() -> number
+/// hammerspoon.application:kind() -> number
 /// Method
 /// Returns 1 if the app is in the dock, 0 if not, and -1 if it can't even have GUI elements if it wanted to.
 static int application_kind(lua_State* L) {
@@ -269,7 +269,7 @@ static int application_kind(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.application.launchorfocus(name) -> bool
+/// hammerspoon.application.launchorfocus(name) -> bool
 /// Function
 /// Launches the app with the given name, or activates it if it's already running.
 /// Returns true if it launched or was already launched; otherwise false (presumably only if the app doesn't exist).
@@ -305,10 +305,10 @@ static const luaL_Reg applicationlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_mjolnir_application_internal(lua_State* L) {
+int luaopen_hammerspoon_application_internal(lua_State* L) {
     luaL_newlib(L, applicationlib);
     
-    if (luaL_newmetatable(L, "mjolnir.application")) {
+    if (luaL_newmetatable(L, "hammerspoon.application")) {
         lua_pushvalue(L, -2); // 'application' table
         lua_setfield(L, -2, "__index");
         

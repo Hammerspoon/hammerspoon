@@ -10,7 +10,7 @@
 		07A005012DABCA01F75F65FA /* lualib.h in Headers */ = {isa = PBXBuildFile; fileRef = 32489E026033EDCC441CF60B /* lualib.h */; };
 		0C8DC6464AF55464CAFF9672 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = 4102D8D9E808933C9CB059DE /* lzio.h */; };
 		0E5BFBF79A795567CD17E2EA /* lopcodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 3C2163BB2EDB482D66F0F3B3 /* lopcodes.h */; };
-		10554CA6F4905BD8AFF514D6 /* Pods-Mjolnir-Sparkle-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = BCC8C746F6AB737BB105E415 /* Pods-Mjolnir-Sparkle-dummy.m */; };
+		10554CA6F4905BD8AFF514D6 /* Pods-Hammerspoon-Sparkle-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = BCC8C746F6AB737BB105E415 /* Pods-Hammerspoon-Sparkle-dummy.m */; };
 		120A404631AB910A3B4E0569 /* lcode.c in Sources */ = {isa = PBXBuildFile; fileRef = C55BEBC16AEC600519EF782C /* lcode.c */; };
 		1279E15ED103534551FE9537 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 71099F5564A50E55F706E00E /* lzio.c */; };
 		20172D4D83A8056BDC5E61C1 /* ltm.h in Headers */ = {isa = PBXBuildFile; fileRef = 91F95BBA24F66C1FD8536BA8 /* ltm.h */; };
@@ -46,7 +46,7 @@
 		9014DF3F9131F6E063EBEF3F /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 666BA1C77794C90F9C19C5B5 /* loslib.c */; };
 		980A86781A70FBC09EEC9BCB /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = 3F417E6644A7FC636650ABD0 /* ldo.c */; };
 		9A448FF6A7A1B5AE66CB20D9 /* lvm.h in Headers */ = {isa = PBXBuildFile; fileRef = 76CCCC71557106544A0FC112 /* lvm.h */; };
-		9F1A5EAA5E9B94DE03CBF55A /* Pods-Mjolnir-lua-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 378EF806636AC79F5229A93A /* Pods-Mjolnir-lua-dummy.m */; };
+		9F1A5EAA5E9B94DE03CBF55A /* Pods-Hammerspoon-lua-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 378EF806636AC79F5229A93A /* Pods-Hammerspoon-lua-dummy.m */; };
 		A1090BD7FBA5AE2A3B3BAB73 /* lobject.h in Headers */ = {isa = PBXBuildFile; fileRef = F3067F179DA24DD1E3A1F415 /* lobject.h */; };
 		A4EE77D09EE97FCB4A6D65ED /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 51E121239AD5F92D06834A50 /* lmathlib.c */; };
 		ABD9AC337A0FD52820C25536 /* lmem.c in Sources */ = {isa = PBXBuildFile; fileRef = C7547682D7F2D00228160905 /* lmem.c */; };
@@ -59,7 +59,7 @@
 		CC004E1D47A2EB6B0A19D35F /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 26D76E52A4432E961CCDCFE8 /* lparser.c */; };
 		CD6841D2B84BF03B99403FEC /* lbitlib.c in Sources */ = {isa = PBXBuildFile; fileRef = B9435B9B324C317D06A51AC4 /* lbitlib.c */; };
 		CE3D61BA74BE2B566EFFC038 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 553AC766C2260F725D4C4A6B /* lbaselib.c */; };
-		D64903940457C026004AA7A8 /* Pods-Mjolnir-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = DECD632A22D6BC370D30F285 /* Pods-Mjolnir-dummy.m */; };
+		D64903940457C026004AA7A8 /* Pods-Hammerspoon-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = DECD632A22D6BC370D30F285 /* Pods-Hammerspoon-dummy.m */; };
 		D93018021E7A7BBF605B5A83 /* lstate.h in Headers */ = {isa = PBXBuildFile; fileRef = AC4F482A2D983180F466C276 /* lstate.h */; };
 		DE457160372DD747EDDEAE2A /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = E5A2CCC15789D4BF9033678B /* lstrlib.c */; };
 		E2DADF35DF76131CD8FDD4A7 /* lmem.h in Headers */ = {isa = PBXBuildFile; fileRef = 41E5A1340E0A3388304E127D /* lmem.h */; };
@@ -78,14 +78,14 @@
 			containerPortal = 6BAE6D4294BE1A935CF482B3 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 91B54F4E7C8C729C13E4E69B;
-			remoteInfo = "Pods-Mjolnir-lua";
+			remoteInfo = "Pods-Hammerspoon-lua";
 		};
 		7475B73E32ADE77B1EC367A8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6BAE6D4294BE1A935CF482B3 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 8A5856A1AACBCD221E89F94F;
-			remoteInfo = "Pods-Mjolnir-Sparkle";
+			remoteInfo = "Pods-Hammerspoon-Sparkle";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -94,24 +94,24 @@
 		0A1A39FF5619AFA129698916 /* lopcodes.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lopcodes.c; path = src/lopcodes.c; sourceTree = "<group>"; };
 		0AAC0E8605BB613AF8FE634E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		0B0E20255CC11A770DDAA236 /* lua.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lua.h; path = src/lua.h; sourceTree = "<group>"; };
-		1165A56EE98855074A06DD19 /* Pods-Mjolnir.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Mjolnir.release.xcconfig"; sourceTree = "<group>"; };
+		1165A56EE98855074A06DD19 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
 		14443B1FFD7F24070E65FB83 /* ldblib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldblib.c; path = src/ldblib.c; sourceTree = "<group>"; };
 		147F91F40D31524C8BD6E4F8 /* llex.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = llex.h; path = src/llex.h; sourceTree = "<group>"; };
 		186DE27B631C43D42320889C /* ldo.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ldo.h; path = src/ldo.h; sourceTree = "<group>"; };
 		1CD13FFF9847D5BB9E04C7E2 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
-		22E53E83847D63BD7974C759 /* Pods-Mjolnir-lua.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Mjolnir-lua.xcconfig"; sourceTree = "<group>"; };
+		22E53E83847D63BD7974C759 /* Pods-Hammerspoon-lua.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-lua.xcconfig"; sourceTree = "<group>"; };
 		24995F8D00D74508C903F08B /* lauxlib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lauxlib.h; path = src/lauxlib.h; sourceTree = "<group>"; };
 		25C02CF72DDE0F33EA7604DC /* lparser.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lparser.h; path = src/lparser.h; sourceTree = "<group>"; };
 		26D76E52A4432E961CCDCFE8 /* lparser.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lparser.c; path = src/lparser.c; sourceTree = "<group>"; };
 		2B271AA1EB8E856C4104231E /* Podfile */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		2C09F7B62D995C9E5292D910 /* lundump.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lundump.h; path = src/lundump.h; sourceTree = "<group>"; };
-		30BBCCC591CB13459EFF1EA4 /* Pods-Mjolnir-lua-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Mjolnir-lua-Private.xcconfig"; sourceTree = "<group>"; };
+		30BBCCC591CB13459EFF1EA4 /* Pods-Hammerspoon-lua-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-lua-Private.xcconfig"; sourceTree = "<group>"; };
 		3124E8EB8514D668A3BBDDFC /* luaconf.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = luaconf.h; path = src/luaconf.h; sourceTree = "<group>"; };
 		32489E026033EDCC441CF60B /* lualib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lualib.h; path = src/lualib.h; sourceTree = "<group>"; };
 		32AF2CC5C994B83B6462E36A /* loadlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = loadlib.c; path = src/loadlib.c; sourceTree = "<group>"; };
-		378EF806636AC79F5229A93A /* Pods-Mjolnir-lua-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Mjolnir-lua-dummy.m"; sourceTree = "<group>"; };
+		378EF806636AC79F5229A93A /* Pods-Hammerspoon-lua-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-lua-dummy.m"; sourceTree = "<group>"; };
 		3C2163BB2EDB482D66F0F3B3 /* lopcodes.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lopcodes.h; path = src/lopcodes.h; sourceTree = "<group>"; };
-		3C2B9E4FB7BB0E09EDAC0764 /* Pods-Mjolnir-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Mjolnir-acknowledgements.plist"; sourceTree = "<group>"; };
+		3C2B9E4FB7BB0E09EDAC0764 /* Pods-Hammerspoon-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Hammerspoon-acknowledgements.plist"; sourceTree = "<group>"; };
 		3F417E6644A7FC636650ABD0 /* ldo.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldo.c; path = src/ldo.c; sourceTree = "<group>"; };
 		4102D8D9E808933C9CB059DE /* lzio.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lzio.h; path = src/lzio.h; sourceTree = "<group>"; };
 		41E5A1340E0A3388304E127D /* lmem.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lmem.h; path = src/lmem.h; sourceTree = "<group>"; };
@@ -122,49 +122,49 @@
 		59C9D739CA9593EB94A2AE31 /* lstring.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lstring.h; path = src/lstring.h; sourceTree = "<group>"; };
 		5C0AD745E6009B8907033213 /* lvm.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lvm.c; path = src/lvm.c; sourceTree = "<group>"; };
 		5C4CE3DBF0C0BBE5B2BF6391 /* lauxlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lauxlib.c; path = src/lauxlib.c; sourceTree = "<group>"; };
-		5EA492CAEB3EEBAF058DA14D /* Pods-Mjolnir-lua-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Mjolnir-lua-prefix.pch"; sourceTree = "<group>"; };
+		5EA492CAEB3EEBAF058DA14D /* Pods-Hammerspoon-lua-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-lua-prefix.pch"; sourceTree = "<group>"; };
 		666BA1C77794C90F9C19C5B5 /* loslib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = loslib.c; path = src/loslib.c; sourceTree = "<group>"; };
-		68F74B6D5E2FB6F38901EA89 /* Pods-Mjolnir-Sparkle-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Mjolnir-Sparkle-Private.xcconfig"; sourceTree = "<group>"; };
-		6A36711690FB06842EB723ED /* libPods-Mjolnir.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Mjolnir.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		68F74B6D5E2FB6F38901EA89 /* Pods-Hammerspoon-Sparkle-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-Sparkle-Private.xcconfig"; sourceTree = "<group>"; };
+		6A36711690FB06842EB723ED /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		71099F5564A50E55F706E00E /* lzio.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lzio.c; path = src/lzio.c; sourceTree = "<group>"; };
 		76CCCC71557106544A0FC112 /* lvm.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lvm.h; path = src/lvm.h; sourceTree = "<group>"; };
 		772F883BC88A501390107BD5 /* lctype.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lctype.c; path = src/lctype.c; sourceTree = "<group>"; };
 		78D694BC7104D9DB57F819E0 /* lcode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lcode.h; path = src/lcode.h; sourceTree = "<group>"; };
-		7A343FB0EFBB49F2B70E0000 /* Pods-Mjolnir-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Mjolnir-acknowledgements.markdown"; sourceTree = "<group>"; };
+		7A343FB0EFBB49F2B70E0000 /* Pods-Hammerspoon-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Hammerspoon-acknowledgements.markdown"; sourceTree = "<group>"; };
 		7AD18FFD6590F8F6DE7BE474 /* lgc.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lgc.h; path = src/lgc.h; sourceTree = "<group>"; };
 		7DE40DF69DDD263BC31A15B0 /* ltable.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ltable.h; path = src/ltable.h; sourceTree = "<group>"; };
-		82ECDCE8F876F5E42FF99849 /* Pods-Mjolnir-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Mjolnir-resources.sh"; sourceTree = "<group>"; };
+		82ECDCE8F876F5E42FF99849 /* Pods-Hammerspoon-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Hammerspoon-resources.sh"; sourceTree = "<group>"; };
 		854B90D154D4C33AEBCA7CD9 /* lfunc.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lfunc.h; path = src/lfunc.h; sourceTree = "<group>"; };
 		91F95BBA24F66C1FD8536BA8 /* ltm.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ltm.h; path = src/ltm.h; sourceTree = "<group>"; };
-		93649A8C5A42A1CD2E46CE0B /* libPods-Mjolnir-lua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Mjolnir-lua.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		93649A8C5A42A1CD2E46CE0B /* libPods-Hammerspoon-lua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon-lua.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B81D69FE29B443D6ADDE935 /* lgc.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lgc.c; path = src/lgc.c; sourceTree = "<group>"; };
 		9F0A6D0145461464D200A924 /* llex.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = llex.c; path = src/llex.c; sourceTree = "<group>"; };
 		A2DCAF9607571DFF3E928CB5 /* lobject.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lobject.c; path = src/lobject.c; sourceTree = "<group>"; };
 		AC4F482A2D983180F466C276 /* lstate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lstate.h; path = src/lstate.h; sourceTree = "<group>"; };
 		AFA99F0CE7C94A5BD9BD94BD /* llimits.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = llimits.h; path = src/llimits.h; sourceTree = "<group>"; };
-		B2C0D0C20309F352A5AC7913 /* Pods-Mjolnir-environment.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Mjolnir-environment.h"; sourceTree = "<group>"; };
+		B2C0D0C20309F352A5AC7913 /* Pods-Hammerspoon-environment.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-environment.h"; sourceTree = "<group>"; };
 		B6C1C99EEAD78F00212FFCB8 /* ldump.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldump.c; path = src/ldump.c; sourceTree = "<group>"; };
 		B9435B9B324C317D06A51AC4 /* lbitlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lbitlib.c; path = src/lbitlib.c; sourceTree = "<group>"; };
 		B9C0791C0D3701FCD50F0AD9 /* lfunc.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lfunc.c; path = src/lfunc.c; sourceTree = "<group>"; };
 		B9F782DC15688AF322B7B1B3 /* lua.hpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.h; name = lua.hpp; path = src/lua.hpp; sourceTree = "<group>"; };
 		BC484C2E368EFF0B1F71919F /* ltm.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltm.c; path = src/ltm.c; sourceTree = "<group>"; };
-		BCC8C746F6AB737BB105E415 /* Pods-Mjolnir-Sparkle-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Mjolnir-Sparkle-dummy.m"; sourceTree = "<group>"; };
+		BCC8C746F6AB737BB105E415 /* Pods-Hammerspoon-Sparkle-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-Sparkle-dummy.m"; sourceTree = "<group>"; };
 		BD61E45F936FDDE7830E9269 /* ldebug.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldebug.c; path = src/ldebug.c; sourceTree = "<group>"; };
 		C1A59F6EC225B50D042511CA /* lcorolib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lcorolib.c; path = src/lcorolib.c; sourceTree = "<group>"; };
-		C350327FA43F12DA20BF8C03 /* libPods-Mjolnir-Sparkle.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Mjolnir-Sparkle.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C350327FA43F12DA20BF8C03 /* libPods-Hammerspoon-Sparkle.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon-Sparkle.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C55BEBC16AEC600519EF782C /* lcode.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lcode.c; path = src/lcode.c; sourceTree = "<group>"; };
 		C7547682D7F2D00228160905 /* lmem.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lmem.c; path = src/lmem.c; sourceTree = "<group>"; };
-		C9D20FBC3721E6006702E392 /* Pods-Mjolnir.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Mjolnir.debug.xcconfig"; sourceTree = "<group>"; };
-		D4EC8A0E2F8323939EAE5360 /* Pods-Mjolnir-Sparkle.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Mjolnir-Sparkle.xcconfig"; sourceTree = "<group>"; };
+		C9D20FBC3721E6006702E392 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
+		D4EC8A0E2F8323939EAE5360 /* Pods-Hammerspoon-Sparkle.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-Sparkle.xcconfig"; sourceTree = "<group>"; };
 		D73C4B20703DE490FF0D6546 /* linit.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = linit.c; path = src/linit.c; sourceTree = "<group>"; };
 		D986DEA3ED7AF845C0E70248 /* lundump.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lundump.c; path = src/lundump.c; sourceTree = "<group>"; };
 		DAC5C857067989207EDD1FF2 /* lstate.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstate.c; path = src/lstate.c; sourceTree = "<group>"; };
-		DECD632A22D6BC370D30F285 /* Pods-Mjolnir-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Mjolnir-dummy.m"; sourceTree = "<group>"; };
+		DECD632A22D6BC370D30F285 /* Pods-Hammerspoon-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-dummy.m"; sourceTree = "<group>"; };
 		DED95F1699BF38436DCF30BF /* lapi.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lapi.c; path = src/lapi.c; sourceTree = "<group>"; };
 		E240F933E7A6CC1405691528 /* ltablib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltablib.c; path = src/ltablib.c; sourceTree = "<group>"; };
 		E5A2CCC15789D4BF9033678B /* lstrlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstrlib.c; path = src/lstrlib.c; sourceTree = "<group>"; };
 		E71DED67B3694169615A10FE /* lapi.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lapi.h; path = src/lapi.h; sourceTree = "<group>"; };
-		EF27EE472F7E9186BB434B94 /* Pods-Mjolnir-Sparkle-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Mjolnir-Sparkle-prefix.pch"; sourceTree = "<group>"; };
+		EF27EE472F7E9186BB434B94 /* Pods-Hammerspoon-Sparkle-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-Sparkle-prefix.pch"; sourceTree = "<group>"; };
 		F3067F179DA24DD1E3A1F415 /* lobject.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lobject.h; path = src/lobject.h; sourceTree = "<group>"; };
 		F351AD425218F55C36D1E7C3 /* lctype.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lctype.h; path = src/lctype.h; sourceTree = "<group>"; };
 		F39319FF7875066C269691EA /* lstring.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstring.c; path = src/lstring.c; sourceTree = "<group>"; };
@@ -263,39 +263,39 @@
 			path = lua;
 			sourceTree = "<group>";
 		};
-		1E06631C7101218AAC4CC943 /* Pods-Mjolnir */ = {
+		1E06631C7101218AAC4CC943 /* Pods-Hammerspoon */ = {
 			isa = PBXGroup;
 			children = (
-				7A343FB0EFBB49F2B70E0000 /* Pods-Mjolnir-acknowledgements.markdown */,
-				3C2B9E4FB7BB0E09EDAC0764 /* Pods-Mjolnir-acknowledgements.plist */,
-				DECD632A22D6BC370D30F285 /* Pods-Mjolnir-dummy.m */,
-				B2C0D0C20309F352A5AC7913 /* Pods-Mjolnir-environment.h */,
-				82ECDCE8F876F5E42FF99849 /* Pods-Mjolnir-resources.sh */,
-				C9D20FBC3721E6006702E392 /* Pods-Mjolnir.debug.xcconfig */,
-				1165A56EE98855074A06DD19 /* Pods-Mjolnir.release.xcconfig */,
+				7A343FB0EFBB49F2B70E0000 /* Pods-Hammerspoon-acknowledgements.markdown */,
+				3C2B9E4FB7BB0E09EDAC0764 /* Pods-Hammerspoon-acknowledgements.plist */,
+				DECD632A22D6BC370D30F285 /* Pods-Hammerspoon-dummy.m */,
+				B2C0D0C20309F352A5AC7913 /* Pods-Hammerspoon-environment.h */,
+				82ECDCE8F876F5E42FF99849 /* Pods-Hammerspoon-resources.sh */,
+				C9D20FBC3721E6006702E392 /* Pods-Hammerspoon.debug.xcconfig */,
+				1165A56EE98855074A06DD19 /* Pods-Hammerspoon.release.xcconfig */,
 			);
-			name = "Pods-Mjolnir";
-			path = "Target Support Files/Pods-Mjolnir";
+			name = "Pods-Hammerspoon";
+			path = "Target Support Files/Pods-Hammerspoon";
 			sourceTree = "<group>";
 		};
 		3863DFE1AE813B3CD0F18066 /* Support Files */ = {
 			isa = PBXGroup;
 			children = (
-				22E53E83847D63BD7974C759 /* Pods-Mjolnir-lua.xcconfig */,
-				30BBCCC591CB13459EFF1EA4 /* Pods-Mjolnir-lua-Private.xcconfig */,
-				378EF806636AC79F5229A93A /* Pods-Mjolnir-lua-dummy.m */,
-				5EA492CAEB3EEBAF058DA14D /* Pods-Mjolnir-lua-prefix.pch */,
+				22E53E83847D63BD7974C759 /* Pods-Hammerspoon-lua.xcconfig */,
+				30BBCCC591CB13459EFF1EA4 /* Pods-Hammerspoon-lua-Private.xcconfig */,
+				378EF806636AC79F5229A93A /* Pods-Hammerspoon-lua-dummy.m */,
+				5EA492CAEB3EEBAF058DA14D /* Pods-Hammerspoon-lua-prefix.pch */,
 			);
 			name = "Support Files";
-			path = "../Target Support Files/Pods-Mjolnir-lua";
+			path = "../Target Support Files/Pods-Hammerspoon-lua";
 			sourceTree = "<group>";
 		};
 		4232E0E561405A786B0958C5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6A36711690FB06842EB723ED /* libPods-Mjolnir.a */,
-				C350327FA43F12DA20BF8C03 /* libPods-Mjolnir-Sparkle.a */,
-				93649A8C5A42A1CD2E46CE0B /* libPods-Mjolnir-lua.a */,
+				6A36711690FB06842EB723ED /* libPods-Hammerspoon.a */,
+				C350327FA43F12DA20BF8C03 /* libPods-Hammerspoon-Sparkle.a */,
+				93649A8C5A42A1CD2E46CE0B /* libPods-Hammerspoon-lua.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -338,7 +338,7 @@
 		AE705D8907952C2EEF154181 /* Targets Support Files */ = {
 			isa = PBXGroup;
 			children = (
-				1E06631C7101218AAC4CC943 /* Pods-Mjolnir */,
+				1E06631C7101218AAC4CC943 /* Pods-Hammerspoon */,
 			);
 			name = "Targets Support Files";
 			sourceTree = "<group>";
@@ -372,13 +372,13 @@
 		F5A727FA27B9C9A82EC85532 /* Support Files */ = {
 			isa = PBXGroup;
 			children = (
-				D4EC8A0E2F8323939EAE5360 /* Pods-Mjolnir-Sparkle.xcconfig */,
-				68F74B6D5E2FB6F38901EA89 /* Pods-Mjolnir-Sparkle-Private.xcconfig */,
-				BCC8C746F6AB737BB105E415 /* Pods-Mjolnir-Sparkle-dummy.m */,
-				EF27EE472F7E9186BB434B94 /* Pods-Mjolnir-Sparkle-prefix.pch */,
+				D4EC8A0E2F8323939EAE5360 /* Pods-Hammerspoon-Sparkle.xcconfig */,
+				68F74B6D5E2FB6F38901EA89 /* Pods-Hammerspoon-Sparkle-Private.xcconfig */,
+				BCC8C746F6AB737BB105E415 /* Pods-Hammerspoon-Sparkle-dummy.m */,
+				EF27EE472F7E9186BB434B94 /* Pods-Hammerspoon-Sparkle-prefix.pch */,
 			);
 			name = "Support Files";
-			path = "../Target Support Files/Pods-Mjolnir-Sparkle";
+			path = "../Target Support Files/Pods-Hammerspoon-Sparkle";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -419,9 +419,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		4E3A26E31C1ECD06BD8AB348 /* Pods-Mjolnir */ = {
+		4E3A26E31C1ECD06BD8AB348 /* Pods-Hammerspoon */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E4F17881CE7EADBDB0235149 /* Build configuration list for PBXNativeTarget "Pods-Mjolnir" */;
+			buildConfigurationList = E4F17881CE7EADBDB0235149 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon" */;
 			buildPhases = (
 				6A4891EED8A53753CC7910BC /* Sources */,
 				11A796C7D0E6BCD159035331 /* Frameworks */,
@@ -432,14 +432,14 @@
 				8EE04456690A2980DBB224DB /* PBXTargetDependency */,
 				B8B0BADCB386BE9B97E79F50 /* PBXTargetDependency */,
 			);
-			name = "Pods-Mjolnir";
-			productName = "Pods-Mjolnir";
-			productReference = 6A36711690FB06842EB723ED /* libPods-Mjolnir.a */;
+			name = "Pods-Hammerspoon";
+			productName = "Pods-Hammerspoon";
+			productReference = 6A36711690FB06842EB723ED /* libPods-Hammerspoon.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		8A5856A1AACBCD221E89F94F /* Pods-Mjolnir-Sparkle */ = {
+		8A5856A1AACBCD221E89F94F /* Pods-Hammerspoon-Sparkle */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 05821180A75C754D9B5D0198 /* Build configuration list for PBXNativeTarget "Pods-Mjolnir-Sparkle" */;
+			buildConfigurationList = 05821180A75C754D9B5D0198 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-Sparkle" */;
 			buildPhases = (
 				0A56E0C711A0EC4B99DBB9E0 /* Sources */,
 				0FF38210B95469B8189908C3 /* Frameworks */,
@@ -448,14 +448,14 @@
 			);
 			dependencies = (
 			);
-			name = "Pods-Mjolnir-Sparkle";
-			productName = "Pods-Mjolnir-Sparkle";
-			productReference = C350327FA43F12DA20BF8C03 /* libPods-Mjolnir-Sparkle.a */;
+			name = "Pods-Hammerspoon-Sparkle";
+			productName = "Pods-Hammerspoon-Sparkle";
+			productReference = C350327FA43F12DA20BF8C03 /* libPods-Hammerspoon-Sparkle.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		91B54F4E7C8C729C13E4E69B /* Pods-Mjolnir-lua */ = {
+		91B54F4E7C8C729C13E4E69B /* Pods-Hammerspoon-lua */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 232EE10E09C5CF0DDB51CF4C /* Build configuration list for PBXNativeTarget "Pods-Mjolnir-lua" */;
+			buildConfigurationList = 232EE10E09C5CF0DDB51CF4C /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-lua" */;
 			buildPhases = (
 				08A4C4EB064CDE575755BE63 /* Sources */,
 				AA75DD277FA58588FE1D5F86 /* Frameworks */,
@@ -465,9 +465,9 @@
 			);
 			dependencies = (
 			);
-			name = "Pods-Mjolnir-lua";
-			productName = "Pods-Mjolnir-lua";
-			productReference = 93649A8C5A42A1CD2E46CE0B /* libPods-Mjolnir-lua.a */;
+			name = "Pods-Hammerspoon-lua";
+			productName = "Pods-Hammerspoon-lua";
+			productReference = 93649A8C5A42A1CD2E46CE0B /* libPods-Hammerspoon-lua.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -490,9 +490,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4E3A26E31C1ECD06BD8AB348 /* Pods-Mjolnir */,
-				8A5856A1AACBCD221E89F94F /* Pods-Mjolnir-Sparkle */,
-				91B54F4E7C8C729C13E4E69B /* Pods-Mjolnir-lua */,
+				4E3A26E31C1ECD06BD8AB348 /* Pods-Hammerspoon */,
+				8A5856A1AACBCD221E89F94F /* Pods-Hammerspoon-Sparkle */,
+				91B54F4E7C8C729C13E4E69B /* Pods-Hammerspoon-lua */,
 			);
 		};
 /* End PBXProject section */
@@ -502,7 +502,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9F1A5EAA5E9B94DE03CBF55A /* Pods-Mjolnir-lua-dummy.m in Sources */,
+				9F1A5EAA5E9B94DE03CBF55A /* Pods-Hammerspoon-lua-dummy.m in Sources */,
 				2BCB7B20080A2499F8930D80 /* lapi.c in Sources */,
 				6D090785B5AD12E4C269AE24 /* lauxlib.c in Sources */,
 				CE3D61BA74BE2B566EFFC038 /* lbaselib.c in Sources */,
@@ -542,7 +542,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				10554CA6F4905BD8AFF514D6 /* Pods-Mjolnir-Sparkle-dummy.m in Sources */,
+				10554CA6F4905BD8AFF514D6 /* Pods-Hammerspoon-Sparkle-dummy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -550,7 +550,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D64903940457C026004AA7A8 /* Pods-Mjolnir-dummy.m in Sources */,
+				D64903940457C026004AA7A8 /* Pods-Hammerspoon-dummy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -559,12 +559,12 @@
 /* Begin PBXTargetDependency section */
 		8EE04456690A2980DBB224DB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 8A5856A1AACBCD221E89F94F /* Pods-Mjolnir-Sparkle */;
+			target = 8A5856A1AACBCD221E89F94F /* Pods-Hammerspoon-Sparkle */;
 			targetProxy = 7475B73E32ADE77B1EC367A8 /* PBXContainerItemProxy */;
 		};
 		B8B0BADCB386BE9B97E79F50 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 91B54F4E7C8C729C13E4E69B /* Pods-Mjolnir-lua */;
+			target = 91B54F4E7C8C729C13E4E69B /* Pods-Hammerspoon-lua */;
 			targetProxy = 1645B6AE1E126E44A511F31D /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -572,7 +572,7 @@
 /* Begin XCBuildConfiguration section */
 		53736332471EBFCB025026E9 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 30BBCCC591CB13459EFF1EA4 /* Pods-Mjolnir-lua-Private.xcconfig */;
+			baseConfigurationReference = 30BBCCC591CB13459EFF1EA4 /* Pods-Hammerspoon-lua-Private.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -582,7 +582,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Mjolnir-lua/Pods-Mjolnir-lua-prefix.pch";
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -601,7 +601,7 @@
 		};
 		769A74F6D2C5AD5E1E07FCF1 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C9D20FBC3721E6006702E392 /* Pods-Mjolnir.debug.xcconfig */;
+			baseConfigurationReference = C9D20FBC3721E6006702E392 /* Pods-Hammerspoon.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -628,7 +628,7 @@
 		};
 		913C342C0035C4393FD2F153 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 30BBCCC591CB13459EFF1EA4 /* Pods-Mjolnir-lua-Private.xcconfig */;
+			baseConfigurationReference = 30BBCCC591CB13459EFF1EA4 /* Pods-Hammerspoon-lua-Private.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -637,7 +637,7 @@
 				DSTROOT = /tmp/xcodeproj.dst;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Mjolnir-lua/Pods-Mjolnir-lua-prefix.pch";
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
@@ -663,7 +663,7 @@
 		};
 		A45E33551433773F6C95567A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 68F74B6D5E2FB6F38901EA89 /* Pods-Mjolnir-Sparkle-Private.xcconfig */;
+			baseConfigurationReference = 68F74B6D5E2FB6F38901EA89 /* Pods-Hammerspoon-Sparkle-Private.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -672,7 +672,7 @@
 				DSTROOT = /tmp/xcodeproj.dst;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Mjolnir-Sparkle/Pods-Mjolnir-Sparkle-prefix.pch";
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-Sparkle/Pods-Hammerspoon-Sparkle-prefix.pch";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
@@ -760,7 +760,7 @@
 		};
 		F09E10DC840FF0CDDF8A544E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1165A56EE98855074A06DD19 /* Pods-Mjolnir.release.xcconfig */;
+			baseConfigurationReference = 1165A56EE98855074A06DD19 /* Pods-Hammerspoon.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -789,7 +789,7 @@
 		};
 		F88229BCF1DF7DB49BD3748C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 68F74B6D5E2FB6F38901EA89 /* Pods-Mjolnir-Sparkle-Private.xcconfig */;
+			baseConfigurationReference = 68F74B6D5E2FB6F38901EA89 /* Pods-Hammerspoon-Sparkle-Private.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -799,7 +799,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Mjolnir-Sparkle/Pods-Mjolnir-Sparkle-prefix.pch";
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-Sparkle/Pods-Hammerspoon-Sparkle-prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -818,7 +818,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		05821180A75C754D9B5D0198 /* Build configuration list for PBXNativeTarget "Pods-Mjolnir-Sparkle" */ = {
+		05821180A75C754D9B5D0198 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-Sparkle" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F88229BCF1DF7DB49BD3748C /* Debug */,
@@ -827,7 +827,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		232EE10E09C5CF0DDB51CF4C /* Build configuration list for PBXNativeTarget "Pods-Mjolnir-lua" */ = {
+		232EE10E09C5CF0DDB51CF4C /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-lua" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				53736332471EBFCB025026E9 /* Debug */,
@@ -845,7 +845,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E4F17881CE7EADBDB0235149 /* Build configuration list for PBXNativeTarget "Pods-Mjolnir" */ = {
+		E4F17881CE7EADBDB0235149 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				769A74F6D2C5AD5E1E07FCF1 /* Debug */,

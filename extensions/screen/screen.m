@@ -2,7 +2,7 @@
 #import <IOKit/graphics/IOGraphicsLib.h>
 #import <lauxlib.h>
 
-#define get_screen_arg(L, idx) *((NSScreen**)luaL_checkudata(L, idx, "mjolnir.screen"))
+#define get_screen_arg(L, idx) *((NSScreen**)luaL_checkudata(L, idx, "hammerspoon.screen"))
 
 static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_newtable(L);
@@ -24,7 +24,7 @@ static int screen_visibleframe(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.screen:id(screen) -> number
+/// hammerspoon.screen:id(screen) -> number
 /// Method
 /// Returns a screen's unique ID.
 static int screen_id(lua_State* L) {
@@ -33,7 +33,7 @@ static int screen_id(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.screen:name(screen) -> string
+/// hammerspoon.screen:name(screen) -> string
 /// Method
 /// Returns the preferred name for the screen set by the manufacturer.
 static int screen_name(lua_State* L) {
@@ -52,7 +52,7 @@ static int screen_name(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.screen.settint(redarray, greenarray, bluearray)
+/// hammerspoon.screen.settint(redarray, greenarray, bluearray)
 /// Function
 /// Set the tint on a screen; experimental.
 static int screen_settint(lua_State* L) {
@@ -107,11 +107,11 @@ void new_screen(lua_State* L, NSScreen* screen) {
     NSScreen** screenptr = lua_newuserdata(L, sizeof(NSScreen**));
     *screenptr = [screen retain];
     
-    luaL_getmetatable(L, "mjolnir.screen");
+    luaL_getmetatable(L, "hammerspoon.screen");
     lua_setmetatable(L, -2);
 }
 
-/// mjolnir.screen.allscreens() -> screen[]
+/// hammerspoon.screen.allscreens() -> screen[]
 /// Constructor
 /// Returns all the screens there are.
 static int screen_allscreens(lua_State* L) {
@@ -127,7 +127,7 @@ static int screen_allscreens(lua_State* L) {
     return 1;
 }
 
-/// mjolnir.screen.mainscreen() -> screen
+/// hammerspoon.screen.mainscreen() -> screen
 /// Constructor
 /// Returns the 'main' screen, i.e. the one containing the currently focused window.
 static int screen_mainscreen(lua_State* L) {
@@ -148,10 +148,10 @@ static const luaL_Reg screenlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_mjolnir_screen_internal(lua_State* L) {
+int luaopen_hammerspoon_screen_internal(lua_State* L) {
     luaL_newlib(L, screenlib);
     
-    if (luaL_newmetatable(L, "mjolnir.screen")) {
+    if (luaL_newmetatable(L, "hammerspoon.screen")) {
         lua_pushvalue(L, -2);
         lua_setfield(L, -2, "__index");
         

@@ -1,18 +1,18 @@
---- === mjolnir.screen ===
+--- === hammerspoon.screen ===
 ---
 --- Manipulate screens (i.e. monitors).
 ---
---- You usually get a screen through a window (see `mjolnir.window.screen`). But you can get screens by themselves through this module, albeit not in any defined/useful order.
+--- You usually get a screen through a window (see `hammerspoon.window.screen`). But you can get screens by themselves through this module, albeit not in any defined/useful order.
 ---
---- Mjolnir's coordinate system assumes a grid that is the union of every screen's rect (see `mjolnir.screen.fullframe`).
+--- Hammerspoon's coordinate system assumes a grid that is the union of every screen's rect (see `hammerspoon.screen.fullframe`).
 ---
 --- Every window's position (i.e. `topleft`) and size are relative to this grid, and they're usually within the grid. A window that's semi-offscreen only intersects the grid.
 
-local screen = require "mjolnir.screen.internal"
-local fnutils = require "mjolnir.fnutils"
-local geometry = require "mjolnir.geometry"
+local screen = require "hammerspoon.screen.internal"
+local fnutils = require "hammerspoon.fnutils"
+local geometry = require "hammerspoon.geometry"
 
---- mjolnir.screen:fullframe() -> rect
+--- hammerspoon.screen:fullframe() -> rect
 --- Method
 --- Returns the screen's rect in absolute coordinates, including the dock and menu.
 function screen:fullframe()
@@ -22,7 +22,7 @@ function screen:fullframe()
   return f
 end
 
---- mjolnir.screen:frame() -> rect
+--- hammerspoon.screen:frame() -> rect
 --- Method
 --- Returns the screen's rect in absolute coordinates, without the dock or menu.
 function screen:frame()
@@ -32,7 +32,7 @@ function screen:frame()
   return f
 end
 
---- mjolnir.screen:next() -> screen
+--- hammerspoon.screen:next() -> screen
 --- Method
 --- Returns the screen 'after' this one (I have no idea how they're ordered though); this method wraps around to the first screen.
 function screen:next()
@@ -42,7 +42,7 @@ function screen:next()
   return screens[i]
 end
 
---- mjolnir.screen:previous() -> screen
+--- hammerspoon.screen:previous() -> screen
 --- Method
 --- Returns the screen 'before' this one (I have no idea how they're ordered though); this method wraps around to the last screen.
 function screen:previous()
@@ -96,22 +96,22 @@ local function first_screen_in_direction(screen, numrotations)
   end
 end
 
---- mjolnir.screen:toeast()
+--- hammerspoon.screen:toeast()
 --- Method
 --- Get the first screen to the east of this one, ordered by proximity.
 function screen:toeast()  return first_screen_in_direction(self, 0) end
 
---- mjolnir.screen:towest()
+--- hammerspoon.screen:towest()
 --- Method
 --- Get the first screen to the west of this one, ordered by proximity.
 function screen:towest()  return first_screen_in_direction(self, 2) end
 
---- mjolnir.screen:tonorth()
+--- hammerspoon.screen:tonorth()
 --- Method
 --- Get the first screen to the north of this one, ordered by proximity.
 function screen:tonorth() return first_screen_in_direction(self, 1) end
 
---- mjolnir.screen:tosouth()
+--- hammerspoon.screen:tosouth()
 --- Method
 --- Get the first screen to the south of this one, ordered by proximity.
 function screen:tosouth() return first_screen_in_direction(self, 3) end
