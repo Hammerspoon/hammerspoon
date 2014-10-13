@@ -8,7 +8,7 @@ release: $(TGZFILE) $(ZIPFILE) $(VERSIONFILE)
 
 $(APPFILE): $(shell find Mjolnir -type f)
 	rm -rf $@
-	xcodebuild clean build > /dev/null
+	xcodebuild -workspace Mjolnir.xcworkspace -scheme Mjolnir clean build > /dev/null
 	cp -R build/Release/Mjolnir.app $@
 
 $(TGZFILE): $(APPFILE)
