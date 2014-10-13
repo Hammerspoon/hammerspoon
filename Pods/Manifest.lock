@@ -1,0 +1,13 @@
+PODS:
+  - lua (5.2.3)
+  - Sparkle (1.8.0)
+
+DEPENDENCIES:
+  - lua (~> 5.2.3)
+  - Sparkle (~> 1.8.0)
+
+SPEC CHECKSUMS:
+  lua: c212adef6a9301a007e40e068e923d595a629691
+  Sparkle: 5eb20bb37ca21e471dab8417dee880198d905327
+
+COCOAPODS: 0.34.2

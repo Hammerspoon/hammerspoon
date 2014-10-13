@@ -4,7 +4,6 @@
 
 static NSString* MJReleaseNotesURL       = @"https://github.com/sdegutis/mjolnir#changes";
 static NSString* MJDownloadPage          = @"https://github.com/sdegutis/mjolnir/releases/latest";
-static NSString* MJUpdatesURL            = @"https://raw.githubusercontent.com/sdegutis/mjolnir/master/LATESTVERSION";
 
 static NSString* MJPublicKey = @""
 "-----BEGIN PUBLIC KEY-----\n"
@@ -20,12 +19,10 @@ static NSString* MJPublicKey = @""
 "cohzwU5/305uivg=\n"
 "-----END PUBLIC KEY-----\n";
 
-#define MJCheckForUpdatesKey         @"MJCheckForUpdatesKey"
 #define MJShowDockIconKey            @"MJShowDockIconKey"
 #define MJShowMenuIconKey            @"MJShowMenuIconKey"
 #define MJKeepConsoleOnTopKey        @"MJKeepConsoleOnTopKey"
 #define MJHasRunAlreadyKey           @"MJHasRunAlreadyKey"
-#define MJCheckForUpdatesIntervalKey @"MJCheckForUpdatesIntervalKey"
 
 static NSString* MJConfigFile = @"~/.mjolnir/init.lua";
 
