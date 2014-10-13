@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F9A454A19EC6801006BB982 /* build_extensions.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F9A454919EC6801006BB982 /* build_extensions.sh */; };
 		9404221619A3845B0069CDE0 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		9404221719A385A30069CDE0 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA1119083251002568BB /* AppKit.framework */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
@@ -52,6 +53,7 @@
 
 /* Begin PBXFileReference section */
 		273C7223738140A6F91A8338 /* libPods-Mjolnir.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Mjolnir.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F9A454919EC6801006BB982 /* build_extensions.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_extensions.sh; path = extensions/build_extensions.sh; sourceTree = "<group>"; };
 		896F5840119EB0EC98527200 /* Pods-Mjolnir.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Mjolnir.release.xcconfig"; path = "Pods/Target Support Files/Pods-Mjolnir/Pods-Mjolnir.release.xcconfig"; sourceTree = "<group>"; };
 		9409202F19A5940600B9964E /* MJVersionUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJVersionUtils.h; sourceTree = "<group>"; };
 		9409203019A5940600B9964E /* MJVersionUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJVersionUtils.m; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 		9445CA0219083251002568BB = {
 			isa = PBXGroup;
 			children = (
+				4F9A454919EC6801006BB982 /* build_extensions.sh */,
 				9445CA1419083251002568BB /* Mjolnir */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
@@ -283,6 +286,7 @@
 				28F84E8DEB615EBE33ED1722 /* Check Pods Manifest.lock */,
 				9445CA0719083251002568BB /* Sources */,
 				9445CA0819083251002568BB /* Frameworks */,
+				4F9A454819EC67E1006BB982 /* ShellScript */,
 				9445CA0919083251002568BB /* Resources */,
 				F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */,
 			);
@@ -348,6 +352,7 @@
 			files = (
 				94BF76F6199344DA001BDA77 /* MjolnirRestarter in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
+				4F9A454A19EC6801006BB982 /* build_extensions.sh in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				9477D01B19953FE20020BE9D /* statusicon@2x.png in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
@@ -375,6 +380,19 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
+		};
+		4F9A454819EC67E1006BB982 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "${SRCROOT}/extensions/build_extensions.sh";
 		};
 		F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
