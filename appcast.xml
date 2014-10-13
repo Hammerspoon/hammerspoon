@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
         <title>Hammerspoon's Changelog</title>
-        <link>http://hammerspoon.com/app/appcast.xml</link>
+        <link>https://raw.githubusercontent.com/cmsj/hammerspoon/sparkle/appcast.xml</link>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
 
