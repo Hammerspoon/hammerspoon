@@ -38,5 +38,5 @@ do
         ofile="${T}/${modname}.so"
     fi
     mkdir -p "${T}/${modname}"
-    cc "${mfile}" -dynamiclib -undefined dynamic_lookup -I ../Pods/lua/src -o "${ofile}"
+    cc "${mfile}" -fobjc-arc -dynamiclib -undefined dynamic_lookup -I ../Pods/lua/src -o "${ofile}"
 done

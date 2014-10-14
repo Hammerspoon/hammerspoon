@@ -82,7 +82,7 @@ static int window_focusedwindow(lua_State* L) {
 
 static id get_window_prop(AXUIElementRef win, NSString* propType, id defaultValue) {
     CFTypeRef _someProperty;
-    if (AXUIElementCopyAttributeValue(win, (CFStringRef)propType, &_someProperty) == kAXErrorSuccess)
+    if (AXUIElementCopyAttributeValue(win, (__bridge CFStringRef)propType, &_someProperty) == kAXErrorSuccess)
         return CFBridgingRelease(_someProperty);
     
     return defaultValue;
@@ -90,7 +90,7 @@ static id get_window_prop(AXUIElementRef win, NSString* propType, id defaultValu
 
 static BOOL set_window_prop(AXUIElementRef win, NSString* propType, id value) {
     if ([value isKindOfClass:[NSNumber class]]) {
-        AXError result = AXUIElementSetAttributeValue(win, (CFStringRef)(propType), (CFTypeRef)(value));
+        AXError result = AXUIElementSetAttributeValue(win, (__bridge CFStringRef)(propType), (__bridge CFTypeRef)(value));
         if (result == kAXErrorSuccess)
             return YES;
     }
