@@ -1,11 +1,11 @@
---- === mjolnir.keycodes ===
+--- === hs.keycodes ===
 --- Functionality for converting between key-strings and key-codes.
 
---- mjolnir.keycodes.map = {...}
+--- hs.keycodes.map = {...}
 --- Variable
 --- A mapping from string representation of a key to its keycode, and vice versa.
 --- For example: keycodes[1] == "s", and keycodes["s"] == 1, and so on.
---- This is primarily used by the mjolnir.eventtap and mjolnir.hotkey extensions.
+--- This is primarily used by the hs.eventtap and hs.hotkey extensions.
 ---
 --- Valid strings are any single-character string, or any of the following strings:
 ---
@@ -15,10 +15,10 @@
 ---     padclear, padenter, return, tab, space, delete, escape, help,
 ---     home, pageup, forwarddelete, end, pagedown, left, right, down, up
 
-local keycodes = require "mjolnir.keycodes.internal"
+local keycodes = require "hs.keycodes.internal"
 keycodes.map = keycodes._cachemap()
 
---- mjolnir.keycodes.inputsourcechanged(fn())
+--- hs.keycodes.inputsourcechanged(fn())
 --- Function
 --- Sets the function to be called when your input source (i.e. qwerty, dvorak, colemac) changes.
 --- You can use this to rebind your hotkeys or whatever.
@@ -29,7 +29,7 @@ function keycodes.inputsourcechanged(fn)
       keycodes.map = keycodes._cachemap()
       if fn then
         local ok, err = xpcall(fn, debug.traceback)
-        if not ok then mjolnir.showerror(err) end
+        if not ok then hs.showerror(err) end
       end
   end)
 end

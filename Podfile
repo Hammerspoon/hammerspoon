@@ -3,12 +3,12 @@
 
 source 'https://github.com/CocoaPods/Specs.git'
 
-target 'Mjolnir' do
+target 'Hammerspoon' do
 pod 'lua', '~> 5.2.3'
 pod 'Sparkle', '~> 1.8.0'
 end
 
-target 'MjolnirRestarter' do
+target 'HammerspoonRestarter' do
 
 end
 

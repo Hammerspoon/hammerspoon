@@ -28,9 +28,9 @@ $ make
 1. Add your repo's `.tar.gz` URL to Repos page in this wiki
 2. Clone this repo
 3. Generate docs (see above)
-4. Verify the built Mjolnir.docset looks like it should
+4. Verify the built Hammerspoon.docset looks like it should
 5. Send PR to https://github.com/kapeli/Dash-User-Contributions
    1. Fork his repo
-   2. Copy `build/Mjolnir.tgz` (from step #3) into `Dash-User-Contributions/docsets/Mjolnir/`
-   3. Update the version number in `Dash-User-Contributions/docsets/Mjolnir/docset.json`
+   2. Copy `build/Hammerspoon.tgz` (from step #3) into `Dash-User-Contributions/docsets/Hammerspoon/`
+   3. Update the version number in `Dash-User-Contributions/docsets/Hammerspoon/docset.json`
    4. Send PR on our behalf

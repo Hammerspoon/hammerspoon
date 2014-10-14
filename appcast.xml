@@ -9,7 +9,7 @@
         <item>
             <title>Version 1.0</title>
             <sparkle:releaseNotesLink>
-                http://hammerspoon.com/app/1.0.html
+                http://hammerspoon.org/app/1.0.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 13 Oct 2014 19:20:11 +0000</pubDate>
             <enclosure url="http://you.com/app/Your%20Great%20App%202.0.zip" sparkle:version="1.0" length="1623481" type="application/octet-stream" sparkle:dsaSignature="BAFJW4B6B1K1JyW30nbkBwainOzrN6EQuAh" />

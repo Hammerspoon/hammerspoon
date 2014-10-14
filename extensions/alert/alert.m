@@ -1,16 +1,16 @@
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
 
-/// === mjolnir.alert ===
+/// === hs.alert ===
 ///
 /// Simple module for showing alerts on-screen.
 
 static NSMutableArray* visibleAlerts;
 
-@interface MJAlert : NSWindowController <NSWindowDelegate>
+@interface HSAlert : NSWindowController <NSWindowDelegate>
 @end
 
-@interface MJAlert ()
+@interface HSAlert ()
 
 @property NSWindow* win;
 @property NSTextField* textField;
@@ -18,9 +18,9 @@ static NSMutableArray* visibleAlerts;
 
 @end
 
-@implementation MJAlert
+@implementation HSAlert
 
-void MJShowAlert(NSString* oneLineMsg, CGFloat duration) {
+void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
     if (!visibleAlerts)
         visibleAlerts = [[NSMutableArray array] retain];
     
@@ -33,14 +33,14 @@ void MJShowAlert(NSString* oneLineMsg, CGFloat duration) {
         absoluteTop = screenRect.size.height / 1.55; // pretty good spot
     }
     else {
-        MJAlert* ctrl = [visibleAlerts lastObject];
+        HSAlert* ctrl = [visibleAlerts lastObject];
         absoluteTop = NSMinY([[ctrl window] frame]) - 3.0;
     }
     
     if (absoluteTop <= 0)
         absoluteTop = NSMaxY([currentScreen visibleFrame]);
     
-    MJAlert* alert = [[MJAlert alloc] init];
+    HSAlert* alert = [[HSAlert alloc] init];
     [alert loadWindow];
     [alert show:oneLineMsg duration:duration pushDownBy:absoluteTop];
     [visibleAlerts addObject:alert];
@@ -161,7 +161,7 @@ void MJShowAlert(NSString* oneLineMsg, CGFloat duration) {
 
 @end
 
-/// mjolnir.alert.show(str, seconds = 2)
+/// hs.alert.show(str, seconds = 2)
 /// Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.
 static int alert_show(lua_State* L) {
     lua_settop(L, 2);
@@ -171,13 +171,13 @@ static int alert_show(lua_State* L) {
     if (lua_isnumber(L, 2))
         duration = lua_tonumber(L, 2);
     
-    MJShowAlert(str, duration);
+    HSShowAlert(str, duration);
     
     return 0;
 }
 
 static int alert_gc(lua_State* L) {
-    for (MJAlert* alert in visibleAlerts)
+    for (HSAlert* alert in visibleAlerts)
         [alert emergencyCancel];
     
     [visibleAlerts release];
@@ -196,7 +196,7 @@ static const luaL_Reg metalib[] = {
     {}
 };
 
-int luaopen_mjolnir_alert(lua_State* L) {
+int luaopen_hs_alert(lua_State* L) {
     luaL_newlib(L, alertlib);
     
     luaL_newlib(L, metalib);
