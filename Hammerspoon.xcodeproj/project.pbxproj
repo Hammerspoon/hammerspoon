@@ -324,7 +324,7 @@
 			attributes = {
 				CLASSPREFIX = MJ;
 				LastUpgradeCheck = 0600;
-				ORGANIZATIONNAME = "Hammerspoon";
+				ORGANIZATIONNAME = Hammerspoon;
 			};
 			buildConfigurationList = 9445CA0619083251002568BB /* Build configuration list for PBXProject "Hammerspoon" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -530,7 +530,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
@@ -547,7 +547,7 @@
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
