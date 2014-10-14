@@ -7,8 +7,3 @@ target 'Hammerspoon' do
 pod 'lua', '~> 5.2.3'
 pod 'Sparkle', '~> 1.8.0'
 end
-
-target 'HammerspoonRestarter' do
-
-end
-

@@ -103,7 +103,7 @@
 		24995F8D00D74508C903F08B /* lauxlib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lauxlib.h; path = src/lauxlib.h; sourceTree = "<group>"; };
 		25C02CF72DDE0F33EA7604DC /* lparser.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lparser.h; path = src/lparser.h; sourceTree = "<group>"; };
 		26D76E52A4432E961CCDCFE8 /* lparser.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lparser.c; path = src/lparser.c; sourceTree = "<group>"; };
-		2B271AA1EB8E856C4104231E /* Podfile */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		2B271AA1EB8E856C4104231E /* Podfile */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; };
 		2C09F7B62D995C9E5292D910 /* lundump.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lundump.h; path = src/lundump.h; sourceTree = "<group>"; };
 		30BBCCC591CB13459EFF1EA4 /* Pods-Hammerspoon-lua-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-lua-Private.xcconfig"; sourceTree = "<group>"; };
 		3124E8EB8514D668A3BBDDFC /* luaconf.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = luaconf.h; path = src/luaconf.h; sourceTree = "<group>"; };

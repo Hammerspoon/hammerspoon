@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		4F9A454A19EC6801006BB982 /* build_extensions.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F9A454919EC6801006BB982 /* build_extensions.sh */; };
-		9404221619A3845B0069CDE0 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
-		9404221719A385A30069CDE0 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA1119083251002568BB /* AppKit.framework */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
 		9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422ACBC19B6163800F06A90 /* MJConfigUtils.m */; };
 		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
@@ -35,21 +33,8 @@
 		949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ConsoleWindow.xib */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
-		94BF76E61993418C001BDA77 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94BF76E51993418C001BDA77 /* Foundation.framework */; };
-		94BF76E91993418C001BDA77 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 94BF76E81993418C001BDA77 /* main.m */; };
-		94BF76F6199344DA001BDA77 /* HammerspoonRestarter in Resources */ = {isa = PBXBuildFile; fileRef = 94BF76E41993418C001BDA77 /* HammerspoonRestarter */; };
 		FEC002E365542A867EA8EACF /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 273C7223738140A6F91A8338 /* libPods-Hammerspoon.a */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		94BF76F119934247001BDA77 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9445CA0319083251002568BB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 94BF76E31993418C001BDA77;
-			remoteInfo = HammerspoonRestarter;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		273C7223738140A6F91A8338 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,9 +84,7 @@
 		94A1E5461993AC5C003AEB26 /* MJFileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJFileUtils.h; sourceTree = "<group>"; };
 		94A1E5471993AC5C003AEB26 /* MJFileUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJFileUtils.m; sourceTree = "<group>"; };
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		94BF76E41993418C001BDA77 /* HammerspoonRestarter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HammerspoonRestarter; sourceTree = BUILT_PRODUCTS_DIR; };
 		94BF76E51993418C001BDA77 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		94BF76E81993418C001BDA77 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		A72912922777E1D082D08222 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -115,16 +98,6 @@
 				9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */,
 				9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */,
 				FEC002E365542A867EA8EACF /* libPods-Hammerspoon.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		94BF76E11993418C001BDA77 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				9404221719A385A30069CDE0 /* AppKit.framework in Frameworks */,
-				9404221619A3845B0069CDE0 /* Cocoa.framework in Frameworks */,
-				94BF76E61993418C001BDA77 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,7 +139,6 @@
 			isa = PBXGroup;
 			children = (
 				9445CA0B19083251002568BB /* Hammerspoon.app */,
-				94BF76E41993418C001BDA77 /* HammerspoonRestarter */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -201,7 +173,6 @@
 			isa = PBXGroup;
 			children = (
 				944A2D49198973A400D8DC90 /* Main */,
-				94BF76E71993418C001BDA77 /* HammerspoonRestarter */,
 				944A2D481989739B00D8DC90 /* XcodeCrap */,
 			);
 			path = Hammerspoon;
@@ -259,14 +230,6 @@
 			name = Auxiliary;
 			sourceTree = "<group>";
 		};
-		94BF76E71993418C001BDA77 /* HammerspoonRestarter */ = {
-			isa = PBXGroup;
-			children = (
-				94BF76E81993418C001BDA77 /* main.m */,
-			);
-			path = HammerspoonRestarter;
-			sourceTree = "<group>";
-		};
 		F812A89A8B0CD6807ABA21B6 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -293,28 +256,11 @@
 			buildRules = (
 			);
 			dependencies = (
-				94BF76F219934247001BDA77 /* PBXTargetDependency */,
 			);
 			name = Hammerspoon;
 			productName = Hammerspoon;
 			productReference = 9445CA0B19083251002568BB /* Hammerspoon.app */;
 			productType = "com.apple.product-type.application";
-		};
-		94BF76E31993418C001BDA77 /* HammerspoonRestarter */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 94BF76F01993418C001BDA77 /* Build configuration list for PBXNativeTarget "HammerspoonRestarter" */;
-			buildPhases = (
-				94BF76E01993418C001BDA77 /* Sources */,
-				94BF76E11993418C001BDA77 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = HammerspoonRestarter;
-			productName = HammerspoonRestarter;
-			productReference = 94BF76E41993418C001BDA77 /* HammerspoonRestarter */;
-			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
 
@@ -340,7 +286,6 @@
 			projectRoot = "";
 			targets = (
 				9445CA0A19083251002568BB /* Hammerspoon */,
-				94BF76E31993418C001BDA77 /* HammerspoonRestarter */,
 			);
 		};
 /* End PBXProject section */
@@ -350,7 +295,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				94BF76F6199344DA001BDA77 /* HammerspoonRestarter in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				4F9A454A19EC6801006BB982 /* build_extensions.sh in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
@@ -432,23 +376,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		94BF76E01993418C001BDA77 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				94BF76E91993418C001BDA77 /* main.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		94BF76F219934247001BDA77 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 94BF76E31993418C001BDA77 /* HammerspoonRestarter */;
-			targetProxy = 94BF76F119934247001BDA77 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		9445CA3A19083251002568BB /* Debug */ = {
@@ -554,26 +482,6 @@
 			};
 			name = Release;
 		};
-		94BF76EE1993418C001BDA77 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		94BF76EF1993418C001BDA77 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -591,15 +499,6 @@
 			buildConfigurations = (
 				9445CA3D19083251002568BB /* Debug */,
 				9445CA3E19083251002568BB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		94BF76F01993418C001BDA77 /* Build configuration list for PBXNativeTarget "HammerspoonRestarter" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				94BF76EE1993418C001BDA77 /* Debug */,
-				94BF76EF1993418C001BDA77 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
