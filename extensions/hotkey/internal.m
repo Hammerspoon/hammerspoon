@@ -147,7 +147,6 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
 
 static int meta_gc(lua_State* L) {
     RemoveEventHandler(eventhandler);
-    [handlers release];
     return 0;
 }
 
@@ -157,7 +156,7 @@ static const luaL_Reg metalib[] = {
 };
 
 int luaopen_hs_hotkey_internal(lua_State* L) {
-    handlers = [[NSMutableIndexSet indexSet] retain];
+    handlers = [NSMutableIndexSet indexSet];
     
     luaL_newlib(L, hotkeylib);
     
