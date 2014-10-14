@@ -591,7 +591,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -618,10 +618,10 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.9;
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -645,7 +645,7 @@
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = (
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"$(inherited)",
@@ -675,7 +675,7 @@
 				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-Sparkle/Pods-Hammerspoon-Sparkle-prefix.pch";
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = (
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"$(inherited)",
@@ -721,7 +721,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
@@ -752,7 +752,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				STRIP_INSTALLED_PRODUCT = NO;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -771,7 +771,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_CFLAGS = (
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"$(inherited)",
@@ -782,7 +782,7 @@
 				);
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = macosx10.9;
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -807,7 +807,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
