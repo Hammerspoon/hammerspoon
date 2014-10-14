@@ -1,7 +1,7 @@
-package = "hammerspoon.fnutils"
-version = "0.1-1"
+package = "hs.hotkey"
+version = "0.3-1"
 local url = "github.com/hammerspoon/hammerspoon"
-local desc = "Hammerspoon module to help with functional programming."
+local desc = "Hammerspoon module to create and manage global hotkeys."
 source = {url = "git://" .. url}
 description = {
   summary = desc,
@@ -12,10 +12,12 @@ description = {
 supported_platforms = {"macosx"}
 dependencies = {
   "lua >= 5.2",
+  "hs.keycodes",
 }
 build = {
   type = "builtin",
   modules = {
-    ["hammerspoon.fnutils"] = "fnutils.lua",
+    ["hs.hotkey"] = "hotkey.lua",
+    ["hs.hotkey.internal"] = "hotkey.m",
   },
 }

@@ -1,7 +1,7 @@
-package = "hammerspoon.screen"
+package = "hs.keycodes"
 version = "0.2-1"
 local url = "github.com/hammerspoon/hammerspoon"
-local desc = "Hammerspoon module to inspect and manipulate screens (i.e. monitors)."
+local desc = "Hammerspoon module to convert between key-strings and key-codes."
 source = {url = "git://" .. url}
 description = {
   summary = desc,
@@ -12,13 +12,11 @@ description = {
 supported_platforms = {"macosx"}
 dependencies = {
   "lua >= 5.2",
-  "hammerspoon.fnutils",
-  "hammerspoon.geometry",
 }
 build = {
   type = "builtin",
   modules = {
-    ["hammerspoon.screen"] = "screen.lua",
-    ["hammerspoon.screen.internal"] = "screen.m",
+    ["hs.keycodes"] = "keycodes.lua",
+    ["hs.keycodes.internal"] = "keycodes.m",
   },
 }

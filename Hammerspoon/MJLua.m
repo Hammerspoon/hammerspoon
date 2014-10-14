@@ -7,7 +7,7 @@
 static lua_State* MJLuaState;
 static int evalfn;
 
-/// === hammerspoon ===
+/// === hs ===
 ///
 /// Core Hammerspoon functionality.
 
@@ -16,7 +16,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
 
-/// hammerspoon.openconsole()
+/// hs.openconsole()
 /// Function
 /// Opens the Hammerspoon Console window and focuses it.
 static int core_openconsole(lua_State* L) {
@@ -25,7 +25,7 @@ static int core_openconsole(lua_State* L) {
     return 0;
 }
 
-/// hammerspoon.reload()
+/// hs.reload()
 /// Function
 /// Reloads your init-file in a fresh Lua environment.
 static int core_reload(lua_State* L) {
@@ -35,7 +35,7 @@ static int core_reload(lua_State* L) {
     return 0;
 }
 
-/// hammerspoon.focus()
+/// hs.focus()
 /// Function
 /// Makes Hammerspoon the foreground app.
 static int core_focus(lua_State* L) {
@@ -87,7 +87,7 @@ void MJLuaSetup(void) {
     luaL_openlibs(L);
     
     luaL_newlib(L, corelib);
-    lua_setglobal(L, "hammerspoon");
+    lua_setglobal(L, "hs");
     
     luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
     

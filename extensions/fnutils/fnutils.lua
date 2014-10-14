@@ -1,11 +1,11 @@
---- === hammerspoon.fnutils ===
+--- === hs.fnutils ===
 ---
 --- Super-helpful functional programming utilities.
 
 local fnutils = {}
 
 
---- hammerspoon.fnutils.map(t, fn) -> t
+--- hs.fnutils.map(t, fn) -> t
 --- Function
 --- Returns a table of the results of fn(el) on every el in t.
 function fnutils.map(t, fn)
@@ -16,7 +16,7 @@ function fnutils.map(t, fn)
   return nt
 end
 
---- hammerspoon.fnutils.each(t, fn) -> t
+--- hs.fnutils.each(t, fn) -> t
 --- Function
 --- Runs fn(el) for every el in t.
 function fnutils.each(t, fn)
@@ -25,7 +25,7 @@ function fnutils.each(t, fn)
   end
 end
 
---- hammerspoon.fnutils.filter(t, fn) -> t
+--- hs.fnutils.filter(t, fn) -> t
 --- Function
 --- Returns a table of the elements in t in which fn(el) is truthy.
 function fnutils.filter(t, fn)
@@ -36,7 +36,7 @@ function fnutils.filter(t, fn)
   return nt
 end
 
---- hammerspoon.fnutils.copy(t) -> t2
+--- hs.fnutils.copy(t) -> t2
 --- Function
 --- Returns a new copy of t using pairs(t).
 function fnutils.copy(t)
@@ -47,7 +47,7 @@ function fnutils.copy(t)
   return nt
 end
 
---- hammerspoon.fnutils.contains(t, el) -> bool
+--- hs.fnutils.contains(t, el) -> bool
 --- Function
 --- Returns whether the table contains the given element.
 function fnutils.contains(t, el)
@@ -59,7 +59,7 @@ function fnutils.contains(t, el)
   return false
 end
 
---- hammerspoon.fnutils.indexof(t, el) -> int or nil
+--- hs.fnutils.indexof(t, el) -> int or nil
 --- Function
 --- Returns the index of a given element in a table, or nil if not found.
 function fnutils.indexof(t, el)
@@ -71,7 +71,7 @@ function fnutils.indexof(t, el)
   return nil
 end
 
---- hammerspoon.fnutils.concat(t1, t2)
+--- hs.fnutils.concat(t1, t2)
 --- Function
 --- Adds all elements of t2 to the end of t1.
 function fnutils.concat(t1, t2)
@@ -81,7 +81,7 @@ function fnutils.concat(t1, t2)
   return t1
 end
 
---- hammerspoon.fnutils.mapcat(t, fn) -> t2
+--- hs.fnutils.mapcat(t, fn) -> t2
 --- Function
 --- Runs fn(el) for every el in t, and assuming the results are tables, combines them into a new table.
 function fnutils.mapcat(t, fn)
@@ -92,7 +92,7 @@ function fnutils.mapcat(t, fn)
   return nt
 end
 
---- hammerspoon.fnutils.reduce(t, fn) -> t2
+--- hs.fnutils.reduce(t, fn) -> t2
 --- Function
 --- Runs fn(el1, el2) for every el in t, then fn(result, el3), etc, until there's only one left.
 function fnutils.reduce(t, fn)
@@ -107,7 +107,7 @@ function fnutils.reduce(t, fn)
   return result
 end
 
---- hammerspoon.fnutils.find(t, fn) -> el
+--- hs.fnutils.find(t, fn) -> el
 --- Function
 --- Returns the first element where fn(el) is truthy.
 function fnutils.find(t, fn)
@@ -117,7 +117,7 @@ function fnutils.find(t, fn)
   return nil
 end
 
---- hammerspoon.fnutils.sequence(...) -> fn
+--- hs.fnutils.sequence(...) -> fn
 --- Function
 --- Returns a list of the results of the passed functions.
 function fnutils.sequence(...)
@@ -131,7 +131,7 @@ function fnutils.sequence(...)
   end
 end
 
---- hammerspoon.fnutils.partial(fn, ...) -> fn'
+--- hs.fnutils.partial(fn, ...) -> fn'
 --- Function
 --- Returns fn partially applied to arg (...).
 function fnutils.partial(fn, ...)
@@ -144,7 +144,7 @@ function fnutils.partial(fn, ...)
   end
 end
 
---- hammerspoon.fnutils.cycle(t) -> fn() -> t[n]
+--- hs.fnutils.cycle(t) -> fn() -> t[n]
 --- Function
 --- Returns a function that returns t[1], t[2], ... t[#t], t[1], ... on successive calls.
 --- Example:

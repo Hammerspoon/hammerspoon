@@ -1,17 +1,17 @@
---- === hammerspoon.hotkey ===
+--- === hs.hotkey ===
 ---
 --- Create and manage global hotkeys.
 
-local hotkey = require "hammerspoon.hotkey.internal"
-local keycodes = require "hammerspoon.keycodes"
+local hotkey = require "hs.hotkey.internal"
+local keycodes = require "hs.keycodes"
 
---- hammerspoon.hotkey.new(mods, key, pressedfn, releasedfn = nil) -> hotkey
+--- hs.hotkey.new(mods, key, pressedfn, releasedfn = nil) -> hotkey
 --- Constructor
 --- Creates a new hotkey that can be enabled.
 ---
 --- The `mods` parameter is case-insensitive and may contain any of the following strings: "cmd", "ctrl", "alt", or "shift".
 ---
---- The `key` parameter is case-insensitive and may be any string value found in hammerspoon.keycodes.map
+--- The `key` parameter is case-insensitive and may be any string value found in hs.keycodes.map
 ---
 --- The `pressedfn` parameter is the function that will be called when this hotkey is pressed.
 ---
@@ -21,7 +21,7 @@ local function wrap(fn)
   return function()
     if fn then
       local ok, err = xpcall(fn, debug.traceback)
-      if not ok then hammerspoon.showerror(err) end
+      if not ok then hs.showerror(err) end
     end
   end
 end
@@ -36,9 +36,9 @@ function hotkey.new(mods, key, pressedfn, releasedfn)
   return k
 end
 
---- hammerspoon.hotkey.bind(mods, key, pressedfn, releasedfn) -> hotkey
+--- hs.hotkey.bind(mods, key, pressedfn, releasedfn) -> hotkey
 --- Constructor
---- Shortcut for: return hammerspoon.hotkey.new(mods, key, pressedfn, releasedfn):enable()
+--- Shortcut for: return hs.hotkey.new(mods, key, pressedfn, releasedfn):enable()
 function hotkey.bind(...)
   return hotkey.new(...):enable()
 end

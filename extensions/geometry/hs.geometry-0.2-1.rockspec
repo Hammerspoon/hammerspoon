@@ -1,4 +1,4 @@
-package = "hammerspoon.geometry"
+package = "hs.geometry"
 version = "0.2-1"
 local url = "github.com/hammerspoon/hammerspoon"
 local desc = "Hammerspoon module to help with mathy stuff."
@@ -16,7 +16,7 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["hammerspoon.geometry"] = "geometry.lua",
-    ["hammerspoon.geometry.internal"] = "geometry.m",
+    ["hs.geometry"] = "geometry.lua",
+    ["hs.geometry.internal"] = "geometry.m",
   },
 }

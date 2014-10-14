@@ -44,8 +44,8 @@ static int hotkey_new(lua_State* L) {
     
     hotkey->keycode = keycode;
     
-    // use 'hammerspoon.hotkey' metatable
-    luaL_getmetatable(L, "hammerspoon.hotkey");
+    // use 'hs.hotkey' metatable
+    luaL_getmetatable(L, "hs.hotkey");
     lua_setmetatable(L, -2);
     
     // store pressedfn
@@ -70,11 +70,11 @@ static int hotkey_new(lua_State* L) {
     return 1;
 }
 
-/// hammerspoon.hotkey:enable() -> self
+/// hs.hotkey:enable() -> self
 /// Method
 /// Registers the hotkey's fn as the callback when the user presses key while holding mods.
 static int hotkey_enable(lua_State* L) {
-    hotkey_t* hotkey = luaL_checkudata(L, 1, "hammerspoon.hotkey");
+    hotkey_t* hotkey = luaL_checkudata(L, 1, "hs.hotkey");
     lua_settop(L, 1);
     
     if (hotkey->enabled)
@@ -99,18 +99,18 @@ static void stop(lua_State* L, hotkey_t* hotkey) {
     UnregisterEventHotKey(hotkey->carbonHotKey);
 }
 
-/// hammerspoon.hotkey:disable() -> self
+/// hs.hotkey:disable() -> self
 /// Method
-/// Disables the given hotkey; does not remove it from hammerspoon.hotkey.keys.
+/// Disables the given hotkey; does not remove it from hs.hotkey.keys.
 static int hotkey_disable(lua_State* L) {
-    hotkey_t* hotkey = luaL_checkudata(L, 1, "hammerspoon.hotkey");
+    hotkey_t* hotkey = luaL_checkudata(L, 1, "hs.hotkey");
     stop(L, hotkey);
     lua_pushvalue(L, 1);
     return 1;
 }
 
 static int hotkey_gc(lua_State* L) {
-    hotkey_t* hotkey = luaL_checkudata(L, 1, "hammerspoon.hotkey");
+    hotkey_t* hotkey = luaL_checkudata(L, 1, "hs.hotkey");
     stop(L, hotkey);
     luaL_unref(L, LUA_REGISTRYINDEX, hotkey->pressedfn);
     luaL_unref(L, LUA_REGISTRYINDEX, hotkey->releasedfn);
@@ -156,7 +156,7 @@ static const luaL_Reg metalib[] = {
     {}
 };
 
-int luaopen_hammerspoon_hotkey_internal(lua_State* L) {
+int luaopen_hs_hotkey_internal(lua_State* L) {
     handlers = [[NSMutableIndexSet indexSet] retain];
     
     luaL_newlib(L, hotkeylib);
@@ -175,7 +175,7 @@ int luaopen_hammerspoon_hotkey_internal(lua_State* L) {
     
     // put hotkey in registry; necessary for luaL_checkudata()
     lua_pushvalue(L, -1);
-    lua_setfield(L, LUA_REGISTRYINDEX, "hammerspoon.hotkey");
+    lua_setfield(L, LUA_REGISTRYINDEX, "hs.hotkey");
     
     // hotkey.__index = hotkey
     lua_pushvalue(L, -1);

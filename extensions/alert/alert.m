@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
 
-/// === hammerspoon.alert ===
+/// === hs.alert ===
 ///
 /// Simple module for showing alerts on-screen.
 
@@ -161,7 +161,7 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 
 @end
 
-/// hammerspoon.alert.show(str, seconds = 2)
+/// hs.alert.show(str, seconds = 2)
 /// Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.
 static int alert_show(lua_State* L) {
     lua_settop(L, 2);
@@ -196,7 +196,7 @@ static const luaL_Reg metalib[] = {
     {}
 };
 
-int luaopen_hammerspoon_alert(lua_State* L) {
+int luaopen_hs_alert(lua_State* L) {
     luaL_newlib(L, alertlib);
     
     luaL_newlib(L, metalib);

@@ -1,6 +1,6 @@
 local modpath, prettypath, fullpath, configdir, hasinitfile = ...
 
-os.exit = hammerspoon._exit
+os.exit = hs._exit
 
 local function runstring(s)
   local fn, err = load("return " .. s)
@@ -17,15 +17,15 @@ local function runstring(s)
 end
 
 --- mjolnir compatability
-mjolnir = hammerspoon
+mjolnir = hs
 
---- hammerspoon.configdir = "~/.hammerspoon/"
+--- hs.configdir = "~/.hammerspoon/"
 --- Constant
 --- The user's Hammerspoon config directory. Modules may use it, assuming
 --- they've worked out a contract with the user about how to use it.
-hammerspoon.configdir = configdir
+hs.configdir = configdir
 
---- hammerspoon.showerror(err)
+--- hs.showerror(err)
 --- Function
 ---
 --- Presents an error to the user via Hammerspoon's GUI. The default
@@ -39,19 +39,19 @@ hammerspoon.configdir = configdir
 --- from the user:
 ---
 ---     local ok, err = xpcall(callbackfn, debug.traceback)
----     if not ok then hammerspoon.showerror(err) end
-function hammerspoon.showerror(err)
-  hammerspoon._notify("hammerspoon error occurred") -- undecided on this line
+---     if not ok then hs.showerror(err) end
+function hs.showerror(err)
+  hs._notify("hammerspoon error occurred") -- undecided on this line
   print(err)
-  hammerspoon.focus()
-  hammerspoon.openconsole()
+  hs.focus()
+  hs.openconsole()
 end
 
---- hammerspoon.rawprint = print
+--- hs.rawprint = print
 --- Function
 --- The original print function, before hammerspoon overrides it.
 local rawprint = print
-hammerspoon.rawprint = rawprint
+hs.rawprint = rawprint
 function print(...)
   rawprint(...)
   local vals = table.pack(...)
@@ -61,7 +61,7 @@ function print(...)
   end
 
   local str = table.concat(vals, "\t") .. "\n"
-  hammerspoon._logmessage(str)
+  hs._logmessage(str)
 end
 
 if not hasinitfile then
@@ -75,10 +75,10 @@ package.cpath=package.cpath..";"..modpath.."/?.so"
 
 print("-- Loading " .. prettypath)
 local fn, err = loadfile(fullpath)
-if not fn then hammerspoon.showerror(err) return runstring end
+if not fn then hs.showerror(err) return runstring end
 
 local ok, err = xpcall(fn, debug.traceback)
-if not ok then hammerspoon.showerror(err) return runstring end
+if not ok then hs.showerror(err) return runstring end
 
 print "-- Done."
 

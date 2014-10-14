@@ -1,39 +1,39 @@
---- === hammerspoon.window ===
+--- === hs.window ===
 ---
 --- Functions for managing any window.
 ---
---- To get windows, see `hammerspoon.window.focusedwindow` and `hammerspoon.window.visiblewindows`.
+--- To get windows, see `hs.window.focusedwindow` and `hs.window.visiblewindows`.
 ---
---- To get window geometrical attributes, see `hammerspoon.window.{frame,size,topleft}`.
+--- To get window geometrical attributes, see `hs.window.{frame,size,topleft}`.
 ---
---- To move and resize windows, see `hammerspoon.window.set{frame,size,topleft}`.
+--- To move and resize windows, see `hs.window.set{frame,size,topleft}`.
 ---
---- It may be handy to get a window's app or screen via `hammerspoon.window.application` and `hammerspoon.window.screen`.
+--- It may be handy to get a window's app or screen via `hs.window.application` and `hs.window.screen`.
 ---
 --- See the `screen` module for detailed explanation of how Hammerspoon uses window/screen coordinates.
 
-local window = require "hammerspoon.window.internal"
-local application = require "hammerspoon.application.internal"
-local fnutils = require "hammerspoon.fnutils"
-local geometry = require "hammerspoon.geometry"
-local mj_screen = require "hammerspoon.screen"
+local window = require "hs.window.internal"
+local application = require "hs.application.internal"
+local fnutils = require "hs.fnutils"
+local geometry = require "hs.geometry"
+local mj_screen = require "hs.screen"
 
 
---- hammerspoon.window.allwindows() -> win[]
+--- hs.window.allwindows() -> win[]
 --- Function
 --- Returns all windows
 function window.allwindows()
   return fnutils.mapcat(application.runningapplications(), application.allwindows)
 end
 
---- hammerspoon.window.windowforid() -> win or nil
+--- hs.window.windowforid() -> win or nil
 --- Function
 --- Returns the window for the given id, or nil if it's an invalid id.
 function window.windowforid(id)
   return fnutils.find(window.allwindows(), function(win) return win:id() == id end)
 end
 
---- hammerspoon.window:isvisible() -> bool
+--- hs.window:isvisible() -> bool
 --- Method
 --- True if the app is not hidden and the window is not minimized.
 --- NOTE: some apps (e.g. in Adobe Creative Cloud) have literally-invisible windows and also like to put them very far offscreen; this method may return true for such windows.
@@ -41,7 +41,7 @@ function window:isvisible()
   return not self:application():ishidden() and not self:isminimized()
 end
 
---- hammerspoon.window:frame() -> rect
+--- hs.window:frame() -> rect
 --- Method
 --- Get the frame of the window in absolute coordinates.
 function window:frame()
@@ -50,7 +50,7 @@ function window:frame()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
 end
 
---- hammerspoon.window:setframe(rect)
+--- hs.window:setframe(rect)
 --- Method
 --- Set the frame of the window in absolute coordinates.
 function window:setframe(f)
@@ -59,35 +59,35 @@ function window:setframe(f)
   self:setsize(f)
 end
 
---- hammerspoon.window:otherwindows_samescreen() -> win[]
+--- hs.window:otherwindows_samescreen() -> win[]
 --- Method
 --- Get other windows on the same screen as self.
 function window:otherwindows_samescreen()
   return fnutils.filter(window.visiblewindows(), function(win) return self ~= win and self:screen() == win:screen() end)
 end
 
---- hammerspoon.window:otherwindows_allscreens() -> win[]
+--- hs.window:otherwindows_allscreens() -> win[]
 --- Method
 --- Get every window except this one.
 function window:otherwindows_allscreens()
   return fnutils.filter(window.visiblewindows(), function(win) return self ~= win end)
 end
 
---- hammerspoon.window:focus() -> bool
+--- hs.window:focus() -> bool
 --- Method
 --- Try to make this window focused.
 function window:focus()
   return self:becomemain() and self:application():_bringtofront()
 end
 
---- hammerspoon.window.visiblewindows() -> win[]
+--- hs.window.visiblewindows() -> win[]
 --- Function
 --- Get all windows on all screens that match window.isvisible.
 function window.visiblewindows()
   return fnutils.filter(window:allwindows(), window.isvisible)
 end
 
---- hammerspoon.window.orderedwindows() -> win[]
+--- hs.window.orderedwindows() -> win[]
 --- Function
 --- Returns all visible windows, ordered from front to back.
 function window.orderedwindows()
@@ -107,7 +107,7 @@ function window.orderedwindows()
   return orderedwins
 end
 
---- hammerspoon.window:maximize()
+--- hs.window:maximize()
 --- Method
 --- Make this window fill the whole screen its on, without covering the dock or menu.
 function window:maximize()
@@ -115,7 +115,7 @@ function window:maximize()
   self:setframe(screenrect)
 end
 
---- hammerspoon.window:screen()
+--- hs.window:screen()
 --- Method
 --- Get the screen which most contains this window (by area).
 function window:screen()
@@ -183,47 +183,47 @@ local function focus_first_valid_window(ordered_wins)
   return false
 end
 
---- hammerspoon.window:windows_to_east()
+--- hs.window:windows_to_east()
 --- Method
 --- Get all windows east of this one, ordered by closeness.
 function window:windows_to_east()  return windows_in_direction(self, 0) end
 
---- hammerspoon.window:windows_to_west()
+--- hs.window:windows_to_west()
 --- Method
 --- Get all windows west of this one, ordered by closeness.
 function window:windows_to_west()  return windows_in_direction(self, 2) end
 
---- hammerspoon.window:windows_to_north()
+--- hs.window:windows_to_north()
 --- Method
 --- Get all windows north of this one, ordered by closeness.
 function window:windows_to_north() return windows_in_direction(self, 1) end
 
---- hammerspoon.window:windows_to_south()
+--- hs.window:windows_to_south()
 --- Method
 --- Get all windows south of this one, ordered by closeness.
 function window:windows_to_south() return windows_in_direction(self, 3) end
 
---- hammerspoon.window:focuswindow_east()
+--- hs.window:focuswindow_east()
 --- Method
 --- Focus the first focus-able window to the east of this one.
 function window:focuswindow_east()  return focus_first_valid_window(self:windows_to_east()) end
 
---- hammerspoon.window:focuswindow_west()
+--- hs.window:focuswindow_west()
 --- Method
 --- Focus the first focus-able window to the west of this one.
 function window:focuswindow_west()  return focus_first_valid_window(self:windows_to_west()) end
 
---- hammerspoon.window:focuswindow_north()
+--- hs.window:focuswindow_north()
 --- Method
 --- Focus the first focus-able window to the north of this one.
 function window:focuswindow_north() return focus_first_valid_window(self:windows_to_north()) end
 
---- hammerspoon.window:focuswindow_south()
+--- hs.window:focuswindow_south()
 --- Method
 --- Focus the first focus-able window to the south of this one.
 function window:focuswindow_south() return focus_first_valid_window(self:windows_to_south()) end
 
---- hammerspoon.window:movetounit(rect)
+--- hs.window:movetounit(rect)
 --- Method
 --- Moves and resizes the window to fit on the given portion of the screen.
 --- The argument is a rect with each key being between 0.0 and 1.0.

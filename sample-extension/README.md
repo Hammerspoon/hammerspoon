@@ -2,16 +2,16 @@ This is a sample project to demonstrate writing a Hammerspoon extension.
 
 ### Your module's require-path
 
-Our sample module is called "hammerspoon.yourid.foobar". This is both the
+Our sample module is called "hs.yourid.foobar". This is both the
 name of the module, and its require-path. It's a good practice to make
 the module name and require path the same thing.
 
 ### Picking a name for your module
 
-You should prefix your module's name with "hammerspoon." followed by a
+You should prefix your module's name with "hs." followed by a
 short unique identifier owned by you, e.g. maybe your initials. Don't
 use "yourid", that's just here for example. For example, my grid
-module is published as "hammerspoon.sd.grid" where "sd" are my initials.
+module is published as "hs.sd.grid" where "sd" are my initials.
 
 ### Installing prerequisites
 
@@ -66,7 +66,7 @@ $ luarocks make
 Then, just launch Hammerspoon, require your module, and test it out:
 
 ~~~lua
-local foobar = require "hammerspoon.yourid.foobar"
+local foobar = require "hs.yourid.foobar"
 print(foobar.addnumbers(1, 2))
 ~~~
 
@@ -90,9 +90,9 @@ You'll need to register an account at https://rocks.moonscript.org/
 and create an API key in the Settings page for the next steps:
 
 ~~~bash
-$ luarocks pack hammerspoon.yourid.foobar
-$ moonrocks upload --skip-pack hammerspoon.yourid.foobar-0.1-1.rockspec
-$ moonrocks upload hammerspoon.yourid.foobar-0.1-1.macosx-x86_64.rock
+$ luarocks pack hs.yourid.foobar
+$ moonrocks upload --skip-pack hs.yourid.foobar-0.1-1.rockspec
+$ moonrocks upload hs.yourid.foobar-0.1-1.macosx-x86_64.rock
 ~~~
 
 Congratulations, it's now available for everyone!

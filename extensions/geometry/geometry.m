@@ -25,7 +25,7 @@ static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_pushnumber(L, rect.size.height); lua_setfield(L, -2, "h");
 }
 
-/// hammerspoon.geometry.intersectionrect(rect1, rect2) -> rect3
+/// hs.geometry.intersectionrect(rect1, rect2) -> rect3
 /// Function
 /// Returns the intersection of two rects as a new rect.
 static int geometry_intersectionrect(lua_State* L) {
@@ -35,7 +35,7 @@ static int geometry_intersectionrect(lua_State* L) {
     return 1;
 }
 
-/// hammerspoon.geometry.rectmidpoint(rect) -> point
+/// hs.geometry.rectmidpoint(rect) -> point
 /// Function
 /// Returns the midpoint of a rect.
 static int geometry_rectmidpoint(lua_State* L) {
@@ -51,7 +51,7 @@ static const luaL_Reg geometrylib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hammerspoon_geometry_internal(lua_State* L) {
+int luaopen_hs_geometry_internal(lua_State* L) {
     luaL_newlib(L, geometrylib);
     return 1;
 }

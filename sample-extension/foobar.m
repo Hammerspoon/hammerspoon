@@ -16,10 +16,10 @@ static const luaL_Reg foobarlib[] = {
 };
 
 
-/* NOTE: The substring "hammerspoon_yourid_foobar_internal" in the following function's name
-         must match the require-path of this file, i.e. "hammerspoon.yourid.foobar.internal". */
+/* NOTE: The substring "hs_yourid_foobar_internal" in the following function's name
+         must match the require-path of this file, i.e. "hs.yourid.foobar.internal". */
 
-int luaopen_hammerspoon_yourid_foobar_internal(lua_State* L) {
+int luaopen_hs_yourid_foobar_internal(lua_State* L) {
     luaL_newlib(L, foobarlib);
     return 1;
 }

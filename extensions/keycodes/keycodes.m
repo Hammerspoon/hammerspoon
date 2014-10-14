@@ -203,14 +203,14 @@ static int keycodes_newcallback(lua_State* L) {
     MJKeycodesObserver** ud = lua_newuserdata(L, sizeof(id));
     *ud = observer;
     
-    luaL_getmetatable(L, "hammerspoon.keycodes.callback");
+    luaL_getmetatable(L, "hs.keycodes.callback");
     lua_setmetatable(L, -2);
     
     return 1;
 }
 
 static int keycodes_callback_gc(lua_State* L) {
-    MJKeycodesObserver* observer = *(MJKeycodesObserver**)luaL_checkudata(L, 1, "hammerspoon.keycodes.callback");
+    MJKeycodesObserver* observer = *(MJKeycodesObserver**)luaL_checkudata(L, 1, "hs.keycodes.callback");
     [observer stop];
     luaL_unref(L, LUA_REGISTRYINDEX, observer.ref);
     [observer release];
@@ -218,7 +218,7 @@ static int keycodes_callback_gc(lua_State* L) {
 }
 
 static int keycodes_callback_stop(lua_State* L) {
-    MJKeycodesObserver* observer = *(MJKeycodesObserver**)luaL_checkudata(L, 1, "hammerspoon.keycodes.callback");
+    MJKeycodesObserver* observer = *(MJKeycodesObserver**)luaL_checkudata(L, 1, "hs.keycodes.callback");
     [observer stop];
     return 0;
 }
@@ -241,10 +241,10 @@ static const luaL_Reg keycodeslib[] = {
     {}
 };
 
-int luaopen_hammerspoon_keycodes_internal(lua_State* L) {
+int luaopen_hs_keycodes_internal(lua_State* L) {
     luaL_newlib(L, keycodeslib);
     
-    if (luaL_newmetatable(L, "hammerspoon.keycodes.callback")) {
+    if (luaL_newmetatable(L, "hs.keycodes.callback")) {
         luaL_newlib(L, callbacklib);
         lua_setfield(L, -2, "__index");
     }

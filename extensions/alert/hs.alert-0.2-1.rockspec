@@ -1,7 +1,7 @@
-package = "hammerspoon.keycodes"
+package = "hs.alert"
 version = "0.2-1"
 local url = "github.com/hammerspoon/hammerspoon"
-local desc = "Hammerspoon module to convert between key-strings and key-codes."
+local desc = "Hammerspoon module to show brief messages on-screen."
 source = {url = "git://" .. url}
 description = {
   summary = desc,
@@ -16,7 +16,6 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    ["hammerspoon.keycodes"] = "keycodes.lua",
-    ["hammerspoon.keycodes.internal"] = "keycodes.m",
+    ["hs.alert"] = "alert.m",
   },
 }
