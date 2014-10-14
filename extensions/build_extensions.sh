@@ -17,7 +17,7 @@ fi
 cd "${SRCROOT}/extensions"
 
 # stick target-dir in T, keeps things short
-T="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hammerspoon"
+T="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs"
 
 rm -rf "${T}"
 
