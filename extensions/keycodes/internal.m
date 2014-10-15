@@ -200,8 +200,8 @@ static int keycodes_newcallback(lua_State* L) {
     observer.ref = ref;
     [observer start];
     
-    void** ud = lua_newuserdata(L, sizeof(id));
-    *ud = (__bridge_retained void*)observer;
+    MJKeycodesObserver** ud = lua_newuserdata(L, sizeof(id));
+    *ud = observer;
     
     luaL_getmetatable(L, "hs.keycodes.callback");
     lua_setmetatable(L, -2);
@@ -210,14 +210,15 @@ static int keycodes_newcallback(lua_State* L) {
 }
 
 static int keycodes_callback_gc(lua_State* L) {
-    MJKeycodesObserver* observer = (__bridge MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, "hs.keycodes.callback");
+    MJKeycodesObserver* observer = *(MJKeycodesObserver**)luaL_checkudata(L, 1, "hs.keycodes.callback");
     [observer stop];
     luaL_unref(L, LUA_REGISTRYINDEX, observer.ref);
+    [observer release];
     return 0;
 }
 
 static int keycodes_callback_stop(lua_State* L) {
-    MJKeycodesObserver* observer = (__bridge MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, "hs.keycodes.callback");
+    MJKeycodesObserver* observer = *(MJKeycodesObserver**)luaL_checkudata(L, 1, "hs.keycodes.callback");
     [observer stop];
     return 0;
 }
