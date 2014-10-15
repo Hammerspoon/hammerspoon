@@ -22,7 +22,7 @@ There is not much to say here really:
 
 ## Contributing to the extensions
 
-This is really where the meat of Hammerspoon is. Extensions can either be pure Lua or a mixture of Lua and Objective C.
+This is really where the meat of Hammerspoon is. Extensions can either be pure Lua or a mixture of Lua and Objective-C.
 
 ### Writing a pure Lua extension ###
 
@@ -35,7 +35,7 @@ To create such an extension:
 * Create an `init.lua` to contain your code
 * Follow the patterns used in `sample-extensions/pure-lua`
 
-### Writing a mixed Lua/Objective C extension ###
+### Writing a mixed Lua/Objective-C extension ###
 
 These extensions generally expose a system API for users to automate (e.g. adjusting screen brightness using IOKit).
 
@@ -43,8 +43,8 @@ To create such an extension:
 * Clone the Hammerspoon git repository
 * cd into the `extensions` directory
 * Make a directory for your extension
-* Create an `init.lua` to load your Objective C code and contain any additional Lua code
-* Create an `internal.m` to contain your Objective C code
+* Create an `init.lua` to load your Objective-C code and contain any additional Lua code
+* Create an `internal.m` to contain your Objective-C code
 * Follow the patterns used in `sample-extensions/mixed-lua-objc`
 
 ### Writing some other kind of extension
