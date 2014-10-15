@@ -1,2 +1,2 @@
-local module = require("hs.mouse.internal")
+local module = require("hs.alert.internal")
 return module
