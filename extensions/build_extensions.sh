@@ -40,7 +40,7 @@ mkdir -p "${T}"
 
 for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
     dir=$(basename "$dir")
-    
+
     # Reset variables that may have been set by a previous iteration's build_vars.sh
     export EXTRA_CFLAGS="-fobjc-arc"
     export EXTRA_LDFLAGS=""
