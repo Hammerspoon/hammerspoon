@@ -2,7 +2,7 @@
 #import <IOKit/graphics/IOGraphicsLib.h>
 #import <lauxlib.h>
 
-#define get_screen_arg(L, idx) *((NSScreen**)luaL_checkudata(L, idx, "hs.screen"))
+#define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "hs.screen"))
 
 static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_newtable(L);
@@ -40,7 +40,7 @@ static int screen_name(lua_State* L) {
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
     
-    NSDictionary *deviceInfo = (NSDictionary *)IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+    NSDictionary *deviceInfo = (__bridge NSDictionary *)IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
     NSDictionary *localizedNames = [deviceInfo objectForKey:[NSString stringWithUTF8String:kDisplayProductName]];
     
     if ([localizedNames count])
@@ -92,7 +92,6 @@ static int screen_settint(lua_State* L) {
 
 static int screen_gc(lua_State* L) {
     NSScreen* screen = get_screen_arg(L, 1);
-    [screen release];
     return 0;
 }
 
@@ -104,8 +103,8 @@ static int screen_eq(lua_State* L) {
 }
 
 void new_screen(lua_State* L, NSScreen* screen) {
-    NSScreen** screenptr = lua_newuserdata(L, sizeof(NSScreen**));
-    *screenptr = [screen retain];
+    void** screenptr = lua_newuserdata(L, sizeof(NSScreen**));
+    *screenptr = (__bridge_retained void*)screen;
     
     luaL_getmetatable(L, "hs.screen");
     lua_setmetatable(L, -2);
