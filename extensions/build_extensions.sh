@@ -1,42 +1,83 @@
-#!/bin/sh
+#!/bin/bash
 
 #  build_extensions.sh
 #  Hammerspoon
 #
 #  Created by Peter van Dijk on 12/10/14.
-#  Copyright (c) 2014 Steven Degutis. All rights reserved.
 
 set -e -u -x
 
-if [ "${SRCROOT}" = "" ]; then
-    echo "This script is intended to be called by Xcode during a build."
-    exit 1
+LASTMAKEFILE=""
+
+function cleanup() {
+    if [ "${LASTMAKEFILE}" != "" ]; then
+        rm "${SRCROOT}/extensions/${LASTMAKEFILE}"
+    fi
+}
+trap cleanup EXIT
+
+if [ -z "${SRCROOT-}" ]; then
+    echo "Building in standalone mode."
+    SRCROOT="$(dirname "$0")"
+    if [ "${SRCROOT}" == "." ]; then
+        SRCROOT="$(pwd)"
+    fi
+    SRCROOT="${SRCROOT}/.."
+    T="${SRCROOT}/extensions/.build"
+else
+    echo "Building in Xcode mode."
+    T="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs"
 fi
 
 # srcdir is ., makes things easy
 cd "${SRCROOT}/extensions"
 
 # stick target-dir in T, keeps things short
-T="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs"
-
-rm -rf "${T}"
-
+if [ -e "${T}" ]; then
+    rm -rf "${T}"
+fi
 mkdir -p "${T}"
 
-for luafile in $(find . -type f -name '*.lua')
-do
-    cp "${luafile}" "${T}"
+for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
+    dir=$(basename "$dir")
+
+    # Check if this module has a Makefile already
+    if [ ! -e "${dir}/Makefile" ]; then
+        cp build_extensions.Makefile "${dir}/Makefile"
+        LASTMAKEFILE="${dir}/Makefile"
+    fi
+
+    # Check if this module is Lua-only
+    if [ -e "${dir}/internal.m" ]; then
+        LUAONLY=0
+    else
+        LUAONLY=1
+    fi
+
+    # Set environment variables
+    export PREFIX="${T}"
+
+    # Import any environment variables the module wants to set
+    if [ -e "${dir}/build_vars.sh" ]; then
+        . "${dir}/build_vars.sh"
+    fi
+
+    # Do the build
+    pushd "${dir}"
+
+    if [ "${LUAONLY}" == "1" ]; then
+        make install-lua
+    else
+        make install
+        make clean
+    fi
+
+    popd
+
+    if [ "${LASTMAKEFILE}" != "" ]; then
+        rm "${LASTMAKEFILE}"
+        LASTMAKEFILE=""
+    fi
 done
 
-for mfile in $(find . -type f -name '*.m')
-do
-    dir=$(dirname "${mfile}")
-    modname=$(basename "${mfile}" | sed 's/\.m//')
-    ofile="${T}/${modname}/internal.so"
-    if [ ! -e "./${dir}/${modname}.lua" ]
-    then
-        ofile="${T}/${modname}.so"
-    fi
-    mkdir -p "${T}/${modname}"
-    cc "${mfile}" -dynamiclib -undefined dynamic_lookup -I ../Pods/lua/src -o "${ofile}"
-done
+echo "Done. You will find your modules in ${T}/"

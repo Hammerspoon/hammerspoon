@@ -70,7 +70,7 @@ if not hasinitfile then
 end
 
 print("-- Augmenting require paths")
-package.path=package.path..";"..modpath.."/?.lua"
+package.path=package.path..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
 package.cpath=package.cpath..";"..modpath.."/?.so"
 
 print("-- Loading " .. prettypath)

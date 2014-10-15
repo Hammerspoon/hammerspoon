@@ -2,7 +2,7 @@
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
 #import "application.h"
-#import "window.h"
+#import "../window/window.h"
 
 #define get_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "hs.application"))
 #define nsobject_for_app(L, idx) [NSRunningApplication runningApplicationWithProcessIdentifier: pid_for_app(L, idx)]
