@@ -58,8 +58,18 @@ To do anything beyond what is described above, you will need to provide your own
 The `clean` target should remove any build artifacts (e.g. `.so`. files). The `install` target should copy the output of your build into `$(PREFIX)` (which will be supplied via an environment variable).
 
 There are three options for how your `install` target should place the files:
-* `$(PREFIX)/YOUR_MODULE_NAME/init.lua` - If you hae a lua-only extension, or a mixed extension
-* `$(PREFIX)/YOUR_MODULE_NAME.lua` - If you have a lua-only extension, or a mixed extension with complex `.so` layouts
-* `$(PREFIX)/YOUR_MODULE_NAME.so` - If you refuse to have a simple `init.lua` loader (described above)
+* `$(PREFIX)/YOUR_EXTENSION_NAME/init.lua` - If you hae a lua-only extension, or a mixed extension
+* `$(PREFIX)/YOUR_EXTENSION_NAME.lua` - If you have a lua-only extension, or a mixed extension with complex `.so` layouts
+* `$(PREFIX)/YOUR_EXTENSION_NAME.so` - If you refuse to have a simple `init.lua` loader (described above)
 
-It is recommended that you follow the first convention and retain all of your `.lua` and `.so` files in `$(PREFIX)/YOUR_MODULE_NAME/`
+It is recommended that you follow the first convention and retain all of your `.lua` and `.so` files in `$(PREFIX)/YOUR_EXTENSION_NAME/`
+
+### Influencing the building of a simple extension
+
+If you have created a simple Objective-C extension (i.e. you are not supplying your own Makefile) and you need to mildly influence the build process, you can create a file called `build_vars.sh` in `extensions/YOUR_EXTENSION_NAME/` and export any of the following variables:
+* `EXTRA_CFLAGS`
+* `EXTRA_LDFLAGS`
+
+The most likely use of this at the moment is to disable Automatic Reference Counting for your extension. ARC is enabled by default, but you can suppress it for your extension by simply exporting `EXTRA_CFLAGS` to an empty string.
+
+If you would like to see other ways that `build_vars.sh` can influence the building of an extension, please file Issues or submit patches!
