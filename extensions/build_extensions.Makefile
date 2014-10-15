@@ -9,8 +9,8 @@ LUAFILE  = init.lua
 SOFILE  := $(OBJCFILE:m=so)
 
 CC=cc
-CFLAGS  += -Wall -Wextra $(ARC_CFLAGS) -I ../../Pods/lua/src
-LDFLAGS += -dynamiclib -undefined dynamic_lookup
+CFLAGS  += -Wall -Wextra -I ../../Pods/lua/src $(EXTRA_CFLAGS)
+LDFLAGS += -dynamiclib -undefined dynamic_lookup $(EXTRA_LDFLAGS)
 
 all: $(SOFILE)
 
