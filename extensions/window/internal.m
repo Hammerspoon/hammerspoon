@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
 #import "window.h"
-#import "application.h"
+#import "../application/application.h"
 
 extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 
