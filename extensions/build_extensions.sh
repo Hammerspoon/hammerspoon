@@ -7,6 +7,15 @@
 
 set -e -u -x
 
+LASTMAKEFILE=""
+
+function cleanup() {
+    if [ "${LASTMAKEFILE}" != "" ]; then
+        rm "${SRCROOT}/extensions/${LASTMAKEFILE}"
+    fi
+}
+trap cleanup EXIT
+
 if [ -z "${SRCROOT-}" ]; then
     echo "Building in standalone mode."
     SRCROOT="$(dirname "$0")"
@@ -30,14 +39,12 @@ fi
 mkdir -p "${T}"
 
 for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
-    HASMAKEFILE=0
     dir=$(basename "$dir")
 
     # Check if this module has a Makefile already
-    if [ -e "${dir}/Makefile" ]; then
-        HASMAKEFILE=1
-    else
+    if [ ! -e "${dir}/Makefile" ]; then
         cp build_extensions.Makefile "${dir}/Makefile"
+        LASTMAKEFILE="${dir}/Makefile"
     fi
 
     # Check if this module is Lua-only
@@ -67,8 +74,9 @@ for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
 
     popd
 
-    if [ "${HASMAKEFILE}" == "0" ]; then
-        rm "${dir}/Makefile"
+    if [ "${LASTMAKEFILE}" != "" ]; then
+        rm "${LASTMAKEFILE}"
+        LASTMAKEFILE=""
     fi
 done
 
