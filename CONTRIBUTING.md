@@ -73,3 +73,8 @@ If you have created a simple Objective-C extension (i.e. you are not supplying y
 The most likely use of this at the moment is to disable Automatic Reference Counting for your extension. ARC is enabled by default, but you can suppress it for your extension by simply exporting `EXTRA_CFLAGS` to an empty string.
 
 If you would like to see other ways that `build_vars.sh` can influence the building of an extension, please file Issues or submit patches!
+
+### Documenting your extension
+
+Both Lua and Objective-C portions of an extension should document all of the functions they expose to users of the extension. The two sample extensions demonstrate how to do this.
+
