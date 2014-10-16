@@ -173,12 +173,12 @@
 			isa = PBXGroup;
 			children = (
 				944A2D49198973A400D8DC90 /* Main */,
-				944A2D481989739B00D8DC90 /* XcodeCrap */,
+				944A2D481989739B00D8DC90 /* Extras */,
 			);
 			path = Hammerspoon;
 			sourceTree = "<group>";
 		};
-		944A2D481989739B00D8DC90 /* XcodeCrap */ = {
+		944A2D481989739B00D8DC90 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
 				944A2D3D1989737E00D8DC90 /* Credits.rtf */,
@@ -188,7 +188,7 @@
 				9477D01819953FE20020BE9D /* statusicon.png */,
 				9477D01919953FE20020BE9D /* statusicon@2x.png */,
 			);
-			name = XcodeCrap;
+			name = Extras;
 			sourceTree = "<group>";
 		};
 		944A2D49198973A400D8DC90 /* Main */ = {
