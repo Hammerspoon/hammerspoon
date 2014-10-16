@@ -11,7 +11,7 @@ $(APPFILE): $(shell find Hammerspoon -type f)
 	cp -R build/Hammerspoon/Build/Products/Release/Hammerspoon.app $@
 
 $(ZIPFILE): $(APPFILE)
-	zip -qr $@ $<
+	cd build ; zip -r Hammerspoon-$(VERSION).zip Hammerspoon.app/
 
 clean:
 	rm -rf build
