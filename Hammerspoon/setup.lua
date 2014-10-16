@@ -16,9 +16,6 @@ local function runstring(s)
   return str
 end
 
---- mjolnir compatability
-mjolnir = hs
-
 --- hs.configdir = "~/.hammerspoon/"
 --- Constant
 --- The user's Hammerspoon config directory. Modules may use it, assuming

@@ -48,7 +48,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{MJShowDockIconKey: @YES,
-                         MJShowMenuIconKey: @NO,
+                         MJShowMenuIconKey: @YES,
                          }];
 }
 
