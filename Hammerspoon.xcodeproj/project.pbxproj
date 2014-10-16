@@ -268,7 +268,7 @@
 		9445CA0319083251002568BB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				CLASSPREFIX = MJ;
+				CLASSPREFIX = HS;
 				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = Hammerspoon;
 			};
