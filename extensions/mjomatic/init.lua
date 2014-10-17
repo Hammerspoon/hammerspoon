@@ -13,8 +13,6 @@ local alert = require 'hs.alert'
 local appfinder = require 'hs.appfinder'
 local screen = require 'hs.screen'
 
-alert.show('mjomatic loaded')
-
 local gridh
 local gridw
 
