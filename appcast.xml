@@ -25,7 +25,7 @@
             <sparkle:releaseNotesLink>
                 https://github.com/Hammerspoon/hammerspoon/releases
             </sparkle:releaseNotesLink>
-            <pubDate>Fri, 76 Oct 2014 19:40:00 +0200</pubDate>
+            <pubDate>Fri, 16 Oct 2014 19:40:00 +0200</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.1/Hammerspoon-0.9.1.zip"
                 sparkle:version="0.9.1"
                 length="1909698"
@@ -33,6 +33,21 @@
             />
             <sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
         </item>
+
+        <item>
+            <title>Version 0.9.2</title>
+            <sparkle:releaseNotesLink>
+                https://github.com/Hammerspoon/hammerspoon/releases
+            </sparkle:releaseNotesLink>
+            <pubDate>Fri, 16 Oct 2014 19:56:00 +0200</pubDate>
+            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.2/Hammerspoon-0.9.2.zip"
+                sparkle:version="0.9.2"
+                length="1909674"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+        </item>
+
 
 
     </channel>
