@@ -2,18 +2,22 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
     <channel>
         <title>Hammerspoon's Changelog</title>
-        <link>https://raw.githubusercontent.com/cmsj/hammerspoon/sparkle/appcast.xml</link>
+        <link>https://raw.githubusercontent.com/Hammerspoon/hammerspoon/master/appcast.xml</link>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
 
         <item>
-            <title>Version 1.0</title>
+            <title>Version 0.9.0</title>
             <sparkle:releaseNotesLink>
-                http://hammerspoon.org/app/1.0.html
+                https://github.com/Hammerspoon/hammerspoon/releases
             </sparkle:releaseNotesLink>
-            <pubDate>Mon, 13 Oct 2014 19:20:11 +0000</pubDate>
-            <enclosure url="http://you.com/app/Your%20Great%20App%202.0.zip" sparkle:version="1.0" length="1623481" type="application/octet-stream" sparkle:dsaSignature="BAFJW4B6B1K1JyW30nbkBwainOzrN6EQuAh" />
-            <sparkle:minimumSystemVersion>10.10</sparkle:minimumSystemVersion>
+            <pubDate>Thu, 16 Oct 2014 21:27:29 +0000</pubDate>
+            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.0/Hammerspoon-0.9.0.zip"
+                sparkle:version="0.9.0"
+                length="1909760"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
         </item>
 
     </channel>
