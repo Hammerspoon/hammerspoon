@@ -68,7 +68,7 @@
     if (self.isAccessibilityEnabled)
         return @"Accessibility is enabled. You're all set!";
     else
-        return @"Enable Accessibility for best results.";
+        return @"WARNING! Accessibility is not enabled!";
 }
 
 - (NSImage*) isAccessibilityEnabledImage {

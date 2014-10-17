@@ -7,6 +7,7 @@
 #import "MJVersionUtils.h"
 #import "MJConfigUtils.h"
 #import "MJFileUtils.h"
+#import "MJAccessibilityUtils.h"
 #import "variables.h"
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
@@ -41,7 +42,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
     
-    if (MJFirstRunForCurrentVersion())
+    if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
         [[MJPreferencesWindowController singleton] showWindow: nil];
 }
 
