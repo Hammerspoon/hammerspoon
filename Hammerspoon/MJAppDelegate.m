@@ -42,7 +42,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
     
-    if (MJFirstRunForCurrentVersion())
+    if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
         [[MJPreferencesWindowController singleton] showWindow: nil];
 }
 
