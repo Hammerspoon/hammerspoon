@@ -6,10 +6,10 @@ require 'erb'
 outdir = ARGV.first
 docmods = JSON.load(STDIN.read)
 
-mod_template   = ERB.new(File.read('docs/templates/ext.html.erb'))
-index_template = ERB.new(File.read('docs/templates/index.html.erb'))
+mod_template   = ERB.new(File.read('scripts/docs/templates/ext.html.erb'))
+index_template = ERB.new(File.read('scripts/docs/templates/index.html.erb'))
 
-content = GitHub::Markdown.render_gfm(File.read('docs/templates/index.md'))
+content = GitHub::Markdown.render_gfm(File.read('scripts/docs/templates/index.md'))
 html = index_template.result(binding)
 File.write("#{outdir}/index.html", html)
 

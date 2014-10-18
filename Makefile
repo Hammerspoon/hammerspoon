@@ -11,20 +11,20 @@ docs: build/Hammerspoon.docset
 
 build/Hammerspoon.docset: build/docs.sqlite build/html
 	rm -rf $@
-	cp -R docs/templates/Hammerspoon.docset $@
+	cp -R scripts/docs/templates/Hammerspoon.docset $@
 	mv build/docs.sqlite $@/Contents/Resources/docSet.dsidx
 	cp build/html/* $@/Contents/Resources/Documents/
 
 build/html: build/docs.json
 	mkdir -p $@
 	rm -rf $@/*
-	docs/bin/genhtml $@ < $<
+	scripts/docs/bin/genhtml $@ < $<
 
 build/docs.sqlite: build/docs.json
-	docs/bin/gensql < $< | sqlite3 $@
+	scripts/docs/bin/gensql < $< | sqlite3 $@
 
 build/docs.json: build
-	find . -type f \( -name '*.lua' -o -name '*.m' \) -exec cat {} + | docs/bin/gencomments | docs/bin/genjson > $@
+	find . -type f \( -name '*.lua' -o -name '*.m' \) -exec cat {} + | scripts/docs/bin/gencomments | scripts/docs/bin/genjson > $@
 
 build:
 	mkdir -p build
