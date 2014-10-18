@@ -38,7 +38,7 @@ hs.configdir = configdir
 ---     local ok, err = xpcall(callbackfn, debug.traceback)
 ---     if not ok then hs.showerror(err) end
 function hs.showerror(err)
-  hs._notify("hammerspoon error occurred") -- undecided on this line
+  hs._notify("Hammerspoon config error") -- undecided on this line
   print(err)
   hs.focus()
   hs.openconsole()
