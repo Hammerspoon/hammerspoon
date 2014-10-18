@@ -13,6 +13,16 @@
     </header>
     <section>
       <%= content %>
+      </section>
+    <section>
+    <!-- tables suck., I know, but it's fast to code -->
+    <table><tr><td valign="top">Documented modules</td><td valign="top">
+      <ul>
+        <% docmods.each do |mod| %>
+          <li><a href="<%= mod['name'] %>.html"><%= mod['name'] %></a></li>
+        <% end %>
+      </ul>
+    </td></tr></table>
     </section>
   </body>
 </html>
