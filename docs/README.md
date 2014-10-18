@@ -13,24 +13,17 @@
    3. The second line is a single captitalized word, like "Variable" or "Function" or "Method"
    4. The remaining lines describe the item
 5. Any comment that starts with 4 comment-characters is ignored
-6. Anything in a directory `_docsignore` or subdirectory of it are skipped
 7. Only files ending in `.lua` or `.m` are scanned
 
 ### To generate docs
 
 ~~~bash
+$ cd docs
 $ bundle install
-$ make
+$ cd ..
+$ make docs
 ~~~
 
-### To add your module
-
-1. Add your repo's `.tar.gz` URL to Repos page in this wiki
-2. Clone this repo
-3. Generate docs (see above)
-4. Verify the built Hammerspoon.docset looks like it should
-5. Send PR to https://github.com/kapeli/Dash-User-Contributions
-   1. Fork his repo
-   2. Copy `build/Hammerspoon.tgz` (from step #3) into `Dash-User-Contributions/docsets/Hammerspoon/`
-   3. Update the version number in `Dash-User-Contributions/docsets/Hammerspoon/docset.json`
-   4. Send PR on our behalf
+Your output will now be in build/ in the following forms:
+ * Hammerspoon.docset - Docs bundle for the excellent "Dash" browser
+ * html - HTML docs
