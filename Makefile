@@ -9,10 +9,10 @@ $(APPFILE): build $(shell find Hammerspoon -type f)
 
 docs: build/Hammerspoon.docset
 
-build/Hammerspoon.docset: build/docs.sql.out build/html
+build/Hammerspoon.docset: build/docs.sqlite build/html
 	rm -rf $@
 	cp -R docs/templates/Hammerspoon.docset $@
-	cp build/docs.sql.out $@/Contents/Resources/docSet.dsidx
+	mv build/docs.sqlite $@/Contents/Resources/docSet.dsidx
 	cp build/html/* $@/Contents/Resources/Documents/
 
 build/html: build/docs.json
@@ -20,7 +20,7 @@ build/html: build/docs.json
 	rm -rf $@/*
 	docs/bin/genhtml $@ < $<
 
-build/docs.sql: build/docs.json
+build/docs.sqlite: build/docs.json
 	docs/bin/gensql < $< | sqlite3 $@
 
 build/docs.json: build
