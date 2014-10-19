@@ -21,5 +21,5 @@ More extensions will always be a huge benefit to Hammerspoon. They can either be
 
 ## Where can I get help?
 
-You can usually get a quick answer in #hammerspoon on IRC, or you can file an issue at https://github.com/Hammerspoon/hammerspoon/
+You can usually get a quick answer in #hammerspoon on Freenode, or you can file an issue at https://github.com/Hammerspoon/hammerspoon/
 
