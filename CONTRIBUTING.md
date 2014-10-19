@@ -34,6 +34,9 @@ To create such an extension:
 * Make a directory for your extension
 * Create an `init.lua` to contain your code
 * Follow the patterns used in `sample-extensions/pure-lua`
+* Push them up to a fork on GitHub
+* Propose a Pull Request on GitHub
+* Talk to us in #hammerspoon on Freenode
 
 ### Writing a mixed Lua/Objective-C extension ###
 
@@ -46,6 +49,9 @@ To create such an extension:
 * Create an `init.lua` to load your Objective-C code and contain any additional Lua code
 * Create an `internal.m` to contain your Objective-C code
 * Follow the patterns used in `sample-extensions/mixed-lua-objc`
+* Push them up to a fork on GitHub
+* Propose a Pull Request on GitHub
+* Talk to us in #hammerspoon on Freenode
 
 ### Writing some other kind of extension
 
@@ -64,6 +70,8 @@ There are three options for how your `install` target should place the files:
 
 It is recommended that you follow the first convention and retain all of your `.lua` and `.so` files in `$(PREFIX)/YOUR_EXTENSION_NAME/`
 
+Once you are done, put it up in a fork on Github and submit a Pull Request, we want to carry your awesome extension!
+
 ### Influencing the building of a simple extension
 
 If you have created a simple Objective-C extension (i.e. you are not supplying your own Makefile) and you need to mildly influence the build process, you can create a file called `build_vars.sh` in `extensions/YOUR_EXTENSION_NAME/` and export any of the following variables:
@@ -76,5 +84,5 @@ If you would like to see other ways that `build_vars.sh` can influence the build
 
 ### Documenting your extension
 
-Both Lua and Objective-C portions of an extension should document all of the functions they expose to users of the extension. The two sample extensions demonstrate how to do this.
+Both Lua and Objective-C portions of an extension should contain in-line documention of all of the functions they expose to users of the extension. The two sample extensions demonstrate how to do this.
 
