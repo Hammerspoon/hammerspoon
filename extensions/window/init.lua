@@ -115,6 +115,13 @@ function window:maximize()
   self:setframe(screenrect)
 end
 
+--- hs.window:toggle_fullscreen()
+--- Method
+--- Toggle the fullscreen state of this window.
+function window:toggle_fullscreen()
+    self:setfullscreen(not self:isfullscreen())
+end
+
 --- hs.window:screen()
 --- Method
 --- Get the screen which most contains this window (by area).
