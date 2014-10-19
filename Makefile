@@ -14,6 +14,7 @@ build/Hammerspoon.docset: build/docs.sqlite build/html
 	cp -R scripts/docs/templates/Hammerspoon.docset $@
 	mv build/docs.sqlite $@/Contents/Resources/docSet.dsidx
 	cp build/html/* $@/Contents/Resources/Documents/
+	tar -czf build/Hammerspoon.tgz -C build Hammerspoon.docset
 
 build/html: build/docs.json
 	mkdir -p $@
