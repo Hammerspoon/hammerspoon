@@ -131,6 +131,16 @@ static int caffeinate_is_system_sleep_prevented(lua_State *L) {
     return 1;
 }
 
+/// hs.caffeinate.system_sleep() -> nil
+/// Function
+/// Requests the system to sleep immediately
+static int caffeinate_system_sleep(lua_State *L) {
+    io_connect_t port = IOPMFindPowerManagement(MACH_PORT_NULL);
+    IOPMSleepSystem(port);
+    IOServiceClose(port);
+    return 0;
+}
+
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static int caffeinate_gc(lua_State *L) {
@@ -154,6 +164,7 @@ static const luaL_Reg caffeinatelib[] = {
     {"_prevent_system_sleep", caffeinate_prevent_system_sleep},
     {"allow_system_sleep", caffeinate_allow_system_sleep},
     {"is_system_sleep_prevented", caffeinate_is_system_sleep_prevented},
+    {"system_sleep", caffeinate_system_sleep},
 
     {}
 };
