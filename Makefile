@@ -1,11 +1,12 @@
 VERSION = $(shell defaults read `pwd`/Hammerspoon/Hammerspoon-Info CFBundleVersion)
 APPFILE = build/Hammerspoon.app
 ZIPFILE = build/Hammerspoon-$(VERSION).zip
+PRODUCT_DIR = $(shell xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -showBuildSettings | grep " BUILT_PRODUCTS_DIR =" | awk '{ print $$3 }')
 
 $(APPFILE): build $(shell find Hammerspoon -type f)
 	rm -rf $@
 	xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release clean build > build/release-build.log
-	cp -R $(shell xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -showBuildSettings | grep " BUILT_PRODUCTS_DIR =" | awk '{ print $3 }')/Hammerspoon.app $@
+	cp -R ${PRODUCT_DIR}/Hammerspoon.app $@
 
 docs: build/Hammerspoon.docset
 
