@@ -43,7 +43,7 @@
       selectedDebuggerIdentifier = ""
       selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       launchStyle = "0"
-      useCustomWorkingDirectory = "YES"
+      useCustomWorkingDirectory = "NO"
       customWorkingDirectory = "$(PROJECT_DIR)/build"
       buildConfiguration = "Release"
       ignoresPersistentStateOnLaunch = "NO"

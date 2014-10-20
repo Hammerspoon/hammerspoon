@@ -5,7 +5,7 @@ ZIPFILE = build/Hammerspoon-$(VERSION).zip
 $(APPFILE): build $(shell find Hammerspoon -type f)
 	rm -rf $@
 	xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release clean build > build/release-build.log
-	cp -R build/Hammerspoon/Build/Products/Release/Hammerspoon.app $@
+	cp -R $(shell xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -showBuildSettings | grep BUILT_PRODUCTS_DIR | awk '{ print $3 }')/Hammerspoon.app $@
 
 docs: build/Hammerspoon.docset
 
