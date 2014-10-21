@@ -11,7 +11,7 @@ Grab the latest release from the github releases page, or use the download butto
 
 ## How do I use it?
 
-While we intend Hammerspoon to be minimally useful out of the box, the real appeal is being able to write your own Lua code to orchestrate your desktop. To do this, edit `~/.hammerspoon/init.lua` with reference to the extensions available in Hammerspoon. Documentation for the APIs exposed by the extensions can be found at http://www.hammerspoon.org/docs/ and are available in [Dash](http://kapeli.com).
+Hammerspoon is controlled by the config you write in ~/.hammerspoon/init.lua - you can place any Lua script you like in there, using the APIs that Hammerspoon provides. You can find this documentation at http://www.hammerspoon.org/
 
 If you need a reference for the Lua scripting language, see http://www.lua.org/docs.html
 
