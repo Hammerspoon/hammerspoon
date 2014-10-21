@@ -34,6 +34,8 @@ install: $(CLI_NAME) $(CLI_NAME).1
 uninstall:
 	rm -v -fr $(PREFIX)/bin/$(CLI_NAME)
 	rm -v -fr $(PREFIX)/share/man/man1/$(CLI_NAME).1
+	rmdir -p $(PREFIX)/bin ; exit 0
+	rmdir -p $(PREFIX)/share/man/man1 ; exit 0
 
 clean:
 	rm -v -rf $(CLI_NAME).o $(CLI_NAME) $(CLI_NAME).1 $(CLI_NAME).c

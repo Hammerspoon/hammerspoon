@@ -15,6 +15,6 @@ clean:
 
 uninstall:
 	rm -v -f $(PREFIX)/$(MODULE)/$(LUAFILE)
-	rmdir -p $(PREFIX)/$(MODULE)
+	rmdir -p $(PREFIX)/$(MODULE) ; exit 0
 
 .PHONY: all clean uninstall

@@ -7,7 +7,7 @@ LUAFILE  = init.lua
 SOFILE  := internal-ipc.so
 
 CC=cc
-CFLAGS  += -Wall -Wextra -I ../../Pods/lua/src -fobjc-arc $(EXTRA_CFLAGS)
+CFLAGS  += -Wall -Wextra -I ../../Pods/lua/src -I /usr/local/include/lua5.2 -fobjc-arc $(EXTRA_CFLAGS)
 LDFLAGS += -dynamiclib -undefined dynamic_lookup $(EXTRA_LDFLAGS)
 
 all: $(SOFILE) cli
@@ -43,6 +43,6 @@ uninstall-cli:
 uninstall: uninstall-cli
 	rm -v -f $(PREFIX)/$(MODULE)/$(LUAFILE)
 	rm -v -f $(PREFIX)/$(MODULE)/$(SOFILE)
-	rmdir -p $(PREFIX)/$(MODULE)
+	rmdir -p $(PREFIX)/$(MODULE) ; exit 0
 
 .PHONY: all clean uninstall clean-cli uninstall-cli cli
