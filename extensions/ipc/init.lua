@@ -2,8 +2,6 @@
 ---
 --- Provides a Message Port instance for inter-process-communication.  This is used to interface with Hammerspoon from the command line.
 ---
---- To install the command line tool, you also need to install `hs.ipc.cli`.
----
 --- This module is based primarily on code from Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
 --- hs.ipc.cli
