@@ -1,4 +1,5 @@
 # Hammerspoon
+[![Build Status](https://travis-ci.org/Hammerspoon/hammerspoon.svg?branch=master)](https://travis-ci.org/Hammerspoon/hammerspoon)
 
 ## What is Hammerspoon?
 
