@@ -1,3 +1,11 @@
 language: objective-c
 xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.net#hammerspoon"
+    template:
+      - "%{author} @ %{repository} / %{branch} - Build:#%{build_number} : %{message} - Changes: %{compare_url} - Build details: %{build_url}"
+    use_notice: true
+    skip_join: true
