@@ -26,7 +26,7 @@ build/docs.sqlite: build/docs.json
 	scripts/docs/bin/gensql < $< | sqlite3 $@
 
 build/docs.json: build
-	find . -type f \( -name '*.lua' -o -name '*.m' \) -not -path '*/sample-extensions/*' -exec cat {} + | scripts/docs/bin/gencomments | scripts/docs/bin/genjson > $@
+	find . -type f \( -name '*.lua' -o -name '*.m' \) -not -path '*/sample-extensions/*' -not -path './build/*' -exec cat {} + | scripts/docs/bin/gencomments | scripts/docs/bin/genjson > $@
 
 build:
 	mkdir -p build
