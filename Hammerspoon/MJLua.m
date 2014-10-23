@@ -95,9 +95,10 @@ void MJLuaSetup(void) {
     lua_pushstring(L, [MJConfigFile UTF8String]);
     lua_pushstring(L, [MJConfigFileFullPath() UTF8String]);
     lua_pushstring(L, [MJConfigDir() UTF8String]);
+    lua_pushstring(L, [[[NSBundle mainBundle] pathForResource:@"docs" ofType:@"json"] fileSystemRepresentation]);
     lua_pushboolean(L, [[NSFileManager defaultManager] fileExistsAtPath: MJConfigFileFullPath()]);
     
-    lua_pcall(L, 5, 1, 0);
+    lua_pcall(L, 6, 1, 0);
     
     evalfn = luaL_ref(L, LUA_REGISTRYINDEX);
 }

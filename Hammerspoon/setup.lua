@@ -1,4 +1,4 @@
-local modpath, prettypath, fullpath, configdir, hasinitfile = ...
+local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile = ...
 
 os.exit = hs._exit
 
@@ -21,6 +21,14 @@ end
 --- The user's Hammerspoon config directory. Modules may use it, assuming
 --- they've worked out a contract with the user about how to use it.
 hs.configdir = configdir
+
+--- hs.docstrings_json
+--- Constant
+--- This is the full path to the docs.json file shipped with Hammerspoon.
+--- It contains the same documentation used to generate the full Hammerspoon
+--- API documentation, in JSON form.
+--- The easiest way to make use of this data is the hs.doc extension
+hs.docstrings_json_file = docstringspath
 
 --- hs.showerror(err)
 --- Function
