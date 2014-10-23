@@ -1,0 +1,3 @@
+language: objective-c
+xcode_workspace: Hammerspoon.xcworkspace
+xcode_scheme: Release
