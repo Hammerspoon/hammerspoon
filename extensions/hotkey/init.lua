@@ -51,11 +51,11 @@ end
 ---
 ---     k = hs.hotkey.modal.new({"cmd", "shift"}, "d")
 ---
----     function k:entered() hydra.alert('Entered mode') end
----     function k:exited()  hydra.alert('Exited mode')  end
+---     function k:entered() hs.alert.show('Entered mode') end
+---     function k:exited()  hs.alert.show('Exited mode')  end
 ---
 ---     k:bind({}, 'escape', function() k:exit() end)
----     k:bind({}, 'J', function() hydra.alert("Pressed J") end)
+---     k:bind({}, 'J', function() hs.alert.show("Pressed J") end)
 
 hotkey.modal = {}
 hotkey.modal.__index = hotkey.modal
