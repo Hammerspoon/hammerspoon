@@ -27,7 +27,7 @@ hs.configdir = configdir
 --- This is the full path to the docs.json file shipped with Hammerspoon.
 --- It contains the same documentation used to generate the full Hammerspoon
 --- API documentation, in JSON form.
---- The easiest way to make use of this data is the hs.doc extension
+--- You can load, parse and access this information using the hs.doc extension
 hs.docstrings_json_file = docstringspath
 
 --- hs.showerror(err)
@@ -72,6 +72,18 @@ end
 print("-- Augmenting require paths")
 package.path=package.path..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
 package.cpath=package.cpath..";"..modpath.."/?.so"
+
+function help(identifier)
+  local doc = require "hs.doc"
+  local tree = doc.from_json_file(hs.docstrings_json_file)
+  local result = tree
+
+  for word in string.gmatch(identifier, '([^.]+)') do
+    result = result[word]
+  end
+
+  print(result)
+end
 
 if not hasinitfile then
 print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
