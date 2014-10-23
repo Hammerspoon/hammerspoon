@@ -355,7 +355,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm build/docs.json\nmake build/docs.json";
+			shellScript = "rm -f build/docs.json\nmake build/docs.json";
 		};
 		F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
