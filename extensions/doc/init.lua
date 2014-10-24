@@ -5,6 +5,19 @@
 --- e.g. `doc = hs.doc.from_json_file(path-to-docs.json)`
 ---
 
+--- hs.doc.debugging_modes -> debug loading and parsing
+--- Flags
+--- Mostly only have an affect on `hs.doc.from_array` and `hs.doc.from_package_loaded`.
+---
+--- Set the flag in the global namespace one of these ways:
+---     _G["debug.docs.module"] = "build"       -- building metatables for return
+---     _G["debug.docs.module"] = "genjson"     -- creating items in genjson
+---     _G["debug.docs.module"] = "load"        -- which files are being loaded
+---     _G["debug.docs.module"] = "sort"        -- sorting module namespaces for item attachment
+---
+---     Setting it to any of these, or even just `true` causes the global arrays
+---         doc_module_json and doc_module_array to be created for further review.
+
 local module = {}
 
 -- private variables and methods -----------------------------------------
@@ -153,6 +166,10 @@ function module.from_json_file(docsfile)
   end
   local content = f:read("*a")
   f:close()
+  if _G["debug.docs.module"] then
+    doc_module_json = json.encode(mods,true)
+    doc_module_array = "loaded via json file: "..docsfile
+  end
   return internalBuild(content)
 end
 
@@ -251,8 +268,8 @@ function module.from_array(theArray)
     table.sort(mods, function(m,n) return m.name < n.name end)
 
     if _G["debug.docs.module"] then
-        doc_module_json = json.encode(mods,true)
         doc_module_array = mods
+        doc_module_json = json.encode(mods,true)
     end
     return internalBuild(json.encode(mods,true))
 end
