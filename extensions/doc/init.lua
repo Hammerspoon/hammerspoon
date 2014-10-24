@@ -165,6 +165,7 @@ function module.from_array(theArray)
     local lines = {}
     for i,v in ipairs(theArray) do
         if package.searchpath(v,package.path) then
+            if _G["debug.docs.module"] == "load" then print("load_path: ", v, package.searchpath(v,package.path)) end
             local f = io.open(package.searchpath(v, package.path), 'r')
             local r = f:read('*a') ; f:close()
             local partial = {}
@@ -185,6 +186,7 @@ function module.from_array(theArray)
     -- bin/genjson
 
     local mods, items = {}, {}
+    local found_mods = {}
     for i,v in ipairs(lines) do
         if v[1]:match("===") then
             local name = string.match(v[1]:gsub("=",""), "^[%s\r\n]*([^%s\r\n].*[^%s\r\n])[%s\r\n]*$")
@@ -192,7 +194,12 @@ function module.from_array(theArray)
             local items = {}
             for a = 2, #v, 1 do doc = doc..v[a].."\n" end
             doc = doc:match("^[%s\r\n]*([^%s\r\n].*[^%s\r\n])[%s\r\n]*$") or "--not provided--"
-            table.insert(mods, {name = name, doc = doc, items = items})
+            if found_mods[name] then
+                print("Duplicate namespace: ", name, " with description\n", doc)
+            else
+                table.insert(mods, {name = name, doc = doc, items = items})
+                found_mods[name] = true
+            end
         else
             local name = ""
             local def = v[1] or ""
@@ -203,7 +210,22 @@ function module.from_array(theArray)
             table.insert(items, {name = name, def = def, type = i_type, doc = doc})
         end
     end
-    table.sort(mods, function(m,n) return not (m.name < n.name) end)
+    if _G["debug.docs.module"] then
+        doc_module_array = mods
+    end
+    table.sort(mods, function(m,n)
+        if _G["debug.docs.module"] == "sort" then
+            print(m.name, type(m.name), n.name, type(n.name))
+        end
+        if m and m.name and n and n.name then return not (m.name < n.name) end
+        if _G["debug.docs.module"] then
+            print("error sorting in genjson")
+            if item.name == nil and package.searchpath("inspect",package.path) then
+                print("m:",require("inspect")(m),"n:",require("inspect")(n))
+            end
+        end
+        return nil
+    end)
 
     for i,v in ipairs(items) do
         local mod
@@ -249,7 +271,7 @@ module.from_package_loaded = function(autorefresh)
             end
         })
     end
-    return autorefresh and package_loaded_holder or package_loaded_helper.results
+    return autorefresh and package_loaded_holder or package_loaded_holder.results
 end
 
 -- Return Module Object --------------------------------------------------
