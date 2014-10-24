@@ -2,7 +2,9 @@
 ---
 --- Create doc objects which can be access from within the command line tool or the Hammerspoon console for module documentation.
 ---
---- e.g. `doc = hs.doc.from_json_file(path-to-docs.json)`
+--- e.g. `doc = hs.doc.from_json_file('path-to-docs.json')`
+---
+--- You can use the `hs.docstrings_json` constant, e.g. `doc = hs.doc.from_json_file(hs.docstrings_json)`
 ---
 
 local module = {}
