@@ -4,7 +4,7 @@
 ---
 --- e.g. `doc = hs.doc.from_json_file('path-to-docs.json')`
 ---
---- You can use the `hs.docstrings_json` constant, e.g. `doc = hs.doc.from_json_file(hs.docstrings_json)`
+--- You can use the `hs.docstrings_json_file` constant, e.g. `doc = hs.doc.from_json_file(hs.docstrings_json_file)`
 ---
 
 local module = {}
