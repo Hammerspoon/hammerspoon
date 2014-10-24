@@ -1,6 +1,10 @@
 language: objective-c
+before_install:
+  - gem install github-markdown
 xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
+after_script:
+  - make build/html
 notifications:
   irc:
     channels:
