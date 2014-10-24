@@ -9,7 +9,7 @@
         <item>
             <title>Version 0.9.5</title>
             <sparkle:releaseNotesLink>
-                https://www.hammerspoon.org/releasenotes/0.9.5/
+                http://www.hammerspoon.org/releasenotes/0.9.5/
             </sparkle:releaseNotesLink>
             <pubDate>Fri, 24 Oct 2014 00:53:00 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.5/Hammerspoon-0.9.5.zip"
