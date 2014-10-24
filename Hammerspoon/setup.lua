@@ -73,6 +73,19 @@ print("-- Augmenting require paths")
 package.path=package.path..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
 package.cpath=package.cpath..";"..modpath.."/?.so"
 
+print("-- Loading extensions")
+hs.fs = require "hs.fs"
+local iter, dir_obj = hs.fs.dir(modpath.."/hs")
+
+local extension = iter(dir_obj)
+while extension do
+    if (extension ~= ".") and (extension ~= "..") and (extension ~= "fs") then
+        print("     "..extension)
+        hs[extension] = require("hs."..extension)
+    end
+    extension = iter(dir_obj)
+end
+
 function help(identifier)
   local doc = require "hs.doc"
   local tree = doc.from_json_file(hs.docstrings_json_file)
