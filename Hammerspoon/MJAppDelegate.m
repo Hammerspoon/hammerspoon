@@ -50,6 +50,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{MJShowDockIconKey: @YES,
                          MJShowMenuIconKey: @YES,
+                         HSAutoLoadExtensions: @YES,
                          }];
 }
 

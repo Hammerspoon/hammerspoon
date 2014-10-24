@@ -1,4 +1,4 @@
-local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile = ...
+local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
 
 os.exit = hs._exit
 
@@ -73,17 +73,32 @@ print("-- Augmenting require paths")
 package.path=package.path..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
 package.cpath=package.cpath..";"..modpath.."/?.so"
 
-print("-- Loading extensions")
-hs.fs = require "hs.fs"
-local iter, dir_obj = hs.fs.dir(modpath.."/hs")
+if autoload_extensions then
+  print("-- Lazily loading extensions")
+  _extensions = {}
 
-local extension = iter(dir_obj)
-while extension do
-    if (extension ~= ".") and (extension ~= "..") and (extension ~= "fs") then
-        print("     "..extension)
-        hs[extension] = require("hs."..extension)
-    end
-    extension = iter(dir_obj)
+  -- Discover extensions in our .app bundle
+  local iter, dir_obj = require("hs.fs").dir(modpath.."/hs")
+  local extension = iter(dir_obj)
+  while extension do
+      if (extension ~= ".") and (extension ~= "..") then
+          _extensions[extension] = true
+      end
+      extension = iter(dir_obj)
+  end
+
+  -- Inject a lazy extension loader into the main HS table
+  setmetatable(hs, {
+      __index = function(t, key)
+          if _extensions[key] ~= nil then
+              print("-- Loading extension: "..key)
+              hs[key] = require("hs."..key)
+              return hs[key]
+          else
+              return nil
+          end
+      end
+  })
 end
 
 function help(identifier)
