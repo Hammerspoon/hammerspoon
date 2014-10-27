@@ -2,9 +2,6 @@
 ---
 --- Prevent various kinds of sleep activities in OSX
 ---
---- **Usage**:
----     local caffeinate = require "hs.caffeinate"
----
 --- **NOTE**: Any sleep preventions will be removed when hs.reload() is called. A future version of the module will save/restore state across reloads.
 
 local caffeinate = require "hs.caffeinate.internal"

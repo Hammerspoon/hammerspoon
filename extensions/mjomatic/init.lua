@@ -1,11 +1,6 @@
 --- === hs.mjomatic ===
 ---
 --- tmuxomatic-like window management
----
---- Usage:
---- ~~~lua
---- local mjomatic = require "hs.mjomatic"
---- ~~~
 
 local mjomatic = {}
 
