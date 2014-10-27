@@ -16,7 +16,7 @@ static void hammerspoon_pushpoint(lua_State* L, NSPoint point) {
 }
 
 /// hs.mouse.get() -> point
-///Function
+/// Function
 /// Returns the current location of the mouse on the current screen as a point.
 static int mouse_get(lua_State* L) {
     CGEventRef ourEvent = CGEventCreate(NULL);
