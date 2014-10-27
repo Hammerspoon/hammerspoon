@@ -1,8 +1,6 @@
 --- === hs.itunes ===
 --
 -- Controls for itunes music player
---
--- Usage: local itunes = require "hs.itunes"
 
 local itunes = {}
 

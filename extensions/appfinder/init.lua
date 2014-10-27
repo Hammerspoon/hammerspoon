@@ -1,8 +1,6 @@
 --- === hs.appfinder ===
 ---
 --- Simplified finding of applications/windows
----
---- Usage: local appfinder = require "hs.appfinder"
 
 local appfinder = {}
 local fnutils = require "hs.fnutils"
