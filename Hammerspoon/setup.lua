@@ -22,7 +22,7 @@ end
 --- they've worked out a contract with the user about how to use it.
 hs.configdir = configdir
 
---- hs.docstrings_json
+--- hs.docstrings_json_file
 --- Constant
 --- This is the full path to the docs.json file shipped with Hammerspoon.
 --- It contains the same documentation used to generate the full Hammerspoon

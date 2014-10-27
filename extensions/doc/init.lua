@@ -2,7 +2,9 @@
 ---
 --- Create doc objects which can be access from within the command line tool or the Hammerspoon console for module documentation.
 ---
---- e.g. `doc = hs.doc.from_json_file(path-to-docs.json)`
+--- e.g. `doc = hs.doc.from_json_file('path-to-docs.json')`
+---
+--- You can use the `hs.docstrings_json_file` constant, e.g. `doc = hs.doc.from_json_file(hs.docstrings_json_file)`
 ---
 
 local module = {}
@@ -141,7 +143,7 @@ end
 
 --- hs.doc.from_json_file(jsonfile) -> doc-array
 --- Function
---- Builds a doc array construct from the json file provided.  Usually this will be the json file provided with the Hammerspoon application, but this json file will only contain the documentation for modules recognized by the Hannerspoon builders and the built in modules and not modules from other sources.  For those, use `hs.doc.from_array` and `hs.doc.from_package_loaded`.
+--- Builds a doc array construct from the json file provided.  Usually this will be the json file provided with the Hammerspoon application, but this json file will only contain the documentation for modules recognized by the Hammerspoon builders and the built in modules and not modules from other sources.  For those, use `hs.doc.from_array` and `hs.doc.from_package_loaded`.
 function module.from_json_file(docsfile)
   local f = io.open(docsfile)
   if not f then
