@@ -73,6 +73,11 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
 }
 
+- (IBAction) quitHammerspoon:(id)sender {
+    MJLuaTeardown();
+    [[NSApplication sharedApplication] terminate:nil];
+}
+
 - (IBAction) openConfig:(id)sender {
     NSString* path = MJConfigFileFullPath();
     

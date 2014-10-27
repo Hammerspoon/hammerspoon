@@ -104,6 +104,10 @@ void MJLuaSetup(void) {
     evalfn = luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
+void MJLuaTeardown(void) {
+    lua_close(MJLuaState);
+}
+
 NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState;
     

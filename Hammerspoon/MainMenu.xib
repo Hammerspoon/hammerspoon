@@ -67,7 +67,7 @@
                             </menuItem>
                             <menuItem title="Quit Hammerspoon" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
-                                    <action selector="terminate:" target="-1" id="Te7-pn-YzF"/>
+                                    <action selector="quitHammerspoon:" target="Voe-Tx-rLC" id="gjE-dV-WIu"/>
                                 </connections>
                             </menuItem>
                         </items>
@@ -416,7 +416,7 @@
                 <menuItem title="Quit Hammerspoon" id="MPd-JN-QB1">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <connections>
-                        <action selector="terminate:" target="-1" id="HYa-rl-Vrg"/>
+                        <action selector="quitHammerspoon:" target="Voe-Tx-rLC" id="5Aw-nP-mqa"/>
                     </connections>
                 </menuItem>
             </items>
