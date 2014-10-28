@@ -33,6 +33,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    if(NSClassFromString(@"XCTest") != nil)
+        MJConfigFile = @"/tmp/.hammerspoon/init.lua";
     MJEnsureDirectoryExists(MJConfigDir());
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigDir()];
     
