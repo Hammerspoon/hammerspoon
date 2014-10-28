@@ -12,6 +12,8 @@ local screen = require "hs.screen.internal"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 
+screen.watcher = require "hs.screen.watcher"
+
 --- hs.screen:fullframe() -> rect
 --- Method
 --- Returns the screen's rect in absolute coordinates, including the dock and menu.
