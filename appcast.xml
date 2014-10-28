@@ -7,6 +7,21 @@
         <language>en</language>
 
         <item>
+            <title>Version 0.9.6</title>
+            <sparkle:releaseNotesLink>
+                http://www.hammerspoon.org/releasenotes/0.9.6/
+            </sparkle:releaseNotesLink>
+            <pubDate>Fri, 28 Oct 2014 20:05:00 +0000</pubDate>
+            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.6/Hammerspoon-0.9.6.zip"
+                sparkle:version="0.9.6"
+                length="1996142"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>10.8</sparkle:minimumSystemVersion>
+        </item>
+
+
+        <item>
             <title>Version 0.9.5</title>
             <sparkle:releaseNotesLink>
                 http://www.hammerspoon.org/releasenotes/0.9.5/
