@@ -7,6 +7,6 @@
 #define MJHasRunAlreadyKey           @"MJHasRunAlreadyKey"
 #define HSAutoLoadExtensions         @"HSAutoLoadExtensions"
 
-static NSString* MJConfigFile = @"~/.hammerspoon/init.lua";
+extern NSString* MJConfigFile;
 
 #endif
