@@ -33,8 +33,13 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    if(NSClassFromString(@"XCTest") != nil)
-        MJConfigFile = @"/tmp/.hammerspoon/init.lua";
+    if(NSClassFromString(@"XCTest") != nil) {
+        NSLog(@"in testing mode!");
+        const char *tmp = [[[NSBundle bundleForClass:NSClassFromString(@"Hammerspoon_Tests")] pathForResource:@"init" ofType:@"lua"] fileSystemRepresentation];
+        NSLog(@"testing init.lua is [%s], if this is null, we crash on the next line", tmp);
+        MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tmp length:strlen(tmp)];
+    }
+
     MJEnsureDirectoryExists(MJConfigDir());
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigDir()];
     
