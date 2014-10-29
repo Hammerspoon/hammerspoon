@@ -147,6 +147,15 @@ static int location_get_location(lua_State* L) {
     return 1;
 }
 
+/// hs.location.services_enabled() -> bool
+/// Function
+/// Returns true or false if OS X Location Services are enabled
+static int location_is_enabled(lua_State *L) {
+    BOOL enabled = [CLLocationManager locationServicesEnabled];
+    lua_pushboolean(L, enabled);
+    return 1;
+}
+
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static int location_gc(lua_State *L) {
@@ -159,6 +168,7 @@ static const luaL_Reg locationlib[] = {
     {"start", location_start_watching},
     {"stop", location_stop_watching},
     {"get", location_get_location},
+    {"services_enabled", location_is_enabled},
     {}
 };
 
