@@ -91,7 +91,7 @@ static int screen_settint(lua_State* L) {
 }
 
 static int screen_gc(lua_State* L) {
-    NSScreen* screen = get_screen_arg(L, 1);
+    NSScreen* screen __unused = get_screen_arg(L, 1);
     return 0;
 }
 

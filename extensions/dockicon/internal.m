@@ -17,7 +17,7 @@ static int icon_visible(lua_State* L) {
 /// hs.dockicon.show()
 /// Function
 /// Shows Mjolnir's dock icon; Mjolnir can then be switched to via Cmd-Tab.
-static int icon_show(lua_State* L) {
+static int icon_show(lua_State* L __unused) {
     MJDockIconSetVisible(YES) ;
     return 0;
 }
@@ -25,7 +25,7 @@ static int icon_show(lua_State* L) {
 /// hs.dockicon.hide()
 /// Function
 /// Hides Mjolnir's dock icon; Mjolnir will no longer show up when you Cmd-Tab.
-static int icon_hide(lua_State* L) {
+static int icon_hide(lua_State* L __unused) {
     MJDockIconSetVisible(NO) ;
     return 0;
 }

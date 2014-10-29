@@ -167,7 +167,7 @@ static int alert_show(lua_State* L) {
     return 0;
 }
 
-static int alert_gc(lua_State* L) {
+static int alert_gc(lua_State* L __unused) {
     for (HSAlert* alert in visibleAlerts)
         [alert emergencyCancel];
 

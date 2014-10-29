@@ -134,7 +134,7 @@ static int caffeinate_is_system_sleep_prevented(lua_State *L) {
 /// hs.caffeinate.system_sleep() -> nil
 /// Function
 /// Requests the system to sleep immediately
-static int caffeinate_system_sleep(lua_State *L) {
+static int caffeinate_system_sleep(lua_State *L __unused) {
     io_connect_t port = IOPMFindPowerManagement(MACH_PORT_NULL);
     IOPMSleepSystem(port);
     IOServiceClose(port);

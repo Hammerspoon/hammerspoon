@@ -15,7 +15,7 @@ static PHNotificationDelegate* notify_delegate;
     [center removeDeliveredNotification:notification];
 }
 
-- (BOOL)userNotificationCenter:(NSUserNotificationCenter *)center shouldPresentNotification:(NSUserNotification *)notification { return YES; }
+- (BOOL)userNotificationCenter:(NSUserNotificationCenter *)__unused center shouldPresentNotification:(NSUserNotification *)__unused notification { return YES; }
 
 @end
 
@@ -54,7 +54,7 @@ static int notify_setup(lua_State* L) {
 /// hs.notify.withdraw_all()
 /// Function
 /// Withdraw all posted notifications.  This is called automatically during a reload to prevent crashes upon user activation of a notification, so you should seldom need to use this directly.
-static int notify_gc(lua_State* L) {
+static int notify_gc(lua_State* L __unused) {
     [[NSUserNotificationCenter defaultUserNotificationCenter] removeAllDeliveredNotifications];
     return 0;
 }

@@ -145,7 +145,7 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
     return noErr;
 }
 
-static int meta_gc(lua_State* L) {
+static int meta_gc(lua_State* L __unused) {
     RemoveEventHandler(eventhandler);
     return 0;
 }

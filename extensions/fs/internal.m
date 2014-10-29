@@ -909,23 +909,6 @@ static int link_info (lua_State *L) {
         return _file_info_ (L, LSTAT_FUNC);
 }
 
-
-/*
-** Assumes the table is on top of the stack.
-*/
-static void set_info (lua_State *L) {
-        lua_pushliteral (L, "_COPYRIGHT");
-        lua_pushliteral (L, "Copyright (C) 2003-2012 Kepler Project");
-        lua_settable (L, -3);
-        lua_pushliteral (L, "_DESCRIPTION");
-        lua_pushliteral (L, "LuaFileSystem is a Lua library developed to complement the set of functions related to file systems offered by the standard Lua distribution");
-        lua_settable (L, -3);
-        lua_pushliteral (L, "_VERSION");
-        lua_pushliteral (L, "LuaFileSystem "LFS_VERSION);
-        lua_settable (L, -3);
-}
-
-
 static const struct luaL_Reg fslib[] = {
         {"attributes", file_info},
         {"chdir", change_dir},
@@ -948,7 +931,5 @@ int luaopen_hs_fs_internal (lua_State *L) {
         lock_create_meta (L);
         luaL_newlib (L, fslib);
         lua_pushvalue(L, -1);
-//        lua_setglobal(L, LFS_LIBNAME);
-//        set_info (L);
         return 1;
 }

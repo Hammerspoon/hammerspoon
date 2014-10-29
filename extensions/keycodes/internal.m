@@ -171,7 +171,7 @@ int keycodes_cachemap(lua_State* L) {
 
 @implementation MJKeycodesObserver
 
-- (void) inputSourceChanged:(NSNotification*)note {
+- (void) inputSourceChanged:(NSNotification*)__unused note {
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.ref);
     lua_call(self.L, 0, 0);
 }

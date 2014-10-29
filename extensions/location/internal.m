@@ -91,7 +91,7 @@ static int location_start_watching(lua_State* L) {
 /// hs.location.stop()
 /// Function
 /// Stops location monitoring
-static int location_stop_watching(lua_State* L) {
+static int location_stop_watching(lua_State* L __unused) {
     [location.manager stopUpdatingLocation];
     location = nil;
     return 0;
@@ -158,7 +158,7 @@ static int location_is_enabled(lua_State *L) {
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
-static int location_gc(lua_State *L) {
+static int location_gc(lua_State *L __unused) {
     [location.manager stopUpdatingLocation];
 
     return 0;
