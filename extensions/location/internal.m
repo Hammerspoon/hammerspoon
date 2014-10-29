@@ -3,6 +3,8 @@
 #import <lauxlib.h>
 #import <CoreLocation/CoreLocation.h>
 
+static HSLocation *location;
+
 @interface HSLocation : NSObject<CLLocationManagerDelegate>
 @property (strong, atomic) CLLocationManager* manager;
 @end
@@ -54,8 +56,6 @@
 
 @end
 
-static HSLocation *location;
-
 BOOL manager_create() {
     if (!location) {
         location = [[HSLocation alloc] init];
@@ -68,28 +68,15 @@ BOOL manager_create() {
             return false;
         }
 
-        CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-        if (status != kCLAuthorizationStatusAuthorized) {
-            switch (status) {
-                case kCLAuthorizationStatusNotDetermined:
-                    NSLog(@"Not Determined");
-                    break;
-                case kCLAuthorizationStatusRestricted:
-                    NSLog(@"Restricted");
-                    break;
-                case kCLAuthorizationStatusDenied:
-                    NSLog(@"Denied");
-                    break;
-                default:
-                    NSLog(@"Shrug");
-                    break;
-            }
-            NSLog(@"WARNING: hs.location not yet authorized to use Location Services");
-        }
+        CLAuthorizationStatus status __unused = [CLLocationManager authorizationStatus];
     }
     return true;
 }
 
+/// hs.location.start() -> boolean
+/// Function
+/// Begins location monitoring using OS X's Location Services.
+/// The first time you call this, you may be prompted to authorise Hammerspoon to use Location Services.
 static int location_start_watching(lua_State* L) {
     if (!manager_create()) {
         lua_pushboolean(L, 0);
@@ -100,12 +87,27 @@ static int location_start_watching(lua_State* L) {
     return 1;
 }
 
+/// hs.location.stop()
+/// Function
+/// Stops location monitoring
 static int location_stop_watching(lua_State* L) {
     [location.manager stopUpdatingLocation];
     location = nil;
     return 0;
 }
 
+/// hs.location.get() -> table or nil
+/// Function
+/// Returns a table representing the current location, with the keys:
+///  latitude - The latitude in degrees. Positive values indicate latitudes north of the equator. Negative values indicate latitudes south of the equator
+///  longitude - The longitude in degrees. Measurements are relative to the zero meridian, with positive values extending east of the meridian and negative values extending west of the meridian
+///  altitude - The altitude measured in meters
+///  timestamp - The time at which this location was determined, in seconds from the first instant of 1 January 1970, GMT
+///  horizontalAccuracy - The radius of uncertainty for the location, measured in meters
+///  verticalAccuracy - The accuracy of the altitude value in meters
+///
+/// Note that there is a small lag between calling hs.location.start() and this function returning useful data, and it may never return data if the user has denied access to Location Services.
+/// Rather than poll this function in a loop, consider using the callback feature, or using hs.timer.doafter() to continue your work after a reasonable delay.
 static int location_get_location(lua_State* L) {
     CLLocation *current = [location.manager location];
     if (!current) {
@@ -131,6 +133,14 @@ static int location_get_location(lua_State* L) {
 
     lua_pushstring(L, "timestamp");
     lua_pushnumber(L, current.timestamp.timeIntervalSince1970);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "horizontalAccuracy");
+    lua_pushnumber(L, current.horizontalAccuracy);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "verticalAccuracy");
+    lua_pushnumber(L, current.verticalAccuracy);
     lua_settable(L, -3);
 
     return 1;
