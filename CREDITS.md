@@ -7,5 +7,6 @@ The extensions included in Hammerspoon were written by:
  * Peter van Dijk
  * Linell Bonnette
  * Kepler Project
+ * Enrique García Cota
 
 The Hammerspon icon was provided by Juerd Waalboer
