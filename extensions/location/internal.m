@@ -16,13 +16,13 @@
     return self;
 }
 
-- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
-    CLLocation *last = [locations lastObject];
-    NSLog(@"hs.location:didUpdateLocations %@", [last description]);
+- (void)locationManager:(CLLocationManager *)__unused manager didUpdateLocations:(NSArray *)__unused locations {
+//    NSLog(@"hs.location:didUpdateLocations %@", [[locations lastObject] description]);
+    return;
 }
 
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-        NSLog(@"hs.location CLLocationManagerDelegate didFailWithError: %@", error);
+- (void)locationManager:(CLLocationManager *)__unused manager didFailWithError:(NSError *)error {
+        NSLog(@"hs.location didFailWithError: %@", error);
 }
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
@@ -49,7 +49,7 @@
             msg = @"state unknown";
             break;
     }
-    NSLog(@"hs.location CLLocationManagerDelegate:didChangeAuthorizationStatus authorization %@", msg);
+    NSLog(@"hs.location didChangeAuthorizationStatus authorization %@", msg);
 }
 
 @end
