@@ -4,4 +4,4 @@
 
 local location = require "hs.location.internal"
 
-return caffeinate
+return location

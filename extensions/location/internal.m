@@ -4,43 +4,150 @@
 #import <CoreLocation/CoreLocation.h>
 
 @interface HSLocation : NSObject<CLLocationManagerDelegate>
-@property CLLocationManager* manager;
+@property (strong, atomic) CLLocationManager* manager;
 @end
 
-@implementation HSLocation 
+@implementation HSLocation
+
+- (id)init {
+    if ([super init]) {
+        self.manager = [[CLLocationManager alloc] init];
+    }
+    return self;
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
+    CLLocation *last = [locations lastObject];
+    NSLog(@"hs.location:didUpdateLocations %@", [last description]);
+}
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+        NSLog(@"hs.location CLLocationManagerDelegate didFailWithError: %@", error);
+}
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    NSString *msg;
+    switch (status) {
+        case kCLAuthorizationStatusAuthorized:
+            msg = @"allowed";
+            [manager startUpdatingLocation];
+            break;
+        case kCLAuthorizationStatusNotDetermined:
+            // This seems to help with getting authorized
+            [manager startUpdatingLocation];
+            [manager stopUpdatingLocation];
+            msg = @"not yet determined";
+            break;
+        case kCLAuthorizationStatusRestricted:
+            msg = @"restricted";
+            break;
+        case kCLAuthorizationStatusDenied:
+            msg = @"denied by user";
+            // FIXME: Do something useful here, definitely pop an error up into lua console
+            break;
+        default:
+            msg = @"state unknown";
+            break;
+    }
+    NSLog(@"hs.location CLLocationManagerDelegate:didChangeAuthorizationStatus authorization %@", msg);
+}
+
 @end
 
 static HSLocation *location;
 
-void manager_create() {
+BOOL manager_create() {
     if (!location) {
-        HSLocation *location = [[HSLocation alloc] init];
+        location = [[HSLocation alloc] init];
+        location.manager.purpose = @"Hammerspoon location extension";
+        [location.manager setDelegate:location];
+
+        if (![CLLocationManager locationServicesEnabled]) {
+            // FIXME: pop this up into the Lua console stack
+            NSLog(@"ERROR: Location Services are disabled");
+            return false;
+        }
+
+        CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+        if (status != kCLAuthorizationStatusAuthorized) {
+            switch (status) {
+                case kCLAuthorizationStatusNotDetermined:
+                    NSLog(@"Not Determined");
+                    break;
+                case kCLAuthorizationStatusRestricted:
+                    NSLog(@"Restricted");
+                    break;
+                case kCLAuthorizationStatusDenied:
+                    NSLog(@"Denied");
+                    break;
+                default:
+                    NSLog(@"Shrug");
+                    break;
+            }
+            NSLog(@"WARNING: hs.location not yet authorized to use Location Services");
+        }
     }
+    return true;
 }
 
 static int location_start_watching(lua_State* L) {
-    manager_create();
+    if (!manager_create()) {
+        lua_pushboolean(L, 0);
+        return 1;
+    }
     [location.manager startUpdatingLocation];
-    return 0;
+    lua_pushboolean(L, 1);
+    return 1;
 }
 
 static int location_stop_watching(lua_State* L) {
     [location.manager stopUpdatingLocation];
+    location = nil;
     return 0;
+}
+
+static int location_get_location(lua_State* L) {
+    CLLocation *current = [location.manager location];
+    if (!current) {
+        NSLog(@"hs.location.get(): No data yet, returning nil");
+        lua_pushnil(L);
+        return 1;
+    }
+
+    NSLog(@"hs.location.get(): %@", current.description);
+    lua_newtable(L);
+
+    lua_pushstring(L, "latitude");
+    lua_pushnumber(L, current.coordinate.latitude);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "longitude");
+    lua_pushnumber(L, current.coordinate.longitude);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "altitude");
+    lua_pushnumber(L, current.altitude);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "timestamp");
+    lua_pushnumber(L, current.timestamp.timeIntervalSince1970);
+    lua_settable(L, -3);
+
+    return 1;
 }
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static int location_gc(lua_State *L) {
     [location.manager stopUpdatingLocation];
-    [location dealloc];
 
     return 0;
 }
 
 static const luaL_Reg locationlib[] = {
-    {"start_watching", location_start_watching},
-    {"stop_watching", location_stop_watching},
+    {"start", location_start_watching},
+    {"stop", location_stop_watching},
+    {"get", location_get_location},
     {}
 };
 
