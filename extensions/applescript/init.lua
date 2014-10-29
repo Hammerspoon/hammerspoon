@@ -1,8 +1,6 @@
 --- === hs.applescript ===
 ---
---- Home: https://github.com/asmagill/mjolnir_asm.hydra
----
---- Functions for executing AppleScript from within Mjolnir.
+--- Functions for executing AppleScript from within Hammerspoon.
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

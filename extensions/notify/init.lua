@@ -1,7 +1,5 @@
 --- === hs.notify ===
 ---
---- Home: https://github.com/asmagill/mjolnir_asm._asm
----
 --- Apple's built-in notifications system.
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
