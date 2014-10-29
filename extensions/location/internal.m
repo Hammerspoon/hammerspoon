@@ -3,11 +3,12 @@
 #import <lauxlib.h>
 #import <CoreLocation/CoreLocation.h>
 
-static HSLocation *location;
-
 @interface HSLocation : NSObject<CLLocationManagerDelegate>
 @property (strong, atomic) CLLocationManager* manager;
 @end
+
+static HSLocation *location;
+static NSMutableIndexSet *locationHandlers;
 
 @implementation HSLocation
 

@@ -2,6 +2,6 @@
 ---
 --- Determine the machine's location
 
-local location = require "hs.location.internal"
+local location = require("hs.location.internal")
 
 return location
