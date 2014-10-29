@@ -108,7 +108,7 @@ static int location_stop_watching(lua_State* L) {
 ///  verticalAccuracy - The accuracy of the altitude value in meters
 ///
 /// Note that there is a small lag between calling hs.location.start() and this function returning useful data, and it may never return data if the user has denied access to Location Services.
-/// Rather than poll this function in a loop, consider using the callback feature, or using hs.timer.doafter() to continue your work after a reasonable delay.
+/// Rather than poll this function in a loop, consider using hs.timer.doafter() to continue your work after a reasonable delay.
 static int location_get_location(lua_State* L) {
     CLLocation *current = [location.manager location];
     if (!current) {
