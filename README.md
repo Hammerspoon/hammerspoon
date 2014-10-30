@@ -15,7 +15,7 @@ What gives Hammerspoon its power is a set of extensions that expose specific pie
 
 ## How do I use it?
 
-Hammerspoon is controlled by the config you write in ~/.hammerspoon/init.lua - you can place any Lua script you like in there, using the APIs that Hammerspoon provides. You can find API documentation and FAQs at http://www.hammerspoon.org/
+Hammerspoon is controlled by the config you write in ~/.hammerspoon/init.lua - you can place any Lua script you like in there, using the APIs that Hammerspoon provides. You can find a Getting Started Guide, API documentation and FAQs at http://www.hammerspoon.org/
 
 If you need a reference for the Lua scripting language, see http://www.lua.org/docs.html
 
