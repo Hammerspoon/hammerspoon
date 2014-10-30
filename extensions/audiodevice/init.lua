@@ -5,6 +5,7 @@
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
 local module = require("hs.audiodevice.internal")
+local fnutils = require("hs.fnutils")
 
 -- private variables and methods -----------------------------------------
 
@@ -31,6 +32,14 @@ module.current = function()
         device = module.defaultoutputdevice(),
     }
 end
+
+--- hs.audiodevice.findbyname(name) -> device or nil
+--- Function
+--- Convenience function which returns an audiodevice based on its name, or nil if it can't be found
+module.findbyname = function(name)
+    return fnutils.find(module.alloutputdevices(), function(dev) return (dev:name() == name) end)
+end
+
 -- Return Module Object --------------------------------------------------
 
 return module
