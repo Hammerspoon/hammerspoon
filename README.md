@@ -9,7 +9,7 @@ What gives Hammerspoon its power is a set of extensions that expose specific pie
 ## How do I install it?
 
  * Visit:
-  * https://github.com/Hammerspoon/hammerspoon/releases/latest or
+  * https://github.com/Hammerspoon/hammerspoon/releases/latest
  * Download the zip
  * Drag `Hammerspoon.app` from your `Downloads` folder to `Applications`
 
