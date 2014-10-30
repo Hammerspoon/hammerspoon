@@ -29,6 +29,11 @@ end
 function hotkey.new(mods, key, pressedfn, releasedfn)
   local keycode = keycodes.map[key:lower()]
 
+  if not keycode then
+      print("Error: Invalid key: "..key)
+      return nil
+  end
+
   local _pressedfn = wrap(pressedfn)
   local _releasedfn = wrap(releasedfn)
 
@@ -40,7 +45,12 @@ end
 --- Constructor
 --- Shortcut for: return hs.hotkey.new(mods, key, pressedfn, releasedfn):enable()
 function hotkey.bind(...)
-  return hotkey.new(...):enable()
+  local key = hotkey.new(...)
+  if key then
+      return key:enable()
+  else
+      return nil
+  end
 end
 
 --- === hs.hotkey.modal ===
