@@ -13,19 +13,9 @@ What gives Hammerspoon its power is a set of extensions that expose specific pie
  * Download the zip
  * Drag `Hammerspoon.app` from your `Downloads` folder to `Applications`
 
-## How do I use it?
+## What next?
 
-Hammerspoon is controlled by the config you write in ~/.hammerspoon/init.lua - you can place any Lua script you like in there, using the APIs that Hammerspoon provides. You can find a Getting Started Guide, API documentation and FAQs at http://www.hammerspoon.org/
-
-If you need a reference for the Lua scripting language, see http://www.lua.org/docs.html
-
-## How can I contribute?
-
-More extensions will always be a huge benefit to Hammerspoon. They can either be pure Lua scripts that offer useful helper functions, or you can write Objective-C extensions to expose new areas of system functionality to users. For more information, see CONTRIBUTING.md
-
-## Where can I get help?
-
-You can usually get a quick answer in #hammerspoon on Freenode, or you can file an issue at https://github.com/Hammerspoon/hammerspoon/
+We have a Getting Started Guide, API docs, a FAQ, Contribution Guide and how to ask for help, at http://www.hammerspoon.org
 
 ## What is the history of the project?
 
