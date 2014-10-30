@@ -29,7 +29,7 @@ You can usually get a quick answer in #hammerspoon on Freenode, or you can file 
 
 ## What is the history of the project?
 
-Hammerspoon is a fork of (Mjolnir)[https://github.com/sdegutis/mjolnir] by Steven Degutis. Mjolnir aims to be a very minimal application, with its extensions hosted externally and managed using a Lua package manager. We felt that we wanted to take the project in a different direction to its maintainer, so the fork was born.
+Hammerspoon is a fork of [Mjolnir](https://github.com/sdegutis/mjolnir) by Steven Degutis. Mjolnir aims to be a very minimal application, with its extensions hosted externally and managed using a Lua package manager. We felt that we wanted to take the project in a different direction to its maintainer, so the fork was born.
 
 ## What is the future of the project?
 
