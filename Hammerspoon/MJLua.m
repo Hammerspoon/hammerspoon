@@ -89,7 +89,16 @@ void MJLuaSetup(void) {
     luaL_newlib(L, corelib);
     lua_setglobal(L, "hs");
     
-    luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
+    int loadresult = luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
+    if (loadresult != 0) {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"OK"];
+        [alert setMessageText:@"Hammerspoon installation is corrupted"];
+        [alert setInformativeText:@"Please re-install Hammerspoon"];
+        [alert setAlertStyle:NSCriticalAlertStyle];
+        [alert runModal];
+        [[NSApplication sharedApplication] terminate: nil];
+    }
     
     lua_pushstring(L, [[[NSBundle mainBundle] pathForResource:@"extensions" ofType:nil] fileSystemRepresentation]);
     lua_pushstring(L, [MJConfigFile UTF8String]);
