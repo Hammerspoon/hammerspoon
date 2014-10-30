@@ -114,8 +114,10 @@ function help(identifier)
 end
 
 if not hasinitfile then
-print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
-return runstring
+  hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
+  hs.notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
+  print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
+  return runstring
 end
 
 print("-- Loading " .. prettypath)
