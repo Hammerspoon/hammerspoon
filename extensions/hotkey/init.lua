@@ -11,7 +11,7 @@ local keycodes = require "hs.keycodes"
 ---
 --- The `mods` parameter is case-insensitive and may contain any of the following strings: "cmd", "ctrl", "alt", or "shift".
 ---
---- The `key` parameter is case-insensitive and may be any string value found in hs.keycodes.map
+--- The `key` parameter is case-insensitive and may be any string value found in [hs.keycodes.map](hs.keycodes.html#map)
 ---
 --- The `pressedfn` parameter is the function that will be called when this hotkey is pressed.
 ---
