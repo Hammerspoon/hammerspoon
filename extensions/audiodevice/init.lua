@@ -33,10 +33,10 @@ module.current = function()
     }
 end
 
---- hs.audiodevice.findbyname(name) -> device or nil
+--- hs.audiodevice.findoutputbyname(name) -> device or nil
 --- Function
 --- Convenience function which returns an audiodevice based on its name, or nil if it can't be found
-module.findbyname = function(name)
+module.findoutputbyname = function(name)
     return fnutils.find(module.alloutputdevices(), function(dev) return (dev:name() == name) end)
 end
 
