@@ -8,5 +8,6 @@ The extensions included in Hammerspoon were written by:
  * Linell Bonnette
  * Kepler Project
  * Enrique García Cota
+ * Szymon Kaliski
 
 The Hammerspon icon was provided by Juerd Waalboer

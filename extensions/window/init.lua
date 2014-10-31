@@ -16,7 +16,7 @@ local window = require "hs.window.internal"
 local application = require "hs.application.internal"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
-local mj_screen = require "hs.screen"
+local hs_screen = require "hs.screen"
 
 
 --- hs.window.allwindows() -> win[]
@@ -50,13 +50,26 @@ function window:frame()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
 end
 
---- hs.window:setframe(rect)
+--- hs.window:setframe(rect, duration)
 --- Method
 --- Set the frame of the window in absolute coordinates.
-function window:setframe(f)
-  self:setsize(f)
-  self:settopleft(f)
-  self:setsize(f)
+---
+--- The window will be animated to its new position and the animation will run for 'duration' seconds.
+---
+--- If you don't specify a value for the duration, the default is 0.2.
+--- If you specify 0 as the value of duration, the window will be immediately snapped to its new location
+--- with no animation.
+function window:setframe(f, duration)
+  if duration == nil then
+    duration = 0.2
+  end
+  if duration > 0 then
+    self:transform({ x = f.x, y = f.y}, { w = f.w, h = f.h }, duration)
+  else
+    self:setsize(f)
+    self:settopleft(f)
+    self:setsize(f)
+  end
 end
 
 --- hs.window:otherwindows_samescreen() -> win[]
@@ -130,7 +143,7 @@ function window:screen()
   local lastvolume = 0
   local lastscreen = nil
 
-  for _, screen in pairs(mj_screen.allscreens()) do
+  for _, screen in pairs(hs_screen.allscreens()) do
     local screenframe = screen:fullframe()
     local intersection = geometry.intersectionrect(windowframe, screenframe)
     local volume = intersection.w * intersection.h
