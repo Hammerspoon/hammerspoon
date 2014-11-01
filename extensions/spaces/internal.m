@@ -53,7 +53,7 @@ static int spaces_movetospace(lua_State* L) {
 
     BOOL worked = NO;
 
-    if (toidx < 0 || fromidx == NSNotFound || toidx == fromidx || toidx >= [spaces count])
+    if (toidx < 0 || fromidx == NSNotFound || toidx == fromidx || toidx >= (NSInteger) [spaces count])
         goto finish;
 
     NSUInteger from = [[spaces objectAtIndex:fromidx] unsignedLongLongValue];
