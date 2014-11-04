@@ -270,8 +270,8 @@ static int application_kind(lua_State* L) {
     return 1;
 }
 
-// Internal helper function to get an AXUIElementRef for a menu item in an app
-AXUIElementRef _findmenuitem(lua_State* L, AXUIElementRef app, NSString *name) {
+// Internal helper function to get an AXUIElementRef for a menu item in an app, by searching all menus
+AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *name) {
     AXUIElementRef foundItem = nil;
     AXUIElementRef menuBar;
     AXError error = AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar);
@@ -340,30 +340,153 @@ AXUIElementRef _findmenuitem(lua_State* L, AXUIElementRef app, NSString *name) {
     CFRelease(menuBar);
 
     if (i == 0) {
-        NSLog(@"WARNING: _findmenuitem overflowed 5000 iteration guard. You have some crazy menus, or we have a bug!");
+        NSLog(@"WARNING: _findmenuitembyname overflowed 5000 iteration guard. You have some crazy menus, or we have a bug!");
         lua_getglobal(L, "print");
-        lua_pushstring(L, "WARNING: _findmenuitem() overflowed 5000 iteration guard. This is either a Hammerspoon bug, or you have some very deep menus");
+        lua_pushstring(L, "WARNING: _findmenuitembyname() overflowed 5000 iteration guard. This is either a Hammerspoon bug, or you have some very deep menus");
         lua_call(L, 1, 0);
         return nil;
     }
 
     return foundItem;
 }
+//
+// Internal helper function to get an AXUIElementRef for a menu item in an app, by following the menu path provided
+AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NSArray *_path) {
+    AXUIElementRef foundItem = nil;
+    AXUIElementRef menuBar;
+    AXUIElementRef searchItem;
+    NSString *nextMenuItem;
+    NSMutableArray *path = [[NSMutableArray alloc] initWithCapacity:[_path count]];
+    [path addObjectsFromArray:_path];
 
-/// hs.application:findmenuitem(name) -> table or nil
+    AXError error = AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar);
+    if (error) {
+        return nil;
+    }
+
+    // searchItem will be the generic variable we search in our loop
+    searchItem = menuBar;
+
+    // Loop over cf_children for first element in path, then descend down path
+    int i = 5000; // Guard ourself against infinite loops
+    while (!foundItem && i > 0) {
+        i--;
+
+        CFIndex count = -1;
+        error = AXUIElementGetAttributeValueCount(searchItem, kAXChildrenAttribute, &count);
+        if (error) {
+            break;
+        }
+
+        CFArrayRef cf_children;
+        error = AXUIElementCopyAttributeValues(searchItem, kAXChildrenAttribute, 0, count, &cf_children);
+        if (error) {
+            break;
+        }
+        NSArray *children = (__bridge NSArray *)cf_children;
+
+        // Check if the first child is an AXMenu, if so, we don't care about it and want its child
+        if ((int)[children count] > 0) {
+            CFTypeRef cf_role;
+            AXUIElementRef aSearchItem = (__bridge AXUIElementRef)[children objectAtIndex:0];
+            error = AXUIElementCopyAttributeValue(aSearchItem, kAXRoleAttribute, &cf_role);
+            if (error) {
+                break;
+            }
+            if(!CFStringCompare((CFStringRef)cf_role, kAXMenuRole, 0)) {
+                // It's an AXMenu
+                CFIndex axMenuCount = -1;
+                error = AXUIElementGetAttributeValueCount(aSearchItem, kAXChildrenAttribute, &axMenuCount);
+                if (error) {
+                    break;
+                }
+                CFArrayRef axMenuChildren;
+                error = AXUIElementCopyAttributeValues(aSearchItem, kAXChildrenAttribute, 0, axMenuCount, &axMenuChildren);
+                if (error) {
+                    break;
+                }
+                // Replace the existing children array with the new one we have retrieved
+                children = (__bridge NSArray *)axMenuChildren;
+            }
+        }
+
+        // Get the NSString containing the name of the next submenu/menuitem we're looking for
+        nextMenuItem = [path objectAtIndex:0];
+        [path removeObjectAtIndex:0];
+
+        // Search the available AXMenu children for the submenu/menuitem name we're looking for
+        NSUInteger childIndex = [children indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx __unused, BOOL *stop) {
+            CFTypeRef cf_title;
+            AXError error = AXUIElementCopyAttributeValue((__bridge AXUIElementRef)obj, kAXTitleAttribute, &cf_title);
+            if (error) {
+                // Something is very wrong, tell the test loop to stop
+                *stop = true;
+                return false;
+            }
+            NSString *title = (__bridge_transfer NSString *)cf_title;
+
+            // Return the comparison result between the menu item we're looking at, and the name we're looking for
+            return [title isEqualToString:nextMenuItem];
+        }];
+        if (childIndex == NSNotFound) {
+            NSLog(@"Unable to solve complete menu path");
+            break;
+        }
+
+        // We found the item we're looking for, so fetch it from the children array for use below and on the next iteration
+        searchItem = (__bridge AXUIElementRef)[children objectAtIndex:childIndex];
+
+        if ([path count] == 0) {
+            // We're at the bottom of the path, so the object we just found is the one we're looking for, we can break out of the loop
+            foundItem = searchItem;
+            break;
+        }
+    }
+
+    return foundItem;
+}
+
+/// hs.application:findmenuitem(menuitem) -> table or nil
 /// Method
-/// Returns nil if the menu item 'name' cannot be found. If it does exist, returns a table with two keys:
+/// Returns nil if the menu item cannot be found. If it does exist, returns a table with two keys:
 ///  enabled - whether the menu item can be selected/ticked. This will always be false if the application is not currently focussed
 ///  ticked - whether the menu item is ticked or not (obviously this value is meaningless for menu items that can't be ticked)
+///
+/// The `menuitem` argument can be one of two things:
+///  * string representing a single menu item. The full menu hierarchy of the application will be searched until a menu item matching that name is found. There is no way to predict what will happen if the application has multiple menu items with the same name. Probably the first one will be returned, but we don't guarantee that.
+///  * table representing a hierarchical menu path, e.g. {"File", "Share", "Messages"} will only look in the File menu and then only look for a submenu called Share, and then only look for a menu item called Messages. If any part of the path search fails, the whole search fails.
+///
 /// NOTE: This can only search for menu items that don't have children - i.e. you can't search for the name of a submenu
 static int application_findmenuitem(lua_State* L) {
     AXError error;
     AXUIElementRef app = get_app(L, 1);
-    NSString *name = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
+    AXUIElementRef foundItem;
+    NSString *name;
+    NSMutableArray *path;
+    if (lua_isstring(L, 2)) {
+        name = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
+        foundItem = _findmenuitembyname(L, app, name);
+    } else if (lua_istable(L, 2)) {
+        path = [[NSMutableArray alloc] init];
+        lua_pushnil(L);
+        while (lua_next(L, 2) != 0) {
+            NSString *item = [NSString stringWithUTF8String:lua_tostring(L, -1)];
+            [path addObject:item];
+            lua_pop(L, 1);
+        }
+        foundItem = _findmenuitembypath(L, app, path);
+    } else {
+        NSLog(@"no idea what menuitem is"); // FIXME: Bubble up an error reasonably, here
+        lua_pushnil(L);
+        return 1;
+    }
 
-    AXUIElementRef foundItem = _findmenuitem(L, app, name);
     if (!foundItem) {
-        NSLog(@"Couldn't find %@", name);
+        if (name) {
+            NSLog(@"Couldn't find menu item %@", name);
+        } else if (path) {
+            NSLog(@"Couldn't find menu item");
+        }
         lua_pushnil(L);
         return 1;
     }
@@ -404,16 +527,36 @@ static int application_findmenuitem(lua_State* L) {
     return 1;
 }
 
-/// hs.application:selectmenuitem(name) -> true or nil
+/// hs.application:selectmenuitem(menuitem) -> true or nil
 /// Method
-/// Selects a menu item called 'name' if it exists in this application.
+/// Selects a menu item provided as `menuitem`. This can be either a string or a table, in the same format as hs.application:findmenuitem()
+///
 /// Depending on the type of menu item involved, this will either activate or tick/untick the menu item
 /// Returns true if the menu item was found and selected, or nil if it wasn't (e.g. because the menu item couldn't be found)
 static int application_selectmenuitem(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
-    NSString *name = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
+    AXUIElementRef foundItem;
+    NSString *name;
+    NSMutableArray *path;
 
-    AXUIElementRef foundItem = _findmenuitem(L, app, name);
+    if (lua_isstring(L, 2)) {
+        name = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
+        foundItem = _findmenuitembyname(L, app, name);
+    } else if (lua_istable(L, 2)) {
+        path = [[NSMutableArray alloc] init];
+        lua_pushnil(L);
+        while (lua_next(L, 2) != 0) {
+            NSString *item = [NSString stringWithUTF8String:lua_tostring(L, -1)];
+            [path addObject:item];
+            lua_pop(L, 1);
+        }
+        foundItem = _findmenuitembypath(L, app, path);
+    } else {
+        NSLog(@"no idea what menuitem is"); // FIXME: Bubble up an error reasonably, here
+        lua_pushnil(L);
+        return 1;
+    }
+
     if (!foundItem) {
         NSLog(@"Couldn't find %@", name);
         lua_pushnil(L);
