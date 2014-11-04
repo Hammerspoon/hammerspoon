@@ -408,7 +408,7 @@ static int application_findmenuitem(lua_State* L) {
 /// Method
 /// Selects a menu item called 'name' if it exists in this application.
 /// Depending on the type of menu item involved, this will either activate or tick/untick the menu item
-/// Returns true if AXPress() was sent to the menu item, or nil if it wasn't (e.g. because the menu item couldn't be found)
+/// Returns true if the menu item was found and selected, or nil if it wasn't (e.g. because the menu item couldn't be found)
 static int application_selectmenuitem(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
     NSString *name = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
