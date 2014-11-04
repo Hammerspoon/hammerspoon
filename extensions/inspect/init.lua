@@ -1,6 +1,9 @@
 --- === hs.inspect ===
 ---
 --- Inspect Lua values, particularly tables
+---
+--- This extension is based on inspect.lua by Enrique García Cota
+--- https://github.com/kikito/inspect.lua
 
 local inspect ={
   _VERSION = 'inspect.lua 3.0.0',
@@ -296,9 +299,19 @@ function Inspector:putValue(v)
   end
 end
 
---- hs.inspect(variable) -> string
+--- hs.inspect.inspect(variable, options) -> string
 --- Function
---- Returns a human readable version of the supplied Lua variable
+--- Returns a human readable version of the supplied Lua variable.
+---
+--- NOTE: For convenience, you can call this function as hs.inspect(variable)
+---
+--- The `options` argument is an optional table which can be used to influence the inspector via the following keys:
+---  * depth - maximum depth to recurse into `variable`. Data below that depth will be displayed as `{...}`
+---  * newline - string to use for line breaks. Default is `\n`
+---  * indent - string to use for indentation. Default is `  ` (two spaces)
+---  * process - a function that will be called for each item, in the form: `function(item, path)`. It should return the processed item, or `nil` to remove the item.
+---
+--- For more information on the options, and some examples, see [the upstream docs](https://github.com/kikito/inspect.lua)
 function inspect.inspect(root, options)
   options       = options or {}
 
