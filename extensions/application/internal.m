@@ -404,7 +404,7 @@ static int application_findmenuitem(lua_State* L) {
     return 1;
 }
 
-/// hs.appliation:selectmenuitem(name) -> true or nil
+/// hs.application:selectmenuitem(name) -> true or nil
 /// Method
 /// Selects a menu item called 'name' if it exists in this application.
 /// Depending on the type of menu item involved, this will either activate or tick/untick the menu item
