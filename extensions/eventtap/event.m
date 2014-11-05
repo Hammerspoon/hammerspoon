@@ -150,7 +150,7 @@ static int eventtap_event_setproperty(lua_State* L) {
 /// Creates a keyboard event.
 ///   - mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift', 'fn'}
 ///   - key has the same meaning as in the `hotkey` module
-///   - isdown is a boolean, representing whether the key event would be a press or release
+///   - isdown is a boolean. `true` will create a key-down event, `false` will create a key-up event.
 static int eventtap_event_newkeyevent(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
     const char* key = luaL_checkstring(L, 2);
