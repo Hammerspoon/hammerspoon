@@ -118,65 +118,98 @@ hs.ipc.cli_reset_colors = function()
 	settings.clear("ipc.cli.color_output")
 end
 
---- hs.ipc.cli_is_installed([path]) -> bool
+--- hs.ipc.cli_status([path][,silent]) -> bool
 --- Function
---- Returns true or false indicating whether or not the command line tool, `hs`, is installed or not.  Assumes a path of `/usr/local` for the test, unless path is specified. If a partial installation is detected, for example, the binary but not the man page, then an error will be printed to the console.
-hs.ipc.cli_is_installed = function(path)
+--- Returns true or false indicating whether or not the command line tool, `hs`, is installed properly or not.  Assumes a path of `/usr/local` for the test, unless path is specified. Displays any issues (dangling link, partial installation, etc.) in the console, unless silent is provided and it is true.
+hs.ipc.cli_status = function(path, silent)
     local path = path or "/usr/local"
-    local bin_found = os.execute("[ -f "..path.."/bin/hs ]")
-    local man_found = os.execute("[ -f "..path.."/share/man/man1/hs.1 ]")
-    if not bin_found and os.execute("[ -L "..path.."/bin/hs ]") then
-        print([[cli installation problem: 'hs' is a dangling link. Remove with hs.ipc.cli_uninstall("]]..path..[[", true).]])
-    end
-    if not bin_found and os.execute("[ -L "..path.."/bin/hs ]") then
-        print([[cli installation problem: man page for 'hs' is a dangling link. Remove with hs.ipc.cli_uninstall("]]..path..[[", true).]])
-    end
-    if man_found ~= bin_found then
-        if man_found then
-            print("cli installation problem: man pages found, but 'hs' wasn't")
-        else
-            print("cli installation problem: 'hs' found, but man page wasn't")
+    local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
+
+    local silent = silent or false
+
+    local bin_file = os.execute("[ -f "..path.."/bin/hs ]")
+    local man_file = os.execute("[ -f "..path.."/share/man/man1/hs.1 ]")
+    local bin_link = os.execute("[ -L "..path.."/bin/hs ]")
+    local man_link = os.execute("[ -L "..path.."/share/man/man1/hs.1 ]")
+    local bin_ours = os.execute("[ "..path.."/bin/hs -ef "..mod_path.."/bin/hs ]")
+    local man_ours = os.execute("[ "..path.."/share/man/man1/hs.1 -ef "..mod_path.."/share/man/man1/hs.1 ]")
+
+    local result = bin_file and man_file and bin_link and man_link and bin_ours and man_ours or false
+    local broken = false
+
+    if not bin_ours and bin_file then
+        if not silent then
+            print([[cli installation problem: 'hs' is not ours.]])
         end
+        broken = true
     end
-    return bin_found or false
+    if not man_ours and man_file then
+        if not silent then
+            print([[cli installation problem: 'hs.1' is not ours.]])
+        end
+        broken = true
+    end
+    if bin_file and not bin_link then
+        if not silent then
+            print([[cli installation problem: 'hs' is an independant file won't be updated when Hammerspoon is.]])
+        end
+        broken = true
+    end
+    if not bin_file and bin_link then
+        if not silent then
+            print([[cli installation problem: 'hs' is a dangling link.]])
+        end
+        broken = true
+    end
+    if man_file and not man_link then
+        if not silent then
+            print([[cli installation problem: man page for 'hs.1' is an independant file and won't be updated when Hammerspoon is.]])
+        end
+        broken = true
+    end
+    if not man_file and man_link then
+        if not silent then
+            print([[cli installation problem: man page for 'hs.1' is a dangling link.]])
+        end
+        broken = true
+    end
+    if ((bin_file and bin_link) and not (man_file and man_link)) or ((man_file and man_link) and not (bin_file and bin_link)) then
+        if not silent then
+            print([[cli installation problem: incomplete installation of 'hs' and 'hs.1'.]])
+        end
+        broken = true
+    end
+
+    return broken and "broken" or result
 end
 
---- hs.ipc.cli_is_available() -> bool
+--- hs.ipc.cli_install([path][,silent]) -> bool
 --- Function
---- Returns true or false indicating whether or not the command line tool and man page were packaged with the module or not.  The should only be false if `hs.ipc` was installed manually and the command line tool was explicitly supressed.
-hs.ipc.cli_is_available = function()
-    local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
-    local bin_found = os.execute("[ -f "..mod_path.."/bin/hs ]")
-    local man_found = os.execute("[ -f "..mod_path.."/share/man/man1/hs.1 ]")
-    return bin_found and man_found or false
-end
-
---- hs.ipc.cli_install([path]) -> bool
---- Function
---- Creates symlinks for the command line tool and man page in the path specified (or /usr/local), so that Hammerspoon can be accessed from the command line. Returns true or false indicating whether or not the tool has been successfully linked.
-hs.ipc.cli_install = function(path)
+--- Creates symlinks for the command line tool and man page in the path specified (or /usr/local), so that Hammerspoon can be accessed from the command line. Returns true or false indicating whether or not the tool has been successfully linked.  If silent is true, any issues are suppressed from the console.
+hs.ipc.cli_install = function(path, silent)
     local path = path or "/usr/local"
-    local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
-    if hs.ipc.cli_is_available() then
+    local silent = silent or false
+    if hs.ipc.cli_status(path, true) == false then
+        local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
         os.execute("ln -s "..mod_path.."/bin/hs "..path.."/bin/")
         os.execute("ln -s "..mod_path.."/share/man/man1/hs.1 "..path.."/share/man/man1/")
     end
-    return hs.ipc.cli_is_installed(path)
+    return hs.ipc.cli_status(path, silent)
 end
 
---- hs.ipc.cli_uninstall([path[, force]]) ->
+--- hs.ipc.cli_uninstall([path][,silent]) -> bool
 --- Function
---- Removes the symlinks for the command line tool and man page in the path specified (or /usr/local). Hammerspoon wil no longer be accessible from the command line. Returns true or false indicating whether the tool has been successfully removed form the specified path. If you provide a path and a second variable that is true, then remove will attempt to remove the files, even if it doesn't think they are installed.  This can remove dangling link problems.
-hs.ipc.cli_uninstall = function(path, force)
+--- Removes the symlinks for the command line tool and man page in the path specified (or /usr/local). Hammerspoon wil no longer be accessible from the command line. Returns true or false indicating whether the tool has been successfully removed form the specified path. If it appears that the files in question might not be ours, then this function does not remove the files and you will have to do so yourself or choose another path.  This is done to ensure that we minimize the chance that we remove something that belongs to another application.  If silent is true, any issues are suppressed from the console.
+hs.ipc.cli_uninstall = function(path, silent)
     local path = path or "/usr/local"
-    local force = (type(force) == "boolean") and force or false
-    if force or hs.ipc.cli_is_installed(path) then
+    local silent = silent or false
+    if hs.ipc.cli_status(path, silent) == true then
         os.execute("rm "..path.."/bin/hs")
         os.execute("rm "..path.."/share/man/man1/hs.1")
     else
         return false
     end
-    return not hs.ipc.cli_is_installed(path)
+    return not hs.ipc.cli_status(path, silent)
 end
 
 -- Set-up metatable ------------------------------------------------------
