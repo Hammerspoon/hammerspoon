@@ -375,12 +375,14 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
         CFIndex count = -1;
         error = AXUIElementGetAttributeValueCount(searchItem, kAXChildrenAttribute, &count);
         if (error) {
+            NSLog(@"_findmenuitembypath: Failed to get child count");
             break;
         }
 
         CFArrayRef cf_children;
         error = AXUIElementCopyAttributeValues(searchItem, kAXChildrenAttribute, 0, count, &cf_children);
         if (error) {
+            NSLog(@"_findmenuitembypath: Failed to get children");
             break;
         }
         NSArray *children = (__bridge NSArray *)cf_children;
@@ -391,6 +393,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             AXUIElementRef aSearchItem = (__bridge AXUIElementRef)[children objectAtIndex:0];
             error = AXUIElementCopyAttributeValue(aSearchItem, kAXRoleAttribute, &cf_role);
             if (error) {
+                NSLog(@"_findmenuitembypath: Failed to get role");
                 break;
             }
             if(!CFStringCompare((CFStringRef)cf_role, kAXMenuRole, 0)) {
@@ -398,11 +401,13 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
                 CFIndex axMenuCount = -1;
                 error = AXUIElementGetAttributeValueCount(aSearchItem, kAXChildrenAttribute, &axMenuCount);
                 if (error) {
+                    NSLog(@"_findmenuitembypath: Failed to get AXMenu child count");
                     break;
                 }
                 CFArrayRef axMenuChildren;
                 error = AXUIElementCopyAttributeValues(aSearchItem, kAXChildrenAttribute, 0, axMenuCount, &axMenuChildren);
                 if (error) {
+                    NSLog(@"_findmenuitembypath: Failed to get AXMenu children");
                     break;
                 }
                 // Replace the existing children array with the new one we have retrieved
@@ -422,6 +427,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
                 // Something is very wrong, tell the test loop to stop
                 *stop = true;
                 return false;
+                NSLog(@"_findmenuitembypath: Unable to get menu item title");
             }
             NSString *title = (__bridge_transfer NSString *)cf_title;
 
@@ -429,7 +435,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             return [title isEqualToString:nextMenuItem];
         }];
         if (childIndex == NSNotFound) {
-            NSLog(@"Unable to solve complete menu path");
+            NSLog(@"_findmenuitembypath: Unable to solve complete menu path");
             break;
         }
 
