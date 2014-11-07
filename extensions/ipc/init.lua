@@ -231,13 +231,14 @@ internal.__handler = function(raw, str)
     local fn = raw and rawhandler or hs.ipc.handler
     local results = table.pack(pcall(function() return fn(str) end))
 
-    local str = fakestdout .. tostring(results[2])
-    for i = 3, results.n do
-        str = str .. "\t" .. tostring(results[i])
+    local str = ""
+    for i = 2, results.n do
+        if i > 2 then str = str .. "\t" end
+        str = str .. tostring(results[i])
     end
 
     print = originalprint
-    return str
+    return fakestdout .. str
 end
 
 setmetatable(hs.ipc, {
