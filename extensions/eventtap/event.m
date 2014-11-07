@@ -183,12 +183,6 @@ static int eventtap_event_newkeyevent(lua_State* L) {
     return 1;
 }
 
-/// hs.eventtap.event.newmouseevent(type, point, button) -> event
-/// Constructor
-/// Creates a new mouse event.
-///   - type is one of the values in hs.eventtap.event.types
-///   - point is a table with keys {x,y}
-///   - button is a string of one of the values: {'left', 'right', 'middle'}
 static int eventtap_event_newmouseevent(lua_State* L) {
     CGEventType type = luaL_checknumber(L, 1);
     CGPoint point = hs_topoint(L, 2);
@@ -452,7 +446,7 @@ static const luaL_Reg eventtapevent_metalib[] = {
 // Functions for returned object when module loads
 static luaL_Reg eventtapeventlib[] = {
     {"newkeyevent",     eventtap_event_newkeyevent},
-    {"newmouseevent",   eventtap_event_newmouseevent},
+    {"_newmouseevent",   eventtap_event_newmouseevent},
     {NULL,              NULL}
 };
 
