@@ -18,6 +18,10 @@ local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 local hs_screen = require "hs.screen"
 
+--- hs.window.animation_duration (boolean)
+--- Variable
+--- This is the default duration for animations. Set to 0 to disable animations.
+window.animation_duration = 0.2
 
 --- hs.window.allwindows() -> win[]
 --- Function
@@ -56,12 +60,12 @@ end
 ---
 --- The window will be animated to its new position and the animation will run for 'duration' seconds.
 ---
---- If you don't specify a value for the duration, the default is 0.2.
+--- If you don't specify a value for the duration, the default is whatever is in hs.window.animation_duration.
 --- If you specify 0 as the value of duration, the window will be immediately snapped to its new location
 --- with no animation.
 function window:setframe(f, duration)
   if duration == nil then
-    duration = 0.2
+    duration = window.animation_duration
   end
   if duration > 0 then
     self:transform({ x = f.x, y = f.y}, { w = f.w, h = f.h }, duration)
