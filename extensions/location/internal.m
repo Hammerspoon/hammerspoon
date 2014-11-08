@@ -5,6 +5,7 @@
 
 @interface HSLocation : NSObject<CLLocationManagerDelegate>
 @property (strong, atomic) CLLocationManager* manager;
+@property lua_State* L;
 @end
 
 static HSLocation *location;
@@ -12,15 +13,27 @@ static NSMutableIndexSet *locationHandlers;
 
 @implementation HSLocation
 
-- (id)init {
+- (id)initWithLua:(lua_State* ) L {
     if ([super init]) {
         self.manager = [[CLLocationManager alloc] init];
+        self.L = L;
     }
     return self;
 }
 
 - (void)locationManager:(CLLocationManager *)__unused manager didUpdateLocations:(NSArray *)__unused locations {
 //    NSLog(@"hs.location:didUpdateLocations %@", [[locations lastObject] description]);
+    lua_State* L = self.L ;
+    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "location"); lua_remove(L, -2);
+    lua_getfield(L, -1, "__dispatch"); lua_remove(L, -2);
+    if (lua_pcall(L, 0, 0, -2) != 0) {
+        NSLog(@"%s", lua_tostring(L, -1));
+        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showerror"); lua_remove(L, -2);
+        lua_pushvalue(L, -2);
+        lua_pcall(L, 1, 0, 0);
+    }
     return;
 }
 
@@ -57,15 +70,18 @@ static NSMutableIndexSet *locationHandlers;
 
 @end
 
-BOOL manager_create() {
+BOOL manager_create(lua_State* L) {
     if (!location) {
-        location = [[HSLocation alloc] init];
+        location = [[HSLocation alloc] initWithLua: L];
         location.manager.purpose = @"Hammerspoon location extension";
         [location.manager setDelegate:location];
 
         if (![CLLocationManager locationServicesEnabled]) {
             // FIXME: pop this up into the Lua console stack
             NSLog(@"ERROR: Location Services are disabled");
+            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showerror"); lua_remove(L, -2);
+            lua_pushstring(L, "ERROR: Location Services are disabled");
+            lua_pcall(L, 1, 0, 0);
             return false;
         }
 
@@ -79,7 +95,7 @@ BOOL manager_create() {
 /// Begins location monitoring using OS X's Location Services.
 /// The first time you call this, you may be prompted to authorise Hammerspoon to use Location Services.
 static int location_start_watching(lua_State* L) {
-    if (!manager_create()) {
+    if (!manager_create(L)) {
         lua_pushboolean(L, 0);
         return 1;
     }
@@ -147,6 +163,23 @@ static int location_get_location(lua_State* L) {
     return 1;
 }
 
+/// hs.location.distance(from, to) -> meters
+/// Function
+/// Returns the distance in meters between the two locations by tracing a line between them that follows the curvature of the Earth. The resulting arc is a smooth curve and does not take into account specific altitude changes between the two locations.  From and To should be tables including at least longitude and latitude; the table returned by `hs.location.get` is supported.
+static int location_distance(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TTABLE);
+    luaL_checktype(L, 2, LUA_TTABLE);
+    lua_getfield(L, 1, "latitude"); CLLocationDegrees latitude1 = lua_tonumber(L, -1) ; lua_pop(L, 1);
+    lua_getfield(L, 1, "longitude"); CLLocationDegrees longitude1 = lua_tonumber(L, -1) ; lua_pop(L, 1);
+    lua_getfield(L, 2, "latitude"); CLLocationDegrees latitude2 = lua_tonumber(L, -1) ; lua_pop(L, 1);
+    lua_getfield(L, 2, "longitude"); CLLocationDegrees longitude2 = lua_tonumber(L, -1) ; lua_pop(L, 1);
+    CLLocation* location1 = [[CLLocation alloc] initWithLatitude:latitude1 longitude:longitude1] ;
+    CLLocation* location2 = [[CLLocation alloc] initWithLatitude:latitude2 longitude:longitude2] ;
+    lua_pushnumber(L, [location1 distanceFromLocation:location2]) ;
+
+    return 1;
+}
+
 /// hs.location.services_enabled() -> bool
 /// Function
 /// Returns true or false if OS X Location Services are enabled
@@ -160,7 +193,7 @@ static int location_is_enabled(lua_State *L) {
 
 static int location_gc(lua_State *L __unused) {
     [location.manager stopUpdatingLocation];
-
+    location = nil;
     return 0;
 }
 
@@ -169,6 +202,7 @@ static const luaL_Reg locationlib[] = {
     {"stop", location_stop_watching},
     {"get", location_get_location},
     {"services_enabled", location_is_enabled},
+    {"distance", location_distance},
     {}
 };
 
@@ -188,3 +222,4 @@ int luaopen_hs_location_internal(lua_State *L) {
 
     return 1;
 }
+
