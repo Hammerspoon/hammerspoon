@@ -1,6 +1,7 @@
 --- === hs.eventtap ===
 ---
---- For tapping into input events (mouse, keyboard, trackpad) for observation and possibly overriding them. This module requires `hs.eventtap.event`.
+--- For tapping into input events (mouse, keyboard, trackpad) for observation and possibly overriding them.
+--- It also provides convenience wrappers for sending mouse and keyboard events. If you need to construct finely controlled mouse/keyboard events, see hs.eventtap.event
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
@@ -9,6 +10,8 @@
 --- Functionality to inspect, modify, and create events for `hs.eventtap` is provided by this module.
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+
+if not hs.keycodes then hs.keycodes = require("hs.keycodes") end
 
 local module = require("hs.eventtap.internal")
 
@@ -39,7 +42,38 @@ function module.event.newmouseevent(eventtype, point)
     return module.event._newmouseevent(eventtype, point, button)
 end
 
-if not hs.keycodes then hs.keycodes = require("hs.keycodes") end
+--- hs.eventtap.leftclick(point)
+--- Function
+--- Generates a left mouse click event at the specified point
+---    - point is a table with keys {x,y} (e.g. {x=0,y=0})
+---
+--- (Note: this is a wrapper around hs.eventtap.event.newmouseevent that sends leftmousedown and leftmouseup events)
+function module.leftclick(point)
+    module.event.newmouseevent(module.event.types["leftmousedown"], point):post()
+    module.event.newmouseevent(module.event.types["leftmouseup"], point):post()
+end
+
+--- hs.eventtap.rightclick(point)
+--- Function
+--- Generates a right mouse click event at the specified point
+---    - point is a table with keys {x,y} (e.g. {x=0,y=0})
+---
+--- (Note: this is a wrapper around hs.eventtap.event.newmouseevent that sends rightmousedown and rightmouseup events)
+function module.rightclick(point)
+    module.event.newmouseevent(module.event.types["rightmousedown"], point):post()
+    module.event.newmouseevent(module.event.types["rightmouseup"], point):post()
+end
+--
+--- hs.eventtap.middleclick(point)
+--- Function
+--- Generates a middle mouse click event at the specified point
+---    - point is a table with keys {x,y} (e.g. {x=0,y=0})
+---
+--- (Note: this is a wrapper around hs.eventtap.event.newmouseevent that sends middlemousedown and middlemouseup events)
+function module.middleclick(point)
+    module.event.newmouseevent(module.event.types["middlemousedown"], point):post()
+    module.event.newmouseevent(module.event.types["middlemouseup"], point):post()
+end
 
 -- Return Module Object --------------------------------------------------
 
