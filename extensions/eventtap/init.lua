@@ -63,7 +63,7 @@ function module.rightclick(point)
     module.event.newmouseevent(module.event.types["rightmousedown"], point):post()
     module.event.newmouseevent(module.event.types["rightmouseup"], point):post()
 end
---
+
 --- hs.eventtap.middleclick(point)
 --- Function
 --- Generates a middle mouse click event at the specified point
@@ -73,6 +73,18 @@ end
 function module.middleclick(point)
     module.event.newmouseevent(module.event.types["middlemousedown"], point):post()
     module.event.newmouseevent(module.event.types["middlemouseup"], point):post()
+end
+
+--- hs.eventtap.keystrokes(modifiers, string)
+--- Function
+--- Generates keystrokes for the supplied keyboard modifiers and string
+--- The modifiers should be a table, containing any/several/all/none of "fn", "ctrl", "alt", "cmd", "shift" or "fn" (or their Unicode equivalents ⌃, ⌥, ⌘, ⇧)
+--- The string can be a single character or many (e.g. if you want to simulate typing of a block of text)
+function module.keystrokes(modifiers, text)
+    for c in text:gmatch"." do
+        module.event.newkeyevent(modifiers, c, true):post()
+        module.event.newkeyevent(modifiers, c, false):post()
+    end
 end
 
 -- Return Module Object --------------------------------------------------
