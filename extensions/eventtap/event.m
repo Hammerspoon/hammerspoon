@@ -158,6 +158,7 @@ static int eventtap_event_newkeyevent(lua_State* L) {
 
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "keycodes");
+    lua_getfield(L, -1, "map");
     lua_pushstring(L, key);
     lua_gettable(L, -2);
     CGKeyCode keycode = lua_tonumber(L, -1);
@@ -166,10 +167,10 @@ static int eventtap_event_newkeyevent(lua_State* L) {
     CGEventFlags flags = 0;
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
-        if (strcmp(lua_tostring(L, -1), "cmd") == 0) flags |= kCGEventFlagMaskCommand;
-        else if (strcmp(lua_tostring(L, -1), "ctrl") == 0) flags |= kCGEventFlagMaskControl;
-        else if (strcmp(lua_tostring(L, -1), "alt") == 0) flags |= kCGEventFlagMaskAlternate;
-        else if (strcmp(lua_tostring(L, -1), "shift") == 0) flags |= kCGEventFlagMaskShift;
+        if (strcmp(lua_tostring(L, -1), "cmd") == 0 || strcmp(lua_tostring(L, -1), "⌘") == 0) flags |= kCGEventFlagMaskCommand;
+        else if (strcmp(lua_tostring(L, -1), "ctrl") == 0 || strcmp(lua_tostring(L, -1), "⌃") == 0) flags |= kCGEventFlagMaskControl;
+        else if (strcmp(lua_tostring(L, -1), "alt") == 0 || strcmp(lua_tostring(L, -1), "⌥") == 0) flags |= kCGEventFlagMaskAlternate;
+        else if (strcmp(lua_tostring(L, -1), "shift") == 0 || strcmp(lua_tostring(L, -1), "⇧") == 0) flags |= kCGEventFlagMaskShift;
         else if (strcmp(lua_tostring(L, -1), "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
         lua_pop(L, 1);
     }
