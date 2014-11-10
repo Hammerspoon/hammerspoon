@@ -73,6 +73,10 @@ print("-- Augmenting require paths")
 package.path=package.path..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
 package.cpath=package.cpath..";"..modpath.."/?.so"
 
+-- place user path at head to allow for easy overrides
+package.path=configdir.."/?.lua"..";"..configdir.."/?/init.lua;"..package.path
+package.cpath=configdir.."/?.so"..";"..configdir.."/?/init.so;"..package.cpath
+
 if autoload_extensions then
   print("-- Lazily loading extensions")
   _extensions = {}
