@@ -12,8 +12,8 @@ local function find_window_from_function(fn)
     return fnutils.find(window.allwindows(), fn)
 end
 
--- Internal function to turn a matching function and window title into an application object
-local function find_application_from_window(title, fn)
+-- Internal function to turn a matching function into an application object
+local function find_application_from_window(fn)
     local w = find_window_from_function(fn)
     if w then
         return w:application()
@@ -33,7 +33,7 @@ end
 --- Function
 --- Finds an application by its window title (e.g. "Activity Monitor (All Processes)")
 function appfinder.app_from_window_title(title)
-    return find_application_from_window(title, function(win) return win:title() == title end)
+    return find_application_from_window(function(win) return win:title() == title end)
 end
 
 --- hs.appfinder.app_from_window_title_pattern(pattern) -> app or nil
@@ -44,7 +44,7 @@ end
 ---       http://lua-users.org/wiki/PatternsTutorial
 ---       http://www.lua.org/manual/5.2/manual.html#6.4.1
 function appfinder.app_from_window_title_pattern(pattern)
-    return find_application_from_window(pattern, function(win) return string.match(win:title(), pattern) end)
+    return find_application_from_window(function(win) return string.match(win:title(), pattern) end)
 end
 
 --- hs.appfinder.window_from_window_title(title) -> win or nil
