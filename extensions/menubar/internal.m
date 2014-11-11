@@ -4,6 +4,17 @@
 
 #define USERDATA_TAG "hs.menubar"
 
+@interface clickDelegate : NSObject
+@property lua_State *L;
+@property int fn;
+@end
+
+@implementation clickDelegate
+- (void) click:(id)sender {
+    NSLog(@"clicked");
+}
+@end
+
 static int store_udhandler(lua_State *L, NSMutableIndexSet *theHandler, int idx) {
     lua_pushvalue(L, idx);
     int x = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -101,15 +112,15 @@ static int menubar_settooltip(lua_State *L) {
 // FIXME: Document that this makes no sense when a menu is being used, when we have menu support
 static int menubar_click_callback(lua_State *L) {
     menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
     if (lua_isnil(L, 2)) {
         if (menuBarItem->click_fn) {
             luaL_unref(L, LUA_REGISTRYINDEX, menuBarItem->click_fn);
             menuBarItem->click_fn = 0;
         }
         if (menuBarItem->click_callback) {
-            [(__bridge NSStatusItem*)menuBarItem setTarget:nil];
-            [(__bridge NSStatusItem*)menuBarItem setAction:nil];
-### FIXME: From here this delegate business is all magical fantasy
+            [statusItem setTarget:nil];
+            [statusItem setAction:nil];
             clickDelegate *object = (__bridge_transfer clickDelegate *)menuBarItem->click_callback;
             menuBarItem->click_callback = nil;
             object = nil;
@@ -121,12 +132,11 @@ static int menubar_click_callback(lua_State *L) {
         clickDelegate *object = [[clickDelegate alloc] init];
         object.L = L;
         object.fn = menuBarItem->click_fn;
-        menubarItem->callback = (__bridge_retained void*) object;
-        [(__bridge NSStatusItem*)menuBarItem setTarget:object];
-        [(__bridge NSStatusItem*)menubarItem setAction:@selector(click)];
+        menuBarItem->click_callback = (__bridge_retained void*) object;
+        [statusItem setTarget:object];
+        [statusItem setAction:@selector(click:)];
     }
     return 0;
-}
 }
 
 /// hs.menubar:delete(menubaritem)
@@ -175,6 +185,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"settitle", menubar_settitle},
     {"seticon", menubar_seticon},
     {"settooltip", menubar_settooltip},
+    {"clickcallback", menubar_click_callback},
     {"delete", menubar_delete},
 
     {}
