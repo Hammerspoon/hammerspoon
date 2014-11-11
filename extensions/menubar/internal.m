@@ -21,7 +21,7 @@ static NSMutableIndexSet *menuBarItemHandlers;
 typedef struct _menubaritem_t {
     void *menuBarItemObject;
     void *click_callback;
-    int fn;
+    int click_fn;
     int registryHandle;
 } menubaritem_t;
 
@@ -42,7 +42,7 @@ static int menubar_new(lua_State *L) {
         memset(menuBarItem, 0, sizeof(menubaritem_t));
         menuBarItem->menuBarItemObject = (__bridge_retained void*)statusItem;
         menuBarItem->click_callback = nil;
-        menuBarItem->fn = 0;
+        menuBarItem->click_fn = 0;
         menuBarItem->registryHandle = store_udhandler(L, menuBarItemHandlers, -1);
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
@@ -93,6 +93,40 @@ static int menubar_settooltip(lua_State *L) {
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setToolTip:toolTipText];
 
     return 0;
+}
+
+/// hs.menubar:click_function(fn)
+/// Method
+/// Registers a function to be called when the menubar icon is clicked.
+// FIXME: Document that this makes no sense when a menu is being used, when we have menu support
+static int menubar_click_callback(lua_State *L) {
+    menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
+    if (lua_isnil(L, 2)) {
+        if (menuBarItem->click_fn) {
+            luaL_unref(L, LUA_REGISTRYINDEX, menuBarItem->click_fn);
+            menuBarItem->click_fn = 0;
+        }
+        if (menuBarItem->click_callback) {
+            [(__bridge NSStatusItem*)menuBarItem setTarget:nil];
+            [(__bridge NSStatusItem*)menuBarItem setAction:nil];
+### FIXME: From here this delegate business is all magical fantasy
+            clickDelegate *object = (__bridge_transfer clickDelegate *)menuBarItem->click_callback;
+            menuBarItem->click_callback = nil;
+            object = nil;
+        }
+    } else {
+        luaL_checktype(L, 2, LUA_TFUNCTION);
+        lua_pushvalue(L, 2);
+        menuBarItem->click_fn = luaL_ref(L, LUA_REGISTRYINDEX);
+        clickDelegate *object = [[clickDelegate alloc] init];
+        object.L = L;
+        object.fn = menuBarItem->click_fn;
+        menubarItem->callback = (__bridge_retained void*) object;
+        [(__bridge NSStatusItem*)menuBarItem setTarget:object];
+        [(__bridge NSStatusItem*)menubarItem setAction:@selector(click)];
+    }
+    return 0;
+}
 }
 
 /// hs.menubar:delete(menubaritem)
