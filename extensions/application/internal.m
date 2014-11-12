@@ -125,7 +125,7 @@ static int application_mainWindow(lua_State* L) {
 static int application__activate(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     BOOL allWindows = lua_toboolean(L, 2);
-    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps | (allWindows ? NSApplicationActivateallWindows : 0)];
+    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps | (allWindows ? NSApplicationActivateAllWindows : 0)];
     lua_pushboolean(L, success);
     return 1;
 }
