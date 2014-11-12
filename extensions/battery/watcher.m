@@ -51,7 +51,7 @@ static void callback(void *info) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, t->fn);
     if (lua_pcall(L, 0, 0, -2) != 0) {
         NSLog(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showerror"); lua_remove(L, -2);
+        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);
         lua_pcall(L, 1, 0, 0);
     }

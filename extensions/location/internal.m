@@ -30,7 +30,7 @@ static NSMutableIndexSet *locationHandlers;
     lua_getfield(L, -1, "__dispatch"); lua_remove(L, -2);
     if (lua_pcall(L, 0, 0, -2) != 0) {
         NSLog(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showerror"); lua_remove(L, -2);
+        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);
         lua_pcall(L, 1, 0, 0);
     }
@@ -79,7 +79,7 @@ BOOL manager_create(lua_State* L) {
         if (![CLLocationManager locationServicesEnabled]) {
             // FIXME: pop this up into the Lua console stack
             NSLog(@"ERROR: Location Services are disabled");
-            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showerror"); lua_remove(L, -2);
+            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
             lua_pushstring(L, "ERROR: Location Services are disabled");
             lua_pcall(L, 1, 0, 0);
             return false;

@@ -29,7 +29,7 @@ function keycodes.inputSourceChanged(fn)
       keycodes.map = keycodes._cachemap()
       if fn then
         local ok, err = xpcall(fn, debug.traceback)
-        if not ok then hs.showerror(err) end
+        if not ok then hs.showError(err) end
       end
   end)
 end

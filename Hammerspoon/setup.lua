@@ -30,7 +30,7 @@ hs.configdir = configdir
 --- You can load, parse and access this information using the hs.doc extension
 hs.docstrings_json_file = docstringspath
 
---- hs.showerror(err)
+--- hs.showError(err)
 --- Function
 ---
 --- Presents an error to the user via Hammerspoon's GUI. The default
@@ -44,12 +44,12 @@ hs.docstrings_json_file = docstringspath
 --- from the user:
 ---
 ---     local ok, err = xpcall(callbackfn, debug.traceback)
----     if not ok then hs.showerror(err) end
-function hs.showerror(err)
+---     if not ok then hs.showError(err) end
+function hs.showError(err)
   hs._notify("Hammerspoon config error") -- undecided on this line
   print(err)
   hs.focus()
-  hs.openconsole()
+  hs.openConsole()
 end
 
 --- hs.rawprint = print
@@ -122,10 +122,10 @@ end
 
 print("-- Loading " .. prettypath)
 local fn, err = loadfile(fullpath)
-if not fn then hs.showerror(err) return runstring end
+if not fn then hs.showError(err) return runstring end
 
 local ok, err = xpcall(fn, debug.traceback)
-if not ok then hs.showerror(err) return runstring end
+if not ok then hs.showError(err) return runstring end
 
 print "-- Done."
 
