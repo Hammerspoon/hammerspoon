@@ -75,7 +75,7 @@ typedef struct _wifiwatcher_t {
 /// Creates a new ssid-watcher that can be started; fn will be called when your ssid changes
 ///
 /// Note that fn will be called both when you join and leave a network. You can identify which
-/// type of event is happening, with hs.wifi.current_network(), which will return nil if you
+/// type of event is happening, with hs.wifi.currentNetwork(), which will return nil if you
 /// have just left a network (and note further that switching from one network to another will
 /// therefore trigger two calls to fn, one when leaving the current network and one when joining
 /// the new one).

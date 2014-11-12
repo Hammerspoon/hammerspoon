@@ -1,18 +1,18 @@
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
 
-/// hs.pasteboard.getcontents() -> string
+/// hs.pasteboard.getContents() -> string
 /// Function
 /// Returns the contents of the pasteboard as a string, or nil if it can't be done
-static int pasteboard_getcontents(lua_State* L) {
+static int pasteboard_getContents(lua_State* L) {
     lua_pushstring(L, [[[NSPasteboard generalPasteboard] stringForType:NSPasteboardTypeString] UTF8String]);
     return 1;
 }
 
-/// hs.pasteboard.setcontents(string) -> boolean
+/// hs.pasteboard.setContents(string) -> boolean
 /// Function
 /// Sets the contents of the pasteboard to the string value passed in. Returns success status as true or false.
-static int pasteboard_setcontents(lua_State* L) {
+static int pasteboard_setContents(lua_State* L) {
     NSString* str = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
     [[NSPasteboard generalPasteboard] clearContents];
@@ -22,19 +22,19 @@ static int pasteboard_setcontents(lua_State* L) {
     return 1;
 }
 
-/// hs.pasteboard.changecount() -> number
+/// hs.pasteboard.changeCount() -> number
 /// Function
 /// The number of times the pasteboard owner changed (useful to see if the pasteboard was updated, by seeing if the value of this function changes).
-static int pasteboard_changecount(lua_State* L) {
+static int pasteboard_changeCount(lua_State* L) {
     lua_pushnumber(L, [[NSPasteboard generalPasteboard] changeCount]);
     return 1;
 }
 
 // Functions for returned object when module loads
 static const luaL_Reg pasteboardLib[] = {
-    {"changecount",  pasteboard_changecount},
-    {"getcontents",  pasteboard_getcontents},
-    {"setcontents",  pasteboard_setcontents},
+    {"changeCount",  pasteboard_changeCount},
+    {"getContents",  pasteboard_getContents},
+    {"setContents",  pasteboard_setContents},
     {NULL,      NULL}
 };
 

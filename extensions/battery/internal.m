@@ -104,7 +104,7 @@ static int battery_name(lua_State *L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSNameKey);
 }
 
-/// hs.battery.maxcapacity() -> number
+/// hs.battery.maxCapacity() -> number
 /// Function
 /// Returns the current maximum capacity of the battery in mAh.
 static int battery_maxcapacity(lua_State *L) {
@@ -118,7 +118,7 @@ static int battery_capacity(lua_State *L) {
     return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCurrentChargeKey);
 }
 
-/// hs.battery.designcapacity() -> number
+/// hs.battery.designCapacity() -> number
 /// Function
 /// Returns the design capacity of the battery in mAh.
 static int battery_designcapacity(lua_State *L) {
@@ -164,7 +164,7 @@ static int battery_health(lua_State *L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSBatteryHealthKey);
 }
 
-/// hs.battery.healthcondition() -> string
+/// hs.battery.healthCondition() -> string
 /// Function
 /// Returns the health condition status of the battery. One of {Check Battery, Permanent Battery Failure}. Nil if there is no health condition set.
 static int battery_healthcondition(lua_State *L) {
@@ -191,7 +191,7 @@ static int battery_percentage(lua_State *L) {
     return 1;
 }
 
-/// hs.battery.timeremaining() -> number
+/// hs.battery.timeRemaining() -> number
 /// Function
 /// Returns the time remaining in minutes. Or a negative value: -1 = calculating time remaining, -2 = unlimited (i.e. you're charging, or apple has somehow discovered an infinite power source.)
 
@@ -205,35 +205,35 @@ static int battery_timeremaining(lua_State* L) {
     return 1;
 }
 
-/// hs.battery.timetofullcharge() -> number
+/// hs.battery.timeToFullCharge() -> number
 /// Function
 /// Returns the time remaining to a full charge in minutes. Or a negative value, -1 = calculating time remaining.
 static int battery_timetofullcharge(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSTimeToFullChargeKey);
 }
 
-/// hs.battery.ischarging() -> boolean
+/// hs.battery.isCharging() -> boolean
 /// Function
 /// Returns true if the battery is charging.
 static int battery_ischarging(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsChargingKey);
 }
 
-/// hs.battery.ischarged() -> boolean
+/// hs.battery.isCharged() -> boolean
 /// Function
 /// Returns true if battery is charged.
 static int battery_ischarged(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsChargedKey);
 }
 
-/// hs.battery.isfinishingcharge() -> boolean
+/// hs.battery.isFinishingCharge() -> boolean
 /// Function
 /// Returns true if battery is finishing charge.
 static int battery_isfinishingcharge(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsFinishingChargeKey);
 }
 
-/// hs.battery.powersource() -> boolean
+/// hs.battery.powerSource() -> boolean
 /// Function
 /// Returns current source of power. One of {AC Power, Battery Power, Off Line}.
 static int battery_powersource(lua_State* L) {
@@ -243,21 +243,21 @@ static int battery_powersource(lua_State* L) {
 static const luaL_Reg battery_lib[] = {
     {"cycles", battery_cycles},
     {"name", battery_name},
-    {"maxcapacity", battery_maxcapacity},
+    {"maxCapacity", battery_maxcapacity},
     {"capacity", battery_capacity},
-    {"designcapacity", battery_designcapacity},
+    {"designCapacity", battery_designcapacity},
     {"percentage", battery_percentage},
     {"voltage", battery_voltage},
     {"amperage", battery_amperage},
     {"watts", battery_watts},
     {"health", battery_health},
-    {"healthcondition", battery_healthcondition},
-    {"timeremaining", battery_timeremaining},
-    {"timetofullcharge", battery_timetofullcharge},
-    {"ischarging", battery_ischarging},
-    {"ischarged", battery_ischarged},
-    {"isfinishingcharge", battery_isfinishingcharge},
-    {"powersource", battery_powersource},
+    {"healthCondition", battery_healthcondition},
+    {"timeRemaining", battery_timeremaining},
+    {"timeToFullCharge", battery_timetofullcharge},
+    {"isCharging", battery_ischarging},
+    {"isCharged", battery_ischarged},
+    {"isFinishingCharge", battery_isfinishingcharge},
+    {"powerSource", battery_powersource},
     {NULL, NULL}
 };
 

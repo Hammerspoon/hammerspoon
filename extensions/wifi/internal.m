@@ -10,7 +10,7 @@ CWInterface *get_wifi_interface() {
     return [CWInterface interfaceWithName:nil];
 }
 
-/// hs.wifi.available_networks() -> table
+/// hs.wifi.availableNetworks() -> table
 /// Function
 /// Returns a list of available WiFi networks
 /// WARNING: This function will block all Lua execution until the scan has completed. It's probably not
@@ -34,7 +34,7 @@ static int wifi_scan(lua_State* L __unused) {
     return 1;
 }
 
-/// hs.wifi.current_network() -> string or nil
+/// hs.wifi.currentNetwork() -> string or nil
 /// Function
 /// Returns the SSID of the currently associated WiFi network, or nil if no network is associated
 static int wifi_current_ssid(lua_State* L) {
@@ -49,8 +49,8 @@ static int wifi_current_ssid(lua_State* L) {
 }
 
 static const luaL_Reg wifilib[] = {
-    {"available_networks", wifi_scan},
-    {"current_network", wifi_current_ssid},
+    {"availableNetworks", wifi_scan},
+    {"currentNetwork", wifi_current_ssid},
 
     {}
 };

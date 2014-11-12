@@ -122,7 +122,7 @@ static void NSObject_to_lua(lua_State* L, id obj) {
 
 /// hs.settings.set(key, val)
 /// Function
-/// Saves the given value for the given string key; value must be a string, number, boolean, nil, or a table of any of these, recursively.  This function cannot set NSUserDefault types of Data or Date.  See `settings.set_data` and `settings.set_date`.
+/// Saves the given value for the given string key; value must be a string, number, boolean, nil, or a table of any of these, recursively.  This function cannot set NSUserDefault types of Data or Date.  See `settings.setData` and `settings.setDate`.
 static int target_set(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     id val = lua_to_NSObject(L, 2);
@@ -130,10 +130,10 @@ static int target_set(lua_State* L) {
     return 0;
 }
 
-/// hs.settings.set_data(key, val)
+/// hs.settings.setData(key, val)
 /// Function
 /// Saves the given value as raw binary data for the string key.  A raw binary string differs from a traditional string in that it may contain embedded null values and other unprintable bytes (characters) which might otherwise be lost or mangled if treated as a traditional C-Style (null terminated) string.
-static int target_set_data(lua_State* L) {
+static int target_setData(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     if (lua_type(L,2) == LUA_TSTRING) {
         const char* data = lua_tostring(L,2) ;
@@ -159,10 +159,10 @@ static NSDate* date_from_string(NSString* dateString) {
     return date;
 }
 
-/// hs.settings.set_date(key, val)
+/// hs.settings.setDate(key, val)
 /// Function
 /// Saves the given value as a date for the given string key.  If val is a number, then it represents the number of seconds since 1970-01-01 00:00:00 +0000 (e.g. `os.time()`).  If it is a string, it should be in rfc3339 format:  'YYYY-MM-DD[T]HH:MM:SS[Z]' (e.g. see `hs.settings.dateFormat`).
-static int target_set_date(lua_State* L) {
+static int target_setDate(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     NSDate* myDate = lua_isnumber(L, 2) ? [[NSDate alloc] initWithTimeIntervalSince1970:(NSTimeInterval) lua_tonumber(L,2)] :
                      lua_isstring(L, 2) ? date_from_string([NSString stringWithUTF8String:lua_tostring(L, 2)]) : nil ;
@@ -197,10 +197,10 @@ static int target_clear(lua_State* L) {
     return 1;
 }
 
-/// hs.settings.getkeys() -> []
+/// hs.settings.getKeys() -> []
 /// Function
-/// Returns a table of all defined keys within the Hammerspoon user defaults, as an array and as a list of keys.  Use `ipairs(settings.getkeys())` to iterate through the list of all settings which have been defined or `settings.getkeys()["key"]` to test for the existence of a key.
-static int target_getkeys(lua_State* L) {
+/// Returns a table of all defined keys within the Hammerspoon user defaults, as an array and as a list of keys.  Use `ipairs(settings.getKeys())` to iterate through the list of all settings which have been defined or `settings.getKeys()["key"]` to test for the existence of a key.
+static int target_getKeys(lua_State* L) {
     NSArray *keys = [[[NSUserDefaults standardUserDefaults] persistentDomainForName: [[NSBundle mainBundle] bundleIdentifier]] allKeys];
     lua_newtable(L);
     for (unsigned long i = 0; i < keys.count; i++) {
@@ -217,11 +217,11 @@ static int target_getkeys(lua_State* L) {
 // Functions for returned object when module loads
 static const luaL_Reg settingslib[] = {
     {"set",         target_set},
-    {"set_data",    target_set_data},
-    {"set_date",    target_set_date},
+    {"setData",    target_setData},
+    {"setDate",    target_setDate},
     {"get",         target_get},
     {"clear",       target_clear},
-    {"getkeys",     target_getkeys},
+    {"getKeys",     target_getKeys},
     {NULL, NULL}
 };
 
@@ -231,7 +231,7 @@ int luaopen_settings(lua_State* L) {
 
 /// hs.settings.dateFormat
 /// Variable
-/// The string representing the expected format of date and time when presenting the date and time as a string to `hs.set_date`.  e.g. `os.date(hs.settings.dateFormat)`.
+/// The string representing the expected format of date and time when presenting the date and time as a string to `hs.setDate`.  e.g. `os.date(hs.settings.dateFormat)`.
         lua_pushstring(L, "!%Y-%m-%dT%H:%M:%SZ") ;
         lua_setfield(L, -2, "dateFormat") ;
 

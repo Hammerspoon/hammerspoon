@@ -89,10 +89,10 @@ static int timer_start(lua_State* L) {
     return 1;
 }
 
-/// hs.timer.doafter(sec, fn)
+/// hs.timer.doAfter(sec, fn)
 /// Function
 /// Runs the function after sec seconds.
-static int timer_doafter(lua_State* L) {
+static int timer_doAfter(lua_State* L) {
     NSTimeInterval sec = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
 
@@ -155,7 +155,7 @@ static const luaL_Reg timer_metalib[] = {
 
 // Functions for returned object when module loads
 static const luaL_Reg timerLib[] = {
-    {"doafter",    timer_doafter},
+    {"doAfter",    timer_doAfter},
     {"new",        timer_new},
     {NULL,          NULL}
 };

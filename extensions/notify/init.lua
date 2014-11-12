@@ -37,7 +37,7 @@ end
 module.registry = {}
 module.registry.n = 0
 
-setmetatable(module.registry, { __gc = module.withdraw_all })
+setmetatable(module.registry, { __gc = module.withdrawAll })
 
 if not _notifysetup then
   module._setup(callback)

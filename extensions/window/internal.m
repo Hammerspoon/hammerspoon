@@ -169,7 +169,7 @@ static AXUIElementRef system_wide_element() {
     return element;
 }
 
-/// hs.window.focusedwindow() -> window
+/// hs.window.focusedWindow() -> window
 /// Constructor
 /// Returns the focused window, or nil.
 static int window_focusedwindow(lua_State* L) {
@@ -244,7 +244,7 @@ static int window_role(lua_State* L) {
     return 1;
 }
 
-/// hs.window:isstandard() -> bool
+/// hs.window:isStandard() -> bool
 /// Method
 /// True if the window's subrole indicates it's 'a standard window'.
 static int window_isstandard(lua_State* L) {
@@ -256,7 +256,7 @@ static int window_isstandard(lua_State* L) {
     return 1;
 }
 
-/// hs.window:topleft() -> point
+/// hs.window:topLeft() -> point
 /// Method
 /// The top-left corner of the window in absolute coordinates.
 static int window_topleft(lua_State* L) {
@@ -276,7 +276,7 @@ static int window_size(lua_State* L) {
     return 1;
 }
 
-/// hs.window:settopleft(point)
+/// hs.window:setTopLeft(point)
 /// Method
 /// Moves the window to the given point in absolute coordinate.
 static int window_settopleft(lua_State* L) {
@@ -291,7 +291,7 @@ static int window_settopleft(lua_State* L) {
     return 0;
 }
 
-/// hs.window:setsize(size)
+/// hs.window:setSize(size)
 /// Method
 /// Resizes the window.
 static int window_setsize(lua_State* L) {
@@ -327,7 +327,7 @@ cleanup:
     return 1;
 }
 
-/// hs.window:setfullscreen(bool) -> bool
+/// hs.window:setFullScreen(bool) -> bool
 /// Method
 /// Sets whether the window is full screen; returns whether it succeeded.
 static int window_setfullscreen(lua_State* L) {
@@ -338,7 +338,7 @@ static int window_setfullscreen(lua_State* L) {
     return 1;
 }
 
-/// hs.window:isfullscreen() -> bool or nil
+/// hs.window:isFullScreen() -> bool or nil
 /// Method
 /// Returns whether the window is full screen, or nil if asking that question fails.
 static int window_isfullscreen(lua_State* L) {
@@ -382,7 +382,7 @@ static int window_unminimize(lua_State* L) {
     return 0;
 }
 
-/// hs.window:isminimized() -> bool
+/// hs.window:isMinimized() -> bool
 /// Method
 /// True if the window is currently minimized in the dock.
 static int window_isminimized(lua_State* L) {
@@ -423,7 +423,7 @@ static int window_application(lua_State* L) {
     return 1;
 }
 
-/// hs.window:becomemain() -> bool
+/// hs.window:becomeMain() -> bool
 /// Method
 /// Make this window the main window of the given application; deos not implicitly focus the app.
 static int window_becomemain(lua_State* L) {
@@ -482,28 +482,28 @@ static int window_id(lua_State* L) {
 }
 
 static const luaL_Reg windowlib[] = {
-    {"focusedwindow", window_focusedwindow},
+    {"focusedWindow", window_focusedwindow},
     {"_orderedwinids", window__orderedwinids},
 
     {"title", window_title},
     {"subrole", window_subrole},
     {"role", window_role},
-    {"isstandard", window_isstandard},
-    {"topleft", window_topleft},
+    {"isStandard", window_isstandard},
+    {"topLeft", window_topleft},
     {"size", window_size},
-    {"settopleft", window_settopleft},
-    {"setsize", window_setsize},
+    {"setTopLeft", window_settopleft},
+    {"setSize", window_setsize},
     {"transform", window_transform},
     {"minimize", window_minimize},
     {"unminimize", window_unminimize},
-    {"isminimized", window_isminimized},
+    {"isMinimized", window_isminimized},
     {"pid", window_pid},
     {"application", window_application},
-    {"becomemain", window_becomemain},
+    {"becomeMain", window_becomemain},
     {"id", window_id},
     {"close", window_close},
-    {"setfullscreen", window_setfullscreen},
-    {"isfullscreen", window_isfullscreen},
+    {"setFullScreen", window_setfullscreen},
+    {"isFullScreen", window_isfullscreen},
 
     {}
 };

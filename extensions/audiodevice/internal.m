@@ -40,7 +40,7 @@ void new_device(lua_State* L, AudioDeviceID deviceId) {
     lua_setmetatable(L, -2);
 }
 
-/// hs.audiodevice.alloutputdevices() -> audio[]
+/// hs.audiodevice.allOutputDevices() -> audio[]
 /// Function
 /// Returns a list of all connected output devices.
 static int audiodevice_alloutputdevices(lua_State* L) {
@@ -94,7 +94,7 @@ end:
     return 1;
 }
 
-/// hs.audiodevice.defaultoutputdevice() -> audio or nil
+/// hs.audiodevice.defaultOutputDevice() -> audio or nil
 /// Function
 /// Gets the system's default audio device, or nil, it it does not exist.
 static int audiodevice_defaultoutputdevice(lua_State* L) {
@@ -126,7 +126,7 @@ end:
     return 1;
 }
 
-/// hs.audiodevice:setdefaultoutputdevice() -> bool
+/// hs.audiodevice:setDefaultOutputDevice() -> bool
 /// Method
 /// Sets the system's default audio device to this device. Returns true if the audio device was successfully set.
 static int audiodevice_setdefaultoutputdevice(lua_State* L) {
@@ -268,7 +268,7 @@ end:
 
 }
 
-/// hs.audiodevice:setmuted(bool) -> bool
+/// hs.audiodevice:setMuted(bool) -> bool
 /// Method
 /// Returns true if the the device's muted status was set, or false if it does not support being muted.
 static int audiodevice_setmuted(lua_State* L) {
@@ -341,7 +341,7 @@ end:
 }
 
 
-/// hs.audiodevice:setvolume(level) -> bool
+/// hs.audiodevice:setVolume(level) -> bool
 /// Method
 /// Returns true if the volume was set, or false if the audio device does not support setting a volume level. Level is a percentage between 0 and 100.
 static int audiodevice_setvolume(lua_State* L) {
@@ -386,19 +386,19 @@ static int audiodevice_eq(lua_State* L) {
 
 // Metatable for audiodevice objects
 static const luaL_Reg audiodevice_metalib[] = {
-    {"setdefaultoutputdevice",  audiodevice_setdefaultoutputdevice},
+    {"setDefaultOutputDevice",  audiodevice_setdefaultoutputdevice},
     {"name",                    audiodevice_name},
     {"uid",                     audiodevice_uid},
     {"volume",                  audiodevice_volume},
-    {"setvolume",               audiodevice_setvolume},
+    {"setVolume",               audiodevice_setvolume},
     {"muted",                   audiodevice_muted},
-    {"setmuted",                audiodevice_setmuted},
+    {"setMuted",                audiodevice_setmuted},
     {NULL, NULL}
 };
 
 static const luaL_Reg audiodeviceLib[] = {
-    {"alloutputdevices",        audiodevice_alloutputdevices},
-    {"defaultoutputdevice",     audiodevice_defaultoutputdevice},
+    {"allOutputDevices",        audiodevice_alloutputdevices},
+    {"defaultOutputDevice",     audiodevice_defaultoutputdevice},
     {NULL, NULL}
 };
 

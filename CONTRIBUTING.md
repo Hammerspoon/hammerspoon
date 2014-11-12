@@ -24,6 +24,8 @@ There is not much to say here really:
 
 This is really where the meat of Hammerspoon is. Extensions can either be pure Lua or a mixture of Lua and Objective-C.
 
+Note: all APIs provided by extensions should follow the camelCase naming convention. This does not apply to an extension's internal functions, just the ones presented to Lua.
+
 ### Writing a pure Lua extension ###
 
 These extensions generally provide useful helper functionality for users (e.g. abstracting other extensions).

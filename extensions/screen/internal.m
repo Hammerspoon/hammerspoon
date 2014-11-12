@@ -52,10 +52,10 @@ static int screen_name(lua_State* L) {
     return 1;
 }
 
-/// hs.screen.settint(redarray, greenarray, bluearray)
+/// hs.screen.setTint(redarray, greenarray, bluearray)
 /// Function
 /// Set the tint on a screen; experimental.
-static int screen_settint(lua_State* L) {
+static int screen_setTint(lua_State* L) {
     lua_len(L, 1); int red_len = lua_tonumber(L, -1);
     lua_len(L, 2); int green_len = lua_tonumber(L, -1);
     lua_len(L, 3); int blue_len = lua_tonumber(L, -1);
@@ -110,10 +110,10 @@ void new_screen(lua_State* L, NSScreen* screen) {
     lua_setmetatable(L, -2);
 }
 
-/// hs.screen.allscreens() -> screen[]
+/// hs.screen.allScreens() -> screen[]
 /// Constructor
 /// Returns all the screens there are.
-static int screen_allscreens(lua_State* L) {
+static int screen_allScreens(lua_State* L) {
     lua_newtable(L);
 
     int i = 1;
@@ -126,18 +126,18 @@ static int screen_allscreens(lua_State* L) {
     return 1;
 }
 
-/// hs.screen.mainscreen() -> screen
+/// hs.screen.mainScreen() -> screen
 /// Constructor
 /// Returns the 'main' screen, i.e. the one containing the currently focused window.
-static int screen_mainscreen(lua_State* L) {
+static int screen_mainScreen(lua_State* L) {
     new_screen(L, [NSScreen mainScreen]);
     return 1;
 }
 
-/// hs.screen:set_primary(screen) -> nil
+/// hs.screen:setPrimary(screen) -> nil
 /// Function
 /// Sets the screen to be the primary display (i.e. contain the menubar and dock)
-static int screen_set_primary(lua_State* L) {
+static int screen_setPrimary(lua_State* L) {
     int deltaX, deltaY;
 
     CGDisplayErr dErr;
@@ -179,10 +179,10 @@ static int screen_set_primary(lua_State* L) {
 }
 
 static const luaL_Reg screenlib[] = {
-    {"allscreens", screen_allscreens},
-    {"mainscreen", screen_mainscreen},
-    {"settint", screen_settint},
-    {"set_primary", screen_set_primary},
+    {"allScreens", screen_allScreens},
+    {"mainScreen", screen_mainScreen},
+    {"setTint", screen_setTint},
+    {"setPrimary", screen_setPrimary},
 
     {"_frame", screen_frame},
     {"_visibleframe", screen_visibleframe},

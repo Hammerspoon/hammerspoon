@@ -2,14 +2,14 @@
 ---
 --- Create doc objects which can be access from within the command line tool or the Hammerspoon console for module documentation.
 ---
---- e.g. `doc = hs.doc.from_json_file('path-to-docs.json')`
+--- e.g. `doc = hs.doc.fromJSONFile('path-to-docs.json')`
 ---
---- You can use the `hs.docstrings_json_file` constant, e.g. `doc = hs.doc.from_json_file(hs.docstrings_json_file)`
+--- You can use the `hs.docstrings_json_file` constant, e.g. `doc = hs.doc.fromJSONFile(hs.docstrings_json_file)`
 ---
 
 --- hs.doc.debugging_modes -> debug loading and parsing
 --- Flags
---- Mostly only have an affect on `hs.doc.from_array` and `hs.doc.from_package_loaded`.
+--- Mostly only have an affect on `hs.doc.fromArray` and `hs.doc.fromPackageLoaded`.
 ---
 --- Set the flag in the global namespace one of these ways:
 ---     _G["debug.docs.module"] = "build"       -- building metatables for return
@@ -149,15 +149,15 @@ setmetatable(package_loaded_holder, {
 local do_package_loaded_update = function()
     local packageLoadedArray = {}
     for i,v in pairs(package.loaded) do table.insert(packageLoadedArray, i) end
-    package_loaded_holder.results = module.from_array(packageLoadedArray)
+    package_loaded_holder.results = module.fromArray(packageLoadedArray)
 end
 
 -- Public interface ------------------------------------------------------
 
---- hs.doc.from_json_file(jsonfile) -> doc-array
+--- hs.doc.fromJSONFile(jsonfile) -> doc-array
 --- Function
---- Builds a doc array construct from the json file provided.  Usually this will be the json file provided with the Hammerspoon application, but this json file will only contain the documentation for modules recognized by the Hammerspoon builders and the built in modules and not modules from other sources.  For those, use `hs.doc.from_array` and `hs.doc.from_package_loaded`.
-function module.from_json_file(docsfile)
+--- Builds a doc array construct from the json file provided.  Usually this will be the json file provided with the Hammerspoon application, but this json file will only contain the documentation for modules recognized by the Hammerspoon builders and the built in modules and not modules from other sources.  For those, use `hs.doc.fromArray` and `hs.doc.fromPackageLoaded`.
+function module.fromJSONFile(docsfile)
   local f = io.open(docsfile)
   if not f then
     print("Documentation file '"..docsfile.."' not found...")
@@ -175,10 +175,10 @@ function module.from_json_file(docsfile)
   return internalBuild(content)
 end
 
---- hs.doc.from_array(array) -> doc-array
+--- hs.doc.fromArray(array) -> doc-array
 --- Function
 --- Builds a doc array construct from the lua files of the modules listed in the provided array.  Useful for creating doc objects for in progress modules or local files.
-function module.from_array(theArray)
+function module.fromArray(theArray)
     -- bin/gencomments
 
     local lines = {}
@@ -276,10 +276,10 @@ function module.from_array(theArray)
     return internalBuild(json.encode(mods,true))
 end
 
---- hs.doc.from_package_loaded([bool]) -> doc-array
+--- hs.doc.fromPackageLoaded([bool]) -> doc-array
 --- Function
 --- Builds a doc array construct from the lua files of all modules currently tracked in `package.loaded`, which is where Lua stores modules which have been loaded by `require`.  If the optional boolean value provided is true, then the doc array will be refreshed everytime a new module is loaded via `require`.
-module.from_package_loaded = function(autorefresh)
+module.fromPackageLoaded = function(autorefresh)
     do_package_loaded_update()
 
     if autorefresh then

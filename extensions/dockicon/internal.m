@@ -38,10 +38,10 @@ static int icon_bounce(lua_State* L) {
     return 0;
 }
 
-/// hs.dockicon.setbadge(str)
+/// hs.dockicon.setBadge(str)
 /// Function
 /// Set's Mjolnir's dock icon's badge to the given string; pass an empty string to clear it.
-static int icon_setbadge(lua_State* L) {
+static int icon_setBadge(lua_State* L) {
     NSDockTile* tile = [[NSApplication sharedApplication] dockTile];
     [tile setBadgeLabel:[NSString stringWithUTF8String: luaL_checkstring(L, 1)]];
     [tile display];
@@ -53,7 +53,7 @@ static luaL_Reg icon_lib[] = {
     {"show", icon_show},
     {"hide", icon_hide},
     {"bounce", icon_bounce},
-    {"setbadge", icon_setbadge},
+    {"setBadge", icon_setBadge},
     {NULL, NULL}
 };
 

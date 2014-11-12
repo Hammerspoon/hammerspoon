@@ -234,12 +234,12 @@ static int iter_codes (lua_State *L) {
 
 static struct luaL_Reg funcs[] = {
   {"offset", byteoffset},
-  {"codepoint", codepoint},
+  {"codePoint", codepoint},
   {"char", utfchar},
   {"len", utflen},
   {"codes", iter_codes},
   /* placeholders */
-  {"charpattern", NULL},
+  {"charPattern", NULL},
   {NULL, NULL}
 };
 
@@ -247,7 +247,7 @@ static struct luaL_Reg funcs[] = {
 LUAMOD_API int luaopen_utf8 (lua_State *L) {
   luaL_newlib(L, funcs);
   lua_pushliteral(L, UTF8PATT);
-  lua_setfield(L, -2, "charpattern");
+  lua_setfield(L, -2, "charPattern");
   return 1;
 }
 
