@@ -75,14 +75,14 @@ package.cpath=package.cpath..";"..modpath.."/?.so"
 
 if autoload_extensions then
   print("-- Lazily loading extensions")
-  _extensions = {}
+  hs._extensions = {}
 
   -- Discover extensions in our .app bundle
   local iter, dir_obj = require("hs.fs").dir(modpath.."/hs")
   local extension = iter(dir_obj)
   while extension do
       if (extension ~= ".") and (extension ~= "..") then
-          _extensions[extension] = true
+          hs._extensions[extension] = true
       end
       extension = iter(dir_obj)
   end
@@ -90,7 +90,7 @@ if autoload_extensions then
   -- Inject a lazy extension loader into the main HS table
   setmetatable(hs, {
       __index = function(t, key)
-          if _extensions[key] ~= nil then
+          if hs._extensions[key] ~= nil then
               print("-- Loading extension: "..key)
               hs[key] = require("hs."..key)
               return hs[key]
