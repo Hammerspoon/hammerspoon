@@ -1,5 +1,5 @@
 -- hs.alert.show('testing init.lua loaded')
-for k,v in pairs(_extensions) do
+for k,v in pairs(hs._extensions) do
   print(string.format("checking extension '%s'", k))
   res, ext = pcall(load(string.format("return hs.%s", k)))
   if res then
