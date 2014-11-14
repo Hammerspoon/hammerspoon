@@ -85,6 +85,7 @@ static void milight_print(lua_State *L, char *msg) {
 ///  * ip - IP address of the MiLight WiFi bridge device. For convenience this can be the broadcast address of your network
 ///         (e.g. 192.168.0.255)
 ///  * port - UDP port to talk to the bridge on. Defaults to 8899
+///
 /// Returns:
 ///  * bridge object to use with other API methods
 static int milight_new(lua_State *L) {
@@ -128,6 +129,7 @@ static int milight_new(lua_State *L) {
 ///
 /// Parameters:
 ///  None
+///
 /// Returns:
 ///  None
 static int milight_del(lua_State *L) {
@@ -148,6 +150,7 @@ static int milight_del(lua_State *L) {
 /// Parameters:
 ///  * cmd - A command from the hs.milight.cmd table
 ///  * value - An optional value, if appropriate for the command (defaults to 0x00)
+///
 /// Returns:
 ///  * True if the command was sent, false if an error occurred
 static int milight_send(lua_State *L) {

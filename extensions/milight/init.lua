@@ -56,6 +56,7 @@ end
 ---
 --- Parameters:
 ---  * zone - 0 for all zones, 1-4 for zones one through four
+---
 --- Returns:
 ---  * True if the command was sent correctly, false if not
 function milight:zoneOff(zone)
@@ -68,6 +69,7 @@ end
 ---
 --- Parameters:
 ---  * zone - 0 for all zones, 1-4 for zones one through four
+---
 --- Returns:
 ---  * True if the command was sent correctly, false if not
 function milight:zoneOn(zone)
@@ -80,6 +82,7 @@ end
 ---
 --- Parameters:
 ---  * None
+---
 --- Returns:
 ---  * True if the command was sent correctly, false if not
 function milight:discoCycle(zone)
@@ -97,6 +100,7 @@ end
 --- Parameters:
 ---  * zone - 0 for all zones, 1-4 for zones one through four
 ---  * value - Brightness level to set, between 0 and 25
+---
 --- Returns:
 ---  * The value that was sent to the WiFi bridge, or -1 if an error occurred
 function milight:zoneBrightness(zone, value)
@@ -110,6 +114,7 @@ end
 --- Parameters:
 ---  * zone - 0 for all zones, 1-4 for zones one through four
 ---  * value - RGB color value between 0 and 255
+---
 --- Returns:
 ---  * True if the command was sent correctly, false if not
 function milight:zoneColor(zone, value)
@@ -122,6 +127,7 @@ end
 ---
 --- Parameters:
 ---  * zone - 0 for all zones, 1-4 for zones one through four
+---
 --- Returns:
 ---  * True if the command was sent correctly, false if not
 function milight:zoneWhite(zone)
