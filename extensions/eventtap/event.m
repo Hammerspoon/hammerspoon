@@ -51,7 +51,7 @@ static int eventtap_event_setFlags(lua_State* L) {
     if (lua_getfield(L, 2, "shift"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskShift;
     if (lua_getfield(L, 2, "fn"), lua_toboolean(L, -1)) flags |= kCGEventFlagMaskSecondaryFn;
 
-    CGEventsetFlags(event, flags);
+    CGEventSetFlags(event, flags);
 
     return 0;
 }
@@ -177,7 +177,7 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
 
     CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
     CGEventRef keyevent = CGEventCreateKeyboardEvent(source, keycode, isdown);
-    CGEventsetFlags(keyevent, flags);
+    CGEventSetFlags(keyevent, flags);
     new_eventtap_event(L, keyevent);
     CFRelease(keyevent);
 
