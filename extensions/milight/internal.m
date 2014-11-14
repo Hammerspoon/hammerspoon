@@ -70,13 +70,6 @@ int milight_cacheCommands(lua_State *L) {
     return 1;
 }
 
-// Debug/error output helper, prints to hs's console
-static void milight_print(lua_State *L, char *msg) {
-    lua_getglobal(L, "print");
-    lua_pushstring(L, msg);
-    lua_call(L, 1, 0);
-}
-
 /// hs.milight.new(ip[, port]) -> bridge
 /// Constructor
 /// Creates a new bridge object, which will be connected to the supplied IP address and port
