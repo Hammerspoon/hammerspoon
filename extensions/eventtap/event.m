@@ -27,7 +27,7 @@ static int eventtap_event_getFlags(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
 
     lua_newtable(L);
-    CGEventFlags curAltkey = CGEventgetFlags(event);
+    CGEventFlags curAltkey = CGEventGetFlags(event);
     if (curAltkey & kCGEventFlagMaskAlternate) { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); }
     if (curAltkey & kCGEventFlagMaskShift) { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); }
     if (curAltkey & kCGEventFlagMaskControl) { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
@@ -106,7 +106,7 @@ static int eventtap_event_post(lua_State* L) {
 /// Gets the type of the given event; return value will be one of the values in the `hs.eventtap.event.types` table.
 static int eventtap_event_getType(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    lua_pushnumber(L, CGEventgetType(event));
+    lua_pushnumber(L, CGEventGetType(event));
     return 1;
 }
 
