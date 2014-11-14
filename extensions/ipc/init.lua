@@ -215,6 +215,11 @@ end
 -- Set-up metatable ------------------------------------------------------
 
 internal.__messagePort = internal.__setup_ipc()
+if not internal.__messagePort then
+    print("Warning: Unable to create IPC message port, you may already be running Hammerspoon.app")
+    return nil
+end
+
 internal.__handler = function(raw, str)
     local originalprint = print
     local fakestdout = ""

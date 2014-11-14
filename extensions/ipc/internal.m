@@ -58,6 +58,10 @@ static int setup_ipc(lua_State* L) {
     CFMessagePortContext ctx = {0, L, NULL, NULL, NULL};
 //    ctx.info = L;
     CFMessagePortRef messagePort = CFMessagePortCreateLocal(NULL, CFSTR("Hammerspoon"), ipc_callback, &ctx, false);
+    if (!messagePort) {
+        lua_pushnil(L);
+        return 1;
+    }
     CFRunLoopSourceRef runloopSource = CFMessagePortCreateRunLoopSource(NULL, messagePort, 0);
     CFRunLoopAddSource(CFRunLoopGetMain(), runloopSource, kCFRunLoopCommonModes);
 
