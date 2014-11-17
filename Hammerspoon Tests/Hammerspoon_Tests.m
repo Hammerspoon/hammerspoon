@@ -9,6 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 
+NSString* MJLuaRunString(NSString* command);
+
 @interface Hammerspoon_Tests : XCTestCase
 
 @end
@@ -25,16 +27,11 @@
     [super tearDown];
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    XCTAssert(NO, @"Pass");
+- (void)testRequires {
+    NSString *res = MJLuaRunString(@"return testrequires()");
+    NSLog(@"%@", res);
+    XCTAssertEqualObjects(res, @"", @"one or more require statements failed");
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
-}
 
 @end

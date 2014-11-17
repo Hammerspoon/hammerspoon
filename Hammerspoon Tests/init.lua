@@ -1,12 +1,20 @@
 -- hs.alert.show('testing init.lua loaded')
-for k,v in pairs(hs._extensions) do
-  print(string.format("checking extension '%s'", k))
-  res, ext = pcall(load(string.format("return hs.%s", k)))
-  if res then
-    if type(ext) ~= 'table' then
-      print(string.format("type of 'hs.%s' is '%s', was expecting 'table'", k, type(ext)))
+function testrequires()
+  failed = {}
+  for k,v in pairs(hs._extensions) do
+    print(string.format("checking extension '%s'", k))
+    res, ext = pcall(load(string.format("return hs.%s", k)))
+    if res then
+      if type(ext) ~= 'table' then
+        failreason = string.format("type of 'hs.%s' is '%s', was expecting 'table'", k, type(ext))
+        print(failreason)
+        table.insert(failed, failreason)
+      end
+    else
+      failreason = string.format("failed to load 'hs.%s', error was '%s'", k, ext)
+      print(failreason)
+      table.insert(failed, failreason)
     end
-  else
-    print(string.format("failed to load 'hs.%s', error was '%s'", k, ext))
   end
+  return table.concat(failed, " / ")
 end
