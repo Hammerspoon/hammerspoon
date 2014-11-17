@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 
+// FIXME: hack
 NSString* MJLuaRunString(NSString* command);
 
 @interface Hammerspoon_Tests : XCTestCase
@@ -28,6 +29,7 @@ NSString* MJLuaRunString(NSString* command);
 }
 
 - (void)testRequires {
+    // FIXME: this is hacky, we should be getting a table back so we can assert every extension, etc.
     NSString *res = MJLuaRunString(@"return testrequires()");
     NSLog(@"%@", res);
     XCTAssertEqualObjects(res, @"", @"one or more require statements failed");
