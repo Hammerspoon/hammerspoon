@@ -103,7 +103,7 @@ function milight:discoCycle(zone)
     end
 end
 
---- hs.milight:zoneBrightness(zone, value) -> bool
+--- hs.milight:zoneBrightness(zone, value) -> integer
 --- Method
 --- Sets brightness for the specified zone
 ---
