@@ -5,6 +5,16 @@
 local milight = require "hs.milight.internal"
 milight.cmd = milight._cacheCommands()
 
+--- hs.milight.minBrightness
+--- Constant
+--- Specifies the minimum brightness value that can be used
+milight.minBrightness = 0
+--
+--- hs.milight.maxBrightness
+--- Constant
+--- Specifies the maximum brightness value that can be used
+milight.maxBrightness = 25
+
 -- Internal helper to set brightness
 function brightnessHelper(bridge, zonecmd, value)
     if (milight.send(bridge, milight.cmd[zonecmd])) then
