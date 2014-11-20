@@ -25,20 +25,20 @@ static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_pushnumber(L, rect.size.height); lua_setfield(L, -2, "h");
 }
 
-/// hs.geometry.intersectionrect(rect1, rect2) -> rect3
+/// hs.geometry.intersectionRect(rect1, rect2) -> rect3
 /// Function
 /// Returns the intersection of two rects as a new rect.
-static int geometry_intersectionrect(lua_State* L) {
+static int geometry_intersectionRect(lua_State* L) {
     NSRect r1 = geom_torect(L, 1);
     NSRect r2 = geom_torect(L, 2);
     geom_pushrect(L, NSIntersectionRect(r1, r2));
     return 1;
 }
 
-/// hs.geometry.rectmidpoint(rect) -> point
+/// hs.geometry.rectMidPoint(rect) -> point
 /// Function
 /// Returns the midpoint of a rect.
-static int geometry_rectmidpoint(lua_State* L) {
+static int geometry_rectMidPoint(lua_State* L) {
     NSRect r = geom_torect(L, 1);
     geom_pushpoint(L, NSMakePoint(NSMidX(r), NSMidY(r)));
     return 1;
@@ -46,8 +46,8 @@ static int geometry_rectmidpoint(lua_State* L) {
 
 
 static const luaL_Reg geometrylib[] = {
-    {"intersectionrect", geometry_intersectionrect},
-    {"rectmidpoint", geometry_rectmidpoint},
+    {"intersectionRect", geometry_intersectionRect},
+    {"rectMidPoint", geometry_rectMidPoint},
     {NULL, NULL}
 };
 

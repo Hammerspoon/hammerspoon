@@ -15,7 +15,7 @@
 ---
 --- For `hydra.utf8.chars(str)`, which provided an array of the individual UTF-8 characters of `str`, use the following:
 ---
----     t = {} ; str:gsub(utf8_53.charpattern, function(c) t[#t+1] = c end)
+---     t = {} ; str:gsub(utf8_53.charPattern, function(c) t[#t+1] = c end)
 ---
 
 --- hs.utf8_53.char(...) -> string
@@ -28,7 +28,7 @@
 ---     for p, c in utf8.codes(s) do body end
 --- will iterate over all characters in string s, with p being the position (in bytes) and c the code point of each character. It raises an error if it meets any invalid byte sequence.
 
---- hs.utf8_53.codepoint(s [, i [, j]]) -> codepoint[, ...]
+--- hs.utf8_53.codePoint(s [, i [, j]]) -> codepoint[, ...]
 --- Function
 --- Returns the codepoints (as integers) from all characters in s that start between byte position i and j (both included). The default for i is 1 and for j is i. It raises an error if it meets any invalid byte sequence.
 
@@ -43,7 +43,7 @@
 ---
 --- This function assumes that s is a valid UTF-8 string.
 
---- hs.utf8_53.charpattern
+--- hs.utf8_53.charPattern
 --- Variable
 ---The pattern (a string, not a function) "[\0-\x7F\xC2-\xF4][\x80-\xBF]*" (see 6.4.1 in [reference documentation](http://www.lua.org/work/doc/)), which matches exactly one UTF-8 byte sequence, assuming that the subject is a valid UTF-8 string.
 

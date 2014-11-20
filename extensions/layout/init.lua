@@ -52,9 +52,9 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 --- Monitor name is a string, as found in hs.screen:name()
 ---
 --- The final three arguments use hs.geometry.rect() objects to describe the desired position and size of matched windows:
----  * Unit rect will be passed to hs.window.movetounit()
----  * Frame rect will be passed to hs.window.setframe() (including menubar and dock)
----  * Full-frame rect will be passed to hs.window.setframe() (ignoring menubar and dock)
+---  * Unit rect will be passed to hs.window.moveToUnit()
+---  * Frame rect will be passed to hs.window.setFrame() (including menubar and dock)
+---  * Full-frame rect will be passed to hs.window.setFrame() (ignoring menubar and dock)
 ---
 --- If either the x or y components of frame/full-frame rect are negative, they will be applied as offsets against the opposite
 --- edge of the screen (e.g. If x is -100 then the left edge of the window will be 100 pixels from the right edge of the screen).
@@ -76,13 +76,13 @@ function layout.apply(layout)
 --  First three items in each row are strings
 --  Second three items are rects that specify the position of the window. The first one that is
 --   not nil, wins.
---  unitrect is a rect passed to window:movetounit()
---  framerect is a rect passed to window:setframe()
+--  unitrect is a rect passed to window:moveToUnit()
+--  framerect is a rect passed to window:setFrame()
 --      If either the x or y components of framerect are negative, they will be applied as
 --      offsets from the width or height of screen:frame(), respectively
---  fullframerect is a rect passed to window:setframe()
+--  fullframerect is a rect passed to window:setFrame()
 --      If either the x or y components of fullframerect are negative, they will be applied
---      as offsets from the width or height of screen:fullframe(), respectively
+--      as offsets from the width or height of screen:fullFrame(), respectively
     for n,_row in pairs(layout) do
         local app = nil
         local wins = nil
@@ -95,7 +95,7 @@ function layout.apply(layout)
 
         -- Find the application's object, if wanted
         if _row[1] then
-            app = appfinder.app_from_name(_row[1])
+            app = appfinder.appFromName(_row[1])
             if not app then
                 print("Unable to find app: " .. _row[1])
             end
@@ -103,7 +103,7 @@ function layout.apply(layout)
 
         -- Find the destination display, if wanted
         if _row[3] then
-            local displays = fnutils.filter(screen.allscreens(), function(screen) return screen:name() == _row[3] end)
+            local displays = fnutils.filter(screen.allScreens(), function(screen) return screen:name() == _row[3] end)
             if displays then
                 -- TODO: This is bogus, multiple identical monitors will be impossible to lay out
                 display = displays[1]
@@ -118,12 +118,12 @@ function layout.apply(layout)
         -- Find the matching windows, if any
         if _row[2] then
             if app then
-                wins = fnutils.filter(app:allwindows(), function(win) return win:title() == _row[2] end)
+                wins = fnutils.filter(app:allWindows(), function(win) return win:title() == _row[2] end)
             else
-                wins = fnutils.filter(window:allwindows(), function(win) return win:title() == _row[2] end)
+                wins = fnutils.filter(window:allWindows(), function(win) return win:title() == _row[2] end)
             end
         elseif app then
-            wins = app:allwindows()
+            wins = app:allWindows()
         end
 
         -- Apply the display/frame positions requested, if any
@@ -137,18 +137,18 @@ function layout.apply(layout)
 
                 -- Move window to destination display, if wanted
                 if display then
-                    _win:settopleft(displaypoint)
+                    _win:setTopLeft(displaypoint)
                 end
 
                 -- Apply supplied position, if any
                 if unit then
-                    _win:movetounit(unit)
+                    _win:moveToUnit(unit)
                 elseif frame then
                     winframe = frame
                     screenrect = _win:screen():frame()
                 elseif fullframe then
                     winframe = fullframe
-                    screenrect = _win:screen():fullframe()
+                    screenrect = _win:screen():fullFrame()
                 end
 
                 if winframe then
@@ -160,7 +160,7 @@ function layout.apply(layout)
                             winframe.y = screenrect.h + winframe.y
                         end
                     end
-                    _win:setframe(winframe)
+                    _win:setFrame(winframe)
                 end
             end
         end

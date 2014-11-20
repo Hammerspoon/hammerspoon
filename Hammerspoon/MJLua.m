@@ -16,7 +16,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
 
-/// hs.openconsole()
+/// hs.openConsole()
 /// Function
 /// Opens the Hammerspoon Console window and focuses it.
 static int core_openconsole(lua_State* L) {
@@ -70,7 +70,7 @@ static int core_notify(lua_State* L) {
 }
 
 static luaL_Reg corelib[] = {
-    {"openconsole", core_openconsole},
+    {"openConsole", core_openconsole},
     {"reload", core_reload},
     {"focus", core_focus},
     {"_exit", core_exit},

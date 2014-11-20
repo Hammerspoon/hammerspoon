@@ -4,10 +4,10 @@
 
 local geometry = require "hs.geometry.internal"
 
---- hs.geometry.rotateccw(point, aroundpoint, ntimes = 1) -> point
+--- hs.geometry.rotateCCW(point, aroundpoint, ntimes = 1) -> point
 --- Function
 --- Rotates a point around another point N times.
-function geometry.rotateccw(point, aroundpoint, ntimes)
+function geometry.rotateCCW(point, aroundpoint, ntimes)
   local p = {x = point.x, y = point.y}
   for i = 1, ntimes or 1 do
     local px = p.x

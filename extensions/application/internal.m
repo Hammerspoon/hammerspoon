@@ -29,7 +29,7 @@ static int application_gc(lua_State* L) {
     return 0;
 }
 
-/// hs.application.runningapplications() -> app[]
+/// hs.application.runningApplications() -> app[]
 /// Constructor
 /// Returns all running apps.
 static int application_runningapplications(lua_State* L) {
@@ -44,7 +44,7 @@ static int application_runningapplications(lua_State* L) {
     return 1;
 }
 
-/// hs.application.applicationforpid(pid) -> app or nil
+/// hs.application.applicationForPid(pid) -> app or nil
 /// Constructor
 /// Returns the running app for the given pid, if it exists.
 static int application_applicationforpid(lua_State* L) {
@@ -60,10 +60,10 @@ static int application_applicationforpid(lua_State* L) {
     return 1;
 }
 
-/// hs.application.applicationsforbundleid(bundleid) -> app[]
+/// hs.application.applicationsForBundleID(bundleid) -> app[]
 /// Constructor
 /// Returns any running apps that have the given bundleid.
-static int application_applicationsforbundleid(lua_State* L) {
+static int application_applicationsForBundleID(lua_State* L) {
     const char* bundleid = luaL_checkstring(L, 1);
     NSString* bundleIdentifier = [NSString stringWithUTF8String:bundleid];
     
@@ -79,10 +79,10 @@ static int application_applicationsforbundleid(lua_State* L) {
     return 1;
 }
 
-/// hs.application:allwindows() -> window[]
+/// hs.application:allWindows() -> window[]
 /// Method
 /// Returns all open windows owned by the given app.
-static int application_allwindows(lua_State* L) {
+static int application_allWindows(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
     
     lua_newtable(L);
@@ -103,10 +103,10 @@ static int application_allwindows(lua_State* L) {
     return 1;
 }
 
-/// hs.application:mainwindow() -> window
+/// hs.application:mainWindow() -> window
 /// Method
 /// Returns the main window of the given app, or nil.
-static int application_mainwindow(lua_State* L) {
+static int application_mainWindow(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
     
     CFTypeRef window;
@@ -124,8 +124,8 @@ static int application_mainwindow(lua_State* L) {
 
 static int application__activate(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
-    BOOL allwindows = lua_toboolean(L, 2);
-    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps | (allwindows ? NSApplicationActivateAllWindows : 0)];
+    BOOL allWindows = lua_toboolean(L, 2);
+    BOOL success = [app activateWithOptions:NSApplicationActivateIgnoringOtherApps | (allWindows ? NSApplicationActivateAllWindows : 0)];
     lua_pushboolean(L, success);
     return 1;
 }
@@ -162,10 +162,10 @@ static int application_isunresponsive(lua_State* L) {
 
 static int application__bringtofront(lua_State* L) {
     pid_t pid = pid_for_app(L, 1);
-    BOOL allwindows = lua_toboolean(L, 2);
+    BOOL allWindows = lua_toboolean(L, 2);
     ProcessSerialNumber psn;
     GetProcessForPID(pid, &psn);
-    BOOL success = (SetFrontProcessWithOptions(&psn, allwindows ? 0 : kSetFrontProcessFrontWindowOnly) == noErr);
+    BOOL success = (SetFrontProcessWithOptions(&psn, allWindows ? 0 : kSetFrontProcessFrontWindowOnly) == noErr);
     lua_pushboolean(L, success);
     return 1;
 }
@@ -179,10 +179,10 @@ static int application_title(lua_State* L) {
     return 1;
 }
 
-/// hs.application:bundleid() -> string
+/// hs.application:bundleID() -> string
 /// Method
 /// Returns the bundle identifier of the app.
-static int application_bundleid(lua_State* L) {
+static int application_bundleID(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     lua_pushstring(L, [[app bundleIdentifier] UTF8String]);
     return 1;
@@ -228,7 +228,7 @@ static int application_kill9(lua_State* L) {
     return 0;
 }
 
-/// hs.application:ishidden() -> bool
+/// hs.application:isHidden() -> bool
 /// Method
 /// Returns whether the app is currently hidden.
 static int application_ishidden(lua_State* L) {
@@ -452,7 +452,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
     return foundItem;
 }
 
-/// hs.application:findmenuitem(menuitem) -> table or nil
+/// hs.application:findMenuItem(menuitem) -> table or nil
 /// Method
 /// Returns nil if the menu item cannot be found. If it does exist, returns a table with two keys:
 ///  enabled - whether the menu item can be selected/ticked. This will always be false if the application is not currently focussed
@@ -533,9 +533,9 @@ static int application_findmenuitem(lua_State* L) {
     return 1;
 }
 
-/// hs.application:selectmenuitem(menuitem) -> true or nil
+/// hs.application:selectMenuItem(menuitem) -> true or nil
 /// Method
-/// Selects a menu item provided as `menuitem`. This can be either a string or a table, in the same format as hs.application:findmenuitem()
+/// Selects a menu item provided as `menuitem`. This can be either a string or a table, in the same format as hs.application:findMenuItem()
 ///
 /// Depending on the type of menu item involved, this will either activate or tick/untick the menu item
 /// Returns true if the menu item was found and selected, or nil if it wasn't (e.g. because the menu item couldn't be found)
@@ -580,7 +580,7 @@ static int application_selectmenuitem(lua_State* L) {
     return 1;
 }
 
-/// hs.application.launchorfocus(name) -> bool
+/// hs.application.launchOrFocus(name) -> bool
 /// Function
 /// Launches the app with the given name, or activates it if it's already running.
 /// Returns true if it launched or was already launched; otherwise false (presumably only if the app doesn't exist).
@@ -592,28 +592,28 @@ static int application_launchorfocus(lua_State* L) {
 }
 
 static const luaL_Reg applicationlib[] = {
-    {"runningapplications", application_runningapplications},
-    {"applicationforpid", application_applicationforpid},
-    {"applicationsforbundleid", application_applicationsforbundleid},
+    {"runningApplications", application_runningapplications},
+    {"applicationForPID", application_applicationforpid},
+    {"applicationsForBundleID", application_applicationsForBundleID},
 
-    {"allwindows", application_allwindows},
-    {"mainwindow", application_mainwindow},
+    {"allWindows", application_allWindows},
+    {"mainWindow", application_mainWindow},
     {"_activate", application__activate},
     {"_focusedwindow", application__focusedwindow},
     {"_bringtofront", application__bringtofront},
     {"title", application_title},
-    {"bundleid", application_bundleid},
+    {"bundleID", application_bundleID},
     {"unhide", application_unhide},
     {"hide", application_hide},
     {"kill", application_kill},
     {"kill9", application_kill9},
-    {"ishidden", application_ishidden},
+    {"isHidden", application_ishidden},
     {"pid", application_pid},
-    {"isunresponsive", application_isunresponsive},
+    {"isUnresponsive", application_isunresponsive},
     {"kind", application_kind},
-    {"findmenuitem", application_findmenuitem},
-    {"selectmenuitem", application_selectmenuitem},
-    {"launchorfocus", application_launchorfocus},
+    {"findMenuItem", application_findmenuitem},
+    {"selectMenuItem", application_selectmenuitem},
+    {"launchOrFocus", application_launchorfocus},
 
     {NULL, NULL}
 };

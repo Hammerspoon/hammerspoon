@@ -30,7 +30,7 @@ static NSMutableIndexSet *locationHandlers;
     lua_getfield(L, -1, "__dispatch"); lua_remove(L, -2);
     if (lua_pcall(L, 0, 0, -2) != 0) {
         NSLog(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showerror"); lua_remove(L, -2);
+        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);
         lua_pcall(L, 1, 0, 0);
     }
@@ -79,7 +79,7 @@ BOOL manager_create(lua_State* L) {
         if (![CLLocationManager locationServicesEnabled]) {
             // FIXME: pop this up into the Lua console stack
             NSLog(@"ERROR: Location Services are disabled");
-            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showerror"); lua_remove(L, -2);
+            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
             lua_pushstring(L, "ERROR: Location Services are disabled");
             lua_pcall(L, 1, 0, 0);
             return false;
@@ -124,7 +124,7 @@ static int location_stop_watching(lua_State* L __unused) {
 ///  verticalAccuracy - The accuracy of the altitude value in meters
 ///
 /// Note that there is a small lag between calling hs.location.start() and this function returning useful data, and it may never return data if the user has denied access to Location Services.
-/// Rather than poll this function in a loop, consider using hs.timer.doafter() to continue your work after a reasonable delay.
+/// Rather than poll this function in a loop, consider using hs.timer.doAfter() to continue your work after a reasonable delay.
 static int location_get_location(lua_State* L) {
     CLLocation *current = [location.manager location];
     if (!current) {

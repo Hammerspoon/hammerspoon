@@ -15,8 +15,8 @@ local function resizetogrid(window, coords)
     -- alert.show(string.format('move window %q to %d,%d-%d,%d', window:title(), coords.r1, coords.c1, coords.r2, coords.c2), 20)
 
     -- collect screen dimensions
-    local frame = screen.mainscreen():fullframe()
-    local framew = screen.mainscreen():frame()
+    local frame = screen.mainScreen():fullFrame()
+    local framew = screen.mainScreen():frame()
 
     local h = framew.h
     local w = frame.w
@@ -33,7 +33,7 @@ local function resizetogrid(window, coords)
     newframe.y = (coords.r1-1) * hdelta + y
     newframe.h = (coords.r2-coords.r1+1) * hdelta
     newframe.w = (coords.c2-coords.c1+1) * wdelta
-    window:setframe(newframe)
+    window:setFrame(newframe)
     -- alert.show(string.format('new frame for %q is %d*%d at %d,%d', window:title(), newframe.w, newframe.h, newframe.x, newframe.y), 20)
 end
 
@@ -133,8 +133,8 @@ function mjomatic.go(cfg)
         if not windows[key] then
             error(string.format('no window found for application %s (%s)', title, key))
         end
-        local app = appfinder.app_from_name(title)
-        local window = app:mainwindow()
+        local app = appfinder.appFromName(title)
+        local window = app:mainWindow()
         -- alert.show(string.format('application title for %q is %q, main window %q', title, app:title(), window:title()))
         if window then
             resizetogrid(window, windows[key])

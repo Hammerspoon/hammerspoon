@@ -2,11 +2,11 @@
 ---
 --- Functions for managing any window.
 ---
---- To get windows, see `hs.window.focusedwindow` and `hs.window.visiblewindows`.
+--- To get windows, see `hs.window.focusedWindow` and `hs.window.visibleWindows`.
 ---
---- To get window geometrical attributes, see `hs.window.{frame,size,topleft}`.
+--- To get window geometrical attributes, see `hs.window.{frame,size,topLeft}`.
 ---
---- To move and resize windows, see `hs.window.set{frame,size,topleft}`.
+--- To move and resize windows, see `hs.window.set{frame,size,topLeft}`.
 ---
 --- It may be handy to get a window's app or screen via `hs.window.application` and `hs.window.screen`.
 ---
@@ -18,31 +18,31 @@ local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 local hs_screen = require "hs.screen"
 
---- hs.window.animation_duration (boolean)
+--- hs.window.animationDuration (boolean)
 --- Variable
 --- This is the default duration for animations. Set to 0 to disable animations.
-window.animation_duration = 0.2
+window.animationDuration = 0.2
 
---- hs.window.allwindows() -> win[]
+--- hs.window.allWindows() -> win[]
 --- Function
 --- Returns all windows
-function window.allwindows()
-  return fnutils.mapcat(application.runningapplications(), application.allwindows)
+function window.allWindows()
+  return fnutils.mapCat(application.runningApplications(), application.allWindows)
 end
 
---- hs.window.windowforid() -> win or nil
+--- hs.window.windowForID() -> win or nil
 --- Function
 --- Returns the window for the given id, or nil if it's an invalid id.
-function window.windowforid(id)
-  return fnutils.find(window.allwindows(), function(win) return win:id() == id end)
+function window.windowForID(id)
+  return fnutils.find(window.allWindows(), function(win) return win:id() == id end)
 end
 
---- hs.window:isvisible() -> bool
+--- hs.window:isVisible() -> bool
 --- Method
 --- True if the app is not hidden and the window is not minimized.
 --- NOTE: some apps (e.g. in Adobe Creative Cloud) have literally-invisible windows and also like to put them very far offscreen; this method may return true for such windows.
-function window:isvisible()
-  return not self:application():ishidden() and not self:isminimized()
+function window:isVisible()
+  return not self:application():isHidden() and not self:isMinimized()
 end
 
 --- hs.window:frame() -> rect
@@ -50,67 +50,67 @@ end
 --- Get the frame of the window in absolute coordinates.
 function window:frame()
   local s = self:size()
-  local tl = self:topleft()
+  local tl = self:topLeft()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
 end
 
---- hs.window:setframe(rect, duration)
+--- hs.window:setFrame(rect, duration)
 --- Method
 --- Set the frame of the window in absolute coordinates.
 ---
 --- The window will be animated to its new position and the animation will run for 'duration' seconds.
 ---
---- If you don't specify a value for the duration, the default is whatever is in hs.window.animation_duration.
+--- If you don't specify a value for the duration, the default is whatever is in hs.window.animationDuration.
 --- If you specify 0 as the value of duration, the window will be immediately snapped to its new location
 --- with no animation.
-function window:setframe(f, duration)
+function window:setFrame(f, duration)
   if duration == nil then
-    duration = window.animation_duration
+    duration = window.animationDuration
   end
   if duration > 0 then
     self:transform({ x = f.x, y = f.y}, { w = f.w, h = f.h }, duration)
   else
-    self:setsize(f)
-    self:settopleft(f)
-    self:setsize(f)
+    self:setSize(f)
+    self:setTopLeft(f)
+    self:setSize(f)
   end
 end
 
---- hs.window:otherwindows_samescreen() -> win[]
+--- hs.window:otherWindowsSameScreen() -> win[]
 --- Method
 --- Get other windows on the same screen as self.
-function window:otherwindows_samescreen()
-  return fnutils.filter(window.visiblewindows(), function(win) return self ~= win and self:screen() == win:screen() end)
+function window:otherWindowsSameScreen()
+  return fnutils.filter(window.visibleWindows(), function(win) return self ~= win and self:screen() == win:screen() end)
 end
 
---- hs.window:otherwindows_allscreens() -> win[]
+--- hs.window:otherWindowsAllScreens() -> win[]
 --- Method
 --- Get every window except this one.
-function window:otherwindows_allscreens()
-  return fnutils.filter(window.visiblewindows(), function(win) return self ~= win end)
+function window:otherWindowsAllScreens()
+  return fnutils.filter(window.visibleWindows(), function(win) return self ~= win end)
 end
 
 --- hs.window:focus() -> bool
 --- Method
 --- Try to make this window focused.
 function window:focus()
-  return self:becomemain() and self:application():_bringtofront()
+  return self:becomeMain() and self:application():_bringtofront()
 end
 
---- hs.window.visiblewindows() -> win[]
+--- hs.window.visibleWindows() -> win[]
 --- Function
---- Get all windows on all screens that match window.isvisible.
-function window.visiblewindows()
-  return fnutils.filter(window:allwindows(), window.isvisible)
+--- Get all windows on all screens that match window.isVisible.
+function window.visibleWindows()
+  return fnutils.filter(window:allWindows(), window.isVisible)
 end
 
---- hs.window.orderedwindows() -> win[]
+--- hs.window.orderedWindows() -> win[]
 --- Function
 --- Returns all visible windows, ordered from front to back.
-function window.orderedwindows()
+function window.orderedWindows()
   local orderedwins = {}
   local orderedwinids = window._orderedwinids()
-  local windows = window.visiblewindows()
+  local windows = window.visibleWindows()
 
   for _, orderedwinid in pairs(orderedwinids) do
     for _, win in pairs(windows) do
@@ -129,14 +129,14 @@ end
 --- Make this window fill the whole screen its on, without covering the dock or menu.
 function window:maximize()
   local screenrect = self:screen():frame()
-  self:setframe(screenrect)
+  self:setFrame(screenrect)
 end
 
---- hs.window:toggle_fullscreen()
+--- hs.window:toggleFullscreen()
 --- Method
 --- Toggle the fullscreen state of this window.
-function window:toggle_fullscreen()
-    self:setfullscreen(not self:isfullscreen())
+function window:toggleFullscreen()
+    self:setFullScreen(not self:isFullScreen())
 end
 
 --- hs.window:screen()
@@ -147,9 +147,9 @@ function window:screen()
   local lastvolume = 0
   local lastscreen = nil
 
-  for _, screen in pairs(hs_screen.allscreens()) do
-    local screenframe = screen:fullframe()
-    local intersection = geometry.intersectionrect(windowframe, screenframe)
+  for _, screen in pairs(hs_screen.allScreens()) do
+    local screenframe = screen:fullFrame()
+    local intersection = geometry.intersectionRect(windowframe, screenframe)
     local volume = intersection.w * intersection.h
 
     if volume > lastvolume then
@@ -161,7 +161,7 @@ function window:screen()
   return lastscreen
 end
 
-local function windows_in_direction(win, numrotations)
+local function windowsInDirection(win, numrotations)
   -- assume looking to east
 
   -- use the score distance/cos(A/2), where A is the angle by which it
@@ -170,14 +170,14 @@ local function windows_in_direction(win, numrotations)
 
   -- thanks mark!
 
-  local startingpoint = geometry.rectmidpoint(win:frame())
+  local startingpoint = geometry.rectMidPoint(win:frame())
 
-  local otherwindows = fnutils.filter(win:otherwindows_allscreens(), function(win) return window.isvisible(win) and window.isstandard(win) end)
+  local otherwindows = fnutils.filter(win:otherWindowsAllScreens(), function(win) return window.isVisible(win) and window.isStandard(win) end)
   local closestwindows = {}
 
   for _, win in pairs(otherwindows) do
-    local otherpoint = geometry.rectmidpoint(win:frame())
-    otherpoint = geometry.rotateccw(otherpoint, startingpoint, numrotations)
+    local otherpoint = geometry.rectMidPoint(win:frame())
+    otherpoint = geometry.rotateCCW(otherpoint, startingpoint, numrotations)
 
     local delta = {
       x = otherpoint.x - startingpoint.x,
@@ -207,54 +207,54 @@ local function focus_first_valid_window(ordered_wins)
   return false
 end
 
---- hs.window:windows_to_east()
+--- hs.window:windowsToEast()
 --- Method
 --- Get all windows east of this one, ordered by closeness.
-function window:windows_to_east()  return windows_in_direction(self, 0) end
+function window:windowsToEast()  return windowsInDirection(self, 0) end
 
---- hs.window:windows_to_west()
+--- hs.window:windowsToWest()
 --- Method
 --- Get all windows west of this one, ordered by closeness.
-function window:windows_to_west()  return windows_in_direction(self, 2) end
+function window:windowsToWest()  return windowsInDirection(self, 2) end
 
---- hs.window:windows_to_north()
+--- hs.window:windowsToNorth()
 --- Method
 --- Get all windows north of this one, ordered by closeness.
-function window:windows_to_north() return windows_in_direction(self, 1) end
+function window:windowsToNorth() return windowsInDirection(self, 1) end
 
---- hs.window:windows_to_south()
+--- hs.window:windowsToSouth()
 --- Method
 --- Get all windows south of this one, ordered by closeness.
-function window:windows_to_south() return windows_in_direction(self, 3) end
+function window:windowsToSouth() return windowsInDirection(self, 3) end
 
---- hs.window:focuswindow_east()
+--- hs.window:focusWindowEast()
 --- Method
 --- Focus the first focus-able window to the east of this one.
-function window:focuswindow_east()  return focus_first_valid_window(self:windows_to_east()) end
+function window:focusWindowEast()  return focus_first_valid_window(self:windowsToEast()) end
 
---- hs.window:focuswindow_west()
+--- hs.window:focusWindowWest()
 --- Method
 --- Focus the first focus-able window to the west of this one.
-function window:focuswindow_west()  return focus_first_valid_window(self:windows_to_west()) end
+function window:focusWindowWest()  return focus_first_valid_window(self:windowsToWest()) end
 
---- hs.window:focuswindow_north()
+--- hs.window:focusWindowNorth()
 --- Method
 --- Focus the first focus-able window to the north of this one.
-function window:focuswindow_north() return focus_first_valid_window(self:windows_to_north()) end
+function window:focusWindowNorth() return focus_first_valid_window(self:windowsToNorth()) end
 
---- hs.window:focuswindow_south()
+--- hs.window:focusWindowSouth()
 --- Method
 --- Focus the first focus-able window to the south of this one.
-function window:focuswindow_south() return focus_first_valid_window(self:windows_to_south()) end
+function window:focusWindowSouth() return focus_first_valid_window(self:windowsToSouth()) end
 
---- hs.window:movetounit(rect)
+--- hs.window:moveToUnit(rect)
 --- Method
 --- Moves and resizes the window to fit on the given portion of the screen.
 --- The argument is a rect with each key being between 0.0 and 1.0.
---- Example: win:movetounit(x=0, y=0, w=0.5, h=0.5) -- window now fills top-left quarter of screen
-function window:movetounit(unit)
+--- Example: win:moveToUnit(x=0, y=0, w=0.5, h=0.5) -- window now fills top-left quarter of screen
+function window:moveToUnit(unit)
   local screenrect = self:screen():frame()
-  self:setframe({
+  self:setFrame({
       x = screenrect.x + (unit.x * screenrect.w),
       y = screenrect.y + (unit.y * screenrect.h),
       w = unit.w * screenrect.w,

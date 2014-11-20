@@ -21,7 +21,7 @@ local function wrap(fn)
   return function()
     if fn then
       local ok, err = xpcall(fn, debug.traceback)
-      if not ok then hs.showerror(err) end
+      if not ok then hs.showError(err) end
     end
   end
 end

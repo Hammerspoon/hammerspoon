@@ -51,7 +51,7 @@ static int notify_setup(lua_State* L) {
     return 0;
 }
 
-/// hs.notify.withdraw_all()
+/// hs.notify.withdrawAll()
 /// Function
 /// Withdraw all posted notifications.  This is called automatically during a reload to prevent crashes upon user activation of a notification, so you should seldom need to use this directly.
 static int notify_gc(lua_State* L __unused) {
@@ -62,7 +62,7 @@ static int notify_gc(lua_State* L __unused) {
 static const luaL_Reg notifylib[] = {
     {"show", notify_show},
     {"_setup", notify_setup},
-    {"withdraw_all", notify_gc},
+    {"withdrawAll", notify_gc},
     {NULL, NULL}
 };
 

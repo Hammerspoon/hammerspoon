@@ -16,10 +16,10 @@ for i,v in pairs(module) do check_list[#check_list + 1] = i end
 
 module.watcher = require("hs.battery.watcher")
 
---- hs.battery.get_all() -> table
+--- hs.battery.getAll() -> table
 --- Function
 --- Iterates through all informational functions defined in this module and returns a table containing the current information.  Useful if you want more than one piece of information at a given time.
-module.get_all = function()
+module.getAll = function()
     local t = {}
 
     for i, v in ipairs(check_list) do

@@ -6,14 +6,14 @@
 
 local caffeinate = require "hs.caffeinate.internal"
 
---- hs.caffeinate.set(sleepType, aValue, AC_and_battery)
+--- hs.caffeinate.set(sleepType, aValue, acAndBattery)
 --- Function
 --- Configures the sleep prevention settings.
 --- **Arguments:**
 --- * sleepType (string):
----     * DisplayIdle - Controls whether the screen will be allowed to sleep (and also the system) if the user is idle.
----     * SystemIdle - Controls whether the system will be allowed to sleep if the user is idle (display may still sleep).
----     * System - Controls whether the system will be allowed to sleep for any reason.
+---     * displayIdle - Controls whether the screen will be allowed to sleep (and also the system) if the user is idle.
+---     * systemIdle - Controls whether the system will be allowed to sleep if the user is idle (display may still sleep).
+---     * system - Controls whether the system will be allowed to sleep for any reason.
 --- * aValue (boolean):
 ---     * True - The specified sleep type should be prevented.
 ---     * False - The specified sleep type should be allowed.
@@ -23,26 +23,26 @@ local caffeinate = require "hs.caffeinate.internal"
 ---
 --- **NOTES:**
 --- * These calls are not guaranteed to prevent the system sleep behaviours described above. The OS may override them if it feels it must (e.g. if your CPU temperature becomes dangerously high).
---- * The acAndBattery argument only applies to the "System" sleep type.
---- * You can toggle the acAndBattery state by calling set() again and altering the AC_and_battery value.
+--- * The acAndBattery argument only applies to the "system" sleep type.
+--- * You can toggle the acAndBattery state by calling set() again and altering the acAndBattery value.
 function caffeinate.set(aType, aValue, acAndBattery)
-    if (aType == "DisplayIdle") then
+    if (aType == "displayIdle") then
         if (aValue == true) then
-            caffeinate.prevent_idle_display_sleep()
+            caffeinate.preventIdleDisplaySleep()
         else
-            caffeinate.allow_idle_display_sleep()
+            caffeinate.allowIdleDisplaySleep()
         end
-    elseif (aType == "SystemIdle") then
+    elseif (aType == "systemIdle") then
         if (aValue == true) then
-            caffeinate.prevent_idle_system_sleep()
+            caffeinate.preventIdleSystemSleep()
         else
-            caffeinate.allow_idle_system_sleep()
+            caffeinate.allowIdleSystemSleep()
         end
-    elseif (aType == "System") then
+    elseif (aType == "system") then
         if (aValue == true) then
-            caffeinate.prevent_system_sleep(acAndBattery)
+            caffeinate.preventSystemSleep(acAndBattery)
         else
-            caffeinate.allow_system_sleep()
+            caffeinate.allowSystemSleep()
         end
     else
         print("Unknown type: " .. aType)
@@ -54,9 +54,9 @@ end
 --- Queries whether a particular sleep type is being prevented by hs.
 --- **Arguments:**
 --- * sleepType (string): (see [set](#set) for information about these values)
----     * DisplayIdle
----     * SystemIdle
----     * System
+---     * displayIdle
+---     * systemIdle
+---     * system
 ---
 --- **Returns:**
 --- * true - if the specified sleepType is currently being prevented.
@@ -67,12 +67,12 @@ function caffeinate.get(aType)
         print("No sleepType specified")
         return nil
     end
-    if (aType == "DisplayIdle") then
-        return caffeinate.is_idle_display_sleep_prevented()
-    elseif (aType == "SystemIdle") then
-        return caffeinate.is_idle_system_sleep_prevented()
-    elseif (aType == "System") then
-        return caffeinate.is_system_sleep_prevented()
+    if (aType == "displayIdle") then
+        return caffeinate.isIdleDisplaySleepPrevented()
+    elseif (aType == "systemIdle") then
+        return caffeinate.isIdleSystemSleepPrevented()
+    elseif (aType == "system") then
+        return caffeinate.isSystemSleepPrevented()
     else
         print("Unknown type: " .. aType)
     end
@@ -85,16 +85,16 @@ end
 --- Toggles the current state of the specified sleepType.
 --- **Arguments:**
 --- * sleepType (string): (see [set](#set) for information about these values)
----     * DisplayIdle
----     * SystemIdle
----     * System
+---     * displayIdle
+---     * systemIdle
+---     * system
 ---
 --- **Returns:**
 --- * true - if the new state of sleepType is prevention.
 --- * false - if the new state of sleepType is allowance.
 --- * nil - if an invalid sleepType is specified.
 ---
---- **NOTE:** If SystemIdle is toggled to on, it will apply to AC only.
+--- **NOTE:** If systemIdle is toggled to on, it will apply to AC only.
 function caffeinate.toggle(aType)
     local current = caffeinate.get(aType)
     if (current == nil) then
@@ -104,10 +104,10 @@ function caffeinate.toggle(aType)
     return caffeinate.get(aType)
 end
 
-function caffeinate.prevent_system_sleep(ac_and_battery)
-    ac_and_battery = ac_and_battery or false
+function caffeinate.preventSystemSleep(acAndBattery)
+    acAndBattery = acAndBattery or false
 
-    caffeinate._prevent_system_sleep(ac_and_battery)
+    caffeinate._preventSystemSleep(acAndBattery)
 end
 
 return caffeinate

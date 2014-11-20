@@ -59,10 +59,10 @@ function fnutils.contains(t, el)
   return false
 end
 
---- hs.fnutils.indexof(t, el) -> int or nil
+--- hs.fnutils.indexOf(t, el) -> int or nil
 --- Function
 --- Returns the index of a given element in a table, or nil if not found.
-function fnutils.indexof(t, el)
+function fnutils.indexOf(t, el)
   for k, v in pairs(t) do
     if v == el then
       return k
@@ -81,10 +81,10 @@ function fnutils.concat(t1, t2)
   return t1
 end
 
---- hs.fnutils.mapcat(t, fn) -> t2
+--- hs.fnutils.mapCat(t, fn) -> t2
 --- Function
 --- Runs fn(el) for every el in t, and assuming the results are tables, combines them into a new table.
-function fnutils.mapcat(t, fn)
+function fnutils.mapCat(t, fn)
   local nt = {}
   for k, v in pairs(t) do
     fnutils.concat(nt, fn(v))

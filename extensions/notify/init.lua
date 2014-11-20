@@ -23,7 +23,7 @@ local function wrap(fn)
   return function(...)
     if fn then
       local ok, err = xpcall(fn, debug.traceback, ...)
-      if not ok then hs.showerror(err) end
+      if not ok then hs.showError(err) end
     end
   end
 end
@@ -37,7 +37,7 @@ end
 module.registry = {}
 module.registry.n = 0
 
-setmetatable(module.registry, { __gc = module.withdraw_all })
+setmetatable(module.registry, { __gc = module.withdrawAll })
 
 if not _notifysetup then
   module._setup(callback)

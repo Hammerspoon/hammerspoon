@@ -54,19 +54,19 @@ static void caffeinate_release_assertion(lua_State *L, IOPMAssertionID *assertio
 // ----------------------- Functions for display sleep when user is idle ----------------------------
 
 // Prevent display sleep if the user goes idle (and by implication, system sleep)
-static int caffeinate_prevent_idle_display_sleep(lua_State *L) {
+static int caffeinate_preventIdleDisplaySleep(lua_State *L) {
     caffeinate_create_assertion(L, kIOPMAssertionTypePreventUserIdleDisplaySleep, &noIdleDisplaySleep);
     return 0;
 }
 
 // Allow display sleep if the user goes idle
-static int caffeinate_allow_idle_display_sleep(lua_State *L) {
+static int caffeinate_allowIdleDisplaySleep(lua_State *L) {
     caffeinate_release_assertion(L, &noIdleDisplaySleep);
     return 0;
 }
 
 // Determine if idle display sleep is currently prevented
-static int caffeinate_is_idle_display_sleep_prevented(lua_State *L) {
+static int caffeinate_isIdleDisplaySleepPrevented(lua_State *L) {
     lua_pushboolean(L, noIdleDisplaySleep);
     return 1;
 }
@@ -74,19 +74,19 @@ static int caffeinate_is_idle_display_sleep_prevented(lua_State *L) {
 // ----------------------- Functions for system sleep when user is idle ----------------------------
 
 // Prevent system sleep if the user goes idle (display may still sleep)
-static int caffeinate_prevent_idle_system_sleep(lua_State *L) {
+static int caffeinate_preventIdleSystemSleep(lua_State *L) {
     caffeinate_create_assertion(L, kIOPMAssertionTypePreventUserIdleSystemSleep, &noIdleSystemSleep);
     return 0;
 }
 
 // Allow system sleep if the user goes idle
-static int caffeinate_allow_idle_system_sleep(lua_State *L) {
+static int caffeinate_allowIdleSystemSleep(lua_State *L) {
     caffeinate_release_assertion(L, &noIdleSystemSleep);
     return 0;
 }
 
 // Determine if idle system sleep is currently prevented
-static int caffeinate_is_idle_system_sleep_prevented(lua_State *L) {
+static int caffeinate_isIdleSystemSleepPrevented(lua_State *L) {
     lua_pushboolean(L, noIdleSystemSleep);
     return 1;
 }
@@ -94,7 +94,7 @@ static int caffeinate_is_idle_system_sleep_prevented(lua_State *L) {
 // ----------------------- Functions for system sleep ----------------------------
 
 // Prevent system sleep
-static int caffeinate_prevent_system_sleep(lua_State *L) {
+static int caffeinate_preventSystemSleep(lua_State *L) {
     IOReturn result = 1;
     BOOL ac_and_battery = false;
 
@@ -120,21 +120,21 @@ static int caffeinate_prevent_system_sleep(lua_State *L) {
 }
 
 // Allow system sleep
-static int caffeinate_allow_system_sleep(lua_State *L) {
+static int caffeinate_allowSystemSleep(lua_State *L) {
     caffeinate_release_assertion(L, &noSystemSleep);
     return 0;
 }
 
 // Determine if system sleep is currently prevented
-static int caffeinate_is_system_sleep_prevented(lua_State *L) {
+static int caffeinate_isSystemSleepPrevented(lua_State *L) {
     lua_pushboolean(L, noSystemSleep);
     return 1;
 }
 
-/// hs.caffeinate.system_sleep() -> nil
+/// hs.caffeinate.systemSleep() -> nil
 /// Function
 /// Requests the system to sleep immediately
-static int caffeinate_system_sleep(lua_State *L __unused) {
+static int caffeinate_systemSleep(lua_State *L __unused) {
     io_connect_t port = IOPMFindPowerManagement(MACH_PORT_NULL);
     IOPMSleepSystem(port);
     IOServiceClose(port);
@@ -145,26 +145,26 @@ static int caffeinate_system_sleep(lua_State *L __unused) {
 
 static int caffeinate_gc(lua_State *L) {
     // TODO: We should register which of the assertions we have active, somewhere that persists a reload()
-    caffeinate_allow_idle_display_sleep(L);
-    caffeinate_allow_idle_system_sleep(L);
-    caffeinate_allow_system_sleep(L);
+    caffeinate_allowIdleDisplaySleep(L);
+    caffeinate_allowIdleSystemSleep(L);
+    caffeinate_allowSystemSleep(L);
 
     return 0;
 }
 
 static const luaL_Reg caffeinatelib[] = {
-    {"prevent_idle_display_sleep", caffeinate_prevent_idle_display_sleep},
-    {"allow_idle_display_sleep", caffeinate_allow_idle_display_sleep},
-    {"is_idle_display_sleep_prevented", caffeinate_is_idle_display_sleep_prevented},
+    {"preventIdleDisplaySleep", caffeinate_preventIdleDisplaySleep},
+    {"allowIdleDisplaySleep", caffeinate_allowIdleDisplaySleep},
+    {"isIdleDisplaySleepPrevented", caffeinate_isIdleDisplaySleepPrevented},
 
-    {"prevent_idle_system_sleep", caffeinate_prevent_idle_system_sleep},
-    {"allow_idle_system_sleep", caffeinate_allow_idle_system_sleep},
-    {"is_idle_system_sleep_prevented", caffeinate_is_idle_system_sleep_prevented},
+    {"preventIdleSystemSleep", caffeinate_preventIdleSystemSleep},
+    {"allowIdleSystemSleep", caffeinate_allowIdleSystemSleep},
+    {"isIdleSystemSleepPrevented", caffeinate_isIdleSystemSleepPrevented},
 
-    {"_prevent_system_sleep", caffeinate_prevent_system_sleep},
-    {"allow_system_sleep", caffeinate_allow_system_sleep},
-    {"is_system_sleep_prevented", caffeinate_is_system_sleep_prevented},
-    {"system_sleep", caffeinate_system_sleep},
+    {"_preventSystemSleep", caffeinate_preventSystemSleep},
+    {"allowSystemSleep", caffeinate_allowSystemSleep},
+    {"isSystemSleepPrevented", caffeinate_isSystemSleepPrevented},
+    {"systemSleep", caffeinate_systemSleep},
 
     {}
 };

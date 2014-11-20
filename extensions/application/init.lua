@@ -6,23 +6,23 @@ local application = require "hs.application.internal"
 local fnutils = require "hs.fnutils"
 local window = require "hs.window"
 
---- hs.application:visiblewindows() -> win[]
+--- hs.application:visibleWindows() -> win[]
 --- Method
 --- Returns only the app's windows that are visible.
-function application:visiblewindows()
-  return fnutils.filter(self:allwindows(), window.isvisible)
+function application:visibleWindows()
+  return fnutils.filter(self:allWindows(), window.isVisible)
 end
 
---- hs.application:activate(allwindows = false) -> bool
+--- hs.application:activate(allWindows = false) -> bool
 --- Method
---- Tries to activate the app (make its key window focused) and returns whether it succeeded; if allwindows is true, all windows of the application are brought forward as well.
-function application:activate(allwindows)
-  if self:isunresponsive() then return false end
+--- Tries to activate the app (make its key window focused) and returns whether it succeeded; if allWindows is true, all windows of the application are brought forward as well.
+function application:activate(allWindows)
+  if self:isUnresponsive() then return false end
   local win = self:_focusedwindow()
   if win then
-    return win:becomemain() and self:_bringtofront(allwindows)
+    return win:becomeMain() and self:_bringtofront(allWindows)
   else
-    return self:_activate(allwindows)
+    return self:_activate(allWindows)
   end
 end
 

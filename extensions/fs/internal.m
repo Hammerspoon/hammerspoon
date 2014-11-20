@@ -6,14 +6,14 @@
 ** This library offers these functions:
 **   lfs.attributes (filepath [, attributename])
 **   lfs.chdir (path)
-**   lfs.currentdir ()
+**   lfs.currentDir ()
 **   lfs.dir (path)
 **   lfs.lock (fh, mode)
 **   lfs.lock_dir (path)
 **   lfs.mkdir (path)
 **   lfs.rmdir (path)
 **   lfs.setmode (filepath, mode)
-**   lfs.symlinkattributes (filepath [, attributename]) -- thanks to Sam Roberts
+**   lfs.symlinkAttributes (filepath [, attributename]) -- thanks to Sam Roberts
 **   lfs.touch (filepath [, atime [, mtime]])
 **   lfs.unlock (fh)
 **
@@ -175,7 +175,7 @@ static int change_dir (lua_State *L) {
 ** If unable to get the current directory, it returns nil
 **  and a string describing the error
 */
-/// hs.fs.currentdir () -> string or nil,error
+/// hs.fs.currentDir () -> string or nil,error
 /// Function
 /// 
 /// Returns a string with the current working directory or nil plus an error string.
@@ -308,7 +308,7 @@ static int lfs_unlock_dir(lua_State *L) {
 typedef struct lfs_Lock {
   char *ln;
 } lfs_Lock;
-/// hs.fs.lock_dir(path, [seconds_stale]) -> lock or nil,error
+/// hs.fs.lockDir(path, [seconds_stale]) -> lock or nil,error
 /// Function
 /// Creates a lockfile (called lockfile.lfs) in path if it does not exist and returns the lock. If the lock already exists checks if it's stale, using the second parameter (default for the second parameter is INT_MAX, which in practice means the lock will never be stale. To free the the lock call lock:free(). 
 /// In case of any errors it returns nil and the error message. In particular, if the lock exists and is not stale it returns the "File exists" message.
@@ -371,7 +371,7 @@ static int lfs_g_setmode (lua_State *L, FILE *f, int arg) {
 }
 
 static int lfs_f_setmode(lua_State *L) {
-  return lfs_g_setmode(L, check_file(L, 1, "setmode"), 2);
+  return lfs_g_setmode(L, check_file(L, 1, "setMode"), 2);
 }
 
 /*
@@ -854,7 +854,7 @@ struct _stat_members members[] = {
 /// * size - file size, in bytes
 /// * blocks - block allocated for file; (Unix only)
 /// * blksize - optimal file system I/O blocksize; (Unix only)
-/// This function uses stat internally thus if the given filepath is a symbolic link, it is followed (if it points to another link the chain is followed recursively) and the information is about the file it refers to. To obtain information about the link itself, see function lfs.symlinkattributes.
+/// This function uses stat internally thus if the given filepath is a symbolic link, it is followed (if it points to another link the chain is followed recursively) and the information is about the file it refers to. To obtain information about the link itself, see function hs.fs.symlinkAttributes.
 static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
         STAT_STRUCT info;
         const char *file = luaL_checkstring (L, 1);
@@ -902,7 +902,7 @@ static int file_info (lua_State *L) {
 /*
 ** Get symbolic link information using lstat.
 */
-/// hs.fs.symlinkattributes (filepath [, aname]) -> table
+/// hs.fs.symlinkAttributes (filepath [, aname]) -> table
 /// Function
 /// Identical to hs.fs.attributes except that it obtains information about the link itself (not the file it refers to).
 static int link_info (lua_State *L) {
@@ -912,17 +912,17 @@ static int link_info (lua_State *L) {
 static const struct luaL_Reg fslib[] = {
         {"attributes", file_info},
         {"chdir", change_dir},
-        {"currentdir", get_dir},
+        {"currentDir", get_dir},
         {"dir", dir_iter_factory},
         {"link", make_link},
         {"lock", file_lock},
         {"mkdir", make_dir},
         {"rmdir", remove_dir},
-        {"symlinkattributes", link_info},
-        {"setmode", lfs_f_setmode},
+        {"symlinkAttributes", link_info},
+        {"setMode", lfs_f_setmode},
         {"touch", file_utime},
         {"unlock", file_unlock},
-        {"lock_dir", lfs_lock_dir},
+        {"lockDir", lfs_lock_dir},
         {NULL, NULL},
 };
 
