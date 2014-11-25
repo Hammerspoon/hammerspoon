@@ -106,9 +106,9 @@ static int menubar_settooltip(lua_State *L) {
     return 0;
 }
 
-/// hs.menubar:click_function(fn)
+/// hs.menubar:clickCallback(fn)
 /// Method
-/// Registers a function to be called when the menubar icon is clicked.
+/// Registers a function to be called when the menubar icon is clicked. If the argument is nil, the previously registered callback is removed.
 // FIXME: Document that this makes no sense when a menu is being used, when we have menu support
 static int menubar_click_callback(lua_State *L) {
     menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
@@ -136,6 +136,49 @@ static int menubar_click_callback(lua_State *L) {
         [statusItem setTarget:object];
         [statusItem setAction:@selector(click:)];
     }
+    return 0;
+}
+
+/// hs.menubar:addMenu(items)
+/// Method
+/// Adds a menu to the menubar item with the supplied items in it, in the form:
+///  { ["name"] = fn }
+static int menubar_add_menu(lua_State *L) {
+    menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+    luaL_checktype(L, 2, LUA_TTABLE);
+
+    NSMenu *menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemMenu"];
+    lua_pushnil(L);
+    while (lua_next(L, 2) != 0) {
+        NSString *menuItemTitle = [NSString stringWithUTF8String:lua_tostring(L, -2)];
+        NSLog(@"Adding a menu item with title: %@", menuItemTitle);
+        // FIXME: How do we store all the callbacks?
+        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:menuItemTitle action:nil keyEquivalent:@""];
+        [menuItem setState:NSOnState];
+        [menu addItem:menuItem];
+        lua_pop(L, 1);
+    }
+
+    if ([menu numberOfItems] > 0) {
+        NSLog(@"got menu items, adding menu");
+        [statusItem setMenu:menu];
+    } else {
+        NSLog(@"no menu items, discarding menu");
+    }
+
+    return 0;
+}
+
+/// hs.menubar:removeMenu()
+/// Method
+/// Removes the menu previously associated with a menubar item
+static int menubar_remove_menu(lua_State *L) {
+    menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+    // FIXME: Remove handlers here too
+    [statusItem setMenu:nil];
+
     return 0;
 }
 
@@ -170,6 +213,9 @@ static int meta_gc(lua_State* __unused L) {
 }
 
 static int menubar_gc(lua_State *L) {
+    NSLog(@"menubar_gc");
+
+    // FIXME: This is almost certainly wrong, we need to remove all of the menubar items
     menubar_delete(L);
     return 0;
 }
@@ -182,10 +228,12 @@ static const luaL_Reg menubarlib[] = {
 };
 
 static const luaL_Reg menubar_metalib[] = {
-    {"settitle", menubar_settitle},
-    {"seticon", menubar_seticon},
-    {"settooltip", menubar_settooltip},
-    {"clickcallback", menubar_click_callback},
+    {"setTitle", menubar_settitle},
+    {"setIcon", menubar_seticon},
+    {"setTooltip", menubar_settooltip},
+    {"clickCallback", menubar_click_callback},
+    {"addMenu", menubar_add_menu},
+    {"removeMenu", menubar_remove_menu},
     {"delete", menubar_delete},
 
     {}
