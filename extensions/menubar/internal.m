@@ -129,20 +129,9 @@ static int menubar_click_callback(lua_State *L) {
     return 0;
 }
 
-/// hs.menubar:addMenu(items)
-/// Method
-/// Adds a menu to the menubar item with the supplied items in it, in the form:
-///  { ["name"] = fn }
-static int menubar_add_menu(lua_State *L) {
-    menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
-    NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
-    luaL_checktype(L, 2, LUA_TTABLE);
-
-    NSMenu *menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemMenu"];
-    [menu setAutoenablesItems:NO];
-
+void parse_table(lua_State *L, int idx, NSMenu *menu) {
     lua_pushnil(L); // Push a nil to the top of the stack, which lua_next() will interpret as "fetch the first item of the table"
-    while (lua_next(L, 2) != 0) {
+    while (lua_next(L, idx) != 0) {
         // lua_next pushed two things onto the stack, the table item's key at -2 and its value at -1
 
         // Check that the value is a table
@@ -195,37 +184,54 @@ static int menubar_add_menu(lua_State *L) {
         // Pop the menu item table off the stack, leaving its key at the top, for lua_next()
         lua_pop(L, 1);
     }
-
-    if ([menu numberOfItems] > 0) {
-        [statusItem setMenu:menu];
-    } else {
-    }
-
-    return 0;
 }
 
-/// hs.menubar:removeMenu()
+void erase_menu_items(lua_State *L, NSMenu *menu) {
+    for (NSMenuItem *menuItem in [menu itemArray]) {
+        clickDelegate *target = [menuItem representedObject];
+        if (target) {
+            luaL_unref(L, LUA_REGISTRYINDEX, target.fn);
+            [menuItem setTarget:nil];
+            [menuItem setAction:nil];
+            [menuItem setRepresentedObject:nil];
+            target = nil;
+        }
+        if ([menuItem hasSubmenu]) {
+            erase_menu_items(L, [menuItem submenu]);
+            [menuItem setSubmenu:nil];
+        }
+        [menu removeItem:menuItem];
+    }
+}
+
+/// hs.menubar:setMenu(items)
 /// Method
-/// Removes the menu previously associated with a menubar item
-static int menubar_remove_menu(lua_State *L) {
+/// Sets the menu for this menubar item to the supplied table, or removes the menu if the argument is nil
+///  {{ title = "my menu item", fn = function() print("you clicked!") end }, { title = "other item", fn = some_function } }
+static int menubar_set_menu(lua_State *L) {
     menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
-    NSMenu *menu = [statusItem menu];
 
-    if (menu) {
-        for (NSMenuItem *menuItem in [menu itemArray]) {
-            clickDelegate *target = [menuItem representedObject];
-            if (target) {
-                luaL_unref(L, LUA_REGISTRYINDEX, target.fn);
-                [menuItem setTarget:nil];
-                [menuItem setAction:nil];
-                [menuItem setRepresentedObject:nil];
-                target = nil;
-            }
+    if (lua_isnil(L, 2)) {
+        NSMenu *menu = [statusItem menu];
+
+        if (menu) {
+            erase_menu_items(L, menu);
+        }
+
+        [statusItem setMenu:nil];
+    } else {
+        luaL_checktype(L, 2, LUA_TTABLE);
+
+        NSMenu *menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemMenu"];
+        [menu setAutoenablesItems:NO];
+
+        parse_table(L, 2, menu);
+
+        if ([menu numberOfItems] > 0) {
+            [statusItem setMenu:menu];
         }
     }
-
-    [statusItem setMenu:nil];
 
     return 0;
 }
@@ -283,8 +289,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"setIcon", menubar_seticon},
     {"setTooltip", menubar_settooltip},
     {"clickCallback", menubar_click_callback},
-    {"addMenu", menubar_add_menu},
-    {"removeMenu", menubar_remove_menu},
+    {"setMenu", menubar_set_menu},
     {"delete", menubar_delete},
 
     {"__gc", menubar_gc},
