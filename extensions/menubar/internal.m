@@ -10,30 +10,23 @@
 @end
 
 @implementation clickDelegate
-- (void) click:(id)sender {
-    NSLog(@"clicked");
+- (void) click:(id __unused)sender {
+    lua_State *L = self.L;
+    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+    if (lua_pcall(L, 0, 0, -2) != 0) {
+        NSLog(@"%s", lua_tostring(L, -1));
+        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
+        lua_pushvalue(L, -2);
+        lua_pcall(L, 1, 0, 0);
+    }
 }
 @end
-
-static int store_udhandler(lua_State *L, NSMutableIndexSet *theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static void remove_udhandler (lua_State *L, NSMutableIndexSet *theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-}
-
-static NSMutableIndexSet *menuBarItemHandlers;
 
 typedef struct _menubaritem_t {
     void *menuBarItemObject;
     void *click_callback;
     int click_fn;
-    int registryHandle;
 } menubaritem_t;
 
 /// hs.menubar.new(icon, text) -> menubaritem
@@ -44,6 +37,7 @@ typedef struct _menubaritem_t {
 /// text argument is a string to use in place of an icon
 ///
 /// Note: You must provide either an icon or some text, and nil for the other. If you provide both, the icon will win
+/// Once a menubar item has been created, it can't be changed from being an icon to being text, or vice versa, but you can change the icon/text once set
 static int menubar_new(lua_State *L) {
     NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
     NSStatusItem *statusItem = [statusBar statusItemWithLength:NSVariableStatusItemLength];
@@ -54,7 +48,6 @@ static int menubar_new(lua_State *L) {
         menuBarItem->menuBarItemObject = (__bridge_retained void*)statusItem;
         menuBarItem->click_callback = nil;
         menuBarItem->click_fn = 0;
-        menuBarItem->registryHandle = store_udhandler(L, menuBarItemHandlers, -1);
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
     } else {
@@ -149,22 +142,66 @@ static int menubar_add_menu(lua_State *L) {
     luaL_checktype(L, 2, LUA_TTABLE);
 
     NSMenu *menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemMenu"];
-    lua_pushnil(L);
+    [menu setAutoenablesItems:NO];
+
+    lua_pushnil(L); // Push a nil to the top of the stack, which lua_next() will interpret as "fetch the first item of the table"
     while (lua_next(L, 2) != 0) {
-        NSString *menuItemTitle = [NSString stringWithUTF8String:lua_tostring(L, -2)];
-        NSLog(@"Adding a menu item with title: %@", menuItemTitle);
-        // FIXME: How do we store all the callbacks?
-        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:menuItemTitle action:nil keyEquivalent:@""];
-        [menuItem setState:NSOnState];
-        [menu addItem:menuItem];
+        // lua_next pushed two things onto the stack, the table item's key at -2 and its value at -1
+
+        // Check that the value is a table
+        if (lua_type(L, -1) != LUA_TTABLE) {
+            NSLog(@"Error: table entry is not a menu item table");
+
+            // Pop the value off the stack, leaving the key at the top
+            lua_pop(L, 1);
+            // Bail to the next lua_next() call
+            continue;
+        }
+
+        // Inspect the menu item table at the top of the stack, fetch the value for the key "title" and push the result to the top of the stack
+        lua_getfield(L, -1, "title");
+        if (!lua_isstring(L, -1)) {
+            NSLog(@"Error: malformed menu table entry");
+            // We need to pop two things off the stack - the result of lua_getfield and the table it inspected
+            lua_pop(L, 2);
+            // Bail to the next lua_next() call
+            continue;
+        }
+
+        // We have found the title of a menu bar item. Turn it into an NSString and pop it off the stack
+        NSString *title = [NSString stringWithUTF8String:lua_tostring(L, -1)];
+        lua_pop(L, 1);
+
+        if ([title isEqualToString:@"-"]) {
+            [menu addItem:[NSMenuItem separatorItem]];
+        } else {
+            NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
+
+            // Inspect the menu item table at the top of the stack, fetch the value for the key "fn" and push the result to the top of the stack
+            lua_getfield(L, -1, "fn");
+            if (lua_isfunction(L, -1)) {
+                clickDelegate *delegate = [[clickDelegate alloc] init];
+
+                // luaL_ref is going to store a reference to the item at the top of the stack and then pop it off. To avoid confusion, we're going to push the top item on top of itself, so luaL_ref leaves us where we are now
+                lua_pushvalue(L, -1);
+                delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
+                delegate.L = L;
+                [menuItem setTarget:delegate];
+                [menuItem setAction:@selector(click:)];
+                [menuItem setRepresentedObject:delegate];
+                [menuItem setEnabled:YES];
+            }
+            // Pop the result of lua_getfield off the stack
+            lua_pop(L, 1);
+            [menu addItem:menuItem];
+        }
+        // Pop the menu item table off the stack, leaving its key at the top, for lua_next()
         lua_pop(L, 1);
     }
 
     if ([menu numberOfItems] > 0) {
-        NSLog(@"got menu items, adding menu");
         [statusItem setMenu:menu];
     } else {
-        NSLog(@"no menu items, discarding menu");
     }
 
     return 0;
@@ -176,7 +213,21 @@ static int menubar_add_menu(lua_State *L) {
 static int menubar_remove_menu(lua_State *L) {
     menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
-    // FIXME: Remove handlers here too
+    NSMenu *menu = [statusItem menu];
+
+    if (menu) {
+        for (NSMenuItem *menuItem in [menu itemArray]) {
+            clickDelegate *target = [menuItem representedObject];
+            if (target) {
+                luaL_unref(L, LUA_REGISTRYINDEX, target.fn);
+                [menuItem setTarget:nil];
+                [menuItem setAction:nil];
+                [menuItem setRepresentedObject:nil];
+                target = nil;
+            }
+        }
+    }
+
     [statusItem setMenu:nil];
 
     return 0;
@@ -186,12 +237,22 @@ static int menubar_remove_menu(lua_State *L) {
 /// Method
 /// Removes the menubar item from the menubar and destroys it
 static int menubar_delete(lua_State *L) {
-    NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
     menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    // FIXME: We probably need to release other things here? like remove the callbacks and suchlike?
+    NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
+    NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
 
-    remove_udhandler(L, menuBarItemHandlers, menuBarItem->registryHandle);
+    // Remove any click callbackery the menubar item has
+    lua_pushcfunction(L, menubar_click_callback);
+    lua_pushvalue(L, 1);
+    lua_pushnil(L);
+    lua_call(L, 2, 0);
+
+    // Remove a menu if the menubar item has one
+    lua_pushcfunction(L, menubar_remove_menu);
+    lua_pushvalue(L, 1);
+    lua_call(L, 1, 0);
+
     [statusBar removeStatusItem:(__bridge NSStatusItem*)menuBarItem->menuBarItemObject];
     menuBarItem->menuBarItemObject = nil;
     menuBarItem = nil;
@@ -202,28 +263,21 @@ static int menubar_delete(lua_State *L) {
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static int menubar_setup(lua_State* __unused L) {
-    if (!menuBarItemHandlers) menuBarItemHandlers = [NSMutableIndexSet indexSet];
     return 0;
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [menuBarItemHandlers removeAllIndexes];
-    menuBarItemHandlers = nil;
     return 0;
 }
 
 static int menubar_gc(lua_State *L) {
-    NSLog(@"menubar_gc");
-
-    // FIXME: This is almost certainly wrong, we need to remove all of the menubar items
-    menubar_delete(L);
+    lua_pushcfunction(L, menubar_delete) ; lua_pushvalue(L, 1); lua_call(L, 1, 1);
     return 0;
 }
 
 static const luaL_Reg menubarlib[] = {
     {"new", menubar_new},
 
-    {"__gc", menubar_gc},
     {}
 };
 
@@ -236,6 +290,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"removeMenu", menubar_remove_menu},
     {"delete", menubar_delete},
 
+    {"__gc", menubar_gc},
     {}
 };
 
