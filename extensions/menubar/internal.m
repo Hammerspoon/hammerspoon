@@ -29,15 +29,11 @@ typedef struct _menubaritem_t {
     int click_fn;
 } menubaritem_t;
 
-/// hs.menubar.new(icon, text) -> menubaritem
+/// hs.menubar.new() -> menubaritem
 /// Constructor
 /// Creates a new menu bar item object, which can be added to the system menubar by calling menubaritem:add()
 ///
-/// icon argument is the path to an image file that will be loaded and used for the menu
-/// text argument is a string to use in place of an icon
-///
-/// Note: You must provide either an icon or some text, and nil for the other. If you provide both, the icon will win
-/// Once a menubar item has been created, it can't be changed from being an icon to being text, or vice versa, but you can change the icon/text once set
+/// Note: You likely want to call either hs.menubar:setTitle() or hs.menubar:setIcon() after creating a menubar item, otherwise it will be invisible.
 static int menubar_new(lua_State *L) {
     NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
     NSStatusItem *statusItem = [statusBar statusItemWithLength:NSVariableStatusItemLength];
@@ -72,6 +68,7 @@ static int menubar_settitle(lua_State *L) {
 /// hs.menubar:setIcon(iconfilepath) -> bool
 /// Method
 /// Loads the image specified by iconfilepath and sets it as the menu bar item's icon
+// FIXME: Talk about icon requirements, wrt size/colour and general suitability for retina and yosemite dark mode
 static int menubar_seticon(lua_State *L) {
     menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
     NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:luaL_checkstring(L, 2)]];
