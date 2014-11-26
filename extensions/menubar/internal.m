@@ -252,9 +252,10 @@ static int menubar_delete(lua_State *L) {
     lua_call(L, 2, 0);
 
     // Remove a menu if the menubar item has one
-    lua_pushcfunction(L, menubar_remove_menu);
+    lua_pushcfunction(L, menubar_set_menu);
     lua_pushvalue(L, 1);
-    lua_call(L, 1, 0);
+    lua_pushnil(L);
+    lua_call(L, 2, 0);
 
     [statusBar removeStatusItem:(__bridge NSStatusItem*)menuBarItem->menuBarItemObject];
     menuBarItem->menuBarItemObject = nil;
