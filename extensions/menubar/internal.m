@@ -102,7 +102,7 @@ static int menubar_settooltip(lua_State *L) {
 /// hs.menubar:clickCallback(fn)
 /// Method
 /// Registers a function to be called when the menubar icon is clicked. If the argument is nil, the previously registered callback is removed.
-// FIXME: Document that this makes no sense when a menu is being used, when we have menu support
+/// Note: If a menu has been attached to the menubar item, this callback will never be called
 static int menubar_click_callback(lua_State *L) {
     menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
