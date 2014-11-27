@@ -4,6 +4,9 @@
 
 #define USERDATA_TAG "hs.menubar"
 
+void parse_table(lua_State *L, int idx, NSMenu *menu);
+void erase_menu_items(lua_State *L, NSMenu *menu);
+
 @interface clickDelegate : NSObject
 @property lua_State *L;
 @property int fn;
@@ -23,11 +26,36 @@
 }
 @end
 
+@interface menuDelegate : NSObject <NSMenuDelegate>
+@property lua_State *L;
+@property int fn;
+@end
+
+@implementation menuDelegate
+- (void) menuNeedsUpdate:(NSMenu *)menu {
+    lua_State *L = self.L;
+    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+    if (lua_pcall(L, 0, 1, 0) != LUA_OK) {
+        NSLog(@"%s", lua_tostring(L, -1));
+        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
+        lua_pushvalue(L, -2);
+        lua_pcall(L, 1, 0, 0);
+        return;
+    }
+    luaL_checktype(L, lua_gettop(L), LUA_TTABLE);
+    erase_menu_items(L, menu);
+    parse_table(L, lua_gettop(L), menu);
+}
+@end
+
 typedef struct _menubaritem_t {
     void *menuBarItemObject;
     void *click_callback;
     int click_fn;
 } menubaritem_t;
+
+NSMutableArray *dynamicMenuDelegates;
 
 /// hs.menubar.new() -> menubaritem
 /// Constructor
@@ -243,6 +271,13 @@ static int menubar_set_menu(lua_State *L) {
         NSMenu *menu = [statusItem menu];
 
         if (menu) {
+            menuDelegate *delegate = [menu delegate];
+            if (delegate) {
+                luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
+                [dynamicMenuDelegates removeObject:delegate];
+                [menu setDelegate:nil];
+                delegate = nil;
+            }
             erase_menu_items(L, menu);
         }
 
@@ -263,6 +298,31 @@ static int menubar_set_menu(lua_State *L) {
     return 0;
 }
 
+/// hs.menubar:setMenuCallback(fn)
+/// Method
+/// Adds a menu to this menubar item, supplying a callback that will be called when the menu needs to update (i.e. when the user clicks on the menubar item).
+/// The callback should return a table describing the structure and properties of the menu. Its format should be identical to that of the argument to hs.menubar:setMenu()
+static int menubar_set_menu_callback(lua_State *L) {
+    menubaritem_t *menuBarItem = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+
+    luaL_checktype(L, 2, LUA_TFUNCTION);
+
+    NSMenu *menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemDynamicMenu"];
+    [menu setAutoenablesItems:NO];
+
+    menuDelegate *delegate = [[menuDelegate alloc] init];
+    delegate.L = L;
+    lua_pushvalue(L, 2);
+    delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    [dynamicMenuDelegates addObject:delegate];
+
+    [statusItem setMenu:menu];
+    [menu setDelegate:delegate];
+
+    return 0;
+}
+
 /// hs.menubar:delete(menubaritem)
 /// Method
 /// Removes the menubar item from the menubar and destroys it
@@ -277,6 +337,16 @@ static int menubar_delete(lua_State *L) {
     lua_pushvalue(L, 1);
     lua_pushnil(L);
     lua_call(L, 2, 0);
+
+    // Remove a menu callback handler if the menubar item has a menu
+    NSMenu *menu = [statusItem menu];
+    menuDelegate *delegate = [menu delegate];
+    if (delegate) {
+        luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
+        [dynamicMenuDelegates removeObject:delegate];
+        [menu setDelegate:nil];
+    }
+    delegate = nil;
 
     // Remove a menu if the menubar item has one
     lua_pushcfunction(L, menubar_set_menu);
@@ -294,10 +364,16 @@ static int menubar_delete(lua_State *L) {
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static int menubar_setup(lua_State* __unused L) {
+    if (!dynamicMenuDelegates) {
+        dynamicMenuDelegates = [[NSMutableArray alloc] init];
+    }
     return 0;
 }
 
 static int meta_gc(lua_State* __unused L) {
+    //FIXME: We should really be removing all menubar items here, as well as doing:
+    //[dynamicMenuDelegates removeAllObjects];
+    //dynamicMenuDelegates = nil;
     return 0;
 }
 
@@ -318,6 +394,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"setTooltip", menubar_settooltip},
     {"clickCallback", menubar_click_callback},
     {"setMenu", menubar_set_menu},
+    {"setMenuCallback", menubar_set_menu_callback},
     {"delete", menubar_delete},
 
     {"__gc", menubar_gc},
