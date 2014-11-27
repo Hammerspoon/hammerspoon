@@ -272,6 +272,7 @@ static int menubarSetTitle(lua_State *L) {
 ///  * Retina scaling is supported if the image is either scalable (e.g. a PDF produced by Adobe Illustrator) or contain multiple sizes (e.g. a TIFF with small and large images). Images will not automatically do the right thing if you have a @2x version present
 ///  * Icons are specified as "templates", which allows them to automatically support OS X 10.10's Dark Mode, but this also means they cannot be complicated, colour images
 ///  * For examples of images that work well, see Hammerspoon.app/Contents/Resources/statusicon.tiff (for a retina-capable multi-image TIFF icon) or [https://github.com/jigish/slate/blob/master/Slate/status.pdf](https://github.com/jigish/slate/blob/master/Slate/status.pdf) (for a scalable vector PDF icon)
+///  * For guidelines on the sizing of images, see [http://alastairs-place.net/blog/2013/07/23/nsstatusitem-what-size-should-your-icon-be/](http://alastairs-place.net/blog/2013/07/23/nsstatusitem-what-size-should-your-icon-be/)
 static int menubarSetIcon(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:lua_to_nsstring(L, 2)];//[NSString stringWithUTF8String:luaL_checkstring(L, 2)]];
