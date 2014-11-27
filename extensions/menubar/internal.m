@@ -372,8 +372,8 @@ static int menubarSetClickCallback(lua_State *L) {
 ///  * The available keys for each menu item are:
 ///      * `title` - A string to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator
 ///      * `fn` - A function to be executed when the menu item is clicked
-///      * `checked` - A boolean to indicate if the menu item should have a checkmark next to it or not
-///      * `disabled` - A boolean to indicate if the menu item should be unselectable or not
+///      * `checked` - A boolean to indicate if the menu item should have a checkmark next to it or not. Defaults to false
+///      * `disabled` - A boolean to indicate if the menu item should be unselectable or not. Defaults to false (i.e. menu items are selectable by default)
 ///
 /// Returns:
 ///  * None
