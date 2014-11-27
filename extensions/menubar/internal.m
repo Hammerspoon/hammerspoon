@@ -26,12 +26,12 @@ void erase_menu_items(lua_State *L, NSMenu *menu);
 }
 @end
 
-@interface menuDelegate : NSObject <NSMenuDelegate>
+@interface HSMenubarItemMenuDelegate : NSObject <NSMenuDelegate>
 @property lua_State *L;
 @property int fn;
 @end
 
-@implementation menuDelegate
+@implementation HSMenubarItemMenuDelegate
 - (void) menuNeedsUpdate:(NSMenu *)menu {
     lua_State *L = self.L;
     lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
@@ -271,7 +271,7 @@ static int menubar_set_menu(lua_State *L) {
         NSMenu *menu = [statusItem menu];
 
         if (menu) {
-            menuDelegate *delegate = [menu delegate];
+            HSMenubarItemMenuDelegate *delegate = [menu delegate];
             if (delegate) {
                 luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
                 [dynamicMenuDelegates removeObject:delegate];
@@ -311,7 +311,7 @@ static int menubar_set_menu_callback(lua_State *L) {
     NSMenu *menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemDynamicMenu"];
     [menu setAutoenablesItems:NO];
 
-    menuDelegate *delegate = [[menuDelegate alloc] init];
+    HSMenubarItemMenuDelegate *delegate = [[HSMenubarItemMenuDelegate alloc] init];
     delegate.L = L;
     lua_pushvalue(L, 2);
     delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -340,7 +340,7 @@ static int menubar_delete(lua_State *L) {
 
     // Remove a menu callback handler if the menubar item has a menu
     NSMenu *menu = [statusItem menu];
-    menuDelegate *delegate = [menu delegate];
+    HSMenubarItemMenuDelegate *delegate = [menu delegate];
     if (delegate) {
         luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
         [dynamicMenuDelegates removeObject:delegate];
