@@ -14,12 +14,25 @@
 @property int fn;
 @end
 @implementation HSMenubarCallbackObject
+// Generic callback runner that will execute a Lua function stored in self.fn
+- (void) callback_runner {
+    lua_State *L = self.L;
+    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+    if (lua_pcall(L, 0, 1, 0) != LUA_OK) {
+        NSLog(@"%s", lua_tostring(L, -1));
+        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
+        lua_pushvalue(L, -2);
+        lua_pcall(L, 1, 0, 0);
+        return;
+    }
+}
+
 @end
 
 // Define some basic helper functions
 void parse_table(lua_State *L, int idx, NSMenu *menu);
 void erase_menu_items(lua_State *L, NSMenu *menu);
-void callback_runner(HSMenubarCallbackObject *self);
 
 // Define a datatype for hs.menubar meta-objects
 typedef struct _menubaritem_t {
@@ -36,7 +49,7 @@ NSMutableArray *dynamicMenuDelegates;
 @end
 @implementation HSMenubarItemClickDelegate
 - (void) click:(id __unused)sender {
-    callback_runner(self);
+    [self callback_runner];
 }
 @end
 
@@ -45,8 +58,9 @@ NSMutableArray *dynamicMenuDelegates;
 @end
 @implementation HSMenubarItemMenuDelegate
 - (void) menuNeedsUpdate:(NSMenu *)menu {
-    callback_runner(self);
-    // Ensure the callback returned a table, then remove any existing menu structure and parse the table into a new menu
+    [self callback_runner];
+
+    // Ensure the callback pushed a table onto the stack, then remove any existing menu structure and parse the table into a new menu
     luaL_checktype(self.L, lua_gettop(self.L), LUA_TTABLE);
     erase_menu_items(self.L, menu);
     parse_table(self.L, lua_gettop(self.L), menu);
@@ -54,20 +68,6 @@ NSMutableArray *dynamicMenuDelegates;
 @end
 
 // ----------------------- Helper functions ---------------------
-
-// Generic callback runner that will execute a Lua function stored in self.fn
-void callback_runner(HSMenubarCallbackObject *self) {
-    lua_State *L = self.L;
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
-    if (lua_pcall(L, 0, 1, 0) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
-        return;
-    }
-}
 
 // Helper function to parse a Lua table and turn it into an NSMenu hierarchy (is recursive, so may do terrible things on huge tables)
 void parse_table(lua_State *L, int idx, NSMenu *menu) {
