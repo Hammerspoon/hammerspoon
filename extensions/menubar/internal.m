@@ -7,12 +7,12 @@
 void parse_table(lua_State *L, int idx, NSMenu *menu);
 void erase_menu_items(lua_State *L, NSMenu *menu);
 
-@interface clickDelegate : NSObject
+@interface HSMenubarItemClickDelegate : NSObject
 @property lua_State *L;
 @property int fn;
 @end
 
-@implementation clickDelegate
+@implementation HSMenubarItemClickDelegate
 - (void) click:(id __unused)sender {
     lua_State *L = self.L;
     lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
@@ -139,7 +139,7 @@ static int menubar_click_callback(lua_State *L) {
         if (menuBarItem->click_callback) {
             [statusItem setTarget:nil];
             [statusItem setAction:nil];
-            clickDelegate *object = (__bridge_transfer clickDelegate *)menuBarItem->click_callback;
+            HSMenubarItemClickDelegate *object = (__bridge_transfer HSMenubarItemClickDelegate *)menuBarItem->click_callback;
             menuBarItem->click_callback = nil;
             object = nil;
         }
@@ -147,7 +147,7 @@ static int menubar_click_callback(lua_State *L) {
         luaL_checktype(L, 2, LUA_TFUNCTION);
         lua_pushvalue(L, 2);
         menuBarItem->click_fn = luaL_ref(L, LUA_REGISTRYINDEX);
-        clickDelegate *object = [[clickDelegate alloc] init];
+        HSMenubarItemClickDelegate *object = [[HSMenubarItemClickDelegate alloc] init];
         object.L = L;
         object.fn = menuBarItem->click_fn;
         menuBarItem->click_callback = (__bridge_retained void*) object;
@@ -203,7 +203,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             // Inspect the menu item table at the top of the stack, fetch the value for the key "fn" and push the result to the top of the stack
             lua_getfield(L, -1, "fn");
             if (lua_isfunction(L, -1)) {
-                clickDelegate *delegate = [[clickDelegate alloc] init];
+                HSMenubarItemClickDelegate *delegate = [[HSMenubarItemClickDelegate alloc] init];
 
                 // luaL_ref is going to store a reference to the item at the top of the stack and then pop it off. To avoid confusion, we're going to push the top item on top of itself, so luaL_ref leaves us where we are now
                 lua_pushvalue(L, -1);
@@ -243,7 +243,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
 
 void erase_menu_items(lua_State *L, NSMenu *menu) {
     for (NSMenuItem *menuItem in [menu itemArray]) {
-        clickDelegate *target = [menuItem representedObject];
+        HSMenubarItemClickDelegate *target = [menuItem representedObject];
         if (target) {
             luaL_unref(L, LUA_REGISTRYINDEX, target.fn);
             [menuItem setTarget:nil];
