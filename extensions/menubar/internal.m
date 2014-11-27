@@ -202,12 +202,18 @@ void erase_all_menu_parts(lua_State *L, NSStatusItem *statusItem) {
 
 // ----------------------- API implementations ---------------------
 
-/// hs.menubar.new() -> menubaritem
+/// hs.menubar.new() -> menubaritem or nil
 /// Constructor
-/// Creates a new menu bar item object, which can be added to the system menubar by calling menubaritem:add()
-/// Returns nil if the object could not be created
+/// Creates a new menu bar item object and add it to the system menubar
 ///
-/// Note: You likely want to call either hs.menubar:setTitle() or hs.menubar:setIcon() after creating a menubar item, otherwise it will be invisible.
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * menubar item object to use with other API methods, or nil if it could not be created
+///
+/// Notes:
+///  * You should call hs.menubar:setTitle() or hs.menubar:setIcon() after creatng the object, otherwise it will be invisible
 static int menubarNew(lua_State *L) {
     NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
     NSStatusItem *statusItem = [statusBar statusItemWithLength:NSVariableStatusItemLength];
@@ -231,7 +237,16 @@ static int menubarNew(lua_State *L) {
 
 /// hs.menubar:setTitle(title)
 /// Method
-/// Sets the text on a menubar item. If an icon is also set, this text will be displayed next to the icon
+/// Sets the title of a menubar item object. The title will be displayed in the system menubar
+///
+/// Parameters:
+///  * `title` - A string to use as the title
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * If you set an icon as well as a title, they will both be displayed next to each other
 static int menubarSetTitle(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSString *titleText = lua_to_nsstring(L, 2); //[NSString stringWithUTF8String:luaL_checkstring(L, 2)];
@@ -243,9 +258,20 @@ static int menubarSetTitle(lua_State *L) {
 
 /// hs.menubar:setIcon(iconfilepath) -> bool
 /// Method
-/// Loads the image specified by iconfilepath and sets it as the menu bar item's icon.
-/// Returns true if the image was set, or nil if it could not be found
-// FIXME: Talk about icon requirements, wrt size/colour and general suitability for retina and yosemite dark mode
+/// Sets the image of a menubar item object. The image will be displayed in the system menubar
+///
+/// Parameters:
+///  * `iconfilepath` - A filesystem path to an image to be used for the icon
+///
+/// Returns:
+///  * `true` if the image was loaded and set, `nil` if it could not be found or loaded
+///
+/// Notes:
+///  * If you set a title as well as an icon, they will both be displayed next to each other
+///  * Icons should be small, transparent images that roughly match the size of normal menubar icons, otherwise they will look very strange
+///  * Retina scaling is supported if the image is either scalable (e.g. a PDF produced by Adobe Illustrator) or contain multiple sizes (e.g. a TIFF with small and large images). Images will not automatically do the right thing if you have a @2x version present
+///  * Icons are specified as "templates", which allows them to automatically support OS X 10.10's Dark Mode, but this also means they cannot be complicated, colour images
+///  * For examples of images that work well, see Hammerspoon.app/Contents/Resources/statusicon.tiff (for a retina-capable multi-image TIFF icon) or [https://github.com/jigish/slate/blob/master/Slate/status.pdf](https://github.com/jigish/slate/blob/master/Slate/status.pdf) (for a scalable vector PDF icon)
 static int menubarSetIcon(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:lua_to_nsstring(L, 2)];//[NSString stringWithUTF8String:luaL_checkstring(L, 2)]];
@@ -263,7 +289,13 @@ static int menubarSetIcon(lua_State *L) {
 
 /// hs.menubar:setTooltip(tooltip)
 /// Method
-/// Sets the tooltip text on a menubar item.
+/// Sets the tooltip text on a menubar item
+///
+/// Parameters:
+///  * `tooltip` - A string to use as the tooltip
+///
+/// Returns:
+///  * None
 static int menubarSetTooltip(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSString *toolTipText = lua_to_nsstring(L, 2); //[NSString stringWithUTF8String:luaL_checkstring(L, 2)];
@@ -274,10 +306,17 @@ static int menubarSetTooltip(lua_State *L) {
 }
 
 /// hs.menubar:setClickCallback(fn)
-///
 /// Method
-/// Registers a function to be called when the menubar icon is clicked. If the argument is nil, the previously registered callback is removed.
-/// Note: If a menu has been attached to the menubar item, this callback will never be called
+/// Registers a function to be called when the menubar item is clicked
+///
+/// Parameters:
+///  * `fn` - A function to be called when the menubar item is clicked. If the argument is `nil`, any existing function will be removed
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * If a menu has been attached to the menubar item, this callback will never be called
 static int menubarSetClickCallback(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
@@ -307,17 +346,40 @@ static int menubarSetClickCallback(lua_State *L) {
     return 0;
 }
 
-/// hs.menubar:setMenu(items or fn or nil)
+/// hs.menubar:setMenu(menuTable)
 /// Method
-/// If the argument is nil:
-///   Removes any previously registered menu
-/// If the argument is a table:
-///   Sets the menu for this menubar item to the supplied table, or removes the menu if the argument is nil
-///    {{ title = "my menu item", fn = function() print("you clicked!") end }, { title = "other item", fn = some_function } }
-/// If the argument is a function:
-///   Adds a menu to this menubar item, supplying a callback that will be called when the menu needs to update (i.e. when the user clicks on the menubar item).
-///   The callback should return a table describing the structure and properties of the menu. Its format should be identical to that of the argument to hs.menubar:setMenu()
-///   If the argument is nil, removes any previously registered callback
+/// Attaches a dropdown menu to the menubar item
+///
+/// Parameters:
+///  * `menuTable`:
+///      * If this argument is `nil`:
+///         * Removes any previously registered menu
+///      * If this argument is a table:
+///         * Sets the menu for this menubar item to the supplied table. The format of the table is documented below
+///      * If this argument is a function:
+///         * The function will be called each time the user clicks on the menubar item and the function should return a table that specifies the menu to be displayed. The table should be of the same format as described below
+///
+/// Table Format:
+/// ```
+///    {
+///        { title = "my menu item", fn = function() print("you clicked my menu item!") end },
+///        { title = "-" },
+///        { title = "other item", fn = some_function },
+///        { title = "disabled item", disabled = true },
+///        { title = "checked item", checked = true },
+///    }
+/// ```
+///  * The available keys for each menu item are:
+///      * `title` - A string to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator
+///      * `fn` - A function to be executed when the menu item is clicked
+///      * `checked` - A boolean to indicate if the menu item should have a checkmark next to it or not
+///      * `disabled` - A boolean to indicate if the menu item should be unselectable or not
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * If you are using the callback function, you should take care not to take too long to generate the menu, as you will block the process and the OS may decide to remove the menubar item
 static int menubarSetMenu(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
@@ -365,9 +427,15 @@ static int menubarSetMenu(lua_State *L) {
     return 0;
 }
 
-/// hs.menubar:delete(menubaritem)
+/// hs.menubar:delete()
 /// Method
 /// Removes the menubar item from the menubar and destroys it
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int menubar_delete(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
 
@@ -400,9 +468,9 @@ static int menubar_setup(lua_State* __unused L) {
 }
 
 static int menubar_gc(lua_State* __unused L) {
-    //FIXME: We should really be removing all menubar items here, as well as doing:
-    //[dynamicMenuDelegates removeAllObjects];
-    //dynamicMenuDelegates = nil;
+    // TODO: Should we keep a registry of menubar items and clean them up here? They ought to have been __gc'd by this point.
+    [dynamicMenuDelegates removeAllObjects];
+    dynamicMenuDelegates = nil;
     return 0;
 }
 
