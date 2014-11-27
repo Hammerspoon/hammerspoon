@@ -163,6 +163,15 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
         } else {
             NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
 
+            // Check to see if we have a submenu, if so, recurse into it
+            lua_getfield(L, -1, "menu");
+            if (lua_istable(L, -1)) {
+                NSMenu *subMenu = [[NSMenu alloc] initWithTitle:@"HammerspoonSubMenu"];
+                parse_table(L, lua_gettop(L), subMenu);
+                [menuItem setSubmenu:subMenu];
+            }
+            lua_pop(L, 1);
+
             // Inspect the menu item table at the top of the stack, fetch the value for the key "fn" and push the result to the top of the stack
             lua_getfield(L, -1, "fn");
             if (lua_isfunction(L, -1)) {
@@ -175,10 +184,28 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
                 [menuItem setTarget:delegate];
                 [menuItem setAction:@selector(click:)];
                 [menuItem setRepresentedObject:delegate];
+            }
+            // Pop the result of fetching "fn", off the stack
+            lua_pop(L, 1);
+
+            // Check if this item is enabled/disabled, defaulting to enabled
+            lua_getfield(L, -1, "disabled");
+            if (lua_isboolean(L, -1)) {
+                [menuItem setEnabled:lua_toboolean(L, -1)];
+            } else {
                 [menuItem setEnabled:YES];
             }
-            // Pop the result of lua_getfield off the stack
             lua_pop(L, 1);
+
+            // Check if this item is checked/unchecked, defaulting to unchecked
+            lua_getfield(L, -1, "checked");
+            if (lua_isboolean(L, -1)) {
+                [menuItem setState:lua_toboolean(L, -1) ? NSOnState : NSOffState];
+            } else {
+                [menuItem setState:NSOffState];
+            }
+            lua_pop(L, 1);
+
             [menu addItem:menuItem];
         }
         // Pop the menu item table off the stack, leaving its key at the top, for lua_next()
