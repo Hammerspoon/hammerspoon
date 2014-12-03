@@ -77,7 +77,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
 
         // Check that the value is a table
         if (lua_type(L, -1) != LUA_TTABLE) {
-            NSLog(@"Error: table entry is not a menu item table");
+            NSLog(@"Error: table entry is not a menu item table: %s", lua_typename(L, lua_type(L, -1)));
 
             // Pop the value off the stack, leaving the key at the top
             lua_pop(L, 1);
@@ -89,7 +89,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
         lua_getfield(L, -1, "title");
         if (!lua_isstring(L, -1)) {
             // We can't proceed without the title, we'd have nothing to display in the menu, so let's just give up and move on
-            NSLog(@"Error: malformed menu table entry");
+            NSLog(@"Error: malformed menu table entry. Instead of a title string, we found: %s", lua_typename(L, lua_type(L, -1)));
             // We need to pop two things off the stack - the result of lua_getfield and the table it inspected
             lua_pop(L, 2);
             // Bail to the next lua_next() call
@@ -101,13 +101,16 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
         lua_pop(L, 1);
 
         if ([title isEqualToString:@"-"]) {
+            // We hit the special string for a menu separator
             [menu addItem:[NSMenuItem separatorItem]];
         } else {
+            // Create a menu item
             NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
 
             // Check to see if we have a submenu, if so, recurse into it
             lua_getfield(L, -1, "menu");
             if (lua_istable(L, -1)) {
+                // Create the submenu, populate it and attach it to our current menu item
                 NSMenu *subMenu = [[NSMenu alloc] initWithTitle:@"HammerspoonSubMenu"];
                 parse_table(L, lua_gettop(L), subMenu);
                 [menuItem setSubmenu:subMenu];
@@ -117,15 +120,16 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             // Inspect the menu item table at the top of the stack, fetch the value for the key "fn" and push the result to the top of the stack
             lua_getfield(L, -1, "fn");
             if (lua_isfunction(L, -1)) {
+                // Create the delegate object that will service clicks on this menu item
                 HSMenubarItemClickDelegate *delegate = [[HSMenubarItemClickDelegate alloc] init];
 
-                // luaL_ref is going to store a reference to the item at the top of the stack and then pop it off. To avoid confusion, we're going to push the top item on top of itself, so luaL_ref leaves us where we are now
+                // luaL_ref is going to create a reference to the item at the top of the stack and then pop it off. To avoid confusion, we're going to push the top item on top of itself, so luaL_ref leaves us where we are now
                 lua_pushvalue(L, -1);
                 delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
                 delegate.L = L;
                 [menuItem setTarget:delegate];
                 [menuItem setAction:@selector(click:)];
-                [menuItem setRepresentedObject:delegate];
+                [menuItem setRepresentedObject:delegate]; // representedObject is a strong reference, so we don't need to retain the delegate ourselves
             }
             // Pop the result of fetching "fn", off the stack
             lua_pop(L, 1);
@@ -148,6 +152,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             }
             lua_pop(L, 1);
 
+            // We've finished parsing all our options, so now add the menu item to the menu!
             [menu addItem:menuItem];
         }
         // Pop the menu item table off the stack, leaving its key at the top, for lua_next()
@@ -160,6 +165,7 @@ void erase_menu_items(lua_State *L, NSMenu *menu) {
     for (NSMenuItem *menuItem in [menu itemArray]) {
         HSMenubarItemClickDelegate *target = [menuItem representedObject];
         if (target) {
+            // This menuitem has a delegate object. Destroy its Lua reference and nuke all the references to the object, so ARC will deallocate it
             luaL_unref(L, LUA_REGISTRYINDEX, target.fn);
             [menuItem setTarget:nil];
             [menuItem setAction:nil];
@@ -392,6 +398,7 @@ static int menubarSetMenu(lua_State *L) {
 
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
+            // This is a static menu, so we can just parse the table and the menu will be populated
             menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemStaticMenu"];
             if (menu) {
                 [menu setAutoenablesItems:NO];
@@ -405,6 +412,7 @@ static int menubarSetMenu(lua_State *L) {
             break;
 
         case LUA_TFUNCTION:
+            // This is a dynamic menu, so create a delegate object that will allow us to fetch a table whenever the menu is about to be displayed
             menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemDynamicMenu"];
             if (menu) {
                 [menu setAutoenablesItems:NO];
@@ -413,7 +421,7 @@ static int menubarSetMenu(lua_State *L) {
                 delegate.L = L;
                 lua_pushvalue(L, 2);
                 delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
-                [dynamicMenuDelegates addObject:delegate];
+                [dynamicMenuDelegates addObject:delegate]; // store a strong reference to the delegate object, so ARC doesn't deallocate it until we are destroying the menu later
             }
             break;
     }
