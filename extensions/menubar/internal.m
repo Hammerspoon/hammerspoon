@@ -97,7 +97,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
         }
 
         // We have found the title of a menu bar item. Turn it into an NSString and pop it off the stack
-        NSString *title = lua_to_nsstring(L, -1); //[NSString stringWithUTF8String:luaL_checkstring(L, -1)];
+        NSString *title = lua_to_nsstring(L, -1);
         lua_pop(L, 1);
 
         if ([title isEqualToString:@"-"]) {
@@ -249,7 +249,7 @@ static int menubarNew(lua_State *L) {
 ///  * If you set an icon as well as a title, they will both be displayed next to each other
 static int menubarSetTitle(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
-    NSString *titleText = lua_to_nsstring(L, 2); //[NSString stringWithUTF8String:luaL_checkstring(L, 2)];
+    NSString *titleText = lua_to_nsstring(L, 2);
     lua_settop(L, 1); // FIXME: This seems unnecessary? neither preceeding luaL_foo function pushes things onto the stack?
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setTitle:titleText];
 
@@ -275,7 +275,7 @@ static int menubarSetTitle(lua_State *L) {
 ///  * For guidelines on the sizing of images, see [http://alastairs-place.net/blog/2013/07/23/nsstatusitem-what-size-should-your-icon-be/](http://alastairs-place.net/blog/2013/07/23/nsstatusitem-what-size-should-your-icon-be/)
 static int menubarSetIcon(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
-    NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:lua_to_nsstring(L, 2)];//[NSString stringWithUTF8String:luaL_checkstring(L, 2)]];
+    NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:lua_to_nsstring(L, 2)];
     lua_settop(L, 1); // FIXME: This seems unnecessary?
     if (!iconImage) {
         lua_pushnil(L);
@@ -299,7 +299,7 @@ static int menubarSetIcon(lua_State *L) {
 ///  * None
 static int menubarSetTooltip(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
-    NSString *toolTipText = lua_to_nsstring(L, 2); //[NSString stringWithUTF8String:luaL_checkstring(L, 2)];
+    NSString *toolTipText = lua_to_nsstring(L, 2);
     lua_settop(L, 1); // FIXME: This seems unnecessary?
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setToolTip:toolTipText];
 
