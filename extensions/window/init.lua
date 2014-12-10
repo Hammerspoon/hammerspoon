@@ -262,4 +262,21 @@ function window:moveToUnit(unit)
   })
 end
 
+--- hs.window:moveToScreen(screen)
+--- Method
+--- move window to the the given screen, keeping the relative proportion and position window to the original screen.
+--- Example: win:moveToScreen(win:screen():next()) -- move window to next screen
+function window:moveToScreen(nextScreen)
+  local currentFrame = self:frame()
+  local screenFrame = self:screen():frame()
+  local nextScreenFrame = nextScreen:frame()
+  self:setFrame({
+    x = ((((currentFrame.x - screenFrame.x) / screenFrame.w) * nextScreenFrame.w) + nextScreenFrame.x),
+    y = ((((currentFrame.y - screenFrame.y) / screenFrame.h) * nextScreenFrame.h) + nextScreenFrame.y),
+    h = ((currentFrame.h / screenFrame.h) * nextScreenFrame.h),
+    w = ((currentFrame.w / screenFrame.w) * nextScreenFrame.w)
+  })
+end
+
+
 return window
