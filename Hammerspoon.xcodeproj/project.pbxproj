@@ -34,9 +34,21 @@
 		949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ConsoleWindow.xib */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
 		94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
+		D02F95291A00221C00E28BB2 /* Hammerspoon_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* Hammerspoon_Tests.m */; };
+		D02F95341A003A2900E28BB2 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = D02F95331A003A2900E28BB2 /* init.lua */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
 		FEC002E365542A867EA8EACF /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 273C7223738140A6F91A8338 /* libPods-Hammerspoon.a */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D02F952A1A00221C00E28BB2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9445CA0A19083251002568BB;
+			remoteInfo = Hammerspoon;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		273C7223738140A6F91A8338 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +101,10 @@
 		94ABF08E1980B41300FA68E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		94BF76E51993418C001BDA77 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A72912922777E1D082D08222 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
+		D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hammerspoon Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D02F95271A00221C00E28BB2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D02F95281A00221C00E28BB2 /* Hammerspoon_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hammerspoon_Tests.m; sourceTree = "<group>"; };
+		D02F95331A003A2900E28BB2 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		D077B5BE1A001B5300369B30 /* variables.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = variables.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -102,6 +118,13 @@
 				9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */,
 				9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */,
 				FEC002E365542A867EA8EACF /* libPods-Hammerspoon.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D02F95211A00221C00E28BB2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,6 +157,7 @@
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				4F9A454919EC6801006BB982 /* build_extensions.sh */,
 				9445CA1419083251002568BB /* Hammerspoon */,
+				D02F95251A00221C00E28BB2 /* Hammerspoon Tests */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
 				F812A89A8B0CD6807ABA21B6 /* Pods */,
@@ -144,6 +168,7 @@
 			isa = PBXGroup;
 			children = (
 				9445CA0B19083251002568BB /* Hammerspoon.app */,
+				D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -236,6 +261,24 @@
 			name = Auxiliary;
 			sourceTree = "<group>";
 		};
+		D02F95251A00221C00E28BB2 /* Hammerspoon Tests */ = {
+			isa = PBXGroup;
+			children = (
+				D02F95281A00221C00E28BB2 /* Hammerspoon_Tests.m */,
+				D02F95261A00221C00E28BB2 /* Supporting Files */,
+				D02F95331A003A2900E28BB2 /* init.lua */,
+			);
+			path = "Hammerspoon Tests";
+			sourceTree = "<group>";
+		};
+		D02F95261A00221C00E28BB2 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				D02F95271A00221C00E28BB2 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		F812A89A8B0CD6807ABA21B6 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -269,6 +312,24 @@
 			productReference = 9445CA0B19083251002568BB /* Hammerspoon.app */;
 			productType = "com.apple.product-type.application";
 		};
+		D02F95231A00221C00E28BB2 /* Hammerspoon Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D02F952E1A00221C00E28BB2 /* Build configuration list for PBXNativeTarget "Hammerspoon Tests" */;
+			buildPhases = (
+				D02F95201A00221C00E28BB2 /* Sources */,
+				D02F95211A00221C00E28BB2 /* Frameworks */,
+				D02F95221A00221C00E28BB2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D02F952B1A00221C00E28BB2 /* PBXTargetDependency */,
+			);
+			name = "Hammerspoon Tests";
+			productName = "Hammerspoon Tests";
+			productReference = D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -278,6 +339,12 @@
 				CLASSPREFIX = HS;
 				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = Hammerspoon;
+				TargetAttributes = {
+					D02F95231A00221C00E28BB2 = {
+						CreatedOnToolsVersion = 6.1;
+						TestTargetID = 9445CA0A19083251002568BB;
+					};
+				};
 			};
 			buildConfigurationList = 9445CA0619083251002568BB /* Build configuration list for PBXProject "Hammerspoon" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -293,6 +360,7 @@
 			projectRoot = "";
 			targets = (
 				9445CA0A19083251002568BB /* Hammerspoon */,
+				D02F95231A00221C00E28BB2 /* Hammerspoon Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -312,6 +380,14 @@
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D02F95221A00221C00E28BB2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D02F95341A003A2900E28BB2 /* init.lua in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,7 +475,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D02F95201A00221C00E28BB2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D02F95291A00221C00E28BB2 /* Hammerspoon_Tests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D02F952B1A00221C00E28BB2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9445CA0A19083251002568BB /* Hammerspoon */;
+			targetProxy = D02F952A1A00221C00E28BB2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		9445CA3A19083251002568BB /* Debug */ = {
@@ -505,6 +597,50 @@
 			};
 			name = Release;
 		};
+		D02F952C1A00221C00E28BB2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/Contents/MacOS/Hammerspoon";
+			};
+			name = Debug;
+		};
+		D02F952D1A00221C00E28BB2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/Contents/MacOS/Hammerspoon";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -525,6 +661,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		D02F952E1A00221C00E28BB2 /* Build configuration list for PBXNativeTarget "Hammerspoon Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D02F952C1A00221C00E28BB2 /* Debug */,
+				D02F952D1A00221C00E28BB2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
