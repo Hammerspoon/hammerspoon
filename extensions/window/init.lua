@@ -132,10 +132,10 @@ function window:maximize()
   self:setFrame(screenrect)
 end
 
---- hs.window:toggleFullscreen()
+--- hs.window:toggleFullScreen()
 --- Method
 --- Toggle the fullscreen state of this window.
-function window:toggleFullscreen()
+function window:toggleFullScreen()
     self:setFullScreen(not self:isFullScreen())
 end
 
