@@ -278,5 +278,25 @@ function window:moveToScreen(nextScreen)
   })
 end
 
+--- hs.window:ensureIsInScreenBounds()
+--- Method
+--- Moves and resizes the window to fit into the screen it is currently on. If the window is partially out of the
+--- screen it is moved and resized to be completely visible on the window's current screen.
+--- Example: win:ensureIsInScreenBounds() -- ensure window is in the boundaries of the screen
+function window:ensureIsInScreenBounds()
+  local frame = self:frame()
+  local screenFrame = self:screen():frame()
+  if frame.x < screenFrame.x then frame.x = screenFrame.x end
+  if frame.y < screenFrame.y then frame.y = screenFrame.y end
+  if frame.w > screenFrame.w then frame.w = screenFrame.w end
+  if frame.h > screenFrame.h then frame.h = screenFrame.h end
+  if frame.x + frame.w > screenFrame.x + screenFrame.w then
+    frame.x = (screenFrame.x + screenFrame.w) - frame.w
+  end
+  if frame.y + frame.h > screenFrame.y + screenFrame.h then
+    frame.y = (screenFrame.y + screenFrame.h) - frame.h
+  end
+  if frame ~= self:frame() then self:setFrame(frame) end
+end
 
 return window
