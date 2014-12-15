@@ -88,3 +88,8 @@ If you would like to see other ways that `build_vars.sh` can influence the build
 
 Both Lua and Objective-C portions of an extension should contain in-line documention of all of the functions they expose to users of the extension. The two sample extensions demonstrate how to do this.
 
+### Third party extension distribution
+
+While we want to have Hammerspoon shipping as many useful extensions as possible, there may be reasons for you to ship your extension separately. It would probably be easier to do this in binary form, following the init.lua/internal.so form that Hammerspoon uses, then users can just download your extension into `~/.hammerspoon/<YOUR_EXTENSION_NAME>`.
+
+If you do choose this route, please list your extension at [https://github.com/Hammerspoon/hammerspoon/wiki/Third-Party-Extensions](https://github.com/Hammerspoon/hammerspoon/wiki/Third-Party-Extensions) so users can discover it easily.
