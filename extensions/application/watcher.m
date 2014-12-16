@@ -204,12 +204,12 @@ static int app_watcher_start(lua_State* L) {
     lua_settop(L, 1);
 
     if (appWatcher->running)
-        return 1;
+        return 0;
 
     appWatcher->self = store_udhandler(L, handlers, 1);
     appWatcher->running = YES;
     register_observer((__bridge AppWatcher*)appWatcher->obj);
-    return 1;
+    return 0;
 }
 
 /// hs.application.watcher:stop()
@@ -220,12 +220,12 @@ static int app_watcher_stop(lua_State* L) {
     lua_settop(L, 1);
 
     if (!appWatcher->running)
-        return 1;
+        return 0;
 
     appWatcher->running = NO;
     remove_udhandler(L, handlers, appWatcher->self);
     unregister_observer((__bridge id)appWatcher->obj);
-    return 1;
+    return 0;
 }
 
 // Perform cleanup if the AppWatcher is not required anymore.
@@ -237,10 +237,6 @@ static int app_watcher_gc(lua_State* L) {
 
     AppWatcher* object = (__bridge_transfer AppWatcher*)appWatcher->obj;
     object = nil;
-    return 0;
-}
-
-static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
@@ -277,12 +273,6 @@ int luaopen_hs_application_watcher(lua_State* L) {
         {NULL,      NULL}
     };
 
-    // Metatable for returned object when module loads
-    static const luaL_Reg metaGcLib[] = {
-        {"__gc",    meta_gc},
-        {NULL,      NULL}
-    };
-
     // Metatable for created objects
     luaL_newlib(L, metaLib);
     lua_pushvalue(L, -1);
@@ -292,8 +282,5 @@ int luaopen_hs_application_watcher(lua_State* L) {
     // Create table for luaopen
     luaL_newlib(L, appLib);
     add_event_enum(L);
-
-    luaL_newlib(L, metaGcLib);
-    lua_setmetatable(L, -2);
     return 1;
 }
