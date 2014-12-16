@@ -6,6 +6,8 @@ local application = require "hs.application.internal"
 local fnutils = require "hs.fnutils"
 local window = require "hs.window"
 
+application.watcher = require "hs.application.watcher"
+
 --- hs.application:visibleWindows() -> win[]
 --- Method
 --- Returns only the app's windows that are visible.
