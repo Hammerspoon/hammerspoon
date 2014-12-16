@@ -240,6 +240,11 @@ static int app_watcher_gc(lua_State* L) {
     return 0;
 }
 
+static int meta_gc(lua_State* __unused L) {
+    [handlers removeAllIndexes];
+    return 0;
+}
+
 // Add a single event enum value to the lua table.
 static void add_event_value(lua_State* L, event_t value, const char* name) {
     lua_pushnumber(L, value);
@@ -273,6 +278,12 @@ int luaopen_hs_application_watcher(lua_State* L) {
         {NULL,      NULL}
     };
 
+    // Metatable for returned object when module loads
+    static const luaL_Reg metaGcLib[] = {
+        {"__gc",    meta_gc},
+        {NULL,      NULL}
+    };
+
     // Metatable for created objects
     luaL_newlib(L, metaLib);
     lua_pushvalue(L, -1);
@@ -282,5 +293,8 @@ int luaopen_hs_application_watcher(lua_State* L) {
     // Create table for luaopen
     luaL_newlib(L, appLib);
     add_event_enum(L);
+
+    luaL_newlib(L, metaGcLib);
+    lua_setmetatable(L, -2);
     return 1;
 }
