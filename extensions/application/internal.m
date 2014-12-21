@@ -620,18 +620,22 @@ static const luaL_Reg applicationlib[] = {
 
 int luaopen_hs_application_internal(lua_State* L) {
     luaL_newlib(L, applicationlib);
-    
+
+    // Inherit hs.uielement
+    luaL_getmetatable(L, "hs.uielement");
+    lua_setmetatable(L, -2);
+
     if (luaL_newmetatable(L, "hs.application")) {
         lua_pushvalue(L, -2); // 'application' table
         lua_setfield(L, -2, "__index");
-        
+
         lua_pushcfunction(L, application_eq);
         lua_setfield(L, -2, "__eq");
-        
+
         lua_pushcfunction(L, application_gc);
         lua_setfield(L, -2, "__gc");
     }
     lua_pop(L, 1);
-    
+
     return 1;
 }

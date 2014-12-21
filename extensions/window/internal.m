@@ -511,6 +511,10 @@ static const luaL_Reg windowlib[] = {
 int luaopen_hs_window_internal(lua_State* L) {
     luaL_newlib(L, windowlib);
 
+    // Inherit hs.uielement
+    luaL_getmetatable(L, "hs.uielement");
+    lua_setmetatable(L, -2);
+
     if (luaL_newmetatable(L, "hs.window")) {
         lua_pushvalue(L, -2);
         lua_setfield(L, -2, "__index");
