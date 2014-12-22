@@ -21,6 +21,26 @@ static void new_uielement(lua_State* L, AXUIElementRef element) {
     lua_setuservalue(L, -2);
 }
 
+static id get_prop(AXUIElementRef win, NSString* propType, id defaultValue) {
+    CFTypeRef _someProperty;
+    if (AXUIElementCopyAttributeValue(win, (__bridge CFStringRef)propType, &_someProperty) == kAXErrorSuccess)
+        return CFBridgingRelease(_someProperty);
+
+    return defaultValue;
+}
+
+/// hs.uielement:role() -> string
+/// Method
+/// Returns the role of the element.
+static int uielement_role(lua_State* L) {
+    AXUIElementRef element = get_element(L, 1);
+
+    NSString* str = get_prop(element, NSAccessibilityRoleAttribute, @"");
+
+    lua_pushstring(L, [str UTF8String]);
+    return 1;
+}
+
 typedef struct _watcher_t {
     bool running;
     int handler_ref;
@@ -62,14 +82,6 @@ static int uielement_newWatcher(lua_State* L) {
     lua_setmetatable(L, -2);
 
     return 1;
-}
-
-static id get_prop(AXUIElementRef win, NSString* propType, id defaultValue) {
-    CFTypeRef _someProperty;
-    if (AXUIElementCopyAttributeValue(win, (__bridge CFStringRef)propType, &_someProperty) == kAXErrorSuccess)
-        return CFBridgingRelease(_someProperty);
-
-    return defaultValue;
 }
 
 // Use the Role of the element to decide which type of object to create: window, app, or plain uielement.
@@ -191,8 +203,9 @@ static int watcher_gc(lua_State* L) {
 }
 
 static const luaL_Reg uielementlib[] = {
-	{"newWatcher", uielement_newWatcher},
-	{}
+    {"role", uielement_role},
+    {"newWatcher", uielement_newWatcher},
+    {}
 };
 
 static const luaL_Reg watcherlib[] = {

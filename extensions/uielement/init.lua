@@ -3,6 +3,18 @@
 
 local uielement = require "hs.uielement.internal"
 
+--- hs.uielement:isWindow() -> bool
+--- Returns whether the UI element represents a window.
+function uielement:isWindow()
+    return self:role() == "AXWindow"
+end
+
+--- hs.uielement:isApplication() -> bool
+--- Returns whether the UI element represents an application.
+function uielement:isApplication()
+    return self:role() == "AXApplication"
+end
+
 --- hs.uielement.watcher
 --- Defines events that can be watched using hs.uielement.watcher.
 ---
