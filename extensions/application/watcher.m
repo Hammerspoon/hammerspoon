@@ -68,13 +68,10 @@ typedef enum _event_t {
 
     // Depending on the event the name of the NSRunningApplication object may not be available
     // anymore. Fallback to the application name which is provided directly in the notification
-    // object. If that is also not available we skip the event since we cannot provide any useful
-    // information.
+    // object.
     NSString* appName = [app localizedName];
     if (appName == nil)
         appName = [dict objectForKey:@"NSApplicationName"];
-    if (appName == nil)
-        return;
 
     lua_State* L = self.object->L;
     lua_getglobal(L, "debug");
@@ -82,7 +79,10 @@ typedef enum _event_t {
     lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
 
-    lua_pushstring(L, [appName UTF8String]); // Parameter 1: application name
+    if (appName == nil)
+        lua_pushnil(L);
+    else
+        lua_pushstring(L, [appName UTF8String]); // Parameter 1: application name
     lua_pushnumber(L, event); // Parameter 2: the event type
     new_application(L, [app processIdentifier]); // Paremeter 3: application object
 
