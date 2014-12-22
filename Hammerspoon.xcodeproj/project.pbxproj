@@ -577,6 +577,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx10.9;
+				STRIP_STYLE = "non-global";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
