@@ -115,7 +115,12 @@ end
 --- Creates a new modal hotkey and enables it.
 --- When mods and key are pressed, all keys bound via `modal:bind` will be enabled.
 --- They are disabled when the "mode" is exited via `modal:exit()`
+--- If mods and key are both nil, the modal state will be created with no top-level hotkey to enter the modal state. This is useful where you want a modal state to exist, but be entered programatically.
 function hotkey.modal.new(mods, key)
+  if ((mods and not key) or (not mods and key)) then
+    hs.showError("Incorrect use of hs.hotkey.modal.new(). Both parameters must either be valid, or nil. You cannot mix valid and nil parameters")
+    return nil
+  end
   local m = setmetatable({keys = {}}, hotkey.modal)
   if (mods and key) then
     m.k = hotkey.bind(mods, key, function() m:enter() end)
