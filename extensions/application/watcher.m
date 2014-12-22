@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
+#import "application.h"
 
 /// === hs.application.watcher ===
 ///
@@ -67,13 +68,10 @@ typedef enum _event_t {
 
     // Depending on the event the name of the NSRunningApplication object may not be available
     // anymore. Fallback to the application name which is provided directly in the notification
-    // object. If that is also not available we skip the event since we cannot provide any useful
-    // information.
+    // object.
     NSString* appName = [app localizedName];
     if (appName == nil)
         appName = [dict objectForKey:@"NSApplicationName"];
-    if (appName == nil)
-        return;
 
     lua_State* L = self.object->L;
     lua_getglobal(L, "debug");
@@ -81,10 +79,14 @@ typedef enum _event_t {
     lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
 
-    lua_pushstring(L, [appName UTF8String]); // Parameter 1: application name
+    if (appName == nil)
+        lua_pushnil(L);
+    else
+        lua_pushstring(L, [appName UTF8String]); // Parameter 1: application name
     lua_pushnumber(L, event); // Parameter 2: the event type
+    new_application(L, [app processIdentifier]); // Paremeter 3: application object
 
-    if (lua_pcall(L, 2, 0, -4) != 0) {
+    if (lua_pcall(L, 3, 0, -5) != 0) {
         NSLog(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");
@@ -126,8 +128,12 @@ typedef enum _event_t {
 /// hs.application.watcher.new(fn) -> watcher
 /// Function
 /// Creates an application watcher that is able to capture application events.
+///
 /// The parameter fn has to be a function accepting two parameters. The first parameter passed to
-/// the function is the application name as string and the second parameter is the event type.
+/// the function is the application name as string, the second parameter is the event type, and the
+/// third is an application object. Note that if the application has been terminated, the
+/// application object will only be good for getting the PID.
+///
 /// The event type parameter can be one of the following values:
 /// hs.application.watcher.launching    -- The application will launch.
 /// hs.application.watcher.launched     -- The application has launched.
