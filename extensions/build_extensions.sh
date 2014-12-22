@@ -42,7 +42,7 @@ for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
     dir=$(basename "$dir")
 
     # Reset variables that may have been set by a previous iteration's build_vars.sh
-    unset EXTRA_CFLAGS EXTRA_LDFLAGS
+    unset EXTRA_CFLAGS DEBUG_CFLAGS EXTRA_LDFLAGS
 
     # Check if this module has a Makefile already
     if [ ! -e "${dir}/Makefile" ]; then
@@ -59,6 +59,9 @@ for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
 
     # Set environment variables
     export PREFIX="${T}"
+    if [ "${CONFIGURATION:-''}" != "Debug" ]; then
+        export DEBUG_CFLAGS=""
+    fi
 
     # Import any environment variables the module wants to set
     if [ -e "${dir}/build_vars.sh" ]; then
