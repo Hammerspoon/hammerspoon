@@ -1,4 +1,3 @@
-#import "Crashlytics.h"
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
