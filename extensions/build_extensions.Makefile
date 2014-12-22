@@ -10,7 +10,7 @@ SOFILE  := $(OBJCFILE:m=so)
 
 CC=cc
 EXTRA_CFLAGS ?= -fobjc-arc
-CFLAGS  += -Wall -Wextra -I ../../Pods/lua/src $(EXTRA_CFLAGS)
+CFLAGS  += -g -Wall -Wextra -I ../../Pods/lua/src $(EXTRA_CFLAGS)
 LDFLAGS += -dynamiclib -undefined dynamic_lookup $(EXTRA_LDFLAGS)
 
 all: $(SOFILE)
