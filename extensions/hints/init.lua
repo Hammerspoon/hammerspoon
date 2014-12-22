@@ -43,7 +43,7 @@ function hints.createHandler(char)
 end
 
 function hints.setupModal()
-  k = modal_hotkey.new({"cmd", "shift"}, "V")
+  k = modal_hotkey.new(nil, nil)
   k:bind({}, 'escape', function() hints.closeHints(); k:exit() end)
 
   for i,c in ipairs(hints.hintChars) do
@@ -51,7 +51,6 @@ function hints.setupModal()
   end
   return k
 end
-modalKey = hints.setupModal()
 
 --- hs.hints.windowHints()
 --- Function
@@ -66,6 +65,9 @@ modalKey = hints.setupModal()
 --- Notes:
 ---  * If there are more windows open than there are characters available in hs.hints.hintChars, not all windows will receive a hint, and an error will be logged to the Hammerspoon Console
 function hints.windowHints()
+  if (modalKey == nil) then
+    modalKey = hints.setupModal()
+  end
   hints.closeHints()
 
   local numHints = 0

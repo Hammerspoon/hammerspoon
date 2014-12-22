@@ -92,7 +92,9 @@ end
 --- Enables all hotkeys created via `modal:bind` and disables the modal itself.
 --- Called automatically when the modal's hotkey is pressed.
 function hotkey.modal:enter()
-  self.k:disable()
+  if (self.k) then
+    self.k:disable()
+  end
   hs.fnutils.each(self.keys, hotkey.enable)
   self.entered()
   return self
@@ -102,7 +104,9 @@ end
 --- Disables all hotkeys created via `modal:bind` and re-enables the modal itself.
 function hotkey.modal:exit()
   hs.fnutils.each(self.keys, hotkey.disable)
-  self.k:enable()
+  if (self.k) then
+    self.k:enable()
+  end
   self.exited()
   return self
 end
@@ -113,7 +117,9 @@ end
 --- They are disabled when the "mode" is exited via `modal:exit()`
 function hotkey.modal.new(mods, key)
   local m = setmetatable({keys = {}}, hotkey.modal)
-  m.k = hotkey.bind(mods, key, function() m:enter() end)
+  if (mods and key) then
+    m.k = hotkey.bind(mods, key, function() m:enter() end)
+  end
   return m
 end
 
