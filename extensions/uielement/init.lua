@@ -40,7 +40,7 @@ end
 ---
 --- ### Element-level events
 --- These work on all UI elements, including windows.
---- * hs.uielement.watcher.elementDestroyed: The element was destroyed. Call watcher:stop() when this happens.
+--- * hs.uielement.watcher.elementDestroyed: The element was destroyed.
 --- * hs.uielement.watcher.titleChanged: The element's title was changed.
 uielement.watcher = {
     applicationActivated   = "AXApplicationActivated",

@@ -72,13 +72,14 @@ static int uielement_gc(lua_State* L) {
 
 typedef struct _watcher_t {
     bool running;
+    lua_State* L;
     int handler_ref;
     int user_data_ref;
     int watcher_ref;
-    lua_State* L;
     AXObserverRef observer;
     AXUIElementRef element;
     pid_t pid;
+    bool watching_destroyed_event;
 } watcher_t;
 
 /// hs.uielement:newWatcher(handler[, userData]) -> hs.uielement.watcher
@@ -118,11 +119,8 @@ static int uielement_newWatcher(lua_State* L) {
     return 1;
 }
 
-static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
-                                      CFStringRef notificationName, void* contextData) {
-    watcher_t* watcher = (watcher_t*) contextData;
-
-    lua_State* L = watcher->L;
+// Call event handler for a given watcher.
+static void call_handler(lua_State* L, watcher_t* watcher, AXUIElementRef element, CFStringRef notificationName) {
     lua_getglobal(L, "debug");
     lua_getfield(L, -1, "traceback");
     lua_remove(L, -2);
@@ -140,6 +138,26 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
         lua_remove(L, -2);
         lua_pushvalue(L, -2);
         lua_pcall(L, 1, 0, 0);
+    }
+}
+
+static void stop_watcher(lua_State* L, watcher_t* watcher);
+
+static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
+                                      CFStringRef notificationName, void* contextData) {
+    watcher_t* watcher = (watcher_t*) contextData;
+    lua_State* L = watcher->L;
+
+    if (CFStringCompare(kAXUIElementDestroyedNotification, notificationName, 0) == kCFCompareEqualTo) {
+        // This event gets added by us, so check if the user actually wanted to receive it.
+        if (watcher->watching_destroyed_event)
+            call_handler(L, watcher, element, notificationName);
+
+        // Automatically stop watchers whose element was destroyed.
+        if (CFEqual(element, watcher->element))
+            stop_watcher(L, watcher);
+    } else {
+        call_handler(L, watcher, element, notificationName);
     }
 }
 
@@ -163,6 +181,7 @@ static int watcher_start(lua_State* L) {
     }
 
     // Add specified events to the observer.
+    watcher->watching_destroyed_event = NO;
     luaL_checktype(L, 2, LUA_TTABLE);
     int numEvents = lua_rawlen(L, 2);
     for (int i = 1; i <= numEvents; ++i) {
@@ -173,7 +192,13 @@ static int watcher_start(lua_State* L) {
         lua_pop(L, 1);
 
         AXObserverAddNotification(observer, watcher->element, eventName, watcher);
+
+        if (CFStringCompare(kAXUIElementDestroyedNotification, eventName, 0) == kCFCompareEqualTo)
+            watcher->watching_destroyed_event = YES;
     }
+    // Add element destroyed event so we can clean up, if it isn't already being watched.
+    if (!watcher->watching_destroyed_event)
+        AXObserverAddNotification(observer, watcher->element, kAXUIElementDestroyedNotification, watcher);
 
     lua_pushvalue(L, 1);  // Store a reference to the lua object inside watcher.
     watcher->watcher_ref = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -203,7 +228,8 @@ static void stop_watcher(lua_State* L, watcher_t* watcher) {
 
 /// hs.uielement.watcher:stop()
 /// Method
-/// Tells the watcher to stop listening for events.
+/// Tells the watcher to stop listening for events. This is automatically called if the element is
+/// destroyed, *unless* the element is an application.
 static int watcher_stop(lua_State* L) {
     watcher_t* watcher = (watcher_t*)luaL_checkudata(L, 1, watcherUserdataTag);
     stop_watcher(L, watcher);
