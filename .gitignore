@@ -20,3 +20,4 @@ DerivedData
 /Hammerspoon.app
 /Hammerspoon*.zip
 *.dSYM
+Hammerspoon/secrets.h

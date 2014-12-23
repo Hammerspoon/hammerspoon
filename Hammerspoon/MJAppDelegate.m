@@ -1,3 +1,4 @@
+#import <Crashlytics/Crashlytics.h>
 #import <Cocoa/Cocoa.h>
 #import "MJConsoleWindowController.h"
 #import "MJPreferencesWindowController.h"
@@ -9,6 +10,7 @@
 #import "MJFileUtils.h"
 #import "MJAccessibilityUtils.h"
 #import "variables.h"
+#import "secrets.h"
 
 @interface MJAppDelegate : NSObject <NSApplicationDelegate>
 @property IBOutlet NSMenu* menuBarMenu;
@@ -18,12 +20,12 @@
 
 static BOOL MJFirstRunForCurrentVersion(void) {
     NSString* key = [NSString stringWithFormat:@"%@_%d", MJHasRunAlreadyKey, MJVersionFromThisApp()];
-    
+
     BOOL firstRun = ![[NSUserDefaults standardUserDefaults] boolForKey:key];
-    
+
     if (firstRun)
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:key];
-    
+
     return firstRun;
 }
 
@@ -33,6 +35,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+
     if(NSClassFromString(@"XCTest") != nil) {
         NSLog(@"in testing mode!");
         const char *tmp = [[[NSBundle bundleForClass:NSClassFromString(@"Hammerspoon_Tests")] pathForResource:@"init" ofType:@"lua"] fileSystemRepresentation];
@@ -40,15 +43,22 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tmp length:strlen(tmp)];
     }
 
+    // Enable Crashlytics, if we have an API key available
+#ifdef CRASHLYTICS_API_KEY
+        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY]];
+        Crashlytics *crashlytics = [Crashlytics sharedInstance];
+        crashlytics.debugMode = YES; // TODO: We probably don't want to leave this enabled
+#endif
+
     MJEnsureDirectoryExists(MJConfigDir());
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigDir()];
-    
+
     [self registerDefaultDefaults];
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
     [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
-    
+
     if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
         [[MJPreferencesWindowController singleton] showWindow: nil];
 }

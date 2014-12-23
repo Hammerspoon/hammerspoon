@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F1CF8DB1A47F5BD001C8AE7 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */; };
 		4F9A454A19EC6801006BB982 /* build_extensions.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F9A454919EC6801006BB982 /* build_extensions.sh */; };
 		4FC09F7C19F99ECE007542A6 /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FC09F7B19F99ECE007542A6 /* docs.json */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
@@ -52,6 +53,7 @@
 
 /* Begin PBXFileReference section */
 		273C7223738140A6F91A8338 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4F9A454919EC6801006BB982 /* build_extensions.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_extensions.sh; path = extensions/build_extensions.sh; sourceTree = "<group>"; };
 		4FC09F7B19F99ECE007542A6 /* docs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = docs.json; path = build/docs.json; sourceTree = "<group>"; };
 		896F5840119EB0EC98527200 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				94414F47196A1B280067D467 /* Carbon.framework in Frameworks */,
 				9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */,
 				9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */,
+				4F1CF8DB1A47F5BD001C8AE7 /* Crashlytics.framework in Frameworks */,
 				FEC002E365542A867EA8EACF /* libPods-Hammerspoon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,6 +179,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */,
 				94ABF08E1980B41300FA68E9 /* Security.framework */,
 				94414F46196A1B280067D467 /* Carbon.framework */,
 				9473A75C1959F9AB0080C329 /* WebKit.framework */,
@@ -295,13 +299,15 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hammerspoon" */;
 			buildPhases = (
-				4FC09F7A19F99E48007542A6 /* ShellScript */,
+				4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */,
+				4FC09F7A19F99E48007542A6 /* Compile docs.json */,
 				28F84E8DEB615EBE33ED1722 /* Check Pods Manifest.lock */,
 				9445CA0719083251002568BB /* Sources */,
 				9445CA0819083251002568BB /* Frameworks */,
-				4F9A454819EC67E1006BB982 /* Run Script */,
+				4F9A454819EC67E1006BB982 /* Compile Extensions */,
 				9445CA0919083251002568BB /* Resources */,
 				F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */,
+				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -409,27 +415,56 @@
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
-		4F9A454819EC67E1006BB982 /* Run Script */ = {
+		4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Run Script";
+			name = "Upload binary to Crashlytics";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "if [ -f ../crashlytics-tokens ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../crashlytics-tokens\n  ./Crashlytics.framework/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD\"\nfi";
+		};
+		4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Prepare defines header file";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f ../crashlytics-tokens ] ; then\n  source ../crashlytics-tokens\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi";
+		};
+		4F9A454819EC67E1006BB982 /* Compile Extensions */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Compile Extensions";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "${SRCROOT}/extensions/build_extensions.sh";
 		};
-		4FC09F7A19F99E48007542A6 /* ShellScript */ = {
+		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Compile docs.json";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -571,6 +606,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
@@ -589,6 +628,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;

@@ -1,0 +1,6 @@
+framework module Crashlytics {
+  umbrella header "Crashlytics.h"
+
+  export *
+  module * { export * }
+}
