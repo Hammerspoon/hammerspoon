@@ -3,6 +3,7 @@
 #import <lauxlib.h>
 #import "window.h"
 #import "../application/application.h"
+#import "../uielement/uielement.h"
 
 extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 
@@ -151,13 +152,6 @@ static int window_gc(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     CFRelease(win);
     return 0;
-}
-
-static int window_eq(lua_State* L) {
-    AXUIElementRef winA = get_window_arg(L, 1);
-    AXUIElementRef winB = get_window_arg(L, 2);
-    lua_pushboolean(L, CFEqual(winA, winB));
-    return 1;
 }
 
 static AXUIElementRef system_wide_element() {
@@ -519,11 +513,14 @@ int luaopen_hs_window_internal(lua_State* L) {
         lua_pushvalue(L, -2);
         lua_setfield(L, -2, "__index");
 
+        // Use hs.uilement's equality
+        luaL_getmetatable(L, "hs.uielement");
+        lua_getfield(L, -1, "__eq");
+        lua_remove(L, -2);
+        lua_setfield(L, -2, "__eq");
+
         lua_pushcfunction(L, window_gc);
         lua_setfield(L, -2, "__gc");
-
-        lua_pushcfunction(L, window_eq);
-        lua_setfield(L, -2, "__eq");
     }
     lua_pop(L, 1);
 

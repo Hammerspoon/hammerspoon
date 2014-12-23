@@ -16,13 +16,6 @@ static pid_t pid_for_app(lua_State* L, int idx) {
     return p;
 }
 
-static int application_eq(lua_State* L) {
-    pid_t p1 = pid_for_app(L, 1);
-    pid_t p2 = pid_for_app(L, 2);
-    lua_pushboolean(L, (p1 == p2));
-    return 1;
-}
-
 static int application_gc(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
     CFRelease(app);
@@ -44,7 +37,7 @@ static int application_runningapplications(lua_State* L) {
     return 1;
 }
 
-/// hs.application.applicationForPid(pid) -> app or nil
+/// hs.application.applicationForPID(pid) -> app or nil
 /// Constructor
 /// Returns the running app for the given pid, if it exists.
 static int application_applicationforpid(lua_State* L) {
@@ -629,7 +622,10 @@ int luaopen_hs_application_internal(lua_State* L) {
         lua_pushvalue(L, -2); // 'application' table
         lua_setfield(L, -2, "__index");
 
-        lua_pushcfunction(L, application_eq);
+        // Use hs.uilement's equality
+        luaL_getmetatable(L, "hs.uielement");
+        lua_getfield(L, -1, "__eq");
+        lua_remove(L, -2);
         lua_setfield(L, -2, "__eq");
 
         lua_pushcfunction(L, application_gc);

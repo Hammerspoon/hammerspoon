@@ -29,6 +29,21 @@ static id get_prop(AXUIElementRef win, NSString* propType, id defaultValue) {
     return defaultValue;
 }
 
+// Use the Role of the element to decide which type of object to create: window, app, or plain uielement.
+// Retains a copy of the element, if necessary.
+static void push_element(lua_State* L, AXUIElementRef element) {
+    NSString* role = get_prop(element, NSAccessibilityRoleAttribute, @"");
+    if        ([role isEqualToString: (NSString*)kAXWindowRole]) {
+        new_window(L, (AXUIElementRef)CFRetain(element));
+    } else if ([role isEqualToString: (NSString*)kAXApplicationRole]) {
+        pid_t pid;
+        AXUIElementGetPid(element, &pid);
+        new_application(L, pid);
+    } else {
+        new_uielement(L, (AXUIElementRef)CFRetain(element));
+    }
+}
+
 /// hs.uielement:role() -> string
 /// Method
 /// Returns the role of the element.
@@ -39,6 +54,20 @@ static int uielement_role(lua_State* L) {
 
     lua_pushstring(L, [str UTF8String]);
     return 1;
+}
+
+static int uielement_eq(lua_State* L) {
+    AXUIElementRef lhs = get_element(L, 1);
+    AXUIElementRef rhs = get_element(L, 2);
+    lua_pushboolean(L, CFEqual(lhs, rhs));
+    return 1;
+}
+
+// Clean up a bare uielement if it isn't needed anymore.
+static int uielement_gc(lua_State* L) {
+    AXUIElementRef element = get_element(L, 1);
+    CFRelease(element);
+    return 0;
 }
 
 typedef struct _watcher_t {
@@ -81,21 +110,12 @@ static int uielement_newWatcher(lua_State* L) {
     luaL_getmetatable(L, watcherUserdataTag);
     lua_setmetatable(L, -2);
 
-    return 1;
-}
+    lua_newtable(L);
+    push_element(L, element);
+    lua_setfield(L, -2, "element");
+    lua_setuservalue(L, -2);
 
-// Use the Role of the element to decide which type of object to create: window, app, or plain uielement.
-static void push_element(lua_State* L, AXUIElementRef element) {
-    NSString* role = get_prop(element, NSAccessibilityRoleAttribute, @"");
-    if        ([role isEqualToString: (NSString*)kAXWindowRole]) {
-        new_window(L, (AXUIElementRef)CFRetain(element));
-    } else if ([role isEqualToString: (NSString*)kAXApplicationRole]) {
-        pid_t pid;
-        AXUIElementGetPid(element, &pid);
-        new_application(L, pid);
-    } else {
-        new_uielement(L, (AXUIElementRef)CFRetain(element));
-    }
+    return 1;
 }
 
 static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
@@ -190,6 +210,14 @@ static int watcher_stop(lua_State* L) {
     return 0;
 }
 
+static int watcher_element(lua_State* L) {
+    luaL_checkudata(L, 1, watcherUserdataTag);  // check type
+    lua_getuservalue(L, 1);
+    lua_getfield(L, -1, "element");
+    lua_remove(L, -2);
+    return 1;
+}
+
 // Perform cleanup if the watcher is not required anymore.
 static int watcher_gc(lua_State* L) {
     watcher_t* watcher = (watcher_t*)luaL_checkudata(L, 1, watcherUserdataTag);
@@ -211,6 +239,7 @@ static const luaL_Reg uielementlib[] = {
 static const luaL_Reg watcherlib[] = {
     {"start", watcher_start},
     {"stop", watcher_stop},
+    {"element", watcher_element},
     {}
 };
 
@@ -230,6 +259,10 @@ int luaopen_hs_uielement_internal(lua_State* L) {
         lua_pushvalue(L, -2);
         lua_setfield(L, -2, "__index");
 
+        lua_pushcfunction(L, uielement_gc);
+        lua_setfield(L, -2, "__gc");
+        lua_pushcfunction(L, uielement_eq);
+        lua_setfield(L, -2, "__eq");
         // __gc and __eq provided by subclasses.
     }
     lua_pop(L, 1);
