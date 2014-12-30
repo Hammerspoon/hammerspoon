@@ -129,10 +129,10 @@ typedef enum _event_t {
 /// Function
 /// Creates an application watcher that is able to capture application events.
 ///
-/// The parameter fn has to be a function accepting two parameters. The first parameter passed to
+/// The parameter fn has to be a function accepting three parameters. The first parameter passed to
 /// the function is the application name as string, the second parameter is the event type, and the
 /// third is an application object. Note that if the application has been terminated, the
-/// application object will only be good for getting the PID and the first parameter will be nil.
+/// application object will only be useful for getting the PID and the first parameter will be nil.
 ///
 /// The event type parameter can be one of the following values:
 /// hs.application.watcher.launching    -- The application will launch.
