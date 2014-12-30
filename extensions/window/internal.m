@@ -3,8 +3,7 @@
 #import <lauxlib.h>
 #import "window.h"
 #import "../application/application.h"
-
-extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
+#import "../uielement/uielement.h"
 
 #define get_window_arg(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "hs.window"))
 
@@ -151,13 +150,6 @@ static int window_gc(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     CFRelease(win);
     return 0;
-}
-
-static int window_eq(lua_State* L) {
-    AXUIElementRef winA = get_window_arg(L, 1);
-    AXUIElementRef winB = get_window_arg(L, 2);
-    lua_pushboolean(L, CFEqual(winA, winB));
-    return 1;
 }
 
 static AXUIElementRef system_wide_element() {
@@ -397,16 +389,13 @@ static int window_isminimized(lua_State* L) {
 // in:  [win]
 // out: [pid]
 static int window_pid(lua_State* L) {
-    AXUIElementRef win = get_window_arg(L, 1);
-
-    pid_t pid = 0;
-    if (AXUIElementGetPid(win, &pid) == kAXErrorSuccess) {
-        lua_pushnumber(L, pid);
+    get_window_arg(L, 1);  // type checking
+    lua_getuservalue(L, 1);
+    lua_getfield(L, -1, "pid");
+    if (lua_isnumber(L, -1))
         return 1;
-    }
-    else {
+    else
         return 0;
-    }
 }
 
 /// hs.window:application() -> app
@@ -455,30 +444,13 @@ static int window__orderedwinids(lua_State* L) {
 /// Method
 /// Returns a unique number identifying this window.
 static int window_id(lua_State* L) {
-    lua_settop(L, 1);
-    AXUIElementRef win = get_window_arg(L, 1);
-
+    get_window_arg(L, 1);  // type checking
     lua_getuservalue(L, 1);
-
     lua_getfield(L, -1, "id");
     if (lua_isnumber(L, -1))
         return 1;
     else
-        lua_pop(L, 1);
-
-    CGWindowID winid;
-    AXError err = _AXUIElementGetWindow(win, &winid);
-    if (err) {
-        lua_pushnil(L);
-        return 1;
-    }
-
-    // cache it
-    lua_pushnumber(L, winid);
-    lua_setfield(L, -2, "id");
-
-    lua_pushnumber(L, winid);
-    return 1;
+        return 0;
 }
 
 static const luaL_Reg windowlib[] = {
@@ -511,15 +483,22 @@ static const luaL_Reg windowlib[] = {
 int luaopen_hs_window_internal(lua_State* L) {
     luaL_newlib(L, windowlib);
 
+    // Inherit hs.uielement
+    luaL_getmetatable(L, "hs.uielement");
+    lua_setmetatable(L, -2);
+
     if (luaL_newmetatable(L, "hs.window")) {
         lua_pushvalue(L, -2);
         lua_setfield(L, -2, "__index");
 
+        // Use hs.uilement's equality
+        luaL_getmetatable(L, "hs.uielement");
+        lua_getfield(L, -1, "__eq");
+        lua_remove(L, -2);
+        lua_setfield(L, -2, "__eq");
+
         lua_pushcfunction(L, window_gc);
         lua_setfield(L, -2, "__gc");
-
-        lua_pushcfunction(L, window_eq);
-        lua_setfield(L, -2, "__eq");
     }
     lua_pop(L, 1);
 

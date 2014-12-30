@@ -2,6 +2,7 @@
 ---
 --- Manipulate running applications.
 
+local uielement = hs.uielement  -- Make sure parent module loads
 local application = require "hs.application.internal"
 local fnutils = require "hs.fnutils"
 local window = require "hs.window"

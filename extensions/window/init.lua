@@ -12,6 +12,7 @@
 ---
 --- See the `screen` module for detailed explanation of how Hammerspoon uses window/screen coordinates.
 
+local uielement = hs.uielement  -- Make sure parent module loads
 local window = require "hs.window.internal"
 local application = require "hs.application.internal"
 local fnutils = require "hs.fnutils"
