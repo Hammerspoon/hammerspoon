@@ -18,7 +18,7 @@ hints.hintChars = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","
 --- Variable
 --- If this is set to "vimperator", every window hint starts with the first character
 --- of the parent application's title
-hints.style = "vimperator"
+hints.style = "default"
 
 local openHints = {}
 local takenPositions = {}
