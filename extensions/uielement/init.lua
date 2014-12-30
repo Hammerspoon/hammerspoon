@@ -18,7 +18,7 @@ function uielement:isApplication()
     return self:role() == "AXApplication"
 end
 
---- hs.uielement.watcher
+--- === hs.uielement.watcher ===
 --- Defines events that can be watched using hs.uielement.watcher.
 ---
 --- You can watch the following events:
@@ -28,6 +28,7 @@ end
 --- * hs.uielement.watcher.applicationDeactivated: The current application is no longer this one.
 --- * hs.uielement.watcher.applicationHidden: The application was hidden.
 --- * hs.uielement.watcher.applicationShown: The application was shown.
+---
 --- #### Focus change events
 --- These events are watched on the application level, but send the relevant child element to the handler.
 --- * hs.uielement.watcher.mainWindowChanged: The main window of the application was changed.
