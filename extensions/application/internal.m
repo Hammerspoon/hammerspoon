@@ -22,18 +22,30 @@ static int application_gc(lua_State* L) {
     return 0;
 }
 
+/// hs.application.frontmostApplication() -> app
+/// Constructor
+/// Returns the application object for the frontmost (active) application.  This is the application which currently receives key events.
+static int application_frontmostapplication(lua_State* L) {
+    NSRunningApplication* runningApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
+    if (runningApp)
+        new_application(L, [runningApp processIdentifier]);
+    else
+        lua_pushnil(L);
+return 1;
+}
+
 /// hs.application.runningApplications() -> app[]
 /// Constructor
 /// Returns all running apps.
 static int application_runningapplications(lua_State* L) {
     lua_newtable(L);
     int i = 1;
-    
+
     for (NSRunningApplication* runningApp in [[NSWorkspace sharedWorkspace] runningApplications]) {
         new_application(L, [runningApp processIdentifier]);
         lua_rawseti(L, -2, i++);
     }
-    
+
     return 1;
 }
 
@@ -42,14 +54,14 @@ static int application_runningapplications(lua_State* L) {
 /// Returns the running app for the given pid, if it exists.
 static int application_applicationforpid(lua_State* L) {
     pid_t pid = luaL_checknumber(L, 1);
-    
+
     NSRunningApplication* runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-    
+
     if (runningApp)
         new_application(L, [runningApp processIdentifier]);
     else
         lua_pushnil(L);
-    
+
     return 1;
 }
 
@@ -59,16 +71,16 @@ static int application_applicationforpid(lua_State* L) {
 static int application_applicationsForBundleID(lua_State* L) {
     const char* bundleid = luaL_checkstring(L, 1);
     NSString* bundleIdentifier = [NSString stringWithUTF8String:bundleid];
-    
+
     lua_newtable(L);
     int i = 1;
-    
+
     NSArray* runningApps = [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleIdentifier];
     for (NSRunningApplication* runningApp in runningApps) {
         new_application(L, [runningApp processIdentifier]);
         lua_rawseti(L, -2, i++);
     }
-    
+
     return 1;
 }
 
@@ -77,22 +89,22 @@ static int application_applicationsForBundleID(lua_State* L) {
 /// Returns all open windows owned by the given app.
 static int application_allWindows(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
-    
+
     lua_newtable(L);
-    
+
     CFArrayRef windows;
     AXError result = AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, 100, &windows);
     if (result == kAXErrorSuccess) {
         for (NSInteger i = 0; i < CFArrayGetCount(windows); i++) {
             AXUIElementRef win = CFArrayGetValueAtIndex(windows, i);
             CFRetain(win);
-            
+
             new_window(L, win);
             lua_rawseti(L, -2, (int)(i + 1));
         }
         CFRelease(windows);
     }
-    
+
     return 1;
 }
 
@@ -101,7 +113,7 @@ static int application_allWindows(lua_State* L) {
 /// Returns the main window of the given app, or nil.
 static int application_mainWindow(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
-    
+
     CFTypeRef window;
     if (AXUIElementCopyAttributeValue(app, kAXMainWindowAttribute, &window) == kAXErrorSuccess) {
         new_window(L, window);
@@ -109,7 +121,7 @@ static int application_mainWindow(lua_State* L) {
     else {
         lua_pushnil(L);
     }
-    
+
     return 1;
 }
 
@@ -141,14 +153,14 @@ static int application_isunresponsive(lua_State* L) {
     CG_EXTERN CGSConnectionID CGSMainConnectionID(void);
     bool CGSEventIsAppUnresponsive(CGSConnectionID cid, const ProcessSerialNumber *psn);
     // srsly come on now
-    
+
     pid_t pid = pid_for_app(L, 1);
     ProcessSerialNumber psn;
     GetProcessForPID(pid, &psn);
-    
+
     CGSConnectionID conn = CGSMainConnectionID();
     bool is = CGSEventIsAppUnresponsive(conn, &psn);
-    
+
     lua_pushboolean(L, is);
     return 1;
 }
@@ -206,7 +218,7 @@ static int application_hide(lua_State* L) {
 /// Tries to terminate the app.
 static int application_kill(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
-    
+
     [app terminate];
     return 0;
 }
@@ -216,7 +228,7 @@ static int application_kill(lua_State* L) {
 /// Assuredly terminates the app.
 static int application_kill9(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
-    
+
     [app forceTerminate];
     return 0;
 }
@@ -226,13 +238,13 @@ static int application_kill9(lua_State* L) {
 /// Returns whether the app is currently hidden.
 static int application_ishidden(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
-    
+
     CFTypeRef _isHidden;
     NSNumber* isHidden = @NO;
     if (AXUIElementCopyAttributeValue(app, (CFStringRef)NSAccessibilityHiddenAttribute, (CFTypeRef *)&_isHidden) == kAXErrorSuccess) {
         isHidden = CFBridgingRelease(_isHidden);
     }
-    
+
     lua_pushboolean(L, [isHidden boolValue]);
     return 1;
 }
@@ -251,14 +263,14 @@ static int application_pid(lua_State* L) {
 static int application_kind(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     NSApplicationActivationPolicy pol = [app activationPolicy];
-    
+
     int kind = 1;
     switch (pol) {
         case NSApplicationActivationPolicyAccessory:  kind =  0; break;
         case NSApplicationActivationPolicyProhibited: kind = -1; break;
         default: break;
     }
-    
+
     lua_pushnumber(L, kind);
     return 1;
 }
@@ -586,6 +598,7 @@ static int application_launchorfocus(lua_State* L) {
 
 static const luaL_Reg applicationlib[] = {
     {"runningApplications", application_runningapplications},
+    {"frontmostApplication", application_frontmostapplication},
     {"applicationForPID", application_applicationforpid},
     {"applicationsForBundleID", application_applicationsForBundleID},
 
