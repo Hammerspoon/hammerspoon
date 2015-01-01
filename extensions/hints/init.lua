@@ -132,22 +132,26 @@ function hints.windowHints()
   hintDict = {}
   for i, win in ipairs(window.allWindows()) do
     local app = win:application()
-    if hints.style == "vimperator" then
-      if app and win:title() ~= "" and win:isStandard() then
-        local appchar = string.upper(string.sub(app:title(), 1, 1))
-        modalKey:bind({}, appchar, function() hints.processChar(appchar) end)
-        if hintDict[appchar] == nil then
-          hintDict[appchar] = {}
+    if app and win:title() ~= "" and win:isStandard() then
+      if hints.style == "vimperator" then
+        if app and win:title() ~= "" and win:isStandard() then
+          local appchar = string.upper(string.sub(app:title(), 1, 1))
+          modalKey:bind({}, appchar, function() hints.processChar(appchar) end)
+          if hintDict[appchar] == nil then
+            hintDict[appchar] = {}
+          end
+          hints.addWindow(hintDict[appchar], win)
         end
-        hints.addWindow(hintDict[appchar], win)
+      else
+        hints.addWindow(hintDict, win)
       end
-    else
-      hints.addWindow(hintDict, win)
     end
   end
   takenPositions = {}
-  hints.displayHintsForDict(hintDict, "")
-  modalKey:enter()
+  if next(hintDict) ~= nil then
+    hints.displayHintsForDict(hintDict, "")
+    modalKey:enter()
+  end
 end
 
 function hints.closeHints()
