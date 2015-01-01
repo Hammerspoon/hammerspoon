@@ -113,7 +113,7 @@ end
 
 function help(identifier)
   local doc = require "hs.doc"
-  local tree = doc.from_json_file(hs.docstrings_json_file)
+  local tree = doc.fromJSONFile(hs.docstrings_json_file)
   local result = tree
 
   for word in string.gmatch(identifier, '([^.]+)') do
