@@ -113,12 +113,12 @@ Note that a function is any top-level function provided by an extension, which d
 The `Parameters` and `Returns` sections should always be present. If there is nothing to describe there, simply list `* None`. The `Notes` section is optional and should only be present if there are uesful notes.
 
 ```lua
---- hs.foo.someFunction(bar, baz) -> string or nil
+--- hs.foo.someFunction(bar[, baz]) -> string or nil
 --- Function
 ---
 --- Parameters:
 ---  * bar - Value for doing something
----  * baz - Some other value
+---  * baz - Some optional other value. Defaults to 'abc'
 ---
 --- Returns:
 ---  * A string with some important result, or nil if an error occurred
