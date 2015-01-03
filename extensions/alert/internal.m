@@ -152,7 +152,7 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 
 @end
 
-/// hs.alert.show(str, seconds)
+/// hs.alert.show(str[, seconds])
 /// Function
 /// Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.
 ///
