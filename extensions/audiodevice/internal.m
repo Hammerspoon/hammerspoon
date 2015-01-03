@@ -43,6 +43,12 @@ void new_device(lua_State* L, AudioDeviceID deviceId) {
 /// hs.audiodevice.allOutputDevices() -> audio[]
 /// Function
 /// Returns a list of all connected output devices.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table of zero or more audio output devices connected to the system
 static int audiodevice_alloutputdevices(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDevices,
@@ -96,7 +102,13 @@ end:
 
 /// hs.audiodevice.defaultOutputDevice() -> audio or nil
 /// Function
-/// Gets the system's default audio device, or nil, it it does not exist.
+/// Get the currently selected audio output device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An hs.audiodevice object, or nil if no suitable device could be found
 static int audiodevice_defaultoutputdevice(lua_State* L) {
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwarePropertyDefaultOutputDevice,
@@ -128,7 +140,13 @@ end:
 
 /// hs.audiodevice:setDefaultOutputDevice() -> bool
 /// Method
-/// Sets the system's default audio device to this device. Returns true if the audio device was successfully set.
+/// Selects this device as the system's audio output device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the audio device was successfully selected, otherwise false.
 static int audiodevice_setdefaultoutputdevice(lua_State* L) {
     AudioDeviceID deviceId = MJ_Audio_Device(L, 1);
 
@@ -162,7 +180,13 @@ end:
 
 /// hs.audiodevice:name() -> string or nil
 /// Method
-/// Returns the name of the audio device, or nil if it does not have a name.
+/// Get the name of the audio device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the name of the audio device, or nil if it has no name
 static int audiodevice_name(lua_State* L) {
     AudioDeviceID deviceId = MJ_Audio_Device(L, 1);
 
@@ -198,7 +222,13 @@ end:
 
 /// hs.audiodevice:uid() -> string or nil
 /// Method
-/// Returns the Unique Identifier of the audio device, or nil if it does not have a uid.
+/// Get the unique identifier of the audio device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the UID of the audio device, or nil if it has no UID.
 static int audiodevice_uid(lua_State* L) {
     AudioDeviceID deviceId = MJ_Audio_Device(L, 1);
 
@@ -234,7 +264,13 @@ end:
 
 /// hs.audiodevice:muted() -> bool or nil
 /// Method
-/// Returns true/false if the audio device is muted, or nil if it does not support being muted.
+/// Get the mutedness state of the audio device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the audio device is muted, False if it is not muted, nil if it does not support muting
 static int audiodevice_muted(lua_State* L) {
     AudioDeviceID deviceId = MJ_Audio_Device(L, 1);
 
@@ -268,9 +304,15 @@ end:
 
 }
 
-/// hs.audiodevice:setMuted(bool) -> bool
+/// hs.audiodevice:setMuted(state) -> bool
 /// Method
-/// Returns true if the the device's muted status was set, or false if it does not support being muted.
+/// Set the mutedness state of the audio device
+///
+/// Parameters:
+///  * state - A boolean value. True to mute the device, False to unmute it
+///
+/// Returns:
+///  * True if the device's mutedness state was set, or False if it does not support muting
 static int audiodevice_setmuted(lua_State* L) {
     AudioDeviceID deviceId = MJ_Audio_Device(L, 1);
     UInt32 muted = lua_toboolean(L, 2);
@@ -306,7 +348,13 @@ end:
 
 /// hs.audiodevice:volume() -> number or bool
 /// Method
-/// Returns a number between 0 and 100 inclusive, representing the volume percentage. Or nil, if the audio device does not have a volume level.
+/// Get the current volume of this audio device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number between 0 and 100, representing the volume percentage, or nil if the audio device does not support volume levels
 static int audiodevice_volume(lua_State* L) {
     AudioDeviceID deviceId = MJ_Audio_Device(L, 1);
 
@@ -340,10 +388,15 @@ end:
 
 }
 
-
 /// hs.audiodevice:setVolume(level) -> bool
 /// Method
-/// Returns true if the volume was set, or false if the audio device does not support setting a volume level. Level is a percentage between 0 and 100.
+/// Set the volume of this audio device
+///
+/// Parameters:
+///  * level - A number between 0 and 100, representing the volume as a percentage
+///
+/// Returns:
+///  * True if the volume was set, false if the audio device does not support setting a volume level.
 static int audiodevice_setvolume(lua_State* L) {
     AudioDeviceID deviceId = MJ_Audio_Device(L, 1);
     Float32 volume = MIN(MAX(luaL_checknumber(L, 2) / 100.0, 0.0), 1.0);

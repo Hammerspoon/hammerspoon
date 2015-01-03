@@ -13,8 +13,14 @@ local fnutils = require("hs.fnutils")
 
 --- hs.audiodevice.current() -> table
 --- Function
---- Convenience function which returns a table with the following keys and values:
---- ~~~lua
+--- Fetch various metadata about the current audio output device
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table with the following contents:
+--- ```lua
 ---     {
 ---         name = defaultOutputDevice():name(),
 ---         uid = module.defaultOutputDevice():uid(),
@@ -22,7 +28,7 @@ local fnutils = require("hs.fnutils")
 ---         volume = defaultOutputDevice():volume(),
 ---         device = defaultOutputDevice(),
 ---     }
---- ~~~
+--- ```
 module.current = function()
     return {
         name = module.defaultOutputDevice():name(),
@@ -35,7 +41,13 @@ end
 
 --- hs.audiodevice.findOutputByName(name) -> device or nil
 --- Function
---- Convenience function which returns an audiodevice based on its name, or nil if it can't be found
+--- Find audio output devices by name
+---
+--- Parameters:
+---  * name - A string containing the name of an audio output device to search for
+---
+--- Returns:
+---  * An hs.audiodevice object or nil if the device could not be found
 module.findOutputByName = function(name)
     return fnutils.find(module.allOutputDevices(), function(dev) return (dev:name() == name) end)
 end
