@@ -12,6 +12,8 @@
     NSSize textSize;
 }
 
++ (void)initCache:(NSString*)fontName fontSize:(CGFloat)fontSize;
+- (id)initWithFrame:(NSRect)frame fontName:(NSString*)fontName fontSize:(CGFloat)fontSize;
 - (void)setIconFromBundleID:(NSString*)appRef;
 
 @property (strong, nonatomic) NSString *text;
@@ -32,11 +34,15 @@ static float hintIconAlpha = -1.0;
 static NSRect iconFrame;
 static NSDictionary *hintTextAttributes;
 
-+ (void)initCache {
++ (void)initCache:(NSString*)fontName fontSize:(CGFloat)fontSize {
     iconFrame = NSMakeRect(0, 0, hintHeight, hintHeight);
     hintBackgroundColor = [NSColor colorWithWhite:0.0 alpha:0.65];
     hintFontColor = [NSColor whiteColor];
-    hintFont = [NSFont systemFontOfSize:25.0];
+    if (fontName) {
+        hintFont = [NSFont fontWithName:fontName size:fontSize];
+    } else {
+        hintFont = [NSFont systemFontOfSize:25.0];
+    }
     hintIconAlpha = 0.95;
     hintTextAttributes = [NSDictionary dictionaryWithObjectsAndKeys:hintFont,
                           NSFontAttributeName,
@@ -44,12 +50,12 @@ static NSDictionary *hintTextAttributes;
                           NSForegroundColorAttributeName, nil];
 }
 
-- (id)initWithFrame:(NSRect)frame {
+- (id)initWithFrame:(NSRect)frame fontName:(NSString*)fontName fontSize:(CGFloat)fontSize {
     self = [super initWithFrame:frame];
     if (self) {
         [self setWantsLayer:YES];
         [self setIcon:nil];
-        [HintView initCache];
+        [HintView initCache:fontName fontSize:fontSize];
     }
     return self;
 }
@@ -103,13 +109,13 @@ static NSDictionary *hintTextAttributes;
 
 @interface HintWindow : NSWindow
 - (HintWindow*)initWithPoint:(CGPoint)pt text:(NSString*)txt
-                 forApp:(NSString*)bundle onScreen:(NSScreen*)screen;
+                      forApp:(NSString*)bundle onScreen:(NSScreen*)screen fontName:(NSString*)fontName fontSize:(CGFloat)fontSize;
 @end
 
 @implementation HintWindow
 
 - (HintWindow*)initWithPoint:(CGPoint)pt text:(NSString*)txt
-                 forApp:(NSString*)bundle onScreen:(NSScreen*)screen {
+                      forApp:(NSString*)bundle onScreen:(NSScreen*)screen fontName:(NSString*)fontName fontSize:(CGFloat)fontSize {
     CGFloat height = 75;
     CGRect frame = NSMakeRect(pt.x - (height/2.0),
                               screen.frame.size.height - pt.y - (height/2.0), 100, 75);
@@ -123,7 +129,7 @@ static NSDictionary *hintTextAttributes;
         [self setBackgroundColor:[NSColor colorWithDeviceRed:0.0 green:0.0 blue:0.0 alpha:0.0]];
         [self makeKeyAndOrderFront:NSApp];
         [self setLevel:(NSScreenSaverWindowLevel - 1)];
-        HintView *label = [[HintView alloc] initWithFrame:frame];
+        HintView *label = [[HintView alloc] initWithFrame:frame fontName:fontName fontSize:fontSize];
         [label setText:txt];
         [label setIconFromBundleID:bundle];
         [self setContentView:label];
@@ -159,19 +165,27 @@ void new_hint(lua_State* L, HintWindow* screen) {
 }
 
 static int hints_test(lua_State* L) {
-    HintWindow *win = [[HintWindow alloc] initWithPoint:NSMakePoint(1000, 200) text:@"J" forApp:@"com.kapeli.dash" onScreen:[NSScreen mainScreen]];
+    HintWindow *win = [[HintWindow alloc] initWithPoint:NSMakePoint(1000, 200) text:@"J" forApp:@"com.kapeli.dash" onScreen:[NSScreen mainScreen] fontName:nil fontSize:0.0];
     new_hint(L, win);
     return 1;
 }
 
 static int hints_new(lua_State* L) {
+    NSString* fontName = nil;
+    CGFloat fontSize = 0.0;
     CGFloat x = luaL_checknumber(L, 1);
     CGFloat y = luaL_checknumber(L, 2);
     NSString* msg = [NSString stringWithUTF8String: luaL_tolstring(L, 3, NULL)];
     NSString* app = [NSString stringWithUTF8String: luaL_tolstring(L, 4, NULL)];
     NSScreen *screen = get_screen_arg(L, 5);
+    if (!lua_isnoneornil(L, 6) && lua_isstring(L, 6)) {
+        fontName = [NSString stringWithUTF8String:luaL_tolstring(L, 6, NULL)];
+    }
+    if (!lua_isnoneornil(L, 7) && lua_isnumber(L, 7)) {
+        fontSize = (CGFloat)lua_tonumber(L, 7);
+    }
 
-    HintWindow *win = [[HintWindow alloc] initWithPoint:NSMakePoint(x, y) text:msg forApp:app onScreen:screen];
+    HintWindow *win = [[HintWindow alloc] initWithPoint:NSMakePoint(x, y) text:msg forApp:app onScreen:screen fontName:fontName fontSize:fontSize];
     new_hint(L, win);
     return 1;
 }

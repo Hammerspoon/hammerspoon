@@ -20,6 +20,17 @@ hints.hintChars = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","
 --- of the parent application's title
 hints.style = "default"
 
+--- hs.hints.fontName
+--- Variable
+--- A fully specified family-face name, preferrably the PostScript name, such as Helvetica-BoldOblique or Times-Roman. (The Font Book app displays PostScript names of fonts in the Font Info panel.)
+--- The default value is the system font
+hints.fontName = nil
+
+--- hs.hints.fontSize
+--- Variable
+--- The size of font that should be used. A value of 0.0 will use the default user font size. This variable is ignored if hs.hints.fontName has not been set.
+hints.fontSize = 0.0
+
 local openHints = {}
 local takenPositions = {}
 local hintDict = {}
@@ -74,7 +85,7 @@ function hints.displayHintsForDict(dict, prefixstring)
           print("hs.hints: Skipping offscreen window: "..win:title())
         else
           -- print(win:title().." x:"..c.x.." y:"..c.y) -- debugging
-          local hint = hints.new(c.x, c.y, prefixstring .. key, app:bundleID(), win:screen())
+          local hint = hints.new(c.x, c.y, prefixstring .. key, app:bundleID(), win:screen(), hints.fontName, hints.fontSize)
           table.insert(takenPositions, c)
           table.insert(openHints, hint)
         end
