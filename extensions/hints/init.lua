@@ -28,7 +28,7 @@ hints.fontName = nil
 
 --- hs.hints.fontSize
 --- Variable
---- The size of font that should be used. A value of 0.0 will use the default user font size. This variable is ignored if hs.hints.fontName has not been set.
+--- The size of font that should be used. A value of 0.0 will use the default size.
 hints.fontSize = 0.0
 
 local openHints = {}

@@ -41,7 +41,7 @@ static NSDictionary *hintTextAttributes;
     if (fontName) {
         hintFont = [NSFont fontWithName:fontName size:fontSize];
     } else {
-        hintFont = [NSFont systemFontOfSize:25.0];
+        hintFont = [NSFont systemFontOfSize:(fontSize > 0.0 ? fontSize : 25.0)];
     }
     hintIconAlpha = 0.95;
     hintTextAttributes = [NSDictionary dictionaryWithObjectsAndKeys:hintFont,
