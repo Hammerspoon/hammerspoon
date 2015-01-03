@@ -152,8 +152,16 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 
 @end
 
-/// hs.alert.show(str, seconds = 2)
+/// hs.alert.show(str, seconds)
+/// Function
 /// Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.
+///
+/// Parameters:
+///  * str - The string to display in the alert
+///  * seconds - The number of seconds to display the alert. Defaults to 2
+///
+/// Returns:
+///  * None
 static int alert_show(lua_State* L) {
     lua_settop(L, 2);
     NSString* str = [NSString stringWithUTF8String: luaL_tolstring(L, 1, NULL)];
