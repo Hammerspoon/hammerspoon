@@ -17,7 +17,14 @@ end
 
 --- hs.foobar.subtractNumbers(a, b) -> int
 --- Function
---- Subtracts two numbers
+--- Subtracts one number from another
+---
+--- Parameters:
+---  * a - The number to be subtracted from
+---  * b - The number to subtract
+---
+--- Returns:
+---  * The result of subtracting b from a
 function foobar.subtractNumbers(a, b)
     return a - b
 end

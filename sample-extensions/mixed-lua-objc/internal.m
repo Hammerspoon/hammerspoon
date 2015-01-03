@@ -3,9 +3,16 @@
 #import <lauxlib.h>
 
 // Inline documentation should be indicated with a three-slash comment
-/// hs.foobar.addNumbers() -> int
-/// Method
+/// hs.foobar.addNumbers(a, b) -> int
+/// Function
 /// Takes two supplied numbers, adds them together and returns the result
+///
+/// Parameters:
+///  * a - A number
+///  * b - A number
+///
+/// Returns:
+///  * A number containing the result of adding a and b together
 static int foobar_addnumbers(lua_State* L) {
     int a = luaL_checknumber(L, 1);
     int b = luaL_checknumber(L, 2);
