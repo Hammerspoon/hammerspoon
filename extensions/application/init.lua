@@ -22,7 +22,7 @@ function application:visibleWindows()
   return fnutils.filter(self:allWindows(), window.isVisible)
 end
 
---- hs.application:activate(allWindows) -> bool
+--- hs.application:activate([allWindows]) -> bool
 --- Method
 --- Tries to activate the app (make its key window focused) and returns whether it succeeded; if allWindows is true, all windows of the application are brought forward as well.
 ---
@@ -31,7 +31,14 @@ end
 ---
 --- Returns:
 ---  * A boolean value indicating whether or not the application could be activated
-function application:activate(allWindows)
+function application:activate(_allWindows)
+  local allWindows = nil
+  if not _allWindows then
+      allWindows = false
+  else
+      allWindows = _allWindows
+  end
+
   if self:isUnresponsive() then return false end
   local win = self:_focusedwindow()
   if win then
