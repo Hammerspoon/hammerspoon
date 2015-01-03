@@ -25,10 +25,17 @@ end
 
 --- hs.applescript.applescript(string) -> bool, result
 --- Function
+--- Runs AppleScript code
 ---
---- Runs the given AppleScript string. If it succeeds, returns true, and the result as a string or number (if it can identify it as such) or  as a string describing the NSAppleEventDescriptor ; if it fails, returns false and an array containing the error dictionary describing why.
+--- Parameters:
+---  * string - Some AppleScript code to execute
 ---
---- Use hs.applescript._applescript(string) if you always want the result as a string describing the NSAppleEventDescriptor.
+--- Returns:
+---  * A boolean value indicating whether the code succeeded or not
+---  * If the code succeeded, the output of the code string. If the code failed, a table containing an error dictionary
+---
+--- Notes:
+---  * Use hs.applescript._applescript(string) if you always want the result as a string, even when a failure occurs.
 module.applescript = function(command)
     local ok, result = module._applescript(command)
     local answer

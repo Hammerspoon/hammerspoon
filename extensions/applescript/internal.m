@@ -3,6 +3,16 @@
 
 // Check out NSScriptClassDescription for expanding obj return values...
 
+/// hs.applescript._applescript(string) -> bool, result
+/// Function
+/// Runs AppleScript code
+///
+/// Parameters:
+///  * string - Some AppleScript code to execute
+///
+/// Returns:
+///  * A boolean value indicating whether the code succeeded or not
+///  * A string containing the output of the code and/or its errors
 static int runapplescript(lua_State* L) {
     NSString* source = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
