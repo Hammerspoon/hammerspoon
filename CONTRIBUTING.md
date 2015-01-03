@@ -88,6 +88,63 @@ If you would like to see other ways that `build_vars.sh` can influence the build
 
 Both Lua and Objective-C portions of an extension should contain in-line documention of all of the functions they expose to users of the extension. The two sample extensions demonstrate how to do this.
 
+The format for docstrings should follow the standard described below. Note that for Lua files, the lines should begin with `---` and for Objective C files, the lines should begin with '///'.
+
+#### Constants
+
+```lua
+--- hs.foo.someConstant
+--- Constant
+--- This defines the value of a thing
+```
+
+#### Variables
+
+```lua
+--- hs.foo.someVariable
+--- Variable
+--- This lets you influence the behaviour of this extension
+```
+
+#### Functions
+
+Note that a function is any top-level function provided by an extension, which doesn't relate to an object created by the extension.
+
+The `Parameters` and `Returns` sections should always be present. If there is nothing to describe there, simply list `* None`. The `Notes` section is optional and should only be present if there are uesful notes.
+
+```lua
+--- hs.foo.someFunction(bar, baz) -> string or nil
+--- Function
+---
+--- Parameters:
+---  * bar - Value for doing something
+---  * baz - Some other value
+---
+--- Returns:
+---  * A string with some important result, or nil if an error occurred
+---
+--- Notes:
+---  * An important first note
+---  * Another important note
+```
+
+#### Methods
+
+Note that a method is any function provided by an extension which relates to an object created by that extension.
+
+The `Parameters` and `Returns` sections should always be present. If there is nothing to describe there, simply list `* None`. The `Notes` section is optional and should only be present if there are uesful notes.
+
+```lua
+--- hs.foo:someMethod() -> bool
+--- Method
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * Boolean indicating whether the operation succeeded.
+```
+
 ### Third party extension distribution
 
 While we want to have Hammerspoon shipping as many useful extensions as possible, there may be reasons for you to ship your extension separately. It would probably be easier to do this in binary form, following the init.lua/internal.so form that Hammerspoon uses, then users can just download your extension into `~/.hammerspoon/<YOUR_EXTENSION_NAME>`.
