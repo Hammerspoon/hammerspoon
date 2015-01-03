@@ -57,7 +57,7 @@ end
 ---
 --- Returns:
 ---  * An hs.application object if one can be found, otherwise nil
---
+---
 --- Notes:
 ---  * For more about Lua patterns, see http://lua-users.org/wiki/PatternsTutorial and http://www.lua.org/manual/5.2/manual.html#6.4.1
 function appfinder.appFromWindowTitlePattern(pattern)
