@@ -3,7 +3,7 @@
 #import <lauxlib.h>
 
 // Inline documentation should be indicated with a three-slash comment
-/// hs.foobar.addnumbers() -> int
+/// hs.foobar.addNumbers() -> int
 /// Method
 /// Takes two supplied numbers, adds them together and returns the result
 static int foobar_addnumbers(lua_State* L) {
@@ -23,7 +23,7 @@ static int numbers_gc(lua_State* L) {
  * {"lua_function_name", objc_function_name},
  */
 static const luaL_Reg foobarlib[] = {
-    {"addnumbers", foobar_addnumbers},
+    {"addNumbers", foobar_addnumbers},
 
     {} // This must end with an empty struct
 };

@@ -15,10 +15,10 @@ end
 
 -- Functions you wish to expose to users should be added to your module's table
 
---- hs.foobar.subtractnumbers(a, b) -> int
+--- hs.foobar.subtractNumbers(a, b) -> int
 --- Function
 --- Subtracts two numbers
-function foobar.subtractnumbers(a, b)
+function foobar.subtractNumbers(a, b)
     return a - b
 end
 
