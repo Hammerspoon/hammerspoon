@@ -11,7 +11,7 @@ local modal_hotkey = hotkey.modal
 --- hs.hints.hintChars
 --- Variable
 --- This controls the set of characters that will be used for window hints. They must be characters found in hs.keycodes.map
---- The default is the letters A-Z, the numbers 0-9, and the punctuation characters: -=[];'\\,./\`
+--- The default is the letters A-Z.
 hints.hintChars = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
 
 --- hs.hints.style
