@@ -23,8 +23,14 @@ static int application_gc(lua_State* L) {
 }
 
 /// hs.application.frontmostApplication() -> app
-/// Constructor
-/// Returns the application object for the frontmost (active) application.  This is the application which currently receives key events.
+/// Function
+/// Returns the application object for the frontmost (active) application.  This is the application which currently receives input events.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An hs.application object
 static int application_frontmostapplication(lua_State* L) {
     NSRunningApplication* runningApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
     if (runningApp)
@@ -35,8 +41,14 @@ return 1;
 }
 
 /// hs.application.runningApplications() -> app[]
-/// Constructor
+/// Function
 /// Returns all running apps.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing zero or more hs.application objects currently running on the system
 static int application_runningapplications(lua_State* L) {
     lua_newtable(L);
     int i = 1;
@@ -50,8 +62,14 @@ static int application_runningapplications(lua_State* L) {
 }
 
 /// hs.application.applicationForPID(pid) -> app or nil
-/// Constructor
+/// Function
 /// Returns the running app for the given pid, if it exists.
+///
+/// Parameters:
+///  * pid - a UNIX process id (i.e. a number)
+///
+/// Returns:
+///  * An hs.application object if one can be found, otherwise nil
 static int application_applicationforpid(lua_State* L) {
     pid_t pid = luaL_checknumber(L, 1);
 
@@ -65,9 +83,15 @@ static int application_applicationforpid(lua_State* L) {
     return 1;
 }
 
-/// hs.application.applicationsForBundleID(bundleid) -> app[]
-/// Constructor
-/// Returns any running apps that have the given bundleid.
+/// hs.application.applicationsForBundleID(bundleID) -> app[]
+/// Function
+/// Returns any running apps that have the given bundleID.
+///
+/// Parameters:
+///  * bundleID - An OSX application bundle indentifier
+///
+/// Returns:
+///  * A table of zero or more hs.application objects that match the given identifier
 static int application_applicationsForBundleID(lua_State* L) {
     const char* bundleid = luaL_checkstring(L, 1);
     NSString* bundleIdentifier = [NSString stringWithUTF8String:bundleid];
@@ -87,6 +111,12 @@ static int application_applicationsForBundleID(lua_State* L) {
 /// hs.application:allWindows() -> window[]
 /// Method
 /// Returns all open windows owned by the given app.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table of zero or more hs.window objects owned by the application
 static int application_allWindows(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
 
@@ -108,9 +138,15 @@ static int application_allWindows(lua_State* L) {
     return 1;
 }
 
-/// hs.application:mainWindow() -> window
+/// hs.application:mainWindow() -> window or nil
 /// Method
 /// Returns the main window of the given app, or nil.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An hs.window object representing the main window of the application, or nil if it has no windows
 static int application_mainWindow(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
 
@@ -178,6 +214,12 @@ static int application__bringtofront(lua_State* L) {
 /// hs.application:title() -> string
 /// Method
 /// Returns the localized name of the app (in UTF8).
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the name of the application
 static int application_title(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     lua_pushstring(L, [[app localizedName] UTF8String]);
@@ -187,6 +229,12 @@ static int application_title(lua_State* L) {
 /// hs.application:bundleID() -> string
 /// Method
 /// Returns the bundle identifier of the app.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the bundle identifier of the application
 static int application_bundleID(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     lua_pushstring(L, [[app bundleIdentifier] UTF8String]);
@@ -196,6 +244,12 @@ static int application_bundleID(lua_State* L) {
 /// hs.application:unhide() -> success
 /// Method
 /// Unhides the app (and all its windows) if it's hidden.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean indicating whether the application was successfully unhidden
 static int application_unhide(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
     BOOL success = (AXUIElementSetAttributeValue(app, (CFStringRef)NSAccessibilityHiddenAttribute, kCFBooleanFalse) == kAXErrorSuccess);
@@ -206,6 +260,12 @@ static int application_unhide(lua_State* L) {
 /// hs.application:hide() -> success
 /// Method
 /// Hides the app (and all its windows).
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean indicating whether the application was successfully hidden
 static int application_hide(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
     BOOL success = (AXUIElementSetAttributeValue(app, (CFStringRef)NSAccessibilityHiddenAttribute, kCFBooleanTrue) == kAXErrorSuccess);
@@ -215,7 +275,13 @@ static int application_hide(lua_State* L) {
 
 /// hs.application:kill()
 /// Method
-/// Tries to terminate the app.
+/// Tries to terminate the app gracefully.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int application_kill(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
 
@@ -225,7 +291,13 @@ static int application_kill(lua_State* L) {
 
 /// hs.application:kill9()
 /// Method
-/// Assuredly terminates the app.
+/// Tries to terminate the app forcefully.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int application_kill9(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
 
@@ -236,6 +308,12 @@ static int application_kill9(lua_State* L) {
 /// hs.application:isHidden() -> bool
 /// Method
 /// Returns whether the app is currently hidden.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean indicating whether the application is hidden or not
 static int application_ishidden(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
 
@@ -252,6 +330,12 @@ static int application_ishidden(lua_State* L) {
 /// hs.application:pid() -> number
 /// Method
 /// Returns the app's process identifier.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The UNIX process identifier of the application (i.e. a number)
 static int application_pid(lua_State* L) {
     lua_pushnumber(L, pid_for_app(L, 1));
     return 1;
@@ -259,7 +343,13 @@ static int application_pid(lua_State* L) {
 
 /// hs.application:kind() -> number
 /// Method
-/// Returns 1 if the app is in the dock, 0 if not, and -1 if it can't even have GUI elements if it wanted to.
+/// Identify the application's GUI state
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number that is either 1 if the app is in the dock, 0 if it is not, or -1 if the application is prohibited from having GUI elements
 static int application_kind(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     NSApplicationActivationPolicy pol = [app activationPolicy];
