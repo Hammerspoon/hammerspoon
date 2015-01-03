@@ -549,15 +549,18 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
 
 /// hs.application:findMenuItem(menuitem) -> table or nil
 /// Method
-/// Returns nil if the menu item cannot be found. If it does exist, returns a table with two keys:
-///  enabled - whether the menu item can be selected/ticked. This will always be false if the application is not currently focussed
-///  ticked - whether the menu item is ticked or not (obviously this value is meaningless for menu items that can't be ticked)
+/// Searches the application for a menu item
 ///
-/// The `menuitem` argument can be one of two things:
-///  * string representing a single menu item. The full menu hierarchy of the application will be searched until a menu item matching that name is found. There is no way to predict what will happen if the application has multiple menu items with the same name. Probably the first one will be returned, but we don't guarantee that.
-///  * table representing a hierarchical menu path, e.g. {"File", "Share", "Messages"} will only look in the File menu and then only look for a submenu called Share, and then only look for a menu item called Messages. If any part of the path search fails, the whole search fails.
+/// Parameters:
+///  * menuitem - This can either be a string containing the text of a menu item (e.g. `"Messages"`) or a table representing the hierarchical path of a menu item (e.g. `{"File", "Share", "Messages"}`). In the string case, all of the application's menus will be searched until a match is found (with no specified behaviour if multiple menu items exist with the same name). In the table case, the whole menu structure will not be searched, because a precise path has been specified.
 ///
-/// NOTE: This can only search for menu items that don't have children - i.e. you can't search for the name of a submenu
+/// Returns:
+///  * Returns nil if the menu item cannot be found. If it does exist, returns a table with two keys:
+///   * enabled - whether the menu item can be selected/ticked. This will always be false if the application is not currently focussed
+///   * ticked - whether the menu item is ticked or not (obviously this value is meaningless for menu items that can't be ticked)
+///
+/// Notes:
+///  * This can only search for menu items that don't have children - i.e. you can't search for the name of a submenu
 static int application_findmenuitem(lua_State* L) {
     AXError error;
     AXUIElementRef app = get_app(L, 1);
@@ -630,10 +633,16 @@ static int application_findmenuitem(lua_State* L) {
 
 /// hs.application:selectMenuItem(menuitem) -> true or nil
 /// Method
-/// Selects a menu item provided as `menuitem`. This can be either a string or a table, in the same format as hs.application:findMenuItem()
+/// Selects a menu item (i.e. simulates clicking on the menu item)
 ///
-/// Depending on the type of menu item involved, this will either activate or tick/untick the menu item
-/// Returns true if the menu item was found and selected, or nil if it wasn't (e.g. because the menu item couldn't be found)
+/// Parameters:
+///  * menuitem - The menu item to select, specified as either a string or a table. See the `menuitem` parameter of `hs.application:findMenuItem()` for more information.
+///
+/// Returns:
+///  * True if the menu item was found and selected, or nil if it wasn't (e.g. because the menu item couldn't be found)
+///
+/// Notes:
+///  * Depending on the type of menu item involved, this will either activate or tick/untick the menu item
 static int application_selectmenuitem(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
     AXUIElementRef foundItem;
@@ -678,7 +687,12 @@ static int application_selectmenuitem(lua_State* L) {
 /// hs.application.launchOrFocus(name) -> bool
 /// Function
 /// Launches the app with the given name, or activates it if it's already running.
-/// Returns true if it launched or was already launched; otherwise false (presumably only if the app doesn't exist).
+///
+/// Parameters:
+///  * name - A string containing the name of the application to either launch or focus
+///
+/// Returns:
+///  * True if the application was either launched or focused, otherwise false (e.g. if the application doesn't exist)
 static int application_launchorfocus(lua_State* L) {
     NSString* name = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     BOOL success = [[NSWorkspace sharedWorkspace] launchApplication: name];
