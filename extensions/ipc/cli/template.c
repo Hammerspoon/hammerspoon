@@ -114,7 +114,7 @@ int main(int argc, char * argv[]) {
     CFMessagePortRef port = CFMessagePortCreateRemote(NULL, CFSTR("{TARGET}"));
 
     if (!port) {
-        fprintf(stderr, "error: can't access {TARGET}; is it running?\n");
+        fprintf(stderr, "error: can't access {TARGET}; is it running with the ipc module loaded?\n");
         return 1;
     }
 
