@@ -3,6 +3,7 @@
 #import "MJUserNotificationManager.h"
 #import "MJConfigUtils.h"
 #import "variables.h"
+#import <pthread.h>
 
 static lua_State* MJLuaState;
 static int evalfn;
@@ -10,6 +11,8 @@ static int evalfn;
 /// === hs ===
 ///
 /// Core Hammerspoon functionality.
+
+pthread_t mainthreadid;
 
 static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
@@ -80,6 +83,7 @@ static luaL_Reg corelib[] = {
 };
 
 void MJLuaSetup(void) {
+    mainthreadid = pthread_self();
     if (MJLuaState)
         lua_close(MJLuaState);
     

@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
+#import <pthread.h>
 
 // ----------------------- API Implementation ---------------------
 
@@ -21,10 +22,21 @@ static int burnTheWorld(lua_State *L __unused) {
     return 0;
 }
 
+extern pthread_t mainthreadid;
+
+static int isMainThread(lua_State *L)
+{
+    pthread_t id = pthread_self();
+
+    lua_pushboolean(L, pthread_equal(mainthreadid, id));
+    return 1;
+}
+
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static const luaL_Reg crashlib[] = {
     {"crash", burnTheWorld},
+    {"isMainThread", isMainThread},
 
     {}
 };
