@@ -110,7 +110,7 @@ The format for docstrings should follow the standard described below. Note that 
 
 Note that a function is any top-level function provided by an extension, which doesn't relate to an object created by the extension.
 
-The `Parameters` and `Returns` sections should always be present. If there is nothing to describe there, simply list `* None`. The `Notes` section is optional and should only be present if there are uesful notes.
+The `Parameters` and `Returns` sections should always be present. If there is nothing to describe there, simply list `* None`. The `Notes` section is optional and should only be present if there are useful notes.
 
 ```lua
 --- hs.foo.someFunction(bar[, baz]) -> string or nil
@@ -132,7 +132,7 @@ The `Parameters` and `Returns` sections should always be present. If there is no
 
 Note that a method is any function provided by an extension which relates to an object created by that extension.
 
-The `Parameters` and `Returns` sections should always be present. If there is nothing to describe there, simply list `* None`. The `Notes` section is optional and should only be present if there are uesful notes.
+The `Parameters` and `Returns` sections should always be present. If there is nothing to describe there, simply list `* None`. The `Notes` section is optional and should only be present if there are useful notes.
 
 ```lua
 --- hs.foo:someMethod() -> bool
