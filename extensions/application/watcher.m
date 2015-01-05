@@ -198,7 +198,14 @@ static void register_observer(AppWatcher* observer) {
 
 // Unregister the AppWatcher as observer for all events.
 static void unregister_observer(AppWatcher* observer) {
-   [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:observer];
+    NSNotificationCenter* center = [[NSWorkspace sharedWorkspace] notificationCenter];
+    [center removeObserver:observer name:NSWorkspaceWillLaunchApplicationNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceDidLaunchApplicationNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceDidTerminateApplicationNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceDidHideApplicationNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceDidUnhideApplicationNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceDidActivateApplicationNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceDidDeactivateApplicationNotification object:nil];
 }
 
 /// hs.application.watcher:start()

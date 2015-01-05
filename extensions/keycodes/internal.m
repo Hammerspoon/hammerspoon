@@ -184,7 +184,9 @@ int keycodes_cachemap(lua_State* L) {
 }
 
 - (void) stop {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:NSTextInputContextKeyboardSelectionDidChangeNotification
+                                                  object:nil];
 }
 
 @end

@@ -134,7 +134,9 @@ static int wifi_watcher_stop(lua_State* L) {
     wifiwatcher->running = NO;
 
     remove_udhandler(L, wifiHandlers, wifiwatcher->registryHandle);
-    [[NSNotificationCenter defaultCenter] removeObserver:(__bridge id)wifiwatcher->obj];
+    [[NSNotificationCenter defaultCenter] removeObserver:(__bridge id)wifiwatcher->obj
+                                                    name:CWSSIDDidChangeNotification
+                                                  object:nil];
 
     return 1;
 }

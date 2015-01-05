@@ -118,7 +118,9 @@ static int screen_watcher_stop(lua_State* L) {
     screenwatcher->running = NO;
 
     remove_udhandler(L, screenHandlers, screenwatcher->registryHandle);
-    [[NSNotificationCenter defaultCenter] removeObserver:(__bridge id)screenwatcher->obj];
+    [[NSNotificationCenter defaultCenter] removeObserver:(__bridge id)screenwatcher->obj
+                                                    name:NSApplicationDidChangeScreenParametersNotification
+                                                  object:nil];
 
     return 1;
 }
