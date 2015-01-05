@@ -48,6 +48,12 @@ static NSMutableIndexSet* wifiHandlers;
     return self;
 }
 
+- (void) _ssidChanged:(id __unused)bla {
+    [self performSelectorOnMainThread:@selector(ssidChanged:)
+                                       withObject:nil
+                                       waitUntilDone:YES];
+}
+
 - (void) ssidChanged:(id __unused)bla {
     lua_State* L = self.L;
     lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
@@ -116,7 +122,7 @@ static int wifi_watcher_start(lua_State* L) {
     wifiwatcher->registryHandle = store_udhandler(L, wifiHandlers, 1);
 
     [[NSNotificationCenter defaultCenter] addObserver:(__bridge id)wifiwatcher->obj
-                                             selector:@selector(ssidChanged:)
+                                             selector:@selector(_ssidChanged:)
                                                  name:CWSSIDDidChangeNotification
                                                object:nil];
 

@@ -84,7 +84,9 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     
     NSDictionary* attrs = @{NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0], NSForegroundColorAttributeName: color};
     NSAttributedString* attrstr = [[NSAttributedString alloc] initWithString:str attributes:attrs];
-    [[self.outputView textStorage] appendAttributedString:attrstr];
+    [[self.outputView textStorage] performSelectorOnMainThread:@selector(appendAttributedString:) 
+                                       withObject:attrstr
+                                    waitUntilDone:YES];
 }
 
 - (NSString*) run:(NSString*)command {

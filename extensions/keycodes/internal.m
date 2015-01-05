@@ -171,6 +171,12 @@ int keycodes_cachemap(lua_State* L) {
 
 @implementation MJKeycodesObserver
 
+- (void) _inputSourceChanged:(NSNotification*)__unused note {
+    [self performSelectorOnMainThread:@selector(inputSourceChanged:)
+                                       withObject:nil
+                                    waitUntilDone:YES];
+}
+
 - (void) inputSourceChanged:(NSNotification*)__unused note {
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.ref);
     lua_call(self.L, 0, 0);
@@ -178,7 +184,7 @@ int keycodes_cachemap(lua_State* L) {
 
 - (void) start {
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(inputSourceChanged:)
+                                             selector:@selector(_inputSourceChanged:)
                                                  name:NSTextInputContextKeyboardSelectionDidChangeNotification
                                                object:nil];
 }

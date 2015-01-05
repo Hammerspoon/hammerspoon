@@ -40,6 +40,12 @@ static NSMutableIndexSet* screenHandlers;
 @end
 
 @implementation MJScreenWatcher
+- (void) _screensChanged:(id __unused)bla {
+    [self performSelectorOnMainThread:@selector(screensChanged:)
+                                        withObject:nil
+                                        waitUntilDone:YES];
+}
+
 - (void) screensChanged:(id __unused)bla {
     lua_State* L = self.L;
     lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
@@ -100,7 +106,7 @@ static int screen_watcher_start(lua_State* L) {
     screenwatcher->registryHandle = store_udhandler(L, screenHandlers, 1);
 
     [[NSNotificationCenter defaultCenter] addObserver:(__bridge id)screenwatcher->obj
-                                             selector:@selector(screensChanged:)
+                                             selector:@selector(_screensChanged:)
                                                  name:NSApplicationDidChangeScreenParametersNotification
                                                object:nil];
 
