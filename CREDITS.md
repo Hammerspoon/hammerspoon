@@ -9,5 +9,7 @@ The extensions included in Hammerspoon were written by:
  * Kepler Project
  * Enrique García Cota
  * Szymon Kaliski
+ * Brian Gilbert
+ * Tristan Hume
 
 The Hammerspon icon was provided by Juerd Waalboer
