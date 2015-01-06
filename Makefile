@@ -34,5 +34,6 @@ build:
 clean:
 	rm -rf build
 	rm -rf extensions/.build
+	rm -rf extensions/*/*.dSYM
 
 .PHONY: release clean
