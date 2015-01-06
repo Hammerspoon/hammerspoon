@@ -131,7 +131,11 @@ static EventHandlerRef eventhandler;
 
 static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inHandlerCallRef, EventRef inEvent, void *inUserData) {
     EventHotKeyID eventID;
-    GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
+    OSStatus result = GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
+    if (result != noErr) {
+        NSLog(@"Error handling hotkey: %d", result);
+        return noErr;
+    }
 
     lua_State* L = inUserData;
 
