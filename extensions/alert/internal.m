@@ -156,6 +156,8 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 /// Function
 /// Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.
 ///
+/// NOTE: For convenience, you can call this function as `hs.alert(...)`
+///
 /// Parameters:
 ///  * str - The string to display in the alert
 ///  * seconds - The number of seconds to display the alert. Defaults to 2
