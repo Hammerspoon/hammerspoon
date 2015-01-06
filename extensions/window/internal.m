@@ -316,7 +316,7 @@ cleanup:
     return 1;
 }
 
-/// hs.window:toggleZoom()
+/// hs.window:toggleZoom() -> bool
 /// Method
 /// Toggles the zoom state of the window
 ///
@@ -331,7 +331,13 @@ static int window_togglezoom(lua_State* L) {
 
 /// hs.window:close() -> bool
 /// Method
-/// Closes the window; returns whether it succeeded.
+/// Closes the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the operation succeeded, false if not
 static int window_close(lua_State* L) {
     return window_pressbutton(L, kAXCloseButtonAttribute);
 }
