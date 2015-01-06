@@ -298,21 +298,12 @@ static int window_setsize(lua_State* L) {
     return 0;
 }
 
-/// hs.window:toggleZoom()
-/// Method
-/// Toggles the zoom state of the window
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * True if the operation succeeded, false if not
-static int window_togglezoom(lua_State* L) {
+static int window_pressbutton(lua_State* L, CFStringRef buttonId) {
     AXUIElementRef win = get_window_arg(L, 1);
     AXUIElementRef button = NULL;
     BOOL worked = NO;
 
-    if (AXUIElementCopyAttributeValue(win, kAXZoomButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
+    if (AXUIElementCopyAttributeValue(win, buttonId, (CFTypeRef*)&button) != noErr) goto cleanup;
     if (AXUIElementPerformAction(button, kAXPressAction) != noErr) goto cleanup;
 
     worked = YES;
@@ -325,25 +316,24 @@ cleanup:
     return 1;
 }
 
+/// hs.window:toggleZoom()
+/// Method
+/// Toggles the zoom state of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the operation succeeded, false if not
+static int window_togglezoom(lua_State* L) {
+    return window_pressbutton(L, kAXZoomButtonAttribute);
+}
+
 /// hs.window:close() -> bool
 /// Method
 /// Closes the window; returns whether it succeeded.
 static int window_close(lua_State* L) {
-    AXUIElementRef win = get_window_arg(L, 1);
-
-    BOOL worked = NO;
-    AXUIElementRef button = NULL;
-
-    if (AXUIElementCopyAttributeValue(win, kAXCloseButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
-    if (AXUIElementPerformAction(button, kAXPressAction) != noErr) goto cleanup;
-
-    worked = YES;
-
-cleanup:
-    if (button) CFRelease(button);
-
-    lua_pushboolean(L, worked);
-    return 1;
+    return window_pressbutton(L, kAXCloseButtonAttribute);
 }
 
 /// hs.window:setFullScreen(bool) -> bool
