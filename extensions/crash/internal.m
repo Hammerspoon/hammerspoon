@@ -6,7 +6,7 @@
 // ----------------------- API Implementation ---------------------
 
 /// hs.crash.crash()
-/// Method
+/// Function
 /// Causes Hammerspoon to immediately crash.
 ///
 /// Parameters:
@@ -25,7 +25,7 @@ static int burnTheWorld(lua_State *L __unused) {
 extern pthread_t mainthreadid;
 
 /// hs.crash.isMainThread() -> bool
-/// Method
+/// Function
 /// Tells you whether you are executing Lua on the main thread.
 ///
 /// Notes:
