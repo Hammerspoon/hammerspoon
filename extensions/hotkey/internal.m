@@ -142,9 +142,11 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
     hotkey_t* hotkey = push_hotkey(L, eventID.id);
     lua_pop(L, 1);
 
-    int ref = (GetEventKind(inEvent) == kEventHotKeyPressed ? hotkey->pressedfn : hotkey->releasedfn);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-    lua_call(L, 0, 0);
+    if (hotkey) {
+        int ref = (GetEventKind(inEvent) == kEventHotKeyPressed ? hotkey->pressedfn : hotkey->releasedfn);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+        lua_call(L, 0, 0);
+    }
 
     return noErr;
 }
