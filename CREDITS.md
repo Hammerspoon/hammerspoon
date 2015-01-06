@@ -11,5 +11,6 @@ The extensions included in Hammerspoon were written by:
  * Szymon Kaliski
  * Brian Gilbert
  * Tristan Hume
+ * Tyler Mandry
 
 The Hammerspon icon was provided by Juerd Waalboer
