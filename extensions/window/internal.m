@@ -298,6 +298,33 @@ static int window_setsize(lua_State* L) {
     return 0;
 }
 
+/// hs.window:toggleZoom()
+/// Method
+/// Toggles the zoom state of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the operation succeeded, false if not
+static int window_togglezoom(lua_State* L) {
+    AXUIElementRef win = get_window_arg(L, 1);
+    AXUIElementRef button = NULL;
+    BOOL worked = NO;
+
+    if (AXUIElementCopyAttributeValue(win, kAXZoomButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
+    if (AXUIElementPerformAction(button, kAXPressAction) != noErr) goto cleanup;
+
+    worked = YES;
+
+cleanup:
+    if (button) CFRelease(button);
+
+    lua_pushboolean(L, worked);
+
+    return 1;
+}
+
 /// hs.window:close() -> bool
 /// Method
 /// Closes the window; returns whether it succeeded.
@@ -473,6 +500,7 @@ static const luaL_Reg windowlib[] = {
     {"application", window_application},
     {"becomeMain", window_becomemain},
     {"id", window_id},
+    {"toggleZoom", window_togglezoom},
     {"close", window_close},
     {"setFullScreen", window_setfullscreen},
     {"isFullScreen", window_isfullscreen},
