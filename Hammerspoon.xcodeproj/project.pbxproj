@@ -308,6 +308,7 @@
 				9445CA0919083251002568BB /* Resources */,
 				F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
+				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
 			);
 			buildRules = (
 			);
@@ -427,7 +428,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "if [ -f ../crashlytics-tokens ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../crashlytics-tokens\n  ./Crashlytics.framework/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD\"\nfi";
+			shellScript = "if [ -f ../token-crashlytics ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../token-crashlytics\n  ./Crashlytics.framework/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD\"\nfi";
 		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -441,7 +442,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ../crashlytics-tokens ] ; then\n  source ../crashlytics-tokens\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi";
+			shellScript = "if [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi";
+		};
+		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Sign app/frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
 		};
 		4F9A454819EC67E1006BB982 /* Compile Extensions */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -639,7 +654,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				OTHER_CODE_SIGN_FLAGS = "--deep";
+				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx10.9;
 				WRAPPER_EXTENSION = app;
