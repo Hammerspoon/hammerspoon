@@ -35,7 +35,7 @@ int keycodes_cachemap(lua_State* L) {
         UInt32 keysDown = 0;
         UniChar chars[4];
         UniCharCount realLength;
-        
+
         for (int i = 0 ; i < (int)(sizeof(relocatableKeyCodes)/sizeof(relocatableKeyCodes[0])) ; i++) {
             UCKeyTranslate(keyboardLayout,
                            relocatableKeyCodes[i],
@@ -47,9 +47,9 @@ int keycodes_cachemap(lua_State* L) {
                            sizeof(chars) / sizeof(chars[0]),
                            &realLength,
                            chars);
-            
+
             const char* name = [[NSString stringWithCharacters:chars length:1] UTF8String];
-            
+
             pushkeycode(L, relocatableKeyCodes[i], name);
         }
     }
