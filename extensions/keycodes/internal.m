@@ -6,7 +6,7 @@ static void pushkeycode(lua_State* L, int code, const char* key) {
     // t[key] = code
     lua_pushnumber(L, code);
     lua_setfield(L, -2, key);
-    
+
     // t[code] = key
     lua_pushstring(L, key);
     lua_rawseti(L, -2, code);
@@ -14,7 +14,7 @@ static void pushkeycode(lua_State* L, int code, const char* key) {
 
 int keycodes_cachemap(lua_State* L) {
     lua_newtable(L);
-    
+
     int relocatableKeyCodes[] = {
         kVK_ANSI_A, kVK_ANSI_B, kVK_ANSI_C, kVK_ANSI_D, kVK_ANSI_E, kVK_ANSI_F,
         kVK_ANSI_G, kVK_ANSI_H, kVK_ANSI_I, kVK_ANSI_J, kVK_ANSI_K, kVK_ANSI_L,
@@ -26,10 +26,10 @@ int keycodes_cachemap(lua_State* L) {
         kVK_ANSI_LeftBracket, kVK_ANSI_Quote, kVK_ANSI_Semicolon, kVK_ANSI_Backslash,
         kVK_ANSI_Comma, kVK_ANSI_Slash, kVK_ANSI_Period,
     };
-    
+
     TISInputSourceRef currentKeyboard = TISCopyCurrentKeyboardInputSource();
     CFDataRef layoutData = TISGetInputSourceProperty(currentKeyboard, kTISPropertyUnicodeKeyLayoutData);
-    
+
     if (layoutData) {
         const UCKeyboardLayout *keyboardLayout = (const UCKeyboardLayout *)CFDataGetBytePtr(layoutData);
         UInt32 keysDown = 0;
@@ -102,9 +102,9 @@ int keycodes_cachemap(lua_State* L) {
         pushkeycode(L, kVK_ANSI_Slash, "/");
         pushkeycode(L, kVK_ANSI_Period, ".");
     }
-    
+
     CFRelease(currentKeyboard);
-    
+
     pushkeycode(L, kVK_F1, "f1");
     pushkeycode(L, kVK_F2, "f2");
     pushkeycode(L, kVK_F3, "f3");
@@ -125,7 +125,7 @@ int keycodes_cachemap(lua_State* L) {
     pushkeycode(L, kVK_F18, "f18");
     pushkeycode(L, kVK_F19, "f19");
     pushkeycode(L, kVK_F20, "f20");
-    
+
     pushkeycode(L, kVK_ANSI_KeypadDecimal, "pad.");
     pushkeycode(L, kVK_ANSI_KeypadMultiply, "pad*");
     pushkeycode(L, kVK_ANSI_KeypadPlus, "pad+");
@@ -144,7 +144,7 @@ int keycodes_cachemap(lua_State* L) {
     pushkeycode(L, kVK_ANSI_Keypad9, "pad9");
     pushkeycode(L, kVK_ANSI_KeypadClear, "padclear");
     pushkeycode(L, kVK_ANSI_KeypadEnter, "padenter");
-    
+
     pushkeycode(L, kVK_Return, "return");
     pushkeycode(L, kVK_Tab, "tab");
     pushkeycode(L, kVK_Space, "space");
@@ -160,7 +160,7 @@ int keycodes_cachemap(lua_State* L) {
     pushkeycode(L, kVK_RightArrow, "right");
     pushkeycode(L, kVK_DownArrow, "down");
     pushkeycode(L, kVK_UpArrow, "up");
-    
+
     return 1;
 }
 
@@ -199,21 +199,21 @@ int keycodes_cachemap(lua_State* L) {
 
 static int keycodes_newcallback(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
-    
+
     lua_pushvalue(L, 1);
     int ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
+
     MJKeycodesObserver* observer = [[MJKeycodesObserver alloc] init];
     observer.L = L;
     observer.ref = ref;
     [observer start];
-    
+
     MJKeycodesObserver** ud = lua_newuserdata(L, sizeof(id));
     *ud = observer;
-    
+
     luaL_getmetatable(L, "hs.keycodes.callback");
     lua_setmetatable(L, -2);
-    
+
     return 1;
 }
 
@@ -234,10 +234,10 @@ static int keycodes_callback_stop(lua_State* L) {
 static const luaL_Reg callbacklib[] = {
     // instance methods
     {"_stop", keycodes_callback_stop},
-    
+
     // metamethods
     {"__gc", keycodes_callback_gc},
-    
+
     {}
 };
 
@@ -245,18 +245,18 @@ static const luaL_Reg keycodeslib[] = {
     // module methods
     {"_newcallback", keycodes_newcallback},
     {"_cachemap", keycodes_cachemap},
-    
+
     {}
 };
 
 int luaopen_hs_keycodes_internal(lua_State* L) {
     luaL_newlib(L, keycodeslib);
-    
+
     if (luaL_newmetatable(L, "hs.keycodes.callback")) {
         luaL_newlib(L, callbacklib);
         lua_setfield(L, -2, "__index");
     }
     lua_pop(L, 1);
-    
+
     return 1;
 }
