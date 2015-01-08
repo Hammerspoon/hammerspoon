@@ -78,7 +78,7 @@ function hints.displayHintsForDict(dict, prefixstring)
       local app = win:application()
       local fr = win:frame()
       local sfr = win:screen():frame()
-      if app and win:title() ~= "" and win:isStandard() then
+      if app and ((fr.w > 0 and fr.h > 0) or win:title() ~= "") and win:isStandard() then
         local c = {x = fr.x + (fr.w/2) - sfr.x, y = fr.y + (fr.h/2) - sfr.y}
         c = hints.bumpPos(c.x, c.y)
         if c.y < 0 then
