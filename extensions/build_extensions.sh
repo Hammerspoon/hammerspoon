@@ -8,6 +8,7 @@
 set -e -u -x
 
 LASTMAKEFILE=""
+ISXCODE=""
 
 function cleanup() {
     if [ "${LASTMAKEFILE}" != "" ]; then
@@ -26,6 +27,7 @@ if [ -z "${SRCROOT-}" ]; then
     T="${SRCROOT}/extensions/.build"
 else
     echo "Building in Xcode mode."
+    ISXCODE="1"
     T="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs"
 fi
 
@@ -75,6 +77,9 @@ for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
         make install-lua
     else
         make install
+        if [ -n "${ISXCODE}" -a -e "internal.so.dSYM" ]; then
+            cp -a internal.so.dSYM "${BUILT_PRODUCTS_DIR}/${dir}.so.dSYM"
+        fi
         make clean
     fi
 
