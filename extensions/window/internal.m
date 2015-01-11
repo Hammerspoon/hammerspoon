@@ -318,7 +318,7 @@ cleanup:
 
 /// hs.window:toggleZoom() -> bool
 /// Method
-/// Toggles the zoom state of the window
+/// Toggles the zoom state of the window (this is effectively equivalent to clicking the green maximize/fullscreen button at the top left of a window)
 ///
 /// Parameters:
 ///  * None
