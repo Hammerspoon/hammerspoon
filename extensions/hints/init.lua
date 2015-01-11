@@ -78,7 +78,7 @@ function hints.displayHintsForDict(dict, prefixstring)
       local app = win:application()
       local fr = win:frame()
       local sfr = win:screen():frame()
-      if app and win:title() ~= "" and win:isStandard() then
+      if app and win:isStandard() then
         local c = {x = fr.x + (fr.w/2) - sfr.x, y = fr.y + (fr.h/2) - sfr.y}
         c = hints.bumpPos(c.x, c.y)
         if c.y < 0 then
@@ -143,9 +143,9 @@ function hints.windowHints()
   hintDict = {}
   for i, win in ipairs(window.allWindows()) do
     local app = win:application()
-    if app and win:title() ~= "" and win:isStandard() then
+    if app and win:isStandard() then
       if hints.style == "vimperator" then
-        if app and win:title() ~= "" and win:isStandard() then
+        if app and win:isStandard() then
           local appchar = string.upper(string.sub(app:title(), 1, 1))
           modalKey:bind({}, appchar, function() hints.processChar(appchar) end)
           if hintDict[appchar] == nil then
