@@ -92,28 +92,61 @@ NSDictionary* get_iopmps_battery_info() {
 
 /// hs.battery.cycles() -> number
 /// Function
-/// Returns the number of cycles the connected battery has went through.
+/// Returns the number of discharge cycles of the battery
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The number of cycles
+///
+/// Notes:
+///  * One cycle is a full discharge of the battery, followed by a full charge. This may also be an aggregate of many smaller discharge-then-charge cycles (e.g. 10 iterations of discharging the battery from 100% to 90% and then charging back to 100% each time, is considered to be one cycle)
 static int battery_cycles(lua_State *L) {
     return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCycleCountKey);
 }
 
 /// hs.battery.name() -> string
 /// Function
-/// Returns the name of the battery.
+/// Returns the name of the battery
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the name of the battery
 static int battery_name(lua_State *L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSNameKey);
 }
 
 /// hs.battery.maxCapacity() -> number
 /// Function
-/// Returns the current maximum capacity of the battery in mAh.
+/// Returns the maximum capacity of the battery in mAh
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the observed maximum capacity of the battery in mAh
+///
+/// Notes:
+///  * This may exceed the value of `hs.battery.designCapacity()` due to small variations in the production chemistry vs the design
 static int battery_maxcapacity(lua_State *L) {
     return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCapacityKey);
 }
 
 /// hs.battery.capacity() -> number
 /// Function
-/// Returns the current capacity of the battery in mAh.
+/// Returns the current capacity of the battery in mAh
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the current capacity of the battery in mAh
+///
+/// Notes:
+///  * This is the measure of how charged the battery is, vs the value of `hs.battery.maxCapacity()`
 static int battery_capacity(lua_State *L) {
     return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryCurrentChargeKey);
 }
@@ -121,27 +154,57 @@ static int battery_capacity(lua_State *L) {
 /// hs.battery.designCapacity() -> number
 /// Function
 /// Returns the design capacity of the battery in mAh.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the rated maximum capacity of the battery
 static int battery_designcapacity(lua_State *L) {
     return _push_dict_key_value(L, get_iopmps_battery_info(), @kIOPMPSDesignCapacityKey);
 }
 
 /// hs.battery.voltage() -> number
 /// Function
-/// Returns the voltage flow of the battery in mV.
+/// Returns the current voltage of the battery in mV
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the current voltage of the battery
 static int battery_voltage(lua_State *L) {
     return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryVoltageKey);
 }
 
 /// hs.battery.amperage() -> number
 /// Function
-/// Returns the amperage of the battery in mA. (will be negative if battery is discharging)
+/// Returns the amount of current flowing through the battery, in mAh
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the amount of current flowing through the battery. The value may be:
+///   * Less than zero if the battery is being discharged (i.e. the computer is running on battery power)
+///   * Zero if the battery is being neither charged nor discharged
+///   * Greater than zero if the battery is being charged
 static int battery_amperage(lua_State *L) {
     return _push_dict_key_value(L, get_iopm_battery_info(), @kIOBatteryAmperageKey);
 }
 
 /// hs.battery.watts() -> number
 /// Function
-/// Returns the watts into or out of the battery in Watt (will be negative if battery is discharging)
+/// Returns the power entering or leaving the battery, in W
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the rate of energy conversion in the battery. The value may be:
+///   * Less than zero if the battery is being discharged (i.e. the computer is running on battery power)
+///   * Zero if the battery is being neither charged nor discharged
+///   * Greater than zero if the battery is being charged
 static int battery_watts(lua_State *L) {
     NSDictionary* battery = get_iopm_battery_info();
 
@@ -159,21 +222,41 @@ static int battery_watts(lua_State *L) {
 
 /// hs.battery.health() -> string
 /// Function
-/// Returns the health status of the battery. One of {Good, Fair, Poor}
+/// Returns the health status of the battery.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing one of {Good, Fair, Poor}, as determined by the Apple Smart Battery controller
 static int battery_health(lua_State *L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSBatteryHealthKey);
 }
 
-/// hs.battery.healthCondition() -> string
+/// hs.battery.healthCondition() -> string or nil
 /// Function
-/// Returns the health condition status of the battery. One of {Check Battery, Permanent Battery Failure}. Nil if there is no health condition set.
+/// Returns the health condition status of the battery.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * Nil if there are no health conditions to report, or a string containing either:
+///   * "Check Battery"
+///   * "Permanent Battery Failure"
 static int battery_healthcondition(lua_State *L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSBatteryHealthConditionKey);
 }
 
 /// hs.battery.percentage() -> number
 /// Function
-/// Returns the current percentage of the battery between 0 and 100.
+/// Returns the current percentage of battery charge
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the percentage of battery charge
 static int battery_percentage(lua_State *L) {
     NSDictionary* battery = get_iops_battery_info();
 
@@ -193,8 +276,16 @@ static int battery_percentage(lua_State *L) {
 
 /// hs.battery.timeRemaining() -> number
 /// Function
-/// Returns the time remaining in minutes. Or a negative value: -1 = calculating time remaining, -2 = unlimited (i.e. you're charging, or apple has somehow discovered an infinite power source.)
-
+/// Returns the battery life remaining, in minutes
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the minutes of battery life remaining. The value may be:
+///   * Greater than zero to indicate the number of minutes remaining
+///   * -1 if the remaining battery life is still being calculated
+///   * -2 if there is unlimited time remaining (i.e. the system is on AC power)
 static int battery_timeremaining(lua_State* L) {
     CFTimeInterval remaining = IOPSGetTimeRemainingEstimate();
 
@@ -207,35 +298,65 @@ static int battery_timeremaining(lua_State* L) {
 
 /// hs.battery.timeToFullCharge() -> number
 /// Function
-/// Returns the time remaining to a full charge in minutes. Or a negative value, -1 = calculating time remaining.
+/// Returns the time remaining for the battery to be fully charged, in minutes
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the time (in minutes) remaining for the battery to be fully charged, or -1 if the remaining time is still being calculated
 static int battery_timetofullcharge(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSTimeToFullChargeKey);
 }
 
 /// hs.battery.isCharging() -> boolean
 /// Function
-/// Returns true if the battery is charging.
+/// Returns the charging state of the battery
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the battery is being charged, false if not
 static int battery_ischarging(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsChargingKey);
 }
 
 /// hs.battery.isCharged() -> boolean
 /// Function
-/// Returns true if battery is charged.
+/// Returns the charged state of the battery
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the battery is charged, false if not
 static int battery_ischarged(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsChargedKey);
 }
 
-/// hs.battery.isFinishingCharge() -> boolean
+/// hs.battery.isFinishingCharge() -> boolean or string
 /// Function
-/// Returns true if battery is finishing charge.
+/// Returns true if battery is finishing its charge
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the battery is in its final charging state (i.e. trickle charging), false if not, or "n/a" if the battery is not charging at all
 static int battery_isfinishingcharge(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSIsFinishingChargeKey);
 }
 
-/// hs.battery.powerSource() -> boolean
+/// hs.battery.powerSource() -> string
 /// Function
-/// Returns current source of power. One of {AC Power, Battery Power, Off Line}.
+/// Returns current source of power
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing one of {AC Power, Battery Power, Off Line}.
 static int battery_powersource(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSPowerSourceStateKey);
 }

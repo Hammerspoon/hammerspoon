@@ -18,7 +18,16 @@ module.watcher = require("hs.battery.watcher")
 
 --- hs.battery.getAll() -> table
 --- Function
---- Iterates through all informational functions defined in this module and returns a table containing the current information.  Useful if you want more than one piece of information at a given time.
+--- Get all available battery information
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table containing all the information provided by the separate functions in hs.battery
+---
+--- Notes:
+---  * If you require multiple pieces of information about a battery, this function may be more efficient than calling several other functions separately
 module.getAll = function()
     local t = {}
 
