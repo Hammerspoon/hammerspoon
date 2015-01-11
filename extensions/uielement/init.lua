@@ -114,6 +114,9 @@ end
 --- * watcher: The watcher object being created.
 --- * userData: The userData you included, if any.
 function uielement:newWatcher(callback, ...)
+    if type(callback) ~= "function" then
+        hs.showError("hs.uielement:newWatcher() called with incorrect arguments. The first argument must be a function")
+    end
     local obj = self:_newWatcher(function(...) handleEvent(callback, ...) end, ...)
 
     obj._pid = self:pid()
