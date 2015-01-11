@@ -13,7 +13,14 @@ local module = require("hs.base64.internal")
 
 --- hs.base64.encode(val[,width]) -> str
 --- Function
---- Returns the base64 encoding of the string provided, optionally split into lines of `width` characters per line. Common widths seem to be 64 and 76 characters per line (except for the last line, which may be less), but as this is not standard or even required in all cases, we allow an arbitrary number to be chosen to fit your application's requirements.
+--- Encodes a given string to base64
+---
+--- Parameters:
+---  * val - A string to encode as base64
+---  * width - Optional line width to split the string into (usually 64 or 76)
+---
+--- Returns:
+---  * A string containing the base64 representation of the input string
 module.encode = function(data, width)
     local _data = module._encode(data)
     if width then
@@ -30,7 +37,13 @@ end
 
 --- hs.base64.decode(str) -> val
 --- Function
---- Returns a Lua string representing the given base64 string.
+--- Decodes a given base64 string
+---
+--- Parameters:
+---  * str - A base64 encoded string
+---
+--- Returns:
+---  * A string containing the decoded data
 module.decode = function(data)
     return module._decode(data:gsub("[\r\n]+",""))
 end
