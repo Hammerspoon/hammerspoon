@@ -24,7 +24,7 @@ int keycodes_cachemap(lua_State* L) {
         kVK_ANSI_4, kVK_ANSI_5, kVK_ANSI_6, kVK_ANSI_7, kVK_ANSI_8, kVK_ANSI_9,
         kVK_ANSI_Grave, kVK_ANSI_Equal, kVK_ANSI_Minus, kVK_ANSI_RightBracket,
         kVK_ANSI_LeftBracket, kVK_ANSI_Quote, kVK_ANSI_Semicolon, kVK_ANSI_Backslash,
-        kVK_ANSI_Comma, kVK_ANSI_Slash, kVK_ANSI_Period,
+        kVK_ANSI_Comma, kVK_ANSI_Slash, kVK_ANSI_Period, kVK_ISO_Section,
     };
 
     TISInputSourceRef currentKeyboard = TISCopyCurrentKeyboardInputSource();
@@ -101,6 +101,7 @@ int keycodes_cachemap(lua_State* L) {
         pushkeycode(L, kVK_ANSI_Comma, ",");
         pushkeycode(L, kVK_ANSI_Slash, "/");
         pushkeycode(L, kVK_ANSI_Period, ".");
+        pushkeycode(L, kVK_ISO_Section, "§");
     }
 
     CFRelease(currentKeyboard);
