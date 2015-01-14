@@ -250,13 +250,14 @@ static const luaL_Reg keycodeslib[] = {
 };
 
 int luaopen_hs_keycodes_internal(lua_State* L) {
-    luaL_newlib(L, keycodeslib);
+    // Metatable for created objects
+    luaL_newlib(L, callbacklib);
+    lua_pushvalue(L, -1);
+    lua_setfield(L, -2, "__index");
+    lua_setfield(L, LUA_REGISTRYINDEX, "hs.keycodes.callback");
 
-    if (luaL_newmetatable(L, "hs.keycodes.callback")) {
-        luaL_newlib(L, callbacklib);
-        lua_setfield(L, -2, "__index");
-    }
-    lua_pop(L, 1);
+    // Table for luaopen
+    luaL_newlib(L, keycodeslib);
 
     return 1;
 }
