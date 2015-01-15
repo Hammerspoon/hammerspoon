@@ -48,7 +48,7 @@ static NSMutableIndexSet* notificationHandlers;
 // - (void) sendNotification:(NSString*)title handler:(dispatch_block_t)handler;
 - (void) sendNotification:(NSUserNotification*)note;
 - (void) releaseNotification:(NSUserNotification*)note;
-- (void) withdrawNotification:(NSUserNotification*)note;
+- (void *) withdrawNotification:(NSUserNotification*)note;
 @end
 
 // // our delegate code
@@ -100,9 +100,11 @@ typedef struct _notification_t {
     }
 }
 
-- (void) withdrawNotification:(NSUserNotification*)note {
+- (void *) withdrawNotification:(NSUserNotification*)note {
 //NSLog(@"withdrawNotification") ;
+
     [[NSUserNotificationCenter defaultUserNotificationCenter] removeDeliveredNotification: note];
+    return (__bridge_retained void *) [note copy] ;
 //    [[NSUserNotificationCenter defaultUserNotificationCenter] removeScheduledNotification: note];
 }
 
@@ -286,7 +288,7 @@ static int notification_release(lua_State* L) {
 static int notification_withdraw(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
-    [[ourNotificationManager sharedManagerForLua:L] withdrawNotification:(__bridge_transfer NSUserNotification*)notification->note];
+    notification->note = [[ourNotificationManager sharedManagerForLua:L] withdrawNotification:(__bridge_transfer NSUserNotification*)notification->note];
 //    lua_pushcfunction(L, notification_release) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
     return 1;
 }
