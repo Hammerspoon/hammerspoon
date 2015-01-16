@@ -52,6 +52,29 @@ function hs.showError(err)
   hs.openConsole()
 end
 
+--- hs.toggleConsole()
+--- Function
+--- Toggles the visibility of the console
+---
+--- If the console is not currently open, it will be opened. If it is open and not the focused window, it will be brought forward and focused.
+--- If the console is focused, it will be closed.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function hs.toggleConsole()
+    local console = hs.appfinder.windowFromWindowTitle("Hammerspoon Console")
+    if console and (console ~= hs.window.focusedWindow()) then
+        console:focus()
+    elseif console then
+        console:close()
+    else
+        hs.openConsole()
+    end
+end
+
 --- hs.rawprint = print
 --- Function
 --- The original print function, before hammerspoon overrides it.
