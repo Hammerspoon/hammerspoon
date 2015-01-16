@@ -6,6 +6,9 @@
       a:hover { text-decoration: underline; }
       header { padding-bottom: 50px; }
       section { border-top: 1px solid #777; padding-bottom: 20px; }
+      th { background-color: #DDDDDD; vertical-align: top; padding: 3px; }
+      td { background-color: #EEEEEE; vertical-align: top; padding: 3px; }
+      table { border: 1px solid #0; text-align: left; }
     </style>
   </head>
   <body>
@@ -15,10 +18,24 @@
     </header>
     <% mod['items'].sort_by{|m|m['def']}.each do |item| %>
     <section id="<%= item['name'] %>">
-      <a name="//apple_ref/cpp/<%= item['type'] %>/<%= item['name'] %>" class="dashAnchor"></a>
-      <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
-      <code><%= item['def'] %></code>
-      <%= GitHub::Markdown.render_gfm(item['doc']) %>
+    <a name="//apple_ref/cpp/<%= item['type'] %>/<%= item['name'] %>" class="dashAnchor"></a>
+    <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
+    <table>
+        <tr>
+            <th>Signature</td>
+            <td><code><%= item['def'] %></code></td>
+        </tr>
+        <tr>
+            <th>Type</td>
+            <td><%= item['type'] %></td>
+        </tr>
+        <tr>
+            <th>Description</td>
+            <td>
+                <%= GitHub::Markdown.render_gfm(item['doc']) %>
+            </td>
+        </tr>
+    </table>
     </section>
     <% end %>
   </body>
