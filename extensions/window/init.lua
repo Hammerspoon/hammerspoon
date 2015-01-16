@@ -280,6 +280,50 @@ function window:moveToScreen(nextScreen, duration)
   }, duration)
 end
 
+--- hs.window:moveOneScreenWest([duration])
+--- Method
+--- Move window one screen west (left), keeping its relative proportion/position.
+--- duration is an optional animation duration that will override hs.window.animationDuration
+function window:moveOneScreenWest(duration)
+    local dst = self:screen():toWest()
+    if dst ~= nil then
+        self:moveToScreen(dst, duration)
+    end
+end
+
+--- hs.window:moveOneScreenEast([duration])
+--- Method
+--- Move window one screen east (right), keeping its relative proportion/position.
+--- duration is an optional animation duration that will override hs.window.animationDuration
+function window:moveOneScreenEast(duration)
+    local dst = self:screen():toEast()
+    if dst ~= nil then
+        self:moveToScreen(dst, duration)
+    end
+end
+
+--- hs.window:moveOneScreenNorth([duration])
+--- Method
+--- Move window one screen north (up), keeping its relative proportion/position.
+--- duration is an optional animation duration that will override hs.window.animationDuration
+function window:moveOneScreenNorth(duration)
+    local dst = self:screen():toNorth()
+    if dst ~= nil then
+        self:moveToScreen(dst, duration)
+    end
+end
+
+--- hs.window:moveOneScreenSouth([duration])
+--- Method
+--- Move window one screen south (down), keeping its relative proportion/position.
+--- duration is an optional animation duration that will override hs.window.animationDuration
+function window:moveOneScreenSouth(duration)
+    local dst = self:screen():toSouth()
+    if dst ~= nil then
+        self:moveToScreen(dst, duration)
+    end
+end
+
 --- hs.window:ensureIsInScreenBounds([duration])
 --- Method
 --- Moves and resizes the window to fit into the screen it is currently on. If the window is partially out of the
