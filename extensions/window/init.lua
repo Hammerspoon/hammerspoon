@@ -125,12 +125,12 @@ function window.orderedWindows()
   return orderedwins
 end
 
---- hs.window:maximize()
+--- hs.window:maximize([duration])
 --- Method
---- Make this window fill the whole screen its on, without covering the dock or menu.
-function window:maximize()
+--- Make this window fill the whole screen its on, without covering the dock or menu. If the duration argument is present, it will override hs.window.animationDuration
+function window:maximize(duration)
   local screenrect = self:screen():frame()
-  self:setFrame(screenrect)
+  self:setFrame(screenrect, duration)
 end
 
 --- hs.window:toggleFullScreen()
@@ -248,26 +248,27 @@ function window:focusWindowNorth() return focus_first_valid_window(self:windowsT
 --- Focus the first focus-able window to the south of this one.
 function window:focusWindowSouth() return focus_first_valid_window(self:windowsToSouth()) end
 
---- hs.window:moveToUnit(rect)
+--- hs.window:moveToUnit(rect[, duration])
 --- Method
 --- Moves and resizes the window to fit on the given portion of the screen.
---- The argument is a rect with each key being between 0.0 and 1.0.
+--- The first argument is a rect with each key being between 0.0 and 1.0. The second is an optional animation duration, which will override hs.window.animationDuration
 --- Example: win:moveToUnit(x=0, y=0, w=0.5, h=0.5) -- window now fills top-left quarter of screen
-function window:moveToUnit(unit)
+function window:moveToUnit(unit, duration)
   local screenrect = self:screen():frame()
   self:setFrame({
       x = screenrect.x + (unit.x * screenrect.w),
       y = screenrect.y + (unit.y * screenrect.h),
       w = unit.w * screenrect.w,
       h = unit.h * screenrect.h,
-  })
+  }, duration)
 end
 
---- hs.window:moveToScreen(screen)
+--- hs.window:moveToScreen(screen[, duration])
 --- Method
 --- move window to the the given screen, keeping the relative proportion and position window to the original screen.
+--- duration is an optional animation duration that will override hs.window.animationDuration
 --- Example: win:moveToScreen(win:screen():next()) -- move window to next screen
-function window:moveToScreen(nextScreen)
+function window:moveToScreen(nextScreen, duration)
   local currentFrame = self:frame()
   local screenFrame = self:screen():frame()
   local nextScreenFrame = nextScreen:frame()
@@ -276,15 +277,16 @@ function window:moveToScreen(nextScreen)
     y = ((((currentFrame.y - screenFrame.y) / screenFrame.h) * nextScreenFrame.h) + nextScreenFrame.y),
     h = ((currentFrame.h / screenFrame.h) * nextScreenFrame.h),
     w = ((currentFrame.w / screenFrame.w) * nextScreenFrame.w)
-  })
+  }, duration)
 end
 
---- hs.window:ensureIsInScreenBounds()
+--- hs.window:ensureIsInScreenBounds([duration])
 --- Method
 --- Moves and resizes the window to fit into the screen it is currently on. If the window is partially out of the
 --- screen it is moved and resized to be completely visible on the window's current screen.
+--- duration is an optional animation duration that overrides hs.window.animationDuration
 --- Example: win:ensureIsInScreenBounds() -- ensure window is in the boundaries of the screen
-function window:ensureIsInScreenBounds()
+function window:ensureIsInScreenBounds(duration)
   local frame = self:frame()
   local screenFrame = self:screen():frame()
   if frame.x < screenFrame.x then frame.x = screenFrame.x end
@@ -297,7 +299,7 @@ function window:ensureIsInScreenBounds()
   if frame.y + frame.h > screenFrame.y + screenFrame.h then
     frame.y = (screenFrame.y + screenFrame.h) - frame.h
   end
-  if frame ~= self:frame() then self:setFrame(frame) end
+  if frame ~= self:frame() then self:setFrame(frame, duration) end
 end
 
 return window
