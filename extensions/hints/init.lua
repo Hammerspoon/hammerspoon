@@ -104,8 +104,17 @@ function hints.processChar(char)
       modalKey:exit()
     elseif type(hintDict[char]) == "table" then
       hintDict = hintDict[char]
-      takenPositions = {}
-      hints.displayHintsForDict(hintDict, "")
+      local hintDictLength = 0
+      for _ in pairs(hintDict) do hintDictLength = hintDictLength + 1 end
+      if hintDictLength == 1 then
+        for key, val in ipairs(hintDict) do
+          v:focus()
+          modalKey:exit()
+        end
+      else
+        takenPositions = {}
+        hints.displayHintsForDict(hintDict, "")
+      end
     end
   end
 end
