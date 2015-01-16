@@ -71,16 +71,19 @@ hotkey.modal = {}
 hotkey.modal.__index = hotkey.modal
 
 --- hs.hotkey.modal:entered()
+--- Method
 --- Optional callback for when a modal is entered; default implementation does nothing.
 function hotkey.modal:entered()
 end
 
 --- hs.hotkey.modal:exited()
+--- Method
 --- Optional callback for when a modal is exited; default implementation does nothing.
 function hotkey.modal:exited()
 end
 
 --- hs.hotkey.modal:bind(mods, key, pressedfn, releasedfn)
+--- Method
 --- Registers a new hotkey that will be bound when the modal is enabled.
 function hotkey.modal:bind(mods, key, pressedfn, releasedfn)
   local k = hotkey.new(mods, key, pressedfn, releasedfn)
@@ -89,6 +92,7 @@ function hotkey.modal:bind(mods, key, pressedfn, releasedfn)
 end
 
 --- hs.hotkey.modal:enter()
+--- Method
 --- Enables all hotkeys created via `modal:bind` and disables the modal itself.
 --- Called automatically when the modal's hotkey is pressed.
 function hotkey.modal:enter()
@@ -101,6 +105,7 @@ function hotkey.modal:enter()
 end
 
 --- hs.hotkey.modal:exit()
+--- Method
 --- Disables all hotkeys created via `modal:bind` and re-enables the modal itself.
 function hotkey.modal:exit()
   hs.fnutils.each(self.keys, hotkey.disable)
@@ -112,6 +117,7 @@ function hotkey.modal:exit()
 end
 
 --- hs.hotkey.modal.new(mods, key) -> modal
+--- Constructor
 --- Creates a new modal hotkey and enables it.
 --- When mods and key are pressed, all keys bound via `modal:bind` will be enabled.
 --- They are disabled when the "mode" is exited via `modal:exit()`

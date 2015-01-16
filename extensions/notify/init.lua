@@ -71,7 +71,7 @@ local function callback(tag)
 end
 
 --- hs.notify._DEPRECATED
---- Deprecated APIs
+--- Deprecated
 --- Previous versions of Hammerspoon, Mjolnir and Hydra included a much less rich notification API. This old API is still available in Hammerspoon, but you should migrate all of your usage of the following APIs, to the newer ones documented below, as soon as possible.
 ---
 --- * hs.notify.show(title, subtitle, information, tag) -> notfication

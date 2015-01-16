@@ -16,7 +16,19 @@
       <h1><%= mod['name'] %></h1>
       <%= GitHub::Markdown.render_gfm(mod['doc']) %>
     </header>
-    <% mod['items'].sort_by{|m|m['def']}.each do |item| %>
+    <%
+        sectionorder = %w(Deprecated Command Constant Variable Function Constructor Method);
+
+        sectionorder.each do |section|
+            items = mod['items'].select{|m| m['type'] == section}
+            if items.length > 0
+                %>
+                <h2><%= section %>s</h2>
+                <%
+            end
+            items.each do |item|
+    %>
+
     <section id="<%= item['name'] %>">
     <a name="//apple_ref/cpp/<%= item['type'] %>/<%= item['name'] %>" class="dashAnchor"></a>
     <h3><a href="#<%= item['name'] %>"><%= item['name'] %></a></h3>
@@ -37,6 +49,9 @@
         </tr>
     </table>
     </section>
-    <% end %>
+<%
+            end
+        end
+%>
   </body>
 </html>

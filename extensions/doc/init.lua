@@ -6,9 +6,7 @@
 ---
 --- You can use the `hs.docstrings_json_file` constant, e.g. `doc = hs.doc.fromJSONFile(hs.docstrings_json_file)`
 ---
-
---- hs.doc.debugging_modes -> debug loading and parsing
---- Flags
+--- Debugging modes:
 --- Mostly only have an affect on `hs.doc.fromArray` and `hs.doc.fromPackageLoaded`.
 ---
 --- Set the flag in the global namespace one of these ways:
