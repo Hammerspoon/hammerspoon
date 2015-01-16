@@ -20,16 +20,26 @@ local protected_functions = {
 
 --- hs.notify.new([fn,][attributes]) -> notification
 --- Constructor
---- Returns a new notification object with the assigned callback function after applying the attributes specified in the attributes argument.  The attribute table can contain one or more key-value pairs where the key corrosponds to the short name of a notification attribute method.  The callback function receives as it's argument the notification object. Note that a notification with an empty title will not be delivered.
+--- Creates a new notification object
 ---
---- The notification attribute methods are:
----     title               subTitle
----     informativeText     soundName
----     alwaysPresent       autoWithdraw
+--- Parameters:
+---  * fn - An optional function, which will be called when the user interacts with notifications. The notification object will be passed as an argument to the function.
+---  * attributes - An optional table for applying attributes to the notification. Possible keys are:
+---   * title
+---   * subTitle
+---   * informativeText
+---   * soundName
+---   * alwaysPresent
+---   * autoWithdraw
+---   * actionButtonTitle (only available if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences)
+---   * otherButtonTitle (only available if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences)
+---   * hasActionButton (only available if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences)
 ---
---- Note that the following attributes only affect notifications if the user has set the Application notification type to "Alert" in the Notification Center System Preferences pane.
----     actionButtonTitle   otherButtonTitle
----     hasActionButton
+--- Returns:
+---  * A notification object
+---
+--- Notes:
+---  * If a notification does not have a `title` attribute set, OS X will not display it. Either use the `title` key in the attributes table, or call `hs.notify:title()` before displaying the notification
 module.new = function(fn, attributes)
     if type(fn) == "table" then
         attributes = fn
@@ -60,11 +70,29 @@ local function callback(tag)
   end
 end
 
---- hs.notify.show(title, subtitle, information, tag) -> notfication
---- Constructor
---- This function and it's supporting functions are deprecated and are provided only for convenience in migrating from Mjolnir or Hydra.  You are encouraged to use the `hs.notify.notification.new` function instead.
+--- hs.notify._DEPRECATED
+--- Deprecated APIs
+--- Previous versions of Hammerspoon, Mjolnir and Hydra included a much less rich notification API. This old API is still available in Hammerspoon, but you should migrate all of your usage of the following APIs, to the newer ones documented below, as soon as possible.
 ---
---- Convienence function to mimic Hydra's notify.show. Shows an Apple notification. Tag is a unique string that identifies this notification; any function registered for the given tag will be called if the notification is clicked. None of the strings are optional, though they may each be blank.
+--- * hs.notify.show(title, subtitle, information, tag) -> notfication
+---  * Constructor
+---  * Convienence function to mimic Hydra's notify.show. Shows an Apple notification. Tag is a unique string that identifies this notification; any function registered for the given tag will be called if the notification is clicked. None of the strings are optional, though they may each be blank.
+---
+--- * hs.notify.registry[]
+---  * Variable
+---  * This table contains the list of registered tags and their functions.  It should not be modified directly, but instead by the hs.notify.register(tag, fn) and hs.notify.unregister(id) functions.
+---
+--- * hs.notify.register(tag, fn) -> id
+---  * Function
+---  * Registers a function to be called when an Apple notification with the given tag is clicked.
+---
+--- * hs.notify.unregister(id)
+---  * Function
+---  * Unregisters a function to no longer be called when an Apple notification with the given tag is clicked.  Note that this uses the `id` returned by `hs.notify.notification.register`.
+---
+--- * hs.notify.notification.unregisterall()
+---  * Function
+---  * Unregisters all functions registered for notification-clicks.
 module.show = function(title, subtitle, information, tag)
     if type(title) ~= "string" or type(subtitle) ~= "string" or
         type(information) ~= "string" or type(tag) ~= "string" then
@@ -82,15 +110,9 @@ module.show = function(title, subtitle, information, tag)
     end
 end
 
---- hs.notify.registry[]
---- Variable
---- This table contains the list of registered tags and their functions.  It should not be modified directly, but instead by the hs.notify.register(tag, fn) and hs.notify.unregister(id) functions.
 module.registry = {}
 module.registry.n = 0
 
---- hs.notify.register(tag, fn) -> id
---- Function
---- Registers a function to be called when an Apple notification with the given tag is clicked.
 module.register = function(tag, fn)
   local id = module.registry.n + 1
   module.registry[id] = {tag, fn}
@@ -98,16 +120,10 @@ module.register = function(tag, fn)
   return id
 end
 
---- hs.notify.unregister(id)
---- Function
---- Unregisters a function to no longer be called when an Apple notification with the given tag is clicked.  Note that this uses the `id` returned by `hs.notify.notification.register`.
 module.unregister = function(id)
   module.registry[id] = nil
 end
 
---- hs.notify.notification.unregisterall()
---- Function
---- Unregisters all functions registered for notification-clicks.
 module.unregisterall = function()
   module.registry = {}
   module.registry.n = 0

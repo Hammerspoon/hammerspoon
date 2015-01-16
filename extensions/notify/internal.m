@@ -226,7 +226,16 @@ static int notification_delegate_setup(lua_State* L) {
 
 /// hs.notify.withdraw_all()
 /// Function
-/// Withdraw all posted notifications for Hammerspoon.  Note that this will withdraw all notifications for Hammerspoon, including those not sent by us or that linger from previous loads of Hammerspoon.
+/// Withdraw all notifications from Hammerspoon
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * This will withdraw all notifications for Hammerspoon, including those not sent by us or that linger from previous loads of Hammerspoon.
 static int notification_withdraw_all(lua_State* __unused L) {
     [[NSUserNotificationCenter defaultUserNotificationCenter] removeAllDeliveredNotifications];
     return 0;
@@ -262,7 +271,17 @@ static int notification_new(lua_State* L) {
 
 /// hs.notify:send() -> self
 /// Method
-/// Delivers the notification to the Notification Center.  If a notification has been modified, then this will resend it, setting the delivered status again.  You can invoke this multiple times if you wish to repeat the same notification.
+/// Delivers the notification to the Notification Center.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The notification object
+///
+/// Notes:
+///  * If a notification has been modified, then this will resend it, setting the delivered status again.
+///  * You can invoke this multiple times if you wish to repeat the same notification.
 static int notification_send(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
@@ -272,7 +291,16 @@ static int notification_send(lua_State* L) {
 
 /// hs.notify:release() -> self
 /// Method
-/// Disables the callback function for a notification.  Is also invoked during garbage collection (or a hammerspoon.reload()).
+/// Disables the callback function for a notification.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The notification object
+///
+/// Notes:
+///  * This is automatically invoked during garbage collection and when Hammerspoon reloads its config 
 static int notification_release(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
@@ -284,7 +312,16 @@ static int notification_release(lua_State* L) {
 
 /// hs.notify:withdraw() -> self
 /// Method
-/// Withdraws a delivered notification from the Notification Center.  Note that if you modify a delivered note, even with `release`, then it is no longer considered delivered and this method will do nothing.  If you want to fully remove a notification, invoke this method and then invoke `release`, not the other way around.
+/// Withdraws a delivered notification from the Notification Center.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The notification object
+///
+/// Notes:
+///  * If you modify a delivered note, even with `hs.notify:release()`, then it is no longer considered delivered and this method will do nothing.  To fully remove a notification, invoke this method and then invoke `hs.notify:release()`, not the other way around.
 static int notification_withdraw(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
@@ -293,9 +330,15 @@ static int notification_withdraw(lua_State* L) {
     return 1;
 }
 
-/// hs.notify:title([string]) -> string
-/// Attribute
-/// If a string argument is provided, first set the notification's title to that value.  Returns current value for notification title. Can be blank, but not nil.  Defaults to "Notification".
+/// hs.notify:title([titleText]) -> string
+/// Method
+/// Set the title of a notification
+///
+/// Parameters:
+///  * titleText - An optional string containing the title to be set on the notification object. This can be an empty string, but if `nil` is passed, the title will not be changed and the current title will be returned. The default value is "Notification".
+///
+/// Returns:
+///  * A string containing the title of the notification
 static int notification_title(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -305,9 +348,15 @@ static int notification_title(lua_State* L) {
     return 1;
 }
 
-/// hs.notify:subtitle([string]) -> string
-/// Attribute
-/// If a string argument is provided, first set the notification's subtitle to that value.  Returns current value for notification subtitle.
+/// hs.notify:subtitle([subtitleText]) -> string
+/// Method
+/// Set the subtitle of a notification
+///
+/// Parameters:
+///  * subtitleText - An optional string containing the subtitle to be set on the notification object. This can be an empty string. If `nil` is passed, any existing subtitle will be removed.
+///
+/// Returns:
+///  * A string containing the subtitle of the notification
 static int notification_subtitle(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -321,9 +370,15 @@ static int notification_subtitle(lua_State* L) {
     return 1;
 }
 
-/// hs.notify:informativeText([string]) -> string
-/// Attribute
-/// If a string argument is provided, first set the notification's informativeText to that value.  Returns current value for notification informativeText.
+/// hs.notify:informativeText([informativeText]) -> string
+/// Method
+/// Set the informative text of a notification
+///
+/// Parameters:
+///  * informativeText - An optional string containing the informative text to be set on the notification object. This can be an empty string. If `nil` is passed, any existing informative text will be removed.
+///
+/// Returns:
+///  * A string containing the informative text of the notification
 static int notification_informativeText(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -337,9 +392,15 @@ static int notification_informativeText(lua_State* L) {
     return 1;
 }
 
-/// hs.notify:actionButtonTitle([string]) -> string
-/// Attribute
-/// If a string argument is provided, first set the notification's action button title to that value.  Returns current value for notification action button title.
+/// hs.notify:actionButtonTitle([buttonTitle]) -> string
+/// Method
+/// Set the title of a notification's action button
+///
+/// Parameters:
+///  * buttonTitle - An optional string containing the title for the notification's action button
+///
+/// Returns:
+///  * A string containing the title of the action button
 static int notification_actionButtonTitle(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -353,9 +414,15 @@ static int notification_actionButtonTitle(lua_State* L) {
     return 1;
 }
 
-/// hs.notify:otherButtonTitle([string]) -> string
-/// Attribute
-/// If a string argument is provided, first set the notification's cancel button's title to that value.  Returns current value for notification cancel button title.
+/// hs.notify:otherButtonTitle([buttonTitle]) -> string
+/// Method
+/// Set the title of a notification's other button
+///
+/// Parameters:
+///  * buttonTitle - An optional string containing the title for the notification's other button
+///
+/// Returns:
+///  * A string containing the title of the other button
 static int notification_otherButtonTitle(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -369,9 +436,15 @@ static int notification_otherButtonTitle(lua_State* L) {
     return 1;
 }
 
-/// hs.notify:hasActionButton([bool]) -> bool
-/// Attribute
-/// If a boolean argument is provided, first set whether or not the notification has an action button.  Returns current presence of notification action button. Defaults to true.
+/// hs.notify:hasActionButton([hasButton]) -> bool
+/// Method
+/// Controls the presence of an action button in a notification
+///
+/// Parameters:
+///  * hasButton - An optional boolean indicating whether an action button should be present
+///
+/// Returns:
+///  * A boolean indicating whether an action button is present
 static int notification_hasActionButton(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -381,9 +454,18 @@ static int notification_hasActionButton(lua_State* L) {
     return 1;
 }
 
-/// hs.notify:alwaysPresent([bool]) -> bool
-/// Attribute
-/// If a boolean argument is provided, determines whether or not the notification should be presented, even if the Notification Center's normal decision would be not to.  This does not affect the return value of the `presented` attribute -- that will still reflect the decision of the Notification Center. Returns the current status. Defaults to true.
+/// hs.notify:alwaysPresent([isAlwaysPresent]) -> bool
+/// Method
+/// Controls whether a notification should be presented, overriding Notification Center's decisions otherwise
+///
+/// Parameters:
+///  * isAlwaysPresent - An optional boolean indicating whether the notification should override Notification Center's settings. Defaults to true
+///
+/// Returns:
+///  * A boolean indicating whether the notification will override Notification Center's settings
+///
+/// Notes:
+///  * This does not affect the return value of `hs.notify:presented()` -- that will still reflect the decision of the Notification Center
 static int notification_alwaysPresent(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -393,9 +475,15 @@ static int notification_alwaysPresent(lua_State* L) {
     return 1;
 }
 
-/// hs.notify:autoWithdraw([bool]) -> bool
-/// Attribute
-/// If a boolean argument is provided, sets whether or not a notification should be automatically withdrawn once activated. Returns the current status.  Defaults to true.
+/// hs.notify:autoWithdraw([shouldWithdraw]) -> bool
+/// Method
+/// Controls whether a notification should automatically withdraw once activated
+///
+/// Parameters:
+///  * shouldWithdraw - An optional boolean indicating whether the notification should automatically withdraw. Defaults to true.
+///
+/// Returns:
+///  * A boolean indicating whether the notification will automatically withdraw
 static int notification_autoWithdraw(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -405,9 +493,22 @@ static int notification_autoWithdraw(lua_State* L) {
     return 1;
 }
 
-/// hs.notify:soundName([string]) -> string
-/// Attribute
-/// If a string argument is provided, first set the notification's delivery sound to that value.  Returns current value for notification delivery sound.  If it's nil, no sound will be played.  Defaults to nil.
+/// hs.notify:soundName([soundName]) -> string or nil
+/// Method
+/// Set the sound for a notification
+///
+/// Parameters:
+///  * soundName - An optional string containing the name of a sound to play with the notification. If `nil`, no sound will be played. Defaults to `nil`
+///
+/// Returns:
+///  * A string containing the name of the sound that will be played, or nil if no sound will be played
+///
+/// Notes:
+///  * Sounds will first be matched against the names of system sounds. If no matches can be found, they will then be searched for in the following paths, in order:
+///   * `~/Library/Sounds`
+///   * `/Library/Sounds`
+///   * `/Network/Sounds`
+///   * `/System/Library/Sounds`
 static int notification_soundName(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -422,8 +523,17 @@ static int notification_soundName(lua_State* L) {
 }
 
 /// hs.notify:presented() -> bool
-/// Attribute
-/// Returns whether the notification was presented by the decision of the Notification Center.  Under certain conditions (most notably if you're currently active in the application which sent the notification), the Notification Center can decide not to present a notification.  This flag represents that decision.
+/// Method
+/// Returns whether Notification Center decided to display the notification
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean indicating whether Notification Center decided to display the notification
+///
+/// Notes:
+///  * A typical example of why Notification Center would choose not to display a notification would be if Hammerspoon is the currently focussed application. Others may include being attached to a projector, or the user having set Do Not Disturb
 static int notification_presented(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushboolean(L, ((__bridge NSUserNotification *) notification->note).presented);
@@ -431,49 +541,62 @@ static int notification_presented(lua_State* L) {
 }
 
 /// hs.notify:delivered() -> bool
-/// Attribute
-/// Returns whether the notification has been delivered to the Notification Center.
+/// Method
+/// Returns whether the notification has been delivered to the Notification Center
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean indicating whether the notification has been delivered to Notification Center
 static int notification_delivered(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushboolean(L, notification->delivered);
     return 1;
 }
 
-/// hs.notify:remote() -> bool
-/// Attribute
-/// Returns whether the notification was generated by a push notification (remotely).  Currently unused, but perhaps not forever.
+// hs.notify:remote() -> bool
+// Method
+// Returns whether the notification was generated by a push notification (remotely).  Currently unused, but perhaps not forever.
 static int notification_remote(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushboolean(L, ((__bridge NSUserNotification *) notification->note).remote);
     return 1;
 }
 
-/// hs.notify:activationType() -> int
-/// Attribute
-/// Returns whether the notification was generated by a push notification (remotely).  Currently unused, but perhaps not forever.
+// hs.notify:activationType() -> number
+// Attribute
+// Returns whether the notification was generated by a push notification (remotely).  Currently unused, but perhaps not forever.
 static int notification_activationType(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushnumber(L, ((__bridge NSUserNotification *) notification->note).activationType);
     return 1;
 }
 
-/// hs.notify:actualDeliveryDate() -> int
-/// Attribute
-/// Returns the delivery date of the notification in seconds since 1970-01-01 00:00:00 +0000 (e.g. `os.time()`).
+/// hs.notify:actualDeliveryDate() -> number
+/// Method
+/// Returns the date and time when a notification was delivered
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the delivery date/time of the notification, in seconds since the epoch (i.e. 1970-01-01 00:00:00 +0000)
+///
+/// Notes:
+///  * You can turn epoch times into a useful table of date information with: `os.date("*t", epochTime)`
 static int notification_actualDeliveryDate(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushnumber(L, [((__bridge NSUserNotification *) notification->note).actualDeliveryDate timeIntervalSince1970]);
     return 1;
 }
 
-/// hs.notify.activationType[]
-/// Variable
-/// Convenience array of the possible activation types for a notification, and their reverse for reference.
-/// ~~~lua
-///     None                        The user has not interacted with the notification.
-///     ContentsClicked             User clicked on notification
-///     ActionButtonClicked         User clicked on Action button
-/// ~~~
+// hs.notify.activationType[]
+// Constant
+// Convenience array of the possible activation types for a notification, and their reverse for reference.
+// * None - The user has not interacted with the notification.
+// * ContentsClicked - User clicked on notification
+// * ActionButtonClicked - User clicked on Action button
 static void notification_activationTypeTable(lua_State *L) {
     lua_newtable(L) ;
     lua_pushinteger(L, NSUserNotificationActivationTypeNone);
@@ -580,8 +703,8 @@ int luaopen_hs_notify_internal(lua_State* L) {
         notification_activationTypeTable(L) ;
         lua_setfield(L, -2, "activationType") ;
 /// hs.notify.defaultNotificationSound
-/// Variable
-/// The string representation of the default notification sound.  Set `soundName` attribute to this if you want to use the default sound.
+/// Constant
+/// The string representation of the default notification sound. Use `hs.notify:soundName()` or set the `soundName` attribute in `hs:notify.new()`, to this constant, if you want to use the default sound
         lua_pushstring(L, [NSUserNotificationDefaultSoundName UTF8String]) ;
         lua_setfield(L, -2, "defaultNotificationSound") ;
 
