@@ -1,6 +1,6 @@
 --- === hs.doc ===
 ---
---- Create doc objects which can be access from within the command line tool or the Hammerspoon console for module documentation.
+--- Create documentation objects for interactive help within Hammerspoon
 ---
 --- e.g. `doc = hs.doc.fromJSONFile('path-to-docs.json')`
 ---

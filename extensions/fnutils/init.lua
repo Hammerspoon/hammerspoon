@@ -1,6 +1,6 @@
 --- === hs.fnutils ===
 ---
---- Super-helpful functional programming utilities.
+--- Functional programming utility functions
 
 local fnutils = {}
 

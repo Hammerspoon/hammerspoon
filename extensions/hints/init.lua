@@ -1,6 +1,6 @@
 --- === hs.hints ===
 ---
---- Switch focus with a transient per-application hotkey
+--- Switch focus with a transient per-application keyboard shortcut
 
 local hints = require "hs.hints.internal"
 local screen = require "hs.screen"

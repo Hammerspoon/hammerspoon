@@ -1,13 +1,13 @@
 --- === hs.eventtap ===
 ---
---- For tapping into input events (mouse, keyboard, trackpad) for observation and possibly overriding them.
+--- Tap into input events (mouse, keyboard, trackpad) for observation and possibly overriding them
 --- It also provides convenience wrappers for sending mouse and keyboard events. If you need to construct finely controlled mouse/keyboard events, see hs.eventtap.event
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
 --- === hs.eventtap.event ===
 ---
---- Functionality to inspect, modify, and create events for `hs.eventtap` is provided by this module.
+--- Create, modify and inspect events for `hs.eventtap`
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

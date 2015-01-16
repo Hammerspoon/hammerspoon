@@ -3,7 +3,7 @@
 
 /// === hs.alert ===
 ///
-/// Simple module for showing alerts on-screen.
+/// Simple on-screen alerts
 
 static NSMutableArray* visibleAlerts;
 

@@ -1,6 +1,6 @@
 --- === hs.wifi ===
 ---
---- Discover WiFi networks and watch changes in associated network.
+--- Inspect WiFi networks
 --- NOTE: This extension assumes that you have one and only one WiFi interface on your Mac. If you have more than one, behaviour is undefined.
 
 local wifi = require "hs.wifi.internal"

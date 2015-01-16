@@ -1,6 +1,7 @@
 --- === hs.utf8_53 ===
 ---
---- Functions providing basic support for UTF-8 encodings within Hammerspoon.  These functions are from the UTF-8 Library as provided by the [Lua 5.3.beta programming language](http://www.lua.org/work/). All I have provided is a wrapper to allow easy inclusion within the Hammerspoon environment.
+--- Functions providing basic support for UTF-8 encodings
+--- These functions are from the UTF-8 Library as provided by the [Lua 5.3.beta programming language](http://www.lua.org/work/). All I have provided is a wrapper to allow easy inclusion within the Hammerspoon environment.
 ---
 --- The following text is from the preliminary [reference documentation](http://www.lua.org/work/doc/) for the Lua 5.3.beta programming language.
 ---

@@ -1,6 +1,6 @@
 --- === hs.itunes ===
---
--- Controls for itunes music player
+---
+--- Controls for iTunes music player
 
 local itunes = {}
 

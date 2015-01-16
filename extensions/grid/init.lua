@@ -1,6 +1,6 @@
 --- === hs.grid ===
 ---
---- Move/resize your windows along a virtual and horizontal grid.
+--- Move/resize windows within a grid
 ---
 --- Usage: local grid = require "hs.grid"
 ---

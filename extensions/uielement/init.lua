@@ -1,5 +1,6 @@
 --- === hs.uielement ===
---- A generalized framework for working with OSX UI elements.
+---
+--- A generalized framework for working with OSX UI elements
 
 local uielement = require "hs.uielement.internal"
 local application = {}
@@ -19,7 +20,8 @@ function uielement:isApplication()
 end
 
 --- === hs.uielement.watcher ===
---- Defines events that can be watched using hs.uielement.watcher.
+---
+--- Defines events that can be watched using ```hs.uielement.watcher```
 ---
 --- You can watch the following events:
 --- ### Application-level events

@@ -1,7 +1,7 @@
 
 --- === hs.sound ===
 ---
---- Hammerspoon access to NSSound via Lua
+--- Load/play/manipulate sound files
 
 
 local module = require("hs.sound.internal")

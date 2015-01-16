@@ -1,8 +1,8 @@
 --- === hs.brightness ===
 ---
---- Home: https://github.com/asmagill/mjolnir_asm.sys
+--- Inspect/manipulate display brightness
 ---
---- Functions for manipulating display brightness.
+--- Home: https://github.com/asmagill/mjolnir_asm.sys
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

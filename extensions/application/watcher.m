@@ -5,7 +5,7 @@
 
 /// === hs.application.watcher ===
 ///
-/// Watch for application launch/terminate events in Hammerspoon.
+/// Watch for application launch/terminate events
 ///
 /// This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

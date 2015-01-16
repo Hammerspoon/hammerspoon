@@ -1,8 +1,8 @@
 --- === hs.fs ===
 ---
---- Home: http://keplerproject.github.io/luafilesystem/
+--- Access/inspect the filesystem
 ---
---- Functions for accessing and inspecting the local filesystem.
+--- Home: http://keplerproject.github.io/luafilesystem/
 ---
 --- This module is produced by the Kepler Project under the name "Lua File System"
 

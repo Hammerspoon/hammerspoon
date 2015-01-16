@@ -4,7 +4,8 @@
 
 /// === hs.screen.watcher ===
 ///
-/// Watch for screen layout changes in Hammerspoon. This could be the addition or removal of a monitor, a screen resolution change, movement of a monitor in the Display preferences pane, etc.
+/// Watch for screen layout changes
+/// This could be the addition or removal of a monitor, a screen resolution change, movement of a monitor in the Display preferences pane, etc.
 ///
 /// This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

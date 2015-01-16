@@ -1,6 +1,6 @@
 --- === hs.pasteboard ===
 ---
---- This is a module provides access to the OS X clipboard from within Hammerspoon
+--- Inspect/manipulate the system clipboard
 ---
 --- This module is based partially on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

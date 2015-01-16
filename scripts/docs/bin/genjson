@@ -4,6 +4,7 @@ require 'json'
 comments = JSON.load(STDIN.read)
 
 newmod  = ->(c) {{name: c[0].gsub('=', '').strip,
+                  desc: c[2].strip,
                   doc: c[1..-1].join("\n").strip,
                   items: []}}
 

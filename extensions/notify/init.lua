@@ -1,6 +1,6 @@
 --- === hs.notify ===
 ---
---- Apple's built-in notifications system.
+--- On-screen notifications using Notification Center
 ---
 --- This module is based in part on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

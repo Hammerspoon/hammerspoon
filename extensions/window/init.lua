@@ -1,6 +1,6 @@
 --- === hs.window ===
 ---
---- Functions for managing any window.
+--- Inspect/manipulate windows
 ---
 --- To get windows, see `hs.window.focusedWindow` and `hs.window.visibleWindows`.
 ---

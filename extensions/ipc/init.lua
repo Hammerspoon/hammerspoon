@@ -1,6 +1,6 @@
 --- === hs.ipc ===
 ---
---- Provides a Message Port instance for inter-process-communication.  This is used to interface with Hammerspoon from the command line.
+--- Provides the server portion of the Hammerspoon command line interface
 --- Note that in order to use the command line tool, you will need to explicitly load `hs.ipc` in your init.lua. The simplest way to do that is `require("hs.ipc")`
 ---
 --- This module is based primarily on code from Mjolnir by [Steven Degutis](https://github.com/sdegutis/).

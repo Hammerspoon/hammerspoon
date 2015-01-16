@@ -1,6 +1,6 @@
 --- === hs.applescript ===
 ---
---- Functions for executing AppleScript from within Hammerspoon.
+--- Execute AppleScript code
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

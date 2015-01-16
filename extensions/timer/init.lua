@@ -1,6 +1,6 @@
 --- === hs.timer ===
 ---
---- Execute functions with various timing rules.
+--- Execute functions with various timing rules
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

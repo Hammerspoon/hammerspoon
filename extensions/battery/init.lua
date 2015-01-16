@@ -1,6 +1,7 @@
 --- === hs.battery ===
 ---
---- Functions for getting battery info. All functions here may return nil, if the information requested is not available.
+--- Battery/power information
+--- All functions here may return nil, if the information requested is not available.
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 

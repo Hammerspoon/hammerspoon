@@ -1,5 +1,6 @@
 --- === hs.keycodes ===
---- Functionality for converting between key-strings and key-codes.
+---
+--- Convert between key-strings and key-codes
 
 --- hs.keycodes.map = {...}
 --- Variable

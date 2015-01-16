@@ -1,6 +1,6 @@
 --- === hs.hotkey ===
 ---
---- Create and manage global hotkeys.
+--- Create and manage global keyboard shortcuts
 
 local hotkey = require "hs.hotkey.internal"
 local keycodes = require "hs.keycodes"
@@ -55,7 +55,7 @@ end
 
 --- === hs.hotkey.modal ===
 ---
---- For conveniently binding modal hotkeys.
+--- Create/manage modal keyboard shortcut environments
 ---
 --- This would be a simple example usage:
 ---

@@ -1,6 +1,6 @@
 --- === hs.geometry ===
 ---
---- Mathy stuff.
+--- Mathematical functions
 
 local geometry = require "hs.geometry.internal"
 

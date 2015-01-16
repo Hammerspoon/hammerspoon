@@ -1,6 +1,6 @@
 --- === hs.base64 ===
 ---
---- This module provides base64 encoding and decoding for Hammerspoon.
+--- Base64 encoding and decoding
 ---
 --- Portions sourced from (https://gist.github.com/shpakovski/1902994).
 

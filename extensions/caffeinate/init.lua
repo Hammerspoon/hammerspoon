@@ -1,6 +1,6 @@
 --- === hs.caffeinate ===
 ---
---- Prevent various kinds of sleep activities in OSX
+--- Control display/system sleep behaviours
 ---
 --- **NOTE**: Any sleep preventions will be removed when hs.reload() is called. A future version of the module will save/restore state across reloads.
 

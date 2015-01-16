@@ -4,7 +4,7 @@
     <style type="text/css">
       a { text-decoration: none; }
       a:hover { text-decoration: underline; }
-      th, td { border: 1px solid #ccc; padding: 5px 10px; }
+      th, td { border: 1px solid #ccc; padding: 5px 10px; text-align: left; vertical-align: top; }
     </style>
   </head>
   <body>
@@ -16,13 +16,15 @@
       </section>
     <section>
     <!-- tables suck., I know, but it's fast to code -->
-    <table><tr><td valign="top">Documented modules</td><td valign="top">
-      <ul>
+    <h3>Documented modules</h3>
+    <table>
         <% docmods.each do |mod| %>
-          <li><a href="<%= mod['name'] %>.html"><%= mod['name'] %></a></li>
+            <tr>
+                <th><a href="<%= mod['name']%>.html"><%= mod['name'] %></a></th>
+                <td><%= GitHub::Markdown.render_gfm(mod['desc']) %></td>
+            </tr>
         <% end %>
-      </ul>
-    </td></tr></table>
+    </table>
     </section>
   </body>
 </html>

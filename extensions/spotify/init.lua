@@ -1,6 +1,6 @@
 --- === hs.spotify ===
---
--- Controls for spotify music player
+---
+--- Controls for Spotify music player
 
 local spotify = {}
 
