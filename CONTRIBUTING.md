@@ -115,6 +115,7 @@ The `Parameters` and `Returns` sections should always be present. If there is no
 ```lua
 --- hs.foo.someFunction(bar[, baz]) -> string or nil
 --- Function
+--- This is a one-line description of the function
 ---
 --- Parameters:
 ---  * bar - Value for doing something
@@ -137,6 +138,7 @@ The `Parameters` and `Returns` sections should always be present. If there is no
 ```lua
 --- hs.foo:someMethod() -> bool
 --- Method
+--- This is a one-line description of the method
 ---
 --- Parameters:
 ---  * None
