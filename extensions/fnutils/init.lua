@@ -5,9 +5,16 @@
 local fnutils = {}
 
 
---- hs.fnutils.map(t, fn) -> t
+--- hs.fnutils.map(table, fn) -> table
 --- Function
---- Returns a table of the results of fn(el) on every el in t.
+--- Execute a function across a table and collect the results
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * fn - A function that accepts a single parameter. Whatever this function returns, will be collected and returned
+---
+--- Returns:
+---  * A table containing the results of calling the function on every element in the table
 function fnutils.map(t, fn)
   local nt = {}
   for k, v in pairs(t) do
@@ -16,18 +23,32 @@ function fnutils.map(t, fn)
   return nt
 end
 
---- hs.fnutils.each(t, fn) -> t
+--- hs.fnutils.each(table, fn)
 --- Function
---- Runs fn(el) for every el in t.
+--- Execute a function across a table and discard the results
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * fn - A function taht accepts a single parameter
+---
+--- Returns:
+---  * None
 function fnutils.each(t, fn)
   for k, v in pairs(t) do
     fn(v)
   end
 end
 
---- hs.fnutils.filter(t, fn) -> t
+--- hs.fnutils.filter(table, fn) -> table
 --- Function
---- Returns a table of the elements in t in which fn(el) is truthy.
+--- Filter a table using a function
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * fn - A function that accepts a single parameter and returns a boolean value, true if the parameter should be kept, false if it should be discarded
+---
+--- Returns:
+---  * A table containing the elements of the table for which fn(element) returns true
 function fnutils.filter(t, fn)
   local nt = {}
   for k, v in pairs(t) do
@@ -36,9 +57,15 @@ function fnutils.filter(t, fn)
   return nt
 end
 
---- hs.fnutils.copy(t) -> t2
+--- hs.fnutils.copy(table) -> table
 --- Function
---- Returns a new copy of t using pairs(t).
+--- Copy a table using `pairs()`
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---
+--- Returns:
+---  * A new table containing the same data as the input table
 function fnutils.copy(t)
   local nt = {}
   for k, v in pairs(t) do
@@ -47,9 +74,16 @@ function fnutils.copy(t)
   return nt
 end
 
---- hs.fnutils.contains(t, el) -> bool
+--- hs.fnutils.contains(table, element) -> bool
 --- Function
---- Returns whether the table contains the given element.
+--- Determine if a table contains a given object
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * element - An object to search the table for
+---
+--- Returns:
+---  * A boolean, true if the element could be found in the table, otherwise false
 function fnutils.contains(t, el)
   for k, v in pairs(t) do
     if v == el then
@@ -59,9 +93,16 @@ function fnutils.contains(t, el)
   return false
 end
 
---- hs.fnutils.indexOf(t, el) -> int or nil
+--- hs.fnutils.indexOf(table, element) -> number or nil
 --- Function
---- Returns the index of a given element in a table, or nil if not found.
+--- Determine the location in a table of a given object
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * element - An object to search the table for
+---
+--- Returns:
+---  * A number containing the index of the element in the table, or nil if it could not be found
 function fnutils.indexOf(t, el)
   for k, v in pairs(t) do
     if v == el then
@@ -71,9 +112,19 @@ function fnutils.indexOf(t, el)
   return nil
 end
 
---- hs.fnutils.concat(t1, t2)
+--- hs.fnutils.concat(table1, table2)
 --- Function
---- Adds all elements of t2 to the end of t1.
+--- Join two tables together
+---
+--- Parameters:
+---  * table1 - A table containing some sort of data
+---  * table2 - A table containing some sort of data
+---
+--- Returns:
+---  * table1, with all of table2's elements added to the end of it
+---
+--- Notes:
+---  * table2 cannot be a sparse table, see [http://www.luafaq.org/gotchas.html#T6.4](http://www.luafaq.org/gotchas.html#T6.4)
 function fnutils.concat(t1, t2)
   for i = 1, #t2 do
     t1[#t1 + 1] = t2[i]
@@ -81,9 +132,16 @@ function fnutils.concat(t1, t2)
   return t1
 end
 
---- hs.fnutils.mapCat(t, fn) -> t2
+--- hs.fnutils.mapCat(table, fn) -> table
 --- Function
---- Runs fn(el) for every el in t, and assuming the results are tables, combines them into a new table.
+--- Execute, across a table, a function that outputs tables, and concatenate all of those tables together
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * fn - A function that takes a single parameter and returns a table
+---
+--- Returns:
+---  * A table containing the concatenated results of calling fn(element) for every element in the supplied table
 function fnutils.mapCat(t, fn)
   local nt = {}
   for k, v in pairs(t) do
@@ -92,9 +150,20 @@ function fnutils.mapCat(t, fn)
   return nt
 end
 
---- hs.fnutils.reduce(t, fn) -> t2
+--- hs.fnutils.reduce(table, fn) -> table
 --- Function
---- Runs fn(el1, el2) for every el in t, then fn(result, el3), etc, until there's only one left.
+--- Reduce a table to a single element, using a function
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * fn - A function that takes two parameters, which will be elements of the supplied table. It should choose one of these elements and return it
+---
+--- Returns:
+---  * The element of the supplied table that was chosen by the iterative reducer function
+---
+--- Notes:
+---  * table cannot be a sparse table, see [http://www.luafaq.org/gotchas.html#T6.4](http://www.luafaq.org/gotchas.html#T6.4)
+---  * The first iteration of the reducer will call fn with the first and second elements of the table. The second iteration will call fn with the result of the first iteration, and the third element. This repeats until there is only one element left
 function fnutils.reduce(t, fn)
   local len = #t
   if len == 0 then return nil end
@@ -107,9 +176,16 @@ function fnutils.reduce(t, fn)
   return result
 end
 
---- hs.fnutils.find(t, fn) -> el
+--- hs.fnutils.find(table, fn) -> element
 --- Function
---- Returns the first element where fn(el) is truthy.
+--- Execute a function across a table and return the first element where that function returns true
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * fn - A function that takes one parameter and returns a boolean value
+---
+--- Returns:
+---  * The element of the supplied table that first caused fn to return true
 function fnutils.find(t, fn)
   for _, v in pairs(t) do
     if fn(v) then return v end
@@ -118,8 +194,14 @@ function fnutils.find(t, fn)
 end
 
 --- hs.fnutils.sequence(...) -> fn
---- Function
---- Returns a list of the results of the passed functions.
+--- Constructor
+--- Creates a function that will collect the result of a series of functions into a table
+---
+--- Parameters:
+---  * ... - A number of functions, passed as different arguments. They should accept zero parameters, and return something
+---
+--- Returns:
+---  * A function that, when called, will call all of the functions passed to this constructor. The output of these functions will be collected together and returned.
 function fnutils.sequence(...)
   local arg = table.pack(...)
   return function()
@@ -132,8 +214,18 @@ function fnutils.sequence(...)
 end
 
 --- hs.fnutils.partial(fn, ...) -> fn'
---- Function
---- Returns fn partially applied to arg (...).
+--- Constructor
+--- Returns fn partially applied to arg (...)
+---
+--- Parameters:
+---  * fn - A function
+---  * ... - A number of things
+---
+--- Returns:
+---  * A function
+---
+--- Notes:
+---  * The documentation for this function is currently insufficient. Please submit an improvement if you can!
 function fnutils.partial(fn, ...)
   local args = table.pack(...)
   return function(...)
@@ -144,12 +236,23 @@ function fnutils.partial(fn, ...)
   end
 end
 
---- hs.fnutils.cycle(t) -> fn() -> t[n]
---- Function
---- Returns a function that returns t[1], t[2], ... t[#t], t[1], ... on successive calls.
---- Example:
+--- hs.fnutils.cycle(table) -> fn()
+--- Constructor
+--- Creates a function that repeatedly iterates a table
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---
+--- Returns:
+---  * A function that, when called repeatedly, will return all of the elements of the supplied table, repeating indefinitely
+---
+--- Notes:
+---  * table cannot be a sparse table, see [http://www.luafaq.org/gotchas.html#T6.4](http://www.luafaq.org/gotchas.html#T6.4)
+---  * An example usage:
+---     ```lua
 ---     f = cycle({4, 5, 6})
 ---     {f(), f(), f(), f(), f(), f(), f()} == {4, 5, 6, 4, 5, 6, 4}
+---     ```
 function fnutils.cycle(t)
   local i = 1
   return function()
