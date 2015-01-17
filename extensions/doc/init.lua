@@ -154,7 +154,16 @@ end
 
 --- hs.doc.fromJSONFile(jsonfile) -> doc-array
 --- Function
---- Builds a doc array construct from the json file provided.  Usually this will be the json file provided with the Hammerspoon application, but this json file will only contain the documentation for modules recognized by the Hammerspoon builders and the built in modules and not modules from other sources.  For those, use `hs.doc.fromArray` and `hs.doc.fromPackageLoaded`.
+--- Builds a doc array construct from the json file provided.
+---
+--- Parameters:
+---  * jsonfile - A string containing the location of a json file
+---
+--- Returns:
+---  * A table containing the documentation data loaded from the json file
+---
+--- Notes:
+---  * Usually this will be the json file provided with the Hammerspoon application, but this json file will only contain the documentation for modules recognized by the Hammerspoon builders and the built in modules and not modules from other sources.  For those, use `hs.doc.fromArray` and `hs.doc.fromPackageLoaded`.
 function module.fromJSONFile(docsfile)
   local f = io.open(docsfile)
   if not f then
@@ -175,7 +184,16 @@ end
 
 --- hs.doc.fromArray(array) -> doc-array
 --- Function
---- Builds a doc array construct from the lua files of the modules listed in the provided array.  Useful for creating doc objects for in progress modules or local files.
+--- Builds a doc array construct from the lua files of the modules listed in the provided array
+---
+--- Parameters:
+---  * array - A table containing the locations of files
+---
+--- Returns:
+---  * A table containing the documentation data loaded from the files
+---
+--- Notes:
+---  * This is useful for creating doc objects for in progress modules or local files.
 function module.fromArray(theArray)
     -- bin/gencomments
 
@@ -274,9 +292,15 @@ function module.fromArray(theArray)
     return internalBuild(json.encode(mods,true))
 end
 
---- hs.doc.fromPackageLoaded([bool]) -> doc-array
+--- hs.doc.fromPackageLoaded([refreshOnRequire]) -> doc-array
 --- Function
---- Builds a doc array construct from the lua files of all modules currently tracked in `package.loaded`, which is where Lua stores modules which have been loaded by `require`.  If the optional boolean value provided is true, then the doc array will be refreshed everytime a new module is loaded via `require`.
+--- Builds a doc array construct from the lua files of all modules currently tracked in `package.loaded`
+---
+--- Parameters:
+---  * refreshOnRequire - An optional boolean indicating whether the doc array should be refreshed every time `require()` is called. Defaults to false
+---
+--- Returns:
+---  * A table containing the documentation data loaded from the files
 module.fromPackageLoaded = function(autorefresh)
     do_package_loaded_update()
 
