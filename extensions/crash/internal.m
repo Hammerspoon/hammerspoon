@@ -26,13 +26,20 @@ extern pthread_t mainthreadid;
 
 /// hs.crash.isMainThread() -> bool
 /// Function
-/// Tells you whether you are executing Lua on the main thread.
+/// Determine if Lua execution is happening on the main thread
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if you are on the main thread, false if not
 ///
 /// Notes:
 /// * This is for testing purposes only, you are extremely unlikely to need this in normal Hammerspoon usage
 /// * When developing a new extension, especially one that involves handlers for outside events, this function
-///   can be used to make sure your event handling happens on the main thread. You can use this Lua code
-///   to make Hammerspoon abort if anything happens on a different thread:
+///   can be used to make sure your event handling happens on the main thread. It is extremely important that Lua
+///   execution happen only on the main thread of Hammerspoon
+/// * You can use this Lua code to make Hammerspoon abort if anything happens on a different thread:
 ///   ```lua
 ///   local function crashifnotmain(reason)
 ///     print("crashifnotmain called with reason", reason) -- may want to remove this, very verbose otherwise
