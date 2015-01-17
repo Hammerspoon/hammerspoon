@@ -62,13 +62,17 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType __unused type, C
 
 /// hs.eventtap.new(types, fn) -> eventtap
 /// Constructor
-/// Returns a new event tap with the given function as the callback for the given event types; the eventtap not started automatically. The types param is a table which may contain values from table `hs.eventtap.event.types`. The event types are specified as bit-fields and are exclusively-or'ed together (see {"all"} below for why this is done.  This means { ...keyup, ...keydown, ...keyup }  is equivalent to { ...keydown }.
+/// Create a new event tap object
 ///
-/// The callback function takes an event object as its only parameter. It can optionally return two values: if the first one is truthy, this event is deleted from the system input event stream and not seen by any other app; if the second one is a table of events, they will each be posted along with this event.
+/// Parameters:
+///  * types - A table that should contain values from `hs.eventtap.event.types`
+///  * fn - A function that will be called when the specified event types occur. The function should take a single parameter, which will be an event object. It can optionally return two values. Firstly, a boolean, true if the event should be deleted, false if it should propagate to any other applications watching for that event. Secondly, a table of events to post.
 ///
-///  e.g. callback(obj) -> bool[, table]
+/// Returns:
+///  * An event tap object
 ///
-/// If you specify the argument `types` as the special table {"all"[, events to ignore]}, then *all* events (except those you optionally list *after* the "all" string) will trigger a callback, even events which are not defined in the [Quartz Event Reference](https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html).
+/// Notes:
+///  * If you specify the argument `types` as the special table {"all"[, events to ignore]}, then *all* events (except those you optionally list *after* the "all" string) will trigger a callback, even events which are not defined in the [Quartz Event Reference](https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html).
 static int eventtap_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
     luaL_checktype(L, 2, LUA_TFUNCTION);
@@ -105,7 +109,13 @@ static int eventtap_new(lua_State* L) {
 
 /// hs.eventtap:start()
 /// Method
-/// Starts an event tap; must be in stopped state.
+/// Starts an event tap
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int eventtap_start(lua_State* L) {
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -131,7 +141,13 @@ static int eventtap_start(lua_State* L) {
 
 /// hs.eventtap:stop()
 /// Method
-/// Stops an event tap; must be in started state.
+/// Stops an event tap
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int eventtap_stop(lua_State* L) {
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 

@@ -23,9 +23,14 @@ module.event = require("hs.eventtap.event")
 
 --- hs.eventtap.event.newMouseEvent(eventtype, point) -> event
 --- Constructor
---- Creates a new mouse event.
----   - eventtype is one of the values in hs.eventtap.event.types
----   - point is a table with keys {x,y}
+--- Creates a new mouse event
+---
+--- Parameters:
+---  * eventtype - One of the values from `hs.eventtap.event.types`
+---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---
+--- Returns:
+---  * An `hs.eventtap` object
 function module.event.newMouseEvent(eventtype, point)
     local types = module.event.types
     local button = nil
@@ -45,9 +50,15 @@ end
 --- hs.eventtap.leftClick(point)
 --- Function
 --- Generates a left mouse click event at the specified point
----    - point is a table with keys {x,y} (e.g. {x=0,y=0})
 ---
---- (Note: this is a wrapper around hs.eventtap.event.newMouseEvent that sends leftmousedown and leftmouseup events)
+--- Parameters:
+---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `leftmousedown` and `leftmouseup` events)
 function module.leftClick(point)
     module.event.newMouseEvent(module.event.types["leftmousedown"], point):post()
     module.event.newMouseEvent(module.event.types["leftmouseup"], point):post()
@@ -56,9 +67,15 @@ end
 --- hs.eventtap.rightClick(point)
 --- Function
 --- Generates a right mouse click event at the specified point
----    - point is a table with keys {x,y} (e.g. {x=0,y=0})
 ---
---- (Note: this is a wrapper around hs.eventtap.event.newMouseEvent that sends rightmousedown and rightmouseup events)
+--- Parameters:
+---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `rightmousedown` and `rightmouseup` events)
 function module.rightClick(point)
     module.event.newMouseEvent(module.event.types["rightmousedown"], point):post()
     module.event.newMouseEvent(module.event.types["rightmouseup"], point):post()
@@ -67,19 +84,30 @@ end
 --- hs.eventtap.middleClick(point)
 --- Function
 --- Generates a middle mouse click event at the specified point
----    - point is a table with keys {x,y} (e.g. {x=0,y=0})
 ---
---- (Note: this is a wrapper around hs.eventtap.event.newMouseEvent that sends middlemousedown and middlemouseup events)
+--- Parameters:
+---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `middlemousedown` and `middlemouseup` events)
 function module.middleClick(point)
     module.event.newMouseEvent(module.event.types["middlemousedown"], point):post()
     module.event.newMouseEvent(module.event.types["middlemouseup"], point):post()
 end
 
---- hs.eventtap.keyStrokes(modifiers, string)
+--- hs.eventtap.keyStrokes(modifiers, text)
 --- Function
---- Generates keystrokes for the supplied keyboard modifiers and string
---- The modifiers should be a table, containing any/several/all/none of "fn", "ctrl", "alt", "cmd", "shift" or "fn" (or their Unicode equivalents ⌃, ⌥, ⌘, ⇧)
---- The string can be a single character or many (e.g. if you want to simulate typing of a block of text)
+--- Generates and emits keystroke events for the supplied keyboard modifiers and text
+---
+--- Parameters:
+---  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", "fn", or their Unicode equivalents)
+---  * text - A string containing the text that should be broken down into individual keystroke events. This can be a single character, or many
+---
+--- Returns:
+---  * None
 function module.keyStrokes(modifiers, text)
     for c in text:gmatch"." do
         module.event.newKeyEvent(modifiers, c, true):post()
