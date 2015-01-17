@@ -80,13 +80,13 @@ end
 --- Function
 --- Toggles the current state of the specified type of sleep
 ---
---- * Parameters:
+--- Parameters:
 ---  * sleepType - A string containing the type of sleep to toggle (see [set](#set) for information about the possible values)
 ---
---- * Returns:
+--- Returns:
 ---  * True if the specified type of sleep is being prevented, false if not. nil if sleepType was an invalid value
 ---
---- * Notes:
+--- Notes:
 ---  * If systemIdle is toggled to on, it will apply to AC only
 function caffeinate.toggle(aType)
     local current = caffeinate.get(aType)
