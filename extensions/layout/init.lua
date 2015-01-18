@@ -39,7 +39,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 --- The fields in each line of the table are:
 ---  * Application name or nil
 ---  * Window title or nil
----  * Monitor name
+---  * Monitor name or an hs.screen object
 ---  * Unit rect
 ---  * Frame rect
 ---  * Full-frame rect
@@ -49,7 +49,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 --- You can specify both application name and window title if you want to match only one window of a particular application.
 --- If you specify neither application name or window title, no windows will be matched :)
 ---
---- Monitor name is a string, as found in hs.screen:name()
+--- Monitor name is a string, as found in hs.screen:name(). You can also pass an hs.screen object.
 ---
 --- The final three arguments use hs.geometry.rect() objects to describe the desired position and size of matched windows:
 ---  * Unit rect will be passed to hs.window.moveToUnit()
@@ -72,8 +72,8 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---  (the above options are also available with 'right' equivalents)
 function layout.apply(layout)
 -- Layout parameter should be a table where each row takes the form of:
---  {"App name", "Window name","Display Name", "unitrect", "framerect", "fullframerect"},
---  First three items in each row are strings
+--  {"App name", "Window name","Display Name"/"hs.screen object", "unitrect", "framerect", "fullframerect"},
+--  First three items in each row are strings (although the display name can also be an hs.screen object)
 --  Second three items are rects that specify the position of the window. The first one that is
 --   not nil, wins.
 --  unitrect is a rect passed to window:moveToUnit()
@@ -103,10 +103,14 @@ function layout.apply(layout)
 
         -- Find the destination display, if wanted
         if _row[3] then
-            local displays = fnutils.filter(screen.allScreens(), function(screen) return screen:name() == _row[3] end)
-            if displays then
-                -- TODO: This is bogus, multiple identical monitors will be impossible to lay out
-                display = displays[1]
+            if type(_row[3]) == "string" then
+                local displays = fnutils.filter(screen.allScreens(), function(screen) return screen:name() == _row[3] end)
+                if displays then
+                    -- TODO: This is bogus, multiple identical monitors will be impossible to lay out
+                    display = displays[1]
+                end
+            elseif hs.fnutils.contains(hs.screen.allScreens(), _row[3]) then
+                display = _row[3]
             end
             if not display then
                 print("Unable to find display: " .. _row[3])
