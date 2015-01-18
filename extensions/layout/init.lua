@@ -39,7 +39,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 --- The fields in each line of the table are:
 ---  * Application name or nil
 ---  * Window title or nil
----  * Monitor name or an hs.screen object
+---  * Monitor name or an hs.screen object, or nil to select the first screen
 ---  * Unit rect
 ---  * Frame rect
 ---  * Full-frame rect
@@ -49,7 +49,8 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 --- You can specify both application name and window title if you want to match only one window of a particular application.
 --- If you specify neither application name or window title, no windows will be matched :)
 ---
---- Monitor name is a string, as found in hs.screen:name(). You can also pass an hs.screen object.
+--- Monitor name is a string, as found in hs.screen:name(). You can also pass an hs.screen object. If you pass nil, the first
+--- screen will be selected.
 ---
 --- The final three arguments use hs.geometry.rect() objects to describe the desired position and size of matched windows:
 ---  * Unit rect will be passed to hs.window.moveToUnit()
@@ -73,7 +74,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 function layout.apply(layout)
 -- Layout parameter should be a table where each row takes the form of:
 --  {"App name", "Window name","Display Name"/"hs.screen object", "unitrect", "framerect", "fullframerect"},
---  First three items in each row are strings (although the display name can also be an hs.screen object)
+--  First three items in each row are strings (although the display name can also be an hs.screen object, or nil)
 --  Second three items are rects that specify the position of the window. The first one that is
 --   not nil, wins.
 --  unitrect is a rect passed to window:moveToUnit()
@@ -117,6 +118,8 @@ function layout.apply(layout)
             else
                 displaypoint = geometry.point(display:frame().x, display:frame().y)
             end
+        else
+            display = screen.allScreens()[1]
         end
 
         -- Find the matching windows, if any
