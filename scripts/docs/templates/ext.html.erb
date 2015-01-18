@@ -16,7 +16,7 @@
       <h1><%= mod['name'] %></h1>
       <%= GitHub::Markdown.render_gfm(mod['doc']) %>
       </header>
-      <h2>API</h2>
+      <h2>API Overview</h2>
       <ul>
     <%
         sectionorder = %w(Deprecated Command Constant Variable Function Constructor Method);
@@ -42,12 +42,13 @@
         end
         %>
     </ul>
+    <h2>API Documentation</h2>
     <%
         sectionorder.each do |section|
             items = mod['items'].select{|m| m['type'] == section}.sort_by{|m|m['name']}
             if items.length > 0
                 %>
-                <h2><%= section %>s</h2>
+                <h3><%= section %>s</h3>
                 <%
             end
             items.each do |item|
