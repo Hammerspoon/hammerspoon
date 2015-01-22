@@ -7,7 +7,8 @@ PREFIX  ?= .
 OBJCFILE = internal.m watcher.m
 LUAFILE  = init.lua
 SOFILE  := $(OBJCFILE:m=so)
-DEBUG_CFLAGS ?= -g
+#TODO: Put this back after 1.0 DEBUG_CFLAGS ?= -g
+DEBUG_CFLAGS = -g
 
 CC=cc
 CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/lua/src -fobjc-arc $(EXTRA_CFLAGS)

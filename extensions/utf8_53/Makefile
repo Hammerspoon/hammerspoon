@@ -8,7 +8,8 @@ OBJCFILE = internal.m
 LUAFILE  = init.lua
 # This is done this way so that the lutf8lib.c file from the lua sources can be dropped in as is and the only required change is to rename it internal.m
 SOFILE  = internal-utf8.so
-DEBUG_CFLAGS ?= -g
+#TODO: Put this back after 1.0 DEBUG_CFLAGS ?= -g
+DEBUG_CFLAGS = -g
 
 CC=cc
 CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/lua/src -fobjc-arc $(EXTRA_CFLAGS)
