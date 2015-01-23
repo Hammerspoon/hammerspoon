@@ -1,6 +1,8 @@
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
 
+CFRunLoopSourceRef runloopSource = nil;
+
 CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, CFDataRef data, void *info) {
     lua_State* L = info;
 
@@ -27,6 +29,7 @@ CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, C
     // result = hs.ipc._handler(israw, cmdstring)
 
     char *path_to_ipc_handler = strdup("hs");
+    char *orig_path = path_to_ipc_handler;
     char *token;
 
     lua_getglobal(L, strsep(&path_to_ipc_handler, "."));
@@ -45,6 +48,7 @@ CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, C
     // this stays down here so commandstr can stay alive through the call
     CFRelease(instr);
     if (shouldFree) free((char*) cmd);
+    free(orig_path);
 
     CFDataRef outdata = CFStringCreateExternalRepresentation(NULL, outstr, kCFStringEncodingUTF8, 0);
     CFRelease(outstr);
@@ -62,7 +66,7 @@ static int setup_ipc(lua_State* L) {
         lua_pushnil(L);
         return 1;
     }
-    CFRunLoopSourceRef runloopSource = CFMessagePortCreateRunLoopSource(NULL, messagePort, 0);
+    runloopSource = CFMessagePortCreateRunLoopSource(NULL, messagePort, 0);
     CFRunLoopAddSource(CFRunLoopGetMain(), runloopSource, kCFRunLoopCommonModes);
 
     userdata = (CFMessagePortRef *) lua_newuserdata(L, sizeof(CFMessagePortRef)) ;
@@ -73,6 +77,8 @@ static int setup_ipc(lua_State* L) {
 static int invalidate_ipc(lua_State* L) {
     CFMessagePortRef    *messagePort = lua_touserdata(L,1);
     CFMessagePortInvalidate ( *messagePort );
+    CFRelease(runloopSource);
+    runloopSource = nil;
     return 0;
 }
 
