@@ -404,7 +404,9 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
         [toCheck removeObjectIdenticalTo:firstObject];
 
         CFTypeRef cf_title;
-        AXError error = AXUIElementCopyAttributeValue(element, kAXTitleAttribute, &cf_title);
+        AXError error;
+
+        AXUIElementCopyAttributeValue(element, kAXTitleAttribute, &cf_title);
         NSString *title = (__bridge_transfer NSString *)cf_title;
 
         // Check if this is a submenu, if so add its children to the toCheck array
