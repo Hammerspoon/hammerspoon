@@ -10,11 +10,18 @@
 static const char* userdataTag = "hs.uielement";
 static const char* watcherUserdataTag = "hs.uielement.watcher.userdata";
 static const char* watcherTag = "hs.uielement.watcher";
+NSArray *eventNames;
 
 static void new_uielement(lua_State* L, AXUIElementRef element) {
     AXUIElementRef* elementptr = lua_newuserdata(L, sizeof(AXUIElementRef));
-    if (!elementptr) NSLog(@"elementptr is nil!");
-    if (!element) NSLog(@"new_uielement called with nil element!");
+    if (!elementptr) {
+        NSLog(@"elementptr is nil!");
+        return;
+    }
+    if (!element) {
+        NSLog(@"new_uielement called with nil element!");
+        return;
+    }
     *elementptr = element;
 
     luaL_getmetatable(L, userdataTag);
@@ -175,9 +182,16 @@ static int watcher_start(lua_State* L) {
         lua_rawgeti(L, 2, i);
         CFStringRef eventName =
             CFStringCreateWithCString(NULL, luaL_checkstring(L, -1), kCFStringEncodingASCII);
+        NSUInteger stringIndex = [eventNames indexOfObject:(__bridge NSString*)eventName];
+        if (stringIndex != NSNotFound) {
+            AXObserverAddNotification(observer, watcher->element, (__bridge CFStringRef)[eventNames objectAtIndex:stringIndex], watcher);
+        } else {
+            NSLog(@"Unable to find uielement.watcher event: %@", (__bridge NSString*)eventName);
+        }
+
+        CFRelease(eventName);
         lua_pop(L, 1);
 
-        AXObserverAddNotification(observer, watcher->element, eventName, watcher);
     }
 
     lua_pushvalue(L, 1);  // Store a reference to the lua object inside watcher.
@@ -237,6 +251,8 @@ static const luaL_Reg watcherlib[] = {
 };
 
 int luaopen_hs_uielement_internal(lua_State* L) {
+    eventNames = @[ @"AXMainWindowChanged", @"AXFocusedWindowChanged", @"AXFocusedUIElementChanged", @"AXApplicationActivated", @"AXApplicationDeactivated", @"AXApplicationHidden", @"AXApplicationShown", @"AXWindowCreated", @"AXWindowMoved", @"AXWindowResized", @"AXWindowMiniaturized", @"AXWindowDeminiaturized", @"AXUIElementDestroyed", @"AXTitleChanged" ];
+
     luaL_newlib(L, watcherlib);
 
     if (luaL_newmetatable(L, watcherTag)) {
