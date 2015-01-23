@@ -114,6 +114,9 @@ static int caffeinate_preventSystemSleep(lua_State *L) {
         result = IOPMAssertionSetProperty(noSystemSleep,
                                           kIOPMAssertionAppliesToLimitedPowerKey,
                                           (CFBooleanRef)value);
+        if (result != kIOReturnSuccess) {
+            caffeinate_print(L, "ERROR: Unable to set systemSleep assertion property");
+        }
     }
 
     return 0;
