@@ -14,14 +14,8 @@ NSArray *eventNames;
 
 static void new_uielement(lua_State* L, AXUIElementRef element) {
     AXUIElementRef* elementptr = lua_newuserdata(L, sizeof(AXUIElementRef));
-    if (!elementptr) {
-        NSLog(@"elementptr is nil!");
-        return;
-    }
-    if (!element) {
-        NSLog(@"new_uielement called with nil element!");
-        return;
-    }
+    if (!elementptr) NSLog(@"elementptr is nil!");
+    if (!element) NSLog(@"new_uielement called with nil element!");
     *elementptr = element;
 
     luaL_getmetatable(L, userdataTag);
