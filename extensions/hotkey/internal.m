@@ -144,8 +144,20 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
 
     if (hotkey) {
         int ref = (GetEventKind(inEvent) == kEventHotKeyPressed ? hotkey->pressedfn : hotkey->releasedfn);
+
+        lua_getglobal(L, "debug");
+        lua_getfield(L, -1, "traceback");
+        lua_remove(L, -2);
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-        lua_call(L, 0, 0);
+
+        if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
+            NSLog(@"%s", lua_tostring(L, -1));
+            lua_getglobal(L, "hs");
+            lua_getfield(L, -1, "showError");
+            lua_remove(L, -2);
+            lua_pushvalue(L, -2);
+            lua_pcall(L, 1, 0, 0);
+        }
     }
 
     return noErr;

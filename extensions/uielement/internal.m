@@ -145,7 +145,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->watcher_ref); // Parameter 3: watcher
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->user_data_ref); // Parameter 4: userData
 
-    if (lua_pcall(L, 4, 0, -6) != 0) {
+    if (lua_pcall(L, 4, 0, -6) != LUA_OK) {
         NSLog(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");

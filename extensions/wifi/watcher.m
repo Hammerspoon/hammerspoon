@@ -58,7 +58,7 @@ static NSMutableIndexSet* wifiHandlers;
     lua_State* L = self.L;
     lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
-    if (lua_pcall(L, 0, 0, -2) != 0) {
+    if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
         NSLog(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);

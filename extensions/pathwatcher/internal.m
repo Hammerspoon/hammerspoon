@@ -51,7 +51,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
         lua_rawseti(L, -2, i + 1);
     }
 
-    if (lua_pcall(L, 1, 0, -3) != 0) {
+    if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
         NSLog(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);

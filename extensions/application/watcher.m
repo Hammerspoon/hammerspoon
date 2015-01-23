@@ -86,7 +86,7 @@ typedef enum _event_t {
     lua_pushnumber(L, event); // Parameter 2: the event type
     new_application(L, [app processIdentifier]); // Paremeter 3: application object
 
-    if (lua_pcall(L, 3, 0, -5) != 0) {
+    if (lua_pcall(L, 3, 0, -5) != LUA_OK) {
         NSLog(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");
