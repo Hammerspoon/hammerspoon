@@ -14,7 +14,7 @@ static NSMutableIndexSet *locationHandlers;
 @implementation HSLocation
 
 - (id)initWithLua:(lua_State* ) L {
-    if ([super init]) {
+    if (self = [super init]) {
         self.manager = [[CLLocationManager alloc] init];
         self.L = L;
     }
