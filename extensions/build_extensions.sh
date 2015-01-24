@@ -77,8 +77,10 @@ for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
         make install-lua
     else
         make install
-        if [ -n "${ISXCODE}" -a -e "internal.so.dSYM" ]; then
-            cp -a internal.so.dSYM "${BUILT_PRODUCTS_DIR}/${dir}.so.dSYM"
+        if [ -n "${ISXCODE}" ]; then
+            for dsymfile in *.dSYM ; do
+                cp -a "$dsymfile" "${BUILT_PRODUCTS_DIR}/${dir}-${dsymfile}"
+            done
         fi
         make clean
     fi
