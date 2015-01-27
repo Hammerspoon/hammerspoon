@@ -1,10 +1,11 @@
 --- === hs.caffeinate ===
 ---
---- Control display/system sleep behaviours
+--- Control system power states (sleeping, preventing sleep, screen locking, etc)
 ---
 --- **NOTE**: Any sleep preventions will be removed when hs.reload() is called. A future version of the module will save/restore state across reloads.
 
 local caffeinate = require "hs.caffeinate.internal"
+local applescript = require "hs.applescript"
 
 --- hs.caffeinate.set(sleepType, aValue, acAndBattery)
 --- Function
@@ -101,6 +102,71 @@ function caffeinate.preventSystemSleep(acAndBattery)
     acAndBattery = acAndBattery or false
 
     caffeinate._preventSystemSleep(acAndBattery)
+end
+
+--- hs.caffeinate.lockScreen()
+--- Function
+--- Request the system lock the displays
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function caffeinate.lockScreen()
+    os.execute("/System/Library/CoreServices/Menu\\ Extras/User.menu/Contents/Resources/CGSession -suspend")
+end
+
+--- hs.caffeinate.startScreensaver()
+--- Function
+--- Request the system start the screensaver (which may lock the screen if the OS is configured to do so)
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function caffeinate.startScreensaver()
+    os.execute("open /System/Library/Frameworks/ScreenSaver.framework/Versions/A/Resources/ScreenSaverEngine.app")
+end
+
+--- hs.caffeinate.logOut()
+--- Function
+--- Request the system log out the current user
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function caffeinate.logOut()
+    applescript('tell application "System Events" to log out')
+end
+
+--- hs.caffeinate.restartSystem()
+--- Function
+--- Request the system reboot
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function caffeinate.restartSystem()
+    applescript('tell application "System Events" to restart')
+end
+
+--- hs.caffeinate.shutdownSystem()
+--- Function
+--- Request the system log out and power down
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function caffeinate.shutdownSystem()
+    applescript('tell application "System Events" to shut down')
 end
 
 return caffeinate
