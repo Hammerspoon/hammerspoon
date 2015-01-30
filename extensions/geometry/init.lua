@@ -45,4 +45,24 @@ function geometry.size(w, h)
   return {w = w, h = h}
 end
 
+--- hs.geometry.isPointInRect(point, rect) -> bool
+--- Function
+--- Tests whether a point falls inside a rect
+---
+--- Parameters:
+---  * point - A table containing x and y co-ordinates
+---  * rect - A table containing x and y co-ordinates, and w(idth) and h(eight) values
+---
+--- Returns:
+---  * True if the point falls inside the rect, otherwise false
+function geometry.isPointInRect(point, rect)
+    if (point["x"] > rect["x"] and
+        point["y"] > rect["y"] and
+        point["x"] < (rect["x"] + rect["w"]) and
+        point["y"] < (rect["y"] + rect["h"])) then
+        return true
+    end
+    return false
+end
+
 return geometry
