@@ -56,8 +56,8 @@ end
 --- Returns:
 ---  * True if the point falls inside the rect, otherwise false
 function geometry.isPointInRect(point, rect)
-    if (point["x"] > rect["x"] and
-        point["y"] > rect["y"] and
+    if (point["x"] >= rect["x"] and
+        point["y"] >= rect["y"] and
         point["x"] < (rect["x"] + rect["w"]) and
         point["y"] < (rect["y"] + rect["h"])) then
         return true
