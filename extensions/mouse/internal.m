@@ -15,7 +15,7 @@ static void hammerspoon_pushpoint(lua_State* L, NSPoint point) {
     lua_pushnumber(L, point.y); lua_setfield(L, -2, "y");
 }
 
-/// hs.mouse.get() -> table
+/// hs.mouse.get() -> point
 /// Function
 /// Get the current location of the mouse pointer
 ///
@@ -23,7 +23,7 @@ static void hammerspoon_pushpoint(lua_State* L, NSPoint point) {
 ///  * None
 ///
 /// Returns:
-///  * A table containing the x and y co-ordinates of the mouse pointer
+///  * A point-table containing the x and y co-ordinates of the mouse pointer
 ///
 /// Notes:
 ///  * The co-ordinates returned by this function are in relation to the full size of your desktop. If you have multiple monitors, the desktop is a large virtual rectangle that contains them all (e.g. if you have two 1920x1080 monitors and the mouse is in the middle of the second monitor, the returned table would be `{ x=2879, y=540 }`)
@@ -40,7 +40,7 @@ static int mouse_get(lua_State* L) {
 /// Move the mouse pointer
 ///
 /// Parameters:
-///  * point - A table containing the x and y co-ordinates to move the mouse pointer to
+///  * point - A point-table containing the x and y co-ordinates to move the mouse pointer to
 ///
 /// Returns:
 ///  * None
