@@ -6,7 +6,7 @@ PRODUCT_DIR = $(shell xcodebuild -workspace Hammerspoon.xcworkspace -scheme Rele
 $(APPFILE): build $(shell find Hammerspoon -type f)
 	rm -rf $@
 	xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release clean build > build/release-build.log
-	cp -R ${PRODUCT_DIR}/Hammerspoon.app $@
+	mv ${PRODUCT_DIR}/Hammerspoon.app $@
 
 docs: build/Hammerspoon.docset
 
