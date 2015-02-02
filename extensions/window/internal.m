@@ -163,7 +163,13 @@ static AXUIElementRef system_wide_element() {
 
 /// hs.window.focusedWindow() -> window
 /// Constructor
-/// Returns the focused window, or nil.
+/// Returns the window that has keyboard/mouse focus
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An `hs.window` object representing the currently focused window
 static int window_focusedwindow(lua_State* L) {
     CFTypeRef app;
     AXUIElementCopyAttributeValue(system_wide_element(), kAXFocusedApplicationAttribute, &app);
@@ -203,7 +209,13 @@ static BOOL set_window_prop(AXUIElementRef win, NSString* propType, id value) {
 
 /// hs.window:title() -> string
 /// Method
-/// Returns the title of the window (as UTF8).
+/// Gets the title of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the title of the window
 static int window_title(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
@@ -214,7 +226,16 @@ static int window_title(lua_State* L) {
 
 /// hs.window:subrole() -> string
 /// Method
-/// Returns the subrole of the window, whatever that means.
+/// Gets the subrole of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the subrole of the window
+///
+/// Notes:
+///  * This typically helps to determine if a window is a special kind of window - such as a modal window, or a floating window
 static int window_subrole(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
@@ -226,7 +247,13 @@ static int window_subrole(lua_State* L) {
 
 /// hs.window:role() -> string
 /// Method
-/// Returns the role of the window, whatever that means.
+/// Gets the role of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the role of the window
 static int window_role(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
@@ -238,7 +265,16 @@ static int window_role(lua_State* L) {
 
 /// hs.window:isStandard() -> bool
 /// Method
-/// True if the window's subrole indicates it's 'a standard window'.
+/// Determines if the window is a standard window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the window is standard, otherwise false
+///
+/// Notes:
+///  * "Standard window" means that this is not an unusual popup window, a modal dialog, a floating window, etc.
 static int window_isstandard(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     NSString* subrole = get_window_prop(win, NSAccessibilitySubroleAttribute, @"");
@@ -250,7 +286,13 @@ static int window_isstandard(lua_State* L) {
 
 /// hs.window:topLeft() -> point
 /// Method
-/// The top-left corner of the window in absolute coordinates.
+/// Gets the absolute co-ordinates of the top left of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A point-table containing the absolute co-ordinates of the top left corner of the window
 static int window_topleft(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     CGPoint topLeft = get_window_topleft(win);
@@ -260,7 +302,13 @@ static int window_topleft(lua_State* L) {
 
 /// hs.window:size() -> size
 /// Method
-/// The size of the window.
+/// Gets the size of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A size-table containing the width and height of the window
 static int window_size(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     CGSize size = get_window_size(win);
@@ -270,7 +318,13 @@ static int window_size(lua_State* L) {
 
 /// hs.window:setTopLeft(point)
 /// Method
-/// Moves the window to the given point in absolute coordinate.
+/// Moves the window to a given point
+///
+/// Parameters:
+///  * point - A point-table containing the absolute co-ordinates the window should be moved to
+///
+/// Returns:
+///  * None
 static int window_settopleft(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     NSPoint thePoint = geom_topoint(L, 2);
@@ -285,7 +339,13 @@ static int window_settopleft(lua_State* L) {
 
 /// hs.window:setSize(size)
 /// Method
-/// Resizes the window.
+/// Resizes the window
+///
+/// Parameters:
+///  * size - A size-table containing the width and height the window should be resized to
+///
+/// Returns:
+///  * None
 static int window_setsize(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     NSSize theSize = geom_tosize(L, 2);
@@ -342,9 +402,15 @@ static int window_close(lua_State* L) {
     return window_pressbutton(L, kAXCloseButtonAttribute);
 }
 
-/// hs.window:setFullScreen(bool) -> bool
+/// hs.window:setFullScreen(fullscreen) -> bool
 /// Method
-/// Sets whether the window is full screen; returns whether it succeeded.
+/// Sets the fullscreen state of the window
+///
+/// Parameters:
+///  * fullscreen - A boolean, true if the window should be set fullscreen, false if not
+///
+/// Returns:
+///  * True if the operation succeeded, false if not
 static int window_setfullscreen(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     CFBooleanRef befullscreen = lua_toboolean(L, 2) ? kCFBooleanTrue : kCFBooleanFalse;
@@ -355,7 +421,13 @@ static int window_setfullscreen(lua_State* L) {
 
 /// hs.window:isFullScreen() -> bool or nil
 /// Method
-/// Returns whether the window is full screen, or nil if asking that question fails.
+/// Gets the fullscreen state of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the window is fullscreen, false if not. Nil if an error occurred
 static int window_isfullscreen(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
@@ -379,7 +451,13 @@ cleanup:
 
 /// hs.window:minimize()
 /// Method
-/// Minimizes the window.
+/// Minimizes the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int window_minimize(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
@@ -389,7 +467,13 @@ static int window_minimize(lua_State* L) {
 
 /// hs.window:unminimize()
 /// Method
-/// Un-minimizes the window.
+/// Un-minimizes the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int window_unminimize(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
@@ -399,7 +483,13 @@ static int window_unminimize(lua_State* L) {
 
 /// hs.window:isMinimized() -> bool
 /// Method
-/// True if the window is currently minimized in the dock.
+/// Gets the minimized state of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the window is minimized, otherwise false
 static int window_isminimized(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
@@ -421,9 +511,15 @@ static int window_pid(lua_State* L) {
         return 0;
 }
 
-/// hs.window:application() -> app
+/// hs.window:application() -> app or nil
 /// Method
-/// Returns the app that the window belongs to; may be nil.
+/// Gets the `hs.application` object the window belongs to
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An `hs.application` object representing the application that owns the window, or nil if an error occurred
 static int window_application(lua_State* L) {
     if (window_pid(L)) {
         pid_t pid = lua_tonumber(L, -1);
@@ -437,7 +533,16 @@ static int window_application(lua_State* L) {
 
 /// hs.window:becomeMain() -> bool
 /// Method
-/// Make this window the main window of the given application; deos not implicitly focus the app.
+/// Makes the window the main window of its application
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the operation succeeded, otherwise false
+///
+/// Notes:
+///  * Make a window become the main window does not transfer focus to the application. See `hs.window.focus()`
 static int window_becomemain(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
@@ -463,9 +568,15 @@ static int window__orderedwinids(lua_State* L) {
     return 1;
 }
 
-/// hs.window:id() -> number, sometimes nil
+/// hs.window:id() -> number or nil
 /// Method
-/// Returns a unique number identifying this window.
+/// Gets the unique identifier of the window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the unique identifier of the window, or nil if an error occurred
 static int window_id(lua_State* L) {
     get_window_arg(L, 1);  // type checking
     lua_getuservalue(L, 1);

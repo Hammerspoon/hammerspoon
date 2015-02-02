@@ -2,15 +2,8 @@
 ---
 --- Inspect/manipulate windows
 ---
---- To get windows, see `hs.window.focusedWindow` and `hs.window.visibleWindows`.
----
---- To get window geometrical attributes, see `hs.window.{frame,size,topLeft}`.
----
---- To move and resize windows, see `hs.window.set{frame,size,topLeft}`.
----
---- It may be handy to get a window's app or screen via `hs.window.application` and `hs.window.screen`.
----
---- See the `screen` module for detailed explanation of how Hammerspoon uses window/screen coordinates.
+--- Notes:
+---  * See `hs.screen` for detailed explanation of how Hammerspoon uses window/screen coordinates.
 
 local uielement = hs.uielement  -- Make sure parent module loads
 local window = require "hs.window.internal"
@@ -21,49 +14,76 @@ local hs_screen = require "hs.screen"
 
 --- hs.window.animationDuration (boolean)
 --- Variable
---- This is the default duration for animations. Set to 0 to disable animations.
+--- The default duration for animations, in seconds. Set to 0 to disable animations
 window.animationDuration = 0.2
 
 --- hs.window.allWindows() -> win[]
 --- Function
 --- Returns all windows
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table of `hs.window` objects representing all open windows
 function window.allWindows()
   return fnutils.mapCat(application.runningApplications(), application.allWindows)
 end
 
---- hs.window.windowForID() -> win or nil
+--- hs.window.windowForID(id) -> win or nil
 --- Function
---- Returns the window for the given id, or nil if it's an invalid id.
+--- Returns the window for a given id
+---
+--- Parameters:
+---  * id - A window ID (see `hs.window:id()`)
+---
+--- Returns:
+---  * An `hs.window` object, or nil if the window can't be found
 function window.windowForID(id)
   return fnutils.find(window.allWindows(), function(win) return win:id() == id end)
 end
 
 --- hs.window:isVisible() -> bool
 --- Method
---- True if the app is not hidden and the window is not minimized.
---- NOTE: some apps (e.g. in Adobe Creative Cloud) have literally-invisible windows and also like to put them very far offscreen; this method may return true for such windows.
+--- Determines if a window is visible (i.e. not hidden and not minimized)
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * True if the window is visible, otherwise false
+---
+--- Notes:
+---  * This does not mean the user can see the window - it may be obscured by other windows, or it may be off the edge of the screen
 function window:isVisible()
   return not self:application():isHidden() and not self:isMinimized()
 end
 
 --- hs.window:frame() -> rect
 --- Method
---- Get the frame of the window in absolute coordinates.
+--- Gets the frame of the window in absolute coordinates
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A rect-table containing the co-ordinates of the top left corner of the window, and it's width and height
 function window:frame()
   local s = self:size()
   local tl = self:topLeft()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
 end
 
---- hs.window:setFrame(rect, duration)
+--- hs.window:setFrame(rect[, duration])
 --- Method
---- Set the frame of the window in absolute coordinates.
+--- Sets the frame of the window in absolute coordinates
 ---
---- The window will be animated to its new position and the animation will run for 'duration' seconds.
+--- Parameters:
+---  * rect - A rect-table containing the co-ordinates and size that should be applied to the window
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
---- If you don't specify a value for the duration, the default is whatever is in hs.window.animationDuration.
---- If you specify 0 as the value of duration, the window will be immediately snapped to its new location
---- with no animation.
+--- Returns:
+---  * None
 function window:setFrame(f, duration)
   if duration == nil then
     duration = window.animationDuration
@@ -79,35 +99,65 @@ end
 
 --- hs.window:otherWindowsSameScreen() -> win[]
 --- Method
---- Get other windows on the same screen as self.
+--- Gets other windows on the same screen
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table of `hs.window` objects representing the other windows that are on the same screen as this one
 function window:otherWindowsSameScreen()
   return fnutils.filter(window.visibleWindows(), function(win) return self ~= win and self:screen() == win:screen() end)
 end
 
 --- hs.window:otherWindowsAllScreens() -> win[]
 --- Method
---- Get every window except this one.
+--- Gets every window except this one
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table containing `hs.window` objects representing all windows other than this one
 function window:otherWindowsAllScreens()
   return fnutils.filter(window.visibleWindows(), function(win) return self ~= win end)
 end
 
 --- hs.window:focus() -> bool
 --- Method
---- Try to make this window focused.
+--- Focuses the window
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * True if the operation was successful, otherwise false
 function window:focus()
   return self:becomeMain() and self:application():_bringtofront()
 end
 
 --- hs.window.visibleWindows() -> win[]
 --- Function
---- Get all windows on all screens that match window.isVisible.
+--- Gets all visible windows
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table containing `hs.window` objects representing all windows that are visible (see `hs.window:isVisible()` for information about what constitutes a visible window)
 function window.visibleWindows()
   return fnutils.filter(window:allWindows(), window.isVisible)
 end
 
 --- hs.window.orderedWindows() -> win[]
 --- Function
---- Returns all visible windows, ordered from front to back.
+--- Returns all visible windows, ordered from front to back
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table of `hs.window` objects representing all visible windows, ordered from front to back
 function window.orderedWindows()
   local orderedwins = {}
   local orderedwinids = window._orderedwinids()
@@ -127,7 +177,16 @@ end
 
 --- hs.window:maximize([duration])
 --- Method
---- Make this window fill the whole screen its on, without covering the dock or menu. If the duration argument is present, it will override hs.window.animationDuration
+--- Maximizes the window
+---
+--- Parameters:
+---  * duration - An optional number containing the number of seconds to animate the operation. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * The window will be resized as large as possible, without obscuring the dock/menu
 function window:maximize(duration)
   local screenrect = self:screen():frame()
   self:setFrame(screenrect, duration)
@@ -135,14 +194,29 @@ end
 
 --- hs.window:toggleFullScreen()
 --- Method
---- Toggle the fullscreen state of this window.
+--- Toggles the fullscreen state of the window
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * Not all windows support being full-screened
 function window:toggleFullScreen()
     self:setFullScreen(not self:isFullScreen())
 end
 
 --- hs.window:screen()
 --- Method
---- Get the screen which most contains this window (by area).
+--- Gets the screen which the window is on
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * An `hs.screen` object representing the screen which most contains the window (by area)
 function window:screen()
   local windowframe = self:frame()
   local lastvolume = 0
@@ -208,51 +282,107 @@ local function focus_first_valid_window(ordered_wins)
   return false
 end
 
---- hs.window:windowsToEast()
+--- hs.window:windowsToEast() -> win[]
 --- Method
---- Get all windows east of this one, ordered by closeness.
+--- Gets all windows to the east
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table of `hs.window` objects representing all windows positioned east (i.e. right) of the window, in ascending order of distance
 function window:windowsToEast()  return windowsInDirection(self, 0) end
 
 --- hs.window:windowsToWest()
 --- Method
---- Get all windows west of this one, ordered by closeness.
+--- Gets all windows to the west
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table of `hs.window` objects representing all windows positioned west (i.e. left) of the window, in ascending order of distance
 function window:windowsToWest()  return windowsInDirection(self, 2) end
 
 --- hs.window:windowsToNorth()
 --- Method
---- Get all windows north of this one, ordered by closeness.
+--- Gets all windows to the north
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table of `hs.window` objects representing all windows positioned north (i.e. up) of the window, in ascending order of distance
 function window:windowsToNorth() return windowsInDirection(self, 1) end
 
 --- hs.window:windowsToSouth()
 --- Method
---- Get all windows south of this one, ordered by closeness.
+--- Gets all windows to the south
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table of `hs.window` objects representing all windows positioned south (i.e. down) of the window, in ascending order of distance
 function window:windowsToSouth() return windowsInDirection(self, 3) end
 
 --- hs.window:focusWindowEast()
 --- Method
---- Focus the first focus-able window to the east of this one.
+--- Focuses the nearest possible window to the east
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function window:focusWindowEast()  return focus_first_valid_window(self:windowsToEast()) end
 
 --- hs.window:focusWindowWest()
 --- Method
---- Focus the first focus-able window to the west of this one.
+--- Focuses the nearest possible window to the west
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function window:focusWindowWest()  return focus_first_valid_window(self:windowsToWest()) end
 
 --- hs.window:focusWindowNorth()
 --- Method
---- Focus the first focus-able window to the north of this one.
+--- Focuses the nearest possible window to the north
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function window:focusWindowNorth() return focus_first_valid_window(self:windowsToNorth()) end
 
 --- hs.window:focusWindowSouth()
 --- Method
---- Focus the first focus-able window to the south of this one.
+--- Focuses the nearest possible window to the south
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function window:focusWindowSouth() return focus_first_valid_window(self:windowsToSouth()) end
 
 --- hs.window:moveToUnit(rect[, duration])
 --- Method
---- Moves and resizes the window to fit on the given portion of the screen.
---- The first argument is a rect with each key being between 0.0 and 1.0. The second is an optional animation duration, which will override hs.window.animationDuration
---- Example: win:moveToUnit(x=0, y=0, w=0.5, h=0.5) -- window now fills top-left quarter of screen
+--- Moves and resizes the window to occupy a given fraction of the screen
+---
+--- Parameters:
+---  * rect - A rect-table where each value is between 0.0 and 1.0
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+--   * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit({x=0, y=0, w=0.5, h=0.5})`
 function window:moveToUnit(unit, duration)
   local screenrect = self:screen():frame()
   self:setFrame({
@@ -265,9 +395,14 @@ end
 
 --- hs.window:moveToScreen(screen[, duration])
 --- Method
---- move window to the the given screen, keeping the relative proportion and position window to the original screen.
---- duration is an optional animation duration that will override hs.window.animationDuration
---- Example: win:moveToScreen(win:screen():next()) -- move window to next screen
+--- Moves the window to a given screen, retaining its relative position and size
+---
+--- Parameters:
+---  * screen - An `hs.screen` object representing the screen to move the window to
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * None
 function window:moveToScreen(nextScreen, duration)
   local currentFrame = self:frame()
   local screenFrame = self:screen():frame()
@@ -282,8 +417,13 @@ end
 
 --- hs.window:moveOneScreenWest([duration])
 --- Method
---- Move window one screen west (left), keeping its relative proportion/position.
---- duration is an optional animation duration that will override hs.window.animationDuration
+--- Moves the window one screen west (i.e. left)
+---
+--- Parameters:
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * None
 function window:moveOneScreenWest(duration)
     local dst = self:screen():toWest()
     if dst ~= nil then
@@ -293,8 +433,13 @@ end
 
 --- hs.window:moveOneScreenEast([duration])
 --- Method
---- Move window one screen east (right), keeping its relative proportion/position.
---- duration is an optional animation duration that will override hs.window.animationDuration
+--- Moves the window one screen east (i.e. right)
+---
+--- Parameters:
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * None
 function window:moveOneScreenEast(duration)
     local dst = self:screen():toEast()
     if dst ~= nil then
@@ -304,8 +449,13 @@ end
 
 --- hs.window:moveOneScreenNorth([duration])
 --- Method
---- Move window one screen north (up), keeping its relative proportion/position.
---- duration is an optional animation duration that will override hs.window.animationDuration
+--- Moves the window one screen north (i.e. up)
+---
+--- Parameters:
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * None
 function window:moveOneScreenNorth(duration)
     local dst = self:screen():toNorth()
     if dst ~= nil then
@@ -315,8 +465,13 @@ end
 
 --- hs.window:moveOneScreenSouth([duration])
 --- Method
---- Move window one screen south (down), keeping its relative proportion/position.
---- duration is an optional animation duration that will override hs.window.animationDuration
+--- Moves the window one screen south (i.e. down)
+---
+--- Parameters:
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * None
 function window:moveOneScreenSouth(duration)
     local dst = self:screen():toSouth()
     if dst ~= nil then
@@ -326,10 +481,13 @@ end
 
 --- hs.window:ensureIsInScreenBounds([duration])
 --- Method
---- Moves and resizes the window to fit into the screen it is currently on. If the window is partially out of the
---- screen it is moved and resized to be completely visible on the window's current screen.
---- duration is an optional animation duration that overrides hs.window.animationDuration
---- Example: win:ensureIsInScreenBounds() -- ensure window is in the boundaries of the screen
+--- Movies and resizes the window to ensure it is inside the screen
+---
+--- Parameters:
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * None
 function window:ensureIsInScreenBounds(duration)
   local frame = self:frame()
   local screenFrame = self:screen():frame()
