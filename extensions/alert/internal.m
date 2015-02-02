@@ -177,6 +177,23 @@ static int alert_show(lua_State* L) {
     return 0;
 }
 
+/// hs.alert.closeAll()
+/// Function
+/// Closes all alerts currently open on the screen
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+static int alert_closeAll(lua_State* L) {
+    NSMutableArray *alerts = [visibleAlerts copy];
+    for (id alert in alerts) {
+        [alert fadeWindowOut];
+    }
+    return 0;
+}
+
 static int alert_gc(lua_State* L __unused) {
     for (HSAlert* alert in visibleAlerts)
         [alert emergencyCancel];
@@ -188,6 +205,7 @@ static int alert_gc(lua_State* L __unused) {
 
 static const luaL_Reg alertlib[] = {
     {"show", alert_show},
+    {"closeAll", alert_closeAll},
     {}
 };
 
