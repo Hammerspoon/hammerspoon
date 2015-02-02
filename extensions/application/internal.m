@@ -153,8 +153,29 @@ static int application_mainWindow(lua_State* L) {
     CFTypeRef window;
     if (AXUIElementCopyAttributeValue(app, kAXMainWindowAttribute, &window) == kAXErrorSuccess) {
         new_window(L, window);
+    } else {
+        lua_pushnil(L);
     }
-    else {
+
+    return 1;
+}
+
+/// hs.application:focusedWindow() -> window or nil
+/// Method
+/// Returns the currently focused window of the application, or nil
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An hs.window object representing the window of the application that currently has focus, or nil if there are none
+static int application_focusedWindow(lua_State* L) {
+    AXUIElementRef app = get_app(L, 1);
+
+    CFTypeRef window;
+    if (AXUIElementCopyAttributeValue(app, kAXFocusedWindowAttribute, &window) == kAXErrorSuccess) {
+        new_window(L, window);
+    } else {
         lua_pushnil(L);
     }
 
@@ -324,6 +345,27 @@ static int application_ishidden(lua_State* L) {
     }
 
     lua_pushboolean(L, [isHidden boolValue]);
+    return 1;
+}
+
+/// hs.application:isFrontmost() -> bool
+/// Method
+/// Returns whether the app is the frontmost (i.e. is the currently active application)
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the application is the frontmost application, otherwise false
+static int application_isfrontmost(lua_State* L) {
+    AXUIElementRef app = get_app(L, 1);
+
+    CFTypeRef _isFrontmost;
+    NSNumber* isFrontmost = @NO;
+    if (AXUIElementCopyAttributeValue(app, (CFStringRef)NSAccessibilityFrontmostAttribute, (CFTypeRef *)&_isFrontmost) == kAXErrorSuccess) {
+        isFrontmost = CFBridgingRelease(_isFrontmost);
+    }
+    lua_pushboolean(L, [isFrontmost boolValue]);
     return 1;
 }
 
@@ -710,6 +752,7 @@ static const luaL_Reg applicationlib[] = {
 
     {"allWindows", application_allWindows},
     {"mainWindow", application_mainWindow},
+    {"focusedWindow", application_focusedWindow},
     {"_activate", application__activate},
     {"_focusedwindow", application__focusedwindow},
     {"_bringtofront", application__bringtofront},
@@ -720,6 +763,7 @@ static const luaL_Reg applicationlib[] = {
     {"kill", application_kill},
     {"kill9", application_kill9},
     {"isHidden", application_ishidden},
+    {"isFrontmost", application_isfrontmost},
     {"pid", application_pid},
     {"isUnresponsive", application_isunresponsive},
     {"kind", application_kind},
