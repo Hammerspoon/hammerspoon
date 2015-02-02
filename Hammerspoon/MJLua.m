@@ -10,7 +10,7 @@ static int evalfn;
 
 /// === hs ===
 ///
-/// Core Hammerspoon functionality.
+/// Core Hammerspoon functionality
 
 pthread_t mainthreadid;
 

@@ -1,6 +1,6 @@
 --- === hs.screen ===
 ---
---- Manipulate screens (i.e. monitors).
+--- Manipulate screens (i.e. monitors)
 ---
 --- You usually get a screen through a window (see `hs.window.screen`). But you can get screens by themselves through this module, albeit not in any defined/useful order.
 ---
