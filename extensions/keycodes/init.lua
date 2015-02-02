@@ -3,7 +3,7 @@
 --- Convert between key-strings and key-codes
 
 --- hs.keycodes.map = {...}
---- Variable
+--- Constant
 --- A mapping from string representation of a key to its keycode, and vice versa.
 --- For example: keycodes[1] == "s", and keycodes["s"] == 1, and so on.
 --- This is primarily used by the hs.eventtap and hs.hotkey extensions.
