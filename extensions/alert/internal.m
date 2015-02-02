@@ -186,7 +186,7 @@ static int alert_show(lua_State* L) {
 ///
 /// Returns:
 ///  * None
-static int alert_closeAll(lua_State* L) {
+static int alert_closeAll(lua_State* L __unused) {
     NSMutableArray *alerts = [visibleAlerts copy];
     for (id alert in alerts) {
         [alert fadeWindowOut];
