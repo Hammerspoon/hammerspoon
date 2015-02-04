@@ -41,8 +41,8 @@ end
 ---
 --- Notes:
 ---  * The co-ordinates given to this function must be in relation to the full size of your desktop. See the notes for `hs.mouse.get` for more information
-function module.getAbsolutePosition()
-    return module.get()
+function module.setAbsolutePosition(point)
+    return module.set(point)
 end
 
 --- hs.mouse.getRelativePosition() -> point or nil
