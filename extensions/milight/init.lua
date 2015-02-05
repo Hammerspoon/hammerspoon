@@ -7,21 +7,21 @@ milight.cmd = milight._cacheCommands()
 
 --- hs.milight.minBrightness
 --- Constant
---- Specifies the minimum brightness value that can be used
+--- Specifies the minimum brightness value that can be used. Defaults to 0
 milight.minBrightness = 0
 --
 --- hs.milight.maxBrightness
 --- Constant
---- Specifies the maximum brightness value that can be used
+--- Specifies the maximum brightness value that can be used. Defaults to 25
 milight.maxBrightness = 25
 
 -- Internal helper to set brightness
 function brightnessHelper(bridge, zonecmd, value)
     if (milight.send(bridge, milight.cmd[zonecmd])) then
-        if (value < 0) then
-            value = 0
-        elseif (value > 25) then
-            value = 25
+        if (value < milight.minBrightness) then
+            value = milight.minBrightness
+        elseif (value > milight.maxBrightness) then
+            value = milight.maxBrightness
         end
         value = value + 2 -- bridge accepts values between 2 and 27
         result = milight.send(bridge, milight.cmd["brightness"], value)
@@ -60,28 +60,28 @@ function zone2cmdkey(zone, cmdType)
     return zoneString..cmdType
 end
 
---- hs.milight.zoneOff(zone) -> bool
+--- hs.milight:zoneOff(zone) -> bool
 --- Method
 --- Turns off the specified zone
 ---
 --- Parameters:
----  * zone - 0 for all zones, 1-4 for zones one through four
+---  * zone - A number specifying which zone to operate on. 0 for all zones, 1-4 for zones one through four
 ---
 --- Returns:
----  * True if the command was sent correctly, false if not
+---  * True if the command was sent correctly, otherwise false
 function milight:zoneOff(zone)
     return milight.send(self, milight.cmd[zone2cmdkey(zone, "off")])
 end
 
---- hs.milight.zoneOn(zone) -> bool
+--- hs.milight:zoneOn(zone) -> bool
 --- Method
 --- Turns on the specified zone
 ---
 --- Parameters:
----  * zone - 0 for all zones, 1-4 for zones one through four
+---  * zone - A number specifying which zone to operate on. 0 for all zones, 1-4 for zones one through four
 ---
 --- Returns:
----  * True if the command was sent correctly, false if not
+---  * True if the command was sent correctly, otherwise false
 function milight:zoneOn(zone)
     return milight.send(self, milight.cmd[zone2cmdkey(zone, "on")])
 end
@@ -94,7 +94,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * True if the command was sent correctly, false if not
+---  * True if the command was sent correctly, otherwise false
 function milight:discoCycle(zone)
     if (self:zoneOn(zone)) then
         return milight.send(self, milight.cmd["disco"])
@@ -108,11 +108,11 @@ end
 --- Sets brightness for the specified zone
 ---
 --- Parameters:
----  * zone - 0 for all zones, 1-4 for zones one through four
----  * value - Brightness level to set, between 0 and 25
+---  * zone - A number specifying which zone to operate on. 0 for all zones, 1-4 for zones one through four
+---  * value - A number containing the brightness level to set, between `hs.milight.minBrightness` and `hs.milight.maxBrightness`
 ---
 --- Returns:
----  * The value that was sent to the WiFi bridge, or -1 if an error occurred
+---  * A number containing the value that was sent to the WiFi bridge, or -1 if an error occurred
 function milight:zoneBrightness(zone, value)
     return brightnessHelper(self, zone2cmdkey(zone, "on"), value)
 end
@@ -122,24 +122,24 @@ end
 --- Sets RGB color for the specified zone
 ---
 --- Parameters:
----  * zone - 0 for all zones, 1-4 for zones one through four
----  * value - RGB color value between 0 and 255
+---  * zone - A number specifying which zone to operate on. 0 for all zones, 1-4 for zones one through four
+---  * value - A number containing an RGB color value between 0 and 255
 ---
 --- Returns:
----  * True if the command was sent correctly, false if not
+---  * True if the command was sent correctly, otherwise false
 function milight:zoneColor(zone, value)
     return colorHelper(self, zone2cmdkey(zone, "on"), value)
 end
 
---- hs.milight.zoneWhite(zone) -> bool
+--- hs.milight:zoneWhite(zone) -> bool
 --- Method
 --- Sets the specified zone to white
 ---
 --- Parameters:
----  * zone - 0 for all zones, 1-4 for zones one through four
+---  * zone - A number specifying which zone to operate on. 0 for all zones, 1-4 for zones one through four
 ---
 --- Returns:
----  * True if the command was sent correctly, false if not
+---  * True if the command was sent correctly, otherwise false
 function milight:zoneWhite(zone)
     if (self:zoneOn(zone)) then
         return milight.send(self, milight.cmd[zone2cmdkey(zone, "white")])

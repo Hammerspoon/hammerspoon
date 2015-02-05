@@ -75,12 +75,14 @@ int milight_cacheCommands(lua_State *L) {
 /// Creates a new bridge object, which will be connected to the supplied IP address and port
 ///
 /// Parameters:
-///  * ip - IP address of the MiLight WiFi bridge device. For convenience this can be the broadcast address of your network
-///         (e.g. 192.168.0.255)
-///  * port - UDP port to talk to the bridge on. Defaults to 8899
+///  * ip - A string containing the IP address of the MiLight WiFi bridge device. For convenience this can be the broadcast address of your network (e.g. 192.168.0.255)
+///  * port - An optional number containing the UDP port to talk to the bridge on. Defaults to 8899
 ///
 /// Returns:
-///  * bridge object to use with other API methods
+///  * An `hs.milight` object
+///
+/// Notes:
+///  * You can not use 255.255.255.255 as the IP address, to do so requires elevated privileges for the Hammerspoon process
 static int milight_new(lua_State *L) {
     const char *ip = luaL_checkstring(L, 1);
     int port;
@@ -118,13 +120,13 @@ static int milight_new(lua_State *L) {
 
 /// hs.milight:delete()
 /// Method
-/// Deletes a bridge object
+/// Deletes an `hs.milight` object
 ///
 /// Parameters:
-///  None
+///  * None
 ///
 /// Returns:
-///  None
+///  * None
 static int milight_del(lua_State *L) {
     bridge_t *bridge = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -135,17 +137,19 @@ static int milight_del(lua_State *L) {
     return 0;
 }
 
-/// hs.milight:send(cmd, value) -> bool
+/// hs.milight:send(cmd[, value]) -> bool
 /// Method
-/// Sends a command to the bridge.
-/// Note: This is a low level command, you typically should use a specific method for the operation you want to perform
+/// Sends a command to the bridge
 ///
 /// Parameters:
-///  * cmd - A command from the hs.milight.cmd table
+///  * cmd - A command from the `hs.milight.cmd` table
 ///  * value - An optional value, if appropriate for the command (defaults to 0x00)
 ///
 /// Returns:
-///  * True if the command was sent, false if an error occurred
+///  * True if the command was sent, otherwise false
+///
+/// Notes:
+///  * This is a low level command, you typically should use a specific method for the operation you want to perform
 static int milight_send(lua_State *L) {
     bridge_t *bridge = luaL_checkudata(L, 1, USERDATA_TAG);
 
