@@ -138,12 +138,24 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
     }
 
     lua_State* L = inUserData;
+    if (lua_status(L) != LUA_OK) {
+        NSLog(@"Error: lua thread is not in a good state");
+        return noErr;
+    }
 
     hotkey_t* hotkey = push_hotkey(L, eventID.id);
     lua_pop(L, 1);
 
     if (hotkey) {
-        int ref = (GetEventKind(inEvent) == kEventHotKeyPressed ? hotkey->pressedfn : hotkey->releasedfn);
+        int ref = 0;
+        if (GetEventKind(inEvent) == kEventHotKeyPressed) {
+           ref = hotkey->pressedfn;
+        } else if (GetEventKind(inEvent) == kEventHotKeyReleased) {
+           ref = hotkey->releasedfn;
+        } else {
+            NSLog(@"Error: unknown event kind in hotkey_callback");
+            return noErr;
+        }
 
         lua_getglobal(L, "debug");
         lua_getfield(L, -1, "traceback");
