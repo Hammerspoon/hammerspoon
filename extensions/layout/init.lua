@@ -11,66 +11,97 @@ local fnutils = require("hs.fnutils")
 local screen = require("hs.screen")
 local window = require("hs.window")
 
+--- hs.layout.left25
+--- Constant
+--- A unit rect which will make a window occupy the left 25% of a screen
 layout.left25 = geometry.rect(0, 0, 0.25, 1)
+
+--- hs.layout.left30
+--- Constant
+--- A unit rect which will make a window occupy the left 30% of a screen
 layout.left30 = geometry.rect(0, 0, 0.3, 1)
+
+--- hs.layout.left50
+--- Constant
+--- A unit rect which will make a window occupy the left 50% of a screen
 layout.left50 = geometry.rect(0, 0, 0.5, 1)
+
+--- hs.layout.left70
+--- Constant
+--- A unit rect which will make a window occupy the left 70% of a screen
 layout.left70 = geometry.rect(0, 0, 0.7, 1)
+
+--- hs.layout.left75
+--- Constant
+--- A unit rect which will make a window occupy the left 75% of a screen
 layout.left75 = geometry.rect(0, 0, 0.75, 1)
+
+--- hs.layout.right25
+--- Constant
+--- A unit rect which will make a window occupy the right 25% of a screen
 layout.right25 = geometry.rect(0.75, 0, 0.25, 1)
+
+--- hs.layout.right30
+--- Constant
+--- A unit rect which will make a window occupy the right 30% of a screen
 layout.right30 = geometry.rect(0.7, 0, 0.3, 1)
+
+--- hs.layout.right50
+--- Constant
+--- A unit rect which will make a window occupy the right 50% of a screen
 layout.right50 = geometry.rect(0.5, 0, 0.5, 1)
+
+--- hs.layout.right70
+--- Constant
+--- A unit rect which will make a window occupy the right 70% of a screen
 layout.right70 = geometry.rect(0.3, 0, 0.7, 1)
+
+--- hs.layout.right75
+--- Constant
+--- A unit rect which will make a window occupy the right 75% of a screen
 layout.right75 = geometry.rect(0.25, 0, 0.75, 1)
 
+--- hs.layout.maximized
+--- Constant
+--- A unit rect which will make a window occupy all of a screen
 layout.maximized = geometry.rect(0, 0, 1, 1)
 
 --- hs.layout.apply(table)
 --- Function
 --- Applies a layout to applications/windows
---- To use this function, pass in a table containing rules that describe your layout, for example:
 ---
----     layout1 = {
----       {"Mail", nil, "Color LCD", hs.layout.maximized, nil, nil},
----       {"Safari", nil, "Thunderbolt Display", hs.layout.maximized, nil, nil},
----       {"iTunes", "iTunes", "Color LCD", hs.layout.maximized, nil, nil},
----       {"iTunes", "MiniPlayer", "Color LCD", nil, nil, hs.geometry.rect(0, -48, 400, 48)},
----     }
+--- Parameters:
+---  * table - A table describing your desired layout. Each element in the table should be another table describing a set of windows to match, and their desired size/position. The fields in each of these tables are:
+---   * A string containing an application name or nil
+---   * A string containing a window title or nil
+---   * A string containing a screen name, or an `hs.screen` object, or nil to select the first available screen
+---   * A Unit rect (see `hs.window.moveToUnit()`)
+---   * A Frame rect (see `hs.screen:frame()`)
+---   * A Full-frame rect (see `hs.screen:fullFrame()`)
 ---
---- The fields in each line of the table are:
----  * Application name or nil
----  * Window title or nil
----  * Monitor name or an hs.screen object, or nil to select the first screen
----  * Unit rect
----  * Frame rect
----  * Full-frame rect
+--- Returns:
+---  * None
 ---
---- If the application name argument is nil, window titles will be matched regardless of which app they belong to
---- If the window title argument is nil, all windows of the specified application will be matched
---- You can specify both application name and window title if you want to match only one window of a particular application.
---- If you specify neither application name or window title, no windows will be matched :)
+--- Notes:
+---  * If the application name argument is nil, window titles will be matched regardless of which app they belong to
+---  * If the window title argument is nil, all windows of the specified application will be matched
+---  * You can specify both application name and window title if you want to match only one window of a particular application.
+---  * If you specify neither application name or window title, no windows will be matched :)
+---  * Monitor name is a string, as found in `hs.screen:name()`. You can also pass an `hs.screen` object. If you pass nil, the first screen will be selected.
+---  * The final three arguments use `hs.geometry.rect()` objects to describe the desired position and size of matched windows:
+---    * Unit rect will be passed to `hs.window.moveToUnit()`
+---    * Frame rect will be passed to `hs.window.setFrame()` (including menubar and dock)
+---    * Full-frame rect will be passed to `hs.window.setFrame()` (ignoring menubar and dock)
+---  * If either the x or y components of frame/full-frame rect are negative, they will be applied as offsets against the opposite edge of the screen (e.g. If x is -100 then the left edge of the window will be 100 pixels from the right edge of the screen).
+---  * Only one of the rect arguments will apply to any matched windows. If you specify more than one, the first will win.
+---  * An example usage:
 ---
---- Monitor name is a string, as found in hs.screen:name(). You can also pass an hs.screen object. If you pass nil, the first
---- screen will be selected.
----
---- The final three arguments use hs.geometry.rect() objects to describe the desired position and size of matched windows:
----  * Unit rect will be passed to hs.window.moveToUnit()
----  * Frame rect will be passed to hs.window.setFrame() (including menubar and dock)
----  * Full-frame rect will be passed to hs.window.setFrame() (ignoring menubar and dock)
----
---- If either the x or y components of frame/full-frame rect are negative, they will be applied as offsets against the opposite
---- edge of the screen (e.g. If x is -100 then the left edge of the window will be 100 pixels from the right edge of the screen).
----
---- Note that only one of the rect arguments will apply to any matched windows. If you specify more than one, the first will win.
----
---- There are various pre-defined rects that can be passed as the Unit rect argument:
----  * hs.apply.maximized - window will occupy all of the screen
----  * hs.apply.left25 - window will occupy the left 25% of the screen
----  * hs.apply.left30 - window will occupy the left 30% of the screen
----  * hs.apply.left50 - window will occupy the left half of the screen
----  * hs.apply.left70 - window will occupy the left 70% of the screen
----  * hs.apply.left75 - window will occupy the left 75% of the screen
----
----  (the above options are also available with 'right' equivalents)
+---     ```layout1 = {
+---         {"Mail", nil, "Color LCD", hs.layout.maximized, nil, nil},
+---         {"Safari", nil, "Thunderbolt Display", hs.layout.maximized, nil, nil},
+---         {"iTunes", "iTunes", "Color LCD", hs.layout.maximized, nil, nil},
+---         {"iTunes", "MiniPlayer", "Color LCD", nil, nil, hs.geometry.rect(0, -48, 400, 48)},
+---       }```
 function layout.apply(layout)
 -- Layout parameter should be a table where each row takes the form of:
 --  {"App name", "Window name","Display Name"/"hs.screen object", "unitrect", "framerect", "fullframerect"},
