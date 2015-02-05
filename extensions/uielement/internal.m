@@ -37,7 +37,12 @@ static id get_prop(AXUIElementRef win, NSString* propType, id defaultValue) {
 // Retains a copy of the element, if necessary.
 static void push_element(lua_State* L, AXUIElementRef element) {
     NSString* role = get_prop(element, NSAccessibilityRoleAttribute, @"");
-    if        ([role isEqualToString: (NSString*)kAXWindowRole]) {
+
+    // The role attribute on a window can potentially be something
+    // other than kAXWindowRole (e.g. Emacs does not claim kAXWindowRole)
+    // so we will do the simple test first, but then also attempt to duck-type
+    // the object, to see if it has a property that any window should have
+    if ([role isEqualToString: (NSString*)kAXWindowRole] || get_prop(element, NSAccessibilityMinimizedAttribute, nil)) {
         new_window(L, (AXUIElementRef)CFRetain(element));
     } else if ([role isEqualToString: (NSString*)kAXApplicationRole]) {
         pid_t pid;
