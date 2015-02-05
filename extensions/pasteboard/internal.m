@@ -1,17 +1,29 @@
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
 
-/// hs.pasteboard.getContents() -> string
+/// hs.pasteboard.getContents() -> string or nil
 /// Function
-/// Returns the contents of the pasteboard as a string, or nil if it can't be done
+/// Gets the contents of the pasteboard
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the contents of the pasteboard, or nil if an error occurred
 static int pasteboard_getContents(lua_State* L) {
     lua_pushstring(L, [[[NSPasteboard generalPasteboard] stringForType:NSPasteboardTypeString] UTF8String]);
     return 1;
 }
 
-/// hs.pasteboard.setContents(string) -> boolean
+/// hs.pasteboard.setContents(contents) -> boolean
 /// Function
-/// Sets the contents of the pasteboard to the string value passed in. Returns success status as true or false.
+/// Sets the contents of the pasteboard
+///
+/// Parameters:
+///  * contents - A string to be placed in the pasteboard
+///
+/// Returns:
+///  * True if the operation succeeded, otherwise false
 static int pasteboard_setContents(lua_State* L) {
     NSString* str = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
@@ -24,7 +36,16 @@ static int pasteboard_setContents(lua_State* L) {
 
 /// hs.pasteboard.changeCount() -> number
 /// Function
-/// The number of times the pasteboard owner changed (useful to see if the pasteboard was updated, by seeing if the value of this function changes).
+/// Gets the number of times the pasteboard owner has changed
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing a count of the times the pasteboard owner has changed
+///
+/// Notes:
+///  * This is useful for seeing if the pasteboard has been updated by another process
 static int pasteboard_changeCount(lua_State* L) {
     lua_pushnumber(L, [[NSPasteboard generalPasteboard] changeCount]);
     return 1;
