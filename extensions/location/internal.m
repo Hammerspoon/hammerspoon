@@ -92,8 +92,16 @@ BOOL manager_create(lua_State* L) {
 
 /// hs.location.start() -> boolean
 /// Function
-/// Begins location monitoring using OS X's Location Services.
-/// The first time you call this, you may be prompted to authorise Hammerspoon to use Location Services.
+/// Begins location monitoring using OS X's Location Services
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the operation succeeded, otherwise false
+///
+/// Notes:
+///  * The first time you call this, you may be prompted to authorise Hammerspoon to use Location Services.
 static int location_start_watching(lua_State* L) {
     if (!manager_create(L)) {
         lua_pushboolean(L, 0);
@@ -107,6 +115,12 @@ static int location_start_watching(lua_State* L) {
 /// hs.location.stop()
 /// Function
 /// Stops location monitoring
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int location_stop_watching(lua_State* L __unused) {
     [location.manager stopUpdatingLocation];
     location = nil;
@@ -115,16 +129,23 @@ static int location_stop_watching(lua_State* L __unused) {
 
 /// hs.location.get() -> table or nil
 /// Function
-/// Returns a table representing the current location, with the keys:
-///  latitude - The latitude in degrees. Positive values indicate latitudes north of the equator. Negative values indicate latitudes south of the equator
-///  longitude - The longitude in degrees. Measurements are relative to the zero meridian, with positive values extending east of the meridian and negative values extending west of the meridian
-///  altitude - The altitude measured in meters
-///  timestamp - The time at which this location was determined, in seconds from the first instant of 1 January 1970, GMT
-///  horizontalAccuracy - The radius of uncertainty for the location, measured in meters
-///  verticalAccuracy - The accuracy of the altitude value in meters
+/// Returns a table representing the current location
 ///
-/// Note that there is a small lag between calling hs.location.start() and this function returning useful data, and it may never return data if the user has denied access to Location Services.
-/// Rather than poll this function in a loop, consider using hs.timer.doAfter() to continue your work after a reasonable delay.
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * If successful, a table, otherwise nil. The table contains the following keys:
+///   * latitude - A number containing the latitude in degrees. Positive values indicate latitudes north of the equator. Negative values indicate latitudes south of the equator
+///   * longitude - A number containing the longitude in degrees. Measurements are relative to the zero meridian, with positive values extending east of the meridian and negative values extending west of the meridian
+///   * altitude - A number containing the altitude measured in meters
+///   * timestamp - A number containing the time at which this location was determined, in seconds from the first instant of 1 January 1970, GMT
+///   * horizontalAccuracy - A number containing the radius of uncertainty for the location, measured in meters
+///   * verticalAccuracy - A number containing the distance of uncertainty for the altitude, measured in meters
+///
+/// Notes:
+///  * There is a small lag between calling hs.location.start() and this function returning useful data, and it may never return data if the user has denied access to Location Services.
+///  * Rather than poll this function in a loop, consider using hs.timer.doAfter() to continue your work after a reasonable delay.
 static int location_get_location(lua_State* L) {
     CLLocation *current = [location.manager location];
     if (!current) {
@@ -165,7 +186,16 @@ static int location_get_location(lua_State* L) {
 
 /// hs.location.distance(from, to) -> meters
 /// Function
-/// Returns the distance in meters between the two locations by tracing a line between them that follows the curvature of the Earth. The resulting arc is a smooth curve and does not take into account specific altitude changes between the two locations.  From and To should be tables including at least longitude and latitude; the table returned by `hs.location.get` is supported.
+/// Measures the distance between two points of latitude and longitude
+///
+/// Parameters:
+///  * from - A table with the following keys:
+///   * latitude - A number representing degrees latitude
+///   * longitude - A number representing degrees longitude
+///  * to - A table containing the same keys as the `from` parameter
+///
+/// Returns:
+///  * A number containing the distance between `from` and `to` in meters. The measurement is made by tracing a line that follows an idealised curvature of the earth
 static int location_distance(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
     luaL_checktype(L, 2, LUA_TTABLE);
@@ -182,7 +212,13 @@ static int location_distance(lua_State* L) {
 
 /// hs.location.services_enabled() -> bool
 /// Function
-/// Returns true or false if OS X Location Services are enabled
+/// Gets the state of OS X Location Services
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if Location Services are enabled, otherwise false
 static int location_is_enabled(lua_State *L) {
     BOOL enabled = [CLLocationManager locationServicesEnabled];
     lua_pushboolean(L, enabled);

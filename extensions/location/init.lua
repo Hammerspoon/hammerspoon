@@ -8,7 +8,15 @@ internal.__callbacks = {}
 
 --- hs.location.register(tag, fn[, distance])
 --- Function
---- Register a callback function with the specified tag to be invoked when hs.location receives an updated location.  The optional distance argument is a number representing the distance in meters that the location must change by before invoking the callback again.  If it is not present, then all updates to the current location will invoke the callback.  The callback function will be called with the result of `hs.location.get` as it's argument.
+--- Registers a callback function to be called when the system location is updated
+---
+--- Parameters:
+---  * tag - A string containing a unique tag, used to identify the callback later
+---  * fn - A function to be called when the system location is updated. The function should accept a single argument, which will be a table containing the same data as is returned by `hs.location.get()`
+---  * distance - An optional number containing the minimum distance in meters that the system should have moved, before calling the callback. Defaults to 0
+---
+--- Returns:
+---  * None
 location.register = function(tag, fn, distance)
     if internal.__callbacks[tag] then
         error("Callback tag '"..tag.."' already registered for hs.location.", 2)
@@ -27,7 +35,13 @@ end
 
 --- hs.location.unregister(tag)
 --- Function
---- Unregisters the callback function with the specified tag.
+--- Unregisters a callback
+---
+--- Parameters:
+---  * tag - A string containing the unique tag a callback was registered with
+---
+--- Returns:
+---  * None
 location.unregister = function(tag)
     internal.__callbacks[tag] = nil
 end
