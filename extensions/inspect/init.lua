@@ -299,19 +299,24 @@ function Inspector:putValue(v)
   end
 end
 
---- hs.inspect.inspect(variable, options) -> string
+--- hs.inspect.inspect(variable[, options]) -> string
 --- Function
---- Returns a human readable version of the supplied Lua variable.
+--- Gets a human readable version of the supplied Lua variable
 ---
---- NOTE: For convenience, you can call this function as hs.inspect(variable)
+--- Parameters:
+---  * variable - A lua variable of some kind
+---  * options - An optional table which can be used to influence the inspector. Valid keys are as follows:
+---   * depth - A number representing the maximum depth to recurse into `variable`. Below that depth, data will be displayed as `{...}`
+---   * newline - A string to use for line breaks. Defaults to `\n`
+---   * indent - A string to use for indentation. Defaults to `  ` (two spaces)
+---   * process - A function that will be called for each item. It should accept two arguments, `item` (the current item being processed) and `path` (the item's position in the variable being inspected. The function should either return a processed form of the variable, the original variable itself if it requires no processing, or `nil` to remove the item from the inspected output.
 ---
---- The `options` argument is an optional table which can be used to influence the inspector via the following keys:
----  * depth - maximum depth to recurse into `variable`. Data below that depth will be displayed as `{...}`
----  * newline - string to use for line breaks. Default is `\n`
----  * indent - string to use for indentation. Default is `  ` (two spaces)
----  * process - a function that will be called for each item, in the form: `function(item, path)`. It should return the processed item, or `nil` to remove the item.
+--- Returns:
+---  * A string containing the human readable version of `variable`
 ---
---- For more information on the options, and some examples, see [the upstream docs](https://github.com/kikito/inspect.lua)
+--- Notes:
+---  * For convenience, you can call this function as `hs.inspect(variable)`
+---  * For more information on the options, and some examples, see [the upstream docs](https://github.com/kikito/inspect.lua)
 function inspect.inspect(root, options)
   options       = options or {}
 
