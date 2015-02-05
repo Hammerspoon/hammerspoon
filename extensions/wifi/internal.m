@@ -12,9 +12,16 @@ CWInterface *get_wifi_interface() {
 
 /// hs.wifi.availableNetworks() -> table
 /// Function
-/// Returns a list of available WiFi networks
-/// WARNING: This function will block all Lua execution until the scan has completed. It's probably not
-/// very sensible to use this function very much, if at all.
+/// Gets a list of available WiFi networks
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the names of all visible WiFi networks
+///
+/// Notes:
+///  * WARNING: This function will block all Lua execution until the scan has completed. It's probably not very sensible to use this function very much, if at all.
 static int wifi_scan(lua_State* L __unused) {
     CWInterface *interface = get_wifi_interface();
     NSSet *availableNetworks = [interface scanForNetworksWithName:nil error:nil];
@@ -36,7 +43,13 @@ static int wifi_scan(lua_State* L __unused) {
 
 /// hs.wifi.currentNetwork() -> string or nil
 /// Function
-/// Returns the SSID of the currently associated WiFi network, or nil if no network is associated
+/// Gets the name of the current WiFi network
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the SSID of the WiFi network currently joined, or nil if no there is no WiFi connection
 static int wifi_current_ssid(lua_State* L) {
     CWInterface *interface = get_wifi_interface();
     if (interface) {

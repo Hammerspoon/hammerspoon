@@ -78,17 +78,17 @@ typedef struct _wifiwatcher_t {
 
 /// hs.wifi.watcher.new(fn) -> watcher
 /// Constructor
-/// Creates a new ssid-watcher that can be started; fn will be called when your ssid changes
+/// Creates a new watcher for WiFi network events
 ///
-/// Note that fn will be called both when you join and leave a network. You can identify which
-/// type of event is happening, with hs.wifi.currentNetwork(), which will return nil if you
-/// have just left a network (and note further that switching from one network to another will
-/// therefore trigger two calls to fn, one when leaving the current network and one when joining
-/// the new one).
+/// Parameters:
+///  * fn - A function that will be called when a WiFi network is connected or disconnected. The function should accept no parameters.
 ///
-/// You would be advised to retain a variable somewhere with the "last associated network", thus
-/// allowing you to determine which network has been left, if that is something you wish to react
-/// to.
+/// Returns:
+///  * A `hs.wifi.watcher` object
+///
+/// Notes:
+///  * The callback function will be called both when you join a network and leave it. You can identify which type of event is happening with `hs.wifi.currentNetwork()`, which will return nil if you have just disconnected from a WiFi network.
+///  * This means that when you switch from one network to another, you will receive a disconnection event as you leave the first network, and a connection event as you join the second. You are advised to keep a variable somewhere that tracks the name of the last network you were connected to, so you can track changes that involve multiple events.
 static int wifi_watcher_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
@@ -111,8 +111,14 @@ static int wifi_watcher_new(lua_State* L) {
 }
 
 /// hs.wifi.watcher:start() -> watcher
-/// Function
-/// Starts the ssid watcher, making it so fn is called each time the ssid changes
+/// Method
+/// Starts the SSID watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.wifi.watcher` object
 static int wifi_watcher_start(lua_State* L) {
     wifiwatcher_t* wifiwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1) ;
@@ -130,8 +136,14 @@ static int wifi_watcher_start(lua_State* L) {
 }
 
 /// hs.wifi.watcher:stop() -> watcher
-/// Function
-/// Stops the ssid watcher's fn from getting called until started again.
+/// Method
+/// Stops the SSID watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.wifi.watcher` object
 static int wifi_watcher_stop(lua_State* L) {
     wifiwatcher_t* wifiwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1) ;
