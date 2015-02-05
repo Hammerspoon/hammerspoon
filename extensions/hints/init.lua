@@ -80,7 +80,13 @@ function hints.displayHintsForDict(dict, prefixstring)
       local sfr = win:screen():frame()
       if app and win:isStandard() then
         local c = {x = fr.x + (fr.w/2) - sfr.x, y = fr.y + (fr.h/2) - sfr.y}
-        c = hints.bumpPos(c.x, c.y)
+        local d = hints.bumpPos(c.x, c.y)
+        if d.y > (sfr.y + sfr.h - bumpMove) then
+            d.x = d.x + bumpMove
+            d.y = fr.y + (fr.h/2) - sfr.y
+            d = hints.bumpPos(d.x, d.y)
+        end
+        c = d
         if c.y < 0 then
           print("hs.hints: Skipping offscreen window: "..win:title())
         else
