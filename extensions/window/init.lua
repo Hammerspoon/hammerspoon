@@ -326,49 +326,65 @@ function window:windowsToNorth() return windowsInDirection(self, 1) end
 ---  * A table of `hs.window` objects representing all windows positioned south (i.e. down) of the window, in ascending order of distance
 function window:windowsToSouth() return windowsInDirection(self, 3) end
 
---- hs.window:focusWindowEast()
+function window:focusWindowsFromTable(searchWindows, sameApp)
+    if sameApp == true then
+        local winApplication = self:application()
+        searchWindows = hs.fnutils.filter(searchWindows, function(win) return winApplication == win:application() end)
+    end
+    return focus_first_valid_window(searchWindows)
+end
+
+--- hs.window:focusWindowEast([sameApp])
 --- Method
 --- Focuses the nearest possible window to the east
 ---
 --- Parameters:
----  * None
+---  * sameApp - An optional boolean, true to only consider windows from the same application, false to consider all windows. Defaults to false
 ---
 --- Returns:
 ---  * None
-function window:focusWindowEast()  return focus_first_valid_window(self:windowsToEast()) end
+function window:focusWindowEast(sameApp)
+    return self:focusWindowsFromTable(self:windowsToEast(), sameApp)
+end
 
---- hs.window:focusWindowWest()
+--- hs.window:focusWindowWest([sameApp])
 --- Method
 --- Focuses the nearest possible window to the west
 ---
 --- Parameters:
----  * None
+---  * sameApp - An optional boolean, true to only consider windows from the same application, false to consider all windows. Defaults to false
 ---
 --- Returns:
 ---  * None
-function window:focusWindowWest()  return focus_first_valid_window(self:windowsToWest()) end
+function window:focusWindowWest(sameApp)
+    return self:focusWindowsFromTable(self:windowsToWest(), sameApp)
+end
 
---- hs.window:focusWindowNorth()
+--- hs.window:focusWindowNorth([sameApp])
 --- Method
 --- Focuses the nearest possible window to the north
 ---
 --- Parameters:
----  * None
+---  * sameApp - An optional boolean, true to consider windows from the same application, false to consider all windows. Defaults to false
 ---
 --- Returns:
 ---  * None
-function window:focusWindowNorth() return focus_first_valid_window(self:windowsToNorth()) end
+function window:focusWindowNorth(sameApp)
+    return self:focusWindowsFromTable(self:windowsToNorth(), sameApp)
+end
 
---- hs.window:focusWindowSouth()
+--- hs.window:focusWindowSouth([sameApp])
 --- Method
 --- Focuses the nearest possible window to the south
 ---
 --- Parameters:
----  * None
+---  * sameApp - An optional boolean, true to consider windows from the same application, false to consider all windows. Defaults to false
 ---
 --- Returns:
 ---  * None
-function window:focusWindowSouth() return focus_first_valid_window(self:windowsToSouth()) end
+function window:focusWindowSouth(sameApp)
+    return self:focusWindowsFromTable(self:windowsToSouth(), sameApp)
+end
 
 --- hs.window:moveToUnit(rect[, duration])
 --- Method
