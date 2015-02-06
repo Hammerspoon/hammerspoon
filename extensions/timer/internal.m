@@ -51,7 +51,17 @@ static void callback(CFRunLoopTimerRef __unused timer, void *info) {
 
 /// hs.timer.new(interval, fn) -> timer
 /// Constructor
-/// Creates a new timer that can be started; interval is specified in seconds as a decimal number.
+/// Creates a new `hs.timer` object for repeating interval callbacks
+///
+/// Parameters:
+///  * interval - A number of seconds between triggers
+///  * fn - A function to call every time the timer triggers
+///
+/// Returns:
+///  * An `hs.timer` object
+///
+/// Notes:
+///  * The returned object does not start its timer until its `:start()` method is called
 static int timer_new(lua_State* L) {
     NSTimeInterval sec = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
@@ -73,9 +83,18 @@ static int timer_new(lua_State* L) {
     return 1;
 }
 
-/// hs.timer:start() -> self
+/// hs.timer:start() -> timer
 /// Method
-/// Begins to execute hs.timer.fn every N seconds, as defined when the timer was created; calling this does not cause an initial firing of the timer immediately.
+/// Starts an `hs.timer` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.timer` object
+///
+/// Notes:
+///  * The timer will not call the callback immediately, it waits until the first trigger of the timer
 static int timer_start(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -89,9 +108,16 @@ static int timer_start(lua_State* L) {
     return 1;
 }
 
-/// hs.timer.doAfter(sec, fn)
+/// hs.timer.doAfter(sec, fn) -> timer
 /// Function
-/// Runs the function after sec seconds.
+/// Calls a function after a delay
+///
+/// Parameters:
+///  * sec - A number of seconds to wait before calling the function
+///  * fn - The function to call
+///
+/// Returns:
+///  * None
 static int timer_doAfter(lua_State* L) {
     NSTimeInterval sec = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
@@ -117,9 +143,15 @@ static int timer_doAfter(lua_State* L) {
     return 1;
 }
 
-/// hs.timer:stop() -> self
+/// hs.timer:stop() -> timer
 /// Method
-/// Stops the timer's fn from getting called until started again.
+/// Stops an `hs.timer` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.timer` object
 static int timer_stop(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);

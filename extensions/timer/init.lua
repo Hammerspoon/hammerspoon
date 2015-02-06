@@ -10,29 +10,50 @@ local module = require("hs.timer.internal")
 
 -- Public interface ------------------------------------------------------
 
---- hs.timer.seconds(n) -> sec
---- Function
---- Returns the number of seconds in seconds.
 function module.seconds(n) return n end
 
---- hs.timer.minutes(n) -> sec
+--- hs.timer.minutes(n) -> seconds
 --- Function
---- Returns the number of minutes in seconds.
+--- Converts minutes to seconds
+---
+--- Parameters:
+---  * n - A number of minutes
+---
+--- Returns:
+---  * The number of seconds in n minutes
 function module.minutes(n) return 60 * n end
 
---- hs.timer.hours(n) -> sec
+--- hs.timer.hours(n) -> seconds
 --- Function
---- Returns the number of hours in seconds.
+--- Converts hours to seconds
+---
+--- Parameters:
+---  * n - A number of hours
+---
+--- Returns:
+---  * The number of seconds in n hours
 function module.hours(n)   return 60 * 60 * n end
 
 --- hs.timer.days(n) -> sec
 --- Function
---- Returns the number of days in seconds.
+--- Converts days to seconds
+---
+--- Parameters:
+---  * n - A number of days
+---
+--- Returns:
+---  * The number of seconds in n days
 function module.days(n)    return 60 * 60 * 24 * n end
 
 --- hs.timer.weeks(n) -> sec
 --- Function
---- Returns the number of weeks in seconds.
+--- Converts weeks to seconds
+---
+--- Parameters:
+---  * n - A number of weeks
+---
+--- Returns:
+---  * The number of seconds in n weeks
 function module.weeks(n)   return 60 * 60 * 24 * 7 * n end
 
 -- Return Module Object --------------------------------------------------
