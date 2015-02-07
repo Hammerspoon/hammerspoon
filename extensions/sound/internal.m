@@ -52,9 +52,18 @@ typedef struct _sound_t{
 
 // Not so common code
 
-/// hs.sound.get_byname(string) -> sound
-/// Function
-/// Attempts to locate and load a named sound.  By default, the only named sounds are the System Sounds (found in ~/Library/Sounds, /Library/Sounds, /Network/Library/Sounds, and /System/Library/Sounds. You can also name sounds you've previously loaded with this module and this name will persist as long as Hammerspoon is running.  If the name specified cannot be found, this function returns `nil`.
+/// hs.sound.getByName(name) -> sound or nil
+/// Constructor
+/// Creates an `hs.sound` object from a named sound
+///
+/// Parameters:
+///  * name - A string containing the name of a sound
+///
+/// Returns:
+///  * An `hs.sound` object or nil if no matching sound could be found
+///
+/// Notes:
+///  * Sounds can only be loaded by name if they are System Sounds (i.e. those found in ~/Library/Sounds, /Library/Sounds, /Network/Library/Sounds and /System/Library/Sounds) or are sound files that have previously been loaded and named
 static int sound_byname(lua_State* L) {
     NSSound* theSound = [NSSound soundNamed:[NSString stringWithUTF8String: luaL_checkstring(L, 1)]] ;
     if (theSound) {
@@ -73,9 +82,15 @@ static int sound_byname(lua_State* L) {
     return 1;
 }
 
-/// hs.sound.get_byfile(string) -> sound
-/// Function
-/// Attempts to locate and load the sound file at the location specified and return an NSSound object for the sound file.  Returns `nil` if it is unable to load the file.
+/// hs.sound.getByFile(path) -> sound or nil
+/// Constructor
+/// Creates an `hs.sound` object from a file
+///
+/// Parameters:
+///  * path - A string containing the path to a sound file
+///
+/// Returns:
+///  * An `hs.sound` object or nil if the file could not be loaded
 static int sound_byfile(lua_State* L) {
     NSSound* theSound = [[NSSound alloc] initWithContentsOfFile:[NSString stringWithUTF8String: luaL_checkstring(L, 1)] byReference: NO] ;
     if (theSound) {
@@ -94,13 +109,18 @@ static int sound_byfile(lua_State* L) {
     return 1;
 }
 
-/// hs.system_sounds() -> table
+/// hs.systemSounds() -> table
 /// Function
-/// Returns an array of defined system sounds. You can request these sounds by using `hs.sound.get_byname`. These are compatible sound files located in one of the following directories:
-///     ~/Library/Sounds
-///     /Library/Sounds
-///     /Network/Library/Sounds
-///     /System/Library/Sounds
+/// Gets a table of available system sounds
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing all of the available sound files (i.e. those found in ~/Library/Sounds, /Library/Sounds, /Network/Library/Sounds and /System/Library/Sounds)
+///
+/// Notes:
+///  * The sounds listed by this function can be loaded using `hs.sound.getByName()`
 static int sound_systemSounds(lua_State* L) {
     int i = 0;
     lua_newtable(L) ;
@@ -122,7 +142,13 @@ static int sound_systemSounds(lua_State* L) {
 
 /// hs.sound:play() -> sound, bool
 /// Method
-/// Attempts to play the loaded sound and return control to Hammerspoon.  Returns the sound object and true or false indicating success or failure.
+/// Plays an `hs.sound` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.sound` object and a boolean, true if the sound was played, otherwise false
 static int sound_play(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -132,7 +158,13 @@ static int sound_play(lua_State* L) {
 
 /// hs.sound:pause() -> sound, bool
 /// Method
-/// Attempts to pause the loaded sound.  Returns the sound object and true or false indicating success or failure.
+/// Pauses an `hs.sound` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.sound` object and a boolean, true if the sound was paused, otherwise false
 static int sound_pause(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -142,7 +174,13 @@ static int sound_pause(lua_State* L) {
 
 /// hs.sound:resume() -> sound, bool
 /// Method
-/// Attempts to resume a paused sound.  Returns the sound object and true or false indicating success or failure.
+/// Resumes playing a paused `hs.sound` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.sound` object and a boolean, true if the sound resumed playing, otherwise false
 static int sound_resume(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -152,7 +190,13 @@ static int sound_resume(lua_State* L) {
 
 /// hs.sound:stop() -> sound, bool
 /// Method
-/// Attempts to stop a playing sound.  Returns the sound object and true or false indicating success or failure.
+/// Stops playing an `hs.sound` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.sound` object and a boolean, true if the sound was stopped, otherwise false
 static int sound_stop(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -160,9 +204,18 @@ static int sound_stop(lua_State* L) {
     return 2;
 }
 
-/// hs.sound:loopSound([bool]) -> bool
+/// hs.sound:loopSound([loop]) -> bool
 /// Method
-/// If a boolean argument is provided it is used to set whether the sound will loop upon completion.  Returns the current status of this attribute.  Note that if a sound is looped, it will not call the callback function (if defined) upon completion of playback.
+/// Gets, and optionally sets, the looping behaviour of an `hs.sound` object
+///
+/// Parameters:
+///  * loop - An optional boolean, true to loop playback, false to not loop
+///
+/// Returns:
+///  * A boolean, true if the sound will be looped, otherwise false
+///
+/// Notes:
+///  * If you have registered a callback function for completion of a sound's playback, it will not be called when the sound loops
 static int sound_loopSound(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -172,9 +225,18 @@ static int sound_loopSound(lua_State* L) {
     return 1;
 }
 
-/// hs.sound:stopOnReload([bool]) -> bool
+/// hs.sound:stopOnReload([stopOnReload]) -> bool
 /// Method
-/// If a boolean argument is provided it is used to set whether the sound will be stopped when the configuration for Hammerspoon is reloaded.  Returns the current status of this attribute.  Defaults to `true`.  This can only be changed if you've assigned a name to the sound; otherwise, it becomes possible to have a sound you can't access running in the background.
+/// Gets, and optionally sets, whether a sound should be stopped when Hammerspoon reloads its config
+///
+/// Parameters:
+///  * stopOnReload - An optional boolean, true to stop playback when Hammerspoon reloads its config, false to continue playback regardless
+///
+/// Returns:
+///  * A boolean, true if the sound will be stopped on reload, otherwise false
+///
+/// Notes:
+///  * This method can only be used on a named `hs.sound` object, see `hs.sound:name()`
 static int sound_stopOnRelease(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -189,9 +251,15 @@ static int sound_stopOnRelease(lua_State* L) {
     return 1;
 }
 
-/// hs.sound:name([string]) -> string
+/// hs.sound:name([soundName]) -> string or nil
 /// Method
-/// If a string argument is provided it is used to set name the sound. Returns the current name, if defined.  This name can be used to reselect a sound with `get_byname` as long as Hammerspoon has not been exited since the sound was named.  Returns `nil` if no name has been assigned.
+/// Gets, and optionally sets, the name of an `hs.sound` object
+///
+/// Parameters:
+///  * soundName - An optional string to use as the name of the object, or nil to remove the name
+///
+/// Returns:
+///  * A string containing the name of the object, or nil if no name has been set
 static int sound_name(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -206,9 +274,18 @@ static int sound_name(lua_State* L) {
     return 1;
 }
 
-/// hs.sound:device([string]) -> string
+/// hs.sound:device([deviceUID]) -> string
 /// Method
-/// If a string argument is provided it is used to set name the playback device for the sound. Returns the current name, if defined or nil if it hasn't been changed from the System default.  Note that this name is not the same as the name returned by the `name` method of `hs.audiodevice`.  Use the `uid` method to get the proper device name for this method.  Setting this to `nil` will use the system default device.
+/// Gets, and optionally sets, the playback device to use for an `hs.sound` object
+///
+/// Parameters:
+///  * deviceUID - An optional string containing the UID of an `hs.audiodevice` object to use for playback of this sound. Use nil to use the system's default device
+///
+/// Returns:
+///  * A string containing the UID of the device that will be used for playback
+///
+/// Notes:
+///  * To obtain the UID of a sound device, see `hs.audiodevice:uid()`
 static int sound_device(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -228,9 +305,15 @@ static int sound_device(lua_State* L) {
     return 1;
 }
 
-/// hs.sound:currentTime([seconds]) -> seconds
+/// hs.sound:currentTime([seekTime]) -> seconds
 /// Method
-/// If a number argument is provided it is used to set the playback location to the number of seconds specified.  Returns the current position in seconds.
+/// Gets the current seek offset within an `hs.sound` object, and optionally sets a new seek offset
+///
+/// Parameters:
+///  * seekTime - An optional number of seconds to seek to within the sound object
+///
+/// Returns:
+///  * A number containing the current seek offset in the sound (i.e. the current playback position in the sound)
 static int sound_currentTime(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -242,16 +325,28 @@ static int sound_currentTime(lua_State* L) {
 
 /// hs.sound:duration() -> seconds
 /// Method
-/// Returns the duration of the sound in seconds.
+/// Gets the length of an `hs.sound` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the length of the sound, in seconds
 static int sound_duration(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushnumber(L, [(__bridge NSSound*) sound->soundObject duration]);
     return 1;
 }
 
-/// hs.sound:volume([number]) -> number
+/// hs.sound:volume([level]) -> number
 /// Method
-/// If a number argument is provided it is used to set the playback volume relative to the system volume.  Returns the current playback volume relative to the current system volume.  The number will be between 0.0 and 1.0.
+/// Gets, and optionally sets, the playback volume of an `hs.sound` object
+///
+/// Parameters:
+///  * level - A number between 0.0 and 1.0, representing the volume of the sound, relative to the current system volume
+///
+/// Returns:
+///  * The current volume offset
 static int sound_volume(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -261,9 +356,15 @@ static int sound_volume(lua_State* L) {
     return 1;
 }
 
-/// hs.sound:function([fn|nil]) -> bool
+/// hs.sound:function([fn]) -> bool
 /// Method
-/// If no argument is provided, returns whether or not the sound has an assigned callback function to invoke when the sound playback has completed.  If you provide a function as the argument, this function will be invoked when playback completes with an argument indicating whether playback ended normally (at the end of the song) or if ended abnormally (stopped via the `stop` method, for example).  If `nil` is provided, then any existing callback function will be removed.  This is called with `nil` during garbage collection (during a reload of Hammerspoon) to prevent invoking a callback that no longer exists if playback isn't stopped at reload.
+/// Gets the status of the completion callback of an `hs.sound` object, and optionally sets the status
+///
+/// Parameters:
+///  * fn - An optional function that will be called when playback is completed, or nil to remove a previously assigned callback
+///
+/// Returns:
+///  * A boolean, true if there is a playback completion callback assigned, otherwise false
 static int sound_callback(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
@@ -296,9 +397,15 @@ static int sound_callback(lua_State* L) {
     return 1;
 }
 
-/// hs.sound.soundTypes() -> array
+/// hs.sound.soundTypes() -> table
 /// Function
-/// Returns an array of the UTI formats supported by this module for sound playback.
+/// Gets the supported UTI sound file formats
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the UTI sound formats that are supported by the system
 static int sound_soundUnfilteredTypes(lua_State* L) {
     int i = 0;
     NSArray* list = [NSSound soundUnfilteredTypes];
@@ -310,9 +417,18 @@ static int sound_soundUnfilteredTypes(lua_State* L) {
     return 1;
 }
 
-/// hs.sound.soundFileTypes() -> array
+/// hs.sound.soundFileTypes() -> table
 /// Function
-/// Returns an array of the file extensions for file types supported by this module for sound playback.  Note that this uses a method which has been deprecated since 10.5, so while it apparently sticks around, it may be removed in the future. The preferred method is to use the UTI values returned via `hs.sound.soundTypes` for determination.
+/// Gets the supported sound file types
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the sound file filename extensions that are supported by the system
+///
+/// Notes:
+///  * This function is unlikely to be tremendously useful, as filename extensions are essentially meaningless. The data returned by `hs.sound.soundTypes()` is far more valuable
 static int sound_soundUnfilteredFileTypes(lua_State* L) {
     if ([NSSound respondsToSelector:@selector(soundUnfilteredFileTypes)]) {
         int i = 0;
@@ -333,7 +449,16 @@ static int sound_soundUnfilteredFileTypes(lua_State* L) {
 
 /// hs.sound:isPlaying() -> bool
 /// Method
-/// Returns boolean value indicating whether or not the sound is currently playing.
+/// Gets the current playback state of an `hs.sound` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if the sound is currently playing, otherwise false
+///
+/// Notes:
+///  * This method is only available in OS X 10.9 (Mavericks) and earlier
 static int sound_isPlaying(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushboolean(L, [(__bridge NSSound*) sound->soundObject isPlaying]);
@@ -388,9 +513,9 @@ static const luaL_Reg sound_metalib[] = {
 static const luaL_Reg soundLib[] = {
     {"soundTypes",      sound_soundUnfilteredTypes},
     {"soundFileTypes",  sound_soundUnfilteredFileTypes},
-    {"get_byname",      sound_byname},
-    {"get_byfile",      sound_byfile},
-    {"system_sounds",   sound_systemSounds},
+    {"getByName",      sound_byname},
+    {"getByFile",      sound_byfile},
+    {"systemSounds",   sound_systemSounds},
     {NULL,              NULL}
 };
 
