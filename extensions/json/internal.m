@@ -120,11 +120,19 @@ static void NSObject_to_lua(lua_State* L, id obj) {
     }
 }
 
-/// hs.json.encode(val[, prettyprint?]) -> str
+/// hs.json.encode(val[, prettyprint]) -> string
 /// Function
-/// Returns a JSON string representing the given value; if prettyprint is true, the resulting string will formatted for readability.  Value must be a table.
+/// Encodes a table as JSON
 ///
-///  Useful for storing some of the more complex lua table structures as a persistent setting.
+/// Parameters:
+///  * val - A table containing data to be encoded as JSON
+///  * prettyprint - An optional boolean, true to format the JSON for human readability, false to format the JSON for size efficiency. Defaults to false
+///
+/// Returns:
+///  * A string containing a JSON representation of the supplied table
+///
+/// Notes:
+///  * This is useful for storing some of the more complex lua table structures as a persistent setting (see `hs.settings`)
 static int json_encode(lua_State* L) {
     if lua_istable(L, 1) {
         id obj = lua_to_NSObject(L, 1);
@@ -158,11 +166,18 @@ static int json_encode(lua_State* L) {
     }
 }
 
-/// hs.json.decode(str) -> val
+/// hs.json.decode(jsonString) -> table
 /// Function
-/// Returns a Lua value representing the given JSON string.
+/// Decodes JSON into a table
 ///
-///  Useful for retrieving some of the more complex lua table structures as a persistent setting.
+/// Parameters:
+///  * jsonString - A string containing some JSON data
+///
+/// Returns:
+///  * A table representing the supplied JSON data
+///
+/// Notes:
+///  * This is useful for retrieving some of the more complex lua table structures as a persistent setting (see `hs.settings`)
 static int json_decode(lua_State* L) {
     const char* s = luaL_checkstring(L, 1);
     NSData* data = [[NSString stringWithUTF8String:s] dataUsingEncoding:NSUTF8StringEncoding];
