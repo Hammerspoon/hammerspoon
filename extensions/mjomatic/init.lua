@@ -39,9 +39,17 @@ end
 
 --- hs.mjomatic.go(cfg)
 --- Function
---- takes a config as a list of strings, configures your windows as stated.
+--- Applies a configuration to the currently open windows
 ---
---- Example:
+--- Parameters:
+---  * cfg - A table containing a series of strings, representing the desired window layout
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * An example use:
+---
 --- ~~~lua
 --- mjomatic.go({
 --- "CCCCCCCCCCCCCiiiiiiiiiii      # <-- The windowgram, it defines the shapes and positions of windows",
