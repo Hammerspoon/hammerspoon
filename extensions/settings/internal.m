@@ -122,7 +122,22 @@ static void NSObject_to_lua(lua_State* L, id obj) {
 
 /// hs.settings.set(key, val)
 /// Function
-/// Saves the given value for the given string key; value must be a string, number, boolean, nil, or a table of any of these, recursively.  This function cannot set NSUserDefault types of Data or Date.  See `settings.setData` and `settings.setDate`.
+/// Saves a setting with common datatypes
+///
+/// Parameters:
+///  * key - A string containing the name of the setting
+///  * val - A value for the setting. Valid datatypes are:
+///   * string
+///   * number
+///   * boolean
+///   * nil
+///   * table (which may contain any of the same valid datatypes)
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * This function cannot set dates or raw data types, see `hs.settings.setDate()` and `hs.settings.setData()`
 static int target_set(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     id val = lua_to_NSObject(L, 2);
@@ -132,7 +147,14 @@ static int target_set(lua_State* L) {
 
 /// hs.settings.setData(key, val)
 /// Function
-/// Saves the given value as raw binary data for the string key.  A raw binary string differs from a traditional string in that it may contain embedded null values and other unprintable bytes (characters) which might otherwise be lost or mangled if treated as a traditional C-Style (null terminated) string.
+/// Saves a setting with raw binary data
+///
+/// Parameters:
+///  * key - A string containing the name of the setting
+///  * val - Some raw binary data
+///
+/// Returns:
+///  * None
 static int target_setData(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     if (lua_type(L,2) == LUA_TSTRING) {
@@ -161,7 +183,17 @@ static NSDate* date_from_string(NSString* dateString) {
 
 /// hs.settings.setDate(key, val)
 /// Function
-/// Saves the given value as a date for the given string key.  If val is a number, then it represents the number of seconds since 1970-01-01 00:00:00 +0000 (e.g. `os.time()`).  If it is a string, it should be in rfc3339 format:  'YYYY-MM-DD[T]HH:MM:SS[Z]' (e.g. see `hs.settings.dateFormat`).
+/// Saves a setting with a date
+///
+/// Parameters:
+///  * key - A string containing the name of the setting
+///  * val - A number representing seconds since `1970-01-01 00:00:00 +0000` (e.g. `os.time()`), or a string containing a date in RFC3339 format (`YYYY-MM-DD[T]HH:MM:SS[Z]`)
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * See `hs.settings.dateFormat` for a convenient representation of the RFC3339 format, to use with other time/date related functions
 static int target_setDate(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     NSDate* myDate = lua_isnumber(L, 2) ? [[NSDate alloc] initWithTimeIntervalSince1970:(NSTimeInterval) lua_tonumber(L,2)] :
@@ -174,9 +206,18 @@ static int target_setDate(lua_State* L) {
     return 0 ;
 }
 
-/// hs.settings.get(key) -> val
+/// hs.settings.get(key) -> string or boolean or number or nil or table or binary data
 /// Function
-/// Gets the Lua value for the given string key.  This function can retrieve NSUserDefault types of Data and Date, as well as serializable Lua types.
+/// Loads a setting
+///
+/// Parameters:
+///  * key - A string containing the name of the setting
+///
+/// Returns:
+///  * The value of the setting
+///
+/// Notes:
+///  * This function can load all of the datatypes supported by `hs.settings.set()`, `hs.settings.setData()` and `hs.settings.setDate()`
 static int target_get(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     id val = [[NSUserDefaults standardUserDefaults] objectForKey:key];
@@ -186,7 +227,13 @@ static int target_get(lua_State* L) {
 
 /// hs.settings.clear(key) -> bool
 /// Function
-/// Attempts to remove the given string key from storage, returning `true` on success or `false` on failure (e.g. `key` does not exist or is administratively managed).
+/// Deletes a setting
+///
+/// Parameters:
+///  * key - A string containing the name of a setting
+///
+/// Returns:
+///  * A boolean, true if the setting was deleted, otherwise false
 static int target_clear(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     if ([[NSUserDefaults standardUserDefaults] objectForKey:key] && ![[NSUserDefaults standardUserDefaults] objectIsForcedForKey:key]) {
@@ -197,9 +244,19 @@ static int target_clear(lua_State* L) {
     return 1;
 }
 
-/// hs.settings.getKeys() -> []
+/// hs.settings.getKeys() -> table
 /// Function
-/// Returns a table of all defined keys within the Hammerspoon user defaults, as an array and as a list of keys.  Use `ipairs(settings.getKeys())` to iterate through the list of all settings which have been defined or `settings.getKeys()["key"]` to test for the existence of a key.
+/// Gets all of the previously stored setting names
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing all of the settings keys in Hammerspoon's settings
+///
+/// Notes:
+///  * Use `ipairs(hs.settings.getKeys())` to iterate over all available settings
+///  * Use `hs.settings.getKeys()["someKey"]` to test for the existance of a particular key
 static int target_getKeys(lua_State* L) {
     NSArray *keys = [[[NSUserDefaults standardUserDefaults] persistentDomainForName: [[NSBundle mainBundle] bundleIdentifier]] allKeys];
     lua_newtable(L);
@@ -230,14 +287,14 @@ int luaopen_settings(lua_State* L) {
     luaL_newlib(L, settingslib);
 
 /// hs.settings.dateFormat
-/// Variable
-/// The string representing the expected format of date and time when presenting the date and time as a string to `hs.setDate`.  e.g. `os.date(hs.settings.dateFormat)`.
+/// Constant
+/// A string representing the expected format of date and time when presenting the date and time as a string to `hs.setDate()`.  e.g. `os.date(hs.settings.dateFormat)`
         lua_pushstring(L, "!%Y-%m-%dT%H:%M:%SZ") ;
         lua_setfield(L, -2, "dateFormat") ;
 
 /// hs.settings.bundleID
-/// Variable
-/// The string representing the bundle id where our settings are stored. You can use this with `defaults` or other tools which allow access to the `User Defaults` of other applications to access these outside of Hammerspoon.
+/// Constant
+/// A string representing the ID of the bundle Hammerspoon's settings are stored in . You can use this with the command line tool `defaults` or other tools which allow access to the `User Defaults` of applications, to access these outside of Hammerspoon
         lua_pushstring(L, [[[NSBundle mainBundle] bundleIdentifier] UTF8String]) ;
         lua_setfield(L, -2, "bundleID") ;
 
