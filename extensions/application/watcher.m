@@ -9,6 +9,35 @@
 ///
 /// This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
+
+/// hs.application.watcher.launching
+/// Constant
+/// An application is in the process of being launched
+
+/// hs.application.watcher.launched
+/// Constant
+/// An application has been launched
+
+/// hs.application.watcher.terminated
+/// Constant
+/// An application has been terminated
+
+/// hs.application.watcher.hidden
+/// Constant
+/// An application has been hidden
+
+/// hs.application.watcher.unhidden
+/// Constant
+/// An application has been unhidden
+
+/// hs.application.watcher.activated
+/// Constant
+/// An application has been activated (i.e. given keyboard/mouse focus)
+
+/// hs.application.watcher.deactivated
+/// Constant
+/// An application has been deactivated (i.e. lost keyboard/mouse focus)
+
 // Common Code
 
 #define USERDATA_TAG "hs.application.watcher"
@@ -126,22 +155,20 @@ typedef enum _event_t {
 @end
 
 /// hs.application.watcher.new(fn) -> watcher
-/// Function
-/// Creates an application watcher that is able to capture application events.
+/// Constructor
+/// Creates an application event watcher
 ///
-/// The parameter fn has to be a function accepting three parameters. The first parameter passed to
-/// the function is the application name as string, the second parameter is the event type, and the
-/// third is an application object. Note that if the application has been terminated, the
-/// application object will only be useful for getting the PID and the first parameter will be nil.
+/// Parameters:
+///  * fn - A function that will be called when application events happen. It should accept three parameters:
+///   * A string containing the name of the application
+///   * An event type (see the constants defined above)
+///   * An `hs.application` object representing the application
 ///
-/// The event type parameter can be one of the following values:
-/// hs.application.watcher.launching    -- The application will launch.
-/// hs.application.watcher.launched     -- The application has launched.
-/// hs.application.watcher.terminated   -- The application terminated.
-/// hs.application.watcher.hidden       -- The application was hidden.
-/// hs.application.watcher.unhidden     -- The application was unhidden.
-/// hs.application.watcher.activated    -- The application was activated.
-/// hs.application.watcher.deactivated  -- The application was deactivated.
+/// Returns:
+///  * An `hs.application.watcher` object
+///
+/// Notes:
+///  * If the function is called with an event type of `hs.application.watcher.terminated` then the application name parameter will be `nil` and the `hs.application` parameter, will only be useful for getting the UNIX process ID (i.e. the PID) of the application
 static int app_watcher_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
@@ -209,9 +236,14 @@ static void unregister_observer(AppWatcher* observer) {
 }
 
 /// hs.application.watcher:start()
-/// Function
-/// Starts the application watcher, making it so fn is called each time an application event is
-/// triggered.
+/// Method
+/// Starts the application watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int app_watcher_start(lua_State* L) {
     appwatcher_t* appWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -226,8 +258,14 @@ static int app_watcher_start(lua_State* L) {
 }
 
 /// hs.application.watcher:stop()
-/// Function
-/// Stops the application watcher's fn from getting called until started again.
+/// Method
+/// Stops the application watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int app_watcher_stop(lua_State* L) {
     appwatcher_t* appWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
