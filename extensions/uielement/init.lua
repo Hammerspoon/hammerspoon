@@ -7,12 +7,6 @@ local application = {}
 application.watcher = require "hs.application.watcher"
 local fnutils = require "hs.fnutils"
 
---- hs.uielement:isWindow() -> bool
---- Method
---- Returns whether the UI element represents a window.
-function uielement:isWindow()
-    return self:role() == "AXWindow"
-end
 
 --- hs.uielement:isApplication() -> bool
 --- Method

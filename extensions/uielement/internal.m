@@ -33,16 +33,30 @@ static id get_prop(AXUIElementRef win, NSString* propType, id defaultValue) {
     return defaultValue;
 }
 
+static bool is_window(AXUIElementRef element, NSString* role) {
+  if (!role) {
+    role = get_prop(element, NSAccessibilityRoleAttribute, @"");
+  }
+
+  // The role attribute on a window can potentially be something
+  // other than kAXWindowRole (e.g. Emacs does not claim kAXWindowRole)
+  // so we will do the simple test first, but then also attempt to duck-type
+  // the object, to see if it has a property that any window should have
+  if([role isEqualToString: (NSString*)kAXWindowRole] ||
+     get_prop(element, NSAccessibilityMinimizedAttribute, nil)) {
+    return YES;
+  } else {
+    return NO;
+  }
+}
+
+
 // Use the Role of the element to decide which type of object to create: window, app, or plain uielement.
 // Retains a copy of the element, if necessary.
 static void push_element(lua_State* L, AXUIElementRef element) {
     NSString* role = get_prop(element, NSAccessibilityRoleAttribute, @"");
 
-    // The role attribute on a window can potentially be something
-    // other than kAXWindowRole (e.g. Emacs does not claim kAXWindowRole)
-    // so we will do the simple test first, but then also attempt to duck-type
-    // the object, to see if it has a property that any window should have
-    if ([role isEqualToString: (NSString*)kAXWindowRole] || get_prop(element, NSAccessibilityMinimizedAttribute, nil)) {
+    if (is_window(element, role)) {
         new_window(L, (AXUIElementRef)CFRetain(element));
     } else if ([role isEqualToString: (NSString*)kAXApplicationRole]) {
         pid_t pid;
@@ -51,6 +65,16 @@ static void push_element(lua_State* L, AXUIElementRef element) {
     } else {
         new_uielement(L, (AXUIElementRef)CFRetain(element));
     }
+}
+
+/// hs.uielement:isWindow() -> bool
+/// Method
+/// Returns whether the UI element represents a window.
+static int uielement_iswindow(lua_State* L) {
+    AXUIElementRef element = get_element(L, 1);
+    bool isWindow = is_window(element, nil);
+    lua_pushboolean(L, isWindow);
+    return 1;
 }
 
 /// hs.uielement:role() -> string
@@ -239,6 +263,7 @@ static int watcher_gc(lua_State* L) {
 
 static const luaL_Reg uielementlib[] = {
     {"role", uielement_role},
+    {"isWindow", uielement_iswindow},
     {"_newWatcher", uielement_newWatcher},
     {}
 };
