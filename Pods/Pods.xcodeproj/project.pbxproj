@@ -1,864 +1,2746 @@
-// !$*UTF8*$!
-{
-	archiveVersion = 1;
-	classes = {
-	};
-	objectVersion = 46;
-	objects = {
-
-/* Begin PBXBuildFile section */
-		08EEA7A6620D28DBCE58210D /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F755D8D1D93E9201D6FE140 /* ldo.c */; };
-		152BBD234439CF201F05A65C /* ldebug.h in Headers */ = {isa = PBXBuildFile; fileRef = F35759E9B3C70D3A98135774 /* ldebug.h */; };
-		19BD76312349EFB1DFC6DAA5 /* liolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 8AB23F76DE6D244FB1CE0E51 /* liolib.c */; };
-		19F903210F87D8E69A7F2CAD /* luaconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 864BA82D694A3DB9D66D500E /* luaconf.h */; };
-		20E1E2C1C53A818400F76AD7 /* lstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E563D12F82A0263F07599FF /* lstring.h */; };
-		21295848F83A63BEB4717CFF /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 0A2D9A0480A1A8602CEE5A09 /* lbaselib.c */; };
-		21B1969A7015AC011CA930AD /* lua.h in Headers */ = {isa = PBXBuildFile; fileRef = 08AA4593800262E1CDA73BEA /* lua.h */; };
-		2344C34FFE34DA05392AE1C1 /* llimits.h in Headers */ = {isa = PBXBuildFile; fileRef = 275515B32BA8FCEE2DB0EC6F /* llimits.h */; };
-		241360CB8221DD6587AC7B53 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 8D10403F6F25D29F0CE1BC80 /* lzio.c */; };
-		244A60E90F219972F14A8A45 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = EE51E9DACC74E3FE492986B8 /* lvm.c */; };
-		24E3D0C06AA3FD2A9FE3E55F /* lualib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BE1855CA647B1FBD28537BA /* lualib.h */; };
-		33C9F66449FB85EA07F73876 /* ltable.h in Headers */ = {isa = PBXBuildFile; fileRef = 551E7F99CF73CF0159EBD453 /* ltable.h */; };
-		357F6574C919EE51F82A4992 /* lvm.h in Headers */ = {isa = PBXBuildFile; fileRef = B5F15550FDEE74649719333F /* lvm.h */; };
-		3B06944853DD3CFDADFC40FF /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 22A872959557A96088725B2A /* loslib.c */; };
-		3C2256C97B1C2C326C8DB4F2 /* lapi.h in Headers */ = {isa = PBXBuildFile; fileRef = F05F4B7FBFE16799CCB4342B /* lapi.h */; };
-		3CCDD20DA2838E50E92B169A /* loadlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 9B81FCD53B976CFF7826FFF1 /* loadlib.c */; };
-		3DA714396DBB52B7EC43AEDB /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = F4BAFBEB5AAB2B5C391A2DB1 /* lparser.c */; };
-		3E0989C612F81889C85B27E8 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = E3191499E0FACB2653F7B768 /* ltablib.c */; };
-		443E9F9D0FC76A5EA64C0B23 /* lopcodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 0E35BD2FFB9FB44F7A2D5161 /* lopcodes.h */; };
-		44F49FBAC4E61A449C288B3E /* lauxlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AA0CB80DF8DF382A3047E7E /* lauxlib.h */; };
-		48E489555EEFBF45693F18BC /* lgc.c in Sources */ = {isa = PBXBuildFile; fileRef = DBB6B6D333BDF4D7F3540430 /* lgc.c */; };
-		4AB2C40184FCE7C6D634D112 /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 04BC7179A86951E7B4DA8161 /* lfunc.c */; };
-		522DF12A18E85ACEB4A69D3D /* lstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E46C61BDCDF56F95C23F4C /* lstring.c */; };
-		52BF2EE48FCCC1CB9D70FDEA /* Pods-Hammerspoon-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = F352331A5ABF6DA5E95EF07B /* Pods-Hammerspoon-dummy.m */; };
-		576835646A572BBE6BF8A472 /* lmem.c in Sources */ = {isa = PBXBuildFile; fileRef = 2776A72CDC70DA825E2544AB /* lmem.c */; };
-		5A1EC18F3AA0B0D1531F856C /* lstate.h in Headers */ = {isa = PBXBuildFile; fileRef = E9DCA5D8713CCDCA2785E150 /* lstate.h */; };
-		60F82172078048F89B49E028 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8FF3E01936E9A1B97D464B3 /* Cocoa.framework */; };
-		6AF0C67C03AD0F0933221078 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = 98E0FA50BC107E2EBE62B679 /* llex.c */; };
-		7373FB2A3D50609534AFC360 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = AC640CF2822223170B4E9B6F /* lzio.h */; };
-		7AD733410E05CE004B9FB8AC /* lcode.h in Headers */ = {isa = PBXBuildFile; fileRef = 99A18FD517BD890E81133798 /* lcode.h */; };
-		82E1EB751595CE09B2A67F3E /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 40504A856280568BB25D4581 /* lauxlib.c */; };
-		85145006C131BC745E305C09 /* lmem.h in Headers */ = {isa = PBXBuildFile; fileRef = 09B4EBEC5E823D4A3FAD4369 /* lmem.h */; };
-		90F7042FC2454EE262CAF6BF /* ldo.h in Headers */ = {isa = PBXBuildFile; fileRef = 70EA47BC605E0E44A8F4CFB9 /* ldo.h */; };
-		91A0625FB2755F8A263FA439 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 5936968913051729D1F2BCE1 /* ltm.c */; };
-		96E01309F860D23ADB12DFEF /* Pods-Hammerspoon-lua-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1B784F97ECDC7F42BFCD68 /* Pods-Hammerspoon-lua-dummy.m */; };
-		9F431DE65589209DAA005719 /* ldump.c in Sources */ = {isa = PBXBuildFile; fileRef = 8970135098FA5C1B1354AD92 /* ldump.c */; };
-		9FD5F4E88E42EEC30B151C58 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8FF3E01936E9A1B97D464B3 /* Cocoa.framework */; };
-		A0804E7EE43489BCFC193E72 /* ldebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 3A983D628764659C791ED288 /* ldebug.c */; };
-		A68F8FC065C7ABD33785E8CB /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F8FF3E01936E9A1B97D464B3 /* Cocoa.framework */; };
-		AC77A336DC83411353B25ACA /* lcorolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 41DA94767F13A95C885F24D0 /* lcorolib.c */; };
-		AE1F576EDDD9488473C3C08C /* lctype.c in Sources */ = {isa = PBXBuildFile; fileRef = 5909F7C17A71743521ABB732 /* lctype.c */; };
-		B419CF16A070C0342C925128 /* ldblib.c in Sources */ = {isa = PBXBuildFile; fileRef = 89CCBCC7F88DCC768CF450FC /* ldblib.c */; };
-		B4F1F136C65AE85D9C6D1D10 /* lundump.h in Headers */ = {isa = PBXBuildFile; fileRef = 096C380A10F224BC0464B9C0 /* lundump.h */; };
-		B5F2C63C473EB017228B47A5 /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 691B25D72FF5DB53BB294D5C /* linit.c */; };
-		BD8E8BEC0FCD8052075A577B /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = 3B5EF64B453E7211EC4CDEDE /* lstate.c */; };
-		C464CD25DD7F9823709F5A59 /* lobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 99F484A0120679C89F3A0A2D /* lobject.h */; };
-		C9B29B006B5FB3F1EAB91FC7 /* lbitlib.c in Sources */ = {isa = PBXBuildFile; fileRef = C3D5A5637799613096AD490F /* lbitlib.c */; };
-		DF438F85B312859B62D6A23A /* lopcodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 664CB7F85D059FB3B65A4001 /* lopcodes.c */; };
-		E1238A2FCD16305CE2F80A80 /* lparser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2F60099A53EDA965B9AD2B4A /* lparser.h */; };
-		E3E4E438BAEBE02C35EA5AC2 /* ltm.h in Headers */ = {isa = PBXBuildFile; fileRef = 691E5A34F13E420F4B111D5C /* ltm.h */; };
-		EAFBDEED614DD5133FB013D4 /* lgc.h in Headers */ = {isa = PBXBuildFile; fileRef = D2AAF7AA5485C9972046F683 /* lgc.h */; };
-		EB5F013190312E02DC9B8300 /* lcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 8F5A50160C42F3E0D03D8F7D /* lcode.c */; };
-		EBC3D9E4BFC21355E896207B /* lua.hpp in Headers */ = {isa = PBXBuildFile; fileRef = A6A79CDF94B2E7AF3728B53F /* lua.hpp */; };
-		EF40C055A4BF3C4AF05C5EB5 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = FF1151AF31FE83F9D395754E /* lundump.c */; };
-		EF49A1E7138C9681C3945520 /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 35E15EEE0E869F442A91893F /* lobject.c */; };
-		F337DB695EAD271339FC2F7D /* Pods-Hammerspoon-Sparkle-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 98A8BCBA0F860B5F33467A31 /* Pods-Hammerspoon-Sparkle-dummy.m */; };
-		F3C38C4EEFC581A5923FE5AA /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 04C2F7DF7DF2B7FF37B03D5C /* lmathlib.c */; };
-		F41190FAD25F42FA83E3D2C6 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 1E90D53E8AA45148818F2DB1 /* lapi.c */; };
-		F5509032EE67652AED393658 /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 7595BEDB5E9E7A3FB186DF6D /* lstrlib.c */; };
-		F5777CF342D0BADD5ED767BE /* lctype.h in Headers */ = {isa = PBXBuildFile; fileRef = 74EE2A605D4A151471C49165 /* lctype.h */; };
-		F6AB71C9EA513A55C1A58C0D /* lfunc.h in Headers */ = {isa = PBXBuildFile; fileRef = 48CC22D1A43E112FAC5E7E8A /* lfunc.h */; };
-		F93BEF78EFCE00B759BFB84B /* llex.h in Headers */ = {isa = PBXBuildFile; fileRef = A5E204A5D3F8089C07259B6B /* llex.h */; };
-		FBFE4D4F185CFCE8C5C40669 /* ltable.c in Sources */ = {isa = PBXBuildFile; fileRef = C39ACE06D04BEBC3C3047E17 /* ltable.c */; };
-/* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		9E48F09AA82877C7F45084CC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5734EF951F25009B82C1BB10 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F221A63D24CFC31A02B31D1F;
-			remoteInfo = "Pods-Hammerspoon-lua";
-		};
-		B47DD059D49996AF31B030C7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5734EF951F25009B82C1BB10 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B00977041CCFF626643E68FB;
-			remoteInfo = "Pods-Hammerspoon-Sparkle";
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXFileReference section */
-		0185FA7985D22DD39ACAE995 /* Podfile */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		04BC7179A86951E7B4DA8161 /* lfunc.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lfunc.c; path = src/lfunc.c; sourceTree = "<group>"; };
-		04C2F7DF7DF2B7FF37B03D5C /* lmathlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lmathlib.c; path = src/lmathlib.c; sourceTree = "<group>"; };
-		07E3E1FEEAC9AE3998EC55E0 /* libPods-Hammerspoon-lua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon-lua.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		08AA4593800262E1CDA73BEA /* lua.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lua.h; path = src/lua.h; sourceTree = "<group>"; };
-		096C380A10F224BC0464B9C0 /* lundump.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lundump.h; path = src/lundump.h; sourceTree = "<group>"; };
-		09B4EBEC5E823D4A3FAD4369 /* lmem.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lmem.h; path = src/lmem.h; sourceTree = "<group>"; };
-		0A2D9A0480A1A8602CEE5A09 /* lbaselib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lbaselib.c; path = src/lbaselib.c; sourceTree = "<group>"; };
-		0E35BD2FFB9FB44F7A2D5161 /* lopcodes.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lopcodes.h; path = src/lopcodes.h; sourceTree = "<group>"; };
-		1AA0CB80DF8DF382A3047E7E /* lauxlib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lauxlib.h; path = src/lauxlib.h; sourceTree = "<group>"; };
-		1B4381DC2F87D5F24BBBE6A1 /* Pods-Hammerspoon-Sparkle.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-Sparkle.xcconfig"; sourceTree = "<group>"; };
-		1E0D4B385823B2B65A609A24 /* Pods-Hammerspoon-Sparkle-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-Sparkle-Private.xcconfig"; sourceTree = "<group>"; };
-		1E90D53E8AA45148818F2DB1 /* lapi.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lapi.c; path = src/lapi.c; sourceTree = "<group>"; };
-		22A872959557A96088725B2A /* loslib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = loslib.c; path = src/loslib.c; sourceTree = "<group>"; };
-		240FA56C239F7D66A6B6B2EF /* Pods-Hammerspoon-lua-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-lua-Private.xcconfig"; sourceTree = "<group>"; };
-		263D770F2D4BCD9BEB06BF61 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
-		275515B32BA8FCEE2DB0EC6F /* llimits.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = llimits.h; path = src/llimits.h; sourceTree = "<group>"; };
-		2776A72CDC70DA825E2544AB /* lmem.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lmem.c; path = src/lmem.c; sourceTree = "<group>"; };
-		2C9C994BBAD521C0A9FFB6FC /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
-		2DC324B3494E1FFEE8CBFCD7 /* Pods-Hammerspoon-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Hammerspoon-acknowledgements.plist"; sourceTree = "<group>"; };
-		2F60099A53EDA965B9AD2B4A /* lparser.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lparser.h; path = src/lparser.h; sourceTree = "<group>"; };
-		35E15EEE0E869F442A91893F /* lobject.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lobject.c; path = src/lobject.c; sourceTree = "<group>"; };
-		35E46C61BDCDF56F95C23F4C /* lstring.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstring.c; path = src/lstring.c; sourceTree = "<group>"; };
-		3A983D628764659C791ED288 /* ldebug.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldebug.c; path = src/ldebug.c; sourceTree = "<group>"; };
-		3B5EF64B453E7211EC4CDEDE /* lstate.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstate.c; path = src/lstate.c; sourceTree = "<group>"; };
-		3C1C27CDE7EAFCA642C7CBAE /* Pods-Hammerspoon-Sparkle-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-Sparkle-prefix.pch"; sourceTree = "<group>"; };
-		40504A856280568BB25D4581 /* lauxlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lauxlib.c; path = src/lauxlib.c; sourceTree = "<group>"; };
-		41DA94767F13A95C885F24D0 /* lcorolib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lcorolib.c; path = src/lcorolib.c; sourceTree = "<group>"; };
-		48CC22D1A43E112FAC5E7E8A /* lfunc.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lfunc.h; path = src/lfunc.h; sourceTree = "<group>"; };
-		4BE1855CA647B1FBD28537BA /* lualib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lualib.h; path = src/lualib.h; sourceTree = "<group>"; };
-		551E7F99CF73CF0159EBD453 /* ltable.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ltable.h; path = src/ltable.h; sourceTree = "<group>"; };
-		5909F7C17A71743521ABB732 /* lctype.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lctype.c; path = src/lctype.c; sourceTree = "<group>"; };
-		5936968913051729D1F2BCE1 /* ltm.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltm.c; path = src/ltm.c; sourceTree = "<group>"; };
-		63009F406EC12B09233E7B9A /* Pods-Hammerspoon-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Hammerspoon-resources.sh"; sourceTree = "<group>"; };
-		664CB7F85D059FB3B65A4001 /* lopcodes.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lopcodes.c; path = src/lopcodes.c; sourceTree = "<group>"; };
-		691B25D72FF5DB53BB294D5C /* linit.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = linit.c; path = src/linit.c; sourceTree = "<group>"; };
-		691E5A34F13E420F4B111D5C /* ltm.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ltm.h; path = src/ltm.h; sourceTree = "<group>"; };
-		6E563D12F82A0263F07599FF /* lstring.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lstring.h; path = src/lstring.h; sourceTree = "<group>"; };
-		70EA47BC605E0E44A8F4CFB9 /* ldo.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ldo.h; path = src/ldo.h; sourceTree = "<group>"; };
-		74EE2A605D4A151471C49165 /* lctype.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lctype.h; path = src/lctype.h; sourceTree = "<group>"; };
-		7595BEDB5E9E7A3FB186DF6D /* lstrlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstrlib.c; path = src/lstrlib.c; sourceTree = "<group>"; };
-		7A299D2A9644A0749F5C890C /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		81C1FE58C6212B2DB944383D /* libPods-Hammerspoon-Sparkle.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon-Sparkle.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		864BA82D694A3DB9D66D500E /* luaconf.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = luaconf.h; path = src/luaconf.h; sourceTree = "<group>"; };
-		8970135098FA5C1B1354AD92 /* ldump.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldump.c; path = src/ldump.c; sourceTree = "<group>"; };
-		89CCBCC7F88DCC768CF450FC /* ldblib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldblib.c; path = src/ldblib.c; sourceTree = "<group>"; };
-		8AB23F76DE6D244FB1CE0E51 /* liolib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = liolib.c; path = src/liolib.c; sourceTree = "<group>"; };
-		8D10403F6F25D29F0CE1BC80 /* lzio.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lzio.c; path = src/lzio.c; sourceTree = "<group>"; };
-		8F5A50160C42F3E0D03D8F7D /* lcode.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lcode.c; path = src/lcode.c; sourceTree = "<group>"; };
-		8F755D8D1D93E9201D6FE140 /* ldo.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldo.c; path = src/ldo.c; sourceTree = "<group>"; };
-		98A8BCBA0F860B5F33467A31 /* Pods-Hammerspoon-Sparkle-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-Sparkle-dummy.m"; sourceTree = "<group>"; };
-		98E0FA50BC107E2EBE62B679 /* llex.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = llex.c; path = src/llex.c; sourceTree = "<group>"; };
-		99A18FD517BD890E81133798 /* lcode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lcode.h; path = src/lcode.h; sourceTree = "<group>"; };
-		99F484A0120679C89F3A0A2D /* lobject.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lobject.h; path = src/lobject.h; sourceTree = "<group>"; };
-		9B81FCD53B976CFF7826FFF1 /* loadlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = loadlib.c; path = src/loadlib.c; sourceTree = "<group>"; };
-		A5B4032F001ABFEFC81BD231 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
-		A5E204A5D3F8089C07259B6B /* llex.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = llex.h; path = src/llex.h; sourceTree = "<group>"; };
-		A6A79CDF94B2E7AF3728B53F /* lua.hpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.h; name = lua.hpp; path = src/lua.hpp; sourceTree = "<group>"; };
-		AC640CF2822223170B4E9B6F /* lzio.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lzio.h; path = src/lzio.h; sourceTree = "<group>"; };
-		B5F15550FDEE74649719333F /* lvm.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lvm.h; path = src/lvm.h; sourceTree = "<group>"; };
-		BD6A3DAAFDA2798A350D7B7F /* Pods-Hammerspoon-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Hammerspoon-acknowledgements.markdown"; sourceTree = "<group>"; };
-		C39ACE06D04BEBC3C3047E17 /* ltable.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltable.c; path = src/ltable.c; sourceTree = "<group>"; };
-		C3D5A5637799613096AD490F /* lbitlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lbitlib.c; path = src/lbitlib.c; sourceTree = "<group>"; };
-		D23AC6DDD832ECCCA454A579 /* Pods-Hammerspoon-lua-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-lua-prefix.pch"; sourceTree = "<group>"; };
-		D2AAF7AA5485C9972046F683 /* lgc.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lgc.h; path = src/lgc.h; sourceTree = "<group>"; };
-		DB1B784F97ECDC7F42BFCD68 /* Pods-Hammerspoon-lua-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-lua-dummy.m"; sourceTree = "<group>"; };
-		DBB6B6D333BDF4D7F3540430 /* lgc.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lgc.c; path = src/lgc.c; sourceTree = "<group>"; };
-		E3191499E0FACB2653F7B768 /* ltablib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltablib.c; path = src/ltablib.c; sourceTree = "<group>"; };
-		E9DCA5D8713CCDCA2785E150 /* lstate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lstate.h; path = src/lstate.h; sourceTree = "<group>"; };
-		EE12AA2426FA43C49F3FA1C7 /* Pods-Hammerspoon-lua.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-lua.xcconfig"; sourceTree = "<group>"; };
-		EE51E9DACC74E3FE492986B8 /* lvm.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lvm.c; path = src/lvm.c; sourceTree = "<group>"; };
-		EE65CA8B82BFF7E436D02304 /* Pods-Hammerspoon-environment.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-environment.h"; sourceTree = "<group>"; };
-		F05F4B7FBFE16799CCB4342B /* lapi.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lapi.h; path = src/lapi.h; sourceTree = "<group>"; };
-		F352331A5ABF6DA5E95EF07B /* Pods-Hammerspoon-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-dummy.m"; sourceTree = "<group>"; };
-		F35759E9B3C70D3A98135774 /* ldebug.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ldebug.h; path = src/ldebug.h; sourceTree = "<group>"; };
-		F4BAFBEB5AAB2B5C391A2DB1 /* lparser.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lparser.c; path = src/lparser.c; sourceTree = "<group>"; };
-		F8FF3E01936E9A1B97D464B3 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		FF1151AF31FE83F9D395754E /* lundump.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lundump.c; path = src/lundump.c; sourceTree = "<group>"; };
-/* End PBXFileReference section */
-
-/* Begin PBXFrameworksBuildPhase section */
-		5527000EB703FA52F4B9462E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				60F82172078048F89B49E028 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		8B0E90D610502A23056875B3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				9FD5F4E88E42EEC30B151C58 /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BE9F80D65D62A785A1580254 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A68F8FC065C7ABD33785E8CB /* Cocoa.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXFrameworksBuildPhase section */
-
-/* Begin PBXGroup section */
-		1D552CCBF08248FFD447F95A /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				263D770F2D4BCD9BEB06BF61 /* Sparkle.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		28380C5F78E6584CF575E971 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				3373CFFF1D136AD7107D5FF6 /* OS X */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		29492D0DCC326B838C50F522 /* Pods-Hammerspoon */ = {
-			isa = PBXGroup;
-			children = (
-				BD6A3DAAFDA2798A350D7B7F /* Pods-Hammerspoon-acknowledgements.markdown */,
-				2DC324B3494E1FFEE8CBFCD7 /* Pods-Hammerspoon-acknowledgements.plist */,
-				F352331A5ABF6DA5E95EF07B /* Pods-Hammerspoon-dummy.m */,
-				EE65CA8B82BFF7E436D02304 /* Pods-Hammerspoon-environment.h */,
-				63009F406EC12B09233E7B9A /* Pods-Hammerspoon-resources.sh */,
-				2C9C994BBAD521C0A9FFB6FC /* Pods-Hammerspoon.debug.xcconfig */,
-				A5B4032F001ABFEFC81BD231 /* Pods-Hammerspoon.release.xcconfig */,
-			);
-			name = "Pods-Hammerspoon";
-			path = "Target Support Files/Pods-Hammerspoon";
-			sourceTree = "<group>";
-		};
-		3373CFFF1D136AD7107D5FF6 /* OS X */ = {
-			isa = PBXGroup;
-			children = (
-				F8FF3E01936E9A1B97D464B3 /* Cocoa.framework */,
-			);
-			name = "OS X";
-			sourceTree = "<group>";
-		};
-		363C613EFFDE5BBA1CF86E5D = {
-			isa = PBXGroup;
-			children = (
-				0185FA7985D22DD39ACAE995 /* Podfile */,
-				28380C5F78E6584CF575E971 /* Frameworks */,
-				B5C5CF91BADEC596F1941CD6 /* Pods */,
-				FF9468EC27A967C62E166ABE /* Products */,
-				D3877AF29A761C28F8B1221D /* Targets Support Files */,
-			);
-			sourceTree = "<group>";
-		};
-		37689F39485A464098E2AC57 /* Sparkle */ = {
-			isa = PBXGroup;
-			children = (
-				1D552CCBF08248FFD447F95A /* Frameworks */,
-				BD6131FBB7352898D4F590D8 /* Resources */,
-				95D73DC12C426EEF7D30FB51 /* Support Files */,
-			);
-			path = Sparkle;
-			sourceTree = "<group>";
-		};
-		38714E46B86AAE9887132DDB /* lua */ = {
-			isa = PBXGroup;
-			children = (
-				1E90D53E8AA45148818F2DB1 /* lapi.c */,
-				F05F4B7FBFE16799CCB4342B /* lapi.h */,
-				40504A856280568BB25D4581 /* lauxlib.c */,
-				1AA0CB80DF8DF382A3047E7E /* lauxlib.h */,
-				0A2D9A0480A1A8602CEE5A09 /* lbaselib.c */,
-				C3D5A5637799613096AD490F /* lbitlib.c */,
-				8F5A50160C42F3E0D03D8F7D /* lcode.c */,
-				99A18FD517BD890E81133798 /* lcode.h */,
-				41DA94767F13A95C885F24D0 /* lcorolib.c */,
-				5909F7C17A71743521ABB732 /* lctype.c */,
-				74EE2A605D4A151471C49165 /* lctype.h */,
-				89CCBCC7F88DCC768CF450FC /* ldblib.c */,
-				3A983D628764659C791ED288 /* ldebug.c */,
-				F35759E9B3C70D3A98135774 /* ldebug.h */,
-				8F755D8D1D93E9201D6FE140 /* ldo.c */,
-				70EA47BC605E0E44A8F4CFB9 /* ldo.h */,
-				8970135098FA5C1B1354AD92 /* ldump.c */,
-				04BC7179A86951E7B4DA8161 /* lfunc.c */,
-				48CC22D1A43E112FAC5E7E8A /* lfunc.h */,
-				DBB6B6D333BDF4D7F3540430 /* lgc.c */,
-				D2AAF7AA5485C9972046F683 /* lgc.h */,
-				691B25D72FF5DB53BB294D5C /* linit.c */,
-				8AB23F76DE6D244FB1CE0E51 /* liolib.c */,
-				98E0FA50BC107E2EBE62B679 /* llex.c */,
-				A5E204A5D3F8089C07259B6B /* llex.h */,
-				275515B32BA8FCEE2DB0EC6F /* llimits.h */,
-				04C2F7DF7DF2B7FF37B03D5C /* lmathlib.c */,
-				2776A72CDC70DA825E2544AB /* lmem.c */,
-				09B4EBEC5E823D4A3FAD4369 /* lmem.h */,
-				9B81FCD53B976CFF7826FFF1 /* loadlib.c */,
-				35E15EEE0E869F442A91893F /* lobject.c */,
-				99F484A0120679C89F3A0A2D /* lobject.h */,
-				664CB7F85D059FB3B65A4001 /* lopcodes.c */,
-				0E35BD2FFB9FB44F7A2D5161 /* lopcodes.h */,
-				22A872959557A96088725B2A /* loslib.c */,
-				F4BAFBEB5AAB2B5C391A2DB1 /* lparser.c */,
-				2F60099A53EDA965B9AD2B4A /* lparser.h */,
-				3B5EF64B453E7211EC4CDEDE /* lstate.c */,
-				E9DCA5D8713CCDCA2785E150 /* lstate.h */,
-				35E46C61BDCDF56F95C23F4C /* lstring.c */,
-				6E563D12F82A0263F07599FF /* lstring.h */,
-				7595BEDB5E9E7A3FB186DF6D /* lstrlib.c */,
-				C39ACE06D04BEBC3C3047E17 /* ltable.c */,
-				551E7F99CF73CF0159EBD453 /* ltable.h */,
-				E3191499E0FACB2653F7B768 /* ltablib.c */,
-				5936968913051729D1F2BCE1 /* ltm.c */,
-				691E5A34F13E420F4B111D5C /* ltm.h */,
-				08AA4593800262E1CDA73BEA /* lua.h */,
-				A6A79CDF94B2E7AF3728B53F /* lua.hpp */,
-				864BA82D694A3DB9D66D500E /* luaconf.h */,
-				4BE1855CA647B1FBD28537BA /* lualib.h */,
-				FF1151AF31FE83F9D395754E /* lundump.c */,
-				096C380A10F224BC0464B9C0 /* lundump.h */,
-				EE51E9DACC74E3FE492986B8 /* lvm.c */,
-				B5F15550FDEE74649719333F /* lvm.h */,
-				8D10403F6F25D29F0CE1BC80 /* lzio.c */,
-				AC640CF2822223170B4E9B6F /* lzio.h */,
-				66AA9D1816059DD2AB981EEA /* Support Files */,
-			);
-			path = lua;
-			sourceTree = "<group>";
-		};
-		66AA9D1816059DD2AB981EEA /* Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				EE12AA2426FA43C49F3FA1C7 /* Pods-Hammerspoon-lua.xcconfig */,
-				240FA56C239F7D66A6B6B2EF /* Pods-Hammerspoon-lua-Private.xcconfig */,
-				DB1B784F97ECDC7F42BFCD68 /* Pods-Hammerspoon-lua-dummy.m */,
-				D23AC6DDD832ECCCA454A579 /* Pods-Hammerspoon-lua-prefix.pch */,
-			);
-			name = "Support Files";
-			path = "../Target Support Files/Pods-Hammerspoon-lua";
-			sourceTree = "<group>";
-		};
-		95D73DC12C426EEF7D30FB51 /* Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				1B4381DC2F87D5F24BBBE6A1 /* Pods-Hammerspoon-Sparkle.xcconfig */,
-				1E0D4B385823B2B65A609A24 /* Pods-Hammerspoon-Sparkle-Private.xcconfig */,
-				98A8BCBA0F860B5F33467A31 /* Pods-Hammerspoon-Sparkle-dummy.m */,
-				3C1C27CDE7EAFCA642C7CBAE /* Pods-Hammerspoon-Sparkle-prefix.pch */,
-			);
-			name = "Support Files";
-			path = "../Target Support Files/Pods-Hammerspoon-Sparkle";
-			sourceTree = "<group>";
-		};
-		B5C5CF91BADEC596F1941CD6 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				37689F39485A464098E2AC57 /* Sparkle */,
-				38714E46B86AAE9887132DDB /* lua */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
-		BD6131FBB7352898D4F590D8 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
-		D3877AF29A761C28F8B1221D /* Targets Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				29492D0DCC326B838C50F522 /* Pods-Hammerspoon */,
-			);
-			name = "Targets Support Files";
-			sourceTree = "<group>";
-		};
-		FF9468EC27A967C62E166ABE /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				7A299D2A9644A0749F5C890C /* libPods-Hammerspoon.a */,
-				81C1FE58C6212B2DB944383D /* libPods-Hammerspoon-Sparkle.a */,
-				07E3E1FEEAC9AE3998EC55E0 /* libPods-Hammerspoon-lua.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-/* End PBXGroup section */
-
-/* Begin PBXHeadersBuildPhase section */
-		9DA1B2C57C0E3E47582C9A6F /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3C2256C97B1C2C326C8DB4F2 /* lapi.h in Headers */,
-				44F49FBAC4E61A449C288B3E /* lauxlib.h in Headers */,
-				7AD733410E05CE004B9FB8AC /* lcode.h in Headers */,
-				F5777CF342D0BADD5ED767BE /* lctype.h in Headers */,
-				152BBD234439CF201F05A65C /* ldebug.h in Headers */,
-				90F7042FC2454EE262CAF6BF /* ldo.h in Headers */,
-				F6AB71C9EA513A55C1A58C0D /* lfunc.h in Headers */,
-				EAFBDEED614DD5133FB013D4 /* lgc.h in Headers */,
-				F93BEF78EFCE00B759BFB84B /* llex.h in Headers */,
-				2344C34FFE34DA05392AE1C1 /* llimits.h in Headers */,
-				85145006C131BC745E305C09 /* lmem.h in Headers */,
-				C464CD25DD7F9823709F5A59 /* lobject.h in Headers */,
-				443E9F9D0FC76A5EA64C0B23 /* lopcodes.h in Headers */,
-				E1238A2FCD16305CE2F80A80 /* lparser.h in Headers */,
-				5A1EC18F3AA0B0D1531F856C /* lstate.h in Headers */,
-				20E1E2C1C53A818400F76AD7 /* lstring.h in Headers */,
-				33C9F66449FB85EA07F73876 /* ltable.h in Headers */,
-				E3E4E438BAEBE02C35EA5AC2 /* ltm.h in Headers */,
-				21B1969A7015AC011CA930AD /* lua.h in Headers */,
-				EBC3D9E4BFC21355E896207B /* lua.hpp in Headers */,
-				19F903210F87D8E69A7F2CAD /* luaconf.h in Headers */,
-				24E3D0C06AA3FD2A9FE3E55F /* lualib.h in Headers */,
-				B4F1F136C65AE85D9C6D1D10 /* lundump.h in Headers */,
-				357F6574C919EE51F82A4992 /* lvm.h in Headers */,
-				7373FB2A3D50609534AFC360 /* lzio.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
-/* Begin PBXNativeTarget section */
-		29C03948122E3705A3F3494B /* Pods-Hammerspoon */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AE537D0AA34DC2C9B5421C7F /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon" */;
-			buildPhases = (
-				D7283DE02363D94ED3B5C395 /* Sources */,
-				8B0E90D610502A23056875B3 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				79CF0CCFC2CDC9D15199BBC0 /* PBXTargetDependency */,
-				768A4E2D69D5152DD692D0D2 /* PBXTargetDependency */,
-			);
-			name = "Pods-Hammerspoon";
-			productName = "Pods-Hammerspoon";
-			productReference = 7A299D2A9644A0749F5C890C /* libPods-Hammerspoon.a */;
-			productType = "com.apple.product-type.library.static";
-		};
-		B00977041CCFF626643E68FB /* Pods-Hammerspoon-Sparkle */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 82ED02A2D77DE973CF2952E7 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-Sparkle" */;
-			buildPhases = (
-				B8D74FDA4C7516D288AA1674 /* Sources */,
-				BE9F80D65D62A785A1580254 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "Pods-Hammerspoon-Sparkle";
-			productName = "Pods-Hammerspoon-Sparkle";
-			productReference = 81C1FE58C6212B2DB944383D /* libPods-Hammerspoon-Sparkle.a */;
-			productType = "com.apple.product-type.library.static";
-		};
-		F221A63D24CFC31A02B31D1F /* Pods-Hammerspoon-lua */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 51A76F687C066FCE9113AC72 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-lua" */;
-			buildPhases = (
-				509266F5AB60B47451768510 /* Sources */,
-				5527000EB703FA52F4B9462E /* Frameworks */,
-				9DA1B2C57C0E3E47582C9A6F /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "Pods-Hammerspoon-lua";
-			productName = "Pods-Hammerspoon-lua";
-			productReference = 07E3E1FEEAC9AE3998EC55E0 /* libPods-Hammerspoon-lua.a */;
-			productType = "com.apple.product-type.library.static";
-		};
-/* End PBXNativeTarget section */
-
-/* Begin PBXProject section */
-		5734EF951F25009B82C1BB10 /* Project object */ = {
-			isa = PBXProject;
-			attributes = {
-				LastUpgradeCheck = 0510;
-			};
-			buildConfigurationList = A98D8DAEF5609FA9277AECD8 /* Build configuration list for PBXProject "Pods" */;
-			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
-			hasScannedForEncodings = 0;
-			knownRegions = (
-				en,
-			);
-			mainGroup = 363C613EFFDE5BBA1CF86E5D;
-			productRefGroup = FF9468EC27A967C62E166ABE /* Products */;
-			projectDirPath = "";
-			projectRoot = "";
-			targets = (
-				29C03948122E3705A3F3494B /* Pods-Hammerspoon */,
-				B00977041CCFF626643E68FB /* Pods-Hammerspoon-Sparkle */,
-				F221A63D24CFC31A02B31D1F /* Pods-Hammerspoon-lua */,
-			);
-		};
-/* End PBXProject section */
-
-/* Begin PBXSourcesBuildPhase section */
-		509266F5AB60B47451768510 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				96E01309F860D23ADB12DFEF /* Pods-Hammerspoon-lua-dummy.m in Sources */,
-				F41190FAD25F42FA83E3D2C6 /* lapi.c in Sources */,
-				82E1EB751595CE09B2A67F3E /* lauxlib.c in Sources */,
-				21295848F83A63BEB4717CFF /* lbaselib.c in Sources */,
-				C9B29B006B5FB3F1EAB91FC7 /* lbitlib.c in Sources */,
-				EB5F013190312E02DC9B8300 /* lcode.c in Sources */,
-				AC77A336DC83411353B25ACA /* lcorolib.c in Sources */,
-				AE1F576EDDD9488473C3C08C /* lctype.c in Sources */,
-				B419CF16A070C0342C925128 /* ldblib.c in Sources */,
-				A0804E7EE43489BCFC193E72 /* ldebug.c in Sources */,
-				08EEA7A6620D28DBCE58210D /* ldo.c in Sources */,
-				9F431DE65589209DAA005719 /* ldump.c in Sources */,
-				4AB2C40184FCE7C6D634D112 /* lfunc.c in Sources */,
-				48E489555EEFBF45693F18BC /* lgc.c in Sources */,
-				B5F2C63C473EB017228B47A5 /* linit.c in Sources */,
-				19BD76312349EFB1DFC6DAA5 /* liolib.c in Sources */,
-				6AF0C67C03AD0F0933221078 /* llex.c in Sources */,
-				F3C38C4EEFC581A5923FE5AA /* lmathlib.c in Sources */,
-				576835646A572BBE6BF8A472 /* lmem.c in Sources */,
-				3CCDD20DA2838E50E92B169A /* loadlib.c in Sources */,
-				EF49A1E7138C9681C3945520 /* lobject.c in Sources */,
-				DF438F85B312859B62D6A23A /* lopcodes.c in Sources */,
-				3B06944853DD3CFDADFC40FF /* loslib.c in Sources */,
-				3DA714396DBB52B7EC43AEDB /* lparser.c in Sources */,
-				BD8E8BEC0FCD8052075A577B /* lstate.c in Sources */,
-				522DF12A18E85ACEB4A69D3D /* lstring.c in Sources */,
-				F5509032EE67652AED393658 /* lstrlib.c in Sources */,
-				FBFE4D4F185CFCE8C5C40669 /* ltable.c in Sources */,
-				3E0989C612F81889C85B27E8 /* ltablib.c in Sources */,
-				91A0625FB2755F8A263FA439 /* ltm.c in Sources */,
-				EF40C055A4BF3C4AF05C5EB5 /* lundump.c in Sources */,
-				244A60E90F219972F14A8A45 /* lvm.c in Sources */,
-				241360CB8221DD6587AC7B53 /* lzio.c in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B8D74FDA4C7516D288AA1674 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F337DB695EAD271339FC2F7D /* Pods-Hammerspoon-Sparkle-dummy.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D7283DE02363D94ED3B5C395 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				52BF2EE48FCCC1CB9D70FDEA /* Pods-Hammerspoon-dummy.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		768A4E2D69D5152DD692D0D2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F221A63D24CFC31A02B31D1F /* Pods-Hammerspoon-lua */;
-			targetProxy = 9E48F09AA82877C7F45084CC /* PBXContainerItemProxy */;
-		};
-		79CF0CCFC2CDC9D15199BBC0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B00977041CCFF626643E68FB /* Pods-Hammerspoon-Sparkle */;
-			targetProxy = B47DD059D49996AF31B030C7 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
-/* Begin XCBuildConfiguration section */
-		011947581220B9C2421B43D7 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1E0D4B385823B2B65A609A24 /* Pods-Hammerspoon-Sparkle-Private.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DSTROOT = /tmp/xcodeproj.dst;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-Sparkle/Pods-Hammerspoon-Sparkle-prefix.pch";
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				OTHER_CFLAGS = (
-					"-DNS_BLOCK_ASSERTIONS=1",
-					"$(inherited)",
-				);
-				OTHER_CPLUSPLUSFLAGS = (
-					"-DNS_BLOCK_ASSERTIONS=1",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
-		09CCDAF4D1DAA07A370BF607 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = A5B4032F001ABFEFC81BD231 /* Pods-Hammerspoon.release.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DSTROOT = /tmp/xcodeproj.dst;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"COCOAPODS=1",
-				);
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				OTHER_CFLAGS = (
-					"-DNS_BLOCK_ASSERTIONS=1",
-					"$(inherited)",
-				);
-				OTHER_CPLUSPLUSFLAGS = (
-					"-DNS_BLOCK_ASSERTIONS=1",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
-		238926E1E7A71EE4E7612D90 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 240FA56C239F7D66A6B6B2EF /* Pods-Hammerspoon-lua-Private.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DSTROOT = /tmp/xcodeproj.dst;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					"COCOAPODS=1",
-					"LUA_USE_MACOSX=1",
-				);
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				OTHER_CFLAGS = (
-					"-DNS_BLOCK_ASSERTIONS=1",
-					"$(inherited)",
-				);
-				OTHER_CPLUSPLUSFLAGS = (
-					"-DNS_BLOCK_ASSERTIONS=1",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
-		2E5DB2892986B1E2F4F9B0AC /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 240FA56C239F7D66A6B6B2EF /* Pods-Hammerspoon-lua-Private.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DSTROOT = /tmp/xcodeproj.dst;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-					"LUA_USE_MACOSX=1",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		8BB2FB862209722307346DFB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES;
-				COPY_PHASE_STRIP = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				ONLY_ACTIVE_ARCH = YES;
-				STRIP_INSTALLED_PRODUCT = NO;
-			};
-			name = Debug;
-		};
-		9E7F4ED345B3C0B45D284C94 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES;
-				COPY_PHASE_STRIP = NO;
-				ENABLE_NS_ASSERTIONS = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_PREPROCESSOR_DEFINITIONS = "RELEASE=1";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				STRIP_INSTALLED_PRODUCT = NO;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		BBB2501145AB14317E572637 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2C9C994BBAD521C0A9FFB6FC /* Pods-Hammerspoon.debug.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DSTROOT = /tmp/xcodeproj.dst;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-		CA5F38EBB94B7B759730C4E0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1E0D4B385823B2B65A609A24 /* Pods-Hammerspoon-Sparkle-Private.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DSTROOT = /tmp/xcodeproj.dst;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-Sparkle/Pods-Hammerspoon-Sparkle-prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INSTALL_PATH = "$(BUILT_PRODUCTS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-			};
-			name = Debug;
-		};
-/* End XCBuildConfiguration section */
-
-/* Begin XCConfigurationList section */
-		51A76F687C066FCE9113AC72 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-lua" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2E5DB2892986B1E2F4F9B0AC /* Debug */,
-				238926E1E7A71EE4E7612D90 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		82ED02A2D77DE973CF2952E7 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-Sparkle" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				CA5F38EBB94B7B759730C4E0 /* Debug */,
-				011947581220B9C2421B43D7 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		A98D8DAEF5609FA9277AECD8 /* Build configuration list for PBXProject "Pods" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				8BB2FB862209722307346DFB /* Debug */,
-				9E7F4ED345B3C0B45D284C94 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AE537D0AA34DC2C9B5421C7F /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BBB2501145AB14317E572637 /* Debug */,
-				09CCDAF4D1DAA07A370BF607 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-/* End XCConfigurationList section */
-	};
-	rootObject = 5734EF951F25009B82C1BB10 /* Project object */;
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>archiveVersion</key>
+	<string>1</string>
+	<key>classes</key>
+	<dict/>
+	<key>objectVersion</key>
+	<string>46</string>
+	<key>objects</key>
+	<dict>
+		<key>00CF4FF56F8A726570888C09</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lundump.h</string>
+			<key>path</key>
+			<string>src/lundump.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>032919186BCF58103EE048D1</key>
+		<dict>
+			<key>fileRef</key>
+			<string>810A6D78CDDA3BC7464C9AE6</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>039067581100ABE0F3A35D59</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>ldblib.c</string>
+			<key>path</key>
+			<string>src/ldblib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0521F38380460ABB49280BCF</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>EF47BCFBD5CA0B0717CDF507</string>
+				<string>9F61CDAD237A27AC3BD41BBB</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>0655E720858CB5BFE7BE5398</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_CXX_LANGUAGE_STANDARD</key>
+				<string>gnu++0x</string>
+				<key>CLANG_CXX_LIBRARY</key>
+				<string>libc++</string>
+				<key>CLANG_ENABLE_MODULES</key>
+				<string>YES</string>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>YES</string>
+				<key>CLANG_WARN_BOOL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_CONSTANT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_DIRECT_OBJC_ISA_USAGE</key>
+				<string>YES</string>
+				<key>CLANG_WARN_EMPTY_BODY</key>
+				<string>YES</string>
+				<key>CLANG_WARN_ENUM_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_ROOT_CLASS</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>GCC_C_LANGUAGE_STANDARD</key>
+				<string>gnu99</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PREPROCESSOR_DEFINITIONS</key>
+				<array>
+					<string>DEBUG=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>GCC_SYMBOLS_PRIVATE_EXTERN</key>
+				<string>NO</string>
+				<key>GCC_WARN_64_TO_32_BIT_CONVERSION</key>
+				<string>YES</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNDECLARED_SELECTOR</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_FUNCTION</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>10.8</string>
+				<key>ONLY_ACTIVE_ARCH</key>
+				<string>YES</string>
+				<key>STRIP_INSTALLED_PRODUCT</key>
+				<string>NO</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>081BE0606A5C44188A8B9B17</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>E420CE6E33B8CD4FD78D5726</string>
+				<string>281B9FB6AB16B6004E38D2EB</string>
+				<string>9EF49499AECA14D3E90CCFC2</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Products</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0858A5DD0C94EF384476D29A</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lualib.h</string>
+			<key>path</key>
+			<string>src/lualib.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>088E4C19ACF13ECB21D1F12D</key>
+		<dict>
+			<key>fileRef</key>
+			<string>AF76B9DFFA5D3F17C3F54C05</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>0B11A36C2925BF8FC7A95224</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>ldebug.c</string>
+			<key>path</key>
+			<string>src/ldebug.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0B5B18DE91D710ADDDDBAB07</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>ltm.h</string>
+			<key>path</key>
+			<string>src/ltm.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0BE375A5F21F1C10EEC35914</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lopcodes.c</string>
+			<key>path</key>
+			<string>src/lopcodes.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>0DF7C450CC58ADFA212329BB</key>
+		<dict>
+			<key>fileRef</key>
+			<string>A0FC029010FD367E11058C67</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>0E74918AACECF5C6CF121509</key>
+		<dict>
+			<key>fileRef</key>
+			<string>DDF756F1EFA0C4F0E483E28F</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>0F38D9180C4020585324B119</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>D72B32E5C83947DE1EB97665</string>
+				<string>441A2E1C37CB571783FB9B8C</string>
+				<string>2944B4450B96D6331156F448</string>
+				<string>991D055501A985270984ED02</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Support Files</string>
+			<key>path</key>
+			<string>../Target Support Files/Pods-Hammerspoon-Sparkle</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>10B1BD67A3E48C2A9CD3EDE1</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.xcconfig</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon.debug.xcconfig</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>123A733F073666FCD9DD4C53</key>
+		<dict>
+			<key>fileRef</key>
+			<string>DD2B0019E3A6B50B567BA7AF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>124DE1B428F6BD2E455A3A12</key>
+		<dict>
+			<key>baseConfigurationReference</key>
+			<string>441A2E1C37CB571783FB9B8C</string>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>COMBINE_HIDPI_IMAGES</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DSTROOT</key>
+				<string>/tmp/xcodeproj.dst</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_OBJC_EXCEPTIONS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>Target Support Files/Pods-Hammerspoon-Sparkle/Pods-Hammerspoon-Sparkle-prefix.pch</string>
+				<key>GCC_PREPROCESSOR_DEFINITIONS</key>
+				<array>
+					<string>DEBUG=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>GCC_SYMBOLS_PRIVATE_EXTERN</key>
+				<string>NO</string>
+				<key>GCC_VERSION</key>
+				<string>com.apple.compilers.llvm.clang.1_0</string>
+				<key>INSTALL_PATH</key>
+				<string>$(BUILT_PRODUCTS_DIR)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>10.8</string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_LIBTOOLFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>$(TARGET_NAME)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SKIP_INSTALL</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>13E4C5068E296E7F99895001</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>A133494C99141CE6B25F91DD</string>
+				<string>E9AE7BF38D5D4B010C61E6D8</string>
+				<string>0F38D9180C4020585324B119</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Sparkle</string>
+			<key>path</key>
+			<string>Sparkle</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>158100260B055C3F8D635338</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.script.sh</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-resources.sh</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>164DC81007C331FA61CA0946</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lcorolib.c</string>
+			<key>path</key>
+			<string>src/lcorolib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>169237E38B0F3A6BF00DC147</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>EEDAA18AE5AEB78A89A6C77A</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>1771247493E6BC86F774AED9</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lvm.c</string>
+			<key>path</key>
+			<string>src/lvm.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>18302CB0393843FAA4AA7202</key>
+		<dict>
+			<key>fileRef</key>
+			<string>F44DE4A27C2EB967B23F292C</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>183FE721296B1C104983B628</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lgc.c</string>
+			<key>path</key>
+			<string>src/lgc.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1A3A523338306682EC81ACB8</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>1C5597B19511E9EA94C61BC9</string>
+				<string>810A6D78CDDA3BC7464C9AE6</string>
+				<string>70CB6383F71217196450CD1C</string>
+				<string>60316C97C873FE7BF65D2082</string>
+				<string>A0FC029010FD367E11058C67</string>
+				<string>CFF974B2D2846415C485D511</string>
+				<string>2FB00C21D7F89C11785D36A8</string>
+				<string>D403B4677F41F7B3136B728C</string>
+				<string>164DC81007C331FA61CA0946</string>
+				<string>714973439C258A04F59BE041</string>
+				<string>4595D48718F91426D602CDA6</string>
+				<string>039067581100ABE0F3A35D59</string>
+				<string>0B11A36C2925BF8FC7A95224</string>
+				<string>F02C2A24A704C62752361B6E</string>
+				<string>E790653840793DF43E6B25D5</string>
+				<string>BB4A04460B22CAE359EFE675</string>
+				<string>4D15102FCD3E17B09D8558FA</string>
+				<string>CDFC8B2298711180E2C86F02</string>
+				<string>DD2B0019E3A6B50B567BA7AF</string>
+				<string>183FE721296B1C104983B628</string>
+				<string>81ED15DA4A6A775A268AFC6A</string>
+				<string>8F7CC5154A2AA72CB83C4CD9</string>
+				<string>F44DE4A27C2EB967B23F292C</string>
+				<string>48CB6B2C39409DBB115AF18B</string>
+				<string>95372DD6D313D1CFBDAD9B9C</string>
+				<string>BD316C12CE18F1471FFCA907</string>
+				<string>DD70C76A0E465CF24F636ECB</string>
+				<string>1DAA8D9C89E89F58D429BA5C</string>
+				<string>EC47F16D496D5FE2E542CC23</string>
+				<string>B21AF5301E74E2605077916A</string>
+				<string>1B8D994A0AAA06E4A27E102A</string>
+				<string>E9E62E94910F05E2FBD59B32</string>
+				<string>0BE375A5F21F1C10EEC35914</string>
+				<string>AF76B9DFFA5D3F17C3F54C05</string>
+				<string>473E5E8CCD9F3CAEEB55EB3E</string>
+				<string>CCEB28B29AB20E76BE49C471</string>
+				<string>B1E6919CFFFEC90B82C2F242</string>
+				<string>C76069F3E4D3C373A0B19F13</string>
+				<string>FDADB428979AFB0926DADABC</string>
+				<string>C16CFFEAD3372302E03772DB</string>
+				<string>B5004BC2D78038A50888D440</string>
+				<string>DDF756F1EFA0C4F0E483E28F</string>
+				<string>690509EDFDB7BE3D90BDA003</string>
+				<string>592FAC7781EF7A8D2D96B7B5</string>
+				<string>5827ADC04348F75F74FC1FAC</string>
+				<string>EC2888755307ED8AAB2AF417</string>
+				<string>0B5B18DE91D710ADDDDBAB07</string>
+				<string>BC73A12E3DBB664235547D00</string>
+				<string>CF48B9A028A6284F396364CF</string>
+				<string>BC57952AFF8EA61D3263BD70</string>
+				<string>0858A5DD0C94EF384476D29A</string>
+				<string>B0F90981C58CF8A36CFD5FB0</string>
+				<string>00CF4FF56F8A726570888C09</string>
+				<string>1771247493E6BC86F774AED9</string>
+				<string>21133AC9C50E565A98488026</string>
+				<string>B01F2843D8519C968473F557</string>
+				<string>411D94C1D967FB9065B92420</string>
+				<string>9DFDA57BA6D7593EDA7759E0</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>lua</string>
+			<key>path</key>
+			<string>lua</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1B2486C73332C2649E8CF6AF</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.xcconfig</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-lua-Private.xcconfig</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1B4F9E6CE9F6739342FFD978</key>
+		<dict>
+			<key>fileRef</key>
+			<string>4595D48718F91426D602CDA6</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>1B896FDA45AF4CE981545951</key>
+		<dict>
+			<key>fileRef</key>
+			<string>4D15102FCD3E17B09D8558FA</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>1B8D994A0AAA06E4A27E102A</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lobject.c</string>
+			<key>path</key>
+			<string>src/lobject.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1C5597B19511E9EA94C61BC9</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lapi.c</string>
+			<key>path</key>
+			<string>src/lapi.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1DAA8D9C89E89F58D429BA5C</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lmem.c</string>
+			<key>path</key>
+			<string>src/lmem.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>1E7770CDE56A42737C64D31C</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>956DE4D4EB43A9707C68E533</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>OS X</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>21133AC9C50E565A98488026</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lvm.h</string>
+			<key>path</key>
+			<string>src/lvm.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>23D0AD887D61A0025E06CBD2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>B1E6919CFFFEC90B82C2F242</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>24A7A0F6C12A5FAEDDA229E6</key>
+		<dict>
+			<key>fileRef</key>
+			<string>5827ADC04348F75F74FC1FAC</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>25AA897C2DDB9612263D691A</key>
+		<dict>
+			<key>fileRef</key>
+			<string>60316C97C873FE7BF65D2082</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>265A0EBC0F489A64C39767C2</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.xcconfig</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon.release.xcconfig</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>278C7ED1629A263105373BC1</key>
+		<dict>
+			<key>fileRef</key>
+			<string>B0F90981C58CF8A36CFD5FB0</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>281B9FB6AB16B6004E38D2EB</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>archive.ar</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>libPods-Hammerspoon-Sparkle.a</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>2944B4450B96D6331156F448</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-Sparkle-dummy.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>2B3AF061F18B8DBF86602F06</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>path</key>
+			<string>Sparkle.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>2C194F98140E967C130E1AAC</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXTargetDependency</string>
+			<key>name</key>
+			<string>Pods-Hammerspoon-Sparkle</string>
+			<key>target</key>
+			<string>A6D2DB571FCBF73A28DAF4A3</string>
+			<key>targetProxy</key>
+			<string>7120BD9B64F1688ACDD15283</string>
+		</dict>
+		<key>2FB00C21D7F89C11785D36A8</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lcode.c</string>
+			<key>path</key>
+			<string>src/lcode.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>350AF3DBEE83BB37EC380B88</key>
+		<dict>
+			<key>fileRef</key>
+			<string>CFF974B2D2846415C485D511</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>3AA4A7FB3BD7EC81E539AF5E</key>
+		<dict>
+			<key>fileRef</key>
+			<string>039067581100ABE0F3A35D59</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>3C5D8B9C4EAD613D68FAB37F</key>
+		<dict>
+			<key>fileRef</key>
+			<string>E9E62E94910F05E2FBD59B32</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>3EB84E3CC96AA17F31C916DE</key>
+		<dict>
+			<key>fileRef</key>
+			<string>473E5E8CCD9F3CAEEB55EB3E</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>408176EE62BE2A23EC29C667</key>
+		<dict>
+			<key>fileRef</key>
+			<string>B21AF5301E74E2605077916A</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>411D94C1D967FB9065B92420</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lzio.h</string>
+			<key>path</key>
+			<string>src/lzio.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>441A2E1C37CB571783FB9B8C</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.xcconfig</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-Sparkle-Private.xcconfig</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>4595D48718F91426D602CDA6</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lctype.h</string>
+			<key>path</key>
+			<string>src/lctype.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>462793E6ABF8B0B2C7A72192</key>
+		<dict>
+			<key>fileRef</key>
+			<string>0858A5DD0C94EF384476D29A</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>473E5E8CCD9F3CAEEB55EB3E</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>loslib.c</string>
+			<key>path</key>
+			<string>src/loslib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>48CB6B2C39409DBB115AF18B</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>llex.c</string>
+			<key>path</key>
+			<string>src/llex.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>4AEF458A5F35E70CE5ACF682</key>
+		<dict>
+			<key>fileRef</key>
+			<string>C76069F3E4D3C373A0B19F13</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>4C5FC578910C000A37B56BF0</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>AB0F855245B984B2C96FAD7C</string>
+			<key>buildPhases</key>
+			<array>
+				<string>E0E4E683D9D6AC0A3A8B7A14</string>
+				<string>526FC369ED04263937EED6E6</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array>
+				<string>2C194F98140E967C130E1AAC</string>
+				<string>C60DD8025F00BA78417E5611</string>
+			</array>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>Pods-Hammerspoon</string>
+			<key>productName</key>
+			<string>Pods-Hammerspoon</string>
+			<key>productReference</key>
+			<string>E420CE6E33B8CD4FD78D5726</string>
+			<key>productType</key>
+			<string>com.apple.product-type.library.static</string>
+		</dict>
+		<key>4C6F70EF1A0309E6536E2153</key>
+		<dict>
+			<key>fileRef</key>
+			<string>0BE375A5F21F1C10EEC35914</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>4D15102FCD3E17B09D8558FA</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>ldump.c</string>
+			<key>path</key>
+			<string>src/ldump.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>526FC369ED04263937EED6E6</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>B19324AC1CB1DE6E76FCAEBC</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>55362325DF96E0B7F3699FF0</key>
+		<dict>
+			<key>fileRef</key>
+			<string>714973439C258A04F59BE041</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>57DE5006A16068136470D187</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>1E7770CDE56A42737C64D31C</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>5827ADC04348F75F74FC1FAC</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>ltablib.c</string>
+			<key>path</key>
+			<string>src/ltablib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>592FAC7781EF7A8D2D96B7B5</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>ltable.h</string>
+			<key>path</key>
+			<string>src/ltable.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>5C602B4411ABEC8238900FF3</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>name</key>
+			<string>Podfile</string>
+			<key>path</key>
+			<string>../Podfile</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+			<key>xcLanguageSpecificationIdentifier</key>
+			<string>xcode.lang.ruby</string>
+		</dict>
+		<key>5CF16C3B8E1840D00F86E2EF</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>AAA5BB2A905A775C84E93D28</string>
+				<string>DDD06B1AA3217E814BA2B5D5</string>
+				<string>ACBAD5100156788620800C32</string>
+				<string>0DF7C450CC58ADFA212329BB</string>
+				<string>350AF3DBEE83BB37EC380B88</string>
+				<string>796E228D2B4742EDE8967BF3</string>
+				<string>B0BFA56622D098D53ABB6749</string>
+				<string>55362325DF96E0B7F3699FF0</string>
+				<string>3AA4A7FB3BD7EC81E539AF5E</string>
+				<string>C166113CF199DE15105FCEFF</string>
+				<string>C2B8018EF9B26AD4B4B49C98</string>
+				<string>1B896FDA45AF4CE981545951</string>
+				<string>C844AD6CEC4EE1FF965EA290</string>
+				<string>CCEA9F7F446CC00844A24BEE</string>
+				<string>B3612D59CFEF2CDC259A8F4D</string>
+				<string>18302CB0393843FAA4AA7202</string>
+				<string>D42E0AA41F496231B795474B</string>
+				<string>6CA9DEEA082F8A7FB76F578C</string>
+				<string>E6C241E9A1C5B21139A181D7</string>
+				<string>408176EE62BE2A23EC29C667</string>
+				<string>92696F2A36B714994118FBE9</string>
+				<string>4C6F70EF1A0309E6536E2153</string>
+				<string>3EB84E3CC96AA17F31C916DE</string>
+				<string>79DDCCBA0BE80CFC833FD368</string>
+				<string>4AEF458A5F35E70CE5ACF682</string>
+				<string>9202F3DE8EF3F31016A34BCA</string>
+				<string>0E74918AACECF5C6CF121509</string>
+				<string>737D60679B8CF055145D00E3</string>
+				<string>24A7A0F6C12A5FAEDDA229E6</string>
+				<string>716816A16F396A8E8EFC8FA4</string>
+				<string>278C7ED1629A263105373BC1</string>
+				<string>BEBF1AD9EA74C295312317B6</string>
+				<string>68F2A15973EEAF4EA832FE0E</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>5F13D08CC2D573D95CA327CC</key>
+		<dict>
+			<key>baseConfigurationReference</key>
+			<string>441A2E1C37CB571783FB9B8C</string>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>COMBINE_HIDPI_IMAGES</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>DSTROOT</key>
+				<string>/tmp/xcodeproj.dst</string>
+				<key>GCC_ENABLE_OBJC_EXCEPTIONS</key>
+				<string>YES</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>Target Support Files/Pods-Hammerspoon-Sparkle/Pods-Hammerspoon-Sparkle-prefix.pch</string>
+				<key>GCC_VERSION</key>
+				<string>com.apple.compilers.llvm.clang.1_0</string>
+				<key>INSTALL_PATH</key>
+				<string>$(BUILT_PRODUCTS_DIR)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>10.8</string>
+				<key>OTHER_CFLAGS</key>
+				<array>
+					<string>-DNS_BLOCK_ASSERTIONS=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>OTHER_CPLUSPLUSFLAGS</key>
+				<array>
+					<string>-DNS_BLOCK_ASSERTIONS=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_LIBTOOLFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>$(TARGET_NAME)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SKIP_INSTALL</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>5FADE05BAE7E0B528B410799</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-acknowledgements.markdown</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>60316C97C873FE7BF65D2082</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lauxlib.h</string>
+			<key>path</key>
+			<string>src/lauxlib.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>616885D8129DFC9413296E52</key>
+		<dict>
+			<key>fileRef</key>
+			<string>0B5B18DE91D710ADDDDBAB07</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>67324886A6051A309D132258</key>
+		<dict>
+			<key>fileRef</key>
+			<string>95372DD6D313D1CFBDAD9B9C</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>68F2A15973EEAF4EA832FE0E</key>
+		<dict>
+			<key>fileRef</key>
+			<string>B01F2843D8519C968473F557</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>690509EDFDB7BE3D90BDA003</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>ltable.c</string>
+			<key>path</key>
+			<string>src/ltable.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>696B41FAF4DFD3E20BA8F682</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-environment.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>6CA9DEEA082F8A7FB76F578C</key>
+		<dict>
+			<key>fileRef</key>
+			<string>DD70C76A0E465CF24F636ECB</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>70CB6383F71217196450CD1C</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lauxlib.c</string>
+			<key>path</key>
+			<string>src/lauxlib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>7120BD9B64F1688ACDD15283</key>
+		<dict>
+			<key>containerPortal</key>
+			<string>97AFE740514D1E97377B78AC</string>
+			<key>isa</key>
+			<string>PBXContainerItemProxy</string>
+			<key>proxyType</key>
+			<string>1</string>
+			<key>remoteGlobalIDString</key>
+			<string>A6D2DB571FCBF73A28DAF4A3</string>
+			<key>remoteInfo</key>
+			<string>Pods-Hammerspoon-Sparkle</string>
+		</dict>
+		<key>714973439C258A04F59BE041</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lctype.c</string>
+			<key>path</key>
+			<string>src/lctype.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>716816A16F396A8E8EFC8FA4</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EC2888755307ED8AAB2AF417</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>72BFAE66BAE0F35FD5A6B999</key>
+		<dict>
+			<key>fileRef</key>
+			<string>EC47F16D496D5FE2E542CC23</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>737D60679B8CF055145D00E3</key>
+		<dict>
+			<key>fileRef</key>
+			<string>690509EDFDB7BE3D90BDA003</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>77ECAFCD22BC1A9BBD1D41AF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>2944B4450B96D6331156F448</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>792259A90185252ACE962F3C</key>
+		<dict>
+			<key>fileRef</key>
+			<string>81ED15DA4A6A775A268AFC6A</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>796E228D2B4742EDE8967BF3</key>
+		<dict>
+			<key>fileRef</key>
+			<string>2FB00C21D7F89C11785D36A8</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>79DDCCBA0BE80CFC833FD368</key>
+		<dict>
+			<key>fileRef</key>
+			<string>CCEB28B29AB20E76BE49C471</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>7C11322EA26CFAC32A89ECAD</key>
+		<dict>
+			<key>fileRef</key>
+			<string>411D94C1D967FB9065B92420</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>7CB192D99580729D6296552E</key>
+		<dict>
+			<key>fileRef</key>
+			<string>BC73A12E3DBB664235547D00</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>810A6D78CDDA3BC7464C9AE6</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lapi.h</string>
+			<key>path</key>
+			<string>src/lapi.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>81ED15DA4A6A775A268AFC6A</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lgc.h</string>
+			<key>path</key>
+			<string>src/lgc.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>89403501F087854B1FFC5641</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.xcconfig</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-lua.xcconfig</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>8B97C4873C9285EB0200181C</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>77ECAFCD22BC1A9BBD1D41AF</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>8E5A5DFC62B3BAB438F7A06F</key>
+		<dict>
+			<key>fileRef</key>
+			<string>F02C2A24A704C62752361B6E</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>8F7CC5154A2AA72CB83C4CD9</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>linit.c</string>
+			<key>path</key>
+			<string>src/linit.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>9202F3DE8EF3F31016A34BCA</key>
+		<dict>
+			<key>fileRef</key>
+			<string>C16CFFEAD3372302E03772DB</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>92696F2A36B714994118FBE9</key>
+		<dict>
+			<key>fileRef</key>
+			<string>1B8D994A0AAA06E4A27E102A</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>95372DD6D313D1CFBDAD9B9C</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>llex.h</string>
+			<key>path</key>
+			<string>src/llex.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>956DE4D4EB43A9707C68E533</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Cocoa.framework</string>
+			<key>path</key>
+			<string>Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/Cocoa.framework</string>
+			<key>sourceTree</key>
+			<string>DEVELOPER_DIR</string>
+		</dict>
+		<key>9633FCD6DA451DC48A23BE46</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>DBE9AA2A25B6B9BF0B0E9638</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Targets Support Files</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>97AFE740514D1E97377B78AC</key>
+		<dict>
+			<key>attributes</key>
+			<dict>
+				<key>LastUpgradeCheck</key>
+				<string>0510</string>
+			</dict>
+			<key>buildConfigurationList</key>
+			<string>D50107074FD7C63A0AFB443D</string>
+			<key>compatibilityVersion</key>
+			<string>Xcode 3.2</string>
+			<key>developmentRegion</key>
+			<string>English</string>
+			<key>hasScannedForEncodings</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXProject</string>
+			<key>knownRegions</key>
+			<array>
+				<string>en</string>
+			</array>
+			<key>mainGroup</key>
+			<string>D28AE81B8975DB57F2AF1562</string>
+			<key>productRefGroup</key>
+			<string>081BE0606A5C44188A8B9B17</string>
+			<key>projectDirPath</key>
+			<string></string>
+			<key>projectReferences</key>
+			<array/>
+			<key>projectRoot</key>
+			<string></string>
+			<key>targets</key>
+			<array>
+				<string>4C5FC578910C000A37B56BF0</string>
+				<string>A6D2DB571FCBF73A28DAF4A3</string>
+				<string>ECB212DB7355FBE1241C2AF0</string>
+			</array>
+		</dict>
+		<key>991D055501A985270984ED02</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-Sparkle-prefix.pch</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>9DFDA57BA6D7593EDA7759E0</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>89403501F087854B1FFC5641</string>
+				<string>1B2486C73332C2649E8CF6AF</string>
+				<string>D6C47D13C1F17FA847B0721D</string>
+				<string>C8B7848FA84876AC69E33ACD</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Support Files</string>
+			<key>path</key>
+			<string>../Target Support Files/Pods-Hammerspoon-lua</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>9EF49499AECA14D3E90CCFC2</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>archive.ar</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>libPods-Hammerspoon-lua.a</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>9F61CDAD237A27AC3BD41BBB</key>
+		<dict>
+			<key>baseConfigurationReference</key>
+			<string>1B2486C73332C2649E8CF6AF</string>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>COMBINE_HIDPI_IMAGES</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>DSTROOT</key>
+				<string>/tmp/xcodeproj.dst</string>
+				<key>GCC_ENABLE_OBJC_EXCEPTIONS</key>
+				<string>YES</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch</string>
+				<key>GCC_VERSION</key>
+				<string>com.apple.compilers.llvm.clang.1_0</string>
+				<key>INSTALL_PATH</key>
+				<string>$(BUILT_PRODUCTS_DIR)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>10.8</string>
+				<key>OTHER_CFLAGS</key>
+				<array>
+					<string>-DNS_BLOCK_ASSERTIONS=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>OTHER_CPLUSPLUSFLAGS</key>
+				<array>
+					<string>-DNS_BLOCK_ASSERTIONS=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_LIBTOOLFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>$(TARGET_NAME)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SKIP_INSTALL</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>A0FC029010FD367E11058C67</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lbaselib.c</string>
+			<key>path</key>
+			<string>src/lbaselib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>A133494C99141CE6B25F91DD</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>2B3AF061F18B8DBF86602F06</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Frameworks</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>A6D2DB571FCBF73A28DAF4A3</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>AB2617103C8338993013CBDE</string>
+			<key>buildPhases</key>
+			<array>
+				<string>8B97C4873C9285EB0200181C</string>
+				<string>169237E38B0F3A6BF00DC147</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>Pods-Hammerspoon-Sparkle</string>
+			<key>productName</key>
+			<string>Pods-Hammerspoon-Sparkle</string>
+			<key>productReference</key>
+			<string>281B9FB6AB16B6004E38D2EB</string>
+			<key>productType</key>
+			<string>com.apple.product-type.library.static</string>
+		</dict>
+		<key>AAA5BB2A905A775C84E93D28</key>
+		<dict>
+			<key>fileRef</key>
+			<string>D6C47D13C1F17FA847B0721D</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>AB0F855245B984B2C96FAD7C</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>C46E196384418D42AE2908B8</string>
+				<string>BA0AB6F5C457F6BAB9B2E6AA</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>AB2617103C8338993013CBDE</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>124DE1B428F6BD2E455A3A12</string>
+				<string>5F13D08CC2D573D95CA327CC</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>ACBAD5100156788620800C32</key>
+		<dict>
+			<key>fileRef</key>
+			<string>70CB6383F71217196450CD1C</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>AF76B9DFFA5D3F17C3F54C05</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lopcodes.h</string>
+			<key>path</key>
+			<string>src/lopcodes.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>B01F2843D8519C968473F557</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lzio.c</string>
+			<key>path</key>
+			<string>src/lzio.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>B0BFA56622D098D53ABB6749</key>
+		<dict>
+			<key>fileRef</key>
+			<string>164DC81007C331FA61CA0946</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>B0F90981C58CF8A36CFD5FB0</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lundump.c</string>
+			<key>path</key>
+			<string>src/lundump.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>B12B5ADC8E8C581D72142FCE</key>
+		<dict>
+			<key>fileRef</key>
+			<string>CF48B9A028A6284F396364CF</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>B130E1E5E5E77DADCBDC3AF2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>BC57952AFF8EA61D3263BD70</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>B19324AC1CB1DE6E76FCAEBC</key>
+		<dict>
+			<key>fileRef</key>
+			<string>956DE4D4EB43A9707C68E533</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>B1E6919CFFFEC90B82C2F242</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lparser.h</string>
+			<key>path</key>
+			<string>src/lparser.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>B204A019458EEBB073D90CC8</key>
+		<dict>
+			<key>fileRef</key>
+			<string>D403B4677F41F7B3136B728C</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>B21AF5301E74E2605077916A</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>loadlib.c</string>
+			<key>path</key>
+			<string>src/loadlib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>B3612D59CFEF2CDC259A8F4D</key>
+		<dict>
+			<key>fileRef</key>
+			<string>8F7CC5154A2AA72CB83C4CD9</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>B373CD3E6914E8CE3BC83E63</key>
+		<dict>
+			<key>fileRef</key>
+			<string>B5004BC2D78038A50888D440</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>B5004BC2D78038A50888D440</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lstring.h</string>
+			<key>path</key>
+			<string>src/lstring.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>B985268D8E86158C55A794E9</key>
+		<dict>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>CLANG_CXX_LANGUAGE_STANDARD</key>
+				<string>gnu++0x</string>
+				<key>CLANG_CXX_LIBRARY</key>
+				<string>libc++</string>
+				<key>CLANG_ENABLE_MODULES</key>
+				<string>YES</string>
+				<key>CLANG_ENABLE_OBJC_ARC</key>
+				<string>YES</string>
+				<key>CLANG_WARN_BOOL_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_CONSTANT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_DIRECT_OBJC_ISA_USAGE</key>
+				<string>YES</string>
+				<key>CLANG_WARN_EMPTY_BODY</key>
+				<string>YES</string>
+				<key>CLANG_WARN_ENUM_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_INT_CONVERSION</key>
+				<string>YES</string>
+				<key>CLANG_WARN_OBJC_ROOT_CLASS</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>ENABLE_NS_ASSERTIONS</key>
+				<string>NO</string>
+				<key>GCC_C_LANGUAGE_STANDARD</key>
+				<string>gnu99</string>
+				<key>GCC_PREPROCESSOR_DEFINITIONS</key>
+				<array>
+					<string>RELEASE=1</string>
+				</array>
+				<key>GCC_WARN_64_TO_32_BIT_CONVERSION</key>
+				<string>YES</string>
+				<key>GCC_WARN_ABOUT_RETURN_TYPE</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNDECLARED_SELECTOR</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNINITIALIZED_AUTOS</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_FUNCTION</key>
+				<string>YES</string>
+				<key>GCC_WARN_UNUSED_VARIABLE</key>
+				<string>YES</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>10.8</string>
+				<key>STRIP_INSTALLED_PRODUCT</key>
+				<string>NO</string>
+				<key>VALIDATE_PRODUCT</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>BA0AB6F5C457F6BAB9B2E6AA</key>
+		<dict>
+			<key>baseConfigurationReference</key>
+			<string>265A0EBC0F489A64C39767C2</string>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>COMBINE_HIDPI_IMAGES</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>YES</string>
+				<key>DEBUG_INFORMATION_FORMAT</key>
+				<string>dwarf-with-dsym</string>
+				<key>DSTROOT</key>
+				<string>/tmp/xcodeproj.dst</string>
+				<key>GCC_ENABLE_OBJC_EXCEPTIONS</key>
+				<string>YES</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_VERSION</key>
+				<string>com.apple.compilers.llvm.clang.1_0</string>
+				<key>INSTALL_PATH</key>
+				<string>$(BUILT_PRODUCTS_DIR)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>10.8</string>
+				<key>OTHER_CFLAGS</key>
+				<array>
+					<string>-DNS_BLOCK_ASSERTIONS=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>OTHER_CPLUSPLUSFLAGS</key>
+				<array>
+					<string>-DNS_BLOCK_ASSERTIONS=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_LIBTOOLFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>$(TARGET_NAME)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SKIP_INSTALL</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Release</string>
+		</dict>
+		<key>BA3D76D167311C1A254263C2</key>
+		<dict>
+			<key>fileRef</key>
+			<string>BD316C12CE18F1471FFCA907</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>BB4A04460B22CAE359EFE675</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>ldo.h</string>
+			<key>path</key>
+			<string>src/ldo.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>BC57952AFF8EA61D3263BD70</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>luaconf.h</string>
+			<key>path</key>
+			<string>src/luaconf.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>BC73A12E3DBB664235547D00</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lua.h</string>
+			<key>path</key>
+			<string>src/lua.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>BD316C12CE18F1471FFCA907</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>llimits.h</string>
+			<key>path</key>
+			<string>src/llimits.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>BEBF1AD9EA74C295312317B6</key>
+		<dict>
+			<key>fileRef</key>
+			<string>1771247493E6BC86F774AED9</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>BEE04BFFAA8B6BED56D0AC62</key>
+		<dict>
+			<key>fileRef</key>
+			<string>FDADB428979AFB0926DADABC</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>C166113CF199DE15105FCEFF</key>
+		<dict>
+			<key>fileRef</key>
+			<string>0B11A36C2925BF8FC7A95224</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>C16CFFEAD3372302E03772DB</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lstring.c</string>
+			<key>path</key>
+			<string>src/lstring.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>C2B8018EF9B26AD4B4B49C98</key>
+		<dict>
+			<key>fileRef</key>
+			<string>E790653840793DF43E6B25D5</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>C46E196384418D42AE2908B8</key>
+		<dict>
+			<key>baseConfigurationReference</key>
+			<string>10B1BD67A3E48C2A9CD3EDE1</string>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>COMBINE_HIDPI_IMAGES</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DSTROOT</key>
+				<string>/tmp/xcodeproj.dst</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_OBJC_EXCEPTIONS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREPROCESSOR_DEFINITIONS</key>
+				<array>
+					<string>DEBUG=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>GCC_SYMBOLS_PRIVATE_EXTERN</key>
+				<string>NO</string>
+				<key>GCC_VERSION</key>
+				<string>com.apple.compilers.llvm.clang.1_0</string>
+				<key>INSTALL_PATH</key>
+				<string>$(BUILT_PRODUCTS_DIR)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>10.8</string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_LIBTOOLFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>$(TARGET_NAME)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SKIP_INSTALL</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>C60DD8025F00BA78417E5611</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXTargetDependency</string>
+			<key>name</key>
+			<string>Pods-Hammerspoon-lua</string>
+			<key>target</key>
+			<string>ECB212DB7355FBE1241C2AF0</string>
+			<key>targetProxy</key>
+			<string>E49CAA0D3AC0764E57F3164B</string>
+		</dict>
+		<key>C652D3FC250FF2942353DFF4</key>
+		<dict>
+			<key>fileRef</key>
+			<string>BB4A04460B22CAE359EFE675</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>C6A9B75116D6F145F735D493</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-dummy.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>C76069F3E4D3C373A0B19F13</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lstate.c</string>
+			<key>path</key>
+			<string>src/lstate.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>C844AD6CEC4EE1FF965EA290</key>
+		<dict>
+			<key>fileRef</key>
+			<string>CDFC8B2298711180E2C86F02</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>C8B7848FA84876AC69E33ACD</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-lua-prefix.pch</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>CCEA9F7F446CC00844A24BEE</key>
+		<dict>
+			<key>fileRef</key>
+			<string>183FE721296B1C104983B628</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>CCEB28B29AB20E76BE49C471</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lparser.c</string>
+			<key>path</key>
+			<string>src/lparser.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>CDFC8B2298711180E2C86F02</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lfunc.c</string>
+			<key>path</key>
+			<string>src/lfunc.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>CF48B9A028A6284F396364CF</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lua.hpp</string>
+			<key>path</key>
+			<string>src/lua.hpp</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>CFF974B2D2846415C485D511</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lbitlib.c</string>
+			<key>path</key>
+			<string>src/lbitlib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D1C173880CD3948E19F0DE67</key>
+		<dict>
+			<key>fileRef</key>
+			<string>00CF4FF56F8A726570888C09</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>D28AE81B8975DB57F2AF1562</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>5C602B4411ABEC8238900FF3</string>
+				<string>57DE5006A16068136470D187</string>
+				<string>F737644B1007C7D87DA3DC2A</string>
+				<string>081BE0606A5C44188A8B9B17</string>
+				<string>9633FCD6DA451DC48A23BE46</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D403B4677F41F7B3136B728C</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lcode.h</string>
+			<key>path</key>
+			<string>src/lcode.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D42E0AA41F496231B795474B</key>
+		<dict>
+			<key>fileRef</key>
+			<string>48CB6B2C39409DBB115AF18B</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>D50107074FD7C63A0AFB443D</key>
+		<dict>
+			<key>buildConfigurations</key>
+			<array>
+				<string>0655E720858CB5BFE7BE5398</string>
+				<string>B985268D8E86158C55A794E9</string>
+			</array>
+			<key>defaultConfigurationIsVisible</key>
+			<string>0</string>
+			<key>defaultConfigurationName</key>
+			<string>Release</string>
+			<key>isa</key>
+			<string>XCConfigurationList</string>
+		</dict>
+		<key>D6C47D13C1F17FA847B0721D</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.objc</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-lua-dummy.m</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D72B32E5C83947DE1EB97665</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.xcconfig</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-Sparkle.xcconfig</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>D76E8A7E57295CC5A37CA307</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>032919186BCF58103EE048D1</string>
+				<string>25AA897C2DDB9612263D691A</string>
+				<string>B204A019458EEBB073D90CC8</string>
+				<string>1B4F9E6CE9F6739342FFD978</string>
+				<string>8E5A5DFC62B3BAB438F7A06F</string>
+				<string>C652D3FC250FF2942353DFF4</string>
+				<string>123A733F073666FCD9DD4C53</string>
+				<string>792259A90185252ACE962F3C</string>
+				<string>67324886A6051A309D132258</string>
+				<string>BA3D76D167311C1A254263C2</string>
+				<string>72BFAE66BAE0F35FD5A6B999</string>
+				<string>3C5D8B9C4EAD613D68FAB37F</string>
+				<string>088E4C19ACF13ECB21D1F12D</string>
+				<string>23D0AD887D61A0025E06CBD2</string>
+				<string>BEE04BFFAA8B6BED56D0AC62</string>
+				<string>B373CD3E6914E8CE3BC83E63</string>
+				<string>FE1FDC7C876128E1D985C6C9</string>
+				<string>616885D8129DFC9413296E52</string>
+				<string>7CB192D99580729D6296552E</string>
+				<string>B12B5ADC8E8C581D72142FCE</string>
+				<string>B130E1E5E5E77DADCBDC3AF2</string>
+				<string>462793E6ABF8B0B2C7A72192</string>
+				<string>D1C173880CD3948E19F0DE67</string>
+				<string>E21FE51BFA5981B3176BD279</string>
+				<string>7C11322EA26CFAC32A89ECAD</string>
+			</array>
+			<key>isa</key>
+			<string>PBXHeadersBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>DBE9AA2A25B6B9BF0B0E9638</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>5FADE05BAE7E0B528B410799</string>
+				<string>E20734CC410B6E7D75A0B256</string>
+				<string>C6A9B75116D6F145F735D493</string>
+				<string>696B41FAF4DFD3E20BA8F682</string>
+				<string>158100260B055C3F8D635338</string>
+				<string>10B1BD67A3E48C2A9CD3EDE1</string>
+				<string>265A0EBC0F489A64C39767C2</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Pods-Hammerspoon</string>
+			<key>path</key>
+			<string>Target Support Files/Pods-Hammerspoon</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>DD2B0019E3A6B50B567BA7AF</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lfunc.h</string>
+			<key>path</key>
+			<string>src/lfunc.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>DD4CA50B80455B764EDCE3A9</key>
+		<dict>
+			<key>fileRef</key>
+			<string>956DE4D4EB43A9707C68E533</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>DD70C76A0E465CF24F636ECB</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lmathlib.c</string>
+			<key>path</key>
+			<string>src/lmathlib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>DDD06B1AA3217E814BA2B5D5</key>
+		<dict>
+			<key>fileRef</key>
+			<string>1C5597B19511E9EA94C61BC9</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>DDF756F1EFA0C4F0E483E28F</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>lstrlib.c</string>
+			<key>path</key>
+			<string>src/lstrlib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>E0111BB9F1FAA6E60969E761</key>
+		<dict>
+			<key>fileRef</key>
+			<string>C6A9B75116D6F145F735D493</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>E0E4E683D9D6AC0A3A8B7A14</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>E0111BB9F1FAA6E60969E761</string>
+			</array>
+			<key>isa</key>
+			<string>PBXSourcesBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>E20734CC410B6E7D75A0B256</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>path</key>
+			<string>Pods-Hammerspoon-acknowledgements.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>E21FE51BFA5981B3176BD279</key>
+		<dict>
+			<key>fileRef</key>
+			<string>21133AC9C50E565A98488026</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>E420CE6E33B8CD4FD78D5726</key>
+		<dict>
+			<key>explicitFileType</key>
+			<string>archive.ar</string>
+			<key>includeInIndex</key>
+			<string>0</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>path</key>
+			<string>libPods-Hammerspoon.a</string>
+			<key>sourceTree</key>
+			<string>BUILT_PRODUCTS_DIR</string>
+		</dict>
+		<key>E49CAA0D3AC0764E57F3164B</key>
+		<dict>
+			<key>containerPortal</key>
+			<string>97AFE740514D1E97377B78AC</string>
+			<key>isa</key>
+			<string>PBXContainerItemProxy</string>
+			<key>proxyType</key>
+			<string>1</string>
+			<key>remoteGlobalIDString</key>
+			<string>ECB212DB7355FBE1241C2AF0</string>
+			<key>remoteInfo</key>
+			<string>Pods-Hammerspoon-lua</string>
+		</dict>
+		<key>E6C241E9A1C5B21139A181D7</key>
+		<dict>
+			<key>fileRef</key>
+			<string>1DAA8D9C89E89F58D429BA5C</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>COMPILER_FLAGS</key>
+				<string>-fno-objc-arc</string>
+			</dict>
+		</dict>
+		<key>E790653840793DF43E6B25D5</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>ldo.c</string>
+			<key>path</key>
+			<string>src/ldo.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>E9AE7BF38D5D4B010C61E6D8</key>
+		<dict>
+			<key>children</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Resources</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>E9E62E94910F05E2FBD59B32</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lobject.h</string>
+			<key>path</key>
+			<string>src/lobject.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EC2888755307ED8AAB2AF417</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>ltm.c</string>
+			<key>path</key>
+			<string>src/ltm.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>EC47F16D496D5FE2E542CC23</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lmem.h</string>
+			<key>path</key>
+			<string>src/lmem.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>ECB212DB7355FBE1241C2AF0</key>
+		<dict>
+			<key>buildConfigurationList</key>
+			<string>0521F38380460ABB49280BCF</string>
+			<key>buildPhases</key>
+			<array>
+				<string>5CF16C3B8E1840D00F86E2EF</string>
+				<string>F1165010F266A4BA6C4F5D72</string>
+				<string>D76E8A7E57295CC5A37CA307</string>
+			</array>
+			<key>buildRules</key>
+			<array/>
+			<key>dependencies</key>
+			<array/>
+			<key>isa</key>
+			<string>PBXNativeTarget</string>
+			<key>name</key>
+			<string>Pods-Hammerspoon-lua</string>
+			<key>productName</key>
+			<string>Pods-Hammerspoon-lua</string>
+			<key>productReference</key>
+			<string>9EF49499AECA14D3E90CCFC2</string>
+			<key>productType</key>
+			<string>com.apple.product-type.library.static</string>
+		</dict>
+		<key>EEDAA18AE5AEB78A89A6C77A</key>
+		<dict>
+			<key>fileRef</key>
+			<string>956DE4D4EB43A9707C68E533</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>EF47BCFBD5CA0B0717CDF507</key>
+		<dict>
+			<key>baseConfigurationReference</key>
+			<string>1B2486C73332C2649E8CF6AF</string>
+			<key>buildSettings</key>
+			<dict>
+				<key>ALWAYS_SEARCH_USER_PATHS</key>
+				<string>NO</string>
+				<key>COMBINE_HIDPI_IMAGES</key>
+				<string>YES</string>
+				<key>COPY_PHASE_STRIP</key>
+				<string>NO</string>
+				<key>DSTROOT</key>
+				<string>/tmp/xcodeproj.dst</string>
+				<key>GCC_DYNAMIC_NO_PIC</key>
+				<string>NO</string>
+				<key>GCC_ENABLE_OBJC_EXCEPTIONS</key>
+				<string>YES</string>
+				<key>GCC_OPTIMIZATION_LEVEL</key>
+				<string>0</string>
+				<key>GCC_PRECOMPILE_PREFIX_HEADER</key>
+				<string>YES</string>
+				<key>GCC_PREFIX_HEADER</key>
+				<string>Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch</string>
+				<key>GCC_PREPROCESSOR_DEFINITIONS</key>
+				<array>
+					<string>DEBUG=1</string>
+					<string>$(inherited)</string>
+				</array>
+				<key>GCC_SYMBOLS_PRIVATE_EXTERN</key>
+				<string>NO</string>
+				<key>GCC_VERSION</key>
+				<string>com.apple.compilers.llvm.clang.1_0</string>
+				<key>INSTALL_PATH</key>
+				<string>$(BUILT_PRODUCTS_DIR)</string>
+				<key>MACOSX_DEPLOYMENT_TARGET</key>
+				<string>10.8</string>
+				<key>OTHER_LDFLAGS</key>
+				<string></string>
+				<key>OTHER_LIBTOOLFLAGS</key>
+				<string></string>
+				<key>PRODUCT_NAME</key>
+				<string>$(TARGET_NAME)</string>
+				<key>SDKROOT</key>
+				<string>macosx</string>
+				<key>SKIP_INSTALL</key>
+				<string>YES</string>
+			</dict>
+			<key>isa</key>
+			<string>XCBuildConfiguration</string>
+			<key>name</key>
+			<string>Debug</string>
+		</dict>
+		<key>F02C2A24A704C62752361B6E</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>ldebug.h</string>
+			<key>path</key>
+			<string>src/ldebug.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F1165010F266A4BA6C4F5D72</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array>
+				<string>DD4CA50B80455B764EDCE3A9</string>
+			</array>
+			<key>isa</key>
+			<string>PBXFrameworksBuildPhase</string>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+		</dict>
+		<key>F44DE4A27C2EB967B23F292C</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>name</key>
+			<string>liolib.c</string>
+			<key>path</key>
+			<string>src/liolib.c</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>F737644B1007C7D87DA3DC2A</key>
+		<dict>
+			<key>children</key>
+			<array>
+				<string>13E4C5068E296E7F99895001</string>
+				<string>1A3A523338306682EC81ACB8</string>
+			</array>
+			<key>isa</key>
+			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Pods</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>FDADB428979AFB0926DADABC</key>
+		<dict>
+			<key>includeInIndex</key>
+			<string>1</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.c.h</string>
+			<key>name</key>
+			<string>lstate.h</string>
+			<key>path</key>
+			<string>src/lstate.h</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>FE1FDC7C876128E1D985C6C9</key>
+		<dict>
+			<key>fileRef</key>
+			<string>592FAC7781EF7A8D2D96B7B5</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+	</dict>
+	<key>rootObject</key>
+	<string>97AFE740514D1E97377B78AC</string>
+</dict>
+</plist>
