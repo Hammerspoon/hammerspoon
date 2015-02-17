@@ -234,7 +234,22 @@ EOF
 
 function release_update_appcast() {
   echo "Updating appcast.xml..."
-  echo "Not implemented yet (ziplen: ${ZIPLEN})"
+  echo "Add this manually, for now:"
+  cat <<EOF
+         <item>
+            <title>Version ${VERSION}</title>
+            <sparkle:releaseNotesLink>
+                http://www.hammerspoon.org/releasenotes/${VERSION}/
+            </sparkle:releaseNotesLink>
+            <pubDate>$(date +"%a, %e %b %Y %H:%M:%S %z")</pubDate>
+            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/${VERSION}/Hammerspoon-${VERSION}.zip"
+                sparkle:version="${VERSION}"
+                length="${ZIPLEN}"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>10.8</sparkle:minimumSystemVersion>
+        </item>
+EOF
 }
 
 function release_tweet() {
