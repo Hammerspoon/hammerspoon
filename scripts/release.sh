@@ -37,7 +37,6 @@ assert_docs_bundle_completeA
 assert_cocoapods_state
 assert_website_repo
 
-exit 0
 echo "******** BUILDING:"
 
 build_hammerspoon_app
@@ -48,6 +47,7 @@ assert_valid_code_signature
 assert_valid_code_signing_entity
 assert_gatekeeper_acceptance
 
+exit 0
 echo "******** PREPARING FOR UPLOAD:"
 
 compress_hammerspoon_app
