@@ -47,7 +47,6 @@ assert_valid_code_signature
 assert_valid_code_signing_entity
 assert_gatekeeper_acceptance
 
-exit 0
 echo "******** PREPARING FOR UPLOAD:"
 
 compress_hammerspoon_app
@@ -58,15 +57,19 @@ archive_hammerspoon_app
 archive_dSYMs
 archive_docs
 
+exit 0
 echo "******** UPLOADING:"
 
 release_add_to_github
 release_upload_binary
 release_upload_docs
 release_submit_dash_docs
+release_update_appcast
 
 echo "Appcast zip length is: ${ZIPLEN}"
 
 echo "******** TWEETING:"
 
 release_tweet
+
+echo "Done. Congratulations!"

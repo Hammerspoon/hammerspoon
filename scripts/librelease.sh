@@ -11,18 +11,21 @@ function fail() {
 ############################### SANITY CHECKERS ###############################
 
 function assert_github_release_token() {
+  echo "Checking for GitHub release token..."
   if [ ! -f "${GITHUB_TOKEN_FILE}" ]; then
     fail "ERROR: You do not have a github token in ${GITHUB_TOKEN_FILE}"
   fi
 }
 
 function assert_codesign_authority_token() {
+  echo "Checking for codesign authority token..."
   if [ ! -f "${CODESIGN_AUTHORITY_TOKEN_FILE}" ]; then
     fail "ERROR: You do not have a code signing authority token in ${CODESIGN_AUTHORITY_TOKEN_FILE} (hint, it should look like 'Authority=Developer ID Application: Foo Bar (ABC123)'"
   fi
 }
 
 function assert_version_in_xcode() {
+  echo "Checking Xcode build version..."
   XCODEVER="$(defaults read "${HAMMERSPOON_HOME}/Hammerspoon/Hammerspoon-Info" CFBundleVersion)"
 
   if [ "$VERSION" != "$XCODEVER" ]; then
@@ -31,6 +34,7 @@ function assert_version_in_xcode() {
 }
 
 function assert_version_in_git_tags() {
+  echo "Checking git tag..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   local GITVER="$(git tag | grep "$VERSION")"
   popd >/dev/null
@@ -44,6 +48,7 @@ function assert_version_in_git_tags() {
 }
 
 function assert_version_not_in_github_releases() {
+  echo "Checking GitHub for pre-existing releases..."
   github-release info -t "$VERSION" >/dev/null 2>&1
   if [ "$?" == "0" ]; then
       github-release info -t "$VERSION"
@@ -52,6 +57,7 @@ function assert_version_not_in_github_releases() {
 }
 
 function assert_docs_bundle_complete() {
+  echo "Checking docs bundle..."
   pushd "${HAMMERSPOON_HOME}/scripts/docs" >/dev/null
   bundle check >/dev/null 2>&1
   if [ "$?" != "0" ]; then
@@ -61,6 +67,7 @@ function assert_docs_bundle_complete() {
 }
 
 function assert_cocoapods_state() {
+  echo "Checking Cocoapods state..."
   pushd "${HAMERSPOON_HOME}" >/dev/null
   pod outdated >/dev/null 2>&1
   if [ "$?" != "0" ]; then
@@ -70,6 +77,7 @@ function assert_cocoapods_state() {
 }
 
 function assert_website_repo() {
+  echo "Checking website repo..."
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   if [ ! -d website/.git ]; then
     fail "ERROR: website repo does not exist. git clone git@github.com:Hammerspoon/hammerspoon.github.io.git"
@@ -119,6 +127,7 @@ function assert_gatekeeper_acceptance() {
 ############################### BUILD FUNCTIONS ###############################
 
 function build_hammerspoon_app() {
+  echo "Building Hammerspoon.app..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   make clean
   make
@@ -136,7 +145,7 @@ function compress_hammerspoon_app() {
   echo "Compressing release..."
   pushd "${HAMMERSPOON_HOME}/build" >/dev/null
   zip -yqr "Hammerspoon-${VERSION}.zip" Hammerspoon.app/
-  export ZIPLEN=$(ls -l Hammerspoon-"${VERSION}".zip | awk '{ print $5 }')
+  export ZIPLEN="$(find . -name Hammerspoon-"${VERSION}".zip -ls | awk '{ print $7 }')"
   popd >/dev/null
 }
 
@@ -223,13 +232,15 @@ EOF
 }
 
 function release_update_appcast() {
+  echo "Updating appcast.xml..."
   echo "TBC (ziplen: ${ZIPLEN})"
 }
 
 function release_tweet() {
+  echo "Tweeting release..."
   local CURRENT=$(t accounts | grep -B1 active | head -1)
   t set active hammerspoon1
   t update "Just release ${VERSION} - http://www.hammerspoon.org/"
-  t set active $CURRENT
+  t set active "$CURRENT"
 }
 
