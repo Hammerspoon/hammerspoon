@@ -125,6 +125,13 @@ NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState;
     
     lua_rawgeti(L, LUA_REGISTRYINDEX, evalfn);
+    if (!lua_isfunction(L, -1)) {
+        NSLog(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
+        if (lua_isstring(L, -1)) {
+            NSLog(@"evalfn appears to be a string: %s", lua_tostring(L, -1));
+        }
+        return @"";
+    }
     lua_pushstring(L, [command UTF8String]);
     lua_call(L, 1, 1);
     
