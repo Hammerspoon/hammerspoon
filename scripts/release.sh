@@ -57,7 +57,6 @@ archive_hammerspoon_app
 archive_dSYMs
 archive_docs
 
-exit 0
 echo "******** UPLOADING:"
 
 release_add_to_github

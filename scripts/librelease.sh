@@ -161,7 +161,7 @@ function archive_dSYMs() {
   echo "Archiving extension .dSYM files..."
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/dSYM"
-  rsync -arx --stats --include '*/' --include='*.dSYM/**' --exclude='*' "${HAMMERSPOON_HOME}/extensions/" "archive/${VERSION}/dSYM/"
+  rsync -arx --include '*/' --include='*.dSYM/**' --exclude='*' "${HAMMERSPOON_HOME}/extensions/" "archive/${VERSION}/dSYM/"
   popd >/dev/null
 }
 
@@ -189,12 +189,12 @@ function release_upload_docs() {
   echo "Uploading docs to github..."
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mv "${HAMMERSPOON_HOME}/build/html" "website/docs/${VERSION}"
-  rm "website/docs/*.html"
-  cp "website/docs/${VERSION}/*.html" website/docs/
+  rm website/docs/*.html
+  cp website/docs/"${VERSION}"/*.html website/docs/
   pushd website >/dev/null
   git add --all "docs/"
-  git commit -am "Add docs for ${VERSION}"
-  git push
+  git commit -qam "Add docs for ${VERSION}"
+  git push -q
   popd >/dev/null
   popd >/dev/null
 }
@@ -203,7 +203,7 @@ function release_submit_dash_docs() {
   echo "Uploading docs to Dash..."
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   rm -rf dash
-  git clone git@github.com:Kapeli/Dash-User-Contributions.git dash
+  git clone -q git@github.com:Kapeli/Dash-User-Contributions.git dash
   cp "${HAMMERSPOON_HOME}/build/Hammerspoon.tgz" dash/docsets/Hammerspoon/
   pushd dash >/dev/null
   git remote add hammerspoon git@github.com:hammerspoon/Dash-User-Contributions.git
@@ -223,17 +223,18 @@ function release_submit_dash_docs() {
   }
 EOF
   git add docsets/Hammerspoon/Hammerspoon.tgz
-  git commit -am "Update Hammerspoon docset to ${VERSION}"
-  git push hammerspoon -f
+  git commit -qam "Update Hammerspoon docset to ${VERSION}"
+  git push -qf hammerspoon
   popd >/dev/null
 
+  # TODO: Turn this into PR-submitting commands when we are happy with the release process working well
   echo "To generate a PR, cd dash ; hub pull-request -m \"Update Hammerspoon docset to ${VERSION}\" -h hammerspoon:master"
   popd >/dev/null
 }
 
 function release_update_appcast() {
   echo "Updating appcast.xml..."
-  echo "TBC (ziplen: ${ZIPLEN})"
+  echo "Not implemented yet (ziplen: ${ZIPLEN})"
 }
 
 function release_tweet() {
