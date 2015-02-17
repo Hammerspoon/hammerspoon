@@ -44,18 +44,18 @@ function assert_version_in_git_tags() {
 }
 
 function assert_version_not_in_github_releases() {
-  local RELEASE_INFO="$(github-release info -t "$VERSION" 2>&1)"
+  github-release info -t "$VERSION" >/dev/null 2>&1
   if [ "$?" == "0" ]; then
-      echo "${RELEASE_INFO}"
+      github-release info -t "$VERSION"
       fail "ERROR: github already seems to have version $VERSION"
   fi
 }
 
 function assert_docs_bundle_complete() {
   pushd "${HAMMERSPOON_HOME}/scripts/docs" >/dev/null
-  bundle check
+  bundle check >/dev/null 2>&1
   if [ "$?" != "0" ]; then
-    fail "ERROR: docs bundle is incomplete. Ensure 'bundle' is installed and run 'sudo bundle install' in hammerspoon/scripts/docs/"
+    fail "ERROR: docs bundle is incomplete. Ensure 'bundle' is installed and run 'bundle install' in hammerspoon/scripts/docs/"
   fi
   popd >/dev/null
 }
@@ -70,7 +70,7 @@ function assert_cocoapods_state() {
 }
 
 function assert_website_repo() {
-  pushd "${HAMMERSPOON_HOME}" >/dev/null
+  pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   if [ ! -d website/.git ]; then
     fail "ERROR: website repo does not exist. git clone git@github.com:Hammerspoon/hammerspoon.github.io.git"
   fi
@@ -79,7 +79,6 @@ function assert_website_repo() {
   if [ "$?" != "0" ]; then
     fail "ERROR: website repo has uncommitted changes"
   fi
-  pushd "website" >/dev/null
   git fetch origin
   local DESYNC=$(git rev-list --left-right "@{upstream}"...HEAD)
   if [ "${DESYNC}" != "" ]; then
@@ -87,11 +86,12 @@ function assert_website_repo() {
     fail "ERROR: website repo is not in sync with upstream"
   fi
   popd >/dev/null
+  popd >/dev/null
 }
 
 function assert_valid_code_signature() {
   echo "Ensuring valid code signature..."
-  codesign --verify --verbose=4 "${HAMERSPOON_HOME}/build/Hammerspoon.app"
+  codesign --verify --verbose=4 "${HAMMERSPOON_HOME}/build/Hammerspoon.app"
   if [ "$?" != "0" ]; then
       codesign -dvv "${HAMMERSPOON_HOME}/build/Hammerspoon.app"
       fail "ERROR: Invalid signature"

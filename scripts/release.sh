@@ -33,7 +33,7 @@ assert_codesign_authority_token && export CODESIGN_AUTHORITY_TOKEN="$(cat "${COD
 assert_version_in_xcode
 assert_version_in_git_tags
 assert_version_not_in_github_releases
-assert_docs_bundle_completeA
+assert_docs_bundle_complete
 assert_cocoapods_state
 assert_website_repo
 
