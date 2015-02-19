@@ -144,13 +144,14 @@ function layout.apply(layout)
             elseif hs.fnutils.contains(hs.screen.allScreens(), _row[3]) then
                 display = _row[3]
             end
-            if not display then
-                print("Unable to find display: " .. _row[3])
-            else
-                displaypoint = geometry.point(display:frame().x, display:frame().y)
-            end
         else
             display = screen.allScreens()[1]
+        end
+
+        if not display then
+            print("Unable to find display: " .. _row[3])
+        else
+            displaypoint = geometry.point(display:frame().x, display:frame().y)
         end
 
         -- Find the matching windows, if any
@@ -174,7 +175,7 @@ function layout.apply(layout)
                 local screenrect = nil
 
                 -- Move window to destination display, if wanted
-                if display then
+                if display and displaypoint then
                     _win:setTopLeft(displaypoint)
                 end
 
