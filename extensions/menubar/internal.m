@@ -16,10 +16,43 @@
 @implementation HSMenubarCallbackObject
 // Generic callback runner that will execute a Lua function stored in self.fn
 - (void) callback_runner {
+    int fn_result;
+    NSEvent *event = [NSApp currentEvent];
     lua_State *L = self.L;
     lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
-    if (lua_pcall(L, 0, 1, -2) != LUA_OK) {
+    if (event != nil) {
+        NSUInteger theFlags = [event modifierFlags];
+        BOOL isCommandKey = (theFlags & NSCommandKeyMask) != 0;
+        BOOL isShiftKey = (theFlags & NSShiftKeyMask) != 0;
+        BOOL isOptKey = (theFlags & NSAlternateKeyMask) != 0;
+        BOOL isCtrlKey = (theFlags & NSControlKeyMask) != 0;
+        BOOL isFnKey = (theFlags & NSFunctionKeyMask) != 0;
+
+        lua_newtable(L);
+
+        lua_pushboolean(L, isCommandKey);
+        lua_setfield(L, -2, "cmd");
+
+        lua_pushboolean(L, isShiftKey);
+        lua_setfield(L, -2, "shift");
+
+        lua_pushboolean(L, isOptKey);
+        lua_setfield(L, -2, "alt");
+
+        lua_pushboolean(L, isCtrlKey);
+        lua_setfield(L, -2, "ctrl");
+
+        lua_pushboolean(L, isFnKey);
+        lua_setfield(L, -2, "fn");
+
+        fn_result = lua_pcall(L, 1, 1, -3);
+    } else {
+        // event is very unlikely to be nil, but we'll handle it just in case
+        fn_result = lua_pcall(L, 0, 1, -2);
+    }
+
+    if (fn_result != LUA_OK) {
         NSLog(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);
@@ -317,7 +350,12 @@ static int menubarSetTooltip(lua_State *L) {
 /// Registers a function to be called when the menubar item is clicked
 ///
 /// Parameters:
-///  * `fn` - A function to be called when the menubar item is clicked. If the argument is `nil`, any existing function will be removed
+///  * `fn` - A function to be called when the menubar item is clicked. If the argument is `nil`, any existing function will be removed. The function can optionally accept a single argument, which will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked; The possible keys are:
+///   * cmd
+///   * alt
+///   * shift
+///   * ctrl
+///   * fn
 ///
 /// Returns:
 ///  * None
@@ -364,7 +402,12 @@ static int menubarSetClickCallback(lua_State *L) {
 ///      * If this argument is a table:
 ///         * Sets the menu for this menubar item to the supplied table. The format of the table is documented below
 ///      * If this argument is a function:
-///         * The function will be called each time the user clicks on the menubar item and the function should return a table that specifies the menu to be displayed. The table should be of the same format as described below
+///         * The function will be called each time the user clicks on the menubar item and the function should return a table that specifies the menu to be displayed. The table should be of the same format as described below. The function can optionally accept a single argument, which will be a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked; The possible keys are:
+///            * cmd
+///            * alt
+///            * shift
+///            * ctrl
+///            * fn
 ///
 /// Table Format:
 /// ```
