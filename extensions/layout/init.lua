@@ -74,7 +74,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---  * table - A table describing your desired layout. Each element in the table should be another table describing a set of windows to match, and their desired size/position. The fields in each of these tables are:
 ---   * A string containing an application name or nil
 ---   * A string containing a window title or nil
----   * A string containing a screen name, or an `hs.screen` object, or nil to select the first available screen
+---   * A string containing a screen name, or an `hs.screen` object, or a function that accepts no parameters and returns an `hs.screen` object, or nil to select the first available screen
 ---   * A Unit rect (see `hs.window.moveToUnit()`)
 ---   * A Frame rect (see `hs.screen:frame()`)
 ---   * A Full-frame rect (see `hs.screen:fullFrame()`)
@@ -87,7 +87,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---  * If the window title argument is nil, all windows of the specified application will be matched
 ---  * You can specify both application name and window title if you want to match only one window of a particular application.
 ---  * If you specify neither application name or window title, no windows will be matched :)
----  * Monitor name is a string, as found in `hs.screen:name()`. You can also pass an `hs.screen` object. If you pass nil, the first screen will be selected.
+---  * Monitor name is a string, as found in `hs.screen:name()`. You can also pass an `hs.screen` object, or a function that returns an `hs.screen` object. If you pass nil, the first screen will be selected.
 ---  * The final three arguments use `hs.geometry.rect()` objects to describe the desired position and size of matched windows:
 ---    * Unit rect will be passed to `hs.window.moveToUnit()`
 ---    * Frame rect will be passed to `hs.window.setFrame()` (including menubar and dock)
@@ -141,6 +141,8 @@ function layout.apply(layout)
                     -- TODO: This is bogus, multiple identical monitors will be impossible to lay out
                     display = displays[1]
                 end
+            elseif type(_row[3]) == "function" then
+                display = _row[3]()
             elseif hs.fnutils.contains(hs.screen.allScreens(), _row[3]) then
                 display = _row[3]
             end
