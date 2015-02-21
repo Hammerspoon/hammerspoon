@@ -69,9 +69,18 @@ local internal = require("hs.ipc.internal-ipc")
 
 --- hs.ipc.handler(str) -> value
 --- Function
---- The default handler for IPC, called by `hs` from the command line. Default implementation evals the string and returns the result. You may override this function if for some reason you want to implement special evaluation rules for executing remote commands. The return value of this function is always turned into a string via tostring() and returned to `hs` from the command line. If an error occurs, the error message is returned instead.
+--- Processes received IPC messages and returns the results
 ---
---- As an example, the default handler looks like this:
+--- Parameters:
+---  * str - A string containing some a message to process (typically, some Lua code)
+---
+--- Returns:
+---  * A string containing the results of the IPC message
+---
+--- Notes:
+---  * This is not a function you should typically call directly, rather, it is documented because you can override it with your own function if you have particular IPC needs.
+---  * The return value of this function is always turned into a string via `lua_tostring()` and returned to the IPC client (typically the `hs` command line tool)
+---  * The default handler is:
 --- ~~~
 ---     function hs.ipc.handler(str)
 ---         local fn, err = load("return " .. str)
@@ -84,7 +93,16 @@ hs.ipc.handler = rawhandler
 
 --- hs.ipc.cliGetColors() -> table
 --- Function
----Returns a table containing three keys, `initial`, `input`, and `output`, which contain the terminal escape codes to generate the colors used in the command line interface.
+--- Gets the terminal escape codes used to produce colors in the `hs` command line tool
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table containing the terminal escape codes used to produce colors. The available keys are:
+---   * initial
+---   * input
+---   * output
 hs.ipc.cliGetColors = function()
 	local settings = require("hs.settings")
 	local colors = {}
@@ -96,11 +114,21 @@ end
 
 --- hs.ipc.cliSetColors(table) -> table
 --- Function
---- Takes as input a table containing one or more of the keys `initial`, `input`, or `output` to set the terminal escape codes to generate the colors used in the command line interface.  Each can be set to the empty string if you prefer to use the terminal window default.  Returns a table containing the changed color codes.
+--- Sets the terminal escape codes used to produce colors in the `hs` command line tool
 ---
---- For a brief intro into terminal colors, you can visit a web site like this one (http://jafrog.com/2013/11/23/colors-in-terminal.html) (I have no affiliation with this site, it just seemed to be a clear one when I looked for an example... you can use Google to find many, many others).  Note that Lua doesn't support octal escapes in it's strings, so use `\x1b` or `\27` to indicate the `escape` character.
+--- Parameters:
+---  * table - A table of terminal escape sequences (or empty strings if you wish to suppress the usage of colors) containing the following keys:
+---   * initial
+---   * input
+---   * output
 ---
----    e.g. ipc.cliSetColors{ initial = "", input = "\27[33m", output = "\27[38;5;11m" }
+--- Returns:
+---  * A table containing the terminal escape codes that have been set. The available keys match the table parameter.
+---
+--- Notes:
+---  * For a brief intro into terminal colors, you can visit a web site like this one [http://jafrog.com/2013/11/23/colors-in-terminal.html](http://jafrog.com/2013/11/23/colors-in-terminal.html)
+---  * Lua doesn't support octal escapes in it's strings, so use `\x1b` or `\27` to indicate the `escape` character e.g. `ipc.cliSetColors{ initial = "", input = "\27[33m", output = "\27[38;5;11m" }`
+---  * The values are stored by the `hs.settings` extension, so will persist across restarts of Hammerspoon
 hs.ipc.cliSetColors = function(colors)
 	local settings = require("hs.settings")
 	if colors.initial then settings.set("ipc.cli.color_initial",colors.initial) end
@@ -111,7 +139,13 @@ end
 
 --- hs.ipc.cliResetColors()
 --- Function
---- Erases any color changes you have made and resets the terminal to the original defaults.
+--- Restores default terminal escape codes used to produce colors in the `hs` command line tool
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 hs.ipc.cliResetColors = function()
 	local settings = require("hs.settings")
 	settings.clear("ipc.cli.color_initial")
@@ -121,7 +155,14 @@ end
 
 --- hs.ipc.cliStatus([path][,silent]) -> bool
 --- Function
---- Returns true or false indicating whether or not the command line tool, `hs`, is installed properly or not.  Assumes a path of `/usr/local` for the test, unless path is specified. Displays any issues (dangling link, partial installation, etc.) in the console, unless silent is provided and it is true.
+--- Gets the status of the `hs` command line tool
+---
+--- Parameters:
+---  * path - An optional string containing a path to look for the `hs` tool. Defaults to `/usr/local`
+---  * silent - An optional boolean indicating whether or not to print errors to the Hammerspoon Console
+---
+--- Returns:
+---  * A boolean, true if the `hs` command line tool is correctly installed, otherwise false
 hs.ipc.cliStatus = function(path, silent)
     local path = path or "/usr/local"
     local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
@@ -186,7 +227,14 @@ end
 
 --- hs.ipc.cliInstall([path][,silent]) -> bool
 --- Function
---- Creates symlinks for the command line tool and man page in the path specified (or /usr/local), so that Hammerspoon can be accessed from the command line. Returns true or false indicating whether or not the tool has been successfully linked.  If silent is true, any issues are suppressed from the console.
+--- Installs the `hs` command line tool
+---
+--- Parameters:
+---  * path - An optional string containing a path to install the tool in. Defaults to `/usr/local`
+---  * silent - An optional boolean indicating whether or not to print errors to the Hammerspoon Console
+---
+--- Returns:
+---  * A boolean, true if the tool was successfully installed, otherwise false
 hs.ipc.cliInstall = function(path, silent)
     local path = path or "/usr/local"
     local silent = silent or false
@@ -200,7 +248,17 @@ end
 
 --- hs.ipc.cliUninstall([path][,silent]) -> bool
 --- Function
---- Removes the symlinks for the command line tool and man page in the path specified (or /usr/local). Hammerspoon wil no longer be accessible from the command line. Returns true or false indicating whether the tool has been successfully removed form the specified path. If it appears that the files in question might not be ours, then this function does not remove the files and you will have to do so yourself or choose another path.  This is done to ensure that we minimize the chance that we remove something that belongs to another application.  If silent is true, any issues are suppressed from the console.
+--- Uninstalls the `hs` command line tool
+---
+--- Parameters:
+---  * path - An optional string containing a path to remove the tool from. Defaults to `/usr/local`
+---  * silent - An optional boolean indicating whether or not to print errors to the Hammerspoon Console
+---
+--- Returns:
+---  * A boolean, true if the tool was successfully removed, otherwise false
+---
+--- Notes:
+---  * This function is very conservative and will only remove the tool if it was installed by this instance of Hammerspoon. If you have more than one copy of Hammerspoon, this will be detected and they will not remove each others' tools.
 hs.ipc.cliUninstall = function(path, silent)
     local path = path or "/usr/local"
     local silent = silent or false
