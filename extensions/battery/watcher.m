@@ -59,7 +59,16 @@ static void callback(void *info) {
 
 /// hs.battery.watcher.new(fn) -> watcher
 /// Constructor
-/// Creates a battery watcher that can be started. When started, fn will be called each time a battery attribute changes.
+/// Creates a battery watcher
+///
+/// Parameters:
+///  * A function that will be called when the battery state changes. The function should accept no arguments.
+///
+/// Returns:
+///  * An `hs.battery.watcher` object
+///
+/// Notes:
+///  * Because the callback function accepts no arguments, tracking of state of changing battery attributes is the responsibility of the user (see https://github.com/Hammerspoon/hammerspoon/issues/166 for discussion)
 static int battery_watcher_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
@@ -79,7 +88,13 @@ static int battery_watcher_new(lua_State* L) {
 
 /// hs.battery.watcher:start() -> self
 /// Method
-/// Starts the battery watcher, making it so fn is called each time a battery attribute changes.
+/// Starts the battery watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.battery.watcher` object
 static int battery_watcher_start(lua_State* L) {
     battery_watcher_t* watcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -96,7 +111,13 @@ static int battery_watcher_start(lua_State* L) {
 
 /// hs.battery.watcher:stop() -> self
 /// Function
-/// Stops the battery watcher's fn from getting called until started again.
+/// Stops the battery watcherA
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.battery.watcher` object
 static int battery_watcher_stop(lua_State* L) {
     battery_watcher_t* watcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
