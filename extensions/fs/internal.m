@@ -152,11 +152,15 @@ static int pushresult(lua_State *L, int i, const char *info)
 /*
 ** This function changes the working (current) directory
 */
-/// hs.fs.chdir (path) -> true or nil,error
+/// hs.fs.chdir(path) -> true or (nil,error)
 /// Function
 /// Changes the current working directory to the given path.
 ///
-/// Returns true in case of success or nil plus an error string.
+/// Parameters:
+///  * path - A string containing the path to change working directory to
+///
+/// Returns:
+///  * If successful, returns true, otherwise returns nil and an error string
 static int change_dir (lua_State *L) {
         const char *path = luaL_checkstring(L, 1);
         if (chdir(path)) {
@@ -175,10 +179,15 @@ static int change_dir (lua_State *L) {
 ** If unable to get the current directory, it returns nil
 **  and a string describing the error
 */
-/// hs.fs.currentDir () -> string or nil,error
+/// hs.fs.currentDir() -> string or (nil,error)
 /// Function
-/// 
-/// Returns a string with the current working directory or nil plus an error string.
+/// Gets the current working directory
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the current working directory, or if an error occured, nil and an error string
 static int get_dir (lua_State *L) {
   char *path;
   /* Passing (NULL, 0) is not guaranteed to work. Use a temp buffer and size instead. */
@@ -213,10 +222,18 @@ static FILE *check_file (lua_State *L, int idx, const char *funcname) {
 /*
 **
 */
-/// hs.fs.lock (filehandle, mode[, start[, length]]) -> true or nil,error
+/// hs.fs.lock(filehandle, mode[, start[, length]]) -> true or (nil,error)
 /// Function
-///Locks a file or a part of it. This function works on open files; the file handle should be specified as the first argument. The string mode could be either r (for a read/shared lock) or w (for a write/exclusive lock). The optional arguments start and length can be used to specify a starting point and its length; both should be numbers.
-///Returns true if the operation was successful; in case of error, it returns nil plus an error string.
+/// Locks a file, or part of it
+///
+/// Parameters:
+///  * filehandle - An open file
+///  * mode - A string containing either "r" for a shared read lock, or "w" for an exclusive write lock
+///  * start - An optional number containing an offset into the file to start the lock at. Defaults to 0
+///  * length - An optional number containing the length of the file to lock. Defaults to the full size of the file
+///
+/// Returns:
+///  * True if the lock was obtained successfully, otherwise nil and an error string
 static int _file_lock (lua_State *L, FILE *fh, const char *mode, const long start, long len, const char *funcname) {
         int code;
 #ifdef _WIN32
@@ -308,10 +325,21 @@ static int lfs_unlock_dir(lua_State *L) {
 typedef struct lfs_Lock {
   char *ln;
 } lfs_Lock;
-/// hs.fs.lockDir(path, [seconds_stale]) -> lock or nil,error
+/// hs.fs.lockDir(path, [seconds_stale]) -> lock or (nil,error)
 /// Function
-/// Creates a lockfile (called lockfile.lfs) in path if it does not exist and returns the lock. If the lock already exists checks if it's stale, using the second parameter (default for the second parameter is INT_MAX, which in practice means the lock will never be stale. To free the the lock call lock:free(). 
-/// In case of any errors it returns nil and the error message. In particular, if the lock exists and is not stale it returns the "File exists" message.
+/// Locks a directory
+///
+/// Parameters:
+///  * path - A string containing the path to a directory
+///  * seconds_stale - An optional number containing an age (in seconds) beyond which to consider an existing lock as stale. Defaults to INT_MAX (which is, broadly speaking, equivalent to "never")
+///
+/// Returns:
+///  * If successful, a lock object, otherwise nil and an error string
+///
+/// Notes:
+///  * This is not a low level OS feature, the lock is actually a file created in the path, called `lockfile.lfs`, so the directory must be writable for this function to succeed
+///  * The returned lock object can be freed with ```lock:free()```
+///  * If the lock already exists and is not stale, the error string returned will be "File exists"
 static int lfs_lock_dir(lua_State *L) {
   lfs_Lock *lock;
   size_t pathl;
@@ -403,11 +431,17 @@ static int file_lock (lua_State *L) {
 ** @param #2 Number with start position (optional).
 ** @param #3 Number with length (optional).
 */
-/// hs.fs.unlock (filehandle[, start[, length]]) -> true or nil,error
+/// hs.fs.unlock(filehandle[, start[, length]]) -> true or (nil,error)
 /// Function
-/// Unlocks a file or a part of it. This function works on open files; the file handle should be specified as the first argument. The optional arguments start and length can be used to specify a starting point and its length; both should be numbers.
-/// 
-/// Returns true if the operation was successful; in case of error, it returns nil plus an error string.
+/// Unlocks a file or a part of it.
+///
+/// Parameters:
+///  * filehandle - An open file
+///  * start - An optional number containing an offset from the start of the file, to unlock. Defaults to 0
+///  * length - An optional number containing the length of file to unlock. Defaults to the full size of the file
+///
+/// Returns:
+///  * True if the unlock succeeded, otherwise nil and an error string
 static int file_unlock (lua_State *L) {
         FILE *fh = check_file (L, 1, "unlock");
         const long start = luaL_optlong (L, 2, 0);
@@ -429,9 +463,17 @@ static int file_unlock (lua_State *L) {
 ** @param #2 Name of link.
 ** @param #3 True if link is symbolic (optional).
 */
-/// hs.fs.link (old, new[, symlink]) -> FIXME
+/// hs.fs.link(old, new[, symlink]) -> true or (nil,error)
 /// Function
-/// Creates a link. The first argument is the object to link to and the second is the name of the link. If the optional third argument is true, the link will by a symbolic link (by default, a hard link is created).
+/// Creates a link
+///
+/// Parameters:
+///  * old - A string containing a path to a filesystem object to link from
+///  * new - A string containing a path to create the link at
+///  * symlink - An optional boolean, true to create a symlink, false to create a hard link. Defaults to false
+///
+/// Returns:
+///  * True if the link was created, otherwise nil and an error string
 static int make_link(lua_State *L)
 {
 #ifndef _WIN32
@@ -449,11 +491,15 @@ static int make_link(lua_State *L)
 ** Creates a directory.
 ** @param #1 Directory path.
 */
-/// hs.fs.mkdir (dirname) -> true or nil,error
+/// hs.fs.mkdir(dirname) -> true or (nil,error)
 /// Function
-/// Creates a new directory. The argument is the name of the new directory.
-/// 
-/// Returns true if the operation was successful; in case of error, it returns nil plus an error string.
+/// Creates a new directory
+///
+/// Parameters:
+///  * dirname - A string containing the path of a directory to create
+///
+/// Returns:
+///  * True if the directory was created, otherwise nil and an error string
 static int make_dir (lua_State *L) {
         const char *path = luaL_checkstring (L, 1);
         int fail;
@@ -477,11 +523,15 @@ static int make_dir (lua_State *L) {
 ** Removes a directory.
 ** @param #1 Directory path.
 */
-/// hs.fs.rmdir (dirname) -> true or nil,error
+/// hs.fs.rmdir(dirname) -> true or (nil,error)
 /// Function
-/// Removes an existing directory. The argument is the name of the directory.
-/// 
-/// Returns true if the operation was successful; in case of error, it returns nil plus an error string.
+/// Removes an existing directory
+///
+/// Parameters:
+///  * dirname - A string containing the path to a directory to remove
+///
+/// Returns:
+///  * True if the directory was removed, otherwise nil and an error string
 static int remove_dir (lua_State *L) {
         const char *path = luaL_checkstring (L, 1);
         int fail;
@@ -567,11 +617,21 @@ static int dir_close (lua_State *L) {
 /*
 ** Factory of directory iterators
 */
-/// hs.fs.dir (path) -> iter_fn, dir_obj
+/// hs.fs.dir(path) -> iter_fn, dir_obj
 /// Function
-/// Returns a Lua iterator function and an object representing the path.
-/// 
-/// Each time the iterator is called with dir_obj it returns a directory entry's name as a string, or nil if there are no more entries. You can also iterate by calling dir_obj:next(), and explicitly close the directory before the iteration finished with dir_obj:close(). Raises an error if path is not a directory.
+/// Creates an iterator for walking a filesystem path
+///
+/// Parameters:
+///  * path - A string containing a directory to iterate
+///
+/// Returns:
+///  * An iterator function
+///  * A data object to pass to the iterator function
+///
+/// Notes:
+///  * The data object should be passed to the iterator function. Each call will return either a string containing the name of an entry in the directory, or nil if there are no more entries.
+///  * Iteration can also be performed by calling `:next()` on the data object. Note that if you do this, you must call `:close()` on the object when you have finished
+///  * This function will raise a Lua error if it cannot iterate the supplied path
 static int dir_iter_factory (lua_State *L) {
         const char *path = luaL_checkstring (L, 1);
         dir_data *d;
@@ -688,11 +748,17 @@ static const char *mode2string (mode_t mode) {
 /*
 ** Set access time and modification values for file
 */
-/// hs.fs.touch (filepath [, atime [, mtime]]) -> true or nil,error
+/// hs.fs.touch(filepath [, atime [, mtime]]) -> true or (nil,error)
 /// Function
-/// Set access and modification times of a file. This function is a bind to utime function. The first argument is the filename, the second argument (atime) is the access time, and the third argument (mtime) is the modification time. Both times are provided in seconds (which should be generated with Lua standard function os.time). If the modification time is omitted, the access time provided is used; if both times are omitted, the current time is used.
-/// 
-/// Returns true if the operation was successful; in case of error, it returns nil plus an error string.
+/// Updates the access and modification times of a file
+///
+/// Parameters:
+///  * filepath - A string containing the path of a file to touch
+///  * atime - An optional number containing the new access time of the file to set (as seconds since the Epoch). Defaults to now
+///  * mtime - An optional number containing the new modification time of the file to set (as seconds since the Epoch). Defaults to the value of atime
+///
+/// Returns:
+///  * True if the operation was successful, otherwise nil and an error string
 static int file_utime (lua_State *L) {
         const char *file = luaL_checkstring (L, 1);
         struct utimbuf utb, *buf;
@@ -839,22 +905,31 @@ struct _stat_members members[] = {
 /*
 ** Get file or symbolic link information
 */
-/// hs.fs.attributes(filepath [, aname]) -> table or nil
+/// hs.fs.attributes(filepath [, aName]) -> table or string or nil,error
 /// Function
-/// Returns a table with the file attributes corresponding to filepath (or nil followed by an error message in case of error). If the second optional argument is given, then only the value of the named attribute is returned (this use is equivalent to lfs.attributes(filepath).aname, but the table is not created and only one attribute is retrieved from the O.S.). The attributes are described as follows; attribute mode is a string, all the others are numbers, and the time related attributes use the same time reference of os.time:
-/// * dev - on Unix systems, this represents the device that the inode resides on. On Windows systems, represents the drive number of the disk containing the file
-/// * ino - on Unix systems, this represents the inode number. On Windows systems this has no meaning
-/// * mode - string representing the associated protection mode (the values could be file, directory, link, socket, named pipe, char device, block device or other)
-/// * nlink - number of hard links to the file
-/// * uid - user-id of owner (Unix only, always 0 on Windows)
-/// * gid - group-id of owner (Unix only, always 0 on Windows)
-/// * rdev - on Unix systems, represents the device type, for special file inodes. On Windows systems represents the same as dev
-/// * access - time of last access modification time of last data modification
-/// * change - time of last file status change
-/// * size - file size, in bytes
-/// * blocks - block allocated for file; (Unix only)
-/// * blksize - optimal file system I/O blocksize; (Unix only)
-/// This function uses stat internally thus if the given filepath is a symbolic link, it is followed (if it points to another link the chain is followed recursively) and the information is about the file it refers to. To obtain information about the link itself, see function hs.fs.symlinkAttributes.
+/// Gets the attributes of a file
+///
+/// Parameters:
+///  * filepath - A string containing the path of a file to inspect
+///  * aName - An optional attribute name. If this value is specified, only the attribute requested, is returned
+///
+/// Returns:
+///  * A table with the file attributes corresponding to filepath (or nil followed by an error message in case of error). If the second optional argument is given, then a string is returned with the value of the named attribute. attribute mode is a string, all the others are numbers, and the time related attributes use the same time reference of os.time:
+///   * dev - A number containing the device the file resides on
+///   * ino - A number containing the inode of the file
+///   * mode - A string containing the type of the file (possible values are: file, directory, link, socket, named pipe, char device, block device or other)
+///   * nlink - A number containing a count of hard links to the file
+///   * uid - A number containing the user-id of owner
+///   * gid - A number containing the group-id of owner
+///   * rdev - A number containing the type of device, for files that are char/block devices
+///   * access - A number containing the time of last access modification (as seconds since the UNIX epoch)
+///   * change - A number containing the time of last file status change (as seconds since the UNIX epoch)
+///   * size - A number containing the file size, in bytes
+///   * blocks - A number containing the number of blocks allocated for file
+///   * blksize - A number containing the optimal file system I/O blocksize
+///
+/// Notes:
+///  * This function uses `stat()` internally thus if the given filepath is a symbolic link, it is followed (if it points to another link the chain is followed recursively) and the information is about the file it refers to. To obtain information about the link itself, see function `hs.fs.symlinkAttributes()`
 static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
         STAT_STRUCT info;
         const char *file = luaL_checkstring (L, 1);
@@ -902,9 +977,19 @@ static int file_info (lua_State *L) {
 /*
 ** Get symbolic link information using lstat.
 */
-/// hs.fs.symlinkAttributes (filepath [, aname]) -> table
+/// hs.fs.symlinkAttributes (filepath [, aname]) -> table or string or nil,error
 /// Function
-/// Identical to hs.fs.attributes except that it obtains information about the link itself (not the file it refers to).
+/// Gets the attributes of a symbolic link
+///
+/// Parameters:
+///  * filepath - A string containing the path of a link to inspect
+///  * aName - An optional attribute name. If this value is specified, only the attribute requested, is returned
+///
+/// Returns:
+///  * A table or string if the values could be found, otherwise nil and an error string.
+///
+/// Notes:
+///  * The return values for this function are identical to those provided by `hs.fs.attributes()`
 static int link_info (lua_State *L) {
         return _file_info_ (L, LSTAT_FUNC);
 }
