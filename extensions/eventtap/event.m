@@ -9,7 +9,13 @@ static int eventtap_event_gc(lua_State* L) {
 
 /// hs.eventtap.event:copy() -> event
 /// Constructor
-/// Returns a duplicate of the event for further modification or injection.
+/// Duplicateis an `hs.eventtap.event` event for further modification or injection
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A new `hs.eventtap.event` object
 static int eventtap_event_copy(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
 
@@ -22,7 +28,18 @@ static int eventtap_event_copy(lua_State* L) {
 
 /// hs.eventtap.event:getFlags() -> table
 /// Method
-/// Returns a table with any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
+/// Gets the keyboard modifiers of an event
+///
+/// Parametes:
+///  * None
+///
+/// Returns:
+///  * A table containing the keyboard modifiers that present in the event - i.e. zero or more of the following keys, each with a value of `true`:
+///   * cmd
+///   * alt
+///   * shift
+///   * ctrl
+///   * fn
 static int eventtap_event_getFlags(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
 
@@ -38,7 +55,18 @@ static int eventtap_event_getFlags(lua_State* L) {
 
 /// hs.eventtap.event:setFlags(table)
 /// Method
-/// The table may have any of the strings {"cmd", "alt", "shift", "ctrl", "fn"} as keys pointing to the value `true`
+/// Sets the keyboard modifiers of an event
+///
+/// Parameters:
+///  * A table containing the keyboard modifiers to be sent with the event - i.e. zero or more of the following keys, each with a value of `true`:
+///   * cmd
+///   * alt
+///   * shift
+///   * ctrl
+///   * fn
+///
+/// Returns:
+///  * None
 static int eventtap_event_setFlags(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     luaL_checktype(L, 2, LUA_TTABLE);
@@ -58,7 +86,16 @@ static int eventtap_event_setFlags(lua_State* L) {
 
 /// hs.eventtap.event:getKeyCode() -> keycode
 /// Method
-/// Gets the keycode for the given event; only applicable for key-related events. The keycode is a numeric value from the `hs.keycodes.map` table.
+/// Gets the raw keycode for the event
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the raw keycode, taken from `hs.keycodes.map`
+///
+/// Notes:
+///  * This method should only be used on keyboard events
 static int eventtap_event_getKeyCode(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     lua_pushnumber(L, CGEventGetDoubleValueField(event, kCGKeyboardEventKeycode));
@@ -67,7 +104,16 @@ static int eventtap_event_getKeyCode(lua_State* L) {
 
 /// hs.eventtap.event:setKeyCode(keycode)
 /// Method
-/// Sets the keycode for the given event; only applicable for key-related events. The keycode is a numeric value from the `hs.keycodes.map` table.
+/// Sets the raw keycode for the event
+///
+/// Parameters:
+///  * keycode - A number containing a raw keycode, taken from `hs.keycodes.map`
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * This method should only be used on keyboard events
 static int eventtap_event_setKeyCode(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGKeyCode keycode = luaL_checknumber(L, 2);
@@ -75,9 +121,15 @@ static int eventtap_event_setKeyCode(lua_State* L) {
     return 0;
 }
 
-/// hs.eventtap.event:post(app = nil)
+/// hs.eventtap.event:post([app])
 /// Method
-/// Posts the event to the system as if the user did it manually. If app is a valid application instance, posts this event only to that application (I think).
+/// Posts the event to the OS - i.e. emits the keyboard/mouse input defined by the event
+///
+/// Parameters:
+///  * app - An optional `hs.application` object. If specified, the event will only be sent to that application
+///
+/// Returns:
+///  * None
 static int eventtap_event_post(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
 
@@ -103,7 +155,13 @@ static int eventtap_event_post(lua_State* L) {
 
 /// hs.eventtap.event:getType() -> number
 /// Method
-/// Gets the type of the given event; return value will be one of the values in the `hs.eventtap.event.types` table.
+/// Gets the type of the event
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the type of the event, taken from `hs.eventtap.event.types`
 static int eventtap_event_getType(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     lua_pushnumber(L, CGEventGetType(event));
@@ -112,7 +170,16 @@ static int eventtap_event_getType(lua_State* L) {
 
 /// hs.eventtap.event:getProperty(prop) -> number
 /// Method
-/// Gets the given property of the given event; prop is one of the values in the `hs.eventtap.event.properties` table; return value is a number defined here: https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html#//apple_ref/c/tdef/CGEventField
+/// Gets a property of the event
+///
+/// Parameters:
+///  * prop - A value taken from `hs.eventtap.event.properties`
+///
+/// Returns:
+///  * A number containing the value of the requested property
+///
+/// Notes:
+///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
 static int eventtap_event_getProperty(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGEventField field = luaL_checknumber(L, 2);
@@ -120,9 +187,18 @@ static int eventtap_event_getProperty(lua_State* L) {
     return 1;
 }
 
-/// hs.eventtap.event:getButtonState(#) -> bool
+/// hs.eventtap.event:getButtonState(button) -> bool
 /// Method
-/// Gets the state of the numbered mouse button (0-31) as down (true) or up (false). The left mouse button corresponds to 0, the right to 1, and the center to 2.  The remaining buttons are specified in USB order using the integers 3 to 31.
+/// Gets the state of a mouse button in the event
+///
+/// Parameters:
+///  * button - A number between 0 and 31. The left mouse button is 0, the right mouse button is 1 and the middle mouse button is 2. The meaning of the remaining buttons varies by hardware, and their functionality varies by application (typically they are not present on a mouse and have no effect in an application)
+///
+/// Returns:
+///  * A boolean, true if the specified mouse button is to be clicked by the event
+///
+/// Notes:
+///  * This method should only be called on mouse events
 static int eventtap_event_getButtonState(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGMouseButton whichButton = luaL_checknumber(L, 2);
@@ -136,7 +212,17 @@ static int eventtap_event_getButtonState(lua_State* L) {
 
 /// hs.eventtap.event:setProperty(prop, value)
 /// Method
-/// Sets the given property of the given event; prop is one of the values in the `hs.eventtap.event.properties` table; value is a number defined here: https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html#//apple_ref/c/tdef/CGEventField
+/// Sets a property of the event
+///
+/// Parameters:
+///  * prop - A value from `hs.eventtap.event.properties`
+///  * value - A number containing the value of the specified property
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
 static int eventtap_event_setProperty(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGEventField field = luaL_checknumber(L, 2);
@@ -147,10 +233,20 @@ static int eventtap_event_setProperty(lua_State* L) {
 
 /// hs.eventtap.event.newKeyEvent(mods, key, isdown) -> event
 /// Constructor
-/// Creates a keyboard event.
-///   - mods is a table with any of: {'ctrl', 'alt', 'cmd', 'shift', 'fn'}
-///   - key has the same meaning as in the `hotkey` module
-///   - isdown is a boolean. `true` will create a key-down event, `false` will create a key-up event.
+/// Creates a keyboard event
+///
+/// Parameters:
+///  * mods - A table containing zero or more of the following keys, with a corresponding value of true:
+///   * cmd
+///   * alt
+///   * shift
+///   * ctrl
+///   * fn
+///  * key - A string containing the name of a key (see `hs.hotkey` for more information)
+///  * isdown - A boolean, true if the event should be a key-down, false if it should be a key-up
+///
+/// Returns:
+///  * An `hs.eventtap.event` object
 static int eventtap_event_newKeyEvent(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
     const char* key = luaL_checkstring(L, 2);
@@ -205,8 +301,8 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
 }
 
 /// hs.eventtap.event.types -> table
-/// Variable
-/// Table for use with `hs.eventtap.new`, with the following keys:
+/// Constant
+/// A table for use with `hs.eventtap.new()`, containing the following keys:
 ///    keydown, keyup,
 ///    leftmousedown, leftmouseup, leftmousedragged,
 ///    rightmousedown, rightmouseup, rightmousedragged,
@@ -257,8 +353,8 @@ static void pushtypestable(lua_State* L) {
 }
 
 /// hs.eventtap.event.properties -> table
-/// Variable
-/// For use with hs.eventtap.event:{get,set}property; contains the following keys:
+/// Constant
+/// A table for use with `hs.eventtap.event:getProperty()` and `hs.eventtap.event:setProperty()`; contains the following keys:
 ///    - MouseEventNumber
 ///    - MouseEventClickState
 ///    - MouseEventPressure
