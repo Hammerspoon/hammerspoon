@@ -45,9 +45,11 @@ NSMutableArray *drawingWindows;
     if (self) {
         [self setDelegate:self];
         contentRect.origin.y=[self.screen frame].size.height - contentRect.origin.y - contentRect.size.height;
-        NSLog(@"HSDrawingWindow::initWithContentRect corrected contentRect.origin.y to %.1f", contentRect.origin.y);
+        NSLog(@"HSDrawingWindow::initWithContentRect corrected for bottom-left origin.y to %.1f", contentRect.origin.y);
 
         [self setFrameOrigin:contentRect.origin];
+
+        // Configure the window
         self.releasedWhenClosed = NO;
         self.backgroundColor = [NSColor clearColor];
         self.opaque = NO;
@@ -68,7 +70,7 @@ NSMutableArray *drawingWindows;
     self.level = CGWindowLevelForKey(kCGDesktopIconWindowLevelKey) - 1;
 }
 
-// NSWindowDelegate method, declining to close the window
+// NSWindowDelegate method. We decline to close the window because we don't want external things interfering with the user's decisions to display these objects.
 - (BOOL)windowShouldClose:(id __unused)sender {
     NSLog(@"HSDrawingWindow::windowShouldClose");
     return NO;
@@ -89,6 +91,11 @@ NSMutableArray *drawingWindows;
     }
     return self;
 }
+
+- (BOOL)isFlipped {
+    return YES;
+}
+
 @end
 
 @implementation HSDrawingViewCircle
