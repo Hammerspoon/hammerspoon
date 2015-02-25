@@ -124,12 +124,12 @@ NSMutableArray *drawingWindows;
 
     // Draw our shape (fill) and outline (stroke)
     if (self.HSFill) {
-        circlePath.lineWidth = self.HSLineWidth * 2.0; // We have to double this because the stroking line is centered around the path, but we want to clip it to not stray outside the path
-        [circlePath fill];
-
         [circlePath setClip];
+        [circlePath fill];
     }
     if (self.HSStroke) {
+        circlePath.lineWidth = self.HSLineWidth * 2.0; // We have to double this because the stroking line is centered around the path, but we want to clip it to not stray outside the path
+        [circlePath setClip];
         [circlePath stroke];
     }
 
@@ -140,7 +140,7 @@ NSMutableArray *drawingWindows;
 
 @implementation HSDrawingViewRect
 - (void)drawRect:(NSRect)rect {
-    NSLog(@"HSDrawingViewRect::drawRect");
+    //NSLog(@"HSDrawingViewRect::drawRect");
     // Get the graphics context that we are currently executing under
     NSGraphicsContext* gc = [NSGraphicsContext currentContext];
 
@@ -157,15 +157,16 @@ NSMutableArray *drawingWindows;
 
     // Draw our shape (fill) and outline (stroke)
     if (self.HSFill) {
-        rectPath.lineWidth = self.HSLineWidth;
-        [rectPath fill];
-
         [rectPath setClip];
+        [rectPath fill];
     }
     if (self.HSStroke) {
+        rectPath.lineWidth = self.HSLineWidth;
+        [rectPath setClip];
         [rectPath stroke];
     }
 
+    // Restore the context to what it was before we messed with it
     [gc restoreGraphicsState];
 }
 @end
@@ -320,7 +321,7 @@ static int drawing_newRect(lua_State *L) {
 
             break;
         default:
-            NSLog(@"ERROR: Unexpected type passed to hs.drawing.rect(): %d", lua_type(L, 1));
+            NSLog(@"ERROR: Unexpected type passed to hs.drawing.rectangle(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
             break;
@@ -345,7 +346,7 @@ static int drawing_newRect(lua_State *L) {
     } else {
         lua_pushnil(L);
     }
-    
+
     return 1;
 }
 
@@ -627,7 +628,7 @@ static int drawing_setTextColor(lua_State *L) {
 ///  * None
 ///
 /// Notes:
-///  * This method should only be used on line and circle drawing objects
+///  * This method should only be used on line, rectangle and circle drawing objects
 static int drawing_setFillColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSColor *fillColor = getColorFromStack(L, 2);
@@ -656,7 +657,7 @@ static int drawing_setFillColor(lua_State *L) {
 ///  * None
 ///
 /// Notes:
-///  * This method should only be used on line and circle drawing objects
+///  * This method should only be used on line, rectangle and circle drawing objects
 static int drawing_setStrokeColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSColor *strokeColor = getColorFromStack(L, 2);
@@ -681,7 +682,7 @@ static int drawing_setStrokeColor(lua_State *L) {
 ///  * None
 ///
 /// Notes:
-///  * This method should only be used on line and circle drawing objects
+///  * This method should only be used on line, rectangle and circle drawing objects
 static int drawing_setFill(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
 
@@ -705,7 +706,7 @@ static int drawing_setFill(lua_State *L) {
 ///  * None
 ///
 /// Notes:
-///  * This method should only be used on line and circle drawing objects
+///  * This method should only be used on line, rectangle and circle drawing objects
 static int drawing_setStroke(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
 
@@ -729,7 +730,7 @@ static int drawing_setStroke(lua_State *L) {
 ///  * None
 ///
 /// Notes:
-///  * This method should only be used on line and circle drawing objects
+///  * This method should only be used on line, rectangle and circle drawing objects
 static int drawing_setStrokeWidth(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
 
