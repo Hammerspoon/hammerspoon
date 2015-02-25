@@ -32,6 +32,9 @@ NSMutableArray *drawingWindows;
 @interface HSDrawingViewCircle : HSDrawingView
 @end
 
+@interface HSDrawingViewRect : HSDrawingView
+@end
+
 @interface HSDrawingViewLine : HSDrawingView
 @property NSPoint origin;
 @property NSPoint end;
@@ -131,6 +134,38 @@ NSMutableArray *drawingWindows;
     }
 
     // Restore the context to what it was before we messed with it
+    [gc restoreGraphicsState];
+}
+@end
+
+@implementation HSDrawingViewRect
+- (void)drawRect:(NSRect)rect {
+    NSLog(@"HSDrawingViewRect::drawRect");
+    // Get the graphics context that we are currently executing under
+    NSGraphicsContext* gc = [NSGraphicsContext currentContext];
+
+    // Save the current graphics context settings
+    [gc saveGraphicsState];
+
+    // Set the color in the current graphics context for future draw operations
+    [[self HSStrokeColor] setStroke];
+    [[self HSFillColor] setFill];
+
+    // Create our rectangle path
+    NSBezierPath* rectPath = [NSBezierPath bezierPath];
+    [rectPath appendBezierPathWithRect:rect];
+
+    // Draw our shape (fill) and outline (stroke)
+    if (self.HSFill) {
+        rectPath.lineWidth = self.HSLineWidth;
+        [rectPath fill];
+
+        [rectPath setClip];
+    }
+    if (self.HSStroke) {
+        [rectPath stroke];
+    }
+
     [gc restoreGraphicsState];
 }
 @end
@@ -251,6 +286,66 @@ static int drawing_newCircle(lua_State *L) {
         lua_pushnil(L);
     }
 
+    return 1;
+}
+
+/// hs.drawing.rectangle(sizeRect) -> drawingObject or nil
+/// Constructor
+/// Creates a new rectangle object
+///
+/// Parameters:
+///  * sizeRect - A rect-table containing the location/size of the rectangle
+///
+/// Returns:
+///  * An `hs.drawing` rectangle object, or nil if an error occurs
+static int drawing_newRect(lua_State *L) {
+    NSRect windowRect;
+    switch (lua_type(L, 1)) {
+        case LUA_TTABLE:
+            lua_getfield(L, 1, "x");
+            windowRect.origin.x = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "y");
+            windowRect.origin.y = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "w");
+            windowRect.size.width = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "h");
+            windowRect.size.height = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            break;
+        default:
+            NSLog(@"ERROR: Unexpected type passed to hs.drawing.rect(): %d", lua_type(L, 1));
+            lua_pushnil(L);
+            return 1;
+            break;
+    }
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+
+    if (theWindow) {
+        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
+        memset(drawingObject, 0, sizeof(drawing_t));
+        drawingObject->window = (__bridge_retained void*)theWindow;
+        luaL_getmetatable(L, USERDATA_TAG);
+        lua_setmetatable(L, -2);
+
+        HSDrawingViewRect *theView = [[HSDrawingViewRect alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+
+        theWindow.contentView = theView;
+
+        if (!drawingWindows) {
+            drawingWindows = [[NSMutableArray alloc] init];
+        }
+        [drawingWindows addObject:theWindow];
+    } else {
+        lua_pushnil(L);
+    }
+    
     return 1;
 }
 
@@ -735,6 +830,7 @@ static int drawing_sendToBack(lua_State *L) {
 
 static const luaL_Reg drawinglib[] = {
     {"circle", drawing_newCircle},
+    {"rectangle", drawing_newRect},
     {"line", drawing_newLine},
     {"text", drawing_newText},
 
