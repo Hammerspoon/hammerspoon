@@ -4,7 +4,7 @@
 ---
 --- This simple example watches your Hammerspoon directory for changes, and when it sees a change, reloads your configs:
 ---
----     hs.pathwatcher.new(os.getenv("HOME") .. "/.Hammerspoon/", hs.reload):start()
+---     hs.pathwatcher.new(os.getenv("HOME") .. "/.hammerspoon/", hs.reload):start()
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
