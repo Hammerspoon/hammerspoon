@@ -60,11 +60,48 @@ static int isMainThread(lua_State *L)
     return 1;
 }
 
+/// hs.crash.dumpCLIBS() -> table
+/// Function
+/// Dumps the contents of Lua's CLIBS registry
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing all the paths of C libraries that have been loaded into the Lua runtime
+static int dumpCLIBS(lua_State *L) {
+    int stack_ref;
+    int i;
+    NSMutableSet *cLibs = [[NSMutableSet alloc] init];
+
+    lua_getfield(L, LUA_REGISTRYINDEX, "_CLIBS");
+    stack_ref = lua_gettop(L);
+
+    lua_pushnil(L);
+    while (lua_next(L, stack_ref) != 0) {
+        // lua_next pushed two things onto the stack, the key at -2 and the value at -1
+        if (lua_type(L, -2) == LUA_TSTRING) {
+            [cLibs addObject:[NSString stringWithUTF8String:lua_tostring(L, -2)]];
+        }
+        lua_pop(L, 1);
+    }
+
+    i = 1;
+    lua_newtable(L);
+    for (NSString *cLib in [cLibs allObjects]) {
+        lua_pushnumber(L, i++);
+        lua_pushstring(L, [cLib UTF8String]);
+        lua_settable(L, -3);
+    }
+    return 1;
+}
+
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static const luaL_Reg crashlib[] = {
     {"crash", burnTheWorld},
     {"isMainThread", isMainThread},
+    {"dumpCLIBS", dumpCLIBS},
 
     {}
 };
