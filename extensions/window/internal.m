@@ -389,6 +389,54 @@ static int window_togglezoom(lua_State* L) {
     return window_pressbutton(L, kAXZoomButtonAttribute);
 }
 
+/// hs.window:zoomButtonRect() -> rect-table or nil
+/// Method
+/// Gets a rect-table for the location of the zoom button (the green button typically found at the top left of a window)
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A rect-table containing the bounding frame of the zoom button, or nil if an error occured
+///
+/// Notes:
+///  * The co-ordinates in the rect-table (i.e. the `x` and `y` values) are in absolute co-ordinates, not relative to the window the button is part of, or the screen the window is on
+///  * Although not perfect as such, this method can provide a useful way to find a region of the titlebar suitable for simulating mouse click events on, with `hs.eventtap`
+static int window_getZoomButtonRect(lua_State* L) {
+    AXUIElementRef win = get_window_arg(L, 1);
+    AXUIElementRef button = nil;
+    CFTypeRef pointRef;
+    CFTypeRef sizeRef;
+    CGPoint point;
+    CGSize size;
+
+    if (AXUIElementCopyAttributeValue(win, kAXZoomButtonAttribute, (CFTypeRef*)&button) != noErr) goto cleanup;
+    if (AXUIElementCopyAttributeValue(button, kAXPositionAttribute, &pointRef) != noErr) goto cleanup;
+    if (AXUIElementCopyAttributeValue(button, kAXSizeAttribute, &sizeRef) != noErr) goto cleanup;
+
+    if (!AXValueGetValue(pointRef, kAXValueCGPointType, &point)) goto cleanup;
+    if (!AXValueGetValue(sizeRef, kAXValueCGSizeType, &size)) goto cleanup;
+
+    lua_newtable(L);
+
+    lua_pushnumber(L, point.x);
+    lua_setfield(L, -2, "x");
+
+    lua_pushnumber(L, point.y);
+    lua_setfield(L, -2, "y");
+
+    lua_pushnumber(L, size.width);
+    lua_setfield(L, -2, "w");
+
+    lua_pushnumber(L, size.height);
+    lua_setfield(L, -2, "h");
+
+    return 1;
+cleanup:
+    lua_pushnil(L);
+    return 1;
+}
+
 /// hs.window:close() -> bool
 /// Method
 /// Closes the window
@@ -608,6 +656,7 @@ static const luaL_Reg windowlib[] = {
     {"becomeMain", window_becomemain},
     {"id", window_id},
     {"toggleZoom", window_togglezoom},
+    {"zoomButtonRect", window_getZoomButtonRect},
     {"close", window_close},
     {"setFullScreen", window_setfullscreen},
     {"isFullScreen", window_isfullscreen},
