@@ -334,11 +334,73 @@ static int screen_setPrimary(lua_State* L) {
     return 0;
 }
 
+/// hs.screen:rotate(degrees) -> bool
+/// Method
+/// Rotates the screen
+///
+/// Parameters:
+///  * degrees - A number indicating how many degrees to rotate. This number must be one of:
+///   * 0
+///   * 90
+///   * 180
+///   * 270
+///
+/// Returns:
+///  * A boolean, true if the operation succeeded, otherwise false
+static int screen_rotate(lua_State* L) {
+    NSScreen* screen = get_screen_arg(L, 1);
+    CGDisplayCount maxDisplays = 32;
+    CGDisplayCount displayCount, i;
+    CGDirectDisplayID onlineDisplays[maxDisplays];
+    int rot = lua_tointeger(L, 2);
+    int rotation;
+
+    switch (rot) {
+        case 0:
+            rotation = kIOScaleRotate0;
+            break;
+        case 90:
+            rotation = kIOScaleRotate90;
+            break;
+        case 180:
+            rotation = kIOScaleRotate180;
+            break;
+        case 270:
+            rotation = kIOScaleRotate270;
+            break;
+        default:
+            goto cleanup;
+            break;
+    }
+
+    CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+    if (CGGetOnlineDisplayList(maxDisplays, onlineDisplays, &displayCount) != kCGErrorSuccess) goto cleanup;
+
+    for (i = 0; i < displayCount; i++) {
+        CGDirectDisplayID dID = onlineDisplays[i];
+        if (dID == screenID) {
+            io_service_t service = CGDisplayIOServicePort(dID);
+            IOOptionBits options = (0x00000400 | (rotation) << 16);
+            if (IOServiceRequestProbe(service, options) != kCGErrorSuccess) goto cleanup;
+            break;
+        }
+    }
+
+    lua_pushboolean(L, true);
+    return 1;
+
+cleanup:
+    lua_pushboolean(L, false);
+    return 1;
+}
+
+
 static const luaL_Reg screenlib[] = {
     {"allScreens", screen_allScreens},
     {"mainScreen", screen_mainScreen},
     {"setTint", screen_setTint},
     {"setPrimary", screen_setPrimary},
+    {"rotate", screen_rotate},
 
     {"_frame", screen_frame},
     {"_visibleframe", screen_visibleframe},
