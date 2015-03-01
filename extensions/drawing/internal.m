@@ -549,7 +549,7 @@ static int drawing_newText(lua_State *L) {
 ///  * message - A string containing the text to display
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
@@ -560,7 +560,8 @@ static int drawing_setText(lua_State *L) {
 
     drawingView.textField.stringValue = [NSString stringWithUTF8String:lua_tostring(L, 2)];
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:setTextSize(size)
@@ -571,7 +572,7 @@ static int drawing_setText(lua_State *L) {
 ///  * size - A number containing the font size to use
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
@@ -582,7 +583,8 @@ static int drawing_setTextSize(lua_State *L) {
 
     [drawingView.textField setFont:[NSFont systemFontOfSize:lua_tonumber(L, 2)]];
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:setTextColor(color)
@@ -597,7 +599,7 @@ static int drawing_setTextSize(lua_State *L) {
 ///   * alpha
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be called on text drawing objects
@@ -610,7 +612,8 @@ static int drawing_setTextColor(lua_State *L) {
 
     [drawingView.textField setTextColor:textColor];
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:setFillColor(color)
@@ -625,7 +628,7 @@ static int drawing_setTextColor(lua_State *L) {
 ///   * alpha
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be used on line, rectangle and circle drawing objects
@@ -639,7 +642,8 @@ static int drawing_setFillColor(lua_State *L) {
     drawingView.HSFillColor = fillColor;
     drawingView.needsDisplay = YES;
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:setStrokeColor(color)
@@ -654,7 +658,7 @@ static int drawing_setFillColor(lua_State *L) {
 ///   * alpha
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be used on line, rectangle and circle drawing objects
@@ -668,7 +672,8 @@ static int drawing_setStrokeColor(lua_State *L) {
     drawingView.HSStrokeColor = strokeColor;
     drawingView.needsDisplay = YES;
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:setFill(doFill)
@@ -679,7 +684,7 @@ static int drawing_setStrokeColor(lua_State *L) {
 ///  * doFill - A boolean, true to fill the drawing object, false to not fill
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be used on line, rectangle and circle drawing objects
@@ -692,7 +697,8 @@ static int drawing_setFill(lua_State *L) {
     drawingView.HSFill = lua_toboolean(L, 2);
     drawingView.needsDisplay = YES;
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:setStroke(doStroke)
@@ -703,7 +709,7 @@ static int drawing_setFill(lua_State *L) {
 ///  * doStroke - A boolean, true to stroke the drawing object, false to not stroke
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be used on line, rectangle and circle drawing objects
@@ -716,7 +722,8 @@ static int drawing_setStroke(lua_State *L) {
     drawingView.HSStroke = lua_toboolean(L, 2);
     drawingView.needsDisplay = YES;
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:setStrokeWidth(width)
@@ -727,7 +734,7 @@ static int drawing_setStroke(lua_State *L) {
 ///  * width - A number containing the width in points to stroke a drawing object
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be used on line, rectangle and circle drawing objects
@@ -740,7 +747,8 @@ static int drawing_setStrokeWidth(lua_State *L) {
     drawingView.HSLineWidth = lua_tonumber(L, 2);
     drawingView.needsDisplay = YES;
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:show()
@@ -751,11 +759,13 @@ static int drawing_setStrokeWidth(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 static int drawing_show(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     [(__bridge HSDrawingWindow *)drawingObject->window makeKeyAndOrderFront:nil];
-    return 0;
+
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:hide()
@@ -766,7 +776,7 @@ static int drawing_show(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 static int drawing_hide(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     [(__bridge HSDrawingWindow *)drawingObject->window orderOut:nil];
@@ -803,12 +813,14 @@ static int drawing_delete(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 static int drawing_bringToFront(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     [drawingWindow setLevelTop];
-    return 0;
+
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:sendToBack()
@@ -819,12 +831,14 @@ static int drawing_bringToFront(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The drawing object
 static int drawing_sendToBack(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     [drawingWindow setLevelBottom];
-    return 0;
+
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 // Lua metadata
