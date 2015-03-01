@@ -277,7 +277,6 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
         else if (strcmp(modifier, "alt") == 0 || strcmp(modifier, "⌥") == 0) flags |= kCGEventFlagMaskAlternate;
         else if (strcmp(modifier, "shift") == 0 || strcmp(modifier, "⇧") == 0) flags |= kCGEventFlagMaskShift;
         else if (strcmp(modifier, "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
-        // FIXME: we should have a fallback else here which emits an error
         lua_pop(L, 1);
     }
 
