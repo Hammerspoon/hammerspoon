@@ -236,7 +236,7 @@ static int eventtap_event_setProperty(lua_State* L) {
 /// Creates a keyboard event
 ///
 /// Parameters:
-///  * mods - A table containing zero or more of the following keys, with a corresponding value of true:
+///  * mods - A table containing zero or more of the following keys:
 ///   * cmd
 ///   * alt
 ///   * shift
@@ -293,6 +293,8 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
     CGEventType type = luaL_checknumber(L, 1);
     CGPoint point = hs_topoint(L, 2);
     const char* buttonString = luaL_checkstring(L, 3);
+    CGEventFlags flags = 0;
+    const char *modifier;
 
     CGMouseButton button = kCGMouseButtonLeft;
 
@@ -301,8 +303,27 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
     else if (strcmp(buttonString, "middle") == 0)
         button = kCGMouseButtonCenter;
 
+    if (!lua_isnoneornil(L, 4)) {
+        lua_pushnil(L);
+        while (lua_next(L, 4) != 0) {
+            modifier = lua_tostring(L, -2);
+            if (!modifier) {
+                NSLog(@"Error: Unexpected entry in modifiers table, seems to be null (%d)", lua_type(L, -1));
+                lua_pop(L, 1);
+                continue;
+            }
+            if (strcmp(modifier, "cmd") == 0 || strcmp(modifier, "⌘") == 0) flags |= kCGEventFlagMaskCommand;
+            else if (strcmp(modifier, "ctrl") == 0 || strcmp(modifier, "⌃") == 0) flags |= kCGEventFlagMaskControl;
+            else if (strcmp(modifier, "alt") == 0 || strcmp(modifier, "⌥") == 0) flags |= kCGEventFlagMaskAlternate;
+            else if (strcmp(modifier, "shift") == 0 || strcmp(modifier, "⇧") == 0) flags |= kCGEventFlagMaskShift;
+            else if (strcmp(modifier, "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
+            lua_pop(L, 1);
+        }
+    }
+
     CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
     CGEventRef event = CGEventCreateMouseEvent(source, type, point, button);
+    CGEventSetFlags(event, flags);
     new_eventtap_event(L, event);
     CFRelease(event);
 

@@ -21,17 +21,23 @@ local module = require("hs.eventtap.internal")
 
 module.event = require("hs.eventtap.event")
 
---- hs.eventtap.event.newMouseEvent(eventtype, point) -> event
+--- hs.eventtap.event.newMouseEvent(eventtype, point[, modifiers) -> event
 --- Constructor
 --- Creates a new mouse event
 ---
 --- Parameters:
 ---  * eventtype - One of the values from `hs.eventtap.event.types`
 ---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---  * modifiers - An optional table containing zero or more of the following keys:
+---   * cmd
+---   * alt
+---   * shift
+---   * ctrl
+---   * fn
 ---
 --- Returns:
 ---  * An `hs.eventtap` object
-function module.event.newMouseEvent(eventtype, point)
+function module.event.newMouseEvent(eventtype, point, modifiers)
     local types = module.event.types
     local button = nil
     if eventtype == types["leftmousedown"] or eventtype == types["leftmouseup"] or eventtype == types["leftmousedragged"] then
@@ -44,7 +50,7 @@ function module.event.newMouseEvent(eventtype, point)
         print("Error: unrecognised mouse button eventtype: " .. eventtype)
         return nil
     end
-    return module.event._newMouseEvent(eventtype, point, button)
+    return module.event._newMouseEvent(eventtype, point, button, modifiers)
 end
 
 --- hs.eventtap.leftClick(point)
