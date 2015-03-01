@@ -131,12 +131,12 @@ function hints.setupModal()
   return k
 end
 
---- hs.hints.windowHints()
+--- hs.hints.windowHints(windows)
 --- Function
 --- Displays a keyboard hint for switching focus to each window
 ---
 --- Parameters:
----  * None
+---  * windows - A table containing some `hs.window` objects
 ---
 --- Returns:
 ---  * None
@@ -146,8 +146,10 @@ end
 ---    we resort to multi-character hints
 ---  * If hints.style is set to "vimperator", every window hint is prefixed with the first
 ---    character of the parent application's name
+---  * To display hints only for the currently focused application, try something like:
+---   * `hs.hints.windowHints(hs.window.focusedWindow():application():allWindows())`
 function hints.windowHints(windows)
-  
+
   windows = windows or window.allWindows()
 
   if (modalKey == nil) then
