@@ -154,7 +154,7 @@ static int timer_doAfter(lua_State* L) {
 ///  * None
 ///
 /// Notes:
-///  * Use of this function is highly discouraged, as it blocks all main-thread execution in Hammerspoon. This means no hotkeys or events will be processed in that time. This is only provided as a last resort, or for extremely short sleeps. For all other purposes, you really should be splitting up your code into multiple functions and calling `hs.timer.doAfter()`
+///  * Use of this function is strongly discouraged, as it blocks all main-thread execution in Hammerspoon. This means no hotkeys or events will be processed in that time. This is only provided as a last resort, or for extremely short sleeps. For all other purposes, you really should be splitting up your code into multiple functions and calling `hs.timer.doAfter()`
 static int timer_usleep(lua_State* L) {
     int microsecs = lua_tointeger(L, 1);
     usleep(microsecs);
