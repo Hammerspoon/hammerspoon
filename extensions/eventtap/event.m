@@ -251,6 +251,7 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
     const char* key = luaL_checkstring(L, 2);
     bool isdown = lua_toboolean(L, 3);
+    const char *modifier;
 
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "keycodes");
@@ -263,11 +264,20 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
     CGEventFlags flags = 0;
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
-        if (strcmp(lua_tostring(L, -1), "cmd") == 0 || strcmp(lua_tostring(L, -1), "⌘") == 0) flags |= kCGEventFlagMaskCommand;
-        else if (strcmp(lua_tostring(L, -1), "ctrl") == 0 || strcmp(lua_tostring(L, -1), "⌃") == 0) flags |= kCGEventFlagMaskControl;
-        else if (strcmp(lua_tostring(L, -1), "alt") == 0 || strcmp(lua_tostring(L, -1), "⌥") == 0) flags |= kCGEventFlagMaskAlternate;
-        else if (strcmp(lua_tostring(L, -1), "shift") == 0 || strcmp(lua_tostring(L, -1), "⇧") == 0) flags |= kCGEventFlagMaskShift;
-        else if (strcmp(lua_tostring(L, -1), "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
+        modifier = lua_tostring(L, -2);
+        if (!modifier) {
+            // FIXME: Show a proper error here, probably do a proper type check instead of just trusting lua_tostring
+            NSLog(@"ERROR: Unexpected entry in modifiers table, seems to be null (%d)", lua_type(L, -1));
+            lua_pop(L, 1);
+            continue;
+        }
+
+        if (strcmp(modifier, "cmd") == 0 || strcmp(modifier, "⌘") == 0) flags |= kCGEventFlagMaskCommand;
+        else if (strcmp(modifier, "ctrl") == 0 || strcmp(modifier, "⌃") == 0) flags |= kCGEventFlagMaskControl;
+        else if (strcmp(modifier, "alt") == 0 || strcmp(modifier, "⌥") == 0) flags |= kCGEventFlagMaskAlternate;
+        else if (strcmp(modifier, "shift") == 0 || strcmp(modifier, "⇧") == 0) flags |= kCGEventFlagMaskShift;
+        else if (strcmp(modifier, "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
+        // FIXME: we should have a fallback else here which emits an error
         lua_pop(L, 1);
     }
 
