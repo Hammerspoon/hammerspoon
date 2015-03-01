@@ -143,6 +143,25 @@ static int timer_doAfter(lua_State* L) {
     return 1;
 }
 
+/// hs.timer.usleep(microsecs)
+/// Function
+/// Blocks Lua execution for the specified time
+///
+/// Parameters:
+///  * microsecs - A number containing a time in microseconds to block for
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * Use of this function is highly discouraged, as it blocks all main-thread execution in Hammerspoon. This means no hotkeys or events will be processed in that time. This is only provided as a last resort, or for extremely short sleeps. For all other purposes, you really should be splitting up your code into multiple functions and calling `hs.timer.doAfter()`
+static int timer_usleep(lua_State* L) {
+    int microsecs = lua_tointeger(L, 1);
+    usleep(microsecs);
+
+    return 0;
+}
+
 /// hs.timer:stop() -> timer
 /// Method
 /// Stops an `hs.timer` object
@@ -189,6 +208,7 @@ static const luaL_Reg timer_metalib[] = {
 static const luaL_Reg timerLib[] = {
     {"doAfter",    timer_doAfter},
     {"new",        timer_new},
+    {"usleep",     timer_usleep},
     {NULL,          NULL}
 };
 
