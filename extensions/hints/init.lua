@@ -146,13 +146,16 @@ end
 ---    we resort to multi-character hints
 ---  * If hints.style is set to "vimperator", every window hint is prefixed with the first
 ---    character of the parent application's name
-function hints.windowHints()
+function hints.windowHints(windows)
+  
+  windows = windows or window.allWindows()
+
   if (modalKey == nil) then
     modalKey = hints.setupModal()
   end
   hints.closeHints()
   hintDict = {}
-  for i, win in ipairs(window.allWindows()) do
+  for i, win in ipairs(windows) do
     local app = win:application()
     if app and win:isStandard() then
       if hints.style == "vimperator" then
