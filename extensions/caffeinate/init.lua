@@ -55,7 +55,7 @@ end
 --- Queries whether a particular sleep type is being prevented
 ---
 --- Parameters:
----  * sleepType - A string containing the type of sleep to inspect (see [set](#set) for information about the possible values)
+---  * sleepType - A string containing the type of sleep to inspect (see [hs.caffeinate.set()](#set) for information about the possible values)
 ---
 --- Returns:
 ---  * True if the specified type of sleep is being prevented, false if not. nil if sleepType was an invalid value
@@ -82,7 +82,7 @@ end
 --- Toggles the current state of the specified type of sleep
 ---
 --- Parameters:
----  * sleepType - A string containing the type of sleep to toggle (see [set](#set) for information about the possible values)
+---  * sleepType - A string containing the type of sleep to toggle (see [hs.caffeinate.set()](#set) for information about the possible values)
 ---
 --- Returns:
 ---  * True if the specified type of sleep is being prevented, false if not. nil if sleepType was an invalid value
