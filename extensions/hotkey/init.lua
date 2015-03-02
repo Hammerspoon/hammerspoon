@@ -11,7 +11,7 @@ local keycodes = require "hs.keycodes"
 ---
 --- The `mods` parameter is case-insensitive and may contain any of the following strings: "cmd", "ctrl", "alt", or "shift".
 ---
---- The `key` parameter is case-insensitive and may be any string value found in [hs.keycodes.map](hs.keycodes.html#map)
+--- The `key` parameter is case-insensitive and may be any string value found in [hs.keycodes.map](hs.keycodes.html#map), or it can be a raw keycode value if prefixed with a `#` symbol
 ---
 --- The `pressedfn` parameter is the function that will be called when this hotkey is pressed.
 ---
@@ -27,7 +27,13 @@ local function wrap(fn)
 end
 
 function hotkey.new(mods, key, pressedfn, releasedfn)
-  local keycode = keycodes.map[key:lower()]
+  local keycode
+
+  if (key:sub(1, 1) == '#') then
+    keycode = tonumber(key:sub(2))
+  else
+    keycode = keycodes.map[key:lower()]
+  end
 
   if not keycode then
       print("Error: Invalid key: "..key)
