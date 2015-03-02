@@ -70,9 +70,15 @@ static int hotkey_new(lua_State* L) {
     return 1;
 }
 
-/// hs.hotkey:enable() -> self
+/// hs.hotkey:enable() -> hotkeyObject
 /// Method
-/// Registers the hotkey's fn as the callback when the user presses key while holding mods.
+/// Enables a hotkey object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The hotkey object
 static int hotkey_enable(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, "hs.hotkey");
     lua_settop(L, 1);
@@ -99,9 +105,15 @@ static void stop(lua_State* L, hotkey_t* hotkey) {
     UnregisterEventHotKey(hotkey->carbonHotKey);
 }
 
-/// hs.hotkey:disable() -> self
+/// hs.hotkey:disable() -> hotkeyObject
 /// Method
-/// Disables the given hotkey; does not remove it from hs.hotkey.keys.
+/// Disables a hotkey object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The hotkey object
 static int hotkey_disable(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, "hs.hotkey");
     stop(L, hotkey);

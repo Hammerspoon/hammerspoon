@@ -5,17 +5,22 @@
 local hotkey = require "hs.hotkey.internal"
 local keycodes = require "hs.keycodes"
 
---- hs.hotkey.new(mods, key, pressedfn, releasedfn = nil) -> hotkey
+--- hs.hotkey.new(mods, key, pressedfn[, releasedfn]) -> hotkeyObject
 --- Constructor
---- Creates a new hotkey that can be enabled.
+--- Creates a new hotkey
 ---
---- The `mods` parameter is case-insensitive and may contain any of the following strings: "cmd", "ctrl", "alt", or "shift".
+--- Parameters:
+---  * mods - A table containing the keyboard modifiers required, which should be zero or more of the following strings:
+---   * cmd
+---   * alt
+---   * shift
+---   * ctrl
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * pressedfn - A function that will be called when the hotkey has been pressed
+---  * releasedfn - An optional function that will be called when the hotkey has been released
 ---
---- The `key` parameter is case-insensitive and may be any string value found in [hs.keycodes.map](hs.keycodes.html#map), or it can be a raw keycode value if prefixed with a `#` symbol
----
---- The `pressedfn` parameter is the function that will be called when this hotkey is pressed.
----
---- The `releasedfn` parameter is the function that will be called when this hotkey is released; this field is optional (i.e. may be nil or omitted).
+--- Returns:
+---  * An `hs.hotkey` object
 
 local function wrap(fn)
   return function()
@@ -47,9 +52,25 @@ function hotkey.new(mods, key, pressedfn, releasedfn)
   return k
 end
 
---- hs.hotkey.bind(mods, key, pressedfn, releasedfn) -> hotkey
+--- hs.hotkey.bind(mods, key, pressedfn, releasedfn) -> hotkeyObject
 --- Constructor
---- Shortcut for: return hs.hotkey.new(mods, key, pressedfn, releasedfn):enable()
+--- Creates a hotkey and enables it immediately
+---
+--- Parameters:
+---  * mods - A table containing the keyboard modifiers required, which should be zero or more of the following strings:
+---   * cmd
+---   * alt
+---   * shift
+---   * ctrl
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * pressedfn - A function that will be called when the hotkey has been pressed
+---  * releasedfn - An optional function that will be called when the hotkey has been released
+---
+--- Returns:
+---  * An `hs.hotkey` object
+---
+--- Notes:
+---  * This function is a simple wrapper that performs: `hs.hotkey.new(mods, key, pressedfn, releasedfn):enable()`
 function hotkey.bind(...)
   local key = hotkey.new(...)
   if key then
