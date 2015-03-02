@@ -541,7 +541,7 @@ static int drawing_newText(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setText(message)
+/// hs.drawing:setText(message) -> drawingObject
 /// Method
 /// Sets the text of a drawing object
 ///
@@ -564,7 +564,7 @@ static int drawing_setText(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setTextSize(size)
+/// hs.drawing:setTextSize(size) -> drawingObject
 /// Method
 /// Sets the text size of a drawing object
 ///
@@ -587,7 +587,7 @@ static int drawing_setTextSize(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setTextColor(color)
+/// hs.drawing:setTextColor(color) -> drawingObject
 /// Method
 /// Sets the text color of a drawing object
 ///
@@ -616,7 +616,7 @@ static int drawing_setTextColor(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setFillColor(color)
+/// hs.drawing:setFillColor(color) -> drawingObject
 /// Method
 /// Sets the fill color of a drawing object
 ///
@@ -646,7 +646,7 @@ static int drawing_setFillColor(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setStrokeColor(color)
+/// hs.drawing:setStrokeColor(color) -> drawingObject
 /// Method
 /// Sets the stroke color of a drawing object
 ///
@@ -676,7 +676,7 @@ static int drawing_setStrokeColor(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setFill(doFill)
+/// hs.drawing:setFill(doFill) -> drawingObject
 /// Method
 /// Sets whether or not to fill a drawing object
 ///
@@ -701,7 +701,7 @@ static int drawing_setFill(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setStroke(doStroke)
+/// hs.drawing:setStroke(doStroke) -> drawingObject
 /// Method
 /// Sets whether or not to stroke a drawing object
 ///
@@ -726,7 +726,7 @@ static int drawing_setStroke(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setStrokeWidth(width)
+/// hs.drawing:setStrokeWidth(width) -> drawingObject
 /// Method
 /// Sets the stroke width of a drawing object
 ///
@@ -751,7 +751,7 @@ static int drawing_setStrokeWidth(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:show()
+/// hs.drawing:show() -> drawingObject
 /// Method
 /// Displays the drawing object
 ///
@@ -768,7 +768,7 @@ static int drawing_show(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:hide()
+/// hs.drawing:hide() -> drawingObject
 /// Method
 /// Hides the drawing object
 ///
@@ -780,7 +780,9 @@ static int drawing_show(lua_State *L) {
 static int drawing_hide(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     [(__bridge HSDrawingWindow *)drawingObject->window orderOut:nil];
-    return 0;
+
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.drawing:delete()
@@ -805,7 +807,7 @@ static int drawing_delete(lua_State *L) {
     return 0;
 }
 
-/// hs.drawing:bringToFront()
+/// hs.drawing:bringToFront() -> drawingObject
 /// Method
 /// Places the drawing object on top of normal windows
 ///
@@ -823,7 +825,7 @@ static int drawing_bringToFront(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:sendToBack()
+/// hs.drawing:sendToBack() -> drawingObject
 /// Method
 /// Places the drawing object behind normal windows, between the desktop wallpaper and desktop icons
 ///
