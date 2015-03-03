@@ -5,7 +5,7 @@
 local hotkey = require "hs.hotkey.internal"
 local keycodes = require "hs.keycodes"
 
---- hs.hotkey.new(mods, key, pressedfn[, releasedfn]) -> hotkeyObject
+--- hs.hotkey.new(mods, key, pressedfn[, releasedfn, repeatfn]) -> hotkeyObject
 --- Constructor
 --- Creates a new hotkey
 ---
@@ -18,6 +18,7 @@ local keycodes = require "hs.keycodes"
 ---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
 ---  * pressedfn - A function that will be called when the hotkey has been pressed
 ---  * releasedfn - An optional function that will be called when the hotkey has been released
+---  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
 ---
 --- Returns:
 ---  * An `hs.hotkey` object
@@ -31,7 +32,7 @@ local function wrap(fn)
   end
 end
 
-function hotkey.new(mods, key, pressedfn, releasedfn)
+function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
   local keycode
 
   if (key:sub(1, 1) == '#') then
@@ -47,12 +48,13 @@ function hotkey.new(mods, key, pressedfn, releasedfn)
 
   local _pressedfn = wrap(pressedfn)
   local _releasedfn = wrap(releasedfn)
+  local _repeatfn = wrap(repeatfn)
 
-  local k = hotkey._new(mods, keycode, _pressedfn, _releasedfn)
+  local k = hotkey._new(mods, keycode, _pressedfn, _releasedfn, _repeatfn)
   return k
 end
 
---- hs.hotkey.bind(mods, key, pressedfn, releasedfn) -> hotkeyObject
+--- hs.hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn) -> hotkeyObject
 --- Constructor
 --- Creates a hotkey and enables it immediately
 ---
@@ -65,12 +67,13 @@ end
 ---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
 ---  * pressedfn - A function that will be called when the hotkey has been pressed
 ---  * releasedfn - An optional function that will be called when the hotkey has been released
+---  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
 ---
 --- Returns:
 ---  * An `hs.hotkey` object
 ---
 --- Notes:
----  * This function is a simple wrapper that performs: `hs.hotkey.new(mods, key, pressedfn, releasedfn):enable()`
+---  * This function is a simple wrapper that performs: `hs.hotkey.new(mods, key, pressedfn, releasedfn, repeatfn):enable()`
 function hotkey.bind(...)
   local key = hotkey.new(...)
   if key then

@@ -2,7 +2,63 @@
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
 
+#define REPEAT_TIMER_DELAY 0.3
+#define REPEAT_TIMER_RATE 0.03
+
+@interface HSKeyRepeatManager : NSObject {
+    NSTimer *keyRepeatTimer;
+    lua_State *L;
+    int eventID;
+    int eventType;
+}
+
+- (void)startTimer:(lua_State *)luaState eventID:(int)theEventID eventKind:(int)theEventKind;
+- (void)stopTimer;
+- (void)delayTimerFired:(NSTimer *)timer;
+- (void)repeatTimerFired:(NSTimer *)timer;
+@end
+
 static NSMutableIndexSet* handlers;
+static HSKeyRepeatManager* keyRepeatManager;
+static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKind, BOOL isRepeat);
+
+@implementation HSKeyRepeatManager
+- (void)startTimer:(lua_State *)luaState eventID:(int)theEventID eventKind:(int)theEventKind {
+    keyRepeatTimer = [NSTimer scheduledTimerWithTimeInterval:REPEAT_TIMER_DELAY
+                                                      target:self
+                                                    selector:@selector(delayTimerFired:)
+                                                    userInfo:nil
+                                                     repeats:NO];
+
+    L = luaState;
+    eventID = theEventID;
+    eventType = theEventKind;
+}
+
+- (void)stopTimer {
+    [keyRepeatTimer invalidate];
+    keyRepeatTimer = nil;
+    L = nil;
+    eventID = 0;
+    eventType = 0;
+}
+
+- (void)delayTimerFired:(NSTimer *)timer {
+    [keyRepeatTimer invalidate];
+    keyRepeatTimer = [NSTimer scheduledTimerWithTimeInterval:REPEAT_TIMER_RATE
+                                                      target:self
+                                                    selector:@selector(repeatTimerFired:)
+                                                    userInfo:nil
+                                                     repeats:NO];
+                                                     //repeats:YES];
+}
+
+- (void)repeatTimerFired:(NSTimer *)timer {
+    trigger_hotkey_callback(L, eventID, eventType, true);
+}
+
+@end
+static NSTimer* keyRepeatTimer;
 
 static int store_hotkey(lua_State* L, int idx) {
     lua_pushvalue(L, idx);
@@ -27,6 +83,7 @@ typedef struct _hotkey_t {
     UInt32 uid;
     int pressedfn;
     int releasedfn;
+    int repeatfn;
     BOOL enabled;
     EventHotKeyRef carbonHotKey;
 } hotkey_t;
@@ -37,7 +94,8 @@ static int hotkey_new(lua_State* L) {
     UInt32 keycode = luaL_checknumber(L, 2);
     luaL_checktype(L, 3, LUA_TFUNCTION);
     luaL_checktype(L, 4, LUA_TFUNCTION);
-    lua_settop(L, 4);
+    luaL_checktype(L, 5, LUA_TFUNCTION);
+    lua_settop(L, 5);
 
     hotkey_t* hotkey = lua_newuserdata(L, sizeof(hotkey_t));
     memset(hotkey, 0, sizeof(hotkey_t));
@@ -55,6 +113,10 @@ static int hotkey_new(lua_State* L) {
     // store releasedfn
     lua_pushvalue(L, 4);
     hotkey->releasedfn = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    // store repeatfn
+    lua_pushvalue(L, 5);
+    hotkey->repeatfn = luaL_ref(L, LUA_REGISTRYINDEX);
 
     // save mods
     lua_pushnil(L);
@@ -88,7 +150,7 @@ static int hotkey_enable(lua_State* L) {
 
     hotkey->enabled = YES;
     hotkey->uid = store_hotkey(L, 1);
-    EventHotKeyID hotKeyID = { .signature = 'MJLN', .id = hotkey->uid };
+    EventHotKeyID hotKeyID = { .signature = 'HMSP', .id = hotkey->uid };
     hotkey->carbonHotKey = NULL;
     RegisterEventHotKey(hotkey->keycode, hotkey->mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &hotkey->carbonHotKey);
 
@@ -103,6 +165,7 @@ static void stop(lua_State* L, hotkey_t* hotkey) {
     hotkey->enabled = NO;
     remove_hotkey(L, hotkey->uid);
     UnregisterEventHotKey(hotkey->carbonHotKey);
+    [keyRepeatManager stopTimer];
 }
 
 /// hs.hotkey:disable() -> hotkeyObject
@@ -126,6 +189,7 @@ static int hotkey_gc(lua_State* L) {
     stop(L, hotkey);
     luaL_unref(L, LUA_REGISTRYINDEX, hotkey->pressedfn);
     luaL_unref(L, LUA_REGISTRYINDEX, hotkey->releasedfn);
+    luaL_unref(L, LUA_REGISTRYINDEX, hotkey->repeatfn);
     return 0;
 }
 
@@ -143,26 +207,45 @@ static EventHandlerRef eventhandler;
 
 static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inHandlerCallRef, EventRef inEvent, void *inUserData) {
     EventHotKeyID eventID;
+    int eventKind;
+    int eventUID;
+
+    // If we're seeing any kind of keyboard event, we definitely want to kill the repeat timer
+    [keyRepeatTimer invalidate];
+    keyRepeatTimer = nil;
+
     OSStatus result = GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
     if (result != noErr) {
         NSLog(@"Error handling hotkey: %d", result);
         return noErr;
     }
 
-    lua_State* L = inUserData;
+    eventKind = GetEventKind(inEvent);
+    eventUID = eventID.id;
+
+    return trigger_hotkey_callback((lua_State *)inUserData, eventUID, eventKind, false);
+}
+
+static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKind, BOOL isRepeat) {
     if (lua_status(L) != LUA_OK) {
         NSLog(@"Error: lua thread is not in a good state");
         return noErr;
     }
 
-    hotkey_t* hotkey = push_hotkey(L, eventID.id);
+    hotkey_t* hotkey = push_hotkey(L, eventUID);
     lua_pop(L, 1);
+
+    if (!isRepeat) {
+        [keyRepeatManager stopTimer];
+    }
 
     if (hotkey) {
         int ref = 0;
-        if (GetEventKind(inEvent) == kEventHotKeyPressed) {
+        if (isRepeat) {
+            ref = hotkey->repeatfn;
+        } else if (eventKind == kEventHotKeyPressed) {
            ref = hotkey->pressedfn;
-        } else if (GetEventKind(inEvent) == kEventHotKeyReleased) {
+        } else if (eventKind == kEventHotKeyReleased) {
            ref = hotkey->releasedfn;
         } else {
             NSLog(@"Error: unknown event kind in hotkey_callback");
@@ -175,13 +258,22 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
 
         if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-            NSLog(@"%s", lua_tostring(L, -1));
+            NSLog(@"ERROR: trigger_hotkey_callback Lua error: %s", lua_tostring(L, -1));
+
+            // For the sake of safety, we'll invalidate any repeat timer that's running, so we don't ruin the user's day by spamming them with errors
+            [keyRepeatManager stopTimer];
+
             lua_getglobal(L, "hs");
             lua_getfield(L, -1, "showError");
             lua_remove(L, -2);
             lua_pushvalue(L, -2);
             lua_pcall(L, 1, 0, 0);
+        } else {
+            if (eventKind == kEventHotKeyPressed) {
+                [keyRepeatManager startTimer:L eventID:eventUID eventKind:eventKind];
+            }
         }
+
     }
 
     return noErr;
@@ -189,6 +281,9 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
 
 static int meta_gc(lua_State* L __unused) {
     RemoveEventHandler(eventhandler);
+    [keyRepeatManager stopTimer];
+    keyRepeatManager = nil;
+
     return 0;
 }
 
@@ -199,6 +294,7 @@ static const luaL_Reg metalib[] = {
 
 int luaopen_hs_hotkey_internal(lua_State* L) {
     handlers = [NSMutableIndexSet indexSet];
+    keyRepeatManager = [[HSKeyRepeatManager alloc] init];
 
     luaL_newlib(L, hotkeylib);
 
