@@ -2,9 +2,6 @@
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
 
-#define REPEAT_TIMER_DELAY 0.3
-#define REPEAT_TIMER_RATE 0.03
-
 @interface HSKeyRepeatManager : NSObject {
     NSTimer *keyRepeatTimer;
     lua_State *L;
@@ -24,7 +21,13 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
 
 @implementation HSKeyRepeatManager
 - (void)startTimer:(lua_State *)luaState eventID:(int)theEventID eventKind:(int)theEventKind {
-    keyRepeatTimer = [NSTimer scheduledTimerWithTimeInterval:REPEAT_TIMER_DELAY
+    //NSLog(@"startTimer");
+    if (keyRepeatTimer) {
+        NSLog(@"ERROR: startTimer() called while an existing timer is running. Stopping existing one and refusing to proceed");
+        [self stopTimer];
+        return;
+    }
+    keyRepeatTimer = [NSTimer scheduledTimerWithTimeInterval:[NSEvent keyRepeatDelay]
                                                       target:self
                                                     selector:@selector(delayTimerFired:)
                                                     userInfo:nil
@@ -36,6 +39,7 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
 }
 
 - (void)stopTimer {
+    //NSLog(@"stopTimer");
     [keyRepeatTimer invalidate];
     keyRepeatTimer = nil;
     L = nil;
@@ -43,22 +47,24 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
     eventType = 0;
 }
 
-- (void)delayTimerFired:(NSTimer *)timer {
+- (void)delayTimerFired:(NSTimer * __unused)timer {
+    //NSLog(@"delayTimerFired");
+    trigger_hotkey_callback(L, eventID, eventType, true);
+
     [keyRepeatTimer invalidate];
-    keyRepeatTimer = [NSTimer scheduledTimerWithTimeInterval:REPEAT_TIMER_RATE
+    keyRepeatTimer = [NSTimer scheduledTimerWithTimeInterval:[NSEvent keyRepeatInterval]
                                                       target:self
                                                     selector:@selector(repeatTimerFired:)
                                                     userInfo:nil
-                                                     repeats:NO];
-                                                     //repeats:YES];
+                                                     repeats:YES];
 }
 
-- (void)repeatTimerFired:(NSTimer *)timer {
+- (void)repeatTimerFired:(NSTimer * __unused)timer {
+    //NSLog(@"repeatTimerFired");
     trigger_hotkey_callback(L, eventID, eventType, true);
 }
 
 @end
-static NSTimer* keyRepeatTimer;
 
 static int store_hotkey(lua_State* L, int idx) {
     lua_pushvalue(L, idx);
@@ -210,10 +216,7 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
     int eventKind;
     int eventUID;
 
-    // If we're seeing any kind of keyboard event, we definitely want to kill the repeat timer
-    [keyRepeatTimer invalidate];
-    keyRepeatTimer = nil;
-
+    //NSLog(@"hotkey_callback");
     OSStatus result = GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
     if (result != noErr) {
         NSLog(@"Error handling hotkey: %d", result);
@@ -227,7 +230,8 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
 }
 
 static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKind, BOOL isRepeat) {
-    if (lua_status(L) != LUA_OK) {
+    //NSLog(@"trigger_hotkey_callback: isDown: %s, isUp: %s, isRepeat: %s", (eventKind == kEventHotKeyPressed) ? "YES" : "NO", (eventKind == kEventHotKeyReleased) ? "YES" : "NO", isRepeat ? "YES" : "NO");
+    if (!L || (lua_status(L) != LUA_OK)) {
         NSLog(@"Error: lua thread is not in a good state");
         return noErr;
     }
@@ -236,6 +240,7 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
     lua_pop(L, 1);
 
     if (!isRepeat) {
+        //NSLog(@"trigger_hotkey_callback: not a repeat, killing the timer if it's running");
         [keyRepeatManager stopTimer];
     }
 
@@ -269,7 +274,8 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
             lua_pushvalue(L, -2);
             lua_pcall(L, 1, 0, 0);
         } else {
-            if (eventKind == kEventHotKeyPressed) {
+            if (!isRepeat && eventKind == kEventHotKeyPressed) {
+                //NSLog(@"trigger_hotkey_callback: not a repeat, but it is a keydown, starting the timer");
                 [keyRepeatManager startTimer:L eventID:eventUID eventKind:eventKind];
             }
         }
