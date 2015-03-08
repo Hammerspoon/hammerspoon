@@ -3,12 +3,13 @@
 #import <lauxlib.h>
 #import <pthread.h>
 #import "../../Crashlytics.framework/Headers/Crashlytics.h"
+#define CLS_NSLOG(__FORMAT__, ...) CLSNSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 // ----------------------- API Implementation ---------------------
 
 /// hs.crash.crash()
 /// Function
-/// Causes Hammerspoon to immediately crash.
+/// Causes Hammerspoon to immediately crash
 ///
 /// Parameters:
 ///  * None
@@ -113,7 +114,11 @@ static int dumpCLIBS(lua_State *L) {
 /// Notes:
 ///  * This is probably only useful to extension developers. If you are trying to track down a confusing crash, and you have access to the Crashlytics project for Hammerspoon (or access to someone who has access!), this can be a useful way to leave breadcrumbs from Lua in the crash dump
 static int crashLog(lua_State *L) {
-    CLS_LOG("%s", lua_tostring(L, -1));
+    if (lua_toboolean(L, 2)) {
+        CLS_NSLOG("%s", lua_tostring(L, 1));
+    } else {
+        CLS_LOG("%s", lua_tostring(L, 1));
+    }
 
     return 0;
 }
@@ -124,7 +129,7 @@ static const luaL_Reg crashlib[] = {
     {"crash", burnTheWorld},
     {"isMainThread", isMainThread},
     {"dumpCLIBS", dumpCLIBS},
-    {"crashLog", crashLog},
+    {"_crashLog", crashLog},
 
     {}
 };
