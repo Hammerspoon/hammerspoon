@@ -113,7 +113,11 @@ typedef enum _event_t {
     else
         lua_pushstring(L, [appName UTF8String]); // Parameter 1: application name
     lua_pushnumber(L, event); // Parameter 2: the event type
-    new_application(L, [app processIdentifier]); // Paremeter 3: application object
+    if ([app processIdentifier] == -1) {
+        lua_pushnil(L);
+    } else {
+        new_application(L, [app processIdentifier]); // Paremeter 3: application object
+    }
 
     if (lua_pcall(L, 3, 0, -5) != LUA_OK) {
         NSLog(@"%s", lua_tostring(L, -1));
@@ -168,7 +172,8 @@ typedef enum _event_t {
 ///  * An `hs.application.watcher` object
 ///
 /// Notes:
-///  * If the function is called with an event type of `hs.application.watcher.terminated` then the application name parameter will be `nil` and the `hs.application` parameter, will only be useful for getting the UNIX process ID (i.e. the PID) of the application
+///  * Notes the `hs.application` parameter to the callback may be `nil` if the application does not have a UNIX process ID (i.e. a PID)
+///  * If the callback function is called with an event type of `hs.application.watcher.terminated` then the application name parameter will be `nil` and the `hs.application` parameter, will only be useful for getting the UNIX process ID (i.e. the PID) of the application (see also the preceeding note about this parameter potentially being `nil`)
 static int app_watcher_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
