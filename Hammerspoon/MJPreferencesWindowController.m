@@ -6,6 +6,7 @@
 #import "MJAccessibilityUtils.h"
 #import "MJConsoleWindowController.h"
 #import "variables.h"
+#import "secrets.h"
 
 #define MJSkipDockMenuIconProblemAlertKey @"MJSkipDockMenuIconProblemAlertKey"
 
@@ -15,6 +16,7 @@
 @property (weak) IBOutlet NSButton* showDockIconCheckbox;
 @property (weak) IBOutlet NSButton* showMenuIconCheckbox;
 @property (weak) IBOutlet NSButton* keepConsoleOnTopCheckbox;
+@property (weak) IBOutlet NSButton* uploadCrashDataCheckbox;
 
 @property BOOL isAccessibilityEnabled;
 
@@ -52,6 +54,12 @@
     [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
     [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
     [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
+    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSOnState : NSOffState];
+#ifndef CRASHLYTICS_API_KEY
+    [self.uploadCrashDataCheckbox setState:NSOffState];
+    [self.uploadCrashDataCheckbox setEnabled:NO];
+#endif
+
 }
 
 - (void) accessibilityChanged:(NSNotification*)note {
@@ -116,6 +124,14 @@
     MJConsoleWindowSetAlwaysOnTop([sender state] == NSOnState);
 }
 
+- (IBAction) toggleUploadCrashData:(id)sender {
+    HSSetUploadCrashData([sender state] == NSOnState);
+}
+
+- (IBAction) privacyPolicyClicked:(id)sender {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://www.hammerspoon.org/privacy"]];
+}
+
 - (void) dockMenuProblemAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
     BOOL skipNextTime = ([[alert suppressionButton] state] == NSOnState);
     [[NSUserDefaults standardUserDefaults] setBool:skipNextTime forKey:MJSkipDockMenuIconProblemAlertKey];
@@ -140,3 +156,12 @@
 }
 
 @end
+
+
+BOOL HSUploadCrashData(void) {
+    return [[NSUserDefaults standardUserDefaults] boolForKey: HSUploadCrashDataKey];
+}
+
+void HSSetUploadCrashData(BOOL uploadCrashData) {
+    [[NSUserDefaults standardUserDefaults] setBool:uploadCrashData forKey:HSUploadCrashDataKey];
+}

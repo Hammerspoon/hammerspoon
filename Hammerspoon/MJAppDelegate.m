@@ -43,17 +43,20 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tmp length:strlen(tmp)];
     }
 
-    // Enable Crashlytics, if we have an API key available
-#ifdef CRASHLYTICS_API_KEY
-        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY]];
-        Crashlytics *crashlytics = [Crashlytics sharedInstance];
-        crashlytics.debugMode = YES; // TODO: We probably don't want to leave this enabled
-#endif
-
     MJEnsureDirectoryExists(MJConfigDir());
     [[NSFileManager defaultManager] changeCurrentDirectoryPath:MJConfigDir()];
 
     [self registerDefaultDefaults];
+
+    // Enable Crashlytics, if we have an API key available
+#ifdef CRASHLYTICS_API_KEY
+    if (HSUploadCrashData()) {
+        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY]];
+        Crashlytics *crashlytics = [Crashlytics sharedInstance];
+        crashlytics.debugMode = YES; // TODO: We probably don't want to leave this enabled
+    }
+#endif
+
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
     [[MJConsoleWindowController singleton] setup];
@@ -68,6 +71,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
      registerDefaults: @{MJShowDockIconKey: @YES,
                          MJShowMenuIconKey: @YES,
                          HSAutoLoadExtensions: @YES,
+                         HSUploadCrashDataKey: @YES,
                          }];
 }
 

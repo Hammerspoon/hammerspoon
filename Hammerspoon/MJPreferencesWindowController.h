@@ -5,3 +5,6 @@
 + (instancetype) singleton;
 
 @end
+
+BOOL HSUploadCrashData(void);
+void HSSetUploadCrashData(BOOL uploadCrashData);
