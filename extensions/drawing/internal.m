@@ -26,6 +26,9 @@ NSMutableArray *drawingWindows;
 @property BOOL HSStroke;
 @property CGFloat HSLineWidth;
 @property (nonatomic, strong) NSColor *HSFillColor;
+@property (nonatomic, strong) NSColor *HSGradientStartColor;
+@property (nonatomic, strong) NSColor *HSGradientEndColor;
+@property int HSGradientAngle;
 @property (nonatomic, strong) NSColor *HSStrokeColor;
 @end
 
@@ -95,6 +98,9 @@ NSMutableArray *drawingWindows;
         self.HSLineWidth = [NSBezierPath defaultLineWidth];
         self.HSFillColor = [NSColor redColor];
         self.HSStrokeColor = [NSColor blackColor];
+        self.HSGradientStartColor = nil;
+        self.HSGradientEndColor = nil;
+        self.HSGradientAngle = 0;
     }
     return self;
 }
@@ -125,7 +131,13 @@ NSMutableArray *drawingWindows;
     // Draw our shape (fill) and outline (stroke)
     if (self.HSFill) {
         [circlePath setClip];
-        [circlePath fill];
+         if (!self.HSGradientStartColor) {
+            [circlePath fill];
+        } else {
+            NSGradient* aGradient = [[NSGradient alloc] initWithStartingColor:self.HSGradientStartColor
+                                                                  endingColor:self.HSGradientEndColor];
+            [aGradient drawInRect:[self bounds] angle:self.HSGradientAngle];
+        }
     }
     if (self.HSStroke) {
         circlePath.lineWidth = self.HSLineWidth * 2.0; // We have to double this because the stroking line is centered around the path, but we want to clip it to not stray outside the path
@@ -158,7 +170,13 @@ NSMutableArray *drawingWindows;
     // Draw our shape (fill) and outline (stroke)
     if (self.HSFill) {
         [rectPath setClip];
-        [rectPath fill];
+        if (!self.HSGradientStartColor) {
+            [rectPath fill];
+        } else {
+            NSGradient* aGradient = [[NSGradient alloc] initWithStartingColor:self.HSGradientStartColor
+                                                                  endingColor:self.HSGradientEndColor];
+            [aGradient drawInRect:[self bounds] angle:self.HSGradientAngle];
+        }
     }
     if (self.HSStroke) {
         rectPath.lineWidth = self.HSLineWidth;
@@ -468,6 +486,9 @@ NSColor *getColorFromStack(lua_State *L, int idx) {
             lua_pop(L, 1);
 
             break;
+        case LUA_TNIL:
+            return [NSColor clearColor];
+            break;
         default:
             NSLog(@"ERROR: Unexpected type passed to an hs.drawing color method: %d", lua_type(L, 1));
             return 0;
@@ -631,7 +652,8 @@ static int drawing_setTextColor(lua_State *L) {
 ///  * The drawing object
 ///
 /// Notes:
-///  * This method should only be used on line, rectangle and circle drawing objects
+///  * This method should only be used on rectangle and circle drawing objects
+///  * Calling this method will remove any gradient fill colors previously set with `hs.drawing:setFillGradient()`
 static int drawing_setFillColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSColor *fillColor = getColorFromStack(L, 2);
@@ -640,6 +662,53 @@ static int drawing_setFillColor(lua_State *L) {
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
     drawingView.HSFillColor = fillColor;
+    drawingView.HSGradientStartColor = nil;
+    drawingView.HSGradientEndColor = nil;
+    drawingView.HSGradientAngle = 0;
+
+    drawingView.needsDisplay = YES;
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.drawing:setFillGradient(startColor, endColor, angle) -> drawingObject
+/// Method
+/// Sets the fill gradient of a drawing object
+///
+/// Parameters:
+///  * startColor - A table containing color component values between 0.0 and 1.0 for each of the keys:
+///   * red
+///   * green
+///   * blue
+///   * alpha
+///  * endColor - A table containing color component values between 0.0 and 1.0 for each of the keys:
+///   * red
+///   * green
+///   * blue
+///   * alpha
+///  * angle - A number representing the angle of the gradient, measured in degrees, counter-clockwise, from the left of the drawing object
+///
+/// Returns:
+///  * The drawing object
+///
+/// Notes:
+///  * This method should only be used on rectangle and circle drawing objects
+///  * Calling this method will remove any fill color previously set with `hs.drawing:setFillColor()`
+static int drawing_setFillGradient(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    NSColor *startColor = getColorFromStack(L, 2);
+    NSColor *endColor = getColorFromStack(L, 3);
+    int angle = lua_tointeger(L, 4);
+
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    drawingView.HSFillColor = nil;
+    drawingView.HSGradientStartColor = startColor;
+    drawingView.HSGradientEndColor = endColor;
+    drawingView.HSGradientAngle = angle;
+
     drawingView.needsDisplay = YES;
 
     lua_pushvalue(L, 1);
@@ -860,6 +929,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setStrokeColor", drawing_setStrokeColor},
     {"setFill", drawing_setFill},
     {"setFillColor", drawing_setFillColor},
+    {"setFillGradient", drawing_setFillGradient},
     {"setTextColor", drawing_setTextColor},
     {"setTextSize", drawing_setTextSize},
     {"setText", drawing_setText},
