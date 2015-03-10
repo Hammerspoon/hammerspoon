@@ -236,7 +236,7 @@ static int eventtap_event_setProperty(lua_State* L) {
 /// Creates a keyboard event
 ///
 /// Parameters:
-///  * mods - A table containing zero or more of the following keys:
+///  * mods - A table containing zero or more of the following:
 ///   * cmd
 ///   * alt
 ///   * shift
@@ -264,7 +264,7 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
     CGEventFlags flags = 0;
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
-        modifier = lua_tostring(L, -2);
+        modifier = lua_tostring(L, -1);
         if (!modifier) {
             // FIXME: Show a proper error here, probably do a proper type check instead of just trusting lua_tostring
             NSLog(@"ERROR: Unexpected entry in modifiers table, seems to be null (%d)", lua_type(L, -1));
