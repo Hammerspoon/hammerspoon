@@ -30,6 +30,8 @@ NSMutableArray *drawingWindows;
 @property (nonatomic, strong) NSColor *HSGradientEndColor;
 @property int HSGradientAngle;
 @property (nonatomic, strong) NSColor *HSStrokeColor;
+@property CGFloat HSRoundedRectXRadius;
+@property CGFloat HSRoundedRectYRadius;
 @end
 
 @interface HSDrawingViewCircle : HSDrawingView
@@ -101,6 +103,8 @@ NSMutableArray *drawingWindows;
         self.HSGradientStartColor = nil;
         self.HSGradientEndColor = nil;
         self.HSGradientAngle = 0;
+        self.HSRoundedRectXRadius = 0.0;
+        self.HSRoundedRectYRadius = 0.0;
     }
     return self;
 }
@@ -165,7 +169,7 @@ NSMutableArray *drawingWindows;
 
     // Create our rectangle path
     NSBezierPath* rectPath = [NSBezierPath bezierPath];
-    [rectPath appendBezierPathWithRect:rect];
+    [rectPath appendBezierPathWithRoundedRect:rect xRadius:self.HSRoundedRectXRadius yRadius:self.HSRoundedRectYRadius];
 
     // Draw our shape (fill) and outline (stroke)
     if (self.HSFill) {
@@ -745,6 +749,38 @@ static int drawing_setStrokeColor(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing:setRoundedRectRadii(xradius, yradius) -> drawingObject
+/// Method
+/// Sets the radii of the corners of a rectangle drawing object
+///
+/// Parameters:
+///  * xradius - A number containing the radius of each corner along the x-axis
+///  * yradius - A number containing the radius of each corner along the y-axis
+///
+/// Returns:
+///  * The drawing object
+///
+/// Notes:
+///  * This method should only be used on rectangle drawing objects
+///  * If either radius value is greater than half the width/height (as appropriate) of the rectangle, the value will be clamped at half the width/height
+///  * If either (or both) radius values are 0, the rectangle will be drawn without rounded corners
+static int drawing_setRoundedRectRadii(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    CGFloat xradius = lua_tonumber(L, 2);
+    CGFloat yradius = lua_tonumber(L, 3);
+
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    drawingView.HSRoundedRectXRadius = xradius;
+    drawingView.HSRoundedRectYRadius = yradius;
+
+    drawingView.needsDisplay = YES;
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 /// hs.drawing:setFill(doFill) -> drawingObject
 /// Method
 /// Sets whether or not to fill a drawing object
@@ -927,6 +963,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setStroke", drawing_setStroke},
     {"setStrokeWidth", drawing_setStrokeWidth},
     {"setStrokeColor", drawing_setStrokeColor},
+    {"setRoundedRectRadii", drawing_setRoundedRectRadii},
     {"setFill", drawing_setFill},
     {"setFillColor", drawing_setFillColor},
     {"setFillGradient", drawing_setFillGradient},
