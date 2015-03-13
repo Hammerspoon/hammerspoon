@@ -104,17 +104,20 @@ function module.middleClick(point)
     module.event.newMouseEvent(module.event.types["middlemouseup"], point):post()
 end
 
---- hs.eventtap.keyStrokes(modifiers, text)
+--- hs.eventtap.keyStroke(modifiers, character)
 --- Function
---- Generates and emits keystroke events for the supplied keyboard modifiers and text
+--- Generates and emits a single keystroke event pair for the supplied keyboard modifiers and character
 ---
 --- Parameters:
 ---  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", "fn", or their Unicode equivalents)
----  * text - A string containing the text that should be broken down into individual keystroke events. This can be a single character, or many
+---  * character - A string containing a character to be emitted
 ---
 --- Returns:
 ---  * None
-function module.keyStrokes(modifiers, text)
+---
+--- Notes:
+---  * This function is ideal for sending single keystrokes with a modifier applied (e.g. sending ⌘-v to paste, with `hs.eventtap.keyStroke({"cmd"}, "v")`). If you want to emit multiple keystrokes for typing strings of text, see `hs.eventtap.keyStrokes()`
+function module.keyStroke(modifiers, text)
     for c in text:gmatch"." do
         module.event.newKeyEvent(modifiers, c, true):post()
         module.event.newKeyEvent(modifiers, c, false):post()

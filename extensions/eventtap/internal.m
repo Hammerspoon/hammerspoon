@@ -60,6 +60,47 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType __unused type, C
         return event;
 }
 
+/// hs.eventtap.keyStrokes(text)
+/// Function
+/// Generates and emits keystroke events for the supplied text
+///
+/// Parameters:
+///  * text - A string containing the text to be typed
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * If you want to send a single keystroke with keyboard modifiers (e.g. sending ⌘-v to paste), see `hs.eventtap.keyStroke()`
+static int eventtap_keyStrokes(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TSTRING);
+    NSString *theString = [NSString stringWithUTF8String:lua_tostring(L, 1)];
+
+    CGEventSourceRef eventSource = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+    CGEventRef keyEvent = CGEventCreateKeyboardEvent(eventSource, 0, true);
+
+    // This superb implementation was lifted shamelessly from http://www.mail-archive.com/cocoa-dev@lists.apple.com/msg23343.html
+    UniChar buffer;
+    for (int i = 0; i < (int)[theString length]; i++) {
+        [theString getCharacters:&buffer range:NSMakeRange(i, 1)];
+
+        // Send the keydown
+        keyEvent = CGEventCreateKeyboardEvent(eventSource, 1, true);
+        CGEventKeyboardSetUnicodeString(keyEvent, 1, &buffer);
+        CGEventPost(kCGHIDEventTap, keyEvent);
+        CFRelease(keyEvent);
+
+        // Send the keyup
+        keyEvent = CGEventCreateKeyboardEvent(eventSource, 1, false);
+        CGEventKeyboardSetUnicodeString(keyEvent, 1, &buffer);
+        CGEventPost(kCGHIDEventTap, keyEvent);
+        CFRelease(keyEvent);
+    }
+    CFRelease(eventSource);
+
+    return 0;
+}
+
 /// hs.eventtap.new(types, fn) -> eventtap
 /// Constructor
 /// Create a new event tap object
@@ -201,6 +242,7 @@ static const luaL_Reg eventtap_metalib[] = {
 // Functions for returned object when module loads
 static luaL_Reg eventtaplib[] = {
     {"new",     eventtap_new},
+    {"keyStrokes", eventtap_keyStrokes},
     {NULL,      NULL}
 };
 
