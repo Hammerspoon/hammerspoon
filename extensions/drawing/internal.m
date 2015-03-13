@@ -602,6 +602,7 @@ static int drawing_newText(lua_State *L) {
 /// Creates a new image object
 ///
 /// Parameters:
+///  * sizeRect - A rect-table containing the location/size of the image
 ///  * imagePath - A string containing a path to an image file
 ///
 /// Returns:
