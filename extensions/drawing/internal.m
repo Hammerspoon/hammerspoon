@@ -49,6 +49,11 @@ NSMutableArray *drawingWindows;
 @property (nonatomic, strong) NSTextField *textField;
 @end
 
+@interface HSDrawingViewImage : HSDrawingView
+@property (nonatomic, strong) NSImageView *HSImageView;
+@property (nonatomic, strong) NSImage *HSImage;
+@end
+
 // Objective-C class interface implementations
 @implementation HSDrawingWindow
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger __unused)windowStyle backing:(NSBackingStoreType __unused)bufferingType defer:(BOOL __unused)deferCreation {
@@ -247,6 +252,32 @@ NSMutableArray *drawingWindows;
         self.textField = theTextField;
     }
     return self;
+}
+@end
+
+@implementation HSDrawingViewImage
+- (id)initWithFrame:(NSRect)frameRect {
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        self.HSImageView = [[NSImageView alloc] initWithFrame:frameRect];
+        self.HSImageView.animates = YES;
+        [self addSubview:self.HSImageView];
+    }
+    return self;
+}
+
+- (void)setImageFromPath:(NSString *)filePath {
+    NSImage *newImage = [[NSImage alloc] initByReferencingFile:filePath];
+    if (!newImage) {
+        NSLog(@"ERROR: setImageFromPath unable to load image: %@", filePath);
+        return;
+    }
+
+    self.HSImageView.image = newImage;
+
+    self.needsDisplay = true;
+
+    return;
 }
 @end
 
@@ -566,6 +597,70 @@ static int drawing_newText(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing.image(sizeRect, imagePath) -> drawingObject or nil
+/// Constructor
+/// Creates a new image object
+///
+/// Parameters:
+///  * imagePath - A string containing a path to an image file
+///
+/// Returns:
+///  * An `hs.drawing` image object, or nil if an error occurs
+///  * Paths relative to the PWD of Hammerspoon (typically ~/.hammerspoon/) will work, but paths relative to the UNIX homedir character, `~` will not
+///  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
+static int drawing_newImage(lua_State *L) {
+    NSRect windowRect;
+    switch (lua_type(L, 1)) {
+        case LUA_TTABLE:
+            lua_getfield(L, 1, "x");
+            windowRect.origin.x = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "y");
+            windowRect.origin.y = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "w");
+            windowRect.size.width = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "h");
+            windowRect.size.height = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            break;
+        default:
+            NSLog(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
+            lua_pushnil(L);
+            return 1;
+            break;
+    }
+    NSString *imagePath = [NSString stringWithUTF8String:lua_tostring(L, 2)];
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+
+    if (theWindow) {
+        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
+        memset(drawingObject, 0, sizeof(drawing_t));
+        drawingObject->window = (__bridge_retained void*)theWindow;
+        luaL_getmetatable(L, USERDATA_TAG);
+        lua_setmetatable(L, -2);
+
+        HSDrawingViewImage *theView = [[HSDrawingViewImage alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+
+        theWindow.contentView = theView;
+        [theView setImageFromPath:imagePath];
+
+        if (!drawingWindows) {
+            drawingWindows = [[NSMutableArray alloc] init];
+        }
+        [drawingWindows addObject:theWindow];
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
 /// hs.drawing:setText(message) -> drawingObject
 /// Method
 /// Sets the text of a drawing object
@@ -856,6 +951,33 @@ static int drawing_setStrokeWidth(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing:setImagePath(imagePath) -> drawingObject
+/// Method
+/// Sets the image path of a drawing object
+///
+/// Parameters:
+///  * imagePath - A string containing the path to an image file
+///
+/// Returns:
+///  * The drawing object
+///
+/// Notes:
+///  * This method should only be used on an image drawing object
+///  * Paths relative to the PWD of Hammerspoon (typically ~/.hammerspoon/) will work, but paths relative to the UNIX homedir character, `~` will not
+///  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
+static int drawing_setImagePath(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    NSString *imagePath = [NSString stringWithUTF8String:lua_tostring(L, 2)];
+
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
+
+    [drawingView setImageFromPath:imagePath];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 /// hs.drawing:show() -> drawingObject
 /// Method
 /// Displays the drawing object
@@ -955,6 +1077,7 @@ static const luaL_Reg drawinglib[] = {
     {"rectangle", drawing_newRect},
     {"line", drawing_newLine},
     {"text", drawing_newText},
+    {"image", drawing_newImage},
 
     {}
 };
@@ -970,6 +1093,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setTextColor", drawing_setTextColor},
     {"setTextSize", drawing_setTextSize},
     {"setText", drawing_setText},
+    {"setImagePath", drawing_setImagePath},
     {"bringToFront", drawing_bringToFront},
     {"sendToBack", drawing_sendToBack},
     {"show", drawing_show},
