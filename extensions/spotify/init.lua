@@ -25,7 +25,6 @@ end
 ---  * None
 function spotify.play()
   tell('playpause')
-  alert.show(' ▶', 0.5)
 end
 
 --- hs.spotify.pause()
@@ -39,7 +38,6 @@ end
 ---  * None
 function spotify.pause()
   tell('pause')
-  alert.show(' ◼', 0.5)
 end
 
 --- hs.spotify.next()
@@ -53,7 +51,6 @@ end
 ---  * None
 function spotify.next()
   tell('next track')
-  alert.show(' ⇥', 0.5)
 end
 
 --- hs.spotify.previous()
@@ -67,7 +64,6 @@ end
 ---  * None
 function spotify.previous()
   tell('previous track')
-  alert.show(' ⇤', 0.5)
 end
 
 --- hs.spotify.displayCurrentTrack()
