@@ -25,7 +25,6 @@ end
 ---  * None
 function itunes.play()
   tell('playpause')
-  alert.show(' ▶', 0.5)
 end
 
 --- hs.itunes.pause()
@@ -39,7 +38,6 @@ end
 ---  * None
 function itunes.pause()
   tell('pause')
-  alert.show(' ◼', 0.5)
 end
 
 --- hs.itunes.next()
@@ -53,7 +51,6 @@ end
 ---  * None
 function itunes.next()
   tell('next track')
-  alert.show(' ⇥', 0.5)
 end
 
 --- hs.itunes.previous()
@@ -67,7 +64,6 @@ end
 ---  * None
 function itunes.previous()
   tell('previous track')
-  alert.show(' ⇤', 0.5)
 end
 
 --- hs.itunes.displayCurrentTrack()
