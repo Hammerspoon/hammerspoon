@@ -22,7 +22,7 @@ sections = %w(Deprecated Command Constant Variable Function Constructor Method)
 items.each do |item|
   mod = orderedmods.find{|mod| item[:def].start_with?(mod[:name]+'.', mod[:name]+':')}
   if mod.nil?
-    abort "error: couldn't find module for #{item[:def]}"
+    abort "error: couldn't find module for #{item[:def]} (#{item[:type]}) (#{item[:doc]})"
   end
   item[:name] = item[:def][(mod[:name].size+1)..-1].match(/\w+/)[0]
   if not sections.include?(item[:type])
