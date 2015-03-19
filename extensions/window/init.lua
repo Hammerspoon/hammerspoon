@@ -236,7 +236,7 @@ function window:screen()
   return lastscreen
 end
 
-local function windowsInDirection(win, numrotations)
+local function windowsInDirection(srcwin, numrotations)
   -- assume looking to east
 
   -- use the score distance/cos(A/2), where A is the angle by which it
@@ -245,12 +245,14 @@ local function windowsInDirection(win, numrotations)
 
   -- thanks mark!
 
-  local startingpoint = geometry.rectMidPoint(win:frame())
+  local startingpoint = geometry.rectMidPoint(srcwin:frame())
 
-  local otherwindows = fnutils.filter(win:otherWindowsAllScreens(), function(win) return window.isVisible(win) and window.isStandard(win) end)
+  local otherwindows = fnutils.filter(window.orderedWindows(), function(candidate)
+      return window.isVisible(candidate) and window.isStandard(candidate) and not (candidate == srcwin)
+  end)
   local closestwindows = {}
 
-  for _, win in pairs(otherwindows) do
+  for zposition, win in ipairs(otherwindows) do
     local otherpoint = geometry.rectMidPoint(win:frame())
     otherpoint = geometry.rotateCCW(otherpoint, startingpoint, numrotations)
 
@@ -265,7 +267,7 @@ local function windowsInDirection(win, numrotations)
 
       local anglediff = -angle
 
-      local score = distance / math.cos(anglediff / 2)
+      local score = (distance / math.cos(anglediff / 2)) + zposition
 
       table.insert(closestwindows, {win = win, score = score})
     end
