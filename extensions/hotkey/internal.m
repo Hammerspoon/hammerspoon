@@ -73,9 +73,10 @@ static int store_hotkey(lua_State* L, int idx) {
     return x;
 }
 
-static void remove_hotkey(lua_State* L, int x) {
+static int remove_hotkey(lua_State* L, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [handlers removeIndex: x];
+    return LUA_NOREF;
 }
 
 static void* push_hotkey(lua_State* L, int x) {
@@ -170,6 +171,7 @@ static void stop(lua_State* L, hotkey_t* hotkey) {
 
     hotkey->enabled = NO;
     remove_hotkey(L, hotkey->uid);
+    hotkey->uid = LUA_NOREF;
     UnregisterEventHotKey(hotkey->carbonHotKey);
     [keyRepeatManager stopTimer];
 }
@@ -196,6 +198,9 @@ static int hotkey_gc(lua_State* L) {
     luaL_unref(L, LUA_REGISTRYINDEX, hotkey->pressedfn);
     luaL_unref(L, LUA_REGISTRYINDEX, hotkey->releasedfn);
     luaL_unref(L, LUA_REGISTRYINDEX, hotkey->repeatfn);
+    hotkey->pressedfn = LUA_NOREF;
+    hotkey->releasedfn = LUA_NOREF;
+    hotkey->repeatfn = LUA_NOREF;
     return 0;
 }
 

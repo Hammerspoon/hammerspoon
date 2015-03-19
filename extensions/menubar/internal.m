@@ -200,6 +200,7 @@ void erase_menu_items(lua_State *L, NSMenu *menu) {
         if (target) {
             // This menuitem has a delegate object. Destroy its Lua reference and nuke all the references to the object, so ARC will deallocate it
             luaL_unref(L, LUA_REGISTRYINDEX, target.fn);
+            target.fn = LUA_NOREF;
             [menuItem setTarget:nil];
             [menuItem setAction:nil];
             [menuItem setRepresentedObject:nil];
@@ -218,6 +219,7 @@ void erase_menu_delegate(lua_State *L, NSMenu *menu) {
     HSMenubarItemMenuDelegate *delegate = [menu delegate];
     if (delegate) {
         luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
+        delegate.fn = LUA_NOREF;
         [dynamicMenuDelegates removeObject:delegate];
         [menu setDelegate:nil];
         delegate = nil;
@@ -263,7 +265,7 @@ static int menubarNew(lua_State *L) {
 
         menuBarItem->menuBarItemObject = (__bridge_retained void*)statusItem;
         menuBarItem->click_callback = nil;
-        menuBarItem->click_fn = 0;
+        menuBarItem->click_fn = LUA_NOREF;
 
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
@@ -366,10 +368,8 @@ static int menubarSetClickCallback(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
     if (lua_isnil(L, 2)) {
-        if (menuBarItem->click_fn) {
-            luaL_unref(L, LUA_REGISTRYINDEX, menuBarItem->click_fn);
-            menuBarItem->click_fn = 0;
-        }
+        luaL_unref(L, LUA_REGISTRYINDEX, menuBarItem->click_fn);
+        menuBarItem->click_fn = LUA_NOREF;
         if (menuBarItem->click_callback) {
             [statusItem setTarget:nil];
             [statusItem setAction:nil];

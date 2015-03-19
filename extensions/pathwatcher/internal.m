@@ -13,9 +13,10 @@ static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx)
     return x;
 }
 
-static void remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
+static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [theHandler removeIndex: x];
+    return LUA_NOREF;
 }
 
 // static void* push_udhandler(lua_State* L, int x) {
@@ -120,7 +121,7 @@ static int watcher_path_stop(lua_State* L) {
     if (!watcher_path->started) return 1;
 
     watcher_path->started = NO;
-    remove_udhandler(L, pathHandlers, watcher_path->self);
+    watcher_path->self = remove_udhandler(L, pathHandlers, watcher_path->self);
     FSEventStreamStop(watcher_path->stream);
     FSEventStreamUnscheduleFromRunLoop(watcher_path->stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 
@@ -136,6 +137,7 @@ static int watcher_path_gc(lua_State* L) {
     FSEventStreamRelease(watcher_path->stream);
 
     luaL_unref(L, LUA_REGISTRYINDEX, watcher_path->closureref);
+    watcher_path->closureref = LUA_NOREF;
     return 0;
 }
 

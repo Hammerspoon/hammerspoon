@@ -49,9 +49,10 @@ static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx)
     return x;
 }
 
-static void remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
+static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [theHandler removeIndex: x];
+    return LUA_NOREF;
 }
 
 // Not so common code
@@ -274,7 +275,7 @@ static int app_watcher_stop(lua_State* L) {
         return 0;
 
     appWatcher->running = NO;
-    remove_udhandler(L, handlers, appWatcher->self);
+    appWatcher->self = remove_udhandler(L, handlers, appWatcher->self);
     unregister_observer((__bridge id)appWatcher->obj);
     return 0;
 }
@@ -285,6 +286,7 @@ static int app_watcher_gc(lua_State* L) {
 
     app_watcher_stop(L);
     luaL_unref(L, LUA_REGISTRYINDEX, appWatcher->fn);
+    appWatcher->fn = LUA_NOREF;
 
     AppWatcher* object = (__bridge_transfer AppWatcher*)appWatcher->obj;
     object = nil;

@@ -19,9 +19,10 @@ static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx)
     return x;
 }
 
-static void remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
+static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [theHandler removeIndex: x];
+    return LUA_NOREF;
 }
 
 // static void* push_udhandler(lua_State* L, int x) {
@@ -151,7 +152,7 @@ static int wifi_watcher_stop(lua_State* L) {
     if (!wifiwatcher->running) return 1;
     wifiwatcher->running = NO;
 
-    remove_udhandler(L, wifiHandlers, wifiwatcher->registryHandle);
+    wifiwatcher->registryHandle = remove_udhandler(L, wifiHandlers, wifiwatcher->registryHandle);
     [[NSNotificationCenter defaultCenter] removeObserver:(__bridge id)wifiwatcher->obj
                                                     name:CWSSIDDidChangeNotification
                                                   object:nil];
@@ -165,6 +166,7 @@ static int wifi_watcher_gc(lua_State* L) {
     lua_pushcfunction(L, wifi_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
     luaL_unref(L, LUA_REGISTRYINDEX, wifiwatcher->fn);
+    wifiwatcher->fn = LUA_NOREF;
 
     HSWiFiWatcher* object = (__bridge_transfer id)wifiwatcher->obj;
     object = nil;

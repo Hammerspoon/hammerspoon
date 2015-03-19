@@ -234,6 +234,7 @@ static int keycodes_callback_gc(lua_State* L) {
     MJKeycodesObserver* observer = *(MJKeycodesObserver**)luaL_checkudata(L, 1, "hs.keycodes.callback");
     [observer stop];
     luaL_unref(L, LUA_REGISTRYINDEX, observer.ref);
+    observer.ref = LUA_NOREF;
     [observer release];
     return 0;
 }

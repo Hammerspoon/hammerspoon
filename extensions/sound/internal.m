@@ -35,9 +35,10 @@ static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx)
     return x;
 }
 
-static void remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
+static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [theHandler removeIndex: x];
+    return LUA_NOREF;
 }
 
 static NSMutableIndexSet* soundHandlers;
@@ -369,10 +370,8 @@ static int sound_callback(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
         if (lua_isnil(L,2)) {
-            if (sound->fn) {
-                luaL_unref(L, LUA_REGISTRYINDEX, sound->fn);
-                sound->fn = 0 ;
-            }
+            luaL_unref(L, LUA_REGISTRYINDEX, sound->fn);
+            sound->fn = LUA_NOREF;
             if (sound->callback) {
                 [(__bridge NSSound*) sound->soundObject setDelegate:nil];
                 soundDelegate* object = (__bridge_transfer soundDelegate *) sound->callback ;
@@ -478,7 +477,7 @@ static int sound_gc(lua_State* L) {
     lua_pushcfunction(L, sound_callback) ;
     lua_pushvalue(L,1); lua_pushnil(L); lua_call(L, 2, 1);
     if (sound->stopOnRelease) [(__bridge NSSound*) sound->soundObject stop];
-    remove_udhandler(L, soundHandlers, sound->registryHandle);
+    sound->registryHandle = remove_udhandler(L, soundHandlers, sound->registryHandle);
     NSSound* theSound = (__bridge_transfer NSSound *) sound->soundObject ;
     theSound = nil; sound->soundObject = nil;
     return 0;

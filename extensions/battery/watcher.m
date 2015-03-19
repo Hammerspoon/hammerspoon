@@ -22,9 +22,10 @@ static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx)
     return x;
 }
 
-static void remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
+static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [theHandler removeIndex: x];
+    return LUA_NOREF;
 }
 
 // static void* push_udhandler(lua_State* L, int x) {
@@ -125,7 +126,7 @@ static int battery_watcher_stop(lua_State* L) {
     if (!watcher->started) return 1;
 
     watcher->started = NO;
-    remove_udhandler(L, batteryHandlers, watcher->self);
+    watcher->self = remove_udhandler(L, batteryHandlers, watcher->self);
     CFRunLoopRemoveSource(CFRunLoopGetMain(), watcher->t, kCFRunLoopCommonModes);
     return 1;
 }
@@ -136,6 +137,7 @@ static int battery_watcher_gc(lua_State* L) {
     lua_pushcfunction(L, battery_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
     luaL_unref(L, LUA_REGISTRYINDEX, watcher->fn);
+    watcher->fn = LUA_NOREF;
     CFRunLoopSourceInvalidate(watcher->t);
     CFRelease(watcher->t);
     return 0;

@@ -21,9 +21,10 @@ static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx)
     return x;
 }
 
-static void remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
+static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [theHandler removeIndex: x];
+    return LUA_NOREF;
 }
 
 // static void* push_udhandler(lua_State* L, int x) {
@@ -124,7 +125,7 @@ static int screen_watcher_stop(lua_State* L) {
     if (!screenwatcher->running) return 1;
     screenwatcher->running = NO;
 
-    remove_udhandler(L, screenHandlers, screenwatcher->registryHandle);
+    screenwatcher->registryHandle = remove_udhandler(L, screenHandlers, screenwatcher->registryHandle);
     [[NSNotificationCenter defaultCenter] removeObserver:(__bridge id)screenwatcher->obj
                                                     name:NSApplicationDidChangeScreenParametersNotification
                                                   object:nil];
@@ -138,6 +139,7 @@ static int screen_watcher_gc(lua_State* L) {
     lua_pushcfunction(L, screen_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
     luaL_unref(L, LUA_REGISTRYINDEX, screenwatcher->fn);
+    screenwatcher->fn = LUA_NOREF;
 
     MJScreenWatcher* object = (__bridge_transfer id)screenwatcher->obj;
     object = nil;

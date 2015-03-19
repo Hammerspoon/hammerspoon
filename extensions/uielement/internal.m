@@ -238,6 +238,7 @@ static void stop_watcher(lua_State* L, watcher_t* watcher) {
                           kCFRunLoopDefaultMode);
 
     luaL_unref(L, LUA_REGISTRYINDEX, watcher->watcher_ref);
+    watcher->watcher_ref = LUA_NOREF;
     CFRelease(watcher->observer);
 
     watcher->running = NO;
@@ -256,6 +257,8 @@ static int watcher_gc(lua_State* L) {
     stop_watcher(L, watcher);  // For extra safety, make sure we're stopped.
     luaL_unref(L, LUA_REGISTRYINDEX, watcher->handler_ref);
     luaL_unref(L, LUA_REGISTRYINDEX, watcher->user_data_ref);
+    watcher->handler_ref = LUA_NOREF;
+    watcher->user_data_ref = LUA_NOREF;
     CFRelease(watcher->element);
 
     return 0;

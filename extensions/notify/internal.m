@@ -14,9 +14,10 @@ static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx)
     return x;
 }
 
-static void remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
+static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [theHandler removeIndex: x];
+    return LUA_NOREF;
 }
 
 // static void* push_udhandler(lua_State* L, int x) {
@@ -323,7 +324,8 @@ static int notification_release(lua_State* L) {
     lua_settop(L,1);
     [[ourNotificationManager sharedManagerForLua:L] releaseNotification:(__bridge NSUserNotification*)notification->note];
     luaL_unref(L, LUA_REGISTRYINDEX, notification->fn);
-    remove_udhandler(L, notificationHandlers, notification->registryHandle);
+    notification->fn = LUA_NOREF;
+    notification->registryHandle = remove_udhandler(L, notificationHandlers, notification->registryHandle);
     return 1;
 }
 

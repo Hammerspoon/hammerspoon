@@ -21,9 +21,10 @@ static int store_event(lua_State* L, int idx) {
     return x;
 }
 
-static void remove_event(lua_State* L, int x) {
+static int remove_event(lua_State* L, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [eventtapHandlers removeIndex: x];
+    return LUA_NOREF;
 }
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType __unused type, CGEventRef event, void *refcon) {
@@ -196,6 +197,7 @@ static int eventtap_stop(lua_State* L) {
         return 0;
 
     remove_event(L, e->self);
+    e->self = LUA_NOREF;
     e->running = false;
 
     CGEventTapEnable(e->tap, false);
@@ -212,6 +214,7 @@ static int eventtap_gc(lua_State* L) {
     eventtap_t* eventtap = luaL_checkudata(L, 1, USERDATA_TAG);
     if (eventtap->running) {
         remove_event(L, eventtap->self);
+        eventtap->self = LUA_NOREF;
         eventtap->running = false;
 
         CGEventTapEnable(eventtap->tap, false);
@@ -221,6 +224,7 @@ static int eventtap_gc(lua_State* L) {
         CFRelease(eventtap->tap);
     }
     luaL_unref(L, LUA_REGISTRYINDEX, eventtap->fn);
+    eventtap->fn = LUA_NOREF;
 
     return 0;
 }

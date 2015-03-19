@@ -13,9 +13,10 @@ static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx)
     return x;
 }
 
-static void remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
+static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
     luaL_unref(L, LUA_REGISTRYINDEX, x);
     [theHandler removeIndex: x];
+    return LUA_NOREF;
 }
 
 // static void* push_udhandler(lua_State* L, int x) {
@@ -178,7 +179,7 @@ static int timer_stop(lua_State* L) {
     if (!timer->started) return 1;
     timer->started = NO;
 
-    remove_udhandler(L, timerHandlers, timer->self);
+    timer->self = remove_udhandler(L, timerHandlers, timer->self);
     CFRunLoopRemoveTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes);
     return 1;
 }
@@ -186,6 +187,7 @@ static int timer_stop(lua_State* L) {
 static int timer_gc(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
     luaL_unref(L, LUA_REGISTRYINDEX, timer->fn);
+    timer->fn = LUA_NOREF;
     CFRunLoopTimerInvalidate(timer->t);
     CFRelease(timer->t);
     return 0;
