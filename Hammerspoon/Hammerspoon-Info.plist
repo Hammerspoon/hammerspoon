@@ -20,6 +20,21 @@
 	<string>0.9.26</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLIconFile</key>
+			<string></string>
+			<key>CFBundleURLName</key>
+			<string>org.hammerspoon.Hammerspoon</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>hammerspoon</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>0.9.26</string>
 	<key>LSMinimumSystemVersion</key>
