@@ -5,6 +5,19 @@
         <link>https://raw.githubusercontent.com/Hammerspoon/hammerspoon/master/appcast.xml</link>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
+         <item>
+            <title>Version 0.9.27</title>
+            <sparkle:releaseNotesLink>
+                http://www.hammerspoon.org/releasenotes/0.9.27/
+            </sparkle:releaseNotesLink>
+            <pubDate>Sat, 21 Mar 2015 21:42:41 +0000</pubDate>
+            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.27/Hammerspoon-0.9.27.zip"
+                sparkle:version="0.9.27"
+                length="2366578"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>10.8</sparkle:minimumSystemVersion>
+        </item>
         <item>
             <title>Version 0.9.26</title>
             <sparkle:releaseNotesLink>
