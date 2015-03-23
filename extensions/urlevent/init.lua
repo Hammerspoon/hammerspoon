@@ -10,6 +10,7 @@
 ---
 --- NOTE: If Hammerspoon is not running when a `hammerspoon://` URL is opened, Hammerspoon will be launched, but it will not react to the URL event. Nor will it react to any events until this extension is loaded and event callbacks have been bound.
 --- NOTE: Any event which is received, for which no callback has been bound, will be logged to the Hammerspoon Console
+--- NOTE: When you trigger a URL from another application, it is usually best to have the URL open in the background, if that option is available. Otherwise, OS X will activate Hammerspoon (i.e. give it focus), which makes URL events difficult to use for things like window management.
 
 local urlevent = require "hs.urlevent.internal"
 local callbacks = {}
