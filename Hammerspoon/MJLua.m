@@ -49,7 +49,7 @@ static int core_focus(lua_State* L) {
 static int core_exit(lua_State* L) {
     if (lua_toboolean(L, 2))
         lua_close(L);
-    
+
     [[NSApplication sharedApplication] terminate: nil];
     return 0; // lol
 }
@@ -86,13 +86,13 @@ void MJLuaSetup(void) {
     mainthreadid = pthread_self();
     if (MJLuaState)
         lua_close(MJLuaState);
-    
+
     lua_State* L = MJLuaState = luaL_newstate();
     luaL_openlibs(L);
-    
+
     luaL_newlib(L, corelib);
     lua_setglobal(L, "hs");
-    
+
     int loadresult = luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
     if (loadresult != 0) {
         NSAlert *alert = [[NSAlert alloc] init];
@@ -103,7 +103,7 @@ void MJLuaSetup(void) {
         [alert runModal];
         [[NSApplication sharedApplication] terminate: nil];
     }
-    
+
     lua_pushstring(L, [[[NSBundle mainBundle] pathForResource:@"extensions" ofType:nil] fileSystemRepresentation]);
     lua_pushstring(L, [MJConfigFile UTF8String]);
     lua_pushstring(L, [MJConfigFileFullPath() UTF8String]);
@@ -111,9 +111,9 @@ void MJLuaSetup(void) {
     lua_pushstring(L, [[[NSBundle mainBundle] pathForResource:@"docs" ofType:@"json"] fileSystemRepresentation]);
     lua_pushboolean(L, [[NSFileManager defaultManager] fileExistsAtPath: MJConfigFileFullPath()]);
     lua_pushboolean(L, [[NSUserDefaults standardUserDefaults] boolForKey:HSAutoLoadExtensions]);
-    
+
     lua_pcall(L, 7, 1, 0);
-    
+
     evalfn = luaL_ref(L, LUA_REGISTRYINDEX);
 }
 
@@ -123,7 +123,7 @@ void MJLuaTeardown(void) {
 
 NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState;
-    
+
     lua_rawgeti(L, LUA_REGISTRYINDEX, evalfn);
     if (!lua_isfunction(L, -1)) {
         NSLog(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
@@ -134,11 +134,11 @@ NSString* MJLuaRunString(NSString* command) {
     }
     lua_pushstring(L, [command UTF8String]);
     lua_call(L, 1, 1);
-    
+
     size_t len;
     const char* s = lua_tolstring(L, -1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
     lua_pop(L, 1);
-    
+
     return str;
 }

@@ -57,19 +57,19 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 
 - (void) windowDidLoad {
     [[self window] center];
-    
+
     self.history = [NSMutableArray array];
     [self.outputView setEditable:NO];
     [self.outputView setSelectable:YES];
-    
+
     [self appendString:@""
      "Welcome to the Hammerspoon Console!\n"
      "You can run any Lua code in here.\n\n"
                   type:MJReplLineTypeStdout];
-    
+
     for (NSString* str in self.preshownStdouts)
         [self appendString:str type:MJReplLineTypeStdout];
-    
+
     [self.outputView scrollToEndOfDocument:self];
     self.preshownStdouts = nil;
 }
@@ -81,7 +81,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
         case MJReplLineTypeCommand: color = MJColorForCommand; break;
         case MJReplLineTypeResult:  color = MJColorForResult; break;
     }
-    
+
     NSDictionary* attrs = @{NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0], NSForegroundColorAttributeName: color};
     NSAttributedString* attrstr = [[NSAttributedString alloc] initWithString:str attributes:attrs];
     [[self.outputView textStorage] performSelectorOnMainThread:@selector(appendAttributedString:) 
@@ -96,10 +96,10 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 - (IBAction) tryMessage:(NSTextField*)sender {
     NSString* command = [sender stringValue];
     [self appendString:[NSString stringWithFormat:@"\n> %@\n", command] type:MJReplLineTypeCommand];
-    
+
     NSString* result = [self run:command];
     [self appendString:[NSString stringWithFormat:@"%@\n", result] type:MJReplLineTypeResult];
-    
+
     [sender setStringValue:@""];
     [self saveToHistory:command];
     [self.outputView scrollToEndOfDocument:self];
@@ -126,7 +126,7 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
         [self.inputField setStringValue: @""];
     else
         [self.inputField setStringValue: [self.history objectAtIndex:self.historyIndex]];
-    
+
     NSText* editor = [[self.inputField window] fieldEditor:YES forObject:self.inputField];
     [editor moveToEndOfDocument:self];
 }
