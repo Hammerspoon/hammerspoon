@@ -104,8 +104,9 @@ typedef enum _event_t {
         appName = [dict objectForKey:@"NSApplicationName"];
 
     lua_State* L = self.object->L;
-    if (L == nil)
+    if (L == nil || (lua_status(L) != LUA_OK))
         return;
+
     lua_getglobal(L, "debug");
     lua_getfield(L, -1, "traceback");
     lua_remove(L, -2);
