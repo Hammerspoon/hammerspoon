@@ -124,6 +124,10 @@ void MJLuaTeardown(void) {
 NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState;
 
+    lua_getglobal(L, "debug");
+    lua_getfield(L, -1, "traceback");
+    lua_remove(L, -2);
+
     lua_rawgeti(L, LUA_REGISTRYINDEX, evalfn);
     if (!lua_isfunction(L, -1)) {
         NSLog(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
@@ -133,7 +137,14 @@ NSString* MJLuaRunString(NSString* command) {
         return @"";
     }
     lua_pushstring(L, [command UTF8String]);
-    lua_call(L, 1, 1);
+    if (lua_pcall(L, 1, 1, -3) != LUA_OK) {
+        NSLog(@"%s", lua_tostring(L, -1));
+        lua_getglobal(L, "hs");
+        lua_getfield(L, -1, "showError");
+        lua_remove(L, -2);
+        lua_pushvalue(L, -2);
+        lua_pcall(L, 1, 0, 0);
+    }
 
     size_t len;
     const char* s = lua_tolstring(L, -1, &len);
