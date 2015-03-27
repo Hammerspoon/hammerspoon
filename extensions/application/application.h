@@ -1,9 +1,12 @@
 #ifndef Application_application_h
 #define Application_application_h
 
-static void new_application(lua_State* L, pid_t pid) {
+static BOOL new_application(lua_State* L, pid_t pid) {
     AXUIElementRef* appptr = lua_newuserdata(L, sizeof(AXUIElementRef));
-    *appptr = AXUIElementCreateApplication(pid);
+    AXUIElementRef app = AXUIElementCreateApplication(pid);
+    *appptr = app;
+
+    if (!app) return false;
 
     luaL_getmetatable(L, "hs.application");
     lua_setmetatable(L, -2);
@@ -12,6 +15,8 @@ static void new_application(lua_State* L, pid_t pid) {
     lua_pushnumber(L, pid);
     lua_setfield(L, -2, "pid");
     lua_setuservalue(L, -2);
+
+    return true;
 }
 
 #endif

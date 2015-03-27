@@ -117,7 +117,9 @@ typedef enum _event_t {
     else
         lua_pushstring(L, [appName UTF8String]); // Parameter 1: application name
     lua_pushnumber(L, event); // Parameter 2: the event type
-    new_application(L, [app processIdentifier]); // Paremeter 3: application object
+    if (!new_application(L, [app processIdentifier])) { // Paremeter 3: application object
+        lua_pushnil(L);
+    }
 
     if (lua_pcall(L, 3, 0, -5) != LUA_OK) {
         NSLog(@"%s", lua_tostring(L, -1));
@@ -166,7 +168,7 @@ typedef enum _event_t {
 ///  * fn - A function that will be called when application events happen. It should accept three parameters:
 ///   * A string containing the name of the application
 ///   * An event type (see the constants defined above)
-///   * An `hs.application` object representing the application
+///   * An `hs.application` object representing the application, or nil if the application couldn't be found
 ///
 /// Returns:
 ///  * An `hs.application.watcher` object

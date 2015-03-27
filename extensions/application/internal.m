@@ -33,10 +33,13 @@ static int application_gc(lua_State* L) {
 ///  * An hs.application object
 static int application_frontmostapplication(lua_State* L) {
     NSRunningApplication* runningApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
-    if (runningApp)
-        new_application(L, [runningApp processIdentifier]);
-    else
+    if (runningApp) {
+        if (!new_application(L, [runningApp processIdentifier])) {
+            lua_pushnil(L);
+        }
+    } else {
         lua_pushnil(L);
+    }
 return 1;
 }
 
@@ -54,8 +57,9 @@ static int application_runningapplications(lua_State* L) {
     int i = 1;
 
     for (NSRunningApplication* runningApp in [[NSWorkspace sharedWorkspace] runningApplications]) {
-        new_application(L, [runningApp processIdentifier]);
-        lua_rawseti(L, -2, i++);
+        if (new_application(L, [runningApp processIdentifier])) {
+            lua_rawseti(L, -2, i++);
+        }
     }
 
     return 1;
@@ -75,10 +79,13 @@ static int application_applicationforpid(lua_State* L) {
 
     NSRunningApplication* runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
 
-    if (runningApp)
-        new_application(L, [runningApp processIdentifier]);
-    else
+    if (runningApp) {
+        if (!new_application(L, [runningApp processIdentifier])) {
+            lua_pushnil(L);
+        }
+    } else {
         lua_pushnil(L);
+    }
 
     return 1;
 }
@@ -101,8 +108,9 @@ static int application_applicationsForBundleID(lua_State* L) {
 
     NSArray* runningApps = [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleIdentifier];
     for (NSRunningApplication* runningApp in runningApps) {
-        new_application(L, [runningApp processIdentifier]);
-        lua_rawseti(L, -2, i++);
+        if (new_application(L, [runningApp processIdentifier])) {
+            lua_rawseti(L, -2, i++);
+        }
     }
 
     return 1;

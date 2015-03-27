@@ -61,7 +61,9 @@ static void push_element(lua_State* L, AXUIElementRef element) {
     } else if ([role isEqualToString: (NSString*)kAXApplicationRole]) {
         pid_t pid;
         AXUIElementGetPid(element, &pid);
-        new_application(L, pid);
+        if (!new_application(L, pid)) {
+            lua_pushnil(L);
+        }
     } else {
         new_uielement(L, (AXUIElementRef)CFRetain(element));
     }

@@ -571,9 +571,10 @@ static int window_pid(lua_State* L) {
 static int window_application(lua_State* L) {
     if (window_pid(L)) {
         pid_t pid = lua_tonumber(L, -1);
-        new_application(L, pid);
-    }
-    else {
+        if (!new_application(L, pid)) {
+            lua_pushnil(L);
+        }
+    } else {
         lua_pushnil(L);
     }
     return 1;
