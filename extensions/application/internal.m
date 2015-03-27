@@ -122,6 +122,8 @@ static int application_allWindows(lua_State* L) {
 
     lua_newtable(L);
 
+    if (!app) return 1;
+
     CFArrayRef windows;
     AXError result = AXUIElementCopyAttributeValues(app, kAXWindowsAttribute, 0, 100, &windows);
     if (result == kAXErrorSuccess) {
