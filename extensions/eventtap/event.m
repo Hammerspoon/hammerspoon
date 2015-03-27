@@ -293,6 +293,8 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
     CGEventType type = luaL_checknumber(L, 1);
     CGPoint point = hs_topoint(L, 2);
     const char* buttonString = luaL_checkstring(L, 3);
+    luaL_checktype(L, 4, LUA_TTABLE);
+
     CGEventFlags flags = 0;
     const char *modifier;
 
