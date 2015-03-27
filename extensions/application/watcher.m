@@ -104,6 +104,8 @@ typedef enum _event_t {
         appName = [dict objectForKey:@"NSApplicationName"];
 
     lua_State* L = self.object->L;
+    if (L == nil)
+        return;
     lua_getglobal(L, "debug");
     lua_getfield(L, -1, "traceback");
     lua_remove(L, -2);
@@ -287,6 +289,7 @@ static int app_watcher_gc(lua_State* L) {
     app_watcher_stop(L);
     luaL_unref(L, LUA_REGISTRYINDEX, appWatcher->fn);
     appWatcher->fn = LUA_NOREF;
+    appWatcher->L = nil;
 
     AppWatcher* object = (__bridge_transfer AppWatcher*)appWatcher->obj;
     object = nil;
