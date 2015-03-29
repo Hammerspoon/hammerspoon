@@ -5,7 +5,7 @@
 local hotkey = require "hs.hotkey.internal"
 local keycodes = require "hs.keycodes"
 
---- hs.hotkey.new(mods, key, pressedfn[, releasedfn, repeatfn]) -> hotkeyObject
+--- hs.hotkey.new(mods, key, pressedfn[, releasedfn, repeatfn]) -> hotkeyObject or nil
 --- Constructor
 --- Creates a new hotkey
 ---
@@ -21,7 +21,7 @@ local keycodes = require "hs.keycodes"
 ---  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
 ---
 --- Returns:
----  * An `hs.hotkey` object
+---  * An `hs.hotkey` object, or nil if an error occurred
 
 local function wrap(fn)
   return function()
@@ -54,7 +54,7 @@ function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
   return k
 end
 
---- hs.hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn) -> hotkeyObject
+--- hs.hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn) -> hotkeyObject or nil
 --- Constructor
 --- Creates a hotkey and enables it immediately
 ---
@@ -70,7 +70,7 @@ end
 ---  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
 ---
 --- Returns:
----  * An `hs.hotkey` object
+---  * An `hs.hotkey` object or nil if an error occurred
 ---
 --- Notes:
 ---  * This function is a simple wrapper that performs: `hs.hotkey.new(mods, key, pressedfn, releasedfn, repeatfn):enable()`

@@ -86,7 +86,7 @@ function itunes.displayCurrentTrack()
   alert.show(track .."\n".. album .."\n".. artist, 1.75)
 end
 
---- hs.itunes.getCurrentArtist()
+--- hs.itunes.getCurrentArtist() -> string or nil
 --- Function
 --- Gets the name of the current Artist
 ---
@@ -99,7 +99,7 @@ function itunes.getCurrentArtist()
     return tell('artist of the current track as string')
 end
 
---- hs.itunes.getCurrentAlbum()
+--- hs.itunes.getCurrentAlbum() -> string or nil
 --- Function
 --- Gets the name of the current Album
 ---
@@ -112,7 +112,7 @@ function itunes.getCurrentAlbum()
     return tell('album of the current track as string')
 end
 
---- hs.itunes.getCurrentTrack()
+--- hs.itunes.getCurrentTrack() -> string or nil
 --- Function
 --- Gets the name of the current track
 ---
