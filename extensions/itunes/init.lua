@@ -10,8 +10,12 @@ local as = require "hs.applescript"
 -- Internal function to pass a command to Applescript.
 local function tell(cmd)
   local _cmd = 'tell application "iTunes" to ' .. cmd
-  local _ok, result = as.applescript(_cmd)
-  return result
+  local ok, result = as.applescript(_cmd)
+  if ok then
+    return result
+  else
+    return nil
+  end
 end
 
 --- hs.itunes.play()
@@ -76,9 +80,9 @@ end
 --- Returns:
 ---  * None
 function itunes.displayCurrentTrack()
-  artist = tell('artist of the current track as string')
-  album  = tell('album of the current track as string')
-  track  = tell('name of the current track as string')
+  local artist = tell('artist of the current track as string') or "Unknown artist"
+  local album  = tell('album of the current track as string') or "Unknown album"
+  local track  = tell('name of the current track as string') or "Unknown track"
   alert.show(track .."\n".. album .."\n".. artist, 1.75)
 end
 
