@@ -94,7 +94,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * A string containing the Artist of the current track
+---  * A string containing the Artist of the current track, or nil if an error occurred
 function itunes.getCurrentArtist()
     return tell('artist of the current track as string')
 end
@@ -107,7 +107,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * A string containing the Album of the current track
+---  * A string containing the Album of the current track, or nil if an error occurred
 function itunes.getCurrentAlbum()
     return tell('album of the current track as string')
 end
@@ -120,7 +120,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * A string containing the name of the current track
+---  * A string containing the name of the current track, or nil if an error occurred
 function itunes.getCurrentTrack()
     return tell('name of the current track as string')
 end
