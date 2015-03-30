@@ -7,6 +7,11 @@
 
 #define get_window_arg(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "hs.window"))
 
+// CoreGraphics private API for window shadows
+#define kCGSDebugOptionNormal    0
+#define kCGSDebugOptionNoShadows 16384
+void CGSSetDebugOptions(int);
+
 @interface TransformAnimation : NSAnimation
 
 @property NSPoint newTopLeft;
@@ -636,9 +641,31 @@ static int window_id(lua_State* L) {
         return 0;
 }
 
+/// hs.window.setShadows(shadows)
+/// Function
+/// Enables/Disables window shadows
+///
+/// Parameters:
+///  * shadows - A boolean, true to show window shadows, false to hide window shadows
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * This function uses a private, undocumented OS X API call, so it is not guaranteed to work in any future OS X release
+static int window_setShadows(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TBOOLEAN);
+    BOOL shadows = lua_toboolean(L, 1);
+
+    CGSSetDebugOptions(shadows ? kCGSDebugOptionNormal : kCGSDebugOptionNoShadows);
+
+    return 0;
+}
+
 static const luaL_Reg windowlib[] = {
     {"focusedWindow", window_focusedwindow},
     {"_orderedwinids", window__orderedwinids},
+    {"setShadows", window_setShadows},
 
     {"title", window_title},
     {"subrole", window_subrole},

@@ -76,11 +76,6 @@ void CGSConfigureDisplayMode(CGDisplayConfigRef config, CGDirectDisplayID displa
 void CGSGetNumberOfDisplayModes(CGDirectDisplayID display, int *nModes);
 void CGSGetDisplayModeDescriptionOfLength(CGDirectDisplayID display, int idx, CGSDisplayMode *mode, int length);
 
-// CoreGraphics private API for window shadows
-#define kCGSDebugOptionNormal    0
-#define kCGSDebugOptionNoShadows 16384
-void CGSSetDebugOptions(int);
-
 /// hs.screen:currentMode() -> table
 /// Method
 /// Returns a table describing the current screen mode
@@ -215,24 +210,6 @@ static int screen_setMode(lua_State* L) {
 
     lua_pushboolean(L, false);
     return 1;
-}
-
-/// hs.screen.setShadows(shadows)
-/// Function
-/// Enables/Disables window shadows
-///
-/// Parameters:
-///  * shadows - A boolean - true to show window shadows, false to hide window shadows
-///
-/// Returns:
-///  * None
-static int screen_setShadows(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TBOOLEAN);
-    BOOL shadows = lua_toboolean(L, 1);
-
-    CGSSetDebugOptions(shadows ? kCGSDebugOptionNormal : kCGSDebugOptionNoShadows);
-
-    return 0;
 }
 
 /// hs.screen.gammaRestore()
@@ -683,7 +660,6 @@ static const luaL_Reg screenlib[] = {
     {"gammaSet", screen_gammaSet},
     {"setPrimary", screen_setPrimary},
     {"rotate", screen_rotate},
-    {"setShadows", screen_setShadows},
 
     {"_frame", screen_frame},
     {"_visibleframe", screen_visibleframe},
