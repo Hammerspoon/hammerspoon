@@ -25,6 +25,9 @@ static int screen_visibleframe(lua_State* L) {
     return 1;
 }
 
+static NSMutableDictionary *originalGammas;
+static NSMutableDictionary *currentGammas;
+
 /// hs.screen:id(screen) -> number
 /// Method
 /// Returns a screen's unique ID.
@@ -231,6 +234,255 @@ static int screen_setShadows(lua_State* L) {
 
     return 0;
 }
+
+/// hs.screen.gammaRestore()
+/// Function
+/// Restore the gamma settings to defaults
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * This returns all displays to the gamma tables specified by the user's selected ColorSync display profiles
+static int screen_gammaRestore(lua_State* L __unused) {
+    CGDisplayRestoreColorSyncSettings();
+    return 0;
+}
+
+/// hs.screen:gammaGet() -> [whitepoint, blackpoint] or nil
+/// Method
+/// Gets the current whitepoint and blackpoint of the screen
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the white point and black point of the screen, or nil if an error occurred. The keys `whitepoint` and `blackpoint` each have values of a table containing the following keys, with corresponding values between 0.0 and 1.0:
+///   * red
+///   * green
+///   * blue
+static int screen_gammaGet(lua_State* L) {
+    NSScreen* screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    uint32_t gammaCapacity = CGDisplayGammaTableCapacity(screen_id);
+    uint32_t sampleCount;
+
+    CGGammaValue redTable[gammaCapacity];
+    CGGammaValue greenTable[gammaCapacity];
+    CGGammaValue blueTable[gammaCapacity];
+
+    if (CGGetDisplayTransferByTable(0, gammaCapacity, redTable, greenTable, blueTable, &sampleCount) != kCGErrorSuccess) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    lua_newtable(L);
+
+    lua_pushstring(L, "blackpoint");
+    lua_newtable(L);
+        lua_pushstring(L, "red");
+        lua_pushnumber(L, redTable[0]);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "green");
+        lua_pushnumber(L, greenTable[0]);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "blue");
+        lua_pushnumber(L, blueTable[0]);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "alpha");
+        lua_pushnumber(L, 1.0);
+        lua_settable(L, -3);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "whitepoint");
+    lua_newtable(L);
+        lua_pushstring(L, "red");
+        lua_pushnumber(L, redTable[sampleCount-1]);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "green");
+        lua_pushnumber(L, greenTable[sampleCount-1]);
+        lua_settable(L, -3);
+
+        lua_pushstring(L, "blue");
+        lua_pushnumber(L, blueTable[sampleCount-1]);
+        lua_settable(L, -3);
+    lua_settable(L, -3);
+
+    return 1;
+}
+
+void storeInitialScreenGamma(CGDirectDisplayID display) {
+    uint32_t capacity = CGDisplayGammaTableCapacity(display);
+    uint32_t count = 0;
+    int i = 0;
+    CGGammaValue redTable[capacity];
+    CGGammaValue greenTable[capacity];
+    CGGammaValue blueTable[capacity];
+
+    CGError result = CGGetDisplayTransferByTable(display, capacity, redTable, greenTable, blueTable, &count);
+    if (result == kCGErrorSuccess) {
+        NSLog(@"storeInitialScreenGamma: %i", display);
+        NSMutableArray *red = [NSMutableArray arrayWithCapacity:capacity];
+        NSMutableArray *green = [NSMutableArray arrayWithCapacity:capacity];
+        NSMutableArray *blue = [NSMutableArray arrayWithCapacity:capacity];
+
+        for (i = 0; i < (int)capacity; i++) {
+            [red insertObject:[NSNumber numberWithFloat:redTable[i]] atIndex:i];
+            [green insertObject:[NSNumber numberWithFloat:greenTable[i]] atIndex:i];
+            [blue insertObject:[NSNumber numberWithFloat:blueTable[i]] atIndex:i];
+        }
+
+        NSDictionary *gammas = @{@"red":red,
+                                 @"green":green,
+                                 @"blue":blue};
+
+        [originalGammas setObject:gammas forKey:[NSNumber numberWithInt:display]];
+    } else {
+        NSLog(@"storeInitialScreenGamma: ERROR: %i on display: %i", result, display);
+    }
+    return;
+}
+
+void getAllInitialScreenGammas() {
+    // Get the number of displays
+    CGDisplayCount numDisplays;
+    CGGetActiveDisplayList(0, NULL, &numDisplays);
+
+    // Fetch the gamma for each display
+    CGDirectDisplayID displays[numDisplays];
+    CGGetActiveDisplayList(numDisplays, displays, NULL);
+
+    // Iterate each display and store its gamma
+    NSLog(@"getAllInitialScreenGammas(): Found %i displays", numDisplays);
+    for (int i = 0; i < (int)numDisplays; ++i) {
+        storeInitialScreenGamma(displays[i]);
+    }
+    return;
+}
+
+void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSummaryFlags flags, void *userInfo __unused) {
+    NSLog(@"displayReconfigurationCallback");
+    if (flags & kCGDisplayAddFlag) {
+        NSLog(@"display added");
+        storeInitialScreenGamma(display);
+    } else {
+        NSLog(@"display removed");
+        [originalGammas removeObjectForKey:[NSNumber numberWithInt:display]];
+    }
+    return;
+}
+
+/// hs.screen:gammaSet(whitepoint, blackpoint) -> boolean
+/// Method
+/// Sets the current white point and black point of the screen
+///
+/// Parameters:
+///  * whitepoint - A table containing color component values between 0.0 and 1.0 for each of the keys:
+///   * red
+///   * green
+///   * blue
+///  * blackpoint - A table containing color component values between 0.0 and 1.0 for each of the keys:
+///   * red
+///   * green
+///   * blue
+///
+/// Returns:
+///  * A boolean, true if the gamma settings were applied, false if an error occurred
+static int screen_gammaSet(lua_State* L) {
+    NSScreen* screen = get_screen_arg(L, 1);
+    luaL_checktype(L, 2, LUA_TTABLE);
+    luaL_checktype(L, 3, LUA_TTABLE);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    float whitePoint[3];
+    float blackPoint[3];
+
+    // First, fish out the whitepoint
+    lua_getfield(L, 2, "red");
+    whitePoint[0] = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, 2, "green");
+    whitePoint[1] = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, 2, "blue");
+    whitePoint[2] = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    if (whitePoint[0] == 0.0 && whitePoint[1] == 0.0 && whitePoint[2] == 0.0) {
+        NSLog(@"screen_gammaSet: whitepoint is 0/0/0. Forcing to 1/1/1");
+        whitePoint[0] = 1.0;
+        whitePoint[1] = 1.0;
+        whitePoint[2] = 1.0;
+    }
+
+    lua_getfield(L, 3, "red");
+    blackPoint[0] = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, 3, "green");
+    blackPoint[1] = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, 3, "blue");
+    blackPoint[2] = lua_tonumber(L, -1);
+    lua_pop(L, 1);
+
+    if (blackPoint[0] == 1.0 && blackPoint[1] == 1.0 && blackPoint[2] == 1.0) {
+        NSLog(@"screen_gammaSet: blackpoint is 1/1/1. Forcing to 0/0/0");
+        blackPoint[0] = 0.0;
+        blackPoint[1] = 0.0;
+        blackPoint[2] = 0.0;
+    }
+
+    NSLog(@"screen_gammaSet: Fetching original gamma for display: %i", screen_id);
+    NSDictionary *originalGamma = [originalGammas objectForKey:[NSNumber numberWithInt:screen_id]];
+    NSArray *redArray = [originalGamma objectForKey:@"red"];
+    NSArray *greenArray = [originalGamma objectForKey:@"green"];
+    NSArray *blueArray = [originalGamma objectForKey:@"blue"];
+    int count = [redArray count];
+    NSLog(@"screen_gammaSet: Found %i entries in the original gamma table", count);
+
+    CGGammaValue redTable[count];
+    CGGammaValue greenTable[count];
+    CGGammaValue blueTable[count];
+
+    for (int i = 0; i < count; i++) {
+        float origRed   = [[redArray objectAtIndex:i] floatValue];
+        float origGreen = [[greenArray objectAtIndex:i] floatValue];
+        float origBlue  = [[blueArray objectAtIndex:i] floatValue];
+
+        float newRed   = blackPoint[0] + (whitePoint[0] - blackPoint[0]) * origRed;
+        float newGreen = blackPoint[1] + (whitePoint[1] - blackPoint[1]) * origGreen;
+        float newBlue  = blackPoint[2] + (whitePoint[2] - blackPoint[2]) * origBlue;
+
+        redTable[i]   = newRed;
+        greenTable[i] = newGreen;
+        blueTable[i]  = newBlue;
+
+//        NSLog(@"screen_gammaSet: %i: R:%f G:%f B:%f (orig: R:%f G:%f B:%f)", screen_id, newRed, newGreen, newBlue, origRed, origGreen, origBlue);
+    }
+
+    CGError result = CGSetDisplayTransferByTable(screen_id, count, redTable, greenTable, blueTable);
+
+    if (result != kCGErrorSuccess) {
+        NSLog(@"screen_gammaSet: ERROR: %i on display %i", result, screen_id);
+        lua_pushboolean(L, false);
+        return 1;
+    }
+
+    lua_pushboolean(L, true);
+    return 1;
+}
+
 /// hs.screen.setTint(redarray, greenarray, bluearray)
 /// Function
 /// Set the tint on a screen; experimental.
@@ -417,11 +669,18 @@ cleanup:
     return 1;
 }
 
+static int screens_gc(lua_State* L __unused) {
+    CGDisplayRemoveReconfigurationCallback(displayReconfigurationCallback, NULL);
+    return 0;
+}
 
 static const luaL_Reg screenlib[] = {
     {"allScreens", screen_allScreens},
     {"mainScreen", screen_mainScreen},
     {"setTint", screen_setTint},
+    {"gammaRestore", screen_gammaRestore},
+    {"gammaGet", screen_gammaGet},
+    {"gammaSet", screen_gammaSet},
     {"setPrimary", screen_setPrimary},
     {"rotate", screen_rotate},
     {"setShadows", screen_setShadows},
@@ -437,8 +696,22 @@ static const luaL_Reg screenlib[] = {
     {NULL, NULL}
 };
 
+static const luaL_Reg metalib[] = {
+    {"__gc", screens_gc},
+
+    {}
+};
+
 int luaopen_hs_screen_internal(lua_State* L) {
+    // Start off by initialising gamma related structures, populating them and registering appropriate callbacks
+    originalGammas = [[NSMutableDictionary alloc] init];
+    currentGammas = [[NSMutableDictionary alloc] init];
+    getAllInitialScreenGammas();
+    CGDisplayRegisterReconfigurationCallback(displayReconfigurationCallback, NULL);
+
     luaL_newlib(L, screenlib);
+    luaL_newlib(L, metalib);
+    lua_setmetatable(L, -2);
 
     if (luaL_newmetatable(L, "hs.screen")) {
         lua_pushvalue(L, -2);
