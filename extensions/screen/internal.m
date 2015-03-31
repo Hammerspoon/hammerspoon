@@ -27,6 +27,7 @@ static int screen_visibleframe(lua_State* L) {
 
 static NSMutableDictionary *originalGammas;
 static NSMutableDictionary *currentGammas;
+static dispatch_queue_t notificationQueue;
 
 /// hs.screen:id(screen) -> number
 /// Method
@@ -226,6 +227,7 @@ static int screen_setMode(lua_State* L) {
 ///  * This returns all displays to the gamma tables specified by the user's selected ColorSync display profiles
 static int screen_gammaRestore(lua_State* L __unused) {
     CGDisplayRestoreColorSyncSettings();
+    [currentGammas removeAllObjects];
     return 0;
 }
 
@@ -344,15 +346,62 @@ void getAllInitialScreenGammas() {
     return;
 }
 
+void screen_gammaReapply(CGDirectDisplayID display);
 void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSummaryFlags flags, void *userInfo __unused) {
-    NSLog(@"displayReconfigurationCallback");
+    NSLog(@"displayReconfigurationCallback. Display: %i Flags: %i", display, flags);
     if (flags & kCGDisplayAddFlag) {
-        NSLog(@"display added");
-        storeInitialScreenGamma(display);
-    } else {
-        NSLog(@"display removed");
-        [originalGammas removeObjectForKey:[NSNumber numberWithInt:display]];
+        NSLog(@"  display added");
     }
+    if (flags & kCGDisplayRemoveFlag) {
+        NSLog(@"  display removed");
+    }
+    if (flags & kCGDisplayBeginConfigurationFlag) {
+        NSLog(@"  display beginConfiguration");
+    }
+    if (flags & kCGDisplayMovedFlag) {
+        NSLog(@"  display moved");
+    }
+    if (flags & kCGDisplaySetMainFlag) {
+        NSLog(@"  display set main");
+    }
+    if (flags & kCGDisplaySetModeFlag) {
+        NSLog(@"  display set mode");
+    }
+    if (flags & kCGDisplayEnabledFlag) {
+        NSLog(@"  display enabled");
+    }
+    if (flags & kCGDisplayDisabledFlag) {
+        NSLog(@"  display disabled");
+    }
+    if (flags & kCGDisplayMirrorFlag) {
+        NSLog(@"  display mirror");
+    }
+    if (flags & kCGDisplayUnMirrorFlag) {
+        NSLog(@"  display unmirror");
+    }
+    if (flags & kCGDisplayDesktopShapeChangedFlag) {
+        NSLog(@"  display desktopShapeChanged");
+    }
+
+    if (flags & kCGDisplayAddFlag) {
+        storeInitialScreenGamma(display);
+    } else if (flags & kCGDisplayRemoveFlag) {
+        [originalGammas removeObjectForKey:[NSNumber numberWithInt:display]];
+        [currentGammas removeObjectForKey:[NSNumber numberWithInt:display]];
+    } else if (flags & kCGDisplayDisabledFlag) {
+        [currentGammas removeObjectForKey:[NSNumber numberWithInt:display]];
+    } else if ((flags & kCGDisplayEnabledFlag) || (flags & kCGDisplayBeginConfigurationFlag)) {
+        // NOOP
+        ;
+    } else {
+        // Some kind of display reconfiguration that didn't involve any hardware coming or going, re-apply a gamma if we have one
+        dispatch_async(notificationQueue, ^(void) {
+            [NSThread sleepForTimeInterval:3]; // FIXME: This hard-coded sleep is awful, why do the screens get refreshed after this point?!
+            //FIXME: Apply to all screens simultaneously
+            screen_gammaReapply(display);
+        });
+    }
+
     return;
 }
 
@@ -422,15 +471,23 @@ static int screen_gammaSet(lua_State* L) {
 
     NSLog(@"screen_gammaSet: Fetching original gamma for display: %i", screen_id);
     NSDictionary *originalGamma = [originalGammas objectForKey:[NSNumber numberWithInt:screen_id]];
+    if (!originalGamma) {
+        NSLog(@"screen_gammaSet: unable to fetch original gamma for display: %i", screen_id);
+        lua_pushboolean(L, false);
+        return 1;
+    }
     NSArray *redArray = [originalGamma objectForKey:@"red"];
     NSArray *greenArray = [originalGamma objectForKey:@"green"];
     NSArray *blueArray = [originalGamma objectForKey:@"blue"];
     int count = [redArray count];
-    NSLog(@"screen_gammaSet: Found %i entries in the original gamma table", count);
+//    NSLog(@"screen_gammaSet: Found %i entries in the original gamma table", count);
 
     CGGammaValue redTable[count];
     CGGammaValue greenTable[count];
     CGGammaValue blueTable[count];
+    NSMutableArray *red   = [NSMutableArray arrayWithCapacity:count];
+    NSMutableArray *green = [NSMutableArray arrayWithCapacity:count];
+    NSMutableArray *blue  = [NSMutableArray arrayWithCapacity:count];
 
     for (int i = 0; i < count; i++) {
         float origRed   = [[redArray objectAtIndex:i] floatValue];
@@ -444,6 +501,16 @@ static int screen_gammaSet(lua_State* L) {
         redTable[i]   = newRed;
         greenTable[i] = newGreen;
         blueTable[i]  = newBlue;
+
+        [red insertObject:[NSNumber numberWithFloat:redTable[i]] atIndex:i];
+        [green insertObject:[NSNumber numberWithFloat:greenTable[i]] atIndex:i];
+        [blue insertObject:[NSNumber numberWithFloat:blueTable[i]] atIndex:i];
+
+        NSDictionary *gammas = @{@"red":red,
+                                 @"green":green,
+                                 @"blue":blue};
+
+        [currentGammas setObject:gammas forKey:[NSNumber numberWithInt:screen_id]];
 
 //        NSLog(@"screen_gammaSet: %i: R:%f G:%f B:%f (orig: R:%f G:%f B:%f)", screen_id, newRed, newGreen, newBlue, origRed, origGreen, origBlue);
     }
@@ -460,42 +527,36 @@ static int screen_gammaSet(lua_State* L) {
     return 1;
 }
 
-/// hs.screen.setTint(redarray, greenarray, bluearray)
-/// Function
-/// Set the tint on a screen; experimental.
-static int screen_setTint(lua_State* L) {
-    lua_len(L, 1); int red_len = lua_tonumber(L, -1);
-    lua_len(L, 2); int green_len = lua_tonumber(L, -1);
-    lua_len(L, 3); int blue_len = lua_tonumber(L, -1);
-
-    CGGammaValue c_red[red_len];
-    CGGammaValue c_green[green_len];
-    CGGammaValue c_blue[blue_len];
-
-    lua_pushnil(L);
-    while (lua_next(L, 1) != 0) {
-        int i = lua_tonumber(L, -2) - 1;
-        c_red[i] = lua_tonumber(L, -1);
-        lua_pop(L, 1);
+void screen_gammaReapply(CGDirectDisplayID display) {
+    NSDictionary *gammas = [currentGammas objectForKey:[NSNumber numberWithInt:display]];
+    if (!gammas) {
+        return;
     }
 
-    lua_pushnil(L);
-    while (lua_next(L, 1) != 0) {
-        int i = lua_tonumber(L, -2) - 1;
-        c_green[i] = lua_tonumber(L, -1);
-        lua_pop(L, 1);
+    NSArray *red =   [gammas objectForKey:@"red"];
+    NSArray *green = [gammas objectForKey:@"green"];
+    NSArray *blue =  [gammas objectForKey:@"blue"];
+
+    int count = [red count];
+    CGGammaValue redTable[count];
+    CGGammaValue greenTable[count];
+    CGGammaValue blueTable[count];
+
+    for (int i = 0; i < count; i++) {
+        redTable[i]   = [[red objectAtIndex:i] floatValue];
+        greenTable[i] = [[green objectAtIndex:i] floatValue];
+        blueTable[i]  = [[blue objectAtIndex:i] floatValue];
     }
 
-    lua_pushnil(L);
-    while (lua_next(L, 1) != 0) {
-        int i = lua_tonumber(L, -2) - 1;
-        c_blue[i] = lua_tonumber(L, -1);
-        lua_pop(L, 1);
+    CGError result = CGSetDisplayTransferByTable(display, count, redTable, greenTable, blueTable);
+
+    if (result != kCGErrorSuccess) {
+        NSLog(@"screen_gammaReapply: ERROR: %i on display: %i", result, display);
+    } else {
+        NSLog(@"screen_gammaReapply: Success");
     }
 
-    CGSetDisplayTransferByTable(CGMainDisplayID(), red_len, c_red, c_green, c_blue);
-
-    return 0;
+    return;
 }
 
 static int screen_gc(lua_State* L) {
@@ -648,16 +709,16 @@ cleanup:
 
 static int screens_gc(lua_State* L __unused) {
     CGDisplayRemoveReconfigurationCallback(displayReconfigurationCallback, NULL);
+    screen_gammaRestore(nil);
     return 0;
 }
 
 static const luaL_Reg screenlib[] = {
     {"allScreens", screen_allScreens},
     {"mainScreen", screen_mainScreen},
-    {"setTint", screen_setTint},
-    {"gammaRestore", screen_gammaRestore},
-    {"gammaGet", screen_gammaGet},
-    {"gammaSet", screen_gammaSet},
+    {"restoreGamma", screen_gammaRestore},
+    {"getGamma", screen_gammaGet},
+    {"setGamma", screen_gammaSet},
     {"setPrimary", screen_setPrimary},
     {"rotate", screen_rotate},
 
@@ -683,6 +744,7 @@ int luaopen_hs_screen_internal(lua_State* L) {
     originalGammas = [[NSMutableDictionary alloc] init];
     currentGammas = [[NSMutableDictionary alloc] init];
     getAllInitialScreenGammas();
+    notificationQueue = dispatch_queue_create("org.hammerspoon.Hammerspoon.gammaReapplyNotificationQueue", NULL);
     CGDisplayRegisterReconfigurationCallback(displayReconfigurationCallback, NULL);
 
     luaL_newlib(L, screenlib);
