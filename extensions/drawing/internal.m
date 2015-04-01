@@ -1101,12 +1101,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"hide", drawing_hide},
     {"delete", drawing_delete},
 
-    {}
-};
-
-static const luaL_Reg drawing_gclib[] = {
     {"__gc", drawing_delete},
-
     {}
 };
 
@@ -1119,8 +1114,6 @@ int luaopen_hs_drawing_internal(lua_State *L) {
 
     // Table for luaopen
     luaL_newlib(L, drawinglib);
-    luaL_newlib(L, drawing_gclib);
-    lua_setmetatable(L, -2);
 
     return 1;
 }
