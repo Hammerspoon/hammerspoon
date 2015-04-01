@@ -78,7 +78,7 @@ typedef struct _notification_t {
 //    static ourNotificationManager* sharedManager;
     if (!sharedManager) {
         sharedManager = [[ourNotificationManager alloc] init];
-        sharedManager.ActiveCallbacks = [NSMutableDictionary dictionary];
+        sharedManager.activeCallbacks = [NSMutableDictionary dictionary];
         [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:sharedManager];
     }
     sharedManager.L = L;
