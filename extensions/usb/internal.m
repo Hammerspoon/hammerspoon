@@ -25,7 +25,7 @@ static int usb_gc(lua_State* L __unused) {
 ///  * None
 ///
 /// Returns:
-///  * A table containing information about currently attached USB devices, or nil if an error occurred. The keys of the table are:
+///  * A table containing information about currently attached USB devices, or nil if an error occurred. The table contains a sub-table for each USB device, the keys of which are:
 ///   * productName - A string containing the name of the device
 ///   * vendorName - A string containing the name of the device vendor
 ///   * vendorID - A number containing the Vendor ID of the device
