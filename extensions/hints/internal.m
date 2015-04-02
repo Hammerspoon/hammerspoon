@@ -75,7 +75,14 @@ static NSDictionary *hintTextAttributes;
 - (void)setText:(NSString *)newText {
     text = newText;
     textSize = [text sizeWithAttributes:hintTextAttributes];
-    //self.frame = NSMakeRect(self.frame.origin.x, self.frame.origin.y, textSize.width + 100, hintHeight);
+    // Might need to resize if text is long
+    CGFloat newWidth = textSize.width + hintHeight/2 + 20;
+    if(newWidth > 100) {
+      self.frame = NSMakeRect(self.frame.origin.x, self.frame.origin.y, newWidth, hintHeight);
+      NSRect newWinFrame = self.window.frame;
+      newWinFrame.size.width = newWidth;
+      [[self window] setFrame:newWinFrame display:YES];
+    }
 }
 
 - (void)drawRect:(NSRect __unused)dirtyRect {
@@ -130,9 +137,9 @@ static NSDictionary *hintTextAttributes;
         [self makeKeyAndOrderFront:NSApp];
         [self setLevel:(NSScreenSaverWindowLevel - 1)];
         HintView *label = [[HintView alloc] initWithFrame:frame fontName:fontName fontSize:fontSize];
-        [label setText:txt];
-        [label setIconFromBundleID:bundle];
         [self setContentView:label];
+        [label setIconFromBundleID:bundle];
+        [label setText:txt];
     }
     return self;
 }

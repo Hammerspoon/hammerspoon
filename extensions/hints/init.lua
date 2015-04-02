@@ -31,6 +31,12 @@ hints.fontName = nil
 --- The size of font that should be used. A value of 0.0 will use the default size.
 hints.fontSize = 0.0
 
+--- hs.hints.showTitleThresh
+--- Variable
+--- If there are less than or equal to this many windows on screen their titles will be shown in the hints.
+--- The default is 4. Setting to 0 will disable this feature.
+hints.showTitleThresh = 4
+
 local openHints = {}
 local takenPositions = {}
 local hintDict = {}
@@ -71,7 +77,22 @@ function hints.addWindow(dict, win)
   dict['count'] = dict['count'] + 1
 end
 
-function hints.displayHintsForDict(dict, prefixstring)
+-- Private helper to recursively find the total number of hints in a dict
+function hints._dictSize(t)
+  if type(t) == "userdata" and t:screen() then -- onscreen window
+    return 1
+  elseif type(t) == "table" then
+    local count = 0
+    for _,v in pairs(t) do count = count + hints._dictSize(v) end
+    return count
+  end
+  return 0 -- screenless window or something else
+end
+
+function hints.displayHintsForDict(dict, prefixstring, showTitles)
+  if showTitles == nil then
+    showTitles = hints._dictSize(hintDict) <= hints.showTitleThresh
+  end
   for key, val in pairs(dict) do
     if type(val) == "userdata" and val:screen() then -- this is an onscreen window
       local win = val
@@ -90,14 +111,18 @@ function hints.displayHintsForDict(dict, prefixstring)
         if c.y < 0 then
           print("hs.hints: Skipping offscreen window: "..win:title())
         else
+          local suffixString = ""
+          if showTitles then
+            suffixString = ": "..win:title()
+          end
           -- print(win:title().." x:"..c.x.." y:"..c.y) -- debugging
-          local hint = hints.new(c.x, c.y, prefixstring .. key, app:bundleID(), win:screen(), hints.fontName, hints.fontSize)
+          local hint = hints.new(c.x, c.y, prefixstring .. key .. suffixString, app:bundleID(), win:screen(), hints.fontName, hints.fontSize)
           table.insert(takenPositions, c)
           table.insert(openHints, hint)
         end
       end
     elseif type(val) == "table" then -- this is another window dict
-      hints.displayHintsForDict(val, prefixstring .. key)
+      hints.displayHintsForDict(val, prefixstring .. key, showTitles)
     end
   end
 end
