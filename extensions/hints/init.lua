@@ -73,7 +73,7 @@ end
 
 function hints.displayHintsForDict(dict, prefixstring)
   for key, val in pairs(dict) do
-    if type(val) == "userdata" then -- this is a window
+    if type(val) == "userdata" and val:screen() then -- this is an onscreen window
       local win = val
       local app = win:application()
       local fr = win:frame()
