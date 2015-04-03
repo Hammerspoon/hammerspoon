@@ -164,7 +164,12 @@ end
 --- Function
 --- Resizes the focused window's right side to be one cell wider.
 function grid.resizeWindowWider()
-  grid.adjustFocusedWindow(function(f) f.w = math.min(f.w + 1, grid.GRIDWIDTH - f.x) end)
+  grid.adjustFocusedWindow(function(f)
+    if f.w + f.x >= grid.GRIDWIDTH and f.x > 0 then
+      f.x = f.x - 1
+    end
+    f.w = math.min(f.w + 1, grid.GRIDWIDTH - f.x)
+  end)
 end
 
 --- hs.grid.resizeWindowThinner()
@@ -199,7 +204,12 @@ end
 --- Function
 --- Resizes the focused window so its height is 1 grid count higher.
 function grid.resizeWindowTaller()
-  grid.adjustFocusedWindow(function(f) f.y = f.y - 0; f.h = math.min(f.h + 1, grid.GRIDHEIGHT - f.y) end)
+  grid.adjustFocusedWindow(function(f)
+    if f.y + f.h >= grid.GRIDHEIGHT and f.y > 0 then
+      f.y = f.y -1
+    end
+    f.h = math.min(f.h + 1, grid.GRIDHEIGHT - f.y)
+  end)
 end
 
 return grid
