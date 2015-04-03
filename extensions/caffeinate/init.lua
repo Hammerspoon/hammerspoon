@@ -5,6 +5,7 @@
 --- **NOTE**: Any sleep preventions will be removed when hs.reload() is called. A future version of the module will save/restore state across reloads.
 
 local caffeinate = require "hs.caffeinate.internal"
+caffeinate.watcher = require "hs.caffeinate.watcher"
 local applescript = require "hs.applescript"
 
 --- hs.caffeinate.set(sleepType, aValue, acAndBattery)
