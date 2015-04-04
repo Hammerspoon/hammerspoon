@@ -170,7 +170,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             // Check if this item is enabled/disabled, defaulting to enabled
             lua_getfield(L, -1, "disabled");
             if (lua_isboolean(L, -1)) {
-                [menuItem setEnabled:lua_toboolean(L, -1)];
+                [menuItem setEnabled:!lua_toboolean(L, -1)];
             } else {
                 [menuItem setEnabled:YES];
             }
