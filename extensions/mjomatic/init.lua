@@ -142,12 +142,14 @@ function mjomatic.go(cfg)
             error(string.format('no window found for application %s (%s)', title, key))
         end
         local app = appfinder.appFromName(title)
-        local window = app:mainWindow()
+        local appWindows = app:allWindows()
         -- alert.show(string.format('application title for %q is %q, main window %q', title, app:title(), window:title()))
-        if window then
-            resizetogrid(window, windows[key])
-        else
-            alert.show(string.format('application %s has no main window', app:title()))
+        for char, window in pairs(appWindows) do
+          if window then
+              resizetogrid(window, windows[key])
+          else
+              alert.show(string.format('application %s has no main window', app:title()))
+          end
         end
     end
 end
