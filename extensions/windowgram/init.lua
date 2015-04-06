@@ -1,6 +1,6 @@
 --- === hs.windowgram ===
 ---
---- auto-grid layout using ascii rows similar to tmuxomatic
+--- auto-layout using ascii rows similar to tmuxomatic
 
 local windowgram = {}
 
@@ -98,15 +98,15 @@ end
 --- Notes:
 --- * These are numbers between 0 and 1 and represent two points; the top left
 --- corner and the bottom right corner.
-function windowgram.getRatios(windows)
+function windowgram.getRatios(rects)
   local ratios = {}
   local totalWidth = 0
   local totalHeight = 0
-  for k,v in pairs(windows) do
+  for k,v in pairs(rects) do
     if v.w > totalWidth then totalWidth = v.w end
     if v.h > totalHeight then totalHeight = v.h end
   end
-  for k,w in pairs(windows) do
+  for k,w in pairs(rects) do
     ratios[k] = {}
     ratios[k].x1 = w.x == 1 and 0 or (w.x - 1) / totalWidth
     ratios[k].y1 = w.y == 1 and 0 or (w.y - 1) / totalHeight
