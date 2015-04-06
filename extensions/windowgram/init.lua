@@ -125,7 +125,7 @@ function resizeToGrid(window, gridRatio)
     local widthRatio = gridRatio.x2 - gridRatio.x1
     local heightRatio = gridRatio.y2 - gridRatio.y1
     frame["w"] = screenSize.w * widthRatio
-    frame["h"] = screenSize.h * heightRatio + screenSize.y
+    frame["h"] = screenSize.h * heightRatio
     window:setFrame(frame)
 end
 
