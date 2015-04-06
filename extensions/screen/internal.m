@@ -213,7 +213,7 @@ static int screen_setMode(lua_State* L) {
     return 1;
 }
 
-/// hs.screen.gammaRestore()
+/// hs.screen.restoreGamma()
 /// Function
 /// Restore the gamma settings to defaults
 ///
@@ -231,7 +231,7 @@ static int screen_gammaRestore(lua_State* L __unused) {
     return 0;
 }
 
-/// hs.screen:gammaGet() -> [whitepoint, blackpoint] or nil
+/// hs.screen:getGamma() -> [whitepoint, blackpoint] or nil
 /// Method
 /// Gets the current whitepoint and blackpoint of the screen
 ///
@@ -405,7 +405,7 @@ void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSu
     return;
 }
 
-/// hs.screen:gammaSet(whitepoint, blackpoint) -> boolean
+/// hs.screen:setGamma(whitepoint, blackpoint) -> boolean
 /// Method
 /// Sets the current white point and black point of the screen
 ///
