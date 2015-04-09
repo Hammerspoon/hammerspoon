@@ -112,11 +112,25 @@ end
 function hotkey.modal:exited()
 end
 
---- hs.hotkey.modal:bind(mods, key, pressedfn, releasedfn)
+--- hs.hotkey.modal:bind(mods, key, pressedfn, releasedfn, repeatfn)
 --- Method
---- Registers a new hotkey that will be bound when the modal is enabled.
-function hotkey.modal:bind(mods, key, pressedfn, releasedfn)
-  local k = hotkey.new(mods, key, pressedfn, releasedfn)
+---
+--- Parameters:
+---  * mods - A table containing the keyboard modifiers required, which should be zero or more of the following strings:
+---   * cmd
+---   * alt
+---   * shift
+---   * ctrl
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * pressedfn - A function that will be called when the hotkey has been pressed
+---  * releasedfn - An optional function that will be called when the hotkey has been released
+---  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
+---
+--- Returns:
+---  * An `hs.hotkey.modal` object or nil if an error occurred
+---
+function hotkey.modal:bind(mods, key, pressedfn, releasedfn, repeatfn)
+  local k = hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
   table.insert(self.keys, k)
   return self
 end

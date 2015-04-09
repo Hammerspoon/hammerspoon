@@ -293,7 +293,6 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
     CGEventType type = luaL_checknumber(L, 1);
     CGPoint point = hs_topoint(L, 2);
     const char* buttonString = luaL_checkstring(L, 3);
-    luaL_checktype(L, 4, LUA_TTABLE);
 
     CGEventFlags flags = 0;
     const char *modifier;
@@ -305,7 +304,7 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
     else if (strcmp(buttonString, "middle") == 0)
         button = kCGMouseButtonCenter;
 
-    if (!lua_isnoneornil(L, 4)) {
+    if (!lua_isnoneornil(L, 4) && (lua_type(L, 4) == LUA_TTABLE)) {
         lua_pushnil(L);
         while (lua_next(L, 4) != 0) {
             modifier = lua_tostring(L, -2);
