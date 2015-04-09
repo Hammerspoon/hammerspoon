@@ -1,58 +1,25 @@
 --- === hs.windowgram ===
 ---
---- auto-layout using ascii rows similar to tmuxomatic
+--- region generation using ascii rows similar to tmuxomatic for window areas
 
 local windowgram = {}
 
-local alert = require 'hs.alert'
-local screen = require 'hs.screen'
+-- Returns a table with the relative cols and rows.
+function parseWindowgram(wg)
+  local gridw = nil
 
-local gridh
-local gridw
+  local grid = {}
 
---- hs.windowgram.getRects(wg)
---- Function
---- Converts a windowgram to a table with rects.
----
---- Parameters:
----  * wg - The windowgram: A table containing strings, representing the desired
---- window layout
----
---- Returns:
----  * Table with rects which contain an X, Y, W, and H values
----
---- Notes:
----  * Rects are relative to the positions in the windowgram.
----
---- ~~~lua
---- local wg = {
----   "AAAAAAAAAAAABBBBBBBBBBBB",
----   "AAAAAAAAAAAABBBBBBBBBBBB",
----   "AAAAAAAAAAAABBBBBBBBBBBB",
----   "CCCCCCCCCCCCCCCCCCCCCCCC",
----   "CCCCCCCCCCCCCCCCCCCCCCCC"
---- }
---- local windows = windowgram.getWindows(wg)
---- ~~~
----
---- This will return the following table;
---- ~~~lua
---- print(wg["A"])
---- -- prints { x=1, y=1, w=12, h=3 }
---- print(wg["B"])
---- -- prints { x=12, y=1, w=24, h=3 }
---- print(wg["C"])
---- -- prints { x=1, y=3, w=24, h=5 }
---- ~~~
-function windowgram.getRects(wg)
-  wg = removeWhitspace(wg)
+  -- Split into lines
+  local lines = {}
+  for line in string.gmatch(wg, "[^\r\n]+") do
+    if #line > 0 then
+      table.insert(lines, line)
+    end
+  end
+  lines = cleanLines(lines)
 
-  gridh = #wg
-  gridw = nil
-
-  local windows = {}
-
-  for i, line in ipairs(wg) do
+  for i, line in ipairs(lines) do
     if gridw then
       if gridw ~= line:len() then
         error('inconsistent grid width in windowgram')
@@ -62,83 +29,138 @@ function windowgram.getRects(wg)
     end
     for column = 1, #line do
       local char = line:sub(column, column)
-      if not windows[char] then
+      if not grid[char] then
         -- new window, create it with size 1x1
-        windows[char] = { x = column , y = i}
+        grid[char] = { x = column , y = i}
       else
         -- expand it
-        windows[char].w = column
-        windows[char].h = i
+        grid[char].w = column
+        grid[char].h = i
       end
     end
   end
-  return windows
+  return grid
 
 end
 
-function removeWhitspace(wg)
+function cleanLines(wg)
   local target = {}
   for i,l in ipairs(wg) do
+    -- Remove comments and whitespace
+    l = l:gsub('#.*','')
     l = l:gsub("%s+","")
     table.insert(target, l)
   end
   return target
 end
 
---- hs.windowgram.getRatios(rects)
+--- hs.windowgram.getRegionRatios(regions)
 --- Function
---- Gets a table with ratios from the rects table
+--- Gets a table with the regions as percentages of the screen resolution
 ---
 --- Parameters:
----  * rects - The rects table returned by getRects
+---  * regions - The regions table returned by windowgram.convertToRegions(wg)
 ---
 --- Returns:
----  * Table with ratios. ex; { x1=0, y1=0.5, x2=0.5, y2=1 }
+---  * Table with ratios. ex; { x=0, y=0.5, w=0.5, h=1 }
 ---
 --- Notes:
 --- * These are numbers between 0 and 1 and represent two points; the top left
 --- corner and the bottom right corner.
-function windowgram.getRatios(rects)
+function windowgram.getRegionRatios(regions)
   local ratios = {}
-  local totalWidth = 0
-  local totalHeight = 0
-  for k,v in pairs(rects) do
-    if v.w > totalWidth then totalWidth = v.w end
-    if v.h > totalHeight then totalHeight = v.h end
-  end
-  for k,w in pairs(rects) do
+  local screenSize = hs.screen.mainScreen():frame()
+  for k,region in pairs(regions) do
     ratios[k] = {}
-    ratios[k].x1 = w.x == 1 and 0 or (w.x - 1) / totalWidth
-    ratios[k].y1 = w.y == 1 and 0 or (w.y - 1) / totalHeight
-    ratios[k].x2 = w.w == 1 and 0 or (w.w) / totalWidth
-    ratios[k].y2 = w.h == 1 and 0 or (w.h) / totalHeight
+    ratios[k].x = region.x ~= 0 and region.x / screenSize.w or 0
+    ratios[k].y = region.y ~= 0 and region.y / screenSize.h or 0
+    ratios[k].w = region.w ~= 0 and region.w / screenSize.w or 0
+    ratios[k].h = region.h ~= 0 and region.h / screenSize.h or 0
   end
   return ratios
 end
 
-function resizeToGrid(window, gridRatio)
-    local screenSize = screen.mainScreen():frame()
-    local frame = {}
-
-    frame["x"] = screenSize.w * gridRatio.x1
-    frame["y"] = screenSize.h * gridRatio.y1 + screenSize.y
-    local widthRatio = gridRatio.x2 - gridRatio.x1
-    local heightRatio = gridRatio.y2 - gridRatio.y1
-    frame["w"] = screenSize.w * widthRatio
-    frame["h"] = screenSize.h * heightRatio
-    window:setFrame(frame)
-end
-
---- hs.windowgram.applyAppMapLayout(rects, map)
+--- hs.windowgram.convertToRegions(wg)
 --- Function
---- * Uses an map table to layout the current windows based on the windowgram
---- rects
+--- Gets a table with pixel coords describing a region, given a windowgram
 ---
 --- Parameters:
----  * rects - The rects table returned by getRects
+---  * wg - The windowgram: multiline string with the desired window layout
+---
+--- Returns:
+---  * Table with regions which contain an X, Y, W, and H values
+---
+--- Notes:
+---  * Regions are pixel based coordinates relative to the windowgram
+---
+--- ~~~lua
+--- local wg = [[
+---   AAAAAAAAAAAABBBBBBBBBBBB
+---   AAAAAAAAAAAABBBBBBBBBBBB
+---   AAAAAAAAAAAABBBBBBBBBBBB
+---   CCCCCCCCCCCCCCCCCCCCCCCC
+---   CCCCCCCCCCCCCCCCCCCCCCCC
+--- ]]
+--- local windows = windowgram.getWindows(wg)
+--- ~~~
+---
+--- On a 1920x1080 resolution, This will return the following table;
+--- ~~~lua
+--- print(wg["A"])
+--- -- prints { x=0, y=0, w=960, h=648 }
+--- print(wg["B"])
+--- -- prints { x=960, y=0, w=960, h=648 }
+--- print(wg["C"])
+--- -- prints { x=0, y=648, w=1920, h=432 }
+--- ~~~
+function windowgram.convertToRegions(wg)
+  local regions = {}
+  local totalWidth = 0
+  local totalHeight = 0
+  local screenSize = hs.screen.mainScreen():frame()
+  local grid = parseWindowgram(wg)
+
+  -- Get the total size
+  for k,v in pairs(grid) do
+    if v.w > totalWidth then totalWidth = v.w end
+    if v.h > totalHeight then totalHeight = v.h end
+  end
+
+  -- calculate the ratios as percentages of the windowgram
+  local ratios = {}
+  for k,w in pairs(grid) do
+    ratios[k] = {}
+    ratios[k].x = w.x == 1 and 0 or (w.x - 1) / totalWidth
+    ratios[k].y = w.y == 1 and 0 or (w.y - 1) / totalHeight
+    ratios[k].w = w.w == 1 and 0 or (w.w) / totalWidth
+    ratios[k].h = w.h == 1 and 0 or (w.h) / totalHeight
+  end
+
+  -- Populate regions
+  for k,r in pairs(ratios) do
+    regions[k] = {}
+    regions[k].x = r.x * screenSize.w
+    regions[k].y = r.y * screenSize.h + screenSize.y
+    local widthRatio = r.w - r.x
+    local heightRatio = r.h - r.y
+    regions[k].w = screenSize.w * widthRatio
+    regions[k].h = screenSize.h * heightRatio
+  end
+
+  return regions
+end
+
+--- hs.windowgram.applyAppMapLayout(regions, map)
+--- Function
+--- * Uses a key/app map table to layout the current windows based on the
+--- regions pixel coords
+---
+--- Parameters:
+---  * regions - The regions table returned by windowgram:convertToRegions(wg)
 ---  * map - A key/value table where the key is the ascii character used in
 ---  the windowgram and the value is the name of the map.
----  Ex;
+---
+--- Ex;
 --- Given the following windowgram which creates a 1 by 2 grid;
 --- ~~~lua
 --- local wg = {
@@ -157,19 +179,29 @@ end
 ---   "C Xcode"
 --- }
 ---  ~~~
-function windowgram.applyAppMapLayout(rects, map)
-  local ratios = windowgram.getRatios(rects)
+function resizeToRegion(window, region)
+  local screenSize = hs.screen.mainScreen():frame()
+  local frame = {}
+
+  frame.x = region.x
+  frame.y = region.y
+  frame.w = region.w
+  frame.h = region.h
+  window:setFrame(frame)
+end
+
+function windowgram.applyAppMapLayout(regions, map)
   for k, line in pairs(map) do
     local key = line:sub(1,1)
     local appName = line:sub(3)
-    if not rects[key] then
-      error(string.format('no rect found for application %s (%s)', key, appName))
+    if not regions[key] then
+      error(string.format('no region found for application %s (%s)', key, appName))
     end
     local app = hs.appfinder.appFromName(appName)
     if app ~= nil then
       local appWindows = app:allWindows()
       for char, window in pairs(appWindows) do
-        if window then resizeToGrid(window, ratios[key]) end
+        if window then resizeToRegion(window, regions[key]) end
       end
     end
   end
