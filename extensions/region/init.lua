@@ -30,6 +30,7 @@ function region.new(x, y, w, h)
     out.w = w
     out.h = h
     out.windows = {}
+    out.currentWindow = nil
     return out
 end
 
