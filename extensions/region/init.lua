@@ -1,9 +1,8 @@
 --- === hs.region ===
 ---
---- An area on the screen where windows can be positioned
+--- A region represents an area where you can dock windows
 ---
 --- Usage: local region = require "hs.region"
----
 local region = {}
 
 local alert = require "hs.alert"
@@ -17,44 +16,42 @@ local alert = require "hs.alert"
 ---  * y - region's topleft position
 ---  * w - region's width
 ---  * h - region's height
----  * screen - An optional `hs.screen` object this region will be on, if left
----  empty, will default to `hs.screen.mainScreen()`
 ---
 --- Returns:
 ---  * An `hs.region` object, or nil if an error occurred
-function region.new(x, y, w, h, screen)
-    if not x or not y or not w or not h then
+function region.new(x, y, w, h)
+    if not (x and y and w and h) then
       alert.show("Bad coordinate arguments passed to region constructor")
       return nil
     end
-    region.x = x
-    region.y = y
-    region.w = w
-    region.h = h
-    region.screen = screen or hs.screen.mainScreen()
-    region.windows = {}
-    return region
+    out = setmetatable({}, { __index = region })
+    out.x = x
+    out.y = y
+    out.w = w
+    out.h = h
+    out.windows = {}
+    return out
 end
 
---- hs.region:getScreen() -> screenObject
---- Method
---- * Gets the screen this region is on
----
---- Returns:
----  * An `hs.screen` object
-function region:getScreen()
-    return self.screen
+function resizeWindow(r, win)
+  local frame = {}
+
+  frame.x = r.x
+  frame.y = r.y
+  frame.w = r.w
+  frame.h = r.h
+  win:setFrame(frame)
 end
 
---- hs.region:applyWindow(win)
+--- hs.region:addWindow(win)
 --- Method
 --- * Applies the window's frame to the region while also adding it to the stack
 ---
 --- Parameters:
 ---  * win - `hs.window` object
-function region:applyWindow(win)
+function region:addWindow(win)
   local hasWindow = false
-  for i, w in ipairs(self.windows) do
+  for _, w in pairs(self.windows) do
     if w == win then
       hasWindow = true
       break
@@ -64,16 +61,21 @@ function region:applyWindow(win)
     table.insert(self.windows, win)
   end
   resizeWindow(self, win)
+  self.currentWindow = win
 end
 
-function resizeWindow(region, win)
-  local frame = {}
+function region:removeWindow(win)
+  local index = -1
+  for i, w in ipairs(self.windows) do
+    if win == w then index = i end
+  end
+  if index ~= -1 then
+    table.remove(self.windows, index)
+  end
+end
 
-  frame.x = region.x
-  frame.y = region.y
-  frame.w = region.w
-  frame.h = region.h
-  win:setFrame(frame)
+function region:getCenterPoint()
+  return { self.x + self.w / 2 , self.y + self.h / 2 }
 end
 
 --- hs.region:move(x, y)
