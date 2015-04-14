@@ -7,12 +7,60 @@
 local workspace = {}
 
 local alert = require "hs.alert"
+local Direction = {
+  Left  = { -1 , 0 },
+  Right = {  0 , 1 },
+  Up    = { -1 , 0 },
+  Down  = {  0 , 1 }
+}
 
-function getCrossProduct(p1,p2)
+function getClosestRegionInDirection(workspace, direction, region)
+  local candidates = getRegionsInDirection(workspace, direction, region)
+  if #candidates == 0 then return nil end
+  local scores = {}
+  -- The weight gives a preferential score to x or y make sure it picks a region
+  -- that's more in the given direction
+  local weight = 1.5
+  local center = region:getCenterPoint()
+  local fn = nil
+  if direction == Direction.Left or direction == Direction.Right then
+    fn = function(p1, p2)
+      return math.abs(p1.x - p2.x) + math.abs(p1.y - p2.y) * weight
+    end
+  elseif direction == Direction.Up or direction == Direction.Down then
+    fn = function(p1, p2)
+      return math.abs(p1.x - p2.x) * weight + math.abs(p1.y - p2.y)
+    end
+  end
+  for i, c in ipairs(candidates) do
+    local candidateCenter = c:getCenterPoint()
+    local s = { candidate = c , score = fn(center, candidateCenter) }
+    scores[i] = s
+  end
+  table.sort(scores, function(a,b) return a.score < b.score end)
+  return scores[1].candidate
 end
 
-function getDotProduct(p1,p2)
-  return p1.x * p2.x + p1.y * p2.y
+function getRegionsInDirection(workspace, direction, region)
+  local fn = nil
+  local candidates = {}
+  if direction == Direction.Left then
+    fn = function(p1, p2) return p1.x > p2.x end
+  elseif direction == Direction.Right then
+    fn = function(p1, p2) return p1.x < p2.x end
+  elseif direction == Direction.Up then
+    fn = function(p1, p2) return p1.y > p2.y end
+  elseif direction == Direction.Down then
+    fn = function(p1, p2) return p1.y < p2.y end
+  end
+  local center = region:getCenterPoint()
+  for _, r in pairs(workspace.regions) do
+    local candidateCenter = r:getCenterPoint()
+    if fn(center, candidateCenter) then
+      table.insert(candidates, r)
+    end
+  end
+  return candidates
 end
 
 --- hs.workspace:new(regions, screen)
@@ -74,21 +122,55 @@ function getRegionWithWindow(regions, win)
   return nil
 end
 
-function workspace:pushFocusedWindowRight()
+function pushFocusedWindow(workspace, direction)
   local w = hs.window.focusedWindow()
-  local wr = getRegionWithWindow(self.regions, w)
-  local candidates = {}
-  for _, r in pairs(self.regions) do
-    if wr.x < r.x and math.abs(wr.y - r.y) < 50 then
-      table.insert(candidates, r)
-    end
-  end
-  for _, r in pairs(candidates) do
+  local workingRegion = getRegionWithWindow(workspace.regions, w)
+  local r = getClosestRegionInDirection(workspace, direction, workingRegion)
+  if r then
     r:addWindow(w)
+    workingRegion:removeWindow(w)
   end
-  if #candidates > 0 then
-    wr:removeWindow(w)
+end
+
+function workspace:pushFocusedWindowEast()
+  pushFocusedWindow(self, Direction.Right)
+end
+
+function workspace:pushFocusedWindowWest()
+  pushFocusedWindow(self, Direction.Left)
+end
+
+function workspace:pushFocusedWindowNorth()
+  pushFocusedWindow(self, Direction.Up)
+end
+
+function workspace:pushFocusedWindowSouth()
+  pushFocusedWindow(self, Direction.Down)
+end
+
+function focusRegion(workspace, direction)
+  local w = hs.window.focusedWindow()
+  local workingRegion = getRegionWithWindow(workspace.regions, w)
+  local r = getClosestRegionInDirection(workspace, direction, workingRegion)
+  if r and r.currentWindow then
+    r.currentWindow:focus()
   end
+end
+
+function workspace:focusRegionEast()
+  focusRegion(self, Direction.Right)
+end
+
+function workspace:focusRegionWest()
+  focusRegion(self, Direction.Left)
+end
+
+function workspace:focusRegionNorth()
+  focusRegion(self, Direction.Up)
+end
+
+function workspace:focusRegionSouth()
+  focusRegion(self, Direction.Down)
 end
 
 function workspace:pushFocusedWindowLeft()

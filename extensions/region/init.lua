@@ -72,11 +72,12 @@ function region:removeWindow(win)
   end
   if index ~= -1 then
     table.remove(self.windows, index)
+    if #self.windows > 0 then self.currentWindow = self.windows[1] end
   end
 end
 
 function region:getCenterPoint()
-  return { self.x + self.w / 2 , self.y + self.h / 2 }
+  return { x = self.x + self.w / 2 , y = self.y + self.h / 2 }
 end
 
 --- hs.region:move(x, y)
