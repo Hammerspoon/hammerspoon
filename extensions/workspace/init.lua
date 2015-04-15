@@ -45,22 +45,30 @@ function getRegionsInDirection(workspace, direction, region)
   local fn = nil
   local candidates = {}
   if direction == Direction.Left then
-    fn = function(p1, p2) return p1.x > p2.x end
+    fn = function(a)  return a >= 60 and a <= 120 end
   elseif direction == Direction.Right then
-    fn = function(p1, p2) return p1.x < p2.x end
+    fn = function(a) return a >= -120 and a <= -60 end
   elseif direction == Direction.Up then
-    fn = function(p1, p2) return p1.y > p2.y end
+    fn = function(a) return a > -30 and a < 30 end
   elseif direction == Direction.Down then
-    fn = function(p1, p2) return p1.y < p2.y end
+    fn = function(a) return a < -150 or a > 150 end
   end
   local center = region:getCenterPoint()
   for _, r in pairs(workspace.regions) do
-    local candidateCenter = r:getCenterPoint()
-    if fn(center, candidateCenter) then
-      table.insert(candidates, r)
+    if r ~= region then
+      local candidateCenter = r:getCenterPoint()
+      local angle = getAngle(center, candidateCenter)
+      if fn(angle) then
+        print (r.x .. " " .. r.y .. " " .. angle)
+        table.insert(candidates, r)
+      end
     end
   end
   return candidates
+end
+
+function getAngle(p1, p2)
+  return math.atan2(p1.x - p2.x, p1.y - p2.y) * 180 / math.pi
 end
 
 --- hs.workspace:new(regions, screen)

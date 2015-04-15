@@ -77,7 +77,8 @@ function region:removeWindow(win)
 end
 
 function region:getCenterPoint()
-  return { x = self.x + self.w / 2 , y = self.y + self.h / 2 }
+  local p = { x = self.x + self.w / 2 , y = self.y + self.h / 2 }
+  return p
 end
 
 --- hs.region:move(x, y)
