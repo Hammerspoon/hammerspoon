@@ -59,7 +59,6 @@ function getRegionsInDirection(workspace, direction, region)
       local candidateCenter = r:getCenterPoint()
       local angle = getAngle(center, candidateCenter)
       if fn(angle) then
-        print (r.x .. " " .. r.y .. " " .. angle)
         table.insert(candidates, r)
       end
     end
@@ -133,10 +132,12 @@ end
 function pushFocusedWindow(workspace, direction)
   local w = hs.window.focusedWindow()
   local workingRegion = getRegionWithWindow(workspace.regions, w)
-  local r = getClosestRegionInDirection(workspace, direction, workingRegion)
-  if r then
-    r:addWindow(w)
-    workingRegion:removeWindow(w)
+  if workingRegion then
+    local r = getClosestRegionInDirection(workspace, direction, workingRegion)
+    if r then
+      r:addWindow(w)
+      workingRegion:removeWindow(w)
+    end
   end
 end
 
@@ -159,9 +160,11 @@ end
 function focusRegion(workspace, direction)
   local w = hs.window.focusedWindow()
   local workingRegion = getRegionWithWindow(workspace.regions, w)
-  local r = getClosestRegionInDirection(workspace, direction, workingRegion)
-  if r and r.currentWindow then
-    r.currentWindow:focus()
+  if workingRegion then
+    local r = getClosestRegionInDirection(workspace, direction, workingRegion)
+    if r and r.currentWindow then
+      r.currentWindow:focus()
+    end
   end
 end
 
