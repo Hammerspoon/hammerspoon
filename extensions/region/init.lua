@@ -31,6 +31,7 @@ function region.new(x, y, w, h)
     out.h = h
     out.windows = {}
     out.currentWindow = nil
+    out.windowIndex = 0
     return out
 end
 
@@ -60,6 +61,7 @@ function region:addWindow(win)
   end
   if not hasWindow then
     table.insert(self.windows, win)
+    self.windowIndex = #self.windows
   end
   resizeWindow(self, win)
   self.currentWindow = win
@@ -71,14 +73,32 @@ function region:removeWindow(win)
     if win == w then index = i end
   end
   if index ~= -1 then
+    if #self.windows > 1 then self.currentWindow = self:getNextWindow() end
     table.remove(self.windows, index)
-    if #self.windows > 0 then self.currentWindow = self.windows[1] end
   end
 end
 
 function region:getCenterPoint()
   local p = { x = self.x + self.w / 2 , y = self.y + self.h / 2 }
   return p
+end
+
+function region:getNextWindow()
+  if self.windowIndex >= #self.windows then
+    self.windowIndex = 1
+  else
+    self.windowIndex = self.windowIndex + 1
+  end
+  return self.windows[self.windowIndex]
+end
+
+function region:getPrevWindow()
+  if self.windowIndex <= 1 then
+    self.windowIndex = #self.windows
+  else
+    self.windowIndex = self.windowIndex - 1
+  end
+  return self.windows[self.windowIndex]
 end
 
 --- hs.region:move(x, y)

@@ -115,6 +115,22 @@ function workspace:getRegion(key)
   end
 end
 
+function workspace:switchNextWindowInStack()
+  local r = getRegionWithWindow(self.regions, hs.window.focusedWindow())
+  if r then
+    local w = r:getNextWindow()
+    w:focus()
+  end
+end
+
+function workspace:switchPrevWindowInStack()
+  local r = getRegionWithWindow(self.regions, hs.window.focusedWindow())
+  if r then
+    local w = r:getPrevWindow()
+    w:focus()
+  end
+end
+
 function getClosestWindowEast()
 end
 
