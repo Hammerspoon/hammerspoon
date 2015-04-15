@@ -77,8 +77,8 @@ static int eventtap_keyStrokes(lua_State* L) {
     luaL_checktype(L, 1, LUA_TSTRING);
     NSString *theString = [NSString stringWithUTF8String:lua_tostring(L, 1)];
 
-    CGEventSourceRef eventSource = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
-    CGEventRef keyEvent = CGEventCreateKeyboardEvent(eventSource, 0, true);
+    CGEventRef keyDownEvent = CGEventCreateKeyboardEvent(nil, 0, true);
+    CGEventRef keyUpEvent = CGEventCreateKeyboardEvent(nil, 0, false);
 
     // This superb implementation was lifted shamelessly from http://www.mail-archive.com/cocoa-dev@lists.apple.com/msg23343.html
     UniChar buffer;
@@ -86,18 +86,15 @@ static int eventtap_keyStrokes(lua_State* L) {
         [theString getCharacters:&buffer range:NSMakeRange(i, 1)];
 
         // Send the keydown
-        keyEvent = CGEventCreateKeyboardEvent(eventSource, 1, true);
-        CGEventKeyboardSetUnicodeString(keyEvent, 1, &buffer);
-        CGEventPost(kCGHIDEventTap, keyEvent);
-        CFRelease(keyEvent);
+        CGEventKeyboardSetUnicodeString(keyDownEvent, 1, &buffer);
+        CGEventPost(kCGHIDEventTap, keyDownEvent);
 
         // Send the keyup
-        keyEvent = CGEventCreateKeyboardEvent(eventSource, 1, false);
-        CGEventKeyboardSetUnicodeString(keyEvent, 1, &buffer);
-        CGEventPost(kCGHIDEventTap, keyEvent);
-        CFRelease(keyEvent);
+        CGEventKeyboardSetUnicodeString(keyUpEvent, 1, &buffer);
+        CGEventPost(kCGHIDEventTap, keyUpEvent);
     }
-    CFRelease(eventSource);
+    CFRelease(keyDownEvent);
+    CFRelease(keyUpEvent);
 
     return 0;
 }
