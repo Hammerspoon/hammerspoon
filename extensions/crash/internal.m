@@ -20,7 +20,8 @@
 /// Notes:
 ///  * This is for testing purposes only, you are extremely unlikely to need this in normal Hammerspoon usage
 static int burnTheWorld(lua_State *L __unused) {
-    int *x = NULL; *x = 42;
+    int *x = NULL;
+    *x = 42;
     return 0;
 }
 
