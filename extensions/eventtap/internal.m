@@ -86,10 +86,12 @@ static int eventtap_keyStrokes(lua_State* L) {
         [theString getCharacters:&buffer range:NSMakeRange(i, 1)];
 
         // Send the keydown
+        CGEventSetFlags(keyDownEvent, 0);
         CGEventKeyboardSetUnicodeString(keyDownEvent, 1, &buffer);
         CGEventPost(kCGHIDEventTap, keyDownEvent);
 
         // Send the keyup
+        CGEventSetFlags(keyUpEvent, 0);
         CGEventKeyboardSetUnicodeString(keyUpEvent, 1, &buffer);
         CGEventPost(kCGHIDEventTap, keyUpEvent);
     }
