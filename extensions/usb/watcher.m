@@ -77,6 +77,9 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         lua_pushstring(L, "vendorID");
         lua_pushinteger(L, privateDataRef->vendorID);
         lua_settable(L, -3);
+        lua_pushstring(L, "eventType");
+        lua_pushstring(L, "removed");
+        lua_settable(L, -3);
 
         // Call the callback
         if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
