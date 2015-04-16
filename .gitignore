@@ -1,4 +1,6 @@
 # Xcode
+*.swp
+*.suo
 .DS_Store
 build/
 *.pbxuser
