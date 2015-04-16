@@ -31,7 +31,6 @@ function region.new(x, y, w, h)
     out.h = h
     out.windows = {}
     out.currentWindow = nil
-    out.windowIndex = 0
     return out
 end
 
@@ -61,7 +60,6 @@ function region:addWindow(win)
   end
   if not hasWindow then
     table.insert(self.windows, win)
-    self.windowIndex = #self.windows
   end
   resizeWindow(self, win)
   self.currentWindow = win
@@ -73,7 +71,9 @@ function region:removeWindow(win)
     if win == w then index = i end
   end
   if index ~= -1 then
-    if #self.windows > 1 then self.currentWindow = self:getNextWindow() end
+    if #self.windows > 1 then
+      self.currentWindow = self.windows[#self.windows - 1]
+    end
     table.remove(self.windows, index)
   end
 end
@@ -83,22 +83,33 @@ function region:getCenterPoint()
   return p
 end
 
-function region:getNextWindow()
-  if self.windowIndex >= #self.windows then
-    self.windowIndex = 1
-  else
-    self.windowIndex = self.windowIndex + 1
-  end
-  return self.windows[self.windowIndex]
+function region:focusNextWindow()
+  if #self.windows == 1 then return end
+  local w = self.windows[#self.windows]
+  table.remove(self.windows, #self.windows)
+  table.insert(self.windows, 1, w)
+  self.currentWindow = self.windows[#self.windows]
+  self.currentWindow:focus()
 end
 
-function region:getPrevWindow()
-  if self.windowIndex <= 1 then
-    self.windowIndex = #self.windows
-  else
-    self.windowIndex = self.windowIndex - 1
-  end
-  return self.windows[self.windowIndex]
+function region:focusPrevWindow()
+  if #self.windows == 1 then return end
+  local w = self.windows[1]
+  table.remove(self.windows, 1)
+  table.insert(self.windows, w)
+  self.currentWindow = self.windows[#self.windows]
+  self.currentWindow:focus()
+end
+
+function restackWindows(region, reverse)
+    print("this is gettin called?")
+    for i, w in ipairs(region.windows) do
+      resizeWindow(region, w)
+    end
+    if reverse then
+      region.windows[#region.windows - 1]:focus()
+    end
+  region.currentWindow:focus()
 end
 
 --- hs.region:move(x, y)
