@@ -51,9 +51,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     // Enable Crashlytics, if we have an API key available
 #ifdef CRASHLYTICS_API_KEY
     if (HSUploadCrashData()) {
-        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY]];
         Crashlytics *crashlytics = [Crashlytics sharedInstance];
         crashlytics.debugMode = YES; // TODO: We probably don't want to leave this enabled
+        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY]];
     }
 #endif
 
@@ -68,7 +68,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
-     registerDefaults: @{MJShowDockIconKey: @YES,
+     registerDefaults: @{@"NSApplicationCrashOnExceptions": @YES,
+                         MJShowDockIconKey: @YES,
                          MJShowMenuIconKey: @YES,
                          HSAutoLoadExtensions: @YES,
                          HSUploadCrashDataKey: @YES,
