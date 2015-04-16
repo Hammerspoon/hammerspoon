@@ -4,7 +4,7 @@ current_dir := $(notdir $(patsubst %/,%,$(dir $(mkfile_path))))
 MODULE = $(current_dir)
 
 PREFIX  ?= .
-OBJCFILE = internal.m #watcher.m
+OBJCFILE = internal.m watcher.m
 LUAFILE  = init.lua
 SOFILE  := $(OBJCFILE:m=so)
 #TODO: Put this back after 1.0 DEBUG_CFLAGS ?= -g
