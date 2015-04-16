@@ -307,7 +307,7 @@ void storeInitialScreenGamma(CGDirectDisplayID display) {
 
     CGError result = CGGetDisplayTransferByTable(display, capacity, redTable, greenTable, blueTable, &count);
     if (result == kCGErrorSuccess) {
-        NSLog(@"storeInitialScreenGamma: %i", display);
+        //NSLog(@"storeInitialScreenGamma: %i", display);
         NSMutableArray *red = [NSMutableArray arrayWithCapacity:capacity];
         NSMutableArray *green = [NSMutableArray arrayWithCapacity:capacity];
         NSMutableArray *blue = [NSMutableArray arrayWithCapacity:capacity];
@@ -339,7 +339,7 @@ void getAllInitialScreenGammas() {
     CGGetActiveDisplayList(numDisplays, displays, NULL);
 
     // Iterate each display and store its gamma
-    NSLog(@"getAllInitialScreenGammas(): Found %i displays", numDisplays);
+    //NSLog(@"getAllInitialScreenGammas(): Found %i displays", numDisplays);
     for (int i = 0; i < (int)numDisplays; ++i) {
         storeInitialScreenGamma(displays[i]);
     }
@@ -471,7 +471,7 @@ static int screen_gammaSet(lua_State* L) {
         blackPoint[2] = 0.0;
     }
 
-    NSLog(@"screen_gammaSet: Fetching original gamma for display: %i", screen_id);
+    //NSLog(@"screen_gammaSet: Fetching original gamma for display: %i", screen_id);
     NSDictionary *originalGamma = [originalGammas objectForKey:[NSNumber numberWithInt:screen_id]];
     if (!originalGamma) {
         NSLog(@"screen_gammaSet: unable to fetch original gamma for display: %i", screen_id);
@@ -555,7 +555,7 @@ void screen_gammaReapply(CGDirectDisplayID display) {
     if (result != kCGErrorSuccess) {
         NSLog(@"screen_gammaReapply: ERROR: %i on display: %i", result, display);
     } else {
-        NSLog(@"screen_gammaReapply: Success");
+        //NSLog(@"screen_gammaReapply: Success");
     }
 
     return;
