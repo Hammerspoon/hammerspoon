@@ -11,7 +11,7 @@ SOFILE  := $(OBJCFILE:m=so)
 DEBUG_CFLAGS = -g
 
 CC=cc
-CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/lua/src -fobjc-arc $(EXTRA_CFLAGS)
+CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/lua/src -fobjc-arc -F../../ -framework Fabric $(EXTRA_CFLAGS)
 LDFLAGS += -dynamiclib -undefined dynamic_lookup $(EXTRA_LDFLAGS)
 
 all: $(SOFILE)

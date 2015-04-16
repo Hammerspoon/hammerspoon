@@ -1,12 +1,12 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 // ----------------------- Definitions ---------------------
 
 #define USERDATA_TAG "hs.menubar"
 #define get_item_arg(L, idx) ((menubaritem_t *)luaL_checkudata(L, idx, USERDATA_TAG))
-#define lua_to_nsstring(L, idx) [NSString stringWithUTF8String:luaL_checkstring(L, idx)]
 
 // Define a base object for our various callback handlers
 @interface HSMenubarCallbackObject : NSObject
@@ -53,7 +53,7 @@
     }
 
     if (fn_result != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);
         lua_pcall(L, 1, 0, 0);
@@ -110,7 +110,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
 
         // Check that the value is a table
         if (lua_type(L, -1) != LUA_TTABLE) {
-            NSLog(@"Error: table entry is not a menu item table: %s", lua_typename(L, lua_type(L, -1)));
+            CLS_NSLOG(@"Error: table entry is not a menu item table: %s", lua_typename(L, lua_type(L, -1)));
 
             // Pop the value off the stack, leaving the key at the top
             lua_pop(L, 1);
@@ -122,7 +122,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
         lua_getfield(L, -1, "title");
         if (!lua_isstring(L, -1)) {
             // We can't proceed without the title, we'd have nothing to display in the menu, so let's just give up and move on
-            NSLog(@"Error: malformed menu table entry. Instead of a title string, we found: %s", lua_typename(L, lua_type(L, -1)));
+            CLS_NSLOG(@"Error: malformed menu table entry. Instead of a title string, we found: %s", lua_typename(L, lua_type(L, -1)));
             // We need to pop two things off the stack - the result of lua_getfield and the table it inspected
             lua_pop(L, 2);
             // Bail to the next lua_next() call

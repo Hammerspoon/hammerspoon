@@ -4,6 +4,7 @@
 #import "MJConfigUtils.h"
 #import "variables.h"
 #import <pthread.h>
+#import "../extensions/hammerspoon.h"
 
 static lua_State* MJLuaState;
 static int evalfn;
@@ -130,15 +131,15 @@ NSString* MJLuaRunString(NSString* command) {
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, evalfn);
     if (!lua_isfunction(L, -1)) {
-        NSLog(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
+        CLS_NSLOG(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
         if (lua_isstring(L, -1)) {
-            NSLog(@"evalfn appears to be a string: %s", lua_tostring(L, -1));
+            CLS_NSLOG(@"evalfn appears to be a string: %s", lua_tostring(L, -1));
         }
         return @"";
     }
     lua_pushstring(L, [command UTF8String]);
     if (lua_pcall(L, 1, 1, -3) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");
         lua_remove(L, -2);

@@ -1,4 +1,5 @@
 #import "eventtap_event.h"
+#import "../hammerspoon.h"
 
 #define USERDATA_TAG        "hs.eventtap"
 
@@ -36,7 +37,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType __unused type, C
     new_eventtap_event(L, event);
 
     if (lua_pcall(L, 1, 2, -3) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);
         lua_pcall(L, 1, 0, 0);

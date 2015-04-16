@@ -1,10 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
-
-// ----------------------- Definitions ---------------------
-
-#define lua_to_nsstring(L, idx) [NSString stringWithUTF8String:luaL_checkstring(L, idx)]
+#import "../hammerspoon.h"
 
 // ----------------------- Objective C ---------------------
 
@@ -77,7 +74,7 @@ static int fnCallback;
     }
 
     if (lua_pcall(L, 2, 0, -4) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");
         lua_remove(L, -2);

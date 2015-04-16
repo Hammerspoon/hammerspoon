@@ -5,6 +5,7 @@
 #import <IOKit/IOCFPlugIn.h>
 #import <IOKit/usb/IOUSBLib.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 /// === hs.usb.watcher ===
 ///
@@ -83,7 +84,7 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
 
         // Call the callback
         if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-            NSLog(@"%s", lua_tostring(L, -1));
+            CLS_NSLOG(@"%s", lua_tostring(L, -1));
             lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
             lua_pushvalue(L, -2);
             lua_pcall(L, 1, 0, 0);
@@ -141,7 +142,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
         // Register for notifications relating to this device
         kr = IOServiceAddInterestNotification(watcher->gNotifyPort, usbDevice, kIOGeneralInterest, DeviceNotification, privateDataRef, &(privateDataRef->notification));
         if (KERN_SUCCESS != kr) {
-            NSLog(@"IOServiceAddInterestNotification returned 0x%08x", kr);
+            CLS_NSLOG(@"IOServiceAddInterestNotification returned 0x%08x", kr);
         }
 
         // Release data we don't need anymore
@@ -172,7 +173,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
             lua_settable(L, -3);
 
             if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-                NSLog(@"%s", lua_tostring(L, -1));
+                CLS_NSLOG(@"%s", lua_tostring(L, -1));
                 lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
                 lua_pushvalue(L, -2);
                 lua_pcall(L, 1, 0, 0);
@@ -231,7 +232,7 @@ static int usb_watcher_start(lua_State* L) {
 
     CFMutableDictionaryRef matchingDict = IOServiceMatching(kIOUSBDeviceClassName);
     if (!matchingDict) {
-        NSLog(@"Unable to create USB watcher matching dictionary");
+        CLS_NSLOG(@"Unable to create USB watcher matching dictionary");
         return 1;
     }
 

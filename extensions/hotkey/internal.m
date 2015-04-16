@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 @interface HSKeyRepeatManager : NSObject {
     NSTimer *keyRepeatTimer;
@@ -21,9 +22,9 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
 
 @implementation HSKeyRepeatManager
 - (void)startTimer:(lua_State *)luaState eventID:(int)theEventID eventKind:(int)theEventKind {
-    //NSLog(@"startTimer");
+    //CLS_NSLOG(@"startTimer");
     if (keyRepeatTimer) {
-        NSLog(@"ERROR: startTimer() called while an existing timer is running. Stopping existing one and refusing to proceed");
+        printToConsole(luaState, "ERROR: startTimer() called while an existing timer is running. Stopping existing one and refusing to proceed");
         [self stopTimer];
         return;
     }
@@ -39,7 +40,7 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
 }
 
 - (void)stopTimer {
-    //NSLog(@"stopTimer");
+    //CLS_NSLOG(@"stopTimer");
     [keyRepeatTimer invalidate];
     keyRepeatTimer = nil;
     L = nil;
@@ -48,7 +49,7 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
 }
 
 - (void)delayTimerFired:(NSTimer * __unused)timer {
-    //NSLog(@"delayTimerFired");
+    //CLS_NSLOG(@"delayTimerFired");
     trigger_hotkey_callback(L, eventID, eventType, true);
 
     [keyRepeatTimer invalidate];
@@ -60,7 +61,7 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
 }
 
 - (void)repeatTimerFired:(NSTimer * __unused)timer {
-    //NSLog(@"repeatTimerFired");
+    //CLS_NSLOG(@"repeatTimerFired");
     trigger_hotkey_callback(L, eventID, eventType, true);
 }
 
@@ -221,10 +222,10 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
     int eventKind;
     int eventUID;
 
-    //NSLog(@"hotkey_callback");
+    //CLS_NSLOG(@"hotkey_callback");
     OSStatus result = GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(eventID), NULL, &eventID);
     if (result != noErr) {
-        NSLog(@"Error handling hotkey: %d", result);
+        CLS_NSLOG(@"Error handling hotkey: %d", result);
         return noErr;
     }
 
@@ -235,9 +236,9 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
 }
 
 static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKind, BOOL isRepeat) {
-    //NSLog(@"trigger_hotkey_callback: isDown: %s, isUp: %s, isRepeat: %s", (eventKind == kEventHotKeyPressed) ? "YES" : "NO", (eventKind == kEventHotKeyReleased) ? "YES" : "NO", isRepeat ? "YES" : "NO");
+    //CLS_NSLOG(@"trigger_hotkey_callback: isDown: %s, isUp: %s, isRepeat: %s", (eventKind == kEventHotKeyPressed) ? "YES" : "NO", (eventKind == kEventHotKeyReleased) ? "YES" : "NO", isRepeat ? "YES" : "NO");
     if (!L || (lua_status(L) != LUA_OK)) {
-        NSLog(@"Error: lua thread is not in a good state");
+        printToConsole(L, "Error: lua thread is not in a good state");
         return noErr;
     }
 
@@ -245,7 +246,7 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
     lua_pop(L, 1);
 
     if (!isRepeat) {
-        //NSLog(@"trigger_hotkey_callback: not a repeat, killing the timer if it's running");
+        //CLS_NSLOG(@"trigger_hotkey_callback: not a repeat, killing the timer if it's running");
         [keyRepeatManager stopTimer];
     }
 
@@ -258,7 +259,7 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
         } else if (eventKind == kEventHotKeyReleased) {
            ref = hotkey->releasedfn;
         } else {
-            NSLog(@"Error: unknown event kind in hotkey_callback");
+            printToConsole(L, "Error: unknown event kind in hotkey_callback");
             return noErr;
         }
 
@@ -268,7 +269,7 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
 
         if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-            NSLog(@"ERROR: trigger_hotkey_callback Lua error: %s", lua_tostring(L, -1));
+            CLS_NSLOG(@"ERROR: trigger_hotkey_callback Lua error: %s", lua_tostring(L, -1));
 
             // For the sake of safety, we'll invalidate any repeat timer that's running, so we don't ruin the user's day by spamming them with errors
             [keyRepeatManager stopTimer];
@@ -280,7 +281,7 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
             lua_pcall(L, 1, 0, 0);
         } else {
             if (!isRepeat && eventKind == kEventHotKeyPressed) {
-                //NSLog(@"trigger_hotkey_callback: not a repeat, but it is a keydown, starting the timer");
+                //CLS_NSLOG(@"trigger_hotkey_callback: not a repeat, but it is a keydown, starting the timer");
                 [keyRepeatManager startTimer:L eventID:eventUID eventKind:eventKind];
             }
         }

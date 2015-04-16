@@ -2,6 +2,7 @@
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
 #import <CoreLocation/CoreLocation.h>
+#import "../hammerspoon.h"
 
 @interface HSLocation : NSObject<CLLocationManagerDelegate>
 @property (strong, atomic) CLLocationManager* manager;
@@ -22,14 +23,14 @@ static NSMutableIndexSet *locationHandlers;
 }
 
 - (void)locationManager:(CLLocationManager *)__unused manager didUpdateLocations:(NSArray *)__unused locations {
-//    NSLog(@"hs.location:didUpdateLocations %@", [[locations lastObject] description]);
+//    CLS_NSLOG(@"hs.location:didUpdateLocations %@", [[locations lastObject] description]);
     lua_State* L = self.L ;
     lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "location"); lua_remove(L, -2);
     lua_getfield(L, -1, "__dispatch"); lua_remove(L, -2);
     if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);
         lua_pcall(L, 1, 0, 0);
@@ -38,7 +39,7 @@ static NSMutableIndexSet *locationHandlers;
 }
 
 - (void)locationManager:(CLLocationManager *)__unused manager didFailWithError:(NSError *)error {
-        NSLog(@"hs.location didFailWithError: %@", error);
+        CLS_NSLOG(@"hs.location didFailWithError: %@", error);
 }
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
@@ -65,7 +66,7 @@ static NSMutableIndexSet *locationHandlers;
             msg = @"state unknown";
             break;
     }
-    NSLog(@"hs.location didChangeAuthorizationStatus authorization %@", msg);
+    CLS_NSLOG(@"hs.location didChangeAuthorizationStatus authorization %@", msg);
 }
 
 @end
@@ -77,8 +78,7 @@ BOOL manager_create(lua_State* L) {
         [location.manager setDelegate:location];
 
         if (![CLLocationManager locationServicesEnabled]) {
-            // FIXME: pop this up into the Lua console stack
-            NSLog(@"ERROR: Location Services are disabled");
+            CLS_NSLOG(@"ERROR: Location Services are disabled");
             lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
             lua_pushstring(L, "ERROR: Location Services are disabled");
             lua_pcall(L, 1, 0, 0);
@@ -149,12 +149,12 @@ static int location_stop_watching(lua_State* L __unused) {
 static int location_get_location(lua_State* L) {
     CLLocation *current = [location.manager location];
     if (!current) {
-        NSLog(@"hs.location.get(): No data yet, returning nil");
+        CLS_NSLOG(@"hs.location.get(): No data yet, returning nil");
         lua_pushnil(L);
         return 1;
     }
 
-    NSLog(@"hs.location.get(): %@", current.description);
+    CLS_NSLOG(@"hs.location.get(): %@", current.description);
     lua_newtable(L);
 
     lua_pushstring(L, "latitude");

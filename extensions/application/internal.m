@@ -3,6 +3,7 @@
 #import <lauxlib.h>
 #import "application.h"
 #import "../window/window.h"
+#import "../hammerspoon.h"
 
 #define get_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "hs.application"))
 #define nsobject_for_app(L, idx) [NSRunningApplication runningApplicationWithProcessIdentifier: pid_for_app(L, idx)]
@@ -465,7 +466,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
         CFIndex childcount = -1;
         error = AXUIElementGetAttributeValueCount(element, kAXChildrenAttribute, &childcount);
         if (error) {
-            NSLog(@"Got an error (%d) checking child count, skipping", (int)error);
+            CLS_NSLOG(@"Got an error (%d) checking child count, skipping", (int)error);
             continue;
         }
         if (childcount > 0) {
@@ -473,7 +474,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
             CFArrayRef cf_menuchildren;
             error = AXUIElementCopyAttributeValues(element, kAXChildrenAttribute, 0, childcount, &cf_menuchildren);
             if (error) {
-                NSLog(@"Got an error (%d) fetching menu children, skipping", (int)error);
+                CLS_NSLOG(@"Got an error (%d) fetching menu children, skipping", (int)error);
                 continue;
             }
             [toCheck addObjectsFromArray:(__bridge NSArray *)cf_menuchildren];
@@ -489,10 +490,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
     CFRelease(menuBar);
 
     if (i == 0) {
-        NSLog(@"WARNING: _findmenuitembyname overflowed 5000 iteration guard. You have some crazy menus, or we have a bug!");
-        lua_getglobal(L, "print");
-        lua_pushstring(L, "WARNING: _findmenuitembyname() overflowed 5000 iteration guard. This is either a Hammerspoon bug, or you have some very deep menus");
-        lua_call(L, 1, 0);
+        printToConsole(L, "WARNING: _findmenuitembyname() overflowed 5000 iteration guard. This is either a Hammerspoon bug, or you have some very deep menus");
         return nil;
     }
 
@@ -524,14 +522,14 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
         CFIndex count = -1;
         error = AXUIElementGetAttributeValueCount(searchItem, kAXChildrenAttribute, &count);
         if (error) {
-            NSLog(@"_findmenuitembypath: Failed to get child count");
+            CLS_NSLOG(@"Failed to get child count");
             break;
         }
 
         CFArrayRef cf_children;
         error = AXUIElementCopyAttributeValues(searchItem, kAXChildrenAttribute, 0, count, &cf_children);
         if (error) {
-            NSLog(@"_findmenuitembypath: Failed to get children");
+            CLS_NSLOG(@"Failed to get children");
             break;
         }
         NSArray *children = (__bridge NSArray *)cf_children;
@@ -542,7 +540,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             AXUIElementRef aSearchItem = (__bridge AXUIElementRef)[children objectAtIndex:0];
             error = AXUIElementCopyAttributeValue(aSearchItem, kAXRoleAttribute, &cf_role);
             if (error) {
-                NSLog(@"_findmenuitembypath: Failed to get role");
+                CLS_NSLOG(@"Failed to get role");
                 break;
             }
             if(!CFStringCompare((CFStringRef)cf_role, kAXMenuRole, 0)) {
@@ -550,13 +548,13 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
                 CFIndex axMenuCount = -1;
                 error = AXUIElementGetAttributeValueCount(aSearchItem, kAXChildrenAttribute, &axMenuCount);
                 if (error) {
-                    NSLog(@"_findmenuitembypath: Failed to get AXMenu child count");
+                    CLS_NSLOG(@"Failed to get AXMenu child count");
                     break;
                 }
                 CFArrayRef axMenuChildren;
                 error = AXUIElementCopyAttributeValues(aSearchItem, kAXChildrenAttribute, 0, axMenuCount, &axMenuChildren);
                 if (error) {
-                    NSLog(@"_findmenuitembypath: Failed to get AXMenu children");
+                    CLS_NSLOG(@"Failed to get AXMenu children");
                     break;
                 }
                 // Replace the existing children array with the new one we have retrieved
@@ -576,7 +574,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
                 // Something is very wrong, tell the test loop to stop
                 *stop = true;
                 return false;
-                NSLog(@"_findmenuitembypath: Unable to get menu item title");
+                CLS_NSLOG(@"Unable to get menu item title");
             }
             NSString *title = (__bridge_transfer NSString *)cf_title;
 
@@ -584,7 +582,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             return [title isEqualToString:nextMenuItem];
         }];
         if (childIndex == NSNotFound) {
-            NSLog(@"_findmenuitembypath: Unable to solve complete menu path");
+            CLS_NSLOG(@"Unable to solve complete menu path");
             break;
         }
 
@@ -634,16 +632,16 @@ static int application_findmenuitem(lua_State* L) {
         }
         foundItem = _findmenuitembypath(L, app, path);
     } else {
-        NSLog(@"no idea what menuitem is"); // FIXME: Bubble up an error reasonably, here
+        printToConsole(L, "hs.application:findMenuItem: Unrecognised type for menuItem argument. Expecting string or table.");
         lua_pushnil(L);
         return 1;
     }
 
     if (!foundItem) {
         if (name) {
-            NSLog(@"Couldn't find menu item %@", name);
+            CLS_NSLOG(@"Couldn't find menu item %@", name);
         } else if (path) {
-            NSLog(@"Couldn't find menu item");
+            CLS_NSLOG(@"Couldn't find menu item");
         }
         lua_pushnil(L);
         return 1;
@@ -652,14 +650,14 @@ static int application_findmenuitem(lua_State* L) {
     CFTypeRef enabled;
     error = AXUIElementCopyAttributeValue(foundItem, kAXEnabledAttribute, &enabled);
     if (error) {
-        NSLog(@"AXEnabled Error: %d", error);
+        CLS_NSLOG(@"hs.application:findMenuItem: AXEnabled Error: %d", error);
         lua_pushnil(L);
         return 1;
     }
     CFTypeRef markchar;
     error = AXUIElementCopyAttributeValue(foundItem, kAXMenuItemMarkCharAttribute, &markchar);
     if (error && error != kAXErrorNoValue) {
-        NSLog(@"AXMenuItemMarkChar: %d", error);
+        CLS_NSLOG(@"hs.application:findMenuItem: AXMenuItemMarkChar: %d", error);
         lua_pushnil(L);
         return 1;
     }
@@ -716,20 +714,20 @@ static int application_selectmenuitem(lua_State* L) {
         }
         foundItem = _findmenuitembypath(L, app, path);
     } else {
-        NSLog(@"no idea what menuitem is"); // FIXME: Bubble up an error reasonably, here
+        printToConsole(L, "hs.application:selectMenuItem(): Unrecognised type for menuItem argument, expecting string or table");
         lua_pushnil(L);
         return 1;
     }
 
     if (!foundItem) {
-        NSLog(@"Couldn't find %@", name);
+        CLS_NSLOG(@"Couldn't find %@", name);
         lua_pushnil(L);
         return 1;
     }
 
     AXError error = AXUIElementPerformAction(foundItem, kAXPressAction);
     if (error) {
-        NSLog(@"AXPress error: %d", (int)error);
+        CLS_NSLOG(@"hs.application:selectMenuItem(): AXPress error: %d", (int)error);
         lua_pushnil(L);
         return 1;
     }
