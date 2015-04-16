@@ -348,6 +348,7 @@ void getAllInitialScreenGammas() {
 
 void screen_gammaReapply(CGDirectDisplayID display);
 void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSummaryFlags flags, void *userInfo __unused) {
+    /*
     NSLog(@"displayReconfigurationCallback. Display: %i Flags: %i", display, flags);
     if (flags & kCGDisplayAddFlag) {
         NSLog(@"  display added");
@@ -382,6 +383,7 @@ void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSu
     if (flags & kCGDisplayDesktopShapeChangedFlag) {
         NSLog(@"  display desktopShapeChanged");
     }
+    */
 
     if (flags & kCGDisplayAddFlag) {
         storeInitialScreenGamma(display);
