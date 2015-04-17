@@ -1,8 +1,8 @@
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
-
 #import <IOKit/ps/IOPowerSources.h>
 #import <IOKit/ps/IOPSKeys.h>
+#import "../hammerspoon.h"
 
 /// === hs.battery.watcher ===
 ///
@@ -51,7 +51,7 @@ static void callback(void *info) {
     lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, t->fn);
     if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);
         lua_pcall(L, 1, 0, 0);

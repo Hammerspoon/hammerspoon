@@ -2,6 +2,7 @@
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
 #import "application.h"
+#import "../hammerspoon.h"
 
 /// === hs.application.watcher ===
 ///
@@ -122,7 +123,7 @@ typedef enum _event_t {
     }
 
     if (lua_pcall(L, 3, 0, -5) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");
         lua_remove(L, -2);

@@ -4,6 +4,7 @@
 #import "uielement.h"
 #import "../window/window.h"
 #import "../application/application.h"
+#import "../hammerspoon.h"
 
 #define get_element(L, idx) *((AXUIElementRef*)lua_touserdata(L, idx))
 
@@ -14,8 +15,8 @@ NSArray *eventNames;
 
 static void new_uielement(lua_State* L, AXUIElementRef element) {
     AXUIElementRef* elementptr = lua_newuserdata(L, sizeof(AXUIElementRef));
-    if (!elementptr) NSLog(@"elementptr is nil!");
-    if (!element) NSLog(@"new_uielement called with nil element!");
+    if (!elementptr) CLS_NSLOG(@"elementptr is nil!");
+    if (!element) CLS_NSLOG(@"new_uielement called with nil element!");
     *elementptr = element;
 
     luaL_getmetatable(L, userdataTag);
@@ -178,7 +179,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->user_data_ref); // Parameter 4: userData
 
     if (lua_pcall(L, 4, 0, -6) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");
         lua_remove(L, -2);
@@ -195,7 +196,7 @@ static int watcher_start(lua_State* L) {
     AXObserverRef observer = NULL;
     AXError err = AXObserverCreate(watcher->pid, watcher_observer_callback, &observer);
     if (err != kAXErrorSuccess) {
-        NSLog(@"AXObserverCreate error: %d", (int)err);
+        CLS_NSLOG(@"AXObserverCreate error: %d", (int)err);
         return 0;
     }
 
@@ -211,7 +212,7 @@ static int watcher_start(lua_State* L) {
         if (stringIndex != NSNotFound) {
             AXObserverAddNotification(observer, watcher->element, (__bridge CFStringRef)[eventNames objectAtIndex:stringIndex], watcher);
         } else {
-            NSLog(@"Unable to find uielement.watcher event: %@", (__bridge NSString*)eventName);
+            CLS_NSLOG(@"Unable to find uielement.watcher event: %@", (__bridge NSString*)eventName);
         }
 
         CFRelease(eventName);

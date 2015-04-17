@@ -2,6 +2,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 // Common Code
 
@@ -74,7 +75,7 @@ typedef struct _notification_t {
 @implementation ourNotificationManager
 
 + (ourNotificationManager*) sharedManagerForLua:(lua_State*)L {
-//NSLog(@"sharedManagerForLua") ;
+//CLS_NSLOG(@"sharedManagerForLua") ;
 //    static ourNotificationManager* sharedManager;
     if (!sharedManager) {
         sharedManager = [[ourNotificationManager alloc] init];
@@ -86,23 +87,23 @@ typedef struct _notification_t {
 }
 
 - (void) sendNotification:(NSUserNotification*)note {
-//NSLog(@"sendNotification") ;
+//CLS_NSLOG(@"sendNotification") ;
     [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification: note];
 }
 
 - (void) releaseNotification:(NSUserNotification*)note {
-//NSLog(@"releaseNotification") ;
+//CLS_NSLOG(@"releaseNotification") ;
     NSNumber* value = [[note userInfo] objectForKey:@"handler"];
     if (value) {
         [self.activeCallbacks removeObjectForKey:[[note userInfo] objectForKey:@"handler"]];
         note.userInfo = @{};
     } else {
-        NSLog(@"releaseNotification: no tagged handler -- already released?");
+        CLS_NSLOG(@"no tagged handler -- already released?");
     }
 }
 
 - (void *) withdrawNotification:(NSUserNotification*)note {
-//NSLog(@"withdrawNotification") ;
+//CLS_NSLOG(@"withdrawNotification") ;
 
     [[NSUserNotificationCenter defaultUserNotificationCenter] removeDeliveredNotification: note];
     return (__bridge_retained void *) [note copy] ;
@@ -112,11 +113,11 @@ typedef struct _notification_t {
 // Notification delivered to Notification Center
 - (void)userNotificationCenter:(NSUserNotificationCenter __unused *)center
     didDeliverNotification:(NSUserNotification *)notification {
-//NSLog(@"didDeliverNotification") ;
+//CLS_NSLOG(@"didDeliverNotification") ;
         NSNumber* value = [[notification userInfo] objectForKey:@"handler"];
         if (value) {
             [self.activeCallbacks setObject:@1 forKey:value];
-//NSLog(@"uservalue = %@", value) ;
+//CLS_NSLOG(@"uservalue = %@", value) ;
             int myHandle = [value intValue];
             lua_State* L = self.L;
             lua_rawgeti(L, LUA_REGISTRYINDEX, (int)myHandle);
@@ -128,25 +129,25 @@ typedef struct _notification_t {
                 if (thisNote) {
                     thisNote->delivered = YES;
                 } else {
-                    NSLog(@"didDeliverNotification: userdata NULL");
+                    CLS_NSLOG(@"userdata NULL");
                 }
             } else {
-                NSLog(@"didDeliverNotification: userdata already released");
+                CLS_NSLOG(@"userdata already released");
             }
         } else {
-            NSLog(@"didDeliverNotification: no tagged handler -- not ours?");
+            CLS_NSLOG(@"no tagged handler -- not ours?");
         }
     }
 
 // User clicked on notification...
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center
     didActivateNotification:(NSUserNotification *)notification {
-//NSLog(@"didActivateNotification") ;
+//CLS_NSLOG(@"didActivateNotification") ;
         NSNumber* value = [[notification userInfo] objectForKey:@"handler"];
         if (value) {
             if ([self.activeCallbacks objectForKey:value]) {
                 if (value) {
-//NSLog(@"uservalue = %@", value) ;
+//CLS_NSLOG(@"uservalue = %@", value) ;
                     int myHandle = [value intValue];
                     lua_State* L = self.L;
                     if (L && (lua_status(L) == LUA_OK)) {
@@ -163,26 +164,26 @@ typedef struct _notification_t {
                                 lua_rawgeti(L, LUA_REGISTRYINDEX, thisNote->fn);
                                 lua_pushvalue(L, -3);
                                 if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-                                    NSLog(@"%s", lua_tostring(L, -1));
+                                    CLS_NSLOG(@"%s", lua_tostring(L, -1));
                                     lua_getglobal(L, "hs"); lua_getfield(L, -1, "showerror"); lua_remove(L, -2);
                                     lua_pushvalue(L, -2);
                                     lua_pcall(L, 1, 0, 0);
                                 }
                             } else {
-                                NSLog(@"didActivateNotification: userdata NULL");
+                                CLS_NSLOG(@"userdata NULL");
                             }
                         } else {
-                            NSLog(@"didActivateNotification: userdata already released");
+                            CLS_NSLOG(@"userdata already released");
                         }
                     } else {
-                        NSLog(@"undefined lua_State -- ours went away, didn't it?") ;
+                        CLS_NSLOG(@"undefined lua_State -- ours went away, didn't it?") ;
                     }
                 }
             } else {
-                NSLog(@"didActivateNotification: handler not Active");
+                CLS_NSLOG(@"handler not Active");
             }
         } else {
-            NSLog(@"didActivateNotification: no tagged handler -- passing along");
+            CLS_NSLOG(@"no tagged handler -- passing along");
             [old_delegate userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:notification];
         }
     }
@@ -190,10 +191,10 @@ typedef struct _notification_t {
 // Should notification show, even if we're the foremost application?
 - (BOOL)userNotificationCenter:(NSUserNotificationCenter __unused *)center
     shouldPresentNotification:(NSUserNotification *)notification {
-//NSLog(@"shouldPresentNotification") ;
+//CLS_NSLOG(@"shouldPresentNotification") ;
         NSNumber* value = [[notification userInfo] objectForKey:@"handler"];
         if (value) {
-//NSLog(@"uservalue = %@", value) ;
+//CLS_NSLOG(@"uservalue = %@", value) ;
             int myHandle = [value intValue];
             lua_State* L = self.L;
             lua_rawgeti(L, LUA_REGISTRYINDEX, (int)myHandle);
@@ -205,15 +206,15 @@ typedef struct _notification_t {
                 if (thisNote) {
                     return thisNote->alwaysPresent;
                 } else {
-                    NSLog(@"shouldPresentNotification: userdata NULL");
+                    CLS_NSLOG(@"userdata NULL");
                    return YES;
                 }
             } else {
-                NSLog(@"shouldPresentNotification: userdata already released");
+                CLS_NSLOG(@"userdata already released");
                 return YES;
             }
         } else {
-            NSLog(@"shouldPresentNotification: no tagged handler -- not ours?");
+            CLS_NSLOG(@"no tagged handler -- not ours?");
            return YES;
         }
     }
@@ -251,7 +252,7 @@ static int notification_delegate_setup(lua_State* L) {
 /// Notes:
 ///  * This will withdraw all notifications for Hammerspoon, including those not sent by us or that linger from previous loads of Hammerspoon.
 static int notification_withdraw_all(lua_State* __unused L) {
-//NSLog(@"notification_withdraw_all");
+//CLS_NSLOG(@"notification_withdraw_all");
     [[NSUserNotificationCenter defaultUserNotificationCenter] removeAllDeliveredNotifications];
     return 0;
 }
@@ -260,7 +261,7 @@ static int notification_withdraw_all(lua_State* __unused L) {
 // Constructor
 // Returns a new notification object with the specified information and the assigned callback function.
 static int notification_new(lua_State* L) {
-//NSLog(@"notification_new");
+//CLS_NSLOG(@"notification_new");
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     notification_t* notification = lua_newuserdata(L, sizeof(notification_t)) ;
@@ -299,7 +300,7 @@ static int notification_new(lua_State* L) {
 ///  * If a notification has been modified, then this will resend it, setting the delivered status again.
 ///  * You can invoke this multiple times if you wish to repeat the same notification.
 static int notification_send(lua_State* L) {
-//NSLog(@"notification_send");
+//CLS_NSLOG(@"notification_send");
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
     [[ourNotificationManager sharedManagerForLua:L] sendNotification:(__bridge NSUserNotification*)notification->note];
@@ -319,7 +320,7 @@ static int notification_send(lua_State* L) {
 /// Notes:
 ///  * This is automatically invoked during garbage collection and when Hammerspoon reloads its config 
 static int notification_release(lua_State* L) {
-//NSLog(@"notification_release");
+//CLS_NSLOG(@"notification_release");
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
     [[ourNotificationManager sharedManagerForLua:L] releaseNotification:(__bridge NSUserNotification*)notification->note];
@@ -342,7 +343,7 @@ static int notification_release(lua_State* L) {
 /// Notes:
 ///  * If you modify a delivered note, even with `hs.notify:release()`, then it is no longer considered delivered and this method will do nothing.  To fully remove a notification, invoke this method and then invoke `hs.notify:release()`, not the other way around.
 static int notification_withdraw(lua_State* L) {
-//NSLog(@"notification_withdraw");
+//CLS_NSLOG(@"notification_withdraw");
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
     notification->note = [[ourNotificationManager sharedManagerForLua:L] withdrawNotification:(__bridge NSUserNotification*)notification->note];
@@ -555,7 +556,7 @@ static int notification_soundName(lua_State* L) {
 /// Notes:
 ///  * A typical example of why Notification Center would choose not to display a notification would be if Hammerspoon is the currently focussed application. Others may include being attached to a projector, or the user having set Do Not Disturb
 static int notification_presented(lua_State* L) {
-//NSLog(@"notification_presented");
+//CLS_NSLOG(@"notification_presented");
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushboolean(L, ((__bridge NSUserNotification *) notification->note).presented);
     return 1;
@@ -571,7 +572,7 @@ static int notification_presented(lua_State* L) {
 /// Returns:
 ///  * A boolean indicating whether the notification has been delivered to Notification Center
 static int notification_delivered(lua_State* L) {
-//NSLog(@"notification_delivered");
+//CLS_NSLOG(@"notification_delivered");
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushboolean(L, notification->delivered);
     return 1;
@@ -646,7 +647,7 @@ static void notification_activationTypeTable(lua_State *L) {
 }
 
 static int notification_gc(lua_State* L) {
-//NSLog(@"notification_gc");
+//CLS_NSLOG(@"notification_gc");
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
 
     lua_pushcfunction(L, notification_release) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
@@ -655,7 +656,7 @@ static int notification_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-//NSLog(@"meta_gc");
+//CLS_NSLOG(@"meta_gc");
     [notificationHandlers removeAllIndexes];
     notificationHandlers = nil;
 

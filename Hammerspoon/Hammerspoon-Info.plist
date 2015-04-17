@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.9.28</string>
+	<string>0.9.29</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -36,7 +36,12 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>0.9.28</string>
+	<string>0.9.29</string>
+	<key>Fabric</key>
+	<dict>
+		<key>APIKey</key>
+		<string>a9a43ddffec0ebfb007388756dfd662a9c153188</string>
+	</dict>
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>NSHumanReadableCopyright</key>

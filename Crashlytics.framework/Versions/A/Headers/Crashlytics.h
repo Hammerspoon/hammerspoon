@@ -2,53 +2,19 @@
 //  Crashlytics.h
 //  Crashlytics
 //
-//  Copyright 2013 Crashlytics, Inc. All rights reserved.
+//  Copyright (c) 2015 Crashlytics, Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-/**
- *
- * The CLS_LOG macro provides as easy way to gather more information in your log messages that are
- * sent with your crash data. CLS_LOG prepends your custom log message with the function name and
- * line number where the macro was used. If your app was built with the DEBUG preprocessor macro
- * defined CLS_LOG uses the CLSNSLog function which forwards your log message to NSLog and CLSLog.
- * If the DEBUG preprocessor macro is not defined CLS_LOG uses CLSLog only.
- *
- * Example output:
- * -[AppDelegate login:] line 134 $ login start
- *
- * If you would like to change this macro, create a new header file, unset our define and then define
- * your own version. Make sure this new header file is imported after the Crashlytics header file.
- *
- * #undef CLS_LOG
- * #define CLS_LOG(__FORMAT__, ...) CLSNSLog...
- *
- **/
-#ifdef DEBUG
-#define CLS_LOG(__FORMAT__, ...) CLSNSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
-#else
-#define CLS_LOG(__FORMAT__, ...) CLSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
-#endif
+#import <Fabric/FABAttributes.h>
+#import "CLSLogging.h"
+#import "CLSReport.h"
+#import "CLSStackFrame.h"
 
-/**
- *
- * Add logging that will be sent with your crash data. This logging will not show up in the system.log
- * and will only be visible in your Crashlytics dashboard.
- *
- **/
-OBJC_EXTERN void CLSLog(NSString *format, ...) NS_FORMAT_FUNCTION(1,2);
-OBJC_EXTERN void CLSLogv(NSString *format, va_list args) NS_FORMAT_FUNCTION(1,0);
+#define CLS_DEPRECATED(x)  __attribute__ ((deprecated(x)))
 
-/**
- *
- * Add logging that will be sent with your crash data. This logging will show up in the system.log
- * and your Crashlytics dashboard. It is not recommended for Release builds.
- *
- **/
-OBJC_EXTERN void CLSNSLog(NSString *format, ...) NS_FORMAT_FUNCTION(1,2);
-OBJC_EXTERN void CLSNSLogv(NSString *format, va_list args) NS_FORMAT_FUNCTION(1,0);
-
+FAB_START_NONNULL
 
 @protocol CrashlyticsDelegate;
 
@@ -58,19 +24,20 @@ OBJC_EXTERN void CLSNSLogv(NSString *format, va_list args) NS_FORMAT_FUNCTION(1,
 @property (nonatomic, readonly, copy) NSString *version;
 @property (nonatomic, assign)         BOOL      debugMode;
 
-@property (nonatomic, assign)         NSObject <CrashlyticsDelegate> *delegate;
+@property (nonatomic, assign)         NSObject <CrashlyticsDelegate> * FAB_NULLABLE delegate;
 
 /**
  *
  * The recommended way to install Crashlytics into your application is to place a call
- * to +startWithAPIKey: in your -application:didFinishLaunchingWithOptions: method.
+ * to +startWithAPIKey: in your -application:didFinishLaunchingWithOptions:/-applicationDidFinishLaunching:
+ * method.
  *
- * This delay defaults to 1 second in order to generally give the application time to
- * fully finish launching.
+ * Note: Starting with 3.0, the submission process has been significantly improved. The delay parameter
+ * is no longer required to throttle submissions on launch, performance will be great without it.
  *
  **/
 + (Crashlytics *)startWithAPIKey:(NSString *)apiKey;
-+ (Crashlytics *)startWithAPIKey:(NSString *)apiKey afterDelay:(NSTimeInterval)delay;
++ (Crashlytics *)startWithAPIKey:(NSString *)apiKey afterDelay:(NSTimeInterval)delay CLS_DEPRECATED("Crashlytics no longer needs or uses the delay parameter.  Please use +startWithAPIKey: instead.");
 
 /**
  *
@@ -78,8 +45,8 @@ OBJC_EXTERN void CLSNSLogv(NSString *format, va_list args) NS_FORMAT_FUNCTION(1,
  * these convenience methods to activate the framework and set the delegate in one call.
  *
  **/
-+ (Crashlytics *)startWithAPIKey:(NSString *)apiKey delegate:(NSObject <CrashlyticsDelegate> *)delegate;
-+ (Crashlytics *)startWithAPIKey:(NSString *)apiKey delegate:(NSObject <CrashlyticsDelegate> *)delegate afterDelay:(NSTimeInterval)delay;
++ (Crashlytics *)startWithAPIKey:(NSString *)apiKey delegate:(NSObject <CrashlyticsDelegate> * FAB_NULLABLE)delegate;
++ (Crashlytics *)startWithAPIKey:(NSString *)apiKey delegate:(NSObject <CrashlyticsDelegate> * FAB_NULLABLE)delegate afterDelay:(NSTimeInterval)delay CLS_DEPRECATED("Crashlytics no longer needs or uses the delay parameter.  Please use +startWithAPIKey:delegate: instead.");
 
 /**
  *
@@ -90,10 +57,11 @@ OBJC_EXTERN void CLSNSLogv(NSString *format, va_list args) NS_FORMAT_FUNCTION(1,
 
 /**
  *
- * The easiest way to cause a crash - great for testing!
+ * The easiest ways to cause a crash - great for testing!
  *
  **/
 - (void)crash;
+- (void)throwException;
 
 /**
  *
@@ -115,73 +83,42 @@ OBJC_EXTERN void CLSNSLogv(NSString *format, va_list args) NS_FORMAT_FUNCTION(1,
  * policy. Data privacy is of our utmost concern.
  *
  **/
-- (void)setUserIdentifier:(NSString *)identifier;
-- (void)setUserName:(NSString *)name;
-- (void)setUserEmail:(NSString *)email;
+- (void)setUserIdentifier:(NSString * FAB_NULLABLE)identifier;
+- (void)setUserName:(NSString * FAB_NULLABLE)name;
+- (void)setUserEmail:(NSString * FAB_NULLABLE)email;
 
-+ (void)setUserIdentifier:(NSString *)identifier;
-+ (void)setUserName:(NSString *)name;
-+ (void)setUserEmail:(NSString *)email;
++ (void)setUserIdentifier:(NSString * FAB_NULLABLE)identifier CLS_DEPRECATED("Please access this method via +sharedInstance");
++ (void)setUserName:(NSString * FAB_NULLABLE)name CLS_DEPRECATED("Please access this method via +sharedInstance");
++ (void)setUserEmail:(NSString * FAB_NULLABLE)email CLS_DEPRECATED("Please access this method via +sharedInstance");
 
 /**
  *
- * Set a value for a key to be associated with your crash data.
+ * Set a value for a key to be associated with your crash data. When setting an object value, the object
+ * is converted to a string. This is typically done by calling -[NSObject description].
  *
  **/
-- (void)setObjectValue:(id)value forKey:(NSString *)key;
+- (void)setObjectValue:(id FAB_NULLABLE)value forKey:(NSString *)key;
 - (void)setIntValue:(int)value forKey:(NSString *)key;
 - (void)setBoolValue:(BOOL)value forKey:(NSString *)key;
 - (void)setFloatValue:(float)value forKey:(NSString *)key;
 
-+ (void)setObjectValue:(id)value forKey:(NSString *)key;
-+ (void)setIntValue:(int)value forKey:(NSString *)key;
-+ (void)setBoolValue:(BOOL)value forKey:(NSString *)key;
-+ (void)setFloatValue:(float)value forKey:(NSString *)key;
-
-@end
++ (void)setObjectValue:(id FAB_NULLABLE)value forKey:(NSString *)key CLS_DEPRECATED("Please access this method via +sharedInstance");
++ (void)setIntValue:(int)value forKey:(NSString *)key CLS_DEPRECATED("Please access this method via +sharedInstance");
++ (void)setBoolValue:(BOOL)value forKey:(NSString *)key CLS_DEPRECATED("Please access this method via +sharedInstance");
++ (void)setFloatValue:(float)value forKey:(NSString *)key CLS_DEPRECATED("Please access this method via +sharedInstance");
 
 /**
- * The CLSCrashReport protocol exposes methods that you can call on crash report objects passed
- * to delegate methods. If you want these values or the entire object to stay in memory retain
- * them or copy them.
+ *
+ * This method can be used to record a single exception structure in a report. This is particularly useful
+ * when your code interacts with non-native languages like Lua, C#, or Javascript. This call can be
+ # expensive and should only be used shortly before process termination. This API is not intended be to used
+ * to log NSException objects. All safely-reportable NSExceptions are automatically captured by
+ * Crashlytics.
+ *
+ * The frameArray argument should contain only CLSStackFrame instances.
+ *
  **/
-@protocol CLSCrashReport <NSObject>
-@required
-
-/**
- * Returns the session identifier for the crash report.
- **/
-@property (nonatomic, readonly) NSString *identifier;
-
-/**
- * Returns the custom key value data for the crash report.
- **/
-@property (nonatomic, readonly) NSDictionary *customKeys;
-
-/**
- * Returns the CFBundleVersion of the application that crashed.
- **/
-@property (nonatomic, readonly) NSString *bundleVersion;
-
-/**
- * Returns the CFBundleShortVersionString of the application that crashed.
- **/
-@property (nonatomic, readonly) NSString *bundleShortVersionString;
-
-/**
- * Returns the date that the application crashed at.
- **/
-@property (nonatomic, readonly) NSDate *crashedOnDate;
-
-/**
- * Returns the os version that the application crashed on.
- **/
-@property (nonatomic, readonly) NSString *OSVersion;
-
-/**
- * Returns the os build version that the application crashed on.
- **/
-@property (nonatomic, readonly) NSString *OSBuildVersion;
+- (void)recordCustomExceptionName:(NSString *)name reason:(NSString * FAB_NULLABLE)reason frameArray:(NSArray *)frameArray;
 
 @end
 
@@ -190,7 +127,7 @@ OBJC_EXTERN void CLSNSLogv(NSString *format, va_list args) NS_FORMAT_FUNCTION(1,
  * The CrashlyticsDelegate protocol provides a mechanism for your application to take
  * action on events that occur in the Crashlytics crash reporting system.  You can make
  * use of these calls by assigning an object to the Crashlytics' delegate property directly,
- * or through the convenience startWithAPIKey:delegate:... methods.
+ * or through the convenience +startWithAPIKey:delegate: method.
  *
  **/
 @protocol CrashlyticsDelegate <NSObject>
@@ -204,7 +141,7 @@ OBJC_EXTERN void CLSNSLogv(NSString *format, va_list args) NS_FORMAT_FUNCTION(1,
  * startWithAPIKey:... calls, this will take at least that long to be invoked.
  *
  **/
-- (void)crashlyticsDidDetectCrashDuringPreviousExecution:(Crashlytics *)crashlytics;
+- (void)crashlyticsDidDetectCrashDuringPreviousExecution:(Crashlytics *)crashlytics CLS_DEPRECATED("Please refer to -crashlyticsDidDetectReportForLastExecution:");
 
 /**
  *
@@ -215,6 +152,43 @@ OBJC_EXTERN void CLSNSLogv(NSString *format, va_list args) NS_FORMAT_FUNCTION(1,
  * This method is called after crashlyticsDidDetectCrashDuringPreviousExecution.
  *
  **/
-- (void)crashlytics:(Crashlytics *)crashlytics didDetectCrashDuringPreviousExecution:(id <CLSCrashReport>)crash;
+- (void)crashlytics:(Crashlytics *)crashlytics didDetectCrashDuringPreviousExecution:(id <CLSCrashReport>)crash CLS_DEPRECATED("Please refer to -crashlyticsDidDetectReportForLastExecution:");
+
+/**
+ *
+ * Called when a Crashlytics instance has determined that the last execution of the
+ * application ended in a crash.  This is called synchronously on Crashlytics
+ * initialization. Your delegate must invoke the completionHandler, but does not need to do so 
+ * synchronously, or even on the main thread. Invoking completionHandler with NO will cause the
+ * detected report to be deleted and not submitted to Crashlytics. This is useful for
+ * implementing permission prompts, or other more-complex forms of logic around submitting crashes.
+ *
+ * Failure to invoke the completionHandler will prevent submissions from being reported. Watch out.
+ * 
+ * Just implementing this delegate method will disable all forms of synchronous report submission. This can
+ * impact the reliability of reporting crashes very early in application launch.
+ *
+ **/
+
+- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler;
+
+/**
+ *
+ * If your app is running on an OS that supports it (OS X 10.9+, iOS 7.0+), Crashlytics will submit
+ * most reports using out-of-process background networking operations. This results in a significant
+ * improvement in reliability of reporting, as well as power and performance wins for your users.
+ * If you don't want this functionality, you can disable by returning NO from this method.
+ *
+ * Note: background submission is not supported for extensions on iOS or OS X.
+ *
+ **/
+- (BOOL)crashlyticsCanUseBackgroundSessions:(Crashlytics *)crashlytics;
 
 @end
+
+/**
+ *  `CrashlyticsKit` can be used as a parameter to `[Fabric with:@[CrashlyticsKit]];` in Objective-C. In Swift, simply use `Crashlytics()`
+ */
+#define CrashlyticsKit [Crashlytics sharedInstance]
+
+FAB_END_NONNULL

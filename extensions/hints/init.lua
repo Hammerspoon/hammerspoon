@@ -41,6 +41,7 @@ local openHints = {}
 local takenPositions = {}
 local hintDict = {}
 local modalKey = nil
+local selectionCallback = nil
 
 local bumpThresh = 40^2
 local bumpMove = 80
@@ -128,21 +129,31 @@ function hints.displayHintsForDict(dict, prefixstring, showTitles)
 end
 
 function hints.processChar(char)
+  local toFocus = nil
+
   if hintDict[char] ~= nil then
     hints.closeHints()
     if type(hintDict[char]) == "userdata" then
-      if hintDict[char] then hintDict[char]:focus() end
-      modalKey:exit()
+      if hintDict[char] then
+          toFocus = hintDict[char]
+      end
     elseif type(hintDict[char]) == "table" then
       hintDict = hintDict[char]
       if hintDict.count == 1 then
-        hintDict.A:focus()
-        modalKey:exit()
+        toFocus = hintDict.A
       else
         takenPositions = {}
         hints.displayHintsForDict(hintDict, "")
       end
     end
+  end
+
+  if toFocus then
+      toFocus:focus()
+      modalKey:exit()
+      if selectionCallback then
+          selectionCallback(toFocus)
+      end
   end
 end
 
@@ -156,26 +167,26 @@ function hints.setupModal()
   return k
 end
 
---- hs.hints.windowHints(windows)
+--- hs.hints.windowHints([windows, callback])
 --- Function
 --- Displays a keyboard hint for switching focus to each window
 ---
 --- Parameters:
----  * windows - A table containing some `hs.window` objects
+---  * windows - An optional table containing some `hs.window` objects. If this value is nil, all windows will be hinted
+---  * callback - An optional function that will be called when a window has been selected by the user. The function will be called with a single argument containing the `hs.window` object of the window chosen by the user
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
----  * If there are more windows open than there are characters available in hs.hints.hintChars,
----    we resort to multi-character hints
----  * If hints.style is set to "vimperator", every window hint is prefixed with the first
----    character of the parent application's name
+---  * If there are more windows open than there are characters available in hs.hints.hintChars, multiple characters will be used
+---  * If hints.style is set to "vimperator", every window hint is prefixed with the first character of the parent application's name
 ---  * To display hints only for the currently focused application, try something like:
 ---   * `hs.hints.windowHints(hs.window.focusedWindow():application():allWindows())`
-function hints.windowHints(windows)
+function hints.windowHints(windows, callback)
 
   windows = windows or window.allWindows()
+  selectionCallback = callback
 
   if (modalKey == nil) then
     modalKey = hints.setupModal()

@@ -1,12 +1,13 @@
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 CFRunLoopSourceRef runloopSource = nil;
 
 CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, CFDataRef data, void *info) {
     lua_State* L = info;
 
-//    NSLog(@"ipc-callback: local:%@ msgid:%d", local, msgid);
+//    CLS_NSLOG(@"ipc-callback: local:%@ msgid:%d", local, msgid);
     CFStringRef instr = CFStringCreateFromExternalRepresentation(NULL, data, kCFStringEncodingUTF8);
 
     const char* cmd = CFStringGetCStringPtr(instr, kCFStringEncodingUTF8);

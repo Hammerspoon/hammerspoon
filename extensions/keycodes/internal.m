@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 static void pushkeycode(lua_State* L, int code, const char* key) {
     // t[key] = code
@@ -186,7 +187,7 @@ int keycodes_cachemap(lua_State* L) {
     lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.ref);
     if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");
         lua_remove(L, -2);
