@@ -1,9 +1,12 @@
--- Lua and Objective-C mixed modules can have a very simple init.lua
--- All it needs to do is cause Hammerspoon to load internal.so and return
--- that object.
---
--- Alternatively, you can supply additional Lua functions on top of the 
--- Objective-C ones, by simply adding them to the module's namespace, as
--- shown in the pure-lua sample extension.
+-- Simple loader for the Objective C code
 local http = require("hs.http.internal")
+
+http.get = function(url,headers)
+	return http.doRequest(url,"GET",nil,headers)
+end
+
+http.post = function(url,data,headers)
+	return http.doRequest(url,"POST",data,headers)
+end
+
 return http
