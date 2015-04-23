@@ -274,6 +274,7 @@ function workspace:applyAppMapLayout(map)
         if window then region:addWindow(window) end
       end
     end
+    region.currentWindow:focus()
   end
 end
 
@@ -336,18 +337,23 @@ end
 function workspace:switchNextWindowInStack()
   local r = getRegionWithWindow(self.regions, hs.window.focusedWindow())
   if r then
-    local w = r:focusNextWindow()
+    r:focusNextWindow()
   end
 end
 
 function workspace:switchPrevWindowInStack()
   local r = getRegionWithWindow(self.regions, hs.window.focusedWindow())
   if r then
-    local w = r:focusPrevWindow()
+    r:focusPrevWindow()
   end
 end
 
-function getClosestWindowEast()
+function workspace:resetWindow()
+    local w = hs.window.focusedWindow()
+    local r = getRegionWithWindow(self.regions, w)
+    if r then
+        r:addWindow(w)
+    end
 end
 
 function getRegionWithWindow(regions, win)
@@ -359,18 +365,6 @@ function getRegionWithWindow(regions, win)
     end
   end
   return nil
-end
-
-function pushFocusedWindow(workspace, direction)
-  local w = hs.window.focusedWindow()
-  local workingRegion = getRegionWithWindow(workspace.regions, w)
-  if workingRegion then
-    local r = getClosestRegionInDirection(workspace, direction, workingRegion)
-    if r then
-      r:addWindow(w)
-      workingRegion:removeWindow(w)
-    end
-  end
 end
 
 function workspace:pushFocusedWindowEast()
@@ -389,13 +383,14 @@ function workspace:pushFocusedWindowSouth()
   pushFocusedWindow(self, Direction.Down)
 end
 
-function focusRegion(workspace, direction)
+function pushFocusedWindow(workspace, direction)
   local w = hs.window.focusedWindow()
   local workingRegion = getRegionWithWindow(workspace.regions, w)
   if workingRegion then
     local r = getClosestRegionInDirection(workspace, direction, workingRegion)
-    if r and r.currentWindow then
-      r.currentWindow:focus()
+    if r then
+      r:addWindow(w)
+      workingRegion:removeWindow(w)
     end
   end
 end
@@ -416,20 +411,14 @@ function workspace:focusRegionSouth()
   focusRegion(self, Direction.Down)
 end
 
-function workspace:pushFocusedWindowLeft()
+function focusRegion(workspace, direction)
   local w = hs.window.focusedWindow()
-  local wr = getRegionWithWindow(self.regions, w)
-  local candidates = {}
-  for _, r in pairs(self.regions) do
-    if wr.x > r.x and math.abs(wr.y - r.y) < 50 then
-      table.insert(candidates, r)
+  local workingRegion = getRegionWithWindow(workspace.regions, w)
+  if workingRegion then
+    local r = getClosestRegionInDirection(workspace, direction, workingRegion)
+    if r and r.currentWindow then
+      r.currentWindow:focus()
     end
-  end
-  for _, r in pairs(candidates) do
-    r:addWindow(w)
-  end
-  if #candidates > 0 then
-    wr:removeWindow(w)
   end
 end
 
