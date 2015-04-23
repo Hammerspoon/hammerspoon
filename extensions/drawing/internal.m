@@ -572,7 +572,8 @@ static int drawing_newText(lua_State *L) {
             return 1;
             break;
     }
-    NSString *theMessage = [NSString stringWithUTF8String:lua_tostring(L, 2)];
+    const char *message = lua_tostring(L, 2);
+    NSString *theMessage = [NSString stringWithUTF8String:message ? message : ""];
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
