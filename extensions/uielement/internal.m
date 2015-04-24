@@ -15,7 +15,10 @@ NSArray *eventNames;
 
 static void new_uielement(lua_State* L, AXUIElementRef element) {
     AXUIElementRef* elementptr = lua_newuserdata(L, sizeof(AXUIElementRef));
-    if (!elementptr) CLS_NSLOG(@"elementptr is nil!");
+    if (!elementptr) {
+        CLS_NSLOG(@"elementptr is nil!");
+        return;
+    }
     if (!element) CLS_NSLOG(@"new_uielement called with nil element!");
     *elementptr = element;
 
