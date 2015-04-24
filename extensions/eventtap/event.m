@@ -3,7 +3,9 @@
 
 static int eventtap_event_gc(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    CGEventSourceRef source = CGEventCreateSourceFromEvent(event);
     CFRelease(event);
+    CFRelease(source);
     return 0;
 }
 
