@@ -10,10 +10,19 @@
 // Generic Lua-stack-C-string to NSString converter
 #define lua_to_nsstring(L, idx) [NSString stringWithUTF8String:luaL_checkstring(L, idx)]
 
-// Print a C string to the Hammerspoon console window and NSLog and Crashlytics logs
+// Print a C string to the Hammerspoon console window
 void printToConsole(lua_State *L, char *message) {
     lua_getglobal(L, "print");
     lua_pushstring(L, message);
     lua_call(L, 1, 0);
     return;
+}
+
+// Print a C string to the Hammerspoon console as an error
+void showError(lua_State *L, char *message) {
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "showError");
+    lua_remove(L, -2);
+    lua_pushstring(L, message);
+    lua_pcall(L, 1, 0, 0);
 }

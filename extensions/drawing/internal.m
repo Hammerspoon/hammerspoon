@@ -681,7 +681,11 @@ static int drawing_setText(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
-    drawingView.textField.stringValue = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
+    if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
+        drawingView.textField.stringValue = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
+    } else {
+        showError(L, ":setText() called on an hs.drawing object that isn't a text object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -704,7 +708,11 @@ static int drawing_setTextSize(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
-    [drawingView.textField setFont:[NSFont systemFontOfSize:lua_tonumber(L, 2)]];
+    if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
+        [drawingView.textField setFont:[NSFont systemFontOfSize:lua_tonumber(L, 2)]];
+    } else {
+        showError(L, ":setTextSize() called on an hs.drawing object that isn't a text object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -733,7 +741,11 @@ static int drawing_setTextColor(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
-    [drawingView.textField setTextColor:textColor];
+    if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
+        [drawingView.textField setTextColor:textColor];
+    } else {
+        showError(L, ":setTextColor() called on an hs.drawing object that isn't a text object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -763,12 +775,16 @@ static int drawing_setFillColor(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    drawingView.HSFillColor = fillColor;
-    drawingView.HSGradientStartColor = nil;
-    drawingView.HSGradientEndColor = nil;
-    drawingView.HSGradientAngle = 0;
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]]) {
+        drawingView.HSFillColor = fillColor;
+        drawingView.HSGradientStartColor = nil;
+        drawingView.HSGradientEndColor = nil;
+        drawingView.HSGradientAngle = 0;
 
-    drawingView.needsDisplay = YES;
+        drawingView.needsDisplay = YES;
+    } else {
+        showError(L, ":setFillColor() called on an hs.drawing object that isn't a rectangle or circle object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -806,12 +822,16 @@ static int drawing_setFillGradient(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    drawingView.HSFillColor = nil;
-    drawingView.HSGradientStartColor = startColor;
-    drawingView.HSGradientEndColor = endColor;
-    drawingView.HSGradientAngle = angle;
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]]) {
+        drawingView.HSFillColor = nil;
+        drawingView.HSGradientStartColor = startColor;
+        drawingView.HSGradientEndColor = endColor;
+        drawingView.HSGradientAngle = angle;
 
-    drawingView.needsDisplay = YES;
+        drawingView.needsDisplay = YES;
+    } else {
+        showError(L, ":setFillGradient() called on an hs.drawing object that isn't a rectangle or circle object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -840,8 +860,12 @@ static int drawing_setStrokeColor(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    drawingView.HSStrokeColor = strokeColor;
-    drawingView.needsDisplay = YES;
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
+        drawingView.HSStrokeColor = strokeColor;
+        drawingView.needsDisplay = YES;
+    } else {
+        showError(L, ":setStrokeColor() called on an hs.drawing object that isn't a line, rectangle or circle object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -870,10 +894,14 @@ static int drawing_setRoundedRectRadii(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    drawingView.HSRoundedRectXRadius = xradius;
-    drawingView.HSRoundedRectYRadius = yradius;
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]]) {
+        drawingView.HSRoundedRectXRadius = xradius;
+        drawingView.HSRoundedRectYRadius = yradius;
 
-    drawingView.needsDisplay = YES;
+        drawingView.needsDisplay = YES;
+    } else {
+        showError(L, ":setRoundedRectRadii() called on an hs.drawing object that isn't a rectangle object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -897,8 +925,12 @@ static int drawing_setFill(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    drawingView.HSFill = lua_toboolean(L, 2);
-    drawingView.needsDisplay = YES;
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
+        drawingView.HSFill = lua_toboolean(L, 2);
+        drawingView.needsDisplay = YES;
+    } else {
+        showError(L, ":setFill() called on an hs.drawing object that isn't a rectangle, circle or line object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -922,8 +954,12 @@ static int drawing_setStroke(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    drawingView.HSStroke = lua_toboolean(L, 2);
-    drawingView.needsDisplay = YES;
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
+        drawingView.HSStroke = lua_toboolean(L, 2);
+        drawingView.needsDisplay = YES;
+    } else {
+        showError(L, ":setStroke() called on an hs.drawing object that isn't a line, rectangle or circle object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -947,8 +983,12 @@ static int drawing_setStrokeWidth(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    drawingView.HSLineWidth = lua_tonumber(L, 2);
-    drawingView.needsDisplay = YES;
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
+        drawingView.HSLineWidth = lua_tonumber(L, 2);
+        drawingView.needsDisplay = YES;
+    } else {
+        showError(L, ":setStrokeWidth() called on an hs.drawing object that isn't a line, rectangle or circle object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -975,7 +1015,11 @@ static int drawing_setImagePath(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
 
-    [drawingView setImageFromPath:imagePath];
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        [drawingView setImageFromPath:imagePath];
+    } else {
+        showError(L, ":setImagePath() called on an hs.drawing object that isn't an image object");
+    }
 
     lua_pushvalue(L, 1);
     return 1;
