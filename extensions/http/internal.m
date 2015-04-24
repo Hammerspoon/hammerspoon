@@ -58,11 +58,17 @@ static int http_doRequest(lua_State* L) {
 	NSHTTPURLResponse *httpResponse;
 	httpResponse = (NSHTTPURLResponse *)response;
     int statusCode = [httpResponse statusCode];
+    NSDictionary *responseHeaders = [httpResponse allHeaderFields];
 
     lua_pushinteger(L,statusCode);
     lua_pushstring(L, [stringReply UTF8String]);
-    // TODO create Lua table, iterate through response headers and add these as keys and values to the table
-    lua_pushnil(L);
+
+    lua_newtable(L);
+    for(id key in responseHeaders){
+    	NSString *value = [responseHeaders objectForKey:key];
+    	lua_pushstring(L, [value UTF8String]);
+    	lua_setfield(L,-2, [key UTF8String]);
+    }
 
     return 3;
 }
