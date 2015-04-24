@@ -8,7 +8,7 @@ OBJCFILE = internal.m
 LUAFILE  = init.lua
 SOFILE  := $(OBJCFILE:m=so)
 
-CC=cc
+CC?=cc
 EXTRA_CFLAGS ?= -fobjc-arc
 
 #TODO: Put this back for 1.0
