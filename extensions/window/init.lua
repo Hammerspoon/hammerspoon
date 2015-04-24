@@ -12,7 +12,7 @@ local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 local hs_screen = require "hs.screen"
 
---- hs.window.animationDuration (boolean)
+--- hs.window.animationDuration (integer)
 --- Variable
 --- The default duration for animations, in seconds. Set to 0 to disable animations
 window.animationDuration = 0.2
