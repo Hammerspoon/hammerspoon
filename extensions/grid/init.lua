@@ -51,6 +51,10 @@ end
 --- Gets the cell this window is on
 function grid.get(win)
   local winframe = win:frame()
+  local winscreen = win:screen()
+  if not winscreen then
+      return nil
+  end
   local screenrect = win:screen():frame()
   local thirdscreenwidth = screenrect.w / grid.GRIDWIDTH
   local halfscreenheight = screenrect.h / grid.GRIDHEIGHT
@@ -89,7 +93,10 @@ end
 --- Snaps the window into a cell
 function grid.snap(win)
   if win:isStandard() then
-    grid.set(win, grid.get(win), win:screen())
+    local gridframe = grid.get(win)
+    if gridframe then
+        grid.set(win, gridframe, win:screen())
+    end
   end
 end
 
@@ -117,8 +124,10 @@ end
 function grid.adjustFocusedWindow(fn)
   local win = window.focusedWindow()
   local f = grid.get(win)
-  fn(f)
-  grid.set(win, f, win:screen())
+  if f then
+    fn(f)
+    grid.set(win, f, win:screen())
+  end
 end
 
 --- hs.grid.maximizeWindow()
@@ -127,7 +136,10 @@ end
 function grid.maximizeWindow()
   local win = window.focusedWindow()
   local f = {x = 0, y = 0, w = grid.GRIDWIDTH, h = grid.GRIDHEIGHT}
-  grid.set(win, f, win:screen())
+  local winscreen = win:screen()
+  if winscreen then
+    grid.set(win, f, winscreen)
+  end
 end
 
 --- hs.grid.pushWindowNextScreen()
@@ -135,7 +147,10 @@ end
 --- Moves the focused window to the next screen, using its current cell on that screen.
 function grid.pushWindowNextScreen()
   local win = window.focusedWindow()
-  grid.set(win, grid.get(win), win:screen():next())
+  local gridframe = grid.get(win)
+  if gridframe then
+    grid.set(win, gridframe, win:screen():next())
+  end
 end
 
 --- hs.grid.pushWindowPrevScreen()
@@ -143,7 +158,10 @@ end
 --- Moves the focused window to the previous screen, using its current cell on that screen.
 function grid.pushWindowPrevScreen()
   local win = window.focusedWindow()
-  grid.set(win, grid.get(win), win:screen():previous())
+  local gridframe = grid.get(win)
+  if gridframe then
+    grid.set(win, gridframe, win:screen():previous())
+  end
 end
 
 --- hs.grid.pushWindowLeft()
