@@ -626,7 +626,7 @@ static int application_findmenuitem(lua_State* L) {
         path = [[NSMutableArray alloc] init];
         lua_pushnil(L);
         while (lua_next(L, 2) != 0) {
-            NSString *item = [NSString stringWithUTF8String:lua_tostring(L, -1)];
+            NSString *item = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
             [path addObject:item];
             lua_pop(L, 1);
         }
@@ -708,7 +708,7 @@ static int application_selectmenuitem(lua_State* L) {
         path = [[NSMutableArray alloc] init];
         lua_pushnil(L);
         while (lua_next(L, 2) != 0) {
-            NSString *item = [NSString stringWithUTF8String:lua_tostring(L, -1)];
+            NSString *item = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
             [path addObject:item];
             lua_pop(L, 1);
         }

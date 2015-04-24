@@ -166,7 +166,7 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 ///  * None
 static int alert_show(lua_State* L) {
     lua_settop(L, 2);
-    NSString* str = [NSString stringWithUTF8String: luaL_tolstring(L, 1, NULL)];
+    NSString* str = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
 
     double duration = 2.0;
     if (lua_isnumber(L, 2))

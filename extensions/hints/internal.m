@@ -182,8 +182,8 @@ static int hints_new(lua_State* L) {
     CGFloat fontSize = 0.0;
     CGFloat x = luaL_checknumber(L, 1);
     CGFloat y = luaL_checknumber(L, 2);
-    NSString* msg = [NSString stringWithUTF8String: luaL_tolstring(L, 3, NULL)];
-    NSString* app = [NSString stringWithUTF8String: luaL_tolstring(L, 4, NULL)];
+    NSString* msg = [NSString stringWithUTF8String: luaL_checkstring(L, 3)];
+    NSString* app = [NSString stringWithUTF8String: luaL_checkstring(L, 4)];
     NSScreen *screen = get_screen_arg(L, 5);
     if (!lua_isnoneornil(L, 6) && lua_isstring(L, 6)) {
         fontName = [NSString stringWithUTF8String:luaL_tolstring(L, 6, NULL)];

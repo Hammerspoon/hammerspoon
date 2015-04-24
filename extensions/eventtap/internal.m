@@ -76,7 +76,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType __unused type, C
 ///  * If you want to send a single keystroke with keyboard modifiers (e.g. sending ⌘-v to paste), see `hs.eventtap.keyStroke()`
 static int eventtap_keyStrokes(lua_State* L) {
     luaL_checktype(L, 1, LUA_TSTRING);
-    NSString *theString = [NSString stringWithUTF8String:lua_tostring(L, 1)];
+    NSString *theString = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
     CGEventRef keyDownEvent = CGEventCreateKeyboardEvent(nil, 0, true);
     CGEventRef keyUpEvent = CGEventCreateKeyboardEvent(nil, 0, false);

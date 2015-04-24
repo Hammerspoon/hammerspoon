@@ -638,7 +638,7 @@ static int drawing_newImage(lua_State *L) {
             return 1;
             break;
     }
-    NSString *imagePath = [NSString stringWithUTF8String:lua_tostring(L, 2)];
+    NSString *imagePath = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
@@ -681,7 +681,7 @@ static int drawing_setText(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
-    drawingView.textField.stringValue = [NSString stringWithUTF8String:lua_tostring(L, 2)];
+    drawingView.textField.stringValue = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
 
     lua_pushvalue(L, 1);
     return 1;
@@ -970,7 +970,7 @@ static int drawing_setStrokeWidth(lua_State *L) {
 ///  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
 static int drawing_setImagePath(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSString *imagePath = [NSString stringWithUTF8String:lua_tostring(L, 2)];
+    NSString *imagePath = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;

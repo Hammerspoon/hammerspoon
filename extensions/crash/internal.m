@@ -86,7 +86,7 @@ static int dumpCLIBS(lua_State *L) {
     while (lua_next(L, stack_ref) != 0) {
         // lua_next pushed two things onto the stack, the key at -2 and the value at -1
         if (lua_type(L, -2) == LUA_TSTRING) {
-            [cLibs addObject:[NSString stringWithUTF8String:lua_tostring(L, -2)]];
+            [cLibs addObject:[NSString stringWithUTF8String:luaL_checkstring(L, -2)]];
         }
         lua_pop(L, 1);
     }
