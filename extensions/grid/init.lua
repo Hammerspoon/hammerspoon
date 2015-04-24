@@ -111,16 +111,6 @@ function grid.adjustWidth(by)
   fnutils.map(window.visibleWindows(), grid.snap)
 end
 
---- hs.grid.adjustFocusedWindow(fn)
---- Function
---- Passes the focused window's cell to fn and uses the result as its new cell.
-function grid.adjustFocusedWindow(fn)
-  local win = window.focusedWindow()
-  local f = grid.get(win)
-  fn(f)
-  grid.set(win, f, win:screen())
-end
-
 --- hs.grid.maximizeWindow()
 --- Function
 --- Maximizes the focused window along the given cell.
@@ -144,6 +134,16 @@ end
 function grid.pushWindowPrevScreen()
   local win = window.focusedWindow()
   grid.set(win, grid.get(win), win:screen():previous())
+end
+
+--- hs.grid.adjustFocusedWindow(fn)
+--- Function
+--- Passes the focused window's cell to fn and uses the result as its new cell.
+function grid.adjustFocusedWindow(fn)
+  local win = window.focusedWindow()
+  local f = grid.get(win)
+  fn(f)
+  grid.set(win, f, win:screen())
 end
 
 --- hs.grid.pushWindowLeft()
