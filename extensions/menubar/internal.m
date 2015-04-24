@@ -94,9 +94,12 @@ NSMutableArray *dynamicMenuDelegates;
     [self callback_runner];
 
     // Ensure the callback pushed a table onto the stack, then remove any existing menu structure and parse the table into a new menu
-    luaL_checktype(self.L, lua_gettop(self.L), LUA_TTABLE);
-    erase_menu_items(self.L, menu);
-    parse_table(self.L, lua_gettop(self.L), menu);
+    if (lua_type(self.L, lua_gettop(self.L)) == LUA_TTABLE) {
+        erase_menu_items(self.L, menu);
+        parse_table(self.L, lua_gettop(self.L), menu);
+    } else {
+        showError(self.L, "You must return a valid Lua table from a callback function passed to hs.menubar:setMenu()");
+    }
 }
 @end
 
