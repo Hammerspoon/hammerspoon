@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 /// === hs.drawing ===
 ///
@@ -57,12 +58,12 @@ NSMutableArray *drawingWindows;
 // Objective-C class interface implementations
 @implementation HSDrawingWindow
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger __unused)windowStyle backing:(NSBackingStoreType __unused)bufferingType defer:(BOOL __unused)deferCreation {
-    //NSLog(@"HSDrawingWindow::initWithContentRect contentRect:(%.1f,%.1f) %.1fx%.1f", contentRect.origin.x, contentRect.origin.y, contentRect.size.width, contentRect.size.height);
+    //CLS_NSLOG(@"HSDrawingWindow::initWithContentRect contentRect:(%.1f,%.1f) %.1fx%.1f", contentRect.origin.x, contentRect.origin.y, contentRect.size.width, contentRect.size.height);
     self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES ];
     if (self) {
         [self setDelegate:self];
         contentRect.origin.y=[self.screen frame].size.height - contentRect.origin.y - contentRect.size.height;
-        //NSLog(@"HSDrawingWindow::initWithContentRect corrected for bottom-left origin.y to %.1f", contentRect.origin.y);
+        //CLS_NSLOG(@"HSDrawingWindow::initWithContentRect corrected for bottom-left origin.y to %.1f", contentRect.origin.y);
 
         [self setFrameOrigin:contentRect.origin];
 
@@ -89,14 +90,14 @@ NSMutableArray *drawingWindows;
 
 // NSWindowDelegate method. We decline to close the window because we don't want external things interfering with the user's decisions to display these objects.
 - (BOOL)windowShouldClose:(id __unused)sender {
-    //NSLog(@"HSDrawingWindow::windowShouldClose");
+    //CLS_NSLOG(@"HSDrawingWindow::windowShouldClose");
     return NO;
 }
 @end
 
 @implementation HSDrawingView
 - (id)initWithFrame:(NSRect)frameRect {
-    //NSLog(@"HSDrawingView::initWithFrame frameRect:(%.1f,%.1f) %.1fx%.1f", frameRect.origin.x, frameRect.origin.y, frameRect.size.width, frameRect.size.height);
+    //CLS_NSLOG(@"HSDrawingView::initWithFrame frameRect:(%.1f,%.1f) %.1fx%.1f", frameRect.origin.x, frameRect.origin.y, frameRect.size.width, frameRect.size.height);
     self = [super initWithFrame:frameRect];
     if (self) {
         // Set up our defaults
@@ -122,7 +123,7 @@ NSMutableArray *drawingWindows;
 
 @implementation HSDrawingViewCircle
 - (void)drawRect:(NSRect)rect {
-    //NSLog(@"HSDrawingViewCircle::drawRect");
+    //CLS_NSLOG(@"HSDrawingViewCircle::drawRect");
     // Get the graphics context that we are currently executing under
     NSGraphicsContext* gc = [NSGraphicsContext currentContext];
 
@@ -161,7 +162,7 @@ NSMutableArray *drawingWindows;
 
 @implementation HSDrawingViewRect
 - (void)drawRect:(NSRect)rect {
-    //NSLog(@"HSDrawingViewRect::drawRect");
+    //CLS_NSLOG(@"HSDrawingViewRect::drawRect");
     // Get the graphics context that we are currently executing under
     NSGraphicsContext* gc = [NSGraphicsContext currentContext];
 
@@ -200,7 +201,7 @@ NSMutableArray *drawingWindows;
 
 @implementation HSDrawingViewLine
 - (id)initWithFrame:(NSRect)frameRect {
-    //NSLog(@"HSDrawingViewLine::initWithFrame");
+    //CLS_NSLOG(@"HSDrawingViewLine::initWithFrame");
     self = [super initWithFrame:frameRect];
     if (self) {
         self.origin = CGPointZero;
@@ -210,7 +211,7 @@ NSMutableArray *drawingWindows;
 }
 
 - (void)drawRect:(NSRect __unused)rect {
-    //NSLog(@"HSDrawingViewLine::drawRect");
+    //CLS_NSLOG(@"HSDrawingViewLine::drawRect");
     // Get the graphics context that we are currently executing under
     NSGraphicsContext* gc = [NSGraphicsContext currentContext];
 
@@ -224,7 +225,7 @@ NSMutableArray *drawingWindows;
     NSBezierPath* linePath = [NSBezierPath bezierPath];
     linePath.lineWidth = self.HSLineWidth;
 
-    //NSLog(@"HSDrawingViewLine::drawRect: Rendering line from (%.1f,%.1f) to (%.1f,%.1f)", self.origin.x, self.origin.y, self.end.x, self.end.y);
+    //CLS_NSLOG(@"HSDrawingViewLine::drawRect: Rendering line from (%.1f,%.1f) to (%.1f,%.1f)", self.origin.x, self.origin.y, self.end.x, self.end.y);
     [linePath moveToPoint:self.origin];
     [linePath lineToPoint:self.end];
 
@@ -238,7 +239,7 @@ NSMutableArray *drawingWindows;
 
 @implementation HSDrawingViewText
 - (id)initWithFrame:(NSRect)frameRect {
-    //NSLog(@"HSDrawingViewText::initWithFrame");
+    //CLS_NSLOG(@"HSDrawingViewText::initWithFrame");
     self = [super initWithFrame:frameRect];
     if (self) {
         NSTextField *theTextField = [[NSTextField alloc] initWithFrame:frameRect];
@@ -269,7 +270,7 @@ NSMutableArray *drawingWindows;
 - (void)setImageFromPath:(NSString *)filePath {
     NSImage *newImage = [[NSImage alloc] initByReferencingFile:filePath];
     if (!newImage) {
-        NSLog(@"ERROR: setImageFromPath unable to load image: %@", filePath);
+        CLS_NSLOG(@"HSDrawingViewImage::setImageFromPath: ERROR: unable to load image: %@", filePath);
         return;
     }
 
@@ -314,7 +315,7 @@ static int drawing_newCircle(lua_State *L) {
 
             break;
         default:
-            NSLog(@"ERROR: Unexpected type passed to hs.drawing.circle(): %d", lua_type(L, 1));
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.circle(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
             break;
@@ -374,7 +375,7 @@ static int drawing_newRect(lua_State *L) {
 
             break;
         default:
-            NSLog(@"ERROR: Unexpected type passed to hs.drawing.rectangle(): %d", lua_type(L, 1));
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.rectangle(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
             break;
@@ -430,7 +431,7 @@ static int drawing_newLine(lua_State *L) {
 
             break;
         default:
-            NSLog(@"ERROR Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
             break;
@@ -448,7 +449,7 @@ static int drawing_newLine(lua_State *L) {
 
             break;
         default:
-            NSLog(@"ERROR Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
             break;
@@ -459,7 +460,7 @@ static int drawing_newLine(lua_State *L) {
     windowRect.origin.y = MIN(origin.y, end.y);
     windowRect.size.width = windowRect.origin.x + MAX(origin.x, end.x) - MIN(origin.x, end.x);
     windowRect.size.height = windowRect.origin.y + MAX(origin.y, end.y) - MIN(origin.y, end.y);
-    //NSLog(@"newLine: Calculated window rect to bound lines: (%.1f,%.1f) %.1fx%.1f", windowRect.origin.x, windowRect.origin.y, windowRect.size.width, windowRect.size.height);
+    //CLS_NSLOG(@"newLine: Calculated window rect to bound lines: (%.1f,%.1f) %.1fx%.1f", windowRect.origin.x, windowRect.origin.y, windowRect.size.width, windowRect.size.height);
 
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
@@ -474,7 +475,7 @@ static int drawing_newLine(lua_State *L) {
         theWindow.contentView = theView;
 
         // Calculate the origin/end points of our line, within the frame of theView (since we were given screen co-ordinates)
-        //NSLog(@"newLine: User specified a line as: (%.1f,%.1f) -> (%.1f,%.1f)", origin.x, origin.y, end.x, end.y);
+        //CLS_NSLOG(@"newLine: User specified a line as: (%.1f,%.1f) -> (%.1f,%.1f)", origin.x, origin.y, end.x, end.y);
         NSPoint tmpOrigin;
         NSPoint tmpEnd;
 
@@ -486,7 +487,7 @@ static int drawing_newLine(lua_State *L) {
 
         theView.origin = tmpOrigin;
         theView.end = tmpEnd;
-        //NSLog(@"newLine: Calculated view co-ordinates for line as: (%.1f,%.1f) -> (%.1f,%.1f)", theView.origin.x, theView.origin.y, theView.end.x, theView.end.y);
+        //CLS_NSLOG(@"newLine: Calculated view co-ordinates for line as: (%.1f,%.1f) -> (%.1f,%.1f)", theView.origin.x, theView.origin.y, theView.end.x, theView.end.y);
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -525,7 +526,7 @@ NSColor *getColorFromStack(lua_State *L, int idx) {
             return [NSColor clearColor];
             break;
         default:
-            NSLog(@"ERROR: Unexpected type passed to an hs.drawing color method: %d", lua_type(L, 1));
+            CLS_NSLOG(@"ERROR: Unexpected type passed to an hs.drawing color method: %d", lua_type(L, 1));
             return 0;
 
             break;
@@ -566,12 +567,13 @@ static int drawing_newText(lua_State *L) {
 
             break;
         default:
-            NSLog(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
             break;
     }
-    NSString *theMessage = [NSString stringWithUTF8String:lua_tostring(L, 2)];
+    const char *message = lua_tostring(L, 2);
+    NSString *theMessage = [NSString stringWithUTF8String:message ? message : ""];
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
@@ -631,7 +633,7 @@ static int drawing_newImage(lua_State *L) {
 
             break;
         default:
-            NSLog(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
             break;

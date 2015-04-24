@@ -2,6 +2,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 #define USERDATA_TAG    "hs.sound"
 
@@ -18,7 +19,7 @@
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
     lua_pushboolean(L, playbackSuccessful);
     if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
         lua_pushvalue(L, -2);
         lua_pcall(L, 1, 0, 0);
@@ -296,7 +297,7 @@ static int sound_device(lua_State* L) {
             @try {
                 [(__bridge NSSound*) sound->soundObject setPlaybackDeviceIdentifier:[NSString stringWithUTF8String: luaL_checkstring(L, 2)]];
             } @catch(NSException *theException) {
-                NSLog(@"%s:device -- %@: %@", USERDATA_TAG, theException.name, theException.reason);
+                CLS_NSLOG(@"%s:device -- %@: %@", USERDATA_TAG, theException.name, theException.reason);
                 lua_pushstring(L, [[NSString stringWithFormat:@"%@: %@", theException.name, theException.reason] UTF8String]);
                 lua_error(L);
             }

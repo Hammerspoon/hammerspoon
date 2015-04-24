@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 /// === hs.caffeinate.watcher ===
 ///
@@ -94,7 +95,7 @@ typedef enum _event_t {
     lua_pushnumber(L, event); // Parameter 1: the event type
 
     if (lua_pcall(L, 1, 0, -5) != LUA_OK) {
-        NSLog(@"%s", lua_tostring(L, -1));
+        CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");
         lua_remove(L, -2);

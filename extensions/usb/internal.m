@@ -1,12 +1,7 @@
 #import <Cocoa/Cocoa.h>
-
-// These don't seem to be necessary?
-//#include <IOKit/IOKitLib.h>
-//#include <IOKit/IOMessage.h>
-//#include <IOKit/IOCFPlugIn.h>
-#include <IOKit/usb/IOUSBLib.h>
-
+#import <IOKit/usb/IOUSBLib.h>
 #import <lauxlib.h>
+#import "../hammerspoon.h"
 
 CFStringRef productNameKey = CFSTR(kUSBProductString);
 CFStringRef vendorNameKey = CFSTR(kUSBVendorString);
@@ -67,7 +62,7 @@ static int usb_attachedDevices(lua_State* L) {
         productID = CFDictionaryGetValue(deviceData, productIDKey);
         vendorID = CFDictionaryGetValue(deviceData, vendorIDKey);
 
-        //NSLog(@"Found: '%@'(%@) '%@'(%@)", vendorName, vendorID, productName, productID);
+        //CLS_NSLOG(@"Found: '%@'(%@) '%@'(%@)", vendorName, vendorID, productName, productID);
 
         lua_newtable(L);
         lua_pushstring(L, "productName");

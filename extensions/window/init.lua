@@ -393,7 +393,7 @@ end
 --- Moves and resizes the window to occupy a given fraction of the screen
 ---
 --- Parameters:
----  * rect - A rect-table where each value is between 0.0 and 1.0
+---  * rect - A unit-rect-table where each value is between 0.0 and 1.0
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
