@@ -691,6 +691,35 @@ static int drawing_setText(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing:setTextFont(fontname) -> drawingObject
+/// Method
+/// Sets the font of a drawing object
+///
+/// Parameters:
+///  * fontname - A string containing the name of the font to use
+///
+/// Returns:
+///  * The drawing object
+///
+/// Notes:
+///  * This method should only be used on text drawing objects
+static int drawing_setTextFont(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
+        CGFloat pointSize = drawingView.textField.font.pointSize;
+        NSString *fontName = [NSString stringWithUTF8String:lua_tostring(L, 2)];
+        [drawingView.textField setFont:[NSFont fontWithName:fontName size:pointSize]];
+    } else {
+        showError(L, ":setTextFont() called on an hs.drawing object that isn't a text object");
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 /// hs.drawing:setTextSize(size) -> drawingObject
 /// Method
 /// Sets the text size of a drawing object
@@ -709,7 +738,9 @@ static int drawing_setTextSize(lua_State *L) {
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
-        [drawingView.textField setFont:[NSFont systemFontOfSize:lua_tonumber(L, 2)]];
+        CGFloat pointSize = lua_tonumber(L, 2);
+        NSString *fontName = drawingView.textField.font.fontName;
+        [drawingView.textField setFont:[NSFont fontWithName:fontName size:pointSize]];
     } else {
         showError(L, ":setTextSize() called on an hs.drawing object that isn't a text object");
     }
@@ -1139,6 +1170,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setFillGradient", drawing_setFillGradient},
     {"setTextColor", drawing_setTextColor},
     {"setTextSize", drawing_setTextSize},
+    {"setTextFont", drawing_setTextFont},
     {"setText", drawing_setText},
     {"setImagePath", drawing_setImagePath},
     {"bringToFront", drawing_bringToFront},
