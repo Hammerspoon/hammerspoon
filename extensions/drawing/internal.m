@@ -710,7 +710,7 @@ static int drawing_setTextFont(lua_State *L) {
 
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
         CGFloat pointSize = drawingView.textField.font.pointSize;
-        NSString *fontName = [NSString stringWithUTF8String:lua_tostring(L, 2)];
+        NSString *fontName = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
         [drawingView.textField setFont:[NSFont fontWithName:fontName size:pointSize]];
     } else {
         showError(L, ":setTextFont() called on an hs.drawing object that isn't a text object");
