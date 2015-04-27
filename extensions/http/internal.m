@@ -54,9 +54,10 @@ static void showError(lua_State* L, NSString* error) {
 }
 - (void)connection:(NSURLConnection *)connection
   didFailWithError:(NSError *)error {
+  	NSString* errorMessage = [NSString stringWithFormat:@"Connection failed: %@ - %@", [error localizedDescription], [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]];
   	lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.fn);
   	lua_pushinteger(self.L,-1);
-  	lua_pushstring(self.L,"error");
+  	lua_pushstring(self.L,[errorMessage UTF8String]);
   	lua_pcall(self.L,2,0,0);
 }
 @end
