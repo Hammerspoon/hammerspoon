@@ -3,6 +3,7 @@
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
 
+// Create a new Lua table and add all response header keys and values from the response
 static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpResponse){
 	NSDictionary *responseHeaders = [httpResponse allHeaderFields];
 	lua_newtable(L);
@@ -13,6 +14,7 @@ static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpRespo
     }
 }
 
+// Show an error message via hs.showError
 static void showError(lua_State* L, NSString* error) {
 	lua_getglobal(L, "hs"); 
 	lua_getfield(L, -1, "showError"); 
@@ -62,6 +64,8 @@ static void showError(lua_State* L, NSString* error) {
 }
 @end
 
+// If the user specified a request body, get it from stack, 
+// add it to the request and add the content length header field
 static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* request){
 	if(!lua_isnil(L,index)){
 		NSString* body = [NSString stringWithCString:lua_tostring(L,3) encoding:NSASCIIStringEncoding];
@@ -73,6 +77,7 @@ static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* reque
 	}
 }
 
+// Gets all information for the request from the stack and creates a request
 static NSMutableURLRequest* getRequestFromStack(lua_State* L){
 	NSString* url = [NSString stringWithCString:luaL_checklstring(L,1,NULL) encoding:NSASCIIStringEncoding];
 	NSString* method = [NSString stringWithCString:luaL_checklstring(L,2,NULL) encoding:NSASCIIStringEncoding];
@@ -84,6 +89,7 @@ static NSMutableURLRequest* getRequestFromStack(lua_State* L){
 	return request;
 }
 
+// Gets the table for the headers from stack and adds the key value pairs to the request object
 static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest* request){
 	if(!lua_isnil(L,index)){
 		lua_pushnil(L);
