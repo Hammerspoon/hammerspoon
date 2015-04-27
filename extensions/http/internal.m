@@ -13,6 +13,14 @@ static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpRespo
     }
 }
 
+static void showError(lua_State* L, NSString* error) {
+	lua_getglobal(L, "hs"); 
+	lua_getfield(L, -1, "showError"); 
+	lua_remove(L, -2);
+    lua_pushstring(L, [error UTF8String]);
+    lua_pcall(L, 1, 0, 0);
+}
+
 @interface connectionDelegate : NSObject<NSURLConnectionDelegate>
 @property lua_State* L;
 @property int fn;
@@ -30,18 +38,26 @@ static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpRespo
 
 }
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+	lua_State* L = self.L;
 	NSString* stringReply = (NSString *)[[NSString alloc] initWithData:self.receivedData encoding:NSUTF8StringEncoding];
 	int statusCode = [self.httpResponse statusCode];
 
-    lua_pushinteger(self.L,statusCode);
-    lua_pushstring(self.L,[stringReply UTF8String]);
-    createResponseHeaderTable(self.L,self.httpResponse);
-    lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.fn);
-    lua_pcall(self.L,3,0,0);
+	lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+    lua_pushinteger(L,statusCode);
+    lua_pushstring(L,[stringReply UTF8String]);
+    createResponseHeaderTable(L,self.httpResponse);
+    int cbRes = lua_pcall(L,3,0,0);
+    if (cbRes != LUA_OK){
+    	NSString* message = [NSString stringWithFormat:@"%s Code: %d", @"Can't call callback", cbRes];
+    	showError(L, message);
+    }
 }
 - (void)connection:(NSURLConnection *)connection
   didFailWithError:(NSError *)error {
-  	// TODO implement error callback
+  	lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.fn);
+  	lua_pushinteger(self.L,-1);
+  	lua_pushstring(self.L,"error");
+  	lua_pcall(self.L,2,0,0);
 }
 @end
 
