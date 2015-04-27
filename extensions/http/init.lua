@@ -34,4 +34,12 @@ http.post = function(url,data,headers)
 	return http.doRequest(url,"POST",data,headers)
 end
 
+http.asyncGet = function(url, headers, callback)
+	http.doAsyncRequest(url,"GET",nil,headers,callback)
+end
+
+http.asyncPost = function(url, data, headers, callback)
+	http.doAsyncRequest(url, "POST", data, headers, callback)
+end
+
 return http
