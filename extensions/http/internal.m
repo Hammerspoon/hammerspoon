@@ -97,8 +97,8 @@ static int http_doAsyncRequest(lua_State* L){
 	getBodyFromStack(L,3,request);
 	extractHeadersFromStack(L,4,request);
 
-	luaL_checktype(L, 6, LUA_TFUNCTION);
-	lua_pushvalue(L, 6);
+	luaL_checktype(L, 5, LUA_TFUNCTION);
+	lua_pushvalue(L, 5);
 
 	connectionDelegate* delegate = [[connectionDelegate alloc] init];
 	delegate.L = L;
