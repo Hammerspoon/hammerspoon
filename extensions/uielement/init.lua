@@ -17,7 +17,7 @@ end
 
 --- === hs.uielement.watcher ===
 ---
---- Defines events that can be watched using ```hs.uielement.watcher```
+--- Watch for events on certain UI elements (including windows and applications)
 ---
 --- You can watch the following events:
 --- ### Application-level events
