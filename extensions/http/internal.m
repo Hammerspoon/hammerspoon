@@ -3,6 +3,8 @@
 #import <Carbon/Carbon.h>
 #import <lauxlib.h>
 
+static NSMutableArray* delegates;
+
 // Create a new Lua table and add all response header keys and values from the response
 static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpResponse){
 	NSDictionary *responseHeaders = [httpResponse allHeaderFields];
@@ -28,7 +30,19 @@ static void showError(lua_State* L, NSString* error) {
 @property int fn;
 @property NSMutableData* receivedData;
 @property NSHTTPURLResponse* httpResponse;
+@property NSURLConnection* connection;
 @end
+
+static void store_delegate(connectionDelegate* delegate) {
+	[delegates addObject:delegate];
+}
+
+static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
+	[delegate.connection cancel];
+	luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
+	delegate.fn = LUA_NOREF;
+	[delegates removeObject:delegate];
+}
 
 @implementation connectionDelegate
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
@@ -41,6 +55,9 @@ static void showError(lua_State* L, NSString* error) {
 }
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	lua_State* L = self.L;
+	if(self.fn == LUA_NOREF){
+    	return;
+    }
 	NSString* stringReply = (NSString *)[[NSString alloc] initWithData:self.receivedData encoding:NSUTF8StringEncoding];
 	int statusCode = [self.httpResponse statusCode];
 
@@ -53,14 +70,19 @@ static void showError(lua_State* L, NSString* error) {
     	NSString* message = [NSString stringWithFormat:@"%s Code: %d", @"Can't call callback", cbRes];
     	showError(L, message);
     }
+    remove_delegate(L,self);
 }
 - (void)connection:(NSURLConnection *)connection
   didFailWithError:(NSError *)error {
+  	if(self.fn == LUA_NOREF){
+    	return;
+    }
   	NSString* errorMessage = [NSString stringWithFormat:@"Connection failed: %@ - %@", [error localizedDescription], [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]];
   	lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.fn);
   	lua_pushinteger(self.L,-1);
   	lua_pushstring(self.L,[errorMessage UTF8String]);
   	lua_pcall(self.L,2,0,0);
+  	remove_delegate(self.L,self);
 }
 @end
 
@@ -128,7 +150,11 @@ static int http_doAsyncRequest(lua_State* L){
 	delegate.receivedData = [[NSMutableData alloc] init];
 	delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
 
+	store_delegate(delegate);
+
 	NSURLConnection* connection = [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
+
+	delegate.connection = connection;
 
 	return 0;
 }
@@ -172,6 +198,17 @@ static int http_doRequest(lua_State* L) {
     return 3;
 }
 
+static int http_gc(lua_State* L){
+	NSMutableArray* delegatesCopy = [[NSMutableArray alloc] init];
+	[delegatesCopy addObjectsFromArray:delegates];
+
+	for(connectionDelegate* delegate in delegatesCopy){
+		remove_delegate(L, delegate);
+	}
+
+	return 0;
+}
+
 static const luaL_Reg httplib[] = {
     {"doRequest", http_doRequest},
     {"doAsyncRequest", http_doAsyncRequest},
@@ -179,8 +216,18 @@ static const luaL_Reg httplib[] = {
     {} // This must end with an empty struct
 };
 
+static const luaL_Reg metalib[] = {
+    {"__gc", http_gc},
+
+    {} // This must end with an empty struct
+};
+
 int luaopen_hs_http_internal(lua_State* L) {
+	delegates = [[NSMutableArray alloc] init];
     luaL_newlib(L, httplib);
+
+    luaL_newlib(L, metalib);
+    lua_setmetatable(L, -2);
 
     return 1;
 }
