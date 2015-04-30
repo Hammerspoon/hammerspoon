@@ -24,7 +24,7 @@ FAB_START_NONNULL
 @property (nonatomic, readonly, copy) NSString *version;
 @property (nonatomic, assign)         BOOL      debugMode;
 
-@property (nonatomic, assign)         NSObject <CrashlyticsDelegate> * FAB_NULLABLE delegate;
+@property (nonatomic, assign)         id<CrashlyticsDelegate> FAB_NULLABLE delegate;
 
 /**
  *
@@ -45,8 +45,8 @@ FAB_START_NONNULL
  * these convenience methods to activate the framework and set the delegate in one call.
  *
  **/
-+ (Crashlytics *)startWithAPIKey:(NSString *)apiKey delegate:(NSObject <CrashlyticsDelegate> * FAB_NULLABLE)delegate;
-+ (Crashlytics *)startWithAPIKey:(NSString *)apiKey delegate:(NSObject <CrashlyticsDelegate> * FAB_NULLABLE)delegate afterDelay:(NSTimeInterval)delay CLS_DEPRECATED("Crashlytics no longer needs or uses the delay parameter.  Please use +startWithAPIKey:delegate: instead.");
++ (Crashlytics *)startWithAPIKey:(NSString *)apiKey delegate:(id<CrashlyticsDelegate> FAB_NULLABLE)delegate;
++ (Crashlytics *)startWithAPIKey:(NSString *)apiKey delegate:(id<CrashlyticsDelegate> FAB_NULLABLE)delegate afterDelay:(NSTimeInterval)delay CLS_DEPRECATED("Crashlytics no longer needs or uses the delay parameter.  Please use +startWithAPIKey:delegate: instead.");
 
 /**
  *
