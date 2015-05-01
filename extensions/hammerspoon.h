@@ -7,6 +7,9 @@
 
 // Define some useful utility functions
 
+// Let extensions get the canonical lua_State object, for comparison with one they have stored already
+extern lua_State* MJGetActiveLuaState();
+
 // Generic Lua-stack-C-string to NSString converter
 #define lua_to_nsstring(L, idx) [NSString stringWithUTF8String:luaL_checkstring(L, idx)]
 
