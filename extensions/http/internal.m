@@ -25,6 +25,7 @@ static void showError(lua_State* L, NSString* error) {
     lua_pcall(L, 1, 0, 0);
 }
 
+// Definition of the collection delegate to receive callbacks from NSUrlConnection
 @interface connectionDelegate : NSObject<NSURLConnectionDelegate>
 @property lua_State* L;
 @property int fn;
@@ -33,10 +34,14 @@ static void showError(lua_State* L, NSString* error) {
 @property NSURLConnection* connection;
 @end
 
+// Store a created delegate so we can cancel it on garbage collection
 static void store_delegate(connectionDelegate* delegate) {
 	[delegates addObject:delegate];
 }
 
+// Remove a delegate either if loading has finished or if it needs to be
+// garbage collected. This unreferences the lua callback and sets the callback
+// reference in the delegate to LUA_NOREF.
 static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
 	[delegate.connection cancel];
 	luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
@@ -44,6 +49,8 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
 	[delegates removeObject:delegate];
 }
 
+// Implementation of the connectionDelegate. If the property fn equals LUA_NOREF
+// no lua operations will be performed in the callbacks
 @implementation connectionDelegate
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	self.httpResponse = (NSHTTPURLResponse *)response;
