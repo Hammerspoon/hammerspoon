@@ -154,3 +154,9 @@ NSString* MJLuaRunString(NSString* command) {
 
     return str;
 }
+
+// C-Code helper to return current active LuaState. Useful for callbacks to
+// verify stored LuaState still matches active one if GC fails to clear it.
+lua_State* MJGetActiveLuaState() {
+  return MJLuaState ;
+}
