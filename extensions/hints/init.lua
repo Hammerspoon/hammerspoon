@@ -130,12 +130,11 @@ function hints.displayHintsForDict(dict, prefixstring, showTitles)
         else
           local suffixString = ""
           if showTitles then
-            win_title = win:title()
-            if hints.titleMaxSize > 1 then
-                end_idx = hints.titleMaxSize - 6
-                if end_idx < 6 then end_idx = 6 end
-                win_title = string.sub(win_title, 1, end_idx)
-                if end_idx < #win_title then win_title = win_title .. "..." end
+            local win_title = win:title()
+            if hints.titleMaxSize > 1 and #win_title > hints.titleMaxSize then
+                local end_idx = math.max(0, hints.titleMaxSize-3)
+                print ("end_idx " .. end_idx)
+                win_title = string.sub(win_title, 1, end_idx) .. "..."
             end
             suffixString = ": "..win_title
           end
@@ -221,7 +220,7 @@ function hints.windowHints(windows, callback)
     if app and win:isStandard() then
       if hints.style == "vimperator" then
         if app and win:isStandard() then
-          app_title = app:title()
+          local app_title = app:title()
           pcall(function ()
               for k,v in pairs(hints.titleRegexSub) do
                   app_title = string.gsub(app_title, v.pat, v.sub)
