@@ -117,11 +117,9 @@ end
 ---
 --- Notes:
 ---  * This function is ideal for sending single keystrokes with a modifier applied (e.g. sending ⌘-v to paste, with `hs.eventtap.keyStroke({"cmd"}, "v")`). If you want to emit multiple keystrokes for typing strings of text, see `hs.eventtap.keyStrokes()`
-function module.keyStroke(modifiers, text)
-    for c in text:gmatch"." do
-        module.event.newKeyEvent(modifiers, c, true):post()
-        module.event.newKeyEvent(modifiers, c, false):post()
-    end
+function module.keyStroke(modifiers, character)
+    module.event.newKeyEvent(modifiers, character, true):post()
+    module.event.newKeyEvent(modifiers, character, false):post()
 end
 
 -- Return Module Object --------------------------------------------------
