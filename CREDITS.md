@@ -14,5 +14,6 @@ The extensions included in Hammerspoon were written by:
  * Tyler Mandry
  * Alexander Yakushev
  * Jake Heinz
+ * Till Klocke
 
 The Hammerspon icon was provided by Juerd Waalboer
