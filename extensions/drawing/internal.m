@@ -59,10 +59,10 @@ NSMutableArray *drawingWindows;
 @implementation HSDrawingWindow
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger __unused)windowStyle backing:(NSBackingStoreType __unused)bufferingType defer:(BOOL __unused)deferCreation {
     //CLS_NSLOG(@"HSDrawingWindow::initWithContentRect contentRect:(%.1f,%.1f) %.1fx%.1f", contentRect.origin.x, contentRect.origin.y, contentRect.size.width, contentRect.size.height);
-    self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES ];
+    self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
     if (self) {
         [self setDelegate:self];
-        contentRect.origin.y=[self.screen frame].size.height - contentRect.origin.y - contentRect.size.height;
+        contentRect.origin.y=[[NSScreen screens][0] frame].size.height - contentRect.origin.y - contentRect.size.height;
         //CLS_NSLOG(@"HSDrawingWindow::initWithContentRect corrected for bottom-left origin.y to %.1f", contentRect.origin.y);
 
         [self setFrameOrigin:contentRect.origin];
