@@ -8,7 +8,7 @@
 ///
 /// Watch for application launch/terminate events
 ///
-/// This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
+/// This module is based primarily on code from the previous incarnation of Mjolnir by [Markus Engelbrecht](https://github.com/mgee) and [Steven Degutis](https://github.com/sdegutis/).
 
 
 /// hs.application.watcher.launching
