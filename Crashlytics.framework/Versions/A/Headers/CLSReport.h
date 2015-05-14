@@ -14,6 +14,15 @@ FAB_START_NONNULL
  * The CLSCrashReport protocol is deprecated. See the CLSReport class and the CrashyticsDelegate changes for details.
  **/
 @protocol CLSCrashReport <NSObject>
+
+@property (nonatomic, copy, readonly) NSString *identifier;
+@property (nonatomic, copy, readonly) NSDictionary *customKeys;
+@property (nonatomic, copy, readonly) NSString *bundleVersion;
+@property (nonatomic, copy, readonly) NSString *bundleShortVersionString;
+@property (nonatomic, copy, readonly) NSDate *crashedOnDate;
+@property (nonatomic, copy, readonly) NSString *OSVersion;
+@property (nonatomic, copy, readonly) NSString *OSBuildVersion;
+
 @end
 
 /**
@@ -21,7 +30,7 @@ FAB_START_NONNULL
  * use this class to get information about the event, and can also set some values after the
  * event has occured.
  **/
-@interface CLSReport : NSObject
+@interface CLSReport : NSObject <CLSCrashReport>
 
 - (instancetype)init NS_UNAVAILABLE;
 
