@@ -2,6 +2,7 @@
 #import <Carbon/Carbon.h>
 #import <lua/lauxlib.h>
 #import "../hammerspoon.h"
+#import "ASCIImage/PARImage+ASCIIInput.h"
 
 // ----------------------- Definitions ---------------------
 
@@ -305,7 +306,7 @@ static int menubarSetTitle(lua_State *L) {
 /// Sets the image of a menubar item object. The image will be displayed in the system menubar
 ///
 /// Parameters:
-///  * `iconfilepath` - A filesystem path to an image to be used for the icon
+///  * `iconfilepath` - A string containing the path of an image file to load. If the string begins with `ASCII:` then the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image and used as the icon. See the notes below for information about the special format of ASCII diagram.
 ///
 /// Returns:
 ///  * `true` if the image was loaded and set, `nil` if it could not be found or loaded
@@ -317,9 +318,20 @@ static int menubarSetTitle(lua_State *L) {
 ///  * Icons are specified as "templates", which allows them to automatically support OS X 10.10's Dark Mode, but this also means they cannot be complicated, colour images
 ///  * For examples of images that work well, see Hammerspoon.app/Contents/Resources/statusicon.tiff (for a retina-capable multi-image TIFF icon) or [https://github.com/jigish/slate/blob/master/Slate/status.pdf](https://github.com/jigish/slate/blob/master/Slate/status.pdf) (for a scalable vector PDF icon)
 ///  * For guidelines on the sizing of images, see [http://alastairs-place.net/blog/2013/07/23/nsstatusitem-what-size-should-your-icon-be/](http://alastairs-place.net/blog/2013/07/23/nsstatusitem-what-size-should-your-icon-be/)
+ ///  * To use the ASCII diagram image support, see http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/ and be sure to preface your ASCII diagram with the special string `ASCII:`
 static int menubarSetIcon(lua_State *L) {
+    NSImage *iconImage;
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
-    NSImage *iconImage = [[NSImage alloc] initWithContentsOfFile:lua_to_nsstring(L, 2)];
+    NSString *imageParameter = lua_to_nsstring(L, 2);
+
+    if ([imageParameter hasPrefix:@"ASCII:"]) {
+        NSColor *color = [NSColor blackColor];
+        imageParameter = [[imageParameter substringFromIndex:6] stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+        NSArray *rep = [imageParameter componentsSeparatedByString:@"\n"];
+        iconImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
+    } else {
+        iconImage = [[NSImage alloc] initWithContentsOfFile:lua_to_nsstring(L, 2)];
+    }
     lua_settop(L, 1); // FIXME: This seems unnecessary?
     if (!iconImage) {
         lua_pushnil(L);

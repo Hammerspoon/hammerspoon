@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lua/lauxlib.h>
+#import <ASCIImage/PARImage+ASCIIInput.h>
 #import "../hammerspoon.h"
 
 /// === hs.drawing ===
@@ -262,13 +263,24 @@ NSMutableArray *drawingWindows;
     if (self) {
         self.HSImageView = [[NSImageView alloc] initWithFrame:frameRect];
         self.HSImageView.animates = YES;
+        self.HSImageView.imageScaling = NSImageScaleProportionallyUpOrDown;
         [self addSubview:self.HSImageView];
     }
     return self;
 }
 
 - (void)setImageFromPath:(NSString *)filePath {
-    NSImage *newImage = [[NSImage alloc] initByReferencingFile:filePath];
+    NSString *imageParameter = filePath;
+    NSImage *newImage;
+
+    if ([imageParameter hasPrefix:@"ASCII:"]) {
+        NSColor *color = [NSColor blackColor];
+        imageParameter = [[imageParameter substringFromIndex:6] stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+        NSArray *rep = [imageParameter componentsSeparatedByString:@"\n"];
+        newImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
+    } else {
+        newImage = [[NSImage alloc] initByReferencingFile:filePath];
+    }
     if (!newImage) {
         CLS_NSLOG(@"HSDrawingViewImage::setImageFromPath: ERROR: unable to load image: %@", filePath);
         return;
@@ -605,12 +617,15 @@ static int drawing_newText(lua_State *L) {
 ///
 /// Parameters:
 ///  * sizeRect - A rect-table containing the location/size of the image
-///  * imagePath - A string containing a path to an image file
+///  * imagePath - A string containing a path to an image file. If the string begins with `ASCII:` then the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image. See the notes below for information about the special format of ASCII diagram.
 ///
 /// Returns:
 ///  * An `hs.drawing` image object, or nil if an error occurs
 ///  * Paths relative to the PWD of Hammerspoon (typically ~/.hammerspoon/) will work, but paths relative to the UNIX homedir character, `~` will not
 ///  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
+///
+/// Notes:
+///  * To use the ASCII diagram image support, see http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/ and be sure to preface your ASCII diagram with the special string `ASCII:`
 static int drawing_newImage(lua_State *L) {
     NSRect windowRect;
     switch (lua_type(L, 1)) {
@@ -638,7 +653,7 @@ static int drawing_newImage(lua_State *L) {
             return 1;
             break;
     }
-    NSString *imagePath = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
+    NSString *imagePath = lua_to_nsstring(L, 2);
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
