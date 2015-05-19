@@ -6,4 +6,5 @@ source 'https://github.com/CocoaPods/Specs.git'
 target 'Hammerspoon' do
 pod 'lua', '~> 5.2.3'
 pod 'Sparkle', '~> 1.8.0', :configurations => ['Release']
+pod 'ASCIImage'
 end
