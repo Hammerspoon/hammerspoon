@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <IOKit/usb/IOUSBLib.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 #import "../hammerspoon.h"
 
 CFStringRef productNameKey = CFSTR(kUSBProductString);

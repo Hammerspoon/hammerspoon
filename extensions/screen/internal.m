@@ -1,7 +1,7 @@
 #import <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
 #import <IOKit/graphics/IOGraphicsLib.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 #import "../hammerspoon.h"
 
 #define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "hs.screen"))

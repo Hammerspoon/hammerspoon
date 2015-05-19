@@ -8,7 +8,7 @@ SOFILE  := internal-json.so
 DEBUG_CFLAGS = -g
 
 CC?=cc
-CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/lua/src -I /usr/local/include/lua5.2 -fobjc-arc -F../../ -framework Fabric $(EXTRA_CFLAGS)
+CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/Headers/Public -I /usr/local/include/lua5.2 -fobjc-arc -F../../ -framework Fabric $(EXTRA_CFLAGS)
 LDFLAGS += -dynamiclib -undefined dynamic_lookup $(EXTRA_LDFLAGS)
 
 all: $(SOFILE)

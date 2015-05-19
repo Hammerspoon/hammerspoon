@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 
 static NSRect geom_torect(lua_State* L, int idx) {
     luaL_checktype(L, idx, LUA_TTABLE);

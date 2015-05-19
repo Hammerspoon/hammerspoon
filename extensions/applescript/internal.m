@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 
 // Check out NSScriptClassDescription for expanding obj return values...
 

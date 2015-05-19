@@ -1,5 +1,5 @@
 // Import the Lua API so we can do Lua things here
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 
 // Import the Crashlytics API so we can define our own crashlog+NSLog call
 #import "../Crashlytics.framework/Headers/Crashlytics.h"

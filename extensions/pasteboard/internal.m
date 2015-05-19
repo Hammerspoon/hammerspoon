@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 
 NSPasteboard *lua_to_pasteboard(lua_State* L, int idx) {
     if (!lua_isnoneornil(L, 1)) {

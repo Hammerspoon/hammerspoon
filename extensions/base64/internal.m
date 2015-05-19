@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 
 // Source: https://gist.github.com/shpakovski/1902994
 

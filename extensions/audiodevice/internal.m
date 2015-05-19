@@ -2,7 +2,7 @@
 #import <Carbon/Carbon.h>
 #import <CoreAudio/CoreAudio.h>
 #import <AudioToolbox/AudioToolbox.h>
-#include <lauxlib.h>
+#include <lua/lauxlib.h>
 #include "math.h"
 
 #define USERDATA_TAG    "hs.audiodevice"

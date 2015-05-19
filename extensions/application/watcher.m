@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 #import "application.h"
 #import "../hammerspoon.h"
 

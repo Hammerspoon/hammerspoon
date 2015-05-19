@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 #import <CoreLocation/CoreLocation.h>
 #import "../hammerspoon.h"
 

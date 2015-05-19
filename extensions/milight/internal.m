@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>

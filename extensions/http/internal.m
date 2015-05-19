@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 
 static NSMutableArray* delegates;
 

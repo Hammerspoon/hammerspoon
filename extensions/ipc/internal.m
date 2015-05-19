@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 #import "../hammerspoon.h"
 
 CFRunLoopSourceRef runloopSource = nil;

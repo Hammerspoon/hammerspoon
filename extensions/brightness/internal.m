@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #include <IOKit/graphics/IOGraphicsLib.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 #import "math.h"
 
 /// hs.brightness.set(brightness) -> boolean

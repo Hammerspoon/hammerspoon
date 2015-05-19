@@ -2,7 +2,7 @@
 #define Window_application_h
 
 #import <Foundation/Foundation.h>
-#import <lua.h>
+#import <lua/lua.h>
 
 extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 
