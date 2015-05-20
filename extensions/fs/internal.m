@@ -60,9 +60,11 @@
 #include <utime.h>
 #endif
 
+#include <Cocoa/Cocoa.h>
 #include <lua/lua.h>
 #include <lua/lauxlib.h>
 #include <lua/lualib.h>
+#include "../hammerspoon.h"
 
 #include "lfs.h"
 
@@ -994,6 +996,169 @@ static int link_info (lua_State *L) {
         return _file_info_ (L, LSTAT_FUNC);
 }
 
+NSURL *path_to_nsurl(NSString *path) {
+    return [NSURL fileURLWithPath:[path stringByExpandingTildeInPath]];
+}
+
+NSArray *tags_from_file(lua_State *L, NSString *filePath) {
+    NSURL *url = path_to_nsurl(filePath);
+    if (!url) {
+        return nil;
+    }
+
+    NSArray *tags;
+    NSError *error;
+    if (![url getResourceValue:&tags forKey:NSURLTagNamesKey error:&error]) {
+        showError(L, (char *)[[NSString stringWithFormat:@"Unable to get tags for %@: %@", url, [error localizedDescription]] UTF8String]);
+        return nil;
+    }
+
+    return tags;
+}
+
+BOOL tags_to_file(lua_State *L, NSURL *url, NSArray *tags) {
+    NSError *error;
+
+    if (![url setResourceValue:tags forKey:NSURLTagNamesKey error:&error]) {
+        showError(L, (char *)[[NSString stringWithFormat:@"Unable to set tags for %@: %@", url, [error localizedDescription]] UTF8String]);
+        return false;
+    }
+    return true;
+}
+
+/// hs.fs.tagsGet(filepath) -> table or nil
+/// Function
+/// Gets the Finder tags of a file
+///
+/// Parameters:
+///  * filepath - A string containing the path of a file
+///
+/// Returns:
+///  * A table containing the list of the file's tags, or nil if an error occurred
+static int tagsGet(lua_State *L) {
+    NSString *path = lua_to_nsstring(L, 1);
+    NSArray *tags = tags_from_file(L, path);
+    if (!tags) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    lua_newtable(L);
+
+    int i = 1;
+    for (NSString *tag in tags) {
+        lua_pushnumber(L, i++);
+        lua_pushstring(L, [tag UTF8String]);
+        lua_settable(L, -3);
+    }
+
+    return 1;
+}
+
+/// hs.fs.tagsAdd(filepath, tags)
+/// Function
+/// Adds one or more tags to the Finder tags of a file
+///
+/// Parameters:
+///  * filepath - A string containing the path of a file
+///  * tags - A table containing one or more strings, each containing a tag name
+///
+/// Returns:
+///  * None
+static int tagsAdd(lua_State *L) {
+    NSString *path = lua_to_nsstring(L, 1);
+    NSURL *url = path_to_nsurl(path);
+    NSArray *existingTags = tags_from_file(L, path);
+    if (!existingTags || !url) {
+        return 0;
+    }
+
+    NSMutableSet *oldTags = [NSMutableSet setWithArray:existingTags];
+    NSMutableSet *newTags = [[NSMutableSet alloc] init];
+
+    lua_pushnil(L);
+    while (lua_next(L, 2) != 0) {
+        NSString *tag = lua_to_nsstring(L, -1);
+        [newTags addObject:tag];
+
+        lua_pop(L, 1);
+    }
+
+    [newTags unionSet:oldTags];
+
+    tags_to_file(L, path_to_nsurl(path), [newTags allObjects]);
+
+    return 0;
+}
+
+/// hs.fs.tagsSet(filepath, tags)
+/// Function
+/// Sets the Finder tags of a file, removing any that are already set
+///
+/// Parameters:
+///  * filepath - A string containing the path of a file
+///  * tags - A table containing zero or more strings, each containing a tag name
+///
+/// Returns:
+///  * None
+static int tagsSet(lua_State *L) {
+    NSString *path = lua_to_nsstring(L, 1);
+    NSURL *url = path_to_nsurl(path);
+    if (!url) {
+        return 0;
+    }
+
+    NSMutableArray *tags = [[NSMutableArray alloc] init];
+
+    lua_pushnil(L);
+    while (lua_next(L, 2) != 0) {
+        NSString *tag = lua_to_nsstring(L, -1);
+        [tags addObject:tag];
+
+        lua_pop(L, 1);
+    }
+
+    tags_to_file(L, url, tags);
+
+    return 0;
+}
+
+/// hs.fs.tagsRemove(filepath, tags)
+/// Function
+/// Removes Finder tags from a file
+///
+/// Parameters:
+///  * filepath - A string containing the path of a file
+///  * tags - A table containing one or more strings, each containing a tag name
+///
+/// Returns:
+///  * None
+static int tagsRemove(lua_State *L) {
+    NSString *path = lua_to_nsstring(L, 1);
+    NSURL *url = path_to_nsurl(path);
+    NSArray *tags = tags_from_file(L, path);
+    if (!url || !tags) {
+        return 0;
+    }
+
+    NSMutableArray *removeTags = [[NSMutableArray alloc] init];
+
+    lua_pushnil(L);
+    while (lua_next(L, 2) != 0) {
+        NSString *tag = lua_to_nsstring(L, -1);
+        [removeTags addObject:tag];
+
+        lua_pop(L, 1);
+    }
+
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT SELF IN %@", removeTags];
+    tags = [tags filteredArrayUsingPredicate:predicate];
+
+    tags_to_file(L, url, tags);
+
+    return 0;
+}
+
 static const struct luaL_Reg fslib[] = {
         {"attributes", file_info},
         {"chdir", change_dir},
@@ -1008,6 +1173,10 @@ static const struct luaL_Reg fslib[] = {
         {"touch", file_utime},
         {"unlock", file_unlock},
         {"lockDir", lfs_lock_dir},
+        {"tagsAdd", tagsAdd},
+        {"tagsRemove", tagsRemove},
+        {"tagsSet", tagsSet},
+        {"tagsGet", tagsGet},
         {NULL, NULL},
 };
 
