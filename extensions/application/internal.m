@@ -741,7 +741,7 @@ static int application_selectmenuitem(lua_State* L) {
 /// Launches the app with the given name, or activates it if it's already running.
 ///
 /// Parameters:
-///  * name - A string containing the name of the application to either launch or focus
+///  * name - A string containing the name of the application to either launch or focus. This can also be the full path to an application (including the `.app` suffix) if you need to uniquely distinguish between applications in different locations that share the same name
 ///
 /// Returns:
 ///  * True if the application was either launched or focused, otherwise false (e.g. if the application doesn't exist)
