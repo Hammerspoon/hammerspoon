@@ -10,8 +10,8 @@
 ---
 --- For a grid of 2x2:
 ---
---- * a cell {x=0, y=0, w=1, h=1} will be in the upper-left corner
---- * a cell {x=1, y=0, w=1, h=1} will be in the upper-right corner
+--- * a cell {x = 0, y = 0, w = 1, h = 1} will be in the upper-left corner
+--- * a cell {x = 1, y = 0, w = 1, h = 1} will be in the upper-right corner
 --- * and so on...
 
 local grid = {}
@@ -46,9 +46,15 @@ local function round(num, idp)
   return math.floor(num * mult + 0.5) / mult
 end
 
---- hs.grid.get(win)
+--- hs.grid.get(win) -> cell
 --- Function
---- Gets the cell this window is on
+--- Returns the cell (see introduction) this window is on
+---
+--- Parameters:
+--- * A `hs.window` object
+---
+--- Returns:
+--- * A cell object, or nil if screen cannot be found
 function grid.get(win)
   local winframe = win:frame()
   local winscreen = win:screen()
@@ -66,9 +72,17 @@ function grid.get(win)
   }
 end
 
---- hs.grid.set(win, grid, screen)
+--- hs.grid.set(win, cell, screen)
 --- Function
 --- Sets the cell this window should be on
+---
+--- Parameters:
+--- * win - A `hs.window` object
+--- * cell - A cell table (see introduction)
+--- * screen - A `hs.screen` object
+---
+--- Returns:
+--- * None
 function grid.set(win, cell, screen)
   local screenrect = screen:frame()
   local thirdscreenwidth = screenrect.w / grid.GRIDWIDTH
@@ -90,7 +104,13 @@ end
 
 --- hs.grid.snap(win)
 --- Function
---- Snaps the window into a cell
+--- Snaps the window into closest cells
+---
+--- Parameters:
+--- * win - A `hs.window` object
+---
+--- Returns:
+---  * None
 function grid.snap(win)
   if win:isStandard() then
     local gridframe = grid.get(win)
@@ -100,20 +120,29 @@ function grid.snap(win)
   end
 end
 
---- hs.grid.adjustHeight(by)
+--- hs.grid.adjustHeight(cellHeight)
 --- Function
---- Increases the grid by the given number of cells; may be negative
-function grid.adjustHeight(by)
-  grid.GRIDHEIGHT = math.max(1, grid.GRIDHEIGHT + by)
+--- Increases or decreases the height of the grid by the given number of cells
+---
+--- Parameters:
+---  * cellHeight - number to adjust the height by
+function grid.adjustHeight(cellHeight)
+  grid.GRIDHEIGHT = math.max(1, grid.GRIDHEIGHT + cellHeight)
   alert.show("grid is now " .. tostring(grid.GRIDHEIGHT) .. " tiles high", 1)
   fnutils.map(window.visibleWindows(), grid.snap)
 end
 
---- hs.grid.adjustWidth(by)
+--- hs.grid.adjustWidth(cellWidth)
 --- Function
---- Widens the grid by the given number of cells; may be negative
-function grid.adjustWidth(by)
-  grid.GRIDWIDTH = math.max(1, grid.GRIDWIDTH + by)
+--- Increases or decreases the width of the grid by the given number of cells
+---
+--- Parameters:
+---  * cellWidth - number to adjust the width by
+---
+--- Returns:
+---  * None
+function grid.adjustWidth(cellWidth)
+  grid.GRIDWIDTH = math.max(1, grid.GRIDWIDTH + cellWidth)
   alert.show("grid is now " .. tostring(grid.GRIDWIDTH) .. " tiles wide", 1)
   fnutils.map(window.visibleWindows(), grid.snap)
 end
@@ -213,7 +242,7 @@ end
 
 --- hs.grid.resizeWindowShorter()
 --- Function
---- Resizes the focused window so its height is 1 grid count less.
+--- Resizes the focused window so its height is 1 grid count lower.
 function grid.resizeWindowShorter()
   grid.adjustFocusedWindow(function(f) f.y = f.y - 0; f.h = math.max(f.h - 1, 1) end)
 end
