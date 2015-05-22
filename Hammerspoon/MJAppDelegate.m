@@ -1,3 +1,4 @@
+#import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
 #import <Cocoa/Cocoa.h>
 #import "MJConsoleWindowController.h"
@@ -51,9 +52,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     // Enable Crashlytics, if we have an API key available
 #ifdef CRASHLYTICS_API_KEY
     if (HSUploadCrashData()) {
-        Crashlytics *crashlytics = [Crashlytics sharedInstance];
-        crashlytics.debugMode = YES; // TODO: We probably don't want to leave this enabled
-        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY]];
+        Fabric *fabric = [Fabric sharedSDK];
+        fabric.debug = YES;
+        [Fabric with:@[CrashlyticsKit]];
     }
 #endif
 

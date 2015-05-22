@@ -432,7 +432,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "if [ -f ../token-crashlytics ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../token-crashlytics\n  ./Crashlytics.framework/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD\"\nfi";
+			shellScript = "if [ -f ../token-crashlytics ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../token-crashlytics\n  ./Fabric.framework/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD\"\nfi";
 		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */ = {
 			isa = PBXShellScriptBuildPhase;
