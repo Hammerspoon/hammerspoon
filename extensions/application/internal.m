@@ -738,7 +738,7 @@ static int application_selectmenuitem(lua_State* L) {
 
 /// hs.application.launchOrFocus(name) -> bool
 /// Function
-/// Launches the app with the given name, or activates it if it's already running.
+/// Launches the app with the given name, or activates it if it's already running
 ///
 /// Parameters:
 ///  * name - A string containing the name of the application to either launch or focus. This can also be the full path to an application (including the `.app` suffix) if you need to uniquely distinguish between applications in different locations that share the same name
@@ -751,6 +751,26 @@ static int application_launchorfocus(lua_State* L) {
     lua_pushboolean(L, success);
     return 1;
 }
+
+/// hs.application.launchOrFocusByBundleID(bundleID) -> bool
+/// Function
+/// Launches the app with the given bundle ID, or activates it if it's already running
+///
+/// Parameters:
+///  * bundleID - A string containing the bundle ID of the application to either launch or focus.
+///
+/// Returns:
+///  * True if the application was either launched or focused, otherwise false (e.g. if the application doesn't exist)
+///
+/// Notes:
+///  * Bundle identifiers typically take the form of `com.company.ApplicationName`
+static int application_launchorfocusbybundleID(lua_State* L) {
+    NSString* bundleID = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    BOOL success = [[NSWorkspace sharedWorkspace] launchAppWithBundleIdentifier:bundleID options:NSWorkspaceLaunchDefault additionalEventParamDescriptor:nil launchIdentifier:NULL];
+    lua_pushboolean(L, success);
+    return 1;
+}
+
 
 static const luaL_Reg applicationlib[] = {
     {"runningApplications", application_runningapplications},
@@ -778,6 +798,7 @@ static const luaL_Reg applicationlib[] = {
     {"findMenuItem", application_findmenuitem},
     {"selectMenuItem", application_selectmenuitem},
     {"launchOrFocus", application_launchorfocus},
+    {"launchOrFocusByBundleID", application_launchorfocusbybundleID},
 
     {NULL, NULL}
 };
