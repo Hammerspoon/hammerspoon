@@ -36,6 +36,8 @@ static int brightness_ambient(lua_State* L) {
             if (result != kIOReturnSuccess) continue;
 
             result = IOConnectCallMethod(dataPort, 0, nil, 0, nil, 0, values, &outputs, nil, 0);
+            IOServiceClose(dataPort);
+
             if (result != kIOReturnSuccess) continue;
 
             lua_pushnumber(L, i++);
