@@ -4,7 +4,15 @@
 #import <lua/lauxlib.h>
 #import "math.h"
 
-/// hs.brightness.ambient() -> table or nil
+uint64_t LMUtoLux(uint64_t value) {
+  //Conversion formula from regression.
+  // -3*(10^-27)*x^4 + 2.6*(10^-19)*x^3 + -3.4*(10^-12)*x^2 + 3.9*(10^-5)*x - 0.19
+  uint64_t x = value;
+  uint64_t lux = (-3*pow(10, -27))*pow(x, 4) + (2.6*pow(10, -19))*pow(x, 3) - (3.4*pow(10,-12))*pow(x, 2) + (3.9*pow(10, -5))*x - 0.19;
+  return lux;
+}
+
+/// hs.brightness.ambient() -> number
 /// Function
 /// Gets the current ambient brightness
 ///
@@ -12,40 +20,35 @@
 ///  * None
 ///
 /// Returns:
-///  * A table containing the ambient light level, in lux, from each compatible display attached to the system. If an error occurred, nil is returned.
+///  * A number containing the current ambient brightness, measured in lux. If an error occurred, the number will be -1
+///
+/// Notes:
+///  * Even though external Apple displays include an ambient light sensor, their data is typically not available, so this function will likely only be useful to MacBook users
+///  * The raw sensor data is converted to lux via an algorithm used by Mozilla Firefox and is not guaranteed to give an accurate lux value
 static int brightness_ambient(lua_State* L) {
-    io_iterator_t iterator;
-    kern_return_t result = IOServiceGetMatchingServices(kIOMasterPortDefault,
-                                                        IOServiceMatching("AppleLMUController"),
-                                                        &iterator);
-    if (result != kIOReturnSuccess) {
-        lua_pushnil(L);
-    } else {
-        io_object_t service;
-        io_connect_t dataPort = 0;
-        uint32_t outputs = 2;
-        uint64_t values[outputs];
-        int i = 1;
+    kern_return_t result;
+    io_service_t serviceObject;
+    io_connect_t dataPort = 0;
+    uint32_t outputs = 2;
+    uint64_t values[outputs];
+    uint64_t lux = -1;
 
-        lua_newtable(L);
+    serviceObject = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceMatching("AppleLMUController"));
+    if (!serviceObject) goto final;
 
-        while ((service = IOIteratorNext(iterator))) {
-            result = IOServiceOpen(service, mach_task_self(), 0, &dataPort);
-            IOObjectRelease(service);
+    result = IOServiceOpen(serviceObject, mach_task_self(), 0, &dataPort);
+    IOObjectRelease(serviceObject);
+    if (result != KERN_SUCCESS) goto final;
 
-            if (result != kIOReturnSuccess) continue;
+    result = IOConnectCallMethod(dataPort, 0, nil, 0, nil, 0, values, &outputs, nil, 0);
+    IOServiceClose(dataPort);
+    if (result != KERN_SUCCESS) goto final;
 
-            result = IOConnectCallMethod(dataPort, 0, nil, 0, nil, 0, values, &outputs, nil, 0);
-            IOServiceClose(dataPort);
+    // Take the mean of the two sensor values (note that most modern MacBooks only have one sensor, so the values are identical)
+    lux = LMUtoLux((values[0] + values[1])/2);
 
-            if (result != kIOReturnSuccess) continue;
-
-            lua_pushnumber(L, i++);
-            lua_pushnumber(L, values[0]); // FIXME: What units is this? micro-lux?
-            lua_settable(L, -3);
-        }
-    }
-
+final:
+    lua_pushnumber(L, lux);
     return 1;
 }
 
