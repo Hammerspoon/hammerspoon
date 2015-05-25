@@ -31,7 +31,7 @@ end
 --- These events are watched on the application level, but send the relevant child element to the handler.
 --- * hs.uielement.watcher.mainWindowChanged: The main window of the application was changed.
 --- * hs.uielement.watcher.focusedWindowChanged: The focused window of the application was changed. Note that the application may not be activated itself.
---- * hs.uielement.watcher.AXFocusedUIElementChanged: The focused UI element of the application was changed.
+--- * hs.uielement.watcher.focusedElementChanged: The focused UI element of the application was changed.
 ---
 --- ### Window-level events
 --- * hs.uielement.watcher.windowCreated: A window was created. You should watch for this event on the application, or the parent window.
