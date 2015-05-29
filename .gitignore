@@ -21,3 +21,4 @@ DerivedData
 /Hammerspoon*.zip
 *.dSYM
 Hammerspoon/secrets.h
+xcshareddata
