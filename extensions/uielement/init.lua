@@ -132,7 +132,7 @@ end
 --- Does nothing if the watcher has already been started. To start with different events, stop it first.
 function uielement.watcher:start(events)
     -- Track all watchers in appWatchers.
-    local pid = self._element:pid()
+    local pid = self._pid
     if not appWatchers[pid] then appWatchers[pid] = {} end
     table.insert(appWatchers[pid], self)
 
