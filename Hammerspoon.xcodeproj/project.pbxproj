@@ -460,7 +460,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
+			shellScript = "if [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\"] ; then\n        codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
 		};
 		4F9A454819EC67E1006BB982 /* Compile Extensions */ = {
 			isa = PBXShellScriptBuildPhase;
