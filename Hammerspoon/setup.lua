@@ -162,7 +162,7 @@ require = function(modulename)
                 local mjolnirrep = {"application", "hotkey", "screen", "geometry", "fnutils", "keycodes", "alert", "cmsj.appfinder", "_asm.ipc", "_asm.modal_hotkey", "_asm.settings", "7bits.mjomatic", "_asm.eventtap.event", "_asm.timer", "_asm.pathwatcher", "_asm.eventtap", "_asm.notify", "lb.itunes", "_asm.utf8_53", "cmsj.caffeinate", "lb.spotify", "_asm.sys.mouse", "_asm.sys.battery", "_asm.ui.sound", "_asm.data.base64", "_asm.data.json"}
                 for _,v in pairs(mjolnirrep) do
                     if v == mjolnirmod then
-                        hscrash.crashKV(mjolnirmod, "Loaded from Mjolnir module")
+                        hscrash.crashKV("MjolnirModuleLoaded", "YES")
                         break
                     end
                 end
