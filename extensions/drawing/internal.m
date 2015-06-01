@@ -23,7 +23,10 @@ NSMutableArray *drawingWindows;
 @interface HSDrawingWindow : NSWindow <NSWindowDelegate>
 @end
 
-@interface HSDrawingView : NSView
+@interface HSDrawingView : NSView {
+    lua_State *L;
+}
+@property int mouseUpCallbackRef;
 @property BOOL HSFill;
 @property BOOL HSStroke;
 @property CGFloat HSLineWidth;
@@ -102,6 +105,8 @@ NSMutableArray *drawingWindows;
     self = [super initWithFrame:frameRect];
     if (self) {
         // Set up our defaults
+        L = NULL;
+        self.mouseUpCallbackRef = LUA_NOREF;
         self.HSFill = YES;
         self.HSStroke = YES;
         self.HSLineWidth = [NSBezierPath defaultLineWidth];
@@ -116,8 +121,38 @@ NSMutableArray *drawingWindows;
     return self;
 }
 
+- (void)setLuaState:(lua_State *)luaState {
+    L = luaState;
+}
+
 - (BOOL)isFlipped {
     return YES;
+}
+
+- (BOOL)acceptsFirstMouse:(NSEvent * __unused)theEvent {
+    if (self.window == nil) return NO;
+    return !self.window.ignoresMouseEvents;
+}
+
+- (void)setMouseUpCallback:(int)ref {
+    self.mouseUpCallbackRef = ref;
+
+    if (self.window) {
+        [self.window setIgnoresMouseEvents:(ref == LUA_NOREF)];
+    }
+}
+
+- (void)mouseUp:(NSEvent * __unused)theEvent {
+    if (self.mouseUpCallbackRef != LUA_NOREF && L) {
+        lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, self.mouseUpCallbackRef);
+        if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
+            CLS_NSLOG(@"%s", lua_tostring(L, -1));
+            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
+            lua_pushvalue(L, -2);
+            lua_pcall(L, 1, 0, 0);
+        }
+    }
 }
 
 @end
@@ -342,6 +377,7 @@ static int drawing_newCircle(lua_State *L) {
         lua_setmetatable(L, -2);
 
         HSDrawingViewCircle *theView = [[HSDrawingViewCircle alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        [theView setLuaState:L];
 
         theWindow.contentView = theView;
 
@@ -402,6 +438,7 @@ static int drawing_newRect(lua_State *L) {
         lua_setmetatable(L, -2);
 
         HSDrawingViewRect *theView = [[HSDrawingViewRect alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        [theView setLuaState:L];
 
         theWindow.contentView = theView;
 
@@ -484,6 +521,7 @@ static int drawing_newLine(lua_State *L) {
         lua_setmetatable(L, -2);
 
         HSDrawingViewLine *theView = [[HSDrawingViewLine alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        [theView setLuaState:L];
         theWindow.contentView = theView;
 
         // Calculate the origin/end points of our line, within the frame of theView (since we were given screen co-ordinates)
@@ -596,6 +634,7 @@ static int drawing_newText(lua_State *L) {
         lua_setmetatable(L, -2);
 
         HSDrawingViewText *theView = [[HSDrawingViewText alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        [theView setLuaState:L];
 
         theWindow.contentView = theView;
         theView.textField.stringValue = theMessage;
@@ -664,6 +703,7 @@ static int drawing_newImage(lua_State *L) {
         lua_setmetatable(L, -2);
 
         HSDrawingViewImage *theView = [[HSDrawingViewImage alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        [theView setLuaState:L];
 
         theWindow.contentView = theView;
         [theView setImageFromPath:imagePath];
@@ -1071,6 +1111,41 @@ static int drawing_setImagePath(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing:setClickCallback(fn) -> drawingObject
+/// Method
+/// Sets a callback for mouse click events
+///
+/// Parameters:
+///  * fn - A function that will be called when the drawing object is clicked. If this argument is nil, any existing callback is removed.
+///
+/// Returns:
+///  * The drawing object
+static int drawing_setClickCallback(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TFUNCTION) {
+        // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
+        if (drawingView.mouseUpCallbackRef != LUA_NOREF) {
+            luaL_unref(L, LUA_REGISTRYINDEX, drawingView.mouseUpCallbackRef);
+            [drawingView setMouseUpCallback:LUA_NOREF];
+        }
+
+        // Set a new callback if we have a function
+        if (lua_type(L, 2) == LUA_TFUNCTION) {
+            lua_pushvalue(L, 2);
+            [drawingView setMouseUpCallback:luaL_ref(L, LUA_REGISTRYINDEX)];
+        }
+    } else {
+        showError(L, ":setClickCallback() called without a valid argument");
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 /// hs.drawing:show() -> drawingObject
 /// Method
 /// Displays the drawing object
@@ -1188,6 +1263,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setTextFont", drawing_setTextFont},
     {"setText", drawing_setText},
     {"setImagePath", drawing_setImagePath},
+    {"setClickCallback", drawing_setClickCallback},
     {"bringToFront", drawing_bringToFront},
     {"sendToBack", drawing_sendToBack},
     {"show", drawing_show},
