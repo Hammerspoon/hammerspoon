@@ -156,6 +156,17 @@ require = function(modulename)
                     end
                 end
             end
+            if string.sub(modulename, 1, 8) == "mjolnir." then
+                -- Reasonably certain that we're dealing with a Mjolnir module
+                local mjolnirmod = string.sub(modulename, 9, -1)
+                local mjolnirrep = {"application", "hotkey", "screen", "geometry", "fnutils", "keycodes", "alert", "cmsj.appfinder", "_asm.ipc", "_asm.modal_hotkey", "_asm.settings", "7bits.mjomatic", "_asm.eventtap.event", "_asm.timer", "_asm.pathwatcher", "_asm.eventtap", "_asm.notify", "lb.itunes", "_asm.utf8_53", "cmsj.caffeinate", "lb.spotify", "_asm.sys.mouse", "_asm.sys.battery", "_asm.ui.sound", "_asm.data.base64", "_asm.data.json"}
+                for _,v in pairs(mjolnirrep) do
+                    if v == mjolnirmod then
+                        hscrash.crashKV(mjolnirmod, "Loaded from Mjolnir module")
+                        break
+                    end
+                end
+            end
           end)
     return result
 end
