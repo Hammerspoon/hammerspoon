@@ -710,6 +710,113 @@ cleanup:
     return 1;
 }
 
+NSRect screenRectToNSRect(lua_State *L, int idx) {
+    NSRect rect = NSZeroRect;
+    CGFloat x = -1;
+    CGFloat y = -1;
+    CGFloat w = -1;
+    CGFloat h = -1;
+
+    if (lua_isnoneornil(L, idx) || lua_type(L, idx) != LUA_TTABLE) {
+        goto cleanup;
+    }
+
+    lua_getfield(L, idx, "x");
+    if (lua_type(L, -1) == LUA_TNUMBER) {
+        x = (float)lua_tonumber(L, -1);
+    }
+
+    lua_getfield(L, idx, "y");
+    if (lua_type(L, -1) == LUA_TNUMBER) {
+        y = (float)lua_tonumber(L, -1);
+    }
+
+    lua_getfield(L, idx, "w");
+    if (lua_type(L, -1) == LUA_TNUMBER) {
+        w = (float)lua_tonumber(L, -1);
+    }
+
+    lua_getfield(L, idx, "h");
+    if (lua_type(L, -1) == LUA_TNUMBER) {
+        h = (float)lua_tonumber(L, -1);
+    }
+
+    lua_pop(L, 4);
+
+    if (x == -1 || y == -1 || w == -1 || h == -1) {
+        goto cleanup;
+    }
+
+    rect = NSMakeRect(x, y, w, h);
+
+cleanup:
+    return rect;
+}
+
+BOOL screenToFile(NSScreen *screen, NSRect screenRect, NSString *filePath, NSBitmapImageFileType fileType) {
+    BOOL result = false;
+    CGDirectDisplayID screenID = 0;
+    CGImageRef image = NULL;
+    NSBitmapImageRep *rep = NULL;
+    NSData *fileData = NULL;
+    NSSize repSize;
+
+    screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+    image = CGDisplayCreateImageForRect(screenID, (NSIsEmptyRect(screenRect)) ? CGRectMake(0, 0, [screen frame].size.width, [screen frame].size.height) : screenRect);
+    if (!image) goto cleanup;
+
+    rep = [[NSBitmapImageRep alloc] initWithCGImage:image];
+    if (!rep) goto cleanup;
+
+    repSize.width = CGImageGetWidth(image);
+    repSize.height = CGImageGetHeight(image);
+    [rep setSize:repSize];
+
+    fileData = [rep representationUsingType:fileType properties:nil];
+    if ([fileData writeToFile:[filePath stringByExpandingTildeInPath] atomically:YES] == NO) {
+        goto cleanup;
+    }
+
+    result = true;
+cleanup:
+    if (image) {
+        CGImageRelease(image);
+    }
+
+    return result;
+}
+
+/// hs.screen:shotAsPNG(filePath[, screenRect])
+/// Method
+/// Saves an image of the screen to a PNG file
+///
+/// Parameters:
+///  * filePath - A string containing the path to a file to save the screenshot in
+///  * screenRect - An optional `rect-table` containing a portion of the screen to capture. Defaults to the whole screen
+///
+/// Returns:
+///  * None
+static int screen_shotAsPNG(lua_State* L) {
+    lua_pushboolean(L, screenToFile(get_screen_arg(L, 1), screenRectToNSRect(L, 3), lua_to_nsstring(L, 2), NSPNGFileType));
+    return 1;
+}
+
+/// hs.screen:shotAsJPG(filePath[, screenRect])
+/// Method
+/// Saves an image of the screen to a JPG file
+///
+/// Parameters:
+///  * filePath - A string containing the path to a file to save the screenshot in
+///  * screenRect - An optional `rect-table` containing a portion of the screen to capture. Defaults to the whole screen
+///
+/// Returns:
+///  * None
+static int screen_shotAsJPG(lua_State* L) {
+    lua_pushboolean(L, screenToFile(get_screen_arg(L, 1), screenRectToNSRect(L, 3), lua_to_nsstring(L, 2), NSJPEGFileType));
+    return 1;
+}
+
+
 static int screens_gc(lua_State* L __unused) {
     CGDisplayRemoveReconfigurationCallback(displayReconfigurationCallback, NULL);
     screen_gammaRestore(nil);
@@ -732,6 +839,8 @@ static const luaL_Reg screenlib[] = {
     {"availableModes", screen_availableModes},
     {"currentMode", screen_currentMode},
     {"setMode", screen_setMode},
+    {"shotAsPNG", screen_shotAsPNG},
+    {"shotAsJPG", screen_shotAsJPG},
 
     {NULL, NULL}
 };
