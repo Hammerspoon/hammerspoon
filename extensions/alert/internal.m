@@ -134,6 +134,9 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 }
 
 - (void) useTitleAndResize:(NSString*)title {
+    if (title == nil) {
+        title = @"error, please file a bug";
+    }
     [[self window] setTitle:title];
 
     self.textField.stringValue = title;
