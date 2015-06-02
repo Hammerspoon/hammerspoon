@@ -13,7 +13,7 @@
 #import "variables.h"
 #import "secrets.h"
 
-@interface MJAppDelegate : NSObject <NSApplicationDelegate>
+@interface MJAppDelegate : NSObject <NSApplicationDelegate, CrashlyticsDelegate>
 @property IBOutlet NSMenu* menuBarMenu;
 @end
 
@@ -52,9 +52,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     // Enable Crashlytics, if we have an API key available
 #ifdef CRASHLYTICS_API_KEY
     if (HSUploadCrashData()) {
-        Fabric *fabric = [Fabric sharedSDK];
-        fabric.debug = YES;
-        [Fabric with:@[CrashlyticsKit]];
+        Crashlytics *crashlytics = [Crashlytics sharedInstance];
+        crashlytics.debugMode = YES;
+        [Crashlytics startWithAPIKey:[NSString stringWithUTF8String:CRASHLYTICS_API_KEY] delegate:self];
     }
 #endif
 
@@ -103,14 +103,37 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (IBAction) openConfig:(id)sender {
     NSString* path = MJConfigFileFullPath();
-    
+
     if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
         [[NSFileManager defaultManager] createFileAtPath:path
                                                 contents:[NSData data]
                                               attributes:nil];
     }
-    
+
     [[NSWorkspace sharedWorkspace] openFile: path];
+}
+
+- (void)showMjolnirMigrationNotification {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:@"Hammerspoon crash detected"];
+    [alert setInformativeText:@"Your init.lua is loading Mjolnir modules and a previous launch crashed.\n\nHammerspoon ships with updated versions of many of the Mjolnir modules, with both new features and many bug fixes.\n\nPlease consult our API documentation and migrate your config."];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert runModal];
+}
+
+- (void)crashlyticsDidDetectReportForLastExecution:(CLSReport *)report completionHandler:(void (^)(BOOL submit))completionHandler {
+    BOOL showMjolnirMigrationDialog = NO;
+
+    if ([report.customKeys objectForKey:@"MjolnirModuleLoaded"]) {
+        showMjolnirMigrationDialog = YES;
+    }
+
+    completionHandler(YES);
+
+    if (showMjolnirMigrationDialog) {
+        [self showMjolnirMigrationNotification];
+    }
 }
 
 @end
