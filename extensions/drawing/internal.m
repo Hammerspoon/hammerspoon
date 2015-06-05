@@ -1219,10 +1219,8 @@ static int drawing_bringToFront(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     if (!lua_isnoneornil(L, 2) && lua_toboolean(L, 2) == 1) {
-        NSLog(@"screensaver");
         [drawingWindow setLevelScreenSaver];
     } else {
-        NSLog(@"floating");
         [drawingWindow setLevelTop];
     }
 
