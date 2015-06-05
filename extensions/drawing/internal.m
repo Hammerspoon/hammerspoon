@@ -79,9 +79,13 @@ NSMutableArray *drawingWindows;
         self.ignoresMouseEvents = YES;
         self.restorable = NO;
         self.animationBehavior = NSWindowAnimationBehaviorNone;
-        self.level = NSFloatingWindowLevel;
+        self.level = NSScreenSaverWindowLevel;
     }
     return self;
+}
+
+- (void)setLevelScreenSaver {
+    self.level = NSScreenSaverWindowLevel;
 }
 
 - (void)setLevelTop {
@@ -1202,19 +1206,25 @@ static int drawing_delete(lua_State *L) {
     return 0;
 }
 
-/// hs.drawing:bringToFront() -> drawingObject
+/// hs.drawing:bringToFront([aboveEverything]) -> drawingObject
 /// Method
 /// Places the drawing object on top of normal windows
 ///
 /// Parameters:
-///  * None
+///  * aboveEverything - An optional boolean value that controls how far to the front the drawing should be placed. True to place the drawing on top of all windows (including the dock and menubar and fullscreen windows), false to place the drawing above normal windows, but below the dock, menubar and fullscreen windows. Defaults to false.
 ///
 /// Returns:
 ///  * The drawing object
 static int drawing_bringToFront(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
-    [drawingWindow setLevelTop];
+    if (!lua_isnoneornil(L, 2) && lua_toboolean(L, 2) == 1) {
+        NSLog(@"screensaver");
+        [drawingWindow setLevelScreenSaver];
+    } else {
+        NSLog(@"floating");
+        [drawingWindow setLevelTop];
+    }
 
     lua_pushvalue(L, 1);
     return 1;
