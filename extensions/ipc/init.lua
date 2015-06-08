@@ -169,12 +169,12 @@ hs.ipc.cliStatus = function(path, silent)
 
     local silent = silent or false
 
-    local bin_file = os.execute("[ -f "..path.."/bin/hs ]")
-    local man_file = os.execute("[ -f "..path.."/share/man/man1/hs.1 ]")
-    local bin_link = os.execute("[ -L "..path.."/bin/hs ]")
-    local man_link = os.execute("[ -L "..path.."/share/man/man1/hs.1 ]")
-    local bin_ours = os.execute("[ "..path.."/bin/hs -ef "..mod_path.."/bin/hs ]")
-    local man_ours = os.execute("[ "..path.."/share/man/man1/hs.1 -ef "..mod_path.."/share/man/man1/hs.1 ]")
+    local bin_file = os.execute("[ -f \""..path.."/bin/hs\" ]")
+    local man_file = os.execute("[ -f \""..path.."/share/man/man1/hs.1\" ]")
+    local bin_link = os.execute("[ -L \""..path.."/bin/hs\" ]")
+    local man_link = os.execute("[ -L \""..path.."/share/man/man1/hs.1\" ]")
+    local bin_ours = os.execute("[ \""..path.."/bin/hs\" -ef \""..mod_path.."/bin/hs\" ]")
+    local man_ours = os.execute("[ \""..path.."/share/man/man1/hs.1\" -ef \""..mod_path.."/share/man/man1/hs.1\" ]")
 
     local result = bin_file and man_file and bin_link and man_link and bin_ours and man_ours or false
     local broken = false
