@@ -240,8 +240,8 @@ hs.ipc.cliInstall = function(path, silent)
     local silent = silent or false
     if hs.ipc.cliStatus(path, true) == false then
         local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
-        os.execute("ln -s "..mod_path.."/bin/hs "..path.."/bin/")
-        os.execute("ln -s "..mod_path.."/share/man/man1/hs.1 "..path.."/share/man/man1/")
+        os.execute("ln -s \""..mod_path.."/bin/hs\" \""..path.."/bin/\"")
+        os.execute("ln -s \""..mod_path.."/share/man/man1/hs.1\" \""..path.."/share/man/man1/\"")
     end
     return hs.ipc.cliStatus(path, silent)
 end
@@ -263,8 +263,8 @@ hs.ipc.cliUninstall = function(path, silent)
     local path = path or "/usr/local"
     local silent = silent or false
     if hs.ipc.cliStatus(path, silent) == true then
-        os.execute("rm "..path.."/bin/hs")
-        os.execute("rm "..path.."/share/man/man1/hs.1")
+        os.execute("rm \""..path.."/bin/hs\"")
+        os.execute("rm \""..path.."/share/man/man1/hs.1\"")
     else
         return false
     end
