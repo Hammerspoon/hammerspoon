@@ -9,7 +9,9 @@
 #ifndef SUAPPCASTITEM_H
 #define SUAPPCASTITEM_H
 
-@interface SUAppcastItem : NSObject
+#include "SUExport.h"
+
+SU_EXPORT @interface SUAppcastItem : NSObject
 @property (copy, readonly) NSString *title;
 @property (copy, readonly) NSDate *date;
 @property (copy, readonly) NSString *itemDescription;

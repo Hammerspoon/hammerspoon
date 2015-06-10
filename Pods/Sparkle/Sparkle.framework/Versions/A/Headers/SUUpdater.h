@@ -9,6 +9,7 @@
 #ifndef SUUPDATER_H
 #define SUUPDATER_H
 
+#import "SUExport.h"
 #import "SUVersionComparisonProtocol.h"
 #import "SUVersionDisplayProtocol.h"
 
@@ -22,9 +23,9 @@
     This class is used to configure the update paramters as well as manually
     and automatically schedule and control checks for updates.
  */
-@interface SUUpdater : NSObject
+SU_EXPORT @interface SUUpdater : NSObject
 
-@property (weak) IBOutlet id<SUUpdaterDelegate> delegate;
+@property (unsafe_unretained) IBOutlet id<SUUpdaterDelegate> delegate;
 
 + (SUUpdater *)sharedUpdater;
 + (SUUpdater *)updaterForBundle:(NSBundle *)bundle;
@@ -44,6 +45,8 @@
 @property (copy) NSURL *feedURL;
 
 @property (nonatomic, copy) NSString *userAgentString;
+
+@property (copy) NSDictionary *httpHeaders;
 
 @property BOOL sendsSystemProfile;
 
@@ -107,17 +110,17 @@
 // SUUpdater Notifications for events that might be interesting to more than just the delegate
 // The updater will be the notification object
 // -----------------------------------------------------------------------------
-extern NSString *const SUUpdaterDidFinishLoadingAppCastNotification;
-extern NSString *const SUUpdaterDidFindValidUpdateNotification;
-extern NSString *const SUUpdaterDidNotFindUpdateNotification;
-extern NSString *const SUUpdaterWillRestartNotification;
+SU_EXPORT extern NSString *const SUUpdaterDidFinishLoadingAppCastNotification;
+SU_EXPORT extern NSString *const SUUpdaterDidFindValidUpdateNotification;
+SU_EXPORT extern NSString *const SUUpdaterDidNotFindUpdateNotification;
+SU_EXPORT extern NSString *const SUUpdaterWillRestartNotification;
 #define SUUpdaterWillRelaunchApplicationNotification SUUpdaterWillRestartNotification;
 #define SUUpdaterWillInstallUpdateNotification SUUpdaterWillRestartNotification;
 
 // Key for the SUAppcastItem object in the SUUpdaterDidFindValidUpdateNotification userInfo
-extern NSString *const SUUpdaterAppcastItemNotificationKey;
+SU_EXPORT extern NSString *const SUUpdaterAppcastItemNotificationKey;
 // Key for the SUAppcast object in the SUUpdaterDidFinishLoadingAppCastNotification userInfo
-extern NSString *const SUUpdaterAppcastNotificationKey;
+SU_EXPORT extern NSString *const SUUpdaterAppcastNotificationKey;
 
 // -----------------------------------------------------------------------------
 //	SUUpdater Delegate:
@@ -311,24 +314,14 @@ extern NSString *const SUUpdaterAppcastNotificationKey;
  */
 - (void)updater:(SUUpdater *)updater didCancelInstallUpdateOnQuit:(SUAppcastItem *)item;
 
+/*!
+    Called after an update is aborted due to an error.
+
+    \param updater The SUUpdater instance.
+    \param error The error that caused the abort
+ */
+- (void)updater:(SUUpdater *)updater didAbortWithError:(NSError *)error;
+
 @end
-
-
-// -----------------------------------------------------------------------------
-//	Constants:
-// -----------------------------------------------------------------------------
-
-// Define some minimum intervals to avoid DOS-like checking attacks. These are in seconds.
-#if defined(DEBUG) && DEBUG && 0
-#define SU_MIN_CHECK_INTERVAL 60
-#else
-#define SU_MIN_CHECK_INTERVAL 60 * 60
-#endif
-
-#if defined(DEBUG) && DEBUG && 0
-#define SU_DEFAULT_CHECK_INTERVAL 60
-#else
-#define SU_DEFAULT_CHECK_INTERVAL 60 * 60 * 24
-#endif
 
 #endif

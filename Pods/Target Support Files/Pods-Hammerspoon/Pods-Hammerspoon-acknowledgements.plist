@@ -44,12 +44,12 @@ SOFTWARE.
 		</dict>
 		<dict>
 			<key>FooterText</key>
-			<string>&#169; 2006-2013 Andy Matuschak
-&#169; 2009-2013 Elgato Systems GmbH.
-&#169; 2011-2014 Kornel Lesi&#324;ski
-&#169; 2014 C.W. Betts
-&#169; 2014 Petroules Corporation, Sparkle Project contributors
-&#169; 2014 Big Nerd Ranch
+			<string>Copyright (c) 2006-2013 Andy Matuschak.
+Copyright (c) 2009-2013 Elgato Systems GmbH.
+Copyright (c) 2011-2014 Kornel Lesi&#324;ski.
+Copyright (c) 2014 C.W. Betts.
+Copyright (c) 2014 Petroules Corporation.
+Copyright (c) 2014 Big Nerd Ranch.
 All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -73,8 +73,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 EXTERNAL LICENSES
 =================
 
-bspatch.c and bsdiff.c, from bsdiff 4.3 &lt;http://www.daemonology.net/bsdiff/&gt;: &#169; 2003-2005 Colin Percival.
-SUDSAVerifier.m: &#169; 2011 Mark Hamlin.
+bspatch.c and bsdiff.c, from bsdiff 4.3 &lt;http://www.daemonology.net/bsdiff/&gt;:
+    Copyright (c) 2003-2005 Colin Percival.
+
+sais.c and sais.c, from sais-lite (2010/08/07) &lt;https://sites.google.com/site/yuta256/sais&gt;:
+    Copyright (c) 2008-2010 Yuta Mori.
+
+SUDSAVerifier.m:
+    Copyright (c) 2011 Mark Hamlin.
 
 All rights reserved.
 

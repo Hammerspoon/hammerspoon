@@ -9,7 +9,7 @@
 #ifndef SUSTANDARDVERSIONCOMPARATOR_H
 #define SUSTANDARDVERSIONCOMPARATOR_H
 
-
+#import "SUExport.h"
 #import "SUVersionComparisonProtocol.h"
 
 /*!
@@ -19,7 +19,7 @@
     It's "dumb" in that it does essentially string comparison,
     in components split by character type.
 */
-@interface SUStandardVersionComparator : NSObject <SUVersionComparison>
+SU_EXPORT @interface SUStandardVersionComparator : NSObject <SUVersionComparison>
 
 /*!
     Returns a singleton instance of the comparator.

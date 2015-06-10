@@ -7,464 +7,447 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		01D3D3CA8766C84E7C87D882 /* lbitlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 13255E922334F37404CC126F /* lbitlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		01DFDF56C5435DAA5E9F3C2C /* lparser.h in Headers */ = {isa = PBXBuildFile; fileRef = D821D6AC450B2F49E16D06ED /* lparser.h */; };
-		03B64C70F9AEB4949E3F6159 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 6243FCD6CF85082022CB443E /* ltm.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		04B4A15D4867917A2EE30CBB /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 243C53A3A5AAC81CE27AA8F8 /* loslib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		04F87F409B25EDF873AA49A4 /* lobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 281C11EE390DEF624639558D /* lobject.h */; };
-		0B02FF3BD06DFEF344FDD1D3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F7D6FB8E2FDD688475F805 /* Cocoa.framework */; };
-		104F33D8EBC726928262E6F0 /* lstring.h in Headers */ = {isa = PBXBuildFile; fileRef = A99F831A8218DDC39FD05CD2 /* lstring.h */; };
-		1DE595FB2156A107A045CAC4 /* lauxlib.h in Headers */ = {isa = PBXBuildFile; fileRef = C6A3F3B2EEE295DDF6A1E774 /* lauxlib.h */; };
-		1F35ECE2C65266E9FECCA223 /* lapi.h in Headers */ = {isa = PBXBuildFile; fileRef = D8C4C902F8B52BAE06A78D4A /* lapi.h */; };
-		219E22617387FF0F44EDCF64 /* lfunc.h in Headers */ = {isa = PBXBuildFile; fileRef = 95FA19A45B3DD6A83420D5A4 /* lfunc.h */; };
-		28AD7C64D2418AC4D3EE6A5B /* lua.hpp in Headers */ = {isa = PBXBuildFile; fileRef = F1AC219116B33D9334015BF2 /* lua.hpp */; };
-		2ACB3A93D57A931CBB32B8EA /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 137B28B4B14E7ABAD0A292E1 /* lobject.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		2AD581FA6480ED0775D59D8B /* luaconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 24B7F079B6CFA94ABC3CFE8B /* luaconf.h */; };
-		2CF0363530115443DC832689 /* Pods-Hammerspoon-ASCIImage-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 61610487C06B35331614BC02 /* Pods-Hammerspoon-ASCIImage-dummy.m */; };
-		36BEC77B24E5D4480AB282B9 /* lcorolib.c in Sources */ = {isa = PBXBuildFile; fileRef = F265602C52368F402CD72F39 /* lcorolib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		3973A3BDDCEB4BD4466BDF8A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F7D6FB8E2FDD688475F805 /* Cocoa.framework */; };
-		4228B82810D4BCEC11520101 /* lmem.h in Headers */ = {isa = PBXBuildFile; fileRef = F85DEFF5012BB7BCB0DB2129 /* lmem.h */; };
-		45AD1F7D3E553E8D9A962708 /* lmem.c in Sources */ = {isa = PBXBuildFile; fileRef = B8C96C1D3D0F8D29168996BC /* lmem.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		4727418FF6F39456914D6AEF /* Pods-Hammerspoon-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1C4ABED017A33CB197021A1C /* Pods-Hammerspoon-dummy.m */; };
-		4A6FD7A2F94EE91ED37BCCA3 /* ldump.c in Sources */ = {isa = PBXBuildFile; fileRef = D62F37340ADA70E60E864D0C /* ldump.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		4D5A84632FDCC95C3A21EA4D /* lstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 7FD4BF38E440BAFF895ECA55 /* lstring.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		53BEB4FD75C3B7611697C4BC /* ltm.h in Headers */ = {isa = PBXBuildFile; fileRef = 02009401A772E5BA62E6B820 /* ltm.h */; };
-		5D33FED2D4A4C353FEECF8CD /* PARImage+ASCIIInput.h in Headers */ = {isa = PBXBuildFile; fileRef = 56D25C3830CD280AF3BC3514 /* PARImage+ASCIIInput.h */; };
-		5DDC9C9D77F608A6573253D9 /* PARImage+ASCIIInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 3EC8E76E09FD058937F46FD9 /* PARImage+ASCIIInput.m */; settings = {COMPILER_FLAGS = "-DOS_OBJECT_USE_OBJC=0"; }; };
-		629EF52E5CDB519B0A659993 /* lstate.h in Headers */ = {isa = PBXBuildFile; fileRef = 25BA73C70346DEDC76BC50D0 /* lstate.h */; };
-		6554ECAF9958BA57E3E315A4 /* ldebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 41F9E46ED55CE353DE761CA5 /* ldebug.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		6E5331101478EAB20D66CCEA /* ldebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 950111D46739E1190F65907A /* ldebug.h */; };
-		738EDF7C33D5A9081A997447 /* ltable.h in Headers */ = {isa = PBXBuildFile; fileRef = 092C855088085AB8335AF18B /* ltable.h */; };
-		7CF70129DE6F7527ED662A96 /* ldo.h in Headers */ = {isa = PBXBuildFile; fileRef = F9C86F18DBB83BE713564E42 /* ldo.h */; };
-		7D241A0BBC6E43A4BFD1E058 /* lgc.c in Sources */ = {isa = PBXBuildFile; fileRef = 0E14C1CBE18F2C4C2B56F78B /* lgc.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		80B600E03868CDA39C1BA6CB /* Pods-Hammerspoon-lua-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 37E200D4E4DF4D53FDF1CD2E /* Pods-Hammerspoon-lua-dummy.m */; };
-		896F428409A05F3544069BF7 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = 1BF6B5B59F975BCDD896C6DC /* lzio.h */; };
-		898D22ED17A91AE10453BF7E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F7D6FB8E2FDD688475F805 /* Cocoa.framework */; };
-		8E58F33885CBFAC81B927274 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 5513327B83896F9CEBF7A98F /* lbaselib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		9035009E544089D6272D6520 /* lualib.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EA944E51BDF9A3E1250CC71 /* lualib.h */; };
-		9090E10C56F7D6C7C39E12F5 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 82C177E473749C449ADC006F /* lzio.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		925768322CB69B021151C684 /* lctype.c in Sources */ = {isa = PBXBuildFile; fileRef = C2B2227B63628F3139754D36 /* lctype.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		94991CFFDCF843B2C705EDCA /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 65A3DB7076831646904028A1 /* lfunc.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		96EF8ABC81C2AF68B6906019 /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 6B6BC493CA313EEAE66CFD68 /* linit.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		9B19E441B76CB762C92B6D60 /* lcode.c in Sources */ = {isa = PBXBuildFile; fileRef = FD58694A066957F80C340B61 /* lcode.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		A21E9A23547634E28CB2676C /* lctype.h in Headers */ = {isa = PBXBuildFile; fileRef = 66E6594581C009B35DC6CDDD /* lctype.h */; };
-		B16C78CB3432EACB8494C33A /* lua.h in Headers */ = {isa = PBXBuildFile; fileRef = 4321B1B4B330EC18713329DF /* lua.h */; };
-		B9434D48EDE1878841EDD01B /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 98B58EF50FEA8D0330C4586D /* lundump.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		B991B25D03F27AAF7F5990B6 /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = F98FBE6D8467E29B41AB646B /* lstrlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		BA2249B57CF17A582639CF63 /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = FE25EBCE7232571F309F33D5 /* lstate.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		C119A6FC4C4D21E05C673468 /* llex.h in Headers */ = {isa = PBXBuildFile; fileRef = 0A99513174054F7DD8969ED1 /* llex.h */; };
-		C1D7508E0F9381E385466AC1 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 610444CD2269791845F01629 /* lvm.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		C355A7BBA907AF54E9894BF3 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = E932079FC830389F41C9E717 /* ltablib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		CAD6D277182D443094E0A888 /* ltable.c in Sources */ = {isa = PBXBuildFile; fileRef = AAB9DB6B043839CACCCC8109 /* ltable.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		CEC656C26CC732DE9EE6D250 /* loadlib.c in Sources */ = {isa = PBXBuildFile; fileRef = BD264EC73950ECBD674E0BAC /* loadlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		CFA3A42267827A25E84086FE /* lgc.h in Headers */ = {isa = PBXBuildFile; fileRef = AA71E0854FC31B308F67FFAE /* lgc.h */; };
-		D364E62F45DBCFFBB8411B6E /* lopcodes.h in Headers */ = {isa = PBXBuildFile; fileRef = 7FFFE85CD2467F541225A031 /* lopcodes.h */; };
-		D4A9717F6945EB99F598BEC9 /* liolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 9D81F422F53CBF1E45D86026 /* liolib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		D55A4C8D0DFE207DEFD6FE64 /* lundump.h in Headers */ = {isa = PBXBuildFile; fileRef = D334E534BF50E587619D61DD /* lundump.h */; };
-		D7E4EBDEB7A94EE9D86DCCDA /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = E799CB3D2725D86790B54884 /* lapi.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		D88767853B4FAA3CC704E559 /* lopcodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 6F6F6E7AADBBC58B3A3312B0 /* lopcodes.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		E2AD4EC974C5AF153B53579D /* lcode.h in Headers */ = {isa = PBXBuildFile; fileRef = 946609B059CE883A6764EDB4 /* lcode.h */; };
-		E2F3390F17B6E2B83C7ED65B /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = BC8CCD1A56A06EA936D8D1E2 /* ldo.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		E5FE0ACB0A3959AEA8608A77 /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = DFF3BB68744E2AE1BC9E3191 /* lmathlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		E9861139243B448CC907C569 /* lvm.h in Headers */ = {isa = PBXBuildFile; fileRef = A3A35BB8C66156B026AFFE80 /* lvm.h */; };
-		EB22A78B3766AC1458D790FE /* ldblib.c in Sources */ = {isa = PBXBuildFile; fileRef = A6B36D6039E06578431AAA02 /* ldblib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		EBDBD1B7B515286CDB37BEF3 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 5AFA466473F49A9968BDC767 /* lauxlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		ED966872ECF101FEFFF23706 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = E8AAF4B36B9C1D71346FC221 /* llex.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		F3574D45A3084AE76C71AAF3 /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 29B721C7D9E4F723A9C41578 /* lparser.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		FD703FA8512147DDC64C3314 /* llimits.h in Headers */ = {isa = PBXBuildFile; fileRef = 6000228E697AF7EB94749E93 /* llimits.h */; };
+		0BFCDCFC148EDADBCA998CA1 /* ltable.c in Sources */ = {isa = PBXBuildFile; fileRef = 85A64340D3BD1F6414E936AA /* ltable.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		133FEBC3BD7726F81FB80AB4 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = A301D349741FFA47A2A37A04 /* lzio.h */; };
+		15B4F05004F1AB2B07491E12 /* Pods-Hammerspoon-lua-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 197BC77E1C5CD5A9F5B777BB /* Pods-Hammerspoon-lua-dummy.m */; };
+		176356814E25376B25637739 /* lualib.h in Headers */ = {isa = PBXBuildFile; fileRef = BAF13AC2558F356436A0DA35 /* lualib.h */; };
+		18884CB572A3A2ADA1963CCB /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = E176952785D8015C39E427D2 /* lapi.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		25273607887B1DDA39988AC3 /* ltm.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C26FB1019749CDD1B6DA7FD /* ltm.h */; };
+		29C860029D425DB34CD7FFC5 /* lfunc.h in Headers */ = {isa = PBXBuildFile; fileRef = BB82792371CA8A204629239D /* lfunc.h */; };
+		2BD2186DE420AAF77DAACF4C /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 726970A1DB53F6C369CF9304 /* lfunc.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		2F204987BC008B213078FF75 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 72191596B9011B2CC17EC038 /* lzio.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		32613F52E09C89873C1A5551 /* lcode.h in Headers */ = {isa = PBXBuildFile; fileRef = A2FA914DEE849F545D5D722D /* lcode.h */; };
+		3507D4036F38666751F88A1C /* lvm.h in Headers */ = {isa = PBXBuildFile; fileRef = CD5E1DCDC8CC692498DACD85 /* lvm.h */; };
+		3DE3CDDA5B9BDBF11C4C8044 /* lapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 746CBD3D8AA7A9DB4C15922D /* lapi.h */; };
+		4186EB7CF45B95A1807125CA /* lmem.c in Sources */ = {isa = PBXBuildFile; fileRef = 4ABC0DCB5F09227BDB90A6FB /* lmem.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		42960C18157460316284BA86 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = 680439F3A2D5EFE4419C98DC /* llex.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		42CE6ED237DF95CD5D85490C /* liolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 6ED3F576E885624F2AA182E7 /* liolib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		445E61FD0E06F5F29AD900EB /* lopcodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 45D020EF70ABA960068F41CB /* lopcodes.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		4713350555F8A487C43CBE1D /* lcode.c in Sources */ = {isa = PBXBuildFile; fileRef = F2D158280F445DEEBD5E8CFB /* lcode.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		4C5674E57B9659D6F7683C17 /* lctype.c in Sources */ = {isa = PBXBuildFile; fileRef = 563B2B27CADFE8FB69663BC1 /* lctype.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		4CAD8D93CB43ED08E3FF905A /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = 26D029DAF4A21F3315365DBF /* ldo.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		54E3C7AF72C366B191D36750 /* lobject.h in Headers */ = {isa = PBXBuildFile; fileRef = C257A459F412F3D3C20502EA /* lobject.h */; };
+		54E81C9DB28C6A647582E638 /* ldblib.c in Sources */ = {isa = PBXBuildFile; fileRef = 8978D8B09A0C6C12E8AE3367 /* ldblib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		565D0BEA16C375A4E9264447 /* Pods-Hammerspoon-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA278580C0E64B153F03049 /* Pods-Hammerspoon-dummy.m */; };
+		56ADBF036E4A9C5E466A3877 /* PARImage+ASCIIInput.m in Sources */ = {isa = PBXBuildFile; fileRef = A8985EED6E4143BC7AE5B124 /* PARImage+ASCIIInput.m */; settings = {COMPILER_FLAGS = "-DOS_OBJECT_USE_OBJC=0"; }; };
+		580E269A11B616E1AB556640 /* luaconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 389A1205CC2B569267D388D9 /* luaconf.h */; };
+		59CBA451AAC8DFDE5E56BED6 /* PARImage+ASCIIInput.h in Headers */ = {isa = PBXBuildFile; fileRef = D6F4424609D5AC5EE98BD6E2 /* PARImage+ASCIIInput.h */; };
+		5DB16AB1439A8DC3FE0CC887 /* lua.h in Headers */ = {isa = PBXBuildFile; fileRef = 7DDC584D6A49060DE54820E4 /* lua.h */; };
+		5FEE8196C1A2EB1857BB1246 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = A4BA95250B59C1C95E847F05 /* lbaselib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		60FFDBB1F59D85DC50C59D73 /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = AEE6DAB7E1982A9D47BA71B0 /* lmathlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		6401139AC9E7F9FA8E383260 /* loadlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 3933B74C5BC509A8B1C3E976 /* loadlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		6A5E11B3FB129A6C95E088B4 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = 89195F118DDE37468176527A /* ltablib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		6DFE2FD2BD4207DD60620FF8 /* ldebug.c in Sources */ = {isa = PBXBuildFile; fileRef = AAA9A2F217FEBA3A0FCE29F4 /* ldebug.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		7175DB42DF702A729CCDCFEF /* lgc.h in Headers */ = {isa = PBXBuildFile; fileRef = 94B5FFE5869CD9D4303A5562 /* lgc.h */; };
+		79B0227852387A5DE574874D /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 04DC0C29451A14ABE2C02A8B /* lparser.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		7B1F5EA3023111E2D1DCCDE3 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C0C1301E09A773756675D68 /* ltm.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		7B4D7DB3B713DC5C8432DC77 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E66EB282D68F93746DF81B2 /* Cocoa.framework */; };
+		7B8204671183A85B734E6FC7 /* lbitlib.c in Sources */ = {isa = PBXBuildFile; fileRef = A77D1A943275728C37BB3D9B /* lbitlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		7D913073B63D9937629B0012 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 3E86495822699FF23C1D6FDE /* lauxlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		7DA9A231506C0DC6A334E32C /* lctype.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A4C993D21278D60CC87B97D /* lctype.h */; };
+		8341E28422196C3ED775FE99 /* llimits.h in Headers */ = {isa = PBXBuildFile; fileRef = F8236E6F59D300D1138FCA5A /* llimits.h */; };
+		858546B8F054D2E7FF35C10A /* lstring.h in Headers */ = {isa = PBXBuildFile; fileRef = CD9245B89E01572F903F4AE2 /* lstring.h */; };
+		91476679954A18D4192D4B70 /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = D7A5B41305AD4945513C0D6F /* lstrlib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		95E15BB34F497369A2325CC9 /* lgc.c in Sources */ = {isa = PBXBuildFile; fileRef = BD4023387EF1AAD48AACC28E /* lgc.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		9630BC09796115D3AB9D379A /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 5405E087BBE01C1ABA0A9D62 /* lobject.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		A0D3CB2E1F7B12574B467F60 /* ldebug.h in Headers */ = {isa = PBXBuildFile; fileRef = 348E2B3D4871B91E25A80A18 /* ldebug.h */; };
+		A20F0CAF7D66D2D7EDFDB41E /* llex.h in Headers */ = {isa = PBXBuildFile; fileRef = 7566037FF78065F493612E89 /* llex.h */; };
+		A577928E5BC7EDAA7548B8EC /* lua.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 8AC36E6005B04A9874A41B57 /* lua.hpp */; };
+		A6F943B7642039D5900A9219 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E66EB282D68F93746DF81B2 /* Cocoa.framework */; };
+		B528CF419EB65AB73C7EAC94 /* ltable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7C1C44FD0BD0D3026EB7BB /* ltable.h */; };
+		B5D3910EA6BCC0EB68A74E5D /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9E66EB282D68F93746DF81B2 /* Cocoa.framework */; };
+		C249F0E84EBF3B8ECC79786F /* lstate.h in Headers */ = {isa = PBXBuildFile; fileRef = 6A9C9F6BC05D3E35704629A8 /* lstate.h */; };
+		C8DEB757DA77FC5DE064740E /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = A519E64665ABE12C5602DAFD /* loslib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		D08DB25DC63270193A984A83 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 2F0D6997EE649503A1D66BEB /* lundump.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		DA61FB0DD6F31BAF07C758E1 /* lcorolib.c in Sources */ = {isa = PBXBuildFile; fileRef = E4EAC56D72A4B7880FE57002 /* lcorolib.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		DDB338975404AEF49F0E358A /* lmem.h in Headers */ = {isa = PBXBuildFile; fileRef = 717E848A3995E8FAC2EE6998 /* lmem.h */; };
+		DF3B2DB07241934C8E4F2FFC /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 6ED57546AC56683198FA8667 /* linit.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		E1F044FE242E438E7484373A /* ldo.h in Headers */ = {isa = PBXBuildFile; fileRef = 85D52BA2A7E2FB65F857EE7C /* ldo.h */; };
+		E48CF3B836414CF83A26FA1F /* lundump.h in Headers */ = {isa = PBXBuildFile; fileRef = 8E440E76615D531128D00599 /* lundump.h */; };
+		E587E41D9C60C0F5F5E5D24C /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 8C759BA868BAB7A3C7E96D48 /* lvm.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		E8D964E4838752D1AF2C1340 /* lauxlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 137C60A0AB17ACAC2E6ACEAF /* lauxlib.h */; };
+		E97F81A9290F52EA9D6E7005 /* lopcodes.h in Headers */ = {isa = PBXBuildFile; fileRef = D3DA82F4003D22A520055C91 /* lopcodes.h */; };
+		E9BB64F9FD56B6FFBF26AA73 /* ldump.c in Sources */ = {isa = PBXBuildFile; fileRef = 3C5E923C8FACA873984C7C68 /* ldump.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		F3466EEF5FCE7866095615AA /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = 536F83767AE98A2CCFAB3287 /* lstate.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		FC875CA6F3EBC5ABF0C17B53 /* lparser.h in Headers */ = {isa = PBXBuildFile; fileRef = EB1DE95536F6ECE4874DA6A5 /* lparser.h */; };
+		FDA62823ABA3BC2E9CC9201D /* Pods-Hammerspoon-ASCIImage-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 34AA4C364DA0299C0F027F27 /* Pods-Hammerspoon-ASCIImage-dummy.m */; };
+		FE6216CC62F0407BB8895C37 /* lstring.c in Sources */ = {isa = PBXBuildFile; fileRef = BA45EA2BE7CC289B4389032F /* lstring.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A7803B24CFEEDBA8DD074658 /* PBXContainerItemProxy */ = {
+		246EF3F5B54781BA89712025 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 58BDB454062A11E4CF122448 /* Project object */;
+			containerPortal = D3381329D137BC581E05B557 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = D445311C7BB5F5E3BEB3E242;
-			remoteInfo = "Pods-Hammerspoon-lua";
-		};
-		CF83B20B4EFC9BB8A49567CE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58BDB454062A11E4CF122448 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C9AEEB27DC570D7BB32162F5;
+			remoteGlobalIDString = E111C7E692123E169B2098F4;
 			remoteInfo = "Pods-Hammerspoon-ASCIImage";
+		};
+		485D6B6B826E0BAE353EA0D8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D3381329D137BC581E05B557 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1D096EDCA7D77E2ECCCA5103;
+			remoteInfo = "Pods-Hammerspoon-lua";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		02009401A772E5BA62E6B820 /* ltm.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ltm.h; path = src/ltm.h; sourceTree = "<group>"; };
-		092C855088085AB8335AF18B /* ltable.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ltable.h; path = src/ltable.h; sourceTree = "<group>"; };
-		0A5AC5AFCE965BBB9E5A42AC /* Pods-Hammerspoon-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Hammerspoon-acknowledgements.plist"; sourceTree = "<group>"; };
-		0A99513174054F7DD8969ED1 /* llex.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = llex.h; path = src/llex.h; sourceTree = "<group>"; };
-		0E14C1CBE18F2C4C2B56F78B /* lgc.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lgc.c; path = src/lgc.c; sourceTree = "<group>"; };
-		10F7D6FB8E2FDD688475F805 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
-		13255E922334F37404CC126F /* lbitlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lbitlib.c; path = src/lbitlib.c; sourceTree = "<group>"; };
-		137B28B4B14E7ABAD0A292E1 /* lobject.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lobject.c; path = src/lobject.c; sourceTree = "<group>"; };
-		18232612A74AD8E385967C29 /* libPods-Hammerspoon-lua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon-lua.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		1BF6B5B59F975BCDD896C6DC /* lzio.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lzio.h; path = src/lzio.h; sourceTree = "<group>"; };
-		1C4ABED017A33CB197021A1C /* Pods-Hammerspoon-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-dummy.m"; sourceTree = "<group>"; };
-		243C53A3A5AAC81CE27AA8F8 /* loslib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = loslib.c; path = src/loslib.c; sourceTree = "<group>"; };
-		24B7F079B6CFA94ABC3CFE8B /* luaconf.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = luaconf.h; path = src/luaconf.h; sourceTree = "<group>"; };
-		25BA73C70346DEDC76BC50D0 /* lstate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lstate.h; path = src/lstate.h; sourceTree = "<group>"; };
-		281C11EE390DEF624639558D /* lobject.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lobject.h; path = src/lobject.h; sourceTree = "<group>"; };
-		29B721C7D9E4F723A9C41578 /* lparser.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lparser.c; path = src/lparser.c; sourceTree = "<group>"; };
-		37E200D4E4DF4D53FDF1CD2E /* Pods-Hammerspoon-lua-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-lua-dummy.m"; sourceTree = "<group>"; };
-		3EC8E76E09FD058937F46FD9 /* PARImage+ASCIIInput.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "PARImage+ASCIIInput.m"; path = "Core/PARImage+ASCIIInput.m"; sourceTree = "<group>"; };
-		41F9E46ED55CE353DE761CA5 /* ldebug.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldebug.c; path = src/ldebug.c; sourceTree = "<group>"; };
-		4321B1B4B330EC18713329DF /* lua.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lua.h; path = src/lua.h; sourceTree = "<group>"; };
-		53F19930AE03C7DC1FF3772A /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
-		5513327B83896F9CEBF7A98F /* lbaselib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lbaselib.c; path = src/lbaselib.c; sourceTree = "<group>"; };
-		56D25C3830CD280AF3BC3514 /* PARImage+ASCIIInput.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "PARImage+ASCIIInput.h"; path = "Core/PARImage+ASCIIInput.h"; sourceTree = "<group>"; };
-		5AF728162B5FECFE2547B8DC /* Podfile */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		5AFA466473F49A9968BDC767 /* lauxlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lauxlib.c; path = src/lauxlib.c; sourceTree = "<group>"; };
-		6000228E697AF7EB94749E93 /* llimits.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = llimits.h; path = src/llimits.h; sourceTree = "<group>"; };
-		610444CD2269791845F01629 /* lvm.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lvm.c; path = src/lvm.c; sourceTree = "<group>"; };
-		61610487C06B35331614BC02 /* Pods-Hammerspoon-ASCIImage-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-ASCIImage-dummy.m"; sourceTree = "<group>"; };
-		62346D46A913C9B14B8371BC /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6243FCD6CF85082022CB443E /* ltm.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltm.c; path = src/ltm.c; sourceTree = "<group>"; };
-		65A3DB7076831646904028A1 /* lfunc.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lfunc.c; path = src/lfunc.c; sourceTree = "<group>"; };
-		66E6594581C009B35DC6CDDD /* lctype.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lctype.h; path = src/lctype.h; sourceTree = "<group>"; };
-		6B6BC493CA313EEAE66CFD68 /* linit.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = linit.c; path = src/linit.c; sourceTree = "<group>"; };
-		6D6E3B1627126B6EDBB4AFC7 /* Pods-Hammerspoon-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Hammerspoon-resources.sh"; sourceTree = "<group>"; };
-		6EA944E51BDF9A3E1250CC71 /* lualib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lualib.h; path = src/lualib.h; sourceTree = "<group>"; };
-		6F6F6E7AADBBC58B3A3312B0 /* lopcodes.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lopcodes.c; path = src/lopcodes.c; sourceTree = "<group>"; };
-		7E6EBF40D7D824D297898480 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
-		7FD4BF38E440BAFF895ECA55 /* lstring.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstring.c; path = src/lstring.c; sourceTree = "<group>"; };
-		7FFFE85CD2467F541225A031 /* lopcodes.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lopcodes.h; path = src/lopcodes.h; sourceTree = "<group>"; };
-		82C177E473749C449ADC006F /* lzio.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lzio.c; path = src/lzio.c; sourceTree = "<group>"; };
-		8B8B51E6CE6EF942E5DA9EC4 /* libPods-Hammerspoon-ASCIImage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon-ASCIImage.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8FBC4667D9DA36D28A677307 /* Pods-Hammerspoon-lua-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-lua-prefix.pch"; sourceTree = "<group>"; };
-		946609B059CE883A6764EDB4 /* lcode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lcode.h; path = src/lcode.h; sourceTree = "<group>"; };
-		950111D46739E1190F65907A /* ldebug.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ldebug.h; path = src/ldebug.h; sourceTree = "<group>"; };
-		95FA19A45B3DD6A83420D5A4 /* lfunc.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lfunc.h; path = src/lfunc.h; sourceTree = "<group>"; };
-		987AC993E5F6D57C783DCB23 /* Pods-Hammerspoon-lua.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-lua.xcconfig"; sourceTree = "<group>"; };
-		98B58EF50FEA8D0330C4586D /* lundump.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lundump.c; path = src/lundump.c; sourceTree = "<group>"; };
-		9D81F422F53CBF1E45D86026 /* liolib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = liolib.c; path = src/liolib.c; sourceTree = "<group>"; };
-		9DA8E52325E7B07537CFAD22 /* Pods-Hammerspoon-environment.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-environment.h"; sourceTree = "<group>"; };
-		9F5C4E3B8593CF261EB96A1F /* Pods-Hammerspoon-ASCIImage-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-ASCIImage-prefix.pch"; sourceTree = "<group>"; };
-		A3A35BB8C66156B026AFFE80 /* lvm.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lvm.h; path = src/lvm.h; sourceTree = "<group>"; };
-		A6B36D6039E06578431AAA02 /* ldblib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldblib.c; path = src/ldblib.c; sourceTree = "<group>"; };
-		A99F831A8218DDC39FD05CD2 /* lstring.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lstring.h; path = src/lstring.h; sourceTree = "<group>"; };
-		AA71E0854FC31B308F67FFAE /* lgc.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lgc.h; path = src/lgc.h; sourceTree = "<group>"; };
-		AAB9DB6B043839CACCCC8109 /* ltable.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltable.c; path = src/ltable.c; sourceTree = "<group>"; };
-		B09F32A151EF42C4013946D2 /* Pods-Hammerspoon-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Hammerspoon-acknowledgements.markdown"; sourceTree = "<group>"; };
-		B8C96C1D3D0F8D29168996BC /* lmem.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lmem.c; path = src/lmem.c; sourceTree = "<group>"; };
-		BC8CCD1A56A06EA936D8D1E2 /* ldo.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldo.c; path = src/ldo.c; sourceTree = "<group>"; };
-		BD264EC73950ECBD674E0BAC /* loadlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = loadlib.c; path = src/loadlib.c; sourceTree = "<group>"; };
-		C2B2227B63628F3139754D36 /* lctype.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lctype.c; path = src/lctype.c; sourceTree = "<group>"; };
-		C6A3F3B2EEE295DDF6A1E774 /* lauxlib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lauxlib.h; path = src/lauxlib.h; sourceTree = "<group>"; };
-		D334E534BF50E587619D61DD /* lundump.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lundump.h; path = src/lundump.h; sourceTree = "<group>"; };
-		D62F37340ADA70E60E864D0C /* ldump.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldump.c; path = src/ldump.c; sourceTree = "<group>"; };
-		D7C420625547615107A18CD3 /* Pods-Hammerspoon-lua-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-lua-Private.xcconfig"; sourceTree = "<group>"; };
-		D821D6AC450B2F49E16D06ED /* lparser.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lparser.h; path = src/lparser.h; sourceTree = "<group>"; };
-		D8C4C902F8B52BAE06A78D4A /* lapi.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lapi.h; path = src/lapi.h; sourceTree = "<group>"; };
-		DFF3BB68744E2AE1BC9E3191 /* lmathlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lmathlib.c; path = src/lmathlib.c; sourceTree = "<group>"; };
-		E653E2EB3C6C1C398C761A1E /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
-		E799CB3D2725D86790B54884 /* lapi.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lapi.c; path = src/lapi.c; sourceTree = "<group>"; };
-		E8AAF4B36B9C1D71346FC221 /* llex.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = llex.c; path = src/llex.c; sourceTree = "<group>"; };
-		E932079FC830389F41C9E717 /* ltablib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltablib.c; path = src/ltablib.c; sourceTree = "<group>"; };
-		F1AC219116B33D9334015BF2 /* lua.hpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.h; name = lua.hpp; path = src/lua.hpp; sourceTree = "<group>"; };
-		F265602C52368F402CD72F39 /* lcorolib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lcorolib.c; path = src/lcorolib.c; sourceTree = "<group>"; };
-		F466109C35D0649D4AC9601F /* Pods-Hammerspoon-ASCIImage-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-ASCIImage-Private.xcconfig"; sourceTree = "<group>"; };
-		F6C7A06061054DFC417E212B /* Pods-Hammerspoon-ASCIImage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-ASCIImage.xcconfig"; sourceTree = "<group>"; };
-		F85DEFF5012BB7BCB0DB2129 /* lmem.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lmem.h; path = src/lmem.h; sourceTree = "<group>"; };
-		F98FBE6D8467E29B41AB646B /* lstrlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstrlib.c; path = src/lstrlib.c; sourceTree = "<group>"; };
-		F9C86F18DBB83BE713564E42 /* ldo.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ldo.h; path = src/ldo.h; sourceTree = "<group>"; };
-		FD58694A066957F80C340B61 /* lcode.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lcode.c; path = src/lcode.c; sourceTree = "<group>"; };
-		FE25EBCE7232571F309F33D5 /* lstate.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstate.c; path = src/lstate.c; sourceTree = "<group>"; };
+		045469667889C33FD7444C5F /* Pods-Hammerspoon-lua-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-lua-Private.xcconfig"; sourceTree = "<group>"; };
+		04DC0C29451A14ABE2C02A8B /* lparser.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lparser.c; path = src/lparser.c; sourceTree = "<group>"; };
+		137C60A0AB17ACAC2E6ACEAF /* lauxlib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lauxlib.h; path = src/lauxlib.h; sourceTree = "<group>"; };
+		177BE10F8A82FD5053143D10 /* Pods-Hammerspoon-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Hammerspoon-acknowledgements.plist"; sourceTree = "<group>"; };
+		197BC77E1C5CD5A9F5B777BB /* Pods-Hammerspoon-lua-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-lua-dummy.m"; sourceTree = "<group>"; };
+		1A4C993D21278D60CC87B97D /* lctype.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lctype.h; path = src/lctype.h; sourceTree = "<group>"; };
+		1F05F5C08EE93A398D259F39 /* Pods-Hammerspoon-lua-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-lua-prefix.pch"; sourceTree = "<group>"; };
+		26D029DAF4A21F3315365DBF /* ldo.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldo.c; path = src/ldo.c; sourceTree = "<group>"; };
+		2C7C1C44FD0BD0D3026EB7BB /* ltable.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ltable.h; path = src/ltable.h; sourceTree = "<group>"; };
+		2F0D6997EE649503A1D66BEB /* lundump.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lundump.c; path = src/lundump.c; sourceTree = "<group>"; };
+		348E2B3D4871B91E25A80A18 /* ldebug.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ldebug.h; path = src/ldebug.h; sourceTree = "<group>"; };
+		34AA4C364DA0299C0F027F27 /* Pods-Hammerspoon-ASCIImage-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-ASCIImage-dummy.m"; sourceTree = "<group>"; };
+		389A1205CC2B569267D388D9 /* luaconf.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = luaconf.h; path = src/luaconf.h; sourceTree = "<group>"; };
+		3933B74C5BC509A8B1C3E976 /* loadlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = loadlib.c; path = src/loadlib.c; sourceTree = "<group>"; };
+		398D88A74A46C89E88B96563 /* Pods-Hammerspoon-ASCIImage-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-ASCIImage-prefix.pch"; sourceTree = "<group>"; };
+		3C0C1301E09A773756675D68 /* ltm.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltm.c; path = src/ltm.c; sourceTree = "<group>"; };
+		3C5E923C8FACA873984C7C68 /* ldump.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldump.c; path = src/ldump.c; sourceTree = "<group>"; };
+		3E86495822699FF23C1D6FDE /* lauxlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lauxlib.c; path = src/lauxlib.c; sourceTree = "<group>"; };
+		45D020EF70ABA960068F41CB /* lopcodes.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lopcodes.c; path = src/lopcodes.c; sourceTree = "<group>"; };
+		49403B61A98936272ACF1A03 /* Pods-Hammerspoon-environment.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Hammerspoon-environment.h"; sourceTree = "<group>"; };
+		4ABC0DCB5F09227BDB90A6FB /* lmem.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lmem.c; path = src/lmem.c; sourceTree = "<group>"; };
+		4C26FB1019749CDD1B6DA7FD /* ltm.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ltm.h; path = src/ltm.h; sourceTree = "<group>"; };
+		536F83767AE98A2CCFAB3287 /* lstate.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstate.c; path = src/lstate.c; sourceTree = "<group>"; };
+		5405E087BBE01C1ABA0A9D62 /* lobject.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lobject.c; path = src/lobject.c; sourceTree = "<group>"; };
+		5542482518AFA81131EAE120 /* Pods-Hammerspoon-ASCIImage-Private.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-ASCIImage-Private.xcconfig"; sourceTree = "<group>"; };
+		563B2B27CADFE8FB69663BC1 /* lctype.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lctype.c; path = src/lctype.c; sourceTree = "<group>"; };
+		680439F3A2D5EFE4419C98DC /* llex.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = llex.c; path = src/llex.c; sourceTree = "<group>"; };
+		6A9C9F6BC05D3E35704629A8 /* lstate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lstate.h; path = src/lstate.h; sourceTree = "<group>"; };
+		6ED3F576E885624F2AA182E7 /* liolib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = liolib.c; path = src/liolib.c; sourceTree = "<group>"; };
+		6ED57546AC56683198FA8667 /* linit.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = linit.c; path = src/linit.c; sourceTree = "<group>"; };
+		717E848A3995E8FAC2EE6998 /* lmem.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lmem.h; path = src/lmem.h; sourceTree = "<group>"; };
+		72191596B9011B2CC17EC038 /* lzio.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lzio.c; path = src/lzio.c; sourceTree = "<group>"; };
+		726970A1DB53F6C369CF9304 /* lfunc.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lfunc.c; path = src/lfunc.c; sourceTree = "<group>"; };
+		746CBD3D8AA7A9DB4C15922D /* lapi.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lapi.h; path = src/lapi.h; sourceTree = "<group>"; };
+		7566037FF78065F493612E89 /* llex.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = llex.h; path = src/llex.h; sourceTree = "<group>"; };
+		7DDC584D6A49060DE54820E4 /* lua.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lua.h; path = src/lua.h; sourceTree = "<group>"; };
+		85A64340D3BD1F6414E936AA /* ltable.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltable.c; path = src/ltable.c; sourceTree = "<group>"; };
+		85D52BA2A7E2FB65F857EE7C /* ldo.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ldo.h; path = src/ldo.h; sourceTree = "<group>"; };
+		89195F118DDE37468176527A /* ltablib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ltablib.c; path = src/ltablib.c; sourceTree = "<group>"; };
+		8978D8B09A0C6C12E8AE3367 /* ldblib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldblib.c; path = src/ldblib.c; sourceTree = "<group>"; };
+		8AC36E6005B04A9874A41B57 /* lua.hpp */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.h; name = lua.hpp; path = src/lua.hpp; sourceTree = "<group>"; };
+		8C759BA868BAB7A3C7E96D48 /* lvm.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lvm.c; path = src/lvm.c; sourceTree = "<group>"; };
+		8E440E76615D531128D00599 /* lundump.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lundump.h; path = src/lundump.h; sourceTree = "<group>"; };
+		94B5FFE5869CD9D4303A5562 /* lgc.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lgc.h; path = src/lgc.h; sourceTree = "<group>"; };
+		9AA278580C0E64B153F03049 /* Pods-Hammerspoon-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Hammerspoon-dummy.m"; sourceTree = "<group>"; };
+		9E66EB282D68F93746DF81B2 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		A2FA914DEE849F545D5D722D /* lcode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lcode.h; path = src/lcode.h; sourceTree = "<group>"; };
+		A301D349741FFA47A2A37A04 /* lzio.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lzio.h; path = src/lzio.h; sourceTree = "<group>"; };
+		A4BA95250B59C1C95E847F05 /* lbaselib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lbaselib.c; path = src/lbaselib.c; sourceTree = "<group>"; };
+		A519E64665ABE12C5602DAFD /* loslib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = loslib.c; path = src/loslib.c; sourceTree = "<group>"; };
+		A77D1A943275728C37BB3D9B /* lbitlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lbitlib.c; path = src/lbitlib.c; sourceTree = "<group>"; };
+		A8985EED6E4143BC7AE5B124 /* PARImage+ASCIIInput.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "PARImage+ASCIIInput.m"; path = "Core/PARImage+ASCIIInput.m"; sourceTree = "<group>"; };
+		AAA9A2F217FEBA3A0FCE29F4 /* ldebug.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = ldebug.c; path = src/ldebug.c; sourceTree = "<group>"; };
+		AE5E28B70AD906EC68F86132 /* Pods-Hammerspoon-lua.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-lua.xcconfig"; sourceTree = "<group>"; };
+		AEE6DAB7E1982A9D47BA71B0 /* lmathlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lmathlib.c; path = src/lmathlib.c; sourceTree = "<group>"; };
+		B25524B89A2C3696F5738705 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
+		B73CD74B8F9615685575E3CD /* Pods-Hammerspoon-ASCIImage.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon-ASCIImage.xcconfig"; sourceTree = "<group>"; };
+		B84F3262FE4E79F24A8B8472 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
+		B898F449C946043976B3DFCE /* Podfile */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		BA45EA2BE7CC289B4389032F /* lstring.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstring.c; path = src/lstring.c; sourceTree = "<group>"; };
+		BAF13AC2558F356436A0DA35 /* lualib.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lualib.h; path = src/lualib.h; sourceTree = "<group>"; };
+		BB82792371CA8A204629239D /* lfunc.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lfunc.h; path = src/lfunc.h; sourceTree = "<group>"; };
+		BD4023387EF1AAD48AACC28E /* lgc.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lgc.c; path = src/lgc.c; sourceTree = "<group>"; };
+		BE18DEA3FD6C35D229F4D6D9 /* Pods-Hammerspoon-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Hammerspoon-acknowledgements.markdown"; sourceTree = "<group>"; };
+		C257A459F412F3D3C20502EA /* lobject.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lobject.h; path = src/lobject.h; sourceTree = "<group>"; };
+		C7BB0A0331EDA4E97C85548B /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD5E1DCDC8CC692498DACD85 /* lvm.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lvm.h; path = src/lvm.h; sourceTree = "<group>"; };
+		CD9245B89E01572F903F4AE2 /* lstring.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lstring.h; path = src/lstring.h; sourceTree = "<group>"; };
+		D21A836E8C534A16FDAE536F /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Sparkle.framework; sourceTree = "<group>"; };
+		D3DA82F4003D22A520055C91 /* lopcodes.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lopcodes.h; path = src/lopcodes.h; sourceTree = "<group>"; };
+		D6F4424609D5AC5EE98BD6E2 /* PARImage+ASCIIInput.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "PARImage+ASCIIInput.h"; path = "Core/PARImage+ASCIIInput.h"; sourceTree = "<group>"; };
+		D7A5B41305AD4945513C0D6F /* lstrlib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lstrlib.c; path = src/lstrlib.c; sourceTree = "<group>"; };
+		DD5061375B68AE94DE9557A8 /* Pods-Hammerspoon-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Hammerspoon-resources.sh"; sourceTree = "<group>"; };
+		E176952785D8015C39E427D2 /* lapi.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lapi.c; path = src/lapi.c; sourceTree = "<group>"; };
+		E4EAC56D72A4B7880FE57002 /* lcorolib.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lcorolib.c; path = src/lcorolib.c; sourceTree = "<group>"; };
+		EB1DE95536F6ECE4874DA6A5 /* lparser.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = lparser.h; path = src/lparser.h; sourceTree = "<group>"; };
+		F2D158280F445DEEBD5E8CFB /* lcode.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = lcode.c; path = src/lcode.c; sourceTree = "<group>"; };
+		F8236E6F59D300D1138FCA5A /* llimits.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = llimits.h; path = src/llimits.h; sourceTree = "<group>"; };
+		FAB855E761AFC9124BD23D55 /* libPods-Hammerspoon-lua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon-lua.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FEDE1D91DC3D09AC9690CCA9 /* libPods-Hammerspoon-ASCIImage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon-ASCIImage.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		05658825CA6005321FFDBD46 /* Frameworks */ = {
+		0A591D91CCE4AB03BE38FD0B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3973A3BDDCEB4BD4466BDF8A /* Cocoa.framework in Frameworks */,
+				A6F943B7642039D5900A9219 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		602BADDB273BDC7CFB94217E /* Frameworks */ = {
+		3E57027D413BC24D8A9CA178 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				898D22ED17A91AE10453BF7E /* Cocoa.framework in Frameworks */,
+				B5D3910EA6BCC0EB68A74E5D /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		FAAA1187CD98EB369CBD3B72 /* Frameworks */ = {
+		41307E7B2FA874469B280374 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B02FF3BD06DFEF344FDD1D3 /* Cocoa.framework in Frameworks */,
+				7B4D7DB3B713DC5C8432DC77 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		023498F1FCF0581DE214B0C3 /* Frameworks */ = {
+		48C9FBB7AD5CDDE5248EC743 /* lua */ = {
 			isa = PBXGroup;
 			children = (
-				4C0AAC2D9C2502C1365162D6 /* OS X */,
+				E176952785D8015C39E427D2 /* lapi.c */,
+				746CBD3D8AA7A9DB4C15922D /* lapi.h */,
+				3E86495822699FF23C1D6FDE /* lauxlib.c */,
+				137C60A0AB17ACAC2E6ACEAF /* lauxlib.h */,
+				A4BA95250B59C1C95E847F05 /* lbaselib.c */,
+				A77D1A943275728C37BB3D9B /* lbitlib.c */,
+				F2D158280F445DEEBD5E8CFB /* lcode.c */,
+				A2FA914DEE849F545D5D722D /* lcode.h */,
+				E4EAC56D72A4B7880FE57002 /* lcorolib.c */,
+				563B2B27CADFE8FB69663BC1 /* lctype.c */,
+				1A4C993D21278D60CC87B97D /* lctype.h */,
+				8978D8B09A0C6C12E8AE3367 /* ldblib.c */,
+				AAA9A2F217FEBA3A0FCE29F4 /* ldebug.c */,
+				348E2B3D4871B91E25A80A18 /* ldebug.h */,
+				26D029DAF4A21F3315365DBF /* ldo.c */,
+				85D52BA2A7E2FB65F857EE7C /* ldo.h */,
+				3C5E923C8FACA873984C7C68 /* ldump.c */,
+				726970A1DB53F6C369CF9304 /* lfunc.c */,
+				BB82792371CA8A204629239D /* lfunc.h */,
+				BD4023387EF1AAD48AACC28E /* lgc.c */,
+				94B5FFE5869CD9D4303A5562 /* lgc.h */,
+				6ED57546AC56683198FA8667 /* linit.c */,
+				6ED3F576E885624F2AA182E7 /* liolib.c */,
+				680439F3A2D5EFE4419C98DC /* llex.c */,
+				7566037FF78065F493612E89 /* llex.h */,
+				F8236E6F59D300D1138FCA5A /* llimits.h */,
+				AEE6DAB7E1982A9D47BA71B0 /* lmathlib.c */,
+				4ABC0DCB5F09227BDB90A6FB /* lmem.c */,
+				717E848A3995E8FAC2EE6998 /* lmem.h */,
+				3933B74C5BC509A8B1C3E976 /* loadlib.c */,
+				5405E087BBE01C1ABA0A9D62 /* lobject.c */,
+				C257A459F412F3D3C20502EA /* lobject.h */,
+				45D020EF70ABA960068F41CB /* lopcodes.c */,
+				D3DA82F4003D22A520055C91 /* lopcodes.h */,
+				A519E64665ABE12C5602DAFD /* loslib.c */,
+				04DC0C29451A14ABE2C02A8B /* lparser.c */,
+				EB1DE95536F6ECE4874DA6A5 /* lparser.h */,
+				536F83767AE98A2CCFAB3287 /* lstate.c */,
+				6A9C9F6BC05D3E35704629A8 /* lstate.h */,
+				BA45EA2BE7CC289B4389032F /* lstring.c */,
+				CD9245B89E01572F903F4AE2 /* lstring.h */,
+				D7A5B41305AD4945513C0D6F /* lstrlib.c */,
+				85A64340D3BD1F6414E936AA /* ltable.c */,
+				2C7C1C44FD0BD0D3026EB7BB /* ltable.h */,
+				89195F118DDE37468176527A /* ltablib.c */,
+				3C0C1301E09A773756675D68 /* ltm.c */,
+				4C26FB1019749CDD1B6DA7FD /* ltm.h */,
+				7DDC584D6A49060DE54820E4 /* lua.h */,
+				8AC36E6005B04A9874A41B57 /* lua.hpp */,
+				389A1205CC2B569267D388D9 /* luaconf.h */,
+				BAF13AC2558F356436A0DA35 /* lualib.h */,
+				2F0D6997EE649503A1D66BEB /* lundump.c */,
+				8E440E76615D531128D00599 /* lundump.h */,
+				8C759BA868BAB7A3C7E96D48 /* lvm.c */,
+				CD5E1DCDC8CC692498DACD85 /* lvm.h */,
+				72191596B9011B2CC17EC038 /* lzio.c */,
+				A301D349741FFA47A2A37A04 /* lzio.h */,
+				D15B0D4C9FB1C7272FE3BFE0 /* Support Files */,
 			);
-			name = Frameworks;
+			path = lua;
 			sourceTree = "<group>";
 		};
-		16B259C50B32C089083B669C /* Targets Support Files */ = {
+		53E105CD33F5098FFA20212A /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				4943AD1256C296C929AB961C /* Pods-Hammerspoon */,
+				6D3E5E2C091409275E941D7C /* ASCIImage */,
+				75E99BBAC6A6A78B8CDC94FC /* Sparkle */,
+				48C9FBB7AD5CDDE5248EC743 /* lua */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		68E089651D79EAA1123DD584 /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				F61560110F0BBBF026C3FF8F /* Pods-Hammerspoon */,
 			);
 			name = "Targets Support Files";
 			sourceTree = "<group>";
 		};
-		3C9C9719CD8DC6E24796C967 /* Resources */ = {
+		6D3E5E2C091409275E941D7C /* ASCIImage */ = {
+			isa = PBXGroup;
+			children = (
+				D6F4424609D5AC5EE98BD6E2 /* PARImage+ASCIIInput.h */,
+				A8985EED6E4143BC7AE5B124 /* PARImage+ASCIIInput.m */,
+				F986FD975DF3140BD91EAE17 /* Support Files */,
+			);
+			path = ASCIImage;
+			sourceTree = "<group>";
+		};
+		75E99BBAC6A6A78B8CDC94FC /* Sparkle */ = {
+			isa = PBXGroup;
+			children = (
+				9CC3AC767F37BCF3C5BD205B /* Frameworks */,
+				E6CDEDF99413BC8B2FB132DB /* Resources */,
+			);
+			path = Sparkle;
+			sourceTree = "<group>";
+		};
+		9CC3AC767F37BCF3C5BD205B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D21A836E8C534A16FDAE536F /* Sparkle.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B40CF83B586C9CCAD13432BB = {
+			isa = PBXGroup;
+			children = (
+				B898F449C946043976B3DFCE /* Podfile */,
+				BDCF8CD5BCDBE2724E55CF3F /* Frameworks */,
+				53E105CD33F5098FFA20212A /* Pods */,
+				BC38E62FD0A258BFAED6E6D8 /* Products */,
+				68E089651D79EAA1123DD584 /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		BC38E62FD0A258BFAED6E6D8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C7BB0A0331EDA4E97C85548B /* libPods-Hammerspoon.a */,
+				FEDE1D91DC3D09AC9690CCA9 /* libPods-Hammerspoon-ASCIImage.a */,
+				FAB855E761AFC9124BD23D55 /* libPods-Hammerspoon-lua.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BDCF8CD5BCDBE2724E55CF3F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C9A5E5E6E8A179FCC12613CD /* OS X */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C9A5E5E6E8A179FCC12613CD /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				9E66EB282D68F93746DF81B2 /* Cocoa.framework */,
+			);
+			name = "OS X";
+			sourceTree = "<group>";
+		};
+		D15B0D4C9FB1C7272FE3BFE0 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				AE5E28B70AD906EC68F86132 /* Pods-Hammerspoon-lua.xcconfig */,
+				045469667889C33FD7444C5F /* Pods-Hammerspoon-lua-Private.xcconfig */,
+				197BC77E1C5CD5A9F5B777BB /* Pods-Hammerspoon-lua-dummy.m */,
+				1F05F5C08EE93A398D259F39 /* Pods-Hammerspoon-lua-prefix.pch */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/Pods-Hammerspoon-lua";
+			sourceTree = "<group>";
+		};
+		E6CDEDF99413BC8B2FB132DB /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			name = Resources;
 			sourceTree = "<group>";
 		};
-		4943AD1256C296C929AB961C /* Pods-Hammerspoon */ = {
+		F61560110F0BBBF026C3FF8F /* Pods-Hammerspoon */ = {
 			isa = PBXGroup;
 			children = (
-				B09F32A151EF42C4013946D2 /* Pods-Hammerspoon-acknowledgements.markdown */,
-				0A5AC5AFCE965BBB9E5A42AC /* Pods-Hammerspoon-acknowledgements.plist */,
-				1C4ABED017A33CB197021A1C /* Pods-Hammerspoon-dummy.m */,
-				9DA8E52325E7B07537CFAD22 /* Pods-Hammerspoon-environment.h */,
-				6D6E3B1627126B6EDBB4AFC7 /* Pods-Hammerspoon-resources.sh */,
-				7E6EBF40D7D824D297898480 /* Pods-Hammerspoon.debug.xcconfig */,
-				E653E2EB3C6C1C398C761A1E /* Pods-Hammerspoon.release.xcconfig */,
+				BE18DEA3FD6C35D229F4D6D9 /* Pods-Hammerspoon-acknowledgements.markdown */,
+				177BE10F8A82FD5053143D10 /* Pods-Hammerspoon-acknowledgements.plist */,
+				9AA278580C0E64B153F03049 /* Pods-Hammerspoon-dummy.m */,
+				49403B61A98936272ACF1A03 /* Pods-Hammerspoon-environment.h */,
+				DD5061375B68AE94DE9557A8 /* Pods-Hammerspoon-resources.sh */,
+				B84F3262FE4E79F24A8B8472 /* Pods-Hammerspoon.debug.xcconfig */,
+				B25524B89A2C3696F5738705 /* Pods-Hammerspoon.release.xcconfig */,
 			);
 			name = "Pods-Hammerspoon";
 			path = "Target Support Files/Pods-Hammerspoon";
 			sourceTree = "<group>";
 		};
-		4C0AAC2D9C2502C1365162D6 /* OS X */ = {
+		F986FD975DF3140BD91EAE17 /* Support Files */ = {
 			isa = PBXGroup;
 			children = (
-				10F7D6FB8E2FDD688475F805 /* Cocoa.framework */,
-			);
-			name = "OS X";
-			sourceTree = "<group>";
-		};
-		5EDD3500DB3847ADE5991170 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				53F19930AE03C7DC1FF3772A /* Sparkle.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		7C99391E0EC324B231DA9551 /* Sparkle */ = {
-			isa = PBXGroup;
-			children = (
-				5EDD3500DB3847ADE5991170 /* Frameworks */,
-				3C9C9719CD8DC6E24796C967 /* Resources */,
-			);
-			path = Sparkle;
-			sourceTree = "<group>";
-		};
-		90104B3CC4AFF1239A4BE767 /* Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				987AC993E5F6D57C783DCB23 /* Pods-Hammerspoon-lua.xcconfig */,
-				D7C420625547615107A18CD3 /* Pods-Hammerspoon-lua-Private.xcconfig */,
-				37E200D4E4DF4D53FDF1CD2E /* Pods-Hammerspoon-lua-dummy.m */,
-				8FBC4667D9DA36D28A677307 /* Pods-Hammerspoon-lua-prefix.pch */,
-			);
-			name = "Support Files";
-			path = "../Target Support Files/Pods-Hammerspoon-lua";
-			sourceTree = "<group>";
-		};
-		A74CFEBDFBCDD480C3930B8F /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				62346D46A913C9B14B8371BC /* libPods-Hammerspoon.a */,
-				8B8B51E6CE6EF942E5DA9EC4 /* libPods-Hammerspoon-ASCIImage.a */,
-				18232612A74AD8E385967C29 /* libPods-Hammerspoon-lua.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		DAE3876255B0C315707CD373 /* ASCIImage */ = {
-			isa = PBXGroup;
-			children = (
-				56D25C3830CD280AF3BC3514 /* PARImage+ASCIIInput.h */,
-				3EC8E76E09FD058937F46FD9 /* PARImage+ASCIIInput.m */,
-				F4B4E05AFCA8F16F0960704B /* Support Files */,
-			);
-			path = ASCIImage;
-			sourceTree = "<group>";
-		};
-		E01E06B042F3019C34D0891A /* lua */ = {
-			isa = PBXGroup;
-			children = (
-				E799CB3D2725D86790B54884 /* lapi.c */,
-				D8C4C902F8B52BAE06A78D4A /* lapi.h */,
-				5AFA466473F49A9968BDC767 /* lauxlib.c */,
-				C6A3F3B2EEE295DDF6A1E774 /* lauxlib.h */,
-				5513327B83896F9CEBF7A98F /* lbaselib.c */,
-				13255E922334F37404CC126F /* lbitlib.c */,
-				FD58694A066957F80C340B61 /* lcode.c */,
-				946609B059CE883A6764EDB4 /* lcode.h */,
-				F265602C52368F402CD72F39 /* lcorolib.c */,
-				C2B2227B63628F3139754D36 /* lctype.c */,
-				66E6594581C009B35DC6CDDD /* lctype.h */,
-				A6B36D6039E06578431AAA02 /* ldblib.c */,
-				41F9E46ED55CE353DE761CA5 /* ldebug.c */,
-				950111D46739E1190F65907A /* ldebug.h */,
-				BC8CCD1A56A06EA936D8D1E2 /* ldo.c */,
-				F9C86F18DBB83BE713564E42 /* ldo.h */,
-				D62F37340ADA70E60E864D0C /* ldump.c */,
-				65A3DB7076831646904028A1 /* lfunc.c */,
-				95FA19A45B3DD6A83420D5A4 /* lfunc.h */,
-				0E14C1CBE18F2C4C2B56F78B /* lgc.c */,
-				AA71E0854FC31B308F67FFAE /* lgc.h */,
-				6B6BC493CA313EEAE66CFD68 /* linit.c */,
-				9D81F422F53CBF1E45D86026 /* liolib.c */,
-				E8AAF4B36B9C1D71346FC221 /* llex.c */,
-				0A99513174054F7DD8969ED1 /* llex.h */,
-				6000228E697AF7EB94749E93 /* llimits.h */,
-				DFF3BB68744E2AE1BC9E3191 /* lmathlib.c */,
-				B8C96C1D3D0F8D29168996BC /* lmem.c */,
-				F85DEFF5012BB7BCB0DB2129 /* lmem.h */,
-				BD264EC73950ECBD674E0BAC /* loadlib.c */,
-				137B28B4B14E7ABAD0A292E1 /* lobject.c */,
-				281C11EE390DEF624639558D /* lobject.h */,
-				6F6F6E7AADBBC58B3A3312B0 /* lopcodes.c */,
-				7FFFE85CD2467F541225A031 /* lopcodes.h */,
-				243C53A3A5AAC81CE27AA8F8 /* loslib.c */,
-				29B721C7D9E4F723A9C41578 /* lparser.c */,
-				D821D6AC450B2F49E16D06ED /* lparser.h */,
-				FE25EBCE7232571F309F33D5 /* lstate.c */,
-				25BA73C70346DEDC76BC50D0 /* lstate.h */,
-				7FD4BF38E440BAFF895ECA55 /* lstring.c */,
-				A99F831A8218DDC39FD05CD2 /* lstring.h */,
-				F98FBE6D8467E29B41AB646B /* lstrlib.c */,
-				AAB9DB6B043839CACCCC8109 /* ltable.c */,
-				092C855088085AB8335AF18B /* ltable.h */,
-				E932079FC830389F41C9E717 /* ltablib.c */,
-				6243FCD6CF85082022CB443E /* ltm.c */,
-				02009401A772E5BA62E6B820 /* ltm.h */,
-				4321B1B4B330EC18713329DF /* lua.h */,
-				F1AC219116B33D9334015BF2 /* lua.hpp */,
-				24B7F079B6CFA94ABC3CFE8B /* luaconf.h */,
-				6EA944E51BDF9A3E1250CC71 /* lualib.h */,
-				98B58EF50FEA8D0330C4586D /* lundump.c */,
-				D334E534BF50E587619D61DD /* lundump.h */,
-				610444CD2269791845F01629 /* lvm.c */,
-				A3A35BB8C66156B026AFFE80 /* lvm.h */,
-				82C177E473749C449ADC006F /* lzio.c */,
-				1BF6B5B59F975BCDD896C6DC /* lzio.h */,
-				90104B3CC4AFF1239A4BE767 /* Support Files */,
-			);
-			path = lua;
-			sourceTree = "<group>";
-		};
-		EDF5B1D242B6D29B20020A89 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				DAE3876255B0C315707CD373 /* ASCIImage */,
-				7C99391E0EC324B231DA9551 /* Sparkle */,
-				E01E06B042F3019C34D0891A /* lua */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
-		F4B4E05AFCA8F16F0960704B /* Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				F6C7A06061054DFC417E212B /* Pods-Hammerspoon-ASCIImage.xcconfig */,
-				F466109C35D0649D4AC9601F /* Pods-Hammerspoon-ASCIImage-Private.xcconfig */,
-				61610487C06B35331614BC02 /* Pods-Hammerspoon-ASCIImage-dummy.m */,
-				9F5C4E3B8593CF261EB96A1F /* Pods-Hammerspoon-ASCIImage-prefix.pch */,
+				B73CD74B8F9615685575E3CD /* Pods-Hammerspoon-ASCIImage.xcconfig */,
+				5542482518AFA81131EAE120 /* Pods-Hammerspoon-ASCIImage-Private.xcconfig */,
+				34AA4C364DA0299C0F027F27 /* Pods-Hammerspoon-ASCIImage-dummy.m */,
+				398D88A74A46C89E88B96563 /* Pods-Hammerspoon-ASCIImage-prefix.pch */,
 			);
 			name = "Support Files";
 			path = "../Target Support Files/Pods-Hammerspoon-ASCIImage";
 			sourceTree = "<group>";
 		};
-		FF85E8F8929386AFFEBF9D2E = {
-			isa = PBXGroup;
-			children = (
-				5AF728162B5FECFE2547B8DC /* Podfile */,
-				023498F1FCF0581DE214B0C3 /* Frameworks */,
-				EDF5B1D242B6D29B20020A89 /* Pods */,
-				A74CFEBDFBCDD480C3930B8F /* Products */,
-				16B259C50B32C089083B669C /* Targets Support Files */,
-			);
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		2287A601636E79FFBF969D84 /* Headers */ = {
+		120FCD74705A061522ECC5B3 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F35ECE2C65266E9FECCA223 /* lapi.h in Headers */,
-				1DE595FB2156A107A045CAC4 /* lauxlib.h in Headers */,
-				E2AD4EC974C5AF153B53579D /* lcode.h in Headers */,
-				A21E9A23547634E28CB2676C /* lctype.h in Headers */,
-				6E5331101478EAB20D66CCEA /* ldebug.h in Headers */,
-				7CF70129DE6F7527ED662A96 /* ldo.h in Headers */,
-				219E22617387FF0F44EDCF64 /* lfunc.h in Headers */,
-				CFA3A42267827A25E84086FE /* lgc.h in Headers */,
-				C119A6FC4C4D21E05C673468 /* llex.h in Headers */,
-				FD703FA8512147DDC64C3314 /* llimits.h in Headers */,
-				4228B82810D4BCEC11520101 /* lmem.h in Headers */,
-				04F87F409B25EDF873AA49A4 /* lobject.h in Headers */,
-				D364E62F45DBCFFBB8411B6E /* lopcodes.h in Headers */,
-				01DFDF56C5435DAA5E9F3C2C /* lparser.h in Headers */,
-				629EF52E5CDB519B0A659993 /* lstate.h in Headers */,
-				104F33D8EBC726928262E6F0 /* lstring.h in Headers */,
-				738EDF7C33D5A9081A997447 /* ltable.h in Headers */,
-				53BEB4FD75C3B7611697C4BC /* ltm.h in Headers */,
-				B16C78CB3432EACB8494C33A /* lua.h in Headers */,
-				28AD7C64D2418AC4D3EE6A5B /* lua.hpp in Headers */,
-				2AD581FA6480ED0775D59D8B /* luaconf.h in Headers */,
-				9035009E544089D6272D6520 /* lualib.h in Headers */,
-				D55A4C8D0DFE207DEFD6FE64 /* lundump.h in Headers */,
-				E9861139243B448CC907C569 /* lvm.h in Headers */,
-				896F428409A05F3544069BF7 /* lzio.h in Headers */,
+				3DE3CDDA5B9BDBF11C4C8044 /* lapi.h in Headers */,
+				E8D964E4838752D1AF2C1340 /* lauxlib.h in Headers */,
+				32613F52E09C89873C1A5551 /* lcode.h in Headers */,
+				7DA9A231506C0DC6A334E32C /* lctype.h in Headers */,
+				A0D3CB2E1F7B12574B467F60 /* ldebug.h in Headers */,
+				E1F044FE242E438E7484373A /* ldo.h in Headers */,
+				29C860029D425DB34CD7FFC5 /* lfunc.h in Headers */,
+				7175DB42DF702A729CCDCFEF /* lgc.h in Headers */,
+				A20F0CAF7D66D2D7EDFDB41E /* llex.h in Headers */,
+				8341E28422196C3ED775FE99 /* llimits.h in Headers */,
+				DDB338975404AEF49F0E358A /* lmem.h in Headers */,
+				54E3C7AF72C366B191D36750 /* lobject.h in Headers */,
+				E97F81A9290F52EA9D6E7005 /* lopcodes.h in Headers */,
+				FC875CA6F3EBC5ABF0C17B53 /* lparser.h in Headers */,
+				C249F0E84EBF3B8ECC79786F /* lstate.h in Headers */,
+				858546B8F054D2E7FF35C10A /* lstring.h in Headers */,
+				B528CF419EB65AB73C7EAC94 /* ltable.h in Headers */,
+				25273607887B1DDA39988AC3 /* ltm.h in Headers */,
+				5DB16AB1439A8DC3FE0CC887 /* lua.h in Headers */,
+				A577928E5BC7EDAA7548B8EC /* lua.hpp in Headers */,
+				580E269A11B616E1AB556640 /* luaconf.h in Headers */,
+				176356814E25376B25637739 /* lualib.h in Headers */,
+				E48CF3B836414CF83A26FA1F /* lundump.h in Headers */,
+				3507D4036F38666751F88A1C /* lvm.h in Headers */,
+				133FEBC3BD7726F81FB80AB4 /* lzio.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		5318711E784D8BF48EDE089A /* Headers */ = {
+		AD6B039586D9687413BCC4C7 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5D33FED2D4A4C353FEECF8CD /* PARImage+ASCIIInput.h in Headers */,
+				59CBA451AAC8DFDE5E56BED6 /* PARImage+ASCIIInput.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		C9AEEB27DC570D7BB32162F5 /* Pods-Hammerspoon-ASCIImage */ = {
+		1D096EDCA7D77E2ECCCA5103 /* Pods-Hammerspoon-lua */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F80AB0AA14BED1DD7F8001EC /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-ASCIImage" */;
+			buildConfigurationList = 9C805B513C7FA75D460BFCB0 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-lua" */;
 			buildPhases = (
-				B99ED22D9EEADAF04B6F6367 /* Sources */,
-				FAAA1187CD98EB369CBD3B72 /* Frameworks */,
-				5318711E784D8BF48EDE089A /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = "Pods-Hammerspoon-ASCIImage";
-			productName = "Pods-Hammerspoon-ASCIImage";
-			productReference = 8B8B51E6CE6EF942E5DA9EC4 /* libPods-Hammerspoon-ASCIImage.a */;
-			productType = "com.apple.product-type.library.static";
-		};
-		D445311C7BB5F5E3BEB3E242 /* Pods-Hammerspoon-lua */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = BD9EA5196B0E31903C0392DC /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-lua" */;
-			buildPhases = (
-				9688F7084F52D2741254DBB0 /* Sources */,
-				602BADDB273BDC7CFB94217E /* Frameworks */,
-				2287A601636E79FFBF969D84 /* Headers */,
+				5ADE89820946417D67789877 /* Sources */,
+				3E57027D413BC24D8A9CA178 /* Frameworks */,
+				120FCD74705A061522ECC5B3 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -472,131 +455,181 @@
 			);
 			name = "Pods-Hammerspoon-lua";
 			productName = "Pods-Hammerspoon-lua";
-			productReference = 18232612A74AD8E385967C29 /* libPods-Hammerspoon-lua.a */;
+			productReference = FAB855E761AFC9124BD23D55 /* libPods-Hammerspoon-lua.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		D46E8877242B058E5DFD9BED /* Pods-Hammerspoon */ = {
+		B39C4F279BC4AEF2BA9A3AEF /* Pods-Hammerspoon */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4FFA49B78A73591A54DB4A66 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon" */;
+			buildConfigurationList = ED4855C9442C6D532AD0543D /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon" */;
 			buildPhases = (
-				4F4AB7D2E43AA59A61A689E4 /* Sources */,
-				05658825CA6005321FFDBD46 /* Frameworks */,
+				5EB852247DDEA9B0131217B9 /* Sources */,
+				41307E7B2FA874469B280374 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				B582EB8C2D0E79E38EE246C5 /* PBXTargetDependency */,
-				3D1E065F3B729099E00D01CF /* PBXTargetDependency */,
+				425EAB2999913D1028EEA495 /* PBXTargetDependency */,
+				28E3F316FC7F021467DD35CD /* PBXTargetDependency */,
 			);
 			name = "Pods-Hammerspoon";
 			productName = "Pods-Hammerspoon";
-			productReference = 62346D46A913C9B14B8371BC /* libPods-Hammerspoon.a */;
+			productReference = C7BB0A0331EDA4E97C85548B /* libPods-Hammerspoon.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		E111C7E692123E169B2098F4 /* Pods-Hammerspoon-ASCIImage */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9043ED06D6B70DB3858864DA /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-ASCIImage" */;
+			buildPhases = (
+				77B2882FA44AD7D1CCAB777F /* Sources */,
+				0A591D91CCE4AB03BE38FD0B /* Frameworks */,
+				AD6B039586D9687413BCC4C7 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Pods-Hammerspoon-ASCIImage";
+			productName = "Pods-Hammerspoon-ASCIImage";
+			productReference = FEDE1D91DC3D09AC9690CCA9 /* libPods-Hammerspoon-ASCIImage.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		58BDB454062A11E4CF122448 /* Project object */ = {
+		D3381329D137BC581E05B557 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0640;
 			};
-			buildConfigurationList = 8008C9E145B7FCD0D162B6CD /* Build configuration list for PBXProject "Pods" */;
+			buildConfigurationList = A7A25E8C59D06791CB6F8A68 /* Build configuration list for PBXProject "Pods" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = FF85E8F8929386AFFEBF9D2E;
-			productRefGroup = A74CFEBDFBCDD480C3930B8F /* Products */;
+			mainGroup = B40CF83B586C9CCAD13432BB;
+			productRefGroup = BC38E62FD0A258BFAED6E6D8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D46E8877242B058E5DFD9BED /* Pods-Hammerspoon */,
-				C9AEEB27DC570D7BB32162F5 /* Pods-Hammerspoon-ASCIImage */,
-				D445311C7BB5F5E3BEB3E242 /* Pods-Hammerspoon-lua */,
+				B39C4F279BC4AEF2BA9A3AEF /* Pods-Hammerspoon */,
+				E111C7E692123E169B2098F4 /* Pods-Hammerspoon-ASCIImage */,
+				1D096EDCA7D77E2ECCCA5103 /* Pods-Hammerspoon-lua */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		4F4AB7D2E43AA59A61A689E4 /* Sources */ = {
+		5ADE89820946417D67789877 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4727418FF6F39456914D6AEF /* Pods-Hammerspoon-dummy.m in Sources */,
+				15B4F05004F1AB2B07491E12 /* Pods-Hammerspoon-lua-dummy.m in Sources */,
+				18884CB572A3A2ADA1963CCB /* lapi.c in Sources */,
+				7D913073B63D9937629B0012 /* lauxlib.c in Sources */,
+				5FEE8196C1A2EB1857BB1246 /* lbaselib.c in Sources */,
+				7B8204671183A85B734E6FC7 /* lbitlib.c in Sources */,
+				4713350555F8A487C43CBE1D /* lcode.c in Sources */,
+				DA61FB0DD6F31BAF07C758E1 /* lcorolib.c in Sources */,
+				4C5674E57B9659D6F7683C17 /* lctype.c in Sources */,
+				54E81C9DB28C6A647582E638 /* ldblib.c in Sources */,
+				6DFE2FD2BD4207DD60620FF8 /* ldebug.c in Sources */,
+				4CAD8D93CB43ED08E3FF905A /* ldo.c in Sources */,
+				E9BB64F9FD56B6FFBF26AA73 /* ldump.c in Sources */,
+				2BD2186DE420AAF77DAACF4C /* lfunc.c in Sources */,
+				95E15BB34F497369A2325CC9 /* lgc.c in Sources */,
+				DF3B2DB07241934C8E4F2FFC /* linit.c in Sources */,
+				42CE6ED237DF95CD5D85490C /* liolib.c in Sources */,
+				42960C18157460316284BA86 /* llex.c in Sources */,
+				60FFDBB1F59D85DC50C59D73 /* lmathlib.c in Sources */,
+				4186EB7CF45B95A1807125CA /* lmem.c in Sources */,
+				6401139AC9E7F9FA8E383260 /* loadlib.c in Sources */,
+				9630BC09796115D3AB9D379A /* lobject.c in Sources */,
+				445E61FD0E06F5F29AD900EB /* lopcodes.c in Sources */,
+				C8DEB757DA77FC5DE064740E /* loslib.c in Sources */,
+				79B0227852387A5DE574874D /* lparser.c in Sources */,
+				F3466EEF5FCE7866095615AA /* lstate.c in Sources */,
+				FE6216CC62F0407BB8895C37 /* lstring.c in Sources */,
+				91476679954A18D4192D4B70 /* lstrlib.c in Sources */,
+				0BFCDCFC148EDADBCA998CA1 /* ltable.c in Sources */,
+				6A5E11B3FB129A6C95E088B4 /* ltablib.c in Sources */,
+				7B1F5EA3023111E2D1DCCDE3 /* ltm.c in Sources */,
+				D08DB25DC63270193A984A83 /* lundump.c in Sources */,
+				E587E41D9C60C0F5F5E5D24C /* lvm.c in Sources */,
+				2F204987BC008B213078FF75 /* lzio.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9688F7084F52D2741254DBB0 /* Sources */ = {
+		5EB852247DDEA9B0131217B9 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				80B600E03868CDA39C1BA6CB /* Pods-Hammerspoon-lua-dummy.m in Sources */,
-				D7E4EBDEB7A94EE9D86DCCDA /* lapi.c in Sources */,
-				EBDBD1B7B515286CDB37BEF3 /* lauxlib.c in Sources */,
-				8E58F33885CBFAC81B927274 /* lbaselib.c in Sources */,
-				01D3D3CA8766C84E7C87D882 /* lbitlib.c in Sources */,
-				9B19E441B76CB762C92B6D60 /* lcode.c in Sources */,
-				36BEC77B24E5D4480AB282B9 /* lcorolib.c in Sources */,
-				925768322CB69B021151C684 /* lctype.c in Sources */,
-				EB22A78B3766AC1458D790FE /* ldblib.c in Sources */,
-				6554ECAF9958BA57E3E315A4 /* ldebug.c in Sources */,
-				E2F3390F17B6E2B83C7ED65B /* ldo.c in Sources */,
-				4A6FD7A2F94EE91ED37BCCA3 /* ldump.c in Sources */,
-				94991CFFDCF843B2C705EDCA /* lfunc.c in Sources */,
-				7D241A0BBC6E43A4BFD1E058 /* lgc.c in Sources */,
-				96EF8ABC81C2AF68B6906019 /* linit.c in Sources */,
-				D4A9717F6945EB99F598BEC9 /* liolib.c in Sources */,
-				ED966872ECF101FEFFF23706 /* llex.c in Sources */,
-				E5FE0ACB0A3959AEA8608A77 /* lmathlib.c in Sources */,
-				45AD1F7D3E553E8D9A962708 /* lmem.c in Sources */,
-				CEC656C26CC732DE9EE6D250 /* loadlib.c in Sources */,
-				2ACB3A93D57A931CBB32B8EA /* lobject.c in Sources */,
-				D88767853B4FAA3CC704E559 /* lopcodes.c in Sources */,
-				04B4A15D4867917A2EE30CBB /* loslib.c in Sources */,
-				F3574D45A3084AE76C71AAF3 /* lparser.c in Sources */,
-				BA2249B57CF17A582639CF63 /* lstate.c in Sources */,
-				4D5A84632FDCC95C3A21EA4D /* lstring.c in Sources */,
-				B991B25D03F27AAF7F5990B6 /* lstrlib.c in Sources */,
-				CAD6D277182D443094E0A888 /* ltable.c in Sources */,
-				C355A7BBA907AF54E9894BF3 /* ltablib.c in Sources */,
-				03B64C70F9AEB4949E3F6159 /* ltm.c in Sources */,
-				B9434D48EDE1878841EDD01B /* lundump.c in Sources */,
-				C1D7508E0F9381E385466AC1 /* lvm.c in Sources */,
-				9090E10C56F7D6C7C39E12F5 /* lzio.c in Sources */,
+				565D0BEA16C375A4E9264447 /* Pods-Hammerspoon-dummy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B99ED22D9EEADAF04B6F6367 /* Sources */ = {
+		77B2882FA44AD7D1CCAB777F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5DDC9C9D77F608A6573253D9 /* PARImage+ASCIIInput.m in Sources */,
-				2CF0363530115443DC832689 /* Pods-Hammerspoon-ASCIImage-dummy.m in Sources */,
+				56ADBF036E4A9C5E466A3877 /* PARImage+ASCIIInput.m in Sources */,
+				FDA62823ABA3BC2E9CC9201D /* Pods-Hammerspoon-ASCIImage-dummy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		3D1E065F3B729099E00D01CF /* PBXTargetDependency */ = {
+		28E3F316FC7F021467DD35CD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "Pods-Hammerspoon-lua";
-			target = D445311C7BB5F5E3BEB3E242 /* Pods-Hammerspoon-lua */;
-			targetProxy = A7803B24CFEEDBA8DD074658 /* PBXContainerItemProxy */;
+			target = 1D096EDCA7D77E2ECCCA5103 /* Pods-Hammerspoon-lua */;
+			targetProxy = 485D6B6B826E0BAE353EA0D8 /* PBXContainerItemProxy */;
 		};
-		B582EB8C2D0E79E38EE246C5 /* PBXTargetDependency */ = {
+		425EAB2999913D1028EEA495 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = "Pods-Hammerspoon-ASCIImage";
-			target = C9AEEB27DC570D7BB32162F5 /* Pods-Hammerspoon-ASCIImage */;
-			targetProxy = CF83B20B4EFC9BB8A49567CE /* PBXContainerItemProxy */;
+			target = E111C7E692123E169B2098F4 /* Pods-Hammerspoon-ASCIImage */;
+			targetProxy = 246EF3F5B54781BA89712025 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		2EA4DD9C9AE5AF5957BD3D28 /* Release */ = {
+		17B865D4C9EFE65D0B09DF2D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5542482518AFA81131EAE120 /* Pods-Hammerspoon-ASCIImage-Private.xcconfig */;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-ASCIImage/Pods-Hammerspoon-ASCIImage-prefix.pch";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		59B41656D042001BF1CB9AA6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5542482518AFA81131EAE120 /* Pods-Hammerspoon-ASCIImage-Private.xcconfig */;
+			buildSettings = {
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-ASCIImage/Pods-Hammerspoon-ASCIImage-prefix.pch";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		5AFD9B8E009915780C9205AB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -630,76 +663,9 @@
 			};
 			name = Release;
 		};
-		41A99E0AB005AE9DC022D249 /* Debug */ = {
+		634D4E77AA18A5E447346A65 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F466109C35D0649D4AC9601F /* Pods-Hammerspoon-ASCIImage-Private.xcconfig */;
-			buildSettings = {
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				EXECUTABLE_PREFIX = lib;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-ASCIImage/Pods-Hammerspoon-ASCIImage-prefix.pch";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		6E5FE036BE7361889FE51AF1 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = D7C420625547615107A18CD3 /* Pods-Hammerspoon-lua-Private.xcconfig */;
-			buildSettings = {
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				EXECUTABLE_PREFIX = lib;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		7148A7A7284D7285CC4ABFBA /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = E653E2EB3C6C1C398C761A1E /* Pods-Hammerspoon.release.xcconfig */;
-			buildSettings = {
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				EXECUTABLE_PREFIX = lib;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PODS_ROOT = "$(SRCROOT)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-			};
-			name = Release;
-		};
-		7B5370CB8742C10F82031336 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = D7C420625547615107A18CD3 /* Pods-Hammerspoon-lua-Private.xcconfig */;
-			buildSettings = {
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				EXECUTABLE_PREFIX = lib;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "";
-				OTHER_LIBTOOLFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-			};
-			name = Release;
-		};
-		A7FA1A11A6F5BEB6DD2B8527 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7E6EBF40D7D824D297898480 /* Pods-Hammerspoon.debug.xcconfig */;
+			baseConfigurationReference = B84F3262FE4E79F24A8B8472 /* Pods-Hammerspoon.debug.xcconfig */;
 			buildSettings = {
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				EXECUTABLE_PREFIX = lib;
@@ -714,7 +680,24 @@
 			};
 			name = Debug;
 		};
-		B70F98E33F8B330886042345 /* Debug */ = {
+		742CB3B4426D7B096D31844C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 045469667889C33FD7444C5F /* Pods-Hammerspoon-lua-Private.xcconfig */;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		7852E6E1555447880FF00F50 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -753,63 +736,80 @@
 			};
 			name = Debug;
 		};
-		B952FA898328FCA84244DE13 /* Release */ = {
+		796279ECC9CF98D4F9ED686F /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F466109C35D0649D4AC9601F /* Pods-Hammerspoon-ASCIImage-Private.xcconfig */;
+			baseConfigurationReference = 045469667889C33FD7444C5F /* Pods-Hammerspoon-lua-Private.xcconfig */;
 			buildSettings = {
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-ASCIImage/Pods-Hammerspoon-ASCIImage-prefix.pch";
+				GCC_PREFIX_HEADER = "Target Support Files/Pods-Hammerspoon-lua/Pods-Hammerspoon-lua-prefix.pch";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E36D3263FF76115221C56ADE /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B25524B89A2C3696F5738705 /* Pods-Hammerspoon.release.xcconfig */;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4FFA49B78A73591A54DB4A66 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon" */ = {
+		9043ED06D6B70DB3858864DA /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-ASCIImage" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A7FA1A11A6F5BEB6DD2B8527 /* Debug */,
-				7148A7A7284D7285CC4ABFBA /* Release */,
+				59B41656D042001BF1CB9AA6 /* Debug */,
+				17B865D4C9EFE65D0B09DF2D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		8008C9E145B7FCD0D162B6CD /* Build configuration list for PBXProject "Pods" */ = {
+		9C805B513C7FA75D460BFCB0 /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-lua" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				B70F98E33F8B330886042345 /* Debug */,
-				2EA4DD9C9AE5AF5957BD3D28 /* Release */,
+				796279ECC9CF98D4F9ED686F /* Debug */,
+				742CB3B4426D7B096D31844C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BD9EA5196B0E31903C0392DC /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-lua" */ = {
+		A7A25E8C59D06791CB6F8A68 /* Build configuration list for PBXProject "Pods" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				6E5FE036BE7361889FE51AF1 /* Debug */,
-				7B5370CB8742C10F82031336 /* Release */,
+				7852E6E1555447880FF00F50 /* Debug */,
+				5AFD9B8E009915780C9205AB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F80AB0AA14BED1DD7F8001EC /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon-ASCIImage" */ = {
+		ED4855C9442C6D532AD0543D /* Build configuration list for PBXNativeTarget "Pods-Hammerspoon" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				41A99E0AB005AE9DC022D249 /* Debug */,
-				B952FA898328FCA84244DE13 /* Release */,
+				634D4E77AA18A5E447346A65 /* Debug */,
+				E36D3263FF76115221C56ADE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 58BDB454062A11E4CF122448 /* Project object */;
+	rootObject = D3381329D137BC581E05B557 /* Project object */;
 }

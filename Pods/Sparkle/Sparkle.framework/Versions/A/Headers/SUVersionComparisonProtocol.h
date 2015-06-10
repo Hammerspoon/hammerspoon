@@ -10,6 +10,7 @@
 #define SUVERSIONCOMPARISONPROTOCOL_H
 
 #import <Cocoa/Cocoa.h>
+#import "SUExport.h"
 
 /*!
     Provides version comparison facilities for Sparkle.
