@@ -285,7 +285,7 @@ static int menubarNew(lua_State *L) {
 /// Sets the title of a menubar item object. The title will be displayed in the system menubar
 ///
 /// Parameters:
-///  * `title` - A string to use as the title
+///  * `title` - A string to use as the title, or nil to remove the title
 ///
 /// Returns:
 ///  * None
@@ -294,7 +294,13 @@ static int menubarNew(lua_State *L) {
 ///  * If you set an icon as well as a title, they will both be displayed next to each other
 static int menubarSetTitle(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
-    NSString *titleText = lua_to_nsstring(L, 2);
+    NSString *titleText;
+    if (lua_isnoneornil(L, 2)) {
+        titleText = nil;
+    } else {
+        titleText = lua_to_nsstring(L, 2);
+    }
+
     lua_settop(L, 1); // FIXME: This seems unnecessary? neither preceeding luaL_foo function pushes things onto the stack?
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setTitle:titleText];
 
@@ -306,7 +312,7 @@ static int menubarSetTitle(lua_State *L) {
 /// Sets the image of a menubar item object. The image will be displayed in the system menubar
 ///
 /// Parameters:
-///  * `iconfilepath` - A string containing the path of an image file to load. If the string begins with `ASCII:` then the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image and used as the icon. See the notes below for information about the special format of ASCII diagram.
+///  * `iconfilepath` - A string containing the path of an image file to load. If the string begins with `ASCII:` then the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image and used as the icon. See the notes below for information about the special format of ASCII diagram. If this parameter is nil, any current image is removed
 ///
 /// Returns:
 ///  * `true` if the image was loaded and set, `nil` if it could not be found or loaded
@@ -322,22 +328,27 @@ static int menubarSetTitle(lua_State *L) {
 static int menubarSetIcon(lua_State *L) {
     NSImage *iconImage;
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
-    NSString *imageParameter = lua_to_nsstring(L, 2);
 
-    if ([imageParameter hasPrefix:@"ASCII:"]) {
-        NSColor *color = [NSColor blackColor];
-        imageParameter = [[imageParameter substringFromIndex:6] stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-        NSArray *rep = [imageParameter componentsSeparatedByString:@"\n"];
-        iconImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
+    if (lua_isnoneornil(L, 2)) {
+        iconImage = nil;
     } else {
-        iconImage = [[NSImage alloc] initWithContentsOfFile:lua_to_nsstring(L, 2)];
+        NSString *imageParameter = lua_to_nsstring(L, 2);
+
+        if ([imageParameter hasPrefix:@"ASCII:"]) {
+            NSColor *color = [NSColor blackColor];
+            imageParameter = [[imageParameter substringFromIndex:6] stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+            NSArray *rep = [imageParameter componentsSeparatedByString:@"\n"];
+            iconImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
+        } else {
+            iconImage = [[NSImage alloc] initWithContentsOfFile:lua_to_nsstring(L, 2)];
+        }
+        lua_settop(L, 1); // FIXME: This seems unnecessary?
+        if (!iconImage) {
+            lua_pushnil(L);
+            return 1;
+        }
+        [iconImage setTemplate:YES];
     }
-    lua_settop(L, 1); // FIXME: This seems unnecessary?
-    if (!iconImage) {
-        lua_pushnil(L);
-        return 1;
-    }
-    [iconImage setTemplate:YES];
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setImage:iconImage];
 
     lua_pushboolean(L, 1);
