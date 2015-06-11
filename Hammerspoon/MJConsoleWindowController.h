@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import "HSGrowingTextField.h"
 
 @interface MJConsoleWindowController : NSWindowController
 

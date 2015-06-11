@@ -101,6 +101,8 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     [self appendString:[NSString stringWithFormat:@"%@\n", result] type:MJReplLineTypeResult];
 
     [sender setStringValue:@""];
+    [(HSGrowingTextField *)sender resetGrowth];
+    
     [self saveToHistory:command];
     [self.outputView scrollToEndOfDocument:self];
 }

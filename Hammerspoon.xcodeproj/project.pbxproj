@@ -11,6 +11,7 @@
 		4F1CF8DB1A47F5BD001C8AE7 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */; };
 		4F9A454A19EC6801006BB982 /* build_extensions.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F9A454919EC6801006BB982 /* build_extensions.sh */; };
 		4FC09F7C19F99ECE007542A6 /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FC09F7B19F99ECE007542A6 /* docs.json */; };
+		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
 		9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422ACBC19B6163800F06A90 /* MJConfigUtils.m */; };
 		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
@@ -58,6 +59,8 @@
 		4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4F9A454919EC6801006BB982 /* build_extensions.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_extensions.sh; path = extensions/build_extensions.sh; sourceTree = "<group>"; };
 		4FC09F7B19F99ECE007542A6 /* docs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = docs.json; path = build/docs.json; sourceTree = "<group>"; };
+		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
+		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
 		896F5840119EB0EC98527200 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
 		9409202F19A5940600B9964E /* MJVersionUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJVersionUtils.h; sourceTree = "<group>"; };
 		9409203019A5940600B9964E /* MJVersionUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJVersionUtils.m; sourceTree = "<group>"; };
@@ -143,6 +146,8 @@
 				949CDBFF1990759B00906CCE /* ConsoleWindow.xib */,
 				949CDBFB1990739800906CCE /* MJConsoleWindowController.h */,
 				944A2DA81989760400D8DC90 /* MJConsoleWindowController.m */,
+				4FEF59411B29A352002344A7 /* HSGrowingTextField.h */,
+				4FEF59421B29A352002344A7 /* HSGrowingTextField.m */,
 			);
 			name = "Console Window";
 			sourceTree = "<group>";
@@ -517,6 +522,7 @@
 				9409203119A5940600B9964E /* MJVersionUtils.m in Sources */,
 				944A2DA91989760400D8DC90 /* MJConsoleWindowController.m in Sources */,
 				94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */,
+				4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */,
 				949B520319A5576E00ED4F02 /* MJDockIcon.m in Sources */,
 				945B65AC198D2DDB002D2E30 /* MJLua.m in Sources */,
 				D077B5BF1A001B5300369B30 /* variables.m in Sources */,
