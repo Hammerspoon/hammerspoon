@@ -926,6 +926,7 @@ struct _stat_members members[] = {
 ///   * rdev - A number containing the type of device, for files that are char/block devices
 ///   * access - A number containing the time of last access modification (as seconds since the UNIX epoch)
 ///   * change - A number containing the time of last file status change (as seconds since the UNIX epoch)
+///   * modification - A number containing the time of the last file contents change (as seconds since the UNIX epoch)
 ///   * size - A number containing the file size, in bytes
 ///   * blocks - A number containing the number of blocks allocated for file
 ///   * blksize - A number containing the optimal file system I/O blocksize
