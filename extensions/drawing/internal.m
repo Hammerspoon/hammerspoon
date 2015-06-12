@@ -750,6 +750,102 @@ static int drawing_setText(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing:setTopLeft(point) -> drawingObject
+/// Method
+/// Moves the drawingObject to a given point
+///
+/// Parameters:
+///  * point - A point-table containing the absolute co-ordinates the drawing object should be moved to
+///
+/// Returns:
+///  * The drawing object
+static int drawing_setTopLeft(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+
+    NSPoint windowLoc ;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TTABLE:
+            lua_getfield(L, 2, "x");
+            windowLoc.x = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 2, "y");
+            windowLoc.y = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            break;
+        default:
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing:setTopLeft(): %d", lua_type(L, 2));
+            lua_pushnil(L);
+            return 1;
+            break;
+    }
+
+    windowLoc.y=[[NSScreen screens][0] frame].size.height - windowLoc.y ;
+    [drawingWindow setFrameTopLeftPoint:windowLoc] ;
+
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.drawing:setSize(size) -> drawingObject
+/// Method
+/// Resizes a drawing object
+///
+/// Parameters:
+///  * size - A size-table containing the width and height the drawing object should be resized to
+///
+/// Returns:
+///  * The drawing object
+static int drawing_setSize(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+
+    NSSize windowSize;
+    switch (lua_type(L, 2)) {
+        case LUA_TTABLE:
+            lua_getfield(L, 2, "h");
+            windowSize.height = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 2, "w");
+            windowSize.width = lua_tointeger(L, -1);
+            lua_pop(L, 1);
+
+            break;
+        default:
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing:setSize(): %d", lua_type(L, 2));
+            lua_pushnil(L);
+            return 1;
+            break;
+    }
+
+    [drawingWindow setContentSize:windowSize] ;
+
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.drawing:setFrame(rect) -> drawingObject
+/// Method
+/// Sets the frame of the drawingObject in absolute coordinates
+///
+/// Parameters:
+///  * rect - A rect-table containing the co-ordinates and size that should be applied to the drawingObject
+///
+/// Returns:
+///  * The drawing object
+static int drawing_setFrame(lua_State *L) {
+    drawing_setSize(L)    ; lua_pop(L, 1);
+    drawing_setTopLeft(L) ; lua_pop(L, 1);
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 /// hs.drawing:setTextFont(fontname) -> drawingObject
 /// Method
 /// Sets the font of a drawing object
@@ -1277,6 +1373,9 @@ static const luaL_Reg drawing_metalib[] = {
     {"show", drawing_show},
     {"hide", drawing_hide},
     {"delete", drawing_delete},
+    {"setTopLeft", drawing_setTopLeft},
+    {"setSize", drawing_setSize},
+    {"setFrame", drawing_setFrame},
 
     {"__gc", drawing_delete},
     {}
