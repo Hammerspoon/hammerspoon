@@ -822,6 +822,10 @@ static void push_st_mtime (lua_State *L, STAT_STRUCT *info) {
 static void push_st_ctime (lua_State *L, STAT_STRUCT *info) {
         lua_pushnumber (L, info->st_ctime);
 }
+/* time of file creation */
+static void push_st_birthtime (lua_State *L, STAT_STRUCT *info) {
+        lua_pushnumber (L, info->st_birthtime);
+}
 /* file size, in bytes */
 static void push_st_size (lua_State *L, STAT_STRUCT *info) {
         lua_pushnumber (L, (lua_Number)info->st_size);
@@ -895,6 +899,7 @@ struct _stat_members members[] = {
         { "access",       push_st_atime },
         { "modification", push_st_mtime },
         { "change",       push_st_ctime },
+        { "creation",     push_st_birthtime },
         { "size",         push_st_size },
         { "permissions",  push_st_perm },
 #ifndef _WIN32
@@ -927,6 +932,7 @@ struct _stat_members members[] = {
 ///   * access - A number containing the time of last access modification (as seconds since the UNIX epoch)
 ///   * change - A number containing the time of last file status change (as seconds since the UNIX epoch)
 ///   * modification - A number containing the time of the last file contents change (as seconds since the UNIX epoch)
+///   * creation - A number containing the time the file was created (as seconds since the UNIX epoch)
 ///   * size - A number containing the file size, in bytes
 ///   * blocks - A number containing the number of blocks allocated for file
 ///   * blksize - A number containing the optimal file system I/O blocksize
