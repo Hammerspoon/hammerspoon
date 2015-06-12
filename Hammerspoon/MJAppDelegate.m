@@ -63,6 +63,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [[MJConsoleWindowController singleton] setup];
     MJLuaSetup();
 
+    // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
     if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
         [[MJPreferencesWindowController singleton] showWindow: nil];
 }
