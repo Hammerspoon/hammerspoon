@@ -762,6 +762,7 @@ static int drawing_setText(lua_State *L) {
 static int drawing_setTopLeft(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+//    HSDrawingView   *drawingView   = (HSDrawingView *)drawingWindow.contentView;
 
     NSPoint windowLoc ;
 
@@ -786,7 +787,6 @@ static int drawing_setTopLeft(lua_State *L) {
     windowLoc.y=[[NSScreen screens][0] frame].size.height - windowLoc.y ;
     [drawingWindow setFrameTopLeftPoint:windowLoc] ;
 
-
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -803,6 +803,7 @@ static int drawing_setTopLeft(lua_State *L) {
 static int drawing_setSize(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView   *drawingView   = (HSDrawingView *)drawingWindow.contentView;
 
     NSSize windowSize;
     switch (lua_type(L, 2)) {
@@ -824,7 +825,9 @@ static int drawing_setSize(lua_State *L) {
     }
 
     [drawingWindow setContentSize:windowSize] ;
-
+    if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
+        [((HSDrawingViewText *) drawingView).textField setFrameSize:windowSize] ;
+    }
 
     lua_pushvalue(L, 1);
     return 1;
