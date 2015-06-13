@@ -59,6 +59,9 @@ static int core_logmessage(lua_State* L) {
     size_t len;
     const char* s = lua_tolstring(L, 1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
+    if (str == nil) {
+      str = @"";
+    }
     loghandler(str);
     return 0;
 }
