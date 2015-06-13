@@ -134,7 +134,7 @@ function grid.adjustNumberOfRows(delta)
   grid.GRIDHEIGHT = math.max(1, grid.GRIDHEIGHT + delta)
   fnutils.map(window.visibleWindows(), grid.snap)
 end
---- This is for legacy purposes
+-- This is for legacy purposes
 grid.adjustHeight = grid.adjustNumberOfRows
 
 --- hs.grid.adjustNumberOfColumns(delta)
