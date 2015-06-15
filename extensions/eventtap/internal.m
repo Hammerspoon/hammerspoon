@@ -165,7 +165,6 @@ static int eventtap_start(lua_State* L) {
         return 0;
 
     e->self = store_event(L, 1);
-    e->running = true;
     e->tap = CGEventTapCreate(kCGSessionEventTap,
                               kCGHeadInsertEventTap,
                               kCGEventTapOptionDefault,
@@ -173,12 +172,18 @@ static int eventtap_start(lua_State* L) {
                               eventtap_callback,
                               e);
 
-    CGEventTapEnable(e->tap, true);
-    e->runloopsrc = CFMachPortCreateRunLoopSource(NULL, e->tap, 0);
-    CFRunLoopAddSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
+    if (e->tap) {
+        e->running = true;
 
-    lua_settop(L,1);
-    return 1;
+        CGEventTapEnable(e->tap, true);
+        e->runloopsrc = CFMachPortCreateRunLoopSource(NULL, e->tap, 0);
+        CFRunLoopAddSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
+
+        lua_settop(L,1);
+        return 1;
+    } else {
+        showError(L, "Unable to create eventtap.  Is Accessibility enabled?");
+    }
 }
 
 /// hs.eventtap:stop()
