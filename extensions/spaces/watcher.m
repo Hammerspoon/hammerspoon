@@ -1,11 +1,12 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <CoreGraphics/CGWindow.h>
-#import <lauxlib.h>
+#import <lua/lauxlib.h>
 
 /// === hs.spaces.watcher ===
 ///
-/// Watches for space change events.
+/// Watches for the current Space being changed
+/// NOTE: This extension determines the number of a Space, using OS X APIs that have been deprecated since 10.8 and will likely be removed in a future release. You should not depend on Space numbers being around forever!
 
 static const char* userdataTag = "hs.spaces.watcher";
 
@@ -68,11 +69,15 @@ typedef struct _spacewatcher_t {
 }
 @end
 
-/// hs.spaces.watcher.new(handler) -> spacewatcher
+/// hs.spaces.watcher.new(handler) -> watcher
 /// Constructor
+/// Creates a new watcher for Space change events
 ///
-/// handler is a function that takes one argument, the space index, and is called when the current
-/// space changes. The space index may be removed in future OSX versions.
+/// Parameters:
+///  * handler - A function to be called when the active Space changes. It should accept one argument, which will be the number of the new Space (or -1 if the number cannot be determined)
+///
+/// Returns:
+///  * An `hs.spaces.watcher` object
 static int space_watcher_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
@@ -91,7 +96,13 @@ static int space_watcher_new(lua_State* L) {
 
 /// hs.spaces.watcher:start()
 /// Method
-/// Tells the watcher to start watching for space change events.
+/// Starts the Spaces watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int space_watcher_start(lua_State* L) {
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, userdataTag);
     lua_settop(L, 1);
@@ -115,7 +126,13 @@ static int space_watcher_start(lua_State* L) {
 
 /// hs.spaces.watcher:stop()
 /// Method
-/// Tells the watcher to stop watching for space change events.
+/// Stops the Spaces watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
 static int space_watcher_stop(lua_State* L) {
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, userdataTag);
     lua_settop(L, 1);
@@ -133,6 +150,7 @@ static int space_watcher_gc(lua_State* L) {
 
     space_watcher_stop(L);
     luaL_unref(L, LUA_REGISTRYINDEX, spaceWatcher->fn);
+    spaceWatcher->fn = LUA_NOREF;
 
     SpaceWatcher* object = (__bridge_transfer SpaceWatcher*)spaceWatcher->obj;
     object = nil;

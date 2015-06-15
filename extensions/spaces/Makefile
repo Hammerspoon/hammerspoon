@@ -7,17 +7,17 @@ PREFIX  ?= .
 OBJCFILE = watcher.m
 LUAFILE  = init.lua
 SOFILE  := $(OBJCFILE:m=so)
+#TODO: Put this back after 1.0 DEBUG_CFLAGS ?= -g
+DEBUG_CFLAGS = -g
 
-CC=cc
-EXTRA_CFLAGS ?= -fobjc-arc
-DEBUG_CFLAGS ?= -g
-CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/lua/src $(EXTRA_CFLAGS)
+CC?=cc
+CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/Headers/Public -fobjc-arc -F../../ -framework Fabric $(EXTRA_CFLAGS)
 LDFLAGS += -dynamiclib -undefined dynamic_lookup $(EXTRA_LDFLAGS)
 
 all: $(SOFILE)
 
-$(SOFILE):
-	$(CC) $(OBJCFILE) $(CFLAGS) $(LDFLAGS) -o $@
+$(SOFILE): $(OBJCFILE) $(HEADERS)
+	$(CC) $(@:so=m) $(CFLAGS) $(LDFLAGS) -o $@
 
 install: install-objc install-lua
 
@@ -30,6 +30,6 @@ install-lua: $(LUAFILE)
 	install -m 0644 $(LUAFILE) $(PREFIX)/$(MODULE)
 
 clean:
-	rm -f $(SOFILE)
+	rm -v -f $(SOFILE)
 
 .PHONY: all clean
