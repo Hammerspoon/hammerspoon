@@ -192,7 +192,7 @@ function tabs.focusTab(app,num)
   if not app or not appWatches[app:title()] then return end
   local tabs = tabs.tabWindows(app)
   local bounded = num
-  print(hs.inspect(tabs))
+  --print(hs.inspect(tabs))
   if num > #tabs then
     bounded = #tabs
   end

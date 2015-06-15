@@ -5,6 +5,9 @@
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
 local module = require("hs.mouse.internal")
+local fnutils = require("hs.fnutils")
+local geometry = require("hs.geometry")
+local screen = require("hs.screen")
 
 -- private variables and methods -----------------------------------------
 
@@ -58,13 +61,13 @@ end
 --- Notes:
 ---  * The co-ordinates returned by this function are relative to the top left pixel of the screen the mouse is on (see `hs.mouse.getAbsolutePosition` if you need the location in the full desktop space)
 function module.getRelativePosition()
-    local screen = hs.mouse.getCurrentScreen()
+    local screen = module.getCurrentScreen()
     if screen == nil then
         return nil
     end
 
     local frame = screen:fullFrame()
-    local point = hs.mouse.getAbsolutePosition()
+    local point = module.getAbsolutePosition()
     local rel = {}
 
     rel["x"] = point["x"] - frame["x"]
@@ -85,7 +88,7 @@ end
 ---  * None
 function module.setRelativePosition(point, screen)
     if screen == nil then
-        screen = hs.mouse.getCurrentScreen()
+        screen = module.getCurrentScreen()
         if screen == nil then
             print("ERROR: Unable to find the current screen")
             return nil
@@ -111,8 +114,8 @@ end
 --- Returns:
 ---  * An `hs.screen` object that the mouse pointer is on, or nil if an error occurred
 function module.getCurrentScreen()
-    local point = hs.mouse.get()
-    return hs.fnutils.find(hs.screen.allScreens(), function(screen) return hs.geometry.isPointInRect(point, screen:fullFrame()) end)
+    local point = module.get()
+    return fnutils.find(screen.allScreens(), function(aScreen) return geometry.isPointInRect(point, aScreen:fullFrame()) end)
 end
 
 -- Return Module Object --------------------------------------------------

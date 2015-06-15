@@ -136,14 +136,14 @@ function layout.apply(layout)
         -- Find the destination display, if wanted
         if _row[3] then
             if type(_row[3]) == "string" then
-                local displays = fnutils.filter(screen.allScreens(), function(screen) return screen:name() == _row[3] end)
+                local displays = fnutils.filter(screen.allScreens(), function(aScreen) return aScreen:name() == _row[3] end)
                 if displays then
                     -- TODO: This is bogus, multiple identical monitors will be impossible to lay out
                     display = displays[1]
                 end
             elseif type(_row[3]) == "function" then
                 display = _row[3]()
-            elseif hs.fnutils.contains(hs.screen.allScreens(), _row[3]) then
+            elseif fnutils.contains(screen.allScreens(), _row[3]) then
                 display = _row[3]
             end
         else

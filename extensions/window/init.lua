@@ -331,7 +331,7 @@ function window:windowsToSouth() return windowsInDirection(self, 3) end
 function window:focusWindowsFromTable(searchWindows, sameApp)
     if sameApp == true then
         local winApplication = self:application()
-        searchWindows = hs.fnutils.filter(searchWindows, function(win) return winApplication == win:application() end)
+        searchWindows = fnutils.filter(searchWindows, function(win) return winApplication == win:application() end)
     end
     return focus_first_valid_window(searchWindows)
 end

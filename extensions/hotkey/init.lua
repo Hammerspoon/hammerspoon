@@ -4,6 +4,7 @@
 
 local hotkey = require "hs.hotkey.internal"
 local keycodes = require "hs.keycodes"
+local fnutils = require "hs.fnutils"
 
 --- hs.hotkey.new(mods, key, pressedfn[, releasedfn, repeatfn]) -> hotkeyObject or nil
 --- Constructor
@@ -143,7 +144,7 @@ function hotkey.modal:enter()
   if (self.k) then
     self.k:disable()
   end
-  hs.fnutils.each(self.keys, hotkey.enable)
+  fnutils.each(self.keys, hotkey.enable)
   self.entered()
   return self
 end
@@ -152,7 +153,7 @@ end
 --- Method
 --- Disables all hotkeys created via `modal:bind` and re-enables the modal itself.
 function hotkey.modal:exit()
-  hs.fnutils.each(self.keys, hotkey.disable)
+  fnutils.each(self.keys, hotkey.disable)
   if (self.k) then
     self.k:enable()
   end
