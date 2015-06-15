@@ -148,7 +148,7 @@ static int hotkey_new(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * The hotkey object
+///  * The `hs.hotkey` object
 static int hotkey_enable(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, "hs.hotkey");
     lua_settop(L, 1);
@@ -185,7 +185,7 @@ static void stop(lua_State* L, hotkey_t* hotkey) {
 ///  * None
 ///
 /// Returns:
-///  * The hotkey object
+///  * The `hs.hotkey` object
 static int hotkey_disable(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, "hs.hotkey");
     stop(L, hotkey);

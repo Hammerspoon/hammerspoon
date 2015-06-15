@@ -103,13 +103,33 @@ hotkey.modal.__index = hotkey.modal
 
 --- hs.hotkey.modal:entered()
 --- Method
---- Optional callback for when a modal is entered; default implementation does nothing.
+--- Optional callback for when a modal is entered
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a pre-existing function that you should override if you need to use it
+---  * The default implementation does nothing
 function hotkey.modal:entered()
 end
 
 --- hs.hotkey.modal:exited()
 --- Method
---- Optional callback for when a modal is exited; default implementation does nothing.
+--- Optional callback for when a modal is exited
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a pre-existing function that you should override if you need to use it
+---  * The default implementation does nothing
 function hotkey.modal:exited()
 end
 
@@ -138,8 +158,17 @@ end
 
 --- hs.hotkey.modal:enter()
 --- Method
---- Enables all hotkeys created via `modal:bind` and disables the modal itself.
---- Called automatically when the modal's hotkey is pressed.
+--- Enters a modal state
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The `hs.hotkey.modal` object
+---
+--- Notes:
+---  * This method will enable all of the hotkeys defined in the modal state, and disable the hotkey that entered the modal state (if one was defined)
+---  * If the modal state has a hotkey, this method will be called automatically
 function hotkey.modal:enter()
   if (self.k) then
     self.k:disable()
@@ -151,7 +180,16 @@ end
 
 --- hs.hotkey.modal:exit()
 --- Method
---- Disables all hotkeys created via `modal:bind` and re-enables the modal itself.
+--- Exits a modal state
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The `hs.hotkey.modal` object
+---
+--- Notes:
+---  * This method will disable all of the hotkeys defined in the modal state, and enable the hotkey for entering the modal state (if one was defined)
 function hotkey.modal:exit()
   fnutils.each(self.keys, hotkey.disable)
   if (self.k) then
@@ -163,10 +201,17 @@ end
 
 --- hs.hotkey.modal.new(mods, key) -> modal
 --- Constructor
---- Creates a new modal hotkey and enables it.
---- When mods and key are pressed, all keys bound via `modal:bind` will be enabled.
---- They are disabled when the "mode" is exited via `modal:exit()`
---- If mods and key are both nil, the modal state will be created with no top-level hotkey to enter the modal state. This is useful where you want a modal state to exist, but be entered programatically.
+--- Creates a new modal state, optionally with a global hotkey to trigger it
+---
+--- Parameters:
+---  * mods - A table containing keyboard modifiers for the optional global hotkey
+---  * key - A string containing the name of a keyboard key (as found in `hs.keycodes.map`)
+---
+--- Returns:
+---  * An `hs.hotkey.modal` object
+---
+--- Notes:
+---  * If `mods` and `key` are both nil, no global hotkey will be registered
 function hotkey.modal.new(mods, key)
   if ((mods and not key) or (not mods and key)) then
     hs.showError("Incorrect use of hs.hotkey.modal.new(). Both parameters must either be valid, or nil. You cannot mix valid and nil parameters")
