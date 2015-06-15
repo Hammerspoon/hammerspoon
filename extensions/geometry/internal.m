@@ -25,9 +25,16 @@ static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_pushnumber(L, rect.size.height); lua_setfield(L, -2, "h");
 }
 
-/// hs.geometry.intersectionRect(rect1, rect2) -> rect3
+/// hs.geometry.intersectionRect(rect-table1, rect-table2) -> rect-table
 /// Function
-/// Returns the intersection of two rects as a new rect.
+/// Returns the intersection of two rects as a new rect
+///
+/// Parameters:
+///  * rect-table1 - The first rect-table used to determine an intersection
+///  * rect-table2 - The second rect-table used to determine an intersection
+///
+/// Returns:
+///  * A rect-table describing the intersection. If there is no intersection, all values in this table will be zero
 static int geometry_intersectionRect(lua_State* L) {
     NSRect r1 = geom_torect(L, 1);
     NSRect r2 = geom_torect(L, 2);
@@ -37,7 +44,13 @@ static int geometry_intersectionRect(lua_State* L) {
 
 /// hs.geometry.rectMidPoint(rect) -> point
 /// Function
-/// Returns the midpoint of a rect.
+/// Returns the midpoint of a rect
+///
+/// Parameters:
+///  * rect - A rect-table to determine the mid-point of
+///
+/// Returns:
+///  * A point-table containing the location of the middle of the rect
 static int geometry_rectMidPoint(lua_State* L) {
     NSRect r = geom_torect(L, 1);
     geom_pushpoint(L, NSMakePoint(NSMidX(r), NSMidY(r)));
