@@ -2,6 +2,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <lua/lauxlib.h>
+#import "../hammerspoon.h"
 
 static NSMutableArray* delegates;
 
@@ -14,15 +15,6 @@ static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpRespo
         lua_pushstring(L, [value UTF8String]);
         lua_setfield(L, -2, [key UTF8String]);
     }
-}
-
-// Show an error message via hs.showError
-static void showError(lua_State* L, NSString* error) {
-    lua_getglobal(L, "hs");
-    lua_getfield(L, -1, "showError");
-    lua_remove(L, -2);
-    lua_pushstring(L, [error UTF8String]);
-    lua_pcall(L, 1, 0, 0);
 }
 
 // Definition of the collection delegate to receive callbacks from NSUrlConnection
@@ -77,7 +69,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (cbRes != LUA_OK) {
         // FIXME: traceback shirley?
         NSString* message = [NSString stringWithFormat:@"%@ Code: %d", @"Can't call callback", cbRes];
-        showError(L, message);
+        showError(L, [message UTF8String]);
     }
     remove_delegate(L, self);
 }
@@ -99,7 +91,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
 // If the user specified a request body, get it from stack,
 // add it to the request and add the content length header field
 static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* request){
-    if (!lua_isnil(L, index)) {
+    if (!lua_isnoneornil(L, index)) {
         NSString* body = [NSString stringWithCString:lua_tostring(L, 3) encoding:NSASCIIStringEncoding];
         NSData *postData = [body dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
         NSString *postLength = [NSString stringWithFormat:@"%lu", [postData length]];
@@ -111,8 +103,8 @@ static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* reque
 
 // Gets all information for the request from the stack and creates a request
 static NSMutableURLRequest* getRequestFromStack(lua_State* L){
-    NSString* url = [NSString stringWithCString:luaL_checklstring(L, 1, NULL) encoding:NSASCIIStringEncoding];
-    NSString* method = [NSString stringWithCString:luaL_checklstring(L, 2, NULL) encoding:NSASCIIStringEncoding];
+    NSString* url = lua_to_nsstring(L, 1);
+    NSString* method = lua_to_nsstring(L, 2);
 
     NSMutableURLRequest *request;
 
@@ -123,7 +115,7 @@ static NSMutableURLRequest* getRequestFromStack(lua_State* L){
 
 // Gets the table for the headers from stack and adds the key value pairs to the request object
 static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest* request){
-    if (!lua_isnil(L, index)) {
+    if (!lua_isnoneornil(L, index)) {
         lua_pushnil(L);
         while (lua_next(L, index) != 0) {
             // TODO check key and value for string type
@@ -146,7 +138,10 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
 ///  * method - A string containing the HTTP method to use (e.g. "GET", "POST", etc)
 ///  * data - A string containing the request body, or nil to send no body
 ///  * headers - A table containing string keys and values representing request header keys and values, or nil to add no headers
-///  * callback - A function to called when the response is received
+///  * callback - A function to called when the response is received. The function should accept three arguments:
+///   * code - A number containing the HTTP response code
+///   * body - A string containing the body of the response
+///   * headers - A table containing the HTTP headers of the response
 ///
 /// Returns:
 ///  * None
@@ -179,8 +174,8 @@ static int http_doAsyncRequest(lua_State* L){
 /// Parameters:
 ///  * url - A string containing the URL
 ///  * method - A string containing the HTTP method to use (e.g. "GET", "POST", etc)
-///  * data - A string containing the data to POST to the URL, or nil to send no data
-///  * headers - A table of string keys and values used as headers for the request, or nil to add no headers
+///  * data - An optional string containing the data to POST to the URL, or nil to send no data
+///  * headers - An optional table of string keys and values used as headers for the request, or nil to add no headers
 ///
 /// Returns:
 ///  * A number containing the HTTP response status code
