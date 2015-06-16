@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		4F0F97571ADE9F8600F2A199 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F1CF8DB1A47F5BD001C8AE7 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */; };
-		4F9A454A19EC6801006BB982 /* build_extensions.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F9A454919EC6801006BB982 /* build_extensions.sh */; };
 		4FC09F7C19F99ECE007542A6 /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FC09F7B19F99ECE007542A6 /* docs.json */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
@@ -388,7 +387,6 @@
 			files = (
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
-				4F9A454A19EC6801006BB982 /* build_extensions.sh in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				9477D01B19953FE20020BE9D /* statusicon@2x.png in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
