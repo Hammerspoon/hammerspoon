@@ -5,7 +5,6 @@
 
 typedef struct _eventtap_t {
     lua_State* L;
-    bool running;
     int fn;
     int self;
     CGEventMask mask;
@@ -157,33 +156,31 @@ static int eventtap_new(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The event tap object
 static int eventtap_start(lua_State* L) {
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    if (e->running)
-        return 0;
+    if (!(e->tap && CGEventTapIsEnabled(e->tap))) {
+        e->self = store_event(L, 1);
+        e->tap = CGEventTapCreate(kCGSessionEventTap,
+                                  kCGHeadInsertEventTap,
+                                  kCGEventTapOptionDefault,
+                                  e->mask,
+                                  eventtap_callback,
+                                  e);
 
-    e->self = store_event(L, 1);
-    e->tap = CGEventTapCreate(kCGSessionEventTap,
-                              kCGHeadInsertEventTap,
-                              kCGEventTapOptionDefault,
-                              e->mask,
-                              eventtap_callback,
-                              e);
-
-    if (e->tap) {
-        e->running = true;
-
-        CGEventTapEnable(e->tap, true);
-        e->runloopsrc = CFMachPortCreateRunLoopSource(NULL, e->tap, 0);
-        CFRunLoopAddSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
-
-        lua_settop(L,1);
-        return 1;
-    } else {
-        showError(L, "Unable to create eventtap.  Is Accessibility enabled?");
+        if (e->tap) {
+            CGEventTapEnable(e->tap, true);
+            e->runloopsrc = CFMachPortCreateRunLoopSource(NULL, e->tap, 0);
+            CFRunLoopAddSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
+        } else {
+            showError(L, "Unable to create eventtap.  Is Accessibility enabled?");
+            remove_event(L, e->self);
+            e->self = LUA_NOREF;
+        }
     }
+    lua_settop(L,1);
+    return 1;
 }
 
 /// hs.eventtap:stop()
@@ -194,33 +191,45 @@ static int eventtap_start(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The event tap object
 static int eventtap_stop(lua_State* L) {
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    if (!e->running)
-        return 0;
+    if (e->tap && CGEventTapIsEnabled(e->tap)) {
+        remove_event(L, e->self);
+        e->self = LUA_NOREF;
 
-    remove_event(L, e->self);
-    e->self = LUA_NOREF;
-    e->running = false;
-
-    CGEventTapEnable(e->tap, false);
-    CFMachPortInvalidate(e->tap);
-    CFRunLoopRemoveSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
-    CFRelease(e->runloopsrc);
-    CFRelease(e->tap);
-
+        CGEventTapEnable(e->tap, false);
+        CFMachPortInvalidate(e->tap);
+        CFRunLoopRemoveSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
+        CFRelease(e->runloopsrc);
+        CFRelease(e->tap);
+        e->tap = NULL ;
+    }
     lua_settop(L,1);
+    return 1;
+}
+
+/// hs.eventtap:isEnabled() -> bool
+/// Method
+/// Determine whether or not an event tap object is enabled.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the event tap is enabled or false if it is not.
+static int eventtap_isEnabled(lua_State* L) {
+    eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
+    lua_pushboolean(L, (e->tap && CGEventTapIsEnabled(e->tap))) ;
     return 1;
 }
 
 static int eventtap_gc(lua_State* L) {
     eventtap_t* eventtap = luaL_checkudata(L, 1, USERDATA_TAG);
-    if (eventtap->running) {
+    if (eventtap->tap && CGEventTapIsEnabled(eventtap->tap)) {
         remove_event(L, eventtap->self);
         eventtap->self = LUA_NOREF;
-        eventtap->running = false;
 
         CGEventTapEnable(eventtap->tap, false);
         CFMachPortInvalidate(eventtap->tap);
@@ -242,10 +251,11 @@ static int meta_gc(lua_State* __unused L) {
 
 // Metatable for created objects when _new invoked
 static const luaL_Reg eventtap_metalib[] = {
-    {"start",   eventtap_start},
-    {"stop",    eventtap_stop},
-    {"__gc",    eventtap_gc},
-    {NULL,      NULL}
+    {"start",     eventtap_start},
+    {"stop",      eventtap_stop},
+    {"isEnabled", eventtap_isEnabled},
+    {"__gc",      eventtap_gc},
+    {NULL,        NULL}
 };
 
 // Functions for returned object when module loads
