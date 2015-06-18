@@ -122,6 +122,7 @@ static int eventtap_new(lua_State* L) {
     memset(eventtap, 0, sizeof(eventtap_t));
 
     eventtap->L = L;
+    eventtap->tap = NULL ;
 
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
