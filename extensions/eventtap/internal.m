@@ -226,6 +226,81 @@ static int eventtap_isEnabled(lua_State* L) {
     return 1;
 }
 
+/// hs.eventtap.checkKeyboardModifiers() -> table
+/// Function
+/// Returns a table containing the current key modifiers being pressed *at this instant*.
+///
+/// Parameters:
+///  None
+///
+/// Returns:
+///  * Returns a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked; The possible keys are:
+///     * cmd
+///     * alt
+///     * shift
+///     * ctrl
+///     * fn
+///
+/// Notes:
+///  * This is an instantaneous poll of the current keyboard modifiers, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar` where a callback is already in progress and waiting for an event callback is not practical or possible.
+static int checkKeyboardModifiers(lua_State* L) {
+
+    NSUInteger theFlags = [NSEvent modifierFlags] ;
+    BOOL isCommandKey = (theFlags & NSCommandKeyMask) != 0;
+    BOOL isShiftKey = (theFlags & NSShiftKeyMask) != 0;
+    BOOL isOptKey = (theFlags & NSAlternateKeyMask) != 0;
+    BOOL isCtrlKey = (theFlags & NSControlKeyMask) != 0;
+    BOOL isFnKey = (theFlags & NSFunctionKeyMask) != 0;
+
+    lua_newtable(L);
+
+    lua_pushboolean(L, isCommandKey); lua_setfield(L, -2, "cmd");
+    lua_pushboolean(L, isShiftKey);   lua_setfield(L, -2, "shift");
+    lua_pushboolean(L, isOptKey);     lua_setfield(L, -2, "alt");
+    lua_pushboolean(L, isCtrlKey);    lua_setfield(L, -2, "ctrl");
+    lua_pushboolean(L, isFnKey);      lua_setfield(L, -2, "fn");
+
+    return 1;
+}
+
+/// hs.eventtap.checkMouseButtons() -> table
+/// Function
+/// Returns a table containing the current mouse buttons being pressed *at this instant*.
+///
+/// Parameters:
+///  None
+///
+/// Returns:
+///  * Returns an array containing indicies starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.
+///  * Special hash tag synonyms for `left` (button 1) and `right` (button 2) are also set to true if these buttons are currently being pressed.
+///
+/// Notes:
+///  * This is an instantaneous poll of the current buttons buttons, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar` where a callback is already in progress and waiting for an event callback is not practical or possible.
+static int checkMouseButtons(lua_State* L) {
+    NSUInteger theButtons = [NSEvent pressedMouseButtons] ;
+    NSUInteger i = 0 ;
+
+    lua_newtable(L);
+
+    while (theButtons != 0) {
+        if (theButtons & 0x1) {
+            if (i == 0) {
+                lua_pushboolean(L, TRUE) ;
+                lua_setfield(L, -2, "left") ;
+            } else if (i == 1) {
+                lua_pushboolean(L, TRUE) ;
+                lua_setfield(L, -2, "right") ;
+            }
+        }
+        lua_pushinteger(L, i + 1) ;
+        lua_pushboolean(L, theButtons & 0x1) ;
+        lua_settable(L, -3) ;
+        i++ ;
+        theButtons = theButtons >> 1 ;
+    }
+    return 1;
+}
+
 static int eventtap_gc(lua_State* L) {
     eventtap_t* eventtap = luaL_checkudata(L, 1, USERDATA_TAG);
     if (eventtap->tap && CGEventTapIsEnabled(eventtap->tap)) {
@@ -261,8 +336,10 @@ static const luaL_Reg eventtap_metalib[] = {
 
 // Functions for returned object when module loads
 static luaL_Reg eventtaplib[] = {
-    {"new",     eventtap_new},
-    {"keyStrokes", eventtap_keyStrokes},
+    {"new",                     eventtap_new},
+    {"keyStrokes",              eventtap_keyStrokes},
+    {"checkKeyboardModifiers",  checkKeyboardModifiers},
+    {"checkMouseButtons",       checkMouseButtons},
     {NULL,      NULL}
 };
 
