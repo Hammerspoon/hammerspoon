@@ -1,14 +1,16 @@
 /*
-** $Id: lfunc.c,v 2.30.1.1 2013/04/12 18:48:47 roberto Exp $
+** $Id: lfunc.c,v 2.45 2014/11/02 19:19:04 roberto Exp $
 ** Auxiliary functions to manipulate prototypes and closures
 ** See Copyright Notice in lua.h
 */
 
-
-#include <stddef.h>
-
 #define lfunc_c
 #define LUA_CORE
+
+#include "lprefix.h"
+
+
+#include <stddef.h>
 
 #include "lua.h"
 
@@ -20,95 +22,83 @@
 
 
 
-Closure *luaF_newCclosure (lua_State *L, int n) {
-  Closure *c = &luaC_newobj(L, LUA_TCCL, sizeCclosure(n), NULL, 0)->cl;
-  c->c.nupvalues = cast_byte(n);
+CClosure *luaF_newCclosure (lua_State *L, int n) {
+  GCObject *o = luaC_newobj(L, LUA_TCCL, sizeCclosure(n));
+  CClosure *c = gco2ccl(o);
+  c->nupvalues = cast_byte(n);
   return c;
 }
 
 
-Closure *luaF_newLclosure (lua_State *L, int n) {
-  Closure *c = &luaC_newobj(L, LUA_TLCL, sizeLclosure(n), NULL, 0)->cl;
-  c->l.p = NULL;
-  c->l.nupvalues = cast_byte(n);
-  while (n--) c->l.upvals[n] = NULL;
+LClosure *luaF_newLclosure (lua_State *L, int n) {
+  GCObject *o = luaC_newobj(L, LUA_TLCL, sizeLclosure(n));
+  LClosure *c = gco2lcl(o);
+  c->p = NULL;
+  c->nupvalues = cast_byte(n);
+  while (n--) c->upvals[n] = NULL;
   return c;
 }
 
-
-UpVal *luaF_newupval (lua_State *L) {
-  UpVal *uv = &luaC_newobj(L, LUA_TUPVAL, sizeof(UpVal), NULL, 0)->uv;
-  uv->v = &uv->u.value;
-  setnilvalue(uv->v);
-  return uv;
+/*
+** fill a closure with new closed upvalues
+*/
+void luaF_initupvals (lua_State *L, LClosure *cl) {
+  int i;
+  for (i = 0; i < cl->nupvalues; i++) {
+    UpVal *uv = luaM_new(L, UpVal);
+    uv->refcount = 1;
+    uv->v = &uv->u.value;  /* make it closed */
+    setnilvalue(uv->v);
+    cl->upvals[i] = uv;
+  }
 }
 
 
 UpVal *luaF_findupval (lua_State *L, StkId level) {
-  global_State *g = G(L);
-  GCObject **pp = &L->openupval;
+  UpVal **pp = &L->openupval;
   UpVal *p;
   UpVal *uv;
-  while (*pp != NULL && (p = gco2uv(*pp))->v >= level) {
-    GCObject *o = obj2gco(p);
-    lua_assert(p->v != &p->u.value);
-    lua_assert(!isold(o) || isold(obj2gco(L)));
-    if (p->v == level) {  /* found a corresponding upvalue? */
-      if (isdead(g, o))  /* is it dead? */
-        changewhite(o);  /* resurrect it */
-      return p;
-    }
-    pp = &p->next;
+  lua_assert(isintwups(L) || L->openupval == NULL);
+  while (*pp != NULL && (p = *pp)->v >= level) {
+    lua_assert(upisopen(p));
+    if (p->v == level)  /* found a corresponding upvalue? */
+      return p;  /* return it */
+    pp = &p->u.open.next;
   }
-  /* not found: create a new one */
-  uv = &luaC_newobj(L, LUA_TUPVAL, sizeof(UpVal), pp, 0)->uv;
+  /* not found: create a new upvalue */
+  uv = luaM_new(L, UpVal);
+  uv->refcount = 0;
+  uv->u.open.next = *pp;  /* link it to list of open upvalues */
+  uv->u.open.touched = 1;
+  *pp = uv;
   uv->v = level;  /* current value lives in the stack */
-  uv->u.l.prev = &g->uvhead;  /* double link it in `uvhead' list */
-  uv->u.l.next = g->uvhead.u.l.next;
-  uv->u.l.next->u.l.prev = uv;
-  g->uvhead.u.l.next = uv;
-  lua_assert(uv->u.l.next->u.l.prev == uv && uv->u.l.prev->u.l.next == uv);
+  if (!isintwups(L)) {  /* thread not in list of threads with upvalues? */
+    L->twups = G(L)->twups;  /* link it to the list */
+    G(L)->twups = L;
+  }
   return uv;
-}
-
-
-static void unlinkupval (UpVal *uv) {
-  lua_assert(uv->u.l.next->u.l.prev == uv && uv->u.l.prev->u.l.next == uv);
-  uv->u.l.next->u.l.prev = uv->u.l.prev;  /* remove from `uvhead' list */
-  uv->u.l.prev->u.l.next = uv->u.l.next;
-}
-
-
-void luaF_freeupval (lua_State *L, UpVal *uv) {
-  if (uv->v != &uv->u.value)  /* is it open? */
-    unlinkupval(uv);  /* remove from open list */
-  luaM_free(L, uv);  /* free upvalue */
 }
 
 
 void luaF_close (lua_State *L, StkId level) {
   UpVal *uv;
-  global_State *g = G(L);
-  while (L->openupval != NULL && (uv = gco2uv(L->openupval))->v >= level) {
-    GCObject *o = obj2gco(uv);
-    lua_assert(!isblack(o) && uv->v != &uv->u.value);
-    L->openupval = uv->next;  /* remove from `open' list */
-    if (isdead(g, o))
-      luaF_freeupval(L, uv);  /* free upvalue */
+  while (L->openupval != NULL && (uv = L->openupval)->v >= level) {
+    lua_assert(upisopen(uv));
+    L->openupval = uv->u.open.next;  /* remove from 'open' list */
+    if (uv->refcount == 0)  /* no references? */
+      luaM_free(L, uv);  /* free upvalue */
     else {
-      unlinkupval(uv);  /* remove upvalue from 'uvhead' list */
       setobj(L, &uv->u.value, uv->v);  /* move value to upvalue slot */
       uv->v = &uv->u.value;  /* now current value lives here */
-      gch(o)->next = g->allgc;  /* link upvalue into 'allgc' list */
-      g->allgc = o;
-      luaC_checkupvalcolor(g, uv);
+      luaC_upvalbarrier(L, uv);
     }
   }
 }
 
 
 Proto *luaF_newproto (lua_State *L) {
-  Proto *f = &luaC_newobj(L, LUA_TPROTO, sizeof(Proto), NULL, 0)->p;
+  GCObject *o = luaC_newobj(L, LUA_TPROTO, sizeof(Proto));
+  Proto *f = gco2p(o);
   f->k = NULL;
   f->sizek = 0;
   f->p = NULL;
@@ -144,7 +134,7 @@ void luaF_freeproto (lua_State *L, Proto *f) {
 
 
 /*
-** Look for n-th local variable at line `line' in function `func'.
+** Look for n-th local variable at line 'line' in function 'func'.
 ** Returns NULL if not found.
 */
 const char *luaF_getlocalname (const Proto *f, int local_number, int pc) {

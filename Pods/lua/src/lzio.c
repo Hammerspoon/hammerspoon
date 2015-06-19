@@ -1,14 +1,16 @@
 /*
-** $Id: lzio.c,v 1.35.1.1 2013/04/12 18:48:47 roberto Exp $
+** $Id: lzio.c,v 1.36 2014/11/02 19:19:04 roberto Exp $
 ** Buffered streams
 ** See Copyright Notice in lua.h
 */
 
-
-#include <string.h>
-
 #define lzio_c
 #define LUA_CORE
+
+#include "lprefix.h"
+
+
+#include <string.h>
 
 #include "lua.h"
 
