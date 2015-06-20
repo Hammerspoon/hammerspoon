@@ -215,20 +215,29 @@ end
 
 --- hs.fnutils.partial(fn, ...) -> fn'
 --- Constructor
---- Returns fn partially applied to arg (...)
+--- Returns a new function which takes the provided arguments and pre-applies them as the initial arguments to the provided function.  When the new function is later invoked with additional arguments, they are appended to the end of the initial list given and the complete list of arguments is finally passed into the provided function and its result returned.
 ---
 --- Parameters:
----  * fn - A function
----  * ... - A number of things
+---  * fn - The function which will act on all of the arguments provided now and when the result is invoked later.
+---  * ... - The initial arguments to pre-apply to the resulting new function.
 ---
 --- Returns:
 ---  * A function
 ---
 --- Notes:
----  * The documentation for this function is currently insufficient. Please submit an improvement if you can!
+---  * This is best understood with an example which you can test in the Hammerspoon console:
+---
+---    Create the function `a` which has it's initial arguments set to `1,2,3`:
+---       a = hs.fnutils.partial(function(...) return table.pack(...) end, 1, 2, 3)
+---
+---    Now some examples of using the new function, `a(...)`:
+---       hs.inspect(a("a","b","c")) will return: { 1, 2, 3, "a", "b", "c", n = 6 }
+---       hs.inspect(a(4,5,6,7))     will return: { 1, 2, 3, 4, 5, 6, 7, n = 7 }
+---       hs.inspect(a(1))           will return: { 1, 2, 3, 1, n = 4 }
 function fnutils.partial(fn, ...)
   local args = table.pack(...)
   return function(...)
+    for idx = args.n+1,#args do args[idx] = nil end -- clear previous values
     for idx, val in ipairs(table.pack(...)) do
       args[args.n + idx] = val
     end
@@ -261,5 +270,78 @@ function fnutils.cycle(t)
     return x
   end
 end
+
+--- hs.fnutils.every(table, fn) -> bool
+--- Function
+--- Returns true if the application of fn on every entry in table is true.
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * fn - A function that accepts a single parameter and returns a "true" value (any value except the boolean `false` or nil) if the parameter was accepted, or a "false" value (the boolean false or nil) if the parameter was rejected.
+---
+--- Returns:
+---  * True if the application of fn on every element of the table is true
+---  * False if the function returns `false` for any element of the table.  Note that testing stops when the first false return is detected.
+function fnutils.every(table, fn)
+    for k, v in pairs(table) do
+        if not fn(v, k) then return false end
+    end
+    return true
+end
+
+--- hs.fnutils.some(table, fn) -> bool
+--- Function
+--- Returns true if the application of fn on entries in table are true for at least one of the members.
+---
+--- Parameters:
+---  * table - A table containing some sort of data
+---  * fn - A function that accepts a single parameter and returns a "true" value (any value except the boolean `false` or nil) if the parameter was accepted, or a "false" value (the boolean false or nil) if the parameter was rejected.
+---
+--- Returns:
+---  * True if the application of fn on any element of the table is true.  Note that testing stops when the first true return is detected.
+---  * False if the function returns `false` for all elements of the table.
+function fnutils.some(table, fn)
+    local function is_invalid(v, k)
+        return not fn(v, k)
+    end
+    return not fnutils.every(table, is_invalid)
+end
+
+--- hs.fnutils.sortByKeys(table[ , function]) -> function
+--- Constructor
+--- Iterator for retrieving elements from a table of key-value pairs in the order of the keys.
+---
+--- Parameters:
+---  * table - the table of key-value pairs to be iterated through
+---  * fn - an optional function which will be passed to `table.sort` to determine how the keys are sorted.  If it is not present, then keys will be sorted alphabetically.
+---
+--- Returns:
+---  * function to be used as an iterator
+---
+--- Notes:
+---  * Similar to Perl's `sort(keys %hash)`
+---  * Iterators are used in looping constructs like `for`:
+---    * `for i,v in hs.fnutils.sortByKeys(t[, f]) do ... end`
+---  * A sort function should accept two arguments and return true if the first argument should appear before the second, or false otherwise.
+---    * e.g. `function(m,n) return not (m < n) end` would result in reverse alphabetic order.
+---    * See _Programming_In_Lua,_3rd_ed_, page 52 for a more complete discussion.
+fnutils.sortByKeys = function(t, f)
+    if t then
+        local a = {}
+        for n in pairs(t) do table.insert(a, n) end
+            table.sort(a, f)
+            local i = 0      -- iterator variable
+            local iter = function ()   -- iterator function
+            i = i + 1
+            if a[i] == nil then return nil
+                else return a[i], t[a[i]]
+            end
+        end
+        return iter
+    else
+        return function() return nil end
+    end
+end
+
 
 return fnutils
