@@ -99,6 +99,36 @@ function print(...)
   hs._logmessage(str)
 end
 
+--- hs.execute(command[, with_user_env]) -> output, status, type, rc
+--- Function
+--- Runs a shell command, optionally loading the users shell environment first, and returns stdout as a string, followed by the same result codes as `os.execute` would return.
+---
+--- Parameters:
+---  * command - a string containing the shell command to execute
+---  * with_user_env - optional boolean argument which if provided and is true, executes the command in the users login shell as an "interactive" login shell causing the user's local profile (or other login scripts) to be loaded first.
+---
+--- Returns:
+---  * output -- the stdout of the command as a string.  May contain an extra terminating new-line (\n).
+---  * status -- `true` if the command terminated successfully or nil otherwise.
+---  * type   -- a string value of "exit" or "signal" indicating whether the command terminated of its own accord or if it was terminated by a signal (killed, segfault, etc.)
+---  * rc     -- if the command exited of its own accord, then this number will represent the exit code (usually 0 for success, not 0 for an error, though this is very command specific, so check man pages when there is a question).  If the command was killed by a signal, then this number corresponds to the signal type that caused the command to terminate.
+---
+--- Notes:
+---  * Setting `with_user_env` to true does incur noticeable overhead, so it should only be used if necessary (to set the path or other environment variables).
+---  * Because this function returns the stdout as it's first return value, it is not quite a drop-in replacement for `os.execute`.  In most cases, it is probable that `stdout` will be the empty string when `status` is nil, but this is not guaranteed, so this trade off of shifting os.execute's results was deemed acceptable.
+---  * This particular function is most useful when you're more interested in the command's output then a simple check for completion and result codes.  If you only require the result codes or verification of command completion, then `os.execute` will be slightly more efficient.
+hs.execute = function(command, user_env)
+    local f
+    if user_env then
+        f = io.popen(os.getenv("SHELL")..[[ -l -i -c "]]..command..[["]], 'r')
+    else
+        f = io.popen(command, 'r')
+    end
+    local s = f:read('*a')
+    local status, exit_type, rc = f:close()
+    return s, status, exit_type, rc
+end
+
 print("-- Augmenting require paths")
 package.path=configdir.."/?.lua"..";"..configdir.."/?/init.lua"..";"..package.path..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
 package.cpath=configdir.."/?.so"..";"..package.cpath..";"..modpath.."/?.so"
