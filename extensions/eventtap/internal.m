@@ -272,7 +272,7 @@ static int checkKeyboardModifiers(lua_State* L) {
 ///
 /// Returns:
 ///  * Returns an array containing indicies starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.
-///  * Special hash tag synonyms for `left` (button 1) and `right` (button 2) are also set to true if these buttons are currently being pressed.
+///  * Special hash tag synonyms for `left` (button 1), `right` (button 2), and `middle` (button 3) are also set to true if these buttons are currently being pressed.
 ///
 /// Notes:
 ///  * This is an instantaneous poll of the current buttons buttons, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar` where a callback is already in progress and waiting for an event callback is not practical or possible.
@@ -290,6 +290,9 @@ static int checkMouseButtons(lua_State* L) {
             } else if (i == 1) {
                 lua_pushboolean(L, TRUE) ;
                 lua_setfield(L, -2, "right") ;
+            } else if (i == 2) {
+                lua_pushboolean(L, TRUE) ;
+                lua_setfield(L, -2, "middle") ;
             }
         }
         lua_pushinteger(L, i + 1) ;

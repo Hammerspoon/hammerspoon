@@ -336,218 +336,218 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
 /// Constant
 /// A table for use with `hs.eventtap.new()`, containing the following keys:
 ///    keydown, keyup,
-///    leftmousedown, leftmouseup, leftmousedragged,
-///    rightmousedown, rightmouseup, rightmousedragged,
-///    middlemousedown, middlemouseup, middlemousedragged,
-///    mousemoved, flagschanged, scrollwheel,
-///    tabletpointer, tabletproximity,
-///    nullevent, tapdisabledbytimeout, tapdisabledbyuserinput
+///    leftMouseDown, leftMouseUp, leftMouseDragged,
+///    rightMouseDown, rightMouseUp, rightMouseDragged,
+///    middleMouseDown, middleMouseUp, middleMouseDragged,
+///    mouseMoved, flagsChanged, scrollWheel,
+///    tabletPointer, tabletProximity,
+///    nullEvent, tapDisabledByTimeout, tapDisabledByUserInput
 static void pushtypestable(lua_State* L) {
     lua_newtable(L);
-    lua_pushnumber(L, kCGEventLeftMouseDown);           lua_setfield(L, -2, "leftmousedown");
-    lua_pushstring(L, "leftmousedown") ;                lua_rawseti(L, -2, kCGEventLeftMouseDown);
-    lua_pushnumber(L, kCGEventLeftMouseUp);             lua_setfield(L, -2, "leftmouseup");
-    lua_pushstring(L, "leftmouseup") ;                  lua_rawseti(L, -2, kCGEventLeftMouseUp);
-    lua_pushnumber(L, kCGEventLeftMouseDragged);        lua_setfield(L, -2, "leftmousedragged");
-    lua_pushstring(L, "leftmousedragged") ;             lua_rawseti(L, -2, kCGEventLeftMouseDragged);
-    lua_pushnumber(L, kCGEventRightMouseDown);          lua_setfield(L, -2, "rightmousedown");
-    lua_pushstring(L, "rightmousedown") ;               lua_rawseti(L, -2, kCGEventRightMouseDown);
-    lua_pushnumber(L, kCGEventRightMouseUp);            lua_setfield(L, -2, "rightmouseup");
-    lua_pushstring(L, "rightmouseup") ;                 lua_rawseti(L, -2, kCGEventRightMouseUp);
-    lua_pushnumber(L, kCGEventRightMouseDragged);       lua_setfield(L, -2, "rightmousedragged");
-    lua_pushstring(L, "rightmousedragged") ;            lua_rawseti(L, -2, kCGEventRightMouseDragged);
-    lua_pushnumber(L, kCGEventOtherMouseDown);          lua_setfield(L, -2, "middlemousedown");
-    lua_pushstring(L, "middlemousedown") ;              lua_rawseti(L, -2, kCGEventOtherMouseDown);
-    lua_pushnumber(L, kCGEventOtherMouseUp);            lua_setfield(L, -2, "middlemouseup");
-    lua_pushstring(L, "middlemouseup") ;                lua_rawseti(L, -2, kCGEventOtherMouseUp);
-    lua_pushnumber(L, kCGEventOtherMouseDragged);       lua_setfield(L, -2, "middlemousedragged");
-    lua_pushstring(L, "middlemousedragged") ;           lua_rawseti(L, -2, kCGEventOtherMouseDragged);
-    lua_pushnumber(L, kCGEventMouseMoved);              lua_setfield(L, -2, "mousemoved");
-    lua_pushstring(L, "mousemoved") ;                   lua_rawseti(L, -2, kCGEventMouseMoved);
-    lua_pushnumber(L, kCGEventFlagsChanged);            lua_setfield(L, -2, "flagschanged");
-    lua_pushstring(L, "flagschanged") ;                 lua_rawseti(L, -2, kCGEventFlagsChanged);
-    lua_pushnumber(L, kCGEventScrollWheel);             lua_setfield(L, -2, "scrollwheel");
-    lua_pushstring(L, "scrollwheel") ;                  lua_rawseti(L, -2, kCGEventScrollWheel);
-    lua_pushnumber(L, kCGEventKeyDown);                 lua_setfield(L, -2, "keydown");
-    lua_pushstring(L, "keydown") ;                      lua_rawseti(L, -2, kCGEventKeyDown);
-    lua_pushnumber(L, kCGEventKeyUp);                   lua_setfield(L, -2, "keyup");
-    lua_pushstring(L, "keyup") ;                        lua_rawseti(L, -2, kCGEventKeyUp);
-    lua_pushnumber(L, kCGEventTabletPointer);           lua_setfield(L, -2, "tabletpointer");
-    lua_pushstring(L, "tabletpointer") ;                lua_rawseti(L, -2, kCGEventTabletPointer);
-    lua_pushnumber(L, kCGEventTabletProximity);         lua_setfield(L, -2, "tabletproximity");
-    lua_pushstring(L, "tabletproximity") ;              lua_rawseti(L, -2, kCGEventTabletProximity);
-    lua_pushnumber(L, kCGEventNull);                    lua_setfield(L, -2, "nullevent");
-    lua_pushstring(L, "nullevent") ;                    lua_rawseti(L, -2, kCGEventNull);
-    lua_pushnumber(L, kCGEventTapDisabledByTimeout);    lua_setfield(L, -2, "tapdisabledbytimeout");
-    lua_pushstring(L, "tapdisabledbytimeout") ;         lua_rawseti(L, -2, kCGEventTapDisabledByTimeout);
-    lua_pushnumber(L, kCGEventTapDisabledByUserInput);  lua_setfield(L, -2, "tapdisabledbyuserinput");
-    lua_pushstring(L, "tapdisabledbyuserinput") ;       lua_rawseti(L, -2, kCGEventTapDisabledByUserInput);
+    lua_pushnumber(L, kCGEventLeftMouseDown);           lua_setfield(L, -2, "leftMouseDown");
+    lua_pushstring(L, "leftMouseDown") ;                lua_rawseti(L, -2, kCGEventLeftMouseDown);
+    lua_pushnumber(L, kCGEventLeftMouseUp);             lua_setfield(L, -2, "leftMouseUp");
+    lua_pushstring(L, "leftMouseUp") ;                  lua_rawseti(L, -2, kCGEventLeftMouseUp);
+    lua_pushnumber(L, kCGEventLeftMouseDragged);        lua_setfield(L, -2, "leftMouseDragged");
+    lua_pushstring(L, "leftMouseDragged") ;             lua_rawseti(L, -2, kCGEventLeftMouseDragged);
+    lua_pushnumber(L, kCGEventRightMouseDown);          lua_setfield(L, -2, "rightMouseDown");
+    lua_pushstring(L, "rightMouseDown") ;               lua_rawseti(L, -2, kCGEventRightMouseDown);
+    lua_pushnumber(L, kCGEventRightMouseUp);            lua_setfield(L, -2, "rightMouseUp");
+    lua_pushstring(L, "rightMouseUp") ;                 lua_rawseti(L, -2, kCGEventRightMouseUp);
+    lua_pushnumber(L, kCGEventRightMouseDragged);       lua_setfield(L, -2, "rightMouseDragged");
+    lua_pushstring(L, "rightMouseDragged") ;            lua_rawseti(L, -2, kCGEventRightMouseDragged);
+    lua_pushnumber(L, kCGEventOtherMouseDown);          lua_setfield(L, -2, "middleMouseDown");
+    lua_pushstring(L, "middleMouseDown") ;              lua_rawseti(L, -2, kCGEventOtherMouseDown);
+    lua_pushnumber(L, kCGEventOtherMouseUp);            lua_setfield(L, -2, "middleMouseUp");
+    lua_pushstring(L, "middleMouseUp") ;                lua_rawseti(L, -2, kCGEventOtherMouseUp);
+    lua_pushnumber(L, kCGEventOtherMouseDragged);       lua_setfield(L, -2, "middleMouseDragged");
+    lua_pushstring(L, "middleMouseDragged") ;           lua_rawseti(L, -2, kCGEventOtherMouseDragged);
+    lua_pushnumber(L, kCGEventMouseMoved);              lua_setfield(L, -2, "mouseMoved");
+    lua_pushstring(L, "mouseMoved") ;                   lua_rawseti(L, -2, kCGEventMouseMoved);
+    lua_pushnumber(L, kCGEventFlagsChanged);            lua_setfield(L, -2, "flagsChanged");
+    lua_pushstring(L, "flagsChanged") ;                 lua_rawseti(L, -2, kCGEventFlagsChanged);
+    lua_pushnumber(L, kCGEventScrollWheel);             lua_setfield(L, -2, "scrollWheel");
+    lua_pushstring(L, "scrollWheel") ;                  lua_rawseti(L, -2, kCGEventScrollWheel);
+    lua_pushnumber(L, kCGEventKeyDown);                 lua_setfield(L, -2, "keyDown");
+    lua_pushstring(L, "keyDown") ;                      lua_rawseti(L, -2, kCGEventKeyDown);
+    lua_pushnumber(L, kCGEventKeyUp);                   lua_setfield(L, -2, "keyUp");
+    lua_pushstring(L, "keyUp") ;                        lua_rawseti(L, -2, kCGEventKeyUp);
+    lua_pushnumber(L, kCGEventTabletPointer);           lua_setfield(L, -2, "tabletPointer");
+    lua_pushstring(L, "tabletPointer") ;                lua_rawseti(L, -2, kCGEventTabletPointer);
+    lua_pushnumber(L, kCGEventTabletProximity);         lua_setfield(L, -2, "tabletProximity");
+    lua_pushstring(L, "tabletProximity") ;              lua_rawseti(L, -2, kCGEventTabletProximity);
+    lua_pushnumber(L, kCGEventNull);                    lua_setfield(L, -2, "nullEvent");
+    lua_pushstring(L, "nullEvent") ;                    lua_rawseti(L, -2, kCGEventNull);
+    lua_pushnumber(L, kCGEventTapDisabledByTimeout);    lua_setfield(L, -2, "tapDisabledByTimeout");
+    lua_pushstring(L, "tapDisabledByTimeout") ;         lua_rawseti(L, -2, kCGEventTapDisabledByTimeout);
+    lua_pushnumber(L, kCGEventTapDisabledByUserInput);  lua_setfield(L, -2, "tapDisabledByUserInput");
+    lua_pushstring(L, "tapDisabledByUserInput") ;       lua_rawseti(L, -2, kCGEventTapDisabledByUserInput);
 }
 
 /// hs.eventtap.event.properties -> table
 /// Constant
 /// A table for use with `hs.eventtap.event:getProperty()` and `hs.eventtap.event:setProperty()`; contains the following keys:
-///    - MouseEventNumber
-///    - MouseEventClickState
-///    - MouseEventPressure
-///    - MouseEventButtonNumber
-///    - MouseEventDeltaX
-///    - MouseEventDeltaY
-///    - MouseEventInstantMouser
-///    - MouseEventSubtype
-///    - KeyboardEventAutorepeat
-///    - KeyboardEventKeycode
-///    - KeyboardEventKeyboardType
-///    - ScrollWheelEventDeltaAxis1
-///    - ScrollWheelEventDeltaAxis2
-///    - ScrollWheelEventDeltaAxis3
-///    - ScrollWheelEventFixedPtDeltaAxis1
-///    - ScrollWheelEventFixedPtDeltaAxis2
-///    - ScrollWheelEventFixedPtDeltaAxis3
-///    - ScrollWheelEventPointDeltaAxis1
-///    - ScrollWheelEventPointDeltaAxis2
-///    - ScrollWheelEventPointDeltaAxis3
-///    - ScrollWheelEventInstantMouser
-///    - TabletEventPointX
-///    - TabletEventPointY
-///    - TabletEventPointZ
-///    - TabletEventPointButtons
-///    - TabletEventPointPressure
-///    - TabletEventTiltX
-///    - TabletEventTiltY
-///    - TabletEventRotation
-///    - TabletEventTangentialPressure
-///    - TabletEventDeviceID
-///    - TabletEventVendor1
-///    - TabletEventVendor2
-///    - TabletEventVendor3
-///    - TabletProximityEventVendorID
-///    - TabletProximityEventTabletID
-///    - TabletProximityEventPointerID
-///    - TabletProximityEventDeviceID
-///    - TabletProximityEventSystemTabletID
-///    - TabletProximityEventVendorPointerType
-///    - TabletProximityEventVendorPointerSerialNumber
-///    - TabletProximityEventVendorUniqueID
-///    - TabletProximityEventCapabilityMask
-///    - TabletProximityEventPointerType
-///    - TabletProximityEventEnterProximity
-///    - EventTargetProcessSerialNumber
-///    - EventTargetUnixProcessID
-///    - EventSourceUnixProcessID
-///    - EventSourceUserData
-///    - EventSourceUserID
-///    - EventSourceGroupID
-///    - EventSourceStateID
-///    - ScrollWheelEventIsContinuous
+///    - mouseEventNumber
+///    - mouseEventClickState
+///    - mouseEventPressure
+///    - mouseEventButtonNumber
+///    - mouseEventDeltaX
+///    - mouseEventDeltaY
+///    - mouseEventInstantMouser
+///    - mouseEventSubtype
+///    - keyboardEventAutorepeat
+///    - keyboardEventKeycode
+///    - keyboardEventKeyboardType
+///    - scrollWheelEventDeltaAxis1
+///    - scrollWheelEventDeltaAxis2
+///    - scrollWheelEventDeltaAxis3
+///    - scrollWheelEventFixedPtDeltaAxis1
+///    - scrollWheelEventFixedPtDeltaAxis2
+///    - scrollWheelEventFixedPtDeltaAxis3
+///    - scrollWheelEventPointDeltaAxis1
+///    - scrollWheelEventPointDeltaAxis2
+///    - scrollWheelEventPointDeltaAxis3
+///    - scrollWheelEventInstantMouser
+///    - tabletEventPointX
+///    - tabletEventPointY
+///    - tabletEventPointZ
+///    - tabletEventPointButtons
+///    - tabletEventPointPressure
+///    - tabletEventTiltX
+///    - tabletEventTiltY
+///    - tabletEventRotation
+///    - tabletEventTangentialPressure
+///    - tabletEventDeviceID
+///    - tabletEventVendor1
+///    - tabletEventVendor2
+///    - tabletEventVendor3
+///    - tabletProximityEventVendorID
+///    - tabletProximityEventTabletID
+///    - tabletProximityEventPointerID
+///    - tabletProximityEventDeviceID
+///    - tabletProximityEventSystemTabletID
+///    - tabletProximityEventVendorPointerType
+///    - tabletProximityEventVendorPointerSerialNumber
+///    - tabletProximityEventVendorUniqueID
+///    - tabletProximityEventCapabilityMask
+///    - tabletProximityEventPointerType
+///    - tabletProximityEventEnterProximity
+///    - eventTargetProcessSerialNumber
+///    - eventTargetUnixProcessID
+///    - eventSourceUnixProcessID
+///    - eventSourceUserData
+///    - eventSourceUserID
+///    - eventSourceGroupID
+///    - eventSourceStateID
+///    - scrollWheelEventIsContinuous
 static void pushpropertiestable(lua_State* L) {
     lua_newtable(L);
-    lua_pushnumber(L, kCGMouseEventNumber);                                 lua_setfield(L, -2, "MouseEventNumber");
-    lua_pushstring(L, "MouseEventNumber") ;                                 lua_rawseti(L, -2, kCGMouseEventNumber);
-    lua_pushnumber(L, kCGMouseEventClickState);                             lua_setfield(L, -2, "MouseEventClickState");
-    lua_pushstring(L, "MouseEventClickState") ;                             lua_rawseti(L, -2, kCGMouseEventClickState);
-    lua_pushnumber(L, kCGMouseEventPressure);                               lua_setfield(L, -2, "MouseEventPressure");
-    lua_pushstring(L, "kCGMouseEventPressure") ;                            lua_rawseti(L, -2, kCGMouseEventPressure);
-    lua_pushnumber(L, kCGMouseEventButtonNumber);                           lua_setfield(L, -2, "MouseEventButtonNumber");
-    lua_pushstring(L, "MouseEventButtonNumber") ;                           lua_rawseti(L, -2, kCGMouseEventButtonNumber);
-    lua_pushnumber(L, kCGMouseEventDeltaX);                                 lua_setfield(L, -2, "MouseEventDeltaX");
-    lua_pushstring(L, "MouseEventDeltaX") ;                                 lua_rawseti(L, -2, kCGMouseEventDeltaX);
-    lua_pushnumber(L, kCGMouseEventDeltaY);                                 lua_setfield(L, -2, "MouseEventDeltaY");
-    lua_pushstring(L, "MouseEventDeltaY") ;                                 lua_rawseti(L, -2, kCGMouseEventDeltaY);
-    lua_pushnumber(L, kCGMouseEventInstantMouser);                          lua_setfield(L, -2, "MouseEventInstantMouser");
-    lua_pushstring(L, "MouseEventInstantMouser") ;                          lua_rawseti(L, -2, kCGMouseEventInstantMouser);
-    lua_pushnumber(L, kCGMouseEventSubtype);                                lua_setfield(L, -2, "MouseEventSubtype");
-    lua_pushstring(L, "MouseEventSubtype") ;                                lua_rawseti(L, -2, kCGMouseEventSubtype);
-    lua_pushnumber(L, kCGKeyboardEventAutorepeat);                          lua_setfield(L, -2, "KeyboardEventAutorepeat");
-    lua_pushstring(L, "KeyboardEventAutorepeat") ;                          lua_rawseti(L, -2, kCGKeyboardEventAutorepeat);
-    lua_pushnumber(L, kCGKeyboardEventKeycode);                             lua_setfield(L, -2, "KeyboardEventKeycode");
-    lua_pushstring(L, "KeyboardEventKeycode") ;                             lua_rawseti(L, -2, kCGKeyboardEventKeycode);
-    lua_pushnumber(L, kCGKeyboardEventKeyboardType);                        lua_setfield(L, -2, "KeyboardEventKeyboardType");
-    lua_pushstring(L, "KeyboardEventKeyboardType") ;                        lua_rawseti(L, -2, kCGKeyboardEventKeyboardType);
-    lua_pushnumber(L, kCGScrollWheelEventDeltaAxis1);                       lua_setfield(L, -2, "ScrollWheelEventDeltaAxis1");
-    lua_pushstring(L, "ScrollWheelEventDeltaAxis1") ;                       lua_rawseti(L, -2, kCGScrollWheelEventDeltaAxis1);
-    lua_pushnumber(L, kCGScrollWheelEventDeltaAxis2);                       lua_setfield(L, -2, "ScrollWheelEventDeltaAxis2");
-    lua_pushstring(L, "ScrollWheelEventDeltaAxis2") ;                       lua_rawseti(L, -2, kCGScrollWheelEventDeltaAxis2);
-    lua_pushnumber(L, kCGScrollWheelEventDeltaAxis3);                       lua_setfield(L, -2, "ScrollWheelEventDeltaAxis3");
-    lua_pushstring(L, "ScrollWheelEventDeltaAxis3") ;                       lua_rawseti(L, -2, kCGScrollWheelEventDeltaAxis3);
-    lua_pushnumber(L, kCGScrollWheelEventFixedPtDeltaAxis1);                lua_setfield(L, -2, "ScrollWheelEventFixedPtDeltaAxis1");
-    lua_pushstring(L, "ScrollWheelEventFixedPtDeltaAxis1") ;                lua_rawseti(L, -2, kCGScrollWheelEventFixedPtDeltaAxis1);
-    lua_pushnumber(L, kCGScrollWheelEventFixedPtDeltaAxis2);                lua_setfield(L, -2, "ScrollWheelEventFixedPtDeltaAxis2");
-    lua_pushstring(L, "ScrollWheelEventFixedPtDeltaAxis2") ;                lua_rawseti(L, -2, kCGScrollWheelEventFixedPtDeltaAxis2);
-    lua_pushnumber(L, kCGScrollWheelEventFixedPtDeltaAxis3);                lua_setfield(L, -2, "ScrollWheelEventFixedPtDeltaAxis3");
-    lua_pushstring(L, "ScrollWheelEventFixedPtDeltaAxis3") ;                lua_rawseti(L, -2, kCGScrollWheelEventFixedPtDeltaAxis3);
-    lua_pushnumber(L, kCGScrollWheelEventPointDeltaAxis1);                  lua_setfield(L, -2, "ScrollWheelEventPointDeltaAxis1");
-    lua_pushstring(L, "ScrollWheelEventPointDeltaAxis1") ;                  lua_rawseti(L, -2, kCGScrollWheelEventPointDeltaAxis1);
-    lua_pushnumber(L, kCGScrollWheelEventPointDeltaAxis2);                  lua_setfield(L, -2, "ScrollWheelEventPointDeltaAxis2");
-    lua_pushstring(L, "ScrollWheelEventPointDeltaAxis2") ;                  lua_rawseti(L, -2, kCGScrollWheelEventPointDeltaAxis2);
-    lua_pushnumber(L, kCGScrollWheelEventPointDeltaAxis3);                  lua_setfield(L, -2, "ScrollWheelEventPointDeltaAxis3");
-    lua_pushstring(L, "ScrollWheelEventPointDeltaAxis3") ;                  lua_rawseti(L, -2, kCGScrollWheelEventPointDeltaAxis3);
-    lua_pushnumber(L, kCGScrollWheelEventInstantMouser);                    lua_setfield(L, -2, "ScrollWheelEventInstantMouser");
-    lua_pushstring(L, "ScrollWheelEventInstantMouser") ;                    lua_rawseti(L, -2, kCGScrollWheelEventInstantMouser);
-    lua_pushnumber(L, kCGTabletEventPointX);                                lua_setfield(L, -2, "TabletEventPointX");
-    lua_pushstring(L, "TabletEventPointX") ;                                lua_rawseti(L, -2, kCGTabletEventPointX);
-    lua_pushnumber(L, kCGTabletEventPointY);                                lua_setfield(L, -2, "TabletEventPointY");
-    lua_pushstring(L, "TabletEventPointY") ;                                lua_rawseti(L, -2, kCGTabletEventPointY);
-    lua_pushnumber(L, kCGTabletEventPointZ);                                lua_setfield(L, -2, "TabletEventPointZ");
-    lua_pushstring(L, "TabletEventPointZ") ;                                lua_rawseti(L, -2, kCGTabletEventPointZ);
-    lua_pushnumber(L, kCGTabletEventPointButtons);                          lua_setfield(L, -2, "TabletEventPointButtons");
-    lua_pushstring(L, "TabletEventPointButtons") ;                          lua_rawseti(L, -2, kCGTabletEventPointButtons);
-    lua_pushnumber(L, kCGTabletEventPointPressure);                         lua_setfield(L, -2, "TabletEventPointPressure");
-    lua_pushstring(L, "TabletEventPointPressure") ;                         lua_rawseti(L, -2, kCGTabletEventPointPressure);
-    lua_pushnumber(L, kCGTabletEventTiltX);                                 lua_setfield(L, -2, "TabletEventTiltX");
-    lua_pushstring(L, "TabletEventTiltX") ;                                 lua_rawseti(L, -2, kCGTabletEventTiltX);
-    lua_pushnumber(L, kCGTabletEventTiltY);                                 lua_setfield(L, -2, "TabletEventTiltY");
-    lua_pushstring(L, "TabletEventTiltY") ;                                 lua_rawseti(L, -2, kCGTabletEventTiltY);
-    lua_pushnumber(L, kCGTabletEventRotation);                              lua_setfield(L, -2, "TabletEventRotation");
-    lua_pushstring(L, "TabletEventRotation") ;                              lua_rawseti(L, -2, kCGTabletEventRotation);
-    lua_pushnumber(L, kCGTabletEventTangentialPressure);                    lua_setfield(L, -2, "TabletEventTangentialPressure");
-    lua_pushstring(L, "TabletEventTangentialPressure") ;                    lua_rawseti(L, -2, kCGTabletEventTangentialPressure);
-    lua_pushnumber(L, kCGTabletEventDeviceID);                              lua_setfield(L, -2, "TabletEventDeviceID");
-    lua_pushstring(L, "TabletEventDeviceID") ;                              lua_rawseti(L, -2, kCGTabletEventDeviceID);
-    lua_pushnumber(L, kCGTabletEventVendor1);                               lua_setfield(L, -2, "TabletEventVendor1");
-    lua_pushstring(L, "TabletEventVendor1") ;                               lua_rawseti(L, -2, kCGTabletEventVendor1);
-    lua_pushnumber(L, kCGTabletEventVendor2);                               lua_setfield(L, -2, "TabletEventVendor2");
-    lua_pushstring(L, "TabletEventVendor2") ;                               lua_rawseti(L, -2, kCGTabletEventVendor2);
-    lua_pushnumber(L, kCGTabletEventVendor3);                               lua_setfield(L, -2, "TabletEventVendor3");
-    lua_pushstring(L, "TabletEventVendor3") ;                               lua_rawseti(L, -2, kCGTabletEventVendor3);
-    lua_pushnumber(L, kCGTabletProximityEventVendorID);                     lua_setfield(L, -2, "TabletProximityEventVendorID");
-    lua_pushstring(L, "TabletProximityEventVendorID") ;                     lua_rawseti(L, -2, kCGTabletProximityEventVendorID);
-    lua_pushnumber(L, kCGTabletProximityEventTabletID);                     lua_setfield(L, -2, "TabletProximityEventTabletID");
-    lua_pushstring(L, "TabletProximityEventTabletID") ;                     lua_rawseti(L, -2, kCGTabletProximityEventTabletID);
-    lua_pushnumber(L, kCGTabletProximityEventPointerID);                    lua_setfield(L, -2, "TabletProximityEventPointerID");
-    lua_pushstring(L, "TabletProximityEventPointerID") ;                    lua_rawseti(L, -2, kCGTabletProximityEventPointerID);
-    lua_pushnumber(L, kCGTabletProximityEventDeviceID);                     lua_setfield(L, -2, "TabletProximityEventDeviceID");
-    lua_pushstring(L, "TabletProximityEventDeviceID") ;                     lua_rawseti(L, -2, kCGTabletProximityEventDeviceID);
-    lua_pushnumber(L, kCGTabletProximityEventSystemTabletID);               lua_setfield(L, -2, "TabletProximityEventSystemTabletID");
-    lua_pushstring(L, "TabletProximityEventSystemTabletID") ;               lua_rawseti(L, -2, kCGTabletProximityEventSystemTabletID);
-    lua_pushnumber(L, kCGTabletProximityEventVendorPointerType);            lua_setfield(L, -2, "TabletProximityEventVendorPointerType");
-    lua_pushstring(L, "TabletProximityEventVendorPointerType") ;            lua_rawseti(L, -2, kCGTabletProximityEventVendorPointerType);
-    lua_pushnumber(L, kCGTabletProximityEventVendorPointerSerialNumber);    lua_setfield(L, -2, "TabletProximityEventVendorPointerSerialNumber");
-    lua_pushstring(L, "TabletProximityEventVendorPointerSerialNumber") ;    lua_rawseti(L, -2, kCGTabletProximityEventVendorPointerSerialNumber);
-    lua_pushnumber(L, kCGTabletProximityEventVendorUniqueID);               lua_setfield(L, -2, "TabletProximityEventVendorUniqueID");
-    lua_pushstring(L, "TabletProximityEventVendorUniqueID") ;               lua_rawseti(L, -2, kCGTabletProximityEventVendorUniqueID);
-    lua_pushnumber(L, kCGTabletProximityEventCapabilityMask);               lua_setfield(L, -2, "TabletProximityEventCapabilityMask");
-    lua_pushstring(L, "TabletProximityEventCapabilityMask") ;               lua_rawseti(L, -2, kCGTabletProximityEventCapabilityMask);
-    lua_pushnumber(L, kCGTabletProximityEventPointerType);                  lua_setfield(L, -2, "TabletProximityEventPointerType");
-    lua_pushstring(L, "TabletProximityEventPointerType") ;                  lua_rawseti(L, -2, kCGTabletProximityEventPointerType);
-    lua_pushnumber(L, kCGTabletProximityEventEnterProximity);               lua_setfield(L, -2, "TabletProximityEventEnterProximity");
-    lua_pushstring(L, "TabletProximityEventEnterProximity") ;               lua_rawseti(L, -2, kCGTabletProximityEventEnterProximity);
-    lua_pushnumber(L, kCGEventTargetProcessSerialNumber);                   lua_setfield(L, -2, "EventTargetProcessSerialNumber");
-    lua_pushstring(L, "EventTargetProcessSerialNumber") ;                   lua_rawseti(L, -2, kCGEventTargetProcessSerialNumber);
-    lua_pushnumber(L, kCGEventTargetUnixProcessID);                         lua_setfield(L, -2, "EventTargetUnixProcessID");
-    lua_pushstring(L, "EventTargetUnixProcessID") ;                         lua_rawseti(L, -2, kCGEventTargetUnixProcessID);
-    lua_pushnumber(L, kCGEventSourceUnixProcessID);                         lua_setfield(L, -2, "EventSourceUnixProcessID");
-    lua_pushstring(L, "EventSourceUnixProcessID") ;                         lua_rawseti(L, -2, kCGEventSourceUnixProcessID);
-    lua_pushnumber(L, kCGEventSourceUserData);                              lua_setfield(L, -2, "EventSourceUserData");
-    lua_pushstring(L, "EventSourceUserData") ;                              lua_rawseti(L, -2, kCGEventSourceUserData);
-    lua_pushnumber(L, kCGEventSourceUserID);                                lua_setfield(L, -2, "EventSourceUserID");
-    lua_pushstring(L, "EventSourceUserID") ;                                lua_rawseti(L, -2, kCGEventSourceUserID);
-    lua_pushnumber(L, kCGEventSourceGroupID);                               lua_setfield(L, -2, "EventSourceGroupID");
-    lua_pushstring(L, "EventSourceGroupID") ;                               lua_rawseti(L, -2, kCGEventSourceGroupID);
-    lua_pushnumber(L, kCGEventSourceStateID);                               lua_setfield(L, -2, "EventSourceStateID");
-    lua_pushstring(L, "EventSourceStateID") ;                               lua_rawseti(L, -2, kCGEventSourceStateID);
-    lua_pushnumber(L, kCGScrollWheelEventIsContinuous);                     lua_setfield(L, -2, "ScrollWheelEventIsContinuous");
-    lua_pushstring(L, "ScrollWheelEventIsContinuous") ;                     lua_rawseti(L, -2, kCGScrollWheelEventIsContinuous);
+    lua_pushnumber(L, kCGMouseEventNumber);                                 lua_setfield(L, -2, "mouseEventNumber");
+    lua_pushstring(L, "mouseEventNumber") ;                                 lua_rawseti(L, -2, kCGMouseEventNumber);
+    lua_pushnumber(L, kCGMouseEventClickState);                             lua_setfield(L, -2, "mouseEventClickState");
+    lua_pushstring(L, "mouseEventClickState") ;                             lua_rawseti(L, -2, kCGMouseEventClickState);
+    lua_pushnumber(L, kCGMouseEventPressure);                               lua_setfield(L, -2, "mouseEventPressure");
+    lua_pushstring(L, "mouseEventPressure") ;                            lua_rawseti(L, -2, kCGMouseEventPressure);
+    lua_pushnumber(L, kCGMouseEventButtonNumber);                           lua_setfield(L, -2, "mouseEventButtonNumber");
+    lua_pushstring(L, "mouseEventButtonNumber") ;                           lua_rawseti(L, -2, kCGMouseEventButtonNumber);
+    lua_pushnumber(L, kCGMouseEventDeltaX);                                 lua_setfield(L, -2, "mouseEventDeltaX");
+    lua_pushstring(L, "mouseEventDeltaX") ;                                 lua_rawseti(L, -2, kCGMouseEventDeltaX);
+    lua_pushnumber(L, kCGMouseEventDeltaY);                                 lua_setfield(L, -2, "mouseEventDeltaY");
+    lua_pushstring(L, "mouseEventDeltaY") ;                                 lua_rawseti(L, -2, kCGMouseEventDeltaY);
+    lua_pushnumber(L, kCGMouseEventInstantMouser);                          lua_setfield(L, -2, "mouseEventInstantMouser");
+    lua_pushstring(L, "mouseEventInstantMouser") ;                          lua_rawseti(L, -2, kCGMouseEventInstantMouser);
+    lua_pushnumber(L, kCGMouseEventSubtype);                                lua_setfield(L, -2, "mouseEventSubtype");
+    lua_pushstring(L, "mouseEventSubtype") ;                                lua_rawseti(L, -2, kCGMouseEventSubtype);
+    lua_pushnumber(L, kCGKeyboardEventAutorepeat);                          lua_setfield(L, -2, "keyboardEventAutorepeat");
+    lua_pushstring(L, "keyboardEventAutorepeat") ;                          lua_rawseti(L, -2, kCGKeyboardEventAutorepeat);
+    lua_pushnumber(L, kCGKeyboardEventKeycode);                             lua_setfield(L, -2, "keyboardEventKeycode");
+    lua_pushstring(L, "keyboardEventKeycode") ;                             lua_rawseti(L, -2, kCGKeyboardEventKeycode);
+    lua_pushnumber(L, kCGKeyboardEventKeyboardType);                        lua_setfield(L, -2, "keyboardEventKeyboardType");
+    lua_pushstring(L, "keyboardEventKeyboardType") ;                        lua_rawseti(L, -2, kCGKeyboardEventKeyboardType);
+    lua_pushnumber(L, kCGScrollWheelEventDeltaAxis1);                       lua_setfield(L, -2, "scrollWheelEventDeltaAxis1");
+    lua_pushstring(L, "scrollWheelEventDeltaAxis1") ;                       lua_rawseti(L, -2, kCGScrollWheelEventDeltaAxis1);
+    lua_pushnumber(L, kCGScrollWheelEventDeltaAxis2);                       lua_setfield(L, -2, "scrollWheelEventDeltaAxis2");
+    lua_pushstring(L, "scrollWheelEventDeltaAxis2") ;                       lua_rawseti(L, -2, kCGScrollWheelEventDeltaAxis2);
+    lua_pushnumber(L, kCGScrollWheelEventDeltaAxis3);                       lua_setfield(L, -2, "scrollWheelEventDeltaAxis3");
+    lua_pushstring(L, "scrollWheelEventDeltaAxis3") ;                       lua_rawseti(L, -2, kCGScrollWheelEventDeltaAxis3);
+    lua_pushnumber(L, kCGScrollWheelEventFixedPtDeltaAxis1);                lua_setfield(L, -2, "scrollWheelEventFixedPtDeltaAxis1");
+    lua_pushstring(L, "scrollWheelEventFixedPtDeltaAxis1") ;                lua_rawseti(L, -2, kCGScrollWheelEventFixedPtDeltaAxis1);
+    lua_pushnumber(L, kCGScrollWheelEventFixedPtDeltaAxis2);                lua_setfield(L, -2, "scrollWheelEventFixedPtDeltaAxis2");
+    lua_pushstring(L, "scrollWheelEventFixedPtDeltaAxis2") ;                lua_rawseti(L, -2, kCGScrollWheelEventFixedPtDeltaAxis2);
+    lua_pushnumber(L, kCGScrollWheelEventFixedPtDeltaAxis3);                lua_setfield(L, -2, "scrollWheelEventFixedPtDeltaAxis3");
+    lua_pushstring(L, "scrollWheelEventFixedPtDeltaAxis3") ;                lua_rawseti(L, -2, kCGScrollWheelEventFixedPtDeltaAxis3);
+    lua_pushnumber(L, kCGScrollWheelEventPointDeltaAxis1);                  lua_setfield(L, -2, "scrollWheelEventPointDeltaAxis1");
+    lua_pushstring(L, "scrollWheelEventPointDeltaAxis1") ;                  lua_rawseti(L, -2, kCGScrollWheelEventPointDeltaAxis1);
+    lua_pushnumber(L, kCGScrollWheelEventPointDeltaAxis2);                  lua_setfield(L, -2, "scrollWheelEventPointDeltaAxis2");
+    lua_pushstring(L, "scrollWheelEventPointDeltaAxis2") ;                  lua_rawseti(L, -2, kCGScrollWheelEventPointDeltaAxis2);
+    lua_pushnumber(L, kCGScrollWheelEventPointDeltaAxis3);                  lua_setfield(L, -2, "scrollWheelEventPointDeltaAxis3");
+    lua_pushstring(L, "scrollWheelEventPointDeltaAxis3") ;                  lua_rawseti(L, -2, kCGScrollWheelEventPointDeltaAxis3);
+    lua_pushnumber(L, kCGScrollWheelEventInstantMouser);                    lua_setfield(L, -2, "scrollWheelEventInstantMouser");
+    lua_pushstring(L, "scrollWheelEventInstantMouser") ;                    lua_rawseti(L, -2, kCGScrollWheelEventInstantMouser);
+    lua_pushnumber(L, kCGTabletEventPointX);                                lua_setfield(L, -2, "tabletEventPointX");
+    lua_pushstring(L, "tabletEventPointX") ;                                lua_rawseti(L, -2, kCGTabletEventPointX);
+    lua_pushnumber(L, kCGTabletEventPointY);                                lua_setfield(L, -2, "tabletEventPointY");
+    lua_pushstring(L, "tabletEventPointY") ;                                lua_rawseti(L, -2, kCGTabletEventPointY);
+    lua_pushnumber(L, kCGTabletEventPointZ);                                lua_setfield(L, -2, "tabletEventPointZ");
+    lua_pushstring(L, "tabletEventPointZ") ;                                lua_rawseti(L, -2, kCGTabletEventPointZ);
+    lua_pushnumber(L, kCGTabletEventPointButtons);                          lua_setfield(L, -2, "tabletEventPointButtons");
+    lua_pushstring(L, "tabletEventPointButtons") ;                          lua_rawseti(L, -2, kCGTabletEventPointButtons);
+    lua_pushnumber(L, kCGTabletEventPointPressure);                         lua_setfield(L, -2, "tabletEventPointPressure");
+    lua_pushstring(L, "tabletEventPointPressure") ;                         lua_rawseti(L, -2, kCGTabletEventPointPressure);
+    lua_pushnumber(L, kCGTabletEventTiltX);                                 lua_setfield(L, -2, "tabletEventTiltX");
+    lua_pushstring(L, "tabletEventTiltX") ;                                 lua_rawseti(L, -2, kCGTabletEventTiltX);
+    lua_pushnumber(L, kCGTabletEventTiltY);                                 lua_setfield(L, -2, "tabletEventTiltY");
+    lua_pushstring(L, "tabletEventTiltY") ;                                 lua_rawseti(L, -2, kCGTabletEventTiltY);
+    lua_pushnumber(L, kCGTabletEventRotation);                              lua_setfield(L, -2, "tabletEventRotation");
+    lua_pushstring(L, "tabletEventRotation") ;                              lua_rawseti(L, -2, kCGTabletEventRotation);
+    lua_pushnumber(L, kCGTabletEventTangentialPressure);                    lua_setfield(L, -2, "tabletEventTangentialPressure");
+    lua_pushstring(L, "tabletEventTangentialPressure") ;                    lua_rawseti(L, -2, kCGTabletEventTangentialPressure);
+    lua_pushnumber(L, kCGTabletEventDeviceID);                              lua_setfield(L, -2, "tabletEventDeviceID");
+    lua_pushstring(L, "tabletEventDeviceID") ;                              lua_rawseti(L, -2, kCGTabletEventDeviceID);
+    lua_pushnumber(L, kCGTabletEventVendor1);                               lua_setfield(L, -2, "tabletEventVendor1");
+    lua_pushstring(L, "tabletEventVendor1") ;                               lua_rawseti(L, -2, kCGTabletEventVendor1);
+    lua_pushnumber(L, kCGTabletEventVendor2);                               lua_setfield(L, -2, "tabletEventVendor2");
+    lua_pushstring(L, "tabletEventVendor2") ;                               lua_rawseti(L, -2, kCGTabletEventVendor2);
+    lua_pushnumber(L, kCGTabletEventVendor3);                               lua_setfield(L, -2, "tabletEventVendor3");
+    lua_pushstring(L, "tabletEventVendor3") ;                               lua_rawseti(L, -2, kCGTabletEventVendor3);
+    lua_pushnumber(L, kCGTabletProximityEventVendorID);                     lua_setfield(L, -2, "tabletProximityEventVendorID");
+    lua_pushstring(L, "tabletProximityEventVendorID") ;                     lua_rawseti(L, -2, kCGTabletProximityEventVendorID);
+    lua_pushnumber(L, kCGTabletProximityEventTabletID);                     lua_setfield(L, -2, "tabletProximityEventTabletID");
+    lua_pushstring(L, "tabletProximityEventTabletID") ;                     lua_rawseti(L, -2, kCGTabletProximityEventTabletID);
+    lua_pushnumber(L, kCGTabletProximityEventPointerID);                    lua_setfield(L, -2, "tabletProximityEventPointerID");
+    lua_pushstring(L, "tabletProximityEventPointerID") ;                    lua_rawseti(L, -2, kCGTabletProximityEventPointerID);
+    lua_pushnumber(L, kCGTabletProximityEventDeviceID);                     lua_setfield(L, -2, "tabletProximityEventDeviceID");
+    lua_pushstring(L, "tabletProximityEventDeviceID") ;                     lua_rawseti(L, -2, kCGTabletProximityEventDeviceID);
+    lua_pushnumber(L, kCGTabletProximityEventSystemTabletID);               lua_setfield(L, -2, "tabletProximityEventSystemTabletID");
+    lua_pushstring(L, "tabletProximityEventSystemTabletID") ;               lua_rawseti(L, -2, kCGTabletProximityEventSystemTabletID);
+    lua_pushnumber(L, kCGTabletProximityEventVendorPointerType);            lua_setfield(L, -2, "tabletProximityEventVendorPointerType");
+    lua_pushstring(L, "tabletProximityEventVendorPointerType") ;            lua_rawseti(L, -2, kCGTabletProximityEventVendorPointerType);
+    lua_pushnumber(L, kCGTabletProximityEventVendorPointerSerialNumber);    lua_setfield(L, -2, "tabletProximityEventVendorPointerSerialNumber");
+    lua_pushstring(L, "tabletProximityEventVendorPointerSerialNumber") ;    lua_rawseti(L, -2, kCGTabletProximityEventVendorPointerSerialNumber);
+    lua_pushnumber(L, kCGTabletProximityEventVendorUniqueID);               lua_setfield(L, -2, "tabletProximityEventVendorUniqueID");
+    lua_pushstring(L, "tabletProximityEventVendorUniqueID") ;               lua_rawseti(L, -2, kCGTabletProximityEventVendorUniqueID);
+    lua_pushnumber(L, kCGTabletProximityEventCapabilityMask);               lua_setfield(L, -2, "tabletProximityEventCapabilityMask");
+    lua_pushstring(L, "tabletProximityEventCapabilityMask") ;               lua_rawseti(L, -2, kCGTabletProximityEventCapabilityMask);
+    lua_pushnumber(L, kCGTabletProximityEventPointerType);                  lua_setfield(L, -2, "tabletProximityEventPointerType");
+    lua_pushstring(L, "tabletProximityEventPointerType") ;                  lua_rawseti(L, -2, kCGTabletProximityEventPointerType);
+    lua_pushnumber(L, kCGTabletProximityEventEnterProximity);               lua_setfield(L, -2, "tabletProximityEventEnterProximity");
+    lua_pushstring(L, "tabletProximityEventEnterProximity") ;               lua_rawseti(L, -2, kCGTabletProximityEventEnterProximity);
+    lua_pushnumber(L, kCGEventTargetProcessSerialNumber);                   lua_setfield(L, -2, "eventTargetProcessSerialNumber");
+    lua_pushstring(L, "eventTargetProcessSerialNumber") ;                   lua_rawseti(L, -2, kCGEventTargetProcessSerialNumber);
+    lua_pushnumber(L, kCGEventTargetUnixProcessID);                         lua_setfield(L, -2, "eventTargetUnixProcessID");
+    lua_pushstring(L, "eventTargetUnixProcessID") ;                         lua_rawseti(L, -2, kCGEventTargetUnixProcessID);
+    lua_pushnumber(L, kCGEventSourceUnixProcessID);                         lua_setfield(L, -2, "eventSourceUnixProcessID");
+    lua_pushstring(L, "eventSourceUnixProcessID") ;                         lua_rawseti(L, -2, kCGEventSourceUnixProcessID);
+    lua_pushnumber(L, kCGEventSourceUserData);                              lua_setfield(L, -2, "eventSourceUserData");
+    lua_pushstring(L, "eventSourceUserData") ;                              lua_rawseti(L, -2, kCGEventSourceUserData);
+    lua_pushnumber(L, kCGEventSourceUserID);                                lua_setfield(L, -2, "eventSourceUserID");
+    lua_pushstring(L, "eventSourceUserID") ;                                lua_rawseti(L, -2, kCGEventSourceUserID);
+    lua_pushnumber(L, kCGEventSourceGroupID);                               lua_setfield(L, -2, "eventSourceGroupID");
+    lua_pushstring(L, "eventSourceGroupID") ;                               lua_rawseti(L, -2, kCGEventSourceGroupID);
+    lua_pushnumber(L, kCGEventSourceStateID);                               lua_setfield(L, -2, "eventSourceStateID");
+    lua_pushstring(L, "eventSourceStateID") ;                               lua_rawseti(L, -2, kCGEventSourceStateID);
+    lua_pushnumber(L, kCGScrollWheelEventIsContinuous);                     lua_setfield(L, -2, "scrollWheelEventIsContinuous");
+    lua_pushstring(L, "scrollWheelEventIsContinuous") ;                     lua_rawseti(L, -2, kCGScrollWheelEventIsContinuous);
 }
 
 // static int meta_gc(lua_State* __unused L) {
