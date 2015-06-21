@@ -214,6 +214,9 @@ int luaopen_hs_hints_internal(lua_State* L) {
 
         lua_pushcfunction(L, hint_eq);
         lua_setfield(L, -2, "__eq");
+
+        lua_pushcfunction(L, hint_close);
+        lua_setfield(L, -2, "__gc");
     }
     lua_pop(L, 1);
     return 1;
