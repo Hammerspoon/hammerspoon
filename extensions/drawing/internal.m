@@ -349,19 +349,19 @@ static int drawing_newCircle(lua_State *L) {
     switch (lua_type(L, 1)) {
         case LUA_TTABLE:
             lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tointeger(L, -1);
+            windowRect.origin.x = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tointeger(L, -1);
+            windowRect.origin.y = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tointeger(L, -1);
+            windowRect.size.width = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tointeger(L, -1);
+            windowRect.size.height = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             break;
@@ -410,19 +410,19 @@ static int drawing_newRect(lua_State *L) {
     switch (lua_type(L, 1)) {
         case LUA_TTABLE:
             lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tointeger(L, -1);
+            windowRect.origin.x = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tointeger(L, -1);
+            windowRect.origin.y = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tointeger(L, -1);
+            windowRect.size.width = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tointeger(L, -1);
+            windowRect.size.height = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             break;
@@ -475,11 +475,11 @@ static int drawing_newLine(lua_State *L) {
     switch (lua_type(L, 1)) {
         case LUA_TTABLE:
             lua_getfield(L, 1, "x");
-            origin.x = lua_tointeger(L, -1);
+            origin.x = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "y");
-            origin.y = lua_tointeger(L, -1);
+            origin.y = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             break;
@@ -493,11 +493,11 @@ static int drawing_newLine(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             lua_getfield(L, 2, "x");
-            end.x = lua_tointeger(L, -1);
+            end.x = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 2, "y");
-            end.y = lua_tointeger(L, -1);
+            end.y = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             break;
@@ -604,19 +604,19 @@ static int drawing_newText(lua_State *L) {
     switch (lua_type(L, 1)) {
         case LUA_TTABLE:
             lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tointeger(L, -1);
+            windowRect.origin.x = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tointeger(L, -1);
+            windowRect.origin.y = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tointeger(L, -1);
+            windowRect.size.width = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tointeger(L, -1);
+            windowRect.size.height = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             break;
@@ -674,19 +674,19 @@ static int drawing_newImage(lua_State *L) {
     switch (lua_type(L, 1)) {
         case LUA_TTABLE:
             lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tointeger(L, -1);
+            windowRect.origin.x = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tointeger(L, -1);
+            windowRect.origin.y = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tointeger(L, -1);
+            windowRect.size.width = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tointeger(L, -1);
+            windowRect.size.height = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             break;
@@ -769,11 +769,11 @@ static int drawing_setTopLeft(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             lua_getfield(L, 2, "x");
-            windowLoc.x = lua_tointeger(L, -1);
+            windowLoc.x = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 2, "y");
-            windowLoc.y = lua_tointeger(L, -1);
+            windowLoc.y = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             break;
@@ -809,11 +809,11 @@ static int drawing_setSize(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             lua_getfield(L, 2, "h");
-            windowSize.height = lua_tointeger(L, -1);
+            windowSize.height = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             lua_getfield(L, 2, "w");
-            windowSize.width = lua_tointeger(L, -1);
+            windowSize.width = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             break;
