@@ -13,5 +13,19 @@
 #define chdir_error	strerror(errno)
 #endif
 
+#ifdef _WIN32
+#define chdir(p) (_chdir(p))
+#define getcwd(d, s) (_getcwd(d, s))
+#define rmdir(p) (_rmdir(p))
+#define fileno(f) (_fileno(f))
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int luaopen_lfs (lua_State *L);
+
+#ifdef __cplusplus
+}
+#endif

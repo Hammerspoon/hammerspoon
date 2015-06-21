@@ -1,8 +1,13 @@
 /*
-** $Id: loslib.c,v 1.40.1.1 2013/04/12 18:48:47 roberto Exp $
+** $Id: loslib.c,v 1.57 2015/04/10 17:41:04 roberto Exp $
 ** Standard Operating System library
 ** See Copyright Notice in lua.h
 */
+
+#define loslib_c
+#define LUA_LIB
+
+#include "lprefix.h"
 
 
 #include <errno.h>
@@ -11,9 +16,6 @@
 #include <string.h>
 #include <time.h>
 
-#define loslib_c
-#define LUA_LIB
-
 #include "lua.h"
 
 #include "lauxlib.h"
@@ -21,59 +23,102 @@
 
 
 /*
+** {==================================================================
 ** list of valid conversion specifiers for the 'strftime' function
+** ===================================================================
 */
-#if !defined(LUA_STRFTIMEOPTIONS)
+#if !defined(LUA_STRFTIMEOPTIONS)	/* { */
 
-#if !defined(LUA_USE_POSIX)
+#if defined(LUA_USE_C89)
 #define LUA_STRFTIMEOPTIONS	{ "aAbBcdHIjmMpSUwWxXyYz%", "" }
-#else
+#else  /* C99 specification */
 #define LUA_STRFTIMEOPTIONS \
-	{ "aAbBcCdDeFgGhHIjmMnprRStTuUVwWxXyYzZ%", "" \
-	  "", "E", "cCxXyY",  \
+	{ "aAbBcCdDeFgGhHIjmMnprRStTuUVwWxXyYzZ%", "", \
+	  "E", "cCxXyY",  \
 	  "O", "deHImMSuUVwWy" }
 #endif
 
-#endif
-
+#endif					/* } */
+/* }================================================================== */
 
 
 /*
-** By default, Lua uses tmpnam except when POSIX is available, where it
-** uses mkstemp.
+** {==================================================================
+** Configuration for time-related stuff
+** ===================================================================
 */
-#if defined(LUA_USE_MKSTEMP)
-#include <unistd.h>
-#define LUA_TMPNAMBUFSIZE	32
-#define lua_tmpnam(b,e) { \
-        strcpy(b, "/tmp/lua_XXXXXX"); \
-        e = mkstemp(b); \
-        if (e != -1) close(e); \
-        e = (e == -1); }
 
-#elif !defined(lua_tmpnam)
+#if !defined(l_time_t)		/* { */
+/*
+** type to represent time_t in Lua
+*/
+#define l_timet			lua_Integer
+#define l_pushtime(L,t)		lua_pushinteger(L,(lua_Integer)(t))
+#define l_checktime(L,a)	((time_t)luaL_checkinteger(L,a))
 
-#define LUA_TMPNAMBUFSIZE	L_tmpnam
-#define lua_tmpnam(b,e)		{ e = (tmpnam(b) == NULL); }
-
-#endif
+#endif				/* } */
 
 
+#if !defined(l_gmtime)		/* { */
 /*
 ** By default, Lua uses gmtime/localtime, except when POSIX is available,
 ** where it uses gmtime_r/localtime_r
 */
-#if defined(LUA_USE_GMTIME_R)
+
+#if defined(LUA_USE_POSIX)	/* { */
 
 #define l_gmtime(t,r)		gmtime_r(t,r)
 #define l_localtime(t,r)	localtime_r(t,r)
 
-#elif !defined(l_gmtime)
+#else				/* }{ */
 
-#define l_gmtime(t,r)		((void)r, gmtime(t))
-#define l_localtime(t,r)  	((void)r, localtime(t))
+/* ISO C definitions */
+#define l_gmtime(t,r)		((void)(r)->tm_sec, gmtime(t))
+#define l_localtime(t,r)  	((void)(r)->tm_sec, localtime(t))
 
+#endif				/* } */
+
+#endif				/* } */
+
+/* }================================================================== */
+
+
+/*
+** {==================================================================
+** Configuration for 'tmpnam':
+** By default, Lua uses tmpnam except when POSIX is available, where
+** it uses mkstemp.
+** ===================================================================
+*/
+#if !defined(lua_tmpnam)	/* { */
+
+#if defined(LUA_USE_POSIX)	/* { */
+
+#include <unistd.h>
+
+#define LUA_TMPNAMBUFSIZE	32
+
+#if !defined(LUA_TMPNAMTEMPLATE)
+#define LUA_TMPNAMTEMPLATE	"/tmp/lua_XXXXXX"
 #endif
+
+#define lua_tmpnam(b,e) { \
+        strcpy(b, LUA_TMPNAMTEMPLATE); \
+        e = mkstemp(b); \
+        if (e != -1) close(e); \
+        e = (e == -1); }
+
+#else				/* }{ */
+
+/* ISO C definitions */
+#define LUA_TMPNAMBUFSIZE	L_tmpnam
+#define lua_tmpnam(b,e)		{ e = (tmpnam(b) == NULL); }
+
+#endif				/* } */
+
+#endif				/* } */
+/* }================================================================== */
+
 
 
 
@@ -147,8 +192,7 @@ static void setboolfield (lua_State *L, const char *key, int value) {
 
 static int getboolfield (lua_State *L, const char *key) {
   int res;
-  lua_getfield(L, -1, key);
-  res = lua_isnil(L, -1) ? -1 : lua_toboolean(L, -1);
+  res = (lua_getfield(L, -1, key) == LUA_TNIL) ? -1 : lua_toboolean(L, -1);
   lua_pop(L, 1);
   return res;
 }
@@ -160,7 +204,7 @@ static int getfield (lua_State *L, const char *key, int d) {
   res = (int)lua_tointegerx(L, -1, &isnum);
   if (!isnum) {
     if (d < 0)
-      return luaL_error(L, "field " LUA_QS " missing in date table", key);
+      return luaL_error(L, "field '%s' missing in date table", key);
     res = d;
   }
   lua_pop(L, 1);
@@ -194,11 +238,11 @@ static const char *checkoption (lua_State *L, const char *conv, char *buff) {
 
 static int os_date (lua_State *L) {
   const char *s = luaL_optstring(L, 1, "%c");
-  time_t t = luaL_opt(L, (time_t)luaL_checknumber, 2, time(NULL));
+  time_t t = luaL_opt(L, l_checktime, 2, time(NULL));
   struct tm tmr, *stm;
   if (*s == '!') {  /* UTC? */
     stm = l_gmtime(&t, &tmr);
-    s++;  /* skip `!' */
+    s++;  /* skip '!' */
   }
   else
     stm = l_localtime(&t, &tmr);
@@ -255,17 +299,20 @@ static int os_time (lua_State *L) {
     ts.tm_isdst = getboolfield(L, "isdst");
     t = mktime(&ts);
   }
-  if (t == (time_t)(-1))
+  if (t != (time_t)(l_timet)t)
+    luaL_error(L, "time result cannot be represented in this Lua installation");
+  else if (t == (time_t)(-1))
     lua_pushnil(L);
   else
-    lua_pushnumber(L, (lua_Number)t);
+    l_pushtime(L, t);
   return 1;
 }
 
 
 static int os_difftime (lua_State *L) {
-  lua_pushnumber(L, difftime((time_t)(luaL_checknumber(L, 1)),
-                             (time_t)(luaL_optnumber(L, 2, 0))));
+  time_t t1 = l_checktime(L, 1);
+  time_t t2 = l_checktime(L, 2);
+  lua_pushnumber(L, (lua_Number)difftime(t1, t2));
   return 1;
 }
 
@@ -289,7 +336,7 @@ static int os_exit (lua_State *L) {
   if (lua_isboolean(L, 1))
     status = (lua_toboolean(L, 1) ? EXIT_SUCCESS : EXIT_FAILURE);
   else
-    status = luaL_optint(L, 1, EXIT_SUCCESS);
+    status = (int)luaL_optinteger(L, 1, EXIT_SUCCESS);
   if (lua_toboolean(L, 2))
     lua_close(L);
   if (L) exit(status);  /* 'if' to avoid warnings for unreachable 'return' */

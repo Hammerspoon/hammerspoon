@@ -1,16 +1,16 @@
 PODS:
   - ASCIImage (1.0.0)
-  - lua (5.2.3)
+  - lua (5.3.1)
   - Sparkle (1.10.0)
 
 DEPENDENCIES:
   - ASCIImage
-  - lua (~> 5.2.3)
+  - lua (~> 5.3.1)
   - Sparkle (~> 1.10.0)
 
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
-  lua: f5dfecaee3325734ef8dd47ec238797ed28b4bf5
+  lua: 0d370583cadb5b22b985b486da53dc82508953ee
   Sparkle: c859bf5283b9f12aa45bceccf8e25ebb4c008eb2
 
 COCOAPODS: 0.37.1

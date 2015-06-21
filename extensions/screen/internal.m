@@ -183,8 +183,8 @@ static int screen_availableModes(lua_State* L) {
 ///  * The available widths/heights/scales can be seen in the output of `hs.screen:availableModes()`, however, it should be noted that the CoreGraphics subsystem seems to list more modes for a given screen than it is actually prepared to set, so you may find that seemingly valid modes still return false. It is not currently understood why this is so!
 static int screen_setMode(lua_State* L) {
     NSScreen* screen = get_screen_arg(L, 1);
-    long width = luaL_checklong(L, 2);
-    long height = luaL_checklong(L, 3);
+    long width = (long)luaL_checkinteger(L, 2);
+    long height = (long)luaL_checkinteger(L, 3);
     lua_Number scale = luaL_checknumber(L, 4);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 

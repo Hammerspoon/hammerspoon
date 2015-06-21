@@ -640,7 +640,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_NAME = Hammerspoon;
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				STRIP_STYLE = "non-global";
 				WRAPPER_EXTENSION = app;
 			};
@@ -666,7 +666,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_NAME = Hammerspoon;
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
