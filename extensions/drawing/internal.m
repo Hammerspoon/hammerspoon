@@ -1345,6 +1345,113 @@ static int drawing_sendToBack(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing.fontNames() -> table
+/// Function
+/// Returns the names of all installed fonts for the system.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table containing the names of every font installed for the system.  The individual names are strings which can be used in the `hs.drawing:setTextFont(fontname)` method.
+static int fontNames(lua_State *L) {
+    NSArray *fontNames = [[NSFontManager sharedFontManager] availableFonts];
+
+    lua_newtable(L) ;
+    for (unsigned long indFont=0; indFont<[fontNames count]; ++indFont)
+    {
+        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, indFont + 1);
+    }
+    return 1 ;
+}
+
+/// hs.drawing.fontNamesWithTraits(fontTraitMask) -> table
+/// Function
+/// Returns the names of all installed fonts for the system with the specified traits.
+///
+/// Parameters:
+///  * traits -- a number, specifying the fontTraitMask, or a table containing traits listed in `hs.drawing.fontTraits` which are logically 'OR'ed together to create the fontTraitMask used.
+///
+/// Returns:
+///  * a table containing the names of every font installed for the system which matches the fontTraitMask specified.  The individual names are strings which can be used in the `hs.drawing:setTextFont(fontname)` method.
+///
+/// Notes:
+///  * specifying 0 or an empty table will match all fonts that are neither italic nor bold.  This would be the same list as you'd get with { hs.drawing.fontTraits.unBold, hs.drawing.fontTraits.unItalic } as the parameter.
+static int fontNamesWithTraits(lua_State *L) {
+    NSFontTraitMask theTraits = 0 ;
+
+    switch (lua_type(L, 1)) {
+        case LUA_TNIL:
+        case LUA_TNONE:
+            break ;
+        case LUA_TNUMBER:
+            theTraits = lua_tointeger(L, 1) ;
+            break ;
+        case LUA_TTABLE:
+            for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
+               theTraits |= lua_tointeger(L, -1) ;
+            }
+            break ;
+        default:
+            showError(L, "hs.drawing.fontNamesWithTraits() requires a number or a table as it's parameter");
+            lua_pushnil(L);
+            return 1;
+    }
+
+    NSArray *fontNames = [[NSFontManager sharedFontManager] availableFontNamesWithTraits:theTraits];
+
+    lua_newtable(L) ;
+    for (unsigned long indFont=0; indFont<[fontNames count]; ++indFont)
+    {
+        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, indFont + 1);
+    }
+    return 1 ;
+}
+
+/// hs.drawing.fontTraits -> table
+/// Constant
+/// A table for containing Font Trait masks to use with `hs.drawing.fontNamesWithTraits(...)`
+///
+///    boldFont                    -- fonts with the 'Bold' attribute set
+///    compressedFont              -- fonts with the 'Compressed' attribute set
+///    condensedFont               -- fonts with the 'Condensed' attribute set
+///    expandedFont                -- fonts with the 'Expanded' attribute set
+///    fixedPitchFont              -- fonts with the 'FixedPitch' attribute set
+///    italicFont                  -- fonts with the 'Italic' attribute set
+///    narrowFont                  -- fonts with the 'Narrow' attribute set
+///    posterFont                  -- fonts with the 'Poster' attribute set
+///    smallCapsFont               -- fonts with the 'SmallCaps' attribute set
+///    nonStandardCharacterSetFont -- fonts with the 'NonStandardCharacterSet' attribute set
+///    unboldFont                  -- fonts that do not have the 'Bold' attribute set
+///    unitalicFont                -- fonts that do not have the 'Italic' attribute set
+static void pushFontTraitsTable(lua_State* L) {
+    lua_newtable(L);
+    lua_pushnumber(L, NSBoldFontMask);                    lua_setfield(L, -2, "boldFont");
+    lua_pushstring(L, "boldFont") ;                       lua_rawseti(L,  -2, NSBoldFontMask);
+    lua_pushnumber(L, NSCompressedFontMask);              lua_setfield(L, -2, "compressedFont");
+    lua_pushstring(L, "compressedFont") ;                 lua_rawseti(L,  -2, NSCompressedFontMask);
+    lua_pushnumber(L, NSCondensedFontMask);               lua_setfield(L, -2, "condensedFont");
+    lua_pushstring(L, "condensedFont") ;                  lua_rawseti(L,  -2, NSCondensedFontMask);
+    lua_pushnumber(L, NSExpandedFontMask);                lua_setfield(L, -2, "expandedFont");
+    lua_pushstring(L, "expandedFont") ;                   lua_rawseti(L,  -2, NSExpandedFontMask);
+    lua_pushnumber(L, NSFixedPitchFontMask);              lua_setfield(L, -2, "fixedPitchFont");
+    lua_pushstring(L, "fixedPitchFont") ;                 lua_rawseti(L,  -2, NSFixedPitchFontMask);
+    lua_pushnumber(L, NSItalicFontMask);                  lua_setfield(L, -2, "italicFont");
+    lua_pushstring(L, "italicFont") ;                     lua_rawseti(L,  -2, NSItalicFontMask);
+    lua_pushnumber(L, NSNarrowFontMask);                  lua_setfield(L, -2, "narrowFont");
+    lua_pushstring(L, "narrowFont") ;                     lua_rawseti(L,  -2, NSNarrowFontMask);
+    lua_pushnumber(L, NSPosterFontMask);                  lua_setfield(L, -2, "posterFont");
+    lua_pushstring(L, "posterFont") ;                     lua_rawseti(L,  -2, NSPosterFontMask);
+    lua_pushnumber(L, NSSmallCapsFontMask);               lua_setfield(L, -2, "smallCapsFont");
+    lua_pushstring(L, "smallCapsFont") ;                  lua_rawseti(L,  -2, NSSmallCapsFontMask);
+    lua_pushnumber(L, NSNonStandardCharacterSetFontMask); lua_setfield(L, -2, "nonStandardCharacterSetFont");
+    lua_pushstring(L, "nonStandardCharacterSetFont") ;    lua_rawseti(L,  -2, NSNonStandardCharacterSetFontMask);
+    lua_pushnumber(L, NSUnboldFontMask);                  lua_setfield(L, -2, "unboldFont");
+    lua_pushstring(L, "unboldFont") ;                     lua_rawseti(L,  -2, NSUnboldFontMask);
+    lua_pushnumber(L, NSUnitalicFontMask);                lua_setfield(L, -2, "unitalicFont");
+    lua_pushstring(L, "unitalicFont") ;                   lua_rawseti(L,  -2, NSUnitalicFontMask);
+}
+
 // Lua metadata
 
 static const luaL_Reg drawinglib[] = {
@@ -1353,6 +1460,8 @@ static const luaL_Reg drawinglib[] = {
     {"line", drawing_newLine},
     {"text", drawing_newText},
     {"image", drawing_newImage},
+    {"fontNames", fontNames},
+    {"fontNamesWithTraits", fontNamesWithTraits},
 
     {}
 };
@@ -1393,6 +1502,8 @@ int luaopen_hs_drawing_internal(lua_State *L) {
 
     // Table for luaopen
     luaL_newlib(L, drawinglib);
+        pushFontTraitsTable(L);
+        lua_setfield(L, -2, "fontTraits");
 
     return 1;
 }
