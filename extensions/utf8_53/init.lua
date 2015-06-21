@@ -86,6 +86,7 @@ local module = require("hs.utf8_53.internal-utf8")
 ---
 --- Notes:
 ---  * This function is *NOT* part of the Lua 5.3.1 source code, and is provided for convenience within Hammerspoon.
+---  * Code adapted from code sample found at https://en.wikipedia.org/wiki/UTF-8
 ---  * Valid codepoint values are from 0x0000 - 0x10FFFF (0 - 1114111)
 ---  * If the codepoint provided is a string that starts with U+, then the 'U+' is converted to a '0x' so that lua can properly treat the value as numeric.
 ---  * Invalid codepoints are returned as the Unicode Replacement Character (U+FFFD)
@@ -100,20 +101,38 @@ module.codepointToUTF8 = function(codepoint)
     -- the surrogates cause print() to crash -- and they're invalid UTF-8 anyways
     if codepoint >= 0xD800 and codepoint <=0xDFFF then return module.generateUTF8Character(0xFFFD) end
 
-    if codepoint < 0x80          then
-        return  string.char(codepoint)
-    elseif codepoint <= 0x7FF    then
-        return  string.char(           bit32.rshift(codepoint,  6)        + 0xC0)..
-                string.char(bit32.band(             codepoint, 0x3F)      + 0x80)
-    elseif codepoint <= 0xFFFF   then
-        return  string.char(           bit32.rshift(codepoint, 12)        + 0xE0)..
-                string.char(bit32.band(bit32.rshift(codepoint,  6), 0x3F) + 0x80)..
-                string.char(bit32.band(             codepoint, 0x3F)      + 0x80)
-    elseif codepoint <= 0x10FFFF then
-        return  string.char(           bit32.rshift(codepoint, 18)        + 0xF0)..
-                string.char(bit32.band(bit32.rshift(codepoint, 12), 0x3F) + 0x80)..
-                string.char(bit32.band(bit32.rshift(codepoint,  6), 0x3F) + 0x80)..
-                string.char(bit32.band(             codepoint, 0x3F)      + 0x80)
+    if string.match(_VERSION,"5.3") then
+        if codepoint < 0x80          then
+            return  string.char(codepoint)
+        elseif codepoint <= 0x7FF    then
+            return  string.char(( codepoint >>  6)         + 0xC0)..
+                    string.char((        codepoint & 0x3F) + 0x80)
+        elseif codepoint <= 0xFFFF   then
+            return  string.char(( codepoint >> 12)         + 0xE0)..
+                    string.char(((codepoint >>  6) & 0x3F) + 0x80)..
+                    string.char((        codepoint & 0x3F) + 0x80)
+        elseif codepoint <= 0x10FFFF then
+            return  string.char(( codepoint >> 18)         + 0xF0)..
+                    string.char(((codepoint >> 12) & 0x3F) + 0x80)..
+                    string.char(((codepoint >>  6) & 0x3F) + 0x80)..
+                    string.char((        codepoint & 0x3F) + 0x80)
+        end
+    else
+        if codepoint < 0x80          then
+            return  string.char(codepoint)
+        elseif codepoint <= 0x7FF    then
+            return  string.char(           bit32.rshift(codepoint,  6)        + 0xC0)..
+                    string.char(bit32.band(             codepoint, 0x3F)      + 0x80)
+        elseif codepoint <= 0xFFFF   then
+            return  string.char(           bit32.rshift(codepoint, 12)        + 0xE0)..
+                    string.char(bit32.band(bit32.rshift(codepoint,  6), 0x3F) + 0x80)..
+                    string.char(bit32.band(             codepoint, 0x3F)      + 0x80)
+        elseif codepoint <= 0x10FFFF then
+            return  string.char(           bit32.rshift(codepoint, 18)        + 0xF0)..
+                    string.char(bit32.band(bit32.rshift(codepoint, 12), 0x3F) + 0x80)..
+                    string.char(bit32.band(bit32.rshift(codepoint,  6), 0x3F) + 0x80)..
+                    string.char(bit32.band(             codepoint, 0x3F)      + 0x80)
+        end
     end
 
     -- greater than 0x10FFFF is invalid UTF-8
