@@ -772,7 +772,7 @@ BOOL screenToFile(NSScreen *screen, NSRect screenRect, NSString *filePath, NSBit
     repSize.height = CGImageGetHeight(image);
     [rep setSize:repSize];
 
-    fileData = [rep representationUsingType:fileType properties:nil];
+    fileData = [rep representationUsingType:fileType properties:@{}];
     if ([fileData writeToFile:[filePath stringByExpandingTildeInPath] atomically:YES] == NO) {
         goto cleanup;
     }

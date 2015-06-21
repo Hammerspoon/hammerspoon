@@ -7,7 +7,7 @@ static int wifi_gc(lua_State* L __unused) {
 }
 
 CWInterface *get_wifi_interface() {
-    return [CWInterface interfaceWithName:nil];
+    return [CWInterface interface];
 }
 
 /// hs.wifi.availableNetworks() -> table

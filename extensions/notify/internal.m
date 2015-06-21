@@ -426,7 +426,7 @@ static int notification_actionButtonTitle(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
         if (lua_isnil(L,2)) {
-            ((__bridge NSUserNotification *) notification->note).actionButtonTitle = nil;
+            ((__bridge NSUserNotification *) notification->note).actionButtonTitle = @"";
         } else {
             ((__bridge NSUserNotification *) notification->note).actionButtonTitle = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
         }
@@ -448,7 +448,7 @@ static int notification_otherButtonTitle(lua_State* L) {
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
         if (lua_isnil(L,2)) {
-            ((__bridge NSUserNotification *) notification->note).otherButtonTitle = nil;
+            ((__bridge NSUserNotification *) notification->note).otherButtonTitle = @"";
         } else {
             ((__bridge NSUserNotification *) notification->note).otherButtonTitle = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
         }

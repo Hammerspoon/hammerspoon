@@ -59,8 +59,11 @@ typedef struct _spacewatcher_t {
 
     // Now loop over the array looking for a window with the kCGWindowWorkspace key.
     for (NSMutableDictionary *thisWindow in (__bridge NSArray*)windowsInSpace) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if ([thisWindow objectForKey:(id)kCGWindowWorkspace]) {
             currentSpace = [[thisWindow objectForKey:(id)kCGWindowWorkspace] intValue];
+#pragma clang diagnostic pop
             break;
         }
     }

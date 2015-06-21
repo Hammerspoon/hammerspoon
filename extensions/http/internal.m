@@ -69,7 +69,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (cbRes != LUA_OK) {
         // FIXME: traceback shirley?
         NSString* message = [NSString stringWithFormat:@"%@ Code: %d", @"Can't call callback", cbRes];
-        showError(L, [message UTF8String]);
+        showError(L, (char *)[message UTF8String]);
     }
     remove_delegate(L, self);
 }

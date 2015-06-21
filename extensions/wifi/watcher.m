@@ -45,7 +45,7 @@ static NSMutableIndexSet* wifiHandlers;
 - (id)init {
     if (self = [super init]) {
         // Re need to retain a reference to the WiFi interface so we receive the NSNotification
-        self.interface = [CWInterface interfaceWithName:nil];
+        self.interface = [CWInterface interface];
     }
     return self;
 }
