@@ -5,7 +5,6 @@
 
 typedef struct _eventtap_t {
     lua_State* L;
-    bool running;
     int fn;
     int self;
     CGEventMask mask;
@@ -123,6 +122,7 @@ static int eventtap_new(lua_State* L) {
     memset(eventtap, 0, sizeof(eventtap_t));
 
     eventtap->L = L;
+    eventtap->tap = NULL ;
 
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
@@ -157,26 +157,29 @@ static int eventtap_new(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The event tap object
 static int eventtap_start(lua_State* L) {
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    if (e->running)
-        return 0;
+    if (!(e->tap && CGEventTapIsEnabled(e->tap))) {
+        e->self = store_event(L, 1);
+        e->tap = CGEventTapCreate(kCGSessionEventTap,
+                                  kCGHeadInsertEventTap,
+                                  kCGEventTapOptionDefault,
+                                  e->mask,
+                                  eventtap_callback,
+                                  e);
 
-    e->self = store_event(L, 1);
-    e->running = true;
-    e->tap = CGEventTapCreate(kCGSessionEventTap,
-                              kCGHeadInsertEventTap,
-                              kCGEventTapOptionDefault,
-                              e->mask,
-                              eventtap_callback,
-                              e);
-
-    CGEventTapEnable(e->tap, true);
-    e->runloopsrc = CFMachPortCreateRunLoopSource(NULL, e->tap, 0);
-    CFRunLoopAddSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
-
+        if (e->tap) {
+            CGEventTapEnable(e->tap, true);
+            e->runloopsrc = CFMachPortCreateRunLoopSource(NULL, e->tap, 0);
+            CFRunLoopAddSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
+        } else {
+            showError(L, "Unable to create eventtap.  Is Accessibility enabled?");
+            remove_event(L, e->self);
+            e->self = LUA_NOREF;
+        }
+    }
     lua_settop(L,1);
     return 1;
 }
@@ -189,33 +192,123 @@ static int eventtap_start(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The event tap object
 static int eventtap_stop(lua_State* L) {
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    if (!e->running)
-        return 0;
+    if (e->tap && CGEventTapIsEnabled(e->tap)) {
+        remove_event(L, e->self);
+        e->self = LUA_NOREF;
 
-    remove_event(L, e->self);
-    e->self = LUA_NOREF;
-    e->running = false;
-
-    CGEventTapEnable(e->tap, false);
-    CFMachPortInvalidate(e->tap);
-    CFRunLoopRemoveSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
-    CFRelease(e->runloopsrc);
-    CFRelease(e->tap);
-
+        CGEventTapEnable(e->tap, false);
+        CFMachPortInvalidate(e->tap);
+        CFRunLoopRemoveSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
+        CFRelease(e->runloopsrc);
+        CFRelease(e->tap);
+        e->tap = NULL ;
+    }
     lua_settop(L,1);
+    return 1;
+}
+
+/// hs.eventtap:isEnabled() -> bool
+/// Method
+/// Determine whether or not an event tap object is enabled.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if the event tap is enabled or false if it is not.
+static int eventtap_isEnabled(lua_State* L) {
+    eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
+    lua_pushboolean(L, (e->tap && CGEventTapIsEnabled(e->tap))) ;
+    return 1;
+}
+
+/// hs.eventtap.checkKeyboardModifiers() -> table
+/// Function
+/// Returns a table containing the current key modifiers being pressed *at this instant*.
+///
+/// Parameters:
+///  None
+///
+/// Returns:
+///  * Returns a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked; The possible keys are:
+///     * cmd
+///     * alt
+///     * shift
+///     * ctrl
+///     * fn
+///
+/// Notes:
+///  * This is an instantaneous poll of the current keyboard modifiers, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar` where a callback is already in progress and waiting for an event callback is not practical or possible.
+static int checkKeyboardModifiers(lua_State* L) {
+
+    NSUInteger theFlags = [NSEvent modifierFlags] ;
+    BOOL isCommandKey = (theFlags & NSCommandKeyMask) != 0;
+    BOOL isShiftKey = (theFlags & NSShiftKeyMask) != 0;
+    BOOL isOptKey = (theFlags & NSAlternateKeyMask) != 0;
+    BOOL isCtrlKey = (theFlags & NSControlKeyMask) != 0;
+    BOOL isFnKey = (theFlags & NSFunctionKeyMask) != 0;
+
+    lua_newtable(L);
+
+    lua_pushboolean(L, isCommandKey); lua_setfield(L, -2, "cmd");
+    lua_pushboolean(L, isShiftKey);   lua_setfield(L, -2, "shift");
+    lua_pushboolean(L, isOptKey);     lua_setfield(L, -2, "alt");
+    lua_pushboolean(L, isCtrlKey);    lua_setfield(L, -2, "ctrl");
+    lua_pushboolean(L, isFnKey);      lua_setfield(L, -2, "fn");
+
+    return 1;
+}
+
+/// hs.eventtap.checkMouseButtons() -> table
+/// Function
+/// Returns a table containing the current mouse buttons being pressed *at this instant*.
+///
+/// Parameters:
+///  None
+///
+/// Returns:
+///  * Returns an array containing indicies starting from 1 up to the highest numbered button currently being pressed where the index is `true` if the button is currently pressed or `false` if it is not.
+///  * Special hash tag synonyms for `left` (button 1), `right` (button 2), and `middle` (button 3) are also set to true if these buttons are currently being pressed.
+///
+/// Notes:
+///  * This is an instantaneous poll of the current buttons buttons, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar` where a callback is already in progress and waiting for an event callback is not practical or possible.
+static int checkMouseButtons(lua_State* L) {
+    NSUInteger theButtons = [NSEvent pressedMouseButtons] ;
+    NSUInteger i = 0 ;
+
+    lua_newtable(L);
+
+    while (theButtons != 0) {
+        if (theButtons & 0x1) {
+            if (i == 0) {
+                lua_pushboolean(L, TRUE) ;
+                lua_setfield(L, -2, "left") ;
+            } else if (i == 1) {
+                lua_pushboolean(L, TRUE) ;
+                lua_setfield(L, -2, "right") ;
+            } else if (i == 2) {
+                lua_pushboolean(L, TRUE) ;
+                lua_setfield(L, -2, "middle") ;
+            }
+        }
+        lua_pushinteger(L, i + 1) ;
+        lua_pushboolean(L, theButtons & 0x1) ;
+        lua_settable(L, -3) ;
+        i++ ;
+        theButtons = theButtons >> 1 ;
+    }
     return 1;
 }
 
 static int eventtap_gc(lua_State* L) {
     eventtap_t* eventtap = luaL_checkudata(L, 1, USERDATA_TAG);
-    if (eventtap->running) {
+    if (eventtap->tap && CGEventTapIsEnabled(eventtap->tap)) {
         remove_event(L, eventtap->self);
         eventtap->self = LUA_NOREF;
-        eventtap->running = false;
 
         CGEventTapEnable(eventtap->tap, false);
         CFMachPortInvalidate(eventtap->tap);
@@ -237,16 +330,19 @@ static int meta_gc(lua_State* __unused L) {
 
 // Metatable for created objects when _new invoked
 static const luaL_Reg eventtap_metalib[] = {
-    {"start",   eventtap_start},
-    {"stop",    eventtap_stop},
-    {"__gc",    eventtap_gc},
-    {NULL,      NULL}
+    {"start",     eventtap_start},
+    {"stop",      eventtap_stop},
+    {"isEnabled", eventtap_isEnabled},
+    {"__gc",      eventtap_gc},
+    {NULL,        NULL}
 };
 
 // Functions for returned object when module loads
 static luaL_Reg eventtaplib[] = {
-    {"new",     eventtap_new},
-    {"keyStrokes", eventtap_keyStrokes},
+    {"new",                     eventtap_new},
+    {"keyStrokes",              eventtap_keyStrokes},
+    {"checkKeyboardModifiers",  checkKeyboardModifiers},
+    {"checkMouseButtons",       checkMouseButtons},
     {NULL,      NULL}
 };
 

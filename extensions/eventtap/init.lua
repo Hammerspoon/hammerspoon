@@ -14,12 +14,38 @@
 if not hs.keycodes then hs.keycodes = require("hs.keycodes") end
 
 local module = require("hs.eventtap.internal")
+module.event = require("hs.eventtap.event")
 
 -- private variables and methods -----------------------------------------
 
--- Public interface ------------------------------------------------------
+local __index_for_types = function(object, key)
+    for i,v in pairs(object) do
+        if type(i) == "string" then -- ignore numbered keys
+            if i:lower() == key then
+                print(debug.getinfo(2).short_src..":"..debug.getinfo(2).currentline..": type '"..key.."' is deprecated, use '"..i.."'")
+                return object[i]
+            end
+        end
+    end
+    return nil
+end
 
-module.event = require("hs.eventtap.event")
+local __index_for_props = function(object, key)
+    for i,v in pairs(object) do
+        if type(i) == "string" then -- ignore numbered keys
+            if i:sub(1,1):upper()..i:sub(2,-1) == key then
+                print(debug.getinfo(2).short_src..":"..debug.getinfo(2).currentline..": property '"..key.."' is deprecated, use '"..i.."'")
+                return object[i]
+            end
+        end
+    end
+    return nil
+end
+
+module.event.types      = setmetatable(module.event.types,      { __index = __index_for_types })
+module.event.properties = setmetatable(module.event.properties, { __index = __index_for_props })
+
+-- Public interface ------------------------------------------------------
 
 --- hs.eventtap.event.newMouseEvent(eventtype, point[, modifiers) -> event
 --- Constructor
@@ -40,11 +66,11 @@ module.event = require("hs.eventtap.event")
 function module.event.newMouseEvent(eventtype, point, modifiers)
     local types = module.event.types
     local button = nil
-    if eventtype == types["leftmousedown"] or eventtype == types["leftmouseup"] or eventtype == types["leftmousedragged"] then
+    if eventtype == types["leftMouseDown"] or eventtype == types["leftMouseUp"] or eventtype == types["leftMouseDragged"] then
         button = "left"
-    elseif eventtype == types["rightmousedown"] or eventtype == types["rightmouseup"] or eventtype == types["rightmousedragged"] then
+    elseif eventtype == types["rightMouseDown"] or eventtype == types["rightMouseUp"] or eventtype == types["rightMouseDragged"] then
         button = "right"
-    elseif eventtype == types["middlemousedown"] or eventtype == types["middlemouseup"] or eventtype == types["middlemousedragged"] then
+    elseif eventtype == types["middleMouseDown"] or eventtype == types["middleMouseUp"] or eventtype == types["middleMouseDragged"] then
         button = "middle"
     else
         print("Error: unrecognised mouse button eventtype: " .. eventtype)
@@ -66,8 +92,8 @@ end
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `leftmousedown` and `leftmouseup` events)
 function module.leftClick(point)
-    module.event.newMouseEvent(module.event.types["leftmousedown"], point):post()
-    module.event.newMouseEvent(module.event.types["leftmouseup"], point):post()
+    module.event.newMouseEvent(module.event.types["leftMouseDown"], point):post()
+    module.event.newMouseEvent(module.event.types["leftMouseUp"], point):post()
 end
 
 --- hs.eventtap.rightClick(point)
@@ -83,8 +109,8 @@ end
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `rightmousedown` and `rightmouseup` events)
 function module.rightClick(point)
-    module.event.newMouseEvent(module.event.types["rightmousedown"], point):post()
-    module.event.newMouseEvent(module.event.types["rightmouseup"], point):post()
+    module.event.newMouseEvent(module.event.types["rightMouseDown"], point):post()
+    module.event.newMouseEvent(module.event.types["rightMouseUp"], point):post()
 end
 
 --- hs.eventtap.middleClick(point)
@@ -100,8 +126,8 @@ end
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `middlemousedown` and `middlemouseup` events)
 function module.middleClick(point)
-    module.event.newMouseEvent(module.event.types["middlemousedown"], point):post()
-    module.event.newMouseEvent(module.event.types["middlemouseup"], point):post()
+    module.event.newMouseEvent(module.event.types["middleMouseDown"], point):post()
+    module.event.newMouseEvent(module.event.types["middleMouseUp"], point):post()
 end
 
 --- hs.eventtap.keyStroke(modifiers, character)
