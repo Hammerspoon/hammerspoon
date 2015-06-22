@@ -1,4 +1,4 @@
---- === hs.utf8_53 ===
+--- === hs.utf8 ===
 ---
 --- Functions providing basic support for UTF-8 encodings
 ---
@@ -17,21 +17,21 @@
 --- ### Notes
 --- Hydra provided two UTF-8 functions which can be replicated by this module.
 ---
---- For `hydra.utf8.count(str)` use `utf8_53.len(str)`
+--- For `hydra.utf8.count(str)` use `utf8.len(str)`
 ---
 --- For `hydra.utf8.chars(str)`, which provided an array of the individual UTF-8 characters of `str`, use the following:
 ---
----     t = {} ; str:gsub(utf8_53.charPattern, function(c) t[#t+1] = c end)
+---     t = {} ; str:gsub(utf8.charPattern, function(c) t[#t+1] = c end)
 ---
 
---- hs.utf8_53.char(...) -> string
+--- hs.utf8.char(...) -> string
 --- Function
 --- Receives zero or more integers, converts each one to its corresponding UTF-8 byte sequence and returns a string with the concatenation of all these sequences.
 ---
 --- Notes:
 ---  * This function is ported from the Lua 5.3.1 source code.
 
---- hs.utf8_53.codes(s) -> position, codepoint
+--- hs.utf8.codes(s) -> position, codepoint
 --- Function
 --- Returns values so that the construction
 ---
@@ -42,21 +42,21 @@
 --- Notes:
 ---  * This function is ported from the Lua 5.3.1 source code.
 
---- hs.utf8_53.codepoint(s [, i [, j]]) -> codepoint[, ...]
+--- hs.utf8.codepoint(s [, i [, j]]) -> codepoint[, ...]
 --- Function
 --- Returns the codepoints (as integers) from all characters in s that start between byte position i and j (both included). The default for i is 1 and for j is i. It raises an error if it meets any invalid byte sequence.
 ---
 --- Notes:
 ---  * This function is ported from the Lua 5.3.1 source code.
 
---- hs.utf8_53.len(s [, i [, j]]) -> count | nil, position
+--- hs.utf8.len(s [, i [, j]]) -> count | nil, position
 --- Function
 --- Returns the number of UTF-8 characters in string s that start between positions i and @{j} (both inclusive). The default for i is 1 and for j is -1. If it finds any invalid byte sequence, returns nil plus the position of the first invalid byte.
 ---
 --- Notes:
 ---  * This function is ported from the Lua 5.3.1 source code.
 
---- hs.utf8_53.offset(s, n [, i]) -> position
+--- hs.utf8.offset(s, n [, i]) -> position
 --- Function
 --- Returns the position (in bytes) where the encoding of the n-th character of s (counting from position i) starts. A negative n gets characters before position i. The default for i is 1 when n is non-negative and #s + 1 otherwise, so that utf8.offset(s, -n) gets the offset of the n-th character from the end of the string. If the specified character is not in the subject or right after its end, the function returns nil.
 --- As a special case, when n is 0 the function returns the start of the encoding of the character that contains the i-th byte of s.
@@ -66,7 +66,7 @@
 --- Notes:
 ---  * This function is ported from the Lua 5.3.1 source code.
 
---- hs.utf8_53.charPattern
+--- hs.utf8.charPattern
 --- Variable
 ---The pattern (a string, not a function) "[\0-\x7F\xC2-\xF4][\x80-\xBF]*" (see 6.4.1 in [reference documentation](http://www.lua.org/docs.html)), which matches exactly one UTF-8 byte sequence, assuming that the subject is a valid UTF-8 string.
 ---
@@ -77,15 +77,15 @@ local module = {}
 if string.match(_VERSION,"5.3") then
     module = setmetatable(module, {
         __index = function(object, key)
-            for i,v in pairs(_G.utf8) do
+            for i,v in pairs(package.loaded["utf8"]) do
                 if string.lower(key) == i then return v end
             end
             return nil
         end
     })
 else
-    print("-- loading utf8_53 compatibility library")
-    module = require("hs.utf8_53.internal-utf8")
+    print("-- loading utf8 compatibility library")
+    module = require("hs.utf8.internal-utf8")
 end
 
 local fnutils = require("hs.fnutils")
@@ -94,7 +94,7 @@ local fnutils = require("hs.fnutils")
 
 -- Public interface ------------------------------------------------------
 
---- hs.utf8_53.codepointToUTF8(codepoint) -> string
+--- hs.utf8.codepointToUTF8(codepoint) -> string
 --- Function
 --- Returns the string of bytes which represent the UTF-8 encoding of the provided codepoint.
 ---
@@ -170,9 +170,9 @@ module.registeredKeys = setmetatable({}, { __tostring = function(object)
     end
 })
 
---- hs.utf8_53.registerCodepoint(label, codepoint) -> string
+--- hs.utf8.registerCodepoint(label, codepoint) -> string
 --- Function
---- Registers a Unicode codepoint under the given label as a UTF-8 string of bytes which can be referenced by the label later in your code as `hs.utf8_53.registeredKeys[label]` for convenience and readability.
+--- Registers a Unicode codepoint under the given label as a UTF-8 string of bytes which can be referenced by the label later in your code as `hs.utf8.registeredKeys[label]` for convenience and readability.
 ---
 --- Parameters:
 ---  * label -- a string label to use as a human-readable reference when getting the UTF-8 byte sequence for use in other strings and output functions.
@@ -185,15 +185,15 @@ module.registeredKeys = setmetatable({}, { __tostring = function(object)
 --- Notes:
 ---  * This function is *NOT* part of the Lua 5.3.1 source code, and is provided for convenience within Hammerspoon.
 ---  * If a codepoint label was previously registered, this will overwrite the previous value with a new one.  Because many of the special keys you may want to register have different variants, this allows you to easily modify the existing predefined defaults to suite your preferences.
----  * The return value is merely syntactic sugar and you do not need to save it locally; it can be safely ignored -- future access to the pre-converted codepoint should be retrieved as `hs.utf8_53.registeredKeys[label]` in your code.  It looks good when invoked from the console, though ☺.
+---  * The return value is merely syntactic sugar and you do not need to save it locally; it can be safely ignored -- future access to the pre-converted codepoint should be retrieved as `hs.utf8.registeredKeys[label]` in your code.  It looks good when invoked from the console, though ☺.
 module.registerCodepoint = function(label, codepoint)
     module.registeredKeys[label] = module.codepointToUTF8(codepoint)
     return module.registeredKeys[label]
 end
 
---- hs.utf8_53.registeredKeys[]
+--- hs.utf8.registeredKeys[]
 --- Variable
---- A collection of UTF-8 characters already converted from codepoint and available as convient key-value pairs.  UTF-8 printable versions of common Apple and OS X special keys are predefined and others can be added with `hs.utf8_53.registerCodepoint(label, codepoint)` for your own use.
+--- A collection of UTF-8 characters already converted from codepoint and available as convient key-value pairs.  UTF-8 printable versions of common Apple and OS X special keys are predefined and others can be added with `hs.utf8.registerCodepoint(label, codepoint)` for your own use.
 ---
 --- Predefined keys include:
 ---
@@ -250,7 +250,7 @@ end
 ---  * To see a list of the currently defined characters and labels, a __tostring meta-method is included so that referencing the table directly as a string will return the current definitions.
 ---    * For reference, this meta-method is essentially the following:
 ---
----      for i,v in hs.fnutils.sortByKeys(hs.utf8_53.registeredKeys) do print(string.format("(U+%04X) %-15s  %s", hs.utf8_53.codepoint(v), i, v)) end
+---      for i,v in hs.fnutils.sortByKeys(hs.utf8.registeredKeys) do print(string.format("(U+%04X) %-15s  %s", hs.utf8.codepoint(v), i, v)) end
 
 module.registerCodepoint("alt",              0x2325)
 module.registerCodepoint("apple",            0xF8FF)
