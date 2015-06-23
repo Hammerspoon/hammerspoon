@@ -314,6 +314,7 @@
 				9445CA0819083251002568BB /* Frameworks */,
 				4F9A454819EC67E1006BB982 /* Compile Extensions */,
 				9445CA0919083251002568BB /* Resources */,
+				4F9F02191B39297F009C32E5 /* Copy Lua headers */,
 				F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
 				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
@@ -478,6 +479,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "${SRCROOT}/extensions/build_extensions.sh";
+		};
+		4F9F02191B39297F009C32E5 /* Copy Lua headers */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Lua headers";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -x\nrsync -avr --copy-links \"${SRCROOT}/Pods/Headers/Public/lua\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
