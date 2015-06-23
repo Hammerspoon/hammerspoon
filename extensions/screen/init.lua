@@ -81,7 +81,7 @@ local function first_screen_in_direction(screen, numrotations)
     }
 
     if delta.x > 0 then
-      local angle = math.atan2(delta.y, delta.x)
+      local angle = math.atan(delta.y, delta.x)
       local distance = geometry.hypot(delta)
       local anglediff = -angle
       local score = distance / math.cos(anglediff / 2)
