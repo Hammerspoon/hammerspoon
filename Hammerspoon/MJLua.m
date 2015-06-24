@@ -61,6 +61,28 @@ static int push_hammerAppInfo(lua_State* L) {
     return 1;
 }
 
+/// hs.accessibilityState(shouldPrompt) -> isEnabled
+/// Function
+///
+/// Parameters:
+///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented if Accessibility is not currently enabled for Hammerspoon.  Defaults to false.
+///
+/// Returns:
+///  * True or False indicating whether or not Accessibility is enabled for Hammerspoon.
+///
+/// Notes:
+///  * Since this check is done automatically when Hammerspoon loads, it is probably of limited use except for skipping things that are known to fail when Accessibility is not enabled.  Evettaps which try to capture keyUp and keyDown events, for example, will fail until Accessibility is enabled and the Hammerspoon application is relaunched.
+static int core_accessibilityState(lua_State* L) {
+//     extern BOOL MJAccessibilityIsEnabled(void);
+//     extern void MJAccessibilityOpenPanel(void);
+
+    BOOL shouldprompt = lua_toboolean(L, 1);
+    BOOL enabled = MJAccessibilityIsEnabled();
+    if (shouldprompt) { MJAccessibilityOpenPanel(); }
+    lua_pushboolean(L, enabled);
+    return 1;
+}
+
 /// hs.focus()
 /// Function
 /// Makes Hammerspoon the foreground app.
@@ -102,6 +124,7 @@ static luaL_Reg corelib[] = {
     {"openConsole", core_openconsole},
     {"reload", core_reload},
     {"focus", core_focus},
+    {"accessibilityState", core_accessibilityState},
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
     {"_notify", core_notify},
