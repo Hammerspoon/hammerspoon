@@ -39,6 +39,28 @@ static int core_reload(lua_State* L) {
     return 0;
 }
 
+/// hs._hammerspoonAppInfo
+/// Variable
+/// A table containing read-only information about the Hammerspoon application instance currently running.
+static int push_hammerAppInfo(lua_State* L) {
+    lua_newtable(L) ;
+        lua_pushstring(L, [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] UTF8String]) ;
+        lua_setfield(L, -2, "version") ;
+        lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);
+        lua_setfield(L, -2, "resourcePath");
+        lua_pushstring(L, [[[NSBundle mainBundle] bundlePath] fileSystemRepresentation]);
+        lua_setfield(L, -2, "bundlePath");
+        lua_pushstring(L, [[[NSBundle mainBundle] executablePath] fileSystemRepresentation]);
+        lua_setfield(L, -2, "executablePath");
+        lua_pushinteger(L, getpid()) ;
+        lua_setfield(L, -2, "processID") ;
+// Take this out of hs.settings?
+        lua_pushstring(L, [[[NSBundle mainBundle] bundleIdentifier] UTF8String]) ;
+        lua_setfield(L, -2, "bundleID") ;
+
+    return 1;
+}
+
 /// hs.focus()
 /// Function
 /// Makes Hammerspoon the foreground app.
@@ -95,6 +117,9 @@ void MJLuaSetup(void) {
     luaL_openlibs(L);
 
     luaL_newlib(L, corelib);
+        push_hammerAppInfo(L) ;
+        lua_setfield(L, -2, "_hammerspoonAppInfo") ;
+
     lua_setglobal(L, "hs");
 
     int loadresult = luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
