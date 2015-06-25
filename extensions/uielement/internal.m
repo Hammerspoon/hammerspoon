@@ -96,9 +96,17 @@ static int uielement_role(lua_State* L) {
 }
 
 static int uielement_eq(lua_State* L) {
-    AXUIElementRef lhs = get_element(L, 1);
-    AXUIElementRef rhs = get_element(L, 2);
-    lua_pushboolean(L, CFEqual(lhs, rhs));
+    if ((lua_type(L, 1) == LUA_TUSERDATA) && (lua_type(L, 2) == LUA_TUSERDATA)) {
+        AXUIElementRef lhs = get_element(L, 1);
+        AXUIElementRef rhs = get_element(L, 2);
+        if (lhs && rhs) {
+            lua_pushboolean(L, CFEqual(lhs, rhs));
+        } else {
+            lua_pushboolean(L, false) ;
+        }
+    } else {
+        lua_pushboolean(L, false) ;
+    }
     return 1;
 }
 
