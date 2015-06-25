@@ -492,7 +492,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -x\nrsync -avr --copy-links \"${SRCROOT}/Pods/Headers/Public/lua\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"";
+			shellScript = "set -x\nrsync -avr --copy-links \"${SRCROOT}/Pods/Headers/Public/lua\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nrsync -avr --copy-links \"${SRCROOT}/extensions/hammerspoon.h\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
