@@ -39,6 +39,50 @@ static int core_reload(lua_State* L) {
     return 0;
 }
 
+/// hs._hammerspoonAppInfo
+/// Variable
+/// A table containing read-only information about the Hammerspoon application instance currently running.
+static int push_hammerAppInfo(lua_State* L) {
+    lua_newtable(L) ;
+        lua_pushstring(L, [[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] UTF8String]) ;
+        lua_setfield(L, -2, "version") ;
+        lua_pushstring(L, [[[NSBundle mainBundle] resourcePath] fileSystemRepresentation]);
+        lua_setfield(L, -2, "resourcePath");
+        lua_pushstring(L, [[[NSBundle mainBundle] bundlePath] fileSystemRepresentation]);
+        lua_setfield(L, -2, "bundlePath");
+        lua_pushstring(L, [[[NSBundle mainBundle] executablePath] fileSystemRepresentation]);
+        lua_setfield(L, -2, "executablePath");
+        lua_pushinteger(L, getpid()) ;
+        lua_setfield(L, -2, "processID") ;
+// Take this out of hs.settings?
+        lua_pushstring(L, [[[NSBundle mainBundle] bundleIdentifier] UTF8String]) ;
+        lua_setfield(L, -2, "bundleID") ;
+
+    return 1;
+}
+
+/// hs.accessibilityState(shouldPrompt) -> isEnabled
+/// Function
+///
+/// Parameters:
+///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented if Accessibility is not currently enabled for Hammerspoon.  Defaults to false.
+///
+/// Returns:
+///  * True or False indicating whether or not Accessibility is enabled for Hammerspoon.
+///
+/// Notes:
+///  * Since this check is done automatically when Hammerspoon loads, it is probably of limited use except for skipping things that are known to fail when Accessibility is not enabled.  Evettaps which try to capture keyUp and keyDown events, for example, will fail until Accessibility is enabled and the Hammerspoon application is relaunched.
+static int core_accessibilityState(lua_State* L) {
+//     extern BOOL MJAccessibilityIsEnabled(void);
+//     extern void MJAccessibilityOpenPanel(void);
+
+    BOOL shouldprompt = lua_toboolean(L, 1);
+    BOOL enabled = MJAccessibilityIsEnabled();
+    if (shouldprompt) { MJAccessibilityOpenPanel(); }
+    lua_pushboolean(L, enabled);
+    return 1;
+}
+
 /// hs.focus()
 /// Function
 /// Makes Hammerspoon the foreground app.
@@ -80,6 +124,7 @@ static luaL_Reg corelib[] = {
     {"openConsole", core_openconsole},
     {"reload", core_reload},
     {"focus", core_focus},
+    {"accessibilityState", core_accessibilityState},
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
     {"_notify", core_notify},
@@ -95,6 +140,9 @@ void MJLuaSetup(void) {
     luaL_openlibs(L);
 
     luaL_newlib(L, corelib);
+        push_hammerAppInfo(L) ;
+        lua_setfield(L, -2, "_hammerspoonAppInfo") ;
+
     lua_setglobal(L, "hs");
 
     int loadresult = luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
