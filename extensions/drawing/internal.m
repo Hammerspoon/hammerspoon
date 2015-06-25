@@ -723,6 +723,77 @@ static int drawing_newImage(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing.appImage(sizeRect, bundleID) -> drawingObject or nil
+/// Constructor
+/// Creates a new image object with the icon of a given app
+///
+/// Parameters:
+///  * sizeRect - A rect-table containing the location/size of the image. If the size values are -1 then the image will be displayed at the icon's native size
+///  * bundleID - A string containing the bundle identifier of an app (e.g. "com.apple.Safari")
+///
+/// Returns:
+///  * An `hs.drawing` image object, or nil if an error occurs
+static int drawing_newAppImage(lua_State *L) {
+    NSRect windowRect;
+    switch (lua_type(L, 1)) {
+        case LUA_TTABLE:
+            lua_getfield(L, 1, "x");
+            windowRect.origin.x = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "y");
+            windowRect.origin.y = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "w");
+            windowRect.size.width = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "h");
+            windowRect.size.height = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            break;
+        default:
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
+            lua_pushnil(L);
+            return 1;
+            break;
+    }
+    NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:lua_to_nsstring(L, 2)];
+    NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:imagePath];
+
+    if (windowRect.size.width == -1 || windowRect.size.height == -1) {
+        windowRect.size.width = iconImage.size.width;
+        windowRect.size.height = iconImage.size.height;
+    }
+
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+
+    if (theWindow) {
+        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
+        memset(drawingObject, 0, sizeof(drawing_t));
+        drawingObject->window = (__bridge_retained void*)theWindow;
+        luaL_getmetatable(L, USERDATA_TAG);
+        lua_setmetatable(L, -2);
+
+        HSDrawingViewImage *theView = [[HSDrawingViewImage alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        [theView setLuaState:L];
+
+        theWindow.contentView = theView;
+        theView.HSImageView.image = iconImage;
+
+        if (!drawingWindows) {
+            drawingWindows = [[NSMutableArray alloc] init];
+        }
+        [drawingWindows addObject:theWindow];
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
 /// hs.drawing:setText(message) -> drawingObject
 /// Method
 /// Sets the text of a drawing object
@@ -1460,6 +1531,7 @@ static const luaL_Reg drawinglib[] = {
     {"line", drawing_newLine},
     {"text", drawing_newText},
     {"image", drawing_newImage},
+    {"appImage", drawing_newAppImage},
     {"fontNames", fontNames},
     {"fontNamesWithTraits", fontNamesWithTraits},
 
