@@ -39,7 +39,7 @@ static int core_reload(lua_State* L) {
     return 0;
 }
 
-/// hs._hammerspoonAppInfo
+/// hs.processInfo
 /// Variable
 /// A table containing read-only information about the Hammerspoon application instance currently running.
 static int push_hammerAppInfo(lua_State* L) {
@@ -141,7 +141,7 @@ void MJLuaSetup(void) {
 
     luaL_newlib(L, corelib);
         push_hammerAppInfo(L) ;
-        lua_setfield(L, -2, "_hammerspoonAppInfo") ;
+        lua_setfield(L, -2, "processInfo") ;
 
     lua_setglobal(L, "hs");
 
