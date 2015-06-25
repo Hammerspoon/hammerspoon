@@ -313,7 +313,7 @@ end
 ---
 --- Parameters:
 ---  * table - the table of key-value pairs to be iterated through
----  * fn - an optional function which will be passed to `table.sort` to determine how the keys are sorted.  If it is not present, then keys will be sorted alphabetically.
+---  * fn - an optional function which will be passed to `table.sort` to determine how the keys are sorted.  If it is not present, then keys will be sorted numerically/alphabetically.
 ---
 --- Returns:
 ---  * function to be used as an iterator
@@ -325,7 +325,11 @@ end
 ---  * A sort function should accept two arguments and return true if the first argument should appear before the second, or false otherwise.
 ---    * e.g. `function(m,n) return not (m < n) end` would result in reverse alphabetic order.
 ---    * See _Programming_In_Lua,_3rd_ed_, page 52 for a more complete discussion.
+---    * The default sort is to compare keys directly, if they are of the same type, or as their tostring() versions, if the key types differ:
+---      * function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end
 fnutils.sortByKeys = function(t, f)
+    -- a default, simple comparison that treats keys as strings only if their types differ
+    f = f or function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end end
     if t then
         local a = {}
         for n in pairs(t) do table.insert(a, n) end
@@ -343,5 +347,99 @@ fnutils.sortByKeys = function(t, f)
     end
 end
 
+--- hs.fnutils.sortByKeyValues(table[ , function]) -> function
+--- Constructor
+--- Iterator for retrieving elements from a table of key-value pairs in the order of the values.
+---
+--- Parameters:
+---  * table - the table of key-value pairs to be iterated through
+---  * fn - an optional function which will be passed to `table.sort` to determine how the values are sorted.  If it is not present, then values will be sorted numerically/alphabetically.
+---
+--- Returns:
+---  * function to be used as an iterator
+---
+--- Notes:
+---  * Similar to Perl's `sort { $hash{$a} <=> $hash{$b} } keys %hash`
+---  * Iterators are used in looping constructs like `for`:
+---    * `for i,v in hs.fnutils.sortByKeyValues(t[, f]) do ... end`
+---  * A sort function should accept two arguments and return true if the first argument should appear before the second, or false otherwise.
+---    * e.g. `function(m,n) return not (m < n) end` would result in reverse alphabetic order.
+---    * See _Programming_In_Lua,_3rd_ed_, page 52 for a more complete discussion.
+---    * The default sort is to compare values directly, if they are of the same type, or as their tostring() versions, if the value types differ:
+---      * function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end
+fnutils.sortByKeyValues = function(t, f)
+    -- a default, simple comparison that treats keys as strings only if their types differ
+    f = f or function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end end
+    if t then
+        local a = {}
+        for n in pairs(t) do table.insert(a, {n, t[n]}) end
+            table.sort(a, function(m,n) return f(m[2], n[2]) end)
+            local i = 0      -- iterator variable
+            local iter = function ()   -- iterator function
+            i = i + 1
+            if a[i] == nil then return nil
+                else return a[i][1], a[i][2]
+            end
+        end
+        return iter
+    else
+        return function() return nil end
+    end
+end
+
+--- hs.fnutils.split(sString, sSeperator [, nMax] [, bPlain]) -> { array }
+--- Function
+--- Convert string to an array of strings, breaking at the specified separator.
+---
+--- Parameters:
+---  * sString    -- the string to split into substrings
+---  * sSeperator -- the separator.  If `bPlain` is false or not provided, this is treated as a Lua pattern.
+---  * nMax       -- optional parameter specifying the maximum number (or all if `nMax` is nil) of substrings to split from `sString`.
+---  * bPlain     -- optional boolean parameter, defaulting to false, specifying if `sSeperator` should be treated as plain text (true) or a Lua pattern (false)
+---
+--- Returns:
+---  * An array of substrings.  The last element of the array will be the remaining portion of `sString` that remains after `nMax` (or all, if `nMax` is not provided or is nil) substrings have been identified.
+---
+--- Notes:
+---  * Similar to "split" in Perl or "string.split" in Python.
+---  * Optional parameters `nMax` and `bPlain` are identified by their type -- if parameter 3 or 4 is a number or nil, it will be considered a value for `nMax`; if parameter 3 or 4 is a boolean value, it will be considered a value for `bPlain`.
+---  * Lua patterns are more flexible for pattern matching, but can also be slower if the split point is simple. See §6.4.1 of the _Lua_Reference_Manual_ at http://www.lua.org/manual/5.3/manual.html#6.4.1 for more information on Lua patterns.
+function fnutils.split(sString, sSeparator, nMax, bPlain)
+    if type(nMax) == "boolean" then
+        nMax, bPlain = bPlain, nMax
+    end
+
+    sSeparator = sSeparator or ""
+
+    if type(sString) ~= "string" then
+        error("sString parameter to hs.fnutils.split must be a string", 2) end
+    if type(sSeparator) ~= "string" then
+        error("sSeparator parameter to hs.fnutils.split must be a string", 2) end
+    if type(nMax) ~= "number" and type(nMax) ~= "nil" then
+        error("nMax parameter to hs.fnutils.split must be a number, if it is provided", 2) end
+    if type(bPlain) ~= "boolean" and type(bPlain) ~= "nil" then
+        error("bPlain parameter to hs.fnutils.split must be a boolean, if it is provided", 2) end
+
+    if sSeparator == "" or maxSubStrings == 0 then return { sString } end -- degenerate cases
+
+    local aRecord = {}
+
+    if sString:len() > 0 then
+        nMax = nMax or -1
+
+        local nField, nStart = 1, 1
+        local nFirst,nLast = sString:find(sSeparator, nStart, bPlain)
+        while nFirst and nMax ~= 0 do
+            aRecord[nField] = sString:sub(nStart, nFirst-1)
+            nField = nField+1
+            nStart = nLast+1
+            nFirst,nLast = sString:find(sSeparator, nStart, bPlain)
+            nMax = nMax-1
+        end
+        aRecord[nField] = sString:sub(nStart)
+    end
+
+    return aRecord
+end
 
 return fnutils
