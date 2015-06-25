@@ -2,6 +2,7 @@
 #import "MJConsoleWindowController.h"
 #import "MJUserNotificationManager.h"
 #import "MJConfigUtils.h"
+#import "MJAccessibilityUtils.h"
 #import "variables.h"
 #import <pthread.h>
 #import "../extensions/hammerspoon.h"
