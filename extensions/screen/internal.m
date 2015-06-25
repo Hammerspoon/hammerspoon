@@ -722,22 +722,22 @@ NSRect screenRectToNSRect(lua_State *L, int idx) {
     }
 
     lua_getfield(L, idx, "x");
-    if (lua_type(L, -1) == LUA_TNUMBER || lua_type(L, -1) == LUA_TINTEGER) {
+    if (lua_type(L, -1) == LUA_TNUMBER) {
         x = (float)lua_tonumber(L, -1);
     }
 
     lua_getfield(L, idx, "y");
-    if (lua_type(L, -1) == LUA_TNUMBER || lua_type(L, -1) == LUA_TINTEGER) {
+    if (lua_type(L, -1) == LUA_TNUMBER) {
         y = (float)lua_tonumber(L, -1);
     }
 
     lua_getfield(L, idx, "w");
-    if (lua_type(L, -1) == LUA_TNUMBER || lua_type(L, -1) == LUA_TINTEGER) {
+    if (lua_type(L, -1) == LUA_TNUMBER) {
         w = (float)lua_tonumber(L, -1);
     }
 
     lua_getfield(L, idx, "h");
-    if (lua_type(L, -1) == LUA_TNUMBER || lua_type(L, -1) == LUA_TINTEGER) {
+    if (lua_type(L, -1) == LUA_TNUMBER) {
         h = (float)lua_tonumber(L, -1);
     }
 
