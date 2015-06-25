@@ -564,7 +564,7 @@ static int window_pid(lua_State* L) {
     get_window_arg(L, 1);  // type checking
     lua_getuservalue(L, 1);
     lua_getfield(L, -1, "pid");
-    if (lua_isnumber(L, -1))
+    if (lua_isinteger(L, -1))
         return 1;
     else
         return 0;
@@ -581,7 +581,7 @@ static int window_pid(lua_State* L) {
 ///  * An `hs.application` object representing the application that owns the window, or nil if an error occurred
 static int window_application(lua_State* L) {
     if (window_pid(L)) {
-        pid_t pid = lua_tonumber(L, -1);
+        pid_t pid = lua_tointeger(L, -1);
         if (!new_application(L, pid)) {
             lua_pushnil(L);
         }
@@ -619,7 +619,7 @@ static int window__orderedwinids(lua_State* L) {
     for (int i = 0; i < CFArrayGetCount(wins); i++) {
         int winid = (int)CFArrayGetValueAtIndex(wins, i);
 
-        lua_pushnumber(L, winid);
+        lua_pushinteger(L, winid);
         lua_rawseti(L, -2, i+1);
     }
 
@@ -641,7 +641,7 @@ static int window_id(lua_State* L) {
     get_window_arg(L, 1);  // type checking
     lua_getuservalue(L, 1);
     lua_getfield(L, -1, "id");
-    if (lua_isnumber(L, -1))
+    if (lua_isinteger(L, -1))
         return 1;
     else
         return 0;

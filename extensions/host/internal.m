@@ -26,7 +26,7 @@ static int hostAddresses(lua_State* L) {
     lua_newtable(L);
     int i = 1;
     for (NSString *address in addresses) {
-        lua_pushnumber(L, i++);
+        lua_pushinteger(L, i++);
         lua_pushstring(L, [address UTF8String]);
         lua_settable(L, -3);
     }
@@ -56,7 +56,7 @@ static int hostNames(lua_State* L) {
     lua_newtable(L);
     int i = 1;
     for (NSString *name in names) {
-        lua_pushnumber(L, i++);
+        lua_pushinteger(L, i++);
         lua_pushstring(L, [name UTF8String]);
         lua_settable(L, -3);
     }

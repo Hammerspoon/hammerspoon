@@ -1497,29 +1497,29 @@ static int fontNamesWithTraits(lua_State *L) {
 ///    unitalicFont                -- fonts that do not have the 'Italic' attribute set
 static void pushFontTraitsTable(lua_State* L) {
     lua_newtable(L);
-    lua_pushnumber(L, NSBoldFontMask);                    lua_setfield(L, -2, "boldFont");
+    lua_pushinteger(L, NSBoldFontMask);                    lua_setfield(L, -2, "boldFont");
     lua_pushstring(L, "boldFont") ;                       lua_rawseti(L,  -2, NSBoldFontMask);
-    lua_pushnumber(L, NSCompressedFontMask);              lua_setfield(L, -2, "compressedFont");
+    lua_pushinteger(L, NSCompressedFontMask);              lua_setfield(L, -2, "compressedFont");
     lua_pushstring(L, "compressedFont") ;                 lua_rawseti(L,  -2, NSCompressedFontMask);
-    lua_pushnumber(L, NSCondensedFontMask);               lua_setfield(L, -2, "condensedFont");
+    lua_pushinteger(L, NSCondensedFontMask);               lua_setfield(L, -2, "condensedFont");
     lua_pushstring(L, "condensedFont") ;                  lua_rawseti(L,  -2, NSCondensedFontMask);
-    lua_pushnumber(L, NSExpandedFontMask);                lua_setfield(L, -2, "expandedFont");
+    lua_pushinteger(L, NSExpandedFontMask);                lua_setfield(L, -2, "expandedFont");
     lua_pushstring(L, "expandedFont") ;                   lua_rawseti(L,  -2, NSExpandedFontMask);
-    lua_pushnumber(L, NSFixedPitchFontMask);              lua_setfield(L, -2, "fixedPitchFont");
+    lua_pushinteger(L, NSFixedPitchFontMask);              lua_setfield(L, -2, "fixedPitchFont");
     lua_pushstring(L, "fixedPitchFont") ;                 lua_rawseti(L,  -2, NSFixedPitchFontMask);
-    lua_pushnumber(L, NSItalicFontMask);                  lua_setfield(L, -2, "italicFont");
+    lua_pushinteger(L, NSItalicFontMask);                  lua_setfield(L, -2, "italicFont");
     lua_pushstring(L, "italicFont") ;                     lua_rawseti(L,  -2, NSItalicFontMask);
-    lua_pushnumber(L, NSNarrowFontMask);                  lua_setfield(L, -2, "narrowFont");
+    lua_pushinteger(L, NSNarrowFontMask);                  lua_setfield(L, -2, "narrowFont");
     lua_pushstring(L, "narrowFont") ;                     lua_rawseti(L,  -2, NSNarrowFontMask);
-    lua_pushnumber(L, NSPosterFontMask);                  lua_setfield(L, -2, "posterFont");
+    lua_pushinteger(L, NSPosterFontMask);                  lua_setfield(L, -2, "posterFont");
     lua_pushstring(L, "posterFont") ;                     lua_rawseti(L,  -2, NSPosterFontMask);
-    lua_pushnumber(L, NSSmallCapsFontMask);               lua_setfield(L, -2, "smallCapsFont");
+    lua_pushinteger(L, NSSmallCapsFontMask);               lua_setfield(L, -2, "smallCapsFont");
     lua_pushstring(L, "smallCapsFont") ;                  lua_rawseti(L,  -2, NSSmallCapsFontMask);
-    lua_pushnumber(L, NSNonStandardCharacterSetFontMask); lua_setfield(L, -2, "nonStandardCharacterSetFont");
+    lua_pushinteger(L, NSNonStandardCharacterSetFontMask); lua_setfield(L, -2, "nonStandardCharacterSetFont");
     lua_pushstring(L, "nonStandardCharacterSetFont") ;    lua_rawseti(L,  -2, NSNonStandardCharacterSetFontMask);
-    lua_pushnumber(L, NSUnboldFontMask);                  lua_setfield(L, -2, "unboldFont");
+    lua_pushinteger(L, NSUnboldFontMask);                  lua_setfield(L, -2, "unboldFont");
     lua_pushstring(L, "unboldFont") ;                     lua_rawseti(L,  -2, NSUnboldFontMask);
-    lua_pushnumber(L, NSUnitalicFontMask);                lua_setfield(L, -2, "unitalicFont");
+    lua_pushinteger(L, NSUnitalicFontMask);                lua_setfield(L, -2, "unitalicFont");
     lua_pushstring(L, "unitalicFont") ;                   lua_rawseti(L,  -2, NSUnitalicFontMask);
 }
 

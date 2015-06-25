@@ -120,7 +120,7 @@ typedef enum _event_t {
         lua_pushnil(L);
     else
         lua_pushstring(L, [appName UTF8String]); // Parameter 1: application name
-    lua_pushnumber(L, event); // Parameter 2: the event type
+    lua_pushinteger(L, event); // Parameter 2: the event type
     if (!new_application(L, [app processIdentifier])) { // Paremeter 3: application object
         lua_pushnil(L);
     }
@@ -310,7 +310,7 @@ static int meta_gc(lua_State* __unused L) {
 
 // Add a single event enum value to the lua table.
 static void add_event_value(lua_State* L, event_t value, const char* name) {
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     lua_setfield(L, -2, name);
 }
 

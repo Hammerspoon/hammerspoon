@@ -5,7 +5,7 @@
 
 static void pushkeycode(lua_State* L, int code, const char* key) {
     // t[key] = code
-    lua_pushnumber(L, code);
+    lua_pushinteger(L, code);
     lua_setfield(L, -2, key);
 
     // t[code] = key

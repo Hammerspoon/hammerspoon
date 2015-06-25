@@ -126,8 +126,8 @@ static int eventtap_new(lua_State* L) {
 
     lua_pushnil(L);
     while (lua_next(L, 1) != 0) {
-        if (lua_isnumber(L, -1)) {
-            CGEventType type = lua_tonumber(L, -1);
+        if (lua_isinteger(L, -1)) {
+            CGEventType type = lua_tointeger(L, -1);
             eventtap->mask ^= CGEventMaskBit(type);
         } else if (lua_isstring(L, -1)) {
             const char *label = lua_tostring(L, -1);

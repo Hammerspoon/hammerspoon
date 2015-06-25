@@ -35,7 +35,7 @@ static dispatch_queue_t notificationQueue;
 /// Returns a screen's unique ID.
 static int screen_id(lua_State* L) {
     NSScreen* screen = get_screen_arg(L, 1);
-    lua_pushnumber(L, [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] doubleValue]);
+    lua_pushinteger(L, [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue]);
     return 1;
 }
 
@@ -101,10 +101,10 @@ static int screen_currentMode(lua_State* L) {
 
     lua_newtable(L);
 
-    lua_pushnumber(L, (double)mode.width);
+    lua_pushinteger(L, mode.width);
     lua_setfield(L, -2, "w");
 
-    lua_pushnumber(L, (double)mode.height);
+    lua_pushinteger(L, mode.height);
     lua_setfield(L, -2, "h");
 
     lua_pushnumber(L, (double)mode.density);
@@ -150,10 +150,10 @@ static int screen_availableModes(lua_State* L) {
         if (mode.depth == 4) {
             lua_newtable(L);
 
-            lua_pushnumber(L, (double)mode.width);
+            lua_pushinteger(L, mode.width);
             lua_setfield(L, -2, "w");
 
-            lua_pushnumber(L, (double)mode.height);
+            lua_pushinteger(L, mode.height);
             lua_setfield(L, -2, "h");
 
             lua_pushnumber(L, (double)mode.density);
@@ -590,7 +590,7 @@ static int screen_allScreens(lua_State* L) {
 
     int i = 1;
     for (NSScreen* screen in [NSScreen screens]) {
-        lua_pushnumber(L, i++);
+        lua_pushinteger(L, i++);
         new_screen(L, screen);
         lua_settable(L, -3);
     }
@@ -722,22 +722,22 @@ NSRect screenRectToNSRect(lua_State *L, int idx) {
     }
 
     lua_getfield(L, idx, "x");
-    if (lua_type(L, -1) == LUA_TNUMBER) {
+    if (lua_type(L, -1) == LUA_TNUMBER || lua_type(L, -1) == LUA_TINTEGER) {
         x = (float)lua_tonumber(L, -1);
     }
 
     lua_getfield(L, idx, "y");
-    if (lua_type(L, -1) == LUA_TNUMBER) {
+    if (lua_type(L, -1) == LUA_TNUMBER || lua_type(L, -1) == LUA_TINTEGER) {
         y = (float)lua_tonumber(L, -1);
     }
 
     lua_getfield(L, idx, "w");
-    if (lua_type(L, -1) == LUA_TNUMBER) {
+    if (lua_type(L, -1) == LUA_TNUMBER || lua_type(L, -1) == LUA_TINTEGER) {
         w = (float)lua_tonumber(L, -1);
     }
 
     lua_getfield(L, idx, "h");
-    if (lua_type(L, -1) == LUA_TNUMBER) {
+    if (lua_type(L, -1) == LUA_TNUMBER || lua_type(L, -1) == LUA_TINTEGER) {
         h = (float)lua_tonumber(L, -1);
     }
 

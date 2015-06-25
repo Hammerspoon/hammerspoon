@@ -48,7 +48,7 @@ static int brightness_ambient(lua_State* L) {
     lux = LMUtoLux((values[0] + values[1])/2);
 
 final:
-    lua_pushnumber(L, lux);
+    lua_pushinteger(L, lux);
     return 1;
 }
 
@@ -62,7 +62,7 @@ final:
 /// Returns:
 ///  * True if the brightness was set, false if not
 static int brightness_set(lua_State* L) {
-    double level = MIN(MAX(luaL_checknumber(L, 1) / 100.0, 0.0), 1.0);
+    double level = MIN(MAX(luaL_checkinteger(L, 1) / 100.0, 0.0), 1.0);
     bool found = false;
     io_iterator_t iterator;
     kern_return_t result = IOServiceGetMatchingServices(kIOMasterPortDefault,
@@ -107,7 +107,7 @@ static int brightness_get(lua_State *L) {
             IODisplayGetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), &level);
 
             IOObjectRelease(service);
-            lua_pushnumber(L, level * 100.0);
+            lua_pushinteger(L, level * 100.0);
             return 1;
         }
     }

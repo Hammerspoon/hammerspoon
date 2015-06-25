@@ -52,7 +52,7 @@ static int usb_attachedDevices(lua_State* L) {
     lua_newtable(L);
 
     while ((usbDevice = IOIteratorNext(iterator))) {
-        lua_pushnumber(L, i++);
+        lua_pushinteger(L, i++);
 
         // START OF BLOCK THAT SHOULD MOVE OUT TO A SEPARATE FUNCTION
         IORegistryEntryCreateCFProperties(usbDevice, &deviceData, kCFAllocatorDefault, kNilOptions);

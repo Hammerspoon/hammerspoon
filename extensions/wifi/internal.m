@@ -33,7 +33,7 @@ static int wifi_scan(lua_State* L __unused) {
     lua_newtable(L);
     int i = 1;
     for (CWNetwork *network in [availableNetworks allObjects]) {
-        lua_pushnumber(L, i++);
+        lua_pushinteger(L, i++);
         lua_pushstring(L, [[network ssid] UTF8String]);
         lua_settable(L, -3);
     }

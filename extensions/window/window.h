@@ -17,14 +17,14 @@ static void new_window(lua_State* L, AXUIElementRef win) {
 
     pid_t pid;
     if (AXUIElementGetPid(win, &pid) == kAXErrorSuccess) {
-        lua_pushnumber(L, pid);
+        lua_pushinteger(L, pid);
         lua_setfield(L, -2, "pid");
     }
 
     CGWindowID winid;
     AXError err = _AXUIElementGetWindow(win, &winid);
     if (!err) {
-        lua_pushnumber(L, winid);
+        lua_pushinteger(L, winid);
         lua_setfield(L, -2, "id");
     }
 
