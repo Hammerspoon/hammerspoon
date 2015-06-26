@@ -2,9 +2,6 @@
 ---
 --- Simple logger for debugging purposes
 
--- * This can mainly be useful for diagnosing complex scripts; however there is some overhead involved.
--- * Implementing a mock version could help, although not completely as lua lacks lazy evaluation
-
 local date,time = os.date,os.time
 local format,sub=string.format,string.sub
 local select,print,concat,min=select,print,table.concat,math.min
@@ -42,8 +39,8 @@ end
 ---  * the new logger instance
 ---
 --- Usage:
----  * `local log = hs.logger.new('mymodule','debug')`
----  * `log.i('Initializing')` -- will print `[mymodule] Initializing` to the console
+--- local log = hs.logger.new('mymodule','debug')
+--- log.i('Initializing') -- will print "[mymodule] Initializing" to the console
 
 local function new(id,loglevel)
   if type(id)~='string' then error('id must be a string',2) end
@@ -85,13 +82,19 @@ return {new=new}
 ---
 --- Parameters:
 ---  * loglevel - can be 'nothing', 'error', 'warning', 'info', 'debug', or 'verbose'; or a corresponding number between 0 and 5
-
+--- 
+--- Returns:
+---  * None
+ 
 --- hs.logger:e(...)
 --- Method
 --- Logs an error to the console
 --- 
 --- Parameters:
 ---  * ... - one or more message strings
+--- 
+--- Returns:
+---  * None
 
 --- hs.logger:ef(fmt,...)
 --- Method
@@ -100,6 +103,9 @@ return {new=new}
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
+--- 
+--- Returns:
+---  * None
 
 --- hs.logger:w(...)
 --- Method
@@ -107,6 +113,9 @@ return {new=new}
 --- 
 --- Parameters:
 ---  * ... - one or more message strings
+--- 
+--- Returns:
+---  * None
 
 --- hs.logger:wf(fmt,...)
 --- Method
@@ -115,6 +124,9 @@ return {new=new}
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
+--- 
+--- Returns:
+---  * None
 
 --- hs.logger:i(...)
 --- Method
@@ -122,6 +134,9 @@ return {new=new}
 --- 
 --- Parameters:
 ---  * ... - one or more message strings
+--- 
+--- Returns:
+---  * None
 
 --- hs.logger:f(fmt,...)
 --- Method
@@ -130,6 +145,9 @@ return {new=new}
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
+--- 
+--- Returns:
+---  * None
 
 --- hs.logger:d(...)
 --- Method
@@ -137,6 +155,9 @@ return {new=new}
 --- 
 --- Parameters:
 ---  * ... - one or more message strings
+--- 
+--- Returns:
+---  * None
 
 --- hs.logger:df(fmt,...)
 --- Method
@@ -145,6 +166,9 @@ return {new=new}
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
+--- 
+--- Returns:
+---  * None
 
 --- hs.logger:v(...)
 --- Method
@@ -152,6 +176,9 @@ return {new=new}
 --- 
 --- Parameters:
 ---  * ... - one or more message strings
+--- 
+--- Returns:
+---  * None
 
 --- hs.logger:vf(fmt,...)
 --- Method
@@ -160,4 +187,7 @@ return {new=new}
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
+--- 
+--- Returns:
+---  * None
 
