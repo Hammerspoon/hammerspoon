@@ -61,6 +61,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
     [[MJConsoleWindowController singleton] setup];
+    [LuaSkin shared];
     MJLuaSetup();
 
     // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
@@ -79,6 +80,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (IBAction) reloadConfig:(id)sender {
+    [[LuaSkin shared] resetLuaState];
     MJLuaSetup();
 }
 

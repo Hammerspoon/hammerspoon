@@ -2,7 +2,7 @@
 #define _eventtap_event_h
 
 #import <Cocoa/Cocoa.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 
 #define EVENT_USERDATA_TAG  "hs.eventtap.event"
 

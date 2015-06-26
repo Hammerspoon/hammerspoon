@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <sys/time.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
 // Common Code

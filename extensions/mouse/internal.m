@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 
 static NSPoint hammerspoon_topoint(lua_State* L, int idx) {
     luaL_checktype(L, idx, LUA_TTABLE);

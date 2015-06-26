@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreWLAN/CoreWLAN.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 
 static int wifi_gc(lua_State* L __unused) {
     return 0;

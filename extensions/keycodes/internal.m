@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
 static void pushkeycode(lua_State* L, int code, const char* key) {

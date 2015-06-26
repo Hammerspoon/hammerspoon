@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 #import <IOKit/ps/IOPowerSources.h>
 #import <IOKit/ps/IOPSKeys.h>
 #import "../hammerspoon.h"

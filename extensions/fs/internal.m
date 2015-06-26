@@ -61,9 +61,7 @@
 #endif
 
 #include <Cocoa/Cocoa.h>
-#include <lua/lua.h>
-#include <lua/lauxlib.h>
-#include <lua/lualib.h>
+#include <LuaSkin/LuaSkin.h>
 #include "../hammerspoon.h"
 
 #include "lfs.h"

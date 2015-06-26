@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 #import <ASCIImage/PARImage+ASCIIInput.h>
 #import "../hammerspoon.h"
 

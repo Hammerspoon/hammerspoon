@@ -52,6 +52,16 @@
                ReferencedContainer = "container:Hammerspoon.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4FEF59591B29CE06002344A7"
+               BuildableName = "LuaSkinTests.xctest"
+               BlueprintName = "LuaSkinTests"
+               ReferencedContainer = "container:LuaSkin/LuaSkin.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

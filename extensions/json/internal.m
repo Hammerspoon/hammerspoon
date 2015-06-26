@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 
 // The following two functions will go away someday (soon I hope) and be found in the core
 // app of hammerspoon because they are just so darned useful in so many contexts... but they

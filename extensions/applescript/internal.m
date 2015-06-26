@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
 // Check out NSScriptClassDescription for expanding obj return values...

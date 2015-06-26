@@ -7,7 +7,7 @@
 #import <pthread.h>
 #import "../extensions/hammerspoon.h"
 
-static lua_State* MJLuaState;
+static LuaSkin* MJLuaState;
 static int evalfn;
 
 /// === hs ===
@@ -35,6 +35,7 @@ static int core_openconsole(lua_State* L) {
 /// Reloads your init-file in a fresh Lua environment.
 static int core_reload(lua_State* L) {
     dispatch_async(dispatch_get_main_queue(), ^{
+        [[LuaSkin shared] resetLuaState];
         MJLuaSetup();
     });
     return 0;
@@ -134,15 +135,12 @@ static luaL_Reg corelib[] = {
 
 void MJLuaSetup(void) {
     mainthreadid = pthread_self();
-    if (MJLuaState)
-        lua_close(MJLuaState);
+    MJLuaState = [LuaSkin shared];
+    lua_State* L = MJLuaState.L;
 
-    lua_State* L = MJLuaState = luaL_newstate();
-    luaL_openlibs(L);
-
-    luaL_newlib(L, corelib);
-        push_hammerAppInfo(L) ;
-        lua_setfield(L, -2, "processInfo") ;
+    [MJLuaState registerLibrary:corelib metaFunctions:nil];
+    push_hammerAppInfo(L) ;
+    lua_setfield(L, -2, "processInfo") ;
 
     lua_setglobal(L, "hs");
 
@@ -171,15 +169,11 @@ void MJLuaSetup(void) {
 }
 
 void MJLuaTeardown(void) {
-    lua_close(MJLuaState);
+    [MJLuaState destroyLuaState];
 }
 
 NSString* MJLuaRunString(NSString* command) {
-    lua_State* L = MJLuaState;
-
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
+    lua_State* L = MJLuaState.L;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, evalfn);
     if (!lua_isfunction(L, -1)) {
@@ -190,7 +184,7 @@ NSString* MJLuaRunString(NSString* command) {
         return @"";
     }
     lua_pushstring(L, [command UTF8String]);
-    if (lua_pcall(L, 1, 1, -3) != LUA_OK) {
+    if ([MJLuaState protectedCallAndTraceback:1 nresults:1] == NO) {
         CLS_NSLOG(@"%s", lua_tostring(L, -1));
         lua_getglobal(L, "hs");
         lua_getfield(L, -1, "showError");
@@ -210,5 +204,5 @@ NSString* MJLuaRunString(NSString* command) {
 // C-Code helper to return current active LuaState. Useful for callbacks to
 // verify stored LuaState still matches active one if GC fails to clear it.
 lua_State* MJGetActiveLuaState() {
-  return MJLuaState ;
+  return MJLuaState.L ;
 }

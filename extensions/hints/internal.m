@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 
 #define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "hs.screen"))
 #define get_hint_arg(L, idx) (__bridge HintWindow*)*((void**)luaL_checkudata(L, idx, "hs.hints.hint"))
