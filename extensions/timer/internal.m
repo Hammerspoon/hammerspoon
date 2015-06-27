@@ -118,7 +118,10 @@ static int timer_start(lua_State* L) {
 ///  * fn - The function to call
 ///
 /// Returns:
-///  * None
+///  * An `hs.timer` object
+///
+/// Notes:
+///  * The callback can be cancelled by calling the `:stop()` method on the returned object before `sec` seconds have passed.
 static int timer_doAfter(lua_State* L) {
     NSTimeInterval sec = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
