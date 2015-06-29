@@ -1,6 +1,49 @@
---- === hs.window.CoordTrans ===
+--- === hs.window.fluent ===
 ---
---- Manage windows using a chainable, fluent API
+--- A module for moving/resizing windows using a fluent interface (see Usage below).
+---
+--- Usage:
+---
+---     local window = require "hs.window.fluent"
+---
+---     local cmdalt  = {"cmd", "alt"}
+---     local scmdalt = {"cmd", "alt", "shift"}
+---     local ccmdalt = {"ctrl", "cmd", "alt"}
+---
+---     -- make the focused window a 200px, full-height window and put it at the left screen edge
+---     hs.hotkey.bind(cmdalt, 'h', window.focused():wide(200):tallest():leftmost():place())
+---
+---     -- make a full-height window and put it at the right screen edge
+---     hs.hotkey.bind(cmdalt, 'j', window.focused():tallest():rightmost():place())
+---
+---     -- full-height window, full-width window, and a combination
+---     hs.hotkey.bind(scmdalt, '\\', window.focused():tallest():resize())
+---     hs.hotkey.bind(scmdalt, '-', window.focused():widest():resize())
+---     hs.hotkey.bind(scmdalt, '=', window.focused():widest():tallest():resize())
+---
+---     -- push to different screen
+---     hs.hotkey.bind(cmdalt, '[', window.focused():prevscreen():move())
+---     hs.hotkey.bind(cmdalt, ']', window.focused():nextscreen():move())
+---
+--- *NOTE*: One must start with `window.focused()` or `window.window('title')`
+--- and end with a command `move()`, `place()`, `resize()`, or `act()`
+--- (they are all synonyms for the same action). This chain of command
+--- will return a function that one can pass to `hs.hotkey.bind`.
+---
+---
+--- @author    Nikola Knezevic
+--- @copyright 2015
+---
+
+-- main module class table
+local fluent = {
+  _VERSION     = '0.5.0',
+  _DESCRIPTION = 'A module for moving/resizing windows using a fluent interface',
+}
+
+local appfinder = require "hs.appfinder"
+local window = require "hs.window"
+-- also requires hs.screen
 
 -- class that deals with coordinate transformations.
 -- Default coordinate transformations are regular screen transformations.
@@ -66,53 +109,6 @@ local function new_coord_trans()
   setmetatable(self, { __index = CoordTrans })
   return self
 end
-
---- === hs.window.fluent ===
----
---- A module for moving/resizing windows using a fluent interface (see Usage below).
----
---- Usage:
----
----     local window = require "hs.window.fluent"
----
----     local cmdalt  = {"cmd", "alt"}
----     local scmdalt = {"cmd", "alt", "shift"}
----     local ccmdalt = {"ctrl", "cmd", "alt"}
----
----     -- make the focused window a 200px, full-height window and put it at the left screen edge
----     hs.hotkey.bind(cmdalt, 'h', window.focused():wide(200):tallest():leftmost():place())
----
----     -- make a full-height window and put it at the right screen edge
----     hs.hotkey.bind(cmdalt, 'j', window.focused():tallest():rightmost():place())
----
----     -- full-height window, full-width window, and a combination
----     hs.hotkey.bind(scmdalt, '\\', window.focused():tallest():resize())
----     hs.hotkey.bind(scmdalt, '-', window.focused():widest():resize())
----     hs.hotkey.bind(scmdalt, '=', window.focused():widest():tallest():resize())
----
----     -- push to different screen
----     hs.hotkey.bind(cmdalt, '[', window.focused():prevscreen():move())
----     hs.hotkey.bind(cmdalt, ']', window.focused():nextscreen():move())
----
---- *NOTE*: One must start with `window.focused()` or `window.window('title')`
---- and end with a command `move()`, `place()`, `resize()`, or `act()`
---- (they are all synonyms for the same action). This chain of command
---- will return a function that one can pass to `hs.hotkey.bind`.
----
----
---- @author    Nikola Knezevic
---- @copyright 2015
----
-
--- main module class table
-local fluent = {
-  _VERSION     = '0.5.0',
-  _DESCRIPTION = 'A module for moving/resizing windows using a fluent interface',
-}
-
-local appfinder = require "hs.appfinder"
-local window = require "hs.window"
--- also requires hs.screen
 
 --- hs.window.fluent.new([ct]) -> window.fluent object
 --- Function
