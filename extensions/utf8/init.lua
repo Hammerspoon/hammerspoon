@@ -94,71 +94,6 @@ local fnutils = require("hs.fnutils")
 
 -- Public interface ------------------------------------------------------
 
---- hs.utf8.codepointToUTF8(codepoint) -> string
---- Function
---- Returns the string of bytes which represent the UTF-8 encoding of the provided codepoint.
----
---- Parameters:
----  * codepoint -- The Unicode code point to be converted to a UTF-8 byte sequence.
----
---- Returns:
----  * A string containing the UTF-8 byte sequence corresponding to provided codepoint.
----
---- Notes:
----  * This function is *NOT* part of the Lua 5.3.1 source code, and is provided for convenience within Hammerspoon.
----  * Code adapted from code sample found at https://en.wikipedia.org/wiki/UTF-8
----  * Valid codepoint values are from 0x0000 - 0x10FFFF (0 - 1114111)
----  * If the codepoint provided is a string that starts with U+, then the 'U+' is converted to a '0x' so that lua can properly treat the value as numeric.
----  * Invalid codepoints are returned as the Unicode Replacement Character (U+FFFD)
----    * This includes out of range codepoints as well as the Unicode Surrogate codepoints (U+D800 - U+DFFF)
-module.codepointToUTF8 = function(codepoint)
-    if type(codepoint) == "string" then codepoint = codepoint:gsub("^U%+","0x") end
-    codepoint = tonumber(codepoint)
-
-    -- negatives not allowed
-    if codepoint < 0 then return module.generateUTF8Character(0xFFFD) end
-
-    -- the surrogates cause print() to crash -- and they're invalid UTF-8 anyways
-    if codepoint >= 0xD800 and codepoint <=0xDFFF then return module.generateUTF8Character(0xFFFD) end
-
-    if string.match(_VERSION,"5.3") then
-        if codepoint < 0x80          then
-            return  string.char(codepoint)
-        elseif codepoint <= 0x7FF    then
-            return  string.char(( codepoint >>  6)         + 0xC0)..
-                    string.char((        codepoint & 0x3F) + 0x80)
-        elseif codepoint <= 0xFFFF   then
-            return  string.char(( codepoint >> 12)         + 0xE0)..
-                    string.char(((codepoint >>  6) & 0x3F) + 0x80)..
-                    string.char((        codepoint & 0x3F) + 0x80)
-        elseif codepoint <= 0x10FFFF then
-            return  string.char(( codepoint >> 18)         + 0xF0)..
-                    string.char(((codepoint >> 12) & 0x3F) + 0x80)..
-                    string.char(((codepoint >>  6) & 0x3F) + 0x80)..
-                    string.char((        codepoint & 0x3F) + 0x80)
-        end
-    else
-        if codepoint < 0x80          then
-            return  string.char(codepoint)
-        elseif codepoint <= 0x7FF    then
-            return  string.char(           bit32.rshift(codepoint,  6)        + 0xC0)..
-                    string.char(bit32.band(             codepoint, 0x3F)      + 0x80)
-        elseif codepoint <= 0xFFFF   then
-            return  string.char(           bit32.rshift(codepoint, 12)        + 0xE0)..
-                    string.char(bit32.band(bit32.rshift(codepoint,  6), 0x3F) + 0x80)..
-                    string.char(bit32.band(             codepoint, 0x3F)      + 0x80)
-        elseif codepoint <= 0x10FFFF then
-            return  string.char(           bit32.rshift(codepoint, 18)        + 0xF0)..
-                    string.char(bit32.band(bit32.rshift(codepoint, 12), 0x3F) + 0x80)..
-                    string.char(bit32.band(bit32.rshift(codepoint,  6), 0x3F) + 0x80)..
-                    string.char(bit32.band(             codepoint, 0x3F)      + 0x80)
-        end
-    end
-
-    -- greater than 0x10FFFF is invalid UTF-8
-    return module.generateUTF8Character(0xFFFD)
-end
-
 -- see below -- we need it defined for the registration function, but documentation will be
 -- given where we add the predefined keys.
 module.registeredKeys = setmetatable({}, { __tostring = function(object)
@@ -169,6 +104,105 @@ module.registeredKeys = setmetatable({}, { __tostring = function(object)
             return output
     end
 })
+
+--- hs.utf8.codepointToUTF8(...) -> string
+--- Function
+--- Wrapper to `hs.utf8.char(...)` which ensures that all codepoints return valid UTF8 characters.
+---
+--- Parameters:
+---  * codepoints -- A series of numeric Unicode code points to be converted to a UTF-8 byte sequences.  If a codepoint is a string (and does not start with U+, it is used as a key for lookup in `hs.utf8.registeredKeys[]`
+---
+--- Returns:
+---  * A string containing the UTF-8 byte sequences corresponding to provided codepoints as a combined string.
+---
+--- Notes:
+---  * This function is *NOT* part of the Lua 5.3.1 source code, and is provided for convenience within Hammerspoon.
+---  * Valid codepoint values are from 0x0000 - 0x10FFFF (0 - 1114111)
+---  * If the codepoint provided is a string that starts with U+, then the 'U+' is converted to a '0x' so that lua can properly treat the value as numeric.
+---  * Invalid codepoints are returned as the Unicode Replacement Character (U+FFFD)
+---    * This includes out of range codepoints as well as the Unicode Surrogate codepoints (U+D800 - U+DFFF)
+module.codepointToUTF8 = function(...)
+    local listOfChars = table.pack(...)
+    local result = ""
+
+    for _,codepoint in ipairs(listOfChars) do
+        if type(codepoint) == "string" then
+            if codepoint:match("^U%+") then
+                codepoint = codepoint:gsub("^U%+","0x")
+            else
+                codepoint = module.registeredKeys[codepoint] and module.codepoint(module.registeredKeys[codepoint]) or 0xFFFD
+            end
+        end
+        codepoint = tonumber(codepoint)
+
+        -- negatives not allowed
+        if codepoint < 0 then result = result..module.char(0xFFFD)
+
+        -- the surrogates cause print() to crash -- and they're invalid UTF-8 anyways
+        elseif codepoint >= 0xD800 and codepoint <=0xDFFF then result = result..module.char(0xFFFD)
+
+        -- single byte, 7-bit ascii
+        elseif codepoint < 0x80 then result = result..string.char(codepoint)
+
+        -- multibyte UTF8
+        elseif codepoint <= 0x10FFFF then result = result..module.char(codepoint)
+
+        -- greater than 0x10FFFF is invalid UTF-8
+        else result = result..module.char(0xFFFD)
+        end
+    end
+
+    return result
+end
+
+--- hs.utf8.fixUTF8(inString[, replacementChar]) -> outString, posTable
+--- Function
+--- Replace invalid UTF8 character sequences in `inString` with `replacementChar` so it can be safely output.
+---
+--- Parameters:
+---  * inString - String of characters which may contain invalid UTF8 byte sequences
+---  * replacementChar - optional parameter to replace invalid byte sequences in `inString`.  If this parameter is not provided, the default UTF8 replacement character, U+FFFD, is used.
+---
+--- Returns:
+---  * outString - The contents of `inString` with all invalid UTF8 byte sequences replaced by the `replacementChar`.
+---  * posTable - a table of indexes in `outString` corresponding indicating where `replacementChar` has been used.
+---
+--- Notes:
+---  * This function is *NOT* part of the Lua 5.3.1 source code, and is provided for convenience within Hammerspoon.
+---  * This function is a slight modification to code found at http://notebook.kulchenko.com/programming/fixing-malformed-utf8-in-lua.
+---  * If `replacementChar` is a multi-byte character (like U+FFFD) or multi character string, then the string length of `outString` will be longer than the string length of `inString`.  The character positions in `posTable` will reflect these new positions in `outString`.
+---  * To calculate the character position of the invalid characters in `inString`, use something like the following:
+---
+---       outString, outErrors = hs.utf8.fixUTF8(inString, replacement)
+---       inErrors = {}
+---       for i,p in ipairs(outErrors) do
+---           table.insert(inErrors, p - ((i - 1) * string.length(replacement) - 1))
+---       end
+---
+---    Where replacement is `hs.utf8.char(0xFFFD)`, if you leave it out of the `hs.utf8.fixUTF8` function in the first line.
+---
+function module.fixUTF8(s, replacement)
+  replacement = replacement or module.char(0xFFFD)
+  local p, len, invalid = 1, #s, {}
+  local offset = string.len(replacement) - 1
+  while p <= len do
+    if     p == s:find("[%z\1-\127]", p) then p = p + 1
+    elseif p == s:find("[\194-\223][\128-\191]", p) then p = p + 2
+    elseif p == s:find(       "\224[\160-\191][\128-\191]", p)
+        or p == s:find("[\225-\236][\128-\191][\128-\191]", p)
+        or p == s:find(       "\237[\128-\159][\128-\191]", p)
+        or p == s:find("[\238-\239][\128-\191][\128-\191]", p) then p = p + 3
+    elseif p == s:find(       "\240[\144-\191][\128-\191][\128-\191]", p)
+        or p == s:find("[\241-\243][\128-\191][\128-\191][\128-\191]", p)
+        or p == s:find(       "\244[\128-\143][\128-\191][\128-\191]", p) then p = p + 4
+    else
+      s = s:sub(1, p-1)..replacement..s:sub(p+1)
+      len = len + offset
+      table.insert(invalid, p)
+    end
+  end
+  return s, invalid
+end
 
 --- hs.utf8.registerCodepoint(label, codepoint) -> string
 --- Function
