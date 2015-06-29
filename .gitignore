@@ -16,7 +16,7 @@ profile
 *.moved-aside
 DerivedData
 .idea/
-
+*.swp
 /Hammerspoon.app
 /Hammerspoon*.zip
 *.dSYM
