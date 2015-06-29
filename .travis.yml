@@ -1,6 +1,8 @@
 language: objective-c
 before_install:
   - gem install github-markdown
+before_script:
+  - make docs
 xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
 after_script:
