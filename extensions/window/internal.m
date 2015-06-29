@@ -321,7 +321,7 @@ static int window_size(lua_State* L) {
     return 1;
 }
 
-/// hs.window:setTopLeft(point)
+/// hs.window:setTopLeft(point) -> window
 /// Method
 /// Moves the window to a given point
 ///
@@ -329,7 +329,7 @@ static int window_size(lua_State* L) {
 ///  * point - A point-table containing the absolute co-ordinates the window should be moved to
 ///
 /// Returns:
-///  * None
+///  * The `hs.window` object
 static int window_settopleft(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     NSPoint thePoint = geom_topoint(L, 2);
@@ -339,10 +339,11 @@ static int window_settopleft(lua_State* L) {
     if (positionStorage)
         CFRelease(positionStorage);
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
-/// hs.window:setSize(size)
+/// hs.window:setSize(size) -> window
 /// Method
 /// Resizes the window
 ///
@@ -350,7 +351,7 @@ static int window_settopleft(lua_State* L) {
 ///  * size - A size-table containing the width and height the window should be resized to
 ///
 /// Returns:
-///  * None
+///  * The `hs.window` object
 static int window_setsize(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     NSSize theSize = geom_tosize(L, 2);
@@ -360,7 +361,8 @@ static int window_setsize(lua_State* L) {
     if (sizeStorage)
         CFRelease(sizeStorage);
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 static int window_pressbutton(lua_State* L, CFStringRef buttonId) {
@@ -381,7 +383,7 @@ cleanup:
     return 1;
 }
 
-/// hs.window:toggleZoom() -> bool
+/// hs.window:toggleZoom() -> window
 /// Method
 /// Toggles the zoom state of the window (this is effectively equivalent to clicking the green maximize/fullscreen button at the top left of a window)
 ///
@@ -389,9 +391,11 @@ cleanup:
 ///  * None
 ///
 /// Returns:
-///  * True if the operation succeeded, false if not
+///  * The `hs.window` object
 static int window_togglezoom(lua_State* L) {
-    return window_pressbutton(L, kAXZoomButtonAttribute);
+    window_pressbutton(L, kAXZoomButtonAttribute);
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.window:zoomButtonRect() -> rect-table or nil
@@ -455,7 +459,7 @@ static int window_close(lua_State* L) {
     return window_pressbutton(L, kAXCloseButtonAttribute);
 }
 
-/// hs.window:setFullScreen(fullscreen) -> bool
+/// hs.window:setFullScreen(fullscreen) -> window
 /// Method
 /// Sets the fullscreen state of the window
 ///
@@ -463,12 +467,12 @@ static int window_close(lua_State* L) {
 ///  * fullscreen - A boolean, true if the window should be set fullscreen, false if not
 ///
 /// Returns:
-///  * True if the operation succeeded, false if not
+///  * The `hs.window` object
 static int window_setfullscreen(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     CFBooleanRef befullscreen = lua_toboolean(L, 2) ? kCFBooleanTrue : kCFBooleanFalse;
-    BOOL succeeded = (AXUIElementSetAttributeValue(win, CFSTR("AXFullScreen"), befullscreen) == noErr);
-    lua_pushboolean(L, succeeded);
+    AXUIElementSetAttributeValue(win, CFSTR("AXFullScreen"), befullscreen);
+    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -502,7 +506,7 @@ cleanup:
     return 1;
 }
 
-/// hs.window:minimize()
+/// hs.window:minimize() -> window
 /// Method
 /// Minimizes the window
 ///
@@ -510,15 +514,16 @@ cleanup:
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The `hs.window` object
 static int window_minimize(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
     set_window_prop(win, NSAccessibilityMinimizedAttribute, @YES);
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
-/// hs.window:unminimize()
+/// hs.window:unminimize() -> window
 /// Method
 /// Un-minimizes the window
 ///
@@ -526,12 +531,13 @@ static int window_minimize(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The `hs.window` object
 static int window_unminimize(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
     set_window_prop(win, NSAccessibilityMinimizedAttribute, @NO);
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.window:isMinimized() -> bool
@@ -585,7 +591,7 @@ static int window_application(lua_State* L) {
     return 1;
 }
 
-/// hs.window:becomeMain() -> bool
+/// hs.window:becomeMain() -> window
 /// Method
 /// Makes the window the main window of its application
 ///
@@ -593,15 +599,15 @@ static int window_application(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * True if the operation succeeded, otherwise false
+///  * The `hs.window` object
 ///
 /// Notes:
 ///  * Make a window become the main window does not transfer focus to the application. See `hs.window.focus()`
 static int window_becomemain(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
-    BOOL success = (AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilityMainAttribute, kCFBooleanTrue) == kAXErrorSuccess);
-    lua_pushboolean(L, success);
+    AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilityMainAttribute, kCFBooleanTrue);
+    lua_pushvalue(L, 1);
     return 1;
 }
 

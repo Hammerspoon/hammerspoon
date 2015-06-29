@@ -74,7 +74,7 @@ function window:frame()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
 end
 
---- hs.window:setFrame(rect[, duration])
+--- hs.window:setFrame(rect[, duration]) -> window
 --- Method
 --- Sets the frame of the window in absolute coordinates
 ---
@@ -83,7 +83,7 @@ end
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 function window:setFrame(f, duration)
   if duration == nil then
     duration = window.animationDuration
@@ -123,7 +123,7 @@ function window:otherWindowsAllScreens()
   return fnutils.filter(window.visibleWindows(), function(win) return self ~= win end)
 end
 
---- hs.window:focus() -> bool
+--- hs.window:focus() -> window
 --- Method
 --- Focuses the window
 ---
@@ -131,9 +131,11 @@ end
 ---  * None
 ---
 --- Returns:
----  * True if the operation was successful, otherwise false
+---  * The `hs.window` object
 function window:focus()
-  return self:becomeMain() and self:application():_bringtofront()
+    self:becomeMain()
+    self:application():_bringtofront()
+    return self
 end
 
 --- hs.window.visibleWindows() -> win[]
@@ -175,7 +177,7 @@ function window.orderedWindows()
   return orderedwins
 end
 
---- hs.window:maximize([duration])
+--- hs.window:maximize([duration]) -> window
 --- Method
 --- Maximizes the window
 ---
@@ -183,16 +185,17 @@ end
 ---  * duration - An optional number containing the number of seconds to animate the operation. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 ---
 --- Notes:
 ---  * The window will be resized as large as possible, without obscuring the dock/menu
 function window:maximize(duration)
   local screenrect = self:screen():frame()
   self:setFrame(screenrect, duration)
+  return self
 end
 
---- hs.window:toggleFullScreen()
+--- hs.window:toggleFullScreen() -> window
 --- Method
 --- Toggles the fullscreen state of the window
 ---
@@ -200,12 +203,13 @@ end
 ---  * None
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 ---
 --- Notes:
 ---  * Not all windows support being full-screened
 function window:toggleFullScreen()
     self:setFullScreen(not self:isFullScreen())
+    return self
 end
 
 --- hs.window:screen()
@@ -388,7 +392,7 @@ function window:focusWindowSouth(sameApp)
     return self:focusWindowsFromTable(self:windowsToSouth(), sameApp)
 end
 
---- hs.window:moveToUnit(rect[, duration])
+--- hs.window:moveToUnit(rect[, duration]) -> window
 --- Method
 --- Moves and resizes the window to occupy a given fraction of the screen
 ---
@@ -397,7 +401,7 @@ end
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 ---
 --- Notes:
 --   * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit({x=0, y=0, w=0.5, h=0.5})`
@@ -409,9 +413,10 @@ function window:moveToUnit(unit, duration)
       w = unit.w * screenrect.w,
       h = unit.h * screenrect.h,
   }, duration)
+  return self
 end
 
---- hs.window:moveToScreen(screen[, duration])
+--- hs.window:moveToScreen(screen[, duration]) -> window
 --- Method
 --- Moves the window to a given screen, retaining its relative position and size
 ---
@@ -420,7 +425,7 @@ end
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 function window:moveToScreen(nextScreen, duration)
   local currentFrame = self:frame()
   local screenFrame = self:screen():frame()
@@ -431,9 +436,10 @@ function window:moveToScreen(nextScreen, duration)
     h = ((currentFrame.h / screenFrame.h) * nextScreenFrame.h),
     w = ((currentFrame.w / screenFrame.w) * nextScreenFrame.w)
   }, duration)
+  return self
 end
 
---- hs.window:moveOneScreenWest([duration])
+--- hs.window:moveOneScreenWest([duration]) -> window
 --- Method
 --- Moves the window one screen west (i.e. left)
 ---
@@ -441,15 +447,16 @@ end
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 function window:moveOneScreenWest(duration)
     local dst = self:screen():toWest()
     if dst ~= nil then
         self:moveToScreen(dst, duration)
     end
+    return self
 end
 
---- hs.window:moveOneScreenEast([duration])
+--- hs.window:moveOneScreenEast([duration]) -> window
 --- Method
 --- Moves the window one screen east (i.e. right)
 ---
@@ -457,15 +464,16 @@ end
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 function window:moveOneScreenEast(duration)
     local dst = self:screen():toEast()
     if dst ~= nil then
         self:moveToScreen(dst, duration)
     end
+    return self
 end
 
---- hs.window:moveOneScreenNorth([duration])
+--- hs.window:moveOneScreenNorth([duration]) -> window
 --- Method
 --- Moves the window one screen north (i.e. up)
 ---
@@ -473,15 +481,16 @@ end
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 function window:moveOneScreenNorth(duration)
     local dst = self:screen():toNorth()
     if dst ~= nil then
         self:moveToScreen(dst, duration)
     end
+    return self
 end
 
---- hs.window:moveOneScreenSouth([duration])
+--- hs.window:moveOneScreenSouth([duration]) -> window
 --- Method
 --- Moves the window one screen south (i.e. down)
 ---
@@ -489,15 +498,16 @@ end
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 function window:moveOneScreenSouth(duration)
     local dst = self:screen():toSouth()
     if dst ~= nil then
         self:moveToScreen(dst, duration)
     end
+    return self
 end
 
---- hs.window:ensureIsInScreenBounds([duration])
+--- hs.window:ensureIsInScreenBounds([duration]) -> window
 --- Method
 --- Movies and resizes the window to ensure it is inside the screen
 ---
@@ -505,7 +515,7 @@ end
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
----  * None
+---  * The `hs.window` object
 function window:ensureIsInScreenBounds(duration)
   local frame = self:frame()
   local screenFrame = self:screen():frame()
@@ -520,6 +530,7 @@ function window:ensureIsInScreenBounds(duration)
     frame.y = (screenFrame.y + screenFrame.h) - frame.h
   end
   if frame ~= self:frame() then self:setFrame(frame, duration) end
+  return self
 end
 
 return window
