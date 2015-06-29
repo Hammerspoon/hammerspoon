@@ -201,23 +201,16 @@ static int audiodevice_name(lua_State* L) {
     OSStatus result = noErr;
 
     result = AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &propertySize, &deviceName);
-    if (result)
-        goto error;
+    if (result) {
+        lua_pushnil(L);
+        return 1;
+    }
 
-    CFIndex length = CFStringGetLength(deviceName);
-    const char* deviceNameBytes = CFStringGetCStringPtr(deviceName, kCFStringEncodingMacRoman);
+    NSString *deviceNameNS = (__bridge NSString *)deviceName;
+    lua_pushstring(L, [deviceNameNS UTF8String]);
 
-    lua_pushlstring(L, deviceNameBytes, length);
     CFRelease(deviceName);
-
-    goto end;
-
-error:
-    lua_pushnil(L);
-
-end:
     return 1;
-
 }
 
 /// hs.audiodevice:uid() -> string or nil
