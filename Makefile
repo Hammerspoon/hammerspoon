@@ -23,6 +23,7 @@ build/html: build/docs.json
 	scripts/docs/bin/genhtml $@ < $<
 
 build/docs.sqlite: build/docs.json
+	rm -f $@
 	scripts/docs/bin/gensql < $< | sqlite3 $@
 
 build/docs.json: build
