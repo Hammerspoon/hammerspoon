@@ -326,6 +326,7 @@ NSMutableArray *drawingWindows;
     }
 
     self.HSImageView.image = newImage;
+    self.HSImage = newImage;
 
     self.needsDisplay = true;
 
@@ -782,6 +783,7 @@ static int drawing_newAppImage(lua_State *L) {
 
         theWindow.contentView = theView;
         theView.HSImageView.image = iconImage;
+        theView.HSImage = iconImage;
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -871,6 +873,9 @@ static int drawing_setTopLeft(lua_State *L) {
 ///
 /// Returns:
 ///  * The drawing object
+///
+/// Notes:
+///  * If this is called on an `hs.drawing.text` object, its window will be resized, but you will also need to change the font size with `:setTextSize()`
 static int drawing_setSize(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -895,9 +900,15 @@ static int drawing_setSize(lua_State *L) {
             break;
     }
 
-    [drawingWindow setContentSize:windowSize] ;
+    NSRect oldFrame = drawingWindow.frame;
+    NSRect newFrame = NSMakeRect(oldFrame.origin.x, oldFrame.origin.y + oldFrame.size.height - windowSize.height, windowSize.width, windowSize.height);
+
+    [drawingWindow setFrame:newFrame display:YES animate:NO];
+
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
-        [((HSDrawingViewText *) drawingView).textField setFrameSize:windowSize] ;
+        [((HSDrawingViewText *) drawingView).textField setFrameSize:windowSize];
+    } else if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        [((HSDrawingViewImage *) drawingView).HSImageView setFrameSize:windowSize];
     }
 
     lua_pushvalue(L, 1);
