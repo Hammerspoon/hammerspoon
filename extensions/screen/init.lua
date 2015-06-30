@@ -89,6 +89,17 @@ local function first_screen_in_direction(screen, numrotations)
     end
   end
 
+ -- exclude screens without any horizontal/vertical overlap
+  local myf=screen:fullFrame()
+  for i=#closestscreens,1,-1 do
+    local of=closestscreens[i].s:fullFrame()
+    if numrotations==1 or numrotations==3 then
+      if of.x+of.w-1<myf.x or myf.x+myf.w-1<of.x then table.remove(closestscreens,i) end
+    else
+      if of.y+of.h-1<myf.y or myf.y+myf.h-1<of.y then table.remove(closestscreens,i) end
+    end
+  end
+
   table.sort(closestscreens, function(a, b) return a.score < b.score end)
 
   if #closestscreens > 0 then
