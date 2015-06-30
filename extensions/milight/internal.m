@@ -22,7 +22,7 @@ int broadcastOption = 1;
 
 static void pushCommand(lua_State *L, const char *cmd, int value) {
     // t[cmd] = value
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     lua_setfield(L, -2, cmd);
 }
 

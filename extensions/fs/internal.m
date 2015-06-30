@@ -1062,7 +1062,7 @@ static int tagsGet(lua_State *L) {
 
     int i = 1;
     for (NSString *tag in tags) {
-        lua_pushnumber(L, i++);
+        lua_pushinteger(L, i++);
         lua_pushstring(L, [tag UTF8String]);
         lua_settable(L, -3);
     }

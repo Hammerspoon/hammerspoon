@@ -83,7 +83,7 @@ static int audiodevice_alloutputdevices(lua_State* L) {
         if (!_check_audio_device_has_streams(deviceId, kAudioDevicePropertyScopeOutput))
             continue;
 
-        lua_pushnumber(L, tableIndex++);
+        lua_pushinteger(L, tableIndex++);
         new_device(L, deviceId);
         lua_settable(L, -3);
     }
@@ -369,7 +369,7 @@ static int audiodevice_volume(lua_State* L) {
     if (result)
         goto error;
 
-    lua_pushnumber(L, volume * 100.0);
+    lua_pushinteger(L, (int)(volume * 100.0));
 
     goto end;
 
@@ -392,7 +392,7 @@ end:
 ///  * True if the volume was set, false if the audio device does not support setting a volume level.
 static int audiodevice_setvolume(lua_State* L) {
     AudioDeviceID deviceId = MJ_Audio_Device(L, 1);
-    Float32 volume = MIN(MAX(luaL_checknumber(L, 2) / 100.0, 0.0), 1.0);
+    Float32 volume = MIN(MAX((float)luaL_checkinteger(L, 2) / 100.0, 0.0), 1.0);
 
     AudioObjectPropertyAddress propertyAddress = {
         kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,

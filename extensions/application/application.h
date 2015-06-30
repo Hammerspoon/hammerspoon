@@ -12,7 +12,7 @@ static BOOL new_application(lua_State* L, pid_t pid) {
     lua_setmetatable(L, -2);
 
     lua_newtable(L);
-    lua_pushnumber(L, pid);
+    lua_pushinteger(L, pid);
     lua_setfield(L, -2, "pid");
     lua_setuservalue(L, -2);
 

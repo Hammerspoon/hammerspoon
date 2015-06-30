@@ -12,7 +12,7 @@ static pid_t pid_for_app(lua_State* L, int idx) {
     get_app(L, idx); // type-checking
     lua_getuservalue(L, idx);
     lua_getfield(L, -1, "pid");
-    pid_t p = lua_tonumber(L, -1);
+    pid_t p = lua_tointeger(L, -1);
     lua_pop(L, 2);
     return p;
 }
@@ -76,7 +76,7 @@ static int application_runningapplications(lua_State* L) {
 /// Returns:
 ///  * An hs.application object if one can be found, otherwise nil
 static int application_applicationforpid(lua_State* L) {
-    pid_t pid = luaL_checknumber(L, 1);
+    pid_t pid = luaL_checkinteger(L, 1);
 
     NSRunningApplication* runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
 
@@ -390,7 +390,7 @@ static int application_isfrontmost(lua_State* L) {
 /// Returns:
 ///  * The UNIX process identifier of the application (i.e. a number)
 static int application_pid(lua_State* L) {
-    lua_pushnumber(L, pid_for_app(L, 1));
+    lua_pushinteger(L, pid_for_app(L, 1));
     return 1;
 }
 
@@ -414,7 +414,7 @@ static int application_kind(lua_State* L) {
         default: break;
     }
 
-    lua_pushnumber(L, kind);
+    lua_pushinteger(L, kind);
     return 1;
 }
 

@@ -98,8 +98,10 @@ static void NSObject_to_lua(lua_State* L, id obj) {
             lua_pushboolean(L, YES);
         else if (number == (id)kCFBooleanFalse)
             lua_pushboolean(L, NO);
-        else
+        else if (CFNumberIsFloatType((CFNumberRef)number))
             lua_pushnumber(L, [number doubleValue]);
+        else
+            lua_pushinteger(L, [number intValue]);
     } else if ([obj isKindOfClass: [NSString class]]) {
         NSString* string = obj;
         lua_pushstring(L, [string UTF8String]);
@@ -261,7 +263,7 @@ static int target_getKeys(lua_State* L) {
     NSArray *keys = [[[NSUserDefaults standardUserDefaults] persistentDomainForName: [[NSBundle mainBundle] bundleIdentifier]] allKeys];
     lua_newtable(L);
     for (unsigned long i = 0; i < keys.count; i++) {
-        lua_pushnumber(L, i+1) ;
+        lua_pushinteger(L, i+1) ;
         NSObject_to_lua(L, [keys objectAtIndex:i]);
         lua_settable(L, -3);
         NSObject_to_lua(L, [keys objectAtIndex:i]);

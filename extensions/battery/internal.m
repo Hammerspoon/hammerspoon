@@ -18,8 +18,10 @@ static void NSObject_to_lua(lua_State* L, id obj) {
             lua_pushboolean(L, YES);
         else if (number == (id)kCFBooleanFalse)
             lua_pushboolean(L, NO);
-        else
+        else if (CFNumberIsFloatType((CFNumberRef)number))
             lua_pushnumber(L, [number doubleValue]);
+        else
+            lua_pushinteger(L, [number intValue]);
     } else if ([obj isKindOfClass: [NSString class]]) {
         NSString* string = obj;
         lua_pushstring(L, [string UTF8String]);

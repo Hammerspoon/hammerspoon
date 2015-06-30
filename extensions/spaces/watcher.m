@@ -39,7 +39,7 @@ typedef struct _spacewatcher_t {
     lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
 
-    lua_pushnumber(L, space);
+    lua_pushinteger(L, space);
 
     if (lua_pcall(L, 1, 0, -3) != 0) {
         // Show a traceback on error.

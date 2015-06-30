@@ -92,7 +92,7 @@ typedef enum _event_t {
     lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
 
-    lua_pushnumber(L, event); // Parameter 1: the event type
+    lua_pushinteger(L, event); // Parameter 1: the event type
 
     if (lua_pcall(L, 1, 0, -5) != LUA_OK) {
         CLS_NSLOG(@"%s", lua_tostring(L, -1));
@@ -255,7 +255,7 @@ static int meta_gc(lua_State* __unused L) {
 
 // Add a single event enum value to the lua table.
 static void add_event_value(lua_State* L, event_t value, const char* name) {
-    lua_pushnumber(L, value);
+    lua_pushinteger(L, value);
     lua_setfield(L, -2, name);
 }
 

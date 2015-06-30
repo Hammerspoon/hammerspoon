@@ -74,7 +74,7 @@ static int pasteboard_clearContents(lua_State* L) {
 /// Notes:
 ///  * This is useful for seeing if the pasteboard has been updated by another process
 static int pasteboard_changeCount(lua_State* L) {
-    lua_pushnumber(L, [lua_to_pasteboard(L, 1) changeCount]);
+    lua_pushinteger(L, [lua_to_pasteboard(L, 1) changeCount]);
     return 1;
 }
 
