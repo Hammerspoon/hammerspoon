@@ -135,7 +135,7 @@ static NSSize get_window_size(AXUIElementRef win) {
 
 static int window_transform(lua_State* L) {
     if (currentAnimation) {
-        currentAnimation.currentProgress = 1.0;
+        //currentAnimation.currentProgress = 1.0;
         [currentAnimation stopAnimation];
     }
 
@@ -170,7 +170,7 @@ static int window_transform(lua_State* L) {
 
 static int window_gc(lua_State* L) {
     if (currentAnimation) {
-        currentAnimation.currentProgress = 1.0;
+        //currentAnimation.currentProgress = 1.0;
         [currentAnimation stopAnimation];
     }
     AXUIElementRef win = get_window_arg(L, 1);
@@ -319,7 +319,7 @@ static int window_isstandard(lua_State* L) {
 ///
 /// Returns:
 ///  * A point-table containing the absolute co-ordinates of the top left corner of the window
-static int window_topleft(lua_State* L) {
+static int window__topleft(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     CGPoint topLeft = get_window_topleft(win);
     geom_pushpoint(L, topLeft);
@@ -335,7 +335,7 @@ static int window_topleft(lua_State* L) {
 ///
 /// Returns:
 ///  * A size-table containing the width and height of the window
-static int window_size(lua_State* L) {
+static int window__size(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
     CGSize size = get_window_size(win);
     geom_pushsize(L, size);
@@ -351,9 +351,9 @@ static int window_size(lua_State* L) {
 ///
 /// Returns:
 ///  * The `hs.window` object
-static int window_settopleft(lua_State* L) {
+static int window__settopleft(lua_State* L) {
     if (currentAnimation) {
-        currentAnimation.currentProgress = 1.0;
+        //currentAnimation.currentProgress = 1.0;
         [currentAnimation stopAnimation];
     }
     AXUIElementRef win = get_window_arg(L, 1);
@@ -377,9 +377,9 @@ static int window_settopleft(lua_State* L) {
 ///
 /// Returns:
 ///  * The `hs.window` object
-static int window_setsize(lua_State* L) {
+static int window__setsize(lua_State* L) {
     if (currentAnimation) {
-        currentAnimation.currentProgress = 1.0;
+        //currentAnimation.currentProgress = 1.0;
         [currentAnimation stopAnimation];
     }
     AXUIElementRef win = get_window_arg(L, 1);
@@ -423,7 +423,7 @@ cleanup:
 ///  * The `hs.window` object
 static int window_togglezoom(lua_State* L) {
     if (currentAnimation) {
-        currentAnimation.currentProgress = 1.0;
+        //currentAnimation.currentProgress = 1.0;
         [currentAnimation stopAnimation];
     }
     window_pressbutton(L, kAXZoomButtonAttribute);
@@ -710,10 +710,10 @@ static const luaL_Reg windowlib[] = {
     {"subrole", window_subrole},
     {"role", window_role},
     {"isStandard", window_isstandard},
-    {"topLeft", window_topleft},
-    {"size", window_size},
-    {"setTopLeft", window_settopleft},
-    {"setSize", window_setsize},
+    {"_topLeft", window__topleft},
+    {"_size", window__size},
+    {"_setTopLeft", window__settopleft},
+    {"_setSize", window__setsize},
     {"transform", window_transform},
     {"minimize", window_minimize},
     {"unminimize", window_unminimize},
