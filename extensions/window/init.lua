@@ -72,7 +72,7 @@ end
 --- Returns:
 ---  * A rect-table containing the co-ordinates of the top left corner of the window, and it's width and height
 function window:frame()
-  if cachedFrames[self] then print('cachedframe:',hs.inspect(cachedFrames[self])) return cachedFrames[self] end
+  if cachedFrames[self] then return cachedFrames[self] end
   local s = self:size()
   local tl = self:topLeft()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
