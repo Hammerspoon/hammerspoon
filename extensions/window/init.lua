@@ -11,6 +11,9 @@ local application = require "hs.application.internal"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 local hs_screen = require "hs.screen"
+local timer = require "hs.timer"
+local cachedFrames = setmetatable({},{__mode="k"}) -- weak table
+local cacheTimers = setmetatable({},{__mode="k"}) -- weak table
 
 --- hs.window.animationDuration (integer)
 --- Variable
@@ -69,6 +72,7 @@ end
 --- Returns:
 ---  * A rect-table containing the co-ordinates of the top left corner of the window, and it's width and height
 function window:frame()
+  if cachedFrames[self] then print('cachedframe:',hs.inspect(cachedFrames[self])) return cachedFrames[self] end
   local s = self:size()
   local tl = self:topLeft()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
@@ -88,13 +92,35 @@ function window:setFrame(f, duration)
   if duration == nil then
     duration = window.animationDuration
   end
+  if cacheTimers[self] then cacheTimers[self]:stop() cacheTimers[self]=nil end
   if duration > 0 then
+    cachedFrames[self] = f
+    cacheTimers[self] = timer.doAfter(duration,function()cacheTimers[self]=nil cachedFrames[self]=nil end) -- FIXME what happens if a window is GCed during animation?
     self:transform({ x = f.x, y = f.y}, { w = f.w, h = f.h }, duration)
   else
+    cachedFrames[self] = nil
     self:setSize(f)
     self:setTopLeft(f)
     self:setSize(f)
   end
+end
+
+-- wrapping these Lua-side for dealing with the "cache"
+function window:size()
+  if cachedFrames[self] then return {w=cachedFrames[self].w,h=cachedFrames[self].h} end
+  return self:_size()
+end
+function window:topLeft()
+  if cachedFrames[self] then return {x=cachedFrames[self].x,y=cachedFrames[self].y} end
+  return self:_topLeft()
+end
+function window:setSize(size)
+  cachedFrames[self]=nil
+  return self:_setSize(size)
+end
+function window:setTopLeft(point)
+  cachedFrames[self]=nil
+  return self:_setTopLeft(point)
 end
 
 --- hs.window:otherWindowsSameScreen() -> win[]
