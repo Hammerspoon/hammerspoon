@@ -1,6 +1,6 @@
 --- === hs.host ===
 ---
---- Inspect network information about the machine
+--- Inspect information about the machine Hammerspoon is running on
 
 local host = require "hs.host.internal"
 return host
