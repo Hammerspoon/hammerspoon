@@ -23,16 +23,6 @@ local fnutils = require "hs.fnutils"
 ---
 --- Returns:
 ---  * An `hs.hotkey` object, or nil if an error occurred
-
-local function wrap(fn)
-  return function()
-    if fn then
-      local ok, err = xpcall(fn, debug.traceback)
-      if not ok then hs.showError(err) end
-    end
-  end
-end
-
 function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
   local keycode
 
@@ -47,11 +37,8 @@ function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
       return nil
   end
 
-  local _pressedfn = wrap(pressedfn)
-  local _releasedfn = wrap(releasedfn)
-  local _repeatfn = wrap(repeatfn)
 
-  local k = hotkey._new(mods, keycode, _pressedfn, _releasedfn, _repeatfn)
+  local k = hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn)
   return k
 end
 

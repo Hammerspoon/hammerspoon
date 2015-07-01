@@ -100,9 +100,34 @@ typedef struct _hotkey_t {
 static int hotkey_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
     UInt32 keycode = luaL_checkinteger(L, 2);
-    luaL_checktype(L, 3, LUA_TFUNCTION);
-    luaL_checktype(L, 4, LUA_TFUNCTION);
-    luaL_checktype(L, 5, LUA_TFUNCTION);
+    BOOL hasDown = NO;
+    BOOL hasUp = NO;
+    BOOL hasRepeat = NO;
+
+    if (!lua_isnoneornil(L, 3)) {
+        luaL_checktype(L, 3, LUA_TFUNCTION);
+        hasDown = YES;
+    }
+
+    if (!lua_isnoneornil(L, 4)) {
+        luaL_checktype(L, 4, LUA_TFUNCTION);
+        hasUp = YES;
+    }
+
+    if (!lua_isnoneornil(L, 5)) {
+        luaL_checktype(L, 5, LUA_TFUNCTION);
+        hasRepeat = YES;
+    }
+
+    if (!hasDown && !hasUp && !hasRepeat) {
+        lua_getglobal(L, "hs");
+        lua_getfield(L, -1, "showError");
+        lua_remove(L, -2);
+        lua_pushstring(L, "ERROR: You must pass at least one callback when creating an hs.hotkey object");
+        lua_pcall(L, 1, 0, 0);
+        lua_pushnil(L);
+        return 1;
+    }
     lua_settop(L, 5);
 
     hotkey_t* hotkey = lua_newuserdata(L, sizeof(hotkey_t));
@@ -115,16 +140,28 @@ static int hotkey_new(lua_State* L) {
     lua_setmetatable(L, -2);
 
     // store pressedfn
-    lua_pushvalue(L, 3);
-    hotkey->pressedfn = luaL_ref(L, LUA_REGISTRYINDEX);
+    if (hasDown) {
+        lua_pushvalue(L, 3);
+        hotkey->pressedfn = luaL_ref(L, LUA_REGISTRYINDEX);
+    } else {
+        hotkey->pressedfn = LUA_NOREF;
+    }
 
     // store releasedfn
-    lua_pushvalue(L, 4);
-    hotkey->releasedfn = luaL_ref(L, LUA_REGISTRYINDEX);
+    if (hasUp) {
+        lua_pushvalue(L, 4);
+        hotkey->releasedfn = luaL_ref(L, LUA_REGISTRYINDEX);
+    } else {
+        hotkey->releasedfn = LUA_NOREF;
+    }
 
     // store repeatfn
-    lua_pushvalue(L, 5);
-    hotkey->repeatfn = luaL_ref(L, LUA_REGISTRYINDEX);
+    if (hasRepeat) {
+        lua_pushvalue(L, 5);
+        hotkey->repeatfn = luaL_ref(L, LUA_REGISTRYINDEX);
+    } else {
+        hotkey->repeatfn = LUA_NOREF;
+    }
 
     // save mods
     lua_pushnil(L);
@@ -263,29 +300,30 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
             return noErr;
         }
 
-        lua_getglobal(L, "debug");
-        lua_getfield(L, -1, "traceback");
-        lua_remove(L, -2);
-        lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-
-        if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-            CLS_NSLOG(@"ERROR: trigger_hotkey_callback Lua error: %s", lua_tostring(L, -1));
-
-            // For the sake of safety, we'll invalidate any repeat timer that's running, so we don't ruin the user's day by spamming them with errors
-            [keyRepeatManager stopTimer];
-
-            lua_getglobal(L, "hs");
-            lua_getfield(L, -1, "showError");
+        if (ref != LUA_NOREF) {
+            lua_getglobal(L, "debug");
+            lua_getfield(L, -1, "traceback");
             lua_remove(L, -2);
-            lua_pushvalue(L, -2);
-            lua_pcall(L, 1, 0, 0);
-        } else {
-            if (!isRepeat && eventKind == kEventHotKeyPressed) {
-                //CLS_NSLOG(@"trigger_hotkey_callback: not a repeat, but it is a keydown, starting the timer");
-                [keyRepeatManager startTimer:L eventID:eventUID eventKind:eventKind];
+            lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+
+            if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
+                CLS_NSLOG(@"ERROR: trigger_hotkey_callback Lua error: %s", lua_tostring(L, -1));
+
+                // For the sake of safety, we'll invalidate any repeat timer that's running, so we don't ruin the user's day by spamming them with errors
+                [keyRepeatManager stopTimer];
+
+                lua_getglobal(L, "hs");
+                lua_getfield(L, -1, "showError");
+                lua_remove(L, -2);
+                lua_pushvalue(L, -2);
+                lua_pcall(L, 1, 0, 0);
+                return noErr;
             }
         }
-
+        if (!isRepeat && eventKind == kEventHotKeyPressed) {
+            //CLS_NSLOG(@"trigger_hotkey_callback: not a repeat, but it is a keydown, starting the timer");
+            [keyRepeatManager startTimer:L eventID:eventUID eventKind:eventKind];
+        }
     }
 
     return noErr;
