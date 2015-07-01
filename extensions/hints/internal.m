@@ -153,6 +153,8 @@ static int hint_close(lua_State* L) {
     HintWindow* hint = get_hint_arg(L, 1);
     [hint close];
     hint = nil;
+    lua_pushnil(L);
+    lua_setmetatable(L, -2);
     return 0;
 }
 
