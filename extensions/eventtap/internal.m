@@ -304,6 +304,48 @@ static int checkMouseButtons(lua_State* L) {
     return 1;
 }
 
+/// hs.eventtap.keyRepeatInterval() -> number
+/// Function
+/// Returns the system-wide setting for the interval between repeated keyboard events
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the number of seconds between keyboard events, if a key is held down
+static int eventtap_keyRepeatInterval(lua_State* L) {
+    lua_pushnumber(L, [NSEvent keyRepeatInterval]);
+    return 1;
+}
+
+/// hs.eventtap.keyRepeatDelay() -> number
+/// Function
+/// Returns the system-wide setting for the delay before keyboard repeat events begin
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the number of seconds before repeat events begin, after a key is held down
+static int eventtap_keyRepeatDelay(lua_State* L) {
+    lua_pushnumber(L, [NSEvent keyRepeatDelay]);
+    return 1;
+}
+
+/// hs.eventtap.doubleClickInterval() -> number
+/// Function
+/// Returns the system-wide setting for the delay between two clicks, to register a double click event
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the maximum number of seconds between two mouse click events, for a double click event to be registered
+static int eventtap_doubleClickInterval(lua_State* L) {
+    lua_pushnumber(L, [NSEvent doubleClickInterval]);
+    return 1;
+}
+
 static int eventtap_gc(lua_State* L) {
     eventtap_t* eventtap = luaL_checkudata(L, 1, USERDATA_TAG);
     if (eventtap->tap && CGEventTapIsEnabled(eventtap->tap)) {
@@ -343,6 +385,9 @@ static luaL_Reg eventtaplib[] = {
     {"keyStrokes",              eventtap_keyStrokes},
     {"checkKeyboardModifiers",  checkKeyboardModifiers},
     {"checkMouseButtons",       checkMouseButtons},
+    {"keyRepeatDelay",          eventtap_keyRepeatDelay},
+    {"keyRepeatInterval",       eventtap_keyRepeatInterval},
+    {"doubleClickInterval",     eventtap_doubleClickInterval},
     {NULL,      NULL}
 };
 

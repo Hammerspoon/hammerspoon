@@ -95,6 +95,29 @@ static int uielement_role(lua_State* L) {
     return 1;
 }
 
+/// hs.uielement:selectedText() -> string or nil
+/// Method
+/// Returns the selected text in the element
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the selected text, or nil if none could be found
+///
+/// Notes:
+///  * Many applications (e.g. Safari, Mail, Firefox) do not implement the necessary accessibility features for this to work in their web views
+static int uielement_selectedText(lua_State* L) {
+    AXValueRef selectedText = NULL;
+    AXUIElementRef element = get_element(L, 1);
+    if (AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute, (CFTypeRef *)&selectedText) != kAXErrorSuccess) {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_pushstring(L, [(__bridge NSString *)selectedText UTF8String]);
+    return 1;
+}
+
 static int uielement_eq(lua_State* L) {
     if ((lua_type(L, 1) == LUA_TUSERDATA) && (lua_type(L, 2) == LUA_TUSERDATA)) {
         AXUIElementRef lhs = get_element(L, 1);
@@ -264,6 +287,30 @@ static int watcher_stop(lua_State* L) {
     return 0;
 }
 
+/// hs.uielement.focusedElement() -> element or nil
+/// Function
+/// Gets the currently focused UI element
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An `hs.uielement` object or nil if no object could be found
+static int uielement_focusedElement(lua_State* L) {
+    AXUIElementRef focusedElement;
+    AXUIElementRef systemWide = AXUIElementCreateSystemWide();
+
+    if (AXUIElementCopyAttributeValue(systemWide, kAXFocusedUIElementAttribute, (CFTypeRef *)&focusedElement) != kAXErrorSuccess) {
+        NSLog(@"Failed to get kAXFocusedUIElementAttribute");
+        lua_pushnil(L);
+        return 1;
+    }
+    CFRelease(systemWide);
+
+    push_element(L, focusedElement);
+    return 1;
+}
+
 // Perform cleanup if the watcher is not required anymore.
 static int watcher_gc(lua_State* L) {
     watcher_t* watcher = get_watcher(L, 1);
@@ -282,6 +329,8 @@ static const luaL_Reg uielementlib[] = {
     {"role", uielement_role},
     {"isWindow", uielement_iswindow},
     {"_newWatcher", uielement_newWatcher},
+    {"focusedElement", uielement_focusedElement},
+    {"selectedText", uielement_selectedText},
     {}
 };
 
