@@ -105,6 +105,7 @@ function window:setFrame(f, duration)
     self:setTopLeft(f)
     self:setSize(f)
   end
+  return self
 end
 
 
