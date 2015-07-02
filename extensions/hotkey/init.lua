@@ -161,7 +161,7 @@ function hotkey.modal:enter()
     self.k:disable()
   end
   fnutils.each(self.keys, hotkey.enable)
-  self.entered()
+  self:entered()
   return self
 end
 
@@ -182,7 +182,7 @@ function hotkey.modal:exit()
   if (self.k) then
     self.k:enable()
   end
-  self.exited()
+  self:exited()
   return self
 end
 

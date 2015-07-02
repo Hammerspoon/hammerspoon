@@ -322,7 +322,8 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
         }
         if (!isRepeat && eventKind == kEventHotKeyPressed) {
             //CLS_NSLOG(@"trigger_hotkey_callback: not a repeat, but it is a keydown, starting the timer");
-            [keyRepeatManager startTimer:L eventID:eventUID eventKind:eventKind];
+            if (hotkey->repeatfn != LUA_NOREF)
+                [keyRepeatManager startTimer:L eventID:eventUID eventKind:eventKind];
         }
     }
 
