@@ -102,7 +102,7 @@ local function first_screen_in_direction(screen, numrotations, from, strict)
     end
   end
 
-  if strict or screen.strictScreenInDirection then
+  if strict or (screen.strictScreenInDirection and strict~=false) then
     -- exclude screens without any horizontal/vertical overlap
     for i=#closestscreens,1,-1 do
       local of=closestscreens[i].s:fullFrame()
