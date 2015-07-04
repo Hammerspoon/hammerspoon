@@ -157,7 +157,7 @@ end
 --- This is automatically called if the element is destroyed.
 function uielement.watcher:stop()
     -- Remove self from appWatchers.
-    local pid = self._element:pid()
+    local pid = self._pid
     if appWatchers[pid] then
         local idx = fnutils.indexOf(appWatchers[pid], self)
         if idx then
