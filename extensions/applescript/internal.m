@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <lua/lauxlib.h>
+#import "../hammerspoon.h"
 
 // Check out NSScriptClassDescription for expanding obj return values...
 
@@ -17,6 +18,13 @@ static int runapplescript(lua_State* L) {
     NSString* source = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
     NSAppleScript* script = [[NSAppleScript alloc] initWithSource:source];
+    if (script == nil) {
+        showError(L, "Unable to create AppleScript - perhaps you have a syntax error?");
+        lua_pushboolean(L, NO);
+        lua_pushstring(L, "Unable to create AppleScript - perhaps you have a syntax error?");
+        return 2;
+    }
+
     NSDictionary *__autoreleasing error;
     NSAppleEventDescriptor* result = [script executeAndReturnError:&error];
 
