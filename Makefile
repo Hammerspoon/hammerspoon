@@ -20,6 +20,7 @@ build/Hammerspoon.docset: build/docs.sqlite build/html
 build/html: build/docs.json
 	mkdir -p $@
 	rm -rf $@/*
+	cp scripts/docs/templates/docs.css $@
 	scripts/docs/bin/genhtml $@ < $<
 
 build/docs.sqlite: build/docs.json
