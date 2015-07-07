@@ -202,7 +202,7 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
-/// hs.timer.time() -> sec
+/// hs.timer.secondsSinceEpoch() -> sec
 /// Function
 /// Gets the number of seconds since the epoch, including the fractional part; this has much better precision than `os.time()`, which is limited to whole seconds.
 ///
@@ -211,7 +211,7 @@ static int meta_gc(lua_State* __unused L) {
 ///
 /// Returns:
 ///  * The number of seconds since the epoch
-static int timer_gettime(lua_State *L)
+static int timer_getSecondsSinceEpoch(lua_State *L)
 {
     struct timeval v;
     gettimeofday(&v, (struct timezone *) NULL);
@@ -234,7 +234,7 @@ static const luaL_Reg timerLib[] = {
     {"doAfter",    timer_doAfter},
     {"new",        timer_new},
     {"usleep",     timer_usleep},
-    {"time",       timer_gettime},
+    {"secondsSinceEpoch",       timer_getSecondsSinceEpoch},
     {NULL,          NULL}
 };
 
