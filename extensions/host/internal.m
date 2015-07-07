@@ -199,7 +199,7 @@ static int hs_vmstat(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * An array of tables for each CPU core.  Each core's table will contain the following keys:
+///  * An array of tables for each CPU core and a keyed entry, `overall`, for total usage across all cores.  Each entry's table will contain the following keys:
 ///    * user   -- percentage of CPU time occupied by user level processes.
 ///    * system -- percentage of CPU time occupied by system (kernel) level processes.
 ///    * nice   -- percentage of CPU time occupied by user level processes with a positive nice value (lower scheduling priority).
@@ -222,20 +222,20 @@ static int hs_cpuInfo(lua_State *L) {
     kern_return_t err = host_processor_info(mach_host_self(), PROCESSOR_CPU_LOAD_INFO, &numCPUsU, &cpuInfo, &numCpuInfo);
 
     if(err == KERN_SUCCESS) {
-// Sample code ran this on a timer and accessed variables outside of immediate name space. Assuming
-// locking was to ensure another thread didn't change data out from underneath it and isn't necessary
-// since we're doing a single snapshot with no retention (at this level) between checks..
-//      See http://stackoverflow.com/questions/6785069/get-cpu-percent-usage
-//         NSLock *CPUUsageLock = [[NSLock alloc] init];
-//         [CPUUsageLock lock];
+        float overallInUser   = 0.0 ;
+        float overallInSystem = 0.0 ;
+        float overallInNice   = 0.0 ;
+        float overallInIdle   = 0.0 ;
+        float overallInUse    = 0.0 ;
+        float overallTotal    = 0.0 ;
         lua_newtable(L) ;
         for(unsigned i = 0U; i < numCPUs; ++i) {
-            float inUser   = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_USER] ;
-            float inSystem = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_SYSTEM] ;
-            float inNice   = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_NICE] ;
-            float inIdle   = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_IDLE] ;
-            float inUse    = inUser + inSystem + inNice ;
-            float total    = inUse + inIdle ;
+            float inUser   = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_USER] ;    overallInUser   += inUser ;
+            float inSystem = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_SYSTEM] ;  overallInSystem += inSystem ;
+            float inNice   = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_NICE] ;    overallInNice   += inNice ;
+            float inIdle   = cpuInfo[(CPU_STATE_MAX * i) + CPU_STATE_IDLE] ;    overallInIdle   += inIdle ;
+            float inUse    = inUser + inSystem + inNice ;                       overallInUse    += inUse ;
+            float total    = inUse + inIdle ;                                   overallTotal    += total ;
             lua_newtable(L) ;
                 lua_pushnumber(L, (  inUser / total) * 100) ; lua_setfield(L, -2, "user") ;
                 lua_pushnumber(L, (inSystem / total) * 100) ; lua_setfield(L, -2, "system") ;
@@ -244,7 +244,13 @@ static int hs_cpuInfo(lua_State *L) {
                 lua_pushnumber(L, (  inIdle / total) * 100) ; lua_setfield(L, -2, "idle") ;
             lua_rawseti(L, -2, luaL_len(L, -2) + 1);  // Insert this table at end of result table
         }
-//         [CPUUsageLock unlock];
+        lua_newtable(L) ;
+            lua_pushnumber(L, (  overallInUser / overallTotal) * 100) ; lua_setfield(L, -2, "user") ;
+            lua_pushnumber(L, (overallInSystem / overallTotal) * 100) ; lua_setfield(L, -2, "system") ;
+            lua_pushnumber(L, (  overallInNice / overallTotal) * 100) ; lua_setfield(L, -2, "nice") ;
+            lua_pushnumber(L, (   overallInUse / overallTotal) * 100) ; lua_setfield(L, -2, "active") ;
+            lua_pushnumber(L, (  overallInIdle / overallTotal) * 100) ; lua_setfield(L, -2, "idle") ;
+        lua_setfield(L, -2, "overall") ;
     } else {
         char errStr[255] ;
         snprintf(errStr, 255, "Error getting CPU Usage data: %s", mach_error_string(err)) ;
