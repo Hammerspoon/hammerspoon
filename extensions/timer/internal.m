@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import <sys/time.h>
 #import <lua/lauxlib.h>
 #import "../hammerspoon.h"
 
@@ -201,6 +202,25 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+/// hs.timer.time() -> sec
+/// Function
+/// Gets the number of seconds since the epoch, including the fractional part; this has much better precision than `os.time()`, which is limited to whole seconds.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The number of seconds since the epoch
+static int timer_gettime(lua_State *L)
+{
+    struct timeval v;
+    gettimeofday(&v, (struct timezone *) NULL);
+    /* Unix Epoch time (time since January 1, 1970 (UTC)) */
+    lua_pushnumber(L, v.tv_sec + v.tv_usec/1.0e6);
+    return 1;
+}
+
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg timer_metalib[] = {
     {"start",   timer_start},
@@ -214,6 +234,7 @@ static const luaL_Reg timerLib[] = {
     {"doAfter",    timer_doAfter},
     {"new",        timer_new},
     {"usleep",     timer_usleep},
+    {"time",       timer_gettime},
     {NULL,          NULL}
 };
 
