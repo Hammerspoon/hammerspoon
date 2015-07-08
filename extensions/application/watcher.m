@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 #import "application.h"
 #import "../hammerspoon.h"
 

@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <IOKit/pwr_mgt/IOPMLib.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 
 #define kIOPMAssertionAppliesToLimitedPowerKey  CFSTR("AppliesToLimitedPower")
 

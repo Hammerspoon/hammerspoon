@@ -4,7 +4,7 @@
 #import <IOKit/IOMessage.h>
 #import <IOKit/IOCFPlugIn.h>
 #import <IOKit/usb/IOUSBLib.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
 /// === hs.usb.watcher ===

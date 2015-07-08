@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <CoreGraphics/CGWindow.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 
 /// === hs.spaces.watcher ===
 ///

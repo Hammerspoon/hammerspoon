@@ -12,12 +12,6 @@
 #define COCOAPODS_VERSION_MINOR_ASCIImage 0
 #define COCOAPODS_VERSION_PATCH_ASCIImage 0
 
-// lua
-#define COCOAPODS_POD_AVAILABLE_lua
-#define COCOAPODS_VERSION_MAJOR_lua 5
-#define COCOAPODS_VERSION_MINOR_lua 3
-#define COCOAPODS_VERSION_PATCH_lua 1
-
 // Release build configuration
 #ifdef RELEASE
 

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4F0F97571ADE9F8600F2A199 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F1CF8DB1A47F5BD001C8AE7 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */; };
+		4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */; };
 		4FC09F7C19F99ECE007542A6 /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FC09F7B19F99ECE007542A6 /* docs.json */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
@@ -57,6 +58,7 @@
 		4F0F97561ADE9F8600F2A199 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
 		4F9A454919EC6801006BB982 /* build_extensions.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_extensions.sh; path = extensions/build_extensions.sh; sourceTree = "<group>"; };
+		4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = build/Hammerspoon/Build/Products/Debug/LuaSkin.framework; sourceTree = "<group>"; };
 		4FC09F7B19F99ECE007542A6 /* docs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = docs.json; path = build/docs.json; sourceTree = "<group>"; };
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 				94414F47196A1B280067D467 /* Carbon.framework in Frameworks */,
 				9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */,
 				9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */,
+				4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */,
 				FEC002E365542A867EA8EACF /* libPods-Hammerspoon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -186,6 +189,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */,
 				4F0F97561ADE9F8600F2A199 /* Fabric.framework */,
 				4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */,
 				94ABF08E1980B41300FA68E9 /* Security.framework */,
@@ -312,6 +316,7 @@
 				28F84E8DEB615EBE33ED1722 /* Check Pods Manifest.lock */,
 				9445CA0719083251002568BB /* Sources */,
 				9445CA0819083251002568BB /* Frameworks */,
+				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
 				4F9A454819EC67E1006BB982 /* Compile Extensions */,
 				9445CA0919083251002568BB /* Resources */,
 				4F9F02191B39297F009C32E5 /* Copy Lua headers */,
@@ -464,7 +469,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
+			shellScript = "if [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
 		};
 		4F9A454819EC67E1006BB982 /* Compile Extensions */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -493,6 +498,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -x\nrsync -avr --copy-links \"${SRCROOT}/Pods/Headers/Public/lua\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nrsync -avr --copy-links \"${SRCROOT}/extensions/hammerspoon.h\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"";
+		};
+		4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy LuaSkin.framework to build/bundle";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -x\nrsync -avr --copy-links \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\"\nrsync -avr --copy-links \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -570,7 +589,7 @@
 		9445CA3A19083251002568BB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -608,7 +627,7 @@
 		9445CA3B19083251002568BB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -648,6 +667,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/build/Hammerspoon/Build/Products/Debug",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
@@ -672,6 +692,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/build/Hammerspoon/Build/Products/Debug",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";

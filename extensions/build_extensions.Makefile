@@ -15,7 +15,7 @@ EXTRA_CFLAGS ?= -fobjc-arc
 #DEBUG_CFLAGS ?= -g
 DEBUG_CFLAGS = -g
 
-CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/Headers/Public -F../../ -framework Fabric $(EXTRA_CFLAGS)
+CFLAGS  += $(DEBUG_CFLAGS) -Wall -Wextra -I ../../Pods/Headers/Public -F../../ -framework LuaSkin -framework Fabric $(EXTRA_CFLAGS)
 LDFLAGS += -dynamiclib -undefined dynamic_lookup $(EXTRA_LDFLAGS)
 
 all: $(SOFILE)

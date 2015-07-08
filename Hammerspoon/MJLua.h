@@ -1,5 +1,4 @@
-#import "lua/lauxlib.h"
-#import "lua/lualib.h"
+#import <LuaSkin/LuaSkin.h>
 
 void MJLuaSetup(void);
 void MJLuaTeardown(void);

@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #include <IOKit/graphics/IOGraphicsLib.h>
-#import <lua/lauxlib.h>
+#import <LuaSkin/LuaSkin.h>
 #import "math.h"
 
 uint64_t LMUtoLux(uint64_t value) {
