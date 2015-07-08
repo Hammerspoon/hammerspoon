@@ -11,6 +11,9 @@ local application = require "hs.application.internal"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 local hs_screen = require "hs.screen"
+local timer = require "hs.timer"
+local cachedFrames = {} -- no need for weak table: setmetatable({},{__mode="k"})
+local cacheTimers = {} --no need for weak table: setmetatable({},{__mode="k"})
 
 --- hs.window.animationDuration (integer)
 --- Variable
@@ -69,6 +72,8 @@ end
 --- Returns:
 ---  * A rect-table containing the co-ordinates of the top left corner of the window, and it's width and height
 function window:frame()
+  local id = self:id()
+  if cachedFrames[id] then return cachedFrames[id] end
   local s = self:size()
   local tl = self:topLeft()
   return {x = tl.x, y = tl.y, w = s.w, h = s.h}
@@ -88,13 +93,40 @@ function window:setFrame(f, duration)
   if duration == nil then
     duration = window.animationDuration
   end
+  local id = self:id()
+  if cacheTimers[id] then cacheTimers[id]:stop() cacheTimers[id]=nil end
   if duration > 0 then
+    cachedFrames[id] = f
+    cacheTimers[id] = timer.doAfter(duration,function()cacheTimers[id]=nil cachedFrames[id]=nil end)
     self:transform({ x = f.x, y = f.y}, { w = f.w, h = f.h }, duration)
   else
+    cachedFrames[id] = nil
     self:setSize(f)
     self:setTopLeft(f)
     self:setSize(f)
   end
+  return self
+end
+
+
+-- wrapping these Lua-side for dealing with the "cache"
+function window:size()
+  local id = self:id()
+  if cachedFrames[id] then return {w=cachedFrames[id].w,h=cachedFrames[id].h} end
+  return self:_size()
+end
+function window:topLeft()
+  local id = self:id()
+  if cachedFrames[id] then return {x=cachedFrames[id].x,y=cachedFrames[id].y} end
+  return self:_topLeft()
+end
+function window:setSize(size)
+  cachedFrames[self:id()]=nil
+  return self:_setSize(size)
+end
+function window:setTopLeft(point)
+  cachedFrames[self:id()]=nil
+  return self:_setTopLeft(point)
 end
 
 --- hs.window:otherWindowsSameScreen() -> win[]
@@ -133,9 +165,9 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:focus()
-    self:becomeMain()
-    self:application():_bringtofront()
-    return self
+  self:becomeMain()
+  self:application():_bringtofront()
+  return self
 end
 
 --- hs.window.visibleWindows() -> win[]
@@ -208,8 +240,8 @@ end
 --- Notes:
 ---  * Not all windows support being full-screened
 function window:toggleFullScreen()
-    self:setFullScreen(not self:isFullScreen())
-    return self
+  self:setFullScreen(not self:isFullScreen())
+  return self
 end
 
 --- hs.window:screen()
@@ -252,7 +284,7 @@ local function windowsInDirection(srcwin, numrotations)
   local startingpoint = geometry.rectMidPoint(srcwin:frame())
 
   local otherwindows = fnutils.filter(window.orderedWindows(), function(candidate)
-      return window.isVisible(candidate) and window.isStandard(candidate) and not (candidate == srcwin)
+    return window.isVisible(candidate) and window.isStandard(candidate) and not (candidate == srcwin)
   end)
   local closestwindows = {}
 
@@ -333,11 +365,11 @@ function window:windowsToNorth() return windowsInDirection(self, 1) end
 function window:windowsToSouth() return windowsInDirection(self, 3) end
 
 function window:focusWindowsFromTable(searchWindows, sameApp)
-    if sameApp == true then
-        local winApplication = self:application()
-        searchWindows = fnutils.filter(searchWindows, function(win) return winApplication == win:application() end)
-    end
-    return focus_first_valid_window(searchWindows)
+  if sameApp == true then
+    local winApplication = self:application()
+    searchWindows = fnutils.filter(searchWindows, function(win) return winApplication == win:application() end)
+  end
+  return focus_first_valid_window(searchWindows)
 end
 
 --- hs.window:focusWindowEast([sameApp])
@@ -350,7 +382,7 @@ end
 --- Returns:
 ---  * None
 function window:focusWindowEast(sameApp)
-    return self:focusWindowsFromTable(self:windowsToEast(), sameApp)
+  return self:focusWindowsFromTable(self:windowsToEast(), sameApp)
 end
 
 --- hs.window:focusWindowWest([sameApp])
@@ -363,7 +395,7 @@ end
 --- Returns:
 ---  * None
 function window:focusWindowWest(sameApp)
-    return self:focusWindowsFromTable(self:windowsToWest(), sameApp)
+  return self:focusWindowsFromTable(self:windowsToWest(), sameApp)
 end
 
 --- hs.window:focusWindowNorth([sameApp])
@@ -376,7 +408,7 @@ end
 --- Returns:
 ---  * None
 function window:focusWindowNorth(sameApp)
-    return self:focusWindowsFromTable(self:windowsToNorth(), sameApp)
+  return self:focusWindowsFromTable(self:windowsToNorth(), sameApp)
 end
 
 --- hs.window:focusWindowSouth([sameApp])
@@ -389,7 +421,7 @@ end
 --- Returns:
 ---  * None
 function window:focusWindowSouth(sameApp)
-    return self:focusWindowsFromTable(self:windowsToSouth(), sameApp)
+  return self:focusWindowsFromTable(self:windowsToSouth(), sameApp)
 end
 
 --- hs.window:moveToUnit(rect[, duration]) -> window
@@ -408,10 +440,10 @@ end
 function window:moveToUnit(unit, duration)
   local screenrect = self:screen():frame()
   self:setFrame({
-      x = screenrect.x + (unit.x * screenrect.w),
-      y = screenrect.y + (unit.y * screenrect.h),
-      w = unit.w * screenrect.w,
-      h = unit.h * screenrect.h,
+    x = screenrect.x + (unit.x * screenrect.w),
+    y = screenrect.y + (unit.y * screenrect.h),
+    w = unit.w * screenrect.w,
+    h = unit.h * screenrect.h,
   }, duration)
   return self
 end
@@ -449,11 +481,11 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:moveOneScreenWest(duration)
-    local dst = self:screen():toWest()
-    if dst ~= nil then
-        self:moveToScreen(dst, duration)
-    end
-    return self
+  local dst = self:screen():toWest()
+  if dst ~= nil then
+    self:moveToScreen(dst, duration)
+  end
+  return self
 end
 
 --- hs.window:moveOneScreenEast([duration]) -> window
@@ -466,11 +498,11 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:moveOneScreenEast(duration)
-    local dst = self:screen():toEast()
-    if dst ~= nil then
-        self:moveToScreen(dst, duration)
-    end
-    return self
+  local dst = self:screen():toEast()
+  if dst ~= nil then
+    self:moveToScreen(dst, duration)
+  end
+  return self
 end
 
 --- hs.window:moveOneScreenNorth([duration]) -> window
@@ -483,11 +515,11 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:moveOneScreenNorth(duration)
-    local dst = self:screen():toNorth()
-    if dst ~= nil then
-        self:moveToScreen(dst, duration)
-    end
-    return self
+  local dst = self:screen():toNorth()
+  if dst ~= nil then
+    self:moveToScreen(dst, duration)
+  end
+  return self
 end
 
 --- hs.window:moveOneScreenSouth([duration]) -> window
@@ -500,11 +532,11 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:moveOneScreenSouth(duration)
-    local dst = self:screen():toSouth()
-    if dst ~= nil then
-        self:moveToScreen(dst, duration)
-    end
-    return self
+  local dst = self:screen():toSouth()
+  if dst ~= nil then
+    self:moveToScreen(dst, duration)
+  end
+  return self
 end
 
 --- hs.window:ensureIsInScreenBounds([duration]) -> window
