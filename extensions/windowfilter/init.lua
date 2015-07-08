@@ -298,7 +298,7 @@ end
 ---  * fn - if `nil`, returns a copy of the default windowfilter; you can then further restrict or expand it
 ---       - if `true`, returns an empty windowfilter that allows every window
 ---       - if `false`, returns a windowfilter with a default rule to reject every window
---        - if a string or table of strings, returns a copy of the default windowfilter that only allows the specified apps
+---       - if a string or table of strings, returns a copy of the default windowfilter that only allows the specified apps
 ---       - otherwise it must be a function that accepts an `hs.window` object and returns `true` if the window is allowed or `false` otherwise; this way you can define a fully custom windowfilter
 ---
 ---  * logname - (optional) name of the `hs.logger` instance for the new windowfilter; if omitted, the class logger will be used
@@ -361,8 +361,8 @@ end
 ---
 --- Notes:
 ---  * While you can customize the default windowfilter, it's usually advisable to make your customizations on a local copy via `mywf=hs.windowfilter.new()`;
---     the default windowfilter can potentially be used in several Hammerspoon modules and changing it might have unintended consequences.
---     Common customizations:
+---    the default windowfilter can potentially be used in several Hammerspoon modules and changing it might have unintended consequences.
+---    Common customizations:
 ---    * to exclude fullscreen windows: `nofs_wf=hs.windowfilter.new():setOverrideFilter(nil,nil,nil,false)`
 ---    * to include invisible windows: `inv_wf=windowfilter.new():setDefaultFilter()`
 ---  * If you still want to alter the default windowfilter:
