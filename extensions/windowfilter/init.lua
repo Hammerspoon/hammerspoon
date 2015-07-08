@@ -2,26 +2,25 @@
 ---
 --- Filter windows by application, role, and/or title, and easily subscribe to events on these windows
 
--- * This module should fulfill a lot of use cases
--- * The root and default filters should be quite handy for users; however that means ongoing maintenance on the list
---   (how many menulets are out there?); alternatively (or additionally) the user should be able to expand both
+-- The pure filtering part alone should fulfill a lot of use cases
+-- * The root and default filters should be quite handy for users; the user is able to customize both, but ideally
+--   there should be ongoing maintenance on the list by the core maintainers
 -- * Maybe an additional filter could be added for window geometry (e.g. minimum width/heigth/area)
 
--- This module abstracts hs.application.watcher and hs.uielement.watcher into a simple and coherent API
+-- The 'active' part abstracts hs.application.watcher and hs.uielement.watcher into a simple and coherent API
 -- for users who are interested in window events. Additionally, a lot of effort is spent on cleaning up
--- the mess coming from upstream:
+-- the mess coming from osx events:
 --   * reduntant events are never fired more than once
 --   * related events are fired in the correct order (e.g. the previous window is unfocused before the
 --     current one is focused)
 --   * 'missing' events are filled in (e.g. a focused window that gets destroyed for any reason emits unfocused first)
 --   * coherency is maintained (e.g. closing System Preferences with cmd-w has the same result as with cmd-q)
+-- A further :notify() method is provided for use cases with highly specific filters.
 --
---
--- * There is the usual problem with spaces
--- * window(un)fullscreened is amusingly horrible and probably needs a better name
--- * window(un)maximized could be implemented (but currently isn't)
--- * Perhaps the user should be allowed to provide his own root filter for better performance
---   (e.g. if she knows all she cares about is Safari)
+--TODO * There is the usual problem with spaces (being investigated)
+-- * window(un)maximized could be implemented, or merged into window(un)fullscreened (but currently isn't either)
+-- * Perhaps (seems doubtful, tho) the user should be allowed to provide his own root filter for better performance
+--   (e.g. if they know all they cares about is Safari)
 
 local pairs,ipairs,type,smatch,sformat,ssub = pairs,ipairs,type,string.match,string.format,string.sub
 local next,tsort,tinsert,setmetatable = next,table.sort,table.insert,setmetatable
@@ -32,23 +31,6 @@ local logger = require'hs.logger'
 local log = logger.new('wfilter')
 
 local windowfilter={} -- module
-
-local function sortedinsert(t,elem,comp)
-  local i = 1
-  local next = t[i]
-  while not comp(elem,next) do
-    i = i+1
-    next = t[i]
-  end
-  tinsert(t,i,elem)
-  return i
-end
-
--- filter these by bundle id
-local SKIP_APPS_NO_PID_BUNDLE = {
-  'com.apple.qtkitserver', -- QTKitServer-(%d) Safari Web Content
-}
-
 
 --- hs.windowfilter.ignoreAlways
 --- Variable
@@ -99,21 +81,6 @@ local SKIP_APPS_TRANSIENT_WINDOWS = {
   'Music Manager', 'Google Drive', 'Dropbox', '1Password mini', 'Colors for Hue', 'MacID',
   'CrashPlan menu bar', 'Flux', 'Jettison', 'Bartender', 'SystemPal', 'BetterSnapTool', 'Grandview', 'Radium',
 }
-
---[=[
-  windowfilter.ignoreInDefaultFilter = {}
-  for _,appname in ipairs(SKIP_APPS_TRANSIENT_WINDOWS) do
-    windowfilter.ignoreInDefaultFilter[appname] = true
-  end
-  local ALLOWED_NONSTANDARD_WINDOW_ROLES = {'AXStandardWindow','AXDialog','AXFloatingWindow','AXSystemDialog'}
-  local APPS_ALLOW_NONSTANDARD_WINDOWS = {
-    'iTerm2',
-  }
-
-  local APPS_SKIP_NO_TITLE = {
-    'Lua Development Tools Product'
-  }
---]=]  
 
 --- hs.windowfilter.allowedWindowRoles
 --- Variable
@@ -205,25 +172,6 @@ function wf:isAppAllowed(appname)
   return windowfilter.isGuiApp(appname) and self.apps[appname]~=false
 end
 
---[[
---- hs.windowfilter:filterWindows(windows) -> table
---- Filters a list of windows
----
---- Parameters:
----  * windows - (optional) a list of `hs.window` objects to filter; if omitted, `hs.window.allWindows()` will be used
----
---- Returns:
----  * a list containing only the windows that were allowed by the windowfilter
-
-function wf:filterWindows(windows)
-  if not windows then windows=hs.window.allWindows() end
-  local res={}
-  for _,w in ipairs(windows) do
-    if self:isWindowAllowed(w) then res[#res+1]=w end
-  end
-  return res
-end
---]]
 --- hs.windowfilter:rejectApp(appname) -> hs.windowfilter
 --- Method
 --- Sets the windowfilter to outright reject any windows belonging to a specific app
@@ -504,23 +452,6 @@ local apps = {} -- all GUI apps
 local global = {} -- global state
 
 local Window={} -- class
---[[
-function Window:emitEvent(event)
-  local logged
-  for wf in pairs(self.filters) do
-    if activeFilters[wf] then -- skip if wfilter was stopped
-      local fns=wf.events[event]
-      if fns then
-        if not logged then log.df('Emitting %s %d (%s)',event,self.id,self.app.name) logged=true end
-        for fn in pairs(fns) do
-          fn(self.window,self.app.name)
-        end
-      end
-    end
-  end
-end
---]]
-
 
 function Window:emitEvent(event)
   local logged, notified
@@ -531,7 +462,6 @@ function Window:emitEvent(event)
       wf.notifyfn(wf:getWindows(),event)
     end
     if wf.windows[self] then
-      --    if self.filters[wf] then
       -- window is currently allowed, call subscribers if any
       local fns = wf.events[event]
       if fns then
@@ -560,23 +490,18 @@ function Window:unfocused()
 end
 
 function Window:setFilter(wf, forceremove) -- returns true if filtering status changes
-  local wasAllowed,isAllowed = wf.windows[self]--self.filters[wf]
-  --  local isAllowed = wf:isWindowAllowed(self.window,self.app.name) or nil
+  local wasAllowed,isAllowed = wf.windows[self]
   if not forceremove then isAllowed = wf:isWindowAllowed(self.window,self.app.name) or nil end
   wf.windows[self] = isAllowed
-  --  self.filters[wf] = isAllowed
   return wasAllowed ~= isAllowed
 end
 
 function Window.new(win,id,app,watcher)
-  local o = setmetatable({app=app,window=win,id=id,watcher=watcher,--[[filters={},--]]time=timer.secondsSinceEpoch()},{__index=Window})
+  local o = setmetatable({app=app,window=win,id=id,watcher=watcher,time=timer.secondsSinceEpoch()},{__index=Window})
   if not win:isVisible() then o.isHidden = true end
   if win:isMinimized() then o.isMinimized = true end
   o.isFullscreen = win:isFullScreen()
   app.windows[id]=o
-  --  for wf,active in pairs(activeFilters) do
-  --    if active then o:setFilter(wf) end
-  --  end
   o:emitEvent(windowfilter.windowCreated)
   if not o.isHidden and not o.isMinimized then o:emitEvent(windowfilter.windowShown) end
 end
@@ -602,7 +527,6 @@ function Window:doMoved()
   local oldfs = self.isFullscreen or false
   if self.isFullscreen~=fs then
     self.isFullscreen=fs
-    --    self:setFilters()
     self:emitEvent(fs and windowfilter.windowFullscreened or windowfilter.windowUnfullscreened)
   end
 end
@@ -612,22 +536,18 @@ function Window:titleChanged()
   self.titleDelayed=timer.doAfter(TITLECHANGED_DELAY,function()self:doTitleChanged()end)
 end
 function Window:doTitleChanged()
-  --  self:setFilters()
   self:emitEvent(windowfilter.windowTitleChanged)
 end
 function Window:hidden()
   if self.isHidden then return log.df('Window %d (%s) already hidden',self.id,self.app.name) end
   self:unfocused()
   self.isHidden = true
-  --  self:setFilters()
   self:emitEvent(windowfilter.windowHidden)
 end
 function Window:shown()
   if not self.isHidden then return log.df('Window %d (%s) already shown',self.id,self.app.name) end
   self.isHidden = nil
-  --  self:setFilters()
   self:emitEvent(windowfilter.windowShown)
-  --  if hswin.focusedWindow():id()==self.id then self:focused() end
 end
 function Window:minimized()
   if self.isMinimized then return log.df('Window %d (%s) already minimized',self.id,self.app.name) end
@@ -657,7 +577,7 @@ function App:getFocused()
   if fwid then
     log.vf('Window %d is focused for app %s',fwid,self.name)
     if not self.windows[fwid] then
-      -- windows on a different space aren't picked up by :allWindows()
+      -- windows on a different space aren't picked up by :allWindows() at first refresh
       log.df('Focused window %d (%s) was not registered',fwid,self.name)
       appWindowEvent(fw,uiwatcher.windowCreated,nil,self.name)
     end
@@ -711,7 +631,6 @@ function App:deactivated()
   log.vf('App %s deactivated',self.name)
   global.active=nil
   if global.focused~=self.focused then log.e('Focused app/window inconsistency') end
-  --  if not self.focused then return log.ef('App %s does not have a focused window',self.name) end
   if self.focused then self.focused:unfocused() end
 end
 function App:focusChanged(id,win)
@@ -965,15 +884,6 @@ local function getWindowObjects(wf)
   for w in pairs(wf.windows) do
     t[#t+1] = w
   end
-  --[[
-  for _,app in pairs(apps) do
-    for _,window in pairs(app.windows) do
-      for filter in pairs(window.filters) do
-        if filter==wf then t[#t+1]=window break end
-      end
-    end
-  end
-  --]]
   tsort(t,function(a,b)return a.time>b.time end)
   return t
 end
@@ -997,19 +907,6 @@ function wf:getWindows()
   for i,w in ipairs(o) do
     t[i]=w.window
   end
-  --[[
-  for _,app in pairs(apps) do
-    for _,window in pairs(app.windows) do
-      for filter in pairs(window.filters) do
-        if filter==self then t[#t+1]=window.window break end
-      end
-    end
-  end
-  -- sort by id
-  --TODO sort by most-recently focused (also for :notify)
-  -- sorting probably in getWindowObjects
-  tsort(t,function(a,b)return a:id()<b:id()end)
-  --]]
   if not wasActive then self:pause() end
   return t
 end
@@ -1033,7 +930,6 @@ function wf:notify(fn)
   self.notifyfn = fn
   if fn then start(self) elseif not next(self.events) then self:pause() end
   return self
-    --  return self:subscribe(windowfilter.windowsChanged,self._notifyfn)
 end
 
 --- hs.windowfilter:subscribe(event,fn,immediate) -> hs.windowfilter
@@ -1175,11 +1071,11 @@ function wf:delete()
   stopGlobalWatcher()
 end
 
-
+--FIXME spaces
 local spacesDone = {}
 function windowfilter.switchedToSpace(space,cb)
   if spacesDone[space] then log.v('Switched to space #'..space) return cb and cb() end
-  delayed.doAfter(0.5,function()
+  timer.doAfter(0.5,function()
     if spacesDone[space] then log.v('Switched to space #'..space) return cb and cb() end
     log.f('Entered space #%d, refreshing all windows',space)
     for _,app in pairs(apps) do
