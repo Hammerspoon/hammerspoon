@@ -14,6 +14,19 @@ local geometry = require "hs.geometry"
 
 screen.watcher = require "hs.screen.watcher"
 
+--- hs.screen.findByName(name) -> screen or nil
+--- Function
+--- Finds a screen by its name
+---
+--- Parameters:
+---  * name - A string containing the name to search for
+---
+--- Returns:
+---  * An `hs.screen` object, or nil if none could be found
+function screen.findByName(name)
+    return fnutils.find(screen.allScreens(), function(display) return (display:name() == name) end)
+end
+
 --- hs.screen:fullFrame() -> rect
 --- Method
 --- Returns the screen's rect in absolute coordinates, including the dock and menu.
