@@ -12,8 +12,7 @@ local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 local hs_screen = require "hs.screen"
 local timer = require "hs.timer"
-local cachedFrames = {} -- no need for weak table: setmetatable({},{__mode="k"})
-local cacheTimers = {} --no need for weak table: setmetatable({},{__mode="k"})
+local pairs,next,min,max = pairs,next,math.min,math.max
 
 --- hs.window.animationDuration (integer)
 --- Variable
@@ -62,6 +61,69 @@ function window:isVisible()
   return not self:application():isHidden() and not self:isMinimized()
 end
 
+
+local animations, animTimer = {}
+
+
+local function animate()
+  --[[
+  local function quad(x,s,len)
+    local l=max(0,min(2,(x-s)*2/len))
+    if l<1 then return l*l/2
+    else
+      l=2-l
+      return 1-(l*l/2)
+    end
+  end
+--]]
+  local function quadOut(x,s,len)
+    local l=1-max(0,min(1,(x-s)/len))
+    return 1-l*l
+  end
+  local time = timer.secondsSinceEpoch()
+  for id,anim in pairs(animations) do
+    local r = quadOut(time,anim.time,anim.duration)
+    local f = {}
+    if r>=1 then
+      f=anim.endFrame
+      animations[id] = nil
+    else
+      for _,k in pairs{'x','y','w','h'} do
+        f[k] = anim.startFrame[k] + (anim.endFrame[k]-anim.startFrame[k])*r
+      end
+    end
+    anim.window:_setFrame(f)
+  end
+  if not next(animations) then animTimer:stop() end
+end
+animTimer = timer.new(0.017, animate)
+
+
+local function getAnimationFrame(win)
+  local id = win:id()
+  if animations[id] then return animations[id].endFrame end
+end
+
+local function stopAnimation(win,id,snap)
+  if not id then id = win:id() end
+  local anim = animations[id]
+  if not anim then return end
+  animations[id] = nil
+  if not next(animations) then animTimer:stop() end
+  if snap then win:_setFrame(anim.endFrame) end
+end
+
+-- get actual window frame
+function window:_frame()
+  local tl,s = self:_topLeft(),self:_size()
+  return {x = tl.x, y = tl.y, w = s.w, h = s.h}
+end
+-- set window frame instantly
+function window:_setFrame(f)
+  self:_setSize(f) self:_setTopLeft(f) self:_setSize(f)
+  return self
+end
+
 --- hs.window:frame() -> rect
 --- Method
 --- Gets the frame of the window in absolute coordinates
@@ -72,13 +134,8 @@ end
 --- Returns:
 ---  * A rect-table containing the co-ordinates of the top left corner of the window, and it's width and height
 function window:frame()
-  local id = self:id()
-  if cachedFrames[id] then return cachedFrames[id] end
-  local s = self:size()
-  local tl = self:topLeft()
-  return {x = tl.x, y = tl.y, w = s.w, h = s.h}
+  return getAnimationFrame(self) or self:_frame()
 end
-
 --- hs.window:setFrame(rect[, duration]) -> window
 --- Method
 --- Sets the frame of the window in absolute coordinates
@@ -94,39 +151,52 @@ function window:setFrame(f, duration)
     duration = window.animationDuration
   end
   local id = self:id()
-  if cacheTimers[id] then cacheTimers[id]:stop() cacheTimers[id]=nil end
-  if duration > 0 then
-    cachedFrames[id] = f
-    cacheTimers[id] = timer.doAfter(duration,function()cacheTimers[id]=nil cachedFrames[id]=nil end)
-    self:transform({ x = f.x, y = f.y}, { w = f.w, h = f.h }, duration)
-  else
-    cachedFrames[id] = nil
-    self:setSize(f)
-    self:setTopLeft(f)
-    self:setSize(f)
-  end
+  stopAnimation(self,id)
+  if duration<=0 then return self:_setFrame(f) end
+  local frame = self:_frame()
+  if not animations[id] then animations[id] = {window=self} end
+  local anim = animations[id]
+  anim.time=timer.secondsSinceEpoch() anim.duration=duration
+  anim.startFrame=frame anim.endFrame=f
+  animTimer:start()
   return self
 end
 
 
--- wrapping these Lua-side for dealing with the "cache"
+-- wrapping these Lua-side for dealing with animations cache
 function window:size()
-  local id = self:id()
-  if cachedFrames[id] then return {w=cachedFrames[id].w,h=cachedFrames[id].h} end
-  return self:_size()
+  return getAnimationFrame(self) or self:_size()
 end
 function window:topLeft()
-  local id = self:id()
-  if cachedFrames[id] then return {x=cachedFrames[id].x,y=cachedFrames[id].y} end
-  return self:_topLeft()
+  return getAnimationFrame(self) or self:_topLeft()
 end
 function window:setSize(size)
-  cachedFrames[self:id()]=nil
+  stopAnimation(self)
   return self:_setSize(size)
 end
 function window:setTopLeft(point)
-  cachedFrames[self:id()]=nil
+  stopAnimation(self)
   return self:_setTopLeft(point)
+end
+function window:minimize()
+  stopAnimation(self,true)
+  return self:_minimize()
+end
+function window:unminimize()
+  stopAnimation(self) -- ?
+  return self:_unminimize()
+end
+function window:toggleZoom()
+  stopAnimation(self,true)
+  return self:_toggleZoom()
+end
+function window:setFullScreen(v)
+  stopAnimation(self,true)
+  return self:_setFullScreen(v)
+end
+function window:close()
+  stopAnimation(self,true)
+  return self:_close()
 end
 
 --- hs.window:otherWindowsSameScreen() -> win[]
