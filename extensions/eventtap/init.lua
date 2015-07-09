@@ -15,8 +15,23 @@ if not hs.keycodes then hs.keycodes = require("hs.keycodes") end
 
 local module = require("hs.eventtap.internal")
 module.event = require("hs.eventtap.event")
+local fnutils = require("hs.fnutils")
 
 -- private variables and methods -----------------------------------------
+
+local __tostring_for_tables = function(self)
+    local result = ""
+    local width = 0
+    for i,v in fnutils.sortByKeys(self) do
+        if type(i) == "string" and width < i:len() then width = i:len() end
+    end
+    for i,v in fnutils.sortByKeys(self) do
+        if type(i) == "string" then
+            result = result..string.format("%-"..tostring(width).."s %d\n", i, v)
+        end
+    end
+    return result
+end
 
 local __index_for_types = function(object, key)
     for i,v in pairs(object) do
@@ -42,8 +57,10 @@ local __index_for_props = function(object, key)
     return nil
 end
 
-module.event.types      = setmetatable(module.event.types,      { __index = __index_for_types })
-module.event.properties = setmetatable(module.event.properties, { __index = __index_for_props })
+module.event.types      = setmetatable(module.event.types,      { __index    = __index_for_types,
+                                                                  __tostring = __tostring_for_tables })
+module.event.properties = setmetatable(module.event.properties, { __index    = __index_for_props,
+                                                                  __tostring = __tostring_for_tables })
 
 -- Public interface ------------------------------------------------------
 

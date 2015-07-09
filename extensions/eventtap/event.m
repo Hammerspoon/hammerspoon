@@ -1,4 +1,6 @@
 #import "eventtap_event.h"
+#import <IOKit/hidsystem/ev_keymap.h>
+
 #import "../hammerspoon.h"
 
 static int eventtap_event_gc(lua_State* L) {
@@ -68,7 +70,7 @@ static int eventtap_event_getFlags(lua_State* L) {
 ///   * fn
 ///
 /// Returns:
-///  * None
+///  * The `hs.eventap.evant` object.
 static int eventtap_event_setFlags(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     luaL_checktype(L, 2, LUA_TTABLE);
@@ -83,7 +85,91 @@ static int eventtap_event_setFlags(lua_State* L) {
 
     CGEventSetFlags(event, flags);
 
-    return 0;
+    lua_settop(L,1) ;
+    return 1;
+}
+
+/// hs.eventtap.event:getRawEventData() -> table
+/// Method
+/// Returns raw data about the event
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table with two keys:
+///    * CGEventData -- a table with keys containing CGEvent data about the event.
+///    * NSEventData -- a table with keys containing NSEvent data about the event.
+///
+/// Notes:
+///  * Most of the data in `CGEventData` is already available through other methods, but is presented here without any cleanup or parsing.
+///  * This method is expected to be used mostly for testing and expanding the range of possibilities available with the hs.eventtap module.  If you find that you are regularly using specific data from this method for common or re-usable purposes, consider submitting a request for adding a more targeted method to hs.eventtap or hs.eventtap.event -- it will likely be more efficient and faster for common tasks, something eventtaps need to be to minimize affecting system responsiveness.
+static int eventtap_event_getRawEventData(lua_State* L) {
+    CGEventRef  event    = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    CGEventType cgType   = CGEventGetType(event) ;
+
+    lua_newtable(L) ;
+        lua_newtable(L) ;
+            lua_pushinteger(L, CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode));  lua_setfield(L, -2, "keycode") ;
+            lua_pushinteger(L, CGEventGetFlags(event));                                       lua_setfield(L, -2, "flags") ;
+            lua_pushinteger(L, cgType);                                                       lua_setfield(L, -2, "type") ;
+        lua_setfield(L, -2, "CGEventData") ;
+
+        lua_newtable(L) ;
+        if ((cgType != kCGEventTapDisabledByTimeout) && (cgType != kCGEventTapDisabledByUserInput)) {
+            NSEvent*    sysEvent = [NSEvent eventWithCGEvent:event];
+            NSEventType type     = [sysEvent type] ;
+            lua_pushinteger(L, [sysEvent modifierFlags]);                                     lua_setfield(L, -2, "modifierFlags") ;
+            lua_pushinteger(L, type);                                                         lua_setfield(L, -2, "type") ;
+            lua_pushinteger(L, [sysEvent windowNumber]);                                      lua_setfield(L, -2, "windowNumber") ;
+            if ((type == NSKeyDown) || (type == NSKeyUp)) {
+                lua_pushstring(L, [[sysEvent characters] UTF8String]) ;                       lua_setfield(L, -2, "characters") ;
+                lua_pushstring(L, [[sysEvent charactersIgnoringModifiers] UTF8String]) ;      lua_setfield(L, -2, "charactersIgnoringModifiers") ;
+                lua_pushinteger(L, [sysEvent keyCode]) ;                                      lua_setfield(L, -2, "keyCode") ;
+            }
+            if ((type == NSLeftMouseDown) || (type == NSLeftMouseUp) || (type == NSRightMouseDown) || (type == NSRightMouseUp) || (type == NSOtherMouseDown) || (type == NSOtherMouseUp)) {
+                lua_pushinteger(L, [sysEvent buttonNumber]) ;                                 lua_setfield(L, -2, "buttonNumber") ;
+                lua_pushinteger(L, [sysEvent clickCount]) ;                                   lua_setfield(L, -2, "clickCount") ;
+                lua_pushnumber(L, [sysEvent pressure]) ;                                      lua_setfield(L, -2, "pressure") ;
+            }
+            if ((type == NSAppKitDefined) || (type == NSSystemDefined) || (type == NSApplicationDefined) || (type == NSPeriodic)) {
+                lua_pushinteger(L, [sysEvent data1]) ;                                        lua_setfield(L, -2, "data1") ;
+                lua_pushinteger(L, [sysEvent data2]) ;                                        lua_setfield(L, -2, "data2") ;
+                lua_pushinteger(L, [sysEvent subtype]) ;                                      lua_setfield(L, -2, "subtype") ;
+            }
+        }
+        lua_setfield(L, -2, "NSEventData") ;
+    return 1;
+}
+
+/// hs.eventtap.event:getCharacters([clean]) -> string or nil
+/// Method
+/// Returns the Unicode character, if any, represented by a keyDown or keyUp event.
+///
+/// Parameters:
+///  * clean -- an optional parameter, default `false`, which indicates if key modifiers, other than Shift, should be stripped from the keypress before converting to Unicode.
+///
+/// Returns:
+///  * A string containing the Unicode character represented by the keyDown or keyUp event, or nil if the event is not a keyUp or keyDown.
+///
+/// Notes:
+///  * This method should only be used on keyboard events
+///  * If `clean` is true, all modifiers except for Shift are stripped from the character before converting to the Unicode character represented by the keypress.
+///  * If the keypress does not correspond to a valid Unicode character, an empty string is returned (e.g. if `clean` is false, then Opt-E will return an empty string, while Opt-Shift-E will return an accent mark).
+static int eventtap_event_getCharacters(lua_State* L) {
+    CGEventRef  event    = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    BOOL        clean    = lua_isnone(L, 2) ? NO : lua_toboolean(L, 2) ;
+    CGEventType cgType   = CGEventGetType(event) ;
+
+    if ((cgType == kCGEventKeyDown) || (cgType == kCGEventKeyUp)) {
+        if (clean)
+            lua_pushstring(L, [[[NSEvent eventWithCGEvent:event] charactersIgnoringModifiers] UTF8String]) ;
+        else
+            lua_pushstring(L, [[[NSEvent eventWithCGEvent:event] characters] UTF8String]) ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1;
 }
 
 /// hs.eventtap.event:getKeyCode() -> keycode
@@ -112,7 +198,7 @@ static int eventtap_event_getKeyCode(lua_State* L) {
 ///  * keycode - A number containing a raw keycode, taken from `hs.keycodes.map`
 ///
 /// Returns:
-///  * None
+///  * The `hs.eventtap.event` object
 ///
 /// Notes:
 ///  * This method should only be used on keyboard events
@@ -120,7 +206,9 @@ static int eventtap_event_setKeyCode(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGKeyCode keycode = luaL_checkinteger(L, 2);
     CGEventSetIntegerValueField(event, kCGKeyboardEventKeycode, (int64_t)keycode);
-    return 0;
+
+    lua_settop(L,1) ;
+    return 1;
 }
 
 /// hs.eventtap.event:post([app])
@@ -183,9 +271,22 @@ static int eventtap_event_getType(lua_State* L) {
 /// Notes:
 ///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
 static int eventtap_event_getProperty(lua_State* L) {
-    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    CGEventRef   event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGEventField field = luaL_checkinteger(L, 2);
-    lua_pushinteger(L, CGEventGetDoubleValueField(event, field));
+
+    if ((field == kCGMouseEventPressure)                ||   // These fields use a double (floating point number)
+        (field == kCGScrollWheelEventFixedPtDeltaAxis1) ||
+        (field == kCGScrollWheelEventFixedPtDeltaAxis2) ||
+        (field == kCGScrollWheelEventFixedPtDeltaAxis3) ||
+        (field == kCGTabletEventPointPressure)          ||
+        (field == kCGTabletEventTiltX)                  ||
+        (field == kCGTabletEventTiltY)                  ||
+        (field == kCGTabletEventRotation)               ||
+        (field == kCGTabletEventTangentialPressure)) {
+        lua_pushnumber(L, CGEventGetDoubleValueField(event, field));
+    } else {
+        lua_pushinteger(L, CGEventGetIntegerValueField(event, field));
+    }
     return 1;
 }
 
@@ -205,7 +306,7 @@ static int eventtap_event_getButtonState(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGMouseButton whichButton = luaL_checkinteger(L, 2);
 
-    if (CGEventSourceButtonState(CGEventGetDoubleValueField(event, kCGEventSourceStateID), whichButton))
+    if (CGEventSourceButtonState(CGEventGetIntegerValueField(event, kCGEventSourceStateID), whichButton))
         lua_pushboolean(L, YES) ;
     else
         lua_pushboolean(L, NO) ;
@@ -221,16 +322,31 @@ static int eventtap_event_getButtonState(lua_State* L) {
 ///  * value - A number containing the value of the specified property
 ///
 /// Returns:
-///  * None
+///  * The `hs.eventtap.event` object.
 ///
 /// Notes:
 ///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
 static int eventtap_event_setProperty(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     CGEventField field = luaL_checkinteger(L, 2);
-    int value = luaL_checkinteger(L, 3);
-    CGEventSetIntegerValueField(event, field, value);
-    return 0;
+    if ((field == kCGMouseEventPressure)                ||   // These fields use a double (floating point number)
+        (field == kCGScrollWheelEventFixedPtDeltaAxis1) ||
+        (field == kCGScrollWheelEventFixedPtDeltaAxis2) ||
+        (field == kCGScrollWheelEventFixedPtDeltaAxis3) ||
+        (field == kCGTabletEventPointPressure)          ||
+        (field == kCGTabletEventTiltX)                  ||
+        (field == kCGTabletEventTiltY)                  ||
+        (field == kCGTabletEventRotation)               ||
+        (field == kCGTabletEventTangentialPressure)) {
+        double value = luaL_checknumber(L, 3) ;
+        CGEventSetDoubleValueField(event, field, value);
+    } else {
+        int value = luaL_checkinteger(L, 3);
+        CGEventSetIntegerValueField(event, field, value);
+    }
+
+    lua_settop(L,1) ;
+    return 1;
 }
 
 /// hs.eventtap.event.newKeyEvent(mods, key, isdown) -> event
@@ -332,114 +448,272 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
     return 1;
 }
 
+/// hs.eventtap.event.systemKey() -> table
+/// Method
+/// Returns the special key and its state if the event is a NSSystemDefined event of subtype AUX_CONTROL_BUTTONS (special-key pressed)
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * If the event is a NSSystemDefined event of subtype AUX_CONTROL_BUTTONS, a table with the following keys defined:
+///    * key    -- a string containing one of the following labels indicating the key involved:
+///         SOUND_UP            SOUND_DOWN          MUTE
+///         BRIGHTNESS_UP       BRIGHTNESS_DOWN
+///         CONTRAST_UP         CONTRAST_DOWN
+///         POWER               LAUNCH_PANEL        VIDMIRROR
+///         PLAY                EJECT               NEXT
+///         PREVIOUS            FAST                REWIND
+///         ILLUMINATION_UP     ILLUMINATION_DOWN   ILLUMINATION_TOGGLE
+///         CAPS_LOCK           HELP                NUM_LOCK
+///      or "undefined" if the key detected is unrecognized.
+///    * keyCode -- the numeric keyCode corresponding to the key specified in `key`.
+///    * down   -- a boolean value indicating if the key is pressed down (true) or just released (false)
+///    * repeat -- a boolean indicating if this event is because the keydown is repeating.  This will always be false for a key release.
+///  * If the event does not correspond to a NSSystemDefined event of subtype AUX_CONTROL_BUTTONS, then an empty table is returned.
+///
+/// Notes:
+/// * CAPS_LOCK seems to sometimes generate 0 or 2 key release events (down == false), especially on builtin laptop keyboards, so it is probably safest (more reliable) to look for cases where down == true only.
+/// * If the key field contains "undefined", you can use the number in keyCode to look it up in `/System/Library/Frameworks/IOKit.framework/Headers/hidsystem/ev_keymap.h`.  If you believe the numeric value is part of a new system update or was otherwise mistakenly left out, please submit the label (it will defined in the header file as `NX_KEYTYPE_something`) and number to the Hammerspoon maintainers at https://github.com/Hammerspoon/hammerspoon with a request for inclusion in the next Hammerspoon update.
+static int eventtap_event_systemKey(lua_State* L) {
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    NSEvent*    sysEvent = [NSEvent eventWithCGEvent:event];
+    NSEventType type     = [sysEvent type] ;
+
+    lua_newtable(L) ;
+    if ((type == NSAppKitDefined) || (type == NSSystemDefined) || (type == NSApplicationDefined) || (type == NSPeriodic)) {
+        NSInteger data1      = [sysEvent data1] ;
+        if ([sysEvent subtype] == NX_SUBTYPE_AUX_CONTROL_BUTTONS) {
+            int keyCode      = (data1 & 0xFFFF0000) >> 16;
+            int keyFlags     = (data1 &     0xFFFF);
+            switch(keyCode) {
+//
+// This list is based on the definition of NX_SPECIALKEY_POST_MASK found in
+// /System/Library/Frameworks/IOKit.framework/Headers/hidsystem/ev_keymap.h
+//
+                case NX_KEYTYPE_SOUND_UP:            lua_pushstring(L, "SOUND_UP");            break ;
+                case NX_KEYTYPE_SOUND_DOWN:          lua_pushstring(L, "SOUND_DOWN");          break ;
+                case NX_POWER_KEY:                   lua_pushstring(L, "POWER");               break ;
+                case NX_KEYTYPE_MUTE:                lua_pushstring(L, "MUTE");                break ;
+                case NX_KEYTYPE_BRIGHTNESS_UP:       lua_pushstring(L, "BRIGHTNESS_UP");       break ;
+                case NX_KEYTYPE_BRIGHTNESS_DOWN:     lua_pushstring(L, "BRIGHTNESS_DOWN");     break ;
+                case NX_KEYTYPE_CONTRAST_UP:         lua_pushstring(L, "CONTRAST_UP");         break ;
+                case NX_KEYTYPE_CONTRAST_DOWN:       lua_pushstring(L, "CONTRAST_DOWN");       break ;
+                case NX_KEYTYPE_LAUNCH_PANEL:        lua_pushstring(L, "LAUNCH_PANEL");        break ;
+                case NX_KEYTYPE_EJECT:               lua_pushstring(L, "EJECT");               break ;
+                case NX_KEYTYPE_VIDMIRROR:           lua_pushstring(L, "VIDMIRROR");           break ;
+                case NX_KEYTYPE_PLAY:                lua_pushstring(L, "PLAY");                break ;
+                case NX_KEYTYPE_NEXT:                lua_pushstring(L, "NEXT");                break ;
+                case NX_KEYTYPE_PREVIOUS:            lua_pushstring(L, "PREVIOUS");            break ;
+                case NX_KEYTYPE_FAST:                lua_pushstring(L, "FAST");                break ;
+                case NX_KEYTYPE_REWIND:              lua_pushstring(L, "REWIND");              break ;
+                case NX_KEYTYPE_ILLUMINATION_UP:     lua_pushstring(L, "ILLUMINATION_UP");     break ;
+                case NX_KEYTYPE_ILLUMINATION_DOWN:   lua_pushstring(L, "ILLUMINATION_DOWN");   break ;
+                case NX_KEYTYPE_ILLUMINATION_TOGGLE: lua_pushstring(L, "ILLUMINATION_TOGGLE"); break ;
+//
+// The following also seem to trigger NSSystemDefined events, but are not listed in NX_SPECIALKEY_POST_MASK
+//
+                case NX_KEYTYPE_CAPS_LOCK:           lua_pushstring(L, "CAPS_LOCK");           break ;
+                case NX_KEYTYPE_HELP:                lua_pushstring(L, "HELP");                break ;
+                case NX_KEYTYPE_NUM_LOCK:            lua_pushstring(L, "NUM_LOCK");            break ;
+
+                default:                             lua_pushstring(L, "undefined") ;          break ;
+            }
+            lua_setfield(L, -2, "key") ;
+            lua_pushinteger(L, keyCode) ; lua_setfield(L, -2, "keyCode") ;
+            lua_pushboolean(L, ((keyFlags & 0xFF00) >> 8) == 0x0a ) ; lua_setfield(L, -2, "down") ;
+            lua_pushboolean(L, (keyFlags & 0x1) > 0) ; lua_setfield(L, -2, "repeat") ;
+        }
+    }
+    return 1;
+}
+
 /// hs.eventtap.event.types -> table
 /// Constant
-/// A table for use with `hs.eventtap.new()`, containing the following keys:
-///    keydown, keyup,
-///    leftMouseDown, leftMouseUp, leftMouseDragged,
-///    rightMouseDown, rightMouseUp, rightMouseDragged,
-///    middleMouseDown, middleMouseUp, middleMouseDragged,
-///    mouseMoved, flagsChanged, scrollWheel,
-///    tabletPointer, tabletProximity,
-///    nullEvent, tapDisabledByTimeout, tapDisabledByUserInput
+/// A table containing event types to be used with `hs.eventtap.new(...)` and returned by `hs.eventtap.event:type()`.  The table supports forward (label to number) and reverse (number to label) lookups to increase its flexibility.
+///
+/// The constants defined in this table are as follows:
+///
+///   * nullEvent               --  Specifies a null event.
+///   * leftMouseDown           --  Specifies a mouse down event with the left button.
+///   * leftMouseUp             --  Specifies a mouse up event with the left button.
+///   * rightMouseDown          --  Specifies a mouse down event with the right button.
+///   * rightMouseUp            --  Specifies a mouse up event with the right button.
+///   * mouseMoved              --  Specifies a mouse moved event.
+///   * leftMouseDragged        --  Specifies a mouse drag event with the left button down.
+///   * rightMouseDragged       --  Specifies a mouse drag event with the right button down.
+///   * keyDown                 --  Specifies a key down event.
+///   * keyUp                   --  Specifies a key up event.
+///   * flagsChanged            --  Specifies a key changed event for a modifier or status key.
+///   * scrollWheel             --  Specifies a scroll wheel moved event.
+///   * tabletPointer           --  Specifies a tablet pointer event.
+///   * tabletProximity         --  Specifies a tablet proximity event.
+///   * otherMouseDown          --  Specifies a mouse down event with one of buttons 2-31.
+///   * otherMouseUp            --  Specifies a mouse up event with one of buttons 2-31.
+///   * otherMouseDragged       --  Specifies a mouse drag event with one of buttons 2-31 down.
+///
+///  The following events, also included in the lookup table, are provided through NSEvent and currently may require the use of `hs.eventtap.event:getRawEventData()` to retrieve supporting information.  Target specific methods may be added as the usability of these events is explored.
+///
+///   * NSMouseEntered          --  See Mouse-Tracking and Cursor-Update Events in Cocoa Event Handling Guide.
+///   * NSMouseExited           --  See Mouse-Tracking and Cursor-Update Events in Cocoa Event Handling Guide.
+///   * NSCursorUpdate          --  See Mouse-Tracking and Cursor-Update Events in Cocoa Event Handling Guide.
+///   * NSAppKitDefined         --  See Event Objects and Types in Cocoa Event Handling Guide.
+///   * NSSystemDefined         --  See Event Objects and Types in Cocoa Event Handling Guide.
+///   * NSApplicationDefined    --  See Event Objects and Types in Cocoa Event Handling Guide.
+///   * NSPeriodic              --  See Event Objects and Types in Cocoa Event Handling Guide.
+///   * NSEventTypeGesture      --  An event that represents some type of gesture such as NSEventTypeMagnify, NSEventTypeSwipe, NSEventTypeRotate, NSEventTypeBeginGesture, or NSEventTypeEndGesture.
+///   * NSEventTypeMagnify      --  An event representing a pinch open or pinch close gesture.
+///   * NSEventTypeSwipe        --  An event representing a swipe gesture.
+///   * NSEventTypeRotate       --  An event representing a rotation gesture.
+///   * NSEventTypeBeginGesture --  An event that represents a gesture beginning.
+///   * NSEventTypeEndGesture   --  An event that represents a gesture ending.
+///   * NSEventTypeSmartMagnify --  NSEvent type for the smart zoom gesture (2-finger double tap on trackpads) along with a corresponding NSResponder method. In response to this event, you should intelligently magnify the content.
+///   * NSEventTypeQuickLook    --  Supports the new event responder method that initiates a Quicklook.
+///   * NSEventTypePressure     --  An NSEvent type representing a change in pressure on a pressure-sensitive device. Requires a 64-bit processor.
+///
+/// Notes:
+///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.eventtap.event.types`.
+///  * In previous versions of Hammerspoon, type labels were defined with the labels in all lowercase.  This practice is deprecated, but an __index metamethod allows the lowercase labels to still be used; however a warning will be printed to the Hammerspoon console.  At some point, this may go away, so please update your code to follow the new format.
 static void pushtypestable(lua_State* L) {
     lua_newtable(L);
-    lua_pushinteger(L, kCGEventLeftMouseDown);           lua_setfield(L, -2, "leftMouseDown");
-    lua_pushstring(L, "leftMouseDown") ;                lua_rawseti(L, -2, kCGEventLeftMouseDown);
-    lua_pushinteger(L, kCGEventLeftMouseUp);             lua_setfield(L, -2, "leftMouseUp");
-    lua_pushstring(L, "leftMouseUp") ;                  lua_rawseti(L, -2, kCGEventLeftMouseUp);
-    lua_pushinteger(L, kCGEventLeftMouseDragged);        lua_setfield(L, -2, "leftMouseDragged");
-    lua_pushstring(L, "leftMouseDragged") ;             lua_rawseti(L, -2, kCGEventLeftMouseDragged);
-    lua_pushinteger(L, kCGEventRightMouseDown);          lua_setfield(L, -2, "rightMouseDown");
-    lua_pushstring(L, "rightMouseDown") ;               lua_rawseti(L, -2, kCGEventRightMouseDown);
-    lua_pushinteger(L, kCGEventRightMouseUp);            lua_setfield(L, -2, "rightMouseUp");
-    lua_pushstring(L, "rightMouseUp") ;                 lua_rawseti(L, -2, kCGEventRightMouseUp);
-    lua_pushinteger(L, kCGEventRightMouseDragged);       lua_setfield(L, -2, "rightMouseDragged");
-    lua_pushstring(L, "rightMouseDragged") ;            lua_rawseti(L, -2, kCGEventRightMouseDragged);
-    lua_pushinteger(L, kCGEventOtherMouseDown);          lua_setfield(L, -2, "middleMouseDown");
-    lua_pushstring(L, "middleMouseDown") ;              lua_rawseti(L, -2, kCGEventOtherMouseDown);
-    lua_pushinteger(L, kCGEventOtherMouseUp);            lua_setfield(L, -2, "middleMouseUp");
-    lua_pushstring(L, "middleMouseUp") ;                lua_rawseti(L, -2, kCGEventOtherMouseUp);
-    lua_pushinteger(L, kCGEventOtherMouseDragged);       lua_setfield(L, -2, "middleMouseDragged");
-    lua_pushstring(L, "middleMouseDragged") ;           lua_rawseti(L, -2, kCGEventOtherMouseDragged);
-    lua_pushinteger(L, kCGEventMouseMoved);              lua_setfield(L, -2, "mouseMoved");
-    lua_pushstring(L, "mouseMoved") ;                   lua_rawseti(L, -2, kCGEventMouseMoved);
-    lua_pushinteger(L, kCGEventFlagsChanged);            lua_setfield(L, -2, "flagsChanged");
-    lua_pushstring(L, "flagsChanged") ;                 lua_rawseti(L, -2, kCGEventFlagsChanged);
-    lua_pushinteger(L, kCGEventScrollWheel);             lua_setfield(L, -2, "scrollWheel");
-    lua_pushstring(L, "scrollWheel") ;                  lua_rawseti(L, -2, kCGEventScrollWheel);
-    lua_pushinteger(L, kCGEventKeyDown);                 lua_setfield(L, -2, "keyDown");
-    lua_pushstring(L, "keyDown") ;                      lua_rawseti(L, -2, kCGEventKeyDown);
-    lua_pushinteger(L, kCGEventKeyUp);                   lua_setfield(L, -2, "keyUp");
-    lua_pushstring(L, "keyUp") ;                        lua_rawseti(L, -2, kCGEventKeyUp);
-    lua_pushinteger(L, kCGEventTabletPointer);           lua_setfield(L, -2, "tabletPointer");
-    lua_pushstring(L, "tabletPointer") ;                lua_rawseti(L, -2, kCGEventTabletPointer);
-    lua_pushinteger(L, kCGEventTabletProximity);         lua_setfield(L, -2, "tabletProximity");
-    lua_pushstring(L, "tabletProximity") ;              lua_rawseti(L, -2, kCGEventTabletProximity);
-    lua_pushinteger(L, kCGEventNull);                    lua_setfield(L, -2, "nullEvent");
-    lua_pushstring(L, "nullEvent") ;                    lua_rawseti(L, -2, kCGEventNull);
-    lua_pushinteger(L, kCGEventTapDisabledByTimeout);    lua_setfield(L, -2, "tapDisabledByTimeout");
-    lua_pushstring(L, "tapDisabledByTimeout") ;         lua_rawseti(L, -2, kCGEventTapDisabledByTimeout);
-    lua_pushinteger(L, kCGEventTapDisabledByUserInput);  lua_setfield(L, -2, "tapDisabledByUserInput");
-    lua_pushstring(L, "tapDisabledByUserInput") ;       lua_rawseti(L, -2, kCGEventTapDisabledByUserInput);
+    lua_pushinteger(L, kCGEventLeftMouseDown);      lua_setfield(L, -2, "leftMouseDown");
+    lua_pushstring(L, "leftMouseDown") ;            lua_rawseti(L, -2, kCGEventLeftMouseDown);
+    lua_pushinteger(L, kCGEventLeftMouseUp);        lua_setfield(L, -2, "leftMouseUp");
+    lua_pushstring(L, "leftMouseUp") ;              lua_rawseti(L, -2, kCGEventLeftMouseUp);
+    lua_pushinteger(L, kCGEventLeftMouseDragged);   lua_setfield(L, -2, "leftMouseDragged");
+    lua_pushstring(L, "leftMouseDragged") ;         lua_rawseti(L, -2, kCGEventLeftMouseDragged);
+    lua_pushinteger(L, kCGEventRightMouseDown);     lua_setfield(L, -2, "rightMouseDown");
+    lua_pushstring(L, "rightMouseDown") ;           lua_rawseti(L, -2, kCGEventRightMouseDown);
+    lua_pushinteger(L, kCGEventRightMouseUp);       lua_setfield(L, -2, "rightMouseUp");
+    lua_pushstring(L, "rightMouseUp") ;             lua_rawseti(L, -2, kCGEventRightMouseUp);
+    lua_pushinteger(L, kCGEventRightMouseDragged);  lua_setfield(L, -2, "rightMouseDragged");
+    lua_pushstring(L, "rightMouseDragged") ;        lua_rawseti(L, -2, kCGEventRightMouseDragged);
+    lua_pushinteger(L, kCGEventOtherMouseDown);     lua_setfield(L, -2, "middleMouseDown");
+    lua_pushstring(L, "middleMouseDown") ;          lua_rawseti(L, -2, kCGEventOtherMouseDown);
+    lua_pushinteger(L, kCGEventOtherMouseUp);       lua_setfield(L, -2, "middleMouseUp");
+    lua_pushstring(L, "middleMouseUp") ;            lua_rawseti(L, -2, kCGEventOtherMouseUp);
+    lua_pushinteger(L, kCGEventOtherMouseDragged);  lua_setfield(L, -2, "middleMouseDragged");
+    lua_pushstring(L, "middleMouseDragged") ;       lua_rawseti(L, -2, kCGEventOtherMouseDragged);
+    lua_pushinteger(L, kCGEventMouseMoved);         lua_setfield(L, -2, "mouseMoved");
+    lua_pushstring(L, "mouseMoved") ;               lua_rawseti(L, -2, kCGEventMouseMoved);
+    lua_pushinteger(L, kCGEventFlagsChanged);       lua_setfield(L, -2, "flagsChanged");
+    lua_pushstring(L, "flagsChanged") ;             lua_rawseti(L, -2, kCGEventFlagsChanged);
+    lua_pushinteger(L, kCGEventScrollWheel);        lua_setfield(L, -2, "scrollWheel");
+    lua_pushstring(L, "scrollWheel") ;              lua_rawseti(L, -2, kCGEventScrollWheel);
+    lua_pushinteger(L, kCGEventKeyDown);            lua_setfield(L, -2, "keyDown");
+    lua_pushstring(L, "keyDown") ;                  lua_rawseti(L, -2, kCGEventKeyDown);
+    lua_pushinteger(L, kCGEventKeyUp);              lua_setfield(L, -2, "keyUp");
+    lua_pushstring(L, "keyUp") ;                    lua_rawseti(L, -2, kCGEventKeyUp);
+    lua_pushinteger(L, kCGEventTabletPointer);      lua_setfield(L, -2, "tabletPointer");
+    lua_pushstring(L, "tabletPointer") ;            lua_rawseti(L, -2, kCGEventTabletPointer);
+    lua_pushinteger(L, kCGEventTabletProximity);    lua_setfield(L, -2, "tabletProximity");
+    lua_pushstring(L, "tabletProximity") ;          lua_rawseti(L, -2, kCGEventTabletProximity);
+    lua_pushinteger(L, kCGEventNull);               lua_setfield(L, -2, "nullEvent");
+    lua_pushstring(L, "nullEvent") ;                lua_rawseti(L, -2, kCGEventNull);
+    lua_pushinteger(L, NSMouseEntered);             lua_setfield(L, -2, "NSMouseEntered");
+    lua_pushstring(L, "NSMouseEntered") ;           lua_rawseti(L, -2, NSMouseEntered);
+    lua_pushinteger(L, NSMouseExited);              lua_setfield(L, -2, "NSMouseExited");
+    lua_pushstring(L, "NSMouseExited") ;            lua_rawseti(L, -2, NSMouseExited);
+    lua_pushinteger(L, NSAppKitDefined);            lua_setfield(L, -2, "NSAppKitDefined");
+    lua_pushstring(L, "NSAppKitDefined") ;          lua_rawseti(L, -2, NSAppKitDefined);
+    lua_pushinteger(L, NSSystemDefined);            lua_setfield(L, -2, "NSSystemDefined");
+    lua_pushstring(L, "NSSystemDefined") ;          lua_rawseti(L, -2, NSSystemDefined);
+    lua_pushinteger(L, NSApplicationDefined);       lua_setfield(L, -2, "NSApplicationDefined");
+    lua_pushstring(L, "NSApplicationDefined") ;     lua_rawseti(L, -2, NSApplicationDefined);
+    lua_pushinteger(L, NSPeriodic);                 lua_setfield(L, -2, "NSPeriodic");
+    lua_pushstring(L, "NSPeriodic") ;               lua_rawseti(L, -2, NSPeriodic);
+    lua_pushinteger(L, NSCursorUpdate);             lua_setfield(L, -2, "NSCursorUpdate");
+    lua_pushstring(L, "NSCursorUpdate") ;           lua_rawseti(L, -2, NSCursorUpdate);
+    lua_pushinteger(L, NSEventTypeGesture);         lua_setfield(L, -2, "NSEventTypeGesture");
+    lua_pushstring(L, "NSEventTypeGesture") ;       lua_rawseti(L, -2, NSEventTypeGesture);
+    lua_pushinteger(L, NSEventTypeMagnify);         lua_setfield(L, -2, "NSEventTypeMagnify");
+    lua_pushstring(L, "NSEventTypeMagnify") ;       lua_rawseti(L, -2, NSEventTypeMagnify);
+    lua_pushinteger(L, NSEventTypeSwipe);           lua_setfield(L, -2, "NSEventTypeSwipe");
+    lua_pushstring(L, "NSEventTypeSwipe") ;         lua_rawseti(L, -2, NSEventTypeSwipe);
+    lua_pushinteger(L, NSEventTypeRotate);          lua_setfield(L, -2, "NSEventTypeRotate");
+    lua_pushstring(L, "NSEventTypeRotate") ;        lua_rawseti(L, -2, NSEventTypeRotate);
+    lua_pushinteger(L, NSEventTypeBeginGesture);    lua_setfield(L, -2, "NSEventTypeBeginGesture");
+    lua_pushstring(L, "NSEventTypeBeginGesture") ;  lua_rawseti(L, -2, NSEventTypeBeginGesture);
+    lua_pushinteger(L, NSEventTypeEndGesture);      lua_setfield(L, -2, "NSEventTypeEndGesture");
+    lua_pushstring(L, "NSEventTypeEndGesture") ;    lua_rawseti(L, -2, NSEventTypeEndGesture);
+    lua_pushinteger(L, NSEventTypeSmartMagnify);    lua_setfield(L, -2, "NSEventTypeSmartMagnify");
+    lua_pushstring(L, "NSEventTypeSmartMagnify") ;  lua_rawseti(L, -2, NSEventTypeSmartMagnify);
+    lua_pushinteger(L, NSEventTypeQuickLook);       lua_setfield(L, -2, "NSEventTypeQuickLook");
+    lua_pushstring(L, "NSEventTypeQuickLook") ;     lua_rawseti(L, -2, NSEventTypeQuickLook);
+    lua_pushinteger(L, NSEventTypePressure);        lua_setfield(L, -2, "NSEventTypePressure");
+    lua_pushstring(L, "NSEventTypePressure") ;      lua_rawseti(L, -2, NSEventTypePressure);
+
+//     lua_pushinteger(L, kCGEventTapDisabledByTimeout);    lua_setfield(L, -2, "tapDisabledByTimeout");
+//     lua_pushstring(L, "tapDisabledByTimeout") ;         lua_rawseti(L, -2, kCGEventTapDisabledByTimeout);
+//     lua_pushinteger(L, kCGEventTapDisabledByUserInput);  lua_setfield(L, -2, "tapDisabledByUserInput");
+//     lua_pushstring(L, "tapDisabledByUserInput") ;       lua_rawseti(L, -2, kCGEventTapDisabledByUserInput);
 }
 
 /// hs.eventtap.event.properties -> table
 /// Constant
-/// A table for use with `hs.eventtap.event:getProperty()` and `hs.eventtap.event:setProperty()`; contains the following keys:
-///    - mouseEventNumber
-///    - mouseEventClickState
-///    - mouseEventPressure
-///    - mouseEventButtonNumber
-///    - mouseEventDeltaX
-///    - mouseEventDeltaY
-///    - mouseEventInstantMouser
-///    - mouseEventSubtype
-///    - keyboardEventAutorepeat
-///    - keyboardEventKeycode
-///    - keyboardEventKeyboardType
-///    - scrollWheelEventDeltaAxis1
-///    - scrollWheelEventDeltaAxis2
-///    - scrollWheelEventDeltaAxis3
-///    - scrollWheelEventFixedPtDeltaAxis1
-///    - scrollWheelEventFixedPtDeltaAxis2
-///    - scrollWheelEventFixedPtDeltaAxis3
-///    - scrollWheelEventPointDeltaAxis1
-///    - scrollWheelEventPointDeltaAxis2
-///    - scrollWheelEventPointDeltaAxis3
-///    - scrollWheelEventInstantMouser
-///    - tabletEventPointX
-///    - tabletEventPointY
-///    - tabletEventPointZ
-///    - tabletEventPointButtons
-///    - tabletEventPointPressure
-///    - tabletEventTiltX
-///    - tabletEventTiltY
-///    - tabletEventRotation
-///    - tabletEventTangentialPressure
-///    - tabletEventDeviceID
-///    - tabletEventVendor1
-///    - tabletEventVendor2
-///    - tabletEventVendor3
-///    - tabletProximityEventVendorID
-///    - tabletProximityEventTabletID
-///    - tabletProximityEventPointerID
-///    - tabletProximityEventDeviceID
-///    - tabletProximityEventSystemTabletID
-///    - tabletProximityEventVendorPointerType
-///    - tabletProximityEventVendorPointerSerialNumber
-///    - tabletProximityEventVendorUniqueID
-///    - tabletProximityEventCapabilityMask
-///    - tabletProximityEventPointerType
-///    - tabletProximityEventEnterProximity
-///    - eventTargetProcessSerialNumber
-///    - eventTargetUnixProcessID
-///    - eventSourceUnixProcessID
-///    - eventSourceUserData
-///    - eventSourceUserID
-///    - eventSourceGroupID
-///    - eventSourceStateID
-///    - scrollWheelEventIsContinuous
+/// A table containing property types for use with `hs.eventtap.event:getProperty()` and `hs.eventtap.event:setProperty()`.  The table supports forward (label to number) and reverse (number to label) lookups to increase its flexibility.
+///
+/// The constants defined in this table are as follows:
+///    (I) in the description indicates that this property is returned or set as an integer
+///    (N) in the description indicates that this property is returned or set as a number (floating point)
+///
+///   * mouseEventNumber                              -- (I) The mouse button event number. Matching mouse-down and mouse-up events will have the same event number.
+///   * mouseEventClickState                          -- (I) The mouse button click state. A click state of 1 represents a single click. A click state of 2 represents a double-click. A click state of 3 represents a triple-click.
+///   * mouseEventPressure                            -- (N) The mouse button pressure. The pressure value may range from 0 to 1, with 0 representing the mouse being up. This value is commonly set by tablet pens mimicking a mouse.
+///   * mouseEventButtonNumber                        -- (I) The mouse button number. For information about the possible values, see Mouse Buttons.
+///   * mouseEventDeltaX                              -- (I) The horizontal mouse delta since the last mouse movement event.
+///   * mouseEventDeltaY                              -- (I) The vertical mouse delta since the last mouse movement event.
+///   * mouseEventInstantMouser                       -- (I) The value is non-zero if the event should be ignored by the Inkwell subsystem.
+///   * mouseEventSubtype                             -- (I) Encoding of the mouse event subtype as a kCFNumberIntType.
+///   * keyboardEventAutorepeat                       -- (I) Non-zero when this is an autorepeat of a key-down, and zero otherwise.
+///   * keyboardEventKeycode                          -- (I) The virtual keycode of the key-down or key-up event.
+///   * keyboardEventKeyboardType                     -- (I) The keyboard type identifier.
+///   * scrollWheelEventDeltaAxis1                    -- (I) Scrolling data. This field typically contains the change in vertical position since the last scrolling event from a Mighty Mouse scroller or a single-wheel mouse scroller.
+///   * scrollWheelEventDeltaAxis2                    -- (I) Scrolling data. This field typically contains the change in horizontal position since the last scrolling event from a Mighty Mouse scroller.
+///   * scrollWheelEventDeltaAxis3                    -- (I) This field is not used.
+///   * scrollWheelEventFixedPtDeltaAxis1             -- (N) Contains scrolling data which represents a line-based or pixel-based change in vertical position since the last scrolling event from a Mighty Mouse scroller or a single-wheel mouse scroller.
+///   * scrollWheelEventFixedPtDeltaAxis2             -- (N) Contains scrolling data which represents a line-based or pixel-based change in horizontal position since the last scrolling event from a Mighty Mouse scroller.
+///   * scrollWheelEventFixedPtDeltaAxis3             -- (N) This field is not used.
+///   * scrollWheelEventPointDeltaAxis1               -- (I) Pixel-based scrolling data. The scrolling data represents the change in vertical position since the last scrolling event from a Mighty Mouse scroller or a single-wheel mouse scroller.
+///   * scrollWheelEventPointDeltaAxis2               -- (I) Pixel-based scrolling data. The scrolling data represents the change in horizontal position since the last scrolling event from a Mighty Mouse scroller.
+///   * scrollWheelEventPointDeltaAxis3               -- (I) This field is not used.
+///   * scrollWheelEventInstantMouser                 -- (I) Indicates whether the event should be ignored by the Inkwell subsystem. If the value is non-zero, the event should be ignored.
+///   * tabletEventPointX                             -- (I) The absolute X coordinate in tablet space at full tablet resolution.
+///   * tabletEventPointY                             -- (I) The absolute Y coordinate in tablet space at full tablet resolution.
+///   * tabletEventPointZ                             -- (I) The absolute Z coordinate in tablet space at full tablet resolution.
+///   * tabletEventPointButtons                       -- (I) The tablet button state. Bit 0 is the first button, and a set bit represents a closed or pressed button. Up to 16 buttons are supported.
+///   * tabletEventPointPressure                      -- (N) The tablet pen pressure. A value of 0.0 represents no pressure, and 1.0 represents maximum pressure.
+///   * tabletEventTiltX                              -- (N) The horizontal tablet pen tilt. A value of 0.0 represents no tilt, and 1.0 represents maximum tilt.
+///   * tabletEventTiltY                              -- (N) The vertical tablet pen tilt. A value of 0.0 represents no tilt, and 1.0 represents maximum tilt.
+///   * tabletEventRotation                           -- (N) The tablet pen rotation.
+///   * tabletEventTangentialPressure                 -- (N) The tangential pressure on the device. A value of 0.0 represents no pressure, and 1.0 represents maximum pressure.
+///   * tabletEventDeviceID                           -- (I) The system-assigned unique device ID.
+///   * tabletEventVendor1                            -- (I) A vendor-specified value.
+///   * tabletEventVendor2                            -- (I) A vendor-specified value.
+///   * tabletEventVendor3                            -- (I) A vendor-specified value.
+///   * tabletProximityEventVendorID                  -- (I) The vendor-defined ID, typically the USB vendor ID.
+///   * tabletProximityEventTabletID                  -- (I) The vendor-defined tablet ID, typically the USB product ID.
+///   * tabletProximityEventPointerID                 -- (I) The vendor-defined ID of the pointing device.
+///   * tabletProximityEventDeviceID                  -- (I) The system-assigned device ID.
+///   * tabletProximityEventSystemTabletID            -- (I) The system-assigned unique tablet ID.
+///   * tabletProximityEventVendorPointerType         -- (I) The vendor-assigned pointer type.
+///   * tabletProximityEventVendorPointerSerialNumber -- (I) The vendor-defined pointer serial number.
+///   * tabletProximityEventVendorUniqueID            -- (I) The vendor-defined unique ID.
+///   * tabletProximityEventCapabilityMask            -- (I) The device capabilities mask.
+///   * tabletProximityEventPointerType               -- (I) The pointer type.
+///   * tabletProximityEventEnterProximity            -- (I) Indicates whether the pen is in proximity to the tablet. The value is non-zero if the pen is in proximity to the tablet and zero when leaving the tablet.
+///   * eventTargetProcessSerialNumber                -- (I) The event target process serial number. The value is a 64-bit long word.
+///   * eventTargetUnixProcessID                      -- (I) The event target Unix process ID.
+///   * eventSourceUnixProcessID                      -- (I) The event source Unix process ID.
+///   * eventSourceUserData                           -- (I) Event source user-supplied data, up to 64 bits.
+///   * eventSourceUserID                             -- (I) The event source Unix effective UID.
+///   * eventSourceGroupID                            -- (I) The event source Unix effective GID.
+///   * eventSourceStateID                            -- (I) The event source state ID used to create this event.
+///   * scrollWheelEventIsContinuous                  -- (I) Indicates whether a scrolling event contains continuous, pixel-based scrolling data. The value is non-zero when the scrolling data is pixel-based and zero when the scrolling data is line-based.
+///
+/// Notes:
+///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.eventtap.event.properties`.
+///  * In previous versions of Hammerspoon, property labels were defined with the labels in all lowercase.  This practice is deprecated, but an __index metamethod allows the lowercase labels to still be used; however a warning will be printed to the Hammerspoon console.  At some point, this may go away, so please update your code to follow the new format.
 static void pushpropertiestable(lua_State* L) {
     lua_newtable(L);
     lua_pushinteger(L, kCGMouseEventNumber);                                 lua_setfield(L, -2, "mouseEventNumber");
@@ -568,6 +842,9 @@ static const luaL_Reg eventtapevent_metalib[] = {
     {"getProperty",     eventtap_event_getProperty},
     {"setProperty",     eventtap_event_setProperty},
     {"getButtonState",  eventtap_event_getButtonState},
+    {"getRawEventData", eventtap_event_getRawEventData},
+    {"getCharacters",   eventtap_event_getCharacters},
+    {"systemKey",       eventtap_event_systemKey},
     {"__gc",            eventtap_event_gc},
     {NULL,              NULL}
 };
