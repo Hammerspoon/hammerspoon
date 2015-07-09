@@ -152,7 +152,7 @@ function window:setFrame(f, duration)
   end
   local id = self:id()
   stopAnimation(self,id)
-  if duration<=0 then return self:_setFrame(f) end
+  if duration<=0 or not id then return self:_setFrame(f) end
   local frame = self:_frame()
   if not animations[id] then animations[id] = {window=self} end
   local anim = animations[id]
