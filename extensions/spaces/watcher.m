@@ -105,15 +105,15 @@ static int space_watcher_new(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The watcher object
 static int space_watcher_start(lua_State* L) {
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, userdataTag);
     lua_settop(L, 1);
+    lua_pushvalue(L, 1);
 
     if (spaceWatcher->running)
-        return 0;
+        return 1;
 
-    lua_pushvalue(L, 1);
     spaceWatcher->self = luaL_ref(L, LUA_REGISTRYINDEX);
     spaceWatcher->running = YES;
 
@@ -124,7 +124,8 @@ static int space_watcher_start(lua_State* L) {
                    name:NSWorkspaceActiveSpaceDidChangeNotification
                  object:nil];
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.spaces.watcher:stop()
@@ -135,17 +136,18 @@ static int space_watcher_start(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The watcher object
 static int space_watcher_stop(lua_State* L) {
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, userdataTag);
     lua_settop(L, 1);
+    lua_pushvalue(L, 1);
 
     if (!spaceWatcher->running)
-        return 0;
+        return 1;
 
     spaceWatcher->running = NO;
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver:(__bridge SpaceWatcher*)spaceWatcher->obj];
-    return 0;
+    return 1;
 }
 
 static int space_watcher_gc(lua_State* L) {
