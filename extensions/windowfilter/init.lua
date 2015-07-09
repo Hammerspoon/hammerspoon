@@ -707,7 +707,7 @@ appWindowEvent=function(win,event,_,appname,retry)
     if windowWatcherDelayed[win] then windowWatcherDelayed[win]:stop() windowWatcherDelayed[win]=nil end
     retry=(retry or 0)+1
     if not id then
-      if retry>MAX_RETRIES then log.wf('%s: %s has no id',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
+      if retry>MAX_RETRIES then log.df('%s: %s has no id',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
       else
         windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
       return
@@ -789,6 +789,45 @@ local function appEvent(appname,event,app,retry)
 end
 
 
+--FIXME spaces
+local spacesDone = {}
+function windowfilter.switchedToSpace(space,cb)
+  if spacesDone[space] then log.v('Switched to space #'..space) return cb and cb() end
+  timer.doAfter(0.5,function()
+    if spacesDone[space] then log.v('Switched to space #'..space) return cb and cb() end
+    log.f('Entered space #%d, refreshing all windows',space)
+    for _,app in pairs(apps) do
+      app:getWindows()
+    end
+    spacesDone[space] = true
+    return cb and cb()
+  end)
+end
+
+--- hs.windowfilter.forceRefreshOnSpaceChange
+--- Variable
+--- Tells the windowfilters whether to refresh all windows when the user switches to a different Mission Control space.
+---
+--- Due to OS X limitations Hammerspoon cannot query for windows in (Mission Control) spaces other than the current one;
+--- therefore when a windowfilter is initially instantiated, it doesn't know about many of these windows.
+---
+--- If this variable is set to `true` (the default), windowfilters will re-query applications for all their windows whenever a space
+--- change by the user is detected, therefore any existing windows that were not yet being tracked will immediately become known;
+--- if `false` or `nil` this won't happen, but the windowfilters will *eventually* learn about these windows
+--- anyway as soon as they're interacted with.
+---
+--- If your intended use doesn't need immediate awareness of all the windows, you can set this to `false` for a modest performance improvement.
+windowfilter.forceRefreshOnSpaceChange = true
+local function spaceChanged()
+  if windowfilter.forceRefreshOnSpaceChange then
+    log.d('Space changed, refreshing windows')
+    for _,app in pairs(apps) do
+      app:getWindows()
+    end
+  end
+end
+local spacesWatcher = require'hs.spaces'.watcher.new(spaceChanged)
+
 local function startGlobalWatcher()
   if global.watcher then return end
   global.watcher = appwatcher.new(appEvent)
@@ -798,10 +837,12 @@ local function startGlobalWatcher()
     startAppWatcher(app,app:title())
   end
   global.watcher:start()
+  spacesWatcher:start()
 end
 
 local function stopGlobalWatcher()
   if not global.watcher then return end
+  spacesWatcher:stop()
   for _,active in pairs(activeFilters) do
     if active then return end
   end
@@ -1071,20 +1112,6 @@ function wf:delete()
   stopGlobalWatcher()
 end
 
---FIXME spaces
-local spacesDone = {}
-function windowfilter.switchedToSpace(space,cb)
-  if spacesDone[space] then log.v('Switched to space #'..space) return cb and cb() end
-  timer.doAfter(0.5,function()
-    if spacesDone[space] then log.v('Switched to space #'..space) return cb and cb() end
-    log.f('Entered space #%d, refreshing all windows',space)
-    for _,app in pairs(apps) do
-      app:getWindows()
-    end
-    spacesDone[space] = true
-    return cb and cb()
-  end)
-end
 
 
 local defaultwf
