@@ -1506,6 +1506,9 @@ static int fontNamesWithTraits(lua_State *L) {
 ///    nonStandardCharacterSetFont -- fonts with the 'NonStandardCharacterSet' attribute set
 ///    unboldFont                  -- fonts that do not have the 'Bold' attribute set
 ///    unitalicFont                -- fonts that do not have the 'Italic' attribute set
+///
+/// Notes:
+///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.drawing.fontTraits`.
 static void pushFontTraitsTable(lua_State* L) {
     lua_newtable(L);
     lua_pushinteger(L, NSBoldFontMask);                    lua_setfield(L, -2, "boldFont");
@@ -1532,6 +1535,191 @@ static void pushFontTraitsTable(lua_State* L) {
     lua_pushstring(L, "unboldFont") ;                     lua_rawseti(L,  -2, NSUnboldFontMask);
     lua_pushinteger(L, NSUnitalicFontMask);                lua_setfield(L, -2, "unitalicFont");
     lua_pushstring(L, "unitalicFont") ;                   lua_rawseti(L,  -2, NSUnitalicFontMask);
+}
+
+/// hs.drawing:alpha() -> number
+/// Method
+/// Get the alpha level of the window containing the hs.drawing object.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The current alpha level for the hs.drawing object
+static int getAlpha(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+
+    lua_pushnumber(L, [drawingWindow alphaValue]) ;
+    return 1 ;
+}
+
+/// hs.drawing:setAlpha(level) -> object
+/// Method
+/// Sets the alpha level of the window containing the hs.drawing object.
+///
+/// Parameters:
+///  * level - the alpha level (0.0 - 1.0) to set the object to
+///
+/// Returns:
+///  * The `hs.drawing` object
+static int setAlpha(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    CGFloat newLevel = luaL_checknumber(L, 2);
+    if ((newLevel < 0.0) || (newLevel > 1.0)) {
+        showError(L, "Level must be between 0.0 and 1.0") ;
+    } else {
+        HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+        [drawingWindow setAlphaValue:newLevel] ;
+    }
+
+    lua_settop(L, 1);
+    return 1 ;
+}
+
+/// hs.drawing:orderAbove([object2]) -> object
+/// Method
+/// Moves drawing object above drawing object2, or all drawing objects in the same presentation level, if object2 is not provided.
+///
+/// Parameters:
+///  * Optional drawing object to place the drawing object above.
+///
+/// Returns:
+///  * The `hs.drawing` object
+static int orderAbove(lua_State *L) {
+    drawing_t *object1 = get_item_arg(L, 1);
+    HSDrawingWindow *window1 = (__bridge HSDrawingWindow *)object1->window;
+    NSInteger window2 ;
+
+    if lua_isnone(L,2) {
+        window2 = 0 ;
+    } else {
+        drawing_t *object2 = get_item_arg(L, 2);
+        window2 = [(__bridge HSDrawingWindow *)object2->window windowNumber];
+    }
+
+    [window1 orderWindow:NSWindowAbove relativeTo:window2] ;
+
+    lua_settop(L, 1);
+    return 1 ;
+}
+
+/// hs.drawing:orderBelow([object2]) -> object1
+/// Method
+/// Moves drawing object below drawing object2, or all drawing objects in the same presentation level, if object2 is not provided.
+///
+/// Parameters:
+///  * Optional drawing object to place the drawing object below.
+///
+/// Returns:
+///  * The `hs.drawing` object
+static int orderBelow(lua_State *L) {
+    drawing_t *object1 = get_item_arg(L, 1);
+    HSDrawingWindow *window1 = (__bridge HSDrawingWindow *)object1->window;
+    NSInteger window2 ;
+
+    if lua_isnone(L,2) {
+        window2 = 0 ;
+    } else {
+        drawing_t *object2 = get_item_arg(L, 2);
+        window2 = [(__bridge HSDrawingWindow *)object2->window windowNumber];
+    }
+
+    [window1 orderWindow:NSWindowBelow relativeTo:window2] ;
+
+    lua_settop(L, 1);
+    return 1 ;
+}
+
+/// hs.drawing.windowBehaviors[]
+/// Constant
+/// Array of window behavior labels for determining how an hs.drawing object is handled in Spaces and Exposé
+///
+/// * default           -- The window can be associated to one space at a time.
+/// * canJoinAllSpaces  -- The window appears in all spaces. The menu bar behaves this way.
+/// * moveToActiveSpace -- Making the window active does not cause a space switch; the window switches to the active space.
+///
+/// Only one of these may be active at a time:
+///
+/// * managed           -- The window participates in Spaces and Exposé. This is the default behavior if windowLevel is equal to NSNormalWindowLevel.
+/// * transient         -- The window floats in Spaces and is hidden by Exposé. This is the default behavior if windowLevel is not equal to NSNormalWindowLevel.
+/// * stationary        -- The window is unaffected by Exposé; it stays visible and stationary, like the desktop window.
+///
+/// Notes:
+///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.drawing.windowBehaviors`.
+
+// the following don't apply to hs.drawing objects, but may become useful if we decide to add support for more traditional window creation in HS.
+//
+// /// Only one of these may be active at a time:
+// ///
+// /// * participatesInCycle -- The window participates in the window cycle for use with the Cycle Through Windows Window menu item.
+// /// * ignoresCycle        -- The window is not part of the window cycle for use with the Cycle Through Windows Window menu item.
+// ///
+// /// Only one of these may be active at a time:
+// ///
+// /// * fullScreenPrimary   -- A window with this collection behavior has a fullscreen button in the upper right of its titlebar.
+// /// * fullScreenAuxiliary -- Windows with this collection behavior can be shown on the same space as the fullscreen window.
+
+static int pushCollectionTypeTable(lua_State *L) {
+    lua_newtable(L) ;
+        lua_pushinteger(L, NSWindowCollectionBehaviorDefault) ;             lua_setfield(L, -2, "default") ;
+        lua_pushstring(L, "default") ;                                      lua_rawseti(L, -2, NSWindowCollectionBehaviorDefault) ;
+        lua_pushinteger(L, NSWindowCollectionBehaviorCanJoinAllSpaces) ;    lua_setfield(L, -2, "canJoinAllSpaces") ;
+        lua_pushstring(L, "canJoinAllSpaces") ;                             lua_rawseti(L, -2, NSWindowCollectionBehaviorCanJoinAllSpaces) ;
+        lua_pushinteger(L, NSWindowCollectionBehaviorMoveToActiveSpace) ;   lua_setfield(L, -2, "moveToActiveSpace") ;
+        lua_pushstring(L, "moveToActiveSpace") ;                            lua_rawseti(L, -2, NSWindowCollectionBehaviorMoveToActiveSpace) ;
+        lua_pushinteger(L, NSWindowCollectionBehaviorManaged) ;             lua_setfield(L, -2, "managed") ;
+        lua_pushstring(L, "managed") ;                                      lua_rawseti(L, -2, NSWindowCollectionBehaviorManaged) ;
+        lua_pushinteger(L, NSWindowCollectionBehaviorTransient) ;           lua_setfield(L, -2, "transient") ;
+        lua_pushstring(L, "transient") ;                                    lua_rawseti(L, -2, NSWindowCollectionBehaviorTransient) ;
+        lua_pushinteger(L, NSWindowCollectionBehaviorStationary) ;          lua_setfield(L, -2, "stationary") ;
+        lua_pushstring(L, "stationary") ;                                   lua_rawseti(L, -2, NSWindowCollectionBehaviorStationary) ;
+//         lua_pushinteger(L, NSWindowCollectionBehaviorParticipatesInCycle) ; lua_setfield(L, -2, "participatesInCycle") ;
+//         lua_pushstring(L, "participatesInCycle") ;                          lua_rawseti(L, -2, NSWindowCollectionBehaviorParticipatesInCycle) ;
+//         lua_pushinteger(L, NSWindowCollectionBehaviorIgnoresCycle) ;        lua_setfield(L, -2, "ignoresCycle") ;
+//         lua_pushstring(L, "ignoresCycle") ;                                 lua_rawseti(L, -2, NSWindowCollectionBehaviorIgnoresCycle) ;
+//         lua_pushinteger(L, NSWindowCollectionBehaviorFullScreenPrimary) ;   lua_setfield(L, -2, "fullScreenPrimary") ;
+//         lua_pushstring(L, "fullScreenPrimary") ;                            lua_rawseti(L, -2, NSWindowCollectionBehaviorFullScreenPrimary) ;
+//         lua_pushinteger(L, NSWindowCollectionBehaviorFullScreenAuxiliary) ; lua_setfield(L, -2, "fullScreenAuxiliary") ;
+//         lua_pushstring(L, "fullScreenAuxiliary") ;                          lua_rawseti(L, -2, NSWindowCollectionBehaviorFullScreenAuxiliary) ;
+    return 1 ;
+}
+
+/// hs.drawing:behavior() -> number
+/// Method
+/// Returns the current behavior of the hs.drawing object with respect to Spaces and Exposé for the object.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The numeric representation of the current behaviors for the hs.drawing object
+static int getBehavior(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+
+    lua_pushinteger(L, [drawingWindow collectionBehavior]) ;
+
+    return 1 ;
+}
+
+/// hs.drawing:setBehavior(behavior) -> object
+/// Method
+/// Sets the window behaviors represented by the number provided for the window containing the hs.drawing object.
+///
+/// Parameters:
+///  * behavior - the numeric representation of the behaviors to set for the window of the object
+///
+/// Returns:
+///  * The `hs.drawing` object
+static int setBehavior(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    NSInteger newLevel = luaL_checkinteger(L, 2);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    [drawingWindow setCollectionBehavior:newLevel] ;
+
+    lua_settop(L, 1);
+    return 1 ;
 }
 
 // Lua metadata
@@ -1571,7 +1759,12 @@ static const luaL_Reg drawing_metalib[] = {
     {"setTopLeft", drawing_setTopLeft},
     {"setSize", drawing_setSize},
     {"setFrame", drawing_setFrame},
-
+    {"setAlpha",    setAlpha},
+    {"alpha",       getAlpha},
+    {"orderAbove",  orderAbove},
+    {"orderBelow",  orderBelow},
+    {"setBehavior", setBehavior},
+    {"behavior",    getBehavior},
     {"__gc", drawing_delete},
     {}
 };
@@ -1585,8 +1778,8 @@ int luaopen_hs_drawing_internal(lua_State *L) {
 
     // Table for luaopen
     luaL_newlib(L, drawinglib);
-        pushFontTraitsTable(L);
-        lua_setfield(L, -2, "fontTraits");
+        pushFontTraitsTable(L);       lua_setfield(L, -2, "fontTraits");
+        pushCollectionTypeTable(L) ;  lua_setfield(L, -2, "windowBehaviors") ;
 
     return 1;
 }
