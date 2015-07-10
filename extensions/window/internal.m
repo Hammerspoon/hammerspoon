@@ -41,13 +41,6 @@ static void geom_pushpoint(lua_State* L, NSPoint point) {
     lua_pushnumber(L, point.y); lua_setfield(L, -2, "y");
 }
 
-static float get_float(lua_State* L, int idx) {
-    luaL_checktype(L, idx, LUA_TNUMBER);
-    float result = lua_tonumber(L, idx);
-    lua_pop(L, 1);
-    return result;
-}
-
 static NSPoint get_window_topleft(AXUIElementRef win) {
     CFTypeRef positionStorage;
     AXError result = AXUIElementCopyAttributeValue(win, (CFStringRef)NSAccessibilityPositionAttribute, &positionStorage);
