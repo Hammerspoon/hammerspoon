@@ -27,9 +27,17 @@ static int remove_event(lua_State* L, int x) {
     return LUA_NOREF;
 }
 
-CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType __unused type, CGEventRef event, void *refcon) {
+CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     eventtap_t* e = refcon;
     lua_State* L = e->L;
+
+//  apparently OS X disables eventtaps if it thinks they are slow or odd or just because the moon
+//  is wrong in some way... but at least it's nice enough to tell us.
+    if ((type == kCGEventTapDisabledByTimeout) || (type == kCGEventTapDisabledByUserInput)) {
+        CLS_NSLOG(@"eventtap restarted: (%d)", type) ;
+        CGEventTapEnable(e->tap, true);
+        return event ;
+    }
 
     lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, e->fn);
@@ -162,6 +170,13 @@ static int eventtap_start(lua_State* L) {
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 
     if (!(e->tap && CGEventTapIsEnabled(e->tap))) {
+        // Just in case; don't want dangling ports and loops and such lying around.
+        if (e->tap && !CGEventTapIsEnabled(e->tap)) {
+            CFMachPortInvalidate(e->tap);
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
+            CFRelease(e->runloopsrc);
+            CFRelease(e->tap);
+        }
         e->self = store_event(L, 1);
         e->tap = CGEventTapCreate(kCGSessionEventTap,
                                   kCGHeadInsertEventTap,
@@ -196,11 +211,11 @@ static int eventtap_start(lua_State* L) {
 static int eventtap_stop(lua_State* L) {
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    if (e->tap && CGEventTapIsEnabled(e->tap)) {
+    if (e->tap) {
+        if (CGEventTapIsEnabled(e->tap)) CGEventTapEnable(e->tap, false);
         remove_event(L, e->self);
         e->self = LUA_NOREF;
 
-        CGEventTapEnable(e->tap, false);
         CFMachPortInvalidate(e->tap);
         CFRunLoopRemoveSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
         CFRelease(e->runloopsrc);
@@ -242,7 +257,7 @@ static int eventtap_isEnabled(lua_State* L) {
 ///     * fn
 ///
 /// Notes:
-///  * This is an instantaneous poll of the current keyboard modifiers, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar` where a callback is already in progress and waiting for an event callback is not practical or possible.
+///  * This is an instantaneous poll of the current keyboard modifiers, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar`, when a callback is already in progress or waiting for an event callback is not practical or possible.
 static int checkKeyboardModifiers(lua_State* L) {
 
     NSUInteger theFlags = [NSEvent modifierFlags] ;
@@ -275,7 +290,7 @@ static int checkKeyboardModifiers(lua_State* L) {
 ///  * Special hash tag synonyms for `left` (button 1), `right` (button 2), and `middle` (button 3) are also set to true if these buttons are currently being pressed.
 ///
 /// Notes:
-///  * This is an instantaneous poll of the current buttons buttons, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar` where a callback is already in progress and waiting for an event callback is not practical or possible.
+///  * This is an instantaneous poll of the current mouse buttons, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar`, when a callback is already in progress or waiting for an event callback is not practical or possible.
 static int checkMouseButtons(lua_State* L) {
     NSUInteger theButtons = [NSEvent pressedMouseButtons] ;
     NSUInteger i = 0 ;
@@ -348,11 +363,11 @@ static int eventtap_doubleClickInterval(lua_State* L) {
 
 static int eventtap_gc(lua_State* L) {
     eventtap_t* eventtap = luaL_checkudata(L, 1, USERDATA_TAG);
-    if (eventtap->tap && CGEventTapIsEnabled(eventtap->tap)) {
+    if (eventtap->tap) {
+        if (CGEventTapIsEnabled(eventtap->tap)) CGEventTapEnable(eventtap->tap, false);
         remove_event(L, eventtap->self);
         eventtap->self = LUA_NOREF;
 
-        CGEventTapEnable(eventtap->tap, false);
         CFMachPortInvalidate(eventtap->tap);
         CFRunLoopRemoveSource(CFRunLoopGetMain(), eventtap->runloopsrc, kCFRunLoopCommonModes);
         CFRelease(eventtap->runloopsrc);
