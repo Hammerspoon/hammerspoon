@@ -102,7 +102,7 @@ local wf={} -- class
 --- Checks if a window is allowed by the windowfilter
 ---
 --- Parameters:
----  * window - a `hs.window` object to check
+---  * window - an `hs.window` object to check
 ---
 --- Returns:
 ---  * - `true` if the window is allowed by the windowfilter; `false` otherwise
@@ -308,6 +308,7 @@ end
 
 function windowfilter.new(fn,logname,loglevel)
   local o = setmetatable({apps={},events={},windows={},log=logname and logger.new(logname,loglevel) or log},{__index=wf})
+  if logname then o.setLogLevel=function(lvl)o.log.setLogLevel(lvl)return o end end
   if type(fn)=='function' then
     o.log.i('new windowfilter, custom function')
     o.isAppAllowed = function()return true end
@@ -368,6 +369,7 @@ end
 ---  * If you still want to alter the default windowfilter:
 ---    * to list the known exclusions: `hs.windowfilter.setLogLevel('debug')`; the console will log them upon instantiating the default windowfilter
 ---    * to add an exclusion: `hs.windowfilter.default:rejectApp'Cool New Launcher'`
+---    * to add an app-specific rule: `hs.windowfilter.default:setAppFilter('My IDE',1) -- ignore tooltips/code completion (empty title) in My IDE`
 ---    * to remove an exclusion (e.g. if you want to have access to Spotlight windows): `hs.windowfilter.default:allowApp'Spotlight'`;
 ---      for specialized uses you can make a specific windowfilter with `myfilter=hs.windowfilter.new'Spotlight'`
 
@@ -453,10 +455,17 @@ local global = {} -- global state
 
 local Window={} -- class
 
-function Window:emitEvent(event)
+function Window:setFilter(wf, forceremove) -- returns true if filtering status changes
+  local wasAllowed,isAllowed = wf.windows[self]
+  if not forceremove then isAllowed = wf:isWindowAllowed(self.window,self.app.name) or nil end
+  wf.windows[self] = isAllowed
+  return wasAllowed ~= isAllowed
+end
+--FIXME GIANT snafu with the usual missing role when window's gone; setFilter on unfocus remvoes the window
+function Window:emitEvent(event,inserted)
   local logged, notified
   for wf in pairs(activeFilters) do
-    if self:setFilter(wf,event==windowfilter.windowDestroyed) and wf.notifyfn then
+    if not inserted and self:setFilter(wf,event==windowfilter.windowDestroyed) and wf.notifyfn then
       -- filter status changed, call notifyfn if present
       if not notified then wf.log.df('Notifying windows changed') if wf.log==log then notified=true end end
       wf.notifyfn(wf:getWindows(),event)
@@ -474,27 +483,6 @@ function Window:emitEvent(event)
   end
 end
 
-function Window:focused()
-  if global.focused==self then return log.df('Window %d (%s) already focused',self.id,self.app.name) end
-  global.focused=self
-  self.app.focused=self
-  self.time=timer.secondsSinceEpoch()
-  self:emitEvent(windowfilter.windowFocused)
-end
-
-function Window:unfocused()
-  if global.focused~=self then return log.vf('Window %d (%s) already unfocused',self.id,self.app.name) end
-  global.focused=nil
-  self.app.focused=nil
-  self:emitEvent(windowfilter.windowUnfocused)
-end
-
-function Window:setFilter(wf, forceremove) -- returns true if filtering status changes
-  local wasAllowed,isAllowed = wf.windows[self]
-  if not forceremove then isAllowed = wf:isWindowAllowed(self.window,self.app.name) or nil end
-  wf.windows[self] = isAllowed
-  return wasAllowed ~= isAllowed
-end
 
 function Window.new(win,id,app,watcher)
   local o = setmetatable({app=app,window=win,id=id,watcher=watcher,time=timer.secondsSinceEpoch()},{__index=Window})
@@ -503,33 +491,45 @@ function Window.new(win,id,app,watcher)
   o.isFullscreen = win:isFullScreen()
   app.windows[id]=o
   o:emitEvent(windowfilter.windowCreated)
-  if not o.isHidden and not o.isMinimized then o:emitEvent(windowfilter.windowShown) end
+  if not o.isHidden and not o.isMinimized then o:emitEvent(windowfilter.windowShown,true) end
 end
 
-function Window:destroyed()
-  if self.movedDelayed then self.movedDelayed:stop() self.movedDelayed=nil end
-  if self.titleDelayed then self.titleDelayed:stop() self.titleDelayed=nil end
-  self.watcher:stop()
-  self.app.windows[self.id]=nil
-  self:unfocused()
-  if not self.isHidden then self:emitEvent(windowfilter.windowHidden) end
-  self:emitEvent(windowfilter.windowDestroyed)
+function Window:shown(inserted)
+  if not self.isHidden then return log.df('Window %d (%s) already shown',self.id,self.app.name) end
+  self.isHidden = nil
+  self:emitEvent(windowfilter.windowShown,inserted)
 end
+
+function Window:unminimized()
+  if not self.isMinimized then log.df('Window %d (%s) already unminimized',self.id,self.app.name) end
+  self.isMinimized=nil
+  self:shown(true)
+  self:emitEvent(windowfilter.windowUnminimized)
+end
+
+function Window:focused(inserted)
+  if global.focused==self then return log.df('Window %d (%s) already focused',self.id,self.app.name) end
+  global.focused=self
+  self.app.focused=self
+  self.time=timer.secondsSinceEpoch()
+  self:emitEvent(windowfilter.windowFocused)
+end
+
 local WINDOWMOVED_DELAY=0.5
 function Window:moved()
   if self.movedDelayed then self.movedDelayed:stop() self.movedDelayed=nil end
   self.movedDelayed=timer.doAfter(WINDOWMOVED_DELAY,function()self:doMoved()end)
 end
-
 function Window:doMoved()
   self:emitEvent(windowfilter.windowMoved)
   local fs = self.window:isFullScreen()
   local oldfs = self.isFullscreen or false
   if self.isFullscreen~=fs then
     self.isFullscreen=fs
-    self:emitEvent(fs and windowfilter.windowFullscreened or windowfilter.windowUnfullscreened)
+    self:emitEvent(fs and windowfilter.windowFullscreened or windowfilter.windowUnfullscreened,true)
   end
 end
+
 local TITLECHANGED_DELAY=0.5
 function Window:titleChanged()
   if self.titleDelayed then self.titleDelayed:stop() self.titleDelayed=nil end
@@ -538,28 +538,36 @@ end
 function Window:doTitleChanged()
   self:emitEvent(windowfilter.windowTitleChanged)
 end
-function Window:hidden()
-  if self.isHidden then return log.df('Window %d (%s) already hidden',self.id,self.app.name) end
-  self:unfocused()
-  self.isHidden = true
-  self:emitEvent(windowfilter.windowHidden)
+
+function Window:unfocused(inserted)
+  if global.focused~=self then return log.vf('Window %d (%s) already unfocused',self.id,self.app.name) end
+  global.focused=nil
+  self.app.focused=nil
+  self:emitEvent(windowfilter.windowUnfocused,inserted)
 end
-function Window:shown()
-  if not self.isHidden then return log.df('Window %d (%s) already shown',self.id,self.app.name) end
-  self.isHidden = nil
-  self:emitEvent(windowfilter.windowShown)
-end
+
 function Window:minimized()
   if self.isMinimized then return log.df('Window %d (%s) already minimized',self.id,self.app.name) end
   self.isMinimized=true
   self:emitEvent(windowfilter.windowMinimized)
-  self:hidden()
+  self:hidden(true)
 end
-function Window:unminimized()
-  if not self.isMinimized then log.df('Window %d (%s) already unminimized',self.id,self.app.name) end
-  self.isMinimized=nil
-  self:shown()
-  self:emitEvent(windowfilter.windowUnminimized)
+
+function Window:hidden(inserted)
+  if self.isHidden then return log.df('Window %d (%s) already hidden',self.id,self.app.name) end
+  self:unfocused()
+  self.isHidden = true
+  self:emitEvent(windowfilter.windowHidden,inserted)
+end
+
+function Window:destroyed()
+  if self.movedDelayed then self.movedDelayed:stop() self.movedDelayed=nil end
+  if self.titleDelayed then self.titleDelayed:stop() self.titleDelayed=nil end
+  self.watcher:stop()
+  self.app.windows[self.id]=nil
+  self:unfocused(true)
+  if not self.isHidden then self:emitEvent(windowfilter.windowHidden,true) end
+  self:emitEvent(windowfilter.windowDestroyed)
 end
 
 local appWindowEvent
@@ -634,7 +642,7 @@ function App:deactivated()
   if self.focused then self.focused:unfocused() end
 end
 function App:focusChanged(id,win)
-  if not id then return log.wf('Cannot process focus changed for app %s - no window id',self.name) end
+  if not id then return log.df('Cannot process focus changed for app %s - no window id',self.name) end
   if self.focused and self.focused.id==id then return log.df('Window %d (%s) already focused, skipping',id,self.name) end
   local active=global.active
   if not self.windows[id] then
@@ -1117,7 +1125,8 @@ end
 local defaultwf
 function windowfilter.setLogLevel(lvl)
   log.setLogLevel(lvl)
-  if defaultwf then defaultwf.log.setLogLevel(lvl) end
+  if defaultwf then defaultwf.setLogLevel(lvl) end
+  return windowfilter
 end
 
 local rawget=rawget
