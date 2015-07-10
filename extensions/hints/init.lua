@@ -37,6 +37,22 @@ hints.fontSize = 0.0
 --- The default is 4. Setting to 0 will disable this feature.
 hints.showTitleThresh = 4
 
+--- hs.hints.titleMaxSize
+--- Variable
+--- If the title is longer than maxSize, the string is truncated, -1 to disable, valid value is >= 6
+hints.titleMaxSize = -1
+
+--- hs.hints.titleRegex
+--- Variable
+--- List of regex substituions for window titles, in string.gsub style format:
+---    { key = { pat="<gsub_pattern>", sub="<gsub_replace>" }, ... }
+---
+---    Add as many keys as you like
+---
+--- e.g. { MSApps={pat="Microsoft%s*", sub=""}, Chrome={pat="Google Chrome", sub="Chrome"} }
+--- Only valid for vimperator style
+hints.titleRegexSub = {}
+
 local openHints = {}
 local takenPositions = {}
 local hintDict = {}
@@ -114,7 +130,13 @@ function hints.displayHintsForDict(dict, prefixstring, showTitles)
         else
           local suffixString = ""
           if showTitles then
-            suffixString = ": "..win:title()
+            local win_title = win:title()
+            if hints.titleMaxSize > 1 and #win_title > hints.titleMaxSize then
+                local end_idx = math.max(0, hints.titleMaxSize-3)
+                print ("end_idx " .. end_idx)
+                win_title = string.sub(win_title, 1, end_idx) .. "..."
+            end
+            suffixString = ": "..win_title
           end
           -- print(win:title().." x:"..c.x.." y:"..c.y) -- debugging
           local hint = hints.new(c.x, c.y, prefixstring .. key .. suffixString, app:bundleID(), win:screen(), hints.fontName, hints.fontSize)
@@ -198,7 +220,13 @@ function hints.windowHints(windows, callback)
     if app and win:isStandard() then
       if hints.style == "vimperator" then
         if app and win:isStandard() then
-          local appchar = string.upper(string.sub(app:title(), 1, 1))
+          local app_title = app:title()
+          pcall(function ()
+              for k,v in pairs(hints.titleRegexSub) do
+                  app_title = string.gsub(app_title, v.pat, v.sub)
+              end
+          end)
+          local appchar = string.upper(string.sub(app_title, 1, 1))
           modalKey:bind({}, appchar, function() hints.processChar(appchar) end)
           if hintDict[appchar] == nil then
             hintDict[appchar] = {}
