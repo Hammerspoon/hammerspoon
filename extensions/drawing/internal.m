@@ -319,6 +319,8 @@ NSMutableArray *drawingWindows;
         newImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
     } else {
         newImage = [[NSImage alloc] initByReferencingFile:filePath];
+        if (![newImage isValid])
+            newImage = [NSImage imageNamed:filePath] ;
     }
     if (!newImage) {
         CLS_NSLOG(@"HSDrawingViewImage::setImageFromPath: ERROR: unable to load image: %@", filePath);
@@ -661,7 +663,7 @@ static int drawing_newText(lua_State *L) {
 ///
 /// Parameters:
 ///  * sizeRect - A rect-table containing the location/size of the image
-///  * imagePath - A string containing a path to an image file. If the string begins with `ASCII:` then the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image. See the notes below for information about the special format of ASCII diagram.
+///  * imagePath - A string containing a path to an image file or the name representing a system image. If the string begins with `ASCII:` then the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image. See the notes below for information about the special format of ASCII diagram.
 ///
 /// Returns:
 ///  * An `hs.drawing` image object, or nil if an error occurs
@@ -669,6 +671,7 @@ static int drawing_newText(lua_State *L) {
 ///  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
 ///
 /// Notes:
+///  * See `hs.drawing.systemImageNames` for a list of currently recognized internally defined system images.
 ///  * To use the ASCII diagram image support, see http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/ and be sure to preface your ASCII diagram with the special string `ASCII:`
 static int drawing_newImage(lua_State *L) {
     NSRect windowRect;
@@ -1685,6 +1688,77 @@ static int pushCollectionTypeTable(lua_State *L) {
     return 1 ;
 }
 
+/// hs.drawing.systemImageNames[]
+/// Constant
+/// Array containing the names of internal system images for use with hs.drawing.image
+///
+/// Notes:
+///  * Image names pulled from NSImage.h
+///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.drawing.systemImageNames`.
+static int pushNSImageNameTable(lua_State *L) {
+    lua_newtable(L) ;
+        lua_pushstring(L, [NSImageNameQuickLookTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameBluetoothTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameIChatTheaterTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameSlideshowTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameActionTemplate UTF8String] ) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameSmartBadgeTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameIconViewTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameListViewTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameColumnViewTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameFlowViewTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNamePathTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameInvalidDataFreestandingTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameLockLockedTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameLockUnlockedTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameGoRightTemplate UTF8String] ) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameGoLeftTemplate UTF8String] ) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameRightFacingTriangleTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameLeftFacingTriangleTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameAddTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameRemoveTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameRevealFreestandingTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameFollowLinkFreestandingTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameEnterFullScreenTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameExitFullScreenTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameStopProgressTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameStopProgressFreestandingTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameRefreshTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameRefreshFreestandingTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameBonjour UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameComputer UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameFolderBurnable UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameFolderSmart UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameFolder UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameNetwork UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameMobileMe UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameMultipleDocuments UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameUserAccounts UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNamePreferencesGeneral UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameAdvanced UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameInfo UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameFontPanel UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameColorPanel UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameUser UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameUserGroup UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameEveryone UTF8String] ) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameUserGuest UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameMenuOnStateTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameMenuMixedStateTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameApplicationIcon UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameTrashEmpty UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameTrashFull UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameHomeTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameBookmarksTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameCaution UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameStatusAvailable UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameStatusPartiallyAvailable UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameStatusUnavailable UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameStatusNone UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+        lua_pushstring(L, [NSImageNameShareTemplate UTF8String]) ;  lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+    return 1;
+}
+
 /// hs.drawing:behavior() -> number
 /// Method
 /// Returns the current behavior of the hs.drawing object with respect to Spaces and Exposé for the object.
@@ -1780,6 +1854,7 @@ int luaopen_hs_drawing_internal(lua_State *L) {
     luaL_newlib(L, drawinglib);
         pushFontTraitsTable(L);       lua_setfield(L, -2, "fontTraits");
         pushCollectionTypeTable(L) ;  lua_setfield(L, -2, "windowBehaviors") ;
+        pushNSImageNameTable(L)    ;  lua_setfield(L, -2, "systemImageNames") ;
 
     return 1;
 }
