@@ -6,7 +6,7 @@ local hotkey = require "hs.hotkey.internal"
 local keycodes = require "hs.keycodes"
 local fnutils = require "hs.fnutils"
 
---- hs.hotkey.new(mods, key, pressedfn[, releasedfn, repeatfn]) -> hotkeyObject or nil
+--- hs.hotkey.new(mods, key, pressedfn[, releasedfn, repeatfn]) -> hs.hotkey
 --- Constructor
 --- Creates a new hotkey
 ---
@@ -22,7 +22,7 @@ local fnutils = require "hs.fnutils"
 ---  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
 ---
 --- Returns:
----  * An `hs.hotkey` object, or nil if an error occurred
+---  * A new `hs.hotkey` object, or nil if an error occurred
 function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
   local keycode
 
@@ -42,7 +42,7 @@ function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
   return k
 end
 
---- hs.hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn) -> hotkeyObject or nil
+--- hs.hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn, message, duration) -> hs.hotkey
 --- Constructor
 --- Creates a hotkey and enables it immediately
 ---
@@ -54,21 +54,35 @@ end
 ---   * ctrl
 ---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
 ---  * pressedfn - A function that will be called when the hotkey has been pressed
----  * releasedfn - An optional function that will be called when the hotkey has been released
----  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
+---  * releasedfn - (optional) A function that will be called when the hotkey has been released
+---  * repeatfn - (optional) A function that will be called when a pressed hotkey is repeating
+---  * message - (optional) A string containing a message to be displayed via `hs.alert()` when the hotkey has been pressed
+---  * duration - (optional) Duration of the alert message in seconds
 ---
 --- Returns:
----  * An `hs.hotkey` object or nil if an error occurred
+---  * A new `hs.hotkey` object or nil if an error occurred
 ---
 --- Notes:
----  * This function is a simple wrapper that performs: `hs.hotkey.new(mods, key, pressedfn, releasedfn, repeatfn):enable()`
-function hotkey.bind(...)
-  local key = hotkey.new(...)
-  if key then
-      return key:enable()
-  else
-      return nil
+---  * This function is a wrapper that essentially performs: `hs.hotkey.new(mods, key, pressedfn, releasedfn, repeatfn):enable()`
+---  * If you don't need `releasedfn` nor `repeatfn`, you can simply use `hs.hotkey.bind(mods,key,fn,"message")`
+local alert,SYMBOLS,supper,ipairs,type = require'hs.alert',require'hs.utf8'.registeredKeys,string.upper,ipairs,type
+--local SYMBOLS = {cmd='⌘',ctrl='⌃',alt='⌥',shift='⇧',hyper='✧'}
+function hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn, message, duration)
+  if type(releasedfn)=='string' then duration=repeatfn message=releasedfn repeatfn=nil releasedfn=nil
+  elseif type(repeatfn)=='string' then duration=message message=repeatfn repeatfn=nil end
+  if type(message)~='string' then message=nil end
+  if type(duration)~='number' then duration=nil end
+  local fnalert
+  if message then
+    local s=''
+    for _,mod in ipairs(mods) do s=s..SYMBOLS[mod] end
+    if #mods>=4 then s=SYMBOLS.concaveDiamond end
+    s=s..supper(key)
+    if #message>0 then s=s..': '..message end
+    fnalert=function()alert(s,duration or 1)pressedfn()end
   end
+  local key=hotkey.new(mods,key,fnalert or pressedfn,releasedfn,repeatfn)
+  return key and key:enable()
 end
 
 --- === hs.hotkey.modal ===
@@ -120,7 +134,7 @@ end
 function hotkey.modal:exited()
 end
 
---- hs.hotkey.modal:bind(mods, key, pressedfn, releasedfn, repeatfn)
+--- hs.hotkey.modal:bind(mods, key, pressedfn, releasedfn, repeatfn) -> hs.hotkey.modal
 --- Method
 ---
 --- Parameters:
@@ -135,7 +149,7 @@ end
 ---  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
 ---
 --- Returns:
----  * An `hs.hotkey.modal` object or nil if an error occurred
+---  * The `hs.hotkey.modal` object
 ---
 function hotkey.modal:bind(mods, key, pressedfn, releasedfn, repeatfn)
   local k = hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
@@ -143,7 +157,7 @@ function hotkey.modal:bind(mods, key, pressedfn, releasedfn, repeatfn)
   return self
 end
 
---- hs.hotkey.modal:enter()
+--- hs.hotkey.modal:enter() -> hs.hotkey.modal
 --- Method
 --- Enters a modal state
 ---
@@ -165,7 +179,7 @@ function hotkey.modal:enter()
   return self
 end
 
---- hs.hotkey.modal:exit()
+--- hs.hotkey.modal:exit() -> hs.hotkey.modal
 --- Method
 --- Exits a modal state
 ---
@@ -186,7 +200,7 @@ function hotkey.modal:exit()
   return self
 end
 
---- hs.hotkey.modal.new(mods, key) -> modal
+--- hs.hotkey.modal.new(mods, key) -> hs.hotkey.modal
 --- Constructor
 --- Creates a new modal state, optionally with a global hotkey to trigger it
 ---
@@ -195,7 +209,7 @@ end
 ---  * key - A string containing the name of a keyboard key (as found in `hs.keycodes.map`)
 ---
 --- Returns:
----  * An `hs.hotkey.modal` object
+---  * A new `hs.hotkey.modal` object
 ---
 --- Notes:
 ---  * If `mods` and `key` are both nil, no global hotkey will be registered
