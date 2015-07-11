@@ -332,6 +332,33 @@ NSMutableArray *drawingWindows;
 
     return;
 }
+
+- (void)setImageFromWindowID:(NSInteger)windowID {
+    CGImageRef windowImage = CGWindowListCreateImage(
+          CGRectNull,
+          kCGWindowListOptionIncludingWindow,
+          windowID,
+          kCGWindowImageBoundsIgnoreFraming | kCGWindowImageShouldBeOpaque);
+
+    if (!windowImage) {
+        CLS_NSLOG(@"HSDrawingViewImage::setImageFromWindowID: ERROR: CGWindowListCreateImage failed for windowID: %ld", (long) windowID);
+        return;
+    }
+
+    NSImage *newImage = [[NSImage alloc] initWithCGImage:windowImage size:NSZeroSize] ;
+
+    if (!newImage) {
+        CLS_NSLOG(@"HSDrawingViewImage::setImageFromWindowID: ERROR: unable to convert CGImageRef to NSImage for windowID: %ld", (long) windowID);
+        return;
+    }
+
+    self.HSImageView.image = newImage;
+    self.HSImage = newImage;
+
+    self.needsDisplay = true;
+
+    return;
+}
 @end
 
 // Lua API implementation
@@ -723,6 +750,73 @@ static int drawing_newImage(lua_State *L) {
 
     return 1;
 }
+
+/// hs.drawing.imageFromWindowID(sizeRect, windowID) -> drawingObject or nil
+/// Constructor
+/// Creates a new image object of the window specified by the the windowID
+///
+/// Parameters:
+///  * sizeRect - A rect-table containing the location/size of the image
+///  * windowID - the id of a window as returned by `hs.window:id()`
+///
+/// Returns:
+///  * An `hs.drawing` image object, or nil if an error occurs
+static int drawing_newImageFromWindowID(lua_State *L) {
+    NSRect windowRect;
+    switch (lua_type(L, 1)) {
+        case LUA_TTABLE:
+            lua_getfield(L, 1, "x");
+            windowRect.origin.x = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "y");
+            windowRect.origin.y = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "w");
+            windowRect.size.width = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "h");
+            windowRect.size.height = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            break;
+        default:
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.imageFromWindowID(): %d", lua_type(L, 1));
+            lua_pushnil(L);
+            return 1;
+            break;
+    }
+
+    NSInteger windowID = luaL_checkinteger(L, 2);
+
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+
+    if (theWindow) {
+        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
+        memset(drawingObject, 0, sizeof(drawing_t));
+        drawingObject->window = (__bridge_retained void*)theWindow;
+        luaL_getmetatable(L, USERDATA_TAG);
+        lua_setmetatable(L, -2);
+
+        HSDrawingViewImage *theView = [[HSDrawingViewImage alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        [theView setLuaState:L];
+
+        theWindow.contentView = theView;
+        [theView setImageFromWindowID:windowID];
+
+        if (!drawingWindows) {
+            drawingWindows = [[NSMutableArray alloc] init];
+        }
+        [drawingWindows addObject:theWindow];
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
 
 /// hs.drawing.appImage(sizeRect, bundleID) -> drawingObject or nil
 /// Constructor
@@ -1730,6 +1824,7 @@ static const luaL_Reg drawinglib[] = {
     {"line", drawing_newLine},
     {"text", drawing_newText},
     {"image", drawing_newImage},
+    {"imageFromWindowID", drawing_newImageFromWindowID},
     {"appImage", drawing_newAppImage},
     {"fontNames", fontNames},
     {"fontNamesWithTraits", fontNamesWithTraits},
