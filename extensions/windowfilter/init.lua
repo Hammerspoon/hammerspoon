@@ -627,19 +627,19 @@ end
 function App:activated()
   local prevactive=global.active
   if self==prevactive then return log.df('App %s already active; skipping',self.name) end
-  if prevactive then prevactive:deactivated() end
+  if prevactive then prevactive:deactivated(true) end
   log.vf('App %s activated',self.name)
   global.active=self
   self:getFocused()
   if not self.focused then return log.df('App %s does not (yet) have a focused window',self.name) end
   self.focused:focused()
 end
-function App:deactivated()
+function App:deactivated(inserted)
   if self~=global.active then return end
   log.vf('App %s deactivated',self.name)
   global.active=nil
   if global.focused~=self.focused then log.e('Focused app/window inconsistency') end
-  if self.focused then self.focused:unfocused() end
+  if self.focused then self.focused:unfocused(inserted) end
 end
 function App:focusChanged(id,win)
   if not id then return log.df('Cannot process focus changed for app %s - no window id',self.name) end
@@ -649,7 +649,7 @@ function App:focusChanged(id,win)
     appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
   end
   log.vf('App %s focus changed',self.name)
-  if self==active then self:deactivated() end
+  if self==active then self:deactivated(true) end
   self.focused = self.windows[id]
   if self==active then self:activated() end
 end
