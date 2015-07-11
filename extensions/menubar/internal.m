@@ -312,12 +312,13 @@ static int menubarSetTitle(lua_State *L) {
 /// Sets the image of a menubar item object. The image will be displayed in the system menubar
 ///
 /// Parameters:
-///  * `iconfilepath` - A string containing the path of an image file to load. If the string begins with `ASCII:` then the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image and used as the icon. See the notes below for information about the special format of ASCII diagram. If this parameter is nil, any current image is removed
+///  * `iconfilepath` - A string containing the path of an image file to load or the name representing a system image. If the string begins with `ASCII:` then the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image and used as the icon. See the notes below for information about the special format of ASCII diagram. If this parameter is nil, any current image is removed
 ///
 /// Returns:
 ///  * `true` if the image was loaded and set, `nil` if it could not be found or loaded
 ///
 /// Notes:
+///  * A list of known system images can be found in `hs.drawing.systemImageNames`.
 ///  * If you set a title as well as an icon, they will both be displayed next to each other
 ///  * Icons should be small, transparent images that roughly match the size of normal menubar icons, otherwise they will look very strange
 ///  * Retina scaling is supported if the image is either scalable (e.g. a PDF produced by Adobe Illustrator) or contain multiple sizes (e.g. a TIFF with small and large images). Images will not automatically do the right thing if you have a @2x version present
@@ -341,6 +342,8 @@ static int menubarSetIcon(lua_State *L) {
             iconImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
         } else {
             iconImage = [[NSImage alloc] initWithContentsOfFile:lua_to_nsstring(L, 2)];
+            if (![iconImage isValid])
+                iconImage = [NSImage imageNamed:lua_to_nsstring(L, 2)] ;
         }
         lua_settop(L, 1); // FIXME: This seems unnecessary?
         if (!iconImage) {

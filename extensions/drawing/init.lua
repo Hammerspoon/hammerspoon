@@ -29,8 +29,18 @@ local __tostring_for_tables = function(self)
     return result
 end
 
-module.fontTraits      = setmetatable(module.fontTraits,      { __tostring = __tostring_for_tables })
-module.windowBehaviors = setmetatable(module.windowBehaviors, { __tostring = __tostring_for_tables })
+local __tostring_for_arrays = function(self)
+    local result = ""
+    for i,v in ipairs(self) do
+        result = result..v.."\n"
+    end
+    return result
+end
+
+table.sort(module.systemImageNames)
+module.systemImageNames = setmetatable(module.systemImageNames, { __tostring = __tostring_for_arrays })
+module.fontTraits       = setmetatable(module.fontTraits,       { __tostring = __tostring_for_tables })
+module.windowBehaviors  = setmetatable(module.windowBehaviors,  { __tostring = __tostring_for_tables })
 
 local tmp = module.rectangle({})
 local tmpMeta = getmetatable(tmp)
