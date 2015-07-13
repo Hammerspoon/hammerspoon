@@ -3,6 +3,7 @@
 
 #import <Foundation/Foundation.h>
 #import <LuaSkin/LuaSkin.h>
+#import "../hammerspoon.h"
 
 extern AXError _AXUIElementGetWindow(AXUIElementRef, CGWindowID* out);
 

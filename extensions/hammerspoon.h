@@ -29,3 +29,29 @@ void showError(lua_State *L, char *message) {
     lua_pushstring(L, message);
     lua_pcall(L, 1, 0, 0);
 }
+
+
+// For using hs.image to wrap images for hs.drawing
+
+#define IMAGE_USERDATA_TAG "hs.image"
+
+NSImage *get_image_from_hsimage(lua_State* L, int idx) {
+    // make sure hs.image has been loaded...
+    lua_getglobal(L, "require"); lua_pushstring(L, IMAGE_USERDATA_TAG); lua_call(L, 1, 1); lua_pop(L, 1) ;
+
+    void **thingy = luaL_checkudata(L, idx, IMAGE_USERDATA_TAG) ;
+    return (__bridge NSImage *) *thingy ;
+}
+
+int store_image_as_hsimage(lua_State* L, NSImage* theImage) {
+    // make sure hs.image has been loaded...
+    lua_getglobal(L, "require"); lua_pushstring(L, IMAGE_USERDATA_TAG); lua_call(L, 1, 1); lua_pop(L, 1) ;
+
+    void** imagePtr = lua_newuserdata(L, sizeof(NSImage *));
+    *imagePtr = (__bridge_retained void *)theImage;
+
+    luaL_getmetatable(L, IMAGE_USERDATA_TAG);
+    lua_setmetatable(L, -2);
+
+    return 1 ;
+}
