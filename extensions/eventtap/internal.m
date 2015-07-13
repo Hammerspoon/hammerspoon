@@ -276,7 +276,6 @@ static int checkKeyboardModifiers(lua_State* L) {
     if (theFlags & NSAlternateKeyMask)  { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); }
     if (theFlags & NSControlKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
     if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); }
-    if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); }
     if (theFlags & NSAlphaShiftKeyMask) { lua_pushboolean(L, YES); lua_setfield(L, -2, "capslock"); }
 
     return 1;
