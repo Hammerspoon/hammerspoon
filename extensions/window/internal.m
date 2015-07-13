@@ -601,13 +601,13 @@ static int window_setShadows(lua_State* L) {
 
 /// hs.window:snapshot() -> hs.image-object
 /// Function
-/// Returns a snapshot of the window as an `hs.image` object for use with `hs.drawing`.
+/// Returns a snapshot of the window as an `hs.image` object
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * `hs.image` object of the window snapshot or nil if unable to create a snapshot.
+///  * `hs.image` object of the window snapshot or nil if unable to create a snapshot
 ///
 /// Notes:
 ///  * This function uses a private, undocumented OS X API call, so it is not guaranteed to work in any future OS X release
