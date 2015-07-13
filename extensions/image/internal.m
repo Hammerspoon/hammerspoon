@@ -1,5 +1,6 @@
 #import <Appkit/NSImage.h>
 #import <LuaSkin/LuaSkin.h>
+#import <ASCIImage/PARImage+ASCIIInput.h>
 #import "../hammerspoon.h"
 
 #define USERDATA_TAG        IMAGE_USERDATA_TAG
@@ -75,8 +76,64 @@ static int pushNSImageNameTable(lua_State *L) {
     return 1;
 }
 
-/// hs.image.getImageByName(string) -> object
-/// Method
+/// hs.image.imageFromPath(path) -> object
+/// Constructor
+/// Loads an image file
+///
+/// Parameters:
+///  * path - A string containing the path to an image file on disk
+///
+/// Returns:
+///  * An `hs.image` object, or nil if an error occured
+static int imageFromPath(lua_State *L) {
+    NSString* imagePath = lua_to_nsstring(L, 1);
+    NSImage *newImage = [[NSImage alloc] initByReferencingFile:[imagePath stringByExpandingTildeInPath]];
+
+    if (newImage && newImage.valid) {
+        store_image_as_hsimage(L, newImage);
+    } else {
+        showError(L, "Unable to load image:");
+        showError(L, (char *)[imagePath UTF8String]);
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+/// hs.image.imageFromASCII(ascii) -> object
+/// Constructor
+/// Creates an image from an ASCII representation
+///
+/// Parameters:
+///  * ascii - A string containing a representation of an image
+///
+/// Returns:
+///  * An `hs.imaage` object, or nil if an error occured
+///
+/// Notes:
+///  * To use the ASCII diagram image support, see http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
+static int imageFromASCII(lua_State *L) {
+    NSString *imageASCII = lua_to_nsstring(L, 1);
+
+    if ([imageASCII hasPrefix:@"ASCII:"]) {
+        imageASCII = [imageASCII substringFromIndex: 6];
+    }
+
+    NSColor *color = [NSColor blackColor];
+    NSArray *rep = [imageASCII componentsSeparatedByString:@"\n"];
+    NSImage *newImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
+
+    if (newImage) {
+        store_image_as_hsimage(L, newImage);
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+/// hs.image.imageFromName(string) -> object
+/// Constructor
 /// Returns the hs.image object for the specified name, if it exists.
 ///
 /// Parameters:
@@ -92,7 +149,7 @@ static int pushNSImageNameTable(lua_State *L) {
 ///     * Hammerspoon's main application bundle
 ///     * the Application Kit framework (this is where most of the images listed in `hs.image.systemImageNames` are located)
 ///  * Image names can be assigned by the image creator or by calling the `hs.image:setName` method on an hs.image object.
-static int getImageByName(lua_State *L) {
+static int imageFromName(lua_State *L) {
     const char* imageName = luaL_checkstring(L, 1) ;
 
     NSImage *newImage = [NSImage imageNamed:[NSString stringWithUTF8String:imageName]] ;
@@ -102,6 +159,27 @@ static int getImageByName(lua_State *L) {
         lua_pushnil(L) ;
     }
     return 1 ;
+}
+
+/// hs.image.imageFromAppBundle(bundleID) -> object
+/// Constructor
+/// Creates an `hs.image` object using the icon from an App
+///
+/// Parameters:
+///  * bundleID - A string containing the bundle identifier of an application
+///
+/// Returns:
+///  * An `hs.image` object or nil, if no app icon was found
+static int imageFromApp(lua_State *L) {
+    NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:lua_to_nsstring(L, 1)];
+    NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:imagePath];
+
+    if (iconImage) {
+        store_image_as_hsimage(L, iconImage);
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
 }
 
 /// hs.image:getImageName() -> string
@@ -174,6 +252,7 @@ static int saveToFile(lua_State* L) {
         else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
         else if ([typeLabel compare:@"GIF"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSGIFFileType  ; }
         else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
+        else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
         else {
             showError(L, "hs.image:saveToFile:: invalid file type specified") ;
             lua_pushboolean(L, NO) ;
@@ -183,10 +262,30 @@ static int saveToFile(lua_State* L) {
 
     BOOL result = false;
 
-    NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:[theImage TIFFRepresentation]];
+    NSData *tiffRep = [theImage TIFFRepresentation];
+    if (!tiffRep) {
+        showError(L, "Unable to write image file: Can't create internal representation");
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
+    if (!tiffRep) {
+        showError(L, "Unable to write image file: Can't wrap internal representation");
+        lua_pushboolean(L, false);
+        return 1;
+    }
     NSData* fileData = [rep representationUsingType:fileType properties:@{}];
-    if ([fileData writeToFile:[filePath stringByExpandingTildeInPath] atomically:YES]) {
+    if (!fileData) {
+        showError(L, "Unable to write image file: Can't convert internal representation");
+        lua_pushboolean(L, false);
+        return 1;
+    }
+    NSError *error;
+    if ([fileData writeToFile:[filePath stringByExpandingTildeInPath] options:NSDataWritingAtomic error:&error]) {
         result = YES ;
+    } else {
+        showError(L, "Unable to write image file:");
+        showError(L, (char *)[[error localizedDescription] UTF8String]);
     }
 
     lua_pushboolean(L, result) ;
@@ -220,7 +319,10 @@ static const luaL_Reg userdata_metaLib[] = {
 
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
-    {"getImageByName",      getImageByName},
+    {"imageFromPath",      imageFromPath},
+    {"imageFromASCII",     imageFromASCII},
+    {"imageFromName",      imageFromName},
+    {"imageFromAppBundle", imageFromApp},
     {NULL,                  NULL}
 };
 

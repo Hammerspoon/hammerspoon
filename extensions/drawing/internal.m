@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import <ASCIImage/PARImage+ASCIIInput.h>
 #import "../hammerspoon.h"
 
 /// === hs.drawing ===
@@ -308,35 +307,10 @@ NSMutableArray *drawingWindows;
     return self;
 }
 
-- (void)setImageFromPath:(NSString *)filePath {
-    NSString *imageParameter = filePath;
-    NSImage *newImage;
-
-    if ([imageParameter hasPrefix:@"ASCII:"]) {
-        NSColor *color = [NSColor blackColor];
-        imageParameter = [[imageParameter substringFromIndex:6] stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-        NSArray *rep = [imageParameter componentsSeparatedByString:@"\n"];
-        newImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
-    } else {
-        newImage = [[NSImage alloc] initByReferencingFile:filePath];
-    }
-    if (!newImage) {
-        CLS_NSLOG(@"HSDrawingViewImage::setImageFromPath: ERROR: unable to load image: %@", filePath);
-        return;
-    }
-
-    self.HSImageView.image = newImage;
-    self.HSImage = newImage;
-
-    self.needsDisplay = true;
-
-    return;
-}
-
-- (void)setImageFromHSImage:(NSImage *)newImage {
-
-    self.HSImageView.image = newImage;
-    self.HSImage = newImage;
+- (void)setImage:(NSImage *)newImage {
+    NSImage *imageCopy = [newImage copy];
+    self.HSImageView.image = imageCopy;
+    self.HSImage = imageCopy;
 
     self.needsDisplay = true;
 
@@ -665,13 +639,16 @@ static int drawing_newText(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing.image(sizeRect, imagePath) -> drawingObject or nil
+/// hs.drawing.image(sizeRect, imageData) -> drawingObject or nil
 /// Constructor
 /// Creates a new image object
 ///
 /// Parameters:
 ///  * sizeRect - A rect-table containing the location/size of the image
-///  * imagePath - A string containing a path to an image file. If the string begins with `ASCII:` then the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image. See the notes below for information about the special format of ASCII diagram.
+///  * imageData - This can be either:
+///   * An `hs.image` object
+///   * A string containing a path to an image file
+///   * A string beginning with `ASCII:` which signifies that the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image. See the notes below for information about the special format of ASCII diagram.
 ///
 /// Returns:
 ///  * An `hs.drawing` image object, or nil if an error occurs
@@ -680,6 +657,8 @@ static int drawing_newText(lua_State *L) {
 ///
 /// Notes:
 ///  * To use the ASCII diagram image support, see http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/ and be sure to preface your ASCII diagram with the special string `ASCII:`
+
+// NOTE: THIS FUNCTION IS WRAPPED IN init.lua
 static int drawing_newImage(lua_State *L) {
     NSRect windowRect;
     switch (lua_type(L, 1)) {
@@ -707,7 +686,7 @@ static int drawing_newImage(lua_State *L) {
             return 1;
             break;
     }
-    NSString *imagePath = lua_to_nsstring(L, 2);
+    NSImage *theImage = get_image_from_hsimage(L, 2);
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
@@ -721,147 +700,7 @@ static int drawing_newImage(lua_State *L) {
         [theView setLuaState:L];
 
         theWindow.contentView = theView;
-        [theView setImageFromPath:imagePath];
-
-        if (!drawingWindows) {
-            drawingWindows = [[NSMutableArray alloc] init];
-        }
-        [drawingWindows addObject:theWindow];
-    } else {
-        lua_pushnil(L);
-    }
-
-    return 1;
-}
-
-/// hs.drawing.appImage(sizeRect, bundleID) -> drawingObject or nil
-/// Constructor
-/// Creates a new image object with the icon of a given app
-///
-/// Parameters:
-///  * sizeRect - A rect-table containing the location/size of the image. If the size values are -1 then the image will be displayed at the icon's native size
-///  * bundleID - A string containing the bundle identifier of an app (e.g. "com.apple.Safari")
-///
-/// Returns:
-///  * An `hs.drawing` image object, or nil if an error occurs
-static int drawing_newAppImage(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.appImage(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-            break;
-    }
-    NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:lua_to_nsstring(L, 2)];
-    NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:imagePath];
-
-    if (windowRect.size.width == -1 || windowRect.size.height == -1) {
-        windowRect.size.width = iconImage.size.width;
-        windowRect.size.height = iconImage.size.height;
-    }
-
-    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
-
-    if (theWindow) {
-        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
-        memset(drawingObject, 0, sizeof(drawing_t));
-        drawingObject->window = (__bridge_retained void*)theWindow;
-        luaL_getmetatable(L, USERDATA_TAG);
-        lua_setmetatable(L, -2);
-
-        HSDrawingViewImage *theView = [[HSDrawingViewImage alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
-        [theView setLuaState:L];
-
-        theWindow.contentView = theView;
-        theView.HSImageView.image = iconImage;
-        theView.HSImage = iconImage;
-
-        if (!drawingWindows) {
-            drawingWindows = [[NSMutableArray alloc] init];
-        }
-        [drawingWindows addObject:theWindow];
-    } else {
-        lua_pushnil(L);
-    }
-
-    return 1;
-}
-
-/// hs.drawing.hsImage(sizeRect, hsImage) -> drawingObject or nil
-/// Constructor
-/// Creates a new hs.drawing object from a hs.image object
-///
-/// Parameters:
-///  * sizeRect - A rect-table containing the location/size of the image
-///  * hsImage - an object conforming to the hs.image object type
-///
-/// Returns:
-///  * An `hs.drawing` image object, or nil if an error occurs
-static int drawing_newImageFromHSImage(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.hsImage(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-            break;
-    }
-
-//     void **thingy = luaL_checkudata(L, 2, "hs.image") ;
-//     NSImage* hsImage = (__bridge NSImage *) *thingy ;
-    NSImage* hsImage = get_image_from_hsimage(L, 2) ;
-
-    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
-
-    if (theWindow) {
-        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
-        memset(drawingObject, 0, sizeof(drawing_t));
-        drawingObject->window = (__bridge_retained void*)theWindow;
-        luaL_getmetatable(L, USERDATA_TAG);
-        lua_setmetatable(L, -2);
-
-        HSDrawingViewImage *theView = [[HSDrawingViewImage alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
-        [theView setLuaState:L];
-
-        theWindow.contentView = theView;
-        [theView setImageFromHSImage:hsImage];
+        [theView setImage:theImage];
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -1343,31 +1182,26 @@ static int drawing_setStrokeWidth(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setImagePath(imagePath) -> drawingObject
+/// hs.drawing:setImage(image) -> drawingObject
 /// Method
-/// Sets the image path of a drawing object
+/// Sets the image of a drawing object
 ///
 /// Parameters:
-///  * imagePath - A string containing the path to an image file
+///  * image - An `hs.image` object
 ///
 /// Returns:
 ///  * The drawing object
-///
-/// Notes:
-///  * This method should only be used on an image drawing object
-///  * Paths relative to the PWD of Hammerspoon (typically ~/.hammerspoon/) will work, but paths relative to the UNIX homedir character, `~` will not
-///  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
-static int drawing_setImagePath(lua_State *L) {
+static int drawing_setImage(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSString *imagePath = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
+    NSImage *image = get_image_from_hsimage(L, 2);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
-        [drawingView setImageFromPath:imagePath];
+        [drawingView setImage:image];
     } else {
-        showError(L, ":setImagePath() called on an hs.drawing object that isn't an image object");
+        showError(L, ":setImage() called on an hs.drawing object that isn't an image object");
     }
 
     lua_pushvalue(L, 1);
@@ -1807,9 +1641,7 @@ static const luaL_Reg drawinglib[] = {
     {"rectangle", drawing_newRect},
     {"line", drawing_newLine},
     {"text", drawing_newText},
-    {"image", drawing_newImage},
-    {"hsImage", drawing_newImageFromHSImage},
-    {"appImage", drawing_newAppImage},
+    {"_image", drawing_newImage},
     {"fontNames", fontNames},
     {"fontNamesWithTraits", fontNamesWithTraits},
 
@@ -1828,7 +1660,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setTextSize", drawing_setTextSize},
     {"setTextFont", drawing_setTextFont},
     {"setText", drawing_setText},
-    {"setImagePath", drawing_setImagePath},
+    {"setImage", drawing_setImage},
     {"setClickCallback", drawing_setClickCallback},
     {"bringToFront", drawing_bringToFront},
     {"sendToBack", drawing_sendToBack},

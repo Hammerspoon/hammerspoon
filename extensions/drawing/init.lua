@@ -14,6 +14,7 @@ module.color = {
 }
 
 local fnutils = require("hs.fnutils")
+local imagemod = require("hs.image")
 
 local __tostring_for_tables = function(self)
     local result = ""
@@ -31,6 +32,103 @@ end
 
 module.fontTraits      = setmetatable(module.fontTraits,      { __tostring = __tostring_for_tables })
 module.windowBehaviors = setmetatable(module.windowBehaviors, { __tostring = __tostring_for_tables })
+
+--- hs.drawing:setImageFromPath(imagePath) -> drawingObject
+--- Method
+--- Sets the image path of a drawing object
+---
+--- Parameters:
+---  * imagePath - A string containing the path to an image file
+---
+--- Returns:
+---  * The drawing object
+---
+--- Notes:
+---  * This method should only be used on an image drawing object
+---  * Paths relative to the PWD of Hammerspoon (typically ~/.hammerspoon/) will work, but paths relative to the UNIX homedir character, `~` will not
+---  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
+module.setImageFromPath = function(self, path)
+    local image = nil
+    -- Legacy support for ASCII here. Really people should use :setImageFromASCII()
+    if string.sub(path, 1, 6) == "ASCII:" then
+        image = imagemod.imageFromASCII(string.sub(path, 7, -1))
+    else
+        image = imagemod.imageFromPath(path)
+    end
+
+    if image then
+        self:setImage(image)
+    end
+
+    return self
+end
+-- Legacy support of an old API
+module.setImagePath = module.setImageFromPath
+
+--- hs.drawing:setImageASCII(ascii) -> drawingObject
+--- Method
+--- Sets the image of a drawing object from an ASCII representation
+---
+--- Parameters:
+---  * ascii - A string containing the ASCII image to render
+---
+--- Returns:
+---  * The drawing object
+---
+--- Notes:
+---  * To use the ASCII diagram image support, see http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
+module.setImageFromASCII = function(self, ascii)
+    if string.sub(ascii, 1, 6) == "ASCII:" then
+        ascii = string.sub(ascii, 7, -1)
+    end
+    local image = imagemod.imageFromASCII(ascii)
+
+    if image then
+        self:setImage(image)
+    end
+
+    return self
+end
+
+-- This is the wrapper for hs.drawing.image(). It is documented in internal.m
+module.image = function(sizeRect, imagePath)
+    local tmpImage = nil
+
+    if type(imagePath) == "userdata" then
+        tmpImage = imagePath
+    elseif type(imagePath) == "string" then
+        if string.sub(imagePath, 1, 6) == "ASCII:" then
+            tmpImage = imagemod.imageFromASCII(string.sub(imagePath, 7, -1))
+        else
+            tmpImage = imagemod.imageFromPath(imagePath)
+        end
+    end
+
+    if tmpImage then
+        return module._image(sizeRect, tmpImage)
+    else
+        return nil
+    end
+end
+
+--- hs.drawing.appImage(sizeRect, bundleID) -> drawingObject or nil
+--- Constructor
+--- Creates a new image object with the icon of a given app
+---
+--- Parameters:
+---  * sizeRect - A rect-table containing the location/size of the image. If the size values are -1 then the image will be displayed at the icon's native size
+---  * bundleID - A string containing the bundle identifier of an app (e.g. "com.apple.Safari")
+---
+--- Returns:
+---  * An `hs.drawing` image object, or nil if an error occurs
+module.appImage = function(sizeRect, bundleID)
+    local tmpImage = imagemod.imageFromAppBundle(bundleID)
+    if tmpImage then
+        return module._image(sizeRect, tmpImage)
+    else
+        return nil
+    end
+end
 
 local tmp = module.rectangle({})
 local tmpMeta = getmetatable(tmp)
