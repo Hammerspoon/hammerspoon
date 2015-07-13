@@ -6,7 +6,7 @@
 
 body {
   color: #333;
-  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-family: system, -apple-system, ".SFNSDisplay-Regular", HelveticaNeue, LucidaGrande, sans-serif;
   font-size: 13pt;
   line-height: 1.6;
   word-wrap: break-word;
@@ -28,14 +28,14 @@ pre {
 }
 
 code {
-  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-family: "Ubuntu Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
   font-size: 12px;
 }
 
 pre {
   margin-top: 0;
   margin-bottom: 0;
-  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font: 12px "Ubuntu Mono", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 }
 
 a {
