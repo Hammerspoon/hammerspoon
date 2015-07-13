@@ -24,6 +24,7 @@ static int doHash(lua_State *L, CC_LONG length, unsigned char *(*hashFunc)(const
 }
 
 /// hs.hash.sha1(data) -> string
+/// Function
 /// Calculates an SHA1 hash
 ///
 /// Parameters:
@@ -36,6 +37,7 @@ static int hash_sha1(lua_State *L) {
 }
 
 /// hs.hash.sha256(data) -> string
+/// Function
 /// Calculates an SHA256 hash
 ///
 /// Parameters:
@@ -48,6 +50,7 @@ static int hash_sha256(lua_State *L) {
 }
 
 /// hs.hash.sha512(data) -> string
+/// Function
 /// Calculates an SHA512 hash
 ///
 /// Parameters:
@@ -60,6 +63,7 @@ static int hash_sha512(lua_State *L) {
 }
 
 /// hs.hash.md5(data) -> string
+/// Function
 /// Calculates an MD5 hash
 ///
 /// Parameters:
