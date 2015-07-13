@@ -332,6 +332,16 @@ NSMutableArray *drawingWindows;
 
     return;
 }
+
+- (void)setImageFromHSImage:(NSImage *)newImage {
+
+    self.HSImageView.image = newImage;
+    self.HSImage = newImage;
+
+    self.needsDisplay = true;
+
+    return;
+}
 @end
 
 // Lua API implementation
@@ -692,7 +702,7 @@ static int drawing_newImage(lua_State *L) {
 
             break;
         default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.image(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
             break;
@@ -756,7 +766,7 @@ static int drawing_newAppImage(lua_State *L) {
 
             break;
         default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.appImage(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
             break;
@@ -784,6 +794,74 @@ static int drawing_newAppImage(lua_State *L) {
         theWindow.contentView = theView;
         theView.HSImageView.image = iconImage;
         theView.HSImage = iconImage;
+
+        if (!drawingWindows) {
+            drawingWindows = [[NSMutableArray alloc] init];
+        }
+        [drawingWindows addObject:theWindow];
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+/// hs.drawing.hsImage(sizeRect, hsImage) -> drawingObject or nil
+/// Constructor
+/// Creates a new hs.drawing object from a hs.image object
+///
+/// Parameters:
+///  * sizeRect - A rect-table containing the location/size of the image
+///  * hsImage - an object conforming to the hs.image object type
+///
+/// Returns:
+///  * An `hs.drawing` image object, or nil if an error occurs
+static int drawing_newImageFromHSImage(lua_State *L) {
+    NSRect windowRect;
+    switch (lua_type(L, 1)) {
+        case LUA_TTABLE:
+            lua_getfield(L, 1, "x");
+            windowRect.origin.x = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "y");
+            windowRect.origin.y = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "w");
+            windowRect.size.width = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            lua_getfield(L, 1, "h");
+            windowRect.size.height = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            break;
+        default:
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.hsImage(): %d", lua_type(L, 1));
+            lua_pushnil(L);
+            return 1;
+            break;
+    }
+
+//     void **thingy = luaL_checkudata(L, 2, "hs.image") ;
+//     NSImage* hsImage = (__bridge NSImage *) *thingy ;
+    NSImage* hsImage = get_image_from_hsimage(L, 2) ;
+
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+
+    if (theWindow) {
+        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
+        memset(drawingObject, 0, sizeof(drawing_t));
+        drawingObject->window = (__bridge_retained void*)theWindow;
+        luaL_getmetatable(L, USERDATA_TAG);
+        lua_setmetatable(L, -2);
+
+        HSDrawingViewImage *theView = [[HSDrawingViewImage alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        [theView setLuaState:L];
+
+        theWindow.contentView = theView;
+        [theView setImageFromHSImage:hsImage];
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -1730,6 +1808,7 @@ static const luaL_Reg drawinglib[] = {
     {"line", drawing_newLine},
     {"text", drawing_newText},
     {"image", drawing_newImage},
+    {"hsImage", drawing_newImageFromHSImage},
     {"appImage", drawing_newAppImage},
     {"fontNames", fontNames},
     {"fontNamesWithTraits", fontNamesWithTraits},

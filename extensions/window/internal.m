@@ -599,6 +599,46 @@ static int window_setShadows(lua_State* L) {
     return 0;
 }
 
+/// hs.window:snapshot() -> hs.image-object
+/// Function
+/// Returns a snapshot of the window as an `hs.image` object for use with `hs.drawing`.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * `hs.image` object of the window snapshot or nil if unable to create a snapshot.
+///
+/// Notes:
+///  * This function uses a private, undocumented OS X API call, so it is not guaranteed to work in any future OS X release
+static int window_snapshot(lua_State* L) {
+    AXUIElementRef win = get_window_arg(L, 1);
+
+    CGWindowID windowID;
+    AXError err = _AXUIElementGetWindow(win, &windowID);
+    if (!err) {
+        CGImageRef windowImage = CGWindowListCreateImage(
+              CGRectNull,
+              kCGWindowListOptionIncludingWindow,
+              windowID,
+              kCGWindowImageBoundsIgnoreFraming | kCGWindowImageShouldBeOpaque);
+        if (!windowImage) {
+            CLS_NSLOG(@"hs.window::snapshot: ERROR: CGWindowListCreateImage failed for windowID: %ld", (long) windowID);
+            return 0;
+        }
+        NSImage *newImage = [[NSImage alloc] initWithCGImage:windowImage size:NSZeroSize] ;
+        if (!newImage) {
+            CLS_NSLOG(@"hs.window::snapshot: ERROR: unable to convert CGImageRef to NSImage for windowID: %ld", (long) windowID);
+            return 0;
+        }
+        store_image_as_hsimage(L, newImage) ;
+        CGImageRelease(windowImage) ;
+        return 1 ;
+    } else {
+        return 0 ;
+    }
+}
+
 static const luaL_Reg windowlib[] = {
     {"focusedWindow", window_focusedwindow},
     {"_orderedwinids", window__orderedwinids},
@@ -624,6 +664,7 @@ static const luaL_Reg windowlib[] = {
     {"_close", window__close},
     {"_setFullScreen", window__setfullscreen},
     {"isFullScreen", window_isfullscreen},
+    {"snapshot", window_snapshot},
 
     {}
 };
