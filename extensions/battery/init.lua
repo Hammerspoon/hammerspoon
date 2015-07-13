@@ -7,11 +7,26 @@
 
 
 local module = require("hs.battery.internal")
+local fnutils = require("hs.fnutils")
 
 -- private variables and methods -----------------------------------------
 
 local check_list = {}
 for i,v in pairs(module) do check_list[#check_list + 1] = i end
+
+local __tostring_for_tables = function(self)
+    local result = ""
+    local width = 0
+    for i,v in fnutils.sortByKeys(self) do
+        if type(i) == "string" and width < i:len() then width = i:len() end
+    end
+    for i,v in fnutils.sortByKeys(self) do
+        if type(i) == "string" then
+            result = result..string.format("%-"..tostring(width).."s %s\n", i, tostring(v))
+        end
+    end
+    return result
+end
 
 -- Public interface ------------------------------------------------------
 
@@ -37,7 +52,7 @@ module.getAll = function()
         if t[v] == nil then t[v] = "n/a" end
     end
 
-    return t
+    return setmetatable(t, {__tostring = __tostring_for_tables })
 end
 
 -- Return Module Object --------------------------------------------------
