@@ -123,6 +123,7 @@ static int hostLocalizedName(lua_State* L) {
 ///    * uncompressedPages       -- the total number of pages (uncompressed) held within the compressor
 ///
 /// Notes:
+///  * The table returned has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.host.vmStats()`.
 ///  * Except for the addition of cacheHits, cacheLookups, pageSize and memSize, the results for this function should be identical to the OS X command `vm_stat`.
 ///  * Adapted primarily from the source code to Apple's vm_stat command located at http://www.opensource.apple.com/source/system_cmds/system_cmds-643.1.1/vm_stat.tproj/vm_stat.c
 static int hs_vmstat(lua_State *L) {
@@ -199,14 +200,18 @@ static int hs_vmstat(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * An array of tables for each CPU core and a keyed entry, `overall`, for total usage across all cores.  Each entry's table will contain the following keys:
-///    * user   -- percentage of CPU time occupied by user level processes.
-///    * system -- percentage of CPU time occupied by system (kernel) level processes.
-///    * nice   -- percentage of CPU time occupied by user level processes with a positive nice value (lower scheduling priority).
-///    * active -- For convenience, when you just want percent in use, this is the sum of user, system, and nice.
-///    * idle   -- percentage of CPU time spent idle
+///  * A table containing the following:
+///    * A tables, indexed by the core number, for each CPU core with the following keys in each subtable:
+///      * user   -- percentage of CPU time occupied by user level processes.
+///      * system -- percentage of CPU time occupied by system (kernel) level processes.
+///      * nice   -- percentage of CPU time occupied by user level processes with a positive nice value (lower scheduling priority).
+///      * active -- For convenience, when you just want the total CPU usage, this is the sum of user, system, and nice.
+///      * idle   -- percentage of CPU time spent idle
+///    * The key `overall` containing the same keys as described above but based upon the average of all cores combined.
+///    * The key `n` containing the number of cores detected.
 ///
 /// Notes:
+///  * The subtables for each core and `overall` have a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.host.cpuUsage()[#]` where # is the core you are interested in or the string "overall".
 ///  * Adapted primarily from code found at http://stackoverflow.com/questions/6785069/get-cpu-percent-usage
 static int hs_cpuInfo(lua_State *L) {
     unsigned numCPUs;
@@ -257,6 +262,8 @@ static int hs_cpuInfo(lua_State *L) {
         showError(L, errStr) ;
         return 0 ;
     }
+
+    lua_pushinteger(L, numCPUs) ; lua_setfield(L, -2, "n") ;
     return 1 ;
 }
 
