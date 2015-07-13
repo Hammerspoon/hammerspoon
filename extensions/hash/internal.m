@@ -5,11 +5,11 @@
 
 static int doHash(lua_State *L, CC_LONG length, unsigned char *(*hashFunc)(const void *, CC_LONG, unsigned char *)) {
     unsigned char digest[length + 1];
-    unsigned char *result;
-    const char *source = luaL_checkstring(L, 1);
+    size_t sourceLength;
+    const char *source = luaL_checklstring(L, 1, &sourceLength);
     NSMutableString *conversionSink = [NSMutableString string];
 
-    result = hashFunc(source, strlen(source), digest);
+    hashFunc(source, sourceLength, digest);
     digest[length] = 0;
 
     for (unsigned int i = 0; i < length; i++) {
