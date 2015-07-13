@@ -241,39 +241,43 @@ static int eventtap_isEnabled(lua_State* L) {
     return 1;
 }
 
-/// hs.eventtap.checkKeyboardModifiers() -> table
+/// hs.eventtap.checkKeyboardModifiers([raw]) -> table
 /// Function
-/// Returns a table containing the current key modifiers being pressed *at this instant*.
+/// Returns a table containing the current key modifiers being pressed or in effect *at this instant* for the keyboard most recently used.
 ///
 /// Parameters:
-///  None
+///  * raw - an optional boolean value which, if true, includes the _raw key contining the numeric representation of all of the keyboard/modifier flags.
 ///
 /// Returns:
-///  * Returns a table containing boolean values indicating which keyboard modifiers were held down when the menubar item was clicked; The possible keys are:
+///  * Returns a table containing boolean values indicating which keyboard modifiers were held down when the function was invoked; The possible keys are:
 ///     * cmd
 ///     * alt
 ///     * shift
 ///     * ctrl
+///     * capslock
 ///     * fn
+///   and optionally
+///     * _raw - a numeric representation of the numeric representation of all of the keyboard/modifier flags.
 ///
 /// Notes:
-///  * This is an instantaneous poll of the current keyboard modifiers, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar`, when a callback is already in progress or waiting for an event callback is not practical or possible.
+///  * This is an instantaneous poll of the current keyboard modifiers for the most recently used keyboard, not a callback.  This is useful primarily in conjuction with other modules, such as `hs.menubar`, when a callback is already in progress or waiting for an event callback is not practical or possible.
+///  * the numeric value returned is useful if you need to detect device dependent flags or flags which we normally ignore because they are not present (or are accessible another way) on most keyboards.
+
 static int checkKeyboardModifiers(lua_State* L) {
 
     NSUInteger theFlags = [NSEvent modifierFlags] ;
-    BOOL isCommandKey = (theFlags & NSCommandKeyMask) != 0;
-    BOOL isShiftKey = (theFlags & NSShiftKeyMask) != 0;
-    BOOL isOptKey = (theFlags & NSAlternateKeyMask) != 0;
-    BOOL isCtrlKey = (theFlags & NSControlKeyMask) != 0;
-    BOOL isFnKey = (theFlags & NSFunctionKeyMask) != 0;
 
     lua_newtable(L);
 
-    lua_pushboolean(L, isCommandKey); lua_setfield(L, -2, "cmd");
-    lua_pushboolean(L, isShiftKey);   lua_setfield(L, -2, "shift");
-    lua_pushboolean(L, isOptKey);     lua_setfield(L, -2, "alt");
-    lua_pushboolean(L, isCtrlKey);    lua_setfield(L, -2, "ctrl");
-    lua_pushboolean(L, isFnKey);      lua_setfield(L, -2, "fn");
+    if (lua_isboolean(L, 1) && lua_toboolean(L, 1)) { lua_pushinteger(L, theFlags); lua_setfield(L, -2, "_raw"); }
+
+    if (theFlags & NSCommandKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); }
+    if (theFlags & NSShiftKeyMask)      { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); }
+    if (theFlags & NSAlternateKeyMask)  { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); }
+    if (theFlags & NSControlKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
+    if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); }
+    if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); }
+    if (theFlags & NSAlphaShiftKeyMask) { lua_pushboolean(L, YES); lua_setfield(L, -2, "capslock"); }
 
     return 1;
 }
