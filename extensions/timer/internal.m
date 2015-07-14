@@ -190,10 +190,13 @@ static int timer_stop(lua_State* L) {
 
 static int timer_gc(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
-    luaL_unref(L, LUA_REGISTRYINDEX, timer->fn);
-    timer->fn = LUA_NOREF;
-    CFRunLoopTimerInvalidate(timer->t);
-    CFRelease(timer->t);
+    if (timer && timer->fn != LUA_NOREF) {
+        luaL_unref(L, LUA_REGISTRYINDEX, timer->fn);
+        timer->started = NO;
+        timer->fn = LUA_NOREF;
+        CFRunLoopTimerInvalidate(timer->t);
+        CFRelease(timer->t);
+    }
     return 0;
 }
 
