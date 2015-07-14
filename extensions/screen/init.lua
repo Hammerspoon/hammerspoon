@@ -11,6 +11,7 @@
 local screen = require "hs.screen.internal"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
+local imagemod = require "hs.image"
 
 screen.watcher = require "hs.screen.watcher"
 
@@ -172,5 +173,35 @@ function screen:toNorth(...) return first_screen_in_direction(self, 1, ...) end
 ---   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
 ---   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
 function screen:toSouth(...) return first_screen_in_direction(self, 3, ...) end
+
+--- hs.screen:shotAsPNG(filePath[, screenRect])
+--- Method
+--- Saves an image of the screen to a PNG file
+---
+--- Parameters:
+---  * filePath - A string containing a file path to save the screenshot as
+---  * screenRect - An optional `rect-table` containing a portion of the screen to capture. Defaults to the whole screen
+---
+--- Returns:
+---  * None
+function screen:shotAsPNG(filePath, screenRect)
+    local image = self:snapshot(screenRect)
+    image:saveToFile(filePath, "PNG")
+end
+
+--- hs.screen:shotAsJPG(filePath[, screenRect])
+--- Method
+--- Saves an image of the screen to a JPG file
+---
+--- Parameters:
+---  * filePath - A string containing a file path to save the screenshot as
+---  * screenRect - An optional `rect-table` containing a portion of the screen to capture. Defaults to the whole screen
+---
+--- Returns:
+---  * None
+function screen:shotAsJPG(filePath, screenRect)
+    local image = self:snapshot(screenRect)
+    image:saveToFile(filePath, "JPG")
+end
 
 return screen

@@ -753,69 +753,46 @@ cleanup:
     return rect;
 }
 
-BOOL screenToFile(NSScreen *screen, NSRect screenRect, NSString *filePath, NSBitmapImageFileType fileType) {
-    BOOL result = false;
+NSImage *screenToNSImage(NSScreen *screen, NSRect screenRect) {
     CGDirectDisplayID screenID = 0;
-    CGImageRef image = NULL;
-    NSBitmapImageRep *rep = NULL;
-    NSData *fileData = NULL;
-    NSSize repSize;
+    CGImageRef cgImage = NULL;
+    NSImage *theImage = nil;
 
     screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
-    image = CGDisplayCreateImageForRect(screenID, (NSIsEmptyRect(screenRect)) ? CGRectMake(0, 0, [screen frame].size.width, [screen frame].size.height) : screenRect);
-    if (!image) goto cleanup;
+    cgImage = CGDisplayCreateImageForRect(screenID, (NSIsEmptyRect(screenRect)) ? CGRectMake(0, 0, [screen frame].size.width, [screen frame].size.height) : screenRect);
+    if (!cgImage) goto cleanup;
 
-    rep = [[NSBitmapImageRep alloc] initWithCGImage:image];
-    if (!rep) goto cleanup;
+    theImage = [[NSImage alloc] initWithCGImage:cgImage size:NSZeroSize];
 
-    repSize.width = CGImageGetWidth(image);
-    repSize.height = CGImageGetHeight(image);
-    [rep setSize:repSize];
-
-    fileData = [rep representationUsingType:fileType properties:@{}];
-    if ([fileData writeToFile:[filePath stringByExpandingTildeInPath] atomically:YES] == NO) {
-        goto cleanup;
-    }
-
-    result = true;
 cleanup:
-    if (image) {
-        CGImageRelease(image);
+    if (cgImage) {
+        CGImageRelease(cgImage);
     }
 
-    return result;
+    return theImage;
 }
 
-/// hs.screen:shotAsPNG(filePath[, screenRect])
+/// hs.screen:snapshot([rect]) -> object
 /// Method
-/// Saves an image of the screen to a PNG file
+/// Captures an image of the screen
 ///
 /// Parameters:
-///  * filePath - A string containing the path to a file to save the screenshot in
-///  * screenRect - An optional `rect-table` containing a portion of the screen to capture. Defaults to the whole screen
+///  * rect - An optional `rect-table` containing a portion of the screen to capture. Defaults to the whole screen
 ///
 /// Returns:
-///  * None
-static int screen_shotAsPNG(lua_State* L) {
-    lua_pushboolean(L, screenToFile(get_screen_arg(L, 1), screenRectToNSRect(L, 3), lua_to_nsstring(L, 2), NSPNGFileType));
+///  * An `hs.image` object, or nil if an error occurred
+static int screen_snapshot(lua_State *L) {
+    NSScreen *screen = get_screen_arg(L, 1);
+    NSRect rect = screenRectToNSRect(L, 2);
+    NSImage *image = screenToNSImage(screen, rect);
+    if (image) {
+        store_image_as_hsimage(L, image);
+    } else {
+        lua_pushnil(L);
+    }
+
     return 1;
 }
-
-/// hs.screen:shotAsJPG(filePath[, screenRect])
-/// Method
-/// Saves an image of the screen to a JPG file
-///
-/// Parameters:
-///  * filePath - A string containing the path to a file to save the screenshot in
-///  * screenRect - An optional `rect-table` containing a portion of the screen to capture. Defaults to the whole screen
-///
-/// Returns:
-///  * None
-static int screen_shotAsJPG(lua_State* L) {
-    lua_pushboolean(L, screenToFile(get_screen_arg(L, 1), screenRectToNSRect(L, 3), lua_to_nsstring(L, 2), NSJPEGFileType));
-    return 1;
-}
-
 
 static int screens_gc(lua_State* L __unused) {
     CGDisplayRemoveReconfigurationCallback(displayReconfigurationCallback, NULL);
@@ -839,8 +816,7 @@ static const luaL_Reg screenlib[] = {
     {"availableModes", screen_availableModes},
     {"currentMode", screen_currentMode},
     {"setMode", screen_setMode},
-    {"shotAsPNG", screen_shotAsPNG},
-    {"shotAsJPG", screen_shotAsJPG},
+    {"snapshot", screen_snapshot},
 
     {NULL, NULL}
 };
