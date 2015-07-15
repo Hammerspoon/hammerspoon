@@ -146,7 +146,7 @@ grid.adjustHeight = grid.adjustNumberOfRows
 ---
 --- Returns:
 ---  * None
-function grid.adjustWidth(delta)
+function grid.adjustNumberOfColumns(delta)
   grid.GRIDWIDTH = math.max(1, grid.GRIDWIDTH + delta)
   fnutils.map(window.visibleWindows(), grid.snap)
 end
