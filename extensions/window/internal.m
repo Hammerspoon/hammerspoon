@@ -599,12 +599,12 @@ static int window_setShadows(lua_State* L) {
     return 0;
 }
 
-/// hs.window:snapshot() -> hs.image-object
+/// hs.window:snapshot([keepTransparency]) -> hs.image-object
 /// Function
 /// Returns a snapshot of the window as an `hs.image` object
 ///
 /// Parameters:
-///  * None
+///  * keepTransparency -- optional boolean value indicating if the windows alpha value (transparency) should be maintained in the resulting image or if it should be fully opaque (default).
 ///
 /// Returns:
 ///  * `hs.image` object of the window snapshot or nil if unable to create a snapshot
@@ -612,16 +612,21 @@ static int window_setShadows(lua_State* L) {
 /// Notes:
 ///  * This function uses a private, undocumented OS X API call, so it is not guaranteed to work in any future OS X release
 static int window_snapshot(lua_State* L) {
+    NSInteger      makeOpaque = kCGWindowImageShouldBeOpaque ;
+
     AXUIElementRef win = get_window_arg(L, 1);
 
     CGWindowID windowID;
     AXError err = _AXUIElementGetWindow(win, &windowID);
+
+    if (lua_toboolean(L, 2)) makeOpaque = 0 ;
+
     if (!err) {
         CGImageRef windowImage = CGWindowListCreateImage(
               CGRectNull,
               kCGWindowListOptionIncludingWindow,
               windowID,
-              kCGWindowImageBoundsIgnoreFraming | kCGWindowImageShouldBeOpaque);
+              kCGWindowImageBoundsIgnoreFraming | makeOpaque);
         if (!windowImage) {
             CLS_NSLOG(@"hs.window::snapshot: ERROR: CGWindowListCreateImage failed for windowID: %ld", (long) windowID);
             return 0;

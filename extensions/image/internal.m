@@ -296,7 +296,7 @@ static int hsimage_gc(lua_State* L) {
 // Get the NSImage so ARC can release it...
     void **thingy = luaL_checkudata(L, 1, USERDATA_TAG) ;
     NSImage* image = (__bridge_transfer NSImage *) *thingy ;
-    image = NULL ;
+    [image recache] ; // invalidate image caches
     luaL_unref(L, LUA_REGISTRYINDEX, 1);
     return 0 ;
 }
