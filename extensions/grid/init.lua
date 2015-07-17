@@ -187,6 +187,17 @@ end
 ---  * In the modal interface, press the arrow keys to jump to adjacent screens; spacebar to maximize/unmaximize; esc to quit without any effect
 ---  * The keyboard hints assume a QWERTY layout; if you use a different layout, change `hs.grid.HINTS` accordingly
 
+--- hs.grid.hide()
+--- Function
+--- Hides the grid, if visible, and exits the modal resizing mode.
+--- Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+
 --- hs.grid.HINTS
 --- Variable
 --- A bidimensional array (table of tables of strings) holding the keyboard hints (as per `hs.keycodes.map`) to be used for the interactive resizing interface.
@@ -740,7 +751,9 @@ function grid.show()
   resizing:enter()
 end
 
-
+function grid.hide()
+  if initialized then resizing:exit() end
+end
 
 
 -- Legacy stuff below
