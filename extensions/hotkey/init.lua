@@ -6,7 +6,7 @@ local hotkey = require "hs.hotkey.internal"
 local keycodes = require "hs.keycodes"
 local fnutils = require "hs.fnutils"
 
---- hs.hotkey.new(mods, key, pressedfn[, releasedfn, repeatfn]) -> hs.hotkey
+--- hs.hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duration) -> hs.hotkey
 --- Constructor
 --- Creates a new hotkey
 ---
@@ -17,29 +17,45 @@ local fnutils = require "hs.fnutils"
 ---   * shift
 ---   * ctrl
 ---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
----  * pressedfn - A function that will be called when the hotkey has been pressed
----  * releasedfn - An optional function that will be called when the hotkey has been released
----  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
+---  * pressedfn - (optional) A function that will be called when the hotkey has been pressed
+---  * releasedfn - (optional) A function that will be called when the hotkey has been released
+---  * repeatfn - (optional) A function that will be called when a pressed hotkey is repeating
+---  * message - (optional) A string containing a message to be displayed via `hs.alert()` when the hotkey has been triggered
+---  * duration - (optional) Duration of the alert message in seconds
 ---
 --- Returns:
----  * A new `hs.hotkey` object, or nil if an error occurred
-function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
+---  * A new `hs.hotkey` object
+---
+--- Notes:
+---  * If you don't need `releasedfn` nor `repeatfn`, you can simply use `hs.hotkey.new(mods,key,fn,"message")`
+
+local alert,SYMBOLS,supper,ipairs,type = require'hs.alert',require'hs.utf8'.registeredKeys,string.upper,ipairs,type
+--local SYMBOLS = {cmd='⌘',ctrl='⌃',alt='⌥',shift='⇧',hyper='✧'}
+function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duration)
+  if type(key)~='string' then error('key must be a string',2) end
+  if type(mods)~='table' then error('mods must be a table of strings (can be empty)',2) end
+  if pressedfn and type(pressedfn)~='function' then error('At least one of pressedfn, releasedfn or repeatfn must be a function',2) end
+  if type(releasedfn)=='string' then duration=repeatfn message=releasedfn repeatfn=nil releasedfn=nil
+  elseif type(repeatfn)=='string' then duration=message message=repeatfn repeatfn=nil end
+  if type(message)~='string' then message=nil end
+  if type(duration)~='number' then duration=nil end
+  if message then
+    local s=''
+    for _,mod in ipairs(mods) do s=s..SYMBOLS[mod] end
+    if #mods>=4 then s=SYMBOLS.concaveDiamond end
+    s=s..supper(key)
+    if #message>0 then s=s..': '..message end
+    local actualfn=pressedfn or releasedfn or repeatfn
+    local fnalert=function()alert(s,duration or 1)actualfn()end
+    if pressedfn then pressedfn=fnalert
+    elseif releasedfn then releasedfn=fnalert
+    elseif repeatfn then repeatfn=fnalert end
+  end
   local keycode
-
-  if (key:sub(1, 1) == '#') then
-    keycode = tonumber(key:sub(2))
-  else
-    keycode = keycodes.map[key:lower()]
-  end
-
-  if not keycode then
-      print("Error: Invalid key: "..key)
-      return nil
-  end
-
-
-  local k = hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn)
-  return k
+  if (key:sub(1, 1) == '#') then keycode = tonumber(key:sub(2))
+  else keycode = keycodes.map[key:lower()] end
+  if not keycode then error("Invalid key: "..key) end
+  return hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn)
 end
 
 --- hs.hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn, message, duration) -> hs.hotkey
@@ -53,36 +69,19 @@ end
 ---   * shift
 ---   * ctrl
 ---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
----  * pressedfn - A function that will be called when the hotkey has been pressed
+---  * pressedfn - (optional) A function that will be called when the hotkey has been pressed
 ---  * releasedfn - (optional) A function that will be called when the hotkey has been released
 ---  * repeatfn - (optional) A function that will be called when a pressed hotkey is repeating
----  * message - (optional) A string containing a message to be displayed via `hs.alert()` when the hotkey has been pressed
+---  * message - (optional) A string containing a message to be displayed via `hs.alert()` when the hotkey has been triggered
 ---  * duration - (optional) Duration of the alert message in seconds
 ---
 --- Returns:
----  * A new `hs.hotkey` object or nil if an error occurred
+---  * A new `hs.hotkey` object
 ---
 --- Notes:
----  * This function is a wrapper that essentially performs: `hs.hotkey.new(mods, key, pressedfn, releasedfn, repeatfn):enable()`
----  * If you don't need `releasedfn` nor `repeatfn`, you can simply use `hs.hotkey.bind(mods,key,fn,"message")`
-local alert,SYMBOLS,supper,ipairs,type = require'hs.alert',require'hs.utf8'.registeredKeys,string.upper,ipairs,type
---local SYMBOLS = {cmd='⌘',ctrl='⌃',alt='⌥',shift='⇧',hyper='✧'}
-function hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn, message, duration)
-  if type(releasedfn)=='string' then duration=repeatfn message=releasedfn repeatfn=nil releasedfn=nil
-  elseif type(repeatfn)=='string' then duration=message message=repeatfn repeatfn=nil end
-  if type(message)~='string' then message=nil end
-  if type(duration)~='number' then duration=nil end
-  local fnalert
-  if message then
-    local s=''
-    for _,mod in ipairs(mods) do s=s..SYMBOLS[mod] end
-    if #mods>=4 then s=SYMBOLS.concaveDiamond end
-    s=s..supper(key)
-    if #message>0 then s=s..': '..message end
-    fnalert=function()alert(s,duration or 1)pressedfn()end
-  end
-  local key=hotkey.new(mods,key,fnalert or pressedfn,releasedfn,repeatfn)
-  return key and key:enable()
+---  * This function is just a wrapper that performs: `hs.hotkey.new(...):enable()`
+function hotkey.bind(...)
+  return hotkey.new(...):enable()
 end
 
 --- === hs.hotkey.modal ===
