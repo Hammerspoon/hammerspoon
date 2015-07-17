@@ -682,8 +682,9 @@ local function _start()
     currentWindow = window.focusedWindow()
     if not currentWindow then log.w('Cannot get current window, aborting') resizing:exit() return end
     log.df('Start moving %s [%s]',currentWindow:subrole(),currentWindow:application():title())
-    --  if window:isFullScreen() then resizing:exit() alert('(')return end
-    --TODO check fullscreen
+    if currentWindow:isFullScreen() then currentWindow:setFullScreen(false) --[[resizing:exit()--]] end
+    -- disallow resizing fullscreen windows as it doesn't really make much sense
+    -- so fullscreen window gets toggled back first
     currentScreen = (currentWindow:screen() or screen.mainScreen()):id()
     showHighlight()
     if not uielements then makeUI() end
