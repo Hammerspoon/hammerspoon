@@ -18,8 +18,9 @@ local callbacks = {}
 -- Set up our top-level callback and register it with the Objective C part of the extension
 local function callback(event, params)
     if (callbacks[event]) then
-        if not pcall(callbacks[event], event, params) then
-            error("Callback handler for event '"..event.."' failed")
+        local ok, err = xpcall(function() return callbacks[event](event, params) end, debug.traceback)
+        if not ok then
+            hs.showError(err)
         end
     else
         print("Received hs.urlevent event with no registered callback:"..event)
