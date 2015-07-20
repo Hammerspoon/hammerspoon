@@ -469,7 +469,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
+			shellScript = "set -x\nif [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
 		};
 		4F9A454819EC67E1006BB982 /* Compile Extensions */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -511,7 +511,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -x\nrsync -avr --copy-links \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\"\nrsync -avr --copy-links \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"";
+			shellScript = "set -x\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\"\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;

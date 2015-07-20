@@ -120,6 +120,7 @@ static int imageFromASCII(lua_State *L) {
     }
 
     NSColor *color = [NSColor blackColor];
+    imageASCII = [imageASCII stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
     NSArray *rep = [imageASCII componentsSeparatedByString:@"\n"];
     NSImage *newImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
 

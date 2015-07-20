@@ -446,6 +446,9 @@ cleanup:
 ///
 /// Returns:
 ///  * The `hs.window` object
+///
+/// Notes:
+///  * This method will always animate per your system settings and is not affected by `hs.window.animationDuration`
 static int window__minimize(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
