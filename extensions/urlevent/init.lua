@@ -16,7 +16,7 @@ local urlevent = require "hs.urlevent.internal"
 local callbacks = {}
 
 -- Set up our top-level callback and register it with the Objective C part of the extension
-local function callback(event, params)
+local function urlEventCallback(event, params)
     if (callbacks[event]) then
         local ok, err = xpcall(function() return callbacks[event](event, params) end, debug.traceback)
         if not ok then
@@ -26,7 +26,7 @@ local function callback(event, params)
         print("Received hs.urlevent event with no registered callback:"..event)
     end
 end
-urlevent.setCallback(callback)
+urlevent.setCallback(urlEventCallback)
 
 --- hs.urlevent.bind(eventName, callback)
 --- Function
