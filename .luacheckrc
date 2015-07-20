@@ -1,0 +1,1 @@
+globals = {"hs", "rawrequire"}
