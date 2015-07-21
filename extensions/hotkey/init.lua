@@ -6,6 +6,9 @@ local hotkey = require "hs.hotkey.internal"
 local keycodes = require "hs.keycodes"
 local fnutils = require "hs.fnutils"
 local alert = require'hs.alert'
+local log = require'hs.logger'.new('hotkey')
+hotkey.setLogLevel=log.setLogLevel
+
 local tonumber,pairs,ipairs,type,tremove,tinsert,tconcat = tonumber,pairs,ipairs,type,table.remove,table.insert,table.concat
 local supper,slower,sfind=string.upper,string.lower,string.find
 
@@ -13,12 +16,12 @@ local function getKeycode(s)
   if type(s)~='string' then error('key must be a string',3) end
   local n
   if (s:sub(1, 1) == '#') then n=tonumber(s:sub(2))
-  else n=keycodes.map[s:lower()] end
+  else n=keycodes.map[slower(s)] end
   if not n then error('Invalid key: '..s,3) end
   return n
 end
 
-local hotkeys,hkmap = {},{}
+local hotkeys = {}
 
 --- hs.hotkey:enable() -> hs.hotkey
 --- Method
@@ -35,15 +38,18 @@ local hotkeys,hkmap = {},{}
 ---    one will stop working as it's being "shadowed" by the new one. As soon as the new hotkey is disabled or deleted
 ---    the old one will trigger again.
 local function enable(self,force)
-  if not force and self.enabled then return self end --this ensures "nested shadowing" behaviour
-  local idx = hkmap[self]
-  if not idx or not hotkey[idx] then error('Internal error!') end
+  if not force and self.enabled then log.v('Hotkey already enabled') return self end --this ensures "nested shadowing" behaviour
+  local idx = self.idx
+  if not idx or not hotkey[idx] then log.e('The hotkey was deleted, cannot enable it') return end
   local i = fnutils.indexOf(hotkey[idx],self)
-  if not i then error('Internal error!') end
-  tremove(hotkey[idx],i)
-  for _,hk in ipairs(hotkey[idx]) do hk._hk:disable() end
+  if i then tremove(hotkey[idx],i) end
+  for _,hk in ipairs(hotkey[idx]) do
+    if hk.enabled then log.d('Disabled previous hotkey for '..idx) end
+    hk._hk:disable()
+  end
   self.enabled = true
   self._hk:enable() --objc
+  log.i('Enabled hotkey for '..idx)
   tinsert(hotkey[idx],self) -- bring to end
   return self
 end
@@ -59,12 +65,17 @@ end
 ---  * The `hs.hotkey` object for method chaining
 local function disable(self)
   if not self.enabled then return self end
-  local idx = hkmap[self]
-  if not idx or not hotkey[idx] then error('Internal error!') end
+  local idx = self.idx
+  if not idx or not hotkey[idx] then log.w('The hotkey was deleted, cannot disable it') return end
   self.enabled = nil
   self._hk:disable() --objc
+  log.i('Disabled hotkey for '..idx)
   for i=#hotkey[idx],1,-1 do
-    if hotkey[idx][i].enabled then hotkey[idx][i]._hk:enable() break end
+    if hotkey[idx][i].enabled then
+      log.d('Re-enabled previous hotkey for '..idx)
+      hotkey[idx][i]._hk:enable()
+      break
+    end
   end
   return self
 end
@@ -79,14 +90,14 @@ end
 --- Returns:
 ---  * None
 local function delete(self)
+  local idx=self.idx
+  if not idx or not hotkey[idx] then log.w('The hotkey has already been deleted') return end --?
   disable(self)
-  local idx=hkmap[self]
-  if not idx or not hotkey[idx] then error('Internal error!') end
   for i=#hotkey[idx],1,-1 do
     if hotkey[idx][i]==self then tremove(hotkey[idx],i) break end
   end
-  hkmap[self]=nil
   for k in pairs(self) do self[k]=nil end --gc
+  log.i('Deleted hotkey for '..idx)
 end
 
 
@@ -106,8 +117,15 @@ local function getMods(mods)
   return r
 end
 
+--local SYMBOLS = {cmd='⌘',ctrl='⌃',alt='⌥',shift='⇧',hyper='✧'}
+local CONCAVE_DIAMOND='✧'
 local function getIndex(mods,keycode)
-  return tconcat(getMods(mods))..'#'..keycode
+  local mods = getMods(mods)
+  mods = #mods>=4 and CONCAVE_DIAMOND or tconcat(mods)
+  local key=keycodes.map[keycode]
+  key=key and supper(key) or keycode
+  return mods..key
+    --  return tconcat(getMods(mods))..(keycodes.map[keycode] or keycode)
 end
 --- hs.hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duration) -> hs.hotkey
 --- Constructor
@@ -134,8 +152,6 @@ end
 ---  * You can create multiple `hs.hotkey` objects for the same keyboard combination, but only one can be active
 ---    at any given time - see `hs.hotkey:enable()`
 
---local SYMBOLS = {cmd='⌘',ctrl='⌃',alt='⌥',shift='⇧',hyper='✧'}
-local CONCAVE_DIAMOND='✧'
 function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duration)
   local keycode = getKeycode(key)
   mods = getMods(mods)
@@ -146,19 +162,16 @@ function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duratio
   if type(message)~='string' then message=nil end
   if type(duration)~='number' then duration=nil end
   local idx = getIndex(mods,keycode)
-  local desc = tconcat(mods)
-  if #mods>=4 then desc=CONCAVE_DIAMOND end
-  desc=desc..supper(key)
+  local msg=(message and #message>0) and idx..': '..message or idx
   if message then
-    if #message>0 then desc=desc..': '..message end
     local actualfn=pressedfn or releasedfn or repeatfn
-    local fnalert=function()alert(desc,duration or 1)actualfn()end
+    local fnalert=function()alert(msg,duration or 1)actualfn()end
     if pressedfn then pressedfn=fnalert
     elseif releasedfn then releasedfn=fnalert
     elseif repeatfn then repeatfn=fnalert end
   end
-  local hk = {_hk=hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn),enable=enable,disable=disable,delete=delete,desc=desc}
-  hkmap[hk] = idx
+  local hk = {_hk=hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn),enable=enable,disable=disable,delete=delete,msg=msg,idx=idx}
+  log.i('Created hotkey for '..idx)
   local h = hotkey[idx] or {}
   h[#h+1] = hk
   hotkey[idx] = h
@@ -200,10 +213,8 @@ end
 ---  * None
 function hotkey.deleteAll(mods,key)
   local idx=getIndex(mods,getKeycode(key))
-  for _,hk in ipairs(hotkey[idx] or {}) do
-    hk._hk:disable() --objc
-    hkmap[hk]=nil
-  end
+  local t=hotkey[idx] or {}
+  for i=#t,1,-1 do t[i]:delete() end
   hotkey[idx]=nil
 end
 
@@ -375,6 +386,7 @@ function hotkey.modal.new(mods, key, message, duration)
   if (key) then
     m.k = hotkey.bind(mods, key, function() m:enter() end, message, duration)
   end
+  log.i('Created modal hotkey')
   return m
 end
 
