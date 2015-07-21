@@ -10,8 +10,12 @@ local tonumber,pairs,ipairs,type,tremove,tinsert,tconcat = tonumber,pairs,ipairs
 local supper,slower,sfind=string.upper,string.lower,string.find
 
 local function getKeycode(s)
-  if (s:sub(1, 1) == '#') then return tonumber(s:sub(2))
-  else return keycodes.map[s:lower()] end
+  if type(s)~='string' then error('key must be a string',3) end
+  local n
+  if (s:sub(1, 1) == '#') then n=tonumber(s:sub(2))
+  else n=keycodes.map[s:lower()] end
+  if not n then error('Invalid key: '..s,3) end
+  return n
 end
 
 local hotkeys,hkmap = {},{}
@@ -24,8 +28,12 @@ local hotkeys,hkmap = {},{}
 ---  * None
 ---
 --- Returns:
----  * The `hs.hotkey` object
-
+---  * The `hs.hotkey` object for method chaining
+---
+--- Notes:
+---  * When you enable a hotkey that uses the same keyboard combination as another previously-enabled hotkey, the old
+---    one will stop working as it's being "shadowed" by the new one. As soon as the new hotkey is disabled or deleted
+---    the old one will trigger again.
 local function enable(self,force)
   if not force and self.enabled then return self end --this ensures "nested shadowing" behaviour
   local idx = hkmap[self]
@@ -48,7 +56,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * The `hs.hotkey` object
+---  * The `hs.hotkey` object for method chaining
 local function disable(self)
   if not self.enabled then return self end
   local idx = hkmap[self]
@@ -60,7 +68,8 @@ local function disable(self)
   end
   return self
 end
---- hs.hotkey:delete() -> hs.hotkey
+
+--- hs.hotkey:delete()
 --- Method
 --- Disables and deletes a hotkey object
 ---
@@ -68,8 +77,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * The `hs.hotkey` object
-
+---  * None
 local function delete(self)
   disable(self)
   local idx=hkmap[self]
@@ -80,6 +88,7 @@ local function delete(self)
   hkmap[self]=nil
   for k in pairs(self) do self[k]=nil end --gc
 end
+
 
 local function getMods(mods)
   local r={}
@@ -96,12 +105,16 @@ local function getMods(mods)
   find{'alt','option','⌥'} find{'shift','⇧'}
   return r
 end
+
+local function getIndex(mods,keycode)
+  return tconcat(getMods(mods))..'#'..keycode
+end
 --- hs.hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duration) -> hs.hotkey
 --- Constructor
 --- Creates a new hotkey
 ---
 --- Parameters:
----  * mods - A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---  * mods - (optional) A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
 ---   * "cmd", "command" or "⌘"
 ---   * "ctrl", "control" or "⌃"
 ---   * "alt", "option" or "⌥"
@@ -118,13 +131,13 @@ end
 ---
 --- Notes:
 ---  * If you don't need `releasedfn` nor `repeatfn`, you can simply use `hs.hotkey.new(mods,key,fn,"message")`
----  * You can create multiple `hs.hotkey` objects for the same hotkey, but only one can be active at any given time
+---  * You can create multiple `hs.hotkey` objects for the same keyboard combination, but only one can be active
+---    at any given time - see `hs.hotkey:enable()`
 
 --local SYMBOLS = {cmd='⌘',ctrl='⌃',alt='⌥',shift='⇧',hyper='✧'}
 local CONCAVE_DIAMOND='✧'
 function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duration)
-  if type(key)~='string' then error('key must be a string',2) end
-  local keycode = getKeycode(key) or error("Invalid key: "..key,2)
+  local keycode = getKeycode(key)
   mods = getMods(mods)
   if type(pressedfn)~='function' and type(releasedfn)~='function' and type(repeatfn)~='function' then
     error('At least one of pressedfn, releasedfn or repeatfn must be a function',2) end
@@ -132,9 +145,10 @@ function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duratio
   elseif type(repeatfn)=='string' then duration=message message=repeatfn repeatfn=nil end
   if type(message)~='string' then message=nil end
   if type(duration)~='number' then duration=nil end
-  local modstr = tconcat(mods)
-  if #mods>=4 then modstr=CONCAVE_DIAMOND end
-  local desc=modstr..supper(key)
+  local idx = getIndex(mods,keycode)
+  local desc = tconcat(mods)
+  if #mods>=4 then desc=CONCAVE_DIAMOND end
+  desc=desc..supper(key)
   if message then
     if #message>0 then desc=desc..': '..message end
     local actualfn=pressedfn or releasedfn or repeatfn
@@ -143,7 +157,6 @@ function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duratio
     elseif releasedfn then releasedfn=fnalert
     elseif repeatfn then repeatfn=fnalert end
   end
-  local idx = modstr..keycode
   local hk = {_hk=hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn),enable=enable,disable=disable,delete=delete,desc=desc}
   hkmap[hk] = idx
   local h = hotkey[idx] or {}
@@ -154,10 +167,10 @@ end
 
 --- hs.hotkey.disableAll(mods, key)
 --- Function
---- Disables all previously set callbacks for a given hotkey
+--- Disables all previously set callbacks for a given keyboard combination
 ---
 --- Parameters:
----  * mods - A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---  * mods - (optional) A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
 ---   * "cmd", "command" or "⌘"
 ---   * "ctrl", "control" or "⌃"
 ---   * "alt", "option" or "⌥"
@@ -167,21 +180,26 @@ end
 --- Returns:
 ---  * None
 function hotkey.disableAll(mods,key)
-  if type(key)~='string' then error('key must be a string',2) end
-  local keycode = getKeycode(key) or error("Invalid key: "..key,2)
-  local idx=tconcat(getMods(mods))..keycode
-  for _,hk in ipairs(hotkey[idx] or {}) do
-    hk:disable()
-    --    hk._hk:disable() --objc
-    --    hkmap[hk]=nil
-  end
-  --  hotkey[idx]=nil
+  local idx=getIndex(mods,getKeycode(key))
+  for _,hk in ipairs(hotkey[idx] or {}) do hk:disable() end
 end
 
+--- hs.hotkey.deleteAll(mods, key)
+--- Function
+--- Deletes all previously set callbacks for a given keyboard combination
+---
+--- Parameters:
+---  * mods - (optional) A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---   * "cmd", "command" or "⌘"
+---   * "ctrl", "control" or "⌃"
+---   * "alt", "option" or "⌥"
+---   * "shift" or "⇧"
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---
+--- Returns:
+---  * None
 function hotkey.deleteAll(mods,key)
-  if type(key)~='string' then error('key must be a string',2) end
-  local keycode = getKeycode(key) or error("Invalid key: "..key,2)
-  local idx=tconcat(getMods(mods))..keycode
+  local idx=getIndex(mods,getKeycode(key))
   for _,hk in ipairs(hotkey[idx] or {}) do
     hk._hk:disable() --objc
     hkmap[hk]=nil
@@ -199,7 +217,7 @@ end
 ---   * "ctrl", "control" or "⌃"
 ---   * "alt", "option" or "⌥"
 ---   * "shift" or "⇧"
----  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * key - (optional) A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
 ---  * pressedfn - (optional) A function that will be called when the hotkey has been pressed
 ---  * releasedfn - (optional) A function that will be called when the hotkey has been released
 ---  * repeatfn - (optional) A function that will be called when a pressed hotkey is repeating
@@ -207,7 +225,7 @@ end
 ---  * duration - (optional) Duration of the alert message in seconds
 ---
 --- Returns:
----  * A new `hs.hotkey` object
+---  * A new `hs.hotkey` object for method chaining
 ---
 --- Notes:
 ---  * This function is just a wrapper that performs `hs.hotkey.new(...):enable()`
@@ -219,15 +237,12 @@ end
 ---
 --- Create/manage modal keyboard shortcut environments
 ---
---- This would be a simple example usage:
----
----     k = hs.hotkey.modal.new({"cmd", "shift"}, "d")
----
----     function k:entered() hs.alert.show('Entered mode') end
----     function k:exited()  hs.alert.show('Exited mode')  end
----
----     k:bind({}, 'escape', function() k:exit() end)
----     k:bind({}, 'J', function() hs.alert.show("Pressed J") end)
+--- Usage:
+--- k = hs.hotkey.modal.new("cmd-shift", "d")
+--- function k:entered() hs.alert.show('Entered mode') end
+--- function k:exited()  hs.alert.show('Exited mode')  end
+--- k:bind('', 'escape', function() k:exit() end)
+--- k:bind('', 'J', function() hs.alert.show("Pressed J") end)
 
 hotkey.modal = {}
 hotkey.modal.__index = hotkey.modal
@@ -243,8 +258,7 @@ hotkey.modal.__index = hotkey.modal
 ---  * None
 ---
 --- Notes:
----  * This is a pre-existing function that you should override if you need to use it
----  * The default implementation does nothing
+---  * This is a pre-existing function that you should override if you need to use it; the default implementation does nothing.
 function hotkey.modal:entered()
 end
 
@@ -259,31 +273,33 @@ end
 ---  * None
 ---
 --- Notes:
----  * This is a pre-existing function that you should override if you need to use it
----  * The default implementation does nothing
+---  * This is a pre-existing function that you should override if you need to use it; the default implementation does nothing.
 function hotkey.modal:exited()
 end
 
---- hs.hotkey.modal:bind(mods, key, pressedfn, releasedfn, repeatfn) -> hs.hotkey.modal
+--- hs.hotkey.modal:bind(mods, key, pressedfn, releasedfn, repeatfn, message, duration) -> hs.hotkey.modal
 --- Method
+--- Creates a hotkey that is enabled/disabled as the modal is entered/exited
 ---
 --- Parameters:
----  * mods - A table containing the keyboard modifiers required, which should be zero or more of the following strings:
----   * cmd
----   * alt
----   * shift
----   * ctrl
+---  * mods - (optional) A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---   * "cmd", "command" or "⌘"
+---   * "ctrl", "control" or "⌃"
+---   * "alt", "option" or "⌥"
+---   * "shift" or "⇧"
 ---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
----  * pressedfn - A function that will be called when the hotkey has been pressed
----  * releasedfn - An optional function that will be called when the hotkey has been released
----  * repeatfn - An optional function that will be called when a pressed hotkey is repeating
+---  * pressedfn - (optional) A function that will be called when the hotkey has been pressed
+---  * releasedfn - (optional) A function that will be called when the hotkey has been released
+---  * repeatfn - (optional) A function that will be called when a pressed hotkey is repeating
+---  * message - (optional) A string containing a message to be displayed via `hs.alert()` when the hotkey has been triggered
+---  * duration - (optional) Duration of the alert message in seconds
 ---
 --- Returns:
----  * The `hs.hotkey.modal` object
----
-function hotkey.modal:bind(mods, key, pressedfn, releasedfn, repeatfn)
-  local k = hotkey.new(mods, key, pressedfn, releasedfn, repeatfn)
-  tinsert(self.keys, k._hk)
+---  * The `hs.hotkey.modal` object for method chaining
+function hotkey.modal:bind(...)
+  --  local k = hotkey.new(...)
+  --  tinsert(self.keys, k._hk)
+  tinsert(self.keys, hotkey.new(...))
   return self
 end
 
@@ -295,16 +311,19 @@ end
 ---  * None
 ---
 --- Returns:
----  * The `hs.hotkey.modal` object
+---  * The `hs.hotkey.modal` object for method chaining
 ---
 --- Notes:
----  * This method will enable all of the hotkeys defined in the modal state, and disable the hotkey that entered the modal state (if one was defined)
----  * If the modal state has a hotkey, this method will be called automatically
+---  * This method will enable all of the hotkeys defined in the modal state via `hs.hotkey.modal:bind()`,
+---    and disable the hotkey that entered the modal state (if one was defined)
+---  * If the modal state was created with a keyboard combination, this method will be called automatically
 function hotkey.modal:enter()
   if (self.k) then
-    self.k:disable()
+    --    self.k._hk:disable()
+    disable(self.k)
   end
-  fnutils.each(self.keys, hs.getObjectMetatable("hs.hotkey").enable)
+  --  fnutils.each(self.keys, hotkey.enable)
+  fnutils.each(self.keys, enable)
   self:entered()
   return self
 end
@@ -322,35 +341,39 @@ end
 --- Notes:
 ---  * This method will disable all of the hotkeys defined in the modal state, and enable the hotkey for entering the modal state (if one was defined)
 function hotkey.modal:exit()
-  fnutils.each(self.keys, hs.getObjectMetatable("hs.hotkey").disable)
+  --  fnutils.each(self.keys, hotkey.disable)
+  fnutils.each(self.keys, disable)
   if (self.k) then
-    self.k:enable()
+    enable(self.k)
+    --    self.k._hk:enable()
   end
   self:exited()
   return self
 end
 
---- hs.hotkey.modal.new(mods, key) -> hs.hotkey.modal
+--- hs.hotkey.modal.new(mods, key, message, duration) -> hs.hotkey.modal
 --- Constructor
---- Creates a new modal state, optionally with a global hotkey to trigger it
+--- Creates a new modal state, optionally with a global keyboard combination to trigger it
 ---
 --- Parameters:
----  * mods - A table containing keyboard modifiers for the optional global hotkey
----  * key - A string containing the name of a keyboard key (as found in `hs.keycodes.map`)
+---  * mods - (optional) A string containing (as substrings, with any separator) the keyboard modifiers, which should be zero or more of the following:
+---   * "cmd", "command" or "⌘"
+---   * "ctrl", "control" or "⌃"
+---   * "alt", "option" or "⌥"
+---   * "shift" or "⇧"
+---  * key - (optional) A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * message - (optional) A string containing a message to be displayed via `hs.alert()` when the hotkey has been triggered
+---  * duration - (optional) Duration of the alert message in seconds
 ---
 --- Returns:
 ---  * A new `hs.hotkey.modal` object
 ---
 --- Notes:
----  * If `mods` and `key` are both nil, no global hotkey will be registered
-function hotkey.modal.new(mods, key)
-  if ((mods and not key) or (not mods and key)) then
-    hs.showError("Incorrect use of hs.hotkey.modal.new(). Both parameters must either be valid, or nil. You cannot mix valid and nil parameters")
-    return nil
-  end
+---  * If `key` is nil, no global hotkey will be registered (all other parameters will be ignored)
+function hotkey.modal.new(mods, key, message, duration)
   local m = setmetatable({keys = {}}, hotkey.modal)
-  if (mods and key) then
-    m.k = hotkey.bind(mods, key, function() m:enter() end)
+  if (key) then
+    m.k = hotkey.bind(mods, key, function() m:enter() end, message, duration)
   end
   return m
 end
