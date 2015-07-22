@@ -40,17 +40,17 @@ local hotkeys = {}
 local function enable(self,force)
   if not force and self.enabled then log.v('Hotkey already enabled') return self end --this ensures "nested shadowing" behaviour
   local idx = self.idx
-  if not idx or not hotkey[idx] then log.e('The hotkey was deleted, cannot enable it') return end
-  local i = fnutils.indexOf(hotkey[idx],self)
-  if i then tremove(hotkey[idx],i) end
-  for _,hk in ipairs(hotkey[idx]) do
+  if not idx or not hotkeys[idx] then log.e('The hotkey was deleted, cannot enable it') return end
+  local i = fnutils.indexOf(hotkeys[idx],self)
+  if i then tremove(hotkeys[idx],i) end
+  for _,hk in ipairs(hotkeys[idx]) do
     if hk.enabled then log.d('Disabled previous hotkey for '..idx) end
     hk._hk:disable()
   end
   self.enabled = true
   self._hk:enable() --objc
   log.i('Enabled hotkey for '..idx)
-  tinsert(hotkey[idx],self) -- bring to end
+  tinsert(hotkeys[idx],self) -- bring to end
   return self
 end
 
@@ -66,14 +66,14 @@ end
 local function disable(self)
   if not self.enabled then return self end
   local idx = self.idx
-  if not idx or not hotkey[idx] then log.w('The hotkey was deleted, cannot disable it') return end
+  if not idx or not hotkeys[idx] then log.w('The hotkey was deleted, cannot disable it') return end
   self.enabled = nil
   self._hk:disable() --objc
   log.i('Disabled hotkey for '..idx)
-  for i=#hotkey[idx],1,-1 do
-    if hotkey[idx][i].enabled then
+  for i=#hotkeys[idx],1,-1 do
+    if hotkeys[idx][i].enabled then
       log.d('Re-enabled previous hotkey for '..idx)
-      hotkey[idx][i]._hk:enable()
+      hotkeys[idx][i]._hk:enable()
       break
     end
   end
@@ -91,11 +91,10 @@ end
 ---  * None
 local function delete(self)
   local idx=self.idx
-  if not idx or not hotkey[idx] then log.w('The hotkey has already been deleted') return end --?
+  if not idx or not hotkeys[idx] then log.w('The hotkey has already been deleted') return end --?
   disable(self)
-  for i=#hotkey[idx],1,-1 do
-    if hotkey[idx][i]==self then tremove(hotkey[idx],i) break end
-  end
+  local i = fnutils.indexOf(hotkeys[idx],self)
+  if i then tremove(hotkeys[idx],i) end
   for k in pairs(self) do self[k]=nil end --gc
   log.i('Deleted hotkey for '..idx)
 end
@@ -172,9 +171,9 @@ function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duratio
   end
   local hk = {_hk=hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn),enable=enable,disable=disable,delete=delete,msg=msg,idx=idx}
   log.i('Created hotkey for '..idx)
-  local h = hotkey[idx] or {}
+  local h = hotkeys[idx] or {}
   h[#h+1] = hk
-  hotkey[idx] = h
+  hotkeys[idx] = h
   return hk
 end
 
@@ -194,7 +193,7 @@ end
 ---  * None
 function hotkey.disableAll(mods,key)
   local idx=getIndex(mods,getKeycode(key))
-  for _,hk in ipairs(hotkey[idx] or {}) do hk:disable() end
+  for _,hk in ipairs(hotkeys[idx] or {}) do hk:disable() end
 end
 
 --- hs.hotkey.deleteAll(mods, key)
@@ -213,9 +212,9 @@ end
 ---  * None
 function hotkey.deleteAll(mods,key)
   local idx=getIndex(mods,getKeycode(key))
-  local t=hotkey[idx] or {}
+  local t=hotkeys[idx] or {}
   for i=#t,1,-1 do t[i]:delete() end
-  hotkey[idx]=nil
+  hotkeys[idx]=nil
 end
 
 --- hs.hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn, message, duration) -> hs.hotkey
