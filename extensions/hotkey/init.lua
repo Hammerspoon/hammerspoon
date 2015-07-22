@@ -217,6 +217,43 @@ function hotkey.deleteAll(mods,key)
   hotkeys[idx]=nil
 end
 
+--- hs.hotkey.showHotkeys(mods, key)
+--- Function
+--- Creates (and enables) a hotkey that shows all currently enabled hotkeys while pressed
+---
+--- Parameters:
+---  * mods - (optional) A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---   * "cmd", "command" or "⌘"
+---   * "ctrl", "control" or "⌃"
+---   * "alt", "option" or "⌥"
+---   * "shift" or "⇧"
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---
+--- Returns:
+---  * The new `hs.hotkey` object
+
+local helpHotkey
+local function showHelp()
+  local t={}
+  for idx,hks in pairs(hotkeys) do
+    for i=#hks,1,-1 do
+      if hks[i].enabled and hks[i]~=helpHotkey then
+        t[#t+1] = hks[i]
+        break
+      end
+    end
+  end
+  table.sort(t,function(a,b)if#a.idx==#b.idx then return a.idx<b.idx else return #a.idx<#b.idx end end)
+  local s=''
+  for _,hk in ipairs(t) do s=s..hk.msg..'\n' end
+  --  hs.alert(s,math.min(15,math.max(#s/10),3))
+  hs.alert(string.sub(s,1,-2),3600)
+end
+function hotkey.showHotkeys(mods,key)
+  if helpHotkey then delete(helpHotkey) end
+  helpHotkey = hotkey.bind(mods,key,showHelp,hs.alert.closeAll,'Show enabled hotkeys',3600)
+  return helpHotkey
+end
 --- hs.hotkey.bind(mods, key, pressedfn, releasedfn, repeatfn, message, duration) -> hs.hotkey
 --- Constructor
 --- Creates a hotkey and enables it immediately
