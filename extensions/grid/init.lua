@@ -198,6 +198,16 @@ end
 --- Returns:
 ---  * None
 
+--- hs.grid.toggleShow()
+--- Function
+--- Toggles the grid and modal resizing mode - see `hs.grid.show()` and `hs.grid.hide()`
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+
 --- hs.grid.HINTS
 --- Variable
 --- A bidimensional array (table of tables of strings) holding the keyboard hints (as per `hs.keycodes.map`) to be used for the interactive resizing interface.
@@ -666,7 +676,7 @@ end
 
 
 
-local initialized, currentScreen, currentWindow, highlight
+local initialized, showing, currentScreen, currentWindow, highlight
 local function _start()
   if initialized then return end
   screen.watcher.new(deleteUI):start()
@@ -679,6 +689,7 @@ local function _start()
     highlight:show()
   end
   function resizing:entered()
+    if showing then return end
     currentWindow = window.focusedWindow()
     if not currentWindow then log.w('Cannot get current window, aborting') resizing:exit() return end
     log.df('Start moving %s [%s]',currentWindow:subrole(),currentWindow:application():title())
@@ -689,6 +700,7 @@ local function _start()
     showHighlight()
     if not uielements then makeUI() end
     showGrid(currentScreen)
+    showing = true
   end
   local selectedElem
   local function clearSelection()
@@ -698,9 +710,11 @@ local function _start()
     end
   end
   function resizing:exited()
+    if not showing then return true end
     if highlight then highlight:delete() highlight=nil end
     clearSelection()
     hideGrid(currentScreen)
+    showing = nil
   end
   resizing:bind({},'escape',function()log.d('abort move')resizing:exit()end)
   resizing:bind({},'space',function()
@@ -747,15 +761,19 @@ local function _start()
 end
 
 function grid.show()
-  if not initialized then _start()
-  else resizing:exit() end
+  if showing then return end
+  if not initialized then _start() end
+  --  else resizing:exit() end
   resizing:enter()
 end
 
 function grid.hide()
-  if initialized then resizing:exit() end
+  if showing then resizing:exit() end
 end
 
+function grid.toggleShow()
+  if showing then grid.hide() else grid.show() end
+end
 
 -- Legacy stuff below
 
