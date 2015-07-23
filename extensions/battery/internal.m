@@ -363,6 +363,31 @@ static int battery_powersource(lua_State* L) {
     return _push_dict_key_value(L, get_iops_battery_info(), @kIOPSPowerSourceStateKey);
 }
 
+/// hs.battery.psuSerial() -> integer
+/// Function
+/// Returns the serial number of the attached power supply, if present
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An integer containing the power supply's serial number, or 0 if no serial can be found
+static int battery_psuSerial(lua_State* L) {
+    int serial = 0;
+
+    CFDictionaryRef psuInfo = IOPSCopyExternalPowerAdapterDetails();
+    if (psuInfo) {
+        NSNumber *serialNumber = (__bridge NSNumber *)CFDictionaryGetValue(psuInfo, CFSTR(kIOPSPowerAdapterSerialNumberKey));
+        if (serialNumber) {
+            serial = [serialNumber intValue];
+        }
+        CFRelease(psuInfo);
+    }
+
+    lua_pushinteger(L, serial);
+    return 1;
+}
+
 static const luaL_Reg battery_lib[] = {
     {"cycles", battery_cycles},
     {"name", battery_name},
@@ -381,6 +406,7 @@ static const luaL_Reg battery_lib[] = {
     {"isCharged", battery_ischarged},
     {"isFinishingCharge", battery_isfinishingcharge},
     {"powerSource", battery_powersource},
+    {"psuSerial", battery_psuSerial},
     {NULL, NULL}
 };
 
