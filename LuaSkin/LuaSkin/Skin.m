@@ -22,6 +22,10 @@
     dispatch_once(&onceToken, ^{
         sharedLuaSkin = [[self alloc] init];
     });
+    if (![NSThread isMainThread]) {
+        NSLog(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
+        abort();
+    }
     return sharedLuaSkin;
 }
 
@@ -63,7 +67,7 @@
 
 - (BOOL)protectedCallAndTraceback:(int)nargs nresults:(int)nresults {
     // At this point we are being called with nargs+1 items on the stack, but we need to shove our traceback handler below that
-    
+
     // Get debug.traceback() onto the top of the stack
     lua_getglobal(_L, "debug");
     lua_getfield(_L, -1, "traceback");
@@ -89,11 +93,11 @@
     //  -2 debug.traceback()
     int tracebackPosition = -nargs - 2;
     lua_insert(_L, tracebackPosition);
-    
+
     if (lua_pcall(_L, nargs, nresults, tracebackPosition) != LUA_OK) {
         return NO;
     }
-    
+
     return YES;
 }
 

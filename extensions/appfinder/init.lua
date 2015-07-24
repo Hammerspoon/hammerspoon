@@ -76,5 +76,21 @@ end
 function appfinder.windowFromWindowTitle(title)
     return find_window_from_function(function(win) return win:title() == title end)
 end
+--
+--- hs.appfinder.windowFromWindowTitlePattern(pattern) -> app or nil
+--- Function
+--- Finds a window by Lua pattern in its title (e.g."Inbox %(%d+ messages.*)")
+---
+--- Parameters:
+---  * pattern - a Lua pattern describing a window title of the window to search for
+---
+--- Returns:
+---  * An hs.window object if one can be found, otherwise nil
+---
+--- Notes:
+---  * For more about Lua patterns, see http://lua-users.org/wiki/PatternsTutorial and http://www.lua.org/manual/5.2/manual.html#6.4.1
+function appfinder.windowFromWindowTitlePattern(pattern)
+    return find_window_from_function(function(win) return string.match(win:title(), pattern) end)
+end
 
 return appfinder
