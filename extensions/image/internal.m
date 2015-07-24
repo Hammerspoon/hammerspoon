@@ -209,7 +209,10 @@ static int getImageName(lua_State* L) {
 ///  * Status - a boolean value indicating success (true) or failure (false) when assigning the specified name.
 static int setImageName(lua_State* L) {
     NSImage *testImage = get_image_from_hsimage(L, 1) ;
-    lua_pushboolean(L, [testImage setName:[NSString stringWithUTF8String:luaL_checkstring(L, 2)]]) ;
+    if (lua_isnil(L,2))
+        lua_pushboolean(L, [testImage setName:nil]) ;
+    else
+        lua_pushboolean(L, [testImage setName:[NSString stringWithUTF8String:luaL_checkstring(L, 2)]]) ;
     return 1 ;
 }
 
@@ -297,7 +300,8 @@ static int hsimage_gc(lua_State* L) {
 // Get the NSImage so ARC can release it...
     void **thingy = luaL_checkudata(L, 1, USERDATA_TAG) ;
     NSImage* image = (__bridge_transfer NSImage *) *thingy ;
-    [image recache] ; // invalidate image caches
+    [image setName:nil] ; // remove from image cache
+    [image recache] ;     // invalidate image rep caches
     luaL_unref(L, LUA_REGISTRYINDEX, 1);
     return 0 ;
 }
