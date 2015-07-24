@@ -9,7 +9,8 @@ install: install-lua
 
 install-lua: $(LUAFILE)
 	mkdir -p $(PREFIX)/$(MODULE)
-	install -m 0644 $(LUAFILE) $(PREFIX)/$(MODULE)
+	install -m 0644 *.lua  $(PREFIX)/$(MODULE)
+	install -m 0644 *.json $(PREFIX)/$(MODULE)
 
 clean:
 

@@ -205,7 +205,7 @@ hscrash.crashLog("Loaded from: "..modpath)
 
 --- hs.help(identifier)
 --- Function
---- Prints the documentation for some part of Hammerspoon's API
+--- Prints the documentation for some part of Hammerspoon's API and Lua 5.3.  This function is actually sourced from hs.doc.help.
 ---
 --- Parameters:
 ---  * identifier - A string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`)
@@ -215,18 +215,16 @@ hscrash.crashLog("Loaded from: "..modpath)
 ---
 --- Notes:
 ---  * This function is mainly for runtime API help while using Hammerspoon's Console
----  * You can also just use `help()` directly
-function hs.help(identifier)
-  local doc = require "hs.doc"
-  local tree = doc.fromJSONFile(hs.docstrings_json_file)
-  local result = tree
+---
+---  * You can also access the results of this function by the following methods from the console:
+---    * help("identifier") -- quotes are required, e.g. `help("hs.reload")`
+---    * help.identifier.path -- no quotes are required, e.g. `help.hs.reload`
+---
+---  * Lua information can be accessed by using the `lua` prefix, rather than `hs`.
+---    * the identifier `lua._man` provides the table of contents for the Lua 5.3 manual.  You can pull up a specific section of the lua manual by including the chapter (and subsection) like this: `lua._man._3_4_8`.
+---    * the identifier `lua._C` will provide information specifically about the Lua C API for use when developing modules which require external libraries.
 
-  for word in string.gmatch(identifier, '([^.]+)') do
-    result = result[word]
-  end
-
-  print(result)
-end
+hs.help = require("hs.doc")
 help = hs.help
 
 if not hasinitfile then
