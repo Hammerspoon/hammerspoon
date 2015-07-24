@@ -1,0 +1,1 @@
+syntastic_objc_include_dirs = ["LuaSkin"]
