@@ -47,6 +47,8 @@ int store_image_as_hsimage(lua_State* L, NSImage* theImage) {
     // make sure hs.image has been loaded...
     lua_getglobal(L, "require"); lua_pushstring(L, IMAGE_USERDATA_TAG); lua_call(L, 1, 1); lua_pop(L, 1) ;
 
+    theImage.cacheMode = NSImageCacheNever ;
+
     void** imagePtr = lua_newuserdata(L, sizeof(NSImage *));
     *imagePtr = (__bridge_retained void *)theImage;
 

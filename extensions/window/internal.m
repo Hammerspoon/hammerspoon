@@ -602,42 +602,48 @@ static int window_setShadows(lua_State* L) {
     return 0;
 }
 
-/// hs.window:snapshot() -> hs.image-object
-/// Function
+/// hs.window:snapshot([keepTransparency]) -> hs.image-object
+/// Method
 /// Returns a snapshot of the window as an `hs.image` object
 ///
 /// Parameters:
-///  * None
+///  * keepTransparency -- optional boolean value indicating if the windows alpha value (transparency) should be maintained in the resulting image or if it should be fully opaque (default).
 ///
 /// Returns:
 ///  * `hs.image` object of the window snapshot or nil if unable to create a snapshot
-///
-/// Notes:
-///  * This function uses a private, undocumented OS X API call, so it is not guaranteed to work in any future OS X release
 static int window_snapshot(lua_State* L) {
+    NSInteger      makeOpaque = kCGWindowImageShouldBeOpaque ;
+
     AXUIElementRef win = get_window_arg(L, 1);
 
     CGWindowID windowID;
     AXError err = _AXUIElementGetWindow(win, &windowID);
+
+    if (lua_toboolean(L, 2)) makeOpaque = 0 ;
+
     if (!err) {
-        CGImageRef windowImage = CGWindowListCreateImage(
-              CGRectNull,
-              kCGWindowListOptionIncludingWindow,
-              windowID,
-              kCGWindowImageBoundsIgnoreFraming | kCGWindowImageShouldBeOpaque);
+        CGRect windowRect = { get_window_topleft(win), get_window_size(win) };
+
+        CFArrayRef targetWindow = CFArrayCreate(NULL, (const void **)(&windowID), 1, NULL);
+        CGImageRef windowImage = CGWindowListCreateImageFromArray(
+              windowRect,
+              targetWindow,
+              kCGWindowImageBoundsIgnoreFraming | makeOpaque);
+        CFRelease(targetWindow) ;
+
         if (!windowImage) {
-            CLS_NSLOG(@"hs.window::snapshot: ERROR: CGWindowListCreateImage failed for windowID: %ld", (long) windowID);
+            CLS_NSLOG(@"hs.window::snapshot: ERROR: CGWindowListCreateImageFromArray failed for windowID: %ld", (long) windowID);
             return 0;
         }
-        NSImage *newImage = [[NSImage alloc] initWithCGImage:windowImage size:NSZeroSize] ;
-        if (!newImage) {
-            CLS_NSLOG(@"hs.window::snapshot: ERROR: unable to convert CGImageRef to NSImage for windowID: %ld", (long) windowID);
-            return 0;
-        }
-        store_image_as_hsimage(L, newImage) ;
+
+        NSImage *newImage = [[NSImage alloc] initWithCGImage:windowImage size:windowRect.size] ;
+
         CGImageRelease(windowImage) ;
+
+        store_image_as_hsimage(L, newImage) ;
         return 1 ;
     } else {
+        printToConsole(L, "Unable to retrieve CGWindowID for specified window.") ;
         return 0 ;
     }
 }

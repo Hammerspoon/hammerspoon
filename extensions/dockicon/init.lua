@@ -6,11 +6,11 @@
 
 local module = require("hs.dockicon.internal")
 
--- private variables and methods -----------------------------------------
-
--- Public interface ------------------------------------------------------
-
--- Return Module Object --------------------------------------------------
+local realSetBadge = module.setBadge
+module.setBadge = function(arg)
+    if type(arg) == "nil" then arg = "" end
+    return realSetBadge(arg)
+end
 
 return module
 
