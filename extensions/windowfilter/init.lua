@@ -437,6 +437,7 @@ windowfilter.isGuiApp = function(appname)
   if not appname then return true
   elseif windowfilter.ignoreAlways[appname] then return false
   elseif ssub(appname,1,12)=='QTKitServer-' then return false
+    --  elseif appname=='Hammerspoon' then return false
   else return true end
 end
 
@@ -783,13 +784,15 @@ local RETRY_DELAY,MAX_RETRIES = 0.2,3
 local windowWatcherDelayed={}
 
 appWindowEvent=function(win,event,_,appname,retry)
+  local role = win.subrole and win:subrole()
+  if appname=='Hammerspoon' and (not role or role=='AXUnknown') then return end
   log.vf('Received %s for %s',event,appname)
   local id = win and win.id and win:id()
   if event==uiwatcher.windowCreated then
     if windowWatcherDelayed[win] then windowWatcherDelayed[win]:stop() windowWatcherDelayed[win]=nil end
     retry=(retry or 0)+1
     if not id then
-      if retry>MAX_RETRIES then log.df('%s: %s has no id',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
+      if retry>MAX_RETRIES then log.df('%s: %s has no id',appname,role or (win.role and win:role()) or 'window')
       else
         windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
       return
@@ -797,7 +800,7 @@ appWindowEvent=function(win,event,_,appname,retry)
     if apps[appname].windows[id] then return log.df('%s: window %d already registered',appname,id) end
     local watcher=win:newWatcher(windowEvent,appname)
     if not watcher._element.pid then
-      log.wf('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()))
+      log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
       -- old workaround for the 'missing pid' bug
       --      if retry>MAX_RETRIES then log.df('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
       --      else
@@ -956,7 +959,7 @@ function windowfilter.switchedToSpace(space,cb)
   windowfilter.forceRefreshOnSpaceChange = nil
   --  if spacesDone[space] then log.v('Switched to space #'..space) return cb and cb() end
   timer.doAfter(0.5,function()
-    if not spacesDone[space] then
+    if not spacesDone[space] and next(activeFilters) then
       log.f('Entered space #%d, refreshing all windows',space)
       getAllWindows()
       spacesDone[space] = true
@@ -984,13 +987,14 @@ end
 --- callback instead.
 windowfilter.forceRefreshOnSpaceChange = false
 local function spaceChanged()
-  if windowfilter.forceRefreshOnSpaceChange then
+  if windowfilter.forceRefreshOnSpaceChange and next(activeFilters) then
     log.i('Space changed, refreshing all windows')
     getAllWindows()
   end
   refreshTrackSpacesFilters()
 end
 local spacesWatcher = require'hs.spaces'.watcher.new(spaceChanged)
+spacesWatcher:start()
 
 local function startGlobalWatcher()
   if global.watcher then return end
@@ -1001,12 +1005,11 @@ local function startGlobalWatcher()
     startAppWatcher(app,app:title())
   end
   global.watcher:start()
-  spacesWatcher:start()
 end
 
 local function stopGlobalWatcher()
   if not global.watcher then return end
-  spacesWatcher:stop()
+  --  spacesWatcher:stop()
   for _,active in pairs(activeFilters) do
     if active then return end
   end
@@ -1081,7 +1084,7 @@ end
 -- *way* faster than hs.window.allWindows(); even so, better to have a way to avoid the overhead if we know
 -- we'll call :getWindows often enough
 function wf:keepActive()
-  start(self)
+  start(self) return self
 end
 
 
