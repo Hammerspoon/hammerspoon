@@ -61,6 +61,49 @@ static int pasteboard_clearContents(lua_State* L) {
     return 0;
 }
 
+/// hs.pasteboard.pasteboardTypes([name]) -> boolean
+/// Function
+/// Return the pasteboard type identifier strings for the specified pasteboard.
+///
+/// Parameters:
+///  * name - An optional string containing the name of the pasteboard. Defaults to the system pasteboard
+///
+/// Returns:
+///  * a table containing the pasteboard type identifier strings
+static int pasteboard_pasteboardTypes(lua_State* L) {
+    NSPasteboard* thePasteboard = lua_to_pasteboard(L, 1);
+
+    lua_newtable(L) ;
+        for (NSString* type in [thePasteboard types]) {
+            lua_pushstring(L, [type UTF8String]) ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+
+    return 1;
+}
+
+/// hs.pasteboard.contentTypes([name]) -> boolean
+/// Function
+/// Return the UTI strings of the data types for the first pasteboard item on the specified pasteboard.
+///
+/// Parameters:
+///  * name - An optional string containing the name of the pasteboard. Defaults to the system pasteboard
+///
+/// Returns:
+///  * a table containing the UTI strings of the data types for the first pasteboard item.
+static int pasteboard_pasteboardItemTypes(lua_State* L) {
+    NSPasteboard* thePasteboard = lua_to_pasteboard(L, 1);
+
+    lua_newtable(L) ;
+// make sure there is something on the pasteboard...
+    if ([[thePasteboard pasteboardItems] count] > 0) {
+        NSPasteboardItem* item = [[thePasteboard pasteboardItems] objectAtIndex:0];
+        for (NSString* type in [item types]) {
+            lua_pushstring(L, [type UTF8String]) ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+    }
+    return 1;
+}
+
 /// hs.pasteboard.changeCount([name]) -> number
 /// Function
 /// Gets the number of times the pasteboard owner has changed
@@ -99,10 +142,12 @@ static int pasteboard_delete(lua_State* L) {
 
 // Functions for returned object when module loads
 static const luaL_Reg pasteboardLib[] = {
-    {"changeCount",  pasteboard_changeCount},
-    {"getContents",  pasteboard_getContents},
-    {"setContents",  pasteboard_setContents},
-    {"clearContents", pasteboard_clearContents},
+    {"changeCount",      pasteboard_changeCount},
+    {"getContents",      pasteboard_getContents},
+    {"setContents",      pasteboard_setContents},
+    {"clearContents",    pasteboard_clearContents},
+    {"pasteboardTypes",  pasteboard_pasteboardTypes},
+    {"contentTypes",     pasteboard_pasteboardItemTypes},
     {"deletePasteboard", pasteboard_delete},
     {NULL,      NULL}
 };
