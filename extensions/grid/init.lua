@@ -746,7 +746,7 @@ local function _start()
       x1,x2 = min(selectedElem.x,elem.x)+margins.w,max(selectedElem.x,elem.x)-margins.h
       y1,y2 = min(selectedElem.y,elem.y)+margins.w,max(selectedElem.y,elem.y)-margins.h
       local frame={x=x1,y=y1,w=x2-x1+elem.w,h=y2-y1+elem.h}
-      currentWindow:setFrame(frame,0)
+      currentWindow:setFrame(frame)
       log.f('move to %.0f,%.0f[%.0fx%.0f]',frame.x,frame.y,frame.w,frame.h)
       resizing:exit()
     end
