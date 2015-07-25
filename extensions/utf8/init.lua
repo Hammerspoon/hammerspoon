@@ -2,80 +2,23 @@
 ---
 --- Functions providing basic support for UTF-8 encodings
 ---
---- For Hammerspoon versions running with the Lua 5.2 core, this module will include a compatibility library to provide the same functionality as the Lua 5.3.1 utf8 library. For Hammerspoon versions running with the Lua 5.3 core, this compatibility library is left out, but a metatable index will pass through the same function names directly to the builtin Lua 5.3 utf8 library, allowing code which relies on these functions to work in either environment.  The additional functions providing codepoint to UTF8 sequence conversion and the registering of labels for common codepoints is provided in both environments.
+--- Prior to upgrading Hammerspoon's Lua interpreter to 5.3, UTF8 support was provided by including the then beta version of Lua 5.3's utf8 library as a Hammerspoon module.  This is no longer necessary, but to maintain compatibility, the Lua utf8 library can still be accessed through `hs.utf8`.  The documentation for the utf8 library can be found at http://www.lua.org/manual/5.3/ or from the Hammerspoon console via the help command: `help.lua.utf8`. This affects the following functions and variables:
 ---
---- Compatibility library notes:
+---   * hs.utf8.char          - help available via `help.lua.utf8.char`
+---   * hs.utf8.charPattern   - help available via `help.lua.utf8.charpattern`
+---   * hs.utf8.codepoint     - help available via `help.lua.utf8.codepoint`
+---   * hs.utf8.codes         - help available via `help.lua.utf8.codes`
+---   * hs.utf8.len           - help available via `help.lua.utf8.len`
+---   * hs.utf8.offset        - help available via `help.lua.utf8.offset`
 ---
---- These functions are from the UTF-8 Library as provided by the [Lua 5.3.1 programming language](http://www.lua.org/). This is primarily this a wrapper to allow easy inclusion within the Hammerspoon environment.
----
---- The following text is from the [reference documentation](http://www.lua.org/docs.html) for the Lua 5.3.1 programming language.
----
---- > This library provides basic support for UTF-8 encoding. It provides all its functions inside the table utf8. This library does not provide any support for Unicode other than the handling of the encoding. Any operation that needs the meaning of a character, such as character classification, is outside its scope.
---- >
---- > Unless stated otherwise, all functions that expect a byte position as a parameter assume that the given position is either the start of a byte sequence or one plus the length of the subject string. As in the string library, negative indices count from the end of the string.
----
---- ### Notes
---- Hydra provided two UTF-8 functions which can be replicated by this module.
----
---- For `hydra.utf8.count(str)` use `utf8.len(str)`
----
---- For `hydra.utf8.chars(str)`, which provided an array of the individual UTF-8 characters of `str`, use the following:
----
----     t = {} ; str:gsub(utf8.charPattern, function(c) t[#t+1] = c end)
+--- Additional functions that are specific to Hammerspoon which provide expanded support for UTF8 are documented here.
 ---
 
---- hs.utf8.char(...) -> string
---- Function
---- Receives zero or more integers, converts each one to its corresponding UTF-8 byte sequence and returns a string with the concatenation of all these sequences.
----
---- Notes:
----  * This function is ported from the Lua 5.3.1 source code.
-
---- hs.utf8.codes(s) -> position, codepoint
---- Function
---- Returns values so that the construction
----
----      for p, c in utf8.codes(s) do body end
----
---- will iterate over all characters in string s, with p being the position (in bytes) and c the code point of each character. It raises an error if it meets any invalid byte sequence.
----
---- Notes:
----  * This function is ported from the Lua 5.3.1 source code.
-
---- hs.utf8.codepoint(s [, i [, j]]) -> codepoint[, ...]
---- Function
---- Returns the codepoints (as integers) from all characters in s that start between byte position i and j (both included). The default for i is 1 and for j is i. It raises an error if it meets any invalid byte sequence.
----
---- Notes:
----  * This function is ported from the Lua 5.3.1 source code.
-
---- hs.utf8.len(s [, i [, j]]) -> count | nil, position
---- Function
---- Returns the number of UTF-8 characters in string s that start between positions i and @{j} (both inclusive). The default for i is 1 and for j is -1. If it finds any invalid byte sequence, returns nil plus the position of the first invalid byte.
----
---- Notes:
----  * This function is ported from the Lua 5.3.1 source code.
-
---- hs.utf8.offset(s, n [, i]) -> position
---- Function
---- Returns the position (in bytes) where the encoding of the n-th character of s (counting from position i) starts. A negative n gets characters before position i. The default for i is 1 when n is non-negative and #s + 1 otherwise, so that utf8.offset(s, -n) gets the offset of the n-th character from the end of the string. If the specified character is not in the subject or right after its end, the function returns nil.
---- As a special case, when n is 0 the function returns the start of the encoding of the character that contains the i-th byte of s.
----
---- This function assumes that s is a valid UTF-8 string.
----
---- Notes:
----  * This function is ported from the Lua 5.3.1 source code.
-
---- hs.utf8.charPattern
---- Variable
----The pattern (a string, not a function) "[\0-\x7F\xC2-\xF4][\x80-\xBF]*" (see 6.4.1 in [reference documentation](http://www.lua.org/docs.html)), which matches exactly one UTF-8 byte sequence, assuming that the subject is a valid UTF-8 string.
----
---- Notes:
----  * This variable is ported from the Lua 5.3.1 source code.
-
-local module = {}
-if string.match(_VERSION,"5.3") then
-    module = setmetatable(module, {
+-- Mirror utf8.X as hs.utf8.X in a case insensitive manner -- a little broader than
+-- camelCase, but simpler then checking each individually for its "proper camel case"
+-- version. -- edit: OK, so it's really only charPattern.. still, this is more portable
+-- in case it's needed as a template for elsewhere.
+local module = setmetatable({}, {
         __index = function(object, key)
             for i,v in pairs(package.loaded["utf8"]) do
                 if string.lower(key) == i then return v end
@@ -83,14 +26,8 @@ if string.match(_VERSION,"5.3") then
             return nil
         end
     })
-else
-    print("-- loading utf8 compatibility library")
-    module = require("hs.utf8.internal-utf8")
-end
 
 local fnutils = require("hs.fnutils")
-
--- private variables and methods -----------------------------------------
 
 -- Public interface ------------------------------------------------------
 
@@ -99,7 +36,7 @@ local fnutils = require("hs.fnutils")
 module.registeredKeys = setmetatable({}, { __tostring = function(object)
             local output = ""
             for i,v in fnutils.sortByKeys(object) do
-                output = output..string.format("(U+%04X) %-15s  %s\n", module.codepoint(v), i, v)
+                output = output..string.format("(U+%04X) %-15s  %s\n", utf8.codepoint(v), i, v)
             end
             return output
     end
@@ -107,16 +44,15 @@ module.registeredKeys = setmetatable({}, { __tostring = function(object)
 
 --- hs.utf8.codepointToUTF8(...) -> string
 --- Function
---- Wrapper to `hs.utf8.char(...)` which ensures that all codepoints return valid UTF8 characters.
+--- Wrapper to `utf8.char(...)` which ensures that all codepoints return valid UTF8 characters.
 ---
 --- Parameters:
----  * codepoints -- A series of numeric Unicode code points to be converted to a UTF-8 byte sequences.  If a codepoint is a string (and does not start with U+, it is used as a key for lookup in `hs.utf8.registeredKeys[]`
+---  * codepoints - A series of numeric Unicode code points to be converted to a UTF-8 byte sequences.  If a codepoint is a string (and does not start with U+, it is used as a key for lookup in `hs.utf8.registeredKeys[]`
 ---
 --- Returns:
 ---  * A string containing the UTF-8 byte sequences corresponding to provided codepoints as a combined string.
 ---
 --- Notes:
----  * This function is *NOT* part of the Lua 5.3.1 source code, and is provided for convenience within Hammerspoon.
 ---  * Valid codepoint values are from 0x0000 - 0x10FFFF (0 - 1114111)
 ---  * If the codepoint provided is a string that starts with U+, then the 'U+' is converted to a '0x' so that lua can properly treat the value as numeric.
 ---  * Invalid codepoints are returned as the Unicode Replacement Character (U+FFFD)
@@ -130,25 +66,25 @@ module.codepointToUTF8 = function(...)
             if codepoint:match("^U%+") then
                 codepoint = codepoint:gsub("^U%+","0x")
             else
-                codepoint = module.registeredKeys[codepoint] and module.codepoint(module.registeredKeys[codepoint]) or 0xFFFD
+                codepoint = module.registeredKeys[codepoint] and utf8.codepoint(module.registeredKeys[codepoint]) or 0xFFFD
             end
         end
         codepoint = tonumber(codepoint)
 
         -- negatives not allowed
-        if codepoint < 0 then result = result..module.char(0xFFFD)
+        if codepoint < 0 then result = result..utf8.char(0xFFFD)
 
         -- the surrogates cause print() to crash -- and they're invalid UTF-8 anyways
-        elseif codepoint >= 0xD800 and codepoint <=0xDFFF then result = result..module.char(0xFFFD)
+        elseif codepoint >= 0xD800 and codepoint <=0xDFFF then result = result..utf8.char(0xFFFD)
 
         -- single byte, 7-bit ascii
         elseif codepoint < 0x80 then result = result..string.char(codepoint)
 
         -- multibyte UTF8
-        elseif codepoint <= 0x10FFFF then result = result..module.char(codepoint)
+        elseif codepoint <= 0x10FFFF then result = result..utf8.char(codepoint)
 
         -- greater than 0x10FFFF is invalid UTF-8
-        else result = result..module.char(0xFFFD)
+        else result = result..utf8.char(0xFFFD)
         end
     end
 
@@ -157,7 +93,7 @@ end
 
 --- hs.utf8.fixUTF8(inString[, replacementChar]) -> outString, posTable
 --- Function
---- Replace invalid UTF8 character sequences in `inString` with `replacementChar` so it can be safely output.
+--- Replace invalid UTF8 character sequences in `inString` with `replacementChar` so it can be safely displayed in the console or other destination which requires valid UTF8 encoding.
 ---
 --- Parameters:
 ---  * inString - String of characters which may contain invalid UTF8 byte sequences
@@ -168,7 +104,6 @@ end
 ---  * posTable - a table of indexes in `outString` corresponding indicating where `replacementChar` has been used.
 ---
 --- Notes:
----  * This function is *NOT* part of the Lua 5.3.1 source code, and is provided for convenience within Hammerspoon.
 ---  * This function is a slight modification to code found at http://notebook.kulchenko.com/programming/fixing-malformed-utf8-in-lua.
 ---  * If `replacementChar` is a multi-byte character (like U+FFFD) or multi character string, then the string length of `outString` will be longer than the string length of `inString`.  The character positions in `posTable` will reflect these new positions in `outString`.
 ---  * To calculate the character position of the invalid characters in `inString`, use something like the following:
@@ -179,10 +114,10 @@ end
 ---           table.insert(inErrors, p - ((i - 1) * string.length(replacement) - 1))
 ---       end
 ---
----    Where replacement is `hs.utf8.char(0xFFFD)`, if you leave it out of the `hs.utf8.fixUTF8` function in the first line.
+---    Where replacement is `utf8.char(0xFFFD)`, if you leave it out of the `hs.utf8.fixUTF8` function in the first line.
 ---
-function module.fixUTF8(s, replacement)
-  replacement = replacement or module.char(0xFFFD)
+module.fixUTF8 = function(s, replacement)
+  replacement = replacement or utf8.char(0xFFFD)
   local p, len, invalid = 1, #s, {}
   local offset = string.len(replacement) - 1
   while p <= len do
@@ -209,14 +144,13 @@ end
 --- Registers a Unicode codepoint under the given label as a UTF-8 string of bytes which can be referenced by the label later in your code as `hs.utf8.registeredKeys[label]` for convenience and readability.
 ---
 --- Parameters:
----  * label -- a string label to use as a human-readable reference when getting the UTF-8 byte sequence for use in other strings and output functions.
----  * codepoint -- a Unicode codepoint in numeric or `U+xxxx` format to register with the given label.
+---  * label - a string label to use as a human-readable reference when getting the UTF-8 byte sequence for use in other strings and output functions.
+---  * codepoint - a Unicode codepoint in numeric or `U+xxxx` format to register with the given label.
 ---
 --- Returns:
 ---  * Returns the UTF-8 byte sequence for the Unicode codepoint registered.
 ---
 --- Notes:
----  * This function is *NOT* part of the Lua 5.3.1 source code, and is provided for convenience within Hammerspoon.
 ---  * If a codepoint label was previously registered, this will overwrite the previous value with a new one.  Because many of the special keys you may want to register have different variants, this allows you to easily modify the existing predefined defaults to suite your preferences.
 ---  * The return value is merely syntactic sugar and you do not need to save it locally; it can be safely ignored -- future access to the pre-converted codepoint should be retrieved as `hs.utf8.registeredKeys[label]` in your code.  It looks good when invoked from the console, though ☺.
 module.registerCodepoint = function(label, codepoint)
@@ -279,11 +213,7 @@ end
 ---     (U+21E1) up2              ⇡
 ---
 --- Notes:
----  * This variable is *NOT* part of the Lua 5.3.1 source code, and is provided for convenience within Hammerspoon.
----  * To see a list of the currently defined characters and labels, a __tostring meta-method is included so that referencing the table directly as a string will return the current definitions.
----    * For reference, this meta-method is essentially the following:
----
----      for i,v in hs.fnutils.sortByKeys(hs.utf8.registeredKeys) do print(string.format("(U+%04X) %-15s  %s", hs.utf8.codepoint(v), i, v)) end
+---  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.utf8.registeredKeys`.
 
 module.registerCodepoint("alt",              0x2325)
 module.registerCodepoint("apple",            0xF8FF)
@@ -332,6 +262,87 @@ module.registerCodepoint("sectionSign",      0x00A7)
 module.registerCodepoint("copyrightSign",    0x00A9)
 module.registerCodepoint("registeredSign",   0x00AE)
 module.registerCodepoint("checkMark",        0x2713)
+
+--- hs.utf8.asciiOnly(string[, all]) -> string
+--- Function
+--- Returns the provided string with all non-printable ascii characters escaped, except Return, Linefeed, and Tab.
+---
+--- Parameters:
+---  * string - The input string which is to have all non-printable ascii characters escaped as \x## (a single byte hexadecimal number).
+---  * all    - an optional boolean parameter (default false) indicating whether or not Return, Linefeed, and Tab should also be considered "non-printable"
+---
+--- Returns:
+---  * The cleaned up string, with non-printable characters escaped.
+---
+--- Notes:
+---  * Because Unicode characters outside of the basic ascii alphabet are multi-byte characters, any UTF8 or other Unicode encoded character will be broken up into their individual bytes and likely escaped by this function.
+---  * This function is useful for displaying binary data in a human readable way that might otherwise be inexpressible in the Hammerspoon console or other destination.  For example:
+---    * `utf8.charpattern`, which contains the regular expression for matching valid UTF8 encoded sequences, results in `(null)` in the Hammerspoon console, but `hs.utf8.asciiOnly(utf8.charpattern)` will display `[\x00-\x7F\xC2-\xF4][\x80-\xBF]*`.
+module.asciiOnly = function(theString, all)
+    local all = all or false
+    if type(theString) == "string" then
+        if all then
+            return (theString:gsub("[\x00-\x1f\x7f-\xff]",function(a)
+                    return string.format("\\x%02X",string.byte(a))
+                end))
+        else
+            return (theString:gsub("[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff]",function(a)
+                    return string.format("\\x%02X",string.byte(a))
+                end))
+        end
+    else
+        error("string expected", 2) ;
+    end
+end
+
+--- hs.utf8.hexDump(inputString [, count]) -> string
+--- Function
+--- Returns a hex dump of the provided string.  This is primarily useful for examining the exact makeup of binary data contained in a Lua String as individual bytes for debugging purposes.
+---
+--- Parameters:
+---  * inputString - the data to be rendered as individual hexadecimal bytes for examination.
+---  * count - an optional parameter specifying the number of bytes to display per line (default 16)
+---
+--- Returns:
+---  * a string containing the hex dump of the input string.
+---
+--- Notes:
+---  * Like hs.utf8.asciiOnly, this function will break up Unicode characters into their individual bytes.
+---  * As an example:
+---      `hs.utf8.hexDump(utf8.charpattern)` will return
+---      `00 : 5B 00 2D 7F C2 2D F4 5D 5B 80 2D BF 5D 2A        : [.-..-.][.-.]*`
+module.hexDump = function(stuff, linemax)
+    local ascii = ""
+    local count = 0
+    local linemax = tonumber(linemax) or 16
+    local buffer = ""
+    local rb = ""
+    local offset = math.floor(math.log(#stuff,16)) + 1
+    offset = offset + (offset % 2)
+
+    local formatstr = "%0"..tostring(offset).."x : %-"..tostring(linemax * 3).."s : %s"
+
+    for c in string.gmatch(tostring(stuff), ".") do
+        buffer = buffer..string.format("%02X ",string.byte(c))
+        -- using string.gsub(c,"%c",".") didn't work in Hydra, but I didn't dig any deeper -- this works.
+        if string.byte(c) < 32 or string.byte(c) > 126 then
+            ascii = ascii.."."
+        else
+            ascii = ascii..c
+        end
+        count = count + 1
+        if count % linemax == 0 then
+            rb = rb .. string.format(formatstr, count - linemax, buffer, ascii) .. "\n"
+            buffer=""
+            ascii=""
+        end
+    end
+    if count % linemax ~= 0 then
+        rb = rb .. string.format(formatstr, count - (count % linemax), buffer, ascii) .. "\n"
+    end
+    return rb
+end
+
 
 -- Return Module Object --------------------------------------------------
 
