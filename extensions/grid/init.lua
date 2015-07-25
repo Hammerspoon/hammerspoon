@@ -589,13 +589,53 @@ grid.HINTS={{'f1','f2','f3','f4','f5','f6','f7','f8'},
 local HINTS_ROWS = {{4},{3,4},{3,4,5},{2,3,4,5},{1,2,3,4,5}}
 --TODO (unlikely) expose this to allow crazy custom bindings (e.g. rotated 90 degrees on the keyboard for portrait screens?)
 
-local COLOR_BLACK={red=0,green=0,blue=0,alpha=1}
-local COLOR_WHITE={red=1,green=1,blue=1,alpha=1}
-local COLOR_DARKOVERLAY={red=0,green=0,blue=0,alpha=0.25}
-local COLOR_HIGHLIGHT={red=0.8,green=0.75,blue=0,alpha=0.55}
-local COLOR_SELECTED={red=0.2,green=0.75,blue=0,alpha=0.4}
-local COLOR_YELLOW={red=0.8,green=0.75,blue=0,alpha=1}
+local function getColor(t)
+  if t.red then return t
+  else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end
+end
 
+--- === hs.grid.ui ===
+---
+--- Allows customization of the modal resizing grid user interface
+---
+--- This table contains variables that you can change to customize the look of the modal resizing grid.
+---
+--- To represent color values, you can use:
+---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}
+---  * a table {redN,greenN,blueN[,alphaN]} - if omitted alphaN defaults to 1.0
+--- where redN, greenN etc. are the desired value for the color component between 0.0 and 1.0
+---
+--- The following variables must be color values:
+---  * hs.grid.ui.textColor
+---  * hs.grid.ui.cellColor
+---  * hs.grid.ui.cellStrokeColor
+---  * hs.grid.ui.selectedColor - for the first selected cell during a modal resize
+---  * hs.grid.ui.highlightColor - to highlight the focused window behind the grid
+---  * hs.grid.ui.highlightStrokeColor
+---
+--- The following variables must be numbers (in screen points):
+---  * hs.grid.ui.textSize
+---  * hs.grid.ui.cellStrokeWidth
+---  * hs.grid.ui.highlightStrokeWidth
+---
+--- The following variables must be strings:
+---  * hs.grid.ui.fontName
+---
+--- The following variables must be booleans:
+---  * hs.grid.ui.showExtraKeys - if true (default), show non-grid keybindings in the center of the grid
+local ui = {
+  textColor={1,1,1},
+  textSize=200,
+  cellStrokeColor={0,0,0},
+  cellStrokeWidth=5,
+  cellColor={0,0,0,0.25},
+  highlightColor={0.8,0.8,0,0.5},
+  highlightStrokeColor={0.8,0.8,0,1},
+  highlightStrokeWidth=30,
+  selectedColor={0.2,0.7,0,0.4},
+  showExtraKeys=true,
+  fontName='Lucida Grande'
+}
 
 local uielements -- drawing objects
 local resizing -- modal "hotkey"
@@ -610,7 +650,11 @@ deleteUI=function()
   end
   uielements = nil
 end
+
+grid.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v deleteUI()end})
+
 local function makeUI()
+  local ts,tsh=ui.textSize,ui.textSize*0.5
   deleteUI()
   uielements = {}
   local screens = screen.allScreens()
@@ -620,13 +664,14 @@ local function makeUI()
     local cellw,cellh = getCellSize(screen)
     local frame = screen:frame()
     log.f('Screen #%d %s (%s) -> grid %d by %d (%dx%d cells)',i,screen:name(),toKey(frame),w,h,floor(cellw),floor(cellh))
-    local htf = {w=500,h=100}
+    local htf = {w=550,h=100}
     htf.x = frame.x+frame.w/2-htf.w/2  htf.y = frame.y+frame.h/2-htf.h/2
     if fmod(h,2)==1 then htf.y=htf.y-cellh/2 end
     local howtorect = drawing.rectangle(htf)
-    howtorect:setFill(true) howtorect:setFillColor(COLOR_DARKOVERLAY) howtorect:setStrokeWidth(5)
+    howtorect:setFill(true) howtorect:setFillColor(getColor(ui.cellColor)) howtorect:setStrokeWidth(ui.cellStrokeWidth)
     local howtotext=drawing.text(htf,'    ←→↑↓:select screen\n  space:fullscreen esc:exit')
-    howtotext:setTextSize(40) howtotext:setTextColor(COLOR_WHITE)
+    howtotext:setTextSize(40) howtotext:setTextColor(getColor(ui.textColor))
+    howtotext:setTextFont(ui.fontName)
     local sid=screen:id()
     uielements[sid] = {left=(screen:toWest() or screen):id(),
       up=(screen:toNorth() or screen):id(),
@@ -649,13 +694,13 @@ local function makeUI()
         local y,y2 = frame.y+cellh*(cy-1),frame.y+cellh*(cy2-1)
         local elem = {x=x,y=y,w=x2-x,h=y2-y}
         local rect = drawing.rectangle(elem)
-        rect:setFill(true) rect:setFillColor(COLOR_DARKOVERLAY)
-        rect:setStroke(true) rect:setStrokeColor(COLOR_BLACK) rect:setStrokeWidth(5)
+        rect:setFill(true) rect:setFillColor(getColor(ui.cellColor))
+        rect:setStroke(true) rect:setStrokeColor(getColor(ui.cellStrokeColor)) rect:setStrokeWidth(ui.cellStrokeWidth)
         elem.rect = rect
         elem.hint = grid.HINTS[HINTS_ROWS[min(h,hintsh)][hy]][hx]
-        local text=drawing.text({x=x+(x2-x)/2-100,y=y+(y2-y)/2-100,w=200,h=200},elem.hint)
-        text:setTextSize(200)--ystep/3*2)
-        text:setTextColor(COLOR_WHITE)
+        local text=drawing.text({x=x+(x2-x)/2-tsh,y=y+(y2-y)/2-tsh,w=ts*1.2,h=ts*1.1},elem.hint)
+        text:setTextSize(ts) text:setTextFont(ui.fontName)
+        text:setTextColor(getColor(ui.textColor))
         elem.text=text
         log.vf('[%d] %s %.0f,%.0f>%.0f,%.0f',i,elem.hint,elem.x,elem.y,elem.x+elem.w,elem.y+elem.h)
         tinsert(uielements[sid].hints,elem)
@@ -669,7 +714,7 @@ local function showGrid(id)
   if not id or not uielements[id] then log.e('Cannot get current screen, aborting') return end
   local elems = uielements[id].hints
   for _,e in ipairs(elems) do e.rect:show() e.text:show() end
-  uielements[id].howto.rect:show() uielements[id].howto.text:show()
+  if ui.showExtraKeys then uielements[id].howto.rect:show() uielements[id].howto.text:show() end
 end
 local function hideGrid(id)
   if not id or not uielements or not uielements[id] then --[[log.e('Cannot obtain current screen') --]] return end
@@ -688,8 +733,8 @@ local function _start()
   local function showHighlight()
     if highlight then highlight:delete() end
     highlight = drawing.rectangle(currentWindow:frame())
-    highlight:setFill(true) highlight:setFillColor(COLOR_HIGHLIGHT)
-    highlight:setStroke(true) highlight:setStrokeColor(COLOR_YELLOW) highlight:setStrokeWidth(30)
+    highlight:setFill(true) highlight:setFillColor(getColor(ui.highlightColor))
+    highlight:setStroke(true) highlight:setStrokeColor(getColor(ui.highlightStrokeColor)) highlight:setStrokeWidth(ui.highlightStrokeWidth)
     highlight:show()
   end
   function resizing:entered()
@@ -709,7 +754,7 @@ local function _start()
   local selectedElem
   local function clearSelection()
     if selectedElem then
-      selectedElem.rect:setFillColor(COLOR_DARKOVERLAY)
+      selectedElem.rect:setFillColor(getColor(ui.cellColor))
       selectedElem = nil
     end
   end
@@ -744,7 +789,7 @@ local function _start()
     if not elem then return end
     if not selectedElem then
       selectedElem = elem
-      elem.rect:setFillColor(COLOR_SELECTED)
+      elem.rect:setFillColor(getColor(ui.selectedColor))
     else
       local x1,x2,y1,y2
       x1,x2 = min(selectedElem.x,elem.x)+margins.w,max(selectedElem.x,elem.x)-margins.h
