@@ -45,7 +45,7 @@ static int pasteboard_setContents(lua_State* L) {
     return 1;
 }
 
-/// hs.pasteboard.clearContents([name]) -> boolean
+/// hs.pasteboard.clearContents([name])
 /// Function
 /// Clear the contents of the pasteboard
 ///
@@ -61,7 +61,7 @@ static int pasteboard_clearContents(lua_State* L) {
     return 0;
 }
 
-/// hs.pasteboard.pasteboardTypes([name]) -> boolean
+/// hs.pasteboard.pasteboardTypes([name]) -> table
 /// Function
 /// Return the pasteboard type identifier strings for the specified pasteboard.
 ///
@@ -81,7 +81,7 @@ static int pasteboard_pasteboardTypes(lua_State* L) {
     return 1;
 }
 
-/// hs.pasteboard.contentTypes([name]) -> boolean
+/// hs.pasteboard.contentTypes([name]) -> table
 /// Function
 /// Return the UTI strings of the data types for the first pasteboard item on the specified pasteboard.
 ///
