@@ -260,11 +260,15 @@ end
 --- Parameters:
 ---  * win - An `hs.window` object representing the window to operate on
 ---  * cell - A cell-table to apply to the window
----  * screen - An `hs.screen` object representing the screen to place the window on
+---  * screen - (optional) An `hs.screen` object representing the screen to place the window on; if omitted
+---             the window's current screen will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
 function grid.set(win, cell, screen)
+  if not win then error('win cannot be nil',2) end
+  if not screen then screen=win:screen() end
+  if not screen then log.e('Cannot get the window\'s screen') return grid end
   local screenrect = screen:frame()
   local gridw,gridh = grid.getGrid(screen)
   -- sanitize, because why not
