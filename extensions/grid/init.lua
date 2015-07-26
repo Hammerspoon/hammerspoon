@@ -824,6 +824,9 @@ function grid.toggleShow()
   if showing then grid.hide() else grid.show() end
 end
 
+local spacesWatcher = require'hs.spaces'.watcher.new(grid.hide)
+spacesWatcher:start()
+
 -- Legacy stuff below
 
 
