@@ -37,19 +37,19 @@ local hotkeys = {}
 ---  * When you enable a hotkey that uses the same keyboard combination as another previously-enabled hotkey, the old
 ---    one will stop working as it's being "shadowed" by the new one. As soon as the new hotkey is disabled or deleted
 ---    the old one will trigger again.
-local function enable(self,force)
+local function enable(self,force,isModal)
   if not force and self.enabled then log.v('Hotkey already enabled') return self end --this ensures "nested shadowing" behaviour
   local idx = self.idx
   if not idx or not hotkeys[idx] then log.e('The hotkey was deleted, cannot enable it') return end
   local i = fnutils.indexOf(hotkeys[idx],self)
   if i then tremove(hotkeys[idx],i) end
   for _,hk in ipairs(hotkeys[idx]) do
-    if hk.enabled then log.d('Disabled previous hotkey for '..idx) end
+    if hk.enabled then log.i('Disabled previous hotkey '..hk.msg) end
     hk._hk:disable()
   end
   self.enabled = true
   self._hk:enable() --objc
-  log.i('Enabled hotkey for '..idx)
+  log[isModal and 'df' or 'f']('Enabled hotkey %s%s',self.msg,isModal and ' (in modal)' or '')
   tinsert(hotkeys[idx],self) -- bring to end
   return self
 end
@@ -63,16 +63,16 @@ end
 ---
 --- Returns:
 ---  * The `hs.hotkey` object for method chaining
-local function disable(self)
+local function disable(self,isModal)
   if not self.enabled then return self end
   local idx = self.idx
   if not idx or not hotkeys[idx] then log.w('The hotkey was deleted, cannot disable it') return end
   self.enabled = nil
   self._hk:disable() --objc
-  log.i('Disabled hotkey for '..idx)
+  log[isModal and 'df' or 'f']('Disabled hotkey %s%s',self.msg,isModal and ' (in modal)' or '')
   for i=#hotkeys[idx],1,-1 do
     if hotkeys[idx][i].enabled then
-      log.d('Re-enabled previous hotkey for '..idx)
+      log.i('Re-enabled previous hotkey '..hotkeys[idx][i].msg)
       hotkeys[idx][i]._hk:enable()
       break
     end
@@ -96,7 +96,7 @@ local function delete(self)
   local i = fnutils.indexOf(hotkeys[idx],self)
   if i then tremove(hotkeys[idx],i) end
   for k in pairs(self) do self[k]=nil end --gc
-  log.i('Deleted hotkey for '..idx)
+  log.i('Deleted hotkey '..self.msg)
 end
 
 
@@ -124,7 +124,6 @@ local function getIndex(mods,keycode)
   local key=keycodes.map[keycode]
   key=key and supper(key) or keycode
   return mods..key
-    --  return tconcat(getMods(mods))..(keycodes.map[keycode] or keycode)
 end
 --- hs.hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duration) -> hs.hotkey
 --- Constructor
@@ -170,7 +169,7 @@ function hotkey.new(mods, key, pressedfn, releasedfn, repeatfn, message, duratio
     elseif repeatfn then repeatfn=fnalert end
   end
   local hk = {_hk=hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn),enable=enable,disable=disable,delete=delete,msg=msg,idx=idx}
-  log.i('Created hotkey for '..idx)
+  log.v('Created hotkey for '..idx)
   local h = hotkeys[idx] or {}
   h[#h+1] = hk
   hotkeys[idx] = h
@@ -246,7 +245,6 @@ local function showHelp()
   table.sort(t,function(a,b)if#a.idx==#b.idx then return a.idx<b.idx else return #a.idx<#b.idx end end)
   local s=''
   for _,hk in ipairs(t) do s=s..hk.msg..'\n' end
-  --  hs.alert(s,math.min(15,math.max(#s/10),3))
   hs.alert(string.sub(s,1,-2),3600)
 end
 function hotkey.showHotkeys(mods,key)
@@ -344,8 +342,6 @@ end
 --- Returns:
 ---  * The `hs.hotkey.modal` object for method chaining
 function hotkey.modal:bind(...)
-  --  local k = hotkey.new(...)
-  --  tinsert(self.keys, k._hk)
   tinsert(self.keys, hotkey.new(...))
   return self
 end
@@ -365,12 +361,11 @@ end
 ---    and disable the hotkey that entered the modal state (if one was defined)
 ---  * If the modal state was created with a keyboard combination, this method will be called automatically
 function hotkey.modal:enter()
+  log.d('Entering modal')
   if (self.k) then
-    --    self.k._hk:disable()
     disable(self.k)
   end
-  --  fnutils.each(self.keys, hotkey.enable)
-  fnutils.each(self.keys, enable)
+  for _,hk in ipairs(self.keys) do enable(hk,nil,true) end
   self:entered()
   return self
 end
@@ -388,13 +383,12 @@ end
 --- Notes:
 ---  * This method will disable all of the hotkeys defined in the modal state, and enable the hotkey for entering the modal state (if one was defined)
 function hotkey.modal:exit()
-  --  fnutils.each(self.keys, hotkey.disable)
-  fnutils.each(self.keys, disable)
+  for _,hk in ipairs(self.keys) do disable(hk,true) end
   if (self.k) then
     enable(self.k)
-    --    self.k._hk:enable()
   end
   self:exited()
+  log.d('Exited modal')
   return self
 end
 
@@ -422,7 +416,7 @@ function hotkey.modal.new(mods, key, message, duration)
   if (key) then
     m.k = hotkey.bind(mods, key, function() m:enter() end, message, duration)
   end
-  log.i('Created modal hotkey')
+  log.d('Created modal hotkey')
   return m
 end
 
