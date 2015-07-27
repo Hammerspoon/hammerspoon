@@ -1072,6 +1072,7 @@ end
 
 local function start(wf)
   if activeFilters[wf]==true then return end
+  wf.windows={}
   startGlobalWatcher()
   activeFilters[wf]=true
   return refreshWindows(wf)
