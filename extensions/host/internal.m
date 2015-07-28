@@ -314,6 +314,24 @@ static int hs_operatingSystemVersion(lua_State *L) {
         lua_pushinteger(L, OSV.patchVersion) ; lua_setfield(L, -2, "patch") ;
         lua_pushboolean(L, YES)              ; lua_setfield(L, -2, "exact") ;
     } else {
+
+// If you try compiling this on OS Version < 10.8, I'm assuming you know what you're doing,
+// because you're on your own...  You can add more of these if you need them.
+
+// from NSApplication.h
+
+#ifndef NSAppKitVersionNumber10_8
+#define NSAppKitVersionNumber10_8 1187
+#endif
+
+#ifndef NSAppKitVersionNumber10_9
+#define NSAppKitVersionNumber10_9 1265
+#endif
+
+#ifndef NSAppKitVersionNumber10_10
+#define NSAppKitVersionNumber10_10 1343
+#endif
+
         const double OSV = NSAppKitVersionNumber ;
         int major, minor, patch ;
 
@@ -369,7 +387,7 @@ static int hs_operatingSystemVersion(lua_State *L) {
         } else if ( OSV >= NSAppKitVersionNumber10_9 && OSV < NSAppKitVersionNumber10_10 ) {
             minor = 9 ; patch = 0 ;
         } else { // if ( OSV >= NSAppKitVersionNumber10_10) {
-            minor = 10 ; patch = 0 ;
+            minor = 10 ; patch = 0 ; // shouldn't ever get here -- operatingSystemVersion exists for you
         }
         lua_pushinteger(L, major) ; lua_setfield(L, -2, "major") ;
         lua_pushinteger(L, minor) ; lua_setfield(L, -2, "minor") ;
