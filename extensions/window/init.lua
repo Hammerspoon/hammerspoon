@@ -12,7 +12,7 @@ local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 local hs_screen = require "hs.screen"
 local timer = require "hs.timer"
-local pairs,next,min,max = pairs,next,math.min,math.max
+local pairs,next,min,max,type = pairs,next,math.min,math.max,type
 
 --- hs.window.animationDuration (integer)
 --- Variable
@@ -147,9 +147,8 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:setFrame(f, duration)
-  if duration == nil then
-    duration = window.animationDuration
-  end
+  if duration==nil then duration = window.animationDuration end
+  if type(duration)~='number' then duration = 0 end
   local id = self:id()
   stopAnimation(self,id)
   if duration<=0 or not id then return self:_setFrame(f) end
