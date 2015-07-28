@@ -267,12 +267,145 @@ static int hs_cpuInfo(lua_State *L) {
     return 1 ;
 }
 
+
+/// hs.host.operatingSystemVersionString() -> string
+/// Function
+/// The operating system version as a human readable string.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The operating system version as a human readable string.
+///
+/// Notes:
+///  * According to the OS X Developer documentation, "The operating system version string is human readable, localized, and is appropriate for displaying to the user. This string is not appropriate for parsing."
+static int hs_operatingSystemVersionString(lua_State *L) {
+    NSProcessInfo *pinfo = [NSProcessInfo processInfo];
+    lua_pushstring(L, [[pinfo operatingSystemVersionString] UTF8String]) ;
+    return 1 ;
+}
+
+/// hs.host.operatingSystemVersion() -> table
+/// Function
+/// The operating system version as a table containing the major, minor, and patch numbers.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The operating system version as a table containing the keys major, minor, and patch corresponding to the version number determined and a key named "exact" or "approximation" depending upon the method used to determine the OS Version information.
+///
+/// Notes:
+///  * Prior to 10.10 (Yosemite), there was no definitive way to reliably get an exact OS X version number without either mapping it to the Darwin kernel version, mapping it to the AppKitVersionNumber (the recommended method), or parsing the result of NSProcessingInfo's `operatingSystemVersionString` selector, which Apple states is not guaranteed to be reliably parseable.
+///    * for OS X versions prior to 10.10, the version number is approximately determined by evaluating the AppKitVersionNumber.  For these operating systems, the `approximate` key is defined and set to true, as the exact patch level cannot be definitively determined.
+///    * for OS X Versions starting at 10.10 and going forward, an exact value for the version number can be determined with NSProcessingInfo's `operatingSystemVersion` selector and the `exact` key is defined and set to true if this method is used.
+static int hs_operatingSystemVersion(lua_State *L) {
+    NSProcessInfo *pinfo = [NSProcessInfo processInfo];
+
+    lua_newtable(L) ;
+    if ([pinfo respondsToSelector:@selector(operatingSystemVersion)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+        NSOperatingSystemVersion OSV = [pinfo operatingSystemVersion] ;
+#pragma clang diagnostic pop
+        lua_pushinteger(L, OSV.majorVersion) ; lua_setfield(L, -2, "major") ;
+        lua_pushinteger(L, OSV.minorVersion) ; lua_setfield(L, -2, "minor") ;
+        lua_pushinteger(L, OSV.patchVersion) ; lua_setfield(L, -2, "patch") ;
+        lua_pushboolean(L, YES)              ; lua_setfield(L, -2, "exact") ;
+    } else {
+
+// If you try compiling this on OS Version < 10.8, I'm assuming you know what you're doing,
+// because you're on your own...  You can add more of these if you need them.
+
+// from NSApplication.h
+
+#ifndef NSAppKitVersionNumber10_8
+#define NSAppKitVersionNumber10_8 1187
+#endif
+
+#ifndef NSAppKitVersionNumber10_9
+#define NSAppKitVersionNumber10_9 1265
+#endif
+
+#ifndef NSAppKitVersionNumber10_10
+#define NSAppKitVersionNumber10_10 1343
+#endif
+
+        const double OSV = NSAppKitVersionNumber ;
+        int major, minor, patch ;
+
+        major = 10 ;
+        if ( OSV >= NSAppKitVersionNumber10_0 && OSV < NSAppKitVersionNumber10_1 ) {
+            minor = 0 ; patch = 0 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_1 && OSV < NSAppKitVersionNumber10_2 ) {
+            minor = 1 ; patch = 0 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_2 && OSV < NSAppKitVersionNumber10_2_3 ) {
+            minor = 2 ; patch = 0 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_2_3 && OSV < NSAppKitVersionNumber10_3 ) {
+            minor = 2 ; patch = 3 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_3 && OSV < NSAppKitVersionNumber10_3_2 ) {
+            minor = 3 ; patch = 0 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_3_2 && OSV < NSAppKitVersionNumber10_3_3 ) {
+            minor = 3 ; patch = 2 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_3_3 && OSV < NSAppKitVersionNumber10_3_5 ) {
+            minor = 3 ; patch = 3 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_3_5 && OSV < NSAppKitVersionNumber10_3_7 ) {
+            minor = 3 ; patch = 5 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_3_7 && OSV < NSAppKitVersionNumber10_3_9 ) {
+            minor = 3 ; patch = 7 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_3_9 && OSV < NSAppKitVersionNumber10_4 ) {
+            minor = 3 ; patch = 9 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_4 && OSV < NSAppKitVersionNumber10_4_1 ) {
+            minor = 4 ; patch = 0 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_4_1 && OSV < NSAppKitVersionNumber10_4_3 ) {
+            minor = 4 ; patch = 1 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_4_3 && OSV < NSAppKitVersionNumber10_4_4 ) {
+            minor = 4 ; patch = 3 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_4_4 && OSV < NSAppKitVersionNumber10_4_7 ) {
+            minor = 4 ; patch = 4 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_4_7 && OSV < NSAppKitVersionNumber10_5 ) {
+            minor = 4 ; patch = 7 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_5 && OSV < NSAppKitVersionNumber10_5_2 ) {
+            minor = 5 ; patch = 0 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_5_2 && OSV < NSAppKitVersionNumber10_5_3 ) {
+            minor = 5 ; patch = 2 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_5_3 && OSV < NSAppKitVersionNumber10_6 ) {
+            minor = 5 ; patch = 3 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_6 && OSV < NSAppKitVersionNumber10_7 ) {
+            minor = 6 ; patch = 0 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_7 && OSV < NSAppKitVersionNumber10_7_2 ) {
+            minor = 7 ; patch = 0 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_7_2 && OSV < NSAppKitVersionNumber10_7_3 ) {
+            minor = 7 ; patch = 2 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_7_3 && OSV < NSAppKitVersionNumber10_7_4 ) {
+            minor = 7 ; patch = 3 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_7_4 && OSV < NSAppKitVersionNumber10_8 ) {
+            minor = 7 ; patch = 4 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_8 && OSV < NSAppKitVersionNumber10_9 ) {
+            minor = 8 ; patch = 0 ;
+        } else if ( OSV >= NSAppKitVersionNumber10_9 && OSV < NSAppKitVersionNumber10_10 ) {
+            minor = 9 ; patch = 0 ;
+        } else { // if ( OSV >= NSAppKitVersionNumber10_10) {
+            minor = 10 ; patch = 0 ; // shouldn't ever get here -- operatingSystemVersion exists for you
+        }
+        lua_pushinteger(L, major) ; lua_setfield(L, -2, "major") ;
+        lua_pushinteger(L, minor) ; lua_setfield(L, -2, "minor") ;
+        lua_pushinteger(L, patch) ; lua_setfield(L, -2, "patch") ;
+        lua_pushboolean(L, YES)   ; lua_setfield(L, -2, "approximation") ;
+    }
+
+    return 1 ;
+}
+
 static const luaL_Reg hostlib[] = {
-    {"addresses", hostAddresses},
-    {"names", hostNames},
-    {"localizedName", hostLocalizedName},
-    {"vmStat", hs_vmstat},
-    {"cpuUsage", hs_cpuInfo},
+    {"addresses",                    hostAddresses},
+    {"names",                        hostNames},
+    {"localizedName",                hostLocalizedName},
+    {"vmStat",                       hs_vmstat},
+    {"cpuUsage",                     hs_cpuInfo},
+    {"operatingSystemVersion",       hs_operatingSystemVersion},
+    {"operatingSystemVersionString", hs_operatingSystemVersionString},
 
     {}
 };
