@@ -546,8 +546,9 @@ end
 function Window.new(win,id,app,watcher)
   --FIXME hackity hack below; if it survives extensive testing (all windows ever returned by a wf will have it),
   -- the id "caching" should be moved to the hs.window userdata itself
-  local w = setmetatable({id=function()return id end},{__index=function(_,k)return function(self,...)return win[k](win,...)end end})
-  local o = setmetatable({app=app,window=w,id=id,watcher=watcher,time=timer.secondsSinceEpoch()},{__index=Window})
+  --  local w = setmetatable({id=function()return id end},{__index=function(_,k)return function(self,...)return win[k](win,...)end end})
+  -- hackity hack removed, turns out it was just for :snapshot (see gh#413)
+  local o = setmetatable({app=app,window=win,id=id,watcher=watcher,time=timer.secondsSinceEpoch()},{__index=Window})
   if not win:isVisible() then o.isHidden = true end
   if win:isMinimized() then o.isMinimized = true end
   o.isFullscreen = win:isFullScreen()
