@@ -154,7 +154,6 @@ function wf:isWindowAllowed(window,appname)
   local title = window:title() or ''
   local fullscreen = window:isFullScreen() or false
   local id,visible = window:id(),window:isVisible() or false
-  if visible and id and self.currentSpaceWindows then visible=self.currentSpaceWindows[id] end
   local app=self.apps[true]
   if app==false then self.log.vf('%s rejected: override reject',role)return false
   elseif app then
@@ -162,6 +161,10 @@ function wf:isWindowAllowed(window,appname)
     self.log.vf('%s %s: override filter',role,r and 'allowed' or 'rejected')
     return r
   end
+  if visible and id and self.currentSpaceWindows then visible=self.currentSpaceWindows[id] end
+  if self.spaceFilter and not self.currentSpaceWindows[id] then self.log.vf('%s (%s) rejected: not in current space',role,appname) return false
+  elseif self.spaceFilter==false and self.currentSpaceWindows[id] then self.log.vf('%s (%s) rejected: in current space',role,appname) return false end
+
   appname = appname or window:application():title()
   if not windowfilter.isGuiApp(appname) then
     --this would need fixing .ignoreAlways
@@ -448,6 +451,7 @@ local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
   windowMinimized=true, windowUnminimized=true,
   windowFullscreened=true, windowUnfullscreened=true,
   --TODO perhaps windowMaximized? (compare win:frame to win:screen:frame) - or include it in windowFullscreened
+  --TODO windowInCurrentSpace, windowNotInCurrentSpace
   windowHidden=true, windowShown=true, windowFocused=true, windowUnfocused=true,
   windowTitleChanged=true,
 }
@@ -516,7 +520,7 @@ end
 function Window:filterEmitEvent(wf,event,inserted,logged,notified)
   if not inserted and self:setFilter(wf,event==windowfilter.windowDestroyed) and wf.notifyfn then
     -- filter status changed, call notifyfn if present
-    if not notified then wf.log.df('Notifying windows changed') if wf.log==log then notified=true end end
+    if not notified then wf.log.d('Notifying windows changed') if wf.log==log then notified=true end end
     wf.notifyfn(wf:getWindows(),event)
   end
   if wf.windows[self] then
@@ -889,6 +893,7 @@ local function refreshTrackSpacesFilters()
     for _,w in ipairs(temp) do
       local id=w:id()
       if id then spacewins[id]=true end
+      --FIXME keep track of windows' spaces when visibile. allWindows() returns minimized windows from all spaces :'(
     end
   end
   for wf in pairs(trackSpacesFilters) do
@@ -902,7 +907,7 @@ local function refreshTrackSpacesFilters()
   end
 end
 
---- hs.windowfilter:trackSpaces(track) -> hs.windowfilter
+--- hs.windowfilter:trackSpaces(track, allow) -> hs.windowfilter
 --- Method
 --- Sets whether the windowfilter should be aware of different Mission Control Spaces
 ---
@@ -911,8 +916,13 @@ end
 ---    and which are not: when the user switches to a different Space, windows in the previous space will emit an
 ---    `hs.windowfilter.windowHidden` event, and windows in the current space will emit an `hs.windowfilter.windowShown` event.
 ---    This is reflected in the visibility rules for this windowfilter: for example if it's set to only allow visible windows
----    (which is the default behaviour), windows that only exist in a given Space will be filtered out or allowed again
----    when the user switches (respectively) away from or back to that Space.
+---    (which is the default behaviour), windows that only exist in a given Space will be filtered out
+---    or allowed again when the user switches (respectively) away from or back to that Space.
+--- * allow - (optional) string; only valid if `track` is true. If "current" (default), the windowfilter will only allow
+---   windows in the current Space, regardless of its visibility rules; if "all", the windowfilter will allow
+---   all windows (but the visibility rules still apply, see above); if "others", the windowfilter will only allow windows
+---   in any Space other than the current one (you need to set the visibility rules to allow invisible windows, or no windows
+---   will ever be allowed).
 ---
 --- Returns:
 ---  * the `hs.windowfilter` object for method chaining
@@ -920,8 +930,11 @@ end
 --- Notes:
 ---  * Spaces-aware windowfilters might experience a (sometimes significant) delay after every Space switch, since
 ---    (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
-function wf:trackSpaces(track)
+function wf:trackSpaces(track, allow)
   self.currentSpaceWindows = track and {} or nil
+  if allow=='all' then self.spaceFilter = nil
+  elseif allow=='others' then self.spaceFilter = false
+  else self.spaceFilter = true end
   trackSpacesFilters[self] = track and true or nil
   refreshTrackSpacesFilters()
   if activeFilters[self] then refreshWindows(self) end
@@ -929,9 +942,7 @@ function wf:trackSpaces(track)
   return self
 end
 
---FIXME spaces
 local spacesDone = {}
---TODO docs here
 --- hs.windowfilter.switchedToSpace(space)
 --- Function
 --- Callback to inform all windowfilters that the user initiated a switch to a (numbered) Mission Control Space.
