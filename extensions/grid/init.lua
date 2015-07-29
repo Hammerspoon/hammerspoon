@@ -90,7 +90,7 @@ function grid.setGrid(gr,scr)
     if not scr then error('Invalid screen or geometry',2) return end
   else scr=1 end
   if type(scr)~='number' then scr=toKey(scr) end
-  gr.w=min(gr.w,50) gr.h=min(gr.h,50) -- cap grid to 50x50, just in case
+  gr.w=min(gr.w,100) gr.h=min(gr.h,100) -- cap grid to 100x100, just in case
   gridSizes[scr]=gr
   if scr==1 then log.f('Default grid set to %d by %d',gr.w,gr.h)
   else log.f('Grid for %s set to %d by %d',tostring(scr),gr.w,gr.h) end
