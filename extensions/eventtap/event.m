@@ -406,6 +406,60 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
     return 1;
 }
 
+/// hs.eventtap.event.newScrollWheelEvent(offsets, mods, unit) -> event
+/// Constructor
+/// Creates a scroll wheel event
+///
+/// Parameters:
+///  * offsets - A table containing the {horizontal, vertical} amount to scroll. Positive values scroll up or left, negative values scroll down or right.
+///  * mods - A table containing zero or more of the following:
+///   * cmd
+///   * alt
+///   * shift
+///   * ctrl
+///   * fn
+///  * unit - An optional string containing the name of the unit for scrolling. Either "line" (the default) or "pixel"
+///
+/// Returns:
+///  * An `hs.eventtap.event` object
+static int eventtap_event_newScrollWheelEvent(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TTABLE);
+    lua_pushnumber(L, 1); lua_gettable(L, 1); uint32_t offset_y = lua_tointeger(L, -1) ; lua_pop(L, 1);
+    lua_pushnumber(L, 2); lua_gettable(L, 1); uint32_t offset_x = lua_tointeger(L, -1) ; lua_pop(L, 1);
+
+    const char *modifier;
+    const char *unit;
+    CGEventFlags flags = 0;
+    CGScrollEventUnit type;
+
+    luaL_checktype(L, 2, LUA_TTABLE);
+    lua_pushnil(L);
+    while (lua_next(L, 2) != 0) {
+        modifier = lua_tostring(L, -1);
+        if (!modifier) {
+            CLS_NSLOG(@"ERROR: Unexpected entry in modifiers table, seems to be null (%d)", lua_type(L, -1));
+            lua_pop(L, 1);
+            continue;
+        }
+
+        if (strcmp(modifier, "cmd") == 0 || strcmp(modifier, "⌘") == 0) flags |= kCGEventFlagMaskCommand;
+        else if (strcmp(modifier, "ctrl") == 0 || strcmp(modifier, "⌃") == 0) flags |= kCGEventFlagMaskControl;
+        else if (strcmp(modifier, "alt") == 0 || strcmp(modifier, "⌥") == 0) flags |= kCGEventFlagMaskAlternate;
+        else if (strcmp(modifier, "shift") == 0 || strcmp(modifier, "⇧") == 0) flags |= kCGEventFlagMaskShift;
+        else if (strcmp(modifier, "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
+        lua_pop(L, 1);
+    }
+    unit = lua_tostring(L, 3);
+    if (unit && strcmp(unit, "pixel") == 0) type = kCGScrollEventUnitPixel; else type = kCGScrollEventUnitLine;
+    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+    CGEventRef scrollEvent = CGEventCreateScrollWheelEvent(source, type, 2, offset_x, offset_y);
+    CGEventSetFlags(scrollEvent, flags);
+    new_eventtap_event(L, scrollEvent);
+    CFRelease(scrollEvent);
+
+    return 1;
+}
+
 static int eventtap_event_newMouseEvent(lua_State* L) {
     CGEventType type = luaL_checkinteger(L, 1);
     CGPoint point = hs_topoint(L, 2);
@@ -857,7 +911,8 @@ static const luaL_Reg eventtapevent_metalib[] = {
 // Functions for returned object when module loads
 static luaL_Reg eventtapeventlib[] = {
     {"newKeyEvent",     eventtap_event_newKeyEvent},
-    {"_newMouseEvent",   eventtap_event_newMouseEvent},
+    {"_newMouseEvent",  eventtap_event_newMouseEvent},
+    {"newScrollEvent",  eventtap_event_newScrollWheelEvent},
     {NULL,              NULL}
 };
 
