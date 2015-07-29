@@ -1,5 +1,8 @@
 --- === hs.windowfilter ===
 ---
+--- **WARNING**: EXPERIMENTAL MODULE. DO **NOT** USE IN PRODUCTION.
+--- This module is *for testing purposes only*. It can undergo breaking API changes or *go away entirely* **at any point and without notice**.
+---
 --- Filter windows by application, role, and/or title, and easily subscribe to events on these windows
 
 -- The pure filtering part alone should fulfill a lot of use cases
