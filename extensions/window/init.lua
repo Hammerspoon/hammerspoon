@@ -14,9 +14,13 @@ local hs_screen = require "hs.screen"
 local timer = require "hs.timer"
 local pairs,next,min,max,type = pairs,next,math.min,math.max,type
 
---- hs.window.animationDuration (integer)
+--- hs.window.animationDuration (number)
 --- Variable
---- The default duration for animations, in seconds. Set to 0 to disable animations
+--- The default duration for animations, in seconds. Initial value is 0.2; set to 0 to disable animations.
+---
+--- Usage:
+--- hs.window.animationDuration = 0 -- disable animations
+--- hs.window.animationDuration = 3 -- if you have time on your hands
 window.animationDuration = 0.2
 
 --- hs.window.allWindows() -> win[]

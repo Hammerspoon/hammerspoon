@@ -302,7 +302,7 @@ static int hsimage_gc(lua_State* L) {
     NSImage* image = (__bridge_transfer NSImage *) *thingy ;
     [image setName:nil] ; // remove from image cache
     [image recache] ;     // invalidate image rep caches
-    luaL_unref(L, LUA_REGISTRYINDEX, 1);
+    image = nil;
     return 0 ;
 }
 
