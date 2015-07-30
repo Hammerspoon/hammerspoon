@@ -1,5 +1,9 @@
 --- === hs.expose ===
 ---
+--- **WARNING**: This module depends on the EXPERIMENTAL hs.windowfilter. It can undergo breaking API changes or *go away entirely* **at any point and without notice**.
+--- (Should you encounter any issues, please feel free to report them on https://github.com/Hammerspoon/hammerspoon/issues
+--- or #hammerspoon on irc.freenode.net)
+---
 --- Keyboard-driven expose replacement/enhancement
 
 --TODO /// hs.drawing:setClickCallback(fn) -> drawingObject
