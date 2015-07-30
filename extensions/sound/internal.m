@@ -29,27 +29,11 @@
 
 // Common Code
 
-static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-    return LUA_NOREF;
-}
-
-static NSMutableIndexSet* soundHandlers;
-
 typedef struct _sound_t{
     void*   soundObject;
     bool    stopOnRelease;
     void*   callback;
     int     fn;
-    int     registryHandle;
 } sound_t;
 
 // Not so common code
@@ -75,7 +59,6 @@ static int sound_byname(lua_State* L) {
         soundUserData->stopOnRelease = YES;
         soundUserData->callback = nil;
         soundUserData->fn = 0;
-        soundUserData->registryHandle = store_udhandler(L, soundHandlers, -1) ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
     } else {
@@ -102,7 +85,6 @@ static int sound_byfile(lua_State* L) {
         soundUserData->stopOnRelease = YES;
         soundUserData->callback = nil;
         soundUserData->fn = 0;
-        soundUserData->registryHandle = store_udhandler(L, soundHandlers, -1) ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
     } else {
@@ -469,7 +451,6 @@ static int sound_isPlaying(lua_State* L) {
 // Common wrap-up
 
 static int sound_setup(lua_State* __unused L) {
-    if (!soundHandlers) soundHandlers = [NSMutableIndexSet indexSet];
     return 0;
 }
 
@@ -478,15 +459,12 @@ static int sound_gc(lua_State* L) {
     lua_pushcfunction(L, sound_callback) ;
     lua_pushvalue(L,1); lua_pushnil(L); lua_call(L, 2, 1);
     if (sound->stopOnRelease) [(__bridge NSSound*) sound->soundObject stop];
-    sound->registryHandle = remove_udhandler(L, soundHandlers, sound->registryHandle);
     NSSound* theSound = (__bridge_transfer NSSound *) sound->soundObject ;
     theSound = nil; sound->soundObject = nil;
     return 0;
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [soundHandlers removeAllIndexes];
-    soundHandlers = nil;
     return 0;
 }
 

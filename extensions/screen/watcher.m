@@ -15,27 +15,7 @@
 
 #define USERDATA_TAG    "hs.screen.watcher"
 
-static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-    return LUA_NOREF;
-}
-
-// static void* push_udhandler(lua_State* L, int x) {
-//     lua_rawgeti(L, LUA_REGISTRYINDEX, x);
-//     return lua_touserdata(L, -1);
-// }
-
 // Not so common code
-
-static NSMutableIndexSet* screenHandlers;
 
 @interface MJScreenWatcher : NSObject
 @property lua_State* L;
@@ -66,7 +46,6 @@ static NSMutableIndexSet* screenHandlers;
 typedef struct _screenwatcher_t {
     bool running;
     int fn;
-    int registryHandle;
     void* obj;
 } screenwatcher_t;
 
@@ -106,7 +85,6 @@ static int screen_watcher_start(lua_State* L) {
 
     if (screenwatcher->running) return 1;
     screenwatcher->running = YES;
-    screenwatcher->registryHandle = store_udhandler(L, screenHandlers, 1);
 
     [[NSNotificationCenter defaultCenter] addObserver:(__bridge id)screenwatcher->obj
                                              selector:@selector(_screensChanged:)
@@ -126,7 +104,6 @@ static int screen_watcher_stop(lua_State* L) {
     if (!screenwatcher->running) return 1;
     screenwatcher->running = NO;
 
-    screenwatcher->registryHandle = remove_udhandler(L, screenHandlers, screenwatcher->registryHandle);
     [[NSNotificationCenter defaultCenter] removeObserver:(__bridge id)screenwatcher->obj
                                                     name:NSApplicationDidChangeScreenParametersNotification
                                                   object:nil];
@@ -149,7 +126,6 @@ static int screen_watcher_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [screenHandlers removeAllIndexes];
     return 0;
 }
 

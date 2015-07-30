@@ -13,27 +13,7 @@
 
 #define USERDATA_TAG    "hs.wifi.watcher"
 
-static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-    return LUA_NOREF;
-}
-
-// static void* push_udhandler(lua_State* L, int x) {
-//     lua_rawgeti(L, LUA_REGISTRYINDEX, x);
-//     return lua_touserdata(L, -1);
-// }
-
 // Not so common code
-
-static NSMutableIndexSet* wifiHandlers;
 
 @interface HSWiFiWatcher : NSObject
 @property lua_State* L;
@@ -73,7 +53,6 @@ static NSMutableIndexSet* wifiHandlers;
 typedef struct _wifiwatcher_t {
     bool running;
     int fn;
-    int registryHandle;
     void* obj;
 } wifiwatcher_t;
 
@@ -127,7 +106,6 @@ static int wifi_watcher_start(lua_State* L) {
 
     if (wifiwatcher->running) return 1;
     wifiwatcher->running = YES;
-    wifiwatcher->registryHandle = store_udhandler(L, wifiHandlers, 1);
 
     [[NSNotificationCenter defaultCenter] addObserver:(__bridge id)wifiwatcher->obj
                                              selector:@selector(_ssidChanged:)
@@ -153,7 +131,6 @@ static int wifi_watcher_stop(lua_State* L) {
     if (!wifiwatcher->running) return 1;
     wifiwatcher->running = NO;
 
-    wifiwatcher->registryHandle = remove_udhandler(L, wifiHandlers, wifiwatcher->registryHandle);
     [[NSNotificationCenter defaultCenter] removeObserver:(__bridge id)wifiwatcher->obj
                                                     name:CWSSIDDidChangeNotification
                                                   object:nil];
@@ -176,7 +153,6 @@ static int wifi_watcher_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [wifiHandlers removeAllIndexes];
     return 0;
 }
 

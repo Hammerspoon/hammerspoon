@@ -34,30 +34,14 @@
 
 #define USERDATA_TAG "hs.caffeinate.watcher"
 
-static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-    return LUA_NOREF;
-}
-
 // Not so common code
 
 typedef struct _caffeinatewatcher_t {
-    int self;
     bool running;
     int fn;
     void* obj;
     lua_State* L;
 } caffeinatewatcher_t;
-
-static NSMutableIndexSet* handlers;
 
 typedef enum _event_t {
     didWake = 0,
@@ -206,7 +190,6 @@ static int app_watcher_start(lua_State* L) {
     if (caffeinateWatcher->running)
         return 0;
 
-    caffeinateWatcher->self = store_udhandler(L, handlers, 1);
     caffeinateWatcher->running = YES;
     register_observer((__bridge CaffeinateWatcher*)caffeinateWatcher->obj);
     return 0;
@@ -229,7 +212,6 @@ static int app_watcher_stop(lua_State* L) {
         return 0;
 
     caffeinateWatcher->running = NO;
-    caffeinateWatcher->self = remove_udhandler(L, handlers, caffeinateWatcher->self);
     unregister_observer((__bridge id)caffeinateWatcher->obj);
     return 0;
 }
@@ -249,7 +231,6 @@ static int app_watcher_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [handlers removeAllIndexes];
     return 0;
 }
 

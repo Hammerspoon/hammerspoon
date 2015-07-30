@@ -15,22 +15,7 @@
 
 #define USERDATA_TAG    "hs.usb.watcher"
 
-static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-    return LUA_NOREF;
-}
-
 // Not so common code
-
-static NSMutableIndexSet* usbHandlers;
 
 // userdata object for each watcher
 typedef struct _usbwatcher_t {
@@ -38,7 +23,6 @@ typedef struct _usbwatcher_t {
     bool running;
     bool isFirstRun;
     int fn;
-    int registryHandle;
     IONotificationPortRef gNotifyPort;
     io_iterator_t gAddedIter;
     CFRunLoopSourceRef runLoopSource;
@@ -238,7 +222,6 @@ static int usb_watcher_start(lua_State* L) {
 
     usbwatcher->running = YES;
     usbwatcher->isFirstRun = YES;
-    usbwatcher->registryHandle = store_udhandler(L, usbHandlers, 1);
 
     CFRunLoopAddSource(CFRunLoopGetCurrent(), usbwatcher->runLoopSource, kCFRunLoopDefaultMode);
     if (KERN_SUCCESS == IOServiceAddMatchingNotification(usbwatcher->gNotifyPort,
@@ -270,7 +253,6 @@ static int usb_watcher_stop(lua_State* L) {
     if (!usbwatcher->running) return 1;
 
     usbwatcher->running = NO;
-    usbwatcher->registryHandle = remove_udhandler(L, usbHandlers, usbwatcher->registryHandle);
     IOObjectRelease(usbwatcher->gAddedIter);
     CFRunLoopRemoveSource(CFRunLoopGetCurrent(), usbwatcher->runLoopSource, kCFRunLoopDefaultMode);
 
@@ -291,7 +273,6 @@ static int usb_watcher_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [usbHandlers removeAllIndexes];
     return 0;
 }
 
@@ -316,8 +297,6 @@ static const luaL_Reg meta_gcLib[] = {
 };
 
 int luaopen_hs_usb_watcher(lua_State* L) {
-    usbHandlers = [[NSMutableIndexSet alloc] init];
-
     // Metatable for created objects
     luaL_newlib(L, usb_metalib);
     lua_pushvalue(L, -1);

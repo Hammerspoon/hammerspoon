@@ -6,33 +6,12 @@
 
 #define USERDATA_TAG    "hs.pathwatcher"
 
-static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-    return LUA_NOREF;
-}
-
-// static void* push_udhandler(lua_State* L, int x) {
-//     lua_rawgeti(L, LUA_REGISTRYINDEX, x);
-//     return lua_touserdata(L, -1);
-// }
-
 // Not so common code
-
-static NSMutableIndexSet* pathHandlers;
 
 typedef struct _watcher_path_t {
     lua_State* L;
     int closureref;
     FSEventStreamRef stream;
-    int self;
     bool started;
 } watcher_path_t;
 
@@ -104,7 +83,6 @@ static int watcher_path_start(lua_State* L) {
     if (watcher_path->started) return 1;
     watcher_path->started = YES;
 
-    watcher_path->self = store_udhandler(L, pathHandlers, 1);
     FSEventStreamScheduleWithRunLoop(watcher_path->stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     FSEventStreamStart(watcher_path->stream);
 
@@ -121,7 +99,6 @@ static int watcher_path_stop(lua_State* L) {
     if (!watcher_path->started) return 1;
 
     watcher_path->started = NO;
-    watcher_path->self = remove_udhandler(L, pathHandlers, watcher_path->self);
     FSEventStreamStop(watcher_path->stream);
     FSEventStreamUnscheduleFromRunLoop(watcher_path->stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 
@@ -142,7 +119,6 @@ static int watcher_path_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [pathHandlers removeAllIndexes];
     return 0;
 }
 
