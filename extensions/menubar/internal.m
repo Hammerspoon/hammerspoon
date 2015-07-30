@@ -72,7 +72,8 @@ void erase_menu_items(lua_State *L, NSMenu *menu);
 typedef struct _menubaritem_t {
     void *menuBarItemObject;
     void *click_callback;
-    int click_fn;
+    int  click_fn;
+    BOOL removed ;
 } menubaritem_t;
 
 // Define an array to track delegates for dynamic menu objects
@@ -247,18 +248,21 @@ void erase_all_menu_parts(lua_State *L, NSStatusItem *statusItem) {
 
 // ----------------------- API implementations ---------------------
 
-/// hs.menubar.new() -> menubaritem or nil
+/// hs.menubar.new([inMenuBar]) -> menubaritem or nil
 /// Constructor
-/// Creates a new menu bar item object and add it to the system menubar
+/// Creates a new menu bar item object and optionally add it to the system menubar
 ///
 /// Parameters:
-///  * None
+///  * inMenuBar -- an optional parameter which defaults to true.  If it is true, the menubaritem is added to the system menubar, otherwise the menubaritem is hidden.
 ///
 /// Returns:
 ///  * menubar item object to use with other API methods, or nil if it could not be created
 ///
 /// Notes:
-///  * You should call hs.menubar:setTitle() or hs.menubar:setIcon() after creatng the object, otherwise it will be invisible
+///  * You should call hs.menubar:setTitle() or hs.menubar:setIcon() after creating the object, otherwise it will be invisible
+///
+///  * Calling this method with inMenuBar equal to false is equivalent to calling hs.menubar.new():removeFromMenuBar().
+///  * A hidden menubaritem can be added to the system menubar by calling hs.menubar:returnToMenuBar() or used as a pop-up menu by calling hs.menubar:popupMenu().
 static int menubarNew(lua_State *L) {
     NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
     NSStatusItem *statusItem = [statusBar statusItemWithLength:NSVariableStatusItemLength];
@@ -270,9 +274,15 @@ static int menubarNew(lua_State *L) {
         menuBarItem->menuBarItemObject = (__bridge_retained void*)statusItem;
         menuBarItem->click_callback = nil;
         menuBarItem->click_fn = LUA_NOREF;
+        menuBarItem->removed = NO ;
 
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
+
+        if (lua_isboolean(L, 1) && !lua_toboolean(L, 1)) {
+              [statusBar removeStatusItem:statusItem];
+              menuBarItem->removed = YES ;
+        }
     } else {
         lua_pushnil(L);
     }
@@ -280,7 +290,7 @@ static int menubarNew(lua_State *L) {
     return 1;
 }
 
-/// hs.menubar:setTitle(title)
+/// hs.menubar:setTitle(title) -> menubaritem
 /// Method
 /// Sets the title of a menubar item object. The title will be displayed in the system menubar
 ///
@@ -288,10 +298,11 @@ static int menubarNew(lua_State *L) {
 ///  * `title` - A string to use as the title, or nil to remove the title
 ///
 /// Returns:
-///  * None
+///  * the menubar item
 ///
 /// Notes:
 ///  * If you set an icon as well as a title, they will both be displayed next to each other
+///  * Has no affect on the display of a pop-up menu, but changes will be be in effect if hs.menubar:returnToMenuBar() is called on the menubaritem.
 static int menubarSetTitle(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSString *titleText;
@@ -301,13 +312,13 @@ static int menubarSetTitle(lua_State *L) {
         titleText = lua_to_nsstring(L, 2);
     }
 
-    lua_settop(L, 1); // FIXME: This seems unnecessary? neither preceeding luaL_foo function pushes things onto the stack?
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setTitle:titleText];
 
-    return 0;
+    lua_settop(L, 1) ;
+    return 1 ;
 }
 
-/// hs.menubar:setIcon(imageData) -> bool
+/// hs.menubar:setIcon(imageData) -> menubaritem or nil
 /// Method
 /// Sets the image of a menubar item object. The image will be displayed in the system menubar
 ///
@@ -319,10 +330,15 @@ static int menubarSetTitle(lua_State *L) {
 ///   * nil, indicating that the current image is to be removed
 ///
 /// Returns:
-///  * `true` if the image was loaded and set, `nil` if it could not be found or loaded
+///  * the menubaritem if the image was loaded and set, `nil` if it could not be found or loaded
 ///
 /// Notes:
+///  * ** API Change **
+///    * This method used to return true on success -- this has been changed to return the menubaritem on success to facilitate method chaining.  Since Lua treats any value which is not nil or false as "true", this should only affect code where the return value was actually being compared to true, e.g. `if result == true then...` rather than the (unaffected) `if result then...`.
+///
 ///  * If you set a title as well as an icon, they will both be displayed next to each other
+///  * Has no affect on the display of a pop-up menu, but changes will be be in effect if hs.menubar:returnToMenuBar() is called on the menubaritem.
+///
 ///  * Icons should be small, transparent images that roughly match the size of normal menubar icons, otherwise they will look very strange
 ///  * Retina scaling is supported if the image is either scalable (e.g. a PDF produced by Adobe Illustrator) or contain multiple sizes (e.g. a TIFF with small and large images). Images will not automatically do the right thing if you have a @2x version present
 ///  * Icons are specified as "templates", which allows them to automatically support OS X 10.10's Dark Mode, but this also means they cannot be complicated, colour images
@@ -348,11 +364,12 @@ static int menubarSetIcon(lua_State *L) {
     }
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setImage:iconImage];
 
-    lua_pushboolean(L, 1);
-    return 1;
+//    lua_pushboolean(L, 1); // it's more useful for chaining to return the menubar item, and we return nil if an error occurs, so unless you're doing something like `if result == true ...` instead of just `if result ...` the end result is the same
+    lua_settop(L, 1) ;
+    return 1 ;
 }
 
-/// hs.menubar:setTooltip(tooltip)
+/// hs.menubar:setTooltip(tooltip) -> menubaritem
 /// Method
 /// Sets the tooltip text on a menubar item
 ///
@@ -360,17 +377,21 @@ static int menubarSetIcon(lua_State *L) {
 ///  * `tooltip` - A string to use as the tooltip
 ///
 /// Returns:
-///  * None
+///  * the menubaritem
+///
+/// Notes:
+///  * Has no affect on the display of a pop-up menu, but changes will be be in effect if hs.menubar:returnToMenuBar() is called on the menubaritem.
 static int menubarSetTooltip(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSString *toolTipText = lua_to_nsstring(L, 2);
     lua_settop(L, 1); // FIXME: This seems unnecessary?
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setToolTip:toolTipText];
 
-    return 0;
+    lua_settop(L, 1) ;
+    return 1 ;
 }
 
-/// hs.menubar:setClickCallback(fn)
+/// hs.menubar:setClickCallback(fn) -> menubaritem
 /// Method
 /// Registers a function to be called when the menubar item is clicked
 ///
@@ -383,10 +404,12 @@ static int menubarSetTooltip(lua_State *L) {
 ///   * fn
 ///
 /// Returns:
-///  * None
+///  * the menubaritem
 ///
 /// Notes:
 ///  * If a menu has been attached to the menubar item, this callback will never be called
+///  * Has no affect on the display of a pop-up menu, but changes will be be in effect if hs.menubar:returnToMenuBar() is called on the menubaritem.
+///  * A menu which does not have a menu defined by hs.menubar:setMenu() cannot be rendered as a pop-up menu.
 static int menubarSetClickCallback(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
@@ -411,10 +434,12 @@ static int menubarSetClickCallback(lua_State *L) {
         [statusItem setTarget:object];
         [statusItem setAction:@selector(click:)];
     }
-    return 0;
+
+    lua_settop(L, 1) ;
+    return 1 ;
 }
 
-/// hs.menubar:setMenu(menuTable)
+/// hs.menubar:setMenu(menuTable) -> menubaritem
 /// Method
 /// Attaches a dropdown menu to the menubar item
 ///
@@ -447,9 +472,12 @@ static int menubarSetClickCallback(lua_State *L) {
 ///      * `fn` - A function to be executed when the menu item is clicked
 ///      * `checked` - A boolean to indicate if the menu item should have a checkmark next to it or not. Defaults to false
 ///      * `disabled` - A boolean to indicate if the menu item should be unselectable or not. Defaults to false (i.e. menu items are selectable by default)
+///      * `menu` - a table, in the same format as above, which will be presented as a sub-menu for this menu item.
+///         * a menu item that is disabled and has a sub-menu will show the arrow at the right indicating that it has a sub-menu, but the items within the sub-menu will not be available, even if the sub-menu items are not disabled themselves.
+///         * a menu item with a sub-menu is also a clickable target, so it can also have an `fn` key.
 ///
 /// Returns:
-///  * None
+///  * the menubaritem
 ///
 /// Notes:
 ///  * If you are using the callback function, you should take care not to take too long to generate the menu, as you will block the process and the OS may decide to remove the menubar item
@@ -499,7 +527,8 @@ static int menubarSetMenu(lua_State *L) {
         }
     }
 
-    return 0;
+    lua_settop(L, 1) ;
+    return 1 ;
 }
 
 /// hs.menubar:delete()
@@ -515,7 +544,7 @@ static int menubar_delete(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
 
     NSStatusBar *statusBar = [NSStatusBar systemStatusBar];
-    NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+    NSStatusItem *statusItem = (__bridge_transfer NSStatusItem*)menuBarItem->menuBarItemObject;
 
     // Remove any click callbackery the menubar item has
     lua_pushcfunction(L, menubarSetClickCallback);
@@ -526,12 +555,135 @@ static int menubar_delete(lua_State *L) {
     // Remove all menu stuff associated with this item
     erase_all_menu_parts(L, statusItem);
 
-    [statusBar removeStatusItem:(__bridge NSStatusItem*)menuBarItem->menuBarItemObject];
+    [statusBar removeStatusItem:statusItem];
     menuBarItem->menuBarItemObject = nil;
     menuBarItem = nil;
 
     return 0;
 }
+
+/// hs.menubar:popupMenu(point) -> menubaritem
+/// Method
+/// Display a menubaritem as a pop up menu at the specified screen point.
+///
+/// Parameters:
+///  * point -- the location of the upper left corner of the pop-up menu to be displayed.
+///
+/// Returns:
+///  * The menubaritem
+///
+/// Notes:
+///  * This method only works with menubaritems which have a menu set by hs.menubar:setMenu().  Items which use hs.menubar:setClickCallback() cannot be rendered as pop-up menus.
+///
+///  * This method is blocking -- Hammerspoon will be unable to respond to any other activity while the pop-up menu is being displayed.
+static int menubar_render(lua_State *L) {
+    menubaritem_t *menuBarItem = get_item_arg(L, 1);
+    NSStatusItem  *statusItem  = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+    NSMenu        *menu        = [statusItem menu];
+
+    NSPoint menuPoint ;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TTABLE:
+            lua_getfield(L, 2, "x") ;
+            menuPoint.x = lua_tonumber(L, -1) ;
+            lua_pop(L, 1) ;
+
+            lua_getfield(L, 2, "y") ;
+            menuPoint.y = lua_tonumber(L, -1) ;
+            lua_pop(L, 1) ;
+
+            break ;
+        default:
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.menubar:render(): %d", lua_type(L, 2)) ;
+            showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed to hs.menubar:render(): %d", lua_type(L, 2)] UTF8String]) ;
+            lua_pushnil(L) ;
+            return 1 ;
+            break ;
+    }
+
+    if (!menu) {
+
+// // Used for testing, but inconsistent with the rest of hs.menubar's behavior for empty menus.
+//         menu = [[NSMenu alloc] init];
+//         [menu insertItemWithTitle:@"-- empty/deleted menu --"
+//                            action:nil
+//                     keyEquivalent:@""
+//                           atIndex:0];
+//         [[menu itemAtIndex:0] setEnabled:NO] ;
+
+        printToConsole(L, "-- Missing menu object for hs.menu.popupMenu()") ;
+        if (menuBarItem->click_callback)
+            printToConsole(L, "-- setClickCallback menuitems cannot be rendered as a pop-up menu.") ;
+
+        // Not an error, per se, so return expected value.
+        lua_settop(L, 1) ;
+        return 1 ;
+    }
+
+    menuPoint.y = [[NSScreen screens][0] frame].size.height - menuPoint.y ;
+    [menu popUpMenuPositioningItem:nil atLocation:menuPoint inView:nil] ;
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
+/// hs.menubar:removeFromMenuBar() -> menubaritem
+/// Method
+/// Removes a menu from the system menu bar.  The item can still be used as a pop-up menu, unless you also delete it.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the menubaritem
+static int menubar_removeFromMenuBar(lua_State *L) {
+    menubaritem_t *menuBarItem = get_item_arg(L, 1);
+
+    if (!menuBarItem->removed) {
+        NSStatusBar   *statusBar   = [NSStatusBar systemStatusBar];
+        NSStatusItem  *statusItem  = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+
+        [statusBar removeStatusItem:statusItem];
+        menuBarItem->removed = YES ;
+    }
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
+/// hs.menubar:returnToMenuBar() -> menubaritem
+/// Method
+/// Returns a previously removed menu back to the system menu bar.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the menubaritem
+static int menubar_returnToMenuBar(lua_State *L) {
+    menubaritem_t *menuBarItem     = get_item_arg(L, 1);
+
+    if (menuBarItem->removed) {
+        NSStatusBar   *statusBar       = [NSStatusBar systemStatusBar];
+        NSStatusItem  *oldStatusItem   = (__bridge_transfer NSStatusItem*)menuBarItem->menuBarItemObject;
+
+        NSStatusItem  *newStatusItem   = [statusBar statusItemWithLength:NSVariableStatusItemLength];
+        menuBarItem->menuBarItemObject = (__bridge_retained void*)newStatusItem;
+        [newStatusItem  setTarget:[oldStatusItem target]] ;
+        [newStatusItem  setAction:[oldStatusItem action]] ;
+        [newStatusItem    setMenu:[oldStatusItem menu]] ;
+        [newStatusItem   setTitle:[oldStatusItem title]] ;
+        [newStatusItem   setImage:[oldStatusItem image]] ;
+        [newStatusItem setToolTip:[oldStatusItem toolTip]] ;
+
+        menuBarItem->removed = NO ;
+    }
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
@@ -554,6 +706,13 @@ static int menubaritem_gc(lua_State *L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    NSString *title = [((__bridge NSStatusItem*)(get_item_arg(L, 1))->menuBarItemObject) title] ;
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s:%@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg menubarlib[] = {
     {"new", menubarNew},
 
@@ -561,14 +720,18 @@ static const luaL_Reg menubarlib[] = {
 };
 
 static const luaL_Reg menubar_metalib[] = {
-    {"setTitle", menubarSetTitle},
-    {"_setIcon", menubarSetIcon},
-    {"setTooltip", menubarSetTooltip},
-    {"setClickCallback", menubarSetClickCallback},
-    {"setMenu", menubarSetMenu},
-    {"delete", menubar_delete},
+    {"setTitle",          menubarSetTitle},
+    {"_setIcon",          menubarSetIcon},
+    {"setTooltip",        menubarSetTooltip},
+    {"setClickCallback",  menubarSetClickCallback},
+    {"setMenu",           menubarSetMenu},
+    {"popupMenu",         menubar_render},
+    {"removeFromMenuBar", menubar_removeFromMenuBar},
+    {"returnToMenuBar",   menubar_returnToMenuBar},
+    {"delete",            menubar_delete},
 
-    {"__gc", menubaritem_gc},
+    {"__tostring",        userdata_tostring},
+    {"__gc",              menubaritem_gc},
     {}
 };
 
