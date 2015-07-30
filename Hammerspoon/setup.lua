@@ -44,8 +44,9 @@ hs.docstrings_json_file = docstringspath
 ---     if not ok then hs.showError(err) end```
 function hs.showError(err)
   hs._notify("Hammerspoon config error") -- undecided on this line
-  print(debug.traceback())
-  print(err)
+--  print(debug.traceback())
+--  print(err)
+  print(debug.traceback(err, 2))
   hs.focus()
   hs.openConsole()
 end

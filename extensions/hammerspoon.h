@@ -1,9 +1,13 @@
 // Import the Lua API so we can do Lua things here
 #import <LuaSkin/LuaSkin.h>
 
+#ifndef HS_EXTERNAL_MODULE
 // Import the Crashlytics API so we can define our own crashlog+NSLog call
 #import "../Crashlytics.framework/Headers/Crashlytics.h"
 #define CLS_NSLOG(__FORMAT__, ...) CLSNSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#else
+#define CLS_NSLOG NSLog
+#endif
 
 // Define some useful utility functions
 
