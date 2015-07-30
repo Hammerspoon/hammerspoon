@@ -39,8 +39,35 @@ module.registeredKeys = setmetatable({}, { __tostring = function(object)
                 output = output..string.format("(U+%04X) %-15s  %s\n", utf8.codepoint(v), i, v)
             end
             return output
-    end
+    end,
+    __call = function(_,x) return _[x] end,
 })
+
+--- hs.utf8.registeredLabels(utf8char) -> string
+--- Function
+--- Returns the label name for a UTF8 character, as it is registered in `hs.utf8.registeredKeys[]`.
+---
+--- Parameters:
+---  * utf8char -- the character to lookup in `hs.utf8.registeredKeys[]`
+---
+--- Returns:
+---  * The string label for the UTF8 character or a string in the format of "U+XXXX", if it is not defined in `hs.utf8.registeredKeys[]`, or nil, if utf8char is not a valid UTF8 character.
+---
+--- Notes:
+---  * For parity with `hs.utf8.registeredKeys`, this can also be invoked as if it were an array: i.e. `hs.utf8.registeredLabels(char)` is equivalent to `hs.utf8.registeredLabels[char]`
+local realRegisteredLabels = function(_, x)
+    for i,v in pairs(module.registeredKeys) do
+        if v == x then
+            return i
+        end
+    end
+    if x:match("^"..utf8.charpattern.."$") then
+        return string.format("U+%04X",utf8.codepoint(x))
+    else
+        return nil
+    end
+end
+module.registeredLabels = setmetatable({}, { __index = realRegisteredLabels, __call = realRegisteredLabels })
 
 --- hs.utf8.codepointToUTF8(...) -> string
 --- Function
@@ -214,6 +241,7 @@ end
 ---
 --- Notes:
 ---  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.utf8.registeredKeys`.
+---  * For parity with `hs.utf8.registeredLabels`, this can also invoked as a function, i.e. `hs.utf8.registeredKeys["cmd"]` is equivalent to `hs.utf8.registeredKeys("cmd")`
 
 module.registerCodepoint("alt",              0x2325)
 module.registerCodepoint("apple",            0xF8FF)
