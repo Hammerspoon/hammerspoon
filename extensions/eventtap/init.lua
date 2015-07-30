@@ -165,6 +165,26 @@ function module.keyStroke(modifiers, character)
     module.event.newKeyEvent(modifiers, string.lower(character), false):post()
 end
 
+
+--- hs.eventtap.scrollWheel(offsets, modifiers, unit) -> event
+--- Function
+--- Generates and emits a scroll wheel event
+---
+--- Parameters:
+---  * offsets - A table containing the {horizontal, vertical} amount to scroll. Positive values scroll up or left, negative values scroll down or right.
+---  * mods - A table containing zero or more of the following:
+---   * cmd
+---   * alt
+---   * shift
+---   * ctrl
+---   * fn
+---  * unit - An optional string containing the name of the unit for scrolling. Either "line" (the default) or "pixel"
+---
+--- Returns:
+---  * None
+function module.scrollWheel(offsets, modifiers, unit)
+    module.event.newScrollEvent(offsets, modifiers, unit):post()
+end
 -- Return Module Object --------------------------------------------------
 
 return module
