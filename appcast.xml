@@ -6,6 +6,19 @@
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
          <item>
+            <title>Version 0.9.36</title>
+            <sparkle:releaseNotesLink>
+                http://www.hammerspoon.org/releasenotes/0.9.36/
+            </sparkle:releaseNotesLink>
+            <pubDate>Thu, 30 Jul 2015 21:36:37 +0100</pubDate>
+            <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.36/Hammerspoon-0.9.36.zip"
+                sparkle:version="0.9.36"
+                length="2814201"
+                type="application/octet-stream"
+            />
+            <sparkle:minimumSystemVersion>10.8</sparkle:minimumSystemVersion>
+        </item>
+         <item>
             <title>Version 0.9.35</title>
             <sparkle:releaseNotesLink>
                 http://www.hammerspoon.org/releasenotes/0.9.35/
