@@ -602,27 +602,11 @@ static int window_setShadows(lua_State* L) {
     return 0;
 }
 
-/// hs.window:snapshot([keepTransparency]) -> hs.image-object
-/// Method
-/// Returns a snapshot of the window as an `hs.image` object
-///
-/// Parameters:
-///  * keepTransparency -- optional boolean value indicating if the windows alpha value (transparency) should be maintained in the resulting image or if it should be fully opaque (default).
-///
-/// Returns:
-///  * `hs.image` object of the window snapshot or nil if unable to create a snapshot
-static int window_snapshot(lua_State* L) {
-    NSInteger      makeOpaque = kCGWindowImageShouldBeOpaque ;
+// used by hs.window.snapshotForID and hs.window:snapshot
 
-    AXUIElementRef win = get_window_arg(L, 1);
-
-    CGWindowID windowID;
-    AXError err = _AXUIElementGetWindow(win, &windowID);
-
-    if (lua_toboolean(L, 2)) makeOpaque = 0 ;
-
-    if (!err) {
-        CGRect windowRect = { get_window_topleft(win), get_window_size(win) };
+static int snapshot_common_code(lua_State* L, CGWindowID windowID, NSInteger makeOpaque) {
+//         CGRect windowRect = { get_window_topleft(win), get_window_size(win) };
+        CGRect windowRect = CGRectNull ;
 
         CFArrayRef targetWindow = CFArrayCreate(NULL, (const void **)(&windowID), 1, NULL);
         CGImageRef windowImage = CGWindowListCreateImageFromArray(
@@ -642,6 +626,55 @@ static int window_snapshot(lua_State* L) {
 
         store_image_as_hsimage(L, newImage) ;
         return 1 ;
+}
+
+// I could have overloaded snapshot, but if we ever do split the module functions and the window object methods, it would be... problematic to document since syntax and function/method designations would differ and our current documentation processor can't handle that.
+
+/// hs.window.snapshotForID(ID [, keepTransparency]) -> hs.image-object
+/// Function
+/// Returns a snapshot of the window specified by the ID as an `hs.image` object
+///
+/// Parameters:
+///  * ID - Window ID of the window to take a snapshot of.
+///  * keepTransparency - optional boolean value indicating if the windows alpha value (transparency) should be maintained in the resulting image or if it should be fully opaque (default).
+///
+/// Returns:
+///  * `hs.image` object of the window snapshot or nil if unable to create a snapshot
+///
+/// Notes:
+///  * See also method `hs.window:snapshot()`
+///  * Because the window ID cannot always be dynamically determined, this function will allow you to provide the ID of a window that was cached earlier.
+static int window_snapshotForID(lua_State* L) {
+    CGWindowID windowID = luaL_checkinteger(L, 1);
+
+    NSInteger makeOpaque = kCGWindowImageShouldBeOpaque ;
+    if (lua_toboolean(L, 2)) makeOpaque = 0 ;
+
+    return snapshot_common_code(L, windowID, makeOpaque) ;
+}
+
+/// hs.window:snapshot([keepTransparency]) -> hs.image-object
+/// Method
+/// Returns a snapshot of the window as an `hs.image` object
+///
+/// Parameters:
+///  * keepTransparency - optional boolean value indicating if the windows alpha value (transparency) should be maintained in the resulting image or if it should be fully opaque (default).
+///
+/// Returns:
+///  * `hs.image` object of the window snapshot or nil if unable to create a snapshot
+///
+/// Notes:
+///  * See also function `hs.window.snapshotForID()`
+static int window_snapshot(lua_State* L) {
+    AXUIElementRef win = get_window_arg(L, 1);
+    CGWindowID windowID;
+    AXError err = _AXUIElementGetWindow(win, &windowID);
+
+    if (!err) {
+        NSInteger      makeOpaque = kCGWindowImageShouldBeOpaque ;
+        if (lua_toboolean(L, 2)) makeOpaque = 0 ;
+
+        return snapshot_common_code(L, windowID, makeOpaque) ;
     } else {
         printToConsole(L, "Unable to retrieve CGWindowID for specified window.") ;
         return 0 ;
@@ -652,6 +685,7 @@ static const luaL_Reg windowlib[] = {
     {"focusedWindow", window_focusedwindow},
     {"_orderedwinids", window__orderedwinids},
     {"setShadows", window_setShadows},
+    {"snapshotForID", window_snapshotForID},
 
     {"title", window_title},
     {"subrole", window_subrole},
