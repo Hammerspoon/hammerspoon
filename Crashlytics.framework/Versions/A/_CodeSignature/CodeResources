@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		2WPfQTDP9K8ajX1IM/NFR47EgJs=
+		RR6YZD7BZBUE8bDmzWDPbgzxiTI=
 		</data>
 		<key>Resources/en.lproj/InfoPlist.strings</key>
 		<dict>
@@ -20,9 +20,13 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Headers/Answers.h</key>
+		<data>
+		mPQf82Si6QhUK+bWe5w0Rv/LauM=
+		</data>
 		<key>Headers/CLSLogging.h</key>
 		<data>
-		zcn6IoylvVofwfxrmJZrxDN7Tp0=
+		oQkJ6dmS+OVBfk/mUJ5HywGamFs=
 		</data>
 		<key>Headers/CLSReport.h</key>
 		<data>
@@ -34,15 +38,11 @@
 		</data>
 		<key>Headers/Crashlytics.h</key>
 		<data>
-		YfdjEaVRyq9Ds/1gYu4lnfQl8Ks=
+		ePZRtsjDv0ya1vajWicqz213z/U=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
-		FjLJjH4TslH+1dyccMCHCkT4VpY=
-		</data>
-		<key>Modules/module.private.modulemap</key>
-		<data>
-		TW6wf6BihLkE0wMg0gzvdoYDEf8=
+		j8xyl2MF7oCoE569vdJxbr/gXBM=
 		</data>
 		<key>PrivateHeaders/CLSAsyncOperation.h</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>Resources/Info.plist</key>
 		<data>
-		2WPfQTDP9K8ajX1IM/NFR47EgJs=
+		RR6YZD7BZBUE8bDmzWDPbgzxiTI=
 		</data>
 		<key>Resources/en.lproj/InfoPlist.strings</key>
 		<dict>
