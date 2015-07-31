@@ -15,33 +15,12 @@
 
 #define USERDATA_TAG    "hs.battery.watcher"
 
-static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-    return LUA_NOREF;
-}
-
-// static void* push_udhandler(lua_State* L, int x) {
-//     lua_rawgeti(L, LUA_REGISTRYINDEX, x);
-//     return lua_touserdata(L, -1);
-// }
-
 // Not so common code
-
-static NSMutableIndexSet* batteryHandlers;
 
 typedef struct _battery_watcher_t {
     lua_State* L;
     CFRunLoopSourceRef t;
     int fn;
-    int self;
     bool started;
 } battery_watcher_t;
 
@@ -105,7 +84,6 @@ static int battery_watcher_start(lua_State* L) {
 
     watcher->started = YES;
 
-    watcher->self = store_udhandler(L, batteryHandlers, 1);
     CFRunLoopAddSource(CFRunLoopGetMain(), watcher->t, kCFRunLoopCommonModes);
     return 1;
 }
@@ -126,7 +104,6 @@ static int battery_watcher_stop(lua_State* L) {
     if (!watcher->started) return 1;
 
     watcher->started = NO;
-    watcher->self = remove_udhandler(L, batteryHandlers, watcher->self);
     CFRunLoopRemoveSource(CFRunLoopGetMain(), watcher->t, kCFRunLoopCommonModes);
     return 1;
 }
@@ -144,7 +121,6 @@ static int battery_watcher_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [batteryHandlers removeAllIndexes];
     return 0;
 }
 

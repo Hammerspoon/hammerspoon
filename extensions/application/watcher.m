@@ -43,30 +43,14 @@
 
 #define USERDATA_TAG "hs.application.watcher"
 
-static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-    return LUA_NOREF;
-}
-
 // Not so common code
 
 typedef struct _appwatcher_t {
-    int self;
     bool running;
     int fn;
     void* obj;
     lua_State* L;
 } appwatcher_t;
-
-static NSMutableIndexSet* handlers;
 
 typedef enum _event_t {
     launching = 0,
@@ -261,7 +245,6 @@ static int app_watcher_start(lua_State* L) {
     if (appWatcher->running)
         return 0;
 
-    appWatcher->self = store_udhandler(L, handlers, 1);
     appWatcher->running = YES;
     register_observer((__bridge AppWatcher*)appWatcher->obj);
     return 0;
@@ -284,7 +267,6 @@ static int app_watcher_stop(lua_State* L) {
         return 0;
 
     appWatcher->running = NO;
-    appWatcher->self = remove_udhandler(L, handlers, appWatcher->self);
     unregister_observer((__bridge id)appWatcher->obj);
     return 0;
 }
@@ -304,7 +286,6 @@ static int app_watcher_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [handlers removeAllIndexes];
     return 0;
 }
 

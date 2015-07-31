@@ -6,26 +6,10 @@
 typedef struct _eventtap_t {
     lua_State* L;
     int fn;
-    int self;
     CGEventMask mask;
     CFMachPortRef tap;
     CFRunLoopSourceRef runloopsrc;
 } eventtap_t;
-
-static NSMutableIndexSet* eventtapHandlers;
-
-static int store_event(lua_State* L, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [eventtapHandlers addIndex: x];
-    return x;
-}
-
-static int remove_event(lua_State* L, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [eventtapHandlers removeIndex: x];
-    return LUA_NOREF;
-}
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     eventtap_t* e = refcon;
@@ -177,7 +161,6 @@ static int eventtap_start(lua_State* L) {
             CFRelease(e->runloopsrc);
             CFRelease(e->tap);
         }
-        e->self = store_event(L, 1);
         e->tap = CGEventTapCreate(kCGSessionEventTap,
                                   kCGHeadInsertEventTap,
                                   kCGEventTapOptionDefault,
@@ -191,8 +174,6 @@ static int eventtap_start(lua_State* L) {
             CFRunLoopAddSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
         } else {
             showError(L, "Unable to create eventtap.  Is Accessibility enabled?");
-            remove_event(L, e->self);
-            e->self = LUA_NOREF;
         }
     }
     lua_settop(L,1);
@@ -213,8 +194,6 @@ static int eventtap_stop(lua_State* L) {
 
     if (e->tap) {
         if (CGEventTapIsEnabled(e->tap)) CGEventTapEnable(e->tap, false);
-        remove_event(L, e->self);
-        e->self = LUA_NOREF;
 
         CFMachPortInvalidate(e->tap);
         CFRunLoopRemoveSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
@@ -368,8 +347,6 @@ static int eventtap_gc(lua_State* L) {
     eventtap_t* eventtap = luaL_checkudata(L, 1, USERDATA_TAG);
     if (eventtap->tap) {
         if (CGEventTapIsEnabled(eventtap->tap)) CGEventTapEnable(eventtap->tap, false);
-        remove_event(L, eventtap->self);
-        eventtap->self = LUA_NOREF;
 
         CFMachPortInvalidate(eventtap->tap);
         CFRunLoopRemoveSource(CFRunLoopGetMain(), eventtap->runloopsrc, kCFRunLoopCommonModes);
@@ -383,8 +360,6 @@ static int eventtap_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [eventtapHandlers removeAllIndexes];
-    eventtapHandlers = nil;
     return 0;
 }
 

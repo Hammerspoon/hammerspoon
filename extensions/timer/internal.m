@@ -7,33 +7,12 @@
 
 #define USERDATA_TAG    "hs.timer"
 
-static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
-    lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
-    [theHandler addIndex: x];
-    return x;
-}
-
-static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
-    [theHandler removeIndex: x];
-    return LUA_NOREF;
-}
-
-// static void* push_udhandler(lua_State* L, int x) {
-//     lua_rawgeti(L, LUA_REGISTRYINDEX, x);
-//     return lua_touserdata(L, -1);
-// }
-
 // Not so common code
-
-static NSMutableIndexSet* timerHandlers;
 
 typedef struct _timer_t {
     lua_State* L;
     CFRunLoopTimerRef t;
     int fn;
-    int self;
     BOOL started;
 } timer_t;
 
@@ -104,7 +83,6 @@ static int timer_start(lua_State* L) {
     if (timer->started) return 1;
     timer->started = YES;
 
-    timer->self = store_udhandler(L, timerHandlers, 1);
     CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + CFRunLoopTimerGetInterval(timer->t));
     CFRunLoopAddTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes);
     return 1;
@@ -141,7 +119,6 @@ static int timer_doAfter(lua_State* L) {
 //    ctx.info = timer;
     timer->t = CFRunLoopTimerCreate(NULL, 0, 0, 0, 0, callback, &ctx);
     timer->started = YES;
-    timer->self = store_udhandler(L, timerHandlers, 1);
 
     CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + sec);
     CFRunLoopAddTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes);
@@ -183,7 +160,6 @@ static int timer_stop(lua_State* L) {
     if (!timer->started) return 1;
     timer->started = NO;
 
-    timer->self = remove_udhandler(L, timerHandlers, timer->self);
     CFRunLoopRemoveTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes);
     return 1;
 }
@@ -201,7 +177,6 @@ static int timer_gc(lua_State* L) {
 }
 
 static int meta_gc(lua_State* __unused L) {
-    [timerHandlers removeAllIndexes];
     return 0;
 }
 
