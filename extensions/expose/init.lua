@@ -5,6 +5,17 @@
 --- or #hammerspoon on irc.freenode.net)
 ---
 --- Keyboard-driven expose replacement/enhancement
+---
+--- Usage:
+--- -- set up your windowfilter
+--- expose = hs.expose.new() -- default windowfilter: only visible windows, all Spaces
+--- expose2 = hs.expose.new(hs.windowfilter.new():trackSpaces(true):setDefaultFilter()) -- include minimized/hidden windows, current Space only
+--- expose_browsers = hs.expose.new{'Safari','Google Chrome'} -- specialized expose for your dozens of browser windows :)
+---
+--- -- then bind to a hotkey
+--- hs.hotkey.bind('ctrl-cmd','e',function()expose:toggleShow()end)
+
+
 
 --TODO /// hs.drawing:setClickCallback(fn) -> drawingObject
 --TODO showExtraKeys
@@ -177,7 +188,7 @@ local ui = {
   textColor={1,1,1},
   fontName='Lucida Grande',
   textSize=40,
-  hintLetterWidth=30,
+  hintLetterWidth=35,
 
   backgroundColor={0.3,0.3,0.3,0.95},
   closeModeBackgroundColor={0.7,0.1,0.1,0.95},
@@ -202,7 +213,7 @@ local ui = {
 ---
 --- Allows customization of the expose user interface
 ---
---- This table contains variables that you can change to customize the look of the UI.
+--- This table contains variables that you can change to customize the look of the UI. The default values are shown in the right hand side of the assignements below.
 ---
 --- To represent color values, you can use:
 ---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}
@@ -210,33 +221,33 @@ local ui = {
 --- where redN, greenN etc. are the desired value for the color component between 0.0 and 1.0
 ---
 --- The following variables must be color values:
----  * hs.expose.ui.backgroundColor
----  * hs.expose.ui.closeModeBackgroundColor
----  * hs.expose.ui.minimizeModeBackgroundColor
----  * hs.expose.ui.minimizedStripBackgroundColor - this is the strip alongside your dock that contains thumbnails for non-visible windows
----  * hs.expose.ui.highlightColor - highlight candidate thumbnails when pressing a hint key
----  * hs.expose.ui.highlightStrokeColor
----  * hs.expose.ui.fadeColor - fade excluded thumbnails when pressing a hint key
----  * hs.expose.ui.fadeStrokeColor
----  * hs.expose.ui.textColor
+---  * `hs.expose.ui.backgroundColor = {0.3,0.3,0.3,0.95}`
+---  * `hs.expose.ui.closeModeBackgroundColor = {0.7,0.1,0.1,0.95}`
+---  * `hs.expose.ui.minimizeModeBackgroundColor = {0.1,0.3,0.6,0.95}`
+---  * `hs.expose.ui.minimizedStripBackgroundColor = {0.15,0.15,0.15,0.95}` -- this is the strip alongside your dock that contains thumbnails for non-visible windows
+---  * `hs.expose.ui.highlightColor = {0.8,0.5,0,0.1}` -- highlight candidate thumbnails when pressing a hint key
+---  * `hs.expose.ui.highlightStrokeColor = {0.8,0.5,0,0.8}`
+---  * `hs.expose.ui.fadeColor = {0,0,0,0.8}` -- fade excluded thumbnails when pressing a hint key
+---  * `hs.expose.ui.fadeStrokeColor = {0,0,0}`
+---  * `hs.expose.ui.textColor = {1,1,1}`
 ---
 --- The following variables must be numbers (in screen points):
----  * hs.expose.ui.textSize - (default 40)
----  * hs.expose.ui.hintLetterWidth - average width of a single letter; set accordingly if you change font or text size (default 30)
----  * hs.expose.ui.strokeWidth - (default 10)
+---  * `hs.expose.ui.textSize = 40`
+---  * `hs.expose.ui.hintLetterWidth = 35` -- max width of a single letter; set accordingly if you change font or text size
+---  * `hs.expose.ui.strokeWidth = 10`
 ---
 --- The following variables must be strings:
----  * hs.expose.ui.fontName - (default "Lucida Grande")
+---  * `hs.expose.ui.fontName = 'Lucida Grande'`
 ---
 --- The following variables must be numbers:
----  * hs.expose.ui.maxHintLetters - if necessary, hints longer than this will be disambiguated with digits (default 2)
+---  * `hs.expose.ui.maxHintLetters = 2` -- if necessary, hints longer than this will be disambiguated with digits
 ---
---- The following variables must be strings, one of "cmd", "shift", "ctrl" or "alt":
----  * hs.expose.ui.closeModeModifier - (default "shift")
----  * hs.expose.ui.minimizeModeModifier - (default "alt")
+--- The following variables must be strings, one of 'cmd', 'shift', 'ctrl' or 'alt':
+---  * `hs.expose.ui.closeModeModifier = 'shift'`
+---  * `hs.expose.ui.minimizeModeModifier = 'alt'`
 ---
 --- The following variables must be booleans:
----  * hs.expose.ui.showExtraKeys - if true (default), show non-hint keybindings at the top of the screen
+---  * `hs.expose.ui.showExtraKeys = true` -- show non-hint keybindings at the top of the screen
 expose.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v end})
 
 local function getHints(screens)
@@ -534,7 +545,7 @@ function expose:show(no_windowfilter,animate,iterations,alt_algo)
   for _,s in pairs(screens) do
     if animate then
       for _,w in ipairs(s) do
-        w.thumb = drawing.image(w.originalFrame,w.window:snapshot(--[[w.id--]])):show() --FIXME gh#413
+        w.thumb = drawing.image(w.originalFrame,window.snapshotFromID(w.id)):show() --FIXME gh#413
       end
     end
     fitWindows(s,iterations or 200,animate and 0 or nil,alt_algo)
@@ -543,7 +554,7 @@ function expose:show(no_windowfilter,animate,iterations,alt_algo)
       if animate then
         w.thumb:setFrame(w.frame:tohs())
       else
-        w.thumb = drawing.image(w.frame:tohs(),w.window:snapshot(--[[w.id--]])) --FIXME gh#413
+        w.thumb = drawing.image(w.frame:tohs(),window.snapshotFromID(w.id)) --FIXME gh#413
       end
       --      w.ratio=drawing.text(w.frame:tohs(),sformat('%d%%',w.frame.w*w.frame.h*100/w.area)):setTextColor{red=1,green=0,blue=0,alpha=1}:show()
       local f=w.frame:tohs()
@@ -569,11 +580,14 @@ function expose:show(no_windowfilter,animate,iterations,alt_algo)
 end
 
 --- hs.expose.new(windowfilter) -> hs.expose
---- Function
---- Creates a new hs.expose instance. It uses a windowfilter object to determine which windows to show
+--- Constructor
+--- Creates a new hs.expose instance. It uses a windowfilter to determine which windows to show
 ---
 --- Parameters:
----  * windowfilter - (optional) an `hs.windowfilter` object; if omitted, the default windowfilter will be used
+---  * windowfilter - (optional) it can be:
+---    * `nil` or omitted (as in `myexpose=hs.expose.new()`): the default windowfilter will be used
+---    * an `hs.windowfilter` object
+---    * otherwise all parameters are passed to `hs.windowfilter.new` to create a new instance
 ---
 --- Returns:
 ---  * the new instance
@@ -583,14 +597,17 @@ end
 ---     Mission Control Spaces (unlike the OSX expose); to limit to windows in the current Space only, use `:trackSpaces(true)`
 ---   * The default windowfilter (or an unmodified copy) will not track hidden windows; to let the expose instance also manage hidden windows,
 ---     use `:setDefaultFilter()` and/or other appropriate application-specific visiblity rules
-function expose.new(wf)
-  if wf==nil then wf=windowfilter.default end
-  if type(wf)~='table' or type(wf.isWindowAllowed)~='function' then
-    error('windowfilter must be nil or an hs.windowfilter object')
-  end
-  --  wf:keepActive()
+function expose.new(wf,...)
   local dock = hs.execute'defaults read com.apple.dock "orientation"'
-  return setmetatable({wf=wf,dock=dock:sub(1,-2)},{__index=expose})
+  local o = setmetatable({dock=dock:sub(1,-2)},{__index=expose})
+  if wf==nil then log.i('New expose instance, using default windowfilter') o.wf=windowfilter.default
+  elseif type(wf)=='table' and type(wf.isWindowAllowed)=='function' then
+    log.i('New expose instance, using windowfilter instance') o.wf=wf
+  else log.i('New expose instance, creating windowfilter') o.wf=windowfilter.new(wf,...)
+    --    error('windowfilter must be nil or an hs.windowfilter object')
+  end
+  o.wf:keepActive()
+  return o
 end
 
 return expose
