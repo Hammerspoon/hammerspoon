@@ -684,6 +684,43 @@ static int menubar_returnToMenuBar(lua_State *L) {
     return 1 ;
 }
 
+/// hs.menubar:title() -> string
+/// Method
+/// Returns the current title of the menubar item object.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the menubar item title, or an empty string, if there isn't one.
+static int menubarGetTitle(lua_State *L) {
+    menubaritem_t *menuBarItem     = get_item_arg(L, 1);
+
+    lua_pushstring(L, [[(__bridge NSStatusItem*)menuBarItem->menuBarItemObject title] UTF8String]) ;
+    return 1 ;
+}
+
+/// hs.menubar:icon() -> hs.image object
+/// Method
+/// Returns the current icon of the menubar item object.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the menubar item icon as an hs.image object, or nil, if there isn't one.
+static int menubarGetIcon(lua_State *L) {
+    menubaritem_t *menuBarItem     = get_item_arg(L, 1);
+
+    NSImage* theImage = [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject image] ;
+
+    if (theImage)
+        store_image_as_hsimage(L, theImage);
+    else
+        lua_pushnil(L) ;
+
+    return 1 ;
+}
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
@@ -722,6 +759,8 @@ static const luaL_Reg menubarlib[] = {
 static const luaL_Reg menubar_metalib[] = {
     {"setTitle",          menubarSetTitle},
     {"_setIcon",          menubarSetIcon},
+    {"title",             menubarGetTitle},
+    {"icon",              menubarGetIcon},
     {"setTooltip",        menubarSetTooltip},
     {"setClickCallback",  menubarSetClickCallback},
     {"setMenu",           menubarSetMenu},
