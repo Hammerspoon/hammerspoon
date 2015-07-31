@@ -248,7 +248,7 @@ local ui = {
 ---
 --- The following variables must be booleans:
 ---  * `hs.expose.ui.showExtraKeys = true` -- show non-hint keybindings at the top of the screen
-expose.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v end})
+expose.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v end,__index=ui})
 
 local function getHints(screens)
   local function tlen(t)
