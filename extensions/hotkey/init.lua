@@ -216,9 +216,24 @@ function hotkey.deleteAll(mods,key)
   hotkeys[idx]=nil
 end
 
---- hs.hotkey.showHotkeys(mods, key)
+--- hs.hotkey.getHotkeys() -> table
 --- Function
---- Creates (and enables) a hotkey that shows all currently enabled hotkeys while pressed
+--- Returns a list of all currently active hotkeys
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table containing the hotkeys that are active, i.e. enabled and not "shadowed", in the current context
+---    (usually, the global hotkey context, but it could be a modal hotkey context). Every element in the list
+---    is a table with two fields:
+---    * idx - a string describing the keyboard combination for the hotkey
+---    * msg - the hotkey message, if provided when the hotkey was created (prefixed with the keyboard combination)
+
+--- hs.hotkey.showHotkeys(mods, key) -> hs.hotkey
+--- Function
+--- Creates (and enables) a hotkey that shows all currently active hotkeys (i.e. enabled and not "shadowed"
+--- in the current context) while pressed
 ---
 --- Parameters:
 ---  * mods - (optional) A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
@@ -232,7 +247,7 @@ end
 ---  * The new `hs.hotkey` object
 
 local helpHotkey
-local function showHelp()
+function hotkey.getHotkeys()
   local t={}
   for idx,hks in pairs(hotkeys) do
     for i=#hks,1,-1 do
@@ -243,6 +258,11 @@ local function showHelp()
     end
   end
   table.sort(t,function(a,b)if#a.idx==#b.idx then return a.idx<b.idx else return #a.idx<#b.idx end end)
+  return t
+end
+
+local function showHelp()
+  local t=hotkey.getHotkeys()
   local s=''
   for _,hk in ipairs(t) do s=s..hk.msg..'\n' end
   hs.alert(string.sub(s,1,-2),3600)
