@@ -6,6 +6,22 @@
 --- or #hammerspoon on irc.freenode.net)
 ---
 --- Filter windows by application, role, and/or title, and easily subscribe to events on these windows
+---
+--- Usage:
+--- -- alter the default windowfilter
+--- hs.windowfilter.default:setAppFilter('My IDE',1) -- ignore no-title windows (e.g. autocomplete suggestions) in My IDE
+---
+--- -- set the exact scope of what you're interested in
+--- wf_terminal = hs.windowfilter.new{'Terminal','iTerm2'} -- all visible terminal windows
+--- wf_timewaster = hs.windowfilter.new(false):setAppFilter('Safari','reddit') -- any Safari windows with "reddit" anywhere in the title
+--- wf_bigwindows = hs.windowfilter.new(function(w)return w:frame().w*w:frame().h>3000000 end) -- only very large windows
+--- wf_notif = hs.windowfilter.new(false):setAppFilter('Notification Center',nil,nil,{'AXNotificationCenterAlert'}) -- notification center alerts
+---
+--- -- subscribe to events
+--- wf_terminal:subscribe(hs.windowfilter.windowFocused,some_fn) -- run a function whenever a terminal window is focused
+--- wf_timewaster:notify(function(wins)if #wins>0 then startAnnoyingMe() else stopAnnoyingMe() end end) -- fight procrastination :)
+
+
 
 -- The pure filtering part alone should fulfill a lot of use cases
 -- * The root and default filters should be quite handy for users; the user is able to customize both, but ideally
@@ -136,7 +152,7 @@ local wf={} -- class
 ---  * window - an `hs.window` object to check
 ---
 --- Returns:
----  * - `true` if the window is allowed by the windowfilter; `false` otherwise
+---  * `true` if the window is allowed by the windowfilter; `false` otherwise
 
 function wf:isWindowAllowed(window,appname)
   local function matchTitle(titles,t)
@@ -273,7 +289,7 @@ end
 ---    * if `nil`, this rule is ignored
 ---  * allowRoles
 ---    * if a string or table of strings, only allow these window roles as per `hs.window:subrole()`
----    * if the special string '*', this rule is ignored (i.e. all window roles, including empty ones, are allowed)
+---    * if the special string `'*'`, this rule is ignored (i.e. all window roles, including empty ones, are allowed)
 ---    * if `nil`, use the default allowed roles (defined in `hs.window.allowedWindowRoles`)
 ---  * fullscreen - if `true`, only allow fullscreen windows; if `false`, reject fullscreen windows; if `nil`, this rule is ignored
 ---  * visible - if `true`, only allow visible windows; if `false`, reject visible windows; if `nil`, this rule is ignored
@@ -353,14 +369,16 @@ end
 --- Creates a new hs.windowfilter instance
 ---
 --- Parameters:
----  * fn - if `nil`, returns a copy of the default windowfilter; you can then further restrict or expand it
----       - if `true`, returns an empty windowfilter that allows every window
----       - if `false`, returns a windowfilter with a default rule to reject every window
----       - if a string or table of strings, returns a copy of the default windowfilter that only allows the specified apps
----       - otherwise it must be a function that accepts an `hs.window` object and returns `true` if the window is allowed or `false` otherwise; this way you can define a fully custom windowfilter
----
+---  * fn
+---    - if `nil`, returns a copy of the default windowfilter; you can then further restrict or expand it
+---    - if `true`, returns an empty windowfilter that allows every window
+---    - if `false`, returns a windowfilter with a default rule to reject every window
+---    - if a string or table of strings, returns a copy of the default windowfilter that only allows the specified apps
+---    - otherwise it must be a function that accepts an `hs.window` object and returns `true` if the window is allowed
+---      or `false` otherwise; this way you can define a fully custom windowfilter
 ---  * logname - (optional) name of the `hs.logger` instance for the new windowfilter; if omitted, the class logger will be used
 ---  * loglevel - (optional) log level for the `hs.logger` instance for the new windowfilter
+---
 --- Returns:
 ---  * a new windowfilter instance
 
@@ -414,9 +432,9 @@ end
 
 --- hs.windowfilter.default
 --- Constant
---- The default windowfilter; it filters apps whose windows are transient in nature so that you're unlikely
---- (and often unable) to do anything with them, such as launchers, menulets, preference pane apps, screensavers, etc.
---- It also filters nonstandard and invisible windows.
+--- The default windowfilter; it filters apps whose windows are transient in nature so that you're unlikely (and often
+--- unable) to do anything with them, such as launchers, menulets, preference pane apps, screensavers, etc. It also
+--- filters nonstandard and invisible windows.
 ---
 --- Notes:
 ---  * While you can customize the default windowfilter, it's usually advisable to make your customizations on a local copy via `mywf=hs.windowfilter.new()`;
@@ -427,7 +445,7 @@ end
 ---  * If you still want to alter the default windowfilter:
 ---    * to list the known exclusions: `hs.windowfilter.setLogLevel('debug')`; the console will log them upon instantiating the default windowfilter
 ---    * to add an exclusion: `hs.windowfilter.default:rejectApp'Cool New Launcher'`
----    * to add an app-specific rule: `hs.windowfilter.default:setAppFilter('My IDE',1) -- ignore tooltips/code completion (empty title) in My IDE`
+---    * to add an app-specific rule: `hs.windowfilter.default:setAppFilter('My IDE',1)`; ignore tooltips/code completion (empty title) in My IDE
 ---    * to remove an exclusion (e.g. if you want to have access to Spotlight windows): `hs.windowfilter.default:allowApp'Spotlight'`;
 ---      for specialized uses you can make a specific windowfilter with `myfilter=hs.windowfilter.new'Spotlight'`
 
@@ -463,51 +481,53 @@ local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
 for k in pairs(events) do windowfilter[k]=k end -- expose events
 --- hs.windowfilter.windowCreated
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a new window was created
+--- Event for `hs.windowfilter:subscribe()`: a new window was created
 
 --- hs.windowfilter.windowDestroyed
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window was destroyed
+--- Event for `hs.windowfilter:subscribe()`: a window was destroyed
 
 --- hs.windowfilter.windowMoved
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window was moved or resized, including toggling fullscreen/maximize
+--- Event for `hs.windowfilter:subscribe()`: a window was moved or resized, including toggling fullscreen/maximize
 
 --- hs.windowfilter.windowMinimized
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window was minimized
+--- Event for `hs.windowfilter:subscribe()`: a window was minimized
 
 --- hs.windowfilter.windowUnminimized
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window was unminimized
+--- Event for `hs.windowfilter:subscribe()`: a window was unminimized
 
 --- hs.windowfilter.windowFullscreened
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window was expanded to full screen
+--- Event for `hs.windowfilter:subscribe()`: a window was expanded to full screen
 
 --- hs.windowfilter.windowUnfullscreened
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window was reverted back from full screen
+--- Event for `hs.windowfilter:subscribe()`: a window was reverted back from full screen
 
 --- hs.windowfilter.windowHidden
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window is no longer visible due to it being minimized, closed, or its application being hidden (e.g. via cmd-h) or closed
+--- Event for `hs.windowfilter:subscribe()`: a window is no longer visible due to it being minimized, closed,
+--- its application being hidden (e.g. via cmd-h) or closed, or in a different Mission Control Space (only for
+--- windowfilters with `:trackSpaces(true)`)
 
 --- hs.windowfilter.windowShown
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window has became visible (after being hidden, or when created)
+--- Event for `hs.windowfilter:subscribe()`: a window has became visible (after being hidden, or when created)
 
 --- hs.windowfilter.windowFocused
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window received focus
+--- Event for `hs.windowfilter:subscribe()`: a window received focus
 
 --- hs.windowfilter.windowUnfocused
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window lost focus
+--- Event for `hs.windowfilter:subscribe()`: a window lost focus
 
 --- hs.windowfilter.windowTitleChanged
 --- Constant
---- Event for `hs.windowfilter:subscribe`: a window's title changed
+--- Event for `hs.windowfilter:subscribe()`: a window's title changed
 
 activeFilters = {} -- active wf instances
 apps = {} -- all GUI apps
@@ -924,15 +944,15 @@ end
 --- Parameters:
 ---  * track - boolean, if `true` this windowfilter will keep track of which windows are in the current Space
 ---    and which are not: when the user switches to a different Space, windows in the previous space will emit an
----    `hs.windowfilter.windowHidden` event, and windows in the current space will emit an `hs.windowfilter.windowShown` event.
----    This is reflected in the visibility rules for this windowfilter: for example if it's set to only allow visible windows
+---    `hs.windowfilter.windowHidden` event, and windows in the current space will emit an `hs.windowfilter.windowShown`
+---    event. This is reflected in the visibility rules for this windowfilter: for example if it's set to only allow visible windows
 ---    (which is the default behaviour), windows that only exist in a given Space will be filtered out
 ---    or allowed again when the user switches (respectively) away from or back to that Space.
---- * allow - (optional) string; only valid if `track` is true. If "current" (default), the windowfilter will only allow
----   windows in the current Space, regardless of its visibility rules; if "all", the windowfilter will allow
----   all windows (but the visibility rules still apply, see above); if "others", the windowfilter will only allow windows
----   in any Space other than the current one (you need to set the visibility rules to allow invisible windows, or no windows
----   will ever be allowed).
+---  * allow - (optional) string, only valid if `track` is true; if `"current"` (default), the windowfilter will only allow
+---    windows in the current Space, regardless of its visibility rules; if `"all"`, the windowfilter will allow
+---    all windows (but the visibility rules still apply, see above); if `"others"`, the windowfilter will only allow windows
+---    in any Space other than the current one (you need to set the visibility rules to allow invisible windows, or no windows
+---    will ever be allowed).
 ---
 --- Returns:
 ---  * the `hs.windowfilter` object for method chaining
@@ -942,7 +962,7 @@ end
 ---    (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
 function wf:trackSpaces(track, allow)
   self.currentSpaceWindows = track and {} or nil
-  if allow=='all' then self.spaceFilter = nil
+  if not track or allow=='all' then self.spaceFilter = nil
   elseif allow=='others' then self.spaceFilter = false
   else self.spaceFilter = true end
   trackSpacesFilters[self] = track and true or nil
@@ -955,17 +975,17 @@ end
 local spacesDone = {}
 --- hs.windowfilter.switchedToSpace(space)
 --- Function
---- Callback to inform all windowfilters that the user initiated a switch to a (numbered) Mission Control Space.
---- (See `hs.windowfilter.forceRefreshOnSpaceChange` for an overview of Spaces limitations in Hammerspoon.)
---- If you often (or always) change Space via the "numbered" Mission Control keyboard shortcuts (by default, `ctrl-1` etc.),
---- you can call this function from your `init.lua` when intercepting these shortcuts; for example:
+--- Callback to inform all windowfilters that the user initiated a switch to a (numbered) Mission Control Space. (See
+--- `hs.windowfilter.forceRefreshOnSpaceChange` for an overview of Spaces limitations in Hammerspoon.) If you
+--- often (or always) change Space via the "numbered" Mission Control keyboard shortcuts (by default, `ctrl-1` etc.), you
+--- can call this function from your `init.lua` when intercepting these shortcuts; for example:
 --- ```
 --- hs.hotkey.bind({'ctrl','1',function()hs.windowfilter.switchedToSpace(1)end)
 --- hs.hotkey.bind({'ctrl','2',function()hs.windowfilter.switchedToSpace(2)end)
 --- -- etc.
 --- ```
---- Using this callback results in slightly better performance than setting `forceRefreshOnSpaceChange` to `true`,
---- since already visited Spaces are remembered and no refreshing is necessary when switching back to those.
+--- Using this callback results in slightly better performance than setting `forceRefreshOnSpaceChange` to `true`, since
+--- already visited Spaces are remembered and no refreshing is necessary when switching back to those.
 ---
 --- Parameters:
 ---  * space - the Space number the user is switching to
@@ -995,11 +1015,11 @@ end
 --- Variable
 --- Tells the windowfilters whether to refresh all windows when the user switches to a different Mission Control Space.
 ---
---- Due to OS X limitations Hammerspoon cannot query for windows in Spaces other than the current one;
+--- Due to OS X limitations Hammerspoon cannot directly query for windows in Spaces other than the current one;
 --- therefore when a windowfilter is initially instantiated, it doesn't know about many of these windows.
 ---
 --- If this variable is set to `true`, windowfilters will re-query applications for all their windows whenever a Space change
---- by the user is detected, therefore any existing windows that were not yet being tracked will become known at that point;
+--- by the user is detected, therefore any existing windows in that Space that were not yet being tracked will become known at that point;
 --- if `false` (the default) this won't happen, but the windowfilters will *eventually* learn about these windows
 --- anyway, as soon as they're interacted with.
 ---
@@ -1155,7 +1175,7 @@ end
 ---  * the `hs.windowfilter` object for method chaining
 ---
 --- Notes:
----  * If `fn` is `nil`, notifications for this windowfilter will stop.
+---  * If `fn` is nil or omitted, notifications for this windowfilter will stop.
 function wf:notify(fn)
   if fn~=nil and type(fn)~='function' then error('fn must be a function or nil',2) end
   self.notifyfn = fn
@@ -1169,9 +1189,9 @@ end
 ---
 --- Parameters:
 ---  * event - string or table of strings, the event(s) to subscribe to (see the `hs.windowfilter` constants)
----  * fn - function or table of functions - the callback(s) to add for the event(s); each will be passed two parameters:
----          * a `hs.window` object referring to the event's window
----          * a string containing the application name (`window:application():title()`) for convenience
+---  * fn - function or table of functions, the callback(s) to add for the event(s); each will be passed two parameters
+---    * a `hs.window` object referring to the event's window
+---    * a string containing the application name (`window:application():title()`) for convenience
 ---  * immediate - if `true`, call all the callbacks immediately for windows that satisfy the event(s) criteria
 ---
 --- Returns:
@@ -1231,8 +1251,8 @@ end
 ---
 --- Notes:
 ---  * If calling this on the default (or any other shared use) windowfilter, do not pass events, as that would remove
----    *all* the callbacks for the events including ones subscribed elsewhere that you might not be aware of. Instead keep
----    references to your functions and pass in those.
+---    *all* the callbacks for the events including ones subscribed elsewhere that you might not be aware of. You should
+---    instead keep references to your functions and pass in those.
 function wf:unsubscribe(fn)
   if type(fn)=='string' or type(fn)=='function' then fn={fn} end--return unsubscribe(self,fn)
   if type(fn)~='table' then error('fn must be a function, string, or a table of functions or strings',2) end
