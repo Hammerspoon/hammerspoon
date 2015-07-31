@@ -16,7 +16,9 @@
 ---  * a cell {x = 1, y = 0, w = 1, h = 1} will be in the upper-right corner
 ---  * and so on...
 ---
---- Additionally, a modal keyboard driven interface for interactive resizing is provided via `hs.grid.show()`
+--- Additionally, a modal keyboard driven interface for interactive resizing is provided via `hs.grid.show()`;
+--- the grid will be overlaid on the focused window's screen with keyboard hints to select the corner cells for
+--- the desired size/position; you can also use the arrow keys to move the window onto adjacent screens.
 
 local fnutils = require "hs.fnutils"
 local window = require "hs.window"
@@ -26,7 +28,7 @@ local newmodal = require'hs.hotkey'.modal.new
 local log = require'hs.logger'.new('grid')
 
 local ipairs,pairs,min,max,floor,fmod = ipairs,pairs,math.min,math.max,math.floor,math.fmod
-local sformat,smatch,type,tonumber,tostring,tinsert = string.format,string.match,type,tonumber,tostring,table.insert
+local sformat,smatch,ssub,ulen,type,tonumber,tostring,tinsert = string.format,string.match,string.sub,utf8.len,type,tonumber,tostring,table.insert
 local setmetatable,rawget,rawset=setmetatable,rawget,rawset
 
 
@@ -579,15 +581,15 @@ end
 
 -- modal grid stuff below
 
-grid.HINTS={{'f1','f2','f3','f4','f5','f6','f7','f8'},
-  {'1','2','3','4','5','6','7','8'},
-  {'Q','W','E','R','T','Y','U','I'},
-  {'A','S','D','F','G','H','J','K'},
-  {'Z','X','C','V','B','N','M',','}
+grid.HINTS={{'f1','f2','f3','f4','f5','f6','f7','f8','f9','f10'},
+  {'1','2','3','4','5','6','7','8','9','0'},
+  {'Q','W','E','R','T','Y','U','I','O','P'},
+  {'A','S','D','F','G','H','J','K','L',';'},
+  {'Z','X','C','V','B','N','M',',','.','/'}
 }
 
-local HINTS_ROWS = {{4},{3,4},{3,4,5},{2,3,4,5},{1,2,3,4,5}}
---TODO (unlikely) expose this to allow crazy custom bindings (e.g. rotated 90 degrees on the keyboard for portrait screens?)
+local _HINTROWS,_HINTS = {{4},{3,4},{3,4,5},{2,3,4,5},{1,2,3,4,5},{1,2,3,9,4,5},{1,2,8,3,9,4,5},{1,2,8,3,9,4,10,5},{1,7,2,8,3,9,4,10,5},{1,6,2,7,3,8,9,4,10,5}}
+-- 10x10 grid should be enough for anybody
 
 local function getColor(t)
   if t.red then return t
@@ -599,6 +601,7 @@ end
 --- Allows customization of the modal resizing grid user interface
 ---
 --- This table contains variables that you can change to customize the look of the modal resizing grid.
+--- The default values are shown in the right hand side of the assignements below.
 ---
 --- To represent color values, you can use:
 ---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}
@@ -606,23 +609,23 @@ end
 --- where redN, greenN etc. are the desired value for the color component between 0.0 and 1.0
 ---
 --- The following variables must be color values:
----  * hs.grid.ui.textColor
----  * hs.grid.ui.cellColor
----  * hs.grid.ui.cellStrokeColor
----  * hs.grid.ui.selectedColor - for the first selected cell during a modal resize
----  * hs.grid.ui.highlightColor - to highlight the focused window behind the grid
----  * hs.grid.ui.highlightStrokeColor
+---  * `hs.grid.ui.textColor = {1,1,1}`
+---  * `hs.grid.ui.cellColor = {0,0,0,0.25}`
+---  * `hs.grid.ui.cellStrokeColor = {0,0,0}`
+---  * `hs.grid.ui.selectedColor = {0.2,0.7,0,0.4}` -- for the first selected cell during a modal resize
+---  * `hs.grid.ui.highlightColor = {0.8,0.8,0,0.5}` -- to highlight the focused window behind the grid
+---  * `hs.grid.ui.highlightStrokeColor = {0.8,0.8,0,1}`
 ---
 --- The following variables must be numbers (in screen points):
----  * hs.grid.ui.textSize
----  * hs.grid.ui.cellStrokeWidth
----  * hs.grid.ui.highlightStrokeWidth
+---  * `hs.grid.ui.textSize = 200`
+---  * `hs.grid.ui.cellStrokeWidth = 5`
+---  * `hs.grid.ui.highlightStrokeWidth = 30`
 ---
 --- The following variables must be strings:
----  * hs.grid.ui.fontName
+---  * `hs.grid.ui.fontName = 'Lucida Grande'`
 ---
 --- The following variables must be booleans:
----  * hs.grid.ui.showExtraKeys - if true (default), show non-grid keybindings in the center of the grid
+---  * `hs.grid.ui.showExtraKeys = true` -- show non-grid keybindings in the center of the grid
 local ui = {
   textColor={1,1,1},
   textSize=200,
@@ -649,13 +652,26 @@ deleteUI=function()
     end
   end
   uielements = nil
+  _HINTS=nil
 end
 
 grid.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v deleteUI()end})
+local function makeHints() -- quick hack to double up rows (for portrait screens mostly)
+  if _HINTS then return end
+  _HINTS={}
+  local rows=#grid.HINTS
+  for i,v in ipairs(grid.HINTS) do _HINTS[i]=v _HINTS[i+rows]={} end -- double up the hints
+  for y=1,rows do
+    for x,h in ipairs(_HINTS[y]) do
+      _HINTS[y+rows][x] = '⇧'.._HINTS[y][x] -- add shift
+    end
+  end
+end
 
 local function makeUI()
   local ts,tsh=ui.textSize,ui.textSize*0.5
   deleteUI()
+  makeHints()
   uielements = {}
   local screens = screen.allScreens()
   local function dist(i,w1,w2) return round((i-1)/w1*w2)+1 end
@@ -681,7 +697,7 @@ local function makeUI()
       howto={rect=howtorect,text=howtotext},
       hints={}}
     -- create the ui for cells
-    local hintsw,hintsh = #grid.HINTS[1],#grid.HINTS
+    local hintsw,hintsh = #_HINTS[1],#_HINTS
     for hx=min(hintsw,w),1,-1 do
       local cx,cx2 = hx,hx+1
       -- allow for grid width > # available hint columns
@@ -697,8 +713,9 @@ local function makeUI()
         rect:setFill(true) rect:setFillColor(getColor(ui.cellColor))
         rect:setStroke(true) rect:setStrokeColor(getColor(ui.cellStrokeColor)) rect:setStrokeWidth(ui.cellStrokeWidth)
         elem.rect = rect
-        elem.hint = grid.HINTS[HINTS_ROWS[min(h,hintsh)][hy]][hx]
-        local text=drawing.text({x=x+(x2-x)/2-tsh,y=y+(y2-y)/2-tsh,w=ts*1.2,h=ts*1.1},elem.hint)
+        elem.hint = _HINTS[_HINTROWS[min(h,hintsh)][hy]][hx]
+        local tw=ts*ulen(elem.hint)
+        local text=drawing.text({x=x+(x2-x)/2-tw/2,y=y+(y2-y)/2-tsh,w=tw,h=ts*1.1},elem.hint)
         text:setTextSize(ts) text:setTextFont(ui.fontName)
         text:setTextColor(getColor(ui.textColor))
         elem.text=text
@@ -800,9 +817,12 @@ local function _start()
       resizing:exit()
     end
   end
-  for _,row in ipairs(grid.HINTS) do
+  makeHints()
+  for _,row in ipairs(_HINTS) do
     for _,c in ipairs(row) do
-      resizing:bind({},c,function()hintPressed(c) end)
+      local l=ssub(c,-3,-3)=='f' and -3 or (ssub(c,-2,-2)=='f' and -2 or -1)
+      local mod,key=ssub(c,-20,l-1),ssub(c,l)
+      resizing:bind({mod},key,function()hintPressed(c) end)
     end
   end
   --TODO perhaps disable all other keyboard input?
