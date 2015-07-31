@@ -332,8 +332,8 @@ function wf:setAppFilter(appname,allowTitles,rejectTitles,allowRoles,fullscreen,
       logs=sformat('%sallowRoles=%s, ',logs,type(allowRoles)=='table' and '{...}' or allowRoles)
       app.roles=roles
     end
-    if fullscreen~=nil then app.fullscreen=fullscreen end
-    if visible~=nil then app.visible=visible end
+    if fullscreen~=nil then app.fullscreen=fullscreen logs=sformat('%sfullscreen=%s, ',logs,fullscreen) end
+    if visible~=nil then app.visible=visible logs=sformat('%svisible=%s',logs,visible) end
     self.apps[appname]=app
   end
   self.log.d(logs)
@@ -373,7 +373,7 @@ end
 ---    - if `nil`, returns a copy of the default windowfilter; you can then further restrict or expand it
 ---    - if `true`, returns an empty windowfilter that allows every window
 ---    - if `false`, returns a windowfilter with a default rule to reject every window
----    - if a string or table of strings, returns a copy of the default windowfilter that only allows the specified apps
+---    - if a string or table of strings, returns a windowfilter that only allows the specified apps
 ---    - otherwise it must be a function that accepts an `hs.window` object and returns `true` if the window is allowed
 ---      or `false` otherwise; this way you can define a fully custom windowfilter
 ---  * logname - (optional) name of the `hs.logger` instance for the new windowfilter; if omitted, the class logger will be used
@@ -392,37 +392,21 @@ function windowfilter.new(fn,logname,loglevel)
     return o
   elseif type(fn)=='string' then fn={fn}
   end
-  local isTable=type(fn)=='table'
-  if fn==nil or isTable then
-    --    for appname in pairs(windowfilter.ignoreAlways) do
-    --      o:rejectApp(appname)
-    --    end
+  --  local isTable=type(fn)=='table'
+  if fn==nil then
+    o.log.i('new windowfilter, default windowfilter copy')
     for _,appname in ipairs(SKIP_APPS_TRANSIENT_WINDOWS) do
       o:rejectApp(appname)
     end
-    if not isTable then
-      o.log.i('new windowfilter, default windowfilter copy')
-      --[[      for _,appname in ipairs(APPS_ALLOW_NONSTANDARD_WINDOWS) do
-        o:setAppFilter(appname,nil,nil,ALLOWED_NONSTANDARD_WINDOW_ROLES)
-      end
-      for _,appname in ipairs(APPS_SKIP_NO_TITLE) do
-        o:setAppFilter(appname,1)
-      end
---]]
-      o:setAppFilter('Hammerspoon',{'Preferences','Console'})
-      --      local fs,vis=false,true
-      --      if includeFullscreen then fs=nil end
-      --      if includeInvisible then vis=nil end
-      o:setDefaultFilter(nil,nil,nil,nil,true)
-    else
-      o.log.i('new windowfilter, reject all with exceptions')
-      for _,app in ipairs(fn) do
-        --        log.i('allow '..app)
-        --        o:setAppFilter(app,nil,nil,ALLOWED_NONSTANDARD_WINDOW_ROLES,nil,true)
-        o:allowApp(app)
-      end
-      o:setDefaultFilter(false)
+    o:setAppFilter('Hammerspoon',{'Preferences','Console'})
+    o:setDefaultFilter(nil,nil,nil,nil,true)
+    return o
+  elseif type(fn)=='table' then
+    o.log.i('new windowfilter, reject all with exceptions')
+    for _,app in ipairs(fn) do
+      o:allowApp(app)
     end
+    o:setDefaultFilter(false)
     return o
   elseif fn==true then o.log.i('new empty windowfilter') return o
   elseif fn==false then o.log.i('new windowfilter, reject all') o:setDefaultFilter(false)  return o
@@ -1170,16 +1154,18 @@ end
 ---  * fn - a function that should accept a list of windows (as per `hs.windowfilter:getWindows()`) as its single parameter; it will be called when:
 ---    * an allowed window is created or destroyed, and therefore added or removed from the list of allowed windows
 ---    * a previously allowed window is now filtered or vice versa (e.g. in consequence of a title change)
+---  * immediate - if `true`, call fn immediately
 ---
 --- Returns:
 ---  * the `hs.windowfilter` object for method chaining
 ---
 --- Notes:
 ---  * If `fn` is nil or omitted, notifications for this windowfilter will stop.
-function wf:notify(fn)
+function wf:notify(fn,immediate)
   if fn~=nil and type(fn)~='function' then error('fn must be a function or nil',2) end
   self.notifyfn = fn
   if fn then start(self) elseif not next(self.events) then self:pause() end
+  if fn and immediate then fn(self:getWindows()) end
   return self
 end
 
