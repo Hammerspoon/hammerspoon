@@ -681,6 +681,41 @@ static int window_snapshot(lua_State* L) {
     }
 }
 
+// Trying to make this as close to paste and apply as possible, so not all aspects may apply
+// to each module... you may still need to tweak for your specific module.
+
+static int userdata_tostring(lua_State* L) {
+
+// For older modules that don't use this macro, Change this:
+#ifndef USERDATA_TAG
+#define USERDATA_TAG "hs.window"
+#endif
+
+// can't assume, since some older modules and userdata share __index
+    void *self = lua_touserdata(L, 1) ;
+    if (self) {
+// Change these to get the desired title, if available, for your module:
+        AXUIElementRef win ;
+        win = get_window_arg(L, 1) ;
+        NSString* title = get_window_prop(win, NSAccessibilityTitleAttribute, @"");
+// Use this instead, if you always want the title portion empty for your module
+//        NSString* title = @"" ;
+
+// Common code begins here:
+
+       lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
+    } else {
+// For modules which share the same __index for the module table and the userdata objects, this replicates
+// current default, which treats the module as a table when checking for __tostring.  You could also put a fancier
+// string here for your module and set userdata_tostring as the module's __tostring as well...
+//
+// See lauxlib.c -- luaL_tolstring would invoke __tostring and loop, so let's
+// use its output for tables (the "default:" case in luaL_tolstring's switch)
+        lua_pushfstring(L, "%s: %p", luaL_typename(L, 1), lua_topointer(L, 1));
+    }
+    return 1 ;
+}
+
 static const luaL_Reg windowlib[] = {
     {"focusedWindow", window_focusedwindow},
     {"_orderedwinids", window__orderedwinids},
@@ -728,6 +763,9 @@ int luaopen_hs_window_internal(lua_State* L) {
         lua_getfield(L, -1, "__eq");
         lua_remove(L, -2);
         lua_setfield(L, -2, "__eq");
+
+        lua_pushcfunction(L, userdata_tostring) ;
+        lua_setfield(L, -2, "__tostring") ;
 
         lua_pushcfunction(L, window_gc);
         lua_setfield(L, -2, "__gc");

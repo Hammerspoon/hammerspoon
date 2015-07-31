@@ -709,7 +709,7 @@ static int menubaritem_gc(lua_State *L) {
 static int userdata_tostring(lua_State* L) {
     NSString *title = [((__bridge NSStatusItem*)(get_item_arg(L, 1))->menuBarItemObject) title] ;
 
-    lua_pushstring(L, [[NSString stringWithFormat:@"%s:%@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
     return 1 ;
 }
 
