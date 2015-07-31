@@ -655,7 +655,7 @@ deleteUI=function()
   _HINTS=nil
 end
 
-grid.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v deleteUI()end})
+grid.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v deleteUI()end,__index=ui})
 local function makeHints() -- quick hack to double up rows (for portrait screens mostly)
   if _HINTS then return end
   _HINTS={}
