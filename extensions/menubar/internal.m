@@ -409,7 +409,6 @@ static int menubarSetTooltip(lua_State *L) {
 /// Notes:
 ///  * If a menu has been attached to the menubar item, this callback will never be called
 ///  * Has no affect on the display of a pop-up menu, but changes will be be in effect if hs.menubar:returnToMenuBar() is called on the menubaritem.
-///  * A menu which does not have a menu defined by hs.menubar:setMenu() cannot be rendered as a pop-up menu.
 static int menubarSetClickCallback(lua_State *L) {
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
@@ -573,7 +572,7 @@ static int menubar_delete(lua_State *L) {
 ///  * The menubaritem
 ///
 /// Notes:
-///  * This method only works with menubaritems which have a menu set by hs.menubar:setMenu().  Items which use hs.menubar:setClickCallback() cannot be rendered as pop-up menus.
+///  * Items which trigger hs.menubar:setClickCallback() will invoke the callback function, but we cannot control the positioning of any visual elements the function may create -- calling this method on such an object is the equivalent of invoking its callback function directly.
 ///
 ///  * This method is blocking -- Hammerspoon will be unable to respond to any other activity while the pop-up menu is being displayed.
 static int menubar_render(lua_State *L) {
@@ -604,18 +603,19 @@ static int menubar_render(lua_State *L) {
 
     if (!menu) {
 
-// // Used for testing, but inconsistent with the rest of hs.menubar's behavior for empty menus.
-//         menu = [[NSMenu alloc] init];
-//         [menu insertItemWithTitle:@"-- empty/deleted menu --"
-//                            action:nil
-//                     keyEquivalent:@""
-//                           atIndex:0];
-//         [[menu itemAtIndex:0] setEnabled:NO] ;
-
-        printToConsole(L, "-- Missing menu object for hs.menu.popupMenu()") ;
         if (menuBarItem->click_callback)
-            printToConsole(L, "-- setClickCallback menuitems cannot be rendered as a pop-up menu.") ;
+            [((__bridge HSMenubarItemClickDelegate *)menuBarItem->click_callback) click:0] ;
+        else {
+            printToConsole(L, "-- Missing menu object for hs.menu.popupMenu()") ;
 
+//     // Used for testing, but inconsistent with the rest of hs.menubar's behavior for empty menus.
+//             menu = [[NSMenu alloc] init];
+//             [menu insertItemWithTitle:@"-- empty/deleted menu --"
+//                                action:nil
+//                         keyEquivalent:@""
+//                               atIndex:0];
+//             [[menu itemAtIndex:0] setEnabled:NO] ;
+        }
         // Not an error, per se, so return expected value.
         lua_settop(L, 1) ;
         return 1 ;
@@ -684,6 +684,43 @@ static int menubar_returnToMenuBar(lua_State *L) {
     return 1 ;
 }
 
+/// hs.menubar:title() -> string
+/// Method
+/// Returns the current title of the menubar item object.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the menubar item title, or an empty string, if there isn't one.
+static int menubarGetTitle(lua_State *L) {
+    menubaritem_t *menuBarItem     = get_item_arg(L, 1);
+
+    lua_pushstring(L, [[(__bridge NSStatusItem*)menuBarItem->menuBarItemObject title] UTF8String]) ;
+    return 1 ;
+}
+
+/// hs.menubar:icon() -> hs.image object
+/// Method
+/// Returns the current icon of the menubar item object.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the menubar item icon as an hs.image object, or nil, if there isn't one.
+static int menubarGetIcon(lua_State *L) {
+    menubaritem_t *menuBarItem     = get_item_arg(L, 1);
+
+    NSImage* theImage = [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject image] ;
+
+    if (theImage)
+        store_image_as_hsimage(L, theImage);
+    else
+        lua_pushnil(L) ;
+
+    return 1 ;
+}
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
@@ -722,6 +759,8 @@ static const luaL_Reg menubarlib[] = {
 static const luaL_Reg menubar_metalib[] = {
     {"setTitle",          menubarSetTitle},
     {"_setIcon",          menubarSetIcon},
+    {"title",             menubarGetTitle},
+    {"icon",              menubarGetIcon},
     {"setTooltip",        menubarSetTooltip},
     {"setClickCallback",  menubarSetClickCallback},
     {"setMenu",           menubarSetMenu},
