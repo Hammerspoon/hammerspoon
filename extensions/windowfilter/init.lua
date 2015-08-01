@@ -978,7 +978,8 @@ local spacesDone = {}
 ---- * None
 ---
 --- Notes:
----  * Only use this function if "Displays have separate Spaces" is OFF in System Preferences>Mission Control
+---  * Only use this function if "Displays have separate Spaces" and "Automatically rearrange Spaces" are
+----   OFF in System Preferences>Mission Control
 ---  * Calling this function will set `hs.windowfilter.forceRefreshOnSpaceChange` to `false`
 function windowfilter.switchedToSpace(space,cb)
   windowfilter.forceRefreshOnSpaceChange = nil
