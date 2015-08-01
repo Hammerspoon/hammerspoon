@@ -150,6 +150,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             if (lua_istable(L, -1)) {
                 // Create the submenu, populate it and attach it to our current menu item
                 NSMenu *subMenu = [[NSMenu alloc] initWithTitle:@"HammerspoonSubMenu"];
+                [subMenu setAutoenablesItems:NO];
                 parse_table(L, lua_gettop(L), subMenu);
                 [menuItem setSubmenu:subMenu];
             }
