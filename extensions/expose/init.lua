@@ -13,8 +13,11 @@
 --- expose_browsers = hs.expose.new{'Safari','Google Chrome'} -- specialized expose for your dozens of browser windows :)
 ---
 --- -- then bind to a hotkey
---- hs.hotkey.bind('ctrl-cmd','e',function()expose:toggleShow()end)
-
+--- hs.hotkey.bind('ctrl-cmd','e','expose',function()expose:toggleShow()end)
+---
+--- -- alternatively, call .expose directly
+--- hs.hotkey.bind('ctrl-alt','e','expose',expose.expose)
+--- hs.hotkey.bind('ctrl-alt-shift','e','expose app',expose.exposeApplicationWindows)
 
 
 --TODO /// hs.drawing:setClickCallback(fn) -> drawingObject
@@ -24,11 +27,13 @@
 local expose={} --module
 
 
-local drawing=require'hs.drawing'
+local drawing,image=require'hs.drawing',require'hs.image'
 local windowfilter=require'hs.windowfilter'
 local window,screen=require'hs.window',require'hs.screen'
-local spaces=require'hs.spaces'
+local application,spaces=require'hs.application',require'hs.spaces'
 local eventtap=require'hs.eventtap'
+local execute,fnutils=hs.execute,require'hs.fnutils'
+
 local log=require'hs.logger'.new('expose')
 expose.setLogLevel=log.setLogLevel
 local newmodal=require'hs.hotkey'.modal.new
@@ -344,11 +349,9 @@ local function exitAll()
   for _,s in pairs(screens) do
     for _,w in ipairs(s) do
       if w.thumb then w.thumb:delete() end
-      if w.icon then w.icon:delete() end
-      if w.rect then w.rect:delete() end
-      if w.ratio then w.ratio:delete() end
-      w.highlight:delete()
-      w.hinttext:delete() w.hintrect:delete()
+      if w.icon then w.icon:delete() w.highlight:delete() w.hinttext:delete() w.hintrect:delete() end
+      --      if w.rect then w.rect:delete() end
+      --      if w.ratio then w.ratio:delete() end
     end
     s.bg:delete()
   end
@@ -430,19 +433,15 @@ local function spaceChanged()
   local tempinstance=activeInstance
   --  if tempinstance.wf.currentSpaceWindows then -- wf tracks spaces
   exitAll()
-  tempinstance:show()
-  --    windowfilter.switchedToSpace(space,function()tempinstance:expose()end)
-  --  end
+
+  --  if type(tempinstance)=='table' then tempinstance:show() end
+  return tempinstance()
+    --    windowfilter.switchedToSpace(space,function()tempinstance:expose()end)
+    --  end
 end
 local spacesWatcher = spaces.watcher.new(spaceChanged)
 spacesWatcher:start()
 
-function expose:toggleShow()
-  if activeInstance then return self:hide() else return self:show() end
-end
-function expose:hide()
-  if activeInstance then return exitAll() end
-end
 
 setThumb=function(w)
   w.thumb:setFrame(w.frame:tohs()):orderAbove()
@@ -454,58 +453,38 @@ setThumb=function(w)
   local ir={x=w.frame.x-hwidth/2-iconSize/2,y=w.frame.y-iconSize/2,w=iconSize,h=iconSize}
   w.hintrect:setFrame(br):orderAbove()
   w.hinttext:setFrame(tr):orderAbove()
-  w.icon:setFrame(ir):orderAbove()
+  w.icon:setFrame(w.appbundle and ir or {x=0,y=0,w=0,h=0}):orderAbove()
 end
 
---- hs.expose:show()
---- Method
---- Shows an expose-like screen with modal keyboard hints for switching to, closing or minimizing/unminimizing windows.
----
---- Parameters:
----  * None
----
---- Returns:
----  * None
----
---- Notes:
----  * Completing a hint will exit the expose and focus the selected window.
----  * Pressing esc will exit the expose and with no action taken.
----  * If shift is being held when a hint is completed (the background will be red), the selected
----    window will be closed. If it's the last window of an application, the application will be closed.
----  * If alt is being held when a hint is completed (the background will be blue), the selected
----    window will be minimized (if visible) or unminimized/unhidden (if minimized or hidden).
 
---- hs.expose:hide()
---- Function
---- Hides the expose, if visible, and exits the modal mode.
---- Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`.
----
---- Parameters:
----  * None
----
---- Returns:
----  * None
-
---- hs.expose:toggleShow()
---- Function
---- Toggles the expose - see `hs.expose:show()` and `hs.expose:hide()`
----
---- Parameters:
----  * None
----
---- Returns:
----  * None
-function expose:show(no_windowfilter,animate,iterations,alt_algo)
-  -- no_windowfilter is for masochists (or testers): don't bother
+local UNAVAILABLE=image.imageFromName'NSStopProgressTemplate'
+local function showExpose(wins,animate,iterations,alt_algo)
   -- animate is waaay to slow: don't bother
   -- alt_algo sometimes performs better in terms of coverage, but (in the last half-broken implementation) always reaches maxIterations
   -- alt_algo TL;DR: much slower, don't bother
-  if activeInstance then return end
   log.d('activated')
-  activeInstance=self
   screens={}
-  local mainscreen = screen.allScreens()[1]
-  local wins = no_windowfilter and window.allWindows() or self.wf:getWindows()
+  local hsscreens = screen.allScreens()
+  local mainscreen = hsscreens[1]
+  for _,s in ipairs(hsscreens) do
+    local id=s:id()
+    local frame=s:frame()
+    screens[id]={frame=frame,area=0,bg=drawing.rectangle(frame):setFill(true):setFillColor(getColor(ui.backgroundColor)):show()}
+  end
+  do
+    -- hidden windows strip
+    local invSize=ui.minimizedStripWidth
+    local msid=mainscreen:id()
+    local f=screens[msid].frame
+    local invf={x=f.x,y=f.y,w=f.w,h=f.h}
+    local dock = execute'defaults read com.apple.dock "orientation"':sub(1,-2)
+    if dock=='bottom' then f.h=f.h-invSize invf.y=f.y+f.h invf.h=invSize
+    elseif dock=='left' then f.w=f.w-invSize f.x=f.x+invSize invf.w=invSize
+    elseif dock=='right' then f.w=f.w-invSize invf.x=f.x+f.w invf.w=invSize end
+    screens.inv={area=0,frame=invf,bg=drawing.rectangle(invf):setFill(true):setFillColor(getColor(ui.minimizedStripBackgroundColor)):show()}
+    screens[msid].bg:setFrame(f)
+  end
+
   for i=#wins,1,-1 do
     local w = wins[i]
     local wid = w.id and w:id()
@@ -514,54 +493,33 @@ function expose:show(no_windowfilter,animate,iterations,alt_algo)
     local wsc = w.screen and w:screen()
     local scid = wsc and wsc:id()
     if not scid or not wid or not w:isVisible() then scid='inv' end
-    if not screens[scid] then
-      local frame = scid=='inv' and mainscreen:frame() or wsc:frame()
-      local bg
-      if scid~='inv' then
-        bg=drawing.rectangle(frame):setFill(true):setFillColor(getColor(ui.backgroundColor)):show()
-      end
-      screens[scid]={frame=frame,bg=bg,area=0}
-    end
     local frame=w:frame()
     screens[scid].area=screens[scid].area+frame.w*frame.h
     screens[scid][#screens[scid]+1] = {appname=appname,appbundle=appbundle,window=w,
       frame=rect.new(frame),originalFrame=frame,area=frame.w*frame.h,id=wid}
   end
-  local invSize=ui.minimizedStripWidth
-  do
-    local msid=mainscreen:id()
-    local f=screens[msid].frame
-    local invf={x=f.x,y=f.y,w=f.w,h=f.h}
-    if self.dock=='bottom' then f.h=f.h-invSize invf.y=f.y+f.h invf.h=invSize
-    elseif self.dock=='left' then f.w=f.w-invSize f.x=f.x+invSize invf.w=invSize
-    elseif self.dock=='right' then f.w=f.w-invSize invf.x=f.x+f.w invf.w=invSize end
-    screens.inv=screens.inv or {area=0}
-    screens.inv.frame=invf
-    screens[msid].bg:setFrame(f)
-    local bg=drawing.rectangle(invf):setFill(true):setFillColor(getColor(ui.minimizedStripBackgroundColor)):show()
-    screens.inv.bg=bg
-  end
   local hints=getHints(screens)
   for _,s in pairs(screens) do
     if animate then
       for _,w in ipairs(s) do
-        w.thumb = drawing.image(w.originalFrame,window.snapshotFromID(w.id)):show() --FIXME gh#413
+        w.thumb = drawing.image(w.originalFrame,window.snapshotForID(w.id)):show() --FIXME gh#413
       end
     end
     fitWindows(s,iterations or 200,animate and 0 or nil,alt_algo)
     for _,w in ipairs(s) do
-      --      if animate and w.thumb then w.thumb:delete() end
       if animate then
         w.thumb:setFrame(w.frame:tohs())
       else
-        w.thumb = drawing.image(w.frame:tohs(),window.snapshotFromID(w.id)) --FIXME gh#413
+        local thumb=w.id and window.snapshotForID(w.id)
+        w.thumb = drawing.image(w.frame:tohs(),thumb or UNAVAILABLE)
       end
       --      w.ratio=drawing.text(w.frame:tohs(),sformat('%d%%',w.frame.w*w.frame.h*100/w.area)):setTextColor{red=1,green=0,blue=0,alpha=1}:show()
       local f=w.frame:tohs()
       w.highlight=drawing.rectangle(f):setFill(true):setFillColor(getColor(ui.highlightColor)):setStrokeWidth(ui.strokeWidth):setStrokeColor(getColor(ui.highlightStrokeColor))
       w.hintrect=drawing.rectangle(f):setFill(true):setFillColor(getColor(ui.backgroundColor)):setStroke(false):setRoundedRectRadii(ui.textSize/4,ui.textSize/4)
       w.hinttext=drawing.text(f,w.hint):setTextColor(getColor(ui.textColor)):setTextSize(ui.textSize):setTextFont(ui.fontName)
-      w.icon = drawing.appImage(f,w.appbundle)
+      local icon=w.appbundle and image.imageFromAppBundle(w.appbundle)
+      w.icon = drawing.image(f,icon or UNAVAILABLE)
       setThumb(w)
       w.thumb:show() w.highlight:show() w.hintrect:show() w.hinttext:show() w.icon:show()
     end
@@ -577,6 +535,120 @@ function expose:show(no_windowfilter,animate,iterations,alt_algo)
     setMode('min',hasOnly(e:getFlags(),ui.minimizeModeModifier))
   end)
   tap:start()
+end
+
+--- hs.expose:toggleShow(applicationWindows)
+--- Function
+--- Toggles the expose - see `hs.expose:show()` and `hs.expose:hide()`
+---
+--- Parameters:
+---  * applicationWindows
+---
+--- Returns:
+---  * None
+function expose:toggleShow(currentApp)
+  if activeInstance then return self:hide() else return self:show(currentApp) end
+end
+--- hs.expose:hide()
+--- Function
+--- Hides the expose, if visible, and exits the modal mode.
+--- Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function expose:hide()
+  if activeInstance then return exitAll() end
+end
+--- hs.expose:show(applicationWindows)
+--- Method
+--- Shows an expose-like screen with modal keyboard hints for switching to, closing or minimizing/unminimizing windows.
+---
+--- Parameters:
+---  * applicationWindows - (optional) if true, only show windows of the active application (within the
+---   scope of the instance windowfilter); otherwise show all windows allowed by the instance windowfilter
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * Completing a hint will exit the expose and focus the selected window.
+---  * Pressing esc will exit the expose and with no action taken.
+---  * If shift is being held when a hint is completed (the background will be red), the selected
+---    window will be closed. If it's the last window of an application, the application will be closed.
+---  * If alt is being held when a hint is completed (the background will be blue), the selected
+---    window will be minimized (if visible) or unminimized/unhidden (if minimized or hidden).
+
+local function getApplicationWindows()
+  local a=application.frontmostApplication()
+  if not a then log.w('Cannot get active application') return end
+  return a:allWindows()
+end
+function expose:show(currentApp,...)
+  if activeInstance then return end
+  local wins=self.wf:getWindows()
+  if currentApp then
+    local allwins,appwins=wins,getApplicationWindows()
+    if not appwins then return end
+    wins={}
+    for _,w in ipairs(appwins) do
+      if fnutils.contains(allwins,w) then wins[#wins+1]=w end --FIXME probably requires window userdata 'recycling' (or at least __eq metamethod)
+    end
+  end
+  activeInstance=function()return self:show(currentApp)end
+  return showExpose(wins,...)
+end
+
+--- hs.expose.expose(windows)
+--- Function
+--- Shows an expose-like screen with modal keyboard hints for switching to, closing or minimizing/unminimizing windows.
+--- If an expose is already visible, calling this function will toggle it off.
+---
+--- Parameters:
+---  * windows - a list of windows to expose; if omitted or nil, `hs.window.allWindows()` will be used
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * Due to OS X limitations, this function cannot show hidden applications or windows across
+---    Mission Control Spaces; if you need these, you can create an instance with `hs.expose.new`
+---    (set the windowfilter for your needs) and then use `:show()`
+---  * Completing a hint will exit the expose and focus the selected window.
+---  * Pressing esc will exit the expose and with no action taken.
+---  * If shift is being held when a hint is completed (the background will be red), the selected
+---    window will be closed. If it's the last window of an application, the application will be closed.
+---  * If alt is being held when a hint is completed (the background will be blue), the selected
+---    window will be minimized (if visible) or unminimized/unhidden (if minimized or hidden).
+function expose.expose(wins,...)
+  if activeInstance then return exitAll() end
+  local origWins=wins
+  if not wins then wins=window.orderedWindows() end
+  if type(wins)~='table' then error('windows must be a table',2) end
+  activeInstance=function()return expose.expose(origWins)end
+  return showExpose(wins,...)
+end
+
+--- hs.expose.exposeApplicationWindows()
+--- Function
+--- Shows an expose for the windows of the active application.
+--- If an expose is already visible, calling this function will toggle it off.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is just a convenience wrapper for `hs.expose.expose(hs.window.focusedWindow():application():allWindows())`
+function expose.exposeApplicationWindows(...)
+  if activeInstance then return exitAll() end
+  activeInstance=function()return expose.exposeApplicationWindows()end
+  local wins=getApplicationWindows()
+  return wins and showExpose(wins,...)
 end
 
 --- hs.expose.new(windowfilter) -> hs.expose
@@ -598,13 +670,11 @@ end
 ---   * The default windowfilter (or an unmodified copy) will not track hidden windows; to let the expose instance also manage hidden windows,
 ---     use `:setDefaultFilter()` and/or other appropriate application-specific visiblity rules
 function expose.new(wf,...)
-  local dock = hs.execute'defaults read com.apple.dock "orientation"'
-  local o = setmetatable({dock=dock:sub(1,-2)},{__index=expose})
+  local o = setmetatable({},{__index=expose})
   if wf==nil then log.i('New expose instance, using default windowfilter') o.wf=windowfilter.default
   elseif type(wf)=='table' and type(wf.isWindowAllowed)=='function' then
     log.i('New expose instance, using windowfilter instance') o.wf=wf
   else log.i('New expose instance, creating windowfilter') o.wf=windowfilter.new(wf,...)
-    --    error('windowfilter must be nil or an hs.windowfilter object')
   end
   o.wf:keepActive()
   return o
