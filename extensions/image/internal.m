@@ -220,7 +220,7 @@ static int userdata_tostring(lua_State* L) {
     NSImage *testImage = get_image_from_hsimage(L, 1) ;
     NSString* theName = [testImage name] ;
 
-//     if (!theName) theName = @"--unnamed--" ;
+    if (!theName) theName = @"" ; // unlike some cases, [NSImage name] apparently returns an actual NULL instead of an empty string...
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
     return 1 ;
