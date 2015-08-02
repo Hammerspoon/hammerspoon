@@ -173,37 +173,6 @@ if autoload_extensions then
   })
 end
 
-local hscrash = require("hs.crash")
-rawrequire = require
-require = function(modulename)
-    local result = rawrequire(modulename)
-    pcall(function()
-            hscrash.crashLog("require('"..modulename.."')")
-            if string.sub(modulename, 1, 3) == "hs." then
-                -- Reasonably certain that we're dealing with a Hammerspoon extension
-                local extname = string.sub(modulename, 4, -1)
-                for k,v in ipairs(hscrash.dumpCLIBS()) do
-                    if string.find(v, extname) then
-                        hscrash.crashLog("  Candidate CLIBS match: "..v)
-                    end
-                end
-            end
-            if string.sub(modulename, 1, 8) == "mjolnir." then
-                -- Reasonably certain that we're dealing with a Mjolnir module
-                local mjolnirmod = string.sub(modulename, 9, -1)
-                local mjolnirrep = {"application", "hotkey", "screen", "geometry", "fnutils", "keycodes", "alert", "cmsj.appfinder", "_asm.ipc", "_asm.modal_hotkey", "_asm.settings", "7bits.mjomatic", "_asm.eventtap.event", "_asm.timer", "_asm.pathwatcher", "_asm.eventtap", "_asm.notify", "lb.itunes", "_asm.utf8_53", "cmsj.caffeinate", "lb.spotify", "_asm.sys.mouse", "_asm.sys.battery", "_asm.ui.sound", "_asm.data.base64", "_asm.data.json"}
-                for _,v in pairs(mjolnirrep) do
-                    if v == mjolnirmod then
-                        hscrash.crashKV("MjolnirModuleLoaded", "YES")
-                        break
-                    end
-                end
-            end
-          end)
-    return result
-end
-hscrash.crashLog("Loaded from: "..modpath)
-
 --- hs.dockIcon([state]) -> bool
 --- Function
 --- Set or display whether or not the Hammerspoon dock icon is visible.
@@ -215,7 +184,7 @@ hscrash.crashLog("Loaded from: "..modpath)
 ---  * True if the icon is currently set (or has just been) to be visible or False if it is not.
 ---
 --- Notes:
----  * This function is a wrapper to similar functions found in the `hs.dockicon` module, but is provided here to provide a similiar interface to the functionality of `hs.menuIcon()`.
+---  * This function is a wrapper to functions found in the `hs.dockicon` module, but is provided here to provide an interface consistent with other selectable preference items.
 hs.dockIcon = function(value)
     local hsdi = require("hs.dockicon")
     if type(value) == "boolean" then
@@ -254,6 +223,37 @@ if not hasinitfile then
   print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
   return runstring
 end
+
+local hscrash = require("hs.crash")
+rawrequire = require
+require = function(modulename)
+    local result = rawrequire(modulename)
+    pcall(function()
+            hscrash.crashLog("require('"..modulename.."')")
+            if string.sub(modulename, 1, 3) == "hs." then
+                -- Reasonably certain that we're dealing with a Hammerspoon extension
+                local extname = string.sub(modulename, 4, -1)
+                for k,v in ipairs(hscrash.dumpCLIBS()) do
+                    if string.find(v, extname) then
+                        hscrash.crashLog("  Candidate CLIBS match: "..v)
+                    end
+                end
+            end
+            if string.sub(modulename, 1, 8) == "mjolnir." then
+                -- Reasonably certain that we're dealing with a Mjolnir module
+                local mjolnirmod = string.sub(modulename, 9, -1)
+                local mjolnirrep = {"application", "hotkey", "screen", "geometry", "fnutils", "keycodes", "alert", "cmsj.appfinder", "_asm.ipc", "_asm.modal_hotkey", "_asm.settings", "7bits.mjomatic", "_asm.eventtap.event", "_asm.timer", "_asm.pathwatcher", "_asm.eventtap", "_asm.notify", "lb.itunes", "_asm.utf8_53", "cmsj.caffeinate", "lb.spotify", "_asm.sys.mouse", "_asm.sys.battery", "_asm.ui.sound", "_asm.data.base64", "_asm.data.json"}
+                for _,v in pairs(mjolnirrep) do
+                    if v == mjolnirmod then
+                        hscrash.crashKV("MjolnirModuleLoaded", "YES")
+                        break
+                    end
+                end
+            end
+          end)
+    return result
+end
+hscrash.crashLog("Loaded from: "..modpath)
 
 print("-- Loading " .. prettypath)
 local fn, err = loadfile(fullpath)

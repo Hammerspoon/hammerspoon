@@ -33,6 +33,19 @@
     return s;
 }
 
+- (void)updateFeedbackDisplay:(NSNotification __unused *)notification {
+    [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
+    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
+    [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
+    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
+    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSOnState : NSOffState];
+#ifndef CRASHLYTICS_API_KEY
+    [self.uploadCrashDataCheckbox setState:NSOffState];
+    [self.uploadCrashDataCheckbox setEnabled:NO];
+#endif
+
+}
+
 - (void) showWindow:(id)sender {
     if (![[self window] isVisible])
         [[self window] center];
@@ -60,19 +73,11 @@
     [self.uploadCrashDataCheckbox setEnabled:NO];
 #endif
 
-}
-
-- (void)updateFeedbackDisplay {
-
-    [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
-    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
-    [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
-    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
-    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSOnState : NSOffState];
-#ifndef CRASHLYTICS_API_KEY
-    [self.uploadCrashDataCheckbox setState:NSOffState];
-    [self.uploadCrashDataCheckbox setEnabled:NO];
-#endif
+    NSNotificationCenter *changeWatcher = [NSNotificationCenter defaultCenter];
+    [changeWatcher addObserver:self
+                      selector:@selector(updateFeedbackDisplay:)
+                          name:NSUserDefaultsDidChangeNotification
+                        object:nil];
 
 }
 

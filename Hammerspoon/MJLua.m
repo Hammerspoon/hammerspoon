@@ -8,6 +8,7 @@
 #import "../extensions/hammerspoon.h"
 #import "MJMenuIcon.h"
 #import "MJPreferencesWindowController.h"
+#import "MJConsoleWindowController.h"
 #import "MJAutoLaunch.h"
 
 static LuaSkin* MJLuaState;
@@ -51,6 +52,27 @@ static int core_autolaunch(lua_State* L) {
 static int core_menuicon(lua_State* L) {
     if (lua_isboolean(L, -1)) { MJMenuIconSetVisible(lua_toboolean(L, -1)); }
     lua_pushboolean(L, MJMenuIconVisible()) ;
+    return 1;
+}
+
+
+// hs.dockIcon -- for historical reasons, this is actually handled by the hs.dockicon module, but a wrapper
+// in the lua portion of this (setup.lua) provides an interface to this module which follows the syntax
+// conventions used here.
+
+
+/// hs.consoleOnTop([state]) -> bool
+/// Function
+/// Set or display whether or not the Hammerspoon console is always on top when visible.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not the Hammerspoon console is always on top when visible.
+///
+/// Returns:
+///  * True if the console is currently set (or has just been) to be always on top when visible or False if it is not.
+static int core_consoleontop(lua_State* L) {
+    if (lua_isboolean(L, -1)) { MJConsoleWindowSetAlwaysOnTop(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, MJConsoleWindowAlwaysOnTop()) ;
     return 1;
 }
 
@@ -180,6 +202,7 @@ static int core_notify(lua_State* L) {
 
 static luaL_Reg corelib[] = {
     {"openConsole", core_openconsole},
+    {"consoleOnTop", core_consoleontop},
     {"openAbout", core_openabout},
     {"menuIcon", core_menuicon},
     {"openPreferences", core_openpreferences},
