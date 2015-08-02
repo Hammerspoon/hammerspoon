@@ -87,7 +87,7 @@ do
     'Image Capture Extension', 'iCloud Photos', 'System Events',
     'Speech Synthesis Server', 'Dropbox Finder Integration', 'LaterAgent',
     'Karabiner_AXNotifier', 'Photos Agent', 'EscrowSecurityAlert',
-    'Google Chrome Helper', 'com.apple.MailServiceAgent', 'Safari Web Content',
+    'Google Chrome Helper', 'com.apple.MailServiceAgent', 'Safari Web Content', 'Mail Web Content',
     'Safari Networking', 'nbagent','rcd',
     'Evernote Helper', 'BTTRelaunch',
   --'universalAccessAuthWarn', -- actual window "App.app would like to control this computer..."
@@ -105,7 +105,7 @@ local apps
 local SKIP_APPS_TRANSIENT_WINDOWS = {
   --TODO keep this updated (used in the default filter)
   -- hs.windowfilter._showCandidates() -- from the console
-  'Spotlight', 'Notification Center', 'loginwindow', 'ScreenSaverEngine',
+  'Spotlight', 'Notification Center', 'loginwindow', 'ScreenSaverEngine', 'PressAndHold',
   -- preferences etc
   'PopClip','Isolator', 'CheatSheet', 'CornerClickBG', 'Alfred 2', 'Moom', 'CursorSense Manager',
   -- menulets
