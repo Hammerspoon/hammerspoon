@@ -1,6 +1,6 @@
 #import <Appkit/NSImage.h>
 #import <LuaSkin/LuaSkin.h>
-#import <ASCIImage/PARImage+ASCIIInput.h>
+#import "ASCIImage/PARImage+ASCIIInput.h"
 #import "../hammerspoon.h"
 
 #define USERDATA_TAG        IMAGE_USERDATA_TAG
@@ -216,14 +216,21 @@ static int setImageName(lua_State* L) {
     return 1 ;
 }
 
-static int tostringForNSImage(lua_State* L) {
+static int userdata_tostring(lua_State* L) {
     NSImage *testImage = get_image_from_hsimage(L, 1) ;
     NSString* theName = [testImage name] ;
 
-    if (!theName) theName = @"--unnamed--" ;
+    if (!theName) theName = @"" ; // unlike some cases, [NSImage name] apparently returns an actual NULL instead of an empty string...
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
     return 1 ;
+}
+
+static int userdata_eq(lua_State* L) {
+    NSImage *image1 = get_image_from_hsimage(L, 1) ;
+    NSImage *image2 = get_image_from_hsimage(L, 2) ;
+
+    return image1 == image2 ;
 }
 
 /// hs.image:saveToFile(filename[, filetype]) -> boolean
@@ -296,7 +303,7 @@ static int saveToFile(lua_State* L) {
     return 1 ;
 }
 
-static int hsimage_gc(lua_State* L) {
+static int userdata_gc(lua_State* L) {
 // Get the NSImage so ARC can release it...
     void **thingy = luaL_checkudata(L, 1, USERDATA_TAG) ;
     NSImage* image = (__bridge_transfer NSImage *) *thingy ;
@@ -317,8 +324,9 @@ static const luaL_Reg userdata_metaLib[] = {
     {"name",                getImageName},
     {"setName",             setImageName},
     {"saveToFile",          saveToFile},
-    {"__tostring",          tostringForNSImage},
-    {"__gc",                hsimage_gc},
+    {"__tostring",          userdata_tostring},
+    {"__eq",                userdata_eq},
+    {"__gc",                userdata_gc},
     {NULL,                  NULL}
 };
 

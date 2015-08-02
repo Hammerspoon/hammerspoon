@@ -7,13 +7,12 @@
 body {
   color: #333;
   font-family: system, -apple-system, ".SFNSDisplay-Regular", HelveticaNeue, LucidaGrande, sans-serif;
-  font-size: 13pt;
+  font-size: 12pt;
   line-height: 1.6;
   word-wrap: break-word;
   width: 80%;
   margin: 0.5em auto;
-  border: 1px solid rgb(221, 221, 221);
-  padding: 30px;
+  padding: 0 30px;
 }
 
 pre {
@@ -198,6 +197,9 @@ dd {
   margin-left: 0;
 }
 
+li {
+  line-height: 1.3em;
+}
 
 .octicon {
   font: normal normal 16px octicons-anchor;
@@ -246,7 +248,7 @@ h5,
 h6 {
   position: relative;
   margin-top: 1em;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   font-weight: bold;
   line-height: 1.4;
 }
@@ -283,7 +285,8 @@ h6:hover .anchor .octicon-link {
 }
 
 h1 {
-  padding-bottom: 0.3em;
+  padding-bottom: 0.1em;
+  margin:0;
   font-size: 2.25em;
   line-height: 1.2;
   border-bottom: 1px solid #eee;
@@ -322,7 +325,7 @@ h4 .anchor {
 }
 
 h5 {
-  font-size: 1em;
+  font-size: 1.1em;
 }
 
 h5 .anchor {
@@ -423,6 +426,12 @@ table td {
   border: 1px solid #ddd;
 }
 
+/* Narrow to overview here,
+   otherwise we trample the function descriptions */
+table.api-documentation-overview td p {
+  margin: 0;
+}
+
 table tr {
   background-color: #fff;
   border-top: 1px solid #ccc;
@@ -502,6 +511,10 @@ pre code {
 pre code:before,
 pre code:after {
   content: normal;
+}
+
+.documentation-section {
+  border-bottom: 1px solid lightgray;
 }
 
 

@@ -6,4 +6,5 @@ source 'https://github.com/CocoaPods/Specs.git'
 target 'Hammerspoon' do
 pod 'Sparkle', '~> 1.10.0', :configurations => ['Release']
 pod 'ASCIImage'
+pod 'CocoaHTTPServer'
 end

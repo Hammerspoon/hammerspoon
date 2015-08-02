@@ -93,7 +93,7 @@ static int sound_byfile(lua_State* L) {
     return 1;
 }
 
-/// hs.systemSounds() -> table
+/// hs.sound.systemSounds() -> table
 /// Function
 /// Gets a table of available system sounds
 ///

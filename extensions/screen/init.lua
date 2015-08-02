@@ -28,6 +28,20 @@ function screen.findByName(name)
     return fnutils.find(screen.allScreens(), function(display) return (display:name() == name) end)
 end
 
+--- hs.screen.findByID(id) -> screen or nil
+--- Function
+--- Finds a screen by its ID
+---
+--- Parameters:
+---  * id - A number containing the ID to search for
+---
+--- Returns:
+---  * An `hs.screen` object, or nil if none could be found
+function screen.findByID(id)
+    return fnutils.find(screen.allScreens(), function(display) return (display:id() == id) end)
+end
+
+
 --- hs.screen:fullFrame() -> rect
 --- Method
 --- Returns the screen's rect in absolute coordinates, including the dock and menu.

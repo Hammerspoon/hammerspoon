@@ -26,6 +26,7 @@ NSMutableArray *drawingWindows;
     lua_State *L;
 }
 @property int mouseUpCallbackRef;
+@property int mouseDownCallbackRef;
 @property BOOL HSFill;
 @property BOOL HSStroke;
 @property CGFloat HSLineWidth;
@@ -110,6 +111,7 @@ NSMutableArray *drawingWindows;
         // Set up our defaults
         L = NULL;
         self.mouseUpCallbackRef = LUA_NOREF;
+        self.mouseDownCallbackRef = LUA_NOREF;
         self.HSFill = YES;
         self.HSStroke = YES;
         self.HSLineWidth = [NSBezierPath defaultLineWidth];
@@ -141,7 +143,15 @@ NSMutableArray *drawingWindows;
     self.mouseUpCallbackRef = ref;
 
     if (self.window) {
-        [self.window setIgnoresMouseEvents:(ref == LUA_NOREF)];
+        [self.window setIgnoresMouseEvents:((ref == LUA_NOREF) && (self.mouseDownCallbackRef == LUA_NOREF))];
+    }
+}
+
+- (void)setMouseDownCallback:(int)ref {
+    self.mouseDownCallbackRef = ref;
+
+    if (self.window) {
+        [self.window setIgnoresMouseEvents:((ref == LUA_NOREF) && (self.mouseUpCallbackRef == LUA_NOREF))];
     }
 }
 
@@ -156,6 +166,36 @@ NSMutableArray *drawingWindows;
             lua_pcall(L, 1, 0, 0);
         }
     }
+}
+
+- (void)rightMouseUp:(NSEvent *)theEvent {
+    [self mouseUp:theEvent] ;
+}
+
+- (void)otherMouseUp:(NSEvent *)theEvent {
+    [self mouseUp:theEvent] ;
+}
+
+- (void)mouseDown:(NSEvent * __unused)theEvent {
+    [NSApp preventWindowOrdering];
+    if (self.mouseDownCallbackRef != LUA_NOREF && L) {
+        lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, self.mouseDownCallbackRef);
+        if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
+            CLS_NSLOG(@"%s", lua_tostring(L, -1));
+            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
+            lua_pushvalue(L, -2);
+            lua_pcall(L, 1, 0, 0);
+        }
+    }
+}
+
+- (void)rightMouseDown:(NSEvent *)theEvent {
+    [self mouseDown:theEvent] ;
+}
+
+- (void)otherMouseDown:(NSEvent *)theEvent {
+    [self mouseDown:theEvent] ;
 }
 
 @end
@@ -1208,15 +1248,19 @@ static int drawing_setImage(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setClickCallback(fn) -> drawingObject
+/// hs.drawing:setClickCallback(mouseUpFn, mouseDownFn) -> drawingObject
 /// Method
-/// Sets a callback for mouse click events
+/// Sets a callback for mouseUp and mouseDown click events
 ///
 /// Parameters:
-///  * fn - A function that will be called when the drawing object is clicked. If this argument is nil, any existing callback is removed.
+///  * mouseUpFn - A function, can be nil, that will be called when the drawing object is clicked on and the mouse button is released. If this argument is nil, any existing callback is removed.
+///  * mouseDownFn - A function, can be nil, that will be called when the drawing object is clicked on and the mouse button is first pressed down. If this argument is nil, any existing callback is removed.
 ///
 /// Returns:
 ///  * The drawing object
+///
+/// Notes:
+///  * No distinction is made between the left, right, or other mouse buttons -- they all invoke the same up or down function.  If you need to determine which specific button was pressed, use `hs.eventtap.checkMouseButtons()` within your callback to check.
 static int drawing_setClickCallback(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
 
@@ -1236,7 +1280,23 @@ static int drawing_setClickCallback(lua_State *L) {
             [drawingView setMouseUpCallback:luaL_ref(L, LUA_REGISTRYINDEX)];
         }
     } else {
-        showError(L, ":setClickCallback() called without a valid argument");
+        showError(L, ":setClickCallback() called with invalid mouseUp function");
+    }
+
+    if (lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TFUNCTION) {
+        // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
+        if (drawingView.mouseDownCallbackRef != LUA_NOREF) {
+            luaL_unref(L, LUA_REGISTRYINDEX, drawingView.mouseDownCallbackRef);
+            [drawingView setMouseDownCallback:LUA_NOREF];
+        }
+
+        // Set a new callback if we have a function
+        if (lua_type(L, 3) == LUA_TFUNCTION) {
+            lua_pushvalue(L, 3);
+            [drawingView setMouseDownCallback:luaL_ref(L, LUA_REGISTRYINDEX)];
+        }
+    } else {
+        showError(L, ":setClickCallback() called with invalid mouseDown function");
     }
 
     lua_pushvalue(L, 1);
@@ -1634,6 +1694,51 @@ static int setBehavior(lua_State *L) {
     return 1 ;
 }
 
+
+// Trying to make this as close to paste and apply as possible, so not all aspects may apply
+// to each module... you may still need to tweak for your specific module.
+
+static int userdata_tostring(lua_State* L) {
+
+// For older modules that don't use this macro, Change this:
+#ifndef USERDATA_TAG
+#define USERDATA_TAG "hs.drawing"
+#endif
+
+// can't assume, since some older modules and userdata share __index
+    void *self = lua_touserdata(L, 1) ;
+    if (self) {
+// Change these to get the desired title, if available, for your module:
+        drawing_t *drawingObject = get_item_arg(L, 1);
+        HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+        HSDrawingView   *drawingView   = (HSDrawingView *)drawingWindow.contentView;
+
+        NSString* title = @"unknown type";
+        if ([drawingView isKindOfClass:[HSDrawingViewRect class]])   title = @"rectangle" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewCircle class]]) title = @"circle" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewLine class]])   title = @"line" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewText class]])   title = @"text" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewImage class]])  title = @"image" ;
+
+// Use this instead, if you always want the title portion empty for your module
+//        NSString* title = @"" ;
+
+// Common code begins here:
+
+       lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
+    } else {
+// For modules which share the same __index for the module table and the userdata objects, this replicates
+// current default, which treats the module as a table when checking for __tostring.  You could also put a fancier
+// string here for your module and set userdata_tostring as the module's __tostring as well...
+//
+// See lauxlib.c -- luaL_tolstring would invoke __tostring and loop, so let's
+// use its output for tables (the "default:" case in luaL_tolstring's switch)
+        lua_pushfstring(L, "%s: %p", luaL_typename(L, 1), lua_topointer(L, 1));
+    }
+    return 1 ;
+}
+
+
 // Lua metadata
 
 static const luaL_Reg drawinglib[] = {
@@ -1670,12 +1775,13 @@ static const luaL_Reg drawing_metalib[] = {
     {"setTopLeft", drawing_setTopLeft},
     {"setSize", drawing_setSize},
     {"setFrame", drawing_setFrame},
-    {"setAlpha",    setAlpha},
-    {"alpha",       getAlpha},
-    {"orderAbove",  orderAbove},
-    {"orderBelow",  orderBelow},
+    {"setAlpha", setAlpha},
+    {"alpha", getAlpha},
+    {"orderAbove", orderAbove},
+    {"orderBelow", orderBelow},
     {"setBehavior", setBehavior},
-    {"behavior",    getBehavior},
+    {"behavior", getBehavior},
+    {"__tostring", userdata_tostring},
     {"__gc", drawing_delete},
     {}
 };
