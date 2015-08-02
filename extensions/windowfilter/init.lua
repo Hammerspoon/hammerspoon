@@ -370,7 +370,8 @@ end
 ---
 --- Parameters:
 ---  * fn
----    - if `nil`, returns a copy of the default windowfilter; you can then further restrict or expand it
+---    - if `nil`, returns a copy of the default windowfilter, including any customizations you might have applied to it
+---      so far; you can then further restrict or expand it
 ---    - if `true`, returns an empty windowfilter that allows every window
 ---    - if `false`, returns a windowfilter with a default rule to reject every window
 ---    - if a string or table of strings, returns a windowfilter that only allows the specified apps
@@ -395,11 +396,12 @@ function windowfilter.new(fn,logname,loglevel)
   --  local isTable=type(fn)=='table'
   if fn==nil then
     o.log.i('new windowfilter, default windowfilter copy')
-    for _,appname in ipairs(SKIP_APPS_TRANSIENT_WINDOWS) do
-      o:rejectApp(appname)
+    for appname,filter in pairs(windowfilter.default.apps) do
+      o.apps[appname]=filter
     end
-    o:setAppFilter('Hammerspoon',{'Preferences','Console'})
-    o:setDefaultFilter(nil,nil,nil,nil,true)
+    o.spaceFilter = windowfilter.default.spaceFilter
+    o.currentSpaceWindows = windowfilter.default.currentSpaceWindows and {} or nil
+    --TODO add regions and screens here
     return o
   elseif type(fn)=='table' then
     o.log.i('new windowfilter, reject all with exceptions')
@@ -427,6 +429,8 @@ end
 ---    * to exclude fullscreen windows: `nofs_wf=hs.windowfilter.new():setOverrideFilter(nil,nil,nil,false)`
 ---    * to include invisible windows: `inv_wf=windowfilter.new():setDefaultFilter()`
 ---  * If you still want to alter the default windowfilter:
+---    * you should probably apply your customizations at the top of your `init.lua`, or at any rate before instantiating any other windowfilter; this
+---      way copies created via `hs.windowfilter.new(nil,...)` will inherit your modifications
 ---    * to list the known exclusions: `hs.windowfilter.setLogLevel('debug')`; the console will log them upon instantiating the default windowfilter
 ---    * to add an exclusion: `hs.windowfilter.default:rejectApp'Cool New Launcher'`
 ---    * to add an app-specific rule: `hs.windowfilter.default:setAppFilter('My IDE',1)`; ignore tooltips/code completion (empty title) in My IDE
@@ -1309,13 +1313,26 @@ function wf:delete()
   stopGlobalWatcher()
 end
 
-local defaultwf
+local defaultwf, loglevel
 function windowfilter.setLogLevel(lvl)
-  log.setLogLevel(lvl)
+  log.setLogLevel(lvl) loglevel=lvl
   if defaultwf then defaultwf.setLogLevel(lvl) end
   return windowfilter
 end
 
+local function makeDefault()
+  if not defaultwf then
+    defaultwf = windowfilter.new(true,'wflt-def')
+    if loglevel then defaultwf.setLogLevel(loglevel) end
+    for _,appname in ipairs(SKIP_APPS_TRANSIENT_WINDOWS) do
+      defaultwf:rejectApp(appname)
+    end
+    defaultwf:setAppFilter('Hammerspoon',{'Preferences','Console'})
+    defaultwf:setDefaultFilter(nil,nil,nil,nil,true)
+    defaultwf.log.i('default windowfilter instantiated')
+  end
+  return defaultwf
+end
 
 
 -- utilities
@@ -1460,13 +1477,7 @@ for n,dir in ipairs{'East','North','West','South'}do
   end
 end
 
+
 local rawget=rawget
-return setmetatable(windowfilter,{
-  __index=function(t,k)
-    if k=='default' then
-      if not defaultwf then defaultwf=windowfilter.new(nil,'wflt-def') log.i('default windowfilter instantiated') end
-      return defaultwf
-    else return rawget(t,k) end
-  end,
-})
+return setmetatable(windowfilter,{__index=function(t,k) return k=='default' and makeDefault() or rawget(t,k) end})
 
