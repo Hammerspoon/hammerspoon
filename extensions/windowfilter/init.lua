@@ -160,7 +160,7 @@ function wf:isWindowAllowed(window,appname)
       if smatch(t,title) then return true end
     end
   end
-  local function allowWindow(app,role,title,fullscreen,visible)
+  local function allowWindow(app,role,title,fullscreen,visible,focused)
     if app.titles then
       if type(app.titles)=='number' then if #title<=app.titles then return false end
       elseif not matchTitle(app.titles,title) then return false end
@@ -169,16 +169,22 @@ function wf:isWindowAllowed(window,appname)
     if app.roles and not app.roles[role] then return false end
     if app.fullscreen~=nil and app.fullscreen~=fullscreen then return false end
     if app.visible~=nil and app.visible~=visible then return false end
+    if app.focused~=nil and app.focused~=focused then return false end
     return true
   end
   local role = window.subrole and window:subrole() or ''
   local title = window:title() or ''
   local fullscreen = window:isFullScreen() or false
   local id,visible = window:id(),window:isVisible() or false
+  -- for the brave who ventured here: window:application:isFrontmost() lies to your face (for a few ms, at least)
+  local frontapp = application.frontmostApplication()
+  local frontwin = frontapp and frontapp:focusedWindow()
+  local focused = frontwin and frontwin:id()==id or false
+
   local app=self.apps[true]
   if app==false then self.log.vf('%s rejected: override reject',role)return false
   elseif app then
-    local r=allowWindow(app,role,title,fullscreen,visible)
+    local r=allowWindow(app,role,title,fullscreen,visible,focused)
     self.log.vf('%s %s: override filter',role,r and 'allowed' or 'rejected')
     return r
   end
@@ -194,14 +200,14 @@ function wf:isWindowAllowed(window,appname)
   app=self.apps[appname]
   if app==false then self.log.vf('%s (%s) rejected: app reject',role,appname) return false
   elseif app then
-    local r=allowWindow(app,role,title,fullscreen,visible)
+    local r=allowWindow(app,role,title,fullscreen,visible,focused)
     self.log.vf('%s (%s) %s: app filter',role,appname,r and 'allowed' or 'rejected')
     return r
   end
   app=self.apps[false]
   if app==false then self.log.vf('%s (%s) rejected: default reject',role,appname) return false
   elseif app then
-    local r=allowWindow(app,role,title,fullscreen,visible)
+    local r=allowWindow(app,role,title,fullscreen,visible,focused)
     self.log.vf('%s (%s) %s: default filter',role,appname,r and 'allowed' or 'rejected')
     return r
   end
@@ -249,24 +255,24 @@ end
 function wf:allowApp(appname)
   return self:setAppFilter(appname,nil,nil,windowfilter.allowedWindowRoles,nil,true)
 end
---- hs.windowfilter:setDefaultFilter(allowTitles, rejectTitles, allowRoles, fullscreen, visible) -> hs.windowfilter
+--- hs.windowfilter:setDefaultFilter(allowTitles, rejectTitles, allowRoles, fullscreen, visible, focused) -> hs.windowfilter
 --- Method
 --- Set the default filtering rules to be used for apps without app-specific rules
 ---
 --- Parameters:
----   allowTitles, rejectTitles, allowRoles, fullscreen, visible - see `hs.windowfilter:setAppFilter`
+---   allowTitles, rejectTitles, allowRoles, fullscreen, visible, focused - see `hs.windowfilter:setAppFilter`
 ---
 --- Returns:
 ---  * the `hs.windowfilter` object for method chaining
 function wf:setDefaultFilter(...)
   return self:setAppFilter(false,...)
 end
---- hs.windowfilter:setOverrideFilter(allowTitles, rejectTitles, allowRoles, fullscreen, visible) -> hs.windowfilter
+--- hs.windowfilter:setOverrideFilter(allowTitles, rejectTitles, allowRoles, fullscreen, visible, focused) -> hs.windowfilter
 --- Method
 --- Set overriding filtering rules that will be applied for all apps before any app-specific rules
 ---
 --- Parameters:
----   allowTitles, rejectTitles, allowRoles, fullscreen, visible - see `hs.windowfilter:setAppFilter`
+---   allowTitles, rejectTitles, allowRoles, fullscreen, visible, focused - see `hs.windowfilter:setAppFilter`
 ---
 --- Returns:
 ---  * the `hs.windowfilter` object for method chaining
@@ -274,7 +280,7 @@ function wf:setOverrideFilter(...)
   return self:setAppFilter(true,...)
 end
 
---- hs.windowfilter:setAppFilter(appname, allowTitles, rejectTitles, allowRoles, fullscreen, visible) -> hs.windowfilter
+--- hs.windowfilter:setAppFilter(appname, allowTitles, rejectTitles, allowRoles, fullscreen, visible, focused) -> hs.windowfilter
 --- Method
 --- Sets the detailed filtering rules for the windows of a specific app
 ---
@@ -293,11 +299,15 @@ end
 ---    * if `nil`, use the default allowed roles (defined in `hs.window.allowedWindowRoles`)
 ---  * fullscreen - if `true`, only allow fullscreen windows; if `false`, reject fullscreen windows; if `nil`, this rule is ignored
 ---  * visible - if `true`, only allow visible windows; if `false`, reject visible windows; if `nil`, this rule is ignored
+---  * focused - if `true`, only allow a window while focused; if `false`, reject the focused window; if `nil`, this rule is ignored
 ---
 --- Returns:
 ---  * the `hs.windowfilter` object for method chaining
+---
+--- Notes:
+---  * passing `true` for `focused` will (naturally) result in the windowfilter ever allowing 1 window at most
 local activeFilters,refreshWindows
-function wf:setAppFilter(appname,allowTitles,rejectTitles,allowRoles,fullscreen,visible)
+function wf:setAppFilter(appname,allowTitles,rejectTitles,allowRoles,fullscreen,visible,focused)
   if type(appname)~='string' and type(appname)~='boolean' then error('appname must be a string or boolean',2) end
   local logs
   if type(appname)=='boolean' then logs=sformat('setting %s filter: ',appname==true and 'override' or 'default')
@@ -333,7 +343,8 @@ function wf:setAppFilter(appname,allowTitles,rejectTitles,allowRoles,fullscreen,
       app.roles=roles
     end
     if fullscreen~=nil then app.fullscreen=fullscreen logs=sformat('%sfullscreen=%s, ',logs,fullscreen) end
-    if visible~=nil then app.visible=visible logs=sformat('%svisible=%s',logs,visible) end
+    if visible~=nil then app.visible=visible logs=sformat('%svisible=%s, ',logs,visible) end
+    if focused~=nil then app.focused=focused logs=sformat('%sfocused=%s',logs,focused) end
     self.apps[appname]=app
   end
   self.log.d(logs)
@@ -724,7 +735,7 @@ end
 function App:activated()
   local prevactive=global.active
   if self==prevactive then return log.df('App %s already active; skipping',self.name) end
-  if prevactive then prevactive:deactivated(true) end
+  if prevactive then prevactive:deactivated(--[[true--]]) end
   log.vf('App %s activated',self.name)
   global.active=self
   self:getFocused()
@@ -746,7 +757,8 @@ function App:focusChanged(id,win)
     appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
   end
   log.vf('App %s focus changed',self.name)
-  if self==active then self:deactivated(true) end
+  if self==active then self:deactivated(--[[true--]]) end
+  --  if global.focused
   self.focused = self.windows[id]
   if self==active then self:activated() end
 end
