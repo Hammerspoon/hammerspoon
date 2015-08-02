@@ -47,9 +47,23 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [self cacheIsAccessibilityEnabled];
     });
-    
+
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
-    
+
+    [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
+    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
+    [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
+    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
+    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSOnState : NSOffState];
+#ifndef CRASHLYTICS_API_KEY
+    [self.uploadCrashDataCheckbox setState:NSOffState];
+    [self.uploadCrashDataCheckbox setEnabled:NO];
+#endif
+
+}
+
+- (void)updateFeedbackDisplay {
+
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
     [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
@@ -140,10 +154,10 @@
 - (void) maybeWarnAboutDockMenuProblem {
     if (MJMenuIconVisible() || MJDockIconVisible())
         return;
-    
+
     if ([[NSUserDefaults standardUserDefaults] boolForKey:MJSkipDockMenuIconProblemAlertKey])
         return;
-    
+
     NSAlert* alert = [[NSAlert alloc] init];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert setMessageText:@"How to get back to this window"];

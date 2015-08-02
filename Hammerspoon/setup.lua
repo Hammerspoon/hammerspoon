@@ -204,6 +204,26 @@ require = function(modulename)
 end
 hscrash.crashLog("Loaded from: "..modpath)
 
+--- hs.dockIcon([state]) -> bool
+--- Function
+--- Set or display whether or not the Hammerspoon dock icon is visible.
+---
+--- Parameters:
+---  * state - an optional boolean which will set whether or not the Hammerspoon dock icon should be visible.
+---
+--- Returns:
+---  * True if the icon is currently set (or has just been) to be visible or False if it is not.
+---
+--- Notes:
+---  * This function is a wrapper to similar functions found in the `hs.dockicon` module, but is provided here to provide a similiar interface to the functionality of `hs.menuIcon()`.
+hs.dockIcon = function(value)
+    local hsdi = require("hs.dockicon")
+    if type(value) == "boolean" then
+        if value then hsdi.show() else hsdi.hide() end
+    end
+    return hsdi.visible()
+end
+
 --- hs.help(identifier)
 --- Function
 --- Prints the documentation for some part of Hammerspoon's API and Lua 5.3.  This function is actually sourced from hs.doc.help.

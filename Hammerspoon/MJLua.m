@@ -6,6 +6,9 @@
 #import "variables.h"
 #import <pthread.h>
 #import "../extensions/hammerspoon.h"
+#import "MJMenuIcon.h"
+#import "MJPreferencesWindowController.h"
+#import "MJAutoLaunch.h"
 
 static LuaSkin* MJLuaState;
 static int evalfn;
@@ -21,11 +24,64 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
 
-/// hs.openConsole()
+/// hs.autoLaunch([state]) -> bool
 /// Function
-/// Opens the Hammerspoon Console window and focuses it.
-static int core_openconsole(lua_State* L) {
+/// Set or display the "Launch on Login" status for Hammerspoon.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not Hammerspoon should be launched automatically when you log into your computer.
+///
+/// Returns:
+///  * True if Hammerspoon is currently (or has just been) set to launch on login or False if Hammerspoon is not.
+static int core_autolaunch(lua_State* L) {
+    if (lua_isboolean(L, -1)) { MJAutoLaunchSet(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, MJAutoLaunchGet()) ;
+    return 1;
+}
+
+/// hs.menuIcon([state]) -> bool
+/// Function
+/// Set or display whether or not the Hammerspoon menu icon is visible.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not the Hammerspoon menu icon should be visible.
+///
+/// Returns:
+///  * True if the icon is currently set (or has just been) to be visible or False if it is not.
+static int core_menuicon(lua_State* L) {
+    if (lua_isboolean(L, -1)) { MJMenuIconSetVisible(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, MJMenuIconVisible()) ;
+    return 1;
+}
+
+/// hs.openAbout()
+/// Function
+/// Displays the OS X About panel for Hammerspoon; implicitly focuses Hammerspoon.
+static int core_openabout(lua_State* __unused L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    [[NSApplication sharedApplication] orderFrontStandardAboutPanel:nil];
+    return 0;
+}
+
+/// hs.openPreferences()
+/// Function
+/// Displays the Hammerspoon Preferences panel; implicitly focuses Hammerspoon.
+static int core_openpreferences(lua_State* __unused L) {
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    [[MJPreferencesWindowController singleton] showWindow: nil];
+
+    return 0 ;
+}
+
+/// hs.openConsole([bringToFront])
+/// Function
+/// Opens the Hammerspoon Console window and optionally focuses it.
+///
+/// Parameters:
+///  * bringToFront - if true (default), the console will be focused as well as opened.
+static int core_openconsole(lua_State* L) {
+    if (!(lua_isboolean(L,1) && !lua_toboolean(L, 1)))
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[MJConsoleWindowController singleton] showWindow: nil];
     return 0;
 }
@@ -67,7 +123,7 @@ static int push_hammerAppInfo(lua_State* L) {
 /// Function
 ///
 /// Parameters:
-///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented if Accessibility is not currently enabled for Hammerspoon.  Defaults to false.
+///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented when Accessibility is not currently enabled for Hammerspoon.  Defaults to false.
 ///
 /// Returns:
 ///  * True or False indicating whether or not Accessibility is enabled for Hammerspoon.
@@ -124,6 +180,10 @@ static int core_notify(lua_State* L) {
 
 static luaL_Reg corelib[] = {
     {"openConsole", core_openconsole},
+    {"openAbout", core_openabout},
+    {"menuIcon", core_menuicon},
+    {"openPreferences", core_openpreferences},
+    {"autoLaunch", core_autolaunch},
     {"reload", core_reload},
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
