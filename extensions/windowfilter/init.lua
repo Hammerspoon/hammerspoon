@@ -1308,13 +1308,155 @@ function wf:delete()
   stopGlobalWatcher()
 end
 
-
-
 local defaultwf
 function windowfilter.setLogLevel(lvl)
   log.setLogLevel(lvl)
   if defaultwf then defaultwf.setLogLevel(lvl) end
   return windowfilter
+end
+
+
+
+-- utilities
+
+--- hs.windowfilter:windowsToEast(window, frontmost, strict) -> list of `hs.window` objects
+--- Method
+--- Gets all visible windows allowed by this windowfilter that lie to the east a given window
+---
+--- Parameters:
+---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    eastward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned east (i.e. right) of the window, in ascending order of distance
+---
+--- Notes:
+---  * This is a convenience wrapper that returns `hs.window.windowsToEast(window,self:getWindows(),...)`
+
+--- hs.windowfilter:windowsToWest(window, frontmost, strict) -> list of `hs.window` objects
+--- Method
+--- Gets all visible windows allowed by this windowfilter that lie to the west a given window
+---
+--- Parameters:
+---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    westward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned west (i.e. left) of the window, in ascending order of distance
+---
+--- Notes:
+---  * This is a convenience wrapper that returns `hs.window.windowsToWest(window,self:getWindows(),...)`
+
+--- hs.windowfilter:windowsToNorth(window, frontmost, strict) -> list of `hs.window` objects
+--- Method
+--- Gets all visible windows allowed by this windowfilter that lie to the north a given window
+---
+--- Parameters:
+---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    northward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned north (i.e. up) of the window, in ascending order of distance
+---
+--- Notes:
+---  * This is a convenience wrapper that returns `hs.window.windowsToNorth(window,self:getWindows(),...)`
+
+--- hs.windowfilter:windowsToSouth(window, frontmost, strict) -> list of `hs.window` objects
+--- Method
+--- Gets all visible windows allowed by this windowfilter that lie to the south a given window
+---
+--- Parameters:
+---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    southward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned south (i.e. down) of the window, in ascending order of distance
+---
+--- Notes:
+---  * This is a convenience wrapper that returns `hs.window.windowsToSouth(window,self:getWindows(),...)`
+
+--- hs.window:focusWindowEast(window, frontmost, strict)
+--- Method
+--- Focuses the nearest window to the east of a given window
+---
+--- Parameters:
+---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window in this windowfilter
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    eastward axis
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a convenience wrapper that performs `hs.window.focusWindowEast(window,self:getWindows(),...)`
+---  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
+
+--- hs.window:focusWindowWest(window, frontmost, strict)
+--- Method
+--- Focuses the nearest window to the west of a given window
+---
+--- Parameters:
+---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window in this windowfilter
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    westward axis
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a convenience wrapper that performs `hs.window.focusWindowWest(window,self:getWindows(),...)`
+---  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
+
+--- hs.window:focusWindowSouth(window, frontmost, strict)
+--- Method
+--- Focuses the nearest window to the north of a given window
+---
+--- Parameters:
+---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window in this windowfilter
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    northward axis
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a convenience wrapper that performs `hs.window.focusWindowSouth(window,self:getWindows(),...)`
+---  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
+
+--- hs.window:focusWindowNorth(window, frontmost, strict)
+--- Method
+--- Focuses the nearest window to the south of a given window
+---
+--- Parameters:
+---  * window - (optional) an `hs.window` object; if nil, `hs.window.frontmostWindow()` will be used
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window in this windowfilter
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    southward axis
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a convenience wrapper that performs `hs.window.focusWindowNorth(window,self:getWindows(),...)`
+---  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
+for n,dir in ipairs{'East','North','West','South'}do
+  wf['windowsTo'..dir]=function(self,win,...)
+    return window['windowsTo'..dir](win,self:getWindows(),...)
+  end
+  wf['focusWindow'..dir]=function(self,win,...)
+    return window['focusWindow'..dir](win,self:getWindows(),...)
+  end
 end
 
 local rawget=rawget
