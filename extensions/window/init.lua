@@ -12,8 +12,10 @@ local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
 local hs_screen = require "hs.screen"
 local timer = require "hs.timer"
-local pairs,next,min,max,type = pairs,next,math.min,math.max,type
-
+local pairs,ipairs,next,min,max,type = pairs,ipairs,next,math.min,math.max,type
+local tinsert,tsort = table.insert,table.sort
+local intersection,hypot,rectMidPoint,rotateCCW = geometry.intersectionRect,geometry.hypot,geometry.rectMidPoint,geometry.rotateCCW
+local atan,cos,abs = math.atan,math.cos,math.abs
 --- hs.window.animationDuration (number)
 --- Variable
 --- The default duration for animations, in seconds. Initial value is 0.2; set to 0 to disable animations.
@@ -273,12 +275,11 @@ function window.orderedWindows()
   for _, orderedwinid in pairs(orderedwinids) do
     for _, win in pairs(windows) do
       if orderedwinid == win:id() then
-        table.insert(orderedwins, win)
+        tinsert(orderedwins, win)
         break
       end
     end
   end
-
   return orderedwins
 end
 
@@ -333,8 +334,8 @@ function window:screen()
 
   for _, screen in pairs(hs_screen.allScreens()) do
     local screenframe = screen:fullFrame()
-    local intersection = geometry.intersectionRect(windowframe, screenframe)
-    local volume = intersection.w * intersection.h
+    local r = intersection(windowframe, screenframe)
+    local volume = r.w * r.h
 
     if volume > lastvolume then
       lastvolume = volume
@@ -345,7 +346,13 @@ function window:screen()
   return lastscreen
 end
 
-local function windowsInDirection(srcwin, numrotations)
+local function isFullyBehind(w1,w2)
+  local f1,f2=w1:frame(),w2:frame()
+  local r = intersection(f1,f2)
+  return r.w*r.h>=f2.w*f2.h*0.95
+end
+
+local function windowsInDirection(srcwin, numrotations, candidateWindows, frontmost, strict)
   -- assume looking to east
 
   -- use the score distance/cos(A/2), where A is the angle by which it
@@ -354,37 +361,52 @@ local function windowsInDirection(srcwin, numrotations)
 
   -- thanks mark!
 
-  local startingpoint = geometry.rectMidPoint(srcwin:frame())
+  local p1 = rectMidPoint(srcwin:frame())
+  local zwins = candidateWindows or window.orderedWindows()
 
-  local otherwindows = fnutils.filter(window.orderedWindows(), function(candidate)
-    return window.isVisible(candidate) and window.isStandard(candidate) and not (candidate == srcwin)
+  local zsrc=fnutils.indexOf(zwins,srcwin) or -1
+  -- fnutils.filter uses pairs
+  local otherwindows = fnutils.filter(zwins, function(candidate)
+    return window.isVisible(candidate) --[[and window.isStandard(candidate)--]] and candidate ~= srcwin
+      and (not frontmost or fnutils.indexOf(zwins,candidate)<zsrc or not isFullyBehind(srcwin,candidate))
   end)
-  local closestwindows = {}
-
-  for zposition, win in ipairs(otherwindows) do
-    local otherpoint = geometry.rectMidPoint(win:frame())
-    otherpoint = geometry.rotateCCW(otherpoint, startingpoint, numrotations)
-
-    local delta = {
-      x = otherpoint.x - startingpoint.x,
-      y = otherpoint.y - startingpoint.y,
-    }
-
-    if delta.x > 0 then
-      local angle = math.atan(delta.y, delta.x)
-      local distance = geometry.hypot(delta)
-
-      local anglediff = -angle
-
-      local score = (distance / math.cos(anglediff / 2)) + zposition
-
-      table.insert(closestwindows, {win = win, score = score})
+  local wins={}
+  for z, win in ipairs(otherwindows) do
+    local frame = win:frame()
+    local p2 = rectMidPoint(frame)
+    p2 = rotateCCW(p2, p1, numrotations)
+    local delta = {x=p2.x-p1.x,y=p2.y-p1.y}
+    if delta.x > (strict and abs(delta.y) or 0) then
+      --cos(atan(y,x)=1/sqrt(1+(y/x)^2), but it's using angle/2
+      --      local cosangle = 1/(1+(delta.y/delta.x)^2)^0.5
+      local angle = atan(delta.y, delta.x)
+      local distance = (delta.x^2+delta.y^2)^0.5
+      local score = (distance/cos(angle/2))+z
+      tinsert(wins,{win=win,score=score,z=z,frame=frame})
     end
   end
-
-  table.sort(closestwindows, function(a, b) return a.score < b.score end)
-  return fnutils.map(closestwindows, function(x) return x.win end)
+  tsort(wins,function(a,b)return a.score<b.score end)
+  if frontmost then
+    local i=1
+    while i<=#wins do
+      --    for i=1,#wins do
+      for j=i+1,#wins do
+        if wins[j].z<wins[i].z then
+          local r=intersection(wins[i].frame,wins[j].frame)
+          if r.w>5 and r.h>5 then --TODO var for threshold
+            --this window is further away, but it occludes the closest
+            local swap=wins[i] wins[i]=wins[j] wins[j]=swap
+            i=i-1 break
+          end
+        end
+      end
+      i=i+1
+    end
+  end
+  return fnutils.map(wins,function(x)return x.win end)
 end
+
+--TODO zorder direct manipulation (e.g. sendtoback)
 
 local function focus_first_valid_window(ordered_wins)
   for _, win in pairs(ordered_wins) do
@@ -393,109 +415,185 @@ local function focus_first_valid_window(ordered_wins)
   return false
 end
 
---- hs.window:windowsToEast() -> win[]
+--- hs.window:windowsToEast(candidateWindows, frontmost, strict) -> list of `hs.window` objects
 --- Method
---- Gets all windows to the east
+--- Gets all windows to the east of this window
+---
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the east are candidates.
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    eastward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned east (i.e. right) of the window, in ascending order of distance
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, consider using the equivalent methods in
+---    `hs.windowfilter` instead
+
+--- hs.window:windowsToWest(candidateWindows, frontmost, strict) -> list of `hs.window` objects
+--- Method
+--- Gets all windows to the west of this window
+---
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the west are candidates.
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    westward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned west (i.e. left) of the window, in ascending order of distance
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, consider using the equivalent methods in
+---    `hs.windowfilter` instead
+
+--- hs.window:windowsToNorth(candidateWindows, frontmost, strict) -> list of `hs.window` objects
+--- Method
+--- Gets all windows to the north of this window
+---
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the north are candidates.
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    northward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned north (i.e. up) of the window, in ascending order of distance
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, consider using the equivalent methods in
+---    `hs.windowfilter` instead
+
+--- hs.window:windowsToSouth(candidateWindows, frontmost, strict) -> list of `hs.window` objects
+--- Method
+--- Gets all windows to the south of this window
+---
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the south are candidates.
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    southward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned south (i.e. down) of the window, in ascending order of distance
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, consider using the equivalent methods in
+---    `hs.windowfilter` instead
+
+
+--- hs.window.frontmostWindow() -> hs.window
+--- Constructor
+--- Returns the focused window or, if no window has focus, the frontmost one
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
----  * A table of `hs.window` objects representing all windows positioned east (i.e. right) of the window, in ascending order of distance
-function window:windowsToEast()  return windowsInDirection(self, 0) end
+--- * An `hs.window` object representing the frontmost window, or `nil` if there are no visible windows
 
---- hs.window:windowsToWest()
---- Method
---- Gets all windows to the west
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table of `hs.window` objects representing all windows positioned west (i.e. left) of the window, in ascending order of distance
-function window:windowsToWest()  return windowsInDirection(self, 2) end
-
---- hs.window:windowsToNorth()
---- Method
---- Gets all windows to the north
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table of `hs.window` objects representing all windows positioned north (i.e. up) of the window, in ascending order of distance
-function window:windowsToNorth() return windowsInDirection(self, 1) end
-
---- hs.window:windowsToSouth()
---- Method
---- Gets all windows to the south
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table of `hs.window` objects representing all windows positioned south (i.e. down) of the window, in ascending order of distance
-function window:windowsToSouth() return windowsInDirection(self, 3) end
-
-function window:focusWindowsFromTable(searchWindows, sameApp)
-  if sameApp == true then
-    local winApplication = self:application()
-    searchWindows = fnutils.filter(searchWindows, function(win) return winApplication == win:application() end)
-  end
-  return focus_first_valid_window(searchWindows)
+function window.frontmostWindow()
+  return window.focusedWindow() or window.orderedWindows()[1]
 end
 
---- hs.window:focusWindowEast([sameApp])
+for n,dir in pairs{['0']='East','North','West','South'}do
+  window['windowsTo'..dir]=function(self,...)
+    self=self or window.frontmostWindow()
+    return self and windowsInDirection(self,n,...)
+  end
+  window['focusWindow'..dir]=function(self,wins,...)
+    self=self or window.frontmostWindow()
+    if not self then return end
+    if wins==true then -- legacy sameApp parameter
+      wins=self:application():visibleWindows()
+    end
+    return self and focus_first_valid_window(window['windowsTo'..dir](self,wins,...))
+  end
+end
+
+--- hs.window:focusWindowEast(candidateWindows, frontmost, strict)
 --- Method
 --- Focuses the nearest possible window to the east
 ---
 --- Parameters:
----  * sameApp - An optional boolean, true to only consider windows from the same application, false to consider all windows. Defaults to false
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the east are candidates.
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    eastward axis
 ---
 --- Returns:
 ---  * None
-function window:focusWindowEast(sameApp)
-  return self:focusWindowsFromTable(self:windowsToEast(), sameApp)
-end
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, consider using the equivalent methods in
+---    `hs.windowfilter` instead
 
---- hs.window:focusWindowWest([sameApp])
+--- hs.window:focusWindowWest(candidateWindows, frontmost, strict)
 --- Method
 --- Focuses the nearest possible window to the west
 ---
 --- Parameters:
----  * sameApp - An optional boolean, true to only consider windows from the same application, false to consider all windows. Defaults to false
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the west are candidates.
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    westward axis
 ---
 --- Returns:
 ---  * None
-function window:focusWindowWest(sameApp)
-  return self:focusWindowsFromTable(self:windowsToWest(), sameApp)
-end
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, consider using the equivalent methods in
+---    `hs.windowfilter` instead
 
---- hs.window:focusWindowNorth([sameApp])
+--- hs.window:focusWindowNorth(candidateWindows, frontmost, strict)
 --- Method
 --- Focuses the nearest possible window to the north
 ---
---- Parameters:
----  * sameApp - An optional boolean, true to consider windows from the same application, false to consider all windows. Defaults to false
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the north are candidates.
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    northward axis
 ---
 --- Returns:
 ---  * None
-function window:focusWindowNorth(sameApp)
-  return self:focusWindowsFromTable(self:windowsToNorth(), sameApp)
-end
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, consider using the equivalent methods in
+---    `hs.windowfilter` instead
 
---- hs.window:focusWindowSouth([sameApp])
+--- hs.window:focusWindowSouth(candidateWindows, frontmost, strict)
 --- Method
 --- Focuses the nearest possible window to the south
 ---
---- Parameters:
----  * sameApp - An optional boolean, true to consider windows from the same application, false to consider all windows. Defaults to false
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the south are candidates.
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    southward axis
 ---
 --- Returns:
 ---  * None
-function window:focusWindowSouth(sameApp)
-  return self:focusWindowsFromTable(self:windowsToSouth(), sameApp)
-end
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, consider using the equivalent methods in
+---    `hs.windowfilter` instead
 
 --- hs.window:moveToUnit(rect[, duration]) -> window
 --- Method
