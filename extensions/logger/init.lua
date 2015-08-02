@@ -33,7 +33,8 @@ end
 ---
 --- Parameters:
 ---  * id - a string identifier for the instance (usually the module name)
----  * loglevel - can be 'nothing', 'error', 'warning', 'info', 'debug', or 'verbose'; or a corresponding number between 0 and 5; defaults to 'warning' if omitted
+---  * loglevel - (optional) can be 'nothing', 'error', 'warning', 'info', 'debug', or 'verbose', or a corresponding number
+---    between 0 and 5; uses `hs.logger.defaultLogLevel` if omitted
 ---
 --- Returns:
 ---  * the new logger instance
@@ -42,7 +43,17 @@ end
 --- local log = hs.logger.new('mymodule','debug')
 --- log.i('Initializing') -- will print "[mymodule] Initializing" to the console
 
-local function new(id,loglevel)
+local logger = {}
+
+--- hs.logger.defaultLogLevel
+--- Variable
+--- Default log level for new logger instances.
+---
+--- The starting value is 'warning'; set this (to e.g. 'info') at the top of your `init.lua` to affect
+--- all logger instances created without specifying a `loglevel` parameter
+logger.defaultLogLevel = 'warning'
+
+function logger.new(id,loglevel)
   if type(id)~='string' then error('id must be a string',2) end
   id=format('%10s','['..format('%.8s',id)..']')
   local function setLogLevel(lvl)
@@ -55,7 +66,7 @@ local function new(id,loglevel)
       loglevel=lvl
     else error('loglevel must be a string or a number',2) end
   end
-  if not loglevel then loglevel=2 else setLogLevel(loglevel) end
+  setLogLevel(loglevel or logger.defaultLogLevel)
 
   local r = {
     setLogLevel = setLogLevel,
@@ -74,7 +85,7 @@ local function new(id,loglevel)
   r.log=r.i r.logf=r.f
   return r
 end
-return {new=new}
+return logger
 
 --- hs.logger:setLogLevel(loglevel)
 --- Method
@@ -82,112 +93,112 @@ return {new=new}
 ---
 --- Parameters:
 ---  * loglevel - can be 'nothing', 'error', 'warning', 'info', 'debug', or 'verbose'; or a corresponding number between 0 and 5
---- 
+---
 --- Returns:
 ---  * None
- 
+
 --- hs.logger:e(...)
 --- Method
 --- Logs an error to the console
---- 
+---
 --- Parameters:
 ---  * ... - one or more message strings
---- 
+---
 --- Returns:
 ---  * None
 
 --- hs.logger:ef(fmt,...)
 --- Method
 --- Logs a formatted error to the console
---- 
+---
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
---- 
+---
 --- Returns:
 ---  * None
 
 --- hs.logger:w(...)
 --- Method
 --- Logs a warning to the console
---- 
+---
 --- Parameters:
 ---  * ... - one or more message strings
---- 
+---
 --- Returns:
 ---  * None
 
 --- hs.logger:wf(fmt,...)
 --- Method
 --- Logs a formatted warning to the console
---- 
+---
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
---- 
+---
 --- Returns:
 ---  * None
 
 --- hs.logger:i(...)
 --- Method
 --- Logs info to the console
---- 
+---
 --- Parameters:
 ---  * ... - one or more message strings
---- 
+---
 --- Returns:
 ---  * None
 
 --- hs.logger:f(fmt,...)
 --- Method
 --- Logs formatted info to the console
---- 
+---
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
---- 
+---
 --- Returns:
 ---  * None
 
 --- hs.logger:d(...)
 --- Method
 --- Logs debug info to the console
---- 
+---
 --- Parameters:
 ---  * ... - one or more message strings
---- 
+---
 --- Returns:
 ---  * None
 
 --- hs.logger:df(fmt,...)
 --- Method
 --- Logs formatted debug info to the console
---- 
+---
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
---- 
+---
 --- Returns:
 ---  * None
 
 --- hs.logger:v(...)
 --- Method
 --- Logs verbose info to the console
---- 
+---
 --- Parameters:
 ---  * ... - one or more message strings
---- 
+---
 --- Returns:
 ---  * None
 
 --- hs.logger:vf(fmt,...)
 --- Method
 --- Logs formatted verbose info to the console
---- 
+---
 --- Parameters:
 ---  * fmt - formatting string as per string.format
 ---  * ... - arguments to fmt
---- 
+---
 --- Returns:
 ---  * None
 
