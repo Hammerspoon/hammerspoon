@@ -539,15 +539,15 @@ local global = {} -- global state
 
 local Window={} -- class
 
-function Window:setFilter(wf, forceremove) -- returns true if filtering status changes
+function Window:setFilter(wf, forceremove,cache) -- returns true if filtering status changes
   local wasAllowed,isAllowed = wf.windows[self]
-  if not forceremove then isAllowed = wf:isWindowAllowed(self.window,self.app.name) or nil end
+  if not forceremove then isAllowed = wf:isWindowAllowed(self.window,self.app.name,cache) or nil end
   wf.windows[self] = isAllowed
   return wasAllowed ~= isAllowed
 end
 
-function Window:filterEmitEvent(wf,event,inserted,logged,notified)
-  if not inserted and self:setFilter(wf,event==windowfilter.windowDestroyed) and wf.notifyfn then
+function Window:filterEmitEvent(wf,event,inserted,logged,notified,cache)
+  if not inserted and self:setFilter(wf,event==windowfilter.windowDestroyed,cache) and wf.notifyfn then
     -- filter status changed, call notifyfn if present
     if not notified then wf.log.d('Notifying windows changed') if wf.log==log then notified=true end end
     wf.notifyfn(wf:getWindows(),event)
@@ -567,8 +567,9 @@ end
 function Window:emitEvent(event,inserted)
   local logged, notified
   for wf in pairs(activeFilters) do
-    logged,notified = self:filterEmitEvent(wf,event,inserted,logged,notified)
+    logged,notified = self:filterEmitEvent(wf,event,inserted,logged,notified,true)
   end
+  props.id=-2
 end
 
 
