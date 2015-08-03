@@ -2,7 +2,6 @@
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
-#import "ASCIImage/PARImage+ASCIIInput.h"
 
 // ----------------------- Definitions ---------------------
 
