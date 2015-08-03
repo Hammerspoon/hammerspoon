@@ -1455,7 +1455,7 @@ for n,dir in ipairs{'East','North','West','South'}do
     return window['windowsTo'..dir](win,self:getWindows(),...)
   end
   wf['focusWindow'..dir]=function(self,win,...)
-    return window['focusWindow'..dir](win,self:getWindows(),...)
+    if window['focusWindow'..dir](win,self:getWindows(),...) then self.log.i('Focused window '..dir:lower()) end
   end
 end
 
