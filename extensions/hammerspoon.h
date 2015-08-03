@@ -61,3 +61,46 @@ int store_image_as_hsimage(lua_State* L, NSImage* theImage) {
 
     return 1 ;
 }
+
+NSColor *getColorWithDefaultFromStack(lua_State *L, int idx, NSColor *defaultColor) {
+    CGFloat red = 0.0, green = 0.0, blue = 0.0, alpha = 1.0 ;
+
+    switch (lua_type(L, idx)) {
+        case LUA_TTABLE:
+            if (lua_getfield(L, -1, "red") == LUA_TNUMBER)
+                red = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            if (lua_getfield(L, -1, "green") == LUA_TNUMBER)
+                green = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            if (lua_getfield(L, -1, "blue") == LUA_TNUMBER)
+                blue = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            if (lua_getfield(L, -1, "alpha") == LUA_TNUMBER)
+                alpha = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            break;
+        case LUA_TNIL:
+        case LUA_TNONE:
+            return defaultColor ;
+            break;
+        default:
+            CLS_NSLOG(@"ERROR: Unexpected type passed as a color: %d", lua_type(L, idx));
+            showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
+            return nil;
+
+            break;
+    }
+
+    return [NSColor colorWithSRGBRed:red green:green blue:blue alpha:alpha];
+}
+
+NSColor *getColorFromStack(lua_State *L, int idx) {
+    return getColorWithDefaultFromStack(L, idx, [NSColor blackColor]) ;
+}
+
+

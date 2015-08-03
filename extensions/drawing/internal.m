@@ -579,41 +579,6 @@ static int drawing_newLine(lua_State *L) {
     return 1;
 }
 
-NSColor *getColorFromStack(lua_State *L, int idx) {
-    CGFloat red, green, blue, alpha;
-
-    switch (lua_type(L, idx)) {
-        case LUA_TTABLE:
-            lua_getfield(L, idx, "red");
-            red = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, idx, "green");
-            green = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, idx, "blue");
-            blue = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, idx, "alpha");
-            alpha = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        case LUA_TNIL:
-            return [NSColor clearColor];
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to an hs.drawing color method: %d", lua_type(L, 1));
-            return 0;
-
-            break;
-    }
-
-    return [NSColor colorWithSRGBRed:red green:green blue:blue alpha:alpha];
-}
-
 /// hs.drawing.text(sizeRect, message) -> drawingObject or nil
 /// Constructor
 /// Creates a new text object
