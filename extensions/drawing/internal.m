@@ -917,10 +917,10 @@ static int drawing_setTextSize(lua_State *L) {
 ///
 /// Parameters:
 ///  * color - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///
 /// Returns:
 ///  * The drawing object
@@ -950,10 +950,10 @@ static int drawing_setTextColor(lua_State *L) {
 ///
 /// Parameters:
 ///  * color - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///
 /// Returns:
 ///  * The drawing object
@@ -989,15 +989,15 @@ static int drawing_setFillColor(lua_State *L) {
 ///
 /// Parameters:
 ///  * startColor - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///  * endColor - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///  * angle - A number representing the angle of the gradient, measured in degrees, counter-clockwise, from the left of the drawing object
 ///
 /// Returns:
@@ -1036,10 +1036,10 @@ static int drawing_setFillGradient(lua_State *L) {
 ///
 /// Parameters:
 ///  * color - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///
 /// Returns:
 ///  * The drawing object
