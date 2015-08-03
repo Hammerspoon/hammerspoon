@@ -182,10 +182,10 @@ function wf:isWindowAllowed(window,appname)
   local focused = frontwin and frontwin:id()==id or false
 
   local app=self.apps[true]
-  if app==false then self.log.vf('%s rejected: override reject',role)return false
+  if app==false then self.log.vf('%s (%s) rejected: override reject',role,appname)return false
   elseif app then
     local r=allowWindow(app,role,title,fullscreen,visible,focused)
-    self.log.vf('%s %s: override filter',role,r and 'allowed' or 'rejected')
+    self.log.vf('%s (%s) %s: override filter',role,appname,r and 'allowed' or 'rejected')
     return r
   end
   if visible and id and self.currentSpaceWindows then visible=self.currentSpaceWindows[id] end
@@ -753,12 +753,11 @@ function App:focusChanged(id,win)
   if not id then return log.df('Cannot process focus changed for app %s - no window id',self.name) end
   if self.focused and self.focused.id==id then return log.df('Window %d (%s) already focused, skipping',id,self.name) end
   local active=global.active
+  log.vf('App %s focus changed',self.name)
+  if self==active then self:deactivated(--[[true--]]) end
   if not self.windows[id] then
     appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
   end
-  log.vf('App %s focus changed',self.name)
-  if self==active then self:deactivated(--[[true--]]) end
-  --  if global.focused
   self.focused = self.windows[id]
   if self==active then self:activated() end
 end
