@@ -101,24 +101,24 @@ static int imageFromPath(lua_State *L) {
 }
 
 NSColor *getColorFromStack(lua_State *L, int idx) {
-    CGFloat red, green, blue, alpha;
+    CGFloat red = 0.0, green = 0.0, blue = 0.0, alpha = 1.0 ;
 
     switch (lua_type(L, idx)) {
         case LUA_TTABLE:
-            lua_getfield(L, idx, "red");
-            red = lua_tonumber(L, -1);
+            if (lua_getfield(L, -1, "red") == LUA_TNUMBER)
+                red = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
-            lua_getfield(L, idx, "green");
-            green = lua_tonumber(L, -1);
+            if (lua_getfield(L, -1, "green") == LUA_TNUMBER)
+                green = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
-            lua_getfield(L, idx, "blue");
-            blue = lua_tonumber(L, -1);
+            if (lua_getfield(L, -1, "blue") == LUA_TNUMBER)
+                blue = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
-            lua_getfield(L, idx, "alpha");
-            alpha = lua_tonumber(L, -1);
+            if (lua_getfield(L, -1, "alpha") == LUA_TNUMBER)
+                alpha = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
             break;
@@ -137,48 +137,48 @@ NSColor *getColorFromStack(lua_State *L, int idx) {
     return [NSColor colorWithSRGBRed:red green:green blue:blue alpha:alpha];
 }
 
-/// hs.image.imageFromASCII(ascii[, color]) -> object
-/// Constructor
-/// Creates an image from an ASCII representation
-///
-/// Parameters:
-///  * ascii - A string containing a representation of an image
-///  * color - An optional table (defaults to black) containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
-///
-/// Returns:
-///  * An `hs.image` object, or nil if an error occurred
-///
-/// Notes:
-///  * To use the ASCII diagram image support, see https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
-///  * Because antialiasing and stroke are enabled while drawing with this method, large renderings can show unexpected results when using a color with an alpha value other than 1.0.  For more precise control over the image, you should use `hs.image.imageWithContextFromASCII`
-static int imageFromASCII(lua_State *L) {
-    NSString *imageASCII = lua_to_nsstring(L, 1);
-    NSColor  *color      = getColorFromStack(L, 2) ;
-
-    if (!color) {
-        lua_pushnil(L) ;
-    } else {
-        if ([imageASCII hasPrefix:@"ASCII:"]) {
-            imageASCII = [imageASCII substringFromIndex: 6];
-        }
-
-    //    NSColor *color = [NSColor blackColor];
-        imageASCII = [imageASCII stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-        NSArray *rep = [imageASCII componentsSeparatedByString:@"\n"];
-        NSImage *newImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
-
-        if (newImage) {
-            store_image_as_hsimage(L, newImage);
-        } else {
-            lua_pushnil(L);
-        }
-    }
-    return 1;
-}
+// /// hs.image.imageFromASCII(ascii[, color]) -> object
+// /// Constructor
+// /// Creates an image from an ASCII representation
+// ///
+// /// Parameters:
+// ///  * ascii - A string containing a representation of an image
+// ///  * color - An optional table (defaults to black) containing color component values between 0.0 and 1.0 for each of the keys:
+// ///   * red
+// ///   * green
+// ///   * blue
+// ///   * alpha
+// ///
+// /// Returns:
+// ///  * An `hs.image` object, or nil if an error occurred
+// ///
+// /// Notes:
+// ///  * To use the ASCII diagram image support, see https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
+// ///  * Because antialiasing and stroke are enabled while drawing with this method, large renderings can show unexpected results when using a color with an alpha value other than 1.0.  For more precise control over the image, you should use `hs.image.imageWithContextFromASCII`
+// static int imageFromASCII(lua_State *L) {
+//     NSString *imageASCII = lua_to_nsstring(L, 1);
+//     NSColor  *color      = getColorFromStack(L, 2) ;
+//
+//     if (!color) {
+//         lua_pushnil(L) ;
+//     } else {
+//         if ([imageASCII hasPrefix:@"ASCII:"]) {
+//             imageASCII = [imageASCII substringFromIndex: 6];
+//         }
+//
+//     //    NSColor *color = [NSColor blackColor];
+//         imageASCII = [imageASCII stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+//         NSArray *rep = [imageASCII componentsSeparatedByString:@"\n"];
+//         NSImage *newImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
+//
+//         if (newImage) {
+//             store_image_as_hsimage(L, newImage);
+//         } else {
+//             lua_pushnil(L);
+//         }
+//     }
+//     return 1;
+// }
 
 // Shamelessly "borrowed" and tweaked from the lua 5.1 source... see http://www.lua.org/source/5.1/ltablib.c.html
 static int maxn (lua_State *L, int idx) {
@@ -195,17 +195,21 @@ static int maxn (lua_State *L, int idx) {
   return max ;
 }
 
-/// hs.image.imageWithContextFromASCII(ascii, context) -> object
+/// hs.image.imageFromASCII(ascii[, context]) -> object
 /// Constructor
-/// Creates an image from an ASCII representation with the specified context
+/// Creates an image from an ASCII representation with the specified context.
 ///
 /// Parameters:
 ///  * ascii - A string containing a representation of an image
 ///  * context - a table containing the context for each shape in the image.  A shape is considered a single drawing element (point, ellipse, line, or polygon) as defined at https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/.
-///    * The context table is a (possibly sparse) array in which the index represents the order in which the shapes are defined.  The last (highest) numbered index in the sparse array specifies the default settings for any unspecified index and any settings which are not explicitly set in any other given index.
+///    * The context table is an optional (possibly sparse) array in which the index represents the order in which the shapes are defined.  The last (highest) numbered index in the sparse array specifies the default settings for any unspecified index and any settings which are not explicitly set in any other given index.
 ///    * Each index consists of a table which can contain one or more of the following keys:
-///      * fillColor - the color (see the color table as defined for hs.image.imageFromASCII) with which the shape will be filled (defaults to black)
-///      * strokeColor - the color (see the color table as defined for hs.image.imageFromASCII) with which the shape will be stroked (defaults to black)
+///      * fillColor - the color with which the shape will be filled (defaults to black)  Color is defined in a table containing color component values between 0.0 and 1.0 for each of the keys:
+///        * red (default 0.0)
+///        * green (default 0.0)
+///        * blue (default 0.0)
+///        * alpha (default 1.0)
+///      * strokeColor - the color with which the shape will be stroked (defaults to black)
 ///      * lineWidth - the line width (number) for the stroke of the shape (defaults to 1 if anti-aliasing is on or (√2)/2 if it is off -- approximately 0.7)
 ///      * shouldClose - a boolean indicating whether or not the shape should be closed (defaults to true)
 ///      * antialias - a boolean indicating whether or not the shape should be antialiased (defaults to true)
@@ -215,7 +219,6 @@ static int maxn (lua_State *L, int idx) {
 ///
 /// Notes:
 ///  * To use the ASCII diagram image support, see https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
-///  * Passing in an empty table for context will effectively render the image identical to `hs.image.imageFromASCII`
 ///  * The default for lineWidth, when antialiasing is off, is defined within the ASCIImage library. Geometrically it represents one half of the hypotenuse of the unit right-triangle and is a more accurate representation of a "real" point size when dealing with arbitrary angles and lines than 1.0 would be.
 static int imageWithContextFromASCII(lua_State *L) {
     NSString *imageASCII = lua_to_nsstring(L, 1);
@@ -540,8 +543,8 @@ static const luaL_Reg userdata_metaLib[] = {
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
     {"imageFromPath",             imageFromPath},
-    {"imageFromASCII",            imageFromASCII},
-    {"imageWithContextFromASCII", imageWithContextFromASCII},
+    {"imageFromASCII",            imageWithContextFromASCII},
+//     {"imageWithContextFromASCII", imageWithContextFromASCII},
     {"imageFromName",             imageFromName},
     {"imageFromAppBundle",        imageFromApp},
     {NULL,                        NULL}
