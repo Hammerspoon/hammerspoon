@@ -154,45 +154,50 @@ local wf={} -- class
 --- Returns:
 ---  * `true` if the window is allowed by the windowfilter; `false` otherwise
 
-function wf:isWindowAllowed(window,appname)
-  local function matchTitle(titles,t)
-    for _,title in ipairs(titles) do
-      if smatch(t,title) then return true end
-    end
+local function matchTitle(titles,t)
+  for _,title in ipairs(titles) do
+    if smatch(t,title) then return true end
   end
-  local function allowWindow(app,role,title,fullscreen,visible,focused)
-    if app.titles then
-      if type(app.titles)=='number' then if #title<=app.titles then return false end
-      elseif not matchTitle(app.titles,title) then return false end
-    end
-    if app.rtitles and matchTitle(app.rtitles,title) then return false end
-    if app.roles and not app.roles[role] then return false end
-    if app.fullscreen~=nil and app.fullscreen~=fullscreen then return false end
-    if app.visible~=nil and app.visible~=visible then return false end
-    if app.focused~=nil and app.focused~=focused then return false end
-    return true
+end
+local function allowWindow(app,props)
+  if app.titles then
+    if type(app.titles)=='number' then if #props.title<=app.titles then return false end
+    elseif not matchTitle(app.titles,props.title) then return false end
   end
-  local role = window.subrole and window:subrole() or ''
-  local title = window:title() or ''
-  local fullscreen = window:isFullScreen() or false
-  local id,visible = window:id(),window:isVisible() or false
-  -- for the brave who ventured here: window:application:isFrontmost() lies to your face (for a few ms, at least)
-  local frontapp = application.frontmostApplication()
-  local frontwin = frontapp and frontapp:focusedWindow()
-  local focused = frontwin and frontwin:id()==id or false
-
+  if app.rtitles and matchTitle(app.rtitles,props.title) then return false end
+  if app.roles and not app.roles[props.role] then return false end
+  if app.fullscreen~=nil and app.fullscreen~=props.fullscreen then return false end
+  if app.visible~=nil and app.visible~=props.visible then return false end
+  if app.focused~=nil and app.focused~=props.focused then return false end
+  return true
+end
+local props = {id=-2}-- cache window props for successive calls to isWindowAllowed
+function wf:isWindowAllowed(window,appname,cache)
+  local id=window:id()
+  if not cache or id~=props.id then
+    props.role = window.subrole and window:subrole() or ''
+    props.title = window:title() or ''
+    props.fullscreen = window:isFullScreen() or false
+    props.visible = window:isVisible() or false
+    if props.visible and id and self.currentSpaceWindows then props.visible=self.currentSpaceWindows[id] end
+    -- for the brave who ventured here: window:application:isFrontmost() lies to your face (for a few ms, at least)
+    local frontapp = application.frontmostApplication()
+    local frontwin = frontapp and frontapp:focusedWindow()
+    props.focused = frontwin and frontwin:id()==id or false --FIXME problems when changing spaces
+    props.appname = appname or window:application():title()
+    props.id=id
+  end
+  local role,appname=props.role,props.appname
   local app=self.apps[true]
   if app==false then self.log.vf('%s (%s) rejected: override reject',role,appname)return false
   elseif app then
-    local r=allowWindow(app,role,title,fullscreen,visible,focused)
+    local r=allowWindow(app,props)
     self.log.vf('%s (%s) %s: override filter',role,appname,r and 'allowed' or 'rejected')
     return r
   end
-  if visible and id and self.currentSpaceWindows then visible=self.currentSpaceWindows[id] end
   if self.spaceFilter and not self.currentSpaceWindows[id] then self.log.vf('%s (%s) rejected: not in current space',role,appname) return false
   elseif self.spaceFilter==false and self.currentSpaceWindows[id] then self.log.vf('%s (%s) rejected: in current space',role,appname) return false end
 
-  appname = appname or window:application():title()
   if not windowfilter.isGuiApp(appname) then
     --this would need fixing .ignoreAlways
     self.log.wf('%s (%s) rejected: should be a non-GUI app!',role,appname) return false
@@ -200,14 +205,14 @@ function wf:isWindowAllowed(window,appname)
   app=self.apps[appname]
   if app==false then self.log.vf('%s (%s) rejected: app reject',role,appname) return false
   elseif app then
-    local r=allowWindow(app,role,title,fullscreen,visible,focused)
+    local r=allowWindow(app,props)
     self.log.vf('%s (%s) %s: app filter',role,appname,r and 'allowed' or 'rejected')
     return r
   end
   app=self.apps[false]
   if app==false then self.log.vf('%s (%s) rejected: default reject',role,appname) return false
   elseif app then
-    local r=allowWindow(app,role,title,fullscreen,visible,focused)
+    local r=allowWindow(app,props)
     self.log.vf('%s (%s) %s: default filter',role,appname,r and 'allowed' or 'rejected')
     return r
   end
