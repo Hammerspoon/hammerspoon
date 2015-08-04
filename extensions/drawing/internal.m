@@ -1248,7 +1248,7 @@ static int drawing_setClickCallback(lua_State *L) {
         showError(L, ":setClickCallback() called with invalid mouseUp function");
     }
 
-    if (lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TFUNCTION) {
+    if (lua_type(L, 3) == LUA_TNONE || lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TFUNCTION) {
         // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
         if (drawingView.mouseDownCallbackRef != LUA_NOREF) {
             luaL_unref(L, LUA_REGISTRYINDEX, drawingView.mouseDownCallbackRef);
