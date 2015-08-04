@@ -398,20 +398,6 @@ static int hs_operatingSystemVersion(lua_State *L) {
     return 1 ;
 }
 
-/// hs.host.temporaryDirectory() -> string
-/// Function
-/// Returns the path of the temporary directory for the current user.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * The path to the system preferred temporary directory for the current user.
-static int hs_temporaryDirectory(lua_State *L) {
-    lua_pushstring(L, [NSTemporaryDirectory() UTF8String]) ;
-    return 1 ;
-}
-
 /// hs.host.interfaceStyle() -> string
 /// Function
 /// Returns the OS X interface style for the current user.
@@ -474,7 +460,6 @@ static const luaL_Reg hostlib[] = {
     {"localizedName",                hostLocalizedName},
     {"vmStat",                       hs_vmstat},
     {"cpuUsage",                     hs_cpuInfo},
-    {"temporaryDirectory",           hs_temporaryDirectory},
     {"operatingSystemVersion",       hs_operatingSystemVersion},
     {"operatingSystemVersionString", hs_operatingSystemVersionString},
     {"interfaceStyle",               hs_interfaceStyle},
