@@ -89,7 +89,7 @@ static int timer_start(lua_State* L) {
 }
 
 /// hs.timer.doAfter(sec, fn) -> timer
-/// Function
+/// Constructor
 /// Calls a function after a delay
 ///
 /// Parameters:
@@ -144,6 +144,22 @@ static int timer_usleep(lua_State* L) {
     return 0;
 }
 
+/// hs.timer:running() -> boolean
+/// Method
+/// Returns a boolean indicating whether or not the timer is currently running.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a boolean value indicating whether or not the timer is currently running.
+static int timer_running(lua_State* L) {
+    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+
+    lua_pushboolean(L, CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes));
+    return 1;
+}
+
 /// hs.timer:stop() -> timer
 /// Method
 /// Stops an `hs.timer` object
@@ -180,6 +196,19 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSString* title ;
+
+    if (CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes))
+        title = @"running" ;
+    else
+        title = @"stopped";
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 /// hs.timer.secondsSinceEpoch() -> sec
 /// Function
 /// Gets the number of seconds since the epoch, including the fractional part; this has much better precision than `os.time()`, which is limited to whole seconds.
@@ -203,6 +232,8 @@ static int timer_getSecondsSinceEpoch(lua_State *L)
 static const luaL_Reg timer_metalib[] = {
     {"start",   timer_start},
     {"stop",    timer_stop},
+    {"running", timer_running},
+    {"__tostring", userdata_tostring},
     {"__gc",    timer_gc},
     {NULL,      NULL}
 };
