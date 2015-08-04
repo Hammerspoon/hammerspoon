@@ -10,10 +10,23 @@ function fail() {
 
 ############################### SANITY CHECKERS ###############################
 
+function assert_github_hub() {
+  echo "Checking hub(1) works..."
+  pushd "${HAMMERSPOON_HOME}" >/dev/null
+  hub release </dev/null >/dev/null 2>&1
+  if [ "$?" != "0" ]; then
+    fail "ERROR: hub(1) doesn't seem to have access to the Hammerspoon repo"
+  fi
+}
+
 function assert_github_release_token() {
   echo "Checking for GitHub release token..."
   if [ ! -f "${GITHUB_TOKEN_FILE}" ]; then
     fail "ERROR: You do not have a github token in ${GITHUB_TOKEN_FILE}"
+  fi
+  GITHUB_TOKEN=$(cat ${GITHUB_TOKEN_FILE}) github-release info >/dev/null 2>&1
+  if [ "$?" != "0" ]; then
+    fail "ERROR: Your github-release token doesn't seem to work"
   fi
 }
 
@@ -225,10 +238,8 @@ EOF
   git add docsets/Hammerspoon/Hammerspoon.tgz
   git commit -qam "Update Hammerspoon docset to ${VERSION}"
   git push -qf hammerspoon
+  hub pull-request -m \"Update Hammerspoon docset to ${VERSION}\" -h hammerspoon:master
   popd >/dev/null
-
-  # TODO: Turn this into PR-submitting commands when we are happy with the release process working well
-  echo "To generate a PR, cd dash ; hub pull-request -m \"Update Hammerspoon docset to ${VERSION}\" -h hammerspoon:master"
   popd >/dev/null
 }
 

@@ -28,6 +28,7 @@ source "${SCRIPT_HOME}/librelease.sh"
 
 echo "******** CHECKING SANITY:"
 
+assert_github_hub
 assert_github_release_token && export GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
 assert_codesign_authority_token && export CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
 assert_version_in_xcode
