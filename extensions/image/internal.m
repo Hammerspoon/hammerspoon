@@ -100,29 +100,159 @@ static int imageFromPath(lua_State *L) {
     return 1;
 }
 
-/// hs.image.imageFromASCII(ascii) -> object
+// Shamelessly "borrowed" and tweaked from the lua 5.1 source... see http://www.lua.org/source/5.1/ltablib.c.html
+static int maxn (lua_State *L, int idx) {
+  lua_Number max = 0;
+  luaL_checktype(L, idx, LUA_TTABLE);
+  lua_pushnil(L);  /* first key */
+  while (lua_next(L, idx)) {
+    lua_pop(L, 1);  /* remove value */
+    if (lua_type(L, -1) == LUA_TNUMBER) {
+      lua_Number v = lua_tonumber(L, -1);
+      if (v > max) max = v;
+    }
+  }
+  return max ;
+}
+
+/// hs.image.imageFromASCII(ascii[, context]) -> object
 /// Constructor
-/// Creates an image from an ASCII representation
+/// Creates an image from an ASCII representation with the specified context.
 ///
 /// Parameters:
 ///  * ascii - A string containing a representation of an image
+///  * context - a table containing the context for each shape in the image.  A shape is considered a single drawing element (point, ellipse, line, or polygon) as defined at https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/.
+///    * The context table is an optional (possibly sparse) array in which the index represents the order in which the shapes are defined.  The last (highest) numbered index in the sparse array specifies the default settings for any unspecified index and any settings which are not explicitly set in any other given index.
+///    * Each index consists of a table which can contain one or more of the following keys:
+///      * fillColor - the color with which the shape will be filled (defaults to black)  Color is defined in a table containing color component values between 0.0 and 1.0 for each of the keys:
+///        * red (default 0.0)
+///        * green (default 0.0)
+///        * blue (default 0.0)
+///        * alpha (default 1.0)
+///      * strokeColor - the color with which the shape will be stroked (defaults to black)
+///      * lineWidth - the line width (number) for the stroke of the shape (defaults to 1 if anti-aliasing is on or (√2)/2 if it is off -- approximately 0.7)
+///      * shouldClose - a boolean indicating whether or not the shape should be closed (defaults to true)
+///      * antialias - a boolean indicating whether or not the shape should be antialiased (defaults to true)
 ///
 /// Returns:
-///  * An `hs.imaage` object, or nil if an error occured
+///  * An `hs.image` object, or nil if an error occured
 ///
 /// Notes:
-///  * To use the ASCII diagram image support, see http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
-static int imageFromASCII(lua_State *L) {
+///  * To use the ASCII diagram image support, see https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
+///  * The default for lineWidth, when antialiasing is off, is defined within the ASCIImage library. Geometrically it represents one half of the hypotenuse of the unit right-triangle and is a more accurate representation of a "real" point size when dealing with arbitrary angles and lines than 1.0 would be.
+static int imageWithContextFromASCII(lua_State *L) {
     NSString *imageASCII = lua_to_nsstring(L, 1);
 
-    if ([imageASCII hasPrefix:@"ASCII:"]) {
-        imageASCII = [imageASCII substringFromIndex: 6];
-    }
-
-    NSColor *color = [NSColor blackColor];
+    if ([imageASCII hasPrefix:@"ASCII:"]) { imageASCII = [imageASCII substringFromIndex: 6]; }
     imageASCII = [imageASCII stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
     NSArray *rep = [imageASCII componentsSeparatedByString:@"\n"];
-    NSImage *newImage = [NSImage imageWithASCIIRepresentation:rep color:color shouldAntialias:YES];
+
+    NSColor *defaultFillColor   = [NSColor blackColor] ;
+    NSColor *defaultStrokeColor = [NSColor blackColor] ;
+    BOOL     defaultAntiAlias   = YES ;
+    BOOL     defaultShouldClose = YES ;
+    CGFloat  defaultLineWidth   = NAN ;
+
+    NSMutableDictionary *contextTable = [[NSMutableDictionary alloc] init] ;
+    int                  maxIndex     = 0 ;
+
+    // build context from table
+
+    switch (lua_type(L, 2)) {
+        case LUA_TTABLE:
+            maxIndex = maxn(L, 2) ;
+// NSLog(@"maxIndex = %d", maxIndex) ;
+            if (maxIndex == 0) break ;
+
+            lua_pushnil(L);  /* first key */
+            while (lua_next(L, 2) != 0) { // 'key' (at index -2) and 'value' (at index -1)
+                if (lua_istable(L, -1) && lua_isinteger(L, -2)) {
+                    NSMutableDictionary *thisEntry = [[NSMutableDictionary alloc] init] ;
+
+                    if (lua_getfield(L, -1, "fillColor") == LUA_TTABLE)
+                        [thisEntry setObject:getColorFromStack(L, -1) forKey:@"fillColor"];
+                    lua_pop(L, 1);
+
+                    if (lua_getfield(L, -1, "strokeColor") == LUA_TTABLE)
+                        [thisEntry setObject:getColorFromStack(L, -1) forKey:@"strokeColor"];
+                    lua_pop(L, 1);
+
+                    if (lua_getfield(L, -1, "lineWidth") == LUA_TNUMBER)
+                        [thisEntry setObject:@(lua_tonumber(L, -1)) forKey:@"lineWidth"];
+                    lua_pop(L, 1);
+
+                    if (lua_getfield(L, -1, "shouldClose") == LUA_TBOOLEAN)
+                        [thisEntry setObject:@(lua_toboolean(L, -1)) forKey:@"shouldClose"];
+                    lua_pop(L, 1);
+
+                    if (lua_getfield(L, -1, "antialias") == LUA_TBOOLEAN)
+                        [thisEntry setObject:@(lua_toboolean(L, -1)) forKey:@"antialias"];
+                    lua_pop(L, 1);
+
+                    if ([thisEntry count] > 0)
+                        [contextTable setObject:thisEntry forKey:@(lua_tointeger(L, -2))];
+                }
+                lua_pop(L, 1);  // removes 'value'; keeps 'key' for next iteration
+            }
+
+            if ([contextTable count] == 0) {
+                maxIndex = 0 ;
+                break ;
+            }
+
+            if ([contextTable objectForKey:@(maxIndex)]) {
+                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"fillColor"])
+                    defaultFillColor = [[contextTable objectForKey:@(maxIndex)] objectForKey:@"fillColor"] ;
+                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"strokeColor"])
+                    defaultStrokeColor = [[contextTable objectForKey:@(maxIndex)] objectForKey:@"strokeColor"] ;
+                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"antialias"])
+                    defaultAntiAlias = [[[contextTable objectForKey:@(maxIndex)] objectForKey:@"antialias"] boolValue] ;
+                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"shouldClose"])
+                    defaultShouldClose = [[[contextTable objectForKey:@(maxIndex)] objectForKey:@"shouldClose"] boolValue] ;
+                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"lineWidth"])
+                    defaultLineWidth = [[[contextTable objectForKey:@(maxIndex)] objectForKey:@"lineWidth"] floatValue] ;
+            }
+            break;
+        case LUA_TNIL:
+        case LUA_TNONE:
+            break;
+        default:
+            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.image.imageWithContextFromASCII as the context table: %d", lua_type(L, 2));
+            showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed to hs.image.imageWithContextFromASCII as the context table: %s", lua_typename(L, lua_type(L, 2))] UTF8String]) ;
+            lua_pushnil(L) ;
+            return 1;
+            break;
+    }
+
+    if (isnan(defaultLineWidth)) { defaultLineWidth = defaultAntiAlias ? 1.0 : sqrtf(2.0)/2.0; }
+
+// NSLog(@"contextTable: %@", contextTable) ;
+
+    NSImage *newImage = [NSImage imageWithASCIIRepresentation:rep
+                                               contextHandler:^(NSMutableDictionary *context) {
+              NSInteger index = [context[ASCIIContextShapeIndex] integerValue];
+              context[ASCIIContextFillColor]       = defaultFillColor ;
+              context[ASCIIContextStrokeColor]     = defaultStrokeColor ;
+              context[ASCIIContextLineWidth]       = @(defaultLineWidth) ;
+              context[ASCIIContextShouldClose]     = @(defaultShouldClose) ;
+              context[ASCIIContextShouldAntialias] = @(defaultAntiAlias) ;
+// NSLog(@"Checking Shape #: %ld", index) ;
+              if ((index + 1) <= maxIndex) {
+                  if ([contextTable objectForKey:@(index + 1)]) {
+                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"fillColor"])
+                          context[ASCIIContextFillColor] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"fillColor"] ;
+                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"strokeColor"])
+                          context[ASCIIContextStrokeColor] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"strokeColor"] ;
+                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"antialias"])
+                          context[ASCIIContextShouldAntialias] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"antialias"] ;
+                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"shouldClose"])
+                          context[ASCIIContextShouldClose] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"shouldClose"] ;
+                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"lineWidth"])
+                          context[ASCIIContextLineWidth] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"lineWidth"] ;
+                  }
+              }
+// NSLog(@"specificContext = %@", context) ;
+          }] ;
 
     if (newImage) {
         store_image_as_hsimage(L, newImage);
@@ -321,22 +451,23 @@ static int userdata_gc(lua_State* L) {
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
-    {"name",                getImageName},
-    {"setName",             setImageName},
-    {"saveToFile",          saveToFile},
-    {"__tostring",          userdata_tostring},
-    {"__eq",                userdata_eq},
-    {"__gc",                userdata_gc},
-    {NULL,                  NULL}
+    {"name",       getImageName},
+    {"setName",    setImageName},
+    {"saveToFile", saveToFile},
+    {"__tostring", userdata_tostring},
+    {"__eq",       userdata_eq},
+    {"__gc",       userdata_gc},
+    {NULL,         NULL}
 };
 
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
-    {"imageFromPath",      imageFromPath},
-    {"imageFromASCII",     imageFromASCII},
-    {"imageFromName",      imageFromName},
-    {"imageFromAppBundle", imageFromApp},
-    {NULL,                  NULL}
+    {"imageFromPath",             imageFromPath},
+    {"imageFromASCII",            imageWithContextFromASCII},
+//     {"imageWithContextFromASCII", imageWithContextFromASCII},
+    {"imageFromName",             imageFromName},
+    {"imageFromAppBundle",        imageFromApp},
+    {NULL,                        NULL}
 };
 
 // // Metatable for module, if needed
