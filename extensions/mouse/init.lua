@@ -121,8 +121,8 @@ end
 --- Notes:
 ---  * This function is a wrapper to `hs.eventtap.checkMouseButtons`
 ---  * This is an instantaneous poll of the current mouse buttons, not a callback.
-function module.getButtons()
-    return require("hs.eventtap").checkMouseButtons()
+function module.getButtons(...)
+    return require("hs.eventtap").checkMouseButtons(...)
 end
 
 -- Return Module Object --------------------------------------------------
