@@ -167,6 +167,7 @@ function archive_hammerspoon_app() {
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}"
   cp -a "${HAMMERSPOON_HOME}/build/Hammerspoon-${VERSION}.zip" "archive/${VERSION}/"
+  cp -a "${HAMMERSPOON_HOME}/build/release-build.log" "archive/${VERSION}/"
   popd >/dev/null
 }
 
