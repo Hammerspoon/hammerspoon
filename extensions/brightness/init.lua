@@ -10,8 +10,6 @@ local module = require("hs.brightness.internal")
 
 -- private variables and methods -----------------------------------------
 
-local check_list = {}
-
 -- Public interface ------------------------------------------------------
 
 -- Return Module Object --------------------------------------------------

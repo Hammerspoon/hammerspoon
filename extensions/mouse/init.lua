@@ -11,8 +11,6 @@ local screen = require("hs.screen")
 
 -- private variables and methods -----------------------------------------
 
-local check_list = {} -- what is this for?
-
 local deprecation_warnings = {}
 
 -- Public interface ------------------------------------------------------
