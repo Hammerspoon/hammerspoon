@@ -48,6 +48,13 @@
 		4FDE05BA1B729B0900E9E8EE /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4FDE05BB1B729B0E00E9E8EE /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4FDE05BC1B729B1400E9E8EE /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
+		4FDE05C11B72C22500E9E8EE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
+		4FDE05C21B72C22500E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
+		4FDE05CB1B72C24700E9E8EE /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDE05C91B72C24700E9E8EE /* init.lua */; };
+		4FDE05CC1B72C24700E9E8EE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05CA1B72C24700E9E8EE /* internal.m */; };
+		4FDE05CD1B72C24700E9E8EE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05CA1B72C24700E9E8EE /* internal.m */; };
+		4FDE05CE1B72C2DB00E9E8EE /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDE05B61B72999A00E9E8EE /* IOKit.framework */; };
+		4FDE05CF1B72C2E000E9E8EE /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FBE2D131B72635400407788 /* Carbon.framework */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
 		9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422ACBC19B6163800F06A90 /* MJConfigUtils.m */; };
@@ -137,6 +144,13 @@
 			remoteGlobalIDString = 4FDE05A41B72988C00E9E8EE;
 			remoteInfo = batterywatcher;
 		};
+		4FDE05D01B72C2FD00E9E8EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FDE05BD1B72C22500E9E8EE;
+			remoteInfo = brightness;
+		};
 		D02F952A1A00221C00E28BB2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
@@ -161,7 +175,6 @@
 		4F70EEED1B7273B00025A7B3 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/base64/init.lua; sourceTree = "<group>"; };
 		4F70EEEE1B7273B00025A7B3 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/base64/internal.m; sourceTree = "<group>"; };
 		4F98506F1B722C6C00F7E909 /* appfinder */ = {isa = PBXFileReference; lastKnownFileType = folder; name = appfinder; path = extensions/appfinder; sourceTree = "<group>"; };
-		4F9850751B722C6C00F7E909 /* brightness */ = {isa = PBXFileReference; lastKnownFileType = folder; name = brightness; path = extensions/brightness; sourceTree = "<group>"; };
 		4F9850761B722C6C00F7E909 /* caffeinate */ = {isa = PBXFileReference; lastKnownFileType = folder; name = caffeinate; path = extensions/caffeinate; sourceTree = "<group>"; };
 		4F9850771B722C6C00F7E909 /* crash */ = {isa = PBXFileReference; lastKnownFileType = folder; name = crash; path = extensions/crash; sourceTree = "<group>"; };
 		4F9850781B722C6C00F7E909 /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = doc; path = extensions/doc; sourceTree = "<group>"; };
@@ -230,6 +243,9 @@
 		4FDE05AE1B72988C00E9E8EE /* libbatterywatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbatterywatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05B01B7298AD00E9E8EE /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/battery/watcher.m; sourceTree = "<group>"; };
 		4FDE05B61B72999A00E9E8EE /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		4FDE05C71B72C22500E9E8EE /* libbrightness.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbrightness.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FDE05C91B72C24700E9E8EE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/brightness/init.lua; sourceTree = "<group>"; };
+		4FDE05CA1B72C24700E9E8EE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/brightness/internal.m; sourceTree = "<group>"; };
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
 		896F5840119EB0EC98527200 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
@@ -370,6 +386,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FDE05C01B72C22500E9E8EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FDE05CF1B72C2E000E9E8EE /* Carbon.framework in Frameworks */,
+				4FDE05CE1B72C2DB00E9E8EE /* IOKit.framework in Frameworks */,
+				4FDE05C11B72C22500E9E8EE /* Cocoa.framework in Frameworks */,
+				4FDE05C21B72C22500E9E8EE /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9445CA0819083251002568BB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -433,8 +460,8 @@
 				4F70EEEC1B72739D0025A7B3 /* base64 */,
 				4FDE05A01B72986200E9E8EE /* battery */,
 				4FDE05AF1B72989B00E9E8EE /* batterywatcher */,
+				4FDE05C81B72C23400E9E8EE /* brightness */,
 				4F98506F1B722C6C00F7E909 /* appfinder */,
-				4F9850751B722C6C00F7E909 /* brightness */,
 				4F9850761B722C6C00F7E909 /* caffeinate */,
 				4F9850771B722C6C00F7E909 /* crash */,
 				4F9850781B722C6C00F7E909 /* doc */,
@@ -531,6 +558,15 @@
 			name = batterywatcher;
 			sourceTree = "<group>";
 		};
+		4FDE05C81B72C23400E9E8EE /* brightness */ = {
+			isa = PBXGroup;
+			children = (
+				4FDE05C91B72C24700E9E8EE /* init.lua */,
+				4FDE05CA1B72C24700E9E8EE /* internal.m */,
+			);
+			name = brightness;
+			sourceTree = "<group>";
+		};
 		942050C219907AF700FC4839 /* Console Window */ = {
 			isa = PBXGroup;
 			children = (
@@ -579,6 +615,7 @@
 				4F70EEE91B7273700025A7B3 /* libbase64.dylib */,
 				4FDE059F1B72984C00E9E8EE /* libbattery.dylib */,
 				4FDE05AE1B72988C00E9E8EE /* libbatterywatcher.dylib */,
+				4FDE05C71B72C22500E9E8EE /* libbrightness.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -767,6 +804,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FDE05C31B72C22500E9E8EE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -906,6 +950,23 @@
 			productReference = 4FDE05AE1B72988C00E9E8EE /* libbatterywatcher.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		4FDE05BD1B72C22500E9E8EE /* brightness */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FDE05C41B72C22500E9E8EE /* Build configuration list for PBXNativeTarget "brightness" */;
+			buildPhases = (
+				4FDE05BE1B72C22500E9E8EE /* Sources */,
+				4FDE05C01B72C22500E9E8EE /* Frameworks */,
+				4FDE05C31B72C22500E9E8EE /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = brightness;
+			productName = alert;
+			productReference = 4FDE05C71B72C22500E9E8EE /* libbrightness.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		9445CA0A19083251002568BB /* Hammerspoon */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hammerspoon" */;
@@ -927,6 +988,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4FDE05D11B72C2FD00E9E8EE /* PBXTargetDependency */,
 				4FDE05B51B7298BA00E9E8EE /* PBXTargetDependency */,
 				4FDE05B31B7298B700E9E8EE /* PBXTargetDependency */,
 				4F70EEEB1B7273820025A7B3 /* PBXTargetDependency */,
@@ -1001,6 +1063,7 @@
 				4F70EEDF1B7273700025A7B3 /* base64 */,
 				4FDE05951B72984C00E9E8EE /* battery */,
 				4FDE05A41B72988C00E9E8EE /* batterywatcher */,
+				4FDE05BD1B72C22500E9E8EE /* brightness */,
 			);
 		};
 /* End PBXProject section */
@@ -1010,6 +1073,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FDE05CB1B72C24700E9E8EE /* init.lua in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
@@ -1144,7 +1208,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export HS_DST=\"${BUILD_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs/\"\n\ncp -a \"${BUILT_PRODUCTS_DIR}/libalert.dylib\"              \"${HS_DST}/alert/internal.so\"\ncp -a \"${BUILT_PRODUCTS_DIR}/libapplescript.dylib\"        \"${HS_DST}/applescript/internal.so\"\ncp -a \"${BUILT_PRODUCTS_DIR}/libapplication.dylib\"        \"${HS_DST}/application/internal.so\"\ncp -a \"${BUILT_PRODUCTS_DIR}/libapplicationwatcher.dylib\" \"${HS_DST}/application/watcher.so\"\ncp -a \"${BUILT_PRODUCTS_DIR}/libaudiodevice.dylib\"        \"${HS_DST}/audiodevice/internal.so\"\ncp -a \"${BUILT_PRODUCTS_DIR}/libbase64.dylib\"             \"${HS_DST}/base64/internal.so\"\ncp -a \"${BUILT_PRODUCTS_DIR}/libbattery.dylib\"            \"${HS_DST}/battery/internal.so\"\ncp -a \"${BUILT_PRODUCTS_DIR}/libbatterywatcher.dylib\"     \"${HS_DST}/battery/watcher.so\"";
+			shellScript = "export HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness\"\nexport HS_WATCHERS=\"application battery\"\n\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1242,12 +1306,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FDE05BE1B72C22500E9E8EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FDE05CD1B72C24700E9E8EE /* internal.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9445CA0719083251002568BB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */,
 				942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */,
+				4FDE05CC1B72C24700E9E8EE /* internal.m in Sources */,
 				9409203119A5940600B9964E /* MJVersionUtils.m in Sources */,
 				944A2DA91989760400D8DC90 /* MJConsoleWindowController.m in Sources */,
 				94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */,
@@ -1314,6 +1387,11 @@
 			isa = PBXTargetDependency;
 			target = 4FDE05A41B72988C00E9E8EE /* batterywatcher */;
 			targetProxy = 4FDE05B41B7298BA00E9E8EE /* PBXContainerItemProxy */;
+		};
+		4FDE05D11B72C2FD00E9E8EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FDE05BD1B72C22500E9E8EE /* brightness */;
+			targetProxy = 4FDE05D01B72C2FD00E9E8EE /* PBXContainerItemProxy */;
 		};
 		D02F952B1A00221C00E28BB2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2379,6 +2457,138 @@
 			};
 			name = Release;
 		};
+		4FDE05C51B72C22500E9E8EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Debug;
+		};
+		4FDE05C61B72C22500E9E8EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
 		9445CA3A19083251002568BB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2630,6 +2840,15 @@
 			buildConfigurations = (
 				4FDE05AC1B72988C00E9E8EE /* Debug */,
 				4FDE05AD1B72988C00E9E8EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FDE05C41B72C22500E9E8EE /* Build configuration list for PBXNativeTarget "brightness" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FDE05C51B72C22500E9E8EE /* Debug */,
+				4FDE05C61B72C22500E9E8EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
