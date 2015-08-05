@@ -45,7 +45,7 @@ static const luaL_Reg scriptlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_applescript_internal(lua_State* L) {
+int luaopen_hs_libapplescript(lua_State* L) {
     luaL_newlib(L, scriptlib);
 
     return 1;

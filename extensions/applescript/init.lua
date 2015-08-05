@@ -4,7 +4,7 @@
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
-local module = require("hs.applescript.internal")
+local module = require("hs.libapplescript")
 
 -- private variables and methods -----------------------------------------
 
