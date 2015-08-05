@@ -1653,7 +1653,13 @@ static int setBehavior(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSInteger newLevel = luaL_checkinteger(L, 2);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
-    [drawingWindow setCollectionBehavior:newLevel] ;
+    @try {
+        [drawingWindow setCollectionBehavior:newLevel] ;
+    }
+    @catch ( NSException *theException ) {
+        showError(L, (char *)[[NSString stringWithFormat:@"%@: %@", theException.name, theException.reason] UTF8String]);
+        return 0 ;
+    }
 
     lua_settop(L, 1);
     return 1 ;
