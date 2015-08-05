@@ -217,7 +217,7 @@ static const luaL_Reg metalib[] = {
     {}
 };
 
-int luaopen_hs_libalert(lua_State* L) {
+int luaopen_hs_alert_internal(lua_State* L) {
     luaL_newlib(L, alertlib);
 
     luaL_newlib(L, metalib);
