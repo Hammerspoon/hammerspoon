@@ -133,7 +133,7 @@ end
 
 print("-- Augmenting require paths")
 package.path=configdir.."/?.lua"..";"..configdir.."/?/init.lua"..";"..package.path..";"..modpath.."/?.lua"..";"..modpath.."/?/init.lua"
-package.cpath=configdir.."/?.so"..";"..package.cpath..";"..modpath.."/?.so"..";"..modpath.."/?.dylib"
+package.cpath=configdir.."/?.so"..";"..package.cpath..";"..modpath.."/?.so"
 
 print("-- package.path:")
 for part in string.gmatch(package.path, "([^;]+)") do
