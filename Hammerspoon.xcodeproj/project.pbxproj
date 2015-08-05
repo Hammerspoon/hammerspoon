@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		4F0F97571ADE9F8600F2A199 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F1CF8DB1A47F5BD001C8AE7 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */; };
+		4F64D8BF1B724C4B00FC4C65 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F64D8BE1B724C4B00FC4C65 /* internal.m */; };
+		4F9850E91B722CBF00F7E909 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
+		4F9850EA1B722CC400F7E909 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
+		4F9850EF1B72330900F7E909 /* libalert.dylib in Copy extensions */ = {isa = PBXBuildFile; fileRef = 4F9850E11B722C8100F7E909 /* libalert.dylib */; };
 		4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */; };
 		4FC09F7C19F99ECE007542A6 /* docs.json in Resources */ = {isa = PBXBuildFile; fileRef = 4FC09F7B19F99ECE007542A6 /* docs.json */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
@@ -53,11 +57,83 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		4F9850EE1B7232FA00F7E909 /* Copy extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = extensions/hs;
+			dstSubfolderSpec = 7;
+			files = (
+				4F9850EF1B72330900F7E909 /* libalert.dylib in Copy extensions */,
+			);
+			name = "Copy extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		273C7223738140A6F91A8338 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F0F97561ADE9F8600F2A199 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
-		4F9A454919EC6801006BB982 /* build_extensions.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = build_extensions.sh; path = extensions/build_extensions.sh; sourceTree = "<group>"; };
+		4F64D8BD1B724C4B00FC4C65 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/alert/init.lua; sourceTree = "<group>"; };
+		4F64D8BE1B724C4B00FC4C65 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/alert/internal.m; sourceTree = "<group>"; };
+		4F98506F1B722C6C00F7E909 /* appfinder */ = {isa = PBXFileReference; lastKnownFileType = folder; name = appfinder; path = extensions/appfinder; sourceTree = "<group>"; };
+		4F9850701B722C6C00F7E909 /* applescript */ = {isa = PBXFileReference; lastKnownFileType = folder; name = applescript; path = extensions/applescript; sourceTree = "<group>"; };
+		4F9850711B722C6C00F7E909 /* application */ = {isa = PBXFileReference; lastKnownFileType = folder; name = application; path = extensions/application; sourceTree = "<group>"; };
+		4F9850721B722C6C00F7E909 /* audiodevice */ = {isa = PBXFileReference; lastKnownFileType = folder; name = audiodevice; path = extensions/audiodevice; sourceTree = "<group>"; };
+		4F9850731B722C6C00F7E909 /* base64 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = base64; path = extensions/base64; sourceTree = "<group>"; };
+		4F9850741B722C6C00F7E909 /* battery */ = {isa = PBXFileReference; lastKnownFileType = folder; name = battery; path = extensions/battery; sourceTree = "<group>"; };
+		4F9850751B722C6C00F7E909 /* brightness */ = {isa = PBXFileReference; lastKnownFileType = folder; name = brightness; path = extensions/brightness; sourceTree = "<group>"; };
+		4F9850761B722C6C00F7E909 /* caffeinate */ = {isa = PBXFileReference; lastKnownFileType = folder; name = caffeinate; path = extensions/caffeinate; sourceTree = "<group>"; };
+		4F9850771B722C6C00F7E909 /* crash */ = {isa = PBXFileReference; lastKnownFileType = folder; name = crash; path = extensions/crash; sourceTree = "<group>"; };
+		4F9850781B722C6C00F7E909 /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = doc; path = extensions/doc; sourceTree = "<group>"; };
+		4F9850791B722C6C00F7E909 /* dockicon */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dockicon; path = extensions/dockicon; sourceTree = "<group>"; };
+		4F98507A1B722C6C00F7E909 /* drawing */ = {isa = PBXFileReference; lastKnownFileType = folder; name = drawing; path = extensions/drawing; sourceTree = "<group>"; };
+		4F98507B1B722C6C00F7E909 /* eventtap */ = {isa = PBXFileReference; lastKnownFileType = folder; name = eventtap; path = extensions/eventtap; sourceTree = "<group>"; };
+		4F98507C1B722C6C00F7E909 /* fnutils */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fnutils; path = extensions/fnutils; sourceTree = "<group>"; };
+		4F98507D1B722C6C00F7E909 /* fs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fs; path = extensions/fs; sourceTree = "<group>"; };
+		4F98507E1B722C6C00F7E909 /* geometry */ = {isa = PBXFileReference; lastKnownFileType = folder; name = geometry; path = extensions/geometry; sourceTree = "<group>"; };
+		4F98507F1B722C6C00F7E909 /* grid */ = {isa = PBXFileReference; lastKnownFileType = folder; name = grid; path = extensions/grid; sourceTree = "<group>"; };
+		4F9850801B722C6C00F7E909 /* hammerspoon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hammerspoon.h; path = extensions/hammerspoon.h; sourceTree = "<group>"; };
+		4F9850811B722C6C00F7E909 /* hash */ = {isa = PBXFileReference; lastKnownFileType = folder; name = hash; path = extensions/hash; sourceTree = "<group>"; };
+		4F9850821B722C6C00F7E909 /* hints */ = {isa = PBXFileReference; lastKnownFileType = folder; name = hints; path = extensions/hints; sourceTree = "<group>"; };
+		4F9850831B722C6C00F7E909 /* host */ = {isa = PBXFileReference; lastKnownFileType = folder; name = host; path = extensions/host; sourceTree = "<group>"; };
+		4F9850841B722C6C00F7E909 /* hotkey */ = {isa = PBXFileReference; lastKnownFileType = folder; name = hotkey; path = extensions/hotkey; sourceTree = "<group>"; };
+		4F9850851B722C6C00F7E909 /* http */ = {isa = PBXFileReference; lastKnownFileType = folder; name = http; path = extensions/http; sourceTree = "<group>"; };
+		4F9850861B722C6C00F7E909 /* httpserver */ = {isa = PBXFileReference; lastKnownFileType = folder; name = httpserver; path = extensions/httpserver; sourceTree = "<group>"; };
+		4F9850871B722C6C00F7E909 /* image */ = {isa = PBXFileReference; lastKnownFileType = folder; name = image; path = extensions/image; sourceTree = "<group>"; };
+		4F9850881B722C6C00F7E909 /* inspect */ = {isa = PBXFileReference; lastKnownFileType = folder; name = inspect; path = extensions/inspect; sourceTree = "<group>"; };
+		4F9850891B722C6C00F7E909 /* ipc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ipc; path = extensions/ipc; sourceTree = "<group>"; };
+		4F98508A1B722C6C00F7E909 /* itunes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = itunes; path = extensions/itunes; sourceTree = "<group>"; };
+		4F98508B1B722C6C00F7E909 /* json */ = {isa = PBXFileReference; lastKnownFileType = folder; name = json; path = extensions/json; sourceTree = "<group>"; };
+		4F98508C1B722C6C00F7E909 /* keycodes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = keycodes; path = extensions/keycodes; sourceTree = "<group>"; };
+		4F98508D1B722C6C00F7E909 /* layout */ = {isa = PBXFileReference; lastKnownFileType = folder; name = layout; path = extensions/layout; sourceTree = "<group>"; };
+		4F98508E1B722C6C00F7E909 /* location */ = {isa = PBXFileReference; lastKnownFileType = folder; name = location; path = extensions/location; sourceTree = "<group>"; };
+		4F98508F1B722C6C00F7E909 /* logger */ = {isa = PBXFileReference; lastKnownFileType = folder; name = logger; path = extensions/logger; sourceTree = "<group>"; };
+		4F9850901B722C6C00F7E909 /* menubar */ = {isa = PBXFileReference; lastKnownFileType = folder; name = menubar; path = extensions/menubar; sourceTree = "<group>"; };
+		4F9850911B722C6C00F7E909 /* messages */ = {isa = PBXFileReference; lastKnownFileType = folder; name = messages; path = extensions/messages; sourceTree = "<group>"; };
+		4F9850921B722C6C00F7E909 /* milight */ = {isa = PBXFileReference; lastKnownFileType = folder; name = milight; path = extensions/milight; sourceTree = "<group>"; };
+		4F9850931B722C6C00F7E909 /* mjomatic */ = {isa = PBXFileReference; lastKnownFileType = folder; name = mjomatic; path = extensions/mjomatic; sourceTree = "<group>"; };
+		4F9850941B722C6C00F7E909 /* mouse */ = {isa = PBXFileReference; lastKnownFileType = folder; name = mouse; path = extensions/mouse; sourceTree = "<group>"; };
+		4F9850951B722C6C00F7E909 /* notify */ = {isa = PBXFileReference; lastKnownFileType = folder; name = notify; path = extensions/notify; sourceTree = "<group>"; };
+		4F9850961B722C6C00F7E909 /* pasteboard */ = {isa = PBXFileReference; lastKnownFileType = folder; name = pasteboard; path = extensions/pasteboard; sourceTree = "<group>"; };
+		4F9850971B722C6C00F7E909 /* pathwatcher */ = {isa = PBXFileReference; lastKnownFileType = folder; name = pathwatcher; path = extensions/pathwatcher; sourceTree = "<group>"; };
+		4F9850981B722C6C00F7E909 /* screen */ = {isa = PBXFileReference; lastKnownFileType = folder; name = screen; path = extensions/screen; sourceTree = "<group>"; };
+		4F9850991B722C6C00F7E909 /* settings */ = {isa = PBXFileReference; lastKnownFileType = folder; name = settings; path = extensions/settings; sourceTree = "<group>"; };
+		4F98509A1B722C6C00F7E909 /* sound */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sound; path = extensions/sound; sourceTree = "<group>"; };
+		4F98509B1B722C6C00F7E909 /* spaces */ = {isa = PBXFileReference; lastKnownFileType = folder; name = spaces; path = extensions/spaces; sourceTree = "<group>"; };
+		4F98509C1B722C6C00F7E909 /* spotify */ = {isa = PBXFileReference; lastKnownFileType = folder; name = spotify; path = extensions/spotify; sourceTree = "<group>"; };
+		4F98509D1B722C6C00F7E909 /* tabs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tabs; path = extensions/tabs; sourceTree = "<group>"; };
+		4F98509E1B722C6C00F7E909 /* timer */ = {isa = PBXFileReference; lastKnownFileType = folder; name = timer; path = extensions/timer; sourceTree = "<group>"; };
+		4F98509F1B722C6C00F7E909 /* uielement */ = {isa = PBXFileReference; lastKnownFileType = folder; name = uielement; path = extensions/uielement; sourceTree = "<group>"; };
+		4F9850A01B722C6C00F7E909 /* urlevent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = urlevent; path = extensions/urlevent; sourceTree = "<group>"; };
+		4F9850A11B722C6C00F7E909 /* usb */ = {isa = PBXFileReference; lastKnownFileType = folder; name = usb; path = extensions/usb; sourceTree = "<group>"; };
+		4F9850A21B722C6C00F7E909 /* utf8 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = utf8; path = extensions/utf8; sourceTree = "<group>"; };
+		4F9850A31B722C6C00F7E909 /* wifi */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wifi; path = extensions/wifi; sourceTree = "<group>"; };
+		4F9850A41B722C6C00F7E909 /* window */ = {isa = PBXFileReference; lastKnownFileType = folder; name = window; path = extensions/window; sourceTree = "<group>"; };
+		4F9850A51B722C6C00F7E909 /* windowfilter */ = {isa = PBXFileReference; lastKnownFileType = folder; name = windowfilter; path = extensions/windowfilter; sourceTree = "<group>"; };
+		4F9850E11B722C8100F7E909 /* libalert.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libalert.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F9850E81B722CBF00F7E909 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = "../../../Library/Developer/Xcode/DerivedData/Hammerspoon-bcanpjyjcsxqcveiabevaoqikpya/Build/Products/Debug/LuaSkin.framework"; sourceTree = "<group>"; };
 		4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = build/Hammerspoon/Build/Products/Debug/LuaSkin.framework; sourceTree = "<group>"; };
 		4FC09F7B19F99ECE007542A6 /* docs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = docs.json; path = build/docs.json; sourceTree = "<group>"; };
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
@@ -117,6 +193,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4F9850DE1B722C8100F7E909 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F9850EA1B722CC400F7E909 /* Cocoa.framework in Frameworks */,
+				4F9850E91B722CBF00F7E909 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9445CA0819083251002568BB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -142,6 +227,78 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4F64D8BC1B724C3A00FC4C65 /* alert */ = {
+			isa = PBXGroup;
+			children = (
+				4F64D8BD1B724C4B00FC4C65 /* init.lua */,
+				4F64D8BE1B724C4B00FC4C65 /* internal.m */,
+			);
+			name = alert;
+			sourceTree = "<group>";
+		};
+		4F98506D1B722C4100F7E909 /* extensions */ = {
+			isa = PBXGroup;
+			children = (
+				4F64D8BC1B724C3A00FC4C65 /* alert */,
+				4F98506F1B722C6C00F7E909 /* appfinder */,
+				4F9850701B722C6C00F7E909 /* applescript */,
+				4F9850711B722C6C00F7E909 /* application */,
+				4F9850721B722C6C00F7E909 /* audiodevice */,
+				4F9850731B722C6C00F7E909 /* base64 */,
+				4F9850741B722C6C00F7E909 /* battery */,
+				4F9850751B722C6C00F7E909 /* brightness */,
+				4F9850761B722C6C00F7E909 /* caffeinate */,
+				4F9850771B722C6C00F7E909 /* crash */,
+				4F9850781B722C6C00F7E909 /* doc */,
+				4F9850791B722C6C00F7E909 /* dockicon */,
+				4F98507A1B722C6C00F7E909 /* drawing */,
+				4F98507B1B722C6C00F7E909 /* eventtap */,
+				4F98507C1B722C6C00F7E909 /* fnutils */,
+				4F98507D1B722C6C00F7E909 /* fs */,
+				4F98507E1B722C6C00F7E909 /* geometry */,
+				4F98507F1B722C6C00F7E909 /* grid */,
+				4F9850801B722C6C00F7E909 /* hammerspoon.h */,
+				4F9850811B722C6C00F7E909 /* hash */,
+				4F9850821B722C6C00F7E909 /* hints */,
+				4F9850831B722C6C00F7E909 /* host */,
+				4F9850841B722C6C00F7E909 /* hotkey */,
+				4F9850851B722C6C00F7E909 /* http */,
+				4F9850861B722C6C00F7E909 /* httpserver */,
+				4F9850871B722C6C00F7E909 /* image */,
+				4F9850881B722C6C00F7E909 /* inspect */,
+				4F9850891B722C6C00F7E909 /* ipc */,
+				4F98508A1B722C6C00F7E909 /* itunes */,
+				4F98508B1B722C6C00F7E909 /* json */,
+				4F98508C1B722C6C00F7E909 /* keycodes */,
+				4F98508D1B722C6C00F7E909 /* layout */,
+				4F98508E1B722C6C00F7E909 /* location */,
+				4F98508F1B722C6C00F7E909 /* logger */,
+				4F9850901B722C6C00F7E909 /* menubar */,
+				4F9850911B722C6C00F7E909 /* messages */,
+				4F9850921B722C6C00F7E909 /* milight */,
+				4F9850931B722C6C00F7E909 /* mjomatic */,
+				4F9850941B722C6C00F7E909 /* mouse */,
+				4F9850951B722C6C00F7E909 /* notify */,
+				4F9850961B722C6C00F7E909 /* pasteboard */,
+				4F9850971B722C6C00F7E909 /* pathwatcher */,
+				4F9850981B722C6C00F7E909 /* screen */,
+				4F9850991B722C6C00F7E909 /* settings */,
+				4F98509A1B722C6C00F7E909 /* sound */,
+				4F98509B1B722C6C00F7E909 /* spaces */,
+				4F98509C1B722C6C00F7E909 /* spotify */,
+				4F98509D1B722C6C00F7E909 /* tabs */,
+				4F98509E1B722C6C00F7E909 /* timer */,
+				4F98509F1B722C6C00F7E909 /* uielement */,
+				4F9850A01B722C6C00F7E909 /* urlevent */,
+				4F9850A11B722C6C00F7E909 /* usb */,
+				4F9850A21B722C6C00F7E909 /* utf8 */,
+				4F9850A31B722C6C00F7E909 /* wifi */,
+				4F9850A41B722C6C00F7E909 /* window */,
+				4F9850A51B722C6C00F7E909 /* windowfilter */,
+			);
+			name = extensions;
+			sourceTree = "<group>";
+		};
 		942050C219907AF700FC4839 /* Console Window */ = {
 			isa = PBXGroup;
 			children = (
@@ -168,8 +325,8 @@
 			isa = PBXGroup;
 			children = (
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
-				4F9A454919EC6801006BB982 /* build_extensions.sh */,
 				9445CA1419083251002568BB /* Hammerspoon */,
+				4F98506D1B722C4100F7E909 /* extensions */,
 				D02F95251A00221C00E28BB2 /* Hammerspoon Tests */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
@@ -182,6 +339,7 @@
 			children = (
 				9445CA0B19083251002568BB /* Hammerspoon.app */,
 				D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */,
+				4F9850E11B722C8100F7E909 /* libalert.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -189,6 +347,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F9850E81B722CBF00F7E909 /* LuaSkin.framework */,
 				4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */,
 				4F0F97561ADE9F8600F2A199 /* Fabric.framework */,
 				4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */,
@@ -306,7 +465,34 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		4F9850DF1B722C8100F7E909 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
+		4F9850E01B722C8100F7E909 /* alert */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F9850E21B722C8200F7E909 /* Build configuration list for PBXNativeTarget "alert" */;
+			buildPhases = (
+				4F9850DD1B722C8100F7E909 /* Sources */,
+				4F9850DE1B722C8100F7E909 /* Frameworks */,
+				4F9850DF1B722C8100F7E909 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = alert;
+			productName = alert;
+			productReference = 4F9850E11B722C8100F7E909 /* libalert.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		9445CA0A19083251002568BB /* Hammerspoon */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hammerspoon" */;
@@ -318,6 +504,7 @@
 				9445CA0819083251002568BB /* Frameworks */,
 				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
 				4F9A454819EC67E1006BB982 /* Compile Extensions */,
+				4F9850EE1B7232FA00F7E909 /* Copy extensions */,
 				9445CA0919083251002568BB /* Resources */,
 				4F9F02191B39297F009C32E5 /* Copy Lua headers */,
 				F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */,
@@ -361,6 +548,9 @@
 				LastUpgradeCheck = 0600;
 				ORGANIZATIONNAME = Hammerspoon;
 				TargetAttributes = {
+					4F9850E01B722C8100F7E909 = {
+						CreatedOnToolsVersion = 7.0;
+					};
 					D02F95231A00221C00E28BB2 = {
 						CreatedOnToolsVersion = 6.1;
 						TestTargetID = 9445CA0A19083251002568BB;
@@ -382,6 +572,7 @@
 			targets = (
 				9445CA0A19083251002568BB /* Hammerspoon */,
 				D02F95231A00221C00E28BB2 /* Hammerspoon Tests */,
+				4F9850E01B722C8100F7E909 /* alert */,
 			);
 		};
 /* End PBXProject section */
@@ -545,6 +736,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4F9850DD1B722C8100F7E909 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F64D8BF1B724C4B00FC4C65 /* internal.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9445CA0719083251002568BB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -586,10 +785,140 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		4F9850E31B722C8200F7E909 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Debug;
+		};
+		4F9850E41B722C8200F7E909 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
 		9445CA3A19083251002568BB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -614,6 +943,7 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -627,7 +957,7 @@
 		9445CA3B19083251002568BB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -647,6 +977,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_PEDANTIC = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
@@ -757,6 +1088,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4F9850E21B722C8200F7E909 /* Build configuration list for PBXNativeTarget "alert" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F9850E31B722C8200F7E909 /* Debug */,
+				4F9850E41B722C8200F7E909 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9445CA0619083251002568BB /* Build configuration list for PBXProject "Hammerspoon" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
