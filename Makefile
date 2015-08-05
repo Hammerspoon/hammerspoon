@@ -7,6 +7,8 @@ $(APPFILE): build $(shell find Hammerspoon -type f)
 	rm -rf $@
 	xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release clean build > build/release-build.log
 	cp -R ${PRODUCT_DIR}/Hammerspoon.app $@
+	cp -R ${PRODUCT_DIR}/Hammerspoon.app.dSYM build/
+	cp -R ${PRODUCT_DIR}/LuaSkin.framework.dSYM build/
 
 docs: build/Hammerspoon.docset
 

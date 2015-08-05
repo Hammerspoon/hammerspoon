@@ -172,6 +172,10 @@ function archive_hammerspoon_app() {
 }
 
 function archive_dSYMs() {
+  echo "Archiving Hammerspoon.app.dSYM..."
+  cp -a "${HAMMERSPOON_HOME}/build/Hammerspoon.app.dSYM" "archive/${VERSION}/dSYM/"
+  echo "Archiving LuaSkin.framework.dSYM..."
+  cp -a "${HAMMERSPOON_HOME}/build/LuaSkin.framework.dSYM" "archive/${VERSION}/dSYM/"
   echo "Archiving extension .dSYM files..."
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/dSYM"
