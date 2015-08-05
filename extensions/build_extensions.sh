@@ -59,6 +59,13 @@ for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
         LUAONLY=1
     fi
 
+    # Check if this module has been migrated to Xcode building
+    case "${dir}" in
+        "alert")
+            LUAONLY=1
+            ;;
+    esac
+
     # Set environment variables
     export PREFIX="${T}"
     if [ "${CONFIGURATION:-''}" != "Debug" ]; then
