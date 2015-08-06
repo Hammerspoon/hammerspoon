@@ -263,6 +263,7 @@
 		4F4CB3E01B7399D0000EA9B6 /* libgeometry.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgeometry.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3E41B739A0F000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/geometry/init.lua; sourceTree = "<group>"; };
 		4F4CB3E51B739A0F000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/geometry/internal.m; sourceTree = "<group>"; };
+		4F4CB3E81B739ABD000EA9B6 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/grid/init.lua; sourceTree = "<group>"; };
 		4F64D8BD1B724C4B00FC4C65 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/alert/init.lua; sourceTree = "<group>"; };
 		4F64D8BE1B724C4B00FC4C65 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/alert/internal.m; sourceTree = "<group>"; };
 		4F70EED31B726D170025A7B3 /* libaudiodevice.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libaudiodevice.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -275,7 +276,6 @@
 		4F70EEEE1B7273B00025A7B3 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/base64/internal.m; sourceTree = "<group>"; };
 		4F9850781B722C6C00F7E909 /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = doc; path = extensions/doc; sourceTree = "<group>"; };
 		4F98507B1B722C6C00F7E909 /* eventtap */ = {isa = PBXFileReference; lastKnownFileType = folder; name = eventtap; path = extensions/eventtap; sourceTree = "<group>"; };
-		4F98507F1B722C6C00F7E909 /* grid */ = {isa = PBXFileReference; lastKnownFileType = folder; name = grid; path = extensions/grid; sourceTree = "<group>"; };
 		4F9850801B722C6C00F7E909 /* hammerspoon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hammerspoon.h; path = extensions/hammerspoon.h; sourceTree = "<group>"; };
 		4F9850811B722C6C00F7E909 /* hash */ = {isa = PBXFileReference; lastKnownFileType = folder; name = hash; path = extensions/hash; sourceTree = "<group>"; };
 		4F9850821B722C6C00F7E909 /* hints */ = {isa = PBXFileReference; lastKnownFileType = folder; name = hints; path = extensions/hints; sourceTree = "<group>"; };
@@ -646,6 +646,14 @@
 			name = geometry;
 			sourceTree = "<group>";
 		};
+		4F4CB3E71B739AB4000EA9B6 /* grid */ = {
+			isa = PBXGroup;
+			children = (
+				4F4CB3E81B739ABD000EA9B6 /* init.lua */,
+			);
+			name = grid;
+			sourceTree = "<group>";
+		};
 		4F64D8BC1B724C3A00FC4C65 /* alert */ = {
 			isa = PBXGroup;
 			children = (
@@ -695,9 +703,9 @@
 				4F4CB3C01B7388AE000EA9B6 /* fnutils */,
 				4F4CB3CF1B7391C3000EA9B6 /* fs */,
 				4F4CB3E31B739A00000EA9B6 /* geometry */,
+				4F4CB3E71B739AB4000EA9B6 /* grid */,
 				4F9850781B722C6C00F7E909 /* doc */,
 				4F98507B1B722C6C00F7E909 /* eventtap */,
-				4F98507F1B722C6C00F7E909 /* grid */,
 				4F9850811B722C6C00F7E909 /* hash */,
 				4F9850821B722C6C00F7E909 /* hints */,
 				4F9850831B722C6C00F7E909 /* host */,
@@ -1403,8 +1411,8 @@
 				9445CA0719083251002568BB /* Sources */,
 				9445CA0819083251002568BB /* Frameworks */,
 				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
-				4F9A454819EC67E1006BB982 /* Compile Extensions */,
-				4FBE2D161B7268DF00407788 /* Copy extensions */,
+				4F9A454819EC67E1006BB982 /* Compile Extensions (Legacy) */,
+				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
 				9445CA0919083251002568BB /* Resources */,
 				F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
@@ -1594,14 +1602,14 @@
 			shellPath = /bin/sh;
 			shellScript = "set -eux\n\nif [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
 		};
-		4F9A454819EC67E1006BB982 /* Compile Extensions */ = {
+		4F9A454819EC67E1006BB982 /* Compile Extensions (Legacy) */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Compile Extensions";
+			name = "Compile Extensions (Legacy)";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1622,19 +1630,19 @@
 			shellPath = /bin/sh;
 			shellScript = "set -eux\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\"\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"";
 		};
-		4FBE2D161B7268DF00407788 /* Copy extensions */ = {
+		4FBE2D161B7268DF00407788 /* Copy extensions to bundle */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy extensions";
+			name = "Copy extensions to bundle";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing fs geometry\"\nexport HS_WATCHERS=\"application battery caffeinate\"\nexport HS_LUAONLY=\"appfinder fnutils\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Finally, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n";
+			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing fs geometry\"\nexport HS_WATCHERS=\"application battery caffeinate\"\nexport HS_LUAONLY=\"appfinder fnutils grid\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Finally, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
