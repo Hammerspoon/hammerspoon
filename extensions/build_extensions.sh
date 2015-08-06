@@ -46,7 +46,7 @@ for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
 
     # Check if this module has been migrated to Xcode building
     case "${dir}" in
-        "alert"|"appfinder"|"applescript"|"application"|"audiodevice"|"base64"|"battery"|"brightness"|"caffeinate"|"crash")
+        "alert"|"appfinder"|"applescript"|"application"|"audiodevice"|"base64"|"battery"|"brightness"|"caffeinate"|"crash"|"dockicon")
             MIGRATED=1
             ;;
     esac
