@@ -233,6 +233,7 @@
 		4F4CB3B71B738769000EA9B6 /* libdrawing.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libdrawing.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3BB1B7387AA000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/drawing/init.lua; sourceTree = "<group>"; };
 		4F4CB3BC1B7387AA000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/drawing/internal.m; sourceTree = "<group>"; };
+		4F4CB3C11B7388C0000EA9B6 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/fnutils/init.lua; sourceTree = "<group>"; };
 		4F64D8BD1B724C4B00FC4C65 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/alert/init.lua; sourceTree = "<group>"; };
 		4F64D8BE1B724C4B00FC4C65 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/alert/internal.m; sourceTree = "<group>"; };
 		4F70EED31B726D170025A7B3 /* libaudiodevice.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libaudiodevice.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -245,7 +246,6 @@
 		4F70EEEE1B7273B00025A7B3 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/base64/internal.m; sourceTree = "<group>"; };
 		4F9850781B722C6C00F7E909 /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = doc; path = extensions/doc; sourceTree = "<group>"; };
 		4F98507B1B722C6C00F7E909 /* eventtap */ = {isa = PBXFileReference; lastKnownFileType = folder; name = eventtap; path = extensions/eventtap; sourceTree = "<group>"; };
-		4F98507C1B722C6C00F7E909 /* fnutils */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fnutils; path = extensions/fnutils; sourceTree = "<group>"; };
 		4F98507D1B722C6C00F7E909 /* fs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fs; path = extensions/fs; sourceTree = "<group>"; };
 		4F98507E1B722C6C00F7E909 /* geometry */ = {isa = PBXFileReference; lastKnownFileType = folder; name = geometry; path = extensions/geometry; sourceTree = "<group>"; };
 		4F98507F1B722C6C00F7E909 /* grid */ = {isa = PBXFileReference; lastKnownFileType = folder; name = grid; path = extensions/grid; sourceTree = "<group>"; };
@@ -573,6 +573,14 @@
 			name = drawing;
 			sourceTree = "<group>";
 		};
+		4F4CB3C01B7388AE000EA9B6 /* fnutils */ = {
+			isa = PBXGroup;
+			children = (
+				4F4CB3C11B7388C0000EA9B6 /* init.lua */,
+			);
+			name = fnutils;
+			sourceTree = "<group>";
+		};
 		4F64D8BC1B724C3A00FC4C65 /* alert */ = {
 			isa = PBXGroup;
 			children = (
@@ -619,9 +627,9 @@
 				4F4CB3921B7379D3000EA9B6 /* crash */,
 				4F4CB3A71B7385E3000EA9B6 /* dockicon */,
 				4F4CB3BA1B73879B000EA9B6 /* drawing */,
+				4F4CB3C01B7388AE000EA9B6 /* fnutils */,
 				4F9850781B722C6C00F7E909 /* doc */,
 				4F98507B1B722C6C00F7E909 /* eventtap */,
-				4F98507C1B722C6C00F7E909 /* fnutils */,
 				4F98507D1B722C6C00F7E909 /* fs */,
 				4F98507E1B722C6C00F7E909 /* geometry */,
 				4F98507F1B722C6C00F7E909 /* grid */,
@@ -1506,7 +1514,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing\"\nexport HS_WATCHERS=\"application battery caffeinate\"\nexport HS_LUAONLY=\"appfinder\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Finally, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n";
+			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing\"\nexport HS_WATCHERS=\"application battery caffeinate\"\nexport HS_LUAONLY=\"appfinder fnutils\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Finally, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
