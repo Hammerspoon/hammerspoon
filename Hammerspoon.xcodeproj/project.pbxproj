@@ -87,6 +87,7 @@
 		4F6B3F0E1B73E9A700B2A4DE /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FBE2D131B72635400407788 /* Carbon.framework */; };
 		4F6B3F121B73E9C700B2A4DE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B3F111B73E9C700B2A4DE /* internal.m */; };
 		4F6B3F151B73E9FF00B2A4DE /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
+		4F6B3F161B73EAB300B2A4DE /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F70EECD1B726D170025A7B3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4F70EECE1B726D170025A7B3 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F70EED71B726D3F0025A7B3 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F70EED61B726D3F0025A7B3 /* internal.m */; };
@@ -714,6 +715,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F6B3F161B73EAB300B2A4DE /* Fabric.framework in Frameworks */,
 				4F6B3EE81B73E61C00B2A4DE /* Carbon.framework in Frameworks */,
 				4F6B3EE11B73E5AC00B2A4DE /* Cocoa.framework in Frameworks */,
 				4F6B3EE21B73E5AC00B2A4DE /* LuaSkin.framework in Frameworks */,
