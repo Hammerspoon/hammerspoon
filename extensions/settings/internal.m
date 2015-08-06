@@ -284,7 +284,7 @@ static const luaL_Reg settingslib[] = {
     {NULL, NULL}
 };
 
-int luaopen_settings(lua_State* L) {
+int luaopen_hs_settings_internal(lua_State* L) {
     // setup the module
     luaL_newlib(L, settingslib);
 

@@ -52,6 +52,9 @@ for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
         "host"|"hotkey"|"http"|"image"|"inspect"|"itunes"|"json"|"layout"|"location"|"logger"|"menubar"|"messages"|"milight"|"mjomatic"|"mouse"|"notify"|"pasteboard"|"pathwatcher"|"screen")
             MIGRATED=1
             ;;
+        "settings")
+            MIGRATED=1
+            ;;
     esac
 
     if [ "${MIGRATED}" == "0" ]; then
