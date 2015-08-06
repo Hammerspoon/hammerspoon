@@ -5,6 +5,10 @@
 // Import the Crashlytics API so we can define our own crashlog+NSLog call
 #import <Crashlytics/Crashlytics.h>
 #define CLS_NSLOG(__FORMAT__, ...) CLSNSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#ifdef CLS_LOG
+#undef CLS_LOG
+#endif
+#define CLS_LOG(__FORMAT__, ...) CLSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
 #else
 #define CLS_NSLOG NSLog
 #endif
