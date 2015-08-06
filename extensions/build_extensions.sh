@@ -49,7 +49,7 @@ for dir in $(find . -type d -mindepth 1 -maxdepth 1 ! -name '.build') ; do
         "alert"|"appfinder"|"applescript"|"application"|"audiodevice"|"base64"|"battery"|"brightness"|"caffeinate"|"crash"|"dockicon"|"drawing"|"fnutils"|"fs"|"geometry"|"grid"|"hash"|"hints")
             MIGRATED=1
             ;;
-        "host"|"hotkey"|"http")
+        "host"|"hotkey"|"http"|"image")
             MIGRATED=1
             ;;
     esac
