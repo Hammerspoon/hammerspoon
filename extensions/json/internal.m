@@ -205,7 +205,7 @@ static const luaL_Reg jsonLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_json(lua_State* L) {
+int luaopen_hs_json_internal(lua_State* L) {
     // setup the module
     luaL_newlib(L, jsonLib);
     return 1;
