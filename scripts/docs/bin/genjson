@@ -18,7 +18,7 @@ mods  = comments.select(&ismod).map(&newmod)
 items = comments.reject(&ismod).map(&newitem)
 orderedmods = mods.sort_by{|m|m[:name]}.reverse
 
-sections = %w(Deprecated Command Constant Variable Function Constructor Method)
+sections = %w(Deprecated Command Constant Variable Function Constructor Method Field)
 items.each do |item|
   mod = orderedmods.find{|mod| item[:def].start_with?(mod[:name]+'.', mod[:name]+':')}
   if mod.nil?
