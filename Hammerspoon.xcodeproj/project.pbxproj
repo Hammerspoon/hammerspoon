@@ -65,6 +65,7 @@
 		4FDE05E91B734EE600E9E8EE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4FDE05EA1B734EE600E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FDE05F21B734F0100E9E8EE /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05F11B734F0100E9E8EE /* watcher.m */; };
+		4FDE05F91B7370E100E9E8EE /* hammerspoon.h in Resources */ = {isa = PBXBuildFile; fileRef = 4F9850801B722C6C00F7E909 /* hammerspoon.h */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
 		9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422ACBC19B6163800F06A90 /* MJConfigUtils.m */; };
@@ -198,7 +199,6 @@
 		4F70EEE91B7273700025A7B3 /* libbase64.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbase64.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F70EEED1B7273B00025A7B3 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/base64/init.lua; sourceTree = "<group>"; };
 		4F70EEEE1B7273B00025A7B3 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/base64/internal.m; sourceTree = "<group>"; };
-		4F98506F1B722C6C00F7E909 /* appfinder */ = {isa = PBXFileReference; lastKnownFileType = folder; name = appfinder; path = extensions/appfinder; sourceTree = "<group>"; };
 		4F9850771B722C6C00F7E909 /* crash */ = {isa = PBXFileReference; lastKnownFileType = folder; name = crash; path = extensions/crash; sourceTree = "<group>"; };
 		4F9850781B722C6C00F7E909 /* doc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = doc; path = extensions/doc; sourceTree = "<group>"; };
 		4F9850791B722C6C00F7E909 /* dockicon */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dockicon; path = extensions/dockicon; sourceTree = "<group>"; };
@@ -274,6 +274,7 @@
 		4FDE05DF1B734ECC00E9E8EE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/caffeinate/internal.m; sourceTree = "<group>"; };
 		4FDE05EF1B734EE600E9E8EE /* libcaffeinatewatcher.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcaffeinatewatcher.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05F11B734F0100E9E8EE /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/caffeinate/watcher.m; sourceTree = "<group>"; };
+		4FDE05F81B7356A400E9E8EE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/appfinder/init.lua; sourceTree = "<group>"; };
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
 		896F5840119EB0EC98527200 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
@@ -503,6 +504,7 @@
 			isa = PBXGroup;
 			children = (
 				4F64D8BC1B724C3A00FC4C65 /* alert */,
+				4FDE05F71B73568E00E9E8EE /* appfinder */,
 				4FBE2CE31B72542600407788 /* applescript */,
 				4FBE2CFA1B7261C100407788 /* application */,
 				4FBE2D031B7262DE00407788 /* applicationwatcher */,
@@ -513,7 +515,6 @@
 				4FDE05C81B72C23400E9E8EE /* brightness */,
 				4FDE05DD1B734EB400E9E8EE /* caffeinate */,
 				4FDE05F01B734EF300E9E8EE /* caffeinatewatcher */,
-				4F98506F1B722C6C00F7E909 /* appfinder */,
 				4F9850771B722C6C00F7E909 /* crash */,
 				4F9850781B722C6C00F7E909 /* doc */,
 				4F9850791B722C6C00F7E909 /* dockicon */,
@@ -633,6 +634,14 @@
 				4FDE05F11B734F0100E9E8EE /* watcher.m */,
 			);
 			name = caffeinatewatcher;
+			sourceTree = "<group>";
+		};
+		4FDE05F71B73568E00E9E8EE /* appfinder */ = {
+			isa = PBXGroup;
+			children = (
+				4FDE05F81B7356A400E9E8EE /* init.lua */,
+			);
+			name = appfinder;
 			sourceTree = "<group>";
 		};
 		942050C219907AF700FC4839 /* Console Window */ = {
@@ -1098,7 +1107,6 @@
 				4F9A454819EC67E1006BB982 /* Compile Extensions */,
 				4FBE2D161B7268DF00407788 /* Copy extensions */,
 				9445CA0919083251002568BB /* Resources */,
-				4F9F02191B39297F009C32E5 /* Copy Lua headers */,
 				F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
 				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
@@ -1195,6 +1203,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FDE05F91B7370E100E9E8EE /* hammerspoon.h in Resources */,
 				4FDE05CB1B72C24700E9E8EE /* init.lua in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
@@ -1246,7 +1255,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "if [ -f ../token-crashlytics ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../token-crashlytics\n  ./Fabric.framework/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET -debug YES\n  if [ \"$?\" != \"0\" ]; then\n    echo \"CRASHLYTICS UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD: No secret token found\"\nfi";
+			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../token-crashlytics\n  ./Fabric.framework/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET -debug YES\n  if [ \"$?\" != \"0\" ]; then\n    echo \"CRASHLYTICS UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD: No secret token found\"\nfi";
 		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1260,7 +1269,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi";
+			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi";
 		};
 		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1274,7 +1283,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -x\nif [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
+			shellScript = "set -eux\n\nif [ -f ../token-codesign ] ; then\n    echo \"SIGNING CODE\"\n    source ../token-codesign\n\n    LOCATION=\"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"\n    if [ -e \"${LOCATION}/Sparkle.framework/Versions/A\" ] ; then\n        codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/Sparkle.framework/Versions/A\"\n    fi\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${LOCATION}/LuaSkin.framework/Versions/A\"\n    codesign --verbose --force --sign \"$CODESIGN_IDENTITY\" \"${BUILT_PRODUCTS_DIR}/${FULL_PRODUCT_NAME}\"\nelse\n    echo \"SKIPPING CODE SIGNING\"\nfi";
 		};
 		4F9A454819EC67E1006BB982 /* Compile Extensions */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1288,21 +1297,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${SRCROOT}/extensions/build_extensions.sh";
-		};
-		4F9F02191B39297F009C32E5 /* Copy Lua headers */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Lua headers";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -x\nrsync -avr --copy-links \"${SRCROOT}/Pods/Headers/Public/lua\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nrsync -avr --copy-links \"${SRCROOT}/extensions/hammerspoon.h\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"";
+			shellScript = "set -eux\n${SRCROOT}/extensions/build_extensions.sh";
 		};
 		4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1316,7 +1311,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -x\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\"\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"";
+			shellScript = "set -eux\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${SRCROOT}\"\nrsync -avr \"${BUILT_PRODUCTS_DIR}/LuaSkin.framework\" \"${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}\"";
 		};
 		4FBE2D161B7268DF00407788 /* Copy extensions */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1330,7 +1325,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate\"\nexport HS_WATCHERS=\"application battery caffeinate\"\n\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n";
+			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate\"\nexport HS_WATCHERS=\"application battery caffeinate\"\nexport HS_LUAONLY=\"appfinder\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Finally, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1344,7 +1339,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm -f build/docs.json\nmake build/docs.json";
+			shellScript = "set -eux\n\nrm -f build/docs.json\nmake build/docs.json";
 		};
 		F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
