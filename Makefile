@@ -41,6 +41,6 @@ clean:
 	rm -rf extensions/*/*.dSYM
 
 clean-docs:
-	rm -fr build/Hammerspoon.docset build/Hammerspoon.tgz build/html build/docs.json
+	rm -fr build/Hammerspoon.docset build/Hammerspoon.tgz build/html build/docs.json build/docs.sqlite
 
 .PHONY: release clean clean-docs
