@@ -2,27 +2,28 @@
 ---
 --- Utility object to represent points, sizes and rects in a bidimensional plane
 ---
---- An `hs.geometry` object can be:
+--- An hs.geometry object can be:
 ---  * a *point*, or vector2, with `x` and `y` fields for its coordinates
 ---  * a *size* with `w` and `h` fields for width and heigth respectively
 ---  * a *rect*, which has both a point component for one of its corners, and a size component - so it has all 4 fields
 ---
 --- You can create these objects in many different ways, via `my_obj=hs.geometry.new(...)` or simply `my_obj=hs.geometry(...)`
 --- by passing any of the following:
----  * 4 parameters X,Y,W,H for the respective fields - W and H, or X and Y, can be `nil`:
+---  * 4 parameters `X,Y,W,H` for the respective fields - W and H, or X and Y, can be `nil`:
 ---    * `hs.geometry(X,Y)` creates a point
 ---    * `hs.geometry(nil,nil,W,H)` creates a size
 ---    * `hs.geometry(X,Y,W,H)` creates a rect given its width and heigth from a corner
----  * a table {X,Y,W,H} creates a rect, or W and H can be nil to create a point; you cannot create a size this way
----  * a table {x=X,y=Y,w=W,h=H} - you can omit X and Y, or W and H, to create a size or a point respectively
----  * a table {x1=X1,y1=Y1,x2=X2,y2=Y2} where X1,Y1 and X2,Y2 are the coordinates of opposite corners for the desired rect
+---  * a table `{X,Y}` creates a point
+---  * a table `{X,Y,W,H}` creates a rect
+---  * a table `{x=X,y=Y,w=W,h=H}` creates a rect, or if you omit X and Y, or W and H, creates a size or a point respectively
+---  * a table `{x1=X1,y1=Y1,x2=X2,y2=Y2}` creates a rect, where X1,Y1 and X2,Y2 are the coordinates of opposite corners
 ---  * a string:
 ---    * `"X Y"` or `"X,Y"` creates a point
 ---    * `"WxH"` or `"W*H"` creates a size
 ---    * `"X Y WxH"` or `"X,Y/W*H"` (or variations thereof) creates a rect given its width and heigth from a corner
 ---    * `"X1 Y1 > X2 Y2"` or `"X1,Y1,X2,Y2"` (or variations thereof) creates a rect given two opposite corners
 ---
---- You can use any of these anywhere an `hs.geometry` object is expected in Hammerspoon; the constructor will be called for you.
+--- You can use any of these anywhere an hs.geometry object is expected in Hammerspoon; the constructor will be called for you.
 
 -- remove copy-on-new
 --  * another `hs.geometry` object - creates a copy of that object
@@ -132,6 +133,14 @@ end
 --- hs.geometry.y
 --- Field
 --- The y coordinate for this point or rect's corner; changing it will move the rect but keep the same width and heigth
+
+--- hs.geometry.x1
+--- Field
+--- Alias for `x`
+
+--- hs.geometry.y1
+--- Field
+--- Alias for `y`
 function geometry.getx(t) return t._x end
 function geometry.gety(t) return t._y end
 geometry.getx1=geometry.getx
@@ -490,7 +499,7 @@ end
 ---  * h - A number containing the height of the rect
 ---
 --- Returns:
----  * An 'hs.geometry' rect object
+---  * An hs.geometry rect object
 geometry.rect=new
 
 --- hs.geometry.point(x, y) -> hs.geometry
@@ -502,7 +511,7 @@ geometry.rect=new
 ---  * y - A number containing the vertical co-ordinate of the point
 ---
 --- Returns:
----  * An 'hs.geometry' point object
+---  * An hs.geometry point object
 geometry.point=new
 
 --- hs.geometry.size(w, h) -> hs.geometry
@@ -514,7 +523,7 @@ geometry.point=new
 ---  * h - A number containing a height
 ---
 --- Returns:
----  * An 'hs.geometry' size object
+---  * An hs.geometry size object
 function geometry.size(w, h)
   return new(nil,nil,w,h)
 end
