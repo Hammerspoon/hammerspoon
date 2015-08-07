@@ -331,13 +331,13 @@ static const luaL_Reg uielementlib[] = {
     {"_newWatcher", uielement_newWatcher},
     {"focusedElement", uielement_focusedElement},
     {"selectedText", uielement_selectedText},
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg watcherlib[] = {
     {"_start", watcher_start},
     {"_stop", watcher_stop},
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_uielement_internal(lua_State* L) {

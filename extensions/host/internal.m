@@ -466,7 +466,7 @@ static const luaL_Reg hostlib[] = {
     {"uuid",                         hs_uuid},
     {"globallyUniqueString",         hs_globallyUniqueString},
 
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_host_internal(lua_State* L) {

@@ -204,7 +204,7 @@ static const luaL_Reg hintslib[] = {
     {"new", hints_new},
     {"close", hint_close},
 
-    {} // necessary sentinel
+    {NULL, NULL} // necessary sentinel
 };
 
 int luaopen_hs_hints_internal(lua_State* L) {

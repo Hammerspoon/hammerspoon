@@ -253,7 +253,7 @@ static const luaL_Reg callbacklib[] = {
     // metamethods
     {"__gc", keycodes_callback_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg keycodeslib[] = {
@@ -261,7 +261,7 @@ static const luaL_Reg keycodeslib[] = {
     {"_newcallback", keycodes_newcallback},
     {"_cachemap", keycodes_cachemap},
 
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_keycodes_internal(lua_State* L) {

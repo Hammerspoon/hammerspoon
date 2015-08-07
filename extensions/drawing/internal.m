@@ -1721,7 +1721,7 @@ static const luaL_Reg drawinglib[] = {
     {"fontNames", fontNames},
     {"fontNamesWithTraits", fontNamesWithTraits},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg drawing_metalib[] = {
@@ -1754,7 +1754,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"behavior", getBehavior},
     {"__tostring", userdata_tostring},
     {"__gc", drawing_delete},
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_drawing_internal(lua_State *L) {

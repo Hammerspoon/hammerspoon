@@ -65,13 +65,13 @@ static const luaL_Reg wifilib[] = {
     {"availableNetworks", wifi_scan},
     {"currentNetwork", wifi_current_ssid},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", wifi_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_wifi_internal(lua_State* L) {

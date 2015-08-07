@@ -249,7 +249,7 @@ static const luaL_Reg hotkeylib[] = {
     {"disable", hotkey_disable},
     {"__gc", hotkey_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 static EventHandlerRef eventhandler;
@@ -339,7 +339,7 @@ static int meta_gc(lua_State* L __unused) {
 
 static const luaL_Reg metalib[] = {
     {"__gc", meta_gc},
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_hotkey_internal(lua_State* L) {

@@ -196,7 +196,7 @@ static const luaL_Reg milightlib[] = {
     {"delete", milight_del},
     {"send", milight_send},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_milight_internal" in the following function's name

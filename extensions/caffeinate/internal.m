@@ -175,13 +175,13 @@ static const luaL_Reg caffeinatelib[] = {
     {"isSystemSleepPrevented", caffeinate_isSystemSleepPrevented},
     {"systemSleep", caffeinate_systemSleep},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", caffeinate_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_caffeinate_internal" in the following function's name

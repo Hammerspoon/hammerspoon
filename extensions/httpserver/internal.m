@@ -444,7 +444,7 @@ static int httpserver_objectGC(lua_State *L) {
 static const luaL_Reg httpserverLib[] = {
     {"new", httpserver_new},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg httpserverObjectLib[] = {
@@ -458,7 +458,7 @@ static const luaL_Reg httpserverObjectLib[] = {
     {"setPassword", httpserver_setPassword},
 
     {"__gc", httpserver_objectGC},
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_httpserver_internal(lua_State *L __unused) {

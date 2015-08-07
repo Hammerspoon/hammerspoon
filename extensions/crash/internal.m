@@ -112,7 +112,7 @@ static const luaL_Reg crashlib[] = {
     {"_crashLog", crashLog},
     {"crashKV", crashKV},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_crash_internal" in the following function's name

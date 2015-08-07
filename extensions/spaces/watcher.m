@@ -166,7 +166,7 @@ static const luaL_Reg watcherlib[] = {
     {"new", space_watcher_new},
     {"start", space_watcher_start},
     {"stop", space_watcher_stop},
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_spaces_watcher(lua_State* L) {

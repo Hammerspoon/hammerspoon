@@ -239,13 +239,13 @@ static const luaL_Reg locationlib[] = {
     {"get", location_get_location},
     {"services_enabled", location_is_enabled},
     {"distance", location_distance},
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", location_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_location_internal" in the following function's name

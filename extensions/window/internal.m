@@ -744,7 +744,7 @@ static const luaL_Reg windowlib[] = {
     {"isFullScreen", window_isfullscreen},
     {"snapshot", window_snapshot},
 
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_window_internal(lua_State* L) {
