@@ -189,6 +189,17 @@
 		4FD0ABC21B74AFAD00A82496 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FBE2D131B72635400407788 /* Carbon.framework */; };
 		4FD0ABC31B74AFB100A82496 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA1319083251002568BB /* Foundation.framework */; };
 		4FD0ABC41B74AFB800A82496 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
+		4FD0ABD11B74B2C500A82496 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
+		4FD0ABD21B74B2C500A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
+		4FD0ABDB1B74B2FA00A82496 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
+		4FD0ABDC1B74B2FA00A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
+		4FD0ABE51B74B33500A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0ABE41B74B33500A82496 /* internal.m */; };
+		4FD0ABE71B74B34500A82496 /* eventtap_event.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0ABE61B74B34500A82496 /* eventtap_event.h */; };
+		4FD0ABEB1B74B36000A82496 /* event.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0ABE91B74B36000A82496 /* event.m */; };
+		4FD0ABEC1B74B36000A82496 /* eventtap_event.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0ABEA1B74B36000A82496 /* eventtap_event.h */; };
+		4FD0ABED1B74B3B300A82496 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
+		4FD0ABEE1B74B3B900A82496 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDE05B61B72999A00E9E8EE /* IOKit.framework */; };
+		4FD0ABEF1B74B3BF00A82496 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4FDE05991B72984C00E9E8EE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4FDE059A1B72984C00E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FDE05A31B72987B00E9E8EE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05A21B72987B00E9E8EE /* internal.m */; };
@@ -518,6 +529,20 @@
 			remoteGlobalIDString = 4FD0ABB11B74AF4E00A82496;
 			remoteInfo = window;
 		};
+		4FD0ABF01B74B3CE00A82496 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FD0ABCD1B74B2C500A82496;
+			remoteInfo = eventtap;
+		};
+		4FD0ABF21B74B3CE00A82496 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FD0ABD81B74B2FA00A82496;
+			remoteInfo = eventtapevent;
+		};
 		4FDE05B21B7298B700E9E8EE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
@@ -655,7 +680,6 @@
 		4F70EEE91B7273700025A7B3 /* libbase64.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbase64.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F70EEED1B7273B00025A7B3 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/base64/init.lua; sourceTree = "<group>"; };
 		4F70EEEE1B7273B00025A7B3 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/base64/internal.m; sourceTree = "<group>"; };
-		4F98507B1B722C6C00F7E909 /* eventtap */ = {isa = PBXFileReference; lastKnownFileType = folder; name = eventtap; path = extensions/eventtap; sourceTree = "<group>"; };
 		4F9850801B722C6C00F7E909 /* hammerspoon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hammerspoon.h; path = extensions/hammerspoon.h; sourceTree = "<group>"; };
 		4F9850861B722C6C00F7E909 /* httpserver */ = {isa = PBXFileReference; lastKnownFileType = folder; name = httpserver; path = extensions/httpserver; sourceTree = "<group>"; };
 		4F9850891B722C6C00F7E909 /* ipc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ipc; path = extensions/ipc; sourceTree = "<group>"; };
@@ -709,6 +733,13 @@
 		4FD0ABCA1B74B1C500A82496 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/doc/init.lua; sourceTree = "<group>"; };
 		4FD0ABCB1B74B1C500A82496 /* lua.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = lua.json; path = extensions/doc/lua.json; sourceTree = "<group>"; };
 		4FD0ABCC1B74B1C500A82496 /* makeLuaDocs.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = makeLuaDocs.lua; path = extensions/doc/makeLuaDocs.lua; sourceTree = "<group>"; };
+		4FD0ABD71B74B2C500A82496 /* libeventtap.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libeventtap.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FD0ABE11B74B2FA00A82496 /* libeventtapevent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libeventtapevent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FD0ABE31B74B33500A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/eventtap/init.lua; sourceTree = "<group>"; };
+		4FD0ABE41B74B33500A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/eventtap/internal.m; sourceTree = "<group>"; };
+		4FD0ABE61B74B34500A82496 /* eventtap_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eventtap_event.h; path = extensions/eventtap/eventtap_event.h; sourceTree = "<group>"; };
+		4FD0ABE91B74B36000A82496 /* event.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = event.m; path = extensions/eventtap/event.m; sourceTree = "<group>"; };
+		4FD0ABEA1B74B36000A82496 /* eventtap_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eventtap_event.h; path = extensions/eventtap/eventtap_event.h; sourceTree = "<group>"; };
 		4FDE059F1B72984C00E9E8EE /* libbattery.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbattery.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05A11B72987B00E9E8EE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/battery/init.lua; sourceTree = "<group>"; };
 		4FDE05A21B72987B00E9E8EE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/battery/internal.m; sourceTree = "<group>"; };
@@ -1184,6 +1215,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FD0ABD01B74B2C500A82496 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FD0ABED1B74B3B300A82496 /* Fabric.framework in Frameworks */,
+				4FD0ABD11B74B2C500A82496 /* Cocoa.framework in Frameworks */,
+				4FD0ABD21B74B2C500A82496 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD0ABDA1B74B2FA00A82496 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FD0ABEF1B74B3BF00A82496 /* Fabric.framework in Frameworks */,
+				4FD0ABEE1B74B3B900A82496 /* IOKit.framework in Frameworks */,
+				4FD0ABDB1B74B2FA00A82496 /* Cocoa.framework in Frameworks */,
+				4FD0ABDC1B74B2FA00A82496 /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FDE05981B72984C00E9E8EE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1590,6 +1642,8 @@
 				4FD0ABC91B74B1B000A82496 /* doc */,
 				4F4CB3A71B7385E3000EA9B6 /* dockicon */,
 				4F4CB3BA1B73879B000EA9B6 /* drawing */,
+				4FD0ABE21B74B32700A82496 /* eventtap */,
+				4FD0ABE81B74B34E00A82496 /* eventtapevent */,
 				4F4CB3C01B7388AE000EA9B6 /* fnutils */,
 				4F4CB3CF1B7391C3000EA9B6 /* fs */,
 				4F4CB3E31B739A00000EA9B6 /* geometry */,
@@ -1632,7 +1686,6 @@
 				4FD0ABA91B74AE7200A82496 /* wifiwatcher */,
 				4FD0ABBC1B74AF8B00A82496 /* window */,
 				4FD0ABC71B74B0E200A82496 /* windowfilter */,
-				4F98507B1B722C6C00F7E909 /* eventtap */,
 				4F9850861B722C6C00F7E909 /* httpserver */,
 				4F9850891B722C6C00F7E909 /* ipc */,
 				4F98508C1B722C6C00F7E909 /* keycodes */,
@@ -1789,6 +1842,25 @@
 			name = doc;
 			sourceTree = "<group>";
 		};
+		4FD0ABE21B74B32700A82496 /* eventtap */ = {
+			isa = PBXGroup;
+			children = (
+				4FD0ABE31B74B33500A82496 /* init.lua */,
+				4FD0ABE41B74B33500A82496 /* internal.m */,
+				4FD0ABE61B74B34500A82496 /* eventtap_event.h */,
+			);
+			name = eventtap;
+			sourceTree = "<group>";
+		};
+		4FD0ABE81B74B34E00A82496 /* eventtapevent */ = {
+			isa = PBXGroup;
+			children = (
+				4FD0ABE91B74B36000A82496 /* event.m */,
+				4FD0ABEA1B74B36000A82496 /* eventtap_event.h */,
+			);
+			name = eventtapevent;
+			sourceTree = "<group>";
+		};
 		4FDE05A01B72986200E9E8EE /* battery */ = {
 			isa = PBXGroup;
 			children = (
@@ -1923,6 +1995,8 @@
 				4FD0AB961B74AE1900A82496 /* libwifi.dylib */,
 				4FD0ABA01B74AE2800A82496 /* libwifiwatcher.dylib */,
 				4FD0ABBB1B74AF4E00A82496 /* libwindow.dylib */,
+				4FD0ABD71B74B2C500A82496 /* libeventtap.dylib */,
+				4FD0ABE11B74B2FA00A82496 /* libeventtapevent.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2324,6 +2398,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FD0ABC11B74AF9900A82496 /* window.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD0ABD31B74B2C500A82496 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FD0ABE71B74B34500A82496 /* eventtap_event.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD0ABDD1B74B2FA00A82496 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FD0ABEC1B74B36000A82496 /* eventtap_event.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3011,6 +3101,40 @@
 			productReference = 4FD0ABBB1B74AF4E00A82496 /* libwindow.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		4FD0ABCD1B74B2C500A82496 /* eventtap */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FD0ABD41B74B2C500A82496 /* Build configuration list for PBXNativeTarget "eventtap" */;
+			buildPhases = (
+				4FD0ABCE1B74B2C500A82496 /* Sources */,
+				4FD0ABD01B74B2C500A82496 /* Frameworks */,
+				4FD0ABD31B74B2C500A82496 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = eventtap;
+			productName = alert;
+			productReference = 4FD0ABD71B74B2C500A82496 /* libeventtap.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		4FD0ABD81B74B2FA00A82496 /* eventtapevent */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FD0ABDE1B74B2FA00A82496 /* Build configuration list for PBXNativeTarget "eventtapevent" */;
+			buildPhases = (
+				4FD0ABD91B74B2FA00A82496 /* Sources */,
+				4FD0ABDA1B74B2FA00A82496 /* Frameworks */,
+				4FD0ABDD1B74B2FA00A82496 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = eventtapevent;
+			productName = alert;
+			productReference = 4FD0ABE11B74B2FA00A82496 /* libeventtapevent.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		4FDE05951B72984C00E9E8EE /* battery */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FDE059C1B72984C00E9E8EE /* Build configuration list for PBXNativeTarget "battery" */;
@@ -3145,6 +3269,8 @@
 				4F4CB3FA1B73A52D000EA9B6 /* PBXTargetDependency */,
 				4F4CB3E21B7399ED000EA9B6 /* PBXTargetDependency */,
 				4F4CB3CE1B738FBC000EA9B6 /* PBXTargetDependency */,
+				4FD0ABF11B74B3CE00A82496 /* PBXTargetDependency */,
+				4FD0ABF31B74B3CE00A82496 /* PBXTargetDependency */,
 				4F4CB3B91B738785000EA9B6 /* PBXTargetDependency */,
 				4F4CB3AC1B7386B5000EA9B6 /* PBXTargetDependency */,
 				4F4CB3981B737A7C000EA9B6 /* PBXTargetDependency */,
@@ -3231,6 +3357,8 @@
 				4F4CB3871B737953000EA9B6 /* crash */,
 				4F4CB39C1B7385C5000EA9B6 /* dockicon */,
 				4F4CB3AD1B738769000EA9B6 /* drawing */,
+				4FD0ABCD1B74B2C500A82496 /* eventtap */,
+				4FD0ABD81B74B2FA00A82496 /* eventtapevent */,
 				4F4CB3C21B738F1E000EA9B6 /* fs */,
 				4F4CB3D61B7399D0000EA9B6 /* geometry */,
 				4F4CB3E91B73A3A1000EA9B6 /* hash */,
@@ -3391,7 +3519,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing fs geometry hash hints host hotkey http image json location menubar milight mouse notify pasteboard pathwatcher screen settings sound timer uielement urlevent usb wifi window\"\nexport HS_WATCHERS=\"application battery caffeinate screen spaces usb wifi\"\nexport HS_LUAONLY=\"appfinder fnutils grid inspect itunes layout logger messages mjomatic spotify spaces tabs utf8 windowfilter doc\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Now, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n\n# Special copier for hs.doc\ncp -av \"${SRCROOT}/extensions/doc/lua.json\" \"${HS_DST}/doc/lua.json\"";
+			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing eventtap fs geometry hash hints host hotkey http image json location menubar milight mouse notify pasteboard pathwatcher screen settings sound timer uielement urlevent usb wifi window\"\nexport HS_WATCHERS=\"application battery caffeinate screen spaces usb wifi\"\nexport HS_LUAONLY=\"appfinder fnutils grid inspect itunes layout logger messages mjomatic spotify spaces tabs utf8 windowfilter doc\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Now, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n\n# Special copier for hs.doc\ncp -av \"${SRCROOT}/extensions/doc/lua.json\" \"${HS_DST}/doc/lua.json\"\n\n# Special copier for hs.eventtap.event\ncp -av \"${BUILT_PRODUCTS_DIR}/libeventtapevent.dylib\" \"${HS_DST}/eventtap/event.so\"";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -3729,6 +3857,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FD0ABCE1B74B2C500A82496 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FD0ABE51B74B33500A82496 /* internal.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD0ABD91B74B2FA00A82496 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FD0ABEB1B74B36000A82496 /* event.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FDE05961B72984C00E9E8EE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -3992,6 +4136,16 @@
 			isa = PBXTargetDependency;
 			target = 4FD0ABB11B74AF4E00A82496 /* window */;
 			targetProxy = 4FD0ABC51B74AFD700A82496 /* PBXContainerItemProxy */;
+		};
+		4FD0ABF11B74B3CE00A82496 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FD0ABCD1B74B2C500A82496 /* eventtap */;
+			targetProxy = 4FD0ABF01B74B3CE00A82496 /* PBXContainerItemProxy */;
+		};
+		4FD0ABF31B74B3CE00A82496 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FD0ABD81B74B2FA00A82496 /* eventtapevent */;
+			targetProxy = 4FD0ABF21B74B3CE00A82496 /* PBXContainerItemProxy */;
 		};
 		4FDE05B31B7298B700E9E8EE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -9100,6 +9254,286 @@
 			};
 			name = Release;
 		};
+		4FD0ABD51B74B2C500A82496 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Debug;
+		};
+		4FD0ABD61B74B2C500A82496 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
+		4FD0ABDF1B74B2FA00A82496 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Debug;
+		};
+		4FD0ABE01B74B2FA00A82496 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+			};
+			name = Release;
+		};
 		4FDE059D1B72984C00E9E8EE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -10281,6 +10715,24 @@
 			buildConfigurations = (
 				4FD0ABB91B74AF4E00A82496 /* Debug */,
 				4FD0ABBA1B74AF4E00A82496 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FD0ABD41B74B2C500A82496 /* Build configuration list for PBXNativeTarget "eventtap" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FD0ABD51B74B2C500A82496 /* Debug */,
+				4FD0ABD61B74B2C500A82496 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FD0ABDE1B74B2FA00A82496 /* Build configuration list for PBXNativeTarget "eventtapevent" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FD0ABDF1B74B2FA00A82496 /* Debug */,
+				4FD0ABE01B74B2FA00A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
