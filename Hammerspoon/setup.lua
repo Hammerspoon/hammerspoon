@@ -153,7 +153,7 @@ if autoload_extensions then
   local iter, dir_obj = require("hs.fs").dir(modpath.."/hs")
   local extension = iter(dir_obj)
   while extension do
-      if (extension ~= ".") and (extension ~= "..") and (string.sub(extension, -6) ~= ".dylib") then
+      if (extension ~= ".") and (extension ~= "..") then
           hs._extensions[extension] = true
       end
       extension = iter(dir_obj)
