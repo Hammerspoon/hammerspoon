@@ -26,9 +26,9 @@ static void setupcolors(void) {
     COLOR_OUTPUT = "\e[36m";
     COLOR_RESET = "\e[0m";
 
-    CFStringRef initial = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_initial"), CFSTR("{BUNDLE}")) ;
-    CFStringRef input = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_input"), CFSTR("{BUNDLE}")) ;
-    CFStringRef output = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_output"), CFSTR("{BUNDLE}")) ;
+    CFStringRef initial = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_initial"), CFSTR("org.hammerspoon.Hammerspoon")) ;
+    CFStringRef input = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_input"), CFSTR("org.hammerspoon.Hammerspoon")) ;
+    CFStringRef output = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_output"), CFSTR("org.hammerspoon.Hammerspoon")) ;
 
     if (initial) { COLOR_INITIAL = CFStringCopyUTF8String(initial) ; }
     if (input) { COLOR_INPUT = CFStringCopyUTF8String(input) ; }
@@ -111,10 +111,10 @@ int main(int argc, char * argv[]) {
     argc -= optind;
     argv += optind;
 
-    CFMessagePortRef port = CFMessagePortCreateRemote(NULL, CFSTR("{TARGET}"));
+    CFMessagePortRef port = CFMessagePortCreateRemote(NULL, CFSTR("Hammerspoon"));
 
     if (!port) {
-        fprintf(stderr, "error: can't access {TARGET}; is it running with the ipc module loaded?\n");
+        fprintf(stderr, "error: can't access Hammerspoon; is it running with the ipc module loaded?\n");
         return 1;
     }
 
@@ -143,7 +143,7 @@ int main(int argc, char * argv[]) {
         if (usecolors)
             setupcolors();
 
-        printf("%s{TARGET} interactive prompt.%s\n", COLOR_INITIAL, COLOR_RESET);
+        printf("%sHammerspoon interactive prompt.%s\n", COLOR_INITIAL, COLOR_RESET);
 
         while (1) {
             printf("%s", COLOR_INPUT);
@@ -154,9 +154,9 @@ int main(int argc, char * argv[]) {
 
             if (!CFMessagePortIsValid(port)) {
                 fprintf(stderr, "%sMessage port has become invalid.  Attempting to re-establish.%s\n", COLOR_INITIAL, COLOR_RESET);
-                port = CFMessagePortCreateRemote(NULL, CFSTR("{TARGET}"));
+                port = CFMessagePortCreateRemote(NULL, CFSTR("Hammerspoon"));
                 if (!port) {
-                    fprintf(stderr, "error: can't access {TARGET}; is it running?\n");
+                    fprintf(stderr, "error: can't access Hammerspoon; is it running?\n");
                     exit(1);
                 }
 

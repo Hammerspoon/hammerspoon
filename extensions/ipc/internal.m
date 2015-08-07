@@ -89,7 +89,7 @@ static const luaL_Reg ipcLib[] = {
     {NULL,              NULL}
 };
 
-int luaopen_ipc(lua_State* L) {
+int luaopen_hs_ipc_internal(lua_State* L) {
     luaL_newlib(L, ipcLib);
     return 1;
 }
