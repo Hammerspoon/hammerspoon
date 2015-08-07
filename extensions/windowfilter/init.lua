@@ -350,7 +350,7 @@ end
 --TODO hs.windowsnap (or snapareas)
 --[[
 function wf:setScreens(screens)
-  if not screens then self.screens=nil 
+  if not screens then self.screens=nil
   else
     if type(screens)=='userdata' then screens={screens} end
     if type(screens)~='table' then error('screens must be a `hs.screen` object, or table of objects',2) end
@@ -361,7 +361,7 @@ function wf:setScreens(screens)
     self.screens=screens
   end
   if activeFilters[self] then refreshWindows(self) end
-  return self  
+  return self
 end
 --]]
 --- hs.windowfilter.new(fn,logname,loglevel) -> hs.windowfilter
@@ -1383,7 +1383,7 @@ end
 --- Notes:
 ---  * This is a convenience wrapper that returns `hs.window.windowsToSouth(window,self:getWindows(),...)`
 
---- hs.window:focusWindowEast(window, frontmost, strict)
+--- hs.windowfilter:focusWindowEast(window, frontmost, strict)
 --- Method
 --- Focuses the nearest window to the east of a given window
 ---
@@ -1400,7 +1400,7 @@ end
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowEast(window,self:getWindows(),...)`
 ---  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
 
---- hs.window:focusWindowWest(window, frontmost, strict)
+--- hs.windowfilter:focusWindowWest(window, frontmost, strict)
 --- Method
 --- Focuses the nearest window to the west of a given window
 ---
@@ -1417,7 +1417,7 @@ end
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowWest(window,self:getWindows(),...)`
 ---  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
 
---- hs.window:focusWindowSouth(window, frontmost, strict)
+--- hs.windowfilter:focusWindowSouth(window, frontmost, strict)
 --- Method
 --- Focuses the nearest window to the north of a given window
 ---
@@ -1434,7 +1434,7 @@ end
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowSouth(window,self:getWindows(),...)`
 ---  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
 
---- hs.window:focusWindowNorth(window, frontmost, strict)
+--- hs.windowfilter:focusWindowNorth(window, frontmost, strict)
 --- Method
 --- Focuses the nearest window to the south of a given window
 ---
