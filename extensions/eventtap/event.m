@@ -272,7 +272,7 @@ static int eventtap_event_getType(lua_State* L) {
 ///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
 static int eventtap_event_getProperty(lua_State* L) {
     CGEventRef   event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CGEventField field = luaL_checkinteger(L, 2);
+    CGEventField field = (CGEventField)luaL_checkinteger(L, 2);
 
     if ((field == kCGMouseEventPressure)                ||   // These fields use a double (floating point number)
         (field == kCGScrollWheelEventFixedPtDeltaAxis1) ||
@@ -304,9 +304,9 @@ static int eventtap_event_getProperty(lua_State* L) {
 ///  * This method should only be called on mouse events
 static int eventtap_event_getButtonState(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CGMouseButton whichButton = luaL_checkinteger(L, 2);
+    CGMouseButton whichButton = (CGMouseButton)luaL_checkinteger(L, 2);
 
-    if (CGEventSourceButtonState(CGEventGetIntegerValueField(event, kCGEventSourceStateID), whichButton))
+    if (CGEventSourceButtonState((CGEventSourceStateID)CGEventGetIntegerValueField(event, kCGEventSourceStateID), whichButton))
         lua_pushboolean(L, YES) ;
     else
         lua_pushboolean(L, NO) ;
@@ -328,7 +328,7 @@ static int eventtap_event_getButtonState(lua_State* L) {
 ///  * The properties are `CGEventField` values, as documented at https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/index.html#//apple_ref/c/tdef/CGEventField
 static int eventtap_event_setProperty(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CGEventField field = luaL_checkinteger(L, 2);
+    CGEventField field = (CGEventField)luaL_checkinteger(L, 2);
     if ((field == kCGMouseEventPressure)                ||   // These fields use a double (floating point number)
         (field == kCGScrollWheelEventFixedPtDeltaAxis1) ||
         (field == kCGScrollWheelEventFixedPtDeltaAxis2) ||
@@ -341,7 +341,7 @@ static int eventtap_event_setProperty(lua_State* L) {
         double value = luaL_checknumber(L, 3) ;
         CGEventSetDoubleValueField(event, field, value);
     } else {
-        int value = luaL_checkinteger(L, 3);
+        int value = (int)luaL_checkinteger(L, 3);
         CGEventSetIntegerValueField(event, field, value);
     }
 
@@ -424,8 +424,8 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
 ///  * An `hs.eventtap.event` object
 static int eventtap_event_newScrollWheelEvent(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
-    lua_pushnumber(L, 1); lua_gettable(L, 1); uint32_t offset_y = lua_tointeger(L, -1) ; lua_pop(L, 1);
-    lua_pushnumber(L, 2); lua_gettable(L, 1); uint32_t offset_x = lua_tointeger(L, -1) ; lua_pop(L, 1);
+    lua_pushnumber(L, 1); lua_gettable(L, 1); uint32_t offset_y = (uint32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
+    lua_pushnumber(L, 2); lua_gettable(L, 1); uint32_t offset_x = (uint32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
 
     const char *modifier;
     const char *unit;
@@ -461,7 +461,7 @@ static int eventtap_event_newScrollWheelEvent(lua_State* L) {
 }
 
 static int eventtap_event_newMouseEvent(lua_State* L) {
-    CGEventType type = luaL_checkinteger(L, 1);
+    CGEventType type = (CGEventType)luaL_checkinteger(L, 1);
     CGPoint point = hs_topoint(L, 2);
     const char* buttonString = luaL_checkstring(L, 3);
 

@@ -99,7 +99,7 @@ typedef struct _hotkey_t {
 
 static int hotkey_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
-    UInt32 keycode = luaL_checkinteger(L, 2);
+    UInt32 keycode = (UInt32)luaL_checkinteger(L, 2);
     BOOL hasDown = NO;
     BOOL hasUp = NO;
     BOOL hasRepeat = NO;

@@ -83,7 +83,7 @@
                 responseBody = [NSString stringWithUTF8String:"Callback handler returned invalid values"];
             } else {
                 responseBody = [NSString stringWithUTF8String:lua_tostring(L, -3)];
-                responseCode = lua_tointeger(L, -2);
+                responseCode = (int)lua_tointeger(L, -2);
 
                 responseHeaders = [[NSMutableDictionary alloc] init];
                 BOOL headerTypeError = NO;

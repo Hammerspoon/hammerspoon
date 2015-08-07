@@ -236,7 +236,7 @@ static int watcher_start(lua_State* L) {
 
     // Add specified events to the observer.
     luaL_checktype(L, 2, LUA_TTABLE);
-    int numEvents = lua_rawlen(L, 2);
+    int numEvents = (int)lua_rawlen(L, 2);
     for (int i = 1; i <= numEvents; ++i) {
         // Get event name as CFStringRef
         lua_rawgeti(L, 2, i);

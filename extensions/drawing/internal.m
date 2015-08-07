@@ -394,7 +394,6 @@ static int drawing_newCircle(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.circle(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
-            break;
     }
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
@@ -455,7 +454,6 @@ static int drawing_newRect(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.rectangle(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
-            break;
     }
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
@@ -512,7 +510,6 @@ static int drawing_newLine(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
-            break;
     }
 
     switch (lua_type(L, 2)) {
@@ -530,7 +527,6 @@ static int drawing_newLine(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
-            break;
     }
 
     // Calculate a rect that can contain both NSPoints
@@ -614,7 +610,6 @@ static int drawing_newText(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
-            break;
     }
     const char *message = lua_tostring(L, 2);
     NSString *theMessage = [NSString stringWithUTF8String:message ? message : ""];
@@ -689,7 +684,6 @@ static int drawing_newImage(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.image(): %d", lua_type(L, 1));
             lua_pushnil(L);
             return 1;
-            break;
     }
     NSImage *theImage = get_image_from_hsimage(L, 2);
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
@@ -776,7 +770,6 @@ static int drawing_setTopLeft(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing:setTopLeft(): %d", lua_type(L, 2));
             lua_pushnil(L);
             return 1;
-            break;
     }
 
     windowLoc.y=[[NSScreen screens][0] frame].size.height - windowLoc.y ;
@@ -819,7 +812,6 @@ static int drawing_setSize(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing:setSize(): %d", lua_type(L, 2));
             lua_pushnil(L);
             return 1;
-            break;
     }
 
     NSRect oldFrame = drawingWindow.frame;
@@ -1010,7 +1002,7 @@ static int drawing_setFillGradient(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSColor *startColor = getColorFromStack(L, 2);
     NSColor *endColor = getColorFromStack(L, 3);
-    int angle = lua_tointeger(L, 4);
+    int angle = (int)lua_tointeger(L, 4);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;

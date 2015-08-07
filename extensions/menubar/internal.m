@@ -598,7 +598,6 @@ static int menubar_render(lua_State *L) {
             showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed to hs.menubar:render(): %d", lua_type(L, 2)] UTF8String]) ;
             lua_pushnil(L) ;
             return 1 ;
-            break ;
     }
 
     if (!menu) {

@@ -59,7 +59,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     }
 
     NSString* stringReply = (NSString *)[[NSString alloc] initWithData:self.receivedData encoding:NSUTF8StringEncoding];
-    int statusCode = [self.httpResponse statusCode];
+    int statusCode = (int)[self.httpResponse statusCode];
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
     lua_pushinteger(L, statusCode);
@@ -199,7 +199,7 @@ static int http_doRequest(lua_State* L) {
 
     NSHTTPURLResponse *httpResponse;
     httpResponse = (NSHTTPURLResponse *)response;
-    int statusCode = [httpResponse statusCode];
+    int statusCode = (int)[httpResponse statusCode];
 
     lua_pushinteger(L, statusCode);
     lua_pushstring(L, [stringReply UTF8String]);

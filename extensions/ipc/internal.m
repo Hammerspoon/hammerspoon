@@ -76,10 +76,12 @@ static int setup_ipc(lua_State* L) {
 }
 
 static int invalidate_ipc(lua_State* L) {
-    CFMessagePortRef    *messagePort = lua_touserdata(L,1);
-    CFMessagePortInvalidate ( *messagePort );
+    CFMessagePortRef *messagePort = lua_touserdata(L,1);
+    CFMessagePortInvalidate(*messagePort);
+    CFRelease(*messagePort);
     CFRelease(runloopSource);
     runloopSource = nil;
+    messagePort = nil;
     return 0;
 }
 

@@ -86,7 +86,7 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
     self.window.opaque = NO;
     self.window.level = kCGMaximumWindowLevelKey;
     self.window.ignoresMouseEvents = YES;
-    self.window.animationBehavior = (/* TODO: make me a variable */ YES ? NSWindowAnimationBehaviorAlertPanel : NSWindowAnimationBehaviorNone);
+    self.window.animationBehavior = NSWindowAnimationBehaviorAlertPanel;
     //    self.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorStationary;
 }
 
