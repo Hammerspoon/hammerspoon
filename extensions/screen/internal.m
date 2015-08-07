@@ -482,7 +482,7 @@ static int screen_gammaSet(lua_State* L) {
     NSArray *redArray = [originalGamma objectForKey:@"red"];
     NSArray *greenArray = [originalGamma objectForKey:@"green"];
     NSArray *blueArray = [originalGamma objectForKey:@"blue"];
-    int count = [redArray count];
+    int count = (int)[redArray count];
 //    CLS_NSLOG(@"screen_gammaSet: Found %i entries in the original gamma table", count);
 
     CGGammaValue redTable[count];
@@ -540,7 +540,7 @@ void screen_gammaReapply(CGDirectDisplayID display) {
     NSArray *green = [gammas objectForKey:@"green"];
     NSArray *blue =  [gammas objectForKey:@"blue"];
 
-    int count = [red count];
+    int count = (int)[red count];
     CGGammaValue redTable[count];
     CGGammaValue greenTable[count];
     CGGammaValue blueTable[count];
@@ -668,7 +668,7 @@ static int screen_rotate(lua_State* L) {
     CGDisplayCount maxDisplays = 32;
     CGDisplayCount displayCount, i;
     CGDirectDisplayID onlineDisplays[maxDisplays];
-    int rot = lua_tointeger(L, 2);
+    int rot = (int)lua_tointeger(L, 2);
     int rotation;
 
     switch (rot) {

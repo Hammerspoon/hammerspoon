@@ -57,7 +57,7 @@ static NSPoint get_window_topleft(AXUIElementRef win) {
 
     if (positionStorage) CFRelease(positionStorage);
 
-    return (NSPoint)topLeft;
+    return NSMakePoint(topLeft.x, topLeft.y);
 }
 
 static NSSize get_window_size(AXUIElementRef win) {
@@ -76,7 +76,7 @@ static NSSize get_window_size(AXUIElementRef win) {
 
     if (sizeStorage) CFRelease(sizeStorage);
 
-    return (NSSize)size;
+    return NSMakeSize(size.width, size.height);
 }
 
 static int window_gc(lua_State* L) {
@@ -515,7 +515,7 @@ static int window_pid(lua_State* L) {
 ///  * An `hs.application` object representing the application that owns the window, or nil if an error occurred
 static int window_application(lua_State* L) {
     if (window_pid(L)) {
-        pid_t pid = lua_tointeger(L, -1);
+        pid_t pid = (pid_t)lua_tointeger(L, -1);
         if (!new_application(L, pid)) {
             lua_pushnil(L);
         }
@@ -645,7 +645,7 @@ static int snapshot_common_code(lua_State* L, CGWindowID windowID, NSInteger mak
 ///  * See also method `hs.window:snapshot()`
 ///  * Because the window ID cannot always be dynamically determined, this function will allow you to provide the ID of a window that was cached earlier.
 static int window_snapshotForID(lua_State* L) {
-    CGWindowID windowID = luaL_checkinteger(L, 1);
+    CGWindowID windowID = (CGWindowID)luaL_checkinteger(L, 1);
 
     NSInteger makeOpaque = kCGWindowImageShouldBeOpaque ;
     if (lua_toboolean(L, 2)) makeOpaque = 0 ;

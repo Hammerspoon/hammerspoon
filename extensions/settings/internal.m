@@ -161,7 +161,7 @@ static int target_setData(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     if (lua_type(L,2) == LUA_TSTRING) {
         const char* data = lua_tostring(L,2) ;
-        int sz = lua_rawlen(L, 2) ;
+        NSUInteger sz = lua_rawlen(L, 2) ;
         NSData* myData = [[NSData alloc] initWithBytes:data length:sz] ;
         [[NSUserDefaults standardUserDefaults] setObject:myData forKey:key];
     } else {

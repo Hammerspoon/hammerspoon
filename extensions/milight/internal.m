@@ -91,7 +91,7 @@ static int milight_new(lua_State *L) {
     if (lua_isnone(L, 2)) {
         port = 8899;
     } else {
-        port = luaL_checkinteger(L, 2);
+        port = (int)luaL_checkinteger(L, 2);
     }
 
     bridge_t *bridge = lua_newuserdata(L, sizeof(bridge_t));
@@ -154,12 +154,12 @@ static int milight_del(lua_State *L) {
 static int milight_send(lua_State *L) {
     bridge_t *bridge = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    int cmd_key = luaL_checkinteger(L, 2);
+    int cmd_key = (int)luaL_checkinteger(L, 2);
     int value;
     if (lua_isnone(L, 3)) {
         value = 0x0;
     } else {
-        value = luaL_checkinteger(L, 3);
+        value = (int)luaL_checkinteger(L, 3);
     }
 
     unsigned char cmd[3] = {cmd_key, value, cmd_suffix};

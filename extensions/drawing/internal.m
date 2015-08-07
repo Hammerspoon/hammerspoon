@@ -1002,7 +1002,7 @@ static int drawing_setFillGradient(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSColor *startColor = getColorFromStack(L, 2);
     NSColor *endColor = getColorFromStack(L, 3);
-    int angle = lua_tointeger(L, 4);
+    int angle = (int)lua_tointeger(L, 4);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;

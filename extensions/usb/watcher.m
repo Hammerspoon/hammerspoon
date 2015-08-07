@@ -105,7 +105,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 
         // Extract the USB device's name
         productName = (__bridge NSString *)CFDictionaryGetValue(deviceData, CFSTR(kUSBProductString));
-        length = [productName length] + 1;
+        length = (int)[productName length] + 1;
         privateDataRef->productName = malloc(length);
         if (![productName getCString:privateDataRef->productName maxLength:length encoding:NSUTF8StringEncoding]) {
             privateDataRef->productName[0] = '\0';
@@ -113,7 +113,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 
         // Extract the USB device's vendor's name
         vendorName = (__bridge NSString *)CFDictionaryGetValue(deviceData, CFSTR(kUSBVendorString));
-        length = [vendorName length] + 1;
+        length = (int)[vendorName length] + 1;
         privateDataRef->vendorName = malloc(length);
         if (![vendorName getCString:privateDataRef->vendorName maxLength:length encoding:NSUTF8StringEncoding]) {
             privateDataRef->vendorName[0] = '\0';

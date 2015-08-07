@@ -10,7 +10,7 @@ static int doHash(lua_State *L, CC_LONG length, unsigned char *(*hashFunc)(const
     const char *source = luaL_checklstring(L, 1, &sourceLength);
     NSMutableString *conversionSink = [NSMutableString string];
 
-    hashFunc(source, sourceLength, digest);
+    hashFunc(source, (CC_LONG)sourceLength, digest);
     digest[length] = 0;
 
     for (unsigned int i = 0; i < length; i++) {
