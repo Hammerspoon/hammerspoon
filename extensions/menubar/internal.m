@@ -753,7 +753,7 @@ static int userdata_tostring(lua_State* L) {
 static const luaL_Reg menubarlib[] = {
     {"new", menubarNew},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg menubar_metalib[] = {
@@ -771,13 +771,13 @@ static const luaL_Reg menubar_metalib[] = {
 
     {"__tostring",        userdata_tostring},
     {"__gc",              menubaritem_gc},
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg menubar_gclib[] = {
     {"__gc", menubar_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_menubar_internal" in the following function's name

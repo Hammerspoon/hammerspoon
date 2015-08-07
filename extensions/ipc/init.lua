@@ -63,7 +63,7 @@ local function rawhandler(str)
   if fn then return fn() else return err end
 end
 
-local internal = require("hs.ipc.internal-ipc")
+local internal = require("hs.ipc.internal")
 
 -- Public interface ------------------------------------------------------
 

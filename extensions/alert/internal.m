@@ -209,12 +209,12 @@ static int alert_gc(lua_State* L __unused) {
 static const luaL_Reg alertlib[] = {
     {"show", alert_show},
     {"closeAll", alert_closeAll},
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", alert_gc},
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_alert_internal(lua_State* L) {

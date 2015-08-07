@@ -1,4 +1,4 @@
-#import <Appkit/NSImage.h>
+//#import <Appkit/NSImage.h>
 #import <LuaSkin/LuaSkin.h>
 #import "ASCIImage/PARImage+ASCIIInput.h"
 #import "../hammerspoon.h"

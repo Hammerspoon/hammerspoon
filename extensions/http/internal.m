@@ -224,13 +224,13 @@ static const luaL_Reg httplib[] = {
     {"doRequest", http_doRequest},
     {"doAsyncRequest", http_doAsyncRequest},
 
-    {} // This must end with an empty struct
+    {NULL, NULL} // This must end with an empty struct
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", http_gc},
 
-    {} // This must end with an empty struct
+    {NULL, NULL} // This must end with an empty struct
 };
 
 int luaopen_hs_http_internal(lua_State* L) {

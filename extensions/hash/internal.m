@@ -165,7 +165,7 @@ static const luaL_Reg hashlib[] = {
     {"hmacSHA512", hash_sha512_hmac},
     {"hmacMD5", hash_md5_hmac},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_hash_internal" in the following function's name

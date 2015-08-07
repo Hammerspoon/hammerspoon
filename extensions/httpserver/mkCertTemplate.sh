@@ -34,6 +34,10 @@ echo "" >>${INCLUDE_FILE}
 echo "=== Dumping template certificate bytes..."
 openssl x509 -C -inform DER -in cert.cer -noout | sed -n '/XXX_certificate/,$p' | sed -e 's/unsigned char XXX_certificate/static uint8_t const kCertTemplate/' >>${INCLUDE_FILE}
 
+echo "=== Tidying..."
+rm -rv cert.cer
+rm -rv cert.cer.asn1
+
 echo ""
 
 echo "== Done"

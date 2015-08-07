@@ -824,7 +824,7 @@ static const luaL_Reg screenlib[] = {
 static const luaL_Reg metalib[] = {
     {"__gc", screens_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_screen_internal(lua_State* L) {

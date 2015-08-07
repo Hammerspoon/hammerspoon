@@ -1,9 +1,9 @@
 .Dd 7/8/14
-.Dt {CLI_NAME} 1
+.Dt hs 1
 .Os Darwin
 .Sh NAME
-.Nm {CLI_NAME}
-.Nd Command line interface to {TARGET}.app
+.Nm hs
+.Nd Command line interface to Hammerspoon.app
 .Sh SYNOPSIS
 .Nm
 .Op Fl i | Fl s | Fl c Ar code
@@ -12,9 +12,9 @@
 .Sh DESCRIPTION
 Runs
 .Ar code
-from within {TARGET}, and prints the results. The given
+from within Hammerspoon, and prints the results. The given
 .Ar code
-is passed to "{PATH}.ipc.handler" which normally executes it as plain Lua code, but may be overridden to do some custom evaluation.
+is passed to "hs.ipc.handler" which normally executes it as plain Lua code, but may be overridden to do some custom evaluation.
 .Pp
 When no args are given,
 .Fl i
@@ -32,9 +32,9 @@ Uses the given argument as
 Uses stdin as
 .Ar code
 .It Fl r
-Forces {TARGET} to interpret
+Forces Hammerspoon to interpret
 .Ar code
-as raw Lua code; the function "{PATH}.ipc.handler" is not called.
+as raw Lua code; the function "hs.ipc.handler" is not called.
 .It Fl n
 When specified, interactive-mode does not use colors.
 .El

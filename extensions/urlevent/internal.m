@@ -116,13 +116,13 @@ static int urlevent_gc(lua_State* __unused L) {
 static const luaL_Reg urleventlib[] = {
     {"setCallback", urleventSetCallback},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg urlevent_gclib[] = {
     {"__gc", urlevent_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_urlevent_internal" in the following function's name

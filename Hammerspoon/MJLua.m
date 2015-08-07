@@ -213,7 +213,7 @@ static luaL_Reg corelib[] = {
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
     {"_notify", core_notify},
-    {}
+    {NULL, NULL}
 };
 
 void MJLuaSetup(void) {

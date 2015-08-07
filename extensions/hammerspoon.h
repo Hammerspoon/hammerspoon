@@ -3,8 +3,18 @@
 
 #ifndef HS_EXTERNAL_MODULE
 // Import the Crashlytics API so we can define our own crashlog+NSLog call
-#import "../Crashlytics.framework/Headers/Crashlytics.h"
+#import <Crashlytics/Crashlytics.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu"
 #define CLS_NSLOG(__FORMAT__, ...) CLSNSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#pragma clang diagnostic pop
+#ifdef CLS_LOG
+#undef CLS_LOG
+#endif
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu"
+#define CLS_LOG(__FORMAT__, ...) CLSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#pragma clang diagnostic pop
 #else
 #define CLS_NSLOG NSLog
 #endif
