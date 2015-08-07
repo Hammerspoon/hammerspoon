@@ -11147,7 +11147,7 @@
 				4F4CB3901B737953000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB3A31B7385C5000EA9B6 /* Build configuration list for PBXNativeTarget "dockicon" */ = {
 			isa = XCConfigurationList;
@@ -11156,7 +11156,7 @@
 				4F4CB3A51B7385C5000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB3B41B738769000EA9B6 /* Build configuration list for PBXNativeTarget "drawing" */ = {
 			isa = XCConfigurationList;
@@ -11165,7 +11165,7 @@
 				4F4CB3B61B738769000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB3C91B738F1E000EA9B6 /* Build configuration list for PBXNativeTarget "fs" */ = {
 			isa = XCConfigurationList;
@@ -11174,7 +11174,7 @@
 				4F4CB3CB1B738F1E000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB3DD1B7399D0000EA9B6 /* Build configuration list for PBXNativeTarget "geometry" */ = {
 			isa = XCConfigurationList;
@@ -11183,7 +11183,7 @@
 				4F4CB3DF1B7399D0000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB3F01B73A3A1000EA9B6 /* Build configuration list for PBXNativeTarget "hash" */ = {
 			isa = XCConfigurationList;
@@ -11192,7 +11192,7 @@
 				4F4CB3F21B73A3A1000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB4021B73A746000EA9B6 /* Build configuration list for PBXNativeTarget "hints" */ = {
 			isa = XCConfigurationList;
@@ -11201,7 +11201,7 @@
 				4F4CB4041B73A746000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB4141B73AC1D000EA9B6 /* Build configuration list for PBXNativeTarget "host" */ = {
 			isa = XCConfigurationList;
@@ -11210,7 +11210,7 @@
 				4F4CB4161B73AC1D000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB4251B73AD0B000EA9B6 /* Build configuration list for PBXNativeTarget "hotkey" */ = {
 			isa = XCConfigurationList;
@@ -11219,7 +11219,7 @@
 				4F4CB4271B73AD0B000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB4391B73AF7E000EA9B6 /* Build configuration list for PBXNativeTarget "http" */ = {
 			isa = XCConfigurationList;
@@ -11228,7 +11228,7 @@
 				4F4CB43B1B73AF7E000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB44D1B73B09C000EA9B6 /* Build configuration list for PBXNativeTarget "image" */ = {
 			isa = XCConfigurationList;
@@ -11237,7 +11237,7 @@
 				4F4CB44F1B73B09C000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3EA51B73D6D300B2A4DE /* Build configuration list for PBXNativeTarget "json" */ = {
 			isa = XCConfigurationList;
@@ -11246,7 +11246,7 @@
 				4F6B3EA71B73D6D300B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3EB81B73DC4500B2A4DE /* Build configuration list for PBXNativeTarget "location" */ = {
 			isa = XCConfigurationList;
@@ -11255,7 +11255,7 @@
 				4F6B3EBA1B73DC4500B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3ECF1B73E23800B2A4DE /* Build configuration list for PBXNativeTarget "menubar" */ = {
 			isa = XCConfigurationList;
@@ -11264,7 +11264,7 @@
 				4F6B3ED11B73E23800B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3EE41B73E5AC00B2A4DE /* Build configuration list for PBXNativeTarget "milight" */ = {
 			isa = XCConfigurationList;
@@ -11273,7 +11273,7 @@
 				4F6B3EE61B73E5AC00B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3EF81B73E7C200B2A4DE /* Build configuration list for PBXNativeTarget "mouse" */ = {
 			isa = XCConfigurationList;
@@ -11282,7 +11282,7 @@
 				4F6B3EFA1B73E7C200B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3F091B73E98E00B2A4DE /* Build configuration list for PBXNativeTarget "notify" */ = {
 			isa = XCConfigurationList;
@@ -11291,7 +11291,7 @@
 				4F6B3F0B1B73E98E00B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3F1E1B73EBB500B2A4DE /* Build configuration list for PBXNativeTarget "pasteboard" */ = {
 			isa = XCConfigurationList;
@@ -11300,7 +11300,7 @@
 				4F6B3F201B73EBB500B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3F2F1B73EDD100B2A4DE /* Build configuration list for PBXNativeTarget "pathwatcher" */ = {
 			isa = XCConfigurationList;
@@ -11309,7 +11309,7 @@
 				4F6B3F311B73EDD100B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3F411B73EF4B00B2A4DE /* Build configuration list for PBXNativeTarget "screen" */ = {
 			isa = XCConfigurationList;
@@ -11318,7 +11318,7 @@
 				4F6B3F431B73EF4B00B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3F521B73EFC100B2A4DE /* Build configuration list for PBXNativeTarget "screenwatcher" */ = {
 			isa = XCConfigurationList;
@@ -11327,7 +11327,7 @@
 				4F6B3F541B73EFC100B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3F671B73F0E300B2A4DE /* Build configuration list for PBXNativeTarget "settings" */ = {
 			isa = XCConfigurationList;
@@ -11336,7 +11336,7 @@
 				4F6B3F691B73F0E300B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F6B3F781B73F44500B2A4DE /* Build configuration list for PBXNativeTarget "sound" */ = {
 			isa = XCConfigurationList;
@@ -11345,7 +11345,7 @@
 				4F6B3F7A1B73F44500B2A4DE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F70EED01B726D170025A7B3 /* Build configuration list for PBXNativeTarget "audiodevice" */ = {
 			isa = XCConfigurationList;
@@ -11354,7 +11354,7 @@
 				4F70EED21B726D170025A7B3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F70EEE61B7273700025A7B3 /* Build configuration list for PBXNativeTarget "base64" */ = {
 			isa = XCConfigurationList;
@@ -11363,7 +11363,7 @@
 				4F70EEE81B7273700025A7B3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F7694511B74C96800536DE4 /* Build configuration list for PBXNativeTarget "keycodes" */ = {
 			isa = XCConfigurationList;
@@ -11372,7 +11372,7 @@
 				4F7694531B74C96800536DE4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4F9850E21B722C8200F7E909 /* Build configuration list for PBXNativeTarget "alert" */ = {
 			isa = XCConfigurationList;
@@ -11381,7 +11381,7 @@
 				4F9850E41B722C8200F7E909 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FBE2CDF1B72541B00407788 /* Build configuration list for PBXNativeTarget "applescript" */ = {
 			isa = XCConfigurationList;
@@ -11390,7 +11390,7 @@
 				4FBE2CE11B72541B00407788 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FBE2CF61B7261A200407788 /* Build configuration list for PBXNativeTarget "application" */ = {
 			isa = XCConfigurationList;
@@ -11399,7 +11399,7 @@
 				4FBE2CF81B7261A200407788 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FBE2D0D1B72631600407788 /* Build configuration list for PBXNativeTarget "applicationwatcher" */ = {
 			isa = XCConfigurationList;
@@ -11408,7 +11408,7 @@
 				4FBE2D0F1B72631600407788 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AB1A1B7484D700A82496 /* Build configuration list for PBXNativeTarget "spaceswatcher" */ = {
 			isa = XCConfigurationList;
@@ -11417,7 +11417,7 @@
 				4FD0AB1C1B7484D700A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AB311B74867600A82496 /* Build configuration list for PBXNativeTarget "timer" */ = {
 			isa = XCConfigurationList;
@@ -11426,7 +11426,7 @@
 				4FD0AB331B74867600A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AB431B749C8E00A82496 /* Build configuration list for PBXNativeTarget "uielement" */ = {
 			isa = XCConfigurationList;
@@ -11435,7 +11435,7 @@
 				4FD0AB451B749C8E00A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AB581B749D7A00A82496 /* Build configuration list for PBXNativeTarget "urlevent" */ = {
 			isa = XCConfigurationList;
@@ -11444,7 +11444,7 @@
 				4FD0AB5A1B749D7A00A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AB6B1B74A67500A82496 /* Build configuration list for PBXNativeTarget "usb" */ = {
 			isa = XCConfigurationList;
@@ -11453,7 +11453,7 @@
 				4FD0AB6D1B74A67500A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AB751B74A68900A82496 /* Build configuration list for PBXNativeTarget "usbwatcher" */ = {
 			isa = XCConfigurationList;
@@ -11462,7 +11462,7 @@
 				4FD0AB771B74A68900A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AB931B74AE1900A82496 /* Build configuration list for PBXNativeTarget "wifi" */ = {
 			isa = XCConfigurationList;
@@ -11471,7 +11471,7 @@
 				4FD0AB951B74AE1900A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AB9D1B74AE2800A82496 /* Build configuration list for PBXNativeTarget "wifiwatcher" */ = {
 			isa = XCConfigurationList;
@@ -11480,7 +11480,7 @@
 				4FD0AB9F1B74AE2800A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0ABB81B74AF4E00A82496 /* Build configuration list for PBXNativeTarget "window" */ = {
 			isa = XCConfigurationList;
@@ -11489,7 +11489,7 @@
 				4FD0ABBA1B74AF4E00A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0ABD41B74B2C500A82496 /* Build configuration list for PBXNativeTarget "eventtap" */ = {
 			isa = XCConfigurationList;
@@ -11498,7 +11498,7 @@
 				4FD0ABD61B74B2C500A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0ABDE1B74B2FA00A82496 /* Build configuration list for PBXNativeTarget "eventtapevent" */ = {
 			isa = XCConfigurationList;
@@ -11507,7 +11507,7 @@
 				4FD0ABE01B74B2FA00A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0ABFB1B74B9DE00A82496 /* Build configuration list for PBXNativeTarget "ipc" */ = {
 			isa = XCConfigurationList;
@@ -11516,7 +11516,7 @@
 				4FD0ABFD1B74B9DE00A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AC0D1B74BACD00A82496 /* Build configuration list for PBXNativeTarget "hs" */ = {
 			isa = XCConfigurationList;
@@ -11525,7 +11525,7 @@
 				4FD0AC0F1B74BACD00A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FD0AC1E1B74C58800A82496 /* Build configuration list for PBXNativeTarget "httpserver" */ = {
 			isa = XCConfigurationList;
@@ -11534,7 +11534,7 @@
 				4FD0AC201B74C58800A82496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FDE059C1B72984C00E9E8EE /* Build configuration list for PBXNativeTarget "battery" */ = {
 			isa = XCConfigurationList;
@@ -11543,7 +11543,7 @@
 				4FDE059E1B72984C00E9E8EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FDE05AB1B72988C00E9E8EE /* Build configuration list for PBXNativeTarget "batterywatcher" */ = {
 			isa = XCConfigurationList;
@@ -11552,7 +11552,7 @@
 				4FDE05AD1B72988C00E9E8EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FDE05C41B72C22500E9E8EE /* Build configuration list for PBXNativeTarget "brightness" */ = {
 			isa = XCConfigurationList;
@@ -11561,7 +11561,7 @@
 				4FDE05C61B72C22500E9E8EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FDE05D91B734EA600E9E8EE /* Build configuration list for PBXNativeTarget "caffeinate" */ = {
 			isa = XCConfigurationList;
@@ -11570,7 +11570,7 @@
 				4FDE05DB1B734EA600E9E8EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4FDE05EC1B734EE600E9E8EE /* Build configuration list for PBXNativeTarget "caffeinatewatcher" */ = {
 			isa = XCConfigurationList;
@@ -11579,7 +11579,7 @@
 				4FDE05EE1B734EE600E9E8EE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		9445CA0619083251002568BB /* Build configuration list for PBXProject "Hammerspoon" */ = {
 			isa = XCConfigurationList;
@@ -11588,7 +11588,7 @@
 				9445CA3B19083251002568BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hammerspoon" */ = {
 			isa = XCConfigurationList;
@@ -11597,7 +11597,7 @@
 				9445CA3E19083251002568BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		D02F952E1A00221C00E28BB2 /* Build configuration list for PBXNativeTarget "Hammerspoon Tests" */ = {
 			isa = XCConfigurationList;
@@ -11606,7 +11606,7 @@
 				D02F952D1A00221C00E28BB2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
