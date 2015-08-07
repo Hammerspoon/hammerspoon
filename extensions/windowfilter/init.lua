@@ -352,7 +352,7 @@ function wf:setAppFilter(appname,allowTitles,rejectTitles,allowRoles,fullscreen,
     if focused~=nil then app.focused=focused logs=sformat('%sfocused=%s',logs,focused) end
     self.apps[appname]=app
   end
-  self.log.d(logs)
+  self.log.i(logs)
   if activeFilters[self] then refreshWindows(self) end
   return self
 end
@@ -390,7 +390,20 @@ end
 ---      so far; you can then further restrict or expand it
 ---    - if `true`, returns an empty windowfilter that allows every window
 ---    - if `false`, returns a windowfilter with a default rule to reject every window
----    - if a string or table of strings, returns a windowfilter that only allows the specified apps
+---    - if a string or table of strings, returns a windowfilter that only allows visible windows of the specified apps
+---      as per `hs.application:title()`
+---    - if a table, you can fully define a windowfilter without having to call any methods after construction; every element
+---      will set an application filter; these elements must:
+---      - have a *key* of type string, denoting an application name as per `hs.application:title()`
+---      - if the *value* is a boolean, the app will be allowed or rejected accordingly - see `hs.windowfilter:allowApp()`
+---        and `hs.windowfilter:rejectApp()`
+---      - if the *value* is a table, it must contain the accept/reject rules for the app *as key/value pairs*; valid keys are
+---        the parameter names in `hs.windowfilter:setAppFilter()`; their values must follow the guidelines for that method
+---      - the *key* can be one of the special strings `"default"` and `"override"`, which will will set the default and override
+---        filter respectively
+---      - the *key* can be the special string `"trackSpaces"`; its value must be one of `"current"`, `"all"`, `"others"` or
+---        `"no"`, and it will set Spaces tracking on the windowfilter accordingly - see `hs.windowfilter:trackSpaces()`
+---      - if not specified in the table, the default filter in the new windowfilter will reject all windows
 ---    - otherwise it must be a function that accepts an `hs.window` object and returns `true` if the window is allowed
 ---      or `false` otherwise; this way you can define a fully custom windowfilter
 ---  * logname - (optional) name of the `hs.logger` instance for the new windowfilter; if omitted, the class logger will be used
@@ -409,7 +422,6 @@ function windowfilter.new(fn,logname,loglevel)
     return o
   elseif type(fn)=='string' then fn={fn}
   end
-  --  local isTable=type(fn)=='table'
   if fn==nil then
     o.log.i('new windowfilter, default windowfilter copy')
     for appname,filter in pairs(windowfilter.default.apps) do
@@ -421,10 +433,20 @@ function windowfilter.new(fn,logname,loglevel)
     return o
   elseif type(fn)=='table' then
     o.log.i('new windowfilter, reject all with exceptions')
-    for _,app in ipairs(fn) do
-      o:allowApp(app)
-    end
     o:setDefaultFilter(false)
+    for k,v in pairs(fn) do
+      if type(k)=='number' then
+        if type(v)=='string' then o:allowApp(v) -- {'appname'}
+        else error('invalid windowfilter constructor table: integer key '..k..' needs a string value, got '..type(v)..' instead',2) end
+      elseif type(k)=='string' then --{appname=...}
+        if type(v)=='boolean' then if v then o:allowApp(k) else o:rejectApp(k) end --{appname=true/false}
+        elseif type(v)=='table' then --{appname={arg1=val1,...}}
+          if k=='default' then k=false elseif k=='override' then k=true end
+          if k=='trackSpaces' then o:trackSpaces(v)
+          else o:setAppFilter(k,v.allowTitles,v.rejectTitles,v.allowRoles,v.fullscreen,v.visible,v.focused) end
+      else error('invalid windowfilter constructor table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
+      else error('invalid windowfilter constructor table: keys can be integer or string, got '..type(k)..' instead',2) end
+    end
     return o
   elseif fn==true then o.log.i('new empty windowfilter') return o
   elseif fn==false then o.log.i('new windowfilter, reject all') o:setDefaultFilter(false)  return o
@@ -942,22 +964,24 @@ local function refreshTrackSpacesFilters()
   end
 end
 
---- hs.windowfilter:trackSpaces(track, allow) -> hs.windowfilter
+--- hs.windowfilter:trackSpaces(track) -> hs.windowfilter
 --- Method
 --- Sets whether the windowfilter should be aware of different Mission Control Spaces
 ---
 --- Parameters:
----  * track - boolean, if `true` this windowfilter will keep track of which windows are in the current Space
----    and which are not: when the user switches to a different Space, windows in the previous space will emit an
----    `hs.windowfilter.windowHidden` event, and windows in the current space will emit an `hs.windowfilter.windowShown`
----    event. This is reflected in the visibility rules for this windowfilter: for example if it's set to only allow visible windows
----    (which is the default behaviour), windows that only exist in a given Space will be filtered out
----    or allowed again when the user switches (respectively) away from or back to that Space.
----  * allow - (optional) string, only valid if `track` is true; if `"current"` (default), the windowfilter will only allow
----    windows in the current Space, regardless of its visibility rules; if `"all"`, the windowfilter will allow
----    all windows (but the visibility rules still apply, see above); if `"others"`, the windowfilter will only allow windows
----    in any Space other than the current one (you need to set the visibility rules to allow invisible windows, or no windows
----    will ever be allowed).
+---  * track - string, it can have the following values:
+---    - `"no"` (or `false`): this is the default behaviour for all windowfilters; this windowfilter will treat all windows
+---       the same regardless of which Space they are in
+---    - `"all"`: this windowfilter will keep track of which windows are in the current Space
+---      and which are not: when the user switches to a different Space, windows in the previous space will emit an
+---      `hs.windowfilter.windowHidden` event, and windows in the current space will emit an `hs.windowfilter.windowShown`
+---      event. This is reflected in the visibility rules for this windowfilter: for example if it's set to only allow visible windows
+---      (which is the default behaviour), windows that only exist in a given Space will be filtered out
+---      or allowed again when the user switches (respectively) away from or back to that Space.
+---    - `"current"` (or `true`): like "all", but regardless of this windowfilter's visiblity rules, it will only allow
+---      windows in the current Space
+---    - `"others": like "all", but this windowfilter will only allow windows in any Space other than the current one (you need to
+---      set the visibility rules to allow invisible windows, or no windows will ever be allowed)
 ---
 --- Returns:
 ---  * the `hs.windowfilter` object for method chaining
@@ -965,12 +989,19 @@ end
 --- Notes:
 ---  * Spaces-aware windowfilters might experience a (sometimes significant) delay after every Space switch, since
 ---    (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
-function wf:trackSpaces(track, allow)
-  self.currentSpaceWindows = track and {} or nil
-  if not track or allow=='all' then self.spaceFilter = nil
-  elseif allow=='others' then self.spaceFilter = false
-  else self.spaceFilter = true end
-  trackSpacesFilters[self] = track and true or nil
+function wf:trackSpaces(track)
+  if track=='no' or not track then
+    self.currentSpaceWindows = nil
+    self.spaceFilter = nil
+    trackSpacesFilters[self] = nil
+  else
+    self.currentSpaceWindows = {}
+    trackSpacesFilters[self] = true
+    if track=='all' then self.spaceFilter = nil
+    elseif track=='others' then self.spaceFilter = false
+    elseif track=='current' or track==true then self.spaceFilter = true
+    else error('invalid parameter to trackSpaces',2) end
+  end
   refreshTrackSpacesFilters()
   if activeFilters[self] then refreshWindows(self) end
   --  windowfilter.forceRefreshOnSpaceChange=next(trackSpacesFilters) and true
