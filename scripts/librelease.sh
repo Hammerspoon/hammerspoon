@@ -143,7 +143,7 @@ function build_hammerspoon_app() {
   echo "Building Hammerspoon.app..."
   pushd "${HAMMERSPOON_HOME}" >/dev/null
   make clean
-  make
+  make release
   rm build/docs.json
   make docs
   popd >/dev/null

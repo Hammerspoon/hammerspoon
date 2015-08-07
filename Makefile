@@ -1,11 +1,20 @@
 VERSION = $(shell defaults read `pwd`/Hammerspoon/Hammerspoon-Info CFBundleVersion)
 APPFILE = build/Hammerspoon.app
 ZIPFILE = build/Hammerspoon-$(VERSION).zip
-PRODUCT_DIR = $(shell xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release -showBuildSettings | sort | uniq | grep " BUILT_PRODUCTS_DIR =" | awk '{ print $$3 }')
+SCHEME = Hammerspoon
+CONFIGURATION = Debug
 
+all: $(APPFILE)
+
+release: SCHEME = Release
+release: CONFIGURATION = Release
+release: all
+
+$(APPFILE): PRODUCT_DIR = $(shell xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) -showBuildSettings | sort | uniq | grep " BUILT_PRODUCTS_DIR =" | awk '{ print $$3 }')
 $(APPFILE): build $(shell find Hammerspoon -type f)
+	echo "Building Hammerspoon in $(CONFIGURATION) configuration"
 	rm -rf $@
-	xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release clean build > build/release-build.log
+	xcodebuild -workspace Hammerspoon.xcworkspace -scheme $(SCHEME) -configuration $(CONFIGURATION) clean build > build/$(CONFIGURATION)-build.log
 	cp -R ${PRODUCT_DIR}/Hammerspoon.app $@
 	cp -R ${PRODUCT_DIR}/Hammerspoon.app.dSYM build/
 	cp -R ${PRODUCT_DIR}/LuaSkin.framework.dSYM build/
@@ -41,4 +50,4 @@ clean:
 clean-docs:
 	rm -fr build/Hammerspoon.docset build/Hammerspoon.tgz build/html build/docs.json build/docs.sqlite
 
-.PHONY: release clean clean-docs
+.PHONY: all release clean clean-docs
