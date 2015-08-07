@@ -89,8 +89,8 @@ static int battery_watcher_start(lua_State* L) {
 }
 
 /// hs.battery.watcher:stop() -> self
-/// Function
-/// Stops the battery watcherA
+/// Method
+/// Stops the battery watcher
 ///
 /// Parameters:
 ///  * None
