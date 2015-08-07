@@ -366,7 +366,7 @@ end
 --TODO hs.windowsnap (or snapareas)
 --[[
 function wf:setScreens(screens)
-  if not screens then self.screens=nil
+  if not screens then self.screens=nil 
   else
     if type(screens)=='userdata' then screens={screens} end
     if type(screens)~='table' then error('screens must be a `hs.screen` object, or table of objects',2) end
@@ -377,7 +377,7 @@ function wf:setScreens(screens)
     self.screens=screens
   end
   if activeFilters[self] then refreshWindows(self) end
-  return self
+  return self  
 end
 --]]
 --- hs.windowfilter.new(fn,logname,loglevel) -> hs.windowfilter
@@ -469,7 +469,7 @@ end
 ---  * If you still want to alter the default windowfilter:
 ---    * you should probably apply your customizations at the top of your `init.lua`, or at any rate before instantiating any other windowfilter; this
 ---      way copies created via `hs.windowfilter.new(nil,...)` will inherit your modifications
----    * to list the known exclusions: `hs.windowfilter.setLogLevel('debug')`; the console will log them upon instantiating the default windowfilter
+---    * to list the known exclusions: `hs.windowfilter.setLogLevel('info')`; the console will log them upon instantiating the default windowfilter
 ---    * to add an exclusion: `hs.windowfilter.default:rejectApp'Cool New Launcher'`
 ---    * to add an app-specific rule: `hs.windowfilter.default:setAppFilter('My IDE',1)`; ignore tooltips/code completion (empty title) in My IDE
 ---    * to remove an exclusion (e.g. if you want to have access to Spotlight windows): `hs.windowfilter.default:allowApp'Spotlight'`;
@@ -980,7 +980,7 @@ end
 ---      or allowed again when the user switches (respectively) away from or back to that Space.
 ---    - `"current"` (or `true`): like "all", but regardless of this windowfilter's visiblity rules, it will only allow
 ---      windows in the current Space
----    - `"others": like "all", but this windowfilter will only allow windows in any Space other than the current one (you need to
+---    - `"others"`: like "all", but this windowfilter will only allow windows in any Space other than the current one (you need to
 ---      set the visibility rules to allow invisible windows, or no windows will ever be allowed)
 ---
 --- Returns:
@@ -1011,13 +1011,14 @@ end
 local spacesDone = {}
 --- hs.windowfilter.switchedToSpace(space)
 --- Function
---- Callback to inform all windowfilters that the user initiated a switch to a (numbered) Mission Control Space. (See
---- `hs.windowfilter.forceRefreshOnSpaceChange` for an overview of Spaces limitations in Hammerspoon.) If you
+--- Callback to inform all windowfilters that the user initiated a switch to a (numbered) Mission Control Space.
+---
+--- See `hs.windowfilter.forceRefreshOnSpaceChange` for an overview of Spaces limitations in Hammerspoon. If you
 --- often (or always) change Space via the "numbered" Mission Control keyboard shortcuts (by default, `ctrl-1` etc.), you
 --- can call this function from your `init.lua` when intercepting these shortcuts; for example:
 --- ```
---- hs.hotkey.bind({'ctrl','1',function()hs.windowfilter.switchedToSpace(1)end)
---- hs.hotkey.bind({'ctrl','2',function()hs.windowfilter.switchedToSpace(2)end)
+--- hs.hotkey.bind({'ctrl','1',nil,function()hs.windowfilter.switchedToSpace(1)end)
+--- hs.hotkey.bind({'ctrl','2',nil,function()hs.windowfilter.switchedToSpace(2)end)
 --- -- etc.
 --- ```
 --- Using this callback results in slightly better performance than setting `forceRefreshOnSpaceChange` to `true`, since
