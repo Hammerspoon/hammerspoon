@@ -221,7 +221,6 @@ static int imageWithContextFromASCII(lua_State *L) {
             showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed to hs.image.imageWithContextFromASCII as the context table: %s", lua_typename(L, lua_type(L, 2))] UTF8String]) ;
             lua_pushnil(L) ;
             return 1;
-            break;
     }
 
     if (isnan(defaultLineWidth)) { defaultLineWidth = defaultAntiAlias ? 1.0 : sqrtf(2.0)/2.0; }

@@ -686,7 +686,6 @@ static int screen_rotate(lua_State* L) {
             break;
         default:
             goto cleanup;
-            break;
     }
 
     CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
