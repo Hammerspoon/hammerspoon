@@ -68,6 +68,8 @@ typedef struct _spacewatcher_t {
         }
     }
 
+    CFRelease(windowsInSpace);
+
     [self callback:[notification userInfo] withSpace:currentSpace];
 }
 @end
