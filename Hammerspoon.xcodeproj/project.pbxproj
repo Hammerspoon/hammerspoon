@@ -623,7 +623,6 @@
 		4F9850861B722C6C00F7E909 /* httpserver */ = {isa = PBXFileReference; lastKnownFileType = folder; name = httpserver; path = extensions/httpserver; sourceTree = "<group>"; };
 		4F9850891B722C6C00F7E909 /* ipc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ipc; path = extensions/ipc; sourceTree = "<group>"; };
 		4F98508C1B722C6C00F7E909 /* keycodes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = keycodes; path = extensions/keycodes; sourceTree = "<group>"; };
-		4F9850A21B722C6C00F7E909 /* utf8 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = utf8; path = extensions/utf8; sourceTree = "<group>"; };
 		4F9850A31B722C6C00F7E909 /* wifi */ = {isa = PBXFileReference; lastKnownFileType = folder; name = wifi; path = extensions/wifi; sourceTree = "<group>"; };
 		4F9850A41B722C6C00F7E909 /* window */ = {isa = PBXFileReference; lastKnownFileType = folder; name = window; path = extensions/window; sourceTree = "<group>"; };
 		4F9850A51B722C6C00F7E909 /* windowfilter */ = {isa = PBXFileReference; lastKnownFileType = folder; name = windowfilter; path = extensions/windowfilter; sourceTree = "<group>"; };
@@ -661,6 +660,7 @@
 		4FD0AB7E1B74A6E600A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/usb/init.lua; sourceTree = "<group>"; };
 		4FD0AB7F1B74A6E600A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/usb/internal.m; sourceTree = "<group>"; };
 		4FD0AB851B74A73300A82496 /* watcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = watcher.m; path = extensions/usb/watcher.m; sourceTree = "<group>"; };
+		4FD0AB8B1B74AC2300A82496 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/utf8/init.lua; sourceTree = "<group>"; };
 		4FDE059F1B72984C00E9E8EE /* libbattery.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbattery.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05A11B72987B00E9E8EE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/battery/init.lua; sourceTree = "<group>"; };
 		4FDE05A21B72987B00E9E8EE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/battery/internal.m; sourceTree = "<group>"; };
@@ -1544,12 +1544,12 @@
 				4FD0AB5E1B749DA300A82496 /* urlevent */,
 				4FD0AB7D1B74A6D700A82496 /* usb */,
 				4FD0AB841B74A72200A82496 /* usbwatcher */,
+				4FD0AB8A1B74AC1800A82496 /* utf8 */,
 				4F9850781B722C6C00F7E909 /* doc */,
 				4F98507B1B722C6C00F7E909 /* eventtap */,
 				4F9850861B722C6C00F7E909 /* httpserver */,
 				4F9850891B722C6C00F7E909 /* ipc */,
 				4F98508C1B722C6C00F7E909 /* keycodes */,
-				4F9850A21B722C6C00F7E909 /* utf8 */,
 				4F9850A31B722C6C00F7E909 /* wifi */,
 				4F9850A41B722C6C00F7E909 /* window */,
 				4F9850A51B722C6C00F7E909 /* windowfilter */,
@@ -1651,6 +1651,14 @@
 				4FD0AB851B74A73300A82496 /* watcher.m */,
 			);
 			name = usbwatcher;
+			sourceTree = "<group>";
+		};
+		4FD0AB8A1B74AC1800A82496 /* utf8 */ = {
+			isa = PBXGroup;
+			children = (
+				4FD0AB8B1B74AC2300A82496 /* init.lua */,
+			);
+			name = utf8;
 			sourceTree = "<group>";
 		};
 		4FDE05A01B72986200E9E8EE /* battery */ = {
@@ -3172,7 +3180,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing fs geometry hash hints host hotkey http image json location menubar milight mouse notify pasteboard pathwatcher screen settings sound timer uielement urlevent usb\"\nexport HS_WATCHERS=\"application battery caffeinate screen spaces usb\"\nexport HS_LUAONLY=\"appfinder fnutils grid inspect itunes layout logger messages mjomatic spotify spaces tabs\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Finally, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n";
+			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing fs geometry hash hints host hotkey http image json location menubar milight mouse notify pasteboard pathwatcher screen settings sound timer uielement urlevent usb\"\nexport HS_WATCHERS=\"application battery caffeinate screen spaces usb\"\nexport HS_LUAONLY=\"appfinder fnutils grid inspect itunes layout logger messages mjomatic spotify spaces tabs utf8\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Finally, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
