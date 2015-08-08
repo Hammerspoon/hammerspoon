@@ -163,7 +163,7 @@ static int core_accessibilityState(lua_State* L) {
     return 1;
 }
 
-/// hs.automaticallyChecksForUpdates([setting]) -> bool
+/// hs.automaticallyCheckForUpdates([setting]) -> bool
 /// Function
 /// Gets and optionally sets the Hammerspoon option to automatically check for updates.
 ///
@@ -282,7 +282,7 @@ static luaL_Reg corelib[] = {
     {"menuIcon", core_menuicon},
     {"openPreferences", core_openpreferences},
     {"autoLaunch", core_autolaunch},
-    {"automaticallyChecksForUpdates", automaticallyChecksForUpdates},
+    {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},
     {"checkForUpdates", checkForUpdates},
     {"reload", core_reload},
     {"focus", core_focus},
