@@ -26,12 +26,14 @@ hs.configdir = configdir
 --- A string containing the full path to the `docs.json` file inside Hammerspoon's app bundle. This contains the full Hammerspoon API documentation and can be accessed in the Console using `help("someAPI")`. It can also be loaded and processed by the `hs.doc` extension
 hs.docstrings_json_file = docstringspath
 
---- hs.showError(err)
+--- hs.showError(err,lvl,terminate)
 --- Function
 --- Shows an error to the user, using Hammerspoon's Console
 ---
 --- Parameters:
 ---  * err - A string containing an error message
+---  * lvl - (optional) A number containing the level in the call stack for debug.traceback; if omitted, defaults to 1
+---  * terminate - (optional) boolean, if true terminates the last protected call; if false or omitted, the script execution continues
 ---
 --- Returns:
 ---  * None
@@ -42,14 +44,18 @@ hs.docstrings_json_file = docstringspath
 ---
 ---     ```local ok, err = xpcall(callbackfn, debug.traceback)
 ---     if not ok then hs.showError(err) end```
-function hs.showError(err)
+
+function hs.showError(err,lvl,terminate)
   hs._notify("Hammerspoon config error") -- undecided on this line
 --  print(debug.traceback())
 --  print(err)
-  print(debug.traceback(err, 2))
+  if lvl~=0 then lvl = (lvl or 1) + 1 end
+  if terminate then error(debug.traceback(err,lvl),lvl)
+  else print(debug.traceback(err, lvl)) end
   hs.focus()
   hs.openConsole()
 end
+
 
 --- hs.toggleConsole()
 --- Function
@@ -216,6 +222,8 @@ end
 
 hs.help = require("hs.doc")
 help = hs.help
+
+
 
 if not hasinitfile then
   hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
