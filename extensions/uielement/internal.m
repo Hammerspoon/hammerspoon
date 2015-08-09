@@ -201,10 +201,8 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
                                       CFStringRef notificationName, void* contextData) {
     watcher_t* watcher = (watcher_t*) contextData;
 
-    lua_State* L = watcher->L;
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->handler_ref);
     push_element(L, element); // Parameter 1: element
@@ -212,13 +210,10 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->watcher_ref); // Parameter 3: watcher
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->user_data_ref); // Parameter 4: userData
 
-    if (lua_pcall(L, 4, 0, -6) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:4 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 

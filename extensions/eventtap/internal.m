@@ -13,7 +13,8 @@ typedef struct _eventtap_t {
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
     eventtap_t* e = refcon;
-    lua_State* L = e->L;
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
 //  apparently OS X disables eventtaps if it thinks they are slow or odd or just because the moon
 //  is wrong in some way... but at least it's nice enough to tell us.
@@ -23,15 +24,13 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
         return event ;
     }
 
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, e->fn);
     new_eventtap_event(L, event);
 
-    if (lua_pcall(L, 1, 2, -3) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:1 nresults:2]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 
     bool ignoreevent = lua_toboolean(L, -2);

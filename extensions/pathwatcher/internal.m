@@ -18,11 +18,12 @@ typedef struct _watcher_path_t {
 void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags __unused eventFlags[], const FSEventStreamEventId __unused eventIds[]) {
 
     watcher_path_t* pw = clientCallBackInfo;
-    lua_State* L = pw->L;
+
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
     const char** changedFiles = eventPaths;
 
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, pw->closureref);
 
     lua_newtable(L);
@@ -31,11 +32,10 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
         lua_rawseti(L, -2, i + 1);
     }
 
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 

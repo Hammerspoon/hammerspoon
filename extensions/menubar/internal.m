@@ -16,10 +16,11 @@
 @implementation HSMenubarCallbackObject
 // Generic callback runner that will execute a Lua function stored in self.fn
 - (void) callback_runner {
-    int fn_result;
+    BOOL fn_result;
     NSEvent *event = [NSApp currentEvent];
-    lua_State *L = self.L;
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
     if (event != nil) {
         NSUInteger theFlags = [event modifierFlags];
@@ -46,17 +47,16 @@
         lua_pushboolean(L, isFnKey);
         lua_setfield(L, -2, "fn");
 
-        fn_result = lua_pcall(L, 1, 1, -3);
+        fn_result = [skin protectedCallAndTraceback:1 nresults:1];
     } else {
         // event is very unlikely to be nil, but we'll handle it just in case
-        fn_result = lua_pcall(L, 0, 1, -2);
+        fn_result = [skin protectedCallAndTraceback:0 nresults:1];
     }
 
-    if (fn_result != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (!fn_result) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
         return;
     }
 }

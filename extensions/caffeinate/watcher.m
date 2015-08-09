@@ -66,25 +66,16 @@ typedef enum _event_t {
 
 // Call the lua callback function and pass the application name and event type.
 - (void)callback:(NSDictionary* __unused)dict withEvent:(event_t)event {
-    lua_State* L = self.object->L;
-    if (L == nil || (lua_status(L) != LUA_OK)) {
-        return;
-    }
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
-
     lua_pushinteger(L, event); // Parameter 1: the event type
 
-    if (lua_pcall(L, 1, 0, -5) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 

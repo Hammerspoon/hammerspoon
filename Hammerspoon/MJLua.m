@@ -268,12 +268,9 @@ NSString* MJLuaRunString(NSString* command) {
     }
     lua_pushstring(L, [command UTF8String]);
     if ([MJLuaState protectedCallAndTraceback:1 nresults:1] == NO) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 
     size_t len;

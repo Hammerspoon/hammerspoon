@@ -120,11 +120,8 @@ static int hotkey_new(lua_State* L) {
     }
 
     if (!hasDown && !hasUp && !hasRepeat) {
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushstring(L, "ERROR: You must pass at least one callback when creating an hs.hotkey object");
-        lua_pcall(L, 1, 0, 0);
+        showError(L, "ERROR: You must pass at least one callback when creating an hs.hotkey object");
+
         lua_pushnil(L);
         return 1;
     }
@@ -272,12 +269,10 @@ static OSStatus hotkey_callback(EventHandlerCallRef __attribute__ ((unused)) inH
     return trigger_hotkey_callback((lua_State *)inUserData, eventUID, eventKind, false);
 }
 
-static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKind, BOOL isRepeat) {
+static OSStatus trigger_hotkey_callback(lua_State* _L __unused, int eventUID, int eventKind, BOOL isRepeat) {
     //CLS_NSLOG(@"trigger_hotkey_callback: isDown: %s, isUp: %s, isRepeat: %s", (eventKind == kEventHotKeyPressed) ? "YES" : "NO", (eventKind == kEventHotKeyReleased) ? "YES" : "NO", isRepeat ? "YES" : "NO");
-    if (!L || (lua_status(L) != LUA_OK)) {
-        printToConsole(L, "Error: lua thread is not in a good state");
-        return noErr;
-    }
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
     hotkey_t* hotkey = push_hotkey(L, eventUID);
     lua_pop(L, 1);
@@ -301,22 +296,14 @@ static OSStatus trigger_hotkey_callback(lua_State* L, int eventUID, int eventKin
         }
 
         if (ref != LUA_NOREF) {
-            lua_getglobal(L, "debug");
-            lua_getfield(L, -1, "traceback");
-            lua_remove(L, -2);
             lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
 
-            if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-                CLS_NSLOG(@"ERROR: trigger_hotkey_callback Lua error: %s", lua_tostring(L, -1));
-
+            if (![skin protectedCallAndTraceback:0 nresults:0]) {
                 // For the sake of safety, we'll invalidate any repeat timer that's running, so we don't ruin the user's day by spamming them with errors
                 [keyRepeatManager stopTimer];
-
-                lua_getglobal(L, "hs");
-                lua_getfield(L, -1, "showError");
-                lua_remove(L, -2);
-                lua_pushvalue(L, -2);
-                lua_pcall(L, 1, 0, 0);
+                const char *errorMsg = lua_tostring(L, -1);
+                CLS_NSLOG(@"%s", errorMsg);
+                showError(L, (char *)errorMsg);
                 return noErr;
             }
         }

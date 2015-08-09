@@ -59,27 +59,23 @@ static int fnCallback;
     NSArray *keys = [pairs allKeys];
     NSArray *values = [pairs allValues];
 
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *_L = skin.L;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, fnCallback);
-    lua_pushstring(L, [[url host] UTF8String]);
-    lua_newtable(L);
+    lua_rawgeti(_L, LUA_REGISTRYINDEX, fnCallback);
+    lua_pushstring(_L, [[url host] UTF8String]);
+    lua_newtable(_L);
     for (int i = 0; i < (int)[keys count]; i++) {
         // Push each URL parameter into the params table
-        lua_pushstring(L, [[keys objectAtIndex:i] UTF8String]);
-        lua_pushstring(L, [[values objectAtIndex:i] UTF8String]);
-        lua_settable(L, -3);
+        lua_pushstring(_L, [[keys objectAtIndex:i] UTF8String]);
+        lua_pushstring(_L, [[values objectAtIndex:i] UTF8String]);
+        lua_settable(_L, -3);
     }
 
-    if (lua_pcall(L, 2, 0, -4) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:2 nresults:0]) {
+        const char *errorMsg = lua_tostring(_L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(_L, (char *)errorMsg);
     }
 }
 @end
