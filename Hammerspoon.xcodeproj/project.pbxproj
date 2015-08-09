@@ -790,7 +790,6 @@
 		4FD0ABBF1B74AF9900A82496 /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = window.h; path = extensions/window/window.h; sourceTree = "<group>"; };
 		4FD0ABC81B74B0EC00A82496 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/windowfilter/init.lua; sourceTree = "<group>"; };
 		4FD0ABCA1B74B1C500A82496 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/doc/init.lua; sourceTree = "<group>"; };
-		4FD0ABCB1B74B1C500A82496 /* lua.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = lua.json; path = extensions/doc/lua.json; sourceTree = "<group>"; };
 		4FD0ABCC1B74B1C500A82496 /* makeLuaDocs.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = makeLuaDocs.lua; path = extensions/doc/makeLuaDocs.lua; sourceTree = "<group>"; };
 		4FD0ABD71B74B2C500A82496 /* libeventtap.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libeventtap.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD0ABE11B74B2FA00A82496 /* libeventtapevent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libeventtapevent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1958,7 +1957,6 @@
 			isa = PBXGroup;
 			children = (
 				4FD0ABCA1B74B1C500A82496 /* init.lua */,
-				4FD0ABCB1B74B1C500A82496 /* lua.json */,
 				4FD0ABCC1B74B1C500A82496 /* makeLuaDocs.lua */,
 			);
 			name = doc;
