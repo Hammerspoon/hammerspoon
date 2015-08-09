@@ -585,6 +585,7 @@ static int drawing_newLine(lua_State *L) {
 ///
 /// Returns:
 ///  * An `hs.drawing` text object, or nil if an error occurs
+///  * If the text of the drawing object is set to empty (i.e. "") then style changes may not be fully applied by `hs.drawing:setTextStyle()`.  Use a placeholder such as a space (" ") or hide the object if style changes and text will be set at different times.
 static int drawing_newText(lua_State *L) {
     NSRect windowRect;
     switch (lua_type(L, 1)) {
@@ -727,13 +728,22 @@ static int drawing_newImage(lua_State *L) {
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
+///  * If the text of the drawing object is emptied (i.e. "") then style changes may be lost.  Use a placeholder such as a space (" ") or hide the object if style changes need to be saved but the text should disappear for a while.
 static int drawing_setText(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
-        NSDictionary *attributes = [drawingView.textField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] ;
+// NOTE: if text is empty, throws NSRangeException... where else might it?
+        NSDictionary *attributes ;
+        @try {
+            attributes = [drawingView.textField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] ;
+        }
+        @catch ( NSException *theException ) {
+            attributes = @{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} ;
+            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
+        }
 
         drawingView.textField.attributedStringValue = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:luaL_checkstring(L, 2)] attributes:attributes];
     } else {
@@ -848,6 +858,7 @@ NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defa
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
+///  * If the text of the drawing object is currently empty (i.e. "") then style changes may be lost.  Use a placeholder such as a space (" ") or hide the object if style changes need to be saved but the text should disappear for a while.
 ///  * Only the keys specified are changed.  To reset an object to all of its defaults, call this method with an explicit nil as its only parameter (e.g. `hs.drawing:setTextStyle(nil)`
 ///  * The font, font size, and font color can also be set by their individual specific methods as well; this method is provided so that style components can be stored and applied collectively, as well as used by `hs.drawing.getTextBoundingBoxSize()` to determine the proper rectangle size for a textual drawing object.
 static int drawing_setTextStyle(lua_State *L) {
@@ -858,7 +869,16 @@ static int drawing_setTextStyle(lua_State *L) {
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
         NSTextField             *theTextField = drawingView.textField ;
         NSString                *theText = [[NSString alloc] initWithString:[theTextField.attributedStringValue string]] ;
-        NSMutableDictionary     *attributes = [[theTextField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] mutableCopy] ;
+// NOTE: if text is empty, throws NSRangeException... where else might it?
+        NSMutableDictionary     *attributes ;
+        @try {
+            attributes = [[theTextField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] mutableCopy] ;
+        }
+        @catch ( NSException *theException ) {
+            attributes = [@{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} mutableCopy] ;
+            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
+        }
+
         NSMutableParagraphStyle *style = [[attributes objectForKey:NSParagraphStyleAttributeName] mutableCopy] ;
 
 // NOTE: If we ever do deprecate setTextFont, setTextSize, and setTextColor, or if we want to expand to allow
