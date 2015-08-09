@@ -3706,7 +3706,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../token-crashlytics\n  ./Fabric.framework/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET -debug YES\n  if [ \"$?\" != \"0\" ]; then\n    echo \"CRASHLYTICS UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD: No secret token found\"\nfi";
+			shellScript = "set -eux\n\nif [ -f ../token-crashlytics -a \"${CONFIGURATION}\" == \"Release\" ] ; then\n  echo \"UPLOADING TO CRASHLYTICS\"\n  source ../token-crashlytics\n  ./Fabric.framework/run $CRASHLYTICS_API_KEY $CRASHLYTICS_BUILD_SECRET -debug YES\n  if [ \"$?\" != \"0\" ]; then\n    echo \"CRASHLYTICS UPLOAD FAILED\"\n    exit 1\n  fi\nelse\n  echo \"SKIPPING CRASHLYTICS UPLOAD: No secret token found, or not a Release build\"\nfi";
 		};
 		4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */ = {
 			isa = PBXShellScriptBuildPhase;
