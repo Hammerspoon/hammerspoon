@@ -1837,7 +1837,9 @@ static int setBehavior(lua_State *L) {
 ///
 /// Notes:
 ///  * This function assumes the default values specified for any key which is not included in the provided textStyle.
-///  * The size returned is an approximation and may return a width that is off by about 4 points.  Use the returned size as a minimum starting point and consider using the "justified" alignment and/or "clip" lineBreak modes for best results if space is really tight.
+///  * The size returned is an approximation and may return a width that is off by about 4 points.  Use the returned size as a minimum starting point. Sometimes using the "clip" or "truncateMiddle" lineBreak modes or "justified" alignment will fit, but its safest to add in your own buffer if you have the space in your layout.
+///  * Tabs are 28 points apart by default.  Currently there is no function for changing this.
+///  * Multi-line text (separated by a newline or return) is supported.  The height will be for the multiple lines and the width returned will be for the longest line.
 static int drawing_getTextDrawingSize(lua_State *L) {
     NSString *theText  = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
 
