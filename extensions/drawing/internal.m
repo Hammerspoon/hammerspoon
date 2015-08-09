@@ -861,6 +861,10 @@ static int drawing_setTextStyle(lua_State *L) {
         NSMutableDictionary     *attributes = [[theTextField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] mutableCopy] ;
         NSMutableParagraphStyle *style = [[attributes objectForKey:NSParagraphStyleAttributeName] mutableCopy] ;
 
+// NOTE: If we ever do deprecate setTextFont, setTextSize, and setTextColor, or if we want to expand to allow
+// multiple styles in an attributed string, move font and color into attribute dictionary -- I left them as is
+// to minimize changes to existing functions.
+
         if (lua_isnil(L, 2)) {
             // defaults in the HSDrawingViewText initWithFrame: definition
             [theTextField setFont: [NSFont systemFontOfSize: 27]];
