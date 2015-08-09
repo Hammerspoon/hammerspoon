@@ -100,9 +100,8 @@ NSColor *getColorWithDefaultFromStack(lua_State *L, int idx, NSColor *defaultCol
             break;
         default:
             CLS_NSLOG(@"ERROR: Unexpected type passed as a color: %d", lua_type(L, idx));
-            showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
-            return nil;
-
+            luaL_error(L, [[NSString stringWithFormat:@"Unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
+            return nil ;
             break;
     }
 
