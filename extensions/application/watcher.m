@@ -49,7 +49,6 @@ typedef struct _appwatcher_t {
     bool running;
     int fn;
     void* obj;
-    lua_State* L;
 } appwatcher_t;
 
 typedef enum _event_t {
@@ -165,7 +164,6 @@ static int app_watcher_new(lua_State* L) {
     lua_pushvalue(L, 1);
     appWatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
     appWatcher->running = NO;
-    appWatcher->L = L;
     appWatcher->obj = (__bridge_retained void*) [[AppWatcher alloc] initWithObject:appWatcher];
 
     luaL_getmetatable(L, USERDATA_TAG);
@@ -271,7 +269,6 @@ static int app_watcher_gc(lua_State* L) {
     app_watcher_stop(L);
     luaL_unref(L, LUA_REGISTRYINDEX, appWatcher->fn);
     appWatcher->fn = LUA_NOREF;
-    appWatcher->L = nil;
 
     AppWatcher* object = (__bridge_transfer AppWatcher*)appWatcher->obj;
     object = nil;

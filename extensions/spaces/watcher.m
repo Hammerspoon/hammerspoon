@@ -16,7 +16,6 @@ typedef struct _spacewatcher_t {
     bool running;
     int fn;
     void* obj;
-    lua_State* L;
 } spacewatcher_t;
 
 @interface SpaceWatcher : NSObject
@@ -86,7 +85,6 @@ static int space_watcher_new(lua_State* L) {
     lua_pushvalue(L, 1);
     spaceWatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
     spaceWatcher->running = NO;
-    spaceWatcher->L = L;
     spaceWatcher->obj = (__bridge_retained void*) [[SpaceWatcher alloc] initWithObject:spaceWatcher];
 
     luaL_getmetatable(L, userdataTag);

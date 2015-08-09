@@ -9,7 +9,6 @@
 // Not so common code
 
 typedef struct _watcher_path_t {
-    lua_State* L;
     int closureref;
     FSEventStreamRef stream;
     bool started;
@@ -49,7 +48,6 @@ static int watcher_path_new(lua_State* L) {
     int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     watcher_path_t* watcher_path = lua_newuserdata(L, sizeof(watcher_path_t));
-    watcher_path->L = L;
     watcher_path->closureref = closureref;
     watcher_path->started = NO;
 

@@ -40,7 +40,6 @@ typedef struct _caffeinatewatcher_t {
     bool running;
     int fn;
     void* obj;
-    lua_State* L;
 } caffeinatewatcher_t;
 
 typedef enum _event_t {
@@ -119,7 +118,6 @@ static int app_watcher_new(lua_State* L) {
     lua_pushvalue(L, 1);
     caffeinateWatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
     caffeinateWatcher->running = NO;
-    caffeinateWatcher->L = L;
     caffeinateWatcher->obj = (__bridge_retained void*) [[CaffeinateWatcher alloc] initWithObject:caffeinateWatcher];
 
     luaL_getmetatable(L, USERDATA_TAG);
@@ -214,7 +212,6 @@ static int app_watcher_gc(lua_State* L) {
     app_watcher_stop(L);
     luaL_unref(L, LUA_REGISTRYINDEX, caffeinateWatcher->fn);
     caffeinateWatcher->fn = LUA_NOREF;
-    caffeinateWatcher->L = nil;
 
     CaffeinateWatcher* object = (__bridge_transfer CaffeinateWatcher*)caffeinateWatcher->obj;
     object = nil;

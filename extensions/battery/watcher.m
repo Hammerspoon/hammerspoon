@@ -18,7 +18,6 @@
 // Not so common code
 
 typedef struct _battery_watcher_t {
-    lua_State* L;
     CFRunLoopSourceRef t;
     int fn;
     bool started;
@@ -53,7 +52,6 @@ static int battery_watcher_new(lua_State* L) {
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     battery_watcher_t* watcher = lua_newuserdata(L, sizeof(battery_watcher_t));
-    watcher->L = L;
 
     lua_pushvalue(L, 1);
     watcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);

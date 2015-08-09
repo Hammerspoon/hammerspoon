@@ -19,7 +19,6 @@
 
 // userdata object for each watcher
 typedef struct _usbwatcher_t {
-    lua_State *L;
     bool running;
     bool isFirstRun;
     int fn;
@@ -184,7 +183,6 @@ static int usb_watcher_new(lua_State* L) {
     memset(usbwatcher, 0, sizeof(usbwatcher_t));
     lua_pushvalue(L, 1);
 
-    usbwatcher->L = L;
     usbwatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
     usbwatcher->running = NO;
     usbwatcher->gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);

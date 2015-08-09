@@ -10,7 +10,6 @@
 // Not so common code
 
 typedef struct _timer_t {
-    lua_State* L;
     CFRunLoopTimerRef t;
     int fn;
     BOOL started;
@@ -49,7 +48,6 @@ static int timer_new(lua_State* L) {
 
     timer_t* timer = lua_newuserdata(L, sizeof(timer_t));
     memset(timer, 0, sizeof(timer_t));
-    timer->L = L;
 
     lua_pushvalue(L, 2);
     timer->fn = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -107,7 +105,6 @@ static int timer_doAfter(lua_State* L) {
 
     timer_t* timer = lua_newuserdata(L, sizeof(timer_t));
     memset(timer, 0, sizeof(timer_t));
-    timer->L = L;
 
     lua_pushvalue(L, 2);
     timer->fn = luaL_ref(L, LUA_REGISTRYINDEX);

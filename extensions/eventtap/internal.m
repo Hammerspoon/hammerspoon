@@ -4,7 +4,6 @@
 #define USERDATA_TAG        "hs.eventtap"
 
 typedef struct _eventtap_t {
-    lua_State* L;
     int fn;
     CGEventMask mask;
     CFMachPortRef tap;
@@ -112,7 +111,6 @@ static int eventtap_new(lua_State* L) {
     eventtap_t* eventtap = lua_newuserdata(L, sizeof(eventtap_t));
     memset(eventtap, 0, sizeof(eventtap_t));
 
-    eventtap->L = L;
     eventtap->tap = NULL ;
 
     lua_pushnil(L);

@@ -146,7 +146,6 @@ typedef struct _watcher_t {
     int handler_ref;
     int user_data_ref;
     int watcher_ref;
-    lua_State* L;
     AXObserverRef observer;
     AXUIElementRef element;
     pid_t pid;
@@ -170,7 +169,6 @@ static int uielement_newWatcher(lua_State* L) {
     watcher->user_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     watcher->watcher_ref = LUA_REFNIL;
     watcher->running = NO;
-    watcher->L = L;
     watcher->element = (AXUIElementRef)CFRetain(element);
     AXUIElementGetPid(element, &watcher->pid);
 
