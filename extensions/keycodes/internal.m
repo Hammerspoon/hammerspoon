@@ -229,6 +229,7 @@ static int keycodes_callback_gc(lua_State* L) {
     [observer stop];
     luaL_unref(L, LUA_REGISTRYINDEX, observer.ref);
     observer.ref = LUA_NOREF;
+    observer = nil;
     return 0;
 }
 
