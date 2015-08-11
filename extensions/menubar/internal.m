@@ -142,6 +142,9 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             [menu addItem:[NSMenuItem separatorItem]];
         } else {
             // Create a menu item
+            if (!title) {
+                title = @"";
+            }
             NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
 
             // Check to see if we have a submenu, if so, recurse into it
