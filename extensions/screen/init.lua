@@ -25,6 +25,9 @@ function screen.primaryScreen()
   return screen.allScreens()[1]
 end
 
+local primaryScreen = screen.primaryScreen()
+local screenObject = getmetatable(primaryScreen)
+
 --- hs.screen.findByName(name) -> screen or nil
 --- Function
 --- Finds a screen by its name
@@ -106,7 +109,7 @@ end
 ---
 --- Returns:
 ---  * two integers indicating the screen position in the current screen arrangement, in the x and y axis respectively.
-function screen:position()
+function screenObject:position()
   local id = self:id()
   local pos=screen.screenPositions()
   for s,p in pairs(pos) do
@@ -116,7 +119,7 @@ end
 --- hs.screen:fullFrame() -> rect
 --- Method
 --- Returns the screen's rect in absolute coordinates, including the dock and menu.
-function screen:fullFrame()
+function screenObject:fullFrame()
   local primary_screen = screen.allScreens()[1]
   local f = self:_frame()
   f.y = primary_screen:_frame().h - f.h - f.y
@@ -126,7 +129,7 @@ end
 --- hs.screen:frame() -> rect
 --- Method
 --- Returns the screen's rect in absolute coordinates, without the dock or menu.
-function screen:frame()
+function screenObject:frame()
   local primary_screen = screen.allScreens()[1]
   local f = self:_visibleframe()
   f.y = primary_screen:_frame().h - f.h - f.y
@@ -136,7 +139,7 @@ end
 --- hs.screen:next() -> screen
 --- Method
 --- Returns the screen 'after' this one (I have no idea how they're ordered though); this method wraps around to the first screen.
-function screen:next()
+function screenObject:next()
   local screens = screen.allScreens()
   local i = fnutils.indexOf(screens, self) + 1
   if i > # screens then i = 1 end
@@ -147,7 +150,7 @@ end
 --- hs.screen:previous() -> screen
 --- Method
 --- Returns the screen 'before' this one (I have no idea how they're ordered though); this method wraps around to the last screen.
-function screen:previous()
+function screenObject:previous()
   local screens = screen.allScreens()
   local i = fnutils.indexOf(screens, self) - 1
   if i < 1 then i = # screens end
@@ -224,7 +227,7 @@ screen.strictScreenInDirection = false
 --- Parameters:
 ---   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
 ---   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
-function screen:toEast(...)  return first_screen_in_direction(self, 0, ...) end
+function screenObject:toEast(...)  return first_screen_in_direction(self, 0, ...) end
 
 --- hs.screen:toWest()
 --- Method
@@ -232,7 +235,7 @@ function screen:toEast(...)  return first_screen_in_direction(self, 0, ...) end
 --- Parameters:
 ---   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
 ---   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
-function screen:toWest(...)  return first_screen_in_direction(self, 2, ...) end
+function screenObject:toWest(...)  return first_screen_in_direction(self, 2, ...) end
 
 --- hs.screen:toNorth()
 --- Method
@@ -240,7 +243,7 @@ function screen:toWest(...)  return first_screen_in_direction(self, 2, ...) end
 --- Parameters:
 ---   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
 ---   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
-function screen:toNorth(...) return first_screen_in_direction(self, 1, ...) end
+function screenObject:toNorth(...) return first_screen_in_direction(self, 1, ...) end
 
 --- hs.screen:toSouth()
 --- Method
@@ -248,7 +251,7 @@ function screen:toNorth(...) return first_screen_in_direction(self, 1, ...) end
 --- Parameters:
 ---   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
 ---   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
-function screen:toSouth(...) return first_screen_in_direction(self, 3, ...) end
+function screenObject:toSouth(...) return first_screen_in_direction(self, 3, ...) end
 
 --- hs.screen:shotAsPNG(filePath[, screenRect])
 --- Method
@@ -260,7 +263,7 @@ function screen:toSouth(...) return first_screen_in_direction(self, 3, ...) end
 ---
 --- Returns:
 ---  * None
-function screen:shotAsPNG(filePath, screenRect)
+function screenObject:shotAsPNG(filePath, screenRect)
   local image = self:snapshot(screenRect)
   image:saveToFile(filePath, "PNG")
 end
@@ -275,7 +278,7 @@ end
 ---
 --- Returns:
 ---  * None
-function screen:shotAsJPG(filePath, screenRect)
+function screenObject:shotAsJPG(filePath, screenRect)
   local image = self:snapshot(screenRect)
   image:saveToFile(filePath, "JPG")
 end
