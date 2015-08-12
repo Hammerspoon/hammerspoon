@@ -2,6 +2,7 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreGraphics/CGWindow.h>
 #import <LuaSkin/LuaSkin.h>
+#import "../hammerspoon.h"
 
 /// === hs.spaces.watcher ===
 ///
@@ -15,7 +16,6 @@ typedef struct _spacewatcher_t {
     bool running;
     int fn;
     void* obj;
-    lua_State* L;
 } spacewatcher_t;
 
 @interface SpaceWatcher : NSObject
@@ -33,22 +33,16 @@ typedef struct _spacewatcher_t {
 
 // Call the lua callback function.
 - (void)callback:(NSDictionary* __unused)dict withSpace:(int)space {
-    lua_State* L = self.object->L;
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
+    lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
     lua_pushinteger(L, space);
 
-    if (lua_pcall(L, 1, 0, -3) != 0) {
-        // Show a traceback on error.
-        NSLog(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 
@@ -91,7 +85,6 @@ static int space_watcher_new(lua_State* L) {
     lua_pushvalue(L, 1);
     spaceWatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
     spaceWatcher->running = NO;
-    spaceWatcher->L = L;
     spaceWatcher->obj = (__bridge_retained void*) [[SpaceWatcher alloc] initWithObject:spaceWatcher];
 
     luaL_getmetatable(L, userdataTag);

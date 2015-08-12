@@ -16,7 +16,7 @@ static void pushkeycode(lua_State* L, int code, const char* key) {
 int keycodes_cachemap(lua_State* L) {
     lua_newtable(L);
 
-    int relocatableKeyCodes[] = {
+    UInt16 relocatableKeyCodes[] = {
         kVK_ANSI_A, kVK_ANSI_B, kVK_ANSI_C, kVK_ANSI_D, kVK_ANSI_E, kVK_ANSI_F,
         kVK_ANSI_G, kVK_ANSI_H, kVK_ANSI_I, kVK_ANSI_J, kVK_ANSI_K, kVK_ANSI_L,
         kVK_ANSI_M, kVK_ANSI_N, kVK_ANSI_O, kVK_ANSI_P, kVK_ANSI_Q, kVK_ANSI_R,
@@ -167,7 +167,6 @@ int keycodes_cachemap(lua_State* L) {
 }
 
 @interface MJKeycodesObserver : NSObject
-@property lua_State* L;
 @property int ref;
 @end
 
@@ -180,19 +179,14 @@ int keycodes_cachemap(lua_State* L) {
 }
 
 - (void) inputSourceChanged:(NSNotification*)__unused note {
-    lua_State *L = self.L;
-
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.ref);
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+
+    if (![skin protectedCallAndTraceback:0 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 
@@ -218,12 +212,11 @@ static int keycodes_newcallback(lua_State* L) {
     int ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     MJKeycodesObserver* observer = [[MJKeycodesObserver alloc] init];
-    observer.L = L;
     observer.ref = ref;
     [observer start];
 
-    MJKeycodesObserver** ud = lua_newuserdata(L, sizeof(id));
-    *ud = observer;
+    void** ud = lua_newuserdata(L, sizeof(id));
+    *ud = (__bridge_retained void*)observer;
 
     luaL_getmetatable(L, "hs.keycodes.callback");
     lua_setmetatable(L, -2);
@@ -232,16 +225,16 @@ static int keycodes_newcallback(lua_State* L) {
 }
 
 static int keycodes_callback_gc(lua_State* L) {
-    MJKeycodesObserver* observer = *(MJKeycodesObserver**)luaL_checkudata(L, 1, "hs.keycodes.callback");
+    MJKeycodesObserver* observer = (__bridge_transfer MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, "hs.keycodes.callback");
     [observer stop];
     luaL_unref(L, LUA_REGISTRYINDEX, observer.ref);
     observer.ref = LUA_NOREF;
-    [observer release];
+    observer = nil;
     return 0;
 }
 
 static int keycodes_callback_stop(lua_State* L) {
-    MJKeycodesObserver* observer = *(MJKeycodesObserver**)luaL_checkudata(L, 1, "hs.keycodes.callback");
+    MJKeycodesObserver* observer = (__bridge MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, "hs.keycodes.callback");
     [observer stop];
     return 0;
 }

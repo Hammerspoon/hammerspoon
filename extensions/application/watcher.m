@@ -49,7 +49,6 @@ typedef struct _appwatcher_t {
     bool running;
     int fn;
     void* obj;
-    lua_State* L;
 } appwatcher_t;
 
 typedef enum _event_t {
@@ -91,13 +90,9 @@ typedef enum _event_t {
     if (!self.object->running)
         return;
 
-    lua_State* L = self.object->L;
-    if (L == nil || (lua_status(L) != LUA_OK))
-        return;
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
 
     if (appName == nil)
@@ -109,13 +104,10 @@ typedef enum _event_t {
         lua_pushnil(L);
     }
 
-    if (lua_pcall(L, 3, 0, -5) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:3 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 
@@ -172,7 +164,6 @@ static int app_watcher_new(lua_State* L) {
     lua_pushvalue(L, 1);
     appWatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
     appWatcher->running = NO;
-    appWatcher->L = L;
     appWatcher->obj = (__bridge_retained void*) [[AppWatcher alloc] initWithObject:appWatcher];
 
     luaL_getmetatable(L, USERDATA_TAG);
@@ -278,7 +269,6 @@ static int app_watcher_gc(lua_State* L) {
     app_watcher_stop(L);
     luaL_unref(L, LUA_REGISTRYINDEX, appWatcher->fn);
     appWatcher->fn = LUA_NOREF;
-    appWatcher->L = nil;
 
     AppWatcher* object = (__bridge_transfer AppWatcher*)appWatcher->obj;
     object = nil;

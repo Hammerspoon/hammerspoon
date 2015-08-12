@@ -10,7 +10,6 @@
 // Not so common code
 
 typedef struct _timer_t {
-    lua_State* L;
     CFRunLoopTimerRef t;
     int fn;
     BOOL started;
@@ -18,14 +17,14 @@ typedef struct _timer_t {
 
 static void callback(CFRunLoopTimerRef __unused timer, void *info) {
     timer_t* t = info;
-    lua_State* L = t->L;
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+
     lua_rawgeti(L, LUA_REGISTRYINDEX, t->fn);
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:0 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 
 }
@@ -49,7 +48,6 @@ static int timer_new(lua_State* L) {
 
     timer_t* timer = lua_newuserdata(L, sizeof(timer_t));
     memset(timer, 0, sizeof(timer_t));
-    timer->L = L;
 
     lua_pushvalue(L, 2);
     timer->fn = luaL_ref(L, LUA_REGISTRYINDEX);
@@ -107,7 +105,6 @@ static int timer_doAfter(lua_State* L) {
 
     timer_t* timer = lua_newuserdata(L, sizeof(timer_t));
     memset(timer, 0, sizeof(timer_t));
-    timer->L = L;
 
     lua_pushvalue(L, 2);
     timer->fn = luaL_ref(L, LUA_REGISTRYINDEX);

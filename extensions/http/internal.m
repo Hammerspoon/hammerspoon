@@ -53,10 +53,11 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection * __unused)connection {
-    lua_State* L = self.L;
     if (self.fn == LUA_NOREF) {
         return;
     }
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
     NSString* stringReply = (NSString *)[[NSString alloc] initWithData:self.receivedData encoding:NSUTF8StringEncoding];
     int statusCode = (int)[self.httpResponse statusCode];
@@ -65,11 +66,11 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     lua_pushinteger(L, statusCode);
     lua_pushstring(L, [stringReply UTF8String]);
     createResponseHeaderTable(L, self.httpResponse);
-    int cbRes = lua_pcall(L, 3, 0, 0);
-    if (cbRes != LUA_OK) {
-        // FIXME: traceback shirley?
-        NSString* message = [NSString stringWithFormat:@"%@ Code: %d", @"Can't call callback", cbRes];
-        showError(L, (char *)[message UTF8String]);
+
+    if (![skin protectedCallAndTraceback:3 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
     remove_delegate(L, self);
 }

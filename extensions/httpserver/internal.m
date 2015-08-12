@@ -73,7 +73,9 @@
         lua_pushstring(L, [path UTF8String]);
 
         if (![skin protectedCallAndTraceback:2 nresults:3]) {
-            showError(L, "ERROR: hs.httpserver callback failed");
+            const char *errorMsg = lua_tostring(L, -1);
+            CLS_NSLOG(@"%s", errorMsg);
+            showError(L, (char *)errorMsg);
             responseCode = 503;
             responseBody = [NSString stringWithUTF8String:"An error occurred during hs.httpserver callback handling"];
         } else {

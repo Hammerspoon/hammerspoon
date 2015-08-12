@@ -19,7 +19,6 @@
 
 // userdata object for each watcher
 typedef struct _usbwatcher_t {
-    lua_State *L;
     bool running;
     bool isFirstRun;
     int fn;
@@ -44,8 +43,9 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
     usbwatcher_t *watcher = privateDataRef->watcher;
 
     if (messageType == kIOMessageServiceIsTerminated) {
-        lua_State *L = watcher->L;
-        lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+        LuaSkin *skin = [LuaSkin shared];
+        lua_State *L = skin.L;
+
         lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->fn);
 
         // Prepare the callback's argument table
@@ -67,11 +67,10 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         lua_settable(L, -3);
 
         // Call the callback
-        if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-            CLS_NSLOG(@"%s", lua_tostring(L, -1));
-            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-            lua_pushvalue(L, -2);
-            lua_pcall(L, 1, 0, 0);
+        if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            const char *errorMsg = lua_tostring(L, -1);
+            CLS_NSLOG(@"%s", errorMsg);
+            showError(L, (char *)errorMsg);
         }
 
         // Free the USB private data
@@ -87,7 +86,6 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
     usbwatcher_t *watcher = (usbwatcher_t *)refCon;
     kern_return_t kr;
     io_service_t usbDevice;
-    lua_State *L;
     CFMutableDictionaryRef deviceData;
     NSString *productName;
     NSString *vendorName;
@@ -135,8 +133,9 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 
         // We don't want to trigger callbacks for every device attached before the watcher starts, but we needed to enumerate them to get private device data cached
         if (!watcher->isFirstRun) {
-            L = watcher->L;
-            lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+            LuaSkin *skin = [LuaSkin shared];
+            lua_State *L = skin.L;
+
             lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->fn);
 
             lua_newtable(L);
@@ -156,11 +155,8 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
             lua_pushstring(L, "added");
             lua_settable(L, -3);
 
-            if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-                CLS_NSLOG(@"%s", lua_tostring(L, -1));
-                lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-                lua_pushvalue(L, -2);
-                lua_pcall(L, 1, 0, 0);
+            if (![skin protectedCallAndTraceback:1 nresults:0]) {
+                showError(L, (char *)lua_tostring(L, -1));
             }
         }
     }
@@ -187,7 +183,6 @@ static int usb_watcher_new(lua_State* L) {
     memset(usbwatcher, 0, sizeof(usbwatcher_t));
     lua_pushvalue(L, 1);
 
-    usbwatcher->L = L;
     usbwatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
     usbwatcher->running = NO;
     usbwatcher->gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);
