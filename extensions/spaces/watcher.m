@@ -9,7 +9,7 @@
 /// Watches for the current Space being changed
 /// NOTE: This extension determines the number of a Space, using OS X APIs that have been deprecated since 10.8 and will likely be removed in a future release. You should not depend on Space numbers being around forever!
 
-static const char* userdataTag = "hs.spaces.watcher";
+#define USERDATA_TAG "hs.spaces.watcher"
 
 typedef struct _spacewatcher_t {
     int self;
@@ -87,7 +87,7 @@ static int space_watcher_new(lua_State* L) {
     spaceWatcher->running = NO;
     spaceWatcher->obj = (__bridge_retained void*) [[SpaceWatcher alloc] initWithObject:spaceWatcher];
 
-    luaL_getmetatable(L, userdataTag);
+    luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
     return 1;
 }
@@ -102,7 +102,7 @@ static int space_watcher_new(lua_State* L) {
 /// Returns:
 ///  * The watcher object
 static int space_watcher_start(lua_State* L) {
-    spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, userdataTag);
+    spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
     lua_pushvalue(L, 1);
 
@@ -133,7 +133,7 @@ static int space_watcher_start(lua_State* L) {
 /// Returns:
 ///  * The watcher object
 static int space_watcher_stop(lua_State* L) {
-    spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, userdataTag);
+    spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
     lua_pushvalue(L, 1);
 
@@ -146,7 +146,7 @@ static int space_watcher_stop(lua_State* L) {
 }
 
 static int space_watcher_gc(lua_State* L) {
-    spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, userdataTag);
+    spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     space_watcher_stop(L);
     luaL_unref(L, LUA_REGISTRYINDEX, spaceWatcher->fn);
@@ -159,22 +159,20 @@ static int space_watcher_gc(lua_State* L) {
 
 static const luaL_Reg watcherlib[] = {
     {"new", space_watcher_new},
-    {"start", space_watcher_start},
-    {"stop", space_watcher_stop},
     {NULL, NULL}
 };
 
-int luaopen_hs_spaces_watcher(lua_State* L) {
-    luaL_newlib(L, watcherlib);
+static const luaL_Reg watcher_objectlib[] = {
+    {"start", space_watcher_start},
+    {"stop", space_watcher_stop},
 
-    if (luaL_newmetatable(L, userdataTag)) {
-        lua_pushvalue(L, -2);
-        lua_setfield(L, -2, "__index");
+    {"__gc", space_watcher_gc},
+    {NULL, NULL}
+};
 
-        lua_pushcfunction(L, space_watcher_gc);
-        lua_setfield(L, -2, "__gc");
-    }
-    lua_pop(L, 1);
+int luaopen_hs_spaces_watcher(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:watcherlib metaFunctions:nil objectFunctions:watcher_objectlib];
 
     return 1;
 }

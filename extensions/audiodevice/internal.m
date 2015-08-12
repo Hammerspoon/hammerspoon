@@ -439,6 +439,7 @@ static const luaL_Reg audiodevice_metalib[] = {
     {"setVolume",               audiodevice_setvolume},
     {"muted",                   audiodevice_muted},
     {"setMuted",                audiodevice_setmuted},
+    {"__eq",                    audiodevice_eq},
     {NULL, NULL}
 };
 
@@ -448,17 +449,9 @@ static const luaL_Reg audiodeviceLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_audiodevice_internal(lua_State* L) {
-// Metatable for created objects
-    luaL_newlib(L, audiodevice_metalib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_pushcfunction(L, audiodevice_eq);
-        lua_setfield(L, -2, "__eq");
-        lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-// Create table for luaopen
-    luaL_newlib(L, audiodeviceLib);
+int luaopen_hs_audiodevice_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:audiodeviceLib metaFunctions:nil objectFunctions:audiodevice_metalib];
 
     return 1;
 }

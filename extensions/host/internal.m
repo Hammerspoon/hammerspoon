@@ -469,9 +469,11 @@ static const luaL_Reg hostlib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_host_internal(lua_State* L) {
+int luaopen_hs_host_internal(lua_State* L __unused) {
     host = [NSHost currentHost];
-    luaL_newlib(L, hostlib);
+
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:hostlib metaFunctions:nil];
 
     return 1;
 }

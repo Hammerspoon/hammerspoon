@@ -102,10 +102,9 @@ static const luaL_Reg metalib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_usb_internal(lua_State* L) {
-    luaL_newlib(L, usblib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+int luaopen_hs_usb_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:usblib metaFunctions:metalib];
 
     return 1;
 }

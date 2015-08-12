@@ -410,7 +410,9 @@ static const luaL_Reg battery_lib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_battery_internal(lua_State* L) {
-    luaL_newlib(L, battery_lib);
+int luaopen_hs_battery_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:battery_lib metaFunctions:nil];
+
     return 1;
 }

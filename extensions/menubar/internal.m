@@ -726,11 +726,10 @@ static int menubarGetIcon(lua_State *L) {
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
-static int menubar_setup(lua_State* __unused L) {
+void menubar_setup() {
     if (!dynamicMenuDelegates) {
         dynamicMenuDelegates = [[NSMutableArray alloc] init];
     }
-    return 0;
 }
 
 static int menubar_gc(lua_State* __unused L) {
@@ -785,19 +784,11 @@ static const luaL_Reg menubar_gclib[] = {
 /* NOTE: The substring "hs_menubar_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.menubar.internal". */
 
-int luaopen_hs_menubar_internal(lua_State *L) {
-    menubar_setup(L);
+int luaopen_hs_menubar_internal(lua_State *L __unused) {
+    menubar_setup();
 
-    // Metatable for created objects
-    luaL_newlib(L, menubar_metalib);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-    // Table for luaopen
-    luaL_newlib(L, menubarlib);
-    luaL_newlib(L, menubar_gclib);
-    lua_setmetatable(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:menubarlib metaFunctions:menubar_gclib objectFunctions:menubar_metalib];
 
     return 1;
 }

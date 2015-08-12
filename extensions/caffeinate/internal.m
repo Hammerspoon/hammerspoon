@@ -181,10 +181,9 @@ static const luaL_Reg metalib[] = {
 /* NOTE: The substring "hs_caffeinate_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.caffeinate.internal". */
 
-int luaopen_hs_caffeinate_internal(lua_State *L) {
-    luaL_newlib(L, caffeinatelib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+int luaopen_hs_caffeinate_internal(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:caffeinatelib metaFunctions:metalib];
 
     return 1;
 }

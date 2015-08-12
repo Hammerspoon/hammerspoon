@@ -3,6 +3,8 @@
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
+#define USERDATA_TAG "hs.keycodes.callback"
+
 static void pushkeycode(lua_State* L, int code, const char* key) {
     // t[key] = code
     lua_pushinteger(L, code);
@@ -218,14 +220,14 @@ static int keycodes_newcallback(lua_State* L) {
     void** ud = lua_newuserdata(L, sizeof(id));
     *ud = (__bridge_retained void*)observer;
 
-    luaL_getmetatable(L, "hs.keycodes.callback");
+    luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
 
     return 1;
 }
 
 static int keycodes_callback_gc(lua_State* L) {
-    MJKeycodesObserver* observer = (__bridge_transfer MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, "hs.keycodes.callback");
+    MJKeycodesObserver* observer = (__bridge_transfer MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, USERDATA_TAG);
     [observer stop];
     luaL_unref(L, LUA_REGISTRYINDEX, observer.ref);
     observer.ref = LUA_NOREF;
@@ -234,7 +236,7 @@ static int keycodes_callback_gc(lua_State* L) {
 }
 
 static int keycodes_callback_stop(lua_State* L) {
-    MJKeycodesObserver* observer = (__bridge MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, "hs.keycodes.callback");
+    MJKeycodesObserver* observer = (__bridge MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, USERDATA_TAG);
     [observer stop];
     return 0;
 }
@@ -257,15 +259,9 @@ static const luaL_Reg keycodeslib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_keycodes_internal(lua_State* L) {
-    // Metatable for created objects
-    luaL_newlib(L, callbacklib);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    lua_setfield(L, LUA_REGISTRYINDEX, "hs.keycodes.callback");
-
-    // Table for luaopen
-    luaL_newlib(L, keycodeslib);
+int luaopen_hs_keycodes_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:keycodeslib metaFunctions:nil objectFunctions:callbacklib];
 
     return 1;
 }

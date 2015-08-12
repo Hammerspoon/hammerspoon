@@ -2,8 +2,10 @@
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 
+#define USERDATA_TAG "hs.hints.hint"
+
 #define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "hs.screen"))
-#define get_hint_arg(L, idx) (__bridge HintWindow*)*((void**)luaL_checkudata(L, idx, "hs.hints.hint"))
+#define get_hint_arg(L, idx) (__bridge HintWindow*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
 @interface HintView : NSView {
 @private
@@ -169,7 +171,7 @@ void new_hint(lua_State* L, HintWindow* screen) {
     void** hintptr = lua_newuserdata(L, sizeof(HintWindow**));
     *hintptr = (__bridge_retained void*)screen;
 
-    luaL_getmetatable(L, "hs.hints.hint");
+    luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
 }
 
@@ -207,19 +209,16 @@ static const luaL_Reg hintslib[] = {
     {NULL, NULL} // necessary sentinel
 };
 
-int luaopen_hs_hints_internal(lua_State* L) {
-    luaL_newlib(L, hintslib);
+static const luaL_Reg hints_metalib[] = {
+    {"__eq", hint_eq},
+    {"__gc", hint_close},
 
-    if (luaL_newmetatable(L, "hs.hints.hint")) {
-        lua_pushvalue(L, -2);
-        lua_setfield(L, -2, "__index");
+    {NULL, NULL}
+};
 
-        lua_pushcfunction(L, hint_eq);
-        lua_setfield(L, -2, "__eq");
+int luaopen_hs_hints_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:hintslib metaFunctions:nil objectFunctions:hints_metalib];
 
-        lua_pushcfunction(L, hint_close);
-        lua_setfield(L, -2, "__gc");
-    }
-    lua_pop(L, 1);
     return 1;
 }

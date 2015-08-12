@@ -250,10 +250,9 @@ static const luaL_Reg metalib[] = {
 /* NOTE: The substring "hs_location_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.location.internal". */
 
-int luaopen_hs_location_internal(lua_State *L) {
-    luaL_newlib(L, locationlib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+int luaopen_hs_location_internal(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:locationlib metaFunctions:metalib];
 
     return 1;
 }

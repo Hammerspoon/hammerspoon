@@ -284,21 +284,21 @@ static const luaL_Reg settingslib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_settings_internal(lua_State* L) {
-    // setup the module
-    luaL_newlib(L, settingslib);
+int luaopen_hs_settings_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:settingslib metaFunctions:nil];
 
 /// hs.settings.dateFormat
 /// Constant
 /// A string representing the expected format of date and time when presenting the date and time as a string to `hs.setDate()`.  e.g. `os.date(hs.settings.dateFormat)`
-        lua_pushstring(L, "!%Y-%m-%dT%H:%M:%SZ") ;
-        lua_setfield(L, -2, "dateFormat") ;
+        lua_pushstring(skin.L, "!%Y-%m-%dT%H:%M:%SZ") ;
+        lua_setfield(skin.L, -2, "dateFormat") ;
 
 /// hs.settings.bundleID
 /// Constant
 /// A string representing the ID of the bundle Hammerspoon's settings are stored in . You can use this with the command line tool `defaults` or other tools which allow access to the `User Defaults` of applications, to access these outside of Hammerspoon
-        lua_pushstring(L, [[[NSBundle mainBundle] bundleIdentifier] UTF8String]) ;
-        lua_setfield(L, -2, "bundleID") ;
+        lua_pushstring(skin.L, [[[NSBundle mainBundle] bundleIdentifier] UTF8String]) ;
+        lua_setfield(skin.L, -2, "bundleID") ;
 
     return 1;
 }

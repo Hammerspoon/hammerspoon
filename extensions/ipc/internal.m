@@ -91,7 +91,9 @@ static const luaL_Reg ipcLib[] = {
     {NULL,              NULL}
 };
 
-int luaopen_hs_ipc_internal(lua_State* L) {
-    luaL_newlib(L, ipcLib);
+int luaopen_hs_ipc_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:ipcLib metaFunctions:nil];
+
     return 1;
 }

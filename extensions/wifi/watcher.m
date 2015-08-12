@@ -176,17 +176,9 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_wifi_watcher(lua_State* L) {
-// Metatable for created objects
-    luaL_newlib(L, wifi_metalib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-// Create table for luaopen
-    luaL_newlib(L, wifiLib);
-        luaL_newlib(L, meta_gcLib);
-        lua_setmetatable(L, -2);
+int luaopen_hs_wifi_watcher(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:wifiLib metaFunctions:meta_gcLib objectFunctions:wifi_metalib];
 
     return 1;
 }
