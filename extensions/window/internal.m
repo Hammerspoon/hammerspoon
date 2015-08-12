@@ -604,7 +604,7 @@ static int window_setShadows(lua_State* L) {
 
 // used by hs.window.snapshotForID and hs.window:snapshot
 
-static int snapshot_common_code(lua_State* L, CGWindowID windowID, NSInteger makeOpaque) {
+static int snapshot_common_code(lua_State* L, CGWindowID windowID, CGWindowImageOption makeOpaque) {
 //         CGRect windowRect = { get_window_topleft(win), get_window_size(win) };
         CGRect windowRect = CGRectNull ;
 
@@ -613,7 +613,7 @@ static int snapshot_common_code(lua_State* L, CGWindowID windowID, NSInteger mak
               windowRect,
               targetWindow,
               kCGWindowImageBoundsIgnoreFraming | makeOpaque);
-        CFRelease(targetWindow) ;
+        CFRelease(targetWindow);
 
         if (!windowImage) {
             CLS_NSLOG(@"hs.window::snapshot: ERROR: CGWindowListCreateImageFromArray failed for windowID: %ld", (long) windowID);
@@ -647,8 +647,8 @@ static int snapshot_common_code(lua_State* L, CGWindowID windowID, NSInteger mak
 static int window_snapshotForID(lua_State* L) {
     CGWindowID windowID = (CGWindowID)luaL_checkinteger(L, 1);
 
-    NSInteger makeOpaque = kCGWindowImageShouldBeOpaque ;
-    if (lua_toboolean(L, 2)) makeOpaque = 0 ;
+    CGWindowImageOption makeOpaque = kCGWindowImageShouldBeOpaque ;
+    if (lua_toboolean(L, 2)) makeOpaque = kCGWindowImageDefault ;
 
     return snapshot_common_code(L, windowID, makeOpaque) ;
 }
@@ -671,8 +671,8 @@ static int window_snapshot(lua_State* L) {
     AXError err = _AXUIElementGetWindow(win, &windowID);
 
     if (!err) {
-        NSInteger      makeOpaque = kCGWindowImageShouldBeOpaque ;
-        if (lua_toboolean(L, 2)) makeOpaque = 0 ;
+        CGWindowImageOption makeOpaque = kCGWindowImageShouldBeOpaque ;
+        if (lua_toboolean(L, 2)) makeOpaque = kCGWindowImageDefault ;
 
         return snapshot_common_code(L, windowID, makeOpaque) ;
     } else {
