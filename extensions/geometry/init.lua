@@ -94,7 +94,7 @@ local function new(x,y,w,h)
   if not gettype(t) then error('Cannot create geometry object, wrong arguments',2) end
   return setmetatable(t,geometry)
 end
---- hs.geometry.new(...) -> hs.geometry
+--- hs.geometry.new(...) -> hs.geometry object
 --- Constructor
 --- Creates a new hs.geometry object
 ---
@@ -103,7 +103,7 @@ end
 --- Returns:
 ---  * a newly created hs.geometry object
 geometry.new=new
---- hs.geometry.copy(geom) -> hs.geometry
+--- hs.geometry.copy(geom) -> hs.geometry object
 --- Constructor
 --- Creates a copy of an hs.geometry object
 ---
@@ -276,7 +276,7 @@ function geometry.equals(t1,t2)
   return t1.x==t2.x and t1.y==t2.y and t1.w==t2.w and t1.h==t2.h
 end
 
---- hs.geometry:move(point) -> hs.geometry
+--- hs.geometry:move(point) -> hs.geometry object
 --- Method
 --- Moves this point/rect
 ---
@@ -292,7 +292,7 @@ function geometry.move(t,...)
   return t
 end
 
---- hs.geometry:scale(size) -> hs.geometry
+--- hs.geometry:scale(size) -> hs.geometry object
 --- Method
 --- Scales this size/rect, *keeping its center constant*
 ---
@@ -401,7 +401,7 @@ function geometry.distance(t,...)
   return geometry.getlength(geometry.vector(t,...))
 end
 
---- hs.geometry:union(rect) -> hs.geometry
+--- hs.geometry:union(rect) -> hs.geometry rect
 --- Method
 --- Returns the smallest rect that encloses both this rect and another rect
 ---
@@ -431,7 +431,7 @@ function geometry.inside(t1,...)
   return t1.x>=t2.x and t1.y>=t2.y and t1.x2<=t2.x2 and t1.y2<=t2.y2
 end
 
---- hs.geometry:intersect(rect) -> hs.geometry
+--- hs.geometry:intersect(rect) -> hs.geometry rect
 --- Method
 --- Returns the intersection rect between this rect and another rect
 ---
@@ -492,7 +492,7 @@ geometry.rectMidPoint=geometry.getcenter
 geometry.intersectionRect=geometry.intersect
 geometry.isPointInRect=geometry.inside
 
---- hs.geometry:rotateCCW(aroundpoint, ntimes) -> hs.geometry
+--- hs.geometry:rotateCCW(aroundpoint, ntimes) -> hs.geometry point
 --- Method
 --- Rotates a point around another point N times
 ---
@@ -514,7 +514,7 @@ function geometry.rotateCCW(p, ap, ntimes)
   return r
 end
 
---- hs.geometry.rect(x, y, w, h) -> hs.geometry
+--- hs.geometry.rect(x, y, w, h) -> hs.geometry rect
 --- Constructor
 --- Convenience function for creating a rect-table
 ---
@@ -528,7 +528,7 @@ end
 ---  * An hs.geometry rect object
 geometry.rect=new
 
---- hs.geometry.point(x, y) -> hs.geometry
+--- hs.geometry.point(x, y) -> hs.geometry point
 --- Constructor
 --- Convenience function for creating a point object
 ---
@@ -540,7 +540,7 @@ geometry.rect=new
 ---  * An hs.geometry point object
 geometry.point=new
 
---- hs.geometry.size(w, h) -> hs.geometry
+--- hs.geometry.size(w, h) -> hs.geometry size
 --- Constructor
 --- Convenience function for creating a size object
 ---
