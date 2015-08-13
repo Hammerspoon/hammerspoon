@@ -28,9 +28,6 @@
 		4F4CB3D31B7391D3000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3D11B7391D3000EA9B6 /* internal.m */; };
 		4F4CB3D41B7391D3000EA9B6 /* lfs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F4CB3D21B7391D3000EA9B6 /* lfs.h */; };
 		4F4CB3D51B73922E000EA9B6 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
-		4F4CB3DA1B7399D0000EA9B6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
-		4F4CB3DB1B7399D0000EA9B6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
-		4F4CB3E61B739A0F000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3E51B739A0F000EA9B6 /* internal.m */; };
 		4F4CB3ED1B73A3A1000EA9B6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4F4CB3EE1B73A3A1000EA9B6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F4CB3F71B73A4EC000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3F61B73A4EC000EA9B6 /* internal.m */; };
@@ -312,13 +309,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 4F4CB3C21B738F1E000EA9B6;
 			remoteInfo = fs;
-		};
-		4F4CB3E11B7399ED000EA9B6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 9445CA0319083251002568BB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F4CB3D61B7399D0000EA9B6;
-			remoteInfo = geometry;
 		};
 		4F4CB3F91B73A52D000EA9B6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -667,7 +657,6 @@
 		4F4CB3D01B7391D3000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/fs/init.lua; sourceTree = "<group>"; };
 		4F4CB3D11B7391D3000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/fs/internal.m; sourceTree = "<group>"; };
 		4F4CB3D21B7391D3000EA9B6 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs.h; path = extensions/fs/lfs.h; sourceTree = "<group>"; };
-		4F4CB3E01B7399D0000EA9B6 /* libgeometry.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgeometry.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3E41B739A0F000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/geometry/init.lua; sourceTree = "<group>"; };
 		4F4CB3E51B739A0F000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/geometry/internal.m; sourceTree = "<group>"; };
 		4F4CB3E81B739ABD000EA9B6 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/grid/init.lua; sourceTree = "<group>"; };
@@ -925,15 +914,6 @@
 				4F4CB3C61B738F1E000EA9B6 /* Cocoa.framework in Frameworks */,
 				4F4CB3C71B738F1E000EA9B6 /* LuaSkin.framework in Frameworks */,
 				4F4CB3D51B73922E000EA9B6 /* Fabric.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F4CB3D91B7399D0000EA9B6 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F4CB3DA1B7399D0000EA9B6 /* Cocoa.framework in Frameworks */,
-				4F4CB3DB1B7399D0000EA9B6 /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2126,7 +2106,6 @@
 				4F4CB3A61B7385C5000EA9B6 /* libdockicon.dylib */,
 				4F4CB3B71B738769000EA9B6 /* libdrawing.dylib */,
 				4F4CB3CC1B738F1E000EA9B6 /* libfs.dylib */,
-				4F4CB3E01B7399D0000EA9B6 /* libgeometry.dylib */,
 				4F4CB3F31B73A3A1000EA9B6 /* libhash.dylib */,
 				4F4CB4051B73A746000EA9B6 /* libhints.dylib */,
 				4F4CB4171B73AC1D000EA9B6 /* libhost.dylib */,
@@ -2320,13 +2299,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F4CB3D41B7391D3000EA9B6 /* lfs.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F4CB3DC1B7399D0000EA9B6 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2707,23 +2679,6 @@
 			name = fs;
 			productName = alert;
 			productReference = 4F4CB3CC1B738F1E000EA9B6 /* libfs.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
-		4F4CB3D61B7399D0000EA9B6 /* geometry */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4F4CB3DD1B7399D0000EA9B6 /* Build configuration list for PBXNativeTarget "geometry" */;
-			buildPhases = (
-				4F4CB3D71B7399D0000EA9B6 /* Sources */,
-				4F4CB3D91B7399D0000EA9B6 /* Frameworks */,
-				4F4CB3DC1B7399D0000EA9B6 /* Headers */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = geometry;
-			productName = alert;
-			productReference = 4F4CB3E01B7399D0000EA9B6 /* libgeometry.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4F4CB3E91B73A3A1000EA9B6 /* hash */ = {
@@ -3525,7 +3480,6 @@
 				4F4CB41D1B73AC56000EA9B6 /* PBXTargetDependency */,
 				4F4CB40C1B73A7A4000EA9B6 /* PBXTargetDependency */,
 				4F4CB3FA1B73A52D000EA9B6 /* PBXTargetDependency */,
-				4F4CB3E21B7399ED000EA9B6 /* PBXTargetDependency */,
 				4F4CB3CE1B738FBC000EA9B6 /* PBXTargetDependency */,
 				4FD0ABF11B74B3CE00A82496 /* PBXTargetDependency */,
 				4FD0ABF31B74B3CE00A82496 /* PBXTargetDependency */,
@@ -3621,7 +3575,6 @@
 				4FD0ABCD1B74B2C500A82496 /* eventtap */,
 				4FD0ABD81B74B2FA00A82496 /* eventtapevent */,
 				4F4CB3C21B738F1E000EA9B6 /* fs */,
-				4F4CB3D61B7399D0000EA9B6 /* geometry */,
 				4F4CB3E91B73A3A1000EA9B6 /* hash */,
 				4F4CB3FB1B73A746000EA9B6 /* hints */,
 				4F4CB40D1B73AC1D000EA9B6 /* host */,
@@ -3770,7 +3723,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing eventtap fs geometry hash hints host hotkey http httpserver image ipc json keycodes location menubar milight mouse notify pasteboard pathwatcher screen settings sound timer uielement urlevent usb wifi window\"\nexport HS_WATCHERS=\"application battery caffeinate screen spaces usb wifi\"\nexport HS_LUAONLY=\"appfinder fnutils grid inspect itunes layout logger messages mjomatic spotify spaces tabs utf8 doc\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Now, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n\n# Special copier for hs.doc\ncp -av \"${SRCROOT}/extensions/doc/lua.json\" \"${HS_DST}/doc/lua.json\"\n\n# Special copier for hs.eventtap.event\ncp -av \"${BUILT_PRODUCTS_DIR}/libeventtapevent.dylib\" \"${HS_DST}/eventtap/event.so\"\n\n# Special copier for hs.ipc\nmkdir -pv \"${HS_DST}/ipc/bin\"\nmkdir -pv \"${HS_DST}/ipc/share/man/man1\"\ncp -av \"${SRCROOT}/extensions/ipc/cli/hs.man\" \"${HS_DST}/ipc/share/man/man1/hs.1\"\ncp -av \"${BUILT_PRODUCTS_DIR}/hs\" \"${HS_DST}/ipc/bin/hs\"\n\n# Special copier for hs.window.filter\ncp -av \"${SRCROOT}/extensions/window/filter.lua\" \"${HS_DST}/window/filter.lua\"\n";
+			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate crash dockicon drawing eventtap fs hash hints host hotkey http httpserver image ipc json keycodes location menubar milight mouse notify pasteboard pathwatcher screen settings sound timer uielement urlevent usb wifi window\"\nexport HS_WATCHERS=\"application battery caffeinate screen spaces usb wifi\"\nexport HS_LUAONLY=\"appfinder fnutils grid inspect itunes layout logger messages mjomatic spotify spaces tabs utf8 doc\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Now, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n\n# Special copier for hs.doc\ncp -av \"${SRCROOT}/extensions/doc/lua.json\" \"${HS_DST}/doc/lua.json\"\n\n# Special copier for hs.eventtap.event\ncp -av \"${BUILT_PRODUCTS_DIR}/libeventtapevent.dylib\" \"${HS_DST}/eventtap/event.so\"\n\n# Special copier for hs.ipc\nmkdir -pv \"${HS_DST}/ipc/bin\"\nmkdir -pv \"${HS_DST}/ipc/share/man/man1\"\ncp -av \"${SRCROOT}/extensions/ipc/cli/hs.man\" \"${HS_DST}/ipc/share/man/man1/hs.1\"\ncp -av \"${BUILT_PRODUCTS_DIR}/hs\" \"${HS_DST}/ipc/bin/hs\"\n\n# Special copier for hs.window.filter\ncp -av \"${SRCROOT}/extensions/window/filter.lua\" \"${HS_DST}/window/filter.lua\"\n";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -3847,14 +3800,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F4CB3D31B7391D3000EA9B6 /* internal.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4F4CB3D71B7399D0000EA9B6 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4F4CB3E61B739A0F000EA9B6 /* internal.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4264,11 +4209,6 @@
 			isa = PBXTargetDependency;
 			target = 4F4CB3C21B738F1E000EA9B6 /* fs */;
 			targetProxy = 4F4CB3CD1B738FBC000EA9B6 /* PBXContainerItemProxy */;
-		};
-		4F4CB3E21B7399ED000EA9B6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4F4CB3D61B7399D0000EA9B6 /* geometry */;
-			targetProxy = 4F4CB3E11B7399ED000EA9B6 /* PBXContainerItemProxy */;
 		};
 		4F4CB3FA1B73A52D000EA9B6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -4962,138 +4902,6 @@
 			name = Debug;
 		};
 		4F4CB3CB1B738F1E000EA9B6 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
-				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
-				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
-				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
-				CLANG_WARN_EMPTY_BODY = "$(inherited)";
-				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
-				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
-				CLANG_WARN_INT_CONVERSION = "$(inherited)";
-				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
-				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
-				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
-				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
-				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
-				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
-				EXECUTABLE_PREFIX = lib;
-				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
-				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
-				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
-				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
-				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
-				GCC_WARN_PEDANTIC = "$(inherited)";
-				GCC_WARN_SHADOW = "$(inherited)";
-				GCC_WARN_SIGN_COMPARE = "$(inherited)";
-				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
-				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
-				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
-				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
-				GCC_WARN_UNUSED_LABEL = "$(inherited)";
-				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
-				GCC_WARN_UNUSED_VALUE = "$(inherited)";
-				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
-				STRIP_INSTALLED_PRODUCT = NO;
-			};
-			name = Release;
-		};
-		4F4CB3DE1B7399D0000EA9B6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
-				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
-				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
-				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
-				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
-				CLANG_WARN_EMPTY_BODY = "$(inherited)";
-				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
-				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
-				CLANG_WARN_INT_CONVERSION = "$(inherited)";
-				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
-				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
-				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
-				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
-				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
-				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
-				ENABLE_TESTABILITY = YES;
-				EXECUTABLE_PREFIX = lib;
-				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
-				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
-				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
-				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
-				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
-				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
-				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
-				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
-				GCC_WARN_PEDANTIC = "$(inherited)";
-				GCC_WARN_SHADOW = "$(inherited)";
-				GCC_WARN_SIGN_COMPARE = "$(inherited)";
-				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
-				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
-				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
-				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
-				GCC_WARN_UNUSED_LABEL = "$(inherited)";
-				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
-				GCC_WARN_UNUSED_VALUE = "$(inherited)";
-				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
-				SDKROOT = "$(inherited)";
-				STRIP_INSTALLED_PRODUCT = NO;
-			};
-			name = Debug;
-		};
-		4F4CB3DF1B7399D0000EA9B6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
@@ -11194,15 +11002,6 @@
 			buildConfigurations = (
 				4F4CB3CA1B738F1E000EA9B6 /* Debug */,
 				4F4CB3CB1B738F1E000EA9B6 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		4F4CB3DD1B7399D0000EA9B6 /* Build configuration list for PBXNativeTarget "geometry" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4F4CB3DE1B7399D0000EA9B6 /* Debug */,
-				4F4CB3DF1B7399D0000EA9B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
