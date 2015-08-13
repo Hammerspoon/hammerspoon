@@ -7,10 +7,9 @@ local imagemod = require("hs.image")
 
 -- This is the wrapper for hs.menubar:setIcon(). It is documented in internal.m
 
-local tmp = menubar.new()
-local tmpmetatable = getmetatable(tmp)
+local menubarObject = hs.getObjectMetatable("hs.menubar")
 
-tmpmetatable.setIcon = function(object, imagePath)
+menubarObject.setIcon = function(object, imagePath)
     local tmpImage = nil
 
     if type(imagePath) == "userdata" then
@@ -25,7 +24,5 @@ tmpmetatable.setIcon = function(object, imagePath)
 
     return object:_setIcon(tmpImage)
 end
-
-tmp:delete()
 
 return menubar
