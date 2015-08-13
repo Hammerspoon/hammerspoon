@@ -12,6 +12,8 @@ hotkey.setLogLevel=log.setLogLevel
 local tonumber,pairs,ipairs,type,tremove,tinsert,tconcat = tonumber,pairs,ipairs,type,table.remove,table.insert,table.concat
 local supper,slower,sfind=string.upper,string.lower,string.find
 
+local function error(err,lvl) return hs.showError(err,lvl+1,true) end
+
 local function getKeycode(s)
   if type(s)~='string' then error('key must be a string',3) end
   local n
@@ -134,7 +136,7 @@ local function getIndex(mods,keycode)
   key=key and supper(key) or keycode
   return mods..key
 end
---- hs.hotkey.new(mods, key, message, pressedfn, releasedfn, repeatfn) -> hs.hotkey
+--- hs.hotkey.new(mods, key, [message,] pressedfn, releasedfn, repeatfn) -> hs.hotkey
 --- Constructor
 --- Creates a new hotkey
 ---
@@ -146,7 +148,8 @@ end
 ---    * "shift" or "⇧"
 ---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or
 ---    if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
----  * message - A string containing a message to be displayed via `hs.alert()` when the hotkey has been triggered, or nil for no alert
+---  * message - (optional) A string containing a message to be displayed via `hs.alert()` when the hotkey has been
+---    triggered; if omitted, no alert will be shown
 ---  * pressedfn - A function that will be called when the hotkey has been pressed, or nil
 ---  * releasedfn - A function that will be called when the hotkey has been released, or nil
 ---  * repeatfn - A function that will be called when a pressed hotkey is repeating, or nil
@@ -157,23 +160,20 @@ end
 --- Notes:
 ---  * You can create multiple `hs.hotkey` objects for the same keyboard combination, but only one can be active
 ---    at any given time - see `hs.hotkey:enable()`
----  * You must pass at least one of pressedfn, releasedfn or repeatfn; to delete a hotkey, use `hs.hotkey:delete()`
+---  * If `message` is the empty string `""`, the alert will just show the triggered keyboard combination
+---  * If you don't want any alert, you must *actually* omit the `message` parameter; a `nil` in 3rd position
+---    will be interpreted as a missing `pressedfn`
+---  * You must pass at least one of `pressedfn`, `releasedfn` or `repeatfn`; to delete a hotkey, use `hs.hotkey:delete()`
 
 function hotkey.new(mods, key, message, pressedfn, releasedfn, repeatfn)
-  --[[ message as third parameter --]]
-  if type(mods)=='table' then -- old syntax, backward compatibility
-    repeatfn=releasedfn releasedfn=pressedfn pressedfn=message message=nil
-  end
-  --[[ end --]]
   local keycode = getKeycode(key)
   mods = getMods(mods)
+  -- message can be optional
+  if message==nil or type(message)=='function' then
+    repeatfn=releasedfn releasedfn=pressedfn pressedfn=message message=nil
+  end
   if type(pressedfn)~='function' and type(releasedfn)~='function' and type(repeatfn)~='function' then
     error('At least one of pressedfn, releasedfn or repeatfn must be a function',2) end
-  --[[ message+duration as last parameters --]=]
-  if type(releasedfn)=='string' then duration=repeatfn message=releasedfn repeatfn=nil releasedfn=nil
-  elseif type(repeatfn)=='string' then duration=message message=repeatfn repeatfn=nil end
-  if type(duration)~='number' then duration=nil end
-  --[=[ end --]]
   if type(message)~='string' then message=nil end
   local idx = getIndex(mods,keycode)
   local msg=(message and #message>0) and idx..': '..message or idx
