@@ -166,7 +166,7 @@ local function projection(base, rect) -- like hs.geometry,intersectionRect, but 
   return {x=rectx,y=recty,w=rectx2-rectx,h=recty2-recty}
 end
 
-local function first_screen_in_direction(screen, numrotations, from, strict, allscreens)
+local function first_screen_in_direction(aScreen, numrotations, from, strict, allscreens)
   if not allscreens then
     allscreens = screen.allScreens()
     if #allscreens==1 then return end
@@ -181,7 +181,7 @@ local function first_screen_in_direction(screen, numrotations, from, strict, all
 
   -- thanks mark!
 
-  local otherscreens = fnutils.filter(allscreens, function(s) return s ~= screen end)
+  local otherscreens = fnutils.filter(allscreens, function(s) return s ~= aScreen end)
   local myf=screen:fullFrame()
   local p1 = geometry.rectMidPoint(from and projection(myf,from) or myf)
   local screens = {}
