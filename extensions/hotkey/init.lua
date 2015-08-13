@@ -34,7 +34,7 @@ local hotkeys = {}
 --- hs.hotkey.alertDuration = 0 -- hotkey alerts are disabled
 hotkey.alertDuration = 1
 
---- hs.hotkey:enable() -> hs.hotkey
+--- hs.hotkey:enable() -> hs.hotkey object
 --- Method
 --- Enables a hotkey object
 ---
@@ -65,7 +65,7 @@ local function enable(self,force,isModal)
   return self
 end
 
---- hs.hotkey:disable() -> hs.hotkey
+--- hs.hotkey:disable() -> hs.hotkey object
 --- Method
 --- Disables a hotkey object
 ---
@@ -136,7 +136,7 @@ local function getIndex(mods,keycode)
   key=key and supper(key) or keycode
   return mods..key
 end
---- hs.hotkey.new(mods, key, [message,] pressedfn, releasedfn, repeatfn) -> hs.hotkey
+--- hs.hotkey.new(mods, key, [message,] pressedfn, releasedfn, repeatfn) -> hs.hotkey object
 --- Constructor
 --- Creates a new hotkey
 ---
@@ -246,7 +246,7 @@ end
 ---    * idx - a string describing the keyboard combination for the hotkey
 ---    * msg - the hotkey message, if provided when the hotkey was created (prefixed with the keyboard combination)
 
---- hs.hotkey.showHotkeys(mods, key) -> hs.hotkey
+--- hs.hotkey.showHotkeys(mods, key) -> hs.hotkey object
 --- Function
 --- Creates (and enables) a hotkey that shows all currently active hotkeys (i.e. enabled and not "shadowed"
 --- in the current context) while pressed
@@ -291,7 +291,7 @@ function hotkey.showHotkeys(mods,key)
   helpHotkey = hotkey.bind(mods,key,'Show active hotkeys',showHelp,hs.alert.closeAll)
   return helpHotkey
 end
---- hs.hotkey.bind(mods, key, message, pressedfn, releasedfn, repeatfn) -> hs.hotkey
+--- hs.hotkey.bind(mods, key, message, pressedfn, releasedfn, repeatfn) -> hs.hotkey object
 --- Constructor
 --- Creates a hotkey and enables it immediately
 ---
@@ -361,7 +361,7 @@ end
 function hotkey.modal:exited()
 end
 
---- hs.hotkey.modal:bind(mods, key, message, pressedfn, releasedfn, repeatfn) -> hs.hotkey.modal
+--- hs.hotkey.modal:bind(mods, key, message, pressedfn, releasedfn, repeatfn) -> hs.hotkey.modal object
 --- Method
 --- Creates a hotkey that is enabled/disabled as the modal is entered/exited
 ---
@@ -385,7 +385,7 @@ function hotkey.modal:bind(...)
   return self
 end
 
---- hs.hotkey.modal:enter() -> hs.hotkey.modal
+--- hs.hotkey.modal:enter() -> hs.hotkey.modal object
 --- Method
 --- Enters a modal state
 ---
@@ -409,7 +409,7 @@ function hotkey.modal:enter()
   return self
 end
 
---- hs.hotkey.modal:exit() -> hs.hotkey.modal
+--- hs.hotkey.modal:exit() -> hs.hotkey.modal object
 --- Method
 --- Exits a modal state
 ---
@@ -417,7 +417,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * The `hs.hotkey.modal` object
+---  * The `hs.hotkey.modal` object for method chaining
 ---
 --- Notes:
 ---  * This method will disable all of the hotkeys defined in the modal state, and enable the hotkey for entering the modal state (if one was defined)
@@ -431,7 +431,7 @@ function hotkey.modal:exit()
   return self
 end
 
---- hs.hotkey.modal.new(mods, key, message) -> hs.hotkey.modal
+--- hs.hotkey.modal.new(mods, key, message) -> hs.hotkey.modal object
 --- Constructor
 --- Creates a new modal state, optionally with a global keyboard combination to trigger it
 ---
