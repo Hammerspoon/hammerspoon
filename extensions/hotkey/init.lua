@@ -160,7 +160,7 @@ function hotkey.modal:enter()
   if (self.k) then
     self.k:disable()
   end
-  fnutils.each(self.keys, hotkey.enable)
+  fnutils.each(self.keys, hs.getObjectMetatable("hs.hotkey").enable)
   self:entered()
   return self
 end
@@ -178,7 +178,7 @@ end
 --- Notes:
 ---  * This method will disable all of the hotkeys defined in the modal state, and enable the hotkey for entering the modal state (if one was defined)
 function hotkey.modal:exit()
-  fnutils.each(self.keys, hotkey.disable)
+  fnutils.each(self.keys, hs.getObjectMetatable("hs.hotkey").disable)
   if (self.k) then
     self.k:enable()
   end

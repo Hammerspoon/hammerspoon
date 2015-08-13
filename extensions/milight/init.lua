@@ -4,6 +4,7 @@
 
 local milight = require "hs.milight.internal"
 milight.cmd = milight._cacheCommands()
+local milightObject = hs.getObjectMetatable("hs.milight")
 
 --- hs.milight.minBrightness
 --- Constant
@@ -69,7 +70,7 @@ end
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:zoneOff(zone)
+function milightObject:zoneOff(zone)
     return milight.send(self, milight.cmd[zone2cmdkey(zone, "off")])
 end
 
@@ -82,7 +83,7 @@ end
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:zoneOn(zone)
+function milightObject:zoneOn(zone)
     return milight.send(self, milight.cmd[zone2cmdkey(zone, "on")])
 end
 
@@ -95,7 +96,7 @@ end
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:discoCycle(zone)
+function milightObject:discoCycle(zone)
     if (self:zoneOn(zone)) then
         return milight.send(self, milight.cmd["disco"])
     else
@@ -113,7 +114,7 @@ end
 ---
 --- Returns:
 ---  * A number containing the value that was sent to the WiFi bridge, or -1 if an error occurred
-function milight:zoneBrightness(zone, value)
+function milightObject:zoneBrightness(zone, value)
     return brightnessHelper(self, zone2cmdkey(zone, "on"), value)
 end
 
@@ -127,7 +128,7 @@ end
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:zoneColor(zone, value)
+function milightObject:zoneColor(zone, value)
     return colorHelper(self, zone2cmdkey(zone, "on"), value)
 end
 
@@ -140,7 +141,7 @@ end
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:zoneWhite(zone)
+function milightObject:zoneWhite(zone)
     if (self:zoneOn(zone)) then
         return milight.send(self, milight.cmd[zone2cmdkey(zone, "white")])
     else

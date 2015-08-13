@@ -246,6 +246,20 @@ static int core_focus(lua_State* L) {
     return 0;
 }
 
+/// hs.getObjectMetatable(name) -> table or nil
+/// Function
+/// Fetches the Lua metatable for objects produced by an extension
+///
+/// Parameters:
+///  * name - A string containing the name of a module to fetch object metadata for (e.g. `"hs.screen"`)
+///
+/// Returns:
+///  * The extension's object metatable, or nil if an error occurred
+static int core_getObjectMetatable(lua_State *L) {
+    luaL_getmetatable(L, lua_tostring(L,1));
+    return 1;
+}
+
 static int core_exit(lua_State* L) {
     if (lua_toboolean(L, 2))
         lua_close(L);
@@ -287,6 +301,7 @@ static luaL_Reg corelib[] = {
     {"reload", core_reload},
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
+    {"getObjectMetatable", core_getObjectMetatable},
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
     {"_notify", core_notify},

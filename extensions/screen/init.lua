@@ -18,15 +18,14 @@ screen.watcher = require "hs.screen.watcher"
 local pairs,min,max,cos,atan=pairs,math.min,math.max,math.cos,math.atan
 local tinsert,tremove,tsort=table.insert,table.remove,table.sort
 
+local screenObject = hs.getObjectMetatable("hs.screen")
+
 --- hs.screen.primaryScreen() -> screen
 --- Constructor
 --- Returns the primary screen, i.e. the one containing the menubar
 function screen.primaryScreen()
   return screen.allScreens()[1]
 end
-
-local primaryScreen = screen.primaryScreen()
-local screenObject = getmetatable(primaryScreen)
 
 --- hs.screen.findByName(name) -> screen or nil
 --- Function

@@ -204,7 +204,6 @@ static int hints_new(lua_State* L) {
 static const luaL_Reg hintslib[] = {
     {"test", hints_test},
     {"new", hints_new},
-    {"close", hint_close},
 
     {NULL, NULL} // necessary sentinel
 };
@@ -212,6 +211,7 @@ static const luaL_Reg hintslib[] = {
 static const luaL_Reg hints_metalib[] = {
     {"__eq", hint_eq},
     {"__gc", hint_close},
+    {"close", hint_close},
 
     {NULL, NULL}
 };
