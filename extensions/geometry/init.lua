@@ -4,7 +4,7 @@
 ---
 --- An hs.geometry object can be:
 ---  * a *point*, or vector2, with `x` and `y` fields for its coordinates
----  * a *size* with `w` and `h` fields for width and heigth respectively
+---  * a *size* with `w` and `h` fields for width and height respectively
 ---  * a *rect*, which has both a point component for one of its corners, and a size component - so it has all 4 fields
 ---
 --- You can create these objects in many different ways, via `my_obj=hs.geometry.new(...)` or simply `my_obj=hs.geometry(...)`
@@ -12,7 +12,7 @@
 ---  * 4 parameters `X,Y,W,H` for the respective fields - W and H, or X and Y, can be `nil`:
 ---    * `hs.geometry(X,Y)` creates a point
 ---    * `hs.geometry(nil,nil,W,H)` creates a size
----    * `hs.geometry(X,Y,W,H)` creates a rect given its width and heigth from a corner
+---    * `hs.geometry(X,Y,W,H)` creates a rect given its width and height from a corner
 ---  * a table `{X,Y}` creates a point
 ---  * a table `{X,Y,W,H}` creates a rect
 ---  * a table `{x=X,y=Y,w=W,h=H}` creates a rect, or if you omit X and Y, or W and H, creates a size or a point respectively
@@ -20,7 +20,7 @@
 ---  * a string:
 ---    * `"X Y"` or `"X,Y"` creates a point
 ---    * `"WxH"` or `"W*H"` creates a size
----    * `"X Y WxH"` or `"X,Y/W*H"` (or variations thereof) creates a rect given its width and heigth from a corner
+---    * `"X Y WxH"` or `"X,Y/W*H"` (or variations thereof) creates a rect given its width and height from a corner
 ---    * `"X1 Y1 > X2 Y2"` or `"X1,Y1,X2,Y2"` (or variations thereof) creates a rect given two opposite corners
 ---
 --- You can use any of these anywhere an hs.geometry object is expected in Hammerspoon; the constructor will be called for you.
@@ -48,7 +48,7 @@ local function parse(s)
   if sep1=='x' or sep1=='*' then --it's a size
     w=tonumber(n1) h=tonumber(n2)
     if not w then error('Cannot parse width',3) end
-    if not h then error('Cannot parse heigth',3) end
+    if not h then error('Cannot parse height',3) end
   else
     x=tonumber(n1) y=tonumber(n2)
     if not x then error('Cannot parse x coord',3) end
@@ -60,7 +60,7 @@ local function parse(s)
     elseif sep2 then --it's a rectsize
       w=tonumber(n3) h=tonumber(n4)
       if not w then error('Cannot parse width',3) end
-      if not h then error('Cannot parse heigth',3) end
+      if not h then error('Cannot parse height',3) end
     end
   end
   return x,y,w,h
@@ -128,11 +128,11 @@ end
 -- getters and setters
 --- hs.geometry.x
 --- Field
---- The x coordinate for this point or rect's corner; changing it will move the rect but keep the same width and heigth
+--- The x coordinate for this point or rect's corner; changing it will move the rect but keep the same width and height
 
 --- hs.geometry.y
 --- Field
---- The y coordinate for this point or rect's corner; changing it will move the rect but keep the same width and heigth
+--- The y coordinate for this point or rect's corner; changing it will move the rect but keep the same width and height
 
 --- hs.geometry.x1
 --- Field
@@ -154,13 +154,26 @@ function geometry.setx(t,v) t._x=tonumber(v) or error('number expected',3) end
 function geometry.sety(t,v) t._y=tonumber(v) or error('number expected',3) end
 geometry.setx1=geometry.setx
 geometry.sety1=geometry.sety
+
+--- hs.geometry.xy
+--- Field
+--- The point component for this hs.geometry object; setting this to a new point will move the rect but keep the same width and height
+
+--- hs.geometry.topleft
+--- Field
+--- Alias for `xy`
+function geometry.getxy(t) return new(t._x,t._y) end
+function geometry.setxy(t,p) p=new(p) t._x=p.x t._y=p.y end
+geometry.gettopleft=geometry.getxy
+geometry.settopleft=geometry.setxy
+
 --- hs.geometry.w
 --- Field
 --- The width of this rect or size; changing it will keep the rect's x,y corner constant
 
 --- hs.geometry.h
 --- Field
---- The heigth of this rect or size; changing it will keep the rect's x,y corner constant
+--- The height of this rect or size; changing it will keep the rect's x,y corner constant
 function geometry.setw(t,v)
   t._w=max(tonumber(v) or error('number expected',3),0) -- disallow negative w,h instead of flipping the rect
   --  norm(t)
@@ -175,7 +188,7 @@ end
 
 --- hs.geometry.y2
 --- Field
---- The y coordinate for the second corner of this rect; changing it will affect the rect's heigth
+--- The y coordinate for the second corner of this rect; changing it will affect the rect's height
 function geometry.setx2(t,v)
   if not t.x then error('not a rect',3) end
   t._w=(tonumber(v) or error('number expected',3))-t._x
@@ -186,6 +199,19 @@ function geometry.sety2(t,v)
   t._h=(tonumber(v) or error('number expected',3))-t._y
   norm(t)
 end
+
+--- hs.geometry.wh
+--- Field
+--- The size component for this hs.geometry object; setting this to a new size will keep the rect's x,y corner constant
+
+--- hs.geometry.size
+--- Field
+--- Alias for `wh`
+function geometry.getwh(t) return new(nil,nil,t._w,t._h)end
+function geometry.setwh(t,s) s=new(s) t._w=s.w t._h=s.h end
+geometry.getsize=geometry.getwh
+geometry.setsize=geometry.setwh
+
 --- hs.geometry.center
 --- Field
 --- A point representing the geometric center of this rect or the midpoint of this vector2; changing it will move the rect/vector accordingly
@@ -271,7 +297,7 @@ end
 --- Scales this size/rect, *keeping its center constant*
 ---
 --- Parameters:
----  * size - an hs.geometry object, or a table or string or parameter list to construct one, indicating the factors for scaling this rect's width and heigth;
+---  * size - an hs.geometry object, or a table or string or parameter list to construct one, indicating the factors for scaling this rect's width and height;
 ---    if a number, the rect will be scaled by the same factor in both axes
 ---
 --- Returns:
