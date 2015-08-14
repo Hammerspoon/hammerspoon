@@ -503,7 +503,12 @@ end
 --- * An `hs.window` object representing the frontmost window, or `nil` if there are no visible windows
 
 function window.frontmostWindow()
-  return window.focusedWindow() or window.orderedWindows()[1]
+  local w=window.focusedWindow()
+  if w then return w end
+  for _,w in ipairs(window.orderedWindows()) do
+    local app=w:application()
+    if (app and app:title()~='Hammerspoon') or w:subrole()~='AXUnknown' then return w end
+  end
 end
 
 for n,dir in pairs{['0']='East','North','West','South'}do
