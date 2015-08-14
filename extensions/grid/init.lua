@@ -17,7 +17,7 @@
 ---  * and so on...
 ---
 --- Additionally, a modal keyboard driven interface for interactive resizing is provided via `hs.grid.show()`;
---- the grid will be overlaid on the focused window's screen with keyboard hints to select the corner cells for
+--- the grid will be overlaid on the frontmost window's screen with keyboard hints to select the corner cells for
 --- the desired size/position; you can also use the arrow keys to move the window onto adjacent screens.
 
 local fnutils = require "hs.fnutils"
@@ -176,7 +176,7 @@ end
 
 --- hs.grid.show()
 --- Function
---- Shows the grid and starts the modal interactive resizing process for the focused window.
+--- Shows the grid and starts the modal interactive resizing process for the frontmost window.
 --- In most cases this function should be invoked via `hs.hotkey.bind` with some keyboard shortcut.
 ---
 --- Parameters:
@@ -313,36 +313,24 @@ end
 ---
 --- Parameters:
 ---  * fn - A function that accepts a cell-table as its only argument. The function should modify the cell-table as needed and return nothing
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
 function grid.adjustWindow(fn,win)
-  if not win then win = window.focusedWindow() end
-  if not win then log.w('Cannot get focused window') return grid end
+  if not win then win = window.frontmostWindow() end
+  if not win then log.w('Cannot get frontmost window') return grid end
   local f = grid.get(win)
   if not f then log.w('Cannot get window cell') return grid end
   fn(f)
   return grid.set(win, f, win:screen())
 end
 
---- hs.grid.adjustFocusedWindow(fn) -> hs.grid
---- Function
---- Calls a user specified function to adjust the currently focused window's cell
----
---- Parameters:
----  * fn - A function that accepts a cell-table as its only argument. The function should modify the cell-table as needed and return nothing
----
---- Returns:
----  * The `hs.grid` module for method chaining
----
---- Notes:
----  * Legacy function, use `adjustWindow` instead
 grid.adjustFocusedWindow=grid.adjustWindow
 
 local function checkWindow(win)
-  if not win then win = window.focusedWindow() end
-  if not win then log.w('Cannot get focused window') return end
+  if not win then win = window.frontmostWindow() end
+  if not win then log.w('Cannot get frontmost window') return end
   if not win:screen() then log.w('Cannot get the window\'s screen') return end
   return win
 end
@@ -351,7 +339,7 @@ end
 --- Moves and resizes a window to fill the entire grid
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -369,7 +357,7 @@ end
 --- Moves a window to the next screen, snapping it to the screen's grid
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -386,7 +374,7 @@ end
 --- Moves a window to the previous screen, snapping it to the screen's grid
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -403,7 +391,7 @@ end
 --- Moves a window one grid cell to the left, or onto the adjacent screen's grid when necessary
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -429,7 +417,7 @@ end
 --- Moves a window one cell to the right, or onto the adjacent screen's grid when necessary
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -455,7 +443,7 @@ end
 --- Resizes a window to be one cell wider
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -479,7 +467,7 @@ end
 --- Resizes a window to be one cell thinner
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -492,7 +480,7 @@ end
 --- Moves a window one grid cell down the screen, or onto the adjacent screen's grid when necessary
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -518,7 +506,7 @@ end
 --- Moves a window one grid cell up the screen, or onto the adjacent screen's grid when necessary
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -544,7 +532,7 @@ end
 --- Resizes a window so its bottom edge moves one grid cell higher
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -557,7 +545,7 @@ end
 --- Resizes a window so its bottom edge moves one grid cell lower
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the focused window will be used
+---  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -613,7 +601,7 @@ end
 ---  * `hs.grid.ui.cellColor = {0,0,0,0.25}`
 ---  * `hs.grid.ui.cellStrokeColor = {0,0,0}`
 ---  * `hs.grid.ui.selectedColor = {0.2,0.7,0,0.4}` -- for the first selected cell during a modal resize
----  * `hs.grid.ui.highlightColor = {0.8,0.8,0,0.5}` -- to highlight the focused window behind the grid
+---  * `hs.grid.ui.highlightColor = {0.8,0.8,0,0.5}` -- to highlight the frontmost window behind the grid
 ---  * `hs.grid.ui.highlightStrokeColor = {0.8,0.8,0,1}`
 ---
 --- The following variables must be numbers (in screen points):
@@ -756,7 +744,7 @@ local function _start()
   end
   function resizing:entered()
     if showing then return end
-    currentWindow = window.focusedWindow()
+    currentWindow = window.frontmostWindow()
     if not currentWindow then log.w('Cannot get current window, aborting') resizing:exit() return end
     log.df('Start moving %s [%s]',currentWindow:subrole(),currentWindow:application():title())
     if currentWindow:isFullScreen() then currentWindow:setFullScreen(false) --[[resizing:exit()--]] end
