@@ -258,7 +258,8 @@ static int watcher_start(lua_State* L) {
                        AXObserverGetRunLoopSource(observer),
                        kCFRunLoopDefaultMode);
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 static void stop_watcher(lua_State* L, watcher_t* watcher) {
@@ -278,7 +279,9 @@ static void stop_watcher(lua_State* L, watcher_t* watcher) {
 static int watcher_stop(lua_State* L) {
     watcher_t* watcher = get_watcher(L, 1);
     stop_watcher(L, watcher);
-    return 0;
+    lua_pushvalue(L, 1);
+
+    return 1;
 }
 
 /// hs.uielement.focusedElement() -> element or nil

@@ -165,7 +165,7 @@ function uielement.watcher:stop()
         end
     end
 
-    self:_stop()
+    return self:_stop()
 end
 
 --- hs.uielement.watcher:element()

@@ -233,7 +233,7 @@ static void unregister_observer(AppWatcher* observer) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The `hs.application.watcher` object
 static int app_watcher_start(lua_State* L) {
     appwatcher_t* appWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -243,7 +243,9 @@ static int app_watcher_start(lua_State* L) {
 
     appWatcher->running = YES;
     register_observer((__bridge AppWatcher*)appWatcher->obj);
-    return 0;
+
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.application.watcher:stop()
@@ -254,7 +256,7 @@ static int app_watcher_start(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * The `hs.application.watcher` object
 static int app_watcher_stop(lua_State* L) {
     appwatcher_t* appWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -264,7 +266,9 @@ static int app_watcher_stop(lua_State* L) {
 
     appWatcher->running = NO;
     unregister_observer((__bridge id)appWatcher->obj);
-    return 0;
+
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 // Perform cleanup if the AppWatcher is not required anymore.
