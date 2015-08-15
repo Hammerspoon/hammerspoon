@@ -34,36 +34,38 @@ hs.shutdownCallback = nil
 --- A string containing the full path to the `docs.json` file inside Hammerspoon's app bundle. This contains the full Hammerspoon API documentation and can be accessed in the Console using `help("someAPI")`. It can also be loaded and processed by the `hs.doc` extension
 hs.docstrings_json_file = docstringspath
 
---- hs.showError(err,lvl,terminate)
+--- hs.showError(err)
 --- Function
 --- Shows an error to the user, using Hammerspoon's Console
 ---
 --- Parameters:
 ---  * err - A string containing an error message
----  * lvl - (optional) A number containing the level in the call stack for debug.traceback; if omitted, defaults to 1
----  * terminate - (optional) boolean, if true terminates the last protected call; if false or omitted, the script execution continues
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
----  * You can override this function if you wish to route errors differently
----  * Modules can call this in the event of an error, e.g. in callbacks from the user:
----
----     ```local ok, err = xpcall(callbackfn, debug.traceback)
----     if not ok then hs.showError(err) end```
+---  * This function is called whenever an (uncaught) error occurs or is thrown (via `error()`)
+---  * The default implementation shows a notification, opens the Console, prints the error message and stacktrace, and terminates event processing
+---  * You can override this function if you wish to route errors differently (e.g. for remote systems)
 
-function hs.showError(err,lvl,terminate)
+function hs.showError(err)
   hs._notify("Hammerspoon config error") -- undecided on this line
---  print(debug.traceback())
---  print(err)
-  if lvl~=0 then lvl = (lvl or 1) + 1 end
-  if terminate then error(debug.traceback(err,lvl),lvl)
-  else print(debug.traceback(err, lvl)) end
+  --  print(debug.traceback())
+  print(err)
   hs.focus()
   hs.openConsole()
+  hs._TERMINATED=true
 end
 
+function hs.assert(pred,num)
+  if not pred then error([[
+Internal error: please open an issue at
+https://github.com/Hammerspoon/hammerspoon/issues/new   and paste the following stack trace:
+
+Assertion failed: ]]..num,2)
+  end
+end
 
 --- hs.toggleConsole()
 --- Function
@@ -79,14 +81,14 @@ end
 ---  * If the console is not currently open, it will be opened. If it is open and not the focused window, it will be brought forward and focused.
 ---  * If the console is focused, it will be closed.
 function hs.toggleConsole()
-    local console = hs.appfinder.windowFromWindowTitle("Hammerspoon Console")
-    if console and (console ~= hs.window.focusedWindow()) then
-        console:focus()
-    elseif console then
-        console:close()
-    else
-        hs.openConsole()
-    end
+  local console = hs.appfinder.windowFromWindowTitle("Hammerspoon Console")
+  if console and (console ~= hs.window.focusedWindow()) then
+    console:focus()
+  elseif console then
+    console:close()
+  else
+    hs.openConsole()
+  end
 end
 
 --- hs.rawprint(aString)
@@ -134,15 +136,15 @@ end
 ---  * Because this function returns the stdout as it's first return value, it is not quite a drop-in replacement for `os.execute`.  In most cases, it is probable that `stdout` will be the empty string when `status` is nil, but this is not guaranteed, so this trade off of shifting os.execute's results was deemed acceptable.
 ---  * This particular function is most useful when you're more interested in the command's output then a simple check for completion and result codes.  If you only require the result codes or verification of command completion, then `os.execute` will be slightly more efficient.
 hs.execute = function(command, user_env)
-    local f
-    if user_env then
-        f = io.popen(os.getenv("SHELL")..[[ -l -i -c "]]..command..[["]], 'r')
-    else
-        f = io.popen(command, 'r')
-    end
-    local s = f:read('*a')
-    local status, exit_type, rc = f:close()
-    return s, status, exit_type, rc
+  local f
+  if user_env then
+    f = io.popen(os.getenv("SHELL")..[[ -l -i -c "]]..command..[["]], 'r')
+  else
+    f = io.popen(command, 'r')
+  end
+  local s = f:read('*a')
+  local status, exit_type, rc = f:close()
+  return s, status, exit_type, rc
 end
 
 print("-- Augmenting require paths")
@@ -151,12 +153,12 @@ package.cpath=configdir.."/?.so"..";"..package.cpath..";"..modpath.."/?.so"
 
 print("-- package.path:")
 for part in string.gmatch(package.path, "([^;]+)") do
-    print("      "..part)
+  print("      "..part)
 end
 
 print("-- package.cpath:")
 for part in string.gmatch(package.cpath, "([^;]+)") do
-    print("      "..part)
+  print("      "..part)
 end
 
 if autoload_extensions then
@@ -167,23 +169,23 @@ if autoload_extensions then
   local iter, dir_obj = require("hs.fs").dir(modpath.."/hs")
   local extension = iter(dir_obj)
   while extension do
-      if (extension ~= ".") and (extension ~= "..") then
-          hs._extensions[extension] = true
-      end
-      extension = iter(dir_obj)
+    if (extension ~= ".") and (extension ~= "..") then
+      hs._extensions[extension] = true
+    end
+    extension = iter(dir_obj)
   end
 
   -- Inject a lazy extension loader into the main HS table
   setmetatable(hs, {
-      __index = function(t, key)
-          if hs._extensions[key] ~= nil then
-              print("-- Loading extension: "..key)
-              hs[key] = require("hs."..key)
-              return hs[key]
-          else
-              return nil
-          end
+    __index = function(t, key)
+      if hs._extensions[key] ~= nil then
+        print("-- Loading extension: "..key)
+        hs[key] = require("hs."..key)
+        return hs[key]
+      else
+        return nil
       end
+    end
   })
 end
 
@@ -200,11 +202,11 @@ end
 --- Notes:
 ---  * This function is a wrapper to functions found in the `hs.dockicon` module, but is provided here to provide an interface consistent with other selectable preference items.
 hs.dockIcon = function(value)
-    local hsdi = require("hs.dockicon")
-    if type(value) == "boolean" then
-        if value then hsdi.show() else hsdi.hide() end
-    end
-    return hsdi.visible()
+  local hsdi = require("hs.dockicon")
+  if type(value) == "boolean" then
+    if value then hsdi.show() else hsdi.hide() end
+  end
+  return hsdi.visible()
 end
 
 --- hs.help(identifier)
@@ -232,7 +234,6 @@ hs.help = require("hs.doc")
 help = hs.help
 
 
-
 if not hasinitfile then
   hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
   hs.notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
@@ -243,31 +244,31 @@ end
 local hscrash = require("hs.crash")
 rawrequire = require
 require = function(modulename)
-    local result = rawrequire(modulename)
-    pcall(function()
-            hscrash.crashLog("require('"..modulename.."')")
-            if string.sub(modulename, 1, 3) == "hs." then
-                -- Reasonably certain that we're dealing with a Hammerspoon extension
-                local extname = string.sub(modulename, 4, -1)
-                for k,v in ipairs(hscrash.dumpCLIBS()) do
-                    if string.find(v, extname) then
-                        hscrash.crashLog("  Candidate CLIBS match: "..v)
-                    end
-                end
-            end
-            if string.sub(modulename, 1, 8) == "mjolnir." then
-                -- Reasonably certain that we're dealing with a Mjolnir module
-                local mjolnirmod = string.sub(modulename, 9, -1)
-                local mjolnirrep = {"application", "hotkey", "screen", "geometry", "fnutils", "keycodes", "alert", "cmsj.appfinder", "_asm.ipc", "_asm.modal_hotkey", "_asm.settings", "7bits.mjomatic", "_asm.eventtap.event", "_asm.timer", "_asm.pathwatcher", "_asm.eventtap", "_asm.notify", "lb.itunes", "_asm.utf8_53", "cmsj.caffeinate", "lb.spotify", "_asm.sys.mouse", "_asm.sys.battery", "_asm.ui.sound", "_asm.data.base64", "_asm.data.json"}
-                for _,v in pairs(mjolnirrep) do
-                    if v == mjolnirmod then
-                        hscrash.crashKV("MjolnirModuleLoaded", "YES")
-                        break
-                    end
-                end
-            end
-          end)
-    return result
+  local result = rawrequire(modulename)
+  pcall(function()
+    hscrash.crashLog("require('"..modulename.."')")
+    if string.sub(modulename, 1, 3) == "hs." then
+      -- Reasonably certain that we're dealing with a Hammerspoon extension
+      local extname = string.sub(modulename, 4, -1)
+      for k,v in ipairs(hscrash.dumpCLIBS()) do
+        if string.find(v, extname) then
+          hscrash.crashLog("  Candidate CLIBS match: "..v)
+        end
+      end
+    end
+    if string.sub(modulename, 1, 8) == "mjolnir." then
+      -- Reasonably certain that we're dealing with a Mjolnir module
+      local mjolnirmod = string.sub(modulename, 9, -1)
+      local mjolnirrep = {"application", "hotkey", "screen", "geometry", "fnutils", "keycodes", "alert", "cmsj.appfinder", "_asm.ipc", "_asm.modal_hotkey", "_asm.settings", "7bits.mjomatic", "_asm.eventtap.event", "_asm.timer", "_asm.pathwatcher", "_asm.eventtap", "_asm.notify", "lb.itunes", "_asm.utf8_53", "cmsj.caffeinate", "lb.spotify", "_asm.sys.mouse", "_asm.sys.battery", "_asm.ui.sound", "_asm.data.base64", "_asm.data.json"}
+      for _,v in pairs(mjolnirrep) do
+        if v == mjolnirmod then
+          hscrash.crashKV("MjolnirModuleLoaded", "YES")
+          break
+        end
+      end
+    end
+  end)
+  return result
 end
 hscrash.crashLog("Loaded from: "..modpath)
 
