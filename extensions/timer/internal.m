@@ -14,6 +14,7 @@ typedef struct _timer_t {
     CFRunLoopTimerRef t;
     int fn;
     BOOL started;
+    BOOL continueOnError;
 } timer_t;
 
 static void callback(CFRunLoopTimerRef __unused timer, void *info) {
@@ -25,24 +26,30 @@ static void callback(CFRunLoopTimerRef __unused timer, void *info) {
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         CLS_NSLOG(@"%s", errorMsg);
+        if (!t->continueOnError) {
+            CFRunLoopRemoveTimer(CFRunLoopGetMain(), t->t, kCFRunLoopCommonModes);
+            printToConsole(L, "-- timer stopped to prevent repeated notifications of error.") ;
+        }
         showError(L, (char *)errorMsg);
     }
 
 }
 
-/// hs.timer.new(interval, fn) -> timer
+/// hs.timer.new(interval, fn [, continueOnError]) -> timer
 /// Constructor
 /// Creates a new `hs.timer` object for repeating interval callbacks
 ///
 /// Parameters:
 ///  * interval - A number of seconds between triggers
 ///  * fn - A function to call every time the timer triggers
+///  * continueOnError - an optional boolean flag, defaulting to false, which indicates that the timer should not be automatically stopped if the callback function results in an error.
 ///
 /// Returns:
 ///  * An `hs.timer` object
 ///
 /// Notes:
 ///  * The returned object does not start its timer until its `:start()` method is called
+///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.  This can be overriden for this constructor by passing in true for continueOnError.
 static int timer_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
 
@@ -54,6 +61,10 @@ static int timer_new(lua_State* L) {
 
     lua_pushvalue(L, 2);
     timer->fn = [skin luaRef:refTable];
+    if (lua_isboolean(L, 3))
+        timer->continueOnError = (BOOL)lua_toboolean(L, 3) ;
+    else
+        timer->continueOnError = NO ;
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -77,6 +88,7 @@ static int timer_new(lua_State* L) {
 ///
 /// Notes:
 ///  * The timer will not call the callback immediately, it waits until the first trigger of the timer
+///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.
 static int timer_start(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -102,6 +114,7 @@ static int timer_start(lua_State* L) {
 ///
 /// Notes:
 ///  * The callback can be cancelled by calling the `:stop()` method on the returned object before `sec` seconds have passed.
+///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.
 static int timer_doAfter(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
 
@@ -140,7 +153,7 @@ static int timer_doAfter(lua_State* L) {
 /// Notes:
 ///  * Use of this function is strongly discouraged, as it blocks all main-thread execution in Hammerspoon. This means no hotkeys or events will be processed in that time. This is only provided as a last resort, or for extremely short sleeps. For all other purposes, you really should be splitting up your code into multiple functions and calling `hs.timer.doAfter()`
 static int timer_usleep(lua_State* L) {
-    int microsecs = (int)lua_tointeger(L, 1);
+    useconds_t microsecs = (useconds_t)lua_tointeger(L, 1);
     usleep(microsecs);
 
     return 0;
@@ -184,7 +197,7 @@ static int timer_nextTrigger(lua_State *L) {
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime next = CFRunLoopTimerGetNextFireDate(timer->t);
 
-    lua_pushinteger(L, next - now);
+    lua_pushinteger(L, (int)(next - now));
 
     return 1;
 }
