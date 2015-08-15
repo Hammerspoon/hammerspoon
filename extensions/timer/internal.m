@@ -162,6 +162,33 @@ static int timer_running(lua_State* L) {
     return 1;
 }
 
+/// hs.timer:nextTrigger() -> integer
+/// Method
+/// Returns the number of seconds until the timer will next trigger
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An integer containing the number of seconds untilt he next firing.
+///
+/// Notes:
+///  * The return value may be negative if the runloop is backlogged and is catching up on missed timer triggers
+static int timer_nextTrigger(lua_State *L) {
+    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    if (!timer->started) {
+        lua_pushinteger(L, 0);
+        return 1;
+    }
+
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    CFAbsoluteTime next = CFRunLoopTimerGetNextFireDate(timer->t);
+
+    lua_pushinteger(L, next - now);
+
+    return 1;
+}
+
 /// hs.timer:stop() -> timer
 /// Method
 /// Stops an `hs.timer` object
@@ -235,6 +262,7 @@ static const luaL_Reg timer_metalib[] = {
     {"start",   timer_start},
     {"stop",    timer_stop},
     {"running", timer_running},
+    {"nextTrigger", timer_nextTrigger},
     {"__tostring", userdata_tostring},
     {"__gc",    timer_gc},
     {NULL,      NULL}
