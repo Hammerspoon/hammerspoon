@@ -42,6 +42,7 @@
 // Common Code
 
 #define USERDATA_TAG "hs.application.watcher"
+int refTable;
 
 // Not so common code
 
@@ -92,13 +93,16 @@ typedef enum _event_t {
     if (appName == nil)
         appName = [dict objectForKey:@"NSApplicationName"];
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
+    [skin pushLuaRef:refTable ref:self.object->fn];
 
-    if (appName == nil)
+    if (appName == nil) {
         lua_pushnil(L);
-    else
+    } else {
         lua_pushstring(L, [appName UTF8String]); // Parameter 1: application name
+    }
+
     lua_pushinteger(L, event); // Parameter 2: the event type
+
     if (!new_application(L, [app processIdentifier])) { // Paremeter 3: application object
         lua_pushnil(L);
     }
@@ -155,13 +159,15 @@ typedef enum _event_t {
 /// Notes:
 ///  * If the function is called with an event type of `hs.application.watcher.terminated` then the application name parameter will be `nil` and the `hs.application` parameter, will only be useful for getting the UNIX process ID (i.e. the PID) of the application
 static int app_watcher_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     appwatcher_t* appWatcher = lua_newuserdata(L, sizeof(appwatcher_t));
     memset(appWatcher, 0, sizeof(appwatcher_t));
 
     lua_pushvalue(L, 1);
-    appWatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    appWatcher->fn = [skin luaRef:refTable];
     appWatcher->running = NO;
     appWatcher->obj = (__bridge_retained void*) [[AppWatcher alloc] initWithObject:appWatcher];
 
@@ -263,11 +269,13 @@ static int app_watcher_stop(lua_State* L) {
 
 // Perform cleanup if the AppWatcher is not required anymore.
 static int app_watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     appwatcher_t* appWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     app_watcher_stop(L);
-    luaL_unref(L, LUA_REGISTRYINDEX, appWatcher->fn);
-    appWatcher->fn = LUA_NOREF;
+
+    appWatcher->fn = [skin luaUnref:refTable ref:appWatcher->fn];
 
     AppWatcher* object = (__bridge_transfer AppWatcher*)appWatcher->obj;
     object = nil;
@@ -295,39 +303,32 @@ static void add_event_enum(lua_State* L) {
     add_event_value(L, deactivated, "deactivated");
 }
 
+// Metatable for created objects when _new invoked
+static const luaL_Reg metaLib[] = {
+    {"start",   app_watcher_start},
+    {"stop",    app_watcher_stop},
+    {"__gc",    app_watcher_gc},
+    {NULL,      NULL}
+};
+
+// Functions for returned object when module loads
+static const luaL_Reg appLib[] = {
+    {"new",     app_watcher_new},
+    {NULL,      NULL}
+};
+
+// Metatable for returned object when module loads
+static const luaL_Reg metaGcLib[] = {
+    {"__gc",    meta_gc},
+    {NULL,      NULL}
+};
+
 // Called when loading the module. All necessary tables need to be registered here.
 int luaopen_hs_application_watcher(lua_State* L) {
-    // Metatable for created objects when _new invoked
-    static const luaL_Reg metaLib[] = {
-        {"start",   app_watcher_start},
-        {"stop",    app_watcher_stop},
-        {"__gc",    app_watcher_gc},
-        {NULL,      NULL}
-    };
+    LuaSkin *skin = [LuaSkin shared];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
 
-    // Functions for returned object when module loads
-    static const luaL_Reg appLib[] = {
-        {"new",     app_watcher_new},
-        {NULL,      NULL}
-    };
-
-    // Metatable for returned object when module loads
-    static const luaL_Reg metaGcLib[] = {
-        {"__gc",    meta_gc},
-        {NULL,      NULL}
-    };
-
-    // Metatable for created objects
-    luaL_newlib(L, metaLib);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-    // Create table for luaopen
-    luaL_newlib(L, appLib);
     add_event_enum(L);
 
-    luaL_newlib(L, metaGcLib);
-    lua_setmetatable(L, -2);
     return 1;
 }
