@@ -47,14 +47,15 @@ static int watcher_path_new(lua_State* L) {
 
     NSString* path = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     luaL_checktype(L, 2, LUA_TFUNCTION);
-    lua_settop(L, 2);
 
     watcher_path_t* watcher_path = lua_newuserdata(L, sizeof(watcher_path_t));
-    watcher_path->closureref = [skin luaRef:refTable];
     watcher_path->started = NO;
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
+
+    lua_pushvalue(L, 2);
+    watcher_path->closureref = [skin luaRef:refTable];
 
     FSEventStreamContext context;
     context.info = watcher_path;
