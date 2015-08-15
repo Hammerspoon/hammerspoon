@@ -191,6 +191,13 @@ function archive_docs() {
   popd >/dev/null
 }
 
+function archive_dSYM_UUIDs() {
+  echo "Archiving dSYM UUIDs..."
+  pushd "${HAMMERSPOON_HOME}../archive/${VERSION}/dSYM/" >/dev/null
+  find . -name '*.dSYM' -exec dwarfdump -u {} \; >../dSYM_UUID.txt
+  popd >/dev/null
+}
+
 ############################# RELEASE FUNCTIONS ###############################
 
 function release_add_to_github() {

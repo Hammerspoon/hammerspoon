@@ -56,6 +56,7 @@ echo "******** ARCHIVING MATERIALS:"
 
 archive_hammerspoon_app
 archive_dSYMs
+archive_dSYM_UUIDs
 archive_docs
 
 echo "******** UPLOADING:"
