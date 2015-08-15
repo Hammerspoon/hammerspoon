@@ -923,21 +923,14 @@ static luaL_Reg eventtapeventlib[] = {
 // };
 
 int luaopen_hs_eventtap_event(lua_State* L) {
-// Metatable for created objects
-    luaL_newlib(L, eventtapevent_metalib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_setfield(L, LUA_REGISTRYINDEX, EVENT_USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:EVENT_USERDATA_TAG functions:eventtapeventlib metaFunctions:nil objectFunctions:eventtapevent_metalib];
 
-    luaL_newlib(L, eventtapeventlib);
-        pushtypestable(L);
-        lua_setfield(L, -2, "types");
+    pushtypestable(L);
+    lua_setfield(L, -2, "types");
 
-        pushpropertiestable(L);
-        lua_setfield(L, -2, "properties");
-
-//         luaL_newlib(L, meta_gcLib);
-//         lua_setmetatable(L, -2);
+    pushpropertiestable(L);
+    lua_setfield(L, -2, "properties");
 
     return 1;
 }

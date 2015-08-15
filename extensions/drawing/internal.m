@@ -1979,16 +1979,14 @@ static const luaL_Reg drawing_metalib[] = {
 };
 
 int luaopen_hs_drawing_internal(lua_State *L) {
-    // Metatable for creted objects
-    luaL_newlib(L, drawing_metalib);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:drawinglib metaFunctions:nil objectFunctions:drawing_metalib];
 
-    // Table for luaopen
-    luaL_newlib(L, drawinglib);
-        pushFontTraitsTable(L);       lua_setfield(L, -2, "fontTraits");
-        pushCollectionTypeTable(L) ;  lua_setfield(L, -2, "windowBehaviors") ;
+    pushFontTraitsTable(L);
+    lua_setfield(L, -2, "fontTraits");
+
+    pushCollectionTypeTable(L);
+    lua_setfield(L, -2, "windowBehaviors") ;
 
     return 1;
 }

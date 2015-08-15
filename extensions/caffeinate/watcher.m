@@ -237,39 +237,32 @@ static void add_event_enum(lua_State* L) {
     add_event_value(L, screensDidWake, "screensDidWake");
 }
 
+// Metatable for created objects when _new invoked
+static const luaL_Reg metaLib[] = {
+    {"start",   app_watcher_start},
+    {"stop",    app_watcher_stop},
+    {"__gc",    app_watcher_gc},
+    {NULL,      NULL}
+};
+
+// Functions for returned object when module loads
+static const luaL_Reg appLib[] = {
+    {"new",     app_watcher_new},
+    {NULL,      NULL}
+};
+
+// Metatable for returned object when module loads
+static const luaL_Reg metaGcLib[] = {
+    {"__gc",    meta_gc},
+    {NULL,      NULL}
+};
+
 // Called when loading the module. All necessary tables need to be registered here.
-int luaopen_hs_caffeinate_watcher(lua_State* L) {
-    // Metatable for created objects when _new invoked
-    static const luaL_Reg metaLib[] = {
-        {"start",   app_watcher_start},
-        {"stop",    app_watcher_stop},
-        {"__gc",    app_watcher_gc},
-        {NULL,      NULL}
-    };
+int luaopen_hs_caffeinate_watcher(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
 
-    // Functions for returned object when module loads
-    static const luaL_Reg appLib[] = {
-        {"new",     app_watcher_new},
-        {NULL,      NULL}
-    };
-
-    // Metatable for returned object when module loads
-    static const luaL_Reg metaGcLib[] = {
-        {"__gc",    meta_gc},
-        {NULL,      NULL}
-    };
-
-    // Metatable for created objects
-    luaL_newlib(L, metaLib);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-    // Create table for luaopen
-    luaL_newlib(L, appLib);
-    add_event_enum(L);
-
-    luaL_newlib(L, metaGcLib);
-    lua_setmetatable(L, -2);
+    add_event_enum(skin.L);
+    
     return 1;
 }

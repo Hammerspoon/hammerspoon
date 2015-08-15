@@ -193,8 +193,19 @@ static int milight_metagc(lua_State *L) {
 static const luaL_Reg milightlib[] = {
     {"_cacheCommands", milight_cacheCommands},
     {"new", milight_new},
+
+    {NULL, NULL},
+};
+
+static const luaL_Reg milight_objectlib[] = {
     {"delete", milight_del},
     {"send", milight_send},
+
+    {NULL, NULL}
+};
+
+static const luaL_Reg milightlib_gc[] = {
+    {"__gc", milight_metagc},
 
     {NULL, NULL}
 };
@@ -203,16 +214,8 @@ static const luaL_Reg milightlib[] = {
          must match the require-path of this file, i.e. "hs.milight.internal". */
 
 int luaopen_hs_milight_internal(lua_State *L) {
-    luaL_newlib(L, milightlib);
-
-    if (luaL_newmetatable(L, USERDATA_TAG)) {
-        lua_pushvalue(L, -2);
-        lua_setfield(L, -2, "__index");
-
-        lua_pushcfunction(L, milight_metagc);
-        lua_setfield(L, -2, "__gc");
-    }
-    lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:milightlib metaFunctions:milightlib_gc objectFunctions:milight_objectlib];
 
     return 1;
 }

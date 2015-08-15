@@ -75,9 +75,8 @@ static const luaL_Reg metalib[] = {
 };
 
 int luaopen_hs_wifi_internal(lua_State* L) {
-    luaL_newlib(L, wifilib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:wifilib metaFunctions:metalib];
 
     return 1;
 }

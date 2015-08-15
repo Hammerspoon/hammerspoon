@@ -205,8 +205,9 @@ static const luaL_Reg jsonLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_json_internal(lua_State* L) {
-    // setup the module
-    luaL_newlib(L, jsonLib);
+int luaopen_hs_json_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:jsonLib metaFunctions:nil];
+
     return 1;
 }

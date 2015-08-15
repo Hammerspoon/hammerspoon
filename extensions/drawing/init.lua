@@ -16,6 +16,8 @@ module.color = {
 local fnutils = require("hs.fnutils")
 local imagemod = require("hs.image")
 
+local drawingObject = hs.getObjectMetatable("hs.drawing")
+
 local __tostring_for_tables = function(self)
     local result = ""
     local width = 0
@@ -130,9 +132,6 @@ module.appImage = function(sizeRect, bundleID)
     end
 end
 
-local tmp = module.rectangle({})
-local tmpMeta = getmetatable(tmp)
-
 --- hs.drawing:setBehaviorByLabels(table) -> object
 --- Method
 --- Sets the window behaviors based upon the labels specified in the table provided.
@@ -142,7 +141,7 @@ local tmpMeta = getmetatable(tmp)
 ---
 --- Returns:
 ---  * The `hs.drawing` object
-tmpMeta.setBehaviorByLabels = function(obj, stringTable)
+drawingObject.setBehaviorByLabels = function(obj, stringTable)
     local newBehavior = 0
     for i,v in ipairs(stringTable) do
         local flag = tonumber(v) or module.windowBehaviors[v]
@@ -160,7 +159,7 @@ end
 ---
 --- Returns:
 ---  * Returns a table of the labels for the current behaviors with respect to Spaces and Exposé for the object.
-tmpMeta.behaviorAsLabels = function(obj)
+drawingObject.behaviorAsLabels = function(obj)
     local results = {}
     local behaviorNumber = obj:behavior()
 
@@ -175,8 +174,5 @@ tmpMeta.behaviorAsLabels = function(obj)
     end
     return results
 end
-
-tmp:delete()
-tmp = nil
 
 return module

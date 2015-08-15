@@ -476,18 +476,11 @@ static luaL_Reg moduleLib[] = {
 // };
 
 int luaopen_hs_image_internal(lua_State* L) {
-// Metatable for userdata objects
-    luaL_newlib(L, userdata_metaLib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:moduleLib metaFunctions:nil objectFunctions:userdata_metaLib];
 
-// Create table for luaopen
-    luaL_newlib(L, moduleLib);
-        pushNSImageNameTable(L) ; lua_setfield(L, -2, "systemImageNames") ;
+    pushNSImageNameTable(L);
+    lua_setfield(L, -2, "systemImageNames") ;
 
-// // Module metatable, if needed
-//         luaL_newlib(L, module_metaLib);
-//         lua_setmetatable(L, -2);
     return 1;
 }

@@ -64,7 +64,9 @@ static const luaL_Reg geometrylib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_geometry_internal(lua_State* L) {
-    luaL_newlib(L, geometrylib);
+int luaopen_hs_geometry_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:geometrylib metaFunctions:nil];
+
     return 1;
 }

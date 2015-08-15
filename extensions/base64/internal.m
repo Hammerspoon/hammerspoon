@@ -52,7 +52,9 @@ static const luaL_Reg base64_lib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_base64_internal(lua_State* L) {
-    luaL_newlib(L, base64_lib);
+int luaopen_hs_base64_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:base64_lib metaFunctions:nil];
+
     return 1;
 }

@@ -4,7 +4,9 @@
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
-#define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "hs.screen"))
+#define USERDATA_TAG "hs.screen"
+
+#define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
 static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_newtable(L);
@@ -578,7 +580,7 @@ void new_screen(lua_State* L, NSScreen* screen) {
     void** screenptr = lua_newuserdata(L, sizeof(NSScreen**));
     *screenptr = (__bridge_retained void*)screen;
 
-    luaL_getmetatable(L, "hs.screen");
+    luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
 }
 
@@ -808,6 +810,10 @@ static const luaL_Reg screenlib[] = {
     {"setPrimary", screen_setPrimary},
     {"rotate", screen_rotate},
 
+    {NULL, NULL}
+};
+
+static const luaL_Reg screen_objectlib[] = {
     {"_frame", screen_frame},
     {"_visibleframe", screen_visibleframe},
     {"id", screen_id},
@@ -816,6 +822,9 @@ static const luaL_Reg screenlib[] = {
     {"currentMode", screen_currentMode},
     {"setMode", screen_setMode},
     {"snapshot", screen_snapshot},
+
+    {"__gc", screen_gc},
+    {"__eq", screen_eq},
 
     {NULL, NULL}
 };
@@ -826,7 +835,7 @@ static const luaL_Reg metalib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_screen_internal(lua_State* L) {
+int luaopen_hs_screen_internal(lua_State* L __unused) {
     // Start off by initialising gamma related structures, populating them and registering appropriate callbacks
     originalGammas = [[NSMutableDictionary alloc] init];
     currentGammas = [[NSMutableDictionary alloc] init];
@@ -834,21 +843,8 @@ int luaopen_hs_screen_internal(lua_State* L) {
     notificationQueue = dispatch_queue_create("org.hammerspoon.Hammerspoon.gammaReapplyNotificationQueue", NULL);
     CGDisplayRegisterReconfigurationCallback(displayReconfigurationCallback, NULL);
 
-    luaL_newlib(L, screenlib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
-
-    if (luaL_newmetatable(L, "hs.screen")) {
-        lua_pushvalue(L, -2);
-        lua_setfield(L, -2, "__index");
-
-        lua_pushcfunction(L, screen_gc);
-        lua_setfield(L, -2, "__gc");
-
-        lua_pushcfunction(L, screen_eq);
-        lua_setfield(L, -2, "__eq");
-    }
-    lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:screenlib metaFunctions:metalib objectFunctions:screen_objectlib];
 
     return 1;
 }

@@ -217,11 +217,9 @@ static const luaL_Reg metalib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_alert_internal(lua_State* L) {
-    luaL_newlib(L, alertlib);
-
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+int luaopen_hs_alert_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:alertlib metaFunctions:metalib];
 
     return 1;
 }
