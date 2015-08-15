@@ -7,24 +7,24 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.notify"
+int refTable;
 
 static int store_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int idx) {
+    LuaSkin *skin = [LuaSkin shared];
+
     lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
+    int x = [skin luaRef:refTable];
     [theHandler addIndex: x];
     return x;
 }
 
 static int remove_udhandler(lua_State* L, NSMutableIndexSet* theHandler, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
+    LuaSkin *skin = [LuaSkin shared];
+
+    [skin luaUnref:refTable ref:x];
     [theHandler removeIndex: x];
     return LUA_NOREF;
 }
-
-// static void* push_udhandler(lua_State* L, int x) {
-//     lua_rawgeti(L, LUA_REGISTRYINDEX, x);
-//     return lua_touserdata(L, -1);
-// }
 
 // Not so common code
 
@@ -57,7 +57,6 @@ static NSMutableIndexSet* notificationHandlers;
 
 @interface ourNotificationManager () <NSUserNotificationCenterDelegate>
 @property (retain) NSMutableDictionary* activeCallbacks;
-@property lua_State* L;
 @end
 
 static id <NSUserNotificationCenterDelegate>    old_delegate ;
@@ -82,7 +81,7 @@ typedef struct _notification_t {
         sharedManager.activeCallbacks = [NSMutableDictionary dictionary];
         [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:sharedManager];
     }
-    sharedManager.L = L;
+
     return sharedManager;
 }
 
@@ -116,11 +115,14 @@ typedef struct _notification_t {
 //CLS_NSLOG(@"didDeliverNotification") ;
         NSNumber* value = [[notification userInfo] objectForKey:@"handler"];
         if (value) {
+            LuaSkin *skin = [LuaSkin shared];
+
             [self.activeCallbacks setObject:@1 forKey:value];
 //CLS_NSLOG(@"uservalue = %@", value) ;
             int myHandle = [value intValue];
-            lua_State* L = self.L;
-            lua_rawgeti(L, LUA_REGISTRYINDEX, (int)myHandle);
+            lua_State* L = skin.L;
+            [skin pushLuaRef:refTable ref:myHandle];
+
             notification_t* thisNote = lua_touserdata(L, -1);
             if (thisNote) {
                 thisNote->note = nil ;
@@ -148,10 +150,13 @@ typedef struct _notification_t {
             if ([self.activeCallbacks objectForKey:value]) {
                 if (value) {
 //CLS_NSLOG(@"uservalue = %@", value) ;
+                    LuaSkin *skin = [LuaSkin shared];
+
                     int myHandle = [value intValue];
-                    lua_State* L = self.L;
+                    lua_State* L = skin.L;
                     if (L && (lua_status(L) == LUA_OK)) {
-                        lua_rawgeti(L, LUA_REGISTRYINDEX, (int)myHandle);
+                        [skin pushLuaRef:refTable ref:myHandle];
+
                         notification_t* thisNote = lua_touserdata(L, -1);
                         if (thisNote) {
                             thisNote->note = nil ;
@@ -161,7 +166,8 @@ typedef struct _notification_t {
                             }
                             if (thisNote) {
                                 lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-                                lua_rawgeti(L, LUA_REGISTRYINDEX, thisNote->fn);
+                                [skin pushLuaRef:refTable ref:thisNote->fn];
+
                                 lua_pushvalue(L, -3);
                                 if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
                                     CLS_NSLOG(@"%s", lua_tostring(L, -1));
@@ -195,9 +201,12 @@ typedef struct _notification_t {
         NSNumber* value = [[notification userInfo] objectForKey:@"handler"];
         if (value) {
 //CLS_NSLOG(@"uservalue = %@", value) ;
+            LuaSkin *skin = [LuaSkin shared];
+
             int myHandle = [value intValue];
-            lua_State* L = self.L;
-            lua_rawgeti(L, LUA_REGISTRYINDEX, (int)myHandle);
+            lua_State* L = skin.L;
+            [skin pushLuaRef:refTable ref:myHandle];
+
             notification_t* thisNote = lua_touserdata(L, -1);
             if (thisNote) {
                 thisNote->note = nil ;
@@ -262,13 +271,15 @@ static int notification_withdraw_all(lua_State* __unused L) {
 // Returns a new notification object with the specified information and the assigned callback function.
 static int notification_new(lua_State* L) {
 //CLS_NSLOG(@"notification_new");
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     notification_t* notification = lua_newuserdata(L, sizeof(notification_t)) ;
     memset(notification, 0, sizeof(notification_t)) ;
 
     lua_pushvalue(L, 1);
-    notification->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    notification->fn = [skin luaRef:refTable];
 
     notification->delivered = NO;
     notification->alwaysPresent = YES;
@@ -321,11 +332,13 @@ static int notification_send(lua_State* L) {
 ///  * This is automatically invoked during garbage collection and when Hammerspoon reloads its config 
 static int notification_release(lua_State* L) {
 //CLS_NSLOG(@"notification_release");
+    LuaSkin *skin = [LuaSkin shared];
+
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1);
     [[ourNotificationManager sharedManagerForLua:L] releaseNotification:(__bridge NSUserNotification*)notification->note];
-    luaL_unref(L, LUA_REGISTRYINDEX, notification->fn);
-    notification->fn = LUA_NOREF;
+
+    notification->fn = [skin luaUnref:refTable ref:notification->fn];
     notification->registryHandle = remove_udhandler(L, notificationHandlers, notification->registryHandle);
     return 1;
 }
@@ -715,26 +728,20 @@ static const luaL_Reg meta_gcLib[] = {
 };
 
 int luaopen_hs_notify_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     notification_delegate_setup(L);
 
-// Metatable for created objects
-    luaL_newlib(L, notification_metalib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:notificationLib metaFunctions:meta_gcLib objectFunctions:notification_metalib];
 
-// Create table for luaopen
-    luaL_newlib(L, notificationLib);
-        notification_activationTypeTable(L) ;
-        lua_setfield(L, -2, "activationType") ;
+    notification_activationTypeTable(L) ;
+    lua_setfield(L, -2, "activationType") ;
+
 /// hs.notify.defaultNotificationSound
 /// Constant
 /// The string representation of the default notification sound. Use `hs.notify:soundName()` or set the `soundName` attribute in `hs:notify.new()`, to this constant, if you want to use the default sound
-        lua_pushstring(L, [NSUserNotificationDefaultSoundName UTF8String]) ;
-        lua_setfield(L, -2, "defaultNotificationSound") ;
-
-        luaL_newlib(L, meta_gcLib);
-        lua_setmetatable(L, -2);
+    lua_pushstring(L, [NSUserNotificationDefaultSoundName UTF8String]) ;
+    lua_setfield(L, -2, "defaultNotificationSound") ;
 
     return 1;
 }
