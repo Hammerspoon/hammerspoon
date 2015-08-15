@@ -3,6 +3,8 @@
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
+int refTable;
+
 // ----------------------- Objective C ---------------------
 
 @interface HSURLEventHandler : NSObject
@@ -60,7 +62,7 @@ static int fnCallback;
     NSArray *keys = [pairs allKeys];
     NSArray *values = [pairs allValues];
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, fnCallback);
+    [skin pushLuaRef:refTable ref:fnCallback];
     lua_pushstring(L, [[url host] UTF8String]);
     lua_newtable(L);
     for (int i = 0; i < (int)[keys count]; i++) {
@@ -82,9 +84,11 @@ static int fnCallback;
 
 // Rather than manage complex callback state from C, we just have one path into Lua for all events, and events are directed to their callbacks from there
 static int urleventSetCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
     lua_pushvalue(L, 1);
-    fnCallback = luaL_ref(L, LUA_REGISTRYINDEX);
+    fnCallback = [skin luaRef:refTable];
 
     return 0;
 }
@@ -99,10 +103,11 @@ static int urlevent_setup() {
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static int urlevent_gc(lua_State* __unused L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     [eventHandler gc];
     eventHandler = nil;
-    luaL_unref(L, LUA_REGISTRYINDEX, fnCallback);
-    fnCallback = LUA_NOREF;
+    fnCallback = [skin luaUnref:refTable ref:fnCallback];
 
     return 0;
 }
@@ -123,10 +128,11 @@ static const luaL_Reg urlevent_gclib[] = {
          must match the require-path of this file, i.e. "hs.urlevent.internal". */
 
 int luaopen_hs_urlevent_internal(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+
     urlevent_setup();
 
-    LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibrary:urleventlib metaFunctions:urlevent_gclib];
+    refTable = [skin registerLibrary:urleventlib metaFunctions:urlevent_gclib];
 
     return 1;
 }

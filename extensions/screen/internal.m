@@ -836,6 +836,8 @@ static const luaL_Reg metalib[] = {
 };
 
 int luaopen_hs_screen_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+
     // Start off by initialising gamma related structures, populating them and registering appropriate callbacks
     originalGammas = [[NSMutableDictionary alloc] init];
     currentGammas = [[NSMutableDictionary alloc] init];
@@ -843,7 +845,6 @@ int luaopen_hs_screen_internal(lua_State* L __unused) {
     notificationQueue = dispatch_queue_create("org.hammerspoon.Hammerspoon.gammaReapplyNotificationQueue", NULL);
     CGDisplayRegisterReconfigurationCallback(displayReconfigurationCallback, NULL);
 
-    LuaSkin *skin = [LuaSkin shared];
     [skin registerLibraryWithObject:USERDATA_TAG functions:screenlib metaFunctions:metalib objectFunctions:screen_objectlib];
 
     return 1;

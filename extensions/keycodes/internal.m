@@ -4,6 +4,7 @@
 #import "../hammerspoon.h"
 
 #define USERDATA_TAG "hs.keycodes.callback"
+int refTable;
 
 static void pushkeycode(lua_State* L, int code, const char* key) {
     // t[key] = code
@@ -183,7 +184,7 @@ int keycodes_cachemap(lua_State* L) {
 - (void) inputSourceChanged:(NSNotification*)__unused note {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.ref);
+    [skin pushLuaRef:refTable ref:self.ref];
 
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
@@ -208,10 +209,12 @@ int keycodes_cachemap(lua_State* L) {
 @end
 
 static int keycodes_newcallback(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     lua_pushvalue(L, 1);
-    int ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    int ref = [skin luaRef:refTable];
 
     MJKeycodesObserver* observer = [[MJKeycodesObserver alloc] init];
     observer.ref = ref;
@@ -227,10 +230,12 @@ static int keycodes_newcallback(lua_State* L) {
 }
 
 static int keycodes_callback_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     MJKeycodesObserver* observer = (__bridge_transfer MJKeycodesObserver*)*(void**)luaL_checkudata(L, 1, USERDATA_TAG);
     [observer stop];
-    luaL_unref(L, LUA_REGISTRYINDEX, observer.ref);
-    observer.ref = LUA_NOREF;
+
+    observer.ref = [skin luaUnref:refTable ref:observer.ref];
     observer = nil;
     return 0;
 }
@@ -261,7 +266,7 @@ static const luaL_Reg keycodeslib[] = {
 
 int luaopen_hs_keycodes_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:keycodeslib metaFunctions:nil objectFunctions:callbacklib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:keycodeslib metaFunctions:nil objectFunctions:callbacklib];
 
     return 1;
 }

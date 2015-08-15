@@ -11,6 +11,8 @@
 #define USERDATA_TAG "hs.drawing"
 #define get_item_arg(L, idx) ((drawing_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
+int refTable;
+
 // Declare our Lua userdata object and a storage container for them
 typedef struct _drawing_t {
     void *window;
@@ -159,7 +161,7 @@ NSMutableArray *drawingWindows;
     if (self.mouseUpCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
         lua_State *_L = skin.L;
-        lua_rawgeti(_L, LUA_REGISTRYINDEX, self.mouseUpCallbackRef);
+        [skin pushLuaRef:refTable ref:self.mouseUpCallbackRef];
         if (![skin protectedCallAndTraceback:0 nresults:0]) {
             const char *errorMsg = lua_tostring(_L, -1);
             CLS_NSLOG(@"%s", errorMsg);
@@ -181,7 +183,7 @@ NSMutableArray *drawingWindows;
     if (self.mouseDownCallbackRef != LUA_NOREF) {
         LuaSkin *skin = [LuaSkin shared];
         lua_State *_L = skin.L;
-        lua_rawgeti(_L, LUA_REGISTRYINDEX, self.mouseDownCallbackRef);
+        [skin pushLuaRef:refTable ref:self.mouseDownCallbackRef];
         if (![skin protectedCallAndTraceback:0 nresults:0]) {
             const char *errorMsg = lua_tostring(_L, -1);
             CLS_NSLOG(@"%s", errorMsg);
@@ -1394,6 +1396,8 @@ static int drawing_setImage(lua_State *L) {
 /// Notes:
 ///  * No distinction is made between the left, right, or other mouse buttons -- they all invoke the same up or down function.  If you need to determine which specific button was pressed, use `hs.eventtap.checkMouseButtons()` within your callback to check.
 static int drawing_setClickCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     drawing_t *drawingObject = get_item_arg(L, 1);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1402,14 +1406,13 @@ static int drawing_setClickCallback(lua_State *L) {
     if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TFUNCTION) {
         // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
         if (drawingView.mouseUpCallbackRef != LUA_NOREF) {
-            luaL_unref(L, LUA_REGISTRYINDEX, drawingView.mouseUpCallbackRef);
-            [drawingView setMouseUpCallback:LUA_NOREF];
+            [drawingView setMouseUpCallback:[skin luaUnref:refTable ref:drawingView.mouseUpCallbackRef]];
         }
 
         // Set a new callback if we have a function
         if (lua_type(L, 2) == LUA_TFUNCTION) {
             lua_pushvalue(L, 2);
-            [drawingView setMouseUpCallback:luaL_ref(L, LUA_REGISTRYINDEX)];
+            [drawingView setMouseUpCallback:[skin luaRef:refTable]];
         }
     } else {
         showError(L, ":setClickCallback() called with invalid mouseUp function");
@@ -1418,14 +1421,13 @@ static int drawing_setClickCallback(lua_State *L) {
     if (lua_type(L, 3) == LUA_TNONE || lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TFUNCTION) {
         // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
         if (drawingView.mouseDownCallbackRef != LUA_NOREF) {
-            luaL_unref(L, LUA_REGISTRYINDEX, drawingView.mouseDownCallbackRef);
-            [drawingView setMouseDownCallback:LUA_NOREF];
+            [drawingView setMouseDownCallback:[skin luaUnref:refTable ref:drawingView.mouseDownCallbackRef]];
         }
 
         // Set a new callback if we have a function
         if (lua_type(L, 3) == LUA_TFUNCTION) {
             lua_pushvalue(L, 3);
-            [drawingView setMouseDownCallback:luaL_ref(L, LUA_REGISTRYINDEX)];
+            [drawingView setMouseDownCallback:[skin luaRef:refTable]];
         }
     } else {
         showError(L, ":setClickCallback() called with invalid mouseDown function");
@@ -1980,7 +1982,7 @@ static const luaL_Reg drawing_metalib[] = {
 
 int luaopen_hs_drawing_internal(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:drawinglib metaFunctions:nil objectFunctions:drawing_metalib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:drawinglib metaFunctions:nil objectFunctions:drawing_metalib];
 
     pushFontTraitsTable(L);
     lua_setfield(L, -2, "fontTraits");

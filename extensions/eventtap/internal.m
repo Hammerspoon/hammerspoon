@@ -2,6 +2,7 @@
 #import "../hammerspoon.h"
 
 #define USERDATA_TAG        "hs.eventtap"
+int refTable;
 
 typedef struct _eventtap_t {
     int fn;
@@ -11,9 +12,10 @@ typedef struct _eventtap_t {
 } eventtap_t;
 
 CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon) {
-    eventtap_t* e = refcon;
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+
+    eventtap_t* e = refcon;
 
 //  apparently OS X disables eventtaps if it thinks they are slow or odd or just because the moon
 //  is wrong in some way... but at least it's nice enough to tell us.
@@ -23,7 +25,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
         return event ;
     }
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, e->fn);
+    [skin pushLuaRef:refTable ref:e->fn];
     new_eventtap_event(L, event);
 
     if (![skin protectedCallAndTraceback:1 nresults:2]) {
@@ -105,6 +107,8 @@ static int eventtap_keyStrokes(lua_State* L) {
 /// Notes:
 ///  * If you specify the argument `types` as the special table {"all"[, events to ignore]}, then *all* events (except those you optionally list *after* the "all" string) will trigger a callback, even events which are not defined in the [Quartz Event Reference](https://developer.apple.com/library/mac/documentation/Carbon/Reference/QuartzEventServicesRef/Reference/reference.html).
 static int eventtap_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TTABLE);
     luaL_checktype(L, 2, LUA_TFUNCTION);
 
@@ -130,7 +134,7 @@ static int eventtap_new(lua_State* L) {
     }
 
     lua_pushvalue(L, 2);
-    eventtap->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    eventtap->fn = [skin luaRef:refTable];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -341,6 +345,8 @@ static int eventtap_doubleClickInterval(lua_State* L) {
 }
 
 static int eventtap_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     eventtap_t* eventtap = luaL_checkudata(L, 1, USERDATA_TAG);
     if (eventtap->tap) {
         if (CGEventTapIsEnabled(eventtap->tap)) CGEventTapEnable(eventtap->tap, false);
@@ -350,8 +356,8 @@ static int eventtap_gc(lua_State* L) {
         CFRelease(eventtap->runloopsrc);
         CFRelease(eventtap->tap);
     }
-    luaL_unref(L, LUA_REGISTRYINDEX, eventtap->fn);
-    eventtap->fn = LUA_NOREF;
+
+    eventtap->fn = [skin luaUnref:refTable ref:eventtap->fn];
 
     return 0;
 }
@@ -389,7 +395,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_eventtap_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:eventtaplib metaFunctions:meta_gcLib objectFunctions:eventtap_metalib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:eventtaplib metaFunctions:meta_gcLib objectFunctions:eventtap_metalib];
 
     return 1;
 }

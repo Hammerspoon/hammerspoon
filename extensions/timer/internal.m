@@ -6,6 +6,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.timer"
+int refTable;
 
 // Not so common code
 
@@ -20,7 +21,7 @@ static void callback(CFRunLoopTimerRef __unused timer, void *info) {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, t->fn);
+    [skin pushLuaRef:refTable ref:t->fn];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         CLS_NSLOG(@"%s", errorMsg);
@@ -43,6 +44,8 @@ static void callback(CFRunLoopTimerRef __unused timer, void *info) {
 /// Notes:
 ///  * The returned object does not start its timer until its `:start()` method is called
 static int timer_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     NSTimeInterval sec = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
 
@@ -50,7 +53,7 @@ static int timer_new(lua_State* L) {
     memset(timer, 0, sizeof(timer_t));
 
     lua_pushvalue(L, 2);
-    timer->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    timer->fn = [skin luaRef:refTable];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -100,6 +103,8 @@ static int timer_start(lua_State* L) {
 /// Notes:
 ///  * The callback can be cancelled by calling the `:stop()` method on the returned object before `sec` seconds have passed.
 static int timer_doAfter(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     NSTimeInterval sec = luaL_checknumber(L, 1);
     luaL_checktype(L, 2, LUA_TFUNCTION);
 
@@ -107,7 +112,7 @@ static int timer_doAfter(lua_State* L) {
     memset(timer, 0, sizeof(timer_t));
 
     lua_pushvalue(L, 2);
-    timer->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    timer->fn = [skin luaRef:refTable];
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -180,9 +185,9 @@ static int timer_stop(lua_State* L) {
 static int timer_gc(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
     if (timer && timer->fn != LUA_NOREF) {
-        luaL_unref(L, LUA_REGISTRYINDEX, timer->fn);
+        LuaSkin *skin = [LuaSkin shared];
+        timer->fn = [skin luaUnref:refTable ref:timer->fn];
         timer->started = NO;
-        timer->fn = LUA_NOREF;
         CFRunLoopTimerInvalidate(timer->t);
         CFRelease(timer->t);
     }
@@ -252,7 +257,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_timer_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:timerLib metaFunctions:meta_gcLib objectFunctions:timer_metalib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:timerLib metaFunctions:meta_gcLib objectFunctions:timer_metalib];
 
     return 1;
 }

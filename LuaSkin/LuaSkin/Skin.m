@@ -103,7 +103,7 @@
 
 #pragma mark - Methods for registering libraries with Lua
 
-- (void)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
     luaL_newlib(_L, functions);
@@ -112,9 +112,12 @@
 #pragma GCC diagnostic pop
         lua_setmetatable(_L, -2);
     }
+    lua_newtable(_L);
+    return luaL_ref(_L, LUA_REGISTRYINDEX);
 }
 
-- (void)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
+- (int)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
     luaL_newlib(_L, objectFunctions);
@@ -123,7 +126,61 @@
     lua_setfield(_L, -2, "__index");
     lua_setfield(_L, LUA_REGISTRYINDEX, libraryName);
     
-    [self registerLibrary:functions metaFunctions:metaFunctions];
+    int moduleRefTable = [self registerLibrary:functions metaFunctions:metaFunctions];
+
+    return moduleRefTable;
+}
+
+- (int)luaRef:(int)refTable {
+    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL refTable", nil);
+    if (lua_isnil(_L, -1)) {
+        return LUA_REFNIL;
+    }
+
+    // Push refTable onto the stack
+    lua_rawgeti(_L, LUA_REGISTRYINDEX, refTable);
+
+    // Move refTable to second on the stack, underneath the object to reference
+    lua_insert(_L, -2);
+
+    // Reference the object at the top of the stack (pops it off)
+    int ref = luaL_ref(_L, -2);
+
+    // Remove refTable from the stack
+    lua_remove(_L, -1);
+
+    return ref;
+}
+
+- (int)luaUnref:(int)refTable ref:(int)ref {
+    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaUnref was passed a NOREF/REFNIL refTable", nil);
+    if (ref != LUA_NOREF && ref != LUA_REFNIL) {
+        // Push refTable onto the stack
+        lua_rawgeti(_L, LUA_REGISTRYINDEX, refTable);
+
+        // Dereference the supplied ref, from refTable
+        luaL_unref(_L, -1, ref);
+
+        // Remove refTable from the stack
+        lua_remove(_L, -1);
+    }
+    return LUA_NOREF;
+}
+
+- (void)pushLuaRef:(int)refTable ref:(int)ref {
+    NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL refTable", nil);
+    NSAssert((ref != LUA_NOREF && ref != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL ref", nil);
+
+    // Push refTable onto the stack
+    lua_rawgeti(_L, LUA_REGISTRYINDEX, refTable);
+
+    // Push ref onto the stack
+    lua_rawgeti(_L, -1, ref);
+
+    // Remove refTable from the stack
+    lua_remove(_L, -2);
+
+    return;
 }
 
 @end

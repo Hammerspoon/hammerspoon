@@ -13,6 +13,7 @@
 
 static LuaSkin* MJLuaState;
 static int evalfn;
+int refTable;
 
 /// === hs ===
 ///
@@ -313,7 +314,7 @@ void MJLuaSetup(void) {
     MJLuaState = [LuaSkin shared];
     lua_State* L = MJLuaState.L;
 
-    [MJLuaState registerLibrary:corelib metaFunctions:nil];
+    refTable = [MJLuaState registerLibrary:corelib metaFunctions:nil];
     push_hammerAppInfo(L) ;
     lua_setfield(L, -2, "processInfo") ;
 
@@ -340,7 +341,7 @@ void MJLuaSetup(void) {
 
     lua_pcall(L, 7, 1, 0);
 
-    evalfn = luaL_ref(L, LUA_REGISTRYINDEX);
+    evalfn = [MJLuaState luaRef:refTable];
 }
 
 void MJLuaTeardown(void) {
@@ -350,7 +351,7 @@ void MJLuaTeardown(void) {
 NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState.L;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, evalfn);
+    [MJLuaState pushLuaRef:refTable ref:evalfn];
     if (!lua_isfunction(L, -1)) {
         CLS_NSLOG(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
         if (lua_isstring(L, -1)) {

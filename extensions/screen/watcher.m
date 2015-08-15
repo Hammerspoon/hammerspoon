@@ -14,6 +14,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.screen.watcher"
+int refTable;
 
 // Not so common code
 
@@ -33,7 +34,7 @@
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+    [skin pushLuaRef:refTable ref:self.fn];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         CLS_NSLOG(@"%s", errorMsg);
@@ -56,13 +57,15 @@ typedef struct _screenwatcher_t {
 /// Constructor
 /// Creates a new screen-watcher that can be started; fn will be called when your screen layout changes in any way, whether by adding, removing, or moving a display device.
 static int screen_watcher_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     screenwatcher_t* screenwatcher = lua_newuserdata(L, sizeof(screenwatcher_t));
     memset(screenwatcher, 0, sizeof(screenwatcher_t));
 
     lua_pushvalue(L, 1);
-    screenwatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    screenwatcher->fn = [skin luaRef:refTable];
 
     MJScreenWatcher* object = [[MJScreenWatcher alloc] init];
     object.L = L;
@@ -112,12 +115,13 @@ static int screen_watcher_stop(lua_State* L) {
 }
 
 static int screen_watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     screenwatcher_t* screenwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     lua_pushcfunction(L, screen_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
-    luaL_unref(L, LUA_REGISTRYINDEX, screenwatcher->fn);
-    screenwatcher->fn = LUA_NOREF;
+    screenwatcher->fn = [skin luaUnref:refTable ref:screenwatcher->fn];
 
     MJScreenWatcher* object = (__bridge_transfer id)screenwatcher->obj;
     object = nil;
@@ -151,7 +155,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_screen_watcher(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:screenLib metaFunctions:meta_gcLib objectFunctions:screen_metalib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:screenLib metaFunctions:meta_gcLib objectFunctions:screen_metalib];
 
     return 1;
 }

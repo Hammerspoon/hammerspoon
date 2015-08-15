@@ -33,6 +33,7 @@
 // Common Code
 
 #define USERDATA_TAG "hs.caffeinate.watcher"
+int refTable;
 
 // Not so common code
 
@@ -68,7 +69,7 @@ typedef enum _event_t {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
+    [skin pushLuaRef:refTable ref:self.object->fn];
     lua_pushinteger(L, event); // Parameter 1: the event type
 
     if (![skin protectedCallAndTraceback:1 nresults:0]) {
@@ -110,13 +111,15 @@ typedef enum _event_t {
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
 static int app_watcher_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     caffeinatewatcher_t* caffeinateWatcher = lua_newuserdata(L, sizeof(caffeinatewatcher_t));
     memset(caffeinateWatcher, 0, sizeof(caffeinatewatcher_t));
 
     lua_pushvalue(L, 1);
-    caffeinateWatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    caffeinateWatcher->fn = [skin luaRef:refTable];
     caffeinateWatcher->running = NO;
     caffeinateWatcher->obj = (__bridge_retained void*) [[CaffeinateWatcher alloc] initWithObject:caffeinateWatcher];
 
@@ -207,11 +210,13 @@ static int app_watcher_stop(lua_State* L) {
 
 // Perform cleanup if the CaffeinateWatcher is not required anymore.
 static int app_watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     app_watcher_stop(L);
-    luaL_unref(L, LUA_REGISTRYINDEX, caffeinateWatcher->fn);
-    caffeinateWatcher->fn = LUA_NOREF;
+
+    caffeinateWatcher->fn = [skin luaUnref:refTable ref:caffeinateWatcher->fn];
 
     CaffeinateWatcher* object = (__bridge_transfer CaffeinateWatcher*)caffeinateWatcher->obj;
     object = nil;
@@ -260,7 +265,7 @@ static const luaL_Reg metaGcLib[] = {
 // Called when loading the module. All necessary tables need to be registered here.
 int luaopen_hs_caffeinate_watcher(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
 
     add_event_enum(skin.L);
     

@@ -5,6 +5,7 @@
 #import "../hammerspoon.h"
 
 #define USERDATA_TAG    "hs.sound"
+int refTable;
 
 @interface soundDelegate : NSObject <NSSoundDelegate>
 @property lua_State* L;
@@ -17,7 +18,7 @@
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+    [skin pushLuaRef:refTable ref:self.fn];
     lua_pushboolean(L, playbackSuccessful);
 
     if (![skin protectedCallAndTraceback:1 nresults:0]) {
@@ -351,11 +352,11 @@ static int sound_volume(lua_State* L) {
 /// Returns:
 ///  * A boolean, true if there is a playback completion callback assigned, otherwise false
 static int sound_callback(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
         if (lua_isnil(L,2)) {
-            luaL_unref(L, LUA_REGISTRYINDEX, sound->fn);
-            sound->fn = LUA_NOREF;
+            sound->fn = [skin luaUnref:refTable ref:sound->fn];
             if (sound->callback) {
                 [(__bridge NSSound*) sound->soundObject setDelegate:nil];
                 soundDelegate* object = (__bridge_transfer soundDelegate *) sound->callback ;
@@ -364,7 +365,7 @@ static int sound_callback(lua_State* L) {
         } else {
             luaL_checktype(L, 2, LUA_TFUNCTION);
             lua_pushvalue(L, 2);
-            sound->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+            sound->fn = [skin luaRef:refTable];
             soundDelegate* object = [[soundDelegate alloc] init];
             object.L = L;
             object.fn = sound->fn;
@@ -505,19 +506,11 @@ static const luaL_Reg meta_gcLib[] = {
 };
 
 int luaopen_hs_sound_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     sound_setup(L);
 
-// Metatable for created objects
-    luaL_newlib(L, sound_metalib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-// Create table for luaopen
-    luaL_newlib(L, soundLib);
-
-        luaL_newlib(L, meta_gcLib);
-        lua_setmetatable(L, -2);
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:soundLib metaFunctions:meta_gcLib objectFunctions:sound_metalib];
 
     return 1;
 }

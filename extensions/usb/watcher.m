@@ -14,6 +14,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.usb.watcher"
+int refTable;
 
 // Not so common code
 
@@ -46,7 +47,7 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         LuaSkin *skin = [LuaSkin shared];
         lua_State *L = skin.L;
 
-        lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->fn);
+        [skin pushLuaRef:refTable ref:watcher->fn];
 
         // Prepare the callback's argument table
         lua_newtable(L);
@@ -136,7 +137,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
             LuaSkin *skin = [LuaSkin shared];
             lua_State *L = skin.L;
 
-            lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->fn);
+            [skin pushLuaRef:refTable ref:watcher->fn];
 
             lua_newtable(L);
             lua_pushstring(L, "productName");
@@ -177,13 +178,15 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 /// Returns:
 ///  * A `hs.usb.watcher` object
 static int usb_watcher_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     usbwatcher_t* usbwatcher = lua_newuserdata(L, sizeof(usbwatcher_t));
     memset(usbwatcher, 0, sizeof(usbwatcher_t));
     lua_pushvalue(L, 1);
 
-    usbwatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    usbwatcher->fn = [skin luaRef:refTable];
     usbwatcher->running = NO;
     usbwatcher->gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);
     usbwatcher->runLoopSource = IONotificationPortGetRunLoopSource(usbwatcher->gNotifyPort);
@@ -255,12 +258,13 @@ static int usb_watcher_stop(lua_State* L) {
 }
 
 static int usb_watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     usbwatcher_t* usbwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     lua_pushcfunction(L, usb_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
-    luaL_unref(L, LUA_REGISTRYINDEX, usbwatcher->fn);
-    usbwatcher->fn = LUA_NOREF;
+    usbwatcher->fn = [skin luaUnref:refTable ref:usbwatcher->fn];
 
     IONotificationPortDestroy(usbwatcher->gNotifyPort);
 
@@ -293,7 +297,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_usb_watcher(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:usbLib metaFunctions:meta_gcLib objectFunctions:usb_metalib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:usbLib metaFunctions:meta_gcLib objectFunctions:usb_metalib];
 
     return 1;
 }
