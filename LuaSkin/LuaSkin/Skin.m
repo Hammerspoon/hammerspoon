@@ -103,7 +103,7 @@
 
 #pragma mark - Methods for registering libraries with Lua
 
-- (void)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
     luaL_newlib(_L, functions);
@@ -112,11 +112,11 @@
 #pragma GCC diagnostic pop
         lua_setmetatable(_L, -2);
     }
+    lua_newtable(_L);
+    return luaL_ref(_L, LUA_REGISTRYINDEX);
 }
 
 - (int)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
-    lua_newtable(_L);
-    int moduleRefTable = luaL_ref(_L, LUA_REGISTRYINDEX);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
@@ -126,7 +126,7 @@
     lua_setfield(_L, -2, "__index");
     lua_setfield(_L, LUA_REGISTRYINDEX, libraryName);
     
-    [self registerLibrary:functions metaFunctions:metaFunctions];
+    int moduleRefTable = [self registerLibrary:functions metaFunctions:metaFunctions];
 
     return moduleRefTable;
 }

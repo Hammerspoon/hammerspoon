@@ -197,9 +197,10 @@ static watcher_t* get_watcher(lua_State* L, int elem) {
 
 static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
                                       CFStringRef notificationName, void* contextData) {
+    LuaSkin *skin = [LuaSkin shared];
+
     watcher_t* watcher = (watcher_t*) contextData;
 
-    LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->handler_ref);

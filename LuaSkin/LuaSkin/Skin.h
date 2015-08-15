@@ -74,7 +74,7 @@
 
 #pragma mark - Methods for registering libraries with Lua
 
-/** Defines a Lua library
+/** Defines a Lua library and creates a references table for the library
  @code
  static const luaL_Reg myShinyLibrary[] = {
  {"doThing", function_doThing},
@@ -86,13 +86,14 @@
  }
  [luaSkin registerLibrary:myShinyLibrary metaFunctions:myShinyMetaLibrary];
  @endcode
- 
+
  @note Every C function pointer must point to a function of the form: static int someFunction(lua_State *L);
- 
+
  @param functions - A static array of mappings between Lua function names and C function pointers. This provides the public API of the Lua library
  @param metaFunctions - A static array of mappings between special meta Lua function names (such as "__gc") and C function pointers.
+ @return A Lua reference to the table created for this library to store its own references
  */
-- (void)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
+- (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions;
 
 /** Defines a Lua library that creates objects, which have methods
  @code
@@ -116,6 +117,7 @@
 
  @note Every C function pointer must point to a function of the form: static int someFunction(lua_State *L);
 
+ @param libraryName - A C string containing the name of this library
  @param functions - A static array of mappings between Lua function names and C function pointers. This provides the public API of the Lua library
  @param metaFunctions - A static array of mappings between special meta Lua function names (such as "__gc") and C function pointers.
  @param objectFunctions - A static array of mappings between Lua object method names and C function pointers. This provides the public API of objects created by this library. Note that this object is also used as the metatable, so special functions (e.g. "__gc") should be included here.

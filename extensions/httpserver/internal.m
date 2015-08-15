@@ -12,6 +12,8 @@
 #define get_item_arg(L, idx) ((httpserver_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 #define getUserData(L, idx) (__bridge HSHTTPServer *)((httpserver_t *)get_item_arg(L, idx))->server
 
+int refTable;
+
 // ObjC Class definitions
 @interface HSHTTPServer : HTTPServer
 @property int fn;
@@ -68,7 +70,7 @@
         LuaSkin *skin = [LuaSkin shared];
         lua_State *L = skin.L;
 
-        lua_rawgeti(L, LUA_REGISTRYINDEX, ((HSHTTPServer *)config.server).fn);
+        [skin pushLuaRef:refTable ref:((HSHTTPServer *)config.server).fn];
         lua_pushstring(L, [method UTF8String]);
         lua_pushstring(L, [path UTF8String]);
 
@@ -256,22 +258,22 @@ static int httpserver_new(lua_State *L) {
 ///   * An integer containing the response code (e.g. 200 for a successful request)
 ///   * A table containing additional HTTP headers to set (or an empty table, `{}`, if no extra headers are required)
 static int httpserver_setCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     HSHTTPServer *server = getUserData(L, 1);
 
     switch (lua_type(L, 2)) {
         case LUA_TFUNCTION:
             if (server.fn != LUA_NOREF) {
-                luaL_unref(L, LUA_REGISTRYINDEX, server.fn);
-                server.fn = LUA_NOREF;
+                server.fn = [skin luaUnref:refTable ref:server.fn];
             }
             lua_pushvalue(L, 2);
-            server.fn = luaL_ref(L, LUA_REGISTRYINDEX);
+            server.fn = [skin luaRef:refTable];
             break;
         case LUA_TNIL:
         case LUA_TNONE:
             if (server.fn != LUA_NOREF) {
-                luaL_unref(L, LUA_REGISTRYINDEX, server.fn);
-                server.fn = LUA_NOREF;
+                server.fn = [skin luaUnref:refTable ref:server.fn];
             }
             break;
         default:
@@ -464,9 +466,8 @@ static const luaL_Reg httpserverObjectLib[] = {
 };
 
 int luaopen_hs_httpserver_internal(lua_State *L __unused) {
-    // Table for luaopen
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:"hs.httpserver" functions:httpserverLib metaFunctions:nil objectFunctions:httpserverObjectLib];
+    refTable = [skin registerLibraryWithObject:"hs.httpserver" functions:httpserverLib metaFunctions:nil objectFunctions:httpserverObjectLib];
 
     return 1;
 }

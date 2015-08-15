@@ -79,6 +79,11 @@ typedef enum _event_t {
     NSRunningApplication* app = [dict objectForKey:@"NSWorkspaceApplicationKey"];
     if (app == nil)
         return;
+    if (!self.object->running)
+        return;
+
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
     // Depending on the event the name of the NSRunningApplication object may not be available
     // anymore. Fallback to the application name which is provided directly in the notification
@@ -86,12 +91,6 @@ typedef enum _event_t {
     NSString* appName = [app localizedName];
     if (appName == nil)
         appName = [dict objectForKey:@"NSApplicationName"];
-
-    if (!self.object->running)
-        return;
-
-    LuaSkin *skin = [LuaSkin shared];
-    lua_State *L = skin.L;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
 

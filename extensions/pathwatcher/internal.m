@@ -5,6 +5,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.pathwatcher"
+int refTable;
 
 // Not so common code
 
@@ -15,15 +16,15 @@ typedef struct _watcher_path_t {
 } watcher_path_t;
 
 void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags __unused eventFlags[], const FSEventStreamEventId __unused eventIds[]) {
+    LuaSkin *skin = [LuaSkin shared];
 
     watcher_path_t* pw = clientCallBackInfo;
 
-    LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
 
     const char** changedFiles = eventPaths;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, pw->closureref);
+    [skin pushLuaRef:refTable ref:pw->closureref];
 
     lua_newtable(L);
     for(size_t i = 0 ; i < numEvents; i++) {
@@ -42,16 +43,17 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
 /// Constructor
 /// Returns a new watcher.path that can be started and stopped.  The function registered receives as it's argument, a table containing a list of the files which have changed since it was last invoked.
 static int watcher_path_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     NSString* path = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     luaL_checktype(L, 2, LUA_TFUNCTION);
     lua_settop(L, 2);
-    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     watcher_path_t* watcher_path = lua_newuserdata(L, sizeof(watcher_path_t));
-    watcher_path->closureref = closureref;
+    watcher_path->closureref = [skin luaRef:refTable];
     watcher_path->started = NO;
 
-    lua_getfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
+    luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
 
     FSEventStreamContext context;
@@ -104,6 +106,8 @@ static int watcher_path_stop(lua_State* L) {
 }
 
 static int watcher_path_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     watcher_path_t* watcher_path = luaL_checkudata(L, 1, USERDATA_TAG);
 
     lua_pushcfunction(L, watcher_path_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
@@ -111,8 +115,8 @@ static int watcher_path_gc(lua_State* L) {
     FSEventStreamInvalidate(watcher_path->stream);
     FSEventStreamRelease(watcher_path->stream);
 
-    luaL_unref(L, LUA_REGISTRYINDEX, watcher_path->closureref);
-    watcher_path->closureref = LUA_NOREF;
+    watcher_path->closureref = [skin luaUnref:refTable ref:watcher_path->closureref];
+
     return 0;
 }
 
@@ -142,7 +146,7 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_pathwatcher_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:pathLib metaFunctions:meta_gcLib objectFunctions:path_metalib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:pathLib metaFunctions:meta_gcLib objectFunctions:path_metalib];
 
     return 1;
 }

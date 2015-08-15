@@ -4,6 +4,7 @@
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
+int refTable;
 static NSMutableArray* delegates;
 
 // Create a new Lua table and add all response header keys and values from the response
@@ -35,9 +36,10 @@ static void store_delegate(connectionDelegate* delegate) {
 // garbage collected. This unreferences the lua callback and sets the callback
 // reference in the delegate to LUA_NOREF.
 static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
+    LuaSkin *skin = [LuaSkin shared];
+
     [delegate.connection cancel];
-    luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
-    delegate.fn = LUA_NOREF;
+    delegate.fn = [skin luaUnref:refTable ref:delegate.fn];
     [delegates removeObject:delegate];
 }
 
@@ -62,7 +64,7 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     NSString* stringReply = (NSString *)[[NSString alloc] initWithData:self.receivedData encoding:NSUTF8StringEncoding];
     int statusCode = (int)[self.httpResponse statusCode];
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+    [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(L, statusCode);
     lua_pushstring(L, [stringReply UTF8String]);
     createResponseHeaderTable(L, self.httpResponse);
@@ -79,8 +81,10 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (self.fn == LUA_NOREF){
         return;
     }
+    LuaSkin *skin = [LuaSkin shared];
+
     NSString* errorMessage = [NSString stringWithFormat:@"Connection failed: %@ - %@", [error localizedDescription], [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]];
-    lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.fn);
+    [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(self.L, -1);
     lua_pushstring(self.L, [errorMessage UTF8String]);
     lua_pcall(self.L, 2, 0, 0);
@@ -147,6 +151,8 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
 /// Returns:
 ///  * None
 static int http_doAsyncRequest(lua_State* L){
+    LuaSkin *skin = [LuaSkin shared];
+
     NSMutableURLRequest* request = getRequestFromStack(L);
     getBodyFromStack(L, 3, request);
     extractHeadersFromStack(L, 4, request);
@@ -157,7 +163,7 @@ static int http_doAsyncRequest(lua_State* L){
     connectionDelegate* delegate = [[connectionDelegate alloc] init];
     delegate.L = L;
     delegate.receivedData = [[NSMutableData alloc] init];
-    delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    delegate.fn = [skin luaRef:refTable];
 
     store_delegate(delegate);
 
@@ -235,9 +241,10 @@ static const luaL_Reg metalib[] = {
 };
 
 int luaopen_hs_http_internal(lua_State* L __unused) {
-    delegates = [[NSMutableArray alloc] init];
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibrary:httplib metaFunctions:metalib];
+
+    delegates = [[NSMutableArray alloc] init];
+    refTable = [skin registerLibrary:httplib metaFunctions:metalib];
 
     return 1;
 }

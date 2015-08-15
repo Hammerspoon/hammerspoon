@@ -10,6 +10,7 @@
 /// NOTE: This extension determines the number of a Space, using OS X APIs that have been deprecated since 10.8 and will likely be removed in a future release. You should not depend on Space numbers being around forever!
 
 #define USERDATA_TAG "hs.spaces.watcher"
+int refTable;
 
 typedef struct _spacewatcher_t {
     int self;
@@ -36,7 +37,7 @@ typedef struct _spacewatcher_t {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
+    [skin pushLuaRef:refTable ref:self.object->fn];
     lua_pushinteger(L, space);
 
     if (![skin protectedCallAndTraceback:1 nresults:0]) {
@@ -78,12 +79,14 @@ typedef struct _spacewatcher_t {
 /// Returns:
 ///  * An `hs.spaces.watcher` object
 static int space_watcher_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     spacewatcher_t* spaceWatcher = lua_newuserdata(L, sizeof(spacewatcher_t));
 
     lua_pushvalue(L, 1);
-    spaceWatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    spaceWatcher->fn = [skin luaRef:refTable];
     spaceWatcher->running = NO;
     spaceWatcher->obj = (__bridge_retained void*) [[SpaceWatcher alloc] initWithObject:spaceWatcher];
 
@@ -102,6 +105,8 @@ static int space_watcher_new(lua_State* L) {
 /// Returns:
 ///  * The watcher object
 static int space_watcher_start(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
     lua_pushvalue(L, 1);
@@ -109,7 +114,7 @@ static int space_watcher_start(lua_State* L) {
     if (spaceWatcher->running)
         return 1;
 
-    spaceWatcher->self = luaL_ref(L, LUA_REGISTRYINDEX);
+    spaceWatcher->self = [skin luaRef:refTable];
     spaceWatcher->running = YES;
 
     NSNotificationCenter* center = [[NSWorkspace sharedWorkspace] notificationCenter];
@@ -146,11 +151,13 @@ static int space_watcher_stop(lua_State* L) {
 }
 
 static int space_watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     spacewatcher_t* spaceWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     space_watcher_stop(L);
-    luaL_unref(L, LUA_REGISTRYINDEX, spaceWatcher->fn);
-    spaceWatcher->fn = LUA_NOREF;
+
+    spaceWatcher->fn = [skin luaUnref:refTable ref:spaceWatcher->fn];
 
     SpaceWatcher* object = (__bridge_transfer SpaceWatcher*)spaceWatcher->obj;
     object = nil;
@@ -172,7 +179,7 @@ static const luaL_Reg watcher_objectlib[] = {
 
 int luaopen_hs_spaces_watcher(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:watcherlib metaFunctions:nil objectFunctions:watcher_objectlib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:watcherlib metaFunctions:nil objectFunctions:watcher_objectlib];
 
     return 1;
 }

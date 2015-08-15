@@ -104,6 +104,8 @@ typedef struct _hotkey_t {
 
 
 static int hotkey_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TTABLE);
     UInt32 keycode = (UInt32)luaL_checkinteger(L, 2);
     BOOL hasDown = NO;
@@ -141,8 +143,6 @@ static int hotkey_new(lua_State* L) {
     // use 'hs.hotkey' metatable
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
-
-    LuaSkin *skin = [LuaSkin shared];
 
     // store pressedfn
     if (hasDown) {
@@ -235,8 +235,9 @@ static int hotkey_disable(lua_State* L) {
 }
 
 static int hotkey_gc(lua_State* L) {
-    hotkey_t* hotkey = luaL_checkudata(L, 1, USERDATA_TAG);
     LuaSkin *skin = [LuaSkin shared];
+
+    hotkey_t* hotkey = luaL_checkudata(L, 1, USERDATA_TAG);
 
     stop(L, hotkey);
 
@@ -341,10 +342,11 @@ static const luaL_Reg hotkey_objectlib[] = {
 };
 
 int luaopen_hs_hotkey_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+
     handlers = [NSMutableIndexSet indexSet];
     keyRepeatManager = [[HSKeyRepeatManager alloc] init];
 
-    LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:hotkeylib metaFunctions:metalib objectFunctions:hotkey_objectlib];
 
     // watch for hotkey events
