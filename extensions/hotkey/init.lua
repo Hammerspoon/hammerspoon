@@ -12,7 +12,7 @@ hotkey.setLogLevel=log.setLogLevel
 local tonumber,pairs,ipairs,type,tremove,tinsert,tconcat = tonumber,pairs,ipairs,type,table.remove,table.insert,table.concat
 local supper,slower,sfind=string.upper,string.lower,string.find
 
-local function error(err,lvl) return hs.showError(err,lvl+1,true) end
+local function error(err,lvl) return hs.showError(err,(lvl or 1)+1,true) end -- this should go away, #477
 
 local function getKeycode(s)
   if type(s)~='string' then error('key must be a string',3) end
@@ -23,6 +23,8 @@ local function getKeycode(s)
   return n
 end
 
+-- all enabled hotkeys go here; every key is a keyboard combination (string), associated value is a stack (list) of lightweight
+-- hotkey objects, created in new(); the currently enabled hotkey sits at the top of the stack
 local hotkeys = {}
 
 --- hs.hotkey.alertDuration
@@ -49,19 +51,24 @@ hotkey.alertDuration = 1
 ---    one will stop working as it's being "shadowed" by the new one. As soon as the new hotkey is disabled or deleted
 ---    the old one will trigger again.
 local function enable(self,force,isModal)
-  if not force and self.enabled then log.v('Hotkey already enabled') return self end --this ensures "nested shadowing" behaviour
+  -- force is there just in case it'll be needed down the line; not exposed as public API for now
+  -- isModal is only used to differentiate loglevel (modals can cause a lot of shadowing/unshadowing)
+
+  -- this ensures "nested shadowing" behaviour; i.e. can't re-enable a hotkey that is currently shadowed (unless force),
+  -- must wait for the current top dog to get disabled
+  if not force and self.enabled then log.v('Hotkey already enabled') return self end
   local idx = self.idx
   if not idx or not hotkeys[idx] then log.e('The hotkey was deleted, cannot enable it') return end
   local i = fnutils.indexOf(hotkeys[idx],self)
-  if i then tremove(hotkeys[idx],i) end
+  if i then tremove(hotkeys[idx],i) end -- this hotkey will go to the top of the stack
   for _,hk in ipairs(hotkeys[idx]) do
-    if hk.enabled then log.i('Disabled previous hotkey '..hk.msg) end
-    hk._hk:disable()
+    if hk.enabled then log.i('Disabled previous hotkey '..hk.msg) end --shadow previous hotkeys
+    hk._hk:disable() --objc
   end
   self.enabled = true
   self._hk:enable() --objc
   log[isModal and 'df' or 'f']('Enabled hotkey %s%s',self.msg,isModal and ' (in modal)' or '')
-  tinsert(hotkeys[idx],self) -- bring to end
+  tinsert(hotkeys[idx],self) -- bring to the top of the stack
   return self
 end
 
@@ -81,12 +88,12 @@ local function disable(self,isModal)
   self.enabled = nil
   self._hk:disable() --objc
   log[isModal and 'df' or 'f']('Disabled hotkey %s%s',self.msg,isModal and ' (in modal)' or '')
-  for i=#hotkeys[idx],1,-1 do
+  for i=#hotkeys[idx],1,-1 do --scan the stack top-to-bottom
     if hotkeys[idx][i].enabled then
       log.i('Re-enabled previous hotkey '..hotkeys[idx][i].msg)
-      hotkeys[idx][i]._hk:enable()
+      hotkeys[idx][i]._hk:enable() --unshadow previous top dog and exit
       break
-    end
+  end
   end
   return self
 end
@@ -116,6 +123,7 @@ local function getMods(mods)
   if not mods then return r end
   if type(mods)=='table' then mods=tconcat(mods,'-') end
   if type(mods)~='string' then error('mods must be a string or a table of strings',3) end
+  -- super simple substring search for mod names in a string
   mods=slower(mods)
   local function find(ps)
     for _,s in ipairs(ps) do
@@ -124,12 +132,11 @@ local function getMods(mods)
   end
   find{'cmd','command','⌘'} find{'ctrl','control','⌃'}
   find{'alt','option','⌥'} find{'shift','⇧'}
-  return r
+  return r --pass a list of unicode symbols to objc
 end
 
---local SYMBOLS = {cmd='⌘',ctrl='⌃',alt='⌥',shift='⇧',hyper='✧'}
-local CONCAVE_DIAMOND='✧'
-local function getIndex(mods,keycode)
+local CONCAVE_DIAMOND='✧' -- used for HYPER
+local function getIndex(mods,keycode) -- key for hotkeys table
   local mods = getMods(mods)
   mods = #mods>=4 and CONCAVE_DIAMOND or tconcat(mods)
   local key=keycodes.map[keycode]
@@ -168,9 +175,9 @@ end
 function hotkey.new(mods, key, message, pressedfn, releasedfn, repeatfn)
   local keycode = getKeycode(key)
   mods = getMods(mods)
-  -- message can be optional
+  -- message can be omitted
   if message==nil or type(message)=='function' then
-    repeatfn=releasedfn releasedfn=pressedfn pressedfn=message message=nil
+    repeatfn=releasedfn releasedfn=pressedfn pressedfn=message message=nil -- shift down arguments
   end
   if type(pressedfn)~='function' and type(releasedfn)~='function' and type(repeatfn)~='function' then
     error('At least one of pressedfn, releasedfn or repeatfn must be a function',2) end
@@ -178,16 +185,17 @@ function hotkey.new(mods, key, message, pressedfn, releasedfn, repeatfn)
   local idx = getIndex(mods,keycode)
   local msg=(message and #message>0) and idx..': '..message or idx
   if message then
-    local actualfn=pressedfn or releasedfn or repeatfn
-    local fnalert=function()alert(msg,hotkey.alertDuration or 0)actualfn()end
-    if pressedfn then pressedfn=fnalert
+    local actualfn=pressedfn or releasedfn or repeatfn -- which function will be wrapped to provide an alert (the first valid one)
+    local fnalert=function()alert(msg,hotkey.alertDuration or 0)actualfn()end -- wrapper
+    if pressedfn then pressedfn=fnalert -- substitute 'actualfn' with wrapper
     elseif releasedfn then releasedfn=fnalert
     elseif repeatfn then repeatfn=fnalert end
   end
+  -- the lightweight hotkey object; _hk=objc userdata; then msg, idx, and the methods
   local hk = {_hk=hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn),enable=enable,disable=disable,delete=delete,msg=msg,idx=idx}
   log.v('Created hotkey for '..idx)
-  local h = hotkeys[idx] or {}
-  h[#h+1] = hk
+  local h = hotkeys[idx] or {} -- create stack if this is the first hotkey for a given key combo
+  h[#h+1] = hk -- go on top of the stack
   hotkeys[idx] = h
   return hk
 end
