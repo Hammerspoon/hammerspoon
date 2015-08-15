@@ -4,6 +4,7 @@
 #import "../hammerspoon.h"
 
 #define USERDATA_TAG "hs.hotkey"
+int refTable;
 
 @interface HSKeyRepeatManager : NSObject {
     NSTimer *keyRepeatTimer;
@@ -70,20 +71,23 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
 @end
 
 static int store_hotkey(lua_State* L, int idx) {
+    LuaSkin *skin = [LuaSkin shared];
     lua_pushvalue(L, idx);
-    int x = luaL_ref(L, LUA_REGISTRYINDEX);
+    int x = [skin luaRef:refTable];
     [handlers addIndex: x];
     return x;
 }
 
 static int remove_hotkey(lua_State* L, int x) {
-    luaL_unref(L, LUA_REGISTRYINDEX, x);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin luaUnref:refTable ref:x];
     [handlers removeIndex: x];
     return LUA_NOREF;
 }
 
 static void* push_hotkey(lua_State* L, int x) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, x);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin pushLuaRef:refTable ref:x];
     return lua_touserdata(L, -1);
 }
 
@@ -138,10 +142,12 @@ static int hotkey_new(lua_State* L) {
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
 
+    LuaSkin *skin = [LuaSkin shared];
+
     // store pressedfn
     if (hasDown) {
         lua_pushvalue(L, 3);
-        hotkey->pressedfn = luaL_ref(L, LUA_REGISTRYINDEX);
+        hotkey->pressedfn = [skin luaRef:refTable];
     } else {
         hotkey->pressedfn = LUA_NOREF;
     }
@@ -149,7 +155,7 @@ static int hotkey_new(lua_State* L) {
     // store releasedfn
     if (hasUp) {
         lua_pushvalue(L, 4);
-        hotkey->releasedfn = luaL_ref(L, LUA_REGISTRYINDEX);
+        hotkey->releasedfn = [skin luaRef:refTable];
     } else {
         hotkey->releasedfn = LUA_NOREF;
     }
@@ -157,7 +163,7 @@ static int hotkey_new(lua_State* L) {
     // store repeatfn
     if (hasRepeat) {
         lua_pushvalue(L, 5);
-        hotkey->repeatfn = luaL_ref(L, LUA_REGISTRYINDEX);
+        hotkey->repeatfn = [skin luaRef:refTable];
     } else {
         hotkey->repeatfn = LUA_NOREF;
     }
@@ -207,8 +213,7 @@ static void stop(lua_State* L, hotkey_t* hotkey) {
         return;
 
     hotkey->enabled = NO;
-    remove_hotkey(L, hotkey->uid);
-    hotkey->uid = LUA_NOREF;
+    hotkey->uid = remove_hotkey(L, hotkey->uid);
     UnregisterEventHotKey(hotkey->carbonHotKey);
     [keyRepeatManager stopTimer];
 }
@@ -231,13 +236,14 @@ static int hotkey_disable(lua_State* L) {
 
 static int hotkey_gc(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+
     stop(L, hotkey);
-    luaL_unref(L, LUA_REGISTRYINDEX, hotkey->pressedfn);
-    luaL_unref(L, LUA_REGISTRYINDEX, hotkey->releasedfn);
-    luaL_unref(L, LUA_REGISTRYINDEX, hotkey->repeatfn);
-    hotkey->pressedfn = LUA_NOREF;
-    hotkey->releasedfn = LUA_NOREF;
-    hotkey->repeatfn = LUA_NOREF;
+
+    hotkey->pressedfn = [skin luaUnref:refTable ref:hotkey->pressedfn];
+    hotkey->releasedfn = [skin luaUnref:refTable ref:hotkey->releasedfn];
+    hotkey->repeatfn = [skin luaUnref:refTable ref:hotkey->repeatfn];
+
     return 0;
 }
 
@@ -288,7 +294,7 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
         }
 
         if (ref != LUA_NOREF) {
-            lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+            [skin pushLuaRef:refTable ref:ref];
 
             if (![skin protectedCallAndTraceback:0 nresults:0]) {
                 // For the sake of safety, we'll invalidate any repeat timer that's running, so we don't ruin the user's day by spamming them with errors
@@ -339,7 +345,7 @@ int luaopen_hs_hotkey_internal(lua_State* L __unused) {
     keyRepeatManager = [[HSKeyRepeatManager alloc] init];
 
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:hotkeylib metaFunctions:metalib objectFunctions:hotkey_objectlib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:hotkeylib metaFunctions:metalib objectFunctions:hotkey_objectlib];
 
     // watch for hotkey events
     EventTypeSpec hotKeyPressedSpec[] = {

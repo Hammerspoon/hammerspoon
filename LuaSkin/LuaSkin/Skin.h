@@ -119,10 +119,38 @@
  @param functions - A static array of mappings between Lua function names and C function pointers. This provides the public API of the Lua library
  @param metaFunctions - A static array of mappings between special meta Lua function names (such as "__gc") and C function pointers.
  @param objectFunctions - A static array of mappings between Lua object method names and C function pointers. This provides the public API of objects created by this library. Note that this object is also used as the metatable, so special functions (e.g. "__gc") should be included here.
+ @return A Lua reference to the table created for this library to store its own references
  */
-- (void)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions;
+- (int)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions;
 
-//TODO: Figure out a generic way to create library objects
+/** Stores a reference to the object at the top of the Lua stack, in the supplied table, and pops the object off the stack
+ 
+ @note This method is functionally analogous to luaL_ref(), it just takes care of pushing the supplied table ref onto the stack, and removes it afterwards
+
+ @param refTable - An integer reference to a table (e.g. the result of a previous luaRef on a table object)
+ @return An integer reference to the object that was at the top of the stack
+ */
+- (int)luaRef:(int)refTable;
+
+/** Removes a reference from the supplied table
+ 
+ @note This method is functionally analogous to luaL_unref(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
+ 
+ @param refTable - An integer reference to a table (e.g the result of a previous luaRef on a table object)
+ @param ref - An integer reference for an object that should be removed from the refTable table
+ @return An integer, always LUA_NOREF (you are advised to store this value in the variable containing the ref parameter, so it does not become a stale reference)
+ */
+- (int)luaUnref:(int)refTable ref:(int)ref;
+
+/** Pushes a stored reference onto the Lua stack
+ 
+ @note This method is functionally analogous to lua_rawgeti(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards
+ 
+ @param refTable - An integer reference to a table (e.h. the result of a previous luaRef on a table object)
+ @param ref - An integer reference for an object that should be pushed onto the stack
+ */
+- (void)pushLuaRef:(int)refTable ref:(int)ref;
+
 //TODO: Add methods for enforcing Lua function arguments
 //TODO: Add methods for converting Lua<->objc types
 @end
