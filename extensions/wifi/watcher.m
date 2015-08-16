@@ -73,6 +73,7 @@ typedef struct _wifiwatcher_t {
 ///  * This means that when you switch from one network to another, you will receive a disconnection event as you leave the first network, and a connection event as you join the second. You are advised to keep a variable somewhere that tracks the name of the last network you were connected to, so you can track changes that involve multiple events.
 static int wifi_watcher_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     luaL_checktype(L, 1, LUA_TFUNCTION);
 

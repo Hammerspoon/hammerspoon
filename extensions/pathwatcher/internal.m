@@ -44,6 +44,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
 /// Returns a new watcher.path that can be started and stopped.  The function registered receives as it's argument, a table containing a list of the files which have changed since it was last invoked.
 static int watcher_path_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
 
     NSString* path = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     luaL_checktype(L, 2, LUA_TFUNCTION);

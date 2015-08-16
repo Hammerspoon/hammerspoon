@@ -183,4 +183,65 @@
     return;
 }
 
+- (void)checkArgs:(int)firstArg, ... {
+    int idx = 1;
+    int numArgs = lua_gettop(_L);
+    int spec = firstArg;
+
+    va_list args;
+    va_start(args, firstArg);
+
+    while (true) {
+        if (spec == LS_TBREAK) {
+            idx--;
+            break;
+        }
+
+        int lsType;
+        int luaType = lua_type(_L, idx);
+
+        switch (luaType) {
+            case LUA_TNONE:
+                if (spec & LS_TOPTIONAL) {
+                    goto nextarg;
+                }
+                lsType = LS_TNONE;
+            case LUA_TNIL:
+                lsType = LS_TNIL;
+                break;
+            case LUA_TNUMBER:
+                lsType = LS_TNUMBER;
+                break;
+            case LUA_TSTRING:
+                lsType = LS_TSTRING;
+                break;
+            case LUA_TFUNCTION:
+                lsType = LS_TFUNCTION;
+                break;
+            case LUA_TTABLE:
+                lsType = LS_TTABLE;
+                break;
+            case LUA_TUSERDATA:
+                lsType = LS_TUSERDATA;
+                break;
+
+            default:
+                luaL_error(_L, "ERROR: unknown type '%s' for argument %d", luaL_typename(_L, idx), idx);
+                break;
+        }
+
+        if (!(spec & lsType)) {
+            luaL_error(_L, "ERROR: incorrect type '%s' for argument %d", luaL_typename(_L, idx), idx);
+        }
+nextarg:
+        spec = va_arg(args, int);
+        idx++;
+    }
+    va_end(args);
+
+    if (idx != numArgs) {
+        luaL_error(_L, "ERROR: incorrect number of arguments. Expected %d, got %d", idx, numArgs);
+    }
+}
+
 @end
