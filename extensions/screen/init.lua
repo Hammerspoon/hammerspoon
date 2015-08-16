@@ -2,21 +2,23 @@
 ---
 --- Manipulate screens (i.e. monitors)
 ---
---- You usually get a screen through a window (see `hs.window.screen`). But you can get screens by themselves through this module, albeit not in any defined/useful order.
+--- You usually get a screen through a window (see `hs.window.screen`). But you can get screens by themselves through this module.
 ---
 --- Hammerspoon's coordinate system assumes a grid that is the union of every screen's rect (see `hs.screen.fullFrame`).
 ---
 --- Every window's position (i.e. `topleft`) and size are relative to this grid, and they're usually within the grid. A window that's semi-offscreen only intersects the grid.
 
 local screen = require "hs.screen.internal"
-local fnutils = require "hs.fnutils"
+local moses = require "hs.moses"
 local geometry = require "hs.geometry"
 local imagemod = require "hs.image"
 
 screen.watcher = require "hs.screen.watcher"
 
-local pairs,min,max,cos,atan=pairs,math.min,math.max,math.cos,math.atan
-local tinsert,tremove,tsort=table.insert,table.remove,table.sort
+local type,pairs,ipairs,min,max,cos,atan=type,pairs,ipairs,math.min,math.max,math.cos,math.atan
+local tinsert,tremove,tsort,tunpack=table.insert,table.remove,table.sort,table.unpack
+local sfind=string.find
+local getmetatable,pcall=getmetatable,pcall
 
 local screenObject = hs.getObjectMetatable("hs.screen")
 
@@ -27,36 +29,67 @@ function screen.primaryScreen()
   return screen.allScreens()[1]
 end
 
---- hs.screen.findByName(name) -> screen or nil
+--- hs.screen.find(hint[, ...]) -> hs.screen object(s)
 --- Function
---- Finds a screen by its name
+--- Finds screens
 ---
 --- Parameters:
----  * name - A string containing the name to search for
+---  * hint - search criterion for the desired screen(s); it can be:
+---    - a number as per `hs.screen:id()`
+---    - a string pattern that matches (via `string.match`) the screen name as per `hs.screen:name()` (for convenience, the matching will be done on lowercased strings)
+---    - an hs.geometry point object, or arguments for its constructor, with the x and y position of the screen in the current layout as per `hs.screen:position()`
+---    - an hs.geometry size object, or arguments for its constructor, with the resolution of the screen as per `hs.screen:fullFrame()`
+---    - an hs.geometry rect object, or arguments for its constructor, with the rect of the screen in absolute coordinates as per `hs.screen:fullFrame()`
 ---
 --- Returns:
----  * An `hs.screen` object, or nil if none could be found
-function screen.findByName(name)
-  return fnutils.find(screen.allScreens(), function(display) return (display:name() == name) end)
+---  * one or more hs.screen objects that match the supplied search criterion, or `nil` if none found
+---
+--- Usage:
+--- -- by id
+--- hs.screen.find(724562417):name() --> Color LCD
+--- -- by name
+--- hs.screen.find'Dell':name() --> DELL U2414M
+--- -- by position
+--- hs.screen.find(0,0):name() --> PHL BDM4065 - same as hs.screen.primaryScreen()
+--- hs.screen.find{x=-1,y=0}:name() --> DELL U2414M - screen to the immediate left of the primary screen
+--- -- by frame
+--- hs.screen.find(-1200,240,1200,1920):name() --> DELL U2414M - exact frame
+--- hs.screen.find'3840x2160':name() --> PHL BDM4065 - resolution
+function screen.find(p,...)
+  if p==nil then return end
+  local typ=type(p)
+  if typ=='userdata' and getmetatable(p)==screenObject then return p
+  else
+    local screens=screen.allScreens()
+    if typ=='number' and p>20 then for _,s in ipairs(screens) do if p==s:id() then return s end return end -- not found
+    elseif typ=='string' then
+      local f=moses.filter(screens,function(_,s)return sfind(s:name():lower(),p:lower())end)
+      if #f>0 then return tunpack(f) end
+    elseif typ~='table' then error('hint can be a number, string or table',2) end
+    local ok
+    ok,p=pcall(geometry,p,...) if not ok then return end -- not found
+    if p.x and p.y then
+      if not p.w and not p.h then -- position
+        local positions=screen.screenPositions()
+        for s,pos in pairs(positions) do if p==pos then return s end end
+        return -- not found
+      end -- full frame
+      for _,s in ipairs(screens) do if p==s:fullFrame() then return s end end
+      return -- not found
+    elseif p.w and p.h then -- size
+      local f=moses.filter(screens,function(_,s)return p==geometry(s:fullFrame()).size end)
+      if #f>0 then return tunpack(f) end
+    end
+  end
 end
 
---- hs.screen.findByID(id) -> screen or nil
---- Function
---- Finds a screen by its ID
----
---- Parameters:
----  * id - A number containing the ID to search for
----
---- Returns:
----  * An `hs.screen` object, or nil if none could be found
-function screen.findByID(id)
-  return fnutils.find(screen.allScreens(), function(display) return (display:id() == id) end)
-end
-
+--legacy
+screen.findByName=screen.find
+screen.findByID=screen.find
 
 --- hs.screen.screenPositions() -> table
 --- Function
---- Return a list of all connected and enabled screens, along with their "position" relative to the primary screen
+--- Returns a list of all connected and enabled screens, along with their "position" relative to the primary screen
 ---
 --- Parameters:
 ---  * None
@@ -69,9 +102,9 @@ end
 --- Notes:
 ---  * grid-like arrangements of same-sized screens should behave consistently; but there's no guarantee of a consistent result for more "exotic" screen arrangements
 
--- if/when userdata's __eq and/or 'recycling' is addressed, the following note can be added
+-- if/when userdata's 'recycling' is addressed, the following note can be added
 -- Notes:
---  * To get a specific screen's position in the current layout, you can simply use `pos=hs.screen.screenLayout()[myscreen]`
+--  * To get a specific screen's position in the current layout, you can simply use `pos=hs.screen.screenPositions()[myscreen]`
 
 function screen.screenPositions()
   local screens = screen.allScreens()
@@ -81,15 +114,13 @@ function screen.screenPositions()
   local function findNeighbors(x,y,s,ex,ey)
     for dir,co in pairs{East={1,0},West={-1,0},North={0,-1},South={0,1}} do
       if co[1]~=ex or co[2]~=ey then
-        --        print('search from '..x..y..dir,#screens..'left:')
         local f=s
         f = f['to'..dir](f,nil,true,screens)
         if res[f] then f=nil end
-        if f then
-          --          print('found a screen')
-          tremove(screens,fnutils.indexOf(screens,f))
+        if f then -- found a screen
+          tremove(screens,moses.indexOf(screens,f) or #screens+1) -- or... just for safety
           local nx,ny=x+co[1],y+co[2]
-          res[f]={x=nx,y=ny}
+          res[f]={x=nx,y=ny}--geometry(nx,ny)--
           findNeighbors(nx,ny,f,-co[1],-co[2])
         end
       end
@@ -137,10 +168,10 @@ end
 
 --- hs.screen:next() -> screen
 --- Method
---- Returns the screen 'after' this one (I have no idea how they're ordered though); this method wraps around to the first screen.
+--- Returns the screen 'after' this one (in arbitrary order); this method wraps around to the first screen.
 function screenObject:next()
   local screens = screen.allScreens()
-  local i = fnutils.indexOf(screens, self) + 1
+  local i = moses.indexOf(screens, self) + 1
   if i > # screens then i = 1 end
   return screens[i]
 end
@@ -148,25 +179,15 @@ end
 
 --- hs.screen:previous() -> screen
 --- Method
---- Returns the screen 'before' this one (I have no idea how they're ordered though); this method wraps around to the last screen.
+--- Returns the screen 'before' this one (in arbitrary order); this method wraps around to the last screen.
 function screenObject:previous()
   local screens = screen.allScreens()
-  local i = fnutils.indexOf(screens, self) - 1
+  local i = moses.indexOf(screens, self) - 1
   if i < 1 then i = # screens end
   return screens[i]
 end
 
-local function projection(base, rect) -- like hs.geometry,intersectionRect, but better
-  local basex,basey,basex2,basey2=base.x,base.y,base.x+base.w,base.y+base.h
-  local rectx,recty,rectx2,recty2=rect.x,rect.y,rect.x+(rect.w or 0),rect.y+(rect.h or 0)
-  if basex<rectx then rectx=min(basex2,rectx) rectx2=min(basex2,rectx2)
-  else rectx=max(basex,rectx) rectx2=max(basex,rectx2) end
-  if basey<recty then recty=min(basey2,recty) recty2=min(basey2,recty2)
-  else recty=max(basey,recty) recty2=max(basey,recty2) end
-  return {x=rectx,y=recty,w=rectx2-rectx,h=recty2-recty}
-end
-
-local function first_screen_in_direction(aScreen, numrotations, from, strict, allscreens)
+local function first_screen_in_direction(fromScreen, numrotations, fromPoint, strict, allscreens)
   if not allscreens then
     allscreens = screen.allScreens()
     if #allscreens==1 then return end
@@ -181,21 +202,15 @@ local function first_screen_in_direction(aScreen, numrotations, from, strict, al
 
   -- thanks mark!
 
-  local otherscreens = fnutils.filter(allscreens, function(s) return s ~= aScreen end)
-  local myf=aScreen:fullFrame()
-  local p1 = geometry.rectMidPoint(from and projection(myf,from) or myf)
+  tremove(allscreens,moses.indexOf(allscreens,fromScreen) or #allscreens+1)
+  local myf = geometry(fromScreen:fullFrame())
+  local p1 = (fromPoint and myf:intersect(fromPoint) or myf).center
   local screens = {}
-
-  for _, s in pairs(otherscreens) do
-    local p2 = geometry.rectMidPoint(s:fullFrame())
-    p2 = geometry.rotateCCW(p2, p1, numrotations)
-    local delta = {x=p2.x-p1.x,y=p2.y-p1.y}
+  for _, s in pairs(allscreens) do
+    local p2 = geometry(s:fullFrame()).center:rotateCCW(p1,numrotations)
+    local delta = p2-p1
     if delta.x > 0 then
-      local angle = atan(delta.y, delta.x)
-      local distance = geometry.hypot(delta)
-      --      local anglediff = -angle
-      local score = distance / cos(angle / 2)
-      tinsert(screens, {s = s, score = score})
+      tinsert(screens, {s=s,score=#delta/cos(delta:angle()/2)})
     end
   end
 
@@ -219,37 +234,52 @@ end
 --- If set to `true`, the methods `hs.screen:toEast()`, `:toNorth()` etc. will disregard screens that lie perpendicularly to the desired axis
 screen.strictScreenInDirection = false
 
---- hs.screen:toEast()
+--- hs.screen:toEast() -> hs.screen object
 --- Method
---- Get the first screen to the east of this one, ordered by proximity to its center or a specified point.
+--- Gets the first screen to the east of this one, ordered by proximity to its center or a specified point.
 ---
 --- Parameters:
 ---   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
 ---   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---
+--- Returns:
+---   * the desired hs.screen object, or `nil` if not found
 function screenObject:toEast(...)  return first_screen_in_direction(self, 0, ...) end
 
---- hs.screen:toWest()
+--- hs.screen:toWest() -> hs.screen object
 --- Method
---- Get the first screen to the west of this one, ordered by proximity to its center or a specified point.
+--- Gets the first screen to the west of this one, ordered by proximity to its center or a specified point.
+---
 --- Parameters:
 ---   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
 ---   * strict - If `true`, disregard screens that lie completely above or below this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---
+--- Returns:
+---   * the desired hs.screen object, or `nil` if not found
 function screenObject:toWest(...)  return first_screen_in_direction(self, 2, ...) end
 
---- hs.screen:toNorth()
+--- hs.screen:toNorth() -> hs.screen object
 --- Method
---- Get the first screen to the north of this one, ordered by proximity to its center or a specified point.
+--- Gets the first screen to the north of this one, ordered by proximity to its center or a specified point.
+---
 --- Parameters:
 ---   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
 ---   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---
+--- Returns:
+---   * the desired hs.screen object, or `nil` if not found
 function screenObject:toNorth(...) return first_screen_in_direction(self, 1, ...) end
 
---- hs.screen:toSouth()
+--- hs.screen:toSouth() -> hs.screen object
 --- Method
---- Get the first screen to the south of this one, ordered by proximity to its center or a specified point.
+--- Gets the first screen to the south of this one, ordered by proximity to its center or a specified point.
+---
 --- Parameters:
 ---   * from - An `hs.geometry.rect` or `hs.geometry.point` object; if omitted, the geometric center of this screen will be used
 ---   * strict - If `true`, disregard screens that lie completely to the left or to the right of this one (alternatively, set `hs.screen.strictScreenInDirection`)
+---
+--- Returns:
+---   * the desired hs.screen object, or `nil` if not found
 function screenObject:toSouth(...) return first_screen_in_direction(self, 3, ...) end
 
 --- hs.screen:shotAsPNG(filePath[, screenRect])
@@ -258,12 +288,12 @@ function screenObject:toSouth(...) return first_screen_in_direction(self, 3, ...
 ---
 --- Parameters:
 ---  * filePath - A string containing a file path to save the screenshot as
----  * screenRect - An optional `rect-table` containing a portion of the screen to capture. Defaults to the whole screen
+---  * screenRect - An optional hs.geometry rect (or arguments for its constructor) containing a portion of the screen to capture. Defaults to the whole screen
 ---
 --- Returns:
 ---  * None
-function screenObject:shotAsPNG(filePath, screenRect)
-  local image = self:snapshot(screenRect)
+function screenObject:shotAsPNG(filePath, screenRect,...)
+  local image = self:snapshot(screenRect and geometry(screenRect,...))
   image:saveToFile(filePath, "PNG")
 end
 
@@ -273,12 +303,12 @@ end
 ---
 --- Parameters:
 ---  * filePath - A string containing a file path to save the screenshot as
----  * screenRect - An optional `rect-table` containing a portion of the screen to capture. Defaults to the whole screen
+---  * screenRect - An optional hs.geometry rect (or arguments for its constructor) containing a portion of the screen to capture. Defaults to the whole screen
 ---
 --- Returns:
 ---  * None
-function screenObject:shotAsJPG(filePath, screenRect)
-  local image = self:snapshot(screenRect)
+function screenObject:shotAsJPG(filePath, screenRect,...)
+  local image = self:snapshot(screenRect and geometry(screenRect,...))
   image:saveToFile(filePath, "JPG")
 end
 
