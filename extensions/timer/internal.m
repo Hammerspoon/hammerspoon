@@ -186,13 +186,11 @@ static int timer_running(lua_State* L) {
 ///  * An integer containing the number of seconds untilt he next firing.
 ///
 /// Notes:
-///  * The return value may be negative if the runloop is backlogged and is catching up on missed timer triggers
+///  * The return value may be a negative integer in two circumstances:
+///   * Hammerspoon's runloop is backlogged and is catching up on missed timer triggers
+///   * The timer object is not currently running. In this case, the return value of this method is the number of seconds since the last firing (you can check if the timer is running or not, with `hs.timer:running()`
 static int timer_nextTrigger(lua_State *L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
-    if (!timer->started) {
-        lua_pushinteger(L, 0);
-        return 1;
-    }
 
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime next = CFRunLoopTimerGetNextFireDate(timer->t);
