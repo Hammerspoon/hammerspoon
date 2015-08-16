@@ -432,7 +432,7 @@ end
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.windowfilter` instead
+---    `hs.window.filter` instead
 
 --- hs.window:windowsToWest(candidateWindows, frontmost, strict) -> list of `hs.window` objects
 --- Method
@@ -451,7 +451,7 @@ end
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.windowfilter` instead
+---    `hs.window.filter` instead
 
 --- hs.window:windowsToNorth(candidateWindows, frontmost, strict) -> list of `hs.window` objects
 --- Method
@@ -470,7 +470,7 @@ end
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.windowfilter` instead
+---    `hs.window.filter` instead
 
 --- hs.window:windowsToSouth(candidateWindows, frontmost, strict) -> list of `hs.window` objects
 --- Method
@@ -489,7 +489,7 @@ end
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.windowfilter` instead
+---    `hs.window.filter` instead
 
 
 --- hs.window.frontmostWindow() -> hs.window
@@ -543,7 +543,7 @@ end
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.windowfilter` instead
+---    `hs.window.filter` instead
 
 --- hs.window:focusWindowWest(candidateWindows, frontmost, strict)
 --- Method
@@ -562,7 +562,7 @@ end
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.windowfilter` instead
+---    `hs.window.filter` instead
 
 --- hs.window:focusWindowNorth(candidateWindows, frontmost, strict)
 --- Method
@@ -580,7 +580,7 @@ end
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.windowfilter` instead
+---    `hs.window.filter` instead
 
 --- hs.window:focusWindowSouth(candidateWindows, frontmost, strict)
 --- Method
@@ -598,7 +598,7 @@ end
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.windowfilter` instead
+---    `hs.window.filter` instead
 
 --- hs.window:moveToUnit(rect[, duration]) -> window
 --- Method
@@ -740,5 +740,9 @@ function window:ensureIsInScreenBounds(duration)
   if frame ~= self:frame() then self:setFrame(frame, duration) end
   return self
 end
+
+package.loaded[...]=window
+window.filter = require "hs.window.filter"
+--window.layout = require "hs.window.layout"
 
 return window
