@@ -17,8 +17,9 @@
 ---  * and so on...
 ---
 --- Additionally, a modal keyboard driven interface for interactive resizing is provided via `hs.grid.show()`;
---- the grid will be overlaid on the frontmost window's screen with keyboard hints to select the corner cells for
---- the desired size/position; you can also use the arrow keys to move the window onto adjacent screens.
+--- the grid will be overlaid on the focused or frontmost window's screen with keyboard hints to select the corner cells for
+--- the desired size/position; you can also use the arrow keys to move the window onto adjacent screens, and
+--- the tab/shift-tab keys to cycle to the next/previous window.
 
 local fnutils = require "hs.fnutils"
 local window = require "hs.window"
@@ -174,19 +175,22 @@ function grid.getGrid(scr)
 end
 
 
---- hs.grid.show()
+--- hs.grid.show([multipleWindows])
 --- Function
---- Shows the grid and starts the modal interactive resizing process for the frontmost window.
+--- Shows the grid and starts the modal interactive resizing process for the focused or frontmost window.
 --- In most cases this function should be invoked via `hs.hotkey.bind` with some keyboard shortcut.
 ---
 --- Parameters:
----  * None
+---  * multipleWindows - if `true`, the resizing grid won't automatically go away after selecting the desired cells
+---    for the frontmost window; instead, it'll switch to the next window
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
 ---  * In the modal interface, press the arrow keys to jump to adjacent screens; spacebar to maximize/unmaximize; esc to quit without any effect
+---  * Pressing `tab` or `shift-tab` in the modal interface will cycle to the next or previous window; if `multipleWindows`
+---    is false or omitted, the first press will just enable the multiple windows behaviour
 ---  * The keyboard hints assume a QWERTY layout; if you use a different layout, change `hs.grid.HINTS` accordingly
 
 --- hs.grid.hide()
@@ -313,7 +317,7 @@ end
 ---
 --- Parameters:
 ---  * fn - A function that accepts a cell-table as its only argument. The function should modify the cell-table as needed and return nothing
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -339,7 +343,7 @@ end
 --- Moves and resizes a window to fill the entire grid
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -357,7 +361,7 @@ end
 --- Moves a window to the next screen, snapping it to the screen's grid
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -374,7 +378,7 @@ end
 --- Moves a window to the previous screen, snapping it to the screen's grid
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -391,7 +395,7 @@ end
 --- Moves a window one grid cell to the left, or onto the adjacent screen's grid when necessary
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -417,7 +421,7 @@ end
 --- Moves a window one cell to the right, or onto the adjacent screen's grid when necessary
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -443,7 +447,7 @@ end
 --- Resizes a window to be one cell wider
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -467,7 +471,7 @@ end
 --- Resizes a window to be one cell thinner
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -480,7 +484,7 @@ end
 --- Moves a window one grid cell down the screen, or onto the adjacent screen's grid when necessary
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -506,7 +510,7 @@ end
 --- Moves a window one grid cell up the screen, or onto the adjacent screen's grid when necessary
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -532,7 +536,7 @@ end
 --- Resizes a window so its bottom edge moves one grid cell higher
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -545,7 +549,7 @@ end
 --- Resizes a window so its bottom edge moves one grid cell lower
 ---
 --- Parameters:
----  * window - An `hs.window` object to act on; if omitted, the frontmost window will be used
+---  * window - An `hs.window` object to act on; if omitted, the focused or frontmost window will be used
 ---
 --- Returns:
 ---  * The `hs.grid` module for method chaining
@@ -603,6 +607,8 @@ end
 ---  * `hs.grid.ui.selectedColor = {0.2,0.7,0,0.4}` -- for the first selected cell during a modal resize
 ---  * `hs.grid.ui.highlightColor = {0.8,0.8,0,0.5}` -- to highlight the frontmost window behind the grid
 ---  * `hs.grid.ui.highlightStrokeColor = {0.8,0.8,0,1}`
+---  * `hs.grid.ui.cyclingHighlightColor = {0,0.8,0.8,0.5}` -- to highlight the window to be resized, when cycling among windows
+---  * `hs.grid.ui.cyclingHighlightStrokeColor = {0,0.8,0.8,1}`
 ---
 --- The following variables must be numbers (in screen points):
 ---  * `hs.grid.ui.textSize = 200`
@@ -622,6 +628,8 @@ local ui = {
   cellColor={0,0,0,0.25},
   highlightColor={0.8,0.8,0,0.5},
   highlightStrokeColor={0.8,0.8,0,1},
+  cyclingHighlightColor={0,0.8,0.8,0.5},
+  cyclingHighlightStrokeColor={0,0.8,0.8,1},
   highlightStrokeWidth=30,
   selectedColor={0.2,0.7,0,0.4},
   showExtraKeys=true,
@@ -668,12 +676,12 @@ local function makeUI()
     local cellw,cellh = getCellSize(screen)
     local frame = screen:frame()
     log.f('Screen #%d %s (%s) -> grid %d by %d (%dx%d cells)',i,screen:name(),toKey(frame),w,h,floor(cellw),floor(cellh))
-    local htf = {w=550,h=100}
-    htf.x = frame.x+frame.w/2-htf.w/2  htf.y = frame.y+frame.h/2-htf.h/2
+    local htf = {w=550,h=150}
+    htf.x = frame.x+frame.w/2-htf.w/2  htf.y = frame.y+frame.h/2-htf.h/3*2
     if fmod(h,2)==1 then htf.y=htf.y-cellh/2 end
     local howtorect = drawing.rectangle(htf)
     howtorect:setFill(true) howtorect:setFillColor(getColor(ui.cellColor)) howtorect:setStrokeWidth(ui.cellStrokeWidth)
-    local howtotext=drawing.text(htf,'    ←→↑↓:select screen\n  space:fullscreen esc:exit')
+    local howtotext=drawing.text(htf,'    ←→↑↓:select screen\n ⇥:next win  ⇧⇥:prev win\n  space:fullscreen esc:exit')
     howtotext:setTextSize(40) howtotext:setTextColor(getColor(ui.textColor))
     howtotext:setTextFont(ui.fontName)
     local sid=screen:id()
@@ -730,7 +738,11 @@ end
 
 
 
-local initialized, showing, currentScreen, currentWindow, highlight
+local initialized, showing, currentScreen, currentWindow, currentWindowIndex, allWindows, cycledWindows, focusedWindow, reorderIndex, cycling, highlight
+local function startCycling()
+  allWindows=window.orderedWindows() cycledWindows={} reorderIndex=1 focusedWindow=currentWindow
+  currentWindowIndex=fnutils.indexOf(allWindows,currentWindow)
+end
 local function _start()
   if initialized then return end
   screen.watcher.new(deleteUI):start()
@@ -738,13 +750,13 @@ local function _start()
   local function showHighlight()
     if highlight then highlight:delete() end
     highlight = drawing.rectangle(currentWindow:frame())
-    highlight:setFill(true) highlight:setFillColor(getColor(ui.highlightColor))
-    highlight:setStroke(true) highlight:setStrokeColor(getColor(ui.highlightStrokeColor)) highlight:setStrokeWidth(ui.highlightStrokeWidth)
+    highlight:setFill(true) highlight:setFillColor(getColor(cycling and ui.cyclingHighlightColor or ui.highlightColor)) highlight:setStroke(true)
+    highlight:setStrokeColor(getColor(cycling and ui.cyclingHighlightStrokeColor or ui.highlightStrokeColor)) highlight:setStrokeWidth(ui.highlightStrokeWidth)
     highlight:show()
   end
   function resizing:entered()
     if showing then return end
-    currentWindow = window.frontmostWindow()
+    --    currentWindow = window.frontmostWindow()
     if not currentWindow then log.w('Cannot get current window, aborting') resizing:exit() return end
     log.df('Start moving %s [%s]',currentWindow:subrole(),currentWindow:application():title())
     if currentWindow:isFullScreen() then currentWindow:setFullScreen(false) --[[resizing:exit()--]] end
@@ -767,9 +779,33 @@ local function _start()
     if not showing then return true end
     if highlight then highlight:delete() highlight=nil end
     clearSelection()
+    if cycling and #allWindows>0 then
+      -- will STILL somewhat mess up window zorder, because orderedWindows~=most recently focused windows; but oh well
+      for i=reorderIndex,1,-1 do if cycledWindows[i] then allWindows[i]:focus() end end
+      if focusedWindow then focusedWindow:focus() end
+    end
     hideGrid(currentScreen)
     showing = nil
   end
+  local function cycle(d)
+    if not cycling then cycling=true startCycling() currentWindowIndex=currentWindowIndex-d end
+    clearSelection() hideGrid(currentScreen)
+    local startIndex=currentWindowIndex
+    repeat
+      currentWindowIndex=(currentWindowIndex+d) % #allWindows
+      if currentWindowIndex==0 then currentWindowIndex=#allWindows end
+      currentWindow = allWindows[currentWindowIndex]
+    until currentWindowIndex==startIndex or currentWindow:subrole()=='AXStandardWindow'
+    reorderIndex=max(reorderIndex,currentWindowIndex)
+    currentWindow:focus()
+    cycledWindows[currentWindowIndex]=true
+    currentScreen=(currentWindow:screen() or screen.mainScreen()):id()
+    showHighlight()
+    showGrid(currentScreen)
+  end
+  resizing:bind({},'tab',function()cycle(1)end)
+  resizing:bind({'shift'},'tab',function()cycle(-1)end)
+  resizing:bind({},'delete',clearSelection)
   resizing:bind({},'escape',function()log.d('abort move')resizing:exit()end)
   resizing:bind({},'space',function()
     --    local wasfs=currentWindow:isFullScreen()
@@ -802,7 +838,8 @@ local function _start()
       local frame={x=x1,y=y1,w=x2-x1+elem.w,h=y2-y1+elem.h}
       currentWindow:setFrame(frame)
       log.f('move to %.0f,%.0f[%.0fx%.0f]',frame.x,frame.y,frame.w,frame.h)
-      resizing:exit()
+      clearSelection()
+      if cycling then cycle(1) else resizing:exit() end
     end
   end
   makeHints()
@@ -817,9 +854,13 @@ local function _start()
   initialized=true
 end
 
-function grid.show()
+function grid.show(stay)
   if showing then return end
   if not initialized then _start() end
+  cycling=stay and true or nil
+  -- there will be some inconsistency when cycling (focusedWindow~=frontmost), but oh well
+  currentWindowIndex,currentWindow=1,window.frontmostWindow()
+  if cycling then startCycling() end
   --  else resizing:exit() end
   resizing:enter()
 end
