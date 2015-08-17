@@ -373,16 +373,57 @@ function wf:setAppFilter(appname,ft)
   return self
 end
 
---TODO docs: like constructor, but doesn't wipe preexisting filters
+--- hs.window.filter:setFilters(filters) -> hs.window.filter object
+--- Method
+--- Sets multiple filtering rules
+---
+--- Parameters:
+---  * filters - table, every element will set an application filter; these elements must:
+---    - have a *key* of type string, denoting an application name as per `hs.application:title()`
+---    - if the *value* is a boolean, the app will be allowed or rejected accordingly - see `hs.window.filter:allowApp()`
+---      and `hs.window.filter:rejectApp()`
+---    - if the *value* is a table, it must contain the accept/reject rules for the app *as key/value pairs*; valid keys
+---      and values are described in `hs.window.filter:setAppFilter()`
+---    - the *key* can be one of the special strings `"default"` and `"override"`, which will will set the default and override
+---      filter respectively
+---    - the *key* can be the special string `"trackSpaces"`; its value must be one of `"current"`, `"all"`, `"others"` or
+---      `"no"`, and it will set Spaces tracking on the windowfilter accordingly - see `hs.window.filter:trackSpaces()`
+---
+--- Returns:
+---  * the `hs.window.filter` object for method chaining
+---
+--- Notes:
+---  * every filter definition in `filters` will overwrite the pre-existing one for the relevant application, if present;
+---    this also applies to the special default and override filters, if included
 function wf:setFilters(filters)
+  local wasActive=activeFilters[self] activeFilters[self]=nil
   if type(filters)~='table' then error('filters must be a table',2) end
   for k,v in pairs(filters) do
-    if type(k)~='string' then error('every key in filters must be a string',2) end
-    if type(v)~='table' then error('every value in filters must be a table',2) end
-    self:setAppFilter(k,v)
+    if type(k)=='number' then
+      if type(v)=='string' then self:allowApp(v) -- {'appname'}
+      else error('invalid filters table: integer key '..k..' needs a string value, got '..type(v)..' instead',2) end
+    elseif type(k)=='string' then --{appname=...}
+      if type(v)=='boolean' then if v then self:allowApp(k) else self:rejectApp(k) end --{appname=true/false}
+      elseif type(v)=='table' then --{appname={arg1=val1,...}}
+        if k=='trackSpaces' then self:trackSpaces(v) --FIXME
+        else self:setAppFilter(k,v) end
+    else error('invalid filters table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
+    else error('invalid filters table: keys can be integer or string, got '..type(k)..' instead',2) end
   end
+  activeFilters[self]=wasActive if activeFilters[self] then refreshWindows(self) end
+  return self
 end
 
+--- hs.window.filter:getFilters() -> table
+--- Method
+--- Return a table with all the filtering rules defined for this windowfilter
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * a table containing the filtering rules of this windowfilter; you can pass this table (optionally
+---  after performing valid manipulations) to `hs.window.filter:setFilters()` and `hs.window.filter.new()`
 function wf:getFilters() return self.apps end
 --TODO getFilters
 
@@ -420,18 +461,9 @@ end
 ---    - if `false`, returns a windowfilter with a default rule to reject every window
 ---    - if a string or table of strings, returns a windowfilter that only allows visible windows of the specified apps
 ---      as per `hs.application:title()`
----    - if a table, you can fully define a windowfilter without having to call any methods after construction; every element
----      will set an application filter; these elements must:
----      - have a *key* of type string, denoting an application name as per `hs.application:title()`
----      - if the *value* is a boolean, the app will be allowed or rejected accordingly - see `hs.window.filter:allowApp()`
----        and `hs.window.filter:rejectApp()`
----      - if the *value* is a table, it must contain the accept/reject rules for the app *as key/value pairs*; valid keys are
----        the parameter names in `hs.window.filter:setAppFilter()`; their values must follow the guidelines for that method
----      - the *key* can be one of the special strings `"default"` and `"override"`, which will will set the default and override
----        filter respectively
----      - the *key* can be the special string `"trackSpaces"`; its value must be one of `"current"`, `"all"`, `"others"` or
----        `"no"`, and it will set Spaces tracking on the windowfilter accordingly - see `hs.window.filter:trackSpaces()`
----      - if not specified in the table, the default filter in the new windowfilter will reject all windows
+---    - if a table, you can fully define a windowfilter without having to call any methods after construction; the
+---      table must be structured as per `hs.window.filter:setFilters()`; if not specified in the table, the
+---      default filter in the new windowfilter will reject all windows
 ---    - otherwise it must be a function that accepts an `hs.window` object and returns `true` if the window is allowed
 ---      or `false` otherwise; this way you can define a fully custom windowfilter
 ---  * logname - (optional) name of the `hs.logger` instance for the new windowfilter; if omitted, the class logger will be used
@@ -461,23 +493,9 @@ function windowfilter.new(fn,logname,loglevel)
     return o
   elseif type(fn)=='table' then
     o.log.i('new windowfilter, reject all with exceptions')
-    o:setDefaultFilter(false)
-    for k,v in pairs(fn) do
-      if type(k)=='number' then
-        if type(v)=='string' then o:allowApp(v) -- {'appname'}
-        else error('invalid windowfilter constructor table: integer key '..k..' needs a string value, got '..type(v)..' instead',2) end
-      elseif type(k)=='string' then --{appname=...}
-        if type(v)=='boolean' then if v then o:allowApp(k) else o:rejectApp(k) end --{appname=true/false}
-        elseif type(v)=='table' then --{appname={arg1=val1,...}}
-          --          if k=='default' then k=false elseif k=='override' then k=true end
-          if k=='trackSpaces' then o:trackSpaces(v)
-          else o:setAppFilter(k,v) end
-      else error('invalid windowfilter constructor table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
-      else error('invalid windowfilter constructor table: keys can be integer or string, got '..type(k)..' instead',2) end
-    end
-    return o
+    return o:setDefaultFilter(false):setFilters(fn)
   elseif fn==true then o.log.i('new empty windowfilter') return o
-  elseif fn==false then o.log.i('new windowfilter, reject all') o:setDefaultFilter(false)  return o
+  elseif fn==false then o.log.i('new windowfilter, reject all') return o:setDefaultFilter(false)
   else error('fn must be nil, a boolean, a string or table of strings, or a function',2) end
 end
 
