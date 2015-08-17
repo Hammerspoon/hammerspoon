@@ -22,6 +22,7 @@
 ---    * `"WxH"` or `"W*H"` creates a size
 ---    * `"X Y WxH"` or `"X,Y/W*H"` (or variations thereof) creates a rect given its width and height from a corner
 ---    * `"X1 Y1 > X2 Y2"` or `"X1,Y1,X2,Y2"` (or variations thereof) creates a rect given two opposite corners
+---  * a point and a size `"X Y","WxH"` or `{x=X,y=Y},{w=W,h=H}` create a rect
 ---
 --- You can use any of these anywhere an hs.geometry object is expected in Hammerspoon; the constructor will be called for you.
 
@@ -30,12 +31,23 @@
 
 --TODO allow segments? (like rects, but no norm())
 
-local rawget,rawset,type,pairs,tonumber,sqrt=rawget,rawset,type,pairs,tonumber,math.sqrt
+local rawget,rawset,type,pairs,ipairs,tonumber,sqrt=rawget,rawset,type,pairs,ipairs,tonumber,math.sqrt
 local min,max,atan,smatch,sformat=math.min,math.max,math.atan,string.match,string.format
 local getmetatable,setmetatable=getmetatable,setmetatable
 
 local geometry = {}--require "hs.geometry.internal"
 
+local function gettype(t)
+  if t._x and t._y then
+    if t._w and t._h then return 'rect' else return 'point' end
+  elseif t._w and t._h then return 'size' end
+end
+local function norm(t)
+  if t._x and t._w and t._w<0 then t._x=t._x+t._w t._w=-t._w end
+  if t._y and t._h and t._h<0 then t._y=t._y+t._h t._h=-t._h end
+end
+
+-- constructor stuff
 local ws=' *'
 local sepout=ws..'([ ,>/])'..ws
 local sepin=ws..'([ x*,])'..ws
@@ -66,30 +78,30 @@ local function parse(s)
   return x,y,w,h
 end
 
-local function gettype(t)
-  if t._x and t._y then
-    if t._w and t._h then return 'rect' else return 'point' end
-  elseif t._w and t._h then return 'size' end
+local function parsearg(a)
+  if type(a)=='string' then return parse(a)
+  elseif type(a)=='table' then
+    local x,y,w,h
+    if a[1] then x,y,w,h=a[1],a[2],a[3],a[4]
+    else
+      x,y=a.x or a.x1,a.y or a.y1
+      w,h=a.w or (a.x2 and a.x2-(x or 0)),a.h or (a.y2 and a.y2-(y or 0))
+    end
+    return x,y,w,h
+  end
 end
-local function norm(t)
-  if t._x and t._w and t._w<0 then t._x=t._x+t._w t._w=-t._w end
-  if t._y and t._h and t._h<0 then t._y=t._y+t._h t._h=-t._h end
+local function maketable(t,x,y,w,h)
+  local nt={_x=t._x or x,_y=t._y or y,_w=t._w or w,_h=t._h or h}
+  for k,v in pairs(nt) do if type(v)~='number' then nt[k]=nil end end
+  return nt
 end
 
 local function new(x,y,w,h)
   if getmetatable(x)==geometry then return x end -- disable copy-on-new
-  if type(x)=='string' then
-    x,y,w,h=parse(x)
-  elseif type(x)=='table' then
-    if x[1] then x,y,w,h=x[1],x[2],x[3],x[4]
-    else
-      local t=x
-      x,y=t.x or t.x1,t.y or t.y1
-      w,h=t.w or (t.x2 and t.x2-x),t.h or (t.y2 and t.y2-y)
-    end
+  local t=maketable({},x,y,w,h)
+  for _,a in ipairs{x,y--[[,w,h--]]} do
+    if a~=nil and (not t._x or not t._y or not t._w or not t._h) then t=maketable(t,parsearg(a)) end
   end
-  local t={_x=x,_y=y,_w=w,_h=h}
-  for k,v in pairs(t) do if type(v)~='number' then t[k]=nil end end
   norm(t)
   if not gettype(t) then error('Cannot create geometry object, wrong arguments',2) end
   return setmetatable(t,geometry)
