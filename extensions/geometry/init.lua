@@ -43,7 +43,7 @@ local number='(%-?%d*%.?%d*)'
 local function parse(s)
   local x,y,w,h
   local sept,n3,sep2,n4
-  local n1,sep1,n2,i = smatch(s,number..sepin..number..'()')
+  local n1,sep1,n2,i = smatch(s,ws..number..sepin..number..'()')
   if i then sept,n3,sep2,n4 = smatch(s,sepout..number..sepin..number,i) end
   if sep1=='x' or sep1=='*' then --it's a size
     w=tonumber(n1) h=tonumber(n2)
@@ -85,7 +85,7 @@ local function new(x,y,w,h)
     else
       local t=x
       x,y=t.x or t.x1,t.y or t.y1
-      w,h=t.w or t.x2-x,t.h or t.y2-y
+      w,h=t.w or (t.x2 and t.x2-x),t.h or (t.y2 and t.y2-y)
     end
   end
   local t={_x=x,_y=y,_w=w,_h=h}
