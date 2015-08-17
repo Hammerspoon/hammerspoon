@@ -346,7 +346,7 @@ function geometry.vector(t,...)
   t=new(t) local t2=new(...)
   if gettype(t)=='rect' then t=geometry.getcenter(t) end
   if gettype(t2)=='rect' then t2=geometry.getcenter(t2) end
-  return new((t.x or 0)-(t2.x or 0),(t.y or 0)-(t2.y or 0))
+  return new((t2.x or 0)-(t.x or 0),(t2.y or 0)-(t.y or 0))
 end
 
 --- hs.geometry:angle() -> number
