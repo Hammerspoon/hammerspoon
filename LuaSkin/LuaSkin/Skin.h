@@ -150,8 +150,9 @@
  
  @param refTable - An integer reference to a table (e.h. the result of a previous luaRef on a table object)
  @param ref - An integer reference for an object that should be pushed onto the stack
+ @return An integer containing the Lua type of the object pushed onto the stack
  */
-- (void)pushLuaRef:(int)refTable ref:(int)ref;
+- (int)pushLuaRef:(int)refTable ref:(int)ref;
 
 //TODO: Add methods for enforcing Lua function arguments
 //TODO: Add methods for converting Lua<->objc types

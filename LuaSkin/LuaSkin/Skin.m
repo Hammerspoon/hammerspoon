@@ -167,7 +167,7 @@
     return LUA_NOREF;
 }
 
-- (void)pushLuaRef:(int)refTable ref:(int)ref {
+- (int)pushLuaRef:(int)refTable ref:(int)ref {
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL refTable", nil);
     NSAssert((ref != LUA_NOREF && ref != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL ref", nil);
 
@@ -175,12 +175,12 @@
     lua_rawgeti(_L, LUA_REGISTRYINDEX, refTable);
 
     // Push ref onto the stack
-    lua_rawgeti(_L, -1, ref);
+    int type = lua_rawgeti(_L, -1, ref);
 
     // Remove refTable from the stack
     lua_remove(_L, -2);
 
-    return;
+    return type;
 }
 
 @end
