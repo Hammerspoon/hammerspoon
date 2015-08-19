@@ -17,7 +17,6 @@ screen.watcher = require "hs.screen.watcher"
 
 local type,pairs,ipairs,min,max,cos,atan=type,pairs,ipairs,math.min,math.max,math.cos,math.atan
 local tinsert,tremove,tsort,tunpack=table.insert,table.remove,table.sort,table.unpack
-local sfind=string.find
 local getmetatable,pcall=getmetatable,pcall
 
 local screenObject = hs.getObjectMetatable("hs.screen")
@@ -44,17 +43,20 @@ end
 --- Returns:
 ---  * one or more hs.screen objects that match the supplied search criterion, or `nil` if none found
 ---
+--- Notes:
+---  * for convenience you call call this as `hs.screen(hint)`
+---
 --- Usage:
 --- -- by id
---- hs.screen.find(724562417):name() --> Color LCD
+--- hs.screen(724562417):name() --> Color LCD
 --- -- by name
---- hs.screen.find'Dell':name() --> DELL U2414M
+--- hs.screen'Dell':name() --> DELL U2414M
 --- -- by position
---- hs.screen.find(0,0):name() --> PHL BDM4065 - same as hs.screen.primaryScreen()
---- hs.screen.find{x=-1,y=0}:name() --> DELL U2414M - screen to the immediate left of the primary screen
+--- hs.screen(0,0):name() --> PHL BDM4065 - same as hs.screen.primaryScreen()
+--- hs.screen{x=-1,y=0}:name() --> DELL U2414M - screen to the immediate left of the primary screen
 --- -- by frame
---- hs.screen.find(-1200,240,1200,1920):name() --> DELL U2414M - exact frame
---- hs.screen.find'3840x2160':name() --> PHL BDM4065 - resolution
+--- hs.screen(-1200,240,1200,1920):name() --> DELL U2414M - exact frame
+--- hs.screen'3840x2160':name() --> PHL BDM4065 - resolution
 function screen.find(p,...)
   if p==nil then return end
   local typ=type(p)
@@ -63,7 +65,7 @@ function screen.find(p,...)
     local screens=screen.allScreens()
     if typ=='number' and p>20 then for _,s in ipairs(screens) do if p==s:id() then return s end return end -- not found
     elseif typ=='string' then
-      local f=moses.filter(screens,function(_,s)return sfind(s:name():lower(),p:lower())end)
+      local f=moses.filter(screens,function(_,s)return s:name():lower():find(p:lower())end)
       if #f>0 then return tunpack(f) end
     elseif typ~='table' then error('hint can be a number, string or table',2) end
     local ok
@@ -312,4 +314,5 @@ function screenObject:shotAsJPG(filePath, screenRect,...)
   image:saveToFile(filePath, "JPG")
 end
 
+getmetatable(screen).__call=function(_,...)return screen.find(...)end
 return screen
