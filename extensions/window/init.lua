@@ -8,7 +8,7 @@
 local uielement = hs.uielement  -- Make sure parent module loads
 local window = require "hs.window.internal"
 local application = require "hs.application.internal"
-local fnutils = require "hs.fnutils"
+local moses = require "hs.moses"
 local geometry = require "hs.geometry"
 local screen = require "hs.screen"
 local timer = require "hs.timer"
@@ -53,7 +53,12 @@ end
 --- Returns:
 ---  * A list containing `hs.window` objects representing all windows that are visible as per `hs.window:isVisible()`
 function window.visibleWindows()
-  return fnutils.filter(window:allWindows(), window.isVisible)
+  --  return fnutils.filter(window.allWindows(), window.isVisible) -- nope
+  local r={}
+  for _,app in ipairs(application.runningApplications()) do
+    if app:kind()>0 and not app:isHidden() then for _,w in ipairs(app:visibleWindows()) do r[#r+1]=w end end -- speedup by excluding hidden apps
+  end
+  return r
 end
 
 --- hs.window.orderedWindows() -> list of hs.window objects
@@ -66,19 +71,16 @@ end
 --- Returns:
 ---  * A list of `hs.window` objects representing all visible windows, ordered from front to back
 function window.orderedWindows()
-  local orderedwins = {}
-  local orderedwinids = window._orderedwinids()
-  local windows = window.visibleWindows()
-
-  for _, orderedwinid in pairs(orderedwinids) do
-    for _, win in pairs(windows) do
-      if orderedwinid == win:id() then
-        tinsert(orderedwins, win)
+  local r,wins,ids = {},window.visibleWindows(),window._orderedwinids()
+  for _,id in ipairs(ids) do
+    for _,w in ipairs(wins) do
+      if id == w:id() then
+        tinsert(r, w)
         break
       end
     end
   end
-  return orderedwins
+  return r
 end
 
 --- hs.window.windowForID(id) -> hs.window object
@@ -91,7 +93,7 @@ end
 --- Returns:
 ---  * An `hs.window` object, or nil if the window can't be found
 function window.windowForID(id)
-  return fnutils.find(window.allWindows(), function(win) return win:id() == id end)
+  return moses.find(window.allWindows(), function(win) return win:id() == id end)
 end
 
 --- hs.window:isVisible() -> bool
@@ -257,7 +259,7 @@ end
 --- Returns:
 ---  * A table of `hs.window` objects representing the other windows that are on the same screen as this one
 function window:otherWindowsSameScreen()
-  return fnutils.filter(window.visibleWindows(), function(win) return self ~= win and self:screen() == win:screen() end)
+  return moses.filter(window.visibleWindows(), function(_,win) return self ~= win and self:screen() == win:screen() end)
 end
 
 --- hs.window:otherWindowsAllScreens() -> win[]
@@ -270,7 +272,7 @@ end
 --- Returns:
 ---  * A table containing `hs.window` objects representing all windows other than this one
 function window:otherWindowsAllScreens()
-  return fnutils.filter(window.visibleWindows(), function(win) return self ~= win end)
+  return moses.filter(window.visibleWindows(), function(_,win) return self ~= win end)
 end
 
 
@@ -371,11 +373,11 @@ local function windowsInDirection(srcwin, numrotations, candidateWindows, frontm
   local p1 = rectMidPoint(srcwin:frame())
   local zwins = candidateWindows or window.orderedWindows()
 
-  local zsrc=fnutils.indexOf(zwins,srcwin) or -1
+  local zsrc=moses.indexOf(zwins,srcwin) or -1
   -- fnutils.filter uses pairs
-  local otherwindows = fnutils.filter(zwins, function(candidate)
+  local otherwindows = moses.filter(zwins, function(_,candidate)
     return window.isVisible(candidate) --[[and window.isStandard(candidate)--]] and candidate ~= srcwin
-      and (not frontmost or fnutils.indexOf(zwins,candidate)<zsrc or not isFullyBehind(srcwin,candidate))
+      and (not frontmost or moses.indexOf(zwins,candidate)<zsrc or not isFullyBehind(srcwin,candidate))
   end)
   local wins={}
   for z, win in ipairs(otherwindows) do
@@ -410,7 +412,7 @@ local function windowsInDirection(srcwin, numrotations, candidateWindows, frontm
       i=i+1
     end
   end
-  return fnutils.map(wins,function(x)return x.win end)
+  return moses.map(wins,function(_,x)return x.win end)
 end
 
 --TODO zorder direct manipulation (e.g. sendtoback)
