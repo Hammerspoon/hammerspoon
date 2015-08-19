@@ -13,7 +13,7 @@ local geometry = require "hs.geometry"
 local screen = require "hs.screen"
 local timer = require "hs.timer"
 local pairs,ipairs,next,min,max,type = pairs,ipairs,next,math.min,math.max,type
-local tinsert,tsort = table.insert,table.sort
+local tinsert,tsort,tunpack = table.insert,table.sort,table.unpack
 local intersection,hypot,rectMidPoint,rotateCCW = geometry.intersectionRect,geometry.hypot,geometry.rectMidPoint,geometry.rotateCCW
 local atan,cos,abs = math.atan,math.cos,math.abs
 --- hs.window.animationDuration (number)
@@ -83,18 +83,39 @@ function window.orderedWindows()
   return r
 end
 
---- hs.window.windowForID(id) -> hs.window object
---- Constructor
---- Returns the window for a given id
+--- hs.window.find(hint[, exact]) -> hs.window object(s)
+--- Function
+--- Finds windows
 ---
 --- Parameters:
----  * id - A window ID as per `hs.window:id()`
+---  * hint - search criterion for the desired window(s); it can be:
+---    - an id number as per `hs.window:id()`
+---    - a string pattern that matches (via `string.find`) the window title as per `hs.window:title()` (for convenience, the matching will be done on lowercased strings)
+---  * exact - (optional) if `true`, `hint` is the exact title of the window to find; will use `==` instead of `string.find` (and the original case)
 ---
 --- Returns:
----  * An `hs.window` object, or nil if the window can't be found
-function window.windowForID(id)
-  return moses.find(window.allWindows(), function(win) return win:id() == id end)
+---  * one or more hs.application objects that match the supplied search criterion, or `nil` if none found
+---
+--- Notes:
+---  * for convenience you can call this as `hs.window(hint)`
+---  * for more sophisticated use cases and/or for better performance if you call this a lot, consider using `hs.window.filter`
+---
+--- Usage:
+--- -- by id
+--- hs.window(8812):title() --> Hammerspoon Console
+--- -- by title
+--- hs.window'bash':application():name() --> Terminal
+function window.find(hint,exact)
+  if hint==nil then return end
+  local typ=type(hint)
+  local wins=window.allWindows()
+  if typ=='number' then return wins[moses.detect(wins,function(w)return w:id()==hint end)]
+  elseif typ~='string' then error('hint must be a number or string',2) end
+  local r=moses.filter(wins,exact and function(_,w)return w:title()==hint end or function(_,w)return w:title():lower():find(hint:lower())end)
+  if #r>0 then return tunpack(r) end
 end
+
+window.windowForID=window.find
 
 --- hs.window:isVisible() -> bool
 --- Method
@@ -754,4 +775,5 @@ package.loaded[...]=window
 window.filter = require "hs.window.filter"
 --window.layout = require "hs.window.layout"
 
+getmetatable(window).__call=function(_,...)return window.find(...)end
 return window
