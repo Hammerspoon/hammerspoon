@@ -38,7 +38,7 @@ function window.allWindows()
   --  return fnutils.mapCat(application.runningApplications(), application.allWindows) -- nope
   local r={}
   for _,app in ipairs(application.runningApplications()) do
-    if app:kind()>0 then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end -- major speedup by excluding non-gui apps
+    if app:kind()>0 then for _,w in ipairs(app:allWindows()) do tinsert(r,w) end end -- major speedup by excluding non-gui apps
   end
   return r
 end
@@ -56,7 +56,7 @@ function window.visibleWindows()
   --  return fnutils.filter(window.allWindows(), window.isVisible) -- nope
   local r={}
   for _,app in ipairs(application.runningApplications()) do
-    if app:kind()>0 and not app:isHidden() then for _,w in ipairs(app:visibleWindows()) do r[#r+1]=w end end -- speedup by excluding hidden apps
+    if app:kind()>0 and not app:isHidden() then for _,w in ipairs(app:visibleWindows()) do tinsert(r,w) end end -- speedup by excluding hidden apps
   end
   return r
 end
