@@ -1259,7 +1259,7 @@ function wf:getWindows()
   return t
 end
 
---- hs.window.filter:notify(fn) -> hs.window.filter
+--- hs.window.filter:notify(fn[, fnEmpty][, immediate]) -> hs.window.filter
 --- Method
 --- Notify a callback whenever the list of allowed windows change
 ---
@@ -1267,18 +1267,22 @@ end
 ---  * fn - a function that should accept a list of windows (as per `hs.window.filter:getWindows()`) as its single parameter; it will be called when:
 ---    * an allowed window is created or destroyed, and therefore added or removed from the list of allowed windows
 ---    * a previously allowed window is now filtered or vice versa (e.g. in consequence of a title change)
----  * immediate - if `true`, call fn immediately
+---  * fnEmpty - (optional) if provided, when this windowfilter becomes empty (i.e. `:getWindows()` returns
+---    an empty list) call this function (with no arguments) instead of `fn`, otherwise, always call `fn`
+---  * immediate - (optional) if `true`, call `fn` (or `fnEmpty`) immediately
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
----  * If `fn` is nil or omitted, notifications for this windowfilter will stop.
-function wf:notify(fn,immediate)
+---  * If `fn` is nil, notifications for this windowfilter will stop.
+function wf:notify(fn,fnEmpty,immediate)
   if fn~=nil and type(fn)~='function' then error('fn must be a function or nil',2) end
-  self.notifyfn = fn
+  if fnEmpty and type(fnEmpty)~='function' then fnEmpty=nil immediate=true end
+  if fnEmpty~=nil and type(fnEmpty)~='function' then error('fnEmpty must be a function or nil',2) end
+  self.notifyfn = fnEmpty and function(wins)if #wins>0 then return fn(wins) else return fnEmpty()end end or fn
   if fn then start(self) elseif not next(self.events) then self:pause() end
-  if fn and immediate then fn(self:getWindows()) end
+  if fn and immediate then self.notifyfn(self:getWindows()) end
   return self
 end
 
