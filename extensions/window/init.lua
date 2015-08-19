@@ -10,7 +10,7 @@ local window = require "hs.window.internal"
 local application = require "hs.application.internal"
 local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
-local hs_screen = require "hs.screen"
+local screen = require "hs.screen"
 local timer = require "hs.timer"
 local pairs,ipairs,next,min,max,type = pairs,ipairs,next,math.min,math.max,type
 local tinsert,tsort = table.insert,table.sort
@@ -35,7 +35,12 @@ window.animationDuration = 0.2
 --- Returns:
 ---  * A table of `hs.window` objects representing all open windows
 function window.allWindows()
-  return fnutils.mapCat(application.runningApplications(), application.allWindows)
+  --  return fnutils.mapCat(application.runningApplications(), application.allWindows) -- nope
+  local r={}
+  for _,app in ipairs(application.runningApplications()) do
+    if app:kind()>0 then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end -- major speedup by excluding non-gui apps
+  end
+  return r
 end
 
 --- hs.window.windowForID(id) -> win or nil
@@ -332,14 +337,14 @@ function window:screen()
   local lastvolume = 0
   local lastscreen = nil
 
-  for _, screen in pairs(hs_screen.allScreens()) do
-    local screenframe = screen:fullFrame()
+  for _, s in pairs(screen.allScreens()) do
+    local screenframe = s:fullFrame()
     local r = intersection(windowframe, screenframe)
     local volume = r.w * r.h
 
     if volume > lastvolume then
       lastvolume = volume
-      lastscreen = screen
+      lastscreen = s
     end
   end
 
