@@ -120,7 +120,7 @@ function windowfilter._showCandidates()
   for _,app in ipairs(running) do
     local appname = app:title()
     if appname and windowfilter.isGuiApp(appname) and #app:allWindows()==0
-      and not require'hs.fnutils'.contains(SKIP_APPS_TRANSIENT_WINDOWS,appname)
+      and not require'hs.moses'.contains(SKIP_APPS_TRANSIENT_WINDOWS,appname)
       and (not apps[appname] or not next(apps[appname].windows)) then
       t[#t+1]=appname
     end
@@ -1213,6 +1213,19 @@ function wf:keepActive()
   start(self) return self
 end
 
+-- make sure startGlobalWatcher is running during a batch operation
+local batches={}
+function windowfilter.startBatchOperation()
+  local id=require'hs.host'.uuid()
+  batches[id]=true
+  startGlobalWatcher()
+  return id
+end
+function windowfilter.stopBatchOperation(id)
+  batches[id]=nil
+  if not next(batches) then stopGlobalWatcher() end
+end
+
 
 local function getWindowObjects(wf)
   local t={}
@@ -1422,7 +1435,8 @@ local function makeDefault()
     for _,appname in ipairs(SKIP_APPS_TRANSIENT_WINDOWS) do
       defaultwf:rejectApp(appname)
     end
-    defaultwf:setAppFilter('Hammerspoon',{'Preferences','Console'})
+    --    defaultwf:setAppFilter('Hammerspoon',{'Preferences','Console'})
+    defaultwf:rejectApp'Hammerspoon'
     defaultwf:setDefaultFilter(nil,nil,nil,nil,true)
     defaultwf.log.i('default windowfilter instantiated')
   end
