@@ -25,15 +25,15 @@ local atan,cos,abs = math.atan,math.cos,math.abs
 --- hs.window.animationDuration = 3 -- if you have time on your hands
 window.animationDuration = 0.2
 
---- hs.window.allWindows() -> win[]
---- Function
+--- hs.window.allWindows() -> list of hs.window objects
+--- Constructor
 --- Returns all windows
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
----  * A table of `hs.window` objects representing all open windows
+---  * A list of `hs.window` objects representing all open windows
 function window.allWindows()
   --  return fnutils.mapCat(application.runningApplications(), application.allWindows) -- nope
   local r={}
@@ -43,12 +43,50 @@ function window.allWindows()
   return r
 end
 
---- hs.window.windowForID(id) -> win or nil
---- Function
+--- hs.window.visibleWindows() -> list of hs.window objects
+--- Constructor
+--- Gets all visible windows
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A list containing `hs.window` objects representing all windows that are visible as per `hs.window:isVisible()`
+function window.visibleWindows()
+  return fnutils.filter(window:allWindows(), window.isVisible)
+end
+
+--- hs.window.orderedWindows() -> list of hs.window objects
+--- Constructor
+--- Returns all visible windows, ordered from front to back
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all visible windows, ordered from front to back
+function window.orderedWindows()
+  local orderedwins = {}
+  local orderedwinids = window._orderedwinids()
+  local windows = window.visibleWindows()
+
+  for _, orderedwinid in pairs(orderedwinids) do
+    for _, win in pairs(windows) do
+      if orderedwinid == win:id() then
+        tinsert(orderedwins, win)
+        break
+      end
+    end
+  end
+  return orderedwins
+end
+
+--- hs.window.windowForID(id) -> hs.window object
+--- Constructor
 --- Returns the window for a given id
 ---
 --- Parameters:
----  * id - A window ID (see `hs.window:id()`)
+---  * id - A window ID as per `hs.window:id()`
 ---
 --- Returns:
 ---  * An `hs.window` object, or nil if the window can't be found
@@ -235,6 +273,8 @@ function window:otherWindowsAllScreens()
   return fnutils.filter(window.visibleWindows(), function(win) return self ~= win end)
 end
 
+
+
 --- hs.window:focus() -> window
 --- Method
 --- Focuses the window
@@ -248,44 +288,6 @@ function window:focus()
   self:becomeMain()
   self:application():_bringtofront()
   return self
-end
-
---- hs.window.visibleWindows() -> win[]
---- Function
---- Gets all visible windows
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table containing `hs.window` objects representing all windows that are visible (see `hs.window:isVisible()` for information about what constitutes a visible window)
-function window.visibleWindows()
-  return fnutils.filter(window:allWindows(), window.isVisible)
-end
-
---- hs.window.orderedWindows() -> win[]
---- Function
---- Returns all visible windows, ordered from front to back
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table of `hs.window` objects representing all visible windows, ordered from front to back
-function window.orderedWindows()
-  local orderedwins = {}
-  local orderedwinids = window._orderedwinids()
-  local windows = window.visibleWindows()
-
-  for _, orderedwinid in pairs(orderedwinids) do
-    for _, win in pairs(windows) do
-      if orderedwinid == win:id() then
-        tinsert(orderedwins, win)
-        break
-      end
-    end
-  end
-  return orderedwins
 end
 
 --- hs.window:maximize([duration]) -> window
