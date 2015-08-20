@@ -11,12 +11,12 @@ local fnutils = require("hs.fnutils")
 
 -- Public interface ------------------------------------------------------
 
---- hs.audiodevice.current() -> table
+--- hs.audiodevice.current([input]) -> table
 --- Function
---- Fetch various metadata about the current audio output device
+--- Fetch various metadata about the current default audio devices
 ---
 --- Parameters:
----  * None
+---  * output - An optional boolean, true to fetch information about the default input device, false for output device. Defaults to false
 ---
 --- Returns:
 ---  * A table with the following contents:
@@ -29,19 +29,26 @@ local fnutils = require("hs.fnutils")
 ---         device = defaultOutputDevice(),
 ---     }
 --- ```
-module.current = function()
+module.current = function(input)
+
+    if input then
+        func = module.defaultInputDevice
+    else
+        func = module.defaultOutputDevice
+    end
+
     return {
-        name = module.defaultOutputDevice():name(),
-        uid = module.defaultOutputDevice():uid(),
-        muted = module.defaultOutputDevice():muted(),
-        volume = module.defaultOutputDevice():volume(),
-        device = module.defaultOutputDevice(),
+        name = func():name(),
+        uid = func():uid(),
+        muted = func():muted(),
+        volume = func():volume(),
+        device = func(),
     }
 end
 
 --- hs.audiodevice.findOutputByName(name) -> device or nil
 --- Function
---- Find audio output devices by name
+--- Find an audio output device by name
 ---
 --- Parameters:
 ---  * name - A string containing the name of an audio output device to search for
@@ -50,6 +57,19 @@ end
 ---  * An hs.audiodevice object or nil if the device could not be found
 module.findOutputByName = function(name)
     return fnutils.find(module.allOutputDevices(), function(dev) return (dev:name() == name) end)
+end
+
+--- hs.audiodevice.findInputByName(name) -> device or nil
+--- Function
+--- Find an audio input device by name
+---
+--- Parameters:
+---  * name - A string containing the name of an audio input device to search for
+---
+--- Returns:
+---  * An hs.audiodevice object or nil if the device could not be found
+module.findInputByName = function(name)
+return fnutils.find(module.allInputDevices(), function(dev) return (dev:name() == name) end)
 end
 
 -- Return Module Object --------------------------------------------------
