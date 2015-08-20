@@ -745,17 +745,21 @@ function window:moveOneScreenSouth(duration)
   return self
 end
 
---- hs.window:ensureIsInScreenBounds([duration]) -> window
+--- hs.window:ensureIsInScreenBounds() -> window
 --- Method
 --- Movies and resizes the window to ensure it is inside the screen
 ---
 --- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * None
 ---
 --- Returns:
 ---  * The `hs.window` object
+---
+--- Notes:
+---  * Calling this method will immediately fast-forward to the end of any ongoing animation on the window
 function window:ensureIsInScreenBounds(duration)
-  local frame = self:frame()
+  stopAnimation(self,true)
+  local frame = self:_frame()
   local screenFrame = self:screen():frame()
   if frame.x < screenFrame.x then frame.x = screenFrame.x end
   if frame.y < screenFrame.y then frame.y = screenFrame.y end
@@ -767,7 +771,7 @@ function window:ensureIsInScreenBounds(duration)
   if frame.y + frame.h > screenFrame.y + screenFrame.h then
     frame.y = (screenFrame.y + screenFrame.h) - frame.h
   end
-  if frame ~= self:frame() then self:setFrame(frame, duration) end
+  self:_setFrame(frame)
   return self
 end
 
