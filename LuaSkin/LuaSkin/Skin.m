@@ -14,6 +14,8 @@
 
 @synthesize L = _L;
 
+NSMutableDictionary *registeredNSHelperFunctions ;
+
 #pragma mark - Class lifecycle
 
 + (id)shared {
@@ -21,6 +23,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedLuaSkin = [[self alloc] init];
+        registeredNSHelperFunctions = [[NSMutableDictionary alloc] init] ;
     });
     if (![NSThread isMainThread]) {
         NSLog(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
@@ -125,7 +128,7 @@
     lua_pushvalue(_L, -1);
     lua_setfield(_L, -2, "__index");
     lua_setfield(_L, LUA_REGISTRYINDEX, libraryName);
-    
+
     int moduleRefTable = [self registerLibrary:functions metaFunctions:metaFunctions];
 
     return moduleRefTable;
@@ -181,6 +184,171 @@
     lua_remove(_L, -2);
 
     return type;
+}
+
+#pragma mark - Helper functions for [- pushNSObject:object]
+
+- (int)pushNSObject:(id)obj {
+    if (obj) { // you'd be surprised how often nil shows up when [NSNull null] is proper...
+        // check for registered helpers
+
+        for (id key in registeredNSHelperFunctions) {
+            if ([obj isKindOfClass: NSClassFromString(key)]) {
+                pushNSHelperFunction theFunc = (pushNSHelperFunction)[[registeredNSHelperFunctions objectForKey:key] pointerValue] ;
+                return theFunc(_L, obj) ;
+            }
+        }
+
+        // Check for built-in classes
+
+        if ([obj isKindOfClass: [NSNull class]])       { return [self pushNSNull:obj] ; }
+        if ([obj isKindOfClass: [NSNumber class]])     { return [self pushNSNumber:obj] ; }
+        if ([obj isKindOfClass: [NSString class]])     { return [self pushNSString:obj] ; }
+        if ([obj isKindOfClass: [NSData class]])       { return [self pushNSData:obj] ; }
+        if ([obj isKindOfClass: [NSDate class]])       { return [self pushNSDate:obj] ; }
+        if ([obj isKindOfClass: [NSArray class]])      { return [self pushNSArray:obj] ; }
+        if ([obj isKindOfClass: [NSSet class]])        { return [self pushNSSet:obj] ; }
+        if ([obj isKindOfClass: [NSDictionary class]]) { return [self pushNSDictionary:obj] ; }
+        if ([obj isKindOfClass: [NSObject class]])     { return [self pushNSUnknown:obj] ; }
+
+        // shouldn't happen -- the last check, NSObject, should catch everything not yet caught.
+
+        NSLog(@"Uncaught NSObject type for '%@'", obj) ;
+//         printToConsole(_L, (char *)[[NSString stringWithFormat:@"Uncaught NSObject type for '%@'", obj] UTF8String]) ;
+        return [self pushNSUnknown:obj] ;
+
+    } else {
+        lua_pushnil(_L) ;
+        return 1 ;
+    }
+}
+
+// - (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelperFunction*)fnList {
+// //         for( ns2luaHelpers *pos = nsobj_tolua_helpers ; pos->name != NULL ; pos++) {
+// //             if ([obj isKindOfClass: NSClassFromString([NSString stringWithUTF8String:pos->name])]) {
+// //                 found = YES ;
+// //                 result = pos->func(_L, obj) ;
+// //                 break ;
+// //             }
+// //         }
+//     return [self pushNSObject:obj] ;
+// }
+//
+- (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
+    [registeredNSHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
+                                    forKey:[NSString stringWithUTF8String:className]] ;
+}
+
+- (void)unregisterPushNSHelperForClass:(char*)className {
+    [registeredNSHelperFunctions removeObjectForKey:[NSString stringWithUTF8String:className]] ;
+}
+
+// Helper functions for [- pushNSObject:object]
+// Can also be called directly if type of object is known
+
+- (int)pushNSNull:(__unused id)obj {
+    lua_pushnil(_L);
+    return 1 ;
+}
+
+- (int)pushNSNumber:(id)obj {
+    NSNumber    *number = obj ;
+    if (number == (id)kCFBooleanTrue)
+        lua_pushboolean(_L, YES);
+    else if (number == (id)kCFBooleanFalse)
+        lua_pushboolean(_L, NO);
+    else {
+        switch([number objCType][0]) {
+            case 'c': lua_pushinteger(_L, [number charValue]) ; break ;
+            case 'C': lua_pushinteger(_L, [number unsignedCharValue]) ; break ;
+
+            case 'i': lua_pushinteger(_L, [number intValue]) ; break ;
+            case 'I': lua_pushinteger(_L, [number unsignedIntValue]) ; break ;
+
+            case 's': lua_pushinteger(_L, [number shortValue]) ; break ;
+            case 'S': lua_pushinteger(_L, [number unsignedShortValue]) ; break ;
+
+            case 'l': lua_pushinteger(_L, [number longValue]) ; break ;
+            case 'L': lua_pushinteger(_L, (long long)[number unsignedLongValue]) ; break ;
+
+            case 'q': lua_pushinteger(_L, [number longLongValue]) ; break ;
+
+            // Lua only does signed long long, not unsigned, so we keep it an integer as
+            // far as we can; after that, sorry -- lua has to treat it as a number (real)
+            // or it will wrap and we lose the whole point of being unsigned.
+            case 'Q': if ([number unsignedLongLongValue] < 0x8000000000000000)
+                          lua_pushinteger(_L, (long long)[number unsignedLongLongValue]) ;
+                      else
+                          lua_pushnumber(_L, [number unsignedLongLongValue]) ;
+                      break ;
+
+            case 'f': lua_pushnumber(_L,  [number floatValue]) ; break ;
+            case 'd': lua_pushnumber(_L,  [number doubleValue]) ; break ;
+
+            default:
+                NSLog(@"Unrecognized numerical type '%s' for '%@'", [number objCType], number) ;
+//                 printToConsole(_L, (char *)[[NSString stringWithFormat:@"Unrecognized numerical type '%s' for '%@'", [number objCType], number] UTF8String]) ;
+                lua_pushnumber(_L, [number doubleValue]) ;
+                break ;
+        }
+    }
+    return 1 ;
+}
+
+- (int)pushNSString:(id)obj {
+    NSString *string = obj;
+    lua_pushstring(_L, [string UTF8String]);
+    return 1 ;
+}
+
+- (int)pushNSData:(id)obj {
+    NSData *data = obj;
+    lua_pushlstring(_L, [data bytes], [data length]) ;
+    return 1 ;
+}
+
+- (int)pushNSDate:(id)obj {
+    NSDate *date = obj ;
+    lua_pushinteger(_L, lround([date timeIntervalSince1970]));
+    return 1 ;
+}
+
+- (int)pushNSArray:(id)obj {
+    NSArray* list = obj;
+    lua_newtable(_L);
+    for (id item in list) {
+        [self pushNSObject:item];
+        lua_rawseti(_L, -2, luaL_len(_L, -2) + 1) ;
+    }
+    return 1 ;
+}
+
+- (int)pushNSSet:(id)obj {
+    NSSet* list = obj;
+    lua_newtable(_L);
+    for (id item in list) {
+        [self pushNSObject:item];
+        lua_rawseti(_L, -2, luaL_len(_L, -2) + 1) ;
+    }
+    return 1 ;
+}
+
+- (int)pushNSDictionary:(id)obj {
+    NSArray *keys = [obj allKeys];
+    NSArray *values = [obj allValues];
+    lua_newtable(_L);
+    for (unsigned long i = 0; i < [keys count]; i++) {
+//        NSLog(@"%@", [keys objectAtIndex:i]) ;
+        [self pushNSObject:[keys objectAtIndex:i]];
+        [self pushNSObject:[values objectAtIndex:i]];
+        lua_settable(_L, -3);
+    }
+    return 1 ;
+}
+
+- (int)pushNSUnknown:(id)obj {
+    lua_pushstring(_L, [[NSString stringWithFormat:@"NSObject: %@", obj] UTF8String]) ;
+    return 1 ;
 }
 
 @end
