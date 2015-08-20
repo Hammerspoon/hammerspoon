@@ -4,10 +4,12 @@
 
 local uielement = hs.uielement  -- Make sure parent module loads
 local application = require "hs.application.internal"
-local fnutils = require "hs.fnutils"
-local window = require "hs.window"
-
 application.watcher = require "hs.application.watcher"
+local window = require "hs.window"
+local moses = require "hs.moses"
+
+local type=type
+local tunpack,tpack=table.unpack,table.pack
 
 --- hs.application:visibleWindows() -> win[]
 --- Method
@@ -19,7 +21,7 @@ application.watcher = require "hs.application.watcher"
 --- Returns:
 ---  * A table containing zero or more hs.window objects
 function application:visibleWindows()
-  return fnutils.filter(self:allWindows(), window.isVisible)
+  return moses.filter(self:allWindows(), window.isVisible)
 end
 
 --- hs.application:activate([allWindows]) -> bool
@@ -31,14 +33,8 @@ end
 ---
 --- Returns:
 ---  * A boolean value indicating whether or not the application could be activated
-function application:activate(_allWindows)
-  local allWindows = nil
-  if not _allWindows then
-      allWindows = false
-  else
-      allWindows = _allWindows
-  end
-
+function application:activate(allWindows)
+  allWindows=allWindows and true or false
   if self:isUnresponsive() then return false end
   local win = self:_focusedwindow()
   if win then
@@ -48,4 +44,56 @@ function application:activate(_allWindows)
   end
 end
 
+--- hs.application:name()
+--- Method
+--- Alias for `hs.application:title()`
+application.name=application.title
+
+--- hs.application.find(hint[, exact]) -> hs.application object(s)
+--- Function
+--- Finds running applications
+---
+--- Parameters:
+---  * hint - search criterion for the desired application(s); it can be:
+---    - a pid number as per `hs.application:pid()`
+---    - a bundle ID string as per `hs.application:bundleID()`
+---    - a string pattern that matches (via `string.find`) the application name as per `hs.application:name()` (for convenience, the matching will be done on lowercased strings)
+---    - a string pattern that matches (via `string.find`) the application's window title per `hs.window:title()` (for convenience, the matching will be done on lowercased strings)
+---  * exact - (optional) if `true`, `hint` is the exact name of the app, or the exact title of its window; will use `==` instead of `string.find` (and the original case)
+---
+--- Returns:
+---  * one or more hs.application objects that match the supplied search criterion, or `nil` if none found
+---
+--- Notes:
+---  * for convenience you can call this as `hs.application(hint)`
+---
+--- Usage:
+--- -- by pid
+--- hs.application(42):name() --> Finder
+--- -- by bundle id
+--- hs.application'com.apple.Safari':name() --> Safari
+--- -- by name
+--- hs.application'chrome':name() --> Google Chrome
+--- -- by window title
+--- hs.application'bash':name() --> Terminal
+function application.find(hint,exact)
+  if hint==nil then return end
+  local typ=type(hint)
+  if typ=='number' then return application.applicationForPID(hint)
+  elseif typ~='string' then error('hint must be a number or string',2) end
+  local r=application.applicationsForBundleID(hint)
+  if #r>0 then return tunpack(r) end
+  local apps=application.runningApplications()
+  r=moses.filter(apps,exact and function(_,a)return a:name()==hint end or function(_,a)return a:name():lower():find(hint:lower())end)
+  if #r>0 then return tunpack(moses.sort(r,function(a,b)return a:kind()>b:kind()end)) end -- gui apps first
+  r=moses.toArray(window.find(hint,exact))
+  if #r>0 then return tunpack(moses(r):map(function(_,w)return w:application()end):unique():value()) end
+end
+
+do
+  local mt=getmetatable(application)
+  if not mt.__call then mt.__call=function(t,...)if t.find then return t.find(...) else error('cannot call uielement',2) end end end
+end
+--getmetatable(application).__call=function(_,...)return application.find(...)end
 return application
+
