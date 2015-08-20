@@ -8,14 +8,12 @@
 local uielement = hs.uielement  -- Make sure parent module loads
 local window = require "hs.window.internal"
 local application = require "hs.application.internal"
-local moses = require "hs.moses"
+--local moses = require "hs.moses"
 local geometry = require "hs.geometry"
 local screen = require "hs.screen"
 local timer = require "hs.timer"
-local pairs,ipairs,next,min,max,type = pairs,ipairs,next,math.min,math.max,type
-local tinsert,tsort,tunpack = table.insert,table.sort,table.unpack
-local intersection,hypot,rectMidPoint,rotateCCW = geometry.intersectionRect,geometry.hypot,geometry.rectMidPoint,geometry.rotateCCW
-local atan,cos,abs = math.atan,math.cos,math.abs
+local pairs,ipairs,next,min,max,abs,cos,type = pairs,ipairs,next,math.min,math.max,math.abs,math.cos,type
+local tinsert,tremove,tsort,tunpack = table.insert,table.remove,table.sort,table.unpack
 --- hs.window.animationDuration (number)
 --- Variable
 --- The default duration for animations, in seconds. Initial value is 0.2; set to 0 to disable animations.
@@ -38,7 +36,7 @@ function window.allWindows()
   --  return fnutils.mapCat(application.runningApplications(), application.allWindows) -- nope
   local r={}
   for _,app in ipairs(application.runningApplications()) do
-    if app:kind()>0 then for _,w in ipairs(app:allWindows()) do tinsert(r,w) end end -- major speedup by excluding non-gui apps
+    if app:kind()>0 then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end -- major speedup by excluding non-gui apps
   end
   return r
 end
@@ -56,7 +54,7 @@ function window.visibleWindows()
   --  return fnutils.filter(window.allWindows(), window.isVisible) -- nope
   local r={}
   for _,app in ipairs(application.runningApplications()) do
-    if app:kind()>0 and not app:isHidden() then for _,w in ipairs(app:visibleWindows()) do tinsert(r,w) end end -- speedup by excluding hidden apps
+    if app:kind()>0 and not app:isHidden() then for _,w in ipairs(app:visibleWindows()) do r[#r+1]=w end end -- speedup by excluding hidden apps
   end
   return r
 end
@@ -71,17 +69,18 @@ end
 --- Returns:
 ---  * A list of `hs.window` objects representing all visible windows, ordered from front to back
 function window.orderedWindows()
-  local r,wins,ids = {},window.visibleWindows(),window._orderedwinids()
-  for _,id in ipairs(ids) do
-    for _,w in ipairs(wins) do
-      if id == w:id() then
-        tinsert(r, w)
-        break
-      end
-    end
-  end
+  local r,winset,ids = {},{},window._orderedwinids()
+  for _,w in ipairs(window.visibleWindows()) do winset[w:id()or -1]=w end
+  for _,id in ipairs(ids) do r[#r+1]=winset[id] end -- no inner loop with a set, seems about 5% faster (iterating with prepoluated tables it's 50x faster)
   return r
 end
+--[[ -- using hs.func, slower (I eradicated the moses version because it was just too ugly - *and* slower)
+function window.orderedWindows() 
+  local r,wins={},hs.func(window.visibleWindows())
+  hs.func.ieach(window._orderedwinids(),function(id)r[#r+1]=wins:ifind(function(w)return w:id()==id end)end)
+  return r
+end
+--]]
 
 --- hs.window.find(hint[, exact]) -> hs.window object(s)
 --- Function
@@ -108,13 +107,15 @@ end
 function window.find(hint,exact)
   if hint==nil then return end
   local typ=type(hint)
-  local wins=window.allWindows()
-  if typ=='number' then return wins[moses.detect(wins,function(w)return w:id()==hint end)]
+  local wins,r=window.allWindows(),{}
+  if typ=='number' then for _,w in ipairs(wins) do if w:id()==hint then return w end end
+    --  if typ=='number' then return wins[moses.detect(wins,function(w)return w:id()==hint end)]
   elseif typ~='string' then error('hint must be a number or string',2) end
-  local r=moses.filter(wins,exact and function(_,w)return w:title()==hint end or function(_,w)return w:title():lower():find(hint:lower())end)
+  if exact then for _,w in ipairs(wins) do if w:title()==hint then r[#r+1]=w end end
+  else hint=hint:lower() for _,w in ipairs(wins) do if w:title():lower():find(hint) then r[#r+1]=w end end end
+  --  r=moses.filter(wins,exact and function(_,w)return w:title()==hint end or function(_,w)return w:title():lower():find(hint:lower())end)
   if #r>0 then return tunpack(r) end
 end
-
 window.windowForID=window.find
 
 --- hs.window:isVisible() -> bool
@@ -278,9 +279,9 @@ end
 ---  * None
 ---
 --- Returns:
----  * A table of `hs.window` objects representing the other windows that are on the same screen as this one
+---  * A table of `hs.window` objects representing the visible windows other than this one that are on the same screen
 function window:otherWindowsSameScreen()
-  return moses.filter(window.visibleWindows(), function(_,win) return self ~= win and self:screen() == win:screen() end)
+  local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self or r[i]:screen()~=self:screen() then tremove(r,i) end end return r
 end
 
 --- hs.window:otherWindowsAllScreens() -> win[]
@@ -291,9 +292,9 @@ end
 ---  * None
 ---
 --- Returns:
----  * A table containing `hs.window` objects representing all windows other than this one
+---  * A table containing `hs.window` objects representing all visible windows other than this one
 function window:otherWindowsAllScreens()
-  return moses.filter(window.visibleWindows(), function(_,win) return self ~= win end)
+  local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self then tremove(r,i) break end end return r
 end
 
 
@@ -358,71 +359,60 @@ end
 --- Returns:
 ---  * An `hs.screen` object representing the screen which most contains the window (by area)
 function window:screen()
-  local windowframe = self:frame()
-  local lastvolume = 0
-  local lastscreen = nil
-
-  for _, s in pairs(screen.allScreens()) do
-    local screenframe = s:fullFrame()
-    local r = intersection(windowframe, screenframe)
-    local volume = r.w * r.h
-
-    if volume > lastvolume then
-      lastvolume = volume
-      lastscreen = s
-    end
+  local frame,screens,maxa,maxs=geometry(self:frame()),screen.allScreens(),0
+  for _,s in ipairs(screens) do
+    local a=frame:intersect(s:fullFrame()).area
+    if a>maxa then maxa,maxs=a,s end
   end
+  return maxs
+end
+--[[ -- moses version
+function window:screen()
+  local frame,screens=geometry(self:frame()),moses(screen.allScreens())
+  return screens:map(function(_,s)return frame:intersect(s:fullFrame()).area end)
+    :zip(screens:value()):reduce(function(state,v)return v[1]>state[1] and v or state end,{0,nil}):value()[2]
+end
+-- hs.func version
+function window:ascreen()
+  local frame,screens=geometry(self:frame()),hs.func(screen.allScreens())
+  return screens:map(function(s)return frame:intersect(s:fullFrame()).area,s end)
+    :reduce(function(maxs,maxa,a,s)if a>maxa then return s,a else return maxs,maxa end end,nil,0)
+end
+--]]
 
-  return lastscreen
+local function isFullyBehind(f1,w2)
+  local f2=geometry(w2:frame())
+  return f1:intersect(f2).area>=f2.area*0.95
 end
 
-local function isFullyBehind(w1,w2)
-  local f1,f2=w1:frame(),w2:frame()
-  local r = intersection(f1,f2)
-  return r.w*r.h>=f2.w*f2.h*0.95
-end
-
-local function windowsInDirection(srcwin, numrotations, candidateWindows, frontmost, strict)
+local function windowsInDirection(fromWindow, numRotations, candidateWindows, frontmost, strict)
   -- assume looking to east
-
   -- use the score distance/cos(A/2), where A is the angle by which it
   -- differs from the straight line in the direction you're looking
   -- for. (may have to manually prevent division by zero.)
 
-  -- thanks mark!
-
-  local p1 = rectMidPoint(srcwin:frame())
-  local zwins = candidateWindows or window.orderedWindows()
-
-  local zsrc=moses.indexOf(zwins,srcwin) or -1
-  -- fnutils.filter uses pairs
-  local otherwindows = moses.filter(zwins, function(_,candidate)
-    return window.isVisible(candidate) --[[and window.isStandard(candidate)--]] and candidate ~= srcwin
-      and (not frontmost or moses.indexOf(zwins,candidate)<zsrc or not isFullyBehind(srcwin,candidate))
-  end)
-  local wins={}
-  for z, win in ipairs(otherwindows) do
-    local frame = win:frame()
-    local p2 = rectMidPoint(frame)
-    p2 = rotateCCW(p2, p1, numrotations)
-    local delta = {x=p2.x-p1.x,y=p2.y-p1.y}
+  local fromFrame=geometry(fromWindow:frame())
+  local winset,fromz,fromid={},99999,fromWindow:id() or -1
+  for z,w in ipairs(candidateWindows or window.orderedWindows()) do
+    if fromid==(w:id() or -2) then fromWindow=w fromz=z --workaround the fact that userdata keep changing
+    elseif not candidateWindows or w:isVisible() then winset[w]=z end --make a set, avoid inner loop (if using .orderedWindows skip the visible check as it's done upstream)
+  end
+  if frontmost then for w,z in pairs(winset) do if z>fromz and isFullyBehind(fromFrame,w) then winset[w]=nil end end end
+  local p1,wins=fromFrame.center,{}
+  for win,z in pairs(winset) do
+    local frame=geometry(win:frame())
+    local delta = p1:vector(frame.center:rotateCCW(p1,numRotations))
     if delta.x > (strict and abs(delta.y) or 0) then
-      --cos(atan(y,x)=1/sqrt(1+(y/x)^2), but it's using angle/2
-      --      local cosangle = 1/(1+(delta.y/delta.x)^2)^0.5
-      local angle = atan(delta.y, delta.x)
-      local distance = (delta.x^2+delta.y^2)^0.5
-      local score = (distance/cos(angle/2))+z
-      tinsert(wins,{win=win,score=score,z=z,frame=frame})
+      wins[#wins+1]={win=win,score=#delta/cos(delta:angle()/2)+z,z=z,frame=frame}
     end
   end
   tsort(wins,function(a,b)return a.score<b.score end)
   if frontmost then
     local i=1
     while i<=#wins do
-      --    for i=1,#wins do
       for j=i+1,#wins do
         if wins[j].z<wins[i].z then
-          local r=intersection(wins[i].frame,wins[j].frame)
+          local r=wins[i].frame:intersect(wins[j].frame)
           if r.w>5 and r.h>5 then --TODO var for threshold
             --this window is further away, but it occludes the closest
             local swap=wins[i] wins[i]=wins[j] wins[j]=swap
@@ -433,15 +423,14 @@ local function windowsInDirection(srcwin, numrotations, candidateWindows, frontm
       i=i+1
     end
   end
-  return moses.map(wins,function(_,x)return x.win end)
+  for i=1,#wins do wins[i]=wins[i].win end
+  return wins
 end
 
 --TODO zorder direct manipulation (e.g. sendtoback)
 
 local function focus_first_valid_window(ordered_wins)
-  for _, win in pairs(ordered_wins) do
-    if win:focus() then return true end
-  end
+  for _,win in ipairs(ordered_wins) do if win:focus() then return true end end
   return false
 end
 
@@ -556,7 +545,7 @@ for n,dir in pairs{['0']='East','North','West','South'}do
   end
 end
 
---- hs.window:focusWindowEast(candidateWindows, frontmost, strict)
+--- hs.window:focusWindowEast(candidateWindows, frontmost, strict) -> boolean
 --- Method
 --- Focuses the nearest possible window to the east
 ---
@@ -568,14 +557,14 @@ end
 ---    eastward axis
 ---
 --- Returns:
----  * None
+---  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
 ---
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
 ---    `hs.window.filter` instead
 
---- hs.window:focusWindowWest(candidateWindows, frontmost, strict)
+--- hs.window:focusWindowWest(candidateWindows, frontmost, strict) -> boolean
 --- Method
 --- Focuses the nearest possible window to the west
 ---
@@ -587,14 +576,14 @@ end
 ---    westward axis
 ---
 --- Returns:
----  * None
+---  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
 ---
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
 ---    `hs.window.filter` instead
 
---- hs.window:focusWindowNorth(candidateWindows, frontmost, strict)
+--- hs.window:focusWindowNorth(candidateWindows, frontmost, strict) -> boolean
 --- Method
 --- Focuses the nearest possible window to the north
 ---
@@ -605,14 +594,14 @@ end
 ---    northward axis
 ---
 --- Returns:
----  * None
+---  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
 ---
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
 ---    `hs.window.filter` instead
 
---- hs.window:focusWindowSouth(candidateWindows, frontmost, strict)
+--- hs.window:focusWindowSouth(candidateWindows, frontmost, strict) -> boolean
 --- Method
 --- Focuses the nearest possible window to the south
 ---
@@ -623,7 +612,7 @@ end
 ---    southward axis
 ---
 --- Returns:
----  * None
+---  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
 ---
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
