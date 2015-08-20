@@ -94,6 +94,25 @@ function application.find(hint,exact)
   if #r>0 then return tunpack(moses(r):map(function(_,w)return w:application()end):unique():value()) end
 end
 
+
+--- hs.application.open(app) -> hs.application object
+--- Constructor
+--- Launches an application, or activates it if it's already running
+---
+--- Parameters:
+---  * app - a string describing the application to open; it can be:
+---    - the application's name as per `hs.application:name()`
+---    - the full path to an application on disk (including the `.app` suffix)
+---    - the application's bundle ID as per `hs.application:bundleID()`
+---
+--- Returns:
+---  * the `hs.application` object of the launched or activated application; `nil` if not found
+function application.open(app)
+  if type(app)~='string' then error('app must be a string',2) end
+  if application.launchOrFocus(app) then return application.find(app,true) end
+  if application.launchOrFocusByBundleID(app) then return application.find(app,true) end
+end
+
 do
   local mt=getmetatable(application)
   if not mt.__call then mt.__call=function(t,...)if t.find then return t.find(...) else error('cannot call uielement',2) end end end
