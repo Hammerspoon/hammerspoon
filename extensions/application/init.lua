@@ -8,8 +8,8 @@ application.watcher = require "hs.application.watcher"
 local window = require "hs.window"
 local moses = require "hs.moses"
 
-local type=type
-local tunpack,tpack=table.unpack,table.pack
+local type,ipairs=type,ipairs
+local tunpack,tpack,tinsert=table.unpack,table.pack,table.insert
 
 --- hs.application:visibleWindows() -> win[]
 --- Method
@@ -21,7 +21,11 @@ local tunpack,tpack=table.unpack,table.pack
 --- Returns:
 ---  * A table containing zero or more hs.window objects
 function application:visibleWindows()
-  return moses.filter(self:allWindows(), window.isVisible)
+  --  return moses.filter(self:allWindows(), window.isVisible)
+  local r={}
+  if self:isHidden() then return r
+  else for _,w in ipairs(self:allWindows()) do if not w:isMinimized() then tinsert(r,w) end end end -- (barely) faster
+  return r
 end
 
 --- hs.application:activate([allWindows]) -> bool
