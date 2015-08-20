@@ -328,8 +328,7 @@ end
 ---  * The window will be resized as large as possible, without obscuring the dock/menu
 function window:maximize(duration)
   local screenrect = self:screen():frame()
-  self:setFrame(screenrect, duration)
-  return self
+  return self:setFrame(screenrect, duration)
 end
 
 --- hs.window:toggleFullScreen() -> window
@@ -543,6 +542,7 @@ for n,dir in pairs{['0']='East','North','West','South'}do
     end
     return self and focus_first_valid_window(window['windowsTo'..dir](self,wins,...))
   end
+  window['moveOneScreen'..dir]=function(self,...) local s=self:screen() return self:moveToScreen(s['to'..dir](s),...) end
 end
 
 --- hs.window:focusWindowEast(candidateWindows, frontmost, strict) -> boolean
@@ -619,12 +619,12 @@ end
 ---    every time this method is called; this can be slow, consider using the equivalent methods in
 ---    `hs.window.filter` instead
 
---- hs.window:moveToUnit(rect[, duration]) -> window
+--- hs.window:moveToUnit(unitrect[, duration]) -> hs.window object
 --- Method
 --- Moves and resizes the window to occupy a given fraction of the screen
 ---
 --- Parameters:
----  * rect - A unit-rect-table where each value is between 0.0 and 1.0
+---  * unitrect - An hs.geometry unit rect, or constructor argument to create one
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
@@ -633,40 +633,26 @@ end
 --- Notes:
 --   * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit({x=0, y=0, w=0.5, h=0.5})`
 function window:moveToUnit(unit, duration)
-  local screenrect = self:screen():frame()
-  self:setFrame({
-    x = screenrect.x + (unit.x * screenrect.w),
-    y = screenrect.y + (unit.y * screenrect.h),
-    w = unit.w * screenrect.w,
-    h = unit.h * screenrect.h,
-  }, duration)
-  return self
+  return self:setFrame(geometry.fromUnitRect(unit,self:screen():frame()),duration)
 end
 
---- hs.window:moveToScreen(screen[, duration]) -> window
+--- hs.window:moveToScreen(screen[, duration]) -> hs.window object
 --- Method
 --- Moves the window to a given screen, retaining its relative position and size
 ---
 --- Parameters:
----  * screen - An `hs.screen` object representing the screen to move the window to
+---  * screen - An `hs.screen` object, or an argument for `hs.screen.find()`, representing the screen to move the window to
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveToScreen(nextScreen, duration)
-  local currentFrame = self:frame()
-  local screenFrame = self:screen():frame()
-  local nextScreenFrame = nextScreen:frame()
-  self:setFrame({
-    x = ((((currentFrame.x - screenFrame.x) / screenFrame.w) * nextScreenFrame.w) + nextScreenFrame.x),
-    y = ((((currentFrame.y - screenFrame.y) / screenFrame.h) * nextScreenFrame.h) + nextScreenFrame.y),
-    h = ((currentFrame.h / screenFrame.h) * nextScreenFrame.h),
-    w = ((currentFrame.w / screenFrame.w) * nextScreenFrame.w)
-  }, duration)
-  return self
+function window:moveToScreen(toScreen, duration)
+  toScreen=screen.find(toScreen)
+  if not toScreen then return self end --TODO log?
+  return self:setFrame(geometry(self:frame()):toUnitRect(self:screen():frame()):fromUnitRect(toScreen:frame()),duration)
 end
 
---- hs.window:moveOneScreenWest([duration]) -> window
+--- hs.window:moveOneScreenWest([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen west (i.e. left)
 ---
@@ -675,13 +661,6 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveOneScreenWest(duration)
-  local dst = self:screen():toWest()
-  if dst ~= nil then
-    self:moveToScreen(dst, duration)
-  end
-  return self
-end
 
 --- hs.window:moveOneScreenEast([duration]) -> window
 --- Method
@@ -692,13 +671,6 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveOneScreenEast(duration)
-  local dst = self:screen():toEast()
-  if dst ~= nil then
-    self:moveToScreen(dst, duration)
-  end
-  return self
-end
 
 --- hs.window:moveOneScreenNorth([duration]) -> window
 --- Method
@@ -709,13 +681,6 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveOneScreenNorth(duration)
-  local dst = self:screen():toNorth()
-  if dst ~= nil then
-    self:moveToScreen(dst, duration)
-  end
-  return self
-end
 
 --- hs.window:moveOneScreenSouth([duration]) -> window
 --- Method
@@ -726,13 +691,6 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveOneScreenSouth(duration)
-  local dst = self:screen():toSouth()
-  if dst ~= nil then
-    self:moveToScreen(dst, duration)
-  end
-  return self
-end
 
 --- hs.window:ensureIsInScreenBounds() -> window
 --- Method
@@ -746,22 +704,9 @@ end
 ---
 --- Notes:
 ---  * Calling this method will immediately fast-forward to the end of any ongoing animation on the window
-function window:ensureIsInScreenBounds(duration)
+function window:ensureIsInScreenBounds()
   stopAnimation(self,true)
-  local frame = self:_frame()
-  local screenFrame = self:screen():frame()
-  if frame.x < screenFrame.x then frame.x = screenFrame.x end
-  if frame.y < screenFrame.y then frame.y = screenFrame.y end
-  if frame.w > screenFrame.w then frame.w = screenFrame.w end
-  if frame.h > screenFrame.h then frame.h = screenFrame.h end
-  if frame.x + frame.w > screenFrame.x + screenFrame.w then
-    frame.x = (screenFrame.x + screenFrame.w) - frame.w
-  end
-  if frame.y + frame.h > screenFrame.y + screenFrame.h then
-    frame.y = (screenFrame.y + screenFrame.h) - frame.h
-  end
-  self:_setFrame(frame)
-  return self
+  return self:moveToScreen(self:screen(),0)
 end
 
 package.loaded[...]=window
