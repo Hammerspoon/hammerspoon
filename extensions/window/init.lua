@@ -176,7 +176,7 @@ local function getAnimationFrame(win)
   if animations[id] then return animations[id].endFrame end
 end
 
-local function stopAnimation(win,id,snap)
+local function stopAnimation(win,snap,id)
   if not id then id = win:id() end
   local anim = animations[id]
   if not anim then return end
@@ -222,7 +222,7 @@ function window:setFrame(f, duration)
   if duration==nil then duration = window.animationDuration end
   if type(duration)~='number' then duration = 0 end
   local id = self:id()
-  stopAnimation(self,id)
+  stopAnimation(self,false,id)
   if duration<=0 or not id then return self:_setFrame(f) end
   local frame = self:_frame()
   if not animations[id] then animations[id] = {window=self} end
@@ -254,7 +254,7 @@ function window:minimize()
   return self:_minimize()
 end
 function window:unminimize()
-  stopAnimation(self) -- ?
+  stopAnimation(self,true) -- ?
   return self:_unminimize()
 end
 function window:toggleZoom()
