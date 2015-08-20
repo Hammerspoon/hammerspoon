@@ -6,10 +6,9 @@ local uielement = hs.uielement  -- Make sure parent module loads
 local application = require "hs.application.internal"
 application.watcher = require "hs.application.watcher"
 local window = require "hs.window"
-local moses = require "hs.moses"
 
-local type,ipairs=type,ipairs
-local tunpack,tpack,tinsert=table.unpack,table.pack,table.insert
+local type,pairs,ipairs=type,pairs,ipairs
+local tunpack,tpack,tsort=table.unpack,table.pack,table.sort
 
 --- hs.application:visibleWindows() -> win[]
 --- Method
@@ -23,8 +22,8 @@ local tunpack,tpack,tinsert=table.unpack,table.pack,table.insert
 function application:visibleWindows()
   --  return moses.filter(self:allWindows(), window.isVisible)
   local r={}
-  if self:isHidden() then return r
-  else for _,w in ipairs(self:allWindows()) do if not w:isMinimized() then tinsert(r,w) end end end -- (barely) faster
+  if self:isHidden() then return r -- do not check :isHidden for every window
+  else for _,w in ipairs(self:allWindows()) do if not w:isMinimized() then r[#r+1]=w end end end
   return r
 end
 
@@ -88,10 +87,16 @@ function application.find(hint,exact)
   local r=application.applicationsForBundleID(hint)
   if #r>0 then return tunpack(r) end
   local apps=application.runningApplications()
-  r=moses.filter(apps,exact and function(_,a)return a:name()==hint end or function(_,a)return a:name():lower():find(hint:lower())end)
-  if #r>0 then return tunpack(moses.sort(r,function(a,b)return a:kind()>b:kind()end)) end -- gui apps first
-  r=moses.toArray(window.find(hint,exact))
-  if #r>0 then return tunpack(moses(r):map(function(_,w)return w:application()end):unique():value()) end
+
+  if exact then for _,a in ipairs(apps) do if a:name()==hint then r[#r+1]=a end end
+  else for _,a in ipairs(apps) do if a:name():lower():find(hint:lower()) then r[#r+1]=a end end end
+  tsort(r,function(a,b)return a:kind()>b:kind()end) -- gui apps first
+  if #r>0 then return tunpack(r) end
+
+  r=tpack(window.find(hint,exact))
+  local rs={} for _,w in ipairs(r) do rs[w:application()]=true end -- :toSet
+  for a in pairs(rs) do r[#r+1]=a end -- and back, no dupes
+  if #r>0 then return tunpack(r) end
 end
 
 
@@ -106,7 +111,7 @@ end
 ---    - the application's bundle ID as per `hs.application:bundleID()`
 ---
 --- Returns:
----  * the `hs.application` object of the launched or activated application; `nil` if not found
+---  * the `hs.application` object for the launched or activated application; `nil` if not found
 function application.open(app)
   if type(app)~='string' then error('app must be a string',2) end
   if application.launchOrFocus(app) then return application.find(app,true) end
