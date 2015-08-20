@@ -228,7 +228,7 @@ local function first_screen_in_direction(fromScreen, numrotations, fromPoint, st
     end
   end
   tsort(screens, function(a, b) return a.score < b.score end)
-  return #screens>0 and screens[1].s
+  return #screens>0 and screens[1].s or nil
 end
 
 --- hs.screen.strictScreenInDirection
@@ -246,7 +246,6 @@ screen.strictScreenInDirection = false
 ---
 --- Returns:
 ---   * the desired hs.screen object, or `nil` if not found
-function screenObject:toEast(...)  return first_screen_in_direction(self, 0, ...) end
 
 --- hs.screen:toWest() -> hs.screen object
 --- Method
@@ -258,7 +257,6 @@ function screenObject:toEast(...)  return first_screen_in_direction(self, 0, ...
 ---
 --- Returns:
 ---   * the desired hs.screen object, or `nil` if not found
-function screenObject:toWest(...)  return first_screen_in_direction(self, 2, ...) end
 
 --- hs.screen:toNorth() -> hs.screen object
 --- Method
@@ -270,7 +268,6 @@ function screenObject:toWest(...)  return first_screen_in_direction(self, 2, ...
 ---
 --- Returns:
 ---   * the desired hs.screen object, or `nil` if not found
-function screenObject:toNorth(...) return first_screen_in_direction(self, 1, ...) end
 
 --- hs.screen:toSouth() -> hs.screen object
 --- Method
@@ -282,7 +279,9 @@ function screenObject:toNorth(...) return first_screen_in_direction(self, 1, ...
 ---
 --- Returns:
 ---   * the desired hs.screen object, or `nil` if not found
-function screenObject:toSouth(...) return first_screen_in_direction(self, 3, ...) end
+for r,d in pairs{[0]='East','North','West','South'} do
+  screenObject['to'..d]=function(self,...) return first_screen_in_direction(self,r,...) end
+end
 
 --- hs.screen:shotAsPNG(filePath[, screenRect])
 --- Method
