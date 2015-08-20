@@ -9,7 +9,6 @@
 --- Every window's position (i.e. `topleft`) and size are relative to this grid, and they're usually within the grid. A window that's semi-offscreen only intersects the grid.
 
 local screen = require "hs.screen.internal"
-local moses = require "hs.moses"
 local geometry = require "hs.geometry"
 local imagemod = require "hs.image"
 
@@ -62,11 +61,11 @@ function screen.find(p,...)
   local typ=type(p)
   if typ=='userdata' and getmetatable(p)==screenObject then return p
   else
-    local screens=screen.allScreens()
+    local screens,r=screen.allScreens(),{}
     if typ=='number' and p>20 then for _,s in ipairs(screens) do if p==s:id() then return s end return end -- not found
     elseif typ=='string' then
-      local f=moses.filter(screens,function(_,s)return s:name():lower():find(p:lower())end)
-      if #f>0 then return tunpack(f) end
+      for _,s in ipairs(screens) do if s:name():lower():find(p:lower()) then r[#r+1]=s end end
+      if #r>0 then return tunpack(r) end
     elseif typ~='table' then error('hint can be a number, string or table',2) end
     local ok
     ok,p=pcall(geometry,p,...) if not ok then return end -- not found
@@ -79,8 +78,8 @@ function screen.find(p,...)
       for _,s in ipairs(screens) do if p==s:fullFrame() then return s end end
       return -- not found
     elseif p.w and p.h then -- size
-      local f=moses.filter(screens,function(_,s)return p==geometry(s:fullFrame()).size end)
-      if #f>0 then return tunpack(f) end
+      for _,s in ipairs(screens) do if p==geometry(s:fullFrame()).size then r[#r+1]=s end end
+      if #r>0 then return tunpack(r) end
     end
   end
 end
@@ -113,6 +112,7 @@ function screen.screenPositions()
   local primary = screens[1]
   tremove(screens,1)
   local res = {[primary]={x=0,y=0}}
+  --  for k,v in ipairs(screens) do screens[v]=true screens[k]=nil end -- poor's man :toSet
   local function findNeighbors(x,y,s,ex,ey)
     for dir,co in pairs{East={1,0},West={-1,0},North={0,-1},South={0,1}} do
       if co[1]~=ex or co[2]~=ey then
@@ -120,7 +120,7 @@ function screen.screenPositions()
         f = f['to'..dir](f,nil,true,screens)
         if res[f] then f=nil end
         if f then -- found a screen
-          tremove(screens,moses.indexOf(screens,f) or #screens+1) -- or... just for safety
+          for i,s in ipairs(screens) do if s==f then tremove(screens,i) break end end
           local nx,ny=x+co[1],y+co[2]
           res[f]={x=nx,y=ny}--geometry(nx,ny)--
           findNeighbors(nx,ny,f,-co[1],-co[2])
@@ -173,9 +173,9 @@ end
 --- Returns the screen 'after' this one (in arbitrary order); this method wraps around to the first screen.
 function screenObject:next()
   local screens = screen.allScreens()
-  local i = moses.indexOf(screens, self) + 1
-  if i > # screens then i = 1 end
-  return screens[i]
+  local idx=1 for i,s in ipairs(screens) do if s==self then idx=i+1 break end end
+  if idx>#screens then idx=1 end
+  return screens[idx]
 end
 
 
@@ -184,9 +184,9 @@ end
 --- Returns the screen 'before' this one (in arbitrary order); this method wraps around to the last screen.
 function screenObject:previous()
   local screens = screen.allScreens()
-  local i = moses.indexOf(screens, self) - 1
-  if i < 1 then i = # screens end
-  return screens[i]
+  local idx=1 for i,s in ipairs(screens) do if s==self then idx=i-1 break end end
+  if idx<1 then idx=#screens end
+  return screens[idx]
 end
 
 local function first_screen_in_direction(fromScreen, numrotations, fromPoint, strict, allscreens)
@@ -195,16 +195,12 @@ local function first_screen_in_direction(fromScreen, numrotations, fromPoint, st
     if #allscreens==1 then return end
   end
   if #allscreens==0 then return end
-
   -- assume looking to east
-
   -- use the score distance/cos(A/2), where A is the angle by which it
   -- differs from the straight line in the direction you're looking
   -- for. (may have to manually prevent division by zero.)
-
   -- thanks mark!
-
-  tremove(allscreens,moses.indexOf(allscreens,fromScreen) or #allscreens+1)
+  for i,s in ipairs(allscreens) do if s==fromScreen then tremove(allscreens,i) break end end
   local myf = geometry(fromScreen:fullFrame())
   local p1 = (fromPoint and myf:intersect(fromPoint) or myf).center
   local screens = {}
