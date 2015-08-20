@@ -774,6 +774,10 @@ end
 package.loaded[...]=window
 window.filter = require "hs.window.filter"
 --window.layout = require "hs.window.layout"
+do
+  local mt=getmetatable(window)
+  if not mt.__call then mt.__call=function(t,...)if t.find then return t.find(...) else error('cannot call uielement',2) end end end
+end
 
-getmetatable(window).__call=function(_,...)return window.find(...)end
+--getmetatable(window).__call=function(_,...)return window.find(...)end
 return window
