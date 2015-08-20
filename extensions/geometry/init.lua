@@ -6,6 +6,9 @@
 ---  * a *point*, or vector2, with `x` and `y` fields for its coordinates
 ---  * a *size* with `w` and `h` fields for width and height respectively
 ---  * a *rect*, which has both a point component for one of its corners, and a size component - so it has all 4 fields
+---  * a *unit rect*, which is a rect with all fields between 0 and 1; it represents a "relative" rect within another (absolute) rect
+---    (e.g. a unit rect `x=0,y=0 , w=0.5,h=0.5` is the quarter portion closest to the origin); please note that hs.geometry
+---    makes no distinction internally between regular rects and unit rects; you can convert to and from as needed via the appropriate methods
 ---
 --- You can create these objects in many different ways, via `my_obj=hs.geometry.new(...)` or simply `my_obj=hs.geometry(...)`
 --- by passing any of the following:
@@ -37,11 +40,27 @@ local getmetatable,setmetatable=getmetatable,setmetatable
 
 local geometry = {}--require "hs.geometry.internal"
 
+--- hs.geometry:type() -> string
+--- Method
+--- Returns the type of an hs.geometry object
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * a string describing the type of this hs.geometry object, i.e. 'point', 'size', 'rect' or 'unitrect'; `nil` if not a valid object
 local function gettype(t)
   if t._x and t._y then
-    if t._w and t._h then return 'rect' else return 'point' end
+    if t._w and t._h then
+      for _,k in ipairs{'_x','_y','_w','_h'} do
+        if t[k]>1 or t[k]<0 then return 'rect' end
+      end
+      return 'unitrect'
+    else return 'point' end
   elseif t._w and t._h then return 'size' end
 end
+geometry.type=gettype
+
 local function norm(t)
   if t._x and t._w and t._w<0 then t._x=t._x+t._w t._w=-t._w end
   if t._y and t._h and t._h<0 then t._y=t._y+t._h t._h=-t._h end
@@ -131,7 +150,7 @@ end
 function geometry.__tostring(t)
   local typ=gettype(t)
   local fmt
-  if typ=='rect' then fmt=t.x..','..t.y..','..t.w..','..t.h
+  if typ=='rect' or typ=='unitrect' then fmt=t.x..','..t.y..','..t.w..','..t.h
   elseif typ=='point' then fmt=t.x..','..t.y
   elseif typ=='size' then fmt=t.w..','..t.h end
   return sformat('hs.geometry.%s(%s)',typ,fmt)
@@ -461,10 +480,8 @@ function geometry.intersect(t1,...)
   if gettype(t1)~='rect' or gettype(t2)~='rect' then error('cannot find intersection for non-rects',2) end
   local t1x,t1y,t1x2,t1y2=t1.x,t1.y,t1.x2,t1.y2
   local t2x,t2y,t2x2,t2y2=t2.x,t2.y,t2.x2,t2.y2
-  if t1x<t2x then t2x=min(t1x2,t2x) t2x2=min(t1x2,t2x2)
-  else t2x=max(t1x,t2x) t2x2=max(t1x,t2x2) end
-  if t1y<t2y then t2y=min(t1y2,t2y) t2y2=min(t1y2,t2y2)
-  else t2y=max(t1y,t2y) t2y2=max(t1y,t2y2) end
+  t2x=min(t1x2,max(t1x,t2x)) t2x2=max(t1x,min(t1x2,t2x2))
+  t2y=min(t1y2,max(t1y,t2y)) t2y2=max(t1y,min(t1y2,t2y2))
   return new{x=t2x,y=t2y,x2=t2x2,y2=t2y2}
 end
 
@@ -497,7 +514,45 @@ geometry.__lt=function(t1,t2)
   else error('cannot compare geometry objects of different type',2) end
 end
 
+--- hs.geometry:toUnitRect(frame) -> hs.geometry unit rect
+--- Method
+--- Converts a rect into its unit rect within a given frame
+---
+--- Parameters:
+---  * frame - an hs.geometry rect (with `w` and `h` >0)
+---
+--- Returns:
+---  * An hs.geometry unit rect object
+---
+--- Notes:
+---  * The resulting unit rect is always clipped within `frame`'s bounds (via `hs.geometry:intersect()`)
+function geometry.toUnitRect(t,...)
+  t=new(t) local frame=new(...)
+  if gettype(t)=='size' then error('cannot convert a size',2) end
+  if gettype(frame)~='rect' or frame.area==0 then error('frame must be a valid rect',2) end
+  t=geometry.intersect(t,frame)
+  t._x=(t._x-frame._x)/frame._w
+  t._y=(t._y-frame._y)/frame._h
+  if t.w then t._w=t._w/frame._w end -- allow 'unit points' as well
+  if t.h then t._h=t._h/frame._h end
+  return t
+end
 
+--- hs.geometry:fromUnitRect(frame) -> hs.geometry rect
+--- Method
+--- Converts a unit rect within a given frame into a rect
+---
+--- Parameters:
+---  * frame - an hs.geometry rect (with `w` and `h` >0)
+---
+--- Returns:
+---  * An hs.geometry rect object
+function geometry.fromUnitRect(t,...)
+  t=new(t) local frame=new(...)
+  if gettype(t)=='size' then error('cannot convert a size',2) end
+  if gettype(frame)~='rect' or frame.area==0 then error('frame must be a valid rect',2) end
+  return new(t._x*frame._w+frame._x,t._y*frame._h+frame._y,t._w and t._w*frame._w,t._h and t._h*frame._h)
+end
 -- legacy
 geometry.hypot=geometry.getlength
 geometry.rectMidPoint=geometry.getcenter
