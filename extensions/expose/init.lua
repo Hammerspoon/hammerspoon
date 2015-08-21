@@ -1,6 +1,6 @@
 --- === hs.expose ===
 ---
---- **WARNING**: This module depends on the EXPERIMENTAL hs.windowfilter. It can undergo breaking API changes or *go away entirely* **at any point and without notice**.
+--- **WARNING**: This module depends on the EXPERIMENTAL hs.window.filter. It can undergo breaking API changes or *go away entirely* **at any point and without notice**.
 --- (Should you encounter any issues, please feel free to report them on https://github.com/Hammerspoon/hammerspoon/issues
 --- or #hammerspoon on irc.freenode.net)
 ---
@@ -9,7 +9,7 @@
 --- Usage:
 --- -- set up your windowfilter
 --- expose = hs.expose.new() -- default windowfilter: only visible windows, all Spaces
---- expose2 = hs.expose.new(hs.windowfilter.new():trackSpaces(true):setDefaultFilter()) -- include minimized/hidden windows, current Space only
+--- expose2 = hs.expose.new(hs.window.filter.new():trackSpaces(true):setDefaultFilter()) -- include minimized/hidden windows, current Space only
 --- expose_browsers = hs.expose.new{'Safari','Google Chrome'} -- specialized expose for your dozens of browser windows :)
 ---
 --- -- then bind to a hotkey
@@ -28,8 +28,8 @@ local expose={} --module
 
 
 local drawing,image=require'hs.drawing',require'hs.image'
-local windowfilter=require'hs.windowfilter'
 local window,screen=require'hs.window',require'hs.screen'
+local windowfilter=require'hs.window.filter'
 local application,spaces=require'hs.application',require'hs.spaces'
 local eventtap=require'hs.eventtap'
 local execute,fnutils=hs.execute,require'hs.fnutils'
@@ -658,8 +658,8 @@ end
 --- Parameters:
 ---  * windowfilter - (optional) it can be:
 ---    * `nil` or omitted (as in `myexpose=hs.expose.new()`): the default windowfilter will be used
----    * an `hs.windowfilter` object
----    * otherwise all parameters are passed to `hs.windowfilter.new` to create a new instance
+---    * an `hs.window.filter` object
+---    * otherwise all parameters are passed to `hs.window.filter.new` to create a new instance
 ---
 --- Returns:
 ---  * the new instance
