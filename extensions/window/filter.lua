@@ -19,7 +19,7 @@
 ---
 --- -- subscribe to events
 --- wf_terminal:subscribe(hs.window.filter.windowFocused,some_fn) -- run a function whenever a terminal window is focused
---- wf_timewaster:notify(function(wins)if #wins>0 then startAnnoyingMe() else stopAnnoyingMe() end end) -- fight procrastination :)
+--- wf_timewaster:notify(startAnnoyingMe,stopAnnoyingMe) -- fight procrastination :)
 
 
 
@@ -94,24 +94,26 @@ do
   }
   windowfilter.ignoreAlways = {}
   for _,list in ipairs{SKIP_APPS_NO_PID,SKIP_APPS_NO_WINDOWS} do
-    for _,appname in ipairs(list) do
-      windowfilter.ignoreAlways[appname] = true
-    end
+    for _,appname in ipairs(list) do windowfilter.ignoreAlways[appname] = true end
   end
+
+  local SKIP_APPS_TRANSIENT_WINDOWS = {
+    --TODO keep this updated (used in the default filter)
+    -- hs.window.filter._showCandidates() -- from the console
+    'Spotlight', 'Notification Center', 'loginwindow', 'ScreenSaverEngine', 'PressAndHold',
+    -- preferences etc
+    'PopClip','Isolator', 'CheatSheet', 'CornerClickBG', 'Alfred 2', 'Moom', 'CursorSense Manager',
+    -- menulets
+    'Music Manager', 'Google Drive', 'Dropbox', '1Password mini', 'Colors for Hue', 'MacID',
+    'CrashPlan menu bar', 'Flux', 'Jettison', 'Bartender', 'SystemPal', 'BetterSnapTool', 'Grandview', 'Radium',
+  }
+
+  windowfilter.ignoreInDefaultFilter = {}
+  for _,appname in ipairs(SKIP_APPS_TRANSIENT_WINDOWS) do windowfilter.ignoreInDefaultFilter[appname] = true end
 end
 
 local apps
 
-local SKIP_APPS_TRANSIENT_WINDOWS = {
-  --TODO keep this updated (used in the default filter)
-  -- hs.window.filter._showCandidates() -- from the console
-  'Spotlight', 'Notification Center', 'loginwindow', 'ScreenSaverEngine', 'PressAndHold',
-  -- preferences etc
-  'PopClip','Isolator', 'CheatSheet', 'CornerClickBG', 'Alfred 2', 'Moom', 'CursorSense Manager',
-  -- menulets
-  'Music Manager', 'Google Drive', 'Dropbox', '1Password mini', 'Colors for Hue', 'MacID',
-  'CrashPlan menu bar', 'Flux', 'Jettison', 'Bartender', 'SystemPal', 'BetterSnapTool', 'Grandview', 'Radium',
-}
 -- utility function for maintainers; shows (in the console) candidate apps that, if recognized as
 -- "no GUI" or "transient window" apps, can be added to the relevant tables for the default windowfilter
 function windowfilter._showCandidates()
@@ -120,7 +122,7 @@ function windowfilter._showCandidates()
   for _,app in ipairs(running) do
     local appname = app:title()
     if appname and windowfilter.isGuiApp(appname) and #app:allWindows()==0
-      and not require'hs.moses'.contains(SKIP_APPS_TRANSIENT_WINDOWS,appname)
+      and not windowfilter.ignoreInDefaultFilter[appname]
       and (not apps[appname] or not next(apps[appname].windows)) then
       t[#t+1]=appname
     end
@@ -1436,7 +1438,7 @@ local function makeDefault()
   if not defaultwf then
     defaultwf = windowfilter.new(true,'wflt-def')
     if loglevel then defaultwf.setLogLevel(loglevel) end
-    for _,appname in ipairs(SKIP_APPS_TRANSIENT_WINDOWS) do
+    for appname in pairs(windowfilter.ignoreInDefaultFilter) do
       defaultwf:rejectApp(appname)
     end
     --    defaultwf:setAppFilter('Hammerspoon',{'Preferences','Console'})
