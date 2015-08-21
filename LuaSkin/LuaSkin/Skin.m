@@ -189,6 +189,10 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 #pragma mark - Helper functions for [- pushNSObject:object]
 
 - (int)pushNSObject:(id)obj {
+    return [self pushNSObject:obj preserveBitsInNSNumber:NO] ;
+}
+
+- (int)pushNSObject:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag {
     if (obj) { // you'd be surprised how often nil shows up when [NSNull null] is proper...
         // check for registered helpers
 
@@ -202,7 +206,7 @@ NSMutableDictionary *registeredNSHelperFunctions ;
         // Check for built-in classes
 
         if ([obj isKindOfClass: [NSNull class]])       { return [self pushNSNull:obj] ; }
-        if ([obj isKindOfClass: [NSNumber class]])     { return [self pushNSNumber:obj] ; }
+        if ([obj isKindOfClass: [NSNumber class]])     { return [self pushNSNumber:obj preserveBits:bitsFlag] ; }
         if ([obj isKindOfClass: [NSString class]])     { return [self pushNSString:obj] ; }
         if ([obj isKindOfClass: [NSData class]])       { return [self pushNSData:obj] ; }
         if ([obj isKindOfClass: [NSDate class]])       { return [self pushNSDate:obj] ; }
@@ -223,17 +227,19 @@ NSMutableDictionary *registeredNSHelperFunctions ;
     }
 }
 
-// - (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelperFunction*)fnList {
-// //         for( ns2luaHelpers *pos = nsobj_tolua_helpers ; pos->name != NULL ; pos++) {
-// //             if ([obj isKindOfClass: NSClassFromString([NSString stringWithUTF8String:pos->name])]) {
-// //                 found = YES ;
-// //                 result = pos->func(_L, obj) ;
-// //                 break ;
-// //             }
-// //         }
-//     return [self pushNSObject:obj] ;
-// }
-//
+- (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelpers*)fnList {
+    return [self pushNSObject:obj withLocalHelpers:fnList preserveBitsInNSNumber:NO] ;
+}
+
+- (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelpers*)fnList preserveBitsInNSNumber:(BOOL)bitsFlag {
+    for( pushNSHelpers *pos = fnList ; pos->name != NULL ; pos++) {
+        if ([obj isKindOfClass: NSClassFromString([NSString stringWithUTF8String:pos->name])]) {
+            return pos->func(_L, obj) ;
+        }
+    }
+    return [self pushNSObject:obj preserveBitsInNSNumber:bitsFlag] ;
+}
+
 - (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
     [registeredNSHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
                                     forKey:[NSString stringWithUTF8String:className]] ;
@@ -252,6 +258,10 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 }
 
 - (int)pushNSNumber:(id)obj {
+    return [self pushNSNumber:obj preserveBits:NO] ;
+}
+
+- (int)pushNSNumber:(id)obj preserveBits:(BOOL)bitsOverNumber{
     NSNumber    *number = obj ;
     if (number == (id)kCFBooleanTrue)
         lua_pushboolean(_L, YES);
@@ -276,10 +286,14 @@ NSMutableDictionary *registeredNSHelperFunctions ;
             // Lua only does signed long long, not unsigned, so we keep it an integer as
             // far as we can; after that, sorry -- lua has to treat it as a number (real)
             // or it will wrap and we lose the whole point of being unsigned.
-            case 'Q': if ([number unsignedLongLongValue] < 0x8000000000000000)
+            case 'Q': if (bitsOverNumber) {
                           lua_pushinteger(_L, (long long)[number unsignedLongLongValue]) ;
-                      else
-                          lua_pushnumber(_L, [number unsignedLongLongValue]) ;
+                      } else {
+                          if ([number unsignedLongLongValue] < 0x8000000000000000)
+                              lua_pushinteger(_L, (long long)[number unsignedLongLongValue]) ;
+                          else
+                              lua_pushnumber(_L, [number unsignedLongLongValue]) ;
+                      }
                       break ;
 
             case 'f': lua_pushnumber(_L,  [number floatValue]) ; break ;
@@ -347,7 +361,7 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 }
 
 - (int)pushNSUnknown:(id)obj {
-    lua_pushstring(_L, [[NSString stringWithFormat:@"NSObject: %@", obj] UTF8String]) ;
+    lua_pushstring(_L, [[NSString stringWithFormat:@"%@", obj] UTF8String]) ;
     return 1 ;
 }
 

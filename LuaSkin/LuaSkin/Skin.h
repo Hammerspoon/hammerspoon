@@ -12,6 +12,10 @@
 #import "lua.h"
 
 typedef int (*pushNSHelperFunction) (lua_State *L, id obj);
+typedef struct pushNSHelpers {
+  const char            *name;
+  pushNSHelperFunction  func;
+} pushNSHelpers;
 
 @interface LuaSkin : NSObject {
     lua_State *_L;
@@ -160,10 +164,12 @@ typedef int (*pushNSHelperFunction) (lua_State *L, id obj);
 //TODO: Add methods for converting Lua<->objc types
 
 - (int)pushNSObject:(id)obj ;
-// - (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelperFunction*)fnList;
+- (int)pushNSObject:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag ;
+- (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelpers *)fnList ;
+- (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelpers *)fnList preserveBitsInNSNumber:(BOOL)bitsFlag ;
 
-- (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className ;
-- (void)unregisterPushNSHelperForClass:(char*)className ;
+- (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char *)className ;
+- (void)unregisterPushNSHelperForClass:(char *)className ;
 
 // push nil for [NSNull null]
 - (int)pushNSNull:(id)obj ;
@@ -175,6 +181,7 @@ typedef int (*pushNSHelperFunction) (lua_State *L, id obj);
 //     lua uses signed long long for int.  For values < 0x8000000000000000, lua result is
 //     as integer.  Greater values are pushed as lua numbers.
 - (int)pushNSNumber:(id)obj ;
+- (int)pushNSNumber:(id)obj preserveBits:(BOOL)bitsOverNumber ;
 
 // push string for [NSString ...]
 - (int)pushNSString:(id)obj ;
