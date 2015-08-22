@@ -8,6 +8,23 @@
 
 #import "Skin.h"
 
+// Well, as an extension, semi-private at least...
+
+@interface LuaSkin (hidden)
+- (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelpers*)fnList
+                      preserveBitsInNSNumber:(BOOL)bitsFlag
+                          alreadySeenObjects:(NSMutableDictionary *)alreadySeenObjects ;
+- (int)pushNSArray:(id)obj withLocalHelpers:(pushNSHelpers*)fnList
+                     preserveBitsInNSNumber:(BOOL)bitsFlag
+                         alreadySeenObjects:(NSMutableDictionary *)alreadySeenObjects ;
+- (int)pushNSSet:(id)obj withLocalHelpers:(pushNSHelpers*)fnList
+                   preserveBitsInNSNumber:(BOOL)bitsFlag
+                       alreadySeenObjects:(NSMutableDictionary *)alreadySeenObjects ;
+- (int)pushNSDictionary:(id)obj withLocalHelpers:(pushNSHelpers*)fnList
+                          preserveBitsInNSNumber:(BOOL)bitsFlag
+                              alreadySeenObjects:(NSMutableDictionary *)alreadySeenObjects ;
+@end
+
 @implementation LuaSkin
 
 #pragma mark - Skin Properties
@@ -188,12 +205,26 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 
 #pragma mark - Helper functions for [- pushNSObject:object]
 
-- (int)pushNSObject:(id)obj {
-    return [self pushNSObject:obj preserveBitsInNSNumber:NO] ;
-}
+- (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelpers*)fnList
+                      preserveBitsInNSNumber:(BOOL)bitsFlag
+                         alreadySeenObjects:(NSMutableDictionary *)alreadySeenObjects {
+// NOTE: do we also need a recursive depth?
+    if (obj) {
+        BOOL handled = NO ;
 
-- (int)pushNSObject:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag {
-    if (obj) { // you'd be surprised how often nil shows up when [NSNull null] is proper...
+        if ([alreadySeenObjects objectForKey:obj]) {
+            lua_pushvalue(_L, [[alreadySeenObjects objectForKey:obj] intValue]) ;
+            return 1 ;
+        }
+
+        // Check for run-time added converters
+
+        for( pushNSHelpers *pos = fnList ; pos->name != NULL ; pos++) {
+            if ([obj isKindOfClass: NSClassFromString([NSString stringWithUTF8String:pos->name])]) {
+                return pos->func(_L, obj) ;
+            }
+        }
+
         // check for registered helpers
 
         for (id key in registeredNSHelperFunctions) {
@@ -205,26 +236,55 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 
         // Check for built-in classes
 
-        if ([obj isKindOfClass: [NSNull class]])       { return [self pushNSNull:obj] ; }
-        if ([obj isKindOfClass: [NSNumber class]])     { return [self pushNSNumber:obj preserveBits:bitsFlag] ; }
-        if ([obj isKindOfClass: [NSString class]])     { return [self pushNSString:obj] ; }
-        if ([obj isKindOfClass: [NSData class]])       { return [self pushNSData:obj] ; }
-        if ([obj isKindOfClass: [NSDate class]])       { return [self pushNSDate:obj] ; }
-        if ([obj isKindOfClass: [NSArray class]])      { return [self pushNSArray:obj] ; }
-        if ([obj isKindOfClass: [NSSet class]])        { return [self pushNSSet:obj] ; }
-        if ([obj isKindOfClass: [NSDictionary class]]) { return [self pushNSDictionary:obj] ; }
-        if ([obj isKindOfClass: [NSObject class]])     { return [self pushNSUnknown:obj] ; }
+        if (!handled && [obj isKindOfClass:[NSNull class]])       { return [self pushNSNull:obj] ; }
+        if (!handled && [obj isKindOfClass:[NSNumber class]])     { return [self pushNSNumber:obj preserveBits:bitsFlag] ; }
+        if (!handled && [obj isKindOfClass:[NSString class]])     { return [self pushNSString:obj] ; }
+        if (!handled && [obj isKindOfClass:[NSData class]])       { return [self pushNSData:obj] ; }
+        if (!handled && [obj isKindOfClass:[NSDate class]])       { return [self pushNSDate:obj] ; }
+        if (!handled && [obj isKindOfClass:[NSArray class]])      {
+            [self pushNSArray:obj withLocalHelpers:fnList
+                            preserveBitsInNSNumber:bitsFlag
+                                alreadySeenObjects:alreadySeenObjects] ;
+            handled = YES ;
+        }
+        if (!handled && [obj isKindOfClass:[NSSet class]])        {
+            [self pushNSSet:obj withLocalHelpers:fnList
+                          preserveBitsInNSNumber:bitsFlag
+                              alreadySeenObjects:alreadySeenObjects] ;
+            handled = YES ;
+        }
+        if (!handled && [obj isKindOfClass:[NSDictionary class]]) {
+            [self pushNSDictionary:obj withLocalHelpers:fnList
+                                 preserveBitsInNSNumber:bitsFlag
+                                     alreadySeenObjects:alreadySeenObjects] ;
+            handled = YES ;
+        }
+        if (!handled && [obj isKindOfClass:[NSObject class]])     { return [self pushNSUnknown:obj] ; }
+
+        if (handled) {
+//             [alreadySeenObjects setObject:[NSNumber numberWithInt:lua_gettop(_L)] forKey:obj] ;
+            return 1 ;
+        } else {
 
         // shouldn't happen -- the last check, NSObject, should catch everything not yet caught.
-
-        NSLog(@"Uncaught NSObject type for '%@'", obj) ;
-//         printToConsole(_L, (char *)[[NSString stringWithFormat:@"Uncaught NSObject type for '%@'", obj] UTF8String]) ;
-        return [self pushNSUnknown:obj] ;
-
+            NSLog(@"Uncaught NSObject type for '%@'", obj) ;
+//             printToConsole(_L, (char *)[[NSString stringWithFormat:@"Uncaught NSObject type for '%@'", obj] UTF8String]) ;
+            return [self pushNSUnknown:obj] ;
+        }
     } else {
         lua_pushnil(_L) ;
         return 1 ;
     }
+}
+
+
+- (int)pushNSObject:(id)obj {
+    return [self pushNSObject:obj preserveBitsInNSNumber:NO] ;
+}
+
+- (int)pushNSObject:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag {
+    pushNSHelpers emptyList[] = {{NULL, NULL}} ;
+    return [self pushNSObject:obj withLocalHelpers:emptyList preserveBitsInNSNumber:bitsFlag];
 }
 
 - (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelpers*)fnList {
@@ -232,12 +292,11 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 }
 
 - (int)pushNSObject:(id)obj withLocalHelpers:(pushNSHelpers*)fnList preserveBitsInNSNumber:(BOOL)bitsFlag {
-    for( pushNSHelpers *pos = fnList ; pos->name != NULL ; pos++) {
-        if ([obj isKindOfClass: NSClassFromString([NSString stringWithUTF8String:pos->name])]) {
-            return pos->func(_L, obj) ;
-        }
-    }
-    return [self pushNSObject:obj preserveBitsInNSNumber:bitsFlag] ;
+    NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
+
+    return [self pushNSObject:obj withLocalHelpers:fnList
+                            preserveBitsInNSNumber:bitsFlag
+                                alreadySeenObjects:alreadySeen];
 }
 
 - (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
@@ -343,12 +402,17 @@ NSMutableDictionary *registeredNSHelperFunctions ;
     return 1 ;
 }
 
-- (int)pushNSArray:(id)obj {
+- (int)pushNSArray:(id)obj withLocalHelpers:(pushNSHelpers*)fnList
+                     preserveBitsInNSNumber:(BOOL)bitsFlag
+                         alreadySeenObjects:(NSMutableDictionary *)alreadySeenObjects {
     if ([obj isKindOfClass: [NSArray class]]) {
         NSArray* list = obj;
         lua_newtable(_L);
+        [alreadySeenObjects setObject:[NSNumber numberWithInt:lua_gettop(_L)] forKey:obj] ;
         for (id item in list) {
-            [self pushNSObject:item];
+            [self pushNSObject:item withLocalHelpers:fnList
+                              preserveBitsInNSNumber:bitsFlag
+                                  alreadySeenObjects:alreadySeenObjects];
             lua_rawseti(_L, -2, luaL_len(_L, -2) + 1) ;
         }
     } else {
@@ -357,12 +421,25 @@ NSMutableDictionary *registeredNSHelperFunctions ;
     return 1 ;
 }
 
-- (int)pushNSSet:(id)obj {
+
+- (int)pushNSArray:(id)obj {
+    NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
+    pushNSHelpers emptyList[] = {{NULL, NULL}} ;
+    return [self pushNSArray:obj withLocalHelpers:emptyList preserveBitsInNSNumber:NO alreadySeenObjects:alreadySeen];
+    return 1 ;
+}
+
+- (int)pushNSSet:(id)obj withLocalHelpers:(pushNSHelpers*)fnList
+                   preserveBitsInNSNumber:(BOOL)bitsFlag
+                       alreadySeenObjects:(NSMutableDictionary *)alreadySeenObjects {
     if ([obj isKindOfClass: [NSSet class]]) {
         NSSet* list = obj;
         lua_newtable(_L);
+        [alreadySeenObjects setObject:[NSNumber numberWithInt:lua_gettop(_L)] forKey:obj] ;
         for (id item in list) {
-            [self pushNSObject:item];
+            [self pushNSObject:item withLocalHelpers:fnList
+                              preserveBitsInNSNumber:bitsFlag
+                                  alreadySeenObjects:alreadySeenObjects];
             lua_rawseti(_L, -2, luaL_len(_L, -2) + 1) ;
         }
     } else {
@@ -371,19 +448,40 @@ NSMutableDictionary *registeredNSHelperFunctions ;
     return 1 ;
 }
 
-- (int)pushNSDictionary:(id)obj {
+- (int)pushNSSet:(id)obj {
+    NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
+    pushNSHelpers emptyList[] = {{NULL, NULL}} ;
+    return [self pushNSSet:obj withLocalHelpers:emptyList preserveBitsInNSNumber:NO alreadySeenObjects:alreadySeen];
+    return 1 ;
+}
+
+- (int)pushNSDictionary:(id)obj withLocalHelpers:(pushNSHelpers*)fnList
+                   preserveBitsInNSNumber:(BOOL)bitsFlag
+                       alreadySeenObjects:(NSMutableDictionary *)alreadySeenObjects {
     if ([obj isKindOfClass: [NSDictionary class]]) {
         NSArray *keys = [obj allKeys];
         NSArray *values = [obj allValues];
         lua_newtable(_L);
+        [alreadySeenObjects setObject:[NSNumber numberWithInt:lua_gettop(_L)] forKey:obj] ;
         for (unsigned long i = 0; i < [keys count]; i++) {
-            [self pushNSObject:[keys objectAtIndex:i]];
-            [self pushNSObject:[values objectAtIndex:i]];
+            [self pushNSObject:[keys objectAtIndex:i] withLocalHelpers:fnList
+                                                preserveBitsInNSNumber:bitsFlag
+                                                    alreadySeenObjects:alreadySeenObjects];
+            [self pushNSObject:[values objectAtIndex:i] withLocalHelpers:fnList
+                                                  preserveBitsInNSNumber:bitsFlag
+                                                      alreadySeenObjects:alreadySeenObjects];
             lua_settable(_L, -3);
         }
     } else {
         lua_pushnil(_L) ; // Not an NSDictionary
     }
+    return 1 ;
+}
+
+- (int)pushNSDictionary:(id)obj {
+    NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
+    pushNSHelpers emptyList[] = {{NULL, NULL}} ;
+    return [self pushNSDictionary:obj withLocalHelpers:emptyList preserveBitsInNSNumber:NO alreadySeenObjects:alreadySeen];
     return 1 ;
 }
 
