@@ -13,7 +13,7 @@ local geometry = require "hs.geometry"
 local screen = require "hs.screen"
 local timer = require "hs.timer"
 local pairs,ipairs,next,min,max,abs,cos,type = pairs,ipairs,next,math.min,math.max,math.abs,math.cos,type
-local tinsert,tremove,tsort,tunpack = table.insert,table.remove,table.sort,table.unpack
+local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort,table.unpack,table.pack
 --- hs.window.animationDuration (number)
 --- Variable
 --- The default duration for animations, in seconds. Initial value is 0.2; set to 0 to disable animations.
@@ -82,21 +82,40 @@ function window.orderedWindows()
 end
 --]]
 
---- hs.window.find(hint[, exact]) -> hs.window object(s)
---- Function
+--- hs.window.get(hint) -> hs.window object
+--- Constructor
+--- Gets a specific window
+---
+--- Parameters:
+---  * hint - search criterion for the desired window; it can be:
+---    - an id number as per `hs.window:id()`
+---    - a window title string as per `hs.window:title()`
+---
+--- Returns:
+---  * the first hs.window object that matches the supplied search criterion, or `nil` if not found
+---
+--- Notes:
+---  * see also `hs.window.find` and `hs.application:getWindow()`
+function window.get(hint)
+  return tpack(window.find(hint,true),nil)[1] -- just to be sure, discard extra results
+end
+window.windowForID=window.get
+
+--- hs.window.find(hint) -> hs.window object(s)
+--- Constructor
 --- Finds windows
 ---
 --- Parameters:
 ---  * hint - search criterion for the desired window(s); it can be:
 ---    - an id number as per `hs.window:id()`
 ---    - a string pattern that matches (via `string.find`) the window title as per `hs.window:title()` (for convenience, the matching will be done on lowercased strings)
----  * exact - (optional) if `true`, `hint` is the exact title of the window to find; will use `==` instead of `string.find` (and the original case)
 ---
 --- Returns:
----  * one or more hs.application objects that match the supplied search criterion, or `nil` if none found
+---  * one or more hs.window objects that match the supplied search criterion, or `nil` if none found
 ---
 --- Notes:
 ---  * for convenience you can call this as `hs.window(hint)`
+---  * see also `hs.window.get`
 ---  * for more sophisticated use cases and/or for better performance if you call this a lot, consider using `hs.window.filter`
 ---
 --- Usage:
@@ -104,10 +123,10 @@ end
 --- hs.window(8812):title() --> Hammerspoon Console
 --- -- by title
 --- hs.window'bash':application():name() --> Terminal
-function window.find(hint,exact)
+function window.find(hint,exact,wins)
   if hint==nil then return end
-  local typ=type(hint)
-  local wins,r=window.allWindows(),{}
+  local typ,r=type(hint),{}
+  wins=wins or window.allWindows()
   if typ=='number' then for _,w in ipairs(wins) do if w:id()==hint then return w end end
     --  if typ=='number' then return wins[moses.detect(wins,function(w)return w:id()==hint end)]
   elseif typ~='string' then error('hint must be a number or string',2) end
@@ -116,7 +135,6 @@ function window.find(hint,exact)
   --  r=moses.filter(wins,exact and function(_,w)return w:title()==hint end or function(_,w)return w:title():lower():find(hint:lower())end)
   if #r>0 then return tunpack(r) end
 end
-window.windowForID=window.find
 
 --- hs.window:isVisible() -> bool
 --- Method
@@ -710,12 +728,20 @@ function window:ensureIsInScreenBounds()
 end
 
 package.loaded[...]=window
-window.filter = require "hs.window.filter"
+window.filter=require "hs.window.filter"
 --window.layout = require "hs.window.layout"
+
 do
   local mt=getmetatable(window)
+  --[[ this (lazy "autoload") won't work, objc wants the first metatable for objects
+  setmetatable(window,{
+    __call=function(_,...)return window.find(...)end,
+    __index=function(t,k)
+      if k=='filter' then window.filter=require'hs.window.filter' return window.filter
+      else return mt[k] end
+    end})
+    --]]
   if not mt.__call then mt.__call=function(t,...)if t.find then return t.find(...) else error('cannot call uielement',2) end end end
 end
 
---getmetatable(window).__call=function(_,...)return window.find(...)end
 return window
