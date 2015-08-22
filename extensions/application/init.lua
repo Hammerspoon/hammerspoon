@@ -52,8 +52,27 @@ end
 --- Alias for `hs.application:title()`
 application.name=application.title
 
---- hs.application.find(hint[, exact]) -> hs.application object(s)
---- Function
+--- hs.application.get(hint) -> hs.application object
+--- Constructor
+--- Gets a running application
+---
+--- Parameters:
+---  * hint - search criterion for the desired application; it can be:
+---    - a pid number as per `hs.application:pid()`
+---    - a bundle ID string as per `hs.application:bundleID()`
+---    - an application name string as per `hs.application:name()`
+---
+--- Returns:
+---  * an hs.application object for a running application that matches the supplied search criterion, or `nil` if not found
+---
+--- Notes:
+---  * see also `hs.application.find`
+function application.get(hint)
+  return tpack(application.find(hint,true),nil)[1] -- just to be sure, discard extra results
+end
+
+--- hs.application.find(hint) -> hs.application object(s)
+--- Constructor
 --- Finds running applications
 ---
 --- Parameters:
@@ -62,13 +81,17 @@ application.name=application.title
 ---    - a bundle ID string as per `hs.application:bundleID()`
 ---    - a string pattern that matches (via `string.find`) the application name as per `hs.application:name()` (for convenience, the matching will be done on lowercased strings)
 ---    - a string pattern that matches (via `string.find`) the application's window title per `hs.window:title()` (for convenience, the matching will be done on lowercased strings)
----  * exact - (optional) if `true`, `hint` is the exact name of the app, or the exact title of its window; will use `==` instead of `string.find` (and the original case)
 ---
 --- Returns:
----  * one or more hs.application objects that match the supplied search criterion, or `nil` if none found
+---  * one or more hs.application objects for running applications that match the supplied search criterion, or `nil` if none found
 ---
 --- Notes:
 ---  * for convenience you can call this as `hs.application(hint)`
+---  * use this function when you don't know the exact name of an application you're interested in, i.e.
+---    from the console: `hs.application'term' --> hs.application: iTerm2 (0x61000025fb88)  hs.application: Terminal (0x618000447588)`.
+---    But be careful when using it in your `init.lua`: `terminal=hs.application'term'` will assign either "Terminal" or "iTerm2" arbitrarily (or even,
+---    if neither are running, any other app with a window that happens to have "term" in its title); to make sure you get the right app in your scripts,
+---    use `hs.application.get` with the exact name: `terminal=hs.application.get'Terminal' --> "Terminal" app, or nil if it's not running`
 ---
 --- Usage:
 --- -- by pid
@@ -91,14 +114,40 @@ function application.find(hint,exact)
   if exact then for _,a in ipairs(apps) do if a:name()==hint then r[#r+1]=a end end
   else for _,a in ipairs(apps) do if a:name():lower():find(hint:lower()) then r[#r+1]=a end end end
   tsort(r,function(a,b)return a:kind()>b:kind()end) -- gui apps first
-  if #r>0 then return tunpack(r) end
+  if exact or #r>0 then return tunpack(r) end
 
-  r=tpack(window.find(hint,exact))
+  r=tpack(window.find(hint))
   local rs={} for _,w in ipairs(r) do rs[w:application()]=true end -- :toSet
   for a in pairs(rs) do r[#r+1]=a end -- and back, no dupes
   if #r>0 then return tunpack(r) end
 end
 
+--- hs.application:findWindow(titlePattern) -> hs.window object(s)
+--- Method
+--- Finds windows from this application
+---
+--- Parameters:
+---  * titlePattern - a string pattern that matches (via `string.find`) the window title(s) as per `hs.window:title()` (for convenience, the matching will be done on lowercased strings)
+---
+--- Returns:
+---  * one or more hs.window objects belonging to this application that match the supplied search criterion, or `nil` if none found
+
+function application:findWindow(hint)
+  return window.find(hint,false,self:allWindows())
+end
+
+--- hs.application:getWindow(title) -> hs.window object
+--- Method
+--- Gets a specific window from this application
+---
+--- Parameters:
+---  * title - the desired window's title string as per `hs.window:title()`
+---
+--- Returns:
+---  * the desired hs.window object belonging to this application, or `nil` if not found
+function application:getWindow(hint)
+  return tpack(window.find(hint,true,self:allWindows()),nil)[1]
+end
 
 --- hs.application.open(app) -> hs.application object
 --- Constructor
