@@ -381,6 +381,12 @@ function window:screen()
     local a=frame:intersect(s:fullFrame()).area
     if a>maxa then maxa,maxs=a,s end
   end
+  if maxs then return maxs end
+  local mind=99999 -- if (impossibly) a window is totally out of bounds, get the closest screen
+  for _,s in ipairs(screens) do
+    local d=frame:vector(s:frame()).length
+    if d<mind then mind,maxs=d,s end
+  end
   return maxs
 end
 --[[ -- moses version
