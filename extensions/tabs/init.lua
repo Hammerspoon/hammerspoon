@@ -10,7 +10,6 @@ local fnutils = require "hs.fnutils"
 local timer = require "hs.timer"
 local application = require "hs.application"
 local appwatcher = application.watcher
-local appfinder = require "hs.appfinder"
 
 tabs.leftPad = 10
 tabs.topPad = 2
@@ -156,7 +155,7 @@ function tabs.enableForApp(appName)
   appWatches[appName] = true
 
   -- might already be running
-  local runningApp = appfinder.appFromName(appName)
+  local runningApp = application.get(appName)
   if runningApp then
     watchApp(runningApp)
   end

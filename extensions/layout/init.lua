@@ -6,10 +6,10 @@
 
 local layout = {}
 local geometry = require("hs.geometry")
-local appfinder = require("hs.appfinder")
 local fnutils = require("hs.fnutils")
 local screen = require("hs.screen")
 local window = require("hs.window")
+local application = require("hs.application")
 
 --- hs.layout.left25
 --- Constant
@@ -127,7 +127,7 @@ function layout.apply(layout)
 
         -- Find the application's object, if wanted
         if _row[1] then
-            app = appfinder.appFromName(_row[1])
+            app = application.get(_row[1])
             if not app then
                 print("Unable to find app: " .. _row[1])
             end
