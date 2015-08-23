@@ -3,24 +3,8 @@
 -- Easily find ```hs.application``` and ```hs.window``` objects
 
 local appfinder = {}
-local fnutils = require "hs.fnutils"
 local application = require "hs.application"
 local window = require "hs.window"
-
--- Internal function to search all windows using a matching function
-local function find_window_from_function(fn)
-    return fnutils.find(window.allWindows(), fn)
-end
-
--- Internal function to turn a matching function into an application object
-local function find_application_from_window(fn)
-    local w = find_window_from_function(fn)
-    if w then
-        return w:application()
-    else
-        return nil
-    end
-end
 
 -- hs.appfinder.appFromName(name) -> app or nil
 -- Function
@@ -31,7 +15,7 @@ end
 --
 -- Returns:
 --  * An hs.application object if one can be found, otherwise nil
-appfinder.appFromName=application.find
+appfinder.appFromName=application.get
 
 -- hs.appfinder.appFromWindowTitle(title) -> app or nil
 -- Function
@@ -43,7 +27,7 @@ appfinder.appFromName=application.find
 -- Returns:
 --  * An hs.application object if one can be found, otherwise nil
 function appfinder.appFromWindowTitle(title)
-    return find_application_from_window(function(win) return win:title() == title end)
+    local w=window.get(title) if w then return w:application() end
 end
 
 -- hs.appfinder.appFromWindowTitlePattern(pattern) -> app or nil
@@ -59,7 +43,7 @@ end
 -- Notes:
 --  * For more about Lua patterns, see http://lua-users.org/wiki/PatternsTutorial and http://www.lua.org/manual/5.2/manual.html#6.4.1
 function appfinder.appFromWindowTitlePattern(pattern)
-    return find_application_from_window(function(win) return string.match(win:title(), pattern) end)
+    local w=window.find(title) if w then return w:application() end
 end
 
 -- hs.appfinder.windowFromWindowTitle(title) -> win or nil
@@ -71,10 +55,8 @@ end
 --
 -- Returns:
 --  * An hs.window object if one can be found, otherwise nil
-function appfinder.windowFromWindowTitle(title)
-    return window.find(title,true)
-end
---
+appfinder.windowFromWindowTitle=window.get
+
 -- hs.appfinder.windowFromWindowTitlePattern(pattern) -> app or nil
 -- Function
 -- Finds a window by Lua pattern in its title (e.g."Inbox %(%d+ messages.*)")
