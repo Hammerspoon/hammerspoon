@@ -143,9 +143,8 @@ geometry.new=new
 ---
 --- Returns:
 ---  * a newly created copy of the hs.geometry object
-function geometry.copy(o)
-  return new(o.x,o.y,o.w,o.h)
-end
+local function copy(o) return new(o.x,o.y,o.w,o.h) end
+geometry.copy=copy
 
 function geometry.__tostring(t)
   local typ=gettype(t)
@@ -259,15 +258,14 @@ end
 --- Field
 --- A number representing the length of the diagonal of this rect, or the length of this vector2; changing it will scale the rect/vector - see `hs.geometry:scale()`
 function geometry.getlength(t)
-  if t.w and t.h then t=new(t.w-(t.x or 0),t.h-(t.y or 0)) end
+  if t.w and t.h then t=new(t.w,t.h) end
   return sqrt(t.x^2+t.y^2)
 end
 function geometry.setlength(t,l)
   l=tonumber(l) or error('number expected',3)
   local ol=geometry.getlength(t)
   if ol>0 then
-    local f=sqrt(l/ol)
-    return geometry.scale(t,f,f)
+    t=geometry.scale(t,l/ol)
   end
 end
 --- hs.geometry.area
@@ -280,7 +278,7 @@ function geometry.setarea(t,a)
   local oa=geometry.getarea(t)
   if oa>0 then
     local f=sqrt(a/oa)
-    return geometry.scale(t,f,f)
+    return geometry.scale(t,f)
   end
 end
 
@@ -325,7 +323,7 @@ end
 
 --- hs.geometry:scale(size) -> hs.geometry object
 --- Method
---- Scales this size/rect, *keeping its center constant*
+--- Scales this vector2/size, or this rect *keeping its center constant*
 ---
 --- Parameters:
 ---  * size - an hs.geometry object, or a table or string or parameter list to construct one, indicating the factors for scaling this rect's width and height;
@@ -341,11 +339,11 @@ function geometry.scale(t,s1,s2,...)
   if t.w and t.h then
     t.w=t.w*(s.w or s.x)
     t.h=t.h*(s.h or s.y)
+    geometry.setcenter(t,c)
   else
     t.x=t.x*(s.w or s.x)
     t.y=t.y*(s.h or s.y)
   end
-  geometry.setcenter(t,c)
   return t
 end
 
@@ -499,7 +497,7 @@ geometry.__add=function(t1,t2) -- :move or :union
 end
 geometry.__concat=geometry.union --TODO if segments, allow here
 geometry.__sub=function(t1,t2)return geometry.vector(t2,t1)end
-geometry.__mul=geometry.scale
+geometry.__mul=function(t1,t2)t1=copy(t1) return geometry.scale(t1,t2) end
 geometry.__pow=geometry.intersect
 geometry.__lt=function(t1,t2)
   t2=new(t2)
