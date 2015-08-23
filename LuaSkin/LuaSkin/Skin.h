@@ -172,6 +172,7 @@ typedef struct pushNSHelpers {
 - (void)unregisterPushNSHelperForClass:(char *)className ;
 
 - (id)toNSObjectFromIndex:(int)idx ;
+- (id)toNSObjectFromIndex:(int)idx allowSelfReference:(BOOL)allow ;
 
 - (BOOL)isValidUTF8AtIndex:(int)idx ;
 
