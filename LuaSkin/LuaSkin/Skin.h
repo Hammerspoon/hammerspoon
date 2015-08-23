@@ -171,52 +171,9 @@ typedef struct pushNSHelpers {
 - (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char *)className ;
 - (void)unregisterPushNSHelperForClass:(char *)className ;
 
-// push nil for [NSNull null]
-- (int)pushNSNull:(id)obj ;
+- (id)toNSObjectFromIndex:(int)idx ;
 
-// push number or integer for [NSNumber ...] depending upon type
-// Notes:
-//   Attempts to identify type of number and convert with no/minimal loss of precision
-//   [NSNumber unsignedLongLongValue] cannot be converted without loss of precision because
-//     lua uses signed long long for int.  For values < 0x8000000000000000, lua result is
-//     as integer.  Greater values are pushed as lua numbers.
-- (int)pushNSNumber:(id)obj ;
-- (int)pushNSNumber:(id)obj preserveBits:(BOOL)bitsOverNumber ;
-
-// push string for [NSString ...]
-- (int)pushNSString:(id)obj ;
-
-// push string for [NSData ...]
-- (int)pushNSData:(id)obj ;
-
-// push integer for [NSDate ...]
-// Notes:
-//   The integer pushed is the number of seconds since the 1970 epoch and is safe to use
-//     with os.date() in lua
-- (int)pushNSDate:(id)obj ;
-
-// push table for [NSArray ...]
-// Notes:
-//   Recursively calls [- pushNSObject:object] for elements in NSArray
-//   NSArray indexes start at 0, lua table indexes start at 1.  If index is being used
-//     solely to indicate order, this shouldn't matter.  If the index value carries
-//     information, make sure to take this shift into account in your lua code.
-- (int)pushNSArray:(id)obj ;
-
-// push table for [NSSet ...]
-// Notes:
-//   Recursively calls [- pushNSObject:object] for elements in NSSet
-- (int)pushNSSet:(id)obj ;
-
-// push table for [NSDictionary ...]
-// Notes:
-//   Recursively calls [- pushNSObject:object] for elements in NSDictionary
-- (int)pushNSDictionary:(id)obj ;
-
-// push string representation of an NSObject
-// Notes:
-//   The string will be in the format "NSObject: %@" where %@ is the object representation
-//     returned by descriptionWithLocale: if available, or description otherwise.
-- (int)pushNSUnknown:(id)obj ;
+- (BOOL)isValidUTF8AtIndex:(int)idx ;
 
 @end
+
