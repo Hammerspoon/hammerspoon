@@ -670,6 +670,34 @@ function window:moveToScreen(toScreen, duration)
   return self:setFrame(geometry(self:frame()):toUnitRect(self:screen():frame()):fromUnitRect(toScreen:frame()),duration)
 end
 
+--- hs.window:move(rect[, screen][, duration]) --> hs.window object
+--- Method
+--- Moves the window
+---
+--- Parameters:
+---  * rect - It can be:
+---    - an `hs.geometry` point, or argument to construct one; will move the screen by this delta, keeping its size constant; `screen` is ignored
+---    - an `hs.geometry` rect, or argument to construct one; will set the window frame to this rect, in absolute coordinates; `screen` is ignored
+---    - an `hs.geometry` unit rect, or argument to construct one; will set the window frame to this rect relative to the desired screen;
+---      if `screen` is nil or omitted, use the screen the window is currently on
+---  * screen - (optional) An `hs.screen` object or argument for `hs.screen.find`; only valid if `rect` is a unit rect
+---  * duration - (optional) A number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
+function window:move(rect,toScreen,duration)
+  rect=geometry(rect)
+  local rtype=rect:type()
+  if type(toScreen)=='number' and toScreen<20 and duration==nil then duration=toScreen toScreen=nil end
+  if rtype=='point' then return self:setFrame(geometry(self:frame()):move(rect),duration)
+  elseif rtype=='rect' then return self:setFrame(rect,duration)
+  elseif rtype=='unitrect' then
+    if toScreen then toScreen=screen.find(toScreen) if not toScreen then return self end --TODO log?
+    else toScreen=self:screen() end
+    return self:setFrame(rect:fromUnitRect(toScreen:frame()),duration)
+  else error('rect must be a point, rect, or unit rect',2) end
+end
+
 --- hs.window:moveOneScreenWest([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen west (i.e. left)
