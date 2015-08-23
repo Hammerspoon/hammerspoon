@@ -6,6 +6,7 @@ local uielement = hs.uielement  -- Make sure parent module loads
 local application = require "hs.application.internal"
 application.watcher = require "hs.application.watcher"
 local window = require "hs.window"
+local timer = require "hs.timer"
 
 local type,pairs,ipairs=type,pairs,ipairs
 local tunpack,tpack,tsort=table.unpack,table.pack,table.sort
@@ -149,7 +150,7 @@ function application:getWindow(hint)
   return tpack(window.find(hint,true,self:allWindows()),nil)[1]
 end
 
---- hs.application.open(app) -> hs.application object
+--- hs.application.open(app[, wait]) -> hs.application object
 --- Constructor
 --- Launches an application, or activates it if it's already running
 ---
@@ -158,13 +159,26 @@ end
 ---    - the application's name as per `hs.application:name()`
 ---    - the full path to an application on disk (including the `.app` suffix)
 ---    - the application's bundle ID as per `hs.application:bundleID()`
+---  * wait - (optional) the maximum number of seconds to wait for the app to get into "launching" state, if not already running; if omitted, defaults to 0.1;
+---           if the app takes longer than this to launch, this function will return `nil`, but the app will still launch
 ---
 --- Returns:
 ---  * the `hs.application` object for the launched or activated application; `nil` if not found
-function application.open(app)
+---
+--- Notes:
+---  * the `wait` parameter will *halt the entire script* in order to return the application object "synchronously"; only use it if you a) need
+---    to act on the application object right away and b) have no time-critical event processing happening elsewhere in your `init.lua`
+function application.open(app,wait)
   if type(app)~='string' then error('app must be a string',2) end
-  if application.launchOrFocus(app) then return application.find(app,true) end
-  if application.launchOrFocusByBundleID(app) then return application.find(app,true) end
+  if wait and type(wait)~='number' then error('wait must be a number',2) end
+  local r=application.launchOrFocus(app) or application.launchOrFocusByBundleID(app)
+  if not r then return end
+  wait=(wait or 0.1)*1000000
+  local CHECK_INTERVAL=200000
+  repeat
+    r=application.get(app) if r then return r end
+    timer.usleep(math.min(wait,CHECK_INTERVAL)) wait=wait-CHECK_INTERVAL
+  until wait<=0
 end
 
 do
