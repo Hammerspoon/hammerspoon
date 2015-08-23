@@ -752,7 +752,8 @@ end
 ---  * Calling this method will immediately fast-forward to the end of any ongoing animation on the window
 function window:ensureIsInScreenBounds()
   stopAnimation(self,true)
-  return self:moveToScreen(self:screen(),0)
+  local frame,screenFrame=geometry(self:frame()),self:screen():frame()
+  self:setFrame(frame:move((frame:intersect(screenFrame).center-frame.center)*2):intersect(screenFrame),0)
 end
 
 package.loaded[...]=window
