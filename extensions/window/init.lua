@@ -206,13 +206,13 @@ end
 
 -- get actual window frame
 function window:_frame()
-  local tl,s = self:_topLeft(),self:_size()
-  return {x = tl.x, y = tl.y, w = s.w, h = s.h}
+  return geometry(self:_topLeft(),self:_size())
+    --  local tl,s = self:_topLeft(),self:_size()
+    --  return {x = tl.x, y = tl.y, w = s.w, h = s.h}
 end
 -- set window frame instantly
 function window:_setFrame(f)
-  self:_setSize(f) self:_setTopLeft(f) self:_setSize(f)
-  return self
+  self:_setSize(f) self:_setTopLeft(f) return self:_setSize(f)
 end
 
 --- hs.window:frame() -> rect
@@ -240,6 +240,7 @@ end
 function window:setFrame(f, duration)
   if duration==nil then duration = window.animationDuration end
   if type(duration)~='number' then duration = 0 end
+  f=geometry(f)
   local id = self:id()
   stopAnimation(self,false,id)
   if duration<=0 or not id then return self:_setFrame(f) end
@@ -255,18 +256,20 @@ end
 
 -- wrapping these Lua-side for dealing with animations cache
 function window:size()
-  return getAnimationFrame(self) or self:_size()
+  local f=getAnimationFrame(self)
+  return f and f.size or geometry(self:_size())
 end
 function window:topLeft()
-  return getAnimationFrame(self) or self:_topLeft()
+  local f=getAnimationFrame(self)
+  return f and f.xy or geometry(self:_topLeft())
 end
 function window:setSize(size)
-  stopAnimation(self)
-  return self:_setSize(size)
+  stopAnimation(self,true)
+  return self:_setSize(geometry(size))
 end
 function window:setTopLeft(point)
-  stopAnimation(self)
-  return self:_setTopLeft(point)
+  stopAnimation(self,true)
+  return self:_setTopLeft(geometry(point))
 end
 function window:minimize()
   stopAnimation(self,true)
