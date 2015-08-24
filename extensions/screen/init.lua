@@ -182,7 +182,7 @@ local function first_screen_in_direction(aScreen, numrotations, from, strict, al
   -- thanks mark!
 
   local otherscreens = fnutils.filter(allscreens, function(s) return s ~= aScreen end)
-  local myf=screen:fullFrame()
+  local myf=aScreen:fullFrame()
   local p1 = geometry.rectMidPoint(from and projection(myf,from) or myf)
   local screens = {}
 
