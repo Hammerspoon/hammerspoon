@@ -4,15 +4,14 @@
 
 local hotkey = require "hs.hotkey.internal"
 local keycodes = require "hs.keycodes"
-local fnutils = require "hs.fnutils"
 local alert = require'hs.alert'
 local log = require'hs.logger'.new('hotkey','info')
 hotkey.setLogLevel=log.setLogLevel
 
-local tonumber,pairs,ipairs,type,tremove,tinsert,tconcat = tonumber,pairs,ipairs,type,table.remove,table.insert,table.concat
+local tonumber,pairs,ipairs,type,tremove,tinsert,tconcat,tsort = tonumber,pairs,ipairs,type,table.remove,table.insert,table.concat,table.sort
 local supper,slower,sfind=string.upper,string.lower,string.find
 
-local function error(err,lvl) return hs.showError(err,(lvl or 1)+1,true) end -- this should go away, #477
+--local function error(err,lvl) return hs.showError(err,(lvl or 1)+1,true) end -- this should go away, #477
 
 local function getKeycode(s)
   local n
@@ -60,10 +59,10 @@ local function enable(self,force,isModal)
   if not force and self.enabled then log.v('Hotkey already enabled') return self end
   local idx = self.idx
   if not idx or not hotkeys[idx] then log.e('The hotkey was deleted, cannot enable it') return end
-  local i = fnutils.indexOf(hotkeys[idx],self)
-  if i then tremove(hotkeys[idx],i) end -- this hotkey will go to the top of the stack
-  for _,hk in ipairs(hotkeys[idx]) do
-    if hk.enabled then log.i('Disabled previous hotkey '..hk.msg) end --shadow previous hotkeys
+  for i=#hotkeys[idx],1,-1 do
+    local hk=hotkeys[idx][i]
+    if hk==self then tremove(hotkeys[idx],i) -- this hotkey will go to the top of the stack
+    elseif hk.enabled then log.i('Disabled previous hotkey '..hk.msg) end --shadow previous hotkeys
     hk._hk:disable() --objc
   end
   self.enabled = true
@@ -112,8 +111,7 @@ local function delete(self)
   local idx=self.idx
   if not idx or not hotkeys[idx] then log.w('The hotkey has already been deleted') return end --?
   disable(self)
-  local i = fnutils.indexOf(hotkeys[idx],self)
-  if i then tremove(hotkeys[idx],i) end
+  for i,hk in ipairs(hotkeys[idx]) do if hk==self then tremove(hotkeys[idx],i) break end end
   for k in pairs(self) do self[k]=nil end --gc
   log.i('Deleted hotkey '..self.msg)
 end
@@ -279,7 +277,7 @@ function hotkey.getHotkeys()
       end
     end
   end
-  table.sort(t,function(a,b)if#a.idx==#b.idx then return a.idx<b.idx else return #a.idx<#b.idx end end)
+  tsort(t,function(a,b)if#a.idx==#b.idx then return a.idx<b.idx else return #a.idx<#b.idx end end)
   if helpHotkey then tinsert(t,1,helpHotkey) end
   return t
 end
@@ -289,11 +287,11 @@ local function showHelp()
   --  hs.alert(helpHotkey.msg,3600)
   local s=''
   for i=2,#t do s=s..t[i].msg..'\n' end
-  hs.alert(string.sub(s,1,-2),3600)
+  alert(s:sub(1,-2),3600)
 end
 function hotkey.showHotkeys(mods,key)
   if helpHotkey then delete(helpHotkey) end
-  helpHotkey = hotkey.bind(mods,key,'Show active hotkeys',showHelp,hs.alert.closeAll)
+  helpHotkey = hotkey.bind(mods,key,'Show active hotkeys',showHelp,alert.closeAll)
   return helpHotkey
 end
 --- hs.hotkey.bind(mods, key, message, pressedfn, releasedfn, repeatfn) -> hs.hotkey object
