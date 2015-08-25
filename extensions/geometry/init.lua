@@ -526,7 +526,7 @@ end
 ---  * The resulting unit rect is always clipped within `frame`'s bounds (via `hs.geometry:intersect()`)
 function geometry.toUnitRect(t,...)
   t=new(t) local frame=new(...)
-  if gettype(t)=='size' then error('cannot convert a size',2) end
+  if t._w and t._h and gettype(t)~='rect' then error('not a rect',2) end
   if gettype(frame)~='rect' or frame.area==0 then error('frame must be a valid rect',2) end
   t=geometry.intersect(t,frame)
   t._x=(t._x-frame._x)/frame._w
@@ -547,10 +547,12 @@ end
 ---  * An hs.geometry rect object
 function geometry.fromUnitRect(t,...)
   t=new(t) local frame=new(...)
-  if gettype(t)=='size' then error('cannot convert a size',2) end
+  if t._w and t._h and gettype(t)~='unitrect' then error('not a unit rect',2) end
   if gettype(frame)~='rect' or frame.area==0 then error('frame must be a valid rect',2) end
   return new(t._x*frame._w+frame._x,t._y*frame._h+frame._y,t._w and t._w*frame._w,t._h and t._h*frame._h)
 end
+
+
 -- legacy
 geometry.hypot=geometry.getlength
 geometry.rectMidPoint=geometry.getcenter
