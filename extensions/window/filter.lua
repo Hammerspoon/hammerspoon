@@ -176,6 +176,7 @@ local function allowWindow(app,props)
   if app.focused~=nil and app.focused~=props.focused then return false end
   return true
 end
+--local shortRoles={AXStandardWindow='window',AXDialog='dialog',AXSystemDialog='sys dlg',AXFloatingWindow='float',AXUnknown='unknown',['']='no role'}
 local props = {id=-2}-- cache window props for successive calls to isWindowAllowed
 function wf:isWindowAllowed(window,appname,cache)
   local id=window:id()
@@ -192,36 +193,36 @@ function wf:isWindowAllowed(window,appname,cache)
     props.appname = appname or window:application():title()
     props.id=id
   end
-  local role,appname=props.role,props.appname
+  local role,appname=--[[shortRoles[props.role] or--]]props.role,props.appname
   local app=self.apps.override
-  if app==false then self.log.vf('%s (%s) rejected: override reject',role,appname)return false
+  if app==false then self.log.vf('reject %s (%s): override reject',appname,role)return false
   elseif app then
     local r=allowWindow(app,props)
-    self.log.vf('%s (%s) %s: override filter',role,appname,r and 'allowed' or 'rejected')
+    self.log.vf('%s %s (%s): override filter',r and 'allow' or 'reject',appname,role)
     return r
   end
-  if self.spaceFilter and not self.currentSpaceWindows[id] then self.log.vf('%s (%s) rejected: not in current space',role,appname) return false
-  elseif self.spaceFilter==false and self.currentSpaceWindows[id] then self.log.vf('%s (%s) rejected: in current space',role,appname) return false end
+  if self.spaceFilter and not self.currentSpaceWindows[id] then self.log.vf('reject %s (%s): not in current space',appname,role) return false
+  elseif self.spaceFilter==false and self.currentSpaceWindows[id] then self.log.vf('reject %s (%s): in current space',appname,role) return false end
 
   if not windowfilter.isGuiApp(appname) then
     --if you see this in the log, add to .ignoreAlways
-    self.log.wf('%s (%s) rejected: should be a non-GUI app!',role,appname) return false
+    self.log.wf('reject %s (%s): should be a non-GUI app!',appname,role) return false
   end
   app=self.apps[appname]
-  if app==false then self.log.vf('%s (%s) rejected: app reject',role,appname) return false
+  if app==false then self.log.vf('reject %s (%s): app reject',appname,role) return false
   elseif app then
     local r=allowWindow(app,props)
-    self.log.vf('%s (%s) %s: app filter',role,appname,r and 'allowed' or 'rejected')
+    self.log.vf('%s %s (%s): app filter',r and 'allow' or 'reject',appname,role)
     return r
   end
   app=self.apps.default
-  if app==false then self.log.vf('%s (%s) rejected: default reject',role,appname) return false
+  if app==false then self.log.vf('reject %s (%s): default reject',appname,role) return false
   elseif app then
     local r=allowWindow(app,props)
-    self.log.vf('%s (%s) %s: default filter',role,appname,r and 'allowed' or 'rejected')
+    self.log.vf('%s %s (%s): default filter',r and 'allow' or 'reject',appname,role)
     return r
   end
-  self.log.vf('%s (%s) allowed (no rules)',role,appname)
+  self.log.vf('allow %s (%s) (no filter)',appname,role)
   return true
 end
 
@@ -993,9 +994,15 @@ local trackSpacesFilters = {}
 local function refreshTrackSpacesFilters()
   if not next(trackSpacesFilters) then return end
   local spacewins = {}
-  do
-    local temp = window.allWindows()
-    for _,w in ipairs(temp) do
+  if global.watcher then
+    for _,app in pairs(apps) do
+      for _,w in ipairs(app.app:allWindows()) do
+        local id=w:id()
+        if id then spacewins[id]=true end
+      end
+    end
+  else
+    for _,w in ipairs(window.allWindows()) do
       local id=w:id()
       if id then spacewins[id]=true end
       --FIXME keep track of windows' spaces when visibile. allWindows() returns minimized windows from all spaces :'(
