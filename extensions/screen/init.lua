@@ -148,24 +148,36 @@ function screenObject:position()
     if s:id()==id then return p.x,p.y end
   end
 end
---- hs.screen:fullFrame() -> rect
+--- hs.screen:fullFrame() -> hs.geometry rect
 --- Method
---- Returns the screen's rect in absolute coordinates, including the dock and menu.
+--- Returns the screen frame, including the dock and menu.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * an hs.geometry rect describing this screen's frame in absolute coordinates
 function screenObject:fullFrame()
   local primary_screen = screen.allScreens()[1]
   local f = self:_frame()
   f.y = primary_screen:_frame().h - f.h - f.y
-  return f
+  return geometry(f)
 end
 
---- hs.screen:frame() -> rect
+--- hs.screen:frame() -> hs.geometry rect
 --- Method
---- Returns the screen's rect in absolute coordinates, without the dock or menu.
+--- Returns the screen frame, without the dock or menu.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * an hs.geometry rect describing this screen's "usable" frame (i.e. without the dock and menu bar) in absolute coordinates
 function screenObject:frame()
   local primary_screen = screen.allScreens()[1]
   local f = self:_visibleframe()
   f.y = primary_screen:_frame().h - f.h - f.y
-  return f
+  return geometry(f)
 end
 
 --- hs.screen:fromUnitRect(unitrect) -> hs.geometry rect
