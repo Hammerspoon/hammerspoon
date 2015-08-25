@@ -40,30 +40,15 @@
 --- This module is based primarily on code from Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 ---
 
-local module_name = "hs.ipc"
-local root = _G
-for part, sep in string.gmatch(module_name, "([%w_]+)(%.?)") do
-    if sep == "." then
-        if not root[part] or type(root[part]) == "table" then
-            root[part] = root[part] or {}
-            root = root[part]
-        else
-            error("Unable to create "..module_name.." because "..part.." is not a table.")
-        end
-    else
-        root[part] = {}
-    end
-end
+local module = require("hs.ipc.internal")
 
 -- private variables and methods -----------------------------------------
 
 local function rawhandler(str)
-  local fn, err = load("return " .. str)
-  if not fn then fn, err = load(str) end
-  if fn then return fn() else return err end
+    local fn, err = load("return " .. str)
+    if not fn then fn, err = load(str) end
+    if fn then return fn() else return err end
 end
-
-local internal = require("hs.ipc.internal")
 
 -- Public interface ------------------------------------------------------
 
@@ -88,7 +73,7 @@ local internal = require("hs.ipc.internal")
 ---         if fn then return fn() else return err end
 ---     end
 --- ~~~
-hs.ipc.handler = rawhandler
+module.handler = rawhandler
 
 
 --- hs.ipc.cliGetColors() -> table
@@ -103,13 +88,13 @@ hs.ipc.handler = rawhandler
 ---   * initial
 ---   * input
 ---   * output
-hs.ipc.cliGetColors = function()
-	local settings = require("hs.settings")
-	local colors = {}
-	colors.initial = settings.get("ipc.cli.color_initial") or "\27[35m" ;
-	colors.input = settings.get("ipc.cli.color_input") or "\27[33m" ;
-	colors.output = settings.get("ipc.cli.color_output") or "\27[36m" ;
-	return colors
+module.cliGetColors = function()
+    local settings = require("hs.settings")
+    local colors = {}
+    colors.initial = settings.get("ipc.cli.color_initial") or "\27[35m" ;
+    colors.input   = settings.get("ipc.cli.color_input")   or "\27[33m" ;
+    colors.output  = settings.get("ipc.cli.color_output")  or "\27[36m" ;
+    return colors
 end
 
 --- hs.ipc.cliSetColors(table) -> table
@@ -129,12 +114,12 @@ end
 ---  * For a brief intro into terminal colors, you can visit a web site like this one [http://jafrog.com/2013/11/23/colors-in-terminal.html](http://jafrog.com/2013/11/23/colors-in-terminal.html)
 ---  * Lua doesn't support octal escapes in it's strings, so use `\x1b` or `\27` to indicate the `escape` character e.g. `ipc.cliSetColors{ initial = "", input = "\27[33m", output = "\27[38;5;11m" }`
 ---  * The values are stored by the `hs.settings` extension, so will persist across restarts of Hammerspoon
-hs.ipc.cliSetColors = function(colors)
-	local settings = require("hs.settings")
-	if colors.initial then settings.set("ipc.cli.color_initial",colors.initial) end
-	if colors.input then settings.set("ipc.cli.color_input",colors.input) end
-	if colors.output then settings.set("ipc.cli.color_output",colors.output) end
-	return hs.ipc.cliGetColors()
+module.cliSetColors = function(colors)
+    local settings = require("hs.settings")
+    if colors.initial then settings.set("ipc.cli.color_initial", colors.initial) end
+    if colors.input   then settings.set("ipc.cli.color_input",   colors.input)   end
+    if colors.output  then settings.set("ipc.cli.color_output",  colors.output)  end
+    return module.cliGetColors()
 end
 
 --- hs.ipc.cliResetColors()
@@ -146,11 +131,11 @@ end
 ---
 --- Returns:
 ---  * None
-hs.ipc.cliResetColors = function()
-	local settings = require("hs.settings")
-	settings.clear("ipc.cli.color_initial")
-	settings.clear("ipc.cli.color_input")
-	settings.clear("ipc.cli.color_output")
+module.cliResetColors = function()
+    local settings = require("hs.settings")
+    settings.clear("ipc.cli.color_initial")
+    settings.clear("ipc.cli.color_input")
+    settings.clear("ipc.cli.color_output")
 end
 
 --- hs.ipc.cliStatus([path][,silent]) -> bool
@@ -163,7 +148,7 @@ end
 ---
 --- Returns:
 ---  * A boolean, true if the `hs` command line tool is correctly installed, otherwise false
-hs.ipc.cliStatus = function(path, silent)
+module.cliStatus = function(path, silent)
     local path = path or "/usr/local"
     local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
 
@@ -235,15 +220,15 @@ end
 ---
 --- Returns:
 ---  * A boolean, true if the tool was successfully installed, otherwise false
-hs.ipc.cliInstall = function(path, silent)
+module.cliInstall = function(path, silent)
     local path = path or "/usr/local"
     local silent = silent or false
-    if hs.ipc.cliStatus(path, true) == false then
+    if module.cliStatus(path, true) == false then
         local mod_path = string.match(package.searchpath("hs.ipc",package.path), "^(.*)/init%.lua$")
         os.execute("ln -s \""..mod_path.."/bin/hs\" \""..path.."/bin/\"")
         os.execute("ln -s \""..mod_path.."/share/man/man1/hs.1\" \""..path.."/share/man/man1/\"")
     end
-    return hs.ipc.cliStatus(path, silent)
+    return module.cliStatus(path, silent)
 end
 
 --- hs.ipc.cliUninstall([path][,silent]) -> bool
@@ -259,27 +244,21 @@ end
 ---
 --- Notes:
 ---  * This function is very conservative and will only remove the tool if it was installed by this instance of Hammerspoon. If you have more than one copy of Hammerspoon, this will be detected and they will not remove each others' tools.
-hs.ipc.cliUninstall = function(path, silent)
+module.cliUninstall = function(path, silent)
     local path = path or "/usr/local"
     local silent = silent or false
-    if hs.ipc.cliStatus(path, silent) == true then
+    if module.cliStatus(path, silent) == true then
         os.execute("rm \""..path.."/bin/hs\"")
         os.execute("rm \""..path.."/share/man/man1/hs.1\"")
     else
         return false
     end
-    return not hs.ipc.cliStatus(path, silent)
+    return not module.cliStatus(path, silent)
 end
 
 -- Set-up metatable ------------------------------------------------------
 
-internal.__messagePort = internal.__setup_ipc()
-if not internal.__messagePort then
-    print("Warning: Unable to create IPC message port, you may already be running Hammerspoon.app")
-    return nil
-end
-
-internal.__handler = function(raw, str)
+module.__handler = function(raw, str)
     local originalprint = print
     local fakestdout = ""
     print = function(...)
@@ -292,7 +271,7 @@ internal.__handler = function(raw, str)
         fakestdout = fakestdout .. "\n"
     end
 
-    local fn = raw and rawhandler or hs.ipc.handler
+    local fn = raw and rawhandler or module.handler
     local results = table.pack(pcall(function() return fn(str) end))
 
     local str = ""
@@ -305,16 +284,7 @@ internal.__handler = function(raw, str)
     return fakestdout .. str
 end
 
-setmetatable(hs.ipc, {
-    __index = function(_, key) return internal[key] end,
-    __gc = function(...)
-        if internal.__messagePort then
-            internal.__invalidate_ipc(internal.__messagePort)
-        end
-    end
-})
-
 -- Return Module Object --------------------------------------------------
 
-return hs.ipc
+return module
 
