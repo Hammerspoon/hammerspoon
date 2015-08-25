@@ -15,9 +15,10 @@ local supper,slower,sfind=string.upper,string.lower,string.find
 local function error(err,lvl) return hs.showError(err,(lvl or 1)+1,true) end -- this should go away, #477
 
 local function getKeycode(s)
-  if type(s)~='string' then error('key must be a string',3) end
   local n
-  if (s:sub(1, 1) == '#') then n=tonumber(s:sub(2))
+  if type(s)=='number' then n=s
+  elseif type(s)~='string' then error('key must be a string or a number',3)
+  elseif (s:sub(1, 1) == '#') then n=tonumber(s:sub(2))
   else n=keycodes.map[slower(s)] end
   if not n then error('Invalid key: '..s,3) end
   return n
@@ -140,7 +141,7 @@ local function getIndex(mods,keycode) -- key for hotkeys table
   local mods = getMods(mods)
   mods = #mods>=4 and CONCAVE_DIAMOND or tconcat(mods)
   local key=keycodes.map[keycode]
-  key=key and supper(key) or keycode
+  key=key and supper(key) or '[#'..keycode..']'
   return mods..key
 end
 --- hs.hotkey.new(mods, key, [message,] pressedfn, releasedfn, repeatfn) -> hs.hotkey object
@@ -153,8 +154,7 @@ end
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
 ---    * "shift" or "⇧"
----  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or
----    if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
 ---  * message - (optional) A string containing a message to be displayed via `hs.alert()` when the hotkey has been
 ---    triggered; if omitted, no alert will be shown
 ---  * pressedfn - A function that will be called when the hotkey has been pressed, or nil
@@ -209,8 +209,7 @@ end
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
 ---    * "shift" or "⇧"
----  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or
----    if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
 ---
 --- Returns:
 ---  * None
@@ -228,8 +227,7 @@ end
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
 ---    * "shift" or "⇧"
----  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or
----    if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
 ---
 --- Returns:
 ---  * None
@@ -265,8 +263,7 @@ end
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
 ---    * "shift" or "⇧"
----  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or
----    if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
 ---
 --- Returns:
 ---  * The new `hs.hotkey` object
@@ -309,8 +306,7 @@ end
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
 ---    * "shift" or "⇧"
----  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or
----    if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
 ---  * message - A string containing a message to be displayed via `hs.alert()` when the hotkey has been triggered, or nil for no alert
 ---  * pressedfn - A function that will be called when the hotkey has been pressed, or nil
 ---  * releasedfn - A function that will be called when the hotkey has been released, or nil
@@ -379,8 +375,7 @@ end
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
 ---    * "shift" or "⇧"
----  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or
----    if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
 ---  * message - A string containing a message to be displayed via `hs.alert()` when the hotkey has been triggered, or nil for no alert
 ---  * pressedfn - A function that will be called when the hotkey has been pressed, or nil
 ---  * releasedfn - A function that will be called when the hotkey has been released, or nil
@@ -449,8 +444,7 @@ end
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
 ---    * "shift" or "⇧"
----  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or
----    if the string begins with a `#` symbol, the remainder of the string will be treated as a raw keycode number
+---  * key - A string containing the name of a keyboard key (as found in [hs.keycodes.map](hs.keycodes.html#map) ), or a raw keycode number
 ---  * message - A string containing a message to be displayed via `hs.alert()` when the hotkey has been triggered, or nil for no alert
 ---
 --- Returns:
