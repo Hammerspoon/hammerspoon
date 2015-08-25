@@ -168,6 +168,22 @@ function screenObject:frame()
   return f
 end
 
+--- hs.screen:fromUnitRect(unitrect) -> hs.geometry rect
+--- Method
+--- Returns the absolute rect of a given unit rect within this screen
+---
+--- Parameters:
+---  * unitrect - an hs.geometry unit rect, or arguments to construct one
+---
+--- Returns:
+---  * an hs.geometry rect describing the given frame in absolute coordinates
+---
+--- Notes:
+---  * this method is just a convenience wrapper for `hs.geometry.fromUnitRect(unitrect,this_screen:fullFrame())`
+function screenObject:fromUnitRect(unit,...)
+  return geometry(unit,...):fromUnitRect(self:fullFrame())
+end
+
 --- hs.screen:next() -> screen
 --- Method
 --- Returns the screen 'after' this one (in arbitrary order); this method wraps around to the first screen.
