@@ -156,7 +156,7 @@ int main(int argc, char * argv[]) {
             printf("\n%s", COLOR_INPUT);
             char* input = readline("> ");
             printf("%s", COLOR_RESET);
-            if (!input) exit(0);
+            if (!input) { printf("\n") ; exit(0); }
             add_history(input);
 
             if (!CFMessagePortIsValid(port)) {
