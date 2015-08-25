@@ -261,6 +261,58 @@ static int core_getObjectMetatable(lua_State *L) {
     return 1;
 }
 
+/// hs.cleanUTF8forConsole(inString) -> outString
+/// Function
+/// Returns a copy of the incoming string that can be displayed in the Hammerspoon console.  Invalid UTF8 sequences are converted to the Unicode Replacement Character and NULL (0x00) is converted to the Unicode Empty Set character.
+///
+/// Parameters:
+///  * inString - the string to be cleaned up
+///
+/// Returns:
+///  * outString - the cleaned up version of the input string.
+///
+/// Notes:
+///  * This function is applied automatically to all output which appears in the Hammerspoon console, but not to the output provided by the `hs` command line tool.
+///  * This function does not modify the original string - to actually replace it, assign the result of this function to the original string.
+///  * This function is a more specifically targeted version of the `hs.utf8.fixUTF8(...)` function.
+static int core_cleanUTF8(lua_State *L) {
+    luaL_checktype(L, 1, LUA_TSTRING) ;
+    size_t sourceLength ;
+    unsigned char *src  = (unsigned char *)lua_tolstring(L, 1, &sourceLength) ;
+    NSMutableData *dest = [[NSMutableData alloc] init] ;
+
+    unsigned char nullChar[]    = { 0xE2, 0x88, 0x85 } ;
+    unsigned char invalidChar[] = { 0xEF, 0xBF, 0xBD } ;
+
+    size_t pos = 0 ;
+    while (pos < sourceLength) {
+        if (src[pos] > 0 && src[pos] <= 127) {
+            [dest appendBytes:(void *)(src + pos) length:1] ; pos++ ;
+        } else if ((src[pos] >= 194 && src[pos] <= 223) && (src[pos+1] >= 128 && src[pos+1] <= 191)) {
+            [dest appendBytes:(void *)(src + pos) length:2] ; pos = pos + 2 ;
+        } else if ((src[pos] == 224 && (src[pos+1] >= 160 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
+                   ((src[pos] >= 225 && src[pos] <= 236) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
+                   (src[pos] == 237 && (src[pos+1] >= 128 && src[pos+1] <= 159) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
+                   ((src[pos] >= 238 && src[pos] <= 239) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191))) {
+            [dest appendBytes:(void *)(src + pos) length:3] ; pos = pos + 3 ;
+        } else if ((src[pos] == 240 && (src[pos+1] >= 144 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191)) ||
+                   ((src[pos] >= 241 && src[pos] <= 243) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191)) ||
+                   (src[pos] == 244 && (src[pos+1] >= 128 && src[pos+1] <= 143) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191))) {
+            [dest appendBytes:(void *)(src + pos) length:4] ; pos = pos + 4 ;
+        } else {
+            if (src[pos] == 0)
+                [dest appendBytes:(void *)nullChar length:3] ;
+            else
+                [dest appendBytes:(void *)invalidChar length:3] ;
+            pos = pos + 1 ;
+        }
+    }
+
+    NSString *destStr = [[NSString alloc] initWithData:dest encoding:NSUTF8StringEncoding] ;
+    lua_pushlstring(L, [destStr UTF8String], [destStr lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1) ;
+    return 1 ;
+}
+
 static int core_exit(lua_State* L) {
     if (lua_toboolean(L, 2))
         lua_close(L);
@@ -274,7 +326,9 @@ static int core_logmessage(lua_State* L) {
     const char* s = lua_tolstring(L, 1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
     if (str == nil) {
-      str = @"";
+      core_cleanUTF8(L) ;
+      s = lua_tolstring(L, -1, &len);
+      str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
     }
     loghandler(str);
     return 0;
@@ -303,6 +357,7 @@ static luaL_Reg corelib[] = {
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
     {"getObjectMetatable", core_getObjectMetatable},
+    {"cleanUTF8forConsole", core_cleanUTF8},
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
     {"_notify", core_notify},
@@ -369,6 +424,18 @@ NSString* MJLuaRunString(NSString* command) {
     size_t len;
     const char* s = lua_tolstring(L, -1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
+    if (str == nil) {
+      lua_pushcfunction(L, core_cleanUTF8) ;
+      lua_pushvalue(L, -2) ;
+      if (lua_pcall(L, 1, 1, 0) == LUA_OK) {
+          s = lua_tolstring(L, -1, &len);
+          str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
+          lua_pop(L, 1) ;
+      } else {
+          str = [[NSString alloc] initWithFormat:@"-- unable to clean for utf8 output: %s", lua_tostring(L, -1)] ;
+          lua_pop(L, 1) ;
+      }
+    }
     lua_pop(L, 1);
 
     return str;
