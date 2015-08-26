@@ -323,6 +323,13 @@ static int meta_gc(lua_State* L __unused) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    hotkey_t* hotkey = luaL_checkudata(L, 1, USERDATA_TAG);
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: keycode: %d, mods: 0x%04x(%p)", USERDATA_TAG, hotkey->keycode, hotkey->mods, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg hotkeylib[] = {
     {"_new", hotkey_new},
 
@@ -337,6 +344,7 @@ static const luaL_Reg metalib[] = {
 static const luaL_Reg hotkey_objectlib[] = {
     {"enable", hotkey_enable},
     {"disable", hotkey_disable},
+    {"__tostring", userdata_tostring},
     {"__gc", hotkey_gc},
     {NULL, NULL}
 };
@@ -354,7 +362,7 @@ int luaopen_hs_hotkey_internal(lua_State* L __unused) {
         {kEventClassKeyboard, kEventHotKeyPressed},
         {kEventClassKeyboard, kEventHotKeyReleased},
     };
-    
+
     InstallEventHandler(GetEventDispatcherTarget(),
                         hotkey_callback,
                         sizeof(hotKeyPressedSpec) / sizeof(EventTypeSpec),

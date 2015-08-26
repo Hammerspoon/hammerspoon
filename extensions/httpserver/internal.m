@@ -161,7 +161,7 @@ int refTable;
 - (void)startConnection
 {
     // Override me to do any custom work before the connection starts.
-    // 
+    //
     // Be sure to invoke [super startConnection] when you're done.
 
     //HTTPLogTrace();
@@ -445,6 +445,17 @@ static int httpserver_objectGC(lua_State *L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    HSHTTPServer *server = getUserData(L, 1);
+    NSString *theName = [server name] ;
+    int thePort = [server listeningPort] ;
+
+    if (!theName) theName = @"unnamed" ;
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@:%d (%p)", USERDATA_TAG, theName, thePort, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg httpserverLib[] = {
     {"new", httpserver_new},
 
@@ -461,6 +472,7 @@ static const luaL_Reg httpserverObjectLib[] = {
     {"setCallback", httpserver_setCallback},
     {"setPassword", httpserver_setPassword},
 
+    {"__tostring", userdata_tostring},
     {"__gc", httpserver_objectGC},
     {NULL, NULL}
 };
