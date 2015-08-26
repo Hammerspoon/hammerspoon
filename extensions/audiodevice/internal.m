@@ -608,7 +608,7 @@ static int userdata_tostring(lua_State* L) {
     if (result) {
         deviceNameNS = @"(un-named audiodevice)" ;
     } else {
-        *deviceNameNS = (__bridge_transfer NSString *)deviceName;
+        deviceNameNS = (__bridge_transfer NSString *)deviceName;
     }
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, deviceNameNS, lua_topointer(L, 1)] UTF8String]) ;
