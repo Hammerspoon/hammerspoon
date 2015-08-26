@@ -308,16 +308,6 @@ static int uielement_focusedElement(lua_State* L) {
     return 1;
 }
 
-static int userdata1_tostring(lua_State* L) {
-    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", userdataTag, lua_topointer(L, 1)] UTF8String]) ;
-    return 1 ;
-}
-
-static int userdata2_tostring(lua_State* L) {
-    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", watcherUserdataTag, lua_topointer(L, 1)] UTF8String]) ;
-    return 1 ;
-}
-
 // Perform cleanup if the watcher is not required anymore.
 static int watcher_gc(lua_State* L) {
     watcher_t* watcher = get_watcher(L, 1);
@@ -338,14 +328,12 @@ static const luaL_Reg uielementlib[] = {
     {"_newWatcher", uielement_newWatcher},
     {"focusedElement", uielement_focusedElement},
     {"selectedText", uielement_selectedText},
-    {"__tostring", userdata1_tostring},
     {NULL, NULL}
 };
 
 static const luaL_Reg watcherlib[] = {
     {"_start", watcher_start},
     {"_stop", watcher_stop},
-    {"__tostring", userdata2_tostring},
     {NULL, NULL}
 };
 

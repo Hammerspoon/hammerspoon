@@ -839,6 +839,7 @@ static const luaL_Reg screen_objectlib[] = {
     {"setMode", screen_setMode},
     {"snapshot", screen_snapshot},
 
+    {"__tostring", userdata_tostring},
     {"__gc", screen_gc},
     {"__eq", screen_eq},
 

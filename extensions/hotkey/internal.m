@@ -326,7 +326,7 @@ static int meta_gc(lua_State* L __unused) {
 static int userdata_tostring(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    lua_pushstring(L, [[NSString stringWithFormat:@"%s: keycode: %d, mods: 0x%04x(%p)", USERDATA_TAG, hotkey->keycode, hotkey->mods, lua_topointer(L, 1)] UTF8String]) ;
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: keycode: %d, mods: 0x%04x (%p)", USERDATA_TAG, hotkey->keycode, hotkey->mods, lua_topointer(L, 1)] UTF8String]) ;
     return 1 ;
 }
 
