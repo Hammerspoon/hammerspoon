@@ -190,6 +190,13 @@ static int milight_metagc(lua_State *L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    bridge_t *bridge = luaL_checkudata(L, 1, USERDATA_TAG);
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %s:%d (%p)", USERDATA_TAG, bridge->ip, bridge->port, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg milightlib[] = {
     {"_cacheCommands", milight_cacheCommands},
     {"new", milight_new},
@@ -200,6 +207,7 @@ static const luaL_Reg milightlib[] = {
 static const luaL_Reg milight_objectlib[] = {
     {"delete", milight_del},
     {"send", milight_send},
+    {"__tostring", userdata_tostring},
 
     {NULL, NULL}
 };

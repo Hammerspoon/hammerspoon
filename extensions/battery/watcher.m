@@ -127,11 +127,17 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg battery_metalib[] = {
     {"start",   battery_watcher_start},
     {"stop",    battery_watcher_stop},
     {"__gc",    battery_watcher_gc},
+    {"__tostring", userdata_tostring},
     {NULL,      NULL}
 };
 

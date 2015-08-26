@@ -307,12 +307,12 @@ static int audiodevice_setdefaultinputdevice(lua_State* L) {
 
     lua_pushboolean(L, true);
     goto end;
-    
+
 error:
     lua_pushboolean(L, false);
-    
+
 end:
-    
+
     return 1;
 }
 
@@ -589,6 +589,32 @@ end:
 
 }
 
+static int userdata_tostring(lua_State* L) {
+    AudioDeviceID deviceId = MJ_Audio_Device(L, 1);
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioObjectPropertyName,
+        kAudioObjectPropertyScopeGlobal,
+        kAudioObjectPropertyElementMaster
+    };
+    CFStringRef deviceName;
+    UInt32 propertySize = sizeof(CFStringRef);
+
+    OSStatus result = noErr;
+
+    result = AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &propertySize, &deviceName);
+    NSString *deviceNameNS ;
+
+    if (result) {
+        deviceNameNS = @"(un-named audiodevice)" ;
+    } else {
+        *deviceNameNS = (__bridge_transfer NSString *)deviceName;
+    }
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, deviceNameNS, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static int audiodevice_eq(lua_State* L) {
     AudioDeviceID deviceA = MJ_Audio_Device(L, 1);
     AudioDeviceID deviceB = MJ_Audio_Device(L, 2);
@@ -606,6 +632,7 @@ static const luaL_Reg audiodevice_metalib[] = {
     {"setVolume",               audiodevice_setvolume},
     {"muted",                   audiodevice_muted},
     {"setMuted",                audiodevice_setmuted},
+    {"__tostring",              userdata_tostring},
     {"__eq",                    audiodevice_eq},
     {NULL, NULL}
 };

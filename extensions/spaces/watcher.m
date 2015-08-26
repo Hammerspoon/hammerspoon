@@ -164,6 +164,11 @@ static int space_watcher_gc(lua_State* L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg watcherlib[] = {
     {"new", space_watcher_new},
     {NULL, NULL}
@@ -172,7 +177,7 @@ static const luaL_Reg watcherlib[] = {
 static const luaL_Reg watcher_objectlib[] = {
     {"start", space_watcher_start},
     {"stop", space_watcher_stop},
-
+    {"__tostring", userdata_tostring},
     {"__gc", space_watcher_gc},
     {NULL, NULL}
 };

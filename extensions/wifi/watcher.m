@@ -156,6 +156,11 @@ static int wifi_watcher_gc(lua_State* L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static int meta_gc(lua_State* __unused L) {
     return 0;
 }
@@ -164,6 +169,7 @@ static int meta_gc(lua_State* __unused L) {
 static const luaL_Reg wifi_metalib[] = {
     {"start",   wifi_watcher_start},
     {"stop",    wifi_watcher_stop},
+    {"__tostring", userdata_tostring},
     {"__gc",    wifi_watcher_gc},
     {NULL,      NULL}
 };

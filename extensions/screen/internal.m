@@ -801,6 +801,22 @@ static int screens_gc(lua_State* L __unused) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    NSScreen *screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:[NSString stringWithUTF8String:kDisplayProductName]];
+    NSString *theName ;
+    if ([localizedNames count])
+        theName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] ;
+    else
+        theName = @"(un-named screen)" ;
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg screenlib[] = {
     {"allScreens", screen_allScreens},
     {"mainScreen", screen_mainScreen},

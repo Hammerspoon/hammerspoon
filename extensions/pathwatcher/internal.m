@@ -125,11 +125,20 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    watcher_path_t* watcher_path = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSArray *thePaths = (__bridge_transfer NSArray *) FSEventStreamCopyPathsBeingWatched (watcher_path->stream);
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, thePaths, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg path_metalib[] = {
     {"start",   watcher_path_start},
     {"stop",    watcher_path_stop},
     {"__gc",    watcher_path_gc},
+    {"__tostring", userdata_tostring},
     {NULL,      NULL}
 };
 

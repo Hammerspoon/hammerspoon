@@ -275,10 +275,16 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg usb_metalib[] = {
     {"start",   usb_watcher_start},
     {"stop",    usb_watcher_stop},
+    {"__tostring", userdata_tostring},
     {"__gc",    usb_watcher_gc},
     {NULL,      NULL}
 };
