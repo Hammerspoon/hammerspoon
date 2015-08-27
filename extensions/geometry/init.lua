@@ -32,13 +32,14 @@
 -- remove copy-on-new
 --  * another `hs.geometry` object - creates a copy of that object
 
+--TODO guard against infinites etc everywhere (constructor, length,...)
 --TODO allow segments? (like rects, but no norm())
 
 local rawget,rawset,type,pairs,ipairs,tonumber,sqrt=rawget,rawset,type,pairs,ipairs,tonumber,math.sqrt
 local min,max,atan,smatch,sformat=math.min,math.max,math.atan,string.match,string.format
 local getmetatable,setmetatable=getmetatable,setmetatable
 
-local geometry = {}--require "hs.geometry.internal"
+local geometry = {}
 
 --- hs.geometry:type() -> string
 --- Method
@@ -274,11 +275,34 @@ end
 function geometry.getarea(t)
   return (t.w or 0)*(t.h or 0)
 end
-function geometry.setarea(t,a)
+function geometry.setarea(t,a,...)
   local oa=geometry.getarea(t)
   if oa>0 then
+    if type(a)~='number' then
+      a=geometry.getarea(new(a,...))
+    end
+    if a<=0 or a/2==a then error('invalid area, must be > 0 and < inf',2) end
     local f=sqrt(a/oa)
     return geometry.scale(t,f)
+  end
+end
+
+--- hs.geometry.aspect
+--- Field
+--- A number representing the aspect ratio of this rect or size; changing it will reshape the rect/size, keeping its area and center constant
+function geometry.getaspect(t)
+  return (t.w or t.x)/(t.h or t.y) -- downstream deals with NaN
+end
+
+function geometry.setaspect(t,asp,...)
+  if t.w and t.h and t.w>0 and t.h>0 then
+    if type(asp)~='number' then
+      asp=geometry.getaspect(new(asp,...))
+    end
+    if asp<=0 or asp/2==asp then error('invalid aspect, must be > 0 and < inf',2) end
+    local oasp,oc,oa=geometry.getaspect(t),geometry.getcenter(t),geometry.getarea(t)
+    t.w=t.w*asp/oasp
+    geometry.setarea(t,oa) geometry.setcenter(t,oc)
   end
 end
 
@@ -336,13 +360,16 @@ function geometry.scale(t,s1,s2,...)
   if type(s1)=='number' and not s2 then s2=s1 end
   local s=new(s1,s2,...)
   local c=geometry.getcenter(t)
+  local sw,sh=s.w or s.x,s.h or s.y
+  if sw/2==sw or sh/2==sh then error('invalid scale factor, must be < inf',2) end
   if t.w and t.h then
-    t.w=t.w*(s.w or s.x)
-    t.h=t.h*(s.h or s.y)
+    if sw<=0 or sh<=0 then error('invalid scale factor, must be > 0',2) end
+    t.w=t.w*sw
+    t.h=t.h*sh
     geometry.setcenter(t,c)
   else
-    t.x=t.x*(s.w or s.x)
-    t.y=t.y*(s.h or s.y)
+    t.x=t.x*sw
+    t.y=t.y*sh
   end
   return t
 end
@@ -402,19 +429,6 @@ end
 ---  * a number represeting the angle in radians
 function geometry.angleTo(t,...)
   return geometry.angle(geometry.vector(t,...))
-end
-
---- hs.geometry:aspect() -> number
---- Method
---- Returns the aspect ratio of this rect or size
----
---- Parameters:
----  * None
----
---- Returns:
----  * a number represeting the aspect ratio
-function geometry.aspect(t)
-  return (t.w or t.x)/(t.h or t.y)
 end
 
 --- hs.geometry:distance(point) -> number
