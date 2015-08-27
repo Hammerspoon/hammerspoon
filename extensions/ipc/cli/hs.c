@@ -8,15 +8,15 @@ static char* COLOR_OUTPUT = "";
 static char* COLOR_RESET = "";
 
 char * CFStringCopyUTF8String(CFStringRef aString) {
-	if (aString == NULL) { return NULL; }
+    if (aString == NULL) { return NULL; }
 
-	CFIndex length = CFStringGetLength(aString);
-	CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
-	char *buffer = (char *)malloc(maxSize);
-	if (CFStringGetCString(aString, buffer, maxSize, kCFStringEncodingUTF8)) {
-		return buffer;
-	}
-	return "";
+    CFIndex length = CFStringGetLength(aString);
+    CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
+    char *buffer = (char *)malloc(maxSize);
+    if (CFStringGetCString(aString, buffer, maxSize, kCFStringEncodingUTF8)) {
+        return buffer;
+    }
+    return "";
 }
 
 static void setupcolors(void) {
@@ -60,19 +60,26 @@ static void target_send(CFMessagePortRef port, CFMutableStringRef inputstr) {
         exit(2);
     }
 
-    CFStringRef responseString = CFStringCreateFromExternalRepresentation(NULL, returnedData, kCFStringEncodingUTF8);
-    CFRelease(returnedData);
+//     CFStringRef responseString = CFStringCreateFromExternalRepresentation(NULL, returnedData, kCFStringEncodingUTF8);
+//     CFRelease(returnedData);
+//     CFIndex maxSize = CFStringGetMaximumSizeForEncoding(CFStringGetLength(responseString), kCFStringEncodingUTF8) + 1;
+//     const char* responseCStringPtr = CFStringGetCStringPtr(responseString, kCFStringEncodingUTF8);
+//     char responseCString[maxSize];
+//
+//     if (!responseCStringPtr)
+//         CFStringGetCString(responseString, responseCString, maxSize, kCFStringEncodingUTF8);
+//     printf("%s%s%s\n", COLOR_OUTPUT, responseCStringPtr ? responseCStringPtr : responseCString, COLOR_RESET);
+//
+//     CFRelease(responseString);
 
-    CFIndex maxSize = CFStringGetMaximumSizeForEncoding(CFStringGetLength(responseString), kCFStringEncodingUTF8) + 1;
-    const char* responseCStringPtr = CFStringGetCStringPtr(responseString, kCFStringEncodingUTF8);
-    char responseCString[maxSize];
+    CFIndex maxSize = CFDataGetLength(returnedData) ;
+    char  responseCString[maxSize] ;
 
-    if (!responseCStringPtr)
-        CFStringGetCString(responseString, responseCString, maxSize, kCFStringEncodingUTF8);
+    CFDataGetBytes(returnedData, CFRangeMake(0,maxSize), (UInt8 *)responseCString );
 
-    printf("%s%s%s\n", COLOR_OUTPUT, responseCStringPtr ? responseCStringPtr : responseCString, COLOR_RESET);
-
-    CFRelease(responseString);
+    printf("%s", COLOR_OUTPUT) ;
+    fwrite(responseCString, 1, maxSize, stdout);
+    printf("%s", COLOR_RESET) ;
 }
 
 void usage(char *argv0) {
@@ -146,10 +153,10 @@ int main(int argc, char * argv[]) {
         printf("%sHammerspoon interactive prompt.%s\n", COLOR_INITIAL, COLOR_RESET);
 
         while (1) {
-            printf("%s", COLOR_INPUT);
+            printf("\n%s", COLOR_INPUT);
             char* input = readline("> ");
             printf("%s", COLOR_RESET);
-            if (!input) exit(0);
+            if (!input) { printf("\n") ; exit(0); }
             add_history(input);
 
             if (!CFMessagePortIsValid(port)) {

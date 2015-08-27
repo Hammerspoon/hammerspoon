@@ -280,6 +280,7 @@
 		D02F95291A00221C00E28BB2 /* Hammerspoon_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* Hammerspoon_Tests.m */; };
 		D02F95341A003A2900E28BB2 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = D02F95331A003A2900E28BB2 /* init.lua */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
+		D643B73D1B8BFE7700B372EB /* libedit.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D643B73C1B8BFE7700B372EB /* libedit.dylib */; };
 		FEC002E365542A867EA8EACF /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 273C7223738140A6F91A8338 /* libPods-Hammerspoon.a */; };
 /* End PBXBuildFile section */
 
@@ -882,6 +883,7 @@
 		D02F95281A00221C00E28BB2 /* Hammerspoon_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hammerspoon_Tests.m; sourceTree = "<group>"; };
 		D02F95331A003A2900E28BB2 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		D077B5BE1A001B5300369B30 /* variables.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = variables.m; sourceTree = "<group>"; };
+		D643B73C1B8BFE7700B372EB /* libedit.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libedit.dylib; path = usr/lib/libedit.dylib; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1335,6 +1337,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D643B73D1B8BFE7700B372EB /* libedit.dylib in Frameworks */,
 				4FD0AC141B74BCF300A82496 /* CoreFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2164,6 +2167,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D643B73C1B8BFE7700B372EB /* libedit.dylib */,
 				4FD0ABAC1B74AE9900A82496 /* CoreWLAN.framework */,
 				4FD0AB261B7485A000A82496 /* CoreGraphics.framework */,
 				4F6B3EC11B73DCB600B2A4DE /* CoreLocation.framework */,
