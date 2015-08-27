@@ -179,6 +179,7 @@ end
 --local shortRoles={AXStandardWindow='window',AXDialog='dialog',AXSystemDialog='sys dlg',AXFloatingWindow='float',AXUnknown='unknown',['']='no role'}
 local props = {id=-2}-- cache window props for successive calls to isWindowAllowed
 function wf:isWindowAllowed(window,appname,cache)
+  if not window then return end
   local id=window:id()
   if not cache or id~=props.id then
     props.role = window.subrole and window:subrole() or ''
