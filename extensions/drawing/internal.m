@@ -744,7 +744,7 @@ static int drawing_setText(lua_State *L) {
         }
         @catch ( NSException *theException ) {
             attributes = @{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} ;
-            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
+//            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
         }
 
         drawingView.textField.attributedStringValue = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:luaL_checkstring(L, 2)] attributes:attributes];
@@ -878,7 +878,7 @@ static int drawing_setTextStyle(lua_State *L) {
         }
         @catch ( NSException *theException ) {
             attributes = [@{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} mutableCopy] ;
-            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
+//            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
         }
 
         NSMutableParagraphStyle *style = [[attributes objectForKey:NSParagraphStyleAttributeName] mutableCopy] ;
