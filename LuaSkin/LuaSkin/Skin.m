@@ -104,7 +104,7 @@
 #pragma mark - Methods for registering libraries with Lua
 
 - (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
-    NSAssert(functions != NULL, @"functions can not be NULL");
+    NSAssert(functions != NULL, @"functions can not be NULL", nil);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
@@ -120,9 +120,9 @@
 
 - (int)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
 
-    NSAssert(libraryName != NULL, @"libraryName can not be NULL");
-    NSAssert(functions != NULL, @"functions can not be NULL");
-    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL");
+    NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
+    NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
+    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", libraryName);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
