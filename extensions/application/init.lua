@@ -159,21 +159,23 @@ end
 ---    - the application's name as per `hs.application:name()`
 ---    - the full path to an application on disk (including the `.app` suffix)
 ---    - the application's bundle ID as per `hs.application:bundleID()`
----  * wait - (optional) the maximum number of seconds to wait for the app to get into "launching" state, if not already running; if omitted, defaults to 0.1;
+---  * wait - (optional) the maximum number of seconds to wait for the app to get into "launching" state, if not already running; if omitted, defaults to 0;
 ---           if the app takes longer than this to launch, this function will return `nil`, but the app will still launch
 ---
 --- Returns:
 ---  * the `hs.application` object for the launched or activated application; `nil` if not found
 ---
 --- Notes:
----  * the `wait` parameter will *halt the entire script* in order to return the application object "synchronously"; only use it if you a) need
----    to act on the application object right away and b) have no time-critical event processing happening elsewhere in your `init.lua`
+---  * the `wait` parameter will *halt the entire script* in order to return the application object "synchronously"; only use it if you
+---    a) have no time-critical event processing happening elsewhere in your `init.lua` and b) need to act on the *application* object right away - if you need
+---    a window this won't help, because in the instant you get back the hs.application object for a launching app it'll likely have no windows yet;
+---    for this and other similar scenarios you should use hs.window.filter instead.
 function application.open(app,wait)
   if type(app)~='string' then error('app must be a string',2) end
   if wait and type(wait)~='number' then error('wait must be a number',2) end
   local r=application.launchOrFocus(app) or application.launchOrFocusByBundleID(app)
   if not r then return end
-  wait=(wait or 0.1)*1000000
+  wait=(wait or 0)*1000000
   local CHECK_INTERVAL=200000
   repeat
     r=application.get(app) if r then return r end
