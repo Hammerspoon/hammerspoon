@@ -64,7 +64,7 @@ int refTable ;
     BOOL rebuild = NO ;
 
     int myHandle = [[noteInfoDict valueForKey:@"userdata"] intValue] ;
-    notification_t *thisNote ;
+    notification_t *thisNote = NULL ;
 
     [skin pushLuaRef:refTable ref:myHandle];
 
