@@ -173,6 +173,8 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 #pragma mark - Methods for registering libraries with Lua
 
 - (int)registerLibrary:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions {
+    NSAssert(functions != NULL, @"functions can not be NULL", nil);
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
     luaL_newlib(_L, functions);
@@ -186,6 +188,10 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 }
 
 - (int)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
+
+    NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
+    NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
+    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", libraryName);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconstant-conversion"
@@ -202,6 +208,7 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 
 - (int)luaRef:(int)refTable {
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL refTable", nil);
+
     if (lua_isnil(_L, -1)) {
         return LUA_REFNIL;
     }
@@ -223,6 +230,7 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 
 - (int)luaUnref:(int)refTable ref:(int)ref {
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaUnref was passed a NOREF/REFNIL refTable", nil);
+
     if (ref != LUA_NOREF && ref != LUA_REFNIL) {
         // Push refTable onto the stack
         lua_rawgeti(_L, LUA_REGISTRYINDEX, refTable);
