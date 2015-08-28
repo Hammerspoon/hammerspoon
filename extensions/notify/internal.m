@@ -596,6 +596,48 @@ static int notification_alwaysPresent(lua_State* L) {
     return 1;
 }
 
+static int notification_release(lua_State* L) {
+/// hs.notify:release() -> notificationObject
+/// Method
+/// This is a no-op included for backwards compatibility.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The notification object
+///
+/// Notes:
+///  * This is no longer required during garbage collection as function tags can be re-established after a reload.
+///  * The proper way to release a notifications callback is to remove its tag from the `hs.notify.registry` with `hs.notify.unregister`.
+///  * This is included for backwards compatibility.
+
+    printToConsole(L, "-- hs.notify.release is a no-op.  If you want to remove a notification's callback, see hs.notify.getFunctionTag.") ;
+    lua_settop(L, 1) ;
+    return 1;
+}
+
+static int notification_getFunctionTag(lua_State* L) {
+/// hs.notify:getFunctionTag() -> functiontag
+/// Method
+/// Return the name of the function tag the notification will call when activated.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The function tag for this notification as a string.
+///
+/// Notes:
+///  * This tag should correspond to a function in `hs.notify.registry` and can be used to either add a replacement with `hs.notify.register(...)` or remove it with `hs.notify.unregister(...)`
+    notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
+
+    NSString *fnTag = [((__bridge NSUserNotification *) notification->note).userInfo valueForKey:@"tag"] ;
+
+    lua_pushstring(L, [fnTag UTF8String]) ;
+    return 1;
+}
+
 static int notification_autoWithdraw(lua_State* L) {
 /// hs.notify:autoWithdraw([shouldWithdraw]) -> notificationObject | current-setting
 /// Method
@@ -865,7 +907,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"alwaysPresent",       notification_alwaysPresent},
     {"autoWithdraw",        notification_autoWithdraw},
     {"_contentImage",       notification_contentImage},
-
+    {"release",             notification_release},
+    {"getFunctionTag",      notification_getFunctionTag},
     {"presented",           notification_presented},
     {"delivered",           notification_delivered},
     {"activationType",      notification_activationType},
