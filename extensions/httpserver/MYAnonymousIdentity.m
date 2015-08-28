@@ -243,7 +243,6 @@ static SecCertificateRef addCertToKeychain(NSData* certData, NSString* label,
         checkErr(errSecIO, outError);
         return NULL;
     }
-    [certData writeToFile:@"/tmp/mangledCert.cer" atomically:YES];
     CFAutorelease(certRef);
     NSDictionary* attrs = @{(__bridge id)kSecClass:     (__bridge id)kSecClassCertificate,
                             (__bridge id)kSecValueRef:  (__bridge id)certRef,
