@@ -229,6 +229,11 @@ static int keycodes_newcallback(lua_State* L) {
     return 1;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static int keycodes_callback_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
 
@@ -251,6 +256,7 @@ static const luaL_Reg callbacklib[] = {
     {"_stop", keycodes_callback_stop},
 
     // metamethods
+    {"__tostring", userdata_tostring},
     {"__gc", keycodes_callback_gc},
 
     {NULL, NULL}

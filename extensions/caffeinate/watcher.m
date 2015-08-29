@@ -174,17 +174,17 @@ static void unregister_observer(CaffeinateWatcher* observer) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * An `hs.caffeinate.watcher` object
 static int app_watcher_start(lua_State* L) {
     caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
 
     if (caffeinateWatcher->running)
-        return 0;
+        return 1;
 
     caffeinateWatcher->running = YES;
     register_observer((__bridge CaffeinateWatcher*)caffeinateWatcher->obj);
-    return 0;
+    return 1;
 }
 
 /// hs.caffeinate.watcher:stop()
@@ -195,17 +195,17 @@ static int app_watcher_start(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * An `hs.caffeinate.watcher` object
 static int app_watcher_stop(lua_State* L) {
     caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
 
     if (!caffeinateWatcher->running)
-        return 0;
+        return 1;
 
     caffeinateWatcher->running = NO;
     unregister_observer((__bridge id)caffeinateWatcher->obj);
-    return 0;
+    return 1;
 }
 
 // Perform cleanup if the CaffeinateWatcher is not required anymore.
@@ -221,6 +221,11 @@ static int app_watcher_gc(lua_State* L) {
     CaffeinateWatcher* object = (__bridge_transfer CaffeinateWatcher*)caffeinateWatcher->obj;
     object = nil;
     return 0;
+}
+
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
 }
 
 static int meta_gc(lua_State* __unused L) {
@@ -247,6 +252,7 @@ static const luaL_Reg metaLib[] = {
     {"start",   app_watcher_start},
     {"stop",    app_watcher_stop},
     {"__gc",    app_watcher_gc},
+    {"__tostring", userdata_tostring},
     {NULL,      NULL}
 };
 
@@ -268,6 +274,6 @@ int luaopen_hs_caffeinate_watcher(lua_State* L __unused) {
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
 
     add_event_enum(skin.L);
-    
+
     return 1;
 }

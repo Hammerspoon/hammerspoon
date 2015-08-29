@@ -77,6 +77,12 @@ local emptyFunctionPlaceholder = "__emptyFunctionPlaceHolder"
 
 module.activationTypes = _makeConstantsTable(module.activationTypes)
 
+--- hs.notify.warnAboutMissingFunctionTag
+--- Variable
+--- A boolean value indicating whether or not a missing notification function tag should cause a warning to be printed to the console during activation callback.  Defaults to true.
+
+module.warnAboutMissingFunctionTag = true
+
 --- hs.notify.new([fn,][attributes]) -> notification
 --- Constructor
 --- Creates a new notification object
@@ -142,7 +148,7 @@ module._tag_handler = function(tag, notification)
             end
         end
     end
-    if not found then print("-- hs.notify: function tag '"..tag.."' not found") end
+    if not found and module.warnAboutMissingFunctionTag then print("-- hs.notify: function tag '"..tag.."' not found") end
 end
 
 --- hs.notify.show(title, subtitle, information, tag) -> notfication

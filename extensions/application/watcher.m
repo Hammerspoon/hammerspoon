@@ -286,6 +286,11 @@ static int app_watcher_gc(lua_State* L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static int meta_gc(lua_State* __unused L) {
     return 0;
 }
@@ -311,6 +316,7 @@ static void add_event_enum(lua_State* L) {
 static const luaL_Reg metaLib[] = {
     {"start",   app_watcher_start},
     {"stop",    app_watcher_stop},
+    {"__tostring", userdata_tostring},
     {"__gc",    app_watcher_gc},
     {NULL,      NULL}
 };

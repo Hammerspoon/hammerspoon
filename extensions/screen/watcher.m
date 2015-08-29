@@ -55,7 +55,13 @@ typedef struct _screenwatcher_t {
 
 /// hs.screen.watcher.new(fn) -> watcher
 /// Constructor
-/// Creates a new screen-watcher that can be started; fn will be called when your screen layout changes in any way, whether by adding, removing, or moving a display device.
+/// Creates a new screen-watcher.
+///
+/// Parameters:
+///  * The function to be called when a change in the screen layout occurs.  This function should take no arguments.
+///
+/// Returns:
+///  * the screen watcher object
 static int screen_watcher_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
 
@@ -82,6 +88,12 @@ static int screen_watcher_new(lua_State* L) {
 /// hs.screen.watcher:start() -> watcher
 /// Function
 /// Starts the screen watcher, making it so fn is called each time the screen arrangement changes.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the screen watcher object
 static int screen_watcher_start(lua_State* L) {
     screenwatcher_t* screenwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1) ;
@@ -100,6 +112,12 @@ static int screen_watcher_start(lua_State* L) {
 /// hs.screen.watcher:stop() -> watcher
 /// Function
 /// Stops the screen watcher's fn from getting called until started again.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the screen watcher object
 static int screen_watcher_stop(lua_State* L) {
     screenwatcher_t* screenwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1) ;
@@ -133,10 +151,16 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg screen_metalib[] = {
     {"start",   screen_watcher_start},
     {"stop",    screen_watcher_stop},
+    {"__tostring", userdata_tostring},
     {"__gc",    screen_watcher_gc},
     {NULL,      NULL}
 };

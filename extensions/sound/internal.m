@@ -442,7 +442,7 @@ static int sound_soundUnfilteredFileTypes(lua_State* L) {
 ///  * A boolean, true if the sound is currently playing, otherwise false
 ///
 /// Notes:
-///  * This method is only available in OS X 10.9 (Mavericks) and earlier
+///  * This method is officially only available in OS X 10.9 (Mavericks) and earlier, so its use may be unreliable with future updates.
 static int sound_isPlaying(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushboolean(L, [(__bridge NSSound*) sound->soundObject isPlaying]);
@@ -470,6 +470,15 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSString *theName = [(__bridge NSSound*) sound->soundObject name] ;
+    if (!theName) theName = @"(unnamed sound)" ;
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg sound_metalib[] = {
     {"play",            sound_play},
@@ -485,7 +494,8 @@ static const luaL_Reg sound_metalib[] = {
     {"stopOnReload",    sound_stopOnRelease},
     {"callback",        sound_callback},
     {"isPlaying",       sound_isPlaying}, // Not in 10.10... can we replicate another way?
-    {"__gc",	        sound_gc},
+    {"__tostring",      userdata_tostring},
+    {"__gc",            sound_gc},
     {NULL,              NULL}
 };
 
