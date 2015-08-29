@@ -219,7 +219,8 @@ static int eventtap_event_setKeyCode(lua_State* L) {
 ///  * app - An optional `hs.application` object. If specified, the event will only be sent to that application
 ///
 /// Returns:
-///  * None
+///  * The `hs.eventtap.event` object
+//  * None
 static int eventtap_event_post(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
 
@@ -240,7 +241,9 @@ static int eventtap_event_post(lua_State* L) {
         CGEventPost(kCGSessionEventTap, event);
     }
 
-    return 0;
+    lua_settop(L, 1) ;
+//     return 0;
+    return 1 ;
 }
 
 /// hs.eventtap.event:getType() -> number
@@ -883,6 +886,14 @@ static void pushpropertiestable(lua_State* L) {
     lua_pushstring(L, "scrollWheelEventIsContinuous") ;                     lua_rawseti(L, -2, kCGScrollWheelEventIsContinuous);
 }
 
+static int userdata_tostring(lua_State* L) {
+    CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
+    int eventType = CGEventGetType(event) ;
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: Event type: %d (%p)", EVENT_USERDATA_TAG, eventType, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // static int meta_gc(lua_State* __unused L) {
 //     [eventtapeventHandlers removeAllIndexes];
 //     eventtapeventHandlers = nil;
@@ -904,6 +915,7 @@ static const luaL_Reg eventtapevent_metalib[] = {
     {"getRawEventData", eventtap_event_getRawEventData},
     {"getCharacters",   eventtap_event_getCharacters},
     {"systemKey",       eventtap_event_systemKey},
+    {"__tostring",      userdata_tostring},
     {"__gc",            eventtap_event_gc},
     {NULL,              NULL}
 };

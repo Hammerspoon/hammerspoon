@@ -366,11 +366,19 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: Eventtap Mask: 0x%llx (%p)", USERDATA_TAG, e->mask, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg eventtap_metalib[] = {
     {"start",     eventtap_start},
     {"stop",      eventtap_stop},
     {"isEnabled", eventtap_isEnabled},
+    {"__tostring", userdata_tostring},
     {"__gc",      eventtap_gc},
     {NULL,        NULL}
 };

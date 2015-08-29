@@ -201,6 +201,11 @@ static int hints_new(lua_State* L) {
     return 1;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg hintslib[] = {
     {"test", hints_test},
     {"new", hints_new},
@@ -211,6 +216,7 @@ static const luaL_Reg hintslib[] = {
 static const luaL_Reg hints_metalib[] = {
     {"__eq", hint_eq},
     {"__gc", hint_close},
+    {"__tostring", userdata_tostring},
     {"close", hint_close},
 
     {NULL, NULL}
