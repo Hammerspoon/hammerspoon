@@ -1618,29 +1618,17 @@ static int fontNamesWithTraits(lua_State *L) {
 static void pushFontTraitsTable(lua_State* L) {
     lua_newtable(L);
     lua_pushinteger(L, NSBoldFontMask);                    lua_setfield(L, -2, "boldFont");
-    lua_pushstring(L, "boldFont") ;                       lua_rawseti(L,  -2, NSBoldFontMask);
     lua_pushinteger(L, NSCompressedFontMask);              lua_setfield(L, -2, "compressedFont");
-    lua_pushstring(L, "compressedFont") ;                 lua_rawseti(L,  -2, NSCompressedFontMask);
     lua_pushinteger(L, NSCondensedFontMask);               lua_setfield(L, -2, "condensedFont");
-    lua_pushstring(L, "condensedFont") ;                  lua_rawseti(L,  -2, NSCondensedFontMask);
     lua_pushinteger(L, NSExpandedFontMask);                lua_setfield(L, -2, "expandedFont");
-    lua_pushstring(L, "expandedFont") ;                   lua_rawseti(L,  -2, NSExpandedFontMask);
     lua_pushinteger(L, NSFixedPitchFontMask);              lua_setfield(L, -2, "fixedPitchFont");
-    lua_pushstring(L, "fixedPitchFont") ;                 lua_rawseti(L,  -2, NSFixedPitchFontMask);
     lua_pushinteger(L, NSItalicFontMask);                  lua_setfield(L, -2, "italicFont");
-    lua_pushstring(L, "italicFont") ;                     lua_rawseti(L,  -2, NSItalicFontMask);
     lua_pushinteger(L, NSNarrowFontMask);                  lua_setfield(L, -2, "narrowFont");
-    lua_pushstring(L, "narrowFont") ;                     lua_rawseti(L,  -2, NSNarrowFontMask);
     lua_pushinteger(L, NSPosterFontMask);                  lua_setfield(L, -2, "posterFont");
-    lua_pushstring(L, "posterFont") ;                     lua_rawseti(L,  -2, NSPosterFontMask);
     lua_pushinteger(L, NSSmallCapsFontMask);               lua_setfield(L, -2, "smallCapsFont");
-    lua_pushstring(L, "smallCapsFont") ;                  lua_rawseti(L,  -2, NSSmallCapsFontMask);
     lua_pushinteger(L, NSNonStandardCharacterSetFontMask); lua_setfield(L, -2, "nonStandardCharacterSetFont");
-    lua_pushstring(L, "nonStandardCharacterSetFont") ;    lua_rawseti(L,  -2, NSNonStandardCharacterSetFontMask);
     lua_pushinteger(L, NSUnboldFontMask);                  lua_setfield(L, -2, "unboldFont");
-    lua_pushstring(L, "unboldFont") ;                     lua_rawseti(L,  -2, NSUnboldFontMask);
     lua_pushinteger(L, NSUnitalicFontMask);                lua_setfield(L, -2, "unitalicFont");
-    lua_pushstring(L, "unitalicFont") ;                   lua_rawseti(L,  -2, NSUnitalicFontMask);
 }
 
 /// hs.drawing:alpha() -> number
@@ -1769,27 +1757,118 @@ static int orderBelow(lua_State *L) {
 static int pushCollectionTypeTable(lua_State *L) {
     lua_newtable(L) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorDefault) ;             lua_setfield(L, -2, "default") ;
-        lua_pushstring(L, "default") ;                                      lua_rawseti(L, -2, NSWindowCollectionBehaviorDefault) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorCanJoinAllSpaces) ;    lua_setfield(L, -2, "canJoinAllSpaces") ;
-        lua_pushstring(L, "canJoinAllSpaces") ;                             lua_rawseti(L, -2, NSWindowCollectionBehaviorCanJoinAllSpaces) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorMoveToActiveSpace) ;   lua_setfield(L, -2, "moveToActiveSpace") ;
-        lua_pushstring(L, "moveToActiveSpace") ;                            lua_rawseti(L, -2, NSWindowCollectionBehaviorMoveToActiveSpace) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorManaged) ;             lua_setfield(L, -2, "managed") ;
-        lua_pushstring(L, "managed") ;                                      lua_rawseti(L, -2, NSWindowCollectionBehaviorManaged) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorTransient) ;           lua_setfield(L, -2, "transient") ;
-        lua_pushstring(L, "transient") ;                                    lua_rawseti(L, -2, NSWindowCollectionBehaviorTransient) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorStationary) ;          lua_setfield(L, -2, "stationary") ;
-        lua_pushstring(L, "stationary") ;                                   lua_rawseti(L, -2, NSWindowCollectionBehaviorStationary) ;
 //         lua_pushinteger(L, NSWindowCollectionBehaviorParticipatesInCycle) ; lua_setfield(L, -2, "participatesInCycle") ;
-//         lua_pushstring(L, "participatesInCycle") ;                          lua_rawseti(L, -2, NSWindowCollectionBehaviorParticipatesInCycle) ;
 //         lua_pushinteger(L, NSWindowCollectionBehaviorIgnoresCycle) ;        lua_setfield(L, -2, "ignoresCycle") ;
-//         lua_pushstring(L, "ignoresCycle") ;                                 lua_rawseti(L, -2, NSWindowCollectionBehaviorIgnoresCycle) ;
 //         lua_pushinteger(L, NSWindowCollectionBehaviorFullScreenPrimary) ;   lua_setfield(L, -2, "fullScreenPrimary") ;
-//         lua_pushstring(L, "fullScreenPrimary") ;                            lua_rawseti(L, -2, NSWindowCollectionBehaviorFullScreenPrimary) ;
 //         lua_pushinteger(L, NSWindowCollectionBehaviorFullScreenAuxiliary) ; lua_setfield(L, -2, "fullScreenAuxiliary") ;
-//         lua_pushstring(L, "fullScreenAuxiliary") ;                          lua_rawseti(L, -2, NSWindowCollectionBehaviorFullScreenAuxiliary) ;
     return 1 ;
 }
+
+/// hs.drawing.windowLevels
+/// Constant
+/// A table of predefined window levels usable with `hs.drawing:setLevel(...)`
+///
+/// Predefined levels are:
+///  * _MinimumWindowLevelKey - lowest allowed window level
+///  * desktop
+///  * desktopIcon            - `hs.drawing:sendToBack()` is equivalent to this - 1
+///  * normal                 - normal application windows
+///  * tornOffMenu
+///  * floating               - equivalent to `hs.drawing:bringToFront(false)`, where "Always Keep On Top" windows are usually set
+///  * modalPanel             - modal alert dialog
+///  * utility
+///  * dock                   - level of the Dock
+///  * mainMenu               - level of the Menubar
+///  * status
+///  * popUpMenu              - level of a menu when displayed (open)
+///  * overlay
+///  * help
+///  * dragging
+///  * screenSaver            - equivalent to `hs.drawing:bringToFront(true)`
+///  * assistiveTechHigh
+///  * cursor
+///  * _MaximumWindowLevelKey - highest allowed window level
+///
+/// Notes:
+///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.drawing.windowLevels`.
+///  * These key names map to the constants used in CoreGraphics to specify window levels and may not actually be used for what the name might suggest. For example, tests suggest that an active screen saver actually runs at a level of 2002, rather than at 1000, which is the window level corresponding to kCGScreenSaverWindowLevelKey.
+///  * Each drawing level is sorted separately and `hs.drawing:orderAbove(...)` and hs.drawing:orderBelow(...)` only arrange windows within the same level.
+///  * If you use Dock hiding (or in 10.11, Menubar hiding) please note that when the Dock (or Menubar) is popped up, it is done so with an implicit orderAbove, which will place it above any items you may also draw at the Dock (or MainMenu) level.
+static int cg_windowLevels(lua_State *L) {
+    lua_newtable(L) ;
+//       lua_pushinteger(L, CGWindowLevelForKey(kCGBaseWindowLevelKey)) ;              lua_setfield(L, -2, "kCGBaseWindowLevelKey") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGMinimumWindowLevelKey)) ;           lua_setfield(L, -2, "_MinimumWindowLevelKey") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGDesktopWindowLevelKey)) ;           lua_setfield(L, -2, "desktop") ;
+//       lua_pushinteger(L, CGWindowLevelForKey(kCGBackstopMenuLevelKey)) ;            lua_setfield(L, -2, "kCGBackstopMenuLevelKey") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGNormalWindowLevelKey)) ;            lua_setfield(L, -2, "normal") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGFloatingWindowLevelKey)) ;          lua_setfield(L, -2, "floating") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey)) ;       lua_setfield(L, -2, "tornOffMenu") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGDockWindowLevelKey)) ;              lua_setfield(L, -2, "dock") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGMainMenuWindowLevelKey)) ;          lua_setfield(L, -2, "mainMenu") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGStatusWindowLevelKey)) ;            lua_setfield(L, -2, "status") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGModalPanelWindowLevelKey)) ;        lua_setfield(L, -2, "modalPanel") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey)) ;         lua_setfield(L, -2, "popUpMenu") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGDraggingWindowLevelKey)) ;          lua_setfield(L, -2, "dragging") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGScreenSaverWindowLevelKey)) ;       lua_setfield(L, -2, "screenSaver") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGMaximumWindowLevelKey)) ;           lua_setfield(L, -2, "_MaximumWindowLevelKey") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGOverlayWindowLevelKey)) ;           lua_setfield(L, -2, "overlay") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGHelpWindowLevelKey)) ;              lua_setfield(L, -2, "help") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGUtilityWindowLevelKey)) ;           lua_setfield(L, -2, "utility") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGDesktopIconWindowLevelKey)) ;       lua_setfield(L, -2, "desktopIcon") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGCursorWindowLevelKey)) ;            lua_setfield(L, -2, "cursor") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGAssistiveTechHighWindowLevelKey)) ; lua_setfield(L, -2, "assistiveTechHigh") ;
+//       lua_pushinteger(L, CGWindowLevelForKey(kCGNumberOfWindowLevelKeys)) ;         lua_setfield(L, -2, "kCGNumberOfWindowLevelKeys") ;
+    return 1 ;
+}
+
+/// hs.drawing:setLevel(theLevel) -> drawingObject
+/// Method
+/// Sets the window level more precisely than sendToBack and bringToFront.
+///
+/// Parameters:
+///  * theLevel - the level specified as a number or as a string where this object should be drawn.  If it is a string, it must match one of the keys in `hs.drawing.windowLevels`.
+///
+/// Returns:
+///  * the drawing object
+///
+/// Notes:
+///  * see the notes for `hs.drawing.windowLevels`
+static int drawing_setLevel(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    lua_Integer targetLevel ;
+
+    if (lua_type(L, 2) == LUA_TNUMBER) {
+        targetLevel = lua_tointeger(L, 2) ;
+    } else if (lua_type(L, 2) == LUA_TSTRING) {
+        cg_windowLevels(L) ;
+        if (lua_getfield(L, -1, lua_tostring(L, 2)) != LUA_TNIL) {
+            targetLevel = lua_tointeger(L, -1) ;
+        } else {
+            return luaL_error(L, [[NSString stringWithFormat:@"unrecognized window level: %s", lua_tostring(L, 2)] UTF8String]) ;
+        }
+        lua_pop(L, 2) ; // the result and the table
+    } else {
+        return luaL_error(L, "string or integer window level expected") ;
+    }
+
+    if (targetLevel >= CGWindowLevelForKey(kCGMinimumWindowLevelKey) && targetLevel <= CGWindowLevelForKey(kCGMaximumWindowLevelKey)) {
+        [drawingWindow setLevel:targetLevel] ;
+    } else {
+        return luaL_error(L, [[NSString stringWithFormat:@"window level must be between %d and %d inclusive",
+                                        CGWindowLevelForKey(kCGMinimumWindowLevelKey),
+                                        CGWindowLevelForKey(kCGMaximumWindowLevelKey)] UTF8String]) ;
+    }
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
 
 /// hs.drawing:behavior() -> number
 /// Method
@@ -1969,6 +2048,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setSize", drawing_setSize},
     {"setFrame", drawing_setFrame},
     {"setAlpha", setAlpha},
+    {"setLevel", drawing_setLevel},
     {"alpha", getAlpha},
     {"orderAbove", orderAbove},
     {"orderBelow", orderBelow},
@@ -1989,6 +2069,9 @@ int luaopen_hs_drawing_internal(lua_State *L) {
 
     pushCollectionTypeTable(L);
     lua_setfield(L, -2, "windowBehaviors") ;
+
+    cg_windowLevels(L) ;
+    lua_setfield(L, -2, "windowLevels") ;
 
     return 1;
 }
