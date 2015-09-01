@@ -189,7 +189,7 @@ function archive_docs() {
 
 function archive_dSYM_UUIDs() {
   echo "Archiving dSYM UUIDs..."
-  pushd "${HAMMERSPOON_HOME}../archive/${VERSION}/dSYM/" >/dev/null
+  pushd "${HAMMERSPOON_HOME}/../archive/${VERSION}/dSYM/" >/dev/null
   find . -name '*.dSYM' -exec dwarfdump -u {} \; >../dSYM_UUID.txt
   popd >/dev/null
 }
