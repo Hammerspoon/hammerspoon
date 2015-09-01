@@ -32,11 +32,25 @@ window.animationDuration = 0.2
 ---
 --- Returns:
 ---  * A list of `hs.window` objects representing all open windows
+
+local SKIP_APPS={Karabiner_AXNotifier=true}
+-- Karabiner's AXNotifier consistently takes 6 seconds on my system. It never spawns windows, so it should be safe to just skip it.
 function window.allWindows()
-  --  return fnutils.mapCat(application.runningApplications(), application.allWindows) -- nope
   local r={}
   for _,app in ipairs(application.runningApplications()) do
-    if app:kind()>0 then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end -- major speedup by excluding non-gui apps
+    if app:kind()>=0 and not SKIP_APPS[app:name()] then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end
+  end
+  return r
+end
+
+function window._timed_allWindows()
+  local r={}
+  for _,app in ipairs(application.runningApplications()) do
+    local starttime=timer.secondsSinceEpoch()
+    if app:kind()>=0 then local _=app:allWindows() r[app:name()]=timer.secondsSinceEpoch()-starttime end
+  end
+  for app,time in pairs(r) do
+    if time>0.1 then print(string.format('took %.2f s for %s',time,app)) end
   end
   return r
 end
@@ -767,8 +781,7 @@ end
 
 package.loaded[...]=window
 window.filter=require "hs.window.filter"
---window.layout = require "hs.window.layout"
-
+--window.layout=require "hs.window.layout"
 do
   local mt=getmetatable(window)
   --[[ this (lazy "autoload") won't work, objc wants the first metatable for objects
