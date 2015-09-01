@@ -22,7 +22,12 @@
 static int target_set(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     id val = [[LuaSkin shared] toNSObjectFromIndex:2] ;
-    [[NSUserDefaults standardUserDefaults] setObject:val forKey:key];
+    @try {
+        [[NSUserDefaults standardUserDefaults] setObject:val forKey:key];
+    }
+    @catch(NSException *theException) {
+        return luaL_error(L, [[NSString stringWithFormat:@"%@: %@", theException.name, theException.reason] UTF8String]);
+    }
     return 0;
 }
 
