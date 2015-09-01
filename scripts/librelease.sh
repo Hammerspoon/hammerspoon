@@ -172,14 +172,10 @@ function archive_hammerspoon_app() {
 }
 
 function archive_dSYMs() {
-  echo "Archiving Hammerspoon.app.dSYM..."
-  cp -a "${HAMMERSPOON_HOME}/build/Hammerspoon.app.dSYM" "archive/${VERSION}/dSYM/"
-  echo "Archiving LuaSkin.framework.dSYM..."
-  cp -a "${HAMMERSPOON_HOME}/build/LuaSkin.framework.dSYM" "archive/${VERSION}/dSYM/"
-  echo "Archiving extension .dSYM files..."
+  echo "Archiving .dSYM files..."
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/dSYM"
-  rsync -arx --include '*/' --include='*.dSYM/**' --exclude='*' "${HAMMERSPOON_HOME}/extensions/" "archive/${VERSION}/dSYM/"
+  rsync -arx --include '*/' --include='*.dSYM/**' --exclude='*' "${XCODE_BUILT_PRODUCTS_DIR}/" "archive/${VERSION}/dSYM/"
   popd >/dev/null
 }
 
@@ -250,7 +246,7 @@ EOF
   git add docsets/Hammerspoon/Hammerspoon.tgz
   git commit -qam "Update Hammerspoon docset to ${VERSION}"
   git push -qf hammerspoon
-  hub pull-request -m \"Update Hammerspoon docset to ${VERSION}\" -h hammerspoon:master
+  hub pull-request -m "Update Hammerspoon docset to ${VERSION}" -h hammerspoon:master
   popd >/dev/null
   popd >/dev/null
 }
