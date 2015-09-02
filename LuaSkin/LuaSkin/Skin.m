@@ -521,7 +521,9 @@ nextarg:
         } else if ([obj isKindOfClass:[NSNumber class]]) {
             [self pushNSNumber:obj preserveBits:bitsFlag] ;
         } else if ([obj isKindOfClass:[NSString class]]) {
-            lua_pushstring(_L, [(NSString *)obj UTF8String]);
+                size_t size = [(NSString *)obj lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
+                lua_pushlstring(_L, [(NSString *)obj UTF8String], size) ;
+//             lua_pushstring(_L, [(NSString *)obj UTF8String]);
         } else if ([obj isKindOfClass:[NSData class]]) {
             lua_pushlstring(_L, [(NSData *)obj bytes], [(NSData *)obj length]) ;
         } else if ([obj isKindOfClass:[NSDate class]]) {
@@ -662,7 +664,10 @@ nextarg:
             break ;
         case LUA_TSTRING:
             if ([self isValidUTF8AtIndex:idx]) {
-                return [NSString stringWithUTF8String:(char *)lua_tostring(_L, idx)];
+                size_t size ;
+                unsigned char *string = (unsigned char *)lua_tolstring(_L, idx, &size) ;
+                return [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
+//                 return [NSString stringWithUTF8String:(char *)lua_tostring(_L, idx)];
             } else {
                 size_t size ;
                 unsigned char *junk = (unsigned char *)lua_tolstring(_L, idx, &size) ;

@@ -21,6 +21,7 @@
 ///  * This function cannot set dates or raw data types, see `hs.settings.setDate()` and `hs.settings.setData()`
 static int target_set(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
     id val = [[LuaSkin shared] toNSObjectFromIndex:2] ;
     @try {
         [[NSUserDefaults standardUserDefaults] setObject:val forKey:key];
@@ -43,6 +44,7 @@ static int target_set(lua_State* L) {
 ///  * None
 static int target_setData(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
     if (lua_type(L,2) == LUA_TSTRING) {
         const char* data = lua_tostring(L,2) ;
         NSUInteger sz = lua_rawlen(L, 2) ;
@@ -82,6 +84,7 @@ static NSDate* date_from_string(NSString* dateString) {
 ///  * See `hs.settings.dateFormat` for a convenient representation of the RFC3339 format, to use with other time/date related functions
 static int target_setDate(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
     NSDate* myDate = lua_isnumber(L, 2) ? [[NSDate alloc] initWithTimeIntervalSince1970:(NSTimeInterval) lua_tonumber(L,2)] :
                      lua_isstring(L, 2) ? date_from_string([NSString stringWithUTF8String:lua_tostring(L, 2)]) : nil ;
     if (myDate) {
@@ -106,6 +109,7 @@ static int target_setDate(lua_State* L) {
 ///  * This function can load all of the datatypes supported by `hs.settings.set()`, `hs.settings.setData()` and `hs.settings.setDate()`
 static int target_get(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
     id val = [[NSUserDefaults standardUserDefaults] objectForKey:key];
     [[LuaSkin shared] pushNSObject:val] ;
     return 1;
@@ -122,6 +126,7 @@ static int target_get(lua_State* L) {
 ///  * A boolean, true if the setting was deleted, otherwise false
 static int target_clear(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
     if ([[NSUserDefaults standardUserDefaults] objectForKey:key] && ![[NSUserDefaults standardUserDefaults] objectIsForcedForKey:key]) {
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
         lua_pushboolean(L, YES) ;
