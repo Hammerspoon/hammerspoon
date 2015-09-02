@@ -212,6 +212,7 @@
         switch (luaType) {
             case LUA_TNONE:
                 if (spec & LS_TOPTIONAL) {
+                    idx--;
                     goto nextarg;
                 }
                 lsType = LS_TNONE;
