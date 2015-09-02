@@ -171,6 +171,7 @@
  @note If the arguments are incorrect, this call will never return and the user will get a nice Lua traceback instead.
  @note Each argument can use boolean OR's to allow multiple types to be accepted (e.g. LS_TNIL | LS_TBOOLEAN).
  @note Each argument can be OR'd with LS_TOPTIONAL to indicate that the argument is optional.
+ @note LS_TUSERDATA arguments should be followed by a string containing the metatable tag name (e.g. "hs.screen" for objects from hs.screen)
  
  @param firstArg - An integer that defines the first acceptable Lua argument type. Possible values are LS_TNIL, LS_TBOOLEAN, LS_TNUMBER, LS_TSTRING, LS_TTABLE, LS_TFUNCTION, LS_TUSERDATA, LS_TBREAK
  @param ... - One or more integers that define the remaining acceptable Lua argument types. See the previous parameter for possible values. The final value MUST be LS_TBREAK, to indicate the end of the list.
