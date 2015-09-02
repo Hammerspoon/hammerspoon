@@ -8,7 +8,6 @@
 local uielement = hs.uielement  -- Make sure parent module loads
 local window = require "hs.window.internal"
 local application = require "hs.application.internal"
---local moses = require "hs.moses"
 local geometry = require "hs.geometry"
 local screen = require "hs.screen"
 local timer = require "hs.timer"
@@ -24,7 +23,7 @@ local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort
 window.animationDuration = 0.2
 
 --- hs.window.allWindows() -> list of hs.window objects
---- Constructor
+--- Function
 --- Returns all windows
 ---
 --- Parameters:
@@ -56,7 +55,7 @@ function window._timed_allWindows()
 end
 
 --- hs.window.visibleWindows() -> list of hs.window objects
---- Constructor
+--- Function
 --- Gets all visible windows
 ---
 --- Parameters:
@@ -65,7 +64,6 @@ end
 --- Returns:
 ---  * A list containing `hs.window` objects representing all windows that are visible as per `hs.window:isVisible()`
 function window.visibleWindows()
-  --  return fnutils.filter(window.allWindows(), window.isVisible) -- nope
   local r={}
   for _,app in ipairs(application.runningApplications()) do
     if app:kind()>0 and not app:isHidden() then for _,w in ipairs(app:visibleWindows()) do r[#r+1]=w end end -- speedup by excluding hidden apps
@@ -74,7 +72,7 @@ function window.visibleWindows()
 end
 
 --- hs.window.orderedWindows() -> list of hs.window objects
---- Constructor
+--- Function
 --- Returns all visible windows, ordered from front to back
 ---
 --- Parameters:
@@ -88,13 +86,6 @@ function window.orderedWindows()
   for _,id in ipairs(ids) do r[#r+1]=winset[id] end -- no inner loop with a set, seems about 5% faster (iterating with prepoluated tables it's 50x faster)
   return r
 end
---[[ -- using hs.func, slower (I eradicated the moses version because it was just too ugly - *and* slower)
-function window.orderedWindows() 
-  local r,wins={},hs.func(window.visibleWindows())
-  hs.func.ieach(window._orderedwinids(),function(id)r[#r+1]=wins:ifind(function(w)return w:id()==id end)end)
-  return r
-end
---]]
 
 --- hs.window.get(hint) -> hs.window object
 --- Constructor
@@ -142,11 +133,9 @@ function window.find(hint,exact,wins)
   local typ,r=type(hint),{}
   wins=wins or window.allWindows()
   if typ=='number' then for _,w in ipairs(wins) do if w:id()==hint then return w end end
-    --  if typ=='number' then return wins[moses.detect(wins,function(w)return w:id()==hint end)]
   elseif typ~='string' then error('hint must be a number or string',2) end
   if exact then for _,w in ipairs(wins) do if w:title()==hint then r[#r+1]=w end end
   else hint=hint:lower() for _,w in ipairs(wins) do if w:title():lower():find(hint) then r[#r+1]=w end end end
-  --  r=moses.filter(wins,exact and function(_,w)return w:title()==hint end or function(_,w)return w:title():lower():find(hint:lower())end)
   if #r>0 then return tunpack(r) end
 end
 
@@ -406,19 +395,6 @@ function window:screen()
   end
   return maxs
 end
---[[ -- moses version
-function window:screen()
-  local frame,screens=geometry(self:frame()),moses(screen.allScreens())
-  return screens:map(function(_,s)return frame:intersect(s:fullFrame()).area end)
-    :zip(screens:value()):reduce(function(state,v)return v[1]>state[1] and v or state end,{0,nil}):value()[2]
-end
--- hs.func version
-function window:ascreen()
-  local frame,screens=geometry(self:frame()),hs.func(screen.allScreens())
-  return screens:map(function(s)return frame:intersect(s:fullFrame()).area,s end)
-    :reduce(function(maxs,maxa,a,s)if a>maxa then return s,a else return maxs,maxa end end,nil,0)
-end
---]]
 
 local function isFullyBehind(f1,w2)
   local f2=geometry(w2:frame())
