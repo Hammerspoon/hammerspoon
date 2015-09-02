@@ -70,8 +70,7 @@ FAB_START_NONNULL
 @property (nonatomic, copy, readonly) NSString *OSBuildVersion;
 
 /**
- * Returns YES if the report contains any crash information. If the report
- * contains only NSErrors, this will return NO.
+ * Returns YES if the report contains any crash information, otherwise returns NO.
  **/
 @property (nonatomic, assign, readonly) BOOL isCrash;
 
