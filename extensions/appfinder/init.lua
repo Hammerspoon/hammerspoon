@@ -27,7 +27,7 @@ appfinder.appFromName=application.get
 -- Returns:
 --  * An hs.application object if one can be found, otherwise nil
 function appfinder.appFromWindowTitle(title)
-    local w=window.get(title) if w then return w:application() end
+  local w=window.get(title) if w then return w:application() end
 end
 
 -- hs.appfinder.appFromWindowTitlePattern(pattern) -> app or nil
@@ -43,7 +43,7 @@ end
 -- Notes:
 --  * For more about Lua patterns, see http://lua-users.org/wiki/PatternsTutorial and http://www.lua.org/manual/5.2/manual.html#6.4.1
 function appfinder.appFromWindowTitlePattern(pattern)
-    local w=window.find(title) if w then return w:application() end
+  local w=window.find(pattern) if w then return w:application() end
 end
 
 -- hs.appfinder.windowFromWindowTitle(title) -> win or nil
