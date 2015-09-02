@@ -24,7 +24,7 @@ FAB_START_NONNULL
  */
 @interface Crashlytics : NSObject
 
-@property (nonatomic, readonly, copy) NSString *apiKey;
+@property (nonatomic, readonly, copy) NSString *APIKey;
 @property (nonatomic, readonly, copy) NSString *version;
 @property (nonatomic, assign)         BOOL      debugMode;
 

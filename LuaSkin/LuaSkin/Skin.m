@@ -246,6 +246,73 @@ NSMutableDictionary *registeredTableHelperFunctions ;
     return type;
 }
 
+- (void)checkArgs:(int)firstArg, ... {
+    int idx = 1;
+    int numArgs = lua_gettop(_L);
+    int spec = firstArg;
+
+    va_list args;
+    va_start(args, firstArg);
+
+    while (true) {
+        if (spec == LS_TBREAK) {
+            idx--;
+            break;
+        }
+
+        int lsType;
+        int luaType = lua_type(_L, idx);
+        char *userdataTag;
+
+        switch (luaType) {
+            case LUA_TNONE:
+                if (spec & LS_TOPTIONAL) {
+                    idx--;
+                    goto nextarg;
+                }
+                lsType = LS_TNONE;
+            case LUA_TNIL:
+                lsType = LS_TNIL;
+                break;
+            case LUA_TNUMBER:
+                lsType = LS_TNUMBER;
+                break;
+            case LUA_TSTRING:
+                lsType = LS_TSTRING;
+                break;
+            case LUA_TFUNCTION:
+                lsType = LS_TFUNCTION;
+                break;
+            case LUA_TTABLE:
+                lsType = LS_TTABLE;
+                break;
+            case LUA_TUSERDATA:
+                lsType = LS_TUSERDATA;
+                userdataTag = va_arg(args, char*);
+                if (!luaL_checkudata(_L, idx, userdataTag)) {
+                    luaL_error(_L, "ERROR: incorrect userdata type for argument %d", idx);
+                }
+                break;
+
+            default:
+                luaL_error(_L, "ERROR: unknown type '%s' for argument %d", luaL_typename(_L, idx), idx);
+                break;
+        }
+
+        if (!(spec & lsType)) {
+            luaL_error(_L, "ERROR: incorrect type '%s' for argument %d", luaL_typename(_L, idx), idx);
+        }
+nextarg:
+        spec = va_arg(args, int);
+        idx++;
+    }
+    va_end(args);
+
+    if (idx != numArgs) {
+        luaL_error(_L, "ERROR: incorrect number of arguments. Expected %d, got %d", idx, numArgs);
+    }
+}
+
 #pragma mark - Methods for pushing NSObjects to the Lua Stack
 
 - (int)pushNSObject:(id)obj { return [self pushNSObject:obj preserveBitsInNSNumber:NO] ; }
@@ -255,7 +322,7 @@ NSMutableDictionary *registeredTableHelperFunctions ;
 
     [self pushNSObject:obj preserveBitsInNSNumber:bitsFlag
                                alreadySeenObjects:alreadySeen];
-    
+
     for (id entry in alreadySeen) {
         luaL_unref(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:entry] intValue]) ;
     }
@@ -317,7 +384,7 @@ NSMutableDictionary *registeredTableHelperFunctions ;
 }
 
 - (void)registerTableHelper:(tableHelperFunction)helperFN forClass:(char*)className {
-    
+
     if (className)
         [registeredTableHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
                                            forKey:[NSString stringWithUTF8String:className]] ;

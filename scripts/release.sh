@@ -17,6 +17,7 @@ export CWD=$PWD
 export SCRIPT_NAME="$(basename "$0")"
 export SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
 export HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
+export XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme 'Release' -configuration 'Release' -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
 
 export CODESIGN_AUTHORITY_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-codesign-authority"
 export GITHUB_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-github-release"

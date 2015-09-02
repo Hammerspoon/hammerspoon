@@ -111,8 +111,8 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
     CGRect screenRect = [currentScreen frame];
     CGRect winRect = [[self window] frame];
 
-    winRect.origin.x = (screenRect.size.width / 2.0) - (winRect.size.width / 2.0);
-    winRect.origin.y = pushDownBy - winRect.size.height;
+    winRect.origin.x = screenRect.origin.x + (screenRect.size.width / 2.0) - (winRect.size.width / 2.0);
+    winRect.origin.y = screenRect.origin.y + pushDownBy - winRect.size.height;
 
     [self.window setFrame:winRect display:NO];
 }
@@ -168,8 +168,11 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 /// Returns:
 ///  * None
 static int alert_show(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+
     lua_settop(L, 2);
-    NSString* str = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    NSString* str = [NSString stringWithUTF8String: lua_tostring(L, 1)];
 
     double duration = 2.0;
     if (lua_isnumber(L, 2))

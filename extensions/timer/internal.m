@@ -90,7 +90,10 @@ static int timer_new(lua_State* L) {
 ///  * The timer will not call the callback immediately, it waits until the first trigger of the timer
 ///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.
 static int timer_start(lua_State* L) {
-    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    timer_t* timer = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (timer->started) return 1;
@@ -167,7 +170,7 @@ static int timer_usleep(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * a boolean value indicating whether or not the timer is currently running.
+///  * A boolean value indicating whether or not the timer is currently running.
 static int timer_running(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
 
@@ -197,6 +200,25 @@ static int timer_nextTrigger(lua_State *L) {
 
     lua_pushinteger(L, (int)(next - now));
 
+    return 1;
+}
+
+/// hs.timer:setNextTrigger(seconds) -> timer
+/// Method
+/// Sets the next trigger time of a timer
+///
+/// Parameters:
+///  * seconds - A number containing the number of seconds after which to trigger the timer
+///
+/// Returns:
+///  * The `hs.timer` object
+static int timer_setNextTrigger(lua_State *L) {
+    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    double seconds = luaL_checknumber(L, 2);
+
+    CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + seconds);
+
+    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -274,6 +296,7 @@ static const luaL_Reg timer_metalib[] = {
     {"stop",    timer_stop},
     {"running", timer_running},
     {"nextTrigger", timer_nextTrigger},
+    {"setNextTrigger", timer_setNextTrigger},
     {"__tostring", userdata_tostring},
     {"__gc",    timer_gc},
     {NULL,      NULL}
