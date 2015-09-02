@@ -111,8 +111,8 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
     CGRect screenRect = [currentScreen frame];
     CGRect winRect = [[self window] frame];
 
-    winRect.origin.x = (screenRect.size.width / 2.0) - (winRect.size.width / 2.0);
-    winRect.origin.y = pushDownBy - winRect.size.height;
+    winRect.origin.x = screenRect.origin.x + (screenRect.size.width / 2.0) - (winRect.size.width / 2.0);
+    winRect.origin.y = screenRect.origin.y + pushDownBy - winRect.size.height;
 
     [self.window setFrame:winRect display:NO];
 }
