@@ -21,7 +21,6 @@ local tunpack,tpack,tsort=table.unpack,table.pack,table.sort
 --- Returns:
 ---  * A table containing zero or more hs.window objects
 function application:visibleWindows()
-  --  return moses.filter(self:allWindows(), window.isVisible)
   local r={}
   if self:isHidden() then return r -- do not check :isHidden for every window
   else for _,w in ipairs(self:allWindows()) do if not w:isMinimized() then r[#r+1]=w end end end
@@ -166,7 +165,7 @@ end
 ---  * the `hs.application` object for the launched or activated application; `nil` if not found
 ---
 --- Notes:
----  * the `wait` parameter will *halt the entire script* in order to return the application object "synchronously"; only use it if you
+---  * the `wait` parameter will *block all Hammerspoon activity* in order to return the application object "synchronously"; only use it if you
 ---    a) have no time-critical event processing happening elsewhere in your `init.lua` and b) need to act on the *application* object right away - if you need
 ---    a window this won't help, because in the instant you get back the hs.application object for a launching app it'll likely have no windows yet;
 ---    for this and other similar scenarios you should use hs.window.filter instead.
