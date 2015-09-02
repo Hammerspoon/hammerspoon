@@ -168,6 +168,9 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 /// Returns:
 ///  * None
 static int alert_show(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+
     lua_settop(L, 2);
     NSString* str = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
 

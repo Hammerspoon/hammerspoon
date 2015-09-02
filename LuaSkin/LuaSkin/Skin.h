@@ -11,6 +11,18 @@
 #import "lualib.h"
 #import "lua.h"
 
+// Define some bits for masking operations in the argument checker
+#define LS_TBREAK         1 << 0
+#define LS_TOPTIONAL      1 << 1
+#define LS_TNIL           1 << 2
+#define LS_TBOOLEAN       1 << 3
+#define LS_TNUMBER        1 << 4
+#define LS_TSTRING        1 << 5
+#define LS_TTABLE         1 << 6
+#define LS_TFUNCTION      1 << 7
+#define LS_TUSERDATA      1 << 8
+#define LS_TNONE          1 << 9
+
 @interface LuaSkin : NSObject {
     lua_State *_L;
 }
@@ -154,6 +166,16 @@
  */
 - (int)pushLuaRef:(int)refTable ref:(int)ref;
 
-//TODO: Add methods for enforcing Lua function arguments
+/** Ensures a Lua->C call has the right arguments
+ 
+ @note If the arguments are incorrect, this call will never return and the user will get a nice Lua traceback instead.
+ @note Each argument can use boolean OR's to allow multiple types to be accepted (e.g. LS_TNIL | LS_TBOOLEAN).
+ @note Each argument can be OR'd with LS_TOPTIONAL to indicate that the argument is optional.
+ 
+ @param firstArg - An integer that defines the first acceptable Lua argument type. Possible values are LS_TNIL, LS_TBOOLEAN, LS_TNUMBER, LS_TSTRING, LS_TTABLE, LS_TFUNCTION, LS_TUSERDATA, LS_TBREAK
+ @param ... - One or more integers that define the remaining acceptable Lua argument types. See the previous parameter for possible values. The final value MUST be LS_TBREAK, to indicate the end of the list.
+ */
+- (void)checkArgs:(int)firstArg, ...;
+
 //TODO: Add methods for converting Lua<->objc types
 @end
