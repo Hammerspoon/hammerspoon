@@ -75,8 +75,6 @@ static int wifi_watcher_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
-    luaL_checktype(L, 1, LUA_TFUNCTION);
-
     wifiwatcher_t* wifiwatcher = lua_newuserdata(L, sizeof(wifiwatcher_t));
     memset(wifiwatcher, 0, sizeof(wifiwatcher_t));
 

@@ -46,8 +46,7 @@ static int watcher_path_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
 
-    NSString* path = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
-    luaL_checktype(L, 2, LUA_TFUNCTION);
+    NSString* path = [NSString stringWithUTF8String: lua_tostring(L, 1)];
 
     watcher_path_t* watcher_path = lua_newuserdata(L, sizeof(watcher_path_t));
     watcher_path->started = NO;
