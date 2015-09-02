@@ -207,6 +207,7 @@
 
         int lsType;
         int luaType = lua_type(_L, idx);
+        char *userdataTag;
 
         switch (luaType) {
             case LUA_TNONE:
@@ -231,6 +232,10 @@
                 break;
             case LUA_TUSERDATA:
                 lsType = LS_TUSERDATA;
+                userdataTag = va_arg(args, char*);
+                if (!luaL_checkudata(_L, idx, userdataTag)) {
+                    luaL_error(_L, "ERROR: incorrect userdata type for argument %d", idx);
+                }
                 break;
 
             default:

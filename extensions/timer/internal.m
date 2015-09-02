@@ -90,7 +90,10 @@ static int timer_new(lua_State* L) {
 ///  * The timer will not call the callback immediately, it waits until the first trigger of the timer
 ///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.
 static int timer_start(lua_State* L) {
-    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    timer_t* timer = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (timer->started) return 1;
