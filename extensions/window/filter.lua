@@ -1607,6 +1607,6 @@ end
 local rawget=rawget
 return setmetatable(windowfilter,{
   __index=function(t,k) return k=='default' and makeDefault() or rawget(t,k) end,
-  __call=function(t,...) return windowfilter.new(...) end
+  __call=function(t,...) return windowfilter.new(...):getWindows() end
 })
 
