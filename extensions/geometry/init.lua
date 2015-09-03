@@ -23,7 +23,7 @@
 ---  * a string:
 ---    * `"X Y"` or `"X,Y"` creates a point
 ---    * `"WxH"` or `"W*H"` creates a size
----    * `"X Y WxH"` or `"X,Y/W*H"` (or variations thereof) creates a rect given its width and height from a corner
+---    * `"X Y WxH"` or `"X,Y|W*H"` (or variations thereof) creates a rect given its width and height from a corner
 ---    * `"X1 Y1 > X2 Y2"` or `"X1,Y1,X2,Y2"` (or variations thereof) creates a rect given two opposite corners
 ---  * a point and a size `"X Y","WxH"` or `{x=X,y=Y},{w=W,h=H}` create a rect
 ---
@@ -69,7 +69,7 @@ end
 
 -- constructor stuff
 local ws=' *'
-local sepout=ws..'([ ,>/])'..ws
+local sepout=ws..'([ ,>/|])'..ws
 local sepin=ws..'([ x*,])'..ws
 local number='(%-?%d*%.?%d*)'
 local function parse(s)
@@ -242,6 +242,29 @@ function geometry.getwh(t) return new(nil,nil,t._w,t._h)end
 function geometry.setwh(t,s) s=new(s) t._w=s.w t._h=s.h end
 geometry.getsize=geometry.getwh
 geometry.setsize=geometry.setwh
+
+--- hs.geometry.table
+--- Field
+--- The `{x=X,y=Y,w=W,h=H}` table for this hs.geometry object; useful e.g. for serialization/deserialization
+function geometry.gettable(t) return {x=t.x,y=t.y,w=t.w,h=t.h} end
+function geometry.settable(t,nt) t._x=nt.x t._y=nt.y t._w=nt.w t._h=nt.h end
+
+--- hs.geometry.string
+--- Field
+--- The `"X,Y WxH"` string for this hs.geometry object; useful e.g. for serialization/deserialization
+function geometry.getstring(t)
+  local typ=geometry.type(t)
+  if typ=='point' then return t._x..','..t._y
+  elseif typ=='size' then return t._w..'x'..t._h
+  elseif typ=='rect' then return t._x..','..t._y..','..t._w..'x'..t._h
+  elseif typ=='unitrect' then return t._x..','..t._y..'>'..t.x2..','..t.y2
+  else return ''
+  end
+end
+function geometry.setstring(t,s)
+  local nt=new(s)
+  t._x=nt._x t._y=nt._y t._w=nt._w t._h=nt._h
+end
 
 --- hs.geometry.center
 --- Field
