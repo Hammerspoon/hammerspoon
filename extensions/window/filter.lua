@@ -461,6 +461,7 @@ end
 ---  * fn
 ---    - if `nil`, returns a copy of the default windowfilter, including any customizations you might have applied to it
 ---      so far; you can then further restrict or expand it
+---    - if an `hs.window.filter` object, returns a copy of it which you can then further restrict or expand
 ---    - if `true`, returns an empty windowfilter that allows every window
 ---    - if `false`, returns a windowfilter with a default rule to reject every window
 ---    - if a string or table of strings, returns a windowfilter that only allows visible windows of the specified apps
@@ -496,8 +497,15 @@ function windowfilter.new(fn,logname,loglevel)
     --TODO add regions and screens here
     return o
   elseif type(fn)=='table' then
-    o.log.i('new windowfilter, reject all with exceptions')
-    return o:setDefaultFilter(false):setFilters(fn)
+    local mt=getmetatable(fn)
+    if mt and mt.__index==wf then
+      fn=fn:getFilters()
+      o.log.i('new windowfilter copy')
+    else
+      o.log.i('new windowfilter, reject all with exceptions')
+      o:setDefaultFilter(false)
+    end
+    return o:setFilters(fn)
   elseif fn==true then o.log.i('new empty windowfilter') return o
   elseif fn==false then o.log.i('new windowfilter, reject all') return o:setDefaultFilter(false)
   else error('fn must be nil, a boolean, a string or table of strings, or a function',2) end
