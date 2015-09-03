@@ -1,8 +1,10 @@
 --- === hs.urlevent ===
 ---
---- Allows hammerspoon:// URLs to act as an IPC mechanism
+--- Allows Hammerspoon to respond to URLs
 --- Hammerspoon is configured to react to URLs that start with `hammerspoon://` when they are opened by OS X.
 --- This extension allows you to register callbacks for these URL events and their parameters, offering a flexible way to receive events from other applications.
+---
+--- You can also choose to make Hammerspoon the default for `http://` and `https://` URLs, which lets you route the URLs in your Lua code
 ---
 --- Given a URL such as `hammerspoon://someEventToHandle?someParam=things&otherParam=stuff`, in the literal, RFC1808 sense of the URL, `someEventToHandle` is the hostname (or net_loc) of the URL, but given that these are not network resources, we consider `someEventToHandle` to be the name of the event. No path should be specified in the URL - it should consist purely of a hostname and, optionally, query parameters.
 ---
@@ -15,22 +17,45 @@
 local urlevent = require "hs.urlevent.internal"
 local callbacks = {}
 
+--- hs.urlevent.httpCallback
+--- Variable
+--- A function that should handle http:// and https:// URL events
+---
+--- Notes:
+---  * The function should handle four arguments:
+---   * scheme - A string containing the URL scheme (i.e. "http")
+---   * host - A string containing the host requested (e.g. "www.hammerspoon.org")
+---   * params - A table containing the key/value pairs of all the URL parameters
+---   * fullURL - A string containing the full, original URL
+urlevent.httpCallback = nil
+
 -- Set up our top-level callback and register it with the Objective C part of the extension
-local function urlEventCallback(event, params)
-    if (callbacks[event]) then
-        local ok, err = xpcall(function() return callbacks[event](event, params) end, debug.traceback)
-        if not ok then
-            hs.showError(err)
+local function urlEventCallback(scheme, event, params, fullURL)
+    if (scheme == "http" or scheme == "https") then
+        if not urlevent.httpCallback then
+            hs.showError("ERROR: Hammerspoon is configured for http(s):// URLs, but no http callback has been set")
+        else
+            local ok, err = xpcall(function() return urlevent.httpCallback(scheme, event, params, fullURL) end, debug.traceback)
+            if not ok then
+                hs.showError(err)
+            end
         end
-    else
-        print("Received hs.urlevent event with no registered callback:"..event)
+    elseif (scheme == "hammerspoon") then
+        if not callbacks[event] then
+            print("Received hs.urlevent event with no registered callback:"..event)
+        else
+            local ok, err = xpcall(function() return callbacks[event](event, params) end, debug.traceback)
+            if not ok then
+                hs.showError(err)
+            end
+        end
     end
 end
 urlevent.setCallback(urlEventCallback)
 
 --- hs.urlevent.bind(eventName, callback)
 --- Function
---- Registers a callback for a URL event
+--- Registers a callback for a hammerspoon:// URL event
 ---
 --- Parameters:
 ---  * eventName - A string containing the name of an event
