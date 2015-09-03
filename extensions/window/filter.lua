@@ -9,13 +9,13 @@
 ---
 --- Usage:
 --- -- alter the default windowfilter
---- hs.window.filter.default:setAppFilter('My IDE',1) -- ignore no-title windows (e.g. autocomplete suggestions) in My IDE
+--- hs.window.filter.default:setAppFilter('My IDE',{allowTitles=1}) -- ignore no-title windows (e.g. autocomplete suggestions) in My IDE
 ---
 --- -- set the exact scope of what you're interested in
 --- wf_terminal = hs.window.filter.new{'Terminal','iTerm2'} -- all visible terminal windows
---- wf_timewaster = hs.window.filter.new(false):setAppFilter('Safari','reddit') -- any Safari windows with "reddit" anywhere in the title
+--- wf_timewaster = hs.window.filter.new(false):setAppFilter('Safari',{allowTitles='reddit'}) -- any Safari windows with "reddit" anywhere in the title
 --- wf_bigwindows = hs.window.filter.new(function(w)return w:frame().w*w:frame().h>3000000 end) -- only very large windows
---- wf_notif = hs.window.filter.new(false):setAppFilter('Notification Center',nil,nil,{'AXNotificationCenterAlert'}) -- notification center alerts
+--- wf_notif = hs.window.filter.new{['Notification Center']={allowRoles='AXNotificationCenterAlert'}} -- notification center alerts
 ---
 --- -- subscribe to events
 --- wf_terminal:subscribe(hs.window.filter.windowFocused,some_fn) -- run a function whenever a terminal window is focused
@@ -57,7 +57,7 @@ local windowfilter={} -- module
 
 --- hs.window.filter.ignoreAlways
 --- Variable
---- A table of application names (as per `hs.application:title()`) that are always ignored by this module.
+--- A table of application names (as per `hs.application:name()`) that are always ignored by this module.
 --- These are apps with no windows or any visible GUI, such as system services, background daemons and "helper" apps.
 ---
 --- You can add an app to this table with `hs.window.filter.ignoreAlways['Background App Title'] = true`
@@ -232,7 +232,7 @@ end
 --- Checks if an app is allowed by the windowfilter
 ---
 --- Parameters:
----  * appname - app name as per `hs.application:title()`
+---  * appname - app name as per `hs.application:name()`
 ---
 --- Returns:
 ---  * `false` if the app is rejected by the windowfilter; `true` otherwise
@@ -246,7 +246,7 @@ end
 --- Sets the windowfilter to outright reject any windows belonging to a specific app
 ---
 --- Parameters:
----  * appname - app name as per `hs.application:title()`
+---  * appname - app name as per `hs.application:name()`
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
@@ -260,7 +260,7 @@ end
 --- Sets the windowfilter to allow all visible windows belonging to a specific app
 ---
 --- Parameters:
----  * appname - app name as per `hs.application:title()`
+---  * appname - app name as per `hs.application:name()`
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
@@ -297,7 +297,7 @@ end
 --- Sets the detailed filtering rules for the windows of a specific app
 ---
 --- Parameters:
----  * appname - app name as per `hs.application:title()`
+---  * appname - app name as per `hs.application:name()`
 ---  * filter - if `false`, reject the app; if `true`, `nil`, or omitted, allow all visible windows for the app; otherwise
 ---    it must be a table describing the filtering rules for the app, via the following fields:
 ---    * allowTitles
@@ -383,7 +383,7 @@ end
 ---
 --- Parameters:
 ---  * filters - table, every element will set an application filter; these elements must:
----    - have a *key* of type string, denoting an application name as per `hs.application:title()`
+---    - have a *key* of type string, denoting an application name as per `hs.application:name()`
 ---    - if the *value* is a boolean, the app will be allowed or rejected accordingly - see `hs.window.filter:allowApp()`
 ---      and `hs.window.filter:rejectApp()`
 ---    - if the *value* is a table, it must contain the accept/reject rules for the app *as key/value pairs*; valid keys
@@ -464,7 +464,7 @@ end
 ---    - if `true`, returns an empty windowfilter that allows every window
 ---    - if `false`, returns a windowfilter with a default rule to reject every window
 ---    - if a string or table of strings, returns a windowfilter that only allows visible windows of the specified apps
----      as per `hs.application:title()`
+---      as per `hs.application:name()`
 ---    - if a table, you can fully define a windowfilter without having to call any methods after construction; the
 ---      table must be structured as per `hs.window.filter:setFilters()`; if not specified in the table, the
 ---      default filter in the new windowfilter will reject all windows
@@ -530,7 +530,7 @@ end
 --- Checks whether an app is a known non-GUI app, as per `hs.window.filter.ignoreAlways`
 ---
 --- Parameters:
----  * appname - name of the app to check as per `hs.application:title()`
+---  * appname - name of the app to check as per `hs.application:name()`
 ---
 --- Returns:
 ---  * `false` if the app is a known non-GUI (or not accessible) app; `true` otherwise
@@ -545,6 +545,9 @@ end
 
 
 -- event watcher (formerly windowwatcher)
+
+--FIXME events: 1. fire when relevant (i.e. windowHidden for visible=true)
+-- 2. getWindows must return CURRENT situation (i.e. no hidden window for visible=true)
 
 local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
   windowMinimized=true, windowUnminimized=true,
@@ -1296,7 +1299,7 @@ function wf:notify(fn,fnEmpty,immediate)
   return self
 end
 
---- hs.window.filter:subscribe(event,fn,immediate) -> hs.window.filter
+--- hs.window.filter:subscribe(event, fn[, immediate]) -> hs.window.filter
 --- Method
 --- Subscribe to one or more events on the allowed windows
 ---
@@ -1305,7 +1308,7 @@ end
 ---  * fn - function or table of functions, the callback(s) to add for the event(s); each will be passed two parameters
 ---    * a `hs.window` object referring to the event's window
 ---    * a string containing the application name (`window:application():title()`) for convenience
----  * immediate - if `true`, call all the callbacks immediately for windows that satisfy the event(s) criteria
+---  * immediate - (optional) if `true`, call all the callbacks immediately for windows that satisfy the event(s) criteria
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
@@ -1602,5 +1605,8 @@ end
 
 
 local rawget=rawget
-return setmetatable(windowfilter,{__index=function(t,k) return k=='default' and makeDefault() or rawget(t,k) end})
+return setmetatable(windowfilter,{
+  __index=function(t,k) return k=='default' and makeDefault() or rawget(t,k) end,
+  __call=function(t,...) return windowfilter.new(...) end
+})
 
