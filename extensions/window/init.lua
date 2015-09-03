@@ -756,8 +756,9 @@ function window:ensureIsInScreenBounds()
 end
 
 package.loaded[...]=window
-window.filter=require "hs.window.filter"
---window.layout=require "hs.window.layout"
+window.filter=require'hs.window.filter'
+window.layout=require'hs.window.layout'
+window.tiling=require'hs.window.tiling'
 do
   local mt=getmetatable(window)
   --[[ this (lazy "autoload") won't work, objc wants the first metatable for objects
