@@ -181,8 +181,8 @@ function geometry.geth(t) return t._h end
 function geometry.getx2(t) return t._x+(t._w or 0) end
 function geometry.gety2(t) return t._y+(t._h or 0) end
 
-function geometry.setx(t,v) t._x=tonumber(v) or error('number expected',3) end
-function geometry.sety(t,v) t._y=tonumber(v) or error('number expected',3) end
+function geometry.setx(t,v) t._x=tonumber(v) or error('number expected',3) return t end
+function geometry.sety(t,v) t._y=tonumber(v) or error('number expected',3) return t end
 geometry.setx1=geometry.setx
 geometry.sety1=geometry.sety
 
@@ -194,7 +194,7 @@ geometry.sety1=geometry.sety
 --- Field
 --- Alias for `xy`
 function geometry.getxy(t) return new(t._x,t._y) end
-function geometry.setxy(t,p) p=new(p) t._x=p.x t._y=p.y end
+function geometry.setxy(t,p) p=new(p) t._x=p.x t._y=p.y return t end
 geometry.gettopleft=geometry.getxy
 geometry.settopleft=geometry.setxy
 
@@ -208,10 +208,12 @@ geometry.settopleft=geometry.setxy
 function geometry.setw(t,v)
   t._w=max(tonumber(v) or error('number expected',3),0) -- disallow negative w,h instead of flipping the rect
   --  norm(t)
+  return t
 end
 function geometry.seth(t,v)
   t._h=max(tonumber(v) or error('number expected',3),0)
   --  norm(t)
+  return t
 end
 --- hs.geometry.x2
 --- Field
@@ -224,11 +226,13 @@ function geometry.setx2(t,v)
   if not t.x then error('not a rect',3) end
   t._w=(tonumber(v) or error('number expected',3))-t._x
   norm(t)
+  return t
 end
 function geometry.sety2(t,v)
   if not t.y then error('not a rect',3) end
   t._h=(tonumber(v) or error('number expected',3))-t._y
   norm(t)
+  return t
 end
 
 --- hs.geometry.wh
@@ -239,7 +243,7 @@ end
 --- Field
 --- Alias for `wh`
 function geometry.getwh(t) return new(nil,nil,t._w or 0,t._h or 0)end
-function geometry.setwh(t,s) s=new(s) t._w=s.w t._h=s.h end
+function geometry.setwh(t,s) s=new(s) t._w=s.w t._h=s.h return t end
 geometry.getsize=geometry.getwh
 geometry.setsize=geometry.setwh
 
@@ -247,7 +251,7 @@ geometry.setsize=geometry.setwh
 --- Field
 --- The `{x=X,y=Y,w=W,h=H}` table for this hs.geometry object; useful e.g. for serialization/deserialization
 function geometry.gettable(t) return {x=t.x,y=t.y,w=t.w,h=t.h} end
-function geometry.settable(t,nt) t._x=nt.x t._y=nt.y t._w=nt.w t._h=nt.h end
+function geometry.settable(t,nt) t._x=nt.x t._y=nt.y t._w=nt.w t._h=nt.h return t end
 
 --- hs.geometry.string
 --- Field
@@ -264,6 +268,7 @@ end
 function geometry.setstring(t,s)
   local nt=new(s)
   t._x=nt._x t._y=nt._y t._w=nt._w t._h=nt._h
+  return t
 end
 
 --- hs.geometry.center
@@ -277,6 +282,7 @@ function geometry.setcenter(t,...)
   if not nc.x or not nc.y then error('not a point',3) end
   if t.x then t.x=t.x+nc.x-c.x end
   if t.y then t.y=t.y+nc.y-c.y end
+  return t
 end
 --- hs.geometry.length
 --- Field
@@ -291,6 +297,7 @@ function geometry.setlength(t,l)
   if ol>0 then
     t=geometry.scale(t,l/ol)
   end
+  return t
 end
 --- hs.geometry.area
 --- Field
@@ -306,8 +313,9 @@ function geometry.setarea(t,a,...)
     end
     if a<=0 or a/2==a then error('invalid area, must be > 0 and < inf',2) end
     local f=sqrt(a/oa)
-    return geometry.scale(t,f)
+    geometry.scale(t,f)
   end
+  return t
 end
 
 --- hs.geometry.aspect
@@ -327,6 +335,7 @@ function geometry.setaspect(t,asp,...)
     t.w=t.w*asp/oasp
     geometry.setarea(t,oa) geometry.setcenter(t,oc)
   end
+  return t
 end
 
 function geometry.__index(t,k)
