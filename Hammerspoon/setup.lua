@@ -58,12 +58,12 @@ function hs.showError(err)
   hs._TERMINATED=true
 end
 
-function hs.assert(pred,num)
+function hs.assert(pred,desc,data)
   if not pred then error([[
 Internal error: please open an issue at
 https://github.com/Hammerspoon/hammerspoon/issues/new   and paste the following stack trace:
 
-Assertion failed: ]]..num,2)
+Assertion failed: ]]..desc..'\n'..(data and hs.inspect(data) or ''),2)
   end
 end
 
