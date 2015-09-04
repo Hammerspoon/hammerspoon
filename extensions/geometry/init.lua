@@ -238,7 +238,7 @@ end
 --- hs.geometry.size
 --- Field
 --- Alias for `wh`
-function geometry.getwh(t) return new(nil,nil,t._w,t._h)end
+function geometry.getwh(t) return new(nil,nil,t._w or 0,t._h or 0)end
 function geometry.setwh(t,s) s=new(s) t._w=s.w t._h=s.h end
 geometry.getsize=geometry.getwh
 geometry.setsize=geometry.setwh
@@ -560,12 +560,16 @@ end
 ---  * An hs.geometry unit rect object
 ---
 --- Notes:
----  * The resulting unit rect is always clipped within `frame`'s bounds (via `hs.geometry:intersect()`)
+---  * The resulting unit rect is always clipped within `frame`'s bounds (via `hs.geometry:intersect()`); if `frame`
+---    does not encompass this rect *no error will be thrown*, but the resulting unit rect won't be a direct match with this rect
+---    (i.e. calling `:fromUnitRect(frame)` on it will return a different rect)
 function geometry.toUnitRect(t,...)
   t=new(t) local frame=new(...)
   if t._w and t._h and gettype(t)~='rect' then error('not a rect',2) end
   if gettype(frame)~='rect' or frame.area==0 then error('frame must be a valid rect',2) end
-  t=geometry.intersect(t,frame)
+  -- if frame~=geometry.union(frame,t) then error('frame does not encompass this rect',2) end
+  -- no error; but there might be reasons to change this
+  t=geometry.intersect(frame,t)
   t._x=(t._x-frame._x)/frame._w
   t._y=(t._y-frame._y)/frame._h
   if t.w then t._w=t._w/frame._w end -- allow 'unit points' as well
