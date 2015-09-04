@@ -296,6 +296,10 @@ function Inspector:putValue(v)
     self:putTable(v)
   else
     self:puts('<',tv,' ',self:getId(v),'>')
+    local toStringResult = getToStringResultSafely(v, getmetatable(v))
+    if toStringResult then
+      self:puts(' -- ', escape(toStringResult))
+    end
   end
 end
 
