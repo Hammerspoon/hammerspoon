@@ -61,6 +61,7 @@ local function gettype(t)
   elseif t._w and t._h then return 'size' end
 end
 geometry.type=gettype
+local function isRect(t) local typ=gettype(t) return typ=='rect' or typ=='unitrect' end
 
 local function norm(t)
   if t._x and t._w and t._w<0 then t._x=t._x+t._w t._w=-t._w end
@@ -432,8 +433,8 @@ end
 ---  * an hs.geometry point
 function geometry.vector(t,...)
   t=new(t) local t2=new(...)
-  if gettype(t)=='rect' then t=geometry.getcenter(t) end
-  if gettype(t2)=='rect' then t2=geometry.getcenter(t2) end
+  if isRect(t) then t=geometry.getcenter(t) end
+  if isRect(t2) then t2=geometry.getcenter(t2) end
   return new((t2.x or 0)-(t.x or 0),(t2.y or 0)-(t.y or 0))
 end
 
@@ -487,7 +488,7 @@ end
 ---  * a new hs.geometry rect
 function geometry.union(t1,...)
   t1=new(t1) local t2=new(...)
-  if gettype(t1)~='rect' or gettype(t2)~='rect' then error('cannot find union for non-rects',2) end
+  if not isRect(t1) or not isRect(t2) then error('cannot find union for non-rects',2) end
   return new{x=min(t1.x,t2.x),y=min(t1.y,t2.y),x2=max(t1.x2,t2.x2),y2=max(t1.y2,t2.y2)}
 end
 
@@ -521,7 +522,7 @@ end
 ---    closest edge or corner along the x or y axis; the `w` and/or `h` fields in the result rect will be 0.
 function geometry.intersect(t1,...)
   t1=new(t1) local t2=new(...)
-  if gettype(t1)~='rect' or gettype(t2)~='rect' then error('cannot find intersection for non-rects',2) end
+  if not isRect(t1) or not isRect(t2) then error('cannot find intersection for non-rects',2) end
   local t1x,t1y,t1x2,t1y2=t1.x,t1.y,t1.x2,t1.y2
   local t2x,t2y,t2x2,t2y2=t2.x,t2.y,t2.x2,t2.y2
   t2x=min(t1x2,max(t1x,t2x)) t2x2=max(t1x,min(t1x2,t2x2))
@@ -644,6 +645,7 @@ end
 --- Returns:
 ---  * An hs.geometry rect object
 geometry.rect=new
+geometry.unitrect=new
 
 --- hs.geometry.point(x, y) -> hs.geometry point
 --- Constructor
