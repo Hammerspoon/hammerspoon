@@ -8,7 +8,7 @@ local function runstring(s)
   if not fn then return tostring(err) end
 
   local str = ""
-  local results = table.pack(pcall(fn))
+  local results = table.pack(xpcall(fn,debug.traceback))
   for i = 2,results.n do
     if i > 2 then str = str .. "\t" end
     str = str .. tostring(results[i])
