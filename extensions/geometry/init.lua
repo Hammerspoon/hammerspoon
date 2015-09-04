@@ -248,6 +248,18 @@ function geometry.setwh(t,s) s=new(s) t._w=s.w t._h=s.h return t end
 geometry.getsize=geometry.getwh
 geometry.setsize=geometry.setwh
 
+--- hs.geometry.x2y2
+--- Field
+--- The point denoting the other corner of this hs.geometry object; setting this to a new point will change the rect's width and height
+
+--- hs.geometry.bottomright
+--- Field
+--- Alias for `x2y2`
+function geometry.getx2y2(t) return new(t.x2,t.y2) end
+function geometry.setx2y2(t,s) s=new(s) t.x2=s.x t.y2=s.y return t end
+geometry.getbottomright=geometry.getx2y2
+geometry.setbottomright=geometry.setx2y2
+
 --- hs.geometry.table
 --- Field
 --- The `{x=X,y=Y,w=W,h=H}` table for this hs.geometry object; useful e.g. for serialization/deserialization
