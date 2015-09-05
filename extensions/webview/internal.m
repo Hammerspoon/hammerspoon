@@ -405,7 +405,7 @@ static int webview_textSmaller(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview:textSmaller() -> webviewObject
+/// hs.webview:textLarger() -> webviewObject
 /// Method
 /// Make the webview's text larger, if possible.
 ///
