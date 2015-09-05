@@ -398,7 +398,7 @@ nextarg:
     CGFloat y = (lua_getfield(_L, idx, "y"), luaL_checknumber(_L, -1));
     CGFloat w = (lua_getfield(_L, idx, "w"), luaL_checknumber(_L, -1));
     CGFloat h = (lua_getfield(_L, idx, "h"), luaL_checknumber(_L, -1));
-    lua_pop(_L, 2);
+    lua_pop(_L, 4);
     return NSMakeRect(x, y, w, h);
 }
 
