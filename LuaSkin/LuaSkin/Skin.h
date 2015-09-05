@@ -254,7 +254,7 @@ typedef struct tableHelpers {
  @param idx - the index on lua stack which contains the data to convert.
  @returns An NSObject of the appropriate type depending upon the data on the lua stack.
  */
-- (id)toNSObjectFromIndex:(int)idx ;
+- (id)toNSObjectAtIndex:(int)idx ;
 
 /** Return an NSObject containing the best representation of the lua data structure at the specified index.
 
@@ -266,7 +266,7 @@ typedef struct tableHelpers {
  @param allow - YES indicates that self-referential tables (i.e. tables which contain themselves as a reference) are allowed; NO if they are not.
  @returns An NSObject of the appropriate type depending upon the data on the lua stack.
  */
-- (id)toNSObjectFromIndex:(int)idx allowSelfReference:(BOOL)allow ;
+- (id)toNSObjectAtIndex:(int)idx allowSelfReference:(BOOL)allow ;
 
 
 /** Return an NSObject containing the best representation of the lua table at the specified index.

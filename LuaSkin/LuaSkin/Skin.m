@@ -51,10 +51,10 @@ static lua_Integer countn (lua_State *L, int idx) {
 - (int)pushNSDictionary:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag
                                     alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
 
-// internal methods for toNSObjectFromIndex
-- (id)toNSObjectFromIndex:(int)idx alreadySeenObjects:(NSMutableDictionary *)alreadySeen
+// internal methods for toNSObjectAtIndex
+- (id)toNSObjectAtIndex:(int)idx alreadySeenObjects:(NSMutableDictionary *)alreadySeen
                                    allowSelfReference:(BOOL)allow ;
-- (id)tableFromIndex:(int)idx alreadySeenObjects:(NSMutableDictionary *)alreadySeen
+- (id)tableAtIndex:(int)idx alreadySeenObjects:(NSMutableDictionary *)alreadySeen
                               allowSelfReference:(BOOL)allow;
 @end
 
@@ -363,12 +363,12 @@ nextarg:
 
 #pragma mark - Methods for converting Lua objects on the stack to NSObjects
 
-- (id)toNSObjectFromIndex:(int)idx { return [self toNSObjectFromIndex:idx allowSelfReference:NO] ; }
+- (id)toNSObjectAtIndex:(int)idx { return [self toNSObjectAtIndex:idx allowSelfReference:NO] ; }
 
-- (id)toNSObjectFromIndex:(int)idx allowSelfReference:(BOOL)allow {
+- (id)toNSObjectAtIndex:(int)idx allowSelfReference:(BOOL)allow {
     NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
 
-    return [self toNSObjectFromIndex:idx alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
+    return [self toNSObjectAtIndex:idx alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
 }
 
 - (id)tableAtIndex:(int)idx toClass:(char *)className {
@@ -641,7 +641,7 @@ nextarg:
     return 1 ;
 }
 
-- (id)toNSObjectFromIndex:(int)idx
+- (id)toNSObjectAtIndex:(int)idx
        alreadySeenObjects:(NSMutableDictionary *)alreadySeen
        allowSelfReference:(BOOL)allow {
 
@@ -681,7 +681,7 @@ nextarg:
             return lua_toboolean(_L, idx) ? (id)kCFBooleanTrue : (id)kCFBooleanFalse;
             break ;
         case LUA_TTABLE:
-            return [self tableFromIndex:realIndex alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
+            return [self tableAtIndex:realIndex alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
             break ;
         default:
             return [NSString stringWithFormat:@"%s", luaL_tolstring(_L, idx, NULL)];
@@ -689,7 +689,7 @@ nextarg:
     }
 }
 
-- (id)tableFromIndex:(int)idx alreadySeenObjects:(NSMutableDictionary *)alreadySeen
+- (id)tableAtIndex:(int)idx alreadySeenObjects:(NSMutableDictionary *)alreadySeen
                               allowSelfReference:(BOOL)allow {
     id result ;
 
@@ -704,15 +704,15 @@ nextarg:
         lua_Integer tableLength = countn(_L, lua_absindex(_L, idx)) ;
         for (lua_Integer i = 0; i < tableLength ; i++) {
             lua_geti(_L, lua_absindex(_L, idx), i + 1) ;
-            id val = [self toNSObjectFromIndex:-1 alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
+            id val = [self toNSObjectAtIndex:-1 alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
             [result addObject:val] ;
             lua_pop(_L, 1) ;
         }
     } else {
         lua_pushnil(_L);
         while (lua_next(_L, lua_absindex(_L, idx)) != 0) {
-            id key = [self toNSObjectFromIndex:-2 alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
-            id val = [self toNSObjectFromIndex:lua_gettop(_L) alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
+            id key = [self toNSObjectAtIndex:-2 alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
+            id val = [self toNSObjectAtIndex:lua_gettop(_L) alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
             [result setValue:val forKey:key];
             lua_pop(_L, 1);
         }
