@@ -308,10 +308,10 @@ static int webview_allowMouseClicks(lua_State *L) {
 ///  * an hs.window object
 ///
 /// Notes:
-///  * hs.window:minimize only works if the webview is minimizable (see `hs.webview.Style`)
-///  * hs.window:setSize only works if the webview is resizable (see `hs.webview.Style`)
-///  * hs.window:close only works if the webview is closable (see `hs.webview.Style`)
-///  * hs.window:maximize will reposition the webview to the upper left corner of your screen, but will only resize the webview if the webview is resizable (see `hs.webview.Style`)
+///  * hs.window:minimize only works if the webview is minimizable (see `hs.webview.windowStyle`)
+///  * hs.window:setSize only works if the webview is resizable (see `hs.webview.windowStyle`)
+///  * hs.window:close only works if the webview is closable (see `hs.webview.windowStyle`)
+///  * hs.window:maximize will reposition the webview to the upper left corner of your screen, but will only resize the webview if the webview is resizable (see `hs.webview.windowStyle`)
 static int webview_hswindow(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
     CGWindowID windowID = (CGWindowID)[theWindow windowNumber];
@@ -351,6 +351,163 @@ static int webview_hsdrawing(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview:goForward() -> webviewObject
+/// Method
+/// Move to the next page in the webview's history, if possible.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The webview Object
+static int webview_goForward(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+    [theView goForward:nil] ;
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
+/// hs.webview:goBack() -> webviewObject
+/// Method
+/// Move to the previous page in the webview's history, if possible.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The webview Object
+static int webview_goBack(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+    [theView goBack:nil] ;
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
+/// hs.webview:textSmaller() -> webviewObject
+/// Method
+/// Make the webview's text smaller, if possible.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The webview Object
+static int webview_textSmaller(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+    [theView makeTextSmaller:nil] ;
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
+/// hs.webview:textSmaller() -> webviewObject
+/// Method
+/// Make the webview's text larger, if possible.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The webview Object
+static int webview_textLarger(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+    [theView makeTextLarger:nil] ;
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
+/// hs.webview:pageInfo() -> webviewObject
+/// Method
+/// Returns a table containing information about the webview and the page it is showing.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table with information about the webview and the page it is showing.  Currently the keys returned are:
+///   * canMakeTextLarger  - a boolean value indicating if the text size can be increased.
+///   * canMakeTextSmaller - a boolean value indicating if the text size can be decreased.
+///   * canGoBack          - a boolean value indicating if the webview has previous pages in its history.
+///   * canGoForward       - a boolean value indicating if the webview has pages ahead in its history.
+///   * mainFrameURL       - the URL of the currently displayed page in the webview.
+///   * mainFrameTitle     - the title of the page currently displayed in the webview.
+///   * isLoading          - a boolean value indicating if the page is still loading (i.e. not fully rendered)
+///   * extimatedProgress  - an estimate expressed as a percentage representing how much of the page has loaded.
+static int webview_info(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+    lua_newtable(L) ;
+        lua_pushboolean(L, [theView isLoading]) ;                         lua_setfield(L, -2, "isLoading") ;
+        lua_pushnumber(L, [theView estimatedProgress]) ;                  lua_setfield(L, -2, "estimatedProgress") ;
+        lua_pushboolean(L, [theView canMakeTextLarger]) ;                 lua_setfield(L, -2, "canMakeTextLarger") ;
+        lua_pushboolean(L, [theView canMakeTextSmaller]) ;                lua_setfield(L, -2, "canMakeTextSmaller") ;
+        lua_pushboolean(L, [theView canGoBack]) ;                         lua_setfield(L, -2, "canGoBack") ;
+        lua_pushboolean(L, [theView canGoForward]) ;                      lua_setfield(L, -2, "canGoForward") ;
+//         [[LuaSkin shared] pushNSObject:[theView mainFrameURL]] ;
+        size_t size = [[theView mainFrameURL] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
+        lua_pushlstring(L, [[theView mainFrameURL] UTF8String], size) ;
+          lua_setfield(L, -2, "mainFrameURL") ;
+//         [[LuaSkin shared] pushNSObject:[theView mainFrameTitle]] ;
+        size = [[theView mainFrameTitle] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
+        lua_pushlstring(L, [[theView mainFrameTitle] UTF8String], size) ;
+          lua_setfield(L, -2, "mainFrameTitle") ;
+
+    return 1 ;
+}
+
+/// hs.webView:windowTitle(title) -> webviewObject
+/// Method
+/// Sets the title for the webview window.
+///
+/// Parameters:
+///  * title - the title to set for the webview window
+///
+/// Returns:
+///  * The webview Object
+///
+/// Notes:
+///  * If you wish this to match the web page title, you can use `hs.webview.title(obj:info().mainFrameTitle)` after making sure `obj:info().isLoading == false`.
+///  * Any title set with this method will be hidden unless the window style includes the "titled" style (see `hs.webview.windowStyle` and `hs.webview.windowMasks`)
+static int webview_windowTitle(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+
+//     NSString        *theTitle = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+    size_t size ;
+    unsigned char *string = (unsigned char *)lua_tolstring(L, 2, &size) ;
+    NSString *theTitle = [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
+
+    [theWindow setTitle:theTitle] ;
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
+/// hs.webview:reload() -> webviewObject
+/// Method
+/// Reload the page in the webview.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The webview object
+static int webview_reload(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+
+    [theView reloadFromOrigin:nil] ;
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
 static int userdata_tostring(lua_State* L) {
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
     return 1 ;
@@ -375,14 +532,21 @@ static int userdata_gc(lua_State* L) {
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
     {"show",             webview_show},
+    {"info",             webview_info},
     {"hide",             webview_hide},
     {"delete",           webview_delete},
     {"allowMouseClicks", webview_allowMouseClicks},
     {"allowTextEntry",   webview_allowTextEntry},
+    {"textSmaller",      webview_textSmaller},
+    {"textLarger",       webview_textLarger},
+    {"goBack",           webview_goBack},
+    {"goForward",        webview_goForward},
     {"_windowStyle",     webview_windowStyle},
     {"url",              webview_url},
     {"asHSWindow",       webview_hswindow} ,
     {"asHSDrawing",      webview_hsdrawing},
+    {"windowTitle",      webview_windowTitle},
+    {"reload",           webview_reload},
     {"__tostring",       userdata_tostring},
 //     {"__eq",       userdata_eq},
     {"__gc",             userdata_gc},

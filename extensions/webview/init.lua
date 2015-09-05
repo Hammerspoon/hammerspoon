@@ -1,6 +1,8 @@
 --- === hs.webview ===
 ---
---- Display a web page on the screen
+--- Display web content in a window from Hammerspoon
+---
+--- This is not intended to replace a full featured web browser - it is a minimal web viewer based on the AppKit WebView class to render web pages for remote and local URLs.
 ---
 
 local module      = require("hs.webview.internal")
