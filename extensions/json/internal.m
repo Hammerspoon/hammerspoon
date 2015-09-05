@@ -16,7 +16,7 @@
 ///  * This is useful for storing some of the more complex lua table structures as a persistent setting (see `hs.settings`)
 static int json_encode(lua_State* L) {
     if lua_istable(L, 1) {
-        id obj = [[LuaSkin shared] toNSObjectFromIndex:1] ;
+        id obj = [[LuaSkin shared] toNSObjectAtIndex:1] ;
 
         NSJSONWritingOptions opts = 0;
         if (lua_toboolean(L, 2))

@@ -22,7 +22,7 @@
 static int target_set(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
-    id val = [[LuaSkin shared] toNSObjectFromIndex:2] ;
+    id val = [[LuaSkin shared] toNSObjectAtIndex:2] ;
     @try {
         [[NSUserDefaults standardUserDefaults] setObject:val forKey:key];
     }
