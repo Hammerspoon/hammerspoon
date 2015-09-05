@@ -23,8 +23,9 @@
 ---  * a string:
 ---    * `"X Y"` or `"X,Y"` creates a point
 ---    * `"WxH"` or `"W*H"` creates a size
----    * `"X Y WxH"` or `"X,Y|W*H"` (or variations thereof) creates a rect given its width and height from a corner
----    * `"X1 Y1 > X2 Y2"` or `"X1,Y1,X2,Y2"` (or variations thereof) creates a rect given two opposite corners
+---    * `"X Y/WxH"` or `"X,Y W*H"` (or variations thereof) creates a rect given its width and height from a corner
+---    * `"X1,Y1>X2,Y2"` or `"X1 Y1 X2 Y2"` (or variations thereof) creates a rect given two opposite corners
+---    * `"[X,Y WxH]"` or `"[X1,Y1 X2,Y2]"` or variations (note the square brackets) creates a unit rect where x=X/100, y=Y/100, w=W/100, h=H/100
 ---  * a point and a size `"X Y","WxH"` or `{x=X,y=Y},{w=W,h=H}` create a rect
 ---
 --- You can use any of these anywhere an hs.geometry object is expected in Hammerspoon; the constructor will be called for you.
@@ -35,8 +36,8 @@
 --TODO guard against infinites etc everywhere (constructor, length,...)
 --TODO allow segments? (like rects, but no norm())
 
-local rawget,rawset,type,pairs,ipairs,tonumber,sqrt=rawget,rawset,type,pairs,ipairs,tonumber,math.sqrt
-local min,max,atan,smatch,sformat=math.min,math.max,math.atan,string.match,string.format
+local rawget,rawset,type,pairs,ipairs,tonumber,tostring,sqrt=rawget,rawset,type,pairs,ipairs,tonumber,tostring,math.sqrt
+local min,max,floor,atan,smatch,sformat=math.min,math.max,math.floor,math.atan,string.match,string.format
 local getmetatable,setmetatable=getmetatable,setmetatable
 
 local geometry = {}
@@ -69,15 +70,20 @@ local function norm(t)
 end
 
 -- constructor stuff
-local ws=' *'
-local sepout=ws..'([ ,>/|])'..ws
-local sepin=ws..'([ x*,])'..ws
-local number='(%-?%d*%.?%d*)'
 local function parse(s)
+  local ws=' *'
+  local outeropen=ws..'(%[?)'..ws
+  local outerclose=ws..'(%]?)'
+  local sepout=ws..'([ ,>/|])'..ws
+  local sepin=ws..'([ x*,])'..ws
+  local number='(%-?%d*%.?%d*)'
   local x,y,w,h
-  local sept,n3,sep2,n4
-  local n1,sep1,n2,i = smatch(s,ws..number..sepin..number..'()')
-  if i then sept,n3,sep2,n4 = smatch(s,sepout..number..sepin..number,i) end
+  local sept,n3,sep2,n4,close
+  local open,n1,sep1,n2,i = smatch(s,outeropen..number..sepin..number..'()')
+  if i then sept,n3,sep2,n4,close = smatch(s,sepout..number..sepin..number..outerclose,i) end
+  if open and #open==0 then open=nil end
+  if close and #close==0 then close=nil end
+  if (not open)~=(not close) then error('Mismatched brackets or missing element',3) end
   if sep1=='x' or sep1=='*' then --it's a size
     w=tonumber(n1) h=tonumber(n2)
     if not w then error('Cannot parse width',3) end
@@ -87,14 +93,19 @@ local function parse(s)
     if not x then error('Cannot parse x coord',3) end
     if not y then error('Cannot parse y coord',3) end
     if sept=='>' or sep2==' ' or sep2==',' then --it's a rectx2y2
-      w=tonumber(n3)-x h=tonumber(n4)-y
+      w=tonumber(n3) h=tonumber(n4)
       if not w then error('Cannot parse x2 coord',3) end
       if not h then error('Cannot parse y2 coord',3) end
+      w=w-x h=h-y
     elseif sep2 then --it's a rectsize
       w=tonumber(n3) h=tonumber(n4)
       if not w then error('Cannot parse width',3) end
       if not h then error('Cannot parse height',3) end
     end
+  end
+  if open then
+    if not x or not y or not w or not h then error('Missing element',3)
+    else x,y,w,h=x/100,y/100,w/100,h/100 end
   end
   return x,y,w,h
 end
@@ -268,13 +279,19 @@ function geometry.settable(t,nt) t._x=nt.x t._y=nt.y t._w=nt.w t._h=nt.h return 
 
 --- hs.geometry.string
 --- Field
---- The `"X,Y WxH"` string for this hs.geometry object; useful e.g. for serialization/deserialization
+--- The `"X,Y/WxH"` string for this hs.geometry object (*reduced precision*); useful e.g. for logging
+
+local function ntos(n)
+  local f=floor(n)
+  return f==n and tostring(f) or sformat('%.2f',n)
+end
+
 function geometry.getstring(t)
   local typ=geometry.type(t)
-  if typ=='point' then return t._x..','..t._y
-  elseif typ=='size' then return t._w..'x'..t._h
-  elseif typ=='rect' then return t._x..','..t._y..','..t._w..'x'..t._h
-  elseif typ=='unitrect' then return t._x..','..t._y..'>'..t.x2..','..t.y2
+  if typ=='point' then return ntos(t._x)..','..ntos(t._y)--sformat('%.2f,%.2f',t._x,t._y)
+  elseif typ=='size' then return ntos(t._x)..'x'..ntos(t._y) --sformat('%.2fx%.2f',t._w,t._h)
+  elseif typ=='rect' then return ntos(t._x)..','..ntos(t._y)..'/'..ntos(t._w)..'x'..ntos(t._h) --sformat('%.2f,%.2f/%.2fx%.2f',t._x,t._y,t._w,t._h)
+  elseif typ=='unitrect' then return '['..ntos(t._x*100)..','..ntos(t._y*100)..'>'..ntos(t.x2*100)..','..ntos(t.y2*100)..']' --sformat('[%.0f,%.0f>%.0f,%.0f]',t._x*100,t._y*100,t.x2*100,t.y2*100)
   else return ''
   end
 end
@@ -544,7 +561,7 @@ end
 
 -- fun with operator overloading
 geometry.__eq=geometry.equals
-geometry.__len=geometry.getlength
+--geometry.__len=geometry.getlength
 geometry.__unm=function(t) return new(t.x and -t.x,t.y and -t.y,t.w,t.h) end
 geometry.__add=function(t1,t2) -- :move or :union
   t2=new(t2)
