@@ -451,6 +451,23 @@ function geometry.normalize(t)
   return t
 end
 
+--- hs.geometry:floor() -> hs.geometry object
+--- Method
+--- Truncates all coordinates in this object to integers
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * this hs.geometry point for method chaining
+function geometry.floor(t)
+  t=new(t)
+  for _,k in ipairs{'_x','_y','_w','_h'} do
+    if t[k] then t[k]=floor(t[k]) end
+  end
+  return t
+end
+
 --- hs.geometry:vector(point) -> point
 --- Method
 --- Returns the vector2 from this point or rect's center to another point or rect's center
