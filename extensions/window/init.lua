@@ -243,7 +243,8 @@ end
 function window:setFrame(f, duration)
   if duration==nil then duration = window.animationDuration end
   if type(duration)~='number' then duration = 0 end
-  f=geometry(f)
+  f=geometry(f):floor()
+  if f.w<10 or f.h<10 then error('invalid frame: '..f.string) end
   local id = self:id()
   stopAnimation(self,false,id)
   if duration<=0 or not id then return self:_setFrame(f) end
