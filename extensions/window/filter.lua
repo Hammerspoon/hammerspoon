@@ -196,34 +196,34 @@ function wf:isWindowAllowed(window,appname,cache)
   end
   local role,appname=--[[shortRoles[props.role] or--]]props.role,props.appname
   local app=self.apps.override
-  if app==false then self.log.vf('reject %s (%s): override reject',appname,role)return false
+  if app==false then self.log.vf('reject %s (%s %d): override reject',appname,role,id)return false
   elseif app then
     local r=allowWindow(app,props)
-    self.log.vf('%s %s (%s): override filter',r and 'allow' or 'reject',appname,role)
+    self.log.vf('%s %s (%s %d): override filter',r and 'allow' or 'reject',appname,role,id)
     return r
   end
-  if self.spaceFilter and not self.currentSpaceWindows[id] then self.log.vf('reject %s (%s): not in current space',appname,role) return false
-  elseif self.spaceFilter==false and self.currentSpaceWindows[id] then self.log.vf('reject %s (%s): in current space',appname,role) return false end
+  if self.spaceFilter and not self.currentSpaceWindows[id] then self.log.vf('reject %s (%s %d): not in current space',appname,role,id) return false
+  elseif self.spaceFilter==false and self.currentSpaceWindows[id] then self.log.vf('reject %s (%s %d): in current space',appname,role,id) return false end
 
   if not windowfilter.isGuiApp(appname) then
     --if you see this in the log, add to .ignoreAlways
-    self.log.wf('reject %s (%s): should be a non-GUI app!',appname,role) return false
+    self.log.wf('reject %s (%s %d): should be a non-GUI app!',appname,role,id) return false
   end
   app=self.apps[appname]
-  if app==false then self.log.vf('reject %s (%s): app reject',appname,role) return false
+  if app==false then self.log.vf('reject %s (%s %d): app reject',appname,role,id) return false
   elseif app then
     local r=allowWindow(app,props)
-    self.log.vf('%s %s (%s): app filter',r and 'allow' or 'reject',appname,role)
+    self.log.vf('%s %s (%s %d): app filter',r and 'allow' or 'reject',appname,role,id)
     return r
   end
   app=self.apps.default
-  if app==false then self.log.vf('reject %s (%s): default reject',appname,role) return false
+  if app==false then self.log.vf('reject %s (%s %d): default reject',appname,role,id) return false
   elseif app then
     local r=allowWindow(app,props)
-    self.log.vf('%s %s (%s): default filter',r and 'allow' or 'reject',appname,role)
+    self.log.vf('%s %s (%s %d): default filter',r and 'allow' or 'reject',appname,role,id)
     return r
   end
-  self.log.vf('allow %s (%s) (no filter)',appname,role)
+  self.log.vf('allow %s (%s %d) (no filter)',appname,role,id)
   return true
 end
 
@@ -453,7 +453,7 @@ function wf:setScreens(screens)
   return self  
 end
 --]]
---- hs.window.filter.new(fn,logname,loglevel) -> hs.window.filter
+--- hs.window.filter.new(fn[,logname[,loglevel]]) -> hs.window.filter object
 --- Constructor
 --- Creates a new hs.window.filter instance
 ---
@@ -461,7 +461,6 @@ end
 ---  * fn
 ---    - if `nil`, returns a copy of the default windowfilter, including any customizations you might have applied to it
 ---      so far; you can then further restrict or expand it
----    - if an `hs.window.filter` object, returns a copy of it which you can then further restrict or expand
 ---    - if `true`, returns an empty windowfilter that allows every window
 ---    - if `false`, returns a windowfilter with a default rule to reject every window
 ---    - if a string or table of strings, returns a windowfilter that only allows visible windows of the specified apps
@@ -478,6 +477,7 @@ end
 ---  * a new windowfilter instance
 
 function windowfilter.new(fn,logname,loglevel)
+  local mt=getmetatable(fn) if mt and mt.__index==wf then return fn end -- no copy-on-new
   local o = setmetatable({apps={},events={},windows={},log=logname and logger.new(logname,loglevel) or log},{__index=wf})
   if logname then o.setLogLevel=function(lvl)o.log.setLogLevel(lvl)return o end end
   if type(fn)=='function' then
@@ -497,20 +497,25 @@ function windowfilter.new(fn,logname,loglevel)
     --TODO add regions and screens here
     return o
   elseif type(fn)=='table' then
-    local mt=getmetatable(fn)
-    if mt and mt.__index==wf then
-      fn=fn:getFilters()
-      o.log.i('new windowfilter copy')
-    else
-      o.log.i('new windowfilter, reject all with exceptions')
-      o:setDefaultFilter(false)
-    end
-    return o:setFilters(fn)
+    o.log.i('new windowfilter, reject all with exceptions')
+    return o:setDefaultFilter(false):setFilters(fn)
   elseif fn==true then o.log.i('new empty windowfilter') return o
   elseif fn==false then o.log.i('new windowfilter, reject all') return o:setDefaultFilter(false)
   else error('fn must be nil, a boolean, a string or table of strings, or a function',2) end
 end
 
+--- hs.window.filter.copy(windowfilter[,logname[,loglevel]]) -> hs.window.filter object
+--- Constructor
+--- Returns a copy of an hs.window.filter object that you can further restrict or expand
+---
+--- Parameters:
+---  * windowfilter - an `hs.window.filter` object to copy
+---  * logname - (optional) name of the `hs.logger` instance for the new windowfilter; if omitted, the class logger will be used
+---  * loglevel - (optional) log level for the `hs.logger` instance for the new windowfilter
+function windowfilter.copy(wf,logname,loglevel)
+  local mt=getmetatable(fn) if not mt or mt.__index~=wf then error('windowfilter must be an hs.window.filter object',2) end
+  return windowfilter.new(true,logname,loglevel):setFilters(wf:getFilters())
+end
 
 --- hs.window.filter.default
 --- Constant
@@ -665,26 +670,27 @@ function Window.new(win,id,app,watcher)
   if not win:isVisible() then o.isHidden = true end
   if win:isMinimized() then o.isMinimized = true end
   o.isFullscreen = win:isFullScreen()
+  --  o.currentFrame = win:frame()
   app.windows[id]=o
   o:emitEvent(windowfilter.windowCreated)
   if not o.isHidden and not o.isMinimized then o:emitEvent(windowfilter.windowShown,true) end
 end
 
 function Window:shown(inserted)
-  if not self.isHidden then return log.df('Window %d (%s) already shown',self.id,self.app.name) end
+  if not self.isHidden then return log.df('%s (%d) already shown',self.app.name,self.id) end
   self.isHidden = nil
   self:emitEvent(windowfilter.windowShown,inserted)
 end
 
 function Window:unminimized()
-  if not self.isMinimized then log.df('Window %d (%s) already unminimized',self.id,self.app.name) end
+  if not self.isMinimized then log.df('%s (%d) already unminimized',self.app.name,self.id) end
   self.isMinimized=nil
   self:shown(true)
   self:emitEvent(windowfilter.windowUnminimized)
 end
 
 function Window:focused(inserted)
-  if global.focused==self then return log.df('Window %d (%s) already focused',self.id,self.app.name) end
+  if global.focused==self then return log.df('%s (%d) already focused',self.app.name,self.id) end
   global.focused=self
   self.app.focused=self
   self.time=timer.secondsSinceEpoch()
@@ -716,21 +722,21 @@ function Window:doTitleChanged()
 end
 
 function Window:unfocused(inserted)
-  if global.focused~=self then return log.vf('Window %d (%s) already unfocused',self.id,self.app.name) end
+  if global.focused~=self then return log.vf('%s (%d) already unfocused',self.app.name,self.id) end
   global.focused=nil
   self.app.focused=nil
   self:emitEvent(windowfilter.windowUnfocused,inserted)
 end
 
 function Window:minimized()
-  if self.isMinimized then return log.df('Window %d (%s) already minimized',self.id,self.app.name) end
+  if self.isMinimized then return log.df('%s (%d) already minimized',self.app.name,self.id) end
   self.isMinimized=true
   self:emitEvent(windowfilter.windowMinimized)
   self:hidden(true)
 end
 
 function Window:hidden(inserted)
-  if self.isHidden then return log.df('Window %d (%s) already hidden',self.id,self.app.name) end
+  if self.isHidden then return log.df('%s (%d) already hidden',self.app.name,self.id) end
   self:unfocused()
   self.isHidden = true
   self:emitEvent(windowfilter.windowHidden,inserted)
@@ -756,7 +762,7 @@ function Window:spaceChanged()
       local prev = self.inCurrentSpace[wf]
       local now = wf.currentSpaceWindows[self.id] and true or false
       if prev~=now then
-        log.df('Window %d (%s) is%s in current space',self.id,self.app.name,now and '' or ' not')
+        log.df('%s (%d) %s in current space',self.app.name,self.id,now and 'is' or 'not')
         logged,notified = self:filterEmitEvent(wf,now and windowfilter.windowShown or windowfilter.windowHidden,nil,logged,notified)
         self.inCurrentSpace[wf]=now
       end
@@ -779,14 +785,14 @@ function App:getFocused()
     fwid=fw and fw.id and fw:id()
   end
   if fwid then
-    log.vf('Window %d is focused for app %s',fwid,self.name)
+    log.vf('%s (%d) is main/focused',self.name,fwid)
     if not self.windows[fwid] then
       -- windows on a different space aren't picked up by :allWindows() at first refresh
-      log.df('Focused window %d (%s) was not registered',fwid,self.name)
+      log.df('%s (%d) was not registered',self.name,fwid)
       appWindowEvent(fw,uiwatcher.windowCreated,nil,self.name)
     end
     if not self.windows[fwid] then
-      log.wf('Focused window %d (%s) is STILL not registered',fwid,self.name)
+      log.wf('%s (%d) is STILL not registered',self.name,fwid)
     else
       self.focused = self.windows[fwid]
     end
@@ -840,7 +846,7 @@ function App:deactivated(inserted)
 end
 function App:focusChanged(id,win)
   if not id then return log.df('Cannot process focus changed for app %s - no window id',self.name) end
-  if self.focused and self.focused.id==id then return log.df('Window %d (%s) already focused, skipping',id,self.name) end
+  if self.focused and self.focused.id==id then return log.df('%s (%d) already focused, skipping',self.name,id) end
   local active=global.active
   log.vf('App %s focus changed',self.name)
   if self==active then self:deactivated(--[[true--]]) end
@@ -876,7 +882,7 @@ function App:destroyed()
 end
 
 local function windowEvent(win,event,_,appname,retry)
-  log.vf('Received %s for %s',event,appname)
+  log.vf('%s: [%s]',appname,event)
   local id=win and win.id and win:id()
   local app=apps[appname]
   if not id and app then
@@ -887,11 +893,16 @@ local function windowEvent(win,event,_,appname,retry)
   if not id then return log.ef('%s: %s cannot be processed',appname,event) end
   if not app then return log.ef('App %s is not registered!',appname) end
   local window = app.windows[id]
-  if not window then return log.ef('Window %d (%s) is not registered!',id,appname) end
+  if not window then return log.ef('%s (&d) is not registered!',appname,id) end
   if event==uiwatcher.elementDestroyed then
     window:destroyed()
   elseif event==uiwatcher.windowMoved or event==uiwatcher.windowResized then
+    local frame=win:frame()
+    --    if window.currentFrame~=frame then
+    --      print(window.currentFrame,frame,'DIFFER!')
+    --      window.currentFrame=frame
     window:moved()
+    --    end
   elseif event==uiwatcher.windowMinimized then
     window:minimized()
   elseif event==uiwatcher.windowUnminimized then
@@ -908,8 +919,8 @@ local windowWatcherDelayed={}
 appWindowEvent=function(win,event,_,appname,retry)
   local role = win.subrole and win:subrole()
   if appname=='Hammerspoon' and (not role or role=='AXUnknown') then return end
-  log.vf('Received %s for %s',event,appname)
   local id = win and win.id and win:id()
+  log.vf('%s (%s): [%s]',appname,id or '?',event)
   if event==uiwatcher.windowCreated then
     if windowWatcherDelayed[win] then windowWatcherDelayed[win]:stop() windowWatcherDelayed[win]=nil end
     retry=(retry or 0)+1
@@ -919,7 +930,7 @@ appWindowEvent=function(win,event,_,appname,retry)
         windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
       return
     end
-    if apps[appname].windows[id] then return log.df('%s: window %d already registered',appname,id) end
+    if apps[appname].windows[id] then return log.df('%s (%d) already registered',appname,id) end
     local watcher=win:newWatcher(windowEvent,appname)
     if not watcher._element.pid then
       log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
@@ -972,7 +983,7 @@ end
 --]]
 local function appEvent(appname,event,app,retry)
   local sevent={[0]='launching','launched','terminated','hidden','unhidden','activated','deactivated'}
-  log.vf('Received app %s for %s',sevent[event],appname)
+  log.vf('%s: [application %s]',appname,sevent[event])
   if not appname then return end
   if event==appwatcher.launched then return startAppWatcher(app,appname)
   elseif event==appwatcher.launching then return end
