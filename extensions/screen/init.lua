@@ -193,7 +193,7 @@ end
 --- Notes:
 ---  * this method is just a convenience wrapper for `hs.geometry.fromUnitRect(unitrect,this_screen:fullFrame())`
 function screenObject:fromUnitRect(unit,...)
-  return geometry(unit,...):fromUnitRect(self:fullFrame())
+  return geometry(unit,...):fromUnitRect(self:frame()):floor()
 end
 
 --- hs.screen:next() -> screen
