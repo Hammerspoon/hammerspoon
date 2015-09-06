@@ -609,7 +609,7 @@ static int screen_mainScreen(lua_State* L) {
 }
 
 /// hs.screen:setPrimary(screen) -> nil
-/// Function
+/// Method
 /// Sets the screen to be the primary display (i.e. contain the menubar and dock)
 static int screen_setPrimary(lua_State* L) {
     int deltaX, deltaY;
@@ -821,10 +821,6 @@ static const luaL_Reg screenlib[] = {
     {"allScreens", screen_allScreens},
     {"mainScreen", screen_mainScreen},
     {"restoreGamma", screen_gammaRestore},
-    {"getGamma", screen_gammaGet},
-    {"setGamma", screen_gammaSet},
-    {"setPrimary", screen_setPrimary},
-    {"rotate", screen_rotate},
 
     {NULL, NULL}
 };
@@ -838,6 +834,10 @@ static const luaL_Reg screen_objectlib[] = {
     {"currentMode", screen_currentMode},
     {"setMode", screen_setMode},
     {"snapshot", screen_snapshot},
+    {"getGamma", screen_gammaGet},
+    {"setGamma", screen_gammaSet},
+    {"rotate", screen_rotate},
+    {"setPrimary", screen_setPrimary},
 
     {"__tostring", userdata_tostring},
     {"__gc", screen_gc},

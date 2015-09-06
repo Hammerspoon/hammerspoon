@@ -117,6 +117,29 @@ static int application_applicationsForBundleID(lua_State* L) {
     return 1;
 }
 
+/// hs.application.nameForBundleID(bundleID) -> string or nil
+/// Function
+/// Gets the name of an application, from its bundle identifier
+///
+/// Parameters:
+///  * bundleID - A string containing an application bundle identifier (e.g. "com.apple.Safari")
+///
+/// Returns:
+///  * A string containing the application name, or nil if the bundle identifier could not be located
+static int application_nameForBundleID(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
+    NSString *appPath = [ws absolutePathForAppBundleWithIdentifier:[NSString stringWithUTF8String:lua_tostring(L, 1)]];
+    NSBundle *app = [NSBundle bundleWithPath:appPath];
+
+    NSString *appName = [app objectForInfoDictionaryKey:(id)kCFBundleExecutableKey];
+
+    lua_pushstring(L, [[appName capitalizedString] UTF8String]);
+    return 1;
+}
+
 /// hs.application:allWindows() -> window[]
 /// Method
 /// Returns all open windows owned by the given app.
@@ -810,6 +833,7 @@ static const luaL_Reg applicationlib[] = {
     {"frontmostApplication", application_frontmostapplication},
     {"applicationForPID", application_applicationforpid},
     {"applicationsForBundleID", application_applicationsForBundleID},
+    {"nameForBundleID", application_nameForBundleID},
 
     {"allWindows", application_allWindows},
     {"mainWindow", application_mainWindow},

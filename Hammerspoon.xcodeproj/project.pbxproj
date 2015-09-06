@@ -677,6 +677,7 @@
 		4F4CB4501B73B09C000EA9B6 /* libimage.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libimage.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB4541B73B0D5000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/image/init.lua; sourceTree = "<group>"; };
 		4F4CB4551B73B0D5000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/image/internal.m; sourceTree = "<group>"; };
+		4F5050311B97A7B9009E2B14 /* MJAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJAppDelegate.h; sourceTree = "<group>"; };
 		4F64D8BD1B724C4B00FC4C65 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/alert/init.lua; sourceTree = "<group>"; };
 		4F64D8BE1B724C4B00FC4C65 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/alert/internal.m; sourceTree = "<group>"; };
 		4F6B3E9B1B73D60000B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/inspect/init.lua; sourceTree = "<group>"; };
@@ -2207,6 +2208,7 @@
 				D077B5BE1A001B5300369B30 /* variables.m */,
 				944A2D351989735300D8DC90 /* MainMenu.xib */,
 				944A2D341989735300D8DC90 /* MJAppDelegate.m */,
+				4F5050311B97A7B9009E2B14 /* MJAppDelegate.h */,
 				942050C41990940000FC4839 /* MJLua.h */,
 				945B65AB198D2DDB002D2E30 /* MJLua.m */,
 				945B65B1198D31FC002D2E30 /* setup.lua */,

@@ -1,6 +1,7 @@
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
 #import <Cocoa/Cocoa.h>
+#import "MJAppDelegate.h"
 #import "MJConsoleWindowController.h"
 #import "MJPreferencesWindowController.h"
 #import "MJDockIcon.h"
@@ -12,10 +13,6 @@
 #import "MJAccessibilityUtils.h"
 #import "variables.h"
 #import "secrets.h"
-
-@interface MJAppDelegate : NSObject <NSApplicationDelegate, CrashlyticsDelegate>
-@property IBOutlet NSMenu* menuBarMenu;
-@end
 
 @implementation MJAppDelegate
 
@@ -35,7 +32,24 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     return NO;
 }
 
+-(void)applicationWillFinishLaunching:(NSNotification *)aNotification
+{
+    // Set up an early event manager handler so we can catch URLs used to launch us
+    NSAppleEventManager *appleEventManager = [NSAppleEventManager sharedAppleEventManager];
+    [appleEventManager setEventHandler:self
+                           andSelector:@selector(handleGetURLEvent:withReplyEvent:)
+                         forEventClass:kInternetEventClass andEventID:kAEGetURL];
+    self.startupEvent = nil;
+}
+
+- (void)handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent
+{
+    self.startupEvent = event;
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+
+    [[NSAppleEventManager sharedAppleEventManager] removeEventHandlerForEventClass:kInternetEventClass andEventID:kAEGetURL];
 
     if(NSClassFromString(@"XCTest") != nil) {
         NSLog(@"in testing mode!");
