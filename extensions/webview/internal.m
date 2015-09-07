@@ -10,7 +10,8 @@ int refTable ;
 
 static WKProcessPool *HSWebViewProcessPool ;
 
-#define get_objectFromUserdata(objType, L, idx) (__bridge objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
+// #define get_objectFromUserdata(objType, L, idx) (__bridge objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
+#define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 // #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
 
 // typedef struct _webview_t {
@@ -95,7 +96,7 @@ static WKProcessPool *HSWebViewProcessPool ;
 ///  * preferencesTable - an optional table which can include one of more of the following keys:
 ///   * javaEnabled                           - java is enabled (default false)
 ///   * javaScriptEnabled                     - javascript is enabled (default true)
-///   * javaScriptCanOpenWindowsAutomatically - can javascript open windows without user intervention (default false)
+///   * javaScriptCanOpenWindowsAutomatically - can javascript open windows without user intervention (default true)
 ///   * minimumFontSize                       - minimum font size (default 0.0)
 ///   * plugInsEnabled                        - plug-ins are enabled (default false)
 ///   * suppressesIncrementalRendering        - suppresses content rendering until fully loaded into memory (default false)
@@ -114,10 +115,10 @@ static int webview_new(lua_State *L) {
 
 //     NSRect windowRect = [[LuaSkin shared] tableToRectAtIndex:1] ;
     luaL_checktype(L, 1, LUA_TTABLE);
-    CGFloat x = (lua_getfield(L, 1, "x"), luaL_checknumber(L, -1));
-    CGFloat y = (lua_getfield(L, 1, "y"), luaL_checknumber(L, -1));
-    CGFloat w = (lua_getfield(L, 1, "w"), luaL_checknumber(L, -1));
-    CGFloat h = (lua_getfield(L, 1, "h"), luaL_checknumber(L, -1));
+    CGFloat x = (lua_getfield(L, 1, "x") != LUA_TNIL) ? luaL_checknumber(L, -1) : 0.0 ;
+    CGFloat y = (lua_getfield(L, 1, "y") != LUA_TNIL) ? luaL_checknumber(L, -1) : 0.0 ;
+    CGFloat w = (lua_getfield(L, 1, "w") != LUA_TNIL) ? luaL_checknumber(L, -1) : 0.0 ;
+    CGFloat h = (lua_getfield(L, 1, "h") != LUA_TNIL) ? luaL_checknumber(L, -1) : 0.0 ;
     lua_pop(L, 4);
     NSRect windowRect = NSMakeRect(x, y, w, h);
 
@@ -167,26 +168,6 @@ static int webview_new(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview:delete()
-/// Method
-/// Destroys the webview object
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * None
-///
-/// Notes:
-///  * This method is automatically called during garbage collection (notably, when Hammerspoon is quit or its configuration is reloaded)
-static int webview_delete(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
-
-    [theWindow close];
-    theWindow = nil;
-    return 0;
-}
-
 /// hs.webview:url([URL]) -> webviewObject | url
 /// Method
 /// Get or set the URL to render for the webview.
@@ -197,7 +178,7 @@ static int webview_delete(lua_State *L) {
 /// Returns:
 ///  * If a URL is specified, then this method returns the webview Object; otherwise it returns the current url being displayed.
 static int webview_url(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (lua_type(L, 2) == LUA_TNONE) {
@@ -234,7 +215,7 @@ static int webview_url(lua_State *L) {
 /// Notes:
 ///  * This method can be used with `hs.webview:windowTitle` to set the window title if the window style is titled.  E.g. `hs.webview:windowTitle(hs.webview:title())`
 static int webview_title(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
 //         [[LuaSkin shared] pushNSObject:[theView title]] ;
@@ -254,7 +235,7 @@ static int webview_title(lua_State *L) {
 /// Returns:
 ///  * true if the content is still being loaded, or false if it has completed.
 static int webview_loading(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     lua_pushboolean(L, [theView isLoading]) ;
@@ -272,7 +253,7 @@ static int webview_loading(lua_State *L) {
 /// Returns:
 ///  * The webview object
 static int webview_stopLoading(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     [theView stopLoading] ;
@@ -291,7 +272,7 @@ static int webview_stopLoading(lua_State *L) {
 /// Returns:
 ///  * a numerical value between 0.0 and 1.0 indicating the percentage of expected content which has been loaded.
 static int webview_estimatedProgress(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     lua_pushnumber(L, [theView estimatedProgress]) ;
@@ -309,7 +290,7 @@ static int webview_estimatedProgress(lua_State *L) {
 /// Returns:
 ///  * true if all content current displayed in the web view was loaded over securely encrypted connections; otherwise false.
 static int webview_isOnlySecureContent(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     lua_pushboolean(L, [theView hasOnlySecureContent]) ;
@@ -327,7 +308,7 @@ static int webview_isOnlySecureContent(lua_State *L) {
 /// Returns:
 ///  * The webview Object
 static int webview_goForward(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
     [theView goForward:nil] ;
 
@@ -345,7 +326,7 @@ static int webview_goForward(lua_State *L) {
 /// Returns:
 ///  * The webview Object
 static int webview_goBack(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
     [theView goBack:nil] ;
 
@@ -363,7 +344,7 @@ static int webview_goBack(lua_State *L) {
 /// Returns:
 ///  * The webview object
 static int webview_reload(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     [theView reloadFromOrigin:nil] ;
@@ -382,7 +363,7 @@ static int webview_reload(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 static int webview_allowMagnificationGesture(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (lua_type(L, 2) == LUA_TNONE) {
@@ -404,7 +385,7 @@ static int webview_allowMagnificationGesture(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 static int webview_magnification(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (lua_type(L, 2) == LUA_TNONE) {
@@ -430,9 +411,123 @@ static int webview_magnification(lua_State *L) {
     return 1 ;
 }
 
-// // Useful for testing, but since we can't change them after creation, not so useful otherwise.
+/// hs.webview:html(html,[baseURL]) -> webviewObject
+/// Method
+/// Render the given HTML in the webview with an optional base URL for relative links.
+///
+/// Parameters:
+///  * html    - the html to be rendered in the webview
+///  * baseURL - an optional Base URL to use as the starting point for any relative links within the provided html.
+///
+/// Returns:
+///  * The webview objectFunctions
+///
+/// Notes:
+///  * This method runs the html through `hs.cleanUTF8forConsole` to ensure that the data provided is in displayable.
+static int webview_html(lua_State *L) {
+    HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    HSWebViewView          *theView = theWindow.contentView ;
+
+    luaL_checkstring(L, 2) ;
+
+    lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ;
+    lua_pushvalue(L, 2) ;
+    if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
+        return luaL_error(L, "unable to validate HTML: %s", lua_tostring(L, -1)) ;
+    }
+//     NSString *theHTML = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+    size_t size ;
+    unsigned char *string = (unsigned char *)lua_tolstring(L, -1, &size) ;
+    NSString *theHTML = [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
+    lua_pop(L, 2) ; // remove "hs" and the return value
+
+    NSString *theBaseURL ;
+    if (lua_type(L, 3) == LUA_TSTRING) {
+//       theBaseURL = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+      size_t size ;
+      unsigned char *string = (unsigned char *)lua_tolstring(L, 2, &size) ;
+      theBaseURL = [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
+    } else if (lua_type(L, 3) != LUA_TNONE) {
+        return luaL_error(L, "baseURL should be string or none: found %s",lua_typename(L, lua_type(L, 3))) ;
+    }
+
+    [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
+static int fn_pushWKBackForwardListItem(lua_State *L, WKBackForwardListItem *theItem) {
+    size_t size ;
+
+    lua_newtable(L) ;
+//       [[LuaSkin shared] pushNSObject:[theItem URL]] ;
+      size = [[[theItem URL] description] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
+      lua_pushlstring(L, [[[theItem URL] description] UTF8String], size) ;
+      lua_setfield(L, -2, "URL") ;
+
+//       [[LuaSkin shared] pushNSObject:[theItem initialURL]] ;
+      size = [[[theItem initialURL] description] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
+      lua_pushlstring(L, [[[theItem initialURL] description] UTF8String], size) ;
+      lua_setfield(L, -2, "initialURL") ;
+
+//       [[LuaSkin shared] pushNSObject:[theItem title]] ;
+      size = [[theItem title] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
+      lua_pushlstring(L, [[theItem title] UTF8String], size) ;
+      lua_setfield(L, -2, "title") ;
+
+    return 1 ;
+}
+
+/// hs.webview:historyList() -> historyTable
+/// Method
+/// Returns the URL history for the current webview as an array.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table which is an array of the URLs viewed within this webview and a key named `current` which is equal to the index corresponding to the currently visible entry.  Each array element will be a table with the following keys:
+///    * URL        - the URL of the web page
+///    * initialURL - the URL of the initial request that led to this item
+///    * title      - the web page title
+static int webview_historyList(lua_State *L) {
+    HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    HSWebViewView          *theView = theWindow.contentView ;
+
+    lua_newtable(L) ;
+
+    WKBackForwardList *theList = [theView backForwardList] ;
+    if (theList) {
+        NSArray *previousList = [theList backList] ;
+        NSArray *nextList = [theList forwardList] ;
+
+        for(id value in previousList) {
+            // [[LuaSkin shared] pushNSObject:value] ;
+            fn_pushWKBackForwardListItem(L, value) ;
+            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+        // [[LuaSkin shared] pushNSObject:[theList currentItem]] ;
+        if ([theList currentItem]) {
+            fn_pushWKBackForwardListItem(L, [theList currentItem]) ;
+            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+        lua_pushinteger(L, luaL_len(L, -1)) ; lua_setfield(L, -2, "current") ;
+
+        for(id value in nextList) {
+            // [[LuaSkin shared] pushNSObject:value] ;
+            fn_pushWKBackForwardListItem(L, value) ;
+            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+    } else {
+        lua_pushinteger(L, 0) ; lua_setfield(L, -2, "current") ;
+    }
+    return 1 ;
+}
+
+// // Useful for testing, but since we can't change them after creation, not as useful otherwise.
 // static int webview_preferences(lua_State *L) {
-//     HSWebViewWindow        *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+//     HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
 //     HSWebViewView          *theView = theWindow.contentView ;
 //     WKWebViewConfiguration *theConfiguration = [theView configuration] ;
 //     WKPreferences          *thePreferences = [theConfiguration preferences] ;
@@ -447,6 +542,8 @@ static int webview_magnification(lua_State *L) {
 //     return 1 ;
 // }
 
+
+
 // NOTE: Window Related Methods
 
 /// hs.webview:show() -> webviewObject
@@ -459,7 +556,7 @@ static int webview_magnification(lua_State *L) {
 /// Returns:
 ///  * The webview object
 static int webview_show(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     [theWindow makeKeyAndOrderFront:nil];
 
     lua_pushvalue(L, 1);
@@ -476,7 +573,7 @@ static int webview_show(lua_State *L) {
 /// Returns:
 ///  * The webview object
 static int webview_hide(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     [theWindow orderOut:nil];
 
     lua_pushvalue(L, 1);
@@ -493,7 +590,7 @@ static int webview_hide(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 static int webview_allowTextEntry(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     if (lua_type(L, 2) == LUA_TNONE) {
         lua_pushboolean(L, theWindow.allowKeyboard) ;
     } else {
@@ -513,7 +610,7 @@ static int webview_allowTextEntry(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 static int webview_allowMouseClicks(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     if (lua_type(L, 2) == LUA_TNONE) {
         lua_pushboolean(L, !theWindow.ignoresMouseEvents) ;
     } else {
@@ -539,7 +636,7 @@ static int webview_allowMouseClicks(lua_State *L) {
 ///  * hs.window:close only works if the webview is closable (see `hs.webview.windowStyle`)
 ///  * hs.window:maximize will reposition the webview to the upper left corner of your screen, but will only resize the webview if the webview is resizable (see `hs.webview.windowStyle`)
 static int webview_hswindow(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     CGWindowID windowID = (CGWindowID)[theWindow windowNumber];
     lua_getglobal(L, "require"); lua_pushstring(L, "hs.window"); lua_call(L, 1, 1);
     lua_getfield(L, -1, "windowForID") ;
@@ -565,7 +662,7 @@ typedef struct _drawing_t {
 /// Notes:
 ///  * Methods in hs.drawing which are specific to a single drawing type will not work with this object.
 static int webview_hsdrawing(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     lua_getglobal(L, "require"); lua_pushstring(L, "hs.drawing"); lua_call(L, 1, 1);
 
     drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
@@ -591,7 +688,7 @@ static int webview_hsdrawing(lua_State *L) {
 ///  * If you wish this to match the web page title, you can use `hs.webview:windowTitle(hs.webview:title())` after making sure `hs.webview:loading == false`.
 ///  * Any title set with this method will be hidden unless the window style includes the "titled" style (see `hs.webview.windowStyle` and `hs.webview.windowMasks`)
 static int webview_windowTitle(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
 
 //     NSString        *theTitle = [[LuaSkin shared] toNSObjectAtIndex:2] ;
     size_t size ;
@@ -632,7 +729,7 @@ static int webview_windowMasksTable(lua_State *L) {
 
 static int webview_windowStyle(lua_State *L) {
 // Note:  This method is wrapped in init.lua
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     if (lua_type(L, 2) == LUA_TNONE) {
         lua_pushinteger(L, (lua_Integer)theWindow.styleMask) ;
     } else {
@@ -643,10 +740,16 @@ static int webview_windowStyle(lua_State *L) {
 }
 
 static int userdata_tostring(lua_State* L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
-    NSString *title = [theView title] ;
+    NSString *title ;
+    if (theWindow) {
+        title = [theView title] ;
+    } else {
+        title = @"<deleted>" ;
+    }
+
     if (!title) {
         title = @"" ;
     }
@@ -658,10 +761,25 @@ static int userdata_tostring(lua_State* L) {
 // static int userdata_eq(lua_State* L) {
 // }
 
+/// hs.webview:delete()
+/// Method
+/// Destroys the webview object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * This method is automatically called during garbage collection (notably, when Hammerspoon is quit or its configuration is reloaded)
 static int userdata_gc(lua_State* L) {
-    HSWebViewWindow *theWindow = (__bridge_transfer HSWebViewWindow*)*((void**)luaL_checkudata(L, 1, USERDATA_TAG)) ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge_transfer HSWebViewWindow, L, 1) ;
     [theWindow close];
     theWindow = nil;
+
+    void** windowPtr = lua_touserdata(L, 1);
+    *windowPtr = nil ;
     return 0;
 }
 
@@ -673,7 +791,7 @@ static int userdata_gc(lua_State* L) {
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
-    {"delete",                    webview_delete},
+    {"delete",                    userdata_gc},
     {"goBack",                    webview_goBack},
     {"goForward",                 webview_goForward},
     {"url",                       webview_url},
@@ -685,7 +803,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"estimatedProgress",         webview_estimatedProgress},
     {"loading",                   webview_loading},
     {"stopLoading",               webview_stopLoading},
-//     {"preferences",               webview_preferences},
+    {"html",                      webview_html},
+    {"historyList",               webview_historyList},
 
     {"show",                      webview_show},
     {"hide",                      webview_hide},
@@ -696,6 +815,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"windowTitle",               webview_windowTitle},
     {"_windowStyle",              webview_windowStyle},
 
+//     {"preferences",               webview_preferences},
     {"__tostring",                userdata_tostring},
 //     {"__eq",                      userdata_eq},
     {"__gc",                      userdata_gc},
@@ -723,6 +843,8 @@ int luaopen_hs_webview_internal(lua_State* __unused L) {
                                                  functions:moduleLib
                                              metaFunctions:nil    // or module_metaLib
                                            objectFunctions:userdata_metaLib];
+
+//     [skin registerPushNSHelper:fn_pushWKBackForwardListItem forClass:"WKBackForwardListItem"] ;
 
     webview_windowMasksTable(L) ;
     lua_setfield(L, -2, "windowMasks") ;
