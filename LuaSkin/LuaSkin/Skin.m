@@ -394,26 +394,26 @@ nextarg:
 
 - (NSRect)tableToRectAtIndex:(int)idx {
     luaL_checktype(_L, idx, LUA_TTABLE);
-    CGFloat x = (lua_getfield(_L, idx, "x"), luaL_checknumber(_L, -1));
-    CGFloat y = (lua_getfield(_L, idx, "y"), luaL_checknumber(_L, -1));
-    CGFloat w = (lua_getfield(_L, idx, "w"), luaL_checknumber(_L, -1));
-    CGFloat h = (lua_getfield(_L, idx, "h"), luaL_checknumber(_L, -1));
+    CGFloat x = (lua_getfield(_L, idx, "x") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
+    CGFloat y = (lua_getfield(_L, idx, "y") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
+    CGFloat w = (lua_getfield(_L, idx, "w") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
+    CGFloat h = (lua_getfield(_L, idx, "h") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
     lua_pop(_L, 4);
     return NSMakeRect(x, y, w, h);
 }
 
 - (NSPoint)tableToPointAtIndex:(int)idx {
     luaL_checktype(_L, idx, LUA_TTABLE);
-    CGFloat x = (lua_getfield(_L, idx, "x"), luaL_checknumber(_L, -1));
-    CGFloat y = (lua_getfield(_L, idx, "y"), luaL_checknumber(_L, -1));
+    CGFloat x = (lua_getfield(_L, idx, "x") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
+    CGFloat y = (lua_getfield(_L, idx, "y") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
     lua_pop(_L, 2);
     return NSMakePoint(x, y);
 }
 
 - (NSSize)tableToSizeAtIndex:(int)idx {
     luaL_checktype(_L, idx, LUA_TTABLE);
-    CGFloat w = (lua_getfield(_L, idx, "w"), luaL_checknumber(_L, -1));
-    CGFloat h = (lua_getfield(_L, idx, "h"), luaL_checknumber(_L, -1));
+    CGFloat w = (lua_getfield(_L, idx, "w") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
+    CGFloat h = (lua_getfield(_L, idx, "h") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
     lua_pop(_L, 2);
     return NSMakeSize(w, h);
 }
