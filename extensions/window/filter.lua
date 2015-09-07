@@ -632,6 +632,7 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 
 activeFilters = {} -- active wf instances
 apps = {} -- all GUI apps
+local pendingApps = {} -- apps resisting being watched
 local global = {} -- global state
 
 local Window={} -- class
@@ -666,6 +667,7 @@ function Window:filterEmitEvent(wf,event,inserted,logged,notified,cache)
   return logged,notified
 end
 function Window:emitEvent(event,inserted)
+  log.vf('%s (%s) => %s%s',self.app.name,self.id,event,inserted and ' (inserted)' or '')
   local logged, notified
   for wf in pairs(activeFilters) do
     logged,notified = self:filterEmitEvent(wf,event,inserted,logged,notified,true)
@@ -751,7 +753,6 @@ end
 function Window:hidden(inserted)
   if self.isHidden then return log.df('%s (%d) already hidden',self.app.name,self.id) end
   if global.focused==self then self:unfocused(true) end
-  --  self:unfocused(true)
   self.isHidden = true
   self:emitEvent(windowfilter.windowHidden,inserted)
 end
@@ -761,9 +762,7 @@ function Window:destroyed()
   if self.titleDelayed then self.titleDelayed:stop() self.titleDelayed=nil end
   self.watcher:stop()
   self.app.windows[self.id]=nil
-  --  self:unfocused(true)
-  --  self:hidden(true)
-  if not self.isHidden then self:emitEvent(windowfilter.windowHidden,true) end
+  if not self.isHidden then self:hidden(true) end
   self:emitEvent(windowfilter.windowDestroyed)
   self.window=nil
 end
@@ -908,7 +907,6 @@ function App:destroyed()
 end
 
 local function windowEvent(win,event,_,appname,retry)
-  log.vf('%s: [%s]',appname,event)
   local id=win and win.id and win:id()
   local app=apps[appname]
   if not id and app then
@@ -916,6 +914,7 @@ local function windowEvent(win,event,_,appname,retry)
       if window.window==win then id=window.id break end
     end
   end
+  log.vf('%s (%s) <= %s (window event)',appname,id or '?',event)
   if not id then return log.ef('%s: %s cannot be processed',appname,event) end
   if not app then return log.ef('App %s is not registered!',appname) end
   local window = app.windows[id]
@@ -925,7 +924,6 @@ local function windowEvent(win,event,_,appname,retry)
   elseif event==uiwatcher.windowMoved or event==uiwatcher.windowResized then
     --    local frame=win:frame()
     --    if window.currentFrame~=frame then
-    --      print(window.currentFrame,frame,'DIFFER!')
     --      window.currentFrame=frame
     window:moved()
     --    end
@@ -946,7 +944,8 @@ appWindowEvent=function(win,event,_,appname,retry)
   local role = win.subrole and win:subrole()
   if appname=='Hammerspoon' and (not role or role=='AXUnknown') then return end
   local id = win and win.id and win:id()
-  log.vf('%s (%s): [%s]',appname,id or '?',event)
+  log.vf('%s (%s) <= %s (appwindow event)',appname,id or '?',event)
+  --  print(win:role(),win:subrole())
   if event==uiwatcher.windowCreated then
     if windowWatcherDelayed[win] then windowWatcherDelayed[win]:stop() windowWatcherDelayed[win]=nil end
     retry=(retry or 0)+1
@@ -976,6 +975,7 @@ appWindowEvent=function(win,event,_,appname,retry)
   end
 end
 
+--[[
 local function startAppWatcher(app,appname)
   if not app or not appname then log.e('Called startAppWatcher with no app') return end
   if apps[appname] then log.df('App %s already registered',appname) return end
@@ -987,35 +987,44 @@ local function startAppWatcher(app,appname)
     log.wf('No accessibility access to app %s (no watcher pid)',(appname or '[???]'))
   end
 end
+--]]
 
---[[
 -- old workaround for the 'missing pid' bug
-local appWatcherDelayed={}
-local function startAppWatcher(app,appname,retry,takeiteasy)
+-- reinstated because occasionally apps take a while to be watchable after launching
+local function startAppWatcher(app,appname,retry,nologging)
   if not app or not appname then log.e('Called startAppWatcher with no app') return end
-  if apps[appname] then return not takeiteasy and log.df('App %s already registered',appname) end
-  if app:kind()<0 or not isGuiApp(appname) then log.df('App %s has no GUI',appname) return end
+  if apps[appname] then return not nologging and log.df('App %s already registered',appname) end
+  if app:kind()<0 or not windowfilter.isGuiApp(appname) then log.df('App %s has no GUI',appname) return end
+  retry=(retry or 0)+1
+  if retry>1 and not pendingApps[appname] then return end --given up before anything could even happen
+
   local watcher = app:newWatcher(appWindowEvent,appname)
   if watcher._element.pid then
+    pendingApps[appname]=nil --done
     watcher:start({uiwatcher.windowCreated,uiwatcher.focusedWindowChanged})
     App.new(app,appname,watcher)
   else
-    retry=(retry or 0)+1
-    if retry>5 then return not takeiteasy and log.wf('STILL no accessibility pid for app %s, giving up',(appname or '[???]')) end
-    log.df('No accessibility pid for app %s',(appname or '[???]'))
-    appWatcherDelayed[appname]=delayed.doAfter(appWatcherDelayed[appname],0.2*retry,startAppWatcher,app,appname,retry)
+    if retry>5 then
+      pendingApps[appname]=nil --give up
+      return log[nologging and 'df' or 'wf']('No accessibility access to app %s (no watcher pid)',appname)
+    end
+    timer.doAfter(0.2*retry,function()startAppWatcher(app,appname,retry,nologging)end)
+    pendingApps[appname]=true
   end
 end
---]]
+
+
 local function appEvent(appname,event,app,retry)
   local sevent={[0]='launching','launched','terminated','hidden','unhidden','activated','deactivated'}
-  log.vf('%s: [application %s]',appname,sevent[event])
+  log.vf('%s <= %s (app event)',appname,sevent[event])
   if not appname then return end
   if event==appwatcher.launched then return startAppWatcher(app,appname)
   elseif event==appwatcher.launching then return end
   local appo=apps[appname]
   if event==appwatcher.activated then
-    if appo then return appo:activated() end
+    if appo then return appo:activated()
+    else return startAppWatcher(app,appname,0,true) end
+    --[[
     retry = (retry or 0)+1
     if retry==1 then
       log.vf('First attempt at registering app %s',appname)
@@ -1024,7 +1033,8 @@ local function appEvent(appname,event,app,retry)
     if retry>5 then return log.df('App %s still is not registered!',appname) end
     timer.doAfter(0.1*retry,function()appEvent(appname,event,app,retry)end)
     return
-  end
+    --]]
+  elseif event==appwatcher.terminated then pendingApps[appname]=nil end
   if not appo then return log.ef('App %s is not registered!',appname) end
   if event==appwatcher.terminated then return appo:destroyed()
   elseif event==appwatcher.deactivated then return appo:deactivated()
