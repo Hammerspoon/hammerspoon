@@ -178,7 +178,7 @@ static int timer_running(lua_State* L) {
     return 1;
 }
 
-/// hs.timer:nextTrigger() -> integer
+/// hs.timer:nextTrigger() -> number
 /// Method
 /// Returns the number of seconds until the timer will next trigger
 ///
@@ -186,7 +186,7 @@ static int timer_running(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * An integer containing the number of seconds untilt he next firing.
+///  * A number containing the number of seconds until the next firing.
 ///
 /// Notes:
 ///  * The return value may be a negative integer in two circumstances:
@@ -198,7 +198,7 @@ static int timer_nextTrigger(lua_State *L) {
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime next = CFRunLoopTimerGetNextFireDate(timer->t);
 
-    lua_pushinteger(L, (int)(next - now));
+    lua_pushnumber(L, next - now);
 
     return 1;
 }
