@@ -478,7 +478,7 @@ end
 
 function windowfilter.new(fn,logname,loglevel)
   local mt=getmetatable(fn) if mt and mt.__index==wf then return fn end -- no copy-on-new
-  local o = setmetatable({apps={},events={},windows={},log=logname and logger.new(logname,loglevel) or log},{__index=wf})
+  local o = setmetatable({apps={},events={},windows={},pending={},log=logname and logger.new(logname,loglevel) or log},{__index=wf})
   if logname then o.setLogLevel=function(lvl)o.log.setLogLevel(lvl)return o end end
   if type(fn)=='function' then
     o.log.i('new windowfilter, custom function')
@@ -567,6 +567,7 @@ local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
   windowFullscreened=true, windowUnfullscreened=true,
   --TODO perhaps windowMaximized? (compare win:frame to win:screen:frame) - or include it in windowFullscreened
   --TODO windowInCurrentSpace, windowNotInCurrentSpace
+  windowInCurrentSpace=true,WindowNotInCurrentSpace=true,
   windowHidden=true, windowShown=true, windowFocused=true, windowUnfocused=true,
   windowTitleChanged=true,
 }
@@ -598,6 +599,14 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 --- hs.window.filter.windowUnfullscreened
 --- Constant
 --- Event for `hs.window.filter:subscribe()`: a window was reverted back from full screen
+
+-- hs.window.filter.windowInCurrentSpace
+-- Constant
+--TODO Event for `hs.window.filter:subscribe()`:
+
+-- hs.window.filter.windowNotInCurrentSpace
+-- Constant
+--TODO Event for `hs.window.filter:subscribe()`:
 
 --- hs.window.filter.windowHidden
 --- Constant
@@ -635,12 +644,14 @@ function Window:setFilter(wf, forceremove,cache) -- returns true if filtering st
 end
 
 function Window:filterEmitEvent(wf,event,inserted,logged,notified,cache)
-  if not inserted and self:setFilter(wf,event==windowfilter.windowDestroyed,cache) and wf.notifyfn then
+  if self:setFilter(wf,event==windowfilter.windowDestroyed,cache) and wf.notifyfn then
     -- filter status changed, call notifyfn if present
     if not notified then wf.log.d('Notifying windows changed') if wf.log==log then notified=true end end
     wf.notifyfn(wf:getWindows(),event)
+    -- if this is an 'inserted' event, keep around the window until all the events are exhausted
+    if inserted and not wf.windows[self] then wf.pending[self]=true end
   end
-  if wf.windows[self] then
+  if wf.windows[self] or wf.pending[self] then
     -- window is currently allowed, call subscribers if any
     local fns = wf.events[event]
     if fns then
@@ -649,6 +660,8 @@ function Window:filterEmitEvent(wf,event,inserted,logged,notified,cache)
         fn(self.window,self.app.name)
       end
     end
+    -- clear the window if this is the last event in the chain
+    if not inserted then wf.pending[self]=nil end
   end
   return logged,notified
 end
@@ -685,8 +698,8 @@ end
 function Window:unminimized()
   if not self.isMinimized then log.df('%s (%d) already unminimized',self.app.name,self.id) end
   self.isMinimized=nil
-  self:shown(true)
   self:emitEvent(windowfilter.windowUnminimized)
+  self:shown(true)
 end
 
 function Window:focused(inserted)
@@ -694,7 +707,7 @@ function Window:focused(inserted)
   global.focused=self
   self.app.focused=self
   self.time=timer.secondsSinceEpoch()
-  self:emitEvent(windowfilter.windowFocused)
+  self:emitEvent(windowfilter.windowFocused,inserted) --TODO check this
 end
 
 local WINDOWMOVED_DELAY=0.5
@@ -703,13 +716,13 @@ function Window:moved()
   self.movedDelayed=timer.doAfter(WINDOWMOVED_DELAY,function()self:doMoved()end)
 end
 function Window:doMoved()
-  self:emitEvent(windowfilter.windowMoved)
   local fs = self.window:isFullScreen()
   local oldfs = self.isFullscreen or false
   if self.isFullscreen~=fs then
     self.isFullscreen=fs
     self:emitEvent(fs and windowfilter.windowFullscreened or windowfilter.windowUnfullscreened,true)
   end
+  self:emitEvent(windowfilter.windowMoved)
 end
 
 local TITLECHANGED_DELAY=0.5
@@ -730,14 +743,15 @@ end
 
 function Window:minimized()
   if self.isMinimized then return log.df('%s (%d) already minimized',self.app.name,self.id) end
+  self:hidden(true)
   self.isMinimized=true
   self:emitEvent(windowfilter.windowMinimized)
-  self:hidden(true)
 end
 
 function Window:hidden(inserted)
   if self.isHidden then return log.df('%s (%d) already hidden',self.app.name,self.id) end
-  self:unfocused()
+  if global.focused==self then self:unfocused(true) end
+  --  self:unfocused(true)
   self.isHidden = true
   self:emitEvent(windowfilter.windowHidden,inserted)
 end
@@ -747,14 +761,15 @@ function Window:destroyed()
   if self.titleDelayed then self.titleDelayed:stop() self.titleDelayed=nil end
   self.watcher:stop()
   self.app.windows[self.id]=nil
-  self:unfocused(true)
+  --  self:unfocused(true)
+  --  self:hidden(true)
   if not self.isHidden then self:emitEvent(windowfilter.windowHidden,true) end
   self:emitEvent(windowfilter.windowDestroyed)
   self.window=nil
 end
 
 function Window:spaceChanged()
-  local logged,notified
+  local loggedvis,loggedspace,notifiedvis,notifiedspace
   for wf in pairs(activeFilters) do
     if wf.currentSpaceWindows then -- this filter cares about spaces
       if not self.inCurrentSpace then self.inCurrentSpace={} end
@@ -763,7 +778,13 @@ function Window:spaceChanged()
       local now = wf.currentSpaceWindows[self.id] and true or false
       if prev~=now then
         log.df('%s (%d) %s in current space',self.app.name,self.id,now and 'is' or 'not')
-        logged,notified = self:filterEmitEvent(wf,now and windowfilter.windowShown or windowfilter.windowHidden,nil,logged,notified)
+        if now then
+          loggedvis,notifiedvis = self:filterEmitEvent(wf,windowfilter.windowShown,nil,loggedvis,notifiedvis)
+          loggedspace,notifiedspace = self:filterEmitEvent(wf,windowfilter.windowInCurrentSpace,true,loggedspace,notifiedspace)
+        else
+          loggedspace,notifiedspace = self:filterEmitEvent(wf,windowfilter.windowNotInCurrentSpace,true,loggedspace,notifiedspace)
+          loggedvis,notifiedvis = self:filterEmitEvent(wf,windowfilter.windowHidden,nil,loggedvis,notifiedvis)
+        end
         self.inCurrentSpace[wf]=now
       end
     end
@@ -809,6 +830,8 @@ function App.new(app,appname,watcher)
   o:getWindows()
 end
 
+-- events aren't "inserted" across apps (param name notwithsanding) so an active app should NOT :deactivate
+-- another app, otherwise the latter's :unfocused will have a broken "inserted" chain with nothing to close it
 function App:getWindows()
   local windows=self.app:allWindows()
   if #windows>0 then log.df('Found %d windows for app %s',#windows,self.name) end
@@ -818,10 +841,10 @@ function App:getWindows()
   self:getFocused()
   if self.app:isFrontmost() then
     log.df('App %s is the frontmost app',self.name)
-    if global.active then global.active:deactivated() end
+    if global.active then global.active:deactivated() end --see comment above
     global.active = self
     if self.focused then
-      self.focused:focused()
+      self.focused:focused(true)
       log.df('Window %d is the focused window',self.focused.id)
     end
   end
@@ -830,14 +853,14 @@ end
 function App:activated()
   local prevactive=global.active
   if self==prevactive then return log.df('App %s already active; skipping',self.name) end
-  if prevactive then prevactive:deactivated(--[[true--]]) end
+  if prevactive then prevactive:deactivated() end --see comment above
   log.vf('App %s activated',self.name)
   global.active=self
   self:getFocused()
   if not self.focused then return log.df('App %s does not (yet) have a focused window',self.name) end
   self.focused:focused()
 end
-function App:deactivated(inserted)
+function App:deactivated(inserted) --as per comment above, only THIS app should call :deactivated(true)
   if self~=global.active then return end
   log.vf('App %s deactivated',self.name)
   global.active=nil
@@ -851,15 +874,17 @@ function App:focusChanged(id,win)
   log.vf('App %s focus changed',self.name)
   if self==active then self:deactivated(--[[true--]]) end
   if not self.windows[id] then
+    log.wf('%s (%d) is not registered yet',self.name,id)
     appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
   end
   self.focused = self.windows[id]
   if self==active then self:activated() end
 end
-function App:hidden()
+function App:hidden(inserted)
   if self.isHidden then return log.df('App %s already hidden, skipping',self.name) end
+  --  self:deactivated(true)
   for id,window in pairs(self.windows) do
-    window:hidden()
+    window:hidden(inserted)
   end
   log.vf('App %s hidden',self.name)
   self.isHidden=true
@@ -875,6 +900,7 @@ end
 function App:destroyed()
   log.f('App %s deregistered',self.name)
   self.watcher:stop()
+  --  self:hidden(true)
   for id,window in pairs(self.windows) do
     window:destroyed()
   end
@@ -897,7 +923,7 @@ local function windowEvent(win,event,_,appname,retry)
   if event==uiwatcher.elementDestroyed then
     window:destroyed()
   elseif event==uiwatcher.windowMoved or event==uiwatcher.windowResized then
-    local frame=win:frame()
+    --    local frame=win:frame()
     --    if window.currentFrame~=frame then
     --      print(window.currentFrame,frame,'DIFFER!')
     --      window.currentFrame=frame
