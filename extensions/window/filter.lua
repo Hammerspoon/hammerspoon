@@ -414,9 +414,12 @@ function wf:setFilters(filters)
       else error('invalid filters table: integer key '..k..' needs a string value, got '..type(v)..' instead',2) end
     elseif type(k)=='string' then --{appname=...}
       if type(v)=='boolean' then if v then self:allowApp(k) else self:rejectApp(k) end --{appname=true/false}
-      elseif type(v)=='table' then --{appname={arg1=val1,...}}
-        if k=='trackSpaces' then self:trackSpaces(v) --FIXME
-        else self:setAppFilter(k,v) end
+      elseif type(v)=='string' then
+        if k=='trackSpaces' then self:trackSpaces(v)
+        else error('invalid filters table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
+    elseif type(v)=='table' then --{appname={arg1=val1,...}}
+      if k=='trackSpaces' then error('invalid filters table: key "'..k..'" needs a string value, got '..type(v)..' instead',2)
+      else self:setAppFilter(k,v) end
     else error('invalid filters table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
     else error('invalid filters table: keys can be integer or string, got '..type(k)..' instead',2) end
   end
