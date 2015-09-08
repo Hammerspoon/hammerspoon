@@ -4,6 +4,7 @@
 #import <CocoaHTTPServer/HTTPConnection.h>
 #import <CocoaHTTPServer/HTTPDataResponse.h>
 #import <CocoaAsyncSocket/GCDAsyncSocket.h>
+#import <CocoaLumberjack/CocoaLumberjack.h>
 #import "MYAnonymousIdentity.h"
 
 // Defines
@@ -480,6 +481,8 @@ static const luaL_Reg httpserverObjectLib[] = {
 int luaopen_hs_httpserver_internal(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:"hs.httpserver" functions:httpserverLib metaFunctions:nil objectFunctions:httpserverObjectLib];
+
+    [DDLog addLogger:[DDASLLogger sharedInstance]];
 
     return 1;
 }
