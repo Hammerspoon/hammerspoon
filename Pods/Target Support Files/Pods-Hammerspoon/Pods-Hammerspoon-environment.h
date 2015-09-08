@@ -16,7 +16,7 @@
 #define COCOAPODS_POD_AVAILABLE_CocoaAsyncSocket
 #define COCOAPODS_VERSION_MAJOR_CocoaAsyncSocket 7
 #define COCOAPODS_VERSION_MINOR_CocoaAsyncSocket 4
-#define COCOAPODS_VERSION_PATCH_CocoaAsyncSocket 1
+#define COCOAPODS_VERSION_PATCH_CocoaAsyncSocket 2
 
 // CocoaHTTPServer
 #define COCOAPODS_POD_AVAILABLE_CocoaHTTPServer

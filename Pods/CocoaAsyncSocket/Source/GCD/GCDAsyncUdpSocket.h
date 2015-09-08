@@ -19,8 +19,7 @@ extern NSString *const GCDAsyncUdpSocketErrorDomain;
 extern NSString *const GCDAsyncUdpSocketQueueName;
 extern NSString *const GCDAsyncUdpSocketThreadName;
 
-enum GCDAsyncUdpSocketError
-{
+typedef NS_ENUM(NSInteger, GCDAsyncUdpSocketError) {
 	GCDAsyncUdpSocketNoError = 0,          // Never used
 	GCDAsyncUdpSocketBadConfigError,       // Invalid configuration
 	GCDAsyncUdpSocketBadParamError,        // Invalid parameter was passed
@@ -28,7 +27,6 @@ enum GCDAsyncUdpSocketError
 	GCDAsyncUdpSocketClosedError,          // The socket was closed
 	GCDAsyncUdpSocketOtherError,           // Description provided in userInfo
 };
-typedef enum GCDAsyncUdpSocketError GCDAsyncUdpSocketError;
 
 /**
  * You may optionally set a receive filter for the socket.
