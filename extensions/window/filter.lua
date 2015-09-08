@@ -954,10 +954,11 @@ local RETRY_DELAY,MAX_RETRIES = 0.2,3
 local windowWatcherDelayed={}
 
 appWindowEvent=function(win,event,_,appname,retry)
-  --  if not win:isWindow() then return end
-  local role = win:subrole()
+  if not win:isWindow() then return end
+  local role=win.subrole and win:subrole()
   if appname=='Hammerspoon' and (not role or role=='AXUnknown') then return end
-  local id = win:id()
+  --  hs.assert(role,'(315) '..event..' '..win:role(),win)
+  local id = win.id and win:id()
   log.vf('%s (%s) <= %s (appwindow event)',appname,id or '?',event)
   if event==uiwatcher.windowCreated then
     if windowWatcherDelayed[win] then windowWatcherDelayed[win]:stop() windowWatcherDelayed[win]=nil end
