@@ -9,6 +9,7 @@ local uielement = hs.uielement  -- Make sure parent module loads
 local window = require "hs.window.internal"
 local application = require "hs.application.internal"
 local geometry = require "hs.geometry"
+local gtype=geometry.type
 local screen = require "hs.screen"
 local timer = require "hs.timer"
 local pairs,ipairs,next,min,max,abs,cos,type = pairs,ipairs,next,math.min,math.max,math.abs,math.cos,type
@@ -244,7 +245,7 @@ function window:setFrame(f, duration)
   if duration==nil then duration = window.animationDuration end
   if type(duration)~='number' then duration = 0 end
   f=geometry(f):floor()
-  if f.w<10 or f.h<10 then error('invalid frame: '..f.string) end
+  if gtype(f)~='rect' or f.w<10 or f.h<10 then error('invalid rect: '..f.string) end
   local id = self:id()
   stopAnimation(self,false,id)
   if duration<=0 or not id then return self:_setFrame(f) end
