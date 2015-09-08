@@ -236,7 +236,7 @@ local function first_screen_in_direction(fromScreen, numrotations, fromPoint, st
     local p2 = geometry(s:fullFrame()).center:rotateCCW(p1,numrotations)
     local delta = p2-p1
     if delta.x > 0 then
-      tinsert(screens, {s=s,score=#delta/cos(delta:angle()/2)})
+      tinsert(screens, {s=s,score=delta.length/cos(delta:angle()/2)})
     end
   end
 

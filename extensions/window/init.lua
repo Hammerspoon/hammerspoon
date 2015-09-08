@@ -420,7 +420,7 @@ local function windowsInDirection(fromWindow, numRotations, candidateWindows, fr
     local frame=geometry(win:frame())
     local delta = p1:vector(frame.center:rotateCCW(p1,numRotations))
     if delta.x > (strict and abs(delta.y) or 0) then
-      wins[#wins+1]={win=win,score=#delta/cos(delta:angle()/2)+z,z=z,frame=frame}
+      wins[#wins+1]={win=win,score=delta.length/cos(delta:angle()/2)+z,z=z,frame=frame}
     end
   end
   tsort(wins,function(a,b)return a.score<b.score end)
