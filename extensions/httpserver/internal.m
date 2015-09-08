@@ -187,8 +187,8 @@ int refTable;
                          forKey:(NSString *)kCFStreamSSLCertificates];
 
             // Configure this connection to use the highest possible SSL level
-            [settings setObject:[NSNumber numberWithInteger:2] forKey:GCDAsyncSocketSSLProtocolVersionMin];
-            [settings setObject:[NSNumber numberWithInteger:2] forKey:GCDAsyncSocketSSLProtocolVersionMax];
+            [settings setObject:[NSNumber numberWithInteger:kTLSProtocol12] forKey:GCDAsyncSocketSSLProtocolVersionMin];
+            [settings setObject:[NSNumber numberWithInteger:kTLSProtocol12] forKey:GCDAsyncSocketSSLProtocolVersionMax];
 
             [asyncSocket startTLS:settings];
         }
