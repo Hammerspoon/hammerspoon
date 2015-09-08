@@ -1,6 +1,6 @@
 PODS:
   - ASCIImage (1.0.0)
-  - CocoaAsyncSocket (7.4.1)
+  - CocoaAsyncSocket (7.4.2)
   - CocoaHTTPServer (2.3):
     - CocoaAsyncSocket
     - CocoaLumberjack
@@ -15,13 +15,13 @@ PODS:
   - Sparkle (1.10.0)
 
 DEPENDENCIES:
-  - ASCIImage
-  - CocoaHTTPServer
+  - ASCIImage (~> 1.0)
+  - CocoaHTTPServer (~> 2.3)
   - Sparkle (~> 1.10.0)
 
 SPEC CHECKSUMS:
   ASCIImage: bcff9650deae86e0e0ac310145cc628948201ab8
-  CocoaAsyncSocket: 7cbf214b27f8e7f7574db6a3fd96352ffaed433d
+  CocoaAsyncSocket: f5783bdedd232d91b89769bc4b5a1580aed518ad
   CocoaHTTPServer: 5624681fc3473d43b18202f635f9b3abb013b530
   CocoaLumberjack: 019d1361244274a6138c788c6cb80baabc13fb8f
   Sparkle: c859bf5283b9f12aa45bceccf8e25ebb4c008eb2

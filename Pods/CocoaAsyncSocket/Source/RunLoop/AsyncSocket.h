@@ -17,8 +17,7 @@
 extern NSString *const AsyncSocketException;
 extern NSString *const AsyncSocketErrorDomain;
 
-enum AsyncSocketError
-{
+typedef NS_ENUM(NSInteger, AsyncSocketError) {
 	AsyncSocketCFSocketError = kCFSocketError,	// From CFSocketError enum.
 	AsyncSocketNoError = 0,						// Never used.
 	AsyncSocketCanceledError,					// onSocketWillConnect: returned NO.
@@ -27,7 +26,6 @@ enum AsyncSocketError
 	AsyncSocketReadTimeoutError,
 	AsyncSocketWriteTimeoutError
 };
-typedef enum AsyncSocketError AsyncSocketError;
 
 @protocol AsyncSocketDelegate
 @optional
