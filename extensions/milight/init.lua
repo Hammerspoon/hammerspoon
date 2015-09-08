@@ -18,14 +18,14 @@ milight.maxBrightness = 25
 
 -- Internal helper to set brightness
 function brightnessHelper(bridge, zonecmd, value)
-    if (milight.send(bridge, milight.cmd[zonecmd])) then
+    if (bridge:send(milight.cmd[zonecmd])) then
         if (value < milight.minBrightness) then
             value = milight.minBrightness
         elseif (value > milight.maxBrightness) then
             value = milight.maxBrightness
         end
         value = value + 2 -- bridge accepts values between 2 and 27
-        result = milight.send(bridge, milight.cmd["brightness"], value)
+        result = bridge:send(milight.cmd["brightness"], value)
         if (result) then
             return value - 2
         else
@@ -38,13 +38,13 @@ end
 
 -- Internal helper to set color
 function colorHelper(bridge, zonecmd, value)
-    if (milight.send(bridge, milight.cmd[zonecmd])) then
+    if (bridge:send(milight.cmd[zonecmd])) then
         if (value < 0) then
             value = 0
         elseif (value > 255) then
             value = 255
         end
-        return milight.send(bridge, milight.cmd["rgbw"], value)
+        return bridge:send(milight.cmd["rgbw"], value)
     else
         return false
     end
@@ -71,7 +71,7 @@ end
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
 function milightObject:zoneOff(zone)
-    return milight.send(self, milight.cmd[zone2cmdkey(zone, "off")])
+    return self:send(milight.cmd[zone2cmdkey(zone, "off")])
 end
 
 --- hs.milight:zoneOn(zone) -> bool
@@ -84,7 +84,7 @@ end
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
 function milightObject:zoneOn(zone)
-    return milight.send(self, milight.cmd[zone2cmdkey(zone, "on")])
+    return self:send(milight.cmd[zone2cmdkey(zone, "on")])
 end
 
 --- hs.milight:disco() -> bool
@@ -98,7 +98,7 @@ end
 ---  * True if the command was sent correctly, otherwise false
 function milightObject:discoCycle(zone)
     if (self:zoneOn(zone)) then
-        return milight.send(self, milight.cmd["disco"])
+        return self:send(milight.cmd["disco"])
     else
         return false
     end
@@ -143,7 +143,7 @@ end
 ---  * True if the command was sent correctly, otherwise false
 function milightObject:zoneWhite(zone)
     if (self:zoneOn(zone)) then
-        return milight.send(self, milight.cmd[zone2cmdkey(zone, "white")])
+        return self:send(milight.cmd[zone2cmdkey(zone, "white")])
     else
         return false
     end
