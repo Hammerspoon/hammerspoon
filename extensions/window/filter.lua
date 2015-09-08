@@ -46,7 +46,7 @@
 --   (e.g. if they know all they cares about is Safari)
 
 local pairs,ipairs,type,smatch,sformat,ssub = pairs,ipairs,type,string.match,string.format,string.sub
-local next,tsort,tinsert,setmetatable = next,table.sort,table.insert,setmetatable
+local next,tsort,tinsert,tremove,setmetatable = next,table.sort,table.insert,table.remove,setmetatable
 local timer = require 'hs.timer'
 local application,window = require'hs.application',hs.window
 local appwatcher,uiwatcher = application.watcher, require'hs.uielement'.watcher
@@ -55,6 +55,9 @@ local log = logger.new('wfilter')
 
 local windowfilter={} -- module
 
+
+--local SPECIAL_ID_DESKTOP=-1 -- finder desktop "window"
+local SPECIAL_ID_INVALIDATE_CACHE=-100
 --- hs.window.filter.ignoreAlways
 --- Variable
 --- A table of application names (as per `hs.application:name()`) that are always ignored by this module.
@@ -156,7 +159,7 @@ local wf={} -- class
 ---  * window - an `hs.window` object to check
 ---
 --- Returns:
----  * `true` if the window is allowed by the windowfilter; `false` otherwise
+---  * `true` if the window is allowed by the windowfilter, `false` otherwise; `nil` if an invalid object was passed
 
 local function matchTitle(titles,t)
   for _,title in ipairs(titles) do
@@ -177,10 +180,13 @@ local function allowWindow(app,props)
   return true
 end
 --local shortRoles={AXStandardWindow='window',AXDialog='dialog',AXSystemDialog='sys dlg',AXFloatingWindow='float',AXUnknown='unknown',['']='no role'}
-local props = {id=-2}-- cache window props for successive calls to isWindowAllowed
+local props = {id=SPECIAL_ID_INVALIDATE_CACHE}-- cache window props for successive calls to isWindowAllowed
 function wf:isWindowAllowed(window,appname,cache)
   if not window then return end
-  local id=window:id()
+  local id=window.id and window:id()
+  --this filters out non-windows, as well as AXScrollArea from Finder (i.e. the desktop)
+  --which allegedly is a window, but without id
+  if not id then return end
   if not cache or id~=props.id then
     props.role = window.subrole and window:subrole() or ''
     props.title = window:title() or ''
@@ -672,7 +678,7 @@ function Window:emitEvent(event,inserted)
   for wf in pairs(activeFilters) do
     logged,notified = self:filterEmitEvent(wf,event,inserted,logged,notified,true)
   end
-  props.id=-2
+  props.id=SPECIAL_ID_INVALIDATE_CACHE
 end
 
 
@@ -833,6 +839,9 @@ end
 -- another app, otherwise the latter's :unfocused will have a broken "inserted" chain with nothing to close it
 function App:getWindows()
   local windows=self.app:allWindows()
+  if self.name=='Finder' then --filter out the desktop here
+    for i=#windows,1,-1 do if windows[i]:role()~='AXWindow' then tremove(windows,i) break end end
+  end
   if #windows>0 then log.df('Found %d windows for app %s',#windows,self.name) end
   for _,win in ipairs(windows) do
     appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
@@ -867,16 +876,20 @@ function App:deactivated(inserted) --as per comment above, only THIS app should 
   if self.focused then self.focused:unfocused(inserted) end
 end
 function App:focusChanged(id,win)
-  if not id then return log.df('Cannot process focus changed for app %s - no window id',self.name) end
   if self.focused and self.focused.id==id then return log.df('%s (%d) already focused, skipping',self.name,id) end
   local active=global.active
   log.vf('App %s focus changed',self.name)
   if self==active then self:deactivated(--[[true--]]) end
-  if not self.windows[id] then
-    log.wf('%s (%d) is not registered yet',self.name,id)
-    appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
+  if not id then
+    if self.name~='Finder' then log.wf('Cannot process focus changed for app %s - %s has no window id',self.name,win:role()) end
+    self.focused=nil
+  else
+    if not self.windows[id] then
+      log.wf('%s (%d) is not registered yet',self.name,id)
+      appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
+    end
+    self.focused = self.windows[id]
   end
-  self.focused = self.windows[id]
   if self==active then self:activated() end
 end
 function App:hidden(inserted)
@@ -941,18 +954,17 @@ local RETRY_DELAY,MAX_RETRIES = 0.2,3
 local windowWatcherDelayed={}
 
 appWindowEvent=function(win,event,_,appname,retry)
-  local role = win.subrole and win:subrole()
+  --  if not win:isWindow() then return end
+  local role = win:subrole()
   if appname=='Hammerspoon' and (not role or role=='AXUnknown') then return end
-  local id = win and win.id and win:id()
+  local id = win:id()
   log.vf('%s (%s) <= %s (appwindow event)',appname,id or '?',event)
-  --  print(win:role(),win:subrole())
   if event==uiwatcher.windowCreated then
     if windowWatcherDelayed[win] then windowWatcherDelayed[win]:stop() windowWatcherDelayed[win]=nil end
     retry=(retry or 0)+1
     if not id then
-      if retry>MAX_RETRIES then log.df('%s: %s has no id',appname,role or (win.role and win:role()) or 'window')
-      else
-        windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
+      if retry>MAX_RETRIES then log.wf('%s: %s has no id',appname,role or (win.role and win:role()) or 'window')
+      else windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
       return
     end
     if apps[appname].windows[id] then return log.df('%s (%d) already registered',appname,id) end
@@ -1222,7 +1234,7 @@ end
 
 local function subscribe(self,event,fns)
   if not events[event] then error('invalid event: '..event,3) end
-  for _,fn in ipairs(fns) do
+  for _,fn in pairs(fns) do
     if type(fn)~='function' then error('fn must be a function or table of functions',3) end
     if not self.events[event] then self.events[event]={} end
     self.events[event][fn]=true
@@ -1380,15 +1392,15 @@ function wf:subscribe(event,fn,immediate)
   if type(fn)~='table' then error('fn must be a function or table of functions',2) end
   if type(event)=='string' then event={event} end
   if type(event)~='table' then error('event must be a string or a table of strings',2) end
-  for _,e in ipairs(event) do
+  for _,e in pairs(event) do
     subscribe(self,e,fn)
   end
   if immediate then
     -- get windows
     local windows = getWindowObjects(self)
     local hev={}
-    for _,e in ipairs(event) do hev[e]=true end
-    for _,f in ipairs(fn) do
+    for _,e in pairs(event) do hev[e]=true end
+    for _,f in pairs(fn) do
       for _,win in ipairs(windows) do
         if hev[windowfilter.windowCreated]
           or hev[windowfilter.windowMoved]
@@ -1427,7 +1439,7 @@ end
 function wf:unsubscribe(fn)
   if type(fn)=='string' or type(fn)=='function' then fn={fn} end--return unsubscribe(self,fn)
   if type(fn)~='table' then error('fn must be a function, string, or a table of functions or strings',2) end
-  for _,e in ipairs(fn) do
+  for _,e in pairs(fn) do
     if type(e)=='string' then unsubscribeEvent(self,e)
     elseif type(e)=='function' then unsubscribe(self,e)
     else error('fn must be a function, string, or a table of functions or strings',2) end
@@ -1453,7 +1465,6 @@ function wf:unsubscribeAll()
   self:pause()
   return self
 end
-
 
 
 --- hs.window.filter:resume() -> hs.window.filter
@@ -1649,7 +1660,7 @@ end
 --- Notes:
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowNorth(window,self:getWindows(),...)`
 ---  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
-for n,dir in ipairs{'East','North','West','South'}do
+for _,dir in ipairs{'East','North','West','South'}do
   wf['windowsTo'..dir]=function(self,win,...)
     return window['windowsTo'..dir](win,self:getWindows(),...)
   end
