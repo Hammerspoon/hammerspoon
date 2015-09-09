@@ -48,7 +48,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>ammerspoon.Hammerspoon.https</string>
+			<string>hammerspoon.Hammerspoon.https</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>https</string>
