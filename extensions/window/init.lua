@@ -158,10 +158,8 @@ end
 
 
 local animations, animTimer = {}
-
-
-local function animate()
-  --[[
+local DISTANT_FUTURE=315360000 -- 10 years (roughly)
+--[[
   local function quad(x,s,len)
     local l=max(0,min(2,(x-s)*2/len))
     if l<1 then return l*l/2
@@ -171,10 +169,11 @@ local function animate()
     end
   end
 --]]
-  local function quadOut(x,s,len)
-    local l=1-max(0,min(1,(x-s)/len))
-    return 1-l*l
-  end
+local function quadOut(x,s,len)
+  local l=1-max(0,min(1,(x-s)/len))
+  return 1-l*l
+end
+local function animate()
   local time = timer.secondsSinceEpoch()
   for id,anim in pairs(animations) do
     local r = quadOut(time,anim.time,anim.duration)
@@ -189,9 +188,10 @@ local function animate()
     end
     anim.window:_setFrame(f)
   end
-  if not next(animations) then animTimer:stop() end
+  if not next(animations) then animTimer:setNextTrigger(DISTANT_FUTURE) end
 end
-animTimer = timer.new(0.017, animate)
+animTimer = timer.new(0.017,animate)
+animTimer:start() --keep this split
 
 
 local function getAnimationFrame(win)
@@ -204,7 +204,7 @@ local function stopAnimation(win,snap,id)
   local anim = animations[id]
   if not anim then return end
   animations[id] = nil
-  if not next(animations) then animTimer:stop() end
+  if not next(animations) then animTimer:setNextTrigger(DISTANT_FUTURE) end
   if snap then win:_setFrame(anim.endFrame) end
 end
 
@@ -254,7 +254,7 @@ function window:setFrame(f, duration)
   local anim = animations[id]
   anim.time=timer.secondsSinceEpoch() anim.duration=duration
   anim.startFrame=frame anim.endFrame=f
-  animTimer:start()
+  animTimer:setNextTrigger(0.01)
   return self
 end
 
