@@ -140,7 +140,7 @@ function window.find(hint,exact,wins)
   if #r>0 then return tunpack(r) end
 end
 
---- hs.window:isVisible() -> bool
+--- hs.window:isVisible() -> boolean
 --- Method
 --- Determines if a window is visible (i.e. not hidden and not minimized)
 ---
@@ -219,7 +219,7 @@ function window:_setFrame(f)
   self:_setSize(f) self:_setTopLeft(f) return self:_setSize(f)
 end
 
---- hs.window:frame() -> rect
+--- hs.window:frame() -> hs.geometry rect
 --- Method
 --- Gets the frame of the window in absolute coordinates
 ---
@@ -227,16 +227,16 @@ end
 ---  * None
 ---
 --- Returns:
----  * A rect-table containing the co-ordinates of the top left corner of the window, and it's width and height
+---  * An hs.geometry rect containing the co-ordinates of the top left corner of the window and its width and height
 function window:frame()
   return getAnimationFrame(self) or self:_frame()
 end
---- hs.window:setFrame(rect[, duration]) -> window
+--- hs.window:setFrame(rect[, duration]) -> hs.window object
 --- Method
 --- Sets the frame of the window in absolute coordinates
 ---
 --- Parameters:
----  * rect - A rect-table containing the co-ordinates and size that should be applied to the window
+---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window
 ---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
@@ -297,7 +297,7 @@ function window:close()
   return self:_close()
 end
 
---- hs.window:otherWindowsSameScreen() -> win[]
+--- hs.window:otherWindowsSameScreen() -> list of hs.window objects
 --- Method
 --- Gets other windows on the same screen
 ---
@@ -307,10 +307,11 @@ end
 --- Returns:
 ---  * A table of `hs.window` objects representing the visible windows other than this one that are on the same screen
 function window:otherWindowsSameScreen()
-  local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self or r[i]:screen()~=self:screen() then tremove(r,i) end end return r
+  local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self or r[i]:screen()~=self:screen() then tremove(r,i) end end
+  return r
 end
 
---- hs.window:otherWindowsAllScreens() -> win[]
+--- hs.window:otherWindowsAllScreens() -> list of hs.window objects
 --- Method
 --- Gets every window except this one
 ---
@@ -320,12 +321,11 @@ end
 --- Returns:
 ---  * A table containing `hs.window` objects representing all visible windows other than this one
 function window:otherWindowsAllScreens()
-  local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self then tremove(r,i) break end end return r
+  local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self then tremove(r,i) break end end
+  return r
 end
 
-
-
---- hs.window:focus() -> window
+--- hs.window:focus() -> hs.window object
 --- Method
 --- Focuses the window
 ---
@@ -340,7 +340,7 @@ function window:focus()
   return self
 end
 
---- hs.window:maximize([duration]) -> window
+--- hs.window:maximize([duration]) -> hs.window object
 --- Method
 --- Maximizes the window
 ---
@@ -353,11 +353,10 @@ end
 --- Notes:
 ---  * The window will be resized as large as possible, without obscuring the dock/menu
 function window:maximize(duration)
-  local screenrect = self:screen():frame()
-  return self:setFrame(screenrect, duration)
+  return self:setFrame(self:screen():frame(), duration)
 end
 
---- hs.window:toggleFullScreen() -> window
+--- hs.window:toggleFullScreen() -> hs.window object
 --- Method
 --- Toggles the fullscreen state of the window
 ---
@@ -374,7 +373,7 @@ function window:toggleFullScreen()
   return self
 end
 
---- hs.window:screen()
+--- hs.window:screen() -> hs.screen object
 --- Method
 --- Gets the screen which the window is on
 ---
@@ -529,7 +528,7 @@ end
 ---    `hs.window.filter` instead
 
 
---- hs.window.frontmostWindow() -> hs.window
+--- hs.window.frontmostWindow() -> hs.window object
 --- Constructor
 --- Returns the focused window or, if no window has focus, the frontmost one
 ---
@@ -650,7 +649,7 @@ end
 ---  * The `hs.window` object
 ---
 --- Notes:
---   * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit({x=0, y=0, w=0.5, h=0.5})`
+---  * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit'[0,0,50,50]'`
 function window:moveToUnit(unit, duration)
   return self:setFrame(geometry.fromUnitRect(unit,self:screen():frame()),duration)
 end
@@ -671,7 +670,7 @@ function window:moveToScreen(toScreen, duration)
   return self:setFrame(geometry(self:frame()):toUnitRect(self:screen():frame()):fromUnitRect(toScreen:frame()),duration)
 end
 
---- hs.window:move(rect[, screen][, duration]) --> hs.window object
+--- hs.window:move(rect[, screen][, ensureInScreenBounds][, duration]) --> hs.window object
 --- Method
 --- Moves the window
 ---
@@ -682,21 +681,28 @@ end
 ---    - an `hs.geometry` unit rect, or argument to construct one; will set the window frame to this rect relative to the desired screen;
 ---      if `screen` is nil or omitted, use the screen the window is currently on
 ---  * screen - (optional) An `hs.screen` object or argument for `hs.screen.find`; only valid if `rect` is a unit rect
+---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
+---    the window's screen; `duration` is ignored (animation is not supported)
 ---  * duration - (optional) A number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
 function window:move(rect,toScreen,duration)
+  local frame,inBounds
+  if type(toScreen)=='boolean' or (type(toScreen)=='number' and toScreen<20 and duration==nil) then duration=toScreen toScreen=nil end
+  if type(duration)=='boolean' then inBounds=duration duration=nil end
+
   rect=geometry(rect)
   local rtype=rect:type()
-  if type(toScreen)=='number' and toScreen<20 and duration==nil then duration=toScreen toScreen=nil end
-  if rtype=='point' then return self:setFrame(geometry(self:frame()):move(rect),duration)
-  elseif rtype=='rect' then return self:setFrame(rect,duration)
+  if rtype=='point' then frame=geometry(self:frame()):move(rect)
+  elseif rtype=='rect' then frame=rect
   elseif rtype=='unitrect' then
-    if toScreen then toScreen=screen.find(toScreen) if not toScreen then return self end --TODO log?
-    else toScreen=self:screen() end
-    return self:setFrame(rect:fromUnitRect(toScreen:frame()),duration)
+    if toScreen then toScreen=screen.find(toScreen) end --TODO log when failed
+    toScreen=toScreen or self:screen()
+    frame=rect:fromUnitRect(toScreen:frame())
   else error('rect must be a point, rect, or unit rect',2) end
+  if inBounds then return self:setFrameInScreenBounds(frame)
+  else return self:setFrame(frame,duration) end
 end
 
 --- hs.window:moveOneScreenWest([duration]) -> hs.window object
@@ -709,7 +715,7 @@ end
 --- Returns:
 ---  * The `hs.window` object
 
---- hs.window:moveOneScreenEast([duration]) -> window
+--- hs.window:moveOneScreenEast([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen east (i.e. right)
 ---
@@ -719,7 +725,7 @@ end
 --- Returns:
 ---  * The `hs.window` object
 
---- hs.window:moveOneScreenNorth([duration]) -> window
+--- hs.window:moveOneScreenNorth([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen north (i.e. up)
 ---
@@ -729,7 +735,7 @@ end
 --- Returns:
 ---  * The `hs.window` object
 
---- hs.window:moveOneScreenSouth([duration]) -> window
+--- hs.window:moveOneScreenSouth([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen south (i.e. down)
 ---
@@ -739,23 +745,29 @@ end
 --- Returns:
 ---  * The `hs.window` object
 
---- hs.window:ensureIsInScreenBounds() -> window
+
+--- hs.window:setFrameInScreenBounds([rect]) -> hs.window object
 --- Method
---- Movies and resizes the window to ensure it is inside the screen
+--- Sets the frame of the window in absolute coordinates, possibly adjusted to ensure it is fully inside the screen
 ---
 --- Parameters:
----  * None
+---  * rect - An hs.geometry rect, or constructor argument(s), describing the frame to be applied to the window; if omitted,
+---    the current window frame will be used
 ---
 --- Returns:
 ---  * The `hs.window` object
 ---
 --- Notes:
----  * Calling this method will immediately fast-forward to the end of any ongoing animation on the window
-function window:ensureIsInScreenBounds()
+---  * This method doesn't support animation; calling it will immediately fast-forward to the end of any ongoing animation on the window
+function window:setFrameInScreenBounds(frame,...)
   stopAnimation(self,true)
-  local frame,screenFrame=geometry(self:frame()),self:screen():frame()
-  self:setFrame(frame:move((frame:intersect(screenFrame).center-frame.center)*2):intersect(screenFrame),0)
+  local screenFrame=self:screen():frame()
+  if frame then frame=geometry(frame,...)
+  else frame=self:frame() end
+  return self:setFrame(frame:move((frame:intersect(screenFrame).center-frame.center)*2):intersect(screenFrame),0)
 end
+window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatible
+
 
 package.loaded[...]=window
 window.filter=require'hs.window.filter'
