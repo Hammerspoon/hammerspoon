@@ -98,29 +98,6 @@ internalObject.windowStyle = function(self, ...)
     end
 end
 
---- hs.webview:allowGestures([value]) -> webviewObject | current value
---- Method
---- Get or set whether or not the webview will respond to gestures from a trackpad or magic mouse.  Default is false.
----
---- Parameters:
----  * value - an optional boolean value indicating whether or not the webview should respond gestures.
----
---- Returns:
----  * If a value is provided, then this method returns the webview object; otherwise the current value
----
---- Notes:
----  * This is a shorthand method for getting or setting both `hs.webview:allowMagnificationGestures` and `hs.webview:allowNavigationGestures`.
----  * This method will set both types of gestures to true or false, if given an argument, but will only return true if *both* gesture types are currently true; if either or both gesture methods are false, then this method will return false.
-internalObject.allowGestures = function(self, ...)
-    local r = table.pack(...)
-    if r.n ~= 0 then
-        self:allowMagnificationGestures(...)
-        self:allowNavigationGestures(...)
-        return self
-    end
-    return self:allowMagnificationGestures() and self:allowNavigationGestures()
-end
-
 -- Return Module Object --------------------------------------------------
 
 return module
