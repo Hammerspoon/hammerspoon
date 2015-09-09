@@ -273,7 +273,7 @@ static int userdata_tostring(lua_State* L) {
 
 /// hs.timer.secondsSinceEpoch() -> sec
 /// Function
-/// Gets the number of seconds since the epoch, including the fractional part; this has much better precision than `os.time()`, which is limited to whole seconds.
+/// Gets the number of seconds since the UNIX epoch (January 1, 1970), including the fractional part; this has much better precision than `os.time()`, which is limited to whole seconds.
 ///
 /// Parameters:
 ///  * None
