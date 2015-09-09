@@ -208,11 +208,6 @@ static const luaL_Reg milight_objectlib[] = {
     {"delete", milight_del},
     {"send", milight_send},
     {"__tostring", userdata_tostring},
-
-    {NULL, NULL}
-};
-
-static const luaL_Reg milightlib_gc[] = {
     {"__gc", milight_metagc},
 
     {NULL, NULL}
@@ -223,7 +218,7 @@ static const luaL_Reg milightlib_gc[] = {
 
 int luaopen_hs_milight_internal(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:milightlib metaFunctions:milightlib_gc objectFunctions:milight_objectlib];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:milightlib metaFunctions:nil objectFunctions:milight_objectlib];
 
     return 1;
 }
