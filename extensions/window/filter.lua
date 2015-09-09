@@ -342,40 +342,41 @@ function wf:setAppFilter(appname,ft)
     if ft==nil or ft==true then ft={visible=true} end -- shortcut
     if type(ft)~='table' then error('filter must be a table',2) end
     local app = {} -- always override
-    local allowTitles=ft.allowTitles
-    if allowTitles~=nil then
-      --      local titles=allowTitles
-      if type(allowTitles)=='string' then allowTitles={allowTitles}
-      elseif type(allowTitles)~='number' and type(allowTitles)~='table' then error('allowTitles must be a number, string or table',2) end
-      logs=sformat('%sallowTitles=%s, ',logs,type(allowTitles)=='table' and '{...}' or allowTitles)
-      app.allowTitles=allowTitles
+
+    for k,v in pairs(ft) do
+      if k=='allowTitles' then
+        if type(v)=='string' then v={v}
+        elseif type(v)~='number' and type(v)~='table' then error('allowTitles must be a number, string or table',2) end
+        logs=sformat('%s%s=%s, ',logs,k,type(v)=='table' and '{...}' or v)
+        app.allowTitles=v
+      elseif k=='rejectTitles' then
+        if type(v)=='string' then v={v}
+        elseif type(v)~='table' then error('rejectTitles must be a string or table',2) end
+        logs=sformat('%s%s=%s, ',logs,k,type(v)=='table' and '{...}' or v)
+        app.rejectTitles=v
+      elseif k=='allowRoles' then
+        local roles={}
+        if v=='*' then roles=v
+        elseif type(v)=='string' then roles={[v]=true}
+        elseif type(v)=='table' then
+          for rk,rv in pairs(v) do
+            if type(rk)=='number' and type(rv)=='string' then roles[rv]=true
+            elseif type(rk)=='string' and rv then roles[rk]=true
+            else error('incorrect format for allowRoles table',2) end
+          end
+        else error('allowRoles must be a string or table',2) end
+        logs=sformat('%s%s=%s, ',logs,k,type(v)=='table' and '{...}' or v)
+        app.allowRoles=roles
+      elseif k=='fullscreen' then
+        app.fullscreen=v and true or nil logs=sformat('%s%s=%s, ',logs,k,ft.fullscreen)
+      elseif k=='visible' then
+        app.visible=v and true or nil  logs=sformat('%s%s=%s, ',logs,k,ft.visible)
+      elseif k=='focused' then
+        app.focused=v and true or nil logs=sformat('%s%s=%s',logs,k,ft.focused)
+      else
+        error('invalid key in filter table: '..tostring(k),2)
+      end
     end
-    local rejectTitles=ft.rejectTitles
-    if rejectTitles~=nil then
-      --      local rtitles=rejectTitles
-      if type(rejectTitles)=='string' then rejectTitles={rejectTitles}
-      elseif type(rejectTitles)~='table' then error('rejectTitles must be a string or table',2) end
-      logs=sformat('%srejectTitles=%s, ',logs,type(rejectTitles)=='table' and '{...}' or rejectTitles)
-      app.rejectTitles=rejectTitles
-    end
-    local allowRoles=ft.allowRoles
-    if allowRoles~=nil then
-      local roles={}
-      if allowRoles=='*' then roles=allowRoles
-      elseif type(allowRoles)=='string' then roles={[allowRoles]=true}
-      elseif type(allowRoles)=='table' then
-        for k,v in pairs(allowRoles) do
-          if type(k)=='number' and type(v)=='string' then roles[v]=true
-          elseif type(k)=='string' and v then roles[k]=true
-          else error('incorrect format for allowRoles table',2) end
-        end
-      else error('allowRoles must be a string or table',2) end
-      logs=sformat('%sallowRoles=%s, ',logs,type(allowRoles)=='table' and '{...}' or allowRoles)
-      app.allowRoles=roles
-    end
-    if ft.fullscreen~=nil then app.fullscreen=ft.fullscreen logs=sformat('%sfullscreen=%s, ',logs,ft.fullscreen) end
-    if ft.visible~=nil then app.visible=ft.visible logs=sformat('%svisible=%s, ',logs,ft.visible) end
-    if ft.focused~=nil then app.focused=ft.focused logs=sformat('%sfocused=%s',logs,ft.focused) end
     self.apps[appname]=app
   end
   self.log.i(logs)
@@ -696,8 +697,31 @@ function Window.new(win,id,app,watcher)
   o.isFullscreen = win:isFullScreen()
   --  o.currentFrame = win:frame()
   app.windows[id]=o
+  -- deal with trackSpaces
+  for wf in pairs(activeFilters) do
+    if wf.currentSpaceWindows then -- this filter cares about spaces
+      o.inCurrentSpace={}
+      --FIXME ideally check app.app:allWindows() to determine if it's in the current space
+      --however doing that indiscriminately for every window is expensive, so for now
+      o.inCurrentSpace[wf]=true -- assume true at start
+      wf.currentSpaceWindows[o.id]=true
+    end
+  end
+
+
+
   o:emitEvent(windowfilter.windowCreated)
-  if not o.isHidden and not o.isMinimized then o:emitEvent(windowfilter.windowShown,true) end
+  if o.isMinimized then o:emitEvent(windowfilter.windowMinimized,true)
+  elseif o.isHidden then o:emitEvent(windowfilter.windowHidden,true)
+  else
+    o:emitEvent(windowfilter.windowShown,true)
+    local loggedspace,notifiedspace
+    for wf in pairs(activeFilters) do
+      if wf.currentSpaceWindows then
+        loggedspace,notifiedspace= o:filterEmitEvent(wf,windowfilter.windowInCurrentSpace,true,loggedspace,notifiedspace)
+      end
+    end
+  end
 end
 
 function Window:shown(inserted)
