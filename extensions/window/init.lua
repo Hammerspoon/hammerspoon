@@ -382,8 +382,8 @@ end
 ---
 --- Returns:
 ---  * An `hs.screen` object representing the screen which most contains the window (by area)
-function window:screen()
-  local frame,screens,maxa,maxs=geometry(self:frame()),screen.allScreens(),0
+local function findScreenForFrame(frame)
+  local screens,maxa,maxs=screen.allScreens(),0
   for _,s in ipairs(screens) do
     local a=frame:intersect(s:fullFrame()).area
     if a>maxa then maxa,maxs=a,s end
@@ -395,6 +395,9 @@ function window:screen()
     if d<mind then mind,maxs=d,s end
   end
   return maxs
+end
+function window:screen()
+  return findScreenForFrame(self:frame())
 end
 
 local function isFullyBehind(f1,w2)
@@ -665,9 +668,9 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:moveToScreen(toScreen, duration)
-  toScreen=screen.find(toScreen)
-  if not toScreen then print('window:moveToScreen(): screen not found: '..toScreen) return self end
-  return self:setFrame(toScreen:fromUnitRect(self:screen():toUnitRect(self:frame())),duration)
+  local theScreen=screen.find(toScreen)
+  if not theScreen then print('window:moveToScreen(): screen not found: '..toScreen) return self end
+  return self:setFrame(theScreen:fromUnitRect(self:screen():toUnitRect(self:frame())),duration)
 end
 
 --- hs.window:move(rect[, screen][, ensureInScreenBounds][, duration]) --> hs.window object
@@ -679,31 +682,32 @@ end
 ---    - an `hs.geometry` point, or argument to construct one; will move the screen by this delta, keeping its size constant; `screen` is ignored
 ---    - an `hs.geometry` rect, or argument to construct one; will set the window frame to this rect, in absolute coordinates; `screen` is ignored
 ---    - an `hs.geometry` unit rect, or argument to construct one; will set the window frame to this rect relative to the desired screen;
----      if `screen` is nil or omitted, use the screen the window is currently on
+---      if `screen` is nil, use the screen the window is currently on
 ---  * screen - (optional) An `hs.screen` object or argument for `hs.screen.find`; only valid if `rect` is a unit rect
 ---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
----    the window's screen; `duration` is ignored (animation is not supported)
+---    the window's screen
 ---  * duration - (optional) A number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:move(rect,toScreen,duration)
-  local frame,inBounds
-  if type(toScreen)=='boolean' or (type(toScreen)=='number' and toScreen<20 and duration==nil) then duration=toScreen toScreen=nil end
-  if type(duration)=='boolean' then inBounds=duration duration=nil end
-
+function window:move(rect,toScreen,inBounds,duration)
+  if type(toScreen)=='boolean' then duration=inBounds inBounds=toScreen toScreen=nil end
+  if type(inBounds)=='number' then duration=inBounds inBounds=nil end
   rect=geometry(rect)
-  local rtype=rect:type()
+  local rtype,frame=rect:type()
   if rtype=='point' then frame=geometry(self:frame()):move(rect)
+    if type(toScreen)=='number' then inBounds=nil duration=toScreen end
   elseif rtype=='rect' then frame=rect
+    if type(toScreen)=='number' then inBounds=nil duration=toScreen end
   elseif rtype=='unitrect' then
+    local theScreen
     if toScreen then
-      toScreen=screen.find(toScreen)
-      if not toScreen then print('window:move(): screen not found: '..toScreen) return self end
-    else toScreen=self:screen() end
-    frame=rect:fromUnitRect(toScreen:frame())
+      theScreen=screen.find(toScreen)
+      if not theScreen then print('window:move(): screen not found: '..toScreen) return self end
+    else theScreen=self:screen() end
+    frame=rect:fromUnitRect(theScreen:frame())
   else error('rect must be a point, rect, or unit rect',2) end
-  if inBounds then return self:setFrameInScreenBounds(frame)
+  if inBounds then return self:setFrameInScreenBounds(frame,duration)
   else return self:setFrame(frame,duration) end
 end
 
@@ -748,25 +752,50 @@ end
 ---  * The `hs.window` object
 
 
---- hs.window:setFrameInScreenBounds([rect]) -> hs.window object
+--- hs.window:setFrameInScreenBounds([rect][, duration]) -> hs.window object
 --- Method
 --- Sets the frame of the window in absolute coordinates, possibly adjusted to ensure it is fully inside the screen
 ---
 --- Parameters:
----  * rect - An hs.geometry rect, or constructor argument(s), describing the frame to be applied to the window; if omitted,
+---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window; if omitted,
 ---    the current window frame will be used
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
----
---- Notes:
----  * This method doesn't support animation; calling it will immediately fast-forward to the end of any ongoing animation on the window
-function window:setFrameInScreenBounds(frame,...)
-  stopAnimation(self,true)
-  local screenFrame=self:screen():frame()
-  if frame then frame=geometry(frame,...)
-  else frame=self:frame() end
-  return self:setFrame(frame:move((frame:intersect(screenFrame).center-frame.center)*2):intersect(screenFrame),0)
+
+local function frameInBounds(frame,bounds)
+  return geometry.copy(frame):move((frame:intersect(bounds).center-frame.center)*2):intersect(bounds)
+end
+
+function window:setFrameInScreenBounds(frame,duration)
+  if type(frame)=='number' then duration=frame frame=nil end
+  stopAnimation(self) -- if ongoing animation, stop it (no ff)
+  if frame then frame=geometry(frame):floor()
+  else frame=self:frame() end -- if ongoing animation, get the end frame
+  local screenFrame=findScreenForFrame(frame):frame()
+
+  -- find out if it's a terminal (or a window already shrunk to minimum)
+  local curFrame=self:_frame()
+  self:_setSize{w=curFrame.w-1,h=curFrame.h-1}
+  if curFrame.size==self:_size() then duration=0 end -- don't animate terminals
+
+  if duration==0 then -- cut it short
+    self:_setFrame(frame) -- set
+    return self:_setFrame(frameInBounds(self:_frame(),screenFrame)) -- and adjust if necessary
+  end
+  self:_setSize(curFrame)
+  if curFrame==frame then return end
+
+  local originalFrame=geometry.copy(curFrame)
+  curFrame.size=frame.size --apply the desired size
+  local safeBounds=self:screen():frame() safeBounds:move(30,30) -- offset
+  safeBounds.w=safeBounds.w-60 safeBounds.h=safeBounds.h-60 -- and shrink
+  self:_setFrame(frameInBounds(curFrame,safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
+  local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
+  if actualSize.area>frame.area then frame.size=actualSize end -- if it's bigger apply it
+  self:_setFrame(originalFrame)
+  return self:setFrame(frameInBounds(frame,screenFrame),duration)
 end
 window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatible
 
