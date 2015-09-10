@@ -651,7 +651,7 @@ end
 --- Notes:
 ---  * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit'[0,0,50,50]'`
 function window:moveToUnit(unit, duration)
-  return self:setFrame(geometry.fromUnitRect(unit,self:screen():frame()),duration)
+  return self:setFrame(self:screen():fromUnitRect(unit),duration)
 end
 
 --- hs.window:moveToScreen(screen[, duration]) -> hs.window object
@@ -666,8 +666,8 @@ end
 ---  * The `hs.window` object
 function window:moveToScreen(toScreen, duration)
   toScreen=screen.find(toScreen)
-  if not toScreen then return self end --TODO log?
-  return self:setFrame(geometry(self:frame()):toUnitRect(self:screen():frame()):fromUnitRect(toScreen:frame()),duration)
+  if not toScreen then print('window:moveToScreen(): screen not found: '..toScreen) return self end
+  return self:setFrame(toScreen:fromUnitRect(self:screen():toUnitRect(self:frame())),duration)
 end
 
 --- hs.window:move(rect[, screen][, ensureInScreenBounds][, duration]) --> hs.window object
@@ -697,8 +697,10 @@ function window:move(rect,toScreen,duration)
   if rtype=='point' then frame=geometry(self:frame()):move(rect)
   elseif rtype=='rect' then frame=rect
   elseif rtype=='unitrect' then
-    if toScreen then toScreen=screen.find(toScreen) end --TODO log when failed
-    toScreen=toScreen or self:screen()
+    if toScreen then
+      toScreen=screen.find(toScreen)
+      if not toScreen then print('window:move(): screen not found: '..toScreen) return self end
+    else toScreen=self:screen() end
     frame=rect:fromUnitRect(toScreen:frame())
   else error('rect must be a point, rect, or unit rect',2) end
   if inBounds then return self:setFrameInScreenBounds(frame)
