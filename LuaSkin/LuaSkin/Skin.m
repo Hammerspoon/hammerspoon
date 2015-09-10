@@ -313,7 +313,7 @@ nextarg:
     }
 }
 
-#pragma mark - Methods for pushing NSObjects to the Lua Stack
+#pragma mark - Conversion from NSObjects into Lua objects
 
 - (int)pushNSObject:(id)obj { return [self pushNSObject:obj preserveBitsInNSNumber:NO] ; }
 
@@ -361,7 +361,7 @@ nextarg:
     return 1;
 }
 
-#pragma mark - Methods for converting Lua objects on the stack to NSObjects
+#pragma mark - Conversion from lua objects into NSObjects
 
 - (id)toNSObjectAtIndex:(int)idx { return [self toNSObjectAtIndex:idx allowSelfReference:NO] ; }
 
@@ -418,9 +418,11 @@ nextarg:
     return NSMakeSize(w, h);
 }
 
-#pragma mark - Other Useful Tools
+#pragma mark - Other helpers
 
 - (BOOL)isValidUTF8AtIndex:(int)idx {
+    if (lua_type(_L, idx) != LUA_TSTRING && lua_type(_L, idx) != LUA_TNUMBER) return NO ;
+
     size_t len ;
     unsigned char *str = (unsigned char *)lua_tolstring(_L, idx, &len) ;
 
@@ -491,6 +493,11 @@ nextarg:
             return NO;
     }
     return YES;
+}
+
+- (BOOL)requireModule:(char *)moduleName {
+    lua_getglobal(_L, "require"); lua_pushstring(_L, moduleName) ;
+    return [self protectedCallAndTraceback:1 nresults:1] ;
 }
 
 #pragma mark - conversionSupport extensions to LuaSkin class

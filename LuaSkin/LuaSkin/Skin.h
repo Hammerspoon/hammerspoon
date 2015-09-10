@@ -190,6 +190,8 @@ typedef struct tableHelpers {
  */
 - (void)checkArgs:(int)firstArg, ...;
 
+#pragma mark - Conversion from NSObjects into Lua objects
+
 /** Pushes an NSObject to the lua stack
 
  @note This method takes an NSObject and checks its class against registered classes and then against the built in defaults
@@ -244,6 +246,8 @@ typedef struct tableHelpers {
  @returns The number of items on the lua stack - this is always 1 but is returned to simplify its use in Hammerspoon modules.
  */
 - (int)pushNSSize:(NSSize)theSize ;
+
+#pragma mark - Conversion from lua objects into NSObjects
 
 /** Return an NSObject containing the best representation of the lua data structure at the specified index.
 
@@ -310,13 +314,24 @@ typedef struct tableHelpers {
  */
 - (NSSize)tableToSizeAtIndex:(int)idx ;
 
+#pragma mark - Other helpers
+
 /** Determines if the string in the lua stack is valid UTF8 or not.
 
  @note This method is used internally to determine if a string should be treated as an NSString or an NSData object.  It is included as a public method because it has uses outside of this as well.
+ @note This method uses lua_tolstring, which will convert a number on the stack to a string.  As described in the Lua documentation, this will causes problems if you're using lua_next with the same index location.
  @param idx - the index on lua stack which contains the string to check.
- @returns YES if the string can be treated as a valid UTF8 string of characters or NO if it cannot.
+ @returns YES if the string can be treated as a valid UTF8 string of characters or NO if it is not a string or if it contains invalid UTF8 byte sequences.
  */
 - (BOOL)isValidUTF8AtIndex:(int)idx ;
+
+/** Loads a module and places its return value (usually a table of functions) on the stack.
+
+ @note This method performs the equivalent of the lua command `require(...)` and places the return value (usually a table of functions) on the stack, or an error string on the stack if it was unable to load the specified module.
+ @param moduleName - the name of the module to load.
+ @returns YES if the module loaded successfully or NO if it does not.
+ */
+- (BOOL)requireModule:(char *)moduleName ;
 
 @end
 
