@@ -188,12 +188,28 @@ end
 ---  * unitrect - an hs.geometry unit rect, or arguments to construct one
 ---
 --- Returns:
----  * an hs.geometry rect describing the given frame in absolute coordinates
+---  * an hs.geometry rect describing the given unit rect in absolute coordinates
 ---
 --- Notes:
----  * this method is just a convenience wrapper for `hs.geometry.fromUnitRect(unitrect,this_screen:fullFrame())`
+---  * this method is just a convenience wrapper for `hs.geometry.fromUnitRect(unitrect,this_screen:frame())`
 function screenObject:fromUnitRect(unit,...)
   return geometry(unit,...):fromUnitRect(self:frame()):floor()
+end
+
+--- hs.screen:toUnitRect(rect) -> hs.geometry unitrect
+--- Method
+--- Returns the unit rect of a given rect, relative to this screen
+---
+--- Parameters:
+---  * rect - an hs.geometry rect, or arguments to construct one
+---
+--- Returns:
+---  * an hs.geometry unit rect describing the given rect relative to this screen's frame
+---
+--- Notes:
+---  * this method is just a convenience wrapper for `hs.geometry.toUnitRect(rect,this_screen:frame())`
+function screenObject:toUnitRect(rect,...)
+  return geometry(rect,...):toUnitRect(self:frame())
 end
 
 --- hs.screen:next() -> screen
