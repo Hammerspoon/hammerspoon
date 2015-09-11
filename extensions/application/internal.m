@@ -860,7 +860,22 @@ static const luaL_Reg applicationlib[] = {
     {NULL, NULL}
 };
 
+static int nsrunningapplication_tolua(lua_State *L, id obj) {
+    NSRunningApplication *app = obj ;
+
+    if (!new_application(L, [app processIdentifier])) {
+        lua_pop(L, 1) ; // removed aborted userdata
+        lua_pushstring(L, [[NSString stringWithFormat:@"No PID: %@", obj] UTF8String]) ;
+    }
+    return 1 ;
+}
+
 int luaopen_hs_application_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
+    [skin registerPushNSHelper:nsrunningapplication_tolua
+                      forClass:"NSRunningApplication"] ;
+
     luaL_newlib(L, applicationlib);
 
     // Inherit hs.uielement
