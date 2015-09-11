@@ -159,9 +159,9 @@ function layout.apply(layout)
         -- Find the matching windows, if any
         if _row[2] then
             if app then
-                wins = fnutils.filter(app:allWindows(), function(win) return string.match(win:title(), _row[2]) end)
+                wins = fnutils.filter(app:allWindows(), function(win) return win:title() == _row[2] end)
             else
-                wins = fnutils.filter(window:allWindows(), function(win) return string.match(win:title(), _row[2]) end)
+                wins = fnutils.filter(window:allWindows(), function(win) return win:title() == _row[2] end)
             end
         elseif app then
             wins = app:allWindows()
