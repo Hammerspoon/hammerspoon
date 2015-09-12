@@ -668,7 +668,7 @@ function Window:filterEmitEvent(wf,event,inserted,logged,notified,cache)
     if fns then
       if not logged then wf.log.df('Emitting %s %d (%s)',event,self.id,self.app.name) if wf.log==log then logged=true end end
       for fn in pairs(fns) do
-        fn(self.window,self.app.name)
+        fn(self.window,self.app.name,event)
       end
     end
     -- clear the window if this is the last event in the chain
@@ -977,7 +977,7 @@ local function windowEvent(win,event,_,appname,retry)
 end
 
 
-local RETRY_DELAY,MAX_RETRIES = 0.2,3
+local RETRY_DELAY,MAX_RETRIES = 0.2,5
 local windowWatcherDelayed={}
 
 appWindowEvent=function(win,event,_,appname,retry)
@@ -1048,7 +1048,7 @@ local function startAppWatcher(app,appname,retry,nologging)
       pendingApps[appname]=nil --give up
       return log[nologging and 'df' or 'wf']('No accessibility access to app %s (no watcher pid)',appname)
     end
-    timer.doAfter(0.2*retry,function()startAppWatcher(app,appname,retry,nologging)end)
+    timer.doAfter(RETRY_DELAY*MAX_RETRIES,function()startAppWatcher(app,appname,retry,nologging)end)
     pendingApps[appname]=true
   end
 end
@@ -1095,16 +1095,15 @@ local function refreshTrackSpacesFilters()
   local spacewins = {}
   if global.watcher then
     for _,app in pairs(apps) do
-      for _,w in ipairs(app.app:allWindows()) do
+      for _,w in ipairs(app.app:visibleWindows()) do
         local id=w:id()
         if id then spacewins[id]=true end
       end
     end
   else
-    for _,w in ipairs(window.allWindows()) do
+    for _,w in ipairs(window.visibleWindows()) do
       local id=w:id()
       if id then spacewins[id]=true end
-      --FIXME keep track of windows' spaces when visibile. allWindows() returns minimized windows from all spaces :'(
     end
   end
   for wf in pairs(trackSpacesFilters) do
@@ -1118,23 +1117,33 @@ local function refreshTrackSpacesFilters()
   end
 end
 
+-- matrix for trackSpaces
+--              |visible=         nil                      |             true             |     false    |
+-- |currentSpace|------------------------------------------|------------------------------|--------------|
+-- |     nil    |all                                       |visible in ANY space          |min and hidden|
+-- |    true    |visible in CURRENT space,min and hidden   |visible in CURRENT space      |min and hidden|
+-- |    false   |visible in OTHER space only,min and hidden|visible in OTHER space only   |min and hidden|
+
 --- hs.window.filter:trackSpaces(track) -> hs.window.filter
 --- Method
 --- Sets whether the windowfilter should be aware of different Mission Control Spaces
 ---
 --- Parameters:
 ---  * track - string, it can have the following values:
----    - `"no"` (or `false`): this is the default behaviour for all windowfilters; this windowfilter will treat all windows
----       the same regardless of which Space they are in
----    - `"all"`: this windowfilter will keep track of which windows are in the current Space
----      and which are not: when the user switches to a different Space, windows in the previous space will emit an
----      `hs.window.filter.windowHidden` event, and windows in the current space will emit an `hs.window.filter.windowShown`
----      event. This is reflected in the visibility rules for this windowfilter: for example if it's set to only allow visible windows
----      (which is the default behaviour), windows that only exist in a given Space will be filtered out
----      or allowed again when the user switches (respectively) away from or back to that Space.
+---    - `"no"` (or `false`): this is the default behaviour for all windowfilters; this windowfilter will not track Space changes
+---    - `"all": this windowfilter will track Space changes; when the user switches to a different Space, windows
+---      that only existed in the previous Space will emit an `hs.window.filter.windowHidden` event, and similarly windows in the current
+---      space will emit an `hs.window.filter.windowShown` event. Windows that carry over (i.e. for apps that have "Assign To"->"All Desktops",
+---      and when you manually drag a window to another Space) won't emit either event. Minimized and hidden windows are also
+---      considered to belong to all Spaces.
+---      This is reflected in the visibility rules for this windowfilter: for example if it's set to only allow visible windows
+---      (which is the default behaviour), windows that only exist in a given Space will be filtered out or allowed again when
+---      the user switches (respectively) away from or back to that Space.
 ---    - `"current"` (or `true`): like "all", but regardless of this windowfilter's visiblity rules, it will only allow
----      windows in the current Space
----    - `"others"`: like "all", but this windowfilter will only allow windows in any Space other than the current one (you need to
+---      windows in the current Space. In practice: for app filters that only allow visible windows, "current" behaves like "all";
+---      for app filters that have no visibility rule set, "current" will exclude windows that are visible in other Spaces but not
+---      the current one (but still include minimized and hidden windows as they belong to all Spaces).
+---    - `"others"`: like "current", this windowfilter will track Space changes, but this windowfilter will only allow windows in any Space other than the current one (you need to
 ---      set the visibility rules to allow invisible windows, or no windows will ever be allowed)
 ---
 --- Returns:
@@ -1260,26 +1269,32 @@ local function stopGlobalWatcher()
 end
 
 
-local function subscribe(self,event,fns)
-  if not events[event] then error('invalid event: '..event,3) end
-  for _,fn in pairs(fns) do
-    if type(fn)~='function' then error('fn must be a function or table of functions',3) end
-    if not self.events[event] then self.events[event]={} end
-    self.events[event][fn]=true
-    self.log.df('Added callback for event %s',event)
+local function subscribe(self,map)
+  for event,fns in pairs(map) do
+    if not events[event] then error('invalid event: '..event,3) end
+    for _,fn in pairs(fns) do
+      if type(fn)~='function' then error('fn must be a function or table of functions',3) end
+      if not self.events[event] then self.events[event]={} end
+      self.events[event][fn]=true
+      self.log.df('Added callback for event %s',event)
+    end
   end
 end
 
-local function unsubscribe(self,fn)
-  for event in pairs(events) do
-    if self.events[event] and self.events[event][fn] then
-      self.log.df('Removed callback for event %s',event)
-      self.events[event][fn]=nil
-      if not next(self.events[event]) then
-        self.log.df('No more callbacks for event %s',event)
-        self.events[event]=nil
-      end
+local function unsubscribe(self,event,fn)
+  if self.events[event] and self.events[event][fn] then
+    self.log.df('Removed callback for event %s',event)
+    self.events[event][fn]=nil
+    if not next(self.events[event]) then
+      self.log.df('No more callbacks for event %s',event)
+      self.events[event]=nil
     end
+  end
+  return self
+end
+local function unsubscribeCallback(self,fn)
+  for event in pairs(events) do
+    unsubscribe(self,event,fn)
   end
   return self
 end
@@ -1372,12 +1387,16 @@ end
 --- Notify a callback whenever the list of allowed windows change
 ---
 --- Parameters:
----  * fn - a function that should accept a list of windows (as per `hs.window.filter:getWindows()`) as its single parameter; it will be called when:
+---  * fn - a callback function that will be called when:
 ---    * an allowed window is created or destroyed, and therefore added or removed from the list of allowed windows
 ---    * a previously allowed window is now filtered or vice versa (e.g. in consequence of a title change)
+---    It will be passed 2 parameters:
+---    * a list of the `hs.window` objects currently (i.e. *after* the change took place) allowed by this
+---      windowfilter (as per `hs.window.filter:getWindows()`)
+---    * a string containing the (first) event that caused the change (see the `hs.window.filter` constants)
 ---  * fnEmpty - (optional) if provided, when this windowfilter becomes empty (i.e. `:getWindows()` returns
 ---    an empty list) call this function (with no arguments) instead of `fn`, otherwise, always call `fn`
----  * immediate - (optional) if `true`, call `fn` (or `fnEmpty`) immediately
+---  * immediate - (optional) if `true`, also call `fn` (or `fnEmpty`) immediately
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
@@ -1399,78 +1418,128 @@ end
 --- Subscribe to one or more events on the allowed windows
 ---
 --- Parameters:
----  * event - string or table of strings, the event(s) to subscribe to (see the `hs.window.filter` constants)
----  * fn - function or table of functions, the callback(s) to add for the event(s); each will be passed two parameters
+---  * event - string or list of strings, the event(s) to subscribe to (see the `hs.window.filter` constants);
+---    alternatively, this can be a map `{event1=fn1,event2=fn2,...}`: fnN will be subscribed to eventN, and the parameter `fn` will be ignored
+---  * fn - function or list of functions, the callback(s) to add for the event(s); each will be passed 3 parameters
 ---    * a `hs.window` object referring to the event's window
 ---    * a string containing the application name (`window:application():title()`) for convenience
----  * immediate - (optional) if `true`, call all the callbacks immediately for windows that satisfy the event(s) criteria
+---    * a string containing the event that caused the callback (i.e. the event, or one of the events, you subscribed to)
+---  * immediate - (optional) if `true`, also call all the callbacks immediately for windows that satisfy the event(s) criteria
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
----  * Passing tables means that *all* the `fn`s will be called when *any* of the `event`s fires,
----    so it's *not* a shortcut for subscribing distinct callbacks to distinct events; use chained `:subscribe` calls for that.
+---  * Passing lists means that *all* the `fn`s will be called when *any* of the `event`s fires,
+---    so it's *not* a shortcut for subscribing distinct callbacks to distinct events; use a map
+---    or chained `:subscribe` calls for that.
 ---  * Use caution with `immediate`: if for example you're subscribing to `hs.window.filter.windowUnfocused`,
 ---    `fn`(s) will be called for *all* the windows except the currently focused one.
 ---  * If the windowfilter was paused with `hs.window.filter:pause()`, calling this will resume it.
 function wf:subscribe(event,fn,immediate)
-  start(self)
-  if type(fn)=='function' then fn={fn} end
-  if type(fn)~='table' then error('fn must be a function or table of functions',2) end
   if type(event)=='string' then event={event} end
-  if type(event)~='table' then error('event must be a string or a table of strings',2) end
-  for _,e in pairs(event) do
-    subscribe(self,e,fn)
+  if type(event)~='table' then error('event must be a string, a list of strings, or a map',2) end
+  if type(fn)=='function' then fn={fn}
+  elseif type(fn)=='boolean' then immediate=fn fn=nil end
+  if fn and type(fn)~='table' then error('fn must be a function or list of functions',2) end
+  local map,k,v={},next(event)
+  if type(k)=='string' and type(v)=='function' then map=event
+  else
+    if not fn then error('missing parameter fn',2) end
+    for _,ev in ipairs(event) do map[ev]=fn end
   end
+  for _,e in pairs(event) do
+    subscribe(self,map)
+  end
+  start(self)
   if immediate then
-    -- get windows
     local windows = getWindowObjects(self)
-    local hev={}
-    for _,e in pairs(event) do hev[e]=true end
-    for _,f in pairs(fn) do
-      for _,win in ipairs(windows) do
-        if hev[windowfilter.windowCreated]
-          or hev[windowfilter.windowMoved]
-          or hev[windowfilter.windowTitleChanged]
-          or (hev[windowfilter.windowShown] and not win.isHidden)
-          or (hev[windowfilter.windowHidden] and win.isHidden)
-          or (hev[windowfilter.windowMinimized] and win.isMinimized)
-          or (hev[windowfilter.windowUnminimized] and not win.isMinimized)
-          or (hev[windowfilter.windowFullscreened] and win.isFullscreen)
-          or (hev[windowfilter.windowUnfullscreened] and not win.isFullscreen)
-          or (hev[windowfilter.windowFocused] and global.focused==win)
-          or (hev[windowfilter.windowUnfocused] and global.focused~=win)
-        then f(win.window,win.app.name) end
+    for _,win in ipairs(windows) do
+      for ev,fns in pairs(map) do
+        if ev==windowfilter.windowCreated
+          or ev==windowfilter.windowMoved
+          or ev==windowfilter.windowTitleChanged
+          or (ev==windowfilter.windowShown and not win.isHidden)
+          or (ev==windowfilter.windowHidden and win.isHidden)
+          or (ev==windowfilter.windowMinimized and win.isMinimized)
+          or (ev==windowfilter.windowUnminimized and not win.isMinimized)
+          or (ev==windowfilter.windowFullscreened and win.isFullscreen)
+          or (ev==windowfilter.windowUnfullscreened and not win.isFullscreen)
+          or (ev==windowfilter.windowFocused and global.focused==win)
+          or (ev==windowfilter.windowUnfocused and global.focused~=win)
+        then for _,fn in ipairs(fns) do
+          fn(win.window,win.app.name,ev) end
+        end
       end
     end
   end
   return self
 end
 
---- hs.window.filter:unsubscribe(fn) -> hs.window.filter
+--- hs.window.filter:unsubscribe([event][, fn]) -> hs.window.filter
 --- Method
 --- Removes one or more event subscriptions
 ---
 --- Parameters:
----  * fn - it can be:
----    * a function or table of functions: the callback(s) to remove
----    * a string or table of strings: the event(s) to unsubscribe (*all* callbacks will be removed from these)
+---  * event - string or list of strings, the event(s) to unsubscribe; if omitted, `fn`(s) will be unsubscribed from all events;
+---    alternatively, this can be a map `{event1=fn1,event2=fn2,...}`: fnN will be unsubscribed from eventN, and the parameter `fn` will be ignored
+---  * fn - function or list of functions, the callback(s) to remove; if omitted, all callbacks will be unsubscribed from `event`(s)
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
+---  * You must pass at least one of `event` or `fn`
 ---  * If calling this on the default (or any other shared use) windowfilter, do not pass events, as that would remove
 ---    *all* the callbacks for the events including ones subscribed elsewhere that you might not be aware of. You should
 ---    instead keep references to your functions and pass in those.
-function wf:unsubscribe(fn)
-  if type(fn)=='string' or type(fn)=='function' then fn={fn} end--return unsubscribe(self,fn)
-  if type(fn)~='table' then error('fn must be a function, string, or a table of functions or strings',2) end
-  for _,e in pairs(fn) do
-    if type(e)=='string' then unsubscribeEvent(self,e)
-    elseif type(e)=='function' then unsubscribe(self,e)
-    else error('fn must be a function, string, or a table of functions or strings',2) end
+function wf:unsubscribe(events,fns)
+  if not events and not fns then error('you must pass at least one of event or fn',2) end
+  local tevents,tfns=type(events),type(fns)
+  if events==nil then tevents=nil end
+  if fns==nil then tfns=nil end
+  if tfns=='function' then fns={fns} tfns='lfn' end --?+fn
+  if tevents=='function' then fns={events} tfns='lfn' tevents=nil --omitted+fn
+  elseif tevents=='string' then events={events} tevents='ls' end --event+?
+  if tevents=='table' then
+    local k,v=next(events)
+    if type(k)=='function' and v==true then fns=events tfns='sfn' tevents=nil --omitted+set of fns
+    elseif type(k)=='string' then --set of events, or map
+      if type(v)=='function' then tevents='map' tfns=nil --map+ignored
+      elseif v==true then tevents='ss' --set of events+?
+      else error('invalid event parameter',2) end
+    elseif type(k)=='number' then --list of events or functions
+      if type(v)=='function' then fns=events tfns='lfn' tevents=nil --omitted+list of fns
+      elseif type(v)=='string' then tevents='ls' --list of events+?
+      else error('invalid event parameter',2) end
+    else error('invalid event parameter',2) end
+  end
+  if tfns=='table' then
+    local k,v=next(fns)
+    if type(k)=='function' and v==true then tfns='sfn' --?+set of fns
+    elseif type(k)=='number' and type(v)=='function' then tfns='lfn' --?+list of fns
+    else error('invalid fn parameter',2) end
+  end
+  if tevents==nil then --all events
+    events=self.events tevents='ss'
+  end
+  if tevents=='ss' then --make list
+    local l={} for k in pairs(events) do l[#l+1]=k end events=l tevents='ls'
+  end
+  if tfns=='sfn' then --make list
+    local l={} for k in pairs(fns) do l[#l+1]=k end fns=l tfns='lfn'
+  end
+
+  if tevents=='map' then
+    for ev,fn in pairs(events) do unsubscribe(self,ev,fn) end
+  else
+    if tevents~='ls' then error('invalid event parameter',2)
+    elseif tfns~=nil and tfns~='lfn' then error('invalid fn parameter',2) end
+
+    for _,ev in ipairs(events) do
+      if not tfns then unsubscribeEvent(self,ev)
+      else for _,fn in ipairs(fns) do unsubscribe(self,ev,fn) end end
+    end
   end
   if not next(self.events) then return self:unsubscribeAll() end
   return self
