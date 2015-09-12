@@ -150,9 +150,11 @@ NSMutableDictionary *registeredTableHelperFunctions ;
     lua_insert(_L, tracebackPosition);
 
     if (lua_pcall(_L, nargs, nresults, tracebackPosition) != LUA_OK) {
+        lua_remove(_L, -2) ; // remove the message handler
         return NO;
     }
 
+    lua_remove(_L, -nresults - 1) ; // remove the message handler
     return YES;
 }
 
