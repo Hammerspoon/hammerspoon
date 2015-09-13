@@ -67,6 +67,7 @@ local spacesInstances = {} -- wf instances that also need to be "active" because
 local pendingApps = {} -- apps resisting being watched (hs.application)
 local apps = {} -- all GUI apps (class App) containing all windows (class Window)
 local App,Window={},{} -- classes
+local preexistingWindowTimes={} -- used to 'bootstrap' field .time and preserve relative ordering in :getWindows
 
 --- hs.window.filter.ignoreAlways
 --- Variable
@@ -561,7 +562,7 @@ end
 ---  * logname - (optional) name of the `hs.logger` instance for the new windowfilter; if omitted, the class logger will be used
 ---  * loglevel - (optional) log level for the `hs.logger` instance for the new windowfilter
 function windowfilter.copy(wf,logname,loglevel)
-  local mt=getmetatable(fn) if not mt or mt.__index~=wf then error('windowfilter must be an hs.window.filter object',2) end
+  local mt=getmetatable(wf) if not mt or mt.__index~=WF then error('windowfilter must be an hs.window.filter object',2) end
   return windowfilter.new(true,logname,loglevel):setFilters(wf:getFilters())
 end
 
@@ -749,7 +750,7 @@ function Window.new(win,id,app,watcher)
   -- the id "caching" should be moved to the hs.window userdata itself
   --  local w = setmetatable({id=function()return id end},{__index=function(_,k)return function(self,...)return win[k](win,...)end end})
   -- hackity hack removed, turns out it was just for :snapshot (see gh#413)
-  local o = setmetatable({app=app,window=win,id=id,watcher=watcher,time=timer.secondsSinceEpoch(),
+  local o = setmetatable({app=app,window=win,id=id,watcher=watcher,frame=win:frame(),
     isMinimized=win:isMinimized(),isVisible=win:isVisible(),isFullscreen=win:isFullScreen(),role=win:subrole(),title=win:title()}
   ,{__index=Window})
   o.isHidden = not o.isVisible and not o.isMinimized
@@ -759,6 +760,11 @@ end
 
 function Window.created(win,id,app,watcher)
   local self=Window.new(win,id,app,watcher)
+  if preexistingWindowTimes[id] then
+    self.time=preexistingWindowTimes[id] preexistingWindowTimes[id]=nil
+  else
+    self.time=timer.secondsSinceEpoch()
+  end
   app.windows[id]=self
   self:emitEvent(windowfilter.windowCreated)
   if self.isVisible then
@@ -866,6 +872,7 @@ function Window:moved()
   else self.movedDelayed=timer.doAfter(WINDOWMOVED_DELAY,function()self:doMoved()end) end
 end
 function Window:doMoved()
+  self.frame=self.window:frame()
   self.movedDelayed=nil
   local fs = self.window:isFullScreen()
   local oldfs = self.isFullscreen or false
@@ -959,6 +966,7 @@ function App:getCurrentSpaceAppWindows()
       end
     end
   end
+  --FIXME they're never gone!
   local allWindows=self.app:allWindows()
   if self.name=='Finder' then --filter out the desktop here
     for i=#allWindows,1,-1 do if allWindows[i]:role()~='AXWindow' then tremove(allWindows,i) break end end
@@ -1025,7 +1033,7 @@ function App:unhidden()
   end
   log.vf('App %s unhidden',self.name)
   self.isHidden=false
-  if next(spacesFilters) then self:getCurrentSpaceAppWindows() end
+  if next(spacesInstances) then self:getCurrentSpaceAppWindows() end
 end
 function App:destroyed()
   log.f('App %s deregistered',self.name)
@@ -1264,6 +1272,11 @@ spacesWatcher:start()
 
 local function startGlobalWatcher()
   if global.watcher then return end
+  local ids,time=window._orderedwinids(),timer.secondsSinceEpoch()
+  preexistingWindowTimes={}
+  for i,id in ipairs(ids) do
+    preexistingWindowTimes[id]=time-i
+  end
   global.watcher = appwatcher.new(appEvent)
   local runningApps = application.runningApplications()
   log.f('Registering %d running apps',#runningApps)
@@ -1363,6 +1376,7 @@ local function start(wf)
   if activeInstances[wf]==true then return end
   wf.windows={}
   startGlobalWatcher()
+  wf.log.i('windowfilter instance started (active mode)')
   activeInstances[wf]=true
   return refreshWindows(wf)
 end
@@ -1615,8 +1629,9 @@ end
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
 function WF:resume()
-  if activeInstances[self]==true then self.log.i('instance already running, ignoring') return self
-  else return start(self) end
+  if activeInstances[self]==true then self.log.i('windowfilter instance already running, ignoring') return self end
+  self.log.i('windowfilter instance resumed')
+  return start(self)
 end
 
 --- hs.window.filter:pause() -> hs.window.filter
@@ -1629,12 +1644,14 @@ end
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
 function WF:pause()
+  self.log.i('windowfilter instance paused')
   activeInstances[self]=nil stopGlobalWatcher()
   return self
 end
 
 function WF:delete()
-  activeInstances[self]=nil self.events={} stopGlobalWatcher()
+  self.log.i('windowfilter instance deleted')
+  activeInstances[self]=nil spacesInstances[self]=nil self.events={} self.filters={} self.windows={} setmetatable(self) stopGlobalWatcher()
 end
 
 
@@ -1654,15 +1671,16 @@ local function makeDefault()
     for appname in pairs(windowfilter.ignoreInDefaultFilter) do
       defaultwf:rejectApp(appname)
     end
-    --    defaultwf:setAppFilter('Hammerspoon',{'Preferences','Console'})
-    defaultwf:rejectApp'Hammerspoon'
-    defaultwf:setDefaultFilter(nil,nil,nil,nil,true)
+    defaultwf:setAppFilter('Hammerspoon',{allowTitles={'Preferences','Console'},allowRoles={'AXStandardWindow'}})
+    --    defaultwf:rejectApp'Hammerspoon'
+    defaultwf:setDefaultFilter{visible=true}
     defaultwf.log.i('default windowfilter instantiated')
   end
   return defaultwf
 end
 
 
+--FIXME remove :trackSpaces references
 -- utilities
 
 --- hs.window.filter:windowsToEast(window, frontmost, strict) -> list of `hs.window` objects
