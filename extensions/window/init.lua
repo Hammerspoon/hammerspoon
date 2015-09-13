@@ -133,7 +133,7 @@ function window.find(hint,exact,wins)
   if hint==nil then return end
   local typ,r=type(hint),{}
   wins=wins or window.allWindows()
-  if typ=='number' then for _,w in ipairs(wins) do if w:id()==hint then return w end end
+  if typ=='number' then for _,w in ipairs(wins) do if w:id()==hint then return w end end return
   elseif typ~='string' then error('hint must be a number or string',2) end
   if exact then for _,w in ipairs(wins) do if w:title()==hint then r[#r+1]=w end end
   else hint=hint:lower() for _,w in ipairs(wins) do if w:title():lower():find(hint) then r[#r+1]=w end end end
