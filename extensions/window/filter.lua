@@ -52,12 +52,22 @@ local application,window = require'hs.application',hs.window
 local appwatcher,uiwatcher = application.watcher, require'hs.uielement'.watcher
 local logger = require'hs.logger'
 local log = logger.new('wfilter')
+local DISTANT_FUTURE=315360000 -- 10 years (roughly)
 
 local windowfilter={} -- module
+local WF={} -- class
+-- .filters = filters set
+-- .events = subscribed events
+-- .windows = current allowed windows
+-- .pending = windows that must still emit more events in an event chain - cleared when the last event of the chain has been emitted
 
+local global = {} -- global state (focused app, focused window, appwatchers running or not)
+local activeInstances = {} -- active wf instances (i.e. with subscriptions or :keepActive)
+local spacesInstances = {} -- wf instances that also need to be "active" because they care about Spaces
+local pendingApps = {} -- apps resisting being watched (hs.application)
+local apps = {} -- all GUI apps (class App) containing all windows (class Window)
+local App,Window={},{} -- classes
 
---local SPECIAL_ID_DESKTOP=-1 -- finder desktop "window"
-local SPECIAL_ID_INVALIDATE_CACHE=-100
 --- hs.window.filter.ignoreAlways
 --- Variable
 --- A table of application names (as per `hs.application:name()`) that are always ignored by this module.
@@ -115,7 +125,6 @@ do
   for _,appname in ipairs(SKIP_APPS_TRANSIENT_WINDOWS) do windowfilter.ignoreInDefaultFilter[appname] = true end
 end
 
-local apps
 
 -- utility function for maintainers; shows (in the console) candidate apps that, if recognized as
 -- "no GUI" or "transient window" apps, can be added to the relevant tables for the default windowfilter
@@ -123,7 +132,7 @@ function windowfilter._showCandidates()
   local running=application.runningApplications()
   local t={}
   for _,app in ipairs(running) do
-    local appname = app:title()
+    local appname = app:name()
     if appname and windowfilter.isGuiApp(appname) and #app:allWindows()==0
       and not windowfilter.ignoreInDefaultFilter[appname]
       and (not apps[appname] or not next(apps[appname].windows)) then
@@ -146,10 +155,6 @@ end
 windowfilter.allowedWindowRoles = {['AXStandardWindow']=true,['AXDialog']=true,['AXSystemDialog']=true}
 
 
-local wf={} -- class
--- .apps = filters set
--- .events = subscribed events
--- .windows = current allowed windows
 
 --- hs.window.filter:isWindowAllowed(window) -> bool
 --- Method
@@ -166,71 +171,90 @@ local function matchTitle(titles,t)
     if smatch(t,title) then return true end
   end
 end
-local function allowWindow(app,props)
-  if app.allowTitles then
-    if type(app.allowTitles)=='number' then if #props.title<=app.allowTitles then return false end
-    elseif not matchTitle(app.allowTitles,props.title) then return false end
+local function checkWindowAllowed(filter,win)
+  if filter.visible~=nil and filter.visible~=win.isVisible then return false,'visible' end
+  if filter.currentSpace~=nil and filter.currentSpace~=win.isInCurrentSpace then return false,'currentSpace' end
+  if filter.allowTitles then
+    if type(filter.allowTitles)=='number' then if #win.title<=filter.allowTitles then return false,'allowTitles' end
+    elseif not matchTitle(filter.allowTitles,win.title) then return false,'allowTitles' end
   end
-  if app.rejectTitles and matchTitle(app.rejectTitles,props.title) then return false end
-  local approles = app.allowRoles or windowfilter.allowedWindowRoles
-  if approles~='*' and not approles[props.role] then return false end
-  if app.fullscreen~=nil and app.fullscreen~=props.fullscreen then return false end
-  if app.visible~=nil and app.visible~=props.visible then return false end
-  if app.focused~=nil and app.focused~=props.focused then return false end
+  if filter.rejectTitles and matchTitle(filter.rejectTitles,win.title) then return false,'rejectTitles' end
+  if filter.fullscreen~=nil and filter.fullscreen~=win.isFullscreen then return false,'fullscreen' end
+  if filter.focused~=nil and filter.focused~=(win==global.focused) then return false,'focused' end
+  local approles = filter.allowRoles or windowfilter.allowedWindowRoles
+  if approles~='*' and not approles[win.role] then return false,'allowRoles' end
+  return true,''
+end
+
+local shortRoles={AXStandardWindow='wnd',AXDialog='dlg',AXSystemDialog='sys dlg',AXFloatingWindow='float',AXUnknown='unknown',['']='no role'}
+
+local function isWindowAllowed(self,win)
+  local role,appname,id=shortRoles[win.role] or win.role,win.app.name,win.id
+  local filter=self.filters.override
+  if filter==false then self.log.vf('REJECT %s (%s %d): override filter reject',appname,role,id) return false
+  elseif filter then
+    local r,cause=checkWindowAllowed(filter,win)
+    self.log.vf('%s %s (%s %d): override filter [%s]',r and 'ALLOW' or 'REJECT',appname,role,id,cause)
+    if not r then return r end
+  end
+  if not windowfilter.isGuiApp(appname) then
+    --if you see this in the log, add to .ignoreAlways
+    self.log.wf('REJECT %s (%s %d): should be a non-GUI app!',appname,role,id) return false
+  end
+  filter=self.filters[appname]
+  if filter==false then self.log.vf('REJECT %s (%s %d): app filter reject',appname,role,id) return false
+  elseif filter then
+    local r,cause=checkWindowAllowed(filter,win)
+    self.log.vf('%s %s (%s %d): app filter [%s]',r and 'ALLOW' or 'REJECT',appname,role,id,cause)
+    return r
+  end
+  filter=self.filters.default
+  if filter==false then self.log.vf('REJECT %s (%s %d): default filter reject',appname,role,id) return false
+  elseif filter then
+    local r,cause=checkWindowAllowed(filter,win)
+    self.log.vf('%s %s (%s %d): default filter [%s]',r and 'ALLOW' or 'REJECT',appname,role,id,cause)
+    return r
+  end
+  self.log.vf('ALLOW %s (%s %d) (no filter)',appname,role,id)
   return true
 end
---local shortRoles={AXStandardWindow='window',AXDialog='dialog',AXSystemDialog='sys dlg',AXFloatingWindow='float',AXUnknown='unknown',['']='no role'}
-local props = {id=SPECIAL_ID_INVALIDATE_CACHE}-- cache window props for successive calls to isWindowAllowed
-function wf:isWindowAllowed(window,appname,cache)
+
+function WF:isWindowAllowed(window)
   if not window then return end
   local id=window.id and window:id()
   --this filters out non-windows, as well as AXScrollArea from Finder (i.e. the desktop)
   --which allegedly is a window, but without id
   if not id then return end
-  if not cache or id~=props.id then
-    props.role = window.subrole and window:subrole() or ''
-    props.title = window:title() or ''
-    props.fullscreen = window:isFullScreen() or false
-    props.visible = window:isVisible() or false
-    if props.visible and id and self.currentSpaceWindows then props.visible=self.currentSpaceWindows[id] end
-    -- for the brave who ventured here: window:application:isFrontmost() lies to your face (for a few ms, at least)
-    local frontapp = application.frontmostApplication()
-    local frontwin = frontapp and frontapp:focusedWindow()
-    props.focused = frontwin and frontwin:id()==id or false --FIXME problems when changing spaces
-    props.appname = appname or window:application():title()
-    props.id=id
+  if activeInstances[self] then return self.windows[id] and true or false end
+  local appname,win=window:application():name()
+  if apps[appname] then
+    for wid,w in pairs(apps[appname].windows) do
+      if wid==id then win=w break end
+    end
   end
-  local role,appname=--[[shortRoles[props.role] or--]]props.role,props.appname
-  local app=self.apps.override
-  if app==false then self.log.vf('reject %s (%s %d): override reject',appname,role,id)return false
-  elseif app then
-    local r=allowWindow(app,props)
-    self.log.vf('%s %s (%s %d): override filter',r and 'allow' or 'reject',appname,role,id)
-    return r
+  if not win then
+    --    hs.assert(not global.watcher,'window not being tracked')
+    self.log.d('Window is not being tracked')
+    win=Window.new(window,id) --fixme
+    win.app={} win.app.name=appname
+    if self.trackSpacesFilters then
+      win.isInCurrentSpace=false
+      if not win.isVisible then win.isInCurrentSpace=true
+      else
+        local allwins=window:application():visibleWindows()
+        for _,w in ipairs(allwins) do
+          if w:id()==id then win.isInCurrentSpace=true break end
+        end
+      end
+    end
+    if not global.watcher then
+      --temporarily fill in the necessary data
+      local frontapp = application.frontmostApplication()
+      local frontwin = frontapp and frontapp:focusedWindow()
+      if frontwin and frontwin:id()==id then global.focused=win end
+    end
   end
-  if self.spaceFilter and not self.currentSpaceWindows[id] then self.log.vf('reject %s (%s %d): not in current space',appname,role,id) return false
-  elseif self.spaceFilter==false and self.currentSpaceWindows[id] then self.log.vf('reject %s (%s %d): in current space',appname,role,id) return false end
-
-  if not windowfilter.isGuiApp(appname) then
-    --if you see this in the log, add to .ignoreAlways
-    self.log.wf('reject %s (%s %d): should be a non-GUI app!',appname,role,id) return false
-  end
-  app=self.apps[appname]
-  if app==false then self.log.vf('reject %s (%s %d): app reject',appname,role,id) return false
-  elseif app then
-    local r=allowWindow(app,props)
-    self.log.vf('%s %s (%s %d): app filter',r and 'allow' or 'reject',appname,role,id)
-    return r
-  end
-  app=self.apps.default
-  if app==false then self.log.vf('reject %s (%s %d): default reject',appname,role,id) return false
-  elseif app then
-    local r=allowWindow(app,props)
-    self.log.vf('%s %s (%s %d): default filter',r and 'allow' or 'reject',appname,role,id)
-    return r
-  end
-  self.log.vf('allow %s (%s %d) (no filter)',appname,role,id)
-  return true
+  return isWindowAllowed(self,win)
 end
 
 --- hs.window.filter:isAppAllowed(appname) -> bool
@@ -243,8 +267,8 @@ end
 --- Returns:
 ---  * `false` if the app is rejected by the windowfilter; `true` otherwise
 
-function wf:isAppAllowed(appname)
-  return windowfilter.isGuiApp(appname) and self.apps[appname]~=false
+function WF:isAppAllowed(appname)
+  return windowfilter.isGuiApp(appname) and self.filters[appname]~=false
 end
 
 --- hs.window.filter:rejectApp(appname) -> hs.window.filter
@@ -256,8 +280,10 @@ end
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
-
-function wf:rejectApp(appname)
+---
+--- Notes:
+---  * this is just a convenience wrapper for `windowfilter:setAppFilter(appname,false)`
+function WF:rejectApp(appname)
   return self:setAppFilter(appname,false)
 end
 
@@ -270,7 +296,10 @@ end
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
-function wf:allowApp(appname)
+---
+--- Notes:
+---  * this is just a convenience wrapper for `windowfilter:setAppFilter(appname,{visible=true})`
+function WF:allowApp(appname)
   return self:setAppFilter(appname,true)--nil,nil,windowfilter.allowedWindowRoles,nil,true)
 end
 --- hs.window.filter:setDefaultFilter(filter) -> hs.window.filter
@@ -282,7 +311,7 @@ end
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
-function wf:setDefaultFilter(...)
+function WF:setDefaultFilter(...)
   return self:setAppFilter('default',...)
 end
 --- hs.window.filter:setOverrideFilter(filter) -> hs.window.filter
@@ -294,7 +323,7 @@ end
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
-function wf:setOverrideFilter(...)
+function WF:setOverrideFilter(...)
   return self:setAppFilter('override',...)
 end
 
@@ -304,8 +333,14 @@ end
 ---
 --- Parameters:
 ---  * appname - app name as per `hs.application:name()`
----  * filter - if `false`, reject the app; if `true`, `nil`, or omitted, allow all visible windows for the app; otherwise
+---  * filter - if `false`, reject the app; if `true`, `nil`, or omitted, allow all visible windows (in any Space) for the app; otherwise
 ---    it must be a table describing the filtering rules for the app, via the following fields:
+---    * visible - if `true`, only allow visible windows (in any Space); if `false`, reject visible windows; if omitted, this rule is ignored
+---    * currentSpace - if `true`, only allow windows in the current Mission Control Space (minimized and hidden windows are included, as
+---      they're considered to belong to all Spaces); if `false`, reject windows in the current Space (including all minimized and hidden windows);
+---      if omitted, this rule is ignored
+---    * fullscreen - if `true`, only allow fullscreen windows; if `false`, reject fullscreen windows; if omitted, this rule is ignored
+---    * focused - if `true`, only allow a window while focused; if `false`, reject the focused window; if omitted, this rule is ignored
 ---    * allowTitles
 ---      * if a number, only allow windows whose title is at least as many characters long; e.g. pass `1` to filter windows with an empty title
 ---      * if a string or table of strings, only allow windows whose title matches (one of) the pattern(s) as per `string.match`
@@ -317,9 +352,6 @@ end
 ---      * if a string or table of strings, only allow these window roles as per `hs.window:subrole()`
 ---      * if the special string `'*'`, this rule is ignored (i.e. all window roles, including empty ones, are allowed)
 ---      * if omitted, use the default allowed roles (defined in `hs.window.filter.allowedWindowRoles`)
----    * fullscreen - if `true`, only allow fullscreen windows; if `false`, reject fullscreen windows; if `nil`, this rule is ignored
----    * visible - if `true`, only allow visible windows; if `false`, reject visible windows; if omitted, this rule is ignored
----    * focused - if `true`, only allow a window while focused; if `false`, reject the focused window; if omitted, this rule is ignored
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
@@ -327,9 +359,19 @@ end
 --- Notes:
 ---  * Passing `focused=true` in `filter` will (naturally) result in the windowfilter ever allowing 1 window at most
 ---  * If you want to allow *all* windows for an app, including invisible ones, pass an empty table for `filter`
-local activeFilters,refreshWindows
+---  * If System Preferences>Mission Control>Displays have separate Spaces is *on*, the *current Space* is defined
+---    as the union of all the Spaces that are currently visible
+---  * This table explains the effects of different combinations of `visible` and `currentSpace`, showing which windows will be allowed:
+--- ```
+---              |visible=         nil                      |             true             |     false    |
+--- |currentSpace|------------------------------------------|------------------------------|--------------|
+--- |     nil    |all                                       |visible in ANY space          |min and hidden|
+--- |    true    |visible in CURRENT space+min and hidden   |visible in CURRENT space      |min and hidden|
+--- |    false   |visible in OTHER space only+min and hidden|visible in OTHER space only   |none          |
+--- ```
+local refreshWindows,checkTrackSpacesFilters
 
-function wf:setAppFilter(appname,ft)
+function WF:setAppFilter(appname,ft,batch)
   if type(appname)~='string' then error('appname must be a string',2) end
   local logs
   if appname=='override' or appname=='default' then logs=sformat('setting %s filter: ',appname)
@@ -337,23 +379,23 @@ function wf:setAppFilter(appname,ft)
 
   if ft==false then
     logs=logs..'reject'
-    self.apps[appname]=false
+    self.filters[appname]=false
   else
     if ft==nil or ft==true then ft={visible=true} end -- shortcut
     if type(ft)~='table' then error('filter must be a table',2) end
-    local app = {} -- always override
+    local filter = {} -- always override
 
     for k,v in pairs(ft) do
       if k=='allowTitles' then
         if type(v)=='string' then v={v}
         elseif type(v)~='number' and type(v)~='table' then error('allowTitles must be a number, string or table',2) end
         logs=sformat('%s%s=%s, ',logs,k,type(v)=='table' and '{...}' or v)
-        app.allowTitles=v
+        filter.allowTitles=v
       elseif k=='rejectTitles' then
         if type(v)=='string' then v={v}
         elseif type(v)~='table' then error('rejectTitles must be a string or table',2) end
         logs=sformat('%s%s=%s, ',logs,k,type(v)=='table' and '{...}' or v)
-        app.rejectTitles=v
+        filter.rejectTitles=v
       elseif k=='allowRoles' then
         local roles={}
         if v=='*' then roles=v
@@ -366,21 +408,26 @@ function wf:setAppFilter(appname,ft)
           end
         else error('allowRoles must be a string or table',2) end
         logs=sformat('%s%s=%s, ',logs,k,type(v)=='table' and '{...}' or v)
-        app.allowRoles=roles
+        filter.allowRoles=roles
       elseif k=='fullscreen' then
-        app.fullscreen=v and true or nil logs=sformat('%s%s=%s, ',logs,k,ft.fullscreen)
+        filter.fullscreen=v and true or nil logs=sformat('%s%s=%s, ',logs,k,ft.fullscreen)
       elseif k=='visible' then
-        app.visible=v and true or nil  logs=sformat('%s%s=%s, ',logs,k,ft.visible)
+        filter.visible=v and true or nil  logs=sformat('%s%s=%s, ',logs,k,ft.visible)
       elseif k=='focused' then
-        app.focused=v and true or nil logs=sformat('%s%s=%s',logs,k,ft.focused)
+        filter.focused=v and true or nil logs=sformat('%s%s=%s',logs,k,ft.focused)
+      elseif k=='currentSpace' then
+        filter.currentSpace=v and true or nil logs=sformat('%s%s=%s',logs,k,ft.currentSpace)
       else
         error('invalid key in filter table: '..tostring(k),2)
       end
     end
-    self.apps[appname]=app
+    self.filters[appname]=filter
   end
   self.log.i(logs)
-  if activeFilters[self] then refreshWindows(self) end
+  if not batch then
+    checkTrackSpacesFilters(self)
+    if activeInstances[self] or spacesInstances[self] then return refreshWindows(self) end
+  end
   return self
 end
 
@@ -397,8 +444,6 @@ end
 ---      and values are described in `hs.window.filter:setAppFilter()`
 ---    - the *key* can be one of the special strings `"default"` and `"override"`, which will will set the default and override
 ---      filter respectively
----    - the *key* can be the special string `"trackSpaces"`; its value must be one of `"current"`, `"all"`, `"others"` or
----      `"no"`, and it will set Spaces tracking on the windowfilter accordingly - see `hs.window.filter:trackSpaces()`
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
@@ -406,8 +451,7 @@ end
 --- Notes:
 ---  * every filter definition in `filters` will overwrite the pre-existing one for the relevant application, if present;
 ---    this also applies to the special default and override filters, if included
-function wf:setFilters(filters)
-  local wasActive=activeFilters[self] activeFilters[self]=nil
+function WF:setFilters(filters)
   if type(filters)~='table' then error('filters must be a table',2) end
   for k,v in pairs(filters) do
     if type(k)=='number' then
@@ -415,16 +459,12 @@ function wf:setFilters(filters)
       else error('invalid filters table: integer key '..k..' needs a string value, got '..type(v)..' instead',2) end
     elseif type(k)=='string' then --{appname=...}
       if type(v)=='boolean' then if v then self:allowApp(k) else self:rejectApp(k) end --{appname=true/false}
-      elseif type(v)=='string' then
-        if k=='trackSpaces' then self:trackSpaces(v)
-        else error('invalid filters table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
-    elseif type(v)=='table' then --{appname={arg1=val1,...}}
-      if k=='trackSpaces' then error('invalid filters table: key "'..k..'" needs a string value, got '..type(v)..' instead',2)
-      else self:setAppFilter(k,v) end
-    else error('invalid filters table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
+      elseif type(v)=='table' then self:setAppFilter(k,v,true) --{appname={arg1=val1,...}}
+      else error('invalid filters table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
     else error('invalid filters table: keys can be integer or string, got '..type(k)..' instead',2) end
   end
-  activeFilters[self]=wasActive if activeFilters[self] then refreshWindows(self) end
+  checkTrackSpacesFilters(self)
+  if activeInstances[self] or spacesInstances[self] then return refreshWindows(self) end
   return self
 end
 
@@ -438,8 +478,7 @@ end
 --- Returns:
 ---  * a table containing the filtering rules of this windowfilter; you can pass this table (optionally
 ---  after performing valid manipulations) to `hs.window.filter:setFilters()` and `hs.window.filter.new()`
-function wf:getFilters() return self.apps end
---TODO getFilters
+function WF:getFilters() return self.filters end
 
 
 --TODO windowstartedmoving event?
@@ -463,6 +502,8 @@ function wf:setScreens(screens)
   return self  
 end
 --]]
+
+local function __tostring(self) return 'hs.window.filter: '..(self.logname or '...') end
 --- hs.window.filter.new(fn[,logname[,loglevel]]) -> hs.window.filter object
 --- Constructor
 --- Creates a new hs.window.filter instance
@@ -487,25 +528,22 @@ end
 ---  * a new windowfilter instance
 
 function windowfilter.new(fn,logname,loglevel)
-  local mt=getmetatable(fn) if mt and mt.__index==wf then return fn end -- no copy-on-new
-  local o = setmetatable({apps={},events={},windows={},pending={},log=logname and logger.new(logname,loglevel) or log},{__index=wf})
-  if logname then o.setLogLevel=function(lvl)o.log.setLogLevel(lvl)return o end end
+  local mt=getmetatable(fn) if mt and mt.__index==WF then return fn end -- no copy-on-new
+  local o = setmetatable({filters={},events={},windows={},pending={},
+    log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel},
+  {__index=WF,__tostring=__tostring})
+  if logname then o.setLogLevel=o.log.setLogLevel end
   if type(fn)=='function' then
     o.log.i('new windowfilter, custom function')
     o.isAppAllowed = function()return true end
     o.isWindowAllowed = function(self,w) return fn(w) end
+    o.customFilter=true
     return o
   elseif type(fn)=='string' then fn={fn}
   end
   if fn==nil then
     o.log.i('new windowfilter, default windowfilter copy')
-    for appname,filter in pairs(windowfilter.default.apps) do
-      o.apps[appname]=filter
-    end
-    o.spaceFilter = windowfilter.default.spaceFilter
-    o.currentSpaceWindows = windowfilter.default.currentSpaceWindows and {} or nil
-    --TODO add regions and screens here
-    return o
+    return windowfilter.copy(windowfilter.default,logname,loglevel)
   elseif type(fn)=='table' then
     o.log.i('new windowfilter, reject all with exceptions')
     return o:setDefaultFilter(false):setFilters(fn)
@@ -569,17 +607,22 @@ end
 
 -- event watcher (formerly windowwatcher)
 
---FIXME events: 1. fire when relevant (i.e. windowHidden for visible=true)
--- 2. getWindows must return CURRENT situation (i.e. no hidden window for visible=true)
 
 local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
   windowMinimized=true, windowUnminimized=true,
+  windowHidden=true, windowUnhidden=true,
+  windowVisible=true, windowNotVisible=true,
+  windowInCurrentSpace=true,WindowNotInCurrentSpace=true,
+  windowOnScreen=true,windowNotOnScreen=true,
   windowFullscreened=true, windowUnfullscreened=true,
   --TODO perhaps windowMaximized? (compare win:frame to win:screen:frame) - or include it in windowFullscreened
-  --TODO windowInCurrentSpace, windowNotInCurrentSpace
-  windowInCurrentSpace=true,WindowNotInCurrentSpace=true,
-  windowHidden=true, windowShown=true, windowFocused=true, windowUnfocused=true,
+  windowFocused=true, windowUnfocused=true,
   windowTitleChanged=true,
+}
+
+local trackSpacesEvents={
+  windowInCurrentSpace=true,WindowNotInCurrentSpace=true,
+  windowOnScreen=true,windowNotOnScreen=true,
 }
 for k in pairs(events) do windowfilter[k]=k end -- expose events
 --- hs.window.filter.windowCreated
@@ -594,6 +637,14 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 --- Constant
 --- Event for `hs.window.filter:subscribe()`: a window was moved or resized, including toggling fullscreen/maximize
 
+--- hs.window.filter.windowFullscreened
+--- Constant
+--- Event for `hs.window.filter:subscribe()`: a window was expanded to fullscreen
+
+--- hs.window.filter.windowUnfullscreened
+--- Constant
+--- Event for `hs.window.filter:subscribe()`: a window was reverted back from fullscreen
+
 --- hs.window.filter.windowMinimized
 --- Constant
 --- Event for `hs.window.filter:subscribe()`: a window was minimized
@@ -602,31 +653,42 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 --- Constant
 --- Event for `hs.window.filter:subscribe()`: a window was unminimized
 
---- hs.window.filter.windowFullscreened
+--- hs.window.filter.windowUnhidden
 --- Constant
---- Event for `hs.window.filter:subscribe()`: a window was expanded to full screen
-
---- hs.window.filter.windowUnfullscreened
---- Constant
---- Event for `hs.window.filter:subscribe()`: a window was reverted back from full screen
-
--- hs.window.filter.windowInCurrentSpace
--- Constant
---TODO Event for `hs.window.filter:subscribe()`:
-
--- hs.window.filter.windowNotInCurrentSpace
--- Constant
---TODO Event for `hs.window.filter:subscribe()`:
+--- Event for `hs.window.filter:subscribe()`: a window was unhidden (its app was unhidden, e.g. via `cmd-h`)
 
 --- hs.window.filter.windowHidden
 --- Constant
---- Event for `hs.window.filter:subscribe()`: a window is no longer visible due to it being minimized, closed,
---- its application being hidden (e.g. via cmd-h) or closed, or in a different Mission Control Space (only for
---- windowfilters with `:trackSpaces(true)`)
+--- Event for `hs.window.filter:subscribe()`: a window was hidden (its app was hidden, e.g. via `cmd-h`)
 
---- hs.window.filter.windowShown
+--- hs.window.filter.windowVisible
 --- Constant
---- Event for `hs.window.filter:subscribe()`: a window has became visible (after being hidden, or when created)
+--- Event for `hs.window.filter:subscribe()`: a window became visible (in any Mission Control Space) after having
+--- been hidden or minimized, or if it was just created
+
+--- hs.window.filter.windowNotVisible
+--- Constant
+--- Event for `hs.window.filter:subscribe()`: a window is no longer visible (in any Mission Control Space) because it was
+--- minimized or closed, or its application was hidden (e.g. via `cmd-h`) or closed
+
+--- hs.window.filter.windowInCurrentSpace
+--- Constant
+--- Event for `hs.window.filter:subscribe()`: a window is now in the current Mission Control Space, due to
+--- a Space switch or because it was hidden or minimized
+
+--- hs.window.filter.windowNotInCurrentSpace
+--- Constant
+--- Event for `hs.window.filter:subscribe()`: a window that used to be in the current Mission Control Space isn't anymore,
+--- due to a Space switch or because it was unhidden or unminimized onto another Space
+
+--- hs.window.filter.windowNotOnScreen
+--- Constant
+--- Event for `hs.window.filter:subscribe()`: a window is no longer visible on any screen because it was minimized, closed,
+--- its application was hidden (e.g. via cmd-h) or closed, or because it's not in the current Mission Control Space anymore
+
+--- hs.window.filter.windowOnScreen
+--- Constant
+--- Event for `hs.window.filter:subscribe()`: a window became visible on screen (after having been not visible, or when created)
 
 --- hs.window.filter.windowFocused
 --- Constant
@@ -640,22 +702,18 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 --- Constant
 --- Event for `hs.window.filter:subscribe()`: a window's title changed
 
-activeFilters = {} -- active wf instances
-apps = {} -- all GUI apps
-local pendingApps = {} -- apps resisting being watched
-local global = {} -- global state
 
-local Window={} -- class
+-- Window class
 
-function Window:setFilter(wf, forceremove,cache) -- returns true if filtering status changes
+function Window:setFilter(wf,forceremove) -- returns true if filtering status changes
   local wasAllowed,isAllowed = wf.windows[self]
-  if not forceremove then isAllowed = wf:isWindowAllowed(self.window,self.app.name,cache) or nil end
+  if not forceremove then isAllowed = (wf.customFilter and wf:isWindowAllowed(self.window) or isWindowAllowed(wf,self)) or nil end
   wf.windows[self] = isAllowed
   return wasAllowed ~= isAllowed
 end
 
-function Window:filterEmitEvent(wf,event,inserted,logged,notified,cache)
-  if self:setFilter(wf,event==windowfilter.windowDestroyed,cache) and wf.notifyfn then
+function Window:filterEmitEvent(wf,event,inserted,logged,notified)
+  if self:setFilter(wf,event==windowfilter.windowDestroyed) and wf.notifyfn then
     -- filter status changed, call notifyfn if present
     if not notified then wf.log.d('Notifying windows changed') if wf.log==log then notified=true end end
     wf.notifyfn(wf:getWindows(),event)
@@ -676,13 +734,13 @@ function Window:filterEmitEvent(wf,event,inserted,logged,notified,cache)
   end
   return logged,notified
 end
+
 function Window:emitEvent(event,inserted)
   log.vf('%s (%s) => %s%s',self.app.name,self.id,event,inserted and ' (inserted)' or '')
   local logged, notified
-  for wf in pairs(activeFilters) do
-    logged,notified = self:filterEmitEvent(wf,event,inserted,logged,notified,true)
+  for wf in pairs(activeInstances) do
+    logged,notified = self:filterEmitEvent(wf,event,inserted,logged,notified)
   end
-  props.id=SPECIAL_ID_INVALIDATE_CACHE
 end
 
 
@@ -691,50 +749,62 @@ function Window.new(win,id,app,watcher)
   -- the id "caching" should be moved to the hs.window userdata itself
   --  local w = setmetatable({id=function()return id end},{__index=function(_,k)return function(self,...)return win[k](win,...)end end})
   -- hackity hack removed, turns out it was just for :snapshot (see gh#413)
-  local o = setmetatable({app=app,window=win,id=id,watcher=watcher,time=timer.secondsSinceEpoch()},{__index=Window})
-  if not win:isVisible() then o.isHidden = true end
-  if win:isMinimized() then o.isMinimized = true end
-  o.isFullscreen = win:isFullScreen()
-  --  o.currentFrame = win:frame()
-  app.windows[id]=o
-  -- deal with trackSpaces
-  for wf in pairs(activeFilters) do
-    if wf.currentSpaceWindows then -- this filter cares about spaces
-      o.inCurrentSpace={}
-      --FIXME ideally check app.app:allWindows() to determine if it's in the current space
-      --however doing that indiscriminately for every window is expensive, so for now
-      o.inCurrentSpace[wf]=true -- assume true at start
-      wf.currentSpaceWindows[o.id]=true
-    end
-  end
+  local o = setmetatable({app=app,window=win,id=id,watcher=watcher,time=timer.secondsSinceEpoch(),
+    isMinimized=win:isMinimized(),isVisible=win:isVisible(),isFullscreen=win:isFullScreen(),role=win:subrole(),title=win:title()}
+  ,{__index=Window})
+  o.isHidden = not o.isVisible and not o.isMinimized
+  hs.assert(o.isHidden==win:application():isHidden(),'isHidden',o)
+  return o
+end
 
-
-
-  o:emitEvent(windowfilter.windowCreated)
-  if o.isMinimized then o:emitEvent(windowfilter.windowMinimized,true)
-  elseif o.isHidden then o:emitEvent(windowfilter.windowHidden,true)
+function Window.created(win,id,app,watcher)
+  local self=Window.new(win,id,app,watcher)
+  app.windows[id]=self
+  self:emitEvent(windowfilter.windowCreated)
+  if self.isVisible then
+    self:emitEvent(windowfilter.windowVisible,true)
+    if next(spacesInstances) then app:getCurrentSpaceAppWindows() end
   else
-    o:emitEvent(windowfilter.windowShown,true)
-    local loggedspace,notifiedspace
-    for wf in pairs(activeFilters) do
-      if wf.currentSpaceWindows then
-        loggedspace,notifiedspace= o:filterEmitEvent(wf,windowfilter.windowInCurrentSpace,true,loggedspace,notifiedspace)
-      end
-    end
+    if self.isMinimized then self:emitEvent(windowfilter.windowMinimized,true) end
+    if self.isHidden then self:emitEvent(windowfilter.windowHidden,true) end
+    self:emitEvent(windowfilter.windowInCurrentSpace,true)
   end
 end
 
-function Window:shown(inserted)
-  if not self.isHidden then return log.df('%s (%d) already shown',self.app.name,self.id) end
-  self.isHidden = nil
-  self:emitEvent(windowfilter.windowShown,inserted)
+function Window:unhidden()
+  if not self.isHidden then return log.df('%s (%d) already unhidden',self.app.name,self.id) end
+  self.isHidden=false
+  self:emitEvent(windowfilter.windowUnhidden)
+  if not self.isMinimzed then self:visible(true) end
+  --  self.app:getCurrentSpaceAppWindows()
 end
 
 function Window:unminimized()
-  if not self.isMinimized then log.df('%s (%d) already unminimized',self.app.name,self.id) end
-  self.isMinimized=nil
+  if not self.isMinimized then return log.df('%s (%d) already unminimized',self.app.name,self.id) end
+  self.isMinimized=false
   self:emitEvent(windowfilter.windowUnminimized)
-  self:shown(true)
+  if not self.isHidden then self:visible(true) end
+  if next(spacesInstances) then self.app:getCurrentSpaceAppWindows() end
+end
+
+function Window:visible(inserted)
+  if self.isVisible then return log.df('%s (%d) already visible',self.app.name,self.id) end
+  self.role=self.window:subrole()
+  self.isVisible=true
+  self:emitEvent(windowfilter.windowVisible,inserted)
+end
+
+function Window:inCurrentSpace(inserted)
+  if self.isInCurrentSpace then return log.df('%s (%d) already in current space',self.app.name,self.id) end
+  self:emitEvent(windowfilter.windowInCurrentSpace,inserted)
+  self.isInCurrentSpace=true
+  if self.isVisible then self:onScreen(true) end
+end
+
+function Window:onScreen(inserted)
+  if self.isOnScreen then return log.df('%s (%d) already on screen',self.app.name,self.id) end
+  self.isOnScreen=true
+  self:emitEvent(windowfilter.windowOnScreen,inserted)
 end
 
 function Window:focused(inserted)
@@ -745,12 +815,58 @@ function Window:focused(inserted)
   self:emitEvent(windowfilter.windowFocused,inserted) --TODO check this
 end
 
+function Window:unfocused(inserted)
+  if global.focused~=self then return log.vf('%s (%d) already unfocused',self.app.name,self.id) end
+  global.focused=nil
+  self.app.focused=nil
+  self:emitEvent(windowfilter.windowUnfocused,inserted)
+end
+
+function Window:notOnScreen(inserted)
+  if not self.isOnScreen then return log.df('%s (%d) already not on screen',self.app.name,self.id) end
+  self.isOnScreen=false
+  self:emitEvent(windowfilter.windowNotOnScreen,inserted)
+end
+
+function Window:notInCurrentSpace(inserted)
+  if not self.isInCurrentSpace then return log.df('%s (%d) already not in current space',self.app.name,self.id) end
+  self:notOnScreen(true)
+  self.isInCurrentSpace=false
+  self:emitEvent(windowfilter.windowNotInCurrentSpace,inserted)
+end
+
+function Window:minimized()
+  if self.isMinimized then return log.df('%s (%d) already minimized',self.app.name,self.id) end
+  self:notVisible(true)
+  self:inCurrentSpace(true)
+  self.isMinimized=true
+  self:emitEvent(windowfilter.windowMinimized)
+end
+
+function Window:notVisible(inserted)
+  if not self.isVisible then return log.df('%s (%d) already not visible',self.app.name,self.id) end
+  self.isVisible=false
+  if global.focused==self then self:unfocused(true) end
+  self.role=self.window:subrole()
+  self:notOnScreen(true)
+  self:emitEvent(windowfilter.windowNotVisible,inserted)
+end
+
+function Window:hidden()
+  if self.isHidden then return log.df('%s (%d) already hidden',self.app.name,self.id) end
+  self:notVisible(true)
+  self.isHidden=true
+  self:emitEvent(windowfilter.windowHidden)
+end
+
+
 local WINDOWMOVED_DELAY=0.5
 function Window:moved()
-  if self.movedDelayed then self.movedDelayed:stop() self.movedDelayed=nil end
-  self.movedDelayed=timer.doAfter(WINDOWMOVED_DELAY,function()self:doMoved()end)
+  if self.movedDelayed then self.movedDelayed:setNextTrigger(WINDOWMOVED_DELAY)
+  else self.movedDelayed=timer.doAfter(WINDOWMOVED_DELAY,function()self:doMoved()end) end
 end
 function Window:doMoved()
+  self.movedDelayed=nil
   local fs = self.window:isFullScreen()
   local oldfs = self.isFullscreen or false
   if self.isFullscreen~=fs then
@@ -762,32 +878,13 @@ end
 
 local TITLECHANGED_DELAY=0.5
 function Window:titleChanged()
-  if self.titleDelayed then self.titleDelayed:stop() self.titleDelayed=nil end
-  self.titleDelayed=timer.doAfter(TITLECHANGED_DELAY,function()self:doTitleChanged()end)
+  if self.titleDelayed then self.titleDelayed:setNextTrigger(TITLECHANGED_DELAY)
+  else self.titleDelayed=timer.doAfter(TITLECHANGED_DELAY,function()self:doTitleChanged()end) end
 end
 function Window:doTitleChanged()
+  self.title=self.window:title()
+  self.titleDelayed=nil
   self:emitEvent(windowfilter.windowTitleChanged)
-end
-
-function Window:unfocused(inserted)
-  if global.focused~=self then return log.vf('%s (%d) already unfocused',self.app.name,self.id) end
-  global.focused=nil
-  self.app.focused=nil
-  self:emitEvent(windowfilter.windowUnfocused,inserted)
-end
-
-function Window:minimized()
-  if self.isMinimized then return log.df('%s (%d) already minimized',self.app.name,self.id) end
-  self:hidden(true)
-  self.isMinimized=true
-  self:emitEvent(windowfilter.windowMinimized)
-end
-
-function Window:hidden(inserted)
-  if self.isHidden then return log.df('%s (%d) already hidden',self.app.name,self.id) end
-  if global.focused==self then self:unfocused(true) end
-  self.isHidden = true
-  self:emitEvent(windowfilter.windowHidden,inserted)
 end
 
 function Window:destroyed()
@@ -795,39 +892,14 @@ function Window:destroyed()
   if self.titleDelayed then self.titleDelayed:stop() self.titleDelayed=nil end
   self.watcher:stop()
   self.app.windows[self.id]=nil
-  if not self.isHidden then self:hidden(true) end
+  if self.isVisible then self:notVisible(true) end
   self:emitEvent(windowfilter.windowDestroyed)
   self.window=nil
 end
 
-function Window:spaceChanged()
-  local loggedvis,loggedspace,notifiedvis,notifiedspace
-  for wf in pairs(activeFilters) do
-    if wf.currentSpaceWindows then -- this filter cares about spaces
-      if not self.inCurrentSpace then self.inCurrentSpace={} end
-      if self.inCurrentSpace[wf]==nil then self.inCurrentSpace[wf]=true end -- assume true at start
-      local prev = self.inCurrentSpace[wf]
-      local now = wf.currentSpaceWindows[self.id] and true or false
-      if prev~=now then
-        log.df('%s (%d) %s in current space',self.app.name,self.id,now and 'is' or 'not')
-        if now then
-          loggedvis,notifiedvis = self:filterEmitEvent(wf,windowfilter.windowShown,nil,loggedvis,notifiedvis)
-          loggedspace,notifiedspace = self:filterEmitEvent(wf,windowfilter.windowInCurrentSpace,true,loggedspace,notifiedspace)
-        else
-          loggedspace,notifiedspace = self:filterEmitEvent(wf,windowfilter.windowNotInCurrentSpace,true,loggedspace,notifiedspace)
-          loggedvis,notifiedvis = self:filterEmitEvent(wf,windowfilter.windowHidden,nil,loggedvis,notifiedvis)
-        end
-        self.inCurrentSpace[wf]=now
-      end
-    end
-  end
-end
-
-
 
 local appWindowEvent
-
-local App={} -- class
+-- App class
 
 function App:getFocused()
   if self.focused then return end
@@ -859,20 +931,13 @@ function App.new(app,appname,watcher)
   -- and remove .switchedToSpace, .forceRefreshOnSpaceChange
   log.f('New app %s registered',appname)
   apps[appname] = o
-  o:getWindows()
+  o:getAppWindows()
 end
 
 -- events aren't "inserted" across apps (param name notwithsanding) so an active app should NOT :deactivate
 -- another app, otherwise the latter's :unfocused will have a broken "inserted" chain with nothing to close it
-function App:getWindows()
-  local windows=self.app:allWindows()
-  if self.name=='Finder' then --filter out the desktop here
-    for i=#windows,1,-1 do if windows[i]:role()~='AXWindow' then tremove(windows,i) break end end
-  end
-  if #windows>0 then log.df('Found %d windows for app %s',#windows,self.name) end
-  for _,win in ipairs(windows) do
-    appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
-  end
+function App:getAppWindows()
+  self:getCurrentSpaceAppWindows()
   self:getFocused()
   if self.app:isFrontmost() then
     log.df('App %s is the frontmost app',self.name)
@@ -883,6 +948,31 @@ function App:getWindows()
       log.df('Window %d is the focused window',self.focused.id)
     end
   end
+end
+
+function App:getCurrentSpaceAppWindows()
+  local gone={}
+  if next(spacesInstances) then
+    for _,win in pairs(self.windows) do
+      if win.isVisible and win.isInCurrentSpace then
+        gone[win.id]=win
+      end
+    end
+  end
+  local allWindows=self.app:allWindows()
+  if self.name=='Finder' then --filter out the desktop here
+    for i=#allWindows,1,-1 do if allWindows[i]:role()~='AXWindow' then tremove(allWindows,i) break end end
+  end
+  if #allWindows>0 then log.df('Found %d windows for app %s',#allWindows,self.name) end
+  local arrived={}
+  for _,win in ipairs(allWindows) do
+    local id=win:id()
+    if not self.windows[id] then appWindowEvent(win,uiwatcher.windowCreated,nil,self.name) end
+    gone[id]=nil
+    arrived[id]=self.windows[id]
+  end
+  for _,win in pairs(gone) do win:notInCurrentSpace() end
+  for _,win in pairs(arrived) do win:inCurrentSpace() end
 end
 
 function App:activated()
@@ -919,27 +1009,27 @@ function App:focusChanged(id,win)
   end
   if self==active then self:activated() end
 end
-function App:hidden(inserted)
+function App:hidden()
   if self.isHidden then return log.df('App %s already hidden, skipping',self.name) end
   --  self:deactivated(true)
   for id,window in pairs(self.windows) do
-    window:hidden(inserted)
+    window:hidden()
   end
   log.vf('App %s hidden',self.name)
   self.isHidden=true
 end
-function App:shown()
-  if not self.isHidden then return log.df('App %s already visible, skipping',self.name) end
+function App:unhidden()
+  if not self.isHidden then return log.df('App %s already unhidden, skipping',self.name) end
   for id,window in pairs(self.windows) do
-    window:shown()
+    window:unhidden()
   end
-  log.vf('App %s shown',self.name)
-  self.isHidden=nil
+  log.vf('App %s unhidden',self.name)
+  self.isHidden=false
+  if next(spacesFilters) then self:getCurrentSpaceAppWindows() end
 end
 function App:destroyed()
   log.f('App %s deregistered',self.name)
   self.watcher:stop()
-  --  self:hidden(true)
   for id,window in pairs(self.windows) do
     window:destroyed()
   end
@@ -999,13 +1089,12 @@ appWindowEvent=function(win,event,_,appname,retry)
     local watcher=win:newWatcher(windowEvent,appname)
     if not watcher._element.pid then
       log.wf('%s: %s has no watcher pid',appname,role or (win.role and win:role()))
-      -- old workaround for the 'missing pid' bug
-      --      if retry>MAX_RETRIES then log.df('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
-      --      else
-      --        windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
-      --      return
+      if retry>MAX_RETRIES then log.ef('%s: %s has no watcher pid',appname,win.subrole and win:subrole() or (win.role and win:role()) or 'window')
+      else
+        windowWatcherDelayed[win]=timer.doAfter(retry*RETRY_DELAY,function()appWindowEvent(win,event,_,appname,retry)end) end
+      return
     end
-    Window.new(win,id,apps[appname],watcher)
+    Window.created(win,id,apps[appname],watcher)
     watcher:start({uiwatcher.elementDestroyed,uiwatcher.windowMoved,uiwatcher.windowResized
       ,uiwatcher.windowMinimized,uiwatcher.windowUnminimized,uiwatcher.titleChanged})
   elseif event==uiwatcher.focusedWindowChanged then
@@ -1079,96 +1168,34 @@ local function appEvent(appname,event,app,retry)
   if event==appwatcher.terminated then return appo:destroyed()
   elseif event==appwatcher.deactivated then return appo:deactivated()
   elseif event==appwatcher.hidden then return appo:hidden()
-  elseif event==appwatcher.unhidden then return appo:shown() end
+  elseif event==appwatcher.unhidden then return appo:unhidden() end
 end
 
-
-local function getAllWindows()
+local function getCurrentSpaceWindows()
   for _,app in pairs(apps) do
-    app:getWindows()
+    app:getCurrentSpaceAppWindows()
   end
 end
 
-local trackSpacesFilters = {}
-local function refreshTrackSpacesFilters()
-  if not next(trackSpacesFilters) then return end
-  local spacewins = {}
-  if global.watcher then
-    for _,app in pairs(apps) do
-      for _,w in ipairs(app.app:visibleWindows()) do
-        local id=w:id()
-        if id then spacewins[id]=true end
-      end
-    end
-  else
-    for _,w in ipairs(window.visibleWindows()) do
-      local id=w:id()
-      if id then spacewins[id]=true end
-    end
-  end
-  for wf in pairs(trackSpacesFilters) do
-    wf.log.i("Space changed, updating filter")
-    if wf.currentSpaceWindows then wf.currentSpaceWindows = spacewins end
-  end
-  for _,app in pairs(apps) do
-    for _,win in pairs(app.windows) do
-      win:spaceChanged()
-    end
-  end
-end
-
--- matrix for trackSpaces
---              |visible=         nil                      |             true             |     false    |
--- |currentSpace|------------------------------------------|------------------------------|--------------|
--- |     nil    |all                                       |visible in ANY space          |min and hidden|
--- |    true    |visible in CURRENT space,min and hidden   |visible in CURRENT space      |min and hidden|
--- |    false   |visible in OTHER space only,min and hidden|visible in OTHER space only   |min and hidden|
-
---- hs.window.filter:trackSpaces(track) -> hs.window.filter
+--- hs.window.filter:currentSpace(val) -> hs.window.filter
 --- Method
---- Sets whether the windowfilter should be aware of different Mission Control Spaces
+--- Sets whether the windowfilter should only allow (or reject) windows in the current Mission Control Space
 ---
 --- Parameters:
----  * track - string, it can have the following values:
----    - `"no"` (or `false`): this is the default behaviour for all windowfilters; this windowfilter will not track Space changes
----    - `"all": this windowfilter will track Space changes; when the user switches to a different Space, windows
----      that only existed in the previous Space will emit an `hs.window.filter.windowHidden` event, and similarly windows in the current
----      space will emit an `hs.window.filter.windowShown` event. Windows that carry over (i.e. for apps that have "Assign To"->"All Desktops",
----      and when you manually drag a window to another Space) won't emit either event. Minimized and hidden windows are also
----      considered to belong to all Spaces.
----      This is reflected in the visibility rules for this windowfilter: for example if it's set to only allow visible windows
----      (which is the default behaviour), windows that only exist in a given Space will be filtered out or allowed again when
----      the user switches (respectively) away from or back to that Space.
----    - `"current"` (or `true`): like "all", but regardless of this windowfilter's visiblity rules, it will only allow
----      windows in the current Space. In practice: for app filters that only allow visible windows, "current" behaves like "all";
----      for app filters that have no visibility rule set, "current" will exclude windows that are visible in other Spaces but not
----      the current one (but still include minimized and hidden windows as they belong to all Spaces).
----    - `"others"`: like "current", this windowfilter will track Space changes, but this windowfilter will only allow windows in any Space other than the current one (you need to
----      set the visibility rules to allow invisible windows, or no windows will ever be allowed)
+---  * val - boolean; if `true`, only allow windows in the current Mission Control Space, plus minimized and hidden windows;
+---    if `false`, reject them; if `nil`, ignore Mission Control Spaces
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
+---  * This is just a convenience wrapper for setting the `currentSpace` field in the `override` filter
 ---  * Spaces-aware windowfilters might experience a (sometimes significant) delay after every Space switch, since
 ---    (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
-function wf:trackSpaces(track)
-  if track=='no' or not track then
-    self.currentSpaceWindows = nil
-    self.spaceFilter = nil
-    trackSpacesFilters[self] = nil
-  else
-    self.currentSpaceWindows = {}
-    trackSpacesFilters[self] = true
-    if track=='all' then self.spaceFilter = nil
-    elseif track=='others' then self.spaceFilter = false
-    elseif track=='current' or track==true then self.spaceFilter = true
-    else error('invalid parameter to trackSpaces',2) end
-  end
-  refreshTrackSpacesFilters()
-  if activeFilters[self] then refreshWindows(self) end
-  --  windowfilter.forceRefreshOnSpaceChange=next(trackSpacesFilters) and true
-  return self
+function WF:currentSpace(val)
+  local nf=self.filters.override or {}
+  if nf~=false then nf.currentSpace=val end
+  return self:setOverrideFilter(nf)
 end
 
 local spacesDone = {}
@@ -1197,24 +1224,27 @@ local spacesDone = {}
 ---  * Only use this function if "Displays have separate Spaces" and "Automatically rearrange Spaces" are
 ----   OFF in System Preferences>Mission Control
 ---  * Calling this function will set `hs.window.filter.forceRefreshOnSpaceChange` to `false`
-function windowfilter.switchedToSpace(space,cb)
-  windowfilter.forceRefreshOnSpaceChange = nil
-  --  if spacesDone[space] then log.v('Switched to space #'..space) return cb and cb() end
-  timer.doAfter(0.5,function()
-    if not spacesDone[space] and next(activeFilters) then
-      log.f('Entered space #%d, refreshing all windows',space)
-      getAllWindows()
-      spacesDone[space] = true
-    else log.i('Switched to space #'..space) end
-    refreshTrackSpacesFilters()
-    return cb and cb()
-  end)
+local pendingSpace
+local function spaceChanged()
+  if not pendingSpace then return end
+  if not spacesDone[pendingSpace] or next(spacesInstances) or (windowfilter.forceRefreshOnSpaceChange and next(activeInstances)) then
+    log.i('Space changed, refreshing all windows',pendingSpace)
+    getCurrentSpaceWindows()
+    if pendingSpace~=-1 then spacesDone[pendingSpace] = true end
+  end
+  pendingSpace=nil
 end
-
+local spaceDelayed=timer.new(DISTANT_FUTURE,spaceChanged):start()
+function windowfilter.switchedToSpace(space)
+  windowfilter.forceRefreshOnSpaceChange = nil
+  pendingSpace=space
+  spaceDelayed:setNextTrigger(0.5)
+end
+--FIXME docs above and below
 
 --- hs.window.filter.forceRefreshOnSpaceChange
 --- Variable
---- Tells the windowfilters whether to refresh all windows when the user switches to a different Mission Control Space.
+--- Tells all windowfilters whether to refresh all windows when the user switches to a different Mission Control Space.
 ---
 --- Due to OS X limitations Hammerspoon cannot directly query for windows in Spaces other than the current one;
 --- therefore when a windowfilter is initially instantiated, it doesn't know about many of these windows.
@@ -1228,14 +1258,8 @@ end
 --- but you'll incur a modest performance penalty on every Space change. If possible, use the `hs.window.filter.switchedToSpace()`
 --- callback instead.
 windowfilter.forceRefreshOnSpaceChange = false
-local function spaceChanged()
-  if windowfilter.forceRefreshOnSpaceChange and next(activeFilters) then
-    log.i('Space changed, refreshing all windows')
-    getAllWindows()
-  end
-  refreshTrackSpacesFilters()
-end
-local spacesWatcher = require'hs.spaces'.watcher.new(spaceChanged)
+
+local spacesWatcher = require'hs.spaces'.watcher.new(function()pendingSpace=pendingSpace or -1 spaceChanged()end)
 spacesWatcher:start()
 
 local function startGlobalWatcher()
@@ -1244,17 +1268,15 @@ local function startGlobalWatcher()
   local runningApps = application.runningApplications()
   log.f('Registering %d running apps',#runningApps)
   for _,app in ipairs(runningApps) do
-    startAppWatcher(app,app:title())
+    startAppWatcher(app,app:name())
   end
   global.watcher:start()
 end
 
 local function stopGlobalWatcher()
   if not global.watcher then return end
-  --  spacesWatcher:stop()
-  for _,active in pairs(activeFilters) do
-    if active then return end
-  end
+  if next(activeInstances) or next(spacesInstances) then return end
+
   local totalApps = 0
   for _,app in pairs(apps) do
     for _,window in pairs(app.windows) do
@@ -1269,7 +1291,30 @@ local function stopGlobalWatcher()
 end
 
 
+checkTrackSpacesFilters=function(self)
+  local prev,now=self.trackSpacesFilters
+  for _,flt in pairs(self.filters) do if type(flt)=='table' and flt.currentSpace then now=true break end end
+  if prev~=now then
+    self.log.df('%s Spaces-aware filters',now and 'Added' or 'No more')
+    self.trackSpacesFilters=now
+    spacesInstances[self]=(now and self.trackSpacesSubscriptions) or nil
+    if now then startGlobalWatcher() else stopGlobalWatcher() end
+  end
+end
+
+local function checkTrackSpacesSubscriptions(self)
+  local prev,now=self.trackSpacesSubscriptions
+  for ev in pairs(trackSpacesEvents) do if self.events[ev] then now=true break end end
+  if prev~=now then
+    self.log.df('%s Spaces-aware subscriptions',now and 'Added' or 'No more')
+    self.trackSpacesSubscriptions=now
+    spacesInstances[self]=(now and self.trackSpacesFilters) or nil
+    if now then startGlobalWatcher() else stopGlobalWatcher() end
+  end
+end
+
 local function subscribe(self,map)
+  hs.assert(next(map),'empty map')
   for event,fns in pairs(map) do
     if not events[event] then error('invalid event: '..event,3) end
     for _,fn in pairs(fns) do
@@ -1290,20 +1335,16 @@ local function unsubscribe(self,event,fn)
       self.events[event]=nil
     end
   end
-  return self
 end
+
 local function unsubscribeCallback(self,fn)
-  for event in pairs(events) do
-    unsubscribe(self,event,fn)
-  end
-  return self
+  for event in pairs(events) do unsubscribe(self,event,fn) end
 end
 
 local function unsubscribeEvent(self,event)
   if not events[event] then error('invalid event: '..event,3) end
   if self.events[event] then self.log.df('Removed all callbacks for event %s',event) end
   self.events[event]=nil
-  return self
 end
 
 
@@ -1312,17 +1353,17 @@ refreshWindows=function(wf)
   wf.log.v('Refreshing windows')
   for _,app in pairs(apps) do
     for _,window in pairs(app.windows) do
-      if wf.currentSpaceWindows then window:spaceChanged() end
       window:setFilter(wf)
     end
   end
+  return wf
 end
 
 local function start(wf)
-  if activeFilters[wf]==true then return end
+  if activeInstances[wf]==true then return end
   wf.windows={}
   startGlobalWatcher()
-  activeFilters[wf]=true
+  activeInstances[wf]=true
   return refreshWindows(wf)
 end
 
@@ -1332,8 +1373,10 @@ end
 -- more detail: i noticed that even having to call startGlobalWatcher->getWindows->stopGlobalWatcher is
 -- *way* faster than hs.window.allWindows(); even so, better to have a way to avoid the overhead if we know
 -- we'll call :getWindows often enough
-function wf:keepActive()
-  start(self) return self
+function WF:keepActive()
+  self.doKeepActive=true
+  self.log.i('Keep active')
+  return start(self)
 end
 
 -- make sure startGlobalWatcher is running during a batch operation
@@ -1370,8 +1413,8 @@ end
 ---  * a list of `hs.window` objects
 
 --TODO allow to pass in a list of candidate windows?
-function wf:getWindows()
-  local wasActive=activeFilters[self]
+function WF:getWindows()
+  local wasActive=activeInstances[self]
   start(self)
   local t={}
   local o=getWindowObjects(self)
@@ -1403,7 +1446,7 @@ end
 ---
 --- Notes:
 ---  * If `fn` is nil, notifications for this windowfilter will stop.
-function wf:notify(fn,fnEmpty,immediate)
+function WF:notify(fn,fnEmpty,immediate)
   if fn~=nil and type(fn)~='function' then error('fn must be a function or nil',2) end
   if fnEmpty and type(fnEmpty)~='function' then fnEmpty=nil immediate=true end
   if fnEmpty~=nil and type(fnEmpty)~='function' then error('fnEmpty must be a function or nil',2) end
@@ -1422,7 +1465,7 @@ end
 ---    alternatively, this can be a map `{event1=fn1,event2=fn2,...}`: fnN will be subscribed to eventN, and the parameter `fn` will be ignored
 ---  * fn - function or list of functions, the callback(s) to add for the event(s); each will be passed 3 parameters
 ---    * a `hs.window` object referring to the event's window
----    * a string containing the application name (`window:application():title()`) for convenience
+---    * a string containing the application name (`window:application():name()`) for convenience
 ---    * a string containing the event that caused the callback (i.e. the event, or one of the events, you subscribed to)
 ---  * immediate - (optional) if `true`, also call all the callbacks immediately for windows that satisfy the event(s) criteria
 ---
@@ -1436,7 +1479,7 @@ end
 ---  * Use caution with `immediate`: if for example you're subscribing to `hs.window.filter.windowUnfocused`,
 ---    `fn`(s) will be called for *all* the windows except the currently focused one.
 ---  * If the windowfilter was paused with `hs.window.filter:pause()`, calling this will resume it.
-function wf:subscribe(event,fn,immediate)
+function WF:subscribe(event,fn,immediate)
   if type(event)=='string' then event={event} end
   if type(event)~='table' then error('event must be a string, a list of strings, or a map',2) end
   if type(fn)=='function' then fn={fn}
@@ -1446,12 +1489,10 @@ function wf:subscribe(event,fn,immediate)
   if type(k)=='string' and type(v)=='function' then map=event
   else
     if not fn then error('missing parameter fn',2) end
-    for _,ev in ipairs(event) do map[ev]=fn end
+    if #event==0 then error('missing event(s)',2) end
+    for i=1,#event do local ev=event[i] if ev then map[ev]=fn else error('missing event(s)',2) end end
   end
-  for _,e in pairs(event) do
-    subscribe(self,map)
-  end
-  start(self)
+  subscribe(self,map) start(self)
   if immediate then
     local windows = getWindowObjects(self)
     for _,win in ipairs(windows) do
@@ -1459,12 +1500,18 @@ function wf:subscribe(event,fn,immediate)
         if ev==windowfilter.windowCreated
           or ev==windowfilter.windowMoved
           or ev==windowfilter.windowTitleChanged
-          or (ev==windowfilter.windowShown and not win.isHidden)
-          or (ev==windowfilter.windowHidden and win.isHidden)
-          or (ev==windowfilter.windowMinimized and win.isMinimized)
-          or (ev==windowfilter.windowUnminimized and not win.isMinimized)
           or (ev==windowfilter.windowFullscreened and win.isFullscreen)
           or (ev==windowfilter.windowUnfullscreened and not win.isFullscreen)
+          or (ev==windowfilter.windowMinimized and win.isMinimized)
+          or (ev==windowfilter.windowUnminimized and not win.isMinimized)
+          or (ev==windowfilter.windowHidden and win.isHidden)
+          or (ev==windowfilter.windowUnhidden and not win.isHidden)
+          or (ev==windowfilter.windowVisible and win.isVisible)
+          or (ev==windowfilter.windowNotVisible and not win.isVisible)
+          or (ev==windowfilter.windowInCurrentSpace and win.isInCurrentSpace)
+          or (ev==windowfilter.windowNotInCurrentSpace and not win.isInCurrentSpace)
+          or (ev==windowfilter.windowOnScreen and win.isVisible and win.isInCurrentSpace)
+          or (ev==windowfilter.windowNotOnScreen and (not win.isVisible or not win.isInCurrentSpace))
           or (ev==windowfilter.windowFocused and global.focused==win)
           or (ev==windowfilter.windowUnfocused and global.focused~=win)
         then for _,fn in ipairs(fns) do
@@ -1473,6 +1520,7 @@ function wf:subscribe(event,fn,immediate)
       end
     end
   end
+  checkTrackSpacesSubscriptions(self)
   return self
 end
 
@@ -1493,7 +1541,7 @@ end
 ---  * If calling this on the default (or any other shared use) windowfilter, do not pass events, as that would remove
 ---    *all* the callbacks for the events including ones subscribed elsewhere that you might not be aware of. You should
 ---    instead keep references to your functions and pass in those.
-function wf:unsubscribe(events,fns)
+function WF:unsubscribe(events,fns)
   if not events and not fns then error('you must pass at least one of event or fn',2) end
   local tevents,tfns=type(events),type(fns)
   if events==nil then tevents=nil end
@@ -1520,28 +1568,21 @@ function wf:unsubscribe(events,fns)
     elseif type(k)=='number' and type(v)=='function' then tfns='lfn' --?+list of fns
     else error('invalid fn parameter',2) end
   end
-  if tevents==nil then --all events
-    events=self.events tevents='ss'
-  end
-  if tevents=='ss' then --make list
-    local l={} for k in pairs(events) do l[#l+1]=k end events=l tevents='ls'
-  end
-  if tfns=='sfn' then --make list
-    local l={} for k in pairs(fns) do l[#l+1]=k end fns=l tfns='lfn'
-  end
+  if tevents==nil then events=self.events tevents='ss' end --all events
+  if tevents=='ss' then local l={} for k in pairs(events) do l[#l+1]=k end events=l tevents='ls'  end --make list
+  if tfns=='sfn' then local l={} for k in pairs(fns) do l[#l+1]=k end fns=l tfns='lfn' end --make list
 
-  if tevents=='map' then
-    for ev,fn in pairs(events) do unsubscribe(self,ev,fn) end
+  if tevents=='map' then for ev,fn in pairs(events) do unsubscribe(self,ev,fn) end
   else
     if tevents~='ls' then error('invalid event parameter',2)
     elseif tfns~=nil and tfns~='lfn' then error('invalid fn parameter',2) end
-
     for _,ev in ipairs(events) do
       if not tfns then unsubscribeEvent(self,ev)
       else for _,fn in ipairs(fns) do unsubscribe(self,ev,fn) end end
     end
   end
   if not next(self.events) then return self:unsubscribeAll() end
+  checkTrackSpacesSubscriptions(self)
   return self
 end
 
@@ -1557,9 +1598,9 @@ end
 ---
 --- Notes:
 ---  * You should not use this on the default windowfilter or other shared windowfilters
-function wf:unsubscribeAll()
-  self.events={}
-  self:pause()
+function WF:unsubscribeAll()
+  self.events={} if not self.doKeepActive then self:pause() end
+  checkTrackSpacesSubscriptions(self)
   return self
 end
 
@@ -1573,10 +1614,9 @@ end
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
-function wf:resume()
-  if activeFilters[self]==true then self.log.i('instance already running, ignoring')
-  else start(self) end
-  return self
+function WF:resume()
+  if activeInstances[self]==true then self.log.i('instance already running, ignoring') return self
+  else return start(self) end
 end
 
 --- hs.window.filter:pause() -> hs.window.filter
@@ -1588,18 +1628,17 @@ end
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
-function wf:pause()
-  activeFilters[self]=nil
-  stopGlobalWatcher()
+function WF:pause()
+  activeInstances[self]=nil stopGlobalWatcher()
   return self
 end
 
-
-function wf:delete()
-  activeFilters[self]=nil
-  self.events={}
-  stopGlobalWatcher()
+function WF:delete()
+  activeInstances[self]=nil self.events={} stopGlobalWatcher()
 end
+
+
+--TODO add gc?
 
 local defaultwf, loglevel
 function windowfilter.setLogLevel(lvl)
@@ -1758,10 +1797,10 @@ end
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowNorth(window,self:getWindows(),...)`
 ---  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
 for _,dir in ipairs{'East','North','West','South'}do
-  wf['windowsTo'..dir]=function(self,win,...)
+  WF['windowsTo'..dir]=function(self,win,...)
     return window['windowsTo'..dir](win,self:getWindows(),...)
   end
-  wf['focusWindow'..dir]=function(self,win,...)
+  WF['focusWindow'..dir]=function(self,win,...)
     if window['focusWindow'..dir](win,self:getWindows(),...) then self.log.i('Focused window '..dir:lower()) end
   end
 end
