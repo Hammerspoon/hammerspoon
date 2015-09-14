@@ -66,7 +66,7 @@ layout.right75 = geometry.rect(0.25, 0, 0.75, 1)
 --- A unit rect which will make a window occupy all of a screen
 layout.maximized = geometry.rect(0, 0, 1, 1)
 
---- hs.layout.apply(table)
+--- hs.layout.apply(table[, windowTitleComparator])
 --- Function
 --- Applies a layout to applications/windows
 ---
@@ -78,6 +78,9 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---   * A Unit rect (see `hs.window.moveToUnit()`)
 ---   * A Frame rect (see `hs.screen:frame()`)
 ---   * A Full-frame rect (see `hs.screen:fullFrame()`)
+---  * windowTitleComparator - (optional) Function to use for window title comparison. It is called with two string arguments (below) and its return value is evaluated as a boolean. If no comparator is provided, the '==' operator is used as usual.
+---   * windowTitle: The `:title()` of the window object being examined.
+---   * layoutWindowTitle: The window title string (second field) specified in each element of the layout table.
 ---
 --- Returns:
 ---  * None
@@ -102,7 +105,8 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---         {"iTunes", "iTunes", "Color LCD", hs.layout.maximized, nil, nil},
 ---         {"iTunes", "MiniPlayer", "Color LCD", nil, nil, hs.geometry.rect(0, -48, 400, 48)},
 ---       }```
-function layout.apply(layout)
+---  * An example of a function that works well as a `windowTitleComparator` is the built-in `string.match`, which uses Lua Patterns.
+function layout.apply(layout, windowTitleComparator)
 -- Layout parameter should be a table where each row takes the form of:
 --  {"App name", "Window name","Display Name"/"hs.screen object", "unitrect", "framerect", "fullframerect"},
 --  First three items in each row are strings (although the display name can also be an hs.screen object, or nil)
@@ -115,6 +119,12 @@ function layout.apply(layout)
 --  fullframerect is a rect passed to window:setFrame()
 --      If either the x or y components of fullframerect are negative, they will be applied
 --      as offsets from the width or height of screen:fullFrame(), respectively
+
+    if not windowTitleComparator then
+        windowTitleComparator = function(windowTitle, layoutWindowTitle)
+            return windowTitle == layoutWindowTitle
+        end
+    end
     for n,_row in pairs(layout) do
         local app = nil
         local wins = nil
@@ -159,9 +169,9 @@ function layout.apply(layout)
         -- Find the matching windows, if any
         if _row[2] then
             if app then
-                wins = fnutils.filter(app:allWindows(), function(win) return win:title() == _row[2] end)
+                wins = fnutils.filter(app:allWindows(), function(win) return windowTitleComparator(win:title(), _row[2]) end)
             else
-                wins = fnutils.filter(window:allWindows(), function(win) return win:title() == _row[2] end)
+                wins = fnutils.filter(window:allWindows(), function(win) return windowTitleComparator(win:title(), _row[2]) end)
             end
         elseif app then
             wins = app:allWindows()
