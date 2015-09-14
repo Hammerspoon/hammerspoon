@@ -182,15 +182,6 @@ static int hotkey_new(lua_State* L) {
     return 1;
 }
 
-/// hs.hotkey:enable() -> hotkeyObject
-/// Method
-/// Enables a hotkey object
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * The `hs.hotkey` object
 static int hotkey_enable(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L, 1);
@@ -218,15 +209,6 @@ static void stop(lua_State* L, hotkey_t* hotkey) {
     [keyRepeatManager stopTimer];
 }
 
-/// hs.hotkey:disable() -> hotkeyObject
-/// Method
-/// Disables a hotkey object
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * The `hs.hotkey` object
 static int hotkey_disable(lua_State* L) {
     hotkey_t* hotkey = luaL_checkudata(L, 1, USERDATA_TAG);
     stop(L, hotkey);

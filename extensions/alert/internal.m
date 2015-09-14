@@ -178,7 +178,8 @@ static int alert_show(lua_State* L) {
     if (lua_isnumber(L, 2))
         duration = lua_tonumber(L, 2);
 
-    HSShowAlert(str, duration);
+    if (duration>0.0)
+        HSShowAlert(str, duration);
 
     return 0;
 }
