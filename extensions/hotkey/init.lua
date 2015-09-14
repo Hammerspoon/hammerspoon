@@ -147,7 +147,8 @@ end
 --- Creates a new hotkey
 ---
 --- Parameters:
----  * mods - A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
 ---    * "cmd", "command" or "⌘"
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
@@ -202,7 +203,8 @@ end
 --- Function
 --- Disables all previously set callbacks for a given keyboard combination
 ---
----  * mods - A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
 ---    * "cmd", "command" or "⌘"
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
@@ -220,7 +222,8 @@ end
 --- Function
 --- Deletes all previously set callbacks for a given keyboard combination
 ---
----  * mods - A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
 ---    * "cmd", "command" or "⌘"
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
@@ -256,7 +259,8 @@ end
 --- in the current context) while pressed
 ---
 --- Parameters:
----  * mods - A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
 ---    * "cmd", "command" or "⌘"
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
@@ -299,7 +303,8 @@ end
 --- Creates a hotkey and enables it immediately
 ---
 --- Parameters:
----  * mods - A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
 ---    * "cmd", "command" or "⌘"
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
@@ -368,7 +373,8 @@ end
 --- Creates a hotkey that is enabled/disabled as the modal is entered/exited
 ---
 --- Parameters:
----  * mods - A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
 ---    * "cmd", "command" or "⌘"
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
@@ -437,7 +443,8 @@ end
 --- Creates a new modal state, optionally with a global keyboard combination to trigger it
 ---
 --- Parameters:
----  * mods - A string containing (as substrings, with any separator) the keyboard modifiers required, which should be zero or more of the following:
+---  * mods - A table or a string containing (as elements, or as substrings with any separator) the keyboard modifiers required,
+---    which should be zero or more of the following:
 ---    * "cmd", "command" or "⌘"
 ---    * "ctrl", "control" or "⌃"
 ---    * "alt", "option" or "⌥"
