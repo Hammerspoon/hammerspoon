@@ -195,8 +195,10 @@ local function isWindowAllowed(self,win)
   if filter==false then self.log.vf('REJECT %s (%s %d): override filter reject',appname,role,id) return false
   elseif filter then
     local r,cause=checkWindowAllowed(filter,win)
-    self.log.vf('%s %s (%s %d): override filter [%s]',r and 'ALLOW' or 'REJECT',appname,role,id,cause)
-    if not r then return r end
+    if not r then
+      self.log.vf('REJECT %s (%s %d): override filter [%s]',appname,role,id,cause)
+      return r
+    end
   end
   if not windowfilter.isGuiApp(appname) then
     --if you see this in the log, add to .ignoreAlways
@@ -326,6 +328,27 @@ end
 ---  * the `hs.window.filter` object for method chaining
 function WF:setOverrideFilter(...)
   return self:setAppFilter('override',...)
+end
+--- hs.window.filter:setCurrentSpace(val) -> hs.window.filter
+--- Method
+--- Sets whether the windowfilter should only allow (or reject) windows in the current Mission Control Space
+---
+--- Parameters:
+---  * val - boolean; if `true`, only allow windows in the current Mission Control Space, plus minimized and hidden windows;
+---    if `false`, reject them; if `nil`, ignore Mission Control Spaces
+---
+--- Returns:
+---  * the `hs.window.filter` object for method chaining
+---
+--- Notes:
+---  * This is just a convenience wrapper for setting the `currentSpace` field in the `override` filter; per-app filters
+---    will maintain their `currentSpace` field, if present, as is
+---  * Spaces-aware windowfilters might experience a (sometimes significant) delay after every Space switch, since
+---    (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
+function WF:setCurrentSpace(val)
+  local nf=self.filters.override or {}
+  if nf~=false then nf.currentSpace=val end
+  return self:setOverrideFilter(nf)
 end
 
 --- hs.window.filter:setAppFilter(appname, filter) -> hs.window.filter
@@ -613,7 +636,7 @@ local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
   windowMinimized=true, windowUnminimized=true,
   windowHidden=true, windowUnhidden=true,
   windowVisible=true, windowNotVisible=true,
-  windowInCurrentSpace=true,WindowNotInCurrentSpace=true,
+  windowInCurrentSpace=true,windowNotInCurrentSpace=true,
   windowOnScreen=true,windowNotOnScreen=true,
   windowFullscreened=true, windowUnfullscreened=true,
   --TODO perhaps windowMaximized? (compare win:frame to win:screen:frame) - or include it in windowFullscreened
@@ -778,7 +801,7 @@ function Window.created(win,id,app,watcher)
 end
 
 function Window:unhidden()
-  if not self.isHidden then return log.df('%s (%d) already unhidden',self.app.name,self.id) end
+  if not self.isHidden then return log.vf('%s (%d) already unhidden',self.app.name,self.id) end
   self.isHidden=false
   self:emitEvent(windowfilter.windowUnhidden)
   if not self.isMinimzed then self:visible(true) end
@@ -786,7 +809,7 @@ function Window:unhidden()
 end
 
 function Window:unminimized()
-  if not self.isMinimized then return log.df('%s (%d) already unminimized',self.app.name,self.id) end
+  if not self.isMinimized then return log.vf('%s (%d) already unminimized',self.app.name,self.id) end
   self.isMinimized=false
   self:emitEvent(windowfilter.windowUnminimized)
   if not self.isHidden then self:visible(true) end
@@ -794,27 +817,27 @@ function Window:unminimized()
 end
 
 function Window:visible(inserted)
-  if self.isVisible then return log.df('%s (%d) already visible',self.app.name,self.id) end
+  if self.isVisible then return log.vf('%s (%d) already visible',self.app.name,self.id) end
   self.role=self.window:subrole()
   self.isVisible=true
   self:emitEvent(windowfilter.windowVisible,inserted)
 end
 
 function Window:inCurrentSpace(inserted)
-  if self.isInCurrentSpace then return log.df('%s (%d) already in current space',self.app.name,self.id) end
+  if self.isInCurrentSpace then return log.vf('%s (%d) already in current space',self.app.name,self.id) end
   self:emitEvent(windowfilter.windowInCurrentSpace,inserted)
   self.isInCurrentSpace=true
   if self.isVisible then self:onScreen(true) end
 end
 
 function Window:onScreen(inserted)
-  if self.isOnScreen then return log.df('%s (%d) already on screen',self.app.name,self.id) end
+  if self.isOnScreen then return log.vf('%s (%d) already on screen',self.app.name,self.id) end
   self.isOnScreen=true
   self:emitEvent(windowfilter.windowOnScreen,inserted)
 end
 
 function Window:focused(inserted)
-  if global.focused==self then return log.df('%s (%d) already focused',self.app.name,self.id) end
+  if global.focused==self then return log.vf('%s (%d) already focused',self.app.name,self.id) end
   global.focused=self
   self.app.focused=self
   self.time=timer.secondsSinceEpoch()
@@ -829,20 +852,20 @@ function Window:unfocused(inserted)
 end
 
 function Window:notOnScreen(inserted)
-  if not self.isOnScreen then return log.df('%s (%d) already not on screen',self.app.name,self.id) end
+  if not self.isOnScreen then return log.vf('%s (%d) already not on screen',self.app.name,self.id) end
   self.isOnScreen=false
   self:emitEvent(windowfilter.windowNotOnScreen,inserted)
 end
 
 function Window:notInCurrentSpace(inserted)
-  if not self.isInCurrentSpace then return log.df('%s (%d) already not in current space',self.app.name,self.id) end
+  if not self.isInCurrentSpace then return log.vf('%s (%d) already not in current space',self.app.name,self.id) end
   self:notOnScreen(true)
   self.isInCurrentSpace=false
   self:emitEvent(windowfilter.windowNotInCurrentSpace,inserted)
 end
 
 function Window:minimized()
-  if self.isMinimized then return log.df('%s (%d) already minimized',self.app.name,self.id) end
+  if self.isMinimized then return log.vf('%s (%d) already minimized',self.app.name,self.id) end
   self:notVisible(true)
   self:inCurrentSpace(true)
   self.isMinimized=true
@@ -850,7 +873,7 @@ function Window:minimized()
 end
 
 function Window:notVisible(inserted)
-  if not self.isVisible then return log.df('%s (%d) already not visible',self.app.name,self.id) end
+  if not self.isVisible then return log.vf('%s (%d) already not visible',self.app.name,self.id) end
   self.isVisible=false
   if global.focused==self then self:unfocused(true) end
   self.role=self.window:subrole()
@@ -859,7 +882,7 @@ function Window:notVisible(inserted)
 end
 
 function Window:hidden()
-  if self.isHidden then return log.df('%s (%d) already hidden',self.app.name,self.id) end
+  if self.isHidden then return log.vf('%s (%d) already hidden',self.app.name,self.id) end
   self:notVisible(true)
   self.isHidden=true
   self:emitEvent(windowfilter.windowHidden)
@@ -966,7 +989,6 @@ function App:getCurrentSpaceAppWindows()
       end
     end
   end
-  --FIXME they're never gone!
   local allWindows=self.app:allWindows()
   if self.name=='Finder' then --filter out the desktop here
     for i=#allWindows,1,-1 do if allWindows[i]:role()~='AXWindow' then tremove(allWindows,i) break end end
@@ -1185,26 +1207,6 @@ local function getCurrentSpaceWindows()
   end
 end
 
---- hs.window.filter:currentSpace(val) -> hs.window.filter
---- Method
---- Sets whether the windowfilter should only allow (or reject) windows in the current Mission Control Space
----
---- Parameters:
----  * val - boolean; if `true`, only allow windows in the current Mission Control Space, plus minimized and hidden windows;
----    if `false`, reject them; if `nil`, ignore Mission Control Spaces
----
---- Returns:
----  * the `hs.window.filter` object for method chaining
----
---- Notes:
----  * This is just a convenience wrapper for setting the `currentSpace` field in the `override` filter
----  * Spaces-aware windowfilters might experience a (sometimes significant) delay after every Space switch, since
----    (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
-function WF:currentSpace(val)
-  local nf=self.filters.override or {}
-  if nf~=false then nf.currentSpace=val end
-  return self:setOverrideFilter(nf)
-end
 
 local spacesDone = {}
 --- hs.window.filter.switchedToSpace(space)
@@ -1226,17 +1228,20 @@ local spacesDone = {}
 ---  * space - the Space number the user is switching to
 ---
 --- Returns:
----- * None
+--- * None
 ---
 --- Notes:
 ---  * Only use this function if "Displays have separate Spaces" and "Automatically rearrange Spaces" are
-----   OFF in System Preferences>Mission Control
+---    OFF in System Preferences>Mission Control
 ---  * Calling this function will set `hs.window.filter.forceRefreshOnSpaceChange` to `false`
+---  * If you defined one or more Spaces-aware windowfilters (i.e. when the `currentSpace` field of a filter
+---    is present), windows need refreshing at every space change anyway, so using this callback will not
+---    result in improved performance
 local pendingSpace
 local function spaceChanged()
   if not pendingSpace then return end
   if not spacesDone[pendingSpace] or next(spacesInstances) or (windowfilter.forceRefreshOnSpaceChange and next(activeInstances)) then
-    log.i('Space changed, refreshing all windows',pendingSpace)
+    log.i('Space changed, refreshing all windows')
     getCurrentSpaceWindows()
     if pendingSpace~=-1 then spacesDone[pendingSpace] = true end
   end
@@ -1262,9 +1267,13 @@ end
 --- if `false` (the default) this won't happen, but the windowfilters will *eventually* learn about these windows
 --- anyway, as soon as they're interacted with.
 ---
---- If you need your windowfilters to become aware of all windows as soon as possible, you can set this to `true`,
+--- If you need your windowfilters to become aware of windows across all Spaces as soon as possible, you can set this to `true`,
 --- but you'll incur a modest performance penalty on every Space change. If possible, use the `hs.window.filter.switchedToSpace()`
 --- callback instead.
+---
+--- Notes:
+---  * If you defined one or more Spaces-aware windowfilters (i.e. when the `currentSpace` field of a filter
+---    is present), windows need refreshing at every space change anyway, so this variable is ignored
 windowfilter.forceRefreshOnSpaceChange = false
 
 local spacesWatcher = require'hs.spaces'.watcher.new(function()pendingSpace=pendingSpace or -1 spaceChanged()end)
@@ -1310,7 +1319,7 @@ checkTrackSpacesFilters=function(self)
   if prev~=now then
     self.log.df('%s Spaces-aware filters',now and 'Added' or 'No more')
     self.trackSpacesFilters=now
-    spacesInstances[self]=(now and self.trackSpacesSubscriptions) or nil
+    spacesInstances[self]=(now or self.trackSpacesSubscriptions) and true or nil
     if now then startGlobalWatcher() else stopGlobalWatcher() end
   end
 end
@@ -1321,7 +1330,7 @@ local function checkTrackSpacesSubscriptions(self)
   if prev~=now then
     self.log.df('%s Spaces-aware subscriptions',now and 'Added' or 'No more')
     self.trackSpacesSubscriptions=now
-    spacesInstances[self]=(now and self.trackSpacesFilters) or nil
+    spacesInstances[self]=(now or self.trackSpacesFilters) and true or nil
     if now then startGlobalWatcher() else stopGlobalWatcher() end
   end
 end
