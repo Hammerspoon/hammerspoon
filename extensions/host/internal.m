@@ -10,8 +10,6 @@
 #import <mach/task_info.h>
 #import <mach/task.h>
 
-static NSHost *host;
-
 /// hs.host.addresses() -> table
 /// Function
 /// Gets a list of network addresses for the current machine
@@ -25,7 +23,7 @@ static NSHost *host;
 /// Notes:
 ///  * The results will include IPv4 and IPv6 addresses
 static int hostAddresses(lua_State* L) {
-    NSArray *addresses = [host addresses];
+    NSArray *addresses = [[NSHost currentHost] addresses];
     if (!addresses) {
         lua_pushnil(L);
         return 1;
@@ -55,7 +53,7 @@ static int hostAddresses(lua_State* L) {
 /// Notes:
 ///  * This function should be used sparingly, as it may involve blocking network access to resolve hostnames
 static int hostNames(lua_State* L) {
-    NSArray *names = [host names];
+    NSArray *names = [[NSHost currentHost] names];
     if (!names) {
         lua_pushnil(L);
         return 1;
@@ -82,7 +80,7 @@ static int hostNames(lua_State* L) {
 /// Returns:
 ///  * A string containing the name of the current machine
 static int hostLocalizedName(lua_State* L) {
-    lua_pushstring(L, [[host localizedName] UTF8String]);
+    lua_pushstring(L, [[[NSHost currentHost] localizedName] UTF8String]);
     return 1;
 }
 
@@ -471,8 +469,6 @@ static const luaL_Reg hostlib[] = {
 
 int luaopen_hs_host_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-
-    host = [NSHost currentHost];
 
     [skin registerLibrary:hostlib metaFunctions:nil];
 
