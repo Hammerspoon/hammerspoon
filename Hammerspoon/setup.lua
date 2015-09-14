@@ -46,7 +46,7 @@ hs.docstrings_json_file = docstringspath
 ---
 --- Notes:
 ---  * This function is called whenever an (uncaught) error occurs or is thrown (via `error()`)
----  * The default implementation shows a notification, opens the Console, prints the error message and stacktrace, and terminates event processing
+---  * The default implementation shows a notification, opens the Console, and prints the error message and stacktrace
 ---  * You can override this function if you wish to route errors differently (e.g. for remote systems)
 
 function hs.showError(err)
@@ -187,6 +187,26 @@ if autoload_extensions then
       end
     end
   })
+end
+
+--- hs.setLogLevel(lvl)
+--- Function
+--- Sets the log level for all currently loaded modules
+---
+--- Parameters:
+---  * lvl
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This function only affects *module*-level loggers; object instances with their own loggers (e.g. windowfilters) won't be affected
+hs.setLogLevel=function(lvl)
+  for ext,mod in pairs(package.loaded) do
+    if string.sub(ext,1,3)=='hs.' and mod~=hs then
+      if mod.setLogLevel then mod.setLogLevel(lvl) end
+    end
+  end
 end
 
 --- hs.dockIcon([state]) -> bool
