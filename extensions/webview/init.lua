@@ -121,6 +121,28 @@ internalObject.allowGestures = function(self, ...)
     return self:allowMagnificationGestures() and self:allowNavigationGestures()
 end
 
+--- hs.webview:delete([propagate])
+--- Method
+--- Destroys the webview object and optionally all of its children.
+---
+--- Parameters:
+---  * propagate - an optional boolean, default false, which indicates whether or not the child windows of this webview should also be deleted.
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This method is automatically called during garbage collection, when Hammerspoon quits, and when its configuration is reloaded.
+internalObject.delete = function(self, propagate)
+    if propagate then
+        for i,v in ipairs(self:children()) do
+            internalObject.delete(v, propagate)
+        end
+    end
+
+    return internalObject._delete(self)
+end
+
 -- Return Module Object --------------------------------------------------
 
 return module

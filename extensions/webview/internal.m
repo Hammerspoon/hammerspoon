@@ -1,7 +1,30 @@
-// #define _WV_DEBUG
+// #define _WK_DEBUG
+// #define _WK_DEBUG_TYPES
 
-// Need to delve deeper into NSURL and see what else we might want to include in callback/history list/url method
-// can we choose native viewer over plugin (e.g. not use Adobe for PDF)?
+// TODO:
+// * document policy callback
+// * credential callback
+//   single dialog for credentials
+
+// * in navigation delegate, stick tracking id somewhere we can query for current value
+
+//   query builder for hand crafted urls?
+//   escape/unescape string?  see stringByAddingPercentEncodingWithAllowedCharacters and URLFragmentAllowedCharacterSet
+//   determine what more properly belongs in hs.http
+
+//   userscript support?
+//   downloads, save
+//   cookies and cache?
+//   handle self-signed ssl
+//   can we adjust context menu?
+
+//   can we choose native viewer over plugin (e.g. not use Adobe for PDF)?
+
+#ifdef _WK_DEBUG
+#define _StackState(x) { NSLog(@"%s: stack = %d", x, lua_absindex([[LuaSkin shared] L], lua_gettop([[LuaSkin shared] L]))) ; }
+#else
+#define _StackState(x)
+#endif
 
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
@@ -15,28 +38,21 @@ int refTable ;
 
 static WKProcessPool *HSWebViewProcessPool ;
 
-// #define get_objectFromUserdata(objType, L, idx) (__bridge objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
-// #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
-
-// typedef struct _webview_t {
-//     void *window;
-// } webview_t;
 
 #pragma mark - Classes and Delegates
 
-@interface HSWebViewWindow : NSWindow <NSWindowDelegate>
-@property BOOL allowKeyboardEntry ;
-@end
+// forward declare so we can use in windowShouldClose:
+static int userdata_gc(lua_State* L) ;
 
-@interface HSWebViewView : WKWebView <WKNavigationDelegate, WKUIDelegate>
-#ifdef _WV_DEBUG
-@property BOOL barfToConsole ;
-#endif
-@property int navigationCallback ;
-@property int policyCallback ;
-// @property BOOL allowMouseClicks ;
-// @property BOOL allowContextMenu ;
+@interface HSWebViewWindow : NSWindow <NSWindowDelegate>
+@property HSWebViewWindow *parent ;
+@property NSMutableArray  *children ;
+@property int             udRef ;
+@property int             hsDrawingUDRef ;
+@property BOOL            allowKeyboardEntry ;
+@property BOOL            titleFollow ;
+@property BOOL            deleteOnClose ;
 @end
 
 @implementation HSWebViewWindow
@@ -57,14 +73,21 @@ static WKProcessPool *HSWebViewProcessPool ;
 
         // Configure the window
         self.releasedWhenClosed = NO;
-        self.backgroundColor = [NSColor whiteColor];
-        self.opaque = YES;
-        self.hasShadow = NO;
+        self.backgroundColor    = [NSColor whiteColor];
+        self.opaque             = YES;
+        self.hasShadow          = NO;
         self.ignoresMouseEvents = NO;
         self.allowKeyboardEntry = NO ;
-        self.restorable = NO;
-        self.animationBehavior = NSWindowAnimationBehaviorNone;
-        self.level = NSNormalWindowLevel;
+        self.restorable         = NO;
+        self.animationBehavior  = NSWindowAnimationBehaviorNone;
+        self.level              = NSNormalWindowLevel;
+
+        self.parent             = nil ;
+        self.children           = [[NSMutableArray alloc] init] ;
+        self.udRef              = LUA_NOREF ;
+        self.hsDrawingUDRef     = LUA_NOREF ;
+        self.titleFollow        = YES ;
+        self.deleteOnClose      = NO ;
     }
     return self;
 }
@@ -73,14 +96,30 @@ static WKProcessPool *HSWebViewProcessPool ;
     return self.allowKeyboardEntry ;
 }
 
-// NSWindowDelegate method. We decline to close the window because we don't want external things interfering with the user's decisions to display these objects.
 - (BOOL)windowShouldClose:(id __unused)sender {
     if ((self.styleMask & NSClosableWindowMask) != 0) {
+        if (self.deleteOnClose) {
+            lua_pushcfunction([[LuaSkin shared] L], userdata_gc) ;
+            [[LuaSkin shared] pushNSObject:self] ;
+            if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) {
+                lua_getglobal([[LuaSkin shared] L], "print") ; lua_insert([[LuaSkin shared] L], -2) ;
+                lua_pushstring([[LuaSkin shared] L], "deleteOnClose:") ; lua_insert([[LuaSkin shared] L], -2) ;
+                [[LuaSkin shared] protectedCallAndTraceback:2 nresults:0] ;
+                NSLog(@"webview deleteOnClose: %s", lua_tostring([[LuaSkin shared] L], -1)) ;
+            }
+        }
         return YES ;
     } else {
         return NO ;
     }
 }
+@end
+
+@interface HSWebViewView : WKWebView <WKNavigationDelegate, WKUIDelegate>
+@property int          navigationCallback ;
+@property int          policyCallback ;
+@property BOOL         allowNewWindows ;
+@property WKNavigation *trackingID ;
 @end
 
 @implementation HSWebViewView
@@ -89,13 +128,9 @@ static WKProcessPool *HSWebViewProcessPool ;
     if (self) {
         self.navigationDelegate = self ;
         self.UIDelegate = self ;
-#ifdef _WV_DEBUG
-        self.barfToConsole = NO ;
-#endif
         self.navigationCallback = LUA_NOREF ;
         self.policyCallback = LUA_NOREF ;
-//         self.allowMouseClicks = YES ;
-//         self.allowContextMenu = YES ;
+        self.allowNewWindows = YES ;
     }
     return self;
 }
@@ -107,14 +142,6 @@ static WKProcessPool *HSWebViewProcessPool ;
 - (BOOL)acceptsFirstMouse:(NSEvent * __unused)theEvent {
     return YES ;
 }
-
-// - (void)mouseDown:(NSEvent *)theEvent {
-//     if (self.allowMouseClicks) [super mouseDown:theEvent] ;
-// }
-//
-// - (void)rightMouseDown:(NSEvent *)theEvent {
-//     if (self.allowMouseClicks && self.allowContextMenu) [super rightMouseDown:theEvent] ;
-// }
 
 #pragma mark - WKNavigationDelegate stuff
 
@@ -137,9 +164,12 @@ static WKProcessPool *HSWebViewProcessPool ;
 }
 
 - (void)webView:(WKWebView *)theView didFinishNavigation:(WKNavigation *)navigation {
+    if (((HSWebViewWindow *)theView.window).titleFollow) [theView.window setTitle:[theView title]] ;
+
     [self navigationCallbackFor:"didFinishNavigation" forView:theView
                                                withNavigation:navigation
                                                     withError:nil] ;
+
 }
 
 - (void)webView:(WKWebView *)theView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
@@ -161,20 +191,6 @@ static WKProcessPool *HSWebViewProcessPool ;
 - (void)webView:(WKWebView *)theView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
                                                      completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential *))completionHandler
 {
-// TODO: need to cache credentials and try them before prompting each time
-//       callback to get username and password?
-//       can we get user and password in same dialog?
-
-#ifdef _WV_DEBUG
-if (self.barfToConsole) {
-        lua_getglobal([[LuaSkin shared] L], "print") ;
-        lua_pushstring([[LuaSkin shared] L], "didReceiveAuthenticationChallenge") ;
-        [[LuaSkin shared] pushNSObject:theView] ;
-        [[LuaSkin shared] pushNSObject:challenge] ;
-        lua_pcall([[LuaSkin shared] L], 3, 0, 0) ;
-    }
-#endif
-
     NSString *hostName = theView.URL.host;
 
     NSString *authenticationMethod = [[challenge protectionSpace] authenticationMethod];
@@ -182,14 +198,57 @@ if (self.barfToConsole) {
         || [authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPBasic]
         || [authenticationMethod isEqualToString:NSURLAuthenticationMethodHTTPDigest]) {
 
-        NSString *title = @"Authentication Challenge";
+        NSURLCredential *previousCredential = [challenge proposedCredential] ;
 
+        if (self.policyCallback != LUA_NOREF && [challenge previousFailureCount] < 3) { // don't get in a loop if the callback isn't working
+            [[LuaSkin shared] pushLuaRef:refTable ref:self.policyCallback];
+            lua_pushstring([[LuaSkin shared] L], "authenticationChallenge") ;
+            [[LuaSkin shared] pushNSObject:(HSWebViewWindow *)theView.window] ;
+            [[LuaSkin shared] pushNSObject:challenge] ;
+
+            if (![[LuaSkin shared]  protectedCallAndTraceback:3 nresults:1]) {
+                const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
+                CLS_NSLOG(@"authenticationChallenge: %s", errorMsg);
+                showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"authenticationChallenge: %s", errorMsg] UTF8String]);
+                // allow prompting if error -- fall through
+            } else {
+                if (lua_type([[LuaSkin shared] L], -1) == LUA_TTABLE) { // if it's a table, we'll get the username and password from it
+                    lua_getfield([[LuaSkin shared] L], -1, "user") ;
+                    NSString *userName = (lua_type([[LuaSkin shared] L], -1) == LUA_TSTRING) ? [[LuaSkin shared] toNSObjectAtIndex:-1] : @"" ;
+                    lua_pop([[LuaSkin shared] L], 1) ;
+
+                    lua_getfield([[LuaSkin shared] L], -1, "password") ;
+                    NSString *password = (lua_type([[LuaSkin shared] L], -1) == LUA_TSTRING) ? [[LuaSkin shared] toNSObjectAtIndex:-1] : @"" ;
+                    lua_pop([[LuaSkin shared] L], 1) ;
+
+                    NSURLCredential *credential = [[NSURLCredential alloc] initWithUser:userName
+                                                                               password:password
+                                                                            persistence:NSURLCredentialPersistenceForSession];
+                    completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+                    lua_pop([[LuaSkin shared] L], 1) ; // pop return value
+                    return ;
+                } else if (!lua_toboolean([[LuaSkin shared] L], -1)) { // if false, don't go forward
+                    completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+                    lua_pop([[LuaSkin shared] L], 1) ; // pop return value
+                    return ;
+                } // fall through
+                lua_pop([[LuaSkin shared] L], 1) ; // pop return value
+            }
+        }
+
+        NSString *title = @"Authentication Challenge";
+        if (previousCredential && [challenge previousFailureCount] > 0) {
+            title = [NSString stringWithFormat:@"%@, attempt %ld", title, [challenge previousFailureCount] + 1] ;
+        }
         NSAlert *alert1 = [[NSAlert alloc] init] ;
         [alert1 addButtonWithTitle:@"OK"];
         [alert1 addButtonWithTitle:@"Cancel"];
         [alert1 setMessageText:title] ;
         [alert1 setInformativeText:[NSString stringWithFormat:@"Username for %@", hostName]] ;
         NSTextField *user = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)] ;
+        if (previousCredential) {
+            user.stringValue = [previousCredential user] ;
+        }
         user.editable = YES ;
         [alert1 setAccessoryView:user] ;
 
@@ -210,7 +269,7 @@ if (self.barfToConsole) {
 
                         NSURLCredential *credential = [[NSURLCredential alloc] initWithUser:userName
                                                                                    password:password
-                                                                                persistence:NSURLCredentialPersistenceNone];
+                                                                                persistence:NSURLCredentialPersistenceForSession];
 
                         completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
 
@@ -228,72 +287,149 @@ if (self.barfToConsole) {
 }
 
 - (void)webView:(WKWebView *)theView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                                             decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-#ifdef _WV_DEBUG
-    if (self.barfToConsole) {
-        lua_getglobal([[LuaSkin shared] L], "print") ;
-        lua_pushstring([[LuaSkin shared] L], "decidePolicyForNavigationAction") ;
-        [[LuaSkin shared] pushNSObject:theView] ;
+                                                     decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    if (self.policyCallback != LUA_NOREF) {
+        [[LuaSkin shared] pushLuaRef:refTable ref:self.policyCallback];
+        lua_pushstring([[LuaSkin shared] L], "navigationAction") ;
+        [[LuaSkin shared] pushNSObject:(HSWebViewWindow *)theView.window] ;
         [[LuaSkin shared] pushNSObject:navigationAction] ;
-        lua_pcall([[LuaSkin shared] L], 3, 0, 0) ;
+
+        if (![[LuaSkin shared]  protectedCallAndTraceback:3 nresults:1]) {
+            const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
+            CLS_NSLOG(@"navigationAction: %s", errorMsg);
+            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"navigationAction: %s", errorMsg] UTF8String]);
+            decisionHandler(WKNavigationActionPolicyCancel) ;
+        } else {
+            if (lua_toboolean([[LuaSkin shared] L], -1)) {
+                decisionHandler(WKNavigationActionPolicyAllow) ;
+            } else {
+                decisionHandler(WKNavigationActionPolicyCancel) ;
+            }
+        }
+        lua_pop([[LuaSkin shared] L], 1) ; // clean up after ourselves
+    } else {
+        decisionHandler(WKNavigationActionPolicyAllow) ;
     }
-#endif
-
-    decisionHandler(WKNavigationActionPolicyAllow) ;
-
-    // WKNavigationActionPolicy
-    // The policy to pass back to the decision handler from the webView:decidePolicyForNavigationAction:decisionHandler: method.
-    // typedef enum WKNavigationActionPolicy : NSInteger {
-    //    WKNavigationActionPolicyCancel,
-    //    WKNavigationActionPolicyAllow,
-    // } WKNavigationActionPolicy;
 }
 
 - (void)webView:(WKWebView *)theView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse
-                                                               decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
-#ifdef _WV_DEBUG
-    if (self.barfToConsole) {
-        lua_getglobal([[LuaSkin shared] L], "print") ;
-        lua_pushstring([[LuaSkin shared] L], "decidePolicyForNavigationResponse") ;
-        [[LuaSkin shared] pushNSObject:theView] ;
+                                                       decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
+    if (self.policyCallback != LUA_NOREF) {
+        [[LuaSkin shared] pushLuaRef:refTable ref:self.policyCallback];
+        lua_pushstring([[LuaSkin shared] L], "navigationResponse") ;
+        [[LuaSkin shared] pushNSObject:(HSWebViewWindow *)theView.window] ;
         [[LuaSkin shared] pushNSObject:navigationResponse] ;
-        lua_pcall([[LuaSkin shared] L], 3, 0, 0) ;
+
+        if (![[LuaSkin shared]  protectedCallAndTraceback:3 nresults:1]) {
+            const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
+            CLS_NSLOG(@"navigationResponse: %s", errorMsg);
+            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"navigationResponse: %s", errorMsg] UTF8String]);
+            decisionHandler(WKNavigationResponsePolicyCancel) ;
+        } else {
+            if (lua_toboolean([[LuaSkin shared] L], -1)) {
+                decisionHandler(WKNavigationResponsePolicyAllow) ;
+            } else {
+                decisionHandler(WKNavigationResponsePolicyCancel) ;
+            }
+        }
+        lua_pop([[LuaSkin shared] L], 1) ; // clean up after ourselves
+    } else {
+        decisionHandler(WKNavigationResponsePolicyAllow) ;
     }
-#endif
-
-    decisionHandler(WKNavigationResponsePolicyAllow) ;
-
-    // WKNavigationResponsePolicy
-    // The policy to pass back to the decision handler from the webView:decidePolicyForNavigationResponse:decisionHandler: method.
-    // typedef enum WKNavigationResponsePolicy : NSInteger {
-    //    WKNavigationResponsePolicyCancel,
-    //    WKNavigationResponsePolicyAllow,
-    // } WKNavigationResponsePolicy;
 }
 
 #pragma mark - WKUIDelegate stuff
 
-- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
+- (WKWebView *)webView:(WKWebView *)theView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
                                                        forNavigationAction:(WKNavigationAction *)navigationAction
-                                                            windowFeatures:(WKWindowFeatures *)windowFeatures {
-#ifdef _WV_DEBUG
-    if (self.barfToConsole) {
-        lua_getglobal([[LuaSkin shared] L], "print") ;
-        lua_pushstring([[LuaSkin shared] L], "WKUIDelegate createWebView:") ;
-        [[LuaSkin shared] pushNSObject:webView] ;
-        [[LuaSkin shared] pushNSObject:configuration] ;
-        [[LuaSkin shared] pushNSObject:navigationAction] ;
-        [[LuaSkin shared] pushNSObject:windowFeatures] ;
-        lua_pcall([[LuaSkin shared] L], 5, 0, 0) ;
-    }
-#endif
+                                                            windowFeatures:(__unused WKWindowFeatures *)windowFeatures {
+// TODO: maybe prevent when not titled/movable, include toggle to prevent new windows...
+// copy window settings... what else?
+    if (((HSWebViewView *)theView).allowNewWindows) {
 
-    return nil ;
+        HSWebViewWindow *parent = (HSWebViewWindow *)theView.window ;
+        NSRect theRect = [parent contentRectForFrameRect:parent.frame] ;
+
+        theRect.origin.x = theRect.origin.x + 20 ;
+        // correct for flipped origin in HS
+        theRect.origin.y = [[NSScreen screens][0] frame].size.height - theRect.origin.y - theRect.size.height ;
+        theRect.origin.y = theRect.origin.y + 20 ;
+
+        HSWebViewWindow *newWindow = [[HSWebViewWindow alloc] initWithContentRect:theRect
+                                                                        styleMask:parent.styleMask
+                                                                          backing:NSBackingStoreBuffered
+                                                                            defer:YES];
+        newWindow.level              = parent.level ;
+        newWindow.allowKeyboardEntry = parent.allowKeyboardEntry ;
+        newWindow.titleFollow        = parent.titleFollow ;
+        newWindow.parent             = parent ;
+        newWindow.titleFollow        = parent.titleFollow ;
+        newWindow.deleteOnClose      = YES ;
+
+        HSWebViewView *newView = [[HSWebViewView alloc] initWithFrame:((NSView *)newWindow.contentView).bounds
+                                                        configuration:configuration];
+        newWindow.contentView = newView;
+
+        newView.allowNewWindows                     = ((HSWebViewView *)theView).allowNewWindows ;
+        newView.allowsMagnification                 = theView.allowsMagnification ;
+        newView.allowsBackForwardNavigationGestures = theView.allowsBackForwardNavigationGestures ;
+
+        if (((HSWebViewView *)theView).navigationCallback != LUA_NOREF) {
+            [[LuaSkin shared] pushLuaRef:refTable ref:((HSWebViewView *)theView).navigationCallback];
+            newView.navigationCallback = [[LuaSkin shared] luaRef:refTable] ;
+        }
+        if (((HSWebViewView *)theView).policyCallback != LUA_NOREF) {
+            [[LuaSkin shared] pushLuaRef:refTable ref:((HSWebViewView *)theView).policyCallback];
+            newView.policyCallback = [[LuaSkin shared] luaRef:refTable] ;
+        }
+
+        if (self.policyCallback != LUA_NOREF) {
+            [[LuaSkin shared] pushLuaRef:refTable ref:self.policyCallback];
+            lua_pushstring([[LuaSkin shared] L], "newWindow") ;
+            [[LuaSkin shared] pushNSObject:newWindow] ;
+            [[LuaSkin shared] pushNSObject:navigationAction] ;
+
+            if (![[LuaSkin shared]  protectedCallAndTraceback:3 nresults:1]) {
+                const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1); lua_pop([[LuaSkin shared] L], 1) ;
+                showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"newWindow: %s", errorMsg] UTF8String]);
+
+                lua_pushcfunction([[LuaSkin shared] L], userdata_gc) ;
+                [[LuaSkin shared] pushNSObject:newWindow] ;
+                if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) {
+                    const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1); lua_pop([[LuaSkin shared] L], 1) ;
+                    showError([[LuaSkin shared] L],
+                        (char *)[[NSString stringWithFormat:@"newWindow removal due to error: %s", errorMsg] UTF8String]);
+                    CLS_NSLOG(@"webview newWindow removal due to error: %s", errorMsg) ;
+                }
+                return nil ;
+            } else {
+                if (!lua_toboolean([[LuaSkin shared] L], -1)) {
+                    lua_pushcfunction([[LuaSkin shared] L], userdata_gc) ;
+                    [[LuaSkin shared] pushNSObject:newWindow] ;
+                    if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) {
+                        const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1); lua_pop([[LuaSkin shared] L], 1) ;
+                        showError([[LuaSkin shared] L],
+                            (char *)[[NSString stringWithFormat:@"newWindow removal due rejection: %s", errorMsg] UTF8String]);
+                        CLS_NSLOG(@"webview newWindow removal due to rejection: %s", errorMsg) ;
+                    }
+                    return nil ;
+                }
+            }
+            lua_pop([[LuaSkin shared] L], 1) ; // clean up after ourselves
+        }
+
+        [parent.children addObject:newWindow] ;
+        [newWindow makeKeyAndOrderFront:nil];
+
+        return newView ;
+    } else {
+        return nil ;
+    }
 }
 
 - (void)webView:(WKWebView *)theView runJavaScriptAlertPanelWithMessage:(NSString *)message
                                                        initiatedByFrame:(WKFrameInfo *)frame
-                                                      completionHandler:(void (^)())completionHandler {
+                                                      completionHandler:(void (^)(void))completionHandler {
     NSAlert *alertPanel = [[NSAlert alloc] init] ;
     [alertPanel addButtonWithTitle:@"OK"];
     [alertPanel setMessageText:[NSString stringWithFormat:@"JavaScript Alert for %@", frame.request.URL.host]] ;
@@ -317,7 +453,6 @@ if (self.barfToConsole) {
         completionHandler((returnCode == NSAlertFirstButtonReturn) ? YES : NO) ;
     }] ;
 }
-
 
 - (void)webView:(WKWebView *)theView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt
                                                                defaultText:(NSString *)defaultText
@@ -358,88 +493,56 @@ if (self.barfToConsole) {
     [theView loadHTMLString:theErrorPage baseURL:nil] ;
 }
 
-
 - (BOOL)navigationCallbackFor:(const char *)action forView:(WKWebView *)theView
                                             withNavigation:(WKNavigation *)navigation
                                                  withError:(NSError *)error {
-#ifdef _WV_DEBUG
-    if (self.barfToConsole) {
-        lua_getglobal([[LuaSkin shared] L], "print") ;
-        lua_pushstring([[LuaSkin shared] L], action) ;
-        [[LuaSkin shared] pushNSObject:theView] ;
-        [[LuaSkin shared] pushNSObject:navigation] ;
-        if (!error) {
-            lua_pcall([[LuaSkin shared] L], 3, 0, 0) ;
-        } else {
-            [[LuaSkin shared] pushNSObject:error] ;
-            lua_pcall([[LuaSkin shared] L], 4, 0, 0) ;
-        }
-    }
-#endif
+
+    ((HSWebViewView *)theView).trackingID = navigation ;
 
     BOOL actionRequiredAfterReturn = YES ;
 
     if (self.navigationCallback != LUA_NOREF) {
-        lua_State *L = [[LuaSkin shared] L];
-
         int numberOfArguments = 3 ;
-
         [[LuaSkin shared] pushLuaRef:refTable ref:self.navigationCallback];
-
-        lua_pushstring(L, action) ;
-
-//         [[LuaSkin shared] pushNSObject:[theView URL]] ;
-        size_t size = [[[theView URL] description] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
-        lua_pushlstring(L, [[[theView URL] description] UTF8String], size) ;
-
-        lua_pushstring(L, [[NSString stringWithFormat:@"0x%p", navigation] UTF8String]) ;
+        lua_pushstring([[LuaSkin shared] L], action) ;
+        [[LuaSkin shared] pushNSObject:(HSWebViewWindow *)theView.window] ;
+        lua_pushstring([[LuaSkin shared] L], [[NSString stringWithFormat:@"0x%p", navigation] UTF8String]) ;
 
         if (error) {
             numberOfArguments++ ;
-            lua_newtable(L) ;
-                lua_pushinteger(L, (lua_Integer)error.code) ; lua_setfield(L, -2, "code") ;
-                size = [[error domain] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
-                lua_pushlstring(L, [[error domain] UTF8String], size) ; lua_setfield(L, -2, "domain") ;
-                size = [[error localizedDescription] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
-                lua_pushlstring(L, [[error localizedDescription] UTF8String], size) ; lua_setfield(L, -2, "description") ;
-                size = [[error localizedFailureReason] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
-                lua_pushlstring(L, [[error localizedFailureReason] UTF8String], size) ; lua_setfield(L, -2, "reason") ;
+            [[LuaSkin shared] pushNSObject:error] ;
         }
 
         if (![[LuaSkin shared]  protectedCallAndTraceback:numberOfArguments nresults:1]) {
-            const char *errorMsg = lua_tostring(L, -1);
-            CLS_NSLOG(@"%s", errorMsg);
-            showError(L, (char *)errorMsg);
+            const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
+            CLS_NSLOG(@"%s: %s", action, errorMsg);
+            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: %s", action, errorMsg] UTF8String]);
         } else {
             if (error) {
-                if (lua_type(L, -1) == LUA_TSTRING) {
-                    lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ;
-                    lua_pushvalue(L, -3) ;
-                    if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
-                        showError(L, (char *)[[NSString stringWithFormat:@"unable to validate HTML: %s", lua_tostring(L, -1)] UTF8String]);
+                if (lua_type([[LuaSkin shared] L], -1) == LUA_TSTRING) {
+                    lua_getglobal([[LuaSkin shared] L], "hs") ; lua_getfield([[LuaSkin shared] L], -1, "cleanUTF8forConsole") ;
+                    lua_pushvalue([[LuaSkin shared] L], -3) ;
+                    if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:1]) {
+                        showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: unable to validate HTML: %s", action, lua_tostring([[LuaSkin shared] L], -1)] UTF8String]);
                     } else {
-                    //     NSString *theHTML = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
-                        size_t size ;
-                        unsigned char *string = (unsigned char *)lua_tolstring(L, -1, &size) ;
-                        NSString *theHTML = [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size]
-                                                                  encoding:NSUTF8StringEncoding] ;
-                        lua_pop(L, 2) ; // remove "hs" and the return value
+                        NSString *theHTML = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                        lua_pop([[LuaSkin shared] L], 2) ; // remove "hs" and the return value
 
                         [theView loadHTMLString:theHTML baseURL:nil] ;
                         actionRequiredAfterReturn = NO ;
                     }
-                } else if (lua_type(L, -1) == LUA_TBOOLEAN && lua_toboolean(L, -1)) {
+                } else if (lua_type([[LuaSkin shared] L], -1) == LUA_TBOOLEAN && lua_toboolean([[LuaSkin shared] L], -1)) {
                     actionRequiredAfterReturn = NO ;
                 }
             }
         }
+        lua_pop([[LuaSkin shared] L], 1) ; // clean up after ourselves
     }
 
     return actionRequiredAfterReturn ;
 }
 
 @end
-
 
 // @interface WKPreferences (WKPrivate)
 // @property (nonatomic, setter=_setDeveloperExtrasEnabled:) BOOL _developerExtrasEnabled;
@@ -448,40 +551,120 @@ if (self.barfToConsole) {
 // Yeah, I know the distinction is a little blurry and arbitrary, but it helps my thinking.
 #pragma mark - WKWebView Related Methods
 
+#ifdef _WK_DEBUG
+static int webview_preferences(lua_State *L) {
+    HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    HSWebViewView          *theView = theWindow.contentView ;
+    WKWebViewConfiguration *theConfiguration = [theView configuration] ;
+    WKPreferences          *thePreferences = [theConfiguration preferences] ;
+
+    lua_newtable(L) ;
+        lua_pushnumber(L, [thePreferences minimumFontSize]) ;                        lua_setfield(L, -2, "minimumFontSize") ;
+        lua_pushboolean(L, [thePreferences javaEnabled]) ;                           lua_setfield(L, -2, "javaEnabled") ;
+        lua_pushboolean(L, [thePreferences javaScriptEnabled]) ;                     lua_setfield(L, -2, "javaScriptEnabled") ;
+        lua_pushboolean(L, [thePreferences plugInsEnabled]) ;                        lua_setfield(L, -2, "plugInsEnabled") ;
+        lua_pushboolean(L, [thePreferences javaScriptCanOpenWindowsAutomatically]) ; lua_setfield(L, -2, "javaScriptCanOpenWindowsAutomatically") ;
+        lua_pushboolean(L, [theConfiguration suppressesIncrementalRendering]) ;      lua_setfield(L, -2, "suppressesIncrementalRendering") ;
+    return 1 ;
+}
+#endif
+
+/// hs.webview:children() -> array
+/// Method
+/// Returns an array of webview objects which have been opened as children of this webview.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * an array containing the webview objects of all child windows opened from this webview.
+static int webview_children(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+
+    lua_newtable(L) ;
+    for (HSWebViewWindow *webView in theWindow.children) {
+        [[LuaSkin shared] pushNSObject:webView] ;
+        lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    }
+
+    return 1 ;
+}
+
+/// hs.webview:parent() -> webviewObject | nil
+/// Method
+/// Get the parent webview object for the calling webview object, or nil if the webview has no parent.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the parent webview object for the calling webview object, or nil if the webview has no parent
+static int webview_parent(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+
+    if (theWindow.parent) {
+        [[LuaSkin shared] pushNSObject:theWindow.parent] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+
+    return 1 ;
+}
+
 /// hs.webview:url([URL]) -> webviewObject, navigationIdentifier | url
 /// Method
 /// Get or set the URL to render for the webview.
 ///
 /// Parameters:
-///  * URL - an optional string representing the URL to display.
+///  * URL - an optional string or table representing the URL to display.  If you provide a table, it should contain one or more of the following keys (note that URL is the only required key):
+///    * URL                     - the URL of the desired content
+///    * mainDocumentURL         - the URL of the main document, if it differs.  This usually only matters for cookie negotiation and currently has no effect in this module.
+///    * HTTPBody                - the message body of the request, as in an HTTP POST request
+///    * HTTPMethod              - the HTTP Method of the request, default GET.
+///    * timeoutInterval         - the timeout interval for the request in seconds, default 60.0.
+///    * HTTPShouldHandleCookies - whether or not cookies should be managed automatically, default true.  Currently there is no support for the manual handling of cookies, though this may change in the future.
+///    * HTTPShouldUsePipelining - whether or not the request can continue to transmit data before receiving a response from the remote server.  Default false.
+///    * cachePolicy             - a string value representing the cache policy for the request.  It should match one of the following:
+///      * protocolCachePolicy     - (default) the cache policy defined as the default for the protocol of the URL request
+///      * ignoreLocalCache        - ignore any locally cached content and request all content from the remote server
+///      * returnCacheOrLoad       - return cached data, regardless of its age or expiration date. If there is no existing data in the cache corresponding to the request, load data from the originating source.
+///      * returnCacheDontLoad     - treat the request as if offline - return cached data, regardless of its age or expiration date. If there is no existing data in the cache corresponding to the request, the load is considered to have failed.
+///    * networkServiceType      - a string value representing the network service type of the request.  It should match one of the following:
+///      * default                 - (default) standard network traffic.  You should rarely use a value other than this as it can affect the responsiveness of your computer and other applications.
+///      * VoIP                    - with the VoIP service type, the kernel continues to listen for incoming traffic while your app is in the background, then wakes up your app whenever new data arrives. This should be used only for connections that are used to communicate with a VoIP service.
+///      * video                   - specifies that this is video traffic
+///      * background              - use this for data if your are performing a download that was not requested by the user — for example, prefetching content so that it will be available when the user chooses to view it.
+///      * voice                   - specifies that this is voice traffic
+///    * HTTPHeaderFields        - a table containing key-value pairs corresponding to additional headers you wish to include in your request.  Because the HTTP specification requires that both keys and values are strings, any key which is not a string is ignored, and any value which is not a string or number is also ignored.  In addition, the following keys are handled automatically behind the scenes and will be ignored if you specify them:
+///      * Authorization
+///      * Connection
+///      * Host
+///      * WWW-Authenticate
+///      * Content-Length
 ///
 /// Returns:
 ///  * If a URL is specified, then this method returns the webview Object and a navigation identifier; otherwise it returns the current url being displayed.
 ///
 /// Notes:
 ///  * The navigation identifier can be used to track a web request as it is processed and loaded by using the `hs.webview:navigationCallback` method.
+///  * The networkServiceType field of the URL request table is a hint to the operating system about what the underlying traffic is used for. This hint enhances the system's ability to prioritize traffic, determine how quickly it needs to wake up the Wi-Fi radio, and so on. By providing accurate information, you improve the ability of the system to optimally balance battery life, performance, and other considerations.  Likewise, inaccurate information can have a deleterious effect on your system performance and battery life.
 static int webview_url(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (lua_type(L, 2) == LUA_TNONE) {
-//         [[LuaSkin shared] pushNSObject:[theView URL]] ;
-        size_t size = [[[theView URL] description] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
-        lua_pushlstring(L, [[[theView URL] description] UTF8String], size) ;
+        [[LuaSkin shared] pushNSObject:[theView URL]] ;
         return 1 ;
     } else {
-//         NSString *theURL = [[LuaSkin shared] toNSObjectAtIndex:2] ;
-        size_t size ;
-        unsigned char *string = (unsigned char *)lua_tolstring(L, 2, &size) ;
-        NSString *theURL = [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
-
-        if (theURL) {
-            WKNavigation *navID = [theView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:theURL]]] ;
+        NSURLRequest *theNSURL = [[LuaSkin shared] tableAtIndex:2 toClass:"NSURLRequest"] ;
+        if (theNSURL) {
+            WKNavigation *navID = [theView loadRequest:theNSURL] ;
+            theView.trackingID = navID ;
             lua_pushvalue(L, 1) ;
-            lua_pushstring(L, [[NSString stringWithFormat:@"0x%p", navID] UTF8String]) ;
+            [[LuaSkin shared] pushNSObject:navID] ;
             return 2 ;
         } else {
-            return luaL_error(L, "Invalid URL type.  String expected.") ;
+            return luaL_error(L, "Invalid URL type.  String or table expected.") ;
         }
     }
 }
@@ -495,17 +678,31 @@ static int webview_url(lua_State *L) {
 ///
 /// Returns:
 ///  * the title
-///
-/// Notes:
-///  * This method can be used with `hs.webview:windowTitle` to set the window title if the window style is titled.  E.g. `hs.webview:windowTitle(hs.webview:title())`
 static int webview_title(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
-//         [[LuaSkin shared] pushNSObject:[theView title]] ;
-    size_t size = [[theView title] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
-    lua_pushlstring(L, [[theView title] UTF8String], size) ;
+    [[LuaSkin shared] pushNSObject:[theView title]] ;
+    return 1 ;
+}
 
+/// hs.webview:navigationID() -> navigationID
+/// Method
+/// Get the most recent navigation identifier for the specified webview.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the navigation identifier
+///
+/// Notes:
+///  * This navigation identifier can be used to track the progress of a webview with the navigation callback function - see `hs.webview.navigationCallback`.
+static int webview_navigationID(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+
+    [[LuaSkin shared] pushNSObject:theView.trackingID] ;
     return 1 ;
 }
 
@@ -640,8 +837,10 @@ static int webview_reload(lua_State *L) {
     else
         navID = [theView reloadFromOrigin] ;
 
+    theView.trackingID = navID ;
+
     lua_pushvalue(L, 1) ;
-    lua_pushstring(L, [[NSString stringWithFormat:@"0x%p", navID] UTF8String]) ;
+    [[LuaSkin shared] pushNSObject:navID] ;
     return 2 ;
 }
 
@@ -662,6 +861,32 @@ static int webview_allowMagnificationGestures(lua_State *L) {
         lua_pushboolean(L, [theView allowsMagnification]) ;
     } else {
         [theView setAllowsMagnification:(BOOL)lua_toboolean(L, 2)] ;
+        lua_settop(L, 1) ;
+    }
+    return 1 ;
+}
+
+/// hs.webview:allowNewWindows([value]) -> webviewObject | current value
+/// Method
+/// Get or set whether or not the webview allows new windows to be opened from it by any method.  Defaults to true.
+///
+/// Parameters:
+///  * value - an optional boolean value indicating whether or not the webview should allow new windows to be opened from it.
+///
+/// Returns:
+///  * If a value is provided, then this method returns the webview object; otherwise the current value
+///
+/// Notes
+///  * This method allows you to prevent a webview from being able to open a new window by any method.   This includes right-clicking on a link and selecting "Open in a New Window", javascript pop-ups, links with the target of "__blank", etc.
+///  * If you just want to precent automatic javascript windows, set the preference value javaScriptCanOpenWindowsAutomatically to false when creating the web view - this method blocks *all* methods.
+static int webview_allowNewWindows(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+
+    if (lua_type(L, 2) == LUA_TNONE) {
+        lua_pushboolean(L, theView.allowNewWindows) ;
+    } else {
+        theView.allowNewWindows = (BOOL)lua_toboolean(L, 2) ;
         lua_settop(L, 1) ;
     }
     return 1 ;
@@ -710,11 +935,7 @@ static int webview_magnification(lua_State *L) {
 
 // Center point doesn't seem to do anything... will investigate further later...
 //         if (lua_type(L, 3) == LUA_TTABLE) {
-// //             centerOn = [[LuaSkin shared] tableToPointAtIndex:3] ;
-//             CGFloat x = (lua_getfield(L, 3, "x"), luaL_checknumber(L, -1));
-//             CGFloat y = (lua_getfield(L, 3, "y"), luaL_checknumber(L, -1));
-//             lua_pop(L, 2);
-//             centerOn = NSMakePoint(x, y);
+//             centerOn = [[LuaSkin shared] tableToPointAtIndex:3] ;
 //         } else if (lua_type(L, 3) != LUA_TNONE) {
 //             return luaL_error(L, "invalid type specified for magnification center: %s", lua_typename(L, lua_type(L, 3))) ;
 //         }
@@ -748,29 +969,24 @@ static int webview_html(lua_State *L) {
 
     lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ;
     lua_pushvalue(L, 2) ;
-    if (lua_pcall(L, 1, 1, 0) != LUA_OK) {
+    if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:1]) {
         return luaL_error(L, "unable to validate HTML: %s", lua_tostring(L, -1)) ;
     }
-//     NSString *theHTML = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
-    size_t size ;
-    unsigned char *string = (unsigned char *)lua_tolstring(L, -1, &size) ;
-    NSString *theHTML = [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
+    NSString *theHTML = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
     lua_pop(L, 2) ; // remove "hs" and the return value
 
     NSString *theBaseURL ;
-    if (lua_type(L, 3) == LUA_TSTRING) {
-//       theBaseURL = [[LuaSkin shared] toNSObjectAtIndex:2] ;
-      size_t size ;
-      unsigned char *string = (unsigned char *)lua_tolstring(L, 3, &size) ;
-      theBaseURL = [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
+    if (lua_type(L, 3) == LUA_TSTRING || lua_type(L, 3) == LUA_TTABLE) {
+      theBaseURL = [[LuaSkin shared] toNSObjectAtIndex:3] ;
     } else if (lua_type(L, 3) != LUA_TNONE) {
         return luaL_error(L, "baseURL should be string or none: found %s",lua_typename(L, lua_type(L, 3))) ;
     }
 
     WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
+    theView.trackingID = navID ;
 
     lua_pushvalue(L, 1) ; // strictly not necessary here, but it makes it clearer what we're returning
-    lua_pushstring(L, [[NSString stringWithFormat:@"0x%p", navID] UTF8String]) ;
+    [[LuaSkin shared] pushNSObject:navID] ;
     return 2 ;
 }
 
@@ -780,16 +996,16 @@ static int webview_html(lua_State *L) {
 ///
 /// Parameters:
 ///  * fn - the function to be called when the navigation status of a webview cahnges.  To disable the callback function, explicitly specify nil.  The function should expect 3 or 4 arguments and may optionally return 1.  The function arguments are defined as follows:
-///    * action - a string indicating the webview's current status.  It will be one of the following:
+///    * action  - a string indicating the webview's current status.  It will be one of the following:
 ///      * didStartProvisionalNavigation                    - a request or action to change the contents of the main frame has occurred
 ///      * didReceiveServerRedirectForProvisionalNavigation - a server redirect was received for the main frame
 ///      * didCommitNavigation                              - content has started arriving for the main frame
 ///      * didFinishNavigation                              - the webview's main frame has completed loading.
 ///      * didFailNavigation                                - an error has occurred after content started arriving
 ///      * didFailProvisionalNavigation                     - an error has occurred as or before content has started arriving
-///    * url    - the current url for the webview
-///    * navID  - a navigationIdentifier which can be used to link this event back to a specific request made by a `hs.webview:url`, `hs.webview:html`, or `hs.webview:reload` method.
-///    * error  - a table which will only be provided when `action` is equal to `didFailNavigation` or `didFailProvisionalNavigation`.  If provided, it will contain at leas some of the following keys:
+///    * webView - the webview object the navigation is occurring for.
+///    * navID   - a navigation identifier which can be used to link this event back to a specific request made by a `hs.webview:url`, `hs.webview:html`, or `hs.webview:reload` method.
+///    * error   - a table which will only be provided when `action` is equal to `didFailNavigation` or `didFailProvisionalNavigation`.  If provided, it will contain at leas some of the following keys, possibly others as well:
 ///      * code        - a numerical value indicating the type of error code.  This will mostly be of use to developers or in debugging and may be removed in the future.
 ///      * domain      - a string indcating the error domain of the error.  This will mostly be of use to developers or in debugging and may be removed in the future.
 ///      * description - a string describing the condition or problem that has occurred.
@@ -799,16 +1015,14 @@ static int webview_html(lua_State *L) {
 ///  * The webview object
 ///
 /// Notes:
-///  * The return value of the callback function is ignored except when the `action` argument is equal to `didFailNavigation` or `didFailProvisionalNavigation`.  If the return value when the action argument is one of these values is a string, it will be treated as html and displayed in the webview.  If the return value is the boolean value true, then no change will be made to the webview (it will continue to display the previous web page).  All other return values, or no return value at all, will cause a default error page to be displayed in the webview.
+///  * The return value of the callback function is ignored except when the `action` argument is equal to `didFailNavigation` or `didFailProvisionalNavigation`.  If the return value when the action argument is one of these values is a string, it will be treated as html and displayed in the webview as the error message.  If the return value is the boolean value true, then no change will be made to the webview (it will continue to display the previous web page).  All other return values or no return value at all, if these navigation actions occur, will cause a default error page to be displayed in the webview.
 static int webview_navigationCallback(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TFUNCTION) {
-        // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
-        if (theView.navigationCallback != LUA_NOREF) {
-            theView.navigationCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.navigationCallback] ;
-        }
+        // We're either removing a callback, or setting a new one. Either way, we want to clear out any callback that exists
+        theView.navigationCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.navigationCallback] ;
 
         // Set a new callback if we have a function
         if (lua_type(L, 2) == LUA_TFUNCTION) {
@@ -823,26 +1037,96 @@ static int webview_navigationCallback(lua_State *L) {
     return 1;
 }
 
-static int fn_pushWKBackForwardListItem(lua_State *L, WKBackForwardListItem *theItem) {
-    size_t size ;
+/// hs.webview:policyCallback(fn) -> webviewObject
+/// Method
+/// Sets a callback to approve or deny web navigation activity.
+///
+/// Parameters:
+///  * fn - the function to be called to approve or deny web navigation activity.  To disable the callback function, explicitly specify nil.  The callback function will accept three arguments and must return 1 argument which will determine if the action is approved or denied.  The first argument will specify the type of policy request and will determine the second and third arguments as follows:
+///
+///    * `navigationAction`: This applies to any connection to a server or service which supplies content for the webview and occurs before any connection has actually been made.
+///      * the second argument will be the webview this request originates from.
+///      * the third argument will be a table about the navigation action requested and may contain any of the following keys:
+///        * request        - a table containing the request for that generated this policy action request.  See `hs.webview.url` for details on what keys may be present in this table.
+///        * sourceFrame    - a table describing the frame in which the request occurred containing the following keys:
+///          * mainFrame      - a boolean value indicating if this is the main view frame of the webview or not
+///          * request        - a table containing the request for this frame.  See `hs.webview.url` for details on what keys may be present in this table.
+///        * targetFrame    - a table with the same keys as `sourceFrame`, but describing the target of the request, if it differs.
+///        * buttonNumber   - a number indicating the mouse button pressed that initiated this action or 0 if no mouse button was involved (for example, a url specified via `hs.webview.url` or a request for an image, etc. as part of rendering an earlier request).
+///        * modifierFlags  - a table containing keys for the keyboard modifiers which were pressed when the navigation generating this policy request was generated.
+///        * navigationType - a string indicating how the navigation was requested: `linkActivated`, `formSubmitted`, `backForward`, `reload`, `formResubmitted`, or `other`
+///    * The callback function should return `true` if the navigation should proceed or false if it should be denied.
+///
+///    * `navigationResponse`: This applies to any connection to a server or service which supplies content for the webview and occurs after the connection has been made but before it has been rendered in the webview.
+///      * the second argument will be the webview this request originates from.
+///      * the third argument will be a table about the response received and may contain any of the following keys:
+///        * canShowMIMEType - a boolean indicating whether or not the webview can display the content either natively or with a plugin.  If this value is false, it is likely the content either cannot be displayed at all or will appear as gibberish in the webview.
+///        * forMainFrame    - a boolean indicating if the response is for a navigation of the main frames primary content (i.e. not an image or sub-frame, etc.)
+///        * response        - a table describing the response to the URL request and may contain any of the following keys:
+///          * expectedContentLength - the expected length of the response content
+///          * suggestedFileName     - a suggested filename for the response data
+///          * MIMEType              - the MIME type of the response data
+///          * textEncodingName      - if the response is text, then this will contain the encoding type used
+///          * URL                   - the URL of the actual response.  Note that this may differ from the original request due to redirects, etc.
+///          * statusCode            - the HTTP response code for the request
+///          * statusCodeDescription - a localized description of the response code
+///          * allHeaderFields       - a table containing the header fields and values provided in the response
+///    * The callback function should return `true` if the navigation should proceed or false if it should be denied.
+///
+///    * `newWindow`: This applies to any request to create a new window from a webview.  This includes javascript, the user selecting "Open in a new window", etc.
+///      * the second argument will be the new webview this request is generating.
+///      * the third argument will be a table about the navigation action requested.  See the description above for `navigationAction` for details about this parameter.
+///    * The callback function should return `true` if the new window should be created or false if it should not.
+///
+///    * `authenticationChallenge`:  This applies to a web page which requires a log in credential for HTTPBasic or HTTPDigest authentication.
+///      * the second argument will be the webview this request originates from.
+///      * the third argument will be a table containing the challenge details and may contain any of the following keys:
+///        * previousFailureCount - an integer indicating the number of previously failed login attempts.  This will be 0 for the first try.
+///        * failureResponse      - the response data as described for `navigationResponse` above for the last authentication failureResponse
+///        * proposedCredential   - a table containing the previously failed credential containing any of the following keys:
+///          * hasPassword          - a boolean value indicating if a password was provided with this credential
+///          * persistence          - a string value identifying the persistence of this credential.  This value will be one of the following:
+///            * none                 - the credential is for this URL request only and no other
+///            * session              - the credential is for this session and will be forgotten once the webview is deleted
+///            * permanent            - the credential is stored in the user's keychain
+///            * synchronized         - the credential is stored in the user's keychain and may be shared with other devices with the same owning Apple ID.
+///          * user                 - the username of the failed credential
+///          * password             - the password of the failed credential
+///        * protectionSpace      - a table describing the realm for the authentication and may contain any of the following keys:
+///          * port                       - the port of the server with which communication for this request is occurring
+///          * receivesCredentialSecurely - a boolean value indicating whether or not the credential can be sent to the server securely
+///          * authenticationMethod       - a string indicating the authentication type: default, HTTPBasic, or HTTPDigest.  Other types exists but are not currently supported with this module or do not apply to webview activities.
+///          * host                       - the host name of the server with which communication for this request is occurring
+///          * protocol                   - the protocol for which the authentication is occurring
+///          * isProxy                    - a boolean indicating whether or not the authentication is occurring with a proxy server
+///          * proxyType                  - a string representing the type of proxy server: http, https, ftp, or socks.
+///          * realm                      - a string representing the realm name for the authentication.
+///    * The callback function should return true if the user should be prompted for the username and password credentials, a table with the keys `user` and `password` containing the username and password to log in with, or false if the login request should be cancelled.  Note that if your function returns a table and fails to authenticate three times, the user will be prompted anyways to prevent loops.
+///
+/// Returns:
+///  * The webview object
+///
+/// Notes:
+///  * With the `newWindow` action, the navigationCallback and policyCallback are automatically replicated for the new window from its parent.  If you wish to disable these for the new window or assign a different set of callback functions, you can do so before returning true in the callback function with the webview argument provided.
+static int webview_policyCallback(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    HSWebViewView   *theView = theWindow.contentView ;
 
-    lua_newtable(L) ;
-//       [[LuaSkin shared] pushNSObject:[theItem URL]] ;
-      size = [[[theItem URL] description] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
-      lua_pushlstring(L, [[[theItem URL] description] UTF8String], size) ;
-      lua_setfield(L, -2, "URL") ;
+    if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TFUNCTION) {
+        // We're either removing a callback, or setting a new one. Either way, we want to clear out any callback that exists
+        theView.policyCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.policyCallback] ;
 
-//       [[LuaSkin shared] pushNSObject:[theItem initialURL]] ;
-      size = [[[theItem initialURL] description] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
-      lua_pushlstring(L, [[[theItem initialURL] description] UTF8String], size) ;
-      lua_setfield(L, -2, "initialURL") ;
+        // Set a new callback if we have a function
+        if (lua_type(L, 2) == LUA_TFUNCTION) {
+            lua_pushvalue(L, 2);
+            theView.policyCallback = [[LuaSkin shared] luaRef:refTable] ;
+        }
+    } else {
+        return luaL_error(L, ":policyCallback() expected function or nil, not %s", lua_typename(L, lua_type(L, 2)));
+    }
 
-//       [[LuaSkin shared] pushNSObject:[theItem title]] ;
-      size = [[theItem title] lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
-      lua_pushlstring(L, [[theItem title] UTF8String], size) ;
-      lua_setfield(L, -2, "title") ;
-
-    return 1 ;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.webview:historyList() -> historyTable
@@ -861,66 +1145,147 @@ static int webview_historyList(lua_State *L) {
     HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView          *theView = theWindow.contentView ;
 
-    lua_newtable(L) ;
+    [[LuaSkin shared] pushNSObject:[theView backForwardList]] ;
+    return 1 ;
+}
 
-    WKBackForwardList *theList = [theView backForwardList] ;
-    if (theList) {
-        NSArray *previousList = [theList backList] ;
-        NSArray *nextList = [theList forwardList] ;
+/// hs.webview.urlParts(url) -> table
+/// Function
+/// Returns a table of keys containing the individual components of the provided url.
+///
+/// Parameters:
+///  * url - the url to parse into it's individual components
+///
+/// Returns:
+///  * a table containing any of the following keys which apply to the specified url:
+///    * absoluteString           - The URL string for the URL as an absolute URL.
+///    * absoluteURL              - An absolute URL that refers to the same resource as the provided URL.
+///    * baseURL                  - the base URL, if the URL is relative
+///    * fileSystemRepresentation - the URL’s unescaped path specified as a file system path
+///    * fragment                 - the fragment, if specified in the URL
+///    * host                     - the host for the URL
+///    * isFileURL                - a boolean value indicating whether or not the URL represents a local file
+///    * lastPathComponent        - the last path component specified in the URL
+///    * parameterString          - the parameter string, if specified in the URL
+///    * password                 - the password, if specified in the URL
+///    * path                     - the unescaped path specified in the URL
+///    * pathComponents           - an array containing the path components of the URL
+///    * pathExtension            - the file extension, if specified in the URL
+///    * port                     - the port, if specified in the URL
+///    * query                    - the query, if specified in the URL
+///    * queryItems               - if the URL contains a query string, then this field contains an array of the unescaped key-value pairs for each item. Each key-value pair is represented as a table in the array to preserve order.  See notes for more information.
+///    * relativePath             - the relative path of the URL without resolving against its base URL. If the path has a trailing slash it is stripped. If the URL is already an absolute URL, this contains the same value as path.
+///    * relativeString           - a string representation of the relative portion of the URL. If the URL is already an absolute URL this contains the same value as absoluteString.
+///    * resourceSpecifier        - the resource specified in the URL
+///    * scheme                   - the scheme of the URL
+///    * standardizedURL          - the URL with any instances of ".." or "." removed from its path
+///    * user                     - the username, if specified in the URL
+///
+/// Notes:
+///  * This function assumes that the URL conforms to RFC 1808.  If the URL is malformed or does not conform to RFC1808, then many of these fields may be missing.
+///
+///  * A contrived example for the url `http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment`:
+///
+///     > hs.inspect(hs.webview.urlParts("http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment"))
+///      {
+///        absoluteString = "http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment",
+///        absoluteURL = "http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment",
+///        fileSystemRepresentation = "/path/to a/../file.txt",
+///        fragment = "fragment",
+///        host = "host.site.com",
+///        isFileURL = false,
+///        lastPathComponent = "file.txt",
+///        parameterString = "parameter",
+///        password = "password",
+///        path = "/path/to a/../file.txt",
+///        pathComponents = { "/", "path", "to a", "..", "file.txt" },
+///        pathExtension = "txt",
+///        port = 80,
+///        query = "query1=1&query2=a%28",
+///        queryItems = { {
+///            query1 = "1"
+///          }, {
+///            query2 = "a("
+///          } },
+///        relativePath = "/path/to a/../file.txt",
+///        relativeString = "http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment",
+///        resourceSpecifier = "//user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment",
+///        scheme = "http",
+///        standardizedURL = "http://user:password@host.site.com:80/path/file.txt;parameter?query1=1&query2=a%28#fragment",
+///        user = "user"
+///      }
+///
+///  * Because it is valid for a query key-value pair to be missing either the key or the value or both, the following conventions are used:
+///    * a missing key (e.g. '=value') will be represented as { "" = value }
+///    * a missing value (e.g. 'key=') will be represented as { key = "" }
+///    * a missing value with no = (e.g. 'key') will be represented as { key }
+///    * a missing key and value (e.g. '=') will be represente as { "" = "" }
+///    * an empty query item (e.g. a query ending in '&' or a query containing && between two other query items) will be represented as { "" }
+///
+///  * At present Hammerspoon does not provide a way to represent a URL as a true Objective-C object within the OS X API.  This affects the following keys:
+///    * absoluteURL, baseURL, and standardizedURL are presented as their string representation.
+///    * relative URLs are not possible to express properly so baseURL will always be nil and relativePath and relativeString will always match path and absoluteString.
+///    * These limitations may change in a future update if the need for a more fully compliant URL treatment is determined to be necessary.
 
-        for(id value in previousList) {
-            // [[LuaSkin shared] pushNSObject:value] ;
-            fn_pushWKBackForwardListItem(L, value) ;
-            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-        }
-        // [[LuaSkin shared] pushNSObject:[theList currentItem]] ;
-        if ([theList currentItem]) {
-            fn_pushWKBackForwardListItem(L, [theList currentItem]) ;
-            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-        }
-        lua_pushinteger(L, luaL_len(L, -1)) ; lua_setfield(L, -2, "current") ;
-
-        for(id value in nextList) {
-            // [[LuaSkin shared] pushNSObject:value] ;
-            fn_pushWKBackForwardListItem(L, value) ;
-            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
-        }
+/// hs.webview:urlAsTable() -> table
+/// Method
+/// Returns a table of keys containing the individual components of the URL for the webview.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table containing the keys for the webview's URL.  See the function `hs.webview.urlParts` for a description of the possible keys returned in the table.
+static int webview_urlParts(lua_State *L) {
+    NSURL *theURL ;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        theURL = [NSURL URLWithString:(NSString *)[[LuaSkin shared] toNSObjectAtIndex:1]] ;
     } else {
-        lua_pushinteger(L, 0) ; lua_setfield(L, -2, "current") ;
+        HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+        HSWebViewView   *theView = theWindow.contentView ;
+        theURL = [theView URL] ;
     }
-    return 1 ;
-}
-
-#ifdef _WV_DEBUG
-static int webview_verbose(lua_State *L) {
-    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
-    HSWebViewView   *theView = theWindow.contentView ;
-
-    if (lua_type(L, 2) == LUA_TNONE) {
-        lua_pushboolean(L, theView.barfToConsole) ;
-    } else {
-        theView.barfToConsole = (BOOL)lua_toboolean(L, 2) ;
-        lua_settop(L, 1) ;
-    }
-    return 1 ;
-}
-
-static int webview_preferences(lua_State *L) {
-    HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
-    HSWebViewView          *theView = theWindow.contentView ;
-    WKWebViewConfiguration *theConfiguration = [theView configuration] ;
-    WKPreferences          *thePreferences = [theConfiguration preferences] ;
 
     lua_newtable(L) ;
-        lua_pushnumber(L, [thePreferences minimumFontSize]) ;                        lua_setfield(L, -2, "minimumFontSize") ;
-        lua_pushboolean(L, [thePreferences javaEnabled]) ;                           lua_setfield(L, -2, "javaEnabled") ;
-        lua_pushboolean(L, [thePreferences javaScriptEnabled]) ;                     lua_setfield(L, -2, "javaScriptEnabled") ;
-        lua_pushboolean(L, [thePreferences plugInsEnabled]) ;                        lua_setfield(L, -2, "plugInsEnabled") ;
-        lua_pushboolean(L, [thePreferences javaScriptCanOpenWindowsAutomatically]) ; lua_setfield(L, -2, "javaScriptCanOpenWindowsAutomatically") ;
-        lua_pushboolean(L, [theConfiguration suppressesIncrementalRendering]) ;      lua_setfield(L, -2, "suppressesIncrementalRendering") ;
+      [[LuaSkin shared] pushNSObject:[theURL absoluteString]] ;     lua_setfield(L, -2, "absoluteString") ;
+      [[LuaSkin shared] pushNSObject:[theURL absoluteURL]] ;        lua_setfield(L, -2, "absoluteURL") ;
+      [[LuaSkin shared] pushNSObject:[theURL baseURL]] ;            lua_setfield(L, -2, "baseURL") ;
+      lua_pushstring(L, [theURL fileSystemRepresentation]) ;        lua_setfield(L, -2, "fileSystemRepresentation") ;
+      [[LuaSkin shared] pushNSObject:[theURL fragment]] ;           lua_setfield(L, -2, "fragment") ;
+      [[LuaSkin shared] pushNSObject:[theURL host]] ;               lua_setfield(L, -2, "host") ;
+      [[LuaSkin shared] pushNSObject:[theURL lastPathComponent]] ;  lua_setfield(L, -2, "lastPathComponent") ;
+      [[LuaSkin shared] pushNSObject:[theURL parameterString]] ;    lua_setfield(L, -2, "parameterString") ;
+      [[LuaSkin shared] pushNSObject:[theURL password]] ;           lua_setfield(L, -2, "password") ;
+      [[LuaSkin shared] pushNSObject:[theURL path]] ;               lua_setfield(L, -2, "path") ;
+      [[LuaSkin shared] pushNSObject:[theURL pathComponents]] ;     lua_setfield(L, -2, "pathComponents") ;
+      [[LuaSkin shared] pushNSObject:[theURL pathExtension]] ;      lua_setfield(L, -2, "pathExtension") ;
+      [[LuaSkin shared] pushNSObject:[theURL port]] ;               lua_setfield(L, -2, "port") ;
+      [[LuaSkin shared] pushNSObject:[theURL query]] ;              lua_setfield(L, -2, "query") ;
+      [[LuaSkin shared] pushNSObject:[theURL relativePath]] ;       lua_setfield(L, -2, "relativePath") ;
+      [[LuaSkin shared] pushNSObject:[theURL relativeString]] ;     lua_setfield(L, -2, "relativeString") ;
+      [[LuaSkin shared] pushNSObject:[theURL resourceSpecifier]] ;  lua_setfield(L, -2, "resourceSpecifier") ;
+      [[LuaSkin shared] pushNSObject:[theURL scheme]] ;             lua_setfield(L, -2, "scheme") ;
+      [[LuaSkin shared] pushNSObject:[theURL standardizedURL]] ;    lua_setfield(L, -2, "standardizedURL") ;
+      [[LuaSkin shared] pushNSObject:[theURL user]] ;               lua_setfield(L, -2, "user") ;
+      lua_pushboolean(L, [theURL isFileURL]) ;                      lua_setfield(L, -2, "isFileURL") ;
+
+      if ([theURL query]) {
+          NSURLComponents *components = [NSURLComponents componentsWithURL:theURL resolvingAgainstBaseURL:YES] ;
+          lua_newtable(L) ;
+          for (NSURLQueryItem *item in [components queryItems]) {
+              lua_newtable(L) ;
+              if ([item value]) {
+                  [[LuaSkin shared] pushNSObject:[item value]] ; lua_setfield(L, -2, [[item name] UTF8String]) ;
+              } else {
+                  [[LuaSkin shared] pushNSObject:[item name]] ; lua_rawseti(L, -2, 1) ;
+              }
+              lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+          }
+          lua_setfield(L, -2, "queryItems") ;
+      }
+
     return 1 ;
 }
-#endif
 
 #pragma mark - Window Related Methods
 
@@ -952,14 +1317,7 @@ static int webview_new(lua_State *L) {
         luaL_checktype(L, 2, LUA_TTABLE) ;
     }
 
-//     NSRect windowRect = [[LuaSkin shared] tableToRectAtIndex:1] ;
-    luaL_checktype(L, 1, LUA_TTABLE);
-    CGFloat x = (lua_getfield(L, 1, "x") != LUA_TNIL) ? luaL_checknumber(L, -1) : 0.0 ;
-    CGFloat y = (lua_getfield(L, 1, "y") != LUA_TNIL) ? luaL_checknumber(L, -1) : 0.0 ;
-    CGFloat w = (lua_getfield(L, 1, "w") != LUA_TNIL) ? luaL_checknumber(L, -1) : 0.0 ;
-    CGFloat h = (lua_getfield(L, 1, "h") != LUA_TNIL) ? luaL_checknumber(L, -1) : 0.0 ;
-    lua_pop(L, 4);
-    NSRect windowRect = NSMakeRect(x, y, w, h);
+    NSRect windowRect = [[LuaSkin shared] tableToRectAtIndex:1] ;
 
     HSWebViewWindow *theWindow = [[HSWebViewWindow alloc] initWithContentRect:windowRect
                                                                     styleMask:NSBorderlessWindowMask
@@ -967,11 +1325,9 @@ static int webview_new(lua_State *L) {
                                                                         defer:YES];
 
     if (theWindow) {
-        void** windowPtr = lua_newuserdata(L, sizeof(HSWebViewWindow *));
-        *windowPtr = (__bridge_retained void *)theWindow ;
-        luaL_getmetatable(L, USERDATA_TAG);
-        lua_setmetatable(L, -2);
+        [[LuaSkin shared] pushNSObject:theWindow] ;
 
+        // Keep HS stuff all in the same process pool
         if (!HSWebViewProcessPool) HSWebViewProcessPool = [[WKProcessPool alloc] init] ;
         WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init] ;
         config.processPool = HSWebViewProcessPool ;
@@ -990,7 +1346,7 @@ static int webview_new(lua_State *L) {
             if (lua_getfield(L, 2, "minimumFontSize") == LUA_TNUMBER)
                 myPreferences.minimumFontSize = lua_tonumber(L, -1) ;
 
-            // this is undocumented in Apples Documentation, but is in the WebKit2 docs
+            // this is undocumented in Apples Documentation, but is in the WebKit2 stuff... and it works
             if (lua_getfield(L, 2, "developerExtrasEnabled") == LUA_TBOOLEAN)
                 [myPreferences setValue:@((BOOL)lua_toboolean(L, -1)) forKey:@"developerExtrasEnabled"] ;
 
@@ -1066,76 +1422,29 @@ static int webview_allowTextEntry(lua_State *L) {
     return 1 ;
 }
 
-// // Not working... may need to break down and use Javascript in UserContentController...
-//
-// /// hs.webview:allowMouseClicks([value]) -> webviewObject | current value
-// /// Method
-// /// Get or set whether or not the webview can accept mouse clicks for web navigation. Defaults to true.
-// ///
-// /// Parameters:
-// ///  * value - an optional boolean value which sets whether or not the webview will accept mouse clicks.
-// ///
-// /// Returns:
-// ///  * If a value is provided, then this method returns the webview object; otherwise the current value
-// ///
-// /// Notes:
-// ///  * If this is set to false, then right clicks are ignored as well, regardless of the setting for `hs.webview:allowContextMenu()`.
-// static int webview_allowMouseClicks(lua_State *L) {
-//     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
-//     HSWebViewView   *theView = theWindow.contentView ;
-//     if (lua_type(L, 2) == LUA_TNONE) {
-//         lua_pushboolean(L, theView.allowMouseClicks) ;
-//     } else {
-//         theView.allowMouseClicks = (BOOL)lua_toboolean(L, 2) ;
-//         lua_settop(L, 1) ;
-//     }
-//     return 1 ;
-// }
-//
-// /// hs.webview:allowContextMenu([value]) -> webviewObject | current value
-// /// Method
-// /// Get or set whether or not a right click in the webview shows the web context menu on right mouse button click. Defaults to true.
-// ///
-// /// Parameters:
-// ///  * value - an optional boolean value which sets whether or not the webview will accept right mouse button clicks.
-// ///
-// /// Returns:
-// ///  * If a value is provided, then this method returns the webview object; otherwise the current value
-// ///
-// /// Notes:
-// ///  * If `hs.webview:allowMouseClicks()` is set to false, this value is ignored.
-// static int webview_allowContextMenu(lua_State *L) {
-//     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
-//     HSWebViewView   *theView = theWindow.contentView ;
-//     if (lua_type(L, 2) == LUA_TNONE) {
-//         lua_pushboolean(L, theView.allowContextMenu) ;
-//     } else {
-//         theView.allowContextMenu = (BOOL)lua_toboolean(L, 2) ;
-//         lua_settop(L, 1) ;
-//     }
-//     return 1 ;
-// }
-
-// // too inclusive -- can't even bring window to the front anymore -- mouse click goes to window behind and brings it forward
-//
-// /// hs.webview:ignoreMouseEvents([value]) -> webviewObject | current value
-// /// Method
-// /// Get or set whether or not the webview ignores mouse events completely. Defaults to false.
-// ///
-// /// Parameters:
-// ///  * value - an optional boolean value which sets whether or not the webview ignores mouse events.
-// /// Returns:
-// ///  * If a value is provided, then this method returns the webview object; otherwise the current value
-// static int webview_ignoreMouseEvents(lua_State *L) {
-//     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
-//     if (lua_type(L, 2) == LUA_TNONE) {
-//         lua_pushboolean(L, !theWindow.ignoresMouseEvents) ;
-//     } else {
-//         theWindow.ignoresMouseEvents = !(BOOL)lua_toboolean(L, 2) ;
-//         lua_settop(L, 1) ;
-//     }
-//     return 1 ;
-// }
+/// hs.webview:deleteOnClose([value]) -> webviewObject | current value
+/// Method
+/// Get or set whether or not the webview should delete itself when its window is closed.
+///
+/// Parameters:
+///  * value - an optional boolean value which sets whether or not the webview will delete itself when its window is closed by any method.  Defaults to false for a window created with `hs.webview.new` and true for any webview windows created by the main webview (user selects "Open Link in New Window", etc.)
+///
+/// Returns:
+///  * If a value is provided, then this method returns the webview object; otherwise the current value
+///
+/// Notes:
+///  * If set to true, a webview object will be deleted when the user clicks on the close button of a titled and closable webview (see `hs.webview.windowStyle`).
+///  * Children of an explicitly created webview automatically have this attribute set to true.  To cause closed children to remain after the user closes them, you can set this with a policy callback function when it receives the "newWindow" action.
+static int webview_deleteOnClose(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    if (lua_type(L, 2) == LUA_TNONE) {
+        lua_pushboolean(L, theWindow.deleteOnClose) ;
+    } else {
+        theWindow.deleteOnClose = (BOOL) lua_toboolean(L, 2) ;
+        lua_settop(L, 1) ;
+    }
+    return 1 ;
+}
 
 /// hs.webview:asHSWindow() -> hs.window object
 /// Method
@@ -1155,7 +1464,8 @@ static int webview_allowTextEntry(lua_State *L) {
 static int webview_hswindow(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     CGWindowID windowID = (CGWindowID)[theWindow windowNumber];
-    lua_getglobal(L, "require"); lua_pushstring(L, "hs.window"); lua_call(L, 1, 1);
+
+    [[LuaSkin shared] requireModule:"hs.window"] ;
     lua_getfield(L, -1, "windowForID") ;
     lua_pushinteger(L, windowID) ;
     lua_call(L, 1, 1) ;
@@ -1180,39 +1490,50 @@ typedef struct _drawing_t {
 ///  * Methods in hs.drawing which are specific to a single drawing type will not work with this object.
 static int webview_hsdrawing(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
-    lua_getglobal(L, "require"); lua_pushstring(L, "hs.drawing"); lua_call(L, 1, 1);
 
-    drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
-    memset(drawingObject, 0, sizeof(drawing_t));
-    drawingObject->window = (__bridge_retained void*)theWindow;
-    luaL_getmetatable(L, "hs.drawing");
-    lua_setmetatable(L, -2);
+    // We cache the drawing userdata so it doesn't get garbage collected if not saved in lua.. otherwise
+    // the window would close at some random time when garbage collection occurred.  asHSWindow doesn't
+    // need this because its __gc doesn't have any side effects.
+    if (theWindow.hsDrawingUDRef == LUA_NOREF) {
+        [[LuaSkin shared] requireModule:"hs.drawing"] ; // make sure its loaded
+        lua_pop(L, 1) ;                                 // but we don't really need its table
 
+        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
+        memset(drawingObject, 0, sizeof(drawing_t));
+        drawingObject->window = (__bridge_retained void*)theWindow;
+        luaL_getmetatable(L, "hs.drawing");
+        lua_setmetatable(L, -2);
+        theWindow.hsDrawingUDRef = [[LuaSkin shared] luaRef:refTable] ;
+    }
+
+    [[LuaSkin shared] pushLuaRef:refTable ref:theWindow.hsDrawingUDRef] ;
     return 1 ;
 }
 
-/// hs.webView:windowTitle(title) -> webviewObject
+/// hs.webView:windowTitle([title]) -> webviewObject
 /// Method
 /// Sets the title for the webview window.
 ///
 /// Parameters:
-///  * title - the title to set for the webview window
+///  * title - if specified and not nil, the title to set for the webview window.  If this parameter is not present or is nil, the title will follow the title of the webview's content.
 ///
 /// Returns:
 ///  * The webview Object
 ///
 /// Notes:
-///  * If you wish this to match the web page title, you can use `hs.webview:windowTitle(hs.webview:title())` after making sure `hs.webview:loading == false`.
-///  * Any title set with this method will be hidden unless the window style includes the "titled" style (see `hs.webview.windowStyle` and `hs.webview.windowMasks`)
+///  * The title will be hidden unless the window style includes the "titled" style (see `hs.webview.windowStyle` and `hs.webview.windowMasks`)
 static int webview_windowTitle(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
 
-//     NSString        *theTitle = [[LuaSkin shared] toNSObjectAtIndex:2] ;
-    size_t size ;
-    unsigned char *string = (unsigned char *)lua_tolstring(L, 2, &size) ;
-    NSString *theTitle = [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
+    if (lua_isnoneornil(L, 2)) {
+        theWindow.titleFollow = YES ;
+        [theWindow setTitle:[theWindow.contentView title]] ;
+    } else {
+        luaL_checktype(L, 2, LUA_TSTRING) ;
+        theWindow.titleFollow = NO ;
 
-    [theWindow setTitle:theTitle] ;
+        [theWindow setTitle:[[LuaSkin shared] toNSObjectAtIndex:2]] ;
+    }
 
     lua_settop(L, 1) ;
     return 1 ;
@@ -1231,7 +1552,7 @@ static int webview_windowTitle(lua_State *L) {
 ///  * texturedBackground - The window has a texturized background
 ///
 /// Notes:
-///  * The Maximize button is also provided when Resizable is set.
+///  * The Maximize button in the window title is enabled when Resizable is set.
 ///  * The Close, Minimize, and Maximize buttons are only visible when the Window is also Titled.
 static int webview_windowMasksTable(lua_State *L) {
     lua_newtable(L) ;
@@ -1256,6 +1577,384 @@ static int webview_windowStyle(lua_State *L) {
     return 1 ;
 }
 
+#pragma mark - NS<->lua conversion tools
+
+static int HSWebViewWindow_toLua(lua_State *L, id obj) {
+    HSWebViewWindow *theWindow = obj ;
+
+    if (theWindow.udRef == LUA_NOREF) {
+        void** windowPtr = lua_newuserdata(L, sizeof(HSWebViewWindow *)) ;
+        *windowPtr = (__bridge_retained void *)theWindow ;
+        luaL_getmetatable(L, USERDATA_TAG) ;
+        lua_setmetatable(L, -2) ;
+        theWindow.udRef = [[LuaSkin shared] luaRef:refTable] ;
+    }
+
+    [[LuaSkin shared] pushLuaRef:refTable ref:theWindow.udRef] ;
+    return 1 ;
+}
+
+static int WKNavigationAction_toLua(lua_State *L, id obj) {
+    WKNavigationAction *navAction = obj ;
+
+    lua_newtable(L) ;
+      [[LuaSkin shared] pushNSObject:[navAction request]]     ; lua_setfield(L, -2, "request") ;
+      [[LuaSkin shared] pushNSObject:[navAction sourceFrame]] ; lua_setfield(L, -2, "sourceFrame") ;
+      [[LuaSkin shared] pushNSObject:[navAction targetFrame]] ; lua_setfield(L, -2, "targetFrame") ;
+      lua_pushinteger(L, [navAction buttonNumber])            ; lua_setfield(L, -2, "buttonNumber") ;
+      unsigned long theFlags = [navAction modifierFlags] ;
+      lua_newtable(L) ;
+        if (theFlags & NSAlphaShiftKeyMask) { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "capslock") ; }
+        if (theFlags & NSShiftKeyMask)      { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "shift") ; }
+        if (theFlags & NSControlKeyMask)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "ctrl") ; }
+        if (theFlags & NSAlternateKeyMask)  { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "alt") ; }
+        if (theFlags & NSCommandKeyMask)    { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "cmd") ; }
+        if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "fn") ; }
+        lua_pushinteger(L, (lua_Integer)theFlags); lua_setfield(L, -2, "_raw");
+      lua_setfield(L, -2, "modifierFlags") ;
+      switch([navAction navigationType]) {
+          case WKNavigationTypeLinkActivated:   lua_pushstring(L, "linkActivated") ; break ;
+          case WKNavigationTypeFormSubmitted:   lua_pushstring(L, "formSubmitted") ; break ;
+          case WKNavigationTypeBackForward:     lua_pushstring(L, "backForward") ; break ;
+          case WKNavigationTypeReload:          lua_pushstring(L, "reload") ; break ;
+          case WKNavigationTypeFormResubmitted: lua_pushstring(L, "formResubmitted") ; break ;
+          case WKNavigationTypeOther:
+          default:                              lua_pushstring(L, "other") ; break ;
+      }
+      lua_setfield(L, -2, "navigationType") ;
+
+    return 1 ;
+}
+
+static int WKNavigationResponse_toLua(lua_State *L, id obj) {
+    WKNavigationResponse *navResponse = obj ;
+
+    lua_newtable(L) ;
+      lua_pushboolean(L, [navResponse canShowMIMEType]) ;      lua_setfield(L, -2, "canShowMIMEType") ;
+      lua_pushboolean(L, [navResponse isForMainFrame]) ;       lua_setfield(L, -2, "forMainFrame") ;
+      [[LuaSkin shared] pushNSObject:[navResponse response]] ; lua_setfield(L, -2, "response") ;
+    return 1 ;
+}
+
+static int WKFrameInfo_toLua(lua_State *L, id obj) {
+    WKFrameInfo *frameInfo = obj ;
+
+    lua_newtable(L) ;
+      lua_pushboolean(L, [frameInfo isMainFrame]) ;         lua_setfield(L, -2, "mainFrame") ;
+      [[LuaSkin shared] pushNSObject:[frameInfo request]] ; lua_setfield(L, -2, "request") ;
+    return 1 ;
+}
+
+static int WKBackForwardListItem_toLua(lua_State *L, id obj) {
+    WKBackForwardListItem *item = obj ;
+
+    lua_newtable(L) ;
+      [[LuaSkin shared] pushNSObject:[item URL]]        ; lua_setfield(L, -2, "URL") ;
+      [[LuaSkin shared] pushNSObject:[item initialURL]] ; lua_setfield(L, -2, "initialURL") ;
+      [[LuaSkin shared] pushNSObject:[item title]]      ; lua_setfield(L, -2, "title") ;
+    return 1 ;
+}
+
+static int WKBackForwardList_toLua(lua_State *L, id obj) {
+    WKBackForwardList *theList = obj ;
+
+    lua_newtable(L) ;
+    if (theList) {
+        NSArray *previousList = [theList backList] ;
+        NSArray *nextList = [theList forwardList] ;
+
+        for(id value in previousList) {
+            [[LuaSkin shared] pushNSObject:value] ;
+            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+        if ([theList currentItem]) {
+            [[LuaSkin shared] pushNSObject:[theList currentItem]] ;
+            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+        lua_pushinteger(L, luaL_len(L, -1)) ; lua_setfield(L, -2, "current") ;
+
+        for(id value in nextList) {
+            [[LuaSkin shared] pushNSObject:value] ;
+            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+    } else {
+        lua_pushinteger(L, 0) ; lua_setfield(L, -2, "current") ;
+    }
+    return 1 ;
+}
+
+static int WKNavigation_toLua(lua_State *L, id obj) {
+    WKNavigation *navID = obj ;
+    lua_pushstring(L, [[NSString stringWithFormat:@"0x%p", navID] UTF8String]) ;
+    return 1 ;
+}
+
+static int NSURLResponse_toLua(lua_State *L, id obj) {
+    NSURLResponse *theResponse = obj ;
+
+    lua_newtable(L) ;
+        lua_pushinteger(L, [theResponse expectedContentLength]) ;         lua_setfield(L, -2, "expectedContentLength") ;
+        [[LuaSkin shared] pushNSObject:[theResponse suggestedFilename]] ; lua_setfield(L, -2, "suggestedFilename") ;
+        [[LuaSkin shared] pushNSObject:[theResponse MIMEType]] ;          lua_setfield(L, -2, "MIMEType") ;
+        [[LuaSkin shared] pushNSObject:[theResponse textEncodingName]] ;  lua_setfield(L, -2, "textEncodingName") ;
+        [[LuaSkin shared] pushNSObject:[theResponse URL]] ;               lua_setfield(L, -2, "URL") ;
+
+        if ([obj isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *theHTTPResponse = obj ;
+
+            lua_pushinteger(L, [theHTTPResponse statusCode]) ;                  lua_setfield(L, -2, "statusCode") ;
+            [[LuaSkin shared] pushNSObject:[NSHTTPURLResponse localizedStringForStatusCode:[theHTTPResponse statusCode]]] ;
+            lua_setfield(L, -2, "statusCodeDescription") ;
+            [[LuaSkin shared] pushNSObject:[theHTTPResponse allHeaderFields]] ; lua_setfield(L, -2, "allHeaderFields") ;
+        }
+
+    return 1 ;
+}
+
+static int NSError_toLua(lua_State *L, id obj) {
+    NSError *theError = obj ;
+
+    lua_newtable(L) ;
+        lua_pushinteger(L, [theError code]) ;                                    lua_setfield(L, -2, "code") ;
+        [[LuaSkin shared] pushNSObject:[theError domain]] ;                      lua_setfield(L, -2, "domain") ;
+        [[LuaSkin shared] pushNSObject:[theError helpAnchor]] ;                  lua_setfield(L, -2, "helpAnchor") ;
+        [[LuaSkin shared] pushNSObject:[theError localizedDescription]] ;        lua_setfield(L, -2, "localizedDescription") ;
+        [[LuaSkin shared] pushNSObject:[theError localizedRecoveryOptions]] ;    lua_setfield(L, -2, "localizedRecoveryOptions") ;
+        [[LuaSkin shared] pushNSObject:[theError localizedRecoverySuggestion]] ; lua_setfield(L, -2, "localizedRecoverySuggestion") ;
+        [[LuaSkin shared] pushNSObject:[theError localizedFailureReason]] ;      lua_setfield(L, -2, "localizedFailureReason") ;
+        [[LuaSkin shared] pushNSObject:[theError recoveryAttempter]] ;           lua_setfield(L, -2, "recoveryAttempter") ;
+        [[LuaSkin shared] pushNSObject:[theError userInfo]] ;                    lua_setfield(L, -2, "userInfo") ;
+    return 1 ;
+}
+
+static int NSURLAuthenticationChallenge_toLua(lua_State *L, id obj) {
+    NSURLAuthenticationChallenge *challenge = obj ;
+
+    lua_newtable(L) ;
+        lua_pushinteger(L, [challenge previousFailureCount]) ;           lua_setfield(L, -2, "previousFailureCount") ;
+        [[LuaSkin shared] pushNSObject:[challenge error]] ;              lua_setfield(L, -2, "error") ;
+        [[LuaSkin shared] pushNSObject:[challenge failureResponse]] ;    lua_setfield(L, -2, "failureResponse") ;
+        [[LuaSkin shared] pushNSObject:[challenge proposedCredential]] ; lua_setfield(L, -2, "proposedCredential") ;
+        [[LuaSkin shared] pushNSObject:[challenge protectionSpace]] ;    lua_setfield(L, -2, "protectionSpace") ;
+
+#ifdef _WK_DEBUG_TYPES
+        [[LuaSkin shared] pushNSObject:[challenge sender]] ;             lua_setfield(L, -2, "sender") ;
+#endif
+    return 1 ;
+}
+
+static int NSURLProtectionSpace_toLua(lua_State *L, id obj) {
+    NSURLProtectionSpace *theSpace = obj ;
+
+    lua_newtable(L) ;
+        lua_pushboolean(L, [theSpace isProxy]) ;                          lua_setfield(L, -2, "isProxy") ;
+        lua_pushinteger(L, [theSpace port]) ;                             lua_setfield(L, -2, "port") ;
+        lua_pushboolean(L, [theSpace receivesCredentialSecurely]) ;       lua_setfield(L, -2, "receivesCredentialSecurely") ;
+        NSString *method = @"unknown" ;
+        if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodDefault])           method = @"default" ;
+        if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodHTTPBasic])         method = @"HTTPBasic" ;
+        if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodHTTPDigest])        method = @"HTTPDigest" ;
+        if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodHTMLForm])          method = @"HTMLForm" ;
+        if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodNegotiate])         method = @"negotiate" ;
+        if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodNTLM])              method = @"NTLM" ;
+        if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodClientCertificate]) method = @"clientCertificate" ;
+        if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust])       method = @"serverTrust" ;
+        [[LuaSkin shared] pushNSObject:method] ;                          lua_setfield(L, -2, "authenticationMethod") ;
+        [[LuaSkin shared] pushNSObject:[theSpace host]] ;                 lua_setfield(L, -2, "host") ;
+        [[LuaSkin shared] pushNSObject:[theSpace protocol]] ;             lua_setfield(L, -2, "protocol") ;
+        NSString *proxy = @"unknown" ;
+        if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceHTTPProxy])  proxy = @"http" ;
+        if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceHTTPSProxy]) proxy = @"https" ;
+        if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceFTPProxy])   proxy = @"ftp" ;
+        if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceSOCKSProxy]) proxy = @"socks" ;
+        [[LuaSkin shared] pushNSObject:proxy] ;                           lua_setfield(L, -2, "proxyType") ;
+        [[LuaSkin shared] pushNSObject:[theSpace realm]] ;                lua_setfield(L, -2, "realm") ;
+
+#ifdef _WK_DEBUG_TYPES
+        lua_pushstring([[LuaSkin shared] L], [[NSString stringWithFormat:@"0x%p", [theSpace serverTrust]] UTF8String]) ;
+        lua_setfield(L, -2, "serverTrust") ;
+#endif
+
+    return 1 ;
+}
+
+static int NSURLCredential_toLua(lua_State *L, id obj) {
+    NSURLCredential *credential = obj ;
+
+    lua_newtable(L) ;
+        lua_pushboolean(L, [credential hasPassword]) ;              lua_setfield(L, -2, "hasPassword") ;
+        switch([credential persistence]) {
+            case NSURLCredentialPersistenceNone:           lua_pushstring(L, "none") ; break ;
+            case NSURLCredentialPersistenceForSession:     lua_pushstring(L, "session") ; break ;
+            case NSURLCredentialPersistencePermanent:      lua_pushstring(L, "permanent") ; break ;
+            case NSURLCredentialPersistenceSynchronizable: lua_pushstring(L, "synchronized") ; break ;
+            default:                                       lua_pushstring(L, "unknown") ; break ;
+        }
+      lua_setfield(L, -2, "persistence") ;
+
+        [[LuaSkin shared] pushNSObject:[credential user]] ;         lua_setfield(L, -2, "user") ;
+        [[LuaSkin shared] pushNSObject:[credential password]] ;     lua_setfield(L, -2, "password") ;
+
+#ifdef _WK_DEBUG_TYPES
+        [[LuaSkin shared] pushNSObject:[credential certificates]] ; lua_setfield(L, -2, "certificates") ;
+        lua_pushstring([[LuaSkin shared] L], [[NSString stringWithFormat:@"0x%p", [credential identity]] UTF8String]) ;
+        lua_setfield(L, -2, "identity") ;
+#endif
+
+    return 1 ;
+}
+
+static int NSURLRequest_toLua(lua_State *L, id obj) {
+    NSURLRequest *request = obj ;
+
+    lua_newtable(L) ;
+      [[LuaSkin shared] pushNSObject:[request mainDocumentURL]] ;     lua_setfield(L, -2, "mainDocumentURL") ;
+      [[LuaSkin shared] pushNSObject:[request URL]] ;                 lua_setfield(L, -2, "URL") ;
+      [[LuaSkin shared] pushNSObject:[request allHTTPHeaderFields]] ; lua_setfield(L, -2, "HTTPHeaderFields") ;
+      [[LuaSkin shared] pushNSObject:[request HTTPBody]] ;            lua_setfield(L, -2, "HTTPBody") ;
+      [[LuaSkin shared] pushNSObject:[request HTTPMethod]] ;          lua_setfield(L, -2, "HTTPMethod") ;
+
+      lua_pushnumber(L, [request timeoutInterval]) ;                  lua_setfield(L, -2, "timeoutInterval") ;
+      lua_pushboolean(L, [request HTTPShouldHandleCookies]) ;         lua_setfield(L, -2, "HTTPShouldHandleCookies") ;
+      lua_pushboolean(L, [request HTTPShouldUsePipelining]) ;         lua_setfield(L, -2, "HTTPShouldUsePipelining") ;
+
+//  Are there any macs which support this?
+//       lua_pushboolean(L, [request allowsCellularAccess]) ;            lua_setfield(L, -2, "allowsCellularAccess") ;
+
+// HTTPBodyStream -- maybe add if we add NSStream userdata at some point, until then, not in this modules scope, so would be only
+//   for others who reuse these converters... not worth it until it is needed.
+
+      switch([request cachePolicy]) {
+          case NSURLRequestUseProtocolCachePolicy:        lua_pushstring(L, "protocolCachePolicy") ; break ;
+          case NSURLRequestReloadIgnoringLocalCacheData:  lua_pushstring(L, "ignoreLocalCache") ; break ;
+          case NSURLRequestReturnCacheDataElseLoad:       lua_pushstring(L, "returnCacheOrLoad") ; break ;
+          case NSURLRequestReturnCacheDataDontLoad:       lua_pushstring(L, "returnCacheDontLoad") ; break ;
+          default:                                        lua_pushstring(L, "unknown") ; break ;
+      }
+      lua_setfield(L, -2, "cachePolicy") ;
+
+      switch([request networkServiceType]) {
+          case NSURLNetworkServiceTypeDefault:    lua_pushstring(L, "default") ; break ;
+          case NSURLNetworkServiceTypeVoIP:       lua_pushstring(L, "VoIP") ; break ;
+          case NSURLNetworkServiceTypeVideo:      lua_pushstring(L, "video") ; break ;
+          case NSURLNetworkServiceTypeBackground: lua_pushstring(L, "background") ; break ;
+          case NSURLNetworkServiceTypeVoice:      lua_pushstring(L, "voice") ; break ;
+          default:                                lua_pushstring(L, "unknown") ; break ;
+      }
+      lua_setfield(L, -2, "networkServiceType") ;
+    return 1 ;
+}
+
+static id table_toNSURLRequest(lua_State* L, int idx) {
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init] ;
+
+    lua_pushvalue(L, idx) ;
+    switch (lua_type(L, idx)) {
+        case LUA_TTABLE:
+            if (lua_getfield(L, -1, "URL") == LUA_TSTRING) {
+                [request setURL:[NSURL URLWithString:[[LuaSkin shared] toNSObjectAtIndex:-1]]] ;
+            } else {
+                lua_pop(L, 2) ;
+                NSLog(@"URL field missing in NSURLRequest table - returning nil") ;
+                showError(L, "URL field missing in NSURLRequest table") ;
+                return nil ;
+            }
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "mainDocumentURL") == LUA_TSTRING)
+                [request setMainDocumentURL:[NSURL URLWithString:[[LuaSkin shared] toNSObjectAtIndex:-1]]] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPBody") == LUA_TSTRING) {
+                size_t size ;
+                unsigned char *block = (unsigned char *)lua_tolstring(L, -1, &size) ;
+                [request setHTTPBody:[NSData dataWithBytes:(void *)block length:size] ];
+            }
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPMethod") == LUA_TSTRING)   // TODO: should probably validate
+                [request setHTTPMethod:[[LuaSkin shared] toNSObjectAtIndex:-1]] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "timeoutInterval") == LUA_TNUMBER)
+                [request setTimeoutInterval:lua_tonumber(L, -1)] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPShouldHandleCookies") == LUA_TBOOLEAN)
+                [request setHTTPShouldHandleCookies:(BOOL)lua_toboolean(L, -1)] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPShouldUsePipelining") == LUA_TBOOLEAN)
+                [request setHTTPShouldUsePipelining:(BOOL)lua_toboolean(L, -1)] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "cachePolicy") == LUA_TSTRING) {
+                NSString *cp = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                if ([cp isEqualToString:@"protocolCachePolicy"]) { [request setCachePolicy:NSURLRequestUseProtocolCachePolicy] ; } else
+                if ([cp isEqualToString:@"ignoreLocalCache"])    { [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData] ; } else
+                if ([cp isEqualToString:@"returnCacheOrLoad"])   { [request setCachePolicy:NSURLRequestReturnCacheDataElseLoad] ; } else
+                if ([cp isEqualToString:@"returnCacheDontLoad"]) { [request setCachePolicy:NSURLRequestReturnCacheDataDontLoad] ; }
+            }
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "networkServiceType") == LUA_TSTRING) {
+                NSString *nst = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                if ([nst isEqualToString:@"default"])    { [request setNetworkServiceType:NSURLNetworkServiceTypeDefault] ; } else
+                if ([nst isEqualToString:@"VoIP"])       { [request setNetworkServiceType:NSURLNetworkServiceTypeVoIP] ; } else
+                if ([nst isEqualToString:@"video"])      { [request setNetworkServiceType:NSURLNetworkServiceTypeVideo] ; } else
+                if ([nst isEqualToString:@"background"]) { [request setNetworkServiceType:NSURLNetworkServiceTypeBackground] ; } else
+                if ([nst isEqualToString:@"voice"])      { [request setNetworkServiceType:NSURLNetworkServiceTypeVoice] ; }
+            }
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPHeaderFields") == LUA_TTABLE) {
+                NSMutableDictionary *fields = [[[LuaSkin shared] toNSObjectAtIndex:-1] mutableCopy] ;
+                NSMutableArray      *toRemove = [[NSMutableArray alloc] init] ;
+
+                // remove fields which are automatically handled or have non-string keys, convert numbers to strings
+
+                for (id key in [fields allKeys]) {
+                    if ([[fields objectForKey:key] isKindOfClass:[NSNumber class]]) {
+                        [fields setObject:[[fields objectForKey:key] stringValue] forKey:key] ;
+                    }
+
+                    if (![key isKindOfClass:[NSString class]] || ![[fields objectForKey:key] isKindOfClass:[NSString class]]) {
+                        [toRemove addObject:key] ;
+                    } else {
+                        if ([key compare:@"Authorization" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        } else if ([key compare:@"Connection" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        } else if ([key compare:@"Host" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        } else if ([key compare:@"WWW-Authenticate" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        } else if ([key compare:@"Content-Length" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        }
+                    }
+                }
+                for (id item in toRemove) { [fields removeObjectForKey:item] ; }
+
+                [request setAllHTTPHeaderFields:fields] ;
+            }
+            lua_pop(L, 1) ;
+            break ;
+
+        case LUA_TSTRING:
+            request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[[LuaSkin shared] toNSObjectAtIndex:idx]]] ;
+            break ;
+
+        default:
+            showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed as a NSURLRequest: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
+            return nil ;
+            break;
+    }
+
+    lua_pop(L, 1);
+    return request ;
+}
+
 #pragma mark - Lua Framework Stuff
 
 static int userdata_tostring(lua_State* L) {
@@ -1277,34 +1976,47 @@ static int userdata_tostring(lua_State* L) {
     return 1 ;
 }
 
-// static int userdata_eq(lua_State* L) {
-// }
+static int userdata_eq(lua_State* L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    HSWebViewWindow *otherWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 2) ;
 
-/// hs.webview:delete()
-/// Method
-/// Destroys the webview object
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * None
-///
-/// Notes:
-///  * This method is automatically called during garbage collection, when Hammerspoon quits, and when its configuration is reloaded.
+    lua_pushboolean(L, theWindow.udRef == otherWindow.udRef) ;
+    return 1 ;
+}
+
 static int userdata_gc(lua_State* L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge_transfer HSWebViewWindow, L, 1) ;
-    [theWindow close];
+    HSWebViewView   *theView   = theWindow.contentView ;
+
+    [theWindow close] ;
+
+    theWindow.udRef            = [[LuaSkin shared] luaUnref:refTable ref:theWindow.udRef] ;
+    theWindow.hsDrawingUDRef   = [[LuaSkin shared] luaUnref:refTable ref:theWindow.hsDrawingUDRef] ;
+    theView.navigationCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.navigationCallback] ;
+    theView.policyCallback     = [[LuaSkin shared] luaUnref:refTable ref:theView.policyCallback] ;
+
+    // emancipate us from our parent
+    if (theWindow.parent) {
+        [theWindow.parent.children removeObject:theWindow] ;
+        theWindow.parent = nil ;
+    }
+
+    // orphan our children
+    for(HSWebViewWindow *child in theWindow.children) {
+        child.parent = nil ;
+    }
+
+    theWindow.contentView = nil ;
+    theView = nil ;
     theWindow = nil;
 
     void** windowPtr = lua_touserdata(L, 1);
     *windowPtr = nil ;
+
     return 0;
 }
 
 // static int meta_gc(lua_State* __unused L) {
-//     [hsimageReferences removeAllIndexes];
-//     hsimageReferences = nil;
 //     return 0 ;
 // }
 
@@ -1315,9 +2027,11 @@ static const luaL_Reg userdata_metaLib[] = {
     {"goForward",                  webview_goForward},
     {"url",                        webview_url},
     {"title",                      webview_title},
+    {"navigationID",               webview_navigationID},
     {"reload",                     webview_reload},
     {"magnification",              webview_magnification},
     {"allowMagnificationGestures", webview_allowMagnificationGestures},
+    {"allowNewWindows",           webview_allowNewWindows},
     {"allowNavigationGestures",    webview_allowNavigationGestures},
     {"isOnlySecureContent",        webview_isOnlySecureContent},
     {"estimatedProgress",          webview_estimatedProgress},
@@ -1326,54 +2040,65 @@ static const luaL_Reg userdata_metaLib[] = {
     {"html",                       webview_html},
     {"historyList",                webview_historyList},
     {"navigationCallback",         webview_navigationCallback},
-//     {"allowMouseClicks",           webview_allowMouseClicks},
-//     {"allowContextMenu",           webview_allowContextMenu},
-//     {"ignoreMouseEvents",          webview_ignoreMouseEvents},
-
-#ifdef _WV_DEBUG
-    {"verbose",                    webview_verbose},
+    {"policyCallback",             webview_policyCallback},
+    {"children",                   webview_children},
+    {"parent",                     webview_parent},
+    {"urlAsTable",                 webview_urlParts},
+#ifdef _WK_DEBUG
     {"preferences",                webview_preferences},
 #endif
 
     // Window related
     {"show",                       webview_show},
     {"hide",                       webview_hide},
-    {"delete",                     userdata_gc},
+    {"_delete",                    userdata_gc},
     {"allowTextEntry",             webview_allowTextEntry},
     {"asHSWindow",                 webview_hswindow} ,
     {"asHSDrawing",                webview_hsdrawing},
     {"windowTitle",                webview_windowTitle},
+    {"deleteOnClose",              webview_deleteOnClose},
     {"_windowStyle",               webview_windowStyle},
 
     {"__tostring",                 userdata_tostring},
-//     {"__eq",                       userdata_eq},
+    {"__eq",                       userdata_eq},
     {"__gc",                       userdata_gc},
     {NULL,                         NULL}
 };
 
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
-    {"new", webview_new},
-    {NULL,  NULL}
+    {"new",      webview_new},
+    {"urlParts", webview_urlParts},
+    {NULL,       NULL}
 };
 
-// // Metatable for module, if needed
-// static const luaL_Reg module_metaLib[] = {
+// Metatable for module, if needed
+static const luaL_Reg module_metaLib[] = {
 //     {"__gc", meta_gc},
-//     {NULL,   NULL}
-// };
+    {NULL,   NULL}
+};
 
-// NOTE: ** Make sure to change luaopen_..._internal **
 int luaopen_hs_webview_internal(lua_State* __unused L) {
-// Use this if your module doesn't have a module specific object that it returns.
-//    refTable = [[LuaSkin shared] registerLibrary:moduleLib metaFunctions:nil] ; // or module_metaLib
-// Use this some of your functions return or act on a specific object unique to this module
     refTable = [[LuaSkin shared] registerLibraryWithObject:USERDATA_TAG
                                                  functions:moduleLib
-                                             metaFunctions:nil    // or module_metaLib
+                                             metaFunctions:module_metaLib
                                            objectFunctions:userdata_metaLib];
 
-//     [skin registerPushNSHelper:fn_pushWKBackForwardListItem forClass:"WKBackForwardListItem"] ;
+    [[LuaSkin shared] registerPushNSHelper:WKBackForwardListItem_toLua        forClass:"WKBackForwardListItem"] ;
+    [[LuaSkin shared] registerPushNSHelper:WKBackForwardList_toLua            forClass:"WKBackForwardList"] ;
+    [[LuaSkin shared] registerPushNSHelper:HSWebViewWindow_toLua              forClass:"HSWebViewWindow"] ;
+    [[LuaSkin shared] registerPushNSHelper:WKNavigationAction_toLua           forClass:"WKNavigationAction"] ;
+    [[LuaSkin shared] registerPushNSHelper:WKNavigationResponse_toLua         forClass:"WKNavigationResponse"] ;
+    [[LuaSkin shared] registerPushNSHelper:WKFrameInfo_toLua                  forClass:"WKFrameInfo"] ;
+    [[LuaSkin shared] registerPushNSHelper:WKNavigation_toLua                 forClass:"WKNavigation"] ;
+    [[LuaSkin shared] registerPushNSHelper:NSURLResponse_toLua                forClass:"NSURLResponse"] ;
+    [[LuaSkin shared] registerPushNSHelper:NSError_toLua                      forClass:"NSError"] ;
+    [[LuaSkin shared] registerPushNSHelper:NSURLAuthenticationChallenge_toLua forClass:"NSURLAuthenticationChallenge"] ;
+    [[LuaSkin shared] registerPushNSHelper:NSURLProtectionSpace_toLua         forClass:"NSURLProtectionSpace"] ;
+    [[LuaSkin shared] registerPushNSHelper:NSURLCredential_toLua              forClass:"NSURLCredential"] ;
+    [[LuaSkin shared] registerPushNSHelper:NSURLRequest_toLua                 forClass:"NSURLRequest"] ;
+
+    [[LuaSkin shared] registerTableHelper:table_toNSURLRequest                forClass:"NSURLRequest"] ;
 
     webview_windowMasksTable(L) ;
     lua_setfield(L, -2, "windowMasks") ;
