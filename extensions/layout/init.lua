@@ -73,7 +73,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 --- Parameters:
 ---  * table - A table describing your desired layout. Each element in the table should be another table describing a set of windows to match, and their desired size/position. The fields in each of these tables are:
 ---   * A string containing an application name or nil
----   * A string containing a window title pattern or nil. (For information on Lua patterns, see http://www.lua.org/pil/20.2.html)
+---   * A string containing a window title or nil
 ---   * A string containing a screen name, or an `hs.screen` object, or a function that accepts no parameters and returns an `hs.screen` object, or nil to select the first available screen
 ---   * A Unit rect (see `hs.window.moveToUnit()`)
 ---   * A Frame rect (see `hs.screen:frame()`)
@@ -159,9 +159,9 @@ function layout.apply(layout)
         -- Find the matching windows, if any
         if _row[2] then
             if app then
-                wins = fnutils.filter(app:allWindows(), function(win) return string.match(win:title(), _row[2]) end)
+                wins = fnutils.filter(app:allWindows(), function(win) return win:title() == _row[2] end)
             else
-                wins = fnutils.filter(window:allWindows(), function(win) return string.match(win:title(), _row[2]) end)
+                wins = fnutils.filter(window:allWindows(), function(win) return win:title() == _row[2] end)
             end
         elseif app then
             wins = app:allWindows()

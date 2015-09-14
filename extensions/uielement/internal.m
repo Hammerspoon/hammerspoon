@@ -154,7 +154,14 @@ typedef struct _watcher_t {
 static int uielement_newWatcher(lua_State* L) {
     int nargs = lua_gettop(L);
 
-    AXUIElementRef element = get_element(L, 1);  // self
+    void *userData = lua_touserdata(L, 1);
+    if (!userData) {
+        CLS_NSLOG(@"uielement_newWatcher: invalid userdata received. Actual type: %d", lua_type(L, 1));
+        lua_pushnil(L);
+        return 1;
+    }
+
+    AXUIElementRef element = *(AXUIElementRef*)userData;  // self
     luaL_checktype(L, 2, LUA_TFUNCTION);
 
     watcher_t* watcher = lua_newuserdata(L, sizeof(watcher_t));
