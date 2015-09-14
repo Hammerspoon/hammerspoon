@@ -102,7 +102,7 @@ local function handleEvent(callback, element, event, watcher, userData)
     end
 end
 
---- hs.uielement:newWatcher(handler[, userData]) -> hs.uielement.watcher
+--- hs.uielement:newWatcher(handler[, userData]) -> hs.uielement.watcher or nil
 --- Constructor
 --- Creates a new watcher for the element represented by self (the object the method is being invoked for).
 ---
@@ -115,7 +115,7 @@ end
 ---  * an optional userData object which will be included as the final argument to the callback function when it is called.
 ---
 --- Returns:
----  * hs.uielement.watcher
+---  * hs.uielement.watcher object, or nil if an error occurred
 function uielement:newWatcher(callback, ...)
     if type(callback) ~= "function" then
         hs.showError("hs.uielement:newWatcher() called with incorrect arguments. The first argument must be a function")
