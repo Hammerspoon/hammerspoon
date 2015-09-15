@@ -33,12 +33,15 @@ window.animationDuration = 0.2
 --- Returns:
 ---  * A list of `hs.window` objects representing all open windows
 
-local SKIP_APPS={Karabiner_AXNotifier=true}
+local SKIP_APPS={['org.pqrs.Karabiner-AXNotifier']=true,['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true,['N/A']=true}
 -- Karabiner's AXNotifier consistently takes 6 seconds on my system. It never spawns windows, so it should be safe to just skip it.
 function window.allWindows()
   local r={}
   for _,app in ipairs(application.runningApplications()) do
-    if app:kind()>=0 and not SKIP_APPS[app:name()] then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end
+    if app:kind()>=0 then
+      local bid=app:bundleID() or 'N/A' --just for safety; universalaccessd has no bundleid (but it's kind()==-1 anyway)
+      if not SKIP_APPS[bid] then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end
+    end
   end
   return r
 end
@@ -47,11 +50,13 @@ function window._timed_allWindows()
   local r={}
   for _,app in ipairs(application.runningApplications()) do
     local starttime=timer.secondsSinceEpoch()
-    if app:kind()>=0 then local _=app:allWindows() r[app:name()]=timer.secondsSinceEpoch()-starttime end
+    local _,bid=app:allWindows(),app:bundleID() or 'N/A'
+    r[bid]=(r[bid] or 0) + timer.secondsSinceEpoch()-starttime
   end
   for app,time in pairs(r) do
-    if time>0.1 then print(string.format('took %.2f s for %s',time,app)) end
+    if time>0.05 then print(string.format('took %.2fs for %s',time,app)) end
   end
+  --  print(hs.inspect(SKIP_APPS))
   return r
 end
 
