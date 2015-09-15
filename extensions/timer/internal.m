@@ -19,8 +19,14 @@ typedef struct _timer_t {
 
 static void timerCallback(CFRunLoopTimerRef __unused timer, void *info) {
     timer_t* t = info;
+
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
+
+    if (!t) {
+        showError(L, "ERROR: hs.timer callback fired on an invalid timer object. Please file a bug");
+        return;
+    }
 
     [skin pushLuaRef:refTable ref:t->fn];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
@@ -244,13 +250,28 @@ static int timer_stop(lua_State* L) {
 
 static int timer_gc(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
-    if (timer && timer->fn != LUA_NOREF) {
-        LuaSkin *skin = [LuaSkin shared];
-        timer->fn = [skin luaUnref:refTable ref:timer->fn];
+
+    if (timer) {
+        if (timer->fn != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin shared];
+            timer->fn = [skin luaUnref:refTable ref:timer->fn];
+        }
+
         timer->started = NO;
-        CFRunLoopTimerInvalidate(timer->t);
+
+        if (CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes)) {
+            CFRunLoopRemoveTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes);
+        }
+
+        if (CFRunLoopTimerIsValid(timer->t)) {
+            CFRunLoopTimerInvalidate(timer->t);
+        }
+
         CFRelease(timer->t);
+        timer->t = nil;
+        timer = nil;
     }
+
     return 0;
 }
 
@@ -262,10 +283,13 @@ static int userdata_tostring(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
     NSString* title ;
 
-    if (CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes))
-        title = @"running" ;
-    else
+    if (!timer->t || !CFRunLoopTimerIsValid(timer->t)) {
+        title = @"invalid";
+    } else if (CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes)) {
+        title = @"running";
+    } else {
         title = @"stopped";
+    }
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
     return 1 ;
