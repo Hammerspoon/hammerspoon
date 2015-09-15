@@ -6,6 +6,7 @@
 ---
 
 local module      = require("hs.webview.internal")
+local http        = require("hs.http")
 
 -- private variables and methods -----------------------------------------
 
@@ -141,6 +142,22 @@ internalObject.delete = function(self, propagate)
     end
 
     return internalObject._delete(self)
+end
+
+--- hs.webview:urlParts() -> table
+--- Method
+--- Returns a table of keys containing the individual components of the URL for the webview.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * a table containing the keys for the webview's URL.  See the function `hs.http.urlParts` for a description of the possible keys returned in the table.
+---
+--- Notes:
+---  * This method is a wrapper to the `hs.http.urlParts` function
+internalObject.urlParts = function(self)
+    return http.urlParts(self)
 end
 
 -- Return Module Object --------------------------------------------------

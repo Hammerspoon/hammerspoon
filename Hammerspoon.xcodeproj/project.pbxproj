@@ -276,6 +276,7 @@
 		D02F95291A00221C00E28BB2 /* Hammerspoon_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* Hammerspoon_Tests.m */; };
 		D02F95341A003A2900E28BB2 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = D02F95331A003A2900E28BB2 /* init.lua */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
+		D61B2C381BA7A55D00BC6A64 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
 		D641255E1BA07CEA000FB5F8 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		D641255F1BA07CEA000FB5F8 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D64125651BA07D09000FB5F8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9473A75C1959F9AB0080C329 /* WebKit.framework */; };
@@ -975,6 +976,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D61B2C381BA7A55D00BC6A64 /* WebKit.framework in Frameworks */,
 				4F4CB4451B73B032000EA9B6 /* Fabric.framework in Frameworks */,
 				4F4CB43E1B73AF96000EA9B6 /* Foundation.framework in Frameworks */,
 				4F4CB43D1B73AF91000EA9B6 /* Carbon.framework in Frameworks */,
