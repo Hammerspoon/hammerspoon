@@ -17,7 +17,7 @@ typedef struct _timer_t {
     BOOL continueOnError;
 } timer_t;
 
-static void callback(CFRunLoopTimerRef __unused timer, void *info) {
+static void timerCallback(CFRunLoopTimerRef __unused timer, void *info) {
     timer_t* t = info;
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
@@ -71,7 +71,7 @@ static int timer_new(lua_State* L) {
 
     CFRunLoopTimerContext ctx = {0, timer, NULL, NULL, NULL};
 //    ctx.info = timer;
-    timer->t = CFRunLoopTimerCreate(NULL, 0, sec, 0, 0, callback, &ctx);
+    timer->t = CFRunLoopTimerCreate(NULL, 0, sec, 0, 0, timerCallback, &ctx);
 
     return 1;
 }
@@ -135,7 +135,7 @@ static int timer_doAfter(lua_State* L) {
 
     CFRunLoopTimerContext ctx = {0, timer, NULL, NULL, NULL};
 //    ctx.info = timer;
-    timer->t = CFRunLoopTimerCreate(NULL, 0, 0, 0, 0, callback, &ctx);
+    timer->t = CFRunLoopTimerCreate(NULL, 0, 0, 0, 0, timerCallback, &ctx);
     timer->started = YES;
 
     CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + sec);
