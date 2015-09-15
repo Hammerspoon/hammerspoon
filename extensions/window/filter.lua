@@ -46,10 +46,10 @@
 --   (e.g. if they know all they cares about is Safari)
 
 local pairs,ipairs,type,smatch,sformat,ssub = pairs,ipairs,type,string.match,string.format,string.sub
-local next,tsort,tinsert,tremove,setmetatable = next,table.sort,table.insert,table.remove,setmetatable
-local timer = require 'hs.timer'
+local next,tsort,tinsert,tremove,setmetatable,pcall = next,table.sort,table.insert,table.remove,setmetatable,pcall
+local timer,geometry = require'hs.timer',require'hs.geometry'
 local application,window = require'hs.application',hs.window
-local appwatcher,uiwatcher = application.watcher, require'hs.uielement'.watcher
+local appwatcher,uiwatcher = application.watcher,require'hs.uielement'.watcher
 local logger = require'hs.logger'
 local log = logger.new('wfilter')
 local DISTANT_FUTURE=315360000 -- 10 years (roughly)
@@ -157,7 +157,7 @@ windowfilter.allowedWindowRoles = {['AXStandardWindow']=true,['AXDialog']=true,[
 
 
 
---- hs.window.filter:isWindowAllowed(window) -> bool
+--- hs.window.filter:isWindowAllowed(window) -> boolean
 --- Method
 --- Checks if a window is allowed by the windowfilter
 ---
@@ -260,7 +260,7 @@ function WF:isWindowAllowed(window)
   return isWindowAllowed(self,win)
 end
 
---- hs.window.filter:isAppAllowed(appname) -> bool
+--- hs.window.filter:isAppAllowed(appname) -> boolean
 --- Method
 --- Checks if an app is allowed by the windowfilter
 ---
@@ -274,7 +274,7 @@ function WF:isAppAllowed(appname)
   return windowfilter.isGuiApp(appname) and self.filters[appname]~=false
 end
 
---- hs.window.filter:rejectApp(appname) -> hs.window.filter
+--- hs.window.filter:rejectApp(appname) -> hs.window.filter object
 --- Method
 --- Sets the windowfilter to outright reject any windows belonging to a specific app
 ---
@@ -290,7 +290,7 @@ function WF:rejectApp(appname)
   return self:setAppFilter(appname,false)
 end
 
---- hs.window.filter:allowApp(appname) -> hs.window.filter
+--- hs.window.filter:allowApp(appname) -> hs.window.filter object
 --- Method
 --- Sets the windowfilter to allow all visible windows belonging to a specific app
 ---
@@ -305,7 +305,7 @@ end
 function WF:allowApp(appname)
   return self:setAppFilter(appname,true)--nil,nil,windowfilter.allowedWindowRoles,nil,true)
 end
---- hs.window.filter:setDefaultFilter(filter) -> hs.window.filter
+--- hs.window.filter:setDefaultFilter(filter) -> hs.window.filter object
 --- Method
 --- Set the default filtering rules to be used for apps without app-specific rules
 ---
@@ -317,7 +317,7 @@ end
 function WF:setDefaultFilter(...)
   return self:setAppFilter('default',...)
 end
---- hs.window.filter:setOverrideFilter(filter) -> hs.window.filter
+--- hs.window.filter:setOverrideFilter(filter) -> hs.window.filter object
 --- Method
 --- Set overriding filtering rules that will be applied for all apps before any app-specific rules
 ---
@@ -329,7 +329,7 @@ end
 function WF:setOverrideFilter(...)
   return self:setAppFilter('override',...)
 end
---- hs.window.filter:setCurrentSpace(val) -> hs.window.filter
+--- hs.window.filter:setCurrentSpace(val) -> hs.window.filter object
 --- Method
 --- Sets whether the windowfilter should only allow (or reject) windows in the current Mission Control Space
 ---
@@ -341,8 +341,8 @@ end
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
----  * This is just a convenience wrapper for setting the `currentSpace` field in the `override` filter; per-app filters
----    will maintain their `currentSpace` field, if present, as is
+---  * This is just a convenience wrapper for setting the `currentSpace` field in the `override` filter (other
+---    fields will be left untouched); per-app filters will maintain their `currentSpace` field, if present, as is
 ---  * Spaces-aware windowfilters might experience a (sometimes significant) delay after every Space switch, since
 ---    (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
 function WF:setCurrentSpace(val)
@@ -351,7 +351,45 @@ function WF:setCurrentSpace(val)
   return self:setOverrideFilter(nf)
 end
 
---- hs.window.filter:setAppFilter(appname, filter) -> hs.window.filter
+--- hs.window.filter:setRegions(regions) -> hs.window.filter object
+--- Method
+--- Sets the allowed screen regions for this windowfilter
+---
+--- Parameters:
+---  * regions - an `hs.geometry` rect or constructor argument, or a list of them, indicating the allowed region(s) for this windowfilter
+---
+--- Returns:
+---  * the `hs.window.filter` object for method chaining
+---
+--- Notes:
+---  * This is just a convenience wrapper for setting the `allowRegions` field in the `override` filter (other
+---    fields will be left untouched); per-app filters will maintain their `allowRegions` and `rejectRegions` fields, if present
+function WF:setRegions(val)
+  local nf=self.filters.override or {}
+  if nf~=false then nf.allowRegions=val end
+  return self:setOverrideFilter(nf)
+end
+
+--- hs.window.filter:setScreens(screens) -> hs.window.filter object
+--- Method
+--- Sets the allowed screens for this windowfilter
+---
+--- Parameters:
+---  * regions - a valid argument for `hs.screen.find()`, or a list of them, indicating the allowed screen(s) for this windowfilter
+---
+--- Returns:
+---  * the `hs.window.filter` object for method chaining
+---
+--- Notes:
+---  * This is just a convenience wrapper for setting the `allowScreens` field in the `override` filter (other
+---    fields will be left untouched); per-app filters will maintain their `allowScreens` and `rejectScreens` fields, if present
+function WF:setScreens(val)
+  local nf=self.filters.override or {}
+  if nf~=false then nf.allowScreens=val end
+  return self:setOverrideFilter(nf)
+end
+
+--- hs.window.filter:setAppFilter(appname, filter) -> hs.window.filter object
 --- Method
 --- Sets the detailed filtering rules for the windows of a specific app
 ---
@@ -383,6 +421,8 @@ end
 --- Notes:
 ---  * Passing `focused=true` in `filter` will (naturally) result in the windowfilter ever allowing 1 window at most
 ---  * If you want to allow *all* windows for an app, including invisible ones, pass an empty table for `filter`
+---  * Spaces-aware windowfilters might experience a (sometimes significant) delay after every Space switch, since
+---    (due to OS X limitations) they must re-query for the list of all windows in the current Space every time.
 ---  * If System Preferences>Mission Control>Displays have separate Spaces is *on*, the *current Space* is defined
 ---    as the union of all the Spaces that are currently visible
 ---  * This table explains the effects of different combinations of `visible` and `currentSpace`, showing which windows will be allowed:
@@ -394,6 +434,41 @@ end
 --- |    false   |visible in OTHER space only+min and hidden|visible in OTHER space only   |none          |
 --- ```
 local refreshWindows,checkTrackSpacesFilters
+local function getListOfStrings(l)
+  if type(l)~='table' then return end
+  local r={}
+  for _,v in ipairs(l) do if type(v)=='string' then r[#r+1]=v else return end end
+  return r
+end
+local function getListOfRects(l)
+  local ok,res=nil,pcall(geometry.new,l)
+  if ok and geometry.type(res)=='rect' then l={res} end
+  if type(l)~='table' then return end
+  local r={}
+  for _,v in ipairs(l) do
+    local ok,res=pcall(geometry.new,v)
+    if ok and geometry.type(res)=='rect' then r[#r+1]=v else return end
+  end
+  return r
+end
+
+local function getListOfScreens(l)
+  if type(l)=='number' or type(l)=='string' then l={l}
+  elseif type(l)=='table' then
+    local ok,res=pcall(geometry.new,l)
+    if ok and (geometry.type(res)=='rect' or geometry.type(res)=='size') then l={res} end
+  end
+  if type(l)~='table' then return end
+  local r={}
+  for _,v in ipairs(l) do
+    if type(v)=='number' or type(v)=='string' then r[#r+1]=v
+    elseif type(v)=='table' then
+      local ok,res=pcall(geometry.new,v)
+      if ok and (geometry.type(res)=='rect' or geometry.type(res)=='size') then r[#r+1]=res end
+    end
+  end
+  return r
+end
 
 function WF:setAppFilter(appname,ft,batch)
   if type(appname)~='string' then error('appname must be a string',2) end
@@ -411,36 +486,52 @@ function WF:setAppFilter(appname,ft,batch)
 
     for k,v in pairs(ft) do
       if k=='allowTitles' then
-        if type(v)=='string' then v={v}
-        elseif type(v)~='number' and type(v)~='table' then error('allowTitles must be a number, string or table',2) end
-        logs=sformat('%s%s=%s, ',logs,k,type(v)=='table' and '{...}' or v)
-        filter.allowTitles=v
+        local r
+        if type(v)=='string' then r={v}
+        elseif type(v)=='number' then r=v
+        else r=getListOfStrings(v) end
+        if not r then error('allowTitles must be a number, string or list of strings',2) end
+        local first=r[1] if #r>1 then first=first..',...' end
+        logs=sformat('%s%s={%s}, ',logs,k,first)
+        filter.allowTitles=r
       elseif k=='rejectTitles' then
-        if type(v)=='string' then v={v}
-        elseif type(v)~='table' then error('rejectTitles must be a string or table',2) end
-        logs=sformat('%s%s=%s, ',logs,k,type(v)=='table' and '{...}' or v)
-        filter.rejectTitles=v
+        local r
+        if type(v)=='string' then r={v}
+        else r=getListOfStrings(v) end
+        if not r then error('rejectTitles must be a number, string or list of strings',2) end
+        local first=r[1] if #r>1 then first=first..',...' end
+        logs=sformat('%s%s={%s}, ',logs,k,first)
+        filter.rejectTitles=r
       elseif k=='allowRoles' then
-        local roles={}
-        if v=='*' then roles=v
-        elseif type(v)=='string' then roles={[v]=true}
+        local r={}
+        if v=='*' then r=v
+        elseif type(v)=='string' then r={[v]=true}
         elseif type(v)=='table' then
           for rk,rv in pairs(v) do
-            if type(rk)=='number' and type(rv)=='string' then roles[rv]=true
-            elseif type(rk)=='string' and rv then roles[rk]=true
+            if type(rk)=='number' and type(rv)=='string' then r[rv]=true
+            elseif type(rk)=='string' and rv then r[rk]=true
             else error('incorrect format for allowRoles table',2) end
           end
-        else error('allowRoles must be a string or table',2) end
-        logs=sformat('%s%s=%s, ',logs,k,type(v)=='table' and '{...}' or v)
-        filter.allowRoles=roles
-      elseif k=='fullscreen' then
-        filter.fullscreen=v and true or nil logs=sformat('%s%s=%s, ',logs,k,ft.fullscreen)
-      elseif k=='visible' then
-        filter.visible=v and true or nil  logs=sformat('%s%s=%s, ',logs,k,ft.visible)
-      elseif k=='focused' then
-        filter.focused=v and true or nil logs=sformat('%s%s=%s',logs,k,ft.focused)
-      elseif k=='currentSpace' then
-        filter.currentSpace=v and true or nil logs=sformat('%s%s=%s',logs,k,ft.currentSpace)
+        else error('allowRoles must be a string or a list or set of strings',2) end
+        if type(r)=='table' then
+          local first=r[1] if #r>1 then first=first..',...' end
+          logs=sformat('%s%s={%s}, ',logs,k,first)
+        else logs=sformat('%s%s=%s, ',logs,k,v) end
+        filter.allowRoles=r
+      elseif k=='visible' or k=='fullscreen' or k=='focused' or k=='currentSpace' then
+        if type(v)~='boolean' then error(k..' must be a boolean',2) end
+        filter[k]=v logs=sformat('%s%s=%s, ',logs,k,ft[k])
+      elseif k=='allowRegions' or k=='rejectRegions' then
+        local r=getListOfRects(v)
+        if not r then error(k..' must be an hs.geometry object or constructor, or a list of them',2) end
+        local first=r[1].string if #r>1 then first=first..',...' end
+        logs=sformat('%s%s={%s}, ',logs,k,first)
+        filter[k]=r
+      elseif k=='allowScreens' or k=='rejectScreens' then
+        local r=getListOfScreens(v)
+        if not r then error(k..' must be a valid argument for hs.screen.find, or a list of them',2) end
+        logs=sformat('%s%s={...}, ',logs,k)
+        filter[k]=r
       else
         error('invalid key in filter table: '..tostring(k),2)
       end
@@ -506,7 +597,7 @@ function WF:getFilters() return self.filters end
 
 
 --TODO windowstartedmoving event?
---TODO windowstoppedmoving event? (needs eventtap on mouse, even then not fully reliable)
+--TODO windowstoppedmoving event? (needs eventtap on mouse and keyboard mods, even then not fully reliable)
 
 --TODO :setScreens / :setRegions
 --TODO hs.windowsnap (or snapareas)
@@ -610,7 +701,7 @@ end
 ---    * to remove an exclusion (e.g. if you want to have access to Spotlight windows): `hs.window.filter.default:allowApp'Spotlight'`;
 ---      for specialized uses you can make a specific windowfilter with `myfilter=hs.window.filter.new'Spotlight'`
 
---- hs.window.filter.isGuiApp(appname) -> bool
+--- hs.window.filter.isGuiApp(appname) -> boolean
 --- Function
 --- Checks whether an app is a known non-GUI app, as per `hs.window.filter.ignoreAlways`
 ---
@@ -1448,7 +1539,7 @@ function WF:getWindows()
   return t
 end
 
---- hs.window.filter:notify(fn[, fnEmpty][, immediate]) -> hs.window.filter
+--- hs.window.filter:notify(fn[, fnEmpty][, immediate]) -> hs.window.filter object
 --- Method
 --- Notify a callback whenever the list of allowed windows change
 ---
@@ -1479,7 +1570,7 @@ function WF:notify(fn,fnEmpty,immediate)
   return self
 end
 
---- hs.window.filter:subscribe(event, fn[, immediate]) -> hs.window.filter
+--- hs.window.filter:subscribe(event, fn[, immediate]) -> hs.window.filter object
 --- Method
 --- Subscribe to one or more events on the allowed windows
 ---
@@ -1547,7 +1638,7 @@ function WF:subscribe(event,fn,immediate)
   return self
 end
 
---- hs.window.filter:unsubscribe([event][, fn]) -> hs.window.filter
+--- hs.window.filter:unsubscribe([event][, fn]) -> hs.window.filter object
 --- Method
 --- Removes one or more event subscriptions
 ---
@@ -1609,7 +1700,7 @@ function WF:unsubscribe(events,fns)
   return self
 end
 
---- hs.window.filter:unsubscribeAll() -> hs.window.filter
+--- hs.window.filter:unsubscribeAll() -> hs.window.filter object
 --- Method
 --- Removes all event subscriptions
 ---
@@ -1628,7 +1719,7 @@ function WF:unsubscribeAll()
 end
 
 
---- hs.window.filter:resume() -> hs.window.filter
+--- hs.window.filter:resume() -> hs.window.filter object
 --- Method
 --- Resumes the windowfilter event subscriptions
 ---
@@ -1643,7 +1734,7 @@ function WF:resume()
   return start(self)
 end
 
---- hs.window.filter:pause() -> hs.window.filter
+--- hs.window.filter:pause() -> hs.window.filter object
 --- Method
 --- Stops the windowfilter event subscriptions; no more event callbacks will be triggered, but the subscriptions remain intact for a subsequent call to `hs.window.filter:resume()`
 ---
