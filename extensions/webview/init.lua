@@ -2,8 +2,20 @@
 ---
 --- Display web content in a window from Hammerspoon
 ---
---- This is not intended to replace a full featured web browser - it is a minimal web viewer based on the AppKit WebView class to render web pages for remote and local URLs.
+--- This module uses Apple's WebKit WKWebView class to provide web content display with JavaScript injection support.  The objective is to provide a functional interface to the WKWebView and WKUserContentController classes.
 ---
+--- This module is not intended to replace a full web browser and does have some limitations to keep in mind:
+---   * Self-signed SSL certificates are not accepted unless they have first been approved and included in the users Keychain by another method, for example, opening the page first in Safari.
+---   * The context-menu (right clicking or ctrl-clicking in the webview) provides some menu items which are currently unsupported -- a known example of this is any "Download..." menu item in the context menu for links and images.
+---   * It is uncertain at present exactly how or where cookies and cached page data is stored or how it can be invalidated.
+---     * This can be mitigated to an extent for web requests by using `hs.webview:reload(true)` and by crafting the url for `hs.webview:url({...})` as a table -- see the appropriate help entries for more information.
+---
+--- Any suggestions or updates to the code to address any of these or other limitations as they may become apparent are welcome at the Hammerspoon github site: https://www.github.com/Hammerspoon/hammerspoon
+---
+
+--- === hs.webview.usercontent ===
+---
+--- This module provides support for injecting custom JavaScript user content into your webviews and for JavaScript to post messages back to Hammerspoon.
 
 local module       = require("hs.webview.internal")
 module.usercontent = require("hs.webview.usercontent") ;

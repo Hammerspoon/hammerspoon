@@ -1,25 +1,12 @@
 #import "webview.h"
 
-// TODO:
-// * document policy callback
-// * credential callback
+// TODO: or ideas for updates
 //   single dialog for credentials
-//   document usercontent submodule
-//   add evaluateJavascript
-
-// * in navigation delegate, stick tracking id somewhere we can query for current value
-
-// * query builder for hand crafted urls?
-// * escape/unescape string?  see stringByAddingPercentEncodingWithAllowedCharacters and URLFragmentAllowedCharacterSet
-// * determine what more properly belongs in hs.http
-
-// * userscript support
-//   downloads, save
+//   downloads, save - where? intercept/redirect?
 //   cookies and cache?
 //   handle self-signed ssl
 //   can we adjust context menu?
-
-//   can we choose native viewer over plugin (e.g. not use Adobe for PDF)?
+//   can we choose native viewer over plugin if plugins enabled (e.g. not use Adobe for PDF)?
 
 static int           refTable ;
 static WKProcessPool *HSWebViewProcessPool ;
@@ -179,8 +166,8 @@ static int userdata_gc(lua_State* L) ;
 
             if (![[LuaSkin shared]  protectedCallAndTraceback:3 nresults:1]) {
                 const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
-                CLS_NSLOG(@"authenticationChallenge: %s", errorMsg);
-                showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"authenticationChallenge: %s", errorMsg] UTF8String]);
+                CLS_NSLOG(@"%s: authenticationChallenge: %s", USERDATA_TAG, errorMsg);
+                showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: authenticationChallenge: %s", USERDATA_TAG, errorMsg] UTF8String]);
                 // allow prompting if error -- fall through
             } else {
                 if (lua_type([[LuaSkin shared] L], -1) == LUA_TTABLE) { // if it's a table, we'll get the username and password from it
@@ -267,8 +254,8 @@ static int userdata_gc(lua_State* L) ;
 
         if (![[LuaSkin shared]  protectedCallAndTraceback:3 nresults:1]) {
             const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
-            CLS_NSLOG(@"navigationAction: %s", errorMsg);
-            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"navigationAction: %s", errorMsg] UTF8String]);
+            CLS_NSLOG(@"%s: navigationAction: %s", USERDATA_TAG, errorMsg);
+            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: navigationAction: %s", USERDATA_TAG, errorMsg] UTF8String]);
             decisionHandler(WKNavigationActionPolicyCancel) ;
         } else {
             if (lua_toboolean([[LuaSkin shared] L], -1)) {
@@ -293,8 +280,8 @@ static int userdata_gc(lua_State* L) ;
 
         if (![[LuaSkin shared]  protectedCallAndTraceback:3 nresults:1]) {
             const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
-            CLS_NSLOG(@"navigationResponse: %s", errorMsg);
-            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"navigationResponse: %s", errorMsg] UTF8String]);
+            CLS_NSLOG(@"%s: navigationResponse: %s", USERDATA_TAG, errorMsg);
+            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: navigationResponse: %s", USERDATA_TAG, errorMsg] UTF8String]);
             decisionHandler(WKNavigationResponsePolicyCancel) ;
         } else {
             if (lua_toboolean([[LuaSkin shared] L], -1)) {
@@ -362,15 +349,16 @@ static int userdata_gc(lua_State* L) ;
 
             if (![[LuaSkin shared]  protectedCallAndTraceback:3 nresults:1]) {
                 const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1); lua_pop([[LuaSkin shared] L], 1) ;
-                showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"newWindow: %s", errorMsg] UTF8String]);
+                CLS_NSLOG(@"%s: newWindow: %s", USERDATA_TAG, errorMsg) ;
+                showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: newWindow: %s", USERDATA_TAG, errorMsg] UTF8String]);
 
                 lua_pushcfunction([[LuaSkin shared] L], userdata_gc) ;
                 [[LuaSkin shared] pushNSObject:newWindow] ;
                 if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) {
                     const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1); lua_pop([[LuaSkin shared] L], 1) ;
+                    CLS_NSLOG(@"%s: newWindow removal due to error: %s", USERDATA_TAG, errorMsg) ;
                     showError([[LuaSkin shared] L],
-                        (char *)[[NSString stringWithFormat:@"newWindow removal due to error: %s", errorMsg] UTF8String]);
-                    CLS_NSLOG(@"webview newWindow removal due to error: %s", errorMsg) ;
+                        (char *)[[NSString stringWithFormat:@"%s: newWindow removal due to error: %s", USERDATA_TAG, errorMsg] UTF8String]);
                 }
                 return nil ;
             } else {
@@ -379,9 +367,9 @@ static int userdata_gc(lua_State* L) ;
                     [[LuaSkin shared] pushNSObject:newWindow] ;
                     if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) {
                         const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1); lua_pop([[LuaSkin shared] L], 1) ;
+                        CLS_NSLOG(@"%s: newWindow removal due rejection: %s", USERDATA_TAG, errorMsg) ;
                         showError([[LuaSkin shared] L],
-                            (char *)[[NSString stringWithFormat:@"newWindow removal due rejection: %s", errorMsg] UTF8String]);
-                        CLS_NSLOG(@"webview newWindow removal due to rejection: %s", errorMsg) ;
+                            (char *)[[NSString stringWithFormat:@"%s: newWindow removal due rejection: %s", USERDATA_TAG, errorMsg] UTF8String]);
                     }
                     return nil ;
                 }
@@ -400,7 +388,7 @@ static int userdata_gc(lua_State* L) ;
 
 - (void)webView:(WKWebView *)theView runJavaScriptAlertPanelWithMessage:(NSString *)message
                                                        initiatedByFrame:(WKFrameInfo *)frame
-                                                      completionHandler:(void (^)(void))completionHandler {
+                                                      completionHandler:(void (^)())completionHandler {
     NSAlert *alertPanel = [[NSAlert alloc] init] ;
     [alertPanel addButtonWithTitle:@"OK"];
     [alertPanel setMessageText:[NSString stringWithFormat:@"JavaScript Alert for %@", frame.request.URL.host]] ;
@@ -486,15 +474,16 @@ static int userdata_gc(lua_State* L) ;
 
         if (![[LuaSkin shared]  protectedCallAndTraceback:numberOfArguments nresults:1]) {
             const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
-            CLS_NSLOG(@"%s: %s", action, errorMsg);
-            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: %s", action, errorMsg] UTF8String]);
+            CLS_NSLOG(@"%s: %s %s", USERDATA_TAG, action, errorMsg);
+            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: %s %s", USERDATA_TAG, action, errorMsg] UTF8String]);
         } else {
             if (error) {
                 if (lua_type([[LuaSkin shared] L], -1) == LUA_TSTRING) {
                     lua_getglobal([[LuaSkin shared] L], "hs") ; lua_getfield([[LuaSkin shared] L], -1, "cleanUTF8forConsole") ;
                     lua_pushvalue([[LuaSkin shared] L], -3) ;
                     if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:1]) {
-                        showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: unable to validate HTML: %s", action, lua_tostring([[LuaSkin shared] L], -1)] UTF8String]);
+                        CLS_NSLOG(@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([[LuaSkin shared] L], -1));
+                        showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([[LuaSkin shared] L], -1)] UTF8String]);
                     } else {
                         NSString *theHTML = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
                         lua_pop([[LuaSkin shared] L], 2) ; // remove "hs" and the return value
@@ -848,8 +837,8 @@ static int webview_allowMagnificationGestures(lua_State *L) {
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 ///
 /// Notes
-///  * This method allows you to prevent a webview from being able to open a new window by any method.   This includes right-clicking on a link and selecting "Open in a New Window", javascript pop-ups, links with the target of "__blank", etc.
-///  * If you just want to precent automatic javascript windows, set the preference value javaScriptCanOpenWindowsAutomatically to false when creating the web view - this method blocks *all* methods.
+///  * This method allows you to prevent a webview from being able to open a new window by any method.   This includes right-clicking on a link and selecting "Open in a New Window", JavaScript pop-ups, links with the target of "__blank", etc.
+///  * If you just want to prevent automatic JavaScript windows, set the preference value javaScriptCanOpenWindowsAutomatically to false when creating the web view - this method blocks *all* methods.
 static int webview_allowNewWindows(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
@@ -1043,7 +1032,7 @@ static int webview_navigationCallback(lua_State *L) {
 ///          * allHeaderFields       - a table containing the header fields and values provided in the response
 ///    * The callback function should return `true` if the navigation should proceed or false if it should be denied.
 ///
-///    * `newWindow`: This applies to any request to create a new window from a webview.  This includes javascript, the user selecting "Open in a new window", etc.
+///    * `newWindow`: This applies to any request to create a new window from a webview.  This includes JavaScript, the user selecting "Open in a new window", etc.
 ///      * the second argument will be the new webview this request is generating.
 ///      * the third argument will be a table about the navigation action requested.  See the description above for `navigationAction` for details about this parameter.
 ///    * The callback function should return `true` if the new window should be created or false if it should not.
@@ -1118,6 +1107,55 @@ static int webview_historyList(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview:evaluateJavaScript(script, [callback]) -> webviewObject
+/// Method
+/// Execute JavaScript within the context of the current webview and optionally receive its result or error in a callback function.
+///
+/// Parameters:
+///  * script - the JavaScript to execute within the context of the current webview's display
+///  * callback - an optional function which should accept two parameters as the result of the executed JavaScript.  The function paramaters are as follows:
+///    * result - the result of the executed JavaScript code or nil if there was no result or an error occurred.
+///    * error  - an NSError table describing any error that occurred during the JavaScript execution or nil if no error occurred.
+///
+/// Returns:
+///  * the webview object
+static int webview_evaluateJavaScript(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TSTRING,
+                                LS_TFUNCTION | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    HSWebViewView          *theView = theWindow.contentView ;
+
+    NSString *javascript = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+    int      callbackRef = LUA_NOREF ;
+
+    if (lua_type(L, 3) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 3) ;
+        callbackRef = [[LuaSkin shared] luaRef:refTable] ;
+    }
+
+    [theView evaluateJavaScript:javascript
+              completionHandler:^(id obj, NSError *error){
+
+        if (callbackRef != LUA_NOREF) {
+            [[LuaSkin shared] pushLuaRef:refTable ref:callbackRef] ;
+            [[LuaSkin shared] pushNSObject:obj] ;
+            [[LuaSkin shared] pushNSObject:error] ;
+            if (![[LuaSkin shared] protectedCallAndTraceback:2 nresults:0]) {
+                const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1); lua_pop([[LuaSkin shared] L], 1) ;
+                CLS_NSLOG(@"%s: evaluateJavaScript callback: %s", USERDATA_TAG, errorMsg) ;
+                showError([[LuaSkin shared] L],
+                    (char *)[[NSString stringWithFormat:@"%s: evaluateJavaScript callback: %s", USERDATA_TAG, errorMsg] UTF8String]);
+            }
+            [[LuaSkin shared] luaUnref:refTable ref:callbackRef] ;
+        }
+    }] ;
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
 #pragma mark - Window Related Methods
 
 /// hs.webview.new(rect, [preferencesTable], [userContentController]) -> webviewObject
@@ -1128,13 +1166,13 @@ static int webview_historyList(lua_State *L) {
 ///  * rect - a rectangle specifying where the webviewObject should be displayed.
 ///  * preferencesTable - an optional table which can include one of more of the following keys:
 ///   * javaEnabled                           - java is enabled (default false)
-///   * javaScriptEnabled                     - javascript is enabled (default true)
-///   * javaScriptCanOpenWindowsAutomatically - can javascript open windows without user intervention (default true)
+///   * javaScriptEnabled                     - JavaScript is enabled (default true)
+///   * javaScriptCanOpenWindowsAutomatically - can JavaScript open windows without user intervention (default true)
 ///   * minimumFontSize                       - minimum font size (default 0.0)
 ///   * plugInsEnabled                        - plug-ins are enabled (default false)
 ///   * developerExtrasEnabled                - include "Inspect Element" in the context menu
 ///   * suppressesIncrementalRendering        - suppresses content rendering until fully loaded into memory (default false)
-///  * userContentController - an optional `hs.webview.usercontent` to provide script injection and JavaScript messaging with Hammerspoon from the webview.
+///  * userContentController - an optional `hs.webview.usercontent` object to provide script injection and JavaScript messaging with Hammerspoon from the webview.
 ///
 /// Returns:
 ///  * The webview object
@@ -1716,6 +1754,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"policyCallback",             webview_policyCallback},
     {"children",                   webview_children},
     {"parent",                     webview_parent},
+    {"evaluateJavaScript",         webview_evaluateJavaScript},
 #ifdef _WK_DEBUG
     {"preferences",                webview_preferences},
 #endif

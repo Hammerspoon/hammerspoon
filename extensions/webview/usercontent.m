@@ -1,21 +1,3 @@
-// Presently undocumented, but if you're gutsy and want to try out what's possible so far:
-//
-// w = require("hs.webview")
-// f1 = function(...) print("nav:", table.pack(...)[2]:url(), (inspect(table.pack(...)))) end
-// f2 = function(...) print("pol:", table.pack(...)[2]:url(), (inspect(table.pack(...)))) ; return true end
-// f3 = function(...) print("inj:", (inspect(table.pack(...)))) end
-// b = w.usercontent.new("callbackHandler"):injectScript({source="injectionTestMarkI()", mainFrame=false, injectionTime="documentEnd"}):injectScript({source=[[function injectionTestMarkI() {
-//     try {
-//         webkit.messageHandlers.callbackHandler.postMessage("Hello from JavaScript");
-//     } catch(err) {
-//         console.log('The native context does not exist yet');
-//     }
-//     document.querySelector('h1').style.color = "red";
-// }
-// ]], mainFrame=false, injectionTime="documentStart"}):setCallback(f3)
-// a = w.new({x=0,y=0,h=500,w=720},{developerExtrasEnabled=true,javaEnabled=true,plugInsEnabled=true},b):windowStyle(1+2+4+8):allowTextEntry(true):url("https://www.google.com"):navigationCallback(f1):policyCallback(f2):allowGestures(true):show()
-//
-
 #import "webview.h"
 
 static int refTable ;
@@ -41,15 +23,29 @@ static int refTable ;
         [[LuaSkin shared] pushNSObject:message] ;
         if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) {
             const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
-            CLS_NSLOG(@"authenticationChallenge: %s", errorMsg);
-            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s message callback: %s", USERDATA_UCC_TAG, errorMsg] UTF8String]);
+            CLS_NSLOG(@"%s: message callback: %s", USERDATA_UCC_TAG, errorMsg);
+            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: message callback: %s", USERDATA_UCC_TAG, errorMsg] UTF8String]);
             lua_pop([[LuaSkin shared] L], 1) ;
         }
     }
 }
 @end
 
+#pragma mark - The module methods and constructor
 
+/// hs.webview.usercontent.new(name) -> usercontentControllerObject
+/// Constructor
+/// Create a new user content controller for a webview and create the message port with the specified name for JavaScript message support.
+///
+/// Parameters:
+///  * name - the name of the message port which JavaScript in the webview can use to post messages to Hammerspoon.
+///
+/// Returns:
+///  * the usercontentControllerObject
+///
+/// Notes:
+///  * This object should be provided as the final argument to the `hs.webview.new` constructor in order to tie the webview to this content controller.  All new windows which are created from this parent webview will also use this controller.
+///  * See `hs.webview.usercontent:setCallback` for more information about the message port.
 static int ucc_new(__unused lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TBREAK] ;
 
@@ -61,6 +57,18 @@ static int ucc_new(__unused lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview.usercontent:injectScript(scriptTable) -> usercontentControllerObject
+/// Method
+/// Add a script to be injected into webviews which use this user content controller.
+///
+/// Parameters:
+///  * scriptTable - a table containing the following keys which define the script and how it is to be injected.  All three keys are required:
+///    * source        - the javascript which is injected
+///    * mainFrame     - a boolean value which indicates whether this script is only injected for the main webview frame (true) or for all frames within the webview (false)
+///    * injectionTime - a string which indicates whether the script is injected at "documentStart" or "documentEnd".
+///
+/// Returns:
+///  * the usercontentControllerObject
 static int ucc_inject(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TTABLE, LS_TBREAK] ;
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge HSUserContentController, L, 1) ;
@@ -71,6 +79,21 @@ static int ucc_inject(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview.usercontent:userScripts() -> array
+/// Method
+/// Get a table containing all of the currently defined injection scripts for this user content controller
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An array of injected user scripts.  Each entry in the array will be a table containing the following keys:
+///    * source        - the javascript which is injected
+///    * mainFrame     - a boolean value which indicates whether this script is only injected for the main webview frame (true) or for all frames within the webview (false)
+///    * injectionTime - a string which indicates whether the script is injected at "documentStart" or "documentEnd".
+///
+/// Notes:
+///  * Because the WKUserContentController class only allows for removing all scripts, you can use this method to generate a list of all scripts, modify it, and then use it in a loop to reapply the scripts if you need to remove just a few scripts.
 static int ucc_userScripts(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TBREAK] ;
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge HSUserContentController, L, 1) ;
@@ -80,6 +103,17 @@ static int ucc_userScripts(lua_State *L) {
     return 1;
 }
 
+/// hs.webview.usercontent:removeAllScripts() -> usercontentControllerObject
+/// Method
+/// Removes all user scripts currently defined for this user content controller.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the usercontentControllerObject
+/// Notes:
+///  * The WKUserContentController class only allows for removing all scripts.  If you need finer control, make a copy of the current scripts with `hs.webview.usercontent.userScripts()` first so you can recreate the scripts you want to keep.
 static int ucc_removeAllScripts(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TBREAK] ;
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge HSUserContentController, L, 1) ;
@@ -90,6 +124,26 @@ static int ucc_removeAllScripts(lua_State *L) {
     return 1;
 }
 
+/// hs.webview.usercontent:setCallback(fn) -> usercontentControllerObject
+/// Method
+/// Set or remove the callback function to handle message posted to this user content's message port.
+///
+/// Parameters:
+///  * fn - The function which should receive messages posted to this user content's message port.  Specify an explicit nil to disable the callback.  The function should take one argument which will be the message posted and any returned value will be ignored.
+///
+/// Returns:
+///  * the usercontentControllerObject
+///
+/// Notes:
+///  * Within your (injected or served) JavaScript, you can post messages via the message port created with the constructor like this:
+///
+///      try {
+///          webkit.messageHandlers.*name*>.postMessage(*message-object*);
+///      } catch(err) {
+///          console.log('The controller does not exist yet');
+///      }
+///
+///  * Where *name* matches the name specified in the constructor and *message-object* is the object to post to the function.  This object can be a number, string, date, array, dictionary(table), or nil.
 static int ucc_setCallback(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG,
                                 LS_TFUNCTION | LS_TNIL,
@@ -107,6 +161,8 @@ static int ucc_setCallback(lua_State *L) {
     lua_pushvalue(L, 1);
     return 1;
 }
+
+#pragma mark - NSObject <-> Lua converters
 
 static int HSUserContentController_toLua(lua_State *L, id obj) {
     HSUserContentController *ucc = obj ;
@@ -196,6 +252,8 @@ static id table_toWKUserScript(lua_State* L, int idx) {
                                                forMainFrameOnly:mainFrame] ;
     return script ;
 }
+
+#pragma mark - Lua infrastructure support
 
 static int userdata_tostring(lua_State* L) {
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge HSUserContentController, L, 1) ;
