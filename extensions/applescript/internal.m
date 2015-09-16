@@ -13,7 +13,10 @@
 ///  * A boolean value indicating whether the code succeeded or not
 ///  * A string containing the output of the code and/or its errors
 static int runapplescript(lua_State* L) {
-    NSString* source = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSString* source = [NSString stringWithUTF8String:lua_tostring(L, 1)];
 
     NSAppleScript* script = [[NSAppleScript alloc] initWithSource:source];
     if (script == nil) {
@@ -25,13 +28,11 @@ static int runapplescript(lua_State* L) {
 
     NSDictionary *__autoreleasing error;
     NSAppleEventDescriptor* result = [script executeAndReturnError:&error];
+    BOOL didSucceed = (result != nil);
 
-    lua_pushboolean(L, (result != nil));
-    if (result == nil) {
-        lua_pushstring(L, [[NSString stringWithFormat:@"%@", error] UTF8String]);
-    } else {
-        lua_pushstring(L, [[NSString stringWithFormat:@"%@", result] UTF8String]); // ugly, but parseable in Lua, sorta...
-    }
+    lua_pushboolean(L, didSucceed);
+    lua_pushstring(L, [[NSString stringWithFormat:@"%@", didSucceed ? result : error] UTF8String]);
+
     return 2;
 }
 

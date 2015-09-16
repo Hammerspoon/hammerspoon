@@ -1,6 +1,9 @@
 --- === hs.host ===
 ---
 --- Inspect information about the machine Hammerspoon is running on
+---
+--- Notes:
+---  * The network/hostname calls can be slow, as network resolution calls can be called, which are synchronous and will block Hammerspoon until they complete.
 
 local host = require "hs.host.internal"
 local fnutils = require "hs.fnutils"
