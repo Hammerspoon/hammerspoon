@@ -5,8 +5,9 @@
 --- This is not intended to replace a full featured web browser - it is a minimal web viewer based on the AppKit WebView class to render web pages for remote and local URLs.
 ---
 
-local module      = require("hs.webview.internal")
-local http        = require("hs.http")
+local module       = require("hs.webview.internal")
+module.usercontent = require("hs.webview.usercontent") ;
+local http         = require("hs.http")
 
 -- private variables and methods -----------------------------------------
 

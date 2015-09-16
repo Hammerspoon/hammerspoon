@@ -1,18 +1,19 @@
-// #define _WK_DEBUG
-// #define _WK_DEBUG_TYPES
+#import "webview.h"
 
 // TODO:
 // * document policy callback
 // * credential callback
 //   single dialog for credentials
+//   document usercontent submodule
+//   add evaluateJavascript
 
 // * in navigation delegate, stick tracking id somewhere we can query for current value
 
-//   query builder for hand crafted urls?
-//   escape/unescape string?  see stringByAddingPercentEncodingWithAllowedCharacters and URLFragmentAllowedCharacterSet
-//   determine what more properly belongs in hs.http
+// * query builder for hand crafted urls?
+// * escape/unescape string?  see stringByAddingPercentEncodingWithAllowedCharacters and URLFragmentAllowedCharacterSet
+// * determine what more properly belongs in hs.http
 
-//   userscript support?
+// * userscript support
 //   downloads, save
 //   cookies and cache?
 //   handle self-signed ssl
@@ -20,40 +21,15 @@
 
 //   can we choose native viewer over plugin (e.g. not use Adobe for PDF)?
 
-#ifdef _WK_DEBUG
-#define _StackState(x) { NSLog(@"%s: stack = %d", x, lua_absindex([[LuaSkin shared] L], lua_gettop([[LuaSkin shared] L]))) ; }
-#else
-#define _StackState(x)
-#endif
-
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
-
-// #import <Carbon/Carbon.h>
-#import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
-
-#define USERDATA_TAG        "hs.webview"
-int refTable ;
-
+static int           refTable ;
 static WKProcessPool *HSWebViewProcessPool ;
-
-#define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
 #pragma mark - Classes and Delegates
 
 // forward declare so we can use in windowShouldClose:
 static int userdata_gc(lua_State* L) ;
 
-@interface HSWebViewWindow : NSWindow <NSWindowDelegate>
-@property HSWebViewWindow *parent ;
-@property NSMutableArray  *children ;
-@property int             udRef ;
-@property int             hsDrawingUDRef ;
-@property BOOL            allowKeyboardEntry ;
-@property BOOL            titleFollow ;
-@property BOOL            deleteOnClose ;
-@end
+#pragma mark - our window object
 
 @implementation HSWebViewWindow
 - (id)initWithContentRect:(NSRect)contentRect
@@ -115,12 +91,7 @@ static int userdata_gc(lua_State* L) ;
 }
 @end
 
-@interface HSWebViewView : WKWebView <WKNavigationDelegate, WKUIDelegate>
-@property int          navigationCallback ;
-@property int          policyCallback ;
-@property BOOL         allowNewWindows ;
-@property WKNavigation *trackingID ;
-@end
+#pragma mark - our wkwebview object
 
 @implementation HSWebViewView
 - (id)initWithFrame:(NSRect)frameRect configuration:(WKWebViewConfiguration *)configuration {
@@ -143,7 +114,7 @@ static int userdata_gc(lua_State* L) ;
     return YES ;
 }
 
-#pragma mark - WKNavigationDelegate stuff
+#pragma mark -- WKNavigationDelegate stuff
 
 - (void)webView:(WKWebView *)theView didReceiveServerRedirectForProvisionalNavigation:(WKNavigation *)navigation {
     [self navigationCallbackFor:"didReceiveServerRedirectForProvisionalNavigation" forView:theView
@@ -338,7 +309,7 @@ static int userdata_gc(lua_State* L) ;
     }
 }
 
-#pragma mark - WKUIDelegate stuff
+#pragma mark -- WKUIDelegate stuff
 
 - (WKWebView *)webView:(WKWebView *)theView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
                                                        forNavigationAction:(WKNavigationAction *)navigationAction
@@ -476,7 +447,7 @@ static int userdata_gc(lua_State* L) ;
     }] ;
 }
 
-#pragma mark - Helper methods to reduce code replication
+#pragma mark -- Helper methods to reduce code replication
 
 - (void)handleNavigationFailure:(NSError *)error forView:(WKWebView *)theView {
 // TODO: Really need to figure out how NSErrorRecoveryAttempting works so self-signed certs don't have to be pre-approved via Safari
@@ -1017,20 +988,19 @@ static int webview_html(lua_State *L) {
 /// Notes:
 ///  * The return value of the callback function is ignored except when the `action` argument is equal to `didFailNavigation` or `didFailProvisionalNavigation`.  If the return value when the action argument is one of these values is a string, it will be treated as html and displayed in the webview as the error message.  If the return value is the boolean value true, then no change will be made to the webview (it will continue to display the previous web page).  All other return values or no return value at all, if these navigation actions occur, will cause a default error page to be displayed in the webview.
 static int webview_navigationCallback(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TFUNCTION | LS_TNIL,
+                                LS_TBREAK] ;
+
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
-    if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TFUNCTION) {
-        // We're either removing a callback, or setting a new one. Either way, we want to clear out any callback that exists
-        theView.navigationCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.navigationCallback] ;
+    // We're either removing a callback, or setting a new one. Either way, we want to clear out any callback that exists
+    theView.navigationCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.navigationCallback] ;
 
-        // Set a new callback if we have a function
-        if (lua_type(L, 2) == LUA_TFUNCTION) {
-            lua_pushvalue(L, 2);
-            theView.navigationCallback = [[LuaSkin shared] luaRef:refTable] ;
-        }
-    } else {
-        return luaL_error(L, ":navigationCallback() expected function or nil, not %s", lua_typename(L, lua_type(L, 2)));
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 2);
+        theView.navigationCallback = [[LuaSkin shared] luaRef:refTable] ;
     }
 
     lua_pushvalue(L, 1);
@@ -1109,20 +1079,19 @@ static int webview_navigationCallback(lua_State *L) {
 /// Notes:
 ///  * With the `newWindow` action, the navigationCallback and policyCallback are automatically replicated for the new window from its parent.  If you wish to disable these for the new window or assign a different set of callback functions, you can do so before returning true in the callback function with the webview argument provided.
 static int webview_policyCallback(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TFUNCTION | LS_TNIL,
+                                LS_TBREAK] ;
+
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
-    if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TFUNCTION) {
-        // We're either removing a callback, or setting a new one. Either way, we want to clear out any callback that exists
-        theView.policyCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.policyCallback] ;
+    // We're either removing a callback, or setting a new one. Either way, we want to clear out any callback that exists
+    theView.policyCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.policyCallback] ;
 
-        // Set a new callback if we have a function
-        if (lua_type(L, 2) == LUA_TFUNCTION) {
-            lua_pushvalue(L, 2);
-            theView.policyCallback = [[LuaSkin shared] luaRef:refTable] ;
-        }
-    } else {
-        return luaL_error(L, ":policyCallback() expected function or nil, not %s", lua_typename(L, lua_type(L, 2)));
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 2);
+        theView.policyCallback = [[LuaSkin shared] luaRef:refTable] ;
     }
 
     lua_pushvalue(L, 1);
@@ -1151,7 +1120,7 @@ static int webview_historyList(lua_State *L) {
 
 #pragma mark - Window Related Methods
 
-/// hs.webview.new(rect, [preferencesTable]) -> webviewObject
+/// hs.webview.new(rect, [preferencesTable], [userContentController]) -> webviewObject
 /// Constructor
 /// Create a webviewObject and optionally modify its preferences.
 ///
@@ -1165,6 +1134,7 @@ static int webview_historyList(lua_State *L) {
 ///   * plugInsEnabled                        - plug-ins are enabled (default false)
 ///   * developerExtrasEnabled                - include "Inspect Element" in the context menu
 ///   * suppressesIncrementalRendering        - suppresses content rendering until fully loaded into memory (default false)
+///  * userContentController - an optional `hs.webview.usercontent` to provide script injection and JavaScript messaging with Hammerspoon from the webview.
 ///
 /// Returns:
 ///  * The webview object
@@ -1174,10 +1144,14 @@ static int webview_historyList(lua_State *L) {
 ///  * Preferences can only be set when the webview object is created.  To change the preferences of an open webview, you will need to close it and recreate it with this method.
 ///  * developerExtrasEnabled is not listed in Apple's documentation, but is included in the WebKit2 documentation.
 static int webview_new(lua_State *L) {
-
-    if (lua_type(L, 2) != LUA_TNONE) {
-        luaL_checktype(L, 2, LUA_TTABLE) ;
-    }
+    [[LuaSkin shared] checkArgs:LS_TTABLE,
+                                LS_TTABLE    | LS_TOPTIONAL,
+                                LS_TUSERDATA | LS_TOPTIONAL, USERDATA_UCC_TAG,
+                                LS_TBREAK] ;
+//     [[LuaSkin shared] checkArgs:LS_TTABLE,
+//                                 LS_TTABLE | LS_TUSERDATA | LS_TOPTIONAL, USERDATA_UCC_TAG,
+//                                 LS_TBREAK] ;
+//     luaL_checktype(L, 1, LUA_TTABLE) ;
 
     NSRect windowRect = [[LuaSkin shared] tableToRectAtIndex:1] ;
 
@@ -1187,10 +1161,10 @@ static int webview_new(lua_State *L) {
                                                                         defer:YES];
 
     if (theWindow) {
-        [[LuaSkin shared] pushNSObject:theWindow] ;
 
-        // Keep HS stuff all in the same process pool
+        // Don't create until actually used...
         if (!HSWebViewProcessPool) HSWebViewProcessPool = [[WKProcessPool alloc] init] ;
+
         WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init] ;
         config.processPool = HSWebViewProcessPool ;
 
@@ -1218,11 +1192,18 @@ static int webview_new(lua_State *L) {
 
             lua_pop(L, 7) ;
             config.preferences = myPreferences ;
+            if (lua_type(L, 3) != LUA_TNONE)
+                config.userContentController = get_uccObjFromUserdata(__bridge HSUserContentController, L, 3) ;
+        } else {
+            if (lua_type(L, 2) != LUA_TNONE)
+                config.userContentController = get_uccObjFromUserdata(__bridge HSUserContentController, L, 2) ;
         }
 
         HSWebViewView *theView = [[HSWebViewView alloc] initWithFrame:((NSView *)theWindow.contentView).bounds
                                                         configuration:config];
         theWindow.contentView = theView;
+
+        [[LuaSkin shared] pushNSObject:theWindow] ;
     } else {
         lua_pushnil(L) ;
     }
@@ -1649,17 +1630,10 @@ static int NSURLCredential_toLua(lua_State *L, id obj) {
 static int userdata_tostring(lua_State* L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView = theWindow.contentView ;
-
     NSString *title ;
-    if (theWindow) {
-        title = [theView title] ;
-    } else {
-        title = @"<deleted>" ;
-    }
 
-    if (!title) {
-        title = @"" ;
-    }
+    if (theWindow) { title = [theView title] ; } else { title = @"<deleted>" ; }
+    if (!title) { title = @"" ; }
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
     return 1 ;
@@ -1677,37 +1651,47 @@ static int userdata_gc(lua_State* L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge_transfer HSWebViewWindow, L, 1) ;
     HSWebViewView   *theView   = theWindow.contentView ;
 
-    [theWindow close] ;
+    if (theWindow) {
+        [theWindow close] ;
 
-    theWindow.udRef            = [[LuaSkin shared] luaUnref:refTable ref:theWindow.udRef] ;
-    theWindow.hsDrawingUDRef   = [[LuaSkin shared] luaUnref:refTable ref:theWindow.hsDrawingUDRef] ;
-    theView.navigationCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.navigationCallback] ;
-    theView.policyCallback     = [[LuaSkin shared] luaUnref:refTable ref:theView.policyCallback] ;
+        theWindow.udRef            = [[LuaSkin shared] luaUnref:refTable ref:theWindow.udRef] ;
+        theWindow.hsDrawingUDRef   = [[LuaSkin shared] luaUnref:refTable ref:theWindow.hsDrawingUDRef] ;
+        theView.navigationCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.navigationCallback] ;
+        theView.policyCallback     = [[LuaSkin shared] luaUnref:refTable ref:theView.policyCallback] ;
 
-    // emancipate us from our parent
-    if (theWindow.parent) {
-        [theWindow.parent.children removeObject:theWindow] ;
-        theWindow.parent = nil ;
+        // emancipate us from our parent
+        if (theWindow.parent) {
+            [theWindow.parent.children removeObject:theWindow] ;
+            theWindow.parent = nil ;
+        }
+
+        // orphan our children
+        for(HSWebViewWindow *child in theWindow.children) {
+            child.parent = nil ;
+        }
+
+        theWindow.contentView = nil ;
+        theView = nil ;
+        theWindow = nil;
     }
 
-    // orphan our children
-    for(HSWebViewWindow *child in theWindow.children) {
-        child.parent = nil ;
-    }
-
-    theWindow.contentView = nil ;
-    theView = nil ;
-    theWindow = nil;
-
+// Clear the pointer so it's no longer dangling
     void** windowPtr = lua_touserdata(L, 1);
     *windowPtr = nil ;
+
+// Remove the Metatable so future use of the variable in Lua won't think its valid
+    lua_pushnil(L) ;
+    lua_setmetatable(L, 1) ;
 
     return 0;
 }
 
-// static int meta_gc(lua_State* __unused L) {
-//     return 0 ;
-// }
+static int meta_gc(lua_State* __unused L) {
+    if (HSWebViewProcessPool) {
+        HSWebViewProcessPool = nil ;
+    }
+    return 0 ;
+}
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
@@ -1761,7 +1745,7 @@ static luaL_Reg moduleLib[] = {
 
 // Metatable for module, if needed
 static const luaL_Reg module_metaLib[] = {
-//     {"__gc", meta_gc},
+    {"__gc", meta_gc},
     {NULL,   NULL}
 };
 
