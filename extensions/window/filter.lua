@@ -47,7 +47,7 @@
 
 local pairs,ipairs,type,smatch,sformat,ssub = pairs,ipairs,type,string.match,string.format,string.sub
 local next,tsort,tinsert,tremove,setmetatable,pcall = next,table.sort,table.insert,table.remove,setmetatable,pcall
-local timer,geometry = require'hs.timer',require'hs.geometry'
+local timer,geometry,screen = require'hs.timer',require'hs.geometry',require'hs.screen'
 local application,window = require'hs.application',hs.window
 local appwatcher,uiwatcher = application.watcher,require'hs.uielement'.watcher
 local logger = require'hs.logger'
@@ -64,6 +64,7 @@ local WF={} -- class
 local global = {} -- global state (focused app, focused window, appwatchers running or not)
 local activeInstances = {} -- active wf instances (i.e. with subscriptions or :keepActive)
 local spacesInstances = {} -- wf instances that also need to be "active" because they care about Spaces
+local screensInstances = {} -- wf instances that care about screens (needn't be active, but must screen.watcher)
 local pendingApps = {} -- apps resisting being watched (hs.application)
 local apps = {} -- all GUI apps (class App) containing all windows (class Window)
 local App,Window={},{} -- classes
@@ -167,21 +168,34 @@ windowfilter.allowedWindowRoles = {['AXStandardWindow']=true,['AXDialog']=true,[
 --- Returns:
 ---  * `true` if the window is allowed by the windowfilter, `false` otherwise; `nil` if an invalid object was passed
 
-local function matchTitle(titles,t)
+local function matchTitles(titles,t)
   for _,title in ipairs(titles) do
     if smatch(t,title) then return true end
   end
 end
+local function matchRegions(regions,frame) -- if more than half the window is inside, or if more than half the region is covered
+  for _,region in ipairs(regions) do
+    local area=frame:intersect(region).area
+    if area>0 and (area>frame.area*0.5 or area>region.area*0.5) then return true end
+end
+end
+
 local function checkWindowAllowed(filter,win)
   if filter.visible~=nil and filter.visible~=win.isVisible then return false,'visible' end
   if filter.currentSpace~=nil and filter.currentSpace~=win.isInCurrentSpace then return false,'currentSpace' end
   if filter.allowTitles then
     if type(filter.allowTitles)=='number' then if #win.title<=filter.allowTitles then return false,'allowTitles' end
-    elseif not matchTitle(filter.allowTitles,win.title) then return false,'allowTitles' end
+    elseif not matchTitles(filter.allowTitles,win.title) then return false,'allowTitles' end
   end
-  if filter.rejectTitles and matchTitle(filter.rejectTitles,win.title) then return false,'rejectTitles' end
+  if filter.rejectTitles and matchTitles(filter.rejectTitles,win.title) then return false,'rejectTitles' end
   if filter.fullscreen~=nil and filter.fullscreen~=win.isFullscreen then return false,'fullscreen' end
   if filter.focused~=nil and filter.focused~=(win==global.focused) then return false,'focused' end
+  if win.isVisible then --min and hidden disregard regions and screens
+    if filter.allowRegions and not matchRegions(filter.allowRegions,win.frame) then return false,'allowRegions' end
+    if filter.rejectRegions and matchRegions(filter.allowRegions,win.frame) then return false,'rejectRegions' end
+    if filter.allowScreens and not filter._allowedScreens[win.screen] then return false,'allowScreens' end
+    if filter.rejectScreens and filter._rejectedScreens[win.screen] then return false,'rejectScreens' end
+  end
   local approles = filter.allowRoles or windowfilter.allowedWindowRoles
   if approles~='*' and not approles[win.role] then return false,'allowRoles' end
   return true,''
@@ -433,7 +447,7 @@ end
 --- |    true    |visible in CURRENT space+min and hidden   |visible in CURRENT space      |min and hidden|
 --- |    false   |visible in OTHER space only+min and hidden|visible in OTHER space only   |none          |
 --- ```
-local refreshWindows,checkTrackSpacesFilters
+local refreshWindows,checkTrackSpacesFilters,checkScreensFilters
 local function getListOfStrings(l)
   if type(l)~='table' then return end
   local r={}
@@ -491,8 +505,10 @@ function WF:setAppFilter(appname,ft,batch)
         elseif type(v)=='number' then r=v
         else r=getListOfStrings(v) end
         if not r then error('allowTitles must be a number, string or list of strings',2) end
-        local first=r[1] if #r>1 then first=first..',...' end
-        logs=sformat('%s%s={%s}, ',logs,k,first)
+        if type(r)=='table' then
+          local first=r[1] if #r>1 then first=first..',...' end
+          logs=sformat('%s%s={%s}, ',logs,k,first)
+        else logs=sformat('%s%s=%s, ',logs,k,r) end
         filter.allowTitles=r
       elseif k=='rejectTitles' then
         local r
@@ -530,8 +546,10 @@ function WF:setAppFilter(appname,ft,batch)
       elseif k=='allowScreens' or k=='rejectScreens' then
         local r=getListOfScreens(v)
         if not r then error(k..' must be a valid argument for hs.screen.find, or a list of them',2) end
-        logs=sformat('%s%s={...}, ',logs,k)
+        local first=r[1] if #r>1 then first=first..',...' end
+        logs=sformat('%s%s={%s}, ',logs,k,first)
         filter[k]=r
+        self.screensFilters=42 --make sure to always re-applyScreenFilters()
       else
         error('invalid key in filter table: '..tostring(k),2)
       end
@@ -540,7 +558,7 @@ function WF:setAppFilter(appname,ft,batch)
   end
   self.log.i(logs)
   if not batch then
-    checkTrackSpacesFilters(self)
+    checkTrackSpacesFilters(self) checkScreensFilters(self)
     if activeInstances[self] or spacesInstances[self] then return refreshWindows(self) end
   end
   return self
@@ -578,7 +596,7 @@ function WF:setFilters(filters)
       else error('invalid filters table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
     else error('invalid filters table: keys can be integer or string, got '..type(k)..' instead',2) end
   end
-  checkTrackSpacesFilters(self)
+  checkTrackSpacesFilters(self) checkScreensFilters(self)
   if activeInstances[self] or spacesInstances[self] then return refreshWindows(self) end
   return self
 end
@@ -695,7 +713,7 @@ end
 ---  * If you still want to alter the default windowfilter:
 ---    * you should probably apply your customizations at the top of your `init.lua`, or at any rate before instantiating any other windowfilter; this
 ---      way copies created via `hs.window.filter.new(nil,...)` will inherit your modifications
----    * to list the known exclusions: `hs.window.filter.setLogLevel('info')`; the console will log them upon instantiating the default windowfilter
+---    * to list the known exclusions: `hs.inspect(hs.window.filter.default:getFilters())` from the console
 ---    * to add an exclusion: `hs.window.filter.default:rejectApp'Cool New Launcher'`
 ---    * to add an app-specific rule: `hs.window.filter.default:setAppFilter('My IDE',1)`; ignore tooltips/code completion (empty title) in My IDE
 ---    * to remove an exclusion (e.g. if you want to have access to Spotlight windows): `hs.window.filter.default:allowApp'Spotlight'`;
@@ -828,14 +846,18 @@ function Window:setFilter(wf,forceremove) -- returns true if filtering status ch
 end
 
 function Window:filterEmitEvent(wf,event,inserted,logged,notified)
-  if self:setFilter(wf,event==windowfilter.windowDestroyed) and wf.notifyfn then
-    -- filter status changed, call notifyfn if present
-    if not notified then wf.log.d('Notifying windows changed') if wf.log==log then notified=true end end
-    wf.notifyfn(wf:getWindows(),event)
+  local filteringStatusChanged=self:setFilter(wf,event==windowfilter.windowDestroyed)
+  if filteringStatusChanged then
+    if wf.notifyfn then
+      -- filter status changed, call notifyfn if present
+      if not notified then wf.log.d('Notifying windows changed') if wf.log==log then notified=true end end
+      wf.notifyfn(wf:getWindows(),event)
+    end
     -- if this is an 'inserted' event, keep around the window until all the events are exhausted
     if inserted and not wf.windows[self] then wf.pending[self]=true end
   end
-  if wf.windows[self] or wf.pending[self] then
+  --  wf.log.f('EVENT %s inserted %s statusChanged %s isallowed %s ispending %s',event,inserted,filteringStatusChanged,wf.windows[self],wf.pending[self])
+  if filteringStatusChanged or wf.windows[self] or wf.pending[self] then
     -- window is currently allowed, call subscribers if any
     local fns = wf.events[event]
     if fns then
@@ -864,7 +886,7 @@ function Window.new(win,id,app,watcher)
   -- the id "caching" should be moved to the hs.window userdata itself
   --  local w = setmetatable({id=function()return id end},{__index=function(_,k)return function(self,...)return win[k](win,...)end end})
   -- hackity hack removed, turns out it was just for :snapshot (see gh#413)
-  local o = setmetatable({app=app,window=win,id=id,watcher=watcher,frame=win:frame(),
+  local o = setmetatable({app=app,window=win,id=id,watcher=watcher,frame=win:frame(),screen=win:screen():id(),
     isMinimized=win:isMinimized(),isVisible=win:isVisible(),isFullscreen=win:isFullScreen(),role=win:subrole(),title=win:title()}
   ,{__index=Window})
   o.isHidden = not o.isVisible and not o.isMinimized
@@ -986,7 +1008,7 @@ function Window:moved()
   else self.movedDelayed=timer.doAfter(WINDOWMOVED_DELAY,function()self:doMoved()end) end
 end
 function Window:doMoved()
-  self.frame=self.window:frame()
+  self.frame=self.window:frame() self.screen=self.window:screen():id()
   self.movedDelayed=nil
   local fs = self.window:isFullScreen()
   local oldfs = self.isFullscreen or false
@@ -1088,9 +1110,11 @@ function App:getCurrentSpaceAppWindows()
   local arrived={}
   for _,win in ipairs(allWindows) do
     local id=win:id()
-    if not self.windows[id] then appWindowEvent(win,uiwatcher.windowCreated,nil,self.name) end
-    gone[id]=nil
-    arrived[id]=self.windows[id]
+    if id then
+      if not self.windows[id] then appWindowEvent(win,uiwatcher.windowCreated,nil,self.name) end
+      gone[id]=nil
+      arrived[id]=self.windows[id]
+    end
   end
   for _,win in pairs(gone) do win:notInCurrentSpace() end
   for _,win in pairs(arrived) do win:inCurrentSpace() end
@@ -1403,6 +1427,66 @@ local function stopGlobalWatcher()
   log.f('Unregistered %d apps',totalApps)
 end
 
+local screenCache,screenWatcher={}
+--local allowScreenSetFilters,rejectScreenSetFilters={},{}
+local function getCachedScreenID(scrhint)
+  if not screenCache[scrhint] then
+    local s=screen.find(scrhint)
+    local sid=s and s:id() or -1
+    if sid==-1 then log.df('screen not found for hint %s',scrhint)
+    else log.vf('screen id for hint %s: %d',scrhint,sid) end
+    screenCache[scrhint]=sid
+  end
+  return screenCache[scrhint]
+end
+local function applyScreenFilters(self)
+  self.log.d('finding screens for screen-aware filters')
+  for _,flt in pairs(self.filters) do
+    if type(flt)=='table' then
+      if flt.allowScreens then
+        flt._allowedScreens={}
+        for _,scrhint in ipairs(flt.allowScreens) do flt._allowedScreens[getCachedScreenID(scrhint)]=true end
+      end
+      if flt.rejectScreens then
+        flt._rejectedScreens={}
+        for _,scrhint in ipairs(flt.rejectScreens) do flt._rejectedScreens[getCachedScreenID(scrhint)]=true end
+      end
+    end
+  end
+  refreshWindows(self)
+end
+
+local function screensChanged()
+  screenCache={}
+  log.i('Screens changed, refreshing screens-aware windowfilters')
+  for wf in pairs(screensInstances) do applyScreenFilters(wf) end
+end
+
+local function startScreenWatcher()
+  if screenWatcher then return end
+  screenWatcher=screen.watcher.new(screensChanged):start()
+  log.i('Screen watcher started')
+  screensChanged()
+end
+
+local function stopScreenWatcher()
+  if not screenWatcher then return end
+  if next(screensInstances) then return end
+  screenWatcher:stop() screenWatcher=nil
+  log.i('Screen watcher stopped')
+end
+
+checkScreensFilters=function(self)
+  local prev,now=self.screensFilters
+  for _,flt in pairs(self.filters) do if type(flt)=='table' and (flt.allowScreens or flt.rejectScreens) then now=true break end end
+  if prev~=now then
+    self.log.df('%s screens-aware filters',now and 'Added' or 'No more')
+    self.screensFilters=now
+    screensInstances[self]=now
+    if now then if not screenWatcher then startScreenWatcher() else applyScreenFilters(self) end
+    else stopScreenWatcher() end
+  end
+end
 
 checkTrackSpacesFilters=function(self)
   local prev,now=self.trackSpacesFilters
