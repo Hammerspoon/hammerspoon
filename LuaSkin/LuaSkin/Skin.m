@@ -297,8 +297,8 @@ NSMutableDictionary *registeredTableHelperFunctions ;
                 }
 
                 userdataTag = va_arg(args, char*);
-                if (!userdataTag || strlen(userdataTag) == 0 || !luaL_checkudata(_L, idx, userdataTag)) {
-                    luaL_error(_L, "ERROR: incorrect userdata type for argument %d", idx);
+                if (!userdataTag || strlen(userdataTag) == 0 || !luaL_testudata(_L, idx, userdataTag)) {
+                    luaL_error(_L, "ERROR: incorrect userdata type for argument %d (expected %s)", idx, userdataTag);
                 }
                 break;
 
