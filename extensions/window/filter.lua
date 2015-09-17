@@ -5,22 +5,25 @@
 --- (Should you encounter any issues, please feel free to report them on https://github.com/Hammerspoon/hammerspoon/issues
 --- or #hammerspoon on irc.freenode.net)
 ---
---- Filter windows by application, role, and/or title, and easily subscribe to events on these windows
+--- Filter windows by application, title, location on screen and more, and easily subscribe to events on these windows
 ---
 --- Usage:
 --- -- alter the default windowfilter
 --- hs.window.filter.default:setAppFilter('My IDE',{allowTitles=1}) -- ignore no-title windows (e.g. autocomplete suggestions) in My IDE
 ---
---- -- set the exact scope of what you're interested in
+--- -- set the exact scope of what you're interested in - see hs.window.filter:setAppFilter()
 --- wf_terminal = hs.window.filter.new{'Terminal','iTerm2'} -- all visible terminal windows
 --- wf_timewaster = hs.window.filter.new(false):setAppFilter('Safari',{allowTitles='reddit'}) -- any Safari windows with "reddit" anywhere in the title
+--- wf_leftscreen = hs.window.filter.new{override={visible=true,fullscreen=false,allowScreens='-1,0',currentSpace=true}}
+--- -- all visible and non-fullscreen windows that are on the screen to the left of the primary screen in the current Space
+--- wf_editors_righthalf = hs.window.filter.new{'TextEdit','Sublime Text','BBEdit'}:setRegions(hs.screen.primaryScreen():fromUnitRect'0.5,0 1,1')
+--- -- text editor windows that are on the right half of the primary screen
 --- wf_bigwindows = hs.window.filter.new(function(w)return w:frame().w*w:frame().h>3000000 end) -- only very large windows
 --- wf_notif = hs.window.filter.new{['Notification Center']={allowRoles='AXNotificationCenterAlert'}} -- notification center alerts
 ---
 --- -- subscribe to events
 --- wf_terminal:subscribe(hs.window.filter.windowFocused,some_fn) -- run a function whenever a terminal window is focused
 --- wf_timewaster:notify(startAnnoyingMe,stopAnnoyingMe) -- fight procrastination :)
-
 
 
 -- The pure filtering part alone should fulfill a lot of use cases
@@ -38,12 +41,10 @@
 --   * coherency is maintained (e.g. closing System Preferences with cmd-w has the same result as with cmd-q)
 -- A further :notify() method is provided for use cases with highly specific filters.
 --
--- * There is the usual problem with spaces; it's usefully abstracted away from userspace via :setTrackSpaces,
---   but the implementation is inefficient as it relies on calling hs.window.allWindows() (which is slow)
+-- * There is the usual problem with spaces; it's usefully abstracted away from userspace via .currentSpace field in filters,
+--   but the implementation is inefficient as it relies on calling hs.window.allWindows() (which can be slow)
 --   on space changes.
 -- * window(un)maximized could be implemented, or merged into window(un)fullscreened (but currently isn't either)
--- * Perhaps (seems doubtful, tho) the user should be allowed to provide his own root filter for better performance
---   (e.g. if they know all they cares about is Safari)
 
 local pairs,ipairs,type,smatch,sformat,ssub = pairs,ipairs,type,string.match,string.format,string.sub
 local next,tsort,tinsert,tremove,setmetatable,pcall = next,table.sort,table.insert,table.remove,setmetatable,pcall
@@ -56,6 +57,7 @@ local DISTANT_FUTURE=315360000 -- 10 years (roughly)
 
 local windowfilter={} -- module
 local WF={} -- class
+-- instance fields:
 -- .filters = filters set
 -- .events = subscribed events
 -- .windows = current allowed windows
@@ -65,7 +67,7 @@ local global = {} -- global state (focused app, focused window, appwatchers runn
 local activeInstances = {} -- active wf instances (i.e. with subscriptions or :keepActive)
 local spacesInstances = {} -- wf instances that also need to be "active" because they care about Spaces
 local screensInstances = {} -- wf instances that care about screens (needn't be active, but must screen.watcher)
-local pendingApps = {} -- apps resisting being watched (hs.application)
+local pendingApps = {} -- apps (hopefully temporarily) resisting being watched (hs.application)
 local apps = {} -- all GUI apps (class App) containing all windows (class Window)
 local App,Window={},{} -- classes
 local preexistingWindowFocused,preexistingWindowCreated={},{} -- used to 'bootstrap' fields .focused/.created and preserve relative ordering in :getWindows
@@ -201,7 +203,8 @@ local function checkWindowAllowed(filter,win)
   return true,''
 end
 
-local shortRoles={AXStandardWindow='wnd',AXDialog='dlg',AXSystemDialog='sys dlg',AXFloatingWindow='float',AXUnknown='unknown',['']='no role'}
+local shortRoles={AXStandardWindow='wnd',AXDialog='dlg',AXSystemDialog='sys dlg',AXFloatingWindow='float',
+  AXNotificationCenterBanner='notif',AXUnknown='unknown',['']='no role'}
 
 local function isWindowAllowed(self,win)
   local role,appname,id=shortRoles[win.role] or win.role,win.app.name,win.id
@@ -421,9 +424,18 @@ end
 ---      * if a number, only allow windows whose title is at least as many characters long; e.g. pass `1` to filter windows with an empty title
 ---      * if a string or table of strings, only allow windows whose title matches (one of) the pattern(s) as per `string.match`
 ---      * if omitted, this rule is ignored
----    * rejectTitles
----      * if a string or table of strings, reject windows whose titles matches (one of) the pattern(s) as per `string.match`
----      * if omitted, this rule is ignored
+---    * rejectTitles - if a string or table of strings, reject windows whose titles matches (one of) the pattern(s) as per `string.match`;
+---      if omitted, this rule is ignored
+---    * allowRegions - an `hs.geometry` rect or constructor argument, or a list of them, designating (a) screen "region(s)" in absolute coordinates:
+---      only allow windows that "cover" at least 50% of (one of) the region(s), and/or windows that have at least 50% of their surface inside
+---      (one of) the region(s); if omitted, this rule is ignored
+---    * rejectRegions - an `hs.geometry` rect or constructor argument, or a list of them, designating (a) screen "region(s)" in absolute coordinates:
+---      reject windows that "cover" at least 50% of (one of) the region(s), and/or windows that have at least 50% of their surface inside
+---      (one of) the region(s); if omitted, this rule is ignored
+---    * allowScreens - a valid argument for `hs.screen.find()`, or a list of them, indicating one (or more) screen(s): only allow windows
+---      that (mostly) lie on (one of) the screen(s); if omitted, this rule is ignored
+---    * rejectScreens - a valid argument for `hs.screen.find()`, or a list of them, indicating one (or more) screen(s): reject windows
+---      that (mostly) lie on (one of) the screen(s); if omitted, this rule is ignored
 ---    * allowRoles
 ---      * if a string or table of strings, only allow these window roles as per `hs.window:subrole()`
 ---      * if the special string `'*'`, this rule is ignored (i.e. all window roles, including empty ones, are allowed)
@@ -484,6 +496,7 @@ local function getListOfScreens(l)
   return r
 end
 
+--TODO add size/aspect filters?
 function WF:setAppFilter(appname,ft,batch)
   if type(appname)~='string' then error('appname must be a string',2) end
   local logs
@@ -530,7 +543,7 @@ function WF:setAppFilter(appname,ft,batch)
           end
         else error('allowRoles must be a string or a list or set of strings',2) end
         if type(r)=='table' then
-          local first=r[1] if #r>1 then first=first..',...' end
+          local first=next(r) if next(r,first) then first=first..',...' end
           logs=sformat('%s%s={%s}, ',logs,k,first)
         else logs=sformat('%s%s=%s, ',logs,k,v) end
         filter.allowRoles=r
@@ -657,16 +670,16 @@ local function __tostring(self) return 'hs.window.filter: '..(self.logname or '.
 ---
 --- Parameters:
 ---  * fn
----    - if `nil`, returns a copy of the default windowfilter, including any customizations you might have applied to it
+---    * if `nil`, returns a copy of the default windowfilter, including any customizations you might have applied to it
 ---      so far; you can then further restrict or expand it
----    - if `true`, returns an empty windowfilter that allows every window
----    - if `false`, returns a windowfilter with a default rule to reject every window
----    - if a string or table of strings, returns a windowfilter that only allows visible windows of the specified apps
+---    * if `true`, returns an empty windowfilter that allows every window
+---    * if `false`, returns a windowfilter with a default rule to reject every window
+---    * if a string or table of strings, returns a windowfilter that only allows visible windows of the specified apps
 ---      as per `hs.application:name()`
----    - if a table, you can fully define a windowfilter without having to call any methods after construction; the
+---    * if a table, you can fully define a windowfilter without having to call any methods after construction; the
 ---      table must be structured as per `hs.window.filter:setFilters()`; if not specified in the table, the
 ---      default filter in the new windowfilter will reject all windows
----    - otherwise it must be a function that accepts an `hs.window` object and returns `true` if the window is allowed
+---    * otherwise it must be a function that accepts an `hs.window` object and returns `true` if the window is allowed
 ---      or `false` otherwise; this way you can define a fully custom windowfilter
 ---  * logname - (optional) name of the `hs.logger` instance for the new windowfilter; if omitted, the class logger will be used
 ---  * loglevel - (optional) log level for the `hs.logger` instance for the new windowfilter
@@ -722,8 +735,8 @@ end
 ---  * While you can customize the default windowfilter, it's usually advisable to make your customizations on a local copy via `mywf=hs.window.filter.new()`;
 ---    the default windowfilter can potentially be used in several Hammerspoon modules and changing it might have unintended consequences.
 ---    Common customizations:
----    * to exclude fullscreen windows: `nofs_wf=hs.window.filter.new():setOverrideFilter(nil,nil,nil,false)`
----    * to include invisible windows: `inv_wf=windowfilter.new():setDefaultFilter()`
+---    * to exclude fullscreen windows: `nofs_wf=hs.window.filter.new():setOverrideFilter{fullscreen=false}`
+---    * to include invisible windows: `inv_wf=windowfilter.new():setDefaultFilter{}`
 ---  * If you still want to alter the default windowfilter:
 ---    * you should probably apply your customizations at the top of your `init.lua`, or at any rate before instantiating any other windowfilter; this
 ---      way copies created via `hs.window.filter.new(nil,...)` will inherit your modifications
@@ -810,32 +823,33 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 
 --- hs.window.filter.windowVisible
 --- Constant
---- Event for `hs.window.filter:subscribe()`: a window became visible (in any Mission Control Space) after having
---- been hidden or minimized, or if it was just created
+--- Event for `hs.window.filter:subscribe()`: a window became "visible" (in *any* Mission Control Space, as per `hs.window:isVisible()`)
+--- after having been hidden or minimized, or if it was just created
 
 --- hs.window.filter.windowNotVisible
 --- Constant
---- Event for `hs.window.filter:subscribe()`: a window is no longer visible (in any Mission Control Space) because it was
---- minimized or closed, or its application was hidden (e.g. via `cmd-h`) or closed
+--- Event for `hs.window.filter:subscribe()`: a window is no longer "visible" (in *any* Mission Control Space, as per `hs.window:isVisible()`)
+--- because it was minimized or closed, or its application was hidden (e.g. via `cmd-h`) or closed
 
 --- hs.window.filter.windowInCurrentSpace
 --- Constant
 --- Event for `hs.window.filter:subscribe()`: a window is now in the current Mission Control Space, due to
---- a Space switch or because it was hidden or minimized
+--- a Space switch or because it was hidden or minimized (hidden and minimized windows belong to all Spaces)
 
 --- hs.window.filter.windowNotInCurrentSpace
 --- Constant
 --- Event for `hs.window.filter:subscribe()`: a window that used to be in the current Mission Control Space isn't anymore,
 --- due to a Space switch or because it was unhidden or unminimized onto another Space
 
---- hs.window.filter.windowNotOnScreen
---- Constant
---- Event for `hs.window.filter:subscribe()`: a window is no longer visible on any screen because it was minimized, closed,
---- its application was hidden (e.g. via cmd-h) or closed, or because it's not in the current Mission Control Space anymore
-
 --- hs.window.filter.windowOnScreen
 --- Constant
---- Event for `hs.window.filter:subscribe()`: a window became visible on screen (after having been not visible, or when created)
+--- Event for `hs.window.filter:subscribe()`: a window became *actually* visible on screen (i.e. it's "visible" as per `hs.window:isVisible()`
+--- *and* in the current Mission Control Space) after having been not visible, or when created
+
+--- hs.window.filter.windowNotOnScreen
+--- Constant
+--- Event for `hs.window.filter:subscribe()`: a window is no longer *actually* visible on any screen because it was minimized, closed,
+--- its application was hidden (e.g. via cmd-h) or closed, or because it's not in the current Mission Control Space anymore
 
 --- hs.window.filter.windowFocused
 --- Constant
@@ -1344,8 +1358,8 @@ local spacesDone = {}
 --- often (or always) change Space via the "numbered" Mission Control keyboard shortcuts (by default, `ctrl-1` etc.), you
 --- can call this function from your `init.lua` when intercepting these shortcuts; for example:
 --- ```
---- hs.hotkey.bind({'ctrl','1',nil,function()hs.window.filter.switchedToSpace(1)end)
---- hs.hotkey.bind({'ctrl','2',nil,function()hs.window.filter.switchedToSpace(2)end)
+--- hs.hotkey.bind('ctrl','1',nil,function()hs.window.filter.switchedToSpace(1)end)
+--- hs.hotkey.bind('ctrl','2',nil,function()hs.window.filter.switchedToSpace(2)end)
 --- -- etc.
 --- ```
 --- Using this callback results in slightly better performance than setting `forceRefreshOnSpaceChange` to `true`, since
@@ -1380,7 +1394,6 @@ function windowfilter.switchedToSpace(space)
   pendingSpace=space
   spaceDelayed:setNextTrigger(0.5)
 end
---FIXME docs above and below
 
 --- hs.window.filter.forceRefreshOnSpaceChange
 --- Variable
@@ -1687,11 +1700,11 @@ end
 --- Parameters:
 ---  * fn - a callback function that will be called when:
 ---    * an allowed window is created or destroyed, and therefore added or removed from the list of allowed windows
----    * a previously allowed window is now filtered or vice versa (e.g. in consequence of a title change)
+---    * a previously allowed window is now filtered or vice versa (e.g. in consequence of a title or position change)
 ---    It will be passed 2 parameters:
 ---    * a list of the `hs.window` objects currently (i.e. *after* the change took place) allowed by this
----      windowfilter (as per `hs.window.filter:getWindows()`)
----    * a string containing the (first) event that caused the change (see the `hs.window.filter` constants)
+---      windowfilter as per `hs.window.filter:getWindows()` (sorted according to `hs.window.filter:setSortOrder()`)
+---    * a string containing the (first) event that caused the change (see the `hs.window.filter.window...` event constants)
 ---  * fnEmpty - (optional) if provided, when this windowfilter becomes empty (i.e. `:getWindows()` returns
 ---    an empty list) call this function (with no arguments) instead of `fn`, otherwise, always call `fn`
 ---  * immediate - (optional) if `true`, also call `fn` (or `fnEmpty`) immediately
@@ -1721,7 +1734,7 @@ end
 ---  * fn - function or list of functions, the callback(s) to add for the event(s); each will be passed 3 parameters
 ---    * a `hs.window` object referring to the event's window
 ---    * a string containing the application name (`window:application():name()`) for convenience
----    * a string containing the event that caused the callback (i.e. the event, or one of the events, you subscribed to)
+---    * a string containing the event that caused the callback, i.e. (one of) the event(s) you subscribed to
 ---  * immediate - (optional) if `true`, also call all the callbacks immediately for windows that satisfy the event(s) criteria
 ---
 --- Returns:
@@ -1852,7 +1865,7 @@ end
 ---  * the `hs.window.filter` object for method chaining
 ---
 --- Notes:
----  * You should not use this on the default windowfilter or other shared windowfilters
+---  * You should not use this on the default windowfilter or other shared-use windowfilters
 function WF:unsubscribeAll()
   self.events={} if not self.doKeepActive then self:pause() end
   checkTrackSpacesSubscriptions(self)
@@ -1912,7 +1925,7 @@ local function makeDefault()
     for appname in pairs(windowfilter.ignoreInDefaultFilter) do
       defaultwf:rejectApp(appname)
     end
-    defaultwf:setAppFilter('Hammerspoon',{allowTitles={'Preferences','Console'},allowRoles={'AXStandardWindow'}})
+    defaultwf:setAppFilter('Hammerspoon',{allowTitles={'Preferences','Console'},allowRoles='AXStandardWindow'})
     --    defaultwf:rejectApp'Hammerspoon'
     defaultwf:setDefaultFilter{visible=true}
     defaultwf.log.i('default windowfilter instantiated')
@@ -1921,7 +1934,6 @@ local function makeDefault()
 end
 
 
---FIXME remove :trackSpaces references
 -- utilities
 
 --- hs.window.filter:windowsToEast(window, frontmost, strict) -> list of `hs.window` objects
@@ -2003,7 +2015,7 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowEast(window,self:getWindows(),...)`
----  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call.
 
 --- hs.window.filter:focusWindowWest(window, frontmost, strict)
 --- Method
@@ -2020,7 +2032,7 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowWest(window,self:getWindows(),...)`
----  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call.
 
 --- hs.window.filter:focusWindowSouth(window, frontmost, strict)
 --- Method
@@ -2037,7 +2049,7 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowSouth(window,self:getWindows(),...)`
----  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call.
 
 --- hs.window.filter:focusWindowNorth(window, frontmost, strict)
 --- Method
@@ -2054,7 +2066,7 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowNorth(window,self:getWindows(),...)`
----  * You'll likely want to add `:trackSpaces(true)` to the windowfilter used for this method call.
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call.
 for _,dir in ipairs{'East','North','West','South'}do
   WF['windowsTo'..dir]=function(self,win,...)
     return window['windowsTo'..dir](win,self:getWindows(),...)
