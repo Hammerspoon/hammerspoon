@@ -68,7 +68,7 @@ local screensInstances = {} -- wf instances that care about screens (needn't be 
 local pendingApps = {} -- apps resisting being watched (hs.application)
 local apps = {} -- all GUI apps (class App) containing all windows (class Window)
 local App,Window={},{} -- classes
-local preexistingWindowTimes={} -- used to 'bootstrap' field .time and preserve relative ordering in :getWindows
+local preexistingWindowFocused,preexistingWindowCreated={},{} -- used to 'bootstrap' fields .focused/.created and preserve relative ordering in :getWindows
 
 --- hs.window.filter.ignoreAlways
 --- Variable
@@ -575,8 +575,10 @@ end
 ---      and `hs.window.filter:rejectApp()`
 ---    - if the *value* is a table, it must contain the accept/reject rules for the app *as key/value pairs*; valid keys
 ---      and values are described in `hs.window.filter:setAppFilter()`
----    - the *key* can be one of the special strings `"default"` and `"override"`, which will will set the default and override
+---    - the key can be one of the special strings `"default"` and `"override"`, which will will set the default and override
 ---      filter respectively
+---    - the key can be the special string `"sortOrder"`; the value must be one of the `sortBy...` constants as per
+---      `hs.window.filter:setSortOrder()`
 ---
 --- Returns:
 ---  * the `hs.window.filter` object for method chaining
@@ -591,7 +593,8 @@ function WF:setFilters(filters)
       if type(v)=='string' then self:allowApp(v) -- {'appname'}
       else error('invalid filters table: integer key '..k..' needs a string value, got '..type(v)..' instead',2) end
     elseif type(k)=='string' then --{appname=...}
-      if type(v)=='boolean' then if v then self:allowApp(k) else self:rejectApp(k) end --{appname=true/false}
+      if k=='sortOrder' then self:setSortOrder(v)
+      elseif type(v)=='boolean' then if v then self:allowApp(k) else self:rejectApp(k) end --{appname=true/false}
       elseif type(v)=='table' then self:setAppFilter(k,v,true) --{appname={arg1=val1,...}}
       else error('invalid filters table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
     else error('invalid filters table: keys can be integer or string, got '..type(k)..' instead',2) end
@@ -611,7 +614,18 @@ end
 --- Returns:
 ---  * a table containing the filtering rules of this windowfilter; you can pass this table (optionally
 ---  after performing valid manipulations) to `hs.window.filter:setFilters()` and `hs.window.filter.new()`
-function WF:getFilters() return self.filters end
+function WF:getFilters()
+  local r={}
+  for appname,flt in pairs(self.filters) do
+    if type(flt)~='table' then r[appname]=flt
+    else r[appname]={}
+      for k,v in pairs(flt) do
+        if k:sub(1,1)~='_' then r[appname][k]=v end
+      end
+    end
+  end
+  return r
+end
 
 
 --TODO windowstartedmoving event?
@@ -896,11 +910,9 @@ end
 
 function Window.created(win,id,app,watcher)
   local self=Window.new(win,id,app,watcher)
-  if preexistingWindowTimes[id] then
-    self.time=preexistingWindowTimes[id] preexistingWindowTimes[id]=nil
-  else
-    self.time=timer.secondsSinceEpoch()
-  end
+  self.timeFocused=preexistingWindowFocused[id] or timer.secondsSinceEpoch()
+  self.timeCreated=preexistingWindowCreated[id] or timer.secondsSinceEpoch()
+  preexistingWindowFocused[id]=nil preexistingWindowCreated[id]=nil
   app.windows[id]=self
   self:emitEvent(windowfilter.windowCreated)
   if self.isVisible then
@@ -953,7 +965,7 @@ function Window:focused(inserted)
   if global.focused==self then return log.vf('%s (%d) already focused',self.app.name,self.id) end
   global.focused=self
   self.app.focused=self
-  self.time=timer.secondsSinceEpoch()
+  self.timeFocused=timer.secondsSinceEpoch()
   self:emitEvent(windowfilter.windowFocused,inserted) --TODO check this
 end
 
@@ -1397,9 +1409,10 @@ spacesWatcher:start()
 local function startGlobalWatcher()
   if global.watcher then return end
   local ids,time=window._orderedwinids(),timer.secondsSinceEpoch()
-  preexistingWindowTimes={}
+  preexistingWindowFocused,preexistingWindowCreated={},{}
   for i,id in ipairs(ids) do
-    preexistingWindowTimes[id]=time-i
+    preexistingWindowFocused[id]=time-i
+    preexistingWindowCreated[id]=time+id-999999
   end
   global.watcher = appwatcher.new(appEvent)
   local runningApps = application.runningApplications()
@@ -1590,37 +1603,81 @@ function windowfilter.stopBatchOperation(id)
   if not next(batches) then stopGlobalWatcher() end
 end
 
+--- hs.window.filter.sortByFocusedLast
+--- Constant
+--- Sort order for `hs.window.filter:getWindows()`: windows are sorted in order of focus received, most recently first (see also `hs.window.filter:setSortOrder()`)
+---
+--- Notes:
+---   * This is the default sort order for all windowfilters
 
-local function getWindowObjects(wf)
-  local t={}
-  for w in pairs(wf.windows) do
-    t[#t+1] = w
-  end
-  tsort(t,function(a,b)return a.time>b.time end)
-  return t
+--- hs.window.filter.sortByFocused
+--- Constant
+--- Sort order for `hs.window.filter:getWindows()`: windows are sorted in order of focus received, least recently first (see also `hs.window.filter:setSortOrder()`)
+
+--- hs.window.filter.sortByCreatedLast
+--- Constant
+--- Sort order for `hs.window.filter:getWindows()`: windows are sorted in order of creation, newest first (see also `hs.window.filter:setSortOrder()`)
+
+--- hs.window.filter.sortByCreated
+--- Constant
+--- Sort order for `hs.window.filter:getWindows()`: windows are sorted in order of creation, oldest first (see also `hs.window.filter:setSortOrder()`)
+
+local sortingComparators={
+  focusedLast = function(a,b) return a.timeFocused>b.timeFocused end,
+  focused = function(a,b) return a.timeFocused<b.timeFocused end,
+  createdLast = function(a,b) return a.timeCreated>b.timeCreated end,
+  created = function(a,b) return a.timeCreated<b.timeCreated end,
+}
+for k in pairs(sortingComparators) do
+  windowfilter['sortBy'..ssub(k,1,1):upper()..ssub(k,2)]=k
 end
 
---- hs.window.filter:getWindows() -> table
+--- hs.window.filter:setSortOrder(sortOrder) -> hs.window.filter object
 --- Method
---- Gets the current windows allowed by this windowfilter, ordered by most recently focused
+--- Sets the sort order for this windowfilter's `:getWindows()` method
 ---
 --- Parameters:
----  * None
+---   * sortOrder - one of the `hs.window.filter.sortBy...` constants
+---
+--- Returns:
+---  * the `hs.window.filter` object for method chaining
+---
+--- Notes:
+---   * The default sort order for all windowfilters (that is, until changed by this method) is `hs.window.filter.sortByFocusedLast`
+function WF:setSortOrder(sortOrder)
+  if type(sortOrder)~='string' or not sortingComparators[sortOrder] then
+    error('sortOrder must be a valid hs.window.filter.sortBy... constant',2) end
+  self.log.i('sort order set to '..sortOrder)
+  self.sortOrder=sortOrder
+  return self
+end
+
+local function getWindowObjects(wf,sortOrder)
+  local r={}
+  for w in pairs(wf.windows) do r[#r+1]=w end
+  tsort(r,sortingComparators[sortOrder] or sortingComparators[wf.sortOrder] or sortingComparators.focusedLast)
+  return r
+end
+
+--- hs.window.filter:getWindows([sortOrder]) -> list of hs.window objects
+--- Method
+--- Gets the current windows allowed by this windowfilter
+---
+--- Parameters:
+---  * sortOrder - (optional) one of the `hs.window.filter.sortBy...` constants to determine the sort order
+---    of the returned list; if omitted, uses the windowfilter's sort order as per `hs.window.filter:setSortOrder()`
+---   (defaults to `sortByFocusedLast`)
 ---
 --- Returns:
 ---  * a list of `hs.window` objects
 
 --TODO allow to pass in a list of candidate windows?
-function WF:getWindows()
-  local wasActive=activeInstances[self]
-  start(self)
-  local t={}
-  local o=getWindowObjects(self)
-  for i,w in ipairs(o) do
-    t[i]=w.window
-  end
+function WF:getWindows(sortOrder)
+  local wasActive=activeInstances[self] start(self)
+  local r,wins={},getWindowObjects(self,sortOrder)
+  for i,w in ipairs(wins) do r[i]=w.window end
   if not wasActive then self:pause() end
-  return t
+  return r
 end
 
 --- hs.window.filter:notify(fn[, fnEmpty][, immediate]) -> hs.window.filter object
