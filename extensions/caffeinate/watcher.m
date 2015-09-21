@@ -112,8 +112,7 @@ typedef enum _event_t {
 ///  * An `hs.caffeinate.watcher` object
 static int app_watcher_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-
-    luaL_checktype(L, 1, LUA_TFUNCTION);
+    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     caffeinatewatcher_t* caffeinateWatcher = lua_newuserdata(L, sizeof(caffeinatewatcher_t));
     memset(caffeinateWatcher, 0, sizeof(caffeinatewatcher_t));
@@ -176,7 +175,10 @@ static void unregister_observer(CaffeinateWatcher* observer) {
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
 static int app_watcher_start(lua_State* L) {
-    caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    caffeinatewatcher_t* caffeinateWatcher = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (caffeinateWatcher->running)
@@ -197,7 +199,10 @@ static int app_watcher_start(lua_State* L) {
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
 static int app_watcher_stop(lua_State* L) {
-    caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    caffeinatewatcher_t* caffeinateWatcher = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (!caffeinateWatcher->running)
