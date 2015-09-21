@@ -72,7 +72,7 @@ layout.maximized = geometry.rect(0, 0, 1, 1)
 ---
 --- Parameters:
 ---  * table - A table describing your desired layout. Each element in the table should be another table describing a set of windows to match, and their desired size/position. The fields in each of these tables are:
----   * A string containing an application name or nil
+---   * A string containing an application name, or an `hs.application` object, or nil
 ---   * A string containing a window title or nil
 ---   * A string containing a screen name, or an `hs.screen` object, or a function that accepts no parameters and returns an `hs.screen` object, or nil to select the first available screen
 ---   * A Unit rect (see `hs.window.moveToUnit()`)
@@ -137,9 +137,13 @@ function layout.apply(layout, windowTitleComparator)
 
         -- Find the application's object, if wanted
         if _row[1] then
-            app = application.get(_row[1])
-            if not app then
-                print("Unable to find app: " .. _row[1])
+            if type(_row[1]) == "userdata" then
+                app = _row[1]
+            else
+                app = application.get(_row[1])
+                if not app then
+                    print("Unable to find app: " .. _row[1])
+                end
             end
         end
 
