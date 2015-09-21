@@ -219,7 +219,7 @@ typedef struct tableHelpers {
 /** Register a helper function for converting an NSObject to its lua equivalant.
 
  @note This method allows registering a new NSObject class for conversion by allowing a module to register a helper function.
- @param helperFN - a function of the type 'int (*pushNSHelperFunction) (lua_State *L, id obj)'  If this parameter is nil, any existing helper for the specified class is removed.
+ @param helperFN - a function of the type 'int (*pushNSHelperFunction) (lua_State *L, id obj)'.
  @param className - a string containing the class name of the NSObject type this function can convert.
  */
 - (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char *)className ;
@@ -286,7 +286,7 @@ typedef struct tableHelpers {
 /** Register a tableAtIndex:toClass: conversion helper function for the specified class.
 
  @note This method registers a converter functions for use with the tableAtIndex:toClass: method for converting lua tables into NSObjects.
- @param helperFN - a function of the type 'id (*tableHelperFunction) (lua_State *L, int idx)'  If this parameter is nil, any existing helper for the specified class is removed.
+ @param helperFN - a function of the type 'id (*tableHelperFunction) (lua_State *L, int idx)'.
  @param className - a string containing the class name of the NSObject type this function can convert.
  */
 - (void)registerTableHelper:(tableHelperFunction)helperFN forClass:(char *)className ;
