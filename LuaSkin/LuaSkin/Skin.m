@@ -65,7 +65,9 @@ static lua_Integer countn (lua_State *L, int idx) {
 @synthesize L = _L;
 
 NSMutableDictionary *registeredNSHelperFunctions ;
+NSMutableDictionary *registeredNSHelperLocations ;
 NSMutableDictionary *registeredTableHelperFunctions ;
+NSMutableDictionary *registeredTableHelperLocations ;
 
 #pragma mark - Class lifecycle
 
@@ -75,7 +77,9 @@ NSMutableDictionary *registeredTableHelperFunctions ;
     dispatch_once(&onceToken, ^{
         sharedLuaSkin = [[self alloc] init];
         registeredNSHelperFunctions = [[NSMutableDictionary alloc] init] ;
+        registeredNSHelperLocations = [[NSMutableDictionary alloc] init] ;
         registeredTableHelperFunctions = [[NSMutableDictionary alloc] init] ;
+        registeredTableHelperLocations = [[NSMutableDictionary alloc] init] ;
     });
     if (![NSThread isMainThread]) {
         NSLog(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
@@ -107,6 +111,10 @@ NSMutableDictionary *registeredTableHelperFunctions ;
     NSAssert((_L != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (_L) {
         lua_close(_L);
+        [registeredNSHelperFunctions removeAllObjects] ;
+        [registeredNSHelperLocations removeAllObjects] ;
+        [registeredTableHelperFunctions removeAllObjects] ;
+        [registeredTableHelperLocations removeAllObjects] ;
     }
     _L = NULL;
 }
@@ -345,12 +353,25 @@ nextarg:
 }
 
 - (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
+    if (className && helperFN) {
+        if ([registeredNSHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]) {
+            luaL_error(_L, "registerPushNSHelper:forClass:%s already defined at %s", className,
+              [[registeredNSHelperLocations objectForKey:[NSString stringWithUTF8String:className]] UTF8String]) ;
+        } else {
+            int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
+            if (level == 0) level = 3 ;
 
-    if (className)
-        [registeredNSHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
-                                        forKey:[NSString stringWithUTF8String:className]] ;
-    else
-        [registeredNSHelperFunctions removeObjectForKey:[NSString stringWithUTF8String:className]] ;
+            luaL_where(_L, level) ;
+            NSString *locationString = [NSString stringWithFormat:@"%s", lua_tostring(_L, -1)] ;
+            [registeredNSHelperLocations setObject:locationString
+                                            forKey:[NSString stringWithUTF8String:className]] ;
+            [registeredNSHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
+                                            forKey:[NSString stringWithUTF8String:className]] ;
+            lua_pop(_L, 1) ;
+        }
+    } else {
+        luaL_error(_L, "registerPushNSHelper:forClass: requires both helperFN and className") ;
+    }
 }
 
 - (int)pushNSRect:(NSRect)theRect {
@@ -399,12 +420,25 @@ nextarg:
 }
 
 - (void)registerTableHelper:(tableHelperFunction)helperFN forClass:(char*)className {
+    if (className && helperFN) {
+        if ([registeredTableHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]) {
+            luaL_error(_L, "registerTableHelper:forClass:%s already defined at %s", className,
+              [[registeredTableHelperLocations objectForKey:[NSString stringWithUTF8String:className]] UTF8String]) ;
+        } else {
+            int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
+            if (level == 0) level = 3 ;
 
-    if (className)
-        [registeredTableHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
-                                           forKey:[NSString stringWithUTF8String:className]] ;
-    else
-        [registeredTableHelperFunctions removeObjectForKey:[NSString stringWithUTF8String:className]] ;
+            luaL_where(_L, level) ;
+            NSString *locationString = [NSString stringWithFormat:@"%s", lua_tostring(_L, -1)] ;
+            [registeredTableHelperLocations setObject:locationString
+                                               forKey:[NSString stringWithUTF8String:className]] ;
+            [registeredTableHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
+                                               forKey:[NSString stringWithUTF8String:className]] ;
+            lua_pop(_L, 1) ;
+        }
+    } else {
+        luaL_error(_L, "registerTableHelper:forClass: requires both helperFN and className") ;
+    }
 }
 
 - (NSRect)tableToRectAtIndex:(int)idx {
