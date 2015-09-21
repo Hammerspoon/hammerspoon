@@ -276,6 +276,9 @@ NSMutableDictionary *registeredTableHelperFunctions ;
             case LUA_TNIL:
                 lsType = LS_TNIL;
                 break;
+            case LUA_TBOOLEAN:
+                lsType = LS_TBOOLEAN;
+                break;
             case LUA_TNUMBER:
                 lsType = LS_TNUMBER;
                 break;
@@ -291,7 +294,7 @@ NSMutableDictionary *registeredTableHelperFunctions ;
             case LUA_TUSERDATA:
                 lsType = LS_TUSERDATA;
 
-                // We have to duplicat this check here, because if the user wasn't supposed to pass userdata, we won't have a valid userdataTag value available
+                // We have to duplicate this check here, because if the user wasn't supposed to pass userdata, we won't have a valid userdataTag value available
                 if (!(spec & lsType)) {
                     luaL_error(_L, "ERROR: incorrect type '%s' for argument %d", luaL_typename(_L, idx), idx);
                 }
