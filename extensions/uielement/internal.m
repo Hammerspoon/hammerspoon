@@ -77,6 +77,7 @@ static void push_element(lua_State* L, AXUIElementRef element) {
 /// Method
 /// Returns whether the UI element represents a window.
 static int uielement_iswindow(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TUSERDATA);
     AXUIElementRef element = get_element(L, 1);
     bool isWindow = is_window(element, nil);
     lua_pushboolean(L, isWindow);
@@ -87,6 +88,7 @@ static int uielement_iswindow(lua_State* L) {
 /// Method
 /// Returns the role of the element.
 static int uielement_role(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TUSERDATA);
     AXUIElementRef element = get_element(L, 1);
 
     NSString* str = get_prop(element, NSAccessibilityRoleAttribute, @"");
@@ -109,6 +111,7 @@ static int uielement_role(lua_State* L) {
 ///  * Many applications (e.g. Safari, Mail, Firefox) do not implement the necessary accessibility features for this to work in their web views
 static int uielement_selectedText(lua_State* L) {
     AXValueRef selectedText = NULL;
+    luaL_checktype(L, 1, LUA_TUSERDATA);
     AXUIElementRef element = get_element(L, 1);
     if (AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute, (CFTypeRef *)&selectedText) != kAXErrorSuccess) {
         lua_pushnil(L);
