@@ -252,6 +252,7 @@ NSMutableDictionary *registeredTableHelperFunctions ;
     int idx = 1;
     int numArgs = lua_gettop(_L);
     int spec = firstArg;
+    int lsType = -1;
 
     va_list args;
     va_start(args, firstArg);
@@ -262,9 +263,12 @@ NSMutableDictionary *registeredTableHelperFunctions ;
             break;
         }
 
-        int lsType;
         int luaType = lua_type(_L, idx);
         char *userdataTag;
+
+        // If LS_TANY is set, we don't care what the type is, just that there was a type.
+        if (spec & LS_TANY && luaType != LUA_TNONE)
+            goto nextarg;
 
         switch (luaType) {
             case LUA_TNONE:
@@ -310,7 +314,7 @@ NSMutableDictionary *registeredTableHelperFunctions ;
                 break;
         }
 
-        if (!(spec & lsType)) {
+        if (!(spec & LS_TANY) && !(spec & lsType)) {
             luaL_error(_L, "ERROR: incorrect type '%s' for argument %d", luaL_typename(_L, idx), idx);
         }
 nextarg:

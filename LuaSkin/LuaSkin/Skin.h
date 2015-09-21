@@ -22,6 +22,7 @@
 #define LS_TFUNCTION      1 << 7
 #define LS_TUSERDATA      1 << 8
 #define LS_TNONE          1 << 9
+#define LS_TANY           1 << 10
 
 typedef int (*pushNSHelperFunction) (lua_State *L, id obj);
 typedef struct pushNSHelpers {
