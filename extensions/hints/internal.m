@@ -38,7 +38,7 @@ static NSDictionary *hintTextAttributes;
 
 + (void)initCache:(NSString*)fontName fontSize:(CGFloat)fontSize {
     iconFrame = NSMakeRect(0, 0, hintHeight, hintHeight);
-    hintBackgroundColor = [NSColor colorWithWhite:0.0 alpha:0.65];
+    hintBackgroundColor = [NSColor colorWithSRGBRed:0.0 green:0.0 blue:0.0 alpha:0.65];
     hintFontColor = [NSColor whiteColor];
     if (fontName) {
         hintFont = [NSFont fontWithName:fontName size:fontSize];
