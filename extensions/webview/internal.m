@@ -1355,6 +1355,7 @@ static int webview_hswindow(lua_State *L) {
 
 typedef struct _drawing_t {
     void *window;
+    BOOL skipClose ;
 } drawing_t;
 
 /// hs.webview:asHSDrawing() -> hs.drawing object
@@ -1382,6 +1383,7 @@ static int webview_hsdrawing(lua_State *L) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = YES ;
         luaL_getmetatable(L, "hs.drawing");
         lua_setmetatable(L, -2);
         theWindow.hsDrawingUDRef = [[LuaSkin shared] luaRef:refTable] ;
