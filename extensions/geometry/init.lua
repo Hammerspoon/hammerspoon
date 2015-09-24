@@ -289,7 +289,7 @@ end
 function geometry.getstring(t)
   local typ=geometry.type(t)
   if typ=='point' then return ntos(t._x)..','..ntos(t._y)--sformat('%.2f,%.2f',t._x,t._y)
-  elseif typ=='size' then return ntos(t._x)..'x'..ntos(t._y) --sformat('%.2fx%.2f',t._w,t._h)
+  elseif typ=='size' then return ntos(t._w)..'x'..ntos(t._h) --sformat('%.2fx%.2f',t._w,t._h)
   elseif typ=='rect' then return ntos(t._x)..','..ntos(t._y)..'/'..ntos(t._w)..'x'..ntos(t._h) --sformat('%.2f,%.2f/%.2fx%.2f',t._x,t._y,t._w,t._h)
   elseif typ=='unitrect' then return '['..ntos(t._x*100)..','..ntos(t._y*100)..'>'..ntos(t.x2*100)..','..ntos(t.y2*100)..']' --sformat('[%.0f,%.0f>%.0f,%.0f]',t._x*100,t._y*100,t.x2*100,t.y2*100)
   else return ''
