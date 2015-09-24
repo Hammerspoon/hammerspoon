@@ -55,7 +55,7 @@ local function gettype(t)
   if t._x and t._y then
     if t._w and t._h then
       for _,k in ipairs{'_x','_y','_w','_h'} do
-        if t[k]>1 or t[k]<0 then return 'rect' end
+        if t[k]>1.0000000000001 or t[k]<-0.0000000000001 then return 'rect' end
       end
       return 'unitrect'
     else return 'point' end
