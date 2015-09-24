@@ -16,6 +16,9 @@ int refTable;
 // Declare our Lua userdata object and a storage container for them
 typedef struct _drawing_t {
     void *window;
+// hs.drawing objects created outside of this module might have reason to avoid the
+// auto-close of this modules __gc
+    BOOL skipClose ;
 } drawing_t;
 
 NSMutableArray *drawingWindows;
@@ -403,6 +406,7 @@ static int drawing_newCircle(lua_State *L) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = NO ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
@@ -463,6 +467,7 @@ static int drawing_newRect(lua_State *L) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = NO ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
@@ -544,7 +549,8 @@ static int drawing_newLine(lua_State *L) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
-        luaL_getmetatable(L, USERDATA_TAG);
+        drawingObject->skipClose = NO ;
+       luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
         HSDrawingViewLine *theView = [[HSDrawingViewLine alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
@@ -625,6 +631,7 @@ static int drawing_newText(lua_State *L) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = NO ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
@@ -698,6 +705,7 @@ static int drawing_newImage(lua_State *L) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = NO ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
@@ -1486,7 +1494,7 @@ static int drawing_delete(lua_State *L) {
 
     [drawingWindows removeObject:drawingWindow];
 
-    [drawingWindow close];
+    if (!drawingObject->skipClose) [drawingWindow close];
     drawingWindow = nil;
     drawingObject->window = nil;
     drawingObject = nil;

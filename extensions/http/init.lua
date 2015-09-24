@@ -401,4 +401,21 @@ http.convertHtmlEntities = function(input)
     return input:gsub("&[^;]+;", function(c) return http.htmlEntities[c] or c end)
 end
 
+--- hs.http.encodeForQuery(string) -> string
+--- Function
+--- Returns a copy of the provided string in which characters that are not valid within an HTTP query key or value are escaped with their %## equivalent.
+---
+--- Parameters:
+---  * originalString - the string to make safe as a key or value for a query
+---
+--- Returns:
+---  * the converted string
+---
+--- Notes:
+---  * The intent of this function is to provide a valid key or a valid value for a query string, not to validate the entire query string.  For this reason, ?, =, +, and & are included in the converted characters.
+local encodeForQuery = http.encodeForQuery
+http.encodeForQuery = function(...)
+    return (encodeForQuery(...):gsub("[%?=&+]", { ["?"] = "%3F", ["="] = "%3D", ["&"] = "%26", ["+"] = "%2B" } ))
+end
+
 return http
