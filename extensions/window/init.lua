@@ -33,7 +33,7 @@ window.animationDuration = 0.2
 --- Returns:
 ---  * A list of `hs.window` objects representing all open windows
 
-local SKIP_APPS={['org.pqrs.Karabiner-AXNotifier']=true,['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true,['N/A']=true}
+local SKIP_APPS={['org.pqrs.Karabiner-AXNotifier']=true,['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true}
 -- Karabiner's AXNotifier consistently takes 6 seconds on my system. It never spawns windows, so it should be safe to just skip it.
 function window.allWindows()
   local r={}
@@ -56,7 +56,7 @@ function window._timed_allWindows()
   for app,time in pairs(r) do
     if time>0.05 then print(string.format('took %.2fs for %s',time,app)) end
   end
-  --  print(hs.inspect(SKIP_APPS))
+  --  print('known exclusions:') print(hs.inspect(SKIP_APPS))
   return r
 end
 
@@ -780,26 +780,23 @@ function window:setFrameInScreenBounds(frame,duration)
   else frame=self:frame() end -- if ongoing animation, get the end frame
   local screenFrame=findScreenForFrame(frame):frame()
 
-  -- find out if it's a terminal (or a window already shrunk to minimum)
-  local curFrame=self:_frame()
-  self:_setSize{w=curFrame.w-1,h=curFrame.h-1}
-  if curFrame.size==self:_size() then duration=0 end -- don't animate terminals
+  -- find out if it's a terminal, or a window already shrunk to minimum, or a window on a 'sticky' edge
+  local originalFrame=geometry(self:_frame())
+  local testSize=geometry.size(originalFrame.w-1,originalFrame.h-1)
+  self:_setSize(testSize)
+  local newSize=self:_size()
+  if originalFrame.size==newSize -- terminal or minimum size
+    or (testSize~=newSize and (abs(frame.x2-originalFrame.x2)<100 or abs(frame.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
+    duration=0 end -- don't animate troublesome windows
 
-  if duration==0 then -- cut it short
-    self:_setFrame(frame) -- set
-    return self:_setFrame(frameInBounds(self:_frame(),screenFrame)) -- and adjust if necessary
-  end
-  self:_setSize(curFrame)
-  if curFrame==frame then return end
-
-  local originalFrame=geometry.copy(curFrame)
-  curFrame.size=frame.size --apply the desired size
+  local safeFrame=geometry.new(originalFrame.xy,frame.size) --apply the desired size
   local safeBounds=self:screen():frame() safeBounds:move(30,30) -- offset
   safeBounds.w=safeBounds.w-60 safeBounds.h=safeBounds.h-60 -- and shrink
-  self:_setFrame(frameInBounds(curFrame,safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
+  self:_setFrame(frameInBounds(safeFrame,safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
   local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
   if actualSize.area>frame.area then frame.size=actualSize end -- if it's bigger apply it
-  self:_setFrame(originalFrame)
+  if duration==0 then self:_setSize(frame.size) -- apply the final size while the window is still in the safe area
+  else self:_setFrame(originalFrame) end
   return self:setFrame(frameInBounds(frame,screenFrame),duration)
 end
 window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatible
