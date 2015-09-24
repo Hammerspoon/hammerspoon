@@ -129,7 +129,7 @@ local function maketable(t,x,y,w,h)
 end
 
 local function new(x,y,w,h)
-  if getmetatable(x)==geometry then return x end -- disable copy-on-new
+  if y==nil and getmetatable(x)==geometry then return x end -- disable copy-on-new
   local t=maketable({},x,y,w,h)
   for _,a in ipairs{x,y--[[,w,h--]]} do
     if a~=nil and (not t._x or not t._y or not t._w or not t._h) then t=maketable(t,parsearg(a)) end
@@ -190,8 +190,8 @@ geometry.getx1=geometry.getx
 geometry.gety1=geometry.gety
 function geometry.getw(t) return t._w end
 function geometry.geth(t) return t._h end
-function geometry.getx2(t) return t._x+(t._w or 0) end
-function geometry.gety2(t) return t._y+(t._h or 0) end
+function geometry.getx2(t) return (t._w and t._x) and (t._x+t._w) or nil end
+function geometry.gety2(t) return (t._h and t._y) and (t._y+t._h) or nil end
 
 function geometry.setx(t,v) t._x=tonumber(v) or error('number expected',3) return t end
 function geometry.sety(t,v) t._y=tonumber(v) or error('number expected',3) return t end
@@ -205,7 +205,7 @@ geometry.sety1=geometry.sety
 --- hs.geometry.topleft
 --- Field
 --- Alias for `xy`
-function geometry.getxy(t) return new(t._x,t._y) end
+function geometry.getxy(t) return (t._x and t._y) and new(t._x,t._y) or nil end
 function geometry.setxy(t,p) p=new(p) t._x=p.x t._y=p.y return t end
 geometry.gettopleft=geometry.getxy
 geometry.settopleft=geometry.setxy
@@ -254,7 +254,7 @@ end
 --- hs.geometry.size
 --- Field
 --- Alias for `wh`
-function geometry.getwh(t) return new(nil,nil,t._w or 0,t._h or 0)end
+function geometry.getwh(t) return (t._w and t._h) and new(nil,nil,t._w,t._h) or nil end
 function geometry.setwh(t,s) s=new(s) t._w=s.w t._h=s.h return t end
 geometry.getsize=geometry.getwh
 geometry.setsize=geometry.setwh
@@ -266,7 +266,7 @@ geometry.setsize=geometry.setwh
 --- hs.geometry.bottomright
 --- Field
 --- Alias for `x2y2`
-function geometry.getx2y2(t) return new(t.x2,t.y2) end
+function geometry.getx2y2(t) return (t.x2 and t.y2) and new(t.x2,t.y2) or nil end
 function geometry.setx2y2(t,s) s=new(s) t.x2=s.x t.y2=s.y return t end
 geometry.getbottomright=geometry.getx2y2
 geometry.setbottomright=geometry.setx2y2
@@ -274,7 +274,7 @@ geometry.setbottomright=geometry.setx2y2
 --- hs.geometry.table
 --- Field
 --- The `{x=X,y=Y,w=W,h=H}` table for this hs.geometry object; useful e.g. for serialization/deserialization
-function geometry.gettable(t) return {x=t.x,y=t.y,w=t.w,h=t.h} end
+function geometry.gettable(t) return {x=t._x,y=t._y,w=t._w,h=t._h} end
 function geometry.settable(t,nt) t._x=nt.x t._y=nt.y t._w=nt.w t._h=nt.h return t end
 
 --- hs.geometry.string
@@ -370,7 +370,7 @@ end
 
 function geometry.__index(t,k)
   local r=rawget(geometry,'get'..k)
-  return r and r(t) or rawget(geometry,k)
+  if r then return r(t) else return rawget(geometry,k) end --avoid getting .size metatable fn when it's nil
 end
 function geometry.__newindex(t,k,v)
   local r=rawget(geometry,'set'..k)
