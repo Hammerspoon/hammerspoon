@@ -6,6 +6,9 @@
 --- or #hammerspoon on irc.freenode.net)
 ---
 --- Tile windows
+---
+--- The `tileWindows` function in this module is primarily meant for use by `hs.window.layout`; however you can call it manually
+--- (e.g. for your custom layout engine).
 
 -- BEWARE: horrible code (=accumulation of layers upon layers of ad-hoc fixes) ahead. This thing needs a proper rewrite.
 -- very loosely based on http://www.win.tue.nl/~vanwijk/stm.pdf
@@ -70,7 +73,7 @@ end
 ---     will have the same area (= area of the rect / number of windows) after processing
 ---   * animationDuration - (optional) the number of seconds to animate the move/resize operations of the windows; if omitted, defaults to
 ---     the value of `hs.window.animationDuration`
-
+---
 --- Returns:
 ---   * None
 ---
