@@ -545,6 +545,23 @@ static int window_becomemain(lua_State* L) {
     return 1;
 }
 
+/// hs.window:raise() -> window
+/// Method
+/// Brings a window to the front of the screen without focussing it
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.window` object
+static int window_raise(lua_State* L) {
+    AXUIElementRef win = get_window_arg(L, 1);
+    AXUIElementPerformAction (win, kAXRaiseAction);
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 static int window__orderedwinids(lua_State* L) {
     lua_newtable(L);
 
@@ -736,6 +753,7 @@ static const luaL_Reg windowlib[] = {
     {"pid", window_pid},
     {"application", window_application},
     {"becomeMain", window_becomemain},
+    {"raise", window_raise},
     {"id", window_id},
     {"_toggleZoom", window__togglezoom},
     {"zoomButtonRect", window_getZoomButtonRect},
