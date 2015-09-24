@@ -775,29 +775,34 @@ end
 
 function window:setFrameInScreenBounds(frame,duration)
   if type(frame)=='number' then duration=frame frame=nil end
+  if duration==nil then duration=window.animationDuration end
   stopAnimation(self) -- if ongoing animation, stop it (no ff)
   if frame then frame=geometry(frame):floor()
   else frame=self:frame() end -- if ongoing animation, get the end frame
-  local screenFrame=findScreenForFrame(frame):frame()
 
-  -- find out if it's a terminal, or a window already shrunk to minimum, or a window on a 'sticky' edge
   local originalFrame=geometry(self:_frame())
-  local testSize=geometry.size(originalFrame.w-1,originalFrame.h-1)
-  self:_setSize(testSize)
-  local newSize=self:_size()
-  if originalFrame.size==newSize -- terminal or minimum size
-    or (testSize~=newSize and (abs(frame.x2-originalFrame.x2)<100 or abs(frame.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
-    duration=0 end -- don't animate troublesome windows
-
+  if duration>0 then -- if no animation, skip checking for possible trouble
+    local testSize=geometry.size(originalFrame.w-1,originalFrame.h-1)
+    self:_setSize(testSize)
+    -- find out if it's a terminal, or a window already shrunk to minimum, or a window on a 'sticky' edge
+    local newSize=self:_size()
+    if originalFrame.size==newSize -- terminal or minimum size
+      or (testSize~=newSize and (abs(frame.x2-originalFrame.x2)<100 or abs(frame.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
+      duration=0 end -- don't animate troublesome windows
+  end
   local safeFrame=geometry.new(originalFrame.xy,frame.size) --apply the desired size
   local safeBounds=self:screen():frame() safeBounds:move(30,30) -- offset
   safeBounds.w=safeBounds.w-60 safeBounds.h=safeBounds.h-60 -- and shrink
   self:_setFrame(frameInBounds(safeFrame,safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
   local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
   if actualSize.area>frame.area then frame.size=actualSize end -- if it's bigger apply it
-  if duration==0 then self:_setSize(frame.size) -- apply the final size while the window is still in the safe area
-  else self:_setFrame(originalFrame) end
-  return self:setFrame(frameInBounds(frame,screenFrame),duration)
+  local finalFrame=frameInBounds(frame,findScreenForFrame(frame):frame())
+  if duration==0 then
+    self:_setSize(frame.size) -- apply the final size while the window is still in the safe area
+    return self:_setFrame(finalFrame)
+  end
+  self:_setFrame(originalFrame) -- restore the original frame and start the animation
+  return self:setFrame(finalFrame,duration)
 end
 window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatible
 
