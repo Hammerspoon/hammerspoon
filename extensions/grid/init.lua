@@ -25,6 +25,7 @@ local window = require "hs.window"
 local screen = require 'hs.screen'
 local drawing = require'hs.drawing'
 local geom = require'hs.geometry'
+local timer = require'hs.timer'
 local newmodal = require'hs.hotkey'.modal.new
 local log = require'hs.logger'.new('grid')
 
@@ -137,13 +138,14 @@ function grid.getGrid(scr)
 end
 
 
---- hs.grid.show([multipleWindows])
+--- hs.grid.show([exitedCallback][, multipleWindows])
 --- Function
 --- Shows the grid and starts the modal interactive resizing process for the focused or frontmost window.
 --- In most cases this function should be invoked via `hs.hotkey.bind` with some keyboard shortcut.
 ---
 --- Parameters:
----  * multipleWindows - if `true`, the resizing grid won't automatically go away after selecting the desired cells
+---  * exitedCallback - (optional) a function that will be called after the user dismisses the modal interface
+---  * multipleWindows - (optional) if `true`, the resizing grid won't automatically go away after selecting the desired cells
 ---    for the frontmost window; instead, it'll switch to the next window
 ---
 --- Returns:
@@ -165,13 +167,15 @@ end
 ---
 --- Returns:
 ---  * None
+---
+--- Notes:
+---  * If an exit callback was provided when invoking the modal interface, calling `.hide()` will call it
 
---- hs.grid.toggleShow()
+--- hs.grid.toggleShow([exitedCallback][, multipleWindows])
 --- Function
 --- Toggles the grid and modal resizing mode - see `hs.grid.show()` and `hs.grid.hide()`
 ---
---- Parameters:
----  * None
+--- Parameters: see `hs.grid.show()`
 ---
 --- Returns:
 ---  * None
@@ -667,16 +671,21 @@ local function hideGrid(id)
   for _,e in pairs(elems) do e.rect:hide() e.text:hide() end
 end
 
-
-
-local initialized, showing, currentScreen, currentWindow, currentWindowIndex, allWindows, cycledWindows, focusedWindow, reorderIndex, cycling, highlight
+local initialized, showing, currentScreen, exitCallback
+local currentWindow, currentWindowIndex, allWindows, cycledWindows, focusedWindow, reorderIndex, cycling, highlight
 local function startCycling()
   allWindows=window.orderedWindows() cycledWindows={} reorderIndex=1 focusedWindow=currentWindow
   local cid=currentWindow:id()
   for i,w in ipairs(allWindows) do
     if w:id()==cid then currentWindowIndex=i break end
   end
+  --[[focus the desktop so the windows can :raise
+  local finder=application.find'Finder'
+  for _,w in ipairs(finder:allWindows()) do
+    if w:role()=='AXScrollArea' then w:focus() return end
+  end--]]
 end
+
 local function _start()
   if initialized then return end
   screen.watcher.new(deleteUI):start()
@@ -691,6 +700,7 @@ local function _start()
   end
   function resizing:entered()
     if showing then return end
+    if window.layout._hasActiveInstances then window.layout.pauseAllInstances() end
     --    currentWindow = window.frontmostWindow()
     if not currentWindow then log.w('Cannot get current window, aborting') resizing:exit() return end
     log.df('Start moving %s [%s]',currentWindow:subrole(),currentWindow:application():title())
@@ -716,11 +726,13 @@ local function _start()
     clearSelection()
     if cycling and #allWindows>0 then
       -- will STILL somewhat mess up window zorder, because orderedWindows~=most recently focused windows; but oh well
-      for i=reorderIndex,1,-1 do if cycledWindows[i] then allWindows[i]:focus() end end
+      for i=reorderIndex,1,-1 do if cycledWindows[i] then allWindows[i]:focus() timer.usleep(80000) end end
       if focusedWindow then focusedWindow:focus() end
     end
     hideGrid(currentScreen)
     showing = nil
+    if window.layout._hasActiveInstances then window.layout.resumeAllInstances() end
+    if type(exitCallback)=='function' then return exitCallback() end
   end
   local function cycle(d)
     if not cycling then cycling=true startCycling() currentWindowIndex=currentWindowIndex-d end
@@ -793,8 +805,10 @@ local function _start()
   initialized=true
 end
 
-function grid.show(stay)
+function grid.show(cb,stay)
   if showing then return end
+  if type(cb)=='boolean' then stay=cb cb=nil end
+  exitCallback=cb
   if not initialized then _start() end
   cycling=stay and true or nil
   -- there will be some inconsistency when cycling (focusedWindow~=frontmost), but oh well
@@ -808,8 +822,8 @@ function grid.hide()
   if showing then resizing:exit() end
 end
 
-function grid.toggleShow()
-  if showing then grid.hide() else grid.show() end
+function grid.toggleShow(cb,stay)
+  if showing then grid.hide() else grid.show(stay,cb) end
 end
 
 
