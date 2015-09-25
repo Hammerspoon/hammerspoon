@@ -14,7 +14,8 @@
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 #define get_uccObjFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_UCC_TAG))
 
-@interface HSWebViewWindow : NSWindow <NSWindowDelegate>
+// @interface HSWebViewWindow : NSWindow <NSWindowDelegate>
+@interface HSWebViewWindow : NSPanel <NSWindowDelegate>
 @property HSWebViewWindow *parent ;
 @property NSMutableArray  *children ;
 @property int             udRef ;
@@ -22,6 +23,7 @@
 @property BOOL            allowKeyboardEntry ;
 @property BOOL            titleFollow ;
 @property BOOL            deleteOnClose ;
+@property BOOL            closeOnEscape ;
 @end
 
 @interface HSWebViewView : WKWebView <WKNavigationDelegate, WKUIDelegate>
