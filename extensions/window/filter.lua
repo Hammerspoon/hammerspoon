@@ -1540,6 +1540,7 @@ local function subscribe(self,map)
   hs.assert(next(map),'empty map')
   for event,fns in pairs(map) do
     if not events[event] then error('invalid event: '..event,3) end
+    if type(fns)~='table' then error('fn must be a function or table of functions',3) end
     for _,fn in pairs(fns) do
       if type(fn)~='function' then error('fn must be a function or table of functions',3) end
       if not self.events[event] then self.events[event]={} end
@@ -1754,7 +1755,10 @@ function WF:subscribe(event,fn,immediate)
   elseif type(fn)=='boolean' then immediate=fn fn=nil end
   if fn and type(fn)~='table' then error('fn must be a function or list of functions',2) end
   local map,k,v={},next(event)
-  if type(k)=='string' and type(v)=='function' then map=event
+  if type(k)=='string' then
+    if type(v)=='function' then for ev,fn in pairs(event) do map[ev]={fn} end
+    elseif type(v)=='table' and type(v[1])=='function' then map=event
+    else error('invalid map format, values must be functions or lists of functions',2) end
   else
     if not fn then error('missing parameter fn',2) end
     if #event==0 then error('missing event(s)',2) end
@@ -1821,7 +1825,8 @@ function WF:unsubscribe(events,fns)
     local k,v=next(events)
     if type(k)=='function' and v==true then fns=events tfns='sfn' tevents=nil --omitted+set of fns
     elseif type(k)=='string' then --set of events, or map
-      if type(v)=='function' then tevents='map' tfns=nil --map+ignored
+      if type(v)=='table' and type(v[1])=='functions' then tevents='mapl' tfns=nil --map of fnlist+ignored
+      elseif type(v)=='function' then tevents='map' tfns=nil --map+ignored
       elseif v==true then tevents='ss' --set of events+?
       else error('invalid event parameter',2) end
     elseif type(k)=='number' then --list of events or functions
@@ -1841,6 +1846,7 @@ function WF:unsubscribe(events,fns)
   if tfns=='sfn' then local l={} for k in pairs(fns) do l[#l+1]=k end fns=l tfns='lfn' end --make list
 
   if tevents=='map' then for ev,fn in pairs(events) do unsubscribe(self,ev,fn) end
+  elseif tevents=='mapl' then for ev,fns in pairs(events) do for _,fn in ipairs(fns) do unsubscribe (self,ev,fn) end end
   else
     if tevents~='ls' then error('invalid event parameter',2)
     elseif tfns~=nil and tfns~='lfn' then error('invalid fn parameter',2) end
