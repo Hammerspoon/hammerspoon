@@ -246,6 +246,15 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
+---
+--- Notes:
+---  * In some cases this method won't work: namely, the bottom (or Dock) edge, and edges between screens, might exhibit some
+---    "stickiness"; trying to make a window abutting one of those edges just *slightly* smaller could result in no change at all
+---    (you can verify this by trying to resize such a window with the mouse: at first it won't budge, and, as you drag
+---    further away, suddenly snap to the new size). Additionally some windows (no matter their placement on screen) only allow
+---    being resized at "discrete" steps of several screen points; the typical example is Terminal windows, which only resize to
+---    whole rows and columns. Both situations can result in unexpected behavior when using this method (especially when using
+---    animations). As a safer alternative, you can use `hs.window:setFrameInScreenBounds()` instead.
 function window:setFrame(f, duration)
   if duration==nil then duration = window.animationDuration end
   if type(duration)~='number' then duration = 0 end
@@ -768,7 +777,12 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
-
+---
+--- Notes:
+---  * This method, besides ensuring that the window lies fully inside its screen, performs several additional checks and workarounds for
+---    the potential issues described in the Notes section for `hs.window:setFrame()`. As a side effect the window might appear to
+---    jump around briefly before setting toward its destination frame, and, in some cases, the move/resize animation (if requested)
+---    might be skipped entirely - due to OSX quirks, these tradeoffs are necessary to ensure the desired result.
 local function frameInBounds(frame,bounds)
   return geometry.copy(frame):move((frame:intersect(bounds).center-frame.center)*2):intersect(bounds)
 end
@@ -805,7 +819,6 @@ function window:setFrameInScreenBounds(frame,duration)
   return self:setFrame(finalFrame,duration)
 end
 window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatible
-
 
 package.loaded[...]=window
 window.filter=require'hs.window.filter'
