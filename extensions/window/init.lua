@@ -354,6 +354,54 @@ function window:focus()
   return self
 end
 
+--- hs.window:sendToBack() -> hs.window object
+--- Method
+--- Sends the window to the back
+---
+--- This method works by focusing all overlapping windows behind this one, front to back.
+--- If called on the focused window, this method will switch focus to the topmost window under this one; otherwise, the
+--- currently focused window will regain focus after this window has been sent to the back.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The `hs.window` object
+---
+--- Notes:
+---  * Due to the way this method works and OSX limitations, calling this method when you have a lot of randomly overlapping
+---   (as opposed to neatly tiled) windows might be visually jarring, and take a fair amount of time to complete.
+---   So if you don't use orderly layouts, or if you have a lot of windows in general, you're probably better off using
+---   `hs.application:hide()` (or simply `cmd-h`)
+local WINDOW_ROLES={AXStandardWindow=true,AXDialog=true,AXSystemDialog=true}
+function window:sendToBack()
+  local id,frame=self:id(),self:frame()
+  local fw=window.focusedWindow()
+  local wins=window.orderedWindows()
+  for z=#wins,1,-1 do local w=wins[z] if id==w:id() or not WINDOW_ROLES[w:subrole()] then tremove(wins,z) end end
+  local toRaise,topz,didwork={}
+  repeat
+    for z=#wins,1,-1 do
+      didwork=nil
+      local wf=wins[z]:frame()
+      if frame:intersect(wf).area>0 then
+        topz=z
+        if not toRaise[z] then
+          didwork=true
+          toRaise[z]=true
+          frame=frame:union(wf) break
+        end
+      end
+    end
+  until not didwork
+  if topz then
+    for z=#wins,1,-1 do if toRaise[z] then wins[z]:focus() timer.usleep(80000) end end
+    wins[topz]:focus()
+    if fw and fw:id()~=id then fw:focus() end
+  end
+  return self
+end
+
 --- hs.window:maximize([duration]) -> hs.window object
 --- Method
 --- Maximizes the window
