@@ -40,8 +40,10 @@ static int userdata_gc(lua_State* L) ;
         self.opaque             = YES;
         self.hasShadow          = NO;
         self.ignoresMouseEvents = NO;
-        self.allowKeyboardEntry = NO ;
+        self.allowKeyboardEntry = NO;
         self.restorable         = NO;
+        self.hidesOnDeactivate  = NO;
+        self.closeOnEscape      = NO;
         self.animationBehavior  = NSWindowAnimationBehaviorNone;
         self.level              = NSNormalWindowLevel;
 
@@ -76,6 +78,12 @@ static int userdata_gc(lua_State* L) ;
         return NO ;
     }
 }
+
+- (void)cancelOperation:(id)sender {
+    if (self.closeOnEscape)
+        [super cancelOperation:sender] ;
+}
+
 @end
 
 #pragma mark - our wkwebview object
@@ -1182,14 +1190,12 @@ static int webview_evaluateJavaScript(lua_State *L) {
 ///  * Preferences can only be set when the webview object is created.  To change the preferences of an open webview, you will need to close it and recreate it with this method.
 ///  * developerExtrasEnabled is not listed in Apple's documentation, but is included in the WebKit2 documentation.
 static int webview_new(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TTABLE,
-                                LS_TTABLE    | LS_TOPTIONAL,
-                                LS_TUSERDATA | LS_TOPTIONAL, USERDATA_UCC_TAG,
-                                LS_TBREAK] ;
+
+// This is still buggy when a userdata is optional.  Need to build a test suite and fix...
 //     [[LuaSkin shared] checkArgs:LS_TTABLE,
-//                                 LS_TTABLE | LS_TUSERDATA | LS_TOPTIONAL, USERDATA_UCC_TAG,
+//                                 LS_TTABLE    | LS_TOPTIONAL,
+//                                 LS_TUSERDATA | LS_TOPTIONAL, USERDATA_UCC_TAG,
 //                                 LS_TBREAK] ;
-//     luaL_checktype(L, 1, LUA_TTABLE) ;
 
     NSRect windowRect = [[LuaSkin shared] tableToRectAtIndex:1] ;
 
@@ -1327,6 +1333,29 @@ static int webview_deleteOnClose(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview:closeOnEscape([flag]) -> webviewObject | current value
+/// Method
+/// If the webview is closable, this will get or set whether or not the Escape key is allowed to close the webview window.
+///
+/// Parameters:
+///  * flag - an optional boolean value which indicates whether a webview, when it's style includes Closable (see `hs.webview:windowStyle`), should allow the Escape key to be a shortcut for closing the webview window.  Defaults to false.
+///
+/// Returns:
+///  * If a value is provided, then this method returns the webview object; otherwise the current value
+///
+/// Notes:
+///  * If this is set to true, Escape will only close the window if no other element responds to the Escape key first (e.g. if you are editing a text input field, the Escape will be captured by the text field, not by the webview Window.)
+static int webview_closeOnEscape(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
+    if (lua_type(L, 2) == LUA_TNONE) {
+        lua_pushboolean(L, theWindow.closeOnEscape) ;
+    } else {
+        theWindow.closeOnEscape = (BOOL) lua_toboolean(L, 2) ;
+        lua_settop(L, 1) ;
+    }
+    return 1 ;
+}
+
 /// hs.webview:asHSWindow() -> hs.window object
 /// Method
 /// Returns an hs.window object for the webview so that you can use hs.window methods on it.
@@ -1427,24 +1456,40 @@ static int webview_windowTitle(lua_State *L) {
 /// A table containing valid masks for the webview window.
 ///
 /// Table Keys:
-///  * borderless         - The window has no border decorations (default)
-///  * titled             - The window title bar is displayed
-///  * closable           - The window has a close button
-///  * miniaturizable     - The window has a minimize button
-///  * resizable          - The window is resizable
-///  * texturedBackground - The window has a texturized background
+///  * borderless             - The window has no border decorations (default)
+///  * titled                 - The window title bar is displayed
+///  * closable               - The window has a close button
+///  * miniaturizable         - The window has a minimize button
+///  * resizable              - The window is resizable
+///  * texturedBackground     - The window has a texturized background
+///  * fullSizeContentView    - If titled, the titlebar is within the frame size specified at creation, not above it.  Shrinks actual content area by the size of the titlebar, if present.
+///  * utility                - If titled, the window shows a utility panel titlebar (thinner than normal)
+///  * nonactivating          - If the window is activated, it won't bring other Hammerspoon windows forward as well
+///  * HUD                    - Requires utility; the window titlebar is shown dark and can only show the close button and title (if they are set)
 ///
 /// Notes:
 ///  * The Maximize button in the window title is enabled when Resizable is set.
 ///  * The Close, Minimize, and Maximize buttons are only visible when the Window is also Titled.
+
+//  * unifiedTitleAndToolbar - may be more useful if/when toolbar support is added.
+//  * fullScreen             - I think because we're using NSPanel rather than NSWindow... may see about fixing later
+//  * docModal               - We're not using this as a modal sheet or modal alert, so just sets some things we already override or don't use
+
 static int webview_windowMasksTable(lua_State *L) {
     lua_newtable(L) ;
-      lua_pushinteger(L, NSBorderlessWindowMask) ;         lua_setfield(L, -2, "borderless") ;
-      lua_pushinteger(L, NSTitledWindowMask) ;             lua_setfield(L, -2, "titled") ;
-      lua_pushinteger(L, NSClosableWindowMask) ;           lua_setfield(L, -2, "closable") ;
-      lua_pushinteger(L, NSMiniaturizableWindowMask) ;     lua_setfield(L, -2, "miniaturizable") ;
-      lua_pushinteger(L, NSResizableWindowMask) ;          lua_setfield(L, -2, "resizable") ;
-      lua_pushinteger(L, NSTexturedBackgroundWindowMask) ; lua_setfield(L, -2, "texturedBackground") ;
+      lua_pushinteger(L, NSBorderlessWindowMask) ;             lua_setfield(L, -2, "borderless") ;
+      lua_pushinteger(L, NSTitledWindowMask) ;                 lua_setfield(L, -2, "titled") ;
+      lua_pushinteger(L, NSClosableWindowMask) ;               lua_setfield(L, -2, "closable") ;
+      lua_pushinteger(L, NSMiniaturizableWindowMask) ;         lua_setfield(L, -2, "miniaturizable") ;
+      lua_pushinteger(L, NSResizableWindowMask) ;              lua_setfield(L, -2, "resizable") ;
+      lua_pushinteger(L, NSTexturedBackgroundWindowMask) ;     lua_setfield(L, -2, "texturedBackground") ;
+//       lua_pushinteger(L, NSUnifiedTitleAndToolbarWindowMask) ; lua_setfield(L, -2, "unifiedTitleAndToolbar") ;
+//       lua_pushinteger(L, NSFullScreenWindowMask) ;             lua_setfield(L, -2, "fullScreen") ;
+      lua_pushinteger(L, NSFullSizeContentViewWindowMask) ;    lua_setfield(L, -2, "fullSizeContentView") ;
+      lua_pushinteger(L, NSUtilityWindowMask) ;                lua_setfield(L, -2, "utility") ;
+//       lua_pushinteger(L, NSDocModalWindowMask) ;               lua_setfield(L, -2, "docModal") ;
+      lua_pushinteger(L, NSNonactivatingPanelMask) ;           lua_setfield(L, -2, "nonactivating") ;
+      lua_pushinteger(L, NSHUDWindowMask) ;                    lua_setfield(L, -2, "HUD") ;
     return 1 ;
 }
 
@@ -1454,7 +1499,17 @@ static int webview_windowStyle(lua_State *L) {
     if (lua_type(L, 2) == LUA_TNONE) {
         lua_pushinteger(L, (lua_Integer)theWindow.styleMask) ;
     } else {
-        [theWindow setStyleMask:(NSUInteger)luaL_checkinteger(L, 2)] ;
+            @try {
+            // Because we're using NSPanel, the title is reset when the style is changed
+                NSString *theTitle = [theWindow title] ;
+            // Also, some styles don't get properly set unless we start from a clean slate
+                [theWindow setStyleMask:0] ;
+                [theWindow setStyleMask:(NSUInteger)luaL_checkinteger(L, 2)] ;
+                if (theTitle) [theWindow setTitle:theTitle] ;
+            }
+            @catch ( NSException *theException ) {
+                return luaL_error(L, "Invalid style mask: %s, %s", [[theException name] UTF8String], [[theException reason] UTF8String]) ;
+            }
         lua_settop(L, 1) ;
     }
     return 1 ;
@@ -1764,6 +1819,7 @@ static const luaL_Reg userdata_metaLib[] = {
     // Window related
     {"show",                       webview_show},
     {"hide",                       webview_hide},
+    {"closeOnEscape",              webview_closeOnEscape},
     {"_delete",                    userdata_gc},
     {"allowTextEntry",             webview_allowTextEntry},
     {"asHSWindow",                 webview_hswindow} ,
