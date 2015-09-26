@@ -162,7 +162,6 @@ local function validateCommand(command,ielem,icmd,irule,log)
   if not action then error'action' end
   local logs=sformat('rule %d.%d: %s',irule,icmd,action)
   --  if action==RESTORE then command.max=999 return command,ielem,icmd+1 end
-  --  hs.assert(command.max,'need max',command)
   if command.max then
     if type(command.max)~='number' or floor(command.max)~=command.max or command.max<1 or command.max>999 then error'max number' end
     --    if command.action~=UNHIDE and command.max<1 then error'max number' end --allow "unhide 0"
@@ -268,7 +267,7 @@ local function parseRule(self,rule,irule)
       r.windowfilter=res
     end
   end
-  hs.assert(r.windowfilter,'invalid rule windowfilter',rule)
+  --  hs.assert(r.windowfilter,'invalid rule windowfilter',rule)
   local split,slog={},{}
   for i=(wfkey==1 and 2 or 1),#rule do
     local elem=rule[i]
@@ -422,7 +421,7 @@ local function performPendingActions()
             command.log.f('rule %s: %s (%d) moved to %s',idx,appname,id,frame.string)
           end
         elseif action==NOACTION then
-        else hs.assert(false,'(422) wrong action: '..action,command)
+        else --hs.assert(false,'(422) wrong action: '..action,command)
         end
       end
     end
@@ -431,7 +430,7 @@ local function performPendingActions()
   -- tile remaining windows
   local toTile={}
   for win,command in pairs(winbuf) do
-    hs.assert(command.action==TILE or command.action==FIT,'(431) unexptected action: '..command.action,command)
+    --    hs.assert(command.action==TILE or command.action==FIT,'(431) unexptected action: '..command.action,command)
     local idx=command.irule..'.'..command.icmd
     if not toTile[idx] then toTile[idx]=command
     end
@@ -441,8 +440,8 @@ local function performPendingActions()
   end
   for idx,command in pairs(toTile) do
     --FIXME assert for lack of holes in the list
-    hs.assert(#command>0,'(443)',command)
-    hs.assert(#command<=(command.max or 999),'(444)',command)
+    --    hs.assert(#command>0,'(443)',command)
+    --    hs.assert(#command<=(command.max or 999),'(444)',command)
     local toscreen=findScreen(command.screen) or command[1]:screen()
     local frame=command.rect or toscreen:fromUnitRect(command.unitrect)
     command.log.f('rule %s: %s %d windows into %s by %s',idx,command.action,#command,frame.string,command.select)
@@ -457,7 +456,7 @@ local function performPendingActions()
     end
     appbuf[app]=nil
   end
-  hs.assert(not next(winbuf) and not next(appbuf),'(432)')
+  --  hs.assert(not next(winbuf) and not next(appbuf),'(432)')
 end
 
 local function removeFromList(win,winlist)
@@ -468,7 +467,7 @@ local function findDestinationFrame(screen,unitrect,candidateWindow)
   return unitrect and toscreen:fromUnitRect(unitrect) or toscreen:frame()
 end
 local function findClosestWindow(winlist,destFrame) --winlist must be sorted by focusedLast
-  hs.assert(#winlist>0,'no candidates for closest window')
+  --  hs.assert(#winlist>0,'no candidates for closest window')
   local center,rd,rwin=destFrame.center,999999
   for i,w in ipairs(winlist) do -- first, try the "smallest" of all windows already fully inside frame
     local frame=w:frame()
@@ -484,7 +483,7 @@ local function findClosestWindow(winlist,destFrame) --winlist must be sorted by 
     local distance=frame:distance(center)
     if distance<rd then rd=distance rwin=w end
   end
-  hs.assert(rwin,'no closest window to '..destFrame.string,winlist)
+  --  hs.assert(rwin,'no closest window to '..destFrame.string,winlist)
   return rwin
 end
 
@@ -499,7 +498,7 @@ local function applyRule(rule)
   local ASSERT_ITER=1
   --  local readdUnhiddenWindows={}
   while icmd<=#rule and windows[1] do
-    ASSERT_ITER=ASSERT_ITER+1 hs.assert(ASSERT_ITER<100,'applyRule looping',rule.irule)
+    --    ASSERT_ITER=ASSERT_ITER+1 hs.assert(ASSERT_ITER<100,'applyRule looping',rule.irule)
     local command,win=rule[icmd]
     local selector=command.select
     if selector==CLOSEST then
@@ -513,7 +512,7 @@ local function applyRule(rule)
     elseif selector==CREATEDFIRST then
       win=windowsCreated[#windowsCreated]
     end
-    hs.assert(win,'no window to apply rule',rule)
+    --    hs.assert(win,'no window to apply rule',rule)
 
     removeFromList(win,windows) removeFromList(win,windowsCreated)
     nprocessed=nprocessed+1
@@ -534,7 +533,7 @@ local function applyRule(rule)
       --      action=NOACTION
     else
       if not buffered or buffered.irule>irule then
-        hs.assert(command.irule==irule and command.icmd==icmd,'(451) wrong indices: '..irule..'.'..icmd,command)
+        --        hs.assert(command.irule==irule and command.icmd==icmd,'(451) wrong indices: '..irule..'.'..icmd,command)
         command.log=log
         winbuf[win]={action=action,select=command.select,rect=command.rect,unitrect=command.unitrect,screen=command.screen,
           max=command.max,aspect=command.aspect,log=command.log,irule=command.irule,icmd=command.icmd,nwindow=nprocessed,windowlayout=rule.windowlayout}

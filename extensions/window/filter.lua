@@ -918,7 +918,7 @@ function Window.new(win,id,app,watcher)
     isMinimized=win:isMinimized(),isVisible=win:isVisible(),isFullscreen=win:isFullScreen(),role=win:subrole(),title=win:title()}
   ,{__index=Window})
   o.isHidden = not o.isVisible and not o.isMinimized
-  hs.assert(o.isHidden==win:application():isHidden(),'isHidden',o)
+  --  hs.assert(o.isHidden==win:application():isHidden(),'isHidden',o)
   return o
 end
 
@@ -1532,7 +1532,7 @@ local function checkTrackSpacesSubscriptions(self)
 end
 
 local function subscribe(self,map)
-  hs.assert(next(map),'empty map')
+  --  hs.assert(next(map),'empty map')
   for event,fns in pairs(map) do
     if not events[event] then error('invalid event: '..event,3) end
     if type(fns)~='table' then error('fn must be a function or table of functions',3) end
