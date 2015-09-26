@@ -1,4 +1,4 @@
---- === hs.window.layouts ===
+--- === hs.window.layout ===
 ---
 --- **WARNING**: EXPERIMENTAL MODULE. DO **NOT** USE IN PRODUCTION.
 --- This module is *for testing purposes only*. It can undergo breaking API changes or *go away entirely* **at any point and without notice**.
