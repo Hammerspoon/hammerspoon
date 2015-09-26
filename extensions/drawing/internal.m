@@ -24,7 +24,7 @@ typedef struct _drawing_t {
 NSMutableArray *drawingWindows;
 
 // Objective-C class interface definitions
-@interface HSDrawingWindow : NSWindow <NSWindowDelegate>
+@interface HSDrawingWindow : NSPanel <NSWindowDelegate>
 @end
 
 @interface HSDrawingView : NSView {
@@ -75,7 +75,8 @@ NSMutableArray *drawingWindows;
         return nil;
     }
 
-    self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+    self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask | NSNonactivatingPanelMask
+                                                    backing:NSBackingStoreBuffered defer:YES];
     if (self) {
         [self setDelegate:self];
         contentRect.origin.y=[[NSScreen screens][0] frame].size.height - contentRect.origin.y - contentRect.size.height;
@@ -90,6 +91,7 @@ NSMutableArray *drawingWindows;
         self.hasShadow = NO;
         self.ignoresMouseEvents = YES;
         self.restorable = NO;
+        self.hidesOnDeactivate  = NO;
         self.animationBehavior = NSWindowAnimationBehaviorNone;
         self.level = NSScreenSaverWindowLevel;
     }
@@ -1920,8 +1922,7 @@ static int setBehavior(lua_State *L) {
         [drawingWindow setCollectionBehavior:newLevel] ;
     }
     @catch ( NSException *theException ) {
-        showError(L, (char *)[[NSString stringWithFormat:@"%@: %@", theException.name, theException.reason] UTF8String]);
-        return 0 ;
+        return luaL_error(L, "%s, %s", [[theException name] UTF8String], [[theException reason] UTF8String]) ;
     }
 
     lua_settop(L, 1);
@@ -2070,6 +2071,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setBehavior", setBehavior},
     {"behavior", getBehavior},
     {"setTextStyle", drawing_setTextStyle},
+
     {"__tostring", userdata_tostring},
     {"__gc", drawing_delete},
     {NULL, NULL}
