@@ -1,29 +1,50 @@
 --- === hs.window.filter ===
 ---
 --- **WARNING**: EXPERIMENTAL MODULE. DO **NOT** USE IN PRODUCTION.
---- This module is *for testing purposes only*. It can undergo breaking API changes or *go away entirely* **at any point and without notice**.
+--- This module is *for testing purposes only*. It can undergo breaking API changes **at any point and without notice**.
 --- (Should you encounter any issues, please feel free to report them on https://github.com/Hammerspoon/hammerspoon/issues
 --- or #hammerspoon on irc.freenode.net)
 ---
 --- Filter windows by application, title, location on screen and more, and easily subscribe to events on these windows
 ---
---- Usage:
+--- Windowfilters monitor all windows as they're created, closed, moved etc., and select some (or none) among these windows
+--- according to specific filtering rules. These filtering rules are app-specific, i.e. they start off by selecting all windows
+--- belonging to a certain application (but you can also define *default* and *override* filters - see `:setAppFilter()`,
+--- `:setDefaultFilter()`, `:setOverrideFilter()`) and they can allow or reject windows based on:
+---   * visibility, focused and/or fullscreen status
+---   * title length or patterns in the title
+---   * position on screen (inside or outside a certain region or screen)
+---   * accessibility role (standard window, dialog, etc.)
+---   * whether they're in the current Mission Control Space or not
+---
+--- The filtering happens automatically in the background; windowfilters then:
+---   * generate a dynamic list of the windows that currently satisfy the filtering rules (see `:getWindows()`, `:notify()`)
+---   * sanitize and expose all pertinent events on these windows (see `:subscribe()` and the module constants with all the events)
+---
+--- A *default windowfilter* (not to be confused with the default filter *within* a windowfilter) is provided as convenience;
+--- it excludes some known apps and windows that are transient in nature, therefore unlikely to be "interesting" for e.g. window management.
+--- `hs.window.filter.new()` (with no arguments) returns a copy of the default windowfilter that you can further tailor
+--- to your needs - see `hs.window.filter.default` and `hs.window.filter.new()` for more information.
+---
+--- Usage examples:
+--- ```
 --- -- alter the default windowfilter
---- hs.window.filter.default:setAppFilter('My IDE',{allowTitles=1}) -- ignore no-title windows (e.g. autocomplete suggestions) in My IDE
+--- hs.window.filter.default:setAppFilter('My IDE',{allowTitles=1}) -- ignore no-title windows (e.g. transient autocomplete suggestions) in My IDE
 ---
 --- -- set the exact scope of what you're interested in - see hs.window.filter:setAppFilter()
 --- wf_terminal = hs.window.filter.new{'Terminal','iTerm2'} -- all visible terminal windows
 --- wf_timewaster = hs.window.filter.new(false):setAppFilter('Safari',{allowTitles='reddit'}) -- any Safari windows with "reddit" anywhere in the title
 --- wf_leftscreen = hs.window.filter.new{override={visible=true,fullscreen=false,allowScreens='-1,0',currentSpace=true}}
 --- -- all visible and non-fullscreen windows that are on the screen to the left of the primary screen in the current Space
---- wf_editors_righthalf = hs.window.filter.new{'TextEdit','Sublime Text','BBEdit'}:setRegions(hs.screen.primaryScreen():fromUnitRect'0.5,0 1,1')
+--- wf_editors_righthalf = hs.window.filter.new{'TextEdit','Sublime Text','BBEdit'}:setRegions(hs.screen.primaryScreen():fromUnitRect'0.5,0/1,1')
 --- -- text editor windows that are on the right half of the primary screen
---- wf_bigwindows = hs.window.filter.new(function(w)return w:frame().w*w:frame().h>3000000 end) -- only very large windows
+--- wf_bigwindows = hs.window.filter.new(function(w)return w:frame().area>3000000 end) -- only very large windows
 --- wf_notif = hs.window.filter.new{['Notification Center']={allowRoles='AXNotificationCenterAlert'}} -- notification center alerts
 ---
 --- -- subscribe to events
 --- wf_terminal:subscribe(hs.window.filter.windowFocused,some_fn) -- run a function whenever a terminal window is focused
 --- wf_timewaster:notify(startAnnoyingMe,stopAnnoyingMe) -- fight procrastination :)
+--- ```
 
 
 -- The pure filtering part alone should fulfill a lot of use cases
@@ -640,28 +661,8 @@ function WF:getFilters()
   return r
 end
 
-
---TODO windowstartedmoving event?
---TODO windowstoppedmoving event? (needs eventtap on mouse and keyboard mods, even then not fully reliable)
-
---TODO :setScreens / :setRegions
---TODO hs.windowsnap (or snapareas)
---[[
-function wf:setScreens(screens)
-  if not screens then self.screens=nil 
-  else
-    if type(screens)=='userdata' then screens={screens} end
-    if type(screens)~='table' then error('screens must be a `hs.screen` object, or table of objects',2) end
-    local s='setting screens: '
-    for _,s in ipairs(screens) do
-      if type(s)~='userdata' or not s.frame
-    end
-    self.screens=screens
-  end
-  if activeFilters[self] then refreshWindows(self) end
-  return self  
-end
---]]
+--TODO windowstarted/stoppedmoving event? (needs eventtap on mouse and keyboard mods, and hooking up with animations in hs.window,
+-- and even then not fully reliable)
 
 local function __tostring(self) return 'hs.window.filter: '..(self.logname or '...') end
 --- hs.window.filter.new(fn[,logname[,loglevel]]) -> hs.window.filter object
@@ -686,7 +687,6 @@ local function __tostring(self) return 'hs.window.filter: '..(self.logname or '.
 ---
 --- Returns:
 ---  * a new windowfilter instance
-
 function windowfilter.new(fn,logname,loglevel)
   local mt=getmetatable(fn) if mt and mt.__index==WF then return fn end -- no copy-on-new
   local o = setmetatable({filters={},events={},windows={},pending={},
@@ -1223,11 +1223,7 @@ local function windowEvent(win,event,_,appname,retry)
   if event==uiwatcher.elementDestroyed then
     window:destroyed()
   elseif event==uiwatcher.windowMoved or event==uiwatcher.windowResized then
-    --    local frame=win:frame()
-    --    if window.currentFrame~=frame then
-    --      window.currentFrame=frame
     window:moved()
-    --    end
   elseif event==uiwatcher.windowMinimized then
     window:minimized()
   elseif event==uiwatcher.windowUnminimized then
@@ -1245,7 +1241,6 @@ appWindowEvent=function(win,event,_,appname,retry)
   if not win:isWindow() then return end
   local role=win.subrole and win:subrole()
   if appname=='Hammerspoon' and (not role or role=='AXUnknown') then return end
-  --  hs.assert(role,'(315) '..event..' '..win:role(),win)
   local id = win.id and win:id()
   log.vf('%s (%s) <= %s (appwindow event)',appname,id or '?',event)
   if event==uiwatcher.windowCreated then
@@ -1914,8 +1909,6 @@ function WF:delete()
   activeInstances[self]=nil spacesInstances[self]=nil self.events={} self.filters={} self.windows={} setmetatable(self) stopGlobalWatcher()
 end
 
-
---TODO add gc?
 
 local defaultwf, loglevel
 function windowfilter.setLogLevel(lvl)
