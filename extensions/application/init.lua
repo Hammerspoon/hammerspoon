@@ -112,7 +112,7 @@ function application.find(hint,exact)
   local apps=application.runningApplications()
 
   if exact then for _,a in ipairs(apps) do if a:name()==hint then r[#r+1]=a end end
-  else for _,a in ipairs(apps) do if a:name():lower():find(hint:lower()) then r[#r+1]=a end end end
+  else for _,a in ipairs(apps) do local aname=a:name() if aname and aname:lower():find(hint:lower()) then r[#r+1]=a end end end
   tsort(r,function(a,b)return a:kind()>b:kind()end) -- gui apps first
   if exact or #r>0 then return tunpack(r) end
 
