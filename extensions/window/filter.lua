@@ -924,7 +924,7 @@ end
 
 function Window.created(win,id,app,watcher)
   local self=Window.new(win,id,app,watcher)
-  self.timeFocused=preexistingWindowFocused[id] or timer.secondsSinceEpoch()
+  self.timeFocused=preexistingWindowFocused[id] or 0
   self.timeCreated=preexistingWindowCreated[id] or timer.secondsSinceEpoch()
   preexistingWindowFocused[id]=nil preexistingWindowCreated[id]=nil
   app.windows[id]=self
