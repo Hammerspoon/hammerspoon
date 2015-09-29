@@ -831,9 +831,10 @@ end
 ---    the potential issues described in the Notes section for `hs.window:setFrame()`. As a side effect the window might appear to
 ---    jump around briefly before setting toward its destination frame, and, in some cases, the move/resize animation (if requested)
 ---    might be skipped entirely - due to OSX quirks, these tradeoffs are necessary to ensure the desired result.
-local function frameInBounds(frame,bounds)
-  return geometry.copy(frame):move((frame:intersect(bounds).center-frame.center)*2):intersect(bounds)
-end
+
+--local function frameInBounds(frame,bounds)
+--  return geometry.copy(frame):move((frame:intersect(bounds).center-frame.center)*2):intersect(bounds)
+--end
 
 function window:setFrameInScreenBounds(frame,duration)
   if type(frame)=='number' then duration=frame frame=nil end
@@ -855,10 +856,10 @@ function window:setFrameInScreenBounds(frame,duration)
   local safeFrame=geometry.new(originalFrame.xy,frame.size) --apply the desired size
   local safeBounds=self:screen():frame() safeBounds:move(30,30) -- offset
   safeBounds.w=safeBounds.w-60 safeBounds.h=safeBounds.h-60 -- and shrink
-  self:_setFrame(frameInBounds(safeFrame,safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
+  self:_setFrame(safeFrame:fit(safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
   local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
   if actualSize.area>frame.area then frame.size=actualSize end -- if it's bigger apply it
-  local finalFrame=frameInBounds(frame,findScreenForFrame(frame):frame())
+  local finalFrame=frame:fit(findScreenForFrame(frame):frame())
   if duration==0 then
     self:_setSize(frame.size) -- apply the final size while the window is still in the safe area
     return self:_setFrame(finalFrame)
