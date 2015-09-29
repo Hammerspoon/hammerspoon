@@ -9,7 +9,7 @@
 --- Usage:
 --- -- set up your windowfilter
 --- expose = hs.expose.new() -- default windowfilter: only visible windows, all Spaces
---- expose2 = hs.expose.new(hs.window.filter.new():trackSpaces(true):setDefaultFilter()) -- include minimized/hidden windows, current Space only
+--- expose_space = hs.expose.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter()) -- include minimized/hidden windows, current Space only
 --- expose_browsers = hs.expose.new{'Safari','Google Chrome'} -- specialized expose for your dozens of browser windows :)
 ---
 --- -- then bind to a hotkey
@@ -24,108 +24,59 @@
 --TODO showExtraKeys
 
 
-local expose={} --module
+local tinsert,tremove,min,max,ceil,abs,fmod,floor=table.insert,table.remove,math.min,math.max,math.ceil,math.abs,math.fmod,math.floor
+local next,type,ipairs,pairs,setmetatable,sformat,supper,ssub,tostring=next,type,ipairs,pairs,setmetatable,string.format,string.upper,string.sub,tostring
 
-
+local geom=require'hs.geometry'
 local drawing,image=require'hs.drawing',require'hs.image'
 local window,screen=require'hs.window',require'hs.screen'
 local windowfilter=require'hs.window.filter'
 local application,spaces=require'hs.application',require'hs.spaces'
 local eventtap=require'hs.eventtap'
-local execute,fnutils=hs.execute,require'hs.fnutils'
-
-local log=require'hs.logger'.new('expose')
-expose.setLogLevel=log.setLogLevel
+local execute=hs.execute
 local newmodal=require'hs.hotkey'.modal.new
-local tinsert,tremove,min,max,ceil,abs,fmod,floor=table.insert,table.remove,math.min,math.max,math.ceil,math.abs,math.fmod,math.floor
-local next,type,ipairs,pairs,setmetatable,sformat,supper,ssub,tostring=next,type,ipairs,pairs,setmetatable,string.format,string.upper,string.sub,tostring
+local log=require'hs.logger'.new('expose')
 
-local rect = {} -- a centered rect class (more handy for our use case)
-rect.new = function(r)
-  local o = setmetatable({},{__index=rect})
-  o.x=r.x+r.w/2 o.y=r.y+r.h/2 o.w=r.w o.h=r.h
-  return o
-end
-function rect:scale(factor)
-  self.w=self.w*factor self.h=self.h*factor
-end
-function rect:move(dx,dy)
-  self.x=self.x+dx self.y=self.y+dy
-end
-function rect:tohs()
-  return {x=self.x-self.w/2,y=self.y-self.h/2,w=self.w,h=self.h}
-end
-function rect:intersect(r2)
-  local r1,x,y,w,h=self
-  if r1.x<r2.x then x=r2.x-r2.w/2 w=r1.x+r1.w/2-x
-  else x=r1.x-r1.w/2 w=r2.x+r2.w/2-x end
-  if r1.y<r2.y then y=r2.y-r2.h/2 h=r1.y+r1.h/2-y
-  else y=r1.y-r1.h/2 h=r2.y+r2.h/2-y end
-  return rect.new({x=x,y=y,w=w,h=h})
-end
-function rect:fit(frame)
-  if self.w>frame.w then self:scale(frame.w/self.w) end
-  if self.h>frame.h then self:scale(frame.h/self.h) end
-  self.x=max(self.x,frame.x+self.w/2)
-  self.x=min(self.x,frame.x+frame.w-self.w/2)
-  self.y=max(self.y,frame.y+self.h/2)
-  self.y=min(self.y,frame.y+frame.h-self.h/2)
-end
-function rect:toString()
-  return sformat('%d,%d %dx%d',self.x,self.y,self.w,self.h)
-end
+local expose={setLogLevel=log.setLogLevel} --module
+local screens,modals={},{}
+local modes,activeInstance,tap={}
+local spacesWatcher
 
-local function isAreaEmpty(rect,windows,screenFrame)
-  if rect.x-rect.w/2<screenFrame.x or rect.x+rect.w/2>screenFrame.w+screenFrame.x
-    or rect.y-rect.h/2<screenFrame.y or rect.y+rect.h/2>screenFrame.h+screenFrame.y then return end
-  for i,win in ipairs(windows) do
-    local i = win.frame:intersect(rect)
-    if i.w>0 and i.h>0 then return end
-  end
+
+local function isAreaEmpty(rect,win,windows,screenFrame)
+  if not rect:inside(screenFrame) then return end
+  for _,w in ipairs(windows) do if w~=win and w.frame:intersect(rect).area>0 then return end end
   return true
 end
 
-
-local function fitWindows(windows,maxIterations,animate,alt_algo)
+local function fitWindows(windows,isInvisible,maxIterations,animate,alt_algo)
   local screenFrame = windows.frame
-  local avgRatio = min(1,screenFrame.w*screenFrame.h/windows.area*2)
+  local avgRatio = min(1,screenFrame.area/windows.area*2)
   log.vf('shrink %d windows to %.0f%%',#windows,avgRatio*100)
-  for i,win in ipairs(windows) do
-    win.frame:scale(avgRatio)
-    win.frame:fit(screenFrame)
-  end
-  local didwork = true
-  local iterations = 0
-  local screenArea=screenFrame.w*screenFrame.h
-  local screenCenter=rect.new(screenFrame)
+  for i,win in ipairs(windows) do if not isInvisible then win.frame:scale(avgRatio) end win.frame:fit(screenFrame) end
+  local didwork,iterations,screenArea = true,0,screenFrame.area
 
   while didwork and iterations<maxIterations do
     didwork=false
     iterations=iterations+1
     local thisAnimate=animate and floor(math.sqrt(iterations))
-    local totalOverlaps = 0
-    local totalRatio=0
+    local totalOverlaps,totalRatio,totalArea=0,0,0
     for i,win in ipairs(windows) do
-      local winRatio = win.frame.w*win.frame.h/win.area
+      local wframe,winRatio = win.frame,win.frame.area/win.area
       totalRatio=totalRatio+winRatio
-      -- log.vf('processing %s - %s',win.appname,win.frame:toString())
+      -- log.vf('processing %s - %s',win.appname,win.frame)
       local overlapAreaTotal = 0
       local overlaps={}
 
       for j,win2 in ipairs(windows) do
         if j~=i then
-          --log.vf('vs %s %s',win2.appname,win2.frame:toString())
-          local intersection = win.frame:intersect(win2.frame)
-          local area = intersection.w*intersection.h
-          --log.vf('intersection %s [%d]',intersection:toString(),area)
-          if intersection.w>1 and intersection.h>1 then
-            --log.vf('vs %s intersection %s [%d]',win2.appname,intersection:toString(),area)
+          local intersection = wframe:intersect(win2.frame)
+          local area=intersection.area
+          if area>0 then
+            --            log.vf('vs %s intersection [%.0f]',win2.hint,area)
             overlapAreaTotal=overlapAreaTotal+area
             overlaps[#overlaps+1] = intersection
-            if area*0.9>win.frame.w*win.frame.h then
-              overlaps[#overlaps].x=(win.frame.x+win2.frame.x)/2
-              overlaps[#overlaps].y=(win.frame.y+win2.frame.y)/2
-            end
+            --            if area>wframe.area*0.9 then overlaps[#overlaps].center=(wframe.center+win2.frame.center)*0.5 end
           end
         end
       end
@@ -134,56 +85,51 @@ local function fitWindows(windows,maxIterations,animate,alt_algo)
       -- find the overlap regions center
       if #overlaps>0 then
         didwork=true
-        local ax,ay=0,0
+        local ac=geom.point(0,0)
         for _,ov in ipairs(overlaps) do
-          local weight = ov.w*ov.h/overlapAreaTotal
-          ax=ax+ weight*(ov.x)
-          ay=ay+ weight*(ov.y)
+          local weight = ov.area/overlapAreaTotal
+          ac=ac+ ov.center*weight
         end
-        ax=(win.frame.x-ax)*overlapAreaTotal/screenArea*3 ay=(win.frame.y-ay)*overlapAreaTotal/screenArea*3
-        win.frame:move(ax,ay)
-        if winRatio/avgRatio>0.8 then win.frame:scale(alt_algo and 0.95 or 0.98) end
-        win.frame:fit(screenFrame)
+        ac=(wframe.center-ac) * (overlapAreaTotal/screenArea*3)
+        wframe:move(ac)
+        if winRatio/avgRatio>0.8 then wframe:scale(alt_algo and 0.95 or 0.98) end
+        wframe:fit(screenFrame)
       elseif alt_algo then
         -- scale back up
-        win.frame:scale(1.05)
-        win.frame:fit(screenFrame)
+        wframe:scale(1.05):fit(screenFrame)
       end
+
       if totalOverlaps>0 and avgRatio<0.9 and not alt_algo then
         local DISPLACE=5
         for dx = -DISPLACE,DISPLACE,DISPLACE*2 do
-          if win.frame.x>screenCenter.x then dx=-dx end
-          local r = {x=win.frame.x+win.frame.w/(dx<0 and -2 or 2)+dx,y=win.frame.y,w=abs(dx)*2-1,h=win.frame.h}
-          if isAreaEmpty(r,windows,screenFrame) then
-            win.frame:move(dx,0)
-            if winRatio/avgRatio<1.33 and winRatio<1 then win.frame:scale(1.01)end
-            didwork=true
-            break
+          if wframe.center.x>screenFrame.center.x then dx=-dx end
+          local r=geom.copy(wframe):setx(dx>0 and wframe.x2 or (wframe.x+dx)):setw(abs(dx)*2-1)
+          if isAreaEmpty(r,win,windows,screenFrame) then
+            wframe:move(dx,0)
+            if winRatio/avgRatio<1.33 and winRatio<1 then wframe:scale(1.01):fit(screenFrame) end
+            didwork=true break
           end
         end
         for dy = -DISPLACE,DISPLACE,DISPLACE*2 do
-          if win.frame.y>screenCenter.y then dy=-dy end
-          local r = {y=win.frame.y+win.frame.h/(dy<0 and -2 or 2)+dy,x=win.frame.x,h=abs(dy)*2-1,w=win.frame.w}
-          if isAreaEmpty(r,windows,screenFrame) then
-            win.frame:move(0,dy)
-            if winRatio/avgRatio<1.33 and winRatio<1 then win.frame:scale(1.01)end
-            didwork=true
-            break
+          if wframe.center.y>screenFrame.center.y then dy=-dy end
+          local r=geom.copy(wframe):sety(dy>0 and wframe.y2 or (wframe.y+dy)):seth(abs(dy)*2-1)
+          --          if win.hint=='L' then print('testareaY'..dy..': '..r.string) end
+          if isAreaEmpty(r,win,windows,screenFrame) then
+            --            if win.hint=='L' then print(' empty  Y'..dy..': '..r.string) end
+            wframe:move(0,dy)
+            if winRatio/avgRatio<1.33 and winRatio<1 then wframe:scale(1.015):fit(screenFrame) end
+            didwork=true break
           end
         end
       end
-      if thisAnimate and thisAnimate>animate then
-        win.thumb:setFrame(win.frame:tohs())
-      end
+      if thisAnimate and thisAnimate>animate then win.thumb:setFrame(wframe) end
+      win.frame=wframe
     end
     avgRatio=totalRatio/#windows
-    local totalArea=0
-    for i,win in ipairs(windows) do
-      totalArea=totalArea+win.frame.w*win.frame.h
-    end
+    for i,win in ipairs(windows) do totalArea=totalArea+win.frame.area end
     local halting=iterations==maxIterations
     if not didwork or halting then
-      log.vf('%s (%d iterations): coverage %.2f%% (%d overlaps)',halting and 'halted' or 'optimal',iterations,totalArea/(screenFrame.w*screenFrame.h)*100,totalOverlaps)
+      log.vf('%s (%d iterations): coverage %.2f%% (%d overlaps)',halting and 'halted' or 'optimal',iterations,totalArea/(screenFrame.area)*100,totalOverlaps)
     end
     animate=animate and thisAnimate
   end
@@ -339,8 +285,6 @@ local function updateHighlights(hints,subtree,show)
   end
 end
 
-local screens,modals={},{}
-local modes,activeInstance,tap={}
 
 local function exitAll()
   log.d('exiting')
@@ -351,7 +295,7 @@ local function exitAll()
       if w.thumb then w.thumb:delete() end
       if w.icon then w.icon:delete() w.highlight:delete() w.hinttext:delete() w.hintrect:delete() end
       --      if w.rect then w.rect:delete() end
-      --      if w.ratio then w.ratio:delete() end
+      if w.ratio then w.ratio:delete() end
     end
     s.bg:delete()
   end
@@ -402,7 +346,7 @@ enter=function(hints)
       elseif app:isHidden() then app:unhide() newscreen=w:screen():id()
       else w:minimize() newscreen='inv' end
       h.frame:fit(screens[newscreen].frame)
-      setThumb(h)
+      setThumb(h,screens[newscreen].frame)
       return enter()
     else
       log.f('Focusing window (%s)',appname)
@@ -431,26 +375,19 @@ end
 local function spaceChanged()
   if not activeInstance then return end
   local tempinstance=activeInstance
-  --  if tempinstance.wf.currentSpaceWindows then -- wf tracks spaces
   exitAll()
-
-  --  if type(tempinstance)=='table' then tempinstance:show() end
   return tempinstance()
-    --    windowfilter.switchedToSpace(space,function()tempinstance:expose()end)
-    --  end
 end
-local spacesWatcher = spaces.watcher.new(spaceChanged)
-spacesWatcher:start()
 
-
-setThumb=function(w)
-  w.thumb:setFrame(w.frame:tohs()):orderAbove()
-  w.highlight:setFrame(w.frame:tohs()):orderAbove()
+setThumb=function(w,screenFrame)
+  local wframe=w.frame
+  w.thumb:setFrame(wframe):orderAbove()
+  w.highlight:setFrame(wframe):orderAbove()
   local hwidth=#w.hint*ui.hintLetterWidth
   local iconSize=ui.textSize*1.1
-  local br={x=w.frame.x-hwidth/2-iconSize/2,y=w.frame.y-iconSize/2,w=hwidth+iconSize,h=iconSize}
-  local tr={x=w.frame.x-hwidth/2+iconSize/2,y=w.frame.y-iconSize/2,w=hwidth,h=iconSize}
-  local ir={x=w.frame.x-hwidth/2-iconSize/2,y=w.frame.y-iconSize/2,w=iconSize,h=iconSize}
+  local br=geom.copy(wframe):seth(iconSize):setw(hwidth+iconSize):setcenter(wframe.center):fit(screenFrame)
+  local tr=geom.copy(br):setw(hwidth):move(iconSize,0)
+  local ir=geom.copy(br):setw(iconSize)
   w.hintrect:setFrame(br):orderAbove()
   w.hinttext:setFrame(tr):orderAbove()
   w.icon:setFrame(w.appbundle and ir or {x=0,y=0,w=0,h=0}):orderAbove()
@@ -463,20 +400,20 @@ local function showExpose(wins,animate,iterations,alt_algo)
   -- alt_algo sometimes performs better in terms of coverage, but (in the last half-broken implementation) always reaches maxIterations
   -- alt_algo TL;DR: much slower, don't bother
   log.d('activated')
+  if not spacesWatcher then spacesWatcher = spaces.watcher.new(spaceChanged):start() end
+
   screens={}
   local hsscreens = screen.allScreens()
   local mainscreen = hsscreens[1]
   for _,s in ipairs(hsscreens) do
-    local id=s:id()
-    local frame=s:frame()
+    local id,frame=s:id(),s:frame()
     screens[id]={frame=frame,area=0,bg=drawing.rectangle(frame):setFill(true):setFillColor(getColor(ui.backgroundColor)):show()}
   end
-  do
-    -- hidden windows strip
+  do -- hidden windows strip
     local invSize=ui.minimizedStripWidth
     local msid=mainscreen:id()
     local f=screens[msid].frame
-    local invf={x=f.x,y=f.y,w=f.w,h=f.h}
+    local invf=geom.copy(f)
     local dock = execute'defaults read com.apple.dock "orientation"':sub(1,-2)
     if dock=='bottom' then f.h=f.h-invSize invf.y=f.y+f.h invf.h=invSize
     elseif dock=='left' then f.w=f.w-invSize f.x=f.x+invSize invf.w=invSize
@@ -487,41 +424,36 @@ local function showExpose(wins,animate,iterations,alt_algo)
 
   for i=#wins,1,-1 do
     local w = wins[i]
-    local wid = w.id and w:id()
-    local app = w:application()
-    local appname,appbundle = app:title(),app:bundleID()
-    local wsc = w.screen and w:screen()
+    local wid,app = w.id and w:id(),w:application()
+    local appname,appbundle = app and app:name(),app and app:bundleID()
+    local wsc = w:screen()
     local scid = wsc and wsc:id()
     if not scid or not wid or not w:isVisible() then scid='inv' end
     local frame=w:frame()
-    screens[scid].area=screens[scid].area+frame.w*frame.h
+    screens[scid].area=screens[scid].area+frame.area
     screens[scid][#screens[scid]+1] = {appname=appname,appbundle=appbundle,window=w,
-      frame=rect.new(frame),originalFrame=frame,area=frame.w*frame.h,id=wid}
+      frame=frame,originalFrame=frame,area=frame.area,id=wid}
   end
   local hints=getHints(screens)
-  for _,s in pairs(screens) do
-    if animate then
-      for _,w in ipairs(s) do
-        w.thumb = drawing.image(w.originalFrame,window.snapshotForID(w.id)):show() --FIXME gh#413
-      end
-    end
-    fitWindows(s,iterations or 200,animate and 0 or nil,alt_algo)
+  for sid,s in pairs(screens) do
+    if animate then for _,w in ipairs(s) do
+      w.thumb = drawing.image(w.originalFrame,window.snapshotForID(w.id)):show()
+    end end
+    fitWindows(s,sid=='inv',iterations or 200,animate and 0 or nil,alt_algo)
     for _,w in ipairs(s) do
-      if animate then
-        w.thumb:setFrame(w.frame:tohs())
+      if animate then w.thumb:setFrame(w.frame)
       else
-        local thumb=w.id and window.snapshotForID(w.id)
-        w.thumb = drawing.image(w.frame:tohs(),thumb or UNAVAILABLE)
+        local thumb=w.id and window.snapshotForID(w.id) w.thumb=drawing.image(w.frame,thumb or UNAVAILABLE)
       end
-      --      w.ratio=drawing.text(w.frame:tohs(),sformat('%d%%',w.frame.w*w.frame.h*100/w.area)):setTextColor{red=1,green=0,blue=0,alpha=1}:show()
-      local f=w.frame:tohs()
+      local f=w.frame
       w.highlight=drawing.rectangle(f):setFill(true):setFillColor(getColor(ui.highlightColor)):setStrokeWidth(ui.strokeWidth):setStrokeColor(getColor(ui.highlightStrokeColor))
       w.hintrect=drawing.rectangle(f):setFill(true):setFillColor(getColor(ui.backgroundColor)):setStroke(false):setRoundedRectRadii(ui.textSize/4,ui.textSize/4)
       w.hinttext=drawing.text(f,w.hint):setTextColor(getColor(ui.textColor)):setTextSize(ui.textSize):setTextFont(ui.fontName)
       local icon=w.appbundle and image.imageFromAppBundle(w.appbundle)
       w.icon = drawing.image(f,icon or UNAVAILABLE)
-      setThumb(w)
+      setThumb(w,s.frame)
       w.thumb:show() w.highlight:show() w.hintrect:show() w.hinttext:show() w.icon:show()
+      --      w.ratio=drawing.text(w.frame,sformat('%.0f%%',w.frame.area*100/w.area)):setTextColor{red=1,green=0,blue=0,alpha=1}:show()
     end
   end
   enter(hints)
@@ -593,8 +525,8 @@ function expose:show(currentApp,...)
     local allwins,appwins=wins,getApplicationWindows()
     if not appwins then return end
     wins={}
-    for _,w in ipairs(appwins) do
-      if fnutils.contains(allwins,w) then wins[#wins+1]=w end --FIXME probably requires window userdata 'recycling' (or at least __eq metamethod)
+    for _,w in ipairs(allwins) do
+      for __,appw in ipairs(appwins) do if appw:id()==w:id() then wins[#wins+1]=appw end end
     end
   end
   activeInstance=function()return self:show(currentApp)end
@@ -666,7 +598,7 @@ end
 ---
 --- Notes:
 ---   * The default windowfilter (or an unmodified copy) will allow the expose instance to be populated with windows from all
----     Mission Control Spaces (unlike the OSX expose); to limit to windows in the current Space only, use `:trackSpaces(true)`
+---     Mission Control Spaces (unlike the OSX expose); to limit to windows in the current Space only, use `:setCurrentSpace(true)`
 ---   * The default windowfilter (or an unmodified copy) will not track hidden windows; to let the expose instance also manage hidden windows,
 ---     use `:setDefaultFilter()` and/or other appropriate application-specific visiblity rules
 function expose.new(wf,...)
