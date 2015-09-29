@@ -648,25 +648,22 @@ function layout:resume()
     self.log.d('current screen configuration not allowed, ignoring resume') return self end
   for irule,rule in ipairs(self.rules) do
     --timers and upvalues galore
-    local hasFocusedSelector,hasPositionSelector
+    local hasFocusedSelector--,hasPositionSelector
     for _,cmd in ipairs(rule) do
-      if cmd.select==FOCUSEDLAST then hasFocusedSelector=true
-      elseif cmd.select==CLOSEST then hasPositionSelector=true end
+      if cmd.select==FOCUSEDLAST then hasFocusedSelector=true end
+      --      elseif cmd.select==CLOSEST then hasPositionSelector=true end
     end
     rule.callback=function()
       rulebuf[rule]=true modsTimer:setNextTrigger(MODS_INTERVAL)
-      if hasPositionSelector then
-        rule.windowfilter:unsubscribe(windowfilter.windowMoved,rule.callback)
-        rule.resubTimer:setNextTrigger(MODS_INTERVAL+window.animationDuration+layout.applyDelay)
-      end
+      rule.windowfilter:unsubscribe(windowfilter.windowMoved,rule.callback)
+      rule.resubTimer:setNextTrigger(MODS_INTERVAL+window.animationDuration+layout.applyDelay)
     end
-    if hasPositionSelector and not rule.resubTimer then
+    if not rule.resubTimer then
       rule.resubTimer=timer.new(DISTANT_FUTURE,
         function()rule.windowfilter:subscribe(windowfilter.windowMoved,rule.callback)end):start()
     end
-    rule.windowfilter:subscribe({windowfilter.windowVisible,windowfilter.windowNotVisible},rule.callback)
+    rule.windowfilter:subscribe({windowfilter.windowVisible,windowfilter.windowNotVisible,windowfilter.windowMoved},rule.callback)
     if hasFocusedSelector then rule.windowfilter:subscribe({windowfilter.windowFocused,windowfilter.windowUnfocused},rule.callback) end
-    if hasPositionSelector then rule.windowfilter:subscribe(windowfilter.windowMoved,rule.callback) end
   end
   self.log.i('windowlayout instance resumed')
   self:apply()
