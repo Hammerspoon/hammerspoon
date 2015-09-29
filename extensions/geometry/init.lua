@@ -436,6 +436,26 @@ function geometry.scale(t,s1,s2,...)
   return t
 end
 
+--- hs.geometry:fit(bounds) -> hs.geometry object
+--- Method
+--- Ensure this rect is fully inside `bounds`, by scaling it down if it's larger (preserving its aspect ratio) and moving it if necessary
+---
+--- Parameters:
+---  * bounds - an hs.geometry rect object, or a table or string or parameter list to construct one, indicating the rect that
+---    must fully contain this rect
+---
+--- Returns:
+---  * this hs.geometry object for method chaining
+
+function geometry.fit(t,...)
+  t=new(t) local bounds=new(...)
+  if not isRect(t) then error('not a rect',2) elseif not isRect(bounds) then error('bounds must be a rect',2) end
+  if t:inside(bounds) then return t end
+  if t.w>bounds.w then t:scale(bounds.w/t.w) end
+  if t.h>bounds.h then t:scale(bounds.h/t.h) end
+  return t:move(bounds:intersect(t).center-t.center):move((t:intersect(bounds).center-t.center)*2):intersect(bounds)
+end
+
 --- hs.geometry:normalize() -> point
 --- Method
 --- Normalizes this vector2
