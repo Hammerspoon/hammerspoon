@@ -33,7 +33,7 @@ window.animationDuration = 0.2
 --- Returns:
 ---  * A list of `hs.window` objects representing all open windows
 
-local SKIP_APPS={['org.pqrs.Karabiner-AXNotifier']=true,['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true,['N/A']=true}
+local SKIP_APPS={['org.pqrs.Karabiner-AXNotifier']=true,['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true}
 -- Karabiner's AXNotifier consistently takes 6 seconds on my system. It never spawns windows, so it should be safe to just skip it.
 function window.allWindows()
   local r={}
@@ -56,7 +56,7 @@ function window._timed_allWindows()
   for app,time in pairs(r) do
     if time>0.05 then print(string.format('took %.2fs for %s',time,app)) end
   end
-  --  print(hs.inspect(SKIP_APPS))
+  --  print('known exclusions:') print(hs.inspect(SKIP_APPS))
   return r
 end
 
@@ -141,7 +141,7 @@ function window.find(hint,exact,wins)
   if typ=='number' then for _,w in ipairs(wins) do if w:id()==hint then return w end end return
   elseif typ~='string' then error('hint must be a number or string',2) end
   if exact then for _,w in ipairs(wins) do if w:title()==hint then r[#r+1]=w end end
-  else hint=hint:lower() for _,w in ipairs(wins) do if w:title():lower():find(hint) then r[#r+1]=w end end end
+  else hint=hint:lower() for _,w in ipairs(wins) do local wtitle=w:title() if wtitle and wtitle:lower():find(hint) then r[#r+1]=w end end end
   if #r>0 then return tunpack(r) end
 end
 
@@ -246,6 +246,15 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
+---
+--- Notes:
+---  * In some cases this method won't work: namely, the bottom (or Dock) edge, and edges between screens, might exhibit some
+---    "stickiness"; trying to make a window abutting one of those edges just *slightly* smaller could result in no change at all
+---    (you can verify this by trying to resize such a window with the mouse: at first it won't budge, and, as you drag
+---    further away, suddenly snap to the new size). Additionally some windows (no matter their placement on screen) only allow
+---    being resized at "discrete" steps of several screen points; the typical example is Terminal windows, which only resize to
+---    whole rows and columns. Both situations can result in unexpected behavior when using this method (especially when using
+---    animations). As a safer alternative, you can use `hs.window:setFrameInScreenBounds()` instead.
 function window:setFrame(f, duration)
   if duration==nil then duration = window.animationDuration end
   if type(duration)~='number' then duration = 0 end
@@ -342,6 +351,54 @@ end
 function window:focus()
   self:becomeMain()
   self:application():_bringtofront()
+  return self
+end
+
+--- hs.window:sendToBack() -> hs.window object
+--- Method
+--- Sends the window to the back
+---
+--- This method works by focusing all overlapping windows behind this one, front to back.
+--- If called on the focused window, this method will switch focus to the topmost window under this one; otherwise, the
+--- currently focused window will regain focus after this window has been sent to the back.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The `hs.window` object
+---
+--- Notes:
+---  * Due to the way this method works and OSX limitations, calling this method when you have a lot of randomly overlapping
+---   (as opposed to neatly tiled) windows might be visually jarring, and take a fair amount of time to complete.
+---   So if you don't use orderly layouts, or if you have a lot of windows in general, you're probably better off using
+---   `hs.application:hide()` (or simply `cmd-h`)
+local WINDOW_ROLES={AXStandardWindow=true,AXDialog=true,AXSystemDialog=true}
+function window:sendToBack()
+  local id,frame=self:id(),self:frame()
+  local fw=window.focusedWindow()
+  local wins=window.orderedWindows()
+  for z=#wins,1,-1 do local w=wins[z] if id==w:id() or not WINDOW_ROLES[w:subrole()] then tremove(wins,z) end end
+  local toRaise,topz,didwork={}
+  repeat
+    for z=#wins,1,-1 do
+      didwork=nil
+      local wf=wins[z]:frame()
+      if frame:intersect(wf).area>0 then
+        topz=z
+        if not toRaise[z] then
+          didwork=true
+          toRaise[z]=true
+          frame=frame:union(wf) break
+        end
+      end
+    end
+  until not didwork
+  if topz then
+    for z=#wins,1,-1 do if toRaise[z] then wins[z]:focus() timer.usleep(80000) end end
+    wins[topz]:focus()
+    if fw and fw:id()~=id then fw:focus() end
+  end
   return self
 end
 
@@ -768,42 +825,49 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
+---
+--- Notes:
+---  * This method, besides ensuring that the window lies fully inside its screen, performs several additional checks and workarounds for
+---    the potential issues described in the Notes section for `hs.window:setFrame()`. As a side effect the window might appear to
+---    jump around briefly before setting toward its destination frame, and, in some cases, the move/resize animation (if requested)
+---    might be skipped entirely - due to OSX quirks, these tradeoffs are necessary to ensure the desired result.
 
-local function frameInBounds(frame,bounds)
-  return geometry.copy(frame):move((frame:intersect(bounds).center-frame.center)*2):intersect(bounds)
-end
+--local function frameInBounds(frame,bounds)
+--  return geometry.copy(frame):move((frame:intersect(bounds).center-frame.center)*2):intersect(bounds)
+--end
 
 function window:setFrameInScreenBounds(frame,duration)
   if type(frame)=='number' then duration=frame frame=nil end
+  if duration==nil then duration=window.animationDuration end
   stopAnimation(self) -- if ongoing animation, stop it (no ff)
   if frame then frame=geometry(frame):floor()
   else frame=self:frame() end -- if ongoing animation, get the end frame
-  local screenFrame=findScreenForFrame(frame):frame()
 
-  -- find out if it's a terminal (or a window already shrunk to minimum)
-  local curFrame=self:_frame()
-  self:_setSize{w=curFrame.w-1,h=curFrame.h-1}
-  if curFrame.size==self:_size() then duration=0 end -- don't animate terminals
-
-  if duration==0 then -- cut it short
-    self:_setFrame(frame) -- set
-    return self:_setFrame(frameInBounds(self:_frame(),screenFrame)) -- and adjust if necessary
+  local originalFrame=geometry(self:_frame())
+  if duration>0 then -- if no animation, skip checking for possible trouble
+    local testSize=geometry.size(originalFrame.w-1,originalFrame.h-1)
+    self:_setSize(testSize)
+    -- find out if it's a terminal, or a window already shrunk to minimum, or a window on a 'sticky' edge
+    local newSize=self:_size()
+    if originalFrame.size==newSize -- terminal or minimum size
+      or (testSize~=newSize and (abs(frame.x2-originalFrame.x2)<100 or abs(frame.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
+      duration=0 end -- don't animate troublesome windows
   end
-  self:_setSize(curFrame)
-  if curFrame==frame then return end
-
-  local originalFrame=geometry.copy(curFrame)
-  curFrame.size=frame.size --apply the desired size
+  local safeFrame=geometry.new(originalFrame.xy,frame.size) --apply the desired size
   local safeBounds=self:screen():frame() safeBounds:move(30,30) -- offset
   safeBounds.w=safeBounds.w-60 safeBounds.h=safeBounds.h-60 -- and shrink
-  self:_setFrame(frameInBounds(curFrame,safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
+  self:_setFrame(safeFrame:fit(safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
   local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
   if actualSize.area>frame.area then frame.size=actualSize end -- if it's bigger apply it
-  self:_setFrame(originalFrame)
-  return self:setFrame(frameInBounds(frame,screenFrame),duration)
+  local finalFrame=frame:fit(findScreenForFrame(frame):frame())
+  if duration==0 then
+    self:_setSize(frame.size) -- apply the final size while the window is still in the safe area
+    return self:_setFrame(finalFrame)
+  end
+  self:_setFrame(originalFrame) -- restore the original frame and start the animation
+  return self:setFrame(finalFrame,duration)
 end
 window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatible
-
 
 package.loaded[...]=window
 window.filter=require'hs.window.filter'

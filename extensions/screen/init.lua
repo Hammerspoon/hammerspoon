@@ -64,7 +64,7 @@ function screen.find(p,...)
     local screens,r=screen.allScreens(),{}
     if typ=='number' and p>20 then for _,s in ipairs(screens) do if p==s:id() then return s end return end -- not found
     elseif typ=='string' then
-      for _,s in ipairs(screens) do if s:name():lower():find(p:lower()) then r[#r+1]=s end end
+      for _,s in ipairs(screens) do local sname=s:name() if sname and sname:lower():find(p:lower()) then r[#r+1]=s end end
       if #r>0 then return tunpack(r) end
     elseif typ~='table' then error('hint can be a number, string or table',2) end
     local ok
