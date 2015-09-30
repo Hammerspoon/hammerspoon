@@ -68,6 +68,13 @@ NSMutableArray *drawingWindows;
 @implementation HSDrawingWindow
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger __unused)windowStyle backing:(NSBackingStoreType __unused)bufferingType defer:(BOOL __unused)deferCreation {
     //CLS_NSLOG(@"HSDrawingWindow::initWithContentRect contentRect:(%.1f,%.1f) %.1fx%.1f", contentRect.origin.x, contentRect.origin.y, contentRect.size.width, contentRect.size.height);
+
+    if (!isfinite(contentRect.origin.x) || !isfinite(contentRect.origin.y) || !isfinite(contentRect.size.height) || !isfinite(contentRect.size.width)) {
+        LuaSkin *skin = [LuaSkin shared];
+        showError(skin.L, "ERROR: hs.drawing object created with non-finite co-ordinates/size");
+        return nil;
+    }
+
     self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
     if (self) {
         [self setDelegate:self];
