@@ -682,7 +682,6 @@
 		4F4CB3D11B7391D3000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/fs/internal.m; sourceTree = "<group>"; };
 		4F4CB3D21B7391D3000EA9B6 /* lfs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lfs.h; path = extensions/fs/lfs.h; sourceTree = "<group>"; };
 		4F4CB3E41B739A0F000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/geometry/init.lua; sourceTree = "<group>"; };
-		4F4CB3E51B739A0F000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/geometry/internal.m; sourceTree = "<group>"; };
 		4F4CB3E81B739ABD000EA9B6 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/grid/init.lua; sourceTree = "<group>"; };
 		4F4CB3F31B73A3A1000EA9B6 /* libhash.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libhash.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3F51B73A4EC000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/hash/init.lua; sourceTree = "<group>"; };
@@ -1515,7 +1514,6 @@
 			isa = PBXGroup;
 			children = (
 				4F4CB3E41B739A0F000EA9B6 /* init.lua */,
-				4F4CB3E51B739A0F000EA9B6 /* internal.m */,
 			);
 			name = geometry;
 			sourceTree = "<group>";
