@@ -570,7 +570,7 @@ end
 function geometry.inside(t1,...)
   t1=new(t1) local t2=new(...)
   if gettype(t1)=='size' or gettype(t2)=='size' then error('sizes have no inside',2) end
-  return t1.x>=t2.x and t1.y>=t2.y and t1.x2<=t2.x2 and t1.y2<=t2.y2
+  return t1.x>=t2.x and t1.y>=t2.y and (t1.x2 or t1.x)<=(t2.x2 or t2.x) and (t1.y2 or t1.y)<=(t2.y2 or t2.y)
 end
 
 --- hs.geometry:intersect(rect) -> hs.geometry rect
