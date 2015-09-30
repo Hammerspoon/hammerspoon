@@ -6,9 +6,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Fabric/FABAttributes.h>
+#import "CLSAttributes.h"
 
-FAB_START_NONNULL
+NS_ASSUME_NONNULL_BEGIN
 
 /**
  *
@@ -25,13 +25,13 @@ FAB_START_NONNULL
 + (instancetype)stackFrameWithAddress:(NSUInteger)address;
 + (instancetype)stackFrameWithSymbol:(NSString *)symbol;
 
-@property (nonatomic, copy)   NSString * FAB_NULLABLE symbol;
-@property (nonatomic, copy)   NSString * FAB_NULLABLE library;
-@property (nonatomic, copy)   NSString * FAB_NULLABLE fileName;
+@property (nonatomic, copy, nullable) NSString *symbol;
+@property (nonatomic, copy, nullable) NSString *library;
+@property (nonatomic, copy, nullable) NSString *fileName;
 @property (nonatomic, assign) uint32_t lineNumber;
 @property (nonatomic, assign) uint64_t offset;
 @property (nonatomic, assign) uint64_t address;
 
 @end
 
-FAB_END_NONNULL
+NS_ASSUME_NONNULL_END

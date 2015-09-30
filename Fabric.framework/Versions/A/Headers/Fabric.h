@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * Only the first call to this method is honored. Subsequent calls are no-ops.
  *
- * @param kits An array of kit Class objects
+ * @param kitClasses An array of kit Class objects
  *
  * @return Returns the shared Fabric instance. In most cases this can be ignored.
  */

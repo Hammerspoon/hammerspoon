@@ -17,11 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>FMWK</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.1.1</string>
+	<string>3.3.2</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>69</string>
+	<string>80</string>
 	<key>DTCompiler</key>
 	<string>com.apple.compilers.llvm.clang.1_0</string>
 	<key>DTPlatformBuild</key>
@@ -38,5 +38,10 @@
 	<string>6E35b</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2015 Crashlytics, Inc. All rights reserved.</string>
+	<key>UIDeviceFamily</key>
+	<array>
+		<integer>1</integer>
+		<integer>2</integer>
+	</array>
 </dict>
 </plist>

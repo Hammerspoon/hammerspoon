@@ -5,10 +5,10 @@
 //  Copyright (c) 2015 Crashlytics, Inc. All rights reserved.
 //
 #ifdef __OBJC__
-#import <Fabric/FABAttributes.h>
+#import "CLSAttributes.h"
 #import <Foundation/Foundation.h>
 
-FAB_START_NONNULL
+NS_ASSUME_NONNULL_BEGIN
 #endif
 
 
@@ -60,5 +60,5 @@ OBJC_EXTERN void CLSNSLog(NSString *format, ...) NS_FORMAT_FUNCTION(1,2);
 OBJC_EXTERN void CLSNSLogv(NSString *format, va_list ap) NS_FORMAT_FUNCTION(1,0);
 
 
-FAB_END_NONNULL
+NS_ASSUME_NONNULL_END
 #endif

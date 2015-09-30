@@ -10,6 +10,10 @@
 
 #define FAB_UNAVAILABLE(x) __attribute__((unavailable(x)))
 
+#ifndef TARGET_OS_IOS
+#define TARGET_OS_IOS TARGET_OS_IPHONE
+#endif
+
 #if __has_feature(nullability)
     #define fab_nullable           nullable
     #define fab_nonnull            nonnull

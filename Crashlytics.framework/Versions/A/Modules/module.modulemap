@@ -4,6 +4,7 @@ framework module Crashlytics {
     header "CLSLogging.h"
     header "CLSReport.h"
     header "CLSStackFrame.h"
+    header "CLSAttributes.h"
 
     export *
 
