@@ -444,22 +444,8 @@ end
 ---
 --- Returns:
 ---  * An `hs.screen` object representing the screen which most contains the window (by area)
-local function findScreenForFrame(frame)
-  local screens,maxa,maxs=screen.allScreens(),0
-  for _,s in ipairs(screens) do
-    local a=frame:intersect(s:fullFrame()).area
-    if a>maxa then maxa,maxs=a,s end
-  end
-  if maxs then return maxs end
-  local mind=99999 -- if (impossibly) a window is totally out of bounds, get the closest screen
-  for _,s in ipairs(screens) do
-    local d=frame:vector(s:frame()).length
-    if d<mind then mind,maxs=d,s end
-  end
-  return maxs
-end
 function window:screen()
-  return findScreenForFrame(self:frame())
+  return screen.find(self:frame())--findScreenForFrame(self:frame())
 end
 
 local function isFullyBehind(f1,w2)
@@ -859,7 +845,7 @@ function window:setFrameInScreenBounds(frame,duration)
   self:_setFrame(safeFrame:fit(safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
   local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
   if actualSize.area>frame.area then frame.size=actualSize end -- if it's bigger apply it
-  local finalFrame=frame:fit(findScreenForFrame(frame):frame())
+  local finalFrame=frame:fit(screen.find(frame):frame())
   if duration==0 then
     self:_setSize(frame.size) -- apply the final size while the window is still in the safe area
     return self:_setFrame(finalFrame)

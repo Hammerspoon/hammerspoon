@@ -14,7 +14,7 @@ local imagemod = require "hs.image"
 
 screen.watcher = require "hs.screen.watcher"
 
-local type,pairs,ipairs,min,max,cos,atan=type,pairs,ipairs,math.min,math.max,math.cos,math.atan
+local type,pairs,ipairs,min,max,cos,atan,huge=type,pairs,ipairs,math.min,math.max,math.cos,math.atan,math.huge
 local tinsert,tremove,tsort,tunpack=table.insert,table.remove,table.sort,table.unpack
 local getmetatable,pcall=getmetatable,pcall
 
@@ -27,7 +27,7 @@ function screen.primaryScreen()
   return screen.allScreens()[1]
 end
 
---- hs.screen.find(hint[, ...]) -> hs.screen object(s)
+--- hs.screen.find(hint) -> hs.screen object(s)
 --- Function
 --- Finds screens
 ---
@@ -35,9 +35,10 @@ end
 ---  * hint - search criterion for the desired screen(s); it can be:
 ---    - a number as per `hs.screen:id()`
 ---    - a string pattern that matches (via `string.match`) the screen name as per `hs.screen:name()` (for convenience, the matching will be done on lowercased strings)
----    - an hs.geometry point object, or arguments for its constructor, with the x and y position of the screen in the current layout as per `hs.screen:position()`
----    - an hs.geometry size object, or arguments for its constructor, with the resolution of the screen as per `hs.screen:fullFrame()`
----    - an hs.geometry rect object, or arguments for its constructor, with the rect of the screen in absolute coordinates as per `hs.screen:fullFrame()`
+---    - an hs.geometry *point* object, or constructor argument, with the *x and y position* of the screen in the current layout as per `hs.screen:position()`
+---    - an hs.geometry *size* object, or constructor argument, with the *resolution* of the screen as per `hs.screen:fullFrame()`
+---    - an hs.geometry *rect* object, or constructor argument, with an arbitrary rect in absolute coordinates; the screen
+---      containing the largest part of the rect will be returned
 ---
 --- Returns:
 ---  * one or more hs.screen objects that match the supplied search criterion, or `nil` if none found
@@ -46,38 +47,47 @@ end
 ---  * for convenience you call call this as `hs.screen(hint)`
 ---
 --- Usage:
---- -- by id
---- hs.screen(724562417):name() --> Color LCD
---- -- by name
---- hs.screen'Dell':name() --> DELL U2414M
---- -- by position
---- hs.screen(0,0):name() --> PHL BDM4065 - same as hs.screen.primaryScreen()
---- hs.screen{x=-1,y=0}:name() --> DELL U2414M - screen to the immediate left of the primary screen
---- -- by frame
---- hs.screen(-1200,240,1200,1920):name() --> DELL U2414M - exact frame
---- hs.screen'3840x2160':name() --> PHL BDM4065 - resolution
-function screen.find(p,...)
+--- ```
+--- hs.screen(724562417) --> Color LCD - by id
+--- hs.screen'Dell'      --> DELL U2414M - by name
+--- hs.screen'0,0'       --> PHL BDM4065 - by position, same as hs.screen.primaryScreen()
+--- hs.screen{x=-1,y=0}  --> DELL U2414M - by position, screen to the immediate left of the primary screen
+--- hs.screen'3840x2160' --> PHL BDM4065 - by screen resolution
+--- hs.screen'-500,240 700x1300' --> DELL U2414M, by arbitrary rect
+--- ```
+function screen.find(p)
   if p==nil then return end
   local typ=type(p)
   if typ=='userdata' and getmetatable(p)==screenObject then return p
   else
     local screens,r=screen.allScreens(),{}
-    if typ=='number' and p>20 then for _,s in ipairs(screens) do if p==s:id() then return s end return end -- not found
+    if typ=='number' then for _,s in ipairs(screens) do if p==s:id() then return s end return end -- not found
     elseif typ=='string' then
       for _,s in ipairs(screens) do local sname=s:name() if sname and sname:lower():find(p:lower()) then r[#r+1]=s end end
       if #r>0 then return tunpack(r) end
     elseif typ~='table' then error('hint can be a number, string or table',2) end
     local ok
-    ok,p=pcall(geometry,p,...) if not ok then return end -- not found
+    ok,p=pcall(geometry.new,p) if not ok then return end -- not found
     if p.x and p.y then
       if not p.w and not p.h then -- position
         local positions=screen.screenPositions()
         for s,pos in pairs(positions) do if p==pos then return s end end
         return -- not found
-      end -- full frame
-      for _,s in ipairs(screens) do if p==s:fullFrame() then return s end end
-      return -- not found
-    elseif p.w and p.h then -- size
+      end
+      local maxa,maxs=0 -- a rect
+      if p.w==0 then p.w=1 end if p.h==0 then p.h=1 end
+      for _,s in ipairs(screens) do
+        local a=p:intersect(s:fullFrame()).area
+        if a>maxa then maxa,maxs=a,s end
+      end
+      if maxs then return maxs end
+      local mind=huge -- if (impossibly) a window is totally out of bounds, get the closest screen
+      for _,s in ipairs(screens) do
+        local d=p:vector(s:fullFrame()).length
+        if d<mind then mind,maxs=d,s end
+      end
+      return maxs
+    elseif p.w and p.h then -- resolution
       for _,s in ipairs(screens) do if p==geometry(s:fullFrame()).size then r[#r+1]=s end end
       if #r>0 then return tunpack(r) end
     end
