@@ -56,6 +56,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         const char *tmp = [[[NSBundle bundleForClass:NSClassFromString(@"Hammerspoon_Tests")] pathForResource:@"init" ofType:@"lua"] fileSystemRepresentation];
         NSLog(@"testing init.lua is [%s], if this is null, we crash on the next line", tmp);
         MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tmp length:strlen(tmp)];
+    } else {
+        NSString* userMJConfigFile = [[NSUserDefaults standardUserDefaults] stringForKey:@"MJConfigFile"];
+        if (userMJConfigFile) MJConfigFile = userMJConfigFile ;
     }
 
     MJEnsureDirectoryExists(MJConfigDir());
