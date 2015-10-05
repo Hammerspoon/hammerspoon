@@ -38,7 +38,7 @@ local setmetatable,rawget,rawset=setmetatable,rawget,rawset
 local gridSizes = {[true]=geom'3x3'} -- user-defined grid sizes for each screen or geometry, default ([true]) is 3x3
 local margins = geom'5x5'
 
-local grid = {setLogLevel=log.setLogLevel} -- module
+local grid = {setLogLevel=log.setLogLevel,getLogLevel=log.getLogLevel} -- module
 
 
 --- hs.grid.setGrid(grid,screen) -> hs.grid

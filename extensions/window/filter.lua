@@ -692,7 +692,7 @@ function windowfilter.new(fn,logname,loglevel)
   local o = setmetatable({filters={},events={},windows={},pending={},
     log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel},
   {__index=WF,__tostring=__tostring})
-  if logname then o.setLogLevel=o.log.setLogLevel end
+  if logname then o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel end
   if type(fn)=='function' then
     o.log.i('new windowfilter, custom function')
     o.isAppAllowed = function()return true end
@@ -1075,7 +1075,7 @@ function App:getFocused()
   local fw=self.app:focusedWindow()
   local fwid=fw and fw.id and fw:id()
   if not fwid then
-    fw=self.app:mainWindow()
+    fw=self.app:mainWindow() or self.app:allWindows()[1]
     fwid=fw and fw.id and fw:id()
   end
   if fwid then
@@ -1910,17 +1910,18 @@ function WF:delete()
 end
 
 
-local defaultwf, loglevel
+local defaultwf, defaultwfLogLevel
 function windowfilter.setLogLevel(lvl)
-  log.setLogLevel(lvl) loglevel=lvl
+  log.setLogLevel(lvl) defaultwfLogLevel=lvl
   if defaultwf then defaultwf.setLogLevel(lvl) end
   return windowfilter
 end
+windowfilter.getLogLevel=log.getLogLevel
 
 local function makeDefault()
   if not defaultwf then
     defaultwf = windowfilter.new(true,'wflt-def')
-    if loglevel then defaultwf.setLogLevel(loglevel) end
+    if defaultwfLogLevel then defaultwf.setLogLevel(defaultwfLogLevel) end
     for appname in pairs(windowfilter.ignoreInDefaultFilter) do
       defaultwf:rejectApp(appname)
     end

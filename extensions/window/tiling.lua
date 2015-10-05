@@ -223,4 +223,4 @@ local function tileWindows(windows,rect,desiredAspect,processInOrder,preserveRel
   end
 end
 
-return {tileWindows=tileWindows,setLogLevel=log.setLogLevel}
+return {tileWindows=tileWindows,setLogLevel=log.setLogLevel,getLogLevel=log.getLogLevel}
