@@ -222,6 +222,35 @@ function grid.get(win)
   }
 end
 
+--- hs.grid.getCell(cell, screen) -> hs.geometry
+--- Function
+--- Gets the `hs.geometry` rect for a cell on a particular screen
+---
+--- Parameters:
+---  * cell - a cell object, i.e. an `hs.geometry` rect or argument to construct one
+---  * screen - an `hs.screen` object or argument to `hs.screen.find()` where the cell is located
+---
+--- Returns:
+---  * the `hs.geometry` rect for a cell on a particular screen
+function grid.getCell(cell, scr)
+  scr=screen.find(scr)
+  if not scr then log.e('screen cannot be nil') return grid end
+  cell=geom.new(cell)
+  local screenrect = scr:frame()
+  local screengrid = getGrid(scr)
+  -- sanitize, because why not
+  cell.x=max(0,min(cell.x,screengrid.w-1)) cell.y=max(0,min(cell.y,screengrid.h-1))
+  cell.w=max(1,min(cell.w,screengrid.w-cell.x)) cell.h=max(1,min(cell.h,screengrid.h-cell.y))
+  local cellw, cellh = screenrect.w/screengrid.w, screenrect.h/screengrid.h
+  local newframe = {
+    x = (cell.x * cellw) + screenrect.x + margins.w,
+    y = (cell.y * cellh) + screenrect.y + margins.h,
+    w = cell.w * cellw - (margins.w * 2),
+    h = cell.h * cellh - (margins.h * 2),
+  }
+  return newframe
+end
+
 --- hs.grid.set(win, cell, screen) -> hs.grid
 --- Function
 --- Sets the cell for a window on a particular screen
