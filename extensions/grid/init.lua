@@ -352,7 +352,7 @@ function grid.pushWindowLeft(win)
     local newscreen=winscreen:toWest(frame)
     if not newscreen then return grid end
     frame.x = frame.x-frame.w
-    win:setFrameInScreenBounds(frame) --win:ensureIsInScreenBounds()
+    win:setFrameInScreenBounds(frame)
     return grid.snap(win)
   else return grid.adjustWindow(function(f)f.x=f.x-1 end, win) end
 end

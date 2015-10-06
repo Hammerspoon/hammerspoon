@@ -55,7 +55,7 @@ local function getCentroid(switchedRectToFill,windowArea,i,n,fillVertically)
   return r.center
 end
 
---- hs.window.tiling.tileWindows(windows,rect[,desiredAspect[,processInOrder[,preserveRelativeArea[,ensureInScreenBounds[,animationDuration]]]]])
+--- hs.window.tiling.tileWindows(windows,rect[,desiredAspect[,processInOrder[,preserveRelativeArea[,animationDuration]]]])
 --- Function
 --- Tile (or fit) windows into a rect
 ---
@@ -71,7 +71,6 @@ end
 ---   * preserveRelativeArea - (optional) if `true`, preserve the relative area among windows; that is, if window A is currently twice as large
 ---     as window B, the same will be true after both windows have been processed and placed into the rect; if `false` or omitted, all windows
 ---     will have the same area (= area of the rect / number of windows) after processing
----   * ensureInScreenBounds - (optional) if `true`, use `hs.window:setFrameInScreenBounds()` instead of setFrame()
 ---   * animationDuration - (optional) the number of seconds to animate the move/resize operations of the windows; if omitted, defaults to
 ---     the value of `hs.window.animationDuration`
 ---
@@ -86,7 +85,7 @@ end
 
 -- TODO enforce minimum width? (optional arg)
 
-local function tileWindows(windows,rect,desiredAspect,processInOrder,preserveRelativeArea,ensureInScreenBounds,animationDuration)
+local function tileWindows(windows,rect,desiredAspect,processInOrder,preserveRelativeArea,animationDuration)
   if type(windows)~='table' then error('windows must be a list of hs.window objects',2)end
   if #windows==0 then return end
   if getmetatable(windows[1])~=hs.getObjectMetatable'hs.window' then error('windows must be a list of hs.window objects',2)end
@@ -218,7 +217,7 @@ local function tileWindows(windows,rect,desiredAspect,processInOrder,preserveRel
     local w,frame=win.window,win.bestFrame:fromUnitRect(rect):floor()
     if w:frame()~=frame then
       log.f('%s (%d) -> %s',w:application():name(),w:id(),frame.string)
-      if ensureInScreenBounds then w:setFrameInScreenBounds(frame,animationDuration) else w:setFrame(frame,animationDuration) end
+      w:setFrame(frame,animationDuration)
     end
   end
 end

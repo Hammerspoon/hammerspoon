@@ -417,7 +417,7 @@ local function performPendingActions()
         elseif action==MOVE then
           local frame=command.rect or toscreen:fromUnitRect(command.unitrect)
           if win:frame()~=frame then
-            if command.rect then win:setFrame(frame) else win:setFrameInScreenBounds(frame) end
+            win:setFrame(frame)
             command.log.f('rule %s: %s (%d) moved to %s',idx,appname,id,frame.string)
           end
         elseif action==NOACTION then
@@ -445,7 +445,7 @@ local function performPendingActions()
     local toscreen=findScreen(command.screen) or command[1]:screen()
     local frame=command.rect or toscreen:fromUnitRect(command.unitrect)
     command.log.f('rule %s: %s %d windows into %s by %s',idx,command.action,#command,frame.string,command.select)
-    tileWindows(command,frame,command.aspect,command.select~=CLOSEST,command.action==FIT,command.unitrect and true or nil)
+    tileWindows(command,frame,command.aspect,command.select~=CLOSEST,command.action==FIT)
   end
 
   -- hide apps
