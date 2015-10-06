@@ -227,17 +227,21 @@ end
 
 local function setFrameWithWorkarounds(self,f,duration)
   local originalFrame=geometry(self:_frame())
+  local safeBounds=self:screen():frame()
   if duration>0 then -- if no animation, skip checking for possible trouble
-    local testSize=geometry.size(originalFrame.w-1,originalFrame.h-1)
-    self:_setSize(testSize)
-    -- find out if it's a terminal, or a window already shrunk to minimum, or a window on a 'sticky' edge
-    local newSize=self:_size()
-    if originalFrame.size==newSize -- terminal or minimum size
-      or (testSize~=newSize and (abs(f.x2-originalFrame.x2)<100 or abs(f.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
-      duration=0 end -- don't animate troublesome windows
+    if not originalFrame:inside(safeBounds) then duration=0 -- window straddling screens or partially offscreen
+    else
+      local testSize=geometry.size(originalFrame.w-1,originalFrame.h-1)
+      self:_setSize(testSize)
+      -- find out if it's a terminal, or a window already shrunk to minimum, or a window on a 'sticky' edge
+      local newSize=self:_size()
+      if originalFrame.size==newSize -- terminal or minimum size
+        or (testSize~=newSize and (abs(f.x2-originalFrame.x2)<100 or abs(f.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
+        duration=0 end -- don't animate troublesome windows
+  end
   end
   local safeFrame=geometry.new(originalFrame.xy,f.size) --apply the desired size
-  local safeBounds=self:screen():frame() safeBounds:move(30,30) -- offset
+  safeBounds:move(30,30) -- offset
   safeBounds.w=safeBounds.w-60 safeBounds.h=safeBounds.h-60 -- and shrink
   self:_setFrame(safeFrame:fit(safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
   local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
