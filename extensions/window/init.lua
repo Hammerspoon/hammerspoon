@@ -164,16 +164,11 @@ end
 
 local animations, animTimer = {}
 local DISTANT_FUTURE=315360000 -- 10 years (roughly)
---[[
-  local function quad(x,s,len)
-    local l=max(0,min(2,(x-s)*2/len))
-    if l<1 then return l*l/2
-    else
-      l=2-l
-      return 1-(l*l/2)
-    end
-  end
---]]
+--[[ local function quad(x,s,len)
+       local l=max(0,min(2,(x-s)*2/len))
+       if l<1 then return l*l/2
+       else l=2-l return 1-(l*l/2) end
+     end --]]
 local function quadOut(x,s,len)
   local l=1-max(0,min(1,(x-s)/len))
   return 1-l*l
@@ -198,7 +193,6 @@ end
 animTimer = timer.new(0.017,animate)
 animTimer:start() --keep this split
 
-
 local function getAnimationFrame(win)
   local id = win:id()
   if animations[id] then return animations[id].endFrame end
@@ -213,29 +207,61 @@ local function stopAnimation(win,snap,id)
   if snap then win:_setFrame(anim.endFrame) end
 end
 
--- get actual window frame
-function window:_frame()
+function window:_frame() -- get actual window frame right now
   return geometry(self:_topLeft(),self:_size())
-    --  local tl,s = self:_topLeft(),self:_size()
-    --  return {x = tl.x, y = tl.y, w = s.w, h = s.h}
 end
--- set window frame instantly
-function window:_setFrame(f)
+
+function window:_setFrame(f) -- set window frame instantly
   self:_setSize(f) self:_setTopLeft(f) return self:_setSize(f)
 end
 
---- hs.window:frame() -> hs.geometry rect
---- Method
---- Gets the frame of the window in absolute coordinates
----
---- Parameters:
----  * None
----
---- Returns:
----  * An hs.geometry rect containing the co-ordinates of the top left corner of the window and its width and height
-function window:frame()
-  return getAnimationFrame(self) or self:_frame()
+local function setFrameAnimated(self,id,f,duration)
+  local frame = self:_frame()
+  if not animations[id] then animations[id] = {window=self} end
+  local anim = animations[id]
+  anim.time=timer.secondsSinceEpoch() anim.duration=duration
+  anim.startFrame=frame anim.endFrame=f
+  animTimer:setNextTrigger(0.01)
+  return self
 end
+
+local function setFrameWithWorkarounds(self,f,duration)
+  local originalFrame=geometry(self:_frame())
+  if duration>0 then -- if no animation, skip checking for possible trouble
+    local testSize=geometry.size(originalFrame.w-1,originalFrame.h-1)
+    self:_setSize(testSize)
+    -- find out if it's a terminal, or a window already shrunk to minimum, or a window on a 'sticky' edge
+    local newSize=self:_size()
+    if originalFrame.size==newSize -- terminal or minimum size
+      or (testSize~=newSize and (abs(f.x2-originalFrame.x2)<100 or abs(f.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
+      duration=0 end -- don't animate troublesome windows
+  end
+  local safeFrame=geometry.new(originalFrame.xy,f.size) --apply the desired size
+  local safeBounds=self:screen():frame() safeBounds:move(30,30) -- offset
+  safeBounds.w=safeBounds.w-60 safeBounds.h=safeBounds.h-60 -- and shrink
+  self:_setFrame(safeFrame:fit(safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
+  local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
+  if actualSize.area>f.area then f.size=actualSize end -- if it's bigger apply it
+  if duration==0 then
+    self:_setSize(f.size) -- apply the final size while the window is still in the safe area
+    return self:_setTopLeft(f)
+  end
+  self:_setFrame(originalFrame) -- restore the original frame and start the animation
+  return setFrameAnimated(self,self:id(),f,duration)
+end
+
+local function setFrame(self,f,duration,workarounds)
+  if duration==nil then duration = window.animationDuration end
+  if type(duration)~='number' then duration=0 end
+  f=geometry(f):floor()
+  if gtype(f)~='rect' then error('invalid rect: '..f.string,3) end
+  local id=self:id()
+  if id then stopAnimation(self,false,id) else duration=0 end
+  if workarounds then return setFrameWithWorkarounds(self,f,duration)
+  elseif duration<=0 then return self:_setFrame(f)
+  else return setFrameAnimated(self,id,f,duration) end
+end
+
 --- hs.window:setFrame(rect[, duration]) -> hs.window object
 --- Method
 --- Sets the frame of the window in absolute coordinates
@@ -246,32 +272,68 @@ end
 ---
 --- Returns:
 ---  * The `hs.window` object
----
---- Notes:
----  * In some cases this method won't work: namely, the bottom (or Dock) edge, and edges between screens, might exhibit some
----    "stickiness"; trying to make a window abutting one of those edges just *slightly* smaller could result in no change at all
----    (you can verify this by trying to resize such a window with the mouse: at first it won't budge, and, as you drag
----    further away, suddenly snap to the new size). Additionally some windows (no matter their placement on screen) only allow
----    being resized at "discrete" steps of several screen points; the typical example is Terminal windows, which only resize to
----    whole rows and columns. Both situations can result in unexpected behavior when using this method (especially when using
----    animations). As a safer alternative, you can use `hs.window:setFrameInScreenBounds()` instead.
-function window:setFrame(f, duration)
-  if duration==nil then duration = window.animationDuration end
-  if type(duration)~='number' then duration = 0 end
-  f=geometry(f):floor()
-  if gtype(f)~='rect' or f.w<10 or f.h<10 then error('invalid rect: '..f.string) end
-  local id = self:id()
-  stopAnimation(self,false,id)
-  if duration<=0 or not id then return self:_setFrame(f) end
-  local frame = self:_frame()
-  if not animations[id] then animations[id] = {window=self} end
-  local anim = animations[id]
-  anim.time=timer.secondsSinceEpoch() anim.duration=duration
-  anim.startFrame=frame anim.endFrame=f
-  animTimer:setNextTrigger(0.01)
-  return self
-end
+function window:setFrame(f, duration) return setFrame(self,f,duration,window.setFrameCorrectness) end
 
+--- hs.window:setFrameWithWorkarounds(rect[, duration]) -> hs.window object
+--- Method
+--- Sets the frame of the window in absolute coordinates, using the additional workarounds described in `hs.window.setFrameCorrectness`
+---
+--- Parameters:
+---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
+function window:setFrameWithWorkarounds(f, duration) return setFrame(self,f,duration,true) end
+
+--- hs.window.setFrameCorrectness
+--- Variable
+--- Using `hs.window:setFrame()` in some cases does not work as expected: namely, the bottom (or Dock) edge, and edges between screens, might
+--- exhibit some "stickiness"; consequently, trying to make a window abutting one of those edges just *slightly* smaller could
+--- result in no change at all (you can verify this by trying to resize such a window with the mouse: at first it won't budge,
+--- and, as you drag further away, suddenly snap to the new size); and similarly in some cases windows along screen edges
+--- might erroneously end up partially on the adjacent screen after a move/resize.  Additionally some windows (no matter
+--- their placement on screen) only allow being resized at "discrete" steps of several screen points; the typical example
+--- is Terminal windows, which only resize to whole rows and columns. Both these OSX issues can cause incorrect behavior
+--- when using `:setFrame()` directly or in downstream uses, such as `hs.window:move()` and the `hs.grid` and `hs.window.layout` modules.
+---
+--- Setting this variable to `true` will make `:setFrame()` perform additional checks and workarounds for these potential
+--- issues. However, as a side effect the window might appear to jump around briefly before setting toward its destination
+--- frame, and, in some cases, the move/resize animation (if requested) might be skipped entirely - these tradeoffs are
+--- necessary to ensure the desired result.
+---
+--- The default value is `false`, in order to avoid the possibly annoying or distracting window wiggling; set to `true` if you see
+--- incorrect results in `:setFrame()` or downstream modules and don't mind the the wiggling.
+window.setFrameCorrectness = false
+
+--- hs.window:setFrameInScreenBounds([rect][, duration]) -> hs.window object
+--- Method
+--- Sets the frame of the window in absolute coordinates, possibly adjusted to ensure it is fully inside the screen
+---
+--- Parameters:
+---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window; if omitted,
+---    the current window frame will be used
+---  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
+function window:setFrameInScreenBounds(f, duration)
+  if type(f)=='number' then duration=f f=nil end
+  f = f and geometry(f):floor() or self:frame()
+  return self:setFrame(f:fit(screen.find(f):frame()),duration)
+end
+window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatible
+
+--- hs.window:frame() -> hs.geometry rect
+--- Method
+--- Gets the frame of the window in absolute coordinates
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * An hs.geometry rect containing the co-ordinates of the top left corner of the window and its width and height
+function window:frame() return getAnimationFrame(self) or self:_frame() end
 
 -- wrapping these Lua-side for dealing with animations cache
 function window:size()
@@ -282,20 +344,20 @@ function window:topLeft()
   local f=getAnimationFrame(self)
   return f and f.xy or geometry(self:_topLeft())
 end
-function window:setSize(size)
+function window:setSize(...)
   stopAnimation(self,true)
-  return self:_setSize(geometry(size))
+  return self:_setSize(geometry.size(...))
 end
-function window:setTopLeft(point)
+function window:setTopLeft(...)
   stopAnimation(self,true)
-  return self:_setTopLeft(geometry(point))
+  return self:_setTopLeft(geometry.point(...))
 end
 function window:minimize()
   stopAnimation(self,true)
   return self:_minimize()
 end
 function window:unminimize()
-  stopAnimation(self,true) -- ?
+  stopAnimation(self,true)
   return self:_unminimize()
 end
 function window:toggleZoom()
@@ -799,61 +861,6 @@ end
 --- Returns:
 ---  * The `hs.window` object
 
-
---- hs.window:setFrameInScreenBounds([rect][, duration]) -> hs.window object
---- Method
---- Sets the frame of the window in absolute coordinates, possibly adjusted to ensure it is fully inside the screen
----
---- Parameters:
----  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window; if omitted,
----    the current window frame will be used
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
----
---- Returns:
----  * The `hs.window` object
----
---- Notes:
----  * This method, besides ensuring that the window lies fully inside its screen, performs several additional checks and workarounds for
----    the potential issues described in the Notes section for `hs.window:setFrame()`. As a side effect the window might appear to
----    jump around briefly before setting toward its destination frame, and, in some cases, the move/resize animation (if requested)
----    might be skipped entirely - due to OSX quirks, these tradeoffs are necessary to ensure the desired result.
-
---local function frameInBounds(frame,bounds)
---  return geometry.copy(frame):move((frame:intersect(bounds).center-frame.center)*2):intersect(bounds)
---end
-
-function window:setFrameInScreenBounds(frame,duration)
-  if type(frame)=='number' then duration=frame frame=nil end
-  if duration==nil then duration=window.animationDuration end
-  stopAnimation(self) -- if ongoing animation, stop it (no ff)
-  if frame then frame=geometry(frame):floor()
-  else frame=self:frame() end -- if ongoing animation, get the end frame
-
-  local originalFrame=geometry(self:_frame())
-  if duration>0 then -- if no animation, skip checking for possible trouble
-    local testSize=geometry.size(originalFrame.w-1,originalFrame.h-1)
-    self:_setSize(testSize)
-    -- find out if it's a terminal, or a window already shrunk to minimum, or a window on a 'sticky' edge
-    local newSize=self:_size()
-    if originalFrame.size==newSize -- terminal or minimum size
-      or (testSize~=newSize and (abs(frame.x2-originalFrame.x2)<100 or abs(frame.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
-      duration=0 end -- don't animate troublesome windows
-  end
-  local safeFrame=geometry.new(originalFrame.xy,frame.size) --apply the desired size
-  local safeBounds=self:screen():frame() safeBounds:move(30,30) -- offset
-  safeBounds.w=safeBounds.w-60 safeBounds.h=safeBounds.h-60 -- and shrink
-  self:_setFrame(safeFrame:fit(safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
-  local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
-  if actualSize.area>frame.area then frame.size=actualSize end -- if it's bigger apply it
-  local finalFrame=frame:fit(screen.find(frame):frame())
-  if duration==0 then
-    self:_setSize(frame.size) -- apply the final size while the window is still in the safe area
-    return self:_setFrame(finalFrame)
-  end
-  self:_setFrame(originalFrame) -- restore the original frame and start the animation
-  return self:setFrame(finalFrame,duration)
-end
-window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatible
 
 package.loaded[...]=window
 window.filter=require'hs.window.filter'
