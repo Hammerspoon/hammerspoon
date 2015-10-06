@@ -248,7 +248,8 @@ local function setFrameWithWorkarounds(self,f,duration)
   if actualSize.area>f.area then f.size=actualSize end -- if it's bigger apply it
   if duration==0 then
     self:_setSize(f.size) -- apply the final size while the window is still in the safe area
-    return self:_setTopLeft(f)
+    self:_setTopLeft(f)
+    return self:_setSize(f.size)
   end
   self:_setFrame(originalFrame) -- restore the original frame and start the animation
   return setFrameAnimated(self,self:id(),f,duration)
