@@ -109,7 +109,7 @@ do
   local SKIP_APPS_NO_PID = {
     -- ideally, keep this updated (used in the root filter)
     -- these will be shown as a warning in the console ("No accessibility access to app ...")
-    'universalaccessd','sharingd','Safari Networking','iTunes Helper','Safari Web Content',
+    'universalaccessd','sharingd','Safari Networking', 'Spotlight Networking', 'iTunes Helper','Safari Web Content',
     'App Store Web Content', 'Safari Database Storage',
     'Google Chrome Helper','Spotify Helper',
   --  'Little Snitch Agent','Little Snitch Network Monitor', -- depends on security settings in Little Snitch
@@ -119,7 +119,7 @@ do
     -- ideally, keep this updated (used in the root filter)
     -- hs.window.filter._showCandidates() -- from the console
     'com.apple.internetaccounts', 'CoreServicesUIAgent', 'AirPlayUIAgent',
-    'com.apple.security.pboxd',
+    'com.apple.security.pboxd', 'PowerChime',
     'SystemUIServer', 'Dock', 'com.apple.dock.extra', 'storeuid',
     'Folder Actions Dispatcher', 'Keychain Circle Notification', 'Wi-Fi',
     'Image Capture Extension', 'iCloud Photos', 'System Events',
@@ -144,6 +144,7 @@ do
     -- menulets
     'Music Manager', 'Google Drive', 'Dropbox', '1Password mini', 'Colors for Hue', 'MacID',
     'CrashPlan menu bar', 'Flux', 'Jettison', 'Bartender', 'SystemPal', 'BetterSnapTool', 'Grandview', 'Radium',
+    'MenuMetersApp',
   }
 
   windowfilter.ignoreInDefaultFilter = {}
@@ -159,7 +160,7 @@ function windowfilter._showCandidates()
   for _,app in ipairs(running) do
     local appname = app:name()
     if appname and windowfilter.isGuiApp(appname) and #app:allWindows()==0
-      and not windowfilter.ignoreInDefaultFilter[appname]
+      and not windowfilter.ignoreInDefaultFilter[appname] and app:kind()>=0
       and (not apps[appname] or not next(apps[appname].windows)) then
       t[#t+1]=appname
     end
