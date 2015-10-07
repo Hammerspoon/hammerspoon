@@ -523,8 +523,8 @@ local function getColor(t)
   else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end
 end
 
---- === hs.grid.ui ===
----
+--- hs.grid.ui
+--- Variable
 --- Allows customization of the modal resizing grid user interface
 ---
 --- This table contains variables that you can change to customize the look of the modal resizing grid.
