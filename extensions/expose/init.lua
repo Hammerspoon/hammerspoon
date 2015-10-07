@@ -37,7 +37,7 @@ local execute=hs.execute
 local newmodal=require'hs.hotkey'.modal.new
 local log=require'hs.logger'.new('expose')
 
-local expose={setLogLevel=log.setLogLevel} --module
+local expose={setLogLevel=log.setLogLevel,getLogLevel=log.getLogLevel} --module
 local screens,modals={},{}
 local modes,activeInstance,tap={}
 local spacesWatcher
@@ -456,7 +456,6 @@ local function showExpose(wins,animate,iterations,alt_algo)
       --      w.ratio=drawing.text(w.frame,sformat('%.0f%%',w.frame.area*100/w.area)):setTextColor{red=1,green=0,blue=0,alpha=1}:show()
     end
   end
-  enter(hints)
   tap=eventtap.new({eventtap.event.types.flagsChanged},function(e)
     local function hasOnly(t,mod)
       local n=next(t)
@@ -467,6 +466,7 @@ local function showExpose(wins,animate,iterations,alt_algo)
     setMode('min',hasOnly(e:getFlags(),ui.minimizeModeModifier))
   end)
   tap:start()
+  enter(hints)
 end
 
 --- hs.expose:toggleShow(applicationWindows)
