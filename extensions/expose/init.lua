@@ -33,7 +33,6 @@ local window,screen=require'hs.window',require'hs.screen'
 local windowfilter=require'hs.window.filter'
 local application,spaces=require'hs.application',require'hs.spaces'
 local eventtap=require'hs.eventtap'
-local execute=hs.execute
 local newmodal=require'hs.hotkey'.modal.new
 local log=require'hs.logger'.new('expose')
 
@@ -49,7 +48,7 @@ local function isAreaEmpty(rect,win,windows,screenFrame)
   return true
 end
 
-local function fitWindows(windows,isInvisible,maxIterations,animate,alt_algo)
+local function fitWindows(windows,thumbnails,isInvisible,maxIterations,animate,alt_algo)
   local screenFrame = windows.frame
   local avgRatio = min(1,screenFrame.area/windows.area*2)
   log.vf('shrink %d windows to %.0f%%',#windows,avgRatio*100)
@@ -136,14 +135,18 @@ local function fitWindows(windows,isInvisible,maxIterations,animate,alt_algo)
 end
 
 local ui = {
-  textColor={1,1,1},
+  textColor={1,1,1,1},
+  highlightTextColor={1,1,1,1},
+  fadeTextColor={0.2,0.2,0.2},
   fontName='Lucida Grande',
   textSize=40,
-  hintLetterWidth=35,
+  highlightHintColor={0.2,0.1,0},
+  fadeHintColor={0.1,0.1,0.1},
 
   backgroundColor={0.3,0.3,0.3,0.95},
   closeModeBackgroundColor={0.7,0.1,0.1,0.95},
   minimizeModeBackgroundColor={0.1,0.3,0.6,0.95},
+  minimizedStripPosition='bottom',
   minimizedStripBackgroundColor={0.15,0.15,0.15,0.95},
   minimizedStripWidth=200,
 
@@ -154,12 +157,17 @@ local ui = {
   strokeWidth=10,
 
   showExtraKeys=true,
+  showThumbnails=true,
+  maxIterations=200,
 
   closeModeModifier = 'shift',
   minimizeModeModifier = 'alt',
 
   maxHintLetters = 2,
 }
+
+local function getColor(t) if t.red then return t else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end end
+
 --- === hs.expose.ui ===
 ---
 --- Allows customization of the expose user interface
@@ -175,20 +183,24 @@ local ui = {
 ---  * `hs.expose.ui.backgroundColor = {0.3,0.3,0.3,0.95}`
 ---  * `hs.expose.ui.closeModeBackgroundColor = {0.7,0.1,0.1,0.95}`
 ---  * `hs.expose.ui.minimizeModeBackgroundColor = {0.1,0.3,0.6,0.95}`
----  * `hs.expose.ui.minimizedStripBackgroundColor = {0.15,0.15,0.15,0.95}` -- this is the strip alongside your dock that contains thumbnails for non-visible windows
----  * `hs.expose.ui.highlightColor = {0.8,0.5,0,0.1}` -- highlight candidate thumbnails when pressing a hint key
----  * `hs.expose.ui.highlightStrokeColor = {0.8,0.5,0,0.8}`
----  * `hs.expose.ui.fadeColor = {0,0,0,0.8}` -- fade excluded thumbnails when pressing a hint key
----  * `hs.expose.ui.fadeStrokeColor = {0,0,0}`
+---  * `hs.expose.ui.minimizedStripBackgroundColor = {0.15,0.15,0.15,0.95}` -- this is the strip that contains thumbnails for non-visible windows
 ---  * `hs.expose.ui.textColor = {1,1,1}`
+---  * `hs.expose.ui.highlightTextColor = {1,1,1}` -- text color for hints of candidate windows
+---  * `hs.expose.ui.highlightHintColor = {0.2,0.1,0}, -- hint background for candidate windows
+---  * `hs.expose.ui.highlightColor = {0.8,0.5,0,0.1}` -- overlay for thumbnails of candidate windows
+---  * `hs.expose.ui.highlightStrokeColor = {0.8,0.5,0,0.8}` -- frame for thumbnails of candidate windows
+---  * `hs.expose.ui.fadeTextColor = {1,1,1}` -- text color for hints of excluded windows
+---  * `hs.expose.ui.fadeHintColor = {0.2,0.1,0}, -- hint background for excluded windows
+---  * `hs.expose.ui.fadeColor = {0,0,0,0.8}` -- overlay for thumbnails of excluded windows
+---  * `hs.expose.ui.fadeStrokeColor = {0,0,0}` -- frame for thumbnails of excluded windows
 ---
 --- The following variables must be numbers (in screen points):
 ---  * `hs.expose.ui.textSize = 40`
----  * `hs.expose.ui.hintLetterWidth = 35` -- max width of a single letter; set accordingly if you change font or text size
----  * `hs.expose.ui.strokeWidth = 10`
+---  * `hs.expose.ui.strokeWidth = 10` -- for thumbnail frames
 ---
 --- The following variables must be strings:
 ---  * `hs.expose.ui.fontName = 'Lucida Grande'`
+---  * `hs.expose.ui.minimizedStripPosition = 'bottom'` -- set it to your Dock position ('bottom', 'left' or 'right')
 ---
 --- The following variables must be numbers:
 ---  * `hs.expose.ui.maxHintLetters = 2` -- if necessary, hints longer than this will be disambiguated with digits
@@ -198,6 +210,7 @@ local ui = {
 ---  * `hs.expose.ui.minimizeModeModifier = 'alt'`
 ---
 --- The following variables must be booleans:
+---  * `hs.expose.ui.showThumbnails = true` -- show window thumbnails (slower)
 ---  * `hs.expose.ui.showExtraKeys = true` -- show non-hint keybindings at the top of the screen
 expose.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v end,__index=ui})
 
@@ -272,14 +285,24 @@ local function getHints(screens)
   return hints
 end
 
-local function getColor(t) if t.red then return t else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end end
+-- cache ui prefs
+local haveThumbs,textStyle
+local highlightColor,highlightStrokeColor,highlightHintColor,highlightTextColor
+local fadeColor,fadeStrokeColor,fadeHintColor,fadeTextColor
+local noThumbsFrameSide
+local hintHeight
 
 local function updateHighlights(hints,subtree,show)
   for c,t in pairs(hints) do
     if t==subtree then
       updateHighlights(t,nil,true)
     elseif type(c)=='string' and #c==1 then
-      if t[1] then t[1].highlight:setFillColor(getColor(show and ui.highlightColor or ui.fadeColor)):setStrokeColor(getColor(show and ui.highlightStrokeColor or ui.fadeStrokeColor))
+      if t[1] then
+        if haveThumbs then
+          t[1].highlight:setFillColor(show and highlightColor or fadeColor):setStrokeColor(show and highlightStrokeColor or fadeStrokeColor)
+        end
+        t[1].hintrect:setFillColor(show and highlightHintColor or fadeHintColor)
+        t[1].hinttext:setTextColor(show and highlightTextColor or fadeTextColor)
       else updateHighlights(t,subtree,show) end
     end
   end
@@ -292,8 +315,8 @@ local function exitAll()
   --cleanup
   for _,s in pairs(screens) do
     for _,w in ipairs(s) do
-      if w.thumb then w.thumb:delete() end
-      if w.icon then w.icon:delete() w.highlight:delete() w.hinttext:delete() w.hintrect:delete() end
+      if haveThumbs then w.thumb:delete() w.highlight:delete() end
+      if w.icon then w.icon:delete() w.hinttext:delete() w.hintrect:delete() end
       --      if w.rect then w.rect:delete() end
       if w.ratio then w.ratio:delete() end
     end
@@ -329,7 +352,7 @@ enter=function(hints)
     if modes.close then
       log.f('Closing window (%s)',appname)
       w:close()
-      h.hintrect:delete() h.hinttext:delete() h.highlight:delete() h.thumb:delete() h.icon:delete()
+      h.hintrect:delete() h.hinttext:delete() h.icon:delete() if h.thumb then h.thumb:delete() h.highlight:delete() end
       hints[1]=nil
       -- close app
       if app then
@@ -381,13 +404,16 @@ end
 
 setThumb=function(w,screenFrame)
   local wframe=w.frame
-  w.thumb:setFrame(wframe):orderAbove()
-  w.highlight:setFrame(wframe):orderAbove()
-  local hwidth=#w.hint*ui.hintLetterWidth
-  local iconSize=ui.textSize*1.1
-  local br=geom.copy(wframe):seth(iconSize):setw(hwidth+iconSize):setcenter(wframe.center):fit(screenFrame)
-  local tr=geom.copy(br):setw(hwidth):move(iconSize,0)
-  local ir=geom.copy(br):setw(iconSize)
+  if haveThumbs then
+    w.thumb:setFrame(wframe):orderAbove()
+    w.highlight:setFrame(wframe):orderAbove()
+  end
+  --  local hwidth=#w.hint*ui.hintLetterWidth
+  local textWidth=drawing.getTextDrawingSize(w.hint,textStyle).w
+  local padding=hintHeight*0.1
+  local br=geom.copy(wframe):seth(hintHeight):setw(textWidth+hintHeight+padding*4):setcenter(wframe.center):fit(screenFrame)
+  local tr=geom.copy(br):setw(textWidth+padding*2):move(hintHeight+padding*2,0)
+  local ir=geom.copy(br):setw(hintHeight):move(padding,0)
   w.hintrect:setFrame(br):orderAbove()
   w.hinttext:setFrame(tr):orderAbove()
   w.icon:setFrame(w.appbundle and ir or {x=0,y=0,w=0,h=0}):orderAbove()
@@ -395,11 +421,21 @@ end
 
 
 local UNAVAILABLE=image.imageFromName'NSStopProgressTemplate'
-local function showExpose(wins,animate,iterations,alt_algo)
+
+local function showExpose(wins,animate,alt_algo)
   -- animate is waaay to slow: don't bother
   -- alt_algo sometimes performs better in terms of coverage, but (in the last half-broken implementation) always reaches maxIterations
   -- alt_algo TL;DR: much slower, don't bother
   log.d('activated')
+  haveThumbs=ui.showThumbnails
+  highlightColor,highlightStrokeColor=getColor(ui.highlightColor),getColor(ui.highlightStrokeColor)
+  highlightHintColor,highlightTextColor=getColor(ui.highlightHintColor),getColor(ui.highlightTextColor)
+  fadeColor,fadeStrokeColor=getColor(ui.fadeColor),getColor(ui.fadeStrokeColor)
+  fadeHintColor,fadeTextColor=getColor(ui.fadeHintColor),getColor(ui.fadeTextColor)
+  noThumbsFrameSide=ui.textSize*4
+  textStyle={font=ui.fontName,size=ui.textSize,color=highlightTextColor}
+  hintHeight=drawing.getTextDrawingSize('O',textStyle).h
+
   if not spacesWatcher then spacesWatcher = spaces.watcher.new(spaceChanged):start() end
 
   screens={}
@@ -414,14 +450,15 @@ local function showExpose(wins,animate,iterations,alt_algo)
     local msid=mainscreen:id()
     local f=screens[msid].frame
     local invf=geom.copy(f)
-    local dock = execute'defaults read com.apple.dock "orientation"':sub(1,-2)
-    if dock=='bottom' then f.h=f.h-invSize invf.y=f.y+f.h invf.h=invSize
-    elseif dock=='left' then f.w=f.w-invSize f.x=f.x+invSize invf.w=invSize
-    elseif dock=='right' then f.w=f.w-invSize invf.x=f.x+f.w invf.w=invSize end
+    --    local dock = execute'defaults read com.apple.dock "orientation"':sub(1,-2)
+    -- calling execute takes 100ms every time, make this a ui preference instead
+    local dock=ui.minimizedStripPosition
+    if dock=='left' then f.w=f.w-invSize f.x=f.x+invSize invf.w=invSize
+    elseif dock=='right' then f.w=f.w-invSize invf.x=f.x+f.w invf.w=invSize
+    else f.h=f.h-invSize invf.y=f.y+f.h invf.h=invSize end --bottom
     screens.inv={area=0,frame=invf,bg=drawing.rectangle(invf):setFill(true):setFillColor(getColor(ui.minimizedStripBackgroundColor)):show()}
     screens[msid].bg:setFrame(f)
   end
-
   for i=#wins,1,-1 do
     local w = wins[i]
     local wid,app = w.id and w:id(),w:application()
@@ -430,29 +467,33 @@ local function showExpose(wins,animate,iterations,alt_algo)
     local scid = wsc and wsc:id()
     if not scid or not wid or not w:isVisible() then scid='inv' end
     local frame=w:frame()
+    if not haveThumbs then frame.aspect=1 frame.area=noThumbsFrameSide*noThumbsFrameSide end
     screens[scid].area=screens[scid].area+frame.area
     screens[scid][#screens[scid]+1] = {appname=appname,appbundle=appbundle,window=w,
       frame=frame,originalFrame=frame,area=frame.area,id=wid}
   end
   local hints=getHints(screens)
   for sid,s in pairs(screens) do
-    if animate then for _,w in ipairs(s) do
+    if animate and haveThumbs then for _,w in ipairs(s) do
       w.thumb = drawing.image(w.originalFrame,window.snapshotForID(w.id)):show()
     end end
-    fitWindows(s,sid=='inv',iterations or 200,animate and 0 or nil,alt_algo)
+    fitWindows(s,haveThumbs,sid=='inv',ui.maxIterations,animate and 0 or nil,alt_algo)
     for _,w in ipairs(s) do
       if animate then w.thumb:setFrame(w.frame)
-      else
+      elseif haveThumbs then
         local thumb=w.id and window.snapshotForID(w.id) w.thumb=drawing.image(w.frame,thumb or UNAVAILABLE)
       end
       local f=w.frame
-      w.highlight=drawing.rectangle(f):setFill(true):setFillColor(getColor(ui.highlightColor)):setStrokeWidth(ui.strokeWidth):setStrokeColor(getColor(ui.highlightStrokeColor))
-      w.hintrect=drawing.rectangle(f):setFill(true):setFillColor(getColor(ui.backgroundColor)):setStroke(false):setRoundedRectRadii(ui.textSize/4,ui.textSize/4)
-      w.hinttext=drawing.text(f,w.hint):setTextColor(getColor(ui.textColor)):setTextSize(ui.textSize):setTextFont(ui.fontName)
+      if haveThumbs then
+        w.highlight=drawing.rectangle(f):setFill(true):setFillColor(highlightColor):setStrokeWidth(ui.strokeWidth):setStrokeColor(highlightStrokeColor)
+      end
+      w.hintrect=drawing.rectangle(f):setFill(true):setFillColor(highlightHintColor):setStroke(false):setRoundedRectRadii(ui.textSize/4,ui.textSize/4)
+      w.hinttext=drawing.text(f,w.hint):setTextStyle(textStyle)
       local icon=w.appbundle and image.imageFromAppBundle(w.appbundle)
       w.icon = drawing.image(f,icon or UNAVAILABLE)
       setThumb(w,s.frame)
-      w.thumb:show() w.highlight:show() w.hintrect:show() w.hinttext:show() w.icon:show()
+      if haveThumbs then w.thumb:show() w.highlight:show() end
+      w.hintrect:show() w.hinttext:show() w.icon:show()
       --      w.ratio=drawing.text(w.frame,sformat('%.0f%%',w.frame.area*100/w.area)):setTextColor{red=1,green=0,blue=0,alpha=1}:show()
     end
   end
