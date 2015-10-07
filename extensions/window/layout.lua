@@ -445,7 +445,8 @@ local function performPendingActions()
     local toscreen=findScreen(command.screen) or command[1]:screen()
     local frame=command.rect or toscreen:fromUnitRect(command.unitrect)
     command.log.f('rule %s: %s %d windows into %s by %s',idx,command.action,#command,frame.string,command.select)
-    tileWindows(command,frame,command.aspect,command.select~=CLOSEST,command.action==FIT)
+    --    tileWindows(command,frame,command.aspect,command.select~=CLOSEST,command.action==FIT)
+    tileWindows(command,frame,command.aspect,false,command.action==FIT) -- always tile by position
   end
 
   -- hide apps
@@ -741,7 +742,7 @@ end
 local function checkScreenInstances()
   -- check screenInstances, set them active appropriately
   local newActiveInstances={}
-  --  for wl in pairs(activeInstances) do prevActiveInstances[wl]=true newActiveInstances[wl]=true end
+  for wl in pairs(activeInstances) do newActiveInstances[wl]=true end
   for wl in pairs(screenInstances) do
     newActiveInstances[wl]=true
     wl.log.v('checking screen configuration')
