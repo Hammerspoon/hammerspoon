@@ -50,6 +50,7 @@ end
 
 local function fitWindows(windows,thumbnails,isInvisible,maxIterations,animate,alt_algo)
   local screenFrame = windows.frame
+  local DISPLACE=floor(screenFrame.w/200)
   local avgRatio = min(1,screenFrame.area/windows.area*2)
   log.vf('shrink %d windows to %.0f%%',#windows,avgRatio*100)
   for i,win in ipairs(windows) do if not isInvisible then win.frame:scale(avgRatio) end win.frame:fit(screenFrame) end
@@ -99,7 +100,6 @@ local function fitWindows(windows,thumbnails,isInvisible,maxIterations,animate,a
       end
 
       if totalOverlaps>0 and avgRatio<0.9 and not alt_algo then
-        local DISPLACE=5
         for dx = -DISPLACE,DISPLACE,DISPLACE*2 do
           if wframe.center.x>screenFrame.center.x then dx=-dx end
           local r=geom.copy(wframe):setx(dx>0 and wframe.x2 or (wframe.x+dx)):setw(abs(dx)*2-1)
