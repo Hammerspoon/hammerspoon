@@ -7,6 +7,7 @@
 --- Keyboard-driven expose replacement/enhancement
 ---
 --- Usage:
+--- ```
 --- -- set up your windowfilter
 --- expose = hs.expose.new() -- default windowfilter: only visible windows, all Spaces
 --- expose_space = hs.expose.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter()) -- include minimized/hidden windows, current Space only
@@ -18,7 +19,7 @@
 --- -- alternatively, call .expose directly
 --- hs.hotkey.bind('ctrl-alt','e','expose',expose.expose)
 --- hs.hotkey.bind('ctrl-alt-shift','e','expose app',expose.exposeApplicationWindows)
-
+--- ```
 
 --TODO /// hs.drawing:setClickCallback(fn) -> drawingObject
 --TODO showExtraKeys
@@ -169,8 +170,8 @@ local ui = {
 
 local function getColor(t) if t.red then return t else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end end
 
---- === hs.expose.ui ===
----
+--- hs.expose.ui
+--- Variable
 --- Allows customization of the expose user interface
 ---
 --- This table contains variables that you can change to customize the look of the UI. The default values are shown in the right hand side of the assignements below.
@@ -535,11 +536,11 @@ local function showExpose(wins,animate,alt_algo)
 end
 
 --- hs.expose:toggleShow(applicationWindows)
---- Function
+--- Method
 --- Toggles the expose - see `hs.expose:show()` and `hs.expose:hide()`
 ---
 --- Parameters:
----  * applicationWindows
+---  * applicationWindows - see `hs.expose:show()`
 ---
 --- Returns:
 ---  * None
@@ -547,7 +548,7 @@ function expose:toggleShow(currentApp)
   if activeInstance then return self:hide() else return self:show(currentApp) end
 end
 --- hs.expose:hide()
---- Function
+--- Method
 --- Hides the expose, if visible, and exits the modal mode.
 --- Call this function if you need to make sure the modal is exited without waiting for the user to press `esc`.
 ---
