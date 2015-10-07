@@ -149,7 +149,7 @@ function application:getWindow(hint)
   return tpack(window.find(hint,true,self:allWindows()),nil)[1]
 end
 
---- hs.application.open(app[, wait]) -> hs.application object
+--- hs.application.open(app[, wait, [waitForFirstWindow]]) -> hs.application object
 --- Constructor
 --- Launches an application, or activates it if it's already running
 ---
@@ -158,28 +158,32 @@ end
 ---    - the application's name as per `hs.application:name()`
 ---    - the full path to an application on disk (including the `.app` suffix)
 ---    - the application's bundle ID as per `hs.application:bundleID()`
----  * wait - (optional) the maximum number of seconds to wait for the app to get into "launching" state, if not already running; if omitted, defaults to 0;
----           if the app takes longer than this to launch, this function will return `nil`, but the app will still launch
+---  * wait - (optional) the maximum number of seconds to wait for the app to be launched, if not already running; if omitted, defaults to 0;
+---   if the app takes longer than this to launch, this function will return `nil`, but the app will still launch
+---  * waitForFirstWindow - (optional) if `true`, additionally wait until the app has spawned its first window (which usually takes a bit longer)
 ---
 --- Returns:
 ---  * the `hs.application` object for the launched or activated application; `nil` if not found
 ---
 --- Notes:
 ---  * the `wait` parameter will *block all Hammerspoon activity* in order to return the application object "synchronously"; only use it if you
----    a) have no time-critical event processing happening elsewhere in your `init.lua` and b) need to act on the *application* object right away - if you need
----    a window this won't help, because in the instant you get back the hs.application object for a launching app it'll likely have no windows yet;
----    for this and other similar scenarios you should use hs.window.filter instead.
-function application.open(app,wait)
+---    a) have no time-critical event processing happening elsewhere in your `init.lua` and b) need to act on the application object, or on
+---    its window(s), right away
+---  * when launching a "windowless" app (background daemon, menulet, etc.) make sure to omit `waitForFirstWindow`
+function application.open(app,wait,waitForWindow)
   if type(app)~='string' then error('app must be a string',2) end
   if wait and type(wait)~='number' then error('wait must be a number',2) end
   local r=application.launchOrFocus(app) or application.launchOrFocusByBundleID(app)
   if not r then return end
+  r=nil
   wait=(wait or 0)*1000000
-  local CHECK_INTERVAL=200000
+  local CHECK_INTERVAL=100000
   repeat
-    r=application.get(app) if r then return r end
+    r=r or application.get(app)
+    if r and (not waitForWindow or r:mainWindow()) then return r end
     timer.usleep(math.min(wait,CHECK_INTERVAL)) wait=wait-CHECK_INTERVAL
   until wait<=0
+  return r
 end
 
 do
