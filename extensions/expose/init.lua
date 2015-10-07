@@ -158,6 +158,7 @@ local ui = {
 
   showExtraKeys=true,
   showThumbnails=true,
+  showTitles=true,
   maxIterations=200,
 
   closeModeModifier = 'shift',
@@ -211,7 +212,11 @@ local function getColor(t) if t.red then return t else return {red=t[1] or 0,gre
 ---
 --- The following variables must be booleans:
 ---  * `hs.expose.ui.showThumbnails = true` -- show window thumbnails (slower)
+---  * `hs.expose.ui.showTitles = true` -- show window titles (slower)
 ---  * `hs.expose.ui.showExtraKeys = true` -- show non-hint keybindings at the top of the screen
+---
+--- The following variables must be numbers (in screen points):
+---  * `hs.expose.ui.maxIterations = 200` -- lower is faster, but higher chance of overlapping thumbnails
 expose.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v end,__index=ui})
 
 local function getHints(screens)
@@ -286,11 +291,11 @@ local function getHints(screens)
 end
 
 -- cache ui prefs
-local haveThumbs,textStyle
+local haveThumbs,haveTitles,textStyle,titleTextStyle
 local highlightColor,highlightStrokeColor,highlightHintColor,highlightTextColor
 local fadeColor,fadeStrokeColor,fadeHintColor,fadeTextColor
 local noThumbsFrameSide
-local hintHeight
+local hintHeight,titleHeight
 
 local function updateHighlights(hints,subtree,show)
   for c,t in pairs(hints) do
@@ -300,6 +305,10 @@ local function updateHighlights(hints,subtree,show)
       if t[1] then
         if haveThumbs then
           t[1].highlight:setFillColor(show and highlightColor or fadeColor):setStrokeColor(show and highlightStrokeColor or fadeStrokeColor)
+        end
+        if haveTitles then
+          t[1].titletext:setTextColor(show and highlightTextColor or fadeTextColor)
+          t[1].titlerect:setFillColor(show and highlightHintColor or fadeHintColor)
         end
         t[1].hintrect:setFillColor(show and highlightHintColor or fadeHintColor)
         t[1].hinttext:setTextColor(show and highlightTextColor or fadeTextColor)
@@ -316,6 +325,7 @@ local function exitAll()
   for _,s in pairs(screens) do
     for _,w in ipairs(s) do
       if haveThumbs then w.thumb:delete() w.highlight:delete() end
+      if haveTitles then w.titletext:delete() w.titlerect:delete() end
       if w.icon then w.icon:delete() w.hinttext:delete() w.hintrect:delete() end
       --      if w.rect then w.rect:delete() end
       if w.ratio then w.ratio:delete() end
@@ -352,7 +362,9 @@ enter=function(hints)
     if modes.close then
       log.f('Closing window (%s)',appname)
       w:close()
-      h.hintrect:delete() h.hinttext:delete() h.icon:delete() if h.thumb then h.thumb:delete() h.highlight:delete() end
+      h.hintrect:delete() h.hinttext:delete() h.icon:delete()
+      if haveThumbs then h.thumb:delete() h.highlight:delete() end
+      if haveTitles then h.titletext:delete() h.titlerect:delete() end
       hints[1]=nil
       -- close app
       if app then
@@ -417,6 +429,12 @@ setThumb=function(w,screenFrame)
   w.hintrect:setFrame(br):orderAbove()
   w.hinttext:setFrame(tr):orderAbove()
   w.icon:setFrame(w.appbundle and ir or {x=0,y=0,w=0,h=0}):orderAbove()
+  if haveTitles then
+    local textWidth=min(wframe.w,drawing.getTextDrawingSize(w.title,titleTextStyle).w)
+    local tr=geom.copy(wframe):seth(titleHeight):setw(textWidth+8):setcenter(wframe.center):move(0,hintHeight):fit(screenFrame)
+    w.titletext:setFrame(tr):orderAbove()
+    w.titlerect:setFrame(tr):orderAbove()
+  end
 end
 
 
@@ -427,14 +445,15 @@ local function showExpose(wins,animate,alt_algo)
   -- alt_algo sometimes performs better in terms of coverage, but (in the last half-broken implementation) always reaches maxIterations
   -- alt_algo TL;DR: much slower, don't bother
   log.d('activated')
-  haveThumbs=ui.showThumbnails
+  haveThumbs,haveTitles=ui.showThumbnails,ui.showTitles
   highlightColor,highlightStrokeColor=getColor(ui.highlightColor),getColor(ui.highlightStrokeColor)
   highlightHintColor,highlightTextColor=getColor(ui.highlightHintColor),getColor(ui.highlightTextColor)
   fadeColor,fadeStrokeColor=getColor(ui.fadeColor),getColor(ui.fadeStrokeColor)
   fadeHintColor,fadeTextColor=getColor(ui.fadeHintColor),getColor(ui.fadeTextColor)
   noThumbsFrameSide=ui.textSize*4
   textStyle={font=ui.fontName,size=ui.textSize,color=highlightTextColor}
-  hintHeight=drawing.getTextDrawingSize('O',textStyle).h
+  titleTextStyle={font=ui.fontName,size=max(20,ui.textSize/2),color=highlightTextColor,lineBreak='truncateTail'}
+  hintHeight,titleHeight=drawing.getTextDrawingSize('O',textStyle).h,drawing.getTextDrawingSize('O',titleTextStyle).h
 
   if not spacesWatcher then spacesWatcher = spaces.watcher.new(spaceChanged):start() end
 
@@ -470,7 +489,7 @@ local function showExpose(wins,animate,alt_algo)
     if not haveThumbs then frame.aspect=1 frame.area=noThumbsFrameSide*noThumbsFrameSide end
     screens[scid].area=screens[scid].area+frame.area
     screens[scid][#screens[scid]+1] = {appname=appname,appbundle=appbundle,window=w,
-      frame=frame,originalFrame=frame,area=frame.area,id=wid}
+      frame=frame,originalFrame=frame,area=frame.area,id=wid,title=haveTitles and w:title() or ''}
   end
   local hints=getHints(screens)
   for sid,s in pairs(screens) do
@@ -489,10 +508,15 @@ local function showExpose(wins,animate,alt_algo)
       end
       w.hintrect=drawing.rectangle(f):setFill(true):setFillColor(highlightHintColor):setStroke(false):setRoundedRectRadii(ui.textSize/4,ui.textSize/4)
       w.hinttext=drawing.text(f,w.hint):setTextStyle(textStyle)
+      if haveTitles then
+        w.titletext=drawing.text(f,w.title):setTextStyle(titleTextStyle)
+        w.titlerect=drawing.rectangle(f):setFill(true):setFillColor(highlightHintColor):setStroke(false):setRoundedRectRadii(ui.textSize/8,ui.textSize/8)
+      end
       local icon=w.appbundle and image.imageFromAppBundle(w.appbundle)
       w.icon = drawing.image(f,icon or UNAVAILABLE)
       setThumb(w,s.frame)
       if haveThumbs then w.thumb:show() w.highlight:show() end
+      if haveTitles then w.titlerect:show() w.titletext:show() end
       w.hintrect:show() w.hinttext:show() w.icon:show()
       --      w.ratio=drawing.text(w.frame,sformat('%.0f%%',w.frame.area*100/w.area)):setTextColor{red=1,green=0,blue=0,alpha=1}:show()
     end
