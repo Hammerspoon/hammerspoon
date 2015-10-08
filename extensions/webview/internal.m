@@ -1422,7 +1422,7 @@ static int webview_hsdrawing(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webView:windowTitle([title]) -> webviewObject
+/// hs.webview:windowTitle([title]) -> webviewObject
 /// Method
 /// Sets the title for the webview window.
 ///
