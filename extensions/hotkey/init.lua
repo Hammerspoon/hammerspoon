@@ -7,6 +7,7 @@ local keycodes = require "hs.keycodes"
 local alert = require'hs.alert'
 local log = require'hs.logger'.new('hotkey','info')
 hotkey.setLogLevel=log.setLogLevel
+hotkey.getLogLevel=log.getLogLevel
 
 local tonumber,pairs,ipairs,type,tremove,tinsert,tconcat,tsort = tonumber,pairs,ipairs,type,table.remove,table.insert,table.concat,table.sort
 local supper,slower,sfind=string.upper,string.lower,string.find
