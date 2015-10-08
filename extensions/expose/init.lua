@@ -661,10 +661,8 @@ end
 --- Creates a new hs.expose instance. It uses a windowfilter to determine which windows to show
 ---
 --- Parameters:
----  * windowfilter - (optional) it can be:
----    * `nil` or omitted (as in `myexpose=hs.expose.new()`): the default windowfilter will be used
----    * an `hs.window.filter` object
----    * otherwise all parameters are passed to `hs.window.filter.new` to create a new instance
+---  * windowfilter - (optional) if omitted, use the default windowfilter; otherwise it must be a windowfilter
+---    instance or constructor argument(s)
 ---
 --- Returns:
 ---  * the new instance
@@ -677,10 +675,7 @@ end
 function expose.new(wf,...)
   local o = setmetatable({},{__index=expose})
   if wf==nil then log.i('New expose instance, using default windowfilter') o.wf=windowfilter.default
-  elseif type(wf)=='table' and type(wf.isWindowAllowed)=='function' then
-    log.i('New expose instance, using windowfilter instance') o.wf=wf
-  else log.i('New expose instance, creating windowfilter') o.wf=windowfilter.new(wf,...)
-  end
+  else log.i('New expose instance using windowfilter instance') o.wf=windowfilter.new(wf,...) end
   o.wf:keepActive()
   return o
 end
