@@ -384,31 +384,10 @@ NSMutableArray *drawingWindows;
 /// Returns:
 ///  * An `hs.drawing` circle object, or nil if an error occurs
 static int drawing_newCircle(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TBREAK];
 
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.circle(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-    }
+    NSRect windowRect = [skin tableToRectAtIndex:1];
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
@@ -445,31 +424,11 @@ static int drawing_newCircle(lua_State *L) {
 /// Returns:
 ///  * An `hs.drawing` rectangle object, or nil if an error occurs
 static int drawing_newRect(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TBREAK];
 
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    NSRect windowRect = [skin tableToRectAtIndex:1];
 
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.rectangle(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-    }
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
@@ -507,43 +466,12 @@ static int drawing_newRect(lua_State *L) {
 /// Returns:
 ///  * An `hs.drawing` line object, or nil if an error occurs
 static int drawing_newLine(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TTABLE, LS_TBREAK];
+
     NSRect windowRect;
-    NSPoint origin;
-    NSPoint end;
-
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "y");
-            origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-    }
-
-    switch (lua_type(L, 2)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 2, "x");
-            end.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 2, "y");
-            end.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-    }
+    NSPoint origin = [skin tableToPointAtIndex:1];
+    NSPoint end = [skin tableToPointAtIndex:2];
 
     // Calculate a rect that can contain both NSPoints
     windowRect.origin.x = MIN(origin.x, end.x);
@@ -604,31 +532,10 @@ static int drawing_newLine(lua_State *L) {
 ///  * An `hs.drawing` text object, or nil if an error occurs
 ///  * If the text of the drawing object is set to empty (i.e. "") then style changes may not be fully applied by `hs.drawing:setTextStyle()`.  Use a placeholder such as a space (" ") or hide the object if style changes and text will be set at different times.
 static int drawing_newText(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TSTRING, LS_TBREAK];
 
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-    }
+    NSRect windowRect = [skin tableToRectAtIndex:1];
     const char *message = lua_tostring(L, 2);
 
     NSParagraphStyle *style = [NSParagraphStyle defaultParagraphStyle];
@@ -682,31 +589,10 @@ static int drawing_newText(lua_State *L) {
 
 // NOTE: THIS FUNCTION IS WRAPPED IN init.lua
 static int drawing_newImage(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TUSERDATA|LS_TSTRING, IMAGE_USERDATA_TAG, LS_TBREAK];
 
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.image(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-    }
+    NSRect windowRect = [skin tableToRectAtIndex:1];
     NSImage *theImage = get_image_from_hsimage(L, 2);
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
