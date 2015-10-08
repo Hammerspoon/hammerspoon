@@ -51,6 +51,11 @@ module.color = {
     ["osx_green"]   = { ["red"]=0.153,["green"]=0.788,["blue"]=0.251,["alpha"]=1 },
     ["osx_red"]     = { ["red"]=0.996,["green"]=0.329,["blue"]=0.302,["alpha"]=1 },
     ["osx_yellow"]  = { ["red"]=1.000,["green"]=0.741,["blue"]=0.180,["alpha"]=1 },
+    ["red"]         = { ["red"]=1.000,["green"]=0.000,["blue"]=0.000,["alpha"]=1 },
+    ["green"]       = { ["red"]=0.000,["green"]=1.000,["blue"]=0.000,["alpha"]=1 },
+    ["blue"]        = { ["red"]=0.000,["green"]=0.000,["blue"]=1.000,["alpha"]=1 },
+    ["white"]       = { ["red"]=1.000,["green"]=1.000,["blue"]=1.000,["alpha"]=1 },
+    ["black"]       = { ["red"]=0.000,["green"]=0.000,["blue"]=0.000,["alpha"]=1 },
 }
 
 local fnutils = require("hs.fnutils")
