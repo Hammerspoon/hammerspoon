@@ -2,17 +2,12 @@
 //  FABAttributes.h
 //  Fabric
 //
-//  Created by Priyanka Joshi on 3/3/15.
 //  Copyright (c) 2015 Twitter. All rights reserved.
 //
 
 #pragma once
 
 #define FAB_UNAVAILABLE(x) __attribute__((unavailable(x)))
-
-#ifndef TARGET_OS_IOS
-#define TARGET_OS_IOS TARGET_OS_IPHONE
-#endif
 
 #if __has_feature(nullability)
     #define fab_nullable           nullable
