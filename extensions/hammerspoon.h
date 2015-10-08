@@ -77,19 +77,19 @@ NSColor *getColorWithDefaultFromStack(lua_State *L, int idx, NSColor *defaultCol
 
     switch (lua_type(L, idx)) {
         case LUA_TTABLE:
-            if (lua_getfield(L, -1, "red") == LUA_TNUMBER)
+            if (lua_getfield(L, idx, "red") == LUA_TNUMBER)
                 red = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
-            if (lua_getfield(L, -1, "green") == LUA_TNUMBER)
+            if (lua_getfield(L, idx, "green") == LUA_TNUMBER)
                 green = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
-            if (lua_getfield(L, -1, "blue") == LUA_TNUMBER)
+            if (lua_getfield(L, idx, "blue") == LUA_TNUMBER)
                 blue = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
-            if (lua_getfield(L, -1, "alpha") == LUA_TNUMBER)
+            if (lua_getfield(L, idx, "alpha") == LUA_TNUMBER)
                 alpha = lua_tonumber(L, -1);
             lua_pop(L, 1);
 
