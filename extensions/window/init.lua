@@ -33,8 +33,11 @@ window.animationDuration = 0.2
 --- Returns:
 ---  * A list of `hs.window` objects representing all open windows
 
-local SKIP_APPS={['org.pqrs.Karabiner-AXNotifier']=true,['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true}
--- Karabiner's AXNotifier consistently takes 6 seconds on my system. It never spawns windows, so it should be safe to just skip it.
+local SKIP_APPS={
+  ['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true,
+  ['org.pqrs.Karabiner-AXNotifier']=true,['com.adobe.PDApp.AAMUpdatesNotifier']=true,}
+-- so apparently OSX enforces a 6s limit on apps to respond to AX queries;
+-- Karabiner's AXNotifier and Adobe Update Notifier fail in that fashion
 function window.allWindows()
   local r={}
   for _,app in ipairs(application.runningApplications()) do
