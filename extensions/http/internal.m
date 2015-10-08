@@ -153,6 +153,7 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
 ///  * None
 static int http_doAsyncRequest(lua_State* L){
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TBREAK];
 
     NSMutableURLRequest* request = getRequestFromStack(L);
     getBodyFromStack(L, 3, request);
@@ -193,6 +194,9 @@ static int http_doAsyncRequest(lua_State* L){
 /// Notes:
 ///  * This function is synchronous and will therefore block all Lua execution until it completes. You are encouraged to use the asynchronous functions.
 static int http_doRequest(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TTABLE|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
+
     NSMutableURLRequest *request = getRequestFromStack(L);
     getBodyFromStack(L, 3, request);
     extractHeadersFromStack(L, 4, request);
