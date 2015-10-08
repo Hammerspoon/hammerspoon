@@ -368,29 +368,22 @@ static int audiodevice_uid(lua_State* L) {
         kAudioObjectPropertyScopeGlobal,
         kAudioObjectPropertyElementMaster
     };
-    CFStringRef deviceName;
+    CFStringRef deviceUID;
     UInt32 propertySize = sizeof(CFStringRef);
 
     OSStatus result = noErr;
 
-    result = AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &propertySize, &deviceName);
-    if (result)
-        goto error;
+    result = AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &propertySize, &deviceUID);
+    if (result) {
+        lua_pushnil(L);
+        return 1;
+    }
 
-    CFIndex length = CFStringGetLength(deviceName);
-    const char* deviceNameBytes = CFStringGetCStringPtr(deviceName, kCFStringEncodingMacRoman);
+    NSString *deviceUIDNS = (__bridge NSString *)deviceUID;
+    lua_pushstring(L, [deviceUIDNS UTF8String]);
 
-    lua_pushlstring(L, deviceNameBytes, length);
-    CFRelease(deviceName);
-
-    goto end;
-
-error:
-    lua_pushnil(L);
-
-end:
+    CFRelease(deviceUID);
     return 1;
-
 }
 
 /// hs.audiodevice:muted() -> bool or nil
