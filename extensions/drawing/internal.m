@@ -75,7 +75,7 @@ NSMutableArray *drawingWindows;
         return nil;
     }
 
-    self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask | NSNonactivatingPanelMask
+    self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask
                                                     backing:NSBackingStoreBuffered defer:YES];
     if (self) {
         [self setDelegate:self];
@@ -1305,7 +1305,7 @@ static int drawing_setFill(lua_State *L) {
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
-        drawingView.HSFill = lua_toboolean(L, 2);
+        drawingView.HSFill = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
         showError(L, ":setFill() called on an hs.drawing object that isn't a rectangle, circle or line object");
@@ -1334,7 +1334,7 @@ static int drawing_setStroke(lua_State *L) {
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
-        drawingView.HSStroke = lua_toboolean(L, 2);
+        drawingView.HSStroke = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
         showError(L, ":setStroke() called on an hs.drawing object that isn't a line, rectangle or circle object");
@@ -1398,6 +1398,256 @@ static int drawing_setImage(lua_State *L) {
     lua_pushvalue(L, 1);
     return 1;
 }
+
+
+/// hs.drawing:rotateImage(angle) -> drawingObject
+/// Method
+/// Rotates an image clockwise around its center
+///
+/// Parameters:
+///  * angle - the angle in degrees to rotate the image around its center in a clockwise direction.
+///
+/// Returns:
+///  * The drawing object
+///
+/// Notes:
+/// * This method works by rotating the image view within its drawing window.  This means that an image which completely fills its viewing area will most likely be cropped in some places.  Best results are achieved with images that have clear space around their edges or with `hs.drawing.imageScaling` set to "none".
+static int drawing_rotate(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        [drawingView setFrameCenterRotation:(360.0 - lua_tonumber(L, 2))] ;
+    } else {
+        showError(L, ":rotateImage() called on an hs.drawing object that isn't an image object");
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+
+}
+
+/// hs.drawing:imageScaling([type]) -> drawingObject or current value
+/// Method
+/// Get or set how an image is scaled within the frame of a drawing object containing an image.
+///
+/// Parameters:
+///  * type - an optional string value which should match one of the following (default is scaleProportionally):
+///    * shrinkToFit         - shrink the image, preserving the aspect ratio, to fit the drawing frame only if the image is larger than the drawing frame.
+///    * scaleToFit          - shrink or expand the image to fully fill the drawing frame.  This does not preserve the aspect ratio.
+///    * none                - perform no scaling or resizing of the image.
+///    * scalePropertionally - shrink or expand the image to fully fill the drawing frame, preserving the aspect ration.
+///
+/// Returns:
+///  * If a setting value is provided, the drwaing object is returned; if no argument is provided, the current setting is returned.
+static int drawing_scaleImage(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TSTRING | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        if (lua_type(L, 2) != LUA_TNONE) {
+            NSString *arg = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+            if      ([arg isEqualToString:@"shrinkToFit"])         { drawingView.HSImageView.imageScaling = NSImageScaleProportionallyDown ; }
+            else if ([arg isEqualToString:@"scaleToFit"])          { drawingView.HSImageView.imageScaling = NSImageScaleAxesIndependently ; }
+            else if ([arg isEqualToString:@"none"])                { drawingView.HSImageView.imageScaling = NSImageScaleNone ; }
+            else if ([arg isEqualToString:@"scaleProportionally"]) { drawingView.HSImageView.imageScaling = NSImageScaleProportionallyUpOrDown ; }
+            else { return luaL_error(L, ":imageAlignment unrecognized alignment specified") ; }
+            lua_settop(L, 1) ;
+        } else {
+            switch(drawingView.HSImageView.imageScaling) {
+                case NSImageScaleProportionallyDown:      lua_pushstring(L, "shrinkToFit") ; break ;
+                case NSImageScaleAxesIndependently:       lua_pushstring(L, "scaleToFit") ; break ;
+                case NSImageScaleNone:                    lua_pushstring(L, "none") ; break ;
+                case NSImageScaleProportionallyUpOrDown:  lua_pushstring(L, "scaleProportionally") ; break ;
+                default:                                  lua_pushstring(L, "unknown") ; break ;
+            }
+        }
+    } else {
+        return luaL_error(L, ":scaleImage() called on an hs.drawing object that isn't an image object");
+    }
+    return 1 ;
+}
+
+/// hs.drawing:imageAnimates([flag]) -> drawingObject or current value
+/// Method
+/// Get or set whether or not an animated GIF image should cycle through its animation.
+///
+/// Parameters:
+///  * flag - an optional boolean flag indicating whether or not an animated GIF image should cycle through its animation.  Defaults to true.
+///
+/// Returns:
+///  * If a setting value is provided, the drwaing object is returned; if no argument is provided, the current setting is returned.
+static int drawing_imageAnimates(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TBOOLEAN | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        if (lua_type(L, 2) != LUA_TNONE) {
+            drawingView.HSImageView.animates = (BOOL)lua_toboolean(L, 2) ;
+            lua_settop(L, 1) ;
+        } else {
+            lua_pushboolean(L, drawingView.HSImageView.animates) ;
+        }
+    } else {
+        return luaL_error(L, ":imageAnimates() called on an hs.drawing object that isn't an image object");
+    }
+    return 1 ;
+}
+
+/// hs.drawing:imageFrame([type]) -> drawingObject or current value
+/// Method
+/// Get or set what type of frame should be around the drawing frame of the image.
+///
+/// Parameters:
+///  * type - an optional string value which should match one of the following (default is none):
+///    * none   - no frame is drawing around the drawingObject's frameRect
+///    * photo  - a thin black outline with a white background and a dropped shadow.
+///    * bezel  - a gray, concave bezel with no background that makes the image look sunken.
+///    * groove - a thin groove with a gray background that looks etched around the image.
+///    * button - a convex bezel with a gray background that makes the image stand out in relief, like a button.
+///
+/// Returns:
+///  * If a setting value is provided, the drwaing object is returned; if no argument is provided, the current setting is returned.
+///
+/// Notes:
+///  * Apple considers the photo, groove, and button style frames "stylistically obsolete" and if a frame is required, recommend that you use the bezel style or draw your own to more closely match the OS look and feel.
+static int drawing_frameStyle(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TSTRING | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        if (lua_type(L, 2) != LUA_TNONE) {
+            NSString *arg = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+            if      ([arg isEqualToString:@"none"])   { drawingView.HSImageView.imageFrameStyle = NSImageFrameNone ; }
+            else if ([arg isEqualToString:@"photo"])  { drawingView.HSImageView.imageFrameStyle = NSImageFramePhoto ; }
+            else if ([arg isEqualToString:@"bezel"])  { drawingView.HSImageView.imageFrameStyle = NSImageFrameGrayBezel ; }
+            else if ([arg isEqualToString:@"groove"]) { drawingView.HSImageView.imageFrameStyle = NSImageFrameGroove ; }
+            else if ([arg isEqualToString:@"button"]) { drawingView.HSImageView.imageFrameStyle = NSImageFrameButton ; }
+            else { return luaL_error(L, ":frameStyle unrecognized frame specified") ; }
+            lua_settop(L, 1) ;
+        } else {
+            switch(drawingView.HSImageView.imageFrameStyle) {
+                case NSImageFrameNone:      lua_pushstring(L, "none") ; break ;
+                case NSImageFramePhoto:     lua_pushstring(L, "photo") ; break ;
+                case NSImageFrameGrayBezel: lua_pushstring(L, "bezel") ; break ;
+                case NSImageFrameGroove:    lua_pushstring(L, "groove") ; break ;
+                case NSImageFrameButton:    lua_pushstring(L, "button") ; break ;
+                default:                    lua_pushstring(L, "unknown") ; break ;
+            }
+        }
+    } else {
+        return luaL_error(L, ":frameStyle() called on an hs.drawing object that isn't an image object");
+    }
+    return 1 ;
+}
+
+/// hs.drawing:imageAlignment([type]) -> drawingObject or current value
+/// Method
+/// Get or set the alignment of an image that doesn't fully fill the drawing objects frame.
+///
+/// Parameters:
+///  * type - an optional string value which should match one of the following (default is center):
+///    * topLeft      - the image's top left corner will match the drawing frame's top left corner
+///    * top          - the image's top match the drawing frame's top and will be centered horizontally
+///    * topRight     - the image's top right corner will match the drawing frame's top right corner
+///    * left         - the image's left side will match the drawing frame's left side and will be centered vertically
+///    * center       - the image will be centered vertically and horizontally within the drawing frame
+///    * right        - the image's right side will match the drawing frame's right side and will be centered vertically
+///    * bottomLeft   - the image's bottom left corner will match the drawing frame's bottom left corner
+///    * bottom       - the image's bottom match the drawing frame's bottom and will be centered horizontally
+///    * bottomRight  - the image's bottom right corner will match the drawing frame's bottom right corner
+///
+/// Returns:
+///  * If a setting value is provided, the drwaing object is returned; if no argument is provided, the current setting is returned.
+static int drawing_imageAlignment(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TSTRING | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        if (lua_type(L, 2) != LUA_TNONE) {
+            NSString *arg = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+            if      ([arg isEqualToString:@"center"])      { drawingView.HSImageView.imageAlignment = NSImageAlignCenter ; }
+            else if ([arg isEqualToString:@"top"])         { drawingView.HSImageView.imageAlignment = NSImageAlignTop ; }
+            else if ([arg isEqualToString:@"topLeft"])     { drawingView.HSImageView.imageAlignment = NSImageAlignTopLeft ; }
+            else if ([arg isEqualToString:@"topRight"])    { drawingView.HSImageView.imageAlignment = NSImageAlignTopRight ; }
+            else if ([arg isEqualToString:@"left"])        { drawingView.HSImageView.imageAlignment = NSImageAlignLeft ; }
+            else if ([arg isEqualToString:@"bottom"])      { drawingView.HSImageView.imageAlignment = NSImageAlignBottom ; }
+            else if ([arg isEqualToString:@"bottomLeft"])  { drawingView.HSImageView.imageAlignment = NSImageAlignBottomLeft ; }
+            else if ([arg isEqualToString:@"bottomRight"]) { drawingView.HSImageView.imageAlignment = NSImageAlignBottomRight ; }
+            else if ([arg isEqualToString:@"right"])       { drawingView.HSImageView.imageAlignment = NSImageAlignRight ; }
+            else { return luaL_error(L, ":imageAlignment unrecognized alignment specified") ; }
+            lua_settop(L, 1) ;
+        } else {
+            switch(drawingView.HSImageView.imageAlignment) {
+                case NSImageAlignCenter:      lua_pushstring(L, "center") ; break ;
+                case NSImageAlignTop:         lua_pushstring(L, "top") ; break ;
+                case NSImageAlignTopLeft:     lua_pushstring(L, "topLeft") ; break ;
+                case NSImageAlignTopRight:    lua_pushstring(L, "topRight") ; break ;
+                case NSImageAlignLeft:        lua_pushstring(L, "left") ; break ;
+                case NSImageAlignBottom:      lua_pushstring(L, "bottom") ; break ;
+                case NSImageAlignBottomLeft:  lua_pushstring(L, "bottomLeft") ; break ;
+                case NSImageAlignBottomRight: lua_pushstring(L, "bottomRight") ; break ;
+                case NSImageAlignRight:       lua_pushstring(L, "right") ; break ;
+                default:                      lua_pushstring(L, "unknown") ; break ;
+            }
+        }
+    } else {
+        return luaL_error(L, ":imageAlignment() called on an hs.drawing object that isn't an image object");
+    }
+    return 1 ;
+}
+
+/// hs.drawing:clickCallbackActivating([false]) -> drawingObject or current value
+/// Method
+/// Get or set whether or not clicking on a drawing with a click callback defined should bring all of Hammerspoon's open windows to the front.
+///
+/// Parameters:
+///  * flag - an optional boolean indicating whether or not clicking on a drawing with a click callback function defined should activate Hammerspoon and bring its windows forward.  Defaults to true.
+///
+/// Returns:
+///  * If a setting value is provided, the drwaing object is returned; if no argument is provided, the current setting is returned.
+///
+/// Notes:
+///  * Setting this to false changes a drawing object's AXsubrole value and may affect the results of filters defined for hs.window.filter, depending upon how they are defined.
+static int drawing_clickCallbackActivating(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TBOOLEAN | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+
+    if (lua_type(L, 2) != LUA_TNONE) {
+        if (lua_toboolean(L, 2))
+            drawingWindow.styleMask &= (unsigned long)~NSNonactivatingPanelMask ;
+        else
+            drawingWindow.styleMask |= NSNonactivatingPanelMask ;
+        lua_settop(L, 1) ;
+    } else {
+        lua_pushboolean(L, ((drawingWindow.styleMask & NSNonactivatingPanelMask) != NSNonactivatingPanelMask)) ;
+    }
+
+    return 1;
+}
+
+
 
 /// hs.drawing:setClickCallback(mouseUpFn, mouseDownFn) -> drawingObject
 /// Method
@@ -1565,7 +1815,7 @@ static int fontNames(lua_State *L) {
     lua_newtable(L) ;
     for (unsigned long indFont=0; indFont<[fontNames count]; ++indFont)
     {
-        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, indFont + 1);
+        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, (lua_Integer)indFont + 1);
     }
     return 1 ;
 }
@@ -1590,11 +1840,11 @@ static int fontNamesWithTraits(lua_State *L) {
         case LUA_TNONE:
             break ;
         case LUA_TNUMBER:
-            theTraits = lua_tointeger(L, 1) ;
+            theTraits = (NSFontTraitMask)lua_tointeger(L, 1) ;
             break ;
         case LUA_TTABLE:
             for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
-               theTraits |= lua_tointeger(L, -1) ;
+               theTraits |= (unsigned long)lua_tointeger(L, -1) ;
             }
             break ;
         default:
@@ -1608,7 +1858,7 @@ static int fontNamesWithTraits(lua_State *L) {
     lua_newtable(L) ;
     for (unsigned long indFont=0; indFont<[fontNames count]; ++indFont)
     {
-        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, indFont + 1);
+        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, (lua_Integer)indFont + 1);
     }
     return 1 ;
 }
@@ -1919,7 +2169,7 @@ static int setBehavior(lua_State *L) {
     NSInteger newLevel = luaL_checkinteger(L, 2);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     @try {
-        [drawingWindow setCollectionBehavior:newLevel] ;
+        [drawingWindow setCollectionBehavior:(NSWindowCollectionBehavior)newLevel] ;
     }
     @catch ( NSException *theException ) {
         return luaL_error(L, "%s, %s", [[theException name] UTF8String], [[theException reason] UTF8String]) ;
@@ -1976,8 +2226,8 @@ static int drawing_getTextDrawingSize(lua_State *L) {
     }] ;
 
     lua_newtable(L) ;
-        lua_pushnumber(L, ceilf(theSize.height)) ; lua_setfield(L, -2, "h") ;
-        lua_pushnumber(L, ceilf(theSize.width)) ; lua_setfield(L, -2, "w") ;
+        lua_pushnumber(L, ceil(theSize.height)) ; lua_setfield(L, -2, "h") ;
+        lua_pushnumber(L, ceil(theSize.width)) ; lua_setfield(L, -2, "w") ;
 
     return 1 ;
 }
@@ -2071,6 +2321,12 @@ static const luaL_Reg drawing_metalib[] = {
     {"setBehavior", setBehavior},
     {"behavior", getBehavior},
     {"setTextStyle", drawing_setTextStyle},
+    {"imageScaling", drawing_scaleImage},
+    {"imageAnimates", drawing_imageAnimates},
+    {"imageFrame", drawing_frameStyle},
+    {"imageAlignment", drawing_imageAlignment},
+    {"rotateImage", drawing_rotate},
+    {"clickCallbackActivating", drawing_clickCallbackActivating},
 
     {"__tostring", userdata_tostring},
     {"__gc", drawing_delete},
