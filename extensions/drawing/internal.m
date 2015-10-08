@@ -777,19 +777,26 @@ NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defa
     NSFont                  *theFont  = [[defaultStuff objectForKey:@"font"] copy] ;
     NSMutableParagraphStyle *theStyle = [[defaultStuff objectForKey:@"style"] mutableCopy] ;
     NSColor                 *theColor = [[defaultStuff objectForKey:@"color"] copy] ;
+    NSFont *tmpFont;
 
     if (lua_istable(L, idx)) {
         if (lua_getfield(L, -1, "font")) {
             CGFloat pointSize = theFont.pointSize;
             NSString *fontName = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
-            theFont = [NSFont fontWithName:fontName size:pointSize];
+            tmpFont = [NSFont fontWithName:fontName size:pointSize];
+            if (tmpFont) {
+                theFont = tmpFont;
+            }
         }
         lua_pop(L, 1);
 
         if (lua_getfield(L, -1, "size")) {
             CGFloat pointSize = lua_tonumber(L, -1);
             NSString *fontName = theFont.fontName;
-            theFont = [NSFont fontWithName:fontName size:pointSize];
+            tmpFont = [NSFont fontWithName:fontName size:pointSize];
+            if (tmpFont) {
+                theFont = tmpFont;
+            }
         }
         lua_pop(L, 1);
 
