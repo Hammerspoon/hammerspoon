@@ -135,7 +135,7 @@ local function fitWindows(windows,thumbnails,isInvisible,maxIterations,animate,a
   end
 end
 
-local ui = {
+local uiGlobal = {
   textColor={1,1,1,1},
   highlightTextColor={1,1,1,1},
   fadeTextColor={0.2,0.2,0.2},
@@ -218,7 +218,10 @@ local function getColor(t) if t.red then return t else return {red=t[1] or 0,gre
 ---
 --- The following variables must be numbers (in screen points):
 ---  * `hs.expose.ui.maxIterations = 200` -- lower is faster, but higher chance of overlapping thumbnails
-expose.ui=setmetatable({},{__newindex=function(t,k,v) ui[k]=v end,__index=ui})
+expose.ui=setmetatable({},{__newindex=function(t,k,v) uiGlobal[k]=v end,__index=uiGlobal})
+
+
+local haveThumbs,haveTitles,ui -- cache ui prefs
 
 local function getHints(screens)
   local function tlen(t)
@@ -291,12 +294,6 @@ local function getHints(screens)
   return hints
 end
 
--- cache ui prefs
-local haveThumbs,haveTitles,textStyle,titleTextStyle
-local highlightColor,highlightStrokeColor,highlightHintColor,highlightTextColor
-local fadeColor,fadeStrokeColor,fadeHintColor,fadeTextColor
-local noThumbsFrameSide
-local hintHeight,titleHeight
 
 local function updateHighlights(hints,subtree,show)
   for c,t in pairs(hints) do
@@ -305,14 +302,14 @@ local function updateHighlights(hints,subtree,show)
     elseif type(c)=='string' and #c==1 then
       if t[1] then
         if haveThumbs then
-          t[1].highlight:setFillColor(show and highlightColor or fadeColor):setStrokeColor(show and highlightStrokeColor or fadeStrokeColor)
+          t[1].highlight:setFillColor(show and ui.highlightColor or ui.fadeColor):setStrokeColor(show and ui.highlightStrokeColor or ui.fadeStrokeColor)
         end
         if haveTitles then
-          t[1].titletext:setTextColor(show and highlightTextColor or fadeTextColor)
-          t[1].titlerect:setFillColor(show and highlightHintColor or fadeHintColor)
+          t[1].titletext:setTextColor(show and ui.highlightTextColor or ui.fadeTextColor)
+          t[1].titlerect:setFillColor(show and ui.highlightHintColor or ui.fadeHintColor)
         end
-        t[1].hintrect:setFillColor(show and highlightHintColor or fadeHintColor)
-        t[1].hinttext:setTextColor(show and highlightTextColor or fadeTextColor)
+        t[1].hintrect:setFillColor(show and ui.highlightHintColor or ui.fadeHintColor)
+        t[1].hinttext:setTextColor(show and ui.highlightTextColor or ui.fadeTextColor)
       else updateHighlights(t,subtree,show) end
     end
   end
@@ -341,7 +338,7 @@ local function setMode(k,mode)
   if modes[k]==mode then return end
   modes[k]=mode
   for s,screen in pairs(screens) do
-    screen.bg:setFillColor(getColor(modes[k] and (k=='close' and ui.closeModeBackgroundColor or ui.minimizeModeBackgroundColor) or (s=='inv' and ui.minimizedStripBackgroundColor or ui.backgroundColor)))
+    screen.bg:setFillColor(modes[k] and (k=='close' and ui.closeModeBackgroundColor or ui.minimizeModeBackgroundColor) or (s=='inv' and ui.minimizedStripBackgroundColor or ui.backgroundColor))
   end
 end
 
@@ -422,7 +419,8 @@ setThumb=function(w,screenFrame)
     w.highlight:setFrame(wframe):orderAbove()
   end
   --  local hwidth=#w.hint*ui.hintLetterWidth
-  local textWidth=drawing.getTextDrawingSize(w.hint,textStyle).w
+  local textWidth=drawing.getTextDrawingSize(w.hint,ui.textStyle).w
+  local hintHeight=ui.hintHeight
   local padding=hintHeight*0.1
   local br=geom.copy(wframe):seth(hintHeight):setw(textWidth+hintHeight+padding*4):setcenter(wframe.center):fit(screenFrame)
   local tr=geom.copy(br):setw(textWidth+padding*2):move(hintHeight+padding*2,0)
@@ -431,8 +429,8 @@ setThumb=function(w,screenFrame)
   w.hinttext:setFrame(tr):orderAbove()
   w.icon:setFrame(w.appbundle and ir or {x=0,y=0,w=0,h=0}):orderAbove()
   if haveTitles then
-    local textWidth=min(wframe.w,drawing.getTextDrawingSize(w.title,titleTextStyle).w)
-    local tr=geom.copy(wframe):seth(titleHeight):setw(textWidth+8):setcenter(wframe.center):move(0,hintHeight):fit(screenFrame)
+    local textWidth=min(wframe.w,drawing.getTextDrawingSize(w.title,ui.titleTextStyle).w)
+    local tr=geom.copy(wframe):seth(ui.titleHeight):setw(textWidth+8):setcenter(wframe.center):move(0,hintHeight):fit(screenFrame)
     w.titletext:setFrame(tr):orderAbove()
     w.titlerect:setFrame(tr):orderAbove()
   end
@@ -441,20 +439,23 @@ end
 
 local UNAVAILABLE=image.imageFromName'NSStopProgressTemplate'
 
-local function showExpose(wins,animate,alt_algo)
+local function showExpose(wins,uiPrefs,animate,alt_algo)
   -- animate is waaay to slow: don't bother
   -- alt_algo sometimes performs better in terms of coverage, but (in the last half-broken implementation) always reaches maxIterations
   -- alt_algo TL;DR: much slower, don't bother
   log.d('activated')
+  if uiPrefs==nil then uiPrefs={} end
+  if type(uiPrefs)~='table' then error('uiPrefs must be a table',3) end
+  ui={}
+  for k,v in pairs(uiGlobal) do
+    if ssub(k,-5)=='Color' then ui[k]=getColor(uiPrefs[k] or v)
+    elseif uiPrefs[k]==nil then ui[k]=v else ui[k]=uiPrefs[k] end
+  end
   haveThumbs,haveTitles=ui.showThumbnails,ui.showTitles
-  highlightColor,highlightStrokeColor=getColor(ui.highlightColor),getColor(ui.highlightStrokeColor)
-  highlightHintColor,highlightTextColor=getColor(ui.highlightHintColor),getColor(ui.highlightTextColor)
-  fadeColor,fadeStrokeColor=getColor(ui.fadeColor),getColor(ui.fadeStrokeColor)
-  fadeHintColor,fadeTextColor=getColor(ui.fadeHintColor),getColor(ui.fadeTextColor)
-  noThumbsFrameSide=ui.textSize*4
-  textStyle={font=ui.fontName,size=ui.textSize,color=highlightTextColor}
-  titleTextStyle={font=ui.fontName,size=max(20,ui.textSize/2),color=highlightTextColor,lineBreak='truncateTail'}
-  hintHeight,titleHeight=drawing.getTextDrawingSize('O',textStyle).h,drawing.getTextDrawingSize('O',titleTextStyle).h
+  ui.noThumbsFrameSide=ui.textSize*4
+  ui.textStyle={font=ui.fontName,size=ui.textSize,color=ui.highlightTextColor}
+  ui.titleTextStyle={font=ui.fontName,size=max(20,ui.textSize/2),color=ui.highlightTextColor,lineBreak='truncateTail'}
+  ui.hintHeight,ui.titleHeight=drawing.getTextDrawingSize('O',ui.textStyle).h,drawing.getTextDrawingSize('O',ui.titleTextStyle).h
 
   if not spacesWatcher then spacesWatcher = spaces.watcher.new(spaceChanged):start() end
 
@@ -463,7 +464,7 @@ local function showExpose(wins,animate,alt_algo)
   local mainscreen = hsscreens[1]
   for _,s in ipairs(hsscreens) do
     local id,frame=s:id(),s:frame()
-    screens[id]={frame=frame,area=0,bg=drawing.rectangle(frame):setFill(true):setFillColor(getColor(ui.backgroundColor)):show()}
+    screens[id]={frame=frame,area=0,bg=drawing.rectangle(frame):setFill(true):setFillColor(ui.backgroundColor):show()}
   end
   do -- hidden windows strip
     local invSize=ui.minimizedStripWidth
@@ -476,7 +477,7 @@ local function showExpose(wins,animate,alt_algo)
     if dock=='left' then f.w=f.w-invSize f.x=f.x+invSize invf.w=invSize
     elseif dock=='right' then f.w=f.w-invSize invf.x=f.x+f.w invf.w=invSize
     else f.h=f.h-invSize invf.y=f.y+f.h invf.h=invSize end --bottom
-    screens.inv={area=0,frame=invf,bg=drawing.rectangle(invf):setFill(true):setFillColor(getColor(ui.minimizedStripBackgroundColor)):show()}
+    screens.inv={area=0,frame=invf,bg=drawing.rectangle(invf):setFill(true):setFillColor(ui.minimizedStripBackgroundColor):show()}
     screens[msid].bg:setFrame(f)
   end
   for i=#wins,1,-1 do
@@ -487,7 +488,7 @@ local function showExpose(wins,animate,alt_algo)
     local scid = wsc and wsc:id()
     if not scid or not wid or not w:isVisible() then scid='inv' end
     local frame=w:frame()
-    if not haveThumbs then frame.aspect=1 frame.area=noThumbsFrameSide*noThumbsFrameSide end
+    if not haveThumbs then frame.aspect=1 frame.area=ui.noThumbsFrameSide*ui.noThumbsFrameSide end
     screens[scid].area=screens[scid].area+frame.area
     screens[scid][#screens[scid]+1] = {appname=appname,appbundle=appbundle,window=w,
       frame=frame,originalFrame=frame,area=frame.area,id=wid,title=haveTitles and w:title() or ''}
@@ -505,13 +506,13 @@ local function showExpose(wins,animate,alt_algo)
       end
       local f=w.frame
       if haveThumbs then
-        w.highlight=drawing.rectangle(f):setFill(true):setFillColor(highlightColor):setStrokeWidth(ui.strokeWidth):setStrokeColor(highlightStrokeColor)
+        w.highlight=drawing.rectangle(f):setFill(true):setFillColor(ui.highlightColor):setStrokeWidth(ui.strokeWidth):setStrokeColor(ui.highlightStrokeColor)
       end
-      w.hintrect=drawing.rectangle(f):setFill(true):setFillColor(highlightHintColor):setStroke(false):setRoundedRectRadii(ui.textSize/4,ui.textSize/4)
-      w.hinttext=drawing.text(f,w.hint):setTextStyle(textStyle)
+      w.hintrect=drawing.rectangle(f):setFill(true):setFillColor(ui.highlightHintColor):setStroke(false):setRoundedRectRadii(ui.textSize/4,ui.textSize/4)
+      w.hinttext=drawing.text(f,w.hint):setTextStyle(ui.textStyle)
       if haveTitles then
-        w.titletext=drawing.text(f,w.title):setTextStyle(titleTextStyle)
-        w.titlerect=drawing.rectangle(f):setFill(true):setFillColor(highlightHintColor):setStroke(false):setRoundedRectRadii(ui.textSize/8,ui.textSize/8)
+        w.titletext=drawing.text(f,w.title):setTextStyle(ui.titleTextStyle)
+        w.titlerect=drawing.rectangle(f):setFill(true):setFillColor(ui.highlightHintColor):setStroke(false):setRoundedRectRadii(ui.textSize/8,ui.textSize/8)
       end
       local icon=w.appbundle and image.imageFromAppBundle(w.appbundle)
       w.icon = drawing.image(f,icon or UNAVAILABLE)
@@ -535,17 +536,16 @@ local function showExpose(wins,animate,alt_algo)
   enter(hints)
 end
 
---- hs.expose:toggleShow(applicationWindows)
+--- hs.expose:toggleShow([applicationWindows][, uiPrefs])
 --- Method
 --- Toggles the expose - see `hs.expose:show()` and `hs.expose:hide()`
 ---
---- Parameters:
----  * applicationWindows - see `hs.expose:show()`
+--- Parameters: see `hs.expose:show()`
 ---
 --- Returns:
 ---  * None
-function expose:toggleShow(currentApp)
-  if activeInstance then return self:hide() else return self:show(currentApp) end
+function expose:toggleShow(...)
+  if activeInstance then return self:hide() else return self:show(...) end
 end
 --- hs.expose:hide()
 --- Method
@@ -560,13 +560,15 @@ end
 function expose:hide()
   if activeInstance then return exitAll() end
 end
---- hs.expose:show(applicationWindows)
+--- hs.expose:show([applicationWindows][, uiPrefs])
 --- Method
 --- Shows an expose-like screen with modal keyboard hints for switching to, closing or minimizing/unminimizing windows.
 ---
 --- Parameters:
 ---  * applicationWindows - (optional) if true, only show windows of the active application (within the
 ---   scope of the instance windowfilter); otherwise show all windows allowed by the instance windowfilter
+---  * uiPrefs - (optional) a table to override UI preferences for this invocation only; its keys and values
+---    must follow the conventions described in `hs.expose.ui`
 ---
 --- Returns:
 ---  * None
@@ -584,8 +586,9 @@ local function getApplicationWindows()
   if not a then log.w('Cannot get active application') return end
   return a:allWindows()
 end
-function expose:show(currentApp,...)
+function expose:show(currentApp,uiPrefs)
   if activeInstance then return end
+  if type(currentApp)=='table' then uiPrefs=currentApp currentApp=nil end
   local wins=self.wf:getWindows()
   if currentApp then
     local allwins,appwins=wins,getApplicationWindows()
@@ -595,17 +598,19 @@ function expose:show(currentApp,...)
       for __,appw in ipairs(appwins) do if appw:id()==w:id() then wins[#wins+1]=appw end end
     end
   end
-  activeInstance=function()return self:show(currentApp)end
-  return showExpose(wins,...)
+  activeInstance=function()return self:show(currentApp,uiPrefs)end
+  return showExpose(wins,uiPrefs)
 end
 
---- hs.expose.expose(windows)
+--- hs.expose.expose([windows][, uiPrefs])
 --- Function
 --- Shows an expose-like screen with modal keyboard hints for switching to, closing or minimizing/unminimizing windows.
 --- If an expose is already visible, calling this function will toggle it off.
 ---
 --- Parameters:
 ---  * windows - a list of windows to expose; if omitted or nil, `hs.window.allWindows()` will be used
+---  * uiPrefs - (optional) a table to override UI preferences for this invocation only; its keys and values
+---    must follow the conventions described in `hs.expose.ui`
 ---
 --- Returns:
 ---  * None
@@ -620,33 +625,35 @@ end
 ---    window will be closed. If it's the last window of an application, the application will be closed.
 ---  * If alt is being held when a hint is completed (the background will be blue), the selected
 ---    window will be minimized (if visible) or unminimized/unhidden (if minimized or hidden).
-function expose.expose(wins,...)
+function expose.expose(wins,uiPrefs)
   if activeInstance then return exitAll() end
+  if type(wins)=='table' and #wins==0 then uiPrefs=wins wins=nil end
   local origWins=wins
   if not wins then wins=window.orderedWindows() end
   if type(wins)~='table' then error('windows must be a table',2) end
-  activeInstance=function()return expose.expose(origWins)end
-  return showExpose(wins,...)
+  activeInstance=function()return expose.expose(origWins,uiPrefs)end
+  return showExpose(wins,uiPrefs)
 end
 
---- hs.expose.exposeApplicationWindows()
+--- hs.expose.exposeApplicationWindows([uiPrefs])
 --- Function
 --- Shows an expose for the windows of the active application.
 --- If an expose is already visible, calling this function will toggle it off.
 ---
 --- Parameters:
----  * None
+---  * uiPrefs - (optional) a table to override UI preferences for this invocation only; its keys and values
+---    must follow the conventions described in `hs.expose.ui`
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
 ---  * This is just a convenience wrapper for `hs.expose.expose(hs.window.focusedWindow():application():allWindows())`
-function expose.exposeApplicationWindows(...)
+function expose.exposeApplicationWindows(uiPrefs)
   if activeInstance then return exitAll() end
-  activeInstance=function()return expose.exposeApplicationWindows()end
+  activeInstance=function()return expose.exposeApplicationWindows(uiPrefs)end
   local wins=getApplicationWindows()
-  return wins and showExpose(wins,...)
+  return wins and showExpose(wins,uiPrefs)
 end
 
 --- hs.expose.new(windowfilter) -> hs.expose
