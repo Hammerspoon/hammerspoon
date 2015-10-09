@@ -823,6 +823,7 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:moveToScreen(toScreen, duration)
+  if not toScreen then return end
   local theScreen=screen.find(toScreen)
   if not theScreen then print('window:moveToScreen(): screen not found: '..toScreen) return self end
   return self:setFrame(theScreen:fromUnitRect(self:screen():toUnitRect(self:frame())),duration)
