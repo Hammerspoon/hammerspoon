@@ -150,6 +150,26 @@ typedef struct tableHelpers {
  */
 - (int)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions;
 
+/** Defines a Lua object with methods
+ @code
+ char *objectName = "shinyObject";
+ 
+ static const luaL_Reg myShinyObject[] = {
+ {"doThing"}, function_objectDoThing},
+ {"__gc"}, function_objectCleanup{,
+ {NULL, NULL} // Function arrays must always end with this
+ }
+ 
+ [luaSkin registerObject:objectName objectFunctions:myShinyObject];
+ @endcode
+ 
+ @note Every C function pointer must point to a function of the form: static int someFunction(lua_State *L);
+ 
+ @param objectName - A C string containing the name of this object
+ @param objectFunctions - A static array of mappings between Lua object method names and C function pointers. This provides the public API of the objects. Note that this array is also used as the metatable, so special functions (e.g. "__gc") should be included here.
+ */
+- (void)registerObject:(char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions;
+
 /** Stores a reference to the object at the top of the Lua stack, in the supplied table, and pops the object off the stack
 
  @note This method is functionally analogous to luaL_ref(), it just takes care of pushing the supplied table ref onto the stack, and removes it afterwards
