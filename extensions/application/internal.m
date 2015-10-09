@@ -23,7 +23,7 @@ static int application_gc(lua_State* L) {
     return 0;
 }
 
-/// hs.application.frontmostApplication() -> app
+/// hs.application.frontmostApplication() -> hs.application object
 /// Function
 /// Returns the application object for the frontmost (active) application.  This is the application which currently receives input events.
 ///
@@ -44,7 +44,7 @@ static int application_frontmostapplication(lua_State* L) {
 return 1;
 }
 
-/// hs.application.runningApplications() -> app[]
+/// hs.application.runningApplications() -> list of hs.application objects
 /// Function
 /// Returns all running apps.
 ///
@@ -66,7 +66,7 @@ static int application_runningapplications(lua_State* L) {
     return 1;
 }
 
-/// hs.application.applicationForPID(pid) -> app or nil
+/// hs.application.applicationForPID(pid) -> hs.application object or nil
 /// Function
 /// Returns the running app for the given pid, if it exists.
 ///
@@ -91,7 +91,7 @@ static int application_applicationforpid(lua_State* L) {
     return 1;
 }
 
-/// hs.application.applicationsForBundleID(bundleID) -> app[]
+/// hs.application.applicationsForBundleID(bundleID) -> list of hs.application objects
 /// Function
 /// Returns any running apps that have the given bundleID.
 ///
@@ -140,7 +140,7 @@ static int application_nameForBundleID(lua_State* L) {
     return 1;
 }
 
-/// hs.application:allWindows() -> window[]
+/// hs.application:allWindows() -> list of hs.window objects
 /// Method
 /// Returns all open windows owned by the given app.
 ///
@@ -149,6 +149,15 @@ static int application_nameForBundleID(lua_State* L) {
 ///
 /// Returns:
 ///  * A table of zero or more hs.window objects owned by the application
+///
+/// Notes:
+///  * This function can only return windows in the current Mission Control Space; if you need to address windows across
+///    different Spaces you can use the `hs.window.filter` module
+///    - if `Displays have separate Spaces` is *on* (in System Preferences>Mission Control) the current Space is defined
+///      as the union of all currently visible Spaces
+///    - minimized windows and hidden windows (i.e. belonging to hidden apps, e.g. via cmd-h) are always considered
+///      to be in the current Space
+
 static int application_allWindows(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
 
@@ -172,7 +181,7 @@ static int application_allWindows(lua_State* L) {
     return 1;
 }
 
-/// hs.application:mainWindow() -> window or nil
+/// hs.application:mainWindow() -> hs.window object or nil
 /// Method
 /// Returns the main window of the given app, or nil.
 ///
@@ -194,7 +203,7 @@ static int application_mainWindow(lua_State* L) {
     return 1;
 }
 
-/// hs.application:focusedWindow() -> window or nil
+/// hs.application:focusedWindow() -> hs.window object or nil
 /// Method
 /// Returns the currently focused window of the application, or nil
 ///
@@ -296,7 +305,7 @@ static int application_bundleID(lua_State* L) {
     return 1;
 }
 
-/// hs.application:unhide() -> success
+/// hs.application:unhide() -> boolean
 /// Method
 /// Unhides the app (and all its windows) if it's hidden.
 ///
@@ -312,7 +321,7 @@ static int application_unhide(lua_State* L) {
     return 1;
 }
 
-/// hs.application:hide() -> success
+/// hs.application:hide() -> boolean
 /// Method
 /// Hides the app (and all its windows).
 ///
@@ -360,7 +369,7 @@ static int application_kill9(lua_State* L) {
     return 0;
 }
 
-/// hs.application:isHidden() -> bool
+/// hs.application:isHidden() -> boolean
 /// Method
 /// Returns whether the app is currently hidden.
 ///
@@ -382,7 +391,7 @@ static int application_ishidden(lua_State* L) {
     return 1;
 }
 
-/// hs.application:isFrontmost() -> bool
+/// hs.application:isFrontmost() -> boolean
 /// Method
 /// Returns whether the app is the frontmost (i.e. is the currently active application)
 ///
@@ -759,7 +768,7 @@ static int application_selectmenuitem(lua_State* L) {
     return 1;
 }
 
-/// hs.application.launchOrFocus(name) -> bool
+/// hs.application.launchOrFocus(name) -> boolean
 /// Function
 /// Launches the app with the given name, or activates it if it's already running
 ///
@@ -775,7 +784,7 @@ static int application_launchorfocus(lua_State* L) {
     return 1;
 }
 
-/// hs.application.launchOrFocusByBundleID(bundleID) -> bool
+/// hs.application.launchOrFocusByBundleID(bundleID) -> boolean
 /// Function
 /// Launches the app with the given bundle ID, or activates it if it's already running
 ///

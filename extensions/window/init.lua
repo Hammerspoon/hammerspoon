@@ -23,6 +23,27 @@ local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort
 --- hs.window.animationDuration = 3 -- if you have time on your hands
 window.animationDuration = 0.2
 
+
+--- hs.window.desktop() -> hs.window object
+--- Function
+--- Returns the desktop "window"
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * An `hs.window` object representing the desktop
+---
+--- Notes:
+---  * The desktop belongs to Finder.app: when Finder is the active application, you can focus the desktop by cycling
+---    through windows via cmd-`
+---  * The desktop window has no id, a role of `AXScrollArea` and no subrole
+---  * The desktop is filtered out from `hs.window.allWindows()` (and downstream uses)
+function window.desktop()
+  local finder=application.get'com.apple.finder'
+  for _,w in ipairs(finder:allWindows()) do if w:role()=='AXScrollArea' then return w end end
+end
+
 --- hs.window.allWindows() -> list of hs.window objects
 --- Function
 --- Returns all windows
@@ -32,7 +53,20 @@ window.animationDuration = 0.2
 ---
 --- Returns:
 ---  * A list of `hs.window` objects representing all open windows
-
+---
+--- Notes:
+---  * `visibleWindows()`, `orderedWindows()`, `get()`, `find()`, and several more functions and methods in this and other
+---     modules make use of this function, so it is important to understand its limitations
+---  * This function queries all applications for their windows every time it is invoked; if you need to call it a lot and
+---    performance is not acceptable consider using the `hs.window.filter` module
+---  * This function can only return windows in the current Mission Control Space; if you need to address windows across
+---    different Spaces you can use the `hs.window.filter` module
+---    - if `Displays have separate Spaces` is *on* (in System Preferences>Mission Control) the current Space is defined
+---      as the union of all currently visible Spaces
+---    - minimized windows and hidden windows (i.e. belonging to hidden apps, e.g. via cmd-h) are always considered
+---      to be in the current Space
+---  * This function filters out the desktop "window"; use `hs.window.desktop()` to address it. (Note however that
+---    `hs.application.get'Finder':allWindows()` *will* include the desktop in the returned list)
 local SKIP_APPS={
   ['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true,
   ['org.pqrs.Karabiner-AXNotifier']=true,['com.adobe.PDApp.AAMUpdatesNotifier']=true,}
@@ -43,7 +77,10 @@ function window.allWindows()
   for _,app in ipairs(application.runningApplications()) do
     if app:kind()>=0 then
       local bid=app:bundleID() or 'N/A' --just for safety; universalaccessd has no bundleid (but it's kind()==-1 anyway)
-      if not SKIP_APPS[bid] then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end
+      if bid=='com.apple.finder' then --exclude the desktop "window"
+        -- check the role explicitly, instead of relying on absent :id() - sometimes minimized windows have no :id() (El Cap Notes.app)
+        for _,w in ipairs(app:allWindows()) do if w:role()=='AXWindow' then r[#r+1]=w end end
+      elseif not SKIP_APPS[bid] then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end
     end
   end
   return r
