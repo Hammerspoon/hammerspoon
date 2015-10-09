@@ -3,7 +3,7 @@
 --- Inspect/manipulate windows
 ---
 --- Notes:
----  * See `hs.screen` for detailed explanation of how Hammerspoon uses window/screen coordinates.
+---  * See `hs.screen` and `hs.geometry` for more information on how Hammerspoon uses window/screen frames and coordinates
 
 local uielement = hs.uielement  -- Make sure parent module loads
 local window = require "hs.window.internal"
@@ -67,6 +67,12 @@ end
 ---      to be in the current Space
 ---  * This function filters out the desktop "window"; use `hs.window.desktop()` to address it. (Note however that
 ---    `hs.application.get'Finder':allWindows()` *will* include the desktop in the returned list)
+---  * Beside the limitations discussed above, this function will return *all* windows as reported by OSX, including some
+---    "windows" that one wouldn't expect: for example, every Google Chrome (actual) window has a companion window for its
+---    status bar; therefore you might get unexpected results  - in the Chrome example, calling `hs.window.focusWindowSouth()`
+---    from a Chrome window would end up "focusing" its status bar, and therefore the proper window itself, seemingly resulting
+---    in a no-op. In order to avoid such surprises you can use the `hs.window.filter` module, and more specifically
+---    the default windowfilter (`hs.window.filter.default`) which filters out known cases of not-actual-windows
 local SKIP_APPS={
   ['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true,
   ['org.pqrs.Karabiner-AXNotifier']=true,['com.adobe.PDApp.AAMUpdatesNotifier']=true,}
