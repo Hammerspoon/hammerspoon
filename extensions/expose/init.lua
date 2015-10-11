@@ -51,7 +51,7 @@ end
 
 local function fitWindows(windows,thumbnails,isInvisible,maxIterations,animate,alt_algo)
   local screenFrame = windows.frame
-  local DISPLACE=floor(screenFrame.w/200)
+  local DISPLACE=floor(screenFrame.w/(thumbnails and 200 or 50))
   local avgRatio = min(1,screenFrame.area/windows.area*2)
   log.vf('shrink %d windows to %.0f%%',#windows,avgRatio*100)
   for i,win in ipairs(windows) do if not isInvisible then win.frame:scale(avgRatio) end win.frame:fit(screenFrame) end
@@ -106,18 +106,16 @@ local function fitWindows(windows,thumbnails,isInvisible,maxIterations,animate,a
           local r=geom.copy(wframe):setx(dx>0 and wframe.x2 or (wframe.x+dx)):setw(abs(dx)*2-1)
           if isAreaEmpty(r,win,windows,screenFrame) then
             wframe:move(dx,0)
-            if winRatio/avgRatio<1.33 and winRatio<1 then wframe:scale(1.01):fit(screenFrame) end
+            if thumbnails and winRatio/avgRatio<1.33 and winRatio<1 then wframe:scale(1.01):fit(screenFrame) end
             didwork=true break
           end
         end
         for dy = -DISPLACE,DISPLACE,DISPLACE*2 do
           if wframe.center.y>screenFrame.center.y then dy=-dy end
           local r=geom.copy(wframe):sety(dy>0 and wframe.y2 or (wframe.y+dy)):seth(abs(dy)*2-1)
-          --          if win.hint=='L' then print('testareaY'..dy..': '..r.string) end
           if isAreaEmpty(r,win,windows,screenFrame) then
-            --            if win.hint=='L' then print(' empty  Y'..dy..': '..r.string) end
             wframe:move(0,dy)
-            if winRatio/avgRatio<1.33 and winRatio<1 then wframe:scale(1.015):fit(screenFrame) end
+            if thumbnails and winRatio/avgRatio<1.33 and winRatio<1 then wframe:scale(1.015):fit(screenFrame) end
             didwork=true break
           end
         end
