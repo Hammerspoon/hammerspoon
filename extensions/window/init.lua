@@ -19,8 +19,10 @@ local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort
 --- The default duration for animations, in seconds. Initial value is 0.2; set to 0 to disable animations.
 ---
 --- Usage:
+--- ```
 --- hs.window.animationDuration = 0 -- disable animations
 --- hs.window.animationDuration = 3 -- if you have time on your hands
+--- ```
 window.animationDuration = 0.2
 
 
@@ -176,10 +178,12 @@ window.windowForID=window.get
 ---  * for more sophisticated use cases and/or for better performance if you call this a lot, consider using `hs.window.filter`
 ---
 --- Usage:
+--- ```
 --- -- by id
 --- hs.window(8812):title() --> Hammerspoon Console
 --- -- by title
 --- hs.window'bash':application():name() --> Terminal
+--- ```
 function window.find(hint,exact,wins)
   if hint==nil then return end
   local typ,r=type(hint),{}
@@ -199,7 +203,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * True if the window is visible, otherwise false
+---  * `true` if the window is visible, otherwise `false`
 ---
 --- Notes:
 ---  * This does not mean the user can see the window - it may be obscured by other windows, or it may be off the edge of the screen
@@ -319,7 +323,7 @@ end
 ---
 --- Parameters:
 ---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
@@ -331,7 +335,7 @@ function window:setFrame(f, duration) return setFrame(self,f,duration,window.set
 ---
 --- Parameters:
 ---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
@@ -364,7 +368,7 @@ window.setFrameCorrectness = false
 --- Parameters:
 ---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window; if omitted,
 ---    the current window frame will be used
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
@@ -520,7 +524,7 @@ end
 --- Maximizes the window
 ---
 --- Parameters:
----  * duration - An optional number containing the number of seconds to animate the operation. Defaults to the value of `hs.window.animationDuration`
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
@@ -547,6 +551,10 @@ function window:toggleFullScreen()
   self:setFullScreen(not self:isFullScreen())
   return self
 end
+-- aliases
+window.toggleFullscreen=window.toggleFullScreen
+window.isFullscreen=window.isFullScreen
+window.setFullscreen=window.setFullScreen
 
 --- hs.window:screen() -> hs.screen object
 --- Method
@@ -615,7 +623,7 @@ local function focus_first_valid_window(ordered_wins)
   return false
 end
 
---- hs.window:windowsToEast(candidateWindows, frontmost, strict) -> list of `hs.window` objects
+--- hs.window:windowsToEast([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
 --- Method
 --- Gets all windows to the east of this window
 ---
@@ -631,65 +639,27 @@ end
 ---
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
----    every time this method is called; this can be slow, consider using the equivalent methods in
+---    every time this method is called; this can be slow, and some undesired "windows" could be included
+---    (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in
 ---    `hs.window.filter` instead
 
---- hs.window:windowsToWest(candidateWindows, frontmost, strict) -> list of `hs.window` objects
+--- hs.window:windowsToWest([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
 --- Method
 --- Gets all windows to the west of this window
 ---
---- Parameters:
----  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
----    to the west are candidates.
----  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
----  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
----    westward axis
----
---- Returns:
----  * A list of `hs.window` objects representing all windows positioned west (i.e. left) of the window, in ascending order of distance
----
---- Notes:
----  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
----    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.window.filter` instead
+--- (See `hs.window:windowsToEast()`)
 
---- hs.window:windowsToNorth(candidateWindows, frontmost, strict) -> list of `hs.window` objects
+--- hs.window:windowsToNorth([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
 --- Method
 --- Gets all windows to the north of this window
 ---
---- Parameters:
----  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
----    to the north are candidates.
----  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
----  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
----    northward axis
----
---- Returns:
----  * A list of `hs.window` objects representing all windows positioned north (i.e. up) of the window, in ascending order of distance
----
---- Notes:
----  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
----    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.window.filter` instead
+--- (See `hs.window:windowsToEast()`)
 
---- hs.window:windowsToSouth(candidateWindows, frontmost, strict) -> list of `hs.window` objects
+--- hs.window:windowsToSouth([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
 --- Method
 --- Gets all windows to the south of this window
 ---
---- Parameters:
----  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
----    to the south are candidates.
----  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
----  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
----    southward axis
----
---- Returns:
----  * A list of `hs.window` objects representing all windows positioned south (i.e. down) of the window, in ascending order of distance
----
---- Notes:
----  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
----    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.window.filter` instead
+--- (See `hs.window:windowsToEast()`)
 
 
 --- hs.window.frontmostWindow() -> hs.window object
@@ -727,9 +697,9 @@ for n,dir in pairs{['0']='East','North','West','South'}do
   window['moveOneScreen'..dir]=function(self,...) local s=self:screen() return self:moveToScreen(s['to'..dir](s),...) end
 end
 
---- hs.window:focusWindowEast(candidateWindows, frontmost, strict) -> boolean
+--- hs.window:focusWindowEast([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
---- Focuses the nearest possible window to the east
+--- Focuses the nearest possible window to the east (i.e. right)
 ---
 --- Parameters:
 ---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
@@ -743,71 +713,35 @@ end
 ---
 --- Notes:
 ---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
----    every time this method is called; this can be slow, consider using the equivalent methods in
+---    every time this method is called; this can be slow, and some undesired "windows" could be included
+---    (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in
 ---    `hs.window.filter` instead
 
---- hs.window:focusWindowWest(candidateWindows, frontmost, strict) -> boolean
+--- hs.window:focusWindowWest([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
---- Focuses the nearest possible window to the west
+--- Focuses the nearest possible window to the west (i.e. right)
 ---
---- Parameters:
----  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
----    to the west are candidates.
----  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
----  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
----    westward axis
----
---- Returns:
----  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
----
---- Notes:
----  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
----    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.window.filter` instead
+--- (See `hs.window:focusWindowEast()`)
 
---- hs.window:focusWindowNorth(candidateWindows, frontmost, strict) -> boolean
+--- hs.window:focusWindowNorth([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
---- Focuses the nearest possible window to the north
+--- Focuses the nearest possible window to the north (i.e. up)
 ---
----  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
----    to the north are candidates.
----  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
----  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
----    northward axis
----
---- Returns:
----  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
----
---- Notes:
----  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
----    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.window.filter` instead
+--- (See `hs.window:focusWindowEast()`)
 
---- hs.window:focusWindowSouth(candidateWindows, frontmost, strict) -> boolean
+--- hs.window:focusWindowSouth([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
---- Focuses the nearest possible window to the south
+--- Focuses the nearest possible window to the south (i.e. down)
 ---
----  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
----    to the south are candidates.
----  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
----  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
----    southward axis
----
---- Returns:
----  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
----
---- Notes:
----  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
----    every time this method is called; this can be slow, consider using the equivalent methods in
----    `hs.window.filter` instead
+--- (See `hs.window:focusWindowEast()`)
 
 --- hs.window:moveToUnit(unitrect[, duration]) -> hs.window object
 --- Method
 --- Moves and resizes the window to occupy a given fraction of the screen
 ---
 --- Parameters:
----  * unitrect - An hs.geometry unit rect, or constructor argument to create one
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * unitrect - An `hs.geometry` unit rect, or constructor argument to create one
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
@@ -824,7 +758,7 @@ end
 ---
 --- Parameters:
 ---  * screen - An `hs.screen` object, or an argument for `hs.screen.find()`, representing the screen to move the window to
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
@@ -848,7 +782,7 @@ end
 ---  * screen - (optional) An `hs.screen` object or argument for `hs.screen.find`; only valid if `rect` is a unit rect
 ---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
 ---    the window's screen
----  * duration - (optional) A number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
@@ -873,45 +807,35 @@ function window:move(rect,toScreen,inBounds,duration)
   else return self:setFrame(frame,duration) end
 end
 
---- hs.window:moveOneScreenWest([duration]) -> hs.window object
---- Method
---- Moves the window one screen west (i.e. left)
----
---- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
----
---- Returns:
----  * The `hs.window` object
-
 --- hs.window:moveOneScreenEast([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen east (i.e. right)
 ---
 --- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
+
+--- hs.window:moveOneScreenWest([duration]) -> hs.window object
+--- Method
+--- Moves the window one screen west (i.e. left)
+---
+--- (See `hs.window:moveOneScreenEast()`)
 
 --- hs.window:moveOneScreenNorth([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen north (i.e. up)
 ---
---- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
---- Returns:
----  * The `hs.window` object
+--- (See `hs.window:moveOneScreenEast()`)
 
 --- hs.window:moveOneScreenSouth([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen south (i.e. down)
 ---
---- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
---- Returns:
----  * The `hs.window` object
+--- (See `hs.window:moveOneScreenEast()`)
 
 
 package.loaded[...]=window
