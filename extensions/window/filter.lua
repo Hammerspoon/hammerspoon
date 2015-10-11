@@ -1063,6 +1063,7 @@ function Window:destroyed()
   self.watcher:stop()
   self.app.windows[self.id]=nil
   if self.isVisible then self:notVisible(true) end
+  if next(spacesInstances) then self:notInCurrentSpace(true) end
   self:emitEvent(windowfilter.windowDestroyed)
   self.window=nil
 end
@@ -1664,7 +1665,21 @@ end
 
 local function getWindowObjects(wf,sortOrder)
   local r={}
-  for w in pairs(wf.windows) do r[#r+1]=w end
+  local recheckAppName
+  for w in pairs(wf.windows) do
+    -- filter out any apps that mysteriously vanish
+    -- TODO ideally we'd use an hs.application:isRunning() method here
+    if not w.app.app:bundleID() then log.wf('App %s disappeared!',w.app.name) w.app:destroyed() recheckAppName=w.app.name
+    else r[#r+1]=w end
+  end
+  if recheckAppName then
+    local app=application.get(recheckAppName)
+    if app then
+      startAppWatcher(app,recheckAppName,0,true)
+      r={} -- get windows again, after "starting" "new" app
+      for w in pairs(wf.windows) do r[#r+1]=w end
+    end
+  end
   tsort(r,sortingComparators[sortOrder] or sortingComparators[wf.sortOrder] or sortingComparators.focusedLast)
   return r
 end
