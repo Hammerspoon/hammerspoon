@@ -237,6 +237,7 @@ local function getHints(screens)
       while #appname<ui.maxHintLetters do
         appname=appname..tostring(reservedHint) reservedHint=reservedHint+1
       end
+      w.appname=appname
       hints[#hints+1]=w
       hints.apps[appname]=(hints.apps[appname] or 0)+1
       w.hint=''
