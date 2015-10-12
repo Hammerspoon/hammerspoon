@@ -624,7 +624,7 @@ static int webview_url(lua_State *L) {
         [[LuaSkin shared] pushNSObject:[theView URL]] ;
         return 1 ;
     } else {
-        NSURLRequest *theNSURL = [[LuaSkin shared] tableAtIndex:2 toClass:"NSURLRequest"] ;
+        NSURLRequest *theNSURL = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
             WKNavigation *navID = [theView loadRequest:theNSURL] ;
             theView.trackingID = navID ;

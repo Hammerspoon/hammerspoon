@@ -590,10 +590,10 @@ static int drawing_newText(lua_State *L) {
 // NOTE: THIS FUNCTION IS WRAPPED IN init.lua
 static int drawing_newImage(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TTABLE, LS_TUSERDATA|LS_TSTRING, IMAGE_USERDATA_TAG, LS_TBREAK];
+    [skin checkArgs:LS_TTABLE, LS_TUSERDATA|LS_TSTRING, "hs.image", LS_TBREAK];
 
     NSRect windowRect = [skin tableToRectAtIndex:1];
-    NSImage *theImage = get_image_from_hsimage(L, 2);
+    NSImage *theImage = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"];
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
@@ -687,7 +687,7 @@ NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defa
         lua_pop(L, 1);
 
         if (lua_getfield(L, -1, "color")) {
-            theColor = getColorFromStack(L, -1);
+            theColor = [[LuaSkin shared] luaObjectAtIndex:-1 toClass:"NSColor"] ;
         }
         lua_pop(L, 1);
 
@@ -1008,7 +1008,7 @@ static int drawing_setTextSize(lua_State *L) {
 ///  * This method should only be called on text drawing objects
 static int drawing_setTextColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *textColor = getColorFromStack(L, 2);
+    NSColor *textColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
@@ -1042,7 +1042,7 @@ static int drawing_setTextColor(lua_State *L) {
 ///  * Calling this method will remove any gradient fill colors previously set with `hs.drawing:setFillGradient()`
 static int drawing_setFillColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *fillColor = getColorFromStack(L, 2);
+    NSColor *fillColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
@@ -1087,8 +1087,8 @@ static int drawing_setFillColor(lua_State *L) {
 ///  * Calling this method will remove any fill color previously set with `hs.drawing:setFillColor()`
 static int drawing_setFillGradient(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *startColor = getColorFromStack(L, 2);
-    NSColor *endColor = getColorFromStack(L, 3);
+    NSColor *startColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
+    NSColor *endColor = [[LuaSkin shared] luaObjectAtIndex:3 toClass:"NSColor"] ;
     int angle = (int)lua_tointeger(L, 4);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1127,7 +1127,7 @@ static int drawing_setFillGradient(lua_State *L) {
 ///  * This method should only be used on line, rectangle and circle drawing objects
 static int drawing_setStrokeColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *strokeColor = getColorFromStack(L, 2);
+    NSColor *strokeColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
@@ -1277,7 +1277,7 @@ static int drawing_setStrokeWidth(lua_State *L) {
 ///  * The drawing object
 static int drawing_setImage(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSImage *image = get_image_from_hsimage(L, 2);
+    NSImage *image = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"];
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
