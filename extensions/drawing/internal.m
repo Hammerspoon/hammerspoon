@@ -533,7 +533,7 @@ static int drawing_newLine(lua_State *L) {
 ///  * If the text of the drawing object is set to empty (i.e. "") then style changes may not be fully applied by `hs.drawing:setTextStyle()`.  Use a placeholder such as a space (" ") or hide the object if style changes and text will be set at different times.
 static int drawing_newText(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TTABLE, LS_TSTRING, LS_TBREAK];
+    [skin checkArgs:LS_TTABLE, LS_TSTRING|LS_TNUMBER, LS_TBREAK];
 
     NSRect windowRect = [skin tableToRectAtIndex:1];
     const char *message = lua_tostring(L, 2);
