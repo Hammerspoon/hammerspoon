@@ -779,6 +779,8 @@ local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
   --TODO perhaps windowMaximized? (compare win:frame to win:screen:frame) - or include it in windowFullscreened
   windowFocused=true, windowUnfocused=true,
   windowTitleChanged=true,
+
+  windowAllowed=true,windowRejected=true,
 }
 
 local trackSpacesEvents={
@@ -864,6 +866,19 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 --- Constant
 --- Event for `hs.window.filter:subscribe()`: a window's title changed
 
+--- hs.window.filter.windowAllowed
+--- Constant
+--- Pseudo-event for `hs.window.filter:subscribe()`: a previously rejected window (or a newly created one) is now allowed
+---
+--- Notes:
+---  * this pseudo-event will be emitted *before* the *actual* event(s) (e.g. `windowCreated`) that caused the window to be allowed
+
+--- hs.window.filter.windowRejected
+--- Constant
+--- Pseudo-event for `hs.window.filter:subscribe()`: a previously allowed window (or a window that's been destroyed) is now rejected
+---
+--- Notes:
+---  * this pseudo-event will be emitted *before* the *actual* event(s) (e.g. `windowDestroyed`) that caused the window to be rejected
 
 -- Window class
 
@@ -874,27 +889,33 @@ function Window:setFilter(wf,forceremove) -- returns true if filtering status ch
   return wasAllowed ~= isAllowed
 end
 
+local function emit(win,wf,event,logged)
+  local fns=wf.events[event]
+  if fns then
+    if not logged then wf.log.df('Emitting %s %d (%s)',event,win.id,win.app.name) if wf.log==log then logged=true end end
+    for fn in pairs(fns) do fn(win.window,win.app.name,event) end
+  end
+  return logged
+end
+
 function Window:filterEmitEvent(wf,event,inserted,logged,notified)
   local filteringStatusChanged=self:setFilter(wf,event==windowfilter.windowDestroyed)
+  local isAllowed=wf.windows[self]
   if filteringStatusChanged then
-    if wf.notifyfn then
-      -- filter status changed, call notifyfn if present
+    -- emit pseudo-event
+    emit(self,wf,isAllowed and windowfilter.windowAllowed or windowfilter.windowRejected)
+    if wf.notifyfn then -- call notifyfn if present
       if not notified then wf.log.d('Notifying windows changed') if wf.log==log then notified=true end end
       wf.notifyfn(wf:getWindows(),event)
     end
     -- if this is an 'inserted' event, keep around the window until all the events are exhausted
-    if inserted and not wf.windows[self] then wf.pending[self]=true end
+    if inserted and not isAllowed then wf.pending[self]=true end
   end
   --  wf.log.f('EVENT %s inserted %s statusChanged %s isallowed %s ispending %s',event,inserted,filteringStatusChanged,wf.windows[self],wf.pending[self])
-  if filteringStatusChanged or wf.windows[self] or wf.pending[self] then
+  if filteringStatusChanged or isAllowed or wf.pending[self] then
     -- window is currently allowed, call subscribers if any
-    local fns = wf.events[event]
-    if fns then
-      if not logged then wf.log.df('Emitting %s %d (%s)',event,self.id,self.app.name) if wf.log==log then logged=true end end
-      for fn in pairs(fns) do
-        fn(self.window,self.app.name,event)
-      end
-    end
+    logged=emit(self,wf,event,logged)
+    --TODO it would probably make more sense to have the pseudo events LAST
     -- clear the window if this is the last event in the chain
     if not inserted then wf.pending[self]=nil end
   end
@@ -1781,6 +1802,7 @@ function WF:subscribe(event,fn,immediate)
     for _,win in ipairs(windows) do
       for ev,fns in pairs(map) do
         if ev==windowfilter.windowCreated
+          or ev==windowfilter.windowAllowed
           or ev==windowfilter.windowMoved
           or ev==windowfilter.windowTitleChanged
           or (ev==windowfilter.windowFullscreened and win.isFullscreen)
