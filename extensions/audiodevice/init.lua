@@ -5,6 +5,7 @@
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
 local module = require("hs.audiodevice.internal")
+module.watcher = require("hs.audiodevice.watcher")
 local fnutils = require("hs.fnutils")
 
 -- private variables and methods -----------------------------------------
@@ -71,6 +72,38 @@ end
 module.findInputByName = function(name)
 return fnutils.find(module.allInputDevices(), function(dev) return (dev:name() == name) end)
 end
+
+--- hs.audiodevice.allOutputDevices() -> hs.audiodevice[]
+--- Function
+--- Returns a list of all connected output devices
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table of zero or more audio output devices connected to the system
+module.allOutputDevices = function()
+return fnutils.filter(module.allDevices(), function(dev) return dev:isOutputDevice() end)
+end
+
+--- hs.audiodevice.allInputDevices() -> audio[]
+--- Function
+--- Returns a list of all connected input devices.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A table of zero or more audio input devices connected to the system
+module.allInputDevices = function()
+return fnutils.filter(module.allDevices(), function(dev) return dev:isInputDevice() end)
+end
+
+--- === hs.audiodevice.datasource ===
+---
+--- Inspect/manipulate the data sources of an audio device
+---
+--- Note: These objects are obtained from the methods on an `hs.audiodevice` object
 
 -- Return Module Object --------------------------------------------------
 
