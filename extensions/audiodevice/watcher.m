@@ -141,8 +141,8 @@ static int audiodevicewatcher_start(lua_State *L) {
     return 0;
 }
 
-/// hs.audiodevice.watcher:stop() -> hs.audiodevice.watcher
-/// Method
+/// hs.audiodevice.watcher.stop() -> hs.audiodevice.watcher
+/// Function
 /// Stops an audio device watcher
 ///
 /// Parameters:
