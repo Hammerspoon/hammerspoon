@@ -37,7 +37,7 @@ static int audiodevicewatcher_stop(lua_State *L);
 
 #pragma mark - CoreAudio helper functions
 
-OSStatus audiodevicewatcher_callback(AudioObjectID objectID, UInt32 numAddresses, const AudioObjectPropertyAddress addressList[], void *clientData) {
+OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses, const AudioObjectPropertyAddress addressList[], void *clientData) {
     dispatch_sync(dispatch_get_main_queue(), ^{
 
         //NSLog(@"%i addresses to check", numAddresses);
