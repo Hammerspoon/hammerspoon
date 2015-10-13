@@ -641,7 +641,7 @@ static int snapshot_common_code(lua_State* L, CGWindowID windowID, CGWindowImage
 
         CGImageRelease(windowImage) ;
 
-        store_image_as_hsimage(L, newImage) ;
+        [[LuaSkin shared] pushNSObject:newImage] ;
         return 1 ;
 }
 

@@ -3,7 +3,7 @@
 #import "ASCIImage/PARImage+ASCIIInput.h"
 #import "../hammerspoon.h"
 
-#define USERDATA_TAG        IMAGE_USERDATA_TAG
+#define USERDATA_TAG "hs.image"
 
 /// hs.image.systemImageNames[]
 /// Constant
@@ -90,7 +90,7 @@ static int imageFromPath(lua_State *L) {
     NSImage *newImage = [[NSImage alloc] initByReferencingFile:[imagePath stringByExpandingTildeInPath]];
 
     if (newImage && newImage.valid) {
-        store_image_as_hsimage(L, newImage);
+        [[LuaSkin shared] pushNSObject:newImage];
     } else {
         showError(L, "Unable to load image:");
         showError(L, (char *)[imagePath UTF8String]);
@@ -102,17 +102,17 @@ static int imageFromPath(lua_State *L) {
 
 // Shamelessly "borrowed" and tweaked from the lua 5.1 source... see http://www.lua.org/source/5.1/ltablib.c.html
 static int maxn (lua_State *L, int idx) {
-  lua_Number max = 0;
+  lua_Integer max = 0;
   luaL_checktype(L, idx, LUA_TTABLE);
   lua_pushnil(L);  /* first key */
   while (lua_next(L, idx)) {
     lua_pop(L, 1);  /* remove value */
     if (lua_type(L, -1) == LUA_TNUMBER) {
-      lua_Number v = lua_tonumber(L, -1);
+      lua_Integer v = luaL_checkinteger(L, -1);
       if (v > max) max = v;
     }
   }
-  return max ;
+  return (int)max ;
 }
 
 /// hs.image.imageFromASCII(ascii[, context]) -> object
@@ -170,11 +170,11 @@ static int imageWithContextFromASCII(lua_State *L) {
                     NSMutableDictionary *thisEntry = [[NSMutableDictionary alloc] init] ;
 
                     if (lua_getfield(L, -1, "fillColor") == LUA_TTABLE)
-                        [thisEntry setObject:getColorFromStack(L, -1) forKey:@"fillColor"];
+                        [thisEntry setObject:[[LuaSkin shared] luaObjectAtIndex:-1 toClass:"NSColor"] forKey:@"fillColor"];
                     lua_pop(L, 1);
 
                     if (lua_getfield(L, -1, "strokeColor") == LUA_TTABLE)
-                        [thisEntry setObject:getColorFromStack(L, -1) forKey:@"strokeColor"];
+                        [thisEntry setObject:[[LuaSkin shared] luaObjectAtIndex:-1 toClass:"NSColor"] forKey:@"strokeColor"];
                     lua_pop(L, 1);
 
                     if (lua_getfield(L, -1, "lineWidth") == LUA_TNUMBER)
@@ -254,7 +254,7 @@ static int imageWithContextFromASCII(lua_State *L) {
           }] ;
 
     if (newImage) {
-        store_image_as_hsimage(L, newImage);
+        [[LuaSkin shared] pushNSObject:newImage];
     } else {
         lua_pushnil(L);
     }
@@ -284,7 +284,7 @@ static int imageFromName(lua_State *L) {
 
     NSImage *newImage = [NSImage imageNamed:[NSString stringWithUTF8String:imageName]] ;
     if (newImage) {
-        store_image_as_hsimage(L, newImage) ;
+        [[LuaSkin shared] pushNSObject:newImage] ;
     } else {
         lua_pushnil(L) ;
     }
@@ -305,7 +305,7 @@ static int imageFromApp(lua_State *L) {
     NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:imagePath];
 
     if (iconImage) {
-        store_image_as_hsimage(L, iconImage);
+        [[LuaSkin shared] pushNSObject:iconImage];
     } else {
         lua_pushnil(L);
     }
@@ -322,7 +322,7 @@ static int imageFromApp(lua_State *L) {
 /// Returns:
 ///  * Name - the name assigned to the hs.image object.
 static int getImageName(lua_State* L) {
-    NSImage *testImage = get_image_from_hsimage(L, 1) ;
+    NSImage *testImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
     lua_pushstring(L, [[testImage name] UTF8String]) ;
     return 1 ;
 }
@@ -337,7 +337,7 @@ static int getImageName(lua_State* L) {
 /// Returns:
 ///  * Status - a boolean value indicating success (true) or failure (false) when assigning the specified name.
 static int setImageName(lua_State* L) {
-    NSImage *testImage = get_image_from_hsimage(L, 1) ;
+    NSImage *testImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
     if (lua_isnil(L,2))
         lua_pushboolean(L, [testImage setName:nil]) ;
     else
@@ -346,7 +346,7 @@ static int setImageName(lua_State* L) {
 }
 
 static int userdata_tostring(lua_State* L) {
-    NSImage *testImage = get_image_from_hsimage(L, 1) ;
+    NSImage *testImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
     NSString* theName = [testImage name] ;
 
     if (!theName) theName = @"" ; // unlike some cases, [NSImage name] apparently returns an actual NULL instead of an empty string...
@@ -356,8 +356,8 @@ static int userdata_tostring(lua_State* L) {
 }
 
 static int userdata_eq(lua_State* L) {
-    NSImage *image1 = get_image_from_hsimage(L, 1) ;
-    NSImage *image2 = get_image_from_hsimage(L, 2) ;
+    NSImage *image1 = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSImage *image2 = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"] ;
 
     return image1 == image2 ;
 }
@@ -381,7 +381,7 @@ static int userdata_eq(lua_State* L) {
 /// Notes:
 ///  * Saves image at its original size.
 static int saveToFile(lua_State* L) {
-    NSImage*  theImage = get_image_from_hsimage(L, 1) ;
+    NSImage*  theImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
     NSString* filePath = lua_to_nsstring(L, 2) ;
     NSBitmapImageFileType fileType = NSPNGFileType ;
 
@@ -475,12 +475,38 @@ static luaL_Reg moduleLib[] = {
 //     {NULL,                  NULL}
 // };
 
+// [[LuaSkin shared] pushNSObject:NSImage]
+// C-API
+// Pushes the provided NSImage onto the Lua Stack as a hs.image userdata object
+static int NSImage_tolua(lua_State *L, id obj) {
+    NSImage *theImage = obj ;
+
+    theImage.cacheMode = NSImageCacheNever ;
+
+    void** imagePtr = lua_newuserdata(L, sizeof(NSImage *));
+    *imagePtr = (__bridge_retained void *)theImage;
+
+    luaL_getmetatable(L, USERDATA_TAG);
+    lua_setmetatable(L, -2);
+
+    return 1 ;
+}
+
+static id HSImage_toNSImage(lua_State *L, int idx) {
+    void **thingy = luaL_checkudata(L, idx, USERDATA_TAG) ;
+    return (__bridge NSImage *) *thingy ;
+}
+
+
 int luaopen_hs_image_internal(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:USERDATA_TAG functions:moduleLib metaFunctions:nil objectFunctions:userdata_metaLib];
+    [[LuaSkin shared] registerLibraryWithObject:USERDATA_TAG
+                                      functions:moduleLib
+                                  metaFunctions:nil
+                                objectFunctions:userdata_metaLib];
 
-    pushNSImageNameTable(L);
-    lua_setfield(L, -2, "systemImageNames") ;
+    pushNSImageNameTable(L); lua_setfield(L, -2, "systemImageNames") ;
 
+    [[LuaSkin shared] registerPushNSHelper:NSImage_tolua        forClass:"NSImage"] ;
+    [[LuaSkin shared] registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage"] ;
     return 1;
 }

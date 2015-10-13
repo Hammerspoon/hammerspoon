@@ -364,7 +364,7 @@ static int menubarSetIcon(lua_State *L) {
     if (lua_isnoneornil(L, 2)) {
         iconImage = nil;
     } else {
-        iconImage = get_image_from_hsimage(L, 2);
+        iconImage = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"] ;
 
         if (!iconImage) {
             lua_pushnil(L);
@@ -727,7 +727,7 @@ static int menubarGetIcon(lua_State *L) {
     NSImage* theImage = [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject image] ;
 
     if (theImage)
-        store_image_as_hsimage(L, theImage);
+        [[LuaSkin shared] pushNSObject:theImage];
     else
         lua_pushnil(L) ;
 

@@ -787,7 +787,7 @@ static int screen_snapshot(lua_State *L) {
     NSRect rect = screenRectToNSRect(L, 2);
     NSImage *image = screenToNSImage(screen, rect);
     if (image) {
-        store_image_as_hsimage(L, image);
+        [[LuaSkin shared] pushNSObject:image];
     } else {
         lua_pushnil(L);
     }
