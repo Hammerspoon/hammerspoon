@@ -72,32 +72,6 @@ module.findInputByName = function(name)
 return fnutils.find(module.allInputDevices(), function(dev) return (dev:name() == name) end)
 end
 
---- hs.audiodevice.allOutputDevices() -> hs.audiodevice[]
---- Function
---- Returns a list of all connected output devices
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table of zero or more audio output devices connected to the system
-module.allOutputDevices = function()
-return fnutils.filter(module.allDevices(), function(dev) return dev:isOutputDevice() end)
-end
-
---- hs.audiodevice.allInputDevices() -> audio[]
---- Function
---- Returns a list of all connected input devices.
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table of zero or more audio input devices connected to the system
-module.allInputDevices = function()
-return fnutils.filter(module.allDevices(), function(dev) return dev:isInputDevice() end)
-end
-
 -- Return Module Object --------------------------------------------------
 
 return module

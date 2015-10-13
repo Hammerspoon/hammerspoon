@@ -202,19 +202,6 @@ NSMutableDictionary *registeredTableHelperLocations ;
     return moduleRefTable;
 }
 
-- (void)registerObject:(char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {
-    NSAssert(objectName != NULL, @"objectName can not be NULL", nil);
-    NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", objectName);
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconstant-conversion"
-    luaL_newlib(_L, objectFunctions);
-#pragma GCC diagnostic pop
-    lua_pushvalue(_L, -1);
-    lua_setfield(_L, -2, "__index");
-    lua_setfield(_L, LUA_REGISTRYINDEX, objectName);
-}
-
 - (int)luaRef:(int)refTable {
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL refTable", nil);
 
