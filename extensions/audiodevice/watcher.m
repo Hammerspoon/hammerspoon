@@ -7,6 +7,10 @@
 #import "../hammerspoon.h"
 #import "math.h"
 
+/// === hs.audiodevice.watcher ===
+///
+/// Watch for system level audio hardware events
+
 #pragma mark - Library defines
 
 // Define a datatype for hs.audiodevice.watcher objects
