@@ -47,6 +47,32 @@ module.current = function(input)
     }
 end
 
+--- hs.audiodevice.findDeviceByName(name) -> device or nil
+--- Function
+--- Find an audio device by name
+---
+--- Parameters:
+---  * name - A string containing the name of an audio device to search for
+---
+--- Returns:
+---  * An `hs.audiodevice` object or nil if the device could not be found
+module.findDeviceByName = function(name)
+    return fnutils.find(module.allDevices(), function(dev) return (dev:name() == name) end)
+end
+
+--- hs.audiodevice.findDeviceByUID(uid) -> device or nil
+--- Function
+--- Find an audio device by UID
+---
+--- Parameters:
+---  * uid - A string containing the UID of an audio device to search for
+---
+--- Returns:
+---  * An `hs.audiodevice` object or nil if the device could not be found
+module.findDeviceByUID = function(uid)
+    return fnutils.find(module.allDevices(), function(dev) return (dev:uid() == uid) end)
+end
+
 --- hs.audiodevice.findOutputByName(name) -> device or nil
 --- Function
 --- Find an audio output device by name
@@ -71,6 +97,32 @@ end
 ---  * An hs.audiodevice object or nil if the device could not be found
 module.findInputByName = function(name)
 return fnutils.find(module.allInputDevices(), function(dev) return (dev:name() == name) end)
+end
+
+--- hs.audiodevice.findOutputByUID(uid) -> device or nil
+--- Function
+--- Find an audio output device by UID
+---
+--- Parameters:
+---  * name - A string containing the UID of an audio output device to search for
+---
+--- Returns:
+---  * An hs.audiodevice object or nil if the device could not be found
+module.findOutputByUID = function(uid)
+    return fnutils.find(module.allOutputDevices(), function(dev) return (dev:uid() == uid) end)
+end
+
+--- hs.audiodevice.findInputByUID(uid) -> device or nil
+--- Function
+--- Find an audio input device by UID
+---
+--- Parameters:
+---  * name - A string containing the UID of an audio input device to search for
+---
+--- Returns:
+---  * An hs.audiodevice object or nil if the device could not be found
+module.findInputByUID = function(uid)
+return fnutils.find(module.allInputDevices(), function(dev) return (dev:uid() == uid) end)
 end
 
 --- hs.audiodevice.allOutputDevices() -> hs.audiodevice[]

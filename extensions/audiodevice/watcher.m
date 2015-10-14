@@ -48,7 +48,7 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
             for (UInt32 i = 0; i < numAddresses; i++) {
                 //NSLog(@"Examining selector: %@", UTCreateStringForOSType(addressList[i].mSelector));
                 [skin pushLuaRef:refTable ref:theWatcher->callback];
-                lua_pushstring(skin.L, [(__bridge NSString *)UTCreateStringForOSType(addressList[i].mSelector) UTF8String]);
+                lua_pushstring(skin.L, [(__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mSelector) UTF8String]);
                 [skin protectedCallAndTraceback:1 nresults:0];
             }
         }
@@ -183,7 +183,7 @@ static int audiodevicewatcher_stop(lua_State *L) {
 /// Returns:
 ///  * A boolean, true if the watcher is running, false if not
 static int audiodevicewatcher_isRunning(lua_State *L) {
-    lua_pushinteger(L, (lua_Integer)theWatcher->running);
+    lua_pushboolean(L, theWatcher->running);
     return 1;
 }
 

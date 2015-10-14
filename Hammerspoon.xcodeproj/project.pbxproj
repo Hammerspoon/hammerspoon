@@ -155,6 +155,7 @@
 		4FC93CAA1BCD87590041B820 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F70EED91B726D650025A7B3 /* AudioToolbox.framework */; };
 		4FC93CAB1BCD87600041B820 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FBE2D131B72635400407788 /* Carbon.framework */; };
 		4FC93CAE1BCD8BE00041B820 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
+		4FC93CB01BCEAAB90041B820 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4FD0AB171B7484D700A82496 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4FD0AB181B7484D700A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AB241B74857D00A82496 /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AB231B74857D00A82496 /* watcher.m */; };
@@ -1160,6 +1161,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FC93CB01BCEAAB90041B820 /* Fabric.framework in Frameworks */,
 				4F70EEDC1B726D6A0025A7B3 /* CoreAudio.framework in Frameworks */,
 				4F70EEDA1B726D650025A7B3 /* AudioToolbox.framework in Frameworks */,
 				4F70EED81B726D5F0025A7B3 /* Carbon.framework in Frameworks */,
@@ -7659,6 +7661,10 @@
 				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
 				ENABLE_TESTABILITY = YES;
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
@@ -7725,6 +7731,10 @@
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
 				EXECUTABLE_PREFIX = lib;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
