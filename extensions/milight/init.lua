@@ -124,10 +124,29 @@ end
 ---
 --- Parameters:
 ---  * zone - A number specifying which zone to operate on. 0 for all zones, 1-4 for zones one through four
----  * value - A number containing an RGB color value between 0 and 255
+---  * value - A number between 0 and 255 that represents a color
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
+---
+--- Notes:
+---  * The color value is not a normal RGB colour, but rather a lookup in an internal table in the light hardware. While any number between 0 and 255 is valid, there are some useful values worth knowing:
+---   * 00 - Violet
+---   * 16 - Royal Blue
+---   * 32 - Baby Blue
+---   * 48 - Aqua
+---   * 64 - Mint Green
+---   * 80 - Seafoam Green
+---   * 96 - Green
+---   * 112 - Lime Green
+---   * 128 - Yellow
+---   * 144 - Yellowy Orange
+---   * 160 - Orange
+---   * 176 - Red
+---   * 194 - Pink
+---   * 210 - Fuscia
+---   * 226 - Lilac
+---   * 240 - Lavendar
 function milightObject:zoneColor(zone, value)
     return colorHelper(self, zone2cmdkey(zone, "on"), value)
 end
