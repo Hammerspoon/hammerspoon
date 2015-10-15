@@ -305,6 +305,24 @@ static int application_bundleID(lua_State* L) {
     return 1;
 }
 
+/// hs.application:isRunning() -> boolean
+/// Method
+/// Checks if the application is still running
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if the application is running, false if not
+///
+/// Notes:
+///  * If an application is terminated and re-launched, this method will still return false, as `hs.application` objects are tied to a specific instance of an application (i.e. its PID)
+static int application_isRunning(lua_State *L) {
+    NSRunningApplication *app = nsobject_for_app(L, 1);
+    lua_pushboolean(L, (app != nil));
+    return 1;
+}
+
 /// hs.application:unhide() -> boolean
 /// Method
 /// Unhides the app (and all its windows) if it's hidden.
@@ -852,6 +870,7 @@ static const luaL_Reg applicationlib[] = {
     {"_bringtofront", application__bringtofront},
     {"title", application_title},
     {"bundleID", application_bundleID},
+    {"isRunning", application_isRunning},
     {"unhide", application_unhide},
     {"hide", application_hide},
     {"kill", application_kill},
