@@ -6,20 +6,21 @@ local spotify = {}
 
 local alert = require "hs.alert"
 local as = require "hs.applescript"
+local app = require "hs.application"
 
 --- hs.spotify.state_paused
 --- Constant
---- A string that, when returned by hs.spotify.getPlayerState() indicates Spotify is paused
+--- Returned by `hs.spotify.getPlaybackState()` to indicates Spotify is paused
 spotify.state_paused = "'kPSp'"
 
 --- hs.spotify.state_playing
 --- Constant
---- A string that, when returned by hs.spotify.getPlayerState() indicates Spotify is currently playing a track
+--- Returned by `hs.spotify.getPlaybackState()` to indicates Spotify is playing
 spotify.state_playing = "'kPSP'"
 
 --- hs.spotify.state_stopped
 --- Constant
---- A string that, when returned by hs.spotify.getPlayerState() indicates Spotify is stopped (initial state after application startup)
+--- Returned by `hs.spotify.getPlaybackState()` to indicates Spotify is stopped
 spotify.state_stopped = "'kPSS'"
 
 -- Internal function to pass a command to Applescript.
@@ -35,7 +36,7 @@ end
 
 --- hs.spotify.playpause()
 --- Function
---- Toggles play/pause of current spotify track
+--- Toggles play/pause of current Spotify track
 ---
 --- Parameters:
 ---  * None
@@ -48,7 +49,7 @@ end
 
 --- hs.spotify.play()
 --- Function
---- Play current spotify track
+--- Plays the current Spotify track
 ---
 --- Parameters:
 ---  * None
@@ -61,7 +62,7 @@ end
 
 --- hs.spotify.pause()
 --- Function
---- Pauses of current spotify track
+--- Pauses the current Spotify track
 ---
 --- Parameters:
 ---  * None
@@ -74,7 +75,7 @@ end
 
 --- hs.spotify.next()
 --- Function
---- Skips to the next spotify track
+--- Skips to the next Spotify track
 ---
 --- Parameters:
 ---  * None
@@ -87,7 +88,7 @@ end
 
 --- hs.spotify.previous()
 --- Function
---- Skips to previous spotify track
+--- Skips to previous Spotify track
 ---
 --- Parameters:
 ---  * None
@@ -153,16 +154,19 @@ function spotify.getCurrentTrack()
     return tell('name of the current track')
 end
 
---- hs.spotify.getPlayerState()
+--- hs.spotify.getPlaybackState()
 --- Function
---- Gets the current state of Spotify
+--- Gets the current playback state of Spotify
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
----  * A string containing one of hs.spotify.state_stopped, hs.spotify.state_paused, hs.spotify.state_playing
-function spotify.getPlayerState()
+---  * A string containing one of the following constants:
+---    - `hs.spotify.state_stopped`
+---    - `hs.spotify.state_paused`
+---    - `hs.spotify.state_playing`
+function spotify.getPlaybackState()
    return tell('get player state')
 end
 
@@ -176,7 +180,7 @@ end
 --- Returns:
 ---  * A boolean value indicating whether the Spotify application is running.
 function spotify.isRunning()
-   return hs.application.get("Spotify") ~= nil
+   return app.get("Spotify") ~= nil
 end
 
 --- hs.spotify.isPlaying()
@@ -193,7 +197,7 @@ function spotify.isPlaying()
    if not hs.spotify.isRunning() then
       return false
    end
-   state = hs.spotify.getPlayerState()
+   state = hs.spotify.getPlaybackState()
    if state == hs.spotify.state_playing then
       return true
    elseif state == hs.spotify.state_paused or state == hs.spotify.state_stopped then
