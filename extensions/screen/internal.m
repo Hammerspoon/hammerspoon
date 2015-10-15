@@ -532,6 +532,51 @@ static int screen_gammaSet(lua_State* L) {
     return 1;
 }
 
+/// hs.screen:getBrightness() -> number or nil
+/// Method
+/// Gets the screen's brightness
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A floating point number between 0 and 1, containing the current brightness level, or nil if the display does not support brightness queries
+static int screen_getBrightness(lua_State *L) {
+    NSScreen* screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    io_service_t service = CGDisplayIOServicePort(screen_id);
+    CGDisplayErr err;
+
+    float brightness;
+    err = IODisplayGetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), &brightness);
+    if (err != kIOReturnSuccess) {
+        lua_pushnil(L);
+    } else {
+        lua_pushnumber(L, brightness);
+    }
+    return 1;
+}
+
+/// hs.screen:setBrightness(brightness) -> `hs.screen` object
+/// Method
+/// Sets the screen's brightness
+///
+/// Parameters:
+///  * brightness - A floating point number between 0 and 1
+///
+/// Returns:
+///  * The `hs.screen` object
+static int screen_setBrightness(lua_State *L) {
+    NSScreen* screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    io_service_t service = CGDisplayIOServicePort(screen_id);
+
+    IODisplaySetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), luaL_checknumber(L, 2));
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 void screen_gammaReapply(CGDirectDisplayID display) {
     NSDictionary *gammas = [currentGammas objectForKey:[NSNumber numberWithInt:display]];
     if (!gammas) {
@@ -836,6 +881,8 @@ static const luaL_Reg screen_objectlib[] = {
     {"snapshot", screen_snapshot},
     {"getGamma", screen_gammaGet},
     {"setGamma", screen_gammaSet},
+    {"getBrightness", screen_getBrightness},
+    {"setBrightness", screen_setBrightness},
     {"rotate", screen_rotate},
     {"setPrimary", screen_setPrimary},
 
