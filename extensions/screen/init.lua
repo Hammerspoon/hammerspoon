@@ -61,7 +61,8 @@ function screen.find(p)
   if typ=='userdata' and getmetatable(p)==screenObject then return p
   else
     local screens,r=screen.allScreens(),{}
-    if typ=='number' then for _,s in ipairs(screens) do if p==s:id() then return s end return end -- not found
+    if typ=='number' then
+      for _,s in ipairs(screens) do if p==s:id() then return s end end return -- not found
     elseif typ=='string' then
       for _,s in ipairs(screens) do local sname=s:name() if sname and sname:lower():find(p:lower()) then r[#r+1]=s end end
       if #r>0 then return tunpack(r) end
