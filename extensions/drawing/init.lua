@@ -45,6 +45,7 @@ end
 ---  * osx_red - The same red used for OS X window close buttons
 ---  * osx_green - The same green used for OS X window zoom buttons
 ---  * osx_yellow - The same yellow used for OS X window minimize buttons
+---  * All the X11 web colors from https://en.wikipedia.org/wiki/Web_colors#X11_color_names (names in lowercase)
 ---
 --- Please feel free to submit additional useful colors :)
 module.color = {
