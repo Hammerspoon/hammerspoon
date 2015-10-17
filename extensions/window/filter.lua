@@ -1691,8 +1691,7 @@ local function getWindowObjects(wf,sortOrder)
   local recheckAppName
   for w in pairs(wf.windows) do
     -- filter out any apps that mysteriously vanish
-    -- TODO ideally we'd use an hs.application:isRunning() method here
-    if not w.app.app:bundleID() then log.wf('App %s disappeared!',w.app.name) w.app:destroyed() recheckAppName=w.app.name
+    if not w.app.app:isRunning() then log.wf('App %s disappeared!',w.app.name) w.app:destroyed() recheckAppName=w.app.name
     else r[#r+1]=w end
   end
   if recheckAppName then
@@ -1946,7 +1945,7 @@ end
 
 function WF:delete()
   self.log.i('windowfilter instance deleted')
-  activeInstances[self]=nil spacesInstances[self]=nil self.events={} self.filters={} self.windows={} setmetatable(self) stopGlobalWatcher()
+  activeInstances[self]=nil spacesInstances[self]=nil self.events={} self.filters={} self.windows={} setmetatable(self,nil) stopGlobalWatcher()
 end
 
 
