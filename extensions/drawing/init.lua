@@ -51,15 +51,15 @@ module.color = {
     ["osx_green"]   = { ["red"]=0.153,["green"]=0.788,["blue"]=0.251,["alpha"]=1 },
     ["osx_red"]     = { ["red"]=0.996,["green"]=0.329,["blue"]=0.302,["alpha"]=1 },
     ["osx_yellow"]  = { ["red"]=1.000,["green"]=0.741,["blue"]=0.180,["alpha"]=1 },
---- X11 web colors, from https://en.wikipedia.org/wiki/Web_colors#X11_color_names
---- Pink colors
+-- X11 web colors, from https://en.wikipedia.org/wiki/Web_colors#X11_color_names
+-- Pink colors
     ["pink"]              = { ["red"]=1.000,["green"]=0.753,["blue"]=0.796,["alpha"]=1 },
     ["lightpink"]         = { ["red"]=1.000,["green"]=0.714,["blue"]=0.757,["alpha"]=1 },
     ["hotpink"]           = { ["red"]=1.000,["green"]=0.412,["blue"]=0.706,["alpha"]=1 },
     ["deeppink"]          = { ["red"]=1.000,["green"]=0.078,["blue"]=0.576,["alpha"]=1 },
     ["palevioletred"]     = { ["red"]=0.859,["green"]=0.439,["blue"]=0.576,["alpha"]=1 },
     ["mediumvioletred"]   = { ["red"]=0.780,["green"]=0.082,["blue"]=0.522,["alpha"]=1 },
---- Red colors
+-- Red colors
     ["lightsalmon"]       = { ["red"]=1.000,["green"]=0.627,["blue"]=0.478,["alpha"]=1 },
     ["salmon"]            = { ["red"]=0.980,["green"]=0.502,["blue"]=0.447,["alpha"]=1 },
     ["darksalmon"]        = { ["red"]=0.914,["green"]=0.588,["blue"]=0.478,["alpha"]=1 },
@@ -69,13 +69,13 @@ module.color = {
     ["firebrick"]         = { ["red"]=0.698,["green"]=0.133,["blue"]=0.133,["alpha"]=1 },
     ["darkred"]           = { ["red"]=0.545,["green"]=0.000,["blue"]=0.000,["alpha"]=1 },
     ["red"]               = { ["red"]=1.000,["green"]=0.000,["blue"]=0.000,["alpha"]=1 },
---- Orange colors
+-- Orange colors
     ["orangered"]         = { ["red"]=1.000,["green"]=0.271,["blue"]=0.000,["alpha"]=1 },
     ["tomato"]            = { ["red"]=1.000,["green"]=0.388,["blue"]=0.278,["alpha"]=1 },
     ["coral"]             = { ["red"]=1.000,["green"]=0.498,["blue"]=0.314,["alpha"]=1 },
     ["darkorange"]        = { ["red"]=1.000,["green"]=0.549,["blue"]=0.000,["alpha"]=1 },
     ["orange"]            = { ["red"]=1.000,["green"]=0.647,["blue"]=0.000,["alpha"]=1 },
---- Yellow colors
+-- Yellow colors
     ["yellow"]            = { ["red"]=1.000,["green"]=1.000,["blue"]=0.000,["alpha"]=1 },
     ["lightyellow"]       = { ["red"]=1.000,["green"]=1.000,["blue"]=0.878,["alpha"]=1 },
     ["lemonchiffon"]      = { ["red"]=1.000,["green"]=0.980,["blue"]=0.804,["alpha"]=1 },
@@ -86,7 +86,7 @@ module.color = {
     ["khaki"]             = { ["red"]=0.941,["green"]=0.902,["blue"]=0.549,["alpha"]=1 },
     ["darkkhaki"]         = { ["red"]=0.741,["green"]=0.718,["blue"]=0.420,["alpha"]=1 },
     ["gold"]              = { ["red"]=1.000,["green"]=0.843,["blue"]=0.000,["alpha"]=1 },
---- Brown colors
+-- Brown colors
     ["cornsilk"]          = { ["red"]=1.000,["green"]=0.973,["blue"]=0.863,["alpha"]=1 },
     ["blanchedalmond"]    = { ["red"]=1.000,["green"]=0.922,["blue"]=0.804,["alpha"]=1 },
     ["bisque"]            = { ["red"]=1.000,["green"]=0.894,["blue"]=0.769,["alpha"]=1 },
@@ -104,7 +104,7 @@ module.color = {
     ["sienna"]            = { ["red"]=0.627,["green"]=0.322,["blue"]=0.176,["alpha"]=1 },
     ["brown"]             = { ["red"]=0.647,["green"]=0.165,["blue"]=0.165,["alpha"]=1 },
     ["maroon"]            = { ["red"]=0.502,["green"]=0.000,["blue"]=0.000,["alpha"]=1 },
---- Green colors
+-- Green colors
     ["darkolivegreen"]    = { ["red"]=0.333,["green"]=0.420,["blue"]=0.184,["alpha"]=1 },
     ["olive"]             = { ["red"]=0.502,["green"]=0.502,["blue"]=0.000,["alpha"]=1 },
     ["olivedrab"]         = { ["red"]=0.420,["green"]=0.557,["blue"]=0.137,["alpha"]=1 },
@@ -124,7 +124,7 @@ module.color = {
     ["forestgreen"]       = { ["red"]=0.133,["green"]=0.545,["blue"]=0.133,["alpha"]=1 },
     ["green"]             = { ["red"]=0.000,["green"]=0.502,["blue"]=0.000,["alpha"]=1 },
     ["darkgreen"]         = { ["red"]=0.000,["green"]=0.392,["blue"]=0.000,["alpha"]=1 },
---- Cyan colors
+-- Cyan colors
     ["mediumaquamarine"]  = { ["red"]=0.400,["green"]=0.804,["blue"]=0.667,["alpha"]=1 },
     ["aqua"]              = { ["red"]=0.000,["green"]=1.000,["blue"]=1.000,["alpha"]=1 },
     ["cyan"]              = { ["red"]=0.000,["green"]=1.000,["blue"]=1.000,["alpha"]=1 },
@@ -138,7 +138,7 @@ module.color = {
     ["cadetblue"]         = { ["red"]=0.373,["green"]=0.620,["blue"]=0.627,["alpha"]=1 },
     ["darkcyan"]          = { ["red"]=0.000,["green"]=0.545,["blue"]=0.545,["alpha"]=1 },
     ["teal"]              = { ["red"]=0.000,["green"]=0.502,["blue"]=0.502,["alpha"]=1 },
---- Blue colors
+-- Blue colors
     ["lightsteelblue"]    = { ["red"]=0.690,["green"]=0.769,["blue"]=0.871,["alpha"]=1 },
     ["powderblue"]        = { ["red"]=0.690,["green"]=0.878,["blue"]=0.902,["alpha"]=1 },
     ["lightblue"]         = { ["red"]=0.678,["green"]=0.847,["blue"]=0.902,["alpha"]=1 },
@@ -154,7 +154,7 @@ module.color = {
     ["darkblue"]          = { ["red"]=0.000,["green"]=0.000,["blue"]=0.545,["alpha"]=1 },
     ["navy"]              = { ["red"]=0.000,["green"]=0.000,["blue"]=0.502,["alpha"]=1 },
     ["midnightblue"]      = { ["red"]=0.098,["green"]=0.098,["blue"]=0.439,["alpha"]=1 },
---- Purple/Violet/Magenta colors
+-- Purple/Violet/Magenta colors
     ["lavender"]          = { ["red"]=0.902,["green"]=0.902,["blue"]=0.980,["alpha"]=1 },
     ["thistle"]           = { ["red"]=0.847,["green"]=0.749,["blue"]=0.847,["alpha"]=1 },
     ["plum"]              = { ["red"]=0.867,["green"]=0.627,["blue"]=0.867,["alpha"]=1 },
@@ -174,7 +174,7 @@ module.color = {
     ["rebeccapurple"]     = { ["red"]=0.400,["green"]=0.200,["blue"]=0.600,["alpha"]=1 },
     ["slateblue"]         = { ["red"]=0.416,["green"]=0.353,["blue"]=0.804,["alpha"]=1 },
     ["mediumslateblue"]   = { ["red"]=0.482,["green"]=0.408,["blue"]=0.933,["alpha"]=1 },
---- White colors
+-- White colors
     ["white"]             = { ["red"]=1.000,["green"]=1.000,["blue"]=1.000,["alpha"]=1 },
     ["snow"]              = { ["red"]=1.000,["green"]=0.980,["blue"]=0.980,["alpha"]=1 },
     ["honeydew"]          = { ["red"]=0.941,["green"]=1.000,["blue"]=0.941,["alpha"]=1 },
@@ -192,7 +192,7 @@ module.color = {
     ["linen"]             = { ["red"]=0.980,["green"]=0.941,["blue"]=0.902,["alpha"]=1 },
     ["lavenderblush"]     = { ["red"]=1.000,["green"]=0.941,["blue"]=0.961,["alpha"]=1 },
     ["mistyrose"]         = { ["red"]=1.000,["green"]=0.894,["blue"]=0.882,["alpha"]=1 },
---- Gray/Black colors
+-- Gray/Black colors
     ["gainsboro"]         = { ["red"]=0.863,["green"]=0.863,["blue"]=0.863,["alpha"]=1 },
     ["lightgrey"]         = { ["red"]=0.827,["green"]=0.827,["blue"]=0.827,["alpha"]=1 },
     ["silver"]            = { ["red"]=0.753,["green"]=0.753,["blue"]=0.753,["alpha"]=1 },
