@@ -298,6 +298,7 @@ NSMutableDictionary *registeredTableHelperLocations ;
                     goto nextarg;
                 }
                 lsType = LS_TNONE;
+                // FIXME: should there be a break here? If not, document why not
             case LUA_TNIL:
                 lsType = LS_TNIL;
                 break;
