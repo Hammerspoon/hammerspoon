@@ -902,24 +902,37 @@ function Window:filterEmitEvent(wf,event,inserted,logged,notified)
   local filteringStatusChanged=self:setFilter(wf,event==windowfilter.windowDestroyed)
   local isAllowed=wf.windows[self]
   if filteringStatusChanged then
-    if isAllowed then emit(self,wf,windowfilter.windowAllowed) end -- emit pseudo-event allowed
+    if isAllowed then
+      emit(self,wf,windowfilter.windowAllowed) -- emit pseudo-event allowed
+    else
+      wf.pending[self]=true -- wait for endchain
+    end
     if wf.notifyfn then -- call notifyfn if present
       if not notified then wf.log.d('Notifying windows changed') if wf.log==log then notified=true end end
       wf.notifyfn(wf:getWindows(),event)
     end
     -- if this is an 'inserted' event, keep around the window until all the events are exhausted
-    if inserted and not isAllowed then wf.pending[self]=true end
+    --    if inserted and not isAllowed then wf.pending[self]=true end
   end
   --  wf.log.f('EVENT %s inserted %s statusChanged %s isallowed %s ispending %s',event,inserted,filteringStatusChanged,wf.windows[self],wf.pending[self])
-  if filteringStatusChanged or isAllowed or wf.pending[self] then
+  if isAllowed or wf.pending[self] then
     -- window is currently allowed, call subscribers if any
     logged=emit(self,wf,event,logged)
-    if not inserted then  -- clear the window if this is the last event in the chain
-      if wf.pending[self] then emit(self,wf,windowfilter.windowRejected) end
+    --    if not inserted then  -- clear the window if this is the last event in the chain
+    --      if wf.pending[self] then emit(self,wf,windowfilter.windowRejected) end
+    --      wf.pending[self]=nil
+    --    end
+  end
+  return logged,notified
+end
+
+function Window:emitEndChain()
+  for wf in pairs(activeInstances) do
+    if wf.pending[self] then
+      emit(self,wf,windowfilter.windowRejected)
       wf.pending[self]=nil
     end
   end
-  return logged,notified
 end
 
 function Window:emitEvent(event,inserted)
@@ -937,7 +950,8 @@ function Window.new(win,id,app,watcher)
   --  local w = setmetatable({id=function()return id end},{__index=function(_,k)return function(self,...)return win[k](win,...)end end})
   -- hackity hack removed, turns out it was just for :snapshot (see gh#413)
   local o = setmetatable({app=app,window=win,id=id,watcher=watcher,frame=win:frame(),screen=win:screen():id(),
-    isMinimized=win:isMinimized(),isVisible=win:isVisible(),isFullscreen=win:isFullScreen(),role=win:subrole(),title=win:title()}
+    isMinimized=win:isMinimized(),isVisible=win:isVisible(),isFullscreen=win:isFullScreen(),
+    role=win:subrole(),title=win:title()}
   ,{__index=Window})
   o.isHidden = not o.isVisible and not o.isMinimized
   --  hs.assert(o.isHidden==win:application():isHidden(),'isHidden',o)
@@ -953,14 +967,14 @@ function Window.created(win,id,app,watcher)
   self:emitEvent(windowfilter.windowCreated)
   if self.isVisible then
     self:emitEvent(windowfilter.windowVisible,true)
+    if next(spacesInstances) then app:getCurrentSpaceAppWindows(true) end
     --FIXME inefficient, all app windows cycled every time
-    if next(spacesInstances) then app:getCurrentSpaceAppWindows() end
   else
     if self.isMinimized then self:emitEvent(windowfilter.windowMinimized,true) end
     if self.isHidden then self:emitEvent(windowfilter.windowHidden,true) end
     self:emitEvent(windowfilter.windowInCurrentSpace,true)
-    --FIXME add missing events
   end
+  self:emitEndChain()
 end
 
 function Window:unhidden()
@@ -968,6 +982,7 @@ function Window:unhidden()
   self.isHidden=false
   self:emitEvent(windowfilter.windowUnhidden)
   if not self.isMinimzed then self:visible(true) end
+  self:emitEndChain()
 end
 
 function Window:unminimized()
@@ -975,6 +990,7 @@ function Window:unminimized()
   self.isMinimized=false
   self:emitEvent(windowfilter.windowUnminimized)
   if not self.isHidden then self:visible(true) end
+  self:emitEndChain()
 end
 
 function Window:visible(inserted)
@@ -982,21 +998,24 @@ function Window:visible(inserted)
   self.role=self.window:subrole()
   self.isVisible=true
   self:emitEvent(windowfilter.windowVisible,inserted)
-  if next(spacesInstances) then self.app:getCurrentSpaceAppWindows() end
-  if self.inCurrentSpace then self:onScreen(inserted) end
+  if next(spacesInstances) then self.app:getCurrentSpaceAppWindows(true) end
+  if self.inCurrentSpace then self:onScreen(true) end
+  if not inserted then self:emitEndChain() end
 end
 
 function Window:inCurrentSpace(inserted)
   if self.isInCurrentSpace then return log.vf('%s (%d) already in current space',self.app.name,self.id) end
-  self:emitEvent(windowfilter.windowInCurrentSpace,inserted)
   self.isInCurrentSpace=true
+  self:emitEvent(windowfilter.windowInCurrentSpace,inserted)
   if self.isVisible then self:onScreen(true) end
+  if not inserted then self:emitEndChain() end
 end
 
 function Window:onScreen(inserted)
   if self.isOnScreen then return log.vf('%s (%d) already on screen',self.app.name,self.id) end
   self.isOnScreen=true
   self:emitEvent(windowfilter.windowOnScreen,inserted)
+  if not inserted then self:emitEndChain() end
 end
 
 function Window:focused(inserted)
@@ -1005,6 +1024,7 @@ function Window:focused(inserted)
   self.app.focused=self
   self.timeFocused=timer.secondsSinceEpoch()
   self:emitEvent(windowfilter.windowFocused,inserted) --TODO check this
+  if not inserted then self:emitEndChain() end
 end
 
 function Window:unfocused(inserted)
@@ -1012,12 +1032,14 @@ function Window:unfocused(inserted)
   global.focused=nil
   self.app.focused=nil
   self:emitEvent(windowfilter.windowUnfocused,inserted)
+  if not inserted then self:emitEndChain() end
 end
 
 function Window:notOnScreen(inserted)
   if not self.isOnScreen then return log.vf('%s (%d) already not on screen',self.app.name,self.id) end
   self.isOnScreen=false
   self:emitEvent(windowfilter.windowNotOnScreen,inserted)
+  if not inserted then self:emitEndChain() end
 end
 
 function Window:notInCurrentSpace(inserted)
@@ -1025,6 +1047,18 @@ function Window:notInCurrentSpace(inserted)
   self:notOnScreen(true)
   self.isInCurrentSpace=false
   self:emitEvent(windowfilter.windowNotInCurrentSpace,inserted)
+  if not inserted then self:emitEndChain() end
+end
+
+function Window:notVisible(inserted,skipSpace)
+  if not self.isVisible then return log.vf('%s (%d) already not visible',self.app.name,self.id) end
+  if global.focused==self then self:unfocused(true) end
+  self.role=self.window:subrole()
+  self.isVisible=false
+  self:notOnScreen(true)
+  if not skipSpace then self:inCurrentSpace(true) end
+  self:emitEvent(windowfilter.windowNotVisible,inserted)
+  if not inserted then self:emitEndChain() end
 end
 
 function Window:minimized()
@@ -1032,16 +1066,7 @@ function Window:minimized()
   self:notVisible(true)
   self.isMinimized=true
   self:emitEvent(windowfilter.windowMinimized)
-end
-
-function Window:notVisible(inserted,skipSpace)
-  if not self.isVisible then return log.vf('%s (%d) already not visible',self.app.name,self.id) end
-  self.isVisible=false
-  if global.focused==self then self:unfocused(true) end
-  self.role=self.window:subrole()
-  self:notOnScreen(true)
-  if not skipSpace then self:inCurrentSpace(true) end
-  self:emitEvent(windowfilter.windowNotVisible,inserted)
+  self:emitEndChain()
 end
 
 function Window:hidden()
@@ -1049,6 +1074,7 @@ function Window:hidden()
   self:notVisible(true)
   self.isHidden=true
   self:emitEvent(windowfilter.windowHidden)
+  self:emitEndChain()
 end
 
 
@@ -1067,6 +1093,7 @@ function Window:doMoved()
     self:emitEvent(fs and windowfilter.windowFullscreened or windowfilter.windowUnfullscreened,true)
   end
   self:emitEvent(windowfilter.windowMoved)
+  self:emitEndChain()
 end
 
 local TITLECHANGED_DELAY=0.5
@@ -1078,6 +1105,7 @@ function Window:doTitleChanged()
   self.title=self.window:title()
   self.titleDelayed=nil
   self:emitEvent(windowfilter.windowTitleChanged)
+  self:emitEndChain()
 end
 
 function Window:destroyed()
@@ -1088,6 +1116,7 @@ function Window:destroyed()
   if self.isVisible then self:notVisible(true,true) end
   if next(spacesInstances) then self:notInCurrentSpace(true) end
   self:emitEvent(windowfilter.windowDestroyed)
+  self:emitEndChain()
   self.window=nil
 end
 
@@ -1144,7 +1173,7 @@ function App:getAppWindows()
   end
 end
 
-function App:getCurrentSpaceAppWindows()
+function App:getCurrentSpaceAppWindows(inserted)
   local gone={}
   if next(spacesInstances) then
     for _,win in pairs(self.windows) do
@@ -1154,9 +1183,11 @@ function App:getCurrentSpaceAppWindows()
     end
   end
   local allWindows=self.app:allWindows()
+  --[[ no need, desktop is filtered in hs.window now
   if self.name=='Finder' then --filter out the desktop here
     for i=#allWindows,1,-1 do if allWindows[i]:role()~='AXWindow' then tremove(allWindows,i) break end end
   end
+  --]]
   if #allWindows>0 then log.df('Found %d windows for app %s',#allWindows,self.name) end
   local arrived={}
   for _,win in ipairs(allWindows) do
@@ -1167,8 +1198,8 @@ function App:getCurrentSpaceAppWindows()
       arrived[id]=self.windows[id]
     end
   end
-  for _,win in pairs(gone) do win:notInCurrentSpace() end
-  for _,win in pairs(arrived) do win:inCurrentSpace() end
+  for _,win in pairs(gone) do win:notInCurrentSpace(inserted) end
+  for _,win in pairs(arrived) do win:inCurrentSpace(inserted) end
 end
 
 function App:activated()
@@ -1221,7 +1252,7 @@ function App:unhidden()
   end
   log.vf('App %s unhidden',self.name)
   self.isHidden=false
-  if next(spacesInstances) then self:getCurrentSpaceAppWindows() end
+  if next(spacesInstances) then self:getCurrentSpaceAppWindows(true) end
 end
 function App:destroyed()
   log.f('App %s deregistered',self.name)
