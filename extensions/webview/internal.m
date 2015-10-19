@@ -396,7 +396,7 @@ static int userdata_gc(lua_State* L) ;
 
 - (void)webView:(WKWebView *)theView runJavaScriptAlertPanelWithMessage:(NSString *)message
                                                        initiatedByFrame:(WKFrameInfo *)frame
-                                                      completionHandler:(void (^)())completionHandler {
+                                                      completionHandler:(void (^)(void))completionHandler {
     NSAlert *alertPanel = [[NSAlert alloc] init] ;
     [alertPanel addButtonWithTitle:@"OK"];
     [alertPanel setMessageText:[NSString stringWithFormat:@"JavaScript Alert for %@", frame.request.URL.host]] ;
