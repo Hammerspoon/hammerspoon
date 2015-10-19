@@ -423,7 +423,7 @@ function geometry.scale(t,s1,s2,...)
   local s=new(s1,s2,...)
   local c=geometry.getcenter(t)
   local sw,sh=s.w or s.x,s.h or s.y
-  if sw/2==sw or sh/2==sh then error('invalid scale factor, must be < inf',2) end
+  if (sw~=0 and sw/2==sw) or (sh~=0 and sh/2==sh) then error('invalid scale factor, must be < inf',2) end
   if t.w and t.h then
     if sw<=0 or sh<=0 then error('invalid scale factor, must be > 0',2) end
     t.w=t.w*sw
