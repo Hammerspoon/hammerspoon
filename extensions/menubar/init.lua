@@ -4,6 +4,8 @@
 
 local menubar = require "hs.menubar.internal"
 local imagemod = require("hs.image")
+local geometry = require "hs.geometry"
+local screen = require "hs.screen"
 
 -- This is the wrapper for hs.menubar:setIcon(). It is documented in internal.m
 
@@ -23,6 +25,27 @@ menubarObject.setIcon = function(object, imagePath)
     end
 
     return object:_setIcon(tmpImage)
+end
+
+--- hs.menubar:frame() -> hs.geometry rect
+--- Method
+--- Returns the menubar item frame
+---
+--- Parameters
+---  * None
+---
+--- Returns:
+---  * an hs.geometry rect describing the menubar item's frame or 'nil' if no icon or title is set for the menubar object
+
+function menubarObject:frame()
+    local sf = screen.mainScreen():fullFrame()
+    local f = self:_frame()
+    if not self:icon()  and self:title() == "" then
+        return nil
+    else
+        f.y = sf.h - f.y - f.h
+        return geometry(f)
+    end
 end
 
 return menubar

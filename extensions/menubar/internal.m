@@ -256,6 +256,14 @@ void erase_all_menu_parts(lua_State *L, NSStatusItem *statusItem) {
    return;
 }
 
+static void geom_pushrect(lua_State* L, NSRect rect) {
+    lua_newtable(L);
+    lua_pushnumber(L, rect.origin.x);    lua_setfield(L, -2, "x");
+    lua_pushnumber(L, rect.origin.y);    lua_setfield(L, -2, "y");
+    lua_pushnumber(L, rect.size.width);  lua_setfield(L, -2, "w");
+    lua_pushnumber(L, rect.size.height); lua_setfield(L, -2, "h");
+}
+
 // ----------------------- API implementations ---------------------
 
 /// hs.menubar.new([inMenuBar]) -> menubaritem or nil
@@ -734,6 +742,16 @@ static int menubarGetIcon(lua_State *L) {
     return 1 ;
 }
 
+static int menubarFrame(lua_State *L) {
+    menubaritem_t *menuBarItem = get_item_arg(L, 1);
+    NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+    NSRect frame = [[statusItem valueForKey:@"window"] frame];
+
+    geom_pushrect(L, frame);
+
+    return 1;
+}
+
 // ----------------------- Lua/hs glue GAR ---------------------
 
 void menubar_setup() {
@@ -779,6 +797,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"removeFromMenuBar", menubar_removeFromMenuBar},
     {"returnToMenuBar",   menubar_returnToMenuBar},
     {"delete",            menubar_delete},
+    {"_frame",            menubarFrame},
 
     {"__tostring",        userdata_tostring},
     {"__gc",              menubaritem_gc},
