@@ -859,6 +859,7 @@ static int userdata_tostring(lua_State* L) {
         theName = @"(un-named screen)" ;
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
+    CFRelease(deviceInfo);
     return 1 ;
 }
 
