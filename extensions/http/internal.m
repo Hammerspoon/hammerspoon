@@ -538,6 +538,7 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
         default:
             showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed as a NSURLRequest: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
             return nil ;
+            break;
     }
 
     lua_pop(L, 1);
@@ -580,7 +581,7 @@ int luaopen_hs_http_internal(lua_State* L __unused) {
     [[LuaSkin shared] registerPushNSHelper:NSURLRequest_toLua  forClass:"NSURLRequest"] ;
     [[LuaSkin shared] registerPushNSHelper:NSURLResponse_toLua forClass:"NSURLResponse"] ;
 
-    [[LuaSkin shared] registerTableHelper:table_toNSURLRequest forClass:"NSURLRequest"] ;
+    [[LuaSkin shared] registerLuaObjectHelper:table_toNSURLRequest forClass:"NSURLRequest"] ;
 
     return 1;
 }

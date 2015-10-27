@@ -8,6 +8,7 @@ local module    = {
 local fnutils = require("hs.fnutils")
 
 local module = require("hs.image.internal")
+require("hs.drawing.color") -- make sure that the conversion helpers required to support color are loaded
 
 local __tostring_for_arrays = function(self)
     local result = ""
