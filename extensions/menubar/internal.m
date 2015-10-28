@@ -256,6 +256,7 @@ void erase_all_menu_parts(lua_State *L, NSStatusItem *statusItem) {
    return;
 }
 
+// Create and push a lua geometry rect
 static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_newtable(L);
     lua_pushnumber(L, rect.origin.x);    lua_setfield(L, -2, "x");
