@@ -430,8 +430,8 @@ static int defineLinePatterns(lua_State *L) {
 static int defineLineAppliesTo(lua_State *L) {
     lua_newtable(L) ;
       lua_pushinteger(L, 0) ;                                  lua_setfield(L, -2, "line") ;
-//       lua_pushinteger(L, (lua_Integer)NSUnderlineByWordMask) ; lua_setfield(L, -2, "word") ; // deprecated in 10.11 with Xcode 7.1 update
-      lua_pushinteger(L, (lua_Integer)NSUnderlineByWord) ; lua_setfield(L, -2, "word") ;
+      lua_pushinteger(L, (lua_Integer)NSUnderlineByWordMask) ; lua_setfield(L, -2, "word") ; // deprecated in 10.11 with Xcode 7.1 update
+//       lua_pushinteger(L, (lua_Integer)NSUnderlineByWord) ;     lua_setfield(L, -2, "word") ;
     return 1 ;
 }
 
