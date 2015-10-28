@@ -85,16 +85,83 @@ local internalFontFunctions = {
 
 -- tweak the hs.styledtext object metatable with things easier to do in lua...
 local objectMetatable = hs.getObjectMetatable("hs.styledtext")
+
+--- hs.styledtext:byte([starts], [ends]) -> integer, ...
+--- Method
+--- Returns the internal numerical representation of the characters in the `hs.styledtext` object specified by the given indicies.  Mimics the Lua `string.byte` function.
+---
+--- Parameters:
+---  * starts - an optional index position within the text of the `hs.styledtext` object indicating the beginning of the substring to return numerical values for.  Defaults to 1, the beginning of the objects text.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
+---  * ends   - an optional index position within the text of the `hs.styledtext` object indicating the end of the substring to return numerical values for.  Defaults to the value of `starts`.  If this number is negative, it is counted backwards from the end of the object's text.
+---
+--- Returns:
+---  * a list of integers representing the internal numeric representation of the characters in the `hs.styledtext` object specified by the given indicies.
+---
+--- Notes:
+---  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
 objectMetatable.byte   = function(self, ...) return self:asString():byte(...) end
+
+--- hs.styledtext:find(pattern, [init, [plain]]) -> start, end, ... | nil
+--- Method
+--- Returns the indicies of the first occurrence of the specified pattern in the text of the `hs.styledtext` object.  Mimics the Lua `string.find` function.
+---
+--- Parameters:
+---  * pattern  - a string containing the pattern to locate.  See the Lua manual, section 6.4.1 (`help.lua._man._6_4_1`) for more details.
+---  * init     - an optional integer specifying the location within the text to start the pattern search
+---  * plain    - an optional boolean specifying whether or not to treat the pattern as plain text (i.e. an exact match).  Defaults to false.  If you wish to specify this argument, you must also specify init.
+---
+--- Returns:
+---  * if a match is found, `start` and `end` will be the indices where the pattern was first located.  If captures were specified in the pattern, they will also be returned as additional arguments after `start` and `end`.  If the pattern was not found in the text, then this method returns nil.
+---
+--- Notes:
+---  * Any captures returned are returned as Lua Strings, not as `hs.styledtext` objects.
 objectMetatable.find   = function(self, ...) return self:asString():find(...) end
+
+--- hs.styledtext:match(pattern, [init]) -> match ... | nil
+--- Method
+--- Returns the first occurrence of the captures in the specified pattern (or the complete pattern, if no captures are specified) in the text of the `hs.styledtext` object.  Mimics the Lua `string.match` function.
+---
+--- Parameters:
+---  * pattern  - a string containing the pattern to locate.  See the Lua manual, section 6.4.1 (`help.lua._man._6_4_1`) for more details.
+---  * init     - an optional integer specifying the location within the text to start the pattern search
+---
+--- Returns:
+---  * if a match is found, the captures in the specified pattern (or the complete pattern, if no captures are specified).  If the pattern was not found in the text, then this method returns nil.
+---
+--- Notes:
+---  * Any captures (or the entire pattern) returned are returned as Lua Strings, not as `hs.styledtext` objects.
 objectMetatable.match  = function(self, ...) return self:asString():match(...) end
+
+--- hs.styledtext:gmatch(pattern) -> iterator-function
+--- Method
+--- Returns an iterator function which will return the captures (or the entire pattern) of the next match of the specified pattern in the text of the `hs.styledtext` object each time it is called.  Mimics the Lua `string.gmatch` function.
+---
+--- Parameters:
+---  * pattern  - a string containing the pattern to locate.  See the Lua manual, section 6.4.1 (`help.lua._man._6_4_1`) for more details.
+---
+--- Returns:
+---  * an iterator function which will return the captures (or the entire pattern) of the next match of the specified pattern in the text of the `hs.styledtext` object each time it is called.
+---
+--- Notes:
+---  * Any captures (or the entire pattern) returned by the iterator are returned as Lua Strings, not as `hs.styledtext` objects.
 objectMetatable.gmatch = function(self, ...) return self:asString():gmatch(...) end
 
+
+--- hs.styledtext:rep(n, [separator]) -> styledText object
+--- Method
+--- Returns an `hs.styledtext` object which contains `n` repetitions of the `hs.styledtext` object, optionally with `separator` between each repetition.  Mimics the Lua `string.rep` function.
+---
+--- Parameters:
+---  * n         - the number of times to repeat the `hs.styledtext` object.
+---  * separator - an optional string or `hs.styledtext` object to insert between repetitions.
+---
+--- Returns:
+---  * an `hs.styledtext` object which contains `n` repitions of the object, including `separator` between repetitions, if it is specified.
 objectMetatable.rep    = function(self, n, sep)
     if n < 1 then return module.new("") end
     local i, result = 1, self:copy()
     while (i < n) do
-        if sep then result = result..sep end
+        if sep then result = result:replaceSubstring(sep, #result + 1, 0) end
         result = result..self
         i = i + 1
     end
@@ -110,6 +177,7 @@ end
 -- string.packsize makes no sense in the context of styled strings
 -- string.unpack   makes no sense in the context of styled strings
 
+-- font stuff documented in internal.m
 module.fontTraits    = _makeConstantsTable(module.fontTraits)
 module.linePatterns  = _makeConstantsTable(module.linePatterns)
 module.lineStyles    = _makeConstantsTable(module.lineStyles)
@@ -127,6 +195,25 @@ module.fontInfo = function(...)
     return _tableWrapper(internalFontFunctions.fontInfo(...))
 end
 
+--- hs.styledtext.ansi(string, [attributes]) -> styledText object
+--- Constructor
+--- Create an `hs.styledtext` object from the string provided, converting ANSI SGR color and some font sequences into the appropriate attributes.  Attributes to apply to the resulting string may also be optionally provided.
+---
+--- Parameters:
+---  * string     - The string containing the text with ANSI SGR sequences to be converted.
+---  * attributes - an optional table containing attribute key-value pairs to apply to the entire `hs.styledtext` object to be returned.
+---
+--- Returns:
+---  * an `hs.styledtext` object
+---
+--- Notes:
+---  * Because a font is required for the SGR sequences indicating Bold and Italic, the base font is determined using the following logic:
+---    * if no `attributes` table is provided, the font is assumed to be the default for `hs.drawing` as returned by the `hs.drawing.defaultTextStyle` function
+---    * if an `attributes` table is provided and it defines a `font` attribute, this font is used.
+---    * if an `attributes` table is provided, but it does not provide a `font` attribute, the NSAttributedString default of Helvetica at 12 points is used.
+---  * As the most common use of this constructor is likely to be from the output of a terminal shell command, you will most likely want to specify a fixed-pitch (monospace) font.  You can get a list of installed fixed-pitch fonts by typing `hs.styledtext.fontNamesWithTraits(hs.styledtext.fontTraits.fixedPitchFont)` into the Hammerspoon console.
+---
+---  * See ... for a description of the attributes table format which can be provided for the optional second argument.
 module.ansi = function(rawText, attr)
     local drawing    = require("hs.drawing")
     local color      = require("hs.drawing.color")

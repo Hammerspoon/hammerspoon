@@ -475,7 +475,7 @@ static int drawing_newLine(lua_State *L) {
 ///
 /// Parameters:
 ///  * sizeRect - A rect-table containing the location/size of the text
-///  * message - A string containing the text to be displayed
+///  * message - A string containing the text to be displayed.   May also be any of the types supported by `hs.styledtext`.  See `hs.styledtext.new` for more details.
 ///
 /// Returns:
 ///  * An `hs.drawing` text object, or nil if an error occurs
@@ -574,7 +574,7 @@ static int drawing_newImage(lua_State *L) {
 /// Sets the text of a drawing object
 ///
 /// Parameters:
-///  * message - A string containing the text to display
+///  * message - A string containing the text to display.  May also be any of the types supported by `hs.styledtext`.  See `hs.styledtext.new` for more details.
 ///
 /// Returns:
 ///  * The drawing object
@@ -597,6 +597,18 @@ static int drawing_setText(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing:getText() -> `hs.styledtext` object
+/// Method
+/// Gets the text of a drawing object as an `hs.styledtext` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * an `hs.styledtext` object
+///
+/// Notes:
+///  * This method should only be used on text drawing objects
 static int drawing_getText(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1922,9 +1934,21 @@ static int setBehavior(lua_State *L) {
     return 1 ;
 }
 
-// NOTE: Change this if you change the defaults in HSDrawingViewText initWithFrame:
+/// hs.drawing.defaultTextStyle() -> `hs.styledtext` attributes table
+/// Function
+/// Returns a table containing the default font, size, color, and paragraphStyle used by `hs.drawing` for text drawing objects.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table containing the default style attributes `hs.drawing` uses for text drawing objects in the `hs.styledtext` attributes table format.
+///
+/// Notes:
+///  * This method returns the default font, size, color, and paragraphStyle used by `hs.drawing` for text objects.  If you modify a drawing object's defaults with `hs.drawing:setColor`, `hs.drawing:setTextFont`, or `hs.drawing:setTextSize`, the changes will not be reflected by this function.
 static int default_textAttributes(lua_State *L) {
     lua_newtable(L) ;
+// NOTE: Change this if you change the defaults in [HSDrawingViewText initWithFrame:]
       [[LuaSkin shared] pushNSObject:[NSFont systemFontOfSize: 27]] ;                    lua_setfield(L, -2, "font") ;
       [[LuaSkin shared] pushNSObject:[NSColor colorWithCalibratedWhite:1.0 alpha:1.0]] ; lua_setfield(L, -2, "color") ;
       [[LuaSkin shared] pushNSObject:[NSParagraphStyle defaultParagraphStyle]] ;         lua_setfield(L, -2, "paragraphStyle") ;
@@ -1940,24 +1964,25 @@ static int default_textAttributes(lua_State *L) {
 ///
 ///  The following format is supported for backwards compatibility, but is deprecated.  Use the hs.styledtext module instead.
 ///
-///  * theText   - the text which is to be displayed
-///  * textStyle - a table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
-///    * font      - the name of the font to use (default: the system font)
-///    * size      - the font point size to use (default: 27.0)
-///    * color     - ignored, but accepted for compatibility with `hs.drawing:setTextStyle()`
-///    * alignment - a string of one of the following indicating the texts alignment within the drawing objects frame:
-///      * "left"      - the text is visually left aligned.
-///      * "right"     - the text is visually right aligned.
-///      * "center"    - the text is visually center aligned.
-///      * "justified" - the text is justified
-///      * "natural"   - (default) the natural alignment of the text’s script
-///    * lineBreak - a string of one of the following indicating how to wrap text which exceeds the drawing object's frame:
-///      * "wordWrap"       - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
-///      * "charWrap"       - wrap before the first character that doesn’t fit
-///      * "clip"           - do not draw past the edge of the drawing object frame
-///      * "truncateHead"   - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
-///      * "truncateTail"   - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
-///      * "truncateMiddle" - the line is displayed so that the beginning and end fit in the frame and the missing text in the middle is indicated by an ellipsis
+///  * theText   - the text which is to be displayed.    May also be any of the types supported by `hs.styledtext`.  See `hs.styledtext.new` for more details.
+///  * textStyle - Deprecated and may be removed in the future.  You are encouraged to use the `hs.styledtext` module to create and set the style for your text and leave this argument empty.
+///    * a table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
+///      * font      - the name of the font to use (default: the system font)
+///      * size      - the font point size to use (default: 27.0)
+///      * color     - ignored, but accepted for compatibility with `hs.drawing:setTextStyle()`
+///      * alignment - a string of one of the following indicating the texts alignment within the drawing objects frame:
+///        * "left"      - the text is visually left aligned.
+///        * "right"     - the text is visually right aligned.
+///        * "center"    - the text is visually center aligned.
+///        * "justified" - the text is justified
+///        * "natural"   - (default) the natural alignment of the text’s script
+///      * lineBreak - a string of one of the following indicating how to wrap text which exceeds the drawing object's frame:
+///        * "wordWrap"       - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
+///        * "charWrap"       - wrap before the first character that doesn’t fit
+///        * "clip"           - do not draw past the edge of the drawing object frame
+///        * "truncateHead"   - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
+///        * "truncateTail"   - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
+///        * "truncateMiddle" - the line is displayed so that the beginning and end fit in the frame and the missing text in the middle is indicated by an ellipsis
 ///
 /// Returns:
 ///  * sizeTable - a table containing the Height and Width necessary to fully display the text drawing object.

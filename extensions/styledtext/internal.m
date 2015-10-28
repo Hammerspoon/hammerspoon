@@ -1,7 +1,4 @@
-// TODO: Document
 // TODO: Review hs.drawing docs
-// TODO: add NSAttributedString to data type
-// TODO: incorporate ansi conversion? or keep separate?  either way, document.
 // TODO: wiki writeup on hs.styledtext
 
 #import <Cocoa/Cocoa.h>
@@ -14,16 +11,47 @@ int refTable ;
 
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
-#pragma mark - NSAttributedString functions
+#pragma mark - NSAttributedString Constructors
+
+/// hs.styledtext.new(string, [attributes]) -> styledText object
+/// Constructor
+/// Create an `hs.styledtext` object from the string or table representation provided.  Attributes to apply to the resulting string may also be optionally provided.
+///
+/// Parameters:
+///  * string     - a string, table, or `hs.styledtext` object to create a new `hs.styledtext` object from.
+///  * attributes - an optional table containing attribute key-value pairs to apply to the entire `hs.styledtext` object to be returned.
+///
+/// Returns:
+///  * an `hs.styledtext` object
+///
+/// Notes:
+///  * See `hs.styledtext:asTable` for a description of the table representation of an `hs.styledtext` object
+///  * See ... for a description of the attributes table format which can be provided for the optional second argument.
+///
+///  * Passing an `hs.styledtext` object as the first parameter without specifying an `attributes` table is the equivalent of invoking `hs.styledtext:copy`.
+static int string_new(__unused lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TSTRING | LS_TNUMBER | LS_TTABLE,
+                                LS_TTABLE  | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    NSMutableAttributedString *newString = [[[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSAttributedString"] mutableCopy] ;
+    if (lua_gettop(L) == 2) {
+        NSDictionary *attributes = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"hs.styledtext.AttributesDictionary"] ;
+        NSRange theRange = NSMakeRange(0, [newString length]) ;
+        if (attributes) [newString addAttributes:attributes range:theRange] ;
+    }
+
+    [[LuaSkin shared] pushNSObject:newString] ;
+    return 1 ;
+}
 
 /// hs.styledtext.getStyledTextFromData(data, [type]) -> styledText object
-/// Function
+/// Constructor
 /// Converts the provided data into a styled text string.
 ///
 /// Parameters:
 ///  * data          - the data, as a lua string, which contains the raw data to be converted to a styledText object
 ///  * type          - a string indicating the format of the contents in `data`.  Defaults to "html".  The string may be one of the following (not all formats may be fully representable as a simple string container - see also `hs.styledtext.setTextFromFile`):
-///    * "plain"      - Plain text document.
+///    * "text"      - Plain text document.
 ///    * "rtf"        - Rich text format document.
 ///    * "rtfd"       - Rich text format with attachments document.
 ///    * "simpleText" - Macintosh SimpleText document.
@@ -82,13 +110,13 @@ static int getStyledTextFromData(lua_State *L) {
 }
 
 /// hs.styledtext.getStyledTextFromFile(file, [type]) -> styledText object
-/// Function
+/// Constructor
 /// Converts the data in the specified file into a styled text string.
 ///
 /// Parameters:
 ///  * file          - the path to the file to use as the source for the data to convert into a styledText object
 ///  * type          - a string indicating the format of the contents in `data`.  Defaults to "html".  The string may be one of the following (not all formats may be fully representable as a simple string container - see also `hs.styledtext.setTextFromFile`):
-///    * "plain"      - Plain text document.
+///    * "text"      - Plain text document.
 ///    * "rtf"        - Rich text format document.
 ///    * "rtfd"       - Rich text format with attachments document.
 ///    * "simpleText" - Macintosh SimpleText document.
@@ -269,7 +297,7 @@ static int fontTraits(lua_State* L) {
 }
 
 /// hs.styledtext.fontInfo(font) -> table
-/// Method
+/// Function
 /// Get information about the font Specified in the attributes table.
 ///
 /// Paramters:
@@ -409,21 +437,15 @@ static int defineLineAppliesTo(lua_State *L) {
 
 #pragma mark - Methods unique to hs.styledtext objects
 
-static int string_new(__unused lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING | LS_TNUMBER | LS_TTABLE,
-                                LS_TTABLE  | LS_TOPTIONAL,
-                                LS_TBREAK] ;
-    NSMutableAttributedString *newString = [[[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSAttributedString"] mutableCopy] ;
-    if (lua_gettop(L) == 2) {
-        NSDictionary *attributes = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"hs.styledtext.AttributesDictionary"] ;
-        NSRange theRange = NSMakeRange(0, [newString length]) ;
-        if (attributes) [newString addAttributes:attributes range:theRange] ;
-    }
-
-    [[LuaSkin shared] pushNSObject:newString] ;
-    return 1 ;
-}
-
+/// hs.styledtext:copy(styledText) -> styledText object
+/// Method
+/// Create a copy of the `hs.styledtext` object.
+///
+/// Parameters:
+///  * styledText - an `hs.styledtext` object
+///
+/// Returns:
+///  * a copy of the styledText object
 static int string_copy(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
@@ -431,6 +453,18 @@ static int string_copy(lua_State *L) {
     return 1 ;
 }
 
+/// hs.styledtext:isIdentical(styledText) -> boolean
+/// Method
+/// Determine if the `styledText` object is identical to the one specified.
+///
+/// Parameters:
+///  * styledText - an `hs.styledtext` object
+///
+/// Returns:
+///  * a boolean value indicating whether or not the styled text objects are identical, both in text content and attributes specified.
+///
+/// Notes:
+///  * comparing two `hs.styledtext` objects with the `==` operator only compares whether or not the string values are identical.  This method also compares their attributes.
 static int string_identical(lua_State* L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     NSAttributedString *theString1 = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
@@ -439,6 +473,28 @@ static int string_identical(lua_State* L) {
     return 1 ;
 }
 
+/// hs.styledtext:asTable([starts], [ends]) -> table
+/// Method
+/// Returns the table representation of the `hs.styledtext` object or its specified substring.
+///
+/// Parameters:
+///  * starts - an optional index position within the text of the `hs.styledtext` object indicating the beginning of the substring to return the table for.  Defaults to 1, the beginning of the objects text.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
+///  * ends   - an optional index position within the text of the `hs.styledtext` object indicating the end of the substring to return the table for.  Defaults to the length of the objects text.  If this number is negative, it is counted backwards from the end of the object's text.
+///
+/// Returns:
+///  * a table representing the `hs.styledtext` object.  The table will be an array with the following structure:
+///    * index 1             - the text of the `hs.styledtext` object as a Lua String.
+///    * index 2+            - a table with the following keys:
+///      * starts            - the index position in the string where this list of attributes is first applied
+///      * ends              - the index position in the string where the application of this list of attributes ends
+///      * attributes        - a table of attribute key-value pairs that apply to the string between the positions of `starts` and `ends`
+///      * unsupportedFields - this field only exists, and will be set to `true` when an attribute that was included in the attributes table that this module cannot modify.  A best effort will be made to render the attributes assigned value in the attributes table, but modifying the attribute and re-applying it with `hs.styledtext:setStyle` will be silently ignored.
+///
+/// Notes:
+///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
+///  * The attribute which contains an attachment (image) for a converted RTFD or other document is known to set the `unsupportedFields` flag.
+///
+///  * See ... for a description of the attributes table format
 static int string_totable(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
                                 LS_TNUMBER | LS_TOPTIONAL,
@@ -454,13 +510,14 @@ static int string_totable(lua_State *L) {
     lua_Integer j = lua_isnoneornil(L, 3) ? len : luaL_checkinteger(L, 3) ;
 
 // keep lua indexing and method of specifying range (index starts at 1, j is also an index, not the length
-    if (i < 0)   i = len + i ; // if i is negative, then it is indexed from the end of the string
-    if (j < 0)   j = len + j ; // if j is negative, then it is indexed from the end of the string
-    if (i < 1)   i = 1 ;       // if i is still < 1, then silently coerce to beginning of string
-    if (j > len) j = len ;     // if j is > length,  then silently coerce to string length (end)
+    if (i < 0)   i = len + 1 + i ; // if i is negative, then it is indexed from the end of the string
+    if (j < 0)   j = len + 1 + j ; // if j is negative, then it is indexed from the end of the string
+    if (i < 1)   i = 1 ;           // if i is still < 1, then silently coerce to beginning of string
+    if (j > len) j = len ;         // if j is > length,  then silently coerce to string length (end)
     lua_newtable(L) ;
     if (i > j) {
         lua_pushstring(L, "") ;
+        lua_rawseti(L, -2, 1) ;
     } else {
 // finally convert to Objective-C's practice of 0 indexing and j as length, not index
         NSRange theRange = NSMakeRange((NSUInteger)(i - 1), (NSUInteger)(j - (i - 1))) ;
@@ -516,6 +573,19 @@ static int string_totable(lua_State *L) {
     return 1 ;
 }
 
+/// hs.styledtext:asString([starts], [ends]) -> string
+/// Method
+/// Returns the text of the `hs.styledtext` object as a Lua String
+///
+/// Parameters:
+///  * starts - an optional index position within the text of the `hs.styledtext` object indicating the beginning of the substring to return the string for.  Defaults to 1, the beginning of the objects text.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
+///  * ends   - an optional index position within the text of the `hs.styledtext` object indicating the end of the substring to return the string for.  Defaults to the length of the objects text.  If this number is negative, it is counted backwards from the end of the object's text.
+///
+/// Returns:
+///  * a string containing the text of the `hs.styledtext` object specified
+///
+/// Notes:
+///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
 static int string_tostring(lua_State* L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
                                 LS_TNUMBER | LS_TOPTIONAL,
@@ -531,10 +601,10 @@ static int string_tostring(lua_State* L) {
     lua_Integer j = lua_isnoneornil(L, 3) ? len : luaL_checkinteger(L, 3) ;
 
 // keep lua indexing and method of specifying range (index starts at 1, j is also an index, not the length
-    if (i < 0)   i = len + i ; // if i is negative, then it is indexed from the end of the string
-    if (j < 0)   j = len + j ; // if j is negative, then it is indexed from the end of the string
-    if (i < 1)   i = 1 ;       // if i is still < 1, then silently coerce to beginning of string
-    if (j > len) j = len ;     // if j is > length,  then silently coerce to string length (end)
+    if (i < 0)   i = len + 1 + i ; // if i is negative, then it is indexed from the end of the string
+    if (j < 0)   j = len + 1 + j ; // if j is negative, then it is indexed from the end of the string
+    if (i < 1)   i = 1 ;           // if i is still < 1, then silently coerce to beginning of string
+    if (j > len) j = len ;         // if j is > length,  then silently coerce to string length (end)
     if (i > j)
         lua_pushstring(L, "") ;
     else {
@@ -546,6 +616,23 @@ static int string_tostring(lua_State* L) {
     return 1 ;
 }
 
+/// hs.styledtext:setStyle(attributes, [starts], [ends], [clear]) -> styledText object
+/// Method
+/// Return a copy of the `hs.styledtext` object containing the changes to its attributes specified in the `attributes` table.
+///
+/// Parameters:
+///  * attributes - a table of attribute key-value pairs to apply to the object between the positions of `starts` and `ends`
+///  * starts     - an optional index position within the text of the `hs.styledtext` object indicating the beginning of the substring to set attributes for.  Defaults to 1, the beginning of the objects text.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
+///  * ends       - an optional index position within the text of the `hs.styledtext` object indicating the end of the substring to set attributes for.  Defaults to the length of the objects text.  If this number is negative, it is counted backwards from the end of the object's text.
+///  * clear      - an optional boolean indicating whether or not the attributes specified should completely replace the existing attributes (true) or be added to/modify them (false).  Defaults to false.
+///
+/// Returns:
+///  * a copy of the `hs.styledtext` object with the attributes specified applied to the given range of the original object.
+///
+/// Notes:
+///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function except that `starts` must refer to an index preceding or equal to `ends`, even after negative and out-of-bounds indices are adjusted for.
+///
+///  * See ... for a description of the attributes table format
 static int string_setStyleForRange(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
                                 LS_TTABLE,
@@ -565,10 +652,10 @@ static int string_setStyleForRange(lua_State *L) {
     lua_Integer j = lua_isnoneornil(L, 4) ? len : luaL_checkinteger(L, 4) ;
 
 // keep lua indexing and method of specifying range (index starts at 1, j is also an index, not the length
-    if (i < 0)   i = len + i ; // if i is negative, then it is indexed from the end of the string
-    if (j < 0)   j = len + j ; // if j is negative, then it is indexed from the end of the string
-    if (i < 1)   i = 1 ;       // if i is still < 1, then silently coerce to beginning of string
-    if (j > len) j = len ;     // if j is > length,  then silently coerce to string length (end)
+    if (i < 0)   i = len + 1 + i ; // if i is negative, then it is indexed from the end of the string
+    if (j < 0)   j = len + 1 + j ; // if j is negative, then it is indexed from the end of the string
+    if (i < 1)   i = 1 ;           // if i is still < 1, then silently coerce to beginning of string
+    if (j > len) j = len ;         // if j is > length,  then silently coerce to string length (end)
     if (i > j)
         return luaL_argerror(L, 3, "starts index must be < ends index") ;
 
@@ -587,6 +674,23 @@ static int string_setStyleForRange(lua_State *L) {
     return 1 ;
 }
 
+/// hs.styledtext:removeStyle(attributes, [starts], [ends]) -> styledText object
+/// Method
+/// Return a copy of the `hs.styledtext` object containing the changes to its attributes specified in the `attributes` table.
+///
+/// Parameters:
+///  * attributes - an array of attribute labels to remove (set to `nil`) from the `hs.styledtext` object.
+///  * starts     - an optional index position within the text of the `hs.styledtext` object indicating the beginning of the substring to remove attributes for.  Defaults to 1, the beginning of the object's text.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
+///  * ends       - an optional index position within the text of the `hs.styledtext` object indicating the end of the substring to remove attributes for.  Defaults to the length of the object's text.  If this number is negative, it is counted backwards from the end of the object's text.
+///
+/// Returns:
+///  * a copy of the `hs.styledtext` object with the attributes specified removed from the given range of the original object.
+///
+/// Notes:
+///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
+///
+///  * See ... for a list of officially recognized attribute label names.
+///  * The officially recognized attribute labels were chosen for brevity or for consistency with conventions used in Hammerspoon's other modules.  If you know the Objective-C name for an attribute, you can list it instead of an officially recognized label, allowing the removal of attributes which this module cannot manipulate in other ways.
 static int string_removeStyleForRange(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
                                 LS_TTABLE  | LS_TOPTIONAL,
@@ -634,10 +738,10 @@ static int string_removeStyleForRange(lua_State *L) {
     lua_Integer j = lua_isnoneornil(L, nextArg + 1) ? len : luaL_checkinteger(L, nextArg + 1) ;
 
 // keep lua indexing and method of specifying range (index starts at 1, j is also an index, not the length
-    if (i < 0)   i = len + i ; // if i is negative, then it is indexed from the end of the string
-    if (j < 0)   j = len + j ; // if j is negative, then it is indexed from the end of the string
-    if (i < 1)   i = 1 ;       // if i is still < 1, then silently coerce to beginning of string
-    if (j > len) j = len ;     // if j is > length,  then silently coerce to string length (end)
+    if (i < 0)   i = len + 1 + i ; // if i is negative, then it is indexed from the end of the string
+    if (j < 0)   j = len + 1 + j ; // if j is negative, then it is indexed from the end of the string
+    if (i < 1)   i = 1 ;           // if i is still < 1, then silently coerce to beginning of string
+    if (j > len) j = len ;         // if j is > length,  then silently coerce to string length (end)
     if (i > j)
         return luaL_argerror(L, 3, "starts index must be < ends index") ;
 
@@ -652,8 +756,24 @@ static int string_removeStyleForRange(lua_State *L) {
     return 1 ;
 }
 
-// + TODO: string_replaceTextWithStyleForRange -- use for gsub?
-//       -- with and without attributes (replaceCharactersInRange:withString: and replaceCharactersInRange:withAttributedString:)?
+/// hs.styledtext:replaceSubstring(string, [starts], [ends], [clear]) -> styledText object
+/// Method
+/// Return a copy of the `hs.styledtext` object containing the changes to its attributes specified in the `attributes` table.
+///
+/// Parameters:
+///  * string     - a string, table, or `hs.styledtext` object to insert or replace the substring specified.
+///  * starts     - an optional index position within the text of the `hs.styledtext` object indicating the beginning of the destination for the specified string.  Defaults to 1, the beginning of the objects text.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
+///  * ends       - an optional index position within the text of the `hs.styledtext` object indicating the end of destination for the specified string.  Defaults to the length of the objects text.  If this number is negative, it is counted backwards from the end of the object's text.  If this number is 0, then the substring is inserted at the index specified by `starts` rather than replacing it.
+///  * clear      - an optional boolean indicating whether or not the attributes of the new string should be included (true) or whether the new substring should inherit the attributes of the first character replaced (false).  Defaults to false if `string` is a Lua String or number; otherwise defaults to true.
+///
+/// Returns:
+///  * a copy of the `hs.styledtext` object with the specified substring replacement to the original object.
+///
+/// Notes:
+///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function except that `starts` must refer to an index preceding or equal to `ends`, even after negative and out-of-bounds indices are adjusted for.
+///  * If `starts` and `ends` are equal, the substring is inserted at the specified location.
+///
+///  * See ... for a description of the attributes table format
 static int string_replaceSubstringForRange(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
                                 LS_TANY,
@@ -663,7 +783,8 @@ static int string_replaceSubstringForRange(lua_State *L) {
                                 LS_TBREAK] ;
 
     NSAttributedString *theString  = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
-    BOOL withAttributes = lua_isboolean(L, lua_gettop(L)) ? (BOOL)lua_toboolean(L, lua_gettop(L)) : YES ;
+    BOOL withAttributes = ((lua_type(L, 2) == LUA_TSTRING) || (lua_type(L, 2) == LUA_TNUMBER)) ?  NO : YES ;
+    if (lua_isboolean(L, lua_gettop(L))) withAttributes = (BOOL)lua_toboolean(L, lua_gettop(L)) ;
 
     NSAttributedString *subString = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSAttributedString"] ;
 
@@ -672,22 +793,26 @@ static int string_replaceSubstringForRange(lua_State *L) {
 
     lua_Integer i = lua_isnumber(L, 3) ? luaL_checkinteger(L, 3) : 1 ;
     lua_Integer j = lua_isnumber(L, 4) ? luaL_checkinteger(L, 4) : len ;
+    BOOL insert = (j == 0) ;
 
 // keep lua indexing and method of specifying range (index starts at 1, j is also an index, not the length
-    if (i < 0)   i = len + i ; // if i is negative, then it is indexed from the end of the string
-    if (j < 0)   j = len + j ; // if j is negative, then it is indexed from the end of the string
-    if (i < 1)   i = 1 ;       // if i is still < 1, then silently coerce to beginning of string
-    if (j > len) j = len ;     // if j is > length,  then silently coerce to string length (end)
-    if (i > j)
+    if (i < 0)              i = len + 1 + i ;  // if i is negative, then it is indexed from the end of the string
+    if (!insert && (j < 0)) j = len + 1 + j ;  // if j is negative, then it is indexed from the end of the string
+    if (i < 1)              i = 1 ;            // if i is still < 1, then silently coerce to beginning of string
+    if (j > len)            j = len ;          // if j is > length,  then silently coerce to string length (end)
+// because we allow inserting, the normal check of i > j will be skipped... silently correct i in that case...
+    if (insert && (i > len + 1)) i = len + 1 ; // if i> length, then silently coerce to string length (end)
+    if (!insert && (i > j))
         return luaL_argerror(L, 3, "starts index must be < ends index") ;
 
 // finally convert to Objective-C's practice of 0 indexing and j as length, not index
-    NSRange theRange = NSMakeRange((NSUInteger)(i - 1), (NSUInteger)(j - (i - 1))) ;
+    NSRange theRange = insert ? NSMakeRange((NSUInteger)(i - 1), 0) : NSMakeRange((NSUInteger)(i - 1), (NSUInteger)(j - (i - 1))) ;
 
     NSMutableAttributedString *newString = [theString mutableCopy] ;
 
     if (withAttributes)
-        [newString replaceCharactersInRange:theRange withAttributedString:subString] ;
+// will this copy keep Lua from thinking a userdata has been changed after __gc, thus causing a crash?  If it does, I don't know why...
+        [newString replaceCharactersInRange:theRange withAttributedString:[subString copy]] ;
     else
         [newString replaceCharactersInRange:theRange withString:[subString string]] ;
 
@@ -702,10 +827,9 @@ static int string_replaceSubstringForRange(lua_State *L) {
 ///
 /// Parameters:
 ///  * type          - a string indicating the format to convert the styletext object into.  Defaults to "html".  The string may be one of the following:
-///    * "plain"      - Plain text document.
+///    * "text"      - Plain text document.
 ///    * "rtf"        - Rich text format document.
 ///    * "rtfd"       - Rich text format with attachments document.
-///    * "simpleText" - Macintosh SimpleText document.
 ///    * "html"       - Hypertext Markup Language (HTML) document.
 ///    * "word"       - Microsoft Word document.
 ///    * "wordXML"    - Microsoft Word XML (WordML schema) document.
@@ -728,7 +852,9 @@ static int string_convert(lua_State *L) {
         if      ([requestType isEqualToString:@"text"])       dataType = NSPlainTextDocumentType ;
         else if ([requestType isEqualToString:@"rtf"])        dataType = NSRTFTextDocumentType ;
         else if ([requestType isEqualToString:@"rtfd"])       dataType = NSRTFDTextDocumentType ;
-        else if ([requestType isEqualToString:@"simpleText"]) dataType = NSMacSimpleTextDocumentType ;
+// The MacSimpleText format requires a resource fork... returns "Cocoa error 66062" if we attempt it here.
+// I don't have any examples to test with reading one in, so I'll leave it in the constructor methods for now...
+//        else if ([requestType isEqualToString:@"simpleText"]) dataType = NSMacSimpleTextDocumentType ;
         else if ([requestType isEqualToString:@"html"])       dataType = NSHTMLTextDocumentType ;
         else if ([requestType isEqualToString:@"word"])       dataType = NSDocFormatTextDocumentType ;
         else if ([requestType isEqualToString:@"wordXML"])    dataType = NSWordMLTextDocumentType ;
@@ -753,6 +879,15 @@ static int string_convert(lua_State *L) {
 
 #pragma mark - Methods to mimic Lua's string type as closely as possible
 
+/// hs.styledtext:len() -> integer
+/// Method
+/// Returns the length of the text of the `hs.styledtext` object.  Mimics the Lua `string.len` function.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * an integer which is the length of the text of the `hs.styledtext` object.
 static int string_len(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
@@ -760,6 +895,15 @@ static int string_len(lua_State *L) {
     return 1 ;
 }
 
+/// hs.styledtext:upper() -> styledText object
+/// Method
+/// Returns a copy of the `hs.styledtext` object with all alpha characters converted to upper case.  Mimics the Lua `string.upper` function.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a copy of the `hs.styledtext` object with all alpha characters converted to upper case
 static int string_upper(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
@@ -774,6 +918,15 @@ static int string_upper(lua_State *L) {
     return 1 ;
 }
 
+/// hs.styledtext:lower() -> styledText object
+/// Method
+/// Returns a copy of the `hs.styledtext` object with all alpha characters converted to lower case.  Mimics the Lua `string.lower` function.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a copy of the `hs.styledtext` object with all alpha characters converted to lower case
 static int string_lower(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
@@ -788,6 +941,19 @@ static int string_lower(lua_State *L) {
     return 1 ;
 }
 
+/// hs.styledtext:sub(starts, [ends]) -> styledText object
+/// Method
+/// Returns a substring, including the style attributes, specified by the given indicies from the `hs.styledtext` object.  Mimics the Lua `string.sub` function.
+///
+/// Parameters:
+///  * starts - the index position within the text of the `hs.styledtext` object indicating the beginning of the substring to return.  If this number is negative, it is counted backwards from the end of the object's text (i.e. -1 would be the last character position).
+///  * ends   - an optional index position within the text of the `hs.styledtext` object indicating the end of the substring to return.  Defaults to the length of the objects text.  If this number is negative, it is counted backwards from the end of the object's text.
+///
+/// Returns:
+///  * an `hs.styledtext` object containing the specified substring.
+///
+/// Notes:
+///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
 static int string_sub(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
                                 LS_TNUMBER,
@@ -801,10 +967,10 @@ static int string_sub(lua_State *L) {
     if (lua_type(L, 3) == LUA_TNUMBER) j = luaL_checkinteger(L, 3) ;
 
 // keep lua indexing and method of specifying range (index starts at 1, j is also an index, not the length
-    if (i < 0)   i = len + i ; // if i is negative, then it is indexed from the end of the string
-    if (j < 0)   j = len + j ; // if j is negative, then it is indexed from the end of the string
-    if (i < 1)   i = 1 ;       // if i is still < 1, then silently coerce to beginning of string
-    if (j > len) j = len ;     // if j is > length,  then silently coerce to string length (end)
+    if (i < 0)   i = len + 1 + i ; // if i is negative, then it is indexed from the end of the string
+    if (j < 0)   j = len + 1 + j ; // if j is negative, then it is indexed from the end of the string
+    if (i < 1)   i = 1 ;           // if i is still < 1, then silently coerce to beginning of string
+    if (j > len) j = len ;         // if j is > length,  then silently coerce to string length (end)
     if (i > j)
         [[LuaSkin shared] pushNSObject:[[NSAttributedString alloc] initWithString:@""]] ;
     else {
@@ -1510,6 +1676,9 @@ static int userdata_concat(lua_State* L) {
     return 1 ;
 }
 
+// For reasons unclear to me, Lua will only call __eq when *both* arguments are userdata or *both* are tables.
+// However __lt and __le are called if *both* arguments are *not* strings or *not* numbers...
+// I'll go ahead and leave the type check in __eq anyways in case this changes in the future, though I'm not holding my breath.
 static int userdata_eq(lua_State* L) {
     NSString *theString1 = (lua_type(L, 1) == LUA_TUSERDATA) ?  [get_objectFromUserdata(__bridge NSAttributedString, L, 1) string] :
                                                                 [NSString stringWithUTF8String: lua_tostring(L, 1)] ;
@@ -1537,14 +1706,24 @@ static int userdata_le(lua_State* L) {
     return 1 ;
 }
 
+static int userdata_len(lua_State *L) {
+// Oddly, lua passes the userdata object as argument 1 *AND* argument 2 to this metamethod, so simply using
+// the duplication of the string.length method above which checks for 1 and only 1 argument won't work.  I
+// suppose we could point "len" to this one, since it ignores arguments other than the first, but I prefer
+// proper data validation in functions/methods which get called by the user explicitly.
+//     int x = lua_gettop(L) ;
+//     lua_getglobal(L, "print") ;
+//     for (int i = 1 ; i <= x ; i++) { lua_pushvalue(L, i) ; }
+//     lua_call(L, x, 0) ;
+    NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
+    lua_pushinteger(L, (lua_Integer)[theString length]) ;
+    return 1 ;
+}
+
 static int userdata_gc(lua_State* L) {
 // transfer it to an Objective-C object so ARC can clear it
     NSAttributedString __unused *theString = get_objectFromUserdata(__bridge_transfer NSAttributedString, L, 1) ;
 
-// // Clear the pointer so it's no longer dangling
-//     void** stringPtr = lua_touserdata(L, 1);
-//     *stringPtr = nil ;
-//
 // Remove the Metatable so future use of the variable in Lua won't think its valid
     lua_pushnil(L) ;
     lua_setmetatable(L, 1) ;
@@ -1574,6 +1753,7 @@ static const luaL_Reg userdata_metaLib[] = {
 
     {"__tostring",       userdata_tostring},
     {"__concat",         userdata_concat},
+    {"__len",            userdata_len},
     {"__eq",             userdata_eq},
     {"__lt",             userdata_lt},
     {"__le",             userdata_le},
