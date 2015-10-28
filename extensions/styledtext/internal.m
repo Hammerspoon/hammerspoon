@@ -26,7 +26,7 @@ int refTable ;
 ///
 /// Notes:
 ///  * See `hs.styledtext:asTable` for a description of the table representation of an `hs.styledtext` object
-///  * See ... for a description of the attributes table format which can be provided for the optional second argument.
+///  * See the module description documentation (`help.hs.styledtext`) for a description of the attributes table format which can be provided for the optional second argument.
 ///
 ///  * Passing an `hs.styledtext` object as the first parameter without specifying an `attributes` table is the equivalent of invoking `hs.styledtext:copy`.
 static int string_new(__unused lua_State *L) {
@@ -267,18 +267,18 @@ static int fontNamesWithTraits(lua_State *L) {
 /// Constant
 /// A table for containing Font Trait masks for use with `hs.styledtext.fontNamesWithTraits(...)`
 ///
-///    boldFont                    - fonts with the 'Bold' attribute set
-///    compressedFont              - fonts with the 'Compressed' attribute set
-///    condensedFont               - fonts with the 'Condensed' attribute set
-///    expandedFont                - fonts with the 'Expanded' attribute set
-///    fixedPitchFont              - fonts with the 'FixedPitch' attribute set
-///    italicFont                  - fonts with the 'Italic' attribute set
-///    narrowFont                  - fonts with the 'Narrow' attribute set
-///    posterFont                  - fonts with the 'Poster' attribute set
-///    smallCapsFont               - fonts with the 'SmallCaps' attribute set
-///    nonStandardCharacterSetFont - fonts with the 'NonStandardCharacterSet' attribute set
-///    unboldFont                  - fonts that do not have the 'Bold' attribute set
-///    unitalicFont                - fonts that do not have the 'Italic' attribute set
+///  * boldFont                    - fonts with the 'Bold' attribute set
+///  * compressedFont              - fonts with the 'Compressed' attribute set
+///  * condensedFont               - fonts with the 'Condensed' attribute set
+///  * expandedFont                - fonts with the 'Expanded' attribute set
+///  * fixedPitchFont              - fonts with the 'FixedPitch' attribute set
+///  * italicFont                  - fonts with the 'Italic' attribute set
+///  * narrowFont                  - fonts with the 'Narrow' attribute set
+///  * posterFont                  - fonts with the 'Poster' attribute set
+///  * smallCapsFont               - fonts with the 'SmallCaps' attribute set
+///  * nonStandardCharacterSetFont - fonts with the 'NonStandardCharacterSet' attribute set
+///  * unboldFont                  - fonts that do not have the 'Bold' attribute set
+///  * unitalicFont                - fonts that do not have the 'Italic' attribute set
 static int fontTraits(lua_State* L) {
     lua_newtable(L);
       lua_pushinteger(L, NSBoldFontMask);                    lua_setfield(L, -2, "boldFont");
@@ -373,6 +373,7 @@ static int fontInformation(lua_State *L) {
 ///    * hs.styledtext.lineStyles
 ///    * hs.styledtext.linePatterns
 ///    * hs.styledtext.lineAppliesTo
+///
 ///  * The entries chosen should be combined with the `or` operator to provide a single value. for example:
 ///    * hs.styledtext.lineStyles.single | hs.styledtext.linePatterns.dash | hs.styledtext.lineAppliesToWord
 static int defineLineStyles(lua_State *L) {
@@ -400,6 +401,7 @@ static int defineLineStyles(lua_State *L) {
 ///    * hs.styledtext.lineStyles
 ///    * hs.styledtext.linePatterns
 ///    * hs.styledtext.lineAppliesTo
+///
 ///  * The entries chosen should be combined with the `or` operator to provide a single value. for example:
 ///    * hs.styledtext.lineStyles.single | hs.styledtext.linePatterns.dash | hs.styledtext.lineAppliesToWord
 static int defineLinePatterns(lua_State *L) {
@@ -425,6 +427,7 @@ static int defineLinePatterns(lua_State *L) {
 ///    * hs.styledtext.lineStyles
 ///    * hs.styledtext.linePatterns
 ///    * hs.styledtext.lineAppliesTo
+///
 ///  * The entries chosen should be combined with the `or` operator to provide a single value. for example:
 ///    * hs.styledtext.lineStyles.single | hs.styledtext.linePatterns.dash | hs.styledtext.lineAppliesToWord
 static int defineLineAppliesTo(lua_State *L) {
@@ -494,7 +497,7 @@ static int string_identical(lua_State* L) {
 ///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
 ///  * The attribute which contains an attachment (image) for a converted RTFD or other document is known to set the `unsupportedFields` flag.
 ///
-///  * See ... for a description of the attributes table format
+///  * See the module description documentation (`help.hs.styledtext`) for a description of the attributes table format
 static int string_totable(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
                                 LS_TNUMBER | LS_TOPTIONAL,
@@ -632,7 +635,7 @@ static int string_tostring(lua_State* L) {
 /// Notes:
 ///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function except that `starts` must refer to an index preceding or equal to `ends`, even after negative and out-of-bounds indices are adjusted for.
 ///
-///  * See ... for a description of the attributes table format
+///  * See the module description documentation (`help.hs.styledtext`) for a description of the attributes table format
 static int string_setStyleForRange(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
                                 LS_TTABLE,
@@ -689,7 +692,7 @@ static int string_setStyleForRange(lua_State *L) {
 /// Notes:
 ///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
 ///
-///  * See ... for a list of officially recognized attribute label names.
+///  * See the module description documentation (`help.hs.styledtext`) for a list of officially recognized attribute label names.
 ///  * The officially recognized attribute labels were chosen for brevity or for consistency with conventions used in Hammerspoon's other modules.  If you know the Objective-C name for an attribute, you can list it instead of an officially recognized label, allowing the removal of attributes which this module cannot manipulate in other ways.
 static int string_removeStyleForRange(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
@@ -773,7 +776,7 @@ static int string_removeStyleForRange(lua_State *L) {
 ///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function except that `starts` must refer to an index preceding or equal to `ends`, even after negative and out-of-bounds indices are adjusted for.
 ///  * If `starts` and `ends` are equal, the substring is inserted at the specified location.
 ///
-///  * See ... for a description of the attributes table format
+///  * See the module description documentation (`help.hs.styledtext`) for a description of the attributes table format
 static int string_replaceSubstringForRange(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
                                 LS_TANY,
@@ -1646,6 +1649,7 @@ static id table_toNSTextTab(lua_State *L, int idx) {
 #pragma mark - Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
+//     lua_pushstring(L, [[get_objectFromUserdata(__bridge NSAttributedString, L, 1) string] UTF8String]) ;
     NSString *title = [get_objectFromUserdata(__bridge NSAttributedString, L, 1) string] ;
     if ([title length] > 20) // arbitrary cutoff to keep it readable
         lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@... (%p)", USERDATA_TAG, [title substringToIndex:20], lua_topointer(L, 1)] UTF8String]) ;
@@ -1722,11 +1726,13 @@ static int userdata_len(lua_State *L) {
 
 static int userdata_gc(lua_State* L) {
 // transfer it to an Objective-C object so ARC can clear it
-    NSAttributedString __unused *theString = get_objectFromUserdata(__bridge_transfer NSAttributedString, L, 1) ;
+    if (luaL_testudata(L, 1, USERDATA_TAG)) {
+        NSAttributedString __unused *theString = get_objectFromUserdata(__bridge_transfer NSAttributedString, L, 1) ;
 
 // Remove the Metatable so future use of the variable in Lua won't think its valid
-    lua_pushnil(L) ;
-    lua_setmetatable(L, 1) ;
+        lua_pushnil(L) ;
+        lua_setmetatable(L, 1) ;
+    }
 
     return 0 ;
 }
