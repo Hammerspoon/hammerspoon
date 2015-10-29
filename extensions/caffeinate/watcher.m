@@ -33,6 +33,7 @@
 // Common Code
 
 #define USERDATA_TAG "hs.caffeinate.watcher"
+int refTable;
 
 // Not so common code
 
@@ -40,7 +41,6 @@ typedef struct _caffeinatewatcher_t {
     bool running;
     int fn;
     void* obj;
-    lua_State* L;
 } caffeinatewatcher_t;
 
 typedef enum _event_t {
@@ -66,25 +66,16 @@ typedef enum _event_t {
 
 // Call the lua callback function and pass the application name and event type.
 - (void)callback:(NSDictionary* __unused)dict withEvent:(event_t)event {
-    lua_State* L = self.object->L;
-    if (L == nil || (lua_status(L) != LUA_OK)) {
-        return;
-    }
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.object->fn);
-
+    [skin pushLuaRef:refTable ref:self.object->fn];
     lua_pushinteger(L, event); // Parameter 1: the event type
 
-    if (lua_pcall(L, 1, 0, -5) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 
@@ -120,15 +111,15 @@ typedef enum _event_t {
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
 static int app_watcher_new(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TFUNCTION);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     caffeinatewatcher_t* caffeinateWatcher = lua_newuserdata(L, sizeof(caffeinatewatcher_t));
     memset(caffeinateWatcher, 0, sizeof(caffeinatewatcher_t));
 
     lua_pushvalue(L, 1);
-    caffeinateWatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    caffeinateWatcher->fn = [skin luaRef:refTable];
     caffeinateWatcher->running = NO;
-    caffeinateWatcher->L = L;
     caffeinateWatcher->obj = (__bridge_retained void*) [[CaffeinateWatcher alloc] initWithObject:caffeinateWatcher];
 
     luaL_getmetatable(L, USERDATA_TAG);
@@ -182,17 +173,20 @@ static void unregister_observer(CaffeinateWatcher* observer) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * An `hs.caffeinate.watcher` object
 static int app_watcher_start(lua_State* L) {
-    caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    caffeinatewatcher_t* caffeinateWatcher = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (caffeinateWatcher->running)
-        return 0;
+        return 1;
 
     caffeinateWatcher->running = YES;
     register_observer((__bridge CaffeinateWatcher*)caffeinateWatcher->obj);
-    return 0;
+    return 1;
 }
 
 /// hs.caffeinate.watcher:stop()
@@ -203,31 +197,40 @@ static int app_watcher_start(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * None
+///  * An `hs.caffeinate.watcher` object
 static int app_watcher_stop(lua_State* L) {
-    caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    caffeinatewatcher_t* caffeinateWatcher = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (!caffeinateWatcher->running)
-        return 0;
+        return 1;
 
     caffeinateWatcher->running = NO;
     unregister_observer((__bridge id)caffeinateWatcher->obj);
-    return 0;
+    return 1;
 }
 
 // Perform cleanup if the CaffeinateWatcher is not required anymore.
 static int app_watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     app_watcher_stop(L);
-    luaL_unref(L, LUA_REGISTRYINDEX, caffeinateWatcher->fn);
-    caffeinateWatcher->fn = LUA_NOREF;
-    caffeinateWatcher->L = nil;
+
+    caffeinateWatcher->fn = [skin luaUnref:refTable ref:caffeinateWatcher->fn];
 
     CaffeinateWatcher* object = (__bridge_transfer CaffeinateWatcher*)caffeinateWatcher->obj;
     object = nil;
     return 0;
+}
+
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
 }
 
 static int meta_gc(lua_State* __unused L) {
@@ -249,39 +252,33 @@ static void add_event_enum(lua_State* L) {
     add_event_value(L, screensDidWake, "screensDidWake");
 }
 
+// Metatable for created objects when _new invoked
+static const luaL_Reg metaLib[] = {
+    {"start",   app_watcher_start},
+    {"stop",    app_watcher_stop},
+    {"__gc",    app_watcher_gc},
+    {"__tostring", userdata_tostring},
+    {NULL,      NULL}
+};
+
+// Functions for returned object when module loads
+static const luaL_Reg appLib[] = {
+    {"new",     app_watcher_new},
+    {NULL,      NULL}
+};
+
+// Metatable for returned object when module loads
+static const luaL_Reg metaGcLib[] = {
+    {"__gc",    meta_gc},
+    {NULL,      NULL}
+};
+
 // Called when loading the module. All necessary tables need to be registered here.
-int luaopen_hs_caffeinate_watcher(lua_State* L) {
-    // Metatable for created objects when _new invoked
-    static const luaL_Reg metaLib[] = {
-        {"start",   app_watcher_start},
-        {"stop",    app_watcher_stop},
-        {"__gc",    app_watcher_gc},
-        {NULL,      NULL}
-    };
+int luaopen_hs_caffeinate_watcher(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
 
-    // Functions for returned object when module loads
-    static const luaL_Reg appLib[] = {
-        {"new",     app_watcher_new},
-        {NULL,      NULL}
-    };
+    add_event_enum(skin.L);
 
-    // Metatable for returned object when module loads
-    static const luaL_Reg metaGcLib[] = {
-        {"__gc",    meta_gc},
-        {NULL,      NULL}
-    };
-
-    // Metatable for created objects
-    luaL_newlib(L, metaLib);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-    // Create table for luaopen
-    luaL_newlib(L, appLib);
-    add_event_enum(L);
-
-    luaL_newlib(L, metaGcLib);
-    lua_setmetatable(L, -2);
     return 1;
 }

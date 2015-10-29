@@ -24,17 +24,19 @@ static NSMutableIndexSet *locationHandlers;
 
 - (void)locationManager:(CLLocationManager *)__unused manager didUpdateLocations:(NSArray *)__unused locations {
 //    CLS_NSLOG(@"hs.location:didUpdateLocations %@", [[locations lastObject] description]);
-    lua_State* L = self.L ;
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+
     lua_getglobal(L, "hs");
     lua_getfield(L, -1, "location"); lua_remove(L, -2);
     lua_getfield(L, -1, "__dispatch"); lua_remove(L, -2);
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+
+    if (![skin protectedCallAndTraceback:0 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
+
     return;
 }
 
@@ -78,10 +80,7 @@ BOOL manager_create(lua_State* L) {
         [location.manager setDelegate:location];
 
         if (![CLLocationManager locationServicesEnabled]) {
-            CLS_NSLOG(@"ERROR: Location Services are disabled");
-            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-            lua_pushstring(L, "ERROR: Location Services are disabled");
-            lua_pcall(L, 1, 0, 0);
+            showError(L, "ERROR: Location Services are disabled");
             return false;
         }
 
@@ -239,22 +238,21 @@ static const luaL_Reg locationlib[] = {
     {"get", location_get_location},
     {"services_enabled", location_is_enabled},
     {"distance", location_distance},
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", location_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_location_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.location.internal". */
 
-int luaopen_hs_location_internal(lua_State *L) {
-    luaL_newlib(L, locationlib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+int luaopen_hs_location_internal(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:locationlib metaFunctions:metalib];
 
     return 1;
 }

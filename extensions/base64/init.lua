@@ -31,8 +31,10 @@ module.encode = function(data, width)
             i = i + width
             j = j + width
         until i > #_hold
+        return _data:sub(1,#_data - 1)
+    else
+        return _data
     end
-    return _data:sub(1,#_data - 1)
 end
 
 --- hs.base64.decode(str) -> val

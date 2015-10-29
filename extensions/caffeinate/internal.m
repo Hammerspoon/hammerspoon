@@ -2,19 +2,13 @@
 #import <Carbon/Carbon.h>
 #import <IOKit/pwr_mgt/IOPMLib.h>
 #import <LuaSkin/LuaSkin.h>
+#import "../hammerspoon.h"
 
 #define kIOPMAssertionAppliesToLimitedPowerKey  CFSTR("AppliesToLimitedPower")
 
 static IOPMAssertionID noIdleDisplaySleep = 0;
 static IOPMAssertionID noIdleSystemSleep = 0;
 static IOPMAssertionID noSystemSleep = 0;
-
-// Debug/error output helper, prints to hs's console
-static void caffeinate_print(lua_State *L, char *msg) {
-    lua_getglobal(L, "print");
-    lua_pushstring(L, msg);
-    lua_call(L, 1, 0);
-}
 
 // Create an IOPM Assertion of specified type and store its ID in the specified variable
 static void caffeinate_create_assertion(lua_State *L, CFStringRef assertionType, IOPMAssertionID *assertionID) {
@@ -32,7 +26,7 @@ static void caffeinate_create_assertion(lua_State *L, CFStringRef assertionType,
                                                 assertionID);
 
     if (result != kIOReturnSuccess) {
-        caffeinate_print(L, "caffeinate_create_assertion: failed");
+        showError(L, "caffeinate_create_assertion: failed");
     }
 }
 
@@ -45,7 +39,7 @@ static void caffeinate_release_assertion(lua_State *L, IOPMAssertionID *assertio
     result = IOPMAssertionRelease(*assertionID);
 
     if (result != kIOReturnSuccess) {
-        caffeinate_print(L, "caffeinate_release_assertion: failed");
+        showError(L, "caffeinate_release_assertion: failed");
     }
 
     *assertionID = 0;
@@ -115,7 +109,7 @@ static int caffeinate_preventSystemSleep(lua_State *L) {
                                           kIOPMAssertionAppliesToLimitedPowerKey,
                                           (CFBooleanRef)value);
         if (result != kIOReturnSuccess) {
-            caffeinate_print(L, "ERROR: Unable to set systemSleep assertion property");
+            showError(L, "ERROR: Unable to set systemSleep assertion property");
         }
     }
 
@@ -175,22 +169,21 @@ static const luaL_Reg caffeinatelib[] = {
     {"isSystemSleepPrevented", caffeinate_isSystemSleepPrevented},
     {"systemSleep", caffeinate_systemSleep},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", caffeinate_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_caffeinate_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.caffeinate.internal". */
 
-int luaopen_hs_caffeinate_internal(lua_State *L) {
-    luaL_newlib(L, caffeinatelib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+int luaopen_hs_caffeinate_internal(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:caffeinatelib metaFunctions:metalib];
 
     return 1;
 }

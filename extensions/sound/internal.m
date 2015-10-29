@@ -5,6 +5,7 @@
 #import "../hammerspoon.h"
 
 #define USERDATA_TAG    "hs.sound"
+int refTable;
 
 @interface soundDelegate : NSObject <NSSoundDelegate>
 @property lua_State* L;
@@ -14,15 +15,16 @@
 @implementation soundDelegate
 - (void) sound:(NSSound __unused *)sound didFinishPlaying:(BOOL)playbackSuccessful
 {
-    lua_State* L = self.L;
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+
+    [skin pushLuaRef:refTable ref:self.fn];
     lua_pushboolean(L, playbackSuccessful);
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+
+    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 @end
@@ -93,7 +95,7 @@ static int sound_byfile(lua_State* L) {
     return 1;
 }
 
-/// hs.systemSounds() -> table
+/// hs.sound.systemSounds() -> table
 /// Function
 /// Gets a table of available system sounds
 ///
@@ -350,11 +352,11 @@ static int sound_volume(lua_State* L) {
 /// Returns:
 ///  * A boolean, true if there is a playback completion callback assigned, otherwise false
 static int sound_callback(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
         if (lua_isnil(L,2)) {
-            luaL_unref(L, LUA_REGISTRYINDEX, sound->fn);
-            sound->fn = LUA_NOREF;
+            sound->fn = [skin luaUnref:refTable ref:sound->fn];
             if (sound->callback) {
                 [(__bridge NSSound*) sound->soundObject setDelegate:nil];
                 soundDelegate* object = (__bridge_transfer soundDelegate *) sound->callback ;
@@ -363,7 +365,7 @@ static int sound_callback(lua_State* L) {
         } else {
             luaL_checktype(L, 2, LUA_TFUNCTION);
             lua_pushvalue(L, 2);
-            sound->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+            sound->fn = [skin luaRef:refTable];
             soundDelegate* object = [[soundDelegate alloc] init];
             object.L = L;
             object.fn = sound->fn;
@@ -440,7 +442,7 @@ static int sound_soundUnfilteredFileTypes(lua_State* L) {
 ///  * A boolean, true if the sound is currently playing, otherwise false
 ///
 /// Notes:
-///  * This method is only available in OS X 10.9 (Mavericks) and earlier
+///  * This method is officially only available in OS X 10.9 (Mavericks) and earlier, so its use may be unreliable with future updates.
 static int sound_isPlaying(lua_State* L) {
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_pushboolean(L, [(__bridge NSSound*) sound->soundObject isPlaying]);
@@ -468,6 +470,15 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSString *theName = [(__bridge NSSound*) sound->soundObject name] ;
+    if (!theName) theName = @"(unnamed sound)" ;
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg sound_metalib[] = {
     {"play",            sound_play},
@@ -483,7 +494,8 @@ static const luaL_Reg sound_metalib[] = {
     {"stopOnReload",    sound_stopOnRelease},
     {"callback",        sound_callback},
     {"isPlaying",       sound_isPlaying}, // Not in 10.10... can we replicate another way?
-    {"__gc",	        sound_gc},
+    {"__tostring",      userdata_tostring},
+    {"__gc",            sound_gc},
     {NULL,              NULL}
 };
 
@@ -504,19 +516,11 @@ static const luaL_Reg meta_gcLib[] = {
 };
 
 int luaopen_hs_sound_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     sound_setup(L);
 
-// Metatable for created objects
-    luaL_newlib(L, sound_metalib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-// Create table for luaopen
-    luaL_newlib(L, soundLib);
-
-        luaL_newlib(L, meta_gcLib);
-        lua_setmetatable(L, -2);
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:soundLib metaFunctions:meta_gcLib objectFunctions:sound_metalib];
 
     return 1;
 }

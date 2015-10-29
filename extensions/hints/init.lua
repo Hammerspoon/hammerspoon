@@ -46,6 +46,20 @@ local selectionCallback = nil
 local bumpThresh = 40^2
 local bumpMove = 80
 
+local invalidWindowRoles = {
+   AXScrollArea = true, --This excludes the main finder window.
+   AXUnknown = true
+}
+
+
+function isValidWindow(win, allowNonStandard)
+   if not allowNonStandard then
+      return win:isStandard()
+   else
+      return invalidWindowRoles[win:role()] == nil
+   end
+end
+
 function hints.bumpPos(x,y)
   for i, pos in ipairs(takenPositions) do
     if ((pos.x-x)^2 + (pos.y-y)^2) < bumpThresh then
@@ -90,7 +104,7 @@ function hints._dictSize(t)
   return 0 -- screenless window or something else
 end
 
-function hints.displayHintsForDict(dict, prefixstring, showTitles)
+function hints.displayHintsForDict(dict, prefixstring, showTitles, allowNonStandard)
   if showTitles == nil then
     showTitles = hints._dictSize(hintDict) <= hints.showTitleThresh
   end
@@ -100,7 +114,7 @@ function hints.displayHintsForDict(dict, prefixstring, showTitles)
       local app = win:application()
       local fr = win:frame()
       local sfr = win:screen():frame()
-      if app and app:bundleID() and win:isStandard() then
+      if app and app:bundleID() and isValidWindow(win, allowNonStandard) then
         local c = {x = fr.x + (fr.w/2) - sfr.x, y = fr.y + (fr.h/2) - sfr.y}
         local d = hints.bumpPos(c.x, c.y)
         if d.y > (sfr.y + sfr.h - bumpMove) then
@@ -123,7 +137,7 @@ function hints.displayHintsForDict(dict, prefixstring, showTitles)
         end
       end
     elseif type(val) == "table" then -- this is another window dict
-      hints.displayHintsForDict(val, prefixstring .. key, showTitles)
+      hints.displayHintsForDict(val, prefixstring .. key, showTitles, allowNonStandard)
     end
   end
 end
@@ -174,6 +188,7 @@ end
 --- Parameters:
 ---  * windows - An optional table containing some `hs.window` objects. If this value is nil, all windows will be hinted
 ---  * callback - An optional function that will be called when a window has been selected by the user. The function will be called with a single argument containing the `hs.window` object of the window chosen by the user
+---  * allowNonStandard - An optional boolean.  If true, all windows will be included, not just standard windows
 ---
 --- Returns:
 ---  * None
@@ -183,7 +198,7 @@ end
 ---  * If hints.style is set to "vimperator", every window hint is prefixed with the first character of the parent application's name
 ---  * To display hints only for the currently focused application, try something like:
 ---   * `hs.hints.windowHints(hs.window.focusedWindow():application():allWindows())`
-function hints.windowHints(windows, callback)
+function hints.windowHints(windows, callback, allowNonStandard)
 
   windows = windows or window.allWindows()
   selectionCallback = callback
@@ -195,7 +210,7 @@ function hints.windowHints(windows, callback)
   hintDict = {}
   for i, win in ipairs(windows) do
     local app = win:application()
-    if app and app:bundleID() and win:isStandard() then
+    if app and app:bundleID() and isValidWindow(win, allowNonStandard) then
       if hints.style == "vimperator" then
         if app and app:bundleID() and win:isStandard() then
           local appchar = string.upper(string.sub(app:title(), 1, 1))
@@ -212,7 +227,7 @@ function hints.windowHints(windows, callback)
   end
   takenPositions = {}
   if next(hintDict) ~= nil then
-    hints.displayHintsForDict(hintDict, "")
+    hints.displayHintsForDict(hintDict, "", nil, allowNonStandard)
     modalKey:enter()
   end
 end

@@ -197,6 +197,7 @@ end
 ---     (U+21EA) capslock         ⇪
 ---     (U+2713) checkMark        ✓
 ---     (U+2318) cmd              ⌘
+---     (U+27E1) concaveDiamond   ✧
 ---     (U+00A9) copyrightSign    ©
 ---     (U+2303) ctrl             ⌃
 ---     (U+232B) delete           ⌫
@@ -290,6 +291,7 @@ module.registerCodepoint("sectionSign",      0x00A7)
 module.registerCodepoint("copyrightSign",    0x00A9)
 module.registerCodepoint("registeredSign",   0x00AE)
 module.registerCodepoint("checkMark",        0x2713)
+module.registerCodepoint("concaveDiamond",   0x27E1)
 
 --- hs.utf8.asciiOnly(string[, all]) -> string
 --- Function

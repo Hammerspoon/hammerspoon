@@ -12,6 +12,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.wifi.watcher"
+int refTable;
 
 // Not so common code
 
@@ -37,14 +38,14 @@
 }
 
 - (void) ssidChanged:(id __unused)bla {
-    lua_State* L = self.L;
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+
+    [skin pushLuaRef:refTable ref:self.fn];
+    if (![skin protectedCallAndTraceback:0 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 @end
@@ -71,13 +72,14 @@ typedef struct _wifiwatcher_t {
 ///  * The callback function will be called both when you join a network and leave it. You can identify which type of event is happening with `hs.wifi.currentNetwork()`, which will return nil if you have just disconnected from a WiFi network.
 ///  * This means that when you switch from one network to another, you will receive a disconnection event as you leave the first network, and a connection event as you join the second. You are advised to keep a variable somewhere that tracks the name of the last network you were connected to, so you can track changes that involve multiple events.
 static int wifi_watcher_new(lua_State* L) {
-    luaL_checktype(L, 1, LUA_TFUNCTION);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     wifiwatcher_t* wifiwatcher = lua_newuserdata(L, sizeof(wifiwatcher_t));
     memset(wifiwatcher, 0, sizeof(wifiwatcher_t));
 
     lua_pushvalue(L, 1);
-    wifiwatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    wifiwatcher->fn = [skin luaRef:refTable];
 
     HSWiFiWatcher* object = [[HSWiFiWatcher alloc] init];
     object.L = L;
@@ -139,17 +141,23 @@ static int wifi_watcher_stop(lua_State* L) {
 }
 
 static int wifi_watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     wifiwatcher_t* wifiwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     lua_pushcfunction(L, wifi_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
-    luaL_unref(L, LUA_REGISTRYINDEX, wifiwatcher->fn);
-    wifiwatcher->fn = LUA_NOREF;
+    wifiwatcher->fn = [skin luaUnref:refTable ref:wifiwatcher->fn];
 
     HSWiFiWatcher* object = (__bridge_transfer id)wifiwatcher->obj;
     object = nil;
 
     return 0;
+}
+
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
 }
 
 static int meta_gc(lua_State* __unused L) {
@@ -160,6 +168,7 @@ static int meta_gc(lua_State* __unused L) {
 static const luaL_Reg wifi_metalib[] = {
     {"start",   wifi_watcher_start},
     {"stop",    wifi_watcher_stop},
+    {"__tostring", userdata_tostring},
     {"__gc",    wifi_watcher_gc},
     {NULL,      NULL}
 };
@@ -176,17 +185,9 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_wifi_watcher(lua_State* L) {
-// Metatable for created objects
-    luaL_newlib(L, wifi_metalib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-// Create table for luaopen
-    luaL_newlib(L, wifiLib);
-        luaL_newlib(L, meta_gcLib);
-        lua_setmetatable(L, -2);
+int luaopen_hs_wifi_watcher(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:wifiLib metaFunctions:meta_gcLib objectFunctions:wifi_metalib];
 
     return 1;
 }

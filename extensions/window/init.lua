@@ -3,27 +3,50 @@
 --- Inspect/manipulate windows
 ---
 --- Notes:
----  * See `hs.screen` for detailed explanation of how Hammerspoon uses window/screen coordinates.
+---  * See `hs.screen` and `hs.geometry` for more information on how Hammerspoon uses window/screen frames and coordinates
 
 local uielement = hs.uielement  -- Make sure parent module loads
 local window = require "hs.window.internal"
 local application = require "hs.application.internal"
-local fnutils = require "hs.fnutils"
 local geometry = require "hs.geometry"
-local hs_screen = require "hs.screen"
+local gtype=geometry.type
+local screen = require "hs.screen"
 local timer = require "hs.timer"
-local pairs,next,min,max,type = pairs,next,math.min,math.max,type
-
+local pairs,ipairs,next,min,max,abs,cos,type = pairs,ipairs,next,math.min,math.max,math.abs,math.cos,type
+local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort,table.unpack,table.pack
 --- hs.window.animationDuration (number)
 --- Variable
 --- The default duration for animations, in seconds. Initial value is 0.2; set to 0 to disable animations.
 ---
 --- Usage:
+--- ```
 --- hs.window.animationDuration = 0 -- disable animations
 --- hs.window.animationDuration = 3 -- if you have time on your hands
+--- ```
 window.animationDuration = 0.2
 
---- hs.window.allWindows() -> win[]
+
+--- hs.window.desktop() -> hs.window object
+--- Function
+--- Returns the desktop "window"
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * An `hs.window` object representing the desktop
+---
+--- Notes:
+---  * The desktop belongs to Finder.app: when Finder is the active application, you can focus the desktop by cycling
+---    through windows via cmd-`
+---  * The desktop window has no id, a role of `AXScrollArea` and no subrole
+---  * The desktop is filtered out from `hs.window.allWindows()` (and downstream uses)
+function window.desktop()
+  local finder=application.get'com.apple.finder'
+  for _,w in ipairs(finder:allWindows()) do if w:role()=='AXScrollArea' then return w end end
+end
+
+--- hs.window.allWindows() -> list of hs.window objects
 --- Function
 --- Returns all windows
 ---
@@ -31,25 +54,148 @@ window.animationDuration = 0.2
 ---  * None
 ---
 --- Returns:
----  * A table of `hs.window` objects representing all open windows
+---  * A list of `hs.window` objects representing all open windows
+---
+--- Notes:
+---  * `visibleWindows()`, `orderedWindows()`, `get()`, `find()`, and several more functions and methods in this and other
+---     modules make use of this function, so it is important to understand its limitations
+---  * This function queries all applications for their windows every time it is invoked; if you need to call it a lot and
+---    performance is not acceptable consider using the `hs.window.filter` module
+---  * This function can only return windows in the current Mission Control Space; if you need to address windows across
+---    different Spaces you can use the `hs.window.filter` module
+---    - if `Displays have separate Spaces` is *on* (in System Preferences>Mission Control) the current Space is defined
+---      as the union of all currently visible Spaces
+---    - minimized windows and hidden windows (i.e. belonging to hidden apps, e.g. via cmd-h) are always considered
+---      to be in the current Space
+---  * This function filters out the desktop "window"; use `hs.window.desktop()` to address it. (Note however that
+---    `hs.application.get'Finder':allWindows()` *will* include the desktop in the returned list)
+---  * Beside the limitations discussed above, this function will return *all* windows as reported by OSX, including some
+---    "windows" that one wouldn't expect: for example, every Google Chrome (actual) window has a companion window for its
+---    status bar; therefore you might get unexpected results  - in the Chrome example, calling `hs.window.focusWindowSouth()`
+---    from a Chrome window would end up "focusing" its status bar, and therefore the proper window itself, seemingly resulting
+---    in a no-op. In order to avoid such surprises you can use the `hs.window.filter` module, and more specifically
+---    the default windowfilter (`hs.window.filter.default`) which filters out known cases of not-actual-windows
+local SKIP_APPS={
+  ['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true,
+  ['org.pqrs.Karabiner-AXNotifier']=true,['com.adobe.PDApp.AAMUpdatesNotifier']=true,}
+-- so apparently OSX enforces a 6s limit on apps to respond to AX queries;
+-- Karabiner's AXNotifier and Adobe Update Notifier fail in that fashion
 function window.allWindows()
-  return fnutils.mapCat(application.runningApplications(), application.allWindows)
+  local r={}
+  for _,app in ipairs(application.runningApplications()) do
+    if app:kind()>=0 then
+      local bid=app:bundleID() or 'N/A' --just for safety; universalaccessd has no bundleid (but it's kind()==-1 anyway)
+      if bid=='com.apple.finder' then --exclude the desktop "window"
+        -- check the role explicitly, instead of relying on absent :id() - sometimes minimized windows have no :id() (El Cap Notes.app)
+        for _,w in ipairs(app:allWindows()) do if w:role()=='AXWindow' then r[#r+1]=w end end
+      elseif not SKIP_APPS[bid] then for _,w in ipairs(app:allWindows()) do r[#r+1]=w end end
+    end
+  end
+  return r
 end
 
---- hs.window.windowForID(id) -> win or nil
+function window._timed_allWindows()
+  local r={}
+  for _,app in ipairs(application.runningApplications()) do
+    local starttime=timer.secondsSinceEpoch()
+    local _,bid=app:allWindows(),app:bundleID() or 'N/A'
+    r[bid]=(r[bid] or 0) + timer.secondsSinceEpoch()-starttime
+  end
+  for app,time in pairs(r) do
+    if time>0.05 then print(string.format('took %.2fs for %s',time,app)) end
+  end
+  --  print('known exclusions:') print(hs.inspect(SKIP_APPS))
+  return r
+end
+
+--- hs.window.visibleWindows() -> list of hs.window objects
 --- Function
---- Returns the window for a given id
+--- Gets all visible windows
 ---
 --- Parameters:
----  * id - A window ID (see `hs.window:id()`)
+---  * None
 ---
 --- Returns:
----  * An `hs.window` object, or nil if the window can't be found
-function window.windowForID(id)
-  return fnutils.find(window.allWindows(), function(win) return win:id() == id end)
+---  * A list containing `hs.window` objects representing all windows that are visible as per `hs.window:isVisible()`
+function window.visibleWindows()
+  local r={}
+  for _,app in ipairs(application.runningApplications()) do
+    if app:kind()>0 and not app:isHidden() then for _,w in ipairs(app:visibleWindows()) do r[#r+1]=w end end -- speedup by excluding hidden apps
+  end
+  return r
 end
 
---- hs.window:isVisible() -> bool
+--- hs.window.orderedWindows() -> list of hs.window objects
+--- Function
+--- Returns all visible windows, ordered from front to back
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all visible windows, ordered from front to back
+function window.orderedWindows()
+  local r,winset,ids = {},{},window._orderedwinids()
+  for _,w in ipairs(window.visibleWindows()) do winset[w:id()or -1]=w end
+  for _,id in ipairs(ids) do r[#r+1]=winset[id] end -- no inner loop with a set, seems about 5% faster (iterating with prepoluated tables it's 50x faster)
+  return r
+end
+
+--- hs.window.get(hint) -> hs.window object
+--- Constructor
+--- Gets a specific window
+---
+--- Parameters:
+---  * hint - search criterion for the desired window; it can be:
+---    - an id number as per `hs.window:id()`
+---    - a window title string as per `hs.window:title()`
+---
+--- Returns:
+---  * the first hs.window object that matches the supplied search criterion, or `nil` if not found
+---
+--- Notes:
+---  * see also `hs.window.find` and `hs.application:getWindow()`
+function window.get(hint)
+  return tpack(window.find(hint,true),nil)[1] -- just to be sure, discard extra results
+end
+window.windowForID=window.get
+
+--- hs.window.find(hint) -> hs.window object(s)
+--- Constructor
+--- Finds windows
+---
+--- Parameters:
+---  * hint - search criterion for the desired window(s); it can be:
+---    - an id number as per `hs.window:id()`
+---    - a string pattern that matches (via `string.find`) the window title as per `hs.window:title()` (for convenience, the matching will be done on lowercased strings)
+---
+--- Returns:
+---  * one or more hs.window objects that match the supplied search criterion, or `nil` if none found
+---
+--- Notes:
+---  * for convenience you can call this as `hs.window(hint)`
+---  * see also `hs.window.get`
+---  * for more sophisticated use cases and/or for better performance if you call this a lot, consider using `hs.window.filter`
+---
+--- Usage:
+--- ```
+--- -- by id
+--- hs.window(8812):title() --> Hammerspoon Console
+--- -- by title
+--- hs.window'bash':application():name() --> Terminal
+--- ```
+function window.find(hint,exact,wins)
+  if hint==nil then return end
+  local typ,r=type(hint),{}
+  wins=wins or window.allWindows()
+  if typ=='number' then for _,w in ipairs(wins) do if w:id()==hint then return w end end return
+  elseif typ~='string' then error('hint must be a number or string',2) end
+  if exact then for _,w in ipairs(wins) do if w:title()==hint then r[#r+1]=w end end
+  else hint=hint:lower() for _,w in ipairs(wins) do local wtitle=w:title() if wtitle and wtitle:lower():find(hint) then r[#r+1]=w end end end
+  if #r>0 then return tunpack(r) end
+end
+
+--- hs.window:isVisible() -> boolean
 --- Method
 --- Determines if a window is visible (i.e. not hidden and not minimized)
 ---
@@ -57,7 +203,7 @@ end
 ---  * None
 ---
 --- Returns:
----  * True if the window is visible, otherwise false
+---  * `true` if the window is visible, otherwise `false`
 ---
 --- Notes:
 ---  * This does not mean the user can see the window - it may be obscured by other windows, or it may be off the edge of the screen
@@ -67,23 +213,17 @@ end
 
 
 local animations, animTimer = {}
-
-
+local DISTANT_FUTURE=315360000 -- 10 years (roughly)
+--[[ local function quad(x,s,len)
+       local l=max(0,min(2,(x-s)*2/len))
+       if l<1 then return l*l/2
+       else l=2-l return 1-(l*l/2) end
+     end --]]
+local function quadOut(x,s,len)
+  local l=1-max(0,min(1,(x-s)/len))
+  return 1-l*l
+end
 local function animate()
-  --[[
-  local function quad(x,s,len)
-    local l=max(0,min(2,(x-s)*2/len))
-    if l<1 then return l*l/2
-    else
-      l=2-l
-      return 1-(l*l/2)
-    end
-  end
---]]
-  local function quadOut(x,s,len)
-    local l=1-max(0,min(1,(x-s)/len))
-    return 1-l*l
-  end
   local time = timer.secondsSinceEpoch()
   for id,anim in pairs(animations) do
     local r = quadOut(time,anim.time,anim.duration)
@@ -98,37 +238,148 @@ local function animate()
     end
     anim.window:_setFrame(f)
   end
-  if not next(animations) then animTimer:stop() end
+  if not next(animations) then animTimer:setNextTrigger(DISTANT_FUTURE) end
 end
-animTimer = timer.new(0.017, animate)
-
+animTimer = timer.new(0.017,animate)
+animTimer:start() --keep this split
 
 local function getAnimationFrame(win)
   local id = win:id()
   if animations[id] then return animations[id].endFrame end
 end
 
-local function stopAnimation(win,id,snap)
+local function stopAnimation(win,snap,id)
   if not id then id = win:id() end
   local anim = animations[id]
   if not anim then return end
   animations[id] = nil
-  if not next(animations) then animTimer:stop() end
+  if not next(animations) then animTimer:setNextTrigger(DISTANT_FUTURE) end
   if snap then win:_setFrame(anim.endFrame) end
 end
 
--- get actual window frame
-function window:_frame()
-  local tl,s = self:_topLeft(),self:_size()
-  return {x = tl.x, y = tl.y, w = s.w, h = s.h}
+function window:_frame() -- get actual window frame right now
+  return geometry(self:_topLeft(),self:_size())
 end
--- set window frame instantly
-function window:_setFrame(f)
-  self:_setSize(f) self:_setTopLeft(f) self:_setSize(f)
+
+function window:_setFrame(f) -- set window frame instantly
+  self:_setSize(f) self:_setTopLeft(f) return self:_setSize(f)
+end
+
+local function setFrameAnimated(self,id,f,duration)
+  local frame = self:_frame()
+  if not animations[id] then animations[id] = {window=self} end
+  local anim = animations[id]
+  anim.time=timer.secondsSinceEpoch() anim.duration=duration
+  anim.startFrame=frame anim.endFrame=f
+  animTimer:setNextTrigger(0.01)
   return self
 end
 
---- hs.window:frame() -> rect
+local function setFrameWithWorkarounds(self,f,duration)
+  local originalFrame=geometry(self:_frame())
+  local safeBounds=self:screen():frame()
+  if duration>0 then -- if no animation, skip checking for possible trouble
+    if not originalFrame:inside(safeBounds) then duration=0 -- window straddling screens or partially offscreen
+    else
+      local testSize=geometry.size(originalFrame.w-1,originalFrame.h-1)
+      self:_setSize(testSize)
+      -- find out if it's a terminal, or a window already shrunk to minimum, or a window on a 'sticky' edge
+      local newSize=self:_size()
+      if originalFrame.size==newSize -- terminal or minimum size
+        or (testSize~=newSize and (abs(f.x2-originalFrame.x2)<100 or abs(f.y2-originalFrame.y2)<100)) then --sticky edge, and not going far enough
+        duration=0 end -- don't animate troublesome windows
+  end
+  end
+  local safeFrame=geometry.new(originalFrame.xy,f.size) --apply the desired size
+  safeBounds:move(30,30) -- offset
+  safeBounds.w=safeBounds.w-60 safeBounds.h=safeBounds.h-60 -- and shrink
+  self:_setFrame(safeFrame:fit(safeBounds)) -- put it within a 'safe' area in the current screen, and insta-resize
+  local actualSize=geometry(self:_size()) -- get the *actual* size the window resized to
+  if actualSize.area>f.area then f.size=actualSize end -- if it's bigger apply it
+  if duration==0 then
+    self:_setSize(f.size) -- apply the final size while the window is still in the safe area
+    self:_setTopLeft(f)
+    return self:_setSize(f.size)
+  end
+  self:_setFrame(originalFrame) -- restore the original frame and start the animation
+  return setFrameAnimated(self,self:id(),f,duration)
+end
+
+local function setFrame(self,f,duration,workarounds)
+  if duration==nil then duration = window.animationDuration end
+  if type(duration)~='number' then duration=0 end
+  f=geometry(f):floor()
+  if gtype(f)~='rect' then error('invalid rect: '..f.string,3) end
+  local id=self:id()
+  if id then stopAnimation(self,false,id) else duration=0 end
+  if workarounds then return setFrameWithWorkarounds(self,f,duration)
+  elseif duration<=0 then return self:_setFrame(f)
+  else return setFrameAnimated(self,id,f,duration) end
+end
+
+--- hs.window:setFrame(rect[, duration]) -> hs.window object
+--- Method
+--- Sets the frame of the window in absolute coordinates
+---
+--- Parameters:
+---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
+function window:setFrame(f, duration) return setFrame(self,f,duration,window.setFrameCorrectness) end
+
+--- hs.window:setFrameWithWorkarounds(rect[, duration]) -> hs.window object
+--- Method
+--- Sets the frame of the window in absolute coordinates, using the additional workarounds described in `hs.window.setFrameCorrectness`
+---
+--- Parameters:
+---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
+function window:setFrameWithWorkarounds(f, duration) return setFrame(self,f,duration,true) end
+
+--- hs.window.setFrameCorrectness
+--- Variable
+--- Using `hs.window:setFrame()` in some cases does not work as expected: namely, the bottom (or Dock) edge, and edges between screens, might
+--- exhibit some "stickiness"; consequently, trying to make a window abutting one of those edges just *slightly* smaller could
+--- result in no change at all (you can verify this by trying to resize such a window with the mouse: at first it won't budge,
+--- and, as you drag further away, suddenly snap to the new size); and similarly in some cases windows along screen edges
+--- might erroneously end up partially on the adjacent screen after a move/resize.  Additionally some windows (no matter
+--- their placement on screen) only allow being resized at "discrete" steps of several screen points; the typical example
+--- is Terminal windows, which only resize to whole rows and columns. Both these OSX issues can cause incorrect behavior
+--- when using `:setFrame()` directly or in downstream uses, such as `hs.window:move()` and the `hs.grid` and `hs.window.layout` modules.
+---
+--- Setting this variable to `true` will make `:setFrame()` perform additional checks and workarounds for these potential
+--- issues. However, as a side effect the window might appear to jump around briefly before setting toward its destination
+--- frame, and, in some cases, the move/resize animation (if requested) might be skipped entirely - these tradeoffs are
+--- necessary to ensure the desired result.
+---
+--- The default value is `false`, in order to avoid the possibly annoying or distracting window wiggling; set to `true` if you see
+--- incorrect results in `:setFrame()` or downstream modules and don't mind the the wiggling.
+window.setFrameCorrectness = false
+
+--- hs.window:setFrameInScreenBounds([rect][, duration]) -> hs.window object
+--- Method
+--- Sets the frame of the window in absolute coordinates, possibly adjusted to ensure it is fully inside the screen
+---
+--- Parameters:
+---  * rect - An hs.geometry rect, or constructor argument, describing the frame to be applied to the window; if omitted,
+---    the current window frame will be used
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
+function window:setFrameInScreenBounds(f, duration)
+  if type(f)=='number' then duration=f f=nil end
+  f = f and geometry(f):floor() or self:frame()
+  return self:setFrame(f:fit(screen.find(f):frame()),duration)
+end
+window.ensureIsInScreenBounds=window.setFrameInScreenBounds --backward compatible
+
+--- hs.window:frame() -> hs.geometry rect
 --- Method
 --- Gets the frame of the window in absolute coordinates
 ---
@@ -136,57 +387,32 @@ end
 ---  * None
 ---
 --- Returns:
----  * A rect-table containing the co-ordinates of the top left corner of the window, and it's width and height
-function window:frame()
-  return getAnimationFrame(self) or self:_frame()
-end
---- hs.window:setFrame(rect[, duration]) -> window
---- Method
---- Sets the frame of the window in absolute coordinates
----
---- Parameters:
----  * rect - A rect-table containing the co-ordinates and size that should be applied to the window
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
----
---- Returns:
----  * The `hs.window` object
-function window:setFrame(f, duration)
-  if duration==nil then duration = window.animationDuration end
-  if type(duration)~='number' then duration = 0 end
-  local id = self:id()
-  stopAnimation(self,id)
-  if duration<=0 or not id then return self:_setFrame(f) end
-  local frame = self:_frame()
-  if not animations[id] then animations[id] = {window=self} end
-  local anim = animations[id]
-  anim.time=timer.secondsSinceEpoch() anim.duration=duration
-  anim.startFrame=frame anim.endFrame=f
-  animTimer:start()
-  return self
-end
-
+---  * An hs.geometry rect containing the co-ordinates of the top left corner of the window and its width and height
+function window:frame() return getAnimationFrame(self) or self:_frame() end
 
 -- wrapping these Lua-side for dealing with animations cache
 function window:size()
-  return getAnimationFrame(self) or self:_size()
+  local f=getAnimationFrame(self)
+  return f and f.size or geometry(self:_size())
 end
 function window:topLeft()
-  return getAnimationFrame(self) or self:_topLeft()
+  local f=getAnimationFrame(self)
+  return f and f.xy or geometry(self:_topLeft())
 end
-function window:setSize(size)
-  stopAnimation(self)
-  return self:_setSize(size)
+function window:setSize(...)
+  stopAnimation(self,true)
+  return self:_setSize(geometry.size(...))
 end
-function window:setTopLeft(point)
-  stopAnimation(self)
-  return self:_setTopLeft(point)
+function window:setTopLeft(...)
+  stopAnimation(self,true)
+  return self:_setTopLeft(geometry.point(...))
 end
 function window:minimize()
   stopAnimation(self,true)
   return self:_minimize()
 end
 function window:unminimize()
-  stopAnimation(self) -- ?
+  stopAnimation(self,true)
   return self:_unminimize()
 end
 function window:toggleZoom()
@@ -202,7 +428,7 @@ function window:close()
   return self:_close()
 end
 
---- hs.window:otherWindowsSameScreen() -> win[]
+--- hs.window:otherWindowsSameScreen() -> list of hs.window objects
 --- Method
 --- Gets other windows on the same screen
 ---
@@ -210,12 +436,13 @@ end
 ---  * None
 ---
 --- Returns:
----  * A table of `hs.window` objects representing the other windows that are on the same screen as this one
+---  * A table of `hs.window` objects representing the visible windows other than this one that are on the same screen
 function window:otherWindowsSameScreen()
-  return fnutils.filter(window.visibleWindows(), function(win) return self ~= win and self:screen() == win:screen() end)
+  local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self or r[i]:screen()~=self:screen() then tremove(r,i) end end
+  return r
 end
 
---- hs.window:otherWindowsAllScreens() -> win[]
+--- hs.window:otherWindowsAllScreens() -> list of hs.window objects
 --- Method
 --- Gets every window except this one
 ---
@@ -223,12 +450,13 @@ end
 ---  * None
 ---
 --- Returns:
----  * A table containing `hs.window` objects representing all windows other than this one
+---  * A table containing `hs.window` objects representing all visible windows other than this one
 function window:otherWindowsAllScreens()
-  return fnutils.filter(window.visibleWindows(), function(win) return self ~= win end)
+  local r=window.visibleWindows() for i=#r,1,-1 do if r[i]==self then tremove(r,i) break end end
+  return r
 end
 
---- hs.window:focus() -> window
+--- hs.window:focus() -> hs.window object
 --- Method
 --- Focuses the window
 ---
@@ -243,51 +471,60 @@ function window:focus()
   return self
 end
 
---- hs.window.visibleWindows() -> win[]
---- Function
---- Gets all visible windows
+--- hs.window:sendToBack() -> hs.window object
+--- Method
+--- Sends the window to the back
+---
+--- This method works by focusing all overlapping windows behind this one, front to back.
+--- If called on the focused window, this method will switch focus to the topmost window under this one; otherwise, the
+--- currently focused window will regain focus after this window has been sent to the back.
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
----  * A table containing `hs.window` objects representing all windows that are visible (see `hs.window:isVisible()` for information about what constitutes a visible window)
-function window.visibleWindows()
-  return fnutils.filter(window:allWindows(), window.isVisible)
-end
-
---- hs.window.orderedWindows() -> win[]
---- Function
---- Returns all visible windows, ordered from front to back
+---  * The `hs.window` object
 ---
---- Parameters:
----  * None
----
---- Returns:
----  * A table of `hs.window` objects representing all visible windows, ordered from front to back
-function window.orderedWindows()
-  local orderedwins = {}
-  local orderedwinids = window._orderedwinids()
-  local windows = window.visibleWindows()
-
-  for _, orderedwinid in pairs(orderedwinids) do
-    for _, win in pairs(windows) do
-      if orderedwinid == win:id() then
-        table.insert(orderedwins, win)
-        break
+--- Notes:
+---  * Due to the way this method works and OSX limitations, calling this method when you have a lot of randomly overlapping
+---   (as opposed to neatly tiled) windows might be visually jarring, and take a fair amount of time to complete.
+---   So if you don't use orderly layouts, or if you have a lot of windows in general, you're probably better off using
+---   `hs.application:hide()` (or simply `cmd-h`)
+local WINDOW_ROLES={AXStandardWindow=true,AXDialog=true,AXSystemDialog=true}
+function window:sendToBack()
+  local id,frame=self:id(),self:frame()
+  local fw=window.focusedWindow()
+  local wins=window.orderedWindows()
+  for z=#wins,1,-1 do local w=wins[z] if id==w:id() or not WINDOW_ROLES[w:subrole()] then tremove(wins,z) end end
+  local toRaise,topz,didwork={}
+  repeat
+    for z=#wins,1,-1 do
+      didwork=nil
+      local wf=wins[z]:frame()
+      if frame:intersect(wf).area>0 then
+        topz=z
+        if not toRaise[z] then
+          didwork=true
+          toRaise[z]=true
+          frame=frame:union(wf) break
+        end
       end
     end
+  until not didwork
+  if topz then
+    for z=#wins,1,-1 do if toRaise[z] then wins[z]:focus() timer.usleep(80000) end end
+    wins[topz]:focus()
+    if fw and fw:id()~=id then fw:focus() end
   end
-
-  return orderedwins
+  return self
 end
 
---- hs.window:maximize([duration]) -> window
+--- hs.window:maximize([duration]) -> hs.window object
 --- Method
 --- Maximizes the window
 ---
 --- Parameters:
----  * duration - An optional number containing the number of seconds to animate the operation. Defaults to the value of `hs.window.animationDuration`
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
@@ -295,12 +532,10 @@ end
 --- Notes:
 ---  * The window will be resized as large as possible, without obscuring the dock/menu
 function window:maximize(duration)
-  local screenrect = self:screen():frame()
-  self:setFrame(screenrect, duration)
-  return self
+  return self:setFrame(self:screen():frame(), duration)
 end
 
---- hs.window:toggleFullScreen() -> window
+--- hs.window:toggleFullScreen() -> hs.window object
 --- Method
 --- Toggles the fullscreen state of the window
 ---
@@ -316,8 +551,12 @@ function window:toggleFullScreen()
   self:setFullScreen(not self:isFullScreen())
   return self
 end
+-- aliases
+window.toggleFullscreen=window.toggleFullScreen
+window.isFullscreen=window.isFullScreen
+window.setFullscreen=window.setFullScreen
 
---- hs.window:screen()
+--- hs.window:screen() -> hs.screen object
 --- Method
 --- Gets the screen which the window is on
 ---
@@ -327,315 +566,293 @@ end
 --- Returns:
 ---  * An `hs.screen` object representing the screen which most contains the window (by area)
 function window:screen()
-  local windowframe = self:frame()
-  local lastvolume = 0
-  local lastscreen = nil
-
-  for _, screen in pairs(hs_screen.allScreens()) do
-    local screenframe = screen:fullFrame()
-    local intersection = geometry.intersectionRect(windowframe, screenframe)
-    local volume = intersection.w * intersection.h
-
-    if volume > lastvolume then
-      lastvolume = volume
-      lastscreen = screen
-    end
-  end
-
-  return lastscreen
+  return screen.find(self:frame())--findScreenForFrame(self:frame())
 end
 
-local function windowsInDirection(srcwin, numrotations)
-  -- assume looking to east
+local function isFullyBehind(f1,w2)
+  local f2=geometry(w2:frame())
+  return f1:intersect(f2).area>=f2.area*0.95
+end
 
+local function windowsInDirection(fromWindow, numRotations, candidateWindows, frontmost, strict)
+  -- assume looking to east
   -- use the score distance/cos(A/2), where A is the angle by which it
   -- differs from the straight line in the direction you're looking
   -- for. (may have to manually prevent division by zero.)
 
-  -- thanks mark!
-
-  local startingpoint = geometry.rectMidPoint(srcwin:frame())
-
-  local otherwindows = fnutils.filter(window.orderedWindows(), function(candidate)
-    return window.isVisible(candidate) and window.isStandard(candidate) and not (candidate == srcwin)
-  end)
-  local closestwindows = {}
-
-  for zposition, win in ipairs(otherwindows) do
-    local otherpoint = geometry.rectMidPoint(win:frame())
-    otherpoint = geometry.rotateCCW(otherpoint, startingpoint, numrotations)
-
-    local delta = {
-      x = otherpoint.x - startingpoint.x,
-      y = otherpoint.y - startingpoint.y,
-    }
-
-    if delta.x > 0 then
-      local angle = math.atan(delta.y, delta.x)
-      local distance = geometry.hypot(delta)
-
-      local anglediff = -angle
-
-      local score = (distance / math.cos(anglediff / 2)) + zposition
-
-      table.insert(closestwindows, {win = win, score = score})
+  local fromFrame=geometry(fromWindow:frame())
+  local winset,fromz,fromid={},99999,fromWindow:id() or -1
+  for z,w in ipairs(candidateWindows or window.orderedWindows()) do
+    if fromid==(w:id() or -2) then fromWindow=w fromz=z --workaround the fact that userdata keep changing
+    elseif not candidateWindows or w:isVisible() then winset[w]=z end --make a set, avoid inner loop (if using .orderedWindows skip the visible check as it's done upstream)
+  end
+  if frontmost then for w,z in pairs(winset) do if z>fromz and isFullyBehind(fromFrame,w) then winset[w]=nil end end end
+  local p1,wins=fromFrame.center,{}
+  for win,z in pairs(winset) do
+    local frame=geometry(win:frame())
+    local delta = p1:vector(frame.center:rotateCCW(p1,numRotations))
+    if delta.x > (strict and abs(delta.y) or 0) then
+      wins[#wins+1]={win=win,score=delta.length/cos(delta:angle()/2)+z,z=z,frame=frame}
     end
   end
-
-  table.sort(closestwindows, function(a, b) return a.score < b.score end)
-  return fnutils.map(closestwindows, function(x) return x.win end)
+  tsort(wins,function(a,b)return a.score<b.score end)
+  if frontmost then
+    local i=1
+    while i<=#wins do
+      for j=i+1,#wins do
+        if wins[j].z<wins[i].z then
+          local r=wins[i].frame:intersect(wins[j].frame)
+          if r.w>5 and r.h>5 then --TODO var for threshold
+            --this window is further away, but it occludes the closest
+            local swap=wins[i] wins[i]=wins[j] wins[j]=swap
+            i=i-1 break
+          end
+        end
+      end
+      i=i+1
+    end
+  end
+  for i=1,#wins do wins[i]=wins[i].win end
+  return wins
 end
 
+--TODO zorder direct manipulation (e.g. sendtoback)
+
 local function focus_first_valid_window(ordered_wins)
-  for _, win in pairs(ordered_wins) do
-    if win:focus() then return true end
-  end
+  for _,win in ipairs(ordered_wins) do if win:focus() then return true end end
   return false
 end
 
---- hs.window:windowsToEast() -> win[]
+--- hs.window:windowsToEast([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
 --- Method
---- Gets all windows to the east
+--- Gets all windows to the east of this window
+---
+--- Parameters:
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the east are candidates.
+---  * frontmost - (optional) boolean, if true unoccluded windows will be placed before occluded ones in the result list
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    eastward axis
+---
+--- Returns:
+---  * A list of `hs.window` objects representing all windows positioned east (i.e. right) of the window, in ascending order of distance
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, and some undesired "windows" could be included
+---    (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in
+---    `hs.window.filter` instead
+
+--- hs.window:windowsToWest([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
+--- Method
+--- Gets all windows to the west of this window
+---
+--- (See `hs.window:windowsToEast()`)
+
+--- hs.window:windowsToNorth([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
+--- Method
+--- Gets all windows to the north of this window
+---
+--- (See `hs.window:windowsToEast()`)
+
+--- hs.window:windowsToSouth([candidateWindows[, frontmost[, strict]]]) -> list of hs.window objects
+--- Method
+--- Gets all windows to the south of this window
+---
+--- (See `hs.window:windowsToEast()`)
+
+
+--- hs.window.frontmostWindow() -> hs.window object
+--- Constructor
+--- Returns the focused window or, if no window has focus, the frontmost one
 ---
 --- Parameters:
 ---  * None
 ---
 --- Returns:
----  * A table of `hs.window` objects representing all windows positioned east (i.e. right) of the window, in ascending order of distance
-function window:windowsToEast()  return windowsInDirection(self, 0) end
+--- * An `hs.window` object representing the frontmost window, or `nil` if there are no visible windows
 
---- hs.window:windowsToWest()
---- Method
---- Gets all windows to the west
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table of `hs.window` objects representing all windows positioned west (i.e. left) of the window, in ascending order of distance
-function window:windowsToWest()  return windowsInDirection(self, 2) end
-
---- hs.window:windowsToNorth()
---- Method
---- Gets all windows to the north
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table of `hs.window` objects representing all windows positioned north (i.e. up) of the window, in ascending order of distance
-function window:windowsToNorth() return windowsInDirection(self, 1) end
-
---- hs.window:windowsToSouth()
---- Method
---- Gets all windows to the south
----
---- Parameters:
----  * None
----
---- Returns:
----  * A table of `hs.window` objects representing all windows positioned south (i.e. down) of the window, in ascending order of distance
-function window:windowsToSouth() return windowsInDirection(self, 3) end
-
-function window:focusWindowsFromTable(searchWindows, sameApp)
-  if sameApp == true then
-    local winApplication = self:application()
-    searchWindows = fnutils.filter(searchWindows, function(win) return winApplication == win:application() end)
+function window.frontmostWindow()
+  local w=window.focusedWindow()
+  if w then return w end
+  for _,w in ipairs(window.orderedWindows()) do
+    local app=w:application()
+    if (app and app:title()~='Hammerspoon') or w:subrole()~='AXUnknown' then return w end
   end
-  return focus_first_valid_window(searchWindows)
 end
 
---- hs.window:focusWindowEast([sameApp])
+for n,dir in pairs{['0']='East','North','West','South'}do
+  window['windowsTo'..dir]=function(self,...)
+    self=self or window.frontmostWindow()
+    return self and windowsInDirection(self,n,...)
+  end
+  window['focusWindow'..dir]=function(self,wins,...)
+    self=self or window.frontmostWindow()
+    if not self then return end
+    if wins==true then -- legacy sameApp parameter
+      wins=self:application():visibleWindows()
+    end
+    return self and focus_first_valid_window(window['windowsTo'..dir](self,wins,...))
+  end
+  window['moveOneScreen'..dir]=function(self,...) local s=self:screen() return self:moveToScreen(s['to'..dir](s),...) end
+end
+
+--- hs.window:focusWindowEast([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
---- Focuses the nearest possible window to the east
+--- Focuses the nearest possible window to the east (i.e. right)
 ---
 --- Parameters:
----  * sameApp - An optional boolean, true to only consider windows from the same application, false to consider all windows. Defaults to false
+---  * candidateWindows - (optional) a list of candidate windows to consider; if nil, all visible windows
+---    to the east are candidates.
+---  * frontmost - (optional) boolean, if true focuses the nearest window that isn't occluded by any other window
+---  * strict - (optional) boolean, if true only consider windows at an angle between 45° and -45° on the
+---    eastward axis
 ---
 --- Returns:
----  * None
-function window:focusWindowEast(sameApp)
-  return self:focusWindowsFromTable(self:windowsToEast(), sameApp)
-end
+---  * `true` if a window was found and focused, `false` otherwise; `nil` if the search couldn't take place
+---
+--- Notes:
+---  * If you don't pass `candidateWindows`, Hammerspoon will query for the list of all visible windows
+---    every time this method is called; this can be slow, and some undesired "windows" could be included
+---    (see the notes for `hs.window.allWindows()`); consider using the equivalent methods in
+---    `hs.window.filter` instead
 
---- hs.window:focusWindowWest([sameApp])
+--- hs.window:focusWindowWest([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
---- Focuses the nearest possible window to the west
+--- Focuses the nearest possible window to the west (i.e. right)
 ---
---- Parameters:
----  * sameApp - An optional boolean, true to only consider windows from the same application, false to consider all windows. Defaults to false
----
---- Returns:
----  * None
-function window:focusWindowWest(sameApp)
-  return self:focusWindowsFromTable(self:windowsToWest(), sameApp)
-end
+--- (See `hs.window:focusWindowEast()`)
 
---- hs.window:focusWindowNorth([sameApp])
+--- hs.window:focusWindowNorth([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
---- Focuses the nearest possible window to the north
+--- Focuses the nearest possible window to the north (i.e. up)
 ---
---- Parameters:
----  * sameApp - An optional boolean, true to consider windows from the same application, false to consider all windows. Defaults to false
----
---- Returns:
----  * None
-function window:focusWindowNorth(sameApp)
-  return self:focusWindowsFromTable(self:windowsToNorth(), sameApp)
-end
+--- (See `hs.window:focusWindowEast()`)
 
---- hs.window:focusWindowSouth([sameApp])
+--- hs.window:focusWindowSouth([candidateWindows[, frontmost[, strict]]]) -> boolean
 --- Method
---- Focuses the nearest possible window to the south
+--- Focuses the nearest possible window to the south (i.e. down)
 ---
---- Parameters:
----  * sameApp - An optional boolean, true to consider windows from the same application, false to consider all windows. Defaults to false
----
---- Returns:
----  * None
-function window:focusWindowSouth(sameApp)
-  return self:focusWindowsFromTable(self:windowsToSouth(), sameApp)
-end
+--- (See `hs.window:focusWindowEast()`)
 
---- hs.window:moveToUnit(rect[, duration]) -> window
+--- hs.window:moveToUnit(unitrect[, duration]) -> hs.window object
 --- Method
 --- Moves and resizes the window to occupy a given fraction of the screen
 ---
 --- Parameters:
----  * rect - A unit-rect-table where each value is between 0.0 and 1.0
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * unitrect - An `hs.geometry` unit rect, or constructor argument to create one
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
 ---
 --- Notes:
---   * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit({x=0, y=0, w=0.5, h=0.5})`
+---  * An example, which would make a window fill the top-left quarter of the screen: `win:moveToUnit'[0,0,50,50]'`
 function window:moveToUnit(unit, duration)
-  local screenrect = self:screen():frame()
-  self:setFrame({
-    x = screenrect.x + (unit.x * screenrect.w),
-    y = screenrect.y + (unit.y * screenrect.h),
-    w = unit.w * screenrect.w,
-    h = unit.h * screenrect.h,
-  }, duration)
-  return self
+  return self:setFrame(self:screen():fromUnitRect(unit),duration)
 end
 
---- hs.window:moveToScreen(screen[, duration]) -> window
+--- hs.window:moveToScreen(screen[, duration]) -> hs.window object
 --- Method
 --- Moves the window to a given screen, retaining its relative position and size
 ---
 --- Parameters:
----  * screen - An `hs.screen` object representing the screen to move the window to
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * screen - An `hs.screen` object, or an argument for `hs.screen.find()`, representing the screen to move the window to
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveToScreen(nextScreen, duration)
-  local currentFrame = self:frame()
-  local screenFrame = self:screen():frame()
-  local nextScreenFrame = nextScreen:frame()
-  self:setFrame({
-    x = ((((currentFrame.x - screenFrame.x) / screenFrame.w) * nextScreenFrame.w) + nextScreenFrame.x),
-    y = ((((currentFrame.y - screenFrame.y) / screenFrame.h) * nextScreenFrame.h) + nextScreenFrame.y),
-    h = ((currentFrame.h / screenFrame.h) * nextScreenFrame.h),
-    w = ((currentFrame.w / screenFrame.w) * nextScreenFrame.w)
-  }, duration)
-  return self
+function window:moveToScreen(toScreen, duration)
+  if not toScreen then return end
+  local theScreen=screen.find(toScreen)
+  if not theScreen then print('window:moveToScreen(): screen not found: '..toScreen) return self end
+  return self:setFrame(theScreen:fromUnitRect(self:screen():toUnitRect(self:frame())),duration)
 end
 
---- hs.window:moveOneScreenWest([duration]) -> window
+--- hs.window:move(rect[, screen][, ensureInScreenBounds][, duration]) --> hs.window object
 --- Method
---- Moves the window one screen west (i.e. left)
+--- Moves the window
 ---
 --- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * rect - It can be:
+---    - an `hs.geometry` point, or argument to construct one; will move the screen by this delta, keeping its size constant; `screen` is ignored
+---    - an `hs.geometry` rect, or argument to construct one; will set the window frame to this rect, in absolute coordinates; `screen` is ignored
+---    - an `hs.geometry` unit rect, or argument to construct one; will set the window frame to this rect relative to the desired screen;
+---      if `screen` is nil, use the screen the window is currently on
+---  * screen - (optional) An `hs.screen` object or argument for `hs.screen.find`; only valid if `rect` is a unit rect
+---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
+---    the window's screen
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveOneScreenWest(duration)
-  local dst = self:screen():toWest()
-  if dst ~= nil then
-    self:moveToScreen(dst, duration)
-  end
-  return self
+function window:move(rect,toScreen,inBounds,duration)
+  if type(toScreen)=='boolean' then duration=inBounds inBounds=toScreen toScreen=nil end
+  if type(inBounds)=='number' then duration=inBounds inBounds=nil end
+  rect=geometry(rect)
+  local rtype,frame=rect:type()
+  if rtype=='point' then frame=geometry(self:frame()):move(rect)
+    if type(toScreen)=='number' then inBounds=nil duration=toScreen end
+  elseif rtype=='rect' then frame=rect
+    if type(toScreen)=='number' then inBounds=nil duration=toScreen end
+  elseif rtype=='unitrect' then
+    local theScreen
+    if toScreen then
+      theScreen=screen.find(toScreen)
+      if not theScreen then print('window:move(): screen not found: '..toScreen) return self end
+    else theScreen=self:screen() end
+    frame=rect:fromUnitRect(theScreen:frame())
+  else error('rect must be a point, rect, or unit rect',2) end
+  if inBounds then return self:setFrameInScreenBounds(frame,duration)
+  else return self:setFrame(frame,duration) end
 end
 
---- hs.window:moveOneScreenEast([duration]) -> window
+--- hs.window:moveOneScreenEast([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen east (i.e. right)
 ---
 --- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveOneScreenEast(duration)
-  local dst = self:screen():toEast()
-  if dst ~= nil then
-    self:moveToScreen(dst, duration)
-  end
-  return self
-end
 
---- hs.window:moveOneScreenNorth([duration]) -> window
+--- hs.window:moveOneScreenWest([duration]) -> hs.window object
+--- Method
+--- Moves the window one screen west (i.e. left)
+---
+--- (See `hs.window:moveOneScreenEast()`)
+
+--- hs.window:moveOneScreenNorth([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen north (i.e. up)
 ---
---- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
---- Returns:
----  * The `hs.window` object
-function window:moveOneScreenNorth(duration)
-  local dst = self:screen():toNorth()
-  if dst ~= nil then
-    self:moveToScreen(dst, duration)
-  end
-  return self
-end
+--- (See `hs.window:moveOneScreenEast()`)
 
---- hs.window:moveOneScreenSouth([duration]) -> window
+--- hs.window:moveOneScreenSouth([duration]) -> hs.window object
 --- Method
 --- Moves the window one screen south (i.e. down)
 ---
---- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
---- Returns:
----  * The `hs.window` object
-function window:moveOneScreenSouth(duration)
-  local dst = self:screen():toSouth()
-  if dst ~= nil then
-    self:moveToScreen(dst, duration)
-  end
-  return self
-end
+--- (See `hs.window:moveOneScreenEast()`)
 
---- hs.window:ensureIsInScreenBounds([duration]) -> window
---- Method
---- Movies and resizes the window to ensure it is inside the screen
----
---- Parameters:
----  * duration - An optional number containing the number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
----
---- Returns:
----  * The `hs.window` object
-function window:ensureIsInScreenBounds(duration)
-  local frame = self:frame()
-  local screenFrame = self:screen():frame()
-  if frame.x < screenFrame.x then frame.x = screenFrame.x end
-  if frame.y < screenFrame.y then frame.y = screenFrame.y end
-  if frame.w > screenFrame.w then frame.w = screenFrame.w end
-  if frame.h > screenFrame.h then frame.h = screenFrame.h end
-  if frame.x + frame.w > screenFrame.x + screenFrame.w then
-    frame.x = (screenFrame.x + screenFrame.w) - frame.w
-  end
-  if frame.y + frame.h > screenFrame.y + screenFrame.h then
-    frame.y = (screenFrame.y + screenFrame.h) - frame.h
-  end
-  if frame ~= self:frame() then self:setFrame(frame, duration) end
-  return self
+
+package.loaded[...]=window
+window.filter=require'hs.window.filter'
+window.layout=require'hs.window.layout'
+window.tiling=require'hs.window.tiling'
+do
+  local mt=getmetatable(window)
+  --[[ this (lazy "autoload") won't work, objc wants the first metatable for objects
+  setmetatable(window,{
+    __call=function(_,...)return window.find(...)end,
+    __index=function(t,k)
+      if k=='filter' then window.filter=require'hs.window.filter' return window.filter
+      else return mt[k] end
+    end})
+    --]]
+  if not mt.__call then mt.__call=function(t,...)if t.find then return t.find(...) else error('cannot call uielement',2) end end end
 end
 
 return window

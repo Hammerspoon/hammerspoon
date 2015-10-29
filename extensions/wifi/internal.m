@@ -65,19 +65,18 @@ static const luaL_Reg wifilib[] = {
     {"availableNetworks", wifi_scan},
     {"currentNetwork", wifi_current_ssid},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", wifi_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_wifi_internal(lua_State* L) {
-    luaL_newlib(L, wifilib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:wifilib metaFunctions:metalib];
 
     return 1;
 }

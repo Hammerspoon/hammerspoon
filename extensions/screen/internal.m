@@ -4,7 +4,9 @@
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
-#define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "hs.screen"))
+#define USERDATA_TAG "hs.screen"
+
+#define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
 static void geom_pushrect(lua_State* L, NSRect rect) {
     lua_newtable(L);
@@ -482,7 +484,7 @@ static int screen_gammaSet(lua_State* L) {
     NSArray *redArray = [originalGamma objectForKey:@"red"];
     NSArray *greenArray = [originalGamma objectForKey:@"green"];
     NSArray *blueArray = [originalGamma objectForKey:@"blue"];
-    int count = [redArray count];
+    int count = (int)[redArray count];
 //    CLS_NSLOG(@"screen_gammaSet: Found %i entries in the original gamma table", count);
 
     CGGammaValue redTable[count];
@@ -530,6 +532,51 @@ static int screen_gammaSet(lua_State* L) {
     return 1;
 }
 
+/// hs.screen:getBrightness() -> number or nil
+/// Method
+/// Gets the screen's brightness
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A floating point number between 0 and 1, containing the current brightness level, or nil if the display does not support brightness queries
+static int screen_getBrightness(lua_State *L) {
+    NSScreen* screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    io_service_t service = CGDisplayIOServicePort(screen_id);
+    CGDisplayErr err;
+
+    float brightness;
+    err = IODisplayGetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), &brightness);
+    if (err != kIOReturnSuccess) {
+        lua_pushnil(L);
+    } else {
+        lua_pushnumber(L, brightness);
+    }
+    return 1;
+}
+
+/// hs.screen:setBrightness(brightness) -> `hs.screen` object
+/// Method
+/// Sets the screen's brightness
+///
+/// Parameters:
+///  * brightness - A floating point number between 0 and 1
+///
+/// Returns:
+///  * The `hs.screen` object
+static int screen_setBrightness(lua_State *L) {
+    NSScreen* screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    io_service_t service = CGDisplayIOServicePort(screen_id);
+
+    IODisplaySetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), luaL_checknumber(L, 2));
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 void screen_gammaReapply(CGDirectDisplayID display) {
     NSDictionary *gammas = [currentGammas objectForKey:[NSNumber numberWithInt:display]];
     if (!gammas) {
@@ -540,7 +587,7 @@ void screen_gammaReapply(CGDirectDisplayID display) {
     NSArray *green = [gammas objectForKey:@"green"];
     NSArray *blue =  [gammas objectForKey:@"blue"];
 
-    int count = [red count];
+    int count = (int)[red count];
     CGGammaValue redTable[count];
     CGGammaValue greenTable[count];
     CGGammaValue blueTable[count];
@@ -578,7 +625,7 @@ void new_screen(lua_State* L, NSScreen* screen) {
     void** screenptr = lua_newuserdata(L, sizeof(NSScreen**));
     *screenptr = (__bridge_retained void*)screen;
 
-    luaL_getmetatable(L, "hs.screen");
+    luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
 }
 
@@ -607,7 +654,7 @@ static int screen_mainScreen(lua_State* L) {
 }
 
 /// hs.screen:setPrimary(screen) -> nil
-/// Function
+/// Method
 /// Sets the screen to be the primary display (i.e. contain the menubar and dock)
 static int screen_setPrimary(lua_State* L) {
     int deltaX, deltaY;
@@ -668,7 +715,7 @@ static int screen_rotate(lua_State* L) {
     CGDisplayCount maxDisplays = 32;
     CGDisplayCount displayCount, i;
     CGDirectDisplayID onlineDisplays[maxDisplays];
-    int rot = lua_tointeger(L, 2);
+    int rot = (int)lua_tointeger(L, 2);
     int rotation;
 
     switch (rot) {
@@ -686,7 +733,6 @@ static int screen_rotate(lua_State* L) {
             break;
         default:
             goto cleanup;
-            break;
     }
 
     CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
@@ -800,15 +846,32 @@ static int screens_gc(lua_State* L __unused) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    NSScreen *screen = get_screen_arg(L, 1);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+
+    CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:[NSString stringWithUTF8String:kDisplayProductName]];
+    NSString *theName ;
+    if ([localizedNames count])
+        theName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] ;
+    else
+        theName = @"(un-named screen)" ;
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
+    CFRelease(deviceInfo);
+    return 1 ;
+}
+
 static const luaL_Reg screenlib[] = {
     {"allScreens", screen_allScreens},
     {"mainScreen", screen_mainScreen},
     {"restoreGamma", screen_gammaRestore},
-    {"getGamma", screen_gammaGet},
-    {"setGamma", screen_gammaSet},
-    {"setPrimary", screen_setPrimary},
-    {"rotate", screen_rotate},
 
+    {NULL, NULL}
+};
+
+static const luaL_Reg screen_objectlib[] = {
     {"_frame", screen_frame},
     {"_visibleframe", screen_visibleframe},
     {"id", screen_id},
@@ -817,6 +880,16 @@ static const luaL_Reg screenlib[] = {
     {"currentMode", screen_currentMode},
     {"setMode", screen_setMode},
     {"snapshot", screen_snapshot},
+    {"getGamma", screen_gammaGet},
+    {"setGamma", screen_gammaSet},
+    {"getBrightness", screen_getBrightness},
+    {"setBrightness", screen_setBrightness},
+    {"rotate", screen_rotate},
+    {"setPrimary", screen_setPrimary},
+
+    {"__tostring", userdata_tostring},
+    {"__gc", screen_gc},
+    {"__eq", screen_eq},
 
     {NULL, NULL}
 };
@@ -824,10 +897,12 @@ static const luaL_Reg screenlib[] = {
 static const luaL_Reg metalib[] = {
     {"__gc", screens_gc},
 
-    {}
+    {NULL, NULL}
 };
 
-int luaopen_hs_screen_internal(lua_State* L) {
+int luaopen_hs_screen_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+
     // Start off by initialising gamma related structures, populating them and registering appropriate callbacks
     originalGammas = [[NSMutableDictionary alloc] init];
     currentGammas = [[NSMutableDictionary alloc] init];
@@ -835,21 +910,7 @@ int luaopen_hs_screen_internal(lua_State* L) {
     notificationQueue = dispatch_queue_create("org.hammerspoon.Hammerspoon.gammaReapplyNotificationQueue", NULL);
     CGDisplayRegisterReconfigurationCallback(displayReconfigurationCallback, NULL);
 
-    luaL_newlib(L, screenlib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
-
-    if (luaL_newmetatable(L, "hs.screen")) {
-        lua_pushvalue(L, -2);
-        lua_setfield(L, -2, "__index");
-
-        lua_pushcfunction(L, screen_gc);
-        lua_setfield(L, -2, "__gc");
-
-        lua_pushcfunction(L, screen_eq);
-        lua_setfield(L, -2, "__eq");
-    }
-    lua_pop(L, 1);
+    [skin registerLibraryWithObject:USERDATA_TAG functions:screenlib metaFunctions:metalib objectFunctions:screen_objectlib];
 
     return 1;
 }

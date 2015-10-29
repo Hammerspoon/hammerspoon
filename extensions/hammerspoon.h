@@ -3,8 +3,18 @@
 
 #ifndef HS_EXTERNAL_MODULE
 // Import the Crashlytics API so we can define our own crashlog+NSLog call
-#import "../Crashlytics.framework/Headers/Crashlytics.h"
+#import <Crashlytics/Crashlytics.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu"
 #define CLS_NSLOG(__FORMAT__, ...) CLSNSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#pragma clang diagnostic pop
+#ifdef CLS_LOG
+#undef CLS_LOG
+#endif
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu"
+#define CLS_LOG(__FORMAT__, ...) CLSLog((@"%s line %d $ " __FORMAT__), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
+#pragma clang diagnostic pop
 #else
 #define CLS_NSLOG NSLog
 #endif
@@ -61,3 +71,45 @@ int store_image_as_hsimage(lua_State* L, NSImage* theImage) {
 
     return 1 ;
 }
+
+NSColor *getColorWithDefaultFromStack(lua_State *L, int idx, NSColor *defaultColor) {
+    CGFloat red = 0.0, green = 0.0, blue = 0.0, alpha = 1.0 ;
+
+    switch (lua_type(L, idx)) {
+        case LUA_TTABLE:
+            if (lua_getfield(L, idx, "red") == LUA_TNUMBER)
+                red = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            if (lua_getfield(L, idx, "green") == LUA_TNUMBER)
+                green = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            if (lua_getfield(L, idx, "blue") == LUA_TNUMBER)
+                blue = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            if (lua_getfield(L, idx, "alpha") == LUA_TNUMBER)
+                alpha = lua_tonumber(L, -1);
+            lua_pop(L, 1);
+
+            break;
+        case LUA_TNIL:
+        case LUA_TNONE:
+            return defaultColor ;
+            break;
+        default:
+            CLS_NSLOG(@"ERROR: Unexpected type passed as a color: %d", lua_type(L, idx));
+            luaL_error(L, [[NSString stringWithFormat:@"Unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
+            return nil ;
+            break;
+    }
+
+    return [NSColor colorWithSRGBRed:red green:green blue:blue alpha:alpha];
+}
+
+NSColor *getColorFromStack(lua_State *L, int idx) {
+    return getColorWithDefaultFromStack(L, idx, [NSColor blackColor]) ;
+}
+
+

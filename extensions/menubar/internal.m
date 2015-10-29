@@ -2,11 +2,11 @@
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
-#import "ASCIImage/PARImage+ASCIIInput.h"
 
 // ----------------------- Definitions ---------------------
 
 #define USERDATA_TAG "hs.menubar"
+int refTable;
 #define get_item_arg(L, idx) ((menubaritem_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
 // Define a base object for our various callback handlers
@@ -17,11 +17,14 @@
 @implementation HSMenubarCallbackObject
 // Generic callback runner that will execute a Lua function stored in self.fn
 - (void) callback_runner {
-    int fn_result;
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+
+    BOOL fn_result;
     NSEvent *event = [NSApp currentEvent];
-    lua_State *L = self.L;
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+
+    [skin pushLuaRef:refTable ref:self.fn];
+
     if (event != nil) {
         NSUInteger theFlags = [event modifierFlags];
         BOOL isCommandKey = (theFlags & NSCommandKeyMask) != 0;
@@ -47,17 +50,16 @@
         lua_pushboolean(L, isFnKey);
         lua_setfield(L, -2, "fn");
 
-        fn_result = lua_pcall(L, 1, 1, -3);
+        fn_result = [skin protectedCallAndTraceback:1 nresults:1];
     } else {
         // event is very unlikely to be nil, but we'll handle it just in case
-        fn_result = lua_pcall(L, 0, 1, -2);
+        fn_result = [skin protectedCallAndTraceback:0 nresults:1];
     }
 
-    if (fn_result != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (!fn_result) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
         return;
     }
 }
@@ -109,6 +111,8 @@ NSMutableArray *dynamicMenuDelegates;
 
 // Helper function to parse a Lua table and turn it into an NSMenu hierarchy (is recursive, so may do terrible things on huge tables)
 void parse_table(lua_State *L, int idx, NSMenu *menu) {
+    LuaSkin *skin = [LuaSkin shared];
+
     lua_pushnil(L); // Push a nil to the top of the stack, which lua_next() will interpret as "fetch the first item of the table"
     while (lua_next(L, idx) != 0) {
         // lua_next pushed two things onto the stack, the table item's key at -2 and its value at -1
@@ -143,6 +147,9 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             [menu addItem:[NSMenuItem separatorItem]];
         } else {
             // Create a menu item
+            if (!title) {
+                title = @"";
+            }
             NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
 
             // Check to see if we have a submenu, if so, recurse into it
@@ -150,6 +157,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             if (lua_istable(L, -1)) {
                 // Create the submenu, populate it and attach it to our current menu item
                 NSMenu *subMenu = [[NSMenu alloc] initWithTitle:@"HammerspoonSubMenu"];
+                [subMenu setAutoenablesItems:NO];
                 parse_table(L, lua_gettop(L), subMenu);
                 [menuItem setSubmenu:subMenu];
             }
@@ -163,7 +171,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
 
                 // luaL_ref is going to create a reference to the item at the top of the stack and then pop it off. To avoid confusion, we're going to push the top item on top of itself, so luaL_ref leaves us where we are now
                 lua_pushvalue(L, -1);
-                delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
+                delegate.fn = [skin luaRef:refTable];
                 delegate.L = L;
                 [menuItem setTarget:delegate];
                 [menuItem setAction:@selector(click:)];
@@ -200,12 +208,13 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
 
 // Recursively remove all items from a menu, de-allocating their delegates as we go
 void erase_menu_items(lua_State *L, NSMenu *menu) {
+    LuaSkin *skin = [LuaSkin shared];
+
     for (NSMenuItem *menuItem in [menu itemArray]) {
         HSMenubarItemClickDelegate *target = [menuItem representedObject];
         if (target) {
             // This menuitem has a delegate object. Destroy its Lua reference and nuke all the references to the object, so ARC will deallocate it
-            luaL_unref(L, LUA_REGISTRYINDEX, target.fn);
-            target.fn = LUA_NOREF;
+            target.fn = [skin luaUnref:refTable ref:target.fn];
             [menuItem setTarget:nil];
             [menuItem setAction:nil];
             [menuItem setRepresentedObject:nil];
@@ -220,11 +229,12 @@ void erase_menu_items(lua_State *L, NSMenu *menu) {
 }
 
 // Remove and clean up a dynamic menu delegate
-void erase_menu_delegate(lua_State *L, NSMenu *menu) {
+void erase_menu_delegate(lua_State *L __unused, NSMenu *menu) {
+    LuaSkin *skin = [LuaSkin shared];
+
     HSMenubarItemMenuDelegate *delegate = [menu delegate];
     if (delegate) {
-        luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
-        delegate.fn = LUA_NOREF;
+        delegate.fn = [skin luaUnref:refTable ref:delegate.fn];
         [dynamicMenuDelegates removeObject:delegate];
         [menu setDelegate:nil];
         delegate = nil;
@@ -410,11 +420,12 @@ static int menubarSetTooltip(lua_State *L) {
 ///  * If a menu has been attached to the menubar item, this callback will never be called
 ///  * Has no affect on the display of a pop-up menu, but changes will be be in effect if hs.menubar:returnToMenuBar() is called on the menubaritem.
 static int menubarSetClickCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
     if (lua_isnil(L, 2)) {
-        luaL_unref(L, LUA_REGISTRYINDEX, menuBarItem->click_fn);
-        menuBarItem->click_fn = LUA_NOREF;
+        menuBarItem->click_fn = [skin luaUnref:refTable ref:menuBarItem->click_fn];
         if (menuBarItem->click_callback) {
             [statusItem setTarget:nil];
             [statusItem setAction:nil];
@@ -425,7 +436,7 @@ static int menubarSetClickCallback(lua_State *L) {
     } else {
         luaL_checktype(L, 2, LUA_TFUNCTION);
         lua_pushvalue(L, 2);
-        menuBarItem->click_fn = luaL_ref(L, LUA_REGISTRYINDEX);
+        menuBarItem->click_fn = [skin luaRef:refTable];
         HSMenubarItemClickDelegate *object = [[HSMenubarItemClickDelegate alloc] init];
         object.L = L;
         object.fn = menuBarItem->click_fn;
@@ -481,6 +492,8 @@ static int menubarSetClickCallback(lua_State *L) {
 /// Notes:
 ///  * If you are using the callback function, you should take care not to take too long to generate the menu, as you will block the process and the OS may decide to remove the menubar item
 static int menubarSetMenu(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
     NSMenu *menu = nil;
@@ -513,7 +526,7 @@ static int menubarSetMenu(lua_State *L) {
                 delegate = [[HSMenubarItemMenuDelegate alloc] init];
                 delegate.L = L;
                 lua_pushvalue(L, 2);
-                delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
+                delegate.fn = [skin luaRef:refTable];
                 [dynamicMenuDelegates addObject:delegate]; // store a strong reference to the delegate object, so ARC doesn't deallocate it until we are destroying the menu later
             }
             break;
@@ -598,7 +611,6 @@ static int menubar_render(lua_State *L) {
             showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed to hs.menubar:render(): %d", lua_type(L, 2)] UTF8String]) ;
             lua_pushnil(L) ;
             return 1 ;
-            break ;
     }
 
     if (!menu) {
@@ -724,11 +736,10 @@ static int menubarGetIcon(lua_State *L) {
 
 // ----------------------- Lua/hs glue GAR ---------------------
 
-static int menubar_setup(lua_State* __unused L) {
+void menubar_setup() {
     if (!dynamicMenuDelegates) {
         dynamicMenuDelegates = [[NSMutableArray alloc] init];
     }
-    return 0;
 }
 
 static int menubar_gc(lua_State* __unused L) {
@@ -753,7 +764,7 @@ static int userdata_tostring(lua_State* L) {
 static const luaL_Reg menubarlib[] = {
     {"new", menubarNew},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg menubar_metalib[] = {
@@ -771,31 +782,24 @@ static const luaL_Reg menubar_metalib[] = {
 
     {"__tostring",        userdata_tostring},
     {"__gc",              menubaritem_gc},
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg menubar_gclib[] = {
     {"__gc", menubar_gc},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_menubar_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.menubar.internal". */
 
-int luaopen_hs_menubar_internal(lua_State *L) {
-    menubar_setup(L);
+int luaopen_hs_menubar_internal(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
 
-    // Metatable for created objects
-    luaL_newlib(L, menubar_metalib);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
+    menubar_setup();
 
-    // Table for luaopen
-    luaL_newlib(L, menubarlib);
-    luaL_newlib(L, menubar_gclib);
-    lua_setmetatable(L, -2);
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:menubarlib metaFunctions:menubar_gclib objectFunctions:menubar_metalib];
 
     return 1;
 }

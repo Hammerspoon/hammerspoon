@@ -4,6 +4,7 @@
 #import <CocoaHTTPServer/HTTPConnection.h>
 #import <CocoaHTTPServer/HTTPDataResponse.h>
 #import <CocoaAsyncSocket/GCDAsyncSocket.h>
+#import <CocoaLumberjack/CocoaLumberjack.h>
 #import "MYAnonymousIdentity.h"
 
 // Defines
@@ -11,6 +12,8 @@
 #define USERDATA_TAG "hs.httpserver"
 #define get_item_arg(L, idx) ((httpserver_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 #define getUserData(L, idx) (__bridge HSHTTPServer *)((httpserver_t *)get_item_arg(L, idx))->server
+
+int refTable;
 
 // ObjC Class definitions
 @interface HSHTTPServer : HTTPServer
@@ -68,12 +71,14 @@
         LuaSkin *skin = [LuaSkin shared];
         lua_State *L = skin.L;
 
-        lua_rawgeti(L, LUA_REGISTRYINDEX, ((HSHTTPServer *)config.server).fn);
+        [skin pushLuaRef:refTable ref:((HSHTTPServer *)config.server).fn];
         lua_pushstring(L, [method UTF8String]);
         lua_pushstring(L, [path UTF8String]);
 
         if (![skin protectedCallAndTraceback:2 nresults:3]) {
-            showError(L, "ERROR: hs.httpserver callback failed");
+            const char *errorMsg = lua_tostring(L, -1);
+            CLS_NSLOG(@"%s", errorMsg);
+            showError(L, (char *)errorMsg);
             responseCode = 503;
             responseBody = [NSString stringWithUTF8String:"An error occurred during hs.httpserver callback handling"];
         } else {
@@ -83,7 +88,7 @@
                 responseBody = [NSString stringWithUTF8String:"Callback handler returned invalid values"];
             } else {
                 responseBody = [NSString stringWithUTF8String:lua_tostring(L, -3)];
-                responseCode = lua_tointeger(L, -2);
+                responseCode = (int)lua_tointeger(L, -2);
 
                 responseHeaders = [[NSMutableDictionary alloc] init];
                 BOOL headerTypeError = NO;
@@ -157,7 +162,7 @@
 - (void)startConnection
 {
     // Override me to do any custom work before the connection starts.
-    // 
+    //
     // Be sure to invoke [super startConnection] when you're done.
 
     //HTTPLogTrace();
@@ -182,8 +187,8 @@
                          forKey:(NSString *)kCFStreamSSLCertificates];
 
             // Configure this connection to use the highest possible SSL level
-            [settings setObject:[NSNumber numberWithInteger:2] forKey:GCDAsyncSocketSSLProtocolVersionMin];
-            [settings setObject:[NSNumber numberWithInteger:2] forKey:GCDAsyncSocketSSLProtocolVersionMax];
+            [settings setObject:[NSNumber numberWithInteger:kTLSProtocol12] forKey:GCDAsyncSocketSSLProtocolVersionMin];
+            [settings setObject:[NSNumber numberWithInteger:kTLSProtocol12] forKey:GCDAsyncSocketSSLProtocolVersionMax];
 
             [asyncSocket startTLS:settings];
         }
@@ -254,22 +259,22 @@ static int httpserver_new(lua_State *L) {
 ///   * An integer containing the response code (e.g. 200 for a successful request)
 ///   * A table containing additional HTTP headers to set (or an empty table, `{}`, if no extra headers are required)
 static int httpserver_setCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     HSHTTPServer *server = getUserData(L, 1);
 
     switch (lua_type(L, 2)) {
         case LUA_TFUNCTION:
             if (server.fn != LUA_NOREF) {
-                luaL_unref(L, LUA_REGISTRYINDEX, server.fn);
-                server.fn = LUA_NOREF;
+                server.fn = [skin luaUnref:refTable ref:server.fn];
             }
             lua_pushvalue(L, 2);
-            server.fn = luaL_ref(L, LUA_REGISTRYINDEX);
+            server.fn = [skin luaRef:refTable];
             break;
         case LUA_TNIL:
         case LUA_TNONE:
             if (server.fn != LUA_NOREF) {
-                luaL_unref(L, LUA_REGISTRYINDEX, server.fn);
-                server.fn = LUA_NOREF;
+                server.fn = [skin luaUnref:refTable ref:server.fn];
             }
             break;
         default:
@@ -441,10 +446,21 @@ static int httpserver_objectGC(lua_State *L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    HSHTTPServer *server = getUserData(L, 1);
+    NSString *theName = [server name] ;
+    int thePort = [server listeningPort] ;
+
+    if (!theName) theName = @"unnamed" ;
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@:%d (%p)", USERDATA_TAG, theName, thePort, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg httpserverLib[] = {
     {"new", httpserver_new},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg httpserverObjectLib[] = {
@@ -457,14 +473,16 @@ static const luaL_Reg httpserverObjectLib[] = {
     {"setCallback", httpserver_setCallback},
     {"setPassword", httpserver_setPassword},
 
+    {"__tostring", userdata_tostring},
     {"__gc", httpserver_objectGC},
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_httpserver_internal(lua_State *L __unused) {
-    // Table for luaopen
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:"hs.httpserver" functions:httpserverLib metaFunctions:nil objectFunctions:httpserverObjectLib];
+    refTable = [skin registerLibraryWithObject:"hs.httpserver" functions:httpserverLib metaFunctions:nil objectFunctions:httpserverObjectLib];
+
+    [DDLog addLogger:[DDASLLogger sharedInstance]];
 
     return 1;
 }

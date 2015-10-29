@@ -6,9 +6,14 @@
 #import "variables.h"
 #import <pthread.h>
 #import "../extensions/hammerspoon.h"
+#import "MJMenuIcon.h"
+#import "MJPreferencesWindowController.h"
+#import "MJConsoleWindowController.h"
+#import "MJAutoLaunch.h"
 
 static LuaSkin* MJLuaState;
 static int evalfn;
+int refTable;
 
 /// === hs ===
 ///
@@ -21,11 +26,85 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
 
-/// hs.openConsole()
+/// hs.autoLaunch([state]) -> bool
 /// Function
-/// Opens the Hammerspoon Console window and focuses it.
-static int core_openconsole(lua_State* L) {
+/// Set or display the "Launch on Login" status for Hammerspoon.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not Hammerspoon should be launched automatically when you log into your computer.
+///
+/// Returns:
+///  * True if Hammerspoon is currently (or has just been) set to launch on login or False if Hammerspoon is not.
+static int core_autolaunch(lua_State* L) {
+    if (lua_isboolean(L, -1)) { MJAutoLaunchSet(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, MJAutoLaunchGet()) ;
+    return 1;
+}
+
+/// hs.menuIcon([state]) -> bool
+/// Function
+/// Set or display whether or not the Hammerspoon menu icon is visible.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not the Hammerspoon menu icon should be visible.
+///
+/// Returns:
+///  * True if the icon is currently set (or has just been) to be visible or False if it is not.
+static int core_menuicon(lua_State* L) {
+    if (lua_isboolean(L, -1)) { MJMenuIconSetVisible(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, MJMenuIconVisible()) ;
+    return 1;
+}
+
+
+// hs.dockIcon -- for historical reasons, this is actually handled by the hs.dockicon module, but a wrapper
+// in the lua portion of this (setup.lua) provides an interface to this module which follows the syntax
+// conventions used here.
+
+
+/// hs.consoleOnTop([state]) -> bool
+/// Function
+/// Set or display whether or not the Hammerspoon console is always on top when visible.
+///
+/// Parameters:
+///  * state - an optional boolean which will set whether or not the Hammerspoon console is always on top when visible.
+///
+/// Returns:
+///  * True if the console is currently set (or has just been) to be always on top when visible or False if it is not.
+static int core_consoleontop(lua_State* L) {
+    if (lua_isboolean(L, -1)) { MJConsoleWindowSetAlwaysOnTop(lua_toboolean(L, -1)); }
+    lua_pushboolean(L, MJConsoleWindowAlwaysOnTop()) ;
+    return 1;
+}
+
+/// hs.openAbout()
+/// Function
+/// Displays the OS X About panel for Hammerspoon; implicitly focuses Hammerspoon.
+static int core_openabout(lua_State* __unused L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    [[NSApplication sharedApplication] orderFrontStandardAboutPanel:nil];
+    return 0;
+}
+
+/// hs.openPreferences()
+/// Function
+/// Displays the Hammerspoon Preferences panel; implicitly focuses Hammerspoon.
+static int core_openpreferences(lua_State* __unused L) {
+    [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    [[MJPreferencesWindowController singleton] showWindow: nil];
+
+    return 0 ;
+}
+
+/// hs.openConsole([bringToFront])
+/// Function
+/// Opens the Hammerspoon Console window and optionally focuses it.
+///
+/// Parameters:
+///  * bringToFront - if true (default), the console will be focused as well as opened.
+static int core_openconsole(lua_State* L) {
+    if (!(lua_isboolean(L,1) && !lua_toboolean(L, 1)))
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     [[MJConsoleWindowController singleton] showWindow: nil];
     return 0;
 }
@@ -67,7 +146,7 @@ static int push_hammerAppInfo(lua_State* L) {
 /// Function
 ///
 /// Parameters:
-///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented if Accessibility is not currently enabled for Hammerspoon.  Defaults to false.
+///  * shouldPrompt - an optional boolean value indicating if the dialog box asking if the System Preferences application should be opened should be presented when Accessibility is not currently enabled for Hammerspoon.  Defaults to false.
 ///
 /// Returns:
 ///  * True or False indicating whether or not Accessibility is enabled for Hammerspoon.
@@ -85,12 +164,153 @@ static int core_accessibilityState(lua_State* L) {
     return 1;
 }
 
+/// hs.automaticallyCheckForUpdates([setting]) -> bool
+/// Function
+/// Gets and optionally sets the Hammerspoon option to automatically check for updates.
+///
+/// Parameters:
+///  * setting - an optional boolean variable indicating if Hammerspoon should (true) or should not (false) check for updates.
+///
+/// Returns:
+///  * The current (or newly set) value indicating whether or not automatic update checks should occur for Hammerspoon.
+///
+/// Notes:
+///  * If you are running a non-release or locally compiled version of Hammerspoon then the results of this function are unspecified.
+static int automaticallyChecksForUpdates(lua_State *L) {
+    if (NSClassFromString(@"SUUpdater")) {
+        NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
+        if ([[NSBundle bundleWithPath:frameworkPath] load]) {
+            id sharedUpdater = [NSClassFromString(@"SUUpdater")  performSelector:@selector(sharedUpdater)] ;
+            if (lua_isboolean(L, 1)) {
+
+            // This convoluted #$@#% is required (a) because we want to weakly link to the SparkleFramework for dev builds, and
+            // (b) because performSelector: withObject: only works when withObject: is an argument of type id or nil
+
+            // the following is equivalent to: [sharedUpdater setAutomaticallyChecksForUpdates:lua_toboolean(L, 1)] ;
+
+                BOOL myBoolValue = lua_toboolean(L, 1) ;
+                NSMethodSignature * mySignature = [NSClassFromString(@"SUUpdater") instanceMethodSignatureForSelector:@selector(setAutomaticallyChecksForUpdates:)];
+                NSInvocation * myInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
+                [myInvocation setTarget:sharedUpdater];
+            // even though signature specifies this, we need to specify it in the invocation, since the signature is re-usable
+            // for any method which accepts the same signature list for the target.
+                [myInvocation setSelector:@selector(setAutomaticallyChecksForUpdates:)];
+                [myInvocation setArgument:&myBoolValue atIndex:2];
+                [myInvocation invoke];
+
+            }
+            lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
+        } else {
+            printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
+            lua_pushboolean(L, NO) ;
+        }
+    } else {
+        printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
+        lua_pushboolean(L, NO) ;
+    }
+    return 1 ;
+}
+
+/// hs.checkForUpdates() -> none
+/// Function
+/// Check for an update now, and if one is available, prompt the user to continue the update process.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * If you are running a non-release or locally compiled version of Hammerspoon then the results of this function are unspecified.
+static int checkForUpdates(lua_State *L) {
+    if (NSClassFromString(@"SUUpdater")) {
+        NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
+        if ([[NSBundle bundleWithPath:frameworkPath] load]) {
+            id sharedUpdater = [NSClassFromString(@"SUUpdater")  performSelector:@selector(sharedUpdater)] ;
+
+            [sharedUpdater performSelector:@selector(checkForUpdates:) withObject:nil] ;
+        } else {
+            printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
+        }
+    } else {
+        printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
+    }
+    return 0 ;
+}
+
 /// hs.focus()
 /// Function
 /// Makes Hammerspoon the foreground app.
 static int core_focus(lua_State* L) {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
     return 0;
+}
+
+/// hs.getObjectMetatable(name) -> table or nil
+/// Function
+/// Fetches the Lua metatable for objects produced by an extension
+///
+/// Parameters:
+///  * name - A string containing the name of a module to fetch object metadata for (e.g. `"hs.screen"`)
+///
+/// Returns:
+///  * The extension's object metatable, or nil if an error occurred
+static int core_getObjectMetatable(lua_State *L) {
+    luaL_getmetatable(L, lua_tostring(L,1));
+    return 1;
+}
+
+/// hs.cleanUTF8forConsole(inString) -> outString
+/// Function
+/// Returns a copy of the incoming string that can be displayed in the Hammerspoon console.  Invalid UTF8 sequences are converted to the Unicode Replacement Character and NULL (0x00) is converted to the Unicode Empty Set character.
+///
+/// Parameters:
+///  * inString - the string to be cleaned up
+///
+/// Returns:
+///  * outString - the cleaned up version of the input string.
+///
+/// Notes:
+///  * This function is applied automatically to all output which appears in the Hammerspoon console, but not to the output provided by the `hs` command line tool.
+///  * This function does not modify the original string - to actually replace it, assign the result of this function to the original string.
+///  * This function is a more specifically targeted version of the `hs.utf8.fixUTF8(...)` function.
+static int core_cleanUTF8(lua_State *L) {
+    luaL_checktype(L, 1, LUA_TSTRING) ;
+    size_t sourceLength ;
+    unsigned char *src  = (unsigned char *)lua_tolstring(L, 1, &sourceLength) ;
+    NSMutableData *dest = [[NSMutableData alloc] init] ;
+
+    unsigned char nullChar[]    = { 0xE2, 0x88, 0x85 } ;
+    unsigned char invalidChar[] = { 0xEF, 0xBF, 0xBD } ;
+
+    size_t pos = 0 ;
+    while (pos < sourceLength) {
+        if (src[pos] > 0 && src[pos] <= 127) {
+            [dest appendBytes:(void *)(src + pos) length:1] ; pos++ ;
+        } else if ((src[pos] >= 194 && src[pos] <= 223) && (src[pos+1] >= 128 && src[pos+1] <= 191)) {
+            [dest appendBytes:(void *)(src + pos) length:2] ; pos = pos + 2 ;
+        } else if ((src[pos] == 224 && (src[pos+1] >= 160 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
+                   ((src[pos] >= 225 && src[pos] <= 236) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
+                   (src[pos] == 237 && (src[pos+1] >= 128 && src[pos+1] <= 159) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
+                   ((src[pos] >= 238 && src[pos] <= 239) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191))) {
+            [dest appendBytes:(void *)(src + pos) length:3] ; pos = pos + 3 ;
+        } else if ((src[pos] == 240 && (src[pos+1] >= 144 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191)) ||
+                   ((src[pos] >= 241 && src[pos] <= 243) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191)) ||
+                   (src[pos] == 244 && (src[pos+1] >= 128 && src[pos+1] <= 143) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191))) {
+            [dest appendBytes:(void *)(src + pos) length:4] ; pos = pos + 4 ;
+        } else {
+            if (src[pos] == 0)
+                [dest appendBytes:(void *)nullChar length:3] ;
+            else
+                [dest appendBytes:(void *)invalidChar length:3] ;
+            pos = pos + 1 ;
+        }
+    }
+
+    NSString *destStr = [[NSString alloc] initWithData:dest encoding:NSUTF8StringEncoding] ;
+    lua_pushlstring(L, [destStr UTF8String], [destStr lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1) ;
+    return 1 ;
 }
 
 static int core_exit(lua_State* L) {
@@ -106,7 +326,9 @@ static int core_logmessage(lua_State* L) {
     const char* s = lua_tolstring(L, 1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
     if (str == nil) {
-      str = @"";
+      core_cleanUTF8(L) ;
+      s = lua_tolstring(L, -1, &len);
+      str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
     }
     loghandler(str);
     return 0;
@@ -124,13 +346,22 @@ static int core_notify(lua_State* L) {
 
 static luaL_Reg corelib[] = {
     {"openConsole", core_openconsole},
+    {"consoleOnTop", core_consoleontop},
+    {"openAbout", core_openabout},
+    {"menuIcon", core_menuicon},
+    {"openPreferences", core_openpreferences},
+    {"autoLaunch", core_autolaunch},
+    {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},
+    {"checkForUpdates", checkForUpdates},
     {"reload", core_reload},
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
+    {"getObjectMetatable", core_getObjectMetatable},
+    {"cleanUTF8forConsole", core_cleanUTF8},
     {"_exit", core_exit},
     {"_logmessage", core_logmessage},
     {"_notify", core_notify},
-    {}
+    {NULL, NULL}
 };
 
 void MJLuaSetup(void) {
@@ -138,7 +369,7 @@ void MJLuaSetup(void) {
     MJLuaState = [LuaSkin shared];
     lua_State* L = MJLuaState.L;
 
-    [MJLuaState registerLibrary:corelib metaFunctions:nil];
+    refTable = [MJLuaState registerLibrary:corelib metaFunctions:nil];
     push_hammerAppInfo(L) ;
     lua_setfield(L, -2, "processInfo") ;
 
@@ -165,7 +396,7 @@ void MJLuaSetup(void) {
 
     lua_pcall(L, 7, 1, 0);
 
-    evalfn = luaL_ref(L, LUA_REGISTRYINDEX);
+    evalfn = [MJLuaState luaRef:refTable];
 }
 
 void MJLuaTeardown(void) {
@@ -175,7 +406,7 @@ void MJLuaTeardown(void) {
 NSString* MJLuaRunString(NSString* command) {
     lua_State* L = MJLuaState.L;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, evalfn);
+    [MJLuaState pushLuaRef:refTable ref:evalfn];
     if (!lua_isfunction(L, -1)) {
         CLS_NSLOG(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
         if (lua_isstring(L, -1)) {
@@ -185,17 +416,26 @@ NSString* MJLuaRunString(NSString* command) {
     }
     lua_pushstring(L, [command UTF8String]);
     if ([MJLuaState protectedCallAndTraceback:1 nresults:1] == NO) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 
     size_t len;
     const char* s = lua_tolstring(L, -1, &len);
     NSString* str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
+    if (str == nil) {
+      lua_pushcfunction(L, core_cleanUTF8) ;
+      lua_pushvalue(L, -2) ;
+      if (lua_pcall(L, 1, 1, 0) == LUA_OK) {
+          s = lua_tolstring(L, -1, &len);
+          str = [[NSString alloc] initWithData:[NSData dataWithBytes:s length:len] encoding:NSUTF8StringEncoding];
+          lua_pop(L, 1) ;
+      } else {
+          str = [[NSString alloc] initWithFormat:@"-- unable to clean for utf8 output: %s", lua_tostring(L, -1)] ;
+          lua_pop(L, 1) ;
+      }
+    }
     lua_pop(L, 1);
 
     return str;

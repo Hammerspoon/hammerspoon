@@ -17,6 +17,7 @@ export CWD=$PWD
 export SCRIPT_NAME="$(basename "$0")"
 export SCRIPT_HOME="$(dirname "$(greadlink -f "$0")")"
 export HAMMERSPOON_HOME="$(greadlink -f "${SCRIPT_HOME}/../")"
+export XCODE_BUILT_PRODUCTS_DIR="$(xcodebuild -workspace Hammerspoon.xcworkspace -scheme 'Release' -configuration 'Release' -showBuildSettings | sort | uniq | grep ' BUILT_PRODUCTS_DIR =' | awk '{ print $3 }')"
 
 export CODESIGN_AUTHORITY_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-codesign-authority"
 export GITHUB_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-github-release"
@@ -28,6 +29,7 @@ source "${SCRIPT_HOME}/librelease.sh"
 
 echo "******** CHECKING SANITY:"
 
+assert_github_hub
 assert_github_release_token && export GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
 assert_codesign_authority_token && export CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
 assert_version_in_xcode
@@ -55,6 +57,7 @@ echo "******** ARCHIVING MATERIALS:"
 
 archive_hammerspoon_app
 archive_dSYMs
+archive_dSYM_UUIDs
 archive_docs
 
 echo "******** UPLOADING:"

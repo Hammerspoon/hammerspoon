@@ -12,7 +12,7 @@ static pid_t pid_for_app(lua_State* L, int idx) {
     get_app(L, idx); // type-checking
     lua_getuservalue(L, idx);
     lua_getfield(L, -1, "pid");
-    pid_t p = lua_tointeger(L, -1);
+    pid_t p = (pid_t)lua_tointeger(L, -1);
     lua_pop(L, 2);
     return p;
 }
@@ -23,7 +23,7 @@ static int application_gc(lua_State* L) {
     return 0;
 }
 
-/// hs.application.frontmostApplication() -> app
+/// hs.application.frontmostApplication() -> hs.application object
 /// Function
 /// Returns the application object for the frontmost (active) application.  This is the application which currently receives input events.
 ///
@@ -44,7 +44,7 @@ static int application_frontmostapplication(lua_State* L) {
 return 1;
 }
 
-/// hs.application.runningApplications() -> app[]
+/// hs.application.runningApplications() -> list of hs.application objects
 /// Function
 /// Returns all running apps.
 ///
@@ -66,7 +66,7 @@ static int application_runningapplications(lua_State* L) {
     return 1;
 }
 
-/// hs.application.applicationForPID(pid) -> app or nil
+/// hs.application.applicationForPID(pid) -> hs.application object or nil
 /// Function
 /// Returns the running app for the given pid, if it exists.
 ///
@@ -76,7 +76,7 @@ static int application_runningapplications(lua_State* L) {
 /// Returns:
 ///  * An hs.application object if one can be found, otherwise nil
 static int application_applicationforpid(lua_State* L) {
-    pid_t pid = luaL_checkinteger(L, 1);
+    pid_t pid = (pid_t)luaL_checkinteger(L, 1);
 
     NSRunningApplication* runningApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
 
@@ -91,7 +91,7 @@ static int application_applicationforpid(lua_State* L) {
     return 1;
 }
 
-/// hs.application.applicationsForBundleID(bundleID) -> app[]
+/// hs.application.applicationsForBundleID(bundleID) -> list of hs.application objects
 /// Function
 /// Returns any running apps that have the given bundleID.
 ///
@@ -117,7 +117,30 @@ static int application_applicationsForBundleID(lua_State* L) {
     return 1;
 }
 
-/// hs.application:allWindows() -> window[]
+/// hs.application.nameForBundleID(bundleID) -> string or nil
+/// Function
+/// Gets the name of an application, from its bundle identifier
+///
+/// Parameters:
+///  * bundleID - A string containing an application bundle identifier (e.g. "com.apple.Safari")
+///
+/// Returns:
+///  * A string containing the application name, or nil if the bundle identifier could not be located
+static int application_nameForBundleID(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSWorkspace *ws = [NSWorkspace sharedWorkspace];
+    NSString *appPath = [ws absolutePathForAppBundleWithIdentifier:[NSString stringWithUTF8String:lua_tostring(L, 1)]];
+    NSBundle *app = [NSBundle bundleWithPath:appPath];
+
+    NSString *appName = [app objectForInfoDictionaryKey:(id)kCFBundleNameKey];
+
+    lua_pushstring(L, [appName UTF8String]);
+    return 1;
+}
+
+/// hs.application:allWindows() -> list of hs.window objects
 /// Method
 /// Returns all open windows owned by the given app.
 ///
@@ -126,6 +149,15 @@ static int application_applicationsForBundleID(lua_State* L) {
 ///
 /// Returns:
 ///  * A table of zero or more hs.window objects owned by the application
+///
+/// Notes:
+///  * This function can only return windows in the current Mission Control Space; if you need to address windows across
+///    different Spaces you can use the `hs.window.filter` module
+///    - if `Displays have separate Spaces` is *on* (in System Preferences>Mission Control) the current Space is defined
+///      as the union of all currently visible Spaces
+///    - minimized windows and hidden windows (i.e. belonging to hidden apps, e.g. via cmd-h) are always considered
+///      to be in the current Space
+
 static int application_allWindows(lua_State* L) {
     AXUIElementRef app = get_app(L, 1);
 
@@ -149,7 +181,7 @@ static int application_allWindows(lua_State* L) {
     return 1;
 }
 
-/// hs.application:mainWindow() -> window or nil
+/// hs.application:mainWindow() -> hs.window object or nil
 /// Method
 /// Returns the main window of the given app, or nil.
 ///
@@ -171,7 +203,7 @@ static int application_mainWindow(lua_State* L) {
     return 1;
 }
 
-/// hs.application:focusedWindow() -> window or nil
+/// hs.application:focusedWindow() -> hs.window object or nil
 /// Method
 /// Returns the currently focused window of the application, or nil
 ///
@@ -273,7 +305,25 @@ static int application_bundleID(lua_State* L) {
     return 1;
 }
 
-/// hs.application:unhide() -> success
+/// hs.application:isRunning() -> boolean
+/// Method
+/// Checks if the application is still running
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if the application is running, false if not
+///
+/// Notes:
+///  * If an application is terminated and re-launched, this method will still return false, as `hs.application` objects are tied to a specific instance of an application (i.e. its PID)
+static int application_isRunning(lua_State *L) {
+    NSRunningApplication *app = nsobject_for_app(L, 1);
+    lua_pushboolean(L, (app != nil));
+    return 1;
+}
+
+/// hs.application:unhide() -> boolean
 /// Method
 /// Unhides the app (and all its windows) if it's hidden.
 ///
@@ -289,7 +339,7 @@ static int application_unhide(lua_State* L) {
     return 1;
 }
 
-/// hs.application:hide() -> success
+/// hs.application:hide() -> boolean
 /// Method
 /// Hides the app (and all its windows).
 ///
@@ -337,7 +387,7 @@ static int application_kill9(lua_State* L) {
     return 0;
 }
 
-/// hs.application:isHidden() -> bool
+/// hs.application:isHidden() -> boolean
 /// Method
 /// Returns whether the app is currently hidden.
 ///
@@ -359,7 +409,7 @@ static int application_ishidden(lua_State* L) {
     return 1;
 }
 
-/// hs.application:isFrontmost() -> bool
+/// hs.application:isFrontmost() -> boolean
 /// Method
 /// Returns whether the app is the frontmost (i.e. is the currently active application)
 ///
@@ -736,7 +786,7 @@ static int application_selectmenuitem(lua_State* L) {
     return 1;
 }
 
-/// hs.application.launchOrFocus(name) -> bool
+/// hs.application.launchOrFocus(name) -> boolean
 /// Function
 /// Launches the app with the given name, or activates it if it's already running
 ///
@@ -752,7 +802,7 @@ static int application_launchorfocus(lua_State* L) {
     return 1;
 }
 
-/// hs.application.launchOrFocusByBundleID(bundleID) -> bool
+/// hs.application.launchOrFocusByBundleID(bundleID) -> boolean
 /// Function
 /// Launches the app with the given bundle ID, or activates it if it's already running
 ///
@@ -810,6 +860,7 @@ static const luaL_Reg applicationlib[] = {
     {"frontmostApplication", application_frontmostapplication},
     {"applicationForPID", application_applicationforpid},
     {"applicationsForBundleID", application_applicationsForBundleID},
+    {"nameForBundleID", application_nameForBundleID},
 
     {"allWindows", application_allWindows},
     {"mainWindow", application_mainWindow},
@@ -819,6 +870,7 @@ static const luaL_Reg applicationlib[] = {
     {"_bringtofront", application__bringtofront},
     {"title", application_title},
     {"bundleID", application_bundleID},
+    {"isRunning", application_isRunning},
     {"unhide", application_unhide},
     {"hide", application_hide},
     {"kill", application_kill},
@@ -836,7 +888,22 @@ static const luaL_Reg applicationlib[] = {
     {NULL, NULL}
 };
 
+static int nsrunningapplication_tolua(lua_State *L, id obj) {
+    NSRunningApplication *app = obj ;
+
+    if (!new_application(L, [app processIdentifier])) {
+        lua_pop(L, 1) ; // removed aborted userdata
+        lua_pushstring(L, [[NSString stringWithFormat:@"No PID: %@", obj] UTF8String]) ;
+    }
+    return 1 ;
+}
+
 int luaopen_hs_application_internal(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
+    [skin registerPushNSHelper:nsrunningapplication_tolua
+                      forClass:"NSRunningApplication"] ;
+
     luaL_newlib(L, applicationlib);
 
     // Inherit hs.uielement

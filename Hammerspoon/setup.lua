@@ -26,12 +26,14 @@ hs.configdir = configdir
 --- A string containing the full path to the `docs.json` file inside Hammerspoon's app bundle. This contains the full Hammerspoon API documentation and can be accessed in the Console using `help("someAPI")`. It can also be loaded and processed by the `hs.doc` extension
 hs.docstrings_json_file = docstringspath
 
---- hs.showError(err)
+--- hs.showError(err,lvl,terminate)
 --- Function
 --- Shows an error to the user, using Hammerspoon's Console
 ---
 --- Parameters:
 ---  * err - A string containing an error message
+---  * lvl - (optional) A number containing the level in the call stack for debug.traceback; if omitted, defaults to 1
+---  * terminate - (optional) boolean, if true terminates the last protected call; if false or omitted, the script execution continues
 ---
 --- Returns:
 ---  * None
@@ -42,14 +44,18 @@ hs.docstrings_json_file = docstringspath
 ---
 ---     ```local ok, err = xpcall(callbackfn, debug.traceback)
 ---     if not ok then hs.showError(err) end```
-function hs.showError(err)
+
+function hs.showError(err,lvl,terminate)
   hs._notify("Hammerspoon config error") -- undecided on this line
 --  print(debug.traceback())
 --  print(err)
-  print(debug.traceback(err, 2))
+  if lvl~=0 then lvl = (lvl or 1) + 1 end
+  if terminate then error(debug.traceback(err,lvl),lvl)
+  else print(debug.traceback(err, lvl)) end
   hs.focus()
   hs.openConsole()
 end
+
 
 --- hs.toggleConsole()
 --- Function
@@ -173,6 +179,59 @@ if autoload_extensions then
   })
 end
 
+--- hs.dockIcon([state]) -> bool
+--- Function
+--- Set or display whether or not the Hammerspoon dock icon is visible.
+---
+--- Parameters:
+---  * state - an optional boolean which will set whether or not the Hammerspoon dock icon should be visible.
+---
+--- Returns:
+---  * True if the icon is currently set (or has just been) to be visible or False if it is not.
+---
+--- Notes:
+---  * This function is a wrapper to functions found in the `hs.dockicon` module, but is provided here to provide an interface consistent with other selectable preference items.
+hs.dockIcon = function(value)
+    local hsdi = require("hs.dockicon")
+    if type(value) == "boolean" then
+        if value then hsdi.show() else hsdi.hide() end
+    end
+    return hsdi.visible()
+end
+
+--- hs.help(identifier)
+--- Function
+--- Prints the documentation for some part of Hammerspoon's API and Lua 5.3.  This function is actually sourced from hs.doc.help.
+---
+--- Parameters:
+---  * identifier - A string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`)
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This function is mainly for runtime API help while using Hammerspoon's Console
+---
+---  * You can also access the results of this function by the following methods from the console:
+---    * help("identifier") -- quotes are required, e.g. `help("hs.reload")`
+---    * help.identifier.path -- no quotes are required, e.g. `help.hs.reload`
+---
+---  * Lua information can be accessed by using the `lua` prefix, rather than `hs`.
+---    * the identifier `lua._man` provides the table of contents for the Lua 5.3 manual.  You can pull up a specific section of the lua manual by including the chapter (and subsection) like this: `lua._man._3_4_8`.
+---    * the identifier `lua._C` will provide information specifically about the Lua C API for use when developing modules which require external libraries.
+
+hs.help = require("hs.doc")
+help = hs.help
+
+
+
+if not hasinitfile then
+  hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
+  hs.notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
+  print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
+  return runstring
+end
+
 local hscrash = require("hs.crash")
 rawrequire = require
 require = function(modulename)
@@ -203,37 +262,6 @@ require = function(modulename)
     return result
 end
 hscrash.crashLog("Loaded from: "..modpath)
-
---- hs.help(identifier)
---- Function
---- Prints the documentation for some part of Hammerspoon's API and Lua 5.3.  This function is actually sourced from hs.doc.help.
----
---- Parameters:
----  * identifier - A string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`)
----
---- Returns:
----  * None
----
---- Notes:
----  * This function is mainly for runtime API help while using Hammerspoon's Console
----
----  * You can also access the results of this function by the following methods from the console:
----    * help("identifier") -- quotes are required, e.g. `help("hs.reload")`
----    * help.identifier.path -- no quotes are required, e.g. `help.hs.reload`
----
----  * Lua information can be accessed by using the `lua` prefix, rather than `hs`.
----    * the identifier `lua._man` provides the table of contents for the Lua 5.3 manual.  You can pull up a specific section of the lua manual by including the chapter (and subsection) like this: `lua._man._3_4_8`.
----    * the identifier `lua._C` will provide information specifically about the Lua C API for use when developing modules which require external libraries.
-
-hs.help = require("hs.doc")
-help = hs.help
-
-if not hasinitfile then
-  hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
-  hs.notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
-  print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
-  return runstring
-end
 
 print("-- Loading " .. prettypath)
 local fn, err = loadfile(fullpath)

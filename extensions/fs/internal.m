@@ -323,7 +323,7 @@ static int lfs_lock_dir(lua_State *L) {
 }
 static int lfs_unlock_dir(lua_State *L) {
   lfs_Lock *lock = (lfs_Lock *)luaL_checkudata(L, 1, LOCK_METATABLE);
-  if(lock->fd != INVALID_HANDLE_VALUE) {    
+  if(lock->fd != INVALID_HANDLE_VALUE) {
     CloseHandle(lock->fd);
     lock->fd=INVALID_HANDLE_VALUE;
   }
@@ -1172,6 +1172,20 @@ static int tagsRemove(lua_State *L) {
     return 0;
 }
 
+/// hs.fs.temporaryDirectory() -> string
+/// Function
+/// Returns the path of the temporary directory for the current user.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The path to the system designated temporary directory for the current user.
+static int hs_temporaryDirectory(lua_State *L) {
+    lua_pushstring(L, [NSTemporaryDirectory() UTF8String]) ;
+    return 1 ;
+}
+
 static const struct luaL_Reg fslib[] = {
         {"attributes", file_info},
         {"chdir", change_dir},
@@ -1190,6 +1204,7 @@ static const struct luaL_Reg fslib[] = {
         {"tagsRemove", tagsRemove},
         {"tagsSet", tagsSet},
         {"tagsGet", tagsGet},
+        {"temporaryDirectory", hs_temporaryDirectory},
         {NULL, NULL},
 };
 

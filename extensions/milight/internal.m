@@ -91,7 +91,7 @@ static int milight_new(lua_State *L) {
     if (lua_isnone(L, 2)) {
         port = 8899;
     } else {
-        port = luaL_checkinteger(L, 2);
+        port = (int)luaL_checkinteger(L, 2);
     }
 
     bridge_t *bridge = lua_newuserdata(L, sizeof(bridge_t));
@@ -154,12 +154,12 @@ static int milight_del(lua_State *L) {
 static int milight_send(lua_State *L) {
     bridge_t *bridge = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    int cmd_key = luaL_checkinteger(L, 2);
+    int cmd_key = (int)luaL_checkinteger(L, 2);
     int value;
     if (lua_isnone(L, 3)) {
         value = 0x0;
     } else {
-        value = luaL_checkinteger(L, 3);
+        value = (int)luaL_checkinteger(L, 3);
     }
 
     unsigned char cmd[3] = {cmd_key, value, cmd_suffix};
@@ -190,29 +190,35 @@ static int milight_metagc(lua_State *L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    bridge_t *bridge = luaL_checkudata(L, 1, USERDATA_TAG);
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %s:%d (%p)", USERDATA_TAG, bridge->ip, bridge->port, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg milightlib[] = {
     {"_cacheCommands", milight_cacheCommands},
     {"new", milight_new},
+
+    {NULL, NULL},
+};
+
+static const luaL_Reg milight_objectlib[] = {
     {"delete", milight_del},
     {"send", milight_send},
+    {"__tostring", userdata_tostring},
+    {"__gc", milight_metagc},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_milight_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.milight.internal". */
 
 int luaopen_hs_milight_internal(lua_State *L) {
-    luaL_newlib(L, milightlib);
-
-    if (luaL_newmetatable(L, USERDATA_TAG)) {
-        lua_pushvalue(L, -2);
-        lua_setfield(L, -2, "__index");
-
-        lua_pushcfunction(L, milight_metagc);
-        lua_setfield(L, -2, "__gc");
-    }
-    lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:milightlib metaFunctions:nil objectFunctions:milight_objectlib];
 
     return 1;
 }

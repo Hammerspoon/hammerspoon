@@ -6,7 +6,7 @@
 --- This module is based partially on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 ---
 
-local module = require("hs.settings.internal-settings")
+local module = require("hs.settings.internal")
 
 -- private variables and methods -----------------------------------------
 

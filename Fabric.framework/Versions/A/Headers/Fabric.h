@@ -1,13 +1,23 @@
 //
 //  Fabric.h
 //
-//  Copyright (c) 2014 Twitter. All rights reserved.
+//  Copyright (c) 2015 Twitter. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import "FABAttributes.h"
 
-FAB_START_NONNULL
+NS_ASSUME_NONNULL_BEGIN
+
+#if TARGET_OS_IPHONE
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
+    #error "Fabric's minimum iOS version is 6.0"
+#endif
+#else
+#if __MAC_OS_X_VERSION_MIN_REQUIRED < 1070
+    #error "Fabric's minimum OS X version is 10.7"
+#endif
+#endif
 
 /**
  *  Fabric Base. Coordinates configuration and starts all provided kits.
@@ -15,24 +25,23 @@ FAB_START_NONNULL
 @interface Fabric : NSObject
 
 /**
- *  Initialize Fabric and all provided kits. Call this method within your App Delegate's
- *  `application:didFinishLaunchingWithOptions:` and provide the kits you wish to use.
+ * Initialize Fabric and all provided kits. Call this method within your App Delegate's `application:didFinishLaunchingWithOptions:` and provide the kits you wish to use.
  *
- *  For example, in Objective-C:
+ * For example, in Objective-C:
  *
- *      `[Fabric with:@[TwitterKit, CrashlyticsKit, MoPubKit]];`
+ *      `[Fabric with:@[[Crashlytics class], [Twitter class], [Digits class], [MoPub class]]];`
  *
- *  Swift:
+ * Swift:
  *
- *      `Fabric.with([Twitter(), Crashlytics(), MoPub()])`
- *  
- *  Only the first call to this method is honored. Subsequent calls are no-ops.
+ *      `Fabric.with([Crashlytics.self(), Twitter.self(), Digits.self(), MoPub.self()])`
  *
- *  @param kits An array of kit instances. Kits may provide a macro such as CrashlyticsKit which can be passed in as array elements in objective-c.
+ * Only the first call to this method is honored. Subsequent calls are no-ops.
  *
- *  @return Returns the shared Fabric instance. In most cases this can be ignored.
+ * @param kitClasses An array of kit Class objects
+ *
+ * @return Returns the shared Fabric instance. In most cases this can be ignored.
  */
-+ (instancetype)with:(NSArray *)kits;
++ (instancetype)with:(NSArray *)kitClasses;
 
 /**
  *  Returns the Fabric singleton object.
@@ -49,27 +58,7 @@ FAB_START_NONNULL
  */
 - (id)init FAB_UNAVAILABLE("Use +sharedSDK to retrieve the shared Fabric instance.");
 
-/**
- *  Returns Fabrics's instance of the specified kit.
- *
- *  @param klass The class of the kit.
- *
- *  @return The kit instance of class klass which was provided to with: or nil.
- */
-- (id FAB_NULLABLE)kitForClass:(Class)klass;
-
-/**
- *  Returns a dictionary containing the kit configuration info for the provided kit.
- *  The configuration information is parsed from the application's Info.plist. This
- *  method is primarily intended to be used by kits to retrieve their configuration.
- *
- *  @param kitInstance An instance of the kit whose configuration should be returned.
- *
- *  @return A dictionary containing kit specific configuration information or nil if none exists.
- */
-- (NSDictionary * FAB_NULLABLE)configurationDictionaryForKit:(id)kitInstance;
-
 @end
 
-FAB_END_NONNULL
+NS_ASSUME_NONNULL_END
 

@@ -3,7 +3,9 @@
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
+#import <WebKit/WebKit.h>
 
+int refTable;
 static NSMutableArray* delegates;
 
 // Create a new Lua table and add all response header keys and values from the response
@@ -34,10 +36,11 @@ static void store_delegate(connectionDelegate* delegate) {
 // Remove a delegate either if loading has finished or if it needs to be
 // garbage collected. This unreferences the lua callback and sets the callback
 // reference in the delegate to LUA_NOREF.
-static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
+static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate) {
+    LuaSkin *skin = [LuaSkin shared];
+
     [delegate.connection cancel];
-    luaL_unref(L, LUA_REGISTRYINDEX, delegate.fn);
-    delegate.fn = LUA_NOREF;
+    delegate.fn = [skin luaUnref:refTable ref:delegate.fn];
     [delegates removeObject:delegate];
 }
 
@@ -53,23 +56,24 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection * __unused)connection {
-    lua_State* L = self.L;
     if (self.fn == LUA_NOREF) {
         return;
     }
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
 
     NSString* stringReply = (NSString *)[[NSString alloc] initWithData:self.receivedData encoding:NSUTF8StringEncoding];
-    int statusCode = [self.httpResponse statusCode];
+    int statusCode = (int)[self.httpResponse statusCode];
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
+    [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(L, statusCode);
     lua_pushstring(L, [stringReply UTF8String]);
     createResponseHeaderTable(L, self.httpResponse);
-    int cbRes = lua_pcall(L, 3, 0, 0);
-    if (cbRes != LUA_OK) {
-        // FIXME: traceback shirley?
-        NSString* message = [NSString stringWithFormat:@"%@ Code: %d", @"Can't call callback", cbRes];
-        showError(L, (char *)[message UTF8String]);
+
+    if (![skin protectedCallAndTraceback:3 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
     remove_delegate(L, self);
 }
@@ -78,8 +82,10 @@ static void remove_delegate(lua_State* L, connectionDelegate* delegate) {
     if (self.fn == LUA_NOREF){
         return;
     }
+    LuaSkin *skin = [LuaSkin shared];
+
     NSString* errorMessage = [NSString stringWithFormat:@"Connection failed: %@ - %@", [error localizedDescription], [[error userInfo] objectForKey:NSURLErrorFailingURLStringErrorKey]];
-    lua_rawgeti(self.L, LUA_REGISTRYINDEX, self.fn);
+    [skin pushLuaRef:refTable ref:self.fn];
     lua_pushinteger(self.L, -1);
     lua_pushstring(self.L, [errorMessage UTF8String]);
     lua_pcall(self.L, 2, 0, 0);
@@ -146,6 +152,9 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
 /// Returns:
 ///  * None
 static int http_doAsyncRequest(lua_State* L){
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TBREAK];
+
     NSMutableURLRequest* request = getRequestFromStack(L);
     getBodyFromStack(L, 3, request);
     extractHeadersFromStack(L, 4, request);
@@ -156,7 +165,7 @@ static int http_doAsyncRequest(lua_State* L){
     connectionDelegate* delegate = [[connectionDelegate alloc] init];
     delegate.L = L;
     delegate.receivedData = [[NSMutableData alloc] init];
-    delegate.fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    delegate.fn = [skin luaRef:refTable];
 
     store_delegate(delegate);
 
@@ -185,6 +194,9 @@ static int http_doAsyncRequest(lua_State* L){
 /// Notes:
 ///  * This function is synchronous and will therefore block all Lua execution until it completes. You are encouraged to use the asynchronous functions.
 static int http_doRequest(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TTABLE|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
+
     NSMutableURLRequest *request = getRequestFromStack(L);
     getBodyFromStack(L, 3, request);
     extractHeadersFromStack(L, 4, request);
@@ -199,7 +211,7 @@ static int http_doRequest(lua_State* L) {
 
     NSHTTPURLResponse *httpResponse;
     httpResponse = (NSHTTPURLResponse *)response;
-    int statusCode = [httpResponse statusCode];
+    int statusCode = (int)[httpResponse statusCode];
 
     lua_pushinteger(L, statusCode);
     lua_pushstring(L, [stringReply UTF8String]);
@@ -208,6 +220,330 @@ static int http_doRequest(lua_State* L) {
 
     return 3;
 }
+
+// NOTE: this function is wrapped in init.lua
+static int http_encodeForQuery(lua_State *L) {
+    luaL_checkstring(L, 1) ;
+    NSString *value = [[LuaSkin shared] toNSObjectAtIndex:1] ;
+
+    if ([value respondsToSelector:@selector(stringByAddingPercentEncodingWithAllowedCharacters:)]) {
+        [[LuaSkin shared] pushNSObject:[value stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]] ;
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        [[LuaSkin shared] pushNSObject:[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]] ;
+#pragma clang diagnostic pop
+    }
+    return 1 ;
+}
+
+/// hs.http.urlParts(url) -> table
+/// Function
+/// Returns a table of keys containing the individual components of the provided url.
+///
+/// Parameters:
+///  * url - the url to parse into it's individual components
+///
+/// Returns:
+///  * a table containing any of the following keys which apply to the specified url:
+///    * absoluteString           - The URL string for the URL as an absolute URL.
+///    * absoluteURL              - An absolute URL that refers to the same resource as the provided URL.
+///    * baseURL                  - the base URL, if the URL is relative
+///    * fileSystemRepresentation - the URL’s unescaped path specified as a file system path
+///    * fragment                 - the fragment, if specified in the URL
+///    * host                     - the host for the URL
+///    * isFileURL                - a boolean value indicating whether or not the URL represents a local file
+///    * lastPathComponent        - the last path component specified in the URL
+///    * parameterString          - the parameter string, if specified in the URL
+///    * password                 - the password, if specified in the URL
+///    * path                     - the unescaped path specified in the URL
+///    * pathComponents           - an array containing the path components of the URL
+///    * pathExtension            - the file extension, if specified in the URL
+///    * port                     - the port, if specified in the URL
+///    * query                    - the query, if specified in the URL
+///    * queryItems               - if the URL contains a query string, then this field contains an array of the unescaped key-value pairs for each item. Each key-value pair is represented as a table in the array to preserve order.  See notes for more information.
+///    * relativePath             - the relative path of the URL without resolving against its base URL. If the path has a trailing slash it is stripped. If the URL is already an absolute URL, this contains the same value as path.
+///    * relativeString           - a string representation of the relative portion of the URL. If the URL is already an absolute URL this contains the same value as absoluteString.
+///    * resourceSpecifier        - the resource specified in the URL
+///    * scheme                   - the scheme of the URL
+///    * standardizedURL          - the URL with any instances of ".." or "." removed from its path
+///    * user                     - the username, if specified in the URL
+///
+/// Notes:
+///  * This function assumes that the URL conforms to RFC 1808.  If the URL is malformed or does not conform to RFC1808, then many of these fields may be missing.
+///
+///  * A contrived example for the url `http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment`:
+///
+///     > hs.inspect(hs.http.urlParts("http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment"))
+///      {
+///        absoluteString = "http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment",
+///        absoluteURL = "http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment",
+///        fileSystemRepresentation = "/path/to a/../file.txt",
+///        fragment = "fragment",
+///        host = "host.site.com",
+///        isFileURL = false,
+///        lastPathComponent = "file.txt",
+///        parameterString = "parameter",
+///        password = "password",
+///        path = "/path/to a/../file.txt",
+///        pathComponents = { "/", "path", "to a", "..", "file.txt" },
+///        pathExtension = "txt",
+///        port = 80,
+///        query = "query1=1&query2=a%28",
+///        queryItems = { {
+///            query1 = "1"
+///          }, {
+///            query2 = "a("
+///          } },
+///        relativePath = "/path/to a/../file.txt",
+///        relativeString = "http://user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment",
+///        resourceSpecifier = "//user:password@host.site.com:80/path/to%20a/../file.txt;parameter?query1=1&query2=a%28#fragment",
+///        scheme = "http",
+///        standardizedURL = "http://user:password@host.site.com:80/path/file.txt;parameter?query1=1&query2=a%28#fragment",
+///        user = "user"
+///      }
+///
+///  * Because it is valid for a query key-value pair to be missing either the key or the value or both, the following conventions are used:
+///    * a missing key (e.g. '=value') will be represented as { "" = value }
+///    * a missing value (e.g. 'key=') will be represented as { key = "" }
+///    * a missing value with no = (e.g. 'key') will be represented as { key }
+///    * a missing key and value (e.g. '=') will be represente as { "" = "" }
+///    * an empty query item (e.g. a query ending in '&' or a query containing && between two other query items) will be represented as { "" }
+///
+///  * At present Hammerspoon does not provide a way to represent a URL as a true Objective-C object within the OS X API.  This affects the following keys:
+///    * absoluteURL, baseURL, and standardizedURL are presented as their string representation.
+///    * relative URLs are not possible to express properly so baseURL will always be nil and relativePath and relativeString will always match path and absoluteString.
+///    * These limitations may change in a future update if the need for a more fully compliant URL treatment is determined to be necessary.
+#define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)lua_touserdata(L, idx))
+static int http_urlParts(lua_State *L) {
+    NSURL *theURL ;
+    if (lua_type(L, 1) == LUA_TUSERDATA) {
+// this only works if the userdata is an NSWindow or subclass with a contentView that is a WKWebView or subclass
+// hs.webview meets this criteria
+        NSWindow  *theWindow = get_objectFromUserdata(__bridge NSWindow, L, 1) ;
+        WKWebView *theView   = theWindow.contentView ;
+        theURL               = [theView URL] ;
+    } else {
+        luaL_checkstring(L, 1) ;
+        theURL = [NSURL URLWithString:(NSString *)[[LuaSkin shared] toNSObjectAtIndex:1]] ;
+    }
+
+    lua_newtable(L) ;
+      [[LuaSkin shared] pushNSObject:[theURL absoluteString]] ;     lua_setfield(L, -2, "absoluteString") ;
+      [[LuaSkin shared] pushNSObject:[theURL absoluteURL]] ;        lua_setfield(L, -2, "absoluteURL") ;
+      [[LuaSkin shared] pushNSObject:[theURL baseURL]] ;            lua_setfield(L, -2, "baseURL") ;
+      lua_pushstring(L, [theURL fileSystemRepresentation]) ;        lua_setfield(L, -2, "fileSystemRepresentation") ;
+      [[LuaSkin shared] pushNSObject:[theURL fragment]] ;           lua_setfield(L, -2, "fragment") ;
+      [[LuaSkin shared] pushNSObject:[theURL host]] ;               lua_setfield(L, -2, "host") ;
+      [[LuaSkin shared] pushNSObject:[theURL lastPathComponent]] ;  lua_setfield(L, -2, "lastPathComponent") ;
+      [[LuaSkin shared] pushNSObject:[theURL parameterString]] ;    lua_setfield(L, -2, "parameterString") ;
+      [[LuaSkin shared] pushNSObject:[theURL password]] ;           lua_setfield(L, -2, "password") ;
+      [[LuaSkin shared] pushNSObject:[theURL path]] ;               lua_setfield(L, -2, "path") ;
+      [[LuaSkin shared] pushNSObject:[theURL pathComponents]] ;     lua_setfield(L, -2, "pathComponents") ;
+      [[LuaSkin shared] pushNSObject:[theURL pathExtension]] ;      lua_setfield(L, -2, "pathExtension") ;
+      [[LuaSkin shared] pushNSObject:[theURL port]] ;               lua_setfield(L, -2, "port") ;
+      [[LuaSkin shared] pushNSObject:[theURL query]] ;              lua_setfield(L, -2, "query") ;
+      [[LuaSkin shared] pushNSObject:[theURL relativePath]] ;       lua_setfield(L, -2, "relativePath") ;
+      [[LuaSkin shared] pushNSObject:[theURL relativeString]] ;     lua_setfield(L, -2, "relativeString") ;
+      [[LuaSkin shared] pushNSObject:[theURL resourceSpecifier]] ;  lua_setfield(L, -2, "resourceSpecifier") ;
+      [[LuaSkin shared] pushNSObject:[theURL scheme]] ;             lua_setfield(L, -2, "scheme") ;
+      [[LuaSkin shared] pushNSObject:[theURL standardizedURL]] ;    lua_setfield(L, -2, "standardizedURL") ;
+      [[LuaSkin shared] pushNSObject:[theURL user]] ;               lua_setfield(L, -2, "user") ;
+      lua_pushboolean(L, [theURL isFileURL]) ;                      lua_setfield(L, -2, "isFileURL") ;
+
+      if ([theURL query]) {
+          NSURLComponents *components = [NSURLComponents componentsWithURL:theURL resolvingAgainstBaseURL:YES] ;
+          lua_newtable(L) ;
+          for (NSURLQueryItem *item in [components queryItems]) {
+              lua_newtable(L) ;
+              if ([item value]) {
+                  [[LuaSkin shared] pushNSObject:[item value]] ; lua_setfield(L, -2, [[item name] UTF8String]) ;
+              } else {
+                  [[LuaSkin shared] pushNSObject:[item name]] ; lua_rawseti(L, -2, 1) ;
+              }
+              lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+          }
+          lua_setfield(L, -2, "queryItems") ;
+      }
+
+    return 1 ;
+}
+
+// not used here yet... but they are used in hs.webview.  This seems a more logical location for them, and
+// I do hope to use them here when I get a chance, so as to provide a more consistent user experience.
+
+static int NSURLResponse_toLua(lua_State *L, id obj) {
+    NSURLResponse *theResponse = obj ;
+
+    lua_newtable(L) ;
+        lua_pushinteger(L, [theResponse expectedContentLength]) ;         lua_setfield(L, -2, "expectedContentLength") ;
+        [[LuaSkin shared] pushNSObject:[theResponse suggestedFilename]] ; lua_setfield(L, -2, "suggestedFilename") ;
+        [[LuaSkin shared] pushNSObject:[theResponse MIMEType]] ;          lua_setfield(L, -2, "MIMEType") ;
+        [[LuaSkin shared] pushNSObject:[theResponse textEncodingName]] ;  lua_setfield(L, -2, "textEncodingName") ;
+        [[LuaSkin shared] pushNSObject:[theResponse URL]] ;               lua_setfield(L, -2, "URL") ;
+
+        if ([obj isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *theHTTPResponse = obj ;
+
+            lua_pushinteger(L, [theHTTPResponse statusCode]) ;                  lua_setfield(L, -2, "statusCode") ;
+            [[LuaSkin shared] pushNSObject:[NSHTTPURLResponse localizedStringForStatusCode:[theHTTPResponse statusCode]]] ;
+            lua_setfield(L, -2, "statusCodeDescription") ;
+            [[LuaSkin shared] pushNSObject:[theHTTPResponse allHeaderFields]] ; lua_setfield(L, -2, "allHeaderFields") ;
+        }
+
+    return 1 ;
+}
+
+static int NSURLRequest_toLua(lua_State *L, id obj) {
+    NSURLRequest *request = obj ;
+
+    lua_newtable(L) ;
+      [[LuaSkin shared] pushNSObject:[request mainDocumentURL]] ;     lua_setfield(L, -2, "mainDocumentURL") ;
+      [[LuaSkin shared] pushNSObject:[request URL]] ;                 lua_setfield(L, -2, "URL") ;
+      [[LuaSkin shared] pushNSObject:[request allHTTPHeaderFields]] ; lua_setfield(L, -2, "HTTPHeaderFields") ;
+      [[LuaSkin shared] pushNSObject:[request HTTPBody]] ;            lua_setfield(L, -2, "HTTPBody") ;
+      [[LuaSkin shared] pushNSObject:[request HTTPMethod]] ;          lua_setfield(L, -2, "HTTPMethod") ;
+
+      lua_pushnumber(L, [request timeoutInterval]) ;                  lua_setfield(L, -2, "timeoutInterval") ;
+      lua_pushboolean(L, [request HTTPShouldHandleCookies]) ;         lua_setfield(L, -2, "HTTPShouldHandleCookies") ;
+      lua_pushboolean(L, [request HTTPShouldUsePipelining]) ;         lua_setfield(L, -2, "HTTPShouldUsePipelining") ;
+
+//  Are there any macs which support this?
+//       lua_pushboolean(L, [request allowsCellularAccess]) ;            lua_setfield(L, -2, "allowsCellularAccess") ;
+
+// HTTPBodyStream -- maybe add if we add NSStream userdata at some point, until then, not in this modules scope, so would be only
+//   for others who reuse these converters... not worth it until it is needed.
+
+      switch([request cachePolicy]) {
+          case NSURLRequestUseProtocolCachePolicy:        lua_pushstring(L, "protocolCachePolicy") ; break ;
+          case NSURLRequestReloadIgnoringLocalCacheData:  lua_pushstring(L, "ignoreLocalCache") ; break ;
+          case NSURLRequestReturnCacheDataElseLoad:       lua_pushstring(L, "returnCacheOrLoad") ; break ;
+          case NSURLRequestReturnCacheDataDontLoad:       lua_pushstring(L, "returnCacheDontLoad") ; break ;
+          default:                                        lua_pushstring(L, "unknown") ; break ;
+      }
+      lua_setfield(L, -2, "cachePolicy") ;
+
+      switch([request networkServiceType]) {
+          case NSURLNetworkServiceTypeDefault:    lua_pushstring(L, "default") ; break ;
+          case NSURLNetworkServiceTypeVoIP:       lua_pushstring(L, "VoIP") ; break ;
+          case NSURLNetworkServiceTypeVideo:      lua_pushstring(L, "video") ; break ;
+          case NSURLNetworkServiceTypeBackground: lua_pushstring(L, "background") ; break ;
+          case NSURLNetworkServiceTypeVoice:      lua_pushstring(L, "voice") ; break ;
+          default:                                lua_pushstring(L, "unknown") ; break ;
+      }
+      lua_setfield(L, -2, "networkServiceType") ;
+    return 1 ;
+}
+
+static id table_toNSURLRequest(lua_State* L, int idx) {
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init] ;
+
+    lua_pushvalue(L, idx) ;
+    switch (lua_type(L, idx)) {
+        case LUA_TTABLE:
+            if (lua_getfield(L, -1, "URL") == LUA_TSTRING) {
+                [request setURL:[NSURL URLWithString:[[LuaSkin shared] toNSObjectAtIndex:-1]]] ;
+            } else {
+                lua_pop(L, 2) ;
+                NSLog(@"URL field missing in NSURLRequest table - returning nil") ;
+                showError(L, "URL field missing in NSURLRequest table") ;
+                return nil ;
+            }
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "mainDocumentURL") == LUA_TSTRING)
+                [request setMainDocumentURL:[NSURL URLWithString:[[LuaSkin shared] toNSObjectAtIndex:-1]]] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPBody") == LUA_TSTRING) {
+                size_t size ;
+                unsigned char *block = (unsigned char *)lua_tolstring(L, -1, &size) ;
+                [request setHTTPBody:[NSData dataWithBytes:(void *)block length:size] ];
+            }
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPMethod") == LUA_TSTRING)   // TODO: should probably validate
+                [request setHTTPMethod:[[LuaSkin shared] toNSObjectAtIndex:-1]] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "timeoutInterval") == LUA_TNUMBER)
+                [request setTimeoutInterval:lua_tonumber(L, -1)] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPShouldHandleCookies") == LUA_TBOOLEAN)
+                [request setHTTPShouldHandleCookies:(BOOL)lua_toboolean(L, -1)] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPShouldUsePipelining") == LUA_TBOOLEAN)
+                [request setHTTPShouldUsePipelining:(BOOL)lua_toboolean(L, -1)] ;
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "cachePolicy") == LUA_TSTRING) {
+                NSString *cp = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                if ([cp isEqualToString:@"protocolCachePolicy"]) { [request setCachePolicy:NSURLRequestUseProtocolCachePolicy] ; } else
+                if ([cp isEqualToString:@"ignoreLocalCache"])    { [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData] ; } else
+                if ([cp isEqualToString:@"returnCacheOrLoad"])   { [request setCachePolicy:NSURLRequestReturnCacheDataElseLoad] ; } else
+                if ([cp isEqualToString:@"returnCacheDontLoad"]) { [request setCachePolicy:NSURLRequestReturnCacheDataDontLoad] ; }
+            }
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "networkServiceType") == LUA_TSTRING) {
+                NSString *nst = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                if ([nst isEqualToString:@"default"])    { [request setNetworkServiceType:NSURLNetworkServiceTypeDefault] ; } else
+                if ([nst isEqualToString:@"VoIP"])       { [request setNetworkServiceType:NSURLNetworkServiceTypeVoIP] ; } else
+                if ([nst isEqualToString:@"video"])      { [request setNetworkServiceType:NSURLNetworkServiceTypeVideo] ; } else
+                if ([nst isEqualToString:@"background"]) { [request setNetworkServiceType:NSURLNetworkServiceTypeBackground] ; } else
+                if ([nst isEqualToString:@"voice"])      { [request setNetworkServiceType:NSURLNetworkServiceTypeVoice] ; }
+            }
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, -1, "HTTPHeaderFields") == LUA_TTABLE) {
+                NSMutableDictionary *fields = [[[LuaSkin shared] toNSObjectAtIndex:-1] mutableCopy] ;
+                NSMutableArray      *toRemove = [[NSMutableArray alloc] init] ;
+
+                // remove fields which are automatically handled or have non-string keys, convert numbers to strings
+
+                for (id key in [fields allKeys]) {
+                    if ([[fields objectForKey:key] isKindOfClass:[NSNumber class]]) {
+                        [fields setObject:[[fields objectForKey:key] stringValue] forKey:key] ;
+                    }
+
+                    if (![key isKindOfClass:[NSString class]] || ![[fields objectForKey:key] isKindOfClass:[NSString class]]) {
+                        [toRemove addObject:key] ;
+                    } else {
+                        if ([key compare:@"Authorization" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        } else if ([key compare:@"Connection" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        } else if ([key compare:@"Host" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        } else if ([key compare:@"WWW-Authenticate" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        } else if ([key compare:@"Content-Length" options:NSCaseInsensitiveSearch] == NSOrderedSame) {
+                            [toRemove addObject:key] ;
+                        }
+                    }
+                }
+                for (id item in toRemove) { [fields removeObjectForKey:item] ; }
+
+                [request setAllHTTPHeaderFields:fields] ;
+            }
+            lua_pop(L, 1) ;
+            break ;
+
+        case LUA_TSTRING:
+            request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[[LuaSkin shared] toNSObjectAtIndex:idx]]] ;
+            break ;
+
+        default:
+            showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed as a NSURLRequest: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
+            return nil ;
+    }
+
+    lua_pop(L, 1);
+    return request ;
+}
+
 
 static int http_gc(lua_State* L){
     NSMutableArray* delegatesCopy = [[NSMutableArray alloc] init];
@@ -223,22 +559,28 @@ static int http_gc(lua_State* L){
 static const luaL_Reg httplib[] = {
     {"doRequest", http_doRequest},
     {"doAsyncRequest", http_doAsyncRequest},
+    {"urlParts",       http_urlParts},
+    {"encodeForQuery", http_encodeForQuery},
 
-    {} // This must end with an empty struct
+    {NULL, NULL} // This must end with an empty struct
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", http_gc},
 
-    {} // This must end with an empty struct
+    {NULL, NULL} // This must end with an empty struct
 };
 
-int luaopen_hs_http_internal(lua_State* L) {
-    delegates = [[NSMutableArray alloc] init];
-    luaL_newlib(L, httplib);
+int luaopen_hs_http_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
 
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+    delegates = [[NSMutableArray alloc] init];
+    refTable = [skin registerLibrary:httplib metaFunctions:metalib];
+
+    [[LuaSkin shared] registerPushNSHelper:NSURLRequest_toLua  forClass:"NSURLRequest"] ;
+    [[LuaSkin shared] registerPushNSHelper:NSURLResponse_toLua forClass:"NSURLResponse"] ;
+
+    [[LuaSkin shared] registerTableHelper:table_toNSURLRequest forClass:"NSURLRequest"] ;
 
     return 1;
 }

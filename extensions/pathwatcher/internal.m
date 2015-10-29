@@ -5,25 +5,26 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.pathwatcher"
+int refTable;
 
 // Not so common code
 
 typedef struct _watcher_path_t {
-    lua_State* L;
     int closureref;
     FSEventStreamRef stream;
     bool started;
 } watcher_path_t;
 
 void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBackInfo, size_t numEvents, void *eventPaths, const FSEventStreamEventFlags __unused eventFlags[], const FSEventStreamEventId __unused eventIds[]) {
+    LuaSkin *skin = [LuaSkin shared];
 
     watcher_path_t* pw = clientCallBackInfo;
-    lua_State* L = pw->L;
+
+    lua_State *L = skin.L;
 
     const char** changedFiles = eventPaths;
 
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, pw->closureref);
+    [skin pushLuaRef:refTable ref:pw->closureref];
 
     lua_newtable(L);
     for(size_t i = 0 ; i < numEvents; i++) {
@@ -31,11 +32,10 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
         lua_rawseti(L, -2, i + 1);
     }
 
-    if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 
@@ -43,18 +43,19 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
 /// Constructor
 /// Returns a new watcher.path that can be started and stopped.  The function registered receives as it's argument, a table containing a list of the files which have changed since it was last invoked.
 static int watcher_path_new(lua_State* L) {
-    NSString* path = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
-    luaL_checktype(L, 2, LUA_TFUNCTION);
-    lua_settop(L, 2);
-    int closureref = luaL_ref(L, LUA_REGISTRYINDEX);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
+
+    NSString* path = [NSString stringWithUTF8String: lua_tostring(L, 1)];
 
     watcher_path_t* watcher_path = lua_newuserdata(L, sizeof(watcher_path_t));
-    watcher_path->L = L;
-    watcher_path->closureref = closureref;
     watcher_path->started = NO;
 
-    lua_getfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
+    luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
+
+    lua_pushvalue(L, 2);
+    watcher_path->closureref = [skin luaRef:refTable];
 
     FSEventStreamContext context;
     context.info = watcher_path;
@@ -106,6 +107,8 @@ static int watcher_path_stop(lua_State* L) {
 }
 
 static int watcher_path_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     watcher_path_t* watcher_path = luaL_checkudata(L, 1, USERDATA_TAG);
 
     lua_pushcfunction(L, watcher_path_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
@@ -113,8 +116,8 @@ static int watcher_path_gc(lua_State* L) {
     FSEventStreamInvalidate(watcher_path->stream);
     FSEventStreamRelease(watcher_path->stream);
 
-    luaL_unref(L, LUA_REGISTRYINDEX, watcher_path->closureref);
-    watcher_path->closureref = LUA_NOREF;
+    watcher_path->closureref = [skin luaUnref:refTable ref:watcher_path->closureref];
+
     return 0;
 }
 
@@ -122,11 +125,22 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    watcher_path_t* watcher_path = luaL_checkudata(L, 1, USERDATA_TAG);
+    NSArray *thePaths = (__bridge_transfer NSArray *) FSEventStreamCopyPathsBeingWatched (watcher_path->stream);
+    NSString *thePath = [thePaths objectAtIndex:0] ;
+    if (!thePath) thePath = @"(unknown path)" ;
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, thePath, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg path_metalib[] = {
     {"start",   watcher_path_start},
     {"stop",    watcher_path_stop},
     {"__gc",    watcher_path_gc},
+    {"__tostring", userdata_tostring},
     {NULL,      NULL}
 };
 
@@ -142,17 +156,9 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_pathwatcher_internal(lua_State* L) {
-// Metatable for created objects
-    luaL_newlib(L, path_metalib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-// Create table for luaopen
-    luaL_newlib(L, pathLib);
-        luaL_newlib(L, meta_gcLib);
-        lua_setmetatable(L, -2);
+int luaopen_hs_pathwatcher_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:pathLib metaFunctions:meta_gcLib objectFunctions:path_metalib];
 
     return 1;
 }

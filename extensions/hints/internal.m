@@ -2,8 +2,10 @@
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 
+#define USERDATA_TAG "hs.hints.hint"
+
 #define get_screen_arg(L, idx) (__bridge NSScreen*)*((void**)luaL_checkudata(L, idx, "hs.screen"))
-#define get_hint_arg(L, idx) (__bridge HintWindow*)*((void**)luaL_checkudata(L, idx, "hs.hints.hint"))
+#define get_hint_arg(L, idx) (__bridge HintWindow*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
 @interface HintView : NSView {
 @private
@@ -36,7 +38,7 @@ static NSDictionary *hintTextAttributes;
 
 + (void)initCache:(NSString*)fontName fontSize:(CGFloat)fontSize {
     iconFrame = NSMakeRect(0, 0, hintHeight, hintHeight);
-    hintBackgroundColor = [NSColor colorWithWhite:0.0 alpha:0.65];
+    hintBackgroundColor = [NSColor colorWithSRGBRed:0.0 green:0.0 blue:0.0 alpha:0.65];
     hintFontColor = [NSColor whiteColor];
     if (fontName) {
         hintFont = [NSFont fontWithName:fontName size:fontSize];
@@ -169,7 +171,7 @@ void new_hint(lua_State* L, HintWindow* screen) {
     void** hintptr = lua_newuserdata(L, sizeof(HintWindow**));
     *hintptr = (__bridge_retained void*)screen;
 
-    luaL_getmetatable(L, "hs.hints.hint");
+    luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
 }
 
@@ -199,27 +201,30 @@ static int hints_new(lua_State* L) {
     return 1;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 static const luaL_Reg hintslib[] = {
     {"test", hints_test},
     {"new", hints_new},
-    {"close", hint_close},
 
-    {} // necessary sentinel
+    {NULL, NULL} // necessary sentinel
 };
 
-int luaopen_hs_hints_internal(lua_State* L) {
-    luaL_newlib(L, hintslib);
+static const luaL_Reg hints_metalib[] = {
+    {"__eq", hint_eq},
+    {"__gc", hint_close},
+    {"__tostring", userdata_tostring},
+    {"close", hint_close},
 
-    if (luaL_newmetatable(L, "hs.hints.hint")) {
-        lua_pushvalue(L, -2);
-        lua_setfield(L, -2, "__index");
+    {NULL, NULL}
+};
 
-        lua_pushcfunction(L, hint_eq);
-        lua_setfield(L, -2, "__eq");
+int luaopen_hs_hints_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibraryWithObject:USERDATA_TAG functions:hintslib metaFunctions:nil objectFunctions:hints_metalib];
 
-        lua_pushcfunction(L, hint_close);
-        lua_setfield(L, -2, "__gc");
-    }
-    lua_pop(L, 1);
     return 1;
 }

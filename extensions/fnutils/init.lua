@@ -4,55 +4,130 @@
 
 local fnutils = {}
 
+local pairs,ipairs = pairs,ipairs
+local floor = math.floor
 
---- hs.fnutils.map(table, fn) -> table
+--- hs.fnutils.imap(list, fn) -> list
 --- Function
---- Execute a function across a table and collect the results
+--- Execute a function across a list-like table in order, and collect the results
 ---
 --- Parameters:
----  * table - A table containing some sort of data
----  * fn - A function that accepts a single parameter. Whatever this function returns, will be collected and returned
+---  * list - A list-like table, i.e. one whose keys are sequential integers starting from 1
+---  * fn - A function that accepts a single parameter (a table element). The values returned from this function
+---    will be collected into the result list; when `nil` is returned the relevant element is discarded - the
+---    result list won't have any "holes".
 ---
 --- Returns:
----  * A table containing the results of calling the function on every element in the table
-function fnutils.map(t, fn)
+---  * A list-like table containing the results of calling the function on every element in the table
+---
+--- Notes:
+---  * If `list` has "holes", all elements after the first hole will be lost, as the table is iterated over with `ipairs`;
+---    use `hs.fnutils.map()` if your table has holes
+function fnutils.imap(t, fn)
   local nt = {}
-  for k, v in pairs(t) do
-    table.insert(nt, fn(v) or nil)
+  for _, v in ipairs(t) do
+    nt[#nt+1] = fn(v) -- or nil < removed, as this precludes inserting false!
   end
   return nt
 end
 
---- hs.fnutils.each(table, fn)
+local function isListIndex(k)
+  return type(k)=='number' and k>=1 and floor(k)==k -- not using 5.3 syntax (k//1==k), as you never know
+end
+--- hs.fnutils.map(table, fn) -> table
 --- Function
---- Execute a function across a table and discard the results
+--- Execute a function across a table (in arbitrary order) and collect the results
 ---
 --- Parameters:
----  * table - A table containing some sort of data
----  * fn - A function taht accepts a single parameter
+---  * table - A table; it can have both a list (or array) part and a hash (or dict) part
+---  * fn - A function that accepts a single parameter (a table element). For the hash part, the values returned
+---  from this function (if non-nil) will be assigned to the same key in the result list. For the array part, this function
+---  behaves like `hs.fnutils.imap()` (i.e. `nil` results are discarded); however all keys, including integer keys after
+---  a "hole" in `table`, will be iterated over.
+---
+--- Returns:
+---  * A table containing the results of calling the function on every element in the table
+---
+--- Notes:
+---  * If `table` is a pure array table (list-like) without "holes", use `hs.fnutils.imap()` if you need guaranteed in-order
+---  processing and for better performance.
+function fnutils.map(t, fn)
+  local nt = {}
+  for k, v in pairs(t) do -- they'll potentially be out of order, but they always were anyway
+    nt[isListIndex(k) and (#nt+1) or k] = fn(v) -- meh, but required for compatibility
+  end
+  return nt
+end
+
+--- hs.fnutils.ieach(list, fn)
+--- Function
+--- Execute a function across a list-like table in order, and discard the results
+---
+--- Parameters:
+---  * list - A list-like table, i.e. one whose keys are sequential integers starting from 1
+---  * fn - A function taht accepts a single parameter (a table element)
+---
+--- Returns:
+---  * None
+function fnutils.ieach(t, fn)
+  for _, v in ipairs(t) do fn(v) end
+end
+
+--- hs.fnutils.each(table, fn)
+--- Function
+--- Execute a function across a table (in arbitrary order), and discard the results
+---
+--- Parameters:
+---  * table - A table; it can have both a list (or array) part and a hash (or dict) part
+---  * fn - A function that accepts a single parameter (a table element)
 ---
 --- Returns:
 ---  * None
 function fnutils.each(t, fn)
-  for k, v in pairs(t) do
-    fn(v)
-  end
+  for _, v in pairs(t) do fn(v) end
+end
+
+
+--- hs.fnutils.ifilter(list, fn) -> list
+--- Function
+--- Filter a list-like table by running a predicate function on its elements in order
+---
+--- Parameters:
+---  * list - A list-like table, i.e. one whose keys are sequential integers starting from 1
+---  * fn - A function that accepts a single parameter (a table element) and returns a boolean
+---    value: true if the parameter should be kept, false if it should be discarded
+---
+--- Returns:
+---  * A list-like table containing the elements of the table for which fn(element) returns true
+---
+--- Notes:
+---  * If `list` has "holes", all elements after the first hole will be lost, as the table is iterated over with `ipairs`;
+---    use `hs.fnutils.map()` if your table has holes
+function fnutils.ifilter(t, fn)
+  local nt = {}
+  for k, v in ipairs(t) do if fn(v) then nt[#nt+1] = v end end
+  return nt
 end
 
 --- hs.fnutils.filter(table, fn) -> table
 --- Function
---- Filter a table using a function
+--- Filter a table by running a predicate function on its elements (in arbitrary order)
 ---
 --- Parameters:
----  * table - A table containing some sort of data
----  * fn - A function that accepts a single parameter and returns a boolean value, true if the parameter should be kept, false if it should be discarded
+---  * table - A table; it can have both a list (or array) part and a hash (or dict) part
+---  * fn - A function that accepts a single parameter (a table element) and returns a boolean
+---    value: true if the parameter should be kept, false if it should be discarded
 ---
 --- Returns:
 ---  * A table containing the elements of the table for which fn(element) returns true
+---
+--- Notes:
+---  * If `table` is a pure array table (list-like) without "holes", use `hs.fnutils.ifilter()` if you need guaranteed in-order
+---  processing and for better performance.
 function fnutils.filter(t, fn)
   local nt = {}
   for k, v in pairs(t) do
-    if fn(v) then table.insert(nt, v) end
+    if fn(v) then nt[isListIndex(k) and (#nt+1) or k] = v end -- meh etc.
   end
   return nt
 end
@@ -283,10 +358,10 @@ end
 ---  * True if the application of fn on every element of the table is true
 ---  * False if the function returns `false` for any element of the table.  Note that testing stops when the first false return is detected.
 function fnutils.every(table, fn)
-    for k, v in pairs(table) do
-        if not fn(v, k) then return false end
-    end
-    return true
+  for k, v in pairs(table) do
+    if not fn(v, k) then return false end
+  end
+  return true
 end
 
 --- hs.fnutils.some(table, fn) -> bool
@@ -301,10 +376,10 @@ end
 ---  * True if the application of fn on any element of the table is true.  Note that testing stops when the first true return is detected.
 ---  * False if the function returns `false` for all elements of the table.
 function fnutils.some(table, fn)
-    local function is_invalid(v, k)
-        return not fn(v, k)
-    end
-    return not fnutils.every(table, is_invalid)
+  local function is_invalid(v, k)
+    return not fn(v, k)
+  end
+  return not fnutils.every(table, is_invalid)
 end
 
 --- hs.fnutils.sortByKeys(table[ , function]) -> function
@@ -328,23 +403,23 @@ end
 ---    * The default sort is to compare keys directly, if they are of the same type, or as their tostring() versions, if the key types differ:
 ---      * function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end
 fnutils.sortByKeys = function(t, f)
-    -- a default, simple comparison that treats keys as strings only if their types differ
-    f = f or function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end end
-    if t then
-        local a = {}
-        for n in pairs(t) do table.insert(a, n) end
-            table.sort(a, f)
-            local i = 0      -- iterator variable
-            local iter = function ()   -- iterator function
-            i = i + 1
-            if a[i] == nil then return nil
-                else return a[i], t[a[i]]
-            end
-        end
-        return iter
-    else
-        return function() return nil end
+  -- a default, simple comparison that treats keys as strings only if their types differ
+  f = f or function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end end
+  if t then
+    local a = {}
+    for n in pairs(t) do table.insert(a, n) end
+    table.sort(a, f)
+    local i = 0      -- iterator variable
+    local iter = function ()   -- iterator function
+      i = i + 1
+      if a[i] == nil then return nil
+      else return a[i], t[a[i]]
+      end
     end
+    return iter
+  else
+    return function() return nil end
+  end
 end
 
 --- hs.fnutils.sortByKeyValues(table[ , function]) -> function
@@ -368,23 +443,23 @@ end
 ---    * The default sort is to compare values directly, if they are of the same type, or as their tostring() versions, if the value types differ:
 ---      * function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end
 fnutils.sortByKeyValues = function(t, f)
-    -- a default, simple comparison that treats keys as strings only if their types differ
-    f = f or function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end end
-    if t then
-        local a = {}
-        for n in pairs(t) do table.insert(a, {n, t[n]}) end
-            table.sort(a, function(m,n) return f(m[2], n[2]) end)
-            local i = 0      -- iterator variable
-            local iter = function ()   -- iterator function
-            i = i + 1
-            if a[i] == nil then return nil
-                else return a[i][1], a[i][2]
-            end
-        end
-        return iter
-    else
-        return function() return nil end
+  -- a default, simple comparison that treats keys as strings only if their types differ
+  f = f or function(m,n) if type(m) ~= type(n) then return tostring(m) < tostring(n) else return m < n end end
+  if t then
+    local a = {}
+    for n in pairs(t) do table.insert(a, {n, t[n]}) end
+    table.sort(a, function(m,n) return f(m[2], n[2]) end)
+    local i = 0      -- iterator variable
+    local iter = function ()   -- iterator function
+      i = i + 1
+      if a[i] == nil then return nil
+      else return a[i][1], a[i][2]
+      end
     end
+    return iter
+  else
+    return function() return nil end
+  end
 end
 
 --- hs.fnutils.split(sString, sSeperator [, nMax] [, bPlain]) -> { array }
@@ -405,41 +480,41 @@ end
 ---  * Optional parameters `nMax` and `bPlain` are identified by their type -- if parameter 3 or 4 is a number or nil, it will be considered a value for `nMax`; if parameter 3 or 4 is a boolean value, it will be considered a value for `bPlain`.
 ---  * Lua patterns are more flexible for pattern matching, but can also be slower if the split point is simple. See §6.4.1 of the _Lua_Reference_Manual_ at http://www.lua.org/manual/5.3/manual.html#6.4.1 for more information on Lua patterns.
 function fnutils.split(sString, sSeparator, nMax, bPlain)
-    if type(nMax) == "boolean" then
-        nMax, bPlain = bPlain, nMax
+  if type(nMax) == "boolean" then
+    nMax, bPlain = bPlain, nMax
+  end
+
+  sSeparator = sSeparator or ""
+
+  if type(sString) ~= "string" then
+    error("sString parameter to hs.fnutils.split must be a string", 2) end
+  if type(sSeparator) ~= "string" then
+    error("sSeparator parameter to hs.fnutils.split must be a string", 2) end
+  if type(nMax) ~= "number" and type(nMax) ~= "nil" then
+    error("nMax parameter to hs.fnutils.split must be a number, if it is provided", 2) end
+  if type(bPlain) ~= "boolean" and type(bPlain) ~= "nil" then
+    error("bPlain parameter to hs.fnutils.split must be a boolean, if it is provided", 2) end
+
+  if sSeparator == "" or maxSubStrings == 0 then return { sString } end -- degenerate cases
+
+  local aRecord = {}
+
+  if sString:len() > 0 then
+    nMax = nMax or -1
+
+    local nField, nStart = 1, 1
+    local nFirst,nLast = sString:find(sSeparator, nStart, bPlain)
+    while nFirst and nMax ~= 0 do
+      aRecord[nField] = sString:sub(nStart, nFirst-1)
+      nField = nField+1
+      nStart = nLast+1
+      nFirst,nLast = sString:find(sSeparator, nStart, bPlain)
+      nMax = nMax-1
     end
+    aRecord[nField] = sString:sub(nStart)
+  end
 
-    sSeparator = sSeparator or ""
-
-    if type(sString) ~= "string" then
-        error("sString parameter to hs.fnutils.split must be a string", 2) end
-    if type(sSeparator) ~= "string" then
-        error("sSeparator parameter to hs.fnutils.split must be a string", 2) end
-    if type(nMax) ~= "number" and type(nMax) ~= "nil" then
-        error("nMax parameter to hs.fnutils.split must be a number, if it is provided", 2) end
-    if type(bPlain) ~= "boolean" and type(bPlain) ~= "nil" then
-        error("bPlain parameter to hs.fnutils.split must be a boolean, if it is provided", 2) end
-
-    if sSeparator == "" or maxSubStrings == 0 then return { sString } end -- degenerate cases
-
-    local aRecord = {}
-
-    if sString:len() > 0 then
-        nMax = nMax or -1
-
-        local nField, nStart = 1, 1
-        local nFirst,nLast = sString:find(sSeparator, nStart, bPlain)
-        while nFirst and nMax ~= 0 do
-            aRecord[nField] = sString:sub(nStart, nFirst-1)
-            nField = nField+1
-            nStart = nLast+1
-            nFirst,nLast = sString:find(sSeparator, nStart, bPlain)
-            nMax = nMax-1
-        end
-        aRecord[nField] = sString:sub(nStart)
-    end
-
-    return aRecord
+  return aRecord
 end
 
 return fnutils

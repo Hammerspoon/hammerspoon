@@ -57,7 +57,7 @@ static NSPoint get_window_topleft(AXUIElementRef win) {
 
     if (positionStorage) CFRelease(positionStorage);
 
-    return (NSPoint)topLeft;
+    return NSMakePoint(topLeft.x, topLeft.y);
 }
 
 static NSSize get_window_size(AXUIElementRef win) {
@@ -76,7 +76,7 @@ static NSSize get_window_size(AXUIElementRef win) {
 
     if (sizeStorage) CFRelease(sizeStorage);
 
-    return (NSSize)size;
+    return NSMakeSize(size.width, size.height);
 }
 
 static int window_gc(lua_State* L) {
@@ -515,7 +515,7 @@ static int window_pid(lua_State* L) {
 ///  * An `hs.application` object representing the application that owns the window, or nil if an error occurred
 static int window_application(lua_State* L) {
     if (window_pid(L)) {
-        pid_t pid = lua_tointeger(L, -1);
+        pid_t pid = (pid_t)lua_tointeger(L, -1);
         if (!new_application(L, pid)) {
             lua_pushnil(L);
         }
@@ -541,6 +541,23 @@ static int window_becomemain(lua_State* L) {
     AXUIElementRef win = get_window_arg(L, 1);
 
     AXUIElementSetAttributeValue(win, (CFStringRef)NSAccessibilityMainAttribute, kCFBooleanTrue);
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.window:raise() -> window
+/// Method
+/// Brings a window to the front of the screen without focussing it
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.window` object
+static int window_raise(lua_State* L) {
+    AXUIElementRef win = get_window_arg(L, 1);
+    AXUIElementPerformAction (win, kAXRaiseAction);
+
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -604,7 +621,7 @@ static int window_setShadows(lua_State* L) {
 
 // used by hs.window.snapshotForID and hs.window:snapshot
 
-static int snapshot_common_code(lua_State* L, CGWindowID windowID, NSInteger makeOpaque) {
+static int snapshot_common_code(lua_State* L, CGWindowID windowID, CGWindowImageOption makeOpaque) {
 //         CGRect windowRect = { get_window_topleft(win), get_window_size(win) };
         CGRect windowRect = CGRectNull ;
 
@@ -613,7 +630,7 @@ static int snapshot_common_code(lua_State* L, CGWindowID windowID, NSInteger mak
               windowRect,
               targetWindow,
               kCGWindowImageBoundsIgnoreFraming | makeOpaque);
-        CFRelease(targetWindow) ;
+        CFRelease(targetWindow);
 
         if (!windowImage) {
             CLS_NSLOG(@"hs.window::snapshot: ERROR: CGWindowListCreateImageFromArray failed for windowID: %ld", (long) windowID);
@@ -645,10 +662,10 @@ static int snapshot_common_code(lua_State* L, CGWindowID windowID, NSInteger mak
 ///  * See also method `hs.window:snapshot()`
 ///  * Because the window ID cannot always be dynamically determined, this function will allow you to provide the ID of a window that was cached earlier.
 static int window_snapshotForID(lua_State* L) {
-    CGWindowID windowID = luaL_checkinteger(L, 1);
+    CGWindowID windowID = (CGWindowID)luaL_checkinteger(L, 1);
 
-    NSInteger makeOpaque = kCGWindowImageShouldBeOpaque ;
-    if (lua_toboolean(L, 2)) makeOpaque = 0 ;
+    CGWindowImageOption makeOpaque = kCGWindowImageShouldBeOpaque ;
+    if (lua_toboolean(L, 2)) makeOpaque = kCGWindowImageDefault ;
 
     return snapshot_common_code(L, windowID, makeOpaque) ;
 }
@@ -671,8 +688,8 @@ static int window_snapshot(lua_State* L) {
     AXError err = _AXUIElementGetWindow(win, &windowID);
 
     if (!err) {
-        NSInteger      makeOpaque = kCGWindowImageShouldBeOpaque ;
-        if (lua_toboolean(L, 2)) makeOpaque = 0 ;
+        CGWindowImageOption makeOpaque = kCGWindowImageShouldBeOpaque ;
+        if (lua_toboolean(L, 2)) makeOpaque = kCGWindowImageDefault ;
 
         return snapshot_common_code(L, windowID, makeOpaque) ;
     } else {
@@ -736,6 +753,7 @@ static const luaL_Reg windowlib[] = {
     {"pid", window_pid},
     {"application", window_application},
     {"becomeMain", window_becomemain},
+    {"raise", window_raise},
     {"id", window_id},
     {"_toggleZoom", window__togglezoom},
     {"zoomButtonRect", window_getZoomButtonRect},
@@ -744,7 +762,7 @@ static const luaL_Reg windowlib[] = {
     {"isFullScreen", window_isfullscreen},
     {"snapshot", window_snapshot},
 
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_window_internal(lua_State* L) {

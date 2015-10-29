@@ -14,6 +14,7 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.screen.watcher"
+int refTable;
 
 // Not so common code
 
@@ -30,14 +31,14 @@
 }
 
 - (void) screensChanged:(id __unused)bla {
-    lua_State* L = self.L;
-    lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, self.fn);
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    LuaSkin *skin = [LuaSkin shared];
+    lua_State *L = skin.L;
+
+    [skin pushLuaRef:refTable ref:self.fn];
+    if (![skin protectedCallAndTraceback:0 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 @end
@@ -54,15 +55,23 @@ typedef struct _screenwatcher_t {
 
 /// hs.screen.watcher.new(fn) -> watcher
 /// Constructor
-/// Creates a new screen-watcher that can be started; fn will be called when your screen layout changes in any way, whether by adding, removing, or moving a display device.
+/// Creates a new screen-watcher.
+///
+/// Parameters:
+///  * The function to be called when a change in the screen layout occurs.  This function should take no arguments.
+///
+/// Returns:
+///  * the screen watcher object
 static int screen_watcher_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     screenwatcher_t* screenwatcher = lua_newuserdata(L, sizeof(screenwatcher_t));
     memset(screenwatcher, 0, sizeof(screenwatcher_t));
 
     lua_pushvalue(L, 1);
-    screenwatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    screenwatcher->fn = [skin luaRef:refTable];
 
     MJScreenWatcher* object = [[MJScreenWatcher alloc] init];
     object.L = L;
@@ -79,6 +88,12 @@ static int screen_watcher_new(lua_State* L) {
 /// hs.screen.watcher:start() -> watcher
 /// Function
 /// Starts the screen watcher, making it so fn is called each time the screen arrangement changes.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the screen watcher object
 static int screen_watcher_start(lua_State* L) {
     screenwatcher_t* screenwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1) ;
@@ -97,6 +112,12 @@ static int screen_watcher_start(lua_State* L) {
 /// hs.screen.watcher:stop() -> watcher
 /// Function
 /// Stops the screen watcher's fn from getting called until started again.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the screen watcher object
 static int screen_watcher_stop(lua_State* L) {
     screenwatcher_t* screenwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1) ;
@@ -112,12 +133,13 @@ static int screen_watcher_stop(lua_State* L) {
 }
 
 static int screen_watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     screenwatcher_t* screenwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     lua_pushcfunction(L, screen_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
-    luaL_unref(L, LUA_REGISTRYINDEX, screenwatcher->fn);
-    screenwatcher->fn = LUA_NOREF;
+    screenwatcher->fn = [skin luaUnref:refTable ref:screenwatcher->fn];
 
     MJScreenWatcher* object = (__bridge_transfer id)screenwatcher->obj;
     object = nil;
@@ -129,10 +151,16 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg screen_metalib[] = {
     {"start",   screen_watcher_start},
     {"stop",    screen_watcher_stop},
+    {"__tostring", userdata_tostring},
     {"__gc",    screen_watcher_gc},
     {NULL,      NULL}
 };
@@ -150,16 +178,8 @@ static const luaL_Reg meta_gcLib[] = {
 };
 
 int luaopen_hs_screen_watcher(lua_State* L) {
-// Metatable for created objects
-    luaL_newlib(L, screen_metalib);
-        lua_pushvalue(L, -1);
-        lua_setfield(L, -2, "__index");
-        lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-// Create table for luaopen
-    luaL_newlib(L, screenLib);
-        luaL_newlib(L, meta_gcLib);
-        lua_setmetatable(L, -2);
+    LuaSkin *skin = [LuaSkin shared];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:screenLib metaFunctions:meta_gcLib objectFunctions:screen_metalib];
 
     return 1;
 }

@@ -17,6 +17,7 @@
 @property (weak) IBOutlet NSButton* showMenuIconCheckbox;
 @property (weak) IBOutlet NSButton* keepConsoleOnTopCheckbox;
 @property (weak) IBOutlet NSButton* uploadCrashDataCheckbox;
+@property (weak) IBOutlet NSButton* updatesCheckbox;
 
 @property BOOL isAccessibilityEnabled;
 
@@ -33,6 +34,19 @@
     return s;
 }
 
+- (void)updateFeedbackDisplay:(NSNotification __unused *)notification {
+    [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
+    [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
+    [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
+    [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
+    [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSOnState : NSOffState];
+#ifndef CRASHLYTICS_API_KEY
+    [self.uploadCrashDataCheckbox setState:NSOffState];
+    [self.uploadCrashDataCheckbox setEnabled:NO];
+#endif
+
+}
+
 - (void) showWindow:(id)sender {
     if (![[self window] isVisible])
         [[self window] center];
@@ -47,18 +61,39 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [self cacheIsAccessibilityEnabled];
     });
-    
+
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityChanged:) name:@"com.apple.accessibility.api" object:nil];
-    
+
     [self.openAtLoginCheckbox setState:MJAutoLaunchGet() ? NSOnState : NSOffState];
     [self.showDockIconCheckbox setState: MJDockIconVisible() ? NSOnState : NSOffState];
     [self.showMenuIconCheckbox setState: MJMenuIconVisible() ? NSOnState : NSOffState];
     [self.keepConsoleOnTopCheckbox setState: MJConsoleWindowAlwaysOnTop() ? NSOnState : NSOffState];
     [self.uploadCrashDataCheckbox setState: HSUploadCrashData() ? NSOnState : NSOffState];
+
+    if (NSClassFromString(@"SUUpdater")) {
+        NSString *frameworkPath = [[[NSBundle bundleForClass:[self class]] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
+        if ([[NSBundle bundleWithPath:frameworkPath] load]) {
+            id updater = [NSClassFromString(@"SUUpdater") performSelector:@selector(sharedUpdater)];
+            [self.updatesCheckbox bind:@"value" toObject:updater withKeyPath:@"automaticallyChecksForUpdates" options:nil];
+        } else {
+            NSLog(@"Could not load %@ while trying to construct SUUpdater!", frameworkPath);
+        }
+    } else {
+        NSLog(@"SUUpdater doesn't exist, disabling updates checkbox in Preferences");
+        [self.updatesCheckbox setState:NSOffState];
+        [self.updatesCheckbox setEnabled:NO];
+    }
+
 #ifndef CRASHLYTICS_API_KEY
     [self.uploadCrashDataCheckbox setState:NSOffState];
     [self.uploadCrashDataCheckbox setEnabled:NO];
 #endif
+
+    NSNotificationCenter *changeWatcher = [NSNotificationCenter defaultCenter];
+    [changeWatcher addObserver:self
+                      selector:@selector(updateFeedbackDisplay:)
+                          name:NSUserDefaultsDidChangeNotification
+                        object:nil];
 
 }
 
@@ -140,10 +175,10 @@
 - (void) maybeWarnAboutDockMenuProblem {
     if (MJMenuIconVisible() || MJDockIconVisible())
         return;
-    
+
     if ([[NSUserDefaults standardUserDefaults] boolForKey:MJSkipDockMenuIconProblemAlertKey])
         return;
-    
+
     NSAlert* alert = [[NSAlert alloc] init];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert setMessageText:@"How to get back to this window"];

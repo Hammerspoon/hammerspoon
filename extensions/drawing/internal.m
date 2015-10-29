@@ -11,21 +11,27 @@
 #define USERDATA_TAG "hs.drawing"
 #define get_item_arg(L, idx) ((drawing_t *)luaL_checkudata(L, idx, USERDATA_TAG))
 
+int refTable;
+
 // Declare our Lua userdata object and a storage container for them
 typedef struct _drawing_t {
     void *window;
+// hs.drawing objects created outside of this module might have reason to avoid the
+// auto-close of this modules __gc
+    BOOL skipClose ;
 } drawing_t;
 
 NSMutableArray *drawingWindows;
 
 // Objective-C class interface definitions
-@interface HSDrawingWindow : NSWindow <NSWindowDelegate>
+@interface HSDrawingWindow : NSPanel <NSWindowDelegate>
 @end
 
 @interface HSDrawingView : NSView {
     lua_State *L;
 }
 @property int mouseUpCallbackRef;
+@property int mouseDownCallbackRef;
 @property BOOL HSFill;
 @property BOOL HSStroke;
 @property CGFloat HSLineWidth;
@@ -62,7 +68,15 @@ NSMutableArray *drawingWindows;
 @implementation HSDrawingWindow
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger __unused)windowStyle backing:(NSBackingStoreType __unused)bufferingType defer:(BOOL __unused)deferCreation {
     //CLS_NSLOG(@"HSDrawingWindow::initWithContentRect contentRect:(%.1f,%.1f) %.1fx%.1f", contentRect.origin.x, contentRect.origin.y, contentRect.size.width, contentRect.size.height);
-    self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+
+    if (!isfinite(contentRect.origin.x) || !isfinite(contentRect.origin.y) || !isfinite(contentRect.size.height) || !isfinite(contentRect.size.width)) {
+        LuaSkin *skin = [LuaSkin shared];
+        showError(skin.L, "ERROR: hs.drawing object created with non-finite co-ordinates/size");
+        return nil;
+    }
+
+    self = [super initWithContentRect:contentRect styleMask:NSBorderlessWindowMask
+                                                    backing:NSBackingStoreBuffered defer:YES];
     if (self) {
         [self setDelegate:self];
         contentRect.origin.y=[[NSScreen screens][0] frame].size.height - contentRect.origin.y - contentRect.size.height;
@@ -77,6 +91,7 @@ NSMutableArray *drawingWindows;
         self.hasShadow = NO;
         self.ignoresMouseEvents = YES;
         self.restorable = NO;
+        self.hidesOnDeactivate  = NO;
         self.animationBehavior = NSWindowAnimationBehaviorNone;
         self.level = NSScreenSaverWindowLevel;
     }
@@ -110,6 +125,7 @@ NSMutableArray *drawingWindows;
         // Set up our defaults
         L = NULL;
         self.mouseUpCallbackRef = LUA_NOREF;
+        self.mouseDownCallbackRef = LUA_NOREF;
         self.HSFill = YES;
         self.HSStroke = YES;
         self.HSLineWidth = [NSBezierPath defaultLineWidth];
@@ -141,21 +157,59 @@ NSMutableArray *drawingWindows;
     self.mouseUpCallbackRef = ref;
 
     if (self.window) {
-        [self.window setIgnoresMouseEvents:(ref == LUA_NOREF)];
+        [self.window setIgnoresMouseEvents:((ref == LUA_NOREF) && (self.mouseDownCallbackRef == LUA_NOREF))];
+    }
+}
+
+- (void)setMouseDownCallback:(int)ref {
+    self.mouseDownCallbackRef = ref;
+
+    if (self.window) {
+        [self.window setIgnoresMouseEvents:((ref == LUA_NOREF) && (self.mouseUpCallbackRef == LUA_NOREF))];
     }
 }
 
 - (void)mouseUp:(NSEvent * __unused)theEvent {
-    if (self.mouseUpCallbackRef != LUA_NOREF && L) {
-        lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-        lua_rawgeti(L, LUA_REGISTRYINDEX, self.mouseUpCallbackRef);
-        if (lua_pcall(L, 0, 0, -2) != LUA_OK) {
-            CLS_NSLOG(@"%s", lua_tostring(L, -1));
-            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-            lua_pushvalue(L, -2);
-            lua_pcall(L, 1, 0, 0);
+    if (self.mouseUpCallbackRef != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin shared];
+        lua_State *_L = skin.L;
+        [skin pushLuaRef:refTable ref:self.mouseUpCallbackRef];
+        if (![skin protectedCallAndTraceback:0 nresults:0]) {
+            const char *errorMsg = lua_tostring(_L, -1);
+            CLS_NSLOG(@"%s", errorMsg);
+            showError(_L, (char *)errorMsg);
         }
     }
+}
+
+- (void)rightMouseUp:(NSEvent *)theEvent {
+    [self mouseUp:theEvent] ;
+}
+
+- (void)otherMouseUp:(NSEvent *)theEvent {
+    [self mouseUp:theEvent] ;
+}
+
+- (void)mouseDown:(NSEvent * __unused)theEvent {
+    [NSApp preventWindowOrdering];
+    if (self.mouseDownCallbackRef != LUA_NOREF) {
+        LuaSkin *skin = [LuaSkin shared];
+        lua_State *_L = skin.L;
+        [skin pushLuaRef:refTable ref:self.mouseDownCallbackRef];
+        if (![skin protectedCallAndTraceback:0 nresults:0]) {
+            const char *errorMsg = lua_tostring(_L, -1);
+            CLS_NSLOG(@"%s", errorMsg);
+            showError(_L, (char *)errorMsg);
+        }
+    }
+}
+
+- (void)rightMouseDown:(NSEvent *)theEvent {
+    [self mouseDown:theEvent] ;
+}
+
+- (void)otherMouseDown:(NSEvent *)theEvent {
+    [self mouseDown:theEvent] ;
 }
 
 @end
@@ -330,38 +384,17 @@ NSMutableArray *drawingWindows;
 /// Returns:
 ///  * An `hs.drawing` circle object, or nil if an error occurs
 static int drawing_newCircle(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TBREAK];
 
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.circle(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-            break;
-    }
+    NSRect windowRect = [skin tableToRectAtIndex:1];
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = NO ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
@@ -391,38 +424,18 @@ static int drawing_newCircle(lua_State *L) {
 /// Returns:
 ///  * An `hs.drawing` rectangle object, or nil if an error occurs
 static int drawing_newRect(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TBREAK];
 
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    NSRect windowRect = [skin tableToRectAtIndex:1];
 
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.rectangle(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-            break;
-    }
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = NO ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
@@ -453,45 +466,12 @@ static int drawing_newRect(lua_State *L) {
 /// Returns:
 ///  * An `hs.drawing` line object, or nil if an error occurs
 static int drawing_newLine(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TTABLE, LS_TBREAK];
+
     NSRect windowRect;
-    NSPoint origin;
-    NSPoint end;
-
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "y");
-            origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-            break;
-    }
-
-    switch (lua_type(L, 2)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 2, "x");
-            end.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 2, "y");
-            end.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.line(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-            break;
-    }
+    NSPoint origin = [skin tableToPointAtIndex:1];
+    NSPoint end = [skin tableToPointAtIndex:2];
 
     // Calculate a rect that can contain both NSPoints
     windowRect.origin.x = MIN(origin.x, end.x);
@@ -506,7 +486,8 @@ static int drawing_newLine(lua_State *L) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
-        luaL_getmetatable(L, USERDATA_TAG);
+        drawingObject->skipClose = NO ;
+       luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
         HSDrawingViewLine *theView = [[HSDrawingViewLine alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
@@ -539,41 +520,6 @@ static int drawing_newLine(lua_State *L) {
     return 1;
 }
 
-NSColor *getColorFromStack(lua_State *L, int idx) {
-    CGFloat red, green, blue, alpha;
-
-    switch (lua_type(L, idx)) {
-        case LUA_TTABLE:
-            lua_getfield(L, idx, "red");
-            red = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, idx, "green");
-            green = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, idx, "blue");
-            blue = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, idx, "alpha");
-            alpha = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        case LUA_TNIL:
-            return [NSColor clearColor];
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to an hs.drawing color method: %d", lua_type(L, 1));
-            return 0;
-
-            break;
-    }
-
-    return [NSColor colorWithSRGBRed:red green:green blue:blue alpha:alpha];
-}
-
 /// hs.drawing.text(sizeRect, message) -> drawingObject or nil
 /// Constructor
 /// Creates a new text object
@@ -584,41 +530,24 @@ NSColor *getColorFromStack(lua_State *L, int idx) {
 ///
 /// Returns:
 ///  * An `hs.drawing` text object, or nil if an error occurs
+///  * If the text of the drawing object is set to empty (i.e. "") then style changes may not be fully applied by `hs.drawing:setTextStyle()`.  Use a placeholder such as a space (" ") or hide the object if style changes and text will be set at different times.
 static int drawing_newText(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TSTRING|LS_TNUMBER, LS_TBREAK];
 
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.text(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-            break;
-    }
+    NSRect windowRect = [skin tableToRectAtIndex:1];
     const char *message = lua_tostring(L, 2);
-    NSString *theMessage = [NSString stringWithUTF8String:message ? message : ""];
+
+    NSParagraphStyle *style = [NSParagraphStyle defaultParagraphStyle];
+
+    NSAttributedString *theMessage = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:message ? message : ""] attributes:@{NSParagraphStyleAttributeName:style}];
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = NO ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
@@ -626,7 +555,7 @@ static int drawing_newText(lua_State *L) {
         [theView setLuaState:L];
 
         theWindow.contentView = theView;
-        theView.textField.stringValue = theMessage;
+        theView.textField.attributedStringValue = theMessage;
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -660,32 +589,10 @@ static int drawing_newText(lua_State *L) {
 
 // NOTE: THIS FUNCTION IS WRAPPED IN init.lua
 static int drawing_newImage(lua_State *L) {
-    NSRect windowRect;
-    switch (lua_type(L, 1)) {
-        case LUA_TTABLE:
-            lua_getfield(L, 1, "x");
-            windowRect.origin.x = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TUSERDATA|LS_TSTRING, IMAGE_USERDATA_TAG, LS_TBREAK];
 
-            lua_getfield(L, 1, "y");
-            windowRect.origin.y = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "w");
-            windowRect.size.width = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            lua_getfield(L, 1, "h");
-            windowRect.size.height = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing.image(): %d", lua_type(L, 1));
-            lua_pushnil(L);
-            return 1;
-            break;
-    }
+    NSRect windowRect = [skin tableToRectAtIndex:1];
     NSImage *theImage = get_image_from_hsimage(L, 2);
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
@@ -693,6 +600,7 @@ static int drawing_newImage(lua_State *L) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
         memset(drawingObject, 0, sizeof(drawing_t));
         drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = NO ;
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
@@ -725,13 +633,24 @@ static int drawing_newImage(lua_State *L) {
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
+///  * If the text of the drawing object is emptied (i.e. "") then style changes may be lost.  Use a placeholder such as a space (" ") or hide the object if style changes need to be saved but the text should disappear for a while.
 static int drawing_setText(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
-        drawingView.textField.stringValue = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
+// NOTE: if text is empty, throws NSRangeException... where else might it?
+        NSDictionary *attributes ;
+        @try {
+            attributes = [drawingView.textField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] ;
+        }
+        @catch ( NSException *theException ) {
+            attributes = @{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} ;
+//            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
+        }
+
+        drawingView.textField.attributedStringValue = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:luaL_checkstring(L, 2)] attributes:attributes];
     } else {
         showError(L, ":setText() called on an hs.drawing object that isn't a text object");
     }
@@ -739,6 +658,173 @@ static int drawing_setText(lua_State *L) {
     lua_pushvalue(L, 1);
     return 1;
 }
+
+NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defaultStuff) {
+    NSFont                  *theFont  = [[defaultStuff objectForKey:@"font"] copy] ;
+    NSMutableParagraphStyle *theStyle = [[defaultStuff objectForKey:@"style"] mutableCopy] ;
+    NSColor                 *theColor = [[defaultStuff objectForKey:@"color"] copy] ;
+    NSFont *tmpFont;
+
+    if (lua_istable(L, idx)) {
+        if (lua_getfield(L, -1, "font")) {
+            CGFloat pointSize = theFont.pointSize;
+            NSString *fontName = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
+            tmpFont = [NSFont fontWithName:fontName size:pointSize];
+            if (tmpFont) {
+                theFont = tmpFont;
+            }
+        }
+        lua_pop(L, 1);
+
+        if (lua_getfield(L, -1, "size")) {
+            CGFloat pointSize = lua_tonumber(L, -1);
+            NSString *fontName = theFont.fontName;
+            tmpFont = [NSFont fontWithName:fontName size:pointSize];
+            if (tmpFont) {
+                theFont = tmpFont;
+            }
+        }
+        lua_pop(L, 1);
+
+        if (lua_getfield(L, -1, "color")) {
+            theColor = getColorFromStack(L, -1);
+        }
+        lua_pop(L, 1);
+
+        if (lua_getfield(L, -1, "alignment")) {
+            NSString *alignment = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
+            if ([alignment isEqualToString:@"left"]) {
+                theStyle.alignment = NSLeftTextAlignment ;
+            } else if ([alignment isEqualToString:@"right"]) {
+                theStyle.alignment = NSRightTextAlignment ;
+            } else if ([alignment isEqualToString:@"center"]) {
+                theStyle.alignment = NSCenterTextAlignment ;
+            } else if ([alignment isEqualToString:@"justified"]) {
+                theStyle.alignment = NSJustifiedTextAlignment ;
+            } else if ([alignment isEqualToString:@"natural"]) {
+                theStyle.alignment = NSNaturalTextAlignment ;
+            } else {
+                luaL_error(L, [[NSString stringWithFormat:@"invalid alignment for textStyle specified: %@", alignment] UTF8String]) ;
+                return nil ;
+            }
+        }
+        lua_pop(L, 1);
+
+        if (lua_getfield(L, -1, "lineBreak")) {
+            NSString *lineBreak = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
+            if ([lineBreak isEqualToString:@"wordWrap"]) {
+                theStyle.lineBreakMode = NSLineBreakByWordWrapping ;
+            } else if ([lineBreak isEqualToString:@"charWrap"]) {
+                theStyle.lineBreakMode = NSLineBreakByCharWrapping ;
+            } else if ([lineBreak isEqualToString:@"clip"]) {
+                theStyle.lineBreakMode = NSLineBreakByClipping ;
+            } else if ([lineBreak isEqualToString:@"truncateHead"]) {
+                theStyle.lineBreakMode = NSLineBreakByTruncatingHead ;
+            } else if ([lineBreak isEqualToString:@"truncateTail"]) {
+                theStyle.lineBreakMode = NSLineBreakByTruncatingTail ;
+            } else if ([lineBreak isEqualToString:@"truncateMiddle"]) {
+                theStyle.lineBreakMode = NSLineBreakByTruncatingMiddle ;
+            } else {
+                luaL_error(L, [[NSString stringWithFormat:@"invalid lineBreak for textStyle specified: %@", lineBreak] UTF8String]) ;
+                return nil ;
+            }
+        }
+        lua_pop(L, 1);
+    } else {
+        luaL_error(L, "invalid textStyle type specified: %s", lua_typename(L, -1)) ;
+        return nil ;
+    }
+
+    return @{@"font":theFont, @"style":theStyle, @"color":theColor} ;
+}
+
+/// hs.drawing:setTextStyle(textStyle) -> drawingObject
+/// Method
+/// Sets the style parameters for the text of a drawing object
+///
+/// Parameters:
+///  * textStyle - a table containing one or more of the following keys to set for the text of the drawing object:
+///    * font - the name of the font to use (default: the system font)
+///    * size - the font point size to use (default: 27.0)
+///    * color - the font color described by a table containing color component values between 0.0 and 1.0 for each of the keys (default if not specified is white, though if specified as an empty table, will default to black):
+///      * red (default 0.0 if fontColor is a specified key)
+///      * green (default 0.0 if fontColor is a specified key)
+///      * blue (default 0.0 if fontColor is a specified key)
+///      * alpha (default 1.0 if fontColor is a specified key)
+///    * alignment - a string of one of the following indicating the texts alignment within the drawing objects frame:
+///      * "left" - the text is visually left aligned.
+///      * "right" - the text is visually right aligned.
+///      * "center" - the text is visually center aligned.
+///      * "justified" - the text is justified
+///      * "natural" - (default) the natural alignment of the text’s script
+///    * lineBreak - a string of one of the following indicating how to wrap text which exceeds the drawing object's frame:
+///      * "wordWrap" - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
+///      * "charWrap" - wrap before the first character that doesn’t fit
+///      * "clip" - do not draw past the edge of the drawing object frame
+///      * "truncateHead" - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
+///      * "truncateTail" - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
+///      * "truncateMiddle" - the line is displayed so that the beginning and end fit in the frame and the missing text in the middle is indicated by an ellipsis
+///
+/// Returns:
+///  * The drawing object
+///
+/// Notes:
+///  * This method should only be used on text drawing objects
+///  * If the text of the drawing object is currently empty (i.e. "") then style changes may be lost.  Use a placeholder such as a space (" ") or hide the object if style changes need to be saved but the text should disappear for a while.
+///  * Only the keys specified are changed.  To reset an object to all of its defaults, call this method with an explicit nil as its only parameter (e.g. `hs.drawing:setTextStyle(nil)`
+///  * The font, font size, and font color can also be set by their individual specific methods as well; this method is provided so that style components can be stored and applied collectively, as well as used by `hs.drawing.getTextBoundingBoxSize()` to determine the proper rectangle size for a textual drawing object.
+static int drawing_setTextStyle(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
+        NSTextField             *theTextField = drawingView.textField ;
+        NSString                *theText = [[NSString alloc] initWithString:[theTextField.attributedStringValue string]] ;
+// NOTE: if text is empty, throws NSRangeException... where else might it?
+        NSMutableDictionary     *attributes ;
+        @try {
+            attributes = [[theTextField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] mutableCopy] ;
+        }
+        @catch ( NSException *theException ) {
+            attributes = [@{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} mutableCopy] ;
+//            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
+        }
+
+        NSMutableParagraphStyle *style = [[attributes objectForKey:NSParagraphStyleAttributeName] mutableCopy] ;
+
+// NOTE: If we ever do deprecate setTextFont, setTextSize, and setTextColor, or if we want to expand to allow
+// multiple styles in an attributed string, move font and color into attribute dictionary -- I left them as is
+// to minimize changes to existing functions.
+
+        if (lua_isnil(L, 2)) {
+            // defaults in the HSDrawingViewText initWithFrame: definition
+            [theTextField setFont: [NSFont systemFontOfSize: 27]];
+            [theTextField setTextColor: [NSColor colorWithCalibratedWhite:1.0 alpha:1.0]];
+            [attributes setValue:[NSParagraphStyle defaultParagraphStyle] forKey:NSParagraphStyleAttributeName] ;
+            theTextField.attributedStringValue = [[NSAttributedString alloc] initWithString:theText
+                                                                                 attributes:attributes];
+        } else {
+            NSDictionary *myStuff = modifyTextStyleFromStack(L, 2, @{
+                                        @"font" :theTextField.font,
+                                        @"style":style,
+                                        @"color":theTextField.textColor
+                                    }) ;
+            [theTextField setFont: [myStuff objectForKey:@"font"]];
+            [theTextField setTextColor: [myStuff objectForKey:@"color"]];
+            [attributes setValue:[myStuff objectForKey:@"style"] forKey:NSParagraphStyleAttributeName] ;
+            theTextField.attributedStringValue = [[NSAttributedString alloc] initWithString:theText
+                                                                                 attributes:attributes];
+        }
+
+    } else {
+        return luaL_error(L, ":setTextStyle() called on an hs.drawing object that isn't a text object") ;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 
 /// hs.drawing:setTopLeft(point) -> drawingObject
 /// Method
@@ -771,7 +857,6 @@ static int drawing_setTopLeft(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing:setTopLeft(): %d", lua_type(L, 2));
             lua_pushnil(L);
             return 1;
-            break;
     }
 
     windowLoc.y=[[NSScreen screens][0] frame].size.height - windowLoc.y ;
@@ -814,7 +899,6 @@ static int drawing_setSize(lua_State *L) {
             CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing:setSize(): %d", lua_type(L, 2));
             lua_pushnil(L);
             return 1;
-            break;
     }
 
     NSRect oldFrame = drawingWindow.frame;
@@ -912,10 +996,10 @@ static int drawing_setTextSize(lua_State *L) {
 ///
 /// Parameters:
 ///  * color - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///
 /// Returns:
 ///  * The drawing object
@@ -945,10 +1029,10 @@ static int drawing_setTextColor(lua_State *L) {
 ///
 /// Parameters:
 ///  * color - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///
 /// Returns:
 ///  * The drawing object
@@ -984,15 +1068,15 @@ static int drawing_setFillColor(lua_State *L) {
 ///
 /// Parameters:
 ///  * startColor - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///  * endColor - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///  * angle - A number representing the angle of the gradient, measured in degrees, counter-clockwise, from the left of the drawing object
 ///
 /// Returns:
@@ -1005,7 +1089,7 @@ static int drawing_setFillGradient(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSColor *startColor = getColorFromStack(L, 2);
     NSColor *endColor = getColorFromStack(L, 3);
-    int angle = lua_tointeger(L, 4);
+    int angle = (int)lua_tointeger(L, 4);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
@@ -1031,10 +1115,10 @@ static int drawing_setFillGradient(lua_State *L) {
 ///
 /// Parameters:
 ///  * color - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///   * red
-///   * green
-///   * blue
-///   * alpha
+///    * red (default 0.0)
+///    * green (default 0.0)
+///    * blue (default 0.0)
+///    * alpha (default 1.0)
 ///
 /// Returns:
 ///  * The drawing object
@@ -1114,7 +1198,7 @@ static int drawing_setFill(lua_State *L) {
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
-        drawingView.HSFill = lua_toboolean(L, 2);
+        drawingView.HSFill = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
         showError(L, ":setFill() called on an hs.drawing object that isn't a rectangle, circle or line object");
@@ -1143,7 +1227,7 @@ static int drawing_setStroke(lua_State *L) {
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
-        drawingView.HSStroke = lua_toboolean(L, 2);
+        drawingView.HSStroke = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
         showError(L, ":setStroke() called on an hs.drawing object that isn't a line, rectangle or circle object");
@@ -1208,16 +1292,272 @@ static int drawing_setImage(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:setClickCallback(fn) -> drawingObject
+
+/// hs.drawing:rotateImage(angle) -> drawingObject
 /// Method
-/// Sets a callback for mouse click events
+/// Rotates an image clockwise around its center
 ///
 /// Parameters:
-///  * fn - A function that will be called when the drawing object is clicked. If this argument is nil, any existing callback is removed.
+///  * angle - the angle in degrees to rotate the image around its center in a clockwise direction.
 ///
 /// Returns:
 ///  * The drawing object
+///
+/// Notes:
+/// * This method works by rotating the image view within its drawing window.  This means that an image which completely fills its viewing area will most likely be cropped in some places.  Best results are achieved with images that have clear space around their edges or with `hs.drawing.imageScaling` set to "none".
+static int drawing_rotate(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        [drawingView setFrameCenterRotation:(360.0 - lua_tonumber(L, 2))] ;
+    } else {
+        showError(L, ":rotateImage() called on an hs.drawing object that isn't an image object");
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+
+}
+
+/// hs.drawing:imageScaling([type]) -> drawingObject or current value
+/// Method
+/// Get or set how an image is scaled within the frame of a drawing object containing an image.
+///
+/// Parameters:
+///  * type - an optional string value which should match one of the following (default is scaleProportionally):
+///    * shrinkToFit         - shrink the image, preserving the aspect ratio, to fit the drawing frame only if the image is larger than the drawing frame.
+///    * scaleToFit          - shrink or expand the image to fully fill the drawing frame.  This does not preserve the aspect ratio.
+///    * none                - perform no scaling or resizing of the image.
+///    * scalePropertionally - shrink or expand the image to fully fill the drawing frame, preserving the aspect ration.
+///
+/// Returns:
+///  * If a setting value is provided, the drawing object is returned; if no argument is provided, the current setting is returned.
+static int drawing_scaleImage(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TSTRING | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        if (lua_type(L, 2) != LUA_TNONE) {
+            NSString *arg = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+            if      ([arg isEqualToString:@"shrinkToFit"])         { drawingView.HSImageView.imageScaling = NSImageScaleProportionallyDown ; }
+            else if ([arg isEqualToString:@"scaleToFit"])          { drawingView.HSImageView.imageScaling = NSImageScaleAxesIndependently ; }
+            else if ([arg isEqualToString:@"none"])                { drawingView.HSImageView.imageScaling = NSImageScaleNone ; }
+            else if ([arg isEqualToString:@"scaleProportionally"]) { drawingView.HSImageView.imageScaling = NSImageScaleProportionallyUpOrDown ; }
+            else { return luaL_error(L, ":imageAlignment unrecognized alignment specified") ; }
+            lua_settop(L, 1) ;
+        } else {
+            switch(drawingView.HSImageView.imageScaling) {
+                case NSImageScaleProportionallyDown:      lua_pushstring(L, "shrinkToFit") ; break ;
+                case NSImageScaleAxesIndependently:       lua_pushstring(L, "scaleToFit") ; break ;
+                case NSImageScaleNone:                    lua_pushstring(L, "none") ; break ;
+                case NSImageScaleProportionallyUpOrDown:  lua_pushstring(L, "scaleProportionally") ; break ;
+                default:                                  lua_pushstring(L, "unknown") ; break ;
+            }
+        }
+    } else {
+        return luaL_error(L, ":scaleImage() called on an hs.drawing object that isn't an image object");
+    }
+    return 1 ;
+}
+
+/// hs.drawing:imageAnimates([flag]) -> drawingObject or current value
+/// Method
+/// Get or set whether or not an animated GIF image should cycle through its animation.
+///
+/// Parameters:
+///  * flag - an optional boolean flag indicating whether or not an animated GIF image should cycle through its animation.  Defaults to true.
+///
+/// Returns:
+///  * If a setting value is provided, the drawing object is returned; if no argument is provided, the current setting is returned.
+static int drawing_imageAnimates(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TBOOLEAN | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        if (lua_type(L, 2) != LUA_TNONE) {
+            drawingView.HSImageView.animates = (BOOL)lua_toboolean(L, 2) ;
+            lua_settop(L, 1) ;
+        } else {
+            lua_pushboolean(L, drawingView.HSImageView.animates) ;
+        }
+    } else {
+        return luaL_error(L, ":imageAnimates() called on an hs.drawing object that isn't an image object");
+    }
+    return 1 ;
+}
+
+/// hs.drawing:imageFrame([type]) -> drawingObject or current value
+/// Method
+/// Get or set what type of frame should be around the drawing frame of the image.
+///
+/// Parameters:
+///  * type - an optional string value which should match one of the following (default is none):
+///    * none   - no frame is drawing around the drawingObject's frameRect
+///    * photo  - a thin black outline with a white background and a dropped shadow.
+///    * bezel  - a gray, concave bezel with no background that makes the image look sunken.
+///    * groove - a thin groove with a gray background that looks etched around the image.
+///    * button - a convex bezel with a gray background that makes the image stand out in relief, like a button.
+///
+/// Returns:
+///  * If a setting value is provided, the drawing object is returned; if no argument is provided, the current setting is returned.
+///
+/// Notes:
+///  * Apple considers the photo, groove, and button style frames "stylistically obsolete" and if a frame is required, recommend that you use the bezel style or draw your own to more closely match the OS look and feel.
+static int drawing_frameStyle(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TSTRING | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        if (lua_type(L, 2) != LUA_TNONE) {
+            NSString *arg = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+            if      ([arg isEqualToString:@"none"])   { drawingView.HSImageView.imageFrameStyle = NSImageFrameNone ; }
+            else if ([arg isEqualToString:@"photo"])  { drawingView.HSImageView.imageFrameStyle = NSImageFramePhoto ; }
+            else if ([arg isEqualToString:@"bezel"])  { drawingView.HSImageView.imageFrameStyle = NSImageFrameGrayBezel ; }
+            else if ([arg isEqualToString:@"groove"]) { drawingView.HSImageView.imageFrameStyle = NSImageFrameGroove ; }
+            else if ([arg isEqualToString:@"button"]) { drawingView.HSImageView.imageFrameStyle = NSImageFrameButton ; }
+            else { return luaL_error(L, ":frameStyle unrecognized frame specified") ; }
+            lua_settop(L, 1) ;
+        } else {
+            switch(drawingView.HSImageView.imageFrameStyle) {
+                case NSImageFrameNone:      lua_pushstring(L, "none") ; break ;
+                case NSImageFramePhoto:     lua_pushstring(L, "photo") ; break ;
+                case NSImageFrameGrayBezel: lua_pushstring(L, "bezel") ; break ;
+                case NSImageFrameGroove:    lua_pushstring(L, "groove") ; break ;
+                case NSImageFrameButton:    lua_pushstring(L, "button") ; break ;
+                default:                    lua_pushstring(L, "unknown") ; break ;
+            }
+        }
+    } else {
+        return luaL_error(L, ":frameStyle() called on an hs.drawing object that isn't an image object");
+    }
+    return 1 ;
+}
+
+/// hs.drawing:imageAlignment([type]) -> drawingObject or current value
+/// Method
+/// Get or set the alignment of an image that doesn't fully fill the drawing objects frame.
+///
+/// Parameters:
+///  * type - an optional string value which should match one of the following (default is center):
+///    * topLeft      - the image's top left corner will match the drawing frame's top left corner
+///    * top          - the image's top match the drawing frame's top and will be centered horizontally
+///    * topRight     - the image's top right corner will match the drawing frame's top right corner
+///    * left         - the image's left side will match the drawing frame's left side and will be centered vertically
+///    * center       - the image will be centered vertically and horizontally within the drawing frame
+///    * right        - the image's right side will match the drawing frame's right side and will be centered vertically
+///    * bottomLeft   - the image's bottom left corner will match the drawing frame's bottom left corner
+///    * bottom       - the image's bottom match the drawing frame's bottom and will be centered horizontally
+///    * bottomRight  - the image's bottom right corner will match the drawing frame's bottom right corner
+///
+/// Returns:
+///  * If a setting value is provided, the drawing object is returned; if no argument is provided, the current setting is returned.
+static int drawing_imageAlignment(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TSTRING | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
+        if (lua_type(L, 2) != LUA_TNONE) {
+            NSString *arg = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+            if      ([arg isEqualToString:@"center"])      { drawingView.HSImageView.imageAlignment = NSImageAlignCenter ; }
+            else if ([arg isEqualToString:@"top"])         { drawingView.HSImageView.imageAlignment = NSImageAlignTop ; }
+            else if ([arg isEqualToString:@"topLeft"])     { drawingView.HSImageView.imageAlignment = NSImageAlignTopLeft ; }
+            else if ([arg isEqualToString:@"topRight"])    { drawingView.HSImageView.imageAlignment = NSImageAlignTopRight ; }
+            else if ([arg isEqualToString:@"left"])        { drawingView.HSImageView.imageAlignment = NSImageAlignLeft ; }
+            else if ([arg isEqualToString:@"bottom"])      { drawingView.HSImageView.imageAlignment = NSImageAlignBottom ; }
+            else if ([arg isEqualToString:@"bottomLeft"])  { drawingView.HSImageView.imageAlignment = NSImageAlignBottomLeft ; }
+            else if ([arg isEqualToString:@"bottomRight"]) { drawingView.HSImageView.imageAlignment = NSImageAlignBottomRight ; }
+            else if ([arg isEqualToString:@"right"])       { drawingView.HSImageView.imageAlignment = NSImageAlignRight ; }
+            else { return luaL_error(L, ":imageAlignment unrecognized alignment specified") ; }
+            lua_settop(L, 1) ;
+        } else {
+            switch(drawingView.HSImageView.imageAlignment) {
+                case NSImageAlignCenter:      lua_pushstring(L, "center") ; break ;
+                case NSImageAlignTop:         lua_pushstring(L, "top") ; break ;
+                case NSImageAlignTopLeft:     lua_pushstring(L, "topLeft") ; break ;
+                case NSImageAlignTopRight:    lua_pushstring(L, "topRight") ; break ;
+                case NSImageAlignLeft:        lua_pushstring(L, "left") ; break ;
+                case NSImageAlignBottom:      lua_pushstring(L, "bottom") ; break ;
+                case NSImageAlignBottomLeft:  lua_pushstring(L, "bottomLeft") ; break ;
+                case NSImageAlignBottomRight: lua_pushstring(L, "bottomRight") ; break ;
+                case NSImageAlignRight:       lua_pushstring(L, "right") ; break ;
+                default:                      lua_pushstring(L, "unknown") ; break ;
+            }
+        }
+    } else {
+        return luaL_error(L, ":imageAlignment() called on an hs.drawing object that isn't an image object");
+    }
+    return 1 ;
+}
+
+/// hs.drawing:clickCallbackActivating([false]) -> drawingObject or current value
+/// Method
+/// Get or set whether or not clicking on a drawing with a click callback defined should bring all of Hammerspoon's open windows to the front.
+///
+/// Parameters:
+///  * flag - an optional boolean indicating whether or not clicking on a drawing with a click callback function defined should activate Hammerspoon and bring its windows forward.  Defaults to true.
+///
+/// Returns:
+///  * If a setting value is provided, the drawing object is returned; if no argument is provided, the current setting is returned.
+///
+/// Notes:
+///  * Setting this to false changes a drawing object's AXsubrole value and may affect the results of filters defined for hs.window.filter, depending upon how they are defined.
+static int drawing_clickCallbackActivating(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                                LS_TBOOLEAN | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+
+    if (lua_type(L, 2) != LUA_TNONE) {
+        if (lua_toboolean(L, 2))
+            drawingWindow.styleMask &= (unsigned long)~NSNonactivatingPanelMask ;
+        else
+            drawingWindow.styleMask |= NSNonactivatingPanelMask ;
+        lua_settop(L, 1) ;
+    } else {
+        lua_pushboolean(L, ((drawingWindow.styleMask & NSNonactivatingPanelMask) != NSNonactivatingPanelMask)) ;
+    }
+
+    return 1;
+}
+
+
+
+/// hs.drawing:setClickCallback(mouseUpFn, mouseDownFn) -> drawingObject
+/// Method
+/// Sets a callback for mouseUp and mouseDown click events
+///
+/// Parameters:
+///  * mouseUpFn - A function, can be nil, that will be called when the drawing object is clicked on and the mouse button is released. If this argument is nil, any existing callback is removed.
+///  * mouseDownFn - A function, can be nil, that will be called when the drawing object is clicked on and the mouse button is first pressed down. If this argument is nil, any existing callback is removed.
+///
+/// Returns:
+///  * The drawing object
+///
+/// Notes:
+///  * No distinction is made between the left, right, or other mouse buttons -- they all invoke the same up or down function.  If you need to determine which specific button was pressed, use `hs.eventtap.checkMouseButtons()` within your callback to check.
 static int drawing_setClickCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     drawing_t *drawingObject = get_item_arg(L, 1);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1226,17 +1566,31 @@ static int drawing_setClickCallback(lua_State *L) {
     if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TFUNCTION) {
         // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
         if (drawingView.mouseUpCallbackRef != LUA_NOREF) {
-            luaL_unref(L, LUA_REGISTRYINDEX, drawingView.mouseUpCallbackRef);
-            [drawingView setMouseUpCallback:LUA_NOREF];
+            [drawingView setMouseUpCallback:[skin luaUnref:refTable ref:drawingView.mouseUpCallbackRef]];
         }
 
         // Set a new callback if we have a function
         if (lua_type(L, 2) == LUA_TFUNCTION) {
             lua_pushvalue(L, 2);
-            [drawingView setMouseUpCallback:luaL_ref(L, LUA_REGISTRYINDEX)];
+            [drawingView setMouseUpCallback:[skin luaRef:refTable]];
         }
     } else {
-        showError(L, ":setClickCallback() called without a valid argument");
+        showError(L, ":setClickCallback() called with invalid mouseUp function");
+    }
+
+    if (lua_type(L, 3) == LUA_TNONE || lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TFUNCTION) {
+        // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
+        if (drawingView.mouseDownCallbackRef != LUA_NOREF) {
+            [drawingView setMouseDownCallback:[skin luaUnref:refTable ref:drawingView.mouseDownCallbackRef]];
+        }
+
+        // Set a new callback if we have a function
+        if (lua_type(L, 3) == LUA_TFUNCTION) {
+            lua_pushvalue(L, 3);
+            [drawingView setMouseDownCallback:[skin luaRef:refTable]];
+        }
+    } else {
+        showError(L, ":setClickCallback() called with invalid mouseDown function");
     }
 
     lua_pushvalue(L, 1);
@@ -1292,7 +1646,7 @@ static int drawing_delete(lua_State *L) {
 
     [drawingWindows removeObject:drawingWindow];
 
-    [drawingWindow close];
+    if (!drawingObject->skipClose) [drawingWindow close];
     drawingWindow = nil;
     drawingObject->window = nil;
     drawingObject = nil;
@@ -1354,7 +1708,7 @@ static int fontNames(lua_State *L) {
     lua_newtable(L) ;
     for (unsigned long indFont=0; indFont<[fontNames count]; ++indFont)
     {
-        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, indFont + 1);
+        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, (lua_Integer)indFont + 1);
     }
     return 1 ;
 }
@@ -1379,11 +1733,11 @@ static int fontNamesWithTraits(lua_State *L) {
         case LUA_TNONE:
             break ;
         case LUA_TNUMBER:
-            theTraits = lua_tointeger(L, 1) ;
+            theTraits = (NSFontTraitMask)lua_tointeger(L, 1) ;
             break ;
         case LUA_TTABLE:
             for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
-               theTraits |= lua_tointeger(L, -1) ;
+               theTraits |= (unsigned long)lua_tointeger(L, -1) ;
             }
             break ;
         default:
@@ -1397,7 +1751,7 @@ static int fontNamesWithTraits(lua_State *L) {
     lua_newtable(L) ;
     for (unsigned long indFont=0; indFont<[fontNames count]; ++indFont)
     {
-        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, indFont + 1);
+        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, (lua_Integer)indFont + 1);
     }
     return 1 ;
 }
@@ -1424,29 +1778,17 @@ static int fontNamesWithTraits(lua_State *L) {
 static void pushFontTraitsTable(lua_State* L) {
     lua_newtable(L);
     lua_pushinteger(L, NSBoldFontMask);                    lua_setfield(L, -2, "boldFont");
-    lua_pushstring(L, "boldFont") ;                       lua_rawseti(L,  -2, NSBoldFontMask);
     lua_pushinteger(L, NSCompressedFontMask);              lua_setfield(L, -2, "compressedFont");
-    lua_pushstring(L, "compressedFont") ;                 lua_rawseti(L,  -2, NSCompressedFontMask);
     lua_pushinteger(L, NSCondensedFontMask);               lua_setfield(L, -2, "condensedFont");
-    lua_pushstring(L, "condensedFont") ;                  lua_rawseti(L,  -2, NSCondensedFontMask);
     lua_pushinteger(L, NSExpandedFontMask);                lua_setfield(L, -2, "expandedFont");
-    lua_pushstring(L, "expandedFont") ;                   lua_rawseti(L,  -2, NSExpandedFontMask);
     lua_pushinteger(L, NSFixedPitchFontMask);              lua_setfield(L, -2, "fixedPitchFont");
-    lua_pushstring(L, "fixedPitchFont") ;                 lua_rawseti(L,  -2, NSFixedPitchFontMask);
     lua_pushinteger(L, NSItalicFontMask);                  lua_setfield(L, -2, "italicFont");
-    lua_pushstring(L, "italicFont") ;                     lua_rawseti(L,  -2, NSItalicFontMask);
     lua_pushinteger(L, NSNarrowFontMask);                  lua_setfield(L, -2, "narrowFont");
-    lua_pushstring(L, "narrowFont") ;                     lua_rawseti(L,  -2, NSNarrowFontMask);
     lua_pushinteger(L, NSPosterFontMask);                  lua_setfield(L, -2, "posterFont");
-    lua_pushstring(L, "posterFont") ;                     lua_rawseti(L,  -2, NSPosterFontMask);
     lua_pushinteger(L, NSSmallCapsFontMask);               lua_setfield(L, -2, "smallCapsFont");
-    lua_pushstring(L, "smallCapsFont") ;                  lua_rawseti(L,  -2, NSSmallCapsFontMask);
     lua_pushinteger(L, NSNonStandardCharacterSetFontMask); lua_setfield(L, -2, "nonStandardCharacterSetFont");
-    lua_pushstring(L, "nonStandardCharacterSetFont") ;    lua_rawseti(L,  -2, NSNonStandardCharacterSetFontMask);
     lua_pushinteger(L, NSUnboldFontMask);                  lua_setfield(L, -2, "unboldFont");
-    lua_pushstring(L, "unboldFont") ;                     lua_rawseti(L,  -2, NSUnboldFontMask);
     lua_pushinteger(L, NSUnitalicFontMask);                lua_setfield(L, -2, "unitalicFont");
-    lua_pushstring(L, "unitalicFont") ;                   lua_rawseti(L,  -2, NSUnitalicFontMask);
 }
 
 /// hs.drawing:alpha() -> number
@@ -1575,27 +1917,118 @@ static int orderBelow(lua_State *L) {
 static int pushCollectionTypeTable(lua_State *L) {
     lua_newtable(L) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorDefault) ;             lua_setfield(L, -2, "default") ;
-        lua_pushstring(L, "default") ;                                      lua_rawseti(L, -2, NSWindowCollectionBehaviorDefault) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorCanJoinAllSpaces) ;    lua_setfield(L, -2, "canJoinAllSpaces") ;
-        lua_pushstring(L, "canJoinAllSpaces") ;                             lua_rawseti(L, -2, NSWindowCollectionBehaviorCanJoinAllSpaces) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorMoveToActiveSpace) ;   lua_setfield(L, -2, "moveToActiveSpace") ;
-        lua_pushstring(L, "moveToActiveSpace") ;                            lua_rawseti(L, -2, NSWindowCollectionBehaviorMoveToActiveSpace) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorManaged) ;             lua_setfield(L, -2, "managed") ;
-        lua_pushstring(L, "managed") ;                                      lua_rawseti(L, -2, NSWindowCollectionBehaviorManaged) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorTransient) ;           lua_setfield(L, -2, "transient") ;
-        lua_pushstring(L, "transient") ;                                    lua_rawseti(L, -2, NSWindowCollectionBehaviorTransient) ;
         lua_pushinteger(L, NSWindowCollectionBehaviorStationary) ;          lua_setfield(L, -2, "stationary") ;
-        lua_pushstring(L, "stationary") ;                                   lua_rawseti(L, -2, NSWindowCollectionBehaviorStationary) ;
 //         lua_pushinteger(L, NSWindowCollectionBehaviorParticipatesInCycle) ; lua_setfield(L, -2, "participatesInCycle") ;
-//         lua_pushstring(L, "participatesInCycle") ;                          lua_rawseti(L, -2, NSWindowCollectionBehaviorParticipatesInCycle) ;
 //         lua_pushinteger(L, NSWindowCollectionBehaviorIgnoresCycle) ;        lua_setfield(L, -2, "ignoresCycle") ;
-//         lua_pushstring(L, "ignoresCycle") ;                                 lua_rawseti(L, -2, NSWindowCollectionBehaviorIgnoresCycle) ;
 //         lua_pushinteger(L, NSWindowCollectionBehaviorFullScreenPrimary) ;   lua_setfield(L, -2, "fullScreenPrimary") ;
-//         lua_pushstring(L, "fullScreenPrimary") ;                            lua_rawseti(L, -2, NSWindowCollectionBehaviorFullScreenPrimary) ;
 //         lua_pushinteger(L, NSWindowCollectionBehaviorFullScreenAuxiliary) ; lua_setfield(L, -2, "fullScreenAuxiliary") ;
-//         lua_pushstring(L, "fullScreenAuxiliary") ;                          lua_rawseti(L, -2, NSWindowCollectionBehaviorFullScreenAuxiliary) ;
     return 1 ;
 }
+
+/// hs.drawing.windowLevels
+/// Constant
+/// A table of predefined window levels usable with `hs.drawing:setLevel(...)`
+///
+/// Predefined levels are:
+///  * _MinimumWindowLevelKey - lowest allowed window level
+///  * desktop
+///  * desktopIcon            - `hs.drawing:sendToBack()` is equivalent to this - 1
+///  * normal                 - normal application windows
+///  * tornOffMenu
+///  * floating               - equivalent to `hs.drawing:bringToFront(false)`, where "Always Keep On Top" windows are usually set
+///  * modalPanel             - modal alert dialog
+///  * utility
+///  * dock                   - level of the Dock
+///  * mainMenu               - level of the Menubar
+///  * status
+///  * popUpMenu              - level of a menu when displayed (open)
+///  * overlay
+///  * help
+///  * dragging
+///  * screenSaver            - equivalent to `hs.drawing:bringToFront(true)`
+///  * assistiveTechHigh
+///  * cursor
+///  * _MaximumWindowLevelKey - highest allowed window level
+///
+/// Notes:
+///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.drawing.windowLevels`.
+///  * These key names map to the constants used in CoreGraphics to specify window levels and may not actually be used for what the name might suggest. For example, tests suggest that an active screen saver actually runs at a level of 2002, rather than at 1000, which is the window level corresponding to kCGScreenSaverWindowLevelKey.
+///  * Each drawing level is sorted separately and `hs.drawing:orderAbove(...)` and hs.drawing:orderBelow(...)` only arrange windows within the same level.
+///  * If you use Dock hiding (or in 10.11, Menubar hiding) please note that when the Dock (or Menubar) is popped up, it is done so with an implicit orderAbove, which will place it above any items you may also draw at the Dock (or MainMenu) level.
+static int cg_windowLevels(lua_State *L) {
+    lua_newtable(L) ;
+//       lua_pushinteger(L, CGWindowLevelForKey(kCGBaseWindowLevelKey)) ;              lua_setfield(L, -2, "kCGBaseWindowLevelKey") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGMinimumWindowLevelKey)) ;           lua_setfield(L, -2, "_MinimumWindowLevelKey") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGDesktopWindowLevelKey)) ;           lua_setfield(L, -2, "desktop") ;
+//       lua_pushinteger(L, CGWindowLevelForKey(kCGBackstopMenuLevelKey)) ;            lua_setfield(L, -2, "kCGBackstopMenuLevelKey") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGNormalWindowLevelKey)) ;            lua_setfield(L, -2, "normal") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGFloatingWindowLevelKey)) ;          lua_setfield(L, -2, "floating") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGTornOffMenuWindowLevelKey)) ;       lua_setfield(L, -2, "tornOffMenu") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGDockWindowLevelKey)) ;              lua_setfield(L, -2, "dock") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGMainMenuWindowLevelKey)) ;          lua_setfield(L, -2, "mainMenu") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGStatusWindowLevelKey)) ;            lua_setfield(L, -2, "status") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGModalPanelWindowLevelKey)) ;        lua_setfield(L, -2, "modalPanel") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGPopUpMenuWindowLevelKey)) ;         lua_setfield(L, -2, "popUpMenu") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGDraggingWindowLevelKey)) ;          lua_setfield(L, -2, "dragging") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGScreenSaverWindowLevelKey)) ;       lua_setfield(L, -2, "screenSaver") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGMaximumWindowLevelKey)) ;           lua_setfield(L, -2, "_MaximumWindowLevelKey") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGOverlayWindowLevelKey)) ;           lua_setfield(L, -2, "overlay") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGHelpWindowLevelKey)) ;              lua_setfield(L, -2, "help") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGUtilityWindowLevelKey)) ;           lua_setfield(L, -2, "utility") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGDesktopIconWindowLevelKey)) ;       lua_setfield(L, -2, "desktopIcon") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGCursorWindowLevelKey)) ;            lua_setfield(L, -2, "cursor") ;
+      lua_pushinteger(L, CGWindowLevelForKey(kCGAssistiveTechHighWindowLevelKey)) ; lua_setfield(L, -2, "assistiveTechHigh") ;
+//       lua_pushinteger(L, CGWindowLevelForKey(kCGNumberOfWindowLevelKeys)) ;         lua_setfield(L, -2, "kCGNumberOfWindowLevelKeys") ;
+    return 1 ;
+}
+
+/// hs.drawing:setLevel(theLevel) -> drawingObject
+/// Method
+/// Sets the window level more precisely than sendToBack and bringToFront.
+///
+/// Parameters:
+///  * theLevel - the level specified as a number or as a string where this object should be drawn.  If it is a string, it must match one of the keys in `hs.drawing.windowLevels`.
+///
+/// Returns:
+///  * the drawing object
+///
+/// Notes:
+///  * see the notes for `hs.drawing.windowLevels`
+static int drawing_setLevel(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    lua_Integer targetLevel ;
+
+    if (lua_type(L, 2) == LUA_TNUMBER) {
+        targetLevel = lua_tointeger(L, 2) ;
+    } else if (lua_type(L, 2) == LUA_TSTRING) {
+        cg_windowLevels(L) ;
+        if (lua_getfield(L, -1, lua_tostring(L, 2)) != LUA_TNIL) {
+            targetLevel = lua_tointeger(L, -1) ;
+        } else {
+            return luaL_error(L, [[NSString stringWithFormat:@"unrecognized window level: %s", lua_tostring(L, 2)] UTF8String]) ;
+        }
+        lua_pop(L, 2) ; // the result and the table
+    } else {
+        return luaL_error(L, "string or integer window level expected") ;
+    }
+
+    if (targetLevel >= CGWindowLevelForKey(kCGMinimumWindowLevelKey) && targetLevel <= CGWindowLevelForKey(kCGMaximumWindowLevelKey)) {
+        [drawingWindow setLevel:targetLevel] ;
+    } else {
+        return luaL_error(L, [[NSString stringWithFormat:@"window level must be between %d and %d inclusive",
+                                        CGWindowLevelForKey(kCGMinimumWindowLevelKey),
+                                        CGWindowLevelForKey(kCGMaximumWindowLevelKey)] UTF8String]) ;
+    }
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
 
 /// hs.drawing:behavior() -> number
 /// Method
@@ -1628,11 +2061,117 @@ static int setBehavior(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSInteger newLevel = luaL_checkinteger(L, 2);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
-    [drawingWindow setCollectionBehavior:newLevel] ;
+    @try {
+        [drawingWindow setCollectionBehavior:(NSWindowCollectionBehavior)newLevel] ;
+    }
+    @catch ( NSException *theException ) {
+        return luaL_error(L, "%s, %s", [[theException name] UTF8String], [[theException reason] UTF8String]) ;
+    }
 
     lua_settop(L, 1);
     return 1 ;
 }
+
+/// hs.drawing.getTextDrawingSize(theText, textStyle) -> sizeTable or nil
+/// Method
+/// Get the size of the rectangle necessary to fully render the text with the specified style so that is will be completely visible.
+///
+/// Parameters:
+///  * theText - the text which is to be displayed
+///  * textStyle - a table containing one or more of the following keys to set for the text of the drawing object:
+///    * font - the name of the font to use (default: the system font)
+///    * size - the font point size to use (default: 27.0)
+///    * color - ignored, but accepted for compatibility with `hs.drawing:setTextStyle()`
+///    * alignment - a string of one of the following indicating the texts alignment within the drawing objects frame:
+///      * "left" - the text is visually left aligned.
+///      * "right" - the text is visually right aligned.
+///      * "center" - the text is visually center aligned.
+///      * "justified" - the text is justified
+///      * "natural" - (default) the natural alignment of the text’s script
+///    * lineBreak - a string of one of the following indicating how to wrap text which exceeds the drawing object's frame:
+///      * "wordWrap" - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
+///      * "charWrap" - wrap before the first character that doesn’t fit
+///      * "clip" - do not draw past the edge of the drawing object frame
+///      * "truncateHead" - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
+///      * "truncateTail" - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
+///      * "truncateMiddle" - the line is displayed so that the beginning and end fit in the frame and the missing text in the middle is indicated by an ellipsis
+///
+/// Returns:
+///  * sizeTable - a table containing the Height and Width necessary to fully display the text drawing object, or nil if an error occurred
+///
+/// Notes:
+///  * This function assumes the default values specified for any key which is not included in the provided textStyle.
+///  * The size returned is an approximation and may return a width that is off by about 4 points.  Use the returned size as a minimum starting point. Sometimes using the "clip" or "truncateMiddle" lineBreak modes or "justified" alignment will fit, but its safest to add in your own buffer if you have the space in your layout.
+///  * Tabs are 28 points apart by default.  Currently there is no function for changing this.
+///  * Multi-line text (separated by a newline or return) is supported.  The height will be for the multiple lines and the width returned will be for the longest line.
+static int drawing_getTextDrawingSize(lua_State *L) {
+    NSString *theText  = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
+
+    NSDictionary *myStuff = modifyTextStyleFromStack(L, 2, @{
+                                @"style":[NSParagraphStyle defaultParagraphStyle],
+                                @"font" :[NSFont systemFontOfSize: 27],
+                                @"color":[NSColor colorWithCalibratedWhite:1.0 alpha:1.0]
+                            });
+
+    if (!myStuff) {
+        lua_pushnil(L);
+        return 1;
+    }
+    NSSize theSize = [theText sizeWithAttributes:@{
+                  NSFontAttributeName:[myStuff objectForKey:@"font"],
+        NSParagraphStyleAttributeName:[myStuff objectForKey:@"style"]
+    }] ;
+
+    lua_newtable(L) ;
+        lua_pushnumber(L, ceil(theSize.height)) ; lua_setfield(L, -2, "h") ;
+        lua_pushnumber(L, ceil(theSize.width)) ; lua_setfield(L, -2, "w") ;
+
+    return 1 ;
+}
+
+// Trying to make this as close to paste and apply as possible, so not all aspects may apply
+// to each module... you may still need to tweak for your specific module.
+
+static int userdata_tostring(lua_State* L) {
+
+// For older modules that don't use this macro, Change this:
+#ifndef USERDATA_TAG
+#define USERDATA_TAG "hs.drawing"
+#endif
+
+// can't assume, since some older modules and userdata share __index
+    void *self = lua_touserdata(L, 1) ;
+    if (self) {
+// Change these to get the desired title, if available, for your module:
+        drawing_t *drawingObject = get_item_arg(L, 1);
+        HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+        HSDrawingView   *drawingView   = (HSDrawingView *)drawingWindow.contentView;
+
+        NSString* title = @"unknown type";
+        if ([drawingView isKindOfClass:[HSDrawingViewRect class]])   title = @"rectangle" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewCircle class]]) title = @"circle" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewLine class]])   title = @"line" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewText class]])   title = @"text" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewImage class]])  title = @"image" ;
+
+// Use this instead, if you always want the title portion empty for your module
+//        NSString* title = @"" ;
+
+// Common code begins here:
+
+       lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;
+    } else {
+// For modules which share the same __index for the module table and the userdata objects, this replicates
+// current default, which treats the module as a table when checking for __tostring.  You could also put a fancier
+// string here for your module and set userdata_tostring as the module's __tostring as well...
+//
+// See lauxlib.c -- luaL_tolstring would invoke __tostring and loop, so let's
+// use its output for tables (the "default:" case in luaL_tolstring's switch)
+        lua_pushfstring(L, "%s: %p", luaL_typename(L, 1), lua_topointer(L, 1));
+    }
+    return 1 ;
+}
+
 
 // Lua metadata
 
@@ -1644,8 +2183,9 @@ static const luaL_Reg drawinglib[] = {
     {"_image", drawing_newImage},
     {"fontNames", fontNames},
     {"fontNamesWithTraits", fontNamesWithTraits},
+    {"getTextDrawingSize", drawing_getTextDrawingSize},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg drawing_metalib[] = {
@@ -1670,27 +2210,38 @@ static const luaL_Reg drawing_metalib[] = {
     {"setTopLeft", drawing_setTopLeft},
     {"setSize", drawing_setSize},
     {"setFrame", drawing_setFrame},
-    {"setAlpha",    setAlpha},
-    {"alpha",       getAlpha},
-    {"orderAbove",  orderAbove},
-    {"orderBelow",  orderBelow},
+    {"setAlpha", setAlpha},
+    {"setLevel", drawing_setLevel},
+    {"alpha", getAlpha},
+    {"orderAbove", orderAbove},
+    {"orderBelow", orderBelow},
     {"setBehavior", setBehavior},
-    {"behavior",    getBehavior},
+    {"behavior", getBehavior},
+    {"setTextStyle", drawing_setTextStyle},
+    {"imageScaling", drawing_scaleImage},
+    {"imageAnimates", drawing_imageAnimates},
+    {"imageFrame", drawing_frameStyle},
+    {"imageAlignment", drawing_imageAlignment},
+    {"rotateImage", drawing_rotate},
+    {"clickCallbackActivating", drawing_clickCallbackActivating},
+
+    {"__tostring", userdata_tostring},
     {"__gc", drawing_delete},
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_drawing_internal(lua_State *L) {
-    // Metatable for creted objects
-    luaL_newlib(L, drawing_metalib);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:drawinglib metaFunctions:nil objectFunctions:drawing_metalib];
 
-    // Table for luaopen
-    luaL_newlib(L, drawinglib);
-        pushFontTraitsTable(L);       lua_setfield(L, -2, "fontTraits");
-        pushCollectionTypeTable(L) ;  lua_setfield(L, -2, "windowBehaviors") ;
+    pushFontTraitsTable(L);
+    lua_setfield(L, -2, "fontTraits");
+
+    pushCollectionTypeTable(L);
+    lua_setfield(L, -2, "windowBehaviors") ;
+
+    cg_windowLevels(L) ;
+    lua_setfield(L, -2, "windowLevels") ;
 
     return 1;
 }

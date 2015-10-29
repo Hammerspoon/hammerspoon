@@ -10,7 +10,7 @@ static int doHash(lua_State *L, CC_LONG length, unsigned char *(*hashFunc)(const
     const char *source = luaL_checklstring(L, 1, &sourceLength);
     NSMutableString *conversionSink = [NSMutableString string];
 
-    hashFunc(source, sourceLength, digest);
+    hashFunc(source, (CC_LONG)sourceLength, digest);
     digest[length] = 0;
 
     for (unsigned int i = 0; i < length; i++) {
@@ -165,7 +165,7 @@ static const luaL_Reg hashlib[] = {
     {"hmacSHA512", hash_sha512_hmac},
     {"hmacMD5", hash_md5_hmac},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_hash_internal" in the following function's name

@@ -86,7 +86,7 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
     self.window.opaque = NO;
     self.window.level = kCGMaximumWindowLevelKey;
     self.window.ignoresMouseEvents = YES;
-    self.window.animationBehavior = (/* TODO: make me a variable */ YES ? NSWindowAnimationBehaviorAlertPanel : NSWindowAnimationBehaviorNone);
+    self.window.animationBehavior = NSWindowAnimationBehaviorAlertPanel;
     //    self.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorStationary;
 }
 
@@ -111,8 +111,8 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
     CGRect screenRect = [currentScreen frame];
     CGRect winRect = [[self window] frame];
 
-    winRect.origin.x = (screenRect.size.width / 2.0) - (winRect.size.width / 2.0);
-    winRect.origin.y = pushDownBy - winRect.size.height;
+    winRect.origin.x = screenRect.origin.x + (screenRect.size.width / 2.0) - (winRect.size.width / 2.0);
+    winRect.origin.y = screenRect.origin.y + pushDownBy - winRect.size.height;
 
     [self.window setFrame:winRect display:NO];
 }
@@ -168,14 +168,18 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 /// Returns:
 ///  * None
 static int alert_show(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+
     lua_settop(L, 2);
-    NSString* str = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    NSString* str = [NSString stringWithUTF8String: lua_tostring(L, 1)];
 
     double duration = 2.0;
     if (lua_isnumber(L, 2))
         duration = lua_tonumber(L, 2);
 
-    HSShowAlert(str, duration);
+    if (duration>0.0)
+        HSShowAlert(str, duration);
 
     return 0;
 }
@@ -209,19 +213,17 @@ static int alert_gc(lua_State* L __unused) {
 static const luaL_Reg alertlib[] = {
     {"show", alert_show},
     {"closeAll", alert_closeAll},
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", alert_gc},
-    {}
+    {NULL, NULL}
 };
 
-int luaopen_hs_alert_internal(lua_State* L) {
-    luaL_newlib(L, alertlib);
-
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+int luaopen_hs_alert_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:alertlib metaFunctions:metalib];
 
     return 1;
 }

@@ -1,127 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
 
-// The following two functions will go away someday (soon I hope) and be found in the core
-// app of hammerspoon because they are just so darned useful in so many contexts... but they
-// have serious limitations as well, and I need to work to clear those... it's an absolute
-// requirement for this module, and the way this module is being used *shouldn't* trip the
-// issues unless someone absolutely tries to screw them up... and all it does is
-// crash Hammerspoon when it happens, so...
-
-static id lua_to_NSObject(lua_State* L, int idx) {
-    idx = lua_absindex(L,idx);
-    switch (lua_type(L, idx)) {
-        case LUA_TNUMBER: return @(lua_tonumber(L, idx));
-        case LUA_TSTRING: return [NSString stringWithUTF8String: lua_tostring(L, idx)];
-        case LUA_TNIL: return [NSNull null];
-        case LUA_TBOOLEAN: return lua_toboolean(L, idx) ? (id)kCFBooleanTrue : (id)kCFBooleanFalse;
-        case LUA_TTABLE: {
-            NSMutableDictionary* numerics = [NSMutableDictionary dictionary];
-            NSMutableDictionary* nonNumerics = [NSMutableDictionary dictionary];
-            NSMutableIndexSet*   numericKeys = [NSMutableIndexSet indexSet];
-            NSMutableArray*      numberArray = [NSMutableArray array];
-            lua_pushnil(L);
-            while (lua_next(L, idx) != 0) {
-                id key = lua_to_NSObject(L, -2);
-                id val = lua_to_NSObject(L, lua_gettop(L));
-                if ([key isKindOfClass: [NSNumber class]]) {
-                    [numericKeys addIndex:[key intValue]];
-                    [numerics setValue:val forKey:key];
-                } else {
-                    [nonNumerics setValue:val forKey:key];
-                }
-                lua_pop(L, 1);
-            }
-            if (numerics.count > 0) {
-                for (unsigned long i = 1; i <= [numericKeys lastIndex]; i++) {
-                    [numberArray addObject:(
-                        [numerics objectForKey:[NSNumber numberWithInteger:i]] ?
-                            [numerics objectForKey:[NSNumber numberWithInteger:i]] : [NSNull null]
-                    )];
-                }
-                if (nonNumerics.count == 0)
-                    return [numberArray copy];
-            } else {
-                return [nonNumerics copy];
-            }
-            NSMutableDictionary* unionBlob = [NSMutableDictionary dictionary];
-            [unionBlob setValue:[NSArray arrayWithObjects:numberArray, nonNumerics, nil] forKey:@"MJ_LUA_TABLE"];
-            return [unionBlob copy];
-        }
-        default: { lua_pushliteral(L, "non-serializable object"); lua_error(L); }
-    }
-    return nil;
-}
-
-static void NSObject_to_lua(lua_State* L, id obj) {
-    if (obj == nil || [obj isEqual: [NSNull null]]) { lua_pushnil(L); }
-    else if ([obj isKindOfClass: [NSDictionary class]]) {
-        BOOL handled = NO;
-        if ([obj count] == 1) {
-            if ([obj objectForKey:@"MJ_LUA_NIL"]) {
-                lua_pushnil(L);
-                handled = YES;
-            } else
-            if ([obj objectForKey:@"MJ_LUA_TABLE"]) {
-                NSArray* parts = [obj objectForKey:@"MJ_LUA_TABLE"] ;
-                NSArray* numerics = [parts objectAtIndex:0] ;
-                NSDictionary* nonNumerics = [parts objectAtIndex:1] ;
-                lua_newtable(L);
-                int i = 0;
-                for (id item in numerics) {
-                    NSObject_to_lua(L, item);
-                    lua_rawseti(L, -2, ++i);
-                }
-                NSArray *keys = [nonNumerics allKeys];
-                NSArray *values = [nonNumerics allValues];
-                for (unsigned long i = 0; i < keys.count; i++) {
-                    NSObject_to_lua(L, [keys objectAtIndex:i]);
-                    NSObject_to_lua(L, [values objectAtIndex:i]);
-                    lua_settable(L, -3);
-                }
-                handled = YES;
-            }
-        }
-        if (!handled) {
-            NSArray *keys = [obj allKeys];
-            NSArray *values = [obj allValues];
-            lua_newtable(L);
-            for (unsigned long i = 0; i < keys.count; i++) {
-                NSObject_to_lua(L, [keys objectAtIndex:i]);
-                NSObject_to_lua(L, [values objectAtIndex:i]);
-                lua_settable(L, -3);
-            }
-        }
-    } else if ([obj isKindOfClass: [NSNumber class]]) {
-        NSNumber* number = obj;
-        if (number == (id)kCFBooleanTrue)
-            lua_pushboolean(L, YES);
-        else if (number == (id)kCFBooleanFalse)
-            lua_pushboolean(L, NO);
-        else if (CFNumberIsFloatType((CFNumberRef)number))
-            lua_pushnumber(L, [number doubleValue]);
-        else
-            lua_pushinteger(L, [number intValue]);
-    } else if ([obj isKindOfClass: [NSString class]]) {
-        NSString* string = obj;
-        lua_pushstring(L, [string UTF8String]);
-    } else if ([obj isKindOfClass: [NSArray class]]) {
-        int i = 0;
-        NSArray* list = obj;
-        lua_newtable(L);
-        for (id item in list) {
-            NSObject_to_lua(L, item);
-            lua_rawseti(L, -2, ++i);
-        }
-    } else if ([obj isKindOfClass: [NSDate class]]) {
-        lua_pushnumber(L, [(NSDate *) obj timeIntervalSince1970]);
-    } else if ([obj isKindOfClass: [NSData class]]) {
-        lua_pushlstring(L, [obj bytes], [obj length]) ;
-    } else {
-        lua_pushstring(L, [[NSString stringWithFormat:@"<Object> : %@", obj] UTF8String]) ;
-    }
-}
-
 /// hs.settings.set(key, val)
 /// Function
 /// Saves a setting with common datatypes
@@ -142,8 +21,14 @@ static void NSObject_to_lua(lua_State* L, id obj) {
 ///  * This function cannot set dates or raw data types, see `hs.settings.setDate()` and `hs.settings.setData()`
 static int target_set(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
-    id val = lua_to_NSObject(L, 2);
-    [[NSUserDefaults standardUserDefaults] setObject:val forKey:key];
+    if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
+    id val = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+    @try {
+        [[NSUserDefaults standardUserDefaults] setObject:val forKey:key];
+    }
+    @catch(NSException *theException) {
+        return luaL_error(L, [[NSString stringWithFormat:@"%@: %@", theException.name, theException.reason] UTF8String]);
+    }
     return 0;
 }
 
@@ -159,9 +44,10 @@ static int target_set(lua_State* L) {
 ///  * None
 static int target_setData(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
-    if (lua_type(L,2) == LUA_TSTRING) {
+        if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
+        if (lua_type(L,2) == LUA_TSTRING) {
         const char* data = lua_tostring(L,2) ;
-        int sz = lua_rawlen(L, 2) ;
+        NSUInteger sz = lua_rawlen(L, 2) ;
         NSData* myData = [[NSData alloc] initWithBytes:data length:sz] ;
         [[NSUserDefaults standardUserDefaults] setObject:myData forKey:key];
     } else {
@@ -198,6 +84,7 @@ static NSDate* date_from_string(NSString* dateString) {
 ///  * See `hs.settings.dateFormat` for a convenient representation of the RFC3339 format, to use with other time/date related functions
 static int target_setDate(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
     NSDate* myDate = lua_isnumber(L, 2) ? [[NSDate alloc] initWithTimeIntervalSince1970:(NSTimeInterval) lua_tonumber(L,2)] :
                      lua_isstring(L, 2) ? date_from_string([NSString stringWithUTF8String:lua_tostring(L, 2)]) : nil ;
     if (myDate) {
@@ -222,8 +109,9 @@ static int target_setDate(lua_State* L) {
 ///  * This function can load all of the datatypes supported by `hs.settings.set()`, `hs.settings.setData()` and `hs.settings.setDate()`
 static int target_get(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
     id val = [[NSUserDefaults standardUserDefaults] objectForKey:key];
-    NSObject_to_lua(L, val);
+    [[LuaSkin shared] pushNSObject:val] ;
     return 1;
 }
 
@@ -238,6 +126,7 @@ static int target_get(lua_State* L) {
 ///  * A boolean, true if the setting was deleted, otherwise false
 static int target_clear(lua_State* L) {
     NSString* key = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
+    if (!key) return luaL_error(L, "key must be a valid UTF8 string") ;
     if ([[NSUserDefaults standardUserDefaults] objectForKey:key] && ![[NSUserDefaults standardUserDefaults] objectIsForcedForKey:key]) {
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
         lua_pushboolean(L, YES) ;
@@ -263,10 +152,10 @@ static int target_getKeys(lua_State* L) {
     NSArray *keys = [[[NSUserDefaults standardUserDefaults] persistentDomainForName: [[NSBundle mainBundle] bundleIdentifier]] allKeys];
     lua_newtable(L);
     for (unsigned long i = 0; i < keys.count; i++) {
-        lua_pushinteger(L, i+1) ;
-        NSObject_to_lua(L, [keys objectAtIndex:i]);
+        lua_pushinteger(L, (lua_Integer)i+1) ;
+        [[LuaSkin shared] pushNSObject:[keys objectAtIndex:i]] ;
         lua_settable(L, -3);
-        NSObject_to_lua(L, [keys objectAtIndex:i]);
+        [[LuaSkin shared] pushNSObject:[keys objectAtIndex:i]] ;
         lua_pushboolean(L, YES) ;
         lua_settable(L, -3);
     }
@@ -284,21 +173,21 @@ static const luaL_Reg settingslib[] = {
     {NULL, NULL}
 };
 
-int luaopen_settings(lua_State* L) {
-    // setup the module
-    luaL_newlib(L, settingslib);
+int luaopen_hs_settings_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:settingslib metaFunctions:nil];
 
 /// hs.settings.dateFormat
 /// Constant
 /// A string representing the expected format of date and time when presenting the date and time as a string to `hs.setDate()`.  e.g. `os.date(hs.settings.dateFormat)`
-        lua_pushstring(L, "!%Y-%m-%dT%H:%M:%SZ") ;
-        lua_setfield(L, -2, "dateFormat") ;
+        lua_pushstring(skin.L, "!%Y-%m-%dT%H:%M:%SZ") ;
+        lua_setfield(skin.L, -2, "dateFormat") ;
 
 /// hs.settings.bundleID
 /// Constant
 /// A string representing the ID of the bundle Hammerspoon's settings are stored in . You can use this with the command line tool `defaults` or other tools which allow access to the `User Defaults` of applications, to access these outside of Hammerspoon
-        lua_pushstring(L, [[[NSBundle mainBundle] bundleIdentifier] UTF8String]) ;
-        lua_setfield(L, -2, "bundleID") ;
+        lua_pushstring(skin.L, [[[NSBundle mainBundle] bundleIdentifier] UTF8String]) ;
+        lua_setfield(skin.L, -2, "bundleID") ;
 
     return 1;
 }

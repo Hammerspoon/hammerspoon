@@ -4,6 +4,7 @@
 
 local milight = require "hs.milight.internal"
 milight.cmd = milight._cacheCommands()
+local milightObject = hs.getObjectMetatable("hs.milight")
 
 --- hs.milight.minBrightness
 --- Constant
@@ -17,14 +18,14 @@ milight.maxBrightness = 25
 
 -- Internal helper to set brightness
 function brightnessHelper(bridge, zonecmd, value)
-    if (milight.send(bridge, milight.cmd[zonecmd])) then
+    if (bridge:send(milight.cmd[zonecmd])) then
         if (value < milight.minBrightness) then
             value = milight.minBrightness
         elseif (value > milight.maxBrightness) then
             value = milight.maxBrightness
         end
         value = value + 2 -- bridge accepts values between 2 and 27
-        result = milight.send(bridge, milight.cmd["brightness"], value)
+        result = bridge:send(milight.cmd["brightness"], value)
         if (result) then
             return value - 2
         else
@@ -37,13 +38,13 @@ end
 
 -- Internal helper to set color
 function colorHelper(bridge, zonecmd, value)
-    if (milight.send(bridge, milight.cmd[zonecmd])) then
+    if (bridge:send(milight.cmd[zonecmd])) then
         if (value < 0) then
             value = 0
         elseif (value > 255) then
             value = 255
         end
-        return milight.send(bridge, milight.cmd["rgbw"], value)
+        return bridge:send(milight.cmd["rgbw"], value)
     else
         return false
     end
@@ -69,8 +70,8 @@ end
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:zoneOff(zone)
-    return milight.send(self, milight.cmd[zone2cmdkey(zone, "off")])
+function milightObject:zoneOff(zone)
+    return self:send(milight.cmd[zone2cmdkey(zone, "off")])
 end
 
 --- hs.milight:zoneOn(zone) -> bool
@@ -82,8 +83,8 @@ end
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:zoneOn(zone)
-    return milight.send(self, milight.cmd[zone2cmdkey(zone, "on")])
+function milightObject:zoneOn(zone)
+    return self:send(milight.cmd[zone2cmdkey(zone, "on")])
 end
 
 --- hs.milight:disco() -> bool
@@ -95,9 +96,9 @@ end
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:discoCycle(zone)
+function milightObject:discoCycle(zone)
     if (self:zoneOn(zone)) then
-        return milight.send(self, milight.cmd["disco"])
+        return self:send(milight.cmd["disco"])
     else
         return false
     end
@@ -113,7 +114,7 @@ end
 ---
 --- Returns:
 ---  * A number containing the value that was sent to the WiFi bridge, or -1 if an error occurred
-function milight:zoneBrightness(zone, value)
+function milightObject:zoneBrightness(zone, value)
     return brightnessHelper(self, zone2cmdkey(zone, "on"), value)
 end
 
@@ -123,11 +124,30 @@ end
 ---
 --- Parameters:
 ---  * zone - A number specifying which zone to operate on. 0 for all zones, 1-4 for zones one through four
----  * value - A number containing an RGB color value between 0 and 255
+---  * value - A number between 0 and 255 that represents a color
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:zoneColor(zone, value)
+---
+--- Notes:
+---  * The color value is not a normal RGB colour, but rather a lookup in an internal table in the light hardware. While any number between 0 and 255 is valid, there are some useful values worth knowing:
+---   * 00 - Violet
+---   * 16 - Royal Blue
+---   * 32 - Baby Blue
+---   * 48 - Aqua
+---   * 64 - Mint Green
+---   * 80 - Seafoam Green
+---   * 96 - Green
+---   * 112 - Lime Green
+---   * 128 - Yellow
+---   * 144 - Yellowy Orange
+---   * 160 - Orange
+---   * 176 - Red
+---   * 194 - Pink
+---   * 210 - Fuscia
+---   * 226 - Lilac
+---   * 240 - Lavendar
+function milightObject:zoneColor(zone, value)
     return colorHelper(self, zone2cmdkey(zone, "on"), value)
 end
 
@@ -140,9 +160,9 @@ end
 ---
 --- Returns:
 ---  * True if the command was sent correctly, otherwise false
-function milight:zoneWhite(zone)
+function milightObject:zoneWhite(zone)
     if (self:zoneOn(zone)) then
-        return milight.send(self, milight.cmd[zone2cmdkey(zone, "white")])
+        return self:send(milight.cmd[zone2cmdkey(zone, "white")])
     else
         return false
     end

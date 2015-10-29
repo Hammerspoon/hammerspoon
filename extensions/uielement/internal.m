@@ -77,6 +77,7 @@ static void push_element(lua_State* L, AXUIElementRef element) {
 /// Method
 /// Returns whether the UI element represents a window.
 static int uielement_iswindow(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TUSERDATA);
     AXUIElementRef element = get_element(L, 1);
     bool isWindow = is_window(element, nil);
     lua_pushboolean(L, isWindow);
@@ -87,6 +88,7 @@ static int uielement_iswindow(lua_State* L) {
 /// Method
 /// Returns the role of the element.
 static int uielement_role(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TUSERDATA);
     AXUIElementRef element = get_element(L, 1);
 
     NSString* str = get_prop(element, NSAccessibilityRoleAttribute, @"");
@@ -109,6 +111,7 @@ static int uielement_role(lua_State* L) {
 ///  * Many applications (e.g. Safari, Mail, Firefox) do not implement the necessary accessibility features for this to work in their web views
 static int uielement_selectedText(lua_State* L) {
     AXValueRef selectedText = NULL;
+    luaL_checktype(L, 1, LUA_TUSERDATA);
     AXUIElementRef element = get_element(L, 1);
     if (AXUIElementCopyAttributeValue(element, kAXSelectedTextAttribute, (CFTypeRef *)&selectedText) != kAXErrorSuccess) {
         lua_pushnil(L);
@@ -146,7 +149,6 @@ typedef struct _watcher_t {
     int handler_ref;
     int user_data_ref;
     int watcher_ref;
-    lua_State* L;
     AXObserverRef observer;
     AXUIElementRef element;
     pid_t pid;
@@ -155,7 +157,14 @@ typedef struct _watcher_t {
 static int uielement_newWatcher(lua_State* L) {
     int nargs = lua_gettop(L);
 
-    AXUIElementRef element = get_element(L, 1);  // self
+    void *userData = lua_touserdata(L, 1);
+    if (!userData) {
+        CLS_NSLOG(@"uielement_newWatcher: invalid userdata received. Actual type: %d", lua_type(L, 1));
+        lua_pushnil(L);
+        return 1;
+    }
+
+    AXUIElementRef element = *(AXUIElementRef*)userData;  // self
     luaL_checktype(L, 2, LUA_TFUNCTION);
 
     watcher_t* watcher = lua_newuserdata(L, sizeof(watcher_t));
@@ -170,7 +179,6 @@ static int uielement_newWatcher(lua_State* L) {
     watcher->user_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     watcher->watcher_ref = LUA_REFNIL;
     watcher->running = NO;
-    watcher->L = L;
     watcher->element = (AXUIElementRef)CFRetain(element);
     AXUIElementGetPid(element, &watcher->pid);
 
@@ -199,12 +207,11 @@ static watcher_t* get_watcher(lua_State* L, int elem) {
 
 static void watcher_observer_callback(AXObserverRef observer __unused, AXUIElementRef element,
                                       CFStringRef notificationName, void* contextData) {
+    LuaSkin *skin = [LuaSkin shared];
+
     watcher_t* watcher = (watcher_t*) contextData;
 
-    lua_State* L = watcher->L;
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    lua_remove(L, -2);
+    lua_State *L = skin.L;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->handler_ref);
     push_element(L, element); // Parameter 1: element
@@ -212,13 +219,10 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->watcher_ref); // Parameter 3: watcher
     lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->user_data_ref); // Parameter 4: userData
 
-    if (lua_pcall(L, 4, 0, -6) != LUA_OK) {
-        CLS_NSLOG(@"%s", lua_tostring(L, -1));
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "showError");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_pcall(L, 1, 0, 0);
+    if (![skin protectedCallAndTraceback:4 nresults:0]) {
+        const char *errorMsg = lua_tostring(L, -1);
+        CLS_NSLOG(@"%s", errorMsg);
+        showError(L, (char *)errorMsg);
     }
 }
 
@@ -236,7 +240,7 @@ static int watcher_start(lua_State* L) {
 
     // Add specified events to the observer.
     luaL_checktype(L, 2, LUA_TTABLE);
-    int numEvents = lua_rawlen(L, 2);
+    int numEvents = (int)lua_rawlen(L, 2);
     for (int i = 1; i <= numEvents; ++i) {
         // Get event name as CFStringRef
         lua_rawgeti(L, 2, i);
@@ -264,7 +268,8 @@ static int watcher_start(lua_State* L) {
                        AXObserverGetRunLoopSource(observer),
                        kCFRunLoopDefaultMode);
 
-    return 0;
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 static void stop_watcher(lua_State* L, watcher_t* watcher) {
@@ -284,7 +289,9 @@ static void stop_watcher(lua_State* L, watcher_t* watcher) {
 static int watcher_stop(lua_State* L) {
     watcher_t* watcher = get_watcher(L, 1);
     stop_watcher(L, watcher);
-    return 0;
+    lua_pushvalue(L, 1);
+
+    return 1;
 }
 
 /// hs.uielement.focusedElement() -> element or nil
@@ -331,13 +338,13 @@ static const luaL_Reg uielementlib[] = {
     {"_newWatcher", uielement_newWatcher},
     {"focusedElement", uielement_focusedElement},
     {"selectedText", uielement_selectedText},
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg watcherlib[] = {
     {"_start", watcher_start},
     {"_stop", watcher_stop},
-    {}
+    {NULL, NULL}
 };
 
 int luaopen_hs_uielement_internal(lua_State* L) {

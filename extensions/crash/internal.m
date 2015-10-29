@@ -104,23 +104,21 @@ static int crashKV(lua_State *L) {
     return 0;
 }
 
-// ----------------------- Lua/hs glue GAR ---------------------
-
 static const luaL_Reg crashlib[] = {
     {"crash", burnTheWorld},
     {"isMainThread", isMainThread},
     {"_crashLog", crashLog},
     {"crashKV", crashKV},
 
-    {}
+    {NULL, NULL}
 };
 
 /* NOTE: The substring "hs_crash_internal" in the following function's name
          must match the require-path of this file, i.e. "hs.crash.internal". */
 
-int luaopen_hs_crash_internal(lua_State *L) {
-    // Table for luaopen
-    luaL_newlib(L, crashlib);
+int luaopen_hs_crash_internal(lua_State *L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:crashlib metaFunctions:nil];
 
     return 1;
 }

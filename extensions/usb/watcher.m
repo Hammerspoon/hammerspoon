@@ -14,12 +14,12 @@
 // Common Code
 
 #define USERDATA_TAG    "hs.usb.watcher"
+int refTable;
 
 // Not so common code
 
 // userdata object for each watcher
 typedef struct _usbwatcher_t {
-    lua_State *L;
     bool running;
     bool isFirstRun;
     int fn;
@@ -44,9 +44,10 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
     usbwatcher_t *watcher = privateDataRef->watcher;
 
     if (messageType == kIOMessageServiceIsTerminated) {
-        lua_State *L = watcher->L;
-        lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-        lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->fn);
+        LuaSkin *skin = [LuaSkin shared];
+        lua_State *L = skin.L;
+
+        [skin pushLuaRef:refTable ref:watcher->fn];
 
         // Prepare the callback's argument table
         lua_newtable(L);
@@ -67,11 +68,10 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         lua_settable(L, -3);
 
         // Call the callback
-        if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-            CLS_NSLOG(@"%s", lua_tostring(L, -1));
-            lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-            lua_pushvalue(L, -2);
-            lua_pcall(L, 1, 0, 0);
+        if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            const char *errorMsg = lua_tostring(L, -1);
+            CLS_NSLOG(@"%s", errorMsg);
+            showError(L, (char *)errorMsg);
         }
 
         // Free the USB private data
@@ -87,7 +87,6 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
     usbwatcher_t *watcher = (usbwatcher_t *)refCon;
     kern_return_t kr;
     io_service_t usbDevice;
-    lua_State *L;
     CFMutableDictionaryRef deviceData;
     NSString *productName;
     NSString *vendorName;
@@ -105,7 +104,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 
         // Extract the USB device's name
         productName = (__bridge NSString *)CFDictionaryGetValue(deviceData, CFSTR(kUSBProductString));
-        length = [productName length] + 1;
+        length = (int)[productName length] + 1;
         privateDataRef->productName = malloc(length);
         if (![productName getCString:privateDataRef->productName maxLength:length encoding:NSUTF8StringEncoding]) {
             privateDataRef->productName[0] = '\0';
@@ -113,7 +112,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 
         // Extract the USB device's vendor's name
         vendorName = (__bridge NSString *)CFDictionaryGetValue(deviceData, CFSTR(kUSBVendorString));
-        length = [vendorName length] + 1;
+        length = (int)[vendorName length] + 1;
         privateDataRef->vendorName = malloc(length);
         if (![vendorName getCString:privateDataRef->vendorName maxLength:length encoding:NSUTF8StringEncoding]) {
             privateDataRef->vendorName[0] = '\0';
@@ -135,9 +134,10 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 
         // We don't want to trigger callbacks for every device attached before the watcher starts, but we needed to enumerate them to get private device data cached
         if (!watcher->isFirstRun) {
-            L = watcher->L;
-            lua_getglobal(L, "debug"); lua_getfield(L, -1, "traceback"); lua_remove(L, -2);
-            lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->fn);
+            LuaSkin *skin = [LuaSkin shared];
+            lua_State *L = skin.L;
+
+            [skin pushLuaRef:refTable ref:watcher->fn];
 
             lua_newtable(L);
             lua_pushstring(L, "productName");
@@ -156,11 +156,8 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
             lua_pushstring(L, "added");
             lua_settable(L, -3);
 
-            if (lua_pcall(L, 1, 0, -3) != LUA_OK) {
-                CLS_NSLOG(@"%s", lua_tostring(L, -1));
-                lua_getglobal(L, "hs"); lua_getfield(L, -1, "showError"); lua_remove(L, -2);
-                lua_pushvalue(L, -2);
-                lua_pcall(L, 1, 0, 0);
+            if (![skin protectedCallAndTraceback:1 nresults:0]) {
+                showError(L, (char *)lua_tostring(L, -1));
             }
         }
     }
@@ -181,14 +178,15 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
 /// Returns:
 ///  * A `hs.usb.watcher` object
 static int usb_watcher_new(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     luaL_checktype(L, 1, LUA_TFUNCTION);
 
     usbwatcher_t* usbwatcher = lua_newuserdata(L, sizeof(usbwatcher_t));
     memset(usbwatcher, 0, sizeof(usbwatcher_t));
     lua_pushvalue(L, 1);
 
-    usbwatcher->L = L;
-    usbwatcher->fn = luaL_ref(L, LUA_REGISTRYINDEX);
+    usbwatcher->fn = [skin luaRef:refTable];
     usbwatcher->running = NO;
     usbwatcher->gNotifyPort = IONotificationPortCreate(kIOMasterPortDefault);
     usbwatcher->runLoopSource = IONotificationPortGetRunLoopSource(usbwatcher->gNotifyPort);
@@ -260,12 +258,13 @@ static int usb_watcher_stop(lua_State* L) {
 }
 
 static int usb_watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+
     usbwatcher_t* usbwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
     lua_pushcfunction(L, usb_watcher_stop) ; lua_pushvalue(L,1); lua_call(L, 1, 1);
 
-    luaL_unref(L, LUA_REGISTRYINDEX, usbwatcher->fn);
-    usbwatcher->fn = LUA_NOREF;
+    usbwatcher->fn = [skin luaUnref:refTable ref:usbwatcher->fn];
 
     IONotificationPortDestroy(usbwatcher->gNotifyPort);
 
@@ -276,10 +275,16 @@ static int meta_gc(lua_State* __unused L) {
     return 0;
 }
 
+static int userdata_tostring(lua_State* L) {
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
 // Metatable for created objects when _new invoked
 static const luaL_Reg usb_metalib[] = {
     {"start",   usb_watcher_start},
     {"stop",    usb_watcher_stop},
+    {"__tostring", userdata_tostring},
     {"__gc",    usb_watcher_gc},
     {NULL,      NULL}
 };
@@ -296,17 +301,9 @@ static const luaL_Reg meta_gcLib[] = {
     {NULL,      NULL}
 };
 
-int luaopen_hs_usb_watcher(lua_State* L) {
-    // Metatable for created objects
-    luaL_newlib(L, usb_metalib);
-    lua_pushvalue(L, -1);
-    lua_setfield(L, -2, "__index");
-    lua_setfield(L, LUA_REGISTRYINDEX, USERDATA_TAG);
-
-    // Create table for luaopen
-    luaL_newlib(L, usbLib);
-    luaL_newlib(L, meta_gcLib);
-    lua_setmetatable(L, -2);
+int luaopen_hs_usb_watcher(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:usbLib metaFunctions:meta_gcLib objectFunctions:usb_metalib];
 
     return 1;
 }

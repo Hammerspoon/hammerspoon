@@ -1,4 +1,44 @@
 local module = require("hs.drawing.internal")
+local _kMetaTable = {}
+_kMetaTable._k = {}
+_kMetaTable.__index = function(obj, key)
+        if _kMetaTable._k[obj] then
+            if _kMetaTable._k[obj][key] then
+                return _kMetaTable._k[obj][key]
+            else
+                for k,v in pairs(_kMetaTable._k[obj]) do
+                    if v == key then return k end
+                end
+            end
+        end
+        return nil
+    end
+_kMetaTable.__newindex = function(obj, key, value)
+        error("attempt to modify a table of constants",2)
+        return nil
+    end
+_kMetaTable.__pairs = function(obj) return pairs(_kMetaTable._k[obj]) end
+_kMetaTable.__tostring = function(obj)
+        local result = ""
+        if _kMetaTable._k[obj] then
+            local width = 0
+            for k,v in pairs(_kMetaTable._k[obj]) do width = width < #k and #k or width end
+            for k,v in require("hs.fnutils").sortByKeys(_kMetaTable._k[obj]) do
+                result = result..string.format("%-"..tostring(width).."s %s\n", k, tostring(v))
+            end
+        else
+            result = "constants table missing"
+        end
+        return result
+    end
+_kMetaTable.__metatable = _kMetaTable -- go ahead and look, but don't unset this
+
+local _makeConstantsTable = function(theTable)
+    local results = setmetatable({}, _kMetaTable)
+    _kMetaTable._k[results] = theTable
+    return results
+end
+
 --- hs.drawing.color
 --- Constant
 --- This table contains various useful pre-defined colors:
@@ -11,27 +51,21 @@ module.color = {
     ["osx_green"]   = { ["red"]=0.153,["green"]=0.788,["blue"]=0.251,["alpha"]=1 },
     ["osx_red"]     = { ["red"]=0.996,["green"]=0.329,["blue"]=0.302,["alpha"]=1 },
     ["osx_yellow"]  = { ["red"]=1.000,["green"]=0.741,["blue"]=0.180,["alpha"]=1 },
+    ["red"]         = { ["red"]=1.000,["green"]=0.000,["blue"]=0.000,["alpha"]=1 },
+    ["green"]       = { ["red"]=0.000,["green"]=1.000,["blue"]=0.000,["alpha"]=1 },
+    ["blue"]        = { ["red"]=0.000,["green"]=0.000,["blue"]=1.000,["alpha"]=1 },
+    ["white"]       = { ["red"]=1.000,["green"]=1.000,["blue"]=1.000,["alpha"]=1 },
+    ["black"]       = { ["red"]=0.000,["green"]=0.000,["blue"]=0.000,["alpha"]=1 },
 }
 
 local fnutils = require("hs.fnutils")
 local imagemod = require("hs.image")
 
-local __tostring_for_tables = function(self)
-    local result = ""
-    local width = 0
-    for i,v in fnutils.sortByKeys(self) do
-        if type(i) == "string" and width < i:len() then width = i:len() end
-    end
-    for i,v in fnutils.sortByKeys(self) do
-        if type(i) == "string" then
-            result = result..string.format("%-"..tostring(width).."s %d\n", i, v)
-        end
-    end
-    return result
-end
+local drawingObject = hs.getObjectMetatable("hs.drawing")
 
-module.fontTraits      = setmetatable(module.fontTraits,      { __tostring = __tostring_for_tables })
-module.windowBehaviors = setmetatable(module.windowBehaviors, { __tostring = __tostring_for_tables })
+module.fontTraits      = _makeConstantsTable(module.fontTraits)
+module.windowBehaviors = _makeConstantsTable(module.windowBehaviors)
+module.windowLevels    = _makeConstantsTable(module.windowLevels)
 
 --- hs.drawing:setImageFromPath(imagePath) -> drawingObject
 --- Method
@@ -130,9 +164,6 @@ module.appImage = function(sizeRect, bundleID)
     end
 end
 
-local tmp = module.rectangle({})
-local tmpMeta = getmetatable(tmp)
-
 --- hs.drawing:setBehaviorByLabels(table) -> object
 --- Method
 --- Sets the window behaviors based upon the labels specified in the table provided.
@@ -142,11 +173,11 @@ local tmpMeta = getmetatable(tmp)
 ---
 --- Returns:
 ---  * The `hs.drawing` object
-tmpMeta.setBehaviorByLabels = function(obj, stringTable)
+drawingObject.setBehaviorByLabels = function(obj, stringTable)
     local newBehavior = 0
     for i,v in ipairs(stringTable) do
         local flag = tonumber(v) or module.windowBehaviors[v]
-        newBehavior = newBehavior | flag
+        if flag then newBehavior = newBehavior | flag end
     end
     return obj:setBehavior(newBehavior)
 end
@@ -160,7 +191,7 @@ end
 ---
 --- Returns:
 ---  * Returns a table of the labels for the current behaviors with respect to Spaces and Exposé for the object.
-tmpMeta.behaviorAsLabels = function(obj)
+drawingObject.behaviorAsLabels = function(obj)
     local results = {}
     local behaviorNumber = obj:behavior()
 
@@ -173,10 +204,10 @@ tmpMeta.behaviorAsLabels = function(obj)
     else
         table.insert(results, module.windowBehaviors[0])
     end
-    return results
+    return setmetatable(results, { __tostring = function(_)
+        table.sort(_)
+        return "{ "..table.concat(_, ", ").." }"
+    end})
 end
-
-tmp:delete()
-tmp = nil
 
 return module

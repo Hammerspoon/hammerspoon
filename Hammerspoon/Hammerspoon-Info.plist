@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>Hammerspoon</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.9.36</string>
+	<string>0.9.42</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -34,11 +34,33 @@
 				<string>hammerspoon</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>hammerspoon.Hammerspoon.http</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>http</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>hammerspoon.Hammerspoon.https</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>https</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>0.9.36</string>
+	<string>0.9.42</string>
 	<key>Fabric</key>
 	<dict>
+		<key>APIKey</key>
+		<string>a9a43ddffec0ebfb007388756dfd662a9c153188</string>
 		<key>Kits</key>
 		<array>
 			<dict>
@@ -51,6 +73,11 @@
 	</dict>
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>NSHumanReadableCopyright</key>
 	<string>Released under MIT license.</string>
 	<key>NSMainNibFile</key>

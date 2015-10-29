@@ -102,15 +102,20 @@ local function handleEvent(callback, element, event, watcher, userData)
     end
 end
 
---- hs.uielement:newWatcher(handler[, userData]) -> hs.uielement.watcher
---- Method
---- Creates a new watcher for the element represented by self.
+--- hs.uielement:newWatcher(handler[, userData]) -> hs.uielement.watcher or nil
+--- Constructor
+--- Creates a new watcher for the element represented by self (the object the method is being invoked for).
 ---
---- You must pass a handler function. The args passed are as follows:
---- * element: The element the event occurred on. Note this is not always the element being watched.
---- * event: The name of the event that occurred.
---- * watcher: The watcher object being created.
---- * userData: The userData you included, if any.
+--- Parameters:
+---  * a function to be called when a watched event occurs.  The argument will be passed the following arguments:
+---    * element: The element the event occurred on. Note this is not always the element being watched.
+---    * event: The name of the event that occurred.
+---    * watcher: The watcher object being created.
+---    * userData: The userData you included, if any.
+---  * an optional userData object which will be included as the final argument to the callback function when it is called.
+---
+--- Returns:
+---  * hs.uielement.watcher object, or nil if an error occurred
 function uielement:newWatcher(callback, ...)
     if type(callback) ~= "function" then
         hs.showError("hs.uielement:newWatcher() called with incorrect arguments. The first argument must be a function")
@@ -123,13 +128,19 @@ function uielement:newWatcher(callback, ...)
     return obj
 end
 
---- hs.uielement.watcher:start(events)
+--- hs.uielement.watcher:start(events) -> hs.uielement.watcher
 --- Method
---- Tells the watcher to start watching the given list of events.
+--- Tells the watcher to start watching for the given list of events.
 ---
---- See hs.uielement.watcher for a list of events. You may also specify arbitrary event names as strings.
+--- Parameters:
+---  * An array of events to be watched for.
 ---
---- Does nothing if the watcher has already been started. To start with different events, stop it first.
+--- Returns:
+---  * hs.uielement.watcher
+---
+--- Notes:
+---  * See hs.uielement.watcher for a list of events. You may also specify arbitrary event names as strings.
+---  * Does nothing if the watcher has already been started. To start with different events, stop it first.
 function uielement.watcher:start(events)
     -- Track all watchers in appWatchers.
     local pid = self._pid
@@ -151,10 +162,18 @@ function uielement.watcher:start(events)
     return self:_start(events)
 end
 
---- hs.uielement.watcher:stop()
+--- hs.uielement.watcher:stop() -> hs.uielement.watcher
 --- Method
 --- Tells the watcher to stop listening for events.
---- This is automatically called if the element is destroyed.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * hs.uielement.watcher
+---
+--- Notes:
+---  * This is automatically called if the element is destroyed.
 function uielement.watcher:stop()
     -- Remove self from appWatchers.
     local pid = self._pid
@@ -165,12 +184,18 @@ function uielement.watcher:stop()
         end
     end
 
-    self:_stop()
+    return self:_stop()
 end
 
---- hs.uielement.watcher:element()
+--- hs.uielement.watcher:element() -> object
 --- Method
 --- Returns the element the watcher is watching.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * The element the watcher is watching.
 function uielement.watcher:element()
     return self._element
 end

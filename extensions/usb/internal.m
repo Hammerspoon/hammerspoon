@@ -93,19 +93,18 @@ static int usb_attachedDevices(lua_State* L) {
 static const luaL_Reg usblib[] = {
     {"attachedDevices", usb_attachedDevices},
 
-    {}
+    {NULL, NULL}
 };
 
 static const luaL_Reg metalib[] = {
     {"__gc", usb_gc},
 
-    {}
+    {NULL, NULL}
 };
 
-int luaopen_hs_usb_internal(lua_State* L) {
-    luaL_newlib(L, usblib);
-    luaL_newlib(L, metalib);
-    lua_setmetatable(L, -2);
+int luaopen_hs_usb_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:usblib metaFunctions:metalib];
 
     return 1;
 }

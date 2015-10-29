@@ -10,8 +10,6 @@
 #import <mach/task_info.h>
 #import <mach/task.h>
 
-static NSHost *host;
-
 /// hs.host.addresses() -> table
 /// Function
 /// Gets a list of network addresses for the current machine
@@ -25,7 +23,7 @@ static NSHost *host;
 /// Notes:
 ///  * The results will include IPv4 and IPv6 addresses
 static int hostAddresses(lua_State* L) {
-    NSArray *addresses = [host addresses];
+    NSArray *addresses = [[NSHost currentHost] addresses];
     if (!addresses) {
         lua_pushnil(L);
         return 1;
@@ -55,7 +53,7 @@ static int hostAddresses(lua_State* L) {
 /// Notes:
 ///  * This function should be used sparingly, as it may involve blocking network access to resolve hostnames
 static int hostNames(lua_State* L) {
-    NSArray *names = [host names];
+    NSArray *names = [[NSHost currentHost] names];
     if (!names) {
         lua_pushnil(L);
         return 1;
@@ -82,7 +80,7 @@ static int hostNames(lua_State* L) {
 /// Returns:
 ///  * A string containing the name of the current machine
 static int hostLocalizedName(lua_State* L) {
-    lua_pushstring(L, [[host localizedName] UTF8String]);
+    lua_pushstring(L, [[[NSHost currentHost] localizedName] UTF8String]);
     return 1;
 }
 
@@ -398,6 +396,62 @@ static int hs_operatingSystemVersion(lua_State *L) {
     return 1 ;
 }
 
+/// hs.host.interfaceStyle() -> string
+/// Function
+/// Returns the OS X interface style for the current user.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string representing the current user interface style, or nil if the default style is in use.
+///
+/// Notes:
+///  * As of OS X 10.10.4, other than the default style, only "Dark" is recognized as a valid style.
+static int hs_interfaceStyle(lua_State *L) {
+    lua_pushstring(L, [[[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"] UTF8String]) ;
+    return 1 ;
+}
+
+/// hs.host.uuid() -> string
+/// Function
+/// Returns a newly generated UUID as a string
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a newly generated UUID as a string
+///
+/// Notes:
+///  * See also `hs.host.globallyUniqueString`
+///  * UUIDs (Universally Unique Identifiers), also known as GUIDs (Globally Unique Identifiers) or IIDs (Interface Identifiers), are 128-bit values. UUIDs created by NSUUID conform to RFC 4122 version 4 and are created with random bytes.
+static int hs_uuid(lua_State* L) {
+    lua_pushstring(L, [[[NSUUID UUID] UUIDString] UTF8String]);
+    return 1;
+}
+
+
+/// hs.host.globallyUniqueString() -> string
+/// Function
+/// Returns a newly generated global unique identifier as a string
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a newly generated global unique identifier as a string
+///
+/// Notes:
+///  * See also `hs.host.uuid`
+///  * The global unique identifier for a process includes the host name, process ID, and a time stamp, which ensures that the ID is unique for the network. This property generates a new string each time it is invoked, and it uses a counter to guarantee that strings are unique.
+///  * This is often used as a file or directory name in conjunction with `hs.host.temporaryDirectory()` when creating temporary files.
+static int hs_globallyUniqueString(lua_State* L) {
+    lua_pushstring(L, [[[NSProcessInfo processInfo] globallyUniqueString] UTF8String]);
+    return 1;
+}
+
+
 static const luaL_Reg hostlib[] = {
     {"addresses",                    hostAddresses},
     {"names",                        hostNames},
@@ -406,13 +460,17 @@ static const luaL_Reg hostlib[] = {
     {"cpuUsage",                     hs_cpuInfo},
     {"operatingSystemVersion",       hs_operatingSystemVersion},
     {"operatingSystemVersionString", hs_operatingSystemVersionString},
+    {"interfaceStyle",               hs_interfaceStyle},
+    {"uuid",                         hs_uuid},
+    {"globallyUniqueString",         hs_globallyUniqueString},
 
-    {}
+    {NULL, NULL}
 };
 
-int luaopen_hs_host_internal(lua_State* L) {
-    host = [NSHost currentHost];
-    luaL_newlib(L, hostlib);
+int luaopen_hs_host_internal(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+
+    [skin registerLibrary:hostlib metaFunctions:nil];
 
     return 1;
 }

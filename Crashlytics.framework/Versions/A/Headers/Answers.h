@@ -6,9 +6,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Fabric/FABAttributes.h>
+#import "ANSCompatibility.h"
 
-FAB_START_NONNULL
+NS_ASSUME_NONNULL_BEGIN
 
 @interface Answers : NSObject
 
@@ -20,9 +20,9 @@ FAB_START_NONNULL
  *  @param signUpSucceededOrNil  The ultimate success or failure of the login
  *  @param customAttributesOrNil A dictionary of custom attributes to associate with this purchase.
  */
-+ (void)logSignUpWithMethod:(NSString * FAB_NULLABLE)signUpMethodOrNil
-                    success:(NSNumber * FAB_NULLABLE)signUpSucceededOrNil
-           customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logSignUpWithMethod:(nullable NSString *)signUpMethodOrNil
+                    success:(nullable NSNumber *)signUpSucceededOrNil
+           customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log an Log In event to see users logging into your app in real-time, understand how many
@@ -32,9 +32,9 @@ FAB_START_NONNULL
  *  @param loginSucceededOrNil   The ultimate success or failure of the login
  *  @param customAttributesOrNil A dictionary of custom attributes to associate with this purchase.
  */
-+ (void)logLoginWithMethod:(NSString * FAB_NULLABLE)loginMethodOrNil
-                   success:(NSNumber * FAB_NULLABLE)loginSucceededOrNil
-          customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logLoginWithMethod:(nullable NSString *)loginMethodOrNil
+                   success:(nullable NSNumber *)loginSucceededOrNil
+          customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log a Share event to see users sharing from your app in real-time, letting you
@@ -46,11 +46,11 @@ FAB_START_NONNULL
  *  @param contentIdOrNil        The unique identifier for this piece of content. Useful for finding the top shared item.
  *  @param customAttributesOrNil A dictionary of custom attributes to associate with this event.
  */
-+ (void)logShareWithMethod:(NSString * FAB_NULLABLE)shareMethodOrNil
-               contentName:(NSString * FAB_NULLABLE)contentNameOrNil
-               contentType:(NSString * FAB_NULLABLE)contentTypeOrNil
-                 contentId:(NSString * FAB_NULLABLE)contentIdOrNil
-          customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logShareWithMethod:(nullable NSString *)shareMethodOrNil
+               contentName:(nullable NSString *)contentNameOrNil
+               contentType:(nullable NSString *)contentTypeOrNil
+                 contentId:(nullable NSString *)contentIdOrNil
+          customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log an Invite Event to track how users are inviting other users into
@@ -59,8 +59,8 @@ FAB_START_NONNULL
  *  @param inviteMethodOrNil     The method of invitation, e.g. GameCenter, Twitter, email.
  *  @param customAttributesOrNil A dictionary of custom attributes to associate with this purchase.
  */
-+ (void)logInviteWithMethod:(NSString * FAB_NULLABLE)inviteMethodOrNil
-           customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logInviteWithMethod:(nullable NSString *)inviteMethodOrNil
+           customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log a Purchase event to see your revenue in real-time, understand how many users are making purchases, see which
@@ -74,13 +74,13 @@ FAB_START_NONNULL
  *  @param itemTypeOrNil          The type, or genre of the item. Example: Song
  *  @param customAttributesOrNil  A dictionary of custom attributes to associate with this purchase.
  */
-+ (void)logPurchaseWithPrice:(NSDecimalNumber * FAB_NULLABLE)itemPriceOrNil
-                    currency:(NSString * FAB_NULLABLE)currencyOrNil
-                     success:(NSNumber * FAB_NULLABLE)purchaseSucceededOrNil
-                    itemName:(NSString * FAB_NULLABLE)itemNameOrNil
-                    itemType:(NSString * FAB_NULLABLE)itemTypeOrNil
-                      itemId:(NSString * FAB_NULLABLE)itemIdOrNil
-            customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logPurchaseWithPrice:(nullable NSDecimalNumber *)itemPriceOrNil
+                    currency:(nullable NSString *)currencyOrNil
+                     success:(nullable NSNumber *)purchaseSucceededOrNil
+                    itemName:(nullable NSString *)itemNameOrNil
+                    itemType:(nullable NSString *)itemTypeOrNil
+                      itemId:(nullable NSString *)itemIdOrNil
+            customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log a Level Start Event to track where users are in your game.
@@ -88,8 +88,8 @@ FAB_START_NONNULL
  *  @param levelNameOrNil        The level name
  *  @param customAttributesOrNil A dictionary of custom attributes to associate with this level start event.
  */
-+ (void)logLevelStart:(NSString * FAB_NULLABLE)levelNameOrNil
-     customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logLevelStart:(nullable NSString *)levelNameOrNil
+     customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log a Level End event to track how users are completing levels in your game.
@@ -99,10 +99,10 @@ FAB_START_NONNULL
  *  @param levelCompletedSuccesfullyOrNil A boolean representing whether or not the level was completed succesfully.
  *  @param customAttributesOrNil          A dictionary of custom attributes to associate with this purchase.
  */
-+ (void)logLevelEnd:(NSString * FAB_NULLABLE)levelNameOrNil
-              score:(NSNumber * FAB_NULLABLE)scoreOrNil
-            success:(NSNumber * FAB_NULLABLE)levelCompletedSuccesfullyOrNil
-   customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logLevelEnd:(nullable NSString *)levelNameOrNil
+              score:(nullable NSNumber *)scoreOrNil
+            success:(nullable NSNumber *)levelCompletedSuccesfullyOrNil
+   customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log an Add to Cart event to see users adding items to a shopping cart in real-time, understand how
@@ -116,12 +116,12 @@ FAB_START_NONNULL
  *  @param itemIdOrNil            The machine-readable, unique item identifier Example: SKU
  *  @param customAttributesOrNil  A dictionary of custom attributes to associate with this purchase.
  */
-+ (void)logAddToCartWithPrice:(NSDecimalNumber * FAB_NULLABLE)itemPriceOrNil
-                     currency:(NSString * FAB_NULLABLE)currencyOrNil
-                     itemName:(NSString * FAB_NULLABLE)itemNameOrNil
-                     itemType:(NSString * FAB_NULLABLE)itemTypeOrNil
-                       itemId:(NSString * FAB_NULLABLE)itemIdOrNil
-             customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logAddToCartWithPrice:(nullable NSDecimalNumber *)itemPriceOrNil
+                     currency:(nullable NSString *)currencyOrNil
+                     itemName:(nullable NSString *)itemNameOrNil
+                     itemType:(nullable NSString *)itemTypeOrNil
+                       itemId:(nullable NSString *)itemIdOrNil
+             customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log a Start Checkout event to see users moving through the purchase funnel in real-time, understand how many
@@ -133,10 +133,10 @@ FAB_START_NONNULL
  *  @param itemCountOrNil         The number of items in the cart.
  *  @param customAttributesOrNil  A dictionary of custom attributes to associate with this purchase.
  */
-+ (void)logStartCheckoutWithPrice:(NSDecimalNumber * FAB_NULLABLE)totalPriceOrNil
-                         currency:(NSString * FAB_NULLABLE)currencyOrNil
-                         itemCount:(NSNumber * FAB_NULLABLE)itemCountOrNil
-                 customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logStartCheckoutWithPrice:(nullable NSDecimalNumber *)totalPriceOrNil
+                         currency:(nullable NSString *)currencyOrNil
+                        itemCount:(nullable NSNumber *)itemCountOrNil
+                 customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log a Rating event to see users rating content within your app in real-time and understand what
@@ -148,11 +148,11 @@ FAB_START_NONNULL
  *  @param contentIdOrNil        The unique identifier for this piece of content. Useful for finding the top shared item.
  *  @param customAttributesOrNil A dictionary of custom attributes to associate with this event.
  */
-+ (void)logRating:(NSNumber * FAB_NULLABLE)ratingOrNil
-      contentName:(NSString * FAB_NULLABLE)contentNameOrNil
-      contentType:(NSString * FAB_NULLABLE)contentTypeOrNil
-        contentId:(NSString * FAB_NULLABLE)contentIdOrNil
- customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logRating:(nullable NSNumber *)ratingOrNil
+      contentName:(nullable NSString *)contentNameOrNil
+      contentType:(nullable NSString *)contentTypeOrNil
+        contentId:(nullable NSString *)contentIdOrNil
+ customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log a Content View event to see users viewing content within your app in real-time and
@@ -163,10 +163,10 @@ FAB_START_NONNULL
  *  @param contentIdOrNil        The unique identifier for this piece of content. Useful for finding the top shared item.
  *  @param customAttributesOrNil A dictionary of custom attributes to associate with this event.
  */
-+ (void)logContentViewWithName:(NSString * FAB_NULLABLE)contentNameOrNil
-                   contentType:(NSString * FAB_NULLABLE)contentTypeOrNil
-                     contentId:(NSString * FAB_NULLABLE)contentIdOrNil
-              customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logContentViewWithName:(nullable NSString *)contentNameOrNil
+                   contentType:(nullable NSString *)contentTypeOrNil
+                     contentId:(nullable NSString *)contentIdOrNil
+              customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log a Search event allows you to see users searching within your app in real-time and understand
@@ -175,8 +175,8 @@ FAB_START_NONNULL
  *  @param queryOrNil            The user's query.
  *  @param customAttributesOrNil A dictionary of custom attributes to associate with this event.
  */
-+ (void)logSearchWithQuery:(NSString * FAB_NULLABLE)queryOrNil
-          customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
++ (void)logSearchWithQuery:(nullable NSString *)queryOrNil
+          customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 /**
  *  Log a Custom Event to see user actions that are uniquely important for your app in real-time, to see how often
@@ -199,8 +199,8 @@ FAB_START_NONNULL
  *                               engagement.
  */
 + (void)logCustomEventWithName:(NSString *)eventName
-              customAttributes:(NSDictionary * FAB_NULLABLE)customAttributesOrNil;
+              customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
 
 @end
 
-FAB_END_NONNULL
+NS_ASSUME_NONNULL_END
