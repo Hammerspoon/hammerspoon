@@ -2,7 +2,7 @@
 ---
 --- Execute JavaScript code
 ---
---- This module is based on hs.applescript and uses osacompile until OSAKit matures
+--- This module is based on hs.applescript and uses OSAKit
 
 local module = require("hs.javascript.internal")
 
@@ -73,10 +73,8 @@ return module
 --
 -- > hs.javascript("")
 -- true	null()
--- > hs.javascript("return true")
--- true	'true'("true")
--- > hs.javascript("return false")
--- true	'fals'("false")
--- > hs.javascript("return null")
--- true	'null'
+-- > hs.javascript("true")
+-- true	'true'
+-- > hs.javascript("false")
+-- true	'false'
 
