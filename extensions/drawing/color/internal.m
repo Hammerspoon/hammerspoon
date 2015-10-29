@@ -1,6 +1,7 @@
 #import "../drawing.h"
 
 static int refTable ;
+static int colorCollectionsTable ;
 
 /// hs.drawing.color.lists() -> table
 /// Function
@@ -130,67 +131,82 @@ static int NSColorList_tolua(lua_State *L, id obj) {
     return 1 ;
 }
 
-// [[LuaSkin shared] luaObjectAtIndex:idx toClass:"NSColor"]
-// C-API
-// Converts the table at the specified index on the Lua Stack into an NSColor and returns the NSColor.  A description of how the table should be defined can be found in `hs.drawing.color`
-static id table_toNSColor(lua_State *L, int idx) {
+#define COLOR_LOOP_LEVEL 10
+static id table_toNSColorHelper(lua_State *L, int idx, int level) {
     CGFloat red = 0.0, green = 0.0, blue = 0.0, alpha = 1.0 ;
     CGFloat hue = 0.0, saturation = 0.0, brightness = 0.0 ;
     CGFloat white = 0.0 ;
 
     BOOL RGBColor = YES ;
 
-    NSString *colorList, *colorName ;
+// arbitrary cutoff to prevent infinite loop in table lookups
+    if (level < COLOR_LOOP_LEVEL) {
+        NSString *colorList, *colorName ;
 
-    switch (lua_type(L, idx)) {
-        case LUA_TTABLE:
-            if (lua_getfield(L, idx, "list") == LUA_TSTRING)
-                colorList = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
-            lua_pop(L, 1) ;
-            if (lua_getfield(L, idx, "name") == LUA_TSTRING)
-                colorName = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
-            lua_pop(L, 1) ;
+        switch (lua_type(L, idx)) {
+            case LUA_TTABLE:
+                if (lua_getfield(L, idx, "list") == LUA_TSTRING)
+                    colorList = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                lua_pop(L, 1) ;
+                if (lua_getfield(L, idx, "name") == LUA_TSTRING)
+                    colorName = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                lua_pop(L, 1) ;
 
-            if (lua_getfield(L, idx, "red") == LUA_TNUMBER)
-                red = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-            if (lua_getfield(L, idx, "green") == LUA_TNUMBER)
-                green = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-            if (lua_getfield(L, idx, "blue") == LUA_TNUMBER)
-                blue = lua_tonumber(L, -1);
-            lua_pop(L, 1);
+                if (lua_getfield(L, idx, "red") == LUA_TNUMBER)
+                    red = lua_tonumber(L, -1);
+                lua_pop(L, 1);
+                if (lua_getfield(L, idx, "green") == LUA_TNUMBER)
+                    green = lua_tonumber(L, -1);
+                lua_pop(L, 1);
+                if (lua_getfield(L, idx, "blue") == LUA_TNUMBER)
+                    blue = lua_tonumber(L, -1);
+                lua_pop(L, 1);
 
-            if (lua_getfield(L, idx, "hue") == LUA_TNUMBER) {
-                hue = lua_tonumber(L, -1);
-                RGBColor = NO ;
+                if (lua_getfield(L, idx, "hue") == LUA_TNUMBER) {
+                    hue = lua_tonumber(L, -1);
+                    RGBColor = NO ;
+                }
+                lua_pop(L, 1);
+                if (lua_getfield(L, idx, "saturation") == LUA_TNUMBER)
+                    saturation = lua_tonumber(L, -1);
+                lua_pop(L, 1);
+                if (lua_getfield(L, idx, "brightness") == LUA_TNUMBER)
+                    brightness = lua_tonumber(L, -1);
+                lua_pop(L, 1);
+
+                if (lua_getfield(L, idx, "white") == LUA_TNUMBER)
+                    white = lua_tonumber(L, -1);
+                lua_pop(L, 1);
+
+                if (lua_getfield(L, idx, "alpha") == LUA_TNUMBER)
+                    alpha = lua_tonumber(L, -1);
+                lua_pop(L, 1);
+
+                break;
+            default:
+                luaL_error(L, [[NSString stringWithFormat:@"Unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
+                return nil ;
+                break;
+        }
+
+        if (colorList && colorName) {
+            NSColor *holding = [[NSColorList colorListNamed:colorList] colorWithKey:colorName] ;
+            if (holding) return holding ;
+            if (colorCollectionsTable != LUA_NOREF) {
+                [[LuaSkin shared] pushLuaRef:refTable ref:colorCollectionsTable] ;
+                if (lua_getfield(L, -1, [colorList UTF8String]) == LUA_TTABLE) {
+                    if (lua_getfield(L, -1, [colorName UTF8String]) == LUA_TTABLE) {
+                        holding = table_toNSColorHelper(L, lua_absindex(L, -1), level + 1) ;
+                    }
+                    lua_pop(L, 1) ; // the colorName entry
+                }
+                lua_pop(L, 2) ;     // the colorList entry and the lookup table
             }
-            lua_pop(L, 1);
-            if (lua_getfield(L, idx, "saturation") == LUA_TNUMBER)
-                saturation = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-            if (lua_getfield(L, idx, "brightness") == LUA_TNUMBER)
-                brightness = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            if (lua_getfield(L, idx, "white") == LUA_TNUMBER)
-                white = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            if (lua_getfield(L, idx, "alpha") == LUA_TNUMBER)
-                alpha = lua_tonumber(L, -1);
-            lua_pop(L, 1);
-
-            break;
-        default:
-            luaL_error(L, [[NSString stringWithFormat:@"Unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
-            return nil ;
-            break;
-    }
-
-    if (colorList && colorName) {
-        NSColor *holding = [[NSColorList colorListNamed:colorList] colorWithKey:colorName] ;
-        if (holding) return holding ;
+            if (holding) return holding ;
+        }
+    } else {
+        CLS_NSLOG(@"color list/name combination level > %d: returning BLACK to prevent possible loop", COLOR_LOOP_LEVEL) ;
+        showError(L, (char *)[[NSString stringWithFormat:@"color list/name combination level > %d: returning BLACK to prevent possible loop", COLOR_LOOP_LEVEL] UTF8String]) ;
     }
 
     if (RGBColor) {
@@ -203,16 +219,36 @@ static id table_toNSColor(lua_State *L, int idx) {
     }
 }
 
+// [[LuaSkin shared] luaObjectAtIndex:idx toClass:"NSColor"]
+// C-API
+// Converts the table at the specified index on the Lua Stack into an NSColor and returns the NSColor.  A description of how the table should be defined can be found in `hs.drawing.color`
+static id table_toNSColor(lua_State *L, int idx) {
+    return table_toNSColorHelper(L, idx, 0) ;
+}
+
+// register the lookup table for Lua defined color tables
+static int registerColorCollectionsTable(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TTABLE, LS_TBREAK] ;
+
+    lua_pushvalue(L, 1) ;
+    colorCollectionsTable = [[LuaSkin shared] luaRef:refTable] ;
+    return 0 ;
+}
+
 static luaL_Reg moduleLib[] = {
     {"lists", getColorLists},
     {"asRGB", colorAsRGB},
     {"asHSB", colorAsHSB},
+
+    {"_registerColorCollectionsTable", registerColorCollectionsTable},
+
     {NULL,    NULL}
 };
 
 int luaopen_hs_drawing_color_internal(lua_State* __unused L) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ; // or module_metaLib
+    colorCollectionsTable = LUA_NOREF ;
 
     [skin registerPushNSHelper:NSColor_tolua      forClass:"NSColor"] ;
     [skin registerLuaObjectHelper:table_toNSColor forClass:"NSColor"] ;

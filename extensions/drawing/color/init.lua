@@ -318,4 +318,9 @@ module.moduleDefinedLists = {
     x11                = module.x11,
 }
 
+if (module.moduleDefinedLists) then
+    module._registerColorCollectionsTable(module.moduleDefinedLists)
+    module._registerColorCollectionsTable = nil -- no need to keep this function around
+end
+
 return module
