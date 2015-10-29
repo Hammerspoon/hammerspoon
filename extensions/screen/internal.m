@@ -1,7 +1,6 @@
 #import <Carbon/Carbon.h>
 #import <Cocoa/Cocoa.h>
 #import <IOKit/graphics/IOGraphicsLib.h>
-#import <CoreVideo/CVBase.h>
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
 
@@ -62,34 +61,26 @@ static int screen_name(lua_State* L) {
     return 1;
 }
 
+// CoreGraphics DisplayMode struct used in private APIs
 typedef struct {
-    int width;
-    int height;
-    int scale;
-    int refresh;
-} CGDisplayModeRefInfo;
+    uint32_t modeNumber;
+    uint32_t flags;
+    uint32_t width;
+    uint32_t height;
+    uint32_t depth;
+    uint8_t unknown[170];
+    uint16_t freq;
+    uint8_t more_unknown[16];
+    float density;
+} CGSDisplayMode;
 
-CGDisplayModeRefInfo getDisplayModeRefInfo(CGDisplayModeRef displayModeRef, CGDirectDisplayID screenID) {
-    CGDisplayModeRefInfo info;
-    info.width   = (int)CGDisplayModeGetWidth(displayModeRef);
-    info.height  = (int)CGDisplayModeGetHeight(displayModeRef);
-    info.scale   = (int)CGDisplayModeGetPixelWidth(displayModeRef) / info.width;
-    info.refresh = (int)ceil(CGDisplayModeGetRefreshRate(displayModeRef));
+// CoreGraphics private APIs with support for scaled (retina) display modes
+void CGSGetCurrentDisplayMode(CGDirectDisplayID display, int *modeNum);
+void CGSConfigureDisplayMode(CGDisplayConfigRef config, CGDirectDisplayID display, int modeNum);
+void CGSGetNumberOfDisplayModes(CGDirectDisplayID display, int *nModes);
+void CGSGetDisplayModeDescriptionOfLength(CGDirectDisplayID display, int idx, CGSDisplayMode *mode, int length);
 
-    if (info.refresh == 0.0) {
-        CVDisplayLinkRef link;
-        CVDisplayLinkCreateWithCGDisplay(screenID, &link);
-        const CVTime time = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link);
-        if (!(time.flags & kCVTimeIsIndefinite)) {
-            info.refresh = (int)ceil((time.timeScale / (double) time.timeValue));
-        }
-        CVDisplayLinkRelease(link);
-    }
-
-    return info;
-}
-
-/// hs.screen:currentMode() -> table or nil
+/// hs.screen:currentMode() -> table
 /// Method
 /// Returns a table describing the current screen mode
 ///
@@ -97,41 +88,32 @@ CGDisplayModeRefInfo getDisplayModeRefInfo(CGDisplayModeRef displayModeRef, CGDi
 ///  * None
 ///
 /// Returns:
-///  * A table containing the current screen mode, or nil if an error occurred. The keys of the table are:
+///  * A table containing the current screen mode. The keys of the table are:
 ///   * w - A number containing the width of the screen mode in points
 ///   * h - A number containing the height of the screen mode in points
 ///   * scale - A number containing the scaling factor of the screen mode (typically `1` for a native mode, `2` for a HiDPI mode)
 ///   * desc - A string containing a representation of the mode as used in `hs.screen:availableModes()` - e.g. "1920x1080@2x"
 static int screen_currentMode(lua_State* L) {
     NSScreen* screen = get_screen_arg(L, 1);
-    CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
-
-    CGDisplayModeRef currentMode = CGDisplayCopyDisplayMode(screenID);
-    if (!currentMode) {
-        lua_pushnil(L);
-        return 1;
-    }
-
-    CGDisplayModeRefInfo info = getDisplayModeRefInfo(currentMode, screenID);
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    int currentModeNumber;
+    CGSGetCurrentDisplayMode(screen_id, &currentModeNumber);
+    CGSDisplayMode mode;
+    CGSGetDisplayModeDescriptionOfLength(screen_id, currentModeNumber, &mode, sizeof(mode));
 
     lua_newtable(L);
 
-    lua_pushinteger(L, info.width);
+    lua_pushinteger(L, mode.width);
     lua_setfield(L, -2, "w");
 
-    lua_pushinteger(L, info.height);
+    lua_pushinteger(L, mode.height);
     lua_setfield(L, -2, "h");
 
-    lua_pushinteger(L, info.scale);
+    lua_pushnumber(L, (double)mode.density);
     lua_setfield(L, -2, "scale");
 
-    lua_pushinteger(L, info.refresh);
-    lua_setfield(L, -2, "refresh");
-
-    lua_pushstring(L, [[NSString stringWithFormat:@"%dx%d@%dx@%d", info.width, info.height, info.scale, info.refresh] UTF8String]);
+    lua_pushstring(L, [[NSString stringWithFormat:@"%dx%d@%.0fx", mode.width, mode.height, mode.density] UTF8String]);
     lua_setfield(L, -2, "desc");
-
-    CGDisplayModeRelease(currentMode);
 
     return 1;
 }
@@ -144,7 +126,7 @@ static int screen_currentMode(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * A table containing the supported screen modes, or nil if an error occurred. The keys of the table take the form of "1440x900@2x" (for a HiDPI mode) or "1680x1050@1x" (for a native DPI mode). The values are tables which contain the keys:
+///  * A table containing the supported screen modes. The keys of the table take the form of "1440x900@2x" (for a HiDPI mode) or "1680x1050@1x" (for a native DPI mode). The values are tables which contain the keys:
 ///   * w - A number containing the width of the screen mode in points
 ///   * h - A number containing the height of the screen mode in points
 ///   * scale - A number containing the scaling factor of the screen mode (typically `1` for a native mode, `2` for a HiDPI mode)
@@ -154,44 +136,35 @@ static int screen_currentMode(lua_State* L) {
 ///  * "points" are not necessarily the same as pixels, because they take the scale factor into account (e.g. "1440x900@2x" is a 2880x1800 screen resolution, with a scaling factor of 2, i.e. with HiDPI pixel-doubled rendering enabled), however, they are far more useful to work with than native pixel modes, when a Retina screen is involved. For non-retina screens, points and pixels are equivalent.
 static int screen_availableModes(lua_State* L) {
     NSScreen* screen = get_screen_arg(L, 1);
-    CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+    CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
-    int i;
-    CFIndex numberOfDisplayModes;
-    CFArrayRef allModes;
-
-    allModes = CGDisplayCopyAllDisplayModes(screenID, NULL);
-    if (!allModes) {
-        lua_pushnil(L);
-        return 1;
-    }
-
-    numberOfDisplayModes = CFArrayGetCount(allModes);
+    int i, numberOfDisplayModes;
+    CGSGetNumberOfDisplayModes(screen_id, &numberOfDisplayModes);
 
     lua_newtable(L);
 
     for (i = 0; i < numberOfDisplayModes; i++)
     {
-        CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
-        CGDisplayModeRefInfo modeInfo = getDisplayModeRefInfo(mode, screenID);
+        CGSDisplayMode mode;
+        CGSGetDisplayModeDescriptionOfLength(screen_id, i, &mode, sizeof(mode));
 
         // CLS_NSLOG(@"Found a mode: %dx%d@%.0fx, %dbit", mode.width, mode.height, mode.density, (mode.depth == 4) ? 32 : 16);
+        if (mode.depth == 4) {
             lua_newtable(L);
 
-            lua_pushinteger(L, modeInfo.width);
+            lua_pushinteger(L, mode.width);
             lua_setfield(L, -2, "w");
 
-            lua_pushinteger(L, modeInfo.height);
+            lua_pushinteger(L, mode.height);
             lua_setfield(L, -2, "h");
 
-            lua_pushnumber(L, modeInfo.scale);
+            lua_pushnumber(L, (double)mode.density);
             lua_setfield(L, -2, "scale");
 
             // Now push this mode table into the list-of-modes table
-            lua_setfield(L, -2, [[NSString stringWithFormat:@"%dx%d@%d@%d", modeInfo.width, modeInfo.height, modeInfo.scale, modeInfo.refresh] UTF8String]);
+            lua_setfield(L, -2, [[NSString stringWithFormat:@"%dx%d@%.0fx", mode.width, mode.height, mode.density] UTF8String]);
+        }
     }
-
-    CFRelease(allModes);
 
     return 1;
 }
@@ -217,7 +190,6 @@ static int screen_setMode(lua_State* L) {
     lua_Number scale = luaL_checknumber(L, 4);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
-    /*
     int i, numberOfDisplayModes;
     CGSGetNumberOfDisplayModes(screen_id, &numberOfDisplayModes);
 
@@ -239,7 +211,7 @@ static int screen_setMode(lua_State* L) {
             return 1;
         }
     }
-*/
+
     lua_pushboolean(L, false);
     return 1;
 }
