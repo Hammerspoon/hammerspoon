@@ -163,10 +163,10 @@ function layout.apply(layout, windowTitleComparator)
                 -- Default to the main screen if the passed-in screen isn't found; useful for
                 -- layouts activated using the screen watcher, meaning that screens in layouts may
                 -- not be in the current screen configuration.
-                display = screen.allScreens()[1]
+                display = screen.primaryScreen()
             end
         else
-            display = screen.allScreens()[1]
+            display = screen.primaryScreen()
         end
 
         if not display then
