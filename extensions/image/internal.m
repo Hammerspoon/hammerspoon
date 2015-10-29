@@ -92,9 +92,7 @@ static int imageFromPath(lua_State *L) {
     if (newImage && newImage.valid) {
         [[LuaSkin shared] pushNSObject:newImage];
     } else {
-        showError(L, "Unable to load image:");
-        showError(L, (char *)[imagePath UTF8String]);
-        lua_pushnil(L);
+        return luaL_error(L, "Unable to load image: %s", [imagePath UTF8String]);
     }
 
     return 1;
@@ -217,10 +215,7 @@ static int imageWithContextFromASCII(lua_State *L) {
         case LUA_TNONE:
             break;
         default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.image.imageWithContextFromASCII as the context table: %d", lua_type(L, 2));
-            showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed to hs.image.imageWithContextFromASCII as the context table: %s", lua_typename(L, lua_type(L, 2))] UTF8String]) ;
-            lua_pushnil(L) ;
-            return 1;
+            return luaL_error(L, "Unexpected type passed to hs.image.imageWithContextFromASCII as the context table: %s", lua_typename(L, lua_type(L, 2))) ;
     }
 
     if (isnan(defaultLineWidth)) { defaultLineWidth = defaultAntiAlias ? 1.0 : sqrtf(2.0)/2.0; }
@@ -394,39 +389,26 @@ static int saveToFile(lua_State* L) {
         else if ([typeLabel compare:@"JPEG" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
         else if ([typeLabel compare:@"JPG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSJPEGFileType ; }
         else {
-            showError(L, "hs.image:saveToFile:: invalid file type specified") ;
-            lua_pushboolean(L, NO) ;
-            return 1 ;
+            return luaL_error(L, "hs.image:saveToFile:: invalid file type specified") ;
         }
     }
 
     BOOL result = false;
 
     NSData *tiffRep = [theImage TIFFRepresentation];
-    if (!tiffRep) {
-        showError(L, "Unable to write image file: Can't create internal representation");
-        lua_pushboolean(L, false);
-        return 1;
-    }
+    if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't create internal representation");
+
     NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
-    if (!tiffRep) {
-        showError(L, "Unable to write image file: Can't wrap internal representation");
-        lua_pushboolean(L, false);
-        return 1;
-    }
+    if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't wrap internal representation");
+
     NSData* fileData = [rep representationUsingType:fileType properties:@{}];
-    if (!fileData) {
-        showError(L, "Unable to write image file: Can't convert internal representation");
-        lua_pushboolean(L, false);
-        return 1;
-    }
+    if (!fileData) return luaL_error(L, "Unable to write image file: Can't convert internal representation");
+
     NSError *error;
-    if ([fileData writeToFile:[filePath stringByExpandingTildeInPath] options:NSDataWritingAtomic error:&error]) {
+    if ([fileData writeToFile:[filePath stringByExpandingTildeInPath] options:NSDataWritingAtomic error:&error])
         result = YES ;
-    } else {
-        showError(L, "Unable to write image file:");
-        showError(L, (char *)[[error localizedDescription] UTF8String]);
-    }
+    else
+        return luaL_error(L, "Unable to write image file: %s", [[error localizedDescription] UTF8String]);
 
     lua_pushboolean(L, result) ;
     return 1 ;

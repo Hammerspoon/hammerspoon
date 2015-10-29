@@ -503,7 +503,7 @@ static int drawing_newText(lua_State *L) {
         [theView setLuaState:L];
 
         theWindow.contentView = theView;
-        theView.textField.attributedStringValue = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSAttributedString"] ;
+        [theView.textField setAttributedStringValue:[[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSAttributedString"]] ;
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -588,7 +588,7 @@ static int drawing_setText(lua_State *L) {
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
-        drawingView.textField.attributedStringValue = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSAttributedString"] ;
+        [drawingView.textField setAttributedStringValue:[[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSAttributedString"]] ;
     } else {
         return luaL_argerror(L, 1, "not an hs.drawing text object");
     }
@@ -615,7 +615,7 @@ static int drawing_getText(lua_State *L) {
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
-        [[LuaSkin shared] pushNSObject:drawingView.textField.attributedStringValue] ;
+        [[LuaSkin shared] pushNSObject:[drawingView.textField.attributedStringValue copy]] ;
     } else {
         return luaL_argerror(L, 1, "not an hs.drawing text object");
     }
@@ -744,7 +744,7 @@ NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defa
 ///  * This method should only be used on text drawing objects
 ///  * If the text of the drawing object is currently empty (i.e. "") then style changes may be lost.  Use a placeholder such as a space (" ") or hide the object if style changes need to be saved but the text should disappear for a while.
 ///  * Only the keys specified are changed.  To reset an object to all of its defaults, call this method with an explicit nil as its only parameter (e.g. `hs.drawing:setTextStyle(nil)`
-///  * The font, font size, and font color can also be set by their individual specific methods as well; this method is provided so that style components can be stored and applied collectively, as well as used by `hs.drawing.getTextBoundingBoxSize()` to determine the proper rectangle size for a textual drawing object.
+///  * The font, font size, and font color can also be set by their individual specific methods as well; this method is provided so that style components can be stored and applied collectively, as well as used by `hs.drawing.getTextDrawingSize()` to determine the proper rectangle size for a textual drawing object.
 static int drawing_setTextStyle(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
