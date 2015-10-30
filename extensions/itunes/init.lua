@@ -6,6 +6,22 @@ local itunes = {}
 
 local alert = require "hs.alert"
 local as = require "hs.applescript"
+local app = require "hs.application"
+
+--- hs.itunes.state_paused
+--- Constant
+--- Returned by `hs.itunes.getPlaybackState()` to indicates iTunes is paused
+itunes.state_paused = "'kPSp'"
+
+--- hs.itunes.state_playing
+--- Constant
+--- Returned by `hs.itunes.getPlaybackState()` to indicates iTunes is playing
+itunes.state_playing = "'kPSP'"
+
+--- hs.itunes.state_stopped
+--- Constant
+--- Returned by `hs.itunes.getPlaybackState()` to indicates iTunes is stopped
+itunes.state_stopped = "'kPSS'"
 
 -- Internal function to pass a command to Applescript.
 local function tell(cmd)
@@ -18,7 +34,7 @@ local function tell(cmd)
   end
 end
 
---- hs.itunes.play()
+--- hs.itunes.playpause()
 --- Function
 --- Toggles play/pause of current iTunes track
 ---
@@ -27,13 +43,26 @@ end
 ---
 --- Returns:
 ---  * None
-function itunes.play()
+function itunes.playpause()
   tell('playpause')
+end
+
+--- hs.itunes.play()
+--- Function
+--- Plays the current iTunes track
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+function itunes.play()
+  tell('play')
 end
 
 --- hs.itunes.pause()
 --- Function
---- Pauses of current iTunes track
+--- Pauses the current iTunes track
 ---
 --- Parameters:
 ---  * None
@@ -123,6 +152,59 @@ end
 ---  * A string containing the name of the current track, or nil if an error occurred
 function itunes.getCurrentTrack()
     return tell('name of the current track as string')
+end
+
+--- hs.itunes.getPlaybackState()
+--- Function
+--- Gets the current playback state of iTunes
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A string containing one of the following constants:
+---    - `hs.itunes.state_stopped`
+---    - `hs.itunes.state_paused`
+---    - `hs.itunes.state_playing`
+function itunes.getPlaybackState()
+   return tell('get player state')
+end
+
+--- hs.itunes.isRunning()
+--- Function
+--- Returns whether iTunes is currently open. Most other functions in hs.itunes will automatically start the application, so this function can be used to guard against that.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A boolean value indicating whether the iTunes application is running.
+function itunes.isRunning()
+   return app.get("iTunes") ~= nil
+end
+
+--- hs.itunes.isPlaying()
+--- Function
+--- Returns whether iTunes is currently playing
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A boolean value indicating whether iTunes is currently playing a track, or nil if an error occurred (unknown player state). Also returns false if the application is not running
+function itunes.isPlaying()
+   -- We check separately to avoid starting the application if it's not running
+   if not hs.itunes.isRunning() then
+      return false
+   end
+   state = hs.itunes.getPlaybackState()
+   if state == hs.itunes.state_playing then
+      return true
+   elseif state == hs.itunes.state_paused or state == hs.itunes.state_stopped then
+      return false
+   else  -- unknown state
+      return nil
+   end
 end
 
 return itunes
