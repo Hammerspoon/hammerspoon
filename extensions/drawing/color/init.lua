@@ -23,7 +23,7 @@ local module = require("hs.drawing.color.internal")
 ---   * alpha - the color transparency from 0.0 (completely transparent) to 1.0 (completely opaque)
 ---
 --- * From the system color lists:
----   * list - the name of the system color list
+---   * list - the name of a system color list or a collection list defined in `hs.drawing.color`
 ---   * name - the color name within the specified color list
 ---
 --- Any combination of the above keys may be specified within the color table and they will be evaluated in the following order:
@@ -34,12 +34,50 @@ local module = require("hs.drawing.color.internal")
 ---
 --- Except where specified above to indicate the color model being used, any key which is not provided defaults to a value of 0.0, except for `alpha`, which defaults to 1.0.  This means that specifying an empty table as the color will result in an opaque black color.
 
+local _kMetaTable = {}
+_kMetaTable._k = {}
+_kMetaTable.__index = function(obj, key)
+        if _kMetaTable._k[obj] then
+            if _kMetaTable._k[obj][key] then
+                return _kMetaTable._k[obj][key]
+            else
+                for k,v in pairs(_kMetaTable._k[obj]) do
+                    if v == key then return k end
+                end
+            end
+        end
+        return nil
+    end
+_kMetaTable.__newindex = function(obj, key, value)
+        error("attempt to modify a table of constants",2)
+        return nil
+    end
+_kMetaTable.__pairs = function(obj) return pairs(_kMetaTable._k[obj]) end
+_kMetaTable.__tostring = function(obj)
+        local result = ""
+        if _kMetaTable._k[obj] then
+            for k,v in require("hs.fnutils").sortByKeys(_kMetaTable._k[obj]) do
+                result = result..k.."\n"
+            end
+        else
+            result = "constants table missing"
+        end
+        return result
+    end
+_kMetaTable.__metatable = _kMetaTable -- go ahead and look, but don't unset this
+
+local _makeConstantsTable = function(theTable)
+    local results = setmetatable({}, _kMetaTable)
+    _kMetaTable._k[results] = theTable
+    return results
+end
+
 
 -- doc defined in internal.m
 local internalColorLists = module.lists
 module.lists = function(...)
     local interimValue = internalColorLists(...)
-    for k, v in pairs(module.moduleDefinedLists) do interimValue[k] = v end
+    for k, v in pairs(module.definedCollections) do interimValue[k] = v end
     return setmetatable(interimValue, {
         __tostring = function(_)
             local fnutils, result = require("hs.fnutils"), ""
@@ -80,7 +118,7 @@ end
 
 --- hs.drawing.color.ansiTerminalColors
 --- Variable
---- A collection of colors representing the ANSI Terminal color sequences.  The color definitions are based upon code found at https://github.com/balthamos/geektool-3/blob/ac91b2d03c4f6002b007695f5b0ce73514eb291f/NerdTool/classes/ANSIEscapeHelper.m.
+--- A collection of colors representing the ANSI Terminal color sequences.  The color definitions are based upon code found at https://github.com/balthamos/geektool-3 in the /NerdTool/classes/ANSIEscapeHelper.m file.
 ---
 --- Notes:
 ---  * This is not a constant, so you can adjust the colors at run time for your installation if desired.
@@ -310,16 +348,25 @@ for k,v in pairs(module.hammerspoon) do
     end
 end
 
--- to allow hs.drawing.color.lists and hs.drawing.color.colorsFor to include these in the "system" lists,
--- keep this up to date with any collection additions
-module.moduleDefinedLists = {
+--- hs.drawing.color.definedCollections
+--- Constant
+--- This table contains this list of defined color collections provided by the `hs.drawing.color` module.  Collections differ from the system color lists in that you can modify the color values their members contain by modifying the table at `hs.drawing.color.<collection>.<color>` and future references to that color will reflect the new changes, thus allowing you to customize the palettes for your installation.
+---
+--- Notes:
+---  * This list is a constant, but the members it refers to are not.
+module.definedCollections = _makeConstantsTable({
+
+-- NOTE: to allow hs.drawing.color.lists, hs.drawing.color.colorsFor, and the
+-- LuaSkin convertor for NSColor to support collections, keep this up to date
+-- with any collection additions
+
     hammerspoon        = module.hammerspoon,
     ansiTerminalColors = module.ansiTerminalColors,
     x11                = module.x11,
-}
+})
 
-if (module.moduleDefinedLists) then
-    module._registerColorCollectionsTable(module.moduleDefinedLists)
+if (module.definedCollections) then
+    module._registerColorCollectionsTable(module.definedCollections)
     module._registerColorCollectionsTable = nil -- no need to keep this function around
 end
 
