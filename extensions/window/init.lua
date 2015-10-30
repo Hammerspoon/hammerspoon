@@ -12,6 +12,7 @@ local geometry = require "hs.geometry"
 local gtype=geometry.type
 local screen = require "hs.screen"
 local timer = require "hs.timer"
+local imagemod = require("hs.image") -- make sure we know about HSImage userdata type
 local pairs,ipairs,next,min,max,abs,cos,type = pairs,ipairs,next,math.min,math.max,math.abs,math.cos,type
 local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort,table.unpack,table.pack
 --- hs.window.animationDuration (number)
