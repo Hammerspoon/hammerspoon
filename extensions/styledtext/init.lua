@@ -405,6 +405,21 @@ module.ansi = function(rawText, attr)
         end
     end
 
+    -- lua indexes strings by byte; NSAttributedString by unicode character... this is a stopgap, as
+    -- I'm leaning towards the solution really belonging in the C portion of the code sine the whole
+    -- point is to extend Lua...
+    local unicodeMapping = {}
+    local i, s, e = 1, 1, 1
+    while (s <= #cleanString) do
+        s, e = cleanString:find(utf8.charpattern, s)
+--         print(i, s, e)
+        for j = s, e, 1 do
+            unicodeMapping[j] = i
+        end
+        i = i + 1
+        s = e + 1
+    end
+
 -- create base string with clean string and specified attributes, if any
     local newString = module.new(cleanString, attr or {})
 
@@ -433,7 +448,7 @@ module.ansi = function(rawText, attr)
                       else
                           newAttribute[k] = v
                       end
-                      newString = newString:setStyle(newAttribute, s, e)
+                      newString = newString:setStyle(newAttribute, unicodeMapping[s], unicodeMapping[e])
                   end
                end
             end

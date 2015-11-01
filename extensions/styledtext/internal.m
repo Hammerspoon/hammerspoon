@@ -1176,7 +1176,13 @@ static id table_toNSFont(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    return [NSFont fontWithName:theName size:theSize] ;
+    NSFont *theFont = [NSFont fontWithName:theName size:theSize] ;
+    if (theFont)
+        return theFont ;
+    else {
+        luaL_error(L, "invalid font specified: %s", [theName UTF8String]) ;
+        return nil ;
+    }
 }
 
 static int NSShadow_toLua(lua_State *L, id obj) {
