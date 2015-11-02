@@ -764,6 +764,7 @@ static int drawing_setTextStyle(lua_State *L) {
         }
 
         NSMutableParagraphStyle *style = [[attributes objectForKey:NSParagraphStyleAttributeName] mutableCopy] ;
+        if (!style) style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy] ;
 
 // NOTE: If we ever do deprecate setTextFont, setTextSize, and setTextColor, or if we want to expand to allow
 // multiple styles in an attributed string, move font and color into attribute dictionary -- I left them as is
