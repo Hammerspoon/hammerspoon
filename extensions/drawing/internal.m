@@ -2076,6 +2076,23 @@ static int userdata_tostring(lua_State* L) {
     return 1 ;
 }
 
+static int drawing_wantsLayer(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, "hs.drawing",
+                                LS_TBOOLEAN | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+
+    drawing_t       *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView   *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    if (lua_type(L, 2) != LUA_TNONE) {
+        [drawingView setWantsLayer:(BOOL)lua_toboolean(L, 2)];
+        lua_pushvalue(L, 1) ;
+    } else
+        lua_pushboolean(L, (BOOL)[drawingView wantsLayer]) ;
+
+    return 1;
+}
 
 // Lua metadata
 
@@ -2092,6 +2109,7 @@ static const luaL_Reg drawinglib[] = {
 };
 
 static const luaL_Reg drawing_metalib[] = {
+    {"wantsLayer",          drawing_wantsLayer},
     {"setStroke", drawing_setStroke},
     {"setStrokeWidth", drawing_setStrokeWidth},
     {"setStrokeColor", drawing_setStrokeColor},
