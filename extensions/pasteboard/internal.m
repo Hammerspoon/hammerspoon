@@ -24,6 +24,27 @@ static int pasteboard_getContents(lua_State* L) {
     return 1;
 }
 
+/// hs.pasteboard.getImageContents([name]) -> hs.image object or nil
+/// Function
+/// Gets the first image of the pasteboard
+///
+/// Parameters:
+///  * name - An optional string containing the name of the pasteboard. Defaults to the system pasteboard
+///
+/// Returns:
+///  * An `hs.image` object from the first pasteboard image, or nil if an error occurred
+static int pasteboard_getImageContents(lua_State* L) {
+    NSImage *image = [[NSImage alloc] initWithData:[lua_to_pasteboard(L, 1) dataForType:NSPasteboardTypePNG]];
+
+    if (image && image.valid) {
+        [[LuaSkin shared] pushNSObject:image];
+    } else {
+        return luaL_error(L, "No valid image data in pasteboard");
+    }
+
+    return 1;
+}
+
 /// hs.pasteboard.setContents(contents[, name]) -> boolean
 /// Function
 /// Sets the contents of the pasteboard
@@ -144,6 +165,7 @@ static int pasteboard_delete(lua_State* L) {
 static const luaL_Reg pasteboardLib[] = {
     {"changeCount",      pasteboard_changeCount},
     {"getContents",      pasteboard_getContents},
+    {"getImageContents", pasteboard_getImageContents},
     {"setContents",      pasteboard_setContents},
     {"clearContents",    pasteboard_clearContents},
     {"pasteboardTypes",  pasteboard_pasteboardTypes},
