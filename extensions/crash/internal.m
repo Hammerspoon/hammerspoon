@@ -104,11 +104,38 @@ static int crashKV(lua_State *L) {
     return 0;
 }
 
+/// hs.crash.residentSize() -> integer or nil
+/// Function
+/// Gets the resident size of the Hammerspoon process
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An integer containing the amount of RAM in use by Hammerspoon (in bytes), or nil if an error occurred
+static int residentSize(lua_State *L) {
+    struct task_basic_info info;
+    mach_msg_type_number_t size = sizeof(info);
+    kern_return_t kerr = task_info(mach_task_self(),
+                                   TASK_BASIC_INFO,
+                                   (task_info_t)&info,
+                                   &size);
+    if (kerr == KERN_SUCCESS) {
+        lua_pushinteger(L, info.resident_size);
+    } else {
+        lua_pushnil(L);
+        NSLog(@"Error with task_info(): %s", mach_error_string(kerr));
+    }
+
+    return 1;
+}
+
 static const luaL_Reg crashlib[] = {
     {"crash", burnTheWorld},
     {"isMainThread", isMainThread},
     {"_crashLog", crashLog},
     {"crashKV", crashKV},
+    {"residentSize", residentSize},
 
     {NULL, NULL}
 };
