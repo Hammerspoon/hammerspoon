@@ -47,4 +47,26 @@ crash.dumpCLIBS = function()
     return CLIBS
 end
 
+--- hs.crash.attemptMemoryRelease()
+--- Function
+--- Attempts to reduce RAM usage of Hammerspoon
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This function will print some memory usage numbers (in bytes) to the Hammerspoon Console before and after forcing Lua's garbage collector
+crash.attemptMemoryRelease = function()
+    print("Process resident size: "..crash.residentSize())
+    print("Lua state size: "..math.floor(collectgarbage("count")*1024))
+
+    collectgarbage()
+
+    print("Process resident size: "..crash.residentSize())
+    print("Lua state size: "..math.floor(collectgarbage("count")*1024))
+end
+
 return crash

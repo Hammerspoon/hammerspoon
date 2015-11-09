@@ -1,7 +1,4 @@
-#import <Cocoa/Cocoa.h>
-#import <Carbon/Carbon.h>
-#import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
+#import "drawing.h"
 
 /// === hs.drawing ===
 ///
@@ -13,56 +10,7 @@
 
 int refTable;
 
-// Declare our Lua userdata object and a storage container for them
-typedef struct _drawing_t {
-    void *window;
-// hs.drawing objects created outside of this module might have reason to avoid the
-// auto-close of this modules __gc
-    BOOL skipClose ;
-} drawing_t;
-
 NSMutableArray *drawingWindows;
-
-// Objective-C class interface definitions
-@interface HSDrawingWindow : NSPanel <NSWindowDelegate>
-@end
-
-@interface HSDrawingView : NSView {
-    lua_State *L;
-}
-@property int mouseUpCallbackRef;
-@property int mouseDownCallbackRef;
-@property BOOL HSFill;
-@property BOOL HSStroke;
-@property CGFloat HSLineWidth;
-@property (nonatomic, strong) NSColor *HSFillColor;
-@property (nonatomic, strong) NSColor *HSGradientStartColor;
-@property (nonatomic, strong) NSColor *HSGradientEndColor;
-@property int HSGradientAngle;
-@property (nonatomic, strong) NSColor *HSStrokeColor;
-@property CGFloat HSRoundedRectXRadius;
-@property CGFloat HSRoundedRectYRadius;
-@end
-
-@interface HSDrawingViewCircle : HSDrawingView
-@end
-
-@interface HSDrawingViewRect : HSDrawingView
-@end
-
-@interface HSDrawingViewLine : HSDrawingView
-@property NSPoint origin;
-@property NSPoint end;
-@end
-
-@interface HSDrawingViewText : HSDrawingView
-@property (nonatomic, strong) NSTextField *textField;
-@end
-
-@interface HSDrawingViewImage : HSDrawingView
-@property (nonatomic, strong) NSImageView *HSImageView;
-@property (nonatomic, strong) NSImage *HSImage;
-@end
 
 // Objective-C class interface implementations
 @implementation HSDrawingWindow
@@ -335,6 +283,7 @@ NSMutableArray *drawingWindows;
     //CLS_NSLOG(@"HSDrawingViewText::initWithFrame");
     self = [super initWithFrame:frameRect];
     if (self) {
+// NOTE: Change default_textAttributes(...) and drawing_getTextDrawingSize(...) if you change these
         NSTextField *theTextField = [[NSTextField alloc] initWithFrame:frameRect];
         [theTextField setFont: [NSFont systemFontOfSize: 27]];
         [theTextField setTextColor: [NSColor colorWithCalibratedWhite:1.0 alpha:1.0]];
@@ -526,22 +475,20 @@ static int drawing_newLine(lua_State *L) {
 ///
 /// Parameters:
 ///  * sizeRect - A rect-table containing the location/size of the text
-///  * message - A string containing the text to be displayed
+///  * message - A string containing the text to be displayed.   May also be any of the types supported by `hs.styledtext`.  See `hs.styledtext` for more details.
 ///
 /// Returns:
 ///  * An `hs.drawing` text object, or nil if an error occurs
-///  * If the text of the drawing object is set to empty (i.e. "") then style changes may not be fully applied by `hs.drawing:setTextStyle()`.  Use a placeholder such as a space (" ") or hide the object if style changes and text will be set at different times.
 static int drawing_newText(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TTABLE, LS_TSTRING|LS_TNUMBER, LS_TBREAK];
+    [skin checkArgs:LS_TTABLE, LS_TANY, LS_TBREAK];
 
     NSRect windowRect = [skin tableToRectAtIndex:1];
-    const char *message = lua_tostring(L, 2);
 
-    NSParagraphStyle *style = [NSParagraphStyle defaultParagraphStyle];
-
-    NSAttributedString *theMessage = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:message ? message : ""] attributes:@{NSParagraphStyleAttributeName:style}];
-    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect
+                                                                    styleMask:NSBorderlessWindowMask
+                                                                      backing:NSBackingStoreBuffered
+                                                                        defer:YES];
 
     if (theWindow) {
         drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
@@ -555,7 +502,7 @@ static int drawing_newText(lua_State *L) {
         [theView setLuaState:L];
 
         theWindow.contentView = theView;
-        theView.textField.attributedStringValue = theMessage;
+        [theView.textField setAttributedStringValue:[[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSAttributedString"]] ;
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -590,10 +537,10 @@ static int drawing_newText(lua_State *L) {
 // NOTE: THIS FUNCTION IS WRAPPED IN init.lua
 static int drawing_newImage(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TTABLE, LS_TUSERDATA|LS_TSTRING, IMAGE_USERDATA_TAG, LS_TBREAK];
+    [skin checkArgs:LS_TTABLE, LS_TUSERDATA|LS_TSTRING, "hs.image", LS_TBREAK];
 
     NSRect windowRect = [skin tableToRectAtIndex:1];
-    NSImage *theImage = get_image_from_hsimage(L, 2);
+    NSImage *theImage = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"];
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
     if (theWindow) {
@@ -626,52 +573,71 @@ static int drawing_newImage(lua_State *L) {
 /// Sets the text of a drawing object
 ///
 /// Parameters:
-///  * message - A string containing the text to display
+///  * message - A string containing the text to display.  May also be any of the types supported by `hs.styledtext`.  See `hs.styledtext` for more details.
 ///
 /// Returns:
 ///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
-///  * If the text of the drawing object is emptied (i.e. "") then style changes may be lost.  Use a placeholder such as a space (" ") or hide the object if style changes need to be saved but the text should disappear for a while.
 static int drawing_setText(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
 
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
-// NOTE: if text is empty, throws NSRangeException... where else might it?
-        NSDictionary *attributes ;
-        @try {
-            attributes = [drawingView.textField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] ;
-        }
-        @catch ( NSException *theException ) {
-            attributes = @{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} ;
-//            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
-        }
-
-        drawingView.textField.attributedStringValue = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:luaL_checkstring(L, 2)] attributes:attributes];
+        [drawingView.textField setAttributedStringValue:[[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSAttributedString"]] ;
     } else {
-        showError(L, ":setText() called on an hs.drawing object that isn't a text object");
+        return luaL_argerror(L, 1, "not an hs.drawing text object");
     }
 
     lua_pushvalue(L, 1);
     return 1;
 }
 
+/// hs.drawing:getText() -> `hs.styledtext` object
+/// Method
+/// Gets the text of a drawing object as an `hs.styledtext` object
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * an `hs.styledtext` object
+///
+/// Notes:
+///  * This method should only be used on text drawing objects
+static int drawing_getText(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
+        [[LuaSkin shared] pushNSObject:[drawingView.textField.attributedStringValue copy]] ;
+    } else {
+        return luaL_argerror(L, 1, "not an hs.drawing text object");
+    }
+
+    return 1;
+}
+
 NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defaultStuff) {
     NSFont                  *theFont  = [[defaultStuff objectForKey:@"font"] copy] ;
-    NSMutableParagraphStyle *theStyle = [[defaultStuff objectForKey:@"style"] mutableCopy] ;
+    NSMutableParagraphStyle *theStyle ;
     NSColor                 *theColor = [[defaultStuff objectForKey:@"color"] copy] ;
     NSFont *tmpFont;
 
     if (lua_istable(L, idx)) {
         if (lua_getfield(L, -1, "font")) {
-            CGFloat pointSize = theFont.pointSize;
-            NSString *fontName = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
-            tmpFont = [NSFont fontWithName:fontName size:pointSize];
-            if (tmpFont) {
-                theFont = tmpFont;
+            if (lua_type(L, -1) == LUA_TTABLE) {
+                theFont = [[LuaSkin shared] luaObjectAtIndex:-1 toClass:"NSFont"] ;
+            } else {
+                CGFloat pointSize = theFont.pointSize;
+                NSString *fontName = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
+                tmpFont = [NSFont fontWithName:fontName size:pointSize];
+                if (tmpFont) {
+                    theFont = tmpFont;
+                }
             }
         }
         lua_pop(L, 1);
@@ -687,49 +653,57 @@ NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defa
         lua_pop(L, 1);
 
         if (lua_getfield(L, -1, "color")) {
-            theColor = getColorFromStack(L, -1);
+            theColor = [[LuaSkin shared] luaObjectAtIndex:-1 toClass:"NSColor"] ;
         }
         lua_pop(L, 1);
 
-        if (lua_getfield(L, -1, "alignment")) {
-            NSString *alignment = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
-            if ([alignment isEqualToString:@"left"]) {
-                theStyle.alignment = NSLeftTextAlignment ;
-            } else if ([alignment isEqualToString:@"right"]) {
-                theStyle.alignment = NSRightTextAlignment ;
-            } else if ([alignment isEqualToString:@"center"]) {
-                theStyle.alignment = NSCenterTextAlignment ;
-            } else if ([alignment isEqualToString:@"justified"]) {
-                theStyle.alignment = NSJustifiedTextAlignment ;
-            } else if ([alignment isEqualToString:@"natural"]) {
-                theStyle.alignment = NSNaturalTextAlignment ;
-            } else {
-                luaL_error(L, [[NSString stringWithFormat:@"invalid alignment for textStyle specified: %@", alignment] UTF8String]) ;
-                return nil ;
+        if (lua_getfield(L, -1, "paragraphStyle")) {
+            theStyle = [[[LuaSkin shared] luaObjectAtIndex:-1 toClass:"NSParagraphStyle"] mutableCopy] ;
+            lua_pop(L, 1) ;
+        } else {
+            lua_pop(L, 1) ;
+            theStyle = [[defaultStuff objectForKey:@"style"] mutableCopy] ;
+            if (lua_getfield(L, -1, "alignment")) {
+                NSString *alignment = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
+                if ([alignment isEqualToString:@"left"]) {
+                    theStyle.alignment = NSLeftTextAlignment ;
+                } else if ([alignment isEqualToString:@"right"]) {
+                    theStyle.alignment = NSRightTextAlignment ;
+                } else if ([alignment isEqualToString:@"center"]) {
+                    theStyle.alignment = NSCenterTextAlignment ;
+                } else if ([alignment isEqualToString:@"justified"]) {
+                    theStyle.alignment = NSJustifiedTextAlignment ;
+                } else if ([alignment isEqualToString:@"natural"]) {
+                    theStyle.alignment = NSNaturalTextAlignment ;
+                } else {
+                    luaL_error(L, [[NSString stringWithFormat:@"invalid alignment for textStyle specified: %@", alignment] UTF8String]) ;
+                    return nil ;
+                }
             }
-        }
-        lua_pop(L, 1);
+            lua_pop(L, 1);
 
-        if (lua_getfield(L, -1, "lineBreak")) {
-            NSString *lineBreak = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
-            if ([lineBreak isEqualToString:@"wordWrap"]) {
-                theStyle.lineBreakMode = NSLineBreakByWordWrapping ;
-            } else if ([lineBreak isEqualToString:@"charWrap"]) {
-                theStyle.lineBreakMode = NSLineBreakByCharWrapping ;
-            } else if ([lineBreak isEqualToString:@"clip"]) {
-                theStyle.lineBreakMode = NSLineBreakByClipping ;
-            } else if ([lineBreak isEqualToString:@"truncateHead"]) {
-                theStyle.lineBreakMode = NSLineBreakByTruncatingHead ;
-            } else if ([lineBreak isEqualToString:@"truncateTail"]) {
-                theStyle.lineBreakMode = NSLineBreakByTruncatingTail ;
-            } else if ([lineBreak isEqualToString:@"truncateMiddle"]) {
-                theStyle.lineBreakMode = NSLineBreakByTruncatingMiddle ;
-            } else {
-                luaL_error(L, [[NSString stringWithFormat:@"invalid lineBreak for textStyle specified: %@", lineBreak] UTF8String]) ;
-                return nil ;
+            if (lua_getfield(L, -1, "lineBreak")) {
+                NSString *lineBreak = [NSString stringWithUTF8String:luaL_checkstring(L, -1)];
+                if ([lineBreak isEqualToString:@"wordWrap"]) {
+                    theStyle.lineBreakMode = NSLineBreakByWordWrapping ;
+                } else if ([lineBreak isEqualToString:@"charWrap"]) {
+                    theStyle.lineBreakMode = NSLineBreakByCharWrapping ;
+                } else if ([lineBreak isEqualToString:@"clip"]) {
+                    theStyle.lineBreakMode = NSLineBreakByClipping ;
+                } else if ([lineBreak isEqualToString:@"truncateHead"]) {
+                    theStyle.lineBreakMode = NSLineBreakByTruncatingHead ;
+                } else if ([lineBreak isEqualToString:@"truncateTail"]) {
+                    theStyle.lineBreakMode = NSLineBreakByTruncatingTail ;
+                } else if ([lineBreak isEqualToString:@"truncateMiddle"]) {
+                    theStyle.lineBreakMode = NSLineBreakByTruncatingMiddle ;
+                } else {
+                    luaL_error(L, [[NSString stringWithFormat:@"invalid lineBreak for textStyle specified: %@", lineBreak] UTF8String]) ;
+                    return nil ;
+                }
             }
+            lua_pop(L, 1);
         }
-        lua_pop(L, 1);
+
     } else {
         luaL_error(L, "invalid textStyle type specified: %s", lua_typename(L, -1)) ;
         return nil ;
@@ -738,31 +712,29 @@ NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defa
     return @{@"font":theFont, @"style":theStyle, @"color":theColor} ;
 }
 
-/// hs.drawing:setTextStyle(textStyle) -> drawingObject
+/// hs.drawing:setTextStyle([textStyle]) -> drawingObject
 /// Method
-/// Sets the style parameters for the text of a drawing object
+/// This method is deprecated.  Use the `hs.styledtext` module to set the text and style and apply it with `hs.drawing:setText` instead.
+///
+/// Sets the style parameters for the text of a drawing object.
 ///
 /// Parameters:
-///  * textStyle - a table containing one or more of the following keys to set for the text of the drawing object:
-///    * font - the name of the font to use (default: the system font)
-///    * size - the font point size to use (default: 27.0)
-///    * color - the font color described by a table containing color component values between 0.0 and 1.0 for each of the keys (default if not specified is white, though if specified as an empty table, will default to black):
-///      * red (default 0.0 if fontColor is a specified key)
-///      * green (default 0.0 if fontColor is a specified key)
-///      * blue (default 0.0 if fontColor is a specified key)
-///      * alpha (default 1.0 if fontColor is a specified key)
+///  * textStyle - an optional table containing one or more of the following keys to set for the text of the drawing object (if the table is nil or left out, the style is reset to the `hs.drawing` defaults):
+///    * font      - the name of the font to use (default: the system font)
+///    * size      - the font point size to use (default: 27.0)
+///    * color     - a color table as described in `hs.drawing.color`
 ///    * alignment - a string of one of the following indicating the texts alignment within the drawing objects frame:
-///      * "left" - the text is visually left aligned.
-///      * "right" - the text is visually right aligned.
-///      * "center" - the text is visually center aligned.
+///      * "left"      - the text is visually left aligned.
+///      * "right"     - the text is visually right aligned.
+///      * "center"    - the text is visually center aligned.
 ///      * "justified" - the text is justified
-///      * "natural" - (default) the natural alignment of the text’s script
+///      * "natural"   - (default) the natural alignment of the text’s script
 ///    * lineBreak - a string of one of the following indicating how to wrap text which exceeds the drawing object's frame:
-///      * "wordWrap" - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
-///      * "charWrap" - wrap before the first character that doesn’t fit
-///      * "clip" - do not draw past the edge of the drawing object frame
-///      * "truncateHead" - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
-///      * "truncateTail" - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
+///      * "wordWrap"       - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
+///      * "charWrap"       - wrap before the first character that doesn’t fit
+///      * "clip"           - do not draw past the edge of the drawing object frame
+///      * "truncateHead"   - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
+///      * "truncateTail"   - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
 ///      * "truncateMiddle" - the line is displayed so that the beginning and end fit in the frame and the missing text in the middle is indicated by an ellipsis
 ///
 /// Returns:
@@ -772,7 +744,7 @@ NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defa
 ///  * This method should only be used on text drawing objects
 ///  * If the text of the drawing object is currently empty (i.e. "") then style changes may be lost.  Use a placeholder such as a space (" ") or hide the object if style changes need to be saved but the text should disappear for a while.
 ///  * Only the keys specified are changed.  To reset an object to all of its defaults, call this method with an explicit nil as its only parameter (e.g. `hs.drawing:setTextStyle(nil)`
-///  * The font, font size, and font color can also be set by their individual specific methods as well; this method is provided so that style components can be stored and applied collectively, as well as used by `hs.drawing.getTextBoundingBoxSize()` to determine the proper rectangle size for a textual drawing object.
+///  * The font, font size, and font color can also be set by their individual specific methods as well; this method is provided so that style components can be stored and applied collectively, as well as used by `hs.drawing.getTextDrawingSize()` to determine the proper rectangle size for a textual drawing object.
 static int drawing_setTextStyle(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -797,7 +769,7 @@ static int drawing_setTextStyle(lua_State *L) {
 // multiple styles in an attributed string, move font and color into attribute dictionary -- I left them as is
 // to minimize changes to existing functions.
 
-        if (lua_isnil(L, 2)) {
+        if (lua_isnoneornil(L, 2)) {
             // defaults in the HSDrawingViewText initWithFrame: definition
             [theTextField setFont: [NSFont systemFontOfSize: 27]];
             [theTextField setTextColor: [NSColor colorWithCalibratedWhite:1.0 alpha:1.0]];
@@ -818,7 +790,7 @@ static int drawing_setTextStyle(lua_State *L) {
         }
 
     } else {
-        return luaL_error(L, ":setTextStyle() called on an hs.drawing object that isn't a text object") ;
+        return luaL_argerror(L, 1, "not an hs.drawing text object");
     }
 
     lua_pushvalue(L, 1);
@@ -877,7 +849,7 @@ static int drawing_setTopLeft(lua_State *L) {
 ///  * The drawing object
 ///
 /// Notes:
-///  * If this is called on an `hs.drawing.text` object, its window will be resized, but you will also need to change the font size with `:setTextSize()`
+///  * If this is called on an `hs.drawing.text` object, only its window will be resized. If you also want to change the font size, use `:setTextSize()`
 static int drawing_setSize(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -934,7 +906,7 @@ static int drawing_setFrame(lua_State *L) {
 
 /// hs.drawing:setTextFont(fontname) -> drawingObject
 /// Method
-/// Sets the font of a drawing object
+/// Sets the default font for a drawing object
 ///
 /// Parameters:
 ///  * fontname - A string containing the name of the font to use
@@ -944,6 +916,7 @@ static int drawing_setFrame(lua_State *L) {
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
+///  * This method changes the font for portions of an `hs.drawing` text object which do not have a specific font set in their attributes list (see `hs.styledtext` for more details).
 static int drawing_setTextFont(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -954,7 +927,7 @@ static int drawing_setTextFont(lua_State *L) {
         NSString *fontName = [NSString stringWithUTF8String:luaL_checkstring(L, 2)];
         [drawingView.textField setFont:[NSFont fontWithName:fontName size:pointSize]];
     } else {
-        showError(L, ":setTextFont() called on an hs.drawing object that isn't a text object");
+        return luaL_argerror(L, 1, "not an hs.drawing text object");
     }
 
     lua_pushvalue(L, 1);
@@ -963,7 +936,7 @@ static int drawing_setTextFont(lua_State *L) {
 
 /// hs.drawing:setTextSize(size) -> drawingObject
 /// Method
-/// Sets the text size of a drawing object
+/// Sets the default text size for a drawing object
 ///
 /// Parameters:
 ///  * size - A number containing the font size to use
@@ -973,6 +946,7 @@ static int drawing_setTextFont(lua_State *L) {
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
+///  * This method changes the font size for portions of an `hs.drawing` text object which do not have a specific font set in their attributes list (see `hs.styledtext` for more details).
 static int drawing_setTextSize(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -983,7 +957,7 @@ static int drawing_setTextSize(lua_State *L) {
         NSString *fontName = drawingView.textField.font.fontName;
         [drawingView.textField setFont:[NSFont fontWithName:fontName size:pointSize]];
     } else {
-        showError(L, ":setTextSize() called on an hs.drawing object that isn't a text object");
+        return luaL_argerror(L, 1, "not an hs.drawing text object");
     }
 
     lua_pushvalue(L, 1);
@@ -992,23 +966,20 @@ static int drawing_setTextSize(lua_State *L) {
 
 /// hs.drawing:setTextColor(color) -> drawingObject
 /// Method
-/// Sets the text color of a drawing object
+/// Sets the default text color for a drawing object
 ///
 /// Parameters:
-///  * color - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///    * red (default 0.0)
-///    * green (default 0.0)
-///    * blue (default 0.0)
-///    * alpha (default 1.0)
+///  * color - a color table as described in `hs.drawing.color`
 ///
 /// Returns:
 ///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be called on text drawing objects
+///  * This method changes the font color for portions of an `hs.drawing` text object which do not have a specific font set in their attributes list (see `hs.styledtext` for more details).
 static int drawing_setTextColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *textColor = getColorFromStack(L, 2);
+    NSColor *textColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
@@ -1016,7 +987,7 @@ static int drawing_setTextColor(lua_State *L) {
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
         [drawingView.textField setTextColor:textColor];
     } else {
-        showError(L, ":setTextColor() called on an hs.drawing object that isn't a text object");
+        return luaL_argerror(L, 1, "not an hs.drawing text object");
     }
 
     lua_pushvalue(L, 1);
@@ -1028,11 +999,7 @@ static int drawing_setTextColor(lua_State *L) {
 /// Sets the fill color of a drawing object
 ///
 /// Parameters:
-///  * color - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///    * red (default 0.0)
-///    * green (default 0.0)
-///    * blue (default 0.0)
-///    * alpha (default 1.0)
+///  * color - a color table as described in `hs.drawing.color`
 ///
 /// Returns:
 ///  * The drawing object
@@ -1042,7 +1009,7 @@ static int drawing_setTextColor(lua_State *L) {
 ///  * Calling this method will remove any gradient fill colors previously set with `hs.drawing:setFillGradient()`
 static int drawing_setFillColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *fillColor = getColorFromStack(L, 2);
+    NSColor *fillColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
@@ -1087,8 +1054,8 @@ static int drawing_setFillColor(lua_State *L) {
 ///  * Calling this method will remove any fill color previously set with `hs.drawing:setFillColor()`
 static int drawing_setFillGradient(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *startColor = getColorFromStack(L, 2);
-    NSColor *endColor = getColorFromStack(L, 3);
+    NSColor *startColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
+    NSColor *endColor = [[LuaSkin shared] luaObjectAtIndex:3 toClass:"NSColor"] ;
     int angle = (int)lua_tointeger(L, 4);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1114,11 +1081,7 @@ static int drawing_setFillGradient(lua_State *L) {
 /// Sets the stroke color of a drawing object
 ///
 /// Parameters:
-///  * color - A table containing color component values between 0.0 and 1.0 for each of the keys:
-///    * red (default 0.0)
-///    * green (default 0.0)
-///    * blue (default 0.0)
-///    * alpha (default 1.0)
+///  * color - a color table as described in `hs.drawing.color`
 ///
 /// Returns:
 ///  * The drawing object
@@ -1127,7 +1090,7 @@ static int drawing_setFillGradient(lua_State *L) {
 ///  * This method should only be used on line, rectangle and circle drawing objects
 static int drawing_setStrokeColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *strokeColor = getColorFromStack(L, 2);
+    NSColor *strokeColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
@@ -1277,7 +1240,7 @@ static int drawing_setStrokeWidth(lua_State *L) {
 ///  * The drawing object
 static int drawing_setImage(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSImage *image = get_image_from_hsimage(L, 2);
+    NSImage *image = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"];
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewImage *drawingView = (HSDrawingViewImage *)drawingWindow.contentView;
@@ -1693,104 +1656,6 @@ static int drawing_sendToBack(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing.fontNames() -> table
-/// Function
-/// Returns the names of all installed fonts for the system.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * a table containing the names of every font installed for the system.  The individual names are strings which can be used in the `hs.drawing:setTextFont(fontname)` method.
-static int fontNames(lua_State *L) {
-    NSArray *fontNames = [[NSFontManager sharedFontManager] availableFonts];
-
-    lua_newtable(L) ;
-    for (unsigned long indFont=0; indFont<[fontNames count]; ++indFont)
-    {
-        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, (lua_Integer)indFont + 1);
-    }
-    return 1 ;
-}
-
-/// hs.drawing.fontNamesWithTraits(fontTraitMask) -> table
-/// Function
-/// Returns the names of all installed fonts for the system with the specified traits.
-///
-/// Parameters:
-///  * traits -- a number, specifying the fontTraitMask, or a table containing traits listed in `hs.drawing.fontTraits` which are logically 'OR'ed together to create the fontTraitMask used.
-///
-/// Returns:
-///  * a table containing the names of every font installed for the system which matches the fontTraitMask specified.  The individual names are strings which can be used in the `hs.drawing:setTextFont(fontname)` method.
-///
-/// Notes:
-///  * specifying 0 or an empty table will match all fonts that are neither italic nor bold.  This would be the same list as you'd get with { hs.drawing.fontTraits.unBold, hs.drawing.fontTraits.unItalic } as the parameter.
-static int fontNamesWithTraits(lua_State *L) {
-    NSFontTraitMask theTraits = 0 ;
-
-    switch (lua_type(L, 1)) {
-        case LUA_TNIL:
-        case LUA_TNONE:
-            break ;
-        case LUA_TNUMBER:
-            theTraits = (NSFontTraitMask)lua_tointeger(L, 1) ;
-            break ;
-        case LUA_TTABLE:
-            for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 1)) {
-               theTraits |= (unsigned long)lua_tointeger(L, -1) ;
-            }
-            break ;
-        default:
-            showError(L, "hs.drawing.fontNamesWithTraits() requires a number or a table as it's parameter");
-            lua_pushnil(L);
-            return 1;
-    }
-
-    NSArray *fontNames = [[NSFontManager sharedFontManager] availableFontNamesWithTraits:theTraits];
-
-    lua_newtable(L) ;
-    for (unsigned long indFont=0; indFont<[fontNames count]; ++indFont)
-    {
-        lua_pushstring(L, [[fontNames objectAtIndex:indFont] UTF8String]) ; lua_rawseti(L, -2, (lua_Integer)indFont + 1);
-    }
-    return 1 ;
-}
-
-/// hs.drawing.fontTraits -> table
-/// Constant
-/// A table for containing Font Trait masks to use with `hs.drawing.fontNamesWithTraits(...)`
-///
-///    boldFont                    -- fonts with the 'Bold' attribute set
-///    compressedFont              -- fonts with the 'Compressed' attribute set
-///    condensedFont               -- fonts with the 'Condensed' attribute set
-///    expandedFont                -- fonts with the 'Expanded' attribute set
-///    fixedPitchFont              -- fonts with the 'FixedPitch' attribute set
-///    italicFont                  -- fonts with the 'Italic' attribute set
-///    narrowFont                  -- fonts with the 'Narrow' attribute set
-///    posterFont                  -- fonts with the 'Poster' attribute set
-///    smallCapsFont               -- fonts with the 'SmallCaps' attribute set
-///    nonStandardCharacterSetFont -- fonts with the 'NonStandardCharacterSet' attribute set
-///    unboldFont                  -- fonts that do not have the 'Bold' attribute set
-///    unitalicFont                -- fonts that do not have the 'Italic' attribute set
-///
-/// Notes:
-///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.drawing.fontTraits`.
-static void pushFontTraitsTable(lua_State* L) {
-    lua_newtable(L);
-    lua_pushinteger(L, NSBoldFontMask);                    lua_setfield(L, -2, "boldFont");
-    lua_pushinteger(L, NSCompressedFontMask);              lua_setfield(L, -2, "compressedFont");
-    lua_pushinteger(L, NSCondensedFontMask);               lua_setfield(L, -2, "condensedFont");
-    lua_pushinteger(L, NSExpandedFontMask);                lua_setfield(L, -2, "expandedFont");
-    lua_pushinteger(L, NSFixedPitchFontMask);              lua_setfield(L, -2, "fixedPitchFont");
-    lua_pushinteger(L, NSItalicFontMask);                  lua_setfield(L, -2, "italicFont");
-    lua_pushinteger(L, NSNarrowFontMask);                  lua_setfield(L, -2, "narrowFont");
-    lua_pushinteger(L, NSPosterFontMask);                  lua_setfield(L, -2, "posterFont");
-    lua_pushinteger(L, NSSmallCapsFontMask);               lua_setfield(L, -2, "smallCapsFont");
-    lua_pushinteger(L, NSNonStandardCharacterSetFontMask); lua_setfield(L, -2, "nonStandardCharacterSetFont");
-    lua_pushinteger(L, NSUnboldFontMask);                  lua_setfield(L, -2, "unboldFont");
-    lua_pushinteger(L, NSUnitalicFontMask);                lua_setfield(L, -2, "unitalicFont");
-}
-
 /// hs.drawing:alpha() -> number
 /// Method
 /// Get the alpha level of the window containing the hs.drawing object.
@@ -2072,28 +1937,53 @@ static int setBehavior(lua_State *L) {
     return 1 ;
 }
 
-/// hs.drawing.getTextDrawingSize(theText, textStyle) -> sizeTable
+/// hs.drawing.defaultTextStyle() -> `hs.styledtext` attributes table
+/// Function
+/// Returns a table containing the default font, size, color, and paragraphStyle used by `hs.drawing` for text drawing objects.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table containing the default style attributes `hs.drawing` uses for text drawing objects in the `hs.styledtext` attributes table format.
+///
+/// Notes:
+///  * This method returns the default font, size, color, and paragraphStyle used by `hs.drawing` for text objects.  If you modify a drawing object's defaults with `hs.drawing:setColor`, `hs.drawing:setTextFont`, or `hs.drawing:setTextSize`, the changes will not be reflected by this function.
+static int default_textAttributes(lua_State *L) {
+    lua_newtable(L) ;
+// NOTE: Change this if you change the defaults in [HSDrawingViewText initWithFrame:]
+      [[LuaSkin shared] pushNSObject:[NSFont systemFontOfSize: 27]] ;                    lua_setfield(L, -2, "font") ;
+      [[LuaSkin shared] pushNSObject:[NSColor colorWithCalibratedWhite:1.0 alpha:1.0]] ; lua_setfield(L, -2, "color") ;
+      [[LuaSkin shared] pushNSObject:[NSParagraphStyle defaultParagraphStyle]] ;         lua_setfield(L, -2, "paragraphStyle") ;
+    return 1 ;
+}
+
+/// hs.drawing.getTextDrawingSize(styledTextObject or theText, [textStyle]) -> sizeTable
 /// Method
 /// Get the size of the rectangle necessary to fully render the text with the specified style so that is will be completely visible.
 ///
 /// Parameters:
-///  * theText - the text which is to be displayed
-///  * textStyle - a table containing one or more of the following keys to set for the text of the drawing object:
-///    * font - the name of the font to use (default: the system font)
-///    * size - the font point size to use (default: 27.0)
-///    * color - ignored, but accepted for compatibility with `hs.drawing:setTextStyle()`
+///  * styledTextObject - an object created with the hs.styledtext module or its table representation (see `hs.styledtext`).
+///
+///  The following format is supported for backwards compatibility, but is deprecated.  Use the hs.styledtext module instead.
+///
+///  * theText   - the text which is to be displayed.
+///  * textStyle - a table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
+///    * font      - the name of the font to use (default: the system font)
+///    * size      - the font point size to use (default: 27.0)
+///    * color     - ignored, but accepted for compatibility with `hs.drawing:setTextStyle()`
 ///    * alignment - a string of one of the following indicating the texts alignment within the drawing objects frame:
-///      * "left" - the text is visually left aligned.
-///      * "right" - the text is visually right aligned.
-///      * "center" - the text is visually center aligned.
+///      * "left"      - the text is visually left aligned.
+///      * "right"     - the text is visually right aligned.
+///      * "center"    - the text is visually center aligned.
 ///      * "justified" - the text is justified
-///      * "natural" - (default) the natural alignment of the text’s script
+///      * "natural"   - (default) the natural alignment of the text’s script
 ///    * lineBreak - a string of one of the following indicating how to wrap text which exceeds the drawing object's frame:
-///      * "wordWrap" - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
-///      * "charWrap" - wrap before the first character that doesn’t fit
-///      * "clip" - do not draw past the edge of the drawing object frame
-///      * "truncateHead" - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
-///      * "truncateTail" - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
+///      * "wordWrap"       - (default) wrap at word boundaries, unless the word itself doesn’t fit on a single line
+///      * "charWrap"       - wrap before the first character that doesn’t fit
+///      * "clip"           - do not draw past the edge of the drawing object frame
+///      * "truncateHead"   - the line is displayed so that the end fits in the frame and the missing text at the beginning of the line is indicated by an ellipsis
+///      * "truncateTail"   - the line is displayed so that the beginning fits in the frame and the missing text at the end of the line is indicated by an ellipsis
 ///      * "truncateMiddle" - the line is displayed so that the beginning and end fit in the frame and the missing text in the middle is indicated by an ellipsis
 ///
 /// Returns:
@@ -2102,21 +1992,39 @@ static int setBehavior(lua_State *L) {
 /// Notes:
 ///  * This function assumes the default values specified for any key which is not included in the provided textStyle.
 ///  * The size returned is an approximation and may return a width that is off by about 4 points.  Use the returned size as a minimum starting point. Sometimes using the "clip" or "truncateMiddle" lineBreak modes or "justified" alignment will fit, but its safest to add in your own buffer if you have the space in your layout.
-///  * Tabs are 28 points apart by default.  Currently there is no function for changing this.
 ///  * Multi-line text (separated by a newline or return) is supported.  The height will be for the multiple lines and the width returned will be for the longest line.
 static int drawing_getTextDrawingSize(lua_State *L) {
-    NSString *theText  = [NSString stringWithUTF8String:luaL_checkstring(L, 1)];
+    NSSize theSize ;
+    switch(lua_type(L, 1)) {
+        case LUA_TSTRING:
+        case LUA_TNUMBER: {
+                NSString *theText  = [NSString stringWithUTF8String:lua_tostring(L, 1)];
 
-    NSDictionary *myStuff = modifyTextStyleFromStack(L, 2, @{
-                                @"style":[NSParagraphStyle defaultParagraphStyle],
-                                @"font" :[NSFont systemFontOfSize: 27],
-                                @"color":[NSColor colorWithCalibratedWhite:1.0 alpha:1.0]
-                            });
+                if (lua_isnoneornil(L, 2)) {
+                    if (lua_isnil(L, 2)) lua_remove(L, 2) ;
+                    lua_pushcfunction(L, default_textAttributes) ; lua_call(L, 0, 1) ;
+                }
 
-    NSSize theSize = [theText sizeWithAttributes:@{
-                  NSFontAttributeName:[myStuff objectForKey:@"font"],
-        NSParagraphStyleAttributeName:[myStuff objectForKey:@"style"]
-    }] ;
+                NSDictionary *myStuff = modifyTextStyleFromStack(L, 2, @{
+                                            @"style":[NSParagraphStyle defaultParagraphStyle],
+                                            @"font" :[NSFont systemFontOfSize: 27],
+                                            @"color":[NSColor colorWithCalibratedWhite:1.0 alpha:1.0]
+                                        });
+
+                theSize = [theText sizeWithAttributes:@{
+                              NSFontAttributeName:[myStuff objectForKey:@"font"],
+                    NSParagraphStyleAttributeName:[myStuff objectForKey:@"style"]
+                }] ;
+            } break ;
+        case LUA_TUSERDATA:
+        case LUA_TTABLE:  {
+                NSAttributedString *theText = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSAttributedString"] ;
+                theSize = [theText size] ;
+            } break ;
+        default:
+            return luaL_argerror(L, 1, "string or hs.styledtext object expected") ;
+            break ;
+    }
 
     lua_newtable(L) ;
         lua_pushnumber(L, ceil(theSize.height)) ; lua_setfield(L, -2, "h") ;
@@ -2172,16 +2080,15 @@ static int userdata_tostring(lua_State* L) {
 // Lua metadata
 
 static const luaL_Reg drawinglib[] = {
-    {"circle", drawing_newCircle},
-    {"rectangle", drawing_newRect},
-    {"line", drawing_newLine},
-    {"text", drawing_newText},
-    {"_image", drawing_newImage},
-    {"fontNames", fontNames},
-    {"fontNamesWithTraits", fontNamesWithTraits},
+    {"circle",             drawing_newCircle},
+    {"rectangle",          drawing_newRect},
+    {"line",               drawing_newLine},
+    {"text",               drawing_newText},
+    {"_image",             drawing_newImage},
     {"getTextDrawingSize", drawing_getTextDrawingSize},
+    {"defaultTextStyle",   default_textAttributes},
 
-    {NULL, NULL}
+    {NULL,                 NULL}
 };
 
 static const luaL_Reg drawing_metalib[] = {
@@ -2221,6 +2128,8 @@ static const luaL_Reg drawing_metalib[] = {
     {"rotateImage", drawing_rotate},
     {"clickCallbackActivating", drawing_clickCallbackActivating},
 
+    {"getText",    drawing_getText},
+
     {"__tostring", userdata_tostring},
     {"__gc", drawing_delete},
     {NULL, NULL}
@@ -2229,9 +2138,6 @@ static const luaL_Reg drawing_metalib[] = {
 int luaopen_hs_drawing_internal(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:drawinglib metaFunctions:nil objectFunctions:drawing_metalib];
-
-    pushFontTraitsTable(L);
-    lua_setfield(L, -2, "fontTraits");
 
     pushCollectionTypeTable(L);
     lua_setfield(L, -2, "windowBehaviors") ;

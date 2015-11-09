@@ -186,9 +186,11 @@ static int urleventgetDefaultHandler(lua_State *L) {
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
 
     NSString *scheme = [NSString stringWithUTF8String:lua_tostring(L, 1)];
-    NSString *bundleID = (__bridge NSString *)LSCopyDefaultHandlerForURLScheme((__bridge CFStringRef)scheme);
+    CFStringRef bundleID = LSCopyDefaultHandlerForURLScheme((__bridge CFStringRef)scheme);
 
-    lua_pushstring(L, [bundleID UTF8String]);
+    lua_pushstring(L, [(__bridge NSString *)bundleID UTF8String]);
+
+    CFRelease(bundleID);
     return 1;
 }
 

@@ -710,13 +710,13 @@ static int notification_contentImage(lua_State *L) {
     if (lua_isnone(L, 2)) {
         if ([((__bridge NSUserNotification *) notification->note) respondsToSelector:@selector(contentImage)]) {
             contentImage = ((__bridge NSUserNotification *) notification->note).contentImage ;
-            store_image_as_hsimage(L, contentImage);
+            [[LuaSkin shared] pushNSObject:contentImage];
         } else {
             lua_pushnil(L) ;
         }
     } else if (!notification->locked) {
         if ([((__bridge NSUserNotification *) notification->note) respondsToSelector:@selector(contentImage)]) {
-            contentImage = get_image_from_hsimage(L, 2);
+            contentImage = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"] ;
             if (!contentImage) {
                 return luaL_error(L, "invalid image specified");
             } else {

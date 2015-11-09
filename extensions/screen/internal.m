@@ -832,7 +832,7 @@ static int screen_snapshot(lua_State *L) {
     NSRect rect = screenRectToNSRect(L, 2);
     NSImage *image = screenToNSImage(screen, rect);
     if (image) {
-        store_image_as_hsimage(L, image);
+        [[LuaSkin shared] pushNSObject:image];
     } else {
         lua_pushnil(L);
     }
@@ -859,6 +859,7 @@ static int userdata_tostring(lua_State* L) {
         theName = @"(un-named screen)" ;
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
+    CFRelease(deviceInfo);
     return 1 ;
 }
 

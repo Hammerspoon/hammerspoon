@@ -624,7 +624,7 @@ static int webview_url(lua_State *L) {
         [[LuaSkin shared] pushNSObject:[theView URL]] ;
         return 1 ;
     } else {
-        NSURLRequest *theNSURL = [[LuaSkin shared] tableAtIndex:2 toClass:"NSURLRequest"] ;
+        NSURLRequest *theNSURL = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
             WKNavigation *navID = [theView loadRequest:theNSURL] ;
             theView.trackingID = navID ;
@@ -899,7 +899,7 @@ static int webview_magnification(lua_State *L) {
         lua_pushnumber(L, [theView magnification]) ;
     } else {
         luaL_checktype(L, 2, LUA_TNUMBER) ;
-        NSPoint centerOn ;
+        NSPoint centerOn = NSZeroPoint;
 
 // Center point doesn't seem to do anything... will investigate further later...
 //         if (lua_type(L, 3) == LUA_TTABLE) {

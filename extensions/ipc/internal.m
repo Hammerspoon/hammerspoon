@@ -27,6 +27,10 @@ CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, C
         const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
         CLS_NSLOG(@"hs.ipc: unable to load module to invoke callback handler: %s", errorMsg) ;
         showError([[LuaSkin shared] L], (char *)errorMsg);
+        if (shouldFree) {
+            free((char *)cmd);
+        }
+        CFRelease(instr);
         return nil;
     }
     lua_getfield([[LuaSkin shared] L], -1, "__handler") ;

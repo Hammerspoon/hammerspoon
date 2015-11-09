@@ -30,11 +30,11 @@ typedef struct pushNSHelpers {
   pushNSHelperFunction  func;
 } pushNSHelpers;
 
-typedef id (*tableHelperFunction) (lua_State *L, int idx) ;
-typedef struct tableHelpers {
+typedef id (*luaObjectHelperFunction) (lua_State *L, int idx) ;
+typedef struct luaObjectHelpers {
   const char          *name ;
-  tableHelperFunction func ;
-} tableHelpers ;
+  luaObjectHelperFunction func ;
+} luaObjectHelpers ;
 
 @interface LuaSkin : NSObject {
     lua_State *_L;
@@ -296,20 +296,20 @@ typedef struct tableHelpers {
 
 /** Return an NSObject containing the best representation of the lua table at the specified index.
 
- @note This method uses registerd converter functions provided by the Hammerspoon modules to convert the specified table into a recognizable NSObject.  No converters are included within the LuaSkin.  This method relies upon functions registered with the registerTableHelper:forClass: method for the conversions.
+ @note This method uses registerd converter functions provided by the Hammerspoon modules to convert the specified table into a recognizable NSObject.  No converters are included within the LuaSkin.  This method relies upon functions registered with the registerLuaObjectHelper:forClass: method for the conversions.
  @param idx - the index on lua stack which contains the table to convert.
  @param className - a string containing the class name of the NSObject type to return.  If no converter function is currently registered for this type, nil is returned.
  @returns An NSObject of the appropriate type depending upon the data on the lua stack and the functions currently registered.
  */
-- (id)tableAtIndex:(int)idx toClass:(char *)className ;
+- (id)luaObjectAtIndex:(int)idx toClass:(char *)className ;
 
-/** Register a tableAtIndex:toClass: conversion helper function for the specified class.
+/** Register a luaObjectAtIndex:toClass: conversion helper function for the specified class.
 
- @note This method registers a converter functions for use with the tableAtIndex:toClass: method for converting lua tables into NSObjects.
- @param helperFN - a function of the type 'id (*tableHelperFunction) (lua_State *L, int idx)'.
+ @note This method registers a converter functions for use with the luaObjectAtIndex:toClass: method for converting lua tables into NSObjects.
+ @param helperFN - a function of the type 'id (*luaObjectHelperFunction) (lua_State *L, int idx)'.
  @param className - a string containing the class name of the NSObject type this function can convert.
  */
-- (void)registerTableHelper:(tableHelperFunction)helperFN forClass:(char *)className ;
+- (void)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className ;
 
 /** Convert a lua geometry object (table with x,y,h, and w keys) into an NSRect
 

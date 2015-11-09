@@ -134,9 +134,9 @@ static int application_nameForBundleID(lua_State* L) {
     NSString *appPath = [ws absolutePathForAppBundleWithIdentifier:[NSString stringWithUTF8String:lua_tostring(L, 1)]];
     NSBundle *app = [NSBundle bundleWithPath:appPath];
 
-    NSString *appName = [app objectForInfoDictionaryKey:(id)kCFBundleExecutableKey];
+    NSString *appName = [app objectForInfoDictionaryKey:(id)kCFBundleNameKey];
 
-    lua_pushstring(L, [[appName capitalizedString] UTF8String]);
+    lua_pushstring(L, [appName UTF8String]);
     return 1;
 }
 

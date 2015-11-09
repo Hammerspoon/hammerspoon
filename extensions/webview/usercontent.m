@@ -73,7 +73,7 @@ static int ucc_inject(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TTABLE, LS_TBREAK] ;
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge HSUserContentController, L, 1) ;
 
-    [ucc addUserScript:[[LuaSkin shared] tableAtIndex:2 toClass:"WKUserScript"]] ;
+    [ucc addUserScript:[[LuaSkin shared] luaObjectAtIndex:2 toClass:"WKUserScript"]] ;
 
     lua_pushvalue(L, 1);
     return 1 ;
@@ -342,7 +342,7 @@ int luaopen_hs_webview_usercontent(lua_State* __unused L) {
     [[LuaSkin shared] registerPushNSHelper:WKUserScript_toLua            forClass:"WKUserScript"] ;
     [[LuaSkin shared] registerPushNSHelper:WKScriptMessage_toLua         forClass:"WKScriptMessage"] ;
 
-    [[LuaSkin shared] registerTableHelper:table_toWKUserScript           forClass:"WKUserScript"] ;
+    [[LuaSkin shared] registerLuaObjectHelper:table_toWKUserScript           forClass:"WKUserScript"] ;
 
     return 1;
 }
