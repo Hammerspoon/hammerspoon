@@ -66,13 +66,15 @@ void create_task(task_userdata_t *userData) {
                 return;
             }
 
-            [skin pushLuaRef:refTable ref:userData->luaCallback];
-            lua_pushinteger(skin.L, task.terminationStatus);
-            [skin pushNSObject:stdOut];
-            [skin pushNSObject:stdErr];
+            if (userData->luaCallback != LUA_NOREF && userData->luaCallback != LUA_REFNIL) {
+                [skin pushLuaRef:refTable ref:userData->luaCallback];
+                lua_pushinteger(skin.L, task.terminationStatus);
+                [skin pushNSObject:stdOut];
+                [skin pushNSObject:stdErr];
 
-            if (![skin protectedCallAndTraceback:3 nresults:0]) {
-                printToConsole(skin.L, "hs.task callback failed");
+                if (![skin protectedCallAndTraceback:3 nresults:0]) {
+                    printToConsole(skin.L, "hs.task callback failed");
+                }
             }
         });
     };
@@ -86,7 +88,7 @@ void create_task(task_userdata_t *userData) {
 ///
 /// Parameters:
 ///  * launchPath - A string containing the path to an executable file
-///  * callbackFn - A callback function to be called when the task terminates. The function should accept three arguments:
+///  * callbackFn - A callback function to be called when the task terminates, or nil if no callback should be called. The function should accept three arguments:
 ///   * exitCode - An integer containing the exit code of the process
 ///   * stdOut - A string containing the standard output of the process
 ///   * stdErr - A string containing the standard error output of the process
@@ -97,7 +99,7 @@ void create_task(task_userdata_t *userData) {
 static int task_new(lua_State *L) {
     // Check our arguments
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TTABLE|LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TSTRING, LS_TFUNCTION|LS_TNIL, LS_TTABLE|LS_TOPTIONAL, LS_TBREAK];
 
     // Create our Lua userdata object
     task_userdata_t *userData = lua_newuserdata(L, sizeof(task_userdata_t));
@@ -106,8 +108,13 @@ static int task_new(lua_State *L) {
     lua_setmetatable(L, -2);
 
     // Capture data in the Lua userdata object
-    lua_pushvalue(L, 2);
-    userData->luaCallback = [skin luaRef:refTable];
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 2);
+        userData->luaCallback = [skin luaRef:refTable];
+    } else {
+        userData->luaCallback = LUA_REFNIL;
+    }
+
     userData->launchPath = (__bridge_retained void *)[skin toNSObjectAtIndex:1];
     if (lua_type(L, 3) == LUA_TTABLE) {
         userData->arguments = (__bridge_retained void *)[skin toNSObjectAtIndex:3];
@@ -349,6 +356,10 @@ static int task_gc(lua_State *L) {
     NSTask *task = (__bridge_transfer NSTask *)userData->nsTask;
     NSPointerArray *pointerArray = pointerArrayFromNSTask(task);
 
+    if (pointerArray) {
+        [tasks removeObject:pointerArray];
+    }
+
     task.terminationHandler = ^(NSTask *task){};
 
     @try {
@@ -359,17 +370,15 @@ static int task_gc(lua_State *L) {
     }
     task = nil;
 
-    userData->luaCallback = [skin luaUnref:refTable ref:userData->luaCallback];
+    if (userData->luaCallback != LUA_REFNIL) {
+        userData->luaCallback = [skin luaUnref:refTable ref:userData->luaCallback];
+    }
 
     NSString *launchPath = (__bridge_transfer NSString *)userData->launchPath;
     NSArray *arguments = (__bridge_transfer NSArray *)userData->arguments;
 
     launchPath = nil;
     arguments = nil;
-
-    if (pointerArray) {
-        [tasks removeObject:pointerArray];
-    }
 
     return 0;
 }
