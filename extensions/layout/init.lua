@@ -159,13 +159,18 @@ function layout.apply(layout, windowTitleComparator)
                 display = _row[3]()
             elseif fnutils.contains(screen.allScreens(), _row[3]) then
                 display = _row[3]
+            else
+                -- Default to the main screen if the passed-in screen isn't found; useful for
+                -- layouts activated using the screen watcher, meaning that screens in layouts may
+                -- not be in the current screen configuration.
+                display = screen.primaryScreen()
             end
         else
-            display = screen.allScreens()[1]
+            display = screen.primaryScreen()
         end
 
         if not display then
-            print("Unable to find display: " .. _row[3])
+            print("Unable to find display: ", _row[3])
         else
             displaypoint = geometry.point(display:frame().x, display:frame().y)
         end
