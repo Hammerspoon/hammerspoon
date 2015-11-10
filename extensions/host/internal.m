@@ -460,6 +460,25 @@ static int hs_globallyUniqueString(lua_State* L) {
 ///
 /// Returns:
 ///  * A table of information, where the keys are the paths of disk volumes
+///
+/// Notes:
+///  * The possible keys in the table are:
+///   * NSURLVolumeTotalCapacityKey - Size of the volume in bytes
+///   * NSURLVolumeAvailableCapacityKey - Available space on the volume in bytes
+///   * NSURLVolumeIsAutomountedKey - Boolean indicating if the volume was automounted
+///   * NSURLVolumeIsBrowsableKey - Boolean indicating if the volume can be browsed
+///   * NSURLVolumeIsEjectableKey - Boolean indicating if the volume can be ejected
+///   * NSURLVolumeIsInternalKey - Boolean indicating if the volume is an internal drive or an external drive
+///   * NSURLVolumeIsLocalKey - Boolean indicating if the volume is a local or remote drive
+///   * NSURLVolumeIsReadOnlyKey - Boolean indicating if the volume is read only
+///   * NSURLVolumeIsRemovableKey - Boolean indicating if the volume is removable
+///   * NSURLVolumeMaximumFileSizeKey - Maximum file size the volume can support, in bytes
+///   * NSURLVolumeUUIDStringKey - The UUID of volume's filesystem
+///   * NSURLVolumeURLForRemountingKey - For remote volumes, the network URL of the volume
+///   * NSURLVolumeLocalizedNameKey - Localized version of the volume's name
+///   * NSURLVolumeNameKey - The volume's name
+///   * NSURLVolumeLocalizedFormatDescriptionKey - Localized description of the volume
+/// * Not all keys will be present for all volumes
 static int hs_volumeInformation(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
@@ -469,7 +488,6 @@ static int hs_volumeInformation(lua_State* L) {
 
     NSArray *urlResourceKeys = @[NSURLVolumeTotalCapacityKey,
                                  NSURLVolumeAvailableCapacityKey,
-                                 NSURLVolumeCreationDateKey,
                                  NSURLVolumeIsAutomountedKey,
                                  NSURLVolumeIsBrowsableKey,
                                  NSURLVolumeIsEjectableKey,
@@ -488,7 +506,6 @@ static int hs_volumeInformation(lua_State* L) {
     NSVolumeEnumerationOptions options = NSVolumeEnumerationSkipHiddenVolumes;
 
     if (lua_type(L, 1) == LUA_TBOOLEAN && lua_toboolean(L, 1)) {
-        NSLog(@"OPTIONS ZERO BABY");
         options = 0;
     }
 
