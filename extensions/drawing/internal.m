@@ -906,7 +906,7 @@ static int drawing_setFrame(lua_State *L) {
 
 /// hs.drawing:frame() -> hs.geometry object
 /// Method
-/// Gets the frame of a drawingObject
+/// Gets the frame of a drawingObject in absolute coordinates
 ///
 /// Parameters:
 ///  * None
