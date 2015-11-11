@@ -904,6 +904,27 @@ static int drawing_setFrame(lua_State *L) {
     return 1;
 }
 
+/// hs.drawing:frame() -> hs.geometry object
+/// Method
+/// Gets the frame of a drawingObject
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An `hs.geometry` object containing the frame of the drawing object
+static int drawing_getFrame(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    NSRect windowFrame = drawingWindow.frame;
+
+    windowFrame.origin.y = [NSScreen screens][0].frame.size.height - windowFrame.origin.y - windowFrame.size.height;
+
+    [skin pushNSRect:windowFrame];
+    return 1;
+}
+
 /// hs.drawing:setTextFont(fontname) -> drawingObject
 /// Method
 /// Sets the default font for a drawing object
@@ -2113,6 +2134,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setTopLeft", drawing_setTopLeft},
     {"setSize", drawing_setSize},
     {"setFrame", drawing_setFrame},
+    {"frame", drawing_getFrame},
     {"setAlpha", setAlpha},
     {"setLevel", drawing_setLevel},
     {"alpha", getAlpha},
