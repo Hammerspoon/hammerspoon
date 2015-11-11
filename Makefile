@@ -34,6 +34,12 @@ build/html: build/docs.json
 	cp scripts/docs/templates/docs.css $@
 	scripts/docs/bin/genhtml $@ < $<
 
+build/html/LuaSkin:
+	headerdoc2html -u -o $@ LuaSkin/LuaSkin/Skin.h
+	resolveLinks $@
+	mv $@/Skin_h/* $@
+	rmdir $@/Skin_h
+
 build/docs.sqlite: build/docs.json
 	rm -f $@
 	scripts/docs/bin/gensql < $< | sqlite3 $@

@@ -146,6 +146,7 @@ function build_hammerspoon_app() {
   make release
   rm build/docs.json
   make docs
+  make build/html/LuaSkin
   popd >/dev/null
   if [ ! -e "${HAMMERSPOON_HOME}"/build/Hammerspoon.app ]; then
       fail "ERROR: Looks like the build failed. sorry!"
@@ -212,6 +213,7 @@ function release_upload_docs() {
   mv "${HAMMERSPOON_HOME}/build/html" "website/docs/${VERSION}"
   rm website/docs/*.html
   cp website/docs/"${VERSION}"/*.html website/docs/
+  cp -r website/docs/"${VERSION}"/LuaSkin website/docs/
   pushd website >/dev/null
   git add --all "docs/"
   git commit -qam "Add docs for ${VERSION}"
