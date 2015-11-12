@@ -1549,9 +1549,7 @@ static int drawing_setClickCallback(lua_State *L) {
 
     if (lua_type(L, 2) == LUA_TNIL || lua_type(L, 2) == LUA_TFUNCTION) {
         // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
-        if (drawingView.mouseUpCallbackRef != LUA_NOREF) {
-            [drawingView setMouseUpCallback:[skin luaUnref:refTable ref:drawingView.mouseUpCallbackRef]];
-        }
+        [drawingView setMouseUpCallback:[skin luaUnref:refTable ref:drawingView.mouseUpCallbackRef]];
 
         // Set a new callback if we have a function
         if (lua_type(L, 2) == LUA_TFUNCTION) {
@@ -1564,9 +1562,7 @@ static int drawing_setClickCallback(lua_State *L) {
 
     if (lua_type(L, 3) == LUA_TNONE || lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TFUNCTION) {
         // We're either removing a callback, or setting a new one. Either way, we want to make clear out any callback that exists
-        if (drawingView.mouseDownCallbackRef != LUA_NOREF) {
-            [drawingView setMouseDownCallback:[skin luaUnref:refTable ref:drawingView.mouseDownCallbackRef]];
-        }
+        [drawingView setMouseDownCallback:[skin luaUnref:refTable ref:drawingView.mouseDownCallbackRef]];
 
         // Set a new callback if we have a function
         if (lua_type(L, 3) == LUA_TFUNCTION) {

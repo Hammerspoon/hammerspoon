@@ -83,9 +83,7 @@ static int audiodevicewatcher_setCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION|LS_TNIL, LS_TBREAK];
 
-    if (theWatcher->callback != LUA_NOREF) {
-        theWatcher->callback = [skin luaUnref:refTable ref:theWatcher->callback];
-    }
+    theWatcher->callback = [skin luaUnref:refTable ref:theWatcher->callback];
 
     switch (lua_type(L, 1)) {
         case LUA_TFUNCTION:
@@ -191,9 +189,7 @@ static int audiodevicewatcher_gc(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
 
     audiodevicewatcher_stop(L);
-    if (theWatcher->callback != LUA_NOREF && theWatcher->callback != LUA_REFNIL) {
-        theWatcher->callback = [skin luaUnref:refTable ref:theWatcher->callback];
-    }
+    theWatcher->callback = [skin luaUnref:refTable ref:theWatcher->callback];
 
     return 0;
 }

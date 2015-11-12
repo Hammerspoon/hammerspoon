@@ -367,9 +367,7 @@ static int task_gc(lua_State *L) {
     }
     task = nil;
 
-    if (userData->luaCallback != LUA_REFNIL && userData->luaCallback != LUA_NOREF) {
-        userData->luaCallback = [skin luaUnref:refTable ref:userData->luaCallback];
-    }
+    userData->luaCallback = [skin luaUnref:refTable ref:userData->luaCallback];
 
     NSString *launchPath = (__bridge_transfer NSString *)userData->launchPath;
     NSArray *arguments = (__bridge_transfer NSArray *)userData->arguments;

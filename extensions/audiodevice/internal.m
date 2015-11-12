@@ -946,9 +946,7 @@ static int audiodevice_watcherSetCallback(lua_State *L) {
 
     audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
 
-    if (audioDevice->callback != LUA_NOREF) {
-        audioDevice->callback = [skin luaUnref:refTable ref:audioDevice->callback];
-    }
+    audioDevice->callback = [skin luaUnref:refTable ref:audioDevice->callback];
 
     switch (lua_type(L, 2)) {
         case LUA_TFUNCTION:
@@ -1100,9 +1098,7 @@ static int audiodevice_gc(lua_State* L) {
 
     audiodevice_watcherStop(L);
 
-    if (audioDevice->callback != LUA_NOREF && audioDevice->callback != LUA_REFNIL) {
-        audioDevice->callback = [skin luaUnref:refTable ref:audioDevice->callback];
-    }
+    audioDevice->callback = [skin luaUnref:refTable ref:audioDevice->callback];
 
     return 0;
 }

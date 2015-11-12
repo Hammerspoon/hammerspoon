@@ -265,17 +265,13 @@ static int httpserver_setCallback(lua_State *L) {
 
     switch (lua_type(L, 2)) {
         case LUA_TFUNCTION:
-            if (server.fn != LUA_NOREF) {
-                server.fn = [skin luaUnref:refTable ref:server.fn];
-            }
+            server.fn = [skin luaUnref:refTable ref:server.fn];
             lua_pushvalue(L, 2);
             server.fn = [skin luaRef:refTable];
             break;
         case LUA_TNIL:
         case LUA_TNONE:
-            if (server.fn != LUA_NOREF) {
-                server.fn = [skin luaUnref:refTable ref:server.fn];
-            }
+            server.fn = [skin luaUnref:refTable ref:server.fn];
             break;
         default:
             showError(L, "ERROR: Unknown type passed to hs.httpserver:setCallback(). Argument must be a function or nil");

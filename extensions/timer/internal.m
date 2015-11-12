@@ -252,10 +252,8 @@ static int timer_gc(lua_State* L) {
     timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
 
     if (timer) {
-        if (timer->fn != LUA_NOREF) {
-            LuaSkin *skin = [LuaSkin shared];
-            timer->fn = [skin luaUnref:refTable ref:timer->fn];
-        }
+        LuaSkin *skin = [LuaSkin shared];
+        timer->fn = [skin luaUnref:refTable ref:timer->fn];
 
         timer->started = NO;
 

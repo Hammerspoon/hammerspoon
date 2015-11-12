@@ -1747,12 +1747,13 @@ static int userdata_gc(lua_State* L) {
     HSWebViewView   *theView   = theWindow.contentView ;
 
     if (theWindow) {
+        LuaSkin *skin = [LuaSkin shared];
         [theWindow close] ;
 
-        theWindow.udRef            = [[LuaSkin shared] luaUnref:refTable ref:theWindow.udRef] ;
-        theWindow.hsDrawingUDRef   = [[LuaSkin shared] luaUnref:refTable ref:theWindow.hsDrawingUDRef] ;
-        theView.navigationCallback = [[LuaSkin shared] luaUnref:refTable ref:theView.navigationCallback] ;
-        theView.policyCallback     = [[LuaSkin shared] luaUnref:refTable ref:theView.policyCallback] ;
+        theWindow.udRef            = [skin luaUnref:refTable ref:theWindow.udRef] ;
+        theWindow.hsDrawingUDRef   = [skin luaUnref:refTable ref:theWindow.hsDrawingUDRef] ;
+        theView.navigationCallback = [skin luaUnref:refTable ref:theView.navigationCallback] ;
+        theView.policyCallback     = [skin luaUnref:refTable ref:theView.policyCallback] ;
 
         // emancipate us from our parent
         if (theWindow.parent) {
