@@ -72,9 +72,7 @@ void create_task(task_userdata_t *userData) {
                 [skin pushNSObject:stdOut];
                 [skin pushNSObject:stdErr];
 
-                if (![skin protectedCallAndTraceback:3 nresults:0]) {
-                    printToConsole(skin.L, "WARNING: Your hs.task callback raised a Lua error");
-                }
+                [skin protectedCallAndTraceback:3 nresults:0];
             }
         });
     };
