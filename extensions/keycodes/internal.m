@@ -194,28 +194,28 @@ int keycodes_cachemap(lua_State* L) {
 }
 
 - (void) start {
-    /*
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(_inputSourceChanged:)
                                                  name:NSTextInputContextKeyboardSelectionDidChangeNotification
                                                object:nil];
-     */
+    /* This should have made things better, but it seems to cause crashes for some
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self
                                                         selector:@selector(_inputSourceChanged:)
                                                             name:(__bridge NSString *)kTISNotifySelectedKeyboardInputSourceChanged
                                                           object:nil
                                               suspensionBehavior:NSNotificationSuspensionBehaviorDeliverImmediately];
+     */
 }
 
 - (void) stop {
-    /*
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:NSTextInputContextKeyboardSelectionDidChangeNotification
                                                   object:nil];
-     */
+    /*
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:self
                                                                name:(__bridge NSString *)kTISNotifyEnabledKeyboardInputSourcesChanged
                                                              object:nil];
+     */
 }
 
 @end
