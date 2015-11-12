@@ -60,6 +60,7 @@ void create_task(task_userdata_t *userData) {
             NSString *stdOut = [[NSString alloc] initWithData:[[task.standardOutput fileHandleForReading] readDataToEndOfFile] encoding:NSUTF8StringEncoding];
             NSString *stdErr = [[NSString alloc] initWithData:[[task.standardError fileHandleForReading] readDataToEndOfFile] encoding:NSUTF8StringEncoding];
 
+            NSLog(@"task.terminationHandler: looking for userData for nstask: %p", task);
             userData = userDataFromNSTask(task);
 
             if (!userData) {
