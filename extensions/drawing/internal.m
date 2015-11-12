@@ -919,7 +919,7 @@ static int drawing_getFrame(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     NSRect windowFrame = drawingWindow.frame;
 
-    windowFrame.origin.y = [NSScreen screens][0].frame.size.height - windowFrame.origin.y - windowFrame.size.height;
+    windowFrame.origin.y = [[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height;
 
     [skin pushNSRect:windowFrame];
     return 1;
