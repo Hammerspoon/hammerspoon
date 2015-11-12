@@ -19,7 +19,6 @@ NSPointerArray *pointerArrayFromNSTask(NSTask *task) {
     NSPointerArray *result = nil;
 
     for (NSPointerArray *pointerArray in tasks) {
-        NSLog(@"pointerArrayFromNSTask: comparing %p and %p", task, (__bridge NSTask *)[pointerArray pointerAtIndex:0]);
         if ((__bridge NSTask *)[pointerArray pointerAtIndex:0] == task) {
             result = pointerArray;
             break;
@@ -60,11 +59,10 @@ void create_task(task_userdata_t *userData) {
             NSString *stdOut = [[NSString alloc] initWithData:[[task.standardOutput fileHandleForReading] readDataToEndOfFile] encoding:NSUTF8StringEncoding];
             NSString *stdErr = [[NSString alloc] initWithData:[[task.standardError fileHandleForReading] readDataToEndOfFile] encoding:NSUTF8StringEncoding];
 
-            NSLog(@"task.terminationHandler: looking for userData for nstask: %p", task);
             userData = userDataFromNSTask(task);
 
             if (!userData) {
-                showError(skin.L, "Unable to find userdata object for NSTask object. Please file a bug");
+                NSLog(@"NSTask terminationHandler called on a task we don't recognise. This was likely a stuck process, or one that didn't respond to SIGTERM, and we have already GC'd its objects. Ignoring");
                 return;
             }
 
@@ -75,7 +73,7 @@ void create_task(task_userdata_t *userData) {
                 [skin pushNSObject:stdErr];
 
                 if (![skin protectedCallAndTraceback:3 nresults:0]) {
-                    printToConsole(skin.L, "ERROR: Your hs.task callback raised an error");
+                    printToConsole(skin.L, "WARNING: Your hs.task callback raised a Lua error");
                 }
             }
         });
@@ -127,10 +125,8 @@ static int task_new(lua_State *L) {
     // Create and populate the NSTask object
     create_task(userData);
 
-    NSLog(@"task_new: created userdata %p for nstask %p", userData, userData->nsTask);
-
     // Keep a mapping between the NSTask object and its Lua wrapper
-    NSPointerArray *pointers = [[NSPointerArray alloc] initWithOptions:NSPointerFunctionsOpaqueMemory];
+    NSPointerArray *pointers = [[NSPointerArray alloc] initWithOptions:NSPointerFunctionsOpaqueMemory|NSPointerFunctionsOpaquePersonality];
     [pointers addPointer:userData->nsTask];
     [pointers addPointer:(void *)userData];
     [tasks addObject:pointers];
@@ -359,7 +355,6 @@ static int task_gc(lua_State *L) {
     NSTask *task = (__bridge_transfer NSTask *)userData->nsTask;
     NSPointerArray *pointerArray = pointerArrayFromNSTask(task);
 
-    NSLog(@"task_gc: Cleaning up nstask: %p and userData: %p", task, userData);
     if (pointerArray) {
         [tasks removeObject:pointerArray];
     }
