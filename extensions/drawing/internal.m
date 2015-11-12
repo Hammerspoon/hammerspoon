@@ -1996,7 +1996,7 @@ static int default_textAttributes(lua_State *L) {
 /// Parameters:
 ///  * styledTextObject - an object created with the hs.styledtext module or its table representation (see `hs.styledtext`).
 ///
-///  The following simplified format is supported for backwards compatibility, but it is recommended that you use the `hs.styledtext` module instead.
+///  The following simplified style format is supported for use with `hs.drawing:setText` and `hs.drawing.setTextStyle`.
 ///
 ///  * theText   - the text which is to be displayed.
 ///  * textStyle - a table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
@@ -2025,7 +2025,7 @@ static int default_textAttributes(lua_State *L) {
 ///  * The size returned is an approximation and may return a width that is off by about 4 points.  Use the returned size as a minimum starting point. Sometimes using the "clip" or "truncateMiddle" lineBreak modes or "justified" alignment will fit, but its safest to add in your own buffer if you have the space in your layout.
 ///  * Multi-line text (separated by a newline or return) is supported.  The height will be for the multiple lines and the width returned will be for the longest line.
 static int drawing_getTextDrawingSize(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TANY, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
+    [[LuaSkin shared] checkArgs:LS_TANY, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
 
     NSSize theSize ;
     switch(lua_type(L, 1)) {
