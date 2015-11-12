@@ -19,6 +19,7 @@ NSPointerArray *pointerArrayFromNSTask(NSTask *task) {
     NSPointerArray *result = nil;
 
     for (NSPointerArray *pointerArray in tasks) {
+        NSLog(@"pointerArrayFromNSTask: comparing %p and %p", task, (__bridge NSTask *)[pointerArray pointerAtIndex:0]);
         if ((__bridge NSTask *)[pointerArray pointerAtIndex:0] == task) {
             result = pointerArray;
             break;
@@ -73,7 +74,7 @@ void create_task(task_userdata_t *userData) {
                 [skin pushNSObject:stdErr];
 
                 if (![skin protectedCallAndTraceback:3 nresults:0]) {
-                    printToConsole(skin.L, "hs.task callback failed");
+                    printToConsole(skin.L, "ERROR: Your hs.task callback raised an error");
                 }
             }
         });
@@ -124,6 +125,8 @@ static int task_new(lua_State *L) {
 
     // Create and populate the NSTask object
     create_task(userData);
+
+    NSLog(@"task_new: created userdata %p for nstask %p", userData, userData->nsTask);
 
     // Keep a mapping between the NSTask object and its Lua wrapper
     NSPointerArray *pointers = [[NSPointerArray alloc] initWithOptions:NSPointerFunctionsOpaqueMemory];
@@ -326,7 +329,6 @@ static int task_getEnvironment(lua_State *L) {
     task_userdata_t *userData = lua_touserdata(L, 1);
     NSTask *task = (__bridge NSTask *)userData->nsTask;
 
-    NSLog(@"Checking environment: %@", task.environment);
     [skin pushNSObject:task.environment];
     return 1;
 }
@@ -356,6 +358,7 @@ static int task_gc(lua_State *L) {
     NSTask *task = (__bridge_transfer NSTask *)userData->nsTask;
     NSPointerArray *pointerArray = pointerArrayFromNSTask(task);
 
+    NSLog(@"task_gc: Cleaning up nstask: %p and userData: %p", task, userData);
     if (pointerArray) {
         [tasks removeObject:pointerArray];
     }
@@ -370,7 +373,7 @@ static int task_gc(lua_State *L) {
     }
     task = nil;
 
-    if (userData->luaCallback != LUA_REFNIL) {
+    if (userData->luaCallback != LUA_REFNIL && userData->luaCallback != LUA_NOREF) {
         userData->luaCallback = [skin luaUnref:refTable ref:userData->luaCallback];
     }
 
