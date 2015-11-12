@@ -1769,10 +1769,10 @@ static int userdata_gc(lua_State* L) {
         theView = nil ;
         theWindow = nil;
     }
-
-// Clear the pointer so it's no longer dangling
-    void** windowPtr = lua_touserdata(L, 1);
-    *windowPtr = nil ;
+// I think this may be too aggressive... removing the metatable is sufficient to make sure lua doesn't use it again
+// // Clear the pointer so it's no longer dangling
+//     void** windowPtr = lua_touserdata(L, 1);
+//     *windowPtr = nil ;
 
 // Remove the Metatable so future use of the variable in Lua won't think its valid
     lua_pushnil(L) ;

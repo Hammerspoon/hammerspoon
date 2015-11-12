@@ -651,7 +651,7 @@ static int string_totable(lua_State *L) {
     return 1 ;
 }
 
-/// hs.styledtext:asString([starts], [ends]) -> string
+/// hs.styledtext:getString([starts], [ends]) -> string
 /// Method
 /// Returns the text of the `hs.styledtext` object as a Lua String
 ///
@@ -852,7 +852,7 @@ static int string_removeStyleForRange(lua_State *L) {
     return 1 ;
 }
 
-/// hs.styledtext:replaceSubstring(string, [starts], [ends], [clear]) -> styledText object
+/// hs.styledtext:setString(string, [starts], [ends], [clear]) -> styledText object
 /// Method
 /// Return a copy of the `hs.styledtext` object containing the changes to its attributes specified in the `attributes` table.
 ///
@@ -867,7 +867,6 @@ static int string_removeStyleForRange(lua_State *L) {
 ///
 /// Notes:
 ///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function except that `starts` must refer to an index preceding or equal to `ends`, even after negative and out-of-bounds indices are adjusted for.
-///  * If `starts` and `ends` are equal, the substring is inserted at the specified location.
 ///
 ///  * See the module description documentation (`help.hs.styledtext`) for a description of the attributes table format
 static int string_replaceSubstringForRange(lua_State *L) {
@@ -1876,10 +1875,10 @@ static const luaL_Reg userdata_metaLib[] = {
     {"isIdentical",      string_identical},
     {"copy",             string_copy},
     {"asTable",          string_totable},
-    {"asString",         string_tostring},
+    {"getString",        string_tostring},
     {"setStyle",         string_setStyleForRange},
     {"removeStyle",      string_removeStyleForRange},
-    {"replaceSubstring", string_replaceSubstringForRange},
+    {"setString",        string_replaceSubstringForRange},
     {"convert",          string_convert},
 
     {"len",              string_len},
