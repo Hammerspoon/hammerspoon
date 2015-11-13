@@ -56,8 +56,14 @@ void create_task(task_userdata_t *userData) {
             task_userdata_t *userData = NULL;
             LuaSkin *skin = [LuaSkin shared];
 
-            NSString *stdOut = [[NSString alloc] initWithData:[[task.standardOutput fileHandleForReading] readDataToEndOfFile] encoding:NSUTF8StringEncoding];
-            NSString *stdErr = [[NSString alloc] initWithData:[[task.standardError fileHandleForReading] readDataToEndOfFile] encoding:NSUTF8StringEncoding];
+            NSFileHandle *stdOutFH = [task.standardOutput fileHandleForReading];
+            NSFileHandle *stdErrFH = [task.standardError fileHandleForReading];
+
+            NSString *stdOut = [[NSString alloc] initWithData:[stdOutFH readDataToEndOfFile] encoding:NSUTF8StringEncoding];
+            NSString *stdErr = [[NSString alloc] initWithData:[stdErrFH readDataToEndOfFile] encoding:NSUTF8StringEncoding];
+
+            [stdOutFH closeFile];
+            [stdErrFH closeFile];
 
             userData = userDataFromNSTask(task);
 
