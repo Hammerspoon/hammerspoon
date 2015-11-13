@@ -912,7 +912,7 @@ end:
     return 1;
 }
 
-/// hs.audiodevice:watcherSetCallback(fn) -> hs.audiodevice
+/// hs.audiodevice:watcherCallback(fn) -> hs.audiodevice
 /// Method
 /// Sets or removes a callback function for an audio device watcher
 ///
