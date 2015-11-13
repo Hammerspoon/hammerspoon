@@ -68,7 +68,7 @@ module.windowLevels    = _makeConstantsTable(module.windowLevels)
 ---  * This method should only be used on an image drawing object
 ---  * Paths relative to the PWD of Hammerspoon (typically ~/.hammerspoon/) will work, but paths relative to the UNIX homedir character, `~` will not
 ---  * Animated GIFs are supported. They're not super friendly on your CPU, but they work
-module.setImageFromPath = function(self, path)
+drawingObject.setImageFromPath = function(self, path)
     local image = nil
     -- Legacy support for ASCII here. Really people should use :setImageFromASCII()
     if string.sub(path, 1, 6) == "ASCII:" then
@@ -84,7 +84,7 @@ module.setImageFromPath = function(self, path)
     return self
 end
 -- Legacy support of an old API
-module.setImagePath = module.setImageFromPath
+drawingObject.setImagePath = drawingObject.setImageFromPath
 
 --- hs.drawing:setImageASCII(ascii) -> drawingObject
 --- Method
@@ -98,7 +98,7 @@ module.setImagePath = module.setImageFromPath
 ---
 --- Notes:
 ---  * To use the ASCII diagram image support, see http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
-module.setImageFromASCII = function(self, ascii)
+drawingObject.setImageFromASCII = function(self, ascii)
     if string.sub(ascii, 1, 6) == "ASCII:" then
         ascii = string.sub(ascii, 7, -1)
     end
