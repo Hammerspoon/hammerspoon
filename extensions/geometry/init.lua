@@ -736,7 +736,7 @@ geometry.point=new
 --- Returns:
 ---  * An hs.geometry size object
 function geometry.size(w, h)
-  return new(nil,nil,w,h)
+  if type(w)=='table' then return new(w) else return new(nil,nil,w,h) end
 end
 
 return setmetatable(geometry,{__call=function(_,...)return new(...) end})
