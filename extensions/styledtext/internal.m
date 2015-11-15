@@ -11,6 +11,58 @@ int refTable ;
 
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
+// Lua treats strings (and therefore indexs within strings) as a sequence of bytes.  Objective-C's
+// NSString and NSAttributedString treat them as a sequence of characters.  This works fine until
+// Unicode characters are involved.
+//
+// This function creates a dictionary mapping of this where the keys are the byte positions in the
+// Lua string and the values are the corresponding character positions in the NSString.
+NSDictionary *luaByteToObjCharMap(NSString *theString) {
+    NSMutableDictionary *luaByteToObjChar = [[NSMutableDictionary alloc] init] ;
+    NSData              *rawString = [theString dataUsingEncoding:NSUTF8StringEncoding] ;
+
+    if (rawString) {
+        NSUInteger luaPos  = 1 ; // for testing purposes, match what the lua equiv generates
+        NSUInteger objCPos = 0 ; // may switch back to 0 if ends up easier when using for real...
+
+        while ((luaPos - 1) < [rawString length]) {
+            Byte thisByte ;
+            [rawString getBytes:&thisByte range:NSMakeRange(luaPos - 1, 1)] ;
+            // we're taking some liberties and making assumptions here because the above conversion
+            // to NSData should make sure that what we have is valid UTF8, i.e. one of:
+            //    00..7F
+            //    C2..DF 80..BF
+            //    E0     A0..BF 80..BF
+            //    E1..EC 80..BF 80..BF
+            //    ED     80..9F 80..BF
+            //    EE..EF 80..BF 80..BF
+            //    F0     90..BF 80..BF 80..BF
+            //    F1..F3 80..BF 80..BF 80..BF
+            //    F4     80..8F 80..BF 80..BF
+            if ((thisByte >= 0x00 && thisByte <= 0x7F) || (thisByte >= 0xC0)) objCPos++ ;
+            [luaByteToObjChar setObject:[NSNumber numberWithUnsignedInteger:objCPos]
+                                 forKey:[NSNumber numberWithUnsignedInteger:luaPos]] ;
+            luaPos++ ;
+        }
+    }
+    return luaByteToObjChar ;
+}
+
+// // validate mapping function
+// static int luaToObjCMap(lua_State *L) {
+//     NSString *theString = [NSString stringWithUTF8String:lua_tostring(L, 1)] ;
+//     NSDictionary *theMap = luaByteToObjCharMap(theString) ;
+//     [[LuaSkin shared] pushNSObject:theMap] ;
+//     lua_newtable(L) ;
+//     for (NSNumber *entry in [theMap allValues]) {
+//         [[LuaSkin shared] pushNSObject:entry] ;
+//         [[LuaSkin shared] pushNSObject:[[theMap allKeysForObject:entry]
+//                                         sortedArrayUsingSelector: @selector(compare:)]] ;
+//         lua_settable(L, -3) ;
+//     }
+//     return 2 ;
+// }
+
 #pragma mark - NSAttributedString Constructors
 
 /// hs.styledtext.new(string, [attributes]) -> styledText object
@@ -433,8 +485,13 @@ static int defineLinePatterns(lua_State *L) {
 static int defineLineAppliesTo(lua_State *L) {
     lua_newtable(L) ;
       lua_pushinteger(L, 0) ;                                  lua_setfield(L, -2, "line") ;
-      lua_pushinteger(L, (lua_Integer)NSUnderlineByWordMask) ; lua_setfield(L, -2, "word") ; // deprecated in 10.11 with Xcode 7.1 update
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+// deprecated in 10.11 with Xcode 7.1 update
+      lua_pushinteger(L, (lua_Integer)NSUnderlineByWordMask) ; lua_setfield(L, -2, "word") ;
+// but Travis hasn't caught up yet...
 //       lua_pushinteger(L, (lua_Integer)NSUnderlineByWord) ;     lua_setfield(L, -2, "word") ;
+#pragma clang diagnostic pop
     return 1 ;
 }
 
@@ -488,14 +545,16 @@ static int string_identical(lua_State* L) {
 ///  * a table representing the `hs.styledtext` object.  The table will be an array with the following structure:
 ///    * index 1             - the text of the `hs.styledtext` object as a Lua String.
 ///    * index 2+            - a table with the following keys:
-///      * starts            - the index position in the string where this list of attributes is first applied
-///      * ends              - the index position in the string where the application of this list of attributes ends
+///      * starts            - the index position in the original styled text object where this list of attributes is first applied
+///      * ends              - the index position in the original styled text object where the application of this list of attributes ends
 ///      * attributes        - a table of attribute key-value pairs that apply to the string between the positions of `starts` and `ends`
 ///      * unsupportedFields - this field only exists, and will be set to `true` when an attribute that was included in the attributes table that this module cannot modify.  A best effort will be made to render the attributes assigned value in the attributes table, but modifying the attribute and re-applying it with `hs.styledtext:setStyle` will be silently ignored.
 ///
 /// Notes:
 ///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
 ///  * The attribute which contains an attachment (image) for a converted RTFD or other document is known to set the `unsupportedFields` flag.
+///
+///  * The indexes in the table returned are relative to their position in the original `hs.styledtext` object.  If you want the table version of a substring which does not start at index position 1 that can be safely fed as a "proper" table version of an `hs.styledtext` object into another function or constructor, the proper way to generate it is `destination = object:sub(i,j):asTable().
 ///
 ///  * See the module description documentation (`help.hs.styledtext`) for a description of the attributes table format
 static int string_totable(lua_State *L) {
@@ -506,8 +565,11 @@ static int string_totable(lua_State *L) {
 
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
 
+// Lua indexes strings by byte, objective-c by char
+    NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;
+
 // cleaner with one cast, rather than for all references to it...
-    lua_Integer len = (lua_Integer)[theString length] ;
+    lua_Integer len = (lua_Integer)[theMap count] ;
 
     lua_Integer i = lua_isnoneornil(L, 2) ?   1 : luaL_checkinteger(L, 2) ;
     lua_Integer j = lua_isnoneornil(L, 3) ? len : luaL_checkinteger(L, 3) ;
@@ -522,6 +584,9 @@ static int string_totable(lua_State *L) {
         lua_pushstring(L, "") ;
         lua_rawseti(L, -2, 1) ;
     } else {
+// convert i and j into their obj-c equivalants
+        i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue] ;
+        j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue] ;
 // finally convert to Objective-C's practice of 0 indexing and j as length, not index
         NSRange theRange = NSMakeRange((NSUInteger)(i - 1), (NSUInteger)(j - (i - 1))) ;
         lua_pushstring(L, [[[theString attributedSubstringFromRange:theRange] string] UTF8String]) ;
@@ -536,8 +601,18 @@ static int string_totable(lua_State *L) {
                   NSDictionary *attributes = [theString attributesAtIndex:limitRange.location
                                                     longestEffectiveRange:&effectiveRange
                                                                   inRange:limitRange] ;
-                  lua_pushinteger(L, (lua_Integer)(effectiveRange.location + 1)) ; lua_setfield(L, -2, "starts") ;
-                  lua_pushinteger(L, (lua_Integer)NSMaxRange(effectiveRange)) ;    lua_setfield(L, -2, "ends") ;
+
+// convert starts and ends into their lua equivalants
+                  lua_Integer pS, pE ;
+                  pS = [[[[theMap allKeysForObject:
+                            [NSNumber numberWithInteger:(lua_Integer)(effectiveRange.location + 1)]]
+                            sortedArrayUsingSelector:@selector(compare:)] lastObject] integerValue] ;
+                  pE = [[[[theMap allKeysForObject:
+                            [NSNumber numberWithInteger:(lua_Integer)NSMaxRange(effectiveRange)]]
+                            sortedArrayUsingSelector:@selector(compare:)] lastObject] integerValue] ;
+
+                  lua_pushinteger(L, pS) ; lua_setfield(L, -2, "starts") ;
+                  lua_pushinteger(L, pE) ; lua_setfield(L, -2, "ends") ;
 
 // NSLog(@"From %lu with a length of %lu", effectiveRange.location, effectiveRange.length) ;
                   BOOL containsUnsupportedFields = NO ;
@@ -576,7 +651,7 @@ static int string_totable(lua_State *L) {
     return 1 ;
 }
 
-/// hs.styledtext:asString([starts], [ends]) -> string
+/// hs.styledtext:getString([starts], [ends]) -> string
 /// Method
 /// Returns the text of the `hs.styledtext` object as a Lua String
 ///
@@ -597,8 +672,11 @@ static int string_tostring(lua_State* L) {
 
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
 
+// Lua indexes strings by byte, objective-c by char
+    NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;
+
 // cleaner with one cast, rather than for all references to it...
-    lua_Integer len = (lua_Integer)[theString length] ;
+    lua_Integer len = (lua_Integer)[theMap count] ;
 
     lua_Integer i = lua_isnoneornil(L, 2) ?   1 : luaL_checkinteger(L, 2) ;
     lua_Integer j = lua_isnoneornil(L, 3) ? len : luaL_checkinteger(L, 3) ;
@@ -611,6 +689,9 @@ static int string_tostring(lua_State* L) {
     if (i > j)
         lua_pushstring(L, "") ;
     else {
+// convert i and j into their obj-c equivalants
+        i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue] ;
+        j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue] ;
 // finally convert to Objective-C's practice of 0 indexing and j as length, not index
         NSRange theRange = NSMakeRange((NSUInteger)(i - 1), (NSUInteger)(j - (i - 1))) ;
         lua_pushstring(L, [[[theString attributedSubstringFromRange:theRange] string] UTF8String]) ;
@@ -648,8 +729,11 @@ static int string_setStyleForRange(lua_State *L) {
     NSDictionary       *attributes = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"hs.styledtext.AttributesDictionary"] ;
     BOOL replaceAttributes = lua_isboolean(L, lua_gettop(L)) ? (BOOL)lua_toboolean(L, lua_gettop(L)) : NO ;
 
+// Lua indexes strings by byte, objective-c by char
+    NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;
+
 // cleaner with one cast, rather than for all references to it...
-    lua_Integer len = (lua_Integer)[theString length] ;
+    lua_Integer len = (lua_Integer)[theMap count] ;
 
     lua_Integer i = lua_isnoneornil(L, 3) ?   1 : luaL_checkinteger(L, 3) ;
     lua_Integer j = lua_isnoneornil(L, 4) ? len : luaL_checkinteger(L, 4) ;
@@ -662,6 +746,9 @@ static int string_setStyleForRange(lua_State *L) {
     if (i > j)
         return luaL_argerror(L, 3, "starts index must be < ends index") ;
 
+// convert i and j into their obj-c equivalants
+    i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue] ;
+    j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue] ;
 // finally convert to Objective-C's practice of 0 indexing and j as length, not index
     NSRange theRange = NSMakeRange((NSUInteger)(i - 1), (NSUInteger)(j - (i - 1))) ;
 
@@ -734,8 +821,11 @@ static int string_removeStyleForRange(lua_State *L) {
         nextArg++ ;
     }
 
+// Lua indexes strings by byte, objective-c by char
+    NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;
+
 // cleaner with one cast, rather than for all references to it...
-    lua_Integer len = (lua_Integer)[theString length] ;
+    lua_Integer len = (lua_Integer)[theMap count] ;
 
     lua_Integer i = lua_isnoneornil(L, nextArg) ?       1 : luaL_checkinteger(L, nextArg) ;
     lua_Integer j = lua_isnoneornil(L, nextArg + 1) ? len : luaL_checkinteger(L, nextArg + 1) ;
@@ -748,6 +838,9 @@ static int string_removeStyleForRange(lua_State *L) {
     if (i > j)
         return luaL_argerror(L, 3, "starts index must be < ends index") ;
 
+// convert i and j into their obj-c equivalants
+    i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue] ;
+    j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue] ;
 // finally convert to Objective-C's practice of 0 indexing and j as length, not index
     NSRange theRange = NSMakeRange((NSUInteger)(i - 1), (NSUInteger)(j - (i - 1))) ;
 
@@ -759,7 +852,7 @@ static int string_removeStyleForRange(lua_State *L) {
     return 1 ;
 }
 
-/// hs.styledtext:replaceSubstring(string, [starts], [ends], [clear]) -> styledText object
+/// hs.styledtext:setString(string, [starts], [ends], [clear]) -> styledText object
 /// Method
 /// Return a copy of the `hs.styledtext` object containing the changes to its attributes specified in the `attributes` table.
 ///
@@ -774,7 +867,6 @@ static int string_removeStyleForRange(lua_State *L) {
 ///
 /// Notes:
 ///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function except that `starts` must refer to an index preceding or equal to `ends`, even after negative and out-of-bounds indices are adjusted for.
-///  * If `starts` and `ends` are equal, the substring is inserted at the specified location.
 ///
 ///  * See the module description documentation (`help.hs.styledtext`) for a description of the attributes table format
 static int string_replaceSubstringForRange(lua_State *L) {
@@ -791,8 +883,11 @@ static int string_replaceSubstringForRange(lua_State *L) {
 
     NSAttributedString *subString = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSAttributedString"] ;
 
+// Lua indexes strings by byte, objective-c by char
+    NSDictionary *theMap = luaByteToObjCharMap([subString string]) ;
+
 // cleaner with one cast, rather than for all references to it...
-    lua_Integer len = (lua_Integer)[theString length] ;
+    lua_Integer len = (lua_Integer)[theMap count] ;
 
     lua_Integer i = lua_isnumber(L, 3) ? luaL_checkinteger(L, 3) : 1 ;
     lua_Integer j = lua_isnumber(L, 4) ? luaL_checkinteger(L, 4) : len ;
@@ -808,6 +903,9 @@ static int string_replaceSubstringForRange(lua_State *L) {
     if (!insert && (i > j))
         return luaL_argerror(L, 3, "starts index must be < ends index") ;
 
+// convert i and j into their obj-c equivalants
+        i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue] ;
+        j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue] ;
 // finally convert to Objective-C's practice of 0 indexing and j as length, not index
     NSRange theRange = insert ? NSMakeRange((NSUInteger)(i - 1), 0) : NSMakeRange((NSUInteger)(i - 1), (NSUInteger)(j - (i - 1))) ;
 
@@ -894,7 +992,11 @@ static int string_convert(lua_State *L) {
 static int string_len(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
-    lua_pushinteger(L, (lua_Integer)[theString length]) ;
+
+// Lua indexes strings by byte, objective-c by char
+    NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;
+
+    lua_pushinteger(L, (lua_Integer)[theMap count]) ;
     return 1 ;
 }
 
@@ -962,8 +1064,12 @@ static int string_sub(lua_State *L) {
                                 LS_TNUMBER,
                                 LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
+
+// Lua indexes strings by byte, objective-c by char
+    NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;
+
 // cleaner with one cast, rather than for all references to it...
-    lua_Integer len = (lua_Integer)[theString length] ;
+    lua_Integer len = (lua_Integer)[theMap count] ;
 
     lua_Integer i = luaL_checkinteger(L, 2) ;
     lua_Integer j = len ; // in lua, j is an index, but length happens to be the lua index of the last char
@@ -977,6 +1083,9 @@ static int string_sub(lua_State *L) {
     if (i > j)
         [[LuaSkin shared] pushNSObject:[[NSAttributedString alloc] initWithString:@""]] ;
     else {
+// convert i and j into their obj-c equivalants
+        i = [[theMap objectForKey:[NSNumber numberWithInteger:i]] integerValue] ;
+        j = [[theMap objectForKey:[NSNumber numberWithInteger:j]] integerValue] ;
 // finally convert to Objective-C's practice of 0 indexing and j as length, not index
         NSRange theRange = NSMakeRange((NSUInteger)(i - 1), (NSUInteger)(j - (i - 1))) ;
         [[LuaSkin shared] pushNSObject:[theString attributedSubstringFromRange:theRange]] ;
@@ -1015,6 +1124,9 @@ static id lua_toNSAttributedString(lua_State* L, int idx) {
         theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]] ;
         lua_pop(L, 1) ; // the string on the stack
 
+// Lua indexes strings by byte, objective-c by char
+        NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;
+
         lua_Integer locInTable = 2 ;
         while (lua_rawgeti(L, idx, locInTable) != LUA_TNIL) {
             luaL_checktype(L, -1, LUA_TTABLE) ;
@@ -1023,6 +1135,10 @@ static id lua_toNSAttributedString(lua_State* L, int idx) {
             lua_pop(L, 1) ;
             NSUInteger len = ((lua_getfield(L, -1, "ends") == LUA_TNUMBER) ? ((NSUInteger)luaL_checkinteger(L, -1)) : ([theString length])) - loc ;
             lua_pop(L, 1) ;
+
+// convert starts and ends into their obj-c equivalants
+            loc = [[theMap objectForKey:[NSNumber numberWithUnsignedInteger:loc]] unsignedIntegerValue] ;
+            len = [[theMap objectForKey:[NSNumber numberWithUnsignedInteger:len]] unsignedIntegerValue] ;
 
             lua_getfield(L, -1, "attributes") ;
             @try {
@@ -1176,7 +1292,13 @@ static id table_toNSFont(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    return [NSFont fontWithName:theName size:theSize] ;
+    NSFont *theFont = [NSFont fontWithName:theName size:theSize] ;
+    if (theFont)
+        return theFont ;
+    else {
+        luaL_error(L, "invalid font specified: %s", [theName UTF8String]) ;
+        return nil ;
+    }
 }
 
 static int NSShadow_toLua(lua_State *L, id obj) {
@@ -1659,22 +1781,25 @@ static int userdata_tostring(lua_State* L) {
 }
 
 static int userdata_concat(lua_State* L) {
-    if (lua_type(L, 1) == LUA_TSTRING) {
+    if ((lua_type(L, 1) == LUA_TSTRING) || (lua_type(L, 1) == LUA_TNUMBER)) {
 // if the type of first argument is string, then we'd only get called if the second was one of us
         NSString *theString1 = [NSString stringWithUTF8String: lua_tostring(L, 1)] ;
         NSString *theString2 = [get_objectFromUserdata(__bridge NSAttributedString, L, 2) string] ;
         NSMutableString *newString = [theString1 mutableCopy] ;
         [newString appendString:theString2] ;
         [[LuaSkin shared] pushNSObject:newString] ;
-
     } else {
         NSAttributedString *theString1 = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
 // however, if the first argument is one of us, we still don't know what the second one is...
-        NSAttributedString *theString2 = (lua_type(L, 2) == LUA_TUSERDATA) ?
-                                          get_objectFromUserdata(__bridge NSAttributedString, L, 2) :
-                                          [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String: lua_tostring(L, 2)]];
         NSMutableAttributedString *newString = [theString1 mutableCopy] ;
-        [newString appendAttributedString:theString2] ;
+        if ((lua_type(L, 2) == LUA_TSTRING) || (lua_type(L, 2) == LUA_TNUMBER))
+        // it's a string, so extend the given attributes
+            [newString replaceCharactersInRange:NSMakeRange([newString length], 0)
+                                     withString:[NSString stringWithUTF8String: lua_tostring(L, 2)]] ;
+        else
+        // it's an attributed string, so assume it includes its own attributes
+            [newString appendAttributedString:get_objectFromUserdata(__bridge NSAttributedString, L, 2)] ;
+
         [[LuaSkin shared] pushNSObject:newString] ;
     }
     return 1 ;
@@ -1720,7 +1845,11 @@ static int userdata_len(lua_State *L) {
 //     for (int i = 1 ; i <= x ; i++) { lua_pushvalue(L, i) ; }
 //     lua_call(L, x, 0) ;
     NSAttributedString *theString = get_objectFromUserdata(__bridge NSAttributedString, L, 1) ;
-    lua_pushinteger(L, (lua_Integer)[theString length]) ;
+
+// Lua indexes strings by byte, objective-c by char
+    NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;
+
+    lua_pushinteger(L, (lua_Integer)[theMap count]) ;
     return 1 ;
 }
 
@@ -1746,10 +1875,10 @@ static const luaL_Reg userdata_metaLib[] = {
     {"isIdentical",      string_identical},
     {"copy",             string_copy},
     {"asTable",          string_totable},
-    {"asString",         string_tostring},
+    {"getString",        string_tostring},
     {"setStyle",         string_setStyleForRange},
     {"removeStyle",      string_removeStyleForRange},
-    {"replaceSubstring", string_replaceSubstringForRange},
+    {"setString",        string_replaceSubstringForRange},
     {"convert",          string_convert},
 
     {"len",              string_len},
@@ -1772,6 +1901,7 @@ static luaL_Reg moduleLib[] = {
     {"new",                   string_new},
     {"getStyledTextFromFile", getStyledTextFromFile},
     {"getStyledTextFromData", getStyledTextFromData},
+//     {"luaToObjCMap"         , luaToObjCMap},
 
     {"convertFont",           font_convertFont},
     {"fontInfo",              fontInformation},

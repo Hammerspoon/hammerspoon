@@ -573,14 +573,50 @@ static int drawing_newImage(lua_State *L) {
 /// Sets the text of a drawing object
 ///
 /// Parameters:
-///  * message - A string containing the text to display.  May also be any of the types supported by `hs.styledtext`.  See `hs.styledtext` for more details.
+///  * message - A string containing the text to display
 ///
 /// Returns:
 ///  * The drawing object
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
+///  * If the text of the drawing object is emptied (i.e. "") then style changes may be lost.  Use a placeholder such as a space (" ") or hide the object if style changes need to be saved but the text should disappear for a while.
 static int drawing_setText(lua_State *L) {
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
+        NSDictionary *attributes ;
+        @try {
+            attributes = [drawingView.textField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] ;
+        }
+        @catch ( NSException *theException ) {
+            attributes = @{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} ;
+        }
+
+        drawingView.textField.attributedStringValue = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:luaL_checkstring(L, 2)] attributes:attributes];
+    } else {
+        showError(L, ":setText() called on an hs.drawing object that isn't a text object");
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.drawing:setStyledText(message) -> drawingObject
+/// Method
+/// Sets the text of a drawing object from an `hs.styledtext` object
+///
+/// Parameters:
+///  * message - Any of the types supported by `hs.styledtext`.  See `hs.styledtext` for more details.
+///
+/// Returns:
+///  * The drawing object
+///
+/// Notes:
+///  * This method should only be used on text drawing objects
+static int drawing_setStyledText(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
@@ -595,7 +631,7 @@ static int drawing_setText(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:getText() -> `hs.styledtext` object
+/// hs.drawing:getStyledText() -> `hs.styledtext` object
 /// Method
 /// Gets the text of a drawing object as an `hs.styledtext` object
 ///
@@ -607,7 +643,7 @@ static int drawing_setText(lua_State *L) {
 ///
 /// Notes:
 ///  * This method should only be used on text drawing objects
-static int drawing_getText(lua_State *L) {
+static int drawing_getStyledText(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
@@ -714,9 +750,7 @@ NSDictionary *modifyTextStyleFromStack(lua_State *L, int idx, NSDictionary *defa
 
 /// hs.drawing:setTextStyle([textStyle]) -> drawingObject
 /// Method
-/// This method is deprecated.  Use the `hs.styledtext` module to set the text and style and apply it with `hs.drawing:setText` instead.
-///
-/// Sets the style parameters for the text of a drawing object.
+/// Sets some simple style parameters for the entire text of a drawing object.  For more control over style including having multiple styles within a single text object, use `hs.styledtext` and `hs.drawing:setStyledText` instead.
 ///
 /// Parameters:
 ///  * textStyle - an optional table containing one or more of the following keys to set for the text of the drawing object (if the table is nil or left out, the style is reset to the `hs.drawing` defaults):
@@ -753,7 +787,7 @@ static int drawing_setTextStyle(lua_State *L) {
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
         NSTextField             *theTextField = drawingView.textField ;
         NSString                *theText = [[NSString alloc] initWithString:[theTextField.attributedStringValue string]] ;
-// NOTE: if text is empty, throws NSRangeException... where else might it?
+// if text is empty, throws NSRangeException... where else might it?
         NSMutableDictionary     *attributes ;
         @try {
             attributes = [[theTextField.attributedStringValue attributesAtIndex:0 effectiveRange:nil] mutableCopy] ;
@@ -764,10 +798,7 @@ static int drawing_setTextStyle(lua_State *L) {
         }
 
         NSMutableParagraphStyle *style = [[attributes objectForKey:NSParagraphStyleAttributeName] mutableCopy] ;
-
-// NOTE: If we ever do deprecate setTextFont, setTextSize, and setTextColor, or if we want to expand to allow
-// multiple styles in an attributed string, move font and color into attribute dictionary -- I left them as is
-// to minimize changes to existing functions.
+        if (!style) style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy] ;
 
         if (lua_isnoneornil(L, 2)) {
             // defaults in the HSDrawingViewText initWithFrame: definition
@@ -1982,7 +2013,7 @@ static int default_textAttributes(lua_State *L) {
 /// Parameters:
 ///  * styledTextObject - an object created with the hs.styledtext module or its table representation (see `hs.styledtext`).
 ///
-///  The following format is supported for backwards compatibility, but is deprecated.  Use the hs.styledtext module instead.
+///  The following simplified style format is supported for use with `hs.drawing:setText` and `hs.drawing.setTextStyle`.
 ///
 ///  * theText   - the text which is to be displayed.
 ///  * textStyle - a table containing one or more of the following keys to set for the text of the drawing object (if textStyle is nil or missing, the `hs.drawing` defaults are used):
@@ -2011,6 +2042,8 @@ static int default_textAttributes(lua_State *L) {
 ///  * The size returned is an approximation and may return a width that is off by about 4 points.  Use the returned size as a minimum starting point. Sometimes using the "clip" or "truncateMiddle" lineBreak modes or "justified" alignment will fit, but its safest to add in your own buffer if you have the space in your layout.
 ///  * Multi-line text (separated by a newline or return) is supported.  The height will be for the multiple lines and the width returned will be for the longest line.
 static int drawing_getTextDrawingSize(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TANY, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+
     NSSize theSize ;
     switch(lua_type(L, 1)) {
         case LUA_TSTRING:
@@ -2048,6 +2081,36 @@ static int drawing_getTextDrawingSize(lua_State *L) {
         lua_pushnumber(L, ceil(theSize.width)) ; lua_setfield(L, -2, "w") ;
 
     return 1 ;
+}
+
+/// hs.drawing:wantsLayer([flag]) -> object or boolean
+/// Method
+/// Gets or sets whether or not the drawing object should be rendered by the view or by Core Animation.
+///
+/// Parameters:
+///  * flag - optional boolean (default false) which indicates whether the drawing object should be rendered by the containing view (false) or by the Core Animation interface (true).
+///
+/// Returns:
+///  * if `flag` is provided, then returns the drawing object; otherwise returns the current value
+///
+/// Notes:
+///  * This method can help smooth the display or small text objects on non-Retina monitors.
+static int drawing_wantsLayer(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, "hs.drawing",
+                                LS_TBOOLEAN | LS_TOPTIONAL,
+                                LS_TBREAK] ;
+
+    drawing_t       *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView   *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    if (lua_type(L, 2) != LUA_TNONE) {
+        [drawingView setWantsLayer:(BOOL)lua_toboolean(L, 2)];
+        lua_pushvalue(L, 1) ;
+    } else
+        lua_pushboolean(L, (BOOL)[drawingView wantsLayer]) ;
+
+    return 1;
 }
 
 // Trying to make this as close to paste and apply as possible, so not all aspects may apply
@@ -2093,7 +2156,6 @@ static int userdata_tostring(lua_State* L) {
     return 1 ;
 }
 
-
 // Lua metadata
 
 static const luaL_Reg drawinglib[] = {
@@ -2109,6 +2171,7 @@ static const luaL_Reg drawinglib[] = {
 };
 
 static const luaL_Reg drawing_metalib[] = {
+    {"wantsLayer",          drawing_wantsLayer},
     {"setStroke", drawing_setStroke},
     {"setStrokeWidth", drawing_setStrokeWidth},
     {"setStrokeColor", drawing_setStrokeColor},
@@ -2145,8 +2208,8 @@ static const luaL_Reg drawing_metalib[] = {
     {"imageAlignment", drawing_imageAlignment},
     {"rotateImage", drawing_rotate},
     {"clickCallbackActivating", drawing_clickCallbackActivating},
-
-    {"getText",    drawing_getText},
+    {"setStyledText", drawing_setStyledText},
+    {"getStyledText", drawing_getStyledText},
 
     {"__tostring", userdata_tostring},
     {"__gc", drawing_delete},
