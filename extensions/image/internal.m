@@ -87,7 +87,9 @@ static int pushNSImageNameTable(lua_State *L) {
 ///  * An `hs.image` object, or nil if an error occured
 static int imageFromPath(lua_State *L) {
     NSString* imagePath = lua_to_nsstring(L, 1);
-    NSImage *newImage = [[NSImage alloc] initByReferencingFile:[imagePath stringByExpandingTildeInPath]];
+    imagePath = [imagePath stringByExpandingTildeInPath];
+    imagePath = [[imagePath componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] componentsJoinedByString:@""];
+    NSImage *newImage = [[NSImage alloc] initByReferencingFile:imagePath];
 
     if (newImage && newImage.valid) {
         [[LuaSkin shared] pushNSObject:newImage];
