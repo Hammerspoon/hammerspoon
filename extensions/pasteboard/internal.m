@@ -81,7 +81,7 @@ static int pasteboard_setImageContents(lua_State* L) {
     NSPasteboard* thePasteboard = lua_to_pasteboard(L, 2);
 
     NSData *tiffRep = [theImage TIFFRepresentation];
-    if (!tiffRep)  return luaL_error(L, "Can't internal image representation");
+    if (!tiffRep)  return luaL_error(L, "Can't create internal image representation");
 
     NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
     if (!rep)  return luaL_error(L, "Can't wrap internal image representation");
