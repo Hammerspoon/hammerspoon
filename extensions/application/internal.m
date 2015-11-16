@@ -492,7 +492,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
     }
 
     NSMutableArray *toCheck = [[NSMutableArray alloc] init];
-    [toCheck addObjectsFromArray:(__bridge NSArray *)cf_children];
+    [toCheck addObjectsFromArray:(__bridge_transfer NSArray *)cf_children];
 
     int i = 5000; // This acts as a guard against this loop mysteriously running away
     while (i > 0) {
@@ -582,33 +582,38 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             CLS_NSLOG(@"Failed to get children");
             break;
         }
-        NSArray *children = (__bridge NSArray *)cf_children;
 
         // Check if the first child is an AXMenu, if so, we don't care about it and want its child
-        if ((int)[children count] > 0) {
+        if (count > 0) {
             CFTypeRef cf_role;
-            AXUIElementRef aSearchItem = (__bridge AXUIElementRef)[children objectAtIndex:0];
+            AXUIElementRef aSearchItem = (AXUIElementRef)CFArrayGetValueAtIndex(cf_children, 0);
             error = AXUIElementCopyAttributeValue(aSearchItem, kAXRoleAttribute, &cf_role);
             if (error) {
                 CLS_NSLOG(@"Failed to get role");
                 break;
             }
-            if(!CFStringCompare((CFStringRef)cf_role, kAXMenuRole, 0)) {
+            BOOL isMenuRole = CFStringCompare((CFStringRef)cf_role, kAXMenuRole, 0);
+            CFRelease(cf_role);
+
+            if(isMenuRole == kCFCompareEqualTo) {
                 // It's an AXMenu
                 CFIndex axMenuCount = -1;
                 error = AXUIElementGetAttributeValueCount(aSearchItem, kAXChildrenAttribute, &axMenuCount);
                 if (error) {
                     CLS_NSLOG(@"Failed to get AXMenu child count");
+                    CFRelease(cf_children);
                     break;
                 }
                 CFArrayRef axMenuChildren;
                 error = AXUIElementCopyAttributeValues(aSearchItem, kAXChildrenAttribute, 0, axMenuCount, &axMenuChildren);
                 if (error) {
+                    CFRelease(cf_children);
                     CLS_NSLOG(@"Failed to get AXMenu children");
                     break;
                 }
                 // Replace the existing children array with the new one we have retrieved
-                children = (__bridge NSArray *)axMenuChildren;
+                CFRelease(cf_children);
+                cf_children = axMenuChildren;
             }
         }
 
@@ -617,27 +622,30 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
         [path removeObjectAtIndex:0];
 
         // Search the available AXMenu children for the submenu/menuitem name we're looking for
-        NSUInteger childIndex = [children indexOfObjectPassingTest:^BOOL(id obj, NSUInteger idx __unused, BOOL *stop) {
-            CFTypeRef cf_title;
-            AXError error = AXUIElementCopyAttributeValue((__bridge AXUIElementRef)obj, kAXTitleAttribute, &cf_title);
-            if (error) {
-                // Something is very wrong, tell the test loop to stop
-                *stop = true;
-                return false;
-                CLS_NSLOG(@"Unable to get menu item title");
-            }
-            NSString *title = (__bridge_transfer NSString *)cf_title;
+        BOOL found = false;
 
-            // Return the comparison result between the menu item we're looking at, and the name we're looking for
-            return [title isEqualToString:nextMenuItem];
-        }];
-        if (childIndex == NSNotFound) {
-            CLS_NSLOG(@"Unable to solve complete menu path");
-            break;
+        for (CFIndex j = 0; j < CFArrayGetCount(cf_children); j++) {
+            CFTypeRef cf_title;
+            AXUIElementRef testMenuItem = (AXUIElementRef)CFArrayGetValueAtIndex(cf_children, j);
+            AXError error = AXUIElementCopyAttributeValue(testMenuItem, kAXTitleAttribute, &cf_title);
+            if (error) {
+                CLS_NSLOG(@"Unable to get menu item title");
+                continue;
+            }
+            if ([nextMenuItem isEqualToString:(__bridge NSString *)cf_title]) {
+                found = true;
+                searchItem = testMenuItem;
+            }
+            CFRelease(cf_title);
+            if (found) {
+                break;
+            }
         }
 
-        // We found the item we're looking for, so fetch it from the children array for use below and on the next iteration
-        searchItem = (__bridge AXUIElementRef)[children objectAtIndex:childIndex];
+        if (!found) {
+            CLS_NSLOG(@"Unable to resolve complete search path");
+            break;
+        }
 
         if ([path count] == 0) {
             // We're at the bottom of the path, so the object we just found is the one we're looking for, we can break out of the loop
@@ -645,6 +653,8 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             break;
         }
     }
+
+    CFRelease(menuBar);
 
     return foundItem;
 }
@@ -786,6 +796,147 @@ static int application_selectmenuitem(lua_State* L) {
     return 1;
 }
 
+id _getMenuStructure(AXUIElementRef menuItem) {
+    id thisMenuItem = nil;
+
+    NSMutableArray *attributeNames = [NSMutableArray arrayWithArray:@[(__bridge NSString *)kAXTitleAttribute,
+                                                                      (__bridge NSString *)kAXRoleAttribute,
+                                                                      //(__bridge NSString *)kAXSubroleAttribute,
+                                                                      (__bridge NSString *)kAXMenuItemMarkCharAttribute,
+                                                                      (__bridge NSString *)kAXMenuItemCmdCharAttribute,
+                                                                      (__bridge NSString *)kAXMenuItemCmdModifiersAttribute,
+                                                                      //(__bridge NSString *)kAXMenuItemCmdVirtualKeyAttribute,
+                                                                      (__bridge NSString *)kAXEnabledAttribute]];
+    CFArrayRef cfAttributeValues = NULL;
+
+    AXUIElementCopyMultipleAttributeValues(menuItem, (__bridge CFArrayRef)attributeNames, 0, &cfAttributeValues);
+
+    // See if we're dealing with the "special" Apple menu, and ignore it
+    CFTypeRef firstElement = CFArrayGetValueAtIndex(cfAttributeValues, 0);
+    if (CFGetTypeID(firstElement) == CFStringGetTypeID()) {
+        if (CFStringCompare((CFStringRef)CFArrayGetValueAtIndex(cfAttributeValues, 0), (__bridge CFStringRef)@"Apple", 0) == kCFCompareEqualTo) {
+            CFRelease(cfAttributeValues);
+            cfAttributeValues = nil;
+        }
+    }
+
+    if (cfAttributeValues) {
+        NSMutableArray *attributeValues = (__bridge_transfer NSMutableArray *)cfAttributeValues;
+        NSMutableArray *children = nil;
+        CFArrayRef cfChildren = 0;
+
+        // Filter out the attributes that could not be found
+        for (NSUInteger j = 0; j < [attributeValues count] ; j++) {
+            AXValueRef attributeValue = (__bridge AXValueRef)[attributeValues objectAtIndex:j];
+            if (AXValueGetType(attributeValue) == kAXValueAXErrorType) {
+                [attributeValues replaceObjectAtIndex:j withObject:@""];
+            }
+        }
+
+        // Convert the modifier keys into a format we can usefully hand over to Lua
+        id modsSrc = [attributeValues objectAtIndex:5];
+        id modsDst = nil;
+        if (![modsSrc isKindOfClass:[NSNumber class]]) {
+            modsDst = [NSNull null];
+        } else {
+            int modsInt = [modsSrc intValue];
+            NSMutableArray *modsArr = [[NSMutableArray alloc] init];
+            modsDst = modsArr;
+
+            // Cmd is assumed
+            [modsArr addObject:@"cmd"];
+
+            if (modsInt & kAXMenuItemModifierShift) {
+                [modsArr addObject:@"shift"];
+            }
+            if (modsInt & kAXMenuItemModifierOption) {
+                [modsArr addObject:@"alt"];
+            }
+            if (modsInt & kAXMenuItemModifierControl) {
+                [modsArr addObject:@"ctrl"];
+            }
+            if (modsInt & kAXMenuItemModifierNoCommand) {
+                // Special case, this means nothing, not even Cmd
+                [modsArr removeAllObjects];
+                modsDst = [NSNull null];
+            }
+        }
+
+        [attributeValues replaceObjectAtIndex:5 withObject:modsDst];
+
+        // Get the children of this item, if any
+        if (AXUIElementCopyAttributeValues(menuItem, kAXChildrenAttribute, 0, MAX_INT, &cfChildren) == kAXErrorSuccess) {
+            children = [[NSMutableArray alloc] init];
+            CFIndex numChildren = CFArrayGetCount(cfChildren);
+
+            for (CFIndex i = 0; i < numChildren; i++) {
+                CFTypeRef child = CFArrayGetValueAtIndex(cfChildren, i);
+                id childValues = _getMenuStructure((AXUIElementRef)child);
+
+                if (![childValues isKindOfClass:[NSNull class]]) {
+                    [children addObject:childValues];
+                }
+            }
+
+            CFRelease(cfChildren);
+
+            if ([children count] > 0) {
+                [attributeNames  addObject:(__bridge NSString *)kAXChildrenAttribute];
+                [attributeValues addObject:children];
+            }
+        }
+
+        // If we're not a menuitem, we don't belong in the Lua representation of the menu, so we'll either return this object's dictionary, or its array of children
+        if ([[attributeValues objectAtIndex:1] isEqualToString:@"AXMenuItem"] || [[attributeValues objectAtIndex:1] isEqualToString:@"AXMenuBarItem"]) {
+            thisMenuItem = [NSMutableDictionary dictionaryWithObjects:attributeValues forKeys:attributeNames];
+        } else {
+            thisMenuItem = children;
+        }
+    }
+
+    if (thisMenuItem && [thisMenuItem count] > 0) {
+        return thisMenuItem;
+    } else {
+        return [NSNull null];
+    }
+}
+
+/// hs.application:getMenuItems() -> table or nil
+/// Method
+/// Gets the menu structure of the application
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing the menu structure of the application, or nil if an error occurred
+///
+/// Notes:
+///  * In some applications, this can take a little while to complete, because quite a large number of round trips are required to the source application, to get the information. Take care!
+///  * The table is nested with the same structure as the menus of the application. Each item has several keys containing information about the menu item. Not all keys will appear for all items. The possible keys are:
+///   * AXTitle - A string containing the text of the menu item (entries which have no title are menu separators)
+///   * AXEnabled - A boolean, 1 if the menu item is clickable, 0 if not
+///   * AXRole - A string containing the role of the menu item - this will be either AXMenuBarItem for a top level menu, or AXMenuItem for an item in a menu
+///   * AXMenuItemMarkChar - A string containing the "mark" character for a menu item. This is for toggleable menu items and will usually be an empty string or a Unicode tick character (✓)
+///   * AXMenuItemCmdModifiers - A table containing string representations of the keyboard modifiers for the menu item's keyboard shortcut, or nil if no modifiers are present
+///   * AXMenuItemCmdChar - A string containing the key for the menu item's keyboard shortcut, or an empty string if no shortcut is present
+///  * Using `hs.inspect()` on these tables, while useful for exploration, can be extremely slow, taking several minutes to correctly render very complex menus
+static int application_getMenus(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    AXUIElementRef app = get_app(L, 1);
+    NSMutableDictionary *menus = nil;
+    AXUIElementRef menuBar;
+
+    if (AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar) == kAXErrorSuccess) {
+        menus = _getMenuStructure(menuBar);
+        CFRelease(menuBar);
+    }
+
+    [skin pushNSObject:menus];
+
+    return 1;
+}
+
 /// hs.application.launchOrFocus(name) -> boolean
 /// Function
 /// Launches the app with the given name, or activates it if it's already running
@@ -882,6 +1033,7 @@ static const luaL_Reg applicationlib[] = {
     {"kind", application_kind},
     {"findMenuItem", application_findmenuitem},
     {"selectMenuItem", application_selectmenuitem},
+    {"getMenuItems", application_getMenus},
     {"launchOrFocus", application_launchorfocus},
     {"launchOrFocusByBundleID", application_launchorfocusbybundleID},
 
