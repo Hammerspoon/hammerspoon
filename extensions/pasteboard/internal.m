@@ -66,6 +66,35 @@ static int pasteboard_setContents(lua_State* L) {
     return 1;
 }
 
+/// hs.pasteboard.setImageContents(contents[, name]) -> boolean
+/// Function
+/// Sets the contents of the pasteboard to a PNG image
+///
+/// Parameters:
+///  * contents - An image to be placed in the pasteboard
+///  * name - An optional string containing the name of the pasteboard. Defaults to the system pasteboard
+///
+/// Returns:
+///  * True if the operation succeeded, otherwise false
+static int pasteboard_setImageContents(lua_State* L) {
+    NSImage*  theImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSPasteboard* thePasteboard = lua_to_pasteboard(L, 2);
+
+    NSData *tiffRep = [theImage TIFFRepresentation];
+    if (!tiffRep)  return luaL_error(L, "Can't internal image representation");
+
+    NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
+    if (!rep)  return luaL_error(L, "Can't wrap internal image representation");
+
+    NSData* pngImageData = [rep representationUsingType:NSPNGFileType properties:@{}];
+
+    [thePasteboard clearContents];
+    BOOL result = [thePasteboard setData:pngImageData forType:NSPasteboardTypePNG];
+
+    lua_pushboolean(L, result);
+    return 1;
+}
+
 /// hs.pasteboard.clearContents([name])
 /// Function
 /// Clear the contents of the pasteboard
@@ -167,6 +196,7 @@ static const luaL_Reg pasteboardLib[] = {
     {"getContents",      pasteboard_getContents},
     {"getImageContents", pasteboard_getImageContents},
     {"setContents",      pasteboard_setContents},
+    {"setImageContents", pasteboard_setImageContents},
     {"clearContents",    pasteboard_clearContents},
     {"pasteboardTypes",  pasteboard_pasteboardTypes},
     {"contentTypes",     pasteboard_pasteboardItemTypes},
