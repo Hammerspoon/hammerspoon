@@ -401,7 +401,7 @@ static int saveToFile(lua_State* L) {
     if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't create internal representation");
 
     NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
-    if (!tiffRep)  return luaL_error(L, "Unable to write image file: Can't wrap internal representation");
+    if (!rep)  return luaL_error(L, "Unable to write image file: Can't wrap internal representation");
 
     NSData* fileData = [rep representationUsingType:fileType properties:@{}];
     if (!fileData) return luaL_error(L, "Unable to write image file: Can't convert internal representation");
