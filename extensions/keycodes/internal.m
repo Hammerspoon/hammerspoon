@@ -198,7 +198,7 @@ int keycodes_cachemap(lua_State* L) {
                                              selector:@selector(_inputSourceChanged:)
                                                  name:NSTextInputContextKeyboardSelectionDidChangeNotification
                                                object:nil];
-    /* This should have made things better, but it seems to cause crashes for some
+    /* This should have made things better, but it seems to cause crashes for some, possibly because the paired removeObserver call is wrong?
     [[NSDistributedNotificationCenter defaultCenter] addObserver:self
                                                         selector:@selector(_inputSourceChanged:)
                                                             name:(__bridge NSString *)kTISNotifySelectedKeyboardInputSourceChanged
