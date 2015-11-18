@@ -53,9 +53,17 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
     if(NSClassFromString(@"XCTest") != nil) {
         NSLog(@"in testing mode!");
-        const char *tmp = [[[NSBundle bundleForClass:NSClassFromString(@"Hammerspoon_Tests")] pathForResource:@"init" ofType:@"lua"] fileSystemRepresentation];
-        NSLog(@"testing init.lua is [%s], if this is null, we crash on the next line", tmp);
-        MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:tmp length:strlen(tmp)];
+        Class tests = NSClassFromString(@"Hammerspoon_Tests");
+        NSBundle *bundle = [NSBundle bundleForClass:tests];
+        NSString *initPath = [bundle pathForResource:@"init" ofType:@"lua"];
+        const char *fsPath = [initPath fileSystemRepresentation];
+
+        if (!fsPath) {
+            NSLog(@"Unable to find init.lua in Hammerspoon Tests.xctest. We're about to crash, sorry!");
+        } else {
+            NSLog(@"testing init.lua");
+        }
+        MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:fsPath length:strlen(fsPath)];
     } else {
         NSString* userMJConfigFile = [[NSUserDefaults standardUserDefaults] stringForKey:@"MJConfigFile"];
         if (userMJConfigFile) MJConfigFile = userMJConfigFile ;
