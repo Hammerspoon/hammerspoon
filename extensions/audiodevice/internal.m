@@ -1092,7 +1092,6 @@ static int audiodevice_eq(lua_State* L) {
 }
 
 static int audiodevice_gc(lua_State* L) {
-    NSLog(@"audiodevice_gc");
     LuaSkin *skin = [LuaSkin shared];
     audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
 
