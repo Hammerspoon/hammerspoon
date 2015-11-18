@@ -245,7 +245,6 @@
 		4FDE05BC1B729B1400E9E8EE /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4FDE05C11B72C22500E9E8EE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4FDE05C21B72C22500E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
-		4FDE05CC1B72C24700E9E8EE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05CA1B72C24700E9E8EE /* internal.m */; };
 		4FDE05CD1B72C24700E9E8EE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05CA1B72C24700E9E8EE /* internal.m */; };
 		4FDE05CE1B72C2DB00E9E8EE /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FDE05B61B72999A00E9E8EE /* IOKit.framework */; };
 		4FDE05CF1B72C2E000E9E8EE /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FBE2D131B72635400407788 /* Carbon.framework */; };
@@ -4627,7 +4626,6 @@
 			files = (
 				944A2D391989735300D8DC90 /* MJAppDelegate.m in Sources */,
 				942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */,
-				4FDE05CC1B72C24700E9E8EE /* internal.m in Sources */,
 				9409203119A5940600B9964E /* MJVersionUtils.m in Sources */,
 				944A2DA91989760400D8DC90 /* MJConsoleWindowController.m in Sources */,
 				94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */,
