@@ -1,4 +1,8 @@
 language: objective-c
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode7.1
 before_install:
   - gem install github-markdown
 before_script:
