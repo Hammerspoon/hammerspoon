@@ -53,8 +53,9 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
     if(NSClassFromString(@"XCTest") != nil) {
         NSLog(@"in testing mode!");
-        Class tests = NSClassFromString(@"Hammerspoon_Tests");
-        NSBundle *bundle = [NSBundle bundleForClass:tests];
+        NSDictionary *environment = [NSProcessInfo processInfo].environment;
+        NSString *injectBundlePath = environment[@"XCInjectBundle"];
+        NSBundle *bundle = [NSBundle bundleWithPath:injectBundlePath];
         NSString *initPath = [bundle pathForResource:@"init" ofType:@"lua"];
         const char *fsPath = [initPath fileSystemRepresentation];
 
