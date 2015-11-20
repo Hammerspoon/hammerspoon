@@ -576,7 +576,10 @@ static int menubar_delete(lua_State *L) {
     // Remove all menu stuff associated with this item
     erase_all_menu_parts(L, statusItem);
 
-    [statusBar removeStatusItem:statusItem];
+    if (!menuBarItem->removed) {
+        [statusBar removeStatusItem:statusItem];
+    }
+
     menuBarItem->menuBarItemObject = nil;
     menuBarItem = nil;
 
