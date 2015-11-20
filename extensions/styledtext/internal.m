@@ -1114,15 +1114,27 @@ static int string_sub(lua_State *L) {
 static id lua_toNSAttributedString(lua_State* L, int idx) {
     NSMutableAttributedString *theString ;
     if ((lua_type(L, idx) == LUA_TSTRING) || (lua_type(L, idx) == LUA_TNUMBER)) {
-        theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, idx)]] ;
+        luaL_checkstring(L, idx) ;
+        lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ; lua_remove(L, -2) ;
+        lua_pushvalue(L, idx) ;
+        lua_call(L, 1, 1) ;
+
+        theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]] ;
+
+        lua_pop(L, 1) ;
     } else if (lua_type(L, idx == LUA_TUSERDATA)) {
         theString = [get_objectFromUserdata(__bridge NSAttributedString, L, idx) mutableCopy];
     } else {
         luaL_checktype(L, idx, LUA_TTABLE) ;
 
         lua_rawgeti(L, idx, 1) ;
+        luaL_checkstring(L, -1) ;
+        lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ; lua_remove(L, -2) ;
+        lua_pushvalue(L, -2) ;
+        lua_call(L, 1, 1) ;
+
         theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]] ;
-        lua_pop(L, 1) ; // the string on the stack
+        lua_pop(L, 2) ; // the cleaned version of the string and the string on the stack
 
 // Lua indexes strings by byte, objective-c by char
         NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;

@@ -68,7 +68,7 @@
 --- * eq:      object ==/~= object yields a boolean indicating if the text of the two objects is equal or not.  Use `hs.styledtext:isIdentical` if you need to compare attributes as well.
 --- * lt, le:  allows &lt;, &gt;, &lt;=, and &gt;= comparisons between objects and strings in which the text of an object is compared with the text of another or a Lua string.
 ---
---- Note that due to differences in the way Lua determines when to use metamethods for equality comparisons versus relative-position comparisons, ==/~= cannot compare an object to a Lua string (it will always return false because the types are different).  You must use object:asString() ==/~= `string`.  (see `hs.styledtext:asString`)
+--- Note that due to differences in the way Lua determines when to use metamethods for equality comparisons versus relative-position comparisons, ==/~= cannot compare an object to a Lua string (it will always return false because the types are different).  You must use object:getString() ==/~= `string`.  (see `hs.styledtext:getString`)
 
 local module = require("hs.styledtext.internal")
 require("hs.drawing.color") -- make sure that the conversion helpers required to support color are loaded
@@ -167,7 +167,7 @@ local objectMetatable = hs.getObjectMetatable("hs.styledtext")
 ---
 --- Notes:
 ---  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function.
-objectMetatable.byte   = function(self, ...) return self:asString():byte(...) end
+objectMetatable.byte   = function(self, ...) return self:getString():byte(...) end
 
 --- hs.styledtext:find(pattern, [init, [plain]]) -> start, end, ... | nil
 --- Method
@@ -183,7 +183,7 @@ objectMetatable.byte   = function(self, ...) return self:asString():byte(...) en
 ---
 --- Notes:
 ---  * Any captures returned are returned as Lua Strings, not as `hs.styledtext` objects.
-objectMetatable.find   = function(self, ...) return self:asString():find(...) end
+objectMetatable.find   = function(self, ...) return self:getString():find(...) end
 
 --- hs.styledtext:match(pattern, [init]) -> match ... | nil
 --- Method
@@ -198,7 +198,7 @@ objectMetatable.find   = function(self, ...) return self:asString():find(...) en
 ---
 --- Notes:
 ---  * Any captures (or the entire pattern) returned are returned as Lua Strings, not as `hs.styledtext` objects.
-objectMetatable.match  = function(self, ...) return self:asString():match(...) end
+objectMetatable.match  = function(self, ...) return self:getString():match(...) end
 
 --- hs.styledtext:gmatch(pattern) -> iterator-function
 --- Method
@@ -212,7 +212,7 @@ objectMetatable.match  = function(self, ...) return self:asString():match(...) e
 ---
 --- Notes:
 ---  * Any captures (or the entire pattern) returned by the iterator are returned as Lua Strings, not as `hs.styledtext` objects.
-objectMetatable.gmatch = function(self, ...) return self:asString():gmatch(...) end
+objectMetatable.gmatch = function(self, ...) return self:getString():gmatch(...) end
 
 
 --- hs.styledtext:rep(n, [separator]) -> styledText object
