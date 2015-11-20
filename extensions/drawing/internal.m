@@ -595,7 +595,13 @@ static int drawing_setText(lua_State *L) {
             attributes = @{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} ;
         }
 
-        drawingView.textField.attributedStringValue = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:luaL_checkstring(L, 2)] attributes:attributes];
+        luaL_checkstring(L, 2) ;
+        lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ; lua_remove(L, -2) ;
+        lua_pushvalue(L, 2) ;
+        lua_call(L, 1, 1) ;
+
+        drawingView.textField.attributedStringValue = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:luaL_checkstring(L, -1)] attributes:attributes];
+        lua_pop(L, 1) ;
     } else {
         showError(L, ":setText() called on an hs.drawing object that isn't a text object");
     }
