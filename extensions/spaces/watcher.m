@@ -50,10 +50,10 @@ typedef struct _spacewatcher_t {
 - (void)spaceChanged:(NSNotification*)notification {
     int currentSpace = -1;
     // Get an array of all the windows in the current space.
-    CFArrayRef windowsInSpace = CGWindowListCopyWindowInfo(kCGWindowListOptionAll | kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
+    NSArray *windowsInSpace = (__bridge_transfer NSArray *)CGWindowListCopyWindowInfo(kCGWindowListOptionAll | kCGWindowListOptionOnScreenOnly, kCGNullWindowID);
 
     // Now loop over the array looking for a window with the kCGWindowWorkspace key.
-    for (NSMutableDictionary *thisWindow in (__bridge NSArray*)windowsInSpace) {
+    for (NSMutableDictionary *thisWindow in windowsInSpace) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         if ([thisWindow objectForKey:(id)kCGWindowWorkspace]) {
@@ -62,8 +62,6 @@ typedef struct _spacewatcher_t {
             break;
         }
     }
-
-    CFRelease(windowsInSpace);
 
     [self callback:[notification userInfo] withSpace:currentSpace];
 }
