@@ -1,11 +1,10 @@
 --- === hs.window.filter ===
 ---
---- **WARNING**: EXPERIMENTAL MODULE. DO **NOT** USE IN PRODUCTION.
---- This module is *for testing purposes only*. It can undergo breaking API changes **at any point and without notice**.
---- (Should you encounter any issues, please feel free to report them on https://github.com/Hammerspoon/hammerspoon/issues
---- or #hammerspoon on irc.freenode.net)
----
 --- Filter windows by application, title, location on screen and more, and easily subscribe to events on these windows
+---
+--- Warning: this module is still somewhat experimental.
+--- Should you encounter any issues, please feel free to report them on https://github.com/Hammerspoon/hammerspoon/issues
+--- or #hammerspoon on irc.freenode.net
 ---
 --- Windowfilters monitor all windows as they're created, closed, moved etc., and select some (or none) among these windows
 --- according to specific filtering rules. These filtering rules are app-specific, i.e. they start off by selecting all windows
