@@ -92,7 +92,7 @@ void create_task(task_userdata_t *userData) {
 /// Creates a new hs.task object
 ///
 /// Parameters:
-///  * launchPath - A string containing the path to an executable file
+///  * launchPath - A string containing the path to an executable file.  This must be the full path to an executable and not just an executable which is in your environment's path (e.g. `/bin/ls` rather than just `ls`).
 ///  * callbackFn - A callback function to be called when the task terminates, or nil if no callback should be called. The function should accept three arguments:
 ///   * exitCode - An integer containing the exit code of the process
 ///   * stdOut - A string containing the standard output of the process
@@ -136,6 +136,61 @@ static int task_new(lua_State *L) {
     [pointers addPointer:userData->nsTask];
     [pointers addPointer:(void *)userData];
     [tasks addObject:pointers];
+
+    return 1;
+}
+
+/// hs.task:workingDirectory() -> path
+/// Method
+/// Returns the working directory for the task.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a string containing the working directory for the task.
+///
+/// Notes:
+///  * This only returns the directory that the task starts in.  If the task changes the directory itself, this value will not reflect that change.
+static int task_getWorkingDirectory(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+    NSTask *task = (__bridge NSTask *)userData->nsTask;
+
+    [skin pushNSObject:task.currentDirectoryPath];
+    return 1;
+}
+
+/// hs.task:setWorkingDirectory(path) -> hs.task object | false
+/// Method
+/// Sets the working directory for the task.
+///
+/// Parameters:
+///  * path - a string containing the path you wish to be the working directory for the task.
+///
+/// Returns:
+///  * The hs.task object, or false if the working directory was not set (usually because the task is already running or has completed)
+///
+/// Notes:
+///  * You can only set the working directory if the path has not already been started.
+///  * This will only set the directory that the task starts in.  The task itself can change the directory while it is running.
+static int task_setWorkingDirectory(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+    NSTask *task = (__bridge NSTask *)userData->nsTask;
+    NSString *thePath = [skin toNSObjectAtIndex:2] ;
+
+    @try {
+        [task setCurrentDirectoryPath:thePath] ;
+        lua_pushvalue(L, 1) ;
+    }
+    @catch (NSException *exception) {
+        printToConsole(L, "hs.task:setWorkingDirectory() Unable to set the working directory for task:");
+        printToConsole(L, (char *)[exception.reason UTF8String]);
+        lua_pushboolean(L, NO) ;
+    }
 
     return 1;
 }
@@ -566,6 +621,8 @@ static const luaL_Reg taskObjectLib[] = {
     {"terminationStatus", task_terminationStatus},
     {"terminationReason", task_terminationReason},
     {"isRunning", task_isRunning},
+    {"setWorkingDirectory", task_setWorkingDirectory},
+    {"workingDirectory", task_getWorkingDirectory},
 
     {"waitUntilExit", task_block},
 
