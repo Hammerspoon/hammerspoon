@@ -173,7 +173,7 @@ static int task_getWorkingDirectory(lua_State *L) {
 ///  * The hs.task object, or false if the working directory was not set (usually because the task is already running or has completed)
 ///
 /// Notes:
-///  * You can only set the working directory if the path has not already been started.
+///  * You can only set the working directory if the task has not already been started.
 ///  * This will only set the directory that the task starts in.  The task itself can change the directory while it is running.
 static int task_setWorkingDirectory(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
