@@ -884,7 +884,7 @@ static int string_replaceSubstringForRange(lua_State *L) {
     NSAttributedString *subString = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSAttributedString"] ;
 
 // Lua indexes strings by byte, objective-c by char
-    NSDictionary *theMap = luaByteToObjCharMap([subString string]) ;
+    NSDictionary *theMap = luaByteToObjCharMap([theString string]) ;
 
 // cleaner with one cast, rather than for all references to it...
     lua_Integer len = (lua_Integer)[theMap count] ;
