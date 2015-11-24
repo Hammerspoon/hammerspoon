@@ -235,7 +235,8 @@ static int console_setConsole(lua_State *L) {
         [[console.outputView textStorage] performSelectorOnMainThread:@selector(setAttributedString:)
                                                            withObject:theStr
                                                         waitUntilDone:YES];
-      }
+    }
+    [console.outputView scrollToEndOfDocument:console];
     return 0 ;
 }
 
@@ -335,6 +336,7 @@ static int console_printStyledText(lua_State *L) {
     [[console.outputView textStorage] performSelectorOnMainThread:@selector(appendAttributedString:)
                                                        withObject:theStr
                                                     waitUntilDone:YES];
+    [console.outputView scrollToEndOfDocument:console];
     return 0 ;
 }
 
