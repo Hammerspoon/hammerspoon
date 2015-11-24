@@ -213,6 +213,7 @@ local function checkWindowAllowed(filter,win)
   if filter.rejectTitles and matchTitles(filter.rejectTitles,win.title) then return false,'rejectTitles' end
   if filter.fullscreen~=nil and filter.fullscreen~=win.isFullscreen then return false,'fullscreen' end
   if filter.focused~=nil and filter.focused~=(win==global.focused) then return false,'focused' end
+  if filter.activeApplication~=nil and filter.activeApplication~=(global.active==win.app) then return false,'activeApplication' end
   if win.isVisible then --min and hidden disregard regions and screens
     if filter.allowRegions and not matchRegions(filter.allowRegions,win.frame) then return false,'allowRegions' end
     if filter.rejectRegions and matchRegions(filter.allowRegions,win.frame) then return false,'rejectRegions' end
@@ -292,7 +293,8 @@ function WF:isWindowAllowed(window)
       --temporarily fill in the necessary data
       local frontapp = application.frontmostApplication()
       local frontwin = frontapp and frontapp:focusedWindow()
-      if frontwin and frontwin:id()==id then global.focused=win end
+      if frontwin and frontwin:id()==id then global.focused=win else global.focused=nil end
+      if frontapp:pid()==window:application():pid() then global.active=win.app else global.active=nil end
     end
   end
   return isWindowAllowed(self,win)
@@ -441,6 +443,8 @@ end
 ---      if omitted, this rule is ignored
 ---    * fullscreen - if `true`, only allow fullscreen windows; if `false`, reject fullscreen windows; if omitted, this rule is ignored
 ---    * focused - if `true`, only allow a window while focused; if `false`, reject the focused window; if omitted, this rule is ignored
+---    * activeApplication - only allow any of this app's windows while it is (if `true`) or it's not (if `false`) the active application;
+---      if omitted, this rule is ignored
 ---    * allowTitles
 ---      * if a number, only allow windows whose title is at least as many characters long; e.g. pass `1` to filter windows with an empty title
 ---      * if a string or table of strings, only allow windows whose title matches (one of) the pattern(s) as per `string.match`
@@ -568,7 +572,7 @@ function WF:setAppFilter(appname,ft,batch)
           logs=sformat('%s%s={%s}, ',logs,k,first)
         else logs=sformat('%s%s=%s, ',logs,k,v) end
         filter.allowRoles=r
-      elseif k=='visible' or k=='fullscreen' or k=='focused' or k=='currentSpace' then
+      elseif k=='visible' or k=='fullscreen' or k=='focused' or k=='currentSpace' or k=='activeApplication' then
         if type(v)~='boolean' then error(k..' must be a boolean',2) end
         filter[k]=v logs=sformat('%s%s=%s, ',logs,k,ft[k])
       elseif k=='allowRegions' or k=='rejectRegions' then
