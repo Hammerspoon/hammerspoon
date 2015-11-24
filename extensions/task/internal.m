@@ -7,6 +7,7 @@
 
 typedef struct _task_userdata_t {
     void *nsTask;
+    bool hasStarted ;
     int luaCallback;
     void *launchPath;
     void *arguments;
@@ -91,7 +92,7 @@ void create_task(task_userdata_t *userData) {
 /// Creates a new hs.task object
 ///
 /// Parameters:
-///  * launchPath - A string containing the path to an executable file
+///  * launchPath - A string containing the path to an executable file.  This must be the full path to an executable and not just an executable which is in your environment's path (e.g. `/bin/ls` rather than just `ls`).
 ///  * callbackFn - A callback function to be called when the task terminates, or nil if no callback should be called. The function should accept three arguments:
 ///   * exitCode - An integer containing the exit code of the process
 ///   * stdOut - A string containing the standard output of the process
@@ -119,6 +120,7 @@ static int task_new(lua_State *L) {
         userData->luaCallback = LUA_REFNIL;
     }
 
+    userData->hasStarted = NO ;
     userData->launchPath = (__bridge_retained void *)[skin toNSObjectAtIndex:1];
     if (lua_type(L, 3) == LUA_TTABLE) {
         userData->arguments = (__bridge_retained void *)[skin toNSObjectAtIndex:3];
@@ -134,6 +136,61 @@ static int task_new(lua_State *L) {
     [pointers addPointer:userData->nsTask];
     [pointers addPointer:(void *)userData];
     [tasks addObject:pointers];
+
+    return 1;
+}
+
+/// hs.task:workingDirectory() -> path
+/// Method
+/// Returns the working directory for the task.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a string containing the working directory for the task.
+///
+/// Notes:
+///  * This only returns the directory that the task starts in.  If the task changes the directory itself, this value will not reflect that change.
+static int task_getWorkingDirectory(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+    NSTask *task = (__bridge NSTask *)userData->nsTask;
+
+    [skin pushNSObject:task.currentDirectoryPath];
+    return 1;
+}
+
+/// hs.task:setWorkingDirectory(path) -> hs.task object | false
+/// Method
+/// Sets the working directory for the task.
+///
+/// Parameters:
+///  * path - a string containing the path you wish to be the working directory for the task.
+///
+/// Returns:
+///  * The hs.task object, or false if the working directory was not set (usually because the task is already running or has completed)
+///
+/// Notes:
+///  * You can only set the working directory if the task has not already been started.
+///  * This will only set the directory that the task starts in.  The task itself can change the directory while it is running.
+static int task_setWorkingDirectory(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+    NSTask *task = (__bridge NSTask *)userData->nsTask;
+    NSString *thePath = [skin toNSObjectAtIndex:2] ;
+
+    @try {
+        [task setCurrentDirectoryPath:thePath] ;
+        lua_pushvalue(L, 1) ;
+    }
+    @catch (NSException *exception) {
+        printToConsole(L, "hs.task:setWorkingDirectory() Unable to set the working directory for task:");
+        printToConsole(L, (char *)[exception.reason UTF8String]);
+        lua_pushboolean(L, NO) ;
+    }
 
     return 1;
 }
@@ -159,7 +216,7 @@ static int task_getPID(lua_State *L) {
     return 1;
 }
 
-/// hs.task:start() -> boolean
+/// hs.task:start() -> hs.task object | false
 /// Method
 /// Starts the task
 ///
@@ -167,10 +224,10 @@ static int task_getPID(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * A boolean, true if the task was launched successfully, otherwise false
+///  *  If the task was started successfully, returns the task object; otherwise returns false
 ///
 /// Notes:
-///  * If the task was not started successfully, an informative error message will be printed to the Hammerspoon Console
+///  * If the task does not start successfully, the error message will be printed to the Hammerspoon Console
 static int task_launch(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -180,13 +237,17 @@ static int task_launch(lua_State *L) {
     @try {
         [(__bridge NSTask *)userData->nsTask launch];
         result = true;
+        userData->hasStarted = YES ;
     }
     @catch (NSException *exception) {
         printToConsole(skin.L, "ERROR: Unable to launch hs.task process:");
         printToConsole(skin.L, (char *)[exception.reason UTF8String]);
     }
 
-    lua_pushboolean(L, result);
+    if (result)
+        lua_pushvalue(L, 1) ;
+    else
+        lua_pushboolean(L, result);
     return 1;
 }
 
@@ -211,7 +272,8 @@ static int task_SIGTERM(lua_State *L) {
         [(__bridge NSTask *)userData->nsTask terminate];
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:terminate() called on non-running task");
+        printToConsole(L, "hs.task:terminate() Unable to terminate hs.task process:");
+        printToConsole(skin.L, (char *)[exception.reason UTF8String]);
     }
 
     lua_pushvalue(L, 1);
@@ -239,7 +301,8 @@ static int task_SIGINT(lua_State *L) {
         [(__bridge NSTask *)userData->nsTask interrupt];
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:interrupt() called on non-running task");
+        printToConsole(L, "hs.task:interrupt() Unable to interrupt hs.task process:");
+        printToConsole(skin.L, (char *)[exception.reason UTF8String]);
     }
 
     lua_pushvalue(L, 1);
@@ -254,9 +317,10 @@ static int task_SIGINT(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * A boolean, true if the task was paused, otherwise false
+///  *  If the task was paused successfully, returns the task object; otherwise returns false
 ///
 /// Notes:
+///  * If the task is not paused, the error message will be printed to the Hammerspoon Console
 ///  * This method can be called multiple times, but a matching number of `hs.task:resume()` calls will be required to allow the process to continue
 static int task_pause(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -268,10 +332,14 @@ static int task_pause(lua_State *L) {
         result = [(__bridge NSTask *)userData->nsTask suspend];
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:pause() called on non-running task");
+        printToConsole(L, "hs.task:pause() Unable to pause hs.task process:");
+        printToConsole(L, (char *)[exception.reason UTF8String]);
     }
 
-    lua_pushboolean(L, result);
+    if (result)
+        lua_pushvalue(L, 1) ;
+    else
+        lua_pushboolean(L, result);
     return 1;
 }
 
@@ -283,7 +351,10 @@ static int task_pause(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * A boolean, true if the task was resumed, otherwise false
+///  *  If the task was resumed successfully, returns the task object; otherwise returns false
+///
+/// Notes:
+///  * If the task is not resumed successfully, the error message will be printed to the Hammerspoon Console
 static int task_resumeTask(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -294,10 +365,14 @@ static int task_resumeTask(lua_State *L) {
         result = [(__bridge NSTask *)userData->nsTask resume];
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:resume() called on non-running task");
+        printToConsole(L, "hs.task:resume() Unable to resume hs.task process:");
+        printToConsole(L, (char *)[exception.reason UTF8String]);
     }
 
-    lua_pushboolean(L, result);
+    if (result)
+        lua_pushvalue(L, 1) ;
+    else
+        lua_pushboolean(L, result);
     return 1;
 }
 
@@ -324,23 +399,152 @@ static int task_block(lua_State *L) {
     return 1;
 }
 
+
+/// hs.task:terminationStatus() -> exitCode | false
+/// Method
+/// Returns the termination status of a task, or false if the task is still running.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * the numeric exitCode of the task, or the boolean false if the task has not yet exited (either because it has not yet been started or because it is still running).
+static int task_terminationStatus(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+    @try {
+        lua_pushinteger(L, [(__bridge NSTask *)userData->nsTask terminationStatus]) ;
+    }
+    @catch (NSException *exception) {
+//         if ([[exception name] isEqualToString:NSInvalidArgumentException])
+//             lua_pushboolean(L, NO) ;
+//         else
+//             return luaL_error(L, "terminationStatus:unhandled exception: %s", [[exception name] UTF8String]) ;
+
+// Follow existing convention for module instead...
+        lua_pushboolean(L, NO) ;
+        if (![[exception name] isEqualToString:NSInvalidArgumentException]) {
+            printToConsole(L, "hs.task:terminationStatus() Unable get termination status for hs.task process:");
+            printToConsole(L, (char *)[exception.reason UTF8String]);
+        }
+    }
+    return 1 ;
+}
+
+/// hs.task:isRunning() -> boolean
+/// Method
+/// Test if a task is still running.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * true if the task is running or false if it is not.
+///
+/// Notes:
+///  * A task which has not yet been started yet will also return false.
+static int task_isRunning(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+    if (!userData->hasStarted)
+        lua_pushboolean(L, NO) ;
+    else {
+        lua_pushcfunction(L, task_terminationStatus) ;
+        lua_pushvalue(L, 1) ;
+        lua_call(L, 1, 1) ;
+        lua_pushboolean(L, (lua_type(L, -1) == LUA_TNUMBER) ? NO : YES) ;
+        lua_remove(L, -2) ;
+    }
+    return 1 ;
+}
+
+/// hs.task:terminationReason() -> exitCode | false
+/// Method
+/// Returns the termination reason for a task, or false if the task is still running.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a string value of "exit" if the process exited normally or "interrupt" if it was killed by a signal.  Returns false if the termination reason is unavailable (the task is still running, or has not yet been started).
+static int task_terminationReason(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+    @try {
+        switch([(__bridge NSTask *)userData->nsTask terminationReason]) {
+            case NSTaskTerminationReasonExit:           lua_pushstring(L, "exit") ;     break ;
+            case NSTaskTerminationReasonUncaughtSignal: lua_pushstring(L, "interrupt") ; break ;
+            default:                                    lua_pushstring(L, "unknown") ;  break ;
+        }
+    }
+    @catch (NSException *exception) {
+//         if ([[exception name] isEqualToString:NSInvalidArgumentException])
+//             lua_pushboolean(L, NO) ;
+//         else
+//             return luaL_error(L, "terminationReason:unhandled exception: %s", [[exception name] UTF8String]) ;
+
+// Follow existing convention for module instead...
+        lua_pushboolean(L, NO) ;
+        if (![[exception name] isEqualToString:NSInvalidArgumentException]) {
+            printToConsole(L, "hs.task:terminationReason() Unable get termination status for hs.task process:");
+            printToConsole(L, (char *)[exception.reason UTF8String]);
+        }
+    }
+    return 1 ;
+}
+
+/// hs.task:environment() -> environment
+/// Method
+/// Returns the environment variables as a table for the task.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table of the environment variables for the task where each key is the environment variable name.
+///
+/// Note:
+///  * if you have not yet set an environment table with the `hs.task:setEnvironment` method, this method will return a copy of the Hammerspoon environment table, as this is what the task will inherit by default.
 static int task_getEnvironment(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     task_userdata_t *userData = lua_touserdata(L, 1);
     NSTask *task = (__bridge NSTask *)userData->nsTask;
 
-    [skin pushNSObject:task.environment];
+    if (task.environment)
+        [skin pushNSObject:task.environment];
+    else
+        [skin pushNSObject:[[NSProcessInfo processInfo] environment]] ;
     return 1;
 }
 
+/// hs.task:setEnvironment(environment) -> hs.task object | false
+/// Method
+/// Sets the environment variables for the task.
+///
+/// Parameters:
+///  * environment - a table of key-value pairs representing the environment variables that will be set for the task.
+///
+/// Returns:
+///  * The hs.task object, or false if the table was not set (usually because the task is already running or has completed)
+///
+/// Note:
+///  * If you do not set an environment table with this method, the task will inherit the environment variables of the Hammerspoon application.  Set this to an empty table if you wish for no variables to be set for the task.
 static int task_setEnvironment(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK];
     task_userdata_t *userData = lua_touserdata(L, 1);
     NSTask *task = (__bridge NSTask *)userData->nsTask;
 
-    task.environment = [skin toNSObjectAtIndex:2];
+    @try {
+        task.environment = [skin toNSObjectAtIndex:2];
+        lua_pushvalue(L, 1) ;
+    }
+    @catch (NSException *exception) {
+        printToConsole(L, "hs.task:setEnvironment() Unable to set environment:");
+        printToConsole(L, (char *)[exception.reason UTF8String]);
+        lua_pushboolean(L, NO) ;
+    }
 
     return 1;
 }
@@ -349,7 +553,7 @@ static int task_toString(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     task_userdata_t *userData = lua_touserdata(L, 1);
 
-    [skin pushNSObject:[NSString stringWithFormat:@"hs.task: %@ %@", (__bridge NSString *)userData->launchPath, [(__bridge NSArray *)userData->arguments componentsJoinedByString:@" "]]];
+    [skin pushNSObject:[NSString stringWithFormat:@"hs.task: %@ %@ (%p)", (__bridge NSString *)userData->launchPath, [(__bridge NSArray *)userData->arguments componentsJoinedByString:@" "], lua_topointer(L, 1)]];
     return 1;
 }
 
@@ -363,7 +567,7 @@ static int task_gc(lua_State *L) {
         [tasks removeObject:pointerArray];
     }
 
-    task.terminationHandler = ^(NSTask *task){};
+    task.terminationHandler = ^(__unused NSTask *task){};
 
     @try {
         [task terminate];
@@ -384,7 +588,7 @@ static int task_gc(lua_State *L) {
     return 0;
 }
 
-static int task_metagc(lua_State *L) {
+static int task_metagc(__unused lua_State *L) {
     [tasks removeAllObjects];
 
     return 0;
@@ -414,6 +618,11 @@ static const luaL_Reg taskObjectLib[] = {
     {"interrupt", task_SIGINT},
     {"pause", task_pause},
     {"resume", task_resumeTask},
+    {"terminationStatus", task_terminationStatus},
+    {"terminationReason", task_terminationReason},
+    {"isRunning", task_isRunning},
+    {"setWorkingDirectory", task_setWorkingDirectory},
+    {"workingDirectory", task_getWorkingDirectory},
 
     {"waitUntilExit", task_block},
 
@@ -423,7 +632,7 @@ static const luaL_Reg taskObjectLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_task_internal(lua_State* L) {
+int luaopen_hs_task_internal(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:taskLib metaFunctions:taskMetaLib objectFunctions:taskObjectLib];
 
