@@ -140,6 +140,32 @@ static int task_new(lua_State *L) {
     return 1;
 }
 
+/// hs.task:setCallback(fn) -> hs.task object
+/// Method
+/// Set or change a callback function for a task.
+///
+/// Paramaters:
+///  * fn - the function to be called when the task completes or is terminated, or an explicit nil if you wish to remove an existing callback.
+///
+/// Returns:
+///  * the hs.task object
+static int task_setCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+
+    userData->luaCallback = [skin luaUnref:refTable ref:userData->luaCallback];
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 2);
+        userData->luaCallback = [skin luaRef:refTable];
+    } else {
+        userData->luaCallback = LUA_REFNIL;
+    }
+
+    lua_pushvalue(L, 1) ;
+    return 1 ;
+}
+
 /// hs.task:workingDirectory() -> path
 /// Method
 /// Returns the working directory for the task.
@@ -623,6 +649,7 @@ static const luaL_Reg taskObjectLib[] = {
     {"isRunning", task_isRunning},
     {"setWorkingDirectory", task_setWorkingDirectory},
     {"workingDirectory", task_getWorkingDirectory},
+    {"setCallback", task_setCallback},
 
     {"waitUntilExit", task_block},
 
