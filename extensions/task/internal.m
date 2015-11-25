@@ -79,7 +79,12 @@ void create_task(task_userdata_t *userData) {
                 [skin pushNSObject:stdOut];
                 [skin pushNSObject:stdErr];
 
-                [skin protectedCallAndTraceback:3 nresults:0];
+                if (![skin protectedCallAndTraceback:3 nresults:0]) {
+                    const char *errorMsg = lua_tostring([skin L], -1);
+                    CLS_NSLOG(@"%s", errorMsg);
+                    showError([skin L], (char *)errorMsg);
+                }
+//                 [skin protectedCallAndTraceback:3 nresults:0];
             }
         });
     };
