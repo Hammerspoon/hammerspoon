@@ -392,8 +392,8 @@ nextarg:
     lua_newtable(_L) ;
     lua_pushnumber(_L, theRect.origin.x) ; lua_setfield(_L, -2, "x") ;
     lua_pushnumber(_L, theRect.origin.y) ; lua_setfield(_L, -2, "y") ;
-    lua_pushnumber(_L, theRect.size.height) ; lua_setfield(_L, -2, "w") ;
-    lua_pushnumber(_L, theRect.size.width) ; lua_setfield(_L, -2, "h") ;
+    lua_pushnumber(_L, theRect.size.width) ; lua_setfield(_L, -2, "w") ;
+    lua_pushnumber(_L, theRect.size.height) ; lua_setfield(_L, -2, "h") ;
     return 1;
 }
 
@@ -406,8 +406,8 @@ nextarg:
 
 - (int)pushNSSize:(NSSize)theSize {
     lua_newtable(_L) ;
-    lua_pushnumber(_L, theSize.height) ; lua_setfield(_L, -2, "w") ;
-    lua_pushnumber(_L, theSize.width) ; lua_setfield(_L, -2, "h") ;
+    lua_pushnumber(_L, theSize.width) ; lua_setfield(_L, -2, "w") ;
+    lua_pushnumber(_L, theSize.height) ; lua_setfield(_L, -2, "h") ;
     return 1;
 }
 
