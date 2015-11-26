@@ -132,8 +132,7 @@ static const luaL_Reg objectFunctions[] = {
 - (void)testBackgroundThreadCatcher {
     XCTestExpectation *expectation = [self expectationWithDescription:@"Blocked background thread execution"];
 
-    //dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-    dispatch_sync(dispatch_get_main_queue(), ^(void){
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
         @try {
             LuaSkin *bg_skin = [LuaSkin shared];
             NSLog(@"Created skin: %@", bg_skin); // This should never be executed
