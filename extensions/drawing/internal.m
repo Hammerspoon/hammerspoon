@@ -201,6 +201,52 @@ NSMutableArray *drawingWindows;
 }
 @end
 
+@implementation HSDrawingViewArc
+- (void)drawRect:(__unused NSRect)rect {
+
+    // Get the graphics context that we are currently executing under
+    NSGraphicsContext* gc = [NSGraphicsContext currentContext];
+
+    // Save the current graphics context settings
+    [gc saveGraphicsState];
+
+    // Set the color in the current graphics context for future draw operations
+    [[self HSStrokeColor] setStroke];
+    [[self HSFillColor] setFill];
+
+    // Create our arc path
+    NSBezierPath* arcPath = [NSBezierPath bezierPath];
+    if (self.HSFill) [arcPath moveToPoint:self.center] ;
+    [arcPath appendBezierPathWithArcWithCenter:self.center
+                                        radius:self.radius
+                                    startAngle:self.startAngle
+                                      endAngle:self.endAngle
+//                                      clockwise:YES
+    ] ;
+    if (self.HSFill) [arcPath lineToPoint:self.center] ;
+
+    // Draw our shape (fill) and outline (stroke)
+    if (self.HSFill) {
+        [arcPath setClip];
+         if (!self.HSGradientStartColor) {
+            [arcPath fill];
+        } else {
+            NSGradient* aGradient = [[NSGradient alloc] initWithStartingColor:self.HSGradientStartColor
+                                                                  endingColor:self.HSGradientEndColor];
+            [aGradient drawInRect:[self bounds] angle:self.HSGradientAngle];
+        }
+    }
+    if (self.HSStroke) {
+        arcPath.lineWidth = self.HSLineWidth * 2.0; // We have to double this because the stroking line is centered around the path, but we want to clip it to not stray outside the path
+        [arcPath setClip];
+        [arcPath stroke];
+    }
+
+    // Restore the context to what it was before we messed with it
+    [gc restoreGraphicsState];
+}
+@end
+
 @implementation HSDrawingViewRect
 - (void)drawRect:(NSRect)rect {
     //CLS_NSLOG(@"HSDrawingViewRect::drawRect");
@@ -351,6 +397,69 @@ static int drawing_newCircle(lua_State *L) {
         [theView setLuaState:L];
 
         theWindow.contentView = theView;
+
+        if (!drawingWindows) {
+            drawingWindows = [[NSMutableArray alloc] init];
+        }
+        [drawingWindows addObject:theWindow];
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+/// hs.drawing.arc(centerPoint, radius, startAngle, endAngle) -> drawingObject or nil
+/// Constructor
+/// Creates a new arc object
+///
+/// Parameters:
+///  * centerPoint - A point-table containing the center of the circle used to define the arc
+///  * radius      - The radius of the circle used to define the arc
+///  * startAngle  - The starting angle of the arc, measured in degrees clockwise from the y-axis.
+///  * endAngle    - The ending angle of the arc, measured in degrees clockwise from the y-axis.
+///
+/// Returns:
+///  * An `hs.drawing` arc object, or nil if an error occurs
+static int drawing_newArc(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE,
+                    LS_TNUMBER,
+                    LS_TNUMBER,
+                    LS_TNUMBER,
+                    LS_TBREAK];
+
+    NSPoint theCenter  = [skin tableToPointAtIndex:1];
+    CGFloat theRadius  = lua_tonumber(L, 2) ;
+
+    NSRect windowRect ;
+    windowRect.origin.x    = theCenter.x - theRadius ;
+    windowRect.origin.y    = theCenter.y - theRadius ;
+    windowRect.size.height = theRadius * 2 ;
+    windowRect.size.width  = theRadius * 2 ;
+
+    HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+
+    if (theWindow) {
+        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
+        memset(drawingObject, 0, sizeof(drawing_t));
+        drawingObject->window = (__bridge_retained void*)theWindow;
+        drawingObject->skipClose = NO ;
+        luaL_getmetatable(L, USERDATA_TAG);
+        lua_setmetatable(L, -2);
+
+        HSDrawingViewArc *theView = [[HSDrawingViewArc alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        [theView setLuaState:L];
+        theWindow.contentView = theView;
+
+        // move center to center of view, since it was passed in as screen coordinates
+        theCenter.x = theRadius ;
+        theCenter.y = theRadius ;
+
+        theView.center     = theCenter ;
+        theView.radius     = theRadius ;
+        theView.startAngle = lua_tonumber(L, 3) - 90 ;
+        theView.endAngle   = lua_tonumber(L, 4) - 90 ;
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -1063,7 +1172,7 @@ static int drawing_setTextColor(lua_State *L) {
 ///  * The drawing object
 ///
 /// Notes:
-///  * This method should only be used on rectangle and circle drawing objects
+///  * This method should only be used on rectangle, circle, or arc drawing objects
 ///  * Calling this method will remove any gradient fill colors previously set with `hs.drawing:setFillGradient()`
 static int drawing_setFillColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
@@ -1072,7 +1181,9 @@ static int drawing_setFillColor(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]]) {
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
         drawingView.HSFillColor = fillColor;
         drawingView.HSGradientStartColor = nil;
         drawingView.HSGradientEndColor = nil;
@@ -1080,7 +1191,40 @@ static int drawing_setFillColor(lua_State *L) {
 
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setFillColor() called on an hs.drawing object that isn't a rectangle or circle object");
+        showError(L, ":setFillColor() called on an hs.drawing object that isn't a rectangle, circle, or arc object");
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.drawing:setArcAngles(startAngle, endAngle) -> drawingObject
+/// Constructor
+/// Changes the starting and ending angles for an arc drawing object
+///
+/// Parameters:
+///  * startAngle  - The starting angle of the arc, measured in degrees clockwise from the y-axis.
+///  * endAngle    - The ending angle of the arc, measured in degrees clockwise from the y-axis.
+///
+/// Returns:
+///  * The drawing object
+///
+/// Notes:
+///  * This method should only be used on arc drawing objects
+static int drawing_setArcAngles(lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TNUMBER, LS_TBREAK] ;
+    drawing_t *drawingObject = get_item_arg(L, 1);
+
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    if ([drawingView isKindOfClass:[HSDrawingViewArc class]]) {
+        ((HSDrawingViewArc *)drawingView).startAngle = lua_tonumber(L, 2) - 90 ;
+        ((HSDrawingViewArc *)drawingView).endAngle   = lua_tonumber(L, 3) - 90 ;
+
+        drawingView.needsDisplay = YES;
+    } else {
+        showError(L, ":setArcAngles() called on an hs.drawing object that isn't an arc object");
     }
 
     lua_pushvalue(L, 1);
@@ -1108,7 +1252,7 @@ static int drawing_setFillColor(lua_State *L) {
 ///  * The drawing object
 ///
 /// Notes:
-///  * This method should only be used on rectangle and circle drawing objects
+///  * This method should only be used on rectangle, circle, or arc drawing objects
 ///  * Calling this method will remove any fill color previously set with `hs.drawing:setFillColor()`
 static int drawing_setFillGradient(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
@@ -1119,7 +1263,9 @@ static int drawing_setFillGradient(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]]) {
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
         drawingView.HSFillColor = nil;
         drawingView.HSGradientStartColor = startColor;
         drawingView.HSGradientEndColor = endColor;
@@ -1127,7 +1273,7 @@ static int drawing_setFillGradient(lua_State *L) {
 
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setFillGradient() called on an hs.drawing object that isn't a rectangle or circle object");
+        showError(L, ":setFillGradient() called on an hs.drawing object that isn't a rectangle, circle, or arc object");
     }
 
     lua_pushvalue(L, 1);
@@ -1145,7 +1291,7 @@ static int drawing_setFillGradient(lua_State *L) {
 ///  * The drawing object
 ///
 /// Notes:
-///  * This method should only be used on line, rectangle and circle drawing objects
+///  * This method should only be used on line, rectangle, circle, or arc drawing objects
 static int drawing_setStrokeColor(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSColor *strokeColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
@@ -1153,11 +1299,14 @@ static int drawing_setStrokeColor(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewLine class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
         drawingView.HSStrokeColor = strokeColor;
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setStrokeColor() called on an hs.drawing object that isn't a line, rectangle or circle object");
+        showError(L, ":setStrokeColor() called on an hs.drawing object that isn't a line, rectangle, circle, or arc object");
     }
 
     lua_pushvalue(L, 1);
@@ -1211,18 +1360,21 @@ static int drawing_setRoundedRectRadii(lua_State *L) {
 ///  * The drawing object
 ///
 /// Notes:
-///  * This method should only be used on line, rectangle and circle drawing objects
+///  * This method should only be used on line, rectangle, circle, or arc drawing objects
 static int drawing_setFill(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewLine class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
         drawingView.HSFill = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setFill() called on an hs.drawing object that isn't a rectangle, circle or line object");
+        showError(L, ":setFill() called on an hs.drawing object that isn't a line, rectangle, circle, or arc object");
     }
 
     lua_pushvalue(L, 1);
@@ -1240,18 +1392,21 @@ static int drawing_setFill(lua_State *L) {
 ///  * The drawing object
 ///
 /// Notes:
-///  * This method should only be used on line, rectangle and circle drawing objects
+///  * This method should only be used on line, rectangle, circle, or arc drawing objects
 static int drawing_setStroke(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewLine class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
         drawingView.HSStroke = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setStroke() called on an hs.drawing object that isn't a line, rectangle or circle object");
+        showError(L, ":setStroke() called on an hs.drawing object that isn't a line, rectangle, circle, or arc object");
     }
 
     lua_pushvalue(L, 1);
@@ -1269,18 +1424,21 @@ static int drawing_setStroke(lua_State *L) {
 ///  * The drawing object
 ///
 /// Notes:
-///  * This method should only be used on line, rectangle and circle drawing objects
+///  * This method should only be used on line, rectangle, circle, or arc drawing objects
 static int drawing_setStrokeWidth(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] || [drawingView isKindOfClass:[HSDrawingViewCircle class]] || [drawingView isKindOfClass:[HSDrawingViewLine class]]) {
+    if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewLine class]] ||
+        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
         drawingView.HSLineWidth = lua_tonumber(L, 2);
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setStrokeWidth() called on an hs.drawing object that isn't a line, rectangle or circle object");
+        showError(L, ":setStrokeWidth() called on an hs.drawing object that isn't a line, rectangle, circle, or arc object");
     }
 
     lua_pushvalue(L, 1);
@@ -2140,6 +2298,7 @@ static int userdata_tostring(lua_State* L) {
         NSString* title = @"unknown type";
         if ([drawingView isKindOfClass:[HSDrawingViewRect class]])   title = @"rectangle" ;
         if ([drawingView isKindOfClass:[HSDrawingViewCircle class]]) title = @"circle" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewArc class]])    title = @"arc" ;
         if ([drawingView isKindOfClass:[HSDrawingViewLine class]])   title = @"line" ;
         if ([drawingView isKindOfClass:[HSDrawingViewText class]])   title = @"text" ;
         if ([drawingView isKindOfClass:[HSDrawingViewImage class]])  title = @"image" ;
@@ -2166,6 +2325,7 @@ static int userdata_tostring(lua_State* L) {
 
 static const luaL_Reg drawinglib[] = {
     {"circle",             drawing_newCircle},
+    {"arc",                drawing_newArc},
     {"rectangle",          drawing_newRect},
     {"line",               drawing_newLine},
     {"text",               drawing_newText},
@@ -2216,6 +2376,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"clickCallbackActivating", drawing_clickCallbackActivating},
     {"setStyledText", drawing_setStyledText},
     {"getStyledText", drawing_getStyledText},
+    {"setArcAngles", drawing_setArcAngles},
 
     {"__tostring", userdata_tostring},
     {"__gc", drawing_delete},
