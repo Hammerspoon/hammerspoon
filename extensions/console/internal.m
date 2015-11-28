@@ -8,18 +8,18 @@
 
 @interface MJConsoleWindowController : NSWindowController
 
-+ (instancetype) singleton;
-- (void) setup;
++ (instancetype)singleton;
+- (void)setup;
 
 @end
 
 @interface MJConsoleWindowController ()
 
-@property NSMutableArray* history;
+@property NSMutableArray *history;
 @property NSInteger historyIndex;
-@property IBOutlet NSTextView* outputView;
-@property (weak) IBOutlet NSTextField* inputField;
-@property NSMutableArray* preshownStdouts;
+@property IBOutlet NSTextView *outputView;
+@property (weak) IBOutlet NSTextField *inputField;
+@property NSMutableArray *preshownStdouts;
 
 @end
 
@@ -27,11 +27,11 @@
 
 typedef struct _drawing_t {
     void *window;
-    BOOL skipClose ;
+    BOOL skipClose;
 } drawing_t;
 
-int refTable = LUA_NOREF ;
-// int hsDrawingRef = LUA_NOREF ;
+int refTable = LUA_NOREF;
+// int hsDrawingRef = LUA_NOREF;
 
 /// hs.console.asHSDrawing() -> hs.drawing object
 /// Function
@@ -46,25 +46,19 @@ int refTable = LUA_NOREF ;
 /// Notes:
 ///  * Only hs.drawing methods which are not type specific will work with this object.
 static int console_asDrawing(lua_State *L) {
-    NSWindow *console = [[MJConsoleWindowController singleton] window] ;
+    LuaSkin *skin     = [LuaSkin shared];
+    NSWindow *console = [[MJConsoleWindowController singleton] window];
 
-// With the flag to skip closing, do we still need this?
-//     // we save the userdata so that it doesn't get garbage collected and close the window.
-//     // asHSWindow doesn't require this because its garbage collection has no side effects.
-//     if (hsDrawingRef == LUA_NOREF) {
-        [[LuaSkin shared] requireModule:"hs.drawing"] ; lua_pop(L, 1) ;
+    [skin requireModule:"hs.drawing"];
+    lua_pop(L, 1);
 
-        drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
-        memset(drawingObject, 0, sizeof(drawing_t));
-        drawingObject->window = (__bridge_retained void*)console;
-        drawingObject->skipClose = YES ;
-        luaL_getmetatable(L, "hs.drawing");
-        lua_setmetatable(L, -2);
-//         hsDrawingRef = [[LuaSkin shared] luaRef:refTable] ;
-//     }
-//
-//     [[LuaSkin shared] pushLuaRef:refTable ref:hsDrawingRef] ;
-    return 1 ;
+    drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
+    memset(drawingObject, 0, sizeof(drawing_t));
+    drawingObject->window    = (__bridge_retained void *)console;
+    drawingObject->skipClose = YES;
+    luaL_getmetatable(L, "hs.drawing");
+    lua_setmetatable(L, -2);
+    return 1;
 }
 
 /// hs.console.asHSWindow() -> hs.window object
@@ -77,13 +71,15 @@ static int console_asDrawing(lua_State *L) {
 /// Returns:
 ///  * an hs.window object
 static int console_asWindow(lua_State *L) {
-    NSWindow *console = [[MJConsoleWindowController singleton] window] ;
+    LuaSkin *skin     = [LuaSkin shared];
+    NSWindow *console = [[MJConsoleWindowController singleton] window];
+
     CGWindowID windowID = (CGWindowID)[console windowNumber];
-    [[LuaSkin shared] requireModule:"hs.window"] ;
-    lua_getfield(L, -1, "windowForID") ;
-    lua_pushinteger(L, windowID) ;
-    lua_call(L, 1, 1) ;
-    return 1 ;
+    [skin requireModule:"hs.window"];
+    lua_getfield(L, -1, "windowForID");
+    lua_pushinteger(L, windowID);
+    lua_call(L, 1, 1);
+    return 1;
 }
 
 /// hs.console.windowBackgroundColor([color]) -> color
@@ -99,15 +95,16 @@ static int console_asWindow(lua_State *L) {
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 static int console_backgroundColor(lua_State *L) {
-    NSWindow *console = [[MJConsoleWindowController singleton] window] ;
+    LuaSkin *skin     = [LuaSkin shared];
+    NSWindow *console = [[MJConsoleWindowController singleton] window];
 
     if (lua_type(L, 1) != LUA_TNONE) {
-        luaL_checktype(L, 1, LUA_TTABLE) ;
-        [console setBackgroundColor:[[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSColor"]] ;
+        luaL_checktype(L, 1, LUA_TTABLE);
+        [console setBackgroundColor:[skin luaObjectAtIndex:1 toClass:"NSColor"]];
     }
 
-    [[LuaSkin shared] pushNSObject:[console backgroundColor]] ;
-    return 1 ;
+    [skin pushNSObject:[console backgroundColor]];
+    return 1;
 }
 
 /// hs.console.outputBackgroundColor([color]) -> color
@@ -123,15 +120,16 @@ static int console_backgroundColor(lua_State *L) {
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 static int console_outputBackgroundColor(lua_State *L) {
-    NSTextView *output = [MJConsoleWindowController singleton].outputView ;
+    LuaSkin *skin      = [LuaSkin shared];
+    NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
-        luaL_checktype(L, 1, LUA_TTABLE) ;
-        [output setBackgroundColor:[[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSColor"]] ;
+        luaL_checktype(L, 1, LUA_TTABLE);
+        [output setBackgroundColor:[skin luaObjectAtIndex:1 toClass:"NSColor"]];
     }
 
-    [[LuaSkin shared] pushNSObject:[output backgroundColor]] ;
-    return 1 ;
+    [skin pushNSObject:[output backgroundColor]];
+    return 1;
 }
 
 /// hs.console.inputBackgroundColor([color]) -> color
@@ -147,15 +145,16 @@ static int console_outputBackgroundColor(lua_State *L) {
 /// Notes:
 ///  * See the `hs.drawing.color` entry in the Dash documentation, or type `help.hs.drawing.color` in the Hammerspoon console to get more information on how to specify a color.
 static int console_inputBackgroundColor(lua_State *L) {
-    NSTextField *input = [MJConsoleWindowController singleton].inputField ;
+    LuaSkin *skin      = [LuaSkin shared];
+    NSTextField *input = [MJConsoleWindowController singleton].inputField;
 
     if (lua_type(L, 1) != LUA_TNONE) {
-        luaL_checktype(L, 1, LUA_TTABLE) ;
-        [input setBackgroundColor:[[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSColor"]] ;
+        luaL_checktype(L, 1, LUA_TTABLE);
+        [input setBackgroundColor:[skin luaObjectAtIndex:1 toClass:"NSColor"]];
     }
 
-    [[LuaSkin shared] pushNSObject:[input backgroundColor]] ;
-    return 1 ;
+    [skin pushNSObject:[input backgroundColor]];
+    return 1;
 }
 
 /// hs.console.smartInsertDeleteEnabled([flag]) -> bool
@@ -171,14 +170,14 @@ static int console_inputBackgroundColor(lua_State *L) {
 /// Notes:
 ///  * this only applies to future copy operations from the Hammerspoon console -- anything already in the clipboard is not affected.
 static int console_smartInsertDeleteEnabled(lua_State *L) {
-    NSTextView *output = [MJConsoleWindowController singleton].outputView ;
+    NSTextView *output = [MJConsoleWindowController singleton].outputView;
 
     if (lua_type(L, 1) != LUA_TNONE) {
-        [output setSmartInsertDeleteEnabled:(BOOL)lua_toboolean(L, 1)] ;
+        [output setSmartInsertDeleteEnabled:(BOOL)lua_toboolean(L, 1)];
     }
 
-    lua_pushboolean(L, [output smartInsertDeleteEnabled]) ;
-    return 1 ;
+    lua_pushboolean(L, [output smartInsertDeleteEnabled]);
+    return 1;
 }
 
 /// hs.console.getHistory() -> array
@@ -191,11 +190,12 @@ static int console_smartInsertDeleteEnabled(lua_State *L) {
 /// Returns:
 ///  * an array containing the history of commands entered into the Hammerspoon console.
 static int console_getHistory(__unused lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TBREAK] ;
-    MJConsoleWindowController *console = [MJConsoleWindowController singleton] ;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+    MJConsoleWindowController *console = [MJConsoleWindowController singleton];
 
-    [[LuaSkin shared] pushNSObject:[console history]] ;
-    return 1 ;
+    [skin pushNSObject:[console history]];
+    return 1;
 }
 
 /// hs.console.setConsole([styledText]) -> none
@@ -211,33 +211,36 @@ static int console_getHistory(__unused lua_State *L) {
 /// Notes:
 ///  * You can specify the console content as a string or as an `hs.styledtext` object in either userdata or table format.
 static int console_setConsole(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TANY | LS_TOPTIONAL, LS_TBREAK] ;
-    MJConsoleWindowController *console = [MJConsoleWindowController singleton] ;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TANY | LS_TOPTIONAL, LS_TBREAK];
+    MJConsoleWindowController *console = [MJConsoleWindowController singleton];
 
-    if (lua_gettop(L) == 0)
+    if (lua_gettop(L) == 0) {
         [[console.outputView textStorage] performSelectorOnMainThread:@selector(setAttributedString:)
-                                           withObject:[[NSMutableAttributedString alloc] init]
-                                        waitUntilDone:YES];
-    else {
-        NSAttributedString *theStr ;
+                                                           withObject:[[NSMutableAttributedString alloc] init]
+                                                        waitUntilDone:YES];
+    } else {
+        NSAttributedString *theStr;
         if (lua_type(L, 1) == LUA_TUSERDATA && luaL_testudata(L, 1, "hs.styledtext")) {
-            theStr = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSAttributedString"] ;
+            theStr = [skin luaObjectAtIndex:1 toClass:"NSAttributedString"];
         } else {
-            NSDictionary* consoleAttrs = @{NSFontAttributeName:            [NSFont fontWithName:@"Menlo" size:12.0],
-                                           NSForegroundColorAttributeName: MJColorForStdout};
-            lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ; lua_remove(L, -2) ;
-            luaL_tolstring(L, 1, NULL) ;
-            lua_call(L, 1, 1) ;
+            NSDictionary *consoleAttrs = @{ NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0],
+                                            NSForegroundColorAttributeName: MJColorForStdout };
+            lua_getglobal(L, "hs");
+            lua_getfield(L, -1, "cleanUTF8forConsole");
+            lua_remove(L, -2);
+            luaL_tolstring(L, 1, NULL);
+            lua_call(L, 1, 1);
             theStr = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]
-                                                     attributes:consoleAttrs] ;
-            lua_pop(L, 1) ;
+                                                     attributes:consoleAttrs];
+            lua_pop(L, 1);
         }
         [[console.outputView textStorage] performSelectorOnMainThread:@selector(setAttributedString:)
                                                            withObject:theStr
                                                         waitUntilDone:YES];
     }
     [console.outputView scrollToEndOfDocument:console];
-    return 0 ;
+    return 0;
 }
 
 /// hs.console.getConsole([styled]) -> text | styledText
@@ -253,16 +256,18 @@ static int console_setConsole(lua_State *L) {
 /// Notes:
 ///  * If the text of the console is retrieved as a string, no color or style information in the console output is retrieved - only the raw text.
 static int console_getConsole(__unused lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
-    MJConsoleWindowController *console = [MJConsoleWindowController singleton] ;
-    BOOL styled = lua_isboolean(L, 1) ? (BOOL)lua_toboolean(L, 1) : NO ;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+    MJConsoleWindowController *console = [MJConsoleWindowController singleton];
+    BOOL styled                        = lua_isboolean(L, 1) ? (BOOL)lua_toboolean(L, 1) : NO;
 
-    if (styled)
-        [[LuaSkin shared] pushNSObject:[[NSAttributedString alloc] initWithAttributedString:[console.outputView textStorage]]] ;
-    else
-        [[LuaSkin shared] pushNSObject:[[console.outputView textStorage] string]] ;
+    if (styled) {
+        [skin pushNSObject:[[NSAttributedString alloc] initWithAttributedString:[console.outputView textStorage]]];
+    } else {
+        [skin pushNSObject:[[console.outputView textStorage] string]];
+    }
 
-    return 1 ;
+    return 1;
 }
 
 /// hs.console.setHistory(array) -> nil
@@ -278,13 +283,14 @@ static int console_getConsole(__unused lua_State *L) {
 /// Notes:
 ///  * You can clear the console history by using an empty array (e.g. `hs.console.setHistory({})`
 static int console_setHistory(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TTABLE, LS_TBREAK] ;
-    MJConsoleWindowController *console = [MJConsoleWindowController singleton] ;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TTABLE, LS_TBREAK];
+    MJConsoleWindowController *console = [MJConsoleWindowController singleton];
 
-    console.history = [[LuaSkin shared] toNSObjectAtIndex:1] ;
-    console.historyIndex = (NSInteger)[console.history count] ;
-    lua_pushnil(L) ;
-    return 1 ;
+    console.history      = [skin toNSObjectAtIndex:1];
+    console.historyIndex = (NSInteger)[console.history count];
+    lua_pushnil(L);
+    return 1;
 }
 
 /// hs.console.printStyledtext(...) -> none
@@ -307,76 +313,72 @@ static int console_setHistory(lua_State *L) {
 ///    end
 /// ~~~
 static int console_printStyledText(lua_State *L) {
-    MJConsoleWindowController *console = [MJConsoleWindowController singleton] ;
-    NSDictionary* consoleAttrs = @{NSFontAttributeName:            [NSFont fontWithName:@"Menlo" size:12.0],
-                                   NSForegroundColorAttributeName: MJColorForStdout};
+    LuaSkin *skin                      = [LuaSkin shared];
+    MJConsoleWindowController *console = [MJConsoleWindowController singleton];
+    NSDictionary *consoleAttrs         = @{ NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0],
+                                    NSForegroundColorAttributeName: MJColorForStdout };
 
-    NSMutableAttributedString *theStr = [[NSMutableAttributedString alloc] init] ;
-    for (int i = 1 ; i <= lua_gettop(L) ; i++) {
-        if (i > 1)
+    NSMutableAttributedString *theStr = [[NSMutableAttributedString alloc] init];
+    for (int i = 1; i <= lua_gettop(L); i++) {
+        if (i > 1) {
             [theStr appendAttributedString:[[NSAttributedString alloc] initWithString:@"\t"
-                                                                           attributes:consoleAttrs]] ;
-
+                                                                           attributes:consoleAttrs]];
+        }
         if (lua_type(L, i) == LUA_TUSERDATA && luaL_testudata(L, i, "hs.styledtext")) {
-            [theStr appendAttributedString:[[LuaSkin shared] luaObjectAtIndex:i toClass:"NSAttributedString"]] ;
+            [theStr appendAttributedString:[skin luaObjectAtIndex:i toClass:"NSAttributedString"]];
         } else {
-            lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ; lua_remove(L, -2) ;
-            luaL_tolstring(L, i, NULL) ;
-            lua_call(L, 1, 1) ;
+            lua_getglobal(L, "hs");
+            lua_getfield(L, -1, "cleanUTF8forConsole");
+            lua_remove(L, -2);
+            luaL_tolstring(L, i, NULL);
+            lua_call(L, 1, 1);
 
             [theStr appendAttributedString:[[NSAttributedString alloc]
-                                        initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]
-                                            attributes:consoleAttrs]] ;
-            lua_pop(L, 1) ;
+                                               initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]
+                                                   attributes:consoleAttrs]];
+            lua_pop(L, 1);
         }
     }
     [theStr appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n"
-                                                                   attributes:consoleAttrs]] ;
+                                                                   attributes:consoleAttrs]];
 
     [[console.outputView textStorage] performSelectorOnMainThread:@selector(appendAttributedString:)
                                                        withObject:theStr
                                                     waitUntilDone:YES];
     [console.outputView scrollToEndOfDocument:console];
-    return 0 ;
+    return 0;
 }
 
-// yeah, the only time the console goes out of scope is when Hammerspoon is quitting, but
-// for proper forms sake, let's free the registry up so hs.drawing can do it's gc thing
-// properly too...  And I guess this module could go out of scope, and we shouldn't keep it
-// around then either...
-static int meta_gc(__unused lua_State *L) {
-//     if (hsDrawingRef != LUA_NOREF) {
-//         hsDrawingRef = [[LuaSkin shared] luaUnref:refTable ref:hsDrawingRef] ;
-//     }
-    return 0 ;
-}
+// static int meta_gc(__unused lua_State *L) {
+//     return 0;
+// }
 
 static const luaL_Reg extrasLib[] = {
-    {"asHSDrawing",               console_asDrawing},
-    {"asHSWindow",                console_asWindow},
+    {"asHSDrawing", console_asDrawing},
+    {"asHSWindow", console_asWindow},
 
-    {"windowBackgroundColor",     console_backgroundColor},
-    {"inputBackgroundColor",      console_inputBackgroundColor},
-    {"outputBackgroundColor",     console_outputBackgroundColor},
+    {"windowBackgroundColor", console_backgroundColor},
+    {"inputBackgroundColor", console_inputBackgroundColor},
+    {"outputBackgroundColor", console_outputBackgroundColor},
 
-    {"smartInsertDeleteEnabled",  console_smartInsertDeleteEnabled},
-    {"getHistory",                console_getHistory},
-    {"setHistory",                console_setHistory},
+    {"smartInsertDeleteEnabled", console_smartInsertDeleteEnabled},
+    {"getHistory", console_getHistory},
+    {"setHistory", console_setHistory},
 
-    {"getConsole",                console_getConsole},
-    {"setConsole",                console_setConsole},
+    {"getConsole", console_getConsole},
+    {"setConsole", console_setConsole},
 
-    {"printStyledtext",           console_printStyledText},
-    {NULL,                        NULL}
-};
+    {"printStyledtext", console_printStyledText},
+    {NULL, NULL}};
 
-static const luaL_Reg metaLib[] = {
-    {"__gc", meta_gc},
-    {NULL,   NULL}
-};
+// static const luaL_Reg metaLib[] = {
+//     {"__gc", meta_gc},
+//     {NULL,   NULL}
+// };
 
-int luaopen_hs_console_internal(__unused lua_State* L) {
-    refTable = [[LuaSkin shared] registerLibrary:extrasLib metaFunctions:metaLib] ;
+int luaopen_hs_console_internal(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    refTable      = [skin registerLibrary:extrasLib metaFunctions:nil];
 
     return 1;
 }
