@@ -180,14 +180,6 @@ end
 --- Returns:
 ---  * None
 
---- hs.grid.HINTS
---- Variable
---- A bidimensional array (table of tables of strings) holding the keyboard hints (as per `hs.keycodes.map`) to be used for the interactive resizing interface.
---- Change this if you don't use a QWERTY layout
----
---- Notes:
----  * `hs.inspect(hs.grid.HINTS)` from the console will show you how the table is built
-
 local function getCellSize(screen)
   local grid=getGrid(screen)
   local screenframe=screen:frame()
@@ -504,6 +496,13 @@ function grid.resizeWindowTaller(win)
 end
 
 
+--- hs.grid.HINTS
+--- Variable
+--- A bidimensional array (table of tables of strings) holding the keyboard hints (as per `hs.keycodes.map`) to be used for the interactive resizing interface.
+--- Change this if you don't use a QWERTY layout; you need to provide 5 valid rows of hints (even if you're not going to use all 5 rows)
+---
+--- Notes:
+---  * `hs.inspect(hs.grid.HINTS)` from the console will show you how the table is built
 
 
 -- modal grid stuff below
@@ -796,12 +795,11 @@ local function _start()
   makeHints()
   for _,row in ipairs(_HINTS) do
     for _,c in ipairs(row) do
-      local l=ssub(c,-3,-3)=='f' and -3 or (ssub(c,-2,-2)=='f' and -2 or -1)
-      local mod,key=ssub(c,-20,l-1),ssub(c,l)
-      resizing:bind({mod},key,function()hintPressed(c) end)
+      local key,mod=c,''
+      if ssub(c,1,3)=='⇧' then key,mod=ssub(c,4),'⇧' end -- re: "quick hack" @makeHints()
+      resizing:bind(mod,key,function()hintPressed(c) end)
     end
   end
-  --TODO perhaps disable all other keyboard input?
   initialized=true
 end
 
