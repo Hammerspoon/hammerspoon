@@ -20,11 +20,11 @@ char * CFStringCopyUTF8String(CFStringRef aString) {
 }
 
 static void setupcolors(void) {
-    COLOR_INITIAL = "\e[35m";
+    COLOR_INITIAL = "\033[35m";
     // COLOR_INPUT = "\e[34m";
-    COLOR_INPUT = "\e[33m";
-    COLOR_OUTPUT = "\e[36m";
-    COLOR_RESET = "\e[0m";
+    COLOR_INPUT = "\033[33m";
+    COLOR_OUTPUT = "\033[36m";
+    COLOR_RESET = "\033[0m";
 
     CFStringRef initial = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_initial"), CFSTR("org.hammerspoon.Hammerspoon")) ;
     CFStringRef input = CFPreferencesCopyAppValue(CFSTR("ipc.cli.color_input"), CFSTR("org.hammerspoon.Hammerspoon")) ;
