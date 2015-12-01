@@ -186,7 +186,6 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
             default:
                 luaL_error(L, [[NSString stringWithFormat:@"Unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
                 return nil ;
-                break;
         }
 
         if (colorList && colorName) {

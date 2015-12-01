@@ -337,7 +337,6 @@ static int fontNamesWithTraits(lua_State *L) {
             break;
         default: // shouldn't happen with the checkArgs above...
             return luaL_argerror(L, 1, "expected integer or table");
-            break;
     }
 
     NSArray *fontNames = [[NSFontManager sharedFontManager] availableFontNamesWithTraits:theTraits];

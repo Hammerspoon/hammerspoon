@@ -538,7 +538,6 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
         default:
             showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed as a NSURLRequest: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
             return nil ;
-            break;
     }
 
     lua_pop(L, 1);

@@ -2237,7 +2237,6 @@ static int drawing_getTextDrawingSize(lua_State *L) {
             } break ;
         default:
             return luaL_argerror(L, 1, "string or hs.styledtext object expected") ;
-            break ;
     }
 
     lua_newtable(L) ;
