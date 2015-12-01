@@ -796,12 +796,11 @@ local function _start()
   makeHints()
   for _,row in ipairs(_HINTS) do
     for _,c in ipairs(row) do
-      local l=ssub(c,-3,-3)=='f' and -3 or (ssub(c,-2,-2)=='f' and -2 or -1)
-      local mod,key=ssub(c,-20,l-1),ssub(c,l)
-      resizing:bind({mod},key,function()hintPressed(c) end)
+      local key,mod=c,''
+      if ssub(c,1,3)=='⇧' then key,mod=ssub(c,4),'⇧' end -- re: "quick hack" @makeHints()
+      resizing:bind(mod,key,function()hintPressed(c) end)
     end
   end
-  --TODO perhaps disable all other keyboard input?
   initialized=true
 end
 
