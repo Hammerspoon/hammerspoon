@@ -129,6 +129,27 @@ static const luaL_Reg objectFunctions[] = {
     XCTAssertEqual([LuaSkin shared], [LuaSkin shared]);
 }
 
+- (void)testBackgroundThreadCatcher {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Blocked background thread execution"];
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+        @try {
+            LuaSkin *bg_skin = [LuaSkin shared];
+            NSLog(@"Created skin: %@", bg_skin); // This should never be executed
+        }
+        @catch (NSException *exception) {
+            if ([exception.name isEqualToString:@"LuaOnNonMainThread"]) {
+                [expectation fulfill];
+            }
+        }
+    });
+
+    [self waitForExpectationsWithTimeout:5.0 handler:^(NSError *error) {
+        if (error) {
+            NSLog(@"Timeout Error: %@", error);
+        }
+    }];
+}
 - (void)testLuaStateCreation {
     XCTAssert((skin.L != NULL));
 }

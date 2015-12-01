@@ -83,7 +83,11 @@ NSMutableDictionary *registeredLuaObjectHelperLocations ;
     });
     if (![NSThread isMainThread]) {
         NSLog(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
-        abort();
+        NSException* myException = [NSException
+                                    exceptionWithName:@"LuaOnNonMainThread"
+                                    reason:@"Lua execution is happening on a non-main thread"
+                                    userInfo:nil];
+        @throw myException;
     }
     return sharedLuaSkin;
 }
