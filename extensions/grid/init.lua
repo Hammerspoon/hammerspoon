@@ -180,14 +180,6 @@ end
 --- Returns:
 ---  * None
 
---- hs.grid.HINTS
---- Variable
---- A bidimensional array (table of tables of strings) holding the keyboard hints (as per `hs.keycodes.map`) to be used for the interactive resizing interface.
---- Change this if you don't use a QWERTY layout
----
---- Notes:
----  * `hs.inspect(hs.grid.HINTS)` from the console will show you how the table is built
-
 local function getCellSize(screen)
   local grid=getGrid(screen)
   local screenframe=screen:frame()
@@ -504,6 +496,13 @@ function grid.resizeWindowTaller(win)
 end
 
 
+--- hs.grid.HINTS
+--- Variable
+--- A bidimensional array (table of tables of strings) holding the keyboard hints (as per `hs.keycodes.map`) to be used for the interactive resizing interface.
+--- Change this if you don't use a QWERTY layout; you need to provide 5 valid rows of hints (even if you're not going to use all 5 rows)
+---
+--- Notes:
+---  * `hs.inspect(hs.grid.HINTS)` from the console will show you how the table is built
 
 
 -- modal grid stuff below
