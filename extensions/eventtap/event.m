@@ -3,11 +3,11 @@
 
 #import "../hammerspoon.h"
 
+CGEventSourceRef eventSource;
+
 static int eventtap_event_gc(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
-    CGEventSourceRef source = CGEventCreateSourceFromEvent(event);
     CFRelease(event);
-    CFRelease(source);
     return 0;
 }
 
@@ -402,8 +402,11 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
         lua_pop(L, 1);
     }
 
-    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStatePrivate);
-    CGEventRef keyevent = CGEventCreateKeyboardEvent(source, keycode, isdown);
+    if (!eventSource) {
+        eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
+    }
+
+    CGEventRef keyevent = CGEventCreateKeyboardEvent(eventSource, keycode, isdown);
     CGEventSetFlags(keyevent, flags);
     new_eventtap_event(L, keyevent);
     CFRelease(keyevent);
@@ -896,11 +899,13 @@ static int userdata_tostring(lua_State* L) {
     return 1 ;
 }
 
-// static int meta_gc(lua_State* __unused L) {
-//     [eventtapeventHandlers removeAllIndexes];
-//     eventtapeventHandlers = nil;
-//     return 0;
-// }
+static int meta_gc(lua_State* __unused L) {
+    if (eventSource) {
+        CFRelease(eventSource);
+        eventSource = nil;
+    }
+    return 0;
+}
 
 // Metatable for created objects when _new invoked
 static const luaL_Reg eventtapevent_metalib[] = {
@@ -930,21 +935,23 @@ static luaL_Reg eventtapeventlib[] = {
     {NULL,              NULL}
 };
 
-// // Metatable for returned object when module loads
-// static const luaL_Reg meta_gcLib[] = {
-//     {"__gc",    meta_gc},
-//     {NULL,      NULL}
-// };
+// Metatable for returned object when module loads
+static const luaL_Reg meta_gcLib[] = {
+    {"__gc",    meta_gc},
+    {NULL,      NULL}
+};
 
 int luaopen_hs_eventtap_event(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin registerLibraryWithObject:EVENT_USERDATA_TAG functions:eventtapeventlib metaFunctions:nil objectFunctions:eventtapevent_metalib];
+    [skin registerLibraryWithObject:EVENT_USERDATA_TAG functions:eventtapeventlib metaFunctions:meta_gcLib objectFunctions:eventtapevent_metalib];
 
     pushtypestable(L);
     lua_setfield(L, -2, "types");
 
     pushpropertiestable(L);
     lua_setfield(L, -2, "properties");
+
+    eventSource = nil;
 
     return 1;
 }
