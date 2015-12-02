@@ -238,8 +238,10 @@ static int eventtap_event_post(lua_State* L) {
         CGEventPostToPSN(&psn, event);
     }
     else {
-        CGEventPost(kCGSessionEventTap, event);
+        CGEventPost(kCGHIDEventTap, event);
     }
+
+    usleep(1000);
 
     lua_settop(L, 1) ;
 //     return 0;
@@ -400,7 +402,7 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
         lua_pop(L, 1);
     }
 
-    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
+    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStatePrivate);
     CGEventRef keyevent = CGEventCreateKeyboardEvent(source, keycode, isdown);
     CGEventSetFlags(keyevent, flags);
     new_eventtap_event(L, keyevent);
