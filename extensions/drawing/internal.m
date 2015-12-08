@@ -369,6 +369,48 @@ NSMutableArray *drawingWindows;
 
 // Lua API implementation
 
+/// hs.drawing.disableScreenUpdates() -> None
+/// Function
+/// Tells the OS X window server to pause updating the physical displays for a short while.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * This method can be used to allow multiple changes which are being made to the users display appear as if they all occur simultaneously by holding off on updating the screen on the regular schedule.
+///  * This method should always be balanced with a call to [hs.drawing.enableScreenUpdates] when your updates have been completed.  Failure to do so will be logged in the system logs.
+///
+///  * The window server will only allow you to pause updates for up to 1 second.  This prevents a rogue or hung process from locking the systems display completely.  Updates will be resumed when [hs.drawing.enableScreenUpdates] is encountered or after 1 second, whichever comes first.
+static int disableUpdates(__unused lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TBREAK] ;
+    NSDisableScreenUpdates() ;
+    return 0 ;
+}
+
+/// hs.drawing.enableScreenUpdates() -> None
+/// Function
+/// Tells the OS X window server to resume updating the physical displays after a previous pause.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * In conjunction with [hs.drawing.disableScreenUpdates], this method can be used to allow multiple changes which are being made to the users display appear as if they all occur simultaneously by holding off on updating the screen on the regular schedule.
+///
+///  * The window server will only allow you to pause updates for up to 1 second.  This prevents a rogue or hung process from locking the systems display completely.  Updates will be resumed when this function is encountered  or after 1 second, whichever comes first.
+static int enableUpdates(__unused lua_State *L) {
+    [[LuaSkin shared] checkArgs:LS_TBREAK] ;
+    NSEnableScreenUpdates() ;
+    return 0 ;
+}
+
+
 /// hs.drawing.circle(sizeRect) -> drawingObject or nil
 /// Constructor
 /// Creates a new circle object
@@ -2331,6 +2373,8 @@ static const luaL_Reg drawinglib[] = {
     {"_image",             drawing_newImage},
     {"getTextDrawingSize", drawing_getTextDrawingSize},
     {"defaultTextStyle",   default_textAttributes},
+    {"disableScreenUpdates", disableUpdates},
+    {"enableScreenUpdates", enableUpdates},
 
     {NULL,                 NULL}
 };
