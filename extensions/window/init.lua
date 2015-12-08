@@ -78,7 +78,8 @@ end
 ---    the default windowfilter (`hs.window.filter.default`) which filters out known cases of not-actual-windows
 local SKIP_APPS={
   ['com.apple.WebKit.WebContent']=true,['com.apple.qtserver']=true,['com.google.Chrome.helper']=true,
-  ['org.pqrs.Karabiner-AXNotifier']=true,['com.adobe.PDApp.AAMUpdatesNotifier']=true,}
+  ['org.pqrs.Karabiner-AXNotifier']=true,['com.adobe.PDApp.AAMUpdatesNotifier']=true,
+  ['com.adobe.csi.CS5.5ServiceManager']=true}
 -- so apparently OSX enforces a 6s limit on apps to respond to AX queries;
 -- Karabiner's AXNotifier and Adobe Update Notifier fail in that fashion
 function window.allWindows()
