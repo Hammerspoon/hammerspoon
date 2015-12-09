@@ -1213,33 +1213,49 @@ function App:activated()
   if prevactive then prevactive:deactivated() end --see comment above
   log.vf('App %s activated',self.name)
   global.active=self
+  for wf in pairs(applicationActiveInstances) do
+    for id,win in pairs(self.windows) do
+      win:filterEmitEvent(wf,nullEvent) -- force allowing all app's windows if filter's activeApplication=true
+    end
+  end
   self:getFocused()
   if not self.focused then return log.df('App %s does not (yet) have a focused window',self.name) end
   self.focused:focused()
 end
 function App:deactivated(inserted) --as per comment above, only THIS app should call :deactivated(true)
   if self~=global.active then return end
-  log.vf('App %s deactivated',self.name)
-  global.active=nil
   if global.focused~=self.focused then log.e('Focused app/window inconsistency') end
   if self.focused then self.focused:unfocused(inserted) end
+  log.vf('App %s deactivated',self.name)
+  global.active=nil
+  for wf in pairs(applicationActiveInstances) do
+    for id,win in pairs(self.windows) do
+      win:filterEmitEvent(wf,nullEvent) -- force rejecting all app's windows if filter's activeApplication=true
+      win:emitEndChain()
+    end
+  end
 end
 function App:focusChanged(id,win)
   if self.focused and self.focused.id==id then return log.df('%s (%d) already focused, skipping',self.name,id) end
   local active=global.active
   log.vf('App %s focus changed',self.name)
-  if self==active then self:deactivated(--[[true--]]) end
+  --  if self==active then self:deactivated(--[[true--]]nil,true) end
   if not id then
     if self.name~='Finder' then log.wf('Cannot process focus changed for app %s - %s has no window id',self.name,win:role()) end
+    if self==active then self.focused:unfocused() end
     self.focused=nil
   else
     if not self.windows[id] then
       log.wf('%s (%d) is not registered yet',self.name,id)
       appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
     end
+    if self==active then
+      if not self.windows[id] then log.wf('Cannot process focus changed for app %s - %s (%d) not registered',self.name,win:role(),id)
+      else self.windows[id]:focused() end
+    end
     self.focused = self.windows[id]
   end
-  if self==active then self:activated() end
+  --  if self==active then self:activated(true) end
 end
 function App:hidden()
   if self.isHidden then return log.df('App %s already hidden, skipping',self.name) end
