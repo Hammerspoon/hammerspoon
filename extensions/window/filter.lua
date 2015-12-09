@@ -87,6 +87,8 @@ local global = {} -- global state (focused app, focused window, appwatchers runn
 local activeInstances = {} -- active wf instances (i.e. with subscriptions or :keepActive)
 local spacesInstances = {} -- wf instances that also need to be "active" because they care about Spaces
 local screensInstances = {} -- wf instances that care about screens (needn't be active, but must screen.watcher)
+local applicationInstances = {} -- wf instances that care about the active application
+local applicationActiveInstances = {} -- wf instances above that are also active
 local pendingApps = {} -- apps (hopefully temporarily) resisting being watched (hs.application)
 local apps = {} -- all GUI apps (class App) containing all windows (class Window)
 local App,Window={},{} -- classes
@@ -484,7 +486,7 @@ end
 --- |    true    |visible in CURRENT space+min and hidden   |visible in CURRENT space      |min and hidden|
 --- |    false   |visible in OTHER space only+min and hidden|visible in OTHER space only   |none          |
 --- ```
-local refreshWindows,checkTrackSpacesFilters,checkScreensFilters
+local refreshWindows,checkTrackSpacesFilters,checkScreensFilters,checkActiveApplicationFilters
 local function getListOfStrings(l)
   if type(l)~='table' then return end
   local r={}
@@ -596,7 +598,7 @@ function WF:setAppFilter(appname,ft,batch)
   end
   self.log.i(logs)
   if not batch then
-    checkTrackSpacesFilters(self) checkScreensFilters(self)
+    checkTrackSpacesFilters(self) checkScreensFilters(self) checkActiveApplicationFilters(self)
     if activeInstances[self] or spacesInstances[self] then return refreshWindows(self) end
   end
   return self
@@ -637,7 +639,7 @@ function WF:setFilters(filters)
       else error('invalid filters table: key "'..k..'" needs a table value, got '..type(v)..' instead',2) end
     else error('invalid filters table: keys can be integer or string, got '..type(k)..' instead',2) end
   end
-  checkTrackSpacesFilters(self) checkScreensFilters(self)
+  checkTrackSpacesFilters(self) checkScreensFilters(self) checkActiveApplicationFilters(self)
   if activeInstances[self] or spacesInstances[self] then return refreshWindows(self) end
   return self
 end
@@ -770,7 +772,7 @@ end
 
 
 -- event watcher (formerly windowwatcher)
-
+local nullEvent='null event'
 
 local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
   windowMinimized=true, windowUnminimized=true,
@@ -1579,6 +1581,16 @@ checkTrackSpacesFilters=function(self)
   end
 end
 
+checkActiveApplicationFilters=function(self)
+  local prev,now=self.activeApplicationFilters
+  for _,flt in pairs(self.filters) do if type(flt)=='table' and flt.activeApplication~=nil then now=true break end end
+  if prev~=now then
+    self.log.df('%s active application-aware filters',now and 'Added' or 'No more')
+    self.activeApplicationFilters=now
+    applicationInstances[self]=now
+  end
+end
+
 local function checkTrackSpacesSubscriptions(self)
   local prev,now=self.trackSpacesSubscriptions
   for ev in pairs(trackSpacesEvents) do if self.events[ev] then now=true break end end
@@ -1643,6 +1655,7 @@ local function start(wf)
   startGlobalWatcher()
   wf.log.i('windowfilter instance started (active mode)')
   activeInstances[wf]=true
+  if applicationInstances[wf] then applicationActiveInstances[wf]=true end
   return refreshWindows(wf)
 end
 
@@ -1973,13 +1986,15 @@ end
 ---  * the `hs.window.filter` object for method chaining
 function WF:pause()
   self.log.i('windowfilter instance paused')
-  activeInstances[self]=nil stopGlobalWatcher()
+  activeInstances[self]=nil applicationActiveInstances[self]=nil stopGlobalWatcher()
   return self
 end
 
 function WF:delete()
   self.log.i('windowfilter instance deleted')
-  activeInstances[self]=nil spacesInstances[self]=nil self.events={} self.filters={} self.windows={} setmetatable(self,nil) stopGlobalWatcher()
+  activeInstances[self]=nil spacesInstances[self]=nil applicationActiveInstances[self]=nil
+  self.events={} self.filters={} self.windows={}
+  setmetatable(self,nil) stopGlobalWatcher()
 end
 
 
