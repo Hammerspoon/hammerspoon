@@ -889,7 +889,10 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 
 function Window:setFilter(wf,forceremove) -- returns true if filtering status changes
   local wasAllowed,isAllowed = wf.windows[self]
-  if not forceremove then isAllowed = (wf.customFilter and wf:isWindowAllowed(self.window) or isWindowAllowed(wf,self)) or nil end
+  if not forceremove then
+    if wf.customFilter then isAllowed = wf:isWindowAllowed(self.window) or nil
+    else isAllowed = isWindowAllowed(wf,self) or nil end
+  end
   wf.windows[self] = isAllowed
   return wasAllowed ~= isAllowed
 end
@@ -1588,7 +1591,7 @@ end
 
 checkTrackSpacesFilters=function(self)
   local prev,now=self.trackSpacesFilters
-  for _,flt in pairs(self.filters) do if type(flt)=='table' and flt.currentSpace then now=true break end end
+  for _,flt in pairs(self.filters) do if type(flt)=='table' and flt.currentSpace~=nil then now=true break end end
   if prev~=now then
     self.log.df('%s Spaces-aware filters',now and 'Added' or 'No more')
     self.trackSpacesFilters=now
