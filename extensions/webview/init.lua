@@ -21,9 +21,6 @@ local module       = require("hs.webview.internal")
 module.usercontent = require("hs.webview.usercontent") ;
 local http         = require("hs.http")
 
--- assign the default schemes handled natively by the WKWebView.  Anything else is handed off to the OS.
-module.nativeURLSchemes({"http", "https", "about", "file"})
-
 -- private variables and methods -----------------------------------------
 
 local _kMetaTable = {}

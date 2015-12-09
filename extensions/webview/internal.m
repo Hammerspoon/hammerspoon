@@ -10,7 +10,6 @@
 
 static int           refTable ;
 static WKProcessPool *HSWebViewProcessPool ;
-static NSMutableArray *webKitShouldHandle ;
 
 #pragma mark - Classes and Delegates
 
@@ -143,6 +142,7 @@ static int userdata_gc(lua_State* L) ;
     if ([self navigationCallbackFor:"didFailNavigation" forView:theView
                                                  withNavigation:navigation
                                                       withError:error]) {
+//         NSLog(@"didFail: %@", error) ;
         [self handleNavigationFailure:error forView:theView] ;
     }
 }
@@ -151,6 +151,13 @@ static int userdata_gc(lua_State* L) ;
     if ([self navigationCallbackFor:"didFailProvisionalNavigation" forView:theView
                                                             withNavigation:navigation
                                                                  withError:error]) {
+//         NSLog(@"provisionalFail: %@", error) ;
+        if (error.code == NSURLErrorUnsupportedURL) {
+            NSDictionary *userInfo = error.userInfo ;
+            if ([[NSWorkspace sharedWorkspace] openURL:[userInfo objectForKey:NSURLErrorFailingURLErrorKey]])
+                return ;
+        }
+
         [self handleNavigationFailure:error forView:theView] ;
     }
 }
@@ -268,44 +275,15 @@ static int userdata_gc(lua_State* L) ;
             decisionHandler(WKNavigationActionPolicyCancel) ;
         } else {
             if (lua_toboolean([[LuaSkin shared] L], -1)) {
-                [self acceptNavigationActionFor:navigationAction withDecisionHandler:decisionHandler] ;
-//                 decisionHandler(WKNavigationActionPolicyAllow) ;
+                decisionHandler(WKNavigationActionPolicyAllow) ;
             } else {
                 decisionHandler(WKNavigationActionPolicyCancel) ;
             }
         }
         lua_pop([[LuaSkin shared] L], 1) ; // clean up after ourselves
     } else {
-        [self acceptNavigationActionFor:navigationAction withDecisionHandler:decisionHandler] ;
-//         decisionHandler(WKNavigationActionPolicyAllow) ;
+        decisionHandler(WKNavigationActionPolicyAllow) ;
     }
-}
-
-- (void) acceptNavigationActionFor:(WKNavigationAction *)navigationAction
-               withDecisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-// Per https://github.com/ShingoFukuyama/WKWebViewTips and http://www.openradar.me/18492325,
-// WKWebView does not support non-http(s) URL types.  This passes the un-handled types on to
-// the OS instead:
-    NSURL *url = navigationAction.request.URL;
-    NSString *theScheme = [url scheme] ;
-    BOOL weHandle = NO ;
-
-    for (NSString *testObj in webKitShouldHandle) {
-        if ([theScheme caseInsensitiveCompare:testObj] == NSOrderedSame) {
-            weHandle = YES ;
-            break ;
-        }
-    }
-
-    if (!weHandle) {
-        if ([[NSWorkspace sharedWorkspace] openURL:url]) {
-            decisionHandler(WKNavigationActionPolicyCancel);
-            return ;
-        }
-        // well, openURL failed us, so we'll take our chances with WKWebKit, but most likely it
-        // will result in a navigation error.
-    }
-    decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 - (void)webView:(WKWebView *)theView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse
@@ -566,40 +544,6 @@ static int webview_preferences(lua_State *L) {
     return 1 ;
 }
 #endif
-
-/// hs.webview.nativeURLSchemes([array]) -> array
-/// Function
-/// Get or set the schemes which the webview should attempt to handle natively.
-///
-/// Paramters:
-///  * An optional array of schemes which the webview should attempt to handle natively.
-///
-/// Returns:
-///  * The (possibly changed) list of schemes which the webview should attempt to handle natively.
-///
-/// Notes:
-///  * WKWebView attempts to handle all URL schemes internally and does not recognize schemes which are defined outside of its internal scope.  This array provides a list of schemes which we want handled by WKWebView -- anything not in this list is handed off to OS X to find an appropriate handler.
-///  * The default list includes: "http", "https", "about", and "file".  As there may be others currently missed, this function is provided for adjusting the list.  If you find that we have missed something, please submit a request at the Hammerspoon github site and the default list will be updated.
-///
-///  * You can easily determine if a scheme is being handled by the WKWebView by observing whether or not it displays its results in the webview window managed by this module.  If it opens another application or appears in Safari, then it is not being handled by the WKWebView.
-static int nativeURLSchemes(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
-    if (lua_gettop(L) == 1) {
-        NSArray *input = [skin toNSObjectAtIndex:1] ;
-        NSMutableArray *realInput = [[NSMutableArray alloc] init] ;
-        for (id obj in input) {
-            if ([obj isKindOfClass:[NSString class]]) {
-                [realInput addObject:obj] ;
-            } else {
-                return luaL_argerror(L, 1, "nativeURLSchemes: array contains non-string element") ;
-            }
-        }
-        webKitShouldHandle = [realInput copy];
-    }
-    [skin pushNSObject:webKitShouldHandle] ;
-    return 1 ;
-}
 
 /// hs.webview:children() -> array
 /// Method
@@ -1902,7 +1846,6 @@ static const luaL_Reg userdata_metaLib[] = {
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
     {"new",      webview_new},
-    {"nativeURLSchemes", nativeURLSchemes},
     {NULL,       NULL}
 };
 
@@ -1917,8 +1860,6 @@ int luaopen_hs_webview_internal(lua_State* __unused L) {
                                                  functions:moduleLib
                                              metaFunctions:module_metaLib
                                            objectFunctions:userdata_metaLib];
-
-    webKitShouldHandle = [[NSMutableArray alloc] init] ;
 
     // module userdata specific conversions
     [[LuaSkin shared] registerPushNSHelper:HSWebViewWindow_toLua              forClass:"HSWebViewWindow"] ;
