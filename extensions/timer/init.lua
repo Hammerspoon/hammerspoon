@@ -210,6 +210,20 @@ module.doWhile = function(predicateFn, ...)
 end
 
 
+--- hs.timer.localTime() -> number
+--- Function
+--- Returns the number of seconds since local time midnight
+---
+--- Parameters:
+---   * None
+---
+--- Returns:
+---   * the number of seconds
+module.localTime = function()
+  local tnow=date('*t')
+  return tnow.sec+tnow.min*60+tnow.hour*3600
+end
+
 --- hs.timer.doAt(time[, repeatInterval], fn[, continueOnError]) -> timer
 --- Constructor
 --- Creates and starts a timer which will perform `fn` at the given (local) `time` and then (optionally) repeat it every `interval`.
@@ -241,8 +255,7 @@ module.doAt = function(time,interval,fn,continueOnError)
   interval=timeStringToSeconds(interval)
   if interval~=0 and interval<60 then error('invalid interval',2) end -- degenerate use case for this function
   time=timeStringToSeconds(time)
-  local tnow=date('*t')
-  local now=tnow.sec+tnow.min*60+tnow.hour*3600
+  local now=module.localTime()
   while time<=now do
     time=time+(interval==0 and module.days(1) or interval)
   end
