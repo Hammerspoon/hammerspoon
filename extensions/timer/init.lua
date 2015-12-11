@@ -354,7 +354,7 @@ module.delayed = {
     return {
       start=function(self) tmr:setNextTrigger(delay) return self end,
       stop=function(self) tmr:setNextTrigger(DISTANT_FUTURE) return self end,
-      nextTrigger=function() local nt=tmr:nextTrigger() return nt<=delay and nt or nil end,
+      nextTrigger=function() local nt=tmr:nextTrigger() return (nt>0 and nt<=delay) and nt or nil end,
       running=function(self) return self:nextTrigger() and true or false end,
       setDelay=function(self,dl) if self:running() then delay=dl self:start() end delay=dl return self end,
     }
