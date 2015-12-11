@@ -12,7 +12,9 @@
 --- (`shift` by default) any window without having to focus it first.
 ---
 --- When used in combination with a windowfilter you can include or exclude specific apps, window titles, screens,
---- window roles, minimized or hidden windows, windows residing in other Mission Control Spaces, etc.
+--- window roles, etc. Additionally, each expose instance can be customized to include or exclude minimized or hidden windows,
+--- windows residing in other Mission Control Spaces, or only windows for the current application. You can further customize
+--- hint length, colors, fonts and sizes, whether to show window thumbnails and/or titles, and more.
 ---
 --- To improve responsiveness, this module will update its thumbnail layout in the background (so to speak), so that it
 --- can show the expose without delay on invocation. Be aware that on particularly heavy Hammerspoon configurations
@@ -21,17 +23,16 @@
 ---
 --- Usage:
 --- ```
---- -- set up your windowfilter
---- expose = hs.expose.new() -- default windowfilter: only visible windows, all Spaces
---- expose_space = hs.expose.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter()) -- include minimized/hidden windows, current Space only
---- expose_browsers = hs.expose.new{'Safari','Google Chrome'} -- specialized expose for your dozens of browser windows :)
+--- -- set up your instance(s)
+--- expose = hs.expose.new(nil,{showThumbnails=false}) -- default windowfilter, no thumbnails
+--- expose_app = hs.expose.new(nil,{onlyActiveApplication=true}) -- show windows for the current application
+--- expose_space = hs.expose.new(nil,{includeOtherSpaces=false}) -- only windows in the current Mission Control Space
+--- expose_browsers = hs.expose.new{'Safari','Google Chrome'} -- specialized expose using a custom windowfilter
+--- -- for your dozens of browser windows :)
 ---
 --- -- then bind to a hotkey
---- hs.hotkey.bind('ctrl-cmd','e','expose',function()expose:toggleShow()end)
----
---- -- alternatively, call .expose directly
---- hs.hotkey.bind('ctrl-alt','e','expose',expose.expose)
---- hs.hotkey.bind('ctrl-alt-shift','e','expose app',expose.exposeApplicationWindows)
+--- hs.hotkey.bind('ctrl-cmd','e','Expose',function()expose:toggleShow()end)
+--- hs.hotkey.bind('ctrl-cmd-shift','e','App Expose',function()expose_app:toggleShow()end)
 --- ```
 
 --TODO /// hs.drawing:setClickCallback(fn) -> drawingObject
@@ -217,6 +218,7 @@ local uiGlobal = {
   closeModeBackgroundColor={0.7,0.1,0.1,1},
   minimizeModeModifier = 'alt',
   minimizeModeBackgroundColor={0.1,0.2,0.3,1},
+  onlyActiveApplication=false,
   includeNonVisible=true,
   nonVisibleStripPosition='bottom',
   nonVisibleStripBackgroundColor={0.03,0.1,0.15,1},
@@ -264,6 +266,7 @@ local function getColor(t) if type(t)~='table' or t.red then return t else retur
 ---  * `hs.expose.ui.closeModeBackgroundColor = {0.7,0.1,0.1,1}` - background color while "close mode" is engaged
 ---  * `hs.expose.ui.minimizeModeModifier = 'alt'` - "minimize mode" engaged while pressed
 ---  * `hs.expose.ui.minimizeModeBackgroundColor = {0.1,0.2,0.3,1}` - background color while "minimize mode" is engaged
+---  * `hs.expose.ui.onlyActiveApplication = false` -- only show windows of the active application
 ---  * `hs.expose.ui.includeNonVisible = true` - include minimized and hidden windows
 ---  * `hs.expose.ui.nonVisibleStripBackgroundColor = {0.03,0.1,0.15,1}` - contains hints for non-visible windows
 ---  * `hs.expose.ui.nonVisibleStripPosition = 'bottom'` - set it to your Dock position ('bottom', 'left' or 'right')
@@ -437,7 +440,7 @@ end
 local function exitAll(self,toFocus)
   log.d('exiting')
   while #modals>0 do exit(self) end
-  if toFocus then timer.doAfter(0.2,function()toFocus:focus()end) end -- el cap bugs out (finder "floats" on top) if done directly
+  if toFocus then timer.doAfter(0.43,function()toFocus:focus()end) end -- el cap bugs out (finder "floats" on top) if done directly
 end
 
 enter=function(self,hints)
@@ -566,7 +569,7 @@ local function showExpose(self,windows,animate,alt_algo)
   enter(self,hints)
 end
 
---- hs.expose:toggleShow([applicationWindows])
+--- hs.expose:toggleShow([activeApplication])
 --- Method
 --- Toggles the expose - see `hs.expose:show()` and `hs.expose:hide()`
 ---
@@ -590,18 +593,21 @@ end
 function expose:hide()
   if activeInstance then return exitAll(activeInstance) end
 end
---- hs.expose:show([applicationWindows])
+--- hs.expose:show([activeApplication])
 --- Method
 --- Shows an expose-like screen with modal keyboard hints for switching to, closing or minimizing/unminimizing windows.
 ---
 --- Parameters:
----  * applicationWindows - (optional) if true, only show windows of the active application (within the
+---  * activeApplication - (optional) if true, only show windows of the active application (within the
 ---   scope of the instance windowfilter); otherwise show all windows allowed by the instance windowfilter
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
+---  * passing `true` for `activeApplication` will simply hide hints/thumbnails for applications other
+---    than the active one, without recalculating the hints layout; conversely, setting `onlyActiveApplication=true`
+---    for an expose instance's `ui` will calculate an optimal layout for the current active application's windows
 ---  * Completing a hint will exit the expose and focus the selected window.
 ---  * Pressing esc will exit the expose and with no action taken.
 ---  * If shift is being held when a hint is completed (the background will be red), the selected
@@ -815,7 +821,7 @@ local function resume(self)
 end
 
 local function pause(self)
-  if not activeInstances[self] then self.log.i('instance stopped, ignoring resume') return self end
+  if not activeInstances[self] then self.log.i('instance stopped, ignoring pause') return self end
   -- unsubscribe
   if activeInstance==self then exitAll(self) end
   for _,s in pairs(self.screens) do
@@ -844,7 +850,7 @@ local function makeScreens(self)
   self.log.i'populating screens'
   deleteScreens(self)
   -- gather screens
-  local activeApplication=self.ui.applicationWindows and true or nil
+  local activeApplication=self.ui.onlyActiveApplication and true or nil
   local hsscreens=screen.allScreens()
   local screens={}
   for _,scr in ipairs(hsscreens) do -- populate current screens
@@ -967,7 +973,7 @@ local function setUiPrefs(self)
   local ui=self.ui
 
   ui.hintTextStyle={font=ui.fontName,size=ui.textSize,color=ui.textColor}
-  ui.titleTextStyle={font=ui.fontName,size=max(20,ui.textSize/2),color=ui.textColor,lineBreak='truncateTail'}
+  ui.titleTextStyle={font=ui.fontName,size=max(10,ui.textSize/2),color=ui.textColor,lineBreak='truncateTail'}
   ui.hintHeight=drawing.getTextDrawingSize('O',ui.hintTextStyle).h
   ui.titleHeight=drawing.getTextDrawingSize('O',ui.titleTextStyle).h
   local hintWidth=drawing.getTextDrawingSize(ssub('MMMMMMM',1,ui.maxHintLetters+1),ui.hintTextStyle).w
