@@ -270,12 +270,14 @@ end
 ---
 --- Specialized timer objects to coalesce processing of unpredictable asynchronous events into a single callback
 
---- hs.timer.delayed:start() -> hs.timer.delayed object
+--- hs.timer.delayed:start([delay]) -> hs.timer.delayed object
 --- Method
 --- Starts or restarts the callback countdown
 ---
 --- Parameters:
----   * None
+---   * delay - (optional) if provided, sets the countdown duration to this number of seconds
+---     for this time only; subsequent calls to `:start()` will revert to the original delay (or
+---     to the delay set with `:setDelay(delay)`)
 ---
 --- Returns:
 ---   * the delayed timer object
@@ -352,7 +354,7 @@ module.delayed = {
   new=function(delay,fn)
     local tmr=module.new(DISTANT_FUTURE,fn):start()
     return {
-      start=function(self) tmr:setNextTrigger(delay) return self end,
+      start=function(self,dl) tmr:setNextTrigger(dl or delay) return self end,
       stop=function(self) tmr:setNextTrigger(DISTANT_FUTURE) return self end,
       nextTrigger=function() local nt=tmr:nextTrigger() return (nt>0 and nt<=delay) and nt or nil end,
       running=function(self) return self:nextTrigger() and true or false end,
