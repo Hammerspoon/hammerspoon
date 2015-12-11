@@ -473,7 +473,8 @@ function window:focus()
   self:becomeMain()
   app:_bringtofront()
   if app:bundleID()=='com.apple.finder' then --workaround for the desktop taking over
-    --TODO this ideally should go inside :becomeMain() (which would need lua wrapping)
+    -- it may look like this should ideally go inside :becomeMain(), but the problem is actually
+    -- triggered by :_bringtofront(), so the workaround belongs here
     if desktopFocusWorkaroundTimer then desktopFocusWorkaroundTimer:stop() end
     desktopFocusWorkaroundTimer=timer.doAfter(0.3,function()
       -- 0.3s comes from https://github.com/Hammerspoon/hammerspoon/issues/581
