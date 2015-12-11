@@ -261,8 +261,8 @@ module.doAt = function(time,interval,fn,continueOnError)
   end
   local delta=time-now
   time=time%86400 -- for logging
-  log.f('timer set for %02d:%02d, %dh%dm%ds from now',
-    floor(time/3600),floor(time/60)%60,floor(delta/3600),floor(delta/60)%60,floor(delta%60))
+  log.df('timer set for %02d:%02d:%02d, %dh%dm%ds from now',
+    floor(time/3600),floor(time/60)%60,floor(time%60),floor(delta/3600),floor(delta/60)%60,floor(delta%60))
   return module.new(interval,fn,continueOnError):start():setNextTrigger(delta)
 end
 
