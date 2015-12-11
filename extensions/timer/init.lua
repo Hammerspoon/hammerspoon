@@ -253,6 +253,100 @@ module.doAt = function(time,interval,fn,continueOnError)
   return module.new(interval,fn,continueOnError):start():setNextTrigger(delta)
 end
 
+--- === hs.timer.delayed ===
+---
+--- Specialized timer objects to coalesce processing of unpredictable asynchronous events into a single callback
+
+--- hs.timer.delayed:start() -> hs.timer.delayed object
+--- Method
+--- Starts or restarts the callback countdown
+---
+--- Parameters:
+---   * None
+---
+--- Returns:
+---   * the delayed timer object
+
+--- hs.timer.delayed:stop() -> hs.timer.delayed object
+--- Method
+--- Cancels the callback countdown, if running; the callback will therefore not be triggered
+---
+--- Parameters:
+---   * None
+---
+--- Returns:
+---   * the delayed timer object
+
+--- hs.timer.delayed:running() -> boolean
+--- Method
+--- Returns a boolean indicating whether the callback countdown is running
+---
+--- Parameters:
+---   * None
+---
+--- Returns:
+---   * a boolean
+
+--- hs.timer.delayed:setDelay(delay) -> hs.timer.delayed object
+--- Method
+--- Changes the callback countdown duration
+---
+--- Parameters:
+---   * None
+---
+--- Returns:
+---   * the delayed timer object
+---
+--- Notes:
+---   * if the callback countdown is running, calling this method will restart it
+
+--- hs.timer.delayed:nextTrigger() -> number or nil
+--- Method
+--- Returns the time left in the callback countdown
+---
+--- Parameters:
+---   * None
+---
+--- Returns:
+---   * if the callback countdown is running, returns the number of seconds until it triggers; otherwise returns nil
+
+--- hs.timer.delayed.new(delay, fn) -> hs.timer.delayed object
+--- Constructor
+--- Creates a new delayed timer.
+---
+--- Delayed timers have specialized methods that behave differently from regular timers.
+--- When the `:start()` method is invoked, the timer will wait for `delay` seconds before calling `fn()`;
+--- this is referred to as the callback countdown. If `:start()` is invoked again before `delay` has elapsed,
+--- the countdown starts over again.
+---
+--- You can use a delayed timer to coalesce processing of unpredictable asynchronous events into a single
+--- callback; for example, if you have an event stream that happens in "bursts" of dozens of events at once,
+--- set an appropriate `delay` to wait for things to settle down, and then your callback will run just once.
+---
+--- Parameters:
+---  * delay - number of seconds to wait for after a `:start()` invocation (the "callback countdown")
+---  * fn - a function to call after `delay` has fully elapsed without any further `:start()` invocations
+---
+--- Returns:
+---  * a new `hs.timer.delayed` object
+---
+--- Notes:
+---   * these timers are meant to be long-lived: once instantiated, there's no way to remove them from the run loop;
+---     create them once at the module level.
+
+local DISTANT_FUTURE=315360000 -- 10 years (roughly)
+module.delayed = {
+  new=function(delay,fn)
+    local tmr=module.new(DISTANT_FUTURE,fn):start()
+    return {
+      start=function(self) tmr:setNextTrigger(delay) return self end,
+      stop=function(self) tmr:setNextTrigger(DISTANT_FUTURE) return self end,
+      nextTrigger=function() local nt=tmr:nextTrigger() return nt<=delay and nt or nil end,
+      running=function(self) return self:nextTrigger() and true or false end,
+      setDelay=function(self,dl) if self:running() then delay=dl self:start() end delay=dl return self end,
+    }
+  end
+}
 -- Return Module Object --------------------------------------------------
 
 return module
