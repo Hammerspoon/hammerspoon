@@ -248,9 +248,13 @@ local function getColor(t) if type(t)~='table' or t.red then return t else retur
 
 --- hs.expose.ui
 --- Variable
---- Allows customization of the expose user interface
+--- Allows customization of the expose behaviour and user interface
 ---
---- This table contains variables that you can change to customize the look of the UI. The default values are shown in the right hand side of the assignements below.
+--- This table contains variables that you can change to customize the behaviour of the expose and the look of the UI.
+--- To have multiple expose instances with different behaviour/looks, use the `uiPrefs` parameter for the constructor;
+--- the passed keys and values will override those in this table for that particular instance.
+---
+--- The default values are shown in the right hand side of the assignements below.
 ---
 --- To represent color values, you can use:
 ---  * a table {red=redN, green=greenN, blue=blueN, alpha=alphaN}
@@ -984,7 +988,7 @@ end
 
 --- hs.expose.new([windowfilter[, uiPrefs][, logname, [loglevel]]]) -> hs.expose
 --- Constructor
---- Creates a new hs.expose instance. It uses a windowfilter to determine which windows to show
+--- Creates a new hs.expose instance; it can use a windowfilter to determine which windows to show
 ---
 --- Parameters:
 ---  * windowfilter - (optional) if omitted or nil, use the default windowfilter; otherwise it must be a windowfilter
@@ -1000,10 +1004,8 @@ end
 ---  * the new instance
 ---
 --- Notes:
----   * The default windowfilter (or an unmodified copy) will allow the expose instance to be populated with windows from all
----     Mission Control Spaces (unlike the OSX expose); to limit to windows in the current Space only, use `:setCurrentSpace(true)`
----   * The default windowfilter (or an unmodified copy) will not track hidden windows; to let the expose instance also manage hidden windows,
----     use `:setDefaultFilter()` and/or other appropriate application-specific visiblity rules
+---   * by default expose will show invisible windows and (unlike the OSX expose) windows from other spaces; use
+---     `hs.expose.ui` or the `uiPrefs` parameter to change these behaviours.
 function expose.new(wf,uiPrefs,logname,loglevel)
   if type(uiPrefs)=='string' then loglevel=logname logname=uiPrefs uiPrefs={} end
   if uiPrefs==nil then uiPrefs={} end
