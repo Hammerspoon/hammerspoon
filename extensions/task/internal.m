@@ -11,6 +11,7 @@ typedef struct _task_userdata_t {
     int luaCallback;
     void *launchPath;
     void *arguments;
+    void *input ;
 } task_userdata_t;
 
 int refTable;
@@ -133,6 +134,8 @@ static int task_new(lua_State *L) {
         userData->arguments = (__bridge_retained void *)[[NSArray alloc] init];
     }
 
+    userData->input = nil ;
+
     // Create and populate the NSTask object
     create_task(userData);
 
@@ -143,6 +146,60 @@ static int task_new(lua_State *L) {
     [tasks addObject:pointers];
 
     return 1;
+}
+
+/// hs.task:setInput(string) -> hs.task object
+/// Method
+/// Set or change the stdin for a task.
+///
+/// Parameters:
+///  * string - the input that you wish for the task to receive.
+///
+/// Returns:
+///  * the hs.task object
+///
+/// Notes:
+///  * You cannot set the input for an already launched task.
+///  * If you call this method multiple times, it replaces the previous value.
+static int task_setInput(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNUMBER, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+    NSTask *task = (__bridge NSTask *)userData->nsTask;
+    BOOL alreadySetup = (userData->input == nil) ? NO : YES ;
+
+    luaL_checkstring(L, 2) ; // force number to be a string
+    userData->input = (__bridge_retained void *)[skin toNSObjectAtIndex:2] ;
+
+    if (alreadySetup) {
+        NSFileHandle *inputFH = [task.standardInput fileHandleForWriting] ;
+        inputFH.writeabilityHandler = nil ;
+        [inputFH closeFile] ;
+    }
+
+    @try {
+        [task setStandardInput:[NSPipe pipe]] ;
+
+        NSFileHandle *inputFH = [task.standardInput fileHandleForWriting] ;
+        __weak NSFileHandle *_inputFH = inputFH;
+
+        inputFH.writeabilityHandler = ^(NSFileHandle *theHandle){
+            if ([(__bridge id)userData->input isKindOfClass:[NSData class]]) {
+                [theHandle writeData:(__bridge id)userData->input] ;
+            } else {
+                [theHandle writeData:[(__bridge id)userData->input dataUsingEncoding:NSUTF8StringEncoding]] ;
+            }
+            _inputFH.writeabilityHandler = nil ;
+            [_inputFH closeFile] ;
+        } ;
+    }
+    @catch (NSException *exception) {
+        printToConsole(L, "hs.task:setInput() Unable to set stdin for hs.task process:");
+        printToConsole(skin.L, (char *)[exception.reason UTF8String]);
+    }
+
+    lua_pushvalue(L, 1) ;
+    return 1 ;
 }
 
 /// hs.task:setCallback(fn) -> hs.task object
@@ -613,6 +670,10 @@ static int task_gc(lua_State *L) {
     NSString *launchPath = (__bridge_transfer NSString *)userData->launchPath;
     NSArray *arguments = (__bridge_transfer NSArray *)userData->arguments;
 
+    if (userData->input) {
+        id __unused input = (__bridge_transfer id)userData->input ;
+    }
+
     launchPath = nil;
     arguments = nil;
 
@@ -655,6 +716,7 @@ static const luaL_Reg taskObjectLib[] = {
     {"setWorkingDirectory", task_setWorkingDirectory},
     {"workingDirectory", task_getWorkingDirectory},
     {"setCallback", task_setCallback},
+    {"setInput", task_setInput},
 
     {"waitUntilExit", task_block},
 
