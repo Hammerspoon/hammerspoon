@@ -133,7 +133,7 @@ CWInterface *get_wifi_interface(NSString *theInterface) {
 ///
 /// Parameters:
 ///  * state - a boolean value indicating if the Wifi device should be powered on (true) or off (false).
-///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces].  If not present, the interface defaults to the systems default WLAN device.
+///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces](#interfaces).  If not present, the interface defaults to the systems default WLAN device.
 ///
 /// Returns:
 ///  * True if the power change was successful, or false and an error string if an error occurred attempting to set the power state.  Returns nil if there is a problem attaching to the interface.
@@ -167,7 +167,7 @@ static int setPower(lua_State *L) {
 /// Disconnect the interface from its current network.
 ///
 /// Parameters:
-///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces].  If not present, the interface defaults to the systems default WLAN device.
+///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces](#interfaces).  If not present, the interface defaults to the systems default WLAN device.
 ///
 /// Returns:
 ///  * None
@@ -210,7 +210,7 @@ static int wifi_interfaces(__unused lua_State *L) {
 /// Gets a list of available WiFi networks
 ///
 /// Parameters:
-///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces].  If not present, the interface defaults to the systems default WLAN device.
+///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces](#interfaces).  If not present, the interface defaults to the systems default WLAN device.
 ///
 /// Returns:
 ///  * A table containing the names of all visible WiFi networks
@@ -248,13 +248,13 @@ static int wifi_scan(lua_State* L __unused) {
 ///
 /// Parameters:
 ///  * fn        - the function to callback when the scan is completed.
-///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces].  If not present, the interface defaults to the systems default WLAN device.
+///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces](#interfaces).  If not present, the interface defaults to the systems default WLAN device.
 ///
 /// Returns:
 ///  * returns a scan object
 ///
 /// Notes:
-///  * If you pass in nil as the callback function, the scan occurs but no callback function is called.  This can be useful to update the `cachedScanResults` entry returned by [hs.wifi.interfaceDetails].
+///  * If you pass in nil as the callback function, the scan occurs but no callback function is called.  This can be useful to update the `cachedScanResults` entry returned by [hs.wifi.interfaceDetails](#interfaceDetails).
 ///
 /// * The callback function should expect one argument which will be a table if the scan was successful or a string containing an error message if it was not.  The table will be an array of available networks.  Each entry in the array will be a table containing the following keys:
 ///    * beaconInterval         - The beacon interval (ms) for the network.
@@ -300,7 +300,7 @@ static int wifi_scan_background(lua_State* L __unused) {
 /// Gets the name of the current WiFi network
 ///
 /// Parameters:
-///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces].  If not present, the interface defaults to the systems default WLAN device.
+///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces](#interfaces).  If not present, the interface defaults to the systems default WLAN device.
 ///
 /// Returns:
 ///  * A string containing the SSID of the WiFi network currently joined, or nil if no there is no WiFi connection
@@ -326,14 +326,14 @@ static int wifi_current_ssid(lua_State* L) {
 /// Returns a table containing details about the wireless interface.
 ///
 /// Parameters:
-///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces].  If not present, the interface defaults to the systems default WLAN device.
+///  * interface - an optional interface name as listed in the results of [hs.wifi.interfaces](#interfaces).  If not present, the interface defaults to the systems default WLAN device.
 ///
 /// Returns:
 ///  * A table containing details about the interface.  The table will contain the following keys:
 ///    * active            - The interface has its corresponding network service enabled.
 ///    * activePHYMode     - The current active PHY mode for the interface.
 ///    * bssid             - The current basic service set identifier (BSSID) for the interface.
-///    * cachedScanResults - A table containing the networks currently in the scan cache for the WLAN interface.  See [hs.wifi.backgroundScan] for details on the table format.
+///    * cachedScanResults - A table containing the networks currently in the scan cache for the WLAN interface.  See [hs.wifi.backgroundScan](#backgroundScan) for details on the table format.
 ///    * configuration     - A table containing the current configuration for the given WLAN interface.  This table will contain the following keys:
 ///      * networkProfiles                    - A table containing an array of known networks for the interface.  Entries in the array will each contain the following keys:
 ///        * ssid     - The service set identifier (SSID) for the network profile.
@@ -393,7 +393,7 @@ static int interfaceDetails(lua_State* L) {
 ///  * a boolean value indicating whether or not the scan has been completed.
 ///
 /// Notes:
-///  * This will be set whether or not an actual callback function was invoked.  This method can be checked to see if the cached data for the `cachedScanResults` entry returned by [hs.wifi.interfaceDetails] has been updated.
+///  * This will be set whether or not an actual callback function was invoked.  This method can be checked to see if the cached data for the `cachedScanResults` entry returned by [hs.wifi.interfaceDetails](#interfaceDetails) has been updated.
 static int backgroundScanIsDone(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
