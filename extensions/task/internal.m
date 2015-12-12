@@ -181,7 +181,6 @@ static int task_setInput(lua_State *L) {
         [task setStandardInput:[NSPipe pipe]] ;
 
         NSFileHandle *inputFH = [task.standardInput fileHandleForWriting] ;
-        __weak NSFileHandle *_inputFH = inputFH;
 
         inputFH.writeabilityHandler = ^(NSFileHandle *theHandle){
             if ([(__bridge id)userData->input isKindOfClass:[NSData class]]) {
@@ -189,8 +188,8 @@ static int task_setInput(lua_State *L) {
             } else {
                 [theHandle writeData:[(__bridge id)userData->input dataUsingEncoding:NSUTF8StringEncoding]] ;
             }
-            _inputFH.writeabilityHandler = nil ;
-            [_inputFH closeFile] ;
+            theHandle.writeabilityHandler = nil ;
+            [theHandle closeFile] ;
         } ;
     }
     @catch (NSException *exception) {
