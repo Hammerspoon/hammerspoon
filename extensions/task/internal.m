@@ -107,19 +107,16 @@ void create_task(task_userdata_t *userData) {
 ///
 /// Returns:
 ///  * An `hs.task` object
-///
-/// Notes:
-///  * Raises an error if the launchPath does not refer to an executable file.
 static int task_new(lua_State *L) {
     // Check our arguments
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION|LS_TNIL, LS_TTABLE|LS_TOPTIONAL, LS_TBREAK];
 
     NSString *thePath = [skin toNSObjectAtIndex:1] ;
-    if (![[NSFileManager defaultManager] isExecutableFileAtPath:[thePath stringByExpandingTildeInPath]]) {
-        return luaL_error(L, [[NSString stringWithFormat:@"%s.new: %@ is not executable", USERDATA_TAG,
-                thePath] UTF8String]) ;
-    }
+//     if (![[NSFileManager defaultManager] isExecutableFileAtPath:[thePath stringByExpandingTildeInPath]]) {
+//         return luaL_error(L, [[NSString stringWithFormat:@"%s.new: %@ is not executable", USERDATA_TAG,
+//                 thePath] UTF8String]) ;
+//     }
 
     // Create our Lua userdata object
     task_userdata_t *userData = lua_newuserdata(L, sizeof(task_userdata_t));
@@ -192,20 +189,24 @@ static int task_setInput(lua_State *L) {
         NSFileHandle *inputFH = [task.standardInput fileHandleForWriting] ;
 
         inputFH.writeabilityHandler = ^(NSFileHandle *theHandle){
-            @try {
-                if ([(__bridge id)userData->input isKindOfClass:[NSData class]]) {
-                    [theHandle writeData:(__bridge id)userData->input] ;
-                } else {
-                    [theHandle writeData:[(__bridge id)userData->input dataUsingEncoding:NSUTF8StringEncoding]] ;
+            dispatch_sync(dispatch_get_main_queue(), ^{
+// NSLog(@"in writabilityHandler") ;
+                @try {
+                    if ([(__bridge id)userData->input isKindOfClass:[NSData class]]) {
+                        [theHandle writeData:(__bridge id)userData->input] ;
+                    } else {
+                        [theHandle writeData:[(__bridge id)userData->input dataUsingEncoding:NSUTF8StringEncoding]] ;
+                    }
                 }
-            }
-            @catch (NSException *theException) {
-                // do nothing
-            }
-            @finally {
-                theHandle.writeabilityHandler = nil ;
-                [theHandle closeFile] ;
-            }
+                @catch (NSException *theException) {
+CLS_NSLOG(@"%s:stdin exception: %@", theException);                    // do nothing
+                }
+                @finally {
+                    theHandle.writeabilityHandler = nil ;
+                    [theHandle closeFile] ;
+                }
+// NSLog(@"leaving writabilityHandler") ;
+            }) ;
         } ;
     }
     @catch (NSException *exception) {
