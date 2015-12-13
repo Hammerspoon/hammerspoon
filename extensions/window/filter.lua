@@ -83,6 +83,7 @@ local WF={} -- class
 -- .windows = current allowed windows
 -- .pending = windows that must still emit more events in an event chain - cleared when the last event of the chain has been emitted
 
+
 local global = {} -- global state (focused app, focused window, appwatchers running or not)
 local activeInstances = {} -- active wf instances (i.e. with subscriptions or :keepActive)
 local spacesInstances = {} -- wf instances that also need to be "active" because they care about Spaces
@@ -671,6 +672,9 @@ end
 -- and even then not fully reliable)
 
 local function __tostring(self) return 'hs.window.filter: '..(self.logname or '...') end
+function windowfilter.iswf(t)
+  local mt=getmetatable(t) return mt and mt.__index==WF or false
+end
 --- hs.window.filter.new(fn[,logname[,loglevel]]) -> hs.window.filter object
 --- Constructor
 --- Creates a new hs.window.filter instance
@@ -786,6 +790,8 @@ local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
   windowTitleChanged=true,
 
   windowAllowed=true,windowRejected=true,
+
+  hasWindow=true,hasNoWindows=true,
 }
 
 local trackSpacesEvents={
@@ -883,7 +889,25 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 --- Pseudo-event for `hs.window.filter:subscribe()`: a previously allowed window (or a window that's been destroyed) is now rejected
 ---
 --- Notes:
----  * this pseudo-event will be emitted *before* the *actual* event(s) (e.g. `windowDestroyed`) that caused the window to be rejected
+---  * this pseudo-event will be emitted *after* the *actual* event(s) (e.g. `windowDestroyed`) that caused the window to be rejected
+
+--- hs.window.filter.hasWindow
+--- Constant
+--- Pseudo-event for `hs.window.filter:subscribe()`: the windowfilter now allows one window
+---
+--- Notes:
+---  * callbacks for this event will receive (as the first argument) the window that is now allowed
+---  * this pseudo-event won't trigger again until after the windowfilter reverts to rejecting all windows
+---  * this pseudo-event will be emitted *after* the *actual* event(s) (e.g. `windowCreated`) that caused a window to be allowed
+
+--- hs.window.filter.hasNoWindows
+--- Constant
+--- Pseudo-event for `hs.window.filter:subscribe()`: the windowfilter now rejects all windows
+---
+--- Notes:
+---  * callbacks for this event will receive (as the first argument) the last window that was allowed (and is now rejected)
+---  * this pseudo-event won't trigger again until after the windowfilter allows at least one window
+---  * this pseudo-event will be emitted *after* the *actual* event(s) (e.g. `windowDestroyed`) that caused the window to be rejected
 
 -- Window class
 
@@ -915,10 +939,12 @@ function Window:filterEmitEvent(wf,event,inserted,logged,notified)
     else
       wf.pending[self]=true -- wait for endchain
     end
+    --[[
     if wf.notifyfn then -- call notifyfn if present
       if not notified then wf.log.d('Notifying windows changed') if wf.log==log then notified=true end end
       wf.notifyfn(wf:getWindows(),event)
     end
+    --]]
     -- if this is an 'inserted' event, keep around the window until all the events are exhausted
     --    if inserted and not isAllowed then wf.pending[self]=true end
   end
@@ -931,6 +957,10 @@ function Window:filterEmitEvent(wf,event,inserted,logged,notified)
     --      wf.pending[self]=nil
     --    end
   end
+  if filteringStatusChanged and isAllowed and not wf.hasWindow then
+    wf.hasWindow=true
+    emit(self,wf,windowfilter.hasWindow) -- emit pseudo-event
+  end
   return logged,notified
 end
 
@@ -938,6 +968,10 @@ function Window:emitEndChain()
   for wf in pairs(activeInstances) do
     if wf.pending[self] then
       emit(self,wf,windowfilter.windowRejected)
+      if wf.hasWindow then
+        emit(self,wf,windowfilter.hasNoWindows) -- emit pseudo-event
+        wf.hasWindow=nil
+      end
       wf.pending[self]=nil
     end
   end
@@ -1245,7 +1279,7 @@ function App:focusChanged(id,win)
   --  if self==active then self:deactivated(--[[true--]]nil,true) end
   if not id then
     if self.name~='Finder' then log.wf('Cannot process focus changed for app %s - %s has no window id',self.name,win:role()) end
-    if self==active then self.focused:unfocused() end
+    if self==active and self.focused then self.focused:unfocused() end
     self.focused=nil
   else
     if not self.windows[id] then
@@ -1866,8 +1900,8 @@ function WF:subscribe(event,fn,immediate)
   subscribe(self,map) start(self)
   if immediate then
     local windows = getWindowObjects(self)
-    for _,win in ipairs(windows) do
-      for ev,fns in pairs(map) do
+    for ev,fns in pairs(map) do
+      for _,win in ipairs(windows) do
         if ev==windowfilter.windowCreated
           or ev==windowfilter.windowAllowed
           or ev==windowfilter.windowMoved
@@ -1889,6 +1923,10 @@ function WF:subscribe(event,fn,immediate)
         then for _,fn in ipairs(fns) do
           fn(win.window,win.app.name,ev) end
         end
+      end
+      if ev==windowfilter.hasWindow and windows[1] then
+        local win=windows[1]
+        for _,fn in ipairs(fns) do fn(win.window,win.app.name,ev) end
       end
     end
   end
