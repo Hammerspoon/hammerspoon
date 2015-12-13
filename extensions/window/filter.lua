@@ -17,7 +17,7 @@
 ---   * whether they're in the current Mission Control Space or not
 ---
 --- The filtering happens automatically in the background; windowfilters then:
----   * generate a dynamic list of the windows that currently satisfy the filtering rules (see `:getWindows()`, `:notify()`)
+---   * generate a dynamic list of the windows that currently satisfy the filtering rules (see `:getWindows()`)
 ---   * sanitize and expose all pertinent events on these windows (see `:subscribe()` and the module constants with all the events)
 ---
 --- A *default windowfilter* (not to be confused with the default filter *within* a windowfilter) is provided as convenience;
@@ -27,22 +27,24 @@
 ---
 --- Usage examples:
 --- ```
+--- local wf=hs.window.filter
+---
 --- -- alter the default windowfilter
---- hs.window.filter.default:setAppFilter('My IDE',{allowTitles=1}) -- ignore no-title windows (e.g. transient autocomplete suggestions) in My IDE
+--- wf.default:setAppFilter('My IDE',{allowTitles=1}) -- ignore no-title windows (e.g. transient autocomplete suggestions) in My IDE
 ---
 --- -- set the exact scope of what you're interested in - see hs.window.filter:setAppFilter()
---- wf_terminal = hs.window.filter.new{'Terminal','iTerm2'} -- all visible terminal windows
---- wf_timewaster = hs.window.filter.new(false):setAppFilter('Safari',{allowTitles='reddit'}) -- any Safari windows with "reddit" anywhere in the title
---- wf_leftscreen = hs.window.filter.new{override={visible=true,fullscreen=false,allowScreens='-1,0',currentSpace=true}}
+--- wf_terminal = wf.new{'Terminal','iTerm2'} -- all visible terminal windows
+--- wf_timewaster = wf.new(false):setAppFilter('Safari',{allowTitles='reddit'}) -- any Safari windows with "reddit" anywhere in the title
+--- wf_leftscreen = wf.new{override={visible=true,fullscreen=false,allowScreens='-1,0',currentSpace=true}}
 --- -- all visible and non-fullscreen windows that are on the screen to the left of the primary screen in the current Space
---- wf_editors_righthalf = hs.window.filter.new{'TextEdit','Sublime Text','BBEdit'}:setRegions(hs.screen.primaryScreen():fromUnitRect'0.5,0/1,1')
+--- wf_editors_righthalf = wf.new{'TextEdit','Sublime Text','BBEdit'}:setRegions(hs.screen.primaryScreen():fromUnitRect'0.5,0/1,1')
 --- -- text editor windows that are on the right half of the primary screen
---- wf_bigwindows = hs.window.filter.new(function(w)return w:frame().area>3000000 end) -- only very large windows
---- wf_notif = hs.window.filter.new{['Notification Center']={allowRoles='AXNotificationCenterAlert'}} -- notification center alerts
+--- wf_bigwindows = wf.new(function(w)return w:frame().area>3000000 end) -- only very large windows
+--- wf_notif = wf.new{['Notification Center']={allowRoles='AXNotificationCenterAlert'}} -- notification center alerts
 ---
 --- -- subscribe to events
---- wf_terminal:subscribe(hs.window.filter.windowFocused,some_fn) -- run a function whenever a terminal window is focused
---- wf_timewaster:notify(startAnnoyingMe,stopAnnoyingMe) -- fight procrastination :)
+--- wf_terminal:subscribe(wf.windowFocused,some_fn) -- run a function whenever a terminal window is focused
+--- wf_timewaster:subscribe(wf.hasWindow,startAnnoyingMe):subscribe(wf.hasNoWindows,stopAnnoyingMe) -- fight procrastination :)
 --- ```
 
 
@@ -1827,27 +1829,28 @@ function WF:getWindows(sortOrder)
   return r
 end
 
---- hs.window.filter:notify(fn[, fnEmpty][, immediate]) -> hs.window.filter object
---- Method
---- Notify a callback whenever the list of allowed windows change
----
---- Parameters:
----  * fn - a callback function that will be called when:
----    * an allowed window is created or destroyed, and therefore added or removed from the list of allowed windows
----    * a previously allowed window is now filtered or vice versa (e.g. in consequence of a title or position change)
----    It will be passed 2 parameters:
----    * a list of the `hs.window` objects currently (i.e. *after* the change took place) allowed by this
----      windowfilter as per `hs.window.filter:getWindows()` (sorted according to `hs.window.filter:setSortOrder()`)
----    * a string containing the (first) event that caused the change (see the `hs.window.filter.window...` event constants)
----  * fnEmpty - (optional) if provided, when this windowfilter becomes empty (i.e. `:getWindows()` returns
----    an empty list) call this function (with no arguments) instead of `fn`, otherwise, always call `fn`
----  * immediate - (optional) if `true`, also call `fn` (or `fnEmpty`) immediately
----
---- Returns:
----  * the `hs.window.filter` object for method chaining
----
---- Notes:
----  * If `fn` is nil, notifications for this windowfilter will stop.
+--[[
+-- hs.window.filter:notify(fn[, fnEmpty][, immediate]) -> hs.window.filter object
+-- Method
+-- Notify a callback whenever the list of allowed windows change
+--
+-- Parameters:
+--  * fn - a callback function that will be called when:
+--    * an allowed window is created or destroyed, and therefore added or removed from the list of allowed windows
+--    * a previously allowed window is now filtered or vice versa (e.g. in consequence of a title or position change)
+--    It will be passed 2 parameters:
+--    * a list of the `hs.window` objects currently (i.e. *after* the change took place) allowed by this
+--      windowfilter as per `hs.window.filter:getWindows()` (sorted according to `hs.window.filter:setSortOrder()`)
+--    * a string containing the (first) event that caused the change (see the `hs.window.filter.window...` event constants)
+--  * fnEmpty - (optional) if provided, when this windowfilter becomes empty (i.e. `:getWindows()` returns
+--    an empty list) call this function (with no arguments) instead of `fn`, otherwise, always call `fn`
+--  * immediate - (optional) if `true`, also call `fn` (or `fnEmpty`) immediately
+--
+-- Returns:
+--  * the `hs.window.filter` object for method chaining
+--
+-- Notes:
+--  * If `fn` is nil, notifications for this windowfilter will stop.
 function WF:notify(fn,fnEmpty,immediate)
   if fn~=nil and type(fn)~='function' then error('fn must be a function or nil',2) end
   if fnEmpty and type(fnEmpty)~='function' then fnEmpty=nil immediate=true end
@@ -1857,6 +1860,7 @@ function WF:notify(fn,fnEmpty,immediate)
   if fn and immediate then self.notifyfn(self:getWindows()) end
   return self
 end
+--]]
 
 --- hs.window.filter:subscribe(event, fn[, immediate]) -> hs.window.filter object
 --- Method
