@@ -107,10 +107,19 @@ void create_task(task_userdata_t *userData) {
 ///
 /// Returns:
 ///  * An `hs.task` object
+///
+/// Notes:
+///  * Raises an error if the launchPath does not refer to an executable file.
 static int task_new(lua_State *L) {
     // Check our arguments
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TFUNCTION|LS_TNIL, LS_TTABLE|LS_TOPTIONAL, LS_TBREAK];
+
+    NSString *thePath = [skin toNSObjectAtIndex:1] ;
+    if (![[NSFileManager defaultManager] isExecutableFileAtPath:[thePath stringByExpandingTildeInPath]]) {
+        return luaL_error(L, [[NSString stringWithFormat:@"%s.new: %@ is not executable", USERDATA_TAG,
+                thePath] UTF8String]) ;
+    }
 
     // Create our Lua userdata object
     task_userdata_t *userData = lua_newuserdata(L, sizeof(task_userdata_t));
@@ -127,7 +136,7 @@ static int task_new(lua_State *L) {
     }
 
     userData->hasStarted = NO ;
-    userData->launchPath = (__bridge_retained void *)[skin toNSObjectAtIndex:1];
+    userData->launchPath = (__bridge_retained void *)thePath ;
     if (lua_type(L, 3) == LUA_TTABLE) {
         userData->arguments = (__bridge_retained void *)[skin toNSObjectAtIndex:3];
     } else {
@@ -183,13 +192,20 @@ static int task_setInput(lua_State *L) {
         NSFileHandle *inputFH = [task.standardInput fileHandleForWriting] ;
 
         inputFH.writeabilityHandler = ^(NSFileHandle *theHandle){
-            if ([(__bridge id)userData->input isKindOfClass:[NSData class]]) {
-                [theHandle writeData:(__bridge id)userData->input] ;
-            } else {
-                [theHandle writeData:[(__bridge id)userData->input dataUsingEncoding:NSUTF8StringEncoding]] ;
+            @try {
+                if ([(__bridge id)userData->input isKindOfClass:[NSData class]]) {
+                    [theHandle writeData:(__bridge id)userData->input] ;
+                } else {
+                    [theHandle writeData:[(__bridge id)userData->input dataUsingEncoding:NSUTF8StringEncoding]] ;
+                }
             }
-            theHandle.writeabilityHandler = nil ;
-            [theHandle closeFile] ;
+            @catch (NSException *theException) {
+                // do nothing
+            }
+            @finally {
+                theHandle.writeabilityHandler = nil ;
+                [theHandle closeFile] ;
+            }
         } ;
     }
     @catch (NSException *exception) {
@@ -654,6 +670,17 @@ static int task_gc(lua_State *L) {
         [tasks removeObject:pointerArray];
     }
 
+    if (userData->input) {
+        NSFileHandle *inputFH = [task.standardInput fileHandleForWriting] ;
+        if ([inputFH writeabilityHandler]) {
+// NSLog(@"GC closing of filehandler") ;
+            inputFH.writeabilityHandler = nil ;
+            [inputFH closeFile] ;
+        }
+        id input = (__bridge_transfer id)userData->input ;
+        input = nil ;
+    }
+
     task.terminationHandler = ^(__unused NSTask *task){};
 
     @try {
@@ -668,10 +695,6 @@ static int task_gc(lua_State *L) {
 
     NSString *launchPath = (__bridge_transfer NSString *)userData->launchPath;
     NSArray *arguments = (__bridge_transfer NSArray *)userData->arguments;
-
-    if (userData->input) {
-        id __unused input = (__bridge_transfer id)userData->input ;
-    }
 
     launchPath = nil;
     arguments = nil;
