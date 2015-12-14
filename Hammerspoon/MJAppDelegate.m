@@ -66,7 +66,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         }
         MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:fsPath length:strlen(fsPath)];
     } else if ([[[NSProcessInfo processInfo] environment] objectForKey:@"XCTESTING"]) {
-        NSlog(@"in UI testing mode");
+        NSLog(@"in UI testing mode");
         NSString *initPath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/HammerspoonUITests-Runner.app/Contents/PlugIns/HammerspoonUITests.xctest/Contents/Resources/init.lua"];
         const char *fsPath = [initPath fileSystemRepresentation];
 
