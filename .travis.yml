@@ -12,7 +12,6 @@ script:
   - xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build test
 after_script:
   - make build/html
-  - ls /Users/travis/Library/Developer/Xcode/DerivedData/Hammerspoon-*/Build/Products/Debug/
 notifications:
   irc:
     channels:
