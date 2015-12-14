@@ -9,6 +9,7 @@ xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
 after_script:
   - make build/html
+  - ls /Users/travis/Library/Developer/Xcode/DerivedData/Hammerspoon-*/Build/Products/Debug/
 notifications:
   irc:
     channels:
