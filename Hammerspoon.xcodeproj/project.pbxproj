@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		4F0F97571ADE9F8600F2A199 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F1CF8DB1A47F5BD001C8AE7 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */; };
+		4F20B52C1C1F1C5B00F52437 /* Hammerspoon_UITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F20B52B1C1F1C5B00F52437 /* Hammerspoon_UITests.m */; };
+		4F20B5341C1F225300F52437 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F20B5331C1F225300F52437 /* init.lua */; };
 		4F4CB38B1B737953000EA9B6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4F4CB38C1B737953000EA9B6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F4CB3951B737A5B000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3941B737A5B000EA9B6 /* internal.m */; };
@@ -319,6 +321,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4F20B52E1C1F1C5B00F52437 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9445CA0A19083251002568BB;
+			remoteInfo = Hammerspoon;
+		};
 		4F4CB3971B737A7C000EA9B6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
@@ -736,6 +745,10 @@
 		273C7223738140A6F91A8338 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F0F97561ADE9F8600F2A199 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
 		4F1CF8DA1A47F5BD001C8AE7 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		4F20B5291C1F1C5B00F52437 /* Hammerspoon UI Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hammerspoon UI Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F20B52B1C1F1C5B00F52437 /* Hammerspoon_UITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hammerspoon_UITests.m; sourceTree = "<group>"; };
+		4F20B52D1C1F1C5B00F52437 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4F20B5331C1F225300F52437 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		4F4CB3911B737953000EA9B6 /* libcrash.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcrash.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3931B737A5B000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/crash/init.lua; sourceTree = "<group>"; };
 		4F4CB3941B737A5B000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/crash/internal.m; sourceTree = "<group>"; };
@@ -993,6 +1006,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4F20B5261C1F1C5B00F52437 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4F4CB38A1B737953000EA9B6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -1616,6 +1636,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4F20B52A1C1F1C5B00F52437 /* Hammerspoon UI Tests */ = {
+			isa = PBXGroup;
+			children = (
+				4F20B52B1C1F1C5B00F52437 /* Hammerspoon_UITests.m */,
+				4F20B52D1C1F1C5B00F52437 /* Info.plist */,
+				4F20B5331C1F225300F52437 /* init.lua */,
+			);
+			name = "Hammerspoon UI Tests";
+			path = HammerspoonUITests;
+			sourceTree = "<group>";
+		};
 		4F4CB3921B7379D3000EA9B6 /* crash */ = {
 			isa = PBXGroup;
 			children = (
@@ -2315,6 +2346,7 @@
 				9445CA1419083251002568BB /* Hammerspoon */,
 				4F98506D1B722C4100F7E909 /* extensions */,
 				D02F95251A00221C00E28BB2 /* Hammerspoon Tests */,
+				4F20B52A1C1F1C5B00F52437 /* Hammerspoon UI Tests */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
 				F812A89A8B0CD6807ABA21B6 /* Pods */,
@@ -2382,6 +2414,7 @@
 				D64208921BE3CDA500673724 /* libjavascript.dylib */,
 				4F9797C31BED0AC800719F3F /* libtask.dylib */,
 				D6FD568F1C0422B400BAE238 /* libconsole.dylib */,
+				4F20B5291C1F1C5B00F52437 /* Hammerspoon UI Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2970,6 +3003,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		4F20B5281C1F1C5B00F52437 /* Hammerspoon UI Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F20B5301C1F1C5B00F52437 /* Build configuration list for PBXNativeTarget "Hammerspoon UI Tests" */;
+			buildPhases = (
+				4F20B5251C1F1C5B00F52437 /* Sources */,
+				4F20B5261C1F1C5B00F52437 /* Frameworks */,
+				4F20B5271C1F1C5B00F52437 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4F20B52F1C1F1C5B00F52437 /* PBXTargetDependency */,
+			);
+			name = "Hammerspoon UI Tests";
+			productName = HammerspoonUITests;
+			productReference = 4F20B5291C1F1C5B00F52437 /* Hammerspoon UI Tests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		4F4CB3871B737953000EA9B6 /* crash */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4F4CB38E1B737953000EA9B6 /* Build configuration list for PBXNativeTarget "crash" */;
@@ -4032,6 +4083,10 @@
 				LastUpgradeCheck = 0710;
 				ORGANIZATIONNAME = Hammerspoon;
 				TargetAttributes = {
+					4F20B5281C1F1C5B00F52437 = {
+						CreatedOnToolsVersion = 7.2;
+						TestTargetID = 9445CA0A19083251002568BB;
+					};
 					4F9850E01B722C8100F7E909 = {
 						CreatedOnToolsVersion = 7.0;
 					};
@@ -4059,6 +4114,7 @@
 			targets = (
 				9445CA0A19083251002568BB /* Hammerspoon */,
 				D02F95231A00221C00E28BB2 /* Hammerspoon Tests */,
+				4F20B5281C1F1C5B00F52437 /* Hammerspoon UI Tests */,
 				4F9850E01B722C8100F7E909 /* alert */,
 				4FBE2CD81B72541B00407788 /* applescript */,
 				4FBE2CEF1B7261A200407788 /* application */,
@@ -4120,6 +4176,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		4F20B5271C1F1C5B00F52437 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F20B5341C1F225300F52437 /* init.lua in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9445CA0919083251002568BB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -4278,6 +4342,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4F20B5251C1F1C5B00F52437 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F20B52C1C1F1C5B00F52437 /* Hammerspoon_UITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4F4CB3881B737953000EA9B6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -4760,6 +4832,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4F20B52F1C1F1C5B00F52437 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9445CA0A19083251002568BB /* Hammerspoon */;
+			targetProxy = 4F20B52E1C1F1C5B00F52437 /* PBXContainerItemProxy */;
+		};
 		4F4CB3981B737A7C000EA9B6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4F4CB3871B737953000EA9B6 /* crash */;
@@ -5048,6 +5125,47 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		4F20B5311C1F1C5B00F52437 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = Hammerspoon;
+				USES_XCTRUNNER = YES;
+			};
+			name = Debug;
+		};
+		4F20B5321C1F1C5B00F52437 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = Hammerspoon;
+				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
 		4F4CB38F1B737953000EA9B6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -12767,6 +12885,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4F20B5301C1F1C5B00F52437 /* Build configuration list for PBXNativeTarget "Hammerspoon UI Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F20B5311C1F1C5B00F52437 /* Debug */,
+				4F20B5321C1F1C5B00F52437 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		4F4CB38E1B737953000EA9B6 /* Build configuration list for PBXNativeTarget "crash" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
