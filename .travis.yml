@@ -7,6 +7,8 @@ before_script:
   - sudo sqlite3 /Library/Application\ Support/com.apple.TCC/TCC.db "INSERT INTO access VALUES('kTCCServiceAccessibility','org.hammerspoon.Hammerspoon',0,1,1,NULL,NULL);"
 xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
+script:
+  - xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build test
 after_script:
   - make build/html
   - ls /Users/travis/Library/Developer/Xcode/DerivedData/Hammerspoon-*/Build/Products/Debug/
