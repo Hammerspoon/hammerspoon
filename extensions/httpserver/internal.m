@@ -194,7 +194,10 @@ int refTable;
         }
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
     [(HTTPConnection *)self performSelector:@selector(startReadingRequest)];
+#pragma clang diagnostic pop
 }
 @end
 

@@ -1614,6 +1614,8 @@ static int NSParagraphStyle_toLua(lua_State *L, id obj) {
     lua_newtable(L);
 
     switch ([thePS alignment]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wgnu-folding-constant"
         case NSLeftTextAlignment:
             lua_pushstring(L, "left");
             break;
@@ -1629,6 +1631,7 @@ static int NSParagraphStyle_toLua(lua_State *L, id obj) {
         case NSNaturalTextAlignment:
             lua_pushstring(L, "natural");
             break;
+#pragma clang diagnostic pop
         default:
             lua_pushstring(L, "unknown");
             break;
