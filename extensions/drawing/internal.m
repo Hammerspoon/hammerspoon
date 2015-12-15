@@ -201,8 +201,8 @@ NSMutableArray *drawingWindows;
 }
 @end
 
-@implementation HSDrawingViewArc
-- (void)drawRect:(__unused NSRect)rect {
+@implementation HSDrawingViewEllipticalArc
+- (void)drawRect:(NSRect)rect {
 
     // Get the graphics context that we are currently executing under
     NSGraphicsContext* gc = [NSGraphicsContext currentContext];
@@ -215,15 +215,29 @@ NSMutableArray *drawingWindows;
     [[self HSFillColor] setFill];
 
     // Create our arc path
+    CGFloat cx = rect.origin.x + rect.size.width / 2 ;
+    CGFloat cy = rect.origin.y + rect.size.height / 2 ;
+    CGFloat r  = rect.size.width / 2 ;
+
+    NSAffineTransform *moveTransform = [NSAffineTransform transform] ;
+    [moveTransform translateXBy:cx yBy:cy] ;
+    NSAffineTransform *scaleTransform = [NSAffineTransform transform] ;
+    [scaleTransform scaleXBy:1.0 yBy:(rect.size.height / rect.size.width)] ;
+    NSAffineTransform *finalTransform = [[NSAffineTransform alloc] initWithTransform:scaleTransform] ;
+    [finalTransform appendTransform:moveTransform] ;
+
+
     NSBezierPath* arcPath = [NSBezierPath bezierPath];
-    if (self.HSFill) [arcPath moveToPoint:self.center] ;
-    [arcPath appendBezierPathWithArcWithCenter:self.center
-                                        radius:self.radius
+    if (self.HSFill) [arcPath moveToPoint:NSZeroPoint] ;
+    [arcPath appendBezierPathWithArcWithCenter:NSZeroPoint
+                                        radius:r
                                     startAngle:self.startAngle
                                       endAngle:self.endAngle
 //                                      clockwise:YES
     ] ;
-    if (self.HSFill) [arcPath lineToPoint:self.center] ;
+    if (self.HSFill) [arcPath lineToPoint:NSZeroPoint] ;
+
+    arcPath = [finalTransform transformBezierPath:arcPath] ;
 
     // Draw our shape (fill) and outline (stroke)
     if (self.HSFill) {
@@ -409,34 +423,25 @@ static int drawing_newCircle(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing.arc(centerPoint, radius, startAngle, endAngle) -> drawingObject or nil
+/// hs.drawing.ellipticalArc(sizeRect, startAngle, endAngle) -> drawingObject or nil
 /// Constructor
-/// Creates a new arc object
+/// Creates a new elliptical arc object
 ///
 /// Parameters:
-///  * centerPoint - A point-table containing the center of the circle used to define the arc
-///  * radius      - The radius of the circle used to define the arc
+///  * sizeRect    - A rect-table containing the location and size of the ellipse used to define the arc
 ///  * startAngle  - The starting angle of the arc, measured in degrees clockwise from the y-axis.
 ///  * endAngle    - The ending angle of the arc, measured in degrees clockwise from the y-axis.
 ///
 /// Returns:
 ///  * An `hs.drawing` arc object, or nil if an error occurs
-static int drawing_newArc(lua_State *L) {
+static int drawing_newEllipticalArc(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TTABLE,
                     LS_TNUMBER,
                     LS_TNUMBER,
-                    LS_TNUMBER,
                     LS_TBREAK];
 
-    NSPoint theCenter  = [skin tableToPointAtIndex:1];
-    CGFloat theRadius  = lua_tonumber(L, 2) ;
-
-    NSRect windowRect ;
-    windowRect.origin.x    = theCenter.x - theRadius ;
-    windowRect.origin.y    = theCenter.y - theRadius ;
-    windowRect.size.height = theRadius * 2 ;
-    windowRect.size.width  = theRadius * 2 ;
+    NSRect windowRect = [skin tableToRectAtIndex:1];
 
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
@@ -448,18 +453,12 @@ static int drawing_newArc(lua_State *L) {
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
 
-        HSDrawingViewArc *theView = [[HSDrawingViewArc alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
+        HSDrawingViewEllipticalArc *theView = [[HSDrawingViewEllipticalArc alloc] initWithFrame:((NSView *)theWindow.contentView).bounds];
         [theView setLuaState:L];
         theWindow.contentView = theView;
 
-        // move center to center of view, since it was passed in as screen coordinates
-        theCenter.x = theRadius ;
-        theCenter.y = theRadius ;
-
-        theView.center     = theCenter ;
-        theView.radius     = theRadius ;
-        theView.startAngle = lua_tonumber(L, 3) - 90 ;
-        theView.endAngle   = lua_tonumber(L, 4) - 90 ;
+        theView.startAngle = lua_tonumber(L, 2) - 90 ;
+        theView.endAngle   = lua_tonumber(L, 3) - 90 ;
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -1183,7 +1182,7 @@ static int drawing_setFillColor(lua_State *L) {
 
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
         [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
-        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
+        [drawingView isKindOfClass:[HSDrawingViewEllipticalArc class]]) {
         drawingView.HSFillColor = fillColor;
         drawingView.HSGradientStartColor = nil;
         drawingView.HSGradientEndColor = nil;
@@ -1199,7 +1198,7 @@ static int drawing_setFillColor(lua_State *L) {
 }
 
 /// hs.drawing:setArcAngles(startAngle, endAngle) -> drawingObject
-/// Constructor
+/// Method
 /// Changes the starting and ending angles for an arc drawing object
 ///
 /// Parameters:
@@ -1218,9 +1217,9 @@ static int drawing_setArcAngles(lua_State *L) {
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
 
-    if ([drawingView isKindOfClass:[HSDrawingViewArc class]]) {
-        ((HSDrawingViewArc *)drawingView).startAngle = lua_tonumber(L, 2) - 90 ;
-        ((HSDrawingViewArc *)drawingView).endAngle   = lua_tonumber(L, 3) - 90 ;
+    if ([drawingView isKindOfClass:[HSDrawingViewEllipticalArc class]]) {
+        ((HSDrawingViewEllipticalArc *)drawingView).startAngle = lua_tonumber(L, 2) - 90 ;
+        ((HSDrawingViewEllipticalArc *)drawingView).endAngle   = lua_tonumber(L, 3) - 90 ;
 
         drawingView.needsDisplay = YES;
     } else {
@@ -1265,7 +1264,7 @@ static int drawing_setFillGradient(lua_State *L) {
 
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
         [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
-        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
+        [drawingView isKindOfClass:[HSDrawingViewEllipticalArc class]]) {
         drawingView.HSFillColor = nil;
         drawingView.HSGradientStartColor = startColor;
         drawingView.HSGradientEndColor = endColor;
@@ -1302,7 +1301,7 @@ static int drawing_setStrokeColor(lua_State *L) {
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
         [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
         [drawingView isKindOfClass:[HSDrawingViewLine class]] ||
-        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
+        [drawingView isKindOfClass:[HSDrawingViewEllipticalArc class]]) {
         drawingView.HSStrokeColor = strokeColor;
         drawingView.needsDisplay = YES;
     } else {
@@ -1370,7 +1369,7 @@ static int drawing_setFill(lua_State *L) {
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
         [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
         [drawingView isKindOfClass:[HSDrawingViewLine class]] ||
-        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
+        [drawingView isKindOfClass:[HSDrawingViewEllipticalArc class]]) {
         drawingView.HSFill = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
@@ -1402,7 +1401,7 @@ static int drawing_setStroke(lua_State *L) {
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
         [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
         [drawingView isKindOfClass:[HSDrawingViewLine class]] ||
-        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
+        [drawingView isKindOfClass:[HSDrawingViewEllipticalArc class]]) {
         drawingView.HSStroke = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
@@ -1434,7 +1433,7 @@ static int drawing_setStrokeWidth(lua_State *L) {
     if ([drawingView isKindOfClass:[HSDrawingViewRect class]] ||
         [drawingView isKindOfClass:[HSDrawingViewCircle class]] ||
         [drawingView isKindOfClass:[HSDrawingViewLine class]] ||
-        [drawingView isKindOfClass:[HSDrawingViewArc class]]) {
+        [drawingView isKindOfClass:[HSDrawingViewEllipticalArc class]]) {
         drawingView.HSLineWidth = lua_tonumber(L, 2);
         drawingView.needsDisplay = YES;
     } else {
@@ -2295,12 +2294,12 @@ static int userdata_tostring(lua_State* L) {
         HSDrawingView   *drawingView   = (HSDrawingView *)drawingWindow.contentView;
 
         NSString* title = @"unknown type";
-        if ([drawingView isKindOfClass:[HSDrawingViewRect class]])   title = @"rectangle" ;
-        if ([drawingView isKindOfClass:[HSDrawingViewCircle class]]) title = @"circle" ;
-        if ([drawingView isKindOfClass:[HSDrawingViewArc class]])    title = @"arc" ;
-        if ([drawingView isKindOfClass:[HSDrawingViewLine class]])   title = @"line" ;
-        if ([drawingView isKindOfClass:[HSDrawingViewText class]])   title = @"text" ;
-        if ([drawingView isKindOfClass:[HSDrawingViewImage class]])  title = @"image" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewRect class]])          title = @"rectangle" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewCircle class]])        title = @"circle" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewEllipticalArc class]]) title = @"arc" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewLine class]])          title = @"line" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewText class]])          title = @"text" ;
+        if ([drawingView isKindOfClass:[HSDrawingViewImage class]])         title = @"image" ;
 
 // Use this instead, if you always want the title portion empty for your module
 //        NSString* title = @"" ;
@@ -2324,7 +2323,7 @@ static int userdata_tostring(lua_State* L) {
 
 static const luaL_Reg drawinglib[] = {
     {"circle",             drawing_newCircle},
-    {"arc",                drawing_newArc},
+    {"ellipticalArc",      drawing_newEllipticalArc},
     {"rectangle",          drawing_newRect},
     {"line",               drawing_newLine},
     {"text",               drawing_newText},
