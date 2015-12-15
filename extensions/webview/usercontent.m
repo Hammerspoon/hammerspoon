@@ -19,13 +19,14 @@ static int refTable ;
 - (void)userContentController:(__unused WKUserContentController *)userContentController
       didReceiveScriptMessage:(WKScriptMessage *)message {
     if ([message.name isEqualToString:self.name] && self.userContentCallback != LUA_NOREF) {
-        [[LuaSkin shared] pushLuaRef:refTable ref:self.userContentCallback];
-        [[LuaSkin shared] pushNSObject:message] ;
-        if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) {
-            const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
+        LuaSkin *skin = [LuaSkin shared] ;
+        [skin pushLuaRef:refTable ref:self.userContentCallback];
+        [skin pushNSObject:message] ;
+        if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            const char *errorMsg = lua_tostring([skin L], -1);
             CLS_NSLOG(@"%s: message callback: %s", USERDATA_UCC_TAG, errorMsg);
-            showError([[LuaSkin shared] L], (char *)[[NSString stringWithFormat:@"%s: message callback: %s", USERDATA_UCC_TAG, errorMsg] UTF8String]);
-            lua_pop([[LuaSkin shared] L], 1) ;
+            showError([skin L], (char *)[[NSString stringWithFormat:@"%s: message callback: %s", USERDATA_UCC_TAG, errorMsg] UTF8String]);
+            lua_pop([skin L], 1) ;
         }
     }
 }
@@ -47,12 +48,13 @@ static int refTable ;
 ///  * This object should be provided as the final argument to the `hs.webview.new` constructor in order to tie the webview to this content controller.  All new windows which are created from this parent webview will also use this controller.
 ///  * See `hs.webview.usercontent:setCallback` for more information about the message port.
 static int ucc_new(__unused lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TBREAK] ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
-    NSString *theName = [[LuaSkin shared] toNSObjectAtIndex:1] ;
+    NSString *theName = [skin toNSObjectAtIndex:1] ;
     HSUserContentController *newUCC = [[HSUserContentController alloc] initWithName:theName] ;
 
-    [[LuaSkin shared] pushNSObject:newUCC] ;
+    [skin pushNSObject:newUCC] ;
 
     return 1 ;
 }
@@ -70,10 +72,11 @@ static int ucc_new(__unused lua_State *L) {
 /// Returns:
 ///  * the usercontentControllerObject
 static int ucc_inject(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TTABLE, LS_TBREAK] ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TTABLE, LS_TBREAK] ;
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge HSUserContentController, L, 1) ;
 
-    [ucc addUserScript:[[LuaSkin shared] luaObjectAtIndex:2 toClass:"WKUserScript"]] ;
+    [ucc addUserScript:[skin luaObjectAtIndex:2 toClass:"WKUserScript"]] ;
 
     lua_pushvalue(L, 1);
     return 1 ;
@@ -95,10 +98,11 @@ static int ucc_inject(lua_State *L) {
 /// Notes:
 ///  * Because the WKUserContentController class only allows for removing all scripts, you can use this method to generate a list of all scripts, modify it, and then use it in a loop to reapply the scripts if you need to remove just a few scripts.
 static int ucc_userScripts(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TBREAK] ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TBREAK] ;
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge HSUserContentController, L, 1) ;
 
-    [[LuaSkin shared] pushNSObject:[ucc userScripts]] ;
+    [skin pushNSObject:[ucc userScripts]] ;
 
     return 1;
 }
@@ -115,7 +119,8 @@ static int ucc_userScripts(lua_State *L) {
 /// Notes:
 ///  * The WKUserContentController class only allows for removing all scripts.  If you need finer control, make a copy of the current scripts with `hs.webview.usercontent.userScripts()` first so you can recreate the scripts you want to keep.
 static int ucc_removeAllScripts(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TBREAK] ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TBREAK] ;
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge HSUserContentController, L, 1) ;
 
     [ucc removeAllUserScripts] ;
@@ -145,17 +150,18 @@ static int ucc_removeAllScripts(lua_State *L) {
 ///
 ///  * Where *name* matches the name specified in the constructor and *message-object* is the object to post to the function.  This object can be a number, string, date, array, dictionary(table), or nil.
 static int ucc_setCallback(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG,
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG,
                                 LS_TFUNCTION | LS_TNIL,
                                 LS_TBREAK] ;
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge HSUserContentController, L, 1) ;
 
     // We're either removing a callback, or setting a new one. Either way, we want to clear out any callback that exists
-    ucc.userContentCallback = [[LuaSkin shared] luaUnref:refTable ref:ucc.userContentCallback] ;
+    ucc.userContentCallback = [skin luaUnref:refTable ref:ucc.userContentCallback] ;
 
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
-        ucc.userContentCallback = [[LuaSkin shared] luaRef:refTable] ;
+        ucc.userContentCallback = [skin luaRef:refTable] ;
     }
 
     lua_pushvalue(L, 1);
@@ -165,6 +171,7 @@ static int ucc_setCallback(lua_State *L) {
 #pragma mark - NSObject <-> Lua converters
 
 static int HSUserContentController_toLua(lua_State *L, id obj) {
+    LuaSkin *skin = [LuaSkin shared] ;
     HSUserContentController *ucc = obj ;
 
     if (ucc.udRef == LUA_NOREF) {
@@ -172,14 +179,15 @@ static int HSUserContentController_toLua(lua_State *L, id obj) {
         *uccPtr = (__bridge_retained void *)ucc ;
         luaL_getmetatable(L, USERDATA_UCC_TAG) ;
         lua_setmetatable(L, -2) ;
-        ucc.udRef = [[LuaSkin shared] luaRef:refTable] ;
+        ucc.udRef = [skin luaRef:refTable] ;
     }
 
-    [[LuaSkin shared] pushLuaRef:refTable ref:ucc.udRef] ;
+    [skin pushLuaRef:refTable ref:ucc.udRef] ;
     return 1 ;
 }
 
 static int WKUserScript_toLua(lua_State *L, id obj) {
+    LuaSkin *skin = [LuaSkin shared] ;
     WKUserScript *script = obj ;
 
     lua_newtable(L) ;
@@ -190,23 +198,25 @@ static int WKUserScript_toLua(lua_State *L, id obj) {
           default:                                        lua_pushstring(L, "unknown") ;         break ;
       }
       lua_setfield(L, -2, "injectionTime") ;
-      [[LuaSkin shared] pushNSObject:[script source]] ; lua_setfield(L, -2, "source") ;
+      [skin pushNSObject:[script source]] ; lua_setfield(L, -2, "source") ;
     return 1 ;
 }
 
 static int WKScriptMessage_toLua(lua_State *L, id obj) {
+    LuaSkin *skin = [LuaSkin shared] ;
     WKScriptMessage *message = obj ;
 
     lua_newtable(L) ;
-      [[LuaSkin shared] pushNSObject:message.body] ;      lua_setfield(L, -2, "body") ;
-      [[LuaSkin shared] pushNSObject:message.frameInfo] ; lua_setfield(L, -2, "frameInfo") ;
-      [[LuaSkin shared] pushNSObject:message.name] ;      lua_setfield(L, -2, "name") ;
-      [[LuaSkin shared] pushNSObject:(HSWebViewWindow *)((HSWebViewView *)message.webView).window] ;
+      [skin pushNSObject:message.body] ;      lua_setfield(L, -2, "body") ;
+      [skin pushNSObject:message.frameInfo] ; lua_setfield(L, -2, "frameInfo") ;
+      [skin pushNSObject:message.name] ;      lua_setfield(L, -2, "name") ;
+      [skin pushNSObject:(HSWebViewWindow *)((HSWebViewView *)message.webView).window] ;
           lua_setfield(L, -2, "webView") ;
     return 1 ;
 }
 
 static id table_toWKUserScript(lua_State* L, int idx) {
+    LuaSkin *skin = [LuaSkin shared] ;
     luaL_checktype(L, idx, LUA_TTABLE) ;
 
     BOOL                      mainFrame ;
@@ -223,7 +233,7 @@ static id table_toWKUserScript(lua_State* L, int idx) {
     }
 
     if (lua_getfield(L, idx, "source") == LUA_TSTRING) {
-        source = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+        source = [skin toNSObjectAtIndex:-1] ;
         lua_pop(L, 1) ;
     } else {
         lua_pop(L, 1) ;
@@ -232,7 +242,7 @@ static id table_toWKUserScript(lua_State* L, int idx) {
     }
 
     if (lua_getfield(L, idx, "injectionTime") == LUA_TSTRING) {
-        NSString *label = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+        NSString *label = [skin toNSObjectAtIndex:-1] ;
         if ([label isEqualToString:@"documentStart"]) injectionTime = WKUserScriptInjectionTimeAtDocumentStart ; else
         if ([label isEqualToString:@"documentEnd"])   injectionTime = WKUserScriptInjectionTimeAtDocumentEnd ;
         else {
@@ -275,10 +285,11 @@ static int userdata_eq(lua_State* L) {
 }
 
 static int userdata_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
     HSUserContentController *ucc = get_uccObjFromUserdata(__bridge_transfer HSUserContentController, L, 1) ;
 
     if (ucc) {
-        ucc.udRef = [[LuaSkin shared] luaUnref:refTable ref:ucc.udRef] ;
+        ucc.udRef = [skin luaUnref:refTable ref:ucc.udRef] ;
 
         [ucc removeAllUserScripts] ;
         [ucc removeScriptMessageHandlerForName:ucc.name] ;
@@ -331,19 +342,20 @@ static luaL_Reg moduleLib[] = {
 
 // NOTE: ** Make sure to change luaopen_..._internal **
 int luaopen_hs_webview_usercontent(lua_State* __unused L) {
+    LuaSkin *skin = [LuaSkin shared] ;
 // Use this if your module doesn't have a module specific object that it returns.
-//    refTable = [[LuaSkin shared] registerLibrary:moduleLib metaFunctions:nil] ; // or module_metaLib
+//    refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ; // or module_metaLib
 // Use this some of your functions return or act on a specific object unique to this module
-    refTable = [[LuaSkin shared] registerLibraryWithObject:USERDATA_UCC_TAG
+    refTable = [skin registerLibraryWithObject:USERDATA_UCC_TAG
                                                  functions:moduleLib
                                              metaFunctions:nil    // or module_metaLib
                                            objectFunctions:userdata_metaLib];
 
-    [[LuaSkin shared] registerPushNSHelper:HSUserContentController_toLua forClass:"HSUserContentController"] ;
-    [[LuaSkin shared] registerPushNSHelper:WKUserScript_toLua            forClass:"WKUserScript"] ;
-    [[LuaSkin shared] registerPushNSHelper:WKScriptMessage_toLua         forClass:"WKScriptMessage"] ;
+    [skin registerPushNSHelper:HSUserContentController_toLua forClass:"HSUserContentController"] ;
+    [skin registerPushNSHelper:WKUserScript_toLua            forClass:"WKUserScript"] ;
+    [skin registerPushNSHelper:WKScriptMessage_toLua         forClass:"WKScriptMessage"] ;
 
-    [[LuaSkin shared] registerLuaObjectHelper:table_toWKUserScript           forClass:"WKUserScript"] ;
+    [skin registerLuaObjectHelper:table_toWKUserScript           forClass:"WKUserScript"] ;
 
     return 1;
 }
