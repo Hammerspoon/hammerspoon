@@ -3,19 +3,20 @@ local screen=require'hs.screen'
 local timer=require'hs.timer'
 local windowfilter=require'hs.window.filter'
 local settings=require'hs.settings'
-local log=require'hs.logger'.new('redshift',5)
+local log=require'hs.logger'.new('redshift')
 local redshift={setLogLevel=log.setLogLevel} -- module
 
-local type,ipairs,floor,abs,max,sformat=type,ipairs,math.floor,math.abs,math.max,string.format
+local type,ipairs,next,floor,abs,max,sformat=type,ipairs,next,math.floor,math.abs,math.max,string.format
 
-local SETTING_INVERTED='hs.redshift.inverted'
+--local SETTING_INVERTED='hs.redshift.inverted'
+local SETTING_INVERTED_MANUAL='hs.redshift.inverted.manual'
 local BLACKPOINT = {red=0.00000001,green=0.00000001,blue=0.00000001}
 --local WHITEPOINT = {red=0.9999999,green=0.9999999,blue=0.9999999}
 local COLORRAMP
 
 local running,nightStart,nightEnd,dayStart,dayEnd,nightTemp,dayTemp
 local tmr,tmrNext,applyGamma,screenWatcher
-local invertAtNight,invertManual
+local invertRequests,invertAtNight,invertManual={}
 local wfDisable,modulewfDisable
 
 local function lerprgb(p,a,b) return {red=a[1]*(1-p)+b[1]*p,green=a[2]*(1-p)+b[2]*p,blue=a[3]*(1-p)+b[3]*p} end
@@ -44,22 +45,23 @@ end
 applyGamma=function(testtime)
   if tmrNext then tmrNext:stop() tmrNext=nil end
   local now=testtime and timer.seconds(testtime) or timer.localTime()
-  local temp,next,invert
+  local temp,timeNext,invertReq
   if between(now,nightStart,nightEnd) then temp=ilerp(now,nightStart,nightEnd,dayTemp,nightTemp) --dusk
   elseif between(now,dayStart,dayEnd) then temp=ilerp(now,dayStart,dayEnd,nightTemp,dayTemp) --dawn
-  elseif between(now,dayEnd,nightStart) then temp=dayTemp next=nightStart log.i('daytime')--day
-  elseif between(now,nightEnd,dayStart) then invert=invertAtNight temp=nightTemp next=dayStart log.i('nighttime')--night
+  elseif between(now,dayEnd,nightStart) then temp=dayTemp timeNext=nightStart log.i('daytime')--day
+  elseif between(now,nightEnd,dayStart) then invertReq=invertAtNight temp=nightTemp timeNext=dayStart log.i('nighttime')--night
   else error('wtf') end
-  if invertManual then invert=not invert end
+  redshift.requestInvert('redshift-night',invertReq)
+  local invert=redshift.isInverted()
   local gamma=getGamma(temp)
-  log.vf('set color temperature %dK (gamma %d,%d,%d)%s',floor(temp),round(gamma.red*100),round(gamma.green*100),round(gamma.blue*100),
-    invert and ' - inverted' or '')
+  log.df('set color temperature %dK (gamma %d,%d,%d)%s',floor(temp),round(gamma.red*100),
+    round(gamma.green*100),round(gamma.blue*100),invert and (' - inverted by '..invert) or '')
   for _,scr in ipairs(screen.allScreens()) do
     --    scr:setGamma(gamma,BLACKPOINT)
     scr:setGamma(invert and BLACKPOINT or gamma,invert and gamma or BLACKPOINT)
   end
-  if next then
-    tmrNext=timer.doAt(next,applyGamma)
+  if timeNext then
+    tmrNext=timer.doAt(timeNext,applyGamma)
   else
     tmr:start()
   end
@@ -67,21 +69,45 @@ end
 
 tmr=timer.delayed.new(10,applyGamma)
 
+function redshift.isInverted()
+  if not running then return false end
+  if invertManual~=nil then return invertManual and 'manual'
+  else return next(invertRequests) or false end
+end
+
+function redshift.requestInvert(key,v)
+  if type(key)~='string' then error('key must be a string',2) end
+  if v==false then v=nil end
+  if invertRequests[key]==v then return end
+  invertRequests[key]=v
+  log.f('invert request from %s %s',key,v and '' or 'canceled')
+  return running and applyGamma()
+end
+function redshift.manualInvert(v)
+  if not running then return end
+  if v~=nil and type(v)~='boolean' then error ('v must be a boolean or nil',2) end
+  log.f('invert manual override%s',v==true and ': inverted' or (v==false and ': not inverted' or ' canceled'))
+  invertManual=v
+  --  invertManual=not invertManual
+  --  if v~=nil then invertManual=v end
+  settings.set(SETTING_INVERTED_MANUAL,invertManual)
+  return applyGamma()
+end
 function redshift.toggleInvert()
   if not running then return end
-  invertManual=not invertManual
-  settings.set(SETTING_INVERTED,invertManual)
-  tmr:start(0.1)
+  if invertManual~=nil then return redshift.manualInvert()
+  else return redshift.manualInvert(not redshift.isInverted()) end
 end
 
 local function pause()
   log.i('paused')
   screen.restoreGamma()
+  --  settings.set(SETTING_INVERTED,false)
   tmr:stop()
 end
 local function resume()
   log.i('resumed')
-  tmr:start(0.1)
+  return applyGamma()
 end
 
 function redshift.stop()
@@ -105,8 +131,8 @@ function redshift.start(nightTime,pnightTemp,dayTime,pdayTemp,transition,invert,
   transition=timer.seconds(transition)
   if transition>14400 then error('max transition time is 4h',2) end
   nightTime,dayTime=timer.seconds(nightTime),timer.seconds(dayTime)
-  if abs(nightTime-dayTime)<transition or abs(nightTime-dayTime+86400)<transition or abs(nightTime-dayTime-86400)<transition then
-    error('nightTime too close to dayTime',2) end
+  if abs(nightTime-dayTime)<transition or abs(nightTime-dayTime+86400)<transition
+    or abs(nightTime-dayTime-86400)<transition then error('nightTime too close to dayTime',2) end
   if pnightTemp<1000 or pnightTemp>10000 or pdayTemp<1000 or pdayTemp>10000 then error('invalid color temperature',2) end
   nightTemp,dayTemp=floor(pnightTemp),floor(pdayTemp)
   redshift.stop()
@@ -119,7 +145,7 @@ function redshift.start(nightTime,pnightTemp,dayTime,pdayTemp,transition,invert,
   running=true
   tmr:setDelay(max(1,transition/200))
   screenWatcher=screen.watcher.new(function()tmr:start(5)end):start()
-  invertManual=settings.get(SETTING_INVERTED)
+  invertManual=settings.get(SETTING_INVERTED_MANUAL)
   applyGamma()
   if wf~=nil then
     if windowfilter.iswf(wf) then wfDisable=wf
