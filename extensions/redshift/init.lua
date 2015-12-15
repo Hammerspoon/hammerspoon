@@ -6,7 +6,7 @@ local settings=require'hs.settings'
 local log=require'hs.logger'.new('redshift')
 local redshift={setLogLevel=log.setLogLevel} -- module
 
-local type,ipairs,next,floor,abs,max,sformat=type,ipairs,next,math.floor,math.abs,math.max,string.format
+local type,ipairs,pairs,next,floor,abs,max,sformat=type,ipairs,pairs,next,math.floor,math.abs,math.max,string.format
 
 --local SETTING_INVERTED='hs.redshift.inverted'
 local SETTING_INVERTED_MANUAL='hs.redshift.inverted.manual'
@@ -16,7 +16,7 @@ local COLORRAMP
 
 local running,nightStart,nightEnd,dayStart,dayEnd,nightTemp,dayTemp
 local tmr,tmrNext,applyGamma,screenWatcher
-local invertRequests,invertAtNight,invertManual={}
+local invertRequests,invertCallbacks,invertAtNight,invertManual,prevInvert={},{}
 local wfDisable,modulewfDisable
 
 local function lerprgb(p,a,b) return {red=a[1]*(1-p)+b[1]*p,green=a[2]*(1-p)+b[2]*p,blue=a[3]*(1-p)+b[3]*p} end
@@ -60,6 +60,11 @@ applyGamma=function(testtime)
     --    scr:setGamma(gamma,BLACKPOINT)
     scr:setGamma(invert and BLACKPOINT or gamma,invert and gamma or BLACKPOINT)
   end
+  if invert~=prevInvert then
+    log.f('inverted status changed%s',next(invertCallbacks) and ', notifying callbacks' or '')
+    for _,fn in pairs(invertCallbacks) do fn(invert) end
+    prevInvert=invert
+  end
   if timeNext then
     tmrNext=timer.doAt(timeNext,applyGamma)
   else
@@ -68,6 +73,19 @@ applyGamma=function(testtime)
 end
 
 tmr=timer.delayed.new(10,applyGamma)
+function redshift.invertSubscribe(key,fn)
+  if type(key)=='function' then fn=key end
+  if type(key)~='string' and type(key)~='function' then error('invalid key',2) end
+  if type(fn)~='function' then error('invalid callback',2) end
+  invertCallbacks[key]=fn
+  log.f('add invert callback %s',key)
+  return running and fn(redshift.isInverted())
+end
+function redshift.invertUnsubscribe(key)
+  if not invertCallbacks[key] then return end
+  log.f('remove invert callback %s',key)
+  invertCallbacks[key]=nil
+end
 
 function redshift.isInverted()
   if not running then return false end
@@ -86,11 +104,12 @@ end
 function redshift.manualInvert(v)
   if not running then return end
   if v~=nil and type(v)~='boolean' then error ('v must be a boolean or nil',2) end
-  log.f('invert manual override%s',v==true and ': inverted' or (v==false and ': not inverted' or ' canceled'))
+  log.f('invert manual override%s',v==true and ': inverted' or (v==false and ': not inverted' or ' cancelled'))
   invertManual=v
   --  invertManual=not invertManual
   --  if v~=nil then invertManual=v end
-  settings.set(SETTING_INVERTED_MANUAL,invertManual)
+  if v==nil then settings.clear(SETTING_INVERTED_MANUAL)
+  else settings.set(SETTING_INVERTED_MANUAL,v) end
   return applyGamma()
 end
 function redshift.toggleInvert()
