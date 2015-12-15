@@ -5170,6 +5170,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5238,6 +5239,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5304,6 +5306,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5372,6 +5375,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5438,6 +5442,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5506,6 +5511,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5572,6 +5578,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5640,6 +5647,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5706,6 +5714,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5774,6 +5783,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5840,6 +5850,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5908,6 +5919,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -5974,6 +5986,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6042,6 +6055,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6108,6 +6122,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6176,6 +6191,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6242,6 +6258,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6310,6 +6327,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6376,6 +6394,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6445,6 +6464,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6512,6 +6532,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6580,6 +6601,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6646,6 +6668,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6714,6 +6737,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6780,6 +6804,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6848,6 +6873,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6914,6 +6940,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -6982,6 +7009,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7048,6 +7076,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7116,6 +7145,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7182,6 +7212,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7250,6 +7281,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7316,6 +7348,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7384,6 +7417,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7450,6 +7484,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7518,6 +7553,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7584,6 +7620,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7652,6 +7689,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7718,6 +7756,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7786,6 +7825,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7852,6 +7892,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7920,6 +7961,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -7986,6 +8028,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8054,6 +8097,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8120,6 +8164,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8192,6 +8237,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8262,6 +8308,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8330,6 +8377,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8396,6 +8444,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8468,6 +8517,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8538,6 +8588,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8606,6 +8657,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8672,6 +8724,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8740,6 +8793,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8806,6 +8860,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8874,6 +8929,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -8940,6 +8996,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9008,6 +9065,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9074,6 +9132,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9142,6 +9201,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9208,6 +9268,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9280,6 +9341,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9350,6 +9412,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9422,6 +9485,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9492,6 +9556,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9564,6 +9629,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9634,6 +9700,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9706,6 +9773,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9776,6 +9844,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9848,6 +9917,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9918,6 +9988,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -9990,6 +10061,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10060,6 +10132,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10132,6 +10205,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10202,6 +10276,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10270,6 +10345,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10336,6 +10412,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10408,6 +10485,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10478,6 +10556,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10550,6 +10629,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10620,6 +10700,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10692,6 +10773,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10762,6 +10844,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10834,6 +10917,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10904,6 +10988,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -10976,6 +11061,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11046,6 +11132,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -11061,6 +11148,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -11074,6 +11162,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11147,6 +11236,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11218,6 +11308,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11286,6 +11377,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11352,6 +11444,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11420,6 +11513,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11486,6 +11580,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11554,6 +11649,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11620,6 +11716,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11692,6 +11789,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11762,6 +11860,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -11830,6 +11929,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12084,6 +12184,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12152,6 +12253,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12218,6 +12320,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12286,6 +12389,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12352,6 +12456,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12420,6 +12525,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12486,6 +12592,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12554,6 +12661,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12620,6 +12728,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12688,6 +12797,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12754,6 +12864,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
@@ -12822,6 +12933,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
 				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
