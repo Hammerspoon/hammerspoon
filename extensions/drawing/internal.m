@@ -2169,7 +2169,7 @@ static int default_textAttributes(lua_State *L) {
     return 1 ;
 }
 
-/// hs.drawing.getTextDrawingSize(styledTextObject or theText, [textStyle]) -> sizeTable
+/// hs.drawing.getTextDrawingSize(styledTextObject or theText, [textStyle]) -> sizeTable | nil
 /// Method
 /// Get the size of the rectangle necessary to fully render the text with the specified style so that is will be completely visible.
 ///
@@ -2198,7 +2198,7 @@ static int default_textAttributes(lua_State *L) {
 ///      * "truncateMiddle" - the line is displayed so that the beginning and end fit in the frame and the missing text in the middle is indicated by an ellipsis
 ///
 /// Returns:
-///  * sizeTable - a table containing the Height and Width necessary to fully display the text drawing object.
+///  * sizeTable - a table containing the Height and Width necessary to fully display the text drawing object, or nil if an error occurred
 ///
 /// Notes:
 ///  * This function assumes the default values specified for any key which is not included in the provided textStyle.
@@ -2223,6 +2223,10 @@ static int drawing_getTextDrawingSize(lua_State *L) {
                                             @"font" :[NSFont systemFontOfSize: 27],
                                             @"color":[NSColor colorWithCalibratedWhite:1.0 alpha:1.0]
                                         });
+                if (!myStuff) {
+                    lua_pushnil(L);
+                    return 1;
+                }
 
                 theSize = [theText sizeWithAttributes:@{
                               NSFontAttributeName:[myStuff objectForKey:@"font"],
