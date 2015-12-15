@@ -414,7 +414,7 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
     return 1;
 }
 
-/// hs.eventtap.event.newScrollWheelEvent(offsets, mods, unit) -> event
+/// hs.eventtap.event.newScrollEvent(offsets, mods, unit) -> event
 /// Constructor
 /// Creates a scroll wheel event
 ///
@@ -459,8 +459,7 @@ static int eventtap_event_newScrollWheelEvent(lua_State* L) {
     }
     unit = lua_tostring(L, 3);
     if (unit && strcmp(unit, "pixel") == 0) type = kCGScrollEventUnitPixel; else type = kCGScrollEventUnitLine;
-    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-    CGEventRef scrollEvent = CGEventCreateScrollWheelEvent(source, type, 2, offset_x, offset_y);
+    CGEventRef scrollEvent = CGEventCreateScrollWheelEvent(eventSource, type, 2, offset_x, offset_y);
     CGEventSetFlags(scrollEvent, flags);
     new_eventtap_event(L, scrollEvent);
     CFRelease(scrollEvent);
@@ -501,8 +500,7 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
         }
     }
 
-    CGEventSourceRef source = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
-    CGEventRef event = CGEventCreateMouseEvent(source, type, point, button);
+    CGEventRef event = CGEventCreateMouseEvent(eventSource, type, point, button);
     CGEventSetFlags(event, flags);
     new_eventtap_event(L, event);
     CFRelease(event);
