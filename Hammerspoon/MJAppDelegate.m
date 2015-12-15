@@ -61,6 +61,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
         if (!fsPath) {
             NSLog(@"Unable to find init.lua in Hammerspoon Tests.xctest. We're about to crash, sorry!");
+            abort();
         } else {
             NSLog(@"testing init.lua");
         }
@@ -72,6 +73,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
         if (!fsPath) {
             NSLog(@"Unable to find init.lua in Hammerspoon UI Tests. We're about to crash, sorry!");
+            abort();
         } else {
             NSLog(@"UI testing init.lua");
         }
