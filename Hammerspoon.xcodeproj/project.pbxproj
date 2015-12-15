@@ -11981,6 +11981,7 @@
 			baseConfigurationReference = A72912922777E1D082D08222 /* Pods-Hammerspoon.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -12008,6 +12009,7 @@
 			baseConfigurationReference = 896F5840119EB0EC98527200 /* Pods-Hammerspoon.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
 				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -12892,6 +12894,7 @@
 				4F20B5321C1F1C5B00F52437 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
 		};
 		4F4CB38E1B737953000EA9B6 /* Build configuration list for PBXNativeTarget "crash" */ = {
 			isa = XCConfigurationList;
