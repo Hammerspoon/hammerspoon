@@ -12,7 +12,7 @@ local geometry = require "hs.geometry"
 local gtype=geometry.type
 local screen = require "hs.screen"
 local timer = require "hs.timer"
-local imagemod = require("hs.image") -- make sure we know about HSImage userdata type
+require "hs.image" -- make sure we know about HSImage userdata type
 local pairs,ipairs,next,min,max,abs,cos,type = pairs,ipairs,next,math.min,math.max,math.abs,math.cos,type
 local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort,table.unpack,table.pack
 --- hs.window.animationDuration (number)
@@ -458,6 +458,7 @@ function window:otherWindowsAllScreens()
   return r
 end
 
+local desktopFocusWorkaroundTimer --workaround for the desktop taking over
 --- hs.window:focus() -> hs.window object
 --- Method
 --- Focuses the window
@@ -468,8 +469,22 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:focus()
+  local app=self:application()
   self:becomeMain()
-  self:application():_bringtofront()
+  app:_bringtofront()
+  if app:bundleID()=='com.apple.finder' then --workaround for the desktop taking over
+    -- it may look like this should ideally go inside :becomeMain(), but the problem is actually
+    -- triggered by :_bringtofront(), so the workaround belongs here
+    if desktopFocusWorkaroundTimer then desktopFocusWorkaroundTimer:stop() end
+    desktopFocusWorkaroundTimer=timer.doAfter(0.3,function()
+      -- 0.3s comes from https://github.com/Hammerspoon/hammerspoon/issues/581
+      -- it'd be slightly less ugly to use a "space change completed" callback (as per issue above) rather than
+      -- a crude timer, althought that route is a lot more complicated
+      self:becomeMain()
+      desktopFocusWorkaroundTimer=nil --cleanup the timer
+    end)
+    self:becomeMain() --ensure space change actually takes place when necessary
+  end
   return self
 end
 
@@ -844,6 +859,7 @@ package.loaded[...]=window
 window.filter=require'hs.window.filter'
 window.layout=require'hs.window.layout'
 window.tiling=require'hs.window.tiling'
+--window.switcher=require'hs.window.switcher'
 do
   local mt=getmetatable(window)
   --[[ this (lazy "autoload") won't work, objc wants the first metatable for objects
