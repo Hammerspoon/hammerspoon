@@ -1,3 +1,6 @@
+--- === hs.redshift ===
+---
+--- Inverts and/or lowers the color temperature of the screen(s) on a schedule, for a more pleasant experience at night
 
 local screen=require'hs.screen'
 local timer=require'hs.timer'
@@ -8,19 +11,17 @@ local redshift={setLogLevel=log.setLogLevel} -- module
 
 local type,ipairs,pairs,next,floor,abs,max,sformat=type,ipairs,pairs,next,math.floor,math.abs,math.max,string.format
 
---local SETTING_INVERTED='hs.redshift.inverted'
-local SETTING_INVERTED_MANUAL='hs.redshift.inverted.manual'
+local SETTING_INVERTED_OVERRIDE='hs.redshift.inverted.override'
 local BLACKPOINT = {red=0.00000001,green=0.00000001,blue=0.00000001}
---local WHITEPOINT = {red=0.9999999,green=0.9999999,blue=0.9999999}
 local COLORRAMP
 
 local running,nightStart,nightEnd,dayStart,dayEnd,nightTemp,dayTemp
 local tmr,tmrNext,applyGamma,screenWatcher
-local invertRequests,invertCallbacks,invertAtNight,invertManual,prevInvert={},{}
+local invertRequests,invertCallbacks,invertAtNight,invertUser,prevInvert={},{}
 local wfDisable,modulewfDisable
 
+local function round(v) return floor(0.5+v) end
 local function lerprgb(p,a,b) return {red=a[1]*(1-p)+b[1]*p,green=a[2]*(1-p)+b[2]*p,blue=a[3]*(1-p)+b[3]*p} end
---local function lerp(p,a,b) return a*(1-p)+b*p end
 local function ilerp(v,s,e,a,b)
   if s>e then
     if v<e then v=v+86400 end
@@ -28,20 +29,17 @@ local function ilerp(v,s,e,a,b)
   end
   local p=(v-s)/(e-s)
   return a*(1-p)+b*p
-    --  return lerp(,a,b)
 end
-local function round(v) return floor(0.5+v) end
-
 local function getGamma(temp)
   local idx=floor(temp/100)-9
   local p=(temp%100)/100
   return lerprgb(p,COLORRAMP[idx],COLORRAMP[idx+1])
 end
-
 local function between(v,s,e)
-  if s<=e then return v>=s and v<=e
-  else return v>=s or v<=e end
+  if s<=e then return v>=s and v<=e else return v>=s or v<=e end
 end
+
+-- core fn
 applyGamma=function(testtime)
   if tmrNext then tmrNext:stop() tmrNext=nil end
   local now=testtime and timer.seconds(testtime) or timer.localTime()
@@ -72,7 +70,20 @@ applyGamma=function(testtime)
   end
 end
 
-tmr=timer.delayed.new(10,applyGamma)
+--- hs.redshift.invertSubscribe([id,]fn)
+--- Function
+--- Subscribes a callback to be notified when the color inversion status changes
+---
+--- You can use this to dynamically adjust the UI colors in your modules or configuration, if appropriate.
+---
+--- Parameters:
+---  * id - (optional) a string identifying the requester (usually the module name); if omitted, `fn`
+---    itself will be the identifier; this identifier must be passed to `hs.redshift.invertUnsubscribe()`
+---  * fn - a function that will be called whenever color inversion status changes; it must accept a
+---    single parameter, a string or false as per the return value of `hs.redshift.isInverted()`
+---
+--- Returns:
+---  * None
 function redshift.invertSubscribe(key,fn)
   if type(key)=='function' then fn=key end
   if type(key)~='string' and type(key)~='function' then error('invalid key',2) end
@@ -81,18 +92,57 @@ function redshift.invertSubscribe(key,fn)
   log.f('add invert callback %s',key)
   return running and fn(redshift.isInverted())
 end
+--- hs.redshift.invertUnsubscribe(id)
+--- Function
+--- Unsubscribes a previously subscribed color inversion change callback
+---
+--- Parameters:
+---  * id - a string identifying the requester or the callback function itself, depending on how you
+---    called `hs.redshift.invertSubscribe()`
+---
+--- Returns:
+---  * None
 function redshift.invertUnsubscribe(key)
   if not invertCallbacks[key] then return end
   log.f('remove invert callback %s',key)
   invertCallbacks[key]=nil
 end
 
-function redshift.isInverted()
+--- hs.redshift.isInverted() -> string or false
+--- Function
+--- Checks if the colors are currently inverted
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * false if the colors are not currently inverted; otherwise, a string indicating the reason, one of:
+---    * "user" for the user override (see `hs.redshift.toggleInvert()`)
+---    * "redshift-night" if `hs.redshift.start()` was called with `invertAtNight` set to true,
+---      and it's currently night time
+---    * the ID string (usually the module name) provided to `hs.redshift.requestInvert()`, if another module requested color inversion
+local function isInverted()
   if not running then return false end
-  if invertManual~=nil then return invertManual and 'manual'
+  if invertUser~=nil then return invertUser and 'user'
   else return next(invertRequests) or false end
 end
+redshift.isInverted=isInverted
 
+--- hs.redshift.requestInvert(id,v)
+--- Function
+--- Sets or clears a request for color inversion
+---
+--- Parameters:
+---  * id - a string identifying the requester (usually the module name)
+---  * v - a boolean indicating whether to invert the colors (if true) or clear any previous requests (if false or nil)
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * you can use this function e.g. to automatically invert colors if the ambient light sensor reading drops below
+---    a certain threshold (`hs.brightness.DDCauto()` can optionally do exactly that)
+---  * if the user's configuration doesn't explicitly start the redshift module, calling this will have no effect
 function redshift.requestInvert(key,v)
   if type(key)~='string' then error('key must be a string',2) end
   if v==false then v=nil end
@@ -101,27 +151,36 @@ function redshift.requestInvert(key,v)
   log.f('invert request from %s %s',key,v and '' or 'canceled')
   return running and applyGamma()
 end
-function redshift.manualInvert(v)
+
+--- hs.redshift.toggleInvert([v])
+--- Function
+--- Sets or clears the user override for color inversion.
+---
+--- This function should be bound to a hotkey, e.g.:
+--- `hs.hotkey.bind('ctrl-cmd','=','Invert',hs.redshift.toggleInvert)`
+---
+--- Parameters:
+---  * v - (optional) a boolean; if true, the override will invert the colors no matter what; if false,
+---    the override will disable color inversion no matter what; if omitted or nil, it will toggle the
+---    override, i.e. clear it if it's currently enforced, or set it to the opposite of the current
+---    color inversion status otherwise.
+---
+--- Returns:
+---  * None
+function redshift.toggleInvert(v)
   if not running then return end
+  if v==nil and invertUser==nil then v=not isInverted() end
   if v~=nil and type(v)~='boolean' then error ('v must be a boolean or nil',2) end
-  log.f('invert manual override%s',v==true and ': inverted' or (v==false and ': not inverted' or ' cancelled'))
-  invertManual=v
-  --  invertManual=not invertManual
-  --  if v~=nil then invertManual=v end
-  if v==nil then settings.clear(SETTING_INVERTED_MANUAL)
-  else settings.set(SETTING_INVERTED_MANUAL,v) end
+  log.f('invert user override%s',v==true and ': inverted' or (v==false and ': not inverted' or ' cancelled'))
+  if v==nil then settings.clear(SETTING_INVERTED_OVERRIDE)
+  else settings.set(SETTING_INVERTED_OVERRIDE,v) end
+  invertUser=v
   return applyGamma()
-end
-function redshift.toggleInvert()
-  if not running then return end
-  if invertManual~=nil then return redshift.manualInvert()
-  else return redshift.manualInvert(not redshift.isInverted()) end
 end
 
 local function pause()
   log.i('paused')
   screen.restoreGamma()
-  --  settings.set(SETTING_INVERTED,false)
   tmr:stop()
 end
 local function resume()
@@ -129,6 +188,15 @@ local function resume()
   return applyGamma()
 end
 
+--- hs.redshift.stop()
+--- Function
+--- Stops the module and disables color adjustment and color inversion
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function redshift.stop()
   if not running then return end
   pause()
@@ -146,25 +214,53 @@ local function stime(time)
   return sformat('%02d:%02d:%02d',floor(time/3600),floor(time/60)%60,floor(time%60))
 end
 
-function redshift.start(nightTime,pnightTemp,dayTime,pdayTemp,transition,invert,wf)
-  transition=timer.seconds(transition)
-  if transition>14400 then error('max transition time is 4h',2) end
-  nightTime,dayTime=timer.seconds(nightTime),timer.seconds(dayTime)
-  if abs(nightTime-dayTime)<transition or abs(nightTime-dayTime+86400)<transition
-    or abs(nightTime-dayTime-86400)<transition then error('nightTime too close to dayTime',2) end
-  if pnightTemp<1000 or pnightTemp>10000 or pdayTemp<1000 or pdayTemp>10000 then error('invalid color temperature',2) end
-  nightTemp,dayTemp=floor(pnightTemp),floor(pdayTemp)
+tmr=timer.delayed.new(10,applyGamma)
+--- hs.redshift.start(colorTemp,nightStart,nightEnd[,transition[,invertAtNight[,windowfilterDisable[,dayColorTemp]]]])
+--- Function
+--- Sets the schedule and (re)starts the module
+---
+--- Parameters:
+---  * colorTemp - a number indicating the desired color temperature (Kelvin) during the night cycle;
+---    the recommended range is between 3600K and 1400K; lower values (minimum 1000K) result in a more pronounced adjustment
+---  * nightStart - a string in the format "HH:MM" (24-hour clock) or number of seconds after midnight
+---    (see `hs.timer.seconds()`) indicating when the night cycle should start
+---  * nightEnd - a string in the format "HH:MM" (24-hour clock) or number of seconds after midnight
+---    (see `hs.timer.seconds()`) indicating when the night cycle should end
+---  * transition - (optional) a string or number of seconds (see `hs.timer.seconds()`) indicating the duration of
+---    the transition to the night color temperature and back; if omitted, defaults to 1 hour
+---  * invertAtNight - (optional) a boolean indicating whether the colors should be inverted (in addition to
+---    the color temperature shift) during the night; if omitted, defaults to false
+---  * windowfilterDisable - (optional) an `hs.window.filter` instance that will disable color adjustment
+---    (and color inversion) whenever any window is allowed; alternatively, you can just provide a list of application
+---    names (typically media apps and/or apps for color-sensitive work) and a windowfilter will be created
+---    for you that disables color adjustment whenever one of these apps is focused
+---  * dayColorTemp - (optional) a number indicating the desired color temperature (in Kelvin) during the day cycle;
+---    you can use this to maintain some degree of "redshift" during the day as well, or, if desired, you can
+---    specify a value higher than 6500K (up to 10000K) for more bluish colors, although that's not recommended;
+---    if omitted, defaults to 6500K, which disables color adjustment and restores your screens' original color profiles
+---
+--- Returns:
+---  * None
+function redshift.start(nTemp,nStart,nEnd,dur,invert,wf,dTemp)
+  if not dTemp then dTemp=6500 end
+  if nTemp<1000 or nTemp>10000 or dTemp<1000 or dTemp>10000 then error('invalid color temperature',2) end
+  nStart,nEnd=timer.seconds(nStart),timer.seconds(nEnd)
+  dur=timer.seconds(dur or 3600)
+  if dur>14400 then error('max transition time is 4h',2) end
+  if abs(nStart-nEnd)<dur or abs(nStart-nEnd+86400)<dur
+    or abs(nStart-nEnd-86400)<dur then error('nightTime too close to dayTime',2) end
+  nightTemp,dayTemp=floor(nTemp),floor(dTemp)
   redshift.stop()
 
   invertAtNight=invert
-  nightStart,nightEnd=(nightTime-transition/2)%86400,(nightTime+transition/2)%86400
-  dayStart,dayEnd=(dayTime-transition/2)%86400,(dayTime+transition/2)%86400
-  log.f('started: %dK @ %s -> %dK @ %s, %dK @ %s -> %dK @ %s',
-    dayTemp,stime(nightStart),nightTemp,stime(nightEnd),nightTemp,stime(dayStart),dayTemp,stime(dayEnd))
+  nightStart,nightEnd=(nStart-dur/2)%86400,(nStart+dur/2)%86400
+  dayStart,dayEnd=(nEnd-dur/2)%86400,(nEnd+dur/2)%86400
+  log.f('started: %dK @ %s -> %dK @ %s,%s %dK @ %s -> %dK @ %s',
+    dayTemp,stime(nightStart),nightTemp,stime(nightEnd),invert and ' inverted,' or '',nightTemp,stime(dayStart),dayTemp,stime(dayEnd))
   running=true
-  tmr:setDelay(max(1,transition/200))
+  tmr:setDelay(max(1,dur/200))
   screenWatcher=screen.watcher.new(function()tmr:start(5)end):start()
-  invertManual=settings.get(SETTING_INVERTED_MANUAL)
+  invertUser=settings.get(SETTING_INVERTED_OVERRIDE)
   applyGamma()
   if wf~=nil then
     if windowfilter.iswf(wf) then wfDisable=wf
@@ -181,7 +277,6 @@ function redshift.start(nightTime,pnightTemp,dayTime,pdayTemp,transition,invert,
     end
     wfDisable:subscribe(windowfilter.hasWindow,pause,true):subscribe(windowfilter.hasNoWindows,resume)
   end
-
 end
 
 COLORRAMP={ -- from https://github.com/jonls/redshift/blob/master/src/colorramp.c
