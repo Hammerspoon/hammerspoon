@@ -1,6 +1,16 @@
 --- === hs.redshift ===
 ---
 --- Inverts and/or lowers the color temperature of the screen(s) on a schedule, for a more pleasant experience at night
+---
+--- Usage:
+--- ```
+--- -- make a windowfilterDisable for redshift: VLC, Photos and screensaver/login window will disable color adjustment and inversion
+--- local wfRedshift=hs.window.filter.new({VLC={focused=true},Photos={focused=true},loginwindow={visible=true,allowRoles='*'}},'wf-redshift')
+--- -- start redshift: 2800K + inverted from 21 to 7, very long transition duration (19->23 and 5->9)
+--- hs.redshift.start(2800,'21:00','7:00','4h',true,wfRedshift)
+--- -- allow manual control of inverted colors
+--- bind(HYPER,'f1','Invert',hs.redshift.toggleInvert)
+--- ```
 
 local screen=require'hs.screen'
 local timer=require'hs.timer'
@@ -12,7 +22,8 @@ local redshift={setLogLevel=log.setLogLevel} -- module
 local type,ipairs,pairs,next,floor,abs,max,sformat=type,ipairs,pairs,next,math.floor,math.abs,math.max,string.format
 
 local SETTING_INVERTED_OVERRIDE='hs.redshift.inverted.override'
-local BLACKPOINT = {red=0.00000001,green=0.00000001,blue=0.00000001}
+--local BLACKPOINT = {red=0.00000001,green=0.00000001,blue=0.00000001}
+local BLACKPOINT = {red=0,green=0,blue=0}
 local COLORRAMP
 
 local running,nightStart,nightEnd,dayStart,dayEnd,nightTemp,dayTemp
@@ -55,7 +66,6 @@ applyGamma=function(testtime)
   log.df('set color temperature %dK (gamma %d,%d,%d)%s',floor(temp),round(gamma.red*100),
     round(gamma.green*100),round(gamma.blue*100),invert and (' - inverted by '..invert) or '')
   for _,scr in ipairs(screen.allScreens()) do
-    --    scr:setGamma(gamma,BLACKPOINT)
     scr:setGamma(invert and BLACKPOINT or gamma,invert and gamma or BLACKPOINT)
   end
   if invert~=prevInvert then
@@ -335,8 +345,8 @@ COLORRAMP={ -- from https://github.com/jonls/redshift/blob/master/src/colorramp.
   {1.00000000,  0.98305189,  0.96640795},
   {1.00000000,  0.98883326,  0.97779486},
   {1.00000000,  0.99448139,  0.98899179},
-  --  {1.00000000,  1.00000000,  1.00000000}, -- 6500K
-  {0.99999997,  0.99999997,  0.99999997}, --6500K
+  {1.00000000,  1.00000000,  1.00000000}, -- 6500K
+  --  {0.99999997,  0.99999997,  0.99999997}, --6500K
   {0.98947904,  0.99348723,  1.00000000},
   {0.97940448,  0.98722715,  1.00000000},
   {0.96975025,  0.98120637,  1.00000000},
