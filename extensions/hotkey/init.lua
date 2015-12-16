@@ -113,8 +113,8 @@ local function delete(self)
   if not idx or not hotkeys[idx] then log.w('The hotkey has already been deleted') return end --?
   disable(self)
   for i,hk in ipairs(hotkeys[idx]) do if hk==self then tremove(hotkeys[idx],i) break end end
-  for k in pairs(self) do self[k]=nil end --gc
   log.i('Deleted hotkey '..self.msg)
+  for k in pairs(self) do self[k]=nil end --gc
 end
 
 

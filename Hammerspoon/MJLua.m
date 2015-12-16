@@ -180,6 +180,8 @@ static int automaticallyChecksForUpdates(lua_State *L) {
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
         if ([[NSBundle bundleWithPath:frameworkPath] load]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
             id sharedUpdater = [NSClassFromString(@"SUUpdater")  performSelector:@selector(sharedUpdater)] ;
             if (lua_isboolean(L, 1)) {
 
@@ -200,6 +202,7 @@ static int automaticallyChecksForUpdates(lua_State *L) {
 
             }
             lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
+#pragma clang diagnostic pop
         } else {
             printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
             lua_pushboolean(L, NO) ;
@@ -227,9 +230,12 @@ static int checkForUpdates(lua_State *L) {
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
         if ([[NSBundle bundleWithPath:frameworkPath] load]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
             id sharedUpdater = [NSClassFromString(@"SUUpdater")  performSelector:@selector(sharedUpdater)] ;
 
             [sharedUpdater performSelector:@selector(checkForUpdates:) withObject:nil] ;
+#pragma clang diagnostic pop
         } else {
             printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
         }

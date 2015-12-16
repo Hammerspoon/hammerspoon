@@ -197,6 +197,31 @@ drawingObject.behaviorAsLabels = function(obj)
     end})
 end
 
+--- hs.drawing.arc(centerPoint, radius, startAngle, endAngle) -> drawingObject or nil
+--- Constructor
+--- Creates a new arc object
+---
+--- Parameters:
+---  * centerPoint - A point-table containing the center of the circle used to define the arc
+---  * radius      - The radius of the circle used to define the arc
+---  * startAngle  - The starting angle of the arc, measured in degrees clockwise from the y-axis.
+---  * endAngle    - The ending angle of the arc, measured in degrees clockwise from the y-axis.
+---
+--- Returns:
+---  * An `hs.drawing` arc object, or nil if an error occurs
+---
+--- Notes:
+---  * This constructor is actually a wrapper for the `hs.drawing.ellipticalArc` constructor.
+module.arc = function(centerPoint, radius, startAngle, endAngle)
+    local rect = {
+        x = (centerPoint.x or 0.0) - radius,
+        y = (centerPoint.y or 0.0) - radius,
+        h = (radius * 2.0) or 0.0,
+        w = (radius * 2.0) or 0.0
+    }
+    return module.ellipticalArc(rect, startAngle, endAngle)
+end
+
 module.fontNames =           styledtext.fontNames
 module.fontNamesWithTraits = styledtext.fontNamesWithTraits
 module.fontTraits =          styledtext.fontTraits

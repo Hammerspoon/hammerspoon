@@ -61,10 +61,24 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
         if (!fsPath) {
             NSLog(@"Unable to find init.lua in Hammerspoon Tests.xctest. We're about to crash, sorry!");
+            abort();
         } else {
             NSLog(@"testing init.lua");
         }
         MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:fsPath length:strlen(fsPath)];
+    } else if ([[[NSProcessInfo processInfo] environment] objectForKey:@"XCTESTING"]) {
+        NSLog(@"in UI testing mode");
+        NSString *initPath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/HammerspoonUITests-Runner.app/Contents/PlugIns/HammerspoonUITests.xctest/Contents/Resources/init.lua"];
+        const char *fsPath = [initPath fileSystemRepresentation];
+
+        if (!fsPath) {
+            NSLog(@"Unable to find init.lua in Hammerspoon UI Tests. We're about to crash, sorry!");
+            abort();
+        } else {
+            NSLog(@"UI testing init.lua");
+        }
+        MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:fsPath length:strlen(fsPath)];
+        [self showConsoleWindow:nil];
     } else {
         NSString* userMJConfigFile = [[NSUserDefaults standardUserDefaults] stringForKey:@"MJConfigFile"];
         if (userMJConfigFile) MJConfigFile = userMJConfigFile ;

@@ -73,7 +73,10 @@
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle bundleForClass:[self class]] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
         if ([[NSBundle bundleWithPath:frameworkPath] load]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
             id updater = [NSClassFromString(@"SUUpdater") performSelector:@selector(sharedUpdater)];
+#pragma clang diagnostic pop
             [self.updatesCheckbox bind:@"value" toObject:updater withKeyPath:@"automaticallyChecksForUpdates" options:nil];
         } else {
             NSLog(@"Could not load %@ while trying to construct SUUpdater!", frameworkPath);

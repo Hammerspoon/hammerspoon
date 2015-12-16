@@ -35,9 +35,7 @@ typedef struct _drawing_t {
 @interface HSDrawingViewCircle : HSDrawingView
 @end
 
-@interface HSDrawingViewArc : HSDrawingView
-@property NSPoint center;
-@property CGFloat radius;
+@interface HSDrawingViewEllipticalArc : HSDrawingView
 @property CGFloat startAngle;
 @property CGFloat endAngle;
 @end

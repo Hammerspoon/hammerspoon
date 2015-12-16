@@ -149,8 +149,8 @@ static int task_new(lua_State *L) {
 /// Method
 /// Set or change a callback function for a task.
 ///
-/// Paramaters:
-///  * fn - the function to be called when the task completes or is terminated, or an explicit nil if you wish to remove an existing callback.
+/// Parameters:
+///  * fn - A function to be called when the task completes or is terminated, or nil to remove an existing callback
 ///
 /// Returns:
 ///  * the hs.task object

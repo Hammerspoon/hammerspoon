@@ -22,10 +22,10 @@
          </BuildActionEntry>
          <BuildActionEntry
             buildForTesting = "YES"
-            buildForRunning = "YES"
+            buildForRunning = "NO"
             buildForProfiling = "NO"
             buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
+            buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D02F95231A00221C00E28BB2"
@@ -40,8 +40,19 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      enableAddressSanitizer = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4FEF59591B29CE06002344A7"
+               BuildableName = "LuaSkinTests.xctest"
+               BlueprintName = "LuaSkinTests"
+               ReferencedContainer = "container:LuaSkin/LuaSkin.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
          <TestableReference
             skipped = "NO">
             <BuildableReference
@@ -56,10 +67,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4FEF59591B29CE06002344A7"
-               BuildableName = "LuaSkinTests.xctest"
-               BlueprintName = "LuaSkinTests"
-               ReferencedContainer = "container:LuaSkin/LuaSkin.xcodeproj">
+               BlueprintIdentifier = "4F20B5281C1F1C5B00F52437"
+               BuildableName = "Hammerspoon UI Tests.xctest"
+               BlueprintName = "Hammerspoon UI Tests"
+               ReferencedContainer = "container:Hammerspoon.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -73,6 +84,11 @@
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
+         <AdditionalOption
+            key = "NSZombieEnabled"
+            value = "YES"
+            isEnabled = "YES">
+         </AdditionalOption>
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
