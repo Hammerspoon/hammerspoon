@@ -447,14 +447,14 @@ static int screen_gammaSet(lua_State* L) {
     lua_getfield(L, 2, "blue");
     whitePoint[2] = lua_tonumber(L, -1);
     lua_pop(L, 1);
-
+    /*
     if (whitePoint[0] == 0.0 && whitePoint[1] == 0.0 && whitePoint[2] == 0.0) {
         CLS_NSLOG(@"screen_gammaSet: whitepoint is 0/0/0. Forcing to 1/1/1");
         whitePoint[0] = 1.0;
         whitePoint[1] = 1.0;
         whitePoint[2] = 1.0;
     }
-
+    */
     lua_getfield(L, 3, "red");
     blackPoint[0] = lua_tonumber(L, -1);
     lua_pop(L, 1);
@@ -466,14 +466,14 @@ static int screen_gammaSet(lua_State* L) {
     lua_getfield(L, 3, "blue");
     blackPoint[2] = lua_tonumber(L, -1);
     lua_pop(L, 1);
-
+    /*
     if (blackPoint[0] == 1.0 && blackPoint[1] == 1.0 && blackPoint[2] == 1.0) {
         CLS_NSLOG(@"screen_gammaSet: blackpoint is 1/1/1. Forcing to 0/0/0");
         blackPoint[0] = 0.0;
         blackPoint[1] = 0.0;
         blackPoint[2] = 0.0;
     }
-
+    */
     //CLS_NSLOG(@"screen_gammaSet: Fetching original gamma for display: %i", screen_id);
     NSDictionary *originalGamma = [originalGammas objectForKey:[NSNumber numberWithInt:screen_id]];
     if (!originalGamma) {
