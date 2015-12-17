@@ -9,7 +9,7 @@
 --- -- start redshift: 2800K + inverted from 21 to 7, very long transition duration (19->23 and 5->9)
 --- hs.redshift.start(2800,'21:00','7:00','4h',true,wfRedshift)
 --- -- allow manual control of inverted colors
---- bind(HYPER,'f1','Invert',hs.redshift.toggleInvert)
+--- hs.hotkey.bind(HYPER,'f1','Invert',hs.redshift.toggleInvert)
 --- ```
 
 local screen=require'hs.screen'
