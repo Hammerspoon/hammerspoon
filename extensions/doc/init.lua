@@ -144,6 +144,13 @@ local validateJSONFile = function(jsonFile)
     end
 end
 
+local fixLinks = function(text)
+    -- replace internal link references which work well in html and dash with something
+    -- more appropriate to inline textual help
+    local content, count = text:gsub("%[([^%]\r\n]+)%]%(#([^%)\r\n]+)%)", "`%1`")
+    return content
+end
+
 -- Public interface ------------------------------------------------------
 
 --- hs.doc.validateJSONFile(jsonfile) -> status, message|table
@@ -154,7 +161,7 @@ end
 ---  * jsonfile - A string containing the location of a JSON file
 ---
 --- Returns:
----  * status - Boolean flag indicating if the file was registered or not.
+---  * status - Boolean flag indicating if the file was validated or not.
 ---  * message|table - If the file did not contain valid JSON data, then a message indicating the error is returned; otherwise the parsed JSON data is returned as a table.
 module.validateJSONFile = function(jsonFile)
     local f = io.open(jsonFile)
@@ -311,6 +318,7 @@ function module.fromJSONFile(docsfile)
   end
   local content = f:read("*a")
   f:close()
+  content = fixLinks(content)
   return internalBuild(json.decode(content))
 end
 
@@ -340,6 +348,7 @@ function module.fromRegisteredFiles()
     end
     local content = f:read("*a")
     f:close()
+    content = fixLinks(content)
     for _, j in pairs(json.decode(content)) do
       table.insert(docData, j)
     end
