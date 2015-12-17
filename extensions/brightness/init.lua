@@ -138,6 +138,7 @@ end
 
 local forcedLux,prevLux
 local function getAmbient()
+  if not next(autoScreens) then return end
   local actualLux=forcedLux or bri.ambient()
   if not prevLux then prevLux=actualLux end
   prevLux=forcedLux or prevLux
@@ -169,8 +170,8 @@ end
 
 tmr=timer.delayed.new(30,getAmbient)
 local wfDisable,modulewfDisable
-local function pause() forcedLux=100000 getAmbient() end
-local function resume() forcedLux=nil prevLux=nil getAmbient() end
+local function pause() log.i('DDCauto paused')forcedLux=100000 getAmbient() tmr:stop() end
+local function resume() log.i('DDCauto resumed')forcedLux=nil prevLux=nil getAmbient() end
 local function getScreens()
   local t={}
   for scr,args in pairs(autoScreensRequested) do
@@ -191,14 +192,15 @@ local function getScreens()
       args.lastBri=settings.get(SETTING_DDCSET..id..'.bri') or floor((minv.bri+maxv.bri)/2)
       args.lastCon=settings.get(SETTING_DDCSET..id..'.con') or floor((minv.con+maxv.con)/2)
       t[id]=args
-      if not autoScreens[id] then log.f('autobrightness started for screen %s',args.screenName or '???') end
+      if not autoScreens[id] then log.f('DDCauto started for screen %s',args.screenName or '???') end
       autoScreens[id]=nil
     end
   end
   for id,args in pairs(autoScreens) do
-    log.f('autobrightness stopped for screen %s',args.screenName or '???')
+    log.f('DDCauto stopped for screen %s',args.screenName or '???')
   end
   autoScreens=t
+  --  running=next(autoScreens) and true or false
   if next(autoScreens) then if not tmr:running() then
     log.i('start reading ambient light sensor')
     prevLux=nil
@@ -229,6 +231,22 @@ local function getScreens()
   end
 end
 local tmrScreens=timer.delayed.new(8,getScreens)
+
+--- hs.brightness.toggleDDCauto()
+--- Function
+--- Pauses or resumes automatic control of brightness/contrast for all screens
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * You should bind this function to a hotkey: `hs.hotkey.bind(HYPER,'f2','Auto Brightness',hs.brightness.toggleDDCauto)`
+function bri.toggleDDCauto()
+  if tmr:running() then return pause() else return resume() end
+end
 
 --- hs.brightness.DDCauto(screen,values)
 --- Function
