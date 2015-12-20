@@ -19,8 +19,6 @@ int refTable;
 ///
 /// Core Hammerspoon functionality
 
-pthread_t mainthreadid;
-
 static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
@@ -114,8 +112,7 @@ static int core_openconsole(lua_State* L) {
 /// Reloads your init-file in a fresh Lua environment.
 static int core_reload(lua_State* L) {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[LuaSkin shared] resetLuaState];
-        MJLuaSetup();
+        MJLuaReplace();
     });
     return 0;
 }
@@ -320,8 +317,9 @@ static int core_cleanUTF8(lua_State *L) {
 }
 
 static int core_exit(lua_State* L) {
-    if (lua_toboolean(L, 2))
-        lua_close(L);
+    if (lua_toboolean(L, 2)) {
+        MJLuaDestroyE();
+    }
 
     [[NSApplication sharedApplication] terminate: nil];
     return 0; // lol
@@ -370,9 +368,41 @@ static luaL_Reg corelib[] = {
     {NULL, NULL}
 };
 
-void MJLuaSetup(void) {
-    mainthreadid = pthread_self();
-    MJLuaState = [LuaSkin shared];
+#pragma mark - Lua environment lifecycle, high level
+
+// Create and configure a Lua environment
+void MJLuaCreate(void) {
+    MJLuaAlloc();
+    MJLuaInit();
+}
+
+// Deconfigure and destroy a Lua environment
+void MJLuaDestroy(void) {
+    MJLuaDeinit();
+    MJLuaDealloc();
+}
+
+// Deconfigure and destroy a Lua environment and create its replacement
+void MJLuaReplace(void) {
+    MJLuaDeinit();
+    MJLuaDealloc();
+    MJLuaAlloc();
+    MJLuaInit();
+}
+
+# pragma mark - Lua environment lifecycle, low level
+
+// Create a Lua environment with LuaSkin
+void MJLuaAlloc(void) {
+    LuaSkin *skin = [LuaSkin shared];
+    if (!skin.L) {
+        [skin createLuaState];
+    }
+    MJLuaState = skin;
+}
+
+// Configure a Lua environment that has already been created by LuaSkin
+void MJLuaInit(void) {
     lua_State* L = MJLuaState.L;
 
     refTable = [MJLuaState registerLibrary:corelib metaFunctions:nil];
@@ -405,8 +435,28 @@ void MJLuaSetup(void) {
     evalfn = [MJLuaState luaRef:refTable];
 }
 
-void MJLuaTeardown(void) {
-    [MJLuaState destroyLuaState];
+static int callShutdownCallback(lua_State *L) {
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "shutdownCallback");
+
+    if (lua_type(L, -1) == LUA_TFUNCTION) {
+        [MJLuaState protectedCallAndTraceback:0 nresults:0];
+    }
+
+    return 0;
+}
+
+// Deconfigure a Lua environment that will shortly be destroyed by LuaSkin
+void MJLuaDeinit(void) {
+    LuaSkin *skin = MJLuaState;
+
+    callShutdownCallback(skin.L);
+}
+
+// Destroy a Lua environment with LuaSiin
+void MJLuaDealloc(void) {
+    LuaSkin *skin = MJLuaState;
+    [skin destroyLuaState];
 }
 
 NSString* MJLuaRunString(NSString* command) {

@@ -101,8 +101,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     MJMenuIconSetup(self.menuBarMenu);
     MJDockIconSetup();
     [[MJConsoleWindowController singleton] setup];
-    [LuaSkin shared];
-    MJLuaSetup();
+    MJLuaCreate();
 
     // FIXME: Do we care about showing the prefs on the first run of each new version? (Ng does not care)
     if (MJFirstRunForCurrentVersion() || !MJAccessibilityIsEnabled())
@@ -120,8 +119,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (IBAction) reloadConfig:(id)sender {
-    [[LuaSkin shared] resetLuaState];
-    MJLuaSetup();
+    MJLuaReplace();
 }
 
 - (IBAction) showConsoleWindow:(id)sender {
@@ -140,7 +138,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (IBAction) quitHammerspoon:(id)sender {
-    MJLuaTeardown();
+    MJLuaDeinit();
     [[NSApplication sharedApplication] terminate:nil];
 }
 

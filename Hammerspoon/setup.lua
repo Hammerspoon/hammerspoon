@@ -21,6 +21,14 @@ end
 --- A string containing Hammerspoon's configuration directory. Typically `~/.hammerspoon/`
 hs.configdir = configdir
 
+--- hs.shutdownCallback
+--- Variable
+--- An optional function that will be called when the Lua environment is being destroyed (either because Hammerspoon is exiting or reloading its config)
+--- Notes:
+---  * This function should not perform any asynchronous tasks
+---  * You do not need to fastidiously destroy objects you have created, this callback exists purely for utility reasons (e.g. serialising state, destroying system resources that will not be released by normal Lua garbage collection processes, etc)
+hs.shutdownCallback = nil
+
 --- hs.docstrings_json_file
 --- Constant
 --- A string containing the full path to the `docs.json` file inside Hammerspoon's app bundle. This contains the full Hammerspoon API documentation and can be accessed in the Console using `help("someAPI")`. It can also be loaded and processed by the `hs.doc` extension
