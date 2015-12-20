@@ -1,4 +1,4 @@
-return function(...)
+return {setup=function(...)
   local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
 
   -- setup core functions
@@ -287,4 +287,4 @@ return function(...)
   print "-- Done."
 
   return runstring
-end
+end}

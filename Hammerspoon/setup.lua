@@ -299,4 +299,4 @@ print("-- package.cpath:")
 for part in string.gmatch(package.cpath, "([^;]+)") do
   print("      "..part)
 end
-return require'hs._coresetup'(...)
+return require'hs._coresetup'.setup(...)
