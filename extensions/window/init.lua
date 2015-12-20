@@ -855,7 +855,7 @@ end
 --- (See `hs.window:moveOneScreenEast()`)
 
 do
-  local submodules={filter=true,layout=true,tiling=true}
+  local submodules={filter=true,layout=true,tiling=true,switcher=true,highlight=true}
   local function loadSubModule(k)
     print("-- Loading extensions: window."..k)
     window[k]=require('hs.window.'..k)
