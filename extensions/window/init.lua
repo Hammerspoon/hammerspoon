@@ -865,7 +865,7 @@ do
   if mt.__index==uielement then
     --inject "lazy loading" for submodules
     mt.__index=function(t,k)
-      if submodules[k] then return loadSubModule(k)
+      if t==window and submodules[k] then return loadSubModule(k)
       else return uielement[k] end
     end
     -- whoever gets it first (window vs application)

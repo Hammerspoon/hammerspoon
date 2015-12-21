@@ -426,6 +426,10 @@ void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSu
 ///
 /// Returns:
 ///  * A boolean, true if the gamma settings were applied, false if an error occurred
+///
+/// Notes:
+///  * Warning: if whitepoint==blackpoint (or even if they're close enough) you won't be able to
+///    see a thing, so excercise caution.
 static int screen_gammaSet(lua_State* L) {
     NSScreen* screen = get_screen_arg(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
@@ -448,13 +452,6 @@ static int screen_gammaSet(lua_State* L) {
     whitePoint[2] = lua_tonumber(L, -1);
     lua_pop(L, 1);
 
-    if (whitePoint[0] == 0.0 && whitePoint[1] == 0.0 && whitePoint[2] == 0.0) {
-        CLS_NSLOG(@"screen_gammaSet: whitepoint is 0/0/0. Forcing to 1/1/1");
-        whitePoint[0] = 1.0;
-        whitePoint[1] = 1.0;
-        whitePoint[2] = 1.0;
-    }
-
     lua_getfield(L, 3, "red");
     blackPoint[0] = lua_tonumber(L, -1);
     lua_pop(L, 1);
@@ -466,13 +463,6 @@ static int screen_gammaSet(lua_State* L) {
     lua_getfield(L, 3, "blue");
     blackPoint[2] = lua_tonumber(L, -1);
     lua_pop(L, 1);
-
-    if (blackPoint[0] == 1.0 && blackPoint[1] == 1.0 && blackPoint[2] == 1.0) {
-        CLS_NSLOG(@"screen_gammaSet: blackpoint is 1/1/1. Forcing to 0/0/0");
-        blackPoint[0] = 0.0;
-        blackPoint[1] = 0.0;
-        blackPoint[2] = 0.0;
-    }
 
     //CLS_NSLOG(@"screen_gammaSet: Fetching original gamma for display: %i", screen_id);
     NSDictionary *originalGamma = [originalGammas objectForKey:[NSNumber numberWithInt:screen_id]];
