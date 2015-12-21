@@ -61,6 +61,7 @@
 		4F6345EA1B7789E30053B024 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F6345EB1B7795AA0053B024 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F64D8BF1B724C4B00FC4C65 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F64D8BE1B724C4B00FC4C65 /* internal.m */; };
+		4F6689E11C2852B500E48AF1 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F6689E01C2852B500E48AF1 /* init.lua */; };
 		4F6B3EA21B73D6D300B2A4DE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4F6B3EA31B73D6D300B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F6B3EAE1B73D79100B2A4DE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B3EAD1B73D79100B2A4DE /* internal.m */; };
@@ -806,6 +807,7 @@
 		4F5050311B97A7B9009E2B14 /* MJAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJAppDelegate.h; sourceTree = "<group>"; };
 		4F64D8BD1B724C4B00FC4C65 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/alert/init.lua; sourceTree = "<group>"; };
 		4F64D8BE1B724C4B00FC4C65 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/alert/internal.m; sourceTree = "<group>"; };
+		4F6689E01C2852B500E48AF1 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/_coresetup/init.lua; sourceTree = "<group>"; };
 		4F6B3E9B1B73D60000B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/inspect/init.lua; sourceTree = "<group>"; };
 		4F6B3E9D1B73D6A500B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/itunes/init.lua; sourceTree = "<group>"; };
 		4F6B3EA81B73D6D300B2A4DE /* libjson.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libjson.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1816,6 +1818,14 @@
 			name = alert;
 			sourceTree = "<group>";
 		};
+		4F6689DF1C2852A100E48AF1 /* _coresetup */ = {
+			isa = PBXGroup;
+			children = (
+				4F6689E01C2852B500E48AF1 /* init.lua */,
+			);
+			name = _coresetup;
+			sourceTree = "<group>";
+		};
 		4F6B3E9A1B73D5F300B2A4DE /* inspect */ = {
 			isa = PBXGroup;
 			children = (
@@ -2018,6 +2028,7 @@
 		4F98506D1B722C4100F7E909 /* extensions */ = {
 			isa = PBXGroup;
 			children = (
+				4F6689DF1C2852A100E48AF1 /* _coresetup */,
 				4F9850801B722C6C00F7E909 /* hammerspoon.h */,
 				4F64D8BC1B724C3A00FC4C65 /* alert */,
 				4FDE05F71B73568E00E9E8EE /* appfinder */,
@@ -4304,6 +4315,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F6689E11C2852B500E48AF1 /* init.lua in Resources */,
 				4FDE05F91B7370E100E9E8EE /* hammerspoon.h in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
