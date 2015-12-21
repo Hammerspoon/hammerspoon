@@ -314,7 +314,7 @@ static int core_cleanUTF8(lua_State *L) {
 
 static int core_exit(lua_State* L) {
     if (lua_toboolean(L, 2)) {
-        MJLuaDestroyE();
+        MJLuaDestroy();
     }
 
     [[NSApplication sharedApplication] terminate: nil];
