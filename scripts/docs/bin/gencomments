@@ -10,6 +10,7 @@ partialcomment = []
 incomment = false
 
 STDIN.read.split("\n").each do |line|
+  line = line.lstrip()
   islua  = line.start_with?('-'*3) and !line.start_with?('-'*4)
   isobjc = line.start_with?('/'*3) and !line.start_with?('/'*4)
 

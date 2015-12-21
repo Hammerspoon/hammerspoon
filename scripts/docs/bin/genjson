@@ -4,14 +4,14 @@ require 'json'
 comments = JSON.load(STDIN.read)
 
 newmod  = ->(c) {{name: c[0].gsub('=', '').strip,
-                  desc: c[2].strip,
+                  desc: (c[2] || "UNKNOWN DESC").strip,
                   doc: c[1..-1].join("\n").strip,
                   items: []}}
 
 newitem = ->(c) {{type: c[1],
                   name: nil,
                   def: c[0],
-                  doc: c[2..-1].join("\n").strip}}
+                  doc: (c[2..-1] || ["UNKNOWN DOC"]).join("\n").strip}}
 
 ismod = ->(c) { c[0].include?('===') }
 mods  = comments.select(&ismod).map(&newmod)
