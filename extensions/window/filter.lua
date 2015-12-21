@@ -703,7 +703,7 @@ function windowfilter.new(fn,logname,loglevel)
   local mt=getmetatable(fn) if mt and mt.__index==WF then return fn end -- no copy-on-new
   local o = setmetatable({filters={},events={},windows={},pending={},
     log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel},
-  {__index=WF,__tostring=__tostring})
+  {__index=WF,__tostring=__tostring,__gc=WF.delete})
   if logname then o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel end
   if type(fn)=='function' then
     o.log.i('new windowfilter, custom function')
