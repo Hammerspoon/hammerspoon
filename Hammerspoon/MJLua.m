@@ -15,10 +15,6 @@ static LuaSkin* MJLuaState;
 static int evalfn;
 int refTable;
 
-/// === hs ===
-///
-/// Core Hammerspoon functionality
-
 static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;

@@ -1,3 +1,7 @@
+--- === hs ===
+---
+--- Core Hammerspoon functionality
+
 return {setup=function(...)
   local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
 
