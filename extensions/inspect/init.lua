@@ -65,9 +65,9 @@ end
 
 local function isSequenceKey(k, length)
   return type(k) == 'number'
-     and 1 <= k
-     and k <= length
-     and math.floor(k) == k
+    and 1 <= k
+    and k <= length
+    and math.floor(k) == k
 end
 
 local defaultTypeOrders = {
@@ -267,7 +267,7 @@ function Inspector:putTable(t)
         count = count + 1
       end
 
-      if mt then
+      if self.includeMetatables and mt then
         if count > 0 then self:puts(',') end
         self:tabify()
         self:puts('<metatable> = ')
@@ -275,7 +275,7 @@ function Inspector:putTable(t)
       end
     end)
 
-    if #nonSequentialKeys > 0 or mt then -- result is multi-lined. Justify closing }
+    if #nonSequentialKeys > 0 or (self.includeMetatables and mt) then -- result is multi-lined. Justify closing }
       self:tabify()
     elseif length > 0 then -- array tables have one extra space before closing }
       self:puts(' ')
@@ -296,6 +296,10 @@ function Inspector:putValue(v)
     self:putTable(v)
   else
     self:puts('<',tv,' ',self:getId(v),'>')
+    local toStringResult = getToStringResultSafely(v, getmetatable(v))
+    if toStringResult then
+      self:puts(' -- ', escape(toStringResult))
+    end
   end
 end
 
@@ -310,6 +314,7 @@ end
 ---   * newline - A string to use for line breaks. Defaults to `\n`
 ---   * indent - A string to use for indentation. Defaults to `  ` (two spaces)
 ---   * process - A function that will be called for each item. It should accept two arguments, `item` (the current item being processed) and `path` (the item's position in the variable being inspected. The function should either return a processed form of the variable, the original variable itself if it requires no processing, or `nil` to remove the item from the inspected output.
+---   * metatables - If `true`, include (and traverse) metatables
 ---
 --- Returns:
 ---  * A string containing the human readable version of `variable`
@@ -324,6 +329,7 @@ function inspect.inspect(root, options)
   local newline = options.newline or '\n'
   local indent  = options.indent  or '  '
   local process = options.process
+  local includeMetatables = options.metatables
 
   if process then
     root = processRecursive(process, root, {})
@@ -337,7 +343,8 @@ function inspect.inspect(root, options)
     maxIds           = setmetatable({}, maxIdsMetaTable),
     newline          = newline,
     indent           = indent,
-    tableAppearances = countTableAppearances(root)
+    tableAppearances = countTableAppearances(root),
+    includeMetatables= includeMetatables
   }, Inspector_mt)
 
   inspector:putValue(root)

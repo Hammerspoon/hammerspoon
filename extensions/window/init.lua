@@ -12,7 +12,7 @@ local geometry = require "hs.geometry"
 local gtype=geometry.type
 local screen = require "hs.screen"
 local timer = require "hs.timer"
-require "hs.image" -- make sure we know about HSImage userdata type
+local image=require "hs.image" -- make sure we know about HSImage userdata type
 local pairs,ipairs,next,min,max,abs,cos,type = pairs,ipairs,next,math.min,math.max,math.abs,math.cos,type
 local tinsert,tremove,tsort,tunpack,tpack = table.insert,table.remove,table.sort,table.unpack,table.pack
 --- hs.window.animationDuration (number)
@@ -854,23 +854,23 @@ end
 ---
 --- (See `hs.window:moveOneScreenEast()`)
 
-
-package.loaded[...]=window
-window.filter=require'hs.window.filter'
-window.layout=require'hs.window.layout'
-window.tiling=require'hs.window.tiling'
---window.switcher=require'hs.window.switcher'
 do
+  local submodules={filter=true,layout=true,tiling=true,switcher=true,highlight=true}
+  local function loadSubModule(k)
+    print("-- Loading extensions: window."..k)
+    window[k]=require('hs.window.'..k)
+    return window[k]
+  end
   local mt=getmetatable(window)
-  --[[ this (lazy "autoload") won't work, objc wants the first metatable for objects
-  setmetatable(window,{
-    __call=function(_,...)return window.find(...)end,
-    __index=function(t,k)
-      if k=='filter' then window.filter=require'hs.window.filter' return window.filter
-      else return mt[k] end
-    end})
-    --]]
-  if not mt.__call then mt.__call=function(t,...)if t.find then return t.find(...) else error('cannot call uielement',2) end end end
+  if mt.__index==uielement then
+    --inject "lazy loading" for submodules
+    mt.__index=function(t,k)
+      if submodules[k] then return loadSubModule(k)
+      else return uielement[k] end
+    end
+    -- whoever gets it first (window vs application)
+    if not mt.__call then mt.__call=function(t,...) return t.find(...) end end
+  end
 end
 
 return window
