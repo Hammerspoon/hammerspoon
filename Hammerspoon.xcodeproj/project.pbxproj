@@ -61,8 +61,6 @@
 		4F6345EA1B7789E30053B024 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F6345EB1B7795AA0053B024 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F64D8BF1B724C4B00FC4C65 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F64D8BE1B724C4B00FC4C65 /* internal.m */; };
-		4F6689E11C2852B500E48AF1 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F6689E01C2852B500E48AF1 /* init.lua */; };
-		4F6689E41C288BAA00E48AF1 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F6689E31C288BAA00E48AF1 /* init.lua */; };
 		4F6B3EA21B73D6D300B2A4DE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4F6B3EA31B73D6D300B2A4DE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F6B3EAE1B73D79100B2A4DE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B3EAD1B73D79100B2A4DE /* internal.m */; };
@@ -4326,7 +4324,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F6689E11C2852B500E48AF1 /* init.lua in Resources */,
 				4FDE05F91B7370E100E9E8EE /* hammerspoon.h in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
@@ -4335,7 +4332,6 @@
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
-				4F6689E41C288BAA00E48AF1 /* init.lua in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4434,7 +4430,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -eux\n\nexport HS_DST=\"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs\"\nexport HS_MODULES=\"alert applescript application audiodevice base64 battery brightness caffeinate console crash dockicon drawing eventtap fs hash hints host hotkey http httpserver image ipc javascript json keycodes location menubar milight mouse notify pasteboard pathwatcher screen settings sound speech styledtext task timer uielement urlevent usb webview wifi window\"\nexport HS_WATCHERS=\"application audiodevice battery caffeinate screen spaces usb wifi\"\nexport HS_LUAONLY=\"_coresetup appfinder expose fnutils geometry grid inspect itunes layout logger messages mjomatic redshift spotify spaces tabs utf8 doc\"\n\n# First, copy all of our init.lua's into the destination bundle\nfor hs_lua in ${HS_LUAONLY} ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_lua}\"\n  cp -av \"${SRCROOT}/extensions/${hs_lua}/init.lua\" \"${HS_DST}/${hs_lua}/init.lua\"\ndone\n\n# Now, copy all of our internal.so's\nfor hs_module in ${HS_MODULES} ; do\n  mkdir -pv \"${HS_DST}/${hs_module}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_module}.dylib\" \"${HS_DST}/${hs_module}/internal.so\"\ndone\n\n# Now, copy our watcher.so's\nfor hs_watcher in ${HS_WATCHERS} ; do\n  mkdir -pv \"${HS_DST}/${hs_watcher}\"\n  cp -av \"${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib\" \"${HS_DST}/${hs_watcher}/watcher.so\"\ndone\n\n# Special copier for hs.doc\ncp -av \"${SRCROOT}/extensions/doc/lua.json\" \"${HS_DST}/doc/lua.json\"\n\n# Special copier for hs.eventtap.event\ncp -av \"${BUILT_PRODUCTS_DIR}/libeventtapevent.dylib\" \"${HS_DST}/eventtap/event.so\"\n\n# Special copier for hs.drawing.color\nmkdir -pv \"${HS_DST}/drawing/color\"\ncp -av \"${SRCROOT}/extensions/drawing/color/init.lua\" \"${HS_DST}/drawing/color/init.lua\"\ncp -av \"${BUILT_PRODUCTS_DIR}/libdrawing_color.dylib\" \"${HS_DST}/drawing/color/internal.so\"\n\n# Special copier for hs.ipc\nmkdir -pv \"${HS_DST}/ipc/bin\"\nmkdir -pv \"${HS_DST}/ipc/share/man/man1\"\ncp -av \"${SRCROOT}/extensions/ipc/cli/hs.man\" \"${HS_DST}/ipc/share/man/man1/hs.1\"\ncp -av \"${BUILT_PRODUCTS_DIR}/hs\" \"${HS_DST}/ipc/bin/hs\"\n\n# Special copier for hs.speech.listener\ncp -av \"${BUILT_PRODUCTS_DIR}/libspeechlistener.dylib\" \"${HS_DST}/speech/listener.so\"\n\n# Special copier for hs.window submodules\ncp -av \"${SRCROOT}/extensions/window/filter.lua\" \"${HS_DST}/window/filter.lua\"\ncp -av \"${SRCROOT}/extensions/window/tiling.lua\" \"${HS_DST}/window/tiling.lua\"\ncp -av \"${SRCROOT}/extensions/window/layout.lua\" \"${HS_DST}/window/layout.lua\"\ncp -av \"${SRCROOT}/extensions/window/switcher.lua\" \"${HS_DST}/window/switcher.lua\"\ncp -av \"${SRCROOT}/extensions/window/highlight.lua\" \"${HS_DST}/window/highlight.lua\"\n\n# Special copier for hs.webview.usercontent submodule\ncp -av \"${BUILT_PRODUCTS_DIR}/libwebviewusercontent.dylib\" \"${HS_DST}/webview/usercontent.so\"\n";
+			shellScript = "set -eux\n${SRCROOT}/scripts/copy_extensions_to_bundle.sh";
 		};
 		4FC09F7A19F99E48007542A6 /* Compile docs.json */ = {
 			isa = PBXShellScriptBuildPhase;
