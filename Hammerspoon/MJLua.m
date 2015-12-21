@@ -118,7 +118,7 @@ static int core_reload(lua_State* L) {
 }
 
 /// hs.processInfo
-/// Variable
+/// Constant
 /// A table containing read-only information about the Hammerspoon application instance currently running.
 static int push_hammerAppInfo(lua_State* L) {
     lua_newtable(L) ;
