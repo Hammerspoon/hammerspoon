@@ -22,6 +22,7 @@ local redshift={setLogLevel=log.setLogLevel} -- module
 local type,ipairs,pairs,next,floor,abs,max,sformat=type,ipairs,pairs,next,math.floor,math.abs,math.max,string.format
 
 local SETTING_INVERTED_OVERRIDE='hs.redshift.inverted.override'
+local SETTING_DISABLED_OVERRIDE='hs.redshift.disabled.override'
 --local BLACKPOINT = {red=0.00000001,green=0.00000001,blue=0.00000001}
 local BLACKPOINT = {red=0,green=0,blue=0}
 local COLORRAMP
@@ -29,6 +30,7 @@ local COLORRAMP
 local running,nightStart,nightEnd,dayStart,dayEnd,nightTemp,dayTemp
 local tmr,tmrNext,applyGamma,screenWatcher
 local invertRequests,invertCallbacks,invertAtNight,invertUser,prevInvert={},{}
+local disableRequests,disableUser={}
 local wfDisable,modulewfDisable
 
 local function round(v) return floor(0.5+v) end
@@ -50,18 +52,30 @@ local function between(v,s,e)
   if s<=e then return v>=s and v<=e else return v>=s or v<=e end
 end
 
+local function isInverted()
+  if not running then return false end
+  if invertUser~=nil then return invertUser and 'user'
+  else return next(invertRequests) or false end
+end
+local function isDisabled()
+  if not running then return true end
+  if disableUser~=nil then return disableUser and 'user'
+  else return next(disableRequests) or false end
+end
+
 -- core fn
-applyGamma=function(testtime)
+applyGamma=function()
   if tmrNext then tmrNext:stop() tmrNext=nil end
-  local now=testtime and timer.seconds(testtime) or timer.localTime()
+  local now=timer.localTime()
   local temp,timeNext,invertReq
-  if between(now,nightStart,nightEnd) then temp=ilerp(now,nightStart,nightEnd,dayTemp,nightTemp) --dusk
+  if isDisabled() then temp=6500 timeNext=now-1
+  elseif between(now,nightStart,nightEnd) then temp=ilerp(now,nightStart,nightEnd,dayTemp,nightTemp) --dusk
   elseif between(now,dayStart,dayEnd) then temp=ilerp(now,dayStart,dayEnd,nightTemp,dayTemp) --dawn
   elseif between(now,dayEnd,nightStart) then temp=dayTemp timeNext=nightStart log.i('daytime')--day
   elseif between(now,nightEnd,dayStart) then invertReq=invertAtNight temp=nightTemp timeNext=dayStart log.i('nighttime')--night
   else error('wtf') end
   redshift.requestInvert('redshift-night',invertReq)
-  local invert=redshift.isInverted()
+  local invert=isInverted()
   local gamma=getGamma(temp)
   log.df('set color temperature %dK (gamma %d,%d,%d)%s',floor(temp),round(gamma.red*100),
     round(gamma.green*100),round(gamma.blue*100),invert and (' - inverted by '..invert) or '')
@@ -100,7 +114,7 @@ function redshift.invertSubscribe(key,fn)
   if type(fn)~='function' then error('invalid callback',2) end
   invertCallbacks[key]=fn
   log.f('add invert callback %s',key)
-  return running and fn(redshift.isInverted())
+  return running and fn(isInverted())
 end
 --- hs.redshift.invertUnsubscribe(id)
 --- Function
@@ -131,12 +145,9 @@ end
 ---    * "redshift-night" if `hs.redshift.start()` was called with `invertAtNight` set to true,
 ---      and it's currently night time
 ---    * the ID string (usually the module name) provided to `hs.redshift.requestInvert()`, if another module requested color inversion
-local function isInverted()
-  if not running then return false end
-  if invertUser~=nil then return invertUser and 'user'
-  else return next(invertRequests) or false end
-end
 redshift.isInverted=isInverted
+
+redshift.isDisabled=isDisabled
 
 --- hs.redshift.requestInvert(id,v)
 --- Function
@@ -153,13 +164,23 @@ redshift.isInverted=isInverted
 ---  * you can use this function e.g. to automatically invert colors if the ambient light sensor reading drops below
 ---    a certain threshold (`hs.brightness.DDCauto()` can optionally do exactly that)
 ---  * if the user's configuration doesn't explicitly start the redshift module, calling this will have no effect
-function redshift.requestInvert(key,v)
-  if type(key)~='string' then error('key must be a string',2) end
+
+local function request(t,k,v)
+  if type(k)~='string' then error('key must be a string',3) end
   if v==false then v=nil end
-  if invertRequests[key]==v then return end
-  invertRequests[key]=v
-  log.f('invert request from %s %s',key,v and '' or 'canceled')
-  return running and applyGamma()
+  if t[k]~=v then t[k]=v return true end
+end
+function redshift.requestInvert(key,v)
+  if request(invertRequests,key,v) then
+    log.f('invert request from %s %s',key,v and '' or 'canceled')
+    return running and applyGamma()
+  end
+end
+function redshift.requestDisable(key,v)
+  if request(disableRequests,key,v) then
+    log.f('disable color adjustment request from %s %s',key,v and '' or 'canceled')
+    return running and applyGamma()
+  end
 end
 
 --- hs.redshift.toggleInvert([v])
@@ -188,13 +209,29 @@ function redshift.toggleInvert(v)
   return applyGamma()
 end
 
-local function pause()
-  log.i('paused')
-  screen.restoreGamma()
-  tmr:stop()
-end
-local function resume()
-  log.i('resumed')
+--- hs.redshift.toggle([v])
+--- Function
+--- Sets or clears the user override for color temperature adjustment.
+---
+--- This function should be bound to a hotkey, e.g.:
+--- `hs.hotkey.bind('ctrl-cmd','-','Redshift',hs.redshift.toggle)`
+---
+--- Parameters:
+---  * v - (optional) a boolean; if true, the override will enable color temperature adjustment on
+---    the given schedule; if false, the override will disable color temperature adjustment;
+---    if omitted or nil, it will toggle the override, i.e. clear it if it's currently enforced, or
+---    set it to the opposite of the current color temperature adjustment status otherwise.
+---
+--- Returns:
+---  * None
+function redshift.toggle(v)
+  if not running then return end
+  if v==nil and disableUser==nil then v=not isDisabled() end
+  if v~=nil and type(v)~='boolean' then error ('v must be a boolean or nil',2) end
+  log.f('color adjustment user override%s',v==true and ': disabled' or (v==false and ': enabled' or ' cancelled'))
+  if v==nil then settings.clear(SETTING_DISABLED_OVERRIDE)
+  else settings.set(SETTING_DISABLED_OVERRIDE,v) end
+  disableUser=v
   return applyGamma()
 end
 
@@ -209,16 +246,19 @@ end
 ---  * None
 function redshift.stop()
   if not running then return end
-  pause()
+  log.i('stopped')
+  tmr:stop()
+  screen.restoreGamma()
   if wfDisable then
     if modulewfDisable then modulewfDisable:delete() modulewfDisable=nil
-    else wfDisable:unsubscribe({pause,resume}) end
+    else wfDisable:unsubscribe(redshift.wfsubs) end
     wfDisable=nil
   end
   if tmrNext then tmrNext:stop() tmrNext=nil end
   screenWatcher:stop() screenWatcher=nil
   running=nil
 end
+local function gc(t) return t.stop()end
 
 local function stime(time)
   return sformat('%02d:%02d:%02d',floor(time/3600),floor(time/60)%60,floor(time%60))
@@ -271,6 +311,7 @@ function redshift.start(nTemp,nStart,nEnd,dur,invert,wf,dTemp)
   tmr:setDelay(max(1,dur/200))
   screenWatcher=screen.watcher.new(function()tmr:start(5)end):start()
   invertUser=settings.get(SETTING_INVERTED_OVERRIDE)
+  disableUser=settings.get(SETTING_DISABLED_OVERRIDE)
   applyGamma()
   if wf~=nil then
     if windowfilter.iswf(wf) then wfDisable=wf
@@ -285,7 +326,11 @@ function redshift.start(nTemp,nStart,nEnd,dur,invert,wf,dTemp)
         if isAppList then wfDisable:setOverrideFilter{focused=true} end
       end
     end
-    wfDisable:subscribe(windowfilter.hasWindow,pause,true):subscribe(windowfilter.hasNoWindows,resume)
+    redshift.wfsubs={
+      [windowfilter.hasWindow]=function()redshift.requestDisable('wf-redshift',true)end,
+      [windowfilter.hasNoWindows]=function()redshift.requestDisable('wf-redshif')end,
+    }
+    wfDisable:subscribe(redshift.wfsubs,true)
   end
 end
 
@@ -384,4 +429,4 @@ COLORRAMP={ -- from https://github.com/jonls/redshift/blob/master/src/colorramp.
   {0.78988728,  0.86491137,  1.00000000}, -- 10000K
   {0.78663296,  0.86273225,  1.00000000},
 }
-return redshift
+return setmetatable(redshift,{__gc=gc})
