@@ -3985,6 +3985,7 @@
 				F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
 				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
+				4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */,
 			);
 			buildRules = (
 			);
@@ -4389,6 +4390,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "set -eux\n\nif [ -f ../token-crashlytics ] ; then\n  source ../token-crashlytics\n  > Hammerspoon/secrets.h\n  echo \"#define CRASHLYTICS_API_KEY \\\"${CRASHLYTICS_API_KEY}\\\"\" >>Hammerspoon/secrets.h\nelse\n  > Hammerspoon/secrets.h\nfi";
+		};
+		4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Assert no stray init.lua's in app bundle";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\" ]; then\n  echo \"ERROR: At least one extension's init.lua has membership of the Hammerspoon.app target. While non-fatal, this should not be the case. Here is the first line of said init.lua file, which might help you find out which extension is at fault. Once you know, in Xcode, select View -> Utilities -> Show File Inspector and untick the file from the Hammerspoon target:\"\n  echo -n \"    \"\n  head -1 \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/init.lua\"\n  exit 1\nfi\n\nexit 0";
 		};
 		4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
