@@ -56,7 +56,7 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
         if (userData->callback == LUA_NOREF) {
             showError(skin.L, "hs.audiodevice.watcher callback firing, but no function has been set with hs.audiodevice.watcher.setCallback()");
         } else {
-            /// Get the UID of the device, to pass into the callback
+            // Get the UID of the device, to pass into the callback
             NSString *deviceUIDNS = nil;
 
             AudioObjectPropertyAddress propertyAddress = {
