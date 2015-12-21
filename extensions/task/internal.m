@@ -7,14 +7,18 @@
 
 typedef struct _task_userdata_t {
     void *nsTask;
+    bool isStream;
     bool hasStarted ;
     int luaCallback;
+    int luaStreamCallback;
     void *launchPath;
     void *arguments;
+    int selfRef;
 } task_userdata_t;
 
 int refTable;
 NSMutableArray *tasks;
+id fileReadObserver; // This maybe ought to be __block __weak, but that's not allowed on global variables
 
 NSPointerArray *pointerArrayFromNSTask(NSTask *task) {
     NSPointerArray *result = nil;
@@ -35,6 +39,24 @@ task_userdata_t *userDataFromNSTask(NSTask *task) {
 
     if (pointerArray) {
         result = [pointerArray pointerAtIndex:1];
+    }
+
+    return result;
+}
+
+task_userdata_t *userDataFromNSFileHandle(NSFileHandle *fh) {
+    task_userdata_t *result = NULL;
+
+    for (NSPointerArray *pointerArray in tasks) {
+        NSTask *task = (__bridge NSTask *)[pointerArray pointerAtIndex:0];
+        NSPipe *stdOut = task.standardOutput;
+        NSPipe *stdErr = task.standardError;
+        NSFileHandle *stdOutFH = [stdOut fileHandleForReading];
+        NSFileHandle *stdErrFH = [stdErr fileHandleForReading];
+
+        if (stdOutFH == fh || stdErrFH == fh) {
+            result = [pointerArray pointerAtIndex:1];
+        }
     }
 
     return result;
@@ -92,7 +114,7 @@ void create_task(task_userdata_t *userData) {
     return;
 }
 
-/// hs.task.new(launchPath, callbackFn[, arguments]) -> hs.task object
+/// hs.task.new(launchPath, callbackFn[, streamCallbackFn, arguments]) -> hs.task object
 /// Function
 /// Creates a new hs.task object
 ///
@@ -102,6 +124,10 @@ void create_task(task_userdata_t *userData) {
 ///   * exitCode - An integer containing the exit code of the process
 ///   * stdOut - A string containing the standard output of the process
 ///   * stdErr - A string containing the standard error output of the process
+///  * streamCallbackFn - A optional callback function to be called whenever the task outputs data to stdout or stderr. The function must return a boolean value - true to continue calling the streaming callback, false to stop calling it. The function should accept three arguments:
+///   * task - The hs.task object
+///   * stdOut - A string containing the standard output received since the last call to this callback
+///   * stdErr - A string containing the standard error output received since the last call to this callback
 ///  * arguments - An optional table containing command line arguments for the executable
 ///
 /// Returns:
@@ -109,13 +135,16 @@ void create_task(task_userdata_t *userData) {
 static int task_new(lua_State *L) {
     // Check our arguments
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TSTRING, LS_TFUNCTION|LS_TNIL, LS_TTABLE|LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TSTRING, LS_TFUNCTION|LS_TNIL, LS_TTABLE|LS_TFUNCTION|LS_TOPTIONAL, LS_TTABLE|LS_TOPTIONAL, LS_TBREAK];
 
     // Create our Lua userdata object
     task_userdata_t *userData = lua_newuserdata(L, sizeof(task_userdata_t));
     memset(userData, 0, sizeof(task_userdata_t));
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
+
+    lua_pushvalue(L, -1);
+    userData->selfRef = [skin luaRef:refTable];
 
     // Capture data in the Lua userdata object
     if (lua_type(L, 2) == LUA_TFUNCTION) {
@@ -125,10 +154,22 @@ static int task_new(lua_State *L) {
         userData->luaCallback = LUA_REFNIL;
     }
 
+    if (lua_type(L, 3) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 3);
+        userData->luaStreamCallback = [skin luaRef:refTable];
+        userData->isStream = YES;
+    } else {
+        userData->luaStreamCallback = LUA_REFNIL;
+        userData->isStream = NO;
+    }
+
     userData->hasStarted = NO ;
     userData->launchPath = (__bridge_retained void *)[skin toNSObjectAtIndex:1];
+
     if (lua_type(L, 3) == LUA_TTABLE) {
         userData->arguments = (__bridge_retained void *)[skin toNSObjectAtIndex:3];
+    } else if (lua_type(L, 4) == LUA_TTABLE) {
+        userData->arguments = (__bridge_retained void *)[skin toNSObjectAtIndex:4];
     } else {
         userData->arguments = (__bridge_retained void *)[[NSArray alloc] init];
     }
@@ -147,7 +188,7 @@ static int task_new(lua_State *L) {
 
 /// hs.task:setCallback(fn) -> hs.task object
 /// Method
-/// Set or change a callback function for a task.
+/// Set or remove a callback function for a task.
 ///
 /// Parameters:
 ///  * fn - A function to be called when the task completes or is terminated, or nil to remove an existing callback
@@ -169,6 +210,35 @@ static int task_setCallback(lua_State *L) {
 
     lua_pushvalue(L, 1) ;
     return 1 ;
+}
+
+/// hs.task:setStreamCallback(fn) -> hs.task object
+/// Method
+/// Set a stream callback function for a task
+///
+/// Parameters:
+///  * fn - A function to be called when the task outputs to stdout or stderr, or nil to remove a callback
+///
+/// Returns:
+///  * The hs.task object
+///
+/// Notes:
+///  * If a callback is removed without it previously having returned false, any stdout/stderr output from the task will be silently discarded
+static int task_setStreamingCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK];
+    task_userdata_t *userData = lua_touserdata(L, 1);
+
+    userData->luaStreamCallback = [skin luaUnref:refTable ref:userData->luaStreamCallback];
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 2);
+        userData->luaStreamCallback = [skin luaRef:refTable];
+    } else {
+        userData->luaStreamCallback = LUA_REFNIL;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
 }
 
 /// hs.task:workingDirectory() -> path
@@ -266,9 +336,19 @@ static int task_launch(lua_State *L) {
     BOOL result = false;
 
     @try {
-        [(__bridge NSTask *)userData->nsTask launch];
+        NSTask *task = (__bridge NSTask *)userData->nsTask;
+        [task launch];
         result = true;
         userData->hasStarted = YES ;
+        if (userData->isStream) {
+            NSPipe *stdOut = task.standardOutput;
+            NSPipe *stdErr = task.standardError;
+            NSFileHandle *stdOutFH = [stdOut fileHandleForReading];
+            NSFileHandle *stdErrFH = [stdErr fileHandleForReading];
+
+            [stdOutFH readInBackgroundAndNotify];
+            [stdErrFH readInBackgroundAndNotify];
+        }
     }
     @catch (NSException *exception) {
         printToConsole(skin.L, "ERROR: Unable to launch hs.task process:");
@@ -609,6 +689,7 @@ static int task_gc(lua_State *L) {
     task = nil;
 
     userData->luaCallback = [skin luaUnref:refTable ref:userData->luaCallback];
+    userData->selfRef = [skin luaUnref:refTable ref:userData->selfRef];
 
     NSString *launchPath = (__bridge_transfer NSString *)userData->launchPath;
     NSArray *arguments = (__bridge_transfer NSArray *)userData->arguments;
@@ -621,6 +702,8 @@ static int task_gc(lua_State *L) {
 
 static int task_metagc(__unused lua_State *L) {
     [tasks removeAllObjects];
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:fileReadObserver];
 
     return 0;
 }
@@ -664,11 +747,69 @@ static const luaL_Reg taskObjectLib[] = {
     {NULL, NULL}
 };
 
-int luaopen_hs_task_internal(__unused lua_State* L) {
+int luaopen_hs_task_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:taskLib metaFunctions:taskMetaLib objectFunctions:taskObjectLib];
 
     tasks = [[NSMutableArray alloc] init];
+
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    fileReadObserver = [nc addObserverForName:NSFileHandleReadCompletionNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        NSFileHandle *fh = [note object];
+        NSData *fhData = [[note userInfo] objectForKey:NSFileHandleNotificationDataItem];
+
+        if ([fhData length] == 0) {
+            return;
+        }
+
+        NSString *dataString = [[NSString alloc] initWithData:fhData encoding:NSUTF8StringEncoding];
+
+        task_userdata_t *userData = userDataFromNSFileHandle(fh);
+
+        if (!userData) {
+            printToConsole(skin.L, "ERROR: hs.task streaming data received from unknown task. This may be a bug");
+            return;
+        }
+
+        if (userData->luaStreamCallback != LUA_NOREF && userData->luaStreamCallback != LUA_REFNIL) {
+            NSFileHandle *stdOutFH = [((__bridge NSTask *)userData->nsTask).standardOutput fileHandleForReading];
+            NSFileHandle *stdErrFH = [((__bridge NSTask *)userData->nsTask).standardError fileHandleForReading];
+
+            id stdOutArg = @"";
+            id stdErrArg = @"";
+
+            if (fh == stdOutFH) {
+                stdOutArg = dataString;
+            } else if (fh == stdErrFH) {
+                stdErrArg = dataString;
+            } else {
+                showError(skin.L, "ERROR: Received data from an unknown file handle");
+                return;
+            }
+
+            [skin pushLuaRef:refTable ref:userData->luaStreamCallback];
+            [skin pushLuaRef:refTable ref:userData->selfRef];
+            [skin pushNSObject:stdOutArg];
+            [skin pushNSObject:stdErrArg];
+
+            if (![skin protectedCallAndTraceback:3 nresults:1]) {
+                const char *errorMsg = lua_tostring([skin L], -1);
+                CLS_NSLOG(@"%s", errorMsg);
+                showError(L, (char *)errorMsg);
+            }
+
+            if (lua_type(L, -1) != LUA_TBOOLEAN) {
+                showError(L, "ERROR: hs.task streaming callback did not return a boolean");
+            } else {
+                BOOL continueStreaming = lua_toboolean(L, -1);
+
+                if (continueStreaming) {
+                    [fh readInBackgroundAndNotify];
+                }
+            }
+        }
+
+    }];
 
     return 1;
 }

@@ -14,6 +14,8 @@
 
 
 #import <Foundation/Foundation.h>
+#import "lobject.h"
+#import "lapi.h"
 #import "lauxlib.h"
 #import "lualib.h"
 #import "lua.h"
@@ -445,6 +447,14 @@ typedef struct luaObjectHelpers {
  @returns YES if the module loaded successfully or NO if it does not
  */
 - (BOOL)requireModule:(char *)moduleName ;
+
+/*!
+ @abstract Pushes an existing Lua userdata object onto the Lua stack
+
+ @important This is a terrible hack and could easily break with future Lua versions. Its use is discouraged
+ @param userData - a pointer to memory that was allocated by lua_newuserdata()
+ */
+- (void)pushUserData:(void *)userData;
 
 @end
 
