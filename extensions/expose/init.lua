@@ -244,7 +244,7 @@ local uiGlobal = {
   showExtraKeys=true,
 }
 
-local function getColor(t) if type(t)~='table' or t.red then return t else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end end
+local function getColor(t) if type(t)~='table' or t.red or not t[1] then return t else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end end
 
 --- hs.expose.ui
 --- Variable
@@ -444,7 +444,14 @@ end
 local function exitAll(self,toFocus)
   log.d('exiting')
   while #modals>0 do exit(self) end
-  if toFocus then timer.doAfter(0.43,function()toFocus:focus()end) end -- el cap bugs out (finder "floats" on top) if done directly
+  if toFocus then
+    log.i('focusing',toFocus)
+    --    if toFocus:application():bundleID()~='com.apple.finder' then
+    --    toFocus:focus()
+    --    else
+    timer.doAfter(0.25,function()toFocus:focus()end) -- el cap bugs out (desktop "floats" on top) if done directly
+    --    end
+  end
 end
 
 enter=function(self,hints)
@@ -852,7 +859,9 @@ end
 
 local function makeScreens(self)
   self.log.i'populating screens'
+  local wfLogLevel=windowfilter.getLogLevel()
   deleteScreens(self)
+  windowfilter.setLogLevel('warning')
   -- gather screens
   local activeApplication=self.ui.onlyActiveApplication and true or nil
   local hsscreens=screen.allScreens()
@@ -867,7 +876,7 @@ local function makeScreens(self)
       self.log.df('screen %s',scr:name())
     end
   end
-  if not next(screens) then self.log.w'No valid screens found' return end
+  if not next(screens) then self.log.w'No valid screens found' windowfilter.setLogLevel(wfLogLevel) return end
   if self.ui.includeNonVisible then
     do -- hidden windows strip
       local msid=hsscreens[1]:id()
@@ -918,6 +927,7 @@ local function makeScreens(self)
     screen.frame:move(10,10):setw(screen.frame.w-20):seth(screen.frame.h-20) -- margin
   end
   self.screens=screens
+  windowfilter.setLogLevel(wfLogLevel)
 end
 local function processScreensChanged()
   for self in pairs(activeInstances) do makeScreens(self) end
@@ -973,9 +983,10 @@ function expose.stop(self)
 end
 -- return onScreenWindows, invisibleWindows, otherSpacesWindows
 
+local inUiPrefs -- avoid recursion
 local function setUiPrefs(self)
+  inUiPrefs=true
   local ui=self.ui
-
   ui.hintTextStyle={font=ui.fontName,size=ui.textSize,color=ui.textColor}
   ui.titleTextStyle={font=ui.fontName,size=max(10,ui.textSize/2),color=ui.textColor,lineBreak='truncateTail'}
   ui.hintHeight=drawing.getTextDrawingSize('O',ui.hintTextStyle).h
@@ -984,9 +995,10 @@ local function setUiPrefs(self)
   ui.minWidth=hintWidth+ui.hintHeight*1.4--+padding*4
   ui.minHeight=ui.hintHeight*2
   --  ui.noThumbsFrameSide=ui.minWidth-- ui.textSize*4
+  inUiPrefs=nil
 end
 
---- hs.expose.new([windowfilter[, uiPrefs][, logname, [loglevel]]]) -> hs.expose
+--- hs.expose.new([windowfilter[, uiPrefs][, logname, [loglevel]]]) -> hs.expose object
 --- Constructor
 --- Creates a new hs.expose instance; it can use a windowfilter to determine which windows to show
 ---
@@ -1010,19 +1022,22 @@ function expose.new(wf,uiPrefs,logname,loglevel)
   if type(uiPrefs)=='string' then loglevel=logname logname=uiPrefs uiPrefs={} end
   if uiPrefs==nil then uiPrefs={} end
   if type(uiPrefs)~='table' then error('uiPrefs must be a table',2) end
-  local o = setmetatable({screens={},windows={}},{__index=expose})
-  if wf==nil then log.i('New expose instance, using default windowfilter') wf=windowfilter.default
-  else log.i('New expose instance using windowfilter instance') wf=windowfilter.new(wf) end
+  local self = setmetatable({screens={},windows={}},{__index=expose})
+  self.log=logname and logger.new(logname,loglevel) or log
+  self.setLogLevel=self.log.setLogLevel self.getLogLevel=self.log.getLogLevel
+  if wf==nil then self.log.i('New expose instance, using default windowfilter') wf=windowfilter.default
+  else self.log.i('New expose instance using windowfilter instance') wf=windowfilter.new(wf) end
   --uiPrefs
-  o.ui=setmetatable({},{
-    __newindex=function(t,k,v)rawset(o.ui,k,getColor(v))return setUiPrefs(o)end,
+  self.ui=setmetatable({},{
+    __newindex=function(t,k,v)rawset(self.ui,k,getColor(v))if not inUiPrefs then return setUiPrefs(self)end end,
     __index=function(t,k)return getColor(uiGlobal[k]) end,
   })
-  for k,v in pairs(uiPrefs) do rawset(o.ui,k,getColor(v)) end setUiPrefs(o)
-  o.log=logname and logger.new(logname,loglevel) or log
-  o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel
-  o.wf=windowfilter.copy(wf):setDefaultFilter{} -- all windows; include fullscreen and invisible even for default wf
-  return start(o)
+  for k,v in pairs(uiPrefs) do rawset(self.ui,k,getColor(v)) end setUiPrefs(self)
+  local wfLogLevel=windowfilter.getLogLevel()
+  windowfilter.setLogLevel('warning')
+  self.wf=windowfilter.copy(wf):setDefaultFilter{} -- all windows; include fullscreen and invisible even for default wf
+  windowfilter.setLogLevel(wfLogLevel)
+  return start(self)
 end
 
 return expose
