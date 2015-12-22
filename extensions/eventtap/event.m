@@ -238,7 +238,7 @@ static int eventtap_event_post(lua_State* L) {
         CGEventPostToPSN(&psn, event);
     }
     else {
-        CGEventPost(kCGHIDEventTap, event);
+        CGEventPost(kCGSessionEventTap, event);
     }
 
     usleep(1000);
