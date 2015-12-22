@@ -703,7 +703,7 @@ function windowfilter.new(fn,logname,loglevel)
   local mt=getmetatable(fn) if mt and mt.__index==WF then return fn end -- no copy-on-new
   local o = setmetatable({filters={},events={},windows={},pending={},
     log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel},
-  {__index=WF,__tostring=__tostring})
+  {__index=WF,__tostring=__tostring,__gc=WF.delete})
   if logname then o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel end
   if type(fn)=='function' then
     o.log.i('new windowfilter, custom function')
@@ -758,6 +758,14 @@ end
 ---    * to remove an exclusion (e.g. if you want to have access to Spotlight windows): `hs.window.filter.default:allowApp'Spotlight'`;
 ---      for specialized uses you can make a specific windowfilter with `myfilter=hs.window.filter.new'Spotlight'`
 
+--- hs.window.filter.defaultCurrentSpace
+--- Constant
+--- A copy of the default windowfilter (see `hs.window.filter.default`) that only allows windows in the current
+--- Mission Control Space
+---
+--- Notes:
+---  * This windowfilter will inherit customizations to the default windowfilter if they're performed *before* referencing this
+
 --- hs.window.filter.isGuiApp(appname) -> boolean
 --- Function
 --- Checks whether an app is a known non-GUI app, as per `hs.window.filter.ignoreAlways`
@@ -767,7 +775,6 @@ end
 ---
 --- Returns:
 ---  * `false` if the app is a known non-GUI (or not accessible) app; `true` otherwise
-
 windowfilter.isGuiApp = function(appname)
   if not appname then return true
   elseif windowfilter.ignoreAlways[appname] then return false
@@ -794,6 +801,7 @@ local events={windowCreated=true, windowDestroyed=true, windowMoved=true,
   windowAllowed=true,windowRejected=true,
 
   hasWindow=true,hasNoWindows=true,
+  windowsChanged=true,
 }
 
 local trackSpacesEvents={
@@ -911,6 +919,16 @@ for k in pairs(events) do windowfilter[k]=k end -- expose events
 ---  * this pseudo-event won't trigger again until after the windowfilter allows at least one window
 ---  * this pseudo-event will be emitted *after* the *actual* event(s) (e.g. `windowDestroyed`) that caused the window to be rejected
 
+--- hs.window.filter.windowsChanged
+--- Constant
+--- Pseudo-event for `hs.window.filter:subscribe()`: the list of allowed windows (as per `windowfilter:getWindows()`) has changed
+---
+--- Notes:
+---  * callbacks for this event will receive (as the first argument) either a random window among the currently allowed ones,
+---    or nil if the windowfilter is rejecting all windows
+---  * similarly, the second argument passed to callbacks (window's app name) will be nil if the windowfilter is rejecting all windows
+---  * this pseudo-event will be emitted *after* the *actual* event(s) that caused the list of allowed windows to change
+
 -- Window class
 
 function Window:setFilter(wf,forceremove) -- returns true if filtering status changes
@@ -931,7 +949,7 @@ local function emit(win,wf,event,logged)
   end
   return logged
 end
-
+local noWindow={app={}}
 function Window:filterEmitEvent(wf,event,inserted,logged,notified)
   local filteringStatusChanged=self:setFilter(wf,event==windowfilter.windowDestroyed)
   local isAllowed=wf.windows[self]
@@ -962,6 +980,10 @@ function Window:filterEmitEvent(wf,event,inserted,logged,notified)
   if filteringStatusChanged and isAllowed and not wf.hasWindow then
     wf.hasWindow=true
     emit(self,wf,windowfilter.hasWindow) -- emit pseudo-event
+  end
+  if filteringStatusChanged then
+    -- emit windowsChanged on a random allowed window
+    emit(next(wf.windows) or noWindow,wf,windowfilter.windowsChanged,true)
   end
   return logged,notified
 end
@@ -1493,7 +1515,7 @@ local pendingSpace
 local function spaceChanged()
   if not pendingSpace then return end
   if not spacesDone[pendingSpace] or next(spacesInstances) or (windowfilter.forceRefreshOnSpaceChange and next(activeInstances)) then
-    log.i('Space changed, refreshing all windows')
+    log.d('space changed, refreshing all windows')
     getCurrentSpaceWindows()
     if pendingSpace~=-1 then spacesDone[pendingSpace] = true end
   end
@@ -1705,7 +1727,7 @@ refreshWindows=function(wf)
 end
 
 local function start(wf)
-  if activeInstances[wf]==true then return end
+  if activeInstances[wf]==true then return wf end
   wf.windows={}
   startGlobalWatcher()
   wf.log.i('windowfilter instance started (active mode)')
@@ -1721,6 +1743,7 @@ end
 -- *way* faster than hs.window.allWindows(); even so, better to have a way to avoid the overhead if we know
 -- we'll call :getWindows often enough
 function WF:keepActive()
+  if self.doKeepActive then return self end
   self.doKeepActive=true
   self.log.i('Keep active')
   return start(self)
@@ -1928,9 +1951,14 @@ function WF:subscribe(event,fn,immediate)
           fn(win.window,win.app.name,ev) end
         end
       end
-      if ev==windowfilter.hasWindow and windows[1] then
-        local win=windows[1]
-        for _,fn in ipairs(fns) do fn(win.window,win.app.name,ev) end
+      local win=windows[1]
+      if win then
+        if ev==windowfilter.hasWindow then
+          for _,fn in ipairs(fns) do fn(win.window,win.app.name,ev) end
+        end
+        if ev==windowfilter.windowsChanged then
+          for _,fn in ipairs(fns) do fn(win.window,win.app.name,ev) end
+        end
       end
     end
   end
@@ -2059,10 +2087,11 @@ function WF:delete()
 end
 
 
-local defaultwf, defaultwfLogLevel
+local defaultwf, defaultCurrentSpacewf, defaultwfLogLevel
 function windowfilter.setLogLevel(lvl)
   log.setLogLevel(lvl) defaultwfLogLevel=lvl
   if defaultwf then defaultwf.setLogLevel(lvl) end
+  if defaultCurrentSpacewf then defaultCurrentSpacewf.setLogLevel(lvl) end
   return windowfilter
 end
 windowfilter.getLogLevel=log.getLogLevel
@@ -2082,7 +2111,14 @@ local function makeDefault()
   return defaultwf
 end
 
-
+local function makeDefaultCurrentSpace()
+  if not defaultCurrentSpacewf then
+    defaultCurrentSpacewf=windowfilter.copy(makeDefault(),'wflt-space'):setCurrentSpace(true)
+    if defaultwfLogLevel then defaultCurrentSpacewf.setLogLevel(defaultwfLogLevel) end
+    defaultCurrentSpacewf.log.i('default windowfilter (current space) instantiated')
+  end
+  return defaultCurrentSpacewf
+end
 -- utilities
 
 --- hs.window.filter:windowsToEast(window, frontmost, strict) -> list of `hs.window` objects
@@ -2100,6 +2136,8 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that returns `hs.window.windowsToEast(window,self:getWindows(),...)`
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call (or just use
+---    `hs.window.filter.defaultCurrentSpace`)
 
 --- hs.window.filter:windowsToWest(window, frontmost, strict) -> list of `hs.window` objects
 --- Method
@@ -2116,6 +2154,8 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that returns `hs.window.windowsToWest(window,self:getWindows(),...)`
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call (or just use
+---    `hs.window.filter.defaultCurrentSpace`)
 
 --- hs.window.filter:windowsToNorth(window, frontmost, strict) -> list of `hs.window` objects
 --- Method
@@ -2132,6 +2172,8 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that returns `hs.window.windowsToNorth(window,self:getWindows(),...)`
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call (or just use
+---    `hs.window.filter.defaultCurrentSpace`)
 
 --- hs.window.filter:windowsToSouth(window, frontmost, strict) -> list of `hs.window` objects
 --- Method
@@ -2148,6 +2190,9 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that returns `hs.window.windowsToSouth(window,self:getWindows(),...)`
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call (or just use
+---    `hs.window.filter.defaultCurrentSpace`)
+
 
 --- hs.window.filter:focusWindowEast(window, frontmost, strict)
 --- Method
@@ -2164,7 +2209,7 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowEast(window,self:getWindows(),...)`
----  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call.
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call
 
 --- hs.window.filter:focusWindowWest(window, frontmost, strict)
 --- Method
@@ -2181,7 +2226,7 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowWest(window,self:getWindows(),...)`
----  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call.
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call
 
 --- hs.window.filter:focusWindowSouth(window, frontmost, strict)
 --- Method
@@ -2198,7 +2243,7 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowSouth(window,self:getWindows(),...)`
----  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call.
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call
 
 --- hs.window.filter:focusWindowNorth(window, frontmost, strict)
 --- Method
@@ -2215,7 +2260,62 @@ end
 ---
 --- Notes:
 ---  * This is a convenience wrapper that performs `hs.window.focusWindowNorth(window,self:getWindows(),...)`
----  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call.
+---  * You'll likely want to add `:setCurrentSpace(true)` to the windowfilter used for this method call
+
+
+--- hs.window.filter.focusEast()
+--- Function
+--- Convenience function to focus the nearest window to the east
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a convenience wrapper that performs `hs.window.filter.defaultCurrentSpace:focusWindowEast(nil,nil,true)`
+
+--- hs.window.filter.focusWest()
+--- Function
+--- Convenience function to focus the nearest window to the west
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a convenience wrapper that performs `hs.window.filter.defaultCurrentSpace:focusWindowWest(nil,nil,true)`
+
+--- hs.window.filter.focusSouth()
+--- Function
+--- Convenience function to focus the nearest window to the south
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a convenience wrapper that performs `hs.window.filter.defaultCurrentSpace:focusWindowSouth(nil,nil,true)`
+
+--- hs.window.filter.focusNorth()
+--- Function
+--- Convenience function to focus the nearest window to the north
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
+---
+--- Notes:
+---  * This is a convenience wrapper that performs `hs.window.filter.defaultCurrentSpace:focusWindowNorth(nil,nil,true)`
+
+
 for _,dir in ipairs{'East','North','West','South'}do
   WF['windowsTo'..dir]=function(self,win,...)
     return window['windowsTo'..dir](win,self:getWindows(),...)
@@ -2223,12 +2323,17 @@ for _,dir in ipairs{'East','North','West','South'}do
   WF['focusWindow'..dir]=function(self,win,...)
     if window['focusWindow'..dir](win,self:getWindows(),...) then self.log.i('Focused window '..dir:lower()) end
   end
+  windowfilter['focus'..dir]=function()local d=makeDefaultCurrentSpace():keepActive()d['focusWindow'..dir](d,nil,nil,true)end
 end
 
 
 local rawget=rawget
 return setmetatable(windowfilter,{
-  __index=function(t,k) return k=='default' and makeDefault() or rawget(t,k) end,
+  __index=function(t,k)
+    if k=='default' then return makeDefault()
+    elseif k=='defaultCurrentSpace' then return makeDefaultCurrentSpace()
+    else return rawget(t,k) end
+  end,
   __call=function(t,...) return windowfilter.new(...):getWindows() end
 })
 
