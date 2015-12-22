@@ -207,4 +207,22 @@ function itunes.isPlaying()
    end
 end
 
+function itunes.getVolume() return tell'sound volume' end
+function itunes.setVolume(v)
+  v=tonumber(v)
+  if not v then error('volume must be a number 1..100',2) end
+  return tell('set sound volume to '..math.min(100,math.max(0,v)))
+end
+function itunes.volumeUp() return itunes.setVolume(itunes.getVolume()+5) end
+function itunes.volumeDown() return itunes.setVolume(itunes.getVolume()-5) end
+
+function itunes.getPosition() return tell'player position' end
+function itunes.setPosition(p)
+  p=tonumber(p)
+  if not p then error('position must be a number in seconds',2) end
+  return tell('set player position to '..p)
+end
+function itunes.ff() return itunes.setPosition(itunes.getPosition()+5) end
+function itunes.rw() return itunes.setPosition(itunes.getPosition()-5) end
+
 return itunes
