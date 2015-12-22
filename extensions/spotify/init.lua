@@ -125,7 +125,7 @@ end
 --- Returns:
 ---  * A string containing the Artist of the current track, or nil if an error occurred
 function spotify.getCurrentArtist()
-    return tell('artist of the current track')
+  return tell('artist of the current track')
 end
 
 --- hs.spotify.getCurrentAlbum()
@@ -138,7 +138,7 @@ end
 --- Returns:
 ---  * A string containing the Album of the current track, or nil if an error occurred
 function spotify.getCurrentAlbum()
-    return tell('album of the current track')
+  return tell('album of the current track')
 end
 
 --- hs.spotify.getCurrentTrack()
@@ -151,7 +151,7 @@ end
 --- Returns:
 ---  * A string containing the name of the current track, or nil if an error occurred
 function spotify.getCurrentTrack()
-    return tell('name of the current track')
+  return tell('name of the current track')
 end
 
 --- hs.spotify.getPlaybackState()
@@ -167,7 +167,7 @@ end
 ---    - `hs.spotify.state_paused`
 ---    - `hs.spotify.state_playing`
 function spotify.getPlaybackState()
-   return tell('get player state')
+  return tell('get player state')
 end
 
 --- hs.spotify.isRunning()
@@ -180,7 +180,7 @@ end
 --- Returns:
 ---  * A boolean value indicating whether the Spotify application is running.
 function spotify.isRunning()
-   return app.get("Spotify") ~= nil
+  return app.get("Spotify") ~= nil
 end
 
 --- hs.spotify.isPlaying()
@@ -193,18 +193,36 @@ end
 --- Returns:
 ---  * A boolean value indicating whether Spotify is currently playing a track, or nil if an error occurred (unknown player state). Also returns false if the application is not running
 function spotify.isPlaying()
-   -- We check separately to avoid starting the application if it's not running
-   if not hs.spotify.isRunning() then
-      return false
-   end
-   state = hs.spotify.getPlaybackState()
-   if state == hs.spotify.state_playing then
-      return true
-   elseif state == hs.spotify.state_paused or state == hs.spotify.state_stopped then
-      return false
-   else  -- unknown state
-      return nil
-   end
+  -- We check separately to avoid starting the application if it's not running
+  if not hs.spotify.isRunning() then
+    return false
+  end
+  state = hs.spotify.getPlaybackState()
+  if state == hs.spotify.state_playing then
+    return true
+  elseif state == hs.spotify.state_paused or state == hs.spotify.state_stopped then
+    return false
+  else  -- unknown state
+    return nil
+  end
 end
+
+function spotify.getVolume() return tell'sound volume' end
+function spotify.setVolume(v)
+  v=tonumber(v)
+  if not v then error('volume must be a number 1..100',2) end
+  return tell('set sound volume to '..math.min(100,math.max(0,v)))
+end
+function spotify.volumeUp() return spotify.setVolume(spotify.getVolume()+5) end
+function spotify.volumeDown() return spotify.setVolume(spotify.getVolume()-5) end
+
+function spotify.getPosition() return tell'player position' end
+function spotify.setPosition(p)
+  p=tonumber(p)
+  if not p then error('position must be a number in seconds',2) end
+  return tell('set player position to '..p)
+end
+function spotify.ff() return spotify.setPosition(spotify.getPosition()+5) end
+function spotify.rw() return spotify.setPosition(spotify.getPosition()-5) end
 
 return spotify
