@@ -459,6 +459,11 @@ static int eventtap_event_newScrollWheelEvent(lua_State* L) {
     }
     unit = lua_tostring(L, 3);
     if (unit && strcmp(unit, "pixel") == 0) type = kCGScrollEventUnitPixel; else type = kCGScrollEventUnitLine;
+
+    if (!eventSource) {
+        eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
+    }
+
     CGEventRef scrollEvent = CGEventCreateScrollWheelEvent(eventSource, type, 2, offset_x, offset_y);
     CGEventSetFlags(scrollEvent, flags);
     new_eventtap_event(L, scrollEvent);
@@ -498,6 +503,10 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
             else if (strcmp(modifier, "fn") == 0) flags |= kCGEventFlagMaskSecondaryFn;
             lua_pop(L, 1);
         }
+    }
+
+    if (!eventSource) {
+        eventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
     }
 
     CGEventRef event = CGEventCreateMouseEvent(eventSource, type, point, button);
