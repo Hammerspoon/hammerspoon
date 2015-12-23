@@ -109,6 +109,16 @@ NSMutableArray *dynamicMenuDelegates;
 
 // ----------------------- Helper functions ---------------------
 
+// I'm not sure how this is going to work on  Retina display, so leave it as a function so we can
+// modify it more easily and affect all (3) places where it is used...
+static NSSize proportionallyScaleStateImageSize(NSImage *theImage) {
+    CGFloat checkSize = [[NSFont menuFontOfSize:0] pointSize] ;
+    NSSize destSize   = NSMakeSize(checkSize, checkSize) ;
+    NSSize sourceSize = [theImage size] ;
+    CGFloat r = fmin(destSize.height / sourceSize.height, destSize.width / sourceSize.width) ;
+    return NSMakeSize(sourceSize.width * r, sourceSize.height * r) ;
+}
+
 // Helper function to parse a Lua table and turn it into an NSMenu hierarchy (is recursive, so may do terrible things on huge tables)
 void parse_table(lua_State *L, int idx, NSMenu *menu) {
     LuaSkin *skin = [LuaSkin shared];
@@ -127,9 +137,11 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             continue;
         }
 
+// MARK: title key
         // Inspect the menu item table at the top of the stack, fetch the value for the key "title" and push the result to the top of the stack
-        lua_getfield(L, -1, "title");
-        if (!lua_isstring(L, -1)) {
+        int titleType = lua_getfield(L, -1, "title");
+
+        if (!lua_isstring(L, -1) && !luaL_testudata(L, -1, "hs.styledtext")) {
             // We can't proceed without the title, we'd have nothing to display in the menu, so let's just give up and move on
             CLS_NSLOG(@"Error: malformed menu table entry. Instead of a title string, we found: %s", lua_typename(L, lua_type(L, -1)));
             // We need to pop two things off the stack - the result of lua_getfield and the table it inspected
@@ -138,8 +150,11 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             continue;
         }
 
-        // We have found the title of a menu bar item. Turn it into an NSString and pop it off the stack
-        NSString *title = lua_to_nsstring(L, -1);
+        // even if just a string provided, this will work and as an added benefit, converts malformed
+        // UTF8 to the Unicode Undefined character
+        NSAttributedString *aTitle = [skin luaObjectAtIndex:-1 toClass:"NSAttributedString"] ;
+        NSString           *title  = [aTitle string] ;
+
         lua_pop(L, 1);
 
         if ([title isEqualToString:@"-"]) {
@@ -151,7 +166,11 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
                 title = @"";
             }
             NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
+            // if title was just a string, don't bother setting attributed version to keep menu
+            // default font, etc.
+            if (titleType != LUA_TSTRING) [menuItem setAttributedTitle:aTitle] ;
 
+// MARK: menu key
             // Check to see if we have a submenu, if so, recurse into it
             lua_getfield(L, -1, "menu");
             if (lua_istable(L, -1)) {
@@ -180,6 +199,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             // Pop the result of fetching "fn", off the stack
             lua_pop(L, 1);
 
+// MARK: disabled key
             // Check if this item is enabled/disabled, defaulting to enabled
             lua_getfield(L, -1, "disabled");
             if (lua_isboolean(L, -1)) {
@@ -189,6 +209,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             }
             lua_pop(L, 1);
 
+// MARK: checked key
             // Check if this item is checked/unchecked, defaulting to unchecked
             lua_getfield(L, -1, "checked");
             if (lua_isboolean(L, -1)) {
@@ -197,6 +218,69 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
                 [menuItem setState:NSOffState];
             }
             lua_pop(L, 1);
+
+// MARK: state key -- adds "mixed" state to checked
+            lua_getfield(L, -1, "state");
+            NSString *state = [skin toNSObjectAtIndex:-1] ;
+            if ([state isKindOfClass:[NSString class]]) {
+                if ([state isEqualToString:@"on"])    [menuItem setState:NSOnState] ;
+                if ([state isEqualToString:@"off"])   [menuItem setState:NSOffState] ;
+                if ([state isEqualToString:@"mixed"]) [menuItem setState:NSMixedState] ;
+            }
+            lua_pop(L, 1);
+
+// MARK: tooltip key
+            lua_getfield(L, -1, "tooltip");
+            if (lua_isstring(L, -1)) {
+                // by filtering through NSAttributedString, even though this property requires NSString,
+                // we ensure invalid UTF8 is converted to Unicode Invalid characters rather than
+                // null (lua_tostring) or possibly an NSData (toNSObjectAtIndex:)
+                // NSString *toolTip = [skin toNSObjectAtIndex:-1] ;
+                NSString *toolTip = [[skin luaObjectAtIndex:-1 toClass:"NSAttributedString"] string] ;
+                [menuItem setToolTip:toolTip] ;
+            }
+            lua_pop(L, 1);
+
+// MARK: indent key
+            lua_getfield(L, -1, "indent");
+            // will return zero if type is wrong, so we don't have to check return type
+            NSInteger indentLevel = (NSInteger)lua_tointeger(L, -1) ;
+            if (indentLevel < 0)  indentLevel = 0 ;
+            if (indentLevel > 15) indentLevel = 15 ;
+            [menuItem setIndentationLevel:indentLevel] ;
+            lua_pop(L, 1);
+
+// MARK: image keys
+            lua_getfield(L, -1, "image") ;
+            if (luaL_testudata(L, -1, "hs.image")) {
+                NSImage *image = [[skin luaObjectAtIndex:-1 toClass:"NSImage"] copy];
+                [menuItem setImage:image] ;
+            }
+            lua_pop(L, 1) ;
+
+            lua_getfield(L, -1, "onStateImage") ;
+            if (luaL_testudata(L, -1, "hs.image")) {
+                NSImage *image = [[skin luaObjectAtIndex:-1 toClass:"NSImage"] copy] ;
+                [image setSize:proportionallyScaleStateImageSize(image)] ;
+                [menuItem setOnStateImage:image] ;
+            }
+            lua_pop(L, 1) ;
+
+            lua_getfield(L, -1, "offStateImage") ;
+            if (luaL_testudata(L, -1, "hs.image")) {
+                NSImage *image = [[skin luaObjectAtIndex:-1 toClass:"NSImage"] copy]  ;
+                [image setSize:proportionallyScaleStateImageSize(image)] ;
+                [menuItem setOffStateImage:image] ;
+            }
+            lua_pop(L, 1) ;
+
+            lua_getfield(L, -1, "mixedStateImage") ;
+            if (luaL_testudata(L, -1, "hs.image")) {
+                NSImage *image = [[skin luaObjectAtIndex:-1 toClass:"NSImage"] copy]  ;
+                [image setSize:proportionallyScaleStateImageSize(image)] ;
+                [menuItem setMixedStateImage:image] ;
+            }
+            lua_pop(L, 1) ;
 
             // We've finished parsing all our options, so now add the menu item to the menu!
             [menu addItem:menuItem];
@@ -487,7 +571,7 @@ static int menubarSetClickCallback(lua_State *L) {
 ///    }
 /// ```
 ///  * The available keys for each menu item are:
-///      * `title` - A string to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator
+///      * `title` - A string or `hs.styledtext` object to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator
 ///      * `fn` - A function to be executed when the menu item is clicked
 ///      * `checked` - A boolean to indicate if the menu item should have a checkmark next to it or not. Defaults to false
 ///      * `disabled` - A boolean to indicate if the menu item should be unselectable or not. Defaults to false (i.e. menu items are selectable by default)
