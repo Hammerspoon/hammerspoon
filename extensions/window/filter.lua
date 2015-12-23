@@ -281,7 +281,7 @@ function WF:isWindowAllowed(window)
   end
   if not win then
     --    hs.assert(not global.watcher,'window not being tracked')
-    self.log.d('Window is not being tracked')
+    self.log.d('window is not being tracked')
     win=Window.new(window,id) --fixme
     win.app={} win.app.name=appname
     if self.trackSpacesFilters then
@@ -944,7 +944,7 @@ end
 local function emit(win,wf,event,logged)
   local fns=wf.events[event]
   if fns then
-    if not logged then wf.log.df('Emitting %s %d (%s)',event,win.id,win.app.name) if wf.log==log then logged=true end end
+    if not logged then wf.log.df('emitting %s %d (%s)',event,win.id,win.app.name) if wf.log==log then logged=true end end
     for fn in pairs(fns) do fn(win.window,win.app.name,event) end
   end
   return logged
@@ -1218,7 +1218,7 @@ function App.new(app,appname,watcher)
   if app:isHidden() then o.isHidden=true end
   -- TODO if a way is found to fecth *all* windows across spaces, add it here
   -- and remove .switchedToSpace, .forceRefreshOnSpaceChange
-  log.f('New app %s registered',appname)
+  log.f('new app %s registered',appname)
   apps[appname] = o
   o:getAppWindows()
 end
@@ -1229,12 +1229,12 @@ function App:getAppWindows()
   self:getCurrentSpaceAppWindows()
   self:getFocused()
   if self.app:isFrontmost() then
-    log.df('App %s is the frontmost app',self.name)
+    log.df('app %s is the frontmost app',self.name)
     if global.active then global.active:deactivated() end --see comment above
     global.active = self
     if self.focused then
       self.focused:focused(true)
-      log.df('Window %d is the focused window',self.focused.id)
+      log.df('window %d is the focused window',self.focused.id)
     end
   end
 end
@@ -1254,7 +1254,7 @@ function App:getCurrentSpaceAppWindows(inserted)
     for i=#allWindows,1,-1 do if allWindows[i]:role()~='AXWindow' then tremove(allWindows,i) break end end
   end
   --]]
-  if #allWindows>0 then log.df('Found %d windows for app %s',#allWindows,self.name) end
+  if #allWindows>0 then log.df('found %d windows for app %s',#allWindows,self.name) end
   local arrived={}
   for _,win in ipairs(allWindows) do
     local id=win:id()
@@ -1270,9 +1270,9 @@ end
 
 function App:activated()
   local prevactive=global.active
-  if self==prevactive then return log.df('App %s already active; skipping',self.name) end
+  if self==prevactive then return log.df('app %s already active; skipping',self.name) end
   if prevactive then prevactive:deactivated() end --see comment above
-  log.vf('App %s activated',self.name)
+  log.vf('app %s activated',self.name)
   global.active=self
   for wf in pairs(applicationActiveInstances) do
     for id,win in pairs(self.windows) do
@@ -1280,14 +1280,14 @@ function App:activated()
     end
   end
   self:getFocused()
-  if not self.focused then return log.df('App %s does not (yet) have a focused window',self.name) end
+  if not self.focused then return log.df('app %s does not (yet) have a focused window',self.name) end
   self.focused:focused()
 end
 function App:deactivated(inserted) --as per comment above, only THIS app should call :deactivated(true)
   if self~=global.active then return end
-  if global.focused~=self.focused then log.e('Focused app/window inconsistency') end
+  if global.focused~=self.focused then log.e('focused app/window inconsistency') end
   if self.focused then self.focused:unfocused(inserted) end
-  log.vf('App %s deactivated',self.name)
+  log.vf('app %s deactivated',self.name)
   global.active=nil
   for wf in pairs(applicationActiveInstances) do
     for id,win in pairs(self.windows) do
@@ -1299,10 +1299,10 @@ end
 function App:focusChanged(id,win)
   if self.focused and self.focused.id==id then return log.df('%s (%d) already focused, skipping',self.name,id) end
   local active=global.active
-  log.vf('App %s focus changed',self.name)
+  log.vf('app %s focus changed',self.name)
   --  if self==active then self:deactivated(--[[true--]]nil,true) end
   if not id then
-    if self.name~='Finder' then log.wf('Cannot process focus changed for app %s - %s has no window id',self.name,win:role()) end
+    if self.name~='Finder' then log.wf('cannot process focus changed for app %s - %s has no window id',self.name,win:role()) end
     if self==active and self.focused then self.focused:unfocused() end
     self.focused=nil
   else
@@ -1311,7 +1311,7 @@ function App:focusChanged(id,win)
       appWindowEvent(win,uiwatcher.windowCreated,nil,self.name)
     end
     if self==active then
-      if not self.windows[id] then log.wf('Cannot process focus changed for app %s - %s (%d) not registered',self.name,win:role(),id)
+      if not self.windows[id] then log.wf('cannot process focus changed for app %s - %s (%d) not registered',self.name,win:role(),id)
       else self.windows[id]:focused() end
     end
     self.focused = self.windows[id]
@@ -1319,25 +1319,25 @@ function App:focusChanged(id,win)
   --  if self==active then self:activated(true) end
 end
 function App:hidden()
-  if self.isHidden then return log.df('App %s already hidden, skipping',self.name) end
+  if self.isHidden then return log.df('app %s already hidden, skipping',self.name) end
   --  self:deactivated(true)
   for id,window in pairs(self.windows) do
     window:hidden()
   end
-  log.vf('App %s hidden',self.name)
+  log.vf('app %s hidden',self.name)
   self.isHidden=true
 end
 function App:unhidden()
-  if not self.isHidden then return log.df('App %s already unhidden, skipping',self.name) end
+  if not self.isHidden then return log.df('app %s already unhidden, skipping',self.name) end
   for id,window in pairs(self.windows) do
     window:unhidden()
   end
-  log.vf('App %s unhidden',self.name)
+  log.vf('app %s unhidden',self.name)
   self.isHidden=false
   if next(spacesInstances) then self:getCurrentSpaceAppWindows(true) end
 end
 function App:destroyed()
-  log.f('App %s deregistered',self.name)
+  log.f('app %s deregistered',self.name)
   self.watcher:stop()
   for id,window in pairs(self.windows) do
     window:destroyed()
@@ -1355,7 +1355,7 @@ local function windowEvent(win,event,_,appname,retry)
   end
   log.vf('%s (%s) <= %s (window event)',appname,id or '?',event)
   if not id then return log.ef('%s: %s cannot be processed',appname,event) end
-  if not app then return log.ef('App %s is not registered!',appname) end
+  if not app then return log.ef('app %s is not registered!',appname) end
   local window = app.windows[id]
   if not window then return log.ef('%s (&d) is not registered!',appname,id) end
   if event==uiwatcher.elementDestroyed then
@@ -1403,7 +1403,7 @@ appWindowEvent=function(win,event,_,appname,retry)
       ,uiwatcher.windowMinimized,uiwatcher.windowUnminimized,uiwatcher.titleChanged})
   elseif event==uiwatcher.focusedWindowChanged then
     local app=apps[appname]
-    if not app then return log.ef('App %s is not registered!',appname) end
+    if not app then return log.ef('app %s is not registered!',appname) end
     app:focusChanged(id,win)
   end
 end
@@ -1425,9 +1425,9 @@ end
 -- old workaround for the 'missing pid' bug
 -- reinstated because occasionally apps take a while to be watchable after launching
 local function startAppWatcher(app,appname,retry,nologging)
-  if not app or not appname then log.e('Called startAppWatcher with no app') return end
-  if apps[appname] then return not nologging and log.df('App %s already registered',appname) end
-  if app:kind()<0 or not windowfilter.isGuiApp(appname) then log.df('App %s has no GUI',appname) return end
+  if not app or not appname then log.e('called startAppWatcher with no app') return end
+  if apps[appname] then return not nologging and log.df('app %s already registered',appname) end
+  if app:kind()<0 or not windowfilter.isGuiApp(appname) then log.df('app %s has no GUI',appname) return end
   retry=(retry or 0)+1
   if retry>1 and not pendingApps[appname] then return end --given up before anything could even happen
 
@@ -1468,7 +1468,7 @@ local function appEvent(appname,event,app,retry)
     return
     --]]
   elseif event==appwatcher.terminated then pendingApps[appname]=nil end
-  if not appo then return log.ef('App %s is not registered!',appname) end
+  if not appo then return log.ef('app %s is not registered!',appname) end
   if event==appwatcher.terminated then return appo:destroyed()
   elseif event==appwatcher.deactivated then return appo:deactivated()
   elseif event==appwatcher.hidden then return appo:hidden()
@@ -1562,7 +1562,7 @@ local function startGlobalWatcher()
   end
   global.watcher = appwatcher.new(appEvent)
   local runningApps = application.runningApplications()
-  log.f('Registering %d running apps',#runningApps)
+  log.f('registering %d running apps',#runningApps)
   for _,app in ipairs(runningApps) do
     startAppWatcher(app,app:name())
   end
@@ -1583,7 +1583,7 @@ local function stopGlobalWatcher()
   end
   global.watcher:stop()
   apps,global={},{}
-  log.f('Unregistered %d apps',totalApps)
+  log.f('unregistered %d apps',totalApps)
 end
 
 local screenCache,screenWatcher={}
@@ -1617,14 +1617,14 @@ end
 
 local function screensChanged()
   screenCache={}
-  log.i('Screens changed, refreshing screens-aware windowfilters')
+  log.i('screens changed, refreshing screens-aware windowfilters')
   for wf in pairs(screensInstances) do applyScreenFilters(wf) end
 end
 
 local function startScreenWatcher()
   if screenWatcher then return end
   screenWatcher=screen.watcher.new(screensChanged):start()
-  log.i('Screen watcher started')
+  log.i('screen watcher started')
   screensChanged()
 end
 
@@ -1632,14 +1632,14 @@ local function stopScreenWatcher()
   if not screenWatcher then return end
   if next(screensInstances) then return end
   screenWatcher:stop() screenWatcher=nil
-  log.i('Screen watcher stopped')
+  log.i('screen watcher stopped')
 end
 
 checkScreensFilters=function(self)
   local prev,now=self.screensFilters
   for _,flt in pairs(self.filters) do if type(flt)=='table' and (flt.allowScreens or flt.rejectScreens) then now=true break end end
   if prev~=now then
-    self.log.df('%s screens-aware filters',now and 'Added' or 'No more')
+    self.log.df('%s screens-aware filters',now and 'added' or 'no more')
     self.screensFilters=now
     screensInstances[self]=now
     if now then if not screenWatcher then startScreenWatcher() else applyScreenFilters(self) end
@@ -1651,7 +1651,7 @@ checkTrackSpacesFilters=function(self)
   local prev,now=self.trackSpacesFilters
   for _,flt in pairs(self.filters) do if type(flt)=='table' and flt.currentSpace~=nil then now=true break end end
   if prev~=now then
-    self.log.df('%s Spaces-aware filters',now and 'Added' or 'No more')
+    self.log.df('%s Spaces-aware filters',now and 'added' or 'no more')
     self.trackSpacesFilters=now
     spacesInstances[self]=(now or self.trackSpacesSubscriptions) and true or nil
     if now then startGlobalWatcher() else stopGlobalWatcher() end
@@ -1662,7 +1662,7 @@ checkActiveApplicationFilters=function(self)
   local prev,now=self.activeApplicationFilters
   for _,flt in pairs(self.filters) do if type(flt)=='table' and flt.activeApplication~=nil then now=true break end end
   if prev~=now then
-    self.log.df('%s active application-aware filters',now and 'Added' or 'No more')
+    self.log.df('%s active application-aware filters',now and 'added' or 'no more')
     self.activeApplicationFilters=now
     applicationInstances[self]=now
   end
@@ -1672,7 +1672,7 @@ local function checkTrackSpacesSubscriptions(self)
   local prev,now=self.trackSpacesSubscriptions
   for ev in pairs(trackSpacesEvents) do if self.events[ev] then now=true break end end
   if prev~=now then
-    self.log.df('%s Spaces-aware subscriptions',now and 'Added' or 'No more')
+    self.log.df('%s Spaces-aware subscriptions',now and 'added' or 'no more')
     self.trackSpacesSubscriptions=now
     spacesInstances[self]=(now or self.trackSpacesFilters) and true or nil
     if now then startGlobalWatcher() else stopGlobalWatcher() end
@@ -1687,18 +1687,20 @@ local function subscribe(self,map)
     for _,fn in pairs(fns) do
       if type(fn)~='function' then error('fn must be a function or table of functions',3) end
       if not self.events[event] then self.events[event]={} end
-      self.events[event][fn]=true
-      self.log.df('Added callback for event %s',event)
+      if not self.events[event][fn] then
+        self.events[event][fn]=true
+        self.log.df('added callback for event %s',event)
+      end
     end
   end
 end
 
 local function unsubscribe(self,event,fn)
   if self.events[event] and self.events[event][fn] then
-    self.log.df('Removed callback for event %s',event)
+    self.log.df('removed callback for event %s',event)
     self.events[event][fn]=nil
     if not next(self.events[event]) then
-      self.log.df('No more callbacks for event %s',event)
+      self.log.df('no more callbacks for event %s',event)
       self.events[event]=nil
     end
   end
@@ -1710,14 +1712,14 @@ end
 
 local function unsubscribeEvent(self,event)
   if not events[event] then error('invalid event: '..event,3) end
-  if self.events[event] then self.log.df('Removed all callbacks for event %s',event) end
+  if self.events[event] then self.log.df('removed all callbacks for event %s',event) end
   self.events[event]=nil
 end
 
 
 refreshWindows=function(wf)
   -- whenever a wf is edited, refresh the windows to reflect the new filter
-  wf.log.v('Refreshing windows')
+  wf.log.v('refreshing windows')
   for _,app in pairs(apps) do
     for _,window in pairs(app.windows) do
       window:setFilter(wf)
@@ -1745,7 +1747,7 @@ end
 function WF:keepActive()
   if self.doKeepActive then return self end
   self.doKeepActive=true
-  self.log.i('Keep active')
+  self.log.i('keep instance active')
   return start(self)
 end
 
@@ -1816,7 +1818,7 @@ local function getWindowObjects(wf,sortOrder)
   local recheckAppName
   for w in pairs(wf.windows) do
     -- filter out any apps that mysteriously vanish
-    if not w.app.app:isRunning() then log.wf('App %s disappeared!',w.app.name) w.app:destroyed() recheckAppName=w.app.name
+    if not w.app.app:isRunning() then log.wf('app %s disappeared!',w.app.name) w.app:destroyed() recheckAppName=w.app.name
     else r[#r+1]=w end
   end
   if recheckAppName then
@@ -2025,7 +2027,7 @@ function WF:unsubscribe(events,fns)
       else for _,fn in ipairs(fns) do unsubscribe(self,ev,fn) end end
     end
   end
-  if not next(self.events) then return self:unsubscribeAll() end
+  if not next(self.events) then self.log.i('no more callbacks') return self:unsubscribeAll() end
   checkTrackSpacesSubscriptions(self)
   return self
 end
@@ -2321,7 +2323,7 @@ for _,dir in ipairs{'East','North','West','South'}do
     return window['windowsTo'..dir](win,self:getWindows(),...)
   end
   WF['focusWindow'..dir]=function(self,win,...)
-    if window['focusWindow'..dir](win,self:getWindows(),...) then self.log.i('Focused window '..dir:lower()) end
+    if window['focusWindow'..dir](win,self:getWindows(),...) then self.log.i('focused window '..dir:lower()) end
   end
   windowfilter['focus'..dir]=function()local d=makeDefaultCurrentSpace():keepActive()d['focusWindow'..dir](d,nil,nil,true)end
 end
