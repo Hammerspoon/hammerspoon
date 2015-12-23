@@ -295,7 +295,7 @@ static int task_setInput(lua_State *L) {
         }
 
         // Store input data
-        userData->inputData = (__bridge_retained void *)[skin toNSObjectAtIndex:2];
+        userData->inputData = (__bridge_retained void *)[skin toNSObjectAtIndex:2 withOptions:LS_NSPreserveLuaStringExactly];
         stdInFH.writeabilityHandler = writerBlock;
     } else {
         printToConsole(L, "WARNING: hs.task:setInput() called on a task that has already terminated");
