@@ -199,7 +199,7 @@ static int task_setInput(lua_State *L) {
                     }
                 }
                 @catch (NSException *theException) {
-CLS_NSLOG(@"%s:stdin exception: %@", theException);                    // do nothing
+CLS_NSLOG(@"%s:stdin exception: %@", USERDATA_TAG, theException);                    // do nothing
                 }
                 @finally {
                     theHandle.writeabilityHandler = nil ;
