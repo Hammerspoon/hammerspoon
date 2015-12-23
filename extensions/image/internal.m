@@ -5,6 +5,26 @@
 
 #define USERDATA_TAG "hs.image"
 
+#pragma mark - Support Functions
+
+// Shamelessly "borrowed" and tweaked from the lua 5.1 source... see http://www.lua.org/source/5.1/ltablib.c.html
+// returns maximum numeric index, even for sparse tables
+static int maxn (lua_State *L, int idx) {
+  int max = 0;
+  luaL_checktype(L, idx, LUA_TTABLE);
+  lua_pushnil(L);  /* first key */
+  while (lua_next(L, idx)) {
+    lua_pop(L, 1);  /* remove value */
+    if (lua_type(L, -1) == LUA_TNUMBER) {
+      int v = (int)lua_tointeger(L, -1);
+      if (v > max) max = v;
+    }
+  }
+  return max ;
+}
+
+#pragma mark - Module Constants
+
 /// hs.image.systemImageNames[]
 /// Constant
 /// Array containing the names of internal system images for use with hs.drawing.image
@@ -76,6 +96,8 @@ static int pushNSImageNameTable(lua_State *L) {
     return 1;
 }
 
+#pragma mark - Module Functions
+
 /// hs.image.imageFromPath(path) -> object
 /// Constructor
 /// Loads an image file
@@ -98,21 +120,6 @@ static int imageFromPath(lua_State *L) {
     }
 
     return 1;
-}
-
-// Shamelessly "borrowed" and tweaked from the lua 5.1 source... see http://www.lua.org/source/5.1/ltablib.c.html
-static int maxn (lua_State *L, int idx) {
-  int max = 0;
-  luaL_checktype(L, idx, LUA_TTABLE);
-  lua_pushnil(L);  /* first key */
-  while (lua_next(L, idx)) {
-    lua_pop(L, 1);  /* remove value */
-    if (lua_type(L, -1) == LUA_TNUMBER) {
-      int v = (int)lua_tointeger(L, -1);
-      if (v > max) max = v;
-    }
-  }
-  return max ;
 }
 
 /// hs.image.imageFromASCII(ascii[, context]) -> object
@@ -309,7 +316,9 @@ static int imageFromApp(lua_State *L) {
     return 1;
 }
 
-/// hs.image:getImageName() -> string
+#pragma mark - Module Methods
+
+/// hs.image:name() -> string
 /// Method
 /// Returns the name assigned to the hs.image object.
 ///
@@ -324,7 +333,7 @@ static int getImageName(lua_State* L) {
     return 1 ;
 }
 
-/// hs.image:setImageName(Name) -> boolean
+/// hs.image:setName(Name) -> boolean
 /// Method
 /// Assigns the name assigned to the hs.image object.
 ///
@@ -342,21 +351,47 @@ static int setImageName(lua_State* L) {
     return 1 ;
 }
 
-static int userdata_tostring(lua_State* L) {
-    NSImage *testImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
-    NSString* theName = [testImage name] ;
-
-    if (!theName) theName = @"" ; // unlike some cases, [NSImage name] apparently returns an actual NULL instead of an empty string...
-
-    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
+/// hs.image:size() -> size
+/// Method
+/// Returns the size of the image.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * size - a table representing the image size
+static int getImageSize(__unused lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSImage *testImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    [skin pushNSSize:[testImage size]] ;
     return 1 ;
 }
 
-static int userdata_eq(lua_State* L) {
-    NSImage *image1 = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
-    NSImage *image2 = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"] ;
-
-    return image1 == image2 ;
+/// hs.image:setSize(size [, absolute]) -> object
+/// Method
+/// Returns a copy of the image resized to the height and width specified in the size table.
+///
+/// Parameters:
+///  * size     - a table with 'h' and 'w' keys specifying the size for the new image.
+///  * absolute - an optional boolean specifying whether or not the copied image should be resized to the height and width specified (true), or whether the copied image should be scaled proportionally to fit within the height and width specified (false).  Defaults to false.
+///
+/// Returns:
+///  * a copy of the image object at the new size
+static int setImageSize(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    NSImage *theImage = [[skin luaObjectAtIndex:1 toClass:"NSImage"] copy] ;
+    NSSize  destSize  = [skin tableToSizeAtIndex:2] ;
+    BOOL    absolute  = (lua_gettop(L) == 3) ? lua_toboolean(L, 3) : NO ;
+    if (absolute) {
+        [theImage setSize:destSize] ;
+    } else {
+        NSSize srcSize = [theImage size] ;
+        CGFloat multiplier = fmin(destSize.width / srcSize.width, destSize.height / srcSize.height) ;
+        [theImage setSize:NSMakeSize(srcSize.width * multiplier, srcSize.height * multiplier)] ;
+    }
+    [skin pushNSObject:theImage];
+    return 1 ;
 }
 
 /// hs.image:saveToFile(filename[, filetype]) -> boolean
@@ -416,6 +451,49 @@ static int saveToFile(lua_State* L) {
     return 1 ;
 }
 
+#pragma mark - Conversion Extensions
+
+// [[LuaSkin shared] pushNSObject:NSImage]
+// C-API
+// Pushes the provided NSImage onto the Lua Stack as a hs.image userdata object
+static int NSImage_tolua(lua_State *L, id obj) {
+    NSImage *theImage = obj ;
+
+    theImage.cacheMode = NSImageCacheNever ;
+
+    void** imagePtr = lua_newuserdata(L, sizeof(NSImage *));
+    *imagePtr = (__bridge_retained void *)theImage;
+
+    luaL_getmetatable(L, USERDATA_TAG);
+    lua_setmetatable(L, -2);
+
+    return 1 ;
+}
+
+static id HSImage_toNSImage(lua_State *L, int idx) {
+    void **thingy = luaL_checkudata(L, idx, USERDATA_TAG) ;
+    return (__bridge NSImage *) *thingy ;
+}
+
+#pragma mark - Hammerspoon/Lua Infrastructure
+
+static int userdata_tostring(lua_State* L) {
+    NSImage *testImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSString* theName = [testImage name] ;
+
+    if (!theName) theName = @"" ; // unlike some cases, [NSImage name] apparently returns an actual NULL instead of an empty string...
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, theName, lua_topointer(L, 1)] UTF8String]) ;
+    return 1 ;
+}
+
+static int userdata_eq(__unused lua_State* L) {
+    NSImage *image1 = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSImage *image2 = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"] ;
+
+    return image1 == image2 ;
+}
+
 static int userdata_gc(lua_State* L) {
 // Get the NSImage so ARC can release it...
     void **thingy = luaL_checkudata(L, 1, USERDATA_TAG) ;
@@ -435,6 +513,8 @@ static int userdata_gc(lua_State* L) {
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
     {"name",       getImageName},
+    {"size",       getImageSize},
+    {"setSize",    setImageSize},
     {"setName",    setImageName},
     {"saveToFile", saveToFile},
     {"__tostring", userdata_tostring},
@@ -459,29 +539,6 @@ static luaL_Reg moduleLib[] = {
 //     {NULL,                  NULL}
 // };
 
-// [[LuaSkin shared] pushNSObject:NSImage]
-// C-API
-// Pushes the provided NSImage onto the Lua Stack as a hs.image userdata object
-static int NSImage_tolua(lua_State *L, id obj) {
-    NSImage *theImage = obj ;
-
-    theImage.cacheMode = NSImageCacheNever ;
-
-    void** imagePtr = lua_newuserdata(L, sizeof(NSImage *));
-    *imagePtr = (__bridge_retained void *)theImage;
-
-    luaL_getmetatable(L, USERDATA_TAG);
-    lua_setmetatable(L, -2);
-
-    return 1 ;
-}
-
-static id HSImage_toNSImage(lua_State *L, int idx) {
-    void **thingy = luaL_checkudata(L, idx, USERDATA_TAG) ;
-    return (__bridge NSImage *) *thingy ;
-}
-
-
 int luaopen_hs_image_internal(lua_State* L) {
     [[LuaSkin shared] registerLibraryWithObject:USERDATA_TAG
                                       functions:moduleLib
@@ -492,5 +549,6 @@ int luaopen_hs_image_internal(lua_State* L) {
 
     [[LuaSkin shared] registerPushNSHelper:NSImage_tolua        forClass:"NSImage"] ;
     [[LuaSkin shared] registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage"] ;
+
     return 1;
 }
