@@ -456,5 +456,14 @@ typedef struct luaObjectHelpers {
  */
 - (void)pushUserData:(void *)userData;
 
+/* will probably disappear into the delegate per discussion in #698 */
+
+- (void)logDebugTracebackWithTag:(NSString *)theTag ;
+- (void)printNSStringToConsole:(NSString *)theMessage ;
+- (void)printNSStringToConsole:(NSString *)theMessage fromLevel:(int)theLevel ;
+- (void)printCStringToConsole:(const char *)theMessage ;
+- (void)printCStringToConsole:(const char *)theMessage fromLevel:(int)theLevel ;
+- (void)printToConsoleAtIndex:(int)idx ;
+
 @end
 

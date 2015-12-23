@@ -13,28 +13,38 @@
 
 // Shamelessly "borrowed" and tweaked from the lua 5.1 source... see http://www.lua.org/source/5.1/ltablib.c.html
 static lua_Integer maxn (lua_State *L, int idx) {
-  lua_Integer max = 0;
-  luaL_checktype(L, idx, LUA_TTABLE);
-  lua_pushnil(L);  /* first key */
-  while (lua_next(L, idx)) {
-    lua_pop(L, 1);  /* remove value */
-    if (lua_type(L, -1) == LUA_TNUMBER && lua_isinteger(L, -1)) {
-      lua_Integer v = lua_tointeger(L, -1);
-      if (v > max) max = v;
+    lua_Integer max = 0;
+    if (lua_type(L, idx) == LUA_TTABLE) {
+        lua_pushnil(L);  /* first key */
+        while (lua_next(L, idx)) {
+            lua_pop(L, 1);  /* remove value */
+            if (lua_type(L, -1) == LUA_TNUMBER && lua_isinteger(L, -1)) {
+                lua_Integer v = lua_tointeger(L, -1);
+                if (v > max) max = v;
+            }
+        }
+//     } else {
+//         // This shouldn't ever happen... this is an internal function which *should* only be called
+//         // when we already know were using a table, but... bugs do happen, and at least this way it
+//         // won't call lua error function which uses longjump and never returns
     }
-  }
-  return max ;
+    return max ;
 }
 
 static lua_Integer countn (lua_State *L, int idx) {
-  lua_Integer max = 0;
-  luaL_checktype(L, idx, LUA_TTABLE);
-  lua_pushnil(L);  /* first key */
-  while (lua_next(L, idx)) {
-    lua_pop(L, 1);  /* remove value */
-    max++ ;
-  }
-  return max ;
+    lua_Integer max = 0;
+    if (lua_type(L, idx) == LUA_TTABLE) {
+        lua_pushnil(L);  /* first key */
+        while (lua_next(L, idx)) {
+          lua_pop(L, 1);  /* remove value */
+          max++ ;
+        }
+//     } else {
+//         // This shouldn't ever happen... this is an internal function which *should* only be called
+//         // when we already know were using a table, but... bugs do happen, and at least this way it
+//         // won't call lua error function which uses longjump and never returns
+    }
+    return max ;
 }
 
 // Extension to LuaSkin class for conversion support
@@ -371,14 +381,18 @@ nextarg:
 }
 
 - (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
+// this hackery assumes that this method is only called from within the luaopen_* function of a module and
+// attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
+    int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
+    if (level == 0) level = 3 ;
+
     if (className && helperFN) {
         if ([registeredNSHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]) {
-            luaL_error(_L, "registerPushNSHelper:forClass:%s already defined at %s", className,
-              [[registeredNSHelperLocations objectForKey:[NSString stringWithUTF8String:className]] UTF8String]) ;
+            [self printNSStringToConsole:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
+                                          className,
+                                          [registeredNSHelperLocations objectForKey:[NSString stringWithUTF8String:className]]]
+                               fromLevel:level] ;
         } else {
-            int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
-            if (level == 0) level = 3 ;
-
             luaL_where(_L, level) ;
             NSString *locationString = [NSString stringWithFormat:@"%s", lua_tostring(_L, -1)] ;
             [registeredNSHelperLocations setObject:locationString
@@ -388,7 +402,8 @@ nextarg:
             lua_pop(_L, 1) ;
         }
     } else {
-        luaL_error(_L, "registerPushNSHelper:forClass: requires both helperFN and className") ;
+        [self printNSStringToConsole:@"registerPushNSHelper:forClass: requires both helperFN and className"
+                           fromLevel:level] ;
     }
 }
 
@@ -438,14 +453,18 @@ nextarg:
 }
 
 - (void)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char*)className {
+// this hackery assumes that this method is only called from within the luaopen_* function of a module and
+// attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
+    int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
+    if (level == 0) level = 3 ;
+
     if (className && helperFN) {
         if ([registeredLuaObjectHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]) {
-            luaL_error(_L, "registerLuaObjectHelper:forClass:%s already defined at %s", className,
-              [[registeredLuaObjectHelperLocations objectForKey:[NSString stringWithUTF8String:className]] UTF8String]) ;
+            [self printNSStringToConsole:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
+                                          className,
+                                          [registeredLuaObjectHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]]
+                               fromLevel:level] ;
         } else {
-            int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
-            if (level == 0) level = 3 ;
-
             luaL_where(_L, level) ;
             NSString *locationString = [NSString stringWithFormat:@"%s", lua_tostring(_L, -1)] ;
             [registeredLuaObjectHelperLocations setObject:locationString
@@ -455,34 +474,50 @@ nextarg:
             lua_pop(_L, 1) ;
         }
     } else {
-        luaL_error(_L, "registerLuaObjectHelper:forClass: requires both helperFN and className") ;
+        [self printNSStringToConsole:@"registerLuaObjectHelper:forClass: requires both helperFN and className"
+                           fromLevel:level] ;
     }
 }
 
 - (NSRect)tableToRectAtIndex:(int)idx {
-    luaL_checktype(_L, idx, LUA_TTABLE);
-    CGFloat x = (lua_getfield(_L, idx, "x") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
-    CGFloat y = (lua_getfield(_L, idx, "y") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
-    CGFloat w = (lua_getfield(_L, idx, "w") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
-    CGFloat h = (lua_getfield(_L, idx, "h") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
-    lua_pop(_L, 4);
-    return NSMakeRect(x, y, w, h);
+    if (lua_type(_L, idx) == LUA_TTABLE) {
+        CGFloat x = (lua_getfield(_L, idx, "x") == LUA_TNUMBER) ? lua_tonumber(_L, -1) : 0.0 ;
+        CGFloat y = (lua_getfield(_L, idx, "y") == LUA_TNUMBER) ? lua_tonumber(_L, -1) : 0.0 ;
+        CGFloat w = (lua_getfield(_L, idx, "w") == LUA_TNUMBER) ? lua_tonumber(_L, -1) : 0.0 ;
+        CGFloat h = (lua_getfield(_L, idx, "h") == LUA_TNUMBER) ? lua_tonumber(_L, -1) : 0.0 ;
+        lua_pop(_L, 4);
+        return  NSMakeRect(x, y, w, h) ;
+    } else {
+        [self printNSStringToConsole:[NSString stringWithFormat:@"returning NSZeroRect: can't make NSRect from %s.", lua_typename(_L, lua_type(_L, idx))]
+                           fromLevel:1] ;
+        return NSZeroRect ;
+    }
 }
 
 - (NSPoint)tableToPointAtIndex:(int)idx {
-    luaL_checktype(_L, idx, LUA_TTABLE);
-    CGFloat x = (lua_getfield(_L, idx, "x") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
-    CGFloat y = (lua_getfield(_L, idx, "y") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
-    lua_pop(_L, 2);
-    return NSMakePoint(x, y);
+    if (lua_type(_L, idx) == LUA_TTABLE) {
+        CGFloat x = (lua_getfield(_L, idx, "x") == LUA_TNUMBER) ? lua_tonumber(_L, -1) : 0.0 ;
+        CGFloat y = (lua_getfield(_L, idx, "y") == LUA_TNUMBER) ? lua_tonumber(_L, -1) : 0.0 ;
+        lua_pop(_L, 2);
+        return NSMakePoint(x, y);
+    } else {
+        [self printNSStringToConsole:[NSString stringWithFormat:@"returning NSZeroPoint: can't make NSPoint from %s.", lua_typename(_L, lua_type(_L, idx))]
+                           fromLevel:1] ;
+        return NSZeroPoint ;
+    }
 }
 
 - (NSSize)tableToSizeAtIndex:(int)idx {
-    luaL_checktype(_L, idx, LUA_TTABLE);
-    CGFloat w = (lua_getfield(_L, idx, "w") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
-    CGFloat h = (lua_getfield(_L, idx, "h") != LUA_TNIL) ? luaL_checknumber(_L, -1) : 0.0 ;
-    lua_pop(_L, 2);
-    return NSMakeSize(w, h);
+    if (lua_type(_L, idx) == LUA_TTABLE) {
+        CGFloat w = (lua_getfield(_L, idx, "w") == LUA_TNUMBER) ? lua_tonumber(_L, -1) : 0.0 ;
+        CGFloat h = (lua_getfield(_L, idx, "h") == LUA_TNUMBER) ? lua_tonumber(_L, -1) : 0.0 ;
+        lua_pop(_L, 2);
+        return NSMakeSize(w, h);
+    } else {
+        [self printNSStringToConsole:[NSString stringWithFormat:@"returning NSZeroSize: can't make NSSize from %s.", lua_typename(_L, lua_type(_L, idx))]
+                           fromLevel:1] ;
+        return NSZeroSize ;
+    }
 }
 
 #pragma mark - Other helpers
@@ -731,7 +766,7 @@ nextarg:
     NSMutableArray *seenObject = [alreadySeen objectForKey:[NSValue valueWithPointer:lua_topointer(_L, idx)]] ;
     if (seenObject) {
         if ([[seenObject lastObject] isEqualToNumber:@(NO)] && allow == NO) {
-            luaL_error(_L, "lua table cannot contain self-references") ;
+            [self printCStringToConsole:"lua table cannot contain self-references" fromLevel:1] ;
             return nil ;
         } else {
             return [seenObject firstObject] ;
@@ -802,6 +837,54 @@ nextarg:
 
     [alreadySeen setObject:@[result, @(YES)] forKey:[NSValue valueWithPointer:lua_topointer(_L, idx)]] ;
     return result ;
+}
+
+- (void)logDebugTracebackWithTag:(NSString *)theTag {
+    NSLog(@"LuaSkin Debug Traceback (%@): top index: %d, absolute: %d", theTag, lua_gettop(_L), lua_absindex(_L, lua_gettop(_L))) ;
+    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+    lua_getglobal(_L, "debug") ;
+    lua_getfield(_L, -1, "traceback") ;
+    lua_remove(_L, -2) ;
+    int errState = lua_pcall(_L, 0, 1, 0) ;
+    NSLog(@"LuaSkin Debug Traceback (%@): traceback call status: %@\n%s",
+          theTag,
+          [stateLabels objectAtIndex:(NSUInteger)errState],
+          luaL_tolstring(_L, -1, NULL)) ;
+    lua_pop(_L, 1) ;
+}
+
+- (void)printNSStringToConsole:(NSString *)theMessage {
+    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+    lua_getglobal(_L, "print") ;
+    lua_pushstring(_L, [theMessage UTF8String]) ;
+    int errState = lua_pcall(_L, 1, 0, 0) ;
+    if (errState != LUA_OK) {
+        NSLog(@"printNSStringToConsole: print error, state %@: %s",
+              [stateLabels objectAtIndex:(NSUInteger)errState],
+              luaL_tolstring(_L, -1, NULL)) ;
+        lua_pop(_L, 1) ;
+    }
+}
+
+- (void)printNSStringToConsole:(NSString *)theMessage fromLevel:(int)theLevel {
+    luaL_where(_L, theLevel) ;
+    NSString *locationInfo = [NSString stringWithUTF8String:lua_tostring(_L, -1)] ;
+    if (!locationInfo || [locationInfo isEqualToString:@""])
+        locationInfo = [NSString stringWithFormat:@"(no lua location info at depth %d)", theLevel] ;
+    [self printNSStringToConsole:[NSString stringWithFormat:@"%@:%@", locationInfo, theMessage]] ;
+    lua_pop(_L, 1) ;
+}
+
+- (void)printCStringToConsole:(const char *)theMessage {
+    [self printNSStringToConsole:[NSString stringWithUTF8String:theMessage]] ;
+}
+
+- (void)printCStringToConsole:(const char *)theMessage fromLevel:(int)theLevel {
+    [self printNSStringToConsole:[NSString stringWithUTF8String:theMessage] fromLevel:theLevel] ;
+}
+
+- (void)printToConsoleAtIndex:(int)idx {
+    [self printCStringToConsole:luaL_tolstring(_L, idx, NULL)] ;
 }
 
 @end
