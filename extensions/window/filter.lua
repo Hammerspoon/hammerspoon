@@ -673,7 +673,8 @@ end
 --TODO windowstarted/stoppedmoving event? (needs eventtap on mouse and keyboard mods, and hooking up with animations in hs.window,
 -- and even then not fully reliable)
 
-local function __tostring(self) return 'hs.window.filter: '..(self.logname or '...') end
+local getmetatable,tostring,gsub=getmetatable,tostring,string.gsub
+local function __tostring(self) return sformat('hs.window.filter: %s (%s)',self.logname or '...',self.__address) end
 function windowfilter.iswf(t)
   local mt=getmetatable(t) return mt and mt.__index==WF or false
 end
@@ -701,9 +702,10 @@ end
 ---  * a new windowfilter instance
 function windowfilter.new(fn,logname,loglevel)
   local mt=getmetatable(fn) if mt and mt.__index==WF then return fn end -- no copy-on-new
-  local o = setmetatable({filters={},events={},windows={},pending={},
-    log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel},
-  {__index=WF,__tostring=__tostring,__gc=WF.delete})
+  local o={filters={},events={},windows={},pending={},
+    log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel}
+  o.__address=gsub(tostring(o),'table: ','')
+  setmetatable(o,{__index=WF,__tostring=__tostring,__gc=WF.delete})
   if logname then o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel end
   if type(fn)=='function' then
     o.log.i('new windowfilter, custom function')
@@ -949,7 +951,7 @@ local function emit(win,wf,event,logged)
   end
   return logged
 end
-local noWindow={app={}}
+local noWindow={app={}} -- emit nil,nil to windowsChanged if no allowed windows
 function Window:filterEmitEvent(wf,event,inserted,logged,notified)
   local filteringStatusChanged=self:setFilter(wf,event==windowfilter.windowDestroyed)
   local isAllowed=wf.windows[self]

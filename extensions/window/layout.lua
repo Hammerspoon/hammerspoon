@@ -316,10 +316,12 @@ end
 ---
 --- Returns:
 ---  * a new windowlayout instance
-local function __tostring(self) return 'hs.window.layout: '..(self.logname or '...') end
+local function __tostring(self) return sformat('hs.window.layout: %s (%s)',self.logname or '...',self.__address) end
 function layout.new(rules,logname,loglevel)
   if type(rules)~='table' then error('rules must be a table',2)end
-  local o=setmetatable({log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel},{__index=layout,__tostring=__tostring})
+  local o={log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel}
+  o.__address=gsub(tostring(o),'table: ','')
+  setmetatable(o,{__index=layout,__tostring=__tostring,__gc=layout.delete})
   if logname then o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel end
   local mt=getmetatable(rules)
   if mt and mt.__index==layout then
@@ -722,7 +724,7 @@ function layout:delete()
     --global stop
     if screenWatcher then screenWatcher:stop() screenWatcher=nil end
   end
-  setmetatable(self)
+  setmetatable(self,nil)
 end
 
 --- hs.window.layout.screensChangedDelay
