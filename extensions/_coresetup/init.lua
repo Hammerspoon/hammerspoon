@@ -4,7 +4,7 @@
 
 return {setup=function(...)
   local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
-  local tostring,pack,tconcat=tostring,table.pack,table.concat
+  local tostring,pack,tconcat,sformat=tostring,table.pack,table.concat,string.format
   -- setup core functions
 
   os.exit = hs._exit
@@ -109,6 +109,8 @@ return {setup=function(...)
     local str = tconcat(vals, "\t") .. "\n"
     logmessage(str)
   end
+  function hs.printf(fmt,...) return print(sformat(fmt,...)) end
+
 
   --- hs.execute(command[, with_user_env]) -> output, status, type, rc
   --- Function
@@ -234,7 +236,7 @@ return {setup=function(...)
   if not hasinitfile then
     hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
     hs.notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
-    print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
+    hs.printf("-- Can't find %s; create it and reload your config.", prettypath)
     return runstring
   end
 

@@ -6,7 +6,7 @@
 local date,time = os.date,os.time
 local min,max,tmove=math.min,math.max,table.move
 local sformat,ssub,slower,srep,sfind=string.format,string.sub,string.lower,string.rep,string.find
-local type,select,rawget,rawset,print=type,select,rawget,rawset,print
+local type,select,rawget,rawset,print,printf=type,select,rawget,rawset,print,hs.printf
 
 local ERROR,WARNING,INFO,DEBUG,VERBOSE=1,2,3,4,5
 local MAXLEVEL=VERBOSE
@@ -144,7 +144,7 @@ logger.printHistory=function(entries,lvl,flt,case)
   end
   for i=max(1,#filt-entries+1),#filt do
     local e=filt[i]
-    print(sformat('%s %s%s %s%s',date('%X',e.time),LEVELFMT[e.level][1],sformat(idf,e.id),LEVELFMT[e.level][2],e.message))
+    printf('%s %s%s %s%s',date('%X',e.time),LEVELFMT[e.level][1],sformat(idf,e.id),LEVELFMT[e.level][2],e.message)
   end
 end
 
@@ -159,9 +159,8 @@ local lf = function(loglevel,lvl,id,fmt,...)
   local stime = timeempty
   if ct-lasttime>0 or lvl<3 then stime=date('%X') lasttime=ct end
   if id==lastid and lvl>3 then id=idempty else lastid=id end
-  local s=sformat('%s %s%s %s%s',stime,LEVELFMT[lvl][1],id,LEVELFMT[lvl][2],msg)
   if lvl==ERROR then print'********' end
-  print(s)
+  printf('%s %s%s %s%s',stime,LEVELFMT[lvl][1],id,LEVELFMT[lvl][2],msg)
   if lvl==ERROR then print'********' end
 end
 local l = function(loglevel,lvl,id,...)
