@@ -64,10 +64,10 @@ static int ucc_new(__unused lua_State *L) {
 /// Add a script to be injected into webviews which use this user content controller.
 ///
 /// Parameters:
-///  * scriptTable - a table containing the following keys which define the script and how it is to be injected.  All three keys are required:
-///    * source        - the javascript which is injected
-///    * mainFrame     - a boolean value which indicates whether this script is only injected for the main webview frame (true) or for all frames within the webview (false)
-///    * injectionTime - a string which indicates whether the script is injected at "documentStart" or "documentEnd".
+///  * scriptTable - a table containing the following keys which define the script and how it is to be injected:
+///    * source        - the javascript which is injected (required)
+///    * mainFrame     - a boolean value which indicates whether this script is only injected for the main webview frame (true) or for all frames within the webview (false).  Defaults to true.
+///    * injectionTime - a string which indicates whether the script is injected at "documentStart" or "documentEnd". Defaults to "documentStart".
 ///
 /// Returns:
 ///  * the usercontentControllerObject
@@ -217,50 +217,46 @@ static int WKScriptMessage_toLua(lua_State *L, id obj) {
 
 static id table_toWKUserScript(lua_State* L, int idx) {
     LuaSkin *skin = [LuaSkin shared] ;
-    luaL_checktype(L, idx, LUA_TTABLE) ;
 
-    BOOL                      mainFrame ;
-    NSString                  *source ;
-    WKUserScriptInjectionTime injectionTime ;
+    if (lua_type(L, idx) == LUA_TTABLE) {
+        BOOL                      mainFrame = YES ;
+        NSString                  *source ;
+        WKUserScriptInjectionTime injectionTime = WKUserScriptInjectionTimeAtDocumentStart ;
 
-    if (lua_getfield(L, idx, "mainFrame") == LUA_TBOOLEAN) {
-        mainFrame = (BOOL)lua_toboolean(L, -1) ;
+        if (lua_getfield(L, idx, "mainFrame") == LUA_TBOOLEAN)
+            mainFrame = (BOOL)lua_toboolean(L, -1) ;
+        lua_pop(L, 1) ;
+
+        if (lua_getfield(L, idx, "source") == LUA_TSTRING) {
+            source = [skin toNSObjectAtIndex:-1] ;
             lua_pop(L, 1) ;
-    } else {
-        lua_pop(L, 1) ;
-        luaL_error(L, "%s: mainFrame is required and must be boolean", USERDATA_UCC_TAG) ;
-        return nil ;
-    }
-
-    if (lua_getfield(L, idx, "source") == LUA_TSTRING) {
-        source = [skin toNSObjectAtIndex:-1] ;
-        lua_pop(L, 1) ;
-    } else {
-        lua_pop(L, 1) ;
-        luaL_error(L, "%s: source is required and must be string", USERDATA_UCC_TAG) ;
-        return nil ;
-    }
-
-    if (lua_getfield(L, idx, "injectionTime") == LUA_TSTRING) {
-        NSString *label = [skin toNSObjectAtIndex:-1] ;
-        if ([label isEqualToString:@"documentStart"]) injectionTime = WKUserScriptInjectionTimeAtDocumentStart ; else
-        if ([label isEqualToString:@"documentEnd"])   injectionTime = WKUserScriptInjectionTimeAtDocumentEnd ;
-        else {
+        } else {
             lua_pop(L, 1) ;
-            luaL_error(L, "%s: invalid injectionTime: %@", USERDATA_UCC_TAG, label) ;
+            [skin logWarn:@"source is required and must be a string" fromLevel:1] ;
             return nil ;
         }
+
+        if (lua_getfield(L, idx, "injectionTime") == LUA_TSTRING) {
+            NSString *label = [skin toNSObjectAtIndex:-1] ;
+            if ([label isEqualToString:@"documentStart"])      { injectionTime = WKUserScriptInjectionTimeAtDocumentStart ;
+            } else if ([label isEqualToString:@"documentEnd"]) { injectionTime = WKUserScriptInjectionTimeAtDocumentEnd ;
+            } else {
+                [skin logWarn:[NSString stringWithFormat:@"invalid injectionTime, %@, defaulting to `documentStart`", label] fromLevel:1] ;
+            }
+        }
         lua_pop(L, 1) ;
+
+        WKUserScript *script = [[WKUserScript alloc] initWithSource:source
+                                                      injectionTime:injectionTime
+                                                   forMainFrameOnly:mainFrame] ;
+        return script ;
     } else {
-        lua_pop(L, 1) ;
-        luaL_error(L, "%s: injectionTime is required and must be string", USERDATA_UCC_TAG) ;
+        [skin logWarn:[NSString stringWithFormat:@"%s:invalid type for userscript, expected table, found %s",
+                                                      USERDATA_UCC_TAG,
+                                                      lua_typename(L, lua_type(L, idx))]
+            fromLevel:1] ;
         return nil ;
     }
-
-    WKUserScript *script = [[WKUserScript alloc] initWithSource:source
-                                                  injectionTime:injectionTime
-                                               forMainFrameOnly:mainFrame] ;
-    return script ;
 }
 
 #pragma mark - Lua infrastructure support
@@ -347,15 +343,15 @@ int luaopen_hs_webview_usercontent(lua_State* __unused L) {
 //    refTable = [skin registerLibrary:moduleLib metaFunctions:nil] ; // or module_metaLib
 // Use this some of your functions return or act on a specific object unique to this module
     refTable = [skin registerLibraryWithObject:USERDATA_UCC_TAG
-                                                 functions:moduleLib
-                                             metaFunctions:nil    // or module_metaLib
-                                           objectFunctions:userdata_metaLib];
+                                     functions:moduleLib
+                                 metaFunctions:nil    // or module_metaLib
+                               objectFunctions:userdata_metaLib];
 
     [skin registerPushNSHelper:HSUserContentController_toLua forClass:"HSUserContentController"] ;
     [skin registerPushNSHelper:WKUserScript_toLua            forClass:"WKUserScript"] ;
     [skin registerPushNSHelper:WKScriptMessage_toLua         forClass:"WKScriptMessage"] ;
 
-    [skin registerLuaObjectHelper:table_toWKUserScript           forClass:"WKUserScript"] ;
+    [skin registerLuaObjectHelper:table_toWKUserScript       forClass:"WKUserScript"] ;
 
     return 1;
 }

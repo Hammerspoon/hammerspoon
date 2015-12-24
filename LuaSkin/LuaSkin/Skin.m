@@ -23,10 +23,11 @@ static lua_Integer maxn (lua_State *L, int idx) {
                 if (v > max) max = v;
             }
         }
-//     } else {
-//         // This shouldn't ever happen... this is an internal function which *should* only be called
-//         // when we already know were using a table, but... bugs do happen, and at least this way it
-//         // won't call lua error function which uses longjump and never returns
+    } else {
+        // This shouldn't ever happen... this is an internal function which *should* only be called
+        // when we already know we're using a table, but... bugs do happen, and at least this way it
+        // won't call a lua error function which uses longjump and never returns
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"internal 'maxn' invoked on non-table index (found %s)", lua_typename(L, lua_type(L, idx))] fromLevel:0] ;
     }
     return max ;
 }
@@ -39,12 +40,22 @@ static lua_Integer countn (lua_State *L, int idx) {
           lua_pop(L, 1);  /* remove value */
           max++ ;
         }
-//     } else {
-//         // This shouldn't ever happen... this is an internal function which *should* only be called
-//         // when we already know were using a table, but... bugs do happen, and at least this way it
-//         // won't call lua error function which uses longjump and never returns
+    } else {
+        // This shouldn't ever happen... this is an internal function which *should* only be called
+        // when we already know we're using a table, but... bugs do happen, and at least this way it
+        // won't call a lua error function which uses longjump and never returns
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"internal 'countn' invoked on non-table index (found %s)", lua_typename(L, lua_type(L, idx))] fromLevel:0] ;
     }
     return max ;
+}
+
+static NSString *getChunkLineLabel(lua_State *L, int level) {
+    luaL_where(L, level) ;
+    NSString *locationInfo = [NSString stringWithUTF8String:lua_tostring(L, -1)] ;
+    lua_pop(L, 1) ;
+    if (!locationInfo || [locationInfo isEqualToString:@""])
+        locationInfo = [NSString stringWithFormat:@"(no lua location info at depth %d)", level] ;
+    return locationInfo ;
 }
 
 // Extension to LuaSkin class for conversion support
@@ -388,7 +399,7 @@ nextarg:
 
     if (className && helperFN) {
         if ([registeredNSHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]) {
-            [self printNSStringToConsole:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
+            [self logWarn:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
                                           className,
                                           [registeredNSHelperLocations objectForKey:[NSString stringWithUTF8String:className]]]
                                fromLevel:level] ;
@@ -402,7 +413,7 @@ nextarg:
             lua_pop(_L, 1) ;
         }
     } else {
-        [self printNSStringToConsole:@"registerPushNSHelper:forClass: requires both helperFN and className"
+        [self logWarn:@"registerPushNSHelper:forClass: requires both helperFN and className"
                            fromLevel:level] ;
     }
 }
@@ -460,7 +471,7 @@ nextarg:
 
     if (className && helperFN) {
         if ([registeredLuaObjectHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]) {
-            [self printNSStringToConsole:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
+            [self logWarn:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
                                           className,
                                           [registeredLuaObjectHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]]
                                fromLevel:level] ;
@@ -474,7 +485,7 @@ nextarg:
             lua_pop(_L, 1) ;
         }
     } else {
-        [self printNSStringToConsole:@"registerLuaObjectHelper:forClass: requires both helperFN and className"
+        [self logWarn:@"registerLuaObjectHelper:forClass: requires both helperFN and className"
                            fromLevel:level] ;
     }
 }
@@ -488,7 +499,7 @@ nextarg:
         lua_pop(_L, 4);
         return  NSMakeRect(x, y, w, h) ;
     } else {
-        [self printNSStringToConsole:[NSString stringWithFormat:@"returning NSZeroRect: can't make NSRect from %s.", lua_typename(_L, lua_type(_L, idx))]
+        [self logWarn:[NSString stringWithFormat:@"returning NSZeroRect: can't make NSRect from %s.", lua_typename(_L, lua_type(_L, idx))]
                            fromLevel:1] ;
         return NSZeroRect ;
     }
@@ -501,7 +512,7 @@ nextarg:
         lua_pop(_L, 2);
         return NSMakePoint(x, y);
     } else {
-        [self printNSStringToConsole:[NSString stringWithFormat:@"returning NSZeroPoint: can't make NSPoint from %s.", lua_typename(_L, lua_type(_L, idx))]
+        [self logWarn:[NSString stringWithFormat:@"returning NSZeroPoint: can't make NSPoint from %s.", lua_typename(_L, lua_type(_L, idx))]
                            fromLevel:1] ;
         return NSZeroPoint ;
     }
@@ -514,7 +525,7 @@ nextarg:
         lua_pop(_L, 2);
         return NSMakeSize(w, h);
     } else {
-        [self printNSStringToConsole:[NSString stringWithFormat:@"returning NSZeroSize: can't make NSSize from %s.", lua_typename(_L, lua_type(_L, idx))]
+        [self logWarn:[NSString stringWithFormat:@"returning NSZeroSize: can't make NSSize from %s.", lua_typename(_L, lua_type(_L, idx))]
                            fromLevel:1] ;
         return NSZeroSize ;
     }
@@ -766,7 +777,7 @@ nextarg:
     NSMutableArray *seenObject = [alreadySeen objectForKey:[NSValue valueWithPointer:lua_topointer(_L, idx)]] ;
     if (seenObject) {
         if ([[seenObject lastObject] isEqualToNumber:@(NO)] && allow == NO) {
-            [self printCStringToConsole:"lua table cannot contain self-references" fromLevel:1] ;
+            [self logWarn:@"lua table cannot contain self-references" fromLevel:1] ;
             return nil ;
         } else {
             return [seenObject firstObject] ;
@@ -839,9 +850,79 @@ nextarg:
     return result ;
 }
 
-- (void)logDebugTracebackWithTag:(NSString *)theTag {
-    NSLog(@"LuaSkin Debug Traceback (%@): top index: %d, absolute: %d", theTag, lua_gettop(_L), lua_absindex(_L, lua_gettop(_L))) ;
+// *** Will actually be handled by delegate when I figure out how to set that up properly ***
+
+- (void)logDebug:(NSString *)theMessage {
+    NSLog(@"%@", theMessage) ;
+}
+
+- (void)logWarn:(NSString *)theMessage {
     NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+    lua_getglobal(_L, "print") ;
+    lua_pushstring(_L, [theMessage UTF8String]) ;
+    int errState = lua_pcall(_L, 1, 0, 0) ;
+    if (errState != LUA_OK) {
+        NSLog(@"logWarn: print error, state %@: %s",
+              [stateLabels objectAtIndex:(NSUInteger)errState],
+              luaL_tolstring(_L, -1, NULL)) ;
+        lua_pop(_L, 1) ;
+    }
+}
+
+- (void)logError:(NSString *)theMessage {
+    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+    lua_getglobal(_L, "hs") ;
+    lua_getfield(_L, -1, "showError") ;
+    lua_remove(_L, -2) ;
+    lua_pushstring(_L, [theMessage UTF8String]) ;
+    int errState = lua_pcall(_L, 1, 0, 0) ;
+    if (errState != LUA_OK) {
+        NSLog(@"logError: print error, state %@: %s",
+              [stateLabels objectAtIndex:(NSUInteger)errState],
+              luaL_tolstring(_L, -1, NULL)) ;
+        lua_pop(_L, 1) ;
+    }
+    [self logWarn:theMessage] ;
+}
+
+// *** End of delegate methods; what follows are wrappers...
+
+- (void)logDebugFromIndex:(int)idx {
+    [self logDebug:[NSString stringWithUTF8String:luaL_tolstring(_L, idx, NULL)]] ;
+}
+
+- (void)logWarnFromIndex:(int)idx {
+    [self logWarn:[NSString stringWithUTF8String:luaL_tolstring(_L, idx, NULL)]] ;
+}
+
+- (void)logErrorFromIndex:(int)idx {
+    [self logError:[NSString stringWithUTF8String:luaL_tolstring(_L, idx, NULL)]] ;
+}
+
+// For: chunkname:currentline:theMessage
+
+- (void)logDebug:(NSString *)theMessage fromLevel:(int)theLevel {
+    NSString *chunkLineLabel = getChunkLineLabel(_L, theLevel) ;
+    [self logDebug:[NSString stringWithFormat:@"%@:%@", chunkLineLabel, theMessage]] ;
+}
+
+- (void)logWarn:(NSString *)theMessage fromLevel:(int)theLevel {
+    NSString *chunkLineLabel = getChunkLineLabel(_L, theLevel) ;
+    [self logWarn:[NSString stringWithFormat:@"%@:%@", chunkLineLabel, theMessage]] ;
+}
+
+- (void)logError:(NSString *)theMessage fromLevel:(int)theLevel {
+    NSString *chunkLineLabel = getChunkLineLabel(_L, theLevel) ;
+    [self logError:[NSString stringWithFormat:@"%@:%@", chunkLineLabel, theMessage]] ;
+}
+
+
+
+- (NSString *)tracebackWithTag:(NSString *)theTag {
+    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+    int topIndex         = lua_gettop(_L) ;
+    int absoluteIndex    = lua_absindex(_L, topIndex) ;
+
     lua_getglobal(_L, "debug") ;
     lua_getfield(_L, -1, "traceback") ;
     lua_remove(_L, -2) ;
@@ -850,41 +931,14 @@ nextarg:
           theTag,
           [stateLabels objectAtIndex:(NSUInteger)errState],
           luaL_tolstring(_L, -1, NULL)) ;
+    NSString *result = [NSString stringWithFormat:@"LuaSkin Debug Traceback: %@\n"
+                                                   "   call status:%@, top index:%d, absolute:%d\n"
+                                                   "%s",
+                                                   theTag,
+                                                   [stateLabels objectAtIndex:(NSUInteger)errState],
+                                                   topIndex, absoluteIndex, luaL_tolstring(_L, -1, NULL)] ;
     lua_pop(_L, 1) ;
-}
-
-- (void)printNSStringToConsole:(NSString *)theMessage {
-    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
-    lua_getglobal(_L, "print") ;
-    lua_pushstring(_L, [theMessage UTF8String]) ;
-    int errState = lua_pcall(_L, 1, 0, 0) ;
-    if (errState != LUA_OK) {
-        NSLog(@"printNSStringToConsole: print error, state %@: %s",
-              [stateLabels objectAtIndex:(NSUInteger)errState],
-              luaL_tolstring(_L, -1, NULL)) ;
-        lua_pop(_L, 1) ;
-    }
-}
-
-- (void)printNSStringToConsole:(NSString *)theMessage fromLevel:(int)theLevel {
-    luaL_where(_L, theLevel) ;
-    NSString *locationInfo = [NSString stringWithUTF8String:lua_tostring(_L, -1)] ;
-    if (!locationInfo || [locationInfo isEqualToString:@""])
-        locationInfo = [NSString stringWithFormat:@"(no lua location info at depth %d)", theLevel] ;
-    [self printNSStringToConsole:[NSString stringWithFormat:@"%@:%@", locationInfo, theMessage]] ;
-    lua_pop(_L, 1) ;
-}
-
-- (void)printCStringToConsole:(const char *)theMessage {
-    [self printNSStringToConsole:[NSString stringWithUTF8String:theMessage]] ;
-}
-
-- (void)printCStringToConsole:(const char *)theMessage fromLevel:(int)theLevel {
-    [self printNSStringToConsole:[NSString stringWithUTF8String:theMessage] fromLevel:theLevel] ;
-}
-
-- (void)printToConsoleAtIndex:(int)idx {
-    [self printCStringToConsole:luaL_tolstring(_L, idx, NULL)] ;
+    return result ;
 }
 
 @end

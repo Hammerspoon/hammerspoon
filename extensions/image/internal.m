@@ -101,18 +101,24 @@ static int imageFromPath(lua_State *L) {
 }
 
 // Shamelessly "borrowed" and tweaked from the lua 5.1 source... see http://www.lua.org/source/5.1/ltablib.c.html
-static int maxn (lua_State *L, int idx) {
-  int max = 0;
-  luaL_checktype(L, idx, LUA_TTABLE);
-  lua_pushnil(L);  /* first key */
-  while (lua_next(L, idx)) {
-    lua_pop(L, 1);  /* remove value */
-    if (lua_type(L, -1) == LUA_TNUMBER) {
-      int v = (int)lua_tointeger(L, -1);
-      if (v > max) max = v;
+static lua_Integer maxn (lua_State *L, int idx) {
+    lua_Integer max = 0;
+    if (lua_type(L, idx) == LUA_TTABLE) {
+        lua_pushnil(L);  /* first key */
+        while (lua_next(L, idx)) {
+            lua_pop(L, 1);  /* remove value */
+            if (lua_type(L, -1) == LUA_TNUMBER && lua_isinteger(L, -1)) {
+                lua_Integer v = lua_tointeger(L, -1);
+                if (v > max) max = v;
+            }
+        }
+    } else {
+        // This shouldn't ever happen... this is an internal function which *should* only be called
+        // when we already know we're using a table, but... bugs do happen, and at least this way it
+        // won't call a lua error function which uses longjump and never returns
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"internal 'maxn' invoked on non-table index (found %s)", lua_typename(L, lua_type(L, idx))] fromLevel:0] ;
     }
-  }
-  return max ;
+    return max ;
 }
 
 /// hs.image.imageFromASCII(ascii[, context]) -> object
@@ -154,7 +160,7 @@ static int imageWithContextFromASCII(lua_State *L) {
     CGFloat  defaultLineWidth   = NAN ;
 
     NSMutableDictionary *contextTable = [[NSMutableDictionary alloc] init] ;
-    int                  maxIndex     = 0 ;
+    lua_Integer          maxIndex     = 0 ;
 
     // build context from table
 
@@ -464,21 +470,21 @@ static luaL_Reg moduleLib[] = {
 // Pushes the provided NSImage onto the Lua Stack as a hs.image userdata object
 static int NSImage_tolua(lua_State *L, id obj) {
     NSImage *theImage = obj ;
-
     theImage.cacheMode = NSImageCacheNever ;
-
     void** imagePtr = lua_newuserdata(L, sizeof(NSImage *));
     *imagePtr = (__bridge_retained void *)theImage;
-
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
-
     return 1 ;
 }
 
 static id HSImage_toNSImage(lua_State *L, int idx) {
-    void **thingy = luaL_checkudata(L, idx, USERDATA_TAG) ;
-    return (__bridge NSImage *) *thingy ;
+    void **thingy = luaL_testudata(L, idx, USERDATA_TAG) ;
+    if (*thingy) {
+        return (__bridge NSImage *) *thingy ;
+    } else {
+        return nil ;
+    }
 }
 
 

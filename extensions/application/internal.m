@@ -1045,7 +1045,8 @@ static int nsrunningapplication_tolua(lua_State *L, id obj) {
 
     if (!new_application(L, [app processIdentifier])) {
         lua_pop(L, 1) ; // removed aborted userdata
-        lua_pushstring(L, [[NSString stringWithFormat:@"No PID: %@", obj] UTF8String]) ;
+        [[LuaSkin shared] logWarn:[NSString stringWithFormat:@"No Process ID for %@", obj] fromLevel:1] ;
+        lua_pushnil(L) ;
     }
     return 1 ;
 }
