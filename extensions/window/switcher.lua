@@ -22,7 +22,7 @@
 local next,type,ipairs,pairs=next,type,ipairs,pairs
 local min,max=math.min,math.max
 local geom=require'hs.geometry'
-local drawing=require'hs.drawing'
+local drawing,image=require'hs.drawing',require'hs.image'
 local window,screen=require'hs.window',require'hs.screen'
 local windowfilter=require'hs.window.filter'
 --local eventtap,timer,hotkey=require'hs.eventtap',require'hs.timer',require'hs.hotkey'
@@ -36,6 +36,7 @@ local UNAVAILABLE=image.imageFromName'NSStopProgressTemplate'
 local snapshots=setmetatable({},{__mode='kv'})
 local SNAPSHOT_EXPIRY=60 --1m
 local function getSnapshot(id)
+  if not id then return UNAVAILABLE end
   local sn,now=snapshots[id],timer.secondsSinceEpoch()
   if not sn or sn[2]+SNAPSHOT_EXPIRY<now then snapshots[id]={window.snapshotForID(id) or UNAVAILABLE,now} end
   return snapshots[id][1]
@@ -43,7 +44,8 @@ end
 
 local icons=setmetatable({},{__mode='kv'})
 local function getIcon(bundle)
-  if not icons[bundle] then icons[bundle]=image.imageFromAppBundle(bundle) or UNAVAILABLE end
+  if not bundle then return UNAVAILABLE
+  elseif not icons[bundle] then icons[bundle]=image.imageFromAppBundle(bundle) or UNAVAILABLE end
   return icons[bundle]
 end
 

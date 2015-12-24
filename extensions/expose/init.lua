@@ -757,8 +757,9 @@ local function windowAllowed(self,win,appname,screen)
     :setRoundedRectRadii(ui.textSize/4,ui.textSize/4):setBehavior(BEHAVIOR)
   --    :orderAbove(w.thumb)
   w.hinttext=drawing.text(f,' '):setTextStyle(ui.hintTextStyle):setBehavior(BEHAVIOR)--:orderAbove(w.hintrect)
-  local icon=image.imageFromAppBundle(win:application():bundleID())
-  w.icon=drawing.image(f,icon or UNAVAILABLE):setBehavior(BEHAVIOR)--:orderAbove(w.hintrect)
+  local bid=win:application():bundleID()
+  local icon=bid and image.imageFromAppBundle(bid) or UNAVAILABLE
+  w.icon=drawing.image(f,icon):setBehavior(BEHAVIOR)--:orderAbove(w.hintrect)
   w.textratio=drawing.text(f,''):setTextColor{red=1,alpha=1,blue=0,green=0}
   w.dirty=true
   screen.totalOriginalArea=screen.totalOriginalArea+f.area
