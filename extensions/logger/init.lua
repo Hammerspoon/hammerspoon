@@ -116,7 +116,7 @@ logger.history=function()
   return history
 end
 
---- hs.logger.printHistory([entries[, level[, filter]])
+--- hs.logger.printHistory([entries[, level[, filter[, caseSensitive]]]])
 --- Function
 --- Prints the global log history to the console
 ---
@@ -124,18 +124,20 @@ end
 ---  * entries - (optional) the maximum number of entries to print; if omitted, all entries in the history will be printed
 ---  * level - (optional) the desired log level (see `hs.logger:setLogLevel()`); if omitted, defaults to `verbose`
 ---  * filter - (optional) a string to filter the entries (by logger id or message) via `string.find` plain matching
+---  * caseSensitive - (optional) if true, filtering is case sensitive
 ---
 --- Returns:
 ---  * None
-logger.printHistory=function(entries,lvl,flt)
+logger.printHistory=function(entries,lvl,flt,case)
   entries=entries or histSize
   local hist=logger.history()
   local filt=hist
+  if flt and not case then flt=slower(flt) end
   if lvl or flt then
     lvl=toLogLevel(lvl or 5)
     filt={}
     for _,e in ipairs(hist) do
-      if e.level<=lvl and (not flt or sfind(e.id,flt,1,true) or sfind(e.message,flt,1,true)) then
+      if e.level<=lvl and (not flt or sfind(case and e.id or slower(e.id),flt,1,true) or sfind(case and e.mesage or slower(e.message),flt,1,true)) then
         filt[#filt+1]=e
       end
     end
