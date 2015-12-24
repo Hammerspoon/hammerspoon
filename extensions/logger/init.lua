@@ -144,7 +144,7 @@ logger.printHistory=function(entries,lvl,flt,case)
   end
   for i=max(1,#filt-entries+1),#filt do
     local e=filt[i]
-    print(sformat('%s %s%s %s%s',date('%X'),LEVELFMT[e.level][1],sformat(idf,e.id),LEVELFMT[e.level][2],e.message))
+    print(sformat('%s %s%s %s%s',date('%X',e.time),LEVELFMT[e.level][1],sformat(idf,e.id),LEVELFMT[e.level][2],e.message))
   end
 end
 
