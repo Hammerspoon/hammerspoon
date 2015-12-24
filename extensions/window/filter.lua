@@ -700,8 +700,12 @@ end
 ---
 --- Returns:
 ---  * a new windowfilter instance
-function windowfilter.new(fn,logname,loglevel)
+function windowfilter.new(fn,logname,loglevel,isCopy)
   local mt=getmetatable(fn) if mt and mt.__index==WF then return fn end -- no copy-on-new
+  if fn==nil then
+    log.i('new windowfilter, default windowfilter copy')
+    return windowfilter.copy(windowfilter.default,logname,loglevel)
+  end
   local o={filters={},events={},windows={},pending={},
     log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel}
   o.__address=gsub(tostring(o),'table: ','')
@@ -715,13 +719,13 @@ function windowfilter.new(fn,logname,loglevel)
     return o
   elseif type(fn)=='string' then fn={fn}
   end
-  if fn==nil then
-    o.log.i('new windowfilter, default windowfilter copy')
-    return windowfilter.copy(windowfilter.default,logname,loglevel)
-  elseif type(fn)=='table' then
+  if type(fn)=='table' then
     o.log.i('new windowfilter, reject all with exceptions')
     return o:setDefaultFilter(false):setFilters(fn)
-  elseif fn==true then o.log.i('new empty windowfilter') return o
+  elseif fn==true then
+    if isCopy then o.log.i('new windowfilter, copy of',isCopy)
+    else o.log.i('new empty windowfilter') end
+    return o
   elseif fn==false then o.log.i('new windowfilter, reject all') return o:setDefaultFilter(false)
   else error('fn must be nil, a boolean, a string or table of strings, or a function',2) end
 end
@@ -736,7 +740,7 @@ end
 ---  * loglevel - (optional) log level for the `hs.logger` instance for the new windowfilter
 function windowfilter.copy(wf,logname,loglevel)
   local mt=getmetatable(wf) if not mt or mt.__index~=WF then error('windowfilter must be an hs.window.filter object',2) end
-  return windowfilter.new(true,logname,loglevel):setFilters(wf:getFilters())
+  return windowfilter.new(true,logname,loglevel,wf):setFilters(wf:getFilters())
 end
 
 --- hs.window.filter.default
@@ -2102,7 +2106,8 @@ windowfilter.getLogLevel=log.getLogLevel
 
 local function makeDefault()
   if not defaultwf then
-    defaultwf = windowfilter.new(true,'wflt-def')
+    defaultwf = windowfilter.new(true,'wf-default')
+    getmetatable(defaultwf).__tostring=function()return sformat('hs.window.filter.default (%s)',defaultwf.__address) end
     if defaultwfLogLevel then defaultwf.setLogLevel(defaultwfLogLevel) end
     for appname in pairs(windowfilter.ignoreInDefaultFilter) do
       defaultwf:rejectApp(appname)
@@ -2117,7 +2122,8 @@ end
 
 local function makeDefaultCurrentSpace()
   if not defaultCurrentSpacewf then
-    defaultCurrentSpacewf=windowfilter.copy(makeDefault(),'wflt-space'):setCurrentSpace(true)
+    defaultCurrentSpacewf=windowfilter.copy(makeDefault(),'wf-curSpace'):setCurrentSpace(true)
+    getmetatable(defaultCurrentSpacewf).__tostring=function()return sformat('hs.window.filter.defaultCurrentSpace (%s)',defaultCurrentSpacewf.__address) end
     if defaultwfLogLevel then defaultCurrentSpacewf.setLogLevel(defaultwfLogLevel) end
     defaultCurrentSpacewf.log.i('default windowfilter (current space) instantiated')
   end
