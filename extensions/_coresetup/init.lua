@@ -4,7 +4,7 @@
 
 return {setup=function(...)
   local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
-
+  local tostring,pack,tconcat=tostring,table.pack,table.concat
   -- setup core functions
 
   os.exit = hs._exit
@@ -96,18 +96,18 @@ return {setup=function(...)
   ---
   --- Notes:
   ---  * Hammerspoon overrides Lua's print() function, but this is a reference we retain to is, should you need it for any reason
-  local rawprint = print
+  local rawprint,logmessage = print,hs._logmessage
   hs.rawprint = rawprint
   function print(...)
     rawprint(...)
-    local vals = table.pack(...)
+    local vals = pack(...)
 
     for k = 1, vals.n do
       vals[k] = tostring(vals[k])
     end
 
-    local str = table.concat(vals, "\t") .. "\n"
-    hs._logmessage(str)
+    local str = tconcat(vals, "\t") .. "\n"
+    logmessage(str)
   end
 
   --- hs.execute(command[, with_user_env]) -> output, status, type, rc
@@ -222,7 +222,7 @@ return {setup=function(...)
     if not fn then return tostring(err) end
 
     local str = ""
-    local results = table.pack(xpcall(fn,debug.traceback))
+    local results = pack(xpcall(fn,debug.traceback))
     for i = 2,results.n do
       if i > 2 then str = str .. "\t" end
       str = str .. tostring(results[i])
