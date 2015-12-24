@@ -140,26 +140,6 @@ return {setup=function(...)
     return s, status, exit_type, rc
   end
 
-  --- hs.setLogLevel(lvl)
-  --- Function
-  --- Sets the log level for all currently loaded modules
-  ---
-  --- Parameters:
-  ---  * lvl
-  ---
-  --- Returns:
-  ---  * None
-  ---
-  --- Notes:
-  ---  * This function only affects *module*-level loggers; object instances with their own loggers (e.g. windowfilters) won't be affected
-  hs.setLogLevel=function(lvl)
-    for ext,mod in pairs(package.loaded) do
-      if string.sub(ext,1,3)=='hs.' and mod~=hs then
-        if mod.setLogLevel then mod.setLogLevel(lvl) end
-      end
-    end
-  end
-
   --- hs.dockIcon([state]) -> bool
   --- Function
   --- Set or display whether or not the Hammerspoon dock icon is visible.
