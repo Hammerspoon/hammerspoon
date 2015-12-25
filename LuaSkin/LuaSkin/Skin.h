@@ -466,7 +466,7 @@ typedef struct luaObjectHelpers {
  */
 - (void)pushUserData:(void *)userData;
 
-- (NSString *)tracebackWithTag:(NSString *)theTag ;
+- (NSString *)tracebackWithTag:(NSString *)theTag fromLevel:(int)level ;
 
 - (void)logDebug:(NSString *)theMessage ;
 - (void)logWarn:(NSString *)theMessage ;

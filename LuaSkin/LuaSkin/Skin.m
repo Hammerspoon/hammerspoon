@@ -947,25 +947,13 @@ nextarg:
     [self logError:[NSString stringWithFormat:@"%@:%@", chunkLineLabel, theMessage]] ;
 }
 
-- (NSString *)tracebackWithTag:(NSString *)theTag {
-    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+- (NSString *)tracebackWithTag:(NSString *)theTag fromLevel:(int)level{
     int topIndex         = lua_gettop(_L) ;
     int absoluteIndex    = lua_absindex(_L, topIndex) ;
 
-    lua_getglobal(_L, "debug") ;
-    lua_getfield(_L, -1, "traceback") ;
-    lua_remove(_L, -2) ;
-    int errState = lua_pcall(_L, 0, 1, 0) ;
-    NSLog(@"LuaSkin Debug Traceback (%@): traceback call status: %@\n%s",
-          theTag,
-          [stateLabels objectAtIndex:(NSUInteger)errState],
-          luaL_tolstring(_L, -1, NULL)) ;
-    NSString *result = [NSString stringWithFormat:@"LuaSkin Debug Traceback: %@\n"
-                                                   "   call status:%@, top index:%d, absolute:%d\n"
-                                                   "%s",
-                                                   theTag,
-                                                   [stateLabels objectAtIndex:(NSUInteger)errState],
-                                                   topIndex, absoluteIndex, luaL_tolstring(_L, -1, NULL)] ;
+    luaL_traceback(_L, _L, [theTag UTF8String], level) ;
+    NSString *result = [NSString stringWithFormat:@"LuaSkin Debug Traceback: top index:%d, absolute:%d\n%s",
+                                                  topIndex, absoluteIndex, luaL_tolstring(_L, -1, NULL)] ;
     lua_pop(_L, 1) ;
     return result ;
 }
