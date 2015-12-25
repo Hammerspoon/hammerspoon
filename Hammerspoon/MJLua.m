@@ -275,9 +275,9 @@ static int core_getObjectMetatable(lua_State *L) {
 ///  * This function does not modify the original string - to actually replace it, assign the result of this function to the original string.
 ///  * This function is a more specifically targeted version of the `hs.utf8.fixUTF8(...)` function.
 static int core_cleanUTF8(lua_State *L) {
-    luaL_checktype(L, 1, LUA_TSTRING) ;
+    [[LuaSkin shared] checkArgs:LS_TANY, LS_TBREAK] ;
     size_t sourceLength ;
-    unsigned char *src  = (unsigned char *)lua_tolstring(L, 1, &sourceLength) ;
+    unsigned char *src  = (unsigned char *)luaL_tolstring(L, 1, &sourceLength) ;
     NSMutableData *dest = [[NSMutableData alloc] init] ;
 
     unsigned char nullChar[]    = { 0xE2, 0x88, 0x85 } ;
@@ -307,8 +307,11 @@ static int core_cleanUTF8(lua_State *L) {
         }
     }
 
+    // we're done with src, so its safe to pop the stack of luaL_tolstring's value
+    lua_pop(L, 1) ;
+
     NSString *destStr = [[NSString alloc] initWithData:dest encoding:NSUTF8StringEncoding] ;
-    lua_pushlstring(L, [destStr UTF8String], [destStr lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1) ;
+    lua_pushlstring(L, [destStr UTF8String], [destStr lengthOfBytesUsingEncoding:NSUTF8StringEncoding]) ;
     return 1 ;
 }
 
