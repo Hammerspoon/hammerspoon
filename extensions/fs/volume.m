@@ -304,7 +304,6 @@ static const luaL_Reg metaGcLib[] = {
 
 // Called when loading the module. All necessary tables need to be registered here.
 int luaopen_hs_fs_volume(lua_State* L __unused) {
-    NSLog(@"lol?");
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
 
