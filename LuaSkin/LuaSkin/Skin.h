@@ -63,6 +63,14 @@ typedef struct luaObjectHelpers {
   luaObjectHelperFunction func ;
 } luaObjectHelpers ;
 
+@class LuaSkin ;
+
+@protocol LuaSkinDelegate <NSObject>
+- (void)logDebugForLuaSkin:(NSString *)theMessage ;
+- (void)logWarnForLuaSkin:(NSString *)theMessage ;
+- (void)logErrorForLuaSkin:(NSString *)theMessage ;
+@end
+
 /*!
  @class LuaSkin
  @abstract Abstraction layer for common operations on Lua state objects
@@ -73,6 +81,8 @@ typedef struct luaObjectHelpers {
 }
 
 #pragma mark - Skin Properties
+
+@property (nonatomic, assign) id  delegate;
 
 /*!
  @property L
@@ -457,8 +467,6 @@ typedef struct luaObjectHelpers {
 - (void)pushUserData:(void *)userData;
 
 - (NSString *)tracebackWithTag:(NSString *)theTag ;
-
-/* will probably disappear into the delegate per discussion in #698 */
 
 - (void)logDebug:(NSString *)theMessage ;
 - (void)logWarn:(NSString *)theMessage ;
