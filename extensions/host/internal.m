@@ -512,6 +512,8 @@ static int hs_volumeInformation(lua_State* L) {
     NSArray *URLs = [fileManager mountedVolumeURLsIncludingResourceValuesForKeys:urlResourceKeys options:options];
 
     for (NSURL *url in URLs) {
+        id result = [url resourceValuesForKeys:urlResourceKeys error:nil] ;
+        if (result) [volumeInfo setObject:result forKey:[url path]];
         [volumeInfo setObject:[url resourceValuesForKeys:urlResourceKeys error:nil] forKey:[url path]];
     }
 
