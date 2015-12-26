@@ -851,72 +851,29 @@ nextarg:
     return result ;
 }
 
-// *** Will actually be handled by delegate when I figure out how to set that up properly ***
-
 - (void)logDebug:(NSString *)theMessage {
-    // probably overkill since the compiler should prevent a delegate without logDebug from
-    // compiling, but better safe than sorry...
     if (_delegate &&  [_delegate respondsToSelector:@selector(logDebugForLuaSkin:)]) {
         [_delegate logDebugForLuaSkin:theMessage] ;
     } else {
-        NSLog(@"No LuaSkinDelegate: logDebug:%@", theMessage) ;
+        NSLog(@"logDebug:%@", theMessage) ;
     }
 }
 
 - (void)logWarn:(NSString *)theMessage {
-    // probably overkill since the compiler should prevent a delegate without logWarn from
-    // compiling, but better safe than sorry...
     if (_delegate &&  [_delegate respondsToSelector:@selector(logWarnForLuaSkin:)]) {
         [_delegate logWarnForLuaSkin:theMessage] ;
     } else {
-        NSLog(@"No LuaSkinDelegate: logWarn:%@", theMessage) ;
+        NSLog(@"logWarn:%@", theMessage) ;
     }
 }
 
 - (void)logError:(NSString *)theMessage {
-    // probably overkill since the compiler should prevent a delegate without logError from
-    // compiling, but better safe than sorry...
     if (_delegate &&  [_delegate respondsToSelector:@selector(logErrorForLuaSkin:)]) {
         [_delegate logErrorForLuaSkin:theMessage] ;
     } else {
-        NSLog(@"No LuaSkinDelegate: logError:%@", theMessage) ;
+        NSLog(@"logError:%@", theMessage) ;
     }
 }
-
-// - (void)logDebug:(NSString *)theMessage {
-//     NSLog(@"%@", theMessage) ;
-// }
-//
-// - (void)logWarn:(NSString *)theMessage {
-//     NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
-//     lua_getglobal(_L, "print") ;
-//     lua_pushstring(_L, [theMessage UTF8String]) ;
-//     int errState = lua_pcall(_L, 1, 0, 0) ;
-//     if (errState != LUA_OK) {
-//         NSLog(@"logWarn: print error, state %@: %s",
-//               [stateLabels objectAtIndex:(NSUInteger)errState],
-//               luaL_tolstring(_L, -1, NULL)) ;
-//         lua_pop(_L, 1) ;
-//     }
-// }
-//
-// - (void)logError:(NSString *)theMessage {
-//     NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
-//     lua_getglobal(_L, "hs") ;
-//     lua_getfield(_L, -1, "showError") ;
-//     lua_remove(_L, -2) ;
-//     lua_pushstring(_L, [theMessage UTF8String]) ;
-//     int errState = lua_pcall(_L, 1, 0, 0) ;
-//     if (errState != LUA_OK) {
-//         NSLog(@"logError: print error, state %@: %s",
-//               [stateLabels objectAtIndex:(NSUInteger)errState],
-//               luaL_tolstring(_L, -1, NULL)) ;
-//         lua_pop(_L, 1) ;
-//     }
-//     [self logWarn:theMessage] ;
-// }
-
-// *** End of delegate methods; what follows are wrappers...
 
 - (void)logDebugFromIndex:(int)idx {
     [self logDebug:[NSString stringWithUTF8String:luaL_tolstring(_L, idx, NULL)]] ;

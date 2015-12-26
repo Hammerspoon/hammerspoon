@@ -12,6 +12,7 @@
 #import "MJAutoLaunch.h"
 
 static LuaSkin* MJLuaState;
+static MJLuaLogger* MJLuaLogDelegate;
 static int evalfn;
 int refTable;
 
@@ -19,6 +20,50 @@ static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
+
+@implementation MJLuaLogger
+
+@synthesize L = _L ;
+
+- (instancetype)initWithLua:(lua_State *)L {
+    self = [super init] ;
+    if (self) {
+        _L = L ;
+    }
+    return self ;
+}
+
+- (void)logDebugForLuaSkin:(NSString *)theMessage {
+    CLS_NSLOG(@"%@", theMessage) ;
+}
+
+- (void)logWarnForLuaSkin:(NSString *)theMessage {
+    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+    lua_getglobal(_L, "print") ;
+    lua_pushstring(_L, [theMessage UTF8String]) ;
+    int errState = lua_pcall(_L, 1, 0, 0) ;
+    if (errState != LUA_OK) {
+        CLS_NSLOG(@"logWarn: print error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
+                                                         luaL_tolstring(_L, -1, NULL)) ;
+        lua_pop(_L, 1) ;
+    }
+}
+
+- (void)logErrorForLuaSkin:(NSString *)theMessage {
+    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+    lua_getglobal(_L, "hs") ;
+    lua_getfield(_L, -1, "showError") ;
+    lua_remove(_L, -2) ;
+    lua_pushstring(_L, [theMessage UTF8String]) ;
+    int errState = lua_pcall(_L, 1, 0, 0) ;
+    if (errState != LUA_OK) {
+        NSLog(@"logError: print error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
+                                                      luaL_tolstring(_L, -1, NULL)) ;
+        lua_pop(_L, 1) ;
+    }
+}
+
+@end
 
 /// hs.autoLaunch([state]) -> bool
 /// Function
@@ -432,6 +477,8 @@ void MJLuaInit(void) {
     lua_pcall(L, 7, 1, 0);
 
     evalfn = [MJLuaState luaRef:refTable];
+    MJLuaLogDelegate = [[MJLuaLogger alloc] initWithLua:L] ;
+    if (MJLuaLogDelegate) [MJLuaState setDelegate:MJLuaLogDelegate] ;
 }
 
 static int callShutdownCallback(lua_State *L) {
@@ -450,6 +497,10 @@ void MJLuaDeinit(void) {
     LuaSkin *skin = MJLuaState;
 
     callShutdownCallback(skin.L);
+    if (MJLuaLogDelegate) {
+        [MJLuaState setDelegate:nil] ;
+        MJLuaLogDelegate = nil ;
+    }
 }
 
 // Destroy a Lua environment with LuaSiin

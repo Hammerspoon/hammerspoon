@@ -66,6 +66,7 @@ typedef struct luaObjectHelpers {
 @class LuaSkin ;
 
 @protocol LuaSkinDelegate <NSObject>
+@optional
 - (void)logDebugForLuaSkin:(NSString *)theMessage ;
 - (void)logWarnForLuaSkin:(NSString *)theMessage ;
 - (void)logErrorForLuaSkin:(NSString *)theMessage ;
