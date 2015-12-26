@@ -10,6 +10,7 @@ export HS_MODULES="alert \
     battery \
     brightness \
     caffeinate \
+    chooser \
     console \
     crash \
     dockicon \
