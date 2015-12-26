@@ -303,6 +303,15 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 - (int)luaRef:(int)refTable;
 
 /*!
+ @abstract Stores a reference to the object at the specified position of the Lua stack, in the supplied table, without removing the object from the stack
+
+ @param refTable - An integer reference to a table (e.h. the result of a previous luaRef on a table object)
+ @param idx - An integer stack position
+ @return An integer reference to the object at the specified stack position
+ */
+- (int)luaRef:(int)refTable atIndex:(int)idx;
+
+/*!
  @abstract Removes a reference from the supplied table
 
  @important This method is functionally analogous to luaL_unref(), it just takes care of pushing the supplied table ref onto the Lua stack, and removes it afterwards

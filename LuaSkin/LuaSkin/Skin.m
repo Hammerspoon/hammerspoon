@@ -216,6 +216,11 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     return ref;
 }
 
+- (int)luaRef:(int)refTable atIndex:(int)idx {
+    lua_pushvalue(_L, idx);
+    return [self luaRef:refTable];
+}
+
 - (int)luaUnref:(int)refTable ref:(int)ref {
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::luaUnref was passed a NOREF/REFNIL refTable", nil);
 
