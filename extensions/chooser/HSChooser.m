@@ -132,7 +132,6 @@
         rowCount = choices.count;
     }
 
-    NSLog(@"numberOfRowsInTableView: returning %ld", (long)rowCount);
     return rowCount;
 }
 
