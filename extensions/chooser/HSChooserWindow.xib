@@ -36,7 +36,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="43" id="00K-hU-lcx"/>
                                 </constraints>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" title="Chooser Query String" usesSingleLineMode="YES" id="1hM-W8-mTV">
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" usesSingleLineMode="YES" id="1hM-W8-mTV">
                                     <font key="font" metaFont="system" size="31"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" red="1" green="0.82006257353484713" blue="0.80174401927169148" alpha="1" colorSpace="calibratedRGB"/>
