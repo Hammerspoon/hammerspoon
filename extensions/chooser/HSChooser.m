@@ -202,7 +202,6 @@
         }
         choices = self.currentCallbackChoices;
     }
-    NSLog(@"getChoices returning: %@", choices);
 
     return choices;
 }
