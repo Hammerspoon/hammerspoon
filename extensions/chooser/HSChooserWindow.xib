@@ -96,7 +96,7 @@
                                                                     <constraints>
                                                                         <constraint firstAttribute="width" constant="41" id="VNm-oj-bKt"/>
                                                                     </constraints>
-                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" state="on" alignment="left" title="81" id="ZEM-Di-gXG">
+                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" state="on" alignment="left" id="ZEM-Di-gXG">
                                                                         <font key="font" metaFont="system" size="21"/>
                                                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
