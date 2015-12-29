@@ -64,7 +64,7 @@
     // Create and configure our window
 
     self.windowController = [[HSChooserWindowController alloc] initWithOwner:self];
-    self.window = self.windowController.window;
+    self.window = (HSChooserWindow *)self.windowController.window;
 
     if (!self.windowController.windowLoaded) {
         NSLog(@"ERROR: Unable to load hs.chooser window NIB");
@@ -118,7 +118,6 @@
     [self.window makeKeyAndOrderFront:nil];
 
     [self updateChoices];
-    NSLog(@"Caused chooser window %@:%@ (%p) to show (loaded: %@)", self.windowController, self.window, self.window, self.windowController.windowLoaded ? @"YES" : @"NO");
 }
 
 - (void)hide {

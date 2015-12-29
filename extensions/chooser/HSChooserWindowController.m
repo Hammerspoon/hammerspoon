@@ -27,9 +27,7 @@
 - (void)windowDidLoad {
     [super windowDidLoad];
 
-    // FIXME: These are read-only
-    //self.window.canBecomeKeyWindow = YES;
-    //self.window.canBecomeMainWindow = YES;
+    [self.queryField setFocusRingType:NSFocusRingTypeNone];
 }
 
 @end

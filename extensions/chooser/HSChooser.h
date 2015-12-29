@@ -10,6 +10,7 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
 #import "HSChooserWindowController.h"
+#import "HSChooserWindow.h"
 #import "HSChooserCell.h"
 
 #pragma mark - Chooser definition
@@ -27,7 +28,7 @@
 @property(nonatomic) NSRect dividerRect;
 
 @property(nonatomic, retain) HSChooserWindowController *windowController;
-@property(nonatomic, weak) IBOutlet NSWindow *window;
+@property(nonatomic, weak) IBOutlet HSChooserWindow *window;
 
 @property(nonatomic, retain) NSArray *currentStaticChoices;
 @property(nonatomic, retain) NSArray *currentCallbackChoices;

@@ -21,6 +21,8 @@
 		4F3D9D001C32D4710082E864 /* HSChooserWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9CFD1C32D4710082E864 /* HSChooserWindowController.m */; };
 		4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D011C3302CB0082E864 /* HSChooser.h */; };
 		4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D021C3302CB0082E864 /* HSChooser.m */; };
+		4F3D9D071C3314570082E864 /* HSChooserWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D051C3314570082E864 /* HSChooserWindow.h */; };
+		4F3D9D081C3314570082E864 /* HSChooserWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D061C3314570082E864 /* HSChooserWindow.m */; };
 		4F4CB38B1B737953000EA9B6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4F4CB38C1B737953000EA9B6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F4CB3951B737A5B000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3941B737A5B000EA9B6 /* internal.m */; };
@@ -807,6 +809,8 @@
 		4F3D9CFD1C32D4710082E864 /* HSChooserWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserWindowController.m; path = extensions/chooser/HSChooserWindowController.m; sourceTree = "<group>"; };
 		4F3D9D011C3302CB0082E864 /* HSChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooser.h; path = extensions/chooser/HSChooser.h; sourceTree = "<group>"; };
 		4F3D9D021C3302CB0082E864 /* HSChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooser.m; path = extensions/chooser/HSChooser.m; sourceTree = "<group>"; };
+		4F3D9D051C3314570082E864 /* HSChooserWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserWindow.h; path = extensions/chooser/HSChooserWindow.h; sourceTree = "<group>"; };
+		4F3D9D061C3314570082E864 /* HSChooserWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserWindow.m; path = extensions/chooser/HSChooserWindow.m; sourceTree = "<group>"; };
 		4F4CB3911B737953000EA9B6 /* libcrash.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcrash.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3931B737A5B000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/crash/init.lua; sourceTree = "<group>"; };
 		4F4CB3941B737A5B000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/crash/internal.m; sourceTree = "<group>"; };
@@ -1885,6 +1889,8 @@
 				4F3D9CFD1C32D4710082E864 /* HSChooserWindowController.m */,
 				4F3D9D011C3302CB0082E864 /* HSChooser.h */,
 				4F3D9D021C3302CB0082E864 /* HSChooser.m */,
+				4F3D9D051C3314570082E864 /* HSChooserWindow.h */,
+				4F3D9D061C3314570082E864 /* HSChooserWindow.m */,
 			);
 			name = chooser;
 			sourceTree = "<group>";
@@ -2853,6 +2859,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F3D9D071C3314570082E864 /* HSChooserWindow.h in Headers */,
 				4F5134641C30819000EFD6D4 /* chooser.h in Headers */,
 				4F0676071C32C0B30088C57C /* HSChooserCell.h in Headers */,
 				4F3D9CFF1C32D4710082E864 /* HSChooserWindowController.h in Headers */,
@@ -4732,6 +4739,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F3D9D081C3314570082E864 /* HSChooserWindow.m in Sources */,
 				4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */,
 				4F3D9D001C32D4710082E864 /* HSChooserWindowController.m in Sources */,
 				4F0676081C32C0B30088C57C /* HSChooserCell.m in Sources */,
