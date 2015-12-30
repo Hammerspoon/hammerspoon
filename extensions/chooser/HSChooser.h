@@ -33,6 +33,7 @@
 
 @property(nonatomic, retain) NSArray *currentStaticChoices;
 @property(nonatomic, retain) NSArray *currentCallbackChoices;
+@property(nonatomic, retain) NSArray *filteredChoices;
 
 @property(nonatomic) int choicesCallbackRef;
 @property(nonatomic) int queryChangedCallbackRef;
@@ -65,4 +66,5 @@
 - (void)clearChoices;
 - (void)clearChoicesAndUpdate;
 - (NSArray *)getChoices;
+- (NSArray *)getChoicesWithOptions:(BOOL)includeFiltered;
 @end

@@ -22,6 +22,8 @@
 
         self.currentStaticChoices = nil;
         self.currentCallbackChoices = nil;
+        self.filteredChoices = nil;
+
         self.choicesCallbackRef = LUA_NOREF;
         self.queryChangedCallbackRef = LUA_NOREF;
 
@@ -176,6 +178,26 @@
     }
 }
 
+- (void)controlTextDidChange:(NSNotification *)aNotification {
+    NSLog(@"controlTextDidChange: %@", self.windowController.queryField.stringValue);
+    NSString *queryString = self.windowController.queryField.stringValue;
+    if (queryString.length > 0) {
+        NSMutableArray *filteredChoices = [[NSMutableArray alloc] init];
+
+        for (NSDictionary *choice in [self getChoicesWithOptions:NO]) {
+            // FIXME: There should be an option to also search subText
+            if ([[[choice objectForKey:@"text"] lowercaseString] containsString:[queryString lowercaseString]]) {
+                [filteredChoices addObject: choice];
+            }
+        }
+
+        self.filteredChoices = filteredChoices;
+    } else {
+        self.filteredChoices = nil;
+    }
+    [self.windowController.listTableView reloadData];
+}
+
 - (void)updateChoices {
     [self.windowController.listTableView reloadData];
 }
@@ -191,9 +213,16 @@
 }
 
 - (NSArray *)getChoices {
+    return [self getChoicesWithOptions:YES];
+}
+
+- (NSArray *)getChoicesWithOptions:(BOOL)includeFiltered {
     NSArray *choices = nil;
 
-    if (self.choicesCallbackRef == LUA_NOREF) {
+    if (includeFiltered && self.filteredChoices != nil) {
+        // We have some previously filtered choices, so we will return that
+        choices = self.filteredChoices;
+    } else if (self.choicesCallbackRef == LUA_NOREF) {
         // No callback is set, we can only return the static choices, even if it's nil
         choices = self.currentStaticChoices;
     } else if (self.choicesCallbackRef != LUA_NOREF) {
