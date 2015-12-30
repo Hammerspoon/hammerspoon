@@ -185,9 +185,9 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
 
                 break;
             default:
-                [skin logError:[NSString stringWithFormat:@"returning BLACK, unexpected type passed as a color: %s",
-                                                         lua_typename(L, lua_type(L, idx))]
-                                               fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_ERROR
+                     withMessage:[NSString stringWithFormat:@"returning BLACK, unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))]
+                    fromStackPos:1] ;
         }
 
         if (colorList && colorName) {
@@ -206,8 +206,9 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
             if (holding) return holding ;
         }
     } else {
-        [skin logError:[NSString stringWithFormat:@"returning BLACK, color list/name dereference depth > %d: loop?", COLOR_LOOP_LEVEL]
-            fromLevel:1] ;
+        [skin logAtLevel:LS_LOG_ERROR
+             withMessage:[NSString stringWithFormat:@"returning BLACK, color list/name dereference depth > %d: loop?", COLOR_LOOP_LEVEL]
+            fromStackPos:1] ;
     }
 
     if (RGBColor) {

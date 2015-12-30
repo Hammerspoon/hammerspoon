@@ -232,7 +232,9 @@ static id table_toWKUserScript(lua_State* L, int idx) {
             lua_pop(L, 1) ;
         } else {
             lua_pop(L, 1) ;
-            [skin logWarn:@"source is required and must be a string" fromLevel:1] ;
+            [skin logAtLevel:LS_LOG_WARN
+                 withMessage:@"source is required and must be a string"
+                fromStackPos:1] ;
             return nil ;
         }
 
@@ -241,7 +243,9 @@ static id table_toWKUserScript(lua_State* L, int idx) {
             if ([label isEqualToString:@"documentStart"])      { injectionTime = WKUserScriptInjectionTimeAtDocumentStart ;
             } else if ([label isEqualToString:@"documentEnd"]) { injectionTime = WKUserScriptInjectionTimeAtDocumentEnd ;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"invalid injectionTime, %@, defaulting to `documentStart`", label] fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"invalid injectionTime, %@, defaulting to `documentStart`", label]
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1) ;
@@ -251,10 +255,11 @@ static id table_toWKUserScript(lua_State* L, int idx) {
                                                    forMainFrameOnly:mainFrame] ;
         return script ;
     } else {
-        [skin logWarn:[NSString stringWithFormat:@"%s:invalid type for userscript, expected table, found %s",
+        [skin logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"%s:invalid type for userscript, expected table, found %s",
                                                       USERDATA_UCC_TAG,
                                                       lua_typename(L, lua_type(L, idx))]
-            fromLevel:1] ;
+            fromStackPos:1] ;
         return nil ;
     }
 }

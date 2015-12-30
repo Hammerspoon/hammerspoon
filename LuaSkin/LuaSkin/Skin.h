@@ -51,6 +51,23 @@
 
 /*! @/definedblock Bit masks for Lua type checking */
 
+typedef enum {
+    LS_NSNone                         = 0,
+
+    LS_NSUnsignedLongLongPreserveBits = 1 << 0,
+    LS_NSDescribeUnknownTypes         = 1 << 1,
+
+    LS_NSPreserveLuaStringExactly     = 1 << 2,
+    LS_NSLuaStringAsDataOnly          = 1 << 3,
+    LS_NSAllowsSelfReference          = 1 << 4
+} LS_NSConversionOptions ;
+
+#define LS_LOG_VERBOSE  5
+#define LS_LOG_DEBUG    4
+#define LS_LOG_INFO     3
+#define LS_LOG_WARN     2
+#define LS_LOG_ERROR    1
+
 typedef int (*pushNSHelperFunction) (lua_State *L, id obj);
 typedef struct pushNSHelpers {
   const char            *name;
@@ -67,9 +84,7 @@ typedef struct luaObjectHelpers {
 
 @protocol LuaSkinDelegate <NSObject>
 @optional
-- (void)logDebugForLuaSkin:(NSString *)theMessage ;
-- (void)logWarnForLuaSkin:(NSString *)theMessage ;
-- (void)logErrorForLuaSkin:(NSString *)theMessage ;
+- (void) logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage ;
 @end
 
 /*!
@@ -311,19 +326,7 @@ typedef struct luaObjectHelpers {
  @return The number of items on the lua stack - this is always 1 but is returned to simplify its use in Hammerspoon modules
  */
 - (int)pushNSObject:(id)obj ;
-
-/*!
- @abstract Pushes an NSObject to the lua stack and optionally preserves the bits rather then the numerical value of unsigned long long NSNumbers
-
- @important This method takes an NSObject and checks its class against registered classes and then against the built in defaults
-     to determine the best way to represent it in Lua.  This variant can optionally preserve the bit pattern of unsigned
-     long long NSNumbers rather than the numerical value
- @important The default classes are (in order): NSNull, NSNumber, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, and NSObject.  This last is a catch all and will return a string of the NSObjects description method
- @param obj - an NSObject
- @param bitsFlag - YES if bits are to be preserved at all costs, NO if an unsigned long long > 0x7fffffff should be treated as a number
- @return The number of items on the lua stack - this is always 1 but is returned to simplify its use in Hammerspoon modules
- */
-- (int)pushNSObject:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag ;
+- (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options ;
 
 /*!
  @abstract Register a helper function for converting an NSObject to its lua equivalant
@@ -376,20 +379,7 @@ typedef struct luaObjectHelpers {
  @returns An NSObject of the appropriate type depending upon the data on the lua stack
  */
 - (id)toNSObjectAtIndex:(int)idx ;
-
-/*!
- @abstract Return an NSObject containing the best representation of the lua data structure at the specified index
-
- @important In general, it is probably best to use the lua C-API for getting the specific data you require - this method is provided for cases where acceptable data types are more easily vetted by the receiver than in a modules code.  Examples include hs.settings and hs.json
- @important This variant does not support self-referential tables (i.e. tables which contain themselves as a reference)
- @important If a table contians only consecutive numerical indexes which start at 1, the table is converted to an NSArray; otherwise it is converted into an NSDictionary
- @important If a string contains only bytes representing valid UTF8 characters, it is converted to an NSString; otherwise it is converted into an NSData
- @param idx - the index on lua stack which contains the data to convert
- @param allow - YES indicates that self-referential tables (i.e. tables which contain themselves as a reference) are allowed; NO if they are not
- @returns An NSObject of the appropriate type depending upon the data on the lua stack
- */
-- (id)toNSObjectAtIndex:(int)idx allowSelfReference:(BOOL)allow ;
-
+- (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options ;
 
 /*!
  @abstract Return an NSObject containing the best representation of the lua table at the specified index
@@ -450,6 +440,8 @@ typedef struct luaObjectHelpers {
  */
 - (BOOL)isValidUTF8AtIndex:(int)idx ;
 
+- (NSString *)getValidUTF8AtIndex:(int)idx ;
+
 /*!
  @abstract Loads a module and places its return value (usually a table of functions) on the stack
 
@@ -469,17 +461,17 @@ typedef struct luaObjectHelpers {
 
 - (NSString *)tracebackWithTag:(NSString *)theTag fromLevel:(int)level ;
 
+- (void) logAtLevel:(int)level withMessage:(NSString *)theMessage ;
+- (void) logAtLevel:(int)level withMessage:(NSString *)theMessage fromStackPos:(int)pos ;
+
+- (void)logVerbose:(NSString *)theMessage ;
 - (void)logDebug:(NSString *)theMessage ;
+- (void)logInfo:(NSString *)theMessage ;
 - (void)logWarn:(NSString *)theMessage ;
 - (void)logError:(NSString *)theMessage ;
 
-- (void)logDebug:(NSString *)theMessage fromLevel:(int)theLevel ;
-- (void)logWarn:(NSString *)theMessage fromLevel:(int)theLevel ;
-- (void)logError:(NSString *)theMessage fromLevel:(int)theLevel ;
-
-- (void)logDebugFromIndex:(int)idx ;
-- (void)logWarnFromIndex:(int)idx ;
-- (void)logErrorFromIndex:(int)idx ;
+- (lua_Integer)maxNatIndex:(int)idx ;
+- (lua_Integer)countNatIndex:(int)idx ;
 
 @end
 

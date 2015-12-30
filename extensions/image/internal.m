@@ -100,27 +100,6 @@ static int imageFromPath(lua_State *L) {
     return 1;
 }
 
-// Shamelessly "borrowed" and tweaked from the lua 5.1 source... see http://www.lua.org/source/5.1/ltablib.c.html
-static lua_Integer maxn (lua_State *L, int idx) {
-    lua_Integer max = 0;
-    if (lua_type(L, idx) == LUA_TTABLE) {
-        lua_pushnil(L);  /* first key */
-        while (lua_next(L, idx)) {
-            lua_pop(L, 1);  /* remove value */
-            if (lua_type(L, -1) == LUA_TNUMBER && lua_isinteger(L, -1)) {
-                lua_Integer v = lua_tointeger(L, -1);
-                if (v > max) max = v;
-            }
-        }
-    } else {
-        // This shouldn't ever happen... this is an internal function which *should* only be called
-        // when we already know we're using a table, but... bugs do happen, and at least this way it
-        // won't call a lua error function which uses longjump and never returns
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"internal 'maxn' invoked on non-table index (found %s)", lua_typename(L, lua_type(L, idx))] fromLevel:0] ;
-    }
-    return max ;
-}
-
 /// hs.image.imageFromASCII(ascii[, context]) -> object
 /// Constructor
 /// Creates an image from an ASCII representation with the specified context.
@@ -147,6 +126,7 @@ static lua_Integer maxn (lua_State *L, int idx) {
 ///  * To use the ASCII diagram image support, see https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/
 ///  * The default for lineWidth, when antialiasing is off, is defined within the ASCIImage library. Geometrically it represents one half of the hypotenuse of the unit right-triangle and is a more accurate representation of a "real" point size when dealing with arbitrary angles and lines than 1.0 would be.
 static int imageWithContextFromASCII(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
     NSString *imageASCII = lua_to_nsstring(L, 1);
 
     if ([imageASCII hasPrefix:@"ASCII:"]) { imageASCII = [imageASCII substringFromIndex: 6]; }
@@ -166,7 +146,7 @@ static int imageWithContextFromASCII(lua_State *L) {
 
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
-            maxIndex = maxn(L, 2) ;
+            maxIndex = [skin maxNatIndex:2] ;
 // NSLog(@"maxIndex = %d", maxIndex) ;
             if (maxIndex == 0) break ;
 
@@ -176,11 +156,11 @@ static int imageWithContextFromASCII(lua_State *L) {
                     NSMutableDictionary *thisEntry = [[NSMutableDictionary alloc] init] ;
 
                     if (lua_getfield(L, -1, "fillColor") == LUA_TTABLE)
-                        [thisEntry setObject:[[LuaSkin shared] luaObjectAtIndex:-1 toClass:"NSColor"] forKey:@"fillColor"];
+                        [thisEntry setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:@"fillColor"];
                     lua_pop(L, 1);
 
                     if (lua_getfield(L, -1, "strokeColor") == LUA_TTABLE)
-                        [thisEntry setObject:[[LuaSkin shared] luaObjectAtIndex:-1 toClass:"NSColor"] forKey:@"strokeColor"];
+                        [thisEntry setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:@"strokeColor"];
                     lua_pop(L, 1);
 
                     if (lua_getfield(L, -1, "lineWidth") == LUA_TNUMBER)
@@ -257,7 +237,7 @@ static int imageWithContextFromASCII(lua_State *L) {
           }] ;
 
     if (newImage) {
-        [[LuaSkin shared] pushNSObject:newImage];
+        [skin pushNSObject:newImage];
     } else {
         lua_pushnil(L);
     }

@@ -8,75 +8,19 @@
 
 #import "Skin.h"
 
-// maxn   returns the largest numeric key in the table
-// countn returns the number of items of any key type in the table
-
-// Shamelessly "borrowed" and tweaked from the lua 5.1 source... see http://www.lua.org/source/5.1/ltablib.c.html
-static lua_Integer maxn (lua_State *L, int idx) {
-    lua_Integer max = 0;
-    if (lua_type(L, idx) == LUA_TTABLE) {
-        lua_pushnil(L);  /* first key */
-        while (lua_next(L, idx)) {
-            lua_pop(L, 1);  /* remove value */
-            if (lua_type(L, -1) == LUA_TNUMBER && lua_isinteger(L, -1)) {
-                lua_Integer v = lua_tointeger(L, -1);
-                if (v > max) max = v;
-            }
-        }
-    } else {
-        // This shouldn't ever happen... this is an internal function which *should* only be called
-        // when we already know we're using a table, but... bugs do happen, and at least this way it
-        // won't call a lua error function which uses longjump and never returns
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"internal 'maxn' invoked on non-table index (found %s)", lua_typename(L, lua_type(L, idx))] fromLevel:0] ;
-    }
-    return max ;
-}
-
-static lua_Integer countn (lua_State *L, int idx) {
-    lua_Integer max = 0;
-    if (lua_type(L, idx) == LUA_TTABLE) {
-        lua_pushnil(L);  /* first key */
-        while (lua_next(L, idx)) {
-          lua_pop(L, 1);  /* remove value */
-          max++ ;
-        }
-    } else {
-        // This shouldn't ever happen... this is an internal function which *should* only be called
-        // when we already know we're using a table, but... bugs do happen, and at least this way it
-        // won't call a lua error function which uses longjump and never returns
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"internal 'countn' invoked on non-table index (found %s)", lua_typename(L, lua_type(L, idx))] fromLevel:0] ;
-    }
-    return max ;
-}
-
-static NSString *getChunkLineLabel(lua_State *L, int level) {
-    luaL_where(L, level) ;
-    NSString *locationInfo = [NSString stringWithUTF8String:lua_tostring(L, -1)] ;
-    lua_pop(L, 1) ;
-    if (!locationInfo || [locationInfo isEqualToString:@""])
-        locationInfo = [NSString stringWithFormat:@"(no lua location info at depth %d)", level] ;
-    return locationInfo ;
-}
-
 // Extension to LuaSkin class for conversion support
 @interface LuaSkin (conversionSupport)
 
 // internal methods for pushNSObject
-- (int)pushNSObject:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag
-                                alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSNumber:(id)obj preserveBits:(BOOL)bitsOverNumber ;
-- (int)pushNSArray:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag
-                               alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSSet:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag
-                             alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSDictionary:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag
-                                    alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSObject:(id)obj     withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSNumber:(id)obj     withOptions:(LS_NSConversionOptions)options ;
+- (int)pushNSArray:(id)obj      withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSSet:(id)obj        withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
 
 // internal methods for toNSObjectAtIndex
-- (id)toNSObjectAtIndex:(int)idx alreadySeenObjects:(NSMutableDictionary *)alreadySeen
-                                   allowSelfReference:(BOOL)allow ;
-- (id)tableAtIndex:(int)idx alreadySeenObjects:(NSMutableDictionary *)alreadySeen
-                              allowSelfReference:(BOOL)allow;
+- (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (id)tableAtIndex:(int)idx      withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen;
 @end
 
 @implementation LuaSkin
@@ -378,13 +322,12 @@ nextarg:
 
 #pragma mark - Conversion from NSObjects into Lua objects
 
-- (int)pushNSObject:(id)obj { return [self pushNSObject:obj preserveBitsInNSNumber:NO] ; }
+- (int)pushNSObject:(id)obj { return [self pushNSObject:obj withOptions:LS_NSNone] ; }
 
-- (int)pushNSObject:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag {
+- (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options {
     NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
 
-    [self pushNSObject:obj preserveBitsInNSNumber:bitsFlag
-                               alreadySeenObjects:alreadySeen];
+    [self pushNSObject:obj withOptions:options alreadySeenObjects:alreadySeen];
 
     for (id entry in alreadySeen) {
         luaL_unref(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:entry] intValue]) ;
@@ -400,10 +343,11 @@ nextarg:
 
     if (className && helperFN) {
         if ([registeredNSHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]) {
-            [self logWarn:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
-                                          className,
-                                          [registeredNSHelperLocations objectForKey:[NSString stringWithUTF8String:className]]]
-                               fromLevel:level] ;
+            [self logAtLevel:LS_LOG_WARN
+                 withMessage:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
+                                                        className,
+                                                        [registeredNSHelperLocations objectForKey:[NSString stringWithUTF8String:className]]]
+                fromStackPos:level] ;
         } else {
             luaL_where(_L, level) ;
             NSString *locationString = [NSString stringWithFormat:@"%s", lua_tostring(_L, -1)] ;
@@ -414,8 +358,9 @@ nextarg:
             lua_pop(_L, 1) ;
         }
     } else {
-        [self logWarn:@"registerPushNSHelper:forClass: requires both helperFN and className"
-                           fromLevel:level] ;
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:@"registerPushNSHelper:forClass: requires both helperFN and className"
+             fromStackPos:level] ;
     }
 }
 
@@ -444,12 +389,12 @@ nextarg:
 
 #pragma mark - Conversion from lua objects into NSObjects
 
-- (id)toNSObjectAtIndex:(int)idx { return [self toNSObjectAtIndex:idx allowSelfReference:NO] ; }
+- (id)toNSObjectAtIndex:(int)idx { return [self toNSObjectAtIndex:idx withOptions:LS_NSNone] ; }
 
-- (id)toNSObjectAtIndex:(int)idx allowSelfReference:(BOOL)allow {
+- (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options {
     NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
 
-    return [self toNSObjectAtIndex:idx alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
+    return [self toNSObjectAtIndex:idx withOptions:options alreadySeenObjects:alreadySeen] ;
 }
 
 - (id)luaObjectAtIndex:(int)idx toClass:(char *)className {
@@ -472,10 +417,11 @@ nextarg:
 
     if (className && helperFN) {
         if ([registeredLuaObjectHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]) {
-            [self logWarn:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
-                                          className,
-                                          [registeredLuaObjectHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]]
-                               fromLevel:level] ;
+            [self logAtLevel:LS_LOG_WARN
+                 withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
+                                                        className,
+                                                        [registeredLuaObjectHelperFunctions objectForKey:[NSString stringWithUTF8String:className]]]
+                fromStackPos:level] ;
         } else {
             luaL_where(_L, level) ;
             NSString *locationString = [NSString stringWithFormat:@"%s", lua_tostring(_L, -1)] ;
@@ -486,8 +432,9 @@ nextarg:
             lua_pop(_L, 1) ;
         }
     } else {
-        [self logWarn:@"registerLuaObjectHelper:forClass: requires both helperFN and className"
-                           fromLevel:level] ;
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:@"registerLuaObjectHelper:forClass: requires both helperFN and className"
+            fromStackPos:level] ;
     }
 }
 
@@ -500,8 +447,9 @@ nextarg:
         lua_pop(_L, 4);
         return  NSMakeRect(x, y, w, h) ;
     } else {
-        [self logWarn:[NSString stringWithFormat:@"returning NSZeroRect: can't make NSRect from %s.", lua_typename(_L, lua_type(_L, idx))]
-                           fromLevel:1] ;
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"returning NSZeroRect: can't make NSRect from %s.", lua_typename(_L, lua_type(_L, idx))]
+            fromStackPos:1] ;
         return NSZeroRect ;
     }
 }
@@ -513,8 +461,9 @@ nextarg:
         lua_pop(_L, 2);
         return NSMakePoint(x, y);
     } else {
-        [self logWarn:[NSString stringWithFormat:@"returning NSZeroPoint: can't make NSPoint from %s.", lua_typename(_L, lua_type(_L, idx))]
-                           fromLevel:1] ;
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"returning NSZeroPoint: can't make NSPoint from %s.", lua_typename(_L, lua_type(_L, idx))]
+            fromStackPos:1] ;
         return NSZeroPoint ;
     }
 }
@@ -526,13 +475,51 @@ nextarg:
         lua_pop(_L, 2);
         return NSMakeSize(w, h);
     } else {
-        [self logWarn:[NSString stringWithFormat:@"returning NSZeroSize: can't make NSSize from %s.", lua_typename(_L, lua_type(_L, idx))]
-                           fromLevel:1] ;
+        [self logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"returning NSZeroSize: can't make NSSize from %s.", lua_typename(_L, lua_type(_L, idx))]
+            fromStackPos:1] ;
         return NSZeroSize ;
     }
 }
 
-#pragma mark - Other helpers
+#pragma mark - Support Functions
+
+// maxn   returns the largest integer key in the table
+- (lua_Integer)maxNatIndex:(int)idx {
+    lua_Integer max = 0;
+    if (lua_type(_L, idx) == LUA_TTABLE) {
+        lua_pushnil(_L);  /* first key */
+        while (lua_next(_L, idx)) {
+            lua_pop(_L, 1);  /* remove value */
+            if (lua_type(_L, -1) == LUA_TNUMBER && lua_isinteger(_L, -1)) {
+                lua_Integer v = lua_tointeger(_L, -1);
+                if (v > max) max = v;
+            }
+        }
+    } else {
+        [self logAtLevel:LS_LOG_ERROR
+             withMessage:[NSString stringWithFormat:@"table expected (found %s)", lua_typename(_L, lua_type(_L, idx))]
+            fromStackPos:0] ;
+    }
+    return max ;
+}
+
+// countn returns the number of items of any key type in the table
+- (lua_Integer)countNatIndex:(int)idx {
+    lua_Integer max = 0;
+    if (lua_type(_L, idx) == LUA_TTABLE) {
+        lua_pushnil(_L);  /* first key */
+        while (lua_next(_L, idx)) {
+          lua_pop(_L, 1);  /* remove value */
+          max++ ;
+        }
+    } else {
+        [self logAtLevel:LS_LOG_ERROR
+             withMessage:[NSString stringWithFormat:@"table expected (found %s)", lua_typename(_L, lua_type(_L, idx))]
+            fromStackPos:0] ;
+    }
+    return max ;
+}
 
 - (BOOL)isValidUTF8AtIndex:(int)idx {
     if (lua_type(_L, idx) != LUA_TSTRING && lua_type(_L, idx) != LUA_TNUMBER) return NO ;
@@ -609,6 +596,44 @@ nextarg:
     return YES;
 }
 
+- (NSString *)getValidUTF8AtIndex:(int)idx {
+    size_t sourceLength ;
+    unsigned char *src  = (unsigned char *)luaL_tolstring(_L, idx, &sourceLength) ;
+    NSMutableData *dest = [[NSMutableData alloc] init] ;
+
+    unsigned char nullChar[]    = { 0xE2, 0x88, 0x85 } ;
+    unsigned char invalidChar[] = { 0xEF, 0xBF, 0xBD } ;
+
+    size_t pos = 0 ;
+    while (pos < sourceLength) {
+        if (src[pos] > 0 && src[pos] <= 127) {
+            [dest appendBytes:(void *)(src + pos) length:1] ; pos++ ;
+        } else if ((src[pos] >= 194 && src[pos] <= 223) && (src[pos+1] >= 128 && src[pos+1] <= 191)) {
+            [dest appendBytes:(void *)(src + pos) length:2] ; pos = pos + 2 ;
+        } else if ((src[pos] == 224 && (src[pos+1] >= 160 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
+                   ((src[pos] >= 225 && src[pos] <= 236) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
+                   (src[pos] == 237 && (src[pos+1] >= 128 && src[pos+1] <= 159) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
+                   ((src[pos] >= 238 && src[pos] <= 239) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191))) {
+            [dest appendBytes:(void *)(src + pos) length:3] ; pos = pos + 3 ;
+        } else if ((src[pos] == 240 && (src[pos+1] >= 144 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191)) ||
+                   ((src[pos] >= 241 && src[pos] <= 243) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191)) ||
+                   (src[pos] == 244 && (src[pos+1] >= 128 && src[pos+1] <= 143) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191))) {
+            [dest appendBytes:(void *)(src + pos) length:4] ; pos = pos + 4 ;
+        } else {
+            if (src[pos] == 0)
+                [dest appendBytes:(void *)nullChar length:3] ;
+            else
+                [dest appendBytes:(void *)invalidChar length:3] ;
+            pos = pos + 1 ;
+        }
+    }
+
+    // we're done with src, so its safe to pop the stack of luaL_tolstring's value
+    lua_pop(_L, 1) ;
+
+    return [[NSString alloc] initWithData:dest encoding:NSUTF8StringEncoding] ;
+}
+
 - (BOOL)requireModule:(char *)moduleName {
     lua_getglobal(_L, "require"); lua_pushstring(_L, moduleName) ;
     return [self protectedCallAndTraceback:1 nresults:1] ;
@@ -624,9 +649,7 @@ nextarg:
 
 #pragma mark - conversionSupport extensions to LuaSkin class
 
-- (int)pushNSObject:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag
-                                alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-
+- (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     if (obj) {
 // NOTE: We catch self-referential loops, do we also need a recursive depth?  Will crash at depth of 512...
         if ([alreadySeen objectForKey:obj]) {
@@ -648,7 +671,7 @@ nextarg:
         if ([obj isKindOfClass:[NSNull class]]) {
             lua_pushnil(_L) ;
         } else if ([obj isKindOfClass:[NSNumber class]]) {
-            [self pushNSNumber:obj preserveBits:bitsFlag] ;
+            [self pushNSNumber:obj withOptions:options] ;
         } else if ([obj isKindOfClass:[NSString class]]) {
                 size_t size = [(NSString *)obj lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
                 lua_pushlstring(_L, [(NSString *)obj UTF8String], size) ;
@@ -658,16 +681,22 @@ nextarg:
         } else if ([obj isKindOfClass:[NSDate class]]) {
             lua_pushinteger(_L, lround([(NSDate *)obj timeIntervalSince1970])) ;
         } else if ([obj isKindOfClass:[NSArray class]]) {
-            [self pushNSArray:obj preserveBitsInNSNumber:bitsFlag alreadySeenObjects:alreadySeen] ;
+            [self pushNSArray:obj withOptions:options alreadySeenObjects:alreadySeen] ;
         } else if ([obj isKindOfClass:[NSSet class]]) {
-            [self pushNSSet:obj preserveBitsInNSNumber:bitsFlag alreadySeenObjects:alreadySeen] ;
+            [self pushNSSet:obj withOptions:options alreadySeenObjects:alreadySeen] ;
         } else if ([obj isKindOfClass:[NSDictionary class]]) {
-            [self pushNSDictionary:obj preserveBitsInNSNumber:bitsFlag alreadySeenObjects:alreadySeen] ;
+            [self pushNSDictionary:obj withOptions:options alreadySeenObjects:alreadySeen] ;
         } else if ([obj isKindOfClass:[NSObject class]]) {
-            lua_pushstring(_L, [[NSString stringWithFormat:@"%@", obj] UTF8String]) ;
+            if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
+                [self logDebug:[NSString stringWithFormat:@"unrecognized type %@ converting to '%@'", NSStringFromClass([obj class]), obj]] ;
+                lua_pushstring(_L, [[NSString stringWithFormat:@"%@", obj] UTF8String]) ;
+            } else {
+                [self logDebug:[NSString stringWithFormat:@"unrecognized type %@ converting to nil", NSStringFromClass([obj class])]] ;
+                lua_pushnil(_L) ;
+            }
         } else {
         // shouldn't happen -- the last check, NSObject, should catch everything not yet caught, so log it.
-            NSLog(@"Uncaught NSObject type for '%@'", obj) ;
+            [self logDebug:[NSString stringWithFormat:@"Uncaught NSObject type for '%@'", obj]] ;
             lua_pushstring(_L, [[NSString stringWithFormat:@"%@", obj] UTF8String]) ;
         }
     } else {
@@ -676,7 +705,7 @@ nextarg:
     return 1 ;
 }
 
-- (int)pushNSNumber:(id)obj preserveBits:(BOOL)bitsOverNumber{
+- (int)pushNSNumber:(id)obj withOptions:(LS_NSConversionOptions)options {
     NSNumber    *number = obj ;
     if (number == (id)kCFBooleanTrue)
         lua_pushboolean(_L, YES);
@@ -699,7 +728,7 @@ nextarg:
             case 'q': lua_pushinteger(_L, [number longLongValue]) ; break ;
 
             // Lua only does signed long long, not unsigned, so we have two options
-            case 'Q': if (bitsOverNumber) {
+            case 'Q': if ((options & LS_NSUnsignedLongLongPreserveBits) == LS_NSUnsignedLongLongPreserveBits) {
                           lua_pushinteger(_L, (long long)[number unsignedLongLongValue]) ;
                       } else {
                           if ([number unsignedLongLongValue] < 0x8000000000000000)
@@ -713,7 +742,7 @@ nextarg:
             case 'd': lua_pushnumber(_L,  [number doubleValue]) ; break ;
 
             default:
-                NSLog(@"Unrecognized numerical type '%s' for '%@'", [number objCType], number) ;
+                [self logDebug:[NSString stringWithFormat:@"unrecognized numerical type '%s' for '%@'", [number objCType], number]] ;
                 lua_pushnumber(_L, [number doubleValue]) ;
                 break ;
         }
@@ -721,30 +750,26 @@ nextarg:
     return 1 ;
 }
 
-- (int)pushNSArray:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag
-                               alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSArray:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray* list = obj;
     lua_newtable(_L);
     [alreadySeen setObject:[NSNumber numberWithInt:luaL_ref(_L, LUA_REGISTRYINDEX)] forKey:obj] ;
     lua_rawgeti(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
     for (id item in list) {
-        [self pushNSObject:item preserveBitsInNSNumber:bitsFlag
-                                    alreadySeenObjects:alreadySeen];
+        [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
         lua_rawseti(_L, -2, luaL_len(_L, -2) + 1) ;
     }
     return 1 ;
 }
 
-- (int)pushNSSet:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag
-                             alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSSet:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     if ([obj isKindOfClass: [NSSet class]]) {
         NSSet* list = obj;
         lua_newtable(_L);
         [alreadySeen setObject:[NSNumber numberWithInt:luaL_ref(_L, LUA_REGISTRYINDEX)] forKey:obj] ;
         lua_rawgeti(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
         for (id item in list) {
-            [self pushNSObject:item preserveBitsInNSNumber:bitsFlag
-                                        alreadySeenObjects:alreadySeen];
+            [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
             lua_rawseti(_L, -2, luaL_len(_L, -2) + 1) ;
         }
     } else {
@@ -753,33 +778,29 @@ nextarg:
     return 1 ;
 }
 
-- (int)pushNSDictionary:(id)obj preserveBitsInNSNumber:(BOOL)bitsFlag
-                                    alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray *keys = [obj allKeys];
     NSArray *values = [obj allValues];
     lua_newtable(_L);
     [alreadySeen setObject:[NSNumber numberWithInt:luaL_ref(_L, LUA_REGISTRYINDEX)] forKey:obj] ;
     lua_rawgeti(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
     for (unsigned long i = 0; i < [keys count]; i++) {
-        [self pushNSObject:[keys objectAtIndex:i] preserveBitsInNSNumber:bitsFlag
-                                                      alreadySeenObjects:alreadySeen];
-        [self pushNSObject:[values objectAtIndex:i] preserveBitsInNSNumber:bitsFlag
-                                                        alreadySeenObjects:alreadySeen];
+        [self pushNSObject:[keys objectAtIndex:i] withOptions:options alreadySeenObjects:alreadySeen];
+        [self pushNSObject:[values objectAtIndex:i] withOptions:options alreadySeenObjects:alreadySeen];
         lua_settable(_L, -3);
     }
     return 1 ;
 }
 
-- (id)toNSObjectAtIndex:(int)idx
-       alreadySeenObjects:(NSMutableDictionary *)alreadySeen
-       allowSelfReference:(BOOL)allow {
-
+- (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     int realIndex = lua_absindex(_L, idx) ;
     NSMutableArray *seenObject = [alreadySeen objectForKey:[NSValue valueWithPointer:lua_topointer(_L, idx)]] ;
     if (seenObject) {
-        if ([[seenObject lastObject] isEqualToNumber:@(NO)] && allow == NO) {
-            [self logWarn:@"lua table cannot contain self-references" fromLevel:1] ;
-            return nil ;
+        if ([[seenObject lastObject] isEqualToNumber:@(NO)] && ((options & LS_NSAllowsSelfReference) != LS_NSAllowsSelfReference)) {
+            [self logAtLevel:LS_LOG_WARN
+                 withMessage:@"lua table cannot contain self-references"
+                fromStackPos:1] ;
+            return [NSNull null] ;
         } else {
             return [seenObject firstObject] ;
         }
@@ -791,16 +812,30 @@ nextarg:
             else
                 return @(lua_tonumber(_L, idx));
             break ;
-        case LUA_TSTRING:
-            if ([self isValidUTF8AtIndex:idx]) {
-                size_t size ;
-                unsigned char *string = (unsigned char *)lua_tolstring(_L, idx, &size) ;
-                return [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
-//                 return [NSString stringWithUTF8String:(char *)lua_tostring(_L, idx)];
-            } else {
-                size_t size ;
-                unsigned char *junk = (unsigned char *)lua_tolstring(_L, idx, &size) ;
-                return [NSData dataWithBytes:(void *)junk length:size] ;
+        case LUA_TSTRING: {
+                LS_NSConversionOptions stringOptions = options & ( LS_NSPreserveLuaStringExactly | LS_NSLuaStringAsDataOnly ) ;
+                if (stringOptions == LS_NSLuaStringAsDataOnly) {
+                    size_t size ;
+                    unsigned char *junk = (unsigned char *)lua_tolstring(_L, idx, &size) ;
+                    return [NSData dataWithBytes:(void *)junk length:size] ;
+                } else if (stringOptions == LS_NSPreserveLuaStringExactly) {
+                    if ([self isValidUTF8AtIndex:idx]) {
+                        size_t size ;
+                        unsigned char *string = (unsigned char *)lua_tolstring(_L, idx, &size) ;
+                        return [[NSString alloc] initWithData:[NSData dataWithBytes:(void *)string length:size] encoding: NSUTF8StringEncoding] ;
+                    } else {
+                        size_t size ;
+                        unsigned char *junk = (unsigned char *)lua_tolstring(_L, idx, &size) ;
+                        return [NSData dataWithBytes:(void *)junk length:size] ;
+                    }
+                } else {
+                    if (stringOptions != LS_NSNone) {
+                        [self logAtLevel:LS_LOG_DEBUG
+                             withMessage:@"only LS_NSPreserveLuaStringExactly or LS_NSLuaStringAsDataOnly can be specified: using default behavior"
+                            fromStackPos:0] ;
+                    }
+                    return [self getValidUTF8AtIndex:idx] ;
+                }
             }
             break ;
         case LUA_TNIL:
@@ -810,7 +845,7 @@ nextarg:
             return lua_toboolean(_L, idx) ? (id)kCFBooleanTrue : (id)kCFBooleanFalse;
             break ;
         case LUA_TTABLE:
-            return [self tableAtIndex:realIndex alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
+            return [self tableAtIndex:realIndex withOptions:options alreadySeenObjects:alreadySeen] ;
             break ;
         default:
             return [NSString stringWithFormat:@"%s", luaL_tolstring(_L, idx, NULL)];
@@ -818,11 +853,10 @@ nextarg:
     }
 }
 
-- (id)tableAtIndex:(int)idx alreadySeenObjects:(NSMutableDictionary *)alreadySeen
-                              allowSelfReference:(BOOL)allow {
+- (id)tableAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     id result ;
 
-    if (maxn(_L, lua_absindex(_L, idx)) == countn(_L, lua_absindex(_L, idx))) {
+    if ([self maxNatIndex:lua_absindex(_L, idx)] == [self countNatIndex:lua_absindex(_L, idx)]) {
         result = (NSMutableArray *) [[NSMutableArray alloc] init] ;
     } else {
         result = (NSMutableDictionary *) [[NSMutableDictionary alloc] init] ;
@@ -830,18 +864,18 @@ nextarg:
     [alreadySeen setObject:@[result, @(NO)] forKey:[NSValue valueWithPointer:lua_topointer(_L, idx)]] ;
 
     if ([result isKindOfClass: [NSArray class]]) {
-        lua_Integer tableLength = countn(_L, lua_absindex(_L, idx)) ;
+        lua_Integer tableLength = [self countNatIndex:lua_absindex(_L, idx)] ;
         for (lua_Integer i = 0; i < tableLength ; i++) {
             lua_geti(_L, lua_absindex(_L, idx), i + 1) ;
-            id val = [self toNSObjectAtIndex:-1 alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
+            id val = [self toNSObjectAtIndex:-1 withOptions:options alreadySeenObjects:alreadySeen] ;
             [result addObject:val] ;
             lua_pop(_L, 1) ;
         }
     } else {
         lua_pushnil(_L);
         while (lua_next(_L, lua_absindex(_L, idx)) != 0) {
-            id key = [self toNSObjectAtIndex:-2 alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
-            id val = [self toNSObjectAtIndex:lua_gettop(_L) alreadySeenObjects:alreadySeen allowSelfReference:allow] ;
+            id key = [self toNSObjectAtIndex:-2             withOptions:options alreadySeenObjects:alreadySeen] ;
+            id val = [self toNSObjectAtIndex:lua_gettop(_L) withOptions:options alreadySeenObjects:alreadySeen] ;
             [result setValue:val forKey:key];
             lua_pop(_L, 1);
         }
@@ -851,58 +885,33 @@ nextarg:
     return result ;
 }
 
-- (void)logDebug:(NSString *)theMessage {
-    if (_delegate &&  [_delegate respondsToSelector:@selector(logDebugForLuaSkin:)]) {
-        [_delegate logDebugForLuaSkin:theMessage] ;
+#pragma mark - LuaSkin Log Support
+
+- (void) logAtLevel:(int)level withMessage:(NSString *)theMessage {
+    if (_delegate &&  [_delegate respondsToSelector:@selector(logForLuaSkinAtLevel:withMessage:)]) {
+        [_delegate logForLuaSkinAtLevel:level withMessage:theMessage] ;
     } else {
-        NSLog(@"logDebug:%@", theMessage) ;
+        NSLog(@"(missing delegate):log level %d: %@", level, theMessage) ;
     }
 }
 
-- (void)logWarn:(NSString *)theMessage {
-    if (_delegate &&  [_delegate respondsToSelector:@selector(logWarnForLuaSkin:)]) {
-        [_delegate logWarnForLuaSkin:theMessage] ;
-    } else {
-        NSLog(@"logWarn:%@", theMessage) ;
-    }
+// Testing for: chunkname:currentline:theMessage
+- (void) logAtLevel:(int)level withMessage:(NSString *)theMessage fromStackPos:(int)pos {
+    luaL_where(_L, pos) ;
+    NSString *locationInfo = [NSString stringWithUTF8String:lua_tostring(_L, -1)] ;
+    lua_pop(_L, 1) ;
+    if (!locationInfo || [locationInfo isEqualToString:@""])
+        locationInfo = [NSString stringWithFormat:@"(no lua location info at depth %d)", level] ;
+
+    [self logAtLevel:level withMessage:[NSString stringWithFormat:@"%@:%@", locationInfo, theMessage]] ;
 }
 
-- (void)logError:(NSString *)theMessage {
-    if (_delegate &&  [_delegate respondsToSelector:@selector(logErrorForLuaSkin:)]) {
-        [_delegate logErrorForLuaSkin:theMessage] ;
-    } else {
-        NSLog(@"logError:%@", theMessage) ;
-    }
-}
-
-- (void)logDebugFromIndex:(int)idx {
-    [self logDebug:[NSString stringWithUTF8String:luaL_tolstring(_L, idx, NULL)]] ;
-}
-
-- (void)logWarnFromIndex:(int)idx {
-    [self logWarn:[NSString stringWithUTF8String:luaL_tolstring(_L, idx, NULL)]] ;
-}
-
-- (void)logErrorFromIndex:(int)idx {
-    [self logError:[NSString stringWithUTF8String:luaL_tolstring(_L, idx, NULL)]] ;
-}
-
-// For: chunkname:currentline:theMessage
-
-- (void)logDebug:(NSString *)theMessage fromLevel:(int)theLevel {
-    NSString *chunkLineLabel = getChunkLineLabel(_L, theLevel) ;
-    [self logDebug:[NSString stringWithFormat:@"%@:%@", chunkLineLabel, theMessage]] ;
-}
-
-- (void)logWarn:(NSString *)theMessage fromLevel:(int)theLevel {
-    NSString *chunkLineLabel = getChunkLineLabel(_L, theLevel) ;
-    [self logWarn:[NSString stringWithFormat:@"%@:%@", chunkLineLabel, theMessage]] ;
-}
-
-- (void)logError:(NSString *)theMessage fromLevel:(int)theLevel {
-    NSString *chunkLineLabel = getChunkLineLabel(_L, theLevel) ;
-    [self logError:[NSString stringWithFormat:@"%@:%@", chunkLineLabel, theMessage]] ;
-}
+// shorthand
+- (void)logVerbose:(NSString *)theMessage { [self logAtLevel:LS_LOG_VERBOSE withMessage:theMessage] ; }
+- (void)logDebug:(NSString *)theMessage   { [self logAtLevel:LS_LOG_DEBUG withMessage:theMessage] ; }
+- (void)logInfo:(NSString *)theMessage    { [self logAtLevel:LS_LOG_INFO withMessage:theMessage] ; }
+- (void)logWarn:(NSString *)theMessage    { [self logAtLevel:LS_LOG_WARN withMessage:theMessage] ; }
+- (void)logError:(NSString *)theMessage   { [self logAtLevel:LS_LOG_ERROR withMessage:theMessage] ; }
 
 - (NSString *)tracebackWithTag:(NSString *)theTag fromLevel:(int)level{
     int topIndex         = lua_gettop(_L) ;

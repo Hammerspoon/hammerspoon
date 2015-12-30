@@ -64,10 +64,10 @@ static int __unused my_lua_error(lua_State *L, NSString *theMessage) {
 
 NSString *validateString(lua_State *L, int idx) {
     NSString *theString = [[LuaSkin shared] toNSObjectAtIndex:idx] ;
-    if (![theString isKindOfClass:[NSString class]]) {
-        log_to_console(L, _cWARN, @"string not valid UTF8") ;
-        theString = nil ;
-    }
+//     if (![theString isKindOfClass:[NSString class]]) {
+//         log_to_console(L, _cWARN, @"string not valid UTF8") ;
+//         theString = nil ;
+//     }
     return theString ;
 }
 

@@ -55,7 +55,7 @@ return {setup=function(...)
     if not pred then error([[
   Internal error: please open an issue at
   https://github.com/Hammerspoon/hammerspoon/issues/new   and paste the following stack trace:
-  
+
   Assertion failed: ]]..desc..'\n'..(data and hs.inspect(data) or ''),2)
     end
   end
@@ -233,6 +233,28 @@ return {setup=function(...)
     })
   end
 
+  hs.handleLogMessage = function(level, message)
+    -- may change in the future if this fills crashlog with too much useless stuff
+      if level ~= 5 then
+          require("hs.crash").crashlog(string.format("(%d) %s", level, message))
+      end
+
+    -- may change in the future to use hs.logger, but for now I want to see everything for testing purposes
+      if level == 5 then                  -- LS_LOG_VERBOSE
+          print("*** VERBOSE: "..message)
+      elseif level == 4 then              -- LS_LOG_DEBUG
+          print("*** DEBUG:   "..message)
+      elseif level == 3 then              -- LS_LOG_INFO
+          print("*** INFO:    "..message)
+      elseif level == 2 then              -- LS_LOG_WARN
+          print("*** WARN:    "..message)
+      elseif level == 1 then              -- LS_LOG_ERROR
+          hs.showError(message)
+--           print("*** ERROR:   "..message)
+      else
+          print("*** UNKNOWN LOG LEVEL: "..tostring(level).."\n\t"..message)
+      end
+  end
 
   -- load init.lua
 

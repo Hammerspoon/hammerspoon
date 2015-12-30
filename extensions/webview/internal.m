@@ -501,18 +501,25 @@ static int userdata_gc(lua_State* L) ;
         } else {
             if (error) {
                 if (lua_type([skin L], -1) == LUA_TSTRING) {
-                    lua_getglobal([skin L], "hs") ; lua_getfield([skin L], -1, "cleanUTF8forConsole") ;
-                    lua_pushvalue([skin L], -3) ;
-                    if (![skin protectedCallAndTraceback:1 nresults:1]) {
-                        CLS_NSLOG(@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1));
-                        showError([skin L], (char *)[[NSString stringWithFormat:@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1)] UTF8String]);
-                    } else {
-                        NSString *theHTML = [skin toNSObjectAtIndex:-1] ;
-                        lua_pop([skin L], 2) ; // remove "hs" and the return value
+//                     lua_getglobal([skin L], "hs") ; lua_getfield([skin L], -1, "cleanUTF8forConsole") ;
+//                     lua_pushvalue([skin L], -3) ;
+//                     if (![skin protectedCallAndTraceback:1 nresults:1]) {
+//                         CLS_NSLOG(@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1));
+//                         showError([skin L], (char *)[[NSString stringWithFormat:@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1)] UTF8String]);
+//                     } else {
+//                         NSString *theHTML = [skin toNSObjectAtIndex:-1] ;
+//                         lua_pop([skin L], 2) ; // remove "hs" and the return value
+//
+//                         [theView loadHTMLString:theHTML baseURL:nil] ;
+//                         actionRequiredAfterReturn = NO ;
+//                     }
+                    luaL_tolstring([skin L], -1, NULL) ;
+                    NSString *theHTML = [skin toNSObjectAtIndex:-1] ;
+                    lua_pop([skin L], 1) ;
 
-                        [theView loadHTMLString:theHTML baseURL:nil] ;
-                        actionRequiredAfterReturn = NO ;
-                    }
+                    [theView loadHTMLString:theHTML baseURL:nil] ;
+                    actionRequiredAfterReturn = NO ;
+
                 } else if (lua_type([skin L], -1) == LUA_TBOOLEAN && lua_toboolean([skin L], -1)) {
                     actionRequiredAfterReturn = NO ;
                 }
@@ -955,15 +962,18 @@ static int webview_html(lua_State *L) {
     HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView          *theView = theWindow.contentView ;
 
-    luaL_checkstring(L, 2) ;
+//     luaL_checkstring(L, 2) ;
+//
+//     lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ;
+//     lua_pushvalue(L, 2) ;
+//     if (![skin protectedCallAndTraceback:1 nresults:1]) {
+//         return luaL_error(L, "unable to validate HTML: %s", lua_tostring(L, -1)) ;
+//     }
+    luaL_tolstring(L, 2, NULL) ;
 
-    lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ;
-    lua_pushvalue(L, 2) ;
-    if (![skin protectedCallAndTraceback:1 nresults:1]) {
-        return luaL_error(L, "unable to validate HTML: %s", lua_tostring(L, -1)) ;
-    }
     NSString *theHTML = [skin toNSObjectAtIndex:-1] ;
-    lua_pop(L, 2) ; // remove "hs" and the return value
+//     lua_pop(L, 2) ; // remove "hs" and the return value
+    lua_pop(L, 1) ;
 
     NSString *theBaseURL ;
     if (lua_type(L, 3) == LUA_TSTRING || lua_type(L, 3) == LUA_TTABLE) {

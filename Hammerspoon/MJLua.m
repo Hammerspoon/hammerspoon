@@ -33,32 +33,15 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     return self ;
 }
 
-- (void)logDebugForLuaSkin:(NSString *)theMessage {
-    CLS_NSLOG(@"%@", theMessage) ;
-}
-
-- (void)logWarnForLuaSkin:(NSString *)theMessage {
-    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
-    lua_getglobal(_L, "print") ;
+- (void) logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage {
+    lua_getglobal(_L, "hs") ; lua_getfield(_L, -1, "handleLogMessage") ; lua_remove(_L, -2) ;
+    lua_pushinteger(_L, level) ;
     lua_pushstring(_L, [theMessage UTF8String]) ;
-    int errState = lua_pcall(_L, 1, 0, 0) ;
+    int errState = lua_pcall(_L, 2, 0, 0) ;
     if (errState != LUA_OK) {
-        CLS_NSLOG(@"logWarn: print error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
+        NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+        CLS_NSLOG(@"logForLuaSkin: error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
                                                          luaL_tolstring(_L, -1, NULL)) ;
-        lua_pop(_L, 1) ;
-    }
-}
-
-- (void)logErrorForLuaSkin:(NSString *)theMessage {
-    NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
-    lua_getglobal(_L, "hs") ;
-    lua_getfield(_L, -1, "showError") ;
-    lua_remove(_L, -2) ;
-    lua_pushstring(_L, [theMessage UTF8String]) ;
-    int errState = lua_pcall(_L, 1, 0, 0) ;
-    if (errState != LUA_OK) {
-        NSLog(@"logError: print error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
-                                                      luaL_tolstring(_L, -1, NULL)) ;
         lua_pop(_L, 1) ;
     }
 }
@@ -320,43 +303,9 @@ static int core_getObjectMetatable(lua_State *L) {
 ///  * This function does not modify the original string - to actually replace it, assign the result of this function to the original string.
 ///  * This function is a more specifically targeted version of the `hs.utf8.fixUTF8(...)` function.
 static int core_cleanUTF8(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TANY, LS_TBREAK] ;
-    size_t sourceLength ;
-    unsigned char *src  = (unsigned char *)luaL_tolstring(L, 1, &sourceLength) ;
-    NSMutableData *dest = [[NSMutableData alloc] init] ;
-
-    unsigned char nullChar[]    = { 0xE2, 0x88, 0x85 } ;
-    unsigned char invalidChar[] = { 0xEF, 0xBF, 0xBD } ;
-
-    size_t pos = 0 ;
-    while (pos < sourceLength) {
-        if (src[pos] > 0 && src[pos] <= 127) {
-            [dest appendBytes:(void *)(src + pos) length:1] ; pos++ ;
-        } else if ((src[pos] >= 194 && src[pos] <= 223) && (src[pos+1] >= 128 && src[pos+1] <= 191)) {
-            [dest appendBytes:(void *)(src + pos) length:2] ; pos = pos + 2 ;
-        } else if ((src[pos] == 224 && (src[pos+1] >= 160 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
-                   ((src[pos] >= 225 && src[pos] <= 236) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
-                   (src[pos] == 237 && (src[pos+1] >= 128 && src[pos+1] <= 159) && (src[pos+2] >= 128 && src[pos+2] <= 191)) ||
-                   ((src[pos] >= 238 && src[pos] <= 239) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191))) {
-            [dest appendBytes:(void *)(src + pos) length:3] ; pos = pos + 3 ;
-        } else if ((src[pos] == 240 && (src[pos+1] >= 144 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191)) ||
-                   ((src[pos] >= 241 && src[pos] <= 243) && (src[pos+1] >= 128 && src[pos+1] <= 191) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191)) ||
-                   (src[pos] == 244 && (src[pos+1] >= 128 && src[pos+1] <= 143) && (src[pos+2] >= 128 && src[pos+2] <= 191) && (src[pos+3] >= 128 && src[pos+3] <= 191))) {
-            [dest appendBytes:(void *)(src + pos) length:4] ; pos = pos + 4 ;
-        } else {
-            if (src[pos] == 0)
-                [dest appendBytes:(void *)nullChar length:3] ;
-            else
-                [dest appendBytes:(void *)invalidChar length:3] ;
-            pos = pos + 1 ;
-        }
-    }
-
-    // we're done with src, so its safe to pop the stack of luaL_tolstring's value
-    lua_pop(L, 1) ;
-
-    NSString *destStr = [[NSString alloc] initWithData:dest encoding:NSUTF8StringEncoding] ;
-    lua_pushlstring(L, [destStr UTF8String], [destStr lengthOfBytesUsingEncoding:NSUTF8StringEncoding]) ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TANY, LS_TBREAK] ;
+    [skin pushNSObject:[skin getValidUTF8AtIndex:1]] ;
     return 1 ;
 }
 

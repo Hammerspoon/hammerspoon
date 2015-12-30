@@ -159,7 +159,7 @@ static int getStyledTextFromData(lua_State *L) {
         }
     }
 
-    id theInput = [skin toNSObjectAtIndex:1];
+    id theInput = [skin toNSObjectAtIndex:1 withOptions:LS_NSPreserveLuaStringExactly];
     NSData *dataToPresent;
 
     if ([theInput isKindOfClass:[NSString class]]) {
@@ -1298,15 +1298,16 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin shared];
     NSMutableAttributedString *theString;
     if ((lua_type(L, idx) == LUA_TSTRING) || (lua_type(L, idx) == LUA_TNUMBER)) {
-        lua_tostring(L, idx); // ensure number is actually a string
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "cleanUTF8forConsole");
-        lua_remove(L, -2);
-        lua_pushvalue(L, idx);
-        lua_pcall(L, 1, 1, 0);
-
-        theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
-
+//         lua_tostring(L, idx); // ensure number is actually a string
+//         lua_getglobal(L, "hs");
+//         lua_getfield(L, -1, "cleanUTF8forConsole");
+//         lua_remove(L, -2);
+//         lua_pushvalue(L, idx);
+//         lua_pcall(L, 1, 1, 0);
+//
+//         theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
+        luaL_tolstring(L, idx, NULL) ;
+        theString = [[NSMutableAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]];
         lua_pop(L, 1);
     } else if (lua_type(L, idx == LUA_TUSERDATA) && luaL_testudata(L, idx, USERDATA_TAG)) {
         theString = [get_objectFromUserdata(__bridge NSAttributedString, L, idx) mutableCopy];
@@ -1314,14 +1315,16 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
         lua_rawgeti(L, idx, 1);
         luaL_tolstring(L, -1, NULL); // ensure what we have is a string
         lua_remove(L, -2) ; // luaL_tolstring pushes its value onto the stack without removing/touching the original
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "cleanUTF8forConsole");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_call(L, 1, 1);
-
-        theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
-        lua_pop(L, 2); // the cleaned version of the string and the string on the stack
+//         lua_getglobal(L, "hs");
+//         lua_getfield(L, -1, "cleanUTF8forConsole");
+//         lua_remove(L, -2);
+//         lua_pushvalue(L, -2);
+//         lua_call(L, 1, 1);
+//
+//         theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
+//         lua_pop(L, 2); // the cleaned version of the string and the string on the stack
+        theString = [[NSMutableAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]];
+        lua_pop(L, 1) ;
 
         // Lua indexes strings by byte, objective-c by char
         NSDictionary *theMap = luaByteToObjCharMap([theString string]);
@@ -1344,15 +1347,18 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
                                        range:NSMakeRange(loc, len)];
                 }
                 @catch (NSException *theException) {
-                    [skin logError:[NSString stringWithFormat:@"error creating NSAttributedString from table: %@", [theException name]]
-                         fromLevel:1] ;
+                    [skin logAtLevel:LS_LOG_ERROR
+                         withMessage:[NSString stringWithFormat:@"error creating NSAttributedString from table: %@", [theException name]]
+                        fromStackPos:1] ;
                     return [[NSAttributedString alloc] init];
                 }
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"skipping style specification %lld: expected table, found %s.",
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"skipping style specification %lld: expected table, found %s.",
                                                             (locInTable - 1),
                                                             lua_typename(L, lua_type(L, -1))]
-                    fromLevel:1] ;
+
+                    fromStackPos:1] ;
             }
             locInTable++;
             lua_pop(L, 1);
@@ -1451,9 +1457,10 @@ static id table_toAttributesDictionary(lua_State *L, int idx) {
         lua_pop(L, 1);
     } else {
         // since we use this internally only, "tableness" should already be validated, so this shouldn't happen...
-        [skin logError:[NSString stringWithFormat:@"invalid attributes dictionary: expected table, found %s",
+        [skin logAtLevel:LS_LOG_ERROR
+             withMessage:[NSString stringWithFormat:@"invalid attributes dictionary: expected table, found %s",
                                                     lua_typename(L, lua_type(L, idx))]
-             fromLevel:0];
+            fromStackPos:0] ;
     }
 
     return theAttributes;
@@ -1524,16 +1531,20 @@ static id table_toNSFont(lua_State *L, int idx) {
         }
         lua_pop(L, 1);
     } else {
-        [skin logWarn:[NSString stringWithFormat:@"invalid font: expected table or string, found %s",
-                                                  lua_typename(L, lua_type(L, idx))]
-            fromLevel:1] ;
+        [skin logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"invalid font: expected table or string, found %s",
+                                                    lua_typename(L, lua_type(L, idx))]
+            fromStackPos:1] ;
     }
 
     NSFont *theFont = [NSFont fontWithName:theName size:theSize];
     if (theFont) {
         return theFont;
     } else {
-        [skin logWarn:[NSString stringWithFormat:@"invalid font specified: %@", theName] fromLevel:1] ;
+        [skin logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"invalid font specified: %@", theName]
+            fromStackPos:1] ;
+
         return [[NSFont systemFontOfSize:0] fontName];
     }
 }
@@ -1595,8 +1606,9 @@ static id table_toNSShadow(lua_State *L, int idx) {
         }
         lua_pop(L, 1);
     } else {
-        [skin logWarn:[NSString stringWithFormat:@"invalid shadow object: expected table, found %s", lua_typename(L, lua_type(L, idx))]
-            fromLevel:1] ;
+        [skin logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"invalid shadow object: expected table, found %s", lua_typename(L, lua_type(L, idx))]
+            fromStackPos:1] ;
     }
     return theShadow;
 }
@@ -1776,7 +1788,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             } else if ([theString isEqualToString:@"natural"]) {
                 thePS.alignment = NSNaturalTextAlignment;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"invalid alignment specified: %@", theString] fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"invalid alignment specified: %@", theString]
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1795,7 +1809,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             } else if ([theString isEqualToString:@"wordWrap"]) {
                 thePS.lineBreakMode = NSLineBreakByWordWrapping;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"invalid lineBreakMode: %@", theString] fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"invalid lineBreakMode: %@", theString]
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1808,7 +1824,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             } else if (![theString isEqualToString:@"natural"]) {
                 thePS.baseWritingDirection = NSWritingDirectionNatural;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"invalid baseWritingDirection: %@", theString] fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"invalid baseWritingDirection: %@", theString]
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1817,7 +1835,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0) {
                 thePS.defaultTabInterval = theNumber;
             } else {
-                [skin logWarn:@"defaultTabInterval must be non-negative" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"defaultTabInterval must be non-negative"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1826,7 +1846,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0) {
                 thePS.firstLineHeadIndent = theNumber;
             } else {
-                [skin logWarn:@"firstLineHeadIndent must be non-negative" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"firstLineHeadIndent must be non-negative"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1836,7 +1858,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0) {
                 thePS.headIndent = theNumber;
             } else {
-                [skin logWarn:@"headIndent must be non-negative" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"headIndent must be non-negative"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1849,7 +1873,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0) {
                 thePS.maximumLineHeight = theNumber;
             } else {
-                [skin logWarn:@"maximumLineHeight must be non-negative" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"maximumLineHeight must be non-negative"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1858,7 +1884,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0) {
                 thePS.minimumLineHeight = theNumber;
             } else {
-                [skin logWarn:@"minimumLineHeight must be non-negative" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"minimumLineHeight must be non-negative"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1867,7 +1895,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0) {
                 thePS.lineSpacing = theNumber;
             } else {
-                [skin logWarn:@"lineSpacing must be non-negative" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"lineSpacing must be non-negative"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1876,7 +1906,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0) {
                 thePS.paragraphSpacing = theNumber;
             } else {
-                [skin logWarn:@"paragraphSpacing must be non-negative" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"paragraphSpacing must be non-negative"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1885,7 +1917,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0) {
                 thePS.paragraphSpacingBefore = theNumber;
             } else {
-                [skin logWarn:@"paragraphSpacingBefore must be non-negative" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"paragraphSpacingBefore must be non-negative"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1894,7 +1928,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0) {
                 thePS.lineHeightMultiple = theNumber;
             } else {
-                [skin logWarn:@"lineHeightMultiple must be non-negative" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"lineHeightMultiple must be non-negative"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1903,7 +1939,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0.0 && theNumber <= 1.0) {
                 thePS.hyphenationFactor = (float)theNumber;
             } else {
-                [skin logWarn:@"hyphenationFactor must be between 0.0 and 1.0 inclusive" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"hyphenationFactor must be between 0.0 and 1.0 inclusive"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1924,7 +1962,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
             if (theNumber >= 0 && theNumber <= 6) {
                 thePS.headerLevel = theNumber;
             } else {
-                [skin logWarn:@"headerNumber must be between 0 and 6 inclusive" fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"headerNumber must be between 0 and 6 inclusive"
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -1938,9 +1978,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
                     [theTabStops addObject:[skin luaObjectAtIndex:-1 toClass:"NSTextTab"]];
                     lua_pop(L, 1); // the tabStop table we just looked at
                 } else {
-                    [skin logWarn:[NSString stringWithFormat:@"invalid tapStop at position %lld: expected table, found %s",
-                                                              pos, lua_typename(L, lua_type(L, -1))]
-                        fromLevel:1] ;
+                    [skin logAtLevel:LS_LOG_WARN
+                         withMessage:[NSString stringWithFormat:@"invalid tapStop at position %lld: expected table, found %s", pos, lua_typename(L, lua_type(L, -1))]
+                        fromStackPos:1] ;
                 }
                 pos++;
             }
@@ -1949,8 +1989,9 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
         }
         lua_pop(L, 1);
     } else {
-        [skin logWarn:[NSString stringWithFormat:@"invalid paragraphStyle: expected table, found %s", lua_typename(L, lua_type(L, idx))]
-            fromLevel:1] ;
+        [skin logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"invalid paragraphStyle: expected table, found %s", lua_typename(L, lua_type(L, idx))]
+            fromStackPos:1] ;
     }
     return thePS;
 }
@@ -2083,7 +2124,9 @@ static id table_toNSTextTab(lua_State *L, int idx) {
             } else if ([theString isEqualToString:@"decimal"]) {
                 tabStopType = NSDecimalTabStopType;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"invalid tabStopType: %@", theString] fromLevel:1] ;
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"invalid tabStopType: %@", theString]
+                    fromStackPos:1] ;
             }
         }
         lua_pop(L, 1);
@@ -2093,8 +2136,9 @@ static id table_toNSTextTab(lua_State *L, int idx) {
         lua_pop(L, 1);
     } else {
         // since this is only used internally, "tableness" should have already been checked...
-        [skin logError:[NSString stringWithFormat:@"invalid type for tabStop: expected table, found %s", lua_typename(L, lua_type(L, idx))]
-             fromLevel:0] ;
+        [skin logAtLevel:LS_LOG_ERROR
+             withMessage:[NSString stringWithFormat:@"invalid type for tabStop: expected table, found %s", lua_typename(L, lua_type(L, idx))]
+            fromStackPos:0] ;
     }
     return [[NSTextTab alloc] initWithType:tabStopType location:tabStopLocation];
 }
