@@ -76,11 +76,10 @@
     self.windowController.listTableView.extendedDelegate = self;
     self.windowController.listTableView.dataSource = self;
     self.windowController.listTableView.target = self;
-    self.windowController.listTableView.doubleAction = @selector(chooseByDoubleClicking:);
 
     self.windowController.queryField.delegate = self;
     self.windowController.queryField.target = self;
-    self.windowController.queryField.action = @selector(choose:);
+    self.windowController.queryField.action = @selector(queryDidPressEnter:);
 
     return YES;
 }
@@ -165,8 +164,8 @@
     // FIXME: Trigger a Lua callback here
 }
 
-- (IBAction)choose:(id)sender {
-    NSLog(@"in choose:");
+- (IBAction)queryDidPressEnter:(id)sender {
+    NSLog(@"in queryDidPressEnter:");
 }
 
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row {

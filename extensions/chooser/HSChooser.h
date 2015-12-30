@@ -58,7 +58,7 @@
 // NSTextFieldDelgate
 
 // Actions
-- (IBAction)choose:(id)sender;
+- (IBAction)queryDidPressEnter:(id)sender;
 
 // Choice related methods
 - (void)updateChoices;
