@@ -11,10 +11,11 @@
 #import <LuaSkin/LuaSkin.h>
 #import "HSChooserWindowController.h"
 #import "HSChooserWindow.h"
+#import "HSChooserTableView.h"
 #import "HSChooserCell.h"
 
 #pragma mark - Chooser definition
-@interface HSChooser : NSObject <NSWindowDelegate, NSTextFieldDelegate, NSTableViewDataSource, NSTableViewDelegate>
+@interface HSChooser : NSObject <NSWindowDelegate, NSTextFieldDelegate, NSTableViewDataSource, NSTableViewDelegate, HSChooserTableViewDelegate>
 @property(nonatomic) NSInteger numRows;
 @property(nonatomic) CGFloat width;
 
@@ -56,10 +57,7 @@
 
 // NSTextFieldDelgate
 
-// NSWindowDelegate
-
 // Actions
-- (IBAction)chooseByDoubleClicking:(id)sender;
 - (IBAction)choose:(id)sender;
 
 // Choice related methods

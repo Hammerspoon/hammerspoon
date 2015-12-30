@@ -64,6 +64,7 @@
     // Create and configure our window
 
     self.windowController = [[HSChooserWindowController alloc] initWithOwner:self];
+    self.windowController.delegate = self;
     self.window = (HSChooserWindow *)self.windowController.window;
 
     if (!self.windowController.windowLoaded) {
@@ -72,6 +73,7 @@
     }
 
     self.windowController.listTableView.delegate = self;
+    self.windowController.listTableView.extendedDelegate = self;
     self.windowController.listTableView.dataSource = self;
     self.windowController.listTableView.target = self;
     self.windowController.listTableView.doubleAction = @selector(chooseByDoubleClicking:);
@@ -158,12 +160,21 @@
     return cellView;
 }
 
+- (IBAction)cancel:(id)sender {
+    [self hide];
+    // FIXME: Trigger a Lua callback here
+}
+
 - (IBAction)choose:(id)sender {
     NSLog(@"in choose:");
 }
 
-- (IBAction)chooseByDoubleClicking:(id)sender {
-    NSLog(@"in chooseByDoubleClicking:");
+- (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row {
+    NSLog(@"didClickedRow: %li", (long)row);
+    if (row >= 0) {
+        [self hide];
+        // FIXME: Trigger a Lua callback here
+    }
 }
 
 - (void)updateChoices {
