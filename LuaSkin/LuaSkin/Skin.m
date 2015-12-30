@@ -686,6 +686,11 @@ nextarg:
             [self pushNSSet:obj withOptions:options alreadySeenObjects:alreadySeen] ;
         } else if ([obj isKindOfClass:[NSDictionary class]]) {
             [self pushNSDictionary:obj withOptions:options alreadySeenObjects:alreadySeen] ;
+        } else if ([obj isKindOfClass:[NSURL class]]) {
+// normally I'd make a class a helper registered as part of a module; however, NSURL is common enough
+// and 99% of the time we just want it stringified... by putting it in here, if someone needs it to do
+// more later, they can register a helper to catch the object before it reaches here.
+            lua_pushstring(_L, [[obj absoluteString] UTF8String]) ;
         } else if ([obj isKindOfClass:[NSObject class]]) {
             if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
                 [self logDebug:[NSString stringWithFormat:@"unrecognized type %@ converting to '%@'", NSStringFromClass([obj class]), obj]] ;
@@ -901,7 +906,7 @@ nextarg:
     NSString *locationInfo = [NSString stringWithUTF8String:lua_tostring(_L, -1)] ;
     lua_pop(_L, 1) ;
     if (!locationInfo || [locationInfo isEqualToString:@""])
-        locationInfo = [NSString stringWithFormat:@"(no lua location info at depth %d)", level] ;
+        locationInfo = [NSString stringWithFormat:@"(no lua location info at depth %d)", pos] ;
 
     [self logAtLevel:level withMessage:[NSString stringWithFormat:@"%@:%@", locationInfo, theMessage]] ;
 }
