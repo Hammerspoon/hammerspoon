@@ -42,7 +42,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
         NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
         CLS_NSLOG(@"logForLuaSkin: error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
                                                          luaL_tolstring(_L, -1, NULL)) ;
-        lua_pop(_L, 1) ;
+        lua_pop(_L, 2) ; // lua_pcall result + converted version from luaL_tolstring
     }
 }
 
