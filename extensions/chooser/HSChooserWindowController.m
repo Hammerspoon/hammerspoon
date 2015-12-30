@@ -93,6 +93,7 @@
         [NSEvent removeMonitor:monitor];
     }
     [self.eventMonitors removeAllObjects];
+    [self cancel];
 }
 
 
