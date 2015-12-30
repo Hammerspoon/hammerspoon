@@ -236,7 +236,7 @@ return {setup=function(...)
   hs.handleLogMessage = function(level, message)
     -- may change in the future if this fills crashlog with too much useless stuff
       if level ~= 5 then
-          require("hs.crash").crashlog(string.format("(%d) %s", level, message))
+          require("hs.crash").crashLog(string.format("(%d) %s", level, message))
       end
 
     -- may change in the future to use hs.logger, but for now I want to see everything for testing purposes
