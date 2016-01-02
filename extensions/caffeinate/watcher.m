@@ -6,6 +6,7 @@
 /// === hs.caffeinate.watcher ===
 ///
 /// Watch for display and system sleep/wake/power events
+/// and for fast user switching session events.
 ///
 /// This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
@@ -30,6 +31,14 @@
 /// Constant
 /// The displays have woken from sleep
 
+/// hs.caffeinate.watcher.sessionDidResignActive
+/// Constant
+/// The session is no longer active, due to fast user switching
+
+/// hs.caffeinate.watcher.sessionDidBecomeActive
+/// Constant
+/// The session became active, due to fast user switching
+
 // Common Code
 
 #define USERDATA_TAG "hs.caffeinate.watcher"
@@ -49,6 +58,8 @@ typedef enum _event_t {
     willPowerOff,
     screensDidSleep,
     screensDidWake,
+    sessionDidResignActive,
+    sessionDidBecomeActive,
 } event_t;
 
 @interface CaffeinateWatcher : NSObject
@@ -98,6 +109,15 @@ typedef enum _event_t {
 - (void)caffeinateScreensDidWake:(NSNotification*)notification {
     [self callback:[notification userInfo] withEvent:screensDidWake];
 }
+
+- (void)caffeinateSessionDidResignActive:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:sessionDidResignActive];
+}
+
+- (void)caffeinateSessionDidBecomeActive:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:sessionDidBecomeActive];
+}
+
 @end
 
 /// hs.caffeinate.watcher.new(fn) -> watcher
@@ -153,6 +173,15 @@ static void register_observer(CaffeinateWatcher* observer) {
                selector:@selector(caffeinateScreensDidWake:)
                    name:NSWorkspaceScreensDidWakeNotification
                  object:nil];
+
+    [center addObserver:observer
+               selector:@selector(caffeinateSessionDidResignActive:)
+                   name:NSWorkspaceSessionDidResignActiveNotification
+                 object:nil];
+    [center addObserver:observer
+               selector:@selector(caffeinateSessionDidBecomeActive:)
+                   name:NSWorkspaceSessionDidBecomeActiveNotification
+                 object:nil];
 }
 
 // Unregister the CaffeinateWatcher as observer for all events.
@@ -163,6 +192,8 @@ static void unregister_observer(CaffeinateWatcher* observer) {
     [center removeObserver:observer name:NSWorkspaceWillPowerOffNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceScreensDidSleepNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceScreensDidWakeNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceSessionDidResignActiveNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceSessionDidBecomeActiveNotification object:nil];
 }
 
 /// hs.caffeinate.watcher:start()
@@ -250,6 +281,8 @@ static void add_event_enum(lua_State* L) {
     add_event_value(L, willPowerOff, "systemWillPowerOff");
     add_event_value(L, screensDidSleep, "screensDidSleep");
     add_event_value(L, screensDidWake, "screensDidWake");
+    add_event_value(L, sessionDidResignActive, "sessionDidResignActive");
+    add_event_value(L, sessionDidBecomeActive, "sessionDidBecomeActive");
 }
 
 // Metatable for created objects when _new invoked
