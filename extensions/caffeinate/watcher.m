@@ -64,7 +64,7 @@ typedef enum _event_t {
     return self;
 }
 
-// Call the lua callback function and pass the application name and event type.
+// Call the lua callback function and pass the event type.
 - (void)callback:(NSDictionary* __unused)dict withEvent:(event_t)event {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
@@ -105,7 +105,7 @@ typedef enum _event_t {
 /// Creates a watcher object for system and display sleep/wake/power events
 ///
 /// Parameters:
-///  * fn - A function that will be called when system/display events happen. It should accept one parameters:
+///  * fn - A function that will be called when system/display events happen. It should accept one parameter:
 ///   * An event type (see the constants defined above)
 ///
 /// Returns:
@@ -167,7 +167,7 @@ static void unregister_observer(CaffeinateWatcher* observer) {
 
 /// hs.caffeinate.watcher:start()
 /// Method
-/// Starts the application watcher
+/// Starts the sleep/wake watcher
 ///
 /// Parameters:
 ///  * None
@@ -191,7 +191,7 @@ static int app_watcher_start(lua_State* L) {
 
 /// hs.caffeinate.watcher:stop()
 /// Method
-/// Stops the application watcher
+/// Stops the sleep/wake watcher
 ///
 /// Parameters:
 ///  * None
