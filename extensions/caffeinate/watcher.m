@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <Foundation/NSDistributedNotificationCenter.h>
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
@@ -39,6 +40,26 @@
 /// Constant
 /// The session became active, due to fast user switching
 
+/// hs.caffeinate.watcher.screensaverDidStart
+/// Constant
+/// The screensaver started
+
+/// hs.caffeinate.watcher.screensaverWillStop
+/// Constant
+/// The screensaver is about to stop
+
+/// hs.caffeinate.watcher.screensaverDidStop
+/// Constant
+/// The screensaver stopped
+
+/// hs.caffeinate.watcher.screensDidLock
+/// Constant
+/// The screen was locked
+
+/// hs.caffeinate.watcher.screensDidUnlock
+/// Constant
+/// The screen was unlocked
+
 // Common Code
 
 #define USERDATA_TAG "hs.caffeinate.watcher"
@@ -60,6 +81,11 @@ typedef enum _event_t {
     screensDidWake,
     sessionDidResignActive,
     sessionDidBecomeActive,
+    screensaverDidStart,
+    screensaverWillStop,
+    screensaverDidStop,
+    screensDidLock,
+    screensDidUnlock,
 } event_t;
 
 @interface CaffeinateWatcher : NSObject
@@ -118,6 +144,26 @@ typedef enum _event_t {
     [self callback:[notification userInfo] withEvent:sessionDidBecomeActive];
 }
 
+- (void)caffeinateScreensaverDidStart:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensaverDidStart];
+}
+
+- (void)caffeinateScreensaverWillStop:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensaverWillStop];
+}
+
+- (void)caffeinateScreensaverDidStop:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensaverDidStop];
+}
+
+- (void)caffeinateScreensDidLock:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensDidLock];
+}
+
+- (void)caffeinateScreensDidUnlock:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensDidUnlock];
+}
+
 @end
 
 /// hs.caffeinate.watcher.new(fn) -> watcher
@@ -152,6 +198,8 @@ static void register_observer(CaffeinateWatcher* observer) {
     // It is crucial to use the shared workspace notification center here.
     // Otherwise the will not receive the events we are interested in.
     NSNotificationCenter* center = [[NSWorkspace sharedWorkspace] notificationCenter];
+    NSDistributedNotificationCenter* distcenter =
+	[NSDistributedNotificationCenter defaultCenter];
     [center addObserver:observer
                selector:@selector(caffeinateDidWake:)
                    name:NSWorkspaceDidWakeNotification
@@ -182,11 +230,34 @@ static void register_observer(CaffeinateWatcher* observer) {
                selector:@selector(caffeinateSessionDidBecomeActive:)
                    name:NSWorkspaceSessionDidBecomeActiveNotification
                  object:nil];
+
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensaverDidStart:)
+		       name:@"com.apple.screensaver.didstart"
+		     object:nil];
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensaverWillStop:)
+		       name:@"com.apple.screensaver.willstop"
+		     object:nil];
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensaverDidStop:)
+		       name:@"com.apple.screensaver.didstop"
+		     object:nil];
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensDidLock:)
+		       name:@"com.apple.screenIsLocked"
+		     object:nil];
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensDidUnlock:)
+		       name:@"com.apple.screenIsUnlocked"
+		     object:nil];
 }
 
 // Unregister the CaffeinateWatcher as observer for all events.
 static void unregister_observer(CaffeinateWatcher* observer) {
     NSNotificationCenter* center = [[NSWorkspace sharedWorkspace] notificationCenter];
+    NSDistributedNotificationCenter* distcenter =
+	[NSDistributedNotificationCenter defaultCenter];
     [center removeObserver:observer name:NSWorkspaceDidWakeNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceWillSleepNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceWillPowerOffNotification object:nil];
@@ -194,6 +265,11 @@ static void unregister_observer(CaffeinateWatcher* observer) {
     [center removeObserver:observer name:NSWorkspaceScreensDidWakeNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceSessionDidResignActiveNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceSessionDidBecomeActiveNotification object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screensaver.didstart" object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screensaver.willstop" object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screensaver.didstop" object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screenIsLocked" object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screenIsUnlocked" object:nil];
 }
 
 /// hs.caffeinate.watcher:start()
@@ -283,6 +359,11 @@ static void add_event_enum(lua_State* L) {
     add_event_value(L, screensDidWake, "screensDidWake");
     add_event_value(L, sessionDidResignActive, "sessionDidResignActive");
     add_event_value(L, sessionDidBecomeActive, "sessionDidBecomeActive");
+    add_event_value(L, screensaverDidStart, "screensaverDidStart");
+    add_event_value(L, screensaverWillStop, "screensaverWillStop");
+    add_event_value(L, screensaverDidStop, "screensaverDidStop");
+    add_event_value(L, screensDidLock, "screensDidLock");
+    add_event_value(L, screensDidUnlock, "screensDidUnlock");
 }
 
 // Metatable for created objects when _new invoked
