@@ -14,6 +14,9 @@
 static LuaSkin* MJLuaState;
 static MJLuaLogger* MJLuaLogDelegate;
 static int evalfn;
+
+static lua_CFunction oldPanicFunction ;
+
 int refTable;
 
 static void(^loghandler)(NSString* str);
@@ -385,6 +388,14 @@ void MJLuaReplace(void) {
 
 # pragma mark - Lua environment lifecycle, low level
 
+static int MJLuaAtPanic(lua_State *L) {
+    CLS_NSLOG(@"LUA_AT_PANIC: %s", lua_tostring(L, -1)) ;
+    if (oldPanicFunction)
+        return oldPanicFunction(L) ;
+    else
+        return 0 ;
+}
+
 // Create a Lua environment with LuaSkin
 void MJLuaAlloc(void) {
     LuaSkin *skin = [LuaSkin shared];
@@ -392,6 +403,7 @@ void MJLuaAlloc(void) {
         [skin createLuaState];
     }
     MJLuaState = skin;
+    oldPanicFunction = lua_atpanic([skin L], &MJLuaAtPanic) ;
 }
 
 // Configure a Lua environment that has already been created by LuaSkin
