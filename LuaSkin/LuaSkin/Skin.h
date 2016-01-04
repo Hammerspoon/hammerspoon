@@ -56,6 +56,7 @@ typedef enum {
 
     LS_NSUnsignedLongLongPreserveBits = 1 << 0,
     LS_NSDescribeUnknownTypes         = 1 << 1,
+    LS_NSIgnoreUnknownTypes           = 1 << 5,
 
     LS_NSPreserveLuaStringExactly     = 1 << 2,
     LS_NSLuaStringAsDataOnly          = 1 << 3,

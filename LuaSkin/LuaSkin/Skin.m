@@ -327,12 +327,12 @@ nextarg:
 - (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options {
     NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
 
-    [self pushNSObject:obj withOptions:options alreadySeenObjects:alreadySeen];
+    int results = [self pushNSObject:obj withOptions:options alreadySeenObjects:alreadySeen];
 
     for (id entry in alreadySeen) {
         luaL_unref(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:entry] intValue]) ;
     }
-    return 1 ;
+    return results ;
 }
 
 - (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
@@ -393,6 +393,9 @@ nextarg:
 
 - (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options {
     NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
+
+    // We don't need to deref the already seen objects, like we do for pushNSObject because these are
+    // all NSObjectes and not referenced in the LUA_REGISTRY... ARC will take care of this for us.
 
     return [self toNSObjectAtIndex:idx withOptions:options alreadySeenObjects:alreadySeen] ;
 }
@@ -639,6 +642,7 @@ nextarg:
     return [self protectedCallAndTraceback:1 nresults:1] ;
 }
 
+// FIXME: Is this actually used anywhere or a leftover from a removed NSTask hack?
 - (void)pushUserData:(void *)userData {
     // WARNING. This is a terrible, terrible hack, taken from http://lua-users.org/lists/lua-l/2005-05/msg00095.html
     lua_lock(_L);
@@ -675,7 +679,6 @@ nextarg:
         } else if ([obj isKindOfClass:[NSString class]]) {
                 size_t size = [(NSString *)obj lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
                 lua_pushlstring(_L, [(NSString *)obj UTF8String], size) ;
-//             lua_pushstring(_L, [(NSString *)obj UTF8String]);
         } else if ([obj isKindOfClass:[NSData class]]) {
             lua_pushlstring(_L, [(NSData *)obj bytes], [(NSData *)obj length]) ;
         } else if ([obj isKindOfClass:[NSDate class]]) {
@@ -691,18 +694,17 @@ nextarg:
 // and 99% of the time we just want it stringified... by putting it in here, if someone needs it to do
 // more later, they can register a helper to catch the object before it reaches here.
             lua_pushstring(_L, [[obj absoluteString] UTF8String]) ;
-        } else if ([obj isKindOfClass:[NSObject class]]) {
+        } else {
             if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
-                [self logDebug:[NSString stringWithFormat:@"unrecognized type %@ converting to '%@'", NSStringFromClass([obj class]), obj]] ;
-                lua_pushstring(_L, [[NSString stringWithFormat:@"%@", obj] UTF8String]) ;
-            } else {
-                [self logDebug:[NSString stringWithFormat:@"unrecognized type %@ converting to nil", NSStringFromClass([obj class])]] ;
+                [self logDebug:[NSString stringWithFormat:@"unrecognized type %@; converting to '%@'", NSStringFromClass([obj class]), [obj debugDescription]]] ;
+                lua_pushstring(_L, [[NSString stringWithFormat:@"%@", [obj debugDescription]] UTF8String]) ;
+            } else if ((options & LS_NSIgnoreUnknownTypes) == LS_NSIgnoreUnknownTypes) {
+                [self logDebug:[NSString stringWithFormat:@"unrecognized type %@; ignoring", NSStringFromClass([obj class])]] ;
+                return 0 ;
+            }else {
+                [self logDebug:[NSString stringWithFormat:@"unrecognized type %@; returning nil", NSStringFromClass([obj class])]] ;
                 lua_pushnil(_L) ;
             }
-        } else {
-        // shouldn't happen -- the last check, NSObject, should catch everything not yet caught, so log it.
-            [self logDebug:[NSString stringWithFormat:@"Uncaught NSObject type for '%@'", obj]] ;
-            lua_pushstring(_L, [[NSString stringWithFormat:@"%@", obj] UTF8String]) ;
         }
     } else {
         lua_pushnil(_L) ;
@@ -761,24 +763,25 @@ nextarg:
     [alreadySeen setObject:[NSNumber numberWithInt:luaL_ref(_L, LUA_REGISTRYINDEX)] forKey:obj] ;
     lua_rawgeti(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
     for (id item in list) {
-        [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
+        int results = [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
+// NOTE: This isn't a true representation of the intent of LS_NSIgnoreUnknownTypes as it will actually put `nil`
+// in the indexed positions... is that a problem?  Keeps the numbering indexing simple, though
+        if (results == 0) lua_pushnil(_L) ;
         lua_rawseti(_L, -2, luaL_len(_L, -2) + 1) ;
     }
     return 1 ;
 }
 
 - (int)pushNSSet:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-    if ([obj isKindOfClass: [NSSet class]]) {
-        NSSet* list = obj;
-        lua_newtable(_L);
-        [alreadySeen setObject:[NSNumber numberWithInt:luaL_ref(_L, LUA_REGISTRYINDEX)] forKey:obj] ;
-        lua_rawgeti(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
-        for (id item in list) {
-            [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
+    NSSet* list = obj;
+    lua_newtable(_L);
+    [alreadySeen setObject:[NSNumber numberWithInt:luaL_ref(_L, LUA_REGISTRYINDEX)] forKey:obj] ;
+    lua_rawgeti(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
+    for (id item in list) {
+        int results = [self pushNSObject:item withOptions:options alreadySeenObjects:alreadySeen];
+// NOTE: Since an NSSet is unordered anyways, we're opting for simply disregarding ignored items
+        if (results > 0)
             lua_rawseti(_L, -2, luaL_len(_L, -2) + 1) ;
-        }
-    } else {
-        lua_pushnil(_L) ; // Not an NSSet
     }
     return 1 ;
 }
@@ -790,9 +793,15 @@ nextarg:
     [alreadySeen setObject:[NSNumber numberWithInt:luaL_ref(_L, LUA_REGISTRYINDEX)] forKey:obj] ;
     lua_rawgeti(_L, LUA_REGISTRYINDEX, [[alreadySeen objectForKey:obj] intValue]) ; // put it back on the stack
     for (unsigned long i = 0; i < [keys count]; i++) {
-        [self pushNSObject:[keys objectAtIndex:i] withOptions:options alreadySeenObjects:alreadySeen];
-        [self pushNSObject:[values objectAtIndex:i] withOptions:options alreadySeenObjects:alreadySeen];
-        lua_settable(_L, -3);
+        int result = [self pushNSObject:[keys objectAtIndex:i] withOptions:options alreadySeenObjects:alreadySeen];
+        if (result > 0) {
+            int result2 = [self pushNSObject:[values objectAtIndex:i] withOptions:options alreadySeenObjects:alreadySeen];
+            if (result2 > 0) {
+                lua_settable(_L, -3);
+            } else {
+                lua_pop(_L, 1) ; // pop the key since we won't be using it
+            }
+        } // else nothing was pushed on the stack, so we don't need to pop anything
     }
     return 1 ;
 }
@@ -805,17 +814,19 @@ nextarg:
             [self logAtLevel:LS_LOG_WARN
                  withMessage:@"lua table cannot contain self-references"
                 fromStackPos:1] ;
-            return [NSNull null] ;
+//             return [NSNull null] ;
+            return nil ;
         } else {
             return [seenObject firstObject] ;
         }
     }
     switch (lua_type(_L, realIndex)) {
         case LUA_TNUMBER:
-            if (lua_isinteger(_L, idx))
+            if (lua_isinteger(_L, idx)) {
                 return @(lua_tointeger(_L, idx)) ;
-            else
+            } else {
                 return @(lua_tonumber(_L, idx));
+            }
             break ;
         case LUA_TSTRING: {
                 LS_NSConversionOptions stringOptions = options & ( LS_NSPreserveLuaStringExactly | LS_NSLuaStringAsDataOnly ) ;
@@ -836,7 +847,7 @@ nextarg:
                 } else {
                     if (stringOptions != LS_NSNone) {
                         [self logAtLevel:LS_LOG_DEBUG
-                             withMessage:@"only LS_NSPreserveLuaStringExactly or LS_NSLuaStringAsDataOnly can be specified: using default behavior"
+                             withMessage:@"only one of LS_NSPreserveLuaStringExactly or LS_NSLuaStringAsDataOnly can be specified: using default behavior"
                             fromStackPos:0] ;
                     }
                     return [self getValidUTF8AtIndex:idx] ;
@@ -853,7 +864,19 @@ nextarg:
             return [self tableAtIndex:realIndex withOptions:options alreadySeenObjects:alreadySeen] ;
             break ;
         default:
-            return [NSString stringWithFormat:@"%s", luaL_tolstring(_L, idx, NULL)];
+            if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
+                NSString *answer = [NSString stringWithFormat:@"%s", luaL_tolstring(_L, idx, NULL)];
+                [self logDebug:[NSString stringWithFormat:@"unrecognized type %s; converting to '%@'", lua_typename(_L, lua_type(_L, realIndex)), answer]] ;
+                lua_pop(_L, 1) ;
+                return answer ;
+            } else if ((options & LS_NSIgnoreUnknownTypes) == LS_NSIgnoreUnknownTypes) {
+                [self logDebug:[NSString stringWithFormat:@"unrecognized type %s; ignoring with placeholder [NSNull null]",
+                                                          lua_typename(_L, lua_type(_L, realIndex))]] ;
+                return [NSNull null] ;
+            } else {
+                [self logDebug:[NSString stringWithFormat:@"unrecognized type %s; returning nil", lua_typename(_L, lua_type(_L, realIndex))]] ;
+                return nil ;
+            }
             break ;
     }
 }
@@ -873,16 +896,37 @@ nextarg:
         for (lua_Integer i = 0; i < tableLength ; i++) {
             lua_geti(_L, lua_absindex(_L, idx), i + 1) ;
             id val = [self toNSObjectAtIndex:-1 withOptions:options alreadySeenObjects:alreadySeen] ;
-            [result addObject:val] ;
-            lua_pop(_L, 1) ;
+            if (val) {
+                [result addObject:val] ;
+                lua_pop(_L, 1) ;
+            } else {
+                [self logAtLevel:LS_LOG_ERROR
+                     withMessage:[NSString stringWithFormat:@"array element (%s) cannot be converted into a proper NSObject",
+                                                             luaL_tolstring(_L, -1, NULL)]
+                    fromStackPos:1] ;
+                result = nil ;
+                lua_pop(_L, 2) ; // luaL_tolstring result and lua_geti result
+                return nil ;
+            }
         }
     } else {
         lua_pushnil(_L);
         while (lua_next(_L, lua_absindex(_L, idx)) != 0) {
             id key = [self toNSObjectAtIndex:-2             withOptions:options alreadySeenObjects:alreadySeen] ;
             id val = [self toNSObjectAtIndex:lua_gettop(_L) withOptions:options alreadySeenObjects:alreadySeen] ;
-            [result setValue:val forKey:key];
-            lua_pop(_L, 1);
+            if (key && val) {
+                [result setValue:val forKey:key];
+                lua_pop(_L, 1);
+            } else {
+                [self logAtLevel:LS_LOG_ERROR
+                     withMessage:[NSString stringWithFormat:@"dictionary %@ (%s) cannot be converted into a proper NSObject",
+                                                             (key) ? @"key" : @"value",
+                                                             luaL_tolstring(_L, (key) ? -2 : lua_gettop(_L), NULL)]
+                    fromStackPos:1] ;
+                result = nil ;
+                lua_pop(_L, 3) ; // luaL_tolstring result, lua_next value, and lua_next key
+                return nil ;
+            }
         }
     }
 
