@@ -11,14 +11,20 @@
 #pragma mark - Chooser object implementation
 
 @implementation HSChooser
-- (id)initWithRows:(NSInteger)numRows width:(CGFloat)width fontName:(NSString *)fontName fontSize:(CGFloat)fontSize refTable:(int *)refTable {
+- (id)initWithRefTable:(int *)refTable completionCallbackRef:(int)completionCallbackRef {
     self = [super init];
     if (self) {
         self.refTable = refTable;
-        self.numRows = numRows;
-        self.width = width;
-        self.fontName = fontName;
-        self.fontSize = fontSize;
+
+        // Set our defaults
+        self.numRows = 10;
+        self.width = 40;
+        self.fontName = nil;
+        self.fontSize = 0;
+        self.searchSubText = NO;
+        self.bgColor = nil;
+        self.fgColor = nil;
+        self.subTextColor = nil;
 
         self.currentStaticChoices = nil;
         self.currentCallbackChoices = nil;
@@ -26,6 +32,7 @@
 
         self.choicesCallbackRef = LUA_NOREF;
         self.queryChangedCallbackRef = LUA_NOREF;
+        self.completionCallbackRef = completionCallbackRef;
 
         // Decide which font to use
         if (!self.fontName) {
@@ -185,9 +192,12 @@
         NSMutableArray *filteredChoices = [[NSMutableArray alloc] init];
 
         for (NSDictionary *choice in [self getChoicesWithOptions:NO]) {
-            // FIXME: There should be an option to also search subText
             if ([[[choice objectForKey:@"text"] lowercaseString] containsString:[queryString lowercaseString]]) {
                 [filteredChoices addObject: choice];
+            } else if (self.searchSubText) {
+                if ([[[choice objectForKey:@"subText"] lowercaseString] containsString:[queryString lowercaseString]]) {
+                    [filteredChoices addObject:choice];
+                }
             }
         }
 
@@ -241,5 +251,18 @@
     }
 
     return choices;
+}
+
+- (void)setBgColor:(NSColor *)bgColor {
+    self.windowController.window.backgroundColor = bgColor;
+}
+
+- (void)setFgColor:(NSColor *)fgColor {
+    self.windowController.queryField.textColor = fgColor;
+    // FIXME: This doesn't update the table yet
+}
+
+- (void)setSubTextColor:(NSColor *)subTextColor {
+    // FIXME: This doesn't update the table yet
 }
 @end

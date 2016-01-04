@@ -16,11 +16,17 @@
 
 #pragma mark - Chooser definition
 @interface HSChooser : NSObject <NSWindowDelegate, NSTextFieldDelegate, NSTableViewDataSource, NSTableViewDelegate, HSChooserTableViewDelegate>
+
+// Customisable options
 @property(nonatomic) NSInteger numRows;
 @property(nonatomic) CGFloat width;
-
 @property(nonatomic, retain) NSString *fontName;
 @property(nonatomic) CGFloat fontSize;
+@property(nonatomic) BOOL searchSubText;
+@property(nonatomic) NSColor *bgColor;
+@property(nonatomic) NSColor *fgColor;
+@property(nonatomic) NSColor *subTextColor;
+
 @property(nonatomic, retain) NSFont *font;
 
 @property(nonatomic) NSRect winRect;
@@ -37,11 +43,12 @@
 
 @property(nonatomic) int choicesCallbackRef;
 @property(nonatomic) int queryChangedCallbackRef;
+@property(nonatomic) int completionCallbackRef;
 
 @property(nonatomic) int *refTable;
 
 // Initialiser
-- (id)initWithRows:(NSInteger)numRows width:(CGFloat)width fontName:(NSString *)fontName fontSize:(CGFloat)fontSize refTable:(int *)refTable;
+- (id)initWithRefTable:(int *)refTable completionCallbackRef:(int)completionCallbackRef;
 
 // Setup/display related methods
 - (void)calculateRects;

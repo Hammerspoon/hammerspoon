@@ -5,24 +5,20 @@
 
 #pragma mark - Lua API - Constructors
 
-/// hs.chooser.new(numRows, width[, fontName[, fontSize]]) -> hs.chooser object
+/// hs.chooser.new(completionFn) -> hs.chooser object
 /// Constructor
 /// Creates a new chooser object
 ///
 /// Parameters:
-///  * numRows - The number of results rows to show
-///  * width - The width of the chooser window as a percentage of the main screen's width
-///  * fontName - An optional font name to use
-///  * fontSize - An optional floating point font size to use
+///  * completionFn - A function that will be called when the chooser is dismissed. It should accept two parameters, which will all be nil if the chooser was cancelled:
+///   * A string containing the text of the chosen item
+///   * A string containing the sub-text of the chosen item
 ///
 /// Returns:
 ///  * An `hs.chooser` object
-///
-/// Notes:
-///  * You can get a list of available font names with `hs.styledtext.fontNames()`
 static int chooserNew(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TNUMBER, LS_TNUMBER, LS_TSTRING|LS_TNUMBER|LS_TOPTIONAL, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
     // Create the userdata object
     chooser_userdata_t *userData = lua_newuserdata(L, sizeof(chooser_userdata_t));
@@ -31,23 +27,11 @@ static int chooserNew(lua_State *L) {
     lua_setmetatable(L, -2);
 
     // Parse function arguents
-    NSInteger numRows = (NSInteger)lua_tointeger(L, 1);
-    CGFloat width = (CGFloat)lua_tonumber(L, 2);
-
-    NSString *chooseFontName = nil;
-    CGFloat chooseFontSize = 0.0;
-
-    if (lua_type(L, 3) == LUA_TSTRING) {
-        chooseFontName = [skin toNSObjectAtIndex:3];
-    } else if (lua_type(L, 3) == LUA_TNUMBER) {
-        chooseFontSize = (CGFloat)lua_tonumber(L, 3);
-    }
-    if (lua_type(L, 4) == LUA_TNUMBER) {
-        chooseFontSize = (CGFloat)lua_tonumber(L, 4);
-    }
+    lua_pushvalue(L, 1);
+    int completionCallbackRef = [skin luaRef:refTable];
 
     // Create the HSChooser object with our arguments
-    HSChooser *chooser = [[HSChooser alloc] initWithRows:numRows width:width fontName:chooseFontName fontSize:chooseFontSize refTable:&refTable];
+    HSChooser *chooser = [[HSChooser alloc] initWithRefTable:&refTable completionCallbackRef:completionCallbackRef];
     userData->chooser = (__bridge_retained void*)chooser;
 
     return 1;
@@ -182,6 +166,170 @@ static int chooserDelete(lua_State *L) {
     return userdata_gc(L);
 }
 
+/// hs.chooser:bgColor([color]) -> hs.chooser object or color table
+/// Method
+/// Sets the background color of the chooser
+///
+/// Parameters:
+///  * color - An optional table containing a color specification (see `hs.drawing.color`). If this parameter is omitted, the existing color will be returned
+///
+/// Returns:
+///  * The `hs.chooser` object or a color table
+static int chooserSetBgColor(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TTABLE:
+            chooser.bgColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+            break;
+
+        case LUA_TNONE:
+            return ([skin pushNSObject:chooser.bgColor]);
+
+        default:
+            NSLog(@"ERROR: Unknown type in hs.chooser:bgColor(). This should not be possible");
+            break;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.chooser:fgColor(color) -> hs.chooser object
+/// Method
+/// Sets the foreground color of the chooser
+///
+/// Parameters:
+///  * color - An optional table containing a color specification (see `hs.drawing.color`). If this parameter is omitted, the existing color will be returned
+///
+/// Returns:
+///  * The `hs.chooser` object or a color table
+static int chooserSetFgColor(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TTABLE:
+            chooser.fgColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+            break;
+
+        case LUA_TNONE:
+            return ([skin pushNSObject:chooser.fgColor]);
+
+        default:
+            NSLog(@"ERROR: Unknown type in hs.chooser:bgColor(). This should not be possible");
+            break;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.chooser:subTextColor(color) -> hs.chooser object
+/// Method
+/// Sets the sub-text color of the chooser
+///
+/// Parameters:
+///  * color - An optional table containing a color specification (see `hs.drawing.color`). If this parameter is omitted, the existing color will be returned
+///
+/// Returns:
+///  * The `hs.chooser` object or a color table
+static int chooserSetSubTextColor(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TTABLE:
+            chooser.subTextColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+            break;
+
+        case LUA_TNONE:
+            return ([skin pushNSObject:chooser.subTextColor]);
+
+        default:
+            NSLog(@"ERROR: Unknown type in hs.chooser:bgColor(). This should not be possible");
+            break;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.chooser.searchSubText([searchSubText]) -> hs.chooser object or boolean
+/// Method
+/// Gets/Sets whether the chooser should search in the sub-text of each item
+///
+/// Parameters:
+///  * searchSubText - An optional boolean, true to search sub-text, false to not search sub-text. If this parameter is omitted, the current configuration value will be returned
+///
+/// Returns:
+///  * The hs.chooser object if a value was set, or a boolean if no parameter was passed
+static int chooserSetSearchSubText(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TBOOLEAN:
+            chooser.searchSubText = lua_toboolean(L, 2);
+            break;
+
+        case LUA_TNONE:
+            lua_pushboolean(L, chooser.searchSubText);
+            return 1;
+
+        default:
+            NSLog(@"ERROR: Unknown type passed to hs.chooser:searchSubText(). This shouldn't be possible");
+            break;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.chooser:width([percent]) -> hs.chooser object or number
+/// Method
+/// Gets/Sets the width of the chooser
+///
+/// Parameters:
+///  * percent - An optional number indicating the percentage of the width of the screen that the chooser should occupy. If this parameter is omitted, the current width will be returned
+///
+/// Returns:
+///  * The `hs.chooser` object or a number
+static int chooserSetWidth(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TNUMBER:
+            chooser.width = (CGFloat)lua_tonumber(L, 2);
+            lua_pushvalue(L, 1);
+            break;
+
+        case LUA_TNONE:
+            lua_pushnumber(L, chooser.width);
+        default:
+            break;
+    }
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 #pragma mark - Hammerspoon Infrastructure
 
 static int userdata_tostring(lua_State* L) {
@@ -213,6 +361,10 @@ static const luaL_Reg userdataLib[] = {
     {"choices", chooserSetChoices},
     {"queryChangedCallback", chooserQueryCallback},
     {"delete", chooserDelete},
+
+    {"bgColor", chooserSetBgColor},
+    {"fgColor", chooserSetFgColor},
+    {"subTextColor", chooserSetSubTextColor},
 
     {"__tostring", userdata_tostring},
     {"__gc", userdata_gc},

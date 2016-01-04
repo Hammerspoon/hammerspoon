@@ -6,6 +6,7 @@
 ---  * This module is only available on OS X >= 10.10
 ---  * This module was influenced heavily by Choose, by Steven Degutis (https://github.com/sdegutis/choose)
 
+require("hs.drawing.color")
 host = require("hs.host")
 osVersion = host.operatingSystemVersion()
 
