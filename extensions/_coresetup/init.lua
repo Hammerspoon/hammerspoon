@@ -4,7 +4,7 @@
 
 return {setup=function(...)
   local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
-
+  local tostring,pack,tconcat,sformat=tostring,table.pack,table.concat,string.format
   -- setup core functions
 
   os.exit = hs._exit
@@ -96,19 +96,21 @@ return {setup=function(...)
   ---
   --- Notes:
   ---  * Hammerspoon overrides Lua's print() function, but this is a reference we retain to is, should you need it for any reason
-  local rawprint = print
+  local rawprint,logmessage = print,hs._logmessage
   hs.rawprint = rawprint
   function print(...)
     rawprint(...)
-    local vals = table.pack(...)
+    local vals = pack(...)
 
     for k = 1, vals.n do
       vals[k] = tostring(vals[k])
     end
 
-    local str = table.concat(vals, "\t") .. "\n"
-    hs._logmessage(str)
+    local str = tconcat(vals, "\t") .. "\n"
+    logmessage(str)
   end
+  function hs.printf(fmt,...) return print(sformat(fmt,...)) end
+
 
   --- hs.execute(command[, with_user_env]) -> output, status, type, rc
   --- Function
@@ -138,26 +140,6 @@ return {setup=function(...)
     local s = f:read('*a')
     local status, exit_type, rc = f:close()
     return s, status, exit_type, rc
-  end
-
-  --- hs.setLogLevel(lvl)
-  --- Function
-  --- Sets the log level for all currently loaded modules
-  ---
-  --- Parameters:
-  ---  * lvl
-  ---
-  --- Returns:
-  ---  * None
-  ---
-  --- Notes:
-  ---  * This function only affects *module*-level loggers; object instances with their own loggers (e.g. windowfilters) won't be affected
-  hs.setLogLevel=function(lvl)
-    for ext,mod in pairs(package.loaded) do
-      if string.sub(ext,1,3)=='hs.' and mod~=hs then
-        if mod.setLogLevel then mod.setLogLevel(lvl) end
-      end
-    end
   end
 
   --- hs.dockIcon([state]) -> bool
@@ -264,7 +246,7 @@ return {setup=function(...)
     if not fn then return tostring(err) end
 
     local str = ""
-    local results = table.pack(xpcall(fn,debug.traceback))
+    local results = pack(xpcall(fn,debug.traceback))
     for i = 2,results.n do
       if i > 2 then str = str .. "\t" end
       str = str .. tostring(results[i])
@@ -276,7 +258,7 @@ return {setup=function(...)
   if not hasinitfile then
     hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
     hs.notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
-    print(string.format("-- Can't find %s; create it and reload your config.", prettypath))
+    hs.printf("-- Can't find %s; create it and reload your config.", prettypath)
     return runstring
   end
 
