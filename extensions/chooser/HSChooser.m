@@ -225,11 +225,11 @@
 
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row {
     //NSLog(@"didClickedRow: %li", (long)row);
-    if (row >= 0) {
+    if (row >= 0 && row < [[self getChoices] count]) {
         self.hasChosen = YES;
         [self hide];
         LuaSkin *skin = [LuaSkin shared];
-        NSDictionary *choice = [[self getChoices] objectAtIndex:self.choicesTableView.selectedRow];
+        NSDictionary *choice = [[self getChoices] objectAtIndex:row];
 
         [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
         [skin pushNSObject:choice];
