@@ -42,7 +42,7 @@ static int chooserNew(lua_State *L) {
 /// Displays the chooser
 ///
 /// Parameters:
-///  * Nonw
+///  * None
 ///
 /// Returns:
 ///  * The hs.chooser object
@@ -67,7 +67,7 @@ static int chooserShow(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * The hs.chooser object
+///  * The `hs.chooser` object
 static int chooserHide(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -86,17 +86,36 @@ static int chooserHide(lua_State *L) {
 /// Sets the choices for a chooser
 ///
 /// Parameters:
-///  * choices - Either a function to call when the list of choices is needed, or a table containing static choices, or nil to remove any existing choices. The table (be it provided statically, or returned by the callback) must contain at least the following keys for each choice:
-///   * text - A string that will be shown as the main text of the choice
+///  * choices - Either a function to call when the list of choices is needed, or nil to remove any existing choices, or a table containing static choices.
 ///
 /// Returns:
-///  * The hs.chooser object
+///  * The `hs.chooser` object
 ///
 /// Notes:
+///  * The table of choices (be it provided statically, or returned by the callback) must contain at least the following keys for each choice:
+///   * text - A string that will be shown as the main text of the choice
 ///  * Each choice may also optionally contain the following keys:
 ///   * subText - A string that will be shown underneath the main text of the choice
 ///   * image - An `hs.image` image object that will be displayed next to the choice
 ///  * Any other keys/values in each choice table will be retained by the chooser and returned to the completion callback when a choice is made. This is useful for storing UUIDs or other non-user-facing information, however, it is important to note that you should not store userdata objects in the table - it is run through internal conversion functions, so only basic Lua types should be stored.
+///
+/// Example:
+///  ```
+/// local choices = {
+///  {
+///   ["text"] = "First Choice",
+///   ["subText"] = "This is the subtext of the first choice",
+///   ["uuid"] = "0001"
+///  },
+///  { ["text"] = "Second Option",
+///    ["subText"] = "I wonder what I should type here?",
+///    ["uuid"] = "Bbbb"
+///  },
+///  { ["text"] = "Third Possibility",
+///    ["subText"] = "What a lot of choosing there is going on here!",
+///    ["uuid"] = "III3"
+///  },
+/// }
 static int chooserSetChoices(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TTABLE | LS_TNIL, LS_TBREAK];
@@ -191,17 +210,19 @@ static int chooserSetBgColor(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             chooser.bgColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+            lua_pushvalue(L, 1);
             break;
 
         case LUA_TNONE:
-            return ([skin pushNSObject:chooser.bgColor]);
+            [skin pushNSObject:chooser.bgColor];
+            break;
 
         default:
             NSLog(@"ERROR: Unknown type in hs.chooser:bgColor(). This should not be possible");
+            lua_pushnil(L);
             break;
     }
 
-    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -224,17 +245,19 @@ static int chooserSetFgColor(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             chooser.fgColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+            lua_pushvalue(L, 1);
             break;
 
         case LUA_TNONE:
-            return ([skin pushNSObject:chooser.fgColor]);
+            [skin pushNSObject:chooser.fgColor];
+            break;
 
         default:
             NSLog(@"ERROR: Unknown type in hs.chooser:bgColor(). This should not be possible");
+            lua_pushnil(L);
             break;
     }
 
-    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -257,17 +280,19 @@ static int chooserSetSubTextColor(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             chooser.subTextColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+            lua_pushvalue(L, 1);
             break;
 
         case LUA_TNONE:
-            return ([skin pushNSObject:chooser.subTextColor]);
+            [skin pushNSObject:chooser.subTextColor];
+            break;
 
         default:
             NSLog(@"ERROR: Unknown type in hs.chooser:bgColor(). This should not be possible");
+            lua_pushnil(L);
             break;
     }
 
-    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -279,7 +304,10 @@ static int chooserSetSubTextColor(lua_State *L) {
 ///  * searchSubText - An optional boolean, true to search sub-text, false to not search sub-text. If this parameter is omitted, the current configuration value will be returned
 ///
 /// Returns:
-///  * The hs.chooser object if a value was set, or a boolean if no parameter was passed
+///  * The `hs.chooser` object if a value was set, or a boolean if no parameter was passed
+///
+/// Notes:
+///  * This should be used before a chooser has been displayed
 static int chooserSetSearchSubText(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
@@ -290,6 +318,7 @@ static int chooserSetSearchSubText(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TBOOLEAN:
             chooser.searchSubText = lua_toboolean(L, 2);
+            lua_pushvalue(L, 1);
             break;
 
         case LUA_TNONE:
@@ -298,10 +327,10 @@ static int chooserSetSearchSubText(lua_State *L) {
 
         default:
             NSLog(@"ERROR: Unknown type passed to hs.chooser:searchSubText(). This shouldn't be possible");
+            lua_pushnil(L);
             break;
     }
 
-    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -314,6 +343,9 @@ static int chooserSetSearchSubText(lua_State *L) {
 ///
 /// Returns:
 ///  * The `hs.chooser` object or a number
+///
+/// Notes:
+///  * This should be used before a chooser has been displayed
 static int chooserSetWidth(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
@@ -329,10 +361,49 @@ static int chooserSetWidth(lua_State *L) {
 
         case LUA_TNONE:
             lua_pushnumber(L, chooser.width);
+            break;
+
         default:
+            NSLog(@"ERROR: Unknown type passed to hs.chooser:width(). This shouldn't be possible");
+            lua_pushnil(L);
             break;
     }
-    lua_pushvalue(L, 1);
+
+    return 1;
+}
+
+/// hs.chooser:rows([numRows]) -> hs.chooser object or number
+/// Method
+/// Gets/Sets the number of rows that will be shown
+///
+/// Parameters:
+///  * numRows - An optional number of choices to show (i.e. the vertical height of the chooser window). If this parameter is omitted, the current value will be returned
+///
+/// Returns:
+///  * The `hs.chooser` object or a number
+static int chooserSetNumRows(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TNUMBER:
+            chooser.numRows = (NSInteger)lua_tointeger(L, 2);
+            lua_pushvalue(L, 1);
+            break;
+
+        case LUA_TNONE:
+            lua_pushinteger(L, chooser.numRows);
+            break;
+
+        default:
+            NSLog(@"ERROR: Unknown type passed to hs.chooser:rows(). This shouldn't be possible");
+            lua_pushnil(L);
+            break;
+    }
+
     return 1;
 }
 
@@ -371,6 +442,9 @@ static const luaL_Reg userdataLib[] = {
     {"bgColor", chooserSetBgColor},
     {"fgColor", chooserSetFgColor},
     {"subTextColor", chooserSetSubTextColor},
+    {"searchSubText", chooserSetSearchSubText},
+    {"width", chooserSetWidth},
+    {"rows", chooserSetNumRows},
 
     {"__tostring", userdata_tostring},
     {"__gc", userdata_gc},
@@ -381,7 +455,7 @@ int luaopen_hs_chooser_internal(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:chooserLib
-                                 metaFunctions:nil // metalib
+                                 metaFunctions:nil
                                objectFunctions:userdataLib];
 
     return 1;

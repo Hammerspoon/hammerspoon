@@ -15,6 +15,7 @@
 
 #pragma mark - Chooser definition
 @interface HSChooser : NSWindowController <NSWindowDelegate, NSTextFieldDelegate, NSTableViewDataSource, NSTableViewDelegate, HSChooserTableViewDelegate>
+
 @property (nonatomic, weak) IBOutlet NSTextField *queryField;
 @property (nonatomic, weak) IBOutlet HSChooserTableView *listTableView;
 @property (nonatomic, strong) NSMutableArray *eventMonitors;
@@ -32,19 +33,23 @@
 
 @property(nonatomic, retain) NSFont *font;
 
+// Size information we calculate for ourselves
 @property(nonatomic) NSRect winRect;
 @property(nonatomic) NSRect textRect;
 @property(nonatomic) NSRect listRect;
 @property(nonatomic) NSRect dividerRect;
 
+// Storage for different types of choice
 @property(nonatomic, retain) NSArray *currentStaticChoices;
 @property(nonatomic, retain) NSArray *currentCallbackChoices;
 @property(nonatomic, retain) NSArray *filteredChoices;
 
+// Lua callback references
 @property(nonatomic) int choicesCallbackRef;
 @property(nonatomic) int queryChangedCallbackRef;
 @property(nonatomic) int completionCallbackRef;
 
+// A pointer to the hs.chooser module's references table
 @property(nonatomic) int *refTable;
 
 // Initialiser
@@ -61,7 +66,7 @@
 // NSTableViewDataSource
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView;
 
-// NSTableViewDelegate
+// HSChooserTableViewDelegate
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row;
 
 // NSTextFieldDelgate

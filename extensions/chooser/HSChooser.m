@@ -11,6 +11,9 @@
 #pragma mark - Chooser object implementation
 
 @implementation HSChooser
+
+#pragma mark - Object initialisation
+
 - (id)initWithRefTable:(int *)refTable completionCallbackRef:(int)completionCallbackRef {
     self = [super initWithWindowNibName:@"HSChooserWindow" owner:self];
     if (self) {
@@ -53,6 +56,46 @@
     }
 
     return self;
+}
+
+#pragma mark - Window related methods
+
+- (void)windowDidLoad {
+    [super windowDidLoad];
+
+    [self.queryField setFocusRingType:NSFocusRingTypeNone];
+}
+
+
+- (void)windowDidBecomeKey:(NSNotification *)notification {
+    __weak id _self = self;
+    [self addShortcut:@"1" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 0]; }];
+    [self addShortcut:@"2" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 1]; }];
+    [self addShortcut:@"3" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 2]; }];
+    [self addShortcut:@"4" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 3]; }];
+    [self addShortcut:@"5" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 4]; }];
+    [self addShortcut:@"6" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 5]; }];
+    [self addShortcut:@"7" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 6]; }];
+    [self addShortcut:@"8" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 7]; }];
+    [self addShortcut:@"9" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 8]; }];
+
+    //    [self addShortcut:@"a" mods:NSCommandKeyMask handler:^{ [_self selectAll: nil]; }]; // FIXME: Do we care?
+
+    [self addShortcut:@"Escape" keyCode:27 mods:0 handler:^{ [_self cancel:nil]; }];
+
+    [self addShortcut:@"Up" keyCode:NSUpArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectPreviousChoice]; }];
+    [self addShortcut:@"Down" keyCode:NSDownArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectNextChoice]; }];
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification {
+    for (id monitor in self.eventMonitors) {
+        [NSEvent removeMonitor:monitor];
+    }
+    [self.eventMonitors removeAllObjects];
+
+    if (!self.hasChosen) {
+        [self cancel:nil];
+    }
 }
 
 - (void)calculateRects {
@@ -136,6 +179,8 @@
     self.window.isVisible = NO;
 }
 
+#pragma mark - NSTableViewDataSource
+
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView {
     NSInteger rowCount = 0;
     NSArray *choices = [self getChoices];
@@ -170,19 +215,7 @@
     return cellView;
 }
 
-- (IBAction)cancel:(id)sender {
-    NSLog(@"HSChooser::cancel:");
-    [self hide];
-    LuaSkin *skin = [LuaSkin shared];
-    [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
-    lua_pushnil(skin.L);
-    [skin protectedCallAndTraceback:1 nresults:0];
-}
-
-- (IBAction)queryDidPressEnter:(id)sender {
-    NSLog(@"in queryDidPressEnter:");
-    [self tableView:self.listTableView didClickedRow:self.listTableView.selectedRow];
-}
+#pragma mark - HSTableViewDelegate
 
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row {
     NSLog(@"didClickedRow: %li", (long)row);
@@ -196,6 +229,22 @@
         [skin pushNSObject:choice];
         [skin protectedCallAndTraceback:1 nresults:0];
     }
+}
+
+#pragma mark - UI callbacks
+
+- (IBAction)cancel:(id)sender {
+    NSLog(@"HSChooser::cancel:");
+    [self hide];
+    LuaSkin *skin = [LuaSkin shared];
+    [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
+    lua_pushnil(skin.L);
+    [skin protectedCallAndTraceback:1 nresults:0];
+}
+
+- (IBAction)queryDidPressEnter:(id)sender {
+    NSLog(@"in queryDidPressEnter:");
+    [self tableView:self.listTableView didClickedRow:self.listTableView.selectedRow];
 }
 
 - (void)controlTextDidChange:(NSNotification *)aNotification {
@@ -220,6 +269,22 @@
     }
     [self.listTableView reloadData];
 }
+
+- (void)selectChoice:(NSInteger)row {
+    [self.listTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+}
+
+- (void)selectNextChoice {
+    NSInteger currentRow = [self.listTableView selectedRow];
+    [self selectChoice:currentRow+1];
+}
+
+- (void)selectPreviousChoice {
+    NSInteger currentRow = [self.listTableView selectedRow];
+    [self selectChoice:currentRow-1];
+}
+
+#pragma mark - Choice management methods
 
 - (void)updateChoices {
     [self.listTableView reloadData];
@@ -267,6 +332,8 @@
     return choices;
 }
 
+#pragma mark - UI customisation methods
+
 - (void)setBgColor:(NSColor *)bgColor {
     self.window.backgroundColor = bgColor;
 }
@@ -280,25 +347,7 @@
     // FIXME: This doesn't update the table yet
 }
 
-- (void)windowDidLoad {
-    [super windowDidLoad];
-
-    [self.queryField setFocusRingType:NSFocusRingTypeNone];
-}
-
-- (void)selectChoice:(NSInteger)row {
-    [self.listTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
-}
-
-- (void)selectNextChoice {
-    NSInteger currentRow = [self.listTableView selectedRow];
-    [self selectChoice:currentRow+1];
-}
-
-- (void)selectPreviousChoice {
-    NSInteger currentRow = [self.listTableView selectedRow];
-    [self selectChoice:currentRow-1];
-}
+#pragma mark - Utility methods
 
 - (void) addShortcut:(NSString*)key keyCode:(unsigned short)keyCode mods:(NSEventModifierFlags)mods handler:(dispatch_block_t)action {
     //NSLog(@"Adding shortcut for %lu %@:%i", mods, key, keyCode);
@@ -316,37 +365,6 @@
         return event;
     }];
     [self.eventMonitors addObject: x];
-}
-
-- (void)windowDidBecomeKey:(NSNotification *)notification {
-    __weak id _self = self;
-    [self addShortcut:@"1" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 0]; }];
-    [self addShortcut:@"2" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 1]; }];
-    [self addShortcut:@"3" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 2]; }];
-    [self addShortcut:@"4" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 3]; }];
-    [self addShortcut:@"5" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 4]; }];
-    [self addShortcut:@"6" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 5]; }];
-    [self addShortcut:@"7" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 6]; }];
-    [self addShortcut:@"8" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 7]; }];
-    [self addShortcut:@"9" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 8]; }];
-
-    //    [self addShortcut:@"a" mods:NSCommandKeyMask handler:^{ [_self selectAll: nil]; }]; // FIXME: Do we care?
-
-    [self addShortcut:@"Escape" keyCode:27 mods:0 handler:^{ [_self cancel:nil]; }];
-
-    [self addShortcut:@"Up" keyCode:NSUpArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectPreviousChoice]; }];
-    [self addShortcut:@"Down" keyCode:NSDownArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectNextChoice]; }];
-}
-
-- (void)windowDidResignKey:(NSNotification *)notification {
-    for (id monitor in self.eventMonitors) {
-        [NSEvent removeMonitor:monitor];
-    }
-    [self.eventMonitors removeAllObjects];
-
-    if (!self.hasChosen) {
-        [self cancel:nil];
-    }
 }
 
 @end

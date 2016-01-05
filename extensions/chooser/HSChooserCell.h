@@ -9,8 +9,10 @@
 #import <Cocoa/Cocoa.h>
 
 @interface HSChooserCell : NSTableCellView
+
 @property (unsafe_unretained) IBOutlet NSTextField *text;
 @property (unsafe_unretained) IBOutlet NSTextField *subText;
 @property (unsafe_unretained) IBOutlet NSTextField *shortcutText;
 @property (unsafe_unretained) IBOutlet NSImageView *image;
+
 @end

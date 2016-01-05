@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+// Here we're defining an extra protocol for our own methods, to avoid overloading the normal NSTableViewDelegate
+
 @protocol HSChooserTableViewDelegate <NSObject>
 
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row;

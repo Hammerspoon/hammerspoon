@@ -9,6 +9,7 @@
 #import "HSChooserTableView.h"
 
 @implementation HSChooserTableView
+
 - (void)mouseDown:(NSEvent *)theEvent {
 
     NSPoint globalLocation = [theEvent locationInWindow];
@@ -17,8 +18,9 @@
 
     [super mouseDown:theEvent];
 
-    if (clickedRow != -1) {
+    if (clickedRow != -1 && [self.extendedDelegate respondsToSelector:@selector(tableView:didClickedRow:)]) {
         [self.extendedDelegate tableView:self didClickedRow:clickedRow];
     }
 }
+
 @end
