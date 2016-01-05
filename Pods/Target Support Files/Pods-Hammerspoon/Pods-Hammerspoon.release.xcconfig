@@ -1,6 +1,7 @@
 FRAMEWORK_SEARCH_PATHS = "${PODS_ROOT}/Sparkle" "${PODS_ROOT}/Sparkle" "$(PODS_ROOT)/Sparkle"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
 HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2" $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/ASCIImage" "${PODS_ROOT}/Headers/Public/CocoaAsyncSocket" "${PODS_ROOT}/Headers/Public/CocoaHTTPServer" "${PODS_ROOT}/Headers/Public/CocoaLumberjack" "${PODS_ROOT}/Headers/Public/Sparkle" "${PODS_ROOT}/Headers/Public/Sparkle/Sparkle" "$(SDKROOT)/usr/include/libxml2"
+LD_RUNPATH_SEARCH_PATHS = @loader_path/../Frameworks
 OTHER_CFLAGS = $(inherited) -isystem "${PODS_ROOT}/Headers/Public" -isystem "${PODS_ROOT}/Headers/Public/ASCIImage" -isystem "${PODS_ROOT}/Headers/Public/CocoaAsyncSocket" -isystem "${PODS_ROOT}/Headers/Public/CocoaHTTPServer" -isystem "${PODS_ROOT}/Headers/Public/CocoaLumberjack" -isystem "${PODS_ROOT}/Headers/Public/Sparkle" -isystem "${PODS_ROOT}/Headers/Public/Sparkle/Sparkle"
 OTHER_LDFLAGS = $(inherited) -ObjC -l"ASCIImage" -l"CocoaAsyncSocket" -l"CocoaHTTPServer" -l"CocoaLumberjack" -l"xml2" -framework "CoreServices" -framework "Security" -framework "Sparkle"
 PODS_ROOT = ${SRCROOT}/Pods
