@@ -69,15 +69,17 @@
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
     __weak id _self = self;
-    [self addShortcut:@"1" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 0]; }];
-    [self addShortcut:@"2" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 1]; }];
-    [self addShortcut:@"3" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 2]; }];
-    [self addShortcut:@"4" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 3]; }];
-    [self addShortcut:@"5" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 4]; }];
-    [self addShortcut:@"6" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 5]; }];
-    [self addShortcut:@"7" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 6]; }];
-    [self addShortcut:@"8" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 7]; }];
-    [self addShortcut:@"9" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 8]; }];
+    __weak id _tableView = self.choicesTableView;
+    [self addShortcut:@"1" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:0]; }];
+    [self addShortcut:@"2" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:1]; }];
+    [self addShortcut:@"3" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:2]; }];
+    [self addShortcut:@"4" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:3]; }];
+    [self addShortcut:@"5" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:4]; }];
+    [self addShortcut:@"6" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:5]; }];
+    [self addShortcut:@"7" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:6]; }];
+    [self addShortcut:@"8" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:7]; }];
+    [self addShortcut:@"9" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:8]; }];
+    [self addShortcut:@"0" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:9]; }];
 
     //    [self addShortcut:@"a" mods:NSCommandKeyMask handler:^{ [_self selectAll: nil]; }]; // FIXME: Do we care?
 
