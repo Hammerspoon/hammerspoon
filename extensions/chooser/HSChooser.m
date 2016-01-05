@@ -124,10 +124,10 @@
         return NO;
     }
 
-    self.listTableView.delegate = self;
-    self.listTableView.extendedDelegate = self;
-    self.listTableView.dataSource = self;
-    self.listTableView.target = self;
+    self.choicesTableView.delegate = self;
+    self.choicesTableView.extendedDelegate = self;
+    self.choicesTableView.dataSource = self;
+    self.choicesTableView.target = self;
 
     self.queryField.delegate = self;
     self.queryField.target = self;
@@ -139,12 +139,12 @@
 - (void)resizeWindow {
     NSRect screenFrame = [[NSScreen mainScreen] visibleFrame];
 
-    CGFloat rowHeight = [self.listTableView rowHeight];
-    CGFloat intercellHeight =[self.listTableView intercellSpacing].height;
+    CGFloat rowHeight = [self.choicesTableView rowHeight];
+    CGFloat intercellHeight =[self.choicesTableView intercellSpacing].height;
     CGFloat allRowsHeight = (rowHeight + intercellHeight) * self.numRows;
 
     CGFloat windowHeight = NSHeight([[self.window contentView] bounds]);
-    CGFloat tableHeight = NSHeight([[self.listTableView superview] frame]);
+    CGFloat tableHeight = NSHeight([[self.choicesTableView superview] frame]);
     CGFloat finalHeight = (windowHeight - tableHeight) + allRowsHeight;
 
     CGFloat width;
@@ -159,7 +159,7 @@
 
     NSRect winRect = NSMakeRect(0, 0, width, finalHeight);
     [self.window setFrame:winRect display:YES];
-    [self.listTableView setFrameSize:NSMakeSize(winRect.size.width, self.listTableView.frame.size.height)];
+    [self.choicesTableView setFrameSize:NSMakeSize(winRect.size.width, self.choicesTableView.frame.size.height)];
 }
 
 - (void)show {
@@ -172,7 +172,9 @@
     [self.window center];
     [self.window makeKeyAndOrderFront:nil];
 
-    [self updateChoices];
+    [self.queryField becomeFirstResponder];
+
+    [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
 }
 
 - (void)hide {
@@ -205,6 +207,8 @@
 
     if (row >= 0 && row < 9) {
         shortcutText = [NSString stringWithFormat:@"⌘%ld", (long)row + 1];
+    } else {
+        shortcutText = @"";
     }
 
     cellView.text.stringValue = text ? text : @"UNKNOWN TEXT";
@@ -218,12 +222,12 @@
 #pragma mark - HSTableViewDelegate
 
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row {
-    NSLog(@"didClickedRow: %li", (long)row);
+    //NSLog(@"didClickedRow: %li", (long)row);
     if (row >= 0) {
         self.hasChosen = YES;
         [self hide];
         LuaSkin *skin = [LuaSkin shared];
-        NSDictionary *choice = [[self getChoices] objectAtIndex:self.listTableView.selectedRow];
+        NSDictionary *choice = [[self getChoices] objectAtIndex:self.choicesTableView.selectedRow];
 
         [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
         [skin pushNSObject:choice];
@@ -234,7 +238,7 @@
 #pragma mark - UI callbacks
 
 - (IBAction)cancel:(id)sender {
-    NSLog(@"HSChooser::cancel:");
+    //NSLog(@"HSChooser::cancel:");
     [self hide];
     LuaSkin *skin = [LuaSkin shared];
     [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
@@ -243,12 +247,12 @@
 }
 
 - (IBAction)queryDidPressEnter:(id)sender {
-    NSLog(@"in queryDidPressEnter:");
-    [self tableView:self.listTableView didClickedRow:self.listTableView.selectedRow];
+    //NSLog(@"in queryDidPressEnter:");
+    [self tableView:self.choicesTableView didClickedRow:self.choicesTableView.selectedRow];
 }
 
 - (void)controlTextDidChange:(NSNotification *)aNotification {
-    NSLog(@"controlTextDidChange: %@", self.queryField.stringValue);
+    //NSLog(@"controlTextDidChange: %@", self.queryField.stringValue);
     NSString *queryString = self.queryField.stringValue;
     if (queryString.length > 0) {
         NSMutableArray *filteredChoices = [[NSMutableArray alloc] init];
@@ -267,27 +271,36 @@
     } else {
         self.filteredChoices = nil;
     }
-    [self.listTableView reloadData];
+    [self.choicesTableView reloadData];
 }
 
 - (void)selectChoice:(NSInteger)row {
-    [self.listTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+    [self.choicesTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+
+    // FIXME: This scrolling is awfully jumpy
+    [self.choicesTableView scrollRowToVisible:row];
 }
 
 - (void)selectNextChoice {
-    NSInteger currentRow = [self.listTableView selectedRow];
+    NSInteger currentRow = [self.choicesTableView selectedRow];
+    if (currentRow == [[self getChoices] count] - 1) {
+        currentRow = -1;
+    }
     [self selectChoice:currentRow+1];
 }
 
 - (void)selectPreviousChoice {
-    NSInteger currentRow = [self.listTableView selectedRow];
+    NSInteger currentRow = [self.choicesTableView selectedRow];
+    if (currentRow == 0) {
+        currentRow = [[self getChoices] count];
+    }
     [self selectChoice:currentRow-1];
 }
 
 #pragma mark - Choice management methods
 
 - (void)updateChoices {
-    [self.listTableView reloadData];
+    [self.choicesTableView reloadData];
 }
 
 - (void)clearChoices {

@@ -140,13 +140,48 @@ static int chooserSetChoices(lua_State *L) {
             break;
 
         default:
-            NSLog(@"Unknown type in chooserSetChoices. This should be impossible");
+            NSLog(@"ERROR: Unknown type passed to hs.chooser:choices(). This should not be possible");
             break;
     }
 
     [chooser updateChoices];
 
     lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.chooser:query([queryString]) -> hs.chooser object or string
+/// Method
+/// Sets/gets the search string
+///
+/// Parameters:
+///  * queryString - An optional string to search for. If omitted, the current contents of the search box are returned
+///
+/// Returns:
+///  * The `hs.chooser` object or a string
+static int chooserSetQuery(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TSTRING:
+            chooser.queryField.stringValue = [skin toNSObjectAtIndex:2];
+            lua_pushvalue(L, 1);
+            break;
+
+        case LUA_TNONE:
+            [skin pushNSObject:chooser.queryField.stringValue];
+            break;
+
+        default:
+            NSLog(@"ERROR: Unknown type passed to hs.chooser:query(). This should not be possible");
+            lua_pushnil(L);
+            break;
+    }
+
     return 1;
 }
 
@@ -167,6 +202,7 @@ static int chooserQueryCallback(lua_State *L) {
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
 
     chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
+
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         chooser.queryChangedCallbackRef = [skin luaRef:refTable atIndex:2];
     }
@@ -326,7 +362,7 @@ static int chooserSetSearchSubText(lua_State *L) {
             return 1;
 
         default:
-            NSLog(@"ERROR: Unknown type passed to hs.chooser:searchSubText(). This shouldn't be possible");
+            NSLog(@"ERROR: Unknown type passed to hs.chooser:searchSubText(). This should not be possible");
             lua_pushnil(L);
             break;
     }
@@ -364,7 +400,7 @@ static int chooserSetWidth(lua_State *L) {
             break;
 
         default:
-            NSLog(@"ERROR: Unknown type passed to hs.chooser:width(). This shouldn't be possible");
+            NSLog(@"ERROR: Unknown type passed to hs.chooser:width(). This should not be possible");
             lua_pushnil(L);
             break;
     }
@@ -399,7 +435,7 @@ static int chooserSetNumRows(lua_State *L) {
             break;
 
         default:
-            NSLog(@"ERROR: Unknown type passed to hs.chooser:rows(). This shouldn't be possible");
+            NSLog(@"ERROR: Unknown type passed to hs.chooser:rows(). This should not be possible");
             lua_pushnil(L);
             break;
     }
@@ -437,6 +473,7 @@ static const luaL_Reg userdataLib[] = {
     {"hide", chooserHide},
     {"choices", chooserSetChoices},
     {"queryChangedCallback", chooserQueryCallback},
+    {"query", chooserSetQuery},
     {"delete", chooserDelete},
 
     {"bgColor", chooserSetBgColor},

@@ -17,7 +17,7 @@
 @interface HSChooser : NSWindowController <NSWindowDelegate, NSTextFieldDelegate, NSTableViewDataSource, NSTableViewDelegate, HSChooserTableViewDelegate>
 
 @property (nonatomic, weak) IBOutlet NSTextField *queryField;
-@property (nonatomic, weak) IBOutlet HSChooserTableView *listTableView;
+@property (nonatomic, weak) IBOutlet HSChooserTableView *choicesTableView;
 @property (nonatomic, strong) NSMutableArray *eventMonitors;
 @property (nonatomic) BOOL hasChosen;
 

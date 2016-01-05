@@ -6,7 +6,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="HSChooserWindowController">
             <connections>
-                <outlet property="listTableView" destination="Cek-LK-OOM" id="5yy-Rc-Qs0"/>
+                <outlet property="choicesTableView" destination="Cek-LK-OOM" id="5yy-Rc-Qs0"/>
                 <outlet property="queryField" destination="SNk-MY-4Fz" id="tiX-VS-sIJ"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="0fA-Ev-wpj"/>
             </connections>
