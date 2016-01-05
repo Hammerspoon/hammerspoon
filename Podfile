@@ -7,5 +7,6 @@ target 'Hammerspoon' do
 pod 'Sparkle', '1.10.0', :configurations => ['Release']
 pod 'ASCIImage', '1.0'
 pod 'CocoaLumberjack', '2.0.1'
+pod 'CocoaAsyncSocket', '7.4.2'
 pod 'CocoaHTTPServer', '2.3'
 end

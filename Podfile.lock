@@ -16,6 +16,7 @@ PODS:
 
 DEPENDENCIES:
   - ASCIImage (= 1.0)
+  - CocoaAsyncSocket (= 7.4.2)
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 2.0.1)
   - Sparkle (= 1.10.0)
