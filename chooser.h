@@ -7,7 +7,6 @@
 //
 
 #import "HSChooser.h"
-#import "HSChooserWindowController.h"
 #import "HSChooserCell.h"
 
 #pragma mark - Module metadata

@@ -10,9 +10,7 @@
 /// Creates a new chooser object
 ///
 /// Parameters:
-///  * completionFn - A function that will be called when the chooser is dismissed. It should accept two parameters, which will all be nil if the chooser was cancelled:
-///   * A string containing the text of the chosen item
-///   * A string containing the sub-text of the chosen item
+///  * completionFn - A function that will be called when the chooser is dismissed. It should accept one parameter, which will be nil if the user dismissed the chooser window, otherwise it will be a table containing whatever information you supplied for the item the user chose.
 ///
 /// Returns:
 ///  * An `hs.chooser` object
@@ -83,15 +81,22 @@ static int chooserHide(lua_State *L) {
     return 1;
 }
 
-/// hs.chooser:setChoices(choices) -> hs.chooser object
+/// hs.chooser:choices(choices) -> hs.chooser object
 /// Method
 /// Sets the choices for a chooser
 ///
 /// Parameters:
-///  * choices - Either a function to call when the list of choices is needed, or a table containing static choices, or nil to remove any existing choices
+///  * choices - Either a function to call when the list of choices is needed, or a table containing static choices, or nil to remove any existing choices. The table (be it provided statically, or returned by the callback) must contain at least the following keys for each choice:
+///   * text - A string that will be shown as the main text of the choice
 ///
 /// Returns:
 ///  * The hs.chooser object
+///
+/// Notes:
+///  * Each choice may also optionally contain the following keys:
+///   * subText - A string that will be shown underneath the main text of the choice
+///   * image - An `hs.image` image object that will be displayed next to the choice
+///  * Any other keys/values in each choice table will be retained by the chooser and returned to the completion callback when a choice is made. This is useful for storing UUIDs or other non-user-facing information, however, it is important to note that you should not store userdata objects in the table - it is run through internal conversion functions, so only basic Lua types should be stored.
 static int chooserSetChoices(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TTABLE | LS_TNIL, LS_TBREAK];
@@ -112,6 +117,7 @@ static int chooserSetChoices(lua_State *L) {
         case LUA_TTABLE:
             chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
             chooser.currentStaticChoices = [skin toNSObjectAtIndex:2];
+            // FIXME: We should at least lightly validate that we have an array of dictionaries here
             break;
 
         default:

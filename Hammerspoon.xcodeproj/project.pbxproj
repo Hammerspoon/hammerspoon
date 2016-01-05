@@ -17,8 +17,6 @@
 		4F29C2381C29E0A300B8A69D /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F29C23E1C29E0E700B8A69D /* volume.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F29C2311C29D8E400B8A69D /* volume.m */; };
 		4F29C23F1C29E10100B8A69D /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
-		4F3D9CFF1C32D4710082E864 /* HSChooserWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9CFC1C32D4710082E864 /* HSChooserWindowController.h */; };
-		4F3D9D001C32D4710082E864 /* HSChooserWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9CFD1C32D4710082E864 /* HSChooserWindowController.m */; };
 		4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D011C3302CB0082E864 /* HSChooser.h */; };
 		4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D021C3302CB0082E864 /* HSChooser.m */; };
 		4F3D9D071C3314570082E864 /* HSChooserWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D051C3314570082E864 /* HSChooserWindow.h */; };
@@ -807,8 +805,6 @@
 		4F20B5331C1F225300F52437 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		4F29C2311C29D8E400B8A69D /* volume.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = volume.m; path = extensions/fs/volume.m; sourceTree = "<group>"; };
 		4F29C23D1C29E0A300B8A69D /* libfsvolume.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libfsvolume.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F3D9CFC1C32D4710082E864 /* HSChooserWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserWindowController.h; path = extensions/chooser/HSChooserWindowController.h; sourceTree = "<group>"; };
-		4F3D9CFD1C32D4710082E864 /* HSChooserWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserWindowController.m; path = extensions/chooser/HSChooserWindowController.m; sourceTree = "<group>"; };
 		4F3D9D011C3302CB0082E864 /* HSChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooser.h; path = extensions/chooser/HSChooser.h; sourceTree = "<group>"; };
 		4F3D9D021C3302CB0082E864 /* HSChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooser.m; path = extensions/chooser/HSChooser.m; sourceTree = "<group>"; };
 		4F3D9D051C3314570082E864 /* HSChooserWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserWindow.h; path = extensions/chooser/HSChooserWindow.h; sourceTree = "<group>"; };
@@ -1889,8 +1885,6 @@
 				4F0676041C32AED90088C57C /* HSChooserWindow.xib */,
 				4F0676051C32C0B30088C57C /* HSChooserCell.h */,
 				4F0676061C32C0B30088C57C /* HSChooserCell.m */,
-				4F3D9CFC1C32D4710082E864 /* HSChooserWindowController.h */,
-				4F3D9CFD1C32D4710082E864 /* HSChooserWindowController.m */,
 				4F3D9D011C3302CB0082E864 /* HSChooser.h */,
 				4F3D9D021C3302CB0082E864 /* HSChooser.m */,
 				4F3D9D051C3314570082E864 /* HSChooserWindow.h */,
@@ -2869,7 +2863,6 @@
 				4F3D9D0B1C34773E0082E864 /* HSChooserTableView.h in Headers */,
 				4F5134641C30819000EFD6D4 /* chooser.h in Headers */,
 				4F0676071C32C0B30088C57C /* HSChooserCell.h in Headers */,
-				4F3D9CFF1C32D4710082E864 /* HSChooserWindowController.h in Headers */,
 				4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4749,7 +4742,6 @@
 				4F3D9D081C3314570082E864 /* HSChooserWindow.m in Sources */,
 				4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */,
 				4F3D9D0C1C34773E0082E864 /* HSChooserTableView.m in Sources */,
-				4F3D9D001C32D4710082E864 /* HSChooserWindowController.m in Sources */,
 				4F0676081C32C0B30088C57C /* HSChooserCell.m in Sources */,
 				4F51345F1C2F317800EFD6D4 /* internal.m in Sources */,
 			);

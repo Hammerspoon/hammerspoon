@@ -12,9 +12,11 @@
 
 @implementation HSChooser
 - (id)initWithRefTable:(int *)refTable completionCallbackRef:(int)completionCallbackRef {
-    self = [super init];
+    self = [super initWithWindowNibName:@"HSChooserWindow" owner:self];
     if (self) {
         self.refTable = refTable;
+
+        self.eventMonitors = [[NSMutableArray alloc] init];
 
         // Set our defaults
         self.numRows = 10;
@@ -33,6 +35,8 @@
         self.choicesCallbackRef = LUA_NOREF;
         self.queryChangedCallbackRef = LUA_NOREF;
         self.completionCallbackRef = completionCallbackRef;
+
+        self.hasChosen = NO;
 
         // Decide which font to use
         if (!self.fontName) {
@@ -72,23 +76,19 @@
 - (BOOL)setupWindow {
     // Create and configure our window
 
-    self.windowController = [[HSChooserWindowController alloc] initWithOwner:self];
-    self.windowController.delegate = self;
-    self.window = (HSChooserWindow *)self.windowController.window;
-
-    if (!self.windowController.windowLoaded) {
+    if (!self.windowLoaded) {
         NSLog(@"ERROR: Unable to load hs.chooser window NIB");
         return NO;
     }
 
-    self.windowController.listTableView.delegate = self;
-    self.windowController.listTableView.extendedDelegate = self;
-    self.windowController.listTableView.dataSource = self;
-    self.windowController.listTableView.target = self;
+    self.listTableView.delegate = self;
+    self.listTableView.extendedDelegate = self;
+    self.listTableView.dataSource = self;
+    self.listTableView.target = self;
 
-    self.windowController.queryField.delegate = self;
-    self.windowController.queryField.target = self;
-    self.windowController.queryField.action = @selector(queryDidPressEnter:);
+    self.queryField.delegate = self;
+    self.queryField.target = self;
+    self.queryField.action = @selector(queryDidPressEnter:);
 
     return YES;
 }
@@ -96,12 +96,12 @@
 - (void)resizeWindow {
     NSRect screenFrame = [[NSScreen mainScreen] visibleFrame];
 
-    CGFloat rowHeight = [self.windowController.listTableView rowHeight];
-    CGFloat intercellHeight =[self.windowController.listTableView intercellSpacing].height;
+    CGFloat rowHeight = [self.listTableView rowHeight];
+    CGFloat intercellHeight =[self.listTableView intercellSpacing].height;
     CGFloat allRowsHeight = (rowHeight + intercellHeight) * self.numRows;
 
     CGFloat windowHeight = NSHeight([[self.window contentView] bounds]);
-    CGFloat tableHeight = NSHeight([[self.windowController.listTableView superview] frame]);
+    CGFloat tableHeight = NSHeight([[self.listTableView superview] frame]);
     CGFloat finalHeight = (windowHeight - tableHeight) + allRowsHeight;
 
     CGFloat width;
@@ -116,13 +116,15 @@
 
     NSRect winRect = NSMakeRect(0, 0, width, finalHeight);
     [self.window setFrame:winRect display:YES];
-    [self.windowController.listTableView setFrameSize:NSMakeSize(winRect.size.width, self.windowController.listTableView.frame.size.height)];
+    [self.listTableView setFrameSize:NSMakeSize(winRect.size.width, self.listTableView.frame.size.height)];
 }
 
 - (void)show {
+    self.hasChosen = NO;
+
     [self resizeWindow];
 
-    [self.windowController showWindow:self];
+    [self showWindow:self];
     self.window.isVisible = YES;
     [self.window center];
     [self.window makeKeyAndOrderFront:nil];
@@ -169,25 +171,36 @@
 }
 
 - (IBAction)cancel:(id)sender {
+    NSLog(@"HSChooser::cancel:");
     [self hide];
-    // FIXME: Trigger a Lua callback here
+    LuaSkin *skin = [LuaSkin shared];
+    [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
+    lua_pushnil(skin.L);
+    [skin protectedCallAndTraceback:1 nresults:0];
 }
 
 - (IBAction)queryDidPressEnter:(id)sender {
     NSLog(@"in queryDidPressEnter:");
+    [self tableView:self.listTableView didClickedRow:self.listTableView.selectedRow];
 }
 
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row {
     NSLog(@"didClickedRow: %li", (long)row);
     if (row >= 0) {
+        self.hasChosen = YES;
         [self hide];
-        // FIXME: Trigger a Lua callback here
+        LuaSkin *skin = [LuaSkin shared];
+        NSDictionary *choice = [[self getChoices] objectAtIndex:self.listTableView.selectedRow];
+
+        [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
+        [skin pushNSObject:choice];
+        [skin protectedCallAndTraceback:1 nresults:0];
     }
 }
 
 - (void)controlTextDidChange:(NSNotification *)aNotification {
-    NSLog(@"controlTextDidChange: %@", self.windowController.queryField.stringValue);
-    NSString *queryString = self.windowController.queryField.stringValue;
+    NSLog(@"controlTextDidChange: %@", self.queryField.stringValue);
+    NSString *queryString = self.queryField.stringValue;
     if (queryString.length > 0) {
         NSMutableArray *filteredChoices = [[NSMutableArray alloc] init];
 
@@ -205,11 +218,11 @@
     } else {
         self.filteredChoices = nil;
     }
-    [self.windowController.listTableView reloadData];
+    [self.listTableView reloadData];
 }
 
 - (void)updateChoices {
-    [self.windowController.listTableView reloadData];
+    [self.listTableView reloadData];
 }
 
 - (void)clearChoices {
@@ -243,6 +256,7 @@
             [skin pushLuaRef:*(self.refTable) ref:self.choicesCallbackRef];
             if ([skin protectedCallAndTraceback:0 nresults:1]) {
                 self.currentCallbackChoices = [skin toNSObjectAtIndex:-1];
+                // FIXME: We should validate that we got an array of dictionaries here.
             } else {
                 self.currentCallbackChoices = nil;
             }
@@ -254,15 +268,85 @@
 }
 
 - (void)setBgColor:(NSColor *)bgColor {
-    self.windowController.window.backgroundColor = bgColor;
+    self.window.backgroundColor = bgColor;
 }
 
 - (void)setFgColor:(NSColor *)fgColor {
-    self.windowController.queryField.textColor = fgColor;
+    self.queryField.textColor = fgColor;
     // FIXME: This doesn't update the table yet
 }
 
 - (void)setSubTextColor:(NSColor *)subTextColor {
     // FIXME: This doesn't update the table yet
 }
+
+- (void)windowDidLoad {
+    [super windowDidLoad];
+
+    [self.queryField setFocusRingType:NSFocusRingTypeNone];
+}
+
+- (void)selectChoice:(NSInteger)row {
+    [self.listTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+}
+
+- (void)selectNextChoice {
+    NSInteger currentRow = [self.listTableView selectedRow];
+    [self selectChoice:currentRow+1];
+}
+
+- (void)selectPreviousChoice {
+    NSInteger currentRow = [self.listTableView selectedRow];
+    [self selectChoice:currentRow-1];
+}
+
+- (void) addShortcut:(NSString*)key keyCode:(unsigned short)keyCode mods:(NSEventModifierFlags)mods handler:(dispatch_block_t)action {
+    //NSLog(@"Adding shortcut for %lu %@:%i", mods, key, keyCode);
+    id x = [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask handler:^ NSEvent*(NSEvent* event) {
+        NSEventModifierFlags flags = ([event modifierFlags] & NSDeviceIndependentModifierFlagsMask);
+        //NSLog(@"Got an event: %lu %@:%i", (unsigned long)flags, [event charactersIgnoringModifiers], [[event charactersIgnoringModifiers] characterAtIndex:0]);
+
+        if (flags == mods) {
+            if ([[event charactersIgnoringModifiers] isEqualToString: key] || [[event charactersIgnoringModifiers] characterAtIndex:0] == keyCode) {
+                //NSLog(@"firing action");
+                action();
+                return nil;
+            }
+        }
+        return event;
+    }];
+    [self.eventMonitors addObject: x];
+}
+
+- (void)windowDidBecomeKey:(NSNotification *)notification {
+    __weak id _self = self;
+    [self addShortcut:@"1" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 0]; }];
+    [self addShortcut:@"2" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 1]; }];
+    [self addShortcut:@"3" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 2]; }];
+    [self addShortcut:@"4" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 3]; }];
+    [self addShortcut:@"5" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 4]; }];
+    [self addShortcut:@"6" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 5]; }];
+    [self addShortcut:@"7" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 6]; }];
+    [self addShortcut:@"8" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 7]; }];
+    [self addShortcut:@"9" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self selectChoice: 8]; }];
+
+    //    [self addShortcut:@"a" mods:NSCommandKeyMask handler:^{ [_self selectAll: nil]; }]; // FIXME: Do we care?
+
+    [self addShortcut:@"Escape" keyCode:27 mods:0 handler:^{ [_self cancel:nil]; }];
+
+    [self addShortcut:@"Up" keyCode:NSUpArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectPreviousChoice]; }];
+    [self addShortcut:@"Down" keyCode:NSDownArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectNextChoice]; }];
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification {
+    for (id monitor in self.eventMonitors) {
+        [NSEvent removeMonitor:monitor];
+    }
+    [self.eventMonitors removeAllObjects];
+
+    if (!self.hasChosen) {
+        [self cancel:nil];
+    }
+}
+
 @end

@@ -9,13 +9,16 @@
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
-#import "HSChooserWindowController.h"
 #import "HSChooserWindow.h"
 #import "HSChooserTableView.h"
 #import "HSChooserCell.h"
 
 #pragma mark - Chooser definition
-@interface HSChooser : NSObject <NSWindowDelegate, NSTextFieldDelegate, NSTableViewDataSource, NSTableViewDelegate, HSChooserTableViewDelegate>
+@interface HSChooser : NSWindowController <NSWindowDelegate, NSTextFieldDelegate, NSTableViewDataSource, NSTableViewDelegate, HSChooserTableViewDelegate>
+@property (nonatomic, weak) IBOutlet NSTextField *queryField;
+@property (nonatomic, weak) IBOutlet HSChooserTableView *listTableView;
+@property (nonatomic, strong) NSMutableArray *eventMonitors;
+@property (nonatomic) BOOL hasChosen;
 
 // Customisable options
 @property(nonatomic) NSInteger numRows;
@@ -33,9 +36,6 @@
 @property(nonatomic) NSRect textRect;
 @property(nonatomic) NSRect listRect;
 @property(nonatomic) NSRect dividerRect;
-
-@property(nonatomic, retain) HSChooserWindowController *windowController;
-@property(nonatomic, weak) IBOutlet HSChooserWindow *window;
 
 @property(nonatomic, retain) NSArray *currentStaticChoices;
 @property(nonatomic, retain) NSArray *currentCallbackChoices;
@@ -62,6 +62,7 @@
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView;
 
 // NSTableViewDelegate
+- (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row;
 
 // NSTextFieldDelgate
 
