@@ -70,6 +70,8 @@
 - (void)windowDidBecomeKey:(NSNotification *)notification {
     __weak id _self = self;
     __weak id _tableView = self.choicesTableView;
+    __weak id _window = self.window;
+
     [self addShortcut:@"1" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:0]; }];
     [self addShortcut:@"2" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:1]; }];
     [self addShortcut:@"3" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:2]; }];
@@ -83,7 +85,7 @@
 
     //    [self addShortcut:@"a" mods:NSCommandKeyMask handler:^{ [_self selectAll: nil]; }]; // FIXME: Do we care?
 
-    [self addShortcut:@"Escape" keyCode:27 mods:0 handler:^{ [_self cancel:nil]; }];
+    [self addShortcut:@"Escape" keyCode:27 mods:0 handler:^{ [_window resignKeyWindow]; }];
 
     [self addShortcut:@"Up" keyCode:NSUpArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectPreviousChoice]; }];
     [self addShortcut:@"Down" keyCode:NSDownArrowFunctionKey mods:NSFunctionKeyMask|NSNumericPadKeyMask handler:^{ [_self selectNextChoice]; }];
