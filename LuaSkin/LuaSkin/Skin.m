@@ -210,6 +210,8 @@ NSMutableDictionary *registeredLuaObjectHelperLocations ;
 #pragma GCC diagnostic pop
     lua_pushvalue(_L, -1);
     lua_setfield(_L, -2, "__index");
+    lua_pushstring(_L, objectName);
+    lua_setfield(_L, -2, "__type");
     lua_setfield(_L, LUA_REGISTRYINDEX, objectName);
 }
 
