@@ -491,6 +491,6 @@ int luaopen_hs_image_internal(lua_State* L) {
     pushNSImageNameTable(L); lua_setfield(L, -2, "systemImageNames") ;
 
     [[LuaSkin shared] registerPushNSHelper:NSImage_tolua        forClass:"NSImage"] ;
-    [[LuaSkin shared] registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage"] ;
+    [[LuaSkin shared] registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage" withUserdataMapping:USERDATA_TAG] ;
     return 1;
 }
