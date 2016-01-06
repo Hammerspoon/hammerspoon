@@ -86,7 +86,7 @@ static int chooserHide(lua_State *L) {
 /// Sets the choices for a chooser
 ///
 /// Parameters:
-///  * choices - Either a function to call when the list of choices is needed, or nil to remove any existing choices, or a table containing static choices.
+///  * choices - Either a function to call when the list of choices is needed, or nil to remove any existing choices/callback, or a table containing static choices.
 ///
 /// Returns:
 ///  * The `hs.chooser` object
@@ -96,8 +96,9 @@ static int chooserHide(lua_State *L) {
 ///   * text - A string that will be shown as the main text of the choice
 ///  * Each choice may also optionally contain the following keys:
 ///   * subText - A string that will be shown underneath the main text of the choice
-///   * image - An `hs.image` image object that will be displayed next to the choice
+//FIXME: This doesn't work right now   * image - An `hs.image` image object that will be displayed next to the choice
 ///  * Any other keys/values in each choice table will be retained by the chooser and returned to the completion callback when a choice is made. This is useful for storing UUIDs or other non-user-facing information, however, it is important to note that you should not store userdata objects in the table - it is run through internal conversion functions, so only basic Lua types should be stored.
+///  * If a function is given, it will be called once, when the chooser window is displayed. The results are then cached until this method is called again, or `hs.chooser:refreshChoicesCallback()` is called.
 ///
 /// Example:
 ///  ```
@@ -123,6 +124,7 @@ static int chooserSetChoices(lua_State *L) {
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
 
+    chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
     [chooser clearChoices];
 
     switch (lua_type(L, 2)) {
@@ -145,6 +147,35 @@ static int chooserSetChoices(lua_State *L) {
     }
 
     [chooser updateChoices];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.chooser:refreshChoicesCallback() -> hs.chooser object
+/// Method
+/// Refreshes the choices data from a callback
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.chooser` object
+///
+/// Notes:
+///  * This method will do nothing if you have not set a function with `hs.chooser:choices()`
+static int chooserRefreshChoicesCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    if (chooser.choicesCallbackRef != LUA_NOREF && chooser.choicesCallbackRef != LUA_REFNIL) {
+        [chooser clearChoices];
+        [chooser getChoices];
+        [chooser updateChoices];
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -475,6 +506,7 @@ static const luaL_Reg userdataLib[] = {
     {"queryChangedCallback", chooserQueryCallback},
     {"query", chooserSetQuery},
     {"delete", chooserDelete},
+    {"refreshChoicesCallback", chooserRefreshChoicesCallback},
 
     {"bgColor", chooserSetBgColor},
     {"fgColor", chooserSetFgColor},

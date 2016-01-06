@@ -40,6 +40,7 @@
         self.completionCallbackRef = completionCallbackRef;
 
         self.hasChosen = NO;
+        self.reloadWhenVisible = NO;
 
         // Decide which font to use
         if (!self.fontName) {
@@ -71,6 +72,11 @@
     __weak id _self = self;
     __weak id _tableView = self.choicesTableView;
     __weak id _window = self.window;
+
+    if (self.reloadWhenVisible) {
+        [self.choicesTableView reloadData];
+        self.reloadWhenVisible = NO;
+    }
 
     [self addShortcut:@"1" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:0]; }];
     [self addShortcut:@"2" keyCode:-1 mods:NSCommandKeyMask handler:^{ [_self tableView:_tableView didClickedRow:1]; }];
@@ -208,6 +214,7 @@
     NSString *text         = [choice objectForKey:@"text"];
     NSString *subText      = [choice objectForKey:@"subText"];
     NSString *shortcutText = @"";
+    NSImage  *image        = [choice objectForKey:@"image"];
 
     if (row >= 0 && row < 9) {
         shortcutText = [NSString stringWithFormat:@"⌘%ld", (long)row + 1];
@@ -218,7 +225,7 @@
     cellView.text.stringValue = text ? text : @"UNKNOWN TEXT";
     cellView.subText.stringValue = subText ? subText : @"UNKNOWN SUBTEXT";
     cellView.shortcutText.stringValue = shortcutText ? shortcutText : @"??";
-    cellView.image.image = [NSImage imageNamed:NSImageNameFollowLinkFreestandingTemplate];
+    cellView.image.image = image ? image : [NSImage imageNamed:NSImageNameFollowLinkFreestandingTemplate];
 
     return cellView;
 }
@@ -257,6 +264,7 @@
 
 - (void)controlTextDidChange:(NSNotification *)aNotification {
     //NSLog(@"controlTextDidChange: %@", self.queryField.stringValue);
+    // FIXME: Implement the query changed callback here
     NSString *queryString = self.queryField.stringValue;
     if (queryString.length > 0) {
         NSMutableArray *filteredChoices = [[NSMutableArray alloc] init];
@@ -304,12 +312,17 @@
 #pragma mark - Choice management methods
 
 - (void)updateChoices {
-    [self.choicesTableView reloadData];
+    if (self.window.visible) {
+        [self.choicesTableView reloadData];
+    } else {
+        self.reloadWhenVisible = YES;
+    }
 }
 
 - (void)clearChoices {
     self.currentStaticChoices = nil;
     self.currentCallbackChoices = nil;
+    self.filteredChoices = nil;
 }
 
 - (void)clearChoicesAndUpdate {
@@ -346,6 +359,7 @@
         choices = self.currentCallbackChoices;
     }
 
+    //NSLog(@"HSChooser::getChoicesWithOptions: returning: %@", choices);
     return choices;
 }
 

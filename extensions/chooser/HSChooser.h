@@ -20,6 +20,7 @@
 @property (nonatomic, weak) IBOutlet HSChooserTableView *choicesTableView;
 @property (nonatomic, strong) NSMutableArray *eventMonitors;
 @property (nonatomic) BOOL hasChosen;
+@property (nonatomic) BOOL reloadWhenVisible;
 
 // Customisable options
 @property(nonatomic) NSInteger numRows;
