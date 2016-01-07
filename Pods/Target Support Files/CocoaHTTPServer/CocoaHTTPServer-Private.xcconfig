@@ -1,0 +1,6 @@
+#include "CocoaHTTPServer.xcconfig"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+HEADER_SEARCH_PATHS = "${PODS_ROOT}/Headers/Private" "${PODS_ROOT}/Headers/Private/CocoaHTTPServer" "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/ASCIImage" "${PODS_ROOT}/Headers/Public/CocoaAsyncSocket" "${PODS_ROOT}/Headers/Public/CocoaHTTPServer" "${PODS_ROOT}/Headers/Public/CocoaLumberjack" "${PODS_ROOT}/Headers/Public/Sparkle" "${PODS_ROOT}/Headers/Public/Sparkle/Sparkle" ${COCOAHTTPSERVER_HEADER_SEARCH_PATHS}
+OTHER_LDFLAGS = ${COCOAHTTPSERVER_OTHER_LDFLAGS}
+PODS_ROOT = ${SRCROOT}
+SKIP_INSTALL = YES

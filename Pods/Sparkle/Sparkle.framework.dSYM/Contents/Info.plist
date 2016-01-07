@@ -5,7 +5,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>English</string>
 		<key>CFBundleIdentifier</key>
-		<string>com.apple.xcode.dsym.org.andymatuschak.Sparkle</string>
+		<string>com.apple.xcode.dsym.org.sparkle-project.Sparkle</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundlePackageType</key>
@@ -13,8 +13,8 @@
 		<key>CFBundleSignature</key>
 		<string>????</string>
 		<key>CFBundleShortVersionString</key>
-		<string>1.10.0</string>
+		<string>1.13.0</string>
 		<key>CFBundleVersion</key>
-		<string>1.10.0rc1</string>
+		<string>1.13.0</string>
 	</dict>
 </plist>

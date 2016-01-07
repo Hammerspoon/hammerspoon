@@ -1,1 +1,0 @@
-PODS_HAMMERSPOON_COCOAASYNCSOCKET_OTHER_LDFLAGS = -framework "CoreServices" -framework "Security"

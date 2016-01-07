@@ -169,13 +169,7 @@ NSMutableDictionary *registeredLuaObjectHelperLocations ;
     NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
     NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", libraryName);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconstant-conversion"
-    luaL_newlib(_L, objectFunctions);
-#pragma GCC diagnostic pop
-    lua_pushvalue(_L, -1);
-    lua_setfield(_L, -2, "__index");
-    lua_setfield(_L, LUA_REGISTRYINDEX, libraryName);
+    [self registerObject:libraryName objectFunctions:objectFunctions];
 
     int moduleRefTable = [self registerLibrary:functions metaFunctions:metaFunctions];
 
@@ -192,6 +186,8 @@ NSMutableDictionary *registeredLuaObjectHelperLocations ;
 #pragma GCC diagnostic pop
     lua_pushvalue(_L, -1);
     lua_setfield(_L, -2, "__index");
+    lua_pushstring(_L, objectName);
+    lua_setfield(_L, -2, "__type");
     lua_setfield(_L, LUA_REGISTRYINDEX, objectName);
 }
 

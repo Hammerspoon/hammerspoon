@@ -65,7 +65,7 @@ end
 ---
 --- Parameters:
 ---  * list - A list-like table, i.e. one whose keys are sequential integers starting from 1
----  * fn - A function taht accepts a single parameter (a table element)
+---  * fn - A function that accepts a single parameter (a table element)
 ---
 --- Returns:
 ---  * None
@@ -462,15 +462,15 @@ fnutils.sortByKeyValues = function(t, f)
   end
 end
 
---- hs.fnutils.split(sString, sSeperator [, nMax] [, bPlain]) -> { array }
+--- hs.fnutils.split(sString, sSeparator [, nMax] [, bPlain]) -> { array }
 --- Function
 --- Convert string to an array of strings, breaking at the specified separator.
 ---
 --- Parameters:
 ---  * sString    -- the string to split into substrings
----  * sSeperator -- the separator.  If `bPlain` is false or not provided, this is treated as a Lua pattern.
+---  * sSeparator -- the separator.  If `bPlain` is false or not provided, this is treated as a Lua pattern.
 ---  * nMax       -- optional parameter specifying the maximum number (or all if `nMax` is nil) of substrings to split from `sString`.
----  * bPlain     -- optional boolean parameter, defaulting to false, specifying if `sSeperator` should be treated as plain text (true) or a Lua pattern (false)
+---  * bPlain     -- optional boolean parameter, defaulting to false, specifying if `sSeparator` should be treated as plain text (true) or a Lua pattern (false)
 ---
 --- Returns:
 ---  * An array of substrings.  The last element of the array will be the remaining portion of `sString` that remains after `nMax` (or all, if `nMax` is not provided or is nil) substrings have been identified.
