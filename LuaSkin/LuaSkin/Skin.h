@@ -476,10 +476,10 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 /*!
  @abstract Register a luaObjectAtIndex:toClass: conversion helper function for the specified class and record a mapping between a userdata type and the class
 
- @important This method registers a converter function for use with the luaObjectAtIndex:toClass: method for converting lua tables into NSObjects. It builds on registerLuaObjectHelper:forClass by also storing a mapping between the NSObject class and Lua userdata type so userdata objects of this type can be automatically converted
- @param helperFN - a function of the type 'id (*luaObjectHelperFunction) (lua_State *L, int idx)'
- @param className - a string containing the class name of the NSObject type this function can convert
- @param userdataTag - a string containing the Lua userdata type that can be converted to an NSObject
+ @important This method registers a converter function for use with the @link luaObjectAtIndex:toClass: @/link method for converting lua data types into NSObjects. It builds on @link registerLuaObjectHelper:forClass: @/link by also storing a mapping between the NSObject class and Lua userdata type so userdata objects of this type can be automatically converted with @link toNSObjectAtIndex: @/link and @link toNSObjectAtIndex:withOptions: @/link as well.
+ @param helperFN a function of the type @link luaObjectHelperFunction @/link
+ @param className a C string containing the class name of the NSObject type this function can convert
+ @param userdataTag a C string containing the Lua userdata type that can be converted to an NSObject
  */
 - (void)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag;
 
