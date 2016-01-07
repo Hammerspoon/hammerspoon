@@ -8,6 +8,16 @@
 
 #import "Skin.h"
 
+typedef struct pushNSHelpers {
+    const char            *name;
+    pushNSHelperFunction  func;
+} pushNSHelpers;
+
+typedef struct luaObjectHelpers {
+    const char          *name ;
+    luaObjectHelperFunction func ;
+} luaObjectHelpers ;
+
 // Extension to LuaSkin class for conversion support
 @interface LuaSkin (conversionSupport)
 
@@ -962,7 +972,7 @@ nextarg:
 - (void)logWarn:(NSString *)theMessage    { [self logAtLevel:LS_LOG_WARN withMessage:theMessage] ; }
 - (void)logError:(NSString *)theMessage   { [self logAtLevel:LS_LOG_ERROR withMessage:theMessage] ; }
 
-- (NSString *)tracebackWithTag:(NSString *)theTag fromLevel:(int)level{
+- (NSString *)tracebackWithTag:(NSString *)theTag fromStackPos:(int)level{
     int topIndex         = lua_gettop(_L) ;
     int absoluteIndex    = lua_absindex(_L, topIndex) ;
 
