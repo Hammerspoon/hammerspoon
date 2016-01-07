@@ -25,7 +25,6 @@
   @definedblock Bit masks for Lua type checking with LuaSkin:checkArgs:
   @hidesingletons
   */
-
 /*! @define LS_TBREAK The final value in all @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link calls, signals the end of the argument list */
 #define LS_TBREAK         1 << 0
 /*! @define LS_TOPTIONAL Can be OR'd with any argument to indicate that it does not have to be present */
@@ -40,7 +39,7 @@
 #define LS_TSTRING        1 << 5
 /*! @define LS_TTABLE maps to LUA_TTABLE */
 #define LS_TTABLE         1 << 6
-/*! @define LS_TFUNCTION maps to LUA_TTABLE */
+/*! @define LS_TFUNCTION maps to LUA_TFUNCTION */
 #define LS_TFUNCTION      1 << 7
 /*! @define LS_TUSERDATA maps to LUA_TUSERDATA */
 #define LS_TUSERDATA      1 << 8
@@ -51,6 +50,17 @@
 
 /*! @/definedblock Bit masks for Lua type checking */
 
+/*!
+ @abstract Conversion options for @link pushNSObject:withOptions: @/link and @link toNSObjectAtIndex:withOptions: @/link
+
+   @constant LS_NSNone no options specified, use default beahvior
+   @constant LS_NSUnsignedLongLongPreserveBits convert NSNumber that contains an unsigned long long to a lua_Integer (long long) rather than preserve the numerical magnitude with lua_Number (double).  Default is to preserve magnitude when the unsigned long long is greater than 0x7fffffffffffffff.
+   @constant LS_NSDescribeUnknownTypes when a date type or sub-type is unrecognized and does not match any defined converter, return a string describing the data (from [NSObject debugDescription] or luaL_tolstring, whichever is appropriate for the initial data type) instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSDescribeUnknownTypes.
+   @constant LS_NSIgnoreUnknownTypes when a date type or sub-type is unrecognized and does not match any defined converter, return a nil placeholder (from [NSNull null] or lua_pushnil, whichever is appropriate for the initial data type) for the data or sub-component instead of the default behavior of returing nil for the entire conversion. Not compatible with LS_NSDescribeUnknownTypes.
+   @constant LS_NSPreserveLuaStringExactly If a Lua string contains character byte sequences which cannot be converted to a proper UTF8 Unicode character, return the string as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  You should check your result to see if it is an NSString or an NSData object with the isKindOfClass: message if you select this option. Not compatible with LS_NSLuaStringAsDataOnly.
+   @constant LS_NSLuaStringAsDataOnly A lua string is always returned as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  Not compatible with LS_NSPreserveLuaStringExactly.
+   @constant LS_NSAllowsSelfReference If a lua table contains a self reference (a table value which equals one of tables in which it is nested), allow the same self reference in the NSArray or NSDictionary object being created instead of the defualt behavior of returning nil for the entire conversion.  Note that this option will create an object which likely cannot be fully collected by ARC without additional code due to strong internal references.
+ */
 typedef enum {
     LS_NSNone                         = 0,
 
@@ -63,29 +73,44 @@ typedef enum {
     LS_NSAllowsSelfReference          = 1 << 4
 } LS_NSConversionOptions ;
 
+/*!
+ @definedblock Log level definitions for logAtLevel:withMessage:
+ @hidesingletons
+ */
+/*! @define LS_LOG_VERBOSE for messages that contain excessive detail that is usually only of interest during debugging */
 #define LS_LOG_VERBOSE  5
+/*! @define LS_LOG_DEBUG for messages that are usually only of interest during debugging */
 #define LS_LOG_DEBUG    4
+/*! @define LS_LOG_INFO for messages that are informative */
 #define LS_LOG_INFO     3
+/*! @define LS_LOG_WARN for messages that contain warnings */
 #define LS_LOG_WARN     2
+/*! @define LS_LOG_ERROR for messages that indicate an error has occured */
 #define LS_LOG_ERROR    1
 
-typedef int (*pushNSHelperFunction) (lua_State *L, id obj);
-typedef struct pushNSHelpers {
-  const char            *name;
-  pushNSHelperFunction  func;
-} pushNSHelpers;
+/*! @/definedblock Log level definitions */
 
-typedef id (*luaObjectHelperFunction) (lua_State *L, int idx) ;
-typedef struct luaObjectHelpers {
-  const char          *name ;
-  luaObjectHelperFunction func ;
-} luaObjectHelpers ;
+/*! @abstract a function which provides additional support for LuaSkin to convert an NSObject into a Lua object. Helper functions are registered with @link registerPushNSHelper:forClass: @/link, and are used as needed by @link toNSObjectAtIndex: @/link. */
+typedef int (*pushNSHelperFunction)(lua_State *L, id obj);
+
+/*! @abstract a function which provides additional support for LuaSkin to convert a Lua object (usually, but not always, a table or userdata) into an NSObject. Helper functions are registered with @link registerLuaObjectHelper:forClass: @/link, and are used as requested with @link luaObjectAtIndex:toClass: @/link. */
+typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 
 @class LuaSkin ;
 
+/*!
+ @protocol LuaSkinDelegate
+ @abstract Delegate method for passing control back to the parent environment for environment specific handling.  Curerntly only offers support for passing log messages back to the parent environment for display or processing.
+ */
 @protocol LuaSkinDelegate <NSObject>
 @optional
-- (void) logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage ;
+/*!
+ @abstract Pass log level and message back to parent for handling and/or display
+ @discussion If no delegate has been assigned, the message is logged to the system logs via NSLog.
+ @param level The message log level as an integer.  Predefined levels are defined and used within LuaSkin itself as (in decreasing level of severity) LS_LOG_ERROR, LS_LOG_WARN, LS_LOG_INFO, LS_LOG_DEBUG, and LS_LOG_VERBOSE.
+ @param theMessage The text of the message to be logged.
+ */
+- (void)logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage ;
 @end
 
 /*!
@@ -303,6 +328,7 @@ typedef struct luaObjectHelpers {
 
 /*!
  @abstract Ensures a Lua->C call has the right arguments
+
  @important If the arguments are incorrect, this call will never return and the user will get a nice Lua traceback instead
  @important Each argument can use boolean OR's to allow multiple types to be accepted (e.g. LS_TNIL | LS_TBOOLEAN)
  @important Each argument can be OR'd with LS_TOPTIONAL to indicate that the argument is optional
@@ -319,22 +345,38 @@ typedef struct luaObjectHelpers {
 
 /*!
  @abstract Pushes an NSObject to the lua stack
- @important This method takes an NSObject and checks its class against registered classes and then against the built in defaults
-     to determine the best way to represent it in Lua.  This variant attempts to preserver the numerical value of NSNumber
-     when it encapsulates an unsigned long long by converting it to a lua number (real)
- @important The default classes are (in order): NSNull, NSNumber, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, and NSObject.  This last is a catch all and will return a string of the NSObjects description method
- @param obj - an NSObject
- @return The number of items on the lua stack - this is always 1 but is returned to simplify its use in Hammerspoon modules
+
+ @discussion This method takes an NSObject and checks its class against registered classes and then against the built in defaults to determine the best way to represent it in Lua.
+
+ @important This method is equivalent to invoking [LuaSkin pushNSObject:obj withOptions:LS_NSNone].  See @link pushNSObject:withOptions: @/link.
+ @important The default classes are (in order): NSNull, NSNumber, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
+
+ @param obj an NSObject
+
+ @return The number of items pushed onto the lua stack - this will be 1 or 0, if conversion was not possible.
  */
 - (int)pushNSObject:(id)obj ;
+
+/*!
+ @abstract Pushes an NSObject to the lua stack with the specified options
+
+ @discussion This method takes an NSObject and checks its class against registered classes and then against the built in defaults to determine the best way to represent it in Lua.
+
+ @important The default classes are (in order): NSNull, NSNumber, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
+
+ @param obj an NSObject
+ @param options options for the conversion made by using the bitwise OR operator with members of @link LS_NSConversionOptions @/link.
+
+ @return The number of items pushed onto the lua stack - this will be 1 or 0, if conversion was not possible.
+ */
 - (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options ;
 
 /*!
- @abstract Register a helper function for converting an NSObject to its lua equivalant
+ @abstract Register a helper function for converting an NSObject to its lua equivalent
 
  @important This method allows registering a new NSObject class for conversion by allowing a module to register a helper function
- @param helperFN - a function of the type 'int (*pushNSHelperFunction) (lua_State *L, id obj)'
- @param className - a string containing the class name of the NSObject type this function can convert
+ @param helperFN a function of the type @link pushNSHelperFunction @/link
+ @param className a C string containing the class name of the NSObject type this function can convert
  */
 - (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char *)className ;
 
@@ -342,7 +384,7 @@ typedef struct luaObjectHelpers {
  @abstract Push an NSRect onto the lua stack as a lua geometry object (table with x,y,h, and w keys)
 
  @important This is included as a separate method because NSRect is a structure, not an NSObject
- @param theRect - the rectangle to push onto the lua stack
+ @param theRect the rectangle to push onto the lua stack
  @returns The number of items on the lua stack - this is always 1 but is returned to simplify its use in Hammerspoon modules
  */
 - (int)pushNSRect:(NSRect)theRect ;
@@ -351,7 +393,7 @@ typedef struct luaObjectHelpers {
  @abstract Push an NSPoint onto the lua stack as a lua geometry object (table with x and y keys)
 
  @important This is included as a separate method because NSPoint is a structure, not an NSObject
- @param thePoint - the point to push onto the lua stack
+ @param thePoint the point to push onto the lua stack
  @returns The number of items on the lua stack - this is always 1 but is returned to simplify its use in Hammerspoon modules
  */
 - (int)pushNSPoint:(NSPoint)thePoint ;
@@ -360,7 +402,7 @@ typedef struct luaObjectHelpers {
  @abstract Push an NSSize onto the lua stack as a lua geometry object (table with w and h keys)
 
  @important This is included as a separate method because NSSize is a structure, not an NSObject
- @param theSize - the point to push onto the lua stack
+ @param theSize the point to push onto the lua stack
  @returns The number of items on the lua stack - this is always 1 but is returned to simplify its use in Hammerspoon modules
  */
 - (int)pushNSSize:(NSSize)theSize ;
@@ -372,22 +414,52 @@ typedef struct luaObjectHelpers {
 /*!
  @abstract Return an NSObject containing the best representation of the lua data structure at the specified index
 
- @important In general, it is probably best to use the lua C-API for getting the specific data you require - this method is provided for cases where acceptable data types are more easily vetted by the receiver than in a modules code.  Examples include hs.settings and hs.json
- @important This variant does not support self-referential tables (i.e. tables which contain themselves as a reference)
- @important If a table contians only consecutive numerical indexes which start at 1, the table is converted to an NSArray; otherwise it is converted into an NSDictionary
- @important If a string contains only bytes representing valid UTF8 characters, it is converted to an NSString; otherwise it is converted into an NSData
- @param idx - the index on lua stack which contains the data to convert
- @returns An NSObject of the appropriate type depending upon the data on the lua stack
+ @discussion This method takes a lua object specified at the provided index and converts it into one of the basic NSObject types.
+
+ @attributelist Basic Lua type to NSObject conversion rules
+   nil     - [NSNull null]
+   string  - NSString
+   number  - NSNumber numberWithInteger: or NSNumber numberWithDouble:
+   boolean - NSNumber numberWithBool:
+   table   - NSArray if table is non-sparse with only integer keys starting at 1 or NSDictionary otherwise
+
+ @discussion If the type is in the above list, this method returns nil.
+
+ @important This method is equivalent to invoking [LuaSkin toNSObjectAtIndex:idx withOptions:LS_NSNone].  See @link toNSObjectAtIndex:withOptions: @/link.
+
+ @param idx the index on lua stack which contains the data to convert
+
+ @returns An NSObject of the appropriate type or nil if conversion was not possible.
  */
 - (id)toNSObjectAtIndex:(int)idx ;
+
+/*!
+ @abstract Return an NSObject containing the best representation of the lua data structure at the specified index
+
+ @discussion This method takes a lua object specified at the provided index and converts it into one of the basic NSObject types.
+
+ @attributelist Basic Lua type to NSObject conversion rules
+   nil     - [NSNull null]
+   string  - NSString or NSData, depending upon options specified
+   number  - NSNumber numberWithInteger: or NSNumber numberWithDouble:
+   boolean - NSNumber numberWithBool:
+   table   - NSArray if table is non-sparse with only integer keys starting at 1 or NSDictionary otherwise
+
+ @discussion If the type is in the above list, this method will return nil for the entire conversion, or [NSNull null] or a description of the unrecognized type  for the data or sub-component depending upon the specified options.
+
+ @param idx the index on lua stack which contains the data to convert
+ @param options options for the conversion made by using the bitwise OR operator with members of @link LS_NSConversionOptions @/link.
+
+ @returns An NSObject of the appropriate type or nil if conversion was not possible.
+ */
 - (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options ;
 
 /*!
  @abstract Return an NSObject containing the best representation of the lua table at the specified index
 
  @important This method uses registered converter functions provided by the Hammerspoon modules to convert the specified table into a recognizable NSObject.  No converters are included within the LuaSkin.  This method relies upon functions registered with the registerLuaObjectHelper:forClass: method for the conversions
- @param idx - the index on lua stack which contains the table to convert
- @param className - a string containing the class name of the NSObject type to return.  If no converter function is currently registered for this type, nil is returned
+ @param idx the index on lua stack which contains the table to convert
+ @param className a C string containing the class name of the NSObject type to return.  If no converter function is currently registered for this type, nil is returned
  @returns An NSObject of the appropriate type depending upon the data on the lua stack and the functions currently registered
  */
 - (id)luaObjectAtIndex:(int)idx toClass:(char *)className ;
@@ -396,8 +468,8 @@ typedef struct luaObjectHelpers {
  @abstract Register a luaObjectAtIndex:toClass: conversion helper function for the specified class
 
  @important This method registers a converter functions for use with the luaObjectAtIndex:toClass: method for converting lua tables into NSObjects
- @param helperFN - a function of the type 'id (*luaObjectHelperFunction) (lua_State *L, int idx)'
- @param className - a string containing the class name of the NSObject type this function can convert
+ @param helperFN a function of the type @link luaObjectHelperFunction @/link
+ @param className a C string containing the class name of the NSObject type this function can convert
  */
 - (void)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className ;
 
@@ -405,7 +477,7 @@ typedef struct luaObjectHelpers {
  @abstract Convert a lua geometry object (table with x,y,h, and w keys) into an NSRect
 
  @important This is included as a separate method because NSRect is a structure, not an NSObject
- @param idx - the index on lua stack which contains the table to convert
+ @param idx the index on lua stack which contains the table to convert
  @returns An NSRect created from the specified table
  */
 - (NSRect)tableToRectAtIndex:(int)idx ;
@@ -414,7 +486,7 @@ typedef struct luaObjectHelpers {
  @abstract Convert a lua geometry object (table with x and y keys) into an NSPoint
 
  @important This is included as a separate method because NSPoint is a structure, not an NSObject
- @param idx - the index on lua stack which contains the table to convert
+ @param idx the index on lua stack which contains the table to convert
  @returns An NSPoint created from the specified table
  */
 - (NSPoint)tableToPointAtIndex:(int)idx ;
@@ -423,7 +495,7 @@ typedef struct luaObjectHelpers {
  @abstract Convert a lua geometry object (table with h and w keys) into an NSSize
 
  @important This is included as a separate method because NSSize is a structure, not an NSObject
- @param idx - the index on lua stack which contains the table to convert
+ @param idx the index on lua stack which contains the table to convert
  @returns An NSSize created from the specified table
  */
 - (NSSize)tableToSizeAtIndex:(int)idx ;
@@ -431,23 +503,55 @@ typedef struct luaObjectHelpers {
 #pragma mark - Other helpers
 
 /*! @methodgroup Utility methods */
+
 /*!
  @abstract Determines if the string in the lua stack is valid UTF8 or not
 
  @important This method is used internally to determine if a string should be treated as an NSString or an NSData object.  It is included as a public method because it has uses outside of this as well
  @important This method uses lua_tolstring, which will convert a number on the stack to a string.  As described in the Lua documentation, this will causes problems if you're using lua_next with the same index location
- @param idx - the index on lua stack which contains the string to check
+ @param idx the index on lua stack which contains the string to check
  @returns YES if the string can be treated as a valid UTF8 string of characters or NO if it is not a string or if it contains invalid UTF8 byte sequences
  */
 - (BOOL)isValidUTF8AtIndex:(int)idx ;
 
+/*!
+ @abstract Returns an NSString for the string at the specified index with invalid UTF8 byte sequences converted to the Unicode Invalid Character code.
+
+ @important This method uses luaL_tolstring so __tostring metamethods will be used if the index does not refer to a string or a number.
+
+ @param idx the index on lua stack which contains the lua object
+
+ @returns The "safe" string as an NSString object.
+ */
 - (NSString *)getValidUTF8AtIndex:(int)idx ;
+
+/*!
+ @abstract Returns the largest integer key in the table at the specified index.
+
+ @discussion If this number is equal to the number returned by @link countNatIndex: @/link, then it is safe to infer that the table represents a non-sparse array of elements.
+
+ @param idx the index on lua stack which contains the lua table
+
+ @returns a lua_Integer value containing the largest integer key in the table specified.
+ */
+- (lua_Integer)maxNatIndex:(int)idx ;
+
+/*!
+ @abstract Returns the number of keys in the table at the specified index.
+
+ @discussion This method returns a count of keys of any type in the specified table.  Note that a table which contains an array has implicit integer indexes corresponding to the element's position in the array.  Because of this, you can compare the result of this method to @link maxNatIndex: @/link and if they are equal then it is safe to infer that the table represents a non-sparse array of elements.
+
+ @param idx the index on lua stack which contains the lua table
+
+ @returns a lua_Integer value representing the number of keys in the table specified.
+ */
+- (lua_Integer)countNatIndex:(int)idx ;
 
 /*!
  @abstract Loads a module and places its return value (usually a table of functions) on the stack
 
  @important This method performs the equivalent of the lua command `require(...)` and places the return value (usually a table of functions) on the stack, or an error string on the stack if it was unable to load the specified module
- @param moduleName - the name of the module to load
+ @param moduleName the name of the module to load
  @returns YES if the module loaded successfully or NO if it does not
  */
 - (BOOL)requireModule:(char *)moduleName ;
@@ -456,23 +560,77 @@ typedef struct luaObjectHelpers {
  @abstract Pushes an existing Lua userdata object onto the Lua stack
 
  @important This is a terrible hack and could easily break with future Lua versions. Its use is discouraged
- @param userData - a pointer to memory that was allocated by lua_newuserdata()
+ @param userData a pointer to memory that was allocated by lua_newuserdata()
  */
 - (void)pushUserData:(void *)userData;
 
-- (NSString *)tracebackWithTag:(NSString *)theTag fromLevel:(int)level ;
+/*!
+ @abstract Log the specified message with at the specified level
+ @discussion Logs the specified message at the specified level by invoking the delegate method @link logForLuaSkinAtLevel:withMessage: @/link.
 
-- (void) logAtLevel:(int)level withMessage:(NSString *)theMessage ;
-- (void) logAtLevel:(int)level withMessage:(NSString *)theMessage fromStackPos:(int)pos ;
+ @important If no delegate has been defined, messages are logged to the system console via NSLog.
 
+ @param level The message log level as an integer.  Predefined levels are defined and used within LuaSkin itself as (in decreasing level of severity) @link LS_LOG_ERROR @/link, @link LS_LOG_WARN @/link, @link LS_LOG_INFO @/link, @link LS_LOG_DEBUG @/link, and @link LS_LOG_VERBOSE @/link.
+ @param theMessage the message to log
+ */
+- (void)logAtLevel:(int)level withMessage:(NSString *)theMessage ;
+
+/*!
+ @abstract Log the specified message with LS_LOG_VERBOSE level
+ @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_VERBOSE @/link
+ @param theMessage the message to log
+ */
 - (void)logVerbose:(NSString *)theMessage ;
+/*!
+ @abstract Log the specified message with LS_LOG_DEBUG level
+ @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_DEBUG @/link
+ @param theMessage the message to log
+ */
 - (void)logDebug:(NSString *)theMessage ;
+/*!
+ @abstract Log the specified message with LS_LOG_INFO level
+ @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_INFO @/link
+ @param theMessage the message to log
+ */
 - (void)logInfo:(NSString *)theMessage ;
+/*!
+ @abstract Log the specified message with LS_LOG_WARN level
+ @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_WARN @/link
+ @param theMessage the message to log
+ */
 - (void)logWarn:(NSString *)theMessage ;
+/*!
+ @abstract Log the specified message with LS_LOG_ERROR level
+ @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_ERROR @/link
+ @param theMessage the message to log
+ */
 - (void)logError:(NSString *)theMessage ;
 
-- (lua_Integer)maxNatIndex:(int)idx ;
-- (lua_Integer)countNatIndex:(int)idx ;
+/*!
+ @abstract Returns a string containing the current stack top, the absolute index position of the stack top, and the output from luaL_traceback.
+
+ @important This method is primarily for debugging and may be removed in a future release.
+
+ @param theTag a message to attach to the top of the stack trace
+ @param level  - the level at which to start the traceback
+
+ @returns an NSString object containing the output generated.
+ */
+- (NSString *)tracebackWithTag:(NSString *)theTag fromStackPos:(int)level ;
+
+/*!
+ @abstract Log the specified message with at the specified level with the traceback position prepended.
+
+ @discussion Logs the specified message, prepended with the lua chunk name and line number at the specified traceback level, for the specified level.  The log level and combined message is logged with @link logAtLevel:withMessage: @/link.
+
+ @important This method is primarily for testing and may be removed in a future release.
+
+ @param level The message log level as an integer.  Predefined levels are defined and used within LuaSkin itself as (in decreasing level of severity) @link LS_LOG_ERROR @/link, @link LS_LOG_WARN @/link, @link LS_LOG_INFO @/link, @link LS_LOG_DEBUG @/link, and @link LS_LOG_VERBOSE @/link.
+ @param theMessage the message to log
+ @param pos the lua traceback level to attempt to retrieve the chunk name and line number from
+ */
+- (void)logAtLevel:(int)level withMessage:(NSString *)theMessage fromStackPos:(int)pos ;
+
 
 @end
 
