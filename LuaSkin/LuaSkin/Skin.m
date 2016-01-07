@@ -44,6 +44,7 @@ NSMutableDictionary *registeredNSHelperFunctions ;
 NSMutableDictionary *registeredNSHelperLocations ;
 NSMutableDictionary *registeredLuaObjectHelperFunctions ;
 NSMutableDictionary *registeredLuaObjectHelperLocations ;
+NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
 
 #pragma mark - Class lifecycle
 
@@ -56,6 +57,7 @@ NSMutableDictionary *registeredLuaObjectHelperLocations ;
         registeredNSHelperLocations = [[NSMutableDictionary alloc] init] ;
         registeredLuaObjectHelperFunctions = [[NSMutableDictionary alloc] init] ;
         registeredLuaObjectHelperLocations = [[NSMutableDictionary alloc] init] ;
+        registeredLuaObjectHelperUserdataMappings = [[NSMutableDictionary alloc] init];
     });
     if (![NSThread isMainThread]) {
         NSLog(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
@@ -95,6 +97,7 @@ NSMutableDictionary *registeredLuaObjectHelperLocations ;
         [registeredNSHelperLocations removeAllObjects] ;
         [registeredLuaObjectHelperFunctions removeAllObjects] ;
         [registeredLuaObjectHelperLocations removeAllObjects] ;
+        [registeredLuaObjectHelperUserdataMappings removeAllObjects];
     }
     _L = NULL;
 }
@@ -341,7 +344,8 @@ nextarg:
     return results ;
 }
 
-- (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
+- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
+    BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
@@ -362,12 +366,14 @@ nextarg:
             [registeredNSHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
                                             forKey:[NSString stringWithUTF8String:className]] ;
             lua_pop(_L, 1) ;
+            allGood = YES ;
         }
     } else {
         [self logAtLevel:LS_LOG_WARN
              withMessage:@"registerPushNSHelper:forClass: requires both helperFN and className"
              fromStackPos:level] ;
     }
+    return allGood ;
 }
 
 - (int)pushNSRect:(NSRect)theRect {
@@ -418,7 +424,8 @@ nextarg:
     return nil ;
 }
 
-- (void)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char*)className {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char*)className {
+    BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
@@ -439,12 +446,21 @@ nextarg:
             [registeredLuaObjectHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
                                                forKey:[NSString stringWithUTF8String:className]] ;
             lua_pop(_L, 1) ;
+            allGood = YES ;
         }
     } else {
         [self logAtLevel:LS_LOG_WARN
              withMessage:@"registerLuaObjectHelper:forClass: requires both helperFN and className"
             fromStackPos:level] ;
     }
+    return allGood ;
+}
+
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag {
+    BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    if (allGood)
+        [registeredLuaObjectHelperUserdataMappings setObject:[NSString stringWithUTF8String:className] forKey:[NSString stringWithUTF8String:userdataTag]];
+    return allGood ;
 }
 
 - (NSRect)tableToRectAtIndex:(int)idx {
@@ -813,6 +829,8 @@ nextarg:
 }
 
 - (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+    char *userdataTag = nil;
+
     int realIndex = lua_absindex(_L, idx) ;
     NSMutableArray *seenObject = [alreadySeen objectForKey:[NSValue valueWithPointer:lua_topointer(_L, idx)]] ;
     if (seenObject) {
@@ -869,6 +887,19 @@ nextarg:
         case LUA_TTABLE:
             return [self tableAtIndex:realIndex withOptions:options alreadySeenObjects:alreadySeen] ;
             break ;
+        case LUA_TUSERDATA: // Note: This is specifically last, so it can fall through to the default case, for objects we can't handle automatically
+            //FIXME: This seems very unsafe to happen outside a protected call
+            if (lua_getfield(_L, realIndex, "__type") == LUA_TSTRING) {
+                userdataTag = (char *)lua_tostring(_L, -1);
+            }
+            lua_pop(_L, 1);
+
+            if (userdataTag) {
+                NSString *classMapping = [registeredLuaObjectHelperUserdataMappings objectForKey:[NSString stringWithUTF8String:userdataTag]];
+                if (classMapping) {
+                    return [self luaObjectAtIndex:realIndex toClass:(char *)[classMapping UTF8String]];
+                }
+            }
         default:
             if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
                 NSString *answer = [NSString stringWithFormat:@"%s", luaL_tolstring(_L, idx, NULL)];

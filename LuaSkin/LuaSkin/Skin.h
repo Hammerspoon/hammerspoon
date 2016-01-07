@@ -378,7 +378,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param helperFN a function of the type @link pushNSHelperFunction @/link
  @param className a C string containing the class name of the NSObject type this function can convert
  */
-- (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char *)className ;
+- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char *)className ;
 
 /*!
  @abstract Push an NSRect onto the lua stack as a lua geometry object (table with x,y,h, and w keys)
@@ -467,11 +467,21 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 /*!
  @abstract Register a luaObjectAtIndex:toClass: conversion helper function for the specified class
 
- @important This method registers a converter functions for use with the luaObjectAtIndex:toClass: method for converting lua tables into NSObjects
+ @important This method registers a converter function for use with the @link luaObjectAtIndex:toClass: @/link method for converting lua data types into NSObjects
  @param helperFN a function of the type @link luaObjectHelperFunction @/link
  @param className a C string containing the class name of the NSObject type this function can convert
  */
-- (void)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className ;
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className ;
+
+/*!
+ @abstract Register a luaObjectAtIndex:toClass: conversion helper function for the specified class and record a mapping between a userdata type and the class
+
+ @important This method registers a converter function for use with the @link luaObjectAtIndex:toClass: @/link method for converting lua data types into NSObjects. It builds on @link registerLuaObjectHelper:forClass @/link by also storing a mapping between the NSObject class and Lua userdata type so userdata objects of this type can be automatically converted with @link toNSObjectAtIndex: @/link and @link toNSObjectAtIndex:withOptions: @/link as well.
+ @param helperFN a function of the type @link luaObjectHelperFunction @/link
+ @param className a C string containing the class name of the NSObject type this function can convert
+ @param userdataTag a C string containing the Lua userdata type that can be converted to an NSObject
+ */
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag;
 
 /*!
  @abstract Convert a lua geometry object (table with x,y,h, and w keys) into an NSRect
