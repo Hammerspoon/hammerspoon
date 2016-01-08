@@ -8,14 +8,6 @@
 
 #import "HSChooser.h"
 
-void chooserShowError(lua_State *L, char *message) {
-    lua_getglobal(L, "hs");
-    lua_getfield(L, -1, "showError");
-    lua_remove(L, -2);
-    lua_pushstring(L, message);
-    lua_pcall(L, 1, 0, 0);
-}
-
 #pragma mark - Chooser object implementation
 
 @implementation HSChooser
@@ -372,7 +364,7 @@ void chooserShowError(lua_State *L, char *message) {
                 }
                 if (!callbackChoicesTypeCheckPass) {
                     // Light verification of the callback choices shows the format is wrong, so let's ignore it
-                    chooserShowError(skin.L, "ERROR: data returned by hs.chooser:choices() callback could not be parsed correctly");
+                    [[LuaSkin shared] logError:@"ERROR: data returned by hs.chooser:choices() callback could not be parsed correctly"];
                     self.currentCallbackChoices = nil;
                 }
             }
