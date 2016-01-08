@@ -266,24 +266,34 @@
     //NSLog(@"controlTextDidChange: %@", self.queryField.stringValue);
     // FIXME: Implement the query changed callback here
     NSString *queryString = self.queryField.stringValue;
-    if (queryString.length > 0) {
-        NSMutableArray *filteredChoices = [[NSMutableArray alloc] init];
 
-        for (NSDictionary *choice in [self getChoicesWithOptions:NO]) {
-            if ([[[choice objectForKey:@"text"] lowercaseString] containsString:[queryString lowercaseString]]) {
-                [filteredChoices addObject: choice];
-            } else if (self.searchSubText) {
-                if ([[[choice objectForKey:@"subText"] lowercaseString] containsString:[queryString lowercaseString]]) {
-                    [filteredChoices addObject:choice];
+    if (self.queryChangedCallbackRef != LUA_NOREF && self.queryChangedCallbackRef != LUA_REFNIL) {
+        // We have a query callback set, we are passing on responsibility for displaying/filtering results, to Lua
+        LuaSkin *skin = [LuaSkin shared];
+        [skin pushLuaRef:*(self.refTable) ref:self.queryChangedCallbackRef];
+        [skin pushNSObject:queryString];
+        [skin protectedCallAndTraceback:1 nresults:0];
+    } else {
+        // We do not have a query callback set, so we are doing the filtering
+        if (queryString.length > 0) {
+            NSMutableArray *filteredChoices = [[NSMutableArray alloc] init];
+
+            for (NSDictionary *choice in [self getChoicesWithOptions:NO]) {
+                if ([[[choice objectForKey:@"text"] lowercaseString] containsString:[queryString lowercaseString]]) {
+                    [filteredChoices addObject: choice];
+                } else if (self.searchSubText) {
+                    if ([[[choice objectForKey:@"subText"] lowercaseString] containsString:[queryString lowercaseString]]) {
+                        [filteredChoices addObject:choice];
+                    }
                 }
             }
-        }
 
-        self.filteredChoices = filteredChoices;
-    } else {
-        self.filteredChoices = nil;
+            self.filteredChoices = filteredChoices;
+        } else {
+            self.filteredChoices = nil;
+        }
+        [self.choicesTableView reloadData];
     }
-    [self.choicesTableView reloadData];
 }
 
 - (void)selectChoice:(NSInteger)row {

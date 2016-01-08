@@ -238,10 +238,15 @@ static int chooserSetQuery(lua_State *L) {
 /// Sets/clears a callback for when the search query changes
 ///
 /// Parameters:
-///  * fn - An optional function that will be called whenever the search query changes. The function should accept a single argument, a string containing the new search query. It should return nothing. If this parameter is omitted, the existing callback will be removed
+///  * fn - An optional function that will be called whenever the search query changes. If this parameter is omitted, the existing callback will be removed.
 ///
 /// Returns:
 ///  * The hs.chooser object
+///
+/// Notes:
+///  * As the user is typing, the callback function will be called for every keypress. You may wish to do filtering on each call, or you may wish to use a delayed `hs.timer` object to only react when they have finished typing.
+///  * The callback function should accept a single argument:
+///   * A string containing the new search query
 static int chooserQueryCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
