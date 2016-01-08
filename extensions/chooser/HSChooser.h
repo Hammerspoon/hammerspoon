@@ -18,6 +18,8 @@
 
 @property (nonatomic, weak) IBOutlet NSTextField *queryField;
 @property (nonatomic, weak) IBOutlet HSChooserTableView *choicesTableView;
+@property (nonatomic, weak) IBOutlet NSVisualEffectView *effectView;
+
 @property (nonatomic, strong) NSMutableArray *eventMonitors;
 @property (nonatomic) BOOL hasChosen;
 @property (nonatomic) BOOL reloadWhenVisible;
@@ -28,7 +30,6 @@
 @property(nonatomic, retain) NSString *fontName;
 @property(nonatomic) CGFloat fontSize;
 @property(nonatomic) BOOL searchSubText;
-@property(nonatomic) NSColor *bgColor;
 @property(nonatomic) NSColor *fgColor;
 @property(nonatomic) NSColor *subTextColor;
 
@@ -81,4 +82,8 @@
 - (void)clearChoicesAndUpdate;
 - (NSArray *)getChoices;
 - (NSArray *)getChoicesWithOptions:(BOOL)includeFiltered;
+
+// UI customisation methods
+- (void)setBgLightDark:(BOOL)isDark;
+- (BOOL)isBgLightDark;
 @end

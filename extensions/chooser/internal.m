@@ -280,46 +280,6 @@ static int chooserDelete(lua_State *L) {
     return userdata_gc(L);
 }
 
-/// hs.chooser:bgColor([color]) -> hs.chooser object or color table
-/// Method
-/// Sets the background color of the chooser
-///
-/// Parameters:
-///  * color - An optional table containing a color specification (see `hs.drawing.color`), or nil to restore the default color. If this parameter is omitted, the existing color will be returned
-///
-/// Returns:
-///  * The `hs.chooser` object or a color table
-static int chooserSetBgColor(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
-
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
-
-    switch (lua_type(L, 2)) {
-        case LUA_TTABLE:
-            chooser.bgColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
-            lua_pushvalue(L, 1);
-            break;
-
-        case LUA_TNIL:
-            chooser.bgColor = nil;
-            lua_pushvalue(L, 1);
-            break;
-
-        case LUA_TNONE:
-            [skin pushNSObject:chooser.bgColor];
-            break;
-
-        default:
-            NSLog(@"ERROR: Unknown type in hs.chooser:bgColor(). This should not be possible");
-            lua_pushnil(L);
-            break;
-    }
-
-    return 1;
-}
-
 /// hs.chooser:fgColor(color) -> hs.chooser object
 /// Method
 /// Sets the foreground color of the chooser
@@ -360,7 +320,7 @@ static int chooserSetFgColor(lua_State *L) {
     return 1;
 }
 
-/// hs.chooser:subTextColor(color) -> hs.chooser object
+/// hs.chooser:subTextColor(color) -> hs.chooser object or hs.color object
 /// Method
 /// Sets the sub-text color of the chooser
 ///
@@ -393,6 +353,47 @@ static int chooserSetSubTextColor(lua_State *L) {
 
         default:
             NSLog(@"ERROR: Unknown type in hs.chooser:bgColor(). This should not be possible");
+            lua_pushnil(L);
+            break;
+    }
+
+    return 1;
+}
+
+/// hs.chooser:bgDark([beDark]) -> hs.chooser object or boolean
+/// Method
+/// Sets the background of the chooser between light and dark
+///
+/// Parameters:
+///  * beDark - A optional boolean, true to be dark, false to be light. If this parameter is omitted, the current setting will be returned
+///
+/// Returns:
+///  * The `hs.chooser` object or a boolean, true if the window is dark, false if it is light
+///
+/// Notes:
+///  * The text colors will not automatically change when you toggle the darkness of the chooser window, you should also set appropriate colors with `hs.chooser:fgColor()` and `hs.chooser:subTextColor()`
+static int chooserSetBgDark(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    BOOL beDark;
+
+    switch (lua_type(L, 2)) {
+        case LUA_TBOOLEAN:
+            beDark = lua_toboolean(L, 2);
+            [chooser setBgLightDark:beDark];
+            lua_pushvalue(L, 1);
+            break;
+
+        case LUA_TNONE:
+            lua_pushboolean(L, [chooser isBgLightDark]);
+            break;
+
+        default:
+            NSLog(@"ERROR: Unknown type in hs.chooser:bgDark(). This should not be possible");
             lua_pushnil(L);
             break;
     }
@@ -545,9 +546,9 @@ static const luaL_Reg userdataLib[] = {
     {"delete", chooserDelete},
     {"refreshChoicesCallback", chooserRefreshChoicesCallback},
 
-    {"bgColor", chooserSetBgColor},
     {"fgColor", chooserSetFgColor},
     {"subTextColor", chooserSetSubTextColor},
+    {"bgDark", chooserSetBgDark},
     {"searchSubText", chooserSetSearchSubText},
     {"width", chooserSetWidth},
     {"rows", chooserSetNumRows},

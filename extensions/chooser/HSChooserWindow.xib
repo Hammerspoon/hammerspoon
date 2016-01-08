@@ -4,9 +4,10 @@
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="HSChooserWindowController">
+        <customObject id="-2" userLabel="File's Owner" customClass="HSChooser">
             <connections>
                 <outlet property="choicesTableView" destination="Cek-LK-OOM" id="5yy-Rc-Qs0"/>
+                <outlet property="effectView" destination="RBO-8e-TkV" id="pcP-Jp-jMm"/>
                 <outlet property="queryField" destination="SNk-MY-4Fz" id="tiX-VS-sIJ"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="0fA-Ev-wpj"/>
             </connections>

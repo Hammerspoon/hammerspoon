@@ -27,9 +27,10 @@
         self.fontName = nil;
         self.fontSize = 0;
         self.searchSubText = NO;
-        self.bgColor = nil;
-        self.fgColor = nil;
-        self.subTextColor = nil;
+
+        // We're setting these directly, because we've overridden the setters and we don't need to invoke those now
+        _fgColor = nil;
+        _subTextColor = nil;
 
         self.currentStaticChoices = nil;
         self.currentCallbackChoices = nil;
@@ -54,7 +55,6 @@
         if (![self setupWindow]) {
             return nil;
         }
-
     }
 
     return self;
@@ -128,7 +128,8 @@
 - (BOOL)setupWindow {
     // Create and configure our window
 
-    if (!self.windowLoaded) {
+    // NOTE: This reference to self.window is critically important - it is the getter for this property which causes the window to be instantiated. Without it, we will have no window.
+    if (!self.window || !self.windowLoaded) {
         NSLog(@"ERROR: Unable to load hs.chooser window NIB");
         return NO;
     }
@@ -398,11 +399,6 @@
 
 #pragma mark - UI customisation methods
 
-- (void)setBgColor:(NSColor *)bgColor {
-    _bgColor = bgColor;
-    self.window.backgroundColor = _bgColor;
-}
-
 - (void)setFgColor:(NSColor *)fgColor {
     _fgColor = fgColor;
     self.queryField.textColor = _fgColor;
@@ -424,6 +420,20 @@
         NSTextField *subText = [cellView viewWithTag:3];
         subText.textColor = _subTextColor;
     }
+}
+
+- (void)setBgLightDark:(BOOL)isDark {
+    if (isDark) {
+        self.window.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark];
+        [self.effectView setMaterial:NSVisualEffectMaterialDark];
+    } else {
+        self.window.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
+        [self.effectView setMaterial:NSVisualEffectMaterialLight];
+    }
+}
+
+- (BOOL)isBgLightDark {
+    return [self.window.appearance.name isEqualToString:NSAppearanceNameVibrantDark];
 }
 
 #pragma mark - Utility methods
