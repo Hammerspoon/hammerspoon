@@ -1,5 +1,8 @@
 #import <LuaSkin/LuaSkin.h>
 
+@interface MJLuaAsService : NSObject
+@end
+
 void MJLuaAlloc(void);
 void MJLuaInit(void);
 void MJLuaDeinit(void);

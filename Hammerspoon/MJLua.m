@@ -12,6 +12,7 @@
 #import "MJAutoLaunch.h"
 
 static LuaSkin* MJLuaState;
+static MJLuaAsService* MJLuaServiceObject ;
 static int evalfn;
 int refTable;
 
@@ -19,6 +20,45 @@ static void(^loghandler)(NSString* str);
 void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     loghandler = blk;
 }
+
+@implementation MJLuaAsService
+
+- (instancetype)init {
+    self = [super init] ;
+    if (self) {
+        [NSApp setServicesProvider:self];
+    }
+    return self ;
+}
+
+- (void)hammerspoonAsService:(NSPasteboard *)pboard
+                    userData:(NSString *)userData
+                       error:(NSString **)error {
+
+     // Test for strings on the pasteboard.
+     NSArray *classes = [NSArray arrayWithObject:[NSString class]];
+     NSDictionary *options = [NSDictionary dictionary];
+
+     if (![pboard canReadObjectForClasses:classes options:options]) {
+          *error = @"hammerspoonAsService:pasteboard does not contain text.";
+          return;
+     }
+
+     // Get and encrypt the string.
+     NSString *pboardString = [pboard stringForType:NSPasteboardTypeString];
+     NSString *newString    = MJLuaRunString(pboardString) ;
+     if (!newString) {
+          *error = @"hammerspoonAsService:MJLuaRunString returned nil";
+          return;
+     }
+
+     // Write the encrypted string onto the pasteboard.
+     [pboard clearContents];
+     [pboard writeObjects:[NSArray arrayWithObject:newString]];
+}
+
+@end
+
 
 /// hs.autoLaunch([state]) -> bool
 /// Function
@@ -429,6 +469,8 @@ void MJLuaInit(void) {
     lua_pcall(L, 7, 1, 0);
 
     evalfn = [MJLuaState luaRef:refTable];
+
+    if (!MJLuaServiceObject) MJLuaServiceObject = [[MJLuaAsService alloc] init] ;
 }
 
 static int callShutdownCallback(lua_State *L) {
@@ -447,6 +489,11 @@ void MJLuaDeinit(void) {
     LuaSkin *skin = MJLuaState;
 
     callShutdownCallback(skin.L);
+
+    if (MJLuaServiceObject) {
+        [NSApp setServicesProvider:nil] ;
+        MJLuaServiceObject = nil ;
+    }
 }
 
 // Destroy a Lua environment with LuaSiin
