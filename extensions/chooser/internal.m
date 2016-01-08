@@ -285,13 +285,13 @@ static int chooserDelete(lua_State *L) {
 /// Sets the background color of the chooser
 ///
 /// Parameters:
-///  * color - An optional table containing a color specification (see `hs.drawing.color`). If this parameter is omitted, the existing color will be returned
+///  * color - An optional table containing a color specification (see `hs.drawing.color`), or nil to restore the default color. If this parameter is omitted, the existing color will be returned
 ///
 /// Returns:
 ///  * The `hs.chooser` object or a color table
 static int chooserSetBgColor(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
@@ -299,6 +299,11 @@ static int chooserSetBgColor(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             chooser.bgColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+            lua_pushvalue(L, 1);
+            break;
+
+        case LUA_TNIL:
+            chooser.bgColor = nil;
             lua_pushvalue(L, 1);
             break;
 
@@ -320,13 +325,13 @@ static int chooserSetBgColor(lua_State *L) {
 /// Sets the foreground color of the chooser
 ///
 /// Parameters:
-///  * color - An optional table containing a color specification (see `hs.drawing.color`). If this parameter is omitted, the existing color will be returned
+///  * color - An optional table containing a color specification (see `hs.drawing.color`), or nil to restore the default color. If this parameter is omitted, the existing color will be returned
 ///
 /// Returns:
 ///  * The `hs.chooser` object or a color table
 static int chooserSetFgColor(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
@@ -334,6 +339,11 @@ static int chooserSetFgColor(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             chooser.fgColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+            lua_pushvalue(L, 1);
+            break;
+
+        case LUA_TNIL:
+            chooser.fgColor = nil;
             lua_pushvalue(L, 1);
             break;
 
@@ -355,13 +365,13 @@ static int chooserSetFgColor(lua_State *L) {
 /// Sets the sub-text color of the chooser
 ///
 /// Parameters:
-///  * color - An optional table containing a color specification (see `hs.drawing.color`). If this parameter is omitted, the existing color will be returned
+///  * color - An optional table containing a color specification (see `hs.drawing.color`), or nil to restore the default color. If this parameter is omitted, the existing color will be returned
 ///
 /// Returns:
 ///  * The `hs.chooser` object or a color table
 static int chooserSetSubTextColor(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
@@ -369,6 +379,11 @@ static int chooserSetSubTextColor(lua_State *L) {
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
             chooser.subTextColor = [skin luaObjectAtIndex:2 toClass:"NSColor"];
+            lua_pushvalue(L, 1);
+            break;
+
+        case LUA_TNIL:
+            chooser.subTextColor = nil;
             lua_pushvalue(L, 1);
             break;
 

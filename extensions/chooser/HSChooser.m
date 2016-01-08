@@ -54,6 +54,7 @@
         if (![self setupWindow]) {
             return nil;
         }
+
     }
 
     return self;
@@ -225,6 +226,15 @@
     cellView.shortcutText.stringValue = shortcutText ? shortcutText : @"??";
     cellView.image.image = image ? image : [NSImage imageNamed:NSImageNameFollowLinkFreestandingTemplate];
 
+    if (self.fgColor) {
+        cellView.text.textColor = self.fgColor;
+        cellView.shortcutText.textColor = self.fgColor;
+    }
+
+    if (self.subTextColor) {
+        cellView.subText.textColor = self.subTextColor;
+    }
+
     return cellView;
 }
 
@@ -389,16 +399,31 @@
 #pragma mark - UI customisation methods
 
 - (void)setBgColor:(NSColor *)bgColor {
-    self.window.backgroundColor = bgColor;
+    _bgColor = bgColor;
+    self.window.backgroundColor = _bgColor;
 }
 
 - (void)setFgColor:(NSColor *)fgColor {
-    self.queryField.textColor = fgColor;
-    // FIXME: This doesn't update the table yet
+    _fgColor = fgColor;
+    self.queryField.textColor = _fgColor;
+
+    for (int x = 0; x < [self.choicesTableView numberOfRows]; x++) {
+        NSTableCellView *cellView = [self.choicesTableView viewAtColumn:0 row:x makeIfNecessary:NO];
+        NSTextField *text = [cellView viewWithTag:1];
+        NSTextField *shortcutText = [cellView viewWithTag:2];
+        text.textColor = _fgColor;
+        shortcutText.textColor = _fgColor;
+    }
 }
 
 - (void)setSubTextColor:(NSColor *)subTextColor {
-    // FIXME: This doesn't update the table yet
+    _subTextColor = subTextColor;
+
+    for (int x = 0; x < [self.choicesTableView numberOfRows]; x++) {
+        NSTableCellView *cellView = [self.choicesTableView viewAtColumn:0 row:x makeIfNecessary:NO];
+        NSTextField *subText = [cellView viewWithTag:3];
+        subText.textColor = _subTextColor;
+    }
 }
 
 #pragma mark - Utility methods
