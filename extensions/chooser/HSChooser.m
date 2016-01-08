@@ -264,7 +264,6 @@
 
 - (void)controlTextDidChange:(NSNotification *)aNotification {
     //NSLog(@"controlTextDidChange: %@", self.queryField.stringValue);
-    // FIXME: Implement the query changed callback here
     NSString *queryString = self.queryField.stringValue;
 
     if (self.queryChangedCallbackRef != LUA_NOREF && self.queryChangedCallbackRef != LUA_REFNIL) {
