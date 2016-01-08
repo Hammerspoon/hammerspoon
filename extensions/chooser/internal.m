@@ -118,6 +118,8 @@ static int chooserHide(lua_State *L) {
 ///  },
 /// }
 static int chooserSetChoices(lua_State *L) {
+    BOOL staticChoicesTypeCheckPass = NO;
+
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TTABLE | LS_TNIL, LS_TBREAK];
 
@@ -138,7 +140,22 @@ static int chooserSetChoices(lua_State *L) {
         case LUA_TTABLE:
             chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
             chooser.currentStaticChoices = [skin toNSObjectAtIndex:2];
-            // FIXME: We should at least lightly validate that we have an array of dictionaries here
+            if ([chooser.currentStaticChoices isKindOfClass:[NSArray class]]) {
+                staticChoicesTypeCheckPass = YES;
+
+                for (id arrayElement in chooser.currentStaticChoices) {
+                    if (![arrayElement isKindOfClass:[NSDictionary class]]) {
+                        // We have something that doesn't conform, so we might as well break out of the loop immediately
+                        staticChoicesTypeCheckPass = NO;
+                        break;
+                    }
+                }
+            }
+
+            if (!staticChoicesTypeCheckPass) {
+                showError(L, "ERROR: The choices table you passed to hs.chooser:choices() could not be parsed correctly");
+                chooser.currentStaticChoices = nil;
+            }
             break;
 
         default:

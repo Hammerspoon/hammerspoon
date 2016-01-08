@@ -8,6 +8,14 @@
 
 #import "HSChooser.h"
 
+void chooserShowError(lua_State *L, char *message) {
+    lua_getglobal(L, "hs");
+    lua_getfield(L, -1, "showError");
+    lua_remove(L, -2);
+    lua_pushstring(L, message);
+    lua_pcall(L, 1, 0, 0);
+}
+
 #pragma mark - Chooser object implementation
 
 @implementation HSChooser
@@ -345,18 +353,34 @@
         choices = self.currentStaticChoices;
     } else if (self.choicesCallbackRef != LUA_NOREF) {
         // We have a callback set
-        if (!self.currentCallbackChoices) {
+        if (self.currentCallbackChoices == nil) {
             // We have previously cached the callback choices
             LuaSkin *skin = [LuaSkin shared];
             [skin pushLuaRef:*(self.refTable) ref:self.choicesCallbackRef];
             if ([skin protectedCallAndTraceback:0 nresults:1]) {
                 self.currentCallbackChoices = [skin toNSObjectAtIndex:-1];
-                // FIXME: We should validate that we got an array of dictionaries here.
-            } else {
-                self.currentCallbackChoices = nil;
+
+                BOOL callbackChoicesTypeCheckPass = NO;
+                if ([self.currentCallbackChoices isKindOfClass:[NSArray class]]) {
+                    callbackChoicesTypeCheckPass = YES;
+                    for (id arrayElement in self.currentCallbackChoices) {
+                        if (![arrayElement isKindOfClass:[NSDictionary class]]) {
+                            callbackChoicesTypeCheckPass = NO;
+                            break;
+                        }
+                    }
+                }
+                if (!callbackChoicesTypeCheckPass) {
+                    // Light verification of the callback choices shows the format is wrong, so let's ignore it
+                    chooserShowError(skin.L, "ERROR: data returned by hs.chooser:choices() callback could not be parsed correctly");
+                    self.currentCallbackChoices = nil;
+                }
             }
         }
-        choices = self.currentCallbackChoices;
+
+        if (self.currentCallbackChoices != nil) {
+            choices = self.currentCallbackChoices;
+        }
     }
 
     //NSLog(@"HSChooser::getChoicesWithOptions: returning: %@", choices);
