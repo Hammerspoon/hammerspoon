@@ -664,15 +664,6 @@ nextarg:
     return [self protectedCallAndTraceback:1 nresults:1] ;
 }
 
-// FIXME: Is this actually used anywhere or a leftover from a removed NSTask hack?
-- (void)pushUserData:(void *)userData {
-    // WARNING. This is a terrible, terrible hack, taken from http://lua-users.org/lists/lua-l/2005-05/msg00095.html
-    lua_lock(_L);
-    setuvalue(_L, _L->top, ((Udata*)userData)-1);
-    api_incr_top(_L);
-    lua_unlock(_L);
-}
-
 #pragma mark - conversionSupport extensions to LuaSkin class
 
 - (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
