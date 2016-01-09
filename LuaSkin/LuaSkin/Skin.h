@@ -567,14 +567,6 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 - (BOOL)requireModule:(char *)moduleName ;
 
 /*!
- @abstract Pushes an existing Lua userdata object onto the Lua stack
-
- @important This is a terrible hack and could easily break with future Lua versions. Its use is discouraged
- @param userData a pointer to memory that was allocated by lua_newuserdata()
- */
-- (void)pushUserData:(void *)userData;
-
-/*!
  @abstract Log the specified message with at the specified level
  @discussion Logs the specified message at the specified level by invoking the delegate method @link logForLuaSkinAtLevel:withMessage: @/link.
 
