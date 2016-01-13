@@ -232,6 +232,7 @@ return {setup=function(...)
           print("*** WARN:    "..message)
       elseif level == 1 then              -- LS_LOG_ERROR
           hs.showError(message)
+          require("hs.crash").crashLog("ERROR: "..message)
 --           print("*** ERROR:   "..message)
       else
           print("*** UNKNOWN LOG LEVEL: "..tostring(level).."\n\t"..message)
