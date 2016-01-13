@@ -501,18 +501,25 @@ static int userdata_gc(lua_State* L) ;
         } else {
             if (error) {
                 if (lua_type([skin L], -1) == LUA_TSTRING) {
-                    lua_getglobal([skin L], "hs") ; lua_getfield([skin L], -1, "cleanUTF8forConsole") ;
-                    lua_pushvalue([skin L], -3) ;
-                    if (![skin protectedCallAndTraceback:1 nresults:1]) {
-                        CLS_NSLOG(@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1));
-                        showError([skin L], (char *)[[NSString stringWithFormat:@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1)] UTF8String]);
-                    } else {
-                        NSString *theHTML = [skin toNSObjectAtIndex:-1] ;
-                        lua_pop([skin L], 2) ; // remove "hs" and the return value
+//                     lua_getglobal([skin L], "hs") ; lua_getfield([skin L], -1, "cleanUTF8forConsole") ;
+//                     lua_pushvalue([skin L], -3) ;
+//                     if (![skin protectedCallAndTraceback:1 nresults:1]) {
+//                         CLS_NSLOG(@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1));
+//                         showError([skin L], (char *)[[NSString stringWithFormat:@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1)] UTF8String]);
+//                     } else {
+//                         NSString *theHTML = [skin toNSObjectAtIndex:-1] ;
+//                         lua_pop([skin L], 2) ; // remove "hs" and the return value
+//
+//                         [theView loadHTMLString:theHTML baseURL:nil] ;
+//                         actionRequiredAfterReturn = NO ;
+//                     }
+                    luaL_tolstring([skin L], -1, NULL) ;
+                    NSString *theHTML = [skin toNSObjectAtIndex:-1] ;
+                    lua_pop([skin L], 1) ;
 
-                        [theView loadHTMLString:theHTML baseURL:nil] ;
-                        actionRequiredAfterReturn = NO ;
-                    }
+                    [theView loadHTMLString:theHTML baseURL:nil] ;
+                    actionRequiredAfterReturn = NO ;
+
                 } else if (lua_type([skin L], -1) == LUA_TBOOLEAN && lua_toboolean([skin L], -1)) {
                     actionRequiredAfterReturn = NO ;
                 }
@@ -955,15 +962,18 @@ static int webview_html(lua_State *L) {
     HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
     HSWebViewView          *theView = theWindow.contentView ;
 
-    luaL_checkstring(L, 2) ;
+//     luaL_checkstring(L, 2) ;
+//
+//     lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ;
+//     lua_pushvalue(L, 2) ;
+//     if (![skin protectedCallAndTraceback:1 nresults:1]) {
+//         return luaL_error(L, "unable to validate HTML: %s", lua_tostring(L, -1)) ;
+//     }
+    luaL_tolstring(L, 2, NULL) ;
 
-    lua_getglobal(L, "hs") ; lua_getfield(L, -1, "cleanUTF8forConsole") ;
-    lua_pushvalue(L, 2) ;
-    if (![skin protectedCallAndTraceback:1 nresults:1]) {
-        return luaL_error(L, "unable to validate HTML: %s", lua_tostring(L, -1)) ;
-    }
     NSString *theHTML = [skin toNSObjectAtIndex:-1] ;
-    lua_pop(L, 2) ; // remove "hs" and the return value
+//     lua_pop(L, 2) ; // remove "hs" and the return value
+    lua_pop(L, 1) ;
 
     NSString *theBaseURL ;
     if (lua_type(L, 3) == LUA_TSTRING || lua_type(L, 3) == LUA_TTABLE) {
@@ -1568,10 +1578,10 @@ static int WKNavigationAction_toLua(lua_State *L, id obj) {
     WKNavigationAction *navAction = obj ;
 
     lua_newtable(L) ;
-      [skin pushNSObject:[navAction request]]     ; lua_setfield(L, -2, "request") ;
-      [skin pushNSObject:[navAction sourceFrame]] ; lua_setfield(L, -2, "sourceFrame") ;
-      [skin pushNSObject:[navAction targetFrame]] ; lua_setfield(L, -2, "targetFrame") ;
-      lua_pushinteger(L, [navAction buttonNumber])            ; lua_setfield(L, -2, "buttonNumber") ;
+      [skin pushNSObject:[navAction request]] ;      lua_setfield(L, -2, "request") ;
+      [skin pushNSObject:[navAction sourceFrame]] ;  lua_setfield(L, -2, "sourceFrame") ;
+      [skin pushNSObject:[navAction targetFrame]] ;  lua_setfield(L, -2, "targetFrame") ;
+      lua_pushinteger(L, [navAction buttonNumber]) ; lua_setfield(L, -2, "buttonNumber") ;
       unsigned long theFlags = [navAction modifierFlags] ;
       lua_newtable(L) ;
         if (theFlags & NSAlphaShiftKeyMask) { lua_pushboolean(L, YES) ; lua_setfield(L, -2, "capslock") ; }
@@ -1588,8 +1598,8 @@ static int WKNavigationAction_toLua(lua_State *L, id obj) {
           case WKNavigationTypeBackForward:     lua_pushstring(L, "backForward") ; break ;
           case WKNavigationTypeReload:          lua_pushstring(L, "reload") ; break ;
           case WKNavigationTypeFormResubmitted: lua_pushstring(L, "formResubmitted") ; break ;
-          case WKNavigationTypeOther:
-          default:                              lua_pushstring(L, "other") ; break ;
+          case WKNavigationTypeOther:           lua_pushstring(L, "other") ; break ;
+          default:                              lua_pushstring(L, "unknown") ; break ;
       }
       lua_setfield(L, -2, "navigationType") ;
 
@@ -1601,9 +1611,9 @@ static int WKNavigationResponse_toLua(lua_State *L, id obj) {
     WKNavigationResponse *navResponse = obj ;
 
     lua_newtable(L) ;
-      lua_pushboolean(L, [navResponse canShowMIMEType]) ;      lua_setfield(L, -2, "canShowMIMEType") ;
-      lua_pushboolean(L, [navResponse isForMainFrame]) ;       lua_setfield(L, -2, "forMainFrame") ;
-      [skin pushNSObject:[navResponse response]] ; lua_setfield(L, -2, "response") ;
+      lua_pushboolean(L, [navResponse canShowMIMEType]) ; lua_setfield(L, -2, "canShowMIMEType") ;
+      lua_pushboolean(L, [navResponse isForMainFrame]) ;  lua_setfield(L, -2, "forMainFrame") ;
+      [skin pushNSObject:[navResponse response]] ;        lua_setfield(L, -2, "response") ;
     return 1 ;
 }
 
@@ -1612,8 +1622,8 @@ static int WKFrameInfo_toLua(lua_State *L, id obj) {
     WKFrameInfo *frameInfo = obj ;
 
     lua_newtable(L) ;
-      lua_pushboolean(L, [frameInfo isMainFrame]) ;         lua_setfield(L, -2, "mainFrame") ;
-      [skin pushNSObject:[frameInfo request]] ; lua_setfield(L, -2, "request") ;
+      lua_pushboolean(L, [frameInfo isMainFrame]) ; lua_setfield(L, -2, "mainFrame") ;
+      [skin pushNSObject:[frameInfo request]] ;     lua_setfield(L, -2, "request") ;
     return 1 ;
 }
 
@@ -1622,9 +1632,9 @@ static int WKBackForwardListItem_toLua(lua_State *L, id obj) {
     WKBackForwardListItem *item = obj ;
 
     lua_newtable(L) ;
-      [skin pushNSObject:[item URL]]        ; lua_setfield(L, -2, "URL") ;
+      [skin pushNSObject:[item URL]] ;        lua_setfield(L, -2, "URL") ;
       [skin pushNSObject:[item initialURL]] ; lua_setfield(L, -2, "initialURL") ;
-      [skin pushNSObject:[item title]]      ; lua_setfield(L, -2, "title") ;
+      [skin pushNSObject:[item title]] ;      lua_setfield(L, -2, "title") ;
     return 1 ;
 }
 
@@ -1668,7 +1678,7 @@ static int NSError_toLua(lua_State *L, id obj) {
     NSError *theError = obj ;
 
     lua_newtable(L) ;
-        lua_pushinteger(L, [theError code]) ;                                    lua_setfield(L, -2, "code") ;
+        lua_pushinteger(L, [theError code]) ;                        lua_setfield(L, -2, "code") ;
         [skin pushNSObject:[theError domain]] ;                      lua_setfield(L, -2, "domain") ;
         [skin pushNSObject:[theError helpAnchor]] ;                  lua_setfield(L, -2, "helpAnchor") ;
         [skin pushNSObject:[theError localizedDescription]] ;        lua_setfield(L, -2, "localizedDescription") ;
@@ -1685,14 +1695,14 @@ static int NSURLAuthenticationChallenge_toLua(lua_State *L, id obj) {
     NSURLAuthenticationChallenge *challenge = obj ;
 
     lua_newtable(L) ;
-        lua_pushinteger(L, [challenge previousFailureCount]) ;           lua_setfield(L, -2, "previousFailureCount") ;
-        [skin pushNSObject:[challenge error]] ;              lua_setfield(L, -2, "error") ;
-        [skin pushNSObject:[challenge failureResponse]] ;    lua_setfield(L, -2, "failureResponse") ;
-        [skin pushNSObject:[challenge proposedCredential]] ; lua_setfield(L, -2, "proposedCredential") ;
-        [skin pushNSObject:[challenge protectionSpace]] ;    lua_setfield(L, -2, "protectionSpace") ;
+        lua_pushinteger(L, [challenge previousFailureCount]) ; lua_setfield(L, -2, "previousFailureCount") ;
+        [skin pushNSObject:[challenge error]] ;                lua_setfield(L, -2, "error") ;
+        [skin pushNSObject:[challenge failureResponse]] ;      lua_setfield(L, -2, "failureResponse") ;
+        [skin pushNSObject:[challenge proposedCredential]] ;   lua_setfield(L, -2, "proposedCredential") ;
+        [skin pushNSObject:[challenge protectionSpace]] ;      lua_setfield(L, -2, "protectionSpace") ;
 
 #ifdef _WK_DEBUG_TYPES
-        [skin pushNSObject:[challenge sender]] ;             lua_setfield(L, -2, "sender") ;
+        [skin pushNSObject:[challenge sender]] ;               lua_setfield(L, -2, "sender") ;
 #endif
     return 1 ;
 }
@@ -1702,9 +1712,9 @@ static int NSURLProtectionSpace_toLua(lua_State *L, id obj) {
     NSURLProtectionSpace *theSpace = obj ;
 
     lua_newtable(L) ;
-        lua_pushboolean(L, [theSpace isProxy]) ;                          lua_setfield(L, -2, "isProxy") ;
-        lua_pushinteger(L, [theSpace port]) ;                             lua_setfield(L, -2, "port") ;
-        lua_pushboolean(L, [theSpace receivesCredentialSecurely]) ;       lua_setfield(L, -2, "receivesCredentialSecurely") ;
+        lua_pushboolean(L, [theSpace isProxy]) ;                    lua_setfield(L, -2, "isProxy") ;
+        lua_pushinteger(L, [theSpace port]) ;                       lua_setfield(L, -2, "port") ;
+        lua_pushboolean(L, [theSpace receivesCredentialSecurely]) ; lua_setfield(L, -2, "receivesCredentialSecurely") ;
         NSString *method = @"unknown" ;
         if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodDefault])           method = @"default" ;
         if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodHTTPBasic])         method = @"HTTPBasic" ;
@@ -1714,16 +1724,16 @@ static int NSURLProtectionSpace_toLua(lua_State *L, id obj) {
         if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodNTLM])              method = @"NTLM" ;
         if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodClientCertificate]) method = @"clientCertificate" ;
         if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust])       method = @"serverTrust" ;
-        [skin pushNSObject:method] ;                          lua_setfield(L, -2, "authenticationMethod") ;
-        [skin pushNSObject:[theSpace host]] ;                 lua_setfield(L, -2, "host") ;
-        [skin pushNSObject:[theSpace protocol]] ;             lua_setfield(L, -2, "protocol") ;
+        [skin pushNSObject:method] ;              lua_setfield(L, -2, "authenticationMethod") ;
+        [skin pushNSObject:[theSpace host]] ;     lua_setfield(L, -2, "host") ;
+        [skin pushNSObject:[theSpace protocol]] ; lua_setfield(L, -2, "protocol") ;
         NSString *proxy = @"unknown" ;
         if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceHTTPProxy])  proxy = @"http" ;
         if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceHTTPSProxy]) proxy = @"https" ;
         if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceFTPProxy])   proxy = @"ftp" ;
         if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceSOCKSProxy]) proxy = @"socks" ;
-        [skin pushNSObject:proxy] ;                           lua_setfield(L, -2, "proxyType") ;
-        [skin pushNSObject:[theSpace realm]] ;                lua_setfield(L, -2, "realm") ;
+        [skin pushNSObject:proxy] ;            lua_setfield(L, -2, "proxyType") ;
+        [skin pushNSObject:[theSpace realm]] ; lua_setfield(L, -2, "realm") ;
 
 #ifdef _WK_DEBUG_TYPES
         lua_pushstring([skin L], [[NSString stringWithFormat:@"0x%p", [theSpace serverTrust]] UTF8String]) ;
@@ -1738,7 +1748,7 @@ static int NSURLCredential_toLua(lua_State *L, id obj) {
     NSURLCredential *credential = obj ;
 
     lua_newtable(L) ;
-        lua_pushboolean(L, [credential hasPassword]) ;              lua_setfield(L, -2, "hasPassword") ;
+        lua_pushboolean(L, [credential hasPassword]) ; lua_setfield(L, -2, "hasPassword") ;
         switch([credential persistence]) {
             case NSURLCredentialPersistenceNone:           lua_pushstring(L, "none") ; break ;
             case NSURLCredentialPersistenceForSession:     lua_pushstring(L, "session") ; break ;
@@ -1748,8 +1758,8 @@ static int NSURLCredential_toLua(lua_State *L, id obj) {
         }
       lua_setfield(L, -2, "persistence") ;
 
-        [skin pushNSObject:[credential user]] ;         lua_setfield(L, -2, "user") ;
-        [skin pushNSObject:[credential password]] ;     lua_setfield(L, -2, "password") ;
+        [skin pushNSObject:[credential user]] ;     lua_setfield(L, -2, "user") ;
+        [skin pushNSObject:[credential password]] ; lua_setfield(L, -2, "password") ;
 
 #ifdef _WK_DEBUG_TYPES
         [skin pushNSObject:[credential certificates]] ; lua_setfield(L, -2, "certificates") ;

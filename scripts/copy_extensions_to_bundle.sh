@@ -1,7 +1,8 @@
 #!/bin/sh
 set -eux
 
-export HS_DST="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/extensions/hs"
+export HS_RESOURCES="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
+export HS_DST="${HS_RESOURCES}/extensions/hs"
 export HS_MODULES="alert \
     applescript \
     application \
@@ -10,6 +11,7 @@ export HS_MODULES="alert \
     battery \
     brightness \
     caffeinate \
+    chooser \
     console \
     crash \
     dockicon \
@@ -124,3 +126,6 @@ cp -av "${BUILT_PRODUCTS_DIR}/libwebviewusercontent.dylib" "${HS_DST}/webview/us
 
 # Special copier for hs.fs submodule
 cp -av "${BUILT_PRODUCTS_DIR}/libfsvolume.dylib" "${HS_DST}/fs/volume.so"
+
+# Special (compiling) copier for hs.chooser
+ibtool --compile "${HS_RESOURCES}/HSChooserWindow.nib" "${SRCROOT}/extensions/chooser/HSChooserWindow.xib"
