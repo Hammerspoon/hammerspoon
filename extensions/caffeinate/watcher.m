@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import <Foundation/NSDistributedNotificationCenter.h>
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
 #import "../hammerspoon.h"
@@ -6,6 +7,7 @@
 /// === hs.caffeinate.watcher ===
 ///
 /// Watch for display and system sleep/wake/power events
+/// and for fast user switching session events.
 ///
 /// This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
@@ -30,6 +32,34 @@
 /// Constant
 /// The displays have woken from sleep
 
+/// hs.caffeinate.watcher.sessionDidResignActive
+/// Constant
+/// The session is no longer active, due to fast user switching
+
+/// hs.caffeinate.watcher.sessionDidBecomeActive
+/// Constant
+/// The session became active, due to fast user switching
+
+/// hs.caffeinate.watcher.screensaverDidStart
+/// Constant
+/// The screensaver started
+
+/// hs.caffeinate.watcher.screensaverWillStop
+/// Constant
+/// The screensaver is about to stop
+
+/// hs.caffeinate.watcher.screensaverDidStop
+/// Constant
+/// The screensaver stopped
+
+/// hs.caffeinate.watcher.screensDidLock
+/// Constant
+/// The screen was locked
+
+/// hs.caffeinate.watcher.screensDidUnlock
+/// Constant
+/// The screen was unlocked
+
 // Common Code
 
 #define USERDATA_TAG "hs.caffeinate.watcher"
@@ -49,6 +79,13 @@ typedef enum _event_t {
     willPowerOff,
     screensDidSleep,
     screensDidWake,
+    sessionDidResignActive,
+    sessionDidBecomeActive,
+    screensaverDidStart,
+    screensaverWillStop,
+    screensaverDidStop,
+    screensDidLock,
+    screensDidUnlock,
 } event_t;
 
 @interface CaffeinateWatcher : NSObject
@@ -64,7 +101,7 @@ typedef enum _event_t {
     return self;
 }
 
-// Call the lua callback function and pass the application name and event type.
+// Call the lua callback function and pass the event type.
 - (void)callback:(NSDictionary* __unused)dict withEvent:(event_t)event {
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
@@ -79,25 +116,54 @@ typedef enum _event_t {
     }
 }
 
-- (void)applicationDidWake:(NSNotification*)notification {
+- (void)caffeinateDidWake:(NSNotification*)notification {
     [self callback:[notification userInfo] withEvent:didWake];
 }
 
-- (void)applicationWillSleep:(NSNotification*)notification {
+- (void)caffeinateWillSleep:(NSNotification*)notification {
     [self callback:[notification userInfo] withEvent:willSleep];
 }
 
-- (void)applicationWillPowerOff:(NSNotification*)notification {
+- (void)caffeinateWillPowerOff:(NSNotification*)notification {
     [self callback:[notification userInfo]  withEvent:willPowerOff];
 }
 
-- (void)applicationScreensDidSleep:(NSNotification*)notification {
+- (void)caffeinateScreensDidSleep:(NSNotification*)notification {
     [self callback:[notification userInfo] withEvent:screensDidSleep];
 }
 
-- (void)applicationScreensDidWake:(NSNotification*)notification {
+- (void)caffeinateScreensDidWake:(NSNotification*)notification {
     [self callback:[notification userInfo] withEvent:screensDidWake];
 }
+
+- (void)caffeinateSessionDidResignActive:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:sessionDidResignActive];
+}
+
+- (void)caffeinateSessionDidBecomeActive:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:sessionDidBecomeActive];
+}
+
+- (void)caffeinateScreensaverDidStart:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensaverDidStart];
+}
+
+- (void)caffeinateScreensaverWillStop:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensaverWillStop];
+}
+
+- (void)caffeinateScreensaverDidStop:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensaverDidStop];
+}
+
+- (void)caffeinateScreensDidLock:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensDidLock];
+}
+
+- (void)caffeinateScreensDidUnlock:(NSNotification*)notification {
+    [self callback:[notification userInfo] withEvent:screensDidUnlock];
+}
+
 @end
 
 /// hs.caffeinate.watcher.new(fn) -> watcher
@@ -105,12 +171,12 @@ typedef enum _event_t {
 /// Creates a watcher object for system and display sleep/wake/power events
 ///
 /// Parameters:
-///  * fn - A function that will be called when system/display events happen. It should accept one parameters:
+///  * fn - A function that will be called when system/display events happen. It should accept one parameter:
 ///   * An event type (see the constants defined above)
 ///
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
-static int app_watcher_new(lua_State* L) {
+static int caffeinate_watcher_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
@@ -127,54 +193,95 @@ static int app_watcher_new(lua_State* L) {
     return 1;
 }
 
-// Register the CaffeinateWatcher as observer for application specific events.
+// Register the CaffeinateWatcher as observer for sleep/wake events.
 static void register_observer(CaffeinateWatcher* observer) {
     // It is crucial to use the shared workspace notification center here.
     // Otherwise the will not receive the events we are interested in.
     NSNotificationCenter* center = [[NSWorkspace sharedWorkspace] notificationCenter];
+    NSDistributedNotificationCenter* distcenter =
+	[NSDistributedNotificationCenter defaultCenter];
     [center addObserver:observer
-               selector:@selector(applicationDidWake:)
+               selector:@selector(caffeinateDidWake:)
                    name:NSWorkspaceDidWakeNotification
                  object:nil];
     [center addObserver:observer
-               selector:@selector(applicationWillSleep:)
+               selector:@selector(caffeinateWillSleep:)
                    name:NSWorkspaceWillSleepNotification
                  object:nil];
     [center addObserver:observer
-               selector:@selector(applicationWillPowerOff:)
+               selector:@selector(caffeinateWillPowerOff:)
                    name:NSWorkspaceWillPowerOffNotification
                  object:nil];
 
     [center addObserver:observer
-               selector:@selector(applicationScreensDidSleep:)
+               selector:@selector(caffeinateScreensDidSleep:)
                    name:NSWorkspaceScreensDidSleepNotification
                  object:nil];
     [center addObserver:observer
-               selector:@selector(applicationScreensDidWake:)
+               selector:@selector(caffeinateScreensDidWake:)
                    name:NSWorkspaceScreensDidWakeNotification
                  object:nil];
+
+    [center addObserver:observer
+               selector:@selector(caffeinateSessionDidResignActive:)
+                   name:NSWorkspaceSessionDidResignActiveNotification
+                 object:nil];
+    [center addObserver:observer
+               selector:@selector(caffeinateSessionDidBecomeActive:)
+                   name:NSWorkspaceSessionDidBecomeActiveNotification
+                 object:nil];
+
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensaverDidStart:)
+		       name:@"com.apple.screensaver.didstart"
+		     object:nil];
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensaverWillStop:)
+		       name:@"com.apple.screensaver.willstop"
+		     object:nil];
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensaverDidStop:)
+		       name:@"com.apple.screensaver.didstop"
+		     object:nil];
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensDidLock:)
+		       name:@"com.apple.screenIsLocked"
+		     object:nil];
+    [distcenter addObserver:observer
+		   selector:@selector(caffeinateScreensDidUnlock:)
+		       name:@"com.apple.screenIsUnlocked"
+		     object:nil];
 }
 
 // Unregister the CaffeinateWatcher as observer for all events.
 static void unregister_observer(CaffeinateWatcher* observer) {
     NSNotificationCenter* center = [[NSWorkspace sharedWorkspace] notificationCenter];
+    NSDistributedNotificationCenter* distcenter =
+	[NSDistributedNotificationCenter defaultCenter];
     [center removeObserver:observer name:NSWorkspaceDidWakeNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceWillSleepNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceWillPowerOffNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceScreensDidSleepNotification object:nil];
     [center removeObserver:observer name:NSWorkspaceScreensDidWakeNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceSessionDidResignActiveNotification object:nil];
+    [center removeObserver:observer name:NSWorkspaceSessionDidBecomeActiveNotification object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screensaver.didstart" object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screensaver.willstop" object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screensaver.didstop" object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screenIsLocked" object:nil];
+    [distcenter removeObserver:observer name:@"com.apple.screenIsUnlocked" object:nil];
 }
 
 /// hs.caffeinate.watcher:start()
 /// Method
-/// Starts the application watcher
+/// Starts the sleep/wake watcher
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
-static int app_watcher_start(lua_State* L) {
+static int caffeinate_watcher_start(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
@@ -191,14 +298,14 @@ static int app_watcher_start(lua_State* L) {
 
 /// hs.caffeinate.watcher:stop()
 /// Method
-/// Stops the application watcher
+/// Stops the sleep/wake watcher
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
 ///  * An `hs.caffeinate.watcher` object
-static int app_watcher_stop(lua_State* L) {
+static int caffeinate_watcher_stop(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
@@ -214,12 +321,12 @@ static int app_watcher_stop(lua_State* L) {
 }
 
 // Perform cleanup if the CaffeinateWatcher is not required anymore.
-static int app_watcher_gc(lua_State* L) {
+static int caffeinate_watcher_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
 
     caffeinatewatcher_t* caffeinateWatcher = luaL_checkudata(L, 1, USERDATA_TAG);
 
-    app_watcher_stop(L);
+    caffeinate_watcher_stop(L);
 
     caffeinateWatcher->fn = [skin luaUnref:refTable ref:caffeinateWatcher->fn];
 
@@ -250,20 +357,27 @@ static void add_event_enum(lua_State* L) {
     add_event_value(L, willPowerOff, "systemWillPowerOff");
     add_event_value(L, screensDidSleep, "screensDidSleep");
     add_event_value(L, screensDidWake, "screensDidWake");
+    add_event_value(L, sessionDidResignActive, "sessionDidResignActive");
+    add_event_value(L, sessionDidBecomeActive, "sessionDidBecomeActive");
+    add_event_value(L, screensaverDidStart, "screensaverDidStart");
+    add_event_value(L, screensaverWillStop, "screensaverWillStop");
+    add_event_value(L, screensaverDidStop, "screensaverDidStop");
+    add_event_value(L, screensDidLock, "screensDidLock");
+    add_event_value(L, screensDidUnlock, "screensDidUnlock");
 }
 
 // Metatable for created objects when _new invoked
 static const luaL_Reg metaLib[] = {
-    {"start",   app_watcher_start},
-    {"stop",    app_watcher_stop},
-    {"__gc",    app_watcher_gc},
+    {"start",   caffeinate_watcher_start},
+    {"stop",    caffeinate_watcher_stop},
+    {"__gc",    caffeinate_watcher_gc},
     {"__tostring", userdata_tostring},
     {NULL,      NULL}
 };
 
 // Functions for returned object when module loads
-static const luaL_Reg appLib[] = {
-    {"new",     app_watcher_new},
+static const luaL_Reg caffeinateLib[] = {
+    {"new",     caffeinate_watcher_new},
     {NULL,      NULL}
 };
 
@@ -276,7 +390,7 @@ static const luaL_Reg metaGcLib[] = {
 // Called when loading the module. All necessary tables need to be registered here.
 int luaopen_hs_caffeinate_watcher(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:appLib metaFunctions:metaGcLib objectFunctions:metaLib];
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:caffeinateLib metaFunctions:metaGcLib objectFunctions:metaLib];
 
     add_event_enum(skin.L);
 
