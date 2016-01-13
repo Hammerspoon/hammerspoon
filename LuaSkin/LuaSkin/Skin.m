@@ -827,8 +827,7 @@ nextarg:
 
 - (id)toNSObjectAtIndex:(int)idx
             withOptions:(LS_NSConversionOptions)options
-       alreadySeenObjects:(NSMutableDictionary *)alreadySeen
-       allowSelfReference:(BOOL)allow {
+       alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
 
     char *userdataTag = nil;
 
