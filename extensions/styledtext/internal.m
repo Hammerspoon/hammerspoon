@@ -159,7 +159,7 @@ static int getStyledTextFromData(lua_State *L) {
         }
     }
 
-    id theInput = [skin toNSObjectAtIndex:1];
+    id theInput = [skin toNSObjectAtIndex:1 withOptions:LS_NSPreserveLuaStringExactly];
     NSData *dataToPresent;
 
     if ([theInput isKindOfClass:[NSString class]]) {
@@ -1298,56 +1298,67 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin shared];
     NSMutableAttributedString *theString;
     if ((lua_type(L, idx) == LUA_TSTRING) || (lua_type(L, idx) == LUA_TNUMBER)) {
-        luaL_checkstring(L, idx);
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "cleanUTF8forConsole");
-        lua_remove(L, -2);
-        lua_pushvalue(L, idx);
-        lua_call(L, 1, 1);
-
-        theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
-
+//         lua_tostring(L, idx); // ensure number is actually a string
+//         lua_getglobal(L, "hs");
+//         lua_getfield(L, -1, "cleanUTF8forConsole");
+//         lua_remove(L, -2);
+//         lua_pushvalue(L, idx);
+//         lua_pcall(L, 1, 1, 0);
+//
+//         theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
+        luaL_tolstring(L, idx, NULL) ;
+        theString = [[NSMutableAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]];
         lua_pop(L, 1);
-    } else if (lua_type(L, idx == LUA_TUSERDATA)) {
+    } else if (lua_type(L, idx == LUA_TUSERDATA) && luaL_testudata(L, idx, USERDATA_TAG)) {
         theString = [get_objectFromUserdata(__bridge NSAttributedString, L, idx) mutableCopy];
-    } else {
-        luaL_checktype(L, idx, LUA_TTABLE);
-
+    } else if (lua_type(L, idx) == LUA_TTABLE) {
         lua_rawgeti(L, idx, 1);
-        luaL_checkstring(L, -1);
-        lua_getglobal(L, "hs");
-        lua_getfield(L, -1, "cleanUTF8forConsole");
-        lua_remove(L, -2);
-        lua_pushvalue(L, -2);
-        lua_call(L, 1, 1);
-
-        theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
-        lua_pop(L, 2); // the cleaned version of the string and the string on the stack
+        luaL_tolstring(L, -1, NULL); // ensure what we have is a string
+        lua_remove(L, -2) ; // luaL_tolstring pushes its value onto the stack without removing/touching the original
+//         lua_getglobal(L, "hs");
+//         lua_getfield(L, -1, "cleanUTF8forConsole");
+//         lua_remove(L, -2);
+//         lua_pushvalue(L, -2);
+//         lua_call(L, 1, 1);
+//
+//         theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
+//         lua_pop(L, 2); // the cleaned version of the string and the string on the stack
+        theString = [[NSMutableAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]];
+        lua_pop(L, 1) ;
 
         // Lua indexes strings by byte, objective-c by char
         NSDictionary *theMap = luaByteToObjCharMap([theString string]);
 
         lua_Integer locInTable = 2;
         while (lua_rawgeti(L, idx, locInTable) != LUA_TNIL) {
-            luaL_checktype(L, -1, LUA_TTABLE);
+            if (lua_type(L, -1) == LUA_TTABLE) {
+                NSUInteger loc = (lua_getfield(L, -1, "starts") == LUA_TNUMBER) ? ((NSUInteger)lua_tointeger(L, -1) - 1) : 0;
+                lua_pop(L, 1);
+                NSUInteger len = ((lua_getfield(L, -1, "ends") == LUA_TNUMBER) ? ((NSUInteger)lua_tointeger(L, -1)) : ([theString length])) - loc;
+                lua_pop(L, 1);
 
-            NSUInteger loc = (lua_getfield(L, -1, "starts") == LUA_TNUMBER) ? ((NSUInteger)luaL_checkinteger(L, -1) - 1) : 0;
-            lua_pop(L, 1);
-            NSUInteger len = ((lua_getfield(L, -1, "ends") == LUA_TNUMBER) ? ((NSUInteger)luaL_checkinteger(L, -1)) : ([theString length])) - loc;
-            lua_pop(L, 1);
+                // convert starts and ends into their obj-c equivalants
+                loc = [[theMap objectForKey:[NSNumber numberWithUnsignedInteger:loc]] unsignedIntegerValue];
+                len = [[theMap objectForKey:[NSNumber numberWithUnsignedInteger:len]] unsignedIntegerValue];
 
-            // convert starts and ends into their obj-c equivalants
-            loc = [[theMap objectForKey:[NSNumber numberWithUnsignedInteger:loc]] unsignedIntegerValue];
-            len = [[theMap objectForKey:[NSNumber numberWithUnsignedInteger:len]] unsignedIntegerValue];
+                lua_getfield(L, -1, "attributes");
+                @try {
+                    [theString setAttributes:[skin luaObjectAtIndex:-1 toClass:"hs.styledtext.AttributesDictionary"]
+                                       range:NSMakeRange(loc, len)];
+                }
+                @catch (NSException *theException) {
+                    [skin logAtLevel:LS_LOG_ERROR
+                         withMessage:[NSString stringWithFormat:@"error creating NSAttributedString from table: %@", [theException name]]
+                        fromStackPos:1] ;
+                    return [[NSAttributedString alloc] init];
+                }
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"skipping style specification %lld: expected table, found %s.",
+                                                            (locInTable - 1),
+                                                            lua_typename(L, lua_type(L, -1))]
 
-            lua_getfield(L, -1, "attributes");
-            @try {
-                [theString setAttributes:[skin luaObjectAtIndex:-1 toClass:"hs.styledtext.AttributesDictionary"]
-                                   range:NSMakeRange(loc, len)];
-            }
-            @catch (NSException *theException) {
-                luaL_error(L, "error creating NSAttributedString from table: %s", [[theException name] UTF8String]);
-                return nil;
+                    fromStackPos:1] ;
             }
             locInTable++;
             lua_pop(L, 1);
@@ -1369,81 +1380,88 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
 // conversion support in LuaSkin makes the code cleaner than it might otherwise be.
 static id table_toAttributesDictionary(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin shared];
-    luaL_checktype(L, idx, LUA_TTABLE);
     NSMutableDictionary *theAttributes = [[NSMutableDictionary alloc] init];
 
-    if (lua_getfield(L, idx, "font") == LUA_TTABLE) {
-        [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSFont"] forKey:NSFontAttributeName];
-    } else if (lua_type(L, -1) == LUA_TSTRING) {
-        [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSFont"] forKey:NSFontAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "paragraphStyle") == LUA_TTABLE) {
-        [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSParagraphStyle"] forKey:NSParagraphStyleAttributeName];
-    }
-    lua_pop(L, 1);
+    if (lua_type(L, idx) ==  LUA_TTABLE) {
+        if (lua_getfield(L, idx, "font") == LUA_TTABLE) {
+            [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSFont"] forKey:NSFontAttributeName];
+        } else if (lua_type(L, -1) == LUA_TSTRING) {
+            [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSFont"] forKey:NSFontAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "paragraphStyle") == LUA_TTABLE) {
+            [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSParagraphStyle"] forKey:NSParagraphStyleAttributeName];
+        }
+        lua_pop(L, 1);
 
-    if (lua_getfield(L, idx, "underlineStyle") == LUA_TNUMBER) {
-        [theAttributes setObject:@(lua_tointeger(L, -1)) forKey:NSUnderlineStyleAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "superscript") == LUA_TNUMBER) {
-        [theAttributes setObject:@(lua_tointeger(L, -1)) forKey:NSSuperscriptAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "ligature") == LUA_TNUMBER) {
-        [theAttributes setObject:@(lua_tointeger(L, -1)) forKey:NSLigatureAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "strikethroughStyle") == LUA_TNUMBER) {
-        [theAttributes setObject:@(lua_tointeger(L, -1)) forKey:NSStrikethroughStyleAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "baselineOffset") == LUA_TNUMBER) {
-        [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSBaselineOffsetAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "kerning") == LUA_TNUMBER) {
-        [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSKernAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "strokeWidth") == LUA_TNUMBER) {
-        [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSStrokeWidthAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "obliqueness") == LUA_TNUMBER) {
-        [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSObliquenessAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "expansion") == LUA_TNUMBER) {
-        [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSExpansionAttributeName];
-    }
-    lua_pop(L, 1);
+        if (lua_getfield(L, idx, "underlineStyle") == LUA_TNUMBER) {
+            [theAttributes setObject:@(lua_tointeger(L, -1)) forKey:NSUnderlineStyleAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "superscript") == LUA_TNUMBER) {
+            [theAttributes setObject:@(lua_tointeger(L, -1)) forKey:NSSuperscriptAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "ligature") == LUA_TNUMBER) {
+            [theAttributes setObject:@(lua_tointeger(L, -1)) forKey:NSLigatureAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "strikethroughStyle") == LUA_TNUMBER) {
+            [theAttributes setObject:@(lua_tointeger(L, -1)) forKey:NSStrikethroughStyleAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "baselineOffset") == LUA_TNUMBER) {
+            [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSBaselineOffsetAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "kerning") == LUA_TNUMBER) {
+            [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSKernAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "strokeWidth") == LUA_TNUMBER) {
+            [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSStrokeWidthAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "obliqueness") == LUA_TNUMBER) {
+            [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSObliquenessAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "expansion") == LUA_TNUMBER) {
+            [theAttributes setObject:@(lua_tonumber(L, -1)) forKey:NSExpansionAttributeName];
+        }
+        lua_pop(L, 1);
 
-    if (lua_getfield(L, idx, "color") == LUA_TTABLE) {
-        [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSForegroundColorAttributeName];
+        if (lua_getfield(L, idx, "color") == LUA_TTABLE) {
+            [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSForegroundColorAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "backgroundColor") == LUA_TTABLE) {
+            [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSBackgroundColorAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "strokeColor") == LUA_TTABLE) {
+            [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSStrokeColorAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "underlineColor") == LUA_TTABLE) {
+            [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSUnderlineColorAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "strikethroughColor") == LUA_TTABLE) {
+            [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSStrikethroughColorAttributeName];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "shadow") == LUA_TTABLE) {
+            [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSShadow"] forKey:NSShadowAttributeName];
+        }
+        lua_pop(L, 1);
+    } else {
+        // since we use this internally only, "tableness" should already be validated, so this shouldn't happen...
+        [skin logAtLevel:LS_LOG_ERROR
+             withMessage:[NSString stringWithFormat:@"invalid attributes dictionary: expected table, found %s",
+                                                    lua_typename(L, lua_type(L, idx))]
+            fromStackPos:0] ;
     }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "backgroundColor") == LUA_TTABLE) {
-        [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSBackgroundColorAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "strokeColor") == LUA_TTABLE) {
-        [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSStrokeColorAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "underlineColor") == LUA_TTABLE) {
-        [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSUnderlineColorAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "strikethroughColor") == LUA_TTABLE) {
-        [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSColor"] forKey:NSStrikethroughColorAttributeName];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "shadow") == LUA_TTABLE) {
-        [theAttributes setObject:[skin luaObjectAtIndex:-1 toClass:"NSShadow"] forKey:NSShadowAttributeName];
-    }
-    lua_pop(L, 1);
 
     return theAttributes;
 }
@@ -1502,9 +1520,7 @@ static id table_toNSFont(lua_State *L, int idx) {
 
     if (lua_type(L, idx) == LUA_TSTRING) {
         theName = [skin toNSObjectAtIndex:idx];
-    } else {
-        luaL_checktype(L, idx, LUA_TTABLE);
-
+    } else if (lua_type(L, idx) == LUA_TTABLE) {
         if (lua_getfield(L, idx, "name") == LUA_TSTRING) {
             theName = [skin toNSObjectAtIndex:-1];
         }
@@ -1514,14 +1530,22 @@ static id table_toNSFont(lua_State *L, int idx) {
             theSize = lua_tonumber(L, -1);
         }
         lua_pop(L, 1);
+    } else {
+        [skin logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"invalid font: expected table or string, found %s",
+                                                    lua_typename(L, lua_type(L, idx))]
+            fromStackPos:1] ;
     }
 
     NSFont *theFont = [NSFont fontWithName:theName size:theSize];
     if (theFont) {
         return theFont;
     } else {
-        luaL_error(L, "invalid font specified: %s", [theName UTF8String]);
-        return nil;
+        [skin logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"invalid font specified: %@", theName]
+            fromStackPos:1] ;
+
+        return [[NSFont systemFontOfSize:0] fontName];
     }
 }
 
@@ -1567,20 +1591,25 @@ static id table_toNSShadow(lua_State *L, int idx) {
     //   color      = { NSColor table representation described in hs.drawing.color },
     // }
     LuaSkin *skin = [LuaSkin shared];
-    luaL_checktype(L, idx, LUA_TTABLE);
     NSShadow *theShadow = [[NSShadow alloc] init];
-    if (lua_getfield(L, idx, "offset") == LUA_TTABLE) {
-        [theShadow setShadowOffset:[skin tableToSizeAtIndex:-1]];
+    if (lua_type(L, idx) == LUA_TTABLE) {
+        if (lua_getfield(L, idx, "offset") == LUA_TTABLE) {
+            [theShadow setShadowOffset:[skin tableToSizeAtIndex:-1]];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "blurRadius") == LUA_TNUMBER) {
+            [theShadow setShadowBlurRadius:lua_tonumber(L, -1)];
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "color") == LUA_TTABLE) {
+            [theShadow setShadowColor:[skin luaObjectAtIndex:-1 toClass:"NSColor"]];
+        }
+        lua_pop(L, 1);
+    } else {
+        [skin logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"invalid shadow object: expected table, found %s", lua_typename(L, lua_type(L, idx))]
+            fromStackPos:1] ;
     }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "blurRadius") == LUA_TNUMBER) {
-        [theShadow setShadowBlurRadius:luaL_checknumber(L, -1)];
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "color") == LUA_TTABLE) {
-        [theShadow setShadowColor:[skin luaObjectAtIndex:-1 toClass:"NSColor"]];
-    }
-    lua_pop(L, 1);
     return theShadow;
 }
 
@@ -1744,204 +1773,226 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
     //   tabStops                      = array of tabStop tables
     // }
     LuaSkin *skin = [LuaSkin shared];
-    luaL_checktype(L, idx, LUA_TTABLE);
     NSMutableParagraphStyle *thePS = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+    if (lua_type(L, idx) == LUA_TTABLE) {
+        if (lua_getfield(L, idx, "alignment") == LUA_TSTRING) {
+            NSString *theString = [skin toNSObjectAtIndex:-1];
+            if ([theString isEqualToString:@"left"]) {
+                thePS.alignment = NSLeftTextAlignment;
+            } else if ([theString isEqualToString:@"right"]) {
+                thePS.alignment = NSRightTextAlignment;
+            } else if ([theString isEqualToString:@"center"]) {
+                thePS.alignment = NSCenterTextAlignment;
+            } else if ([theString isEqualToString:@"justified"]) {
+                thePS.alignment = NSJustifiedTextAlignment;
+            } else if ([theString isEqualToString:@"natural"]) {
+                thePS.alignment = NSNaturalTextAlignment;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"invalid alignment specified: %@", theString]
+                    fromStackPos:1] ;
+            }
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "lineBreak") == LUA_TSTRING) {
+            NSString *theString = [skin toNSObjectAtIndex:-1];
+            if ([theString isEqualToString:@"charWrap"]) {
+                thePS.lineBreakMode = NSLineBreakByCharWrapping;
+            } else if ([theString isEqualToString:@"clip"]) {
+                thePS.lineBreakMode = NSLineBreakByClipping;
+            } else if ([theString isEqualToString:@"truncateHead"]) {
+                thePS.lineBreakMode = NSLineBreakByTruncatingHead;
+            } else if ([theString isEqualToString:@"truncateTail"]) {
+                thePS.lineBreakMode = NSLineBreakByTruncatingTail;
+            } else if ([theString isEqualToString:@"truncateMiddle"]) {
+                thePS.lineBreakMode = NSLineBreakByTruncatingMiddle;
+            } else if ([theString isEqualToString:@"wordWrap"]) {
+                thePS.lineBreakMode = NSLineBreakByWordWrapping;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"invalid lineBreakMode: %@", theString]
+                    fromStackPos:1] ;
+            }
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "baseWritingDirection") == LUA_TSTRING) {
+            NSString *theString = [skin toNSObjectAtIndex:-1];
+            if ([theString isEqualToString:@"leftToRight"]) {
+                thePS.baseWritingDirection = NSWritingDirectionLeftToRight;
+            } else if ([theString isEqualToString:@"rightToLeft"]) {
+                thePS.baseWritingDirection = NSWritingDirectionRightToLeft;
+            } else if (![theString isEqualToString:@"natural"]) {
+                thePS.baseWritingDirection = NSWritingDirectionNatural;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"invalid baseWritingDirection: %@", theString]
+                    fromStackPos:1] ;
+            }
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "defaultTabInterval") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0) {
+                thePS.defaultTabInterval = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"defaultTabInterval must be non-negative"
+                    fromStackPos:1] ;
+            }
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "firstLineHeadIndent") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0) {
+                thePS.firstLineHeadIndent = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"firstLineHeadIndent must be non-negative"
+                    fromStackPos:1] ;
+            }
+        }
+        lua_pop(L, 1);
 
-    if (lua_getfield(L, idx, "alignment") == LUA_TSTRING) {
-        NSString *theString = [skin toNSObjectAtIndex:-1];
-        if ([theString isEqualToString:@"left"]) {
-            thePS.alignment = NSLeftTextAlignment;
-        } else if ([theString isEqualToString:@"right"]) {
-            thePS.alignment = NSRightTextAlignment;
-        } else if ([theString isEqualToString:@"center"]) {
-            thePS.alignment = NSCenterTextAlignment;
-        } else if ([theString isEqualToString:@"justified"]) {
-            thePS.alignment = NSJustifiedTextAlignment;
-        } else if ([theString isEqualToString:@"natural"]) {
-            thePS.alignment = NSNaturalTextAlignment;
-        } else {
-            luaL_error(L, [[NSString stringWithFormat:@"invalid alignment: %@", theString] UTF8String]);
-            return nil;
+        if (lua_getfield(L, idx, "headIndent") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0) {
+                thePS.headIndent = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"headIndent must be non-negative"
+                    fromStackPos:1] ;
+            }
         }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "lineBreak") == LUA_TSTRING) {
-        NSString *theString = [skin toNSObjectAtIndex:-1];
-        if ([theString isEqualToString:@"wordWrap"]) {
-            thePS.lineBreakMode = NSLineBreakByWordWrapping;
-        } else if ([theString isEqualToString:@"charWrap"]) {
-            thePS.lineBreakMode = NSLineBreakByCharWrapping;
-        } else if ([theString isEqualToString:@"clip"]) {
-            thePS.lineBreakMode = NSLineBreakByClipping;
-        } else if ([theString isEqualToString:@"truncateHead"]) {
-            thePS.lineBreakMode = NSLineBreakByTruncatingHead;
-        } else if ([theString isEqualToString:@"truncateTail"]) {
-            thePS.lineBreakMode = NSLineBreakByTruncatingTail;
-        } else if ([theString isEqualToString:@"truncateMiddle"]) {
-            thePS.lineBreakMode = NSLineBreakByTruncatingMiddle;
-        } else {
-            luaL_error(L, [[NSString stringWithFormat:@"invalid lineBreakMode: %@", theString] UTF8String]);
-            return nil;
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "tailIndent") == LUA_TNUMBER) {
+            thePS.tailIndent = lua_tonumber(L, -1);
         }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "baseWritingDirection") == LUA_TSTRING) {
-        NSString *theString = [skin toNSObjectAtIndex:-1];
-        if ([theString isEqualToString:@"natural"]) {
-            thePS.baseWritingDirection = NSWritingDirectionNatural;
-        } else if ([theString isEqualToString:@"leftToRight"]) {
-            thePS.baseWritingDirection = NSWritingDirectionLeftToRight;
-        } else if ([theString isEqualToString:@"rightToLeft"]) {
-            thePS.baseWritingDirection = NSWritingDirectionRightToLeft;
-        } else {
-            luaL_error(L, [[NSString stringWithFormat:@"invalid baseWritingDirection: %@", theString] UTF8String]);
-            return nil;
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "maximumLineHeight") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0) {
+                thePS.maximumLineHeight = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"maximumLineHeight must be non-negative"
+                    fromStackPos:1] ;
+            }
         }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "defaultTabInterval") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0) {
-            thePS.defaultTabInterval = theNumber;
-        } else {
-            luaL_error(L, "defaultTabInterval must be non-negative");
-            return nil;
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "minimumLineHeight") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0) {
+                thePS.minimumLineHeight = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"minimumLineHeight must be non-negative"
+                    fromStackPos:1] ;
+            }
         }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "firstLineHeadIndent") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0) {
-            thePS.firstLineHeadIndent = theNumber;
-        } else {
-            luaL_error(L, "firstLineHeadIndent must be non-negative");
-            return nil;
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "lineSpacing") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0) {
+                thePS.lineSpacing = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"lineSpacing must be non-negative"
+                    fromStackPos:1] ;
+            }
         }
-    }
-    lua_pop(L, 1);
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "paragraphSpacing") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0) {
+                thePS.paragraphSpacing = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"paragraphSpacing must be non-negative"
+                    fromStackPos:1] ;
+            }
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "paragraphSpacingBefore") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0) {
+                thePS.paragraphSpacingBefore = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"paragraphSpacingBefore must be non-negative"
+                    fromStackPos:1] ;
+            }
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "lineHeightMultiple") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0) {
+                thePS.lineHeightMultiple = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"lineHeightMultiple must be non-negative"
+                    fromStackPos:1] ;
+            }
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "hyphenationFactor") == LUA_TNUMBER) {
+            lua_Number theNumber = lua_tonumber(L, -1);
+            if (theNumber >= 0.0 && theNumber <= 1.0) {
+                thePS.hyphenationFactor = (float)theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"hyphenationFactor must be between 0.0 and 1.0 inclusive"
+                    fromStackPos:1] ;
+            }
+        }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "tighteningFactorForTruncation") == LUA_TNUMBER) {
+            thePS.tighteningFactorForTruncation = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        // Doesn't seem to actually be in the API yet...
+        //     if ([thePS respondsToSelector:@selector(allowsDefaultTighteningForTruncation)]) {
+        //         if(lua_getfield(L, -1, "allowsDefaultTighteningForTruncation") == LUA_TBOOLEAN) {
+        //             thePS.allowsDefaultTighteningForTruncation = lua_toboolean(L, -1);
+        //         }
+        //         lua_pop(L, 1);
+        //     }
 
-    if (lua_getfield(L, idx, "headIndent") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0) {
-            thePS.headIndent = theNumber;
-        } else {
-            luaL_error(L, "headIndent must be non-negative");
-            return nil;
+        if (lua_getfield(L, idx, "headerLevel") == LUA_TNUMBER) {
+            lua_Integer theNumber = lua_tointeger(L, -1);
+            if (theNumber >= 0 && theNumber <= 6) {
+                thePS.headerLevel = theNumber;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:@"headerNumber must be between 0 and 6 inclusive"
+                    fromStackPos:1] ;
+            }
         }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "tailIndent") == LUA_TNUMBER) {
-        thePS.tailIndent = lua_tonumber(L, -1);
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "maximumLineHeight") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0) {
-            thePS.maximumLineHeight = theNumber;
-        } else {
-            luaL_error(L, "maximumLineHeight must be non-negative");
-            return nil;
-        }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "minimumLineHeight") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0) {
-            thePS.minimumLineHeight = theNumber;
-        } else {
-            luaL_error(L, "minimumLineHeight must be non-negative");
-            return nil;
-        }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "lineSpacing") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0) {
-            thePS.lineSpacing = theNumber;
-        } else {
-            luaL_error(L, "lineSpacing must be non-negative");
-            return nil;
-        }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "paragraphSpacing") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0) {
-            thePS.paragraphSpacing = theNumber;
-        } else {
-            luaL_error(L, "paragraphSpacing must be non-negative");
-            return nil;
-        }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "paragraphSpacingBefore") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0) {
-            thePS.paragraphSpacingBefore = theNumber;
-        } else {
-            luaL_error(L, "paragraphSpacingBefore must be non-negative");
-            return nil;
-        }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "lineHeightMultiple") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0) {
-            thePS.lineHeightMultiple = theNumber;
-        } else {
-            luaL_error(L, "lineHeightMultiple must be non-negative");
-            return nil;
-        }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "hyphenationFactor") == LUA_TNUMBER) {
-        lua_Number theNumber = lua_tonumber(L, -1);
-        if (theNumber >= 0.0 && theNumber <= 1.0) {
-            thePS.hyphenationFactor = (float)theNumber;
-        } else {
-            luaL_error(L, "hyphenationFactor must be between 0.0 and 1.0 inclusive");
-            return nil;
-        }
-    }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "tighteningFactorForTruncation") == LUA_TNUMBER) {
-        thePS.tighteningFactorForTruncation = (float)lua_tonumber(L, -1);
-    }
-    lua_pop(L, 1);
-    // Doesn't seem to actually be in the API yet...
-    //     if ([thePS respondsToSelector:@selector(allowsDefaultTighteningForTruncation)]) {
-    //         if(lua_getfield(L, -1, "allowsDefaultTighteningForTruncation") == LUA_TBOOLEAN) {
-    //             thePS.allowsDefaultTighteningForTruncation = lua_toboolean(L, -1);
-    //         }
-    //         lua_pop(L, 1);
-    //     }
+        lua_pop(L, 1);
 
-    if (lua_getfield(L, idx, "headerLevel") == LUA_TNUMBER) {
-        lua_Integer theNumber = luaL_checkinteger(L, -1);
-        if (theNumber >= 0 && theNumber <= 6) {
-            thePS.headerLevel = theNumber;
-        } else {
-            luaL_error(L, "headerNumber must be between 0 and 6 inclusive");
-            return nil;
+        if (lua_getfield(L, idx, "tabStops") == LUA_TTABLE) {
+            NSMutableArray *theTabStops = [[NSMutableArray alloc] init];
+            lua_Integer pos             = 1;
+
+            while (lua_rawgeti(L, -1, pos) != LUA_TNIL) {
+                if (lua_type(L, -1) == LUA_TTABLE) {
+                    [theTabStops addObject:[skin luaObjectAtIndex:-1 toClass:"NSTextTab"]];
+                    lua_pop(L, 1); // the tabStop table we just looked at
+                } else {
+                    [skin logAtLevel:LS_LOG_WARN
+                         withMessage:[NSString stringWithFormat:@"invalid tapStop at position %lld: expected table, found %s", pos, lua_typename(L, lua_type(L, -1))]
+                        fromStackPos:1] ;
+                }
+                pos++;
+            }
+            lua_pop(L, 1); // loop terminating nil
+            thePS.tabStops = theTabStops;
         }
+        lua_pop(L, 1);
+    } else {
+        [skin logAtLevel:LS_LOG_WARN
+             withMessage:[NSString stringWithFormat:@"invalid paragraphStyle: expected table, found %s", lua_typename(L, lua_type(L, idx))]
+            fromStackPos:1] ;
     }
-    lua_pop(L, 1);
-
-    if (lua_getfield(L, idx, "tabStops") == LUA_TTABLE) {
-        NSMutableArray *theTabStops = [[NSMutableArray alloc] init];
-        lua_Integer pos             = 1;
-
-        while (lua_rawgeti(L, -1, pos) != LUA_TNIL) {
-            luaL_checktype(L, -1, LUA_TTABLE);
-            [theTabStops addObject:[skin luaObjectAtIndex:-1 toClass:"NSTextTab"]];
-            lua_pop(L, 1); // the tabStop table we just looked at
-            pos++;
-        }
-        lua_pop(L, 1); // loop terminating nil
-        thePS.tabStops = theTabStops;
-    }
-    lua_pop(L, 1);
-
     return thePS;
 }
 
@@ -2059,32 +2110,36 @@ static id table_toNSTextTab(lua_State *L, int idx) {
     //   tabStopType = string
     // }
     LuaSkin *skin = [LuaSkin shared];
-    luaL_checktype(L, idx, LUA_TTABLE);
-
     NSTextTabType tabStopType = NSLeftTabStopType;
     CGFloat tabStopLocation   = 0.0;
-
-    if (lua_getfield(L, idx, "tabStopType") == LUA_TSTRING) {
-        NSString *theString = [skin toNSObjectAtIndex:-1];
-        if ([theString isEqualToString:@"left"]) {
-            tabStopType = NSLeftTabStopType;
-        } else if ([theString isEqualToString:@"right"]) {
-            tabStopType = NSRightTabStopType;
-        } else if ([theString isEqualToString:@"center"]) {
-            tabStopType = NSCenterTabStopType;
-        } else if ([theString isEqualToString:@"decimal"]) {
-            tabStopType = NSDecimalTabStopType;
-        } else {
-            luaL_error(L, [[NSString stringWithFormat:@"invalid tabStopType: %@", theString] UTF8String]);
-            return nil;
+    if (lua_type(L, idx) == LUA_TTABLE) {
+        if (lua_getfield(L, idx, "tabStopType") == LUA_TSTRING) {
+            NSString *theString = [skin toNSObjectAtIndex:-1];
+            if ([theString isEqualToString:@"left"]) {
+                tabStopType = NSLeftTabStopType;
+            } else if ([theString isEqualToString:@"right"]) {
+                tabStopType = NSRightTabStopType;
+            } else if ([theString isEqualToString:@"center"]) {
+                tabStopType = NSCenterTabStopType;
+            } else if ([theString isEqualToString:@"decimal"]) {
+                tabStopType = NSDecimalTabStopType;
+            } else {
+                [skin logAtLevel:LS_LOG_WARN
+                     withMessage:[NSString stringWithFormat:@"invalid tabStopType: %@", theString]
+                    fromStackPos:1] ;
+            }
         }
+        lua_pop(L, 1);
+        if (lua_getfield(L, idx, "location") == LUA_TNUMBER) {
+            tabStopLocation = lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+    } else {
+        // since this is only used internally, "tableness" should have already been checked...
+        [skin logAtLevel:LS_LOG_ERROR
+             withMessage:[NSString stringWithFormat:@"invalid type for tabStop: expected table, found %s", lua_typename(L, lua_type(L, idx))]
+            fromStackPos:0] ;
     }
-    lua_pop(L, 1);
-    if (lua_getfield(L, idx, "location") == LUA_TNUMBER) {
-        tabStopLocation = lua_tonumber(L, -1);
-    }
-    lua_pop(L, 1);
-
     return [[NSTextTab alloc] initWithType:tabStopType location:tabStopLocation];
 }
 
@@ -2254,20 +2309,20 @@ int luaopen_hs_styledtext_internal(lua_State *__unused L) {
     defineLineAppliesTo(L);
     lua_setfield(L, -2, "lineAppliesTo");
 
-    [skin registerPushNSHelper:NSShadow_toLua forClass:"NSShadow"];
-    [skin registerLuaObjectHelper:table_toNSShadow forClass:"NSShadow"];
+    [skin registerPushNSHelper:NSShadow_toLua                  forClass:"NSShadow"];
+    [skin registerLuaObjectHelper:table_toNSShadow             forClass:"NSShadow"];
 
-    [skin registerPushNSHelper:NSParagraphStyle_toLua forClass:"NSParagraphStyle"];
-    [skin registerLuaObjectHelper:table_toNSParagraphStyle forClass:"NSParagraphStyle"];
+    [skin registerPushNSHelper:NSParagraphStyle_toLua          forClass:"NSParagraphStyle"];
+    [skin registerLuaObjectHelper:table_toNSParagraphStyle     forClass:"NSParagraphStyle"];
 
-    [skin registerPushNSHelper:NSTextTab_toLua forClass:"NSTextTab"];
-    [skin registerLuaObjectHelper:table_toNSTextTab forClass:"NSTextTab"];
+    [skin registerPushNSHelper:NSTextTab_toLua                 forClass:"NSTextTab"];
+    [skin registerLuaObjectHelper:table_toNSTextTab            forClass:"NSTextTab"];
 
-    [skin registerPushNSHelper:NSFont_toLua forClass:"NSFont"];
-    [skin registerLuaObjectHelper:table_toNSFont forClass:"NSFont"];
+    [skin registerPushNSHelper:NSFont_toLua                    forClass:"NSFont"];
+    [skin registerLuaObjectHelper:table_toNSFont               forClass:"NSFont"];
 
-    [skin registerPushNSHelper:NSAttributedString_toLua forClass:"NSAttributedString"];
-    [skin registerLuaObjectHelper:lua_toNSAttributedString forClass:"NSAttributedString"];
+    [skin registerPushNSHelper:NSAttributedString_toLua        forClass:"NSAttributedString"];
+    [skin registerLuaObjectHelper:lua_toNSAttributedString     forClass:"NSAttributedString"];
 
     [skin registerLuaObjectHelper:table_toAttributesDictionary forClass:"hs.styledtext.AttributesDictionary"];
 
