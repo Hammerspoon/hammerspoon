@@ -373,40 +373,41 @@ static int http_urlParts(lua_State *L) {
 // I do hope to use them here when I get a chance, so as to provide a more consistent user experience.
 
 static int NSURLResponse_toLua(lua_State *L, id obj) {
+    LuaSkin *skin = [LuaSkin shared] ;
     NSURLResponse *theResponse = obj ;
 
     lua_newtable(L) ;
-        lua_pushinteger(L, [theResponse expectedContentLength]) ;         lua_setfield(L, -2, "expectedContentLength") ;
-        [[LuaSkin shared] pushNSObject:[theResponse suggestedFilename]] ; lua_setfield(L, -2, "suggestedFilename") ;
-        [[LuaSkin shared] pushNSObject:[theResponse MIMEType]] ;          lua_setfield(L, -2, "MIMEType") ;
-        [[LuaSkin shared] pushNSObject:[theResponse textEncodingName]] ;  lua_setfield(L, -2, "textEncodingName") ;
-        [[LuaSkin shared] pushNSObject:[theResponse URL]] ;               lua_setfield(L, -2, "URL") ;
+        lua_pushinteger(L, [theResponse expectedContentLength]) ; lua_setfield(L, -2, "expectedContentLength") ;
+        [skin pushNSObject:[theResponse suggestedFilename]] ;     lua_setfield(L, -2, "suggestedFilename") ;
+        [skin pushNSObject:[theResponse MIMEType]] ;              lua_setfield(L, -2, "MIMEType") ;
+        [skin pushNSObject:[theResponse textEncodingName]] ;      lua_setfield(L, -2, "textEncodingName") ;
+        [skin pushNSObject:[theResponse URL]] ;                   lua_setfield(L, -2, "URL") ;
 
         if ([obj isKindOfClass:[NSHTTPURLResponse class]]) {
             NSHTTPURLResponse *theHTTPResponse = obj ;
-
-            lua_pushinteger(L, [theHTTPResponse statusCode]) ;                  lua_setfield(L, -2, "statusCode") ;
-            [[LuaSkin shared] pushNSObject:[NSHTTPURLResponse localizedStringForStatusCode:[theHTTPResponse statusCode]]] ;
+            lua_pushinteger(L, [theHTTPResponse statusCode]) ;      lua_setfield(L, -2, "statusCode") ;
+            [skin pushNSObject:[NSHTTPURLResponse localizedStringForStatusCode:[theHTTPResponse statusCode]]] ;
             lua_setfield(L, -2, "statusCodeDescription") ;
-            [[LuaSkin shared] pushNSObject:[theHTTPResponse allHeaderFields]] ; lua_setfield(L, -2, "allHeaderFields") ;
+            [skin pushNSObject:[theHTTPResponse allHeaderFields]] ; lua_setfield(L, -2, "allHeaderFields") ;
         }
 
     return 1 ;
 }
 
 static int NSURLRequest_toLua(lua_State *L, id obj) {
+    LuaSkin *skin = [LuaSkin shared] ;
     NSURLRequest *request = obj ;
 
     lua_newtable(L) ;
-      [[LuaSkin shared] pushNSObject:[request mainDocumentURL]] ;     lua_setfield(L, -2, "mainDocumentURL") ;
-      [[LuaSkin shared] pushNSObject:[request URL]] ;                 lua_setfield(L, -2, "URL") ;
-      [[LuaSkin shared] pushNSObject:[request allHTTPHeaderFields]] ; lua_setfield(L, -2, "HTTPHeaderFields") ;
-      [[LuaSkin shared] pushNSObject:[request HTTPBody]] ;            lua_setfield(L, -2, "HTTPBody") ;
-      [[LuaSkin shared] pushNSObject:[request HTTPMethod]] ;          lua_setfield(L, -2, "HTTPMethod") ;
+      [skin pushNSObject:[request mainDocumentURL]] ;         lua_setfield(L, -2, "mainDocumentURL") ;
+      [skin pushNSObject:[request URL]] ;                     lua_setfield(L, -2, "URL") ;
+      [skin pushNSObject:[request allHTTPHeaderFields]] ;     lua_setfield(L, -2, "HTTPHeaderFields") ;
+      [skin pushNSObject:[request HTTPBody]] ;                lua_setfield(L, -2, "HTTPBody") ;
+      [skin pushNSObject:[request HTTPMethod]] ;              lua_setfield(L, -2, "HTTPMethod") ;
 
-      lua_pushnumber(L, [request timeoutInterval]) ;                  lua_setfield(L, -2, "timeoutInterval") ;
-      lua_pushboolean(L, [request HTTPShouldHandleCookies]) ;         lua_setfield(L, -2, "HTTPShouldHandleCookies") ;
-      lua_pushboolean(L, [request HTTPShouldUsePipelining]) ;         lua_setfield(L, -2, "HTTPShouldUsePipelining") ;
+      lua_pushnumber(L, [request timeoutInterval]) ;          lua_setfield(L, -2, "timeoutInterval") ;
+      lua_pushboolean(L, [request HTTPShouldHandleCookies]) ; lua_setfield(L, -2, "HTTPShouldHandleCookies") ;
+      lua_pushboolean(L, [request HTTPShouldUsePipelining]) ; lua_setfield(L, -2, "HTTPShouldUsePipelining") ;
 
 //  Are there any macs which support this?
 //       lua_pushboolean(L, [request allowsCellularAccess]) ;            lua_setfield(L, -2, "allowsCellularAccess") ;
@@ -415,11 +416,11 @@ static int NSURLRequest_toLua(lua_State *L, id obj) {
 //   for others who reuse these converters... not worth it until it is needed.
 
       switch([request cachePolicy]) {
-          case NSURLRequestUseProtocolCachePolicy:        lua_pushstring(L, "protocolCachePolicy") ; break ;
-          case NSURLRequestReloadIgnoringLocalCacheData:  lua_pushstring(L, "ignoreLocalCache") ; break ;
-          case NSURLRequestReturnCacheDataElseLoad:       lua_pushstring(L, "returnCacheOrLoad") ; break ;
-          case NSURLRequestReturnCacheDataDontLoad:       lua_pushstring(L, "returnCacheDontLoad") ; break ;
-          default:                                        lua_pushstring(L, "unknown") ; break ;
+          case NSURLRequestUseProtocolCachePolicy:       lua_pushstring(L, "protocolCachePolicy") ; break ;
+          case NSURLRequestReloadIgnoringLocalCacheData: lua_pushstring(L, "ignoreLocalCache") ; break ;
+          case NSURLRequestReturnCacheDataElseLoad:      lua_pushstring(L, "returnCacheOrLoad") ; break ;
+          case NSURLRequestReturnCacheDataDontLoad:      lua_pushstring(L, "returnCacheDontLoad") ; break ;
+          default:                                       lua_pushstring(L, "unknown") ; break ;
       }
       lua_setfield(L, -2, "cachePolicy") ;
 
@@ -436,23 +437,23 @@ static int NSURLRequest_toLua(lua_State *L, id obj) {
 }
 
 static id table_toNSURLRequest(lua_State* L, int idx) {
+    LuaSkin *skin = [LuaSkin shared] ;
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init] ;
 
     lua_pushvalue(L, idx) ;
     switch (lua_type(L, idx)) {
         case LUA_TTABLE:
             if (lua_getfield(L, -1, "URL") == LUA_TSTRING) {
-                [request setURL:[NSURL URLWithString:[[LuaSkin shared] toNSObjectAtIndex:-1]]] ;
+                [request setURL:[NSURL URLWithString:[skin toNSObjectAtIndex:-1]]] ;
             } else {
                 lua_pop(L, 2) ;
-                NSLog(@"URL field missing in NSURLRequest table - returning nil") ;
-                showError(L, "URL field missing in NSURLRequest table") ;
+                [skin logError:@"URL field missing in NSURLRequest table"] ;
                 return nil ;
             }
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, -1, "mainDocumentURL") == LUA_TSTRING)
-                [request setMainDocumentURL:[NSURL URLWithString:[[LuaSkin shared] toNSObjectAtIndex:-1]]] ;
+                [request setMainDocumentURL:[NSURL URLWithString:[skin toNSObjectAtIndex:-1]]] ;
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, -1, "HTTPBody") == LUA_TSTRING) {
@@ -463,7 +464,7 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, -1, "HTTPMethod") == LUA_TSTRING)   // TODO: should probably validate
-                [request setHTTPMethod:[[LuaSkin shared] toNSObjectAtIndex:-1]] ;
+                [request setHTTPMethod:[skin toNSObjectAtIndex:-1]] ;
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, -1, "timeoutInterval") == LUA_TNUMBER)
@@ -479,7 +480,7 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, -1, "cachePolicy") == LUA_TSTRING) {
-                NSString *cp = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                NSString *cp = [skin toNSObjectAtIndex:-1] ;
                 if ([cp isEqualToString:@"protocolCachePolicy"]) { [request setCachePolicy:NSURLRequestUseProtocolCachePolicy] ; } else
                 if ([cp isEqualToString:@"ignoreLocalCache"])    { [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData] ; } else
                 if ([cp isEqualToString:@"returnCacheOrLoad"])   { [request setCachePolicy:NSURLRequestReturnCacheDataElseLoad] ; } else
@@ -488,7 +489,7 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, -1, "networkServiceType") == LUA_TSTRING) {
-                NSString *nst = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                NSString *nst = [skin toNSObjectAtIndex:-1] ;
                 if ([nst isEqualToString:@"default"])    { [request setNetworkServiceType:NSURLNetworkServiceTypeDefault] ; } else
                 if ([nst isEqualToString:@"VoIP"])       { [request setNetworkServiceType:NSURLNetworkServiceTypeVoIP] ; } else
                 if ([nst isEqualToString:@"video"])      { [request setNetworkServiceType:NSURLNetworkServiceTypeVideo] ; } else
@@ -498,7 +499,7 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
             lua_pop(L, 1) ;
 
             if (lua_getfield(L, -1, "HTTPHeaderFields") == LUA_TTABLE) {
-                NSMutableDictionary *fields = [[[LuaSkin shared] toNSObjectAtIndex:-1] mutableCopy] ;
+                NSMutableDictionary *fields = [[skin toNSObjectAtIndex:-1] mutableCopy] ;
                 NSMutableArray      *toRemove = [[NSMutableArray alloc] init] ;
 
                 // remove fields which are automatically handled or have non-string keys, convert numbers to strings
@@ -532,11 +533,11 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
             break ;
 
         case LUA_TSTRING:
-            request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[[LuaSkin shared] toNSObjectAtIndex:idx]]] ;
+            request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[skin toNSObjectAtIndex:idx]]] ;
             break ;
 
         default:
-            showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed as a NSURLRequest: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
+            [skin logError:[NSString stringWithFormat:@"Unexpected type passed as a NSURLRequest: %s", lua_typename(L, lua_type(L, idx))]] ;
             return nil ;
     }
 
@@ -577,8 +578,8 @@ int luaopen_hs_http_internal(lua_State* L __unused) {
     delegates = [[NSMutableArray alloc] init];
     refTable = [skin registerLibrary:httplib metaFunctions:metalib];
 
-    [[LuaSkin shared] registerPushNSHelper:NSURLRequest_toLua  forClass:"NSURLRequest"] ;
-    [[LuaSkin shared] registerPushNSHelper:NSURLResponse_toLua forClass:"NSURLResponse"] ;
+    [[LuaSkin shared] registerPushNSHelper:NSURLRequest_toLua      forClass:"NSURLRequest"] ;
+    [[LuaSkin shared] registerPushNSHelper:NSURLResponse_toLua     forClass:"NSURLResponse"] ;
 
     [[LuaSkin shared] registerLuaObjectHelper:table_toNSURLRequest forClass:"NSURLRequest"] ;
 

@@ -133,6 +133,7 @@ static int NSColorList_tolua(lua_State *L, id obj) {
 
 #define COLOR_LOOP_LEVEL 10
 static id table_toNSColorHelper(lua_State *L, int idx, int level) {
+    LuaSkin *skin = [LuaSkin shared] ;
     CGFloat red = 0.0, green = 0.0, blue = 0.0, alpha = 1.0 ;
     CGFloat hue = 0.0, saturation = 0.0, brightness = 0.0 ;
     CGFloat white = 0.0 ;
@@ -146,10 +147,10 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
         switch (lua_type(L, idx)) {
             case LUA_TTABLE:
                 if (lua_getfield(L, idx, "list") == LUA_TSTRING)
-                    colorList = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                    colorList = [skin toNSObjectAtIndex:-1] ;
                 lua_pop(L, 1) ;
                 if (lua_getfield(L, idx, "name") == LUA_TSTRING)
-                    colorName = [[LuaSkin shared] toNSObjectAtIndex:-1] ;
+                    colorName = [skin toNSObjectAtIndex:-1] ;
                 lua_pop(L, 1) ;
 
                 if (lua_getfield(L, idx, "red") == LUA_TNUMBER)
@@ -184,15 +185,16 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
 
                 break;
             default:
-                luaL_error(L, [[NSString stringWithFormat:@"Unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))] UTF8String]) ;
-                return nil ;
+                [skin logAtLevel:LS_LOG_ERROR
+                     withMessage:[NSString stringWithFormat:@"returning BLACK, unexpected type passed as a color: %s", lua_typename(L, lua_type(L, idx))]
+                    fromStackPos:1] ;
         }
 
         if (colorList && colorName) {
             NSColor *holding = [[NSColorList colorListNamed:colorList] colorWithKey:colorName] ;
             if (holding) return holding ;
             if (colorCollectionsTable != LUA_NOREF) {
-                [[LuaSkin shared] pushLuaRef:refTable ref:colorCollectionsTable] ;
+                [skin pushLuaRef:refTable ref:colorCollectionsTable] ;
                 if (lua_getfield(L, -1, [colorList UTF8String]) == LUA_TTABLE) {
                     if (lua_getfield(L, -1, [colorName UTF8String]) == LUA_TTABLE) {
                         holding = table_toNSColorHelper(L, lua_absindex(L, -1), level + 1) ;
@@ -204,8 +206,9 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
             if (holding) return holding ;
         }
     } else {
-        CLS_NSLOG(@"color list/name combination level > %d: returning BLACK to prevent possible loop", COLOR_LOOP_LEVEL) ;
-        showError(L, (char *)[[NSString stringWithFormat:@"color list/name combination level > %d: returning BLACK to prevent possible loop", COLOR_LOOP_LEVEL] UTF8String]) ;
+        [skin logAtLevel:LS_LOG_ERROR
+             withMessage:[NSString stringWithFormat:@"returning BLACK, color list/name dereference depth > %d: loop?", COLOR_LOOP_LEVEL]
+            fromStackPos:1] ;
     }
 
     if (RGBColor) {
