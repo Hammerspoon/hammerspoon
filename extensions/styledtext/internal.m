@@ -613,6 +613,7 @@ static int defineDefaultFonts(lua_State *L) {
     [skin pushNSObject:[NSFont userFixedPitchFontOfSize:0]] ; lua_setfield(L, -2, "userFixedPitch") ;
     return 1 ;
 }
+
 #pragma mark - Methods unique to hs.styledtext objects
 
 /// hs.styledtext:copy(styledText) -> styledText object
@@ -2325,6 +2326,7 @@ static luaL_Reg moduleLib[] = {
     {"fontNamesWithTraits", fontNamesWithTraits},
 
     {"_defaultFonts", defineDefaultFonts},
+
     {NULL, NULL}};
 
 // // Metatable for module, if needed

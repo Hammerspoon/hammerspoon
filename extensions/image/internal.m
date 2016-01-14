@@ -5,8 +5,6 @@
 
 #define USERDATA_TAG "hs.image"
 
-#pragma mark - Support Functions
-
 #pragma mark - Module Constants
 
 /// hs.image.systemImageNames[]
@@ -367,7 +365,7 @@ static int setImageSize(lua_State* L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     NSImage *theImage = [[skin luaObjectAtIndex:1 toClass:"NSImage"] copy] ;
     NSSize  destSize  = [skin tableToSizeAtIndex:2] ;
-    BOOL    absolute  = (lua_gettop(L) == 3) ? lua_toboolean(L, 3) : NO ;
+    BOOL    absolute  = (lua_gettop(L) == 3) ? (BOOL)lua_toboolean(L, 3) : NO ;
     if (absolute) {
         [theImage setSize:destSize] ;
     } else {
@@ -454,7 +452,7 @@ static int NSImage_tolua(lua_State *L, id obj) {
 static id HSImage_toNSImage(lua_State *L, int idx) {
     void **thingy = luaL_testudata(L, idx, USERDATA_TAG) ;
     if (*thingy) {
-    return (__bridge NSImage *) *thingy ;
+        return (__bridge NSImage *) *thingy ;
     } else {
         return nil ;
     }
