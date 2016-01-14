@@ -349,7 +349,8 @@ nextarg:
     return results ;
 }
 
-- (void)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
+- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
+    BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
@@ -370,12 +371,14 @@ nextarg:
             [registeredNSHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
                                             forKey:[NSString stringWithUTF8String:className]] ;
             lua_pop(_L, 1) ;
+            allGood = YES ;
         }
     } else {
         [self logAtLevel:LS_LOG_WARN
              withMessage:@"registerPushNSHelper:forClass: requires both helperFN and className"
              fromStackPos:level] ;
     }
+    return allGood ;
 }
 
 - (int)pushNSRect:(NSRect)theRect {
@@ -426,7 +429,8 @@ nextarg:
     return nil ;
 }
 
-- (void)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char*)className {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char*)className {
+    BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
     int level = (int)[[NSUserDefaults standardUserDefaults] integerForKey:@"HSLuaSkinRegisterRequireLevel"];
@@ -447,17 +451,21 @@ nextarg:
             [registeredLuaObjectHelperFunctions setObject:[NSValue valueWithPointer:(void *)helperFN]
                                                forKey:[NSString stringWithUTF8String:className]] ;
             lua_pop(_L, 1) ;
+            allGood = YES ;
         }
     } else {
         [self logAtLevel:LS_LOG_WARN
              withMessage:@"registerLuaObjectHelper:forClass: requires both helperFN and className"
             fromStackPos:level] ;
     }
+    return allGood ;
 }
 
-- (void)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag {
-    [self registerLuaObjectHelper:helperFN forClass:className];
-    [registeredLuaObjectHelperUserdataMappings setObject:[NSString stringWithUTF8String:className] forKey:[NSString stringWithUTF8String:userdataTag]];
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag {
+    BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    if (allGood)
+        [registeredLuaObjectHelperUserdataMappings setObject:[NSString stringWithUTF8String:className] forKey:[NSString stringWithUTF8String:userdataTag]];
+    return allGood ;
 }
 
 - (NSRect)tableToRectAtIndex:(int)idx {
@@ -661,15 +669,6 @@ nextarg:
     return [self protectedCallAndTraceback:1 nresults:1] ;
 }
 
-// FIXME: Is this actually used anywhere or a leftover from a removed NSTask hack?
-- (void)pushUserData:(void *)userData {
-    // WARNING. This is a terrible, terrible hack, taken from http://lua-users.org/lists/lua-l/2005-05/msg00095.html
-    lua_lock(_L);
-    setuvalue(_L, _L->top, ((Udata*)userData)-1);
-    api_incr_top(_L);
-    lua_unlock(_L);
-}
-
 #pragma mark - conversionSupport extensions to LuaSkin class
 
 - (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
@@ -825,10 +824,7 @@ nextarg:
     return 1 ;
 }
 
-- (id)toNSObjectAtIndex:(int)idx
-            withOptions:(LS_NSConversionOptions)options
-       alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-
+- (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     char *userdataTag = nil;
 
     int realIndex = lua_absindex(_L, idx) ;
