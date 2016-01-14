@@ -6,52 +6,114 @@
 #import "../hammerspoon.h"
 
 int refTable;
-NSMutableDictionary *restoreHandlers;
+NSArray *defaultContentTypes = nil;
 
 // ----------------------- Objective C ---------------------
 
-@interface HSURLEventHandler : NSObject
+@interface HSURLEventHandler : NSObject <HSOpenFileDelegate>
 @property (nonatomic, strong) NSAppleEventManager *appleEventManager;
+@property (nonatomic) int fnCallback;
+@property (nonatomic, strong) NSMutableDictionary *restoreHandlers;
+@property (nonatomic, weak) MJAppDelegate *appDelegate;
+
+- (void)handleStartupEvents;
 - (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent: (NSAppleEventDescriptor *)replyEvent;
+- (void)callbackWithURL:(NSString *)openUrl;
 - (void)gc;
 @end
 
 static HSURLEventHandler *eventHandler;
-static int fnCallback;
 
 @implementation HSURLEventHandler
 - (id)init {
     self = [super init];
     if (self) {
+        self.fnCallback = LUA_NOREF;
+        self.restoreHandlers = [[NSMutableDictionary alloc] init];
+
         self.appleEventManager = [NSAppleEventManager sharedAppleEventManager];
         [self.appleEventManager setEventHandler:self
                                andSelector:@selector(handleAppleEvent:withReplyEvent:)
                              forEventClass:kInternetEventClass
                                 andEventID:kAEGetURL];
+
+        MJAppDelegate *delegate = (MJAppDelegate *)[[NSApplication sharedApplication] delegate];
+        delegate.openFileDelegate = self;
     }
     return self;
 }
 
 - (void)gc {
+    LuaSkin *skin = [LuaSkin shared];
+
     [self.appleEventManager removeEventHandlerForEventClass:kInternetEventClass
                                                  andEventID:kAEGetURL];
+
+    _appDelegate.openFileDelegate = nil;
+
+    _fnCallback = [skin luaUnref:refTable ref:_fnCallback];
+
+    //NSLog(@"Restoring URL handlers: %@", eventHandler.restoreHandlers);
+    for (NSString *key in [_restoreHandlers allKeys]) {
+        OSStatus status;
+        CFStringRef bundleID = (__bridge CFStringRef)[_restoreHandlers objectForKey:key];
+
+        LSSetDefaultHandlerForURLScheme((__bridge CFStringRef)key, bundleID);
+
+        if ([key isEqualToString:@"http"] || [key isEqualToString:@"https"]) {
+            for (NSString *type in defaultContentTypes) {
+                status = LSSetDefaultRoleHandlerForContentType((__bridge CFStringRef)type, kLSRolesViewer, bundleID);
+                if (status != noErr) {
+                    NSLog(@"Unable to set role handler for %@: %@", type, [[NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil] localizedDescription]);
+                }
+            }
+        }
+    }
+    [_restoreHandlers removeAllObjects];
+
+}
+
+- (void)handleStartupEvents {
+    if (_appDelegate.startupEvent) {
+        [self handleAppleEvent:_appDelegate.startupEvent withReplyEvent:nil];
+        _appDelegate.startupEvent = nil;
+    }
+
+    if (_appDelegate.startupFile) {
+        [eventHandler callbackWithURL:_appDelegate.startupFile];
+        _appDelegate.startupFile = nil;
+    }
 }
 
 - (void)handleAppleEvent:(NSAppleEventDescriptor *)event withReplyEvent: (NSAppleEventDescriptor * __unused)replyEvent {
-    LuaSkin *skin = [LuaSkin shared];
-    lua_State *L = skin.L;
+    [self callbackWithURL:[[event paramDescriptorForKeyword:keyDirectObject] stringValue]];
+}
 
-    if (fnCallback == LUA_NOREF) {
+- (void)callbackWithURL:(NSString *)openUrl {
+    LuaSkin *skin = [LuaSkin shared];
+
+    if (self.fnCallback == LUA_NOREF || self.fnCallback == LUA_REFNIL) {
         // Lua hasn't registered a callback. This possibly means we have been require()'d as hs.urlevent.internal and not set up properly. Weird. Refuse to do anything
-        printToConsole(skin.L, "hs.urlevent handleAppleEvent:: No fnCallback has been set by Lua");
+        printToConsole(skin.L, "hs.urlevent callbackWithURL:: No fnCallback has been set by Lua");
         return;
     }
 
+    if ([openUrl hasPrefix:@"/"]) {
+        openUrl = [NSString stringWithFormat:@"file://%@", openUrl];
+    }
+
     // Split the URL into its components
-    NSURL *url = [NSURL URLWithString:[[event paramDescriptorForKeyword:keyDirectObject] stringValue]];
+    NSURL *url = [NSURL URLWithString:openUrl];
+
+    if (!url) {
+        NSLog(@"ERROR: Unable to parse '%@' as a URL", openUrl);
+        return;
+    }
+
     NSString *query = [url query];
     NSArray *queryPairs = [query componentsSeparatedByString:@"&"];
     NSMutableDictionary *pairs = [NSMutableDictionary dictionary];
+
     for (NSString *queryPair in queryPairs) {
         NSArray *bits = [queryPair componentsSeparatedByString:@"="];
         if ([bits count] != 2) { continue; }
@@ -62,25 +124,16 @@ static int fnCallback;
         [pairs setObject:value forKey:key];
     }
 
-    NSArray *keys = [pairs allKeys];
-    NSArray *values = [pairs allValues];
-
-    [skin pushLuaRef:refTable ref:fnCallback];
-    lua_pushstring(L, [[url scheme] UTF8String]);
-    lua_pushstring(L, [[url host] UTF8String]);
-    lua_newtable(L);
-    for (int i = 0; i < (int)[keys count]; i++) {
-        // Push each URL parameter into the params table
-        lua_pushstring(L, [[keys objectAtIndex:i] UTF8String]);
-        lua_pushstring(L, [[values objectAtIndex:i] UTF8String]);
-        lua_settable(L, -3);
-    }
-    lua_pushstring(L, [[url absoluteString] UTF8String]);
+    [skin pushLuaRef:refTable ref:self.fnCallback];
+    [skin pushNSObject:[url scheme]];
+    [skin pushNSObject:[url host]];
+    [skin pushNSObject:pairs];
+    [skin pushNSObject:[url absoluteURL]];
 
     if (![skin protectedCallAndTraceback:4 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
+        const char *errorMsg = lua_tostring(skin.L, -1);
         CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        showError(skin.L, (char *)errorMsg);
     }
 }
 @end
@@ -93,13 +146,7 @@ static int urleventSetCallback(lua_State *L) {
 
     luaL_checktype(L, 1, LUA_TFUNCTION);
     lua_pushvalue(L, 1);
-    fnCallback = [skin luaRef:refTable];
-
-    MJAppDelegate *delegate = (MJAppDelegate *)[[NSApplication sharedApplication] delegate];
-
-    if (delegate.startupEvent) {
-        [eventHandler handleAppleEvent:delegate.startupEvent withReplyEvent:nil];
-    }
+    eventHandler.fnCallback = [skin luaRef:refTable];
 
     return 0;
 }
@@ -121,9 +168,8 @@ static int urleventsetRestoreHandler(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
 
-    CFStringRef scheme = CFStringCreateWithCString(NULL, lua_tostring(L, 1), kCFStringEncodingUTF8);
-    [restoreHandlers setObject:[NSString stringWithUTF8String:lua_tostring(L, 2)] forKey:(__bridge NSString*)(scheme)];
-    CFRelease(scheme);
+    [eventHandler.restoreHandlers setObject:[skin toNSObjectAtIndex:2] forKey:[skin toNSObjectAtIndex:1]];
+    //NSLog(@"%@", eventHandler.restoreHandlers);
 
     return 0;
 }
@@ -133,7 +179,7 @@ static int urleventsetRestoreHandler(lua_State *L) {
 /// Sets the default system handler for URLs of a given scheme
 ///
 /// Parameters:
-///  * scheme - A string containing the URL scheme to change. This must be 'http' or 'https' (although entering either will restore the default for both)
+///  * scheme - A string containing the URL scheme to change. This must be 'http' or 'https' (although entering either will change the handler for both)
 ///  * bundleID - An optional string containing an application bundle identifier for the application to set as the default handler. Defaults to `org.hammerspoon.Hammerspoon`.
 ///
 /// Returns:
@@ -145,29 +191,33 @@ static int urleventsetDefaultHandler(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
 
-    CFStringRef scheme = CFStringCreateWithCString(NULL, lua_tostring(L, 1), kCFStringEncodingUTF8);
-    NSString *bundleID;
+    OSStatus status;
+    NSString *scheme = [[NSString stringWithUTF8String:lua_tostring(L, 1)] lowercaseString];
+    NSString *bundleID = @"org.hammerspoon.Hammerspoon";
 
     if (lua_type(L, 2) == LUA_TSTRING) {
         bundleID = [NSString stringWithUTF8String:lua_tostring(L, 2)];
-    } else {
-        bundleID = @"org.hammerspoon.Hammerspoon";
     }
 
-    OSStatus status = LSSetDefaultHandlerForURLScheme(scheme, (__bridge CFStringRef)bundleID);
+    status = LSSetDefaultHandlerForURLScheme((__bridge CFStringRef)scheme, (__bridge CFStringRef)bundleID);
     if (status != noErr) {
         showError(L, (char *)[[[NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil] localizedDescription] UTF8String]);
     } else {
-        [restoreHandlers removeObjectForKey:(__bridge NSString *)scheme];
+        [eventHandler.restoreHandlers removeObjectForKey:scheme];
     }
 
-    // FIXME: Do we care about these:
-    //LSSetDefaultRoleHandlerForContentType(kUTTypeHTML, kLSRolesViewer, (CFStringRef) [[NSBundle mainBundle] bundleIdentifier]);
-    //LSSetDefaultRoleHandlerForContentType(kUTTypeURL, kLSRolesViewer, (CFStringRef) [[NSBundle mainBundle] bundleIdentifier]);
-    //LSSetDefaultRoleHandlerForContentType(kUTTypeFileURL, kLSRolesViewer, (CFStringRef) [[NSBundle mainBundle] bundleIdentifier]);
-    //LSSetDefaultRoleHandlerForContentType(kUTTypeText, kLSRolesViewer, (CFStringRef) [[NSBundle mainBundle] bundleIdentifier]);
+    if ([scheme isEqualToString:@"http"] || [scheme isEqualToString:@"https"]) {
+        // If we're dealing with http/https, also register ourselves for various filetypes that are relevant
+        for (NSString *type in defaultContentTypes) {
+            status = LSSetDefaultRoleHandlerForContentType((__bridge CFStringRef)type, kLSRolesViewer, (__bridge CFStringRef)bundleID);
+            if (status != noErr) {
+                NSLog(@"Unable to set role handler for %@: %@", type, [[NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil] localizedDescription]);
+            }
+        }
 
-    CFRelease(scheme);
+        // Handle any startup events for http/https/file
+        [eventHandler handleStartupEvents];
+    }
 
     return 0;
 }
@@ -253,8 +303,12 @@ static int urleventopenURLWithBundle(lua_State *L) {
 
 static int urlevent_setup() {
     eventHandler = [[HSURLEventHandler alloc] init];
-    fnCallback = LUA_NOREF;
-    restoreHandlers = [[NSMutableDictionary alloc] init];
+
+    defaultContentTypes = @[(__bridge NSString *)kUTTypeHTML,
+                            (__bridge NSString *)kUTTypeURL,
+                            (__bridge NSString *)kUTTypeFileURL,
+                            (__bridge NSString *)kUTTypeText
+                            ];
 
     return 0;
 }
@@ -262,18 +316,8 @@ static int urlevent_setup() {
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static int urlevent_gc(lua_State* __unused L) {
-    LuaSkin *skin = [LuaSkin shared];
-
     [eventHandler gc];
     eventHandler = nil;
-    fnCallback = [skin luaUnref:refTable ref:fnCallback];
-
-    for (NSString *key in [restoreHandlers allKeys]) {
-        LSSetDefaultHandlerForURLScheme((__bridge CFStringRef)key, (__bridge CFStringRef)[restoreHandlers objectForKey:key]);
-    }
-
-    [restoreHandlers removeAllObjects];
-    restoreHandlers = nil;
 
     return 0;
 }

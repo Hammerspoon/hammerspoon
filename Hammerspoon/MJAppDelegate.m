@@ -40,6 +40,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                            andSelector:@selector(handleGetURLEvent:withReplyEvent:)
                          forEventClass:kInternetEventClass andEventID:kAEGetURL];
     self.startupEvent = nil;
+    self.startupFile = nil;
+    self.openFileDelegate = nil;
 }
 
 - (void)handleGetURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent
@@ -47,8 +49,21 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     self.startupEvent = event;
 }
 
+- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {
+    if (!self.openFileDelegate) {
+        self.startupFile = filename;
+    } else {
+        if ([self.openFileDelegate respondsToSelector:@selector(callbackWithURL:)]) {
+            [self.openFileDelegate callbackWithURL:filename];
+        }
+    }
+
+    return YES;
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 
+    // Remove our early event manager handler so hs.urlevent can register for it later, if the user has it configured to
     [[NSAppleEventManager sharedAppleEventManager] removeEventHandlerForEventClass:kInternetEventClass andEventID:kAEGetURL];
 
     if(NSClassFromString(@"XCTest") != nil) {
