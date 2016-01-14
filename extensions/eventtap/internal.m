@@ -30,8 +30,13 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
 
     if (![skin protectedCallAndTraceback:1 nresults:2]) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        if (!errorMsg) {
+            CLS_NSLOG(@"ERROR: eventtap_callback callback returned something that isn't a string: %d", lua_type(L, -1));
+        } else {
+            CLS_NSLOG(@"%s", errorMsg);
+            showError(L, (char *)errorMsg);
+        }
+        return NULL;
     }
 
     bool ignoreevent = lua_toboolean(L, -2);

@@ -30,7 +30,7 @@ static int target_set(lua_State* L) {
 // Allow for missing second argument for backwards compatibility with pre-LuaSkin behavior
     id val = nil ;
     if (lua_gettop(L) == 2) {
-        val = [[LuaSkin shared] toNSObjectAtIndex:2] ;
+        val = [[LuaSkin shared] toNSObjectAtIndex:2 withOptions:LS_NSPreserveLuaStringExactly] ;
     }
 
     @try {

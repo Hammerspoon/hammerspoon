@@ -1,2 +1,0 @@
-PODS_HAMMERSPOON_COCOAHTTPSERVER_HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2"
-PODS_HAMMERSPOON_COCOAHTTPSERVER_OTHER_LDFLAGS = -l"xml2" -framework "CoreServices" -framework "Security"

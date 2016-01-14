@@ -226,12 +226,14 @@ static int console_setConsole(lua_State *L) {
         } else {
             NSDictionary *consoleAttrs = @{ NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0],
                                             NSForegroundColorAttributeName: MJColorForStdout };
-            lua_getglobal(L, "hs");
-            lua_getfield(L, -1, "cleanUTF8forConsole");
-            lua_remove(L, -2);
+//             lua_getglobal(L, "hs");
+//             lua_getfield(L, -1, "cleanUTF8forConsole");
+//             lua_remove(L, -2);
             luaL_tolstring(L, 1, NULL);
-            lua_call(L, 1, 1);
-            theStr = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]
+//             lua_call(L, 1, 1);
+//             theStr = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]
+//                                                      attributes:consoleAttrs];
+            theStr = [[NSAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]
                                                      attributes:consoleAttrs];
             lua_pop(L, 1);
         }
@@ -327,15 +329,18 @@ static int console_printStyledText(lua_State *L) {
         if (lua_type(L, i) == LUA_TUSERDATA && luaL_testudata(L, i, "hs.styledtext")) {
             [theStr appendAttributedString:[skin luaObjectAtIndex:i toClass:"NSAttributedString"]];
         } else {
-            lua_getglobal(L, "hs");
-            lua_getfield(L, -1, "cleanUTF8forConsole");
-            lua_remove(L, -2);
+//             lua_getglobal(L, "hs");
+//             lua_getfield(L, -1, "cleanUTF8forConsole");
+//             lua_remove(L, -2);
             luaL_tolstring(L, i, NULL);
-            lua_call(L, 1, 1);
-
             [theStr appendAttributedString:[[NSAttributedString alloc]
-                                               initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]
+                                               initWithString:[skin toNSObjectAtIndex:-1]
                                                    attributes:consoleAttrs]];
+//             lua_call(L, 1, 1);
+//
+//             [theStr appendAttributedString:[[NSAttributedString alloc]
+//                                                initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]
+//                                                    attributes:consoleAttrs]];
             lua_pop(L, 1);
         }
     }

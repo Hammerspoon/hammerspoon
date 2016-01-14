@@ -13,7 +13,7 @@ static int eventtap_event_gc(lua_State* L) {
 
 /// hs.eventtap.event:copy() -> event
 /// Constructor
-/// Duplicateis an `hs.eventtap.event` event for further modification or injection
+/// Duplicates an `hs.eventtap.event` event for further modification or injection
 ///
 /// Parameters:
 ///  * None
@@ -34,7 +34,7 @@ static int eventtap_event_copy(lua_State* L) {
 /// Method
 /// Gets the keyboard modifiers of an event
 ///
-/// Parametes:
+/// Parameters:
 ///  * None
 ///
 /// Returns:
@@ -70,7 +70,7 @@ static int eventtap_event_getFlags(lua_State* L) {
 ///   * fn
 ///
 /// Returns:
-///  * The `hs.eventap.evant` object.
+///  * The `hs.eventap.event` object.
 static int eventtap_event_setFlags(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
     luaL_checktype(L, 2, LUA_TTABLE);

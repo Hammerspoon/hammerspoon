@@ -6,7 +6,6 @@
 
 @interface HSLocation : NSObject<CLLocationManagerDelegate>
 @property (strong, atomic) CLLocationManager* manager;
-@property lua_State* L;
 @end
 
 static HSLocation *location;
@@ -17,7 +16,6 @@ static NSMutableIndexSet *locationHandlers;
 - (id)initWithLua:(lua_State* ) L {
     if (self = [super init]) {
         self.manager = [[CLLocationManager alloc] init];
-        self.L = L;
     }
     return self;
 }

@@ -57,7 +57,8 @@ CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, C
 
     CFDataRef outdata = CFDataCreate(NULL, (const UInt8 *)coutstr, (CFIndex)length );
 
-    lua_pop([[LuaSkin shared] L], 1);
+//     lua_pop([[LuaSkin shared] L], 1);
+    lua_pop([[LuaSkin shared] L], 2); // luaL_tolstring pushes its result onto the stack without modifying the original
     CFRelease(instr);
     if (shouldFree) free((char*) cmd);
 //     CFRelease(outstr);

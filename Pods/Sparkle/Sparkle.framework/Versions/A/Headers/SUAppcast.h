@@ -9,7 +9,7 @@
 #ifndef SUAPPCAST_H
 #define SUAPPCAST_H
 
-#import <Foundation/NSURLDownload.h>
+#import <Foundation/Foundation.h>
 #import "SUExport.h"
 
 @class SUAppcastItem;
