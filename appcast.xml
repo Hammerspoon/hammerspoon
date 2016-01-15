@@ -5,6 +5,7 @@
         <link>https://raw.githubusercontent.com/Hammerspoon/hammerspoon/master/appcast.xml</link>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
+        <!--
          <item>
             <title>Version 0.9.44</title>
             <sparkle:releaseNotesLink>
@@ -18,6 +19,7 @@
             />
             <sparkle:minimumSystemVersion>10.8</sparkle:minimumSystemVersion>
         </item>
+        -->
          <item>
             <title>Version 0.9.43</title>
             <sparkle:releaseNotesLink>
