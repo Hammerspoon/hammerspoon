@@ -5,9 +5,9 @@
       location = "group:Hammerspoon.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Pods/Pods.xcodeproj">
+      location = "group:LuaSkin/LuaSkin.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:LuaSkin/LuaSkin.xcodeproj">
+      location = "group:Pods/Pods.xcodeproj">
    </FileRef>
 </Workspace>
