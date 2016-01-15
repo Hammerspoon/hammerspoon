@@ -142,6 +142,13 @@
 		4F70EEE31B7273700025A7B3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4F70EEE41B7273700025A7B3 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F70EEEF1B7273B00025A7B3 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F70EEEE1B7273B00025A7B3 /* internal.m */; };
+		4F766E5A1C48F79C007B9D24 /* copy_extensions_to_bundle.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E571C48F79C007B9D24 /* copy_extensions_to_bundle.sh */; };
+		4F766E5B1C48F79C007B9D24 /* librelease.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E581C48F79C007B9D24 /* librelease.sh */; };
+		4F766E5C1C48F79C007B9D24 /* release.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E591C48F79C007B9D24 /* release.sh */; };
+		4F766E611C48F7BE007B9D24 /* gencomments in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5D1C48F7BE007B9D24 /* gencomments */; };
+		4F766E621C48F7BE007B9D24 /* genhtml in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5E1C48F7BE007B9D24 /* genhtml */; };
+		4F766E631C48F7BE007B9D24 /* genjson in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5F1C48F7BE007B9D24 /* genjson */; };
+		4F766E641C48F7BE007B9D24 /* gensql in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E601C48F7BE007B9D24 /* gensql */; };
 		4F7694481B74C8AD00536DE4 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F7694491B74C8B800536DE4 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F76944E1B74C96800536DE4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
@@ -905,6 +912,13 @@
 		4F70EEE91B7273700025A7B3 /* libbase64.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbase64.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F70EEED1B7273B00025A7B3 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/base64/init.lua; sourceTree = "<group>"; };
 		4F70EEEE1B7273B00025A7B3 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/base64/internal.m; sourceTree = "<group>"; };
+		4F766E571C48F79C007B9D24 /* copy_extensions_to_bundle.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = copy_extensions_to_bundle.sh; path = scripts/copy_extensions_to_bundle.sh; sourceTree = "<group>"; };
+		4F766E581C48F79C007B9D24 /* librelease.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = librelease.sh; path = scripts/librelease.sh; sourceTree = "<group>"; };
+		4F766E591C48F79C007B9D24 /* release.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = release.sh; path = scripts/release.sh; sourceTree = "<group>"; };
+		4F766E5D1C48F7BE007B9D24 /* gencomments */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = gencomments; path = scripts/docs/bin/gencomments; sourceTree = "<group>"; };
+		4F766E5E1C48F7BE007B9D24 /* genhtml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = genhtml; path = scripts/docs/bin/genhtml; sourceTree = "<group>"; };
+		4F766E5F1C48F7BE007B9D24 /* genjson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = genjson; path = scripts/docs/bin/genjson; sourceTree = "<group>"; };
+		4F766E601C48F7BE007B9D24 /* gensql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = gensql; path = scripts/docs/bin/gensql; sourceTree = "<group>"; };
 		4F7694541B74C96800536DE4 /* libkeycodes.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libkeycodes.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7694581B74C9CA00536DE4 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/keycodes/init.lua; sourceTree = "<group>"; };
 		4F7694591B74C9CA00536DE4 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/keycodes/internal.m; sourceTree = "<group>"; };
@@ -2101,6 +2115,28 @@
 			name = base64;
 			sourceTree = "<group>";
 		};
+		4F766E561C48F789007B9D24 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				4F766E651C48F7C2007B9D24 /* API documentation generators */,
+				4F766E571C48F79C007B9D24 /* copy_extensions_to_bundle.sh */,
+				4F766E581C48F79C007B9D24 /* librelease.sh */,
+				4F766E591C48F79C007B9D24 /* release.sh */,
+			);
+			name = scripts;
+			sourceTree = "<group>";
+		};
+		4F766E651C48F7C2007B9D24 /* API documentation generators */ = {
+			isa = PBXGroup;
+			children = (
+				4F766E5D1C48F7BE007B9D24 /* gencomments */,
+				4F766E5E1C48F7BE007B9D24 /* genhtml */,
+				4F766E5F1C48F7BE007B9D24 /* genjson */,
+				4F766E601C48F7BE007B9D24 /* gensql */,
+			);
+			name = "API documentation generators";
+			sourceTree = "<group>";
+		};
 		4F7694571B74C9B400536DE4 /* keycodes */ = {
 			isa = PBXGroup;
 			children = (
@@ -2497,6 +2533,7 @@
 				4FC09F7B19F99ECE007542A6 /* docs.json */,
 				9445CA1419083251002568BB /* Hammerspoon */,
 				4F98506D1B722C4100F7E909 /* extensions */,
+				4F766E561C48F789007B9D24 /* scripts */,
 				D02F95251A00221C00E28BB2 /* Hammerspoon Tests */,
 				4F20B52A1C1F1C5B00F52437 /* Hammerspoon UI Tests */,
 				9445CA0D19083251002568BB /* Frameworks */,
@@ -4471,12 +4508,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F766E641C48F7BE007B9D24 /* gensql in Resources */,
+				4F766E5C1C48F79C007B9D24 /* release.sh in Resources */,
+				4F766E611C48F7BE007B9D24 /* gencomments in Resources */,
+				4F766E5A1C48F79C007B9D24 /* copy_extensions_to_bundle.sh in Resources */,
 				4FDE05F91B7370E100E9E8EE /* hammerspoon.h in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
+				4F766E5B1C48F79C007B9D24 /* librelease.sh in Resources */,
+				4F766E631C48F7BE007B9D24 /* genjson in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
+				4F766E621C48F7BE007B9D24 /* genhtml in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
