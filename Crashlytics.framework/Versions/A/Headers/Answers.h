@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @param signUpMethodOrNil     The method by which a user logged in, e.g. Twitter or Digits.
  *  @param signUpSucceededOrNil  The ultimate success or failure of the login
- *  @param customAttributesOrNil A dictionary of custom attributes to associate with this purchase.
+ *  @param customAttributesOrNil A dictionary of custom attributes to associate with this event.
  */
 + (void)logSignUpWithMethod:(nullable NSString *)signUpMethodOrNil
                     success:(nullable NSNumber *)signUpSucceededOrNil
@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  *  @param loginMethodOrNil      The method by which a user logged in, e.g. email, Twitter or Digits.
  *  @param loginSucceededOrNil   The ultimate success or failure of the login
- *  @param customAttributesOrNil A dictionary of custom attributes to associate with this purchase.
+ *  @param customAttributesOrNil A dictionary of custom attributes to associate with this event.
  */
 + (void)logLoginWithMethod:(nullable NSString *)loginMethodOrNil
                    success:(nullable NSNumber *)loginSucceededOrNil
@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  your application.
  *
  *  @param inviteMethodOrNil     The method of invitation, e.g. GameCenter, Twitter, email.
- *  @param customAttributesOrNil A dictionary of custom attributes to associate with this purchase.
+ *  @param customAttributesOrNil A dictionary of custom attributes to associate with this event.
  */
 + (void)logInviteWithMethod:(nullable NSString *)inviteMethodOrNil
            customAttributes:(nullable ANS_GENERIC_NSDICTIONARY(NSString *, id) *)customAttributesOrNil;
@@ -74,8 +74,8 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param currencyOrNil          The ISO4217 currency code. Example: USD
  *  @param purchaseSucceededOrNil Was the purchase succesful or unsuccesful
  *  @param itemNameOrNil          The human-readable form of the item's name. Example:
- *  @param itemIdOrNil            The machine-readable, unique item identifier Example: SKU
  *  @param itemTypeOrNil          The type, or genre of the item. Example: Song
+ *  @param itemIdOrNil            The machine-readable, unique item identifier Example: SKU
  *  @param customAttributesOrNil  A dictionary of custom attributes to associate with this purchase.
  */
 + (void)logPurchaseWithPrice:(nullable NSDecimalNumber *)itemPriceOrNil
@@ -101,7 +101,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param levelNameOrNil                 The name of the level completed, E.G. "1" or "Training"
  *  @param scoreOrNil                     The score the user completed the level with.
  *  @param levelCompletedSuccesfullyOrNil A boolean representing whether or not the level was completed succesfully.
- *  @param customAttributesOrNil          A dictionary of custom attributes to associate with this purchase.
+ *  @param customAttributesOrNil          A dictionary of custom attributes to associate with this event.
  */
 + (void)logLevelEnd:(nullable NSString *)levelNameOrNil
               score:(nullable NSNumber *)scoreOrNil
@@ -118,7 +118,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param itemNameOrNil          The human-readable form of the item's name. Example:
  *  @param itemTypeOrNil          The type, or genre of the item. Example: Song
  *  @param itemIdOrNil            The machine-readable, unique item identifier Example: SKU
- *  @param customAttributesOrNil  A dictionary of custom attributes to associate with this purchase.
+ *  @param customAttributesOrNil  A dictionary of custom attributes to associate with this event.
  */
 + (void)logAddToCartWithPrice:(nullable NSDecimalNumber *)itemPriceOrNil
                      currency:(nullable NSString *)currencyOrNil
@@ -135,7 +135,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param totalPriceOrNil        The total price of the cart.
  *  @param currencyOrNil          The ISO4217 currency code. Example: USD
  *  @param itemCountOrNil         The number of items in the cart.
- *  @param customAttributesOrNil  A dictionary of custom attributes to associate with this purchase.
+ *  @param customAttributesOrNil  A dictionary of custom attributes to associate with this event.
  */
 + (void)logStartCheckoutWithPrice:(nullable NSDecimalNumber *)totalPriceOrNil
                          currency:(nullable NSString *)currencyOrNil
@@ -188,7 +188,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  the name of the event, since this is how the event will appear in Answers.
  *
  *  @param eventName             The human-readable name for the event.
- *  @param customAttributesOrNil A dictionary of custom attributes to associate with this purchase. Attribute keys
+ *  @param customAttributesOrNil A dictionary of custom attributes to associate with this event. Attribute keys
  *                               must be <code>NSString</code> and and values must be <code>NSNumber</code> or <code>NSString</code>.
  *  @discussion                  How we treat <code>NSNumbers</code>:
  *                               We will provide information about the distribution of values over time.
