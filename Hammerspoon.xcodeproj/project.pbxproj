@@ -149,6 +149,8 @@
 		4F766E621C48F7BE007B9D24 /* genhtml in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5E1C48F7BE007B9D24 /* genhtml */; };
 		4F766E631C48F7BE007B9D24 /* genjson in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5F1C48F7BE007B9D24 /* genjson */; };
 		4F766E641C48F7BE007B9D24 /* gensql in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E601C48F7BE007B9D24 /* gensql */; };
+		4F766E6C1C490E12007B9D24 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F766E6B1C490E12007B9D24 /* Sparkle.framework */; };
+		4F766E6D1C490E12007B9D24 /* Sparkle.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4F766E6B1C490E12007B9D24 /* Sparkle.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4F7694481B74C8AD00536DE4 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F7694491B74C8B800536DE4 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F76944E1B74C96800536DE4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
@@ -788,6 +790,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		4F766E6E1C490E13007B9D24 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4F766E6D1C490E12007B9D24 /* Sparkle.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4FD0AC071B74BACD00A82496 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -919,6 +932,7 @@
 		4F766E5E1C48F7BE007B9D24 /* genhtml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = genhtml; path = scripts/docs/bin/genhtml; sourceTree = "<group>"; };
 		4F766E5F1C48F7BE007B9D24 /* genjson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = genjson; path = scripts/docs/bin/genjson; sourceTree = "<group>"; };
 		4F766E601C48F7BE007B9D24 /* gensql */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = gensql; path = scripts/docs/bin/gensql; sourceTree = "<group>"; };
+		4F766E6B1C490E12007B9D24 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Pods/Sparkle/Sparkle.framework; sourceTree = "<group>"; };
 		4F7694541B74C96800536DE4 /* libkeycodes.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libkeycodes.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7694581B74C9CA00536DE4 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/keycodes/init.lua; sourceTree = "<group>"; };
 		4F7694591B74C9CA00536DE4 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/keycodes/internal.m; sourceTree = "<group>"; };
@@ -1667,6 +1681,7 @@
 				4F1CF8DB1A47F5BD001C8AE7 /* Crashlytics.framework in Frameworks */,
 				94ABF0901980B5E900FA68E9 /* Security.framework in Frameworks */,
 				94414F47196A1B280067D467 /* Carbon.framework in Frameworks */,
+				4F766E6C1C490E12007B9D24 /* Sparkle.framework in Frameworks */,
 				9473A75D1959F9AB0080C329 /* WebKit.framework in Frameworks */,
 				9445CA0F19083251002568BB /* Cocoa.framework in Frameworks */,
 				4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */,
@@ -2615,6 +2630,7 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F766E6B1C490E12007B9D24 /* Sparkle.framework */,
 				D643B73C1B8BFE7700B372EB /* libedit.dylib */,
 				4FD0ABAC1B74AE9900A82496 /* CoreWLAN.framework */,
 				4FD0AB261B7485A000A82496 /* CoreGraphics.framework */,
@@ -4162,6 +4178,7 @@
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
 				9445CA0919083251002568BB /* Resources */,
 				F4A885EE712ED3648ADD36A8 /* Copy Pods Resources */,
+				4F766E6E1C490E13007B9D24 /* Embed Frameworks */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
 				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
 				4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */,
@@ -12778,7 +12795,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
@@ -12802,12 +12819,13 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/Pods/Sparkle",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
