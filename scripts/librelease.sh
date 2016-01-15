@@ -8,6 +8,81 @@ function fail() {
   exit 1
 }
 
+############################# TOP LEVEL FUNCTIONS #############################
+
+function assert() {
+  echo "******** CHECKING SANITY:"
+
+  assert_github_hub
+  assert_github_release_token && export GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
+  assert_codesign_authority_token && export CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
+  assert_version_in_xcode
+  assert_version_in_git_tags
+  assert_version_not_in_github_releases
+  assert_docs_bundle_complete
+  assert_cocoapods_state
+  assert_website_repo
+}
+
+function build() {
+  echo "******** BUILDING:"
+
+  build_hammerspoon_app
+}
+
+function validate() {
+  echo "******** VALIDATING:"
+
+  assert_valid_code_signature
+  assert_valid_code_signing_entity
+  assert_gatekeeper_acceptance
+}
+
+function localtest() {
+  echo -n "******** TEST THE BUILD PLEASE ('yes' to confirm): "
+  # FIXME: read 'yes'
+  open -R build/Hammerspoon.app
+
+  REPLY=""
+  read REPLY
+
+  if [ "${REPLY}" != "yes" ]; then
+    echo "ERROR: User did not confirm testing, exiting."
+    exit 1
+  fi
+}
+
+function prepare_upload() {
+  echo "******** PREPARING FOR UPLOAD:"
+
+  compress_hammerspoon_app
+}
+
+function archive() {
+  echo "******** ARCHIVING MATERIALS:"
+
+  archive_hammerspoon_app
+  archive_dSYMs
+  archive_dSYM_UUIDs
+  archive_docs
+}
+
+function upload() {
+  echo "******** UPLOADING:"
+
+  release_add_to_github
+  release_upload_binary
+  release_upload_docs
+  release_submit_dash_docs
+  release_update_appcast
+}
+
+function announce() {
+  echo "******** TWEETING:"
+
+  release_tweet
+}
+
 ############################### SANITY CHECKERS ###############################
 
 function assert_github_hub() {
