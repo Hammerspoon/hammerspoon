@@ -84,6 +84,7 @@ static int pasteboard_setContents(lua_State* L) {
 /// Returns:
 ///  * True if the operation succeeded, otherwise false
 static int pasteboard_setImageContents(lua_State* L) {
+    [[LuaSkin shared] checkArgs:LS_TUSERDATA, "hs.image", LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     NSImage*  theImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
     NSPasteboard* thePasteboard = lua_to_pasteboard(L, 2);
 
