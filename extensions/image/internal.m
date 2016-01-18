@@ -1,8 +1,6 @@
-
 //#import <Appkit/NSImage.h>
 #import <LuaSkin/LuaSkin.h>
 #import "ASCIImage/PARImage+ASCIIInput.h"
-#import "../hammerspoon.h"
 
 #define USERDATA_TAG "hs.image"
 
@@ -91,13 +89,14 @@ static int pushNSImageNameTable(lua_State *L) {
 /// Returns:
 ///  * An `hs.image` object, or nil if an error occured
 static int imageFromPath(lua_State *L) {
-    NSString* imagePath = lua_to_nsstring(L, 1);
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSString* imagePath = [skin toNSObjectAtIndex:1];
     imagePath = [imagePath stringByExpandingTildeInPath];
     imagePath = [[imagePath componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] componentsJoinedByString:@""];
     NSImage *newImage = [[NSImage alloc] initByReferencingFile:imagePath];
 
     if (newImage && newImage.valid) {
-        [[LuaSkin shared] pushNSObject:newImage];
+        [skin pushNSObject:newImage];
     } else {
         return luaL_error(L, "Unable to load image: %s", [imagePath UTF8String]);
     }
@@ -132,7 +131,7 @@ static int imageFromPath(lua_State *L) {
 ///  * The default for lineWidth, when antialiasing is off, is defined within the ASCIImage library. Geometrically it represents one half of the hypotenuse of the unit right-triangle and is a more accurate representation of a "real" point size when dealing with arbitrary angles and lines than 1.0 would be.
 static int imageWithContextFromASCII(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    NSString *imageASCII = lua_to_nsstring(L, 1);
+    NSString *imageASCII = [skin toNSObjectAtIndex:1];
 
     if ([imageASCII hasPrefix:@"ASCII:"]) { imageASCII = [imageASCII substringFromIndex: 6]; }
     imageASCII = [imageASCII stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
@@ -289,11 +288,12 @@ static int imageFromName(lua_State *L) {
 /// Returns:
 ///  * An `hs.image` object or nil, if no app icon was found
 static int imageFromApp(lua_State *L) {
-    NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:lua_to_nsstring(L, 1)];
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:[skin toNSObjectAtIndex:1]];
     NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:imagePath];
 
     if (iconImage) {
-        [[LuaSkin shared] pushNSObject:iconImage];
+        [skin pushNSObject:iconImage];
     } else {
         lua_pushnil(L);
     }
@@ -397,12 +397,13 @@ static int setImageSize(lua_State* L) {
 /// Notes:
 ///  * Saves image at its original size.
 static int saveToFile(lua_State* L) {
-    NSImage*  theImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
-    NSString* filePath = lua_to_nsstring(L, 2) ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSImage*  theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSString* filePath = [skin toNSObjectAtIndex:2] ;
     NSBitmapImageFileType fileType = NSPNGFileType ;
 
     if (lua_isstring(L, 3)) {
-        NSString* typeLabel = lua_to_nsstring(L, 3) ;
+        NSString* typeLabel = [skin toNSObjectAtIndex:3] ;
         if      ([typeLabel compare:@"PNG"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSPNGFileType  ; }
         else if ([typeLabel compare:@"TIFF" options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSTIFFFileType ; }
         else if ([typeLabel compare:@"BMP"  options:NSCaseInsensitiveSearch] == NSOrderedSame) { fileType = NSBMPFileType  ; }
@@ -459,7 +460,6 @@ static id HSImage_toNSImage(lua_State *L, int idx) {
     }
 }
 
-
 #pragma mark - Hammerspoon/Lua Infrastructure
 
 static int userdata_tostring(lua_State* L) {
@@ -473,8 +473,9 @@ static int userdata_tostring(lua_State* L) {
 }
 
 static int userdata_eq(__unused lua_State* L) {
-    NSImage *image1 = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
-    NSImage *image2 = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"] ;
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSImage *image1 = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSImage *image2 = [skin luaObjectAtIndex:2 toClass:"NSImage"] ;
 
     return image1 == image2 ;
 }
@@ -525,15 +526,16 @@ static luaL_Reg moduleLib[] = {
 // };
 
 int luaopen_hs_image_internal(lua_State* L) {
-    [[LuaSkin shared] registerLibraryWithObject:USERDATA_TAG
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin registerLibraryWithObject:USERDATA_TAG
                                       functions:moduleLib
                                   metaFunctions:nil
                                 objectFunctions:userdata_metaLib];
 
     pushNSImageNameTable(L); lua_setfield(L, -2, "systemImageNames") ;
 
-    [[LuaSkin shared] registerPushNSHelper:NSImage_tolua        forClass:"NSImage"] ;
-    [[LuaSkin shared] registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage" withUserdataMapping:USERDATA_TAG] ;
+    [skin registerPushNSHelper:NSImage_tolua        forClass:"NSImage"] ;
+    [skin registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage" withUserdataMapping:USERDATA_TAG] ;
     return 1;
 }
 

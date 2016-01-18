@@ -67,15 +67,16 @@ int refTable;
 @end
 
 // Define some basic helper functions
-void parse_table(lua_State *L, int idx, NSMenu *menu);
+void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize);
 void erase_menu_items(lua_State *L, NSMenu *menu);
 
 // Define a datatype for hs.menubar meta-objects
 typedef struct _menubaritem_t {
-    void *menuBarItemObject;
-    void *click_callback;
-    int  click_fn;
-    BOOL removed ;
+    void   *menuBarItemObject;
+    void   *click_callback;
+    int    click_fn;
+    BOOL   removed ;
+    NSSize stateBoxImageSize ;
 } menubaritem_t;
 
 // Define an array to track delegates for dynamic menu objects
@@ -92,6 +93,7 @@ NSMutableArray *dynamicMenuDelegates;
 
 // Define an object for dynamic menu objects
 @interface HSMenubarItemMenuDelegate : HSMenubarCallbackObject <NSMenuDelegate>
+@property NSSize stateBoxImageSize ;
 @end
 @implementation HSMenubarItemMenuDelegate
 - (void) menuNeedsUpdate:(NSMenu *)menu {
@@ -100,7 +102,7 @@ NSMutableArray *dynamicMenuDelegates;
     // Ensure the callback pushed a table onto the stack, then remove any existing menu structure and parse the table into a new menu
     if (lua_type(self.L, lua_gettop(self.L)) == LUA_TTABLE) {
         erase_menu_items(self.L, menu);
-        parse_table(self.L, lua_gettop(self.L), menu);
+        parse_table(self.L, lua_gettop(self.L), menu, self.stateBoxImageSize);
     } else {
         showError(self.L, "You must return a valid Lua table from a callback function passed to hs.menubar:setMenu()");
     }
@@ -111,16 +113,14 @@ NSMutableArray *dynamicMenuDelegates;
 
 // I'm not sure how this is going to work on  Retina display, so leave it as a function so we can
 // modify it more easily and affect all (3) places where it is used...
-static NSSize proportionallyScaleStateImageSize(NSImage *theImage) {
-    CGFloat checkSize = [[NSFont menuFontOfSize:0] pointSize] ;
-    NSSize destSize   = NSMakeSize(checkSize, checkSize) ;
+static NSSize proportionallyScaleStateImageSize(NSImage *theImage, NSSize stateBoxImageSize) {
     NSSize sourceSize = [theImage size] ;
-    CGFloat r = fmin(destSize.height / sourceSize.height, destSize.width / sourceSize.width) ;
-    return NSMakeSize(sourceSize.width * r, sourceSize.height * r) ;
+    CGFloat ratio = fmin(stateBoxImageSize.height / sourceSize.height, stateBoxImageSize.width / sourceSize.width) ;
+    return NSMakeSize(sourceSize.width * ratio, sourceSize.height * ratio) ;
 }
 
 // Helper function to parse a Lua table and turn it into an NSMenu hierarchy (is recursive, so may do terrible things on huge tables)
-void parse_table(lua_State *L, int idx, NSMenu *menu) {
+void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize) {
     LuaSkin *skin = [LuaSkin shared];
 
     lua_pushnil(L); // Push a nil to the top of the stack, which lua_next() will interpret as "fetch the first item of the table"
@@ -150,8 +150,6 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             continue;
         }
 
-        // even if just a string provided, this will work and as an added benefit, converts malformed
-        // UTF8 to the Unicode Undefined character
         NSAttributedString *aTitle = [skin luaObjectAtIndex:-1 toClass:"NSAttributedString"] ;
         NSString           *title  = [aTitle string] ;
 
@@ -177,7 +175,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
                 // Create the submenu, populate it and attach it to our current menu item
                 NSMenu *subMenu = [[NSMenu alloc] initWithTitle:@"HammerspoonSubMenu"];
                 [subMenu setAutoenablesItems:NO];
-                parse_table(L, lua_gettop(L), subMenu);
+                parse_table(L, lua_gettop(L), subMenu, stateBoxImageSize);
                 [menuItem setSubmenu:subMenu];
             }
             lua_pop(L, 1);
@@ -232,11 +230,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
 // MARK: tooltip key
             lua_getfield(L, -1, "tooltip");
             if (lua_isstring(L, -1)) {
-                // by filtering through NSAttributedString, even though this property requires NSString,
-                // we ensure invalid UTF8 is converted to Unicode Invalid characters rather than
-                // null (lua_tostring) or possibly an NSData (toNSObjectAtIndex:)
-                // NSString *toolTip = [skin toNSObjectAtIndex:-1] ;
-                NSString *toolTip = [[skin luaObjectAtIndex:-1 toClass:"NSAttributedString"] string] ;
+                NSString *toolTip = [skin toNSObjectAtIndex:-1] ;
                 [menuItem setToolTip:toolTip] ;
             }
             lua_pop(L, 1);
@@ -261,7 +255,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             lua_getfield(L, -1, "onStateImage") ;
             if (luaL_testudata(L, -1, "hs.image")) {
                 NSImage *image = [[skin luaObjectAtIndex:-1 toClass:"NSImage"] copy] ;
-                [image setSize:proportionallyScaleStateImageSize(image)] ;
+                [image setSize:proportionallyScaleStateImageSize(image, stateBoxImageSize)] ;
                 [menuItem setOnStateImage:image] ;
             }
             lua_pop(L, 1) ;
@@ -269,7 +263,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             lua_getfield(L, -1, "offStateImage") ;
             if (luaL_testudata(L, -1, "hs.image")) {
                 NSImage *image = [[skin luaObjectAtIndex:-1 toClass:"NSImage"] copy]  ;
-                [image setSize:proportionallyScaleStateImageSize(image)] ;
+                [image setSize:proportionallyScaleStateImageSize(image, stateBoxImageSize)] ;
                 [menuItem setOffStateImage:image] ;
             }
             lua_pop(L, 1) ;
@@ -277,7 +271,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
             lua_getfield(L, -1, "mixedStateImage") ;
             if (luaL_testudata(L, -1, "hs.image")) {
                 NSImage *image = [[skin luaObjectAtIndex:-1 toClass:"NSImage"] copy]  ;
-                [image setSize:proportionallyScaleStateImageSize(image)] ;
+                [image setSize:proportionallyScaleStateImageSize(image, stateBoxImageSize)] ;
                 [menuItem setMixedStateImage:image] ;
             }
             lua_pop(L, 1) ;
@@ -378,6 +372,9 @@ static int menubarNew(lua_State *L) {
         menuBarItem->click_callback = nil;
         menuBarItem->click_fn = LUA_NOREF;
         menuBarItem->removed = NO ;
+
+        CGFloat defaultFromFont        = [[NSFont menuFontOfSize:0] pointSize] ;
+        menuBarItem->stateBoxImageSize = NSMakeSize(defaultFromFont, defaultFromFont) ;
 
         luaL_getmetatable(L, USERDATA_TAG);
         lua_setmetatable(L, -2);
@@ -570,14 +567,21 @@ static int menubarSetClickCallback(lua_State *L) {
 ///        { title = "checked item", checked = true },
 ///    }
 /// ```
-///  * The available keys for each menu item are:
-///      * `title` - A string or `hs.styledtext` object to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator
-///      * `fn` - A function to be executed when the menu item is clicked
-///      * `checked` - A boolean to indicate if the menu item should have a checkmark next to it or not. Defaults to false
-///      * `disabled` - A boolean to indicate if the menu item should be unselectable or not. Defaults to false (i.e. menu items are selectable by default)
-///      * `menu` - a table, in the same format as above, which will be presented as a sub-menu for this menu item.
+///  * The available keys for each menu item are (note that `title` is the only required key -- all other keys are optional):
+///      * `title`           - A string or `hs.styledtext` object to be displayed in the menu. If this is the special string `"-"` the item will be rendered as a menu separator.  This key can be set to the empty string (""), but it must be present.
+///      * `fn`              - A function to be executed when the menu item is clicked
+///      * `checked`         - A boolean to indicate if the menu item should have a checkmark (by default) next to it or not. Defaults to false.
+///      * `state`           - a text value of "on", "off", or "mixed" indicating the menu item state.  "on" and "off" are equivalent to `checked` being true or false respectively, and "mixed" will have a dash (by default) beside it.
+///      * `disabled`        - A boolean to indicate if the menu item should be unselectable or not. Defaults to false (i.e. menu items are selectable by default)
+///      * `menu`            - a table, in the same format as above, which will be presented as a sub-menu for this menu item.
 ///         * a menu item that is disabled and has a sub-menu will show the arrow at the right indicating that it has a sub-menu, but the items within the sub-menu will not be available, even if the sub-menu items are not disabled themselves.
 ///         * a menu item with a sub-menu is also a clickable target, so it can also have an `fn` key.
+///      * `image`           - An image to display in the menu to the right of any state image or checkmark and to the left of the menu item title.  This image is not constrained by the size set with [hs.menubar:stateImageSize], so you should adjust it with `hs.image:setSize` if your image is extremely large or small.
+///      * `tooltip`         - A tool tip to display if you hover the cursor over a menu item for a few seconds.
+///      * `indent`          - An integer from 0 to 15 indicating how far to the right a menu item should be indented.  Defaults to 0.
+///      * `onStateImage`    - An image to display when `checked` is true or `state` is set to "on".  This image size is constrained to the size set by [hs.menubar:stateImageSize].  If this key is not set, a checkmark will be displayed for checked or "on" menu items.
+///      * `offStateImage`   - An image to display when `checked` is false or `state` is set to "off".  This image size is constrained to the size set by [hs.menubar:stateImageSize].  If this key is not set, no special marking appears next to the menu item.
+///      * `mixedStateImage` - An image to display when `state` is set to "mixed".  This image size is constrained to the size set by [hs.menubar:stateImageSize].  If this key is not set, a dash will be displayed for menu items with a state of "mixed".
 ///
 /// Returns:
 ///  * the menubaritem
@@ -601,7 +605,7 @@ static int menubarSetMenu(lua_State *L) {
             menu = [[NSMenu alloc] initWithTitle:@"HammerspoonMenuItemStaticMenu"];
             if (menu) {
                 [menu setAutoenablesItems:NO];
-                parse_table(L, 2, menu);
+                parse_table(L, 2, menu, menuBarItem->stateBoxImageSize);
 
                 // If the table returned no useful menu items, we might as well get rid of the menu
                 if ([menu numberOfItems] == 0) {
@@ -617,6 +621,8 @@ static int menubarSetMenu(lua_State *L) {
                 [menu setAutoenablesItems:NO];
 
                 delegate = [[HSMenubarItemMenuDelegate alloc] init];
+                delegate.stateBoxImageSize = menuBarItem->stateBoxImageSize ;
+
                 delegate.L = L;
                 lua_pushvalue(L, 2);
                 delegate.fn = [skin luaRef:refTable];
@@ -840,6 +846,44 @@ static int menubarFrame(lua_State *L) {
     return 1;
 }
 
+/// hs.menubar:stateImageSize([size]) -> hs.image object | current value
+/// Method
+/// Get or set the size for state images when the menu is displayed.
+///
+/// Parameters:
+///  * size - an optional table specifying the size for state images displayed when using the `checked` or `state` key in a menu table definition.  Defaults to a size determined by the system menu font point size.  If you specify an explicit nil, the size is reset to this default.
+///
+/// Returns:
+///  * if a parameter is provided, returns the menubar item; otherwise returns the current value.
+///
+/// Noted:
+///  * An image is used rather than a checkmark or dash only when you set them with the `onStateImage`, `offStateImage`, or `mixedStateImage` keys.  If you are not using these keys, then this method will have no visible effect on the menu's rendering.  See  [hs.menubar:setMenu] for more information.
+///  * If you are setting the menu contents with a static table, you should invoke this method before invoking [hs.menubar:setMenu], as changes will only go into effect when the table is next converted to a menu structure.
+static int menubarStateImageSize(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+    menubaritem_t *menuBarItem = get_item_arg(L, 1);
+    NSStatusItem *statusItem = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
+    if (lua_gettop(L) == 1) {
+        [skin pushNSSize:menuBarItem->stateBoxImageSize] ;
+    } else {
+        NSSize newSize ;
+        if (lua_type(L, 2) == LUA_TTABLE) {
+            newSize = [skin tableToSizeAtIndex:2] ;
+        } else {
+            CGFloat defaultFromFont = [[NSFont menuFontOfSize:0] pointSize] ;
+            newSize = NSMakeSize(defaultFromFont, defaultFromFont) ;
+        }
+        menuBarItem->stateBoxImageSize = newSize ;
+        if (statusItem.menu && [[statusItem.menu delegate] isKindOfClass:[HSMenubarItemMenuDelegate class]]) {
+            HSMenubarItemMenuDelegate *theDelegate = [statusItem.menu delegate] ;
+            theDelegate.stateBoxImageSize = newSize ;
+        }
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
+}
+
 // ----------------------- Lua/hs glue GAR ---------------------
 
 void menubar_setup() {
@@ -885,6 +929,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"removeFromMenuBar", menubar_removeFromMenuBar},
     {"returnToMenuBar",   menubar_returnToMenuBar},
     {"delete",            menubar_delete},
+    {"stateImageSize",    menubarStateImageSize},
     {"_frame",            menubarFrame},
 
     {"__tostring",        userdata_tostring},
