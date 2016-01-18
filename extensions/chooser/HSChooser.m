@@ -305,6 +305,11 @@
 }
 
 - (void)selectChoice:(NSInteger)row {
+    NSUInteger numRows = [[self getChoices] count];
+    if (row < 0 || row > (numRows - 1)) {
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"ERROR: unable to select row %li of %li", (long)row, (long)numRows]];
+        return;
+    }
     [self.choicesTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
 
     // FIXME: This scrolling is awfully jumpy
