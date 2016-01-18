@@ -459,9 +459,9 @@ static int NSImage_tolua(lua_State *L, id obj) {
 }
 
 static id HSImage_toNSImage(lua_State *L, int idx) {
-    void **thingy = luaL_testudata(L, idx, USERDATA_TAG) ;
-    if (*thingy) {
-        return (__bridge NSImage *) *thingy ;
+    void *ptr = luaL_testudata(L, idx, USERDATA_TAG) ;
+    if (ptr) {
+        return (__bridge NSImage *)*((void **)ptr) ;
     } else {
         return nil ;
     }
