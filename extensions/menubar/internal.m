@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 // ----------------------- Definitions ---------------------
 
@@ -58,8 +57,7 @@ int refTable;
 
     if (!fn_result) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        [skin logError:[NSString stringWithFormat:@"hs.menubar:setClickCallback() callback error: %s", errorMsg]];
         return;
     }
 }
@@ -95,6 +93,7 @@ NSMutableArray *dynamicMenuDelegates;
 @end
 @implementation HSMenubarItemMenuDelegate
 - (void) menuNeedsUpdate:(NSMenu *)menu {
+    LuaSkin *skin = [LuaSkin shared];
     [self callback_runner];
 
     // Ensure the callback pushed a table onto the stack, then remove any existing menu structure and parse the table into a new menu
@@ -102,7 +101,7 @@ NSMutableArray *dynamicMenuDelegates;
         erase_menu_items(self.L, menu);
         parse_table(self.L, lua_gettop(self.L), menu);
     } else {
-        showError(self.L, "You must return a valid Lua table from a callback function passed to hs.menubar:setMenu()");
+        [skin logError:@"hs.menubar:setMenu() callback must return a valid table"];
     }
 }
 @end
@@ -119,7 +118,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
 
         // Check that the value is a table
         if (lua_type(L, -1) != LUA_TTABLE) {
-            CLS_NSLOG(@"Error: table entry is not a menu item table: %s", lua_typename(L, lua_type(L, -1)));
+            [skin logBreadcrumb:[NSString stringWithFormat:@"Error: table entry is not a menu item table: %s", lua_typename(L, lua_type(L, -1))]];
 
             // Pop the value off the stack, leaving the key at the top
             lua_pop(L, 1);
@@ -131,7 +130,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
         lua_getfield(L, -1, "title");
         if (!lua_isstring(L, -1)) {
             // We can't proceed without the title, we'd have nothing to display in the menu, so let's just give up and move on
-            CLS_NSLOG(@"Error: malformed menu table entry. Instead of a title string, we found: %s", lua_typename(L, lua_type(L, -1)));
+            [skin logBreadcrumb:[NSString stringWithFormat:@"Error: malformed menu table entry. Instead of a title string, we found: %s", lua_typename(L, lua_type(L, -1))]];
             // We need to pop two things off the stack - the result of lua_getfield and the table it inspected
             lua_pop(L, 2);
             // Bail to the next lua_next() call
@@ -139,7 +138,7 @@ void parse_table(lua_State *L, int idx, NSMenu *menu) {
         }
 
         // We have found the title of a menu bar item. Turn it into an NSString and pop it off the stack
-        NSString *title = lua_to_nsstring(L, -1);
+        NSString *title = [skin toNSObjectAtIndex:-1];
         lua_pop(L, 1);
 
         if ([title isEqualToString:@"-"]) {
@@ -323,12 +322,14 @@ static int menubarNew(lua_State *L) {
 ///  * If you set an icon as well as a title, they will both be displayed next to each other
 ///  * Has no affect on the display of a pop-up menu, but changes will be be in effect if hs.menubar:returnToMenuBar() is called on the menubaritem.
 static int menubarSetTitle(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSString *titleText;
     if (lua_isnoneornil(L, 2)) {
         titleText = nil;
     } else {
-        titleText = lua_to_nsstring(L, 2);
+        titleText = [skin toNSObjectAtIndex:2];
     }
 
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setTitle:titleText];
@@ -401,8 +402,10 @@ static int menubarSetIcon(lua_State *L) {
 /// Notes:
 ///  * Has no affect on the display of a pop-up menu, but changes will be be in effect if hs.menubar:returnToMenuBar() is called on the menubaritem.
 static int menubarSetTooltip(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
-    NSString *toolTipText = lua_to_nsstring(L, 2);
+    NSString *toolTipText = [skin toNSObjectAtIndex:2];
     lua_settop(L, 1); // FIXME: This seems unnecessary?
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setToolTip:toolTipText];
 
@@ -601,6 +604,7 @@ static int menubar_delete(lua_State *L) {
 ///
 ///  * This method is blocking -- Hammerspoon will be unable to respond to any other activity while the pop-up menu is being displayed.
 static int menubar_render(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
     NSStatusItem  *statusItem  = (__bridge NSStatusItem*)menuBarItem->menuBarItemObject;
     NSMenu        *menu        = [statusItem menu];
@@ -619,8 +623,7 @@ static int menubar_render(lua_State *L) {
 
             break ;
         default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.menubar:render(): %d", lua_type(L, 2)) ;
-            showError(L, (char *)[[NSString stringWithFormat:@"Unexpected type passed to hs.menubar:render(): %d", lua_type(L, 2)] UTF8String]) ;
+            [skin logError:@"hs.menubar:popupMenu() argument must be a valid hs.geometry.point table"];
             lua_pushnil(L) ;
             return 1 ;
     }
@@ -630,7 +633,7 @@ static int menubar_render(lua_State *L) {
         if (menuBarItem->click_callback)
             [((__bridge HSMenubarItemClickDelegate *)menuBarItem->click_callback) click:0] ;
         else {
-            printToConsole(L, "-- Missing menu object for hs.menu.popupMenu()") ;
+            [[LuaSkin shared] logWarn:@"hs.menubar:popupMenu() Missing menu object"] ;
 
 //     // Used for testing, but inconsistent with the rest of hs.menubar's behavior for empty menus.
 //             menu = [[NSMenu alloc] init];

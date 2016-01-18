@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 // #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 // #import "objectconversion.h"
 
 #define USERDATA_TAG    "hs.notify"
@@ -84,7 +83,7 @@ int refTable ;
     }
 
     if (rebuild) {
-        CLS_NSLOG(@"hs.notify: creating new userdata for orphaned notification") ;
+        [skin logBreadcrumb:@"hs.notify: creating new userdata for orphaned notification"] ;
     // If notification userdata does not exist, then we've been reloaded
     // and the reference is bad.  Make a new one.
         thisNote = lua_newuserdata(skin.L, sizeof(notification_t)) ;
@@ -120,7 +119,7 @@ int refTable ;
 - (void)userNotificationCenter:(NSUserNotificationCenter __unused *)center
         didDeliverNotification:(NSUserNotification *)notification {
 
-    // CLS_NSLOG(@"in didDeliverNotification") ;
+    // NSlog(@"in didDeliverNotification") ;
 
         NSString *fnTag = [notification.userInfo valueForKey:@"tag"] ;
 
@@ -134,7 +133,7 @@ int refTable ;
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center
        didActivateNotification:(NSUserNotification *)notification {
 
-    // CLS_NSLOG(@"in didActivateNotification") ;
+    // NSLog(@"in didActivateNotification") ;
 
         NSString *fnTag = [notification.userInfo valueForKey:@"tag"] ;
 
@@ -148,8 +147,7 @@ int refTable ;
             lua_pushstring(skin.L, "hs.notify") ;
             if (![skin protectedCallAndTraceback:1 nresults:1]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
-                CLS_NSLOG(@"hs.notify: unable to load module to invoke callback handler: %s", errorMsg) ;
-                showError(skin.L, (char *)errorMsg);
+                [skin logError:[NSString stringWithFormat:@"Unable to require('hs.notify'): %s", errorMsg]];
                 return;
             }
             lua_getfield(skin.L, -1, "_tag_handler") ;
@@ -160,12 +158,11 @@ int refTable ;
             notification_t __unused *thisNote = [self getOrCreateUserdata:notification] ; // necessary in case of reload
             [skin pushLuaRef:refTable ref:[[notification.userInfo valueForKey:@"userdata"] intValue]];
 
-    // CLS_NSLOG(@"invoking callback handler") ;
+    // NSLog(@"invoking callback handler") ;
 
             if(![skin protectedCallAndTraceback:2 nresults:0]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
-                CLS_NSLOG(@"hs.notify callback error: %s", errorMsg);
-                showError(skin.L, (char *)errorMsg);
+                [skin logError:[NSString stringWithFormat:@"hs.notify callback error: %s", errorMsg]];
                 return;
             }
 
@@ -177,7 +174,7 @@ int refTable ;
                 [[NSUserNotificationCenter defaultUserNotificationCenter] removeScheduledNotification:notification];
             }
         } else {
-    // CLS_NSLOG(@"hs.notify passing off to original handler") ;
+    // NSLog(@"hs.notify passing off to original handler") ;
             [old_delegate userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:notification];
         }
     }
@@ -186,7 +183,7 @@ int refTable ;
 - (BOOL)userNotificationCenter:(NSUserNotificationCenter __unused *)center
      shouldPresentNotification:(NSUserNotification *)notification {
 
-    // CLS_NSLOG(@"in shouldPresentNotification") ;
+    // NSLog(@"in shouldPresentNotification") ;
 
         NSNumber *shouldPresent = [notification.userInfo valueForKey:@"alwaysPresent"] ;
         if (shouldPresent != nil) {
@@ -612,7 +609,7 @@ static int notification_release(lua_State* L) {
 ///  * The proper way to release a notifications callback is to remove its tag from the `hs.notify.registry` with `hs.notify.unregister`.
 ///  * This is included for backwards compatibility.
 
-    printToConsole(L, "-- hs.notify.release is a no-op.  If you want to remove a notification's callback, see hs.notify.getFunctionTag.") ;
+    [[LuaSkin shared] logInfo:@"hs.notify:release() is a no-op. If you want to remove a notification's callback, see hs.notify:getFunctionTag()."] ;
     lua_settop(L, 1) ;
     return 1;
 }
@@ -725,7 +722,7 @@ static int notification_contentImage(lua_State *L) {
                 lua_settop(L, 1) ;
             }
         } else {
-            printToConsole(L, "-- hs.notify: contentImage is only supported in OS X 10.9 and newer.") ;
+            [[LuaSkin shared] logInfo:@"hs.notify:contentImage() is only supported in OS X 10.9 and newer."] ;
             lua_settop(L, 1) ;
         }
     } else {

@@ -622,6 +622,7 @@ static int window_setShadows(lua_State* L) {
 // used by hs.window.snapshotForID and hs.window:snapshot
 
 static int snapshot_common_code(lua_State* L, CGWindowID windowID, CGWindowImageOption makeOpaque) {
+        LuaSkin *skin = [LuaSkin shared];
 //         CGRect windowRect = { get_window_topleft(win), get_window_size(win) };
         CGRect windowRect = CGRectNull ;
 
@@ -633,7 +634,7 @@ static int snapshot_common_code(lua_State* L, CGWindowID windowID, CGWindowImage
         CFRelease(targetWindow);
 
         if (!windowImage) {
-            CLS_NSLOG(@"hs.window::snapshot: ERROR: CGWindowListCreateImageFromArray failed for windowID: %ld", (long) windowID);
+            [skin logBreadcrumb:[NSString stringWithFormat:@"hs.window::snapshot: ERROR: CGWindowListCreateImageFromArray failed for windowID: %ld", (long) windowID]];
             return 0;
         }
 
@@ -693,7 +694,7 @@ static int window_snapshot(lua_State* L) {
 
         return snapshot_common_code(L, windowID, makeOpaque) ;
     } else {
-        printToConsole(L, "Unable to retrieve CGWindowID for specified window.") ;
+        [[LuaSkin shared] logWarn:@"hs.window:snapshot() Unable to retrieve CGWindowID for specified window."] ;
         return 0 ;
     }
 }

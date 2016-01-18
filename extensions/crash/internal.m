@@ -1,8 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import <pthread.h>
-#import "../hammerspoon.h"
+#import <Crashlytics/Crashlytics.h>
 
 // ----------------------- API Implementation ---------------------
 
@@ -38,10 +37,11 @@ static int burnTheWorld(lua_State *L __unused) {
 /// Notes:
 ///  * This is probably only useful to extension developers. If you are trying to track down a confusing crash, and you have access to the Crashlytics project for Hammerspoon (or access to someone who has access!), this can be a useful way to leave breadcrumbs from Lua in the crash dump
 static int crashLog(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     if (lua_toboolean(L, 2)) {
-        CLS_NSLOG("%s", lua_tostring(L, 1));
+        [skin logBreadcrumb:[skin toNSObjectAtIndex:1]];
     } else {
-        CLS_LOG("%s", lua_tostring(L, 1));
+        CLSLog(@"%s", lua_tostring(L, 1));
     }
 
     return 0;
@@ -58,8 +58,12 @@ static int crashLog(lua_State *L) {
 /// Returns:
 ///  * None
 static int crashKV(lua_State *L) {
-    NSString *key = lua_to_nsstring(L, 1);
-    NSString *value = lua_to_nsstring(L, 2);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
+
+    NSString *key = [skin toNSObjectAtIndex:1];
+    NSString *value = [skin toNSObjectAtIndex:2];
+
     Crashlytics *crashlytics = [Crashlytics sharedInstance];
     [crashlytics setObjectValue:value forKey:key];
 

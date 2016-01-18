@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 /// hs.applescript._applescript(string) -> bool, result
 /// Function
@@ -20,7 +19,7 @@ static int runapplescript(lua_State* L) {
 
     NSAppleScript* script = [[NSAppleScript alloc] initWithSource:source];
     if (script == nil) {
-        showError(L, "Unable to create AppleScript - perhaps you have a syntax error?");
+        [skin logError:@"hs.applescript._applescript() Unable to create AppleScript - perhaps you have a syntax error?"];
         lua_pushboolean(L, NO);
         lua_pushstring(L, "Unable to create AppleScript - perhaps you have a syntax error?");
         return 2;

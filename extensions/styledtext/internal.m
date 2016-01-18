@@ -4,7 +4,6 @@
 #import <Cocoa/Cocoa.h>
 // #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 #define USERDATA_TAG "hs.styledtext"
 int refTable;

@@ -2,7 +2,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 #define USERDATA_TAG    "hs.sound"
 int refTable;
@@ -23,8 +22,7 @@ int refTable;
 
     if (![skin protectedCallAndTraceback:1 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        [skin logError:[NSString stringWithFormat:@"hs.sound:function() callback error: %s", errorMsg]];
     }
 }
 @end
@@ -273,6 +271,7 @@ static int sound_name(lua_State* L) {
 /// Notes:
 ///  * To obtain the UID of a sound device, see `hs.audiodevice:uid()`
 static int sound_device(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     sound_t* sound = luaL_checkudata(L, 1, USERDATA_TAG);
     if (!lua_isnone(L, 2)) {
         if (lua_isnil(L,2)) {
@@ -281,7 +280,7 @@ static int sound_device(lua_State* L) {
             @try {
                 [(__bridge NSSound*) sound->soundObject setPlaybackDeviceIdentifier:[NSString stringWithUTF8String: luaL_checkstring(L, 2)]];
             } @catch(NSException *theException) {
-                CLS_NSLOG(@"%s:device -- %@: %@", USERDATA_TAG, theException.name, theException.reason);
+                [skin logBreadcrumb:[NSString stringWithFormat:@"%s:device -- %@: %@", USERDATA_TAG, theException.name, theException.reason]];
                 lua_pushstring(L, [[NSString stringWithFormat:@"%@: %@", theException.name, theException.reason] UTF8String]);
                 lua_error(L);
             }

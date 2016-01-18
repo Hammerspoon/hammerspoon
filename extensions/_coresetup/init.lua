@@ -5,6 +5,7 @@
 return {setup=function(...)
   local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
   local tostring,pack,tconcat,sformat=tostring,table.pack,table.concat,string.format
+  local crashLog = require("hs.crash").crashLog
   -- setup core functions
 
   os.exit = hs._exit
@@ -43,9 +44,9 @@ return {setup=function(...)
   ---  * You can override this function if you wish to route errors differently (e.g. for remote systems)
 
   function hs.showError(err)
-    hs._notify("Hammerspoon config error") -- undecided on this line
+    hs._notify("Hammerspoon error") -- undecided on this line
     --  print(debug.traceback())
-    print(err)
+    print("*** ERROR: "..err)
     hs.focus()
     hs.openConsole()
     hs._TERMINATED=true
@@ -232,7 +233,7 @@ return {setup=function(...)
           print("*** WARN:    "..message)
       elseif level == 1 then              -- LS_LOG_ERROR
           hs.showError(message)
-          require("hs.crash").crashLog("ERROR: "..message)
+          crashLog("ERROR: "..message)
 --           print("*** ERROR:   "..message)
       else
           print("*** UNKNOWN LOG LEVEL: "..tostring(level).."\n\t"..message)

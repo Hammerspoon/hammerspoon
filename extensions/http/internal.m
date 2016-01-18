@@ -2,7 +2,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 #import <WebKit/WebKit.h>
 
 int refTable;
@@ -72,8 +71,7 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
 
     if (![skin protectedCallAndTraceback:3 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        [skin logError:[NSString stringWithFormat:@"hs.http callback error: %s", errorMsg]];
     }
     remove_delegate(L, self);
 }
@@ -109,8 +107,9 @@ static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* reque
 
 // Gets all information for the request from the stack and creates a request
 static NSMutableURLRequest* getRequestFromStack(lua_State* L){
-    NSString* url = lua_to_nsstring(L, 1);
-    NSString* method = lua_to_nsstring(L, 2);
+    LuaSkin *skin = [LuaSkin shared];
+    NSString* url = [skin toNSObjectAtIndex:1];
+    NSString* method = [skin toNSObjectAtIndex:2];
 
     NSMutableURLRequest *request;
 

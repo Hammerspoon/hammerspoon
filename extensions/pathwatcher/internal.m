@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 // Common Code
 
@@ -34,8 +33,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
 
     if (![skin protectedCallAndTraceback:1 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        [skin logError:[NSString stringWithFormat:@"hs.pathwatcher callback error: %s", errorMsg]];
     }
 }
 

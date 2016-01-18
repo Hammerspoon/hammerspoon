@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 // Declare our Lua userdata object and a storage container for them
 typedef struct _drawing_t {

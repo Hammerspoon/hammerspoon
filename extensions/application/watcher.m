@@ -2,7 +2,6 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
 #import "application.h"
-#import "../hammerspoon.h"
 
 /// === hs.application.watcher ===
 ///
@@ -109,8 +108,7 @@ typedef enum _event_t {
 
     if (![skin protectedCallAndTraceback:3 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        [skin logError:[NSString stringWithFormat:@"hs.application.watcher callback error: %s", errorMsg]];
     }
 }
 

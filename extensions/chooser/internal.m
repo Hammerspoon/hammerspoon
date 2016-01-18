@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../Hammerspoon.h"
 #import "chooser.h"
 
 #pragma mark - Lua API - Constructors
@@ -153,13 +152,13 @@ static int chooserSetChoices(lua_State *L) {
             }
 
             if (!staticChoicesTypeCheckPass) {
-                showError(L, "ERROR: The choices table you passed to hs.chooser:choices() could not be parsed correctly");
+                [skin logError:@"hs.chooser:choices() table could not be parsed correctly."];
                 chooser.currentStaticChoices = nil;
             }
             break;
 
         default:
-            NSLog(@"ERROR: Unknown type passed to hs.chooser:choices(). This should not be possible");
+            [skin logBreadcrumb:@"ERROR: Unknown type passed to hs.chooser:choices(). This should not be possible"];
             break;
     }
 

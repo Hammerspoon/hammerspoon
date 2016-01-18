@@ -3,7 +3,6 @@
 #import <LuaSkin/LuaSkin.h>
 #import "application.h"
 #import "../window/window.h"
-#import "../hammerspoon.h"
 
 #define get_app(L, idx) *((AXUIElementRef*)luaL_checkudata(L, idx, "hs.application"))
 #define nsobject_for_app(L, idx) [NSRunningApplication runningApplicationWithProcessIdentifier: pid_for_app(L, idx)]
@@ -470,6 +469,7 @@ static int application_kind(lua_State* L) {
 
 // Internal helper function to get an AXUIElementRef for a menu item in an app, by searching all menus
 AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *name) {
+    LuaSkin *skin = [LuaSkin shared];
     AXUIElementRef foundItem = nil;
     AXUIElementRef menuBar;
     AXError error = AXUIElementCopyAttributeValue(app, kAXMenuBarAttribute, (CFTypeRef *)&menuBar);
@@ -516,7 +516,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
         CFIndex childcount = -1;
         error = AXUIElementGetAttributeValueCount(element, kAXChildrenAttribute, &childcount);
         if (error) {
-            CLS_NSLOG(@"Got an error (%d) checking child count, skipping", (int)error);
+            [skin logBreadcrumb:[NSString stringWithFormat:@"Got an error (%d) checking child count, skipping", (int)error]];
             continue;
         }
         if (childcount > 0) {
@@ -524,7 +524,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
             CFArrayRef cf_menuchildren;
             error = AXUIElementCopyAttributeValues(element, kAXChildrenAttribute, 0, childcount, &cf_menuchildren);
             if (error) {
-                CLS_NSLOG(@"Got an error (%d) fetching menu children, skipping", (int)error);
+                [skin logBreadcrumb:[NSString stringWithFormat:@"Got an error (%d) fetching menu children, skipping", (int)error]];
                 continue;
             }
             [toCheck addObjectsFromArray:(__bridge NSArray *)cf_menuchildren];
@@ -540,7 +540,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
     CFRelease(menuBar);
 
     if (i == 0) {
-        printToConsole(L, "WARNING: _findmenuitembyname() overflowed 5000 iteration guard. This is either a Hammerspoon bug, or you have some very deep menus");
+        [skin logWarn:@"_findmenuitembyname() overflowed 5000 iteration guard. This is either a Hammerspoon bug, or your menus are too deep"];
         return nil;
     }
 
@@ -549,6 +549,7 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
 //
 // Internal helper function to get an AXUIElementRef for a menu item in an app, by following the menu path provided
 AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NSArray *_path) {
+    LuaSkin *skin = [LuaSkin shared];
     AXUIElementRef foundItem = nil;
     AXUIElementRef menuBar;
     AXUIElementRef searchItem;
@@ -572,14 +573,14 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
         CFIndex count = -1;
         error = AXUIElementGetAttributeValueCount(searchItem, kAXChildrenAttribute, &count);
         if (error) {
-            CLS_NSLOG(@"Failed to get child count");
+            [skin logBreadcrumb:@"Failed to get child count"];
             break;
         }
 
         CFArrayRef cf_children;
         error = AXUIElementCopyAttributeValues(searchItem, kAXChildrenAttribute, 0, count, &cf_children);
         if (error) {
-            CLS_NSLOG(@"Failed to get children");
+            [skin logBreadcrumb:@"Failed to get children"];
             break;
         }
 
@@ -589,7 +590,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             AXUIElementRef aSearchItem = (AXUIElementRef)CFArrayGetValueAtIndex(cf_children, 0);
             error = AXUIElementCopyAttributeValue(aSearchItem, kAXRoleAttribute, &cf_role);
             if (error) {
-                CLS_NSLOG(@"Failed to get role");
+                [skin logBreadcrumb:@"Failed to get role"];
                 break;
             }
             BOOL isMenuRole = CFStringCompare((CFStringRef)cf_role, kAXMenuRole, 0);
@@ -600,7 +601,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
                 CFIndex axMenuCount = -1;
                 error = AXUIElementGetAttributeValueCount(aSearchItem, kAXChildrenAttribute, &axMenuCount);
                 if (error) {
-                    CLS_NSLOG(@"Failed to get AXMenu child count");
+                    [skin logBreadcrumb:@"Failed to get AXMenu child count"];
                     CFRelease(cf_children);
                     break;
                 }
@@ -608,7 +609,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
                 error = AXUIElementCopyAttributeValues(aSearchItem, kAXChildrenAttribute, 0, axMenuCount, &axMenuChildren);
                 if (error) {
                     CFRelease(cf_children);
-                    CLS_NSLOG(@"Failed to get AXMenu children");
+                    [skin logBreadcrumb:@"Failed to get AXMenu children"];
                     break;
                 }
                 // Replace the existing children array with the new one we have retrieved
@@ -629,7 +630,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
             AXUIElementRef testMenuItem = (AXUIElementRef)CFArrayGetValueAtIndex(cf_children, j);
             AXError error = AXUIElementCopyAttributeValue(testMenuItem, kAXTitleAttribute, &cf_title);
             if (error) {
-                CLS_NSLOG(@"Unable to get menu item title");
+                [skin logBreadcrumb:@"Unable to get menu item title"];
                 continue;
             }
             if ([nextMenuItem isEqualToString:(__bridge NSString *)cf_title]) {
@@ -643,7 +644,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
         }
 
         if (!found) {
-            CLS_NSLOG(@"Unable to resolve complete search path");
+            [skin logBreadcrumb:@"Unable to resolve complete search path"];
             break;
         }
 
@@ -659,12 +660,12 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
     return foundItem;
 }
 
-/// hs.application:findMenuItem(menuitem) -> table or nil
+/// hs.application:findMenuItem(menuItem) -> table or nil
 /// Method
 /// Searches the application for a menu item
 ///
 /// Parameters:
-///  * menuitem - This can either be a string containing the text of a menu item (e.g. `"Messages"`) or a table representing the hierarchical path of a menu item (e.g. `{"File", "Share", "Messages"}`). In the string case, all of the application's menus will be searched until a match is found (with no specified behaviour if multiple menu items exist with the same name). In the table case, the whole menu structure will not be searched, because a precise path has been specified.
+///  * menuItem - This can either be a string containing the text of a menu item (e.g. `"Messages"`) or a table representing the hierarchical path of a menu item (e.g. `{"File", "Share", "Messages"}`). In the string case, all of the application's menus will be searched until a match is found (with no specified behaviour if multiple menu items exist with the same name). In the table case, the whole menu structure will not be searched, because a precise path has been specified.
 ///
 /// Returns:
 ///  * Returns nil if the menu item cannot be found. If it does exist, returns a table with two keys:
@@ -674,6 +675,7 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
 /// Notes:
 ///  * This can only search for menu items that don't have children - i.e. you can't search for the name of a submenu
 static int application_findmenuitem(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     AXError error;
     AXUIElementRef app = get_app(L, 1);
     AXUIElementRef foundItem;
@@ -692,16 +694,16 @@ static int application_findmenuitem(lua_State* L) {
         }
         foundItem = _findmenuitembypath(L, app, path);
     } else {
-        printToConsole(L, "hs.application:findMenuItem: Unrecognised type for menuItem argument. Expecting string or table.");
+        [skin logWarn:@"hs.application:findMenuItem() Unrecognised type for menuItem argument. Expecting string or table"];
         lua_pushnil(L);
         return 1;
     }
 
     if (!foundItem) {
         if (name) {
-            CLS_NSLOG(@"Couldn't find menu item %@", name);
+            [skin logBreadcrumb:[NSString stringWithFormat:@"Couldn't find menu item %@", name]];
         } else if (path) {
-            CLS_NSLOG(@"Couldn't find menu item");
+            [skin logBreadcrumb:@"Couldn't find menu item"];
         }
         lua_pushnil(L);
         return 1;
@@ -710,14 +712,14 @@ static int application_findmenuitem(lua_State* L) {
     CFTypeRef enabled;
     error = AXUIElementCopyAttributeValue(foundItem, kAXEnabledAttribute, &enabled);
     if (error) {
-        CLS_NSLOG(@"hs.application:findMenuItem: AXEnabled Error: %d", error);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"hs.application:findMenuItem: AXEnabled Error: %d", error]];
         lua_pushnil(L);
         return 1;
     }
     CFTypeRef markchar;
     error = AXUIElementCopyAttributeValue(foundItem, kAXMenuItemMarkCharAttribute, &markchar);
     if (error && error != kAXErrorNoValue) {
-        CLS_NSLOG(@"hs.application:findMenuItem: AXMenuItemMarkChar: %d", error);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"hs.application:findMenuItem: AXMenuItemMarkChar: %d", error]];
         lua_pushnil(L);
         return 1;
     }
@@ -756,6 +758,7 @@ static int application_findmenuitem(lua_State* L) {
 /// Notes:
 ///  * Depending on the type of menu item involved, this will either activate or tick/untick the menu item
 static int application_selectmenuitem(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     AXUIElementRef app = get_app(L, 1);
     AXUIElementRef foundItem;
     NSString *name;
@@ -774,20 +777,20 @@ static int application_selectmenuitem(lua_State* L) {
         }
         foundItem = _findmenuitembypath(L, app, path);
     } else {
-        printToConsole(L, "hs.application:selectMenuItem(): Unrecognised type for menuItem argument, expecting string or table");
+        [skin logWarn:@"hs.application:selectMenuItem(): Unrecognised type for menuItem argument, expecting string or table"];
         lua_pushnil(L);
         return 1;
     }
 
     if (!foundItem) {
-        CLS_NSLOG(@"Couldn't find %@", name);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"Couldn't find %@", name]];
         lua_pushnil(L);
         return 1;
     }
 
     AXError error = AXUIElementPerformAction(foundItem, kAXPressAction);
     if (error) {
-        CLS_NSLOG(@"hs.application:selectMenuItem(): AXPress error: %d", (int)error);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"hs.application:selectMenuItem(): AXPress error: %d", (int)error]];
         lua_pushnil(L);
         return 1;
     }

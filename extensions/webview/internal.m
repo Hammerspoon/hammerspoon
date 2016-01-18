@@ -184,8 +184,7 @@ static int userdata_gc(lua_State* L) ;
 
             if (![skin  protectedCallAndTraceback:3 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
-                CLS_NSLOG(@"%s: authenticationChallenge: %s", USERDATA_TAG, errorMsg);
-                showError([skin L], (char *)[[NSString stringWithFormat:@"%s: authenticationChallenge: %s", USERDATA_TAG, errorMsg] UTF8String]);
+                [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() authenticationChallenge callback error: %s", errorMsg]];
                 // allow prompting if error -- fall through
             } else {
                 if (lua_type([skin L], -1) == LUA_TTABLE) { // if it's a table, we'll get the username and password from it
@@ -273,8 +272,7 @@ static int userdata_gc(lua_State* L) ;
 
         if (![skin  protectedCallAndTraceback:3 nresults:1]) {
             const char *errorMsg = lua_tostring([skin L], -1);
-            CLS_NSLOG(@"%s: navigationAction: %s", USERDATA_TAG, errorMsg);
-            showError([skin L], (char *)[[NSString stringWithFormat:@"%s: navigationAction: %s", USERDATA_TAG, errorMsg] UTF8String]);
+            [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() navigationAction callback error: %s", errorMsg]];
             decisionHandler(WKNavigationActionPolicyCancel) ;
         } else {
             if (lua_toboolean([skin L], -1)) {
@@ -300,8 +298,7 @@ static int userdata_gc(lua_State* L) ;
 
         if (![skin  protectedCallAndTraceback:3 nresults:1]) {
             const char *errorMsg = lua_tostring([skin L], -1);
-            CLS_NSLOG(@"%s: navigationResponse: %s", USERDATA_TAG, errorMsg);
-            showError([skin L], (char *)[[NSString stringWithFormat:@"%s: navigationResponse: %s", USERDATA_TAG, errorMsg] UTF8String]);
+            [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() navigationResponse callback error: %s", errorMsg]];
             decisionHandler(WKNavigationResponsePolicyCancel) ;
         } else {
             if (lua_toboolean([skin L], -1)) {
@@ -370,16 +367,13 @@ static int userdata_gc(lua_State* L) ;
 
             if (![skin  protectedCallAndTraceback:3 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1); lua_pop([skin L], 1) ;
-                CLS_NSLOG(@"%s: newWindow: %s", USERDATA_TAG, errorMsg) ;
-                showError([skin L], (char *)[[NSString stringWithFormat:@"%s: newWindow: %s", USERDATA_TAG, errorMsg] UTF8String]);
+                [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() newWindow callback error: %s", errorMsg]];
 
                 lua_pushcfunction([skin L], userdata_gc) ;
                 [skin pushNSObject:newWindow] ;
                 if (![skin protectedCallAndTraceback:1 nresults:0]) {
                     const char *errorMsg = lua_tostring([skin L], -1); lua_pop([skin L], 1) ;
-                    CLS_NSLOG(@"%s: newWindow removal due to error: %s", USERDATA_TAG, errorMsg) ;
-                    showError([skin L],
-                        (char *)[[NSString stringWithFormat:@"%s: newWindow removal due to error: %s", USERDATA_TAG, errorMsg] UTF8String]);
+                    [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() newWindow removal due to error: %s", errorMsg]];
                 }
                 return nil ;
             } else {
@@ -388,9 +382,7 @@ static int userdata_gc(lua_State* L) ;
                     [skin pushNSObject:newWindow] ;
                     if (![skin protectedCallAndTraceback:1 nresults:0]) {
                         const char *errorMsg = lua_tostring([skin L], -1); lua_pop([skin L], 1) ;
-                        CLS_NSLOG(@"%s: newWindow removal due rejection: %s", USERDATA_TAG, errorMsg) ;
-                        showError([skin L],
-                            (char *)[[NSString stringWithFormat:@"%s: newWindow removal due rejection: %s", USERDATA_TAG, errorMsg] UTF8String]);
+                        [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() newWindow removal due rejection: %s", errorMsg]];
                     }
                     return nil ;
                 }
@@ -496,16 +488,14 @@ static int userdata_gc(lua_State* L) ;
 
         if (![skin  protectedCallAndTraceback:numberOfArguments nresults:1]) {
             const char *errorMsg = lua_tostring([skin L], -1);
-            CLS_NSLOG(@"%s: %s %s", USERDATA_TAG, action, errorMsg);
-            showError([skin L], (char *)[[NSString stringWithFormat:@"%s: %s %s", USERDATA_TAG, action, errorMsg] UTF8String]);
+            [skin logError:[NSString stringWithFormat:@"hs.webview:navigationCallback() %s callback error: %s", action, errorMsg]];
         } else {
             if (error) {
                 if (lua_type([skin L], -1) == LUA_TSTRING) {
 //                     lua_getglobal([skin L], "hs") ; lua_getfield([skin L], -1, "cleanUTF8forConsole") ;
 //                     lua_pushvalue([skin L], -3) ;
 //                     if (![skin protectedCallAndTraceback:1 nresults:1]) {
-//                         CLS_NSLOG(@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1));
-//                         showError([skin L], (char *)[[NSString stringWithFormat:@"%s: %s unable to validate HTML: %s", USERDATA_TAG, action, lua_tostring([skin L], -1)] UTF8String]);
+//                         [skin logError:[NSString stringWithFormat:@"hs.webview:navigationCallback() %s unable to validate HTML: %s", action, lua_tostring(skin.L, -1)]];
 //                     } else {
 //                         NSString *theHTML = [skin toNSObjectAtIndex:-1] ;
 //                         lua_pop([skin L], 2) ; // remove "hs" and the return value
@@ -1188,9 +1178,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
             [skin pushNSObject:error] ;
             if (![skin protectedCallAndTraceback:2 nresults:0]) {
                 const char *errorMsg = lua_tostring([skin L], -1); lua_pop([skin L], 1) ;
-                CLS_NSLOG(@"%s: evaluateJavaScript callback: %s", USERDATA_TAG, errorMsg) ;
-                showError([skin L],
-                    (char *)[[NSString stringWithFormat:@"%s: evaluateJavaScript callback: %s", USERDATA_TAG, errorMsg] UTF8String]);
+                [skin logError:[NSString stringWithFormat:@"hs.webview:evaluateJavaScript() callback error: %s", errorMsg]];
             }
             [skin luaUnref:refTable ref:callbackRef] ;
         }

@@ -2,7 +2,6 @@
 #import <LuaSkin/LuaSkin.h>
 #import <IOKit/ps/IOPowerSources.h>
 #import <IOKit/ps/IOPSKeys.h>
-#import "../hammerspoon.h"
 
 /// === hs.battery.watcher ===
 ///
@@ -33,8 +32,7 @@ static void callback(void *info) {
     [skin pushLuaRef:refTable ref:t->fn];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        [skin logError:[NSString stringWithFormat:@"hs.battery.watcher callback error: %s", errorMsg]];
     }
 }
 

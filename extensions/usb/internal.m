@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <IOKit/usb/IOUSBLib.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 CFStringRef productNameKey = CFSTR(kUSBProductString);
 CFStringRef vendorNameKey = CFSTR(kUSBVendorString);
@@ -62,7 +61,7 @@ static int usb_attachedDevices(lua_State* L) {
         productID = CFDictionaryGetValue(deviceData, productIDKey);
         vendorID = CFDictionaryGetValue(deviceData, vendorIDKey);
 
-        //CLS_NSLOG(@"Found: '%@'(%@) '%@'(%@)", vendorName, vendorID, productName, productID);
+        //NSLog(@"Found: '%@'(%@) '%@'(%@)", vendorName, vendorID, productName, productID);
 
         lua_newtable(L);
         lua_pushstring(L, "productName");

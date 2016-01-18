@@ -33,7 +33,7 @@ urlevent.httpCallback = nil
 local function urlEventCallback(scheme, event, params, fullURL)
     if (scheme == "http" or scheme == "https" or scheme == "file") then
         if not urlevent.httpCallback then
-            hs.showError("ERROR: Hammerspoon is configured for http(s):// URLs, but no http callback has been set")
+            hs.showError("Hammerspoon is configured for http(s):// URLs, but no http callback has been set")
         else
             local ok, err = xpcall(function() return urlevent.httpCallback(scheme, event, params, fullURL) end, debug.traceback)
             if not ok then
