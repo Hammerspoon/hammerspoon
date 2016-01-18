@@ -42,6 +42,10 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
 
         //NSLog(@"%i addresses to check", numAddresses);
         LuaSkin *skin = [LuaSkin shared];
+        if (!theWatcher) {
+            NSLog(@"ERROR: in audiodevicewatcher_callback, but theWatcher is nil. This is a bug");
+            return;
+        }
         if (theWatcher->callback == LUA_NOREF) {
             showError(skin.L, "hs.audiodevice.watcher callback firing, but no function has been set with hs.audiodevice.watcher.setCallback()");
         } else {
