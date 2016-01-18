@@ -181,6 +181,21 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)recordCustomExceptionName:(NSString *)name reason:(nullable NSString *)reason frameArray:(CLS_GENERIC_NSARRAY(CLSStackFrame *) *)frameArray;
 
+/**
+ *
+ * This allows you to record a non-fatal event, described by an NSError object. These events will be grouped and
+ * displayed similarly to crashes. Keep in mind that this method can be expensive. Also, the total number of
+ * NSErrors that can be recorded during your app's life-cycle is limited by a fixed-size circular buffer. If the
+ * buffer is overrun, the oldest data is dropped. Errors are relayed to Crashlytics on a subsequent launch
+ * of your application.
+ *
+ * You can also use the -recordError:withAdditionalUserInfo: to include additional context not represented
+ * by the NSError instance itself.
+ *
+ **/
+- (void)recordError:(NSError *)error;
+- (void)recordError:(NSError *)error withAdditionalUserInfo:(nullable CLS_GENERIC_NSDICTIONARY(NSString *, id) *)userInfo;
+
 - (void)logEvent:(NSString *)eventName CLS_DEPRECATED("Please refer to Answers +logCustomEventWithName:");
 - (void)logEvent:(NSString *)eventName attributes:(nullable NSDictionary *) attributes CLS_DEPRECATED("Please refer to Answers +logCustomEventWithName:");
 + (void)logEvent:(NSString *)eventName CLS_DEPRECATED("Please refer to Answers +logCustomEventWithName:");

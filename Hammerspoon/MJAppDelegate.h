@@ -8,7 +8,15 @@
 #import <Fabric/Fabric.h>
 #import <Crashlytics/Crashlytics.h>
 
+@protocol HSOpenFileDelegate <NSObject>
+
+-(void)callbackWithURL:(NSString *)openUrl;
+
+@end
+
 @interface MJAppDelegate : NSObject <NSApplicationDelegate, CrashlyticsDelegate>
 @property IBOutlet NSMenu* menuBarMenu;
 @property (nonatomic, copy) NSAppleEventDescriptor *startupEvent;
+@property (nonatomic, copy) NSString *startupFile;
+@property (nonatomic, weak) id<HSOpenFileDelegate> openFileDelegate;
 @end

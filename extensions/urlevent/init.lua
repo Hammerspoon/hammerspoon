@@ -31,7 +31,7 @@ urlevent.httpCallback = nil
 
 -- Set up our top-level callback and register it with the Objective C part of the extension
 local function urlEventCallback(scheme, event, params, fullURL)
-    if (scheme == "http" or scheme == "https") then
+    if (scheme == "http" or scheme == "https" or scheme == "file") then
         if not urlevent.httpCallback then
             hs.showError("ERROR: Hammerspoon is configured for http(s):// URLs, but no http callback has been set")
         else
@@ -49,6 +49,8 @@ local function urlEventCallback(scheme, event, params, fullURL)
                 hs.showError(err)
             end
         end
+    else
+        hs.showError(string.format("ERROR: Hammerspoon has been passed a %s URL, but does not know how to handle it", scheme))
     end
 end
 urlevent.setCallback(urlEventCallback)

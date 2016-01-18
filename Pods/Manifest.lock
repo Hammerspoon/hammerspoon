@@ -15,7 +15,7 @@ PODS:
   - Sparkle (1.13.0)
 
 DEPENDENCIES:
-  - ASCIImage (= 1.0)
+  - ASCIImage (= 1.0.0)
   - CocoaAsyncSocket (= 7.4.2)
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 2.0.1)
@@ -28,4 +28,4 @@ SPEC CHECKSUMS:
   CocoaLumberjack: 019d1361244274a6138c788c6cb80baabc13fb8f
   Sparkle: d04d17a32eaddab19471d0c3d9db15164afdbc6e
 
-COCOAPODS: 0.38.2
+COCOAPODS: 0.39.0
