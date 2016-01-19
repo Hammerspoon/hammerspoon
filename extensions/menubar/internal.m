@@ -410,7 +410,7 @@ static int menubarSetTitle(lua_State *L) {
     if (lua_isnoneornil(L, 2)) {
         titleText = nil;
     } else {
-        titleText = lua_to_nsstring(L, 2);
+        titleText = [skin toNSObjectAtIndex:2];
     }
 
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setTitle:titleText];
