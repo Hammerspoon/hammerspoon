@@ -2,7 +2,6 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreWLAN/CoreWLAN.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 /// === hs.wifi.watcher ===
 ///
@@ -44,8 +43,7 @@ int refTable;
     [skin pushLuaRef:refTable ref:self.fn];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        [skin logError:[NSString stringWithFormat:@"hs.wifi.watcher callback error: %s", errorMsg]];
     }
 }
 @end

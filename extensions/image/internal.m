@@ -89,7 +89,9 @@ static int pushNSImageNameTable(lua_State *L) {
 /// Returns:
 ///  * An `hs.image` object, or nil if an error occured
 static int imageFromPath(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
     NSString* imagePath = [skin toNSObjectAtIndex:1];
     imagePath = [imagePath stringByExpandingTildeInPath];
     imagePath = [[imagePath componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] componentsJoinedByString:@""];
@@ -110,7 +112,7 @@ static int imageFromPath(lua_State *L) {
 ///
 /// Parameters:
 ///  * ascii - A string containing a representation of an image
-///  * context - a table containing the context for each shape in the image.  A shape is considered a single drawing element (point, ellipse, line, or polygon) as defined at https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/.
+///  * context - An optional table containing the context for each shape in the image.  A shape is considered a single drawing element (point, ellipse, line, or polygon) as defined at https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/.
 ///    * The context table is an optional (possibly sparse) array in which the index represents the order in which the shapes are defined.  The last (highest) numbered index in the sparse array specifies the default settings for any unspecified index and any settings which are not explicitly set in any other given index.
 ///    * Each index consists of a table which can contain one or more of the following keys:
 ///      * fillColor - the color with which the shape will be filled (defaults to black)  Color is defined in a table containing color component values between 0.0 and 1.0 for each of the keys:
@@ -131,6 +133,7 @@ static int imageFromPath(lua_State *L) {
 ///  * The default for lineWidth, when antialiasing is off, is defined within the ASCIImage library. Geometrically it represents one half of the hypotenuse of the unit right-triangle and is a more accurate representation of a "real" point size when dealing with arbitrary angles and lines than 1.0 would be.
 static int imageWithContextFromASCII(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
     NSString *imageASCII = [skin toNSObjectAtIndex:1];
 
     if ([imageASCII hasPrefix:@"ASCII:"]) { imageASCII = [imageASCII substringFromIndex: 6]; }
@@ -288,7 +291,8 @@ static int imageFromName(lua_State *L) {
 /// Returns:
 ///  * An `hs.image` object or nil, if no app icon was found
 static int imageFromApp(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
     NSString *imagePath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:[skin toNSObjectAtIndex:1]];
     NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:imagePath];
 
@@ -397,7 +401,8 @@ static int setImageSize(lua_State* L) {
 /// Notes:
 ///  * Saves image at its original size.
 static int saveToFile(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
     NSImage*  theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
     NSString* filePath = [skin toNSObjectAtIndex:2] ;
     NSBitmapImageFileType fileType = NSPNGFileType ;
@@ -528,9 +533,9 @@ static luaL_Reg moduleLib[] = {
 int luaopen_hs_image_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin registerLibraryWithObject:USERDATA_TAG
-                                      functions:moduleLib
-                                  metaFunctions:nil
-                                objectFunctions:userdata_metaLib];
+                          functions:moduleLib
+                      metaFunctions:nil
+                    objectFunctions:userdata_metaLib];
 
     pushNSImageNameTable(L); lua_setfield(L, -2, "systemImageNames") ;
 
@@ -538,4 +543,3 @@ int luaopen_hs_image_internal(lua_State* L) {
     [skin registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage" withUserdataMapping:USERDATA_TAG] ;
     return 1;
 }
-

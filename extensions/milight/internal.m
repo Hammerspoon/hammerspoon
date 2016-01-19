@@ -4,7 +4,6 @@
 #import <sys/socket.h>
 #import <netinet/in.h>
 #import <arpa/inet.h>
-#import "../hammerspoon.h"
 
 #define USERDATA_TAG "hs.milight"
 
@@ -152,6 +151,7 @@ static int milight_del(lua_State *L) {
 /// Notes:
 ///  * This is a low level command, you typically should use a specific method for the operation you want to perform
 static int milight_send(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     bridge_t *bridge = luaL_checkudata(L, 1, USERDATA_TAG);
 
     int cmd_key = (int)luaL_checkinteger(L, 2);
@@ -164,19 +164,19 @@ static int milight_send(lua_State *L) {
 
     unsigned char cmd[3] = {cmd_key, value, cmd_suffix};
 
-//    CLS_NSLOG(@"milight: sending '%x %x %x'(%i %i %i) to %s:%i", cmd[0], cmd[1], cmd[2], cmd[0], cmd[1], cmd[2], bridge->ip, bridge->port);
+//    NSLog(@"milight: sending '%x %x %x'(%i %i %i) to %s:%i", cmd[0], cmd[1], cmd[2], cmd[0], cmd[1], cmd[2], bridge->ip, bridge->port);
 
     ssize_t result = sendto(bridge->socket, cmd, 3, 0, (struct sockaddr *)&bridge->sockaddr, sizeof(bridge->sockaddr));
 
     if (result == 3) {
-//        CLS_NSLOG(@"milight: sent.");
+//        NSLog(@"milight: sent.");
         lua_pushboolean(L, true);
         usleep(100000); // The bridge requires we sleep for 100ms after each command
     } else if (result == -1) {
-        CLS_NSLOG(@"milight: Error sending command: %s", strerror(errno));
+        [skin logBreadcrumb:[NSString stringWithFormat:@"milight: Error sending command: %s", strerror(errno)]];
         lua_pushboolean(L, false);
     } else {
-        CLS_NSLOG(@"milight: Error, incorrect amount of data written (%lu bytes)", result);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"milight: Error, incorrect amount of data written (%lu bytes)", result]];
         lua_pushboolean(L, false);
     }
 

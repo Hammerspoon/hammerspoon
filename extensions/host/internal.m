@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 #import <sys/sysctl.h>
 #import <sys/types.h>
 #import <mach/mach.h>
@@ -125,6 +124,7 @@ static int hostLocalizedName(lua_State* L) {
 ///  * Except for the addition of cacheHits, cacheLookups, pageSize and memSize, the results for this function should be identical to the OS X command `vm_stat`.
 ///  * Adapted primarily from the source code to Apple's vm_stat command located at http://www.opensource.apple.com/source/system_cmds/system_cmds-643.1.1/vm_stat.tproj/vm_stat.c
 static int hs_vmstat(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     int mib[6];
     mib[0] = CTL_HW; mib[1] = HW_PAGESIZE;
 
@@ -134,7 +134,7 @@ static int hs_vmstat(lua_State *L) {
     if (sysctl (mib, 2, &pagesize, &length, NULL, 0) < 0) {
         char errStr[255] ;
         snprintf(errStr, 255, "Error getting page size (%d): %s", errno, strerror(errno)) ;
-        showError(L, errStr) ;
+        [skin logError:[NSString stringWithFormat:@"hs.host.vmStat() error: %s", errStr]];
         return 0 ;
     }
 
@@ -144,7 +144,7 @@ static int hs_vmstat(lua_State *L) {
     if (sysctl (mib, 2, &memsize, &length, NULL, 0) < 0) {
         char errStr[255] ;
         snprintf(errStr, 255, "Error getting mem size (%d): %s", errno, strerror(errno)) ;
-        showError(L, errStr) ;
+        [skin logError:[NSString stringWithFormat:@"hs.host.vmStat() error: %s", errStr]];
         return 0 ;
     }
 
@@ -156,7 +156,7 @@ static int hs_vmstat(lua_State *L) {
     if (retVal != KERN_SUCCESS) {
         char errStr[255] ;
         snprintf(errStr, 255, "Error getting VM Statistics: %s", mach_error_string(retVal)) ;
-        showError(L, errStr) ;
+        [skin logError:[NSString stringWithFormat:@"hs.host.vmStat() error: %s", errStr]];
         return 0 ;
     }
 
@@ -212,6 +212,7 @@ static int hs_vmstat(lua_State *L) {
 ///  * The subtables for each core and `overall` have a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.host.cpuUsage()[#]` where # is the core you are interested in or the string "overall".
 ///  * Adapted primarily from code found at http://stackoverflow.com/questions/6785069/get-cpu-percent-usage
 static int hs_cpuInfo(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     unsigned numCPUs;
 
     int mib[2U] = { CTL_HW, HW_NCPU };
@@ -257,7 +258,7 @@ static int hs_cpuInfo(lua_State *L) {
     } else {
         char errStr[255] ;
         snprintf(errStr, 255, "Error getting CPU Usage data: %s", mach_error_string(err)) ;
-        showError(L, errStr) ;
+        [skin logError:[NSString stringWithFormat:@"hs.host.cpuUsage() error: %s", errStr]];
         return 0 ;
     }
 

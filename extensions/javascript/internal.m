@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 #import <OSAKit/OSAKit.h>
 
@@ -26,7 +25,7 @@ static int runjavascript(lua_State* L) {
     [osa compileAndReturnError:&compileError];
     
     if (compileError) {
-        showError(L, "Unable to initialize script - perhaps you have a syntax error?");
+        [skin logError:@"hs.javascript._javascript() Unable to initialize script - perhaps you have a syntax error?"];
         lua_pushboolean(L, NO);
         lua_pushstring(L, "Unable to initialize script - perhaps you have a syntax error?");
         return 2;

@@ -1,5 +1,4 @@
 #import "eventtap_event.h"
-#import "../hammerspoon.h"
 
 #define USERDATA_TAG        "hs.eventtap"
 int refTable;
@@ -20,7 +19,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
 //  apparently OS X disables eventtaps if it thinks they are slow or odd or just because the moon
 //  is wrong in some way... but at least it's nice enough to tell us.
     if ((type == kCGEventTapDisabledByTimeout) || (type == kCGEventTapDisabledByUserInput)) {
-        CLS_NSLOG(@"eventtap restarted: (%d)", type) ;
+        [skin logBreadcrumb:[NSString stringWithFormat:@"eventtap restarted: (%d)", type]] ;
         CGEventTapEnable(e->tap, true);
         return event ;
     }
@@ -31,10 +30,9 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
     if (![skin protectedCallAndTraceback:1 nresults:2]) {
         const char *errorMsg = lua_tostring(L, -1);
         if (!errorMsg) {
-            CLS_NSLOG(@"ERROR: eventtap_callback callback returned something that isn't a string: %d", lua_type(L, -1));
+            [skin logBreadcrumb:[NSString stringWithFormat:@"ERROR: eventtap_callback callback returned something that isn't a string: %d", lua_type(L, -1)]];
         } else {
-            CLS_NSLOG(@"%s", errorMsg);
-            showError(L, (char *)errorMsg);
+            [skin logError:[NSString stringWithFormat:@"hs.eventtap callback error: %s", errorMsg]];
         }
         return NULL;
     }
@@ -157,6 +155,7 @@ static int eventtap_new(lua_State* L) {
 /// Returns:
 ///  * The event tap object
 static int eventtap_start(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     eventtap_t* e = luaL_checkudata(L, 1, USERDATA_TAG);
 
     if (!(e->tap && CGEventTapIsEnabled(e->tap))) {
@@ -179,7 +178,7 @@ static int eventtap_start(lua_State* L) {
             e->runloopsrc = CFMachPortCreateRunLoopSource(NULL, e->tap, 0);
             CFRunLoopAddSource(CFRunLoopGetMain(), e->runloopsrc, kCFRunLoopCommonModes);
         } else {
-            showError(L, "Unable to create eventtap.  Is Accessibility enabled?");
+            [skin logError:@"hs.eventtap:start() Unable to create eventtap. Is Accessibility enabled?"];
         }
     }
     lua_settop(L,1);

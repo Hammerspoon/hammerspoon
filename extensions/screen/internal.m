@@ -2,7 +2,6 @@
 #import <Cocoa/Cocoa.h>
 #import <IOKit/graphics/IOGraphicsLib.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 #define USERDATA_TAG "hs.screen"
 
@@ -148,7 +147,7 @@ static int screen_availableModes(lua_State* L) {
         CGSDisplayMode mode;
         CGSGetDisplayModeDescriptionOfLength(screen_id, i, &mode, sizeof(mode));
 
-        // CLS_NSLOG(@"Found a mode: %dx%d@%.0fx, %dbit", mode.width, mode.height, mode.density, (mode.depth == 4) ? 32 : 16);
+        // NSLog(@"Found a mode: %dx%d@%.0fx, %dbit", mode.width, mode.height, mode.density, (mode.depth == 4) ? 32 : 16);
         if (mode.depth == 4) {
             lua_newtable(L);
 
@@ -184,6 +183,7 @@ static int screen_availableModes(lua_State* L) {
 /// Notes:
 ///  * The available widths/heights/scales can be seen in the output of `hs.screen:availableModes()`, however, it should be noted that the CoreGraphics subsystem seems to list more modes for a given screen than it is actually prepared to set, so you may find that seemingly valid modes still return false. It is not currently understood why this is so!
 static int screen_setMode(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     NSScreen* screen = get_screen_arg(L, 1);
     long width = (long)luaL_checkinteger(L, 2);
     long height = (long)luaL_checkinteger(L, 3);
@@ -205,7 +205,7 @@ static int screen_setMode(lua_State* L) {
             if (anError == kCGErrorSuccess) {
                 lua_pushboolean(L, true);
             } else {
-                CLS_NSLOG(@"ERROR: CGSConfigureDisplayMode failed: %d", anError);
+                [skin logBreadcrumb:[NSString stringWithFormat:@"CGSConfigureDisplayMode failed: %d", anError]];
                 lua_pushboolean(L, false);
             }
             return 1;
@@ -301,6 +301,7 @@ static int screen_gammaGet(lua_State* L) {
 }
 
 void storeInitialScreenGamma(CGDirectDisplayID display) {
+    LuaSkin *skin = [LuaSkin shared];
     uint32_t capacity = CGDisplayGammaTableCapacity(display);
     uint32_t count = 0;
     int i = 0;
@@ -310,7 +311,7 @@ void storeInitialScreenGamma(CGDirectDisplayID display) {
 
     CGError result = CGGetDisplayTransferByTable(display, capacity, redTable, greenTable, blueTable, &count);
     if (result == kCGErrorSuccess) {
-        //CLS_NSLOG(@"storeInitialScreenGamma: %i", display);
+        //NSLog(@"storeInitialScreenGamma: %i", display);
         NSMutableArray *red = [NSMutableArray arrayWithCapacity:capacity];
         NSMutableArray *green = [NSMutableArray arrayWithCapacity:capacity];
         NSMutableArray *blue = [NSMutableArray arrayWithCapacity:capacity];
@@ -327,7 +328,7 @@ void storeInitialScreenGamma(CGDirectDisplayID display) {
 
         [originalGammas setObject:gammas forKey:[NSNumber numberWithInt:display]];
     } else {
-        CLS_NSLOG(@"storeInitialScreenGamma: ERROR: %i on display: %i", result, display);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"storeInitialScreenGamma: ERROR %i on display %i", result, display]];
     }
     return;
 }
@@ -342,7 +343,7 @@ void getAllInitialScreenGammas() {
     CGGetActiveDisplayList(numDisplays, displays, NULL);
 
     // Iterate each display and store its gamma
-    //CLS_NSLOG(@"getAllInitialScreenGammas(): Found %i displays", numDisplays);
+    //NSLog(@"getAllInitialScreenGammas(): Found %i displays", numDisplays);
     for (int i = 0; i < (int)numDisplays; ++i) {
         storeInitialScreenGamma(displays[i]);
     }
@@ -352,39 +353,39 @@ void getAllInitialScreenGammas() {
 void screen_gammaReapply(CGDirectDisplayID display);
 void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSummaryFlags flags, void *userInfo __unused) {
     /*
-    CLS_NSLOG(@"displayReconfigurationCallback. Display: %i Flags: %i", display, flags);
+    NSLog(@"displayReconfigurationCallback. Display: %i Flags: %i", display, flags);
     if (flags & kCGDisplayAddFlag) {
-        CLS_NSLOG(@"  display added");
+        NSLog(@"  display added");
     }
     if (flags & kCGDisplayRemoveFlag) {
-        CLS_NSLOG(@"  display removed");
+        NSLog(@"  display removed");
     }
     if (flags & kCGDisplayBeginConfigurationFlag) {
-        CLS_NSLOG(@"  display beginConfiguration");
+        NSLog(@"  display beginConfiguration");
     }
     if (flags & kCGDisplayMovedFlag) {
-        CLS_NSLOG(@"  display moved");
+        NSLog(@"  display moved");
     }
     if (flags & kCGDisplaySetMainFlag) {
-        CLS_NSLOG(@"  display set main");
+        NSLog(@"  display set main");
     }
     if (flags & kCGDisplaySetModeFlag) {
-        CLS_NSLOG(@"  display set mode");
+        NSLog(@"  display set mode");
     }
     if (flags & kCGDisplayEnabledFlag) {
-        CLS_NSLOG(@"  display enabled");
+        NSLog(@"  display enabled");
     }
     if (flags & kCGDisplayDisabledFlag) {
-        CLS_NSLOG(@"  display disabled");
+        NSLog(@"  display disabled");
     }
     if (flags & kCGDisplayMirrorFlag) {
-        CLS_NSLOG(@"  display mirror");
+        NSLog(@"  display mirror");
     }
     if (flags & kCGDisplayUnMirrorFlag) {
-        CLS_NSLOG(@"  display unmirror");
+        NSLog(@"  display unmirror");
     }
     if (flags & kCGDisplayDesktopShapeChangedFlag) {
-        CLS_NSLOG(@"  display desktopShapeChanged");
+        NSLog(@"  display desktopShapeChanged");
     }
     */
 
@@ -430,6 +431,7 @@ void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSu
 /// Notes:
 ///  * If the whitepoint and blackpoint specified, are very similar, it will be impossible to read the screen. You should exercise caution, and may wish to bind a hotkey to `hs.screen.restoreGamma()` when experimenting
 static int screen_gammaSet(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     NSScreen* screen = get_screen_arg(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
     luaL_checktype(L, 3, LUA_TTABLE);
@@ -463,10 +465,10 @@ static int screen_gammaSet(lua_State* L) {
     blackPoint[2] = lua_tonumber(L, -1);
     lua_pop(L, 1);
 
-    //CLS_NSLOG(@"screen_gammaSet: Fetching original gamma for display: %i", screen_id);
+    //NSLog(@"screen_gammaSet: Fetching original gamma for display: %i", screen_id);
     NSDictionary *originalGamma = [originalGammas objectForKey:[NSNumber numberWithInt:screen_id]];
     if (!originalGamma) {
-        CLS_NSLOG(@"screen_gammaSet: unable to fetch original gamma for display: %i", screen_id);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaSet: unable to fetch original gamma for display: %i", screen_id]];
         lua_pushboolean(L, false);
         return 1;
     }
@@ -474,7 +476,7 @@ static int screen_gammaSet(lua_State* L) {
     NSArray *greenArray = [originalGamma objectForKey:@"green"];
     NSArray *blueArray = [originalGamma objectForKey:@"blue"];
     int count = (int)[redArray count];
-//    CLS_NSLOG(@"screen_gammaSet: Found %i entries in the original gamma table", count);
+//    NSLog(@"screen_gammaSet: Found %i entries in the original gamma table", count);
 
     CGGammaValue redTable[count];
     CGGammaValue greenTable[count];
@@ -506,13 +508,13 @@ static int screen_gammaSet(lua_State* L) {
 
         [currentGammas setObject:gammas forKey:[NSNumber numberWithInt:screen_id]];
 
-//        CLS_NSLOG(@"screen_gammaSet: %i: R:%f G:%f B:%f (orig: R:%f G:%f B:%f)", screen_id, newRed, newGreen, newBlue, origRed, origGreen, origBlue);
+//        NSLog(@"screen_gammaSet: %i: R:%f G:%f B:%f (orig: R:%f G:%f B:%f)", screen_id, newRed, newGreen, newBlue, origRed, origGreen, origBlue);
     }
 
     CGError result = CGSetDisplayTransferByTable(screen_id, count, redTable, greenTable, blueTable);
 
     if (result != kCGErrorSuccess) {
-        CLS_NSLOG(@"screen_gammaSet: ERROR: %i on display %i", result, screen_id);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaSet: ERROR: %i on display %i", result, screen_id]];
         lua_pushboolean(L, false);
         return 1;
     }
@@ -567,6 +569,7 @@ static int screen_setBrightness(lua_State *L) {
 }
 
 void screen_gammaReapply(CGDirectDisplayID display) {
+    LuaSkin *skin = [LuaSkin shared];
     NSDictionary *gammas = [currentGammas objectForKey:[NSNumber numberWithInt:display]];
     if (!gammas) {
         return;
@@ -590,9 +593,9 @@ void screen_gammaReapply(CGDirectDisplayID display) {
     CGError result = CGSetDisplayTransferByTable(display, count, redTable, greenTable, blueTable);
 
     if (result != kCGErrorSuccess) {
-        CLS_NSLOG(@"screen_gammaReapply: ERROR: %i on display: %i", result, display);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaReapply: ERROR: %i on display: %i", result, display]];
     } else {
-        //CLS_NSLOG(@"screen_gammaReapply: Success");
+        //NSLog(@"screen_gammaReapply: Success");
     }
 
     return;

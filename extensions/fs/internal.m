@@ -62,7 +62,6 @@
 
 #include <Cocoa/Cocoa.h>
 #include <LuaSkin/LuaSkin.h>
-#include "../hammerspoon.h"
 
 #include "lfs.h"
 
@@ -1014,6 +1013,7 @@ NSURL *path_to_nsurl(NSString *path) {
 }
 
 NSArray *tags_from_file(lua_State *L, NSString *filePath) {
+    LuaSkin *skin = [LuaSkin shared];
     NSURL *url = path_to_nsurl(filePath);
     if (!url) {
         return nil;
@@ -1022,7 +1022,7 @@ NSArray *tags_from_file(lua_State *L, NSString *filePath) {
     NSArray *tags;
     NSError *error;
     if (![url getResourceValue:&tags forKey:NSURLTagNamesKey error:&error]) {
-        showError(L, (char *)[[NSString stringWithFormat:@"Unable to get tags for %@: %@", url, [error localizedDescription]] UTF8String]);
+        [skin logError:[NSString stringWithFormat:@"hs.fs tags_from_file() Unable to get tags for %@: %@", url, [error localizedDescription]]];
         return nil;
     }
 
@@ -1030,10 +1030,11 @@ NSArray *tags_from_file(lua_State *L, NSString *filePath) {
 }
 
 BOOL tags_to_file(lua_State *L, NSURL *url, NSArray *tags) {
+    LuaSkin *skin = [LuaSkin shared];
     NSError *error;
 
     if (![url setResourceValue:tags forKey:NSURLTagNamesKey error:&error]) {
-        showError(L, (char *)[[NSString stringWithFormat:@"Unable to set tags for %@: %@", url, [error localizedDescription]] UTF8String]);
+        [skin logError:[NSString stringWithFormat:@"hs.fs tags_to_file() Unable to set tags for %@: %@", url, [error localizedDescription]]];
         return false;
     }
     return true;
@@ -1049,7 +1050,9 @@ BOOL tags_to_file(lua_State *L, NSURL *url, NSArray *tags) {
 /// Returns:
 ///  * A table containing the list of the file's tags, or nil if an error occurred
 static int tagsGet(lua_State *L) {
-    NSString *path = lua_to_nsstring(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+    NSString *path = [skin toNSObjectAtIndex:1];
     NSArray *tags = tags_from_file(L, path);
     if (!tags) {
         lua_pushnil(L);
@@ -1079,7 +1082,9 @@ static int tagsGet(lua_State *L) {
 /// Returns:
 ///  * None
 static int tagsAdd(lua_State *L) {
-    NSString *path = lua_to_nsstring(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
+    NSString *path = [skin toNSObjectAtIndex:1];
     NSURL *url = path_to_nsurl(path);
     NSArray *existingTags = tags_from_file(L, path);
     if (!existingTags || !url) {
@@ -1091,8 +1096,10 @@ static int tagsAdd(lua_State *L) {
 
     lua_pushnil(L);
     while (lua_next(L, 2) != 0) {
-        NSString *tag = lua_to_nsstring(L, -1);
-        [newTags addObject:tag];
+        if (lua_type(L, -1) == LUA_TSTRING) {
+            NSString *tag = [skin toNSObjectAtIndex:-1];
+            [newTags addObject:tag];
+        }
 
         lua_pop(L, 1);
     }
@@ -1115,7 +1122,9 @@ static int tagsAdd(lua_State *L) {
 /// Returns:
 ///  * None
 static int tagsSet(lua_State *L) {
-    NSString *path = lua_to_nsstring(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
+    NSString *path = [skin toNSObjectAtIndex:1];
     NSURL *url = path_to_nsurl(path);
     if (!url) {
         return 0;
@@ -1125,8 +1134,10 @@ static int tagsSet(lua_State *L) {
 
     lua_pushnil(L);
     while (lua_next(L, 2) != 0) {
-        NSString *tag = lua_to_nsstring(L, -1);
-        [tags addObject:tag];
+        if (lua_type(L, -1) == LUA_TSTRING) {
+            NSString *tag = [skin toNSObjectAtIndex:-1];
+            [tags addObject:tag];
+        }
 
         lua_pop(L, 1);
     }
@@ -1147,7 +1158,9 @@ static int tagsSet(lua_State *L) {
 /// Returns:
 ///  * None
 static int tagsRemove(lua_State *L) {
-    NSString *path = lua_to_nsstring(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
+    NSString *path = [skin toNSObjectAtIndex:1];
     NSURL *url = path_to_nsurl(path);
     NSArray *tags = tags_from_file(L, path);
     if (!url || !tags) {
@@ -1158,8 +1171,10 @@ static int tagsRemove(lua_State *L) {
 
     lua_pushnil(L);
     while (lua_next(L, 2) != 0) {
-        NSString *tag = lua_to_nsstring(L, -1);
-        [removeTags addObject:tag];
+        if (lua_type(L, -1) == LUA_TSTRING) {
+            NSString *tag = [skin toNSObjectAtIndex:-1];
+            [removeTags addObject:tag];
+        }
 
         lua_pop(L, 1);
     }

@@ -2,7 +2,6 @@
 #import <Carbon/Carbon.h>
 #import <IOKit/pwr_mgt/IOPMLib.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 #define kIOPMAssertionAppliesToLimitedPowerKey  CFSTR("AppliesToLimitedPower")
 
@@ -12,6 +11,7 @@ static IOPMAssertionID noSystemSleep = 0;
 
 // Create an IOPM Assertion of specified type and store its ID in the specified variable
 static void caffeinate_create_assertion(lua_State *L, CFStringRef assertionType, IOPMAssertionID *assertionID) {
+    LuaSkin *skin = [LuaSkin shared];
     IOReturn result = 1;
 
     if (*assertionID) return;
@@ -26,12 +26,13 @@ static void caffeinate_create_assertion(lua_State *L, CFStringRef assertionType,
                                                 assertionID);
 
     if (result != kIOReturnSuccess) {
-        showError(L, "caffeinate_create_assertion: failed");
+        [skin logError:@"caffeinate_create_assertion: failed"];
     }
 }
 
 // Release a previously stored assertion
 static void caffeinate_release_assertion(lua_State *L, IOPMAssertionID *assertionID) {
+    LuaSkin *skin = [LuaSkin shared];
     IOReturn result = 1;
 
     if (!*assertionID) return;
@@ -39,7 +40,7 @@ static void caffeinate_release_assertion(lua_State *L, IOPMAssertionID *assertio
     result = IOPMAssertionRelease(*assertionID);
 
     if (result != kIOReturnSuccess) {
-        showError(L, "caffeinate_release_assertion: failed");
+        [skin logError:@"caffeinate_release_assertion: failed"];
     }
 
     *assertionID = 0;
@@ -89,6 +90,7 @@ static int caffeinate_isIdleSystemSleepPrevented(lua_State *L) {
 
 // Prevent system sleep
 static int caffeinate_preventSystemSleep(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     IOReturn result = 1;
     BOOL ac_and_battery = false;
 
@@ -109,7 +111,7 @@ static int caffeinate_preventSystemSleep(lua_State *L) {
                                           kIOPMAssertionAppliesToLimitedPowerKey,
                                           (CFBooleanRef)value);
         if (result != kIOReturnSuccess) {
-            showError(L, "ERROR: Unable to set systemSleep assertion property");
+            [skin logError:@"ERROR: Unable to set systemSleep assertion property"];
         }
     }
 

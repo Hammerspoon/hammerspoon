@@ -24,8 +24,7 @@ static int refTable ;
         [skin pushNSObject:message] ;
         if (![skin protectedCallAndTraceback:1 nresults:0]) {
             const char *errorMsg = lua_tostring([skin L], -1);
-            CLS_NSLOG(@"%s: message callback: %s", USERDATA_UCC_TAG, errorMsg);
-            showError([skin L], (char *)[[NSString stringWithFormat:@"%s: message callback: %s", USERDATA_UCC_TAG, errorMsg] UTF8String]);
+            [skin logError:[NSString stringWithFormat:@"hs.webview.usercontent callback error: %s", errorMsg]];
             lua_pop([skin L], 1) ;
         }
     }

@@ -4,7 +4,6 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import <Foundation/Foundation.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 #import "math.h"
 
 /// === hs.audiodevice.watcher ===
@@ -42,8 +41,12 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
 
         //NSLog(@"%i addresses to check", numAddresses);
         LuaSkin *skin = [LuaSkin shared];
+        if (!theWatcher) {
+            [skin logWarn:@"hs.audiodevice.watcher callback fired, but theWatcher is nil. This is a bug"];
+            return;
+        }
         if (theWatcher->callback == LUA_NOREF) {
-            showError(skin.L, "hs.audiodevice.watcher callback firing, but no function has been set with hs.audiodevice.watcher.setCallback()");
+            [skin logWarn:@"hs.audiodevice.watcher callback fired, but there is no callback. This is a bug"];
         } else {
             for (UInt32 i = 0; i < numAddresses; i++) {
                 //NSLog(@"Examining selector: %@", UTCreateStringForOSType(addressList[i].mSelector));
@@ -118,8 +121,9 @@ static int audiodevicewatcher_setCallback(lua_State *L) {
 /// Returns:
 ///  * None
 static int audiodevicewatcher_start(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     if (!theWatcher || theWatcher->callback == LUA_NOREF) {
-        showError(L, "ERROR: hs.audiodevice.watcher.setCallback() must be used before .start()");
+        [skin logError:@"You must call hs.audiodevice.watcher.setCallback() before hs.audiodevice.watcher.start()"];
         return 0;
     }
 

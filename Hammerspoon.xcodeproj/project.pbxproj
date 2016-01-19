@@ -284,7 +284,6 @@
 		4FDE05E91B734EE600E9E8EE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4FDE05EA1B734EE600E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FDE05F21B734F0100E9E8EE /* watcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05F11B734F0100E9E8EE /* watcher.m */; };
-		4FDE05F91B7370E100E9E8EE /* hammerspoon.h in Resources */ = {isa = PBXBuildFile; fileRef = 4F9850801B722C6C00F7E909 /* hammerspoon.h */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
 		9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422ACBC19B6163800F06A90 /* MJConfigUtils.m */; };
@@ -927,7 +926,6 @@
 		4F9797B51BECD9AD00719F3F /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/task/init.lua; sourceTree = "<group>"; };
 		4F9797B61BECD9AD00719F3F /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/task/internal.m; sourceTree = "<group>"; };
 		4F9797C31BED0AC800719F3F /* libtask.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libtask.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F9850801B722C6C00F7E909 /* hammerspoon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hammerspoon.h; path = extensions/hammerspoon.h; sourceTree = "<group>"; };
 		4F9850E11B722C8100F7E909 /* libalert.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libalert.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F9850E81B722CBF00F7E909 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = "../../../Library/Developer/Xcode/DerivedData/Hammerspoon-bcanpjyjcsxqcveiabevaoqikpya/Build/Products/Debug/LuaSkin.framework"; sourceTree = "<group>"; };
 		4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = build/Hammerspoon/Build/Products/Debug/LuaSkin.framework; sourceTree = "<group>"; };
@@ -2159,7 +2157,6 @@
 			isa = PBXGroup;
 			children = (
 				4F6689DF1C2852A100E48AF1 /* _coresetup */,
-				4F9850801B722C6C00F7E909 /* hammerspoon.h */,
 				4F64D8BC1B724C3A00FC4C65 /* alert */,
 				4FDE05F71B73568E00E9E8EE /* appfinder */,
 				4FBE2CE31B72542600407788 /* applescript */,
@@ -4513,7 +4510,6 @@
 				4F766E5C1C48F79C007B9D24 /* release.sh in Resources */,
 				4F766E611C48F7BE007B9D24 /* gencomments in Resources */,
 				4F766E5A1C48F79C007B9D24 /* copy_extensions_to_bundle.sh in Resources */,
-				4FDE05F91B7370E100E9E8EE /* hammerspoon.h in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
 				4F766E5B1C48F79C007B9D24 /* librelease.sh in Resources */,
 				4F766E631C48F7BE007B9D24 /* genjson in Resources */,

@@ -1,8 +1,6 @@
 #import "eventtap_event.h"
 #import <IOKit/hidsystem/ev_keymap.h>
 
-#import "../hammerspoon.h"
-
 CGEventSourceRef eventSource;
 
 static int eventtap_event_gc(lua_State* L) {
@@ -371,6 +369,7 @@ static int eventtap_event_setProperty(lua_State* L) {
 /// Returns:
 ///  * An `hs.eventtap.event` object
 static int eventtap_event_newKeyEvent(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     luaL_checktype(L, 1, LUA_TTABLE);
     const char* key = luaL_checkstring(L, 2);
     bool isdown = lua_toboolean(L, 3);
@@ -389,7 +388,7 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
     while (lua_next(L, 1) != 0) {
         modifier = lua_tostring(L, -1);
         if (!modifier) {
-            CLS_NSLOG(@"ERROR: Unexpected entry in modifiers table, seems to be null (%d)", lua_type(L, -1));
+            [skin logBreadcrumb:[NSString stringWithFormat:@"hs.eventtap.event.newKeyEvent() unexpected entry in modifiers table: %d", lua_type(L, -1)]];
             lua_pop(L, 1);
             continue;
         }
@@ -431,6 +430,7 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
 /// Returns:
 ///  * An `hs.eventtap.event` object
 static int eventtap_event_newScrollWheelEvent(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     luaL_checktype(L, 1, LUA_TTABLE);
     lua_pushnumber(L, 1); lua_gettable(L, 1); uint32_t offset_y = (uint32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
     lua_pushnumber(L, 2); lua_gettable(L, 1); uint32_t offset_x = (uint32_t)lua_tointeger(L, -1) ; lua_pop(L, 1);
@@ -445,7 +445,7 @@ static int eventtap_event_newScrollWheelEvent(lua_State* L) {
     while (lua_next(L, 2) != 0) {
         modifier = lua_tostring(L, -1);
         if (!modifier) {
-            CLS_NSLOG(@"ERROR: Unexpected entry in modifiers table, seems to be null (%d)", lua_type(L, -1));
+            [skin logBreadcrumb:[NSString stringWithFormat:@"hs.eventtap.event.newScrollEvent() unexpected entry in modifiers table: %d", lua_type(L, -1)]];
             lua_pop(L, 1);
             continue;
         }
@@ -473,6 +473,7 @@ static int eventtap_event_newScrollWheelEvent(lua_State* L) {
 }
 
 static int eventtap_event_newMouseEvent(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     CGEventType type = (CGEventType)luaL_checkinteger(L, 1);
     CGPoint point = hs_topoint(L, 2);
     const char* buttonString = luaL_checkstring(L, 3);
@@ -492,7 +493,7 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
         while (lua_next(L, 4) != 0) {
             modifier = lua_tostring(L, -2);
             if (!modifier) {
-                CLS_NSLOG(@"Error: Unexpected entry in modifiers table, seems to be null (%d)", lua_type(L, -1));
+                [skin logBreadcrumb:[NSString stringWithFormat:@"hs.eventtap.event.newMouseEvent() unexpected entry in modifiers table: %d", lua_type(L, -1)]];
                 lua_pop(L, 1);
                 continue;
             }

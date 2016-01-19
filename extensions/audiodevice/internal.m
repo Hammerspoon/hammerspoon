@@ -4,7 +4,6 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import <Foundation/Foundation.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 #import "math.h"
 
 #pragma mark - Library defines
@@ -54,7 +53,7 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
         audiodevice_t *userData = (audiodevice_t *)clientData;
         LuaSkin *skin = [LuaSkin shared];
         if (userData->callback == LUA_NOREF) {
-            showError(skin.L, "hs.audiodevice.watcher callback firing, but no function has been set with hs.audiodevice.watcher.setCallback()");
+            [skin logError:@"hs.audiodevice.watcher callback fired, but no function has been set with hs.audiodevice.watcher.setCallback()"];
         } else {
             // Get the UID of the device, to pass into the callback
             NSString *deviceUIDNS = nil;
@@ -976,10 +975,11 @@ static int audiodevice_watcherSetCallback(lua_State *L) {
 /// Returns:
 ///  * The `hs.audiodevice` object
 static int audiodevice_watcherStart(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
 
     if (audioDevice->callback == LUA_NOREF) {
-        showError(L, "ERROR: hs.audiodevice:setCallback() must be used before :start()");
+        [skin logError:@"You must call hs.audiodevice:setCallback() before hs.audiodevice:start()"];
         lua_pushnil(L);
         return 1;
     }

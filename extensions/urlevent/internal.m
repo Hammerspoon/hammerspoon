@@ -3,7 +3,6 @@
 #import <CoreServices/CoreServices.h>
 #import <LuaSkin/LuaSkin.h>
 #import "../../Hammerspoon/MJAppDelegate.h"
-#import "../hammerspoon.h"
 
 int refTable;
 NSArray *defaultContentTypes = nil;
@@ -94,7 +93,7 @@ static HSURLEventHandler *eventHandler;
 
     if (self.fnCallback == LUA_NOREF || self.fnCallback == LUA_REFNIL) {
         // Lua hasn't registered a callback. This possibly means we have been require()'d as hs.urlevent.internal and not set up properly. Weird. Refuse to do anything
-        printToConsole(skin.L, "hs.urlevent callbackWithURL:: No fnCallback has been set by Lua");
+        [skin logWarn:[NSString stringWithFormat:@"hs.urlevent callbackWithURL received a URL with no callback set: %@", openUrl]];
         return;
     }
 
@@ -132,8 +131,7 @@ static HSURLEventHandler *eventHandler;
 
     if (![skin protectedCallAndTraceback:4 nresults:0]) {
         const char *errorMsg = lua_tostring(skin.L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(skin.L, (char *)errorMsg);
+        [skin logError:[NSString stringWithFormat:@"hs.urlevent callback error: %s for URL %@", errorMsg, [url absoluteString]]];
     }
 }
 @end
@@ -201,7 +199,7 @@ static int urleventsetDefaultHandler(lua_State *L) {
 
     status = LSSetDefaultHandlerForURLScheme((__bridge CFStringRef)scheme, (__bridge CFStringRef)bundleID);
     if (status != noErr) {
-        showError(L, (char *)[[[NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil] localizedDescription] UTF8String]);
+        [skin logError:[NSString stringWithFormat:@"hs.urlevent.setDefaultHandler() unable to set the handler for %@ to %@: %@", scheme, bundleID, [[NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil] localizedDescription]]];
     } else {
         [eventHandler.restoreHandlers removeObjectForKey:scheme];
     }
@@ -211,7 +209,7 @@ static int urleventsetDefaultHandler(lua_State *L) {
         for (NSString *type in defaultContentTypes) {
             status = LSSetDefaultRoleHandlerForContentType((__bridge CFStringRef)type, kLSRolesViewer, (__bridge CFStringRef)bundleID);
             if (status != noErr) {
-                NSLog(@"Unable to set role handler for %@: %@", type, [[NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil] localizedDescription]);
+                [skin logWarn:[NSString stringWithFormat:@"Unable to set role handler for %@: %@", type, [[NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil] localizedDescription]]];
             }
         }
 

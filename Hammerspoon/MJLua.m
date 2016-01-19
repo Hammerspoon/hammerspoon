@@ -5,11 +5,11 @@
 #import "MJAccessibilityUtils.h"
 #import "variables.h"
 #import <pthread.h>
-#import "../extensions/hammerspoon.h"
 #import "MJMenuIcon.h"
 #import "MJPreferencesWindowController.h"
 #import "MJConsoleWindowController.h"
 #import "MJAutoLaunch.h"
+#import <Crashlytics/Crashlytics.h>
 
 static LuaSkin* MJLuaState;
 static MJLuaLogger* MJLuaLogDelegate;
@@ -37,15 +37,26 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
 }
 
 - (void) logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage {
-    lua_getglobal(_L, "hs") ; lua_getfield(_L, -1, "handleLogMessage") ; lua_remove(_L, -2) ;
-    lua_pushinteger(_L, level) ;
-    lua_pushstring(_L, [theMessage UTF8String]) ;
-    int errState = lua_pcall(_L, 2, 0, 0) ;
-    if (errState != LUA_OK) {
-        NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
-        CLS_NSLOG(@"logForLuaSkin: error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
-                                                         luaL_tolstring(_L, -1, NULL)) ;
-        lua_pop(_L, 2) ; // lua_pcall result + converted version from luaL_tolstring
+    // Send logs to the appropriate location, depending on their level
+    // Note that hs.handleLogMessage also does this kind of filtering. We are special casing here for LS_LOG_BREADCRUMB to entirely bypass calling into Lua
+    // (because such logs don't need to be shown to the user, just stored in our crashlog in case we crash)
+    switch (level) {
+        case LS_LOG_BREADCRUMB:
+            CLSNSLog(@"%@", theMessage);
+            break;
+
+        default:
+            lua_getglobal(_L, "hs") ; lua_getfield(_L, -1, "handleLogMessage") ; lua_remove(_L, -2) ;
+            lua_pushinteger(_L, level) ;
+            lua_pushstring(_L, [theMessage UTF8String]) ;
+            int errState = lua_pcall(_L, 2, 0, 0) ;
+            if (errState != LUA_OK) {
+                NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
+                CLSNSLog(@"logForLuaSkin: error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
+                          luaL_tolstring(_L, -1, NULL)) ;
+                lua_pop(_L, 2) ; // lua_pcall result + converted version from luaL_tolstring
+            }
+            break;
     }
 }
 
@@ -201,6 +212,7 @@ static int core_accessibilityState(lua_State* L) {
 /// Notes:
 ///  * If you are running a non-release or locally compiled version of Hammerspoon then the results of this function are unspecified.
 static int automaticallyChecksForUpdates(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
         if ([[NSBundle bundleWithPath:frameworkPath] load]) {
@@ -228,11 +240,11 @@ static int automaticallyChecksForUpdates(lua_State *L) {
             lua_pushboolean(L, (BOOL)[sharedUpdater performSelector:@selector(automaticallyChecksForUpdates)]) ;
 #pragma clang diagnostic pop
         } else {
-            printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
+            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
             lua_pushboolean(L, NO) ;
         }
     } else {
-        printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
+        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
         lua_pushboolean(L, NO) ;
     }
     return 1 ;
@@ -251,6 +263,7 @@ static int automaticallyChecksForUpdates(lua_State *L) {
 /// Notes:
 ///  * If you are running a non-release or locally compiled version of Hammerspoon then the results of this function are unspecified.
 static int checkForUpdates(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     if (NSClassFromString(@"SUUpdater")) {
         NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
         if ([[NSBundle bundleWithPath:frameworkPath] load]) {
@@ -261,10 +274,10 @@ static int checkForUpdates(lua_State *L) {
             [sharedUpdater performSelector:@selector(checkForUpdates:) withObject:nil] ;
 #pragma clang diagnostic pop
         } else {
-            printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
+            [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
         }
     } else {
-        printToConsole(L, "-- Sparkle Update framework not available for the running instance of Hammerspoon.") ;
+        [skin logWarn:@"Sparkle Update framework not available for the running instance of Hammerspoon."] ;
     }
     return 0 ;
 }
@@ -389,7 +402,7 @@ void MJLuaReplace(void) {
 # pragma mark - Lua environment lifecycle, low level
 
 static int MJLuaAtPanic(lua_State *L) {
-    CLS_NSLOG(@"LUA_AT_PANIC: %s", lua_tostring(L, -1)) ;
+    CLSNSLog(@"LUA_AT_PANIC: %s", lua_tostring(L, -1)) ;
     if (oldPanicFunction)
         return oldPanicFunction(L) ;
     else
@@ -475,17 +488,16 @@ NSString* MJLuaRunString(NSString* command) {
 
     [MJLuaState pushLuaRef:refTable ref:evalfn];
     if (!lua_isfunction(L, -1)) {
-        CLS_NSLOG(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
+        CLSNSLog(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
         if (lua_isstring(L, -1)) {
-            CLS_NSLOG(@"evalfn appears to be a string: %s", lua_tostring(L, -1));
+            CLSNSLog(@"evalfn appears to be a string: %s", lua_tostring(L, -1));
         }
         return @"";
     }
     lua_pushstring(L, [command UTF8String]);
     if ([MJLuaState protectedCallAndTraceback:1 nresults:1] == NO) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        [MJLuaState logError:[NSString stringWithUTF8String:errorMsg]];
     }
 
     size_t len;

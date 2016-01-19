@@ -6,7 +6,6 @@
 
 // #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 #define USERDATA_TAG        "hs.webview"
 #define USERDATA_UCC_TAG    "hs.webview.usercontent"

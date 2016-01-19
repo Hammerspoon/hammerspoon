@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 #define USERDATA_TAG "hs.task"
 
@@ -70,17 +69,19 @@ task_userdata_t *userDataFromNSFileHandle(NSFileHandle *fh) {
 
 void (^writerBlock)(NSFileHandle *) = ^(NSFileHandle *stdInFH) {
     dispatch_sync(dispatch_get_main_queue(), ^{
+        LuaSkin *skin = [LuaSkin shared];
+
         // There don't ever seem to be any circumstances where we want to be called multiple times, so let's immediately prevent ourselves being called again
         stdInFH.writeabilityHandler = nil;
 
         task_userdata_t *userData = userDataFromNSFileHandle(stdInFH);
         if (!userData) {
-            CLS_NSLOG(@"ERROR: Unable to get userData in writerBlock");
+            [skin logBreadcrumb:@"ERROR: Unable to get userData in writerBlock"];
             return;
         }
 
         if (!userData->inputData) {
-            CLS_NSLOG(@"ERROR: in writerBlock without any data to write");
+            [skin logBreadcrumb:@"ERROR: in writerBlock without any data to write"];
             return;
         }
 
@@ -150,8 +151,7 @@ void create_task(task_userdata_t *userData) {
 
                 if (![skin protectedCallAndTraceback:3 nresults:0]) {
                     const char *errorMsg = lua_tostring([skin L], -1);
-                    CLS_NSLOG(@"%s", errorMsg);
-                    showError([skin L], (char *)errorMsg);
+                    [skin logError:[NSString stringWithFormat:@"hs.task callback error: %s", errorMsg]];
                 }
             }
         });
@@ -298,7 +298,7 @@ static int task_setInput(lua_State *L) {
         userData->inputData = (__bridge_retained void *)[skin toNSObjectAtIndex:2 withOptions:LS_NSPreserveLuaStringExactly];
         stdInFH.writeabilityHandler = writerBlock;
     } else {
-        printToConsole(L, "WARNING: hs.task:setInput() called on a task that has already terminated");
+        [skin logWarn:@"hs.task:setInput() called on a task that has already terminated"];
     }
 
     lua_pushvalue(L, 1);
@@ -410,8 +410,7 @@ static int task_setWorkingDirectory(lua_State *L) {
         lua_pushvalue(L, 1) ;
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:setWorkingDirectory() Unable to set the working directory for task:");
-        printToConsole(L, (char *)[exception.reason UTF8String]);
+        [skin logWarn:[NSString stringWithFormat:@"hs.task:setWorkingDirectory() Unable to set the working directory for task: %@", exception.reason]];
         lua_pushboolean(L, NO) ;
     }
 
@@ -482,8 +481,7 @@ static int task_launch(lua_State *L) {
         }
     }
     @catch (NSException *exception) {
-        printToConsole(skin.L, "ERROR: Unable to launch hs.task process:");
-        printToConsole(skin.L, (char *)[exception.reason UTF8String]);
+        [skin logWarn:[NSString stringWithFormat:@"hs.task:launch() Unable to launch hs.task process: %@", exception.reason]];
     }
 
     if (result)
@@ -514,8 +512,7 @@ static int task_SIGTERM(lua_State *L) {
         [(__bridge NSTask *)userData->nsTask terminate];
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:terminate() Unable to terminate hs.task process:");
-        printToConsole(skin.L, (char *)[exception.reason UTF8String]);
+        [skin logWarn:[NSString stringWithFormat:@"hs.task:terminate() Unable to terminate hs.task process: %@", exception.reason]];
     }
 
     lua_pushvalue(L, 1);
@@ -543,8 +540,7 @@ static int task_SIGINT(lua_State *L) {
         [(__bridge NSTask *)userData->nsTask interrupt];
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:interrupt() Unable to interrupt hs.task process:");
-        printToConsole(skin.L, (char *)[exception.reason UTF8String]);
+        [skin logWarn:[NSString stringWithFormat:@"hs.task:interrupt() Unable to interrupt hs.task process: %@", exception.reason]];
     }
 
     lua_pushvalue(L, 1);
@@ -574,8 +570,7 @@ static int task_pause(lua_State *L) {
         result = [(__bridge NSTask *)userData->nsTask suspend];
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:pause() Unable to pause hs.task process:");
-        printToConsole(L, (char *)[exception.reason UTF8String]);
+        [skin logWarn:[NSString stringWithFormat:@"hs.task:pause() Unable to pause hs.task process: %@", exception.reason]];
     }
 
     if (result)
@@ -607,8 +602,7 @@ static int task_resumeTask(lua_State *L) {
         result = [(__bridge NSTask *)userData->nsTask resume];
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:resume() Unable to resume hs.task process:");
-        printToConsole(L, (char *)[exception.reason UTF8String]);
+        [skin logWarn:[NSString stringWithFormat:@"hs.task:resue() Unable to resume hs.task process: %@", exception.reason]];
     }
 
     if (result)
@@ -652,7 +646,8 @@ static int task_block(lua_State *L) {
 /// Returns:
 ///  * the numeric exitCode of the task, or the boolean false if the task has not yet exited (either because it has not yet been started or because it is still running).
 static int task_terminationStatus(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     task_userdata_t *userData = lua_touserdata(L, 1);
     @try {
         lua_pushinteger(L, [(__bridge NSTask *)userData->nsTask terminationStatus]) ;
@@ -666,8 +661,7 @@ static int task_terminationStatus(lua_State *L) {
 // Follow existing convention for module instead...
         lua_pushboolean(L, NO) ;
         if (![[exception name] isEqualToString:NSInvalidArgumentException]) {
-            printToConsole(L, "hs.task:terminationStatus() Unable get termination status for hs.task process:");
-            printToConsole(L, (char *)[exception.reason UTF8String]);
+            [skin logWarn:[NSString stringWithFormat:@"hs.task:terminationStatus() Unable to get termination status for hs.task process: %@", exception.reason]];
         }
     }
     return 1 ;
@@ -710,7 +704,8 @@ static int task_isRunning(lua_State *L) {
 /// Returns:
 ///  * a string value of "exit" if the process exited normally or "interrupt" if it was killed by a signal.  Returns false if the termination reason is unavailable (the task is still running, or has not yet been started).
 static int task_terminationReason(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     task_userdata_t *userData = lua_touserdata(L, 1);
     @try {
         switch([(__bridge NSTask *)userData->nsTask terminationReason]) {
@@ -728,8 +723,7 @@ static int task_terminationReason(lua_State *L) {
 // Follow existing convention for module instead...
         lua_pushboolean(L, NO) ;
         if (![[exception name] isEqualToString:NSInvalidArgumentException]) {
-            printToConsole(L, "hs.task:terminationReason() Unable get termination status for hs.task process:");
-            printToConsole(L, (char *)[exception.reason UTF8String]);
+            [skin logWarn:[NSString stringWithFormat:@"hs.task:terminationReason() Unable to get terminations tatus for hs.task process: %@", exception.reason]];
         }
     }
     return 1 ;
@@ -783,8 +777,7 @@ static int task_setEnvironment(lua_State *L) {
         lua_pushvalue(L, 1) ;
     }
     @catch (NSException *exception) {
-        printToConsole(L, "hs.task:setEnvironment() Unable to set environment:");
-        printToConsole(L, (char *)[exception.reason UTF8String]);
+        [skin logWarn:[NSString stringWithFormat:@"hs.task:setEnvironment() Unable to set environment: %@", exception.reason]];
         lua_pushboolean(L, NO) ;
     }
 
@@ -901,7 +894,7 @@ int luaopen_hs_task_internal(lua_State* L) {
         task_userdata_t *userData = userDataFromNSFileHandle(fh);
 
         if (!userData) {
-            printToConsole(skin.L, "ERROR: hs.task streaming data received from unknown task. This may be a bug");
+            [skin logWarn:@"hs.task received output data from an unknown task. This may be a bug"];
             return;
         }
 
@@ -917,7 +910,7 @@ int luaopen_hs_task_internal(lua_State* L) {
             } else if (fh == stdErrFH) {
                 stdErrArg = dataString;
             } else {
-                showError(skin.L, "ERROR: Received data from an unknown file handle");
+                [skin logError:@"hs.task:setStreamCallback() Received data from an unknown file handle"];
                 return;
             }
 
@@ -928,12 +921,11 @@ int luaopen_hs_task_internal(lua_State* L) {
 
             if (![skin protectedCallAndTraceback:3 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
-                CLS_NSLOG(@"%s", errorMsg);
-                showError(L, (char *)errorMsg);
+                [skin logError:[NSString stringWithFormat:@"hs.task:setStreamCallback() callback error: %s", errorMsg]];
             }
 
             if (lua_type(L, -1) != LUA_TBOOLEAN) {
-                showError(L, "ERROR: hs.task streaming callback did not return a boolean");
+                [skin logError:@"hs.task:setStreamCallback() callback did not return a boolean"];
             } else {
                 BOOL continueStreaming = lua_toboolean(L, -1);
 

@@ -15,11 +15,11 @@ NSMutableArray *drawingWindows;
 // Objective-C class interface implementations
 @implementation HSDrawingWindow
 - (id)initWithContentRect:(NSRect)contentRect styleMask:(NSUInteger __unused)windowStyle backing:(NSBackingStoreType __unused)bufferingType defer:(BOOL __unused)deferCreation {
-    //CLS_NSLOG(@"HSDrawingWindow::initWithContentRect contentRect:(%.1f,%.1f) %.1fx%.1f", contentRect.origin.x, contentRect.origin.y, contentRect.size.width, contentRect.size.height);
+    //NSLog(@"HSDrawingWindow::initWithContentRect contentRect:(%.1f,%.1f) %.1fx%.1f", contentRect.origin.x, contentRect.origin.y, contentRect.size.width, contentRect.size.height);
 
     if (!isfinite(contentRect.origin.x) || !isfinite(contentRect.origin.y) || !isfinite(contentRect.size.height) || !isfinite(contentRect.size.width)) {
         LuaSkin *skin = [LuaSkin shared];
-        showError(skin.L, "ERROR: hs.drawing object created with non-finite co-ordinates/size");
+        [skin logError:@"hs.drawing object created with non-finite co-ordinates/size"];
         return nil;
     }
 
@@ -28,7 +28,7 @@ NSMutableArray *drawingWindows;
     if (self) {
         [self setDelegate:self];
         contentRect.origin.y=[[NSScreen screens][0] frame].size.height - contentRect.origin.y - contentRect.size.height;
-        //CLS_NSLOG(@"HSDrawingWindow::initWithContentRect corrected for bottom-left origin.y to %.1f", contentRect.origin.y);
+        //NSLog(@"HSDrawingWindow::initWithContentRect corrected for bottom-left origin.y to %.1f", contentRect.origin.y);
 
         [self setFrameOrigin:contentRect.origin];
 
@@ -60,14 +60,14 @@ NSMutableArray *drawingWindows;
 
 // NSWindowDelegate method. We decline to close the window because we don't want external things interfering with the user's decisions to display these objects.
 - (BOOL)windowShouldClose:(id __unused)sender {
-    //CLS_NSLOG(@"HSDrawingWindow::windowShouldClose");
+    //NSLog(@"HSDrawingWindow::windowShouldClose");
     return NO;
 }
 @end
 
 @implementation HSDrawingView
 - (id)initWithFrame:(NSRect)frameRect {
-    //CLS_NSLOG(@"HSDrawingView::initWithFrame frameRect:(%.1f,%.1f) %.1fx%.1f", frameRect.origin.x, frameRect.origin.y, frameRect.size.width, frameRect.size.height);
+    //NSLog(@"HSDrawingView::initWithFrame frameRect:(%.1f,%.1f) %.1fx%.1f", frameRect.origin.x, frameRect.origin.y, frameRect.size.width, frameRect.size.height);
     self = [super initWithFrame:frameRect];
     if (self) {
         // Set up our defaults
@@ -124,8 +124,7 @@ NSMutableArray *drawingWindows;
         [skin pushLuaRef:refTable ref:self.mouseUpCallbackRef];
         if (![skin protectedCallAndTraceback:0 nresults:0]) {
             const char *errorMsg = lua_tostring(_L, -1);
-            CLS_NSLOG(@"%s", errorMsg);
-            showError(_L, (char *)errorMsg);
+            [skin logError:[NSString stringWithFormat:@"hs.drawing:setClickCallback() mouseUp callback error: %s", errorMsg]];
         }
     }
 }
@@ -146,8 +145,7 @@ NSMutableArray *drawingWindows;
         [skin pushLuaRef:refTable ref:self.mouseDownCallbackRef];
         if (![skin protectedCallAndTraceback:0 nresults:0]) {
             const char *errorMsg = lua_tostring(_L, -1);
-            CLS_NSLOG(@"%s", errorMsg);
-            showError(_L, (char *)errorMsg);
+            [skin logError:[NSString stringWithFormat:@"hs.drawing:setClickCallback() mouseDown callback error: %s", errorMsg]];
         }
     }
 }
@@ -164,7 +162,7 @@ NSMutableArray *drawingWindows;
 
 @implementation HSDrawingViewCircle
 - (void)drawRect:(NSRect)rect {
-    //CLS_NSLOG(@"HSDrawingViewCircle::drawRect");
+    //NSLog(@"HSDrawingViewCircle::drawRect");
     // Get the graphics context that we are currently executing under
     NSGraphicsContext* gc = [NSGraphicsContext currentContext];
 
@@ -263,7 +261,7 @@ NSMutableArray *drawingWindows;
 
 @implementation HSDrawingViewRect
 - (void)drawRect:(NSRect)rect {
-    //CLS_NSLOG(@"HSDrawingViewRect::drawRect");
+    //NSLog(@"HSDrawingViewRect::drawRect");
     // Get the graphics context that we are currently executing under
     NSGraphicsContext* gc = [NSGraphicsContext currentContext];
 
@@ -302,7 +300,7 @@ NSMutableArray *drawingWindows;
 
 @implementation HSDrawingViewLine
 - (id)initWithFrame:(NSRect)frameRect {
-    //CLS_NSLOG(@"HSDrawingViewLine::initWithFrame");
+    //NSLog(@"HSDrawingViewLine::initWithFrame");
     self = [super initWithFrame:frameRect];
     if (self) {
         self.origin = CGPointZero;
@@ -312,7 +310,7 @@ NSMutableArray *drawingWindows;
 }
 
 - (void)drawRect:(NSRect __unused)rect {
-    //CLS_NSLOG(@"HSDrawingViewLine::drawRect");
+    //NSLog(@"HSDrawingViewLine::drawRect");
     // Get the graphics context that we are currently executing under
     NSGraphicsContext* gc = [NSGraphicsContext currentContext];
 
@@ -326,7 +324,7 @@ NSMutableArray *drawingWindows;
     NSBezierPath* linePath = [NSBezierPath bezierPath];
     linePath.lineWidth = self.HSLineWidth;
 
-    //CLS_NSLOG(@"HSDrawingViewLine::drawRect: Rendering line from (%.1f,%.1f) to (%.1f,%.1f)", self.origin.x, self.origin.y, self.end.x, self.end.y);
+    //NSLog(@"HSDrawingViewLine::drawRect: Rendering line from (%.1f,%.1f) to (%.1f,%.1f)", self.origin.x, self.origin.y, self.end.x, self.end.y);
     [linePath moveToPoint:self.origin];
     [linePath lineToPoint:self.end];
 
@@ -340,7 +338,7 @@ NSMutableArray *drawingWindows;
 
 @implementation HSDrawingViewText
 - (id)initWithFrame:(NSRect)frameRect {
-    //CLS_NSLOG(@"HSDrawingViewText::initWithFrame");
+    //NSLog(@"HSDrawingViewText::initWithFrame");
     self = [super initWithFrame:frameRect];
     if (self) {
 // NOTE: Change default_textAttributes(...) and drawing_getTextDrawingSize(...) if you change these
@@ -577,7 +575,7 @@ static int drawing_newLine(lua_State *L) {
     windowRect.origin.y = MIN(origin.y, end.y);
     windowRect.size.width = windowRect.origin.x + MAX(origin.x, end.x) - MIN(origin.x, end.x);
     windowRect.size.height = windowRect.origin.y + MAX(origin.y, end.y) - MIN(origin.y, end.y);
-    //CLS_NSLOG(@"newLine: Calculated window rect to bound lines: (%.1f,%.1f) %.1fx%.1f", windowRect.origin.x, windowRect.origin.y, windowRect.size.width, windowRect.size.height);
+    //NSLog(@"newLine: Calculated window rect to bound lines: (%.1f,%.1f) %.1fx%.1f", windowRect.origin.x, windowRect.origin.y, windowRect.size.width, windowRect.size.height);
 
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
@@ -594,7 +592,7 @@ static int drawing_newLine(lua_State *L) {
         theWindow.contentView = theView;
 
         // Calculate the origin/end points of our line, within the frame of theView (since we were given screen co-ordinates)
-        //CLS_NSLOG(@"newLine: User specified a line as: (%.1f,%.1f) -> (%.1f,%.1f)", origin.x, origin.y, end.x, end.y);
+        //NSLog(@"newLine: User specified a line as: (%.1f,%.1f) -> (%.1f,%.1f)", origin.x, origin.y, end.x, end.y);
         NSPoint tmpOrigin;
         NSPoint tmpEnd;
 
@@ -606,7 +604,7 @@ static int drawing_newLine(lua_State *L) {
 
         theView.origin = tmpOrigin;
         theView.end = tmpEnd;
-        //CLS_NSLOG(@"newLine: Calculated view co-ordinates for line as: (%.1f,%.1f) -> (%.1f,%.1f)", theView.origin.x, theView.origin.y, theView.end.x, theView.end.y);
+        //NSLog(@"newLine: Calculated view co-ordinates for line as: (%.1f,%.1f) -> (%.1f,%.1f)", theView.origin.x, theView.origin.y, theView.end.x, theView.end.y);
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
@@ -732,6 +730,7 @@ static int drawing_newImage(lua_State *L) {
 ///  * This method should only be used on text drawing objects
 ///  * If the text of the drawing object is emptied (i.e. "") then style changes may be lost.  Use a placeholder such as a space (" ") or hide the object if style changes need to be saved but the text should disappear for a while.
 static int drawing_setText(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingViewText *drawingView = (HSDrawingViewText *)drawingWindow.contentView;
@@ -754,7 +753,7 @@ static int drawing_setText(lua_State *L) {
         drawingView.textField.attributedStringValue = [[NSAttributedString alloc] initWithString:[[LuaSkin shared] toNSObjectAtIndex:-1] attributes:attributes];
         lua_pop(L, 1) ;
     } else {
-        showError(L, ":setText() called on an hs.drawing object that isn't a text object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setText() can only be called on hs.drawing.text() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -951,7 +950,7 @@ static int drawing_setTextStyle(lua_State *L) {
         }
         @catch ( NSException *theException ) {
             attributes = [@{NSParagraphStyleAttributeName:[NSParagraphStyle defaultParagraphStyle]} mutableCopy] ;
-//            printToConsole(L, "-- unable to retrieve current style for text; reverting to defaults") ;
+//            [[LuaSkin shared] logWarn:@"-- unable to retrieve current style for text; reverting to defaults"] ;
         }
 
         NSMutableParagraphStyle *style = [[attributes objectForKey:NSParagraphStyleAttributeName] mutableCopy] ;
@@ -996,6 +995,7 @@ static int drawing_setTextStyle(lua_State *L) {
 /// Returns:
 ///  * The drawing object
 static int drawing_setTopLeft(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
 //    HSDrawingView   *drawingView   = (HSDrawingView *)drawingWindow.contentView;
@@ -1014,7 +1014,7 @@ static int drawing_setTopLeft(lua_State *L) {
 
             break;
         default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing:setTopLeft(): %d", lua_type(L, 2));
+            [skin logBreadcrumb:[NSString stringWithFormat:@"ERROR: Unexpected type passed to hs.drawing:setTopLeft(): %d", lua_type(L, 2)]];
             lua_pushnil(L);
             return 1;
     }
@@ -1039,6 +1039,7 @@ static int drawing_setTopLeft(lua_State *L) {
 /// Notes:
 ///  * If this is called on an `hs.drawing.text` object, only its window will be resized. If you also want to change the font size, use `:setTextSize()`
 static int drawing_setSize(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView   *drawingView   = (HSDrawingView *)drawingWindow.contentView;
@@ -1056,7 +1057,7 @@ static int drawing_setSize(lua_State *L) {
 
             break;
         default:
-            CLS_NSLOG(@"ERROR: Unexpected type passed to hs.drawing:setSize(): %d", lua_type(L, 2));
+            [skin logBreadcrumb:[NSString stringWithFormat:@"ERROR: Unexpected type passed to hs.drawing:setSize(): %d", lua_type(L, 2)]];
             lua_pushnil(L);
             return 1;
     }
@@ -1217,6 +1218,7 @@ static int drawing_setTextColor(lua_State *L) {
 ///  * This method should only be used on rectangle, circle, or arc drawing objects
 ///  * Calling this method will remove any gradient fill colors previously set with `hs.drawing:setFillGradient()`
 static int drawing_setFillColor(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSColor *fillColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
 
@@ -1233,7 +1235,7 @@ static int drawing_setFillColor(lua_State *L) {
 
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setFillColor() called on an hs.drawing object that isn't a rectangle, circle, or arc object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setFillColor() can only be called on hs.drawing.rectangle(), hs.drawing.circle() or hs.drawing.arc() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1254,7 +1256,8 @@ static int drawing_setFillColor(lua_State *L) {
 /// Notes:
 ///  * This method should only be used on arc drawing objects
 static int drawing_setArcAngles(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TNUMBER, LS_TBREAK] ;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TNUMBER, LS_TBREAK] ;
     drawing_t *drawingObject = get_item_arg(L, 1);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1266,7 +1269,7 @@ static int drawing_setArcAngles(lua_State *L) {
 
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setArcAngles() called on an hs.drawing object that isn't an arc object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setArcAngles() can only be called on hs.drawing.arc() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1297,9 +1300,10 @@ static int drawing_setArcAngles(lua_State *L) {
 ///  * This method should only be used on rectangle, circle, or arc drawing objects
 ///  * Calling this method will remove any fill color previously set with `hs.drawing:setFillColor()`
 static int drawing_setFillGradient(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *startColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
-    NSColor *endColor = [[LuaSkin shared] luaObjectAtIndex:3 toClass:"NSColor"] ;
+    NSColor *startColor = [skin luaObjectAtIndex:2 toClass:"NSColor"] ;
+    NSColor *endColor = [skin luaObjectAtIndex:3 toClass:"NSColor"] ;
     int angle = (int)lua_tointeger(L, 4);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1315,7 +1319,7 @@ static int drawing_setFillGradient(lua_State *L) {
 
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setFillGradient() called on an hs.drawing object that isn't a rectangle, circle, or arc object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setFillGradient() can only be called on hs.drawing.rectangle(), hs.drawing.circle() or hs.drawing.arc() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1335,8 +1339,9 @@ static int drawing_setFillGradient(lua_State *L) {
 /// Notes:
 ///  * This method should only be used on line, rectangle, circle, or arc drawing objects
 static int drawing_setStrokeColor(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
-    NSColor *strokeColor = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSColor"] ;
+    NSColor *strokeColor = [skin luaObjectAtIndex:2 toClass:"NSColor"] ;
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
@@ -1348,7 +1353,7 @@ static int drawing_setStrokeColor(lua_State *L) {
         drawingView.HSStrokeColor = strokeColor;
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setStrokeColor() called on an hs.drawing object that isn't a line, rectangle, circle, or arc object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setStrokeColor() can only be called on hs.drawing.rectangle(), hs.drawing.circle(), hs.drawing.line() or hs.drawing.arc() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1371,6 +1376,7 @@ static int drawing_setStrokeColor(lua_State *L) {
 ///  * If either radius value is greater than half the width/height (as appropriate) of the rectangle, the value will be clamped at half the width/height
 ///  * If either (or both) radius values are 0, the rectangle will be drawn without rounded corners
 static int drawing_setRoundedRectRadii(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
     CGFloat xradius = lua_tonumber(L, 2);
     CGFloat yradius = lua_tonumber(L, 3);
@@ -1384,7 +1390,7 @@ static int drawing_setRoundedRectRadii(lua_State *L) {
 
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setRoundedRectRadii() called on an hs.drawing object that isn't a rectangle object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setRoundedRectRadii() can only be called on hs.drawing.rectangle() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1404,6 +1410,7 @@ static int drawing_setRoundedRectRadii(lua_State *L) {
 /// Notes:
 ///  * This method should only be used on line, rectangle, circle, or arc drawing objects
 static int drawing_setFill(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1416,7 +1423,7 @@ static int drawing_setFill(lua_State *L) {
         drawingView.HSFill = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setFill() called on an hs.drawing object that isn't a line, rectangle, circle, or arc object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setFill() can only be called on hs.drawing.rectangle(), hs.drawing.circle(), hs.drawing.line() or hs.drawing.arc() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1436,6 +1443,7 @@ static int drawing_setFill(lua_State *L) {
 /// Notes:
 ///  * This method should only be used on line, rectangle, circle, or arc drawing objects
 static int drawing_setStroke(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1448,7 +1456,7 @@ static int drawing_setStroke(lua_State *L) {
         drawingView.HSStroke = (BOOL)lua_toboolean(L, 2);
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setStroke() called on an hs.drawing object that isn't a line, rectangle, circle, or arc object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setStroke() can only be called on hs.drawing.rectangle(), hs.drawing.circle(), hs.drawing.line() or hs.drawing.arc() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1468,6 +1476,7 @@ static int drawing_setStroke(lua_State *L) {
 /// Notes:
 ///  * This method should only be used on line, rectangle, circle, or arc drawing objects
 static int drawing_setStrokeWidth(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
 
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
@@ -1480,7 +1489,7 @@ static int drawing_setStrokeWidth(lua_State *L) {
         drawingView.HSLineWidth = lua_tonumber(L, 2);
         drawingView.needsDisplay = YES;
     } else {
-        showError(L, ":setStrokeWidth() called on an hs.drawing object that isn't a line, rectangle, circle, or arc object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setStrokeWidth() can only be called on hs.drawing.rectangle(), hs.drawing.circle(), hs.drawing.line() or hs.drawing.arc() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1497,6 +1506,7 @@ static int drawing_setStrokeWidth(lua_State *L) {
 /// Returns:
 ///  * The drawing object
 static int drawing_setImage(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
     NSImage *image = [[LuaSkin shared] luaObjectAtIndex:2 toClass:"NSImage"];
 
@@ -1506,7 +1516,7 @@ static int drawing_setImage(lua_State *L) {
     if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
         [drawingView setImage:image];
     } else {
-        showError(L, ":setImage() called on an hs.drawing object that isn't an image object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:setImage() can only be called on hs.drawing.image() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1527,7 +1537,8 @@ static int drawing_setImage(lua_State *L) {
 /// Notes:
 /// * This method works by rotating the image view within its drawing window.  This means that an image which completely fills its viewing area will most likely be cropped in some places.  Best results are achieved with images that have clear space around their edges or with `hs.drawing.imageScaling` set to "none".
 static int drawing_rotate(lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK] ;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK] ;
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
@@ -1535,7 +1546,7 @@ static int drawing_rotate(lua_State *L) {
     if ([drawingView isKindOfClass:[HSDrawingViewImage class]]) {
         [drawingView setFrameCenterRotation:(360.0 - lua_tonumber(L, 2))] ;
     } else {
-        showError(L, ":rotateImage() called on an hs.drawing object that isn't an image object");
+        [skin logError:[NSString stringWithFormat:@"hs.drawing:rotateImage() can only be called on hs.drawing.image() objects, not: %@", NSStringFromClass([drawingView class])]];
     }
 
     lua_pushvalue(L, 1);
@@ -1794,7 +1805,7 @@ static int drawing_setClickCallback(lua_State *L) {
             [drawingView setMouseUpCallback:[skin luaRef:refTable]];
         }
     } else {
-        showError(L, ":setClickCallback() called with invalid mouseUp function");
+        [skin logError:@"hs.drawing:setClickCallback() mouseUp argument must be a function or nil"];
     }
 
     if (lua_type(L, 3) == LUA_TNONE || lua_type(L, 3) == LUA_TNIL || lua_type(L, 3) == LUA_TFUNCTION) {
@@ -1807,7 +1818,7 @@ static int drawing_setClickCallback(lua_State *L) {
             [drawingView setMouseDownCallback:[skin luaRef:refTable]];
         }
     } else {
-        showError(L, ":setClickCallback() called with invalid mouseDown function");
+        [skin logError:@"hs.drawing:setClickCallback() mouseDown argument must be a function or nil, or entirely absent"];
     }
 
     lua_pushvalue(L, 1);
@@ -1937,10 +1948,11 @@ static int getAlpha(lua_State *L) {
 /// Returns:
 ///  * The `hs.drawing` object
 static int setAlpha(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
     CGFloat newLevel = luaL_checknumber(L, 2);
     if ((newLevel < 0.0) || (newLevel > 1.0)) {
-        showError(L, "Level must be between 0.0 and 1.0") ;
+        [skin logError:@"hs.drawing:setAlpha() level must be between 0.0 and 1.0"];
     } else {
         HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
         [drawingWindow setAlphaValue:newLevel] ;

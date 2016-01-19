@@ -77,6 +77,8 @@ typedef enum {
  @definedblock Log level definitions for logAtLevel:withMessage:
  @hidesingletons
  */
+/*! @define LS_LOG_BREADCRUMB for messages that should be considered for recording in crash logs */
+#define LS_LOG_BREADCRUMB 6
 /*! @define LS_LOG_VERBOSE for messages that contain excessive detail that is usually only of interest during debugging */
 #define LS_LOG_VERBOSE  5
 /*! @define LS_LOG_DEBUG for messages that are usually only of interest during debugging */
@@ -619,6 +621,12 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param theMessage the message to log
  */
 - (void)logError:(NSString *)theMessage ;
+/*!
+ @abstract Log the specified message with LS_LOG_BREADCRUMB level
+ @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_BREADCRUMB @/link
+ @param theMessage the message to log
+ */
+- (void)logBreadcrumb:(NSString *)theMessage ;
 
 /*!
  @abstract Returns a string containing the current stack top, the absolute index position of the stack top, and the output from luaL_traceback.

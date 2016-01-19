@@ -2,7 +2,6 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 static int doHash(lua_State *L, CC_LONG length, unsigned char *(*hashFunc)(const void *, CC_LONG, unsigned char *)) {
     unsigned char digest[length + 1];

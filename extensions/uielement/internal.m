@@ -4,7 +4,6 @@
 #import "uielement.h"
 #import "../window/window.h"
 #import "../application/application.h"
-#import "../hammerspoon.h"
 
 #define get_element(L, idx) *((AXUIElementRef*)lua_touserdata(L, idx))
 
@@ -14,12 +13,13 @@ static const char* watcherTag = "hs.uielement.watcher";
 NSArray *eventNames;
 
 static void new_uielement(lua_State* L, AXUIElementRef element) {
+    LuaSkin *skin = [LuaSkin shared];
     AXUIElementRef* elementptr = lua_newuserdata(L, sizeof(AXUIElementRef));
     if (!elementptr) {
-        CLS_NSLOG(@"elementptr is nil!");
+        [skin logBreadcrumb:@"hs.uielement new_uielement: elementptr is nil"];
         return;
     }
-    if (!element) CLS_NSLOG(@"new_uielement called with nil element!");
+    if (!element) [skin logBreadcrumb:@"new_uielement called with nil element!"];
     *elementptr = element;
 
     luaL_getmetatable(L, userdataTag);
@@ -155,11 +155,12 @@ typedef struct _watcher_t {
 } watcher_t;
 
 static int uielement_newWatcher(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     int nargs = lua_gettop(L);
 
     void *userData = lua_touserdata(L, 1);
     if (!userData) {
-        CLS_NSLOG(@"uielement_newWatcher: invalid userdata received. Actual type: %d", lua_type(L, 1));
+        [skin logBreadcrumb:[NSString stringWithFormat:@"uielement_newWatcher: invalid userdata received. Actual type: %d", lua_type(L, 1)]];
         lua_pushnil(L);
         return 1;
     }
@@ -221,12 +222,12 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
 
     if (![skin protectedCallAndTraceback:4 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
-        showError(L, (char *)errorMsg);
+        [skin logError:[NSString stringWithUTF8String:errorMsg]];
     }
 }
 
 static int watcher_start(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     watcher_t* watcher = get_watcher(L, 1);
     if (watcher->running) return 0;
 
@@ -234,7 +235,7 @@ static int watcher_start(lua_State* L) {
     AXObserverRef observer = NULL;
     AXError err = AXObserverCreate(watcher->pid, watcher_observer_callback, &observer);
     if (err != kAXErrorSuccess) {
-        CLS_NSLOG(@"AXObserverCreate error: %d", (int)err);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"AXObserverCreate error: %d", (int)err]];
         return 0;
     }
 
@@ -250,7 +251,7 @@ static int watcher_start(lua_State* L) {
         if (stringIndex != NSNotFound) {
             AXObserverAddNotification(observer, watcher->element, (__bridge CFStringRef)[eventNames objectAtIndex:stringIndex], watcher);
         } else {
-            CLS_NSLOG(@"Unable to find uielement.watcher event: %@", (__bridge NSString*)eventName);
+            [skin logBreadcrumb:[NSString stringWithFormat:@"Unable to find uielement.watcher event: %@", (__bridge NSString *)eventName]];
         }
 
         CFRelease(eventName);

@@ -2,7 +2,6 @@
 #import <CoreWLAN/CoreWLAN.h>
 #import <CoreWLAN/CWWiFiClient.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../Hammerspoon.h"
 
 #define USERDATA_TAG "hs.wifi"
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
@@ -20,6 +19,7 @@ static int logFnRef = LUA_NOREF;
 
 // allow this to be potentially unused in the module
 static int __unused log_to_console(lua_State *L, const char *level, NSString *theMessage) {
+    LuaSkin *skin = [LuaSkin shared];
     lua_Debug functionDebugObject, callerDebugObject;
     int status = lua_getstack(L, 0, &functionDebugObject);
     status = status + lua_getstack(L, 1, &callerDebugObject);
@@ -36,12 +36,12 @@ static int __unused log_to_console(lua_State *L, const char *level, NSString *th
                                                                       theMessage];
     }
     // Put it into the system logs, may help with troubleshooting
-    CLS_NSLOG(@"%s: %@", USERDATA_TAG, fullMessage);
+    [skin logBreadcrumb:[NSString stringWithFormat:@"hs.wifi: %@", fullMessage]];
 
     // If hs.logger reference set, use it and the level will indicate whether the user sees it or not
     // otherwise we print to the console for everything, just in case we forget to register.
     if (logFnRef != LUA_NOREF) {
-        [[LuaSkin shared] pushLuaRef:refTable ref:logFnRef];
+        [skin pushLuaRef:refTable ref:logFnRef];
         lua_getfield(L, -1, level); lua_remove(L, -2);
     } else {
         lua_getglobal(L, "print");

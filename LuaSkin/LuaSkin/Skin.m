@@ -989,11 +989,12 @@ nextarg:
 }
 
 // shorthand
-- (void)logVerbose:(NSString *)theMessage { [self logAtLevel:LS_LOG_VERBOSE withMessage:theMessage] ; }
-- (void)logDebug:(NSString *)theMessage   { [self logAtLevel:LS_LOG_DEBUG withMessage:theMessage] ; }
-- (void)logInfo:(NSString *)theMessage    { [self logAtLevel:LS_LOG_INFO withMessage:theMessage] ; }
-- (void)logWarn:(NSString *)theMessage    { [self logAtLevel:LS_LOG_WARN withMessage:theMessage] ; }
-- (void)logError:(NSString *)theMessage   { [self logAtLevel:LS_LOG_ERROR withMessage:theMessage] ; }
+- (void)logVerbose:(NSString *)theMessage    { [self logAtLevel:LS_LOG_VERBOSE withMessage:theMessage] ; }
+- (void)logDebug:(NSString *)theMessage      { [self logAtLevel:LS_LOG_DEBUG withMessage:theMessage] ; }
+- (void)logInfo:(NSString *)theMessage       { [self logAtLevel:LS_LOG_INFO withMessage:theMessage] ; }
+- (void)logWarn:(NSString *)theMessage       { [self logAtLevel:LS_LOG_WARN withMessage:theMessage] ; }
+- (void)logError:(NSString *)theMessage      { [self logAtLevel:LS_LOG_ERROR withMessage:theMessage] ; }
+- (void)logBreadcrumb:(NSString *)theMessage { [self logAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage] ; }
 
 - (NSString *)tracebackWithTag:(NSString *)theTag fromStackPos:(int)level{
     int topIndex         = lua_gettop(_L) ;

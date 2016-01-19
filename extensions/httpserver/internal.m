@@ -1,5 +1,4 @@
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 #import <CocoaHTTPServer/HTTPServer.h>
 #import <CocoaHTTPServer/HTTPConnection.h>
 #import <CocoaHTTPServer/HTTPDataResponse.h>
@@ -77,13 +76,12 @@ int refTable;
 
         if (![skin protectedCallAndTraceback:2 nresults:3]) {
             const char *errorMsg = lua_tostring(L, -1);
-            CLS_NSLOG(@"%s", errorMsg);
-            showError(L, (char *)errorMsg);
+            [skin logError:[NSString stringWithFormat:@"hs.httpserver:setCallback() callback error: %s", errorMsg]];
             responseCode = 503;
             responseBody = [NSString stringWithUTF8String:"An error occurred during hs.httpserver callback handling"];
         } else {
             if (!(lua_type(L, -3) == LUA_TSTRING && lua_type(L, -2) == LUA_TNUMBER && lua_type(L, -1) == LUA_TTABLE)) {
-                showError(L, "ERROR: hs.httpserver callbacks must return three values. A string for the response body, an integer response code and a table of headers");
+                [skin logError:@"hs.httpserver:setCallback() callbacks must return three values. A string for the response body, an integer response code, and a table of headers"];
                 responseCode = 503;
                 responseBody = [NSString stringWithUTF8String:"Callback handler returned invalid values"];
             } else {
@@ -96,8 +94,8 @@ int refTable;
                 lua_pushnil(L);
                 while (lua_next(L, -2)) {
                     if (lua_type(L, -1) == LUA_TSTRING && lua_type(L, -2) == LUA_TSTRING) {
-                        NSString *key = lua_to_nsstring(L, -2);
-                        NSString *value = lua_to_nsstring (L, -1);
+                        NSString *key = [skin toNSObjectAtIndex:-2];
+                        NSString *value = [skin toNSObjectAtIndex:-1];
                         [responseHeaders setObject:value forKey:key];
                     } else {
                         headerTypeError = YES;
@@ -105,7 +103,7 @@ int refTable;
                     lua_pop(L, 1);
                 }
                 if (headerTypeError) {
-                    showError(L, "ERROR: hs.httpserver callback returned a header table that contains non-strings");
+                    [skin logError:@"hs.httpserver:setCallback() callback returned a header table that contains non-strings"];
                 }
             }
         }
@@ -277,7 +275,7 @@ static int httpserver_setCallback(lua_State *L) {
             server.fn = [skin luaUnref:refTable ref:server.fn];
             break;
         default:
-            showError(L, "ERROR: Unknown type passed to hs.httpserver:setCallback(). Argument must be a function or nil");
+            [skin logError:@"Unknown type passed to hs.httpserver:setCallback(). Argument must be a function or nil"];
             break;
     }
 
@@ -298,6 +296,8 @@ static int httpserver_setCallback(lua_State *L) {
 /// Notes:
 ///  * It is not currently possible to set multiple passwords for different users, or passwords only on specific paths
 static int httpserver_setPassword(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
 
     switch (lua_type(L, 2)) {
@@ -306,10 +306,10 @@ static int httpserver_setPassword(lua_State *L) {
             server.httpPassword = nil;
             break;
         case LUA_TSTRING:
-            server.httpPassword = lua_to_nsstring(L, 2);
+            server.httpPassword = [skin toNSObjectAtIndex:2];
             break;
         default:
-            showError(L, "ERROR: Unknown type passed to hs.httpserver:setPassword(). Argument must be a string or nil");
+            [skin logError:@"Unknown type passed to hs.httpserver:setPassword(). Argument must be a string or nil"];
             break;
     }
 
@@ -327,15 +327,15 @@ static int httpserver_setPassword(lua_State *L) {
 /// Returns:
 ///  * The `hs.httpserver` object
 static int httpserver_start(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     HSHTTPServer *server = getUserData(L, 1);
 
     if (server.fn == LUA_NOREF) {
-        showError(L, "ERROR: No callback handler set on hs.httpserver object");
+        [skin logError:@"hs.httpserver:start() called with no callback set. You must call hs.httpserver:setCallback() first"];
     } else {
         NSError *error = nil;
         if (![server start:&error]) {
-            CLS_NSLOG(@"ERROR: Unable to start hs.httpserver object: %@", error);
-            showError(L, "ERROR: Unable to start hs.httpserver object");
+            [skin logError:[NSString stringWithFormat:@"hs.httpserver:start() Unable to start object: %@", error]];
         }
     }
 
@@ -422,8 +422,10 @@ static int httpserver_getName(lua_State *L) {
 /// Notes:
 ///  * This is not the hostname of the server, just its name in Bonjour service lists (e.g. Safari's Bonjour bookmarks menu)
 static int httpserver_setName(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, LS_TSTRING, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
-    [server setName:lua_to_nsstring(L, 2)];
+    [server setName:[skin toNSObjectAtIndex:2]];
     lua_pushvalue(L, 1);
     return 1;
 }

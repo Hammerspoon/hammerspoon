@@ -1,11 +1,11 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 static CFMessagePortRef   messagePort ;
 static CFRunLoopSourceRef runloopSource ;
 
 CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, CFDataRef data, void __unused *info) {
+    LuaSkin *skin = [LuaSkin shared];
     CFStringRef instr = CFStringCreateFromExternalRepresentation(NULL, data, kCFStringEncodingUTF8);
     const char* cmd = CFStringGetCStringPtr(instr, kCFStringEncodingUTF8);
     bool shouldFree = NO;
@@ -21,34 +21,35 @@ CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, C
         shouldFree = YES;
     }
 
-    lua_getglobal([[LuaSkin shared] L], "require") ;
-    lua_pushstring([[LuaSkin shared] L], "hs.ipc") ;
-    if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:1]) {
-        const char *errorMsg = lua_tostring([[LuaSkin shared] L], -1);
-        CLS_NSLOG(@"hs.ipc: unable to load module to invoke callback handler: %s", errorMsg) ;
-        showError([[LuaSkin shared] L], (char *)errorMsg);
+    lua_getglobal(skin.L, "require") ;
+    lua_pushstring(skin.L, "hs.ipc") ;
+    if (![skin protectedCallAndTraceback:1 nresults:1]) {
+        const char *errorMsg = lua_tostring(skin.L, -1);
+
+        [skin logError:[NSString stringWithFormat:@"hs.ipc: Unable to require('hs.ipc'): %s", errorMsg]];
+
         if (shouldFree) {
             free((char *)cmd);
         }
         CFRelease(instr);
         return nil;
     }
-    lua_getfield([[LuaSkin shared] L], -1, "__handler") ;
-    lua_remove([[LuaSkin shared] L], -2) ;
+    lua_getfield(skin.L, -1, "__handler") ;
+    lua_remove(skin.L, -2) ;
     // now we know the function hs.ipc.__handler is on the stack...
 
     BOOL israw = (cmd[0] == 'r');
     const char* commandstr = cmd+1;
 
-    lua_pushboolean([[LuaSkin shared] L], israw);
-    lua_pushstring([[LuaSkin shared] L], commandstr);
+    lua_pushboolean(skin.L, israw);
+    lua_pushstring(skin.L, commandstr);
 
     // we return 1 string whether its an error or not, so...
-    [[LuaSkin shared] protectedCallAndTraceback:2 nresults:1] ;
+    [skin protectedCallAndTraceback:2 nresults:1] ;
 
     size_t length ;
 
-    const char* coutstr = luaL_tolstring([[LuaSkin shared] L], -1, &length);
+    const char* coutstr = luaL_tolstring(skin.L, -1, &length);
 
 //     CFStringRef outstr = CFStringCreateWithCharacters(NULL, coutstr, length );
 // //     CFStringRef outstr = CFStringCreateWithCString(NULL, coutstr, kCFStringEncodingUTF8);
@@ -58,7 +59,7 @@ CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, C
     CFDataRef outdata = CFDataCreate(NULL, (const UInt8 *)coutstr, (CFIndex)length );
 
 //     lua_pop([[LuaSkin shared] L], 1);
-    lua_pop([[LuaSkin shared] L], 2); // luaL_tolstring pushes its result onto the stack without modifying the original
+    lua_pop(skin.L, 2); // luaL_tolstring pushes its result onto the stack without modifying the original
     CFRelease(instr);
     if (shouldFree) free((char*) cmd);
 //     CFRelease(outstr);
@@ -101,16 +102,17 @@ static const luaL_Reg module_metaLib[] = {
 
 // NOTE: ** Make sure to change luaopen_..._internal **
 int luaopen_hs_ipc_internal(lua_State* __unused L) {
-    [[LuaSkin shared] registerLibrary:moduleLib metaFunctions:module_metaLib];
+    LuaSkin *skin = [LuaSkin shared];
+    [skin registerLibrary:moduleLib metaFunctions:module_metaLib];
 
     messagePort = setup_ipc() ;
     if (messagePort) {
-        lua_pushboolean([[LuaSkin shared] L], YES) ;
+        lua_pushboolean(skin.L, YES) ;
     } else {
-        printToConsole([[LuaSkin shared] L], "-- Unable to create IPC message port: Is Hammerspoon already running?") ;
-        lua_pushboolean([[LuaSkin shared] L], NO) ;
+        [skin logError:@"Unable to create IPC message port: Hammerspoon may already be running"];
+        lua_pushboolean(skin.L, NO) ;
     }
-    lua_setfield([[LuaSkin shared] L], -2, "messagePortDefined") ;
+    lua_setfield(skin.L, -2, "messagePortDefined") ;
 
     return 1;
 }

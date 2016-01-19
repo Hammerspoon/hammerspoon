@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <sys/time.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 // Common Code
 
@@ -24,19 +23,18 @@ static void timerCallback(CFRunLoopTimerRef __unused timer, void *info) {
     lua_State *L = skin.L;
 
     if (!t) {
-        showError(L, "ERROR: hs.timer callback fired on an invalid timer object. Please file a bug");
+        [skin logWarn:@"hs.timer callback fired on an invalid hs.timer object. This is a bug"];
         return;
     }
 
     [skin pushLuaRef:refTable ref:t->fn];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
-        CLS_NSLOG(@"%s", errorMsg);
+        [skin logError:[NSString stringWithFormat:@"hs.timer callback error: %s", errorMsg]];
         if (!t->continueOnError) {
             CFRunLoopRemoveTimer(CFRunLoopGetMain(), t->t, kCFRunLoopCommonModes);
-            printToConsole(L, "-- timer stopped to prevent repeated notifications of error.") ;
+            [skin logWarn:@"hs.timer callback failed. The timer has been stopped to prevent repeated notifications of the error."];
         }
-        showError(L, (char *)errorMsg);
     }
 
 }

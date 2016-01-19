@@ -5,7 +5,6 @@
 #import <IOKit/IOCFPlugIn.h>
 #import <IOKit/usb/IOUSBLib.h>
 #import <LuaSkin/LuaSkin.h>
-#import "../hammerspoon.h"
 
 /// === hs.usb.watcher ===
 ///
@@ -70,8 +69,7 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
         // Call the callback
         if (![skin protectedCallAndTraceback:1 nresults:0]) {
             const char *errorMsg = lua_tostring(L, -1);
-            CLS_NSLOG(@"%s", errorMsg);
-            showError(L, (char *)errorMsg);
+            [skin logError:[NSString stringWithFormat:@"hs.usb.watcher 'removed' callback error: %s", errorMsg]];
         }
 
         // Free the USB private data
@@ -84,6 +82,7 @@ void DeviceNotification(void *refCon, io_service_t service __unused, natural_t m
 
 // Iterate over new devices
 void DeviceAdded(void *refCon, io_iterator_t iterator) {
+    LuaSkin *skin = [LuaSkin shared];
     usbwatcher_t *watcher = (usbwatcher_t *)refCon;
     kern_return_t kr;
     io_service_t usbDevice;
@@ -125,7 +124,7 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
         // Register for notifications relating to this device
         kr = IOServiceAddInterestNotification(watcher->gNotifyPort, usbDevice, kIOGeneralInterest, DeviceNotification, privateDataRef, &(privateDataRef->notification));
         if (KERN_SUCCESS != kr) {
-            CLS_NSLOG(@"IOServiceAddInterestNotification returned 0x%08x", kr);
+            [skin logBreadcrumb:[NSString stringWithFormat:@"IOServiceAddInterestNotification returned 0x%08x", kr]];
         }
 
         // Release data we don't need anymore
@@ -157,7 +156,8 @@ void DeviceAdded(void *refCon, io_iterator_t iterator) {
             lua_settable(L, -3);
 
             if (![skin protectedCallAndTraceback:1 nresults:0]) {
-                showError(L, (char *)lua_tostring(L, -1));
+                const char *errorMsg = lua_tostring(L, -1);
+                [skin logError:[NSString stringWithFormat:@"hs.usb.watcher 'added' callback error: %s", errorMsg]];
             }
         }
     }
@@ -207,6 +207,7 @@ static int usb_watcher_new(lua_State* L) {
 /// Returns:
 ///  * The `hs.usb.watcher` object
 static int usb_watcher_start(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     usbwatcher_t* usbwatcher = luaL_checkudata(L, 1, USERDATA_TAG);
     lua_settop(L,1) ;
 
@@ -214,7 +215,7 @@ static int usb_watcher_start(lua_State* L) {
 
     CFMutableDictionaryRef matchingDict = IOServiceMatching(kIOUSBDeviceClassName);
     if (!matchingDict) {
-        CLS_NSLOG(@"Unable to create USB watcher matching dictionary");
+        [skin logBreadcrumb:@"Unable to create USB watcher matching dictionary"];
         return 1;
     }
 
