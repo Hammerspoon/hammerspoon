@@ -17,19 +17,14 @@ static int chooserNew(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
 
-    // Create the userdata object
-    chooser_userdata_t *userData = lua_newuserdata(L, sizeof(chooser_userdata_t));
-    memset(userData, 0, sizeof(chooser_userdata_t));
-    luaL_getmetatable(L, USERDATA_TAG);
-    lua_setmetatable(L, -2);
-
     // Parse function arguents
     lua_pushvalue(L, 1);
     int completionCallbackRef = [skin luaRef:refTable];
 
     // Create the HSChooser object with our arguments
     HSChooser *chooser = [[HSChooser alloc] initWithRefTable:&refTable completionCallbackRef:completionCallbackRef];
-    userData->chooser = (__bridge_retained void*)chooser;
+
+    [skin userDataAlloc:USERDATA_TAG withObject:(__bridge_retained void *)chooser];
 
     return 1;
 }
@@ -49,8 +44,7 @@ static int chooserShow(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     [chooser show];
 
@@ -71,8 +65,7 @@ static int chooserHide(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     [chooser hide];
 
@@ -122,8 +115,7 @@ static int chooserSetChoices(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TTABLE | LS_TNIL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     chooser.choicesCallbackRef = [skin luaUnref:refTable ref:chooser.choicesCallbackRef];
     [chooser clearChoices];
@@ -184,8 +176,7 @@ static int chooserRefreshChoicesCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     if (chooser.choicesCallbackRef != LUA_NOREF && chooser.choicesCallbackRef != LUA_REFNIL) {
         [chooser clearChoices];
@@ -210,8 +201,7 @@ static int chooserSetQuery(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TSTRING:
@@ -250,8 +240,7 @@ static int chooserQueryCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     chooser.queryChangedCallbackRef = [skin luaUnref:refTable ref:chooser.queryChangedCallbackRef];
 
@@ -261,22 +250,6 @@ static int chooserQueryCallback(lua_State *L) {
 
     lua_pushvalue(L, 1);
     return 1;
-}
-
-/// hs.chooser:delete()
-/// Method
-/// Deletes a chooser
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * None
-static int chooserDelete(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-
-    return userdata_gc(L);
 }
 
 /// hs.chooser:fgColor(color) -> hs.chooser object
@@ -292,8 +265,7 @@ static int chooserSetFgColor(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
@@ -332,8 +304,7 @@ static int chooserSetSubTextColor(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TTABLE:
@@ -375,8 +346,7 @@ static int chooserSetBgDark(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     BOOL beDark;
 
@@ -416,8 +386,7 @@ static int chooserSetSearchSubText(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TBOOLEAN:
@@ -454,8 +423,7 @@ static int chooserSetWidth(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TNUMBER:
@@ -489,8 +457,7 @@ static int chooserSetNumRows(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
 
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+    HSChooser *chooser = [skin userDataToObjectFromStack:1];
 
     switch (lua_type(L, 2)) {
         case LUA_TNUMBER:
@@ -515,15 +482,15 @@ static int chooserSetNumRows(lua_State *L) {
 
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, userData]];
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, [skin userDataToObjectFromStack:1]]];
     return 1;
 }
 
 static int userdata_gc(lua_State* L) {
-    chooser_userdata_t *userData = lua_touserdata(L, 1);
-    HSChooser *chooser = (__bridge_transfer HSChooser *)userData->chooser;
-    userData->chooser = nil;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    HSChooser *chooser = (__bridge_transfer HSChooser *)[skin userDataGCFromStack:1];
     chooser = nil;
 
     return 0;
@@ -542,7 +509,6 @@ static const luaL_Reg userdataLib[] = {
     {"choices", chooserSetChoices},
     {"queryChangedCallback", chooserQueryCallback},
     {"query", chooserSetQuery},
-    {"delete", chooserDelete},
     {"refreshChoicesCallback", chooserRefreshChoicesCallback},
 
     {"fgColor", chooserSetFgColor},
@@ -559,10 +525,8 @@ static const luaL_Reg userdataLib[] = {
 
 int luaopen_hs_chooser_internal(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibraryWithObject:USERDATA_TAG
-                                     functions:chooserLib
-                                 metaFunctions:nil
-                               objectFunctions:userdataLib];
+    refTable = [skin registerLibrary:chooserLib metaFunctions:nil];
+    [skin registerObject:USERDATA_TAG objectFunctions:userdataLib];
 
     return 1;
 }

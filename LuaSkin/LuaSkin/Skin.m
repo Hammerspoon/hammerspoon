@@ -337,6 +337,81 @@ nextarg:
     }
 }
 
+#pragma mark - Lua userdata object lifecycle
+
+- (BOOL)userDataAlloc:(const char *)type withObject:(void *)obj {
+    // Check that the requested metatable exists
+    luaL_getmetatable(_L, type);
+    if (lua_type(_L, -1) == LUA_TNIL) {
+        [self logError:[NSString stringWithFormat:@"LuaSkin:userDataAlloc:withObject: failed, unknown type: %s", type]];
+        return NO;
+    }
+
+    // Allocate the userdata object and zero it. This places a Lua userdata object at the top of the stack
+    lsUserData *userDataObject = lua_newuserdata(_L, sizeof(lsUserData));
+    memset(userDataObject, 0, sizeof(lsUserData));
+
+    // Move the metatable to the top of the stack
+    // The stack currently looks like this:
+    //  -1 userdata
+    //  -2 metatable
+    //
+    // The stack should look like this:
+    //  -1 metatable
+    //  -2 userdata
+    lua_insert(_L, -2);
+
+    // Set the metatable (now at -2) for the userdata object (now at -1)
+    lua_setmetatable(_L, -2);
+
+    // Store the type information and the provided object
+    userDataObject->type = (__bridge_retained void *)[NSString stringWithUTF8String:type];
+    userDataObject->obj = obj;
+
+    // Return success, leaving just the userdata object at the top of the stack
+    return YES;
+}
+
+// FIXME: Do we actually need this method? the FromStack variant is likely far more useful
+- (void *)userDataGC:(void *)userData {
+    lsUserData *userDataObject = (lsUserData *)userData;
+
+    NSString *type = (__bridge_transfer NSString *)userDataObject->type;
+    type = nil;
+
+    // FIXME: Does this work properly wrt the receiving function doing a __bridge_transfer on ObjC objects?
+    return userDataObject->obj;
+}
+
+- (void *)userDataGCFromStack:(int)stackPos {
+    lsUserData *userDataObject = lua_touserdata(_L, stackPos);
+
+    NSString *type = (__bridge_transfer NSString *)userDataObject->type;
+    type = nil;
+
+    // FIXME: Does this work properly wrt the receiving function doing a __bridge_transfer on ObjC objects?
+    return userDataObject->obj;
+}
+
+- (NSString *)userDataType:(void *)userData {
+    lsUserData *userDataObject = (lsUserData *)userData;
+
+    return [(__bridge NSString *)(userDataObject->obj) copy];
+}
+
+// FIXME: Do we actually need this method? the FromStack variant is likely far more useful
+- (void *)userDataToObject:(void *)userData {
+    lsUserData *userDataObject = (lsUserData *)userData;
+
+    return userDataObject->obj;
+}
+
+- (void *)userDataToObjectFromStack:(int)stackPos {
+    lsUserData *userDataObject = lua_touserdata(_L, stackPos);
+
+    return userDataObject->obj;
+}
+
 #pragma mark - Conversion from NSObjects into Lua objects
 
 - (int)pushNSObject:(id)obj { return [self pushNSObject:obj withOptions:LS_NSNone] ; }
