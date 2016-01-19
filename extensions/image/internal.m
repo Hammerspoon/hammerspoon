@@ -543,3 +543,4 @@ int luaopen_hs_image_internal(lua_State* L) {
     [skin registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage" withUserdataMapping:USERDATA_TAG] ;
     return 1;
 }
+
