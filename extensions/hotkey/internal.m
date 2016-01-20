@@ -137,6 +137,7 @@ static int hotkey_new(lua_State* L) {
     hotkey_t* hotkey = lua_newuserdata(L, sizeof(hotkey_t));
     memset(hotkey, 0, sizeof(hotkey_t));
 
+    hotkey->carbonHotKey = nil;
     hotkey->keycode = keycode;
 
     // use 'hs.hotkey' metatable
@@ -182,29 +183,53 @@ static int hotkey_new(lua_State* L) {
 }
 
 static int hotkey_enable(lua_State* L) {
-    hotkey_t* hotkey = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    hotkey_t* hotkey = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (hotkey->enabled)
         return 1;
 
-    hotkey->enabled = YES;
+    if (hotkey->carbonHotKey) {
+        [skin logBreadcrumb:@"hs.hotkey:enable() we think the hotkey is disabled, but it has a Carbon event. Proceeding, but this is a leak."];
+    }
+
     hotkey->uid = store_hotkey(L, 1);
     EventHotKeyID hotKeyID = { .signature = 'HMSP', .id = hotkey->uid };
-    hotkey->carbonHotKey = NULL;
-    RegisterEventHotKey(hotkey->keycode, hotkey->mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &hotkey->carbonHotKey);
+    OSStatus result = RegisterEventHotKey(hotkey->keycode, hotkey->mods, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &hotkey->carbonHotKey);
+
+    if (result == noErr) {
+        hotkey->enabled = YES;
+    } else {
+        [skin logBreadcrumb:[NSString stringWithFormat:@"hs.hotkey:enable() RegisterEventHotKey failed: %d", (int)result]];
+        hotkey->uid = remove_hotkey(L, hotkey->uid);
+    }
 
     lua_pushvalue(L, 1);
     return 1;
 }
 
 static void stop(lua_State* L, hotkey_t* hotkey) {
+    LuaSkin *skin = [LuaSkin shared];
+
     if (!hotkey->enabled)
         return;
 
     hotkey->enabled = NO;
     hotkey->uid = remove_hotkey(L, hotkey->uid);
-    UnregisterEventHotKey(hotkey->carbonHotKey);
+
+    if (!hotkey->carbonHotKey) {
+        [skin logBreadcrumb:@"hs.hotkey stop() we think the hotkey is enabled, but it has no Carbon event. Refusing to unregister."];
+    } else {
+        OSStatus result = UnregisterEventHotKey(hotkey->carbonHotKey);
+        hotkey->carbonHotKey = nil;
+        if (result != noErr) {
+            [skin logBreadcrumb:[NSString stringWithFormat:@"hs.hotkey stop() UnregisterEventHotKey failed: %d", (int)result]];
+        }
+    }
+
     [keyRepeatManager stopTimer];
 }
 
