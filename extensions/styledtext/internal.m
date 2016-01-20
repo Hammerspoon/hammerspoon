@@ -2360,7 +2360,7 @@ int luaopen_hs_styledtext_internal(lua_State *__unused L) {
     [skin registerLuaObjectHelper:table_toNSFont               forClass:"NSFont"];
 
     [skin registerPushNSHelper:NSAttributedString_toLua        forClass:"NSAttributedString"];
-    [skin registerLuaObjectHelper:lua_toNSAttributedString     forClass:"NSAttributedString"];
+    [skin registerLuaObjectHelper:lua_toNSAttributedString     forClass:"NSAttributedString" withUserdataMapping:USERDATA_TAG];
 
     [skin registerLuaObjectHelper:table_toAttributesDictionary forClass:"hs.styledtext.AttributesDictionary"];
 
