@@ -180,9 +180,15 @@
     [self showWindow:self];
     self.window.isVisible = YES;
     [self.window center];
-    [self.window makeKeyAndOrderFront:nil];
+    [self.window makeKeyAndOrderFront:self];
+    [self.window makeFirstResponder:self.queryField];
 
-    [self.queryField becomeFirstResponder];
+    [self.window setLevel:(CGWindowLevelForKey(kCGMainMenuWindowLevelKey) + 3)];
+
+    if (!self.window.isKeyWindow) {
+        NSApplication *app = [NSApplication sharedApplication];
+        [app activateIgnoringOtherApps:YES];
+    }
 
     [self controlTextDidChange:[NSNotification notificationWithName:@"Unused" object:nil]];
 }
