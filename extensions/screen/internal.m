@@ -390,20 +390,22 @@ void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSu
     */
 
     if (flags & kCGDisplayAddFlag) {
+        // A display was added, remember its initial gamma
         storeInitialScreenGamma(display);
     } else if (flags & kCGDisplayRemoveFlag) {
+        // A display was removed, forget its initial and current gammas
         [originalGammas removeObjectForKey:[NSNumber numberWithInt:display]];
         [currentGammas removeObjectForKey:[NSNumber numberWithInt:display]];
     } else if (flags & kCGDisplayDisabledFlag) {
+        // A display was disabled, forget its current gamma
         [currentGammas removeObjectForKey:[NSNumber numberWithInt:display]];
     } else if ((flags & kCGDisplayEnabledFlag) || (flags & kCGDisplayBeginConfigurationFlag)) {
         // NOOP
         ;
     } else {
         // Some kind of display reconfiguration that didn't involve any hardware coming or going, re-apply a gamma if we have one
-        dispatch_async(notificationQueue, ^(void) {
-            [NSThread sleepForTimeInterval:3]; // FIXME: This hard-coded sleep is awful, why do the screens get refreshed after this point?!
-            //FIXME: Apply to all screens simultaneously
+        // We seem to have to wait a few seconds for this to work, so we'll dispatch a delayed call, but run it on the main thread
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             screen_gammaReapply(display);
         });
     }
