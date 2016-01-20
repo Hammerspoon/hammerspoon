@@ -61,6 +61,9 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     });
     if (![NSThread isMainThread]) {
         NSLog(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
+        for (NSString *stackSymbol in [NSThread callStackSymbols]) {
+            NSLog(@"Previous stack symbol: %@", stackSymbol);
+        }
         NSException* myException = [NSException
                                     exceptionWithName:@"LuaOnNonMainThread"
                                     reason:@"Lua execution is happening on a non-main thread"
