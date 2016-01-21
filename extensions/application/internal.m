@@ -1023,6 +1023,7 @@ static const luaL_Reg applicationlib[] = {
     {"_focusedwindow", application__focusedwindow},
     {"_bringtofront", application__bringtofront},
     {"title", application_title},
+    {"name", application_title},
     {"bundleID", application_bundleID},
     {"isRunning", application_isRunning},
     {"unhide", application_unhide},

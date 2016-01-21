@@ -50,7 +50,6 @@ end
 --- hs.application:name()
 --- Method
 --- Alias for `hs.application:title()`
-application.name=application.title
 
 --- hs.application.get(hint) -> hs.application object
 --- Constructor
