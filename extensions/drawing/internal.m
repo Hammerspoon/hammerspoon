@@ -1852,7 +1852,7 @@ static int drawing_setClickCallback(lua_State *L) {
 /// Displays the drawing object
 ///
 /// Parameters:
-///  * fadeInTime - An number of seconds over which to fade in the drawing object
+///  * fadeInTime - An optional number of seconds over which to fade in the drawing object. Defaults to zero
 ///
 /// Returns:
 ///  * The drawing object
@@ -1878,7 +1878,7 @@ static int drawing_show(lua_State *L) {
 /// Hides the drawing object
 ///
 /// Parameters:
-///  * fadeOut - An optional number of seconds over which to fade out the drawing object
+///  * fadeOut - An optional number of seconds over which to fade out the drawing object. Defaults to zero
 ///
 /// Returns:
 ///  * The drawing object
