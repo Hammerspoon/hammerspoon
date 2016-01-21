@@ -63,6 +63,28 @@ NSMutableArray *drawingWindows;
     //NSLog(@"HSDrawingWindow::windowShouldClose");
     return NO;
 }
+
+- (void)fadeInAndMakeKeyAndOrderFront:(NSTimeInterval)fadeTime {
+    [self setAlphaValue:0.f];
+    [self makeKeyAndOrderFront:nil];
+    [NSAnimationContext beginGrouping];
+    [[NSAnimationContext currentContext] setDuration:fadeTime];
+    [[self animator] setAlphaValue:1.f];
+    [NSAnimationContext endGrouping];
+}
+
+- (void)fadeOutAndOrderOut:(NSTimeInterval)fadeTime {
+    [NSAnimationContext beginGrouping];
+    __block __unsafe_unretained NSWindow *bself = self;
+    [[NSAnimationContext currentContext] setDuration:fadeTime];
+    [[NSAnimationContext currentContext] setCompletionHandler:^{
+        [bself orderOut:nil];
+        [bself setAlphaValue:1.f];
+    }];
+    [[self animator] setAlphaValue:0.f];
+    [NSAnimationContext endGrouping];
+}
+
 @end
 
 @implementation HSDrawingView
@@ -1825,35 +1847,54 @@ static int drawing_setClickCallback(lua_State *L) {
     return 1;
 }
 
-/// hs.drawing:show() -> drawingObject
+/// hs.drawing:show([fadeInTime]) -> drawingObject
 /// Method
 /// Displays the drawing object
 ///
 /// Parameters:
-///  * None
+///  * fadeInTime - An number of seconds over which to fade in the drawing object
 ///
 /// Returns:
 ///  * The drawing object
 static int drawing_show(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    [(__bridge HSDrawingWindow *)drawingObject->window makeKeyAndOrderFront:nil];
+    NSTimeInterval fadeTime = 0.f;
+
+    if (lua_type(L, 2) == LUA_TNUMBER) {
+        fadeTime = lua_tonumber(L, 2);
+    }
+    if (fadeTime > 0) {
+        [(__bridge HSDrawingWindow *)drawingObject->window fadeInAndMakeKeyAndOrderFront:fadeTime];
+    } else {
+        [(__bridge HSDrawingWindow *)drawingObject->window makeKeyAndOrderFront:nil];
+    }
 
     lua_pushvalue(L, 1);
     return 1;
 }
 
-/// hs.drawing:hide() -> drawingObject
+/// hs.drawing:hide([fadeOutTime]) -> drawingObject
 /// Method
 /// Hides the drawing object
 ///
 /// Parameters:
-///  * None
+///  * fadeOut - An optional number of seconds over which to fade out the drawing object
 ///
 /// Returns:
 ///  * The drawing object
 static int drawing_hide(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
-    [(__bridge HSDrawingWindow *)drawingObject->window orderOut:nil];
+    NSTimeInterval fadeTime = 0.f;
+
+    if (lua_type(L, 2) == LUA_TNUMBER) {
+        fadeTime = lua_tonumber(L, 2);
+    }
+
+    if (fadeTime > 0) {
+        [(__bridge HSDrawingWindow *)drawingObject->window fadeOutAndOrderOut:fadeTime];
+    } else {
+        [(__bridge HSDrawingWindow *)drawingObject->window orderOut:nil];
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -1868,6 +1909,9 @@ static int drawing_hide(lua_State *L) {
 ///
 /// Returns:
 ///  * None
+///
+/// Notes:
+///  * This method immediately destroys the drawing object. If you want it to fade out, use `:hide()` first, with some suitable time, and `hs.timer.doAfter()` to schedule the `:delete()` call
 static int drawing_delete(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge_transfer HSDrawingWindow *)drawingObject->window;
@@ -1878,6 +1922,7 @@ static int drawing_delete(lua_State *L) {
     drawingWindow = nil;
     drawingObject->window = nil;
     drawingObject = nil;
+
     return 0;
 }
 
