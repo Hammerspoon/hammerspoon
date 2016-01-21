@@ -363,7 +363,7 @@ typedef struct _userdata_t {
  @important You must have already registered an object with LuaSkin with the same userdata type that you pass to this method
  @important After calling this method, the userdata object will be at the top of the Lua stack
  @param type A const char * with the name of the userdata type. This is used to fetch the appropriate metatable to apply to the object
- @param obj A pointer to some data structure you wish to store in the userdata object
+ @param obj A pointer to some data structure you wish to store in the userdata object. Note that if this pointer is to an object tracked by ARC (e.g. something derived from NSObject), you should pass it in with a (__bridge_retained void*) cast
 
  @return A boolean, true if the object was created successfully, false if an error occurred
  */
@@ -374,7 +374,7 @@ typedef struct _userdata_t {
 
  @param userData A userdata object previously created with @link userDataAlloc:withObject: @/link
 
- @return A pointer to the object you stored in the userdata object, for you to deallocate it as necessary
+ @return A pointer to the object you stored in the userdata object, for you to deallocate it as necessary. Note that if this pointer is to an object tracked by ARC (e.g. something derived from NSObject), you should receive it with a (__bridge_transfer CLASSTYPE*) cast
  */
 - (void *)userDataGC:(void *)userData;
 
@@ -384,7 +384,7 @@ typedef struct _userdata_t {
 
  @param stackPos An integer stack position to pull the userdata object from
 
- @return A pointer to the object you stored in the userdata object, for you to deallocate it as necessary
+ @return A pointer to the object you stored in the userdata object, for you to deallocate it as necessary. Note that if this pointer is to an object tracked by ARC (e.g. something derived from NSObject), you should receive it with a (__bridge_transfer CLASSTYPE*) cast
  */
 - (void *)userDataGCFromStack:(int)stackPos;
 
