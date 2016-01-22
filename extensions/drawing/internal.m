@@ -75,11 +75,13 @@ NSMutableArray *drawingWindows;
 
 - (void)fadeOutAndOrderOut:(NSTimeInterval)fadeTime {
     [NSAnimationContext beginGrouping];
-    __block __unsafe_unretained NSWindow *bself = self;
+    __block HSDrawingWindow *bself = self;
     [[NSAnimationContext currentContext] setDuration:fadeTime];
     [[NSAnimationContext currentContext] setCompletionHandler:^{
-        [bself orderOut:nil];
-        [bself setAlphaValue:1.f];
+        if (bself) {
+            [bself orderOut:nil];
+            [bself setAlphaValue:1.f];
+        }
     }];
     [[self animator] setAlphaValue:0.f];
     [NSAnimationContext endGrouping];
