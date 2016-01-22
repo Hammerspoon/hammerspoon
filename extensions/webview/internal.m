@@ -85,6 +85,28 @@ static int userdata_gc(lua_State* L) ;
         [super cancelOperation:sender] ;
 }
 
+- (void)fadeInAndMakeKeyAndOrderFront:(NSTimeInterval)fadeTime {
+    [self setAlphaValue:0.f];
+    [self makeKeyAndOrderFront:nil];
+    [NSAnimationContext beginGrouping];
+    [[NSAnimationContext currentContext] setDuration:fadeTime];
+    [[self animator] setAlphaValue:1.f];
+    [NSAnimationContext endGrouping];
+}
+
+- (void)fadeOutAndOrderOut:(NSTimeInterval)fadeTime {
+    [NSAnimationContext beginGrouping];
+    __block HSWebViewWindow *bself = self;
+    [[NSAnimationContext currentContext] setDuration:fadeTime];
+    [[NSAnimationContext currentContext] setCompletionHandler:^{
+        if (bself) {
+            [bself orderOut:nil];
+            [bself setAlphaValue:1.f];
+        }
+    }];
+    [[self animator] setAlphaValue:0.f];
+    [NSAnimationContext endGrouping];
+}
 @end
 
 #pragma mark - our wkwebview object
@@ -1280,35 +1302,55 @@ static int webview_new(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview:show() -> webviewObject
+/// hs.webview:show([fadeInTime]) -> webviewObject
 /// Method
 /// Displays the webview object
 ///
 /// Parameters:
-///  * None
+///  * fadeInTime - An optional number of seconds over which to fade in the webview. Defaults to zero
 ///
 /// Returns:
 ///  * The webview object
 static int webview_show(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
-    [theWindow makeKeyAndOrderFront:nil];
+    NSTimeInterval fadeTime = 0.f;
+
+    if (lua_type(L, 2) == LUA_TNUMBER) {
+        fadeTime = lua_tonumber(L, 2);
+    }
+
+    if (fadeTime > 0) {
+        [theWindow fadeInAndMakeKeyAndOrderFront:fadeTime];
+    } else {
+        [theWindow makeKeyAndOrderFront:nil];
+    }
 
     lua_pushvalue(L, 1);
     return 1;
 }
 
-/// hs.webview:hide() -> webviewObject
+/// hs.webview:hide([fadeOutTime]) -> webviewObject
 /// Method
 /// Hides the webview object
 ///
 /// Parameters:
-///  * None
+///  * fadeOutTime - An optional number of seconds over which to fade out the webview. Defaults to zero
 ///
 /// Returns:
 ///  * The webview object
 static int webview_hide(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
-    [theWindow orderOut:nil];
+    NSTimeInterval fadeTime;
+
+    if (lua_type(L, 2) == LUA_TNUMBER) {
+        fadeTime = lua_tonumber(L, 2);
+    }
+
+    if (fadeTime > 0) {
+        [theWindow fadeOutAndOrderOut:fadeTime];
+    } else {
+        [theWindow orderOut:nil];
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -1542,6 +1584,41 @@ static int webview_windowStyle(lua_State *L) {
     }
     return 1 ;
 }
+
+/// hs.webview:setLevel(theLevel) -> drawingObject
+/// Method
+/// Sets the window level
+///
+/// Parameters:
+///  * theLevel - the level specified as a number, which can be obtained from `hs.drawing.windowLevels`.
+///
+/// Returns:
+///  * the webview object
+///
+/// Notes:
+///  * see the notes for `hs.drawing.windowLevels`
+static int webview_setLevel(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1);
+    lua_Integer targetLevel ;
+
+    if (lua_type(L, 2) == LUA_TNUMBER) {
+        targetLevel = lua_tointeger(L, 2) ;
+    } else {
+        return luaL_error(L, "string or integer window level expected") ;
+    }
+
+    if (targetLevel >= CGWindowLevelForKey(kCGMinimumWindowLevelKey) && targetLevel <= CGWindowLevelForKey(kCGMaximumWindowLevelKey)) {
+        [theWindow setLevel:targetLevel] ;
+    } else {
+        return luaL_error(L, [[NSString stringWithFormat:@"window level must be between %d and %d inclusive",
+                               CGWindowLevelForKey(kCGMinimumWindowLevelKey),
+                               CGWindowLevelForKey(kCGMaximumWindowLevelKey)] UTF8String]) ;
+    }
+
+    lua_settop(L, 1) ;
+    return 1 ;
+}
+
 
 #pragma mark - NS<->lua conversion tools
 
@@ -1866,6 +1943,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"windowTitle",                webview_windowTitle},
     {"deleteOnClose",              webview_deleteOnClose},
     {"_windowStyle",               webview_windowStyle},
+    {"setLevel",                   webview_setLevel},
 
     {"__tostring",                 userdata_tostring},
     {"__eq",                       userdata_eq},
