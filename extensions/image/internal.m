@@ -370,7 +370,7 @@ static int userdata_eq(lua_State* L) {
 ///  * Saves image at its original size.
 static int saveToFile(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
     NSImage*  theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
     NSString* filePath = [skin toNSObjectAtIndex:2] ;
     NSBitmapImageFileType fileType = NSPNGFileType ;
