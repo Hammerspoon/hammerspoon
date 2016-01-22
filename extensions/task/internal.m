@@ -131,12 +131,13 @@ void create_task(task_userdata_t *userData) {
             [stdErrFH closeFile];
 
             userData = userDataFromNSTask(task);
-            userData->hasTerminated = YES;
 
             if (!userData) {
                 NSLog(@"NSTask terminationHandler called on a task we don't recognise. This was likely a stuck process, or one that didn't respond to SIGTERM, and we have already GC'd its objects. Ignoring");
                 return;
             }
+
+            userData->hasTerminated = YES;
 
             // We only need to close stdin on streaming tasks, all other situations have been handled already
             if (userData->isStream) {
