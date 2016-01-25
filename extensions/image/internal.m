@@ -778,6 +778,64 @@ static int imageFromApp(lua_State *L) {
     return 1;
 }
 
+/// hs.image.iconForFile(file) -> object
+/// Constructor
+/// Creates an `hs.image` object for the file or files specified
+///
+/// Parameters:
+///  * file - the path to a file or an array of files to generate an icon for.
+///
+/// Returns:
+///  * An `hs.image` object or nil, if there was an error.  The image will be the icon for the specified file or an icon representing multiple files if an array of multiple files is specified.
+static int imageForFiles(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TTABLE | LS_TSTRING, LS_TBREAK] ;
+    NSArray *theFiles ;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        theFiles = [NSArray arrayWithObject:[skin toNSObjectAtIndex:1]] ;
+    } else {
+        theFiles = [skin toNSObjectAtIndex:1] ;
+    }
+    NSMutableArray *filesArray = [[NSMutableArray alloc] init] ;
+    for (id item in theFiles) {
+        if ([item isKindOfClass:[NSString class]]) {
+            [filesArray addObject:[item stringByExpandingTildeInPath]] ;
+        } else {
+            return luaL_error(L, "invalid type, array of strings required") ;
+        }
+    }
+    NSImage *theImage = [[NSWorkspace sharedWorkspace] iconForFiles:filesArray] ;
+    if (theImage) {
+        [skin pushNSObject:theImage];
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
+
+/// hs.image.iconForFileType(fileType) -> object
+/// Constructor
+/// Creates an `hs.image` object of the icon for the specified file type.
+///
+/// Parameters:
+///  * fileType - the file type, specified as a filename extension, an encoded HFS file type, or a universal type identifier (UTI).
+///
+/// Returns:
+///  * An `hs.image` object or nil, if there was an error
+static int imageForFileType(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+
+    NSImage *theImage = [[NSWorkspace sharedWorkspace] iconForFileType:[skin toNSObjectAtIndex:1]] ;
+    if (theImage) {
+        [skin pushNSObject:theImage];
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
 #pragma mark - Module Methods
 
 /// hs.image:name() -> string
@@ -995,6 +1053,9 @@ static luaL_Reg moduleLib[] = {
 //     {"imageWithContextFromASCII", imageWithContextFromASCII},
     {"imageFromName",             imageFromName},
     {"imageFromAppBundle",        imageFromApp},
+    {"iconForFile",               imageForFiles},
+    {"iconForFileType",           imageForFileType},
+
     {NULL,                        NULL}
 };
 
