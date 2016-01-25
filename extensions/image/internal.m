@@ -819,7 +819,7 @@ static int imageForFiles(lua_State *L) {
 /// Creates an `hs.image` object of the icon for the specified file type.
 ///
 /// Parameters:
-///  * fileType - the file type, specified as a filename extension, an encoded HFS file type, or a universal type identifier (UTI).
+///  * fileType - the file type, specified as a filename extension or a universal type identifier (UTI).
 ///
 /// Returns:
 ///  * An `hs.image` object or nil, if there was an error
