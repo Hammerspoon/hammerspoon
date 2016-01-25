@@ -1,14 +1,57 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
 
+#pragma mark - Support Functions and Classes
+
 NSPasteboard *lua_to_pasteboard(lua_State* L, int idx) {
+    LuaSkin *skin = [LuaSkin shared] ;
     if (!lua_isnoneornil(L, idx)) {
-        return [NSPasteboard pasteboardWithName:[NSString stringWithUTF8String:luaL_checkstring(L, idx)]];
+        luaL_checkstring(L, idx) ; // force number to string
+        return [NSPasteboard pasteboardWithName:[skin toNSObjectAtIndex:idx]];
     } else {
         return [NSPasteboard generalPasteboard];
     }
 
 }
+
+// Not sure that this is really useful with the way we are using the pasteboard, and it
+// just adds to the confusion ...
+//
+// #pragma mark - Module Constants
+//
+// static int pushPasteboardTypesTable(lua_State *L) {
+//     LuaSkin *skin = [LuaSkin shared] ;
+//     lua_newtable(L) ;
+//     [skin pushNSObject:NSPasteboardTypeString] ;                 lua_setfield(L, -2, "string") ;
+//     [skin pushNSObject:NSPasteboardTypePDF] ;                    lua_setfield(L, -2, "PDF") ;
+//     [skin pushNSObject:NSPasteboardTypeTIFF] ;                   lua_setfield(L, -2, "TIFF") ;
+//     [skin pushNSObject:NSPasteboardTypePNG] ;                    lua_setfield(L, -2, "PNG") ;
+//     [skin pushNSObject:NSPasteboardTypeRTF] ;                    lua_setfield(L, -2, "RTF") ;
+//     [skin pushNSObject:NSPasteboardTypeRTFD] ;                   lua_setfield(L, -2, "RTFD") ;
+//     [skin pushNSObject:NSPasteboardTypeHTML] ;                   lua_setfield(L, -2, "HTML") ;
+//     [skin pushNSObject:NSPasteboardTypeTabularText] ;            lua_setfield(L, -2, "tabularText") ;
+//     [skin pushNSObject:NSPasteboardTypeFont] ;                   lua_setfield(L, -2, "font") ;
+//     [skin pushNSObject:NSPasteboardTypeRuler] ;                  lua_setfield(L, -2, "ruler") ;
+//     [skin pushNSObject:NSPasteboardTypeColor] ;                  lua_setfield(L, -2, "color") ;
+//     [skin pushNSObject:NSPasteboardTypeSound] ;                  lua_setfield(L, -2, "sound") ;
+//     [skin pushNSObject:NSPasteboardTypeMultipleTextSelection] ;  lua_setfield(L, -2, "multipleTextSelection") ;
+//     [skin pushNSObject:NSPasteboardTypeFindPanelSearchOptions] ; lua_setfield(L, -2, "findPanelSearchOptions") ;
+//     [skin pushNSObject:NSPasteboardTypeTextFinderOptions] ;      lua_setfield(L, -2, "textFinderOptions") ;
+//     return 1 ;
+// }
+//
+// static int pushPasteboardNamesTable(lua_State *L) {
+//     LuaSkin *skin = [LuaSkin shared] ;
+//     lua_newtable(L) ;
+//     [skin pushNSObject:NSGeneralPboard] ; lua_setfield(L, -2, "general") ;
+//     [skin pushNSObject:NSFontPboard] ;    lua_setfield(L, -2, "font") ;
+//     [skin pushNSObject:NSRulerPboard] ;   lua_setfield(L, -2, "ruler") ;
+//     [skin pushNSObject:NSFindPboard] ;    lua_setfield(L, -2, "find") ;
+//     [skin pushNSObject:NSDragPboard] ;    lua_setfield(L, -2, "drag") ;
+//     return 1 ;
+// }
+
+#pragma mark - Module Functions
 
 /// hs.pasteboard.getContents([name]) -> string or nil
 /// Function
@@ -24,26 +67,26 @@ static int pasteboard_getContents(lua_State* L) {
     return 1;
 }
 
-/// hs.pasteboard.getImageContents([name]) -> hs.image object or nil
-/// Function
-/// Gets the first image of the pasteboard
-///
-/// Parameters:
-///  * name - An optional string containing the name of the pasteboard. Defaults to the system pasteboard
-///
-/// Returns:
-///  * An `hs.image` object from the first pasteboard image, or nil if an error occurred
-static int pasteboard_getImageContents(lua_State* L) {
-    NSImage *image = [[NSImage alloc] initWithData:[lua_to_pasteboard(L, 1) dataForType:NSPasteboardTypePNG]];
-
-    if (image && image.valid) {
-        [[LuaSkin shared] pushNSObject:image];
-    } else {
-        return luaL_error(L, "No valid image data in pasteboard");
-    }
-
-    return 1;
-}
+// /// hs.pasteboard.getImageContents([name]) -> hs.image object or nil
+// /// Function
+// /// Gets the first image of the pasteboard
+// ///
+// /// Parameters:
+// ///  * name - An optional string containing the name of the pasteboard. Defaults to the system pasteboard
+// ///
+// /// Returns:
+// ///  * An `hs.image` object from the first pasteboard image, or nil if an error occurred
+// static int pasteboard_getImageContents(lua_State* L) {
+//     NSImage *image = [[NSImage alloc] initWithData:[lua_to_pasteboard(L, 1) dataForType:NSPasteboardTypePNG]];
+//
+//     if (image && image.valid) {
+//         [[LuaSkin shared] pushNSObject:image];
+//     } else {
+//         return luaL_error(L, "No valid image data in pasteboard");
+//     }
+//
+//     return 1;
+// }
 
 /// hs.pasteboard.setContents(contents[, name]) -> boolean
 /// Function
@@ -73,35 +116,35 @@ static int pasteboard_setContents(lua_State* L) {
     return 1;
 }
 
-/// hs.pasteboard.setImageContents(contents[, name]) -> boolean
-/// Function
-/// Sets the contents of the pasteboard to a PNG image
-///
-/// Parameters:
-///  * contents - An image to be placed in the pasteboard
-///  * name - An optional string containing the name of the pasteboard. Defaults to the system pasteboard
-///
-/// Returns:
-///  * True if the operation succeeded, otherwise false
-static int pasteboard_setImageContents(lua_State* L) {
-    [[LuaSkin shared] checkArgs:LS_TUSERDATA, "hs.image", LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
-    NSImage*  theImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
-    NSPasteboard* thePasteboard = lua_to_pasteboard(L, 2);
-
-    NSData *tiffRep = [theImage TIFFRepresentation];
-    if (!tiffRep)  return luaL_error(L, "Can't create internal image representation");
-
-    NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
-    if (!rep)  return luaL_error(L, "Can't wrap internal image representation");
-
-    NSData* pngImageData = [rep representationUsingType:NSPNGFileType properties:@{}];
-
-    [thePasteboard clearContents];
-    BOOL result = [thePasteboard setData:pngImageData forType:NSPasteboardTypePNG];
-
-    lua_pushboolean(L, result);
-    return 1;
-}
+// /// hs.pasteboard.setImageContents(contents[, name]) -> boolean
+// /// Function
+// /// Sets the contents of the pasteboard to a PNG image
+// ///
+// /// Parameters:
+// ///  * contents - An image to be placed in the pasteboard
+// ///  * name - An optional string containing the name of the pasteboard. Defaults to the system pasteboard
+// ///
+// /// Returns:
+// ///  * True if the operation succeeded, otherwise false
+// static int pasteboard_setImageContents(lua_State* L) {
+//     [[LuaSkin shared] checkArgs:LS_TUSERDATA, "hs.image", LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+//     NSImage*  theImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
+//     NSPasteboard* thePasteboard = lua_to_pasteboard(L, 2);
+//
+//     NSData *tiffRep = [theImage TIFFRepresentation];
+//     if (!tiffRep)  return luaL_error(L, "Can't create internal image representation");
+//
+//     NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:tiffRep];
+//     if (!rep)  return luaL_error(L, "Can't wrap internal image representation");
+//
+//     NSData* pngImageData = [rep representationUsingType:NSPNGFileType properties:@{}];
+//
+//     [thePasteboard clearContents];
+//     BOOL result = [thePasteboard setData:pngImageData forType:NSPasteboardTypePNG];
+//
+//     lua_pushboolean(L, result);
+//     return 1;
+// }
 
 /// hs.pasteboard.clearContents([name])
 /// Function
@@ -192,29 +235,463 @@ static int pasteboard_changeCount(lua_State* L) {
 /// Notes:
 ///  * You can not delete the system pasteboard, this function should only be called on custom pasteboards you have created
 static int pasteboard_delete(lua_State* L) {
-    NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:[NSString stringWithUTF8String:luaL_checkstring(L, 1)]];
-    [thePasteboard releaseGlobally];
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING | LS_TNUMBER, LS_TBREAK] ; // prevents nil from being specified
+    luaL_checkstring(L, 1) ; // coerce number to string
+    NSString *pbName = [skin toNSObjectAtIndex:1] ;
+    if ([pbName isEqualToString:NSGeneralPboard] ||
+        [pbName isEqualToString:NSFontPboard]    ||
+        [pbName isEqualToString:NSRulerPboard]   ||
+        [pbName isEqualToString:NSFindPboard]    ||
+        [pbName isEqualToString:NSDragPboard]) return luaL_error(L, "cannot delete a system pasteboard") ;
 
+    NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:pbName];
+    [thePasteboard releaseGlobally];
     return 0;
 }
+
+#pragma mark - Experimental and WhatFors
+
+/// hs.pasteboard.allContentTypes([name]) -> table
+/// Function
+/// An array whose elements are a table containing the content types for each element on the clipboard.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///
+/// Returns:
+///  * an array with each index representing an object on the pasteboard.  If the pasteboard contains only one element, this is equivalent to `{ hs.pasteboard.contentTypes(name) }`.
+static int allPBItemTypes(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+    NSPasteboard* thePasteboard = lua_to_pasteboard(L, 1);
+    lua_newtable(L) ;
+    NSArray *items = [thePasteboard pasteboardItems] ;
+    for(NSUInteger i = 0 ; i < [items count]; i++) {
+        lua_newtable(L) ;
+        NSPasteboardItem* item = [items objectAtIndex:i];
+        for (NSString* type in [item types]) {
+            [skin pushNSObject:type] ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+        lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    }
+    return 1;
+}
+
+/// hs.pasteboard.readString([name], [all]) -> string or array of strings
+/// Function
+/// Returns one or more strings from the clipboard, or nil if no compatible objects are present.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///  * all  - an optional boolean indicating whether or not all (true) of the urls on the clipboard should be returned, or just the first (false).  Defaults to false.
+///
+/// Returns:
+///  * By default the first string on the clipboard, or a table of all strings on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no strings are present.
+///
+/// Notes:
+///  * almost all string and styledText objects are internally convertible and will be available with this method as well as [hs.pasteboard.readStyledText](#readStyledText). If the item is actually an `hs.styledtext` object, the string will be just the text of the object.
+static int readStringObjects(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+    if ((lua_type(L, 1) == LUA_TBOOLEAN) && (lua_gettop(L) != 1))
+        return luaL_argerror(L, 1, "string or nil expected") ;
+
+    NSPasteboard* pb = (lua_type(L, 1) == LUA_TBOOLEAN) ?
+                          [NSPasteboard generalPasteboard] : lua_to_pasteboard(L, 1);
+    BOOL getAll = (lua_type(L, lua_gettop(L)) == LUA_TBOOLEAN) ?
+                          (BOOL)lua_toboolean(L, lua_gettop(L)) : NO ;
+
+    NSArray *results = [pb readObjectsForClasses:@[[NSString class]] options:@{}] ;
+    if (results && ([results count] != 0)) {
+        if (getAll) {
+            [skin pushNSObject:results] ;
+        } else {
+            [skin pushNSObject:[results firstObject]] ;
+        }
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+/// hs.pasteboard.readStyledText([name], [all]) -> hs.styledtext object or array of hs.styledtext objects
+/// Function
+/// Returns one or more `hs.styledtext` objects from the clipboard, or nil if no compatible objects are present.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///  * all  - an optional boolean indicating whether or not all (true) of the urls on the clipboard should be returned, or just the first (false).  Defaults to false.
+///
+/// Returns:
+///  * By default the first styledtext object on the clipboard, or a table of all styledtext objects on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no styledtext objects are present.
+///
+/// Notes:
+///  * almost all string and styledText objects are internally convertible and will be available with this method as well as [hs.pasteboard.readString](#readString). If the item on the clipboard is actually just a string, the `hs.styledtext` object representation will have no attributes set
+static int readAttributedStringObjects(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+    if ((lua_type(L, 1) == LUA_TBOOLEAN) && (lua_gettop(L) != 1))
+        return luaL_argerror(L, 1, "string or nil expected") ;
+
+    NSPasteboard* pb = (lua_type(L, 1) == LUA_TBOOLEAN) ?
+                          [NSPasteboard generalPasteboard] : lua_to_pasteboard(L, 1);
+    BOOL getAll = (lua_type(L, lua_gettop(L)) == LUA_TBOOLEAN) ?
+                          (BOOL)lua_toboolean(L, lua_gettop(L)) : NO ;
+
+    NSArray *results = [pb readObjectsForClasses:@[[NSAttributedString class]] options:@{}] ;
+    if (results && ([results count] != 0)) {
+        if (getAll) {
+            [skin pushNSObject:results] ;
+        } else {
+            [skin pushNSObject:[results firstObject]] ;
+        }
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+/// hs.pasteboard.readSound([name], [all]) -> hs.sound object or array of hs.sound objects
+/// Function
+/// Returns one or more `hs.sound` objects from the clipboard, or nil if no compatible objects are present.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///  * all  - an optional boolean indicating whether or not all (true) of the urls on the clipboard should be returned, or just the first (false).  Defaults to false.
+///
+/// Returns:
+///  * By default the first sound on the clipboard, or a table of all sounds on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no sounds are present.
+static int readSoundObjects(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+    if ((lua_type(L, 1) == LUA_TBOOLEAN) && (lua_gettop(L) != 1))
+        return luaL_argerror(L, 1, "string or nil expected") ;
+
+    NSPasteboard* pb = (lua_type(L, 1) == LUA_TBOOLEAN) ?
+                          [NSPasteboard generalPasteboard] : lua_to_pasteboard(L, 1);
+    BOOL getAll = (lua_type(L, lua_gettop(L)) == LUA_TBOOLEAN) ?
+                          (BOOL)lua_toboolean(L, lua_gettop(L)) : NO ;
+
+    NSArray *results = [pb readObjectsForClasses:@[[NSSound class]] options:@{}] ;
+    if (results && ([results count] != 0)) {
+        if (getAll) {
+            [skin pushNSObject:results] ;
+        } else {
+            [skin pushNSObject:[results firstObject]] ;
+        }
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+/// hs.pasteboard.readImage([name], [all]) -> hs.image object or array of hs.image objects
+/// Function
+/// Returns one or more `hs.image` objects from the clipboard, or nil if no compatible objects are present.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///  * all  - an optional boolean indicating whether or not all (true) of the urls on the clipboard should be returned, or just the first (false).  Defaults to false.
+///
+/// Returns:
+///  * By default the first image on the clipboard, or a table of all images on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no images are present.
+static int readImageObjects(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+    if ((lua_type(L, 1) == LUA_TBOOLEAN) && (lua_gettop(L) != 1))
+        return luaL_argerror(L, 1, "string or nil expected") ;
+
+    NSPasteboard* pb = (lua_type(L, 1) == LUA_TBOOLEAN) ?
+                          [NSPasteboard generalPasteboard] : lua_to_pasteboard(L, 1);
+    BOOL getAll = (lua_type(L, lua_gettop(L)) == LUA_TBOOLEAN) ?
+                          (BOOL)lua_toboolean(L, lua_gettop(L)) : NO ;
+
+    NSArray *results = [pb readObjectsForClasses:@[[NSImage class]] options:@{}] ;
+    if (results && ([results count] != 0)) {
+        if (getAll) {
+            [skin pushNSObject:results] ;
+        } else {
+            [skin pushNSObject:[results firstObject]] ;
+        }
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+/// hs.pasteboard.readURL([name], [all]) -> string or array of strings representing file or resource urls
+/// Function
+/// Returns one or more strings representing file or resource urls from the clipboard, or nil if no compatible objects are present.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///  * all  - an optional boolean indicating whether or not all (true) of the urls on the clipboard should be returned, or just the first (false).  Defaults to false.
+///
+/// Returns:
+///  * By default the first url on the clipboard, or a table of all urls on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no urls are present.
+static int readURLObjects(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+    if ((lua_type(L, 1) == LUA_TBOOLEAN) && (lua_gettop(L) != 1))
+        return luaL_argerror(L, 1, "string or nil expected") ;
+
+    NSPasteboard* pb = (lua_type(L, 1) == LUA_TBOOLEAN) ?
+                          [NSPasteboard generalPasteboard] : lua_to_pasteboard(L, 1);
+    BOOL getAll = (lua_type(L, lua_gettop(L)) == LUA_TBOOLEAN) ?
+                          (BOOL)lua_toboolean(L, lua_gettop(L)) : NO ;
+
+    NSArray *results = [pb readObjectsForClasses:@[[NSURL class]] options:@{}] ;
+    if (results && ([results count] != 0)) {
+        if (getAll) {
+            [skin pushNSObject:results] ;
+        } else {
+            [skin pushNSObject:[results firstObject]] ;
+        }
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+/// hs.pasteboard.readColor([name], [all]) -> hs.drawing.color table or array of hs.drawing.color tables
+/// Function
+/// Returns one or more `hs.drawing.color` tables from the clipboard, or nil if no compatible objects are present.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///  * all  - an optional boolean indicating whether or not all (true) of the colors on the clipboard should be returned, or just the first (false).  Defaults to false.
+///
+/// Returns:
+///  * By default the first color on the clipboard, or a table of all colors on the clipboard if the `all` parameter is provided and set to true.  Returns nil if no colors are present.
+static int readColorObjects(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBOOLEAN | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+    if ((lua_type(L, 1) == LUA_TBOOLEAN) && (lua_gettop(L) != 1))
+        return luaL_argerror(L, 1, "string or nil expected") ;
+
+    NSPasteboard* pb = (lua_type(L, 1) == LUA_TBOOLEAN) ?
+                          [NSPasteboard generalPasteboard] : lua_to_pasteboard(L, 1);
+    BOOL getAll = (lua_type(L, lua_gettop(L)) == LUA_TBOOLEAN) ?
+                          (BOOL)lua_toboolean(L, lua_gettop(L)) : NO ;
+
+    NSArray *results = [pb readObjectsForClasses:@[[NSColor class]] options:@{}] ;
+    if (results && ([results count] != 0)) {
+        if (getAll) {
+            [skin pushNSObject:results] ;
+        } else {
+            [skin pushNSObject:[results firstObject]] ;
+        }
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+static id convertToPasteboardWritableObject(lua_State *L, int idx) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    id object ;
+    if ((lua_type(L, idx) == LUA_TSTRING) || (lua_type(L, idx) == LUA_TNUMBER)) {
+        luaL_tolstring(L, idx, NULL) ; // force number to be a string, but don't change value in stack
+        object = [skin toNSObjectAtIndex:-1] ;
+        lua_pop(L, 1) ;
+    } else if (lua_type(L, idx) == LUA_TTABLE) {
+        if (lua_getfield(L, idx, "url") != LUA_TNIL) {
+            if (lua_type(L, -1) == LUA_TSTRING) {
+                object = [NSURL URLWithString:[skin toNSObjectAtIndex:-1]] ;
+            } else {
+                lua_pop(L, 1) ;
+                [skin logError:@"url must be a table containing a url key with a string value"] ;
+                return nil ;
+            }
+        } else { // it's a color
+            object = [skin luaObjectAtIndex:idx toClass:"NSColor"] ;
+        }
+        lua_pop(L, 1) ; // the value from the url key check above
+    } else if (luaL_testudata(L, idx, "hs.image") ||
+               luaL_testudata(L, idx, "hs.sound") ||
+               luaL_testudata(L, idx, "hs.styledtext")) {
+        object = [skin toNSObjectAtIndex:idx] ;
+    } else {
+        [skin logError:@"expected string, number, hs.image, hs.sound, hs.styledtext, color table or url table"] ;
+        return nil ;
+    }
+    return object ;
+}
+
+/// hs.pasteboard.writeObjects(object, [name]) -> boolean
+/// Function
+/// Sets the pasteboard contents to the object or objects specified.
+///
+/// Parameters:
+///  * object - an object or table of objects to set the pasteboard to.  The following objects are recognized:
+///    * a lua string, which can be received by most applications that can accept text from the clipboard
+///    * `hs.styledtext` object, which can be received by most applications that can accept a raw NSAttributedString (often converted internally to RTF, RTFD, HTML, etc.)
+///    * `hs.sound` object, which can be received by most applications that can accept a raw NSSound object
+///    * `hs.image` object, which can be received by most applications that can accept a raw NSImage object
+///    * a table with the `url` key and value representing a file or resource url, which can be received by most applications that can accept an NSURL object to represent a file or a remote resource
+///    * a table with keys as described in `hs.drawing.color` to represent a color, which can be received by most applications that can accept a raw NSColor object
+///    * an array of one or more of the above objects, allowing you to place more than one object onto the clipboard.
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///
+/// Returns:
+///  * true or false indicating whether or not the clipboard contents were updated.
+///
+/// Notes:
+///  * Most applications can only receive the first item on the clipboard.  Multiple items on a clipboard are most often used for intra-application communication where the sender and receiver are specifically written with multiple objects in mind.
+static int writeObjects(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSPasteboard* pboard ;
+    if (lua_gettop(L) == 1) {
+        [skin checkArgs:LS_TANY, LS_TBREAK] ;
+        pboard = [NSPasteboard generalPasteboard] ;
+    } else {
+        [skin checkArgs:LS_TANY, LS_TNUMBER | LS_TSTRING | LS_TNIL, LS_TBREAK] ;
+        pboard = lua_to_pasteboard(L, 2) ;
+    }
+
+    NSMutableArray *objects = [[NSMutableArray alloc] init] ;
+    if ((lua_type(L, 1) != LUA_TTABLE) ||
+        ((lua_type(L, 1) == LUA_TTABLE) && ([skin maxNatIndex:1] == 0))) {
+        id obj = convertToPasteboardWritableObject(L, 1) ;
+        if (obj) {
+            [objects addObject:obj] ;
+        } else {
+            return luaL_error(L, "writeObjects error") ;
+        }
+    } else {
+        NSUInteger count = (NSUInteger)[skin maxNatIndex:1] ;
+        for (NSUInteger i = 0 ; i < count ; i++) {
+            lua_rawgeti(L, 1, (lua_Integer)(i + 1)) ;
+            id obj = convertToPasteboardWritableObject(L, -1) ;
+            lua_pop(L, 1) ;
+            if (obj) {
+                [objects addObject:obj] ;
+            } else {
+                return luaL_error(L, [[NSString stringWithFormat:@"writeObjects error at index %lu", i + 1]
+                                      UTF8String]) ;
+            }
+        }
+    }
+    // got objects
+    [pboard clearContents];
+    lua_pushboolean(L, [pboard writeObjects:objects]) ;
+    return 1 ;
+}
+
+/// hs.pasteboard.uniquePasteboard() -> string
+/// Function
+/// Returns the name of a new pasteboard with a name that is guaranteed to be unique with respect to other pasteboards on the computer.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a unique pasteboard name
+///
+/// Notes:
+///  * to properly manage system resources, you should release the created pasteboard with [hs.pasteboard.deletePasteboard](#deletePasteboard) when you are certain that it is no longer necessary.
+static int newUniquePasteboard(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    [skin pushNSObject:[[NSPasteboard pasteboardWithUniqueName] name]] ;
+    return 1 ;
+}
+
+/// hs.pasteboard.typesAvailable([name]) -> table
+/// Function
+/// Returns a table indicating what content types are available on the pasteboard.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///
+/// Returns:
+///  * a table which may contain any of the following keys set to the value true:
+///    * string     - at least one element which can be represented as a string is on the pasteboard
+///    * styledText - at least one element which can be represented as an `hs.styledtext` object is on the pasteboard
+///    * sound      - at least one element which can be represented as an `hs.sound` object is on the pasteboard
+///    * image      - at least one element which can be represented as an `hs.image` object is on the pasteboard
+///    * URL        - at least one element on the pasteboard represents a URL, either to a local file or a remote resource
+///    * color      - at least one element on the pasteboard represents a color, representable as a table as described in `hs.drawing.color`
+///
+/// Notes:
+///  * almost all string and styledText objects are internally convertible and will return true for both keys
+///    * if the item on the clipboard is actually just a string, the `hs.styledtext` object representation will have no attributes set
+///    * if the item is actually an `hs.styledtext` object, the string representation will be the text without any attributes.
+static int typesOnPasteboard(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+    NSPasteboard* pboard = lua_to_pasteboard(L, 1);
+    lua_newtable(L) ;
+    if ([pboard canReadObjectForClasses:@[[NSString class]] options:@{}]) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "string") ;
+    }
+    if ([pboard canReadObjectForClasses:@[[NSAttributedString class]] options:@{}]) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "styledText") ;
+    }
+    if ([pboard canReadObjectForClasses:@[[NSSound class]] options:@{}]) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "sound") ;
+    }
+    if ([pboard canReadObjectForClasses:@[[NSImage class]] options:@{}]) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "image") ;
+    }
+    if ([pboard canReadObjectForClasses:@[[NSURL class]] options:@{}]) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "URL") ;
+    }
+    if ([pboard canReadObjectForClasses:@[[NSColor class]] options:@{}]) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "color") ;
+    }
+    return 1 ;
+}
+
+#pragma mark - Hammerspoon/Lua Infrastructure
 
 // Functions for returned object when module loads
 static const luaL_Reg pasteboardLib[] = {
     {"changeCount",      pasteboard_changeCount},
-    {"getContents",      pasteboard_getContents},
-    {"getImageContents", pasteboard_getImageContents},
-    {"setContents",      pasteboard_setContents},
-    {"setImageContents", pasteboard_setImageContents},
     {"clearContents",    pasteboard_clearContents},
+    {"deletePasteboard", pasteboard_delete},
+
+    {"getContents",      pasteboard_getContents},
+//     {"getImageContents", pasteboard_getImageContents},
+    {"setContents",      pasteboard_setContents},
+//     {"setImageContents", pasteboard_setImageContents},
+
     {"pasteboardTypes",  pasteboard_pasteboardTypes},
     {"contentTypes",     pasteboard_pasteboardItemTypes},
-    {"deletePasteboard", pasteboard_delete},
+
+    {"allContentTypes",  allPBItemTypes},
+    {"uniquePasteboard", newUniquePasteboard},
+    {"typesAvailable",   typesOnPasteboard},
+    {"readString",       readStringObjects},
+    {"readStyledText",   readAttributedStringObjects},
+    {"readSound",        readSoundObjects},
+    {"readImage",        readImageObjects},
+    {"readURL",          readURLObjects},
+    {"readColor",        readColorObjects},
+    {"writeObjects",     writeObjects},
+
     {NULL,      NULL}
 };
 
 int luaopen_hs_pasteboard_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     [skin registerLibrary:pasteboardLib metaFunctions:nil];
+
+//     pushPasteboardTypesTable(L) ; lua_setfield(L, -2, "types") ;
+//     pushPasteboardNamesTable(L) ; lua_setfield(L, -2, "names") ;
 
     return 1;
 }

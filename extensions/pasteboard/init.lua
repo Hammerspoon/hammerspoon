@@ -5,12 +5,11 @@
 --- This module is based partially on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
 local module = require("hs.pasteboard.internal")
+
+-- make sure the convertors for types we can recognize are loaded
 require("hs.image")
-
--- private variables and methods -----------------------------------------
-
--- Public interface ------------------------------------------------------
-
--- Return Module Object --------------------------------------------------
+require("hs.sound")
+require("hs.styledtext")
+require("hs.drawing.color")
 
 return module
