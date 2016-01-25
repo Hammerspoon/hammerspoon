@@ -121,7 +121,7 @@
     if (self.isAccessibilityEnabled)
         return [NSImage imageNamed:NSImageNameStatusAvailable];
     else
-        return [NSImage imageNamed:NSImageNameStatusPartiallyAvailable];
+        return [NSImage imageNamed:NSImageNameStatusUnavailable];
 }
 
 + (NSSet*) keyPathsForValuesAffectingMaybeEnableAccessibilityString {
