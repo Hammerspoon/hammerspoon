@@ -462,4 +462,29 @@ end
 
 -- Return Module Object --------------------------------------------------
 
-return module
+return setmetatable(module, {
+    __index = function(self, _)
+        if _ == "defaultFonts" then
+            local results = self._defaultFonts()
+            for k, v in pairs(results) do
+                results[k] = setmetatable(v, { __tostring = function(_)
+                       return "{ name = ".._.name..", size = "..tostring(_.size).." }"
+                   end
+                })
+            end
+            return setmetatable(results, { __tostring = function(_)
+                    local result = ""
+                    local width = 0
+                    for k,v in pairs(_) do width = width < #k and #k or width end
+                    for k,v in require("hs.fnutils").sortByKeys(_) do
+                        result = result..string.format("%-"..tostring(width).."s %s\n", k, tostring(v))
+                    end
+                    return result
+                end
+            })
+
+        else
+            return self[_]
+        end
+    end
+})

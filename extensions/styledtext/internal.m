@@ -1,8 +1,4 @@
-// TODO: Review hs.drawing docs
-// TODO: wiki writeup on hs.styledtext
-
 #import <Cocoa/Cocoa.h>
-// #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 
 #define USERDATA_TAG "hs.styledtext"
@@ -570,6 +566,47 @@ static int defineLineAppliesTo(lua_State *L) {
 //       lua_pushinteger(L, (lua_Integer)NSUnderlineByWord);     lua_setfield(L, -2, "word");
 #pragma clang diagnostic pop
     return 1;
+}
+
+/// hs.styledtext.defaultFonts
+/// Constant
+/// A table containing the system default fonts and sizes.
+///
+/// Defined fonts included are:
+///  * boldSystem     - the system font used for standard interface items that are rendered in boldface type
+///  * controlContent - the font used for the content of controls
+///  * label          - the font used for standard interface labels
+///  * menu           - the font used for menu items
+///  * menuBar        - the font used for menu bar items
+///  * message        - the font used for standard interface items, such as button labels, menu items, etc.
+///  * palette        - the font used for palette window title bars
+///  * system         - the system font used for standard interface items, such as button labels, menu items, etc.
+///  * titleBar       - the font used for window title bars
+///  * toolTips       - the font used for tool tips labels
+///  * user           - the font used by default for documents and other text under the user’s control
+///  * userFixedPitch - the font used by default for documents and other text under the user’s control when that font should be fixed-pitch
+///
+/// Notes:
+///  * These are useful when defining a styled text object which should be similar to or based on a specific system element type.
+///
+///  * Because the user can change font defaults while Hammerspoon is running, this table is actually generated dynamically on request.  This should not affect of your use of this constant as a table; however, you can generate a static table if desired by invoking `hs.styledtext._defaultFonts()` directly instead.
+static int defineDefaultFonts(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TBREAK] ;
+    lua_newtable(L) ;
+    [skin pushNSObject:[NSFont boldSystemFontOfSize:0]] ;     lua_setfield(L, -2, "boldSystem") ;
+    [skin pushNSObject:[NSFont controlContentFontOfSize:0]] ; lua_setfield(L, -2, "controlContent") ;
+    [skin pushNSObject:[NSFont labelFontOfSize:0]] ;          lua_setfield(L, -2, "label") ;
+    [skin pushNSObject:[NSFont menuFontOfSize:0]] ;           lua_setfield(L, -2, "menu") ;
+    [skin pushNSObject:[NSFont menuBarFontOfSize:0]] ;        lua_setfield(L, -2, "menuBar") ;
+    [skin pushNSObject:[NSFont messageFontOfSize:0]] ;        lua_setfield(L, -2, "message") ;
+    [skin pushNSObject:[NSFont paletteFontOfSize:0]] ;        lua_setfield(L, -2, "palette") ;
+    [skin pushNSObject:[NSFont systemFontOfSize:0]] ;         lua_setfield(L, -2, "system") ;
+    [skin pushNSObject:[NSFont titleBarFontOfSize:0]] ;       lua_setfield(L, -2, "titleBar") ;
+    [skin pushNSObject:[NSFont toolTipsFontOfSize:0]] ;       lua_setfield(L, -2, "toolTips") ;
+    [skin pushNSObject:[NSFont userFontOfSize:0]] ;           lua_setfield(L, -2, "user") ;
+    [skin pushNSObject:[NSFont userFixedPitchFontOfSize:0]] ; lua_setfield(L, -2, "userFixedPitch") ;
+    return 1 ;
 }
 
 #pragma mark - Methods unique to hs.styledtext objects
@@ -2283,6 +2320,8 @@ static luaL_Reg moduleLib[] = {
     {"fontNames", fontNames},
     {"fontNamesWithTraits", fontNamesWithTraits},
 
+    {"_defaultFonts", defineDefaultFonts},
+
     {NULL, NULL}};
 
 // // Metatable for module, if needed
@@ -2321,7 +2360,7 @@ int luaopen_hs_styledtext_internal(lua_State *__unused L) {
     [skin registerLuaObjectHelper:table_toNSFont               forClass:"NSFont"];
 
     [skin registerPushNSHelper:NSAttributedString_toLua        forClass:"NSAttributedString"];
-    [skin registerLuaObjectHelper:lua_toNSAttributedString     forClass:"NSAttributedString"];
+    [skin registerLuaObjectHelper:lua_toNSAttributedString     forClass:"NSAttributedString" withUserdataMapping:USERDATA_TAG];
 
     [skin registerLuaObjectHelper:table_toAttributesDictionary forClass:"hs.styledtext.AttributesDictionary"];
 
