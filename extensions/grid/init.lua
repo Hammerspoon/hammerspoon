@@ -243,10 +243,10 @@ function grid.getCell(cell, scr)
   cell.w=max(1,min(cell.w,screengrid.w-cell.x)) cell.h=max(1,min(cell.h,screengrid.h-cell.y))
   local cellw, cellh = screenrect.w/screengrid.w, screenrect.h/screengrid.h
   local newframe = {
-    x = (cell.x * cellw) + screenrect.x + margins.w,
-    y = (cell.y * cellh) + screenrect.y + margins.h,
-    w = cell.w * cellw - (margins.w * 2),
-    h = cell.h * cellh - (margins.h * 2),
+    x = (cell.x * cellw) + screenrect.x,
+    y = (cell.y * cellh) + screenrect.y,
+    w = cell.w * cellw,
+    h = cell.h * cellh,
   }
   return newframe
 end
