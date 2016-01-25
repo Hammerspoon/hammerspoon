@@ -231,10 +231,10 @@ end
 ---  * screen - an `hs.screen` object or argument to `hs.screen.find()` where the cell is located
 ---
 --- Returns:
----  * the `hs.geometry` rect for a cell on a particular screen
+---  * the `hs.geometry` rect for a cell on a particular screen or nil if the screen isn't found
 function grid.getCell(cell, scr)
   scr=screen.find(scr)
-  if not scr then log.e('screen cannot be nil') return grid end
+  if not scr then log.e('screen cannot be nil') return end
   cell=geom.new(cell)
   local screenrect = scr:frame()
   local screengrid = getGrid(scr)
