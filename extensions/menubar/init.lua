@@ -7,6 +7,8 @@ local imagemod = require("hs.image")
 local geometry = require "hs.geometry"
 local screen = require "hs.screen"
 
+require("hs.styledtext")
+
 -- This is the wrapper for hs.menubar:setIcon(). It is documented in internal.m
 
 local menubarObject = hs.getObjectMetatable("hs.menubar")
