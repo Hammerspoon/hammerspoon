@@ -432,6 +432,7 @@ void MJLuaInit(void) {
 
     int loadresult = luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
     if (loadresult != 0) {
+        CLSNSLog(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
         [alert setMessageText:@"Hammerspoon installation is corrupted"];
