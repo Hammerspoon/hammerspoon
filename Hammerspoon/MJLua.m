@@ -14,6 +14,7 @@
 static LuaSkin* MJLuaState;
 static MJLuaLogger* MJLuaLogDelegate;
 static int evalfn;
+static int completionsForWordFn;
 
 static lua_CFunction oldPanicFunction ;
 
@@ -448,9 +449,10 @@ void MJLuaInit(void) {
     lua_pushboolean(L, [[NSFileManager defaultManager] fileExistsAtPath: MJConfigFileFullPath()]);
     lua_pushboolean(L, [[NSUserDefaults standardUserDefaults] boolForKey:HSAutoLoadExtensions]);
 
-    lua_pcall(L, 7, 1, 0);
+    lua_pcall(L, 7, 2, 0);
 
     evalfn = [MJLuaState luaRef:refTable];
+    completionsForWordFn = [MJLuaState luaRef:refTable];
     MJLuaLogDelegate = [[MJLuaLogger alloc] initWithLua:L] ;
     if (MJLuaLogDelegate) [MJLuaState setDelegate:MJLuaLogDelegate] ;
 }
@@ -518,6 +520,25 @@ NSString* MJLuaRunString(NSString* command) {
     lua_pop(L, 1);
 
     return str;
+}
+
+NSArray *MJLuaCompletionsForWord(NSString *completionWord) {
+    //NSLog(@"Fetching completions for %@", completionWord);
+    LuaSkin *skin = MJLuaState;
+
+    [skin pushLuaRef:refTable ref:completionsForWordFn];
+    if (!lua_isfunction(skin.L, -1)) {
+        CLSNSLog(@"ERROR: MJLuaCompletionsForWord doesn't seem to have a completionsForWordFn");
+        return @[];
+    }
+    [skin pushNSObject:completionWord];
+    if ([skin protectedCallAndTraceback:1 nresults:1] == NO) {
+        const char *errorMsg = lua_tostring(skin.L, -1);
+        [skin logError:[NSString stringWithFormat:@"MJLuaCompletionsForWord: %s", errorMsg]];
+        return @[];
+    }
+
+    return [skin toNSObjectAtIndex:-1];
 }
 
 // C-Code helper to return current active LuaState. Useful for callbacks to

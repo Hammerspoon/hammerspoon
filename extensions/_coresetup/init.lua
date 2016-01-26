@@ -243,6 +243,7 @@ return {setup=function(...)
   -- load init.lua
 
   local function runstring(s)
+    print("runstring")
     local fn, err = load("return " .. s)
     if not fn then fn, err = load(s) end
     if not fn then return tostring(err) end
@@ -256,6 +257,106 @@ return {setup=function(...)
     return str
   end
 
+  local function tableSet(t)
+    local hash = {}
+    local res = {}
+    for _, v in ipairs(t) do
+      if not hash[v] then
+        res[#res+1] = v
+        hash[v] = true
+      end
+    end
+    return res
+  end
+
+  local function tablesMerge(t1, t2)
+    for i = 1, #t2 do
+      t1[#t1 + 1] = t2[i]
+    end
+    return t1
+  end
+
+  local function tableKeys(t)
+    local keyset={}
+    local n=0
+    for k,v in pairs(t) do
+      n=n+1
+      keyset[n]=k
+    end
+    table.sort(keyset)
+    return keyset
+  end
+
+  local function typeWithSuffix(item, table)
+    local suffix = ""
+    if type(table[item]) == "function" then
+      suffix = "()"
+    end
+    return item..suffix
+  end
+
+  local function filterForRemnant(table, remnant)
+    return hs.fnutils.ifilter(table, function(item)
+      return string.find(item, "^"..remnant)
+    end)
+  end
+
+  local function findCompletions(table, remnant)
+    return filterForRemnant(hs.fnutils.imap(tableKeys(table), function(item)
+      return typeWithSuffix(item, table)
+    end), remnant)
+  end
+
+  --- hs.completionsForInputString(completionWord) -> table of strings
+  --- Variable
+  --- Gathers tab completion options for the Console window
+  ---
+  --- Parameters:
+  ---  * completionWord - A string from the Console window's input field that completions are needed for
+  ---
+  --- Returns:
+  ---  * A table of strings, each of which will be shown as a possible completion option to the user
+  ---
+  --- Notes:
+  ---  * Hammerspoon provides a default implementation of this function, which can complete against the global Lua namespace, the 'hs' (i.e. extension) namespace, and object metatables. You can assign a new function to the variable to replace it with your own variant.
+  function hs.completionsForInputString(completionWord)
+    local completions = {}
+    local mapJoiner = "."
+    local mapEnder = ""
+
+    local mod = string.match(completionWord, "(.*)[%.:]") or ""
+    local remnant = string.gsub(completionWord, mod, "")
+    remnant = string.gsub(remnant, "[%.:](.*)", "%1")
+    local parents = hs.fnutils.split(mod, '%.')
+    local src = _G
+
+--print(string.format("mod: %s", mod))
+--print(string.format("remnant: %s", remnant))
+--print(string.format("parents: %s", hs.inspect(parents)))
+
+    if not mod or mod=="" then
+      -- Easiest case first, we have no text to work with, so just return keys from _G
+      mapJoiner = ""
+      completions = findCompletions(src, remnant)
+    elseif mod=="hs" then
+      -- We're either at the top of the 'hs' namespace, or completing the first level under it
+      -- NOTE: We can't use findCompletions() here because it will inspect the tables too deeply and cause the full set of modules to be loaded
+      completions = filterForRemnant(tableSet(tablesMerge(tableKeys(hs), tableKeys(hs._extensions))), remnant)
+    elseif mod and string.find(completionWord, ":") then
+      -- We're trying to complete an object's methods
+      mapJoiner = ":"
+      local metatable = getmetatable(src[mod]).__index
+      completions = findCompletions(metatable, remnant)
+    elseif mod and #parents > 0 then
+      -- We're some way inside the hs. namespace, so walk our way down the ancestral chain to find the final table
+      for i=1, #parents do
+        src=src[parents[i]]
+      end
+      completions = findCompletions(src, remnant)
+    end
+
+    return hs.fnutils.map(completions, function(item) return mod..mapJoiner..item..mapEnder end)
+  end
 
   if not hasinitfile then
     hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
@@ -304,5 +405,5 @@ return {setup=function(...)
 
   print "-- Done."
 
-  return runstring
+  return hs.completionsForInputString, runstring
 end}

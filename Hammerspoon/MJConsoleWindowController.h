@@ -6,7 +6,9 @@
 + (instancetype) singleton;
 - (void) setup;
 
-@end
-
 BOOL MJConsoleWindowAlwaysOnTop(void);
 void MJConsoleWindowSetAlwaysOnTop(BOOL alwaysOnTop);
+
+#pragma mark - NSTextFieldDelegate
+- (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)command;
+@end

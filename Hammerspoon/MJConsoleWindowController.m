@@ -133,18 +133,6 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
     [editor moveToEndOfDocument:self];
 }
 
-- (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)command {
-    if (command == @selector(moveUp:)) {
-        [self goPrevHistory];
-        return YES;
-    }
-    else if (command == @selector(moveDown:)) {
-        [self goNextHistory];
-        return YES;
-    }
-    return NO;
-}
-
 BOOL MJConsoleWindowAlwaysOnTop(void) {
     return [[NSUserDefaults standardUserDefaults] boolForKey: MJKeepConsoleOnTopKey];
 }
@@ -153,6 +141,49 @@ void MJConsoleWindowSetAlwaysOnTop(BOOL alwaysOnTop) {
     [[NSUserDefaults standardUserDefaults] setBool:alwaysOnTop
                                             forKey:MJKeepConsoleOnTopKey];
     [[MJConsoleWindowController singleton] reflectDefaults];
+}
+
+#pragma mark - NSTextFieldDelegate
+
+- (BOOL)control:(NSControl *)control textView:(NSTextView *)textView doCommandBySelector:(SEL)command {
+    BOOL result = YES;
+
+    if (command == @selector(moveUp:)) {
+        [self goPrevHistory];
+    } else if (command == @selector(moveDown:)) {
+        [self goNextHistory];
+    } else if (command == @selector(insertTab:)) {// || command == @selector(complete:)) {
+        [self.inputField.currentEditor complete:nil];
+    } else {
+        result = NO;
+    }
+    return result;
+}
+
+- (NSArray<NSString *> *)control:(NSControl *)control
+                        textView:(NSTextView *)textView
+                     completions:(NSArray<NSString *> *)words
+             forPartialWordRange:(NSRange)charRange
+             indexOfSelectedItem:(NSInteger *)index
+{
+    NSString *currentText = textView.string;
+    NSString *completionWord = [currentText substringWithRange:charRange];
+    NSArray *completions = MJLuaCompletionsForWord(completionWord);
+    if (completions.count == 1) {
+        // We have only one completion, so we should just insert it into the text field
+        NSString *completeWith = [completions objectAtIndex:0];
+        NSString *stringToAdd = @"";
+
+        //NSLog(@"Need to shove in the difference between %@ and %@", completeWith, completionWord);
+
+        if ([completeWith hasPrefix:completionWord]) {
+            stringToAdd = [completeWith substringFromIndex:[completionWord length]];
+        }
+
+        textView.string = [NSString stringWithFormat:@"%@%@", currentText, stringToAdd];
+        return @[];
+    }
+    return completions;
 }
 
 @end
