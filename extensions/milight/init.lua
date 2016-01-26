@@ -17,7 +17,7 @@ milight.minBrightness = 0
 milight.maxBrightness = 25
 
 -- Internal helper to set brightness
-function brightnessHelper(bridge, zonecmd, value)
+local function brightnessHelper(bridge, zonecmd, value)
     if (bridge:send(milight.cmd[zonecmd])) then
         if (value < milight.minBrightness) then
             value = milight.minBrightness
@@ -37,7 +37,7 @@ function brightnessHelper(bridge, zonecmd, value)
 end
 
 -- Internal helper to set color
-function colorHelper(bridge, zonecmd, value)
+local function colorHelper(bridge, zonecmd, value)
     if (bridge:send(milight.cmd[zonecmd])) then
         if (value < 0) then
             value = 0
@@ -51,7 +51,7 @@ function colorHelper(bridge, zonecmd, value)
 end
 
 -- Internal helper to map an integer and a string to a zone command key
-function zone2cmdkey(zone, cmdType)
+local function zone2cmdkey(zone, cmdType)
     local zoneString
     if (zone == 0) then
         zoneString = "all_"
