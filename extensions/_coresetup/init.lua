@@ -362,7 +362,7 @@ return {setup=function(...)
     hs.notify.register("__noinitfile", function() os.execute("open http://www.hammerspoon.org/go/") end)
     hs.notify.show("Hammerspoon", "No config file found", "Click here for the Getting Started Guide", "__noinitfile")
     hs.printf("-- Can't find %s; create it and reload your config.", prettypath)
-    return runstring
+    return hs.completionsForInputString, runstring
   end
 
   local hscrash = require("hs.crash")
@@ -398,10 +398,10 @@ return {setup=function(...)
 
   print("-- Loading " .. prettypath)
   local fn, err = loadfile(fullpath)
-  if not fn then hs.showError(err) return runstring end
+  if not fn then hs.showError(err) return hs.completionsForInputString, runstring end
 
   local ok, err = xpcall(fn, debug.traceback)
-  if not ok then hs.showError(err) return runstring end
+  if not ok then hs.showError(err) return hs.completionsForInputString, runstring end
 
   print "-- Done."
 
