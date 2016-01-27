@@ -352,7 +352,10 @@ return {setup=function(...)
       for i=1, #parents do
         src=src[parents[i]]
       end
-      completions = findCompletions(src, remnant)
+      -- If nothing left to show, show nothing
+      if src ~= nil then
+        completions = findCompletions(src, remnant)
+      end
     end
 
     return hs.fnutils.map(completions, function(item) return mod..mapJoiner..item..mapEnder end)
