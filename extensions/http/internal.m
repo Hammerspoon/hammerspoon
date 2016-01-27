@@ -45,8 +45,15 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
 
 // Implementation of the connectionDelegate. If the property fn equals LUA_NOREF
 // no lua operations will be performed in the callbacks
+// 
+// From Apple: In rare cases, for example in the case of an HTTP load where the content type  
+// of the load data is multipart/x-mixed-replace, the delegate will receive more than one 
+// connection:didReceiveResponse: message. When this happens, discard (or process) all 
+// data previously delivered by connection:didReceiveData:, and prepare to handle the 
+// next part (which could potentially have a different MIME type).
 @implementation connectionDelegate
 - (void)connection:(NSURLConnection * __unused)connection didReceiveResponse:(NSURLResponse *)response {
+    [self.receivedData setLength:0];
     self.httpResponse = (NSHTTPURLResponse *)response;
 }
 
