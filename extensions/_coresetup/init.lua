@@ -290,7 +290,7 @@ return {setup=function(...)
   local function typeWithSuffix(item, table)
     local suffix = ""
     if type(table[item]) == "function" then
-      suffix = "()"
+      suffix = "("
     end
     return item..suffix
   end
@@ -302,6 +302,7 @@ return {setup=function(...)
   end
 
   local function findCompletions(table, remnant)
+    if type(table) ~= "table" then return {} end
     return filterForRemnant(hs.fnutils.imap(tableKeys(table), function(item)
       return typeWithSuffix(item, table)
     end), remnant)
@@ -324,29 +325,34 @@ return {setup=function(...)
     local mapJoiner = "."
     local mapEnder = ""
 
+    completionWord = string.find(completionWord, "[%[%(]$") and " " or completionWord
     local mod = string.match(completionWord, "(.*)[%.:]") or ""
     local remnant = string.gsub(completionWord, mod, "")
     remnant = string.gsub(remnant, "[%.:](.*)", "%1")
     local parents = hs.fnutils.split(mod, '%.')
     local src = _G
 
+--print(string.format("completionWord: %s", completionWord))
 --print(string.format("mod: %s", mod))
 --print(string.format("remnant: %s", remnant))
 --print(string.format("parents: %s", hs.inspect(parents)))
 
-    if not mod or mod=="" then
+    if not mod or mod == "" then
       -- Easiest case first, we have no text to work with, so just return keys from _G
       mapJoiner = ""
       completions = findCompletions(src, remnant)
-    elseif mod=="hs" then
+    elseif mod == "hs" then
       -- We're either at the top of the 'hs' namespace, or completing the first level under it
       -- NOTE: We can't use findCompletions() here because it will inspect the tables too deeply and cause the full set of modules to be loaded
       completions = filterForRemnant(tableSet(tablesMerge(tableKeys(hs), tableKeys(hs._extensions))), remnant)
     elseif mod and string.find(completionWord, ":") then
       -- We're trying to complete an object's methods
       mapJoiner = ":"
-      local metatable = getmetatable(src[mod]).__index
-      completions = findCompletions(metatable, remnant)
+      src = src[mod]
+      if type(src) == "userdata" then
+        src = getmetatable(src).__index
+      end
+      completions = findCompletions(src, remnant)
     elseif mod and #parents > 0 then
       -- We're some way inside the hs. namespace, so walk our way down the ancestral chain to find the final table
       for i=1, #parents do

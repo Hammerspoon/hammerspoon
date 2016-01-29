@@ -167,6 +167,8 @@ void MJConsoleWindowSetAlwaysOnTop(BOOL alwaysOnTop) {
              indexOfSelectedItem:(NSInteger *)index
 {
     NSString *currentText = textView.string;
+    NSString *textBeforeCursor = [currentText substringToIndex:NSMaxRange(charRange)];
+    NSString *textAfterCursor = [currentText substringFromIndex:NSMaxRange(charRange)];
     NSString *completionWord = [currentText substringWithRange:charRange];
     NSArray *completions = MJLuaCompletionsForWord(completionWord);
     if (completions.count == 1) {
@@ -180,7 +182,8 @@ void MJConsoleWindowSetAlwaysOnTop(BOOL alwaysOnTop) {
             stringToAdd = [completeWith substringFromIndex:[completionWord length]];
         }
 
-        textView.string = [NSString stringWithFormat:@"%@%@", currentText, stringToAdd];
+        textView.string = [NSString stringWithFormat:@"%@%@%@", textBeforeCursor, stringToAdd, textAfterCursor];
+        [textView setSelectedRange:NSMakeRange(NSMaxRange(charRange) + stringToAdd.length, 0)];
         return @[];
     }
     return completions;
