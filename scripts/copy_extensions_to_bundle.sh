@@ -69,6 +69,7 @@ export HS_LUAONLY="_coresetup \
     logger \
     messages \
     mjomatic \
+    network \
     redshift \
     spotify \
     spaces \
@@ -113,6 +114,14 @@ cp -av "${BUILT_PRODUCTS_DIR}/hs" "${HS_DST}/ipc/bin/hs"
 
 # Special copier for hs.speech.listener
 cp -av "${BUILT_PRODUCTS_DIR}/libspeechlistener.dylib" "${HS_DST}/speech/listener.so"
+
+# Special copier for hs.network submodules
+cp -av "${SRCROOT}/extensions/network/configuration.lua" "${HS_DST}/network/configuration.lua"
+cp -av "${BUILT_PRODUCTS_DIR}/libnetworkconfiguration.dylib" "${HS_DST}/network/configurationinternal.so"
+cp -av "${SRCROOT}/extensions/network/host.lua" "${HS_DST}/network/host.lua"
+cp -av "${BUILT_PRODUCTS_DIR}/libnetworkhost.dylib" "${HS_DST}/network/hostinternal.so"
+cp -av "${SRCROOT}/extensions/network/reachability.lua" "${HS_DST}/network/reachability.lua"
+cp -av "${BUILT_PRODUCTS_DIR}/libnetworkreachability.dylib" "${HS_DST}/network/reachabilityinternal.so"
 
 # Special copier for hs.window submodules
 cp -av "${SRCROOT}/extensions/window/filter.lua" "${HS_DST}/window/filter.lua"
