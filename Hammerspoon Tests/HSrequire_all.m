@@ -6,17 +6,14 @@
 //  Copyright (c) 2014 Hammerspoon. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
-#import <XCTest/XCTest.h>
+#import "HSTestCase.h"
+#pragma GCC diagnostic ignored "-Wgnu-statement-expression"
 
-// FIXME: hack
-NSString* MJLuaRunString(NSString* command);
-
-@interface Hammerspoon_Tests : XCTestCase
+@interface HSrequire_all : HSTestCase
 
 @end
 
-@implementation Hammerspoon_Tests
+@implementation HSrequire_all
 
 - (void)setUp {
     [super setUp];
@@ -28,9 +25,9 @@ NSString* MJLuaRunString(NSString* command);
     [super tearDown];
 }
 
-- (void)testRequires {
+- (void)testRequireAll {
     // FIXME: this is hacky, we should be getting a table back so we can assert every extension, etc.
-    NSString *res = MJLuaRunString(@"return testrequires()");
+    NSString *res = [self runLua:@"return testrequires()"];
     NSLog(@"%@", res);
     XCTAssertEqualObjects(res, @"", @"one or more require statements failed");
 }
