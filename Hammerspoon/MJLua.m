@@ -301,6 +301,8 @@ static int core_focus(lua_State* L) {
 /// Returns:
 ///  * The extension's object metatable, or nil if an error occurred
 static int core_getObjectMetatable(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
     luaL_getmetatable(L, lua_tostring(L,1));
     return 1;
 }
