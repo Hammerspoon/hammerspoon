@@ -29,7 +29,11 @@
 
 - (void)testAudiodeviceGetDefaultOutput {
     NSString *result = [self runLua:@"testGetDefaultOutput()"];
-    XCTAssertEqualObjects(@"hs.audiodevice", result, @"Unable to get default audio device");
+    XCTAssertEqualObjects(@"hs.audiodevice", result, @"Unable to get default audio output device");
 }
 
+- (void)testAudiodeviceGetDefaultInput {
+    NSString *result = [self runLua:@"testGetDefaultInput()"];
+    XCTAssertEqualObjects(@"hs.audiodevice", result, @"Unable to get default audio input device");
+}
 @end
