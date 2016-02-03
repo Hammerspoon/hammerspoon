@@ -159,7 +159,7 @@ local function sunturn_time(date, rising, latitude, longitude, zenith, local_off
    local LT =  UT + local_offset
 
    return os.time({ day = date.day, month = date.month, year = date.year,
-                    hour = floor(LT), min = frac(LT) * 60})
+                    hour = floor(LT), min = floor(frac(LT) * 60), sec = floor(frac(LT) * 3600) % 60 })
 end
 
 --- hs.location.sunrise(latitude, longitude, offset[, date]) -> number or string
