@@ -16,10 +16,8 @@
 @implementation HSaudiodevice
 
 - (void)setUp {
-    [super setUp];
+    [super setUpWithRequire:@"test_audiodevice"];
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    NSString *result = [self runLua:@"require('test_audiodevice')"];
-    XCTAssertEqualObjects(@"true", result, @"Unable to load test_audiodevice.lua");
 }
 
 - (void)tearDown {
@@ -27,13 +25,32 @@
     [super tearDown];
 }
 
-- (void)testAudiodeviceGetDefaultOutput {
-    NSString *result = [self runLua:@"testGetDefaultOutput()"];
-    XCTAssertEqualObjects(@"hs.audiodevice", result, @"Unable to get default audio output device");
+- (void)testGetDefaultOutput {
+    [self luaTestFromSelector:_cmd];
 }
 
-- (void)testAudiodeviceGetDefaultInput {
-    NSString *result = [self runLua:@"testGetDefaultInput()"];
-    XCTAssertEqualObjects(@"hs.audiodevice", result, @"Unable to get default audio input device");
+- (void)testGetDefaultInput {
+    [self luaTestFromSelector:_cmd];
 }
+
+- (void)testGetCurrentOutput {
+    [self luaTestFromSelector:_cmd];
+}
+
+- (void)testGetCurrentInput {
+    [self luaTestFromSelector:_cmd];
+}
+
+- (void)testGetAllDevices {
+    [self luaTestFromSelector:_cmd];
+}
+
+- (void)testGetAllOutputDevices {
+    [self luaTestFromSelector:_cmd];
+}
+
+- (void)testGetAllInputDevices {
+    [self luaTestFromSelector:_cmd];
+}
+
 @end
