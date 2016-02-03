@@ -1340,7 +1340,7 @@ static int webview_show(lua_State *L) {
 ///  * The webview object
 static int webview_hide(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1) ;
-    NSTimeInterval fadeTime;
+    NSTimeInterval fadeTime = 0.f;
 
     if (lua_type(L, 2) == LUA_TNUMBER) {
         fadeTime = lua_tonumber(L, 2);
