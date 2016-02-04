@@ -26,34 +26,34 @@
 }
 
 - (void)testGetDefaultOutput {
-    [self luaTestFromSelector:_cmd];
+    RUN_LUA_TEST()
 }
 
 - (void)testGetDefaultInput {
-    [self luaTestFromSelector:_cmd];
+    RUN_LUA_TEST()
 }
 
 - (void)testGetCurrentOutput {
-    [self luaTestFromSelector:_cmd];
+    RUN_LUA_TEST()
 }
 
 - (void)testGetCurrentInput {
-    [self luaTestFromSelector:_cmd];
+    RUN_LUA_TEST()
 }
 
 - (void)testGetAllDevices {
     SKIP_IN_TRAVIS()
-    [self luaTestFromSelector:_cmd];
+    RUN_LUA_TEST()
 }
 
 - (void)testGetAllOutputDevices {
     SKIP_IN_TRAVIS()
-    [self luaTestFromSelector:_cmd];
+    RUN_LUA_TEST()
 }
 
 - (void)testGetAllInputDevices {
     SKIP_IN_TRAVIS()
-    [self luaTestFromSelector:_cmd];
+    RUN_LUA_TEST()
 }
 
 @end

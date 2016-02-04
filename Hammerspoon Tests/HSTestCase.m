@@ -27,16 +27,16 @@
     return MJLuaRunString(luaCode);
 }
 
-- (void)luaTest:(NSString *)luaCode {
+- (BOOL)luaTest:(NSString *)luaCode {
     NSString *result = [self runLua:luaCode];
-    XCTAssertEqualObjects(@"Success", result, @"Test failed: %@", luaCode);
-    NSLog(@"Test returned: %@", result);
+    NSLog(@"Test returned: %@ for: %@", result, luaCode);
+    return [result isEqualToString:@"Success"];
 }
 
-- (void)luaTestFromSelector:(SEL)selector {
+- (BOOL)luaTestFromSelector:(SEL)selector {
     NSString *funcName = NSStringFromSelector(selector);
     NSLog(@"Calling Lua function from selector: %@()", funcName);
-    [self luaTest:[NSString stringWithFormat:@"%@()", funcName]];
+    return [self luaTest:[NSString stringWithFormat:@"%@()", funcName]];
 }
 
 - (BOOL)runningInTravis {
