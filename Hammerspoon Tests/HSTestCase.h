@@ -9,7 +9,7 @@
 #import <XCTest/XCTest.h>
 #import "MJLua.h"
 
-#define SKIP_IN_TRAVIS() if(self.isTravis) return;
+#define SKIP_IN_TRAVIS() if(self.isTravis) { NSLog(@"Skipping %@ due to Travis", NSStringFromSelector(_cmd)) ; return; }
 
 @interface HSTestCase : XCTestCase
 @property (nonatomic) BOOL isTravis;
