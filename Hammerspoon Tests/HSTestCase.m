@@ -13,6 +13,8 @@
 
 - (void)setUpWithRequire:(NSString *)requireName {
     [super setUp];
+    self.isTravis = [self runningInTravis];
+
     NSString *result = [self runLua:[NSString stringWithFormat:@"require('%@')", requireName]];
     XCTAssertEqualObjects(@"true", result, @"Unable to load %@.lua", requireName);
 }
@@ -35,6 +37,10 @@
     NSString *funcName = NSStringFromSelector(selector);
     NSLog(@"Calling Lua function from selector: %@()", funcName);
     [self luaTest:[NSString stringWithFormat:@"%@()", funcName]];
+}
+
+- (BOOL)runningInTravis {
+    return (getenv("TRAVIS") != NULL);
 }
 
 // Tests of the above methods

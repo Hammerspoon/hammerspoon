@@ -42,14 +42,17 @@
 }
 
 - (void)testGetAllDevices {
+    SKIP_IN_TRAVIS()
     [self luaTestFromSelector:_cmd];
 }
 
 - (void)testGetAllOutputDevices {
+    SKIP_IN_TRAVIS()
     [self luaTestFromSelector:_cmd];
 }
 
 - (void)testGetAllInputDevices {
+    SKIP_IN_TRAVIS()
     [self luaTestFromSelector:_cmd];
 }
 

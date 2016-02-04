@@ -9,7 +9,11 @@
 #import <XCTest/XCTest.h>
 #import "MJLua.h"
 
+#define SKIP_IN_TRAVIS() if(self.isTravis) return;
+
 @interface HSTestCase : XCTestCase
+@property (nonatomic) BOOL isTravis;
+
 /**
  Sets up the testing environment and loads a Lua file with require()
 
@@ -39,4 +43,11 @@
  @param selector A selector, which will be transformed into a string. A Lua function of the same name will be called
  */
 - (void)luaTestFromSelector:(SEL)selector;
+
+/**
+ Determines if the test run is happening in the Travis CI build system, since we need to skip some tests in their environment
+
+ @return A boolean, true if the test run is happening in Travis, false otherwise
+ */
+- (BOOL)runningInTravis;
 @end
