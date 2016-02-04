@@ -243,7 +243,7 @@ return {setup=function(...)
   -- load init.lua
 
   local function runstring(s)
-    print("runstring")
+    --print("runstring")
     local fn, err = load("return " .. s)
     if not fn then fn, err = load(s) end
     if not fn then return tostring(err) end
