@@ -37,6 +37,7 @@ static int target_set(lua_State* L) {
         [[NSUserDefaults standardUserDefaults] setObject:val forKey:key];
     }
     @catch(NSException *theException) {
+        [NSUserDefaults resetStandardUserDefaults] ;
         return luaL_error(L, [[NSString stringWithFormat:@"%@: %@", theException.name, theException.reason] UTF8String]);
     }
     return 0;
