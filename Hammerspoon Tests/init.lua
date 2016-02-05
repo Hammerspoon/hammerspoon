@@ -28,44 +28,44 @@ function success()
   return "Success"
 end
 
-function errorMsgEquality(actual, expected)
+function errorMsgEquality(expected, actual)
   return string.format("expected: %s, actual: %s", expected, actual)
 end
 
 -- Assertions
 
 -- Equality assertions
-function assertIsEqual(a, b)
-  if type(a) ~= type(b) then
-    failure(errorMsgEquality(type(a), type(b)))
+function assertIsEqual(expected, actual)
+  if type(expected) ~= type(actual) then
+    failure(errorMsgEquality(type(expected), type(actual)))
   end
-  if a ~= b then
-    failure(errorMsgEquality(a, b))
+  if expected ~= actual then
+    failure(errorMsgEquality(expected, actual))
   end
 end
 
 -- Comparison assertions
 function assertTrue(a)
   if not a then
-    failure("expected: true, actual: "..a)
+    failure("expected: true, actual: "..tostring(a))
   end
 end
 
 function assertFalse(a)
   if a then
-    failure("expected: false, actual: "..a)
+    failure("expected: false, actual: "..tostring(a))
   end
 end
 
 function assertIsNil(a)
   if a ~= nil then
-    failure("expected: nil, actual: "..a)
+    failure("expected: nil, actual: "..tostring(a))
   end
 end
 
 function assertIsNotNil(a)
   if a == nil then
-    failure("expected: nil, actual: "..a)
+    failure("expected: nil, actual: "..tostring(a))
   end
 end
 
@@ -110,7 +110,7 @@ function assertIsUserdata(a)
   assertIsType(a, "userdata")
 end
 
-function assertIsUserdataOfType(a, aType)
+function assertIsUserdataOfType(aType, a)
   assertIsType(a, "userdata")
   local meta = getmetatable(a)
   assertIsEqual(meta["__type"], aType)

@@ -124,6 +124,7 @@ void new_device(lua_State* L, AudioDeviceID deviceId) {
     audiodevice_t *audioDevice = (audiodevice_t *)lua_newuserdata(L, sizeof(audiodevice_t));
     audioDevice->deviceId = deviceId;
     audioDevice->callback = LUA_NOREF;
+    audioDevice->watcherRunning = NO;
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
@@ -478,7 +479,7 @@ static int audiodevice_setmuted(lua_State* L) {
     return 1;
 }
 
-/// hs.audiodevice:volume() -> number or bool
+/// hs.audiodevice:volume() -> number or nil
 /// Method
 /// Get the current volume of this audio device
 ///

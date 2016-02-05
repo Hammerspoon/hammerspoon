@@ -25,6 +25,9 @@
     [super tearDown];
 }
 
+
+// Test functions/constructors
+
 - (void)testGetDefaultOutput {
     RUN_LUA_TEST()
 }
@@ -56,4 +59,77 @@
     RUN_LUA_TEST()
 }
 
+- (void)testFindDeviceByName {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testFindDeviceByUID {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testFindInputByName {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testFindInputByUID {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testFindOutputByName {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testFindOutputByUID {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+// Test hs.audiodevice methods
+- (void)testToString {
+    RUN_LUA_TEST()
+}
+
+- (void)testName {
+    RUN_LUA_TEST()
+}
+
+- (void)testUID {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testIsInputDevice {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testIsOutputDevice {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testMute {
+    RUN_LUA_TEST()
+}
+
+- (void)testVolume {
+    RUN_LUA_TEST()
+}
+
+- (void)testJackConnected {
+    RUN_LUA_TEST()
+}
+
+- (void)testTransportType {
+    RUN_LUA_TEST()
+}
+
+- (void)testWatcher {
+    RUN_LUA_TEST()
+}
 @end
