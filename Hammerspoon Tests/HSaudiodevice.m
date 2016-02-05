@@ -95,6 +95,7 @@
 }
 
 - (void)testName {
+    SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
 
@@ -114,7 +115,6 @@
 }
 
 - (void)testMute {
-    SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
 
