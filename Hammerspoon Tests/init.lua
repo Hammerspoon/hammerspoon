@@ -70,13 +70,27 @@ function assertIsNotNil(a)
 end
 
 function assertGreaterThan(a, b)
-  if a <= b then
-    failure(string.format("expected: %s > %s", a, b))
+  if b <= a then
+    failure(string.format("expected: %s > %s", b, a))
   end
 end
 
 function assertLessThan(a, b)
-  assertGreaterThan(b, a)
+  if b >= a then
+    failure(string.format("expected: %s < %s", b, a))
+  end
+end
+
+function assertGreaterThanOrEqualTo(a, b)
+  if b < a then
+    failure(string.format("expected: %s >= %s", b, a))
+  end
+end
+
+function assertLessThanOrEqualTo(a, b)
+  if b > a then
+    failure(string.format("expected: %s <= %s", b, a))
+  end
 end
 
 -- Type assertions
@@ -113,12 +127,12 @@ end
 function assertIsUserdataOfType(aType, a)
   assertIsType(a, "userdata")
   local meta = getmetatable(a)
-  assertIsEqual(meta["__type"], aType)
+  assertIsEqual(aType, meta["__type"])
 end
 
 -- Table assertions
 function assertTableNotEmpty(a)
-  assertGreaterThan(#a, 0)
+  assertGreaterThan(0, #a)
 end
 
 
