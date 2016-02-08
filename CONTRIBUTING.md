@@ -8,6 +8,33 @@ The app itself is built using Xcode. You must open `Hammerspoon.xcworkspace` rat
 
 The extension modules are built before the core Hammerspoon binary as target dependencies. Each extension is defined as an Xcode target in its own right, although there is usually no reason to build these targets manually. During the late stages of the build process, a script ([`scripts/copy_extensions_to_bundle.sh`](https://github.com/Hammerspoon/hammerspoon/blob/master/scripts/copy_extensions_to_bundle.sh)) collects all of the compiled extension libraries and their associated Lua components, and inserts them into the final `Hammerspoon.app` bundle.
 
+#### Making frequent local rebuilds more convenient
+[Self-signing your builds](https://github.com/Hammerspoon/hammerspoon/issues/643#issuecomment-158291705) will keep you from having to re-enable permissions for your locally built copy.
+
+Create a self-signed Code Signing certificate named 'Internal Code Signing' or similar as described [here](http://bd808.com/blog/2013/10/21/creating-a-self-signed-code-certificate-for-xcode/).
+
+Create a file `rebuild.sh` or similar with execute permissions in your local repo as follows:
+```bash
+#! /bin/bash
+
+killall Hammerspoon #osascript -e 'tell Application "Hammerspoon" to quit'
+
+make clean
+make #&& open /System/Library/PreferencePanes/Security.prefpane || exit 1
+make docs
+
+#rm -fr ~/Library/Developer/Xcode/DerivedData/Hammerspoon*
+rm -fr `xcodebuild -workspace Hammerspoon.xcworkspace -scheme Hammerspoon -configuration DEBUG -showBuildSettings | sort | uniq | grep " BUILT_PRODUCTS_DIR =" | awk '{ print $3 }'`/Hammerspoon.app
+
+# signing with self-signed cert so I no longer have to reset accessibility all the time
+codesign --verbose --sign "Internal Code Signing" "build/Hammerspoon.app/Contents/Frameworks/LuaSkin.framework/Versions/A"
+codesign --verbose --sign "Internal Code Signing" "build/Hammerspoon.app"
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+open -a $DIR/build/Hammerspoon.app
+```
+Then, simply run `./rebuild.sh` for more streamlined builds.
+
 ## Contributing to the core app or LuaSkin
 This is generally very simple in terms of the workflow, but there's less likely to be any reason to work on the core app:
 
