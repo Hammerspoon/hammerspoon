@@ -143,6 +143,20 @@
     RUN_LUA_TEST()
 }
 
+- (void)testWatcherCallback {
+    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:5.0];
+    BOOL result = NO;
+
+    [self runLua:@"testWatcherCallback()"];
+
+    while (result == NO && ([timeoutDate timeIntervalSinceNow] > 0)) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.5, NO);
+        result = [self luaTest:@"testWatcherCallbackResult()"];
+    }
+
+    XCTAssertTrue(result, @"hs.audiodevice watcher callback failed");
+}
+
 - (void)testInputSupportsDataSources {
     SKIP_IN_TRAVIS()
     RUN_LUA_TEST()

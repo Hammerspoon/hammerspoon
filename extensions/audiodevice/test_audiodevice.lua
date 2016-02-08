@@ -196,6 +196,29 @@ function testWatcher()
   return success()
 end
 
+testWatcherCallbackSuccess = false
+
+function testWatcherCallback()
+  local device = hs.audiodevice.defaultOutputDevice()
+  device:watcherCallback(function(uid, eventName, eventScope, eventElement)
+                           --print("testWatcherCallback callback fired")
+                           testWatcherCallbackSuccess = true
+                         end)
+  device:watcherStart()
+
+  device:setMuted(not device:muted())
+  -- Be nice and put it back
+  device:setMuted(not device:muted())
+end
+
+function testWatcherCallbackResult()
+  if testWatcherCallbackSuccess then
+    return success()
+  else
+    return "Failure"
+  end
+end
+
 function testInputSupportsDataSources()
   local input = hs.audiodevice.findInputByName("Built-in Microphone")
   assertTrue(input:supportsInputDataSources())
