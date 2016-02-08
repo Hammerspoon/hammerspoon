@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4CEDEE1C1C640D11005CBF97 /* HSjavascript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */; };
+		4CEDEE1D1C640FDB005CBF97 /* test_javascript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CEDEE191C640B3D005CBF97 /* test_javascript.lua */; };
 		4F0676071C32C0B30088C57C /* HSChooserCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F0676051C32C0B30088C57C /* HSChooserCell.h */; };
 		4F0676081C32C0B30088C57C /* HSChooserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0676061C32C0B30088C57C /* HSChooserCell.m */; };
 		4F0F97571ADE9F8600F2A199 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
@@ -804,6 +806,8 @@
 /* Begin PBXFileReference section */
 		19B5A52CAF8760B10C86C2D0 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
 		1A11170BCF0BA210FA17BF37 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
+		4CEDEE191C640B3D005CBF97 /* test_javascript.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_javascript.lua; path = extensions/javascript/test_javascript.lua; sourceTree = "<group>"; };
+		4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSjavascript.m; sourceTree = "<group>"; };
 		4F0676041C32AED90088C57C /* HSChooserWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = HSChooserWindow.xib; path = extensions/chooser/HSChooserWindow.xib; sourceTree = "<group>"; };
 		4F0676051C32C0B30088C57C /* HSChooserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserCell.h; path = extensions/chooser/HSChooserCell.h; sourceTree = "<group>"; };
 		4F0676061C32C0B30088C57C /* HSChooserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserCell.m; path = extensions/chooser/HSChooserCell.m; sourceTree = "<group>"; };
@@ -2734,6 +2738,7 @@
 				4FEF4D511C5FA1DD00E3B939 /* HSTestCase.m */,
 				D02F95331A003A2900E28BB2 /* init.lua */,
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
+				4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
 			);
 			path = "Hammerspoon Tests";
@@ -2761,6 +2766,7 @@
 			isa = PBXGroup;
 			children = (
 				D64208941BE3CDEB00673724 /* init.lua */,
+				4CEDEE191C640B3D005CBF97 /* test_javascript.lua */,
 				D64208951BE3CDEB00673724 /* internal.m */,
 			);
 			name = javascript;
@@ -4541,6 +4547,7 @@
 			files = (
 				D02F95341A003A2900E28BB2 /* init.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
+				4CEDEE1D1C640FDB005CBF97 /* test_javascript.lua in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5165,6 +5172,7 @@
 				D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */,
 				4FEF4D521C5FA1DD00E3B939 /* HSTestCase.m in Sources */,
 				4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */,
+				4CEDEE1C1C640D11005CBF97 /* HSjavascript.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
