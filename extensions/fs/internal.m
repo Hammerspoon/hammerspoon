@@ -1201,6 +1201,28 @@ static int hs_temporaryDirectory(lua_State *L) {
     return 1 ;
 }
 
+/// hs.fs.fileUTI(path) -> string
+/// Function
+/// Returns the Uniform Type Identifier for the file location specified.
+///
+/// Parameters:
+///  * path - the path to the file to return the UTI for.
+///
+/// Returns:
+///  * a string containing the Uniform Type Identifier for the file location specified.
+static int hs_fileuti(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSError *error ;
+    NSString *type = [[NSWorkspace sharedWorkspace] typeOfFile:[[skin toNSObjectAtIndex:1] stringByExpandingTildeInPath]
+                                                         error:&error] ;
+    if (error) {
+        return luaL_error(L, "%s", [[error localizedDescription] UTF8String]) ;
+    }
+    [skin pushNSObject:type] ;
+    return 1 ;
+}
+
 static const struct luaL_Reg fslib[] = {
         {"attributes", file_info},
         {"chdir", change_dir},
@@ -1220,6 +1242,7 @@ static const struct luaL_Reg fslib[] = {
         {"tagsSet", tagsSet},
         {"tagsGet", tagsGet},
         {"temporaryDirectory", hs_temporaryDirectory},
+        {"fileUTI", hs_fileuti},
         {NULL, NULL},
 };
 
