@@ -35,6 +35,11 @@ BOOL MJAutoLaunchGet(void) {
 
 void MJAutoLaunchSet(BOOL opensAtLogin) {
     NSURL *appURL = [[[NSBundle mainBundle] bundleURL] fileReferenceURL];
+
+    if (!appURL) {
+        NSLog(@"ERROR: Unable to get mainBundle URL");
+        return;
+    }
     
     if (opensAtLogin) {
         LSSharedFileListItemRef result = LSSharedFileListInsertItemURL(shared_file_list(),
