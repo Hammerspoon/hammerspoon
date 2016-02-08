@@ -8,7 +8,7 @@
 
 /// hs.image.systemImageNames[]
 /// Constant
-/// Array containing the names of internal system images for use with hs.drawing.image
+/// Table containing the names of internal system images for use with hs.drawing.image
 ///
 /// Notes:
 ///  * Image names pulled from NSImage.h
@@ -75,6 +75,480 @@ static int pushNSImageNameTable(lua_State *L) {
         lua_pushstring(L, [NSImageNameStatusNone UTF8String]) ;                       lua_setfield(L, -2, "StatusNone") ;
         lua_pushstring(L, [NSImageNameShareTemplate UTF8String]) ;                    lua_setfield(L, -2, "ShareTemplate") ;
     return 1;
+}
+
+/// hs.image.additionalImageNames[]
+/// Constant
+/// Table of arrays containing the names of additional internal system images which may also be available for use with `hs.drawing.image` and [hs.image.imageFromName](#imageFromName).
+///
+/// Notes:
+///  * The list of these images was pulled from a collection located in the repositories at https://github.com/hetima?tab=repositories.  As these image names are (for the most part) not formally listed in Apple's documentation or published APIs, their use cannot be guaranteed across all OS X versions.  If you identify any images which may be missing or could be added, please file an issue at https://github.com/Hammerspoon/hammerspoon.
+static int additionalImages(lua_State *L) {
+    lua_newtable(L) ;
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSAddBookmarkTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSAudioOutputMuteTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSAudioOutputVolumeHighTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSAudioOutputVolumeLowTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSAudioOutputVolumeMedTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSAudioOutputVolumeOffTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSChildContainerEmptyTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSChildContainerTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSDropDownIndicatorTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSGoLeftSmall") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSGoRightSmall") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuMixedStateTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuOnStateTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavEjectButton.normal") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavEjectButton.normalSelected") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavEjectButton.pressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavEjectButton.rollover") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavEjectButton.small.normal") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavEjectButton.small.normalSelected") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavEjectButton.small.pressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavEjectButton.small.rollover") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSPathLocationArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSPrivateArrowNextTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSPrivateArrowPreviousTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSPrivateChaptersTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScriptTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSecurity") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSStatusAvailableFlat") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSStatusAway") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSStatusIdle") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSStatusNoneFlat") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSStatusOffline") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSStatusPartiallyAvailableFlat") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSStatusUnavailableFlat") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSStatusUnknown") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSynchronize") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTitlebarEnterFullScreenTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTitlebarExitFullScreenTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTokenPopDownArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "undocumentedImages") ;
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSFastForwardTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSPauseTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSPlayTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRecordStartTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRecordStopTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRewindTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSkipAheadTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSkipBackTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "mediaControl") ;
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSToolbarBookmarks") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSToolbarClipIndicator") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSToolbarCustomizeToolbarItemImage") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSToolbarFlexibleSpaceItemPaletteRep") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSToolbarMoreTemplate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSToolbarPrintItemImage") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSToolbarShowColorsItemImage") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSToolbarShowFontsItemImage") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSToolbarSpaceItemPaletteRep") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "toolbar") ;
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSMediaBrowserIcon") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMediaBrowserMediaTypeAudio") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMediaBrowserMediaTypeAudioTemplate32") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMediaBrowserMediaTypeMovies") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMediaBrowserMediaTypeMoviesTemplate32") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMediaBrowserMediaTypePhotos") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMediaBrowserMediaTypePhotosTemplate32") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "mediaBrowser") ;
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSCMYKButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSColorPickerCrayon") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSColorPickerList") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSColorPickerSliders") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSColorPickerUser") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSColorPickerWheel") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSColorProfileButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSColorProfileButtonSelected") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSColorSwatchResizeDimple") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSGreyButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSHSBButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMagnifyingGlass") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRGBButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallMagnifyingGlass") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "colorPicker") ;
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSFontPanelActionButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelActionButtonPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelBlurEffect") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelDropEffect") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelDropEffectPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelEffectsDivider") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelMinusIdle") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelMinusPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelOpacityEffect") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelPaperColour") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelPaperColourPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelPlusIdle") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelPlusPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelSliderThumb") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelSliderThumbPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelSliderTrack") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelSplitterKnob") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelSpreadEffect") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelStrikeEffect") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelStrikeEffectPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelTextColour") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelTextColourPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelUnderlineEffect") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSFontPanelUnderlineEffectPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "fontPanel") ;
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSDatePickerCalendarArrowLeft") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSDatePickerCalendarArrowRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSDatePickerCalendarHome") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSDatePickerClockCenter") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSDatePickerClockFace") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "datePicker") ;
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSTextRulerCenterTab") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerDecimalTab") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerFirstLineIndent") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerIndent") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerLeftTab") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerRightTab") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "ruler") ;
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSArrowCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSClosedHandCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSCopyDragCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSCrosshairCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSGenericDragCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSHandCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSIBeamCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSLinkDragCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMoveCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSResizeLeftCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSResizeLeftRightCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSResizeRightCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthBottomLeftResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthBottomRightResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthHResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthHorizontalResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthTopLeftResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthTopRightResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthVResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthVerticalResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWaitCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "cursorLegacy") ;
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NSAppleMenuImage") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSBrowserCellBranch") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSBrowserCellBranchH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSClosedHandCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSCopyDragCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSCrosshairCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSDocEditing") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSDocSaved") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSGenericDragCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSGrayResizeCorner") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSHandCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSHighlightedLinkButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSHighlightedMenuArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSHighlightedScrollDownButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSHighlightedScrollLeftButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSHighlightedScrollRightButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSHighlightedScrollUpButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSLeftMenuBarCap") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSLinkButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSLinkDragCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMacPopUpArrows") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMacPullDownArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMacSmallPopUpArrows") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMacSmallPullDownArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMacSubmenuArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMacTinyPopUpArrows") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMacTinyPullDownArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuBackTabKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuCheckmark") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuClearKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuCommandKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuControlKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuDeleteBackwardKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuDeleteForwardKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuDownArrowKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuDownScrollArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuEndKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuEnterKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuEscapeKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuHelpKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuHomeKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuISOControlKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuLeftArrowKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuMixedState") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuOptionKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuPageDownKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuPageUpKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuRadio") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuReturnKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuRightArrowKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuShiftKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuTabKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuUpArrowKeyGlyph") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuUpScrollArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMenuWindowDirtyState") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMiniTextAlignCenter") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMiniTextAlignJust") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMiniTextAlignLeft") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMiniTextAlignRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMiniTextList") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSMoveCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonFillActive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonFillInactive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonFillPressedAqua") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonFillPressedGraphite") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonLeftActive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonLeftInactive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonLeftPressedAqua") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonLeftPressedGraphite") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonRightActive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonRightInactive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonRightPressedAqua") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarButtonRightPressedGraphite") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarLeftAngleActive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarLeftAngleInactive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarLeftAnglePressedAqua") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarLeftAnglePressedGraphite") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarRightAngleActive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarRightAngleInactive") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarRightAnglePressedAqua") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSNavigationBarRightAnglePressedGraphite") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonDisabledMixed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonDisabledOff") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonDisabledOn") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonEnabledMixed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonEnabledOff") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonEnabledOn") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonFocusRing") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonHighlightedMixed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonHighlightedOff") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRadioButtonHighlightedOn") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSResizeLeftCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSResizeLeftRightCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSResizeRightCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSRightMenuBarCap") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollDownArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollDownArrowDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollDownButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollLeftArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollLeftArrowDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollLeftButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollRightArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollRightArrowDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollRightButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollUpArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollUpArrowDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSScrollUpButton") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobAbove") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobAboveDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobAbovePressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobBelow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobBelowDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobBelowPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobHorizontal") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobHorizontalDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobHorizontalPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobLeft") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobLeftDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobLeftPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobRightDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobRightPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobVertical") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobVerticalDisabled") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSliderKnobVerticalPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallSCurveFill_Active_Textured") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallSCurveFill_Disabled_Textured") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallSCurveFill_Pressed_Textured") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallSCurveLeftCap_Active_Textured") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallSCurveLeftCap_Disabled_Textured") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallSCurveLeftCap_Pressed_Textured") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallSCurveRightCap_Active_Textured") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallSCurveRightCap_Disabled_Textured") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSmallSCurveRightCap_Pressed_Textured") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchDisabledMixed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchDisabledOff") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchDisabledOn") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchEnabledMixed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchEnabledOff") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchEnabledOn") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchFocusRing") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchHighlightedMixed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchHighlightedOff") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSSwitchHighlightedOn") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTableViewDropBetweenCircleMarker") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerAlignCentered") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerAlignJustified") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerAlignLeft") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerAlignRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerIndentFirst") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerIndentLeft") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerIndentRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerLineHeightDecrease") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerLineHeightFixed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerLineHeightFlexible") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerLineHeightIncrease") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerMarginLeft") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerMarginRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerTabCenter") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerTabDecimal") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerTabLeft") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTextRulerTabRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSThemeWindowDocument") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTriangleNormalDown") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTriangleNormalRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTrianglePressedDown") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTrianglePressedRDown") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTrianglePressedRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTriangleWhite-Collapsed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTriangleWhite-Expanded") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTriangleWhite-Pressed-Collapsed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTriangleWhite-Pressed-Expanded") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTriangleWhite-Turning") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthClose") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthCloseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthCollapse") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthCollapseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthEditedClose") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthEditedCloseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthHResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthHorizontalResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthMiniDocument") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthMiniDocumentEdited") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthVResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthVerticalResizeCursor") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthZoom") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSTruthZoomH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSUtilityClose") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSUtilityCloseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSUtilityCollapse") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSUtilityCollapseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSUtilityEditedClose") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSUtilityEditedCloseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSUtilityZoom") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSUtilityZoomH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWin95BrowserBranch") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWin95ComboBoxDownArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWin95HighlightedBrowserBranch") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWin95PopUpArrows") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWin95PullDownArrow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinHighRadio") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinHighSwitch") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinRadio") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobAbove") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobAbovePressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobBelow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobBelowPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobHorizontal") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobHorizontalPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobLeft") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobLeftPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobRightPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobVertical") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSliderKnobVerticalPressed") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWinSwitch") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowClose") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowCloseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowCollapse") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowCollapseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowEditedClose") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowEditedCloseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowMiniDocument") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowMiniDocumentEdited") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowZoom") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NSWindowZoomH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "platinum") ;
+
+
+    lua_newtable(L) ;
+    lua_pushstring(L, "NXAppTile") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXBreak") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXBreakAll") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXFollow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXGrey0") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXGrey1") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXGrey2") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXGrey3") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXGrey4") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXGrey5") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXGrey6") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXHDestLinkChain") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXHSrcLinkChain") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXHelpBacktrack") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXHelpFind") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXHelpIndex") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXHelpMarker") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXHelpMarkerH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXMagnifier") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXUpdate") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXVDestLinkChain") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXVSrcLinkChain") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXauto") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXcircle16") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXcircle16H") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXclose") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXcloseH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXdefaultappicon") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXdefaulticon") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXdivider") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXdividerH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXediting") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXfirstindent") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXhSliderKnob") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXiconify") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXiconifyH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXleftindent") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXleftmargin") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXmanual") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXminiWindow") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXminiWorld") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXpopup") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXpopupH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXpulldown") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXpulldownH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXresize") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXresizeH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXresizeKnob") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXresizeKnobH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXrightindent") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXrightmargin") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollKnob") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuDown") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuDownD") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuDownH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuLeft") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuLeftD") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuLeftH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuRight") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuRightD") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuRightH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuUp") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuUpD") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXscrollMenuUpH") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXsquare16") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXsquare16H") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXtab") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXvSliderKnob") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_pushstring(L, "NXwait") ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+    lua_setfield(L, -2, "NX") ;
+
+    return 1 ;
 }
 
 #pragma mark - Module Functions
@@ -304,6 +778,64 @@ static int imageFromApp(lua_State *L) {
     return 1;
 }
 
+/// hs.image.iconForFile(file) -> object
+/// Constructor
+/// Creates an `hs.image` object for the file or files specified
+///
+/// Parameters:
+///  * file - the path to a file or an array of files to generate an icon for.
+///
+/// Returns:
+///  * An `hs.image` object or nil, if there was an error.  The image will be the icon for the specified file or an icon representing multiple files if an array of multiple files is specified.
+static int imageForFiles(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TTABLE | LS_TSTRING, LS_TBREAK] ;
+    NSArray *theFiles ;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        theFiles = [NSArray arrayWithObject:[skin toNSObjectAtIndex:1]] ;
+    } else {
+        theFiles = [skin toNSObjectAtIndex:1] ;
+    }
+    NSMutableArray *filesArray = [[NSMutableArray alloc] init] ;
+    for (id item in theFiles) {
+        if ([item isKindOfClass:[NSString class]]) {
+            [filesArray addObject:[item stringByExpandingTildeInPath]] ;
+        } else {
+            return luaL_error(L, "invalid type, array of strings required") ;
+        }
+    }
+    NSImage *theImage = [[NSWorkspace sharedWorkspace] iconForFiles:filesArray] ;
+    if (theImage) {
+        [skin pushNSObject:theImage];
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
+
+/// hs.image.iconForFileType(fileType) -> object
+/// Constructor
+/// Creates an `hs.image` object of the icon for the specified file type.
+///
+/// Parameters:
+///  * fileType - the file type, specified as a filename extension or a universal type identifier (UTI).
+///
+/// Returns:
+///  * An `hs.image` object or nil, if there was an error
+static int imageForFileType(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+
+    NSImage *theImage = [[NSWorkspace sharedWorkspace] iconForFileType:[skin toNSObjectAtIndex:1]] ;
+    if (theImage) {
+        [skin pushNSObject:theImage];
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
 #pragma mark - Module Methods
 
 /// hs.image:name() -> string
@@ -521,6 +1053,9 @@ static luaL_Reg moduleLib[] = {
 //     {"imageWithContextFromASCII", imageWithContextFromASCII},
     {"imageFromName",             imageFromName},
     {"imageFromAppBundle",        imageFromApp},
+    {"iconForFile",               imageForFiles},
+    {"iconForFileType",           imageForFileType},
+
     {NULL,                        NULL}
 };
 
@@ -538,6 +1073,7 @@ int luaopen_hs_image_internal(lua_State* L) {
                     objectFunctions:userdata_metaLib];
 
     pushNSImageNameTable(L); lua_setfield(L, -2, "systemImageNames") ;
+    additionalImages(L) ;    lua_setfield(L, -2, "additionalImageNames") ;
 
     [skin registerPushNSHelper:NSImage_tolua        forClass:"NSImage"] ;
     [skin registerLuaObjectHelper:HSImage_toNSImage forClass:"NSImage" withUserdataMapping:USERDATA_TAG] ;
