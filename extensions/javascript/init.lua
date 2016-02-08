@@ -9,6 +9,7 @@ local module = require("hs.javascript.internal")
 -- private variables and methods -----------------------------------------
 
 local split = function(div,str)
+    if not str then return {} end
     if (div=='') then return { str } end
     local pos,arr = 0,{}
     for st,sp in function() return string.find(str,div,pos) end do

@@ -23,6 +23,10 @@
     [super tearDown];
 }
 
+- (void)testParseError {
+    RUN_LUA_TEST()
+}
+
 - (void)testAddition {
     RUN_LUA_TEST()
 }

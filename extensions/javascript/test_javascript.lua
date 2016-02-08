@@ -1,7 +1,15 @@
+function testParseError()
+  local js = "2 +"
+  local status, result = hs.javascript(js)
+  assertFalse(status)
+  assertIsTable(result)
+  return success()
+end
+
 function testAddition()
   local js = "2+2"
   local status, result = hs.javascript(js)
-  assertIsEqual(status, true)
+  assertTrue(status)
   assertIsEqual(result, 4)
   return success()
 end
@@ -13,7 +21,7 @@ function testDestructuring()
     cat + dog;
 ]]
   local status, result = hs.javascript(js)
-  assertIsEqual(status, true)
+  assertTrue(status)
   assertIsEqual(result, 3)
   return success()
 end
@@ -24,7 +32,7 @@ function testString()
     str1 + ", " + str2 + "!";
 ]]
   local status, result = hs.javascript(js)
-  assertIsEqual(status, true)
+  assertTrue(status)
   assertIsEqual(result, "Hello, World!")
   return success()
 end
@@ -40,7 +48,7 @@ function testJsonStringify()
     json;
 ]]
   local status, result = hs.javascript(js)
-  assertIsEqual(status, true)
+  assertTrue(status)
   assertIsEqual(result, '{\\"a\\":1,\\"b\\":\\"two\\",\\"c\\":true}')
   return success()
 end
@@ -64,7 +72,7 @@ function testJsonParseError()
     obj;
 ]]
   local status, result = hs.javascript(js)
-  assertIsEqual(status, false)
+  assertFalse(status)
   assertIsEqual(result.OSAScriptErrorBriefMessageKey, "Error on line 2: SyntaxError: JSON Parse error: Property name must be a string literal")
   return success()
 end
