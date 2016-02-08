@@ -724,7 +724,7 @@ local function _start()
     if highlight then highlight:delete() highlight=nil end
     clearSelection()
     if cycling and #allWindows>0 then
-      -- will STILL somewhat mess up window zorder, because orderedWindows~=most recently focused windows; but oh well
+      -- will STILL somewhat mess up window order, because orderedWindows~=most recently focused windows; but oh well
       for i=reorderIndex,1,-1 do if cycledWindows[i] then allWindows[i]:focus() timer.usleep(80000) end end
       if focusedWindow then focusedWindow:focus() end
     end
@@ -753,6 +753,15 @@ local function _start()
   resizing:bind({'shift'},'tab',function()cycle(-1)end)
   resizing:bind({},'delete',clearSelection)
   resizing:bind({},'escape',function()log.d('abort move')resizing:exit()end)
+  resizing:bind({},'return',function()
+    if not selectedElem then return
+    else
+      x1,y1 = selectedElem.x+margins.w,selectedElem.y+margins.w
+      currentWindow:setTopLeft(geom.point(x1, y1))
+      clearSelection()
+      if cycling then cycle(1) else resizing:exit() end
+    end
+  end)
   resizing:bind({},'space',function()
     --    local wasfs=currentWindow:isFullScreen()
     log.d('toggle fullscreen')currentWindow:toggleFullScreen()
