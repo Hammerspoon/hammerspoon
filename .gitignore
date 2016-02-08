@@ -24,3 +24,4 @@ Hammerspoon/secrets.h
 xcshareddata
 /LuaSkin.framework
 extensions/httpserver/HammerspoonCertTemplate.h
+rebuild.sh

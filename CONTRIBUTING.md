@@ -15,15 +15,14 @@ Create a self-signed Code Signing certificate named 'Internal Code Signing' or s
 
 Create a file `rebuild.sh` or similar with execute permissions in your local repo as follows:
 ```bash
-#! /bin/bash
+#!/bin/bash
 
-killall Hammerspoon #osascript -e 'tell Application "Hammerspoon" to quit'
+killall Hammerspoon
 
 make clean
-make #&& open /System/Library/PreferencePanes/Security.prefpane || exit 1
+make
 make docs
 
-#rm -fr ~/Library/Developer/Xcode/DerivedData/Hammerspoon*
 rm -fr `xcodebuild -workspace Hammerspoon.xcworkspace -scheme Hammerspoon -configuration DEBUG -showBuildSettings | sort | uniq | grep " BUILT_PRODUCTS_DIR =" | awk '{ print $3 }'`/Hammerspoon.app
 
 # signing with self-signed cert so I no longer have to reset accessibility all the time
