@@ -159,6 +159,31 @@ The `Parameters` and `Returns` sections should always be present. If there is no
 ---  * Boolean indicating whether the operation succeeded.
 ```
 
+### Testing
+
+All new extensions in Hammerspoon should be landed with a test suite, and any modifications to existing extensions should add appropriate tests (which may mean creating tests, if the extension in question is not currently being fully tested).
+
+Our test suite is driven by Xcode's `XCTest` framework, and the tests can be a mixture of Lua or Lua and Objective C - it would generally only be appropriate to have unit tests in C, and functional tests in Lua.
+
+The best place to start is in the `Hammerspoon/Hammerspoon Tests` folder in Xcode. Here are some notes on the expected setup:
+
+ * There should be a `.m` for each extension that is being tested, named `HSfoo.m` (where `foo` is the name of the extension).
+ * `HSfoo.m` should contain the declaration and implementation of an `HSfoo` class which inherits from `HSTestCase`.
+ * The `setUp` method should call `[super setUpWithRequire:@"test_foo"];` to load `test_foo.lua` from the extension's folder (i.e. `extensions/foo/`)
+ * The rest of `HSfoo` should be methods named `testBar`, each of which causes some test action to take place.
+ * There are some helper macros for use inside the test methods:
+  * `RUN_LUA_TEST()` will cause a function from `test_foo.lua` to be run, if its name exactly matches the name of the `HSfoo` method
+  * `SKIP_IN_TRAVIS()` will cause this test to be skipped when running as part of our [Travis](http://www.travis-ci.org) test runs (e.g. because the Travis VMs lack hardware/network resources required to test)
+
+When Hammerspoon detects it is is being run by `XCTest`, it loads a special `init.lua` (`Hammerspoon/Hammerspoon Tests/init.lua`) which provides a number of helper functions, mainly related to asserting state in test functions. These functions will generate Lua errors if a test failure occurs, which will cause Xcode to report the test has failed, with an appropriate backtrace in the logs. Refer to the file for the full list of assertions, but the most useful are:
+
+ * `assertIsEqual(expected, actual)` - Ensures that the two arguments are of the same type and value
+ * `assertTrue(a)`/`assertFalse(a)` - Ensure that the argument is `true`/`false` respectively
+ * `assertIsString(a)`/`assertIsNumber(a)`/`assertIsBoolean(a)`/etc - Ensure that the Lua type of a variable is correct
+ * `assertIsUserdataOfType(type, a)` - Ensures that the argument is a Lua userdata object of a particular type (where the type is a string, as given to `LuaSkin` when the extension registered its libraries/objects). This is particularly useful for verifying the return values of constructor functions
+ 
+When adding both the `HSfoo.m` and `test_foo.lua` files to Xcode, it is important to ensure that they do not become members of the `Hammerspoon` target. They should instead both be members of the `Hammerspoon Tests` target (`HSfoo.m` in the `Compile Sources` Build Phase, `test_foo.lua` in the `Copy Bundle Resources` Build Phase).
+
 ### Third party extension distribution
 
 While we want to have Hammerspoon shipping as many useful extensions as possible, there may be reasons for you to ship your extension separately. It would probably be easier to do this in binary form, following the init.lua/internal.so form that Hammerspoon uses, then users can just download your extension into `~/.hammerspoon/<YOUR_EXTENSION_NAME>/`.
