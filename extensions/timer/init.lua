@@ -128,7 +128,7 @@ end
 
 --- hs.timer.doUntil(predicateFn, actionFn[, checkInterval]) -> timer
 --- Constructor
---- Creates and starts a timer which will perform `actionFn` every `checkinterval` seconds until `predicateFn` returns true.  The timer is automatically stopped when `predicateFn` returns false.
+--- Creates and starts a timer which will perform `actionFn` every `checkinterval` seconds until `predicateFn` returns true.  The timer is automatically stopped when `predicateFn` returns true.
 ---
 --- Parameters:
 ---  * predicateFn - a function which determines when to stop calling `actionFn`.  This function takes no arguments, but should return true when it is time to stop calling `actionFn`.
