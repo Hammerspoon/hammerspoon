@@ -94,6 +94,14 @@
     RUN_LUA_TEST()
 }
 
+- (void)testSetDefaultOutput {
+    RUN_LUA_TEST()
+}
+
+- (void)testSetDefaultInput {
+    RUN_LUA_TEST()
+}
+
 - (void)testName {
     SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
@@ -132,6 +140,52 @@
 }
 
 - (void)testWatcher {
+    RUN_LUA_TEST()
+}
+
+- (void)testInputSupportsDataSources {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testOutputSupportsDataSources {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testCurrentInputDataSource {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testCurrentOutputDataSource {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testAllInputDataSources {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testAllOutputDataSources {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+// hs.audiodevice.datasource methods
+- (void)testDataSourceToString {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testDataSourceName {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testDataSourceSetDefault {
+    SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
 @end

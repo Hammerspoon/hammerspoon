@@ -834,7 +834,6 @@ static int audiodevice_allOutputDataSources(lua_State *L) {
     if (AudioObjectGetPropertyDataSize(deviceId, &propertyAddress, 0, NULL, &datasourceListPropertySize) != noErr)
         goto error;
 
-    NSLog(@"Found %i sources", datasourceListPropertySize);
     datasourceList = calloc(datasourceListPropertySize, sizeof(UInt32));
 
     if (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &datasourceListPropertySize, datasourceList) != noErr)
@@ -886,7 +885,6 @@ static int audiodevice_allInputDataSources(lua_State *L) {
     if (AudioObjectGetPropertyDataSize(deviceId, &propertyAddress, 0, NULL, &datasourceListPropertySize) != noErr)
         goto error;
 
-    NSLog(@"Found %i sources", datasourceListPropertySize);
     datasourceList = calloc(datasourceListPropertySize, sizeof(UInt32));
 
     if (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &datasourceListPropertySize, datasourceList) != noErr)
@@ -966,7 +964,7 @@ static int audiodevice_watcherSetCallback(lua_State *L) {
     return 1;
 }
 
-/// hs.audiodevice:watcherStart() -> hs.audiodevice
+/// hs.audiodevice:watcherStart() -> hs.audiodevice or nil
 /// Method
 /// Starts the watcher on an `hs.audiodevice` object
 ///
@@ -974,7 +972,7 @@ static int audiodevice_watcherSetCallback(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * The `hs.audiodevice` object
+///  * The `hs.audiodevice` object, or nil if an error occurred
 static int audiodevice_watcherStart(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);

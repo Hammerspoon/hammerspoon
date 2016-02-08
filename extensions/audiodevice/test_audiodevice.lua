@@ -83,6 +83,24 @@ function testToString()
   return success()
 end
 
+function testSetDefaultOutput()
+  local beforeDevice = hs.audiodevice.defaultOutputDevice()
+  assertTrue(beforeDevice:setDefaultOutputDevice())
+  local afterDevice = hs.audiodevice.defaultOutputDevice()
+  assertIsEqual(beforeDevice, afterDevice)
+
+  return success()
+end
+
+function testSetDefaultInput()
+  local beforeDevice = hs.audiodevice.defaultInputDevice()
+  assertTrue(beforeDevice:setDefaultInputDevice())
+  local afterDevice = hs.audiodevice.defaultInputDevice()
+  assertIsEqual(beforeDevice, afterDevice)
+
+  return success()
+end
+
 function testName()
   assertIsString(hs.audiodevice.defaultOutputDevice():name())
   return success()
@@ -157,14 +175,115 @@ end
 
 function testWatcher()
   local device = hs.audiodevice.defaultOutputDevice()
+
+  -- Call this first so we exercise the codepath for "there is no callback set"
+  assertIsNil(device:watcherStart())
+
   assertIsUserdataOfType("hs.audiodevice", device:watcherCallback(function(a,b,c,d) print("hs.audiodevice watcher callback, this will never be called") end))
   assertFalse(device:watcherIsRunning())
 
   assertIsUserdataOfType("hs.audiodevice", device:watcherStart())
   assertTrue(device:watcherIsRunning())
 
+  -- Call this again so we exercise the codepath for "the watcher is already running"
+  assertIsUserdataOfType("hs.audiodevice", device:watcherStart())
+
   assertIsUserdataOfType("hs.audiodevice", device:watcherStop())
   assertFalse(device:watcherIsRunning())
 
+  assertIsUserdataOfType("hs.audiodevice", device:watcherCallback(nil))
+
   return success()
 end
+
+function testInputSupportsDataSources()
+  local input = hs.audiodevice.findInputByName("Built-in Microphone")
+  assertTrue(input:supportsInputDataSources())
+
+  local output = hs.audiodevice.findOutputByName("Built-in Output")
+  assertFalse(output:supportsInputDataSources())
+
+  return success()
+end
+
+function testOutputSupportsDataSources()
+  local output = hs.audiodevice.findOutputByName("Built-in Output")
+  assertTrue(output:supportsOutputDataSources())
+
+  local input = hs.audiodevice.findInputByName("Built-in Microphone")
+  assertFalse(input:supportsOutputDataSources())
+
+  return success()
+end
+
+function testCurrentInputDataSource()
+  local device = hs.audiodevice.findInputByName("Built-in Microphone")
+  local dataSource = device:currentInputDataSource()
+  assertIsUserdataOfType("hs.audiodevice.datasource", dataSource)
+
+  return success()
+end
+
+function testCurrentOutputDataSource()
+  local device = hs.audiodevice.findOutputByName("Built-in Output")
+  local dataSource = device:currentOutputDataSource()
+  assertIsUserdataOfType("hs.audiodevice.datasource", dataSource)
+
+  return success()
+end
+
+function testAllInputDataSources()
+  local device = hs.audiodevice.findInputByName("Built-in Microphone")
+  local sources = device:allInputDataSources()
+  assertIsTable(sources)
+  assertGreaterThanOrEqualTo(1, #sources)
+
+  return success()
+end
+
+function testAllOutputDataSources()
+  local device = hs.audiodevice.findOutputByName("Built-in Output")
+  local sources = device:allOutputDataSources()
+  assertIsTable(sources)
+  assertGreaterThanOrEqualTo(1, #sources)
+
+  return success()
+end
+
+-- hs.audiodevice.datasource methods
+function testDataSourceToString()
+  local device = hs.audiodevice.findOutputByName("Built-in Output")
+  local source = device:currentOutputDataSource()
+  assertIsString(tostring(source))
+
+  return success()
+end
+
+function testDataSourceName()
+  local outputDevice = hs.audiodevice.findOutputByName("Built-in Output")
+  local outputDataSource = outputDevice:currentOutputDataSource()
+  assertIsString(outputDataSource:name())
+
+  local inputDevice = hs.audiodevice.findInputByName("Built-in Microphone")
+  local inputDataSource = inputDevice:currentInputDataSource()
+  assertIsString(inputDataSource:name())
+
+  return success()
+end
+
+function testDataSourceSetDefault()
+  local outputDevice = hs.audiodevice.findOutputByName("Built-in Output")
+  local outputDataSourceBefore = outputDevice:currentOutputDataSource()
+  assertIsUserdataOfType("hs.audiodevice.datasource", outputDataSourceBefore:setDefault())
+  local outputDataSourceAfter = outputDevice:currentOutputDataSource()
+  assertIsEqual(outputDataSourceBefore, outputDataSourceAfter)
+
+  local inputDevice = hs.audiodevice.findInputByName("Built-in Microphone")
+  local inputDataSourceBefore = inputDevice:currentInputDataSource()
+  assertIsUserdataOfType("hs.audiodevice.datasource", inputDataSourceBefore:setDefault())
+  local inputDataSourceAfter = inputDevice:currentInputDataSource()
+  assertIsEqual(inputDataSourceBefore, inputDataSourceAfter)
+
+  return success()
+end
+
