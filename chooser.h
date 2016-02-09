@@ -15,10 +15,5 @@
 
 static int refTable = LUA_NOREF;
 
-typedef struct _chooser_userdata_t {
-    int selfRef;
-    void *chooser;
-} chooser_userdata_t;
-
 #pragma mark - Lua API defines
 static int userdata_gc(lua_State *L);
