@@ -1,7 +1,6 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
-
-#import <OSAKit/OSAKit.h>
+@import Cocoa;
+@import LuaSkin;
+@import OSAKit;
 
 /// hs.javascript._javascript(string) -> bool, result
 /// Function
@@ -17,7 +16,7 @@ static int runjavascript(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
     
-    NSString* source = [NSString stringWithUTF8String:lua_tostring(L, 1)];
+    NSString* source = @(lua_tostring(L, 1));
     
     // https://developer.apple.com/library/mac/releasenotes/General/APIDiffsMacOSX10_11/Objective-C/OSAKit.html
     OSAScript *osa = [[OSAScript alloc] initWithSource:source language:[OSALanguage languageForName:@"JavaScript"]];
@@ -36,7 +35,7 @@ static int runjavascript(lua_State* L) {
     BOOL didSucceed = (result != nil);
     
     lua_pushboolean(L, didSucceed);
-    lua_pushstring(L, [[NSString stringWithFormat:@"%@", didSucceed ? result : error] UTF8String]);
+    [skin pushNSObject:[NSString stringWithFormat:@"%@", didSucceed ? result : error]];
 
     return 2;
 }
