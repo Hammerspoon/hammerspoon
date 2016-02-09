@@ -214,8 +214,7 @@ error:
     lua_pushnil(L);
 
 end:
-    if (deviceList)
-        free(deviceList);
+    free(deviceList);
     
     return 1;
 }
@@ -853,8 +852,7 @@ error:
     lua_pushnil(L);
 
 end:
-    if (datasourceList)
-        free(datasourceList);
+    free(datasourceList);
 
     return 1;
 }
@@ -904,8 +902,7 @@ error:
     lua_pushnil(L);
 
 end:
-    if (datasourceList)
-        free(datasourceList);
+    free(datasourceList);
     
     return 1;
 }
