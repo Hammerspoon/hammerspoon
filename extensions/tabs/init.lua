@@ -75,6 +75,7 @@ local function drawTabs(app)
     local win = tabWins[numTabs-i]
     pt.x = pt.x - tabs.tabWidth - tabs.tabPad
     local r = drawing.rectangle({x=pt.x,y=pt.y,w=tabs.tabWidth,h=tabs.tabHeight})
+    r:setClickCallback(nil, function() tabs.focusTab(app, #tabs.tabWindows(app) - i) end)
     r:setFill(true)
     if win == proto then
       r:setFillColor(tabs.selectedColor)
@@ -147,17 +148,19 @@ local appWatches = {}
 --- Places all the windows of an app into one place and tab them
 ---
 --- Parameters:
----  * app - An `hs.application` object
+---  * app - An `hs.application` object or the app title
 ---
 --- Returns:
 ---  * None
-function tabs.enableForApp(appName)
-  appWatches[appName] = true
+function tabs.enableForApp(app)
+  if type(app) == "string" then
+    appWatches[app] = true
+    app = application.get(app)
+  end
 
   -- might already be running
-  local runningApp = application.get(appName)
-  if runningApp then
-    watchApp(runningApp)
+  if app then
+    watchApp(app)
   end
 
   -- set up a watcher to catch any watched app launching or terminating
