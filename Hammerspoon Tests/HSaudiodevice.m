@@ -144,6 +144,7 @@
 }
 
 - (void)testWatcherCallback {
+    SKIP_IN_TRAVIS()
     NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:5.0];
     BOOL result = NO;
 

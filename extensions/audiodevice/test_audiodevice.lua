@@ -221,7 +221,11 @@ end
 
 function testInputSupportsDataSources()
   local input = hs.audiodevice.findInputByName("Built-in Microphone")
-  assertTrue(input:supportsInputDataSources())
+  if not input then
+    print("Host does not have an internal microphone. Skipping due to lack of hardware")
+  else
+    assertTrue(input:supportsInputDataSources())
+  end
 
   local output = hs.audiodevice.findOutputByName("Built-in Output")
   assertFalse(output:supportsInputDataSources())
@@ -234,15 +238,23 @@ function testOutputSupportsDataSources()
   assertTrue(output:supportsOutputDataSources())
 
   local input = hs.audiodevice.findInputByName("Built-in Microphone")
-  assertFalse(input:supportsOutputDataSources())
+  if not input then
+    print("Host does not have an internal microphone. Skipping due to lack of hardware")
+  else
+    assertFalse(input:supportsOutputDataSources())
+  end
 
   return success()
 end
 
 function testCurrentInputDataSource()
   local device = hs.audiodevice.findInputByName("Built-in Microphone")
-  local dataSource = device:currentInputDataSource()
-  assertIsUserdataOfType("hs.audiodevice.datasource", dataSource)
+  if not device then
+    print("Host does not have an internal microphone. Skipping due to lack of hardware")
+  else
+    local dataSource = device:currentInputDataSource()
+    assertIsUserdataOfType("hs.audiodevice.datasource", dataSource)
+  end
 
   return success()
 end
@@ -257,6 +269,11 @@ end
 
 function testAllInputDataSources()
   local device = hs.audiodevice.findInputByName("Built-in Microphone")
+  if not device then
+    print("Host does not have an internal microphone. Skipping due to lack of hardware")
+    return success()
+  end
+
   local sources = device:allInputDataSources()
   assertIsTable(sources)
   assertGreaterThanOrEqualTo(1, #sources)
@@ -288,8 +305,12 @@ function testDataSourceName()
   assertIsString(outputDataSource:name())
 
   local inputDevice = hs.audiodevice.findInputByName("Built-in Microphone")
-  local inputDataSource = inputDevice:currentInputDataSource()
-  assertIsString(inputDataSource:name())
+  if not inputDevice then
+    print("Host does not have an internal microphone. Skipping due to lack of hardware")
+  else
+    local inputDataSource = inputDevice:currentInputDataSource()
+    assertIsString(inputDataSource:name())
+  end
 
   return success()
 end
@@ -302,6 +323,11 @@ function testDataSourceSetDefault()
   assertIsEqual(outputDataSourceBefore, outputDataSourceAfter)
 
   local inputDevice = hs.audiodevice.findInputByName("Built-in Microphone")
+  if not inputDevice then
+    print("Host does not have an internal microphone. Skipping due to lack of hardware")
+    return success()
+  end
+
   local inputDataSourceBefore = inputDevice:currentInputDataSource()
   assertIsUserdataOfType("hs.audiodevice.datasource", inputDataSourceBefore:setDefault())
   local inputDataSourceAfter = inputDevice:currentInputDataSource()
