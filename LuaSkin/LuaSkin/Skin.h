@@ -269,7 +269,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param objectFunctions - A static array of mappings between Lua object method names and C function pointers. This provides the public API of objects created by this library. Note that this object is also used as the metatable, so special functions (e.g. "__gc") should be included here
  @return A Lua reference to the table created for this library to store its own references
  */
-- (int)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions;
+- (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions;
 
 /*!
  @abstract Defines a Lua object with methods
@@ -291,7 +291,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param objectName - A C string containing the name of this object
  @param objectFunctions - A static array of mappings between Lua object method names and C function pointers. This provides the public API of the objects. Note that this array is also used as the metatable, so special functions (e.g. "__gc") should be included here
  */
-- (void)registerObject:(char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions;
+- (void)registerObject:(const char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions;
 
 /*! @methodgroup Referencing Lua objects in Objective C */
 

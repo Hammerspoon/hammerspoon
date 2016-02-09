@@ -169,7 +169,7 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     return luaL_ref(_L, LUA_REGISTRYINDEX);
 }
 
-- (int)registerLibraryWithObject:(char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
+- (int)registerLibraryWithObject:(const char *)libraryName functions:(const luaL_Reg *)functions metaFunctions:(const luaL_Reg *)metaFunctions objectFunctions:(const luaL_Reg *)objectFunctions {
 
     NSAssert(libraryName != NULL, @"libraryName can not be NULL", nil);
     NSAssert(functions != NULL, @"functions can not be NULL (%s)", libraryName);
@@ -182,7 +182,7 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     return moduleRefTable;
 }
 
-- (void)registerObject:(char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {
+- (void)registerObject:(const char *)objectName objectFunctions:(const luaL_Reg *)objectFunctions {
     NSAssert(objectName != NULL, @"objectName can not be NULL", nil);
     NSAssert(objectFunctions != NULL, @"objectFunctions can not be NULL (%s)", objectName);
 
