@@ -8,24 +8,24 @@
 
 #pragma mark - Library defines
 
-#define USERDATA_TAG            "hs.audiodevice"
-#define USERDATA_DATASOURCE_TAG "hs.audiodevice.datasource"
+static const char *USERDATA_TAG            = "hs.audiodevice";
+static const char *USERDATA_DATASOURCE_TAG = "hs.audiodevice.datasource";
 
-#define userdataToAudioDevice(L, idx) ((audiodevice_t*)luaL_checkudata(L, idx, USERDATA_TAG))
-#define userdataToDataSource(L, idx) ((dataSource_t*)luaL_checkudata(L, idx, USERDATA_DATASOURCE_TAG))
+#define userdataToAudioDevice(L, idx) ((audioDeviceUserData*)luaL_checkudata(L, idx, USERDATA_TAG))
+#define userdataToDataSource(L, idx) ((dataSourceUserData*)luaL_checkudata(L, idx, USERDATA_DATASOURCE_TAG))
 
 // Define a datatype for hs.audiodevice objects
-typedef struct _audiodevice_t {
+typedef struct _audioDeviceUserData {
     AudioDeviceID deviceId;
     int callback;
     BOOL watcherRunning;
-} audiodevice_t;
+} audioDeviceUserData;
 
 // Define a datatype for hs.audiodevice.datasource objects
-typedef struct _dataSource_t {
+typedef struct _dataSourceUserData {
     AudioDeviceID hostDevice;
     UInt32 dataSource;
-} dataSource_t;
+} dataSourceUserData;
 
 static const AudioObjectPropertySelector watchSelectors[] = {
     kAudioDevicePropertyMute,
@@ -42,7 +42,7 @@ static int refTable;
 static int audiodevice_watcherSetCallback(lua_State *L);
 static int audiodevice_watcherStart(lua_State *L);
 static int audiodevice_watcherStop(lua_State *L);
-void watcherStop(audiodevice_t *audioDevice);
+void watcherStop(audioDeviceUserData *audioDevice);
 
 #pragma mark - CoreAudio helper functions
 
@@ -50,7 +50,7 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
     dispatch_sync(dispatch_get_main_queue(), ^{
         //NSLog(@"audiodevice_callback called with %i addresses", numAddresses);
 
-        audiodevice_t *userData = (audiodevice_t *)clientData;
+        audioDeviceUserData *userData = (audioDeviceUserData *)clientData;
         LuaSkin *skin = [LuaSkin shared];
         if (userData->callback == LUA_NOREF) {
             [skin logError:@"hs.audiodevice.watcher callback fired, but no function has been set with hs.audiodevice.watcher.setCallback()"];
@@ -78,12 +78,12 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
             for (UInt32 i = 0; i < numAddresses; i++) {
                 [skin pushLuaRef:refTable ref:userData->callback];
                 if (deviceUIDNS) {
-                    lua_pushstring(skin.L, [deviceUIDNS UTF8String]);
+                    lua_pushstring(skin.L, deviceUIDNS.UTF8String);
                 } else {
                     lua_pushnil(skin.L);
                 }
-                lua_pushstring(skin.L, [(__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mSelector) UTF8String]);
-                lua_pushstring(skin.L, [(__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mScope) UTF8String]);
+                lua_pushstring(skin.L, ((__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mSelector)).UTF8String);
+                lua_pushstring(skin.L, ((__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mScope)).UTF8String);
                 lua_pushinteger(skin.L, addressList[i].mElement);
                 [skin protectedCallAndTraceback:4 nresults:0];
             }
@@ -121,7 +121,7 @@ static bool isInputDevice(AudioDeviceID deviceID) {
 
 #pragma mark - Helper functions for creating userdata objects
 void new_device(lua_State* L, AudioDeviceID deviceId) {
-    audiodevice_t *audioDevice = (audiodevice_t *)lua_newuserdata(L, sizeof(audiodevice_t));
+    audioDeviceUserData *audioDevice = (audioDeviceUserData *)lua_newuserdata(L, sizeof(audioDeviceUserData));
     audioDevice->deviceId = deviceId;
     audioDevice->callback = LUA_NOREF;
     audioDevice->watcherRunning = NO;
@@ -131,7 +131,7 @@ void new_device(lua_State* L, AudioDeviceID deviceId) {
 }
 
 void new_dataSource(lua_State *L, AudioDeviceID deviceID, UInt32 dataSource) {
-    dataSource_t *userData = (dataSource_t *)lua_newuserdata(L, sizeof(dataSource_t));
+    dataSourceUserData *userData = (dataSourceUserData *)lua_newuserdata(L, sizeof(dataSourceUserData));
     userData->dataSource = dataSource;
     userData->hostDevice = deviceID;
 
@@ -298,7 +298,7 @@ static int audiodevice_setdefaultoutputdevice(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -331,7 +331,7 @@ static int audiodevice_setdefaultinputdevice(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -364,7 +364,7 @@ static int audiodevice_name(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -377,7 +377,7 @@ static int audiodevice_name(lua_State* L) {
 
     if (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &propertySize, &deviceName) == noErr) {
         NSString *deviceNameNS = (__bridge_transfer NSString *)deviceName;
-        lua_pushstring(L, [deviceNameNS UTF8String]);
+        lua_pushstring(L, deviceNameNS.UTF8String);
     } else {
         lua_pushnil(L);
     }
@@ -398,7 +398,7 @@ static int audiodevice_uid(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -418,7 +418,7 @@ static int audiodevice_uid(lua_State* L) {
     }
 
     NSString *deviceUIDNS = (__bridge NSString *)deviceUID;
-    lua_pushstring(L, [deviceUIDNS UTF8String]);
+    lua_pushstring(L, deviceUIDNS.UTF8String);
 
     CFRelease(deviceUID);
     return 1;
@@ -437,7 +437,7 @@ static int audiodevice_muted(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     unsigned int scope;
     UInt32 muted;
@@ -477,7 +477,7 @@ static int audiodevice_setmuted(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     unsigned int scope;
     UInt32 muted = lua_toboolean(L, 2);
@@ -517,7 +517,7 @@ static int audiodevice_volume(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     unsigned int scope;
     Float32 volume;
@@ -558,7 +558,7 @@ static int audiodevice_setvolume(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     unsigned int scope;
     Float32 volume = (float)(MIN(MAX(luaL_checkinteger(L, 2), 100), 0) / 100);
@@ -599,7 +599,7 @@ static int audiodevice_isOutputDevice(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     lua_pushboolean(L, isOutputDevice(deviceId));
 
@@ -619,7 +619,7 @@ static int audiodevice_isInputDevice(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     lua_pushboolean(L, isInputDevice(deviceId));
 
@@ -639,7 +639,7 @@ static int audiodevice_transportType(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     UInt32 transportType;
     UInt32 transportTypeSize = sizeof(UInt32);
@@ -718,7 +718,7 @@ static int audiodevice_jackConnected(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     UInt32 jackConnected;
     UInt32 jackConnectedSize = sizeof(UInt32);
@@ -752,7 +752,7 @@ static int audiodevice_supportsInputDataSources(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -779,7 +779,7 @@ static int audiodevice_supportsOutputDataSources(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -809,7 +809,7 @@ static int audiodevice_currentInputDataSource(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -846,7 +846,7 @@ static int audiodevice_currentOutputDataSource(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -880,7 +880,7 @@ static int audiodevice_allOutputDataSources(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     UInt32 datasourceListPropertySize = 0;
     UInt32 *datasourceList = NULL;
@@ -933,7 +933,7 @@ static int audiodevice_allInputDataSources(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     UInt32 datasourceListPropertySize = 0;
     UInt32 *datasourceList = NULL;
@@ -1005,7 +1005,7 @@ static int audiodevice_watcherSetCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TNIL, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
 
     audioDevice->callback = [skin luaUnref:refTable ref:audioDevice->callback];
 
@@ -1041,7 +1041,7 @@ static int audiodevice_watcherStart(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
 
     if (audioDevice->callback == LUA_NOREF) {
         [skin logError:@"You must call hs.audiodevice:setCallback() before hs.audiodevice:start()"];
@@ -1075,7 +1075,7 @@ static int audiodevice_watcherStart(lua_State *L) {
     return 1;
 }
 
-void watcherStop(audiodevice_t *audioDevice) {
+void watcherStop(audioDeviceUserData *audioDevice) {
     if (audioDevice->watcherRunning == NO) {
         return;
     }
@@ -1109,7 +1109,7 @@ static int audiodevice_watcherStop(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
 
     watcherStop(audioDevice);
 
@@ -1131,7 +1131,7 @@ static int audiodevice_watcherIsRunning(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
 
     lua_pushboolean(L, audioDevice->watcherRunning);
 
@@ -1142,7 +1142,7 @@ static int audiodevice_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     CFStringRef deviceName;
     UInt32 propertySize = sizeof(CFStringRef);
@@ -1169,8 +1169,8 @@ static int audiodevice_eq(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *deviceA = userdataToAudioDevice(L, 1);
-    audiodevice_t *deviceB = userdataToAudioDevice(L, 2);
+    audioDeviceUserData *deviceA = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *deviceB = userdataToAudioDevice(L, 2);
     lua_pushboolean(L, deviceA->deviceId == deviceB->deviceId);
 
     return 1;
@@ -1180,7 +1180,7 @@ static int audiodevice_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    audiodevice_t *audioDevice = userdataToAudioDevice(L, 1);
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
 
     audiodevice_watcherStop(L);
 
@@ -1238,10 +1238,10 @@ static int datasource_name(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_DATASOURCE_TAG, LS_TBREAK];
 
-    dataSource_t *dataSource = userdataToDataSource(L, 1);
+    dataSourceUserData *dataSource = userdataToDataSource(L, 1);
     NSString *name = get_datasource_name(dataSource->hostDevice, dataSource->dataSource);
 
-    lua_pushstring(L, [name UTF8String]);
+    lua_pushstring(L, name.UTF8String);
 
     return 1;
 }
@@ -1259,7 +1259,7 @@ static int datasource_setDefault(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_DATASOURCE_TAG, LS_TBREAK];
 
-    dataSource_t *dataSource = userdataToDataSource(L, 1);
+    dataSourceUserData *dataSource = userdataToDataSource(L, 1);
     AudioObjectPropertyScope scope;
 
     if (isOutputDevice(dataSource->hostDevice)) {
@@ -1289,7 +1289,7 @@ static int datasource_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_DATASOURCE_TAG, LS_TBREAK];
 
-    dataSource_t *dataSource = userdataToDataSource(L, 1);
+    dataSourceUserData *dataSource = userdataToDataSource(L, 1);
     NSString *name = get_datasource_name(dataSource->hostDevice, dataSource->dataSource);
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_DATASOURCE_TAG, name, lua_topointer(L, 1)] UTF8String]) ;
@@ -1301,8 +1301,8 @@ static int datasource_eq(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_DATASOURCE_TAG, LS_TUSERDATA, USERDATA_DATASOURCE_TAG, LS_TBREAK];
 
-    dataSource_t *sourceA = userdataToDataSource(L, 1);
-    dataSource_t *sourceB = userdataToDataSource(L, 2);
+    dataSourceUserData *sourceA = userdataToDataSource(L, 1);
+    dataSourceUserData *sourceB = userdataToDataSource(L, 2);
     lua_pushboolean(L, sourceA->dataSource == sourceB->dataSource);
 
     return 1;
