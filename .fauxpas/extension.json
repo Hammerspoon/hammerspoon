@@ -1,0 +1,840 @@
+// Generated from the Faux Pas GUI
+{
+    // Xcode target to check (String)
+    "target": "audiodevice",
+    // Xcode build configuration to check (String)
+    "buildConfig": "Debug",
+    // Rules to apply (Array of strings)
+    "rules": ["APIAvailability","BuildSettingsSetInGUI","DefaultInExhaustiveSwitch","DotSyntax","ImplicitAtomicProperty","InstanceMethodWritesToStaticVariable","MacroLiteral","MallocCast","MallocWithoutSizeof","NewInitializer","NonTypedefBlockDeclaration","ReservedIdentifierNaming","StrongInsteadOfRetain","ThrowingObjCException","UnusedMethod","UnusedResource","UnusedTranslation","UsedVariableMarkedUnused","XIBUnknownClassReference"],
+    // Rules to apply only (Array of strings)
+    //"onlyRules": [],
+    // Rule tags to apply (Array of strings)
+    //"ruleTags": ["Recommended"],
+    // Rules to exclude (Array of strings)
+    //"excludedRules": [],
+    // Prefixes of files to exclude (Array of strings)
+    //"fileExclusionPrefixes": [],
+    // Xcode groups to exclude (Array of strings)
+    //"fileExclusionXcodeGroups": ["Vendor"],
+    // Regexes for files to exclude (Array of regular expression strings)
+    //"fileExclusionRegexes": [],
+    // Minimum diagnostic severity to return nonzero exit status ("Concern" /
+    // "Warning" / "Error" / "Fatal" / "None")
+    //"minErrorStatusSeverity": "Error",
+    // Xcode workspace to build project with (File path)
+    "workspace": "Hammerspoon.xcworkspace",
+    // Xcode scheme to build project with (String)
+    "scheme": "Hammerspoon",
+    // Number of concurrent file checking jobs (Positive integer)
+    "numConcurrentJobs": null,
+    // Additional compiler arguments to use (Array of strings)
+    //"extraCompilerArgs": [],
+    // Additional xcodebuild arguments to use (Array of strings)
+    //"extraXcodebuildArgs": [],
+    // Build project before checking (Boolean)
+    "fullBuild": true,
+    // Cache project build logs (Boolean)
+    //"cacheBuildLog": true,
+    // Use our own modules cache (Boolean)
+    //"useOwnModulesCache": true,
+    // Process only target precompiled headers (Boolean)
+    //"processOnlyTargetPCHs": true,
+    // Verbose output (Boolean)
+    //"verbose": false,
+    // Output format ("human" / "json" / "plist" / "xcode")
+    //"outputFormat": "human",
+
+    // Options for rules:
+    "ruleOptions": {
+        // Options for localization rules
+        "_LocalizationRules": {
+            // Functions used in place of NSLocalizedString (Array of strings)
+            //"localizedStringRoutines": []
+        },
+        // Options for rule: +[NSObject load] method without an
+        // @autoreleasepool
+        "LoadMethodWithoutAutoreleasePool": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Absolute path in build setting value
+        "AbsPathInBuildSetting": {
+            // Allow system paths (Boolean)
+            //"allowSystemPaths": false
+            // Regexes for allowed paths (Array of regular expression strings)
+            //"allowedPathRegexes": null
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Assigning delegate property
+        "AssigningDelegate": {
+            // Allow unsafe_unretained delegates (Boolean)
+            //"allowUnsafeUnretained": false
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Assignment of literal zero to pointer
+        "ZeroAssignmentToPointer": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Assignment of weak-unavailable object to a weak
+        // property
+        "UnsupportedWeakReference": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Associated object on value-like type
+        "AssociatedObjectOnValueType": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Block-typed declaration without typedef
+        "NonTypedefBlockDeclaration": {
+            // Apply only to function/method arguments (Boolean)
+            //"onlyArguments": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Build settings set in Xcode GUI
+        "BuildSettingsSetInGUI": {
+            // Which settings are allowed to be set in the GUI (Array of
+            // strings)
+            //"allowedGUISettings": ["CODE_SIGN_IDENTITY","PROVISIONING_PROFILE"]
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Casting the return value of malloc()
+        "MallocCast": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Category used for “private” declarations
+        "PrivateCategory": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Class implements -isEqual: but not -hash
+        "IsEqualAndHash": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Code refers to unknown resource
+        "UnknownResourceCodeReference": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Complete NSNotificationCenter detachment
+        "CompleteNotificationCenterDetachment": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Conflicting category methods
+        "CategoryMethodConflict": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Constructor return type
+        "ConstructorReturnType": {
+            // Check init methods (Boolean)
+            //"checkInitMethods": false
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Copying property of mutable NSCopying type
+        "CopyingMutableProperty": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Direction of ordered comparison operators
+        "OrderedComparisonOpDirection": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Discarded opaque NSNotificationCenter observer
+        "DiscardedOpaqueNotificationObserver": {
+            // Do not warn if explicitly cast to void (Boolean)
+            //"suppressViaVoidCast": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Dot syntax usage
+        "DotSyntax": {
+            // Enforce dot syntax only for properties (Boolean)
+            //"onlyForProperties": true,
+            // Square bracket syntax method whitelist (Array of strings)
+            "allowedMethods": ["alloc","autorelease","becomeFirstResponder","new","release","retain","runModal","setNeedsDisplay:"]
+            // Allow factory methods like +[NSArray array] (Boolean)
+            //"allowConstructors": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Duplicate resource
+        "DuplicateResource": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Duplicate translation
+        "DuplicateTranslation": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Dynamic library install name
+        "DylibInstallName": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Element variable of fast enumeration loop declared
+        // outside the loop
+        "FastEnumElementOutside": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Fixed-format NSDateFormatter not using invariant
+        // (POSIX) locale
+        "FixedFormatDateFormatter": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Fragile error condition check
+        "ErrorConditionCheck": {
+            // Apply only to system framework methods (Boolean)
+            //"onlySystemFrameworks": false
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Global and localized resource
+        "GlobalAndLocalizedResource": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Globally caching a thread-unsafe class instance
+        "ThreadUnsafeInstanceCaching": {
+            // The thread-unsafe classes to warn about (Array of strings)
+            "classNames": ["NSDateFormatter","NSMutableArray","NSMutableAttributedString","NSMutableCharacterSet","NSMutableData","NSMutableDictionary","NSMutableSet","NSMutableString","NSNumberFormatter"]
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Hardcoded self class reference
+        "HardcodedSelfClass": {
+            // Warn only about allocations (Boolean)
+            //"warnOnlyAboutAlloc": false
+            // Check only factory methods (Boolean)
+            //"checkOnlyFactoryMethods": false
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: IBOutlets in public interface
+        "IBOutletsInPublicInterface": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Identifier naming
+        "IdentifierNaming": {
+            // Instance variable name format regex (Regular expression)
+            //"ivarNameFormat": "^_.+"
+            // Local variable name format regex (Regular expression)
+            //"localVarNameFormat": "^[^_].*"
+            // Function name format regex (Regular expression)
+            //"functionNameFormat": null
+            // Typedef name format regex (Regular expression)
+            //"typedefNameFormat": null
+            // Macro name format regex (Regular expression)
+            //"macroNameFormat": null
+            // Objective-C method name format regex (Regular expression)
+            //"objcMethodNameFormat": null
+            // Objective-C class name format regex (Regular expression)
+            //"objcClassNameFormat": null
+            // Objective-C category name format regex (Regular expression)
+            //"objcCategoryNameFormat": null
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Implicit bundle identifier
+        "ImplicitBundleId": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Implicitly atomic property
+        "ImplicitAtomicProperty": {
+            // Apply only to UIKit/AppKit subclasses (Boolean)
+            //"applyOnlyToUIClasses": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Incorrect placement of build setting value
+        "BuildSettingPlacement": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Instance method writes to static variable
+        "InstanceMethodWritesToStaticVariable": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Invalid string resource file
+        "InvalidStringsFile": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Invocation of superclass implementation of
+        // +[NSObject initialize]
+        "InitializeSuperInvocation": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Literal string for key path
+        "LiteralStringKeyPath": {
+            // Ignore -valueForKey: (etc) for collections (Boolean)
+            //"ignoreCollectionsValueForKey": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Macro definition for literal value
+        "MacroLiteral": {
+            // Allowed literal values (Array of strings)
+            //"allowedLiterals": ["0","1"]
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Macro-based include guard
+        "MacroBasedIncludeGuard": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Memory allocation without using sizeof
+        "MallocWithoutSizeof": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Method swizzling
+        "Swizzling": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Missing API usage description
+        "MissingAPIUsageDescription": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Missing NSNotificationCenter observer detachment
+        "MissingNotificationCenterDetachment": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Missing device type resource
+        "MissingDeviceTypeResource": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Missing image resolution variant
+        "MissingImageResolutionVariant": {
+            // Expected resolution scales (Array of numbers)
+            //"expectedScales": ["1","2","3"]
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Missing translation
+        "MissingTranslation": {
+            // Warn about missing development region translations (Boolean)
+            //"checkDevRegion": false
+            // Ignored key prefixes (Array of strings)
+            //"ignoredKeyPrefixes": []
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Modifying the value of an argument variable
+        "ArgumentModification": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Moving common inclusions into prefix header
+        "PrefixHeaderIncludeSuggestion": {
+            // Show including files (Boolean)
+            //"showFiles": false
+            // Warning threshold percentage (Positive integer)
+            //"warningThresholdPercent": 30
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: NSLog() used in release build
+        "NSLogUsed": {
+            // Allow calling NSLog() via macros (Boolean)
+            //"allowMacros": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Non-copying property of immutable NSCopying type
+        "RetainingImmutableProperty": {
+            // Ignore private properties (Boolean)
+            //"ignorePrivateProperties": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Null coalescing operator usage
+        "NullCoalescingOp": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Observing UIKit object using KVO
+        "UIKitKVO": {
+            // Allow observing custom UIKit subclasses (Boolean)
+            //"allowSubclasses": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Old, verbose Objective-C syntax
+        "OldVerboseObjCSyntax": {
+            // Expect literal syntax for mutable collections (Boolean)
+            //"expectLiteralSyntaxForMutableCollections": false
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Ordered comparison of pointer and zero
+        "OrderedPointerToZeroComparison": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Overridden +[NSObject initialize] method in a
+        // category
+        "InitializeMethodCategoryOverride": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Possibly unused Objective-C method
+        "UnusedMethod": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Possibly unused resource
+        "UnusedResource": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Potential assertion side effects
+        "AssertionSideEffects": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Problematic release build compiler arguments
+        "ReleaseBuildCompilerArgs": {
+            // Required compiler arguments for all files (Array of strings)
+            "requiredArguments": ["-DNDEBUG","-DNS_BLOCK_ASSERTIONS"]
+            // Disallowed compiler arguments for all files (Array of strings)
+            //"disallowedArguments": []
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Problematic release build settings
+        "ReleaseBuildConfig": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Project reference to file ignored in the VCS
+        "FileRefIgnoredInVCS": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            "ignoredFileRegexes": [".*/LuaSkin.framework",".*/docs.json"]
+        },
+        // Options for rule: Project reference to file outside version control
+        // root
+        "FileRefOutsideVCS": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Project reference to file using absolute path
+        "FileRefWithAbsPath": {
+            // Allow system paths (Boolean)
+            //"allowSystemPaths": false
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Recommended VCS ignores
+        "RecommendedVCSIgnores": {
+            // Whether the Xcode workspace data should be ignored (Boolean)
+            //"workspaceIgnored": false
+            // Whether CocoaPods data should be ignored (Boolean)
+            //"cocoaPodsIgnored": false
+            // Whether Carthage/Build should be ignored (Boolean)
+            //"carthageBuildIgnored": true
+            // Whether Carthage/Checkouts should be ignored (Boolean)
+            //"carthageCheckoutsIgnored": false
+            // Whether user-specific AppCode data should be ignored (Boolean)
+            //"appCodeUserDataIgnored": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Recommended compiler warning options
+        "CompilerWarnings": {
+            // Recommended warning flags (Array of strings)
+            "flags": ["-Wall","-Wconversion","-Wdeprecated-implementations","-Wempty-body","-Werror","-Wextra","-Wfloat-equal","-Wimplicit-retain-self","-Wnewline-eof","-Wreturn-type","-Wshadow","-Wsign-compare","-Wundef"]
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Recommended project settings
+        "BasicProjectSettings": {
+            // The indentation type that should be set ("tabs" / "spaces")
+            //"indentType": null
+            // The ‘tab width’ that should be set (Positive integer)
+            //"tabWidth": null
+            // The ‘indent width’ that should be set (Positive integer)
+            //"indentWidth": null
+            // Whether the ‘wrap lines’ setting should be set or not ("wrap" /
+            // "nowrap")
+            //"wrapLines": null
+            // Whether the ‘class prefix’ project setting should have a value
+            // (Boolean)
+            //"expectClassPrefix": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Redundant inclusion directive
+        "RedundantInclude": {
+            // Ignore system headers (Boolean)
+            //"ignoreSystemHeaders": true
+            // Ignore indirect inclusions (Boolean)
+            //"ignoreIndirectInclusions": false
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Reserved identifier name
+        "ReservedIdentifierNaming": {
+            // Check for identifier names reserved by the C standard (Boolean)
+            //"checkCStandard": true
+            // Check for identifier names reserved by the POSIX standard
+            // (Boolean)
+            //"checkPOSIXStandard": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Reserved symbol prefix
+        "ReservedPrefix": {
+            // Allow two-character prefixes that don’t overlap system
+            // frameworks (Boolean)
+            //"allowNonOverlappingTwoCharPrefix": false
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Restricted direct method call
+        "RestrictedDirectMethodCall": {
+            // Allow direct calls from subclasses (Boolean)
+            //"allowInSubclass": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Restricted method override
+        "RestrictedMethodOverride": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Retain cycle in block API usage
+        "BlockAPIRetainCycle": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Retaining or copying delegate
+        "StrongDelegate": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Setter invocation in init or dealloc method
+        "SetterInvocationInInitOrDealloc": {
+            // Apply to init methods (Boolean)
+            //"applyToInit": true
+            // Apply to dealloc methods (Boolean)
+            //"applyToDealloc": true
+            // Warn only if ivar available (Boolean)
+            //"onlyIfIvarAvailable": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Shortcut initializer
+        "NewInitializer": {
+            // Prefer the alloc-init style (Boolean)
+            //"preferAllocInit": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: String resource file is not UTF-8
+        "StringsFileEncoding": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Stringsdict file without matching string resource
+        // file
+        "StringsdictWithoutStrings": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Suspicious bundle resources
+        "SuspiciousResources": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Suspicious date-time format
+        "SuspiciousDateTimeFormat": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Suspicious missing bundle resources
+        "SuspiciousMissingResources": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Terminating the app in a release build
+        "TerminatingApp": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Throwing an Objective-C exception
+        "ThrowingObjCException": {
+            // Allow if sole statement (Boolean)
+            //"allowIfSoleStatement": false
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Translation border punctuation mismatch
+        "TranslationPunctuation": {
+            // Punctuation characters that should match (String)
+            //"punctuationChars": ".,:;!?…。"
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Translation format mismatch
+        "TranslationFormatMismatch": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: UI String not localized
+        "HardcodedUIString": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Uncommented localized string
+        "UncommentedLocalizedString": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Undetached delegate or data source
+        "UndetachedDelegate": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unexpected retina image resolution
+        "RetinaImagesResolution": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unidiomatic accessor naming
+        "UnidiomaticAccessorNaming": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unknown resource file name modifier
+        "UnknownResourceModifier": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unnecessary NULL check before free()
+        "UnnecessaryNullCheck": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unnecessary Nib method
+        "UnnecessaryNibMethod": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unnecessary default case in exhaustive switch
+        // statement
+        "DefaultInExhaustiveSwitch": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unprefixed Objective-C class
+        "UnprefixedClass": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unprefixed category method
+        "UnprefixedCategoryMethod": {
+            // Allowed prefixes (Array of strings)
+            //"prefixes": null
+            // Ignore setters (Boolean)
+            //"ignoreSetters": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unused error value
+        "UnusedErrorValue": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Unused translation
+        "UnusedTranslation": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Usage of retain in ARC code
+        "StrongInsteadOfRetain": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Use of API not available in the minimum deployment
+        // target
+        "APIAvailability": {
+            // Avoid false positives (Boolean)
+            //"avoidFalsePositives": true
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Using -[UIViewController initWithNibName:bundle:]
+        // outside the UIViewController implementation
+        "ViewControllerInitWithNibName": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Using a variable marked unused
+        "UsedVariableMarkedUnused": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Weak reference to top-level XIB object
+        "WeakReferenceToTopLevelXIBObject": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: XIB Reference to unknown class
+        "XIBUnknownClassReference": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: XIB User-defined runtime attribute mismatch
+        "XIBRuntimeAttributeMismatch": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: XIB refers to unknown resource
+        "UnknownResourceXIBReference": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Xcode build configuration file overwrites
+        // previously set value
+        "XcconfigOverwrites": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        },
+        // Options for rule: Xcode build setting refers to itself
+        "BuildSettingSelfReference": {
+            // Regexes for ignored file paths (Array of regular expression
+            // strings)
+            //"ignoredFileRegexes": null
+        }
+    }
+}
