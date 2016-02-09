@@ -8949,6 +8949,10 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Debug;
 		};
@@ -9020,6 +9024,10 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};
@@ -12754,6 +12762,11 @@
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+				);
 			};
 			name = Debug;
 		};
@@ -12792,6 +12805,11 @@
 					dynamic_lookup,
 				);
 				SDKROOT = macosx;
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+				);
 			};
 			name = Release;
 		};
