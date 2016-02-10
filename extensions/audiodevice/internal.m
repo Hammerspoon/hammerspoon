@@ -3,8 +3,8 @@
 @import CoreAudio;
 @import AudioToolbox;
 @import Foundation;
-@import LuaSkin;
 @import Darwin.C.math;
+#import <LuaSkin/LuaSkin.h>
 
 #pragma mark - Library defines
 

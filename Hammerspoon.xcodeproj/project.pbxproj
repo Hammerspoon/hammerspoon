@@ -135,6 +135,8 @@
 		4F6B3F7D1B73F47A00B2A4DE /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FBE2D131B72635400407788 /* Carbon.framework */; };
 		4F6B3F7E1B73F48100B2A4DE /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0F97561ADE9F8600F2A199 /* Fabric.framework */; };
 		4F6B3F821B73F49500B2A4DE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6B3F811B73F49500B2A4DE /* internal.m */; };
+		4F6CE1311C6B93A90016668E /* test_timer.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F6CE1301C6B93A90016668E /* test_timer.lua */; };
+		4F6CE1341C6B93E10016668E /* HStimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6CE1331C6B93E10016668E /* HStimer.m */; };
 		4F70EECD1B726D170025A7B3 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4F70EECE1B726D170025A7B3 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F70EED71B726D3F0025A7B3 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F70EED61B726D3F0025A7B3 /* internal.m */; };
@@ -911,6 +913,8 @@
 		4F6B3F801B73F49500B2A4DE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/sound/init.lua; sourceTree = "<group>"; };
 		4F6B3F811B73F49500B2A4DE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/sound/internal.m; sourceTree = "<group>"; };
 		4F6B3F861B73F86E00B2A4DE /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/spotify/init.lua; sourceTree = "<group>"; };
+		4F6CE1301C6B93A90016668E /* test_timer.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_timer.lua; path = extensions/timer/test_timer.lua; sourceTree = "<group>"; };
+		4F6CE1331C6B93E10016668E /* HStimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HStimer.m; sourceTree = "<group>"; };
 		4F70EED31B726D170025A7B3 /* libaudiodevice.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libaudiodevice.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F70EED51B726D3F0025A7B3 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/audiodevice/init.lua; sourceTree = "<group>"; };
 		4F70EED61B726D3F0025A7B3 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/audiodevice/internal.m; sourceTree = "<group>"; };
@@ -2312,6 +2316,7 @@
 			children = (
 				4FD0AB381B7486B100A82496 /* init.lua */,
 				4FD0AB391B7486B100A82496 /* internal.m */,
+				4F6CE1301C6B93A90016668E /* test_timer.lua */,
 			);
 			name = timer;
 			sourceTree = "<group>";
@@ -2740,6 +2745,7 @@
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
 				4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
+				4F6CE1331C6B93E10016668E /* HStimer.m */,
 			);
 			path = "Hammerspoon Tests";
 			sourceTree = "<group>";
@@ -4547,6 +4553,7 @@
 			files = (
 				D02F95341A003A2900E28BB2 /* init.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
+				4F6CE1311C6B93A90016668E /* test_timer.lua in Resources */,
 				4CEDEE1D1C640FDB005CBF97 /* test_javascript.lua in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5171,6 +5178,7 @@
 			files = (
 				D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */,
 				4FEF4D521C5FA1DD00E3B939 /* HSTestCase.m in Sources */,
+				4F6CE1341C6B93E10016668E /* HStimer.m in Sources */,
 				4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */,
 				4CEDEE1C1C640D11005CBF97 /* HSjavascript.m in Sources */,
 			);
@@ -12766,6 +12774,7 @@
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
 					"-Wno-objc-missing-property-synthesis",
+					"-Wno-auto-import",
 				);
 			};
 			name = Debug;
@@ -12809,6 +12818,7 @@
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
 					"-Wno-objc-missing-property-synthesis",
+					"-Wno-auto-import",
 				);
 			};
 			name = Release;
@@ -12894,6 +12904,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/Contents/MacOS/Hammerspoon";
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+				);
 			};
 			name = Debug;
 		};
@@ -12915,6 +12930,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Hammerspoon.app/Contents/MacOS/Hammerspoon";
+				WARNING_CFLAGS = (
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-objc-missing-property-synthesis",
+				);
 			};
 			name = Release;
 		};

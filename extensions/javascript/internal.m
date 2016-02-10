@@ -1,6 +1,6 @@
 @import Cocoa;
-@import LuaSkin;
 @import OSAKit;
+#import <LuaSkin/LuaSkin.h>
 
 /// hs.javascript._javascript(string) -> bool, result
 /// Function
