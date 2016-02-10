@@ -561,7 +561,16 @@ static int audiodevice_setvolume(lua_State* L) {
     audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     unsigned int scope;
-    Float32 volume = (float)(MIN(MAX(luaL_checkinteger(L, 2), 100), 0) / 100);
+    int value = (int)lua_tointeger(L, 2);
+
+    if (value < 0) {
+        value = 0;
+    }
+    if (value > 100) {
+        value = 100;
+    }
+
+    Float32 volume = (Float32)value / 100.0;
     UInt32 volumeSize = sizeof(Float32);
 
     if (isOutputDevice(deviceId)) {

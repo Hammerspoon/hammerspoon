@@ -154,21 +154,22 @@ end
 
 function testVolume()
   local device = hs.audiodevice.defaultOutputDevice()
-  local wasVolume = device:volume()
-  local wantVolume = wasVolume + 1
+  originalVolume = device:volume()
+  wantVolume = 25
 
-  if (type(wasVolume) ~= "number") then
+  if (type(originalVolume) ~= "number") then
     print("Audiodevice does not support volume. Skipping test due to lack of hardware")
     return success()
   end
 
-  if (wantVolume > 100) then
-    wantVolume = 1
-  end
-
-  -- We can't test this properly because the OS sets the volume asynchronously, so we'll just ensure that C thinks it changed, and put it back
+  -- Set the volume to 0 and test if we can set it to a high value
+  assertTrue(device:setVolume(0))
   assertTrue(device:setVolume(wantVolume))
-  assertTrue(device:setVolume(wasVolume))
+
+  assertIsEqual(wantVolume, device:volume())
+
+  -- Be nice and put the volume back where we found it
+  device:setVolume(originalVolume)
 
   return success()
 end
