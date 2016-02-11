@@ -33,6 +33,19 @@
     return [result isEqualToString:@"Success"];
 }
 
+- (BOOL)luaTestWithCheckAndTimeOut:(NSTimeInterval)timeOut setupCode:(NSString *)setupCode checkCode:(NSString *)checkCode {
+    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeOut];
+    BOOL result = NO;
+
+    [self runLua:setupCode];
+
+    while (result == NO && ([timeoutDate timeIntervalSinceNow] > 0)) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.5, NO);
+        result = [self luaTest:checkCode];
+    }
+
+    return result;
+}
 - (BOOL)luaTestFromSelector:(SEL)selector {
     NSString *funcName = NSStringFromSelector(selector);
     NSLog(@"Calling Lua function from selector: %@()", funcName);
