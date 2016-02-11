@@ -1,23 +1,23 @@
-#import <Cocoa/Cocoa.h>
-#import <sys/time.h>
+@import Cocoa;
+@import Darwin.POSIX.sys.time;
 #import <LuaSkin/LuaSkin.h>
 
 // Common Code
 
-#define USERDATA_TAG    "hs.timer"
-int refTable;
+static const char *USERDATA_TAG = "hs.timer";
+static int refTable;
 
 // Not so common code
 
-typedef struct _timer_t {
+typedef struct _timerUserData {
     CFRunLoopTimerRef t;
     int fn;
     BOOL started;
     BOOL continueOnError;
-} timer_t;
+} timerUserData;
 
 static void timerCallback(CFRunLoopTimerRef __unused timer, void *info) {
-    timer_t* t = info;
+    timerUserData* t = info;
 
     LuaSkin *skin = [LuaSkin shared];
     lua_State *L = skin.L;
@@ -60,8 +60,8 @@ static int timer_new(lua_State* L) {
 
     NSTimeInterval sec = lua_tonumber(L, 1);
 
-    timer_t* timer = lua_newuserdata(L, sizeof(timer_t));
-    memset(timer, 0, sizeof(timer_t));
+    timerUserData* timer = lua_newuserdata(L, sizeof(timerUserData));
+    memset(timer, 0, sizeof(timerUserData));
 
     lua_pushvalue(L, 2);
     timer->fn = [skin luaRef:refTable];
@@ -97,7 +97,7 @@ static int timer_start(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    timer_t* timer = lua_touserdata(L, 1);
+    timerUserData* timer = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (timer->started) return 1;
@@ -128,8 +128,8 @@ static int timer_doAfter(lua_State* L) {
 
     NSTimeInterval sec = lua_tonumber(L, 1);
 
-    timer_t* timer = lua_newuserdata(L, sizeof(timer_t));
-    memset(timer, 0, sizeof(timer_t));
+    timerUserData* timer = lua_newuserdata(L, sizeof(timerUserData));
+    memset(timer, 0, sizeof(timerUserData));
 
     lua_pushvalue(L, 2);
     timer->fn = [skin luaRef:refTable];
@@ -180,7 +180,7 @@ static int timer_usleep(lua_State* L) {
 static int timer_running(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timer_t* timer = lua_touserdata(L, 1);
+    timerUserData* timer = lua_touserdata(L, 1);
 
     lua_pushboolean(L, CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes));
     return 1;
@@ -203,7 +203,7 @@ static int timer_running(lua_State* L) {
 static int timer_nextTrigger(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timer_t* timer = lua_touserdata(L, 1);
+    timerUserData* timer = lua_touserdata(L, 1);
 
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime next = CFRunLoopTimerGetNextFireDate(timer->t);
@@ -225,7 +225,7 @@ static int timer_nextTrigger(lua_State *L) {
 static int timer_setNextTrigger(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
-    timer_t* timer = lua_touserdata(L, 1);
+    timerUserData* timer = lua_touserdata(L, 1);
     double seconds = lua_tonumber(L, 2);
 
     CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + seconds);
@@ -246,7 +246,7 @@ static int timer_setNextTrigger(lua_State *L) {
 static int timer_stop(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timer_t* timer = lua_touserdata(L, 1);
+    timerUserData* timer = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (!timer->started) return 1;
@@ -259,7 +259,7 @@ static int timer_stop(lua_State* L) {
 static int timer_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timer_t* timer = lua_touserdata(L, 1);
+    timerUserData* timer = lua_touserdata(L, 1);
 
     if (timer) {
         timer->fn = [skin luaUnref:refTable ref:timer->fn];
@@ -289,7 +289,7 @@ static int meta_gc(lua_State* __unused L) {
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timer_t* timer = lua_touserdata(L, 1);
+    timerUserData* timer = lua_touserdata(L, 1);
     NSString* title ;
 
     if (!timer->t || !CFRunLoopTimerIsValid(timer->t)) {
