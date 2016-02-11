@@ -112,7 +112,7 @@ function module.weeks(n)   return 60 * 60 * 24 * 7 * n end
 ---
 --- Notes:
 ---  * The timer is stopped before `actionFn` is called, but the timer is passed as an argument to `actionFn` so that the actionFn may restart the timer to be called again the next time predicateFn returns true.
----  * See also `hs.timer.waitWhile`
+---  * See also `hs.timer.waitWhile`, which is essentially the opposite of this function
 module.waitUntil = function(predicateFn, actionFn, checkInterval)
   checkInterval = checkInterval or 1
 
@@ -140,7 +140,7 @@ end
 ---
 --- Notes:
 ---  * The timer is passed as an argument to `actionFn` so that it may stop the timer prematurely (i.e. before predicateFn returns true) if desired.
----  * See also `hs.timer.doWhile`
+---  * See also `hs.timer.doWhile`, which is essentially the opposite of this function
 module.doUntil = function(predicateFn, actionFn, checkInterval)
   checkInterval = checkInterval or 1
   local stopWatch
@@ -185,7 +185,7 @@ end
 ---
 --- Notes:
 ---  * The timer is stopped before `actionFn` is called, but the timer is passed as an argument to `actionFn` so that the actionFn may restart the timer to be called again the next time predicateFn returns false.
----  * See also `hs.timer.waitUntil`
+---  * See also `hs.timer.waitUntil`, which is essentially the opposite of this function
 module.waitWhile = function(predicateFn, ...)
   return module.waitUntil(function() return not predicateFn() end, ...)
 end
@@ -204,7 +204,7 @@ end
 ---
 --- Notes:
 ---  * The timer is passed as an argument to `actionFn` so that it may stop the timer prematurely (i.e. before predicateFn returns false) if desired.
----  * See also `hs.timer.doUntil`
+---  * See also `hs.timer.doUntil`, which is essentially the opposite of this function
 module.doWhile = function(predicateFn, ...)
   return module.doUntil(function() return not predicateFn() end, ...)
 end

@@ -216,7 +216,7 @@ function testWatcherCallbackResult()
   if testWatcherCallbackSuccess then
     return success()
   else
-    return "Failure"
+    return "Waiting for success..."
   end
 end
 
