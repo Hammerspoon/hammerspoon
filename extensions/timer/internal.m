@@ -56,9 +56,9 @@ static void timerCallback(CFRunLoopTimerRef __unused timer, void *info) {
 ///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.  This can be overriden for this constructor by passing in true for continueOnError.
 static int timer_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TNUMBER, LS_TFUNCTION, LS_TBOOLEAN | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
-    NSTimeInterval sec = luaL_checknumber(L, 1);
-    luaL_checktype(L, 2, LUA_TFUNCTION);
+    NSTimeInterval sec = lua_tonumber(L, 1);
 
     timer_t* timer = lua_newuserdata(L, sizeof(timer_t));
     memset(timer, 0, sizeof(timer_t));
@@ -124,9 +124,9 @@ static int timer_start(lua_State* L) {
 ///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.
 static int timer_doAfter(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TNUMBER, LS_TFUNCTION, LS_TBREAK];
 
-    NSTimeInterval sec = luaL_checknumber(L, 1);
-    luaL_checktype(L, 2, LUA_TFUNCTION);
+    NSTimeInterval sec = lua_tonumber(L, 1);
 
     timer_t* timer = lua_newuserdata(L, sizeof(timer_t));
     memset(timer, 0, sizeof(timer_t));
@@ -160,6 +160,8 @@ static int timer_doAfter(lua_State* L) {
 /// Notes:
 ///  * Use of this function is strongly discouraged, as it blocks all main-thread execution in Hammerspoon. This means no hotkeys or events will be processed in that time. This is only provided as a last resort, or for extremely short sleeps. For all other purposes, you really should be splitting up your code into multiple functions and calling `hs.timer.doAfter()`
 static int timer_usleep(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TNUMBER, LS_TBREAK];
     useconds_t microsecs = (useconds_t)lua_tointeger(L, 1);
     usleep(microsecs);
 
@@ -176,7 +178,9 @@ static int timer_usleep(lua_State* L) {
 /// Returns:
 ///  * A boolean value indicating whether or not the timer is currently running.
 static int timer_running(lua_State* L) {
-    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    timer_t* timer = lua_touserdata(L, 1);
 
     lua_pushboolean(L, CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes));
     return 1;
@@ -197,7 +201,9 @@ static int timer_running(lua_State* L) {
 ///   * Hammerspoon's runloop is backlogged and is catching up on missed timer triggers
 ///   * The timer object is not currently running. In this case, the return value of this method is the number of seconds since the last firing (you can check if the timer is running or not, with `hs.timer:running()`
 static int timer_nextTrigger(lua_State *L) {
-    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    timer_t* timer = lua_touserdata(L, 1);
 
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     CFAbsoluteTime next = CFRunLoopTimerGetNextFireDate(timer->t);
@@ -217,8 +223,10 @@ static int timer_nextTrigger(lua_State *L) {
 /// Returns:
 ///  * The `hs.timer` object
 static int timer_setNextTrigger(lua_State *L) {
-    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
-    double seconds = luaL_checknumber(L, 2);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
+    timer_t* timer = lua_touserdata(L, 1);
+    double seconds = lua_tonumber(L, 2);
 
     CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + seconds);
 
@@ -236,7 +244,9 @@ static int timer_setNextTrigger(lua_State *L) {
 /// Returns:
 ///  * The `hs.timer` object
 static int timer_stop(lua_State* L) {
-    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    timer_t* timer = lua_touserdata(L, 1);
     lua_settop(L, 1);
 
     if (!timer->started) return 1;
@@ -247,10 +257,11 @@ static int timer_stop(lua_State* L) {
 }
 
 static int timer_gc(lua_State* L) {
-    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    timer_t* timer = lua_touserdata(L, 1);
 
     if (timer) {
-        LuaSkin *skin = [LuaSkin shared];
         timer->fn = [skin luaUnref:refTable ref:timer->fn];
 
         timer->started = NO;
@@ -276,7 +287,9 @@ static int meta_gc(lua_State* __unused L) {
 }
 
 static int userdata_tostring(lua_State* L) {
-    timer_t* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    timer_t* timer = lua_touserdata(L, 1);
     NSString* title ;
 
     if (!timer->t || !CFRunLoopTimerIsValid(timer->t)) {
@@ -300,8 +313,10 @@ static int userdata_tostring(lua_State* L) {
 ///
 /// Returns:
 ///  * The number of seconds since the epoch
-static int timer_getSecondsSinceEpoch(lua_State *L)
-{
+static int timer_getSecondsSinceEpoch(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
     struct timeval v;
     gettimeofday(&v, (struct timezone *) NULL);
     /* Unix Epoch time (time since January 1, 1970 (UTC)) */
@@ -339,7 +354,8 @@ static const luaL_Reg meta_gcLib[] = {
 
 int luaopen_hs_timer_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibraryWithObject:USERDATA_TAG functions:timerLib metaFunctions:meta_gcLib objectFunctions:timer_metalib];
+    refTable = [skin registerLibrary:timerLib metaFunctions:meta_gcLib];
+    [skin registerObject:USERDATA_TAG objectFunctions:timer_metalib];
 
     return 1;
 }

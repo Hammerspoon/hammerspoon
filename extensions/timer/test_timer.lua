@@ -88,6 +88,7 @@ function testDoAfterStart()
 
   testTimer = hs.timer.doAfter(3, function() testTimerValue = true end)
   assertIsUserdataOfType("hs.timer", testTimer)
+  assertTrue(testTimer:running())
 
   return success()
 end
@@ -96,8 +97,9 @@ function testDoAtStart()
   assertIsNil(testTimerValue)
   testTimerValue = false
 
-  testTimer = hs.timer.doAt(hs.timer.localTime() + 2, function() testTimerValue = true end)
+  testTimer = hs.timer.doAt(hs.timer.localTime() + 2, function() print("HELLO") ; testTimerValue = true end)
   assertIsUserdataOfType("hs.timer", testTimer)
+  assertTrue(testTimer:running())
 
   return success()
 end
@@ -118,6 +120,7 @@ function testDoEveryStart()
                                     end
                                   end)
   assertIsUserdataOfType("hs.timer", testTimer)
+  assertTrue(testTimer:running())
 
   return success()
 end
@@ -135,6 +138,7 @@ function testDoUntilStart()
                                  end
                                end, function() testTimerValue = testTimerValue + 1 end)
   assertIsUserdataOfType("hs.timer", testTimer)
+  assertTrue(testTimer:running())
 
   return success()
 end
@@ -153,6 +157,7 @@ function testDoWhileStart()
                                  end
                                end, function() testTimerValue = testTimerValue + 1 end)
   assertIsUserdataOfType("hs.timer", testTimer)
+  assertTrue(testTimer:running())
 
   return success()
 end
@@ -170,6 +175,7 @@ function testWaitUntilStart()
                                    end
                                  end, function() testTimerValue = true end)
   assertIsUserdataOfType("hs.timer", testTimer)
+  assertTrue(testTimer:running())
 
   return success()
 end
@@ -187,6 +193,7 @@ function testWaitWhileStart()
                                    end
                                  end, function() testTimerValue = true end)
   assertIsUserdataOfType("hs.timer", testTimer)
+  assertTrue(testTimer:running())
 
   return success()
 end
