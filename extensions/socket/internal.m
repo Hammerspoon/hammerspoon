@@ -56,7 +56,7 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data) {
 @end
 
 
-/// hs.socket.new(host, port) -> hs.socket object
+/// hs.socket.new(host, port[, fn]) -> hs.socket object
 /// Constructor
 /// Creates an asynchronous TCP socket object for reading (with callbacks) and writing
 ///
