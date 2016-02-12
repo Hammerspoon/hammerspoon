@@ -204,6 +204,11 @@ function testNew()
   return success()
 end
 
+function testToString()
+  assertIsString(tostring(hs.timer.new(1, function() end)))
+  return success()
+end
+
 function testRunningAndStartStop()
   local timer = hs.timer.new(1, function() end)
   assertIsUserdataOfType("hs.timer", timer)

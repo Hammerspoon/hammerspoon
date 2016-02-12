@@ -7,7 +7,6 @@
 //
 
 #import "HSTestCase.h"
-#pragma GCC diagnostic ignored "-Wgnu-statement-expression"
 
 @interface HStimer : HSTestCase
 
@@ -88,6 +87,10 @@
 }
 
 - (void)testNew {
+    RUN_LUA_TEST()
+}
+
+- (void)testToString {
     RUN_LUA_TEST()
 }
 
