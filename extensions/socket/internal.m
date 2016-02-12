@@ -3,7 +3,7 @@
 
 static const char *USERDATA_TAG = "hs.socket";
 
-int refTable;
+static int refTable = LUA_NOREF;
 
 @interface HSAsyncSocket : GCDAsyncSocket
 @property int callback;
@@ -14,13 +14,8 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data) {
     LuaSkin *skin = [LuaSkin shared];
     NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
-    if (!asyncSocket.callback) {
-        lua_getglobal(skin.L, "print");
-    } else {
-        [skin pushLuaRef:refTable ref:asyncSocket.callback];
-    }
-
-    lua_pushstring(skin.L, [utf8Data UTF8String]);
+    [skin pushLuaRef:refTable ref:asyncSocket.callback];
+    [skin pushNSObject: utf8Data];
 
     if (![skin protectedCallAndTraceback:1 nresults:0]) {
         const char *errorMsg = lua_tostring(skin.L, -1);
@@ -32,6 +27,7 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data) {
 @implementation HSAsyncSocket
 
 - (id)init {
+    self.callback = LUA_NOREF;
     return [super initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
 }
 
@@ -92,13 +88,13 @@ static int socket_new(lua_State *L) {
 
 /// hs.socket.read(delimiter) -> self
 /// Method
-/// Read data from the socket. Data is passed to the callback function
+/// Read data from the socket. Data is passed to the callback function, which is required for this method
 ///
 /// Parameters:
 ///  * delimiter - Either a number of bytes to read, or a string delimiter such as `\n` or `\r\n`. Data is read up to and including the delimiter
 ///
 /// Returns:
-///  * The `hs.socket` object
+///  * The `hs.socket` object or none if error
 ///
 static int socket_read(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -106,8 +102,9 @@ static int socket_read(lua_State *L) {
 
     HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
 
-    if (!asyncSocket.callback) {
-        [skin logWarn:@"No callback! Defaulting to print()"];
+    if (!asyncSocket.callback || asyncSocket.callback==LUA_NOREF) {
+        [skin logError:@"No callback defined!"];
+        return 0;
     }
 
     switch (lua_type(L, 2)) {
@@ -169,12 +166,13 @@ static int socket_setCallback(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
 
     HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
+    asyncSocket.callback = [skin luaUnref:refTable ref:asyncSocket.callback];
 
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
         asyncSocket.callback = [skin luaRef:refTable];
     } else {
-        asyncSocket.callback = 0;
+        asyncSocket.callback = LUA_NOREF;
     }
 
     [skin pushNSObject:asyncSocket];
@@ -228,6 +226,28 @@ static int socket_disconnect(lua_State *L) {
     [asyncSocket disconnect];
 
     [skin pushNSObject:asyncSocket];
+    return 1;
+}
+
+/// hs.socket:connected() -> bool
+/// Method
+/// Returns the connection status of the socket instance
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * True if connected, otherwise false
+///
+static int socket_connected(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
+
+    NSNumber *isConnected = [NSNumber numberWithBool:[asyncSocket isConnected]];
+
+    [skin pushNSObject:isConnected];
     return 1;
 }
 
@@ -315,6 +335,7 @@ static int socket_objectGC(lua_State *L) {
 
     [asyncSocket synchronouslySetDelegate:nil delegateQueue:NULL];
     [asyncSocket disconnect];
+    asyncSocket.callback = [[LuaSkin shared] luaUnref:refTable ref:asyncSocket.callback];
 
     asyncSocket = nil;
 
@@ -343,6 +364,7 @@ static const luaL_Reg socketObjectLib[] = {
     {"connect", socket_connect},
     {"disconnect", socket_disconnect},
     {"setCallback", socket_setCallback},
+    {"connected", socket_connected},
     {"info", socket_info},
 
     {"__tostring", userdata_tostring},
