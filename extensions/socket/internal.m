@@ -1,15 +1,23 @@
 #import <LuaSkin/LuaSkin.h>
 #import <CocoaAsyncSocket/GCDAsyncSocket.h>
 
-static const char *USERDATA_TAG = "hs.socket";
+// Definitions
+#define getUserData(L, idx) (__bridge HSAsyncSocket *)((asyncSocketUserData *)lua_touserdata(L, idx))->asyncSocket;
 
+// Userdata for hs.socket objects
+typedef struct _asyncSocketUserData {
+    int selfRef;
+    void *asyncSocket;
+} asyncSocketUserData;
+
+static const char *USERDATA_TAG = "hs.socket";
 static int refTable = LUA_NOREF;
 
 @interface HSAsyncSocket : GCDAsyncSocket
 @property int callback;
 @end
 
-
+// Callback on data reads
 static void callback(HSAsyncSocket *asyncSocket, NSData *data) {
     LuaSkin *skin = [LuaSkin shared];
     NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -23,7 +31,7 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data) {
     }
 }
 
-
+// Delegate implementation
 @implementation HSAsyncSocket
 
 - (id)init {
@@ -45,12 +53,18 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data) {
 
 - (void)socket:(HSAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag  {
     [[LuaSkin shared] logInfo:@"Data read from socket"];
-
     callback(self, data);
 }
 
 @end
 
+// Establish connection
+static void connectSocket(HSAsyncSocket *asyncSocket, NSString *host, NSNumber *port) {
+    NSError *err;
+    if (![asyncSocket connectToHost:host onPort:[port unsignedShortValue] error:&err]) {
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
+    }
+}
 
 /// hs.socket.new(host, port[, fn]) -> hs.socket object
 /// Constructor
@@ -72,17 +86,21 @@ static int socket_new(lua_State *L) {
 
     NSString *theHost = [skin toNSObjectAtIndex:1];
     NSNumber *thePort = [skin toNSObjectAtIndex:2];
+
     if (lua_type(L, 3) == LUA_TFUNCTION) {
         lua_pushvalue(L, 3);
         asyncSocket.callback = [skin luaRef:refTable];
     }
 
-    NSError *err;
-    if (![asyncSocket connectToHost:theHost onPort:[thePort unsignedShortValue] error:&err]) {
-        [skin logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
-    }
+    connectSocket(asyncSocket, theHost, thePort);
 
-    [skin pushNSObject:asyncSocket];
+    // Create the userdata object
+    asyncSocketUserData *userData = lua_newuserdata(L, sizeof(asyncSocketUserData));
+    memset(userData, 0, sizeof(asyncSocketUserData));
+    userData->asyncSocket = (__bridge_retained void*)asyncSocket;
+
+    luaL_getmetatable(L, USERDATA_TAG);
+    lua_setmetatable(L, -2);
     return 1;
 }
 
@@ -100,7 +118,7 @@ static int socket_read(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING|LS_TNUMBER, LS_TBREAK];
 
-    HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
     if (!asyncSocket.callback || asyncSocket.callback==LUA_NOREF) {
         [skin logError:@"No callback defined!"];
@@ -124,7 +142,7 @@ static int socket_read(lua_State *L) {
             break;
     }
 
-    [skin pushNSObject:asyncSocket];
+    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -142,12 +160,12 @@ static int socket_write(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
 
-    HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
     NSString *message = [skin toNSObjectAtIndex:2];
 
     [asyncSocket writeData:[message dataUsingEncoding:NSUTF8StringEncoding ] withTimeout:-1 tag:-1];
 
-    [skin pushNSObject:asyncSocket];
+    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -165,7 +183,7 @@ static int socket_setCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
 
-    HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
     asyncSocket.callback = [skin luaUnref:refTable ref:asyncSocket.callback];
 
     if (lua_type(L, 2) == LUA_TFUNCTION) {
@@ -175,7 +193,7 @@ static int socket_setCallback(lua_State *L) {
         asyncSocket.callback = LUA_NOREF;
     }
 
-    [skin pushNSObject:asyncSocket];
+    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -194,17 +212,13 @@ static int socket_connect(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TBREAK];
 
-    HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
-
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
     NSString *theHost = [skin toNSObjectAtIndex:2];
     NSNumber *thePort = [skin toNSObjectAtIndex:3];
 
-    NSError *err;
-    if (![asyncSocket connectToHost:theHost onPort:[thePort unsignedShortValue] error:&err]) {
-        [skin logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
-    }
+    connectSocket(asyncSocket, theHost, thePort);
 
-    [skin pushNSObject:asyncSocket];
+    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -222,10 +236,10 @@ static int socket_disconnect(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
     [asyncSocket disconnect];
 
-    [skin pushNSObject:asyncSocket];
+    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -243,8 +257,7 @@ static int socket_connected(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
-
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
     NSNumber *isConnected = [NSNumber numberWithBool:[asyncSocket isConnected]];
 
     [skin pushNSObject:isConnected];
@@ -276,7 +289,7 @@ static int socket_info(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    HSAsyncSocket*  asyncSocket = [skin luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
     NSString *connectedHost = [asyncSocket connectedHost];
     NSNumber *connectedPort = [NSNumber numberWithUnsignedShort:[asyncSocket connectedPort]];
@@ -311,42 +324,24 @@ static int socket_info(lua_State *L) {
     return 1;
 }
 
-// Pushes the provided HSAsyncSocket onto the Lua Stack as a hs.socket userdata object
-static int socket_tolua(lua_State *L, id obj) {
-    HSAsyncSocket *socket = obj;
-    void** ptr = lua_newuserdata(L, sizeof(HSAsyncSocket *));
-    *ptr = (__bridge_retained void *)socket;
-    luaL_getmetatable(L, USERDATA_TAG);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-static id lua_tosocket(lua_State *L, int idx) {
-    void *ptr = luaL_testudata(L, idx, USERDATA_TAG);
-    if (ptr) {
-        return (__bridge HSAsyncSocket *)*((void **)ptr);
-    } else {
-        return nil;
-    }
-}
 
 static int socket_objectGC(lua_State *L) {
-    HSAsyncSocket *asyncSocket = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
+    asyncSocketUserData *userData = lua_touserdata(L, 1);
+    HSAsyncSocket* asyncSocket = (__bridge_transfer HSAsyncSocket *)userData->asyncSocket;
+    userData->asyncSocket = nil;
 
-    [asyncSocket synchronouslySetDelegate:nil delegateQueue:NULL];
     [asyncSocket disconnect];
+    [asyncSocket setDelegate:nil delegateQueue:NULL];
     asyncSocket.callback = [[LuaSkin shared] luaUnref:refTable ref:asyncSocket.callback];
-
     asyncSocket = nil;
 
     return 0;
 }
 
 static int userdata_tostring(lua_State* L) {
-    HSAsyncSocket *socket = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"HSAsyncSocket"];
-
-    NSString *theHost = [socket connectedHost];
-    uint16_t thePort = [socket connectedPort];
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
+    NSString *theHost = [asyncSocket connectedHost];
+    uint16_t thePort = [asyncSocket connectedPort];
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@:%hu (%p)", USERDATA_TAG, theHost, thePort, lua_topointer(L, 1)] UTF8String]);
     return 1;
@@ -375,10 +370,10 @@ static const luaL_Reg socketObjectLib[] = {
 
 int luaopen_hs_socket_internal(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibraryWithObject:"hs.socket" functions:socketLib metaFunctions:nil objectFunctions:socketObjectLib];
-
-    [skin registerPushNSHelper:socket_tolua    forClass:"HSAsyncSocket"];
-    [skin registerLuaObjectHelper:lua_tosocket forClass:"HSAsyncSocket" withUserdataMapping:USERDATA_TAG];
+    refTable = [skin registerLibraryWithObject:"hs.socket"
+                                     functions:socketLib
+                                 metaFunctions:nil
+                               objectFunctions:socketObjectLib];
 
     return 1;
 }
