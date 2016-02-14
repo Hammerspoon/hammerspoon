@@ -6,7 +6,7 @@
 .Nd Command line interface to Hammerspoon.app
 .Sh SYNOPSIS
 .Nm
-.Op Fl i | Fl s | Fl c Ar code
+.Op Fl i | Fl s | Fl c Ar code | Fl t Ar timeout
 .Op Fl r
 .Op Fl n
 .Sh DESCRIPTION
@@ -28,6 +28,10 @@ Runs in interactive-mode; uses each line as
 .It Fl c
 Uses the given argument as
 .Ar code
+.It Fl t
+Uses the given argument
+.Ar timeout
+as the receive timeout, instead of the default of 4 seconds.
 .It Fl s
 Uses stdin as
 .Ar code
