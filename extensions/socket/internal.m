@@ -254,15 +254,18 @@ static int socket_read(lua_State *L) {
         return 0;
     }
 
+    lua_getglobal(L, "hs"); lua_getfield(L, -1, "socket"); lua_getfield(L, -1, "timeout");
+    NSTimeInterval timeout = lua_tonumber(L, -1);
+
     switch (lua_type(L, 2)) {
         case LUA_TNUMBER: {
             NSNumber *bytesToRead = [skin toNSObjectAtIndex:2];
             NSUInteger bytes = [bytesToRead unsignedIntegerValue];
-            [asyncSocket readDataToLength:bytes withTimeout:-1 tag:-1];
+            [asyncSocket readDataToLength:bytes withTimeout:timeout tag:-1];
             if (asyncSocket.userData == SERVER) {
                 @synchronized(asyncSocket.connectedSockets) {
                     for (HSAsyncSocket *client in asyncSocket.connectedSockets){
-                        [client readDataToLength:bytes withTimeout:-1 tag:-1];
+                        [client readDataToLength:bytes withTimeout:timeout tag:-1];
                     }
                 }
             }
@@ -271,11 +274,11 @@ static int socket_read(lua_State *L) {
         case LUA_TSTRING: {
             NSString *separatorString = [skin toNSObjectAtIndex:2];
             NSData *separator = [separatorString dataUsingEncoding:NSUTF8StringEncoding];
-            [asyncSocket readDataToData:separator withTimeout:-1 tag:-1];
+            [asyncSocket readDataToData:separator withTimeout:timeout tag:-1];
             if (asyncSocket.userData == SERVER) {
                 @synchronized(asyncSocket.connectedSockets) {
                     for (HSAsyncSocket *client in asyncSocket.connectedSockets){
-                        [client readDataToData:separator withTimeout:-1 tag:-1];
+                        [client readDataToData:separator withTimeout:timeout tag:-1];
                     }
                 }
             }
@@ -309,12 +312,15 @@ static int socket_write(lua_State *L) {
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
     NSString *message = [skin toNSObjectAtIndex:2];
 
+    lua_getglobal(L, "hs"); lua_getfield(L, -1, "socket"); lua_getfield(L, -1, "timeout");
+    NSTimeInterval timeout = lua_tonumber(L, -1);
+
     if (asyncSocket.userData != SERVER) {
-        [asyncSocket writeData:[message dataUsingEncoding:NSUTF8StringEncoding] withTimeout:-1 tag:-1];
+        [asyncSocket writeData:[message dataUsingEncoding:NSUTF8StringEncoding] withTimeout:timeout tag:-1];
     } else {
         @synchronized(asyncSocket.connectedSockets) {
             for (HSAsyncSocket *client in asyncSocket.connectedSockets){
-                [client writeData:[message dataUsingEncoding:NSUTF8StringEncoding] withTimeout:-1 tag:-1];
+                [client writeData:[message dataUsingEncoding:NSUTF8StringEncoding] withTimeout:timeout tag:-1];
             }
         }
     }
@@ -366,7 +372,7 @@ static int socket_connected(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
-    BOOL isConnected; //= [NSNumber numberWithBool:[asyncSocket isConnected]];
+    BOOL isConnected;
 
     if (asyncSocket.userData==SERVER) {
         isConnected = asyncSocket.connectedSockets.count;
@@ -374,7 +380,7 @@ static int socket_connected(lua_State *L) {
         isConnected = [asyncSocket isConnected];
     }
 
-    lua_pushboolean(L, isConnected);//    [skin pushNSObject:isConnected];
+    lua_pushboolean(L, isConnected);
     return 1;
 }
 

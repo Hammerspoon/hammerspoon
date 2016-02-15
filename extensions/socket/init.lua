@@ -19,4 +19,11 @@ socket.server = function(port, callback)
     return socket.new(nil, port, callback)
 end
 
+--- hs.socket.timeout
+--- Variable
+--- Timeout for read and write operations, in seconds.
+--- The default value is -1. If the timeout value is negative, the operations will not use a timeout.
+---
+socket.timeout = -1
+
 return socket
