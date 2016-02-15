@@ -101,8 +101,12 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data) {
 
 // Establish connection
 static void connectSocket(HSAsyncSocket *asyncSocket, NSString *host, NSNumber *port) {
+    LuaSkin *skin =[LuaSkin shared];
+    lua_getglobal(skin.L, "hs"); lua_getfield(skin.L, -1, "socket"); lua_getfield(skin.L, -1, "timeout");
+    NSTimeInterval timeout = lua_tonumber(skin.L, -1);
     NSError *err;
-    if (![asyncSocket connectToHost:host onPort:[port unsignedShortValue] error:&err]) {
+
+    if (![asyncSocket connectToHost:host onPort:[port unsignedShortValue] withTimeout:timeout error:&err]) {
         [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
     }
 }
@@ -110,6 +114,7 @@ static void connectSocket(HSAsyncSocket *asyncSocket, NSString *host, NSNumber *
 // Establish listening port
 static void listenSocket(HSAsyncSocket *asyncSocket, NSNumber *port) {
     NSError *err;
+
     if (![asyncSocket acceptOnPort:[port unsignedShortValue] error:&err]) {
         [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
     } else {
