@@ -116,6 +116,7 @@ static int chooserHide(lua_State *L) {
 ///    ["uuid"] = "III3"
 ///  },
 /// }
+///  ```
 static int chooserSetChoices(lua_State *L) {
     BOOL staticChoicesTypeCheckPass = NO;
 
