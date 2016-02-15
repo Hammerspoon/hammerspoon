@@ -51,28 +51,8 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data) {
 
 - (void)socket:(HSAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port {
     [[LuaSkin shared] logInfo:@"Socket connected"];
-}
 
-- (void)socketDidDisconnect:(HSAsyncSocket *)sock withError:(NSError *)err {
-    if (sock.userData != CLIENT) {
-        [[LuaSkin shared] logInfo:@"Socket disconnected"];
-    } else {
-        [[LuaSkin shared] logInfo:@"Client disconnected"];
-
-        @synchronized(self.connectedSockets) {
-            [self.connectedSockets removeObject:sock];
-        }
-    }
-}
-
-- (void)socket:(HSAsyncSocket *)sock didWriteDataWithTag:(long)tag {
-    [[LuaSkin shared] logInfo:@"Data written to socket"];
-}
-
-- (void)socket:(HSAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag  {
-    [[LuaSkin shared] logInfo:@"Data read from socket"];
-
-    callback(self, data);
+    sock.userData = DEFAULT;
 }
 
 - (void)socket:(HSAsyncSocket *)sock didAcceptNewSocket:(HSAsyncSocket *)newSocket {
@@ -85,6 +65,37 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data) {
     }
 }
 
+- (void)socketDidDisconnect:(HSAsyncSocket *)sock withError:(NSError *)err {
+    if (sock.userData == CLIENT) {
+        [[LuaSkin shared] logInfo:@"Client disconnected"];
+
+        @synchronized(self.connectedSockets) {
+            [self.connectedSockets removeObject:sock];
+        }
+    } else if (sock.userData == SERVER) {
+        [[LuaSkin shared] logInfo:@"Server disconnected"];
+
+        @synchronized(self.connectedSockets) {
+            for (HSAsyncSocket *client in sock.connectedSockets){
+                [client disconnect];
+            }
+        }
+    } else {
+        [[LuaSkin shared] logInfo:@"Socket disconnected"];
+    }
+    sock.userData = nil;
+}
+
+- (void)socket:(HSAsyncSocket *)sock didWriteDataWithTag:(long)tag {
+    [[LuaSkin shared] logInfo:@"Data written to socket"];
+}
+
+- (void)socket:(HSAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag  {
+    [[LuaSkin shared] logInfo:@"Data read from socket"];
+
+    callback(self, data);
+}
+
 @end
 
 
@@ -93,8 +104,6 @@ static void connectSocket(HSAsyncSocket *asyncSocket, NSString *host, NSNumber *
     NSError *err;
     if (![asyncSocket connectToHost:host onPort:[port unsignedShortValue] error:&err]) {
         [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
-    } else {
-        asyncSocket.userData = DEFAULT;
     }
 }
 
@@ -247,16 +256,6 @@ static int socket_disconnect(lua_State *L) {
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
     [asyncSocket disconnect];
-
-    if (asyncSocket.userData == SERVER) {
-        @synchronized(asyncSocket.connectedSockets) {
-            for (HSAsyncSocket *client in asyncSocket.connectedSockets){
-                [client disconnect];
-            }
-        }
-    }
-
-    asyncSocket.userData = nil;
 
     lua_pushvalue(L, 1);
     return 1;
@@ -463,6 +462,7 @@ static int socket_info(lua_State *L) {
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
+    NSString *socketType = asyncSocket.userData;
     NSString *connectedHost = [asyncSocket connectedHost];
     NSNumber *connectedPort = [NSNumber numberWithUnsignedShort:[asyncSocket connectedPort]];
     NSString *localHost = [asyncSocket localHost];
@@ -477,8 +477,10 @@ static int socket_info(lua_State *L) {
 
     connectedHost = connectedHost ? connectedHost : @"";
     localHost = localHost ? localHost : @"";
+    socketType = socketType ? socketType : @"";
 
     NSDictionary *info = @{
+        @"socketType" : socketType,
         @"connectedHost" : connectedHost,
         @"connectedPort" : connectedPort,
         @"localHost" : localHost,
