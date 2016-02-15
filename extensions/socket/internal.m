@@ -117,12 +117,12 @@ static void listenSocket(HSAsyncSocket *asyncSocket, NSNumber *port) {
     }
 }
 
-/// hs.socket.new(host, port[, fn]) -> hs.socket object
+/// hs.socket.new([host], port[, fn]) -> hs.socket object
 /// Constructor
 /// Creates an asynchronous TCP socket object for reading (with callbacks) and writing
 ///
 /// Parameters:
-///  * host - A string containing the hostname or IP address
+///  * host - A optional string containing the hostname or IP address. If `nil`, a listening socket is created (same as `hs.socket.server`)
 ///  * port - A port number [1024-65535]. Ports [1-1023] are privileged
 ///  * fn - An optional callback function accepting a single parameter to process data. Can be set with the `setCallback` method
 ///
@@ -131,7 +131,7 @@ static void listenSocket(HSAsyncSocket *asyncSocket, NSNumber *port) {
 ///
 static int socket_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TSTRING, LS_TNUMBER, LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TSTRING|LS_TNIL, LS_TNUMBER, LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
 
     HSAsyncSocket *asyncSocket = [[HSAsyncSocket alloc] init];
     NSString *theHost = [skin toNSObjectAtIndex:1];
@@ -142,42 +142,11 @@ static int socket_new(lua_State *L) {
         asyncSocket.callback = [skin luaRef:refTable];
     }
 
-    connectSocket(asyncSocket, theHost, thePort);
-
-    // Create the userdata object
-    asyncSocketUserData *userData = lua_newuserdata(L, sizeof(asyncSocketUserData));
-    memset(userData, 0, sizeof(asyncSocketUserData));
-    userData->asyncSocket = (__bridge_retained void*)asyncSocket;
-
-    luaL_getmetatable(L, USERDATA_TAG);
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-/// hs.socket.server(port[, fn]) -> hs.socket object
-/// Constructor
-/// Creates and binds an `hs.socket` instance to a port for listening to 0 or more clients
-///
-/// Parameters:
-///  * port - A port number [1024-65535]. Ports [1-1023] are privileged
-///  * fn - An optional callback function accepting a single parameter to process data. Can be set with the `setCallback` method
-///
-/// Returns:
-///  * The `hs.socket` object
-///
-static int socket_server(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TNUMBER, LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
-
-    HSAsyncSocket *asyncSocket = [[HSAsyncSocket alloc] init];
-    NSNumber *thePort = [skin toNSObjectAtIndex:1];
-
-    if (lua_type(L, 2) == LUA_TFUNCTION) {
-        lua_pushvalue(L, 2);
-        asyncSocket.callback = [skin luaRef:refTable];
+    if (![theHost isEqual:[NSNull null]]) {
+        connectSocket(asyncSocket, theHost, thePort);
+    } else {
+        listenSocket(asyncSocket, thePort);
     }
-
-    listenSocket(asyncSocket, thePort);
 
     // Create the userdata object
     asyncSocketUserData *userData = lua_newuserdata(L, sizeof(asyncSocketUserData));
@@ -525,7 +494,6 @@ static int userdata_tostring(lua_State* L) {
 
 static const luaL_Reg socketLib[] = {
     {"new", socket_new},
-    {"server", socket_server},
 
     {NULL, NULL} // This must end with an empty struct
 };
