@@ -93,6 +93,8 @@ static void connectSocket(HSAsyncSocket *asyncSocket, NSString *host, NSNumber *
     NSError *err;
     if (![asyncSocket connectToHost:host onPort:[port unsignedShortValue] error:&err]) {
         [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
+    } else {
+        asyncSocket.userData = DEFAULT;
     }
 }
 
@@ -101,6 +103,8 @@ static void listenSocket(HSAsyncSocket *asyncSocket, NSNumber *port) {
     NSError *err;
     if (![asyncSocket acceptOnPort:[port unsignedShortValue] error:&err]) {
         [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
+    } else {
+        asyncSocket.userData = SERVER;
     }
 }
 
@@ -129,7 +133,6 @@ static int socket_new(lua_State *L) {
         asyncSocket.callback = [skin luaRef:refTable];
     }
 
-    asyncSocket.userData = DEFAULT;
     connectSocket(asyncSocket, theHost, thePort);
 
     // Create the userdata object
@@ -165,7 +168,6 @@ static int socket_server(lua_State *L) {
         asyncSocket.callback = [skin luaRef:refTable];
     }
 
-    asyncSocket.userData = SERVER;
     listenSocket(asyncSocket, thePort);
 
     // Create the userdata object
@@ -175,6 +177,88 @@ static int socket_server(lua_State *L) {
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
+    return 1;
+}
+
+/// hs.socket:connect() -> self
+/// Method
+/// Connects an unconnected `hs.socket` instance
+///
+/// Parameters:
+///  * host - A string containing the hostname or IP address
+///  * port - A port number [1024-65535]. Ports [1-1023] are privileged
+///
+/// Returns:
+///  * The `hs.socket` object
+///
+static int socket_connect(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TBREAK];
+
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
+    NSString *theHost = [skin toNSObjectAtIndex:2];
+    NSNumber *thePort = [skin toNSObjectAtIndex:3];
+
+    connectSocket(asyncSocket, theHost, thePort);
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.socket:listen() -> self
+/// Method
+/// Binds an unconnected `hs.socket` instance to a port for listening
+///
+/// Parameters:
+///  * port - A port number [1024-65535]. Ports [1-1023] are privileged
+///
+/// Returns:
+///  * The `hs.socket` object
+///
+static int socket_listen(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
+
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
+    NSNumber *thePort = [skin toNSObjectAtIndex:2];
+
+    listenSocket(asyncSocket, thePort);
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.socket:disconnect() -> self
+/// Method
+/// Disconnects the socket instance, freeing it for reuse
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.socket` object
+///
+/// Notes:
+///  * If called on a listening socket with multiple connections, each client is disconnected
+///
+static int socket_disconnect(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
+    [asyncSocket disconnect];
+
+    if (asyncSocket.userData == SERVER) {
+        @synchronized(asyncSocket.connectedSockets) {
+            for (HSAsyncSocket *client in asyncSocket.connectedSockets){
+                [client disconnect];
+            }
+        }
+    }
+
+    asyncSocket.userData = nil;
+
+    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -293,83 +377,6 @@ static int socket_setCallback(lua_State *L) {
         asyncSocket.callback = [skin luaRef:refTable];
     } else {
         asyncSocket.callback = LUA_NOREF;
-    }
-
-    lua_pushvalue(L, 1);
-    return 1;
-}
-
-/// hs.socket:connect() -> self
-/// Method
-/// Connects an unconnected `hs.socket` instance
-///
-/// Parameters:
-///  * host - A string containing the hostname or IP address
-///  * port - A port number [1024-65535]. Ports [1-1023] are privileged
-///
-/// Returns:
-///  * The `hs.socket` object
-///
-static int socket_connect(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TBREAK];
-
-    HSAsyncSocket* asyncSocket = getUserData(L, 1);
-    NSString *theHost = [skin toNSObjectAtIndex:2];
-    NSNumber *thePort = [skin toNSObjectAtIndex:3];
-
-    connectSocket(asyncSocket, theHost, thePort);
-
-    lua_pushvalue(L, 1);
-    return 1;
-}
-
-/// hs.socket:listen() -> self
-/// Method
-/// Binds an unconnected `hs.socket` instance to a port for listening
-///
-/// Parameters:
-///  * port - A port number [1024-65535]. Ports [1-1023] are privileged
-///
-/// Returns:
-///  * The `hs.socket` object
-///
-static int socket_listen(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
-
-    HSAsyncSocket* asyncSocket = getUserData(L, 1);
-    NSNumber *thePort = [skin toNSObjectAtIndex:2];
-
-    listenSocket(asyncSocket, thePort);
-
-    lua_pushvalue(L, 1);
-    return 1;
-}
-
-/// hs.socket:disconnect() -> self
-/// Method
-/// Disconnects the socket instance
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * The `hs.socket` object
-///
-static int socket_disconnect(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-
-    HSAsyncSocket* asyncSocket = getUserData(L, 1);
-    [asyncSocket disconnect];
-
-    if (asyncSocket.userData == SERVER) {
-        @synchronized(asyncSocket.connectedSockets) {
-            for (HSAsyncSocket *client in asyncSocket.connectedSockets){
-                [client disconnect];
-            }
-        }
     }
 
     lua_pushvalue(L, 1);
@@ -507,8 +514,8 @@ static int userdata_tostring(lua_State* L) {
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
     BOOL isServer = (asyncSocket.userData == SERVER) ? true : false;
-    NSString *theHost = isServer ? [asyncSocket connectedHost] : [asyncSocket localHost];
-    uint16_t thePort = isServer ? [asyncSocket connectedPort] : [asyncSocket localPort];
+    NSString *theHost = isServer ? [asyncSocket localHost] : [asyncSocket connectedHost];
+    uint16_t thePort = isServer ? [asyncSocket localPort] : [asyncSocket connectedPort];
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@:%hu (%p)", USERDATA_TAG, theHost, thePort, lua_topointer(L, 1)] UTF8String]);
     return 1;
@@ -522,11 +529,11 @@ static const luaL_Reg socketLib[] = {
 };
 
 static const luaL_Reg socketObjectLib[] = {
-    {"read", socket_read},
-    {"write", socket_write},
     {"connect", socket_connect},
     {"listen", socket_listen},
     {"disconnect", socket_disconnect},
+    {"read", socket_read},
+    {"write", socket_write},
     {"setCallback", socket_setCallback},
     {"connected", socket_connected},
     {"connections", socket_connections},
