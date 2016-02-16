@@ -17,9 +17,10 @@
 ---  * and so on...
 ---
 --- Additionally, a modal keyboard driven interface for interactive resizing is provided via `hs.grid.show()`;
---- the grid will be overlaid on the focused or frontmost window's screen with keyboard hints to select the corner cells for
---- the desired size/position; you can also use the arrow keys to move the window onto adjacent screens, and
---- the tab/shift-tab keys to cycle to the next/previous window.
+--- The grid will be overlaid on the focused or frontmost window's screen with keyboard hints.
+--- To resize/move the window, you can select the corner cells of the desired position.
+--- For a move-only, you can select a cell and confirm with 'return'. The celected cell will become the new upper-left of the window.
+--- You can also use the arrow keys to move the window onto adjacent screens, and the tab/shift-tab keys to cycle to the next/previous window.
 
 local window = require "hs.window"
 local screen = require 'hs.screen'
@@ -724,7 +725,7 @@ local function _start()
     if highlight then highlight:delete() highlight=nil end
     clearSelection()
     if cycling and #allWindows>0 then
-      -- will STILL somewhat mess up window zorder, because orderedWindows~=most recently focused windows; but oh well
+      -- will STILL somewhat mess up window order, because orderedWindows~=most recently focused windows; but oh well
       for i=reorderIndex,1,-1 do if cycledWindows[i] then allWindows[i]:focus() timer.usleep(80000) end end
       if focusedWindow then focusedWindow:focus() end
     end
@@ -753,6 +754,15 @@ local function _start()
   resizing:bind({'shift'},'tab',function()cycle(-1)end)
   resizing:bind({},'delete',clearSelection)
   resizing:bind({},'escape',function()log.d('abort move')resizing:exit()end)
+  resizing:bind({},'return',function()
+    if not selectedElem then return
+    else
+      x1,y1 = selectedElem.x+margins.w,selectedElem.y+margins.w
+      currentWindow:setFrame(geom({x1, y1}, currentWindow:size()))
+      clearSelection()
+      if cycling then cycle(1) else resizing:exit() end
+    end
+  end)
   resizing:bind({},'space',function()
     --    local wasfs=currentWindow:isFullScreen()
     log.d('toggle fullscreen')currentWindow:toggleFullScreen()
