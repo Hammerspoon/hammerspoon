@@ -133,12 +133,12 @@ static void listenSocket(HSAsyncSocket *asyncSocket, NSNumber *port) {
 /// Creates an asynchronous TCP socket object for reading and writing. A callback is required to read data from the socket
 ///
 /// Parameters:
-///  * host - A optional string containing the hostname or IP address. If `nil`, a listening socket is created (same as `hs.socket.server`)
+///  * host - A optional string containing the hostname or IP address. If `nil`, a listening socket is created (same as [`hs.socket.server`](#server))
 ///  * port - A port number [1024-65535]. Ports [1-1023] are privileged
-///  * fn - An optional callback function to process data on reads. Can also be set with the `setCallback` method
+///  * fn - An optional callback function to process data on reads. Can also be set with the [`setCallback`](#setCallback) method
 ///
 /// Returns:
-///  * An `hs.socket` object
+///  * An [`hs.socket`](#new) object
 ///
 static int socket_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -172,16 +172,16 @@ static int socket_new(lua_State *L) {
     return 1;
 }
 
-/// hs.socket:connect() -> self
+/// hs.socket:connect(host, port) -> self
 /// Method
-/// Connects an unconnected `hs.socket` instance
+/// Connects an unconnected [`hs.socket`](#new) instance
 ///
 /// Parameters:
 ///  * host - A string containing the hostname or IP address
 ///  * port - A port number [1024-65535]. Ports [1-1023] are privileged
 ///
 /// Returns:
-///  * The `hs.socket` object
+///  * The [`hs.socket`](#new) object
 ///
 static int socket_connect(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -197,15 +197,15 @@ static int socket_connect(lua_State *L) {
     return 1;
 }
 
-/// hs.socket:listen() -> self
+/// hs.socket:listen(port) -> self
 /// Method
-/// Binds an unconnected `hs.socket` instance to a port for listening
+/// Binds an unconnected [`hs.socket`](#new) instance to a port for listening
 ///
 /// Parameters:
 ///  * port - A port number [1024-65535]. Ports [1-1023] are privileged
 ///
 /// Returns:
-///  * The `hs.socket` object
+///  * The [`hs.socket`](#new) object
 ///
 static int socket_listen(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -222,13 +222,13 @@ static int socket_listen(lua_State *L) {
 
 /// hs.socket:disconnect() -> self
 /// Method
-/// Disconnects the socket instance, freeing it for reuse
+/// Disconnects the [`hs.socket`](#new) instance, freeing it for reuse
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * The `hs.socket` object
+///  * The [`hs.socket`](#new) object
 ///
 /// Notes:
 ///  * If called on a listening socket with multiple connections, each client is disconnected
@@ -253,7 +253,7 @@ static int socket_disconnect(lua_State *L) {
 ///  * tag - An optional integer to assist with labeling reads that is passed to the read callback
 ///
 /// Returns:
-///  * The `hs.socket` object or none if error
+///  * The [`hs.socket`](#new) object or `nil` if no callback error
 ///
 /// Notes:
 ///  * If called on a listening socket with multiple connections, data is read from each of them
@@ -316,7 +316,7 @@ static int socket_read(lua_State *L) {
 ///  * tag - An optional integer to assist with labeling writes
 ///
 /// Returns:
-///  * The `hs.socket` object
+///  * The [`hs.socket`](#new) object
 ///
 /// Notes:
 ///  * If called on a listening socket with multiple connections, data is broadcasted to all connected sockets
@@ -347,14 +347,14 @@ static int socket_write(lua_State *L) {
 
 /// hs.socket:setCallback([fn]) -> self
 /// Method
-/// Sets the callback for the socket. *Required* for working with read data!
+/// Sets the callback for the [`hs.socket`](#new) instance. **Required** for working with read data!
 /// The callback's first parameter is the data read from the socket. The optional second parameter is the tag associated with the particular read operation
 ///
 /// Parameters:
 ///  * fn - An optional callback function to process data read from the socket. A `nil` argument or nothing clears the callback
 ///
 /// Returns:
-///  * The `hs.socket` object
+///  * The [`hs.socket`](#new) object
 ///
 static int socket_setCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -382,7 +382,7 @@ static int socket_setCallback(lua_State *L) {
 ///  * timeout - A number containing the timeout duration, in seconds
 ///
 /// Returns:
-///  * The `hs.socket` object
+///  * The [`hs.socket`](#new) object
 ///
 static int socket_setTimeout(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -405,7 +405,7 @@ static int socket_setTimeout(lua_State *L) {
 ///  * peerName - An optional string containing the fully qualified domain name of the peer to validate against — for example, `store.apple.com`. It should match the name in the X.509 certificate given by the remote party. See notes below
 ///
 /// Returns:
-///  * The `hs.socket` object
+///  * The [`hs.socket`](#new) object
 ///
 /// Notes:
 /// * IMPORTANT SECURITY NOTE:
@@ -445,13 +445,13 @@ static int socket_startTLS(lua_State *L) {
 
 /// hs.socket:connected() -> bool
 /// Method
-/// Returns the connection status of the socket instance
+/// Returns the connection status of the [`hs.socket`](#new) instance
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * True if connected, otherwise false
+///  * `true` if connected, otherwise `false`
 ///
 static int socket_connected(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -478,7 +478,7 @@ static int socket_connected(lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * True if connected, otherwise false
+///  * The number of connections to the socket
 ///
 static int socket_connections(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -498,24 +498,25 @@ static int socket_connections(lua_State *L) {
 
 /// hs.socket:info() -> table
 /// Method
-/// Returns information on the socket instance
+/// Returns information on the [`hs.socket`](#new) instance
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
 ///  * A table containing the following keys:
-///   * connectedHost
-///   * connectedPort
-///   * localHost
-///   * localPort
-///   * isConnected
-///   * isIPv4
-///   * isIPv6
-///   * isIPv4Enabled
-///   * isIPv6Enabled
-///   * isIPv4PreferredOverIPv6
-///   * isSecure
+///   * connectedHost - `string`
+///   * connectedPort - `number`
+///   * isConnected - `boolean`
+///   * isIPv4 - `boolean`
+///   * isIPv4Enabled - `boolean`
+///   * isIPv4PreferredOverIPv6 - `boolean`
+///   * isIPv6 - `boolean`
+///   * isIPv6Enabled - `boolean`
+///   * isSecure - `boolean`
+///   * localHost - `string`
+///   * localPort - `number`
+///   * socketType - `string`
 ///
 static int socket_info(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -523,36 +524,36 @@ static int socket_info(lua_State *L) {
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
-    NSString *socketType = asyncSocket.userData;
     NSString *connectedHost = [asyncSocket connectedHost];
     NSNumber *connectedPort = [NSNumber numberWithUnsignedShort:[asyncSocket connectedPort]];
-    NSString *localHost = [asyncSocket localHost];
-    NSNumber *localPort = [NSNumber numberWithUnsignedShort:[asyncSocket localPort]];
     NSNumber *isConnected = [NSNumber numberWithBool:[asyncSocket isConnected]];
     NSNumber *isIPv4 = [NSNumber numberWithBool:[asyncSocket isIPv4]];
-    NSNumber *isIPv6 = [NSNumber numberWithBool:[asyncSocket isIPv6]];
     NSNumber *isIPv4Enabled = [NSNumber numberWithBool:[asyncSocket isIPv4Enabled]];
-    NSNumber *isIPv6Enabled = [NSNumber numberWithBool:[asyncSocket isIPv6Enabled]];
     NSNumber *isIPv4PreferredOverIPv6 = [NSNumber numberWithBool:[asyncSocket isIPv4PreferredOverIPv6]];
+    NSNumber *isIPv6 = [NSNumber numberWithBool:[asyncSocket isIPv6]];
+    NSNumber *isIPv6Enabled = [NSNumber numberWithBool:[asyncSocket isIPv6Enabled]];
     NSNumber *isSecure = [NSNumber numberWithBool:[asyncSocket isSecure]];
+    NSString *localHost = [asyncSocket localHost];
+    NSNumber *localPort = [NSNumber numberWithUnsignedShort:[asyncSocket localPort]];
+    NSString *socketType = asyncSocket.userData;
 
     connectedHost = connectedHost ? connectedHost : @"";
     localHost = localHost ? localHost : @"";
     socketType = socketType ? socketType : @"";
 
     NSDictionary *info = @{
-        @"socketType" : socketType,
         @"connectedHost" : connectedHost,
         @"connectedPort" : connectedPort,
-        @"localHost" : localHost,
-        @"localPort" : localPort,
         @"isConnected": isConnected,
         @"isIPv4": isIPv4,
-        @"isIPv6": isIPv6,
         @"isIPv4Enabled": isIPv4Enabled,
-        @"isIPv6Enabled": isIPv6Enabled,
         @"isIPv4PreferredOverIPv6": isIPv4PreferredOverIPv6,
+        @"isIPv6": isIPv6,
+        @"isIPv6Enabled": isIPv6Enabled,
         @"isSecure": isSecure,
+        @"localHost" : localHost,
+        @"localPort" : localPort,
+        @"socketType" : socketType,
     };
 
     [skin pushNSObject:info];
@@ -595,7 +596,9 @@ static const luaL_Reg socketObjectLib[] = {
     {"listen", socket_listen},
     {"disconnect", socket_disconnect},
     {"read", socket_read},
+    {"receive", socket_read},
     {"write", socket_write},
+    {"send", socket_write},
     {"setCallback", socket_setCallback},
     {"setTimeout", socket_setTimeout},
     {"startTLS", socket_startTLS},
