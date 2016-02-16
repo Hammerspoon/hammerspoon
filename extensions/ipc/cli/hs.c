@@ -6,6 +6,7 @@ static char* COLOR_INITIAL = "";
 static char* COLOR_INPUT = "";
 static char* COLOR_OUTPUT = "";
 static char* COLOR_RESET = "";
+static double recvTimeout = 4.0;
 
 char * CFStringCopyUTF8String(CFStringRef aString) {
     if (aString == NULL) { return NULL; }
@@ -43,7 +44,7 @@ static void target_send(CFMessagePortRef port, CFMutableStringRef inputstr) {
     CFDataRef inputData = CFStringCreateExternalRepresentation(NULL, inputstr, kCFStringEncodingUTF8, 0);
 
     CFDataRef returnedData;
-    SInt32 code = CFMessagePortSendRequest(port, 0, inputData, 2, 4, kCFRunLoopDefaultMode, &returnedData);
+    SInt32 code = CFMessagePortSendRequest(port, 0, inputData, 2, recvTimeout, kCFRunLoopDefaultMode, &returnedData);
     CFRelease(inputData);
 
     if (code != kCFMessagePortSuccess) {
@@ -101,12 +102,13 @@ int main(int argc, char * argv[]) {
     bool usecolors = true;
 
     int ch;
-    while ((ch = getopt(argc, argv, "nirc:sh")) != -1) {
+    while ((ch = getopt(argc, argv, "nirc:t:sh")) != -1) {
         switch (ch) {
             case 'n': usecolors = false; break;
             case 'i': break;
             case 'r': israw = true; break;
             case 'c': code = optarg; break;
+            case 't': recvTimeout = strtod(optarg, NULL); break;
             case 's': readstdin = true; break;
             case 'h': case '?': default:
                 usage(argv[0]);
