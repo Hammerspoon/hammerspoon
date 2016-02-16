@@ -60,7 +60,7 @@
 --- ~~~
 ---
 
-local socket = require("hs.socket.internal")
+local module = require("hs.socket.internal")
 
 --- hs.socket.server(port[, fn]) -> hs.socket object
 --- Constructor
@@ -73,16 +73,16 @@ local socket = require("hs.socket.internal")
 --- Returns:
 ---  * An [`hs.socket`](#new) object
 ---
-socket.server = function(port, callback)
+module.server = function(port, callback)
     return socket.new(nil, port, callback)
 end
 
---- hs.socket.receive(delimiter[, tag]) -> self
+--- hs.socket:receive(delimiter[, tag]) -> self
 --- Method
 --- Alias for [`hs.socket:read`](#read)
 ---
 
---- hs.socket.send(message[, tag]) -> self
+--- hs.socket:send(message[, tag]) -> self
 --- Method
 --- Alias for [`hs.socket:write`](#write)
 ---
@@ -92,6 +92,6 @@ end
 --- Timeout for read and write operations, in seconds. New [`hs.socket`](#new) objects will be created with this timeout value, but can individually change it with the [`setTimeout`](#setTimeout) method
 --- If the timeout value is negative, the operations will not use a timeout. The default value is -1
 ---
-socket.timeout = -1
+module.timeout = -1
 
-return socket
+return module

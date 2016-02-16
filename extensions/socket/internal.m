@@ -244,7 +244,7 @@ static int socket_disconnect(lua_State *L) {
     return 1;
 }
 
-/// hs.socket.read(delimiter[, tag]) -> self
+/// hs.socket:read(delimiter[, tag]) -> self
 /// Method
 /// Read data from the socket. Results are passed to the callback function, which is required for this method
 ///
@@ -307,7 +307,7 @@ static int socket_read(lua_State *L) {
     return 1;
 }
 
-/// hs.socket.write(message[, tag]) -> self
+/// hs.socket:write(message[, tag]) -> self
 /// Method
 /// Write data to the socket
 ///
