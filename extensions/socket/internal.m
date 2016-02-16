@@ -130,7 +130,7 @@ static void listenSocket(HSAsyncSocket *asyncSocket, NSNumber *port) {
 
 /// hs.socket.new([host], port[, fn]) -> hs.socket object
 /// Constructor
-/// Creates an asynchronous TCP socket object for reading (with callbacks) and writing
+/// Creates an asynchronous TCP socket object for reading and writing. A callback is required to read data from the socket
 ///
 /// Parameters:
 ///  * host - A optional string containing the hostname or IP address. If `nil`, a listening socket is created (same as `hs.socket.server`)
@@ -376,7 +376,7 @@ static int socket_setCallback(lua_State *L) {
 
 /// hs.socket:setTimeout(timeout) -> self
 /// Method
-/// Sets the timeout for the socket operations. If the timeout value is negative, the operations will not use a timeout.
+/// Sets the timeout for the socket operations. If the timeout value is negative, the operations will not use a timeout
 ///
 /// Parameters:
 ///  * timeout - A number containing the timeout duration, in seconds
@@ -398,7 +398,7 @@ static int socket_setTimeout(lua_State *L) {
 
 /// hs.socket:startTLS([verify][, peerName]) -> self
 /// Method
-/// Secures the socket with TLS
+/// Secures the socket with TLS. The socket will disconnect immediately if TLS negotiation fails
 ///
 /// Parameters:
 ///  * verify - An optional boolean that, if `false`, allows TLS handshaking with servers with self-signed certificates and does not evaluate the chain of trust. Defaults to `true`
@@ -426,18 +426,18 @@ static int socket_startTLS(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
-    NSDictionary *settings = nil;
+    NSDictionary *tlsSettings = nil;
 
     if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2) == false) {
-        settings = @{@"GCDAsyncSocketManuallyEvaluateTrust": @YES};
+        tlsSettings = @{@"GCDAsyncSocketManuallyEvaluateTrust": @YES};
     }
 
     if (lua_type(L, 3) == LUA_TSTRING) {
-        NSString *peerName = [skin toNSObjectAtIndex:2];
-        settings = @{@"kCFStreamSSLPeerName": peerName};
+        NSString *peerName = [skin toNSObjectAtIndex:3];
+        tlsSettings = @{@"kCFStreamSSLPeerName": peerName};
     }
 
-    [asyncSocket startTLS:settings];
+    [asyncSocket startTLS:tlsSettings];
 
     lua_pushvalue(L, 1);
     return 1;
