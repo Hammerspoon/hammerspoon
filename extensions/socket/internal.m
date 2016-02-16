@@ -614,7 +614,7 @@ static const luaL_Reg socketObjectLib[] = {
 
 int luaopen_hs_socket_internal(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibraryWithObject:"hs.socket"
+    refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:socketLib
                                  metaFunctions:nil
                                objectFunctions:socketObjectLib];
