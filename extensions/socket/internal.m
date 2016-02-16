@@ -4,6 +4,7 @@
 // Definitions
 @interface HSAsyncSocket : GCDAsyncSocket
 @property int callback;
+@property NSTimeInterval timeout;
 @property NSMutableArray* connectedSockets;
 @end
 
@@ -46,6 +47,7 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data, long tag) {
 
 - (id)init {
     self.callback = LUA_NOREF;
+    self.timeout = -1;
     self.connectedSockets = [[NSMutableArray alloc] init];
     return [super initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
 }
@@ -110,12 +112,8 @@ static void callback(HSAsyncSocket *asyncSocket, NSData *data, long tag) {
 
 // Establish connection
 static void connectSocket(HSAsyncSocket *asyncSocket, NSString *host, NSNumber *port) {
-    LuaSkin *skin =[LuaSkin shared];
-    lua_getglobal(skin.L, "hs"); lua_getfield(skin.L, -1, "socket"); lua_getfield(skin.L, -1, "timeout");
-    NSTimeInterval timeout = lua_tonumber(skin.L, -1);
     NSError *err;
-
-    if (![asyncSocket connectToHost:host onPort:[port unsignedShortValue] withTimeout:timeout error:&err]) {
+    if (![asyncSocket connectToHost:host onPort:[port unsignedShortValue] withTimeout:asyncSocket.timeout error:&err]) {
         [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
     }
 }
@@ -123,7 +121,6 @@ static void connectSocket(HSAsyncSocket *asyncSocket, NSString *host, NSNumber *
 // Establish listening port
 static void listenSocket(HSAsyncSocket *asyncSocket, NSNumber *port) {
     NSError *err;
-
     if (![asyncSocket acceptOnPort:[port unsignedShortValue] error:&err]) {
         [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
     } else {
@@ -155,6 +152,9 @@ static int socket_new(lua_State *L) {
         lua_pushvalue(L, 3);
         asyncSocket.callback = [skin luaRef:refTable];
     }
+
+    lua_getglobal(skin.L, "hs"); lua_getfield(skin.L, -1, "socket"); lua_getfield(skin.L, -1, "timeout");
+    asyncSocket.timeout = lua_tonumber(skin.L, -1);
 
     if (![theHost isEqual:[NSNull null]]) {
         connectSocket(asyncSocket, theHost, thePort);
@@ -272,18 +272,15 @@ static int socket_read(lua_State *L) {
     long tag = -1;
     if (lua_type(L, 3) == LUA_TNUMBER) tag = lua_tointeger(L, 3);
 
-    lua_getglobal(L, "hs"); lua_getfield(L, -1, "socket"); lua_getfield(L, -1, "timeout");
-    NSTimeInterval timeout = lua_tonumber(L, -1);
-
     switch (lua_type(L, 2)) {
         case LUA_TNUMBER: {
             NSNumber *bytesToRead = [skin toNSObjectAtIndex:2];
             NSUInteger bytes = [bytesToRead unsignedIntegerValue];
-            [asyncSocket readDataToLength:bytes withTimeout:timeout tag:tag];
+            [asyncSocket readDataToLength:bytes withTimeout:asyncSocket.timeout tag:tag];
             if (asyncSocket.userData == SERVER) {
                 @synchronized(asyncSocket.connectedSockets) {
                     for (HSAsyncSocket *client in asyncSocket.connectedSockets){
-                        [client readDataToLength:bytes withTimeout:timeout tag:tag];
+                        [client readDataToLength:bytes withTimeout:asyncSocket.timeout tag:tag];
                     }
                 }
             }
@@ -292,11 +289,11 @@ static int socket_read(lua_State *L) {
         case LUA_TSTRING: {
             NSString *separatorString = [skin toNSObjectAtIndex:2];
             NSData *separator = [separatorString dataUsingEncoding:NSUTF8StringEncoding];
-            [asyncSocket readDataToData:separator withTimeout:timeout tag:tag];
+            [asyncSocket readDataToData:separator withTimeout:asyncSocket.timeout tag:tag];
             if (asyncSocket.userData == SERVER) {
                 @synchronized(asyncSocket.connectedSockets) {
                     for (HSAsyncSocket *client in asyncSocket.connectedSockets){
-                        [client readDataToData:separator withTimeout:timeout tag:tag];
+                        [client readDataToData:separator withTimeout:asyncSocket.timeout tag:tag];
                     }
                 }
             }
@@ -334,15 +331,12 @@ static int socket_write(lua_State *L) {
     long tag = -1;
     if (lua_type(L, 3) == LUA_TNUMBER) tag = lua_tointeger(L, 3);
 
-    lua_getglobal(L, "hs"); lua_getfield(L, -1, "socket"); lua_getfield(L, -1, "timeout");
-    NSTimeInterval timeout = lua_tonumber(L, -1);
-
     if (asyncSocket.userData != SERVER) {
-        [asyncSocket writeData:[message dataUsingEncoding:NSUTF8StringEncoding] withTimeout:timeout tag:tag];
+        [asyncSocket writeData:[message dataUsingEncoding:NSUTF8StringEncoding] withTimeout:asyncSocket.timeout tag:tag];
     } else {
         @synchronized(asyncSocket.connectedSockets) {
             for (HSAsyncSocket *client in asyncSocket.connectedSockets){
-                [client writeData:[message dataUsingEncoding:NSUTF8StringEncoding] withTimeout:timeout tag:tag];
+                [client writeData:[message dataUsingEncoding:NSUTF8StringEncoding] withTimeout:asyncSocket.timeout tag:tag];
             }
         }
     }
@@ -375,6 +369,28 @@ static int socket_setCallback(lua_State *L) {
     } else {
         asyncSocket.callback = LUA_NOREF;
     }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.socket:setTimeout(timeout) -> self
+/// Method
+/// Sets the timeout for the socket operations. If the timeout value is negative, the operations will not use a timeout.
+///
+/// Parameters:
+///  * timeout - A number containing the timeout duration, in seconds
+///
+/// Returns:
+///  * The `hs.socket` object
+///
+static int socket_setTimeout(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
+
+    HSAsyncSocket* asyncSocket = getUserData(L, 1);
+    NSTimeInterval timeout = lua_tonumber(L, 2);
+    asyncSocket.timeout = timeout;
 
     lua_pushvalue(L, 1);
     return 1;
@@ -581,6 +597,7 @@ static const luaL_Reg socketObjectLib[] = {
     {"read", socket_read},
     {"write", socket_write},
     {"setCallback", socket_setCallback},
+    {"setTimeout", socket_setTimeout},
     {"startTLS", socket_startTLS},
     {"connected", socket_connected},
     {"connections", socket_connections},
