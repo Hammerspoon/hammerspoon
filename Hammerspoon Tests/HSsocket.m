@@ -63,6 +63,34 @@
     XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testClientServerReadWriteBytes()" checkCode:@"testClientServerReadWriteBytesValues()"], @"testClientServerReadWriteBytes test failed");
 }
 
+- (void)testTagging {
+    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTagging()" checkCode:@"testTaggingValues()"], @"testTagging test failed");
+}
+
+- (void)testClientServerTimeout {
+    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testClientServerTimeout()" checkCode:@"testClientServerTimeoutValues()"], @"testClientServerTimeout test failed");
+}
+
+- (void)testTLS {
+    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTLS()" checkCode:@"testTLSValues()"], @"testTLS test failed");
+}
+
+- (void)testNoTLSWhenRequiredByServer {
+    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testNoTLSWhenRequiredByServer()" checkCode:@"testNoTLSWhenRequiredByServerValues()"], @"testNoTLSWhenRequiredByServer test failed");
+}
+
+- (void)testTLSVerifyPeer {
+    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTLSVerifyPeer()" checkCode:@"testTLSVerifyPeerValues()"], @"testTLSVerifyPeer test failed");
+}
+
+- (void)testTLSVerifyBadPeerFails {
+    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTLSVerifyBadPeerFails()" checkCode:@"testTLSVerifyBadPeerFailsValues()"], @"testTLSVerifyBadPeerFails test failed");
+}
+
+- (void)testTLSNoVerify {
+    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTLSNoVerify()" checkCode:@"testTLSNoVerifyValues()"], @"testTLSNoVerify test failed");
+}
+
 - (void)testNoCallbackRead {
     RUN_LUA_TEST()
 }

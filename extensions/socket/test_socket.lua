@@ -11,6 +11,8 @@ serverConnections = nil
 clientConnected = nil
 clientConnections = nil
 
+clientConnectedAfterTimeout = nil
+
 serverConnectedAfterDisconnect = nil
 serverConnectionsAfterDisconnect = nil
 clientConnectedAfterDisconnect = nil
@@ -31,6 +33,16 @@ clientUserdataString = nil
 
 serverReadData = nil
 clientReadData = nil
+
+globalClient = nil
+
+readData = nil
+readTag = nil
+
+callback = function(data, tag)
+  readData = data
+  readTag = tag
+end
 
 -- constructors
 function testDefaultSocketCreation()
@@ -275,6 +287,187 @@ function testClientServerReadWriteBytes()
     hs.timer.doAfter(.1, function()
       assertIsUserdataOfType("hs.socket", client:read(5))
     end)
+  end)
+
+  return success()
+end
+
+-- tagging
+function testTaggingValues()
+  if (type(readData) == "string" and readData:sub(1,6) == "<HTML>" and
+    type(clientConnected) == "boolean" and clientConnected == false) then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testTagging()
+  local TAG_HTTP_HEADER = 1
+  local TAG_HTTP_CONTENT = 2
+
+  local function httpCallback(data, tag)
+    if tag == TAG_HTTP_HEADER then
+      local _, _, contentLength = data:find("\r\nContent%-Length: (%d+)\r\n");
+      globalClient:read(tonumber(contentLength), TAG_HTTP_CONTENT)
+    elseif tag == TAG_HTTP_CONTENT then
+      readData = data
+    end
+  end
+
+  globalClient = hs.socket.new("google.com", 80, httpCallback)
+  globalClient:write("GET /index.html HTTP/1.0\r\nHost: google.com\r\n\r\n")
+  globalClient:read("\r\n\r\n", TAG_HTTP_HEADER)
+
+  hs.timer.doAfter(2, function()
+    clientConnected = globalClient:connected()
+  end)
+
+  return success()
+end
+
+-- timeout
+function testClientServerTimeoutValues()
+  if (type(clientConnected) == "boolean" and clientConnected == true and
+    type(clientConnectedAfterTimeout) == "boolean" and clientConnectedAfterTimeout == false) then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testClientServerTimeout()
+  local server = hs.socket.server(port, function(data) print(data) end)
+  local client = hs.socket.new("localhost", port, function(data) print(data) end)
+
+  client:setTimeout(1)
+  -- waiting for server to send data ending in '\n'
+  client:read("\n")
+
+  hs.timer.doAfter(.1, function()
+    clientConnected = client:connected()
+    hs.timer.doAfter(2, function()
+      clientConnectedAfterTimeout = client:connected()
+    end)
+  end)
+
+  return success()
+end
+
+-- TLS
+function testTLSValues()
+  if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
+    type(clientConnected) == "boolean" and clientConnected == false) then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testTLS()
+  local client = hs.socket.new("github.com", 443, callback)
+
+  client:startTLS()
+  client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
+  client:read("\r\n\r\n");
+
+  hs.timer.doAfter(2, function()
+    clientConnected = client:connected()
+  end)
+
+  return success()
+end
+
+-- make sure github disconnects us if operations attempted on unsecured socket
+function testNoTLSWhenRequiredByServerValues()
+  if (type(readData) == "nil" and readData == nil and
+    type(clientConnected) == "boolean" and clientConnected == false) then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testNoTLSWhenRequiredByServer()
+  local client = hs.socket.new("github.com", 443, callback)
+
+  client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
+  client:read("\r\n\r\n");
+
+  hs.timer.doAfter(2, function()
+    clientConnected = client:connected()
+  end)
+
+  return success()
+end
+
+-- verify peer name
+function testTLSVerifyPeerValues()
+  if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
+    type(clientConnected) == "boolean" and clientConnected == false) then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testTLSVerifyPeer()
+  local client = hs.socket.new("github.com", 443, callback)
+
+  client:startTLS(true, "github.com")
+  client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
+  client:read("\r\n\r\n");
+
+  hs.timer.doAfter(2, function()
+    clientConnected = client:connected()
+  end)
+
+  return success()
+end
+
+-- make sure TLS handshake fails on bad peer
+function testTLSVerifyBadPeerFailsValues()
+  if (type(readData) == "nil" and readData == nil and
+    type(clientConnected) == "boolean" and clientConnected == false) then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testTLSVerifyBadPeerFails()
+  local client = hs.socket.new("github.com", 443, callback)
+
+  client:startTLS(true, "bitbucket.org")
+  client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
+  client:read("\r\n\r\n");
+
+  hs.timer.doAfter(2, function()
+    clientConnected = client:connected()
+  end)
+
+  return success()
+end
+
+-- no verification should work fine
+function testTLSNoVerifyValues()
+  if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
+    type(clientConnected) == "boolean" and clientConnected == false) then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testTLSNoVerify()
+  local client = hs.socket.new("github.com", 443, callback)
+
+  client:startTLS(false)
+  client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
+  client:read("\r\n\r\n");
+
+  hs.timer.doAfter(2, function()
+    clientConnected = client:connected()
   end)
 
   return success()
