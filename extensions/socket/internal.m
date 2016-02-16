@@ -524,36 +524,19 @@ static int socket_info(lua_State *L) {
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
-    NSString *connectedHost = [asyncSocket connectedHost];
-    NSNumber *connectedPort = [NSNumber numberWithUnsignedShort:[asyncSocket connectedPort]];
-    NSNumber *isConnected = [NSNumber numberWithBool:[asyncSocket isConnected]];
-    NSNumber *isIPv4 = [NSNumber numberWithBool:[asyncSocket isIPv4]];
-    NSNumber *isIPv4Enabled = [NSNumber numberWithBool:[asyncSocket isIPv4Enabled]];
-    NSNumber *isIPv4PreferredOverIPv6 = [NSNumber numberWithBool:[asyncSocket isIPv4PreferredOverIPv6]];
-    NSNumber *isIPv6 = [NSNumber numberWithBool:[asyncSocket isIPv6]];
-    NSNumber *isIPv6Enabled = [NSNumber numberWithBool:[asyncSocket isIPv6Enabled]];
-    NSNumber *isSecure = [NSNumber numberWithBool:[asyncSocket isSecure]];
-    NSString *localHost = [asyncSocket localHost];
-    NSNumber *localPort = [NSNumber numberWithUnsignedShort:[asyncSocket localPort]];
-    NSString *socketType = asyncSocket.userData;
-
-    connectedHost = connectedHost ? connectedHost : @"";
-    localHost = localHost ? localHost : @"";
-    socketType = socketType ? socketType : @"";
-
     NSDictionary *info = @{
-        @"connectedHost" : connectedHost,
-        @"connectedPort" : connectedPort,
-        @"isConnected": isConnected,
-        @"isIPv4": isIPv4,
-        @"isIPv4Enabled": isIPv4Enabled,
-        @"isIPv4PreferredOverIPv6": isIPv4PreferredOverIPv6,
-        @"isIPv6": isIPv6,
-        @"isIPv6Enabled": isIPv6Enabled,
-        @"isSecure": isSecure,
-        @"localHost" : localHost,
-        @"localPort" : localPort,
-        @"socketType" : socketType,
+        @"connectedHost" : [asyncSocket connectedHost] ?: @"",
+        @"connectedPort" : @(asyncSocket.connectedPort),
+        @"isConnected": @(asyncSocket.isConnected),
+        @"isIPv4": @(asyncSocket.isIPv4),
+        @"isIPv4Enabled": @(asyncSocket.isIPv4Enabled),
+        @"isIPv4PreferredOverIPv6": @(asyncSocket.isIPv4PreferredOverIPv6),
+        @"isIPv6": @(asyncSocket.isIPv6),
+        @"isIPv6Enabled": @(asyncSocket.isIPv6Enabled),
+        @"isSecure": @(asyncSocket.isSecure),
+        @"localHost" : [asyncSocket localHost] ?: @"",
+        @"localPort" : @(asyncSocket.localPort),
+        @"socketType" : asyncSocket.userData ?: @"",
     };
 
     [skin pushNSObject:info];
