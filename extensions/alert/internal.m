@@ -118,12 +118,20 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 }
 
 - (void) fadeWindowOut {
+    [self fadeWindowOut:0.15];
+}
+
+- (void) fadeWindowOut:(CGFloat)fadeDuration {
+    if(fadeDuration == 0) {
+        [self closeAndResetWindow];
+        return;
+    }
     [NSAnimationContext beginGrouping];
-    [[NSAnimationContext currentContext] setDuration:0.15];
+    [[NSAnimationContext currentContext] setDuration:fadeDuration];
     [[[self window] animator] setAlphaValue:0.0];
     [NSAnimationContext endGrouping];
 
-    [self performSelector:@selector(closeAndResetWindow) withObject:nil afterDelay:0.15];
+    [self performSelector:@selector(closeAndResetWindow) withObject:nil afterDelay:fadeDuration];
 }
 
 - (void) closeAndResetWindow {
@@ -184,19 +192,31 @@ static int alert_show(lua_State* L) {
     return 0;
 }
 
-/// hs.alert.closeAll()
+/// hs.alert.closeAll([seconds])
 /// Function
 /// Closes all alerts currently open on the screen
 ///
 /// Parameters:
-///  * None
+///  * seconds - The fade out duration. Defaults to 0.15
 ///
 /// Returns:
 ///  * None
-static int alert_closeAll(lua_State* L __unused) {
+static int alert_closeAll(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+
+    lua_settop(L, 1);
+
+    double duration = 0.15;
+    if (lua_isnumber(L, 1))
+        duration = lua_tonumber(L, 1);
+
+    if(duration < 0.0)
+        duration = 0.0;
+
     NSMutableArray *alerts = [visibleAlerts copy];
     for (id alert in alerts) {
-        [alert fadeWindowOut];
+        [alert fadeWindowOut:duration];
     }
     return 0;
 }
