@@ -190,7 +190,9 @@ static int socket_new(lua_State *L) {
 static int socket_parseAddress(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
-    NSData *address = [[skin toNSObjectAtIndex:1] dataUsingEncoding:NSUTF8StringEncoding];
+    const char *addressData = lua_tostring(L, 1);
+    NSUInteger addressDataLength = lua_rawlen(L, 1);
+    NSData *address = [NSData dataWithBytes:addressData length:addressDataLength];
 
     NSString *host;
     UInt16 port;

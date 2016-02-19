@@ -524,3 +524,46 @@ function testNoCallbackRead()
 
   return success()
 end
+
+-- address parsing
+function testParseAddress()
+  -- sockaddr structure:
+  --  1 byte   size
+  --  1 byte   family
+  --  2 bytes  port
+  -- ipv4
+  --  4 bytes  ipv4 address
+  --  8 bytes  zeros    - (total 16 bytes)
+  -- ipv6
+  --  4 bytes  flowinfo
+  --  16 bytes ipv6 address
+  --  4 bytes  scope ID - (total 28 bytes)
+
+  -- ipv4.google.com
+  host_IPv4 = "216.58.218.110"
+  port_IPv4 = 80
+  AF_IPv4 = 2 -- AF_INET
+  --                       ipv4   80 216.58.218.110
+  addr_IPv4 = string.char(16,02,0,80,216,58,218,110,0,0,0,0,0,0,0,0)
+
+  -- ipv6.google.com
+  host_IPv6 = "2607:f8b0:4000:800::200e"
+  port_IPv6 = 80
+  AF_IPv6 = 30 -- AF_INET6
+  --                       ipv6   80                       26   07 : f8   b0 : 40   00 : 08   00 :                             : 20   0e
+  addr_IPv6 = string.char(28,30,0,80,0x00,0x00,0x00,0x00,0x26,0x07,0xf8,0xb0,0x40,0x00,0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x0e,0x00,0x00,0x00,0x00)
+
+
+  local addr4 = hs.socket.parseAddress(addr_IPv4)
+  local addr6 = hs.socket.parseAddress(addr_IPv6)
+
+  assertIsEqual(host_IPv4, addr4.host)
+  assertIsEqual(port_IPv4, addr4.port)
+  assertIsEqual(AF_IPv4, addr4.addressFamily)
+
+  assertIsEqual(host_IPv6, addr6.host)
+  assertIsEqual(port_IPv6, addr6.port)
+  assertIsEqual(AF_IPv6, addr6.addressFamily)
+
+  return success()
+end

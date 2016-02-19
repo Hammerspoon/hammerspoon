@@ -99,4 +99,8 @@
     RUN_LUA_TEST()
 }
 
+- (void)testParseAddress {
+    RUN_LUA_TEST()
+}
+
 @end
