@@ -5,6 +5,7 @@
 // Definitions
 @interface HSAsyncSocket : GCDAsyncSocket
 @property int readCallback;
+@property int writeCallback;
 @property int connectCallback;
 @property NSTimeInterval timeout;
 @property NSMutableArray* connectedSockets;
@@ -14,26 +15,13 @@
 static const char *USERDATA_TAG = "hs.socket";
 #define getUserData(L, idx) (__bridge HSAsyncSocket *)((asyncSocketUserData *)lua_touserdata(L, idx))->asyncSocket;
 
-// Callback on data reads
-static void readCallback(HSAsyncSocket *asyncSocket, NSData *data, long tag) {
-    LuaSkin *skin = [LuaSkin shared];
-    NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-
-    [skin pushLuaRef:refTable ref:asyncSocket.readCallback];
-    [skin pushNSObject: utf8Data];
-    [skin pushNSObject: @(tag)];
-
-    if (![skin protectedCallAndTraceback:2 nresults:0]) {
-        const char *errorMsg = lua_tostring(skin.L, -1);
-        [skin logError:[NSString stringWithFormat:@"hs.socket read callback error: %s", errorMsg]];
-    }
-}
 
 // Delegate implementation
 @implementation HSAsyncSocket
 
 - (id)init {
     self.readCallback = LUA_NOREF;
+    self.writeCallback = LUA_NOREF;
     self.connectCallback = LUA_NOREF;
     self.timeout = -1;
     self.connectedSockets = [[NSMutableArray alloc] init];
@@ -48,9 +36,10 @@ static void readCallback(HSAsyncSocket *asyncSocket, NSData *data, long tag) {
     if (sock.connectCallback != LUA_NOREF) {
         [skin pushLuaRef:refTable ref:sock.connectCallback];
         sock.connectCallback = [skin luaUnref:refTable ref:sock.connectCallback];
+
         if (![skin protectedCallAndTraceback:0 nresults:0]) {
             const char *errorMsg = lua_tostring(skin.L, -1);
-            [skin logError:[NSString stringWithFormat:@"hs.socket connect callback error: %s", errorMsg]];
+            [skin logError:[NSString stringWithFormat:@"%s connect callback error: %s", USERDATA_TAG, errorMsg]];
         }
     }
 }
@@ -86,13 +75,34 @@ static void readCallback(HSAsyncSocket *asyncSocket, NSData *data, long tag) {
 }
 
 - (void)socket:(HSAsyncSocket *)sock didWriteDataWithTag:(long)tag {
-    [[LuaSkin shared] logInfo:@"Data written to socket"];
+    LuaSkin *skin = [LuaSkin shared];
+    [skin logInfo:@"Data written to socket"];
+
+    if (self.writeCallback != LUA_NOREF) {
+        [skin pushLuaRef:refTable ref:self.writeCallback];
+        [skin pushNSObject: @(tag)];
+        self.writeCallback = [skin luaUnref:refTable ref:self.writeCallback];
+
+        if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            const char *errorMsg = lua_tostring(skin.L, -1);
+            [skin logError:[NSString stringWithFormat:@"%s write callback error: %s", USERDATA_TAG, errorMsg]];
+        }
+    }
 }
 
 - (void)socket:(HSAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag  {
-    [[LuaSkin shared] logInfo:@"Data read from socket"];
+    LuaSkin *skin = [LuaSkin shared];
+    [skin logInfo:@"Data read from socket"];
+    NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
-    readCallback(self, data, tag);
+    [skin pushLuaRef:refTable ref:self.readCallback];
+    [skin pushNSObject: utf8Data];
+    [skin pushNSObject: @(tag)];
+
+    if (![skin protectedCallAndTraceback:2 nresults:0]) {
+        const char *errorMsg = lua_tostring(skin.L, -1);
+        [skin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
+    }
 }
 
 - (void)socket:(HSAsyncSocket *)sock didReceiveTrust:(SecTrustRef)trust completionHandler:(void (^)(BOOL))completionHandler {
@@ -199,7 +209,7 @@ static int socket_parseAddress(lua_State *L) {
 /// Parameters:
 ///  * host - A string containing the hostname or IP address
 ///  * port - A port number [1-65535]
-///  * fn - An optional callback function to execute after establishing the connection. Takes no parameters
+///  * fn - An optional single-use callback function to execute after establishing the connection. Takes no parameters
 ///
 /// Returns:
 ///  * The [`hs.socket`](#new) object
@@ -346,6 +356,7 @@ static int socket_read(lua_State *L) {
 /// Parameters:
 ///  * message - A string containing data to be sent on the socket
 ///  * tag - An optional integer to assist with labeling writes
+///  * fn - An optional single-use callback function to execute after writing data to the socket. Takes the tag parameter
 ///
 /// Returns:
 ///  * The [`hs.socket`](#new) object
@@ -355,13 +366,17 @@ static int socket_read(lua_State *L) {
 ///
 static int socket_write(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER|LS_TNIL|LS_TOPTIONAL, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
     NSString *message = [skin toNSObjectAtIndex:2];
 
     long tag = -1;
     if (lua_type(L, 3) == LUA_TNUMBER) tag = lua_tointeger(L, 3);
+    if (lua_type(L, 4) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 4);
+        asyncSocket.writeCallback = [skin luaRef:refTable];
+    }
 
     if (asyncSocket.userData != SERVER) {
         [asyncSocket writeData:[message dataUsingEncoding:NSUTF8StringEncoding] withTimeout:asyncSocket.timeout tag:tag];

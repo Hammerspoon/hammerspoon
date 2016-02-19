@@ -25,7 +25,7 @@
 ---   end
 --- end
 ---
---- client = hs.socket.new("google.com", 80, httpCallback)
+--- client = hs.socket.new(httpCallback):connect("google.com", 80)
 --- client:write("GET /index.html HTTP/1.0\r\nHost: google.com\r\n\r\n")
 --- client:read("\r\n\r\n", TAG_HTTP_HEADER)
 --- ~~~
