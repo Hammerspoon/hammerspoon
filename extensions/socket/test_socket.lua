@@ -11,6 +11,10 @@ serverConnections = nil
 clientConnected = nil
 clientConnections = nil
 
+serverUserdata = nil
+server2Connected = nil
+server2Userdata = nil
+
 clientConnectedAfterTimeout = nil
 
 serverConnectedAfterDisconnect = nil
@@ -82,13 +86,13 @@ end
 -- reusing client and server sockets
 function testDisconnectAndReuseValues()
   if (type(serverLocalPort) == "number" and serverLocalPort == port and
-    type(clientConnectedPort) == "number" and clientConnectedPort == port and
-    type(serverDisconnectedPort) == "number" and serverDisconnectedPort == 0 and
-    type(clientDisconnectedPort) == "number" and clientDisconnectedPort == 0 and
-    type(server2LocalPort) == "number" and server2LocalPort == port and
-    type(client2ConnectedPort) == "number" and client2ConnectedPort == port and
-    type(server2DisconnectedPort) == "number" and server2DisconnectedPort == 0 and
-    type(client2DisconnectedPort) == "number" and client2DisconnectedPort == 0) then
+      type(clientConnectedPort) == "number" and clientConnectedPort == port and
+      type(serverDisconnectedPort) == "number" and serverDisconnectedPort == 0 and
+      type(clientDisconnectedPort) == "number" and clientDisconnectedPort == 0 and
+      type(server2LocalPort) == "number" and server2LocalPort == port and
+      type(client2ConnectedPort) == "number" and client2ConnectedPort == port and
+      type(server2DisconnectedPort) == "number" and server2DisconnectedPort == 0 and
+      type(client2DisconnectedPort) == "number" and client2DisconnectedPort == 0) then
     return success()
   else
     return "Waiting for success..."
@@ -133,13 +137,13 @@ end
 -- multiple client connection counts
 function testConnectedValues()
   if (type(serverConnected) == "boolean" and serverConnected == true and
-    type(serverConnections) == "number" and serverConnections == 3 and
-    type(clientConnected) == "boolean" and clientConnected == true and
-    type(clientConnections) == "number" and clientConnections == 1 and
-    type(serverConnectedAfterDisconnect) == "boolean" and serverConnectedAfterDisconnect == false and
-    type(serverConnectionsAfterDisconnect) == "number" and serverConnectionsAfterDisconnect == 0 and
-    type(clientConnectedAfterDisconnect) == "boolean" and clientConnectedAfterDisconnect == false and
-    type(clientConnectionsAfterDisconnect) == "number" and clientConnectionsAfterDisconnect == 0) then
+      type(serverConnections) == "number" and serverConnections == 3 and
+      type(clientConnected) == "boolean" and clientConnected == true and
+      type(clientConnections) == "number" and clientConnections == 1 and
+      type(serverConnectedAfterDisconnect) == "boolean" and serverConnectedAfterDisconnect == false and
+      type(serverConnectionsAfterDisconnect) == "number" and serverConnectionsAfterDisconnect == 0 and
+      type(clientConnectedAfterDisconnect) == "boolean" and clientConnectedAfterDisconnect == false and
+      type(clientConnectionsAfterDisconnect) == "number" and clientConnectionsAfterDisconnect == 0) then
     return success()
   else
     return "Waiting for success..."
@@ -165,6 +169,43 @@ function testConnected()
       serverConnectionsAfterDisconnect = server:connections()
       clientConnectedAfterDisconnect = client:connected()
       clientConnectionsAfterDisconnect = client:connections()
+    end)
+  end)
+
+  return success()
+end
+
+-- test failure to connect already connected sockets
+function testAlreadyConnectedValues()
+  if (type(serverConnected) == "boolean" and serverConnected == true and
+      type(serverUserdata) == "string" and serverUserdata == "SERVER" and
+      type(server2Connected) == "boolean" and server2Connected == false and
+      type(server2Userdata) == "string" and server2Userdata == "" and
+      type(clientConnectedPort) == "number" and clientConnectedPort == port) then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testAlreadyConnected()
+  local server = hs.socket.server(port)
+  local server2 = hs.socket.server(port)
+  local client = hs.socket.new("localhost", port)
+
+  hs.timer.doAfter(0.1, function()
+    serverConnected = server:connected()
+    serverUserdata = server:info().userData
+
+    -- no listening socket created because local port already in use
+    server2Connected = server2:connected()
+    server2Userdata = server2:info().userData
+
+    -- port should not change because already connected
+    client:connect("localhost", port + 1)
+
+    hs.timer.doAfter(0.1, function()
+      clientConnectedPort = client:info().connectedPort
     end)
   end)
 
@@ -206,7 +247,7 @@ end
 -- reading and writing data
 function testClientServerReadWriteDelimiterValues()
   if (type(serverReadData) == "string" and serverReadData == "Hi from client\n" and
-    type(clientReadData) == "string" and clientReadData == "Hello from server\n") then
+      type(clientReadData) == "string" and clientReadData == "Hello from server\n") then
     return success()
   else
     return "Waiting for success..."
@@ -250,7 +291,7 @@ end
 
 function testClientServerReadWriteBytesValues()
   if (type(serverReadData) == "string" and serverReadData == "Hi fr" and
-    type(clientReadData) == "string" and clientReadData == "Hello") then
+      type(clientReadData) == "string" and clientReadData == "Hello") then
     return success()
   else
     return "Waiting for success..."
@@ -295,7 +336,7 @@ end
 -- tagging
 function testTaggingValues()
   if (type(readData) == "string" and readData:sub(1,6) == "<HTML>" and
-    type(clientConnected) == "boolean" and clientConnected == false) then
+      type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
   else
     return "Waiting for success..."
@@ -329,7 +370,7 @@ end
 -- timeout
 function testClientServerTimeoutValues()
   if (type(clientConnected) == "boolean" and clientConnected == true and
-    type(clientConnectedAfterTimeout) == "boolean" and clientConnectedAfterTimeout == false) then
+      type(clientConnectedAfterTimeout) == "boolean" and clientConnectedAfterTimeout == false) then
     return success()
   else
     return "Waiting for success..."
@@ -357,7 +398,7 @@ end
 -- TLS
 function testTLSValues()
   if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
-    type(clientConnected) == "boolean" and clientConnected == false) then
+      type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
   else
     return "Waiting for success..."
@@ -381,7 +422,7 @@ end
 -- make sure github disconnects us if operations attempted on unsecured socket
 function testNoTLSWhenRequiredByServerValues()
   if (type(readData) == "nil" and readData == nil and
-    type(clientConnected) == "boolean" and clientConnected == false) then
+      type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
   else
     return "Waiting for success..."
@@ -404,7 +445,7 @@ end
 -- verify peer name
 function testTLSVerifyPeerValues()
   if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
-    type(clientConnected) == "boolean" and clientConnected == false) then
+      type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
   else
     return "Waiting for success..."
@@ -428,7 +469,7 @@ end
 -- make sure TLS handshake fails on bad peer
 function testTLSVerifyBadPeerFailsValues()
   if (type(readData) == "nil" and readData == nil and
-    type(clientConnected) == "boolean" and clientConnected == false) then
+      type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
   else
     return "Waiting for success..."
@@ -452,7 +493,7 @@ end
 -- no verification should work fine
 function testTLSNoVerifyValues()
   if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
-    type(clientConnected) == "boolean" and clientConnected == false) then
+      type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
   else
     return "Waiting for success..."
@@ -480,24 +521,6 @@ function testNoCallbackRead()
 
   local result = client:read(5)
   assertIsNil(result)
-
-  return success()
-end
-
--- test failure to connect already connected sockets
-function testAlreadyConnected()
-  local server = hs.socket.server(port)
-  local server2 = hs.socket.server(port)
-  local server3 = hs.socket.server(port + 1)
-  local client = hs.socket.new("localhost", port)
-
-  -- no listening socket created because local port already in use
-  assertFalse(server2:connected())
-  assertIsEqual("", server2:info().socketType)
-
-  -- port should not change because already connected
-  client:connect("localhost", port + 1)
-  assertIsEqual(port, client:info().connectedPort) 
 
   return success()
 end

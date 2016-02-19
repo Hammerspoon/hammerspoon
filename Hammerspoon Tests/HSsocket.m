@@ -51,6 +51,10 @@
     XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testConnected()" checkCode:@"testConnectedValues()"], @"testConnected test failed");
 }
 
+- (void)testAlreadyConnected {
+    XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testAlreadyConnected()" checkCode:@"testAlreadyConnectedValues()"], @"testAlreadyConnected test failed");
+}
+
 - (void)testUserdataStrings {
     XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testUserdataStrings()" checkCode:@"testUserdataStringValues()"], @"testUserdataStrings test failed");
 }
@@ -92,10 +96,6 @@
 }
 
 - (void)testNoCallbackRead {
-    RUN_LUA_TEST()
-}
-
-- (void)testAlreadyConnected {
     RUN_LUA_TEST()
 }
 
