@@ -21,6 +21,8 @@
 --- To resize/move the window, you can select the corner cells of the desired position.
 --- For a move-only, you can select a cell and confirm with 'return'. The celected cell will become the new upper-left of the window.
 --- You can also use the arrow keys to move the window onto adjacent screens, and the tab/shift-tab keys to cycle to the next/previous window.
+--- Once you selected a cell, you can use the arrow keys to navigate through the grid. In this case, the grid will highlight the selected cells.
+--- After highlighting enough cells, press enter to move/resize the window to the highlighted area.
 
 local window = require "hs.window"
 local screen = require 'hs.screen'
@@ -713,13 +715,29 @@ local function _start()
     showGrid(currentScreen)
     showing = true
   end
-  local selectedElem
+
+  -- selectedCorner gives us the corner the user selected first with a hint
+  -- By this we know if we have to add or insert or remove a column/row to the selectedMatrix
+  -- 0 = upper-left; 1 = upper-right; 2 = bottom-left; 3 = bottom-right
+  local selectedCorner = 0
+  -- selectedMatrix keeps track of the cells the user navigated to
+  local selectedMatrix = {{}}
+  -- dim = {x,y}; x = #columns; y = #rows
+  local dim = {1,1}
+
+  -- Clear selected cells
   local function clearSelection()
-    if selectedElem then
-      selectedElem.rect:setFillColor(getColor(ui.cellColor))
-      selectedElem = nil
+    if selectedMatrix[1][1] then
+      for _,row in ipairs(selectedMatrix) do
+        for _,cell in ipairs(row) do cell.rect:setFillColor(getColor(ui.cellColor)) end
+      end
     end
+    -- reset all matrix values
+    selectedCorner = 0
+    selectedMatrix = {{}}
+    dim = {1,1}
   end
+
   function resizing:exited()
     if not showing then return true end
     if highlight then highlight:delete() highlight=nil end
@@ -750,14 +768,54 @@ local function _start()
     showHighlight()
     showGrid(currentScreen)
   end
+
+  -- gets the neighbour cell in a certain direction
+  local function getNeighbour(elem, dir)
+    -- neighbour can perfectly be found by simple geom calculation
+    local nx,ny -- x and y values of the neighbour cell
+    if     (dir == 'right') then
+      nx = elem.x + elem.w
+      ny = elem.y
+    elseif (dir == 'left') then
+      nx = elem.x - elem.w
+      ny = elem.y
+    elseif (dir == 'up') then
+      nx = elem.x
+      ny = elem.y - elem.h
+    elseif (dir == 'down') then
+      nx = elem.x
+      ny = elem.y + elem.h
+    end
+    for _,cell in ipairs(uielements[currentScreen].hints) do
+      if (nx == cell.x and ny == cell.y) then return cell end
+    end
+    -- no cell found, you'r going out of your screen!
+    return nil
+  end
+
+  -- key bindings, events at certain non-hint key presses
   resizing:bind({},'tab',function()cycle(1)end)
   resizing:bind({'shift'},'tab',function()cycle(-1)end)
   resizing:bind({},'delete',clearSelection)
   resizing:bind({},'escape',function()log.d('abort move')resizing:exit()end)
   resizing:bind({},'return',function()
-    if not selectedElem then return
+    if not selectedMatrix[1][1] then return
+    -- move and resize to highlighted cells
+    elseif dim[1] > 1 or dim[2] > 1 then
+      local x1,x2,y1,y2
+      local selectedElem = selectedMatrix[1][1]
+      local elem = selectedMatrix[dim[2]][dim[1]]
+      x1,x2 = min(selectedElem.x,elem.x)+margins.w,max(selectedElem.x,elem.x)-margins.h
+      y1,y2 = min(selectedElem.y,elem.y)+margins.w,max(selectedElem.y,elem.y)-margins.h
+      local frame={x=x1,y=y1,w=x2-x1+elem.w,h=y2-y1+elem.h}
+      currentWindow:setFrameInScreenBounds(frame)
+      log.f('move to %.0f,%.0f[%.0fx%.0f] by navigation',frame.x,frame.y,frame.w,frame.h)
+      clearSelection()
+      if cycling then cycle(1) else resizing:exit() end
+    -- one element selected, do a pure move
     else
-      x1,y1 = selectedElem.x+margins.w,selectedElem.y+margins.w
+      local selectedElem = selectedMatrix[1][1]
+      local x1,y1 = selectedElem.x+margins.w,selectedElem.y+margins.w
       currentWindow:setFrame(geom({x1, y1}, currentWindow:size()))
       clearSelection()
       if cycling then cycle(1) else resizing:exit() end
@@ -772,14 +830,148 @@ local function _start()
   end)
   for _,dir in ipairs({'left','right','up','down'}) do
     resizing:bind({},dir,function()
-      log.d('select screen '..dir)
-      clearSelection() hideGrid(currentScreen)
-      currentScreen=uielements[currentScreen][dir]
-      currentWindow:moveToScreen(uielements[currentScreen].screen,0)
-      showHighlight()
-      showGrid(currentScreen)
+      if not selectedMatrix[1][1] then
+        -- arrows are in screen selecting mode
+        log.d('select screen '..dir)
+        clearSelection() hideGrid(currentScreen)
+        currentScreen=uielements[currentScreen][dir]
+        currentWindow:moveToScreen(uielements[currentScreen].screen,0)
+        showHighlight()
+        showGrid(currentScreen)
+      else
+        -- once one cell is selected, the arrows will navigate to other cells
+        -- check for transition of position of the first selected cell in the matrix
+        if     dim[2] == 1 then
+          -- checks for only one cell in selectedMatrix; dim == {1,1}
+          if     dim[1] == 1 and dir == 'left' then
+            selectedCorner = 1
+          elseif dim[1] == 1 and dir == 'right' then
+            selectedCorner = 0
+          elseif dim[1] == 1 and dir == 'down' then
+            selectedCorner = 0
+          elseif dim[1] == 1 and dir == 'up' then
+            selectedCorner = 2
+          -- multiple cells in the matrix
+          elseif ( selectedCorner == 0 or selectedCorner == 2 ) and dir == 'up' then
+            selectedCorner = 2
+          elseif ( selectedCorner == 1 or selectedCorner == 3 ) and dir == 'up' then
+            selectedCorner = 3
+          elseif ( selectedCorner == 0 or selectedCorner == 2 ) and dir == 'down' then
+            selectedCorner = 0
+          elseif ( selectedCorner == 1 or selectedCorner == 3 ) and dir == 'down' then
+            selectedCorner = 1
+          end
+        elseif dim[1] == 1  then
+          if     ( selectedCorner == 0 or selectedCorner == 1 ) and dir == 'right' then
+            selectedCorner = 0
+          elseif ( selectedCorner == 2 or selectedCorner == 3 ) and dir == 'right' then
+            selectedCorner = 2
+          elseif ( selectedCorner == 0 or selectedCorner == 1 ) and dir == 'left' then
+            selectedCorner = 1
+          elseif ( selectedCorner == 2 or selectedCorner == 3 ) and dir == 'left' then
+            selectedCorner = 3
+          end
+        end
+
+        -- In case of valid next cell, add them to the matrix and fill the rectangle
+        if      dir == 'right' then
+          if selectedCorner == 0 or selectedCorner == 2 then
+            -- add extra column
+            for i=1,dim[2] do
+              local lastInRow = selectedMatrix[i][dim[1]]
+              local newElem = getNeighbour(lastInRow, 'right')
+              -- getNeighbour() can return nil when you run out of screen
+              if newElem == nil then return end
+              -- if valid neighbour, add it to the matrix
+              selectedMatrix[i][dim[1] + 1] = newElem
+              -- and color the cell
+              newElem.rect:setFillColor(getColor(ui.selectedColor))
+            end
+            dim[1] = dim[1] + 1
+          else
+            -- if selectedCorner == 1 or selectedCorner == 2
+            -- remove first column, only if more than one column left in matrix!
+            if dim[1] > 1 then
+              for i=1,dim[2] do
+                selectedMatrix[i][1].rect:setFillColor(getColor(ui.cellColor))
+                table.remove(selectedMatrix[i], 1)
+              end
+              dim[1] = dim[1] - 1
+            end
+          end
+
+        elseif  dir == 'left' then
+          if selectedCorner == 0 or selectedCorner == 2 then
+            -- remove last column
+            if dim[1] > 1 then
+              for i=1,dim[2] do
+                selectedMatrix[i][dim[1]].rect:setFillColor(getColor(ui.cellColor))
+                table.remove(selectedMatrix[i], dim[1])
+              end
+              dim[1] = dim[1] - 1
+            end
+          else
+            -- insert column
+            for i=1,dim[2] do
+              local firstInRow = selectedMatrix[i][1]
+              local newElem = getNeighbour(firstInRow, 'left')
+              if newElem == nil then return end
+              table.insert(selectedMatrix[i], 1, newElem)
+              newElem.rect:setFillColor(getColor(ui.selectedColor))
+            end
+            dim[1] = dim[1] + 1
+          end
+
+        elseif  dir == 'down' then
+          if selectedCorner == 0 or selectedCorner == 1 then
+            -- add/append row
+            selectedMatrix[dim[2] + 1] = {}
+            for i=1,dim[1] do
+              local lastInColumn = selectedMatrix[dim[2]][i]
+              local newElem = getNeighbour(lastInColumn, 'down')
+              if newElem == nil then return end
+              selectedMatrix[dim[2] + 1][i] = getNeighbour(lastInColumn, 'down')
+              newElem.rect:setFillColor(getColor(ui.selectedColor))
+            end
+            dim[2] = dim[2] + 1
+          else
+            -- delete first row
+            if dim[2] > 1 then
+              for i=1,dim[1] do
+                selectedMatrix[1][i].rect:setFillColor(getColor(ui.cellColor))
+              end
+              table.remove(selectedMatrix, 1)
+              dim[2] = dim[2] - 1
+            end
+          end
+
+        elseif  dir == 'up' then
+          if selectedCorner == 0 or selectedCorner == 1 then
+            -- delete last row
+            if dim[2] > 1 then
+              for i=1,dim[1] do
+                selectedMatrix[dim[2]][i].rect:setFillColor(getColor(ui.cellColor))
+              end
+              table.remove(selectedMatrix, dim[2])
+              dim[2] = dim[2] - 1
+            end
+          else
+            -- insert row
+            table.insert(selectedMatrix, 1, {})
+            for i=1,dim[1] do
+              local firstInColumn = selectedMatrix[2][i]
+              local newElem = getNeighbour(firstInColumn, 'up')
+              if newElem == nil then return end
+              selectedMatrix[1][i] = newElem
+              newElem.rect:setFillColor(getColor(ui.selectedColor))
+            end
+            dim[2] = dim[2] + 1
+          end
+        end
+      end
     end)
   end
+
   local function hintPressed(c)
     -- find the elem; if there was a way to unbind modals, we'd unbind on screen change, and pass here the elem directly
     local elem
@@ -788,11 +980,12 @@ local function _start()
     end
     --    local elem = fnutils.find(uielements[currentScreen].hints,function(e)return e.hint==c end)
     if not elem then return end
-    if not selectedElem then
-      selectedElem = elem
+    if selectedMatrix[1][1] == nil then
+      selectedMatrix[1][1] = elem
       elem.rect:setFillColor(getColor(ui.selectedColor))
     else
       local x1,x2,y1,y2
+      local selectedElem = selectedMatrix[1][1]
       x1,x2 = min(selectedElem.x,elem.x)+margins.w,max(selectedElem.x,elem.x)-margins.h
       y1,y2 = min(selectedElem.y,elem.y)+margins.w,max(selectedElem.y,elem.y)-margins.h
       local frame={x=x1,y=y1,w=x2-x1+elem.w,h=y2-y1+elem.h}
