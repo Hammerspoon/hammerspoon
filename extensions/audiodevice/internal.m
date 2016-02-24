@@ -536,7 +536,7 @@ static int audiodevice_volume(lua_State* L) {
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &volumeSize, &volume) == noErr)) {
-        lua_pushinteger(L, (int)(volume * 100.0));
+        lua_pushnumber(L, volume * 100.0);
     } else {
         lua_pushnil(L);
     }
@@ -561,7 +561,7 @@ static int audiodevice_setvolume(lua_State* L) {
     audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
     AudioDeviceID deviceId = audioDevice->deviceId;
     unsigned int scope;
-    int value = (int)lua_tointeger(L, 2);
+    Float32 value = (Float32)lua_tonumber(L, 2);
 
     if (value < 0) {
         value = 0;
