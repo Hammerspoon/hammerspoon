@@ -55,6 +55,7 @@ static const char *USERDATA_TAG = "hs.socket.udp";
 }
 
 - (void)udpSocketDidClose:(HSAsyncUdpSocket *)sock withError:(NSError *)error {
+    sock.userData = nil;
     mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"UDP socket closed %@", error]];);
 }
 
@@ -154,13 +155,11 @@ static int socketudp_new(lua_State *L) {
 ///
 /// Notes:
 /// * Choosing to connect to a specific host/port has the following effect:
-/// * - You will only be able to send data to the connected host/port
-/// * - You will only be able to receive data from the connected host/port
-/// * - You will receive ICMP messages that come from the connected host/port, such as "connection refused"
-///
+///  * You will only be able to send data to the connected host/port
+///  * You will only be able to receive data from the connected host/port
+///  * You will receive ICMP messages that come from the connected host/port, such as "connection refused"
 /// * The actual process of connecting a UDP socket does not result in any communication on the socket
 /// * It simply changes the internal state of the socket
-///
 /// * You cannot bind a socket after it has been connected
 /// * You can only connect a socket once
 ///
@@ -244,14 +243,11 @@ static int socketudp_close(lua_State *L) {
 ///  * The [`hs.socket.udp`](#new) object or `nil` if no callback error
 ///
 /// Notes:
-///  * There are two modes of operation for receiving packets: one-at-a-time & continuous.
-///
+///  * There are two modes of operation for receiving packets: one-at-a-time & continuous
 ///  * In one-at-a-time mode, you call receiveOnce everytime your delegate is ready to process an incoming UDP packet
 ///  * Receiving packets one-at-a-time may be better suited for implementing certain state machine code where your state machine may not always be ready to process incoming packets
-///
 ///  * In continuous mode, the delegate is invoked immediately everytime incoming udp packets are received
 ///  * Receiving packets continuously is better suited to real-time streaming applications
-///
 ///  * You may switch back and forth between one-at-a-time mode and continuous mode
 ///  * If the socket is currently in one-at-a-time mode, calling this method will switch it to continuous mode
 ///
@@ -311,14 +307,11 @@ static int socketudp_pause(lua_State *L) {
 ///  * The [`hs.socket.udp`](#new) object or `nil` if no callback error
 ///
 /// Notes:
-///  * There are two modes of operation for receiving packets: one-at-a-time & continuous.
-///
+///  * There are two modes of operation for receiving packets: one-at-a-time & continuous
 ///  * In one-at-a-time mode, you call receiveOnce everytime your delegate is ready to process an incoming UDP packet
 ///  * Receiving packets one-at-a-time may be better suited for implementing certain state machine code where your state machine may not always be ready to process incoming packets
-///
 ///  * In continuous mode, the delegate is invoked immediately everytime incoming udp packets are received
 ///  * Receiving packets continuously is better suited to real-time streaming applications
-///
 ///  * You may switch back and forth between one-at-a-time mode and continuous mode
 ///  * If the socket is currently in continuous mode, calling this method will switch it to one-at-a-time mode
 ///
@@ -429,7 +422,6 @@ static int socketudp_send(lua_State *L) {
 /// Notes:
 ///  * By default, the underlying socket in the OS will not allow you to send broadcast messages
 ///  * In order to send broadcast messages, you need to enable this functionality in the socket
-///
 ///  * A broadcast is a UDP message to addresses like "192.168.255.255" or "255.255.255.255" that is delivered to every host on the network.
 ///  * The reason this is generally disabled by default (by the OS) is to prevent accidental broadcast messages from flooding the network.
 ///
@@ -448,7 +440,43 @@ static int socketudp_enableBroadcast(lua_State *L) {
     return 1;
 }
 
-/// hs.socket.udp:preferIPvn([version]) -> self
+/// hs.socket.udp:enableIPv(version[, flag]) -> self
+/// Method
+/// Enables or disables IPv4 or IPv6 on the underlying socket. By default, both are enabled
+///
+/// Parameters:
+///  * version - A number containing the IP version (4 or 6) to enable or disable
+///  * flag - A boolean: `true` to enable the chosen IP version, `false` to disable it. Defaults to `true`
+///
+/// Returns:
+///  * The [`hs.socket.udp`](#new) object
+///
+/// Notes:
+///  * Must be called before binding the socket. If you want to create an IPv6-only server, do something like:
+///  * `hs.socket.udp.new(callback):enableIPv(4, false):listen(port):receive()`
+///  * The convenience constructor [`hs.socket.server`](#server) will automatically bind the socket and requires closing and relistening to use this method
+///
+static int socketudp_enableIPversion(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
+    UInt8 ipVersion = lua_tointeger(L, 2);
+    BOOL enableFlag = true;
+    if (lua_type(L, 3) == LUA_TBOOLEAN && lua_toboolean(L, 3) == false) enableFlag = false;
+
+    if (ipVersion == 4) {
+        [asyncUdpSocket setIPv4Enabled:enableFlag];
+    } else if (ipVersion == 6) {
+        [asyncUdpSocket setIPv6Enabled:enableFlag];
+    } else {
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Invalid IP version: %hhu", ipVersion]];
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.socket.udp:preferIPv([version]) -> self
 /// Method
 /// Sets the preferred IP version: IPv4, IPv6, or neutral (first to resolve)
 ///
@@ -542,12 +570,39 @@ static int socketudp_setTimeout(lua_State *L) {
 /// Returns:
 ///  * `true` if connected, otherwise `false`
 ///
+/// Notes:
+///  * UDP sockets are typically meant to be connectionless
+///  * This method will only return `true` if the [`connect`](#connect) method has been explicitly called
+///
 static int socketudp_connected(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
 
     lua_pushboolean(L, asyncUdpSocket.isConnected);
+    return 1;
+}
+
+/// hs.socket.udp:closed() -> bool
+/// Method
+/// Returns the closed status of the [`hs.socket.udp`](#new) instance
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * `true` if closed, otherwise `false`
+///
+/// Notes:
+///  * UDP sockets are typically meant to be connectionless
+///  * Sending a packet anywhere, regardless of whether or not the destination receives it, opens the socket until it is explicitly closed
+///
+static int socketudp_closed(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
+
+    lua_pushboolean(L, asyncUdpSocket.isClosed);
     return 1;
 }
 
@@ -665,10 +720,12 @@ static const luaL_Reg userdata_metaLib[] = {
     {"receiveOne",      socketudp_receiveOne},
     {"send",            socketudp_send},
     {"enableBroadcast", socketudp_enableBroadcast},
+    {"enableIPv",       socketudp_enableIPversion},
     {"preferIPv",       socketudp_preferIPversion},
     {"setCallback",     socketudp_setCallback},
     {"setTimeout",      socketudp_setTimeout},
     {"connected",       socketudp_connected},
+    {"closed",          socketudp_closed},
     {"info",            socketudp_info},
     {"__tostring",      userdata_tostring},
     {"__gc",            userdata_gc},
