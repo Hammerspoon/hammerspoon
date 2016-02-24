@@ -56,20 +56,20 @@ static const char *USERDATA_TAG = "hs.socket";
 
 - (void)socketDidDisconnect:(HSAsyncSocket *)sock withError:(NSError *)err {
     if (sock.userData == CLIENT) {
-        [[LuaSkin shared] logInfo:@"Client disconnected"];
+        [[LuaSkin shared] logInfo:[NSString stringWithFormat:@"Client disconnected %@", err]];
 
         @synchronized(self.connectedSockets) {
             [self.connectedSockets removeObject:sock];
         }
     } else if (sock.userData == SERVER) {
-        [[LuaSkin shared] logInfo:@"Server disconnected"];
+        [[LuaSkin shared] logInfo:[NSString stringWithFormat:@"Server disconnected %@", err]];
 
         @synchronized(self.connectedSockets) {
             for (HSAsyncSocket *client in sock.connectedSockets){
                 [client disconnect];
             }
         }
-    } else [[LuaSkin shared] logInfo:@"Socket disconnected"];
+    } else [[LuaSkin shared] logInfo:[NSString stringWithFormat:@"Socket disconnected %@", err]];
 
     sock.userData = nil;
 }
@@ -107,6 +107,7 @@ static const char *USERDATA_TAG = "hs.socket";
 
 - (void)socket:(HSAsyncSocket *)sock didReceiveTrust:(SecTrustRef)trust completionHandler:(void (^)(BOOL))completionHandler {
     // Allow TLS handshake without trust evaluation for self-signed certificates
+    // This is only called if startTLS is invoked with option GCDAsyncSocketManuallyEvaluateTrust == YES
     if (completionHandler) completionHandler(YES);
 }
 
@@ -349,7 +350,7 @@ static int socket_read(lua_State *L) {
     return 1;
 }
 
-/// hs.socket:write(message[, tag]) -> self
+/// hs.socket:write(message[, tag][, fn]) -> self
 /// Method
 /// Write data to the socket
 ///
@@ -366,14 +367,19 @@ static int socket_read(lua_State *L) {
 ///
 static int socket_write(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER|LS_TNIL|LS_TOPTIONAL, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER|LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
     NSString *message = [skin toNSObjectAtIndex:2];
 
     long tag = -1;
-    if (lua_type(L, 3) == LUA_TNUMBER) tag = lua_tointeger(L, 3);
-    if (lua_type(L, 4) == LUA_TFUNCTION) {
+    if (lua_type(L, 3) == LUA_TNUMBER) {
+        tag = lua_tointeger(L, 3);
+    } else if (lua_type(L, 3) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 3);
+        asyncSocket.writeCallback = [skin luaRef:refTable];
+    }
+    if (lua_type(L, 3) != LUA_TFUNCTION && lua_type(L, 4) == LUA_TFUNCTION) {
         lua_pushvalue(L, 4);
         asyncSocket.writeCallback = [skin luaRef:refTable];
     }
@@ -446,7 +452,7 @@ static int socket_setTimeout(lua_State *L) {
 /// Secures the socket with TLS. The socket will disconnect immediately if TLS negotiation fails
 ///
 /// Parameters:
-///  * verify - An optional boolean that, if `false`, allows TLS handshaking with servers with self-signed certificates and does not evaluate the chain of trust. Defaults to `true`
+///  * verify - An optional boolean that, if `false`, allows TLS handshaking with servers with self-signed certificates and does not evaluate the chain of trust. Defaults to `true` and omitted if `peerName` is supplied
 ///  * peerName - An optional string containing the fully qualified domain name of the peer to validate against — for example, `store.apple.com`. It should match the name in the X.509 certificate given by the remote party. See notes below
 ///
 /// Returns:
@@ -457,28 +463,26 @@ static int socket_setTimeout(lua_State *L) {
 /// The default settings will check to make sure the remote party's certificate is signed by a
 /// trusted 3rd party certificate agency (e.g. verisign) and that the certificate is not expired.
 /// However it will not verify the name on the certificate unless you
-/// give it a name to verify against via the kCFStreamSSLPeerName key.
+/// give it a name to verify against via `peerName`.
 /// The security implications of this are important to understand.
 /// Imagine you are attempting to create a secure connection to MySecureServer.com,
 /// but your socket gets directed to MaliciousServer.com because of a hacked DNS server.
 /// If you simply use the default settings, and MaliciousServer.com has a valid certificate,
 /// the default settings will not detect any problems since the certificate is valid.
 /// To properly secure your connection in this particular scenario you
-/// should set the kCFStreamSSLPeerName property to "MySecureServer.com".
+/// should set `peerName` to "MySecureServer.com".
 ///
 static int socket_startTLS(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TSTRING|LS_TOPTIONAL, LS_TBREAK];
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
     NSDictionary *tlsSettings = nil;
 
     if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2) == false) {
         tlsSettings = @{@"GCDAsyncSocketManuallyEvaluateTrust": @YES};
-    }
-
-    if (lua_type(L, 3) == LUA_TSTRING) {
-        NSString *peerName = [skin toNSObjectAtIndex:3];
+    } else if (lua_type(L, 2) == LUA_TSTRING) {
+        NSString *peerName = [skin toNSObjectAtIndex:2];
         tlsSettings = @{@"kCFStreamSSLPeerName": peerName};
     }
 
@@ -595,20 +599,6 @@ static int socket_info(lua_State *L) {
     return 1;
 }
 
-
-static int userdata_gc(lua_State *L) {
-    asyncSocketUserData *userData = lua_touserdata(L, 1);
-    HSAsyncSocket* asyncSocket = (__bridge_transfer HSAsyncSocket *)userData->asyncSocket;
-    userData->asyncSocket = nil;
-
-    [asyncSocket disconnect];
-    [asyncSocket setDelegate:nil delegateQueue:NULL];
-    asyncSocket.readCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncSocket.readCallback];
-    asyncSocket = nil;
-
-    return 0;
-}
-
 static int userdata_tostring(lua_State* L) {
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
@@ -620,38 +610,60 @@ static int userdata_tostring(lua_State* L) {
     return 1;
 }
 
-static const luaL_Reg socketLib[] = {
-    {"new", socket_new},
-    {"parseAddress", socket_parseAddress},
+static int userdata_gc(lua_State *L) {
+    asyncSocketUserData *userData = lua_touserdata(L, 1);
+    HSAsyncSocket* asyncSocket = (__bridge_transfer HSAsyncSocket *)userData->asyncSocket;
+    userData->asyncSocket = nil;
 
-    {NULL, NULL} // This must end with an empty struct
+    [asyncSocket disconnect];
+    [asyncSocket setDelegate:nil delegateQueue:NULL];
+    asyncSocket.readCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncSocket.readCallback];
+    asyncSocket.writeCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncSocket.writeCallback];
+    asyncSocket.connectCallback = [[LuaSkin shared] luaUnref:refTable ref:asyncSocket.connectCallback];
+    asyncSocket = nil;
+
+    return 0;
+}
+
+static int meta_gc(lua_State* __unused L) {
+    return 0;
+}
+
+// Functions for returned object when module loads
+static const luaL_Reg socketLib[] = {
+    {"new",             socket_new},
+    {"parseAddress",    socket_parseAddress},
+    {NULL,              NULL} // This must end with an empty struct
 };
 
+// Metatable for returned object when module loads
+static const luaL_Reg meta_gcLib[] = {
+    {"__gc",            meta_gc},
+    {NULL,              NULL} // This must end with an empty struct
+};
+
+// Metatable for created objects when _new invoked
 static const luaL_Reg socketObjectLib[] = {
-    {"connect", socket_connect},
-    {"listen", socket_listen},
-    {"disconnect", socket_disconnect},
-    {"read", socket_read},
-    {"write", socket_write},
-    {"setCallback", socket_setCallback},
-    {"setTimeout", socket_setTimeout},
-    {"startTLS", socket_startTLS},
-    {"connected", socket_connected},
-    {"connections", socket_connections},
-    {"info", socket_info},
-
-    {"__tostring", userdata_tostring},
-    {"__gc", userdata_gc},
-
-    {NULL, NULL} // This must end with an empty struct
+    {"connect",         socket_connect},
+    {"listen",          socket_listen},
+    {"disconnect",      socket_disconnect},
+    {"read",            socket_read},
+    {"write",           socket_write},
+    {"setCallback",     socket_setCallback},
+    {"setTimeout",      socket_setTimeout},
+    {"startTLS",        socket_startTLS},
+    {"connected",       socket_connected},
+    {"connections",     socket_connections},
+    {"info",            socket_info},
+    {"__tostring",      userdata_tostring},
+    {"__gc",            userdata_gc},
+    {NULL,              NULL} // This must end with an empty struct
 };
 
 int luaopen_hs_socket_internal(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibraryWithObject:USERDATA_TAG
-                                     functions:socketLib
-                                 metaFunctions:nil
-                               objectFunctions:socketObjectLib];
+    refTable = [skin registerLibrary:socketLib metaFunctions:meta_gcLib];
+    [skin registerObject:USERDATA_TAG objectFunctions:socketObjectLib];
 
     return 1;
 }

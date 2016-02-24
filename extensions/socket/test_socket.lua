@@ -301,8 +301,8 @@ function testTcpClientServerReadWriteBytesValues()
 end
 
 function testTcpClientServerReadWriteBytes()
-  local server = hs.socket.server(port, print)
-  local client = hs.socket.new(print):connect("localhost", port)
+  server = hs.socket.server(port, print)
+  client = hs.socket.new(print):connect("localhost", port)
 
   -- clear default print callbacks
   server:setCallback(nil)
@@ -321,14 +321,13 @@ function testTcpClientServerReadWriteBytes()
   client:setCallback(clientCallback)
 
   -- send data
-  client:write("Hi from client\n")
-
-  hs.timer.doAfter(.1, function()
-    assertIsUserdataOfType("hs.socket", server:read(5))
-    server:write("Hello from server\n")
-
-    hs.timer.doAfter(.1, function()
-      assertIsUserdataOfType("hs.socket", client:read(5))
+  local tag = 10
+  client:write("Hi from client\n", tag, function(writeTag)
+    assertIsEqual(tag, writeTag)
+    server:read(5)
+    server:write("Hello from server\n", function(writeTag)
+      assertIsEqual(-1, writeTag)
+      client:read(5)
     end)
   end)
 
@@ -457,7 +456,7 @@ end
 function testTlsVerifyPeer()
   local client = hs.socket.new(callback):connect("github.com", 443)
 
-  client:startTLS(true, "github.com")
+  client:startTLS("github.com")
   client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
   client:read("\r\n\r\n");
 
@@ -481,7 +480,7 @@ end
 function testTlsVerifyBadPeerFails()
   local client = hs.socket.new(callback):connect("github.com", 443)
 
-  client:startTLS(true, "bitbucket.org")
+  client:startTLS("bitbucket.org")
   client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
   client:read("\r\n\r\n");
 
@@ -530,10 +529,6 @@ function testTcpNoCallbackRead()
   client = hs.socket.new():connect("localhost", port, function()
       result = client:read(1)
     end)
-
-  -- hs.timer.doAfter(1, function()
-  --   result = client:read(5)
-  -- end)
 
   return success()
 end
