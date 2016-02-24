@@ -5,6 +5,8 @@
 //  Copyright (c) 2016 Michael Bujol
 //
 
+#define mainThreadDispatch(...) dispatch_async(dispatch_get_main_queue(), ^{ @autoreleasepool {__VA_ARGS__} })
+
 static int refTable = LUA_NOREF;
 
 typedef struct _asyncSocketUserData {
