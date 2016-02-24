@@ -7,7 +7,6 @@
 //
 
 #import "HSTestCase.h"
-#pragma GCC diagnostic ignored "-Wgnu-statement-expression"
 
 @implementation HSTestCase
 
