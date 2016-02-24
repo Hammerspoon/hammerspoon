@@ -1,50 +1,8 @@
 -- hs.socket tests
 require "test_udpsocket"
 
--- globals for async tests
+-- globals for async TCP tests
 port = 9001
-
-serverLocalHost = nil
-clientConnectedHost = nil
-
-serverConnected = nil
-serverConnections = nil
-clientConnected = nil
-clientConnections = nil
-
-serverUserdata = nil
-server2Connected = nil
-server2Userdata = nil
-
-clientConnectedAfterTimeout = nil
-
-serverConnectedAfterDisconnect = nil
-serverConnectionsAfterDisconnect = nil
-clientConnectedAfterDisconnect = nil
-clientConnectionsAfterDisconnect = nil
-
-serverLocalPort = nil
-clientConnectedPort = nil
-serverDisconnectedPort = nil
-clientDisconnectedPort = nil
-
-server2LocalPort = nil
-client2ConnectedPort = nil
-server2DisconnectedPort = nil
-client2DisconnectedPort = nil
-
-serverUserdataString = nil
-clientUserdataString = nil
-
-serverReadData = nil
-clientReadData = nil
-
-globalClient = nil
-
-readData = nil
-readTag = nil
-
-result = nil
 
 callback = function(data, tag)
   readData = data
@@ -81,6 +39,7 @@ function testTcpListenerSocketAttributes()
   assertIsEqual("0.0.0.0", info.localHost)
   assertIsEqual(0, info.connectedPort)
   assertIsEqual("", info.connectedHost)
+  assertIsEqual("SERVER", info.userData)
   assertFalse(info.isConnected)  
   return success()
 end
@@ -397,7 +356,7 @@ function testTcpClientServerTimeout()
 end
 
 -- TLS
-function testTlsValues()
+function testTcpTlsValues()
   if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -406,7 +365,7 @@ function testTlsValues()
   end
 end
 
-function testTls()
+function testTcpTls()
   local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:startTLS()
@@ -421,7 +380,7 @@ function testTls()
 end
 
 -- make sure github disconnects us if operations attempted on unsecured socket
-function testNoTlsWhenRequiredByServerValues()
+function testTcpTlsRequiredByServerValues()
   if (type(readData) == "nil" and readData == nil and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -430,7 +389,7 @@ function testNoTlsWhenRequiredByServerValues()
   end
 end
 
-function testNoTlsWhenRequiredByServer()
+function testTcpTlsRequiredByServer()
   local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
@@ -444,7 +403,7 @@ function testNoTlsWhenRequiredByServer()
 end
 
 -- verify peer name
-function testTlsVerifyPeerValues()
+function testTcpTlsVerifyPeerValues()
   if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -453,7 +412,7 @@ function testTlsVerifyPeerValues()
   end
 end
 
-function testTlsVerifyPeer()
+function testTcpTlsVerifyPeer()
   local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:startTLS("github.com")
@@ -468,7 +427,7 @@ function testTlsVerifyPeer()
 end
 
 -- make sure TLS handshake fails on bad peer
-function testTlsVerifyBadPeerFailsValues()
+function testTcpTlsVerifyBadPeerFailsValues()
   if (type(readData) == "nil" and readData == nil and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -477,7 +436,7 @@ function testTlsVerifyBadPeerFailsValues()
   end
 end
 
-function testTlsVerifyBadPeerFails()
+function testTcpTlsVerifyBadPeerFails()
   local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:startTLS("bitbucket.org")
@@ -492,7 +451,7 @@ function testTlsVerifyBadPeerFails()
 end
 
 -- no verification should work fine
-function testTlsNoVerifyValues()
+function testTcpTlsNoVerifyValues()
   if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -501,7 +460,7 @@ function testTlsNoVerifyValues()
   end
 end
 
-function testTlsNoVerify()
+function testTcpTlsNoVerify()
   local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:startTLS(false)
@@ -534,7 +493,7 @@ function testTcpNoCallbackRead()
 end
 
 -- address parsing
-function testParseAddress()
+function testTcpParseAddress()
   -- sockaddr structure:
   --  1 byte   size
   --  1 byte   family
@@ -576,7 +535,7 @@ function testParseAddress()
   return success()
 end
 
-function testParseBadAddress()
+function testTcpParseBadAddress()
   assertIsNil(hs.socket.parseAddress("nonsense"))
 
   return success()

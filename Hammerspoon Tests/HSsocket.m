@@ -30,6 +30,7 @@
     return [self luaTestWithCheckAndTimeOut:timeout setupCode:[funcName stringByAppendingString:@"()"] checkCode:[funcName stringByAppendingString:@"Values()"]];
 }
 
+// TCP socket tests
 - (void)testTcpSocketInstanceCreation {
     RUN_LUA_TEST()
 }
@@ -82,23 +83,23 @@
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testTls {
+- (void)testTcpTls {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testNoTlsWhenRequiredByServer {
+- (void)testTcpTlsRequiredByServer {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testTlsVerifyPeer {
+- (void)testTcpTlsVerifyPeer {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testTlsVerifyBadPeerFails {
+- (void)testTcpTlsVerifyBadPeerFails {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testTlsNoVerify {
+- (void)testTcpTlsNoVerify {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
@@ -106,16 +107,49 @@
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
-- (void)testParseAddress {
+- (void)testTcpParseAddress {
     RUN_LUA_TEST()
 }
 
-- (void)testParseBadAddress {
+- (void)testTcpParseBadAddress {
     RUN_LUA_TEST()
 }
 
-- (void)testUdpSocketCreation {
+// UDP socket tests
+- (void)testUdpSocketInstanceCreation {
     RUN_LUA_TEST()
+}
+
+- (void)testUdpSocketInstanceCreationWithCallback {
+    RUN_LUA_TEST()
+}
+
+- (void)testUdpListenerSocketCreation {
+    RUN_LUA_TEST()
+}
+
+- (void)testUdpListenerSocketCreationWithCallback {
+    RUN_LUA_TEST()
+}
+
+- (void)testUdpListenerSocketAttributes {
+    RUN_LUA_TEST()
+}
+
+- (void)testUdpDisconnectAndReuse {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testUdpAlreadyConnected {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testUdpUserdataStrings {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testUdpClientServerReceiveOnce {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
 @end
