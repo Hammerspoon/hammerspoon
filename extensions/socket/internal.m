@@ -1,6 +1,5 @@
-#import <LuaSkin/LuaSkin.h>
-#import <CocoaAsyncSocket/GCDAsyncSocket.h>
 #import "socket.h"
+#import <CocoaAsyncSocket/GCDAsyncSocket.h>
 
 // Definitions
 @interface HSAsyncSocket : GCDAsyncSocket
@@ -636,20 +635,10 @@ static int userdata_gc(lua_State *L) {
     return 0;
 }
 
-static int meta_gc(lua_State* __unused L) {
-    return 0;
-}
-
 // Functions for returned object when module loads
 static const luaL_Reg moduleLib[] = {
     {"new",             socket_new},
     {"parseAddress",    socket_parseAddress},
-    {NULL,              NULL} // This must end with an empty struct
-};
-
-// Metatable for returned object when module loads
-static const luaL_Reg meta_gcLib[] = {
-    {"__gc",            meta_gc},
     {NULL,              NULL} // This must end with an empty struct
 };
 

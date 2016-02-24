@@ -5,10 +5,15 @@
 //  Copyright (c) 2016 Michael Bujol
 //
 
+#import <LuaSkin/LuaSkin.h>
+
+// Helper for moving background operations to main thread queue
 #define mainThreadDispatch(...) dispatch_async(dispatch_get_main_queue(), ^{ @autoreleasepool {__VA_ARGS__} })
 
+// Helper for Lua callbacks
 static int refTable = LUA_NOREF;
 
+// Userdata struct
 typedef struct _asyncSocketUserData {
     int selfRef;
     void *asyncSocket;
@@ -20,3 +25,14 @@ typedef struct _asyncSocketUserData {
 static const NSString *DEFAULT = @"DEFAULT";
 static const NSString *SERVER = @"SERVER";
 static const NSString *CLIENT = @"CLIENT";
+
+// No-op GC for when module loads
+static int meta_gc(lua_State* __unused L) {
+    return 0;
+}
+
+// Metatable for returned object when module loads
+static const luaL_Reg meta_gcLib[] = {
+    {"__gc",            meta_gc},
+    {NULL,              NULL} // This must end with an empty struct
+};
