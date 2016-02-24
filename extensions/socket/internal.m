@@ -31,15 +31,15 @@ static const char *USERDATA_TAG = "hs.socket";
 }
 
 - (void)socket:(HSAsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port {
-    sock.userData = DEFAULT;
+    self.userData = DEFAULT;
 
     mainThreadDispatch([[LuaSkin shared] logInfo:@"TCP socket connected"];);
 
-    if (sock.connectCallback != LUA_NOREF) {
+    if (self.connectCallback != LUA_NOREF) {
         mainThreadDispatch(
             LuaSkin *skin = [LuaSkin shared];
-            [skin pushLuaRef:refTable ref:sock.connectCallback];
-            sock.connectCallback = [skin luaUnref:refTable ref:sock.connectCallback];
+            [skin pushLuaRef:refTable ref:self.connectCallback];
+            self.connectCallback = [skin luaUnref:refTable ref:self.connectCallback];
 
             if (![skin protectedCallAndTraceback:0 nresults:0]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
@@ -56,7 +56,7 @@ static const char *USERDATA_TAG = "hs.socket";
         [self.connectedSockets addObject:newSocket];
     }
 
-    mainThreadDispatch([[LuaSkin shared] logInfo:@"Client socket connected"];);
+    mainThreadDispatch([[LuaSkin shared] logInfo:@"TCP client connected"];);
 }
 
 - (void)socketDidDisconnect:(HSAsyncSocket *)sock withError:(NSError *)err {
@@ -65,23 +65,23 @@ static const char *USERDATA_TAG = "hs.socket";
             [self.connectedSockets removeObject:sock];
         }
 
-        mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"Client disconnected %@", err]];);
+        mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"TCP client disconnected %@", err]];);
     } else if (sock.userData == SERVER) {
         @synchronized(self.connectedSockets) {
-            for (HSAsyncSocket *client in sock.connectedSockets){
+            for (HSAsyncSocket *client in self.connectedSockets){
                 [client disconnect];
             }
         }
-        mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"Server disconnected %@", err]];);
+        mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"TCP server disconnected %@", err]];);
     } else {
-        mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"Socket disconnected %@", err]];);
+        mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"TCP socket disconnected %@", err]];);
     }
 
     sock.userData = nil;
 }
 
 - (void)socket:(HSAsyncSocket *)sock didWriteDataWithTag:(long)tag {
-    mainThreadDispatch([[LuaSkin shared] logInfo:@"Data written to socket"];);
+    mainThreadDispatch([[LuaSkin shared] logInfo:@"Data written to TCP socket"];);
 
     if (self.writeCallback != LUA_NOREF) {
         mainThreadDispatch(
@@ -103,7 +103,7 @@ static const char *USERDATA_TAG = "hs.socket";
 
     mainThreadDispatch(
         LuaSkin *skin = [LuaSkin shared];
-        [skin logInfo:@"Data read from socket"];
+        [skin logInfo:@"Data read from TCP socket"];
 
         [skin pushLuaRef:refTable ref:self.readCallback];
         [skin pushNSObject: utf8Data];
@@ -123,7 +123,7 @@ static const char *USERDATA_TAG = "hs.socket";
 }
 
 - (void)socketDidSecure:(HSAsyncSocket *)sock {
-    mainThreadDispatch([[LuaSkin shared] logInfo:@"Socket secured"];);
+    mainThreadDispatch([[LuaSkin shared] logInfo:@"TCP socket secured"];);
 }
 
 @end
@@ -641,7 +641,7 @@ static int meta_gc(lua_State* __unused L) {
 }
 
 // Functions for returned object when module loads
-static const luaL_Reg socketLib[] = {
+static const luaL_Reg moduleLib[] = {
     {"new",             socket_new},
     {"parseAddress",    socket_parseAddress},
     {NULL,              NULL} // This must end with an empty struct
@@ -654,7 +654,7 @@ static const luaL_Reg meta_gcLib[] = {
 };
 
 // Metatable for created objects when _new invoked
-static const luaL_Reg socketObjectLib[] = {
+static const luaL_Reg userdata_metaLib[] = {
     {"connect",         socket_connect},
     {"listen",          socket_listen},
     {"disconnect",      socket_disconnect},
@@ -673,8 +673,8 @@ static const luaL_Reg socketObjectLib[] = {
 
 int luaopen_hs_socket_internal(lua_State *L __unused) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibrary:socketLib metaFunctions:meta_gcLib];
-    [skin registerObject:USERDATA_TAG objectFunctions:socketObjectLib];
+    refTable = [skin registerLibrary:moduleLib metaFunctions:meta_gcLib];
+    [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 
     return 1;
 }
