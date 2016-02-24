@@ -382,8 +382,8 @@ static int socket_write(lua_State *L) {
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
     NSString *message = [skin toNSObjectAtIndex:2];
-
     long tag = -1;
+
     if (lua_type(L, 3) == LUA_TNUMBER) {
         tag = lua_tointeger(L, 3);
     } else if (lua_type(L, 3) == LUA_TFUNCTION) {
