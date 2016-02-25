@@ -799,7 +799,7 @@ static int imageFromApp(lua_State *L) {
 ///   * folder.jpg
 ///  * If one of the common filenames is found, it is returned as an `hs.image` object
 ///  * If none are found, it attempts to extract image metadata from the file. This works for .mp3/.m4a files
-///  * If embedded image metadata is found, it is return as an `hs.image` object, otherwise `nil`
+///  * If embedded image metadata is found, it is returned as an `hs.image` object, otherwise `nil`
 ///  * This allows for obtaining artwork associated with file formats such as .flac/.ogg
 static int imageFromAudioFile(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
@@ -823,12 +823,11 @@ static int imageFromAudioFile(lua_State *L) {
         if (isDirectory) theDirectory = fileParent;
     } else theDirectory = theFilePath;
 
-
     // Attempt to get image from very common album artwork filenames in the directory
-    for (NSString *imageFile in @[@"cover.jpg", @"front.jpg", @"art.jpg", @"album.jpg", @"folder.jpg"]) {
-        NSString *imagePathCandidate = [[theDirectory stringByAppendingString:@"/"] stringByAppendingString:imageFile];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:imagePathCandidate]) {
-            theImage = [[NSImage alloc] initByReferencingFile:imagePathCandidate];
+    for (NSString *coverArtFile in @[@"cover", @"front", @"art", @"album", @"folder"]) {
+        NSString *imagePath = [NSString stringWithFormat:@"%@/%@.jpg", theDirectory, coverArtFile];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:imagePath]) {
+            theImage = [[NSImage alloc] initByReferencingFile:imagePath];
             if (theImage && theImage.valid) break;
         }
     }
@@ -838,7 +837,8 @@ static int imageFromAudioFile(lua_State *L) {
         AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:theFilePath]];
         NSArray<AVMetadataItem *> *metadataItems = [asset commonMetadata];
         for (AVMetadataItem *item in metadataItems) {
-            if ([item.keySpace isEqualToString:AVMetadataKeySpaceID3] || [item.keySpace isEqualToString:AVMetadataKeySpaceiTunes]) {
+            if ([item.keySpace isEqualToString:AVMetadataKeySpaceID3] ||
+                [item.keySpace isEqualToString:AVMetadataKeySpaceiTunes]) {
                 theImage = [[NSImage alloc] initWithData:[item dataValue]];
                 if (theImage && theImage.valid) break;
             }
