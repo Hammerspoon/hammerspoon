@@ -1,6 +1,7 @@
 //#import <Appkit/NSImage.h>
 #import <LuaSkin/LuaSkin.h>
 #import "ASCIImage/PARImage+ASCIIInput.h"
+@import AVFoundation;
 
 #define USERDATA_TAG "hs.image"
 
@@ -778,6 +779,80 @@ static int imageFromApp(lua_State *L) {
     return 1;
 }
 
+/// hs.image.imageFromAudioFile(file) -> object
+/// Constructor
+/// Creates an `hs.image` object from the album artwork of the audio file or directory specified, if it exists
+///
+/// Parameters:
+///  * file - A string containing the path to an audio file or a folder containing audio files
+///
+/// Returns:
+///  * An `hs.image` object or `nil`, if no album art was found
+///
+/// Notes:
+///  * This function first determines the containing directory, if it is not already a directory
+///  * It checks if any of the following common filenames for album art are present:
+///   * cover.jpg
+///   * front.jpg
+///   * art.jpg
+///   * album.jpg
+///   * folder.jpg
+///  * If one of the common filenames is found, it is returned as an `hs.image` object
+///  * If none are found, it attempts to extract image metadata from the file. This works for .mp3/.m4a files
+///  * If embedded image metadata is found, it is return as an `hs.image` object, otherwise `nil`
+///  * This allows for obtaining artwork associated with file formats such as .flac/.ogg
+static int imageFromAudioFile(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSString *theFilePath = [skin toNSObjectAtIndex:1] ;
+    theFilePath = [theFilePath stringByExpandingTildeInPath];
+    BOOL isDirectory;
+    NSString *theDirectory;
+    NSImage *theImage;
+
+    // Bail if bad path
+    if (![[NSFileManager defaultManager] fileExistsAtPath:theFilePath isDirectory:&isDirectory]) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    // Get the directory
+    if (!isDirectory) {
+        NSString *fileParent = [[[NSURL fileURLWithPath:theFilePath] URLByDeletingLastPathComponent] path];
+        [[NSFileManager defaultManager] fileExistsAtPath:fileParent isDirectory:&isDirectory];
+        if (isDirectory) theDirectory = fileParent;
+    } else theDirectory = theFilePath;
+
+
+    // Attempt to get image from very common album artwork filenames in the directory
+    for (NSString *imageFile in @[@"cover.jpg", @"front.jpg", @"art.jpg", @"album.jpg", @"folder.jpg"]) {
+        NSString *imagePathCandidate = [[theDirectory stringByAppendingString:@"/"] stringByAppendingString:imageFile];
+        if ([[NSFileManager defaultManager] fileExistsAtPath:imagePathCandidate]) {
+            theImage = [[NSImage alloc] initByReferencingFile:imagePathCandidate];
+            if (theImage && theImage.valid) break;
+        }
+    }
+
+    // Try to obtain album artwork from embedded metadata in .mp3/.m4a file itself
+    if (!theImage) {
+        AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:theFilePath]];
+        NSArray<AVMetadataItem *> *metadataItems = [asset commonMetadata];
+        for (AVMetadataItem *item in metadataItems) {
+            if ([item.keySpace isEqualToString:AVMetadataKeySpaceID3] || [item.keySpace isEqualToString:AVMetadataKeySpaceiTunes]) {
+                theImage = [[NSImage alloc] initWithData:[item dataValue]];
+                if (theImage && theImage.valid) break;
+            }
+        }
+    }
+
+    if (theImage && theImage.valid) {
+        [skin pushNSObject:theImage];
+    } else {
+        lua_pushnil(L);
+    }
+    return 1 ;
+}
+
 /// hs.image.iconForFile(file) -> object
 /// Constructor
 /// Creates an `hs.image` object for the file or files specified
@@ -812,7 +887,6 @@ static int imageForFiles(lua_State *L) {
     }
     return 1 ;
 }
-
 
 /// hs.image.iconForFileType(fileType) -> object
 /// Constructor
@@ -1053,6 +1127,7 @@ static luaL_Reg moduleLib[] = {
 //     {"imageWithContextFromASCII", imageWithContextFromASCII},
     {"imageFromName",             imageFromName},
     {"imageFromAppBundle",        imageFromApp},
+    {"imageFromAudioFile",        imageFromAudioFile},
     {"iconForFile",               imageForFiles},
     {"iconForFileType",           imageForFileType},
 
