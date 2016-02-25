@@ -1,14 +1,14 @@
 function testAppleScriptParseError()
   local as = "2 +"
-  local status, result, object = hs.osascript.applescript(as)
+  local status, object, descriptor = hs.osascript.applescript(as)
   assertFalse(status)
-  assertIsEqual(result.OSAScriptErrorBriefMessageKey, "Expected expression but found end of script.")
+  assertIsEqual(descriptor.OSAScriptErrorBriefMessageKey, "Expected expression but found end of script.")
   return success()
 end
 
 function testAppleScriptAddition()
   local as = "2+2"
-  local status, result, object = hs.osascript.applescript(as)
+  local status, object, descriptor = hs.osascript.applescript(as)
   assertTrue(status)
   assertIsEqual(object, 4)
   return success()
@@ -18,7 +18,7 @@ function testAppleScriptString()
   local as = [[
     "Hello, " & "World!"
 ]]
-  local status, result, object = hs.osascript.applescript(as)
+  local status, object, descriptor = hs.osascript.applescript(as)
   assertTrue(status)
   assertIsEqual(object, "Hello, World!")
   return success()
@@ -28,7 +28,7 @@ function testAppleScriptArray()
   local as = [[
     [1, "a", 3.14, "b", null, false]
 ]]
-  local status, result, object = hs.osascript.applescript(as)
+  local status, object, descriptor = hs.osascript.applescript(as)
   assertTrue(status)
   assertIsEqual(object[1], 1)
   assertIsEqual(object[2], "a")
@@ -42,7 +42,7 @@ function testAppleScriptDict()
   local as = [[
   {a:1, b:"two", c:true}
 ]]
-  local status, result, object = hs.osascript.applescript(as)
+  local status, object, descriptor = hs.osascript.applescript(as)
   assertIsEqual(status, true)
   assertIsEqual(object.a, 1)
   assertIsEqual(object.b, "two")
@@ -54,8 +54,8 @@ function testAppleScriptExecutionError()
   local as = [[
   a=1
 ]]
-  local status, result, object = hs.osascript.applescript(as)
+  local status, object, descriptor = hs.osascript.applescript(as)
   assertFalse(status)
-  assertIsEqual(result.OSAScriptErrorBriefMessageKey, "The variable a is not defined.")
+  assertIsEqual(descriptor.OSAScriptErrorBriefMessageKey, "The variable a is not defined.")
   return success()
 end

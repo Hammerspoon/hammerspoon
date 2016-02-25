@@ -2,7 +2,7 @@
 #import <LuaSkin/LuaSkin.h>
 #import "NSAppleEventDescriptor+Parsing.h"
 
-/// hs.osascript._osascript(source, language) -> bool, result, object
+/// hs.osascript._osascript(source, language) -> bool, object, descriptor 
 /// Function
 /// Runs osascript code
 ///
@@ -12,8 +12,8 @@
 ///
 /// Returns:
 ///  * A boolean value indicating whether the code succeeded or not
-///  * A string containing the output of the code and/or its errors
 ///  * An object containing the parsed output that can be any type, or nil if unsuccessful
+///  * A string containing the raw output of the code and/or its errors
 static int runosascript(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
@@ -29,8 +29,8 @@ static int runosascript(lua_State* L) {
         const char *compileErrorMessage = "Unable to initialize script - perhaps you have a syntax error?";
         [skin logError:[NSString stringWithUTF8String:compileErrorMessage]];
         lua_pushboolean(L, NO);
-        [skin pushNSObject:[NSString stringWithFormat:@"%@", compileError]];
         lua_pushnil(L);
+        [skin pushNSObject:[NSString stringWithFormat:@"%@", compileError]];
         return 3;
     }
 
@@ -39,8 +39,8 @@ static int runosascript(lua_State* L) {
     BOOL didSucceed = (result != nil);
 
     lua_pushboolean(L, didSucceed);
-    [skin pushNSObject:[NSString stringWithFormat:@"%@", didSucceed ? result : error]];
     [skin pushNSObject:didSucceed ? [result objectValue] : [NSNull null]];
+    [skin pushNSObject:[NSString stringWithFormat:@"%@", didSucceed ? result : error]];
     return 3;
 }
 

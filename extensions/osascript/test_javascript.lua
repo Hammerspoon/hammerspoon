@@ -1,14 +1,14 @@
 function testJavaScriptParseError()
   local js = "2 +"
-  local status, result, object = hs.osascript.javascript(js)
+  local status, object, descriptor = hs.osascript.javascript(js)
   assertFalse(status)
-  assertIsEqual(result.OSAScriptErrorBriefMessageKey, "Error on line 1: SyntaxError: Unexpected end of script")
+  assertIsEqual(descriptor.OSAScriptErrorBriefMessageKey, "Error on line 1: SyntaxError: Unexpected end of script")
   return success()
 end
 
 function testJavaScriptAddition()
   local js = "2+2"
-  local status, result, object = hs.osascript.javascript(js)
+  local status, object, descriptor = hs.osascript.javascript(js)
   assertTrue(status)
   assertIsEqual(object, 4)
   return success()
@@ -20,7 +20,7 @@ function testJavaScriptDestructuring()
     var { cat, dog } = obj;
     cat + dog;
 ]]
-  local status, result, object = hs.osascript.javascript(js)
+  local status, object, descriptor = hs.osascript.javascript(js)
   assertTrue(status)
   assertIsEqual(object, 3)
   return success()
@@ -31,7 +31,7 @@ function testJavaScriptString()
     var str1 = "Hello", str2 = "World";
     str1 + ", " + str2 + "!";
 ]]
-  local status, result, object = hs.osascript.javascript(js)
+  local status, object, descriptor = hs.osascript.javascript(js)
   assertTrue(status)
   assertIsEqual(object, "Hello, World!")
   return success()
@@ -41,7 +41,7 @@ function testJavaScriptArray()
   local js = [[
     [1, "a", 3.14, "b", null, false]
 ]]
-  local status, result, object = hs.osascript.javascript(js)
+  local status, object, descriptor = hs.osascript.javascript(js)
   assertTrue(status)
   assertIsEqual(object[1], 1)
   assertIsEqual(object[2], "a")
@@ -61,7 +61,7 @@ function testJavaScriptJsonStringify()
     json = JSON.stringify(obj);
     json;
 ]]
-  local status, result, object = hs.osascript.javascript(js)
+  local status, object, descriptor = hs.osascript.javascript(js)
   assertTrue(status)
   assertIsEqual(object, '{"a":1,"b":"two","c":true}')
   return success()
@@ -73,7 +73,7 @@ function testJavaScriptJsonParse()
     obj = JSON.parse(json);
     obj;
 ]]
-  local status, result, object = hs.osascript.javascript(js)
+  local status, object, descriptor = hs.osascript.javascript(js)
   assertIsEqual(status, true)
   assertIsEqual(object.a, 1)
   assertIsEqual(object.b, "two")
@@ -87,8 +87,8 @@ function testJavaScriptJsonParseError()
     obj = JSON.parse(json);
     obj;
 ]]
-  local status, result, object = hs.osascript.javascript(js)
+  local status, object, descriptor = hs.osascript.javascript(js)
   assertFalse(status)
-  assertIsEqual(result.OSAScriptErrorBriefMessageKey, "Error on line 2: SyntaxError: JSON Parse error: Property name must be a string literal")
+  assertIsEqual(descriptor.OSAScriptErrorBriefMessageKey, "Error on line 2: SyntaxError: JSON Parse error: Property name must be a string literal")
   return success()
 end
