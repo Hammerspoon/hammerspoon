@@ -902,11 +902,11 @@ nextarg:
         default:
             if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
                 NSString *answer = [NSString stringWithFormat:@"%s", luaL_tolstring(_L, idx, NULL)];
-                [self logDebug:[NSString stringWithFormat:@"unrecognized type %s; converting to '%@'", lua_typename(_L, lua_type(_L, realIndex)), answer]] ;
+                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %s; converting to '%@'", lua_typename(_L, lua_type(_L, realIndex)), answer]] ;
                 lua_pop(_L, 1) ;
                 return answer ;
             } else if ((options & LS_NSIgnoreUnknownTypes) == LS_NSIgnoreUnknownTypes) {
-                [self logDebug:[NSString stringWithFormat:@"unrecognized type %s; ignoring with placeholder [NSNull null]",
+                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %s; ignoring with placeholder [NSNull null]",
                                                           lua_typename(_L, lua_type(_L, realIndex))]] ;
                 return [NSNull null] ;
             } else {
