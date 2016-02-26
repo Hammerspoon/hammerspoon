@@ -639,42 +639,42 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 
 /*!
  @abstract Log the specified message from any thread with LS_LOG_VERBOSE level
- @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_VERBOSE @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_sync to submit the logging message to the main thread for proper handling by the delegate.
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_VERBOSE @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
 + (void)logVerbose:(NSString *)theMessage ;
 
 /*!
  @abstract Log the specified message from any thread with LS_LOG_DEBUG level
- @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_DEBUG @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_sync to submit the logging message to the main thread for proper handling by the delegate.
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_DEBUG @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
 + (void)logDebug:(NSString *)theMessage ;
 
 /*!
  @abstract Log the specified message from any thread with LS_LOG_INFO level
- @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_INFO @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_sync to submit the logging message to the main thread for proper handling by the delegate.
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_INFO @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
 + (void)logInfo:(NSString *)theMessage ;
 
 /*!
  @abstract Log the specified message from any thread with LS_LOG_WARN level
- @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_WARN @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_sync to submit the logging message to the main thread for proper handling by the delegate.
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_WARN @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
 + (void)logWarn:(NSString *)theMessage ;
 
 /*!
  @abstract Log the specified message from any thread with LS_LOG_ERROR level
- @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_ERROR @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_sync to submit the logging message to the main thread for proper handling by the delegate.
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_ERROR @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
 + (void)logError:(NSString *)theMessage ;
 
 /*!
  @abstract Log the specified message from any thread with LS_LOG_BREADCRUMB level
- @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_BREADCRUMB @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_sync to submit the logging message to the main thread for proper handling by the delegate.
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_BREADCRUMB @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
  @param theMessage the message to log
  */
 + (void)logBreadcrumb:(NSString *)theMessage ;

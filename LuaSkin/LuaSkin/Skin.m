@@ -1003,7 +1003,7 @@ nextarg:
     if ([NSThread isMainThread]) {
         [[LuaSkin shared] logAtLevel:LS_LOG_VERBOSE withMessage:theMessage] ;
     } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             [[LuaSkin shared] logAtLevel:LS_LOG_VERBOSE
                              withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
         }) ;
@@ -1013,7 +1013,7 @@ nextarg:
     if ([NSThread isMainThread]) {
         [[LuaSkin shared] logAtLevel:LS_LOG_DEBUG withMessage:theMessage] ;
     } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             [[LuaSkin shared] logAtLevel:LS_LOG_DEBUG
                              withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
         }) ;
@@ -1023,7 +1023,7 @@ nextarg:
     if ([NSThread isMainThread]) {
         [[LuaSkin shared] logAtLevel:LS_LOG_INFO withMessage:theMessage] ;
     } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             [[LuaSkin shared] logAtLevel:LS_LOG_INFO
                              withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
         }) ;
@@ -1033,7 +1033,7 @@ nextarg:
     if ([NSThread isMainThread]) {
         [[LuaSkin shared] logAtLevel:LS_LOG_WARN withMessage:theMessage] ;
     } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             [[LuaSkin shared] logAtLevel:LS_LOG_WARN
                              withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
         }) ;
@@ -1043,7 +1043,7 @@ nextarg:
     if ([NSThread isMainThread]) {
         [[LuaSkin shared] logAtLevel:LS_LOG_ERROR withMessage:theMessage] ;
     } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             [[LuaSkin shared] logAtLevel:LS_LOG_ERROR
                              withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
         }) ;
@@ -1053,7 +1053,7 @@ nextarg:
     if ([NSThread isMainThread]) {
         [[LuaSkin shared] logAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage] ;
     } else {
-        dispatch_sync(dispatch_get_main_queue(), ^{
+        dispatch_async(dispatch_get_main_queue(), ^{
             [[LuaSkin shared] logAtLevel:LS_LOG_BREADCRUMB
                              withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
         }) ;
