@@ -779,18 +779,18 @@ static int imageFromApp(lua_State *L) {
     return 1;
 }
 
-/// hs.image.imageFromAudioFile(file) -> object
+/// hs.image.imageFromMediaFile(file) -> object
 /// Constructor
-/// Creates an `hs.image` object from the album artwork of the audio file or directory specified, if it exists
+/// Creates an `hs.image` object from a video file or the album artwork of an audio file or directory
 ///
 /// Parameters:
-///  * file - A string containing the path to an audio file or a folder containing audio files
+///  * file - A string containing the path to an audio or video file or an album directory
 ///
 /// Returns:
 ///  * An `hs.image` object or `nil`, if no album art was found
 ///
 /// Notes:
-///  * This function first determines the containing directory, if it is not already a directory
+///  * For audio files, this function first determines the containing directory (if not already a directory)
 ///  * It checks if any of the following common filenames for album art are present:
 ///   * cover.jpg
 ///   * front.jpg
@@ -801,7 +801,7 @@ static int imageFromApp(lua_State *L) {
 ///  * If none are found, it attempts to extract image metadata from the file. This works for .mp3/.m4a files
 ///  * If embedded image metadata is found, it is returned as an `hs.image` object, otherwise `nil`
 ///  * This allows for obtaining artwork associated with file formats such as .flac/.ogg
-static int imageFromAudioFile(lua_State *L) {
+static int imageFromMediaFile(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
     NSString *theFilePath = [skin toNSObjectAtIndex:1] ;
@@ -813,6 +813,26 @@ static int imageFromAudioFile(lua_State *L) {
     // Bail if bad path
     if (![[NSFileManager defaultManager] fileExistsAtPath:theFilePath isDirectory:&isDirectory]) {
         lua_pushnil(L);
+        return 1;
+    }
+
+    // If file has a movie UTI, try to get the image
+    CFStringRef movieUTI = (__bridge CFStringRef)@"public.movie";
+    CFStringRef extension = (__bridge CFStringRef)[theFilePath pathExtension];
+    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, extension, movieUTI);
+
+    if (!CFStringHasPrefix(UTI, (__bridge CFStringRef)@"dyn")) { // UTI prefixed with "dyn" if not member of specified category
+        AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:theFilePath]];
+        AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+        NSError *error;
+        CGImageRef generatedImage = [imageGenerator copyCGImageAtTime:CMTimeMake(0, 10) actualTime:NULL error:&error];
+        if (!error) {
+            theImage = [[NSImage alloc] initWithCGImage:generatedImage size:NSZeroSize];
+        } else [skin logError:[NSString stringWithFormat:@"Unable to generate image from video: %@", error]];
+
+        if (theImage && theImage.valid) {
+            [skin pushNSObject:theImage];
+        } else lua_pushnil(L);
         return 1;
     }
 
@@ -850,7 +870,7 @@ static int imageFromAudioFile(lua_State *L) {
     } else {
         lua_pushnil(L);
     }
-    return 1 ;
+    return 1;
 }
 
 /// hs.image.iconForFile(file) -> object
@@ -1127,7 +1147,7 @@ static luaL_Reg moduleLib[] = {
 //     {"imageWithContextFromASCII", imageWithContextFromASCII},
     {"imageFromName",             imageFromName},
     {"imageFromAppBundle",        imageFromApp},
-    {"imageFromAudioFile",        imageFromAudioFile},
+    {"imageFromMediaFile",        imageFromMediaFile},
     {"iconForFile",               imageForFiles},
     {"iconForFileType",           imageForFileType},
 
