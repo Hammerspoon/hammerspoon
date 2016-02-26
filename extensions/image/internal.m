@@ -779,100 +779,6 @@ static int imageFromApp(lua_State *L) {
     return 1;
 }
 
-/// hs.image.imageFromMediaFile(file) -> object
-/// Constructor
-/// Creates an `hs.image` object from a video file or the album artwork of an audio file or directory
-///
-/// Parameters:
-///  * file - A string containing the path to an audio or video file or an album directory
-///
-/// Returns:
-///  * An `hs.image` object or `nil`, if no album art was found
-///
-/// Notes:
-///  * For audio files, this function first determines the containing directory (if not already a directory)
-///  * It checks if any of the following common filenames for album art are present:
-///   * cover.jpg
-///   * front.jpg
-///   * art.jpg
-///   * album.jpg
-///   * folder.jpg
-///  * If one of the common filenames is found, it is returned as an `hs.image` object
-///  * If none are found, it attempts to extract image metadata from the file. This works for .mp3/.m4a files
-///  * If embedded image metadata is found, it is returned as an `hs.image` object, otherwise `nil`
-///  * This allows for obtaining artwork associated with file formats such as .flac/.ogg
-static int imageFromMediaFile(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
-    NSString *theFilePath = [skin toNSObjectAtIndex:1] ;
-    theFilePath = [theFilePath stringByExpandingTildeInPath];
-    BOOL isDirectory;
-    NSString *theDirectory;
-    NSImage *theImage;
-
-    // Bail if bad path
-    if (![[NSFileManager defaultManager] fileExistsAtPath:theFilePath isDirectory:&isDirectory]) {
-        lua_pushnil(L);
-        return 1;
-    }
-
-    // If file has a movie UTI, try to get the image
-    CFStringRef movieUTI = (__bridge CFStringRef)@"public.movie";
-    CFStringRef extension = (__bridge CFStringRef)[theFilePath pathExtension];
-    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, extension, movieUTI);
-
-    if (!CFStringHasPrefix(UTI, (__bridge CFStringRef)@"dyn")) { // UTI prefixed with "dyn" if not member of specified category
-        AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:theFilePath]];
-        AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
-        NSError *error;
-        CGImageRef generatedImage = [imageGenerator copyCGImageAtTime:CMTimeMake(0, 10) actualTime:NULL error:&error];
-        if (!error) {
-            theImage = [[NSImage alloc] initWithCGImage:generatedImage size:NSZeroSize];
-        } else [skin logError:[NSString stringWithFormat:@"Unable to generate image from video: %@", error]];
-
-        if (theImage && theImage.valid) {
-            [skin pushNSObject:theImage];
-        } else lua_pushnil(L);
-        return 1;
-    }
-
-    // Get the directory
-    if (!isDirectory) {
-        NSString *fileParent = [[[NSURL fileURLWithPath:theFilePath] URLByDeletingLastPathComponent] path];
-        [[NSFileManager defaultManager] fileExistsAtPath:fileParent isDirectory:&isDirectory];
-        if (isDirectory) theDirectory = fileParent;
-    } else theDirectory = theFilePath;
-
-    // Attempt to get image from very common album artwork filenames in the directory
-    for (NSString *coverArtFile in @[@"cover", @"front", @"art", @"album", @"folder"]) {
-        NSString *imagePath = [NSString stringWithFormat:@"%@/%@.jpg", theDirectory, coverArtFile];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:imagePath]) {
-            theImage = [[NSImage alloc] initByReferencingFile:imagePath];
-            if (theImage && theImage.valid) break;
-        }
-    }
-
-    // Try to obtain album artwork from embedded metadata in .mp3/.m4a file itself
-    if (!theImage) {
-        AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:theFilePath]];
-        NSArray<AVMetadataItem *> *metadataItems = [asset commonMetadata];
-        for (AVMetadataItem *item in metadataItems) {
-            if ([item.keySpace isEqualToString:AVMetadataKeySpaceID3] ||
-                [item.keySpace isEqualToString:AVMetadataKeySpaceiTunes]) {
-                theImage = [[NSImage alloc] initWithData:[item dataValue]];
-                if (theImage && theImage.valid) break;
-            }
-        }
-    }
-
-    if (theImage && theImage.valid) {
-        [skin pushNSObject:theImage];
-    } else {
-        lua_pushnil(L);
-    }
-    return 1;
-}
-
 /// hs.image.iconForFile(file) -> object
 /// Constructor
 /// Creates an `hs.image` object for the file or files specified
@@ -928,6 +834,96 @@ static int imageForFileType(lua_State *L) {
         lua_pushnil(L);
     }
     return 1 ;
+}
+
+/// hs.image.imageFromMediaFile(file) -> object
+/// Constructor
+/// Creates an `hs.image` object from a video file or the album artwork of an audio file or directory
+///
+/// Parameters:
+///  * file - A string containing the path to an audio or video file or an album directory
+///
+/// Returns:
+///  * An `hs.image` object
+///
+/// Notes:
+///  * If a thumbnail can be generated for a video file, it is returned as an `hs.image` object, otherwise the filetype icon
+///  * For audio files, this function first determines the containing directory (if not already a directory)
+///  * It checks if any of the following common filenames for album art are present:
+///   * cover.jpg
+///   * front.jpg
+///   * art.jpg
+///   * album.jpg
+///   * folder.jpg
+///  * If one of the common album art filenames is found, it is returned as an `hs.image` object
+///  * This is faster than extracting image metadata and allows for obtaining artwork associated with file formats such as .flac/.ogg
+///  * If no common album art filenames are found, it attempts to extract image metadata from the file. This works for .mp3/.m4a files
+///  * If embedded image metadata is found, it is returned as an `hs.image` object, otherwise the filetype icon
+static int imageFromMediaFile(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSString *theFilePath = [skin toNSObjectAtIndex:1] ;
+    theFilePath = [theFilePath stringByExpandingTildeInPath];
+    BOOL isDirectory;
+    NSString *theDirectory;
+    NSImage *theImage;
+
+    // Bail if bad path
+    if (![[NSFileManager defaultManager] fileExistsAtPath:theFilePath isDirectory:&isDirectory]) {
+        imageForFiles(L);
+        return 1;
+    }
+
+    // If file has a movie UTI, try to generate an image from it
+    CFStringRef movieUTI = (__bridge CFStringRef)@"public.movie";
+    CFStringRef extension = (__bridge CFStringRef)[theFilePath pathExtension];
+    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, extension, movieUTI);
+
+    if (!CFStringHasPrefix(UTI, (__bridge CFStringRef)@"dyn")) { // UTI prefixed with "dyn" if not member of specified category
+        AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:theFilePath]];
+        AVAssetImageGenerator *imageGenerator = [AVAssetImageGenerator assetImageGeneratorWithAsset:asset];
+        NSError *error;
+        CGImageRef generatedImage = [imageGenerator copyCGImageAtTime:CMTimeMake(0, 10) actualTime:NULL error:&error];
+        if (!error) {
+            theImage = [[NSImage alloc] initWithCGImage:generatedImage size:NSZeroSize];
+        } else [skin logError:[NSString stringWithFormat:@"Unable to generate image from video: %@", error]];
+    }
+
+    if (!theImage) {
+        if (!isDirectory) { // Get the directory
+            NSString *fileParent = [[[NSURL fileURLWithPath:theFilePath] URLByDeletingLastPathComponent] path];
+            [[NSFileManager defaultManager] fileExistsAtPath:fileParent isDirectory:&isDirectory];
+            if (isDirectory) theDirectory = fileParent;
+        } else theDirectory = theFilePath;
+
+        // Attempt to get image from very common album artwork filenames in the directory
+        for (NSString *coverArtFile in @[@"cover", @"front", @"art", @"album", @"folder"]) {
+            NSString *imagePath = [NSString stringWithFormat:@"%@/%@.jpg", theDirectory, coverArtFile];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:imagePath]) {
+                theImage = [[NSImage alloc] initByReferencingFile:imagePath];
+                if (theImage && theImage.valid) break;
+            }
+        }
+    }
+
+    if (!theImage) { // Try to obtain album artwork from embedded metadata in .mp3/.m4a file itself
+        AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:theFilePath]];
+        NSArray<AVMetadataItem *> *metadataItems = [asset commonMetadata];
+        for (AVMetadataItem *item in metadataItems) {
+            if ([item.keySpace isEqualToString:AVMetadataKeySpaceID3] ||
+                [item.keySpace isEqualToString:AVMetadataKeySpaceiTunes]) {
+                theImage = [[NSImage alloc] initWithData:[item dataValue]];
+                if (theImage && theImage.valid) break;
+            }
+        }
+    }
+
+    if (theImage && theImage.valid) {
+        [skin pushNSObject:theImage];
+    } else {
+        imageForFiles(L);
+    }
+    return 1;
 }
 
 #pragma mark - Module Methods
