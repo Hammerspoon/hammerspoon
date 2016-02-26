@@ -580,6 +580,10 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  */
 - (BOOL)requireModule:(char *)moduleName ;
 
+#pragma mark - Logging methods
+
+/*! @methodgroup Logging methods */
+
 /*!
  @abstract Log the specified message with at the specified level
  @discussion Logs the specified message at the specified level by invoking the delegate method @link logForLuaSkinAtLevel:withMessage: @/link.
@@ -597,36 +601,83 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param theMessage the message to log
  */
 - (void)logVerbose:(NSString *)theMessage ;
+
 /*!
  @abstract Log the specified message with LS_LOG_DEBUG level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_DEBUG @/link
  @param theMessage the message to log
  */
 - (void)logDebug:(NSString *)theMessage ;
+
 /*!
  @abstract Log the specified message with LS_LOG_INFO level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_INFO @/link
  @param theMessage the message to log
  */
 - (void)logInfo:(NSString *)theMessage ;
+
 /*!
  @abstract Log the specified message with LS_LOG_WARN level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_WARN @/link
  @param theMessage the message to log
  */
 - (void)logWarn:(NSString *)theMessage ;
+
 /*!
  @abstract Log the specified message with LS_LOG_ERROR level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_ERROR @/link
  @param theMessage the message to log
  */
 - (void)logError:(NSString *)theMessage ;
+
 /*!
  @abstract Log the specified message with LS_LOG_BREADCRUMB level
  @discussion This method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_BREADCRUMB @/link
  @param theMessage the message to log
  */
 - (void)logBreadcrumb:(NSString *)theMessage ;
+
+/*!
+ @abstract Log the specified message from any thread with LS_LOG_VERBOSE level
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_VERBOSE @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
+ @param theMessage the message to log
+ */
++ (void)logVerbose:(NSString *)theMessage ;
+
+/*!
+ @abstract Log the specified message from any thread with LS_LOG_DEBUG level
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_DEBUG @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
+ @param theMessage the message to log
+ */
++ (void)logDebug:(NSString *)theMessage ;
+
+/*!
+ @abstract Log the specified message from any thread with LS_LOG_INFO level
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_INFO @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
+ @param theMessage the message to log
+ */
++ (void)logInfo:(NSString *)theMessage ;
+
+/*!
+ @abstract Log the specified message from any thread with LS_LOG_WARN level
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_WARN @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
+ @param theMessage the message to log
+ */
++ (void)logWarn:(NSString *)theMessage ;
+
+/*!
+ @abstract Log the specified message from any thread with LS_LOG_ERROR level
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_ERROR @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
+ @param theMessage the message to log
+ */
++ (void)logError:(NSString *)theMessage ;
+
+/*!
+ @abstract Log the specified message from any thread with LS_LOG_BREADCRUMB level
+ @discussion This class method is equivalent to invoking @link logAtLevel:withMessage: @/link with level @link LS_LOG_BREADCRUMB @/link, but is safe to use from any thread, not just the main application thread.  If this method is invoked from a thread other than the main thread, it uses dispatch_async to submit the logging message to the main thread for proper handling by the delegate.
+ @param theMessage the message to log
+ */
++ (void)logBreadcrumb:(NSString *)theMessage ;
 
 /*!
  @abstract Returns a string containing the current stack top, the absolute index position of the stack top, and the output from luaL_traceback.
@@ -652,7 +703,6 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param pos the lua traceback level to attempt to retrieve the chunk name and line number from
  */
 - (void)logAtLevel:(int)level withMessage:(NSString *)theMessage fromStackPos:(int)pos ;
-
 
 @end
 

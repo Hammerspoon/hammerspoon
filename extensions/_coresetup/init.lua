@@ -6,6 +6,7 @@ return {setup=function(...)
   local modpath, prettypath, fullpath, configdir, docstringspath, hasinitfile, autoload_extensions = ...
   local tostring,pack,tconcat,sformat=tostring,table.pack,table.concat,string.format
   local crashLog = require("hs.crash").crashLog
+
   -- setup core functions
 
   os.exit = hs._exit
@@ -216,25 +217,22 @@ return {setup=function(...)
     })
   end
 
+  local logger = require("hs.logger").new("LuaSkin", "info")
+  hs.luaSkinLog = logger
+
   hs.handleLogMessage = function(level, message)
+      local levelLabels = { "ERROR", "WARNING", "INFO", "DEBUG", "VERBOSE" }
     -- may change in the future if this fills crashlog with too much useless stuff
       if level ~= 5 then
-          require("hs.crash").crashLog(string.format("(%d) %s", level, message))
+          crashLog(string.format("(%s) %s", (levelLabels[level] or tostring(level)), message))
       end
 
-    -- may change in the future to use hs.logger, but for now I want to see everything for testing purposes
-      if level == 5 then                  -- LS_LOG_VERBOSE
-          print("*** VERBOSE: "..message)
-      elseif level == 4 then              -- LS_LOG_DEBUG
-          print("*** DEBUG:   "..message)
-      elseif level == 3 then              -- LS_LOG_INFO
-          print("*** INFO:    "..message)
-      elseif level == 2 then              -- LS_LOG_WARN
-          print("*** WARN:    "..message)
-      elseif level == 1 then              -- LS_LOG_ERROR
-          hs.showError(message)
-          crashLog("ERROR: "..message)
---           print("*** ERROR:   "..message)
+      if level == 5 then     logger.v(message) -- LS_LOG_VERBOSE
+      elseif level == 4 then logger.d(message) -- LS_LOG_DEBUG
+      elseif level == 3 then logger.i(message) -- LS_LOG_INFO
+      elseif level == 2 then logger.w(message) -- LS_LOG_WARN
+      elseif level == 1 then logger.e(message) -- LS_LOG_ERROR
+--           hs.showError(message)
       else
           print("*** UNKNOWN LOG LEVEL: "..tostring(level).."\n\t"..message)
       end
