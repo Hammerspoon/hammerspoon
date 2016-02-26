@@ -221,9 +221,10 @@ return {setup=function(...)
   hs.luaSkinLog = logger
 
   hs.handleLogMessage = function(level, message)
+      local levelLabels = { "ERROR", "WARNING", "INFO", "DEBUG", "VERBOSE" }
     -- may change in the future if this fills crashlog with too much useless stuff
       if level ~= 5 then
-          require("hs.crash").crashLog(string.format("(%d) %s", level, message))
+          crashLog(string.format("(%s) %s", (levelLabels[level] or tostring(level)), message))
       end
 
       if level == 5 then     logger.v(message) -- LS_LOG_VERBOSE

@@ -717,10 +717,10 @@ nextarg:
             lua_pushstring(_L, [[obj absoluteString] UTF8String]) ;
         } else {
             if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
-                [self logDebug:[NSString stringWithFormat:@"unrecognized type %@; converting to '%@'", NSStringFromClass([obj class]), [obj debugDescription]]] ;
+                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %@; converting to '%@'", NSStringFromClass([obj class]), [obj debugDescription]]] ;
                 lua_pushstring(_L, [[NSString stringWithFormat:@"%@", [obj debugDescription]] UTF8String]) ;
             } else if ((options & LS_NSIgnoreUnknownTypes) == LS_NSIgnoreUnknownTypes) {
-                [self logDebug:[NSString stringWithFormat:@"unrecognized type %@; ignoring", NSStringFromClass([obj class])]] ;
+                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %@; ignoring", NSStringFromClass([obj class])]] ;
                 return 0 ;
             }else {
                 [self logDebug:[NSString stringWithFormat:@"unrecognized type %@; returning nil", NSStringFromClass([obj class])]] ;
@@ -998,6 +998,67 @@ nextarg:
 - (void)logWarn:(NSString *)theMessage       { [self logAtLevel:LS_LOG_WARN withMessage:theMessage] ; }
 - (void)logError:(NSString *)theMessage      { [self logAtLevel:LS_LOG_ERROR withMessage:theMessage] ; }
 - (void)logBreadcrumb:(NSString *)theMessage { [self logAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage] ; }
+
++ (void)logVerbose:(NSString *)theMessage    {
+    if ([NSThread isMainThread]) {
+        [[LuaSkin shared] logAtLevel:LS_LOG_VERBOSE withMessage:theMessage] ;
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [[LuaSkin shared] logAtLevel:LS_LOG_VERBOSE
+                             withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
+        }) ;
+    }
+}
++ (void)logDebug:(NSString *)theMessage      {
+    if ([NSThread isMainThread]) {
+        [[LuaSkin shared] logAtLevel:LS_LOG_DEBUG withMessage:theMessage] ;
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [[LuaSkin shared] logAtLevel:LS_LOG_DEBUG
+                             withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
+        }) ;
+    }
+}
++ (void)logInfo:(NSString *)theMessage       {
+    if ([NSThread isMainThread]) {
+        [[LuaSkin shared] logAtLevel:LS_LOG_INFO withMessage:theMessage] ;
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [[LuaSkin shared] logAtLevel:LS_LOG_INFO
+                             withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
+        }) ;
+    }
+}
++ (void)logWarn:(NSString *)theMessage       {
+    if ([NSThread isMainThread]) {
+        [[LuaSkin shared] logAtLevel:LS_LOG_WARN withMessage:theMessage] ;
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [[LuaSkin shared] logAtLevel:LS_LOG_WARN
+                             withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
+        }) ;
+    }
+}
++ (void)logError:(NSString *)theMessage      {
+    if ([NSThread isMainThread]) {
+        [[LuaSkin shared] logAtLevel:LS_LOG_ERROR withMessage:theMessage] ;
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [[LuaSkin shared] logAtLevel:LS_LOG_ERROR
+                             withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
+        }) ;
+    }
+}
++ (void)logBreadcrumb:(NSString *)theMessage {
+    if ([NSThread isMainThread]) {
+        [[LuaSkin shared] logAtLevel:LS_LOG_BREADCRUMB withMessage:theMessage] ;
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            [[LuaSkin shared] logAtLevel:LS_LOG_BREADCRUMB
+                             withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
+        }) ;
+    }
+}
 
 - (NSString *)tracebackWithTag:(NSString *)theTag fromStackPos:(int)level{
     int topIndex         = lua_gettop(_L) ;
