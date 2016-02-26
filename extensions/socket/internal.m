@@ -32,9 +32,8 @@ static const char *USERDATA_TAG = "hs.socket";
 }
 
 - (void)socket:(HSAsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port {
+    [LuaSkin logInfo:@"TCP socket connected"];
     self.userData = DEFAULT;
-
-    mainThreadDispatch([[LuaSkin shared] logInfo:@"TCP socket connected"];);
 
     if (self.connectCallback != LUA_NOREF) {
         mainThreadDispatch(
@@ -44,45 +43,45 @@ static const char *USERDATA_TAG = "hs.socket";
 
             if (![skin protectedCallAndTraceback:0 nresults:0]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
-                [skin logError:[NSString stringWithFormat:@"%s connect callback error: %s", USERDATA_TAG, errorMsg]];
+                [LuaSkin logError:[NSString stringWithFormat:@"%s connect callback error: %s", USERDATA_TAG, errorMsg]];
             }
         );
     }
 }
 
 - (void)socket:(HSAsyncSocket *)sock didAcceptNewSocket:(HSAsyncSocket *)newSocket {
+    [LuaSkin logInfo:@"TCP client connected"];
     newSocket.userData = CLIENT;
 
     @synchronized(self.connectedSockets) {
         [self.connectedSockets addObject:newSocket];
     }
-
-    mainThreadDispatch([[LuaSkin shared] logInfo:@"TCP client connected"];);
 }
 
 - (void)socketDidDisconnect:(HSAsyncSocket *)sock withError:(NSError *)err {
     if (sock.userData == CLIENT) {
+        [LuaSkin logInfo:[NSString stringWithFormat:@"TCP client disconnected %@", err]];
+
         @synchronized(self.connectedSockets) {
             [self.connectedSockets removeObject:sock];
         }
-
-        mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"TCP client disconnected %@", err]];);
     } else if (sock.userData == SERVER) {
+        [LuaSkin logInfo:[NSString stringWithFormat:@"TCP server disconnected %@", err]];
+
         @synchronized(self.connectedSockets) {
             for (HSAsyncSocket *client in self.connectedSockets){
                 [client disconnect];
             }
         }
-        mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"TCP server disconnected %@", err]];);
     } else {
-        mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"TCP socket disconnected %@", err]];);
+        [LuaSkin logInfo:[NSString stringWithFormat:@"TCP socket disconnected %@", err]];
     }
 
     sock.userData = nil;
 }
 
 - (void)socket:(HSAsyncSocket *)sock didWriteDataWithTag:(long)tag {
-    mainThreadDispatch([[LuaSkin shared] logInfo:@"Data written to TCP socket"];);
+    [LuaSkin logInfo:@"Data written to TCP socket"];
 
     if (self.writeCallback != LUA_NOREF) {
         mainThreadDispatch(
@@ -93,7 +92,7 @@ static const char *USERDATA_TAG = "hs.socket";
 
             if (![skin protectedCallAndTraceback:1 nresults:0]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
-                [skin logError:[NSString stringWithFormat:@"%s write callback error: %s", USERDATA_TAG, errorMsg]];
+                [LuaSkin logError:[NSString stringWithFormat:@"%s write callback error: %s", USERDATA_TAG, errorMsg]];
             }
         );
     }
@@ -101,19 +100,18 @@ static const char *USERDATA_TAG = "hs.socket";
 
 - (void)socket:(HSAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag  {
     if (self.readCallback != LUA_NOREF) {
+        [LuaSkin logInfo:@"Data read from TCP socket"];
         NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
         mainThreadDispatch(
             LuaSkin *skin = [LuaSkin shared];
-            [skin logInfo:@"Data read from TCP socket"];
-
             [skin pushLuaRef:refTable ref:self.readCallback];
             [skin pushNSObject: utf8Data];
             [skin pushNSObject: @(tag)];
 
             if (![skin protectedCallAndTraceback:2 nresults:0]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
-                [skin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
+                [LuaSkin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
             }
         );
     }
@@ -126,7 +124,7 @@ static const char *USERDATA_TAG = "hs.socket";
 }
 
 - (void)socketDidSecure:(HSAsyncSocket *)sock {
-    mainThreadDispatch([[LuaSkin shared] logInfo:@"TCP socket secured"];);
+    [LuaSkin logInfo:@"TCP socket secured"];
 }
 
 @end
@@ -243,7 +241,7 @@ static int socket_connect(lua_State *L) {
 
     NSError *err;
     if (![asyncSocket connectToHost:theHost onPort:thePort withTimeout:asyncSocket.timeout error:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
+        [LuaSkin logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
     }
 
     lua_pushvalue(L, 1);
@@ -268,7 +266,7 @@ static int socket_listen(lua_State *L) {
 
     NSError *err;
     if (![asyncSocket acceptOnPort:thePort error:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to bind port: %@", err]];
+        [LuaSkin logError:[NSString stringWithFormat:@"Unable to bind port: %@", err]];
     } else {
         asyncSocket.userData = SERVER;
     }
@@ -322,7 +320,7 @@ static int socket_read(lua_State *L) {
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
     if (asyncSocket.readCallback == LUA_NOREF) {
-        [skin logError:@"No callback defined!"];
+        [LuaSkin logError:@"No callback defined!"];
         return 0;
     }
 

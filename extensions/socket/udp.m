@@ -30,9 +30,8 @@ static const char *USERDATA_TAG = "hs.socket.udp";
 }
 
 - (void)udpSocket:(HSAsyncUdpSocket *)sock didConnectToAddress:(NSData *)address {
+    [LuaSkin logInfo:@"UDP socket connected"];
     self.userData = DEFAULT;
-
-    mainThreadDispatch([[LuaSkin shared] logInfo:@"UDP socket connected"];);
 
     if (self.connectCallback != LUA_NOREF) {
         mainThreadDispatch(
@@ -42,7 +41,7 @@ static const char *USERDATA_TAG = "hs.socket.udp";
 
             if (![skin protectedCallAndTraceback:0 nresults:0]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
-                [skin logError:[NSString stringWithFormat:@"%s connect callback error: %s", USERDATA_TAG, errorMsg]];
+                [LuaSkin logError:[NSString stringWithFormat:@"%s connect callback error: %s", USERDATA_TAG, errorMsg]];
             }
         );
     }
@@ -50,19 +49,18 @@ static const char *USERDATA_TAG = "hs.socket.udp";
 
 - (void)udpSocket:(HSAsyncUdpSocket *)sock didNotConnect:(NSError *)error {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin shared];
-        [skin logError:[NSString stringWithFormat:@"UDP socket did not connect %@", error]];
-        self.connectCallback = [skin luaUnref:refTable ref:self.connectCallback];
+        [LuaSkin logError:[NSString stringWithFormat:@"UDP socket did not connect %@", error]];
+        self.connectCallback = [[LuaSkin shared] luaUnref:refTable ref:self.connectCallback];
     );
 }
 
 - (void)udpSocketDidClose:(HSAsyncUdpSocket *)sock withError:(NSError *)error {
+    [LuaSkin logInfo:[NSString stringWithFormat:@"UDP socket closed %@", error]];
     sock.userData = nil;
-    mainThreadDispatch([[LuaSkin shared] logInfo:[NSString stringWithFormat:@"UDP socket closed %@", error]];);
 }
 
 - (void)udpSocket:(HSAsyncUdpSocket *)sock didSendDataWithTag:(long)tag {
-    mainThreadDispatch([[LuaSkin shared] logInfo:@"Data written to UDP socket"];);
+    [LuaSkin logInfo:@"Data written to UDP socket"];
 
     if (self.writeCallback != LUA_NOREF) {
         mainThreadDispatch(
@@ -73,7 +71,7 @@ static const char *USERDATA_TAG = "hs.socket.udp";
 
             if (![skin protectedCallAndTraceback:1 nresults:0]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
-                [skin logError:[NSString stringWithFormat:@"%s write callback error: %s", USERDATA_TAG, errorMsg]];
+                [LuaSkin logError:[NSString stringWithFormat:@"%s write callback error: %s", USERDATA_TAG, errorMsg]];
             }
         );
     }
@@ -81,27 +79,25 @@ static const char *USERDATA_TAG = "hs.socket.udp";
 
 - (void)udpSocket:(HSAsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error {
     mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin shared];
-        [skin logError:[NSString stringWithFormat:@"Data not sent on UDP socket %@", error]];
-        self.writeCallback = [skin luaUnref:refTable ref:self.writeCallback];
+        [LuaSkin logError:[NSString stringWithFormat:@"Data not sent on UDP socket %@", error]];
+        self.writeCallback = [[LuaSkin shared] luaUnref:refTable ref:self.writeCallback];
     );
 }
 
 - (void)udpSocket:(HSAsyncUdpSocket *)sock didReceiveData:(NSData *)data fromAddress:(NSData *)address withFilterContext:(id)filterContext {
     if (self.readCallback != LUA_NOREF) {
+        [LuaSkin logInfo:@"Data read from UDP socket"];
         NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
         mainThreadDispatch(
             LuaSkin *skin = [LuaSkin shared];
-            [skin logInfo:@"Data read from UDP socket"];
-
             [skin pushLuaRef:refTable ref:self.readCallback];
             [skin pushNSObject: utf8Data];
             [skin pushNSObject: address];
 
             if (![skin protectedCallAndTraceback:2 nresults:0]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
-                [skin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
+                [LuaSkin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
             }
         );
     }
@@ -181,7 +177,7 @@ static int socketudp_connect(lua_State *L) {
 
     NSError *err;
     if (![asyncUdpSocket connectToHost:theHost onPort:thePort error:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
+        [LuaSkin logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
     }
 
     lua_pushvalue(L, 1);
@@ -206,7 +202,7 @@ static int socketudp_listen(lua_State *L) {
 
     NSError *err;
     if (![asyncUdpSocket bindToPort:thePort error:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to bind port: %@", err]];
+        [LuaSkin logError:[NSString stringWithFormat:@"Unable to bind port: %@", err]];
     } else {
         asyncUdpSocket.userData = SERVER;
     }
@@ -267,13 +263,13 @@ static int socketudp_receive(lua_State *L) {
     }
 
     if (asyncUdpSocket.readCallback == LUA_NOREF) {
-        [skin logError:@"No callback defined!"];
+        [LuaSkin logError:@"No callback defined!"];
         return 0;
     }
 
     NSError *err;
     if (![asyncUdpSocket beginReceiving:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to read packets: %@", err]];
+        [LuaSkin logError:[NSString stringWithFormat:@"Unable to read packets: %@", err]];
     }
 
     lua_pushvalue(L, 1);
@@ -331,13 +327,13 @@ static int socketudp_receiveOne(lua_State *L) {
     }
 
     if (asyncUdpSocket.readCallback == LUA_NOREF) {
-        [skin logError:@"No callback defined!"];
+        [LuaSkin logError:@"No callback defined!"];
         return 0;
     }
 
     NSError *err;
     if (![asyncUdpSocket receiveOnce:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to read packet: %@", err]];
+        [LuaSkin logError:[NSString stringWithFormat:@"Unable to read packet: %@", err]];
     }
 
     lua_pushvalue(L, 1);
@@ -437,7 +433,7 @@ static int socketudp_enableBroadcast(lua_State *L) {
 
     NSError *err;
     if (![asyncUdpSocket enableBroadcast:broadcastFlag error:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to enable broadcasting: %@", err]];
+        [LuaSkin logError:[NSString stringWithFormat:@"Unable to enable broadcasting: %@", err]];
     }
 
     lua_pushvalue(L, 1);
@@ -473,7 +469,7 @@ static int socketudp_enableIPversion(lua_State *L) {
     } else if (ipVersion == 6) {
         [asyncUdpSocket setIPv6Enabled:enableFlag];
     } else {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Invalid IP version: %hhu", ipVersion]];
+        [LuaSkin logError:[NSString stringWithFormat:@"Invalid IP version: %hhu", ipVersion]];
     }
 
     lua_pushvalue(L, 1);
