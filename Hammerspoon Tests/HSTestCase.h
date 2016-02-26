@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MJLua.h"
+#pragma clang diagnostic ignored "-Wgnu-statement-expression"
 
 #define RUN_LUA_TEST() XCTAssertTrue([self luaTestFromSelector:_cmd], @"Test failed: %@", NSStringFromSelector(_cmd));
 #define SKIP_IN_TRAVIS() if(self.isTravis) { NSLog(@"Skipping %@ due to Travis", NSStringFromSelector(_cmd)) ; return; }
