@@ -1,6 +1,8 @@
 #import "socket.h"
 #import <CocoaAsyncSocket/GCDAsyncUdpSocket.h>
 
+#pragma clang diagnostic ignored "-Wgnu-conditional-omitted-operand"
+
 // Definitions
 @interface HSAsyncUdpSocket : GCDAsyncUdpSocket
 @property int readCallback;
