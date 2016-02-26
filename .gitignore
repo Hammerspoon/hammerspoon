@@ -1,6 +1,32 @@
-# Xcode
+# OS X artifacts
 .DS_Store
+
+# Rebuild script
+rebuild.sh
+
+# Build artifacts
+/Hammerspoon.app
+/Hammerspoon*.zip
+/LuaSkin.framework
+*.dSYM
+
+# Generated build files
+Hammerspoon/secrets.h
+extensions/httpserver/HammerspoonCertTemplate.h
+
+# Editor cruft
+*.swp
+
+# Taken from: https://github.com/github/gitignore/blob/master/Global/Xcode.gitignore
+# Xcode
+#
+# gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
+
+## Build generated
 build/
+DerivedData/
+
+## Various settings
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -9,19 +35,10 @@ build/
 !default.mode2v3
 *.perspectivev3
 !default.perspectivev3
-#*.xcworkspace
-!default.xcworkspace
-xcuserdata
-profile
+xcuserdata/
+
+## Other
 *.moved-aside
-DerivedData
-.idea/
-*.swp
-/Hammerspoon.app
-/Hammerspoon*.zip
-*.dSYM
-Hammerspoon/secrets.h
-xcshareddata
-/LuaSkin.framework
-extensions/httpserver/HammerspoonCertTemplate.h
-rebuild.sh
+*.xccheckout
+*.xcscmblueprint
+
