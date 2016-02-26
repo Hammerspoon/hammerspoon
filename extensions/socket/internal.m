@@ -98,21 +98,23 @@ static const char *USERDATA_TAG = "hs.socket";
 }
 
 - (void)socket:(HSAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag  {
-    NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    if (self.readCallback != LUA_NOREF) {
+        NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
-    mainThreadDispatch(
-        LuaSkin *skin = [LuaSkin shared];
-        [skin logInfo:@"Data read from TCP socket"];
+        mainThreadDispatch(
+            LuaSkin *skin = [LuaSkin shared];
+            [skin logInfo:@"Data read from TCP socket"];
 
-        [skin pushLuaRef:refTable ref:self.readCallback];
-        [skin pushNSObject: utf8Data];
-        [skin pushNSObject: @(tag)];
+            [skin pushLuaRef:refTable ref:self.readCallback];
+            [skin pushNSObject: utf8Data];
+            [skin pushNSObject: @(tag)];
 
-        if (![skin protectedCallAndTraceback:2 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [skin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
-        }
-    );
+            if (![skin protectedCallAndTraceback:2 nresults:0]) {
+                const char *errorMsg = lua_tostring(skin.L, -1);
+                [skin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
+            }
+        );
+    }
 }
 
 - (void)socket:(HSAsyncSocket *)sock didReceiveTrust:(SecTrustRef)trust completionHandler:(void (^)(BOOL))completionHandler {
