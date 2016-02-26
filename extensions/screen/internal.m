@@ -297,6 +297,9 @@ static int screen_gammaGet(lua_State* L) {
     CGGammaValue *blueTable = malloc(sizeof(CGGammaValue) * gammaCapacity);
 
     if (CGGetDisplayTransferByTable(0, gammaCapacity, redTable, greenTable, blueTable, &sampleCount) != kCGErrorSuccess) {
+        free(redTable);
+        free(greenTable);
+        free(blueTable);
         lua_pushnil(L);
         return 1;
     }
@@ -566,11 +569,11 @@ static int screen_gammaSet(lua_State* L) {
 //        NSLog(@"screen_gammaSet: %i: R:%f G:%f B:%f (orig: R:%f G:%f B:%f)", screen_id, newRed, newGreen, newBlue, origRed, origGreen, origBlue);
     }
 
+    CGError result = CGSetDisplayTransferByTable(screen_id, count, redTable, greenTable, blueTable);
+
     free(redTable);
     free(greenTable);
     free(blueTable);
-
-    CGError result = CGSetDisplayTransferByTable(screen_id, count, redTable, greenTable, blueTable);
 
     if (result != kCGErrorSuccess) {
         [skin logBreadcrumb:[NSString stringWithFormat:@"screen_gammaSet: ERROR: %i on display %i", result, screen_id]];
@@ -762,6 +765,7 @@ static int screen_setPrimary(lua_State* L) {
 
     if (targetDisplay == mainDisplay) {
         // NO-OP, we're already on the main display
+        free(onlineDisplays);
         lua_pushboolean(L, true);
         return 1;
     }
@@ -826,7 +830,7 @@ static int screen_rotate(lua_State* L) {
     NSScreen* screen = get_screen_arg(L, 1);
     CGDisplayCount maxDisplays = 32;
     CGDisplayCount displayCount, i;
-    CGDirectDisplayID *onlineDisplays;
+    CGDirectDisplayID *onlineDisplays = NULL;
 
     int rotation = -1;
 
@@ -877,6 +881,7 @@ static int screen_rotate(lua_State* L) {
     return 1;
 
 cleanup:
+    free(onlineDisplays);
     lua_pushboolean(L, false);
     return 1;
 }
