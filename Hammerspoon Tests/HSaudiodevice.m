@@ -7,7 +7,6 @@
 //
 
 #import "HSTestcase.h"
-#pragma GCC diagnostic ignored "-Wgnu-statement-expression"
 
 @interface HSaudiodevice : HSTestCase
 

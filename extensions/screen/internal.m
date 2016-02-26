@@ -31,24 +31,43 @@ static NSMutableDictionary *originalGammas;
 static NSMutableDictionary *currentGammas;
 static dispatch_queue_t notificationQueue;
 
-/// hs.screen:id(screen) -> number
+/// hs.screen:id() -> number
 /// Method
-/// Returns a screen's unique ID.
+/// Returns a screen's unique ID
+///
+/// Paramters:
+///  * None
+///
+/// Returns:
+///  * A number containing the ID of the screen
 static int screen_id(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
     lua_pushinteger(L, [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue]);
+
     return 1;
 }
 
-/// hs.screen:name(screen) -> string
+/// hs.screen:name() -> string or nil
 /// Method
-/// Returns the preferred name for the screen set by the manufacturer.
+/// Returns the preferred name for the screen set by the manufacturer
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the name of the screen, or nil if an error occurred
 static int screen_name(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
     CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
-    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:[NSString stringWithUTF8String:kDisplayProductName]];
+    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
 
     if ([localizedNames count])
         lua_pushstring(L, [[localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] UTF8String]);
@@ -79,6 +98,12 @@ void CGSConfigureDisplayMode(CGDisplayConfigRef config, CGDirectDisplayID displa
 void CGSGetNumberOfDisplayModes(CGDirectDisplayID display, int *nModes);
 void CGSGetDisplayModeDescriptionOfLength(CGDirectDisplayID display, int idx, CGSDisplayMode *mode, int length);
 
+// IOKit private APIs
+enum {
+    // from <IOKit/graphics/IOGraphicsTypesPrivate.h>
+    kIOFBSetTransform = 0x00000400,
+};
+
 /// hs.screen:currentMode() -> table
 /// Method
 /// Returns a table describing the current screen mode
@@ -93,6 +118,9 @@ void CGSGetDisplayModeDescriptionOfLength(CGDirectDisplayID display, int idx, CG
 ///   * scale - A number containing the scaling factor of the screen mode (typically `1` for a native mode, `2` for a HiDPI mode)
 ///   * desc - A string containing a representation of the mode as used in `hs.screen:availableModes()` - e.g. "1920x1080@2x"
 static int screen_currentMode(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
     int currentModeNumber;
@@ -134,6 +162,9 @@ static int screen_currentMode(lua_State* L) {
 ///  * Only 32-bit colour modes are returned. If you really need to know about 16-bit modes, please file an Issue on GitHub
 ///  * "points" are not necessarily the same as pixels, because they take the scale factor into account (e.g. "1440x900@2x" is a 2880x1800 screen resolution, with a scaling factor of 2, i.e. with HiDPI pixel-doubled rendering enabled), however, they are far more useful to work with than native pixel modes, when a Retina screen is involved. For non-retina screens, points and pixels are equivalent.
 static int screen_availableModes(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
@@ -184,10 +215,12 @@ static int screen_availableModes(lua_State* L) {
 ///  * The available widths/heights/scales can be seen in the output of `hs.screen:availableModes()`, however, it should be noted that the CoreGraphics subsystem seems to list more modes for a given screen than it is actually prepared to set, so you may find that seemingly valid modes still return false. It is not currently understood why this is so!
 static int screen_setMode(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TNUMBER, LS_TNUMBER, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
-    long width = (long)luaL_checkinteger(L, 2);
-    long height = (long)luaL_checkinteger(L, 3);
-    lua_Number scale = luaL_checknumber(L, 4);
+    long width = (long)lua_tointeger(L, 2);
+    long height = (long)lua_tointeger(L, 3);
+    lua_Number scale = lua_tonumber(L, 4);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
     int i, numberOfDisplayModes;
@@ -197,7 +230,7 @@ static int screen_setMode(lua_State* L) {
         CGSDisplayMode mode;
         CGSGetDisplayModeDescriptionOfLength(screen_id, i, &mode, sizeof(mode));
 
-        if (mode.depth == 4 && mode.width == width && mode.height == height && mode.density == (float)scale) {
+        if (mode.depth == 4 && mode.width == width && mode.height == height && (int)mode.density == (int)scale) {
             CGDisplayConfigRef config;
             CGBeginDisplayConfiguration(&config);
             CGSConfigureDisplayMode(config, screen_id, i);
@@ -229,8 +262,12 @@ static int screen_setMode(lua_State* L) {
 /// Notes:
 ///  * This returns all displays to the gamma tables specified by the user's selected ColorSync display profiles
 static int screen_gammaRestore(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
     CGDisplayRestoreColorSyncSettings();
     [currentGammas removeAllObjects];
+
     return 0;
 }
 
@@ -247,14 +284,17 @@ static int screen_gammaRestore(lua_State* L __unused) {
 ///   * green
 ///   * blue
 static int screen_gammaGet(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
     uint32_t gammaCapacity = CGDisplayGammaTableCapacity(screen_id);
     uint32_t sampleCount;
 
-    CGGammaValue redTable[gammaCapacity];
-    CGGammaValue greenTable[gammaCapacity];
-    CGGammaValue blueTable[gammaCapacity];
+    CGGammaValue *redTable = malloc(sizeof(CGGammaValue) * gammaCapacity);
+    CGGammaValue *greenTable = malloc(sizeof(CGGammaValue) * gammaCapacity);
+    CGGammaValue *blueTable = malloc(sizeof(CGGammaValue) * gammaCapacity);
 
     if (CGGetDisplayTransferByTable(0, gammaCapacity, redTable, greenTable, blueTable, &sampleCount) != kCGErrorSuccess) {
         lua_pushnil(L);
@@ -297,6 +337,10 @@ static int screen_gammaGet(lua_State* L) {
         lua_settable(L, -3);
     lua_settable(L, -3);
 
+    free(redTable);
+    free(greenTable);
+    free(blueTable);
+
     return 1;
 }
 
@@ -305,9 +349,9 @@ void storeInitialScreenGamma(CGDirectDisplayID display) {
     uint32_t capacity = CGDisplayGammaTableCapacity(display);
     uint32_t count = 0;
     int i = 0;
-    CGGammaValue redTable[capacity];
-    CGGammaValue greenTable[capacity];
-    CGGammaValue blueTable[capacity];
+    CGGammaValue *redTable = malloc(sizeof(CGGammaValue) * capacity);
+    CGGammaValue *greenTable = malloc(sizeof(CGGammaValue) * capacity);
+    CGGammaValue *blueTable = malloc(sizeof(CGGammaValue) * capacity);
 
     CGError result = CGGetDisplayTransferByTable(display, capacity, redTable, greenTable, blueTable, &count);
     if (result == kCGErrorSuccess) {
@@ -330,6 +374,11 @@ void storeInitialScreenGamma(CGDirectDisplayID display) {
     } else {
         [skin logBreadcrumb:[NSString stringWithFormat:@"storeInitialScreenGamma: ERROR %i on display %i", result, display]];
     }
+
+    free(redTable);
+    free(greenTable);
+    free(blueTable);
+
     return;
 }
 
@@ -339,7 +388,7 @@ void getAllInitialScreenGammas() {
     CGGetActiveDisplayList(0, NULL, &numDisplays);
 
     // Fetch the gamma for each display
-    CGDirectDisplayID displays[numDisplays];
+    CGDirectDisplayID *displays = malloc(sizeof(CGDirectDisplayID) * numDisplays);
     CGGetActiveDisplayList(numDisplays, displays, NULL);
 
     // Iterate each display and store its gamma
@@ -347,6 +396,9 @@ void getAllInitialScreenGammas() {
     for (int i = 0; i < (int)numDisplays; ++i) {
         storeInitialScreenGamma(displays[i]);
     }
+
+    free(displays);
+
     return;
 }
 
@@ -434,9 +486,9 @@ void displayReconfigurationCallback(CGDirectDisplayID display, CGDisplayChangeSu
 ///  * If the whitepoint and blackpoint specified, are very similar, it will be impossible to read the screen. You should exercise caution, and may wish to bind a hotkey to `hs.screen.restoreGamma()` when experimenting
 static int screen_gammaSet(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TTABLE, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
-    luaL_checktype(L, 2, LUA_TTABLE);
-    luaL_checktype(L, 3, LUA_TTABLE);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
     float whitePoint[3];
@@ -480,9 +532,10 @@ static int screen_gammaSet(lua_State* L) {
     int count = (int)[redArray count];
 //    NSLog(@"screen_gammaSet: Found %i entries in the original gamma table", count);
 
-    CGGammaValue redTable[count];
-    CGGammaValue greenTable[count];
-    CGGammaValue blueTable[count];
+    CGGammaValue *redTable = malloc(sizeof(CGGammaValue) * count);
+    CGGammaValue *greenTable = malloc(sizeof(CGGammaValue) * count);
+    CGGammaValue *blueTable = malloc(sizeof(CGGammaValue) * count);
+
     NSMutableArray *red   = [NSMutableArray arrayWithCapacity:count];
     NSMutableArray *green = [NSMutableArray arrayWithCapacity:count];
     NSMutableArray *blue  = [NSMutableArray arrayWithCapacity:count];
@@ -513,6 +566,10 @@ static int screen_gammaSet(lua_State* L) {
 //        NSLog(@"screen_gammaSet: %i: R:%f G:%f B:%f (orig: R:%f G:%f B:%f)", screen_id, newRed, newGreen, newBlue, origRed, origGreen, origBlue);
     }
 
+    free(redTable);
+    free(greenTable);
+    free(blueTable);
+
     CGError result = CGSetDisplayTransferByTable(screen_id, count, redTable, greenTable, blueTable);
 
     if (result != kCGErrorSuccess) {
@@ -535,6 +592,9 @@ static int screen_gammaSet(lua_State* L) {
 /// Returns:
 ///  * A floating point number between 0 and 1, containing the current brightness level, or nil if the display does not support brightness queries
 static int screen_getBrightness(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
     io_service_t service = CGDisplayIOServicePort(screen_id);
@@ -560,11 +620,14 @@ static int screen_getBrightness(lua_State *L) {
 /// Returns:
 ///  * The `hs.screen` object
 static int screen_setBrightness(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
     io_service_t service = CGDisplayIOServicePort(screen_id);
 
-    IODisplaySetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), luaL_checknumber(L, 2));
+    IODisplaySetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), lua_tonumber(L, 2));
 
     lua_pushvalue(L, 1);
     return 1;
@@ -582,9 +645,10 @@ void screen_gammaReapply(CGDirectDisplayID display) {
     NSArray *blue =  [gammas objectForKey:@"blue"];
 
     int count = (int)[red count];
-    CGGammaValue redTable[count];
-    CGGammaValue greenTable[count];
-    CGGammaValue blueTable[count];
+
+    CGGammaValue *redTable = malloc(sizeof(CGGammaValue) * count);
+    CGGammaValue *greenTable = malloc(sizeof(CGGammaValue) * count);
+    CGGammaValue *blueTable = malloc(sizeof(CGGammaValue) * count);
 
     for (int i = 0; i < count; i++) {
         redTable[i]   = [[red objectAtIndex:i] floatValue];
@@ -599,6 +663,10 @@ void screen_gammaReapply(CGDirectDisplayID display) {
     } else {
         //NSLog(@"screen_gammaReapply: Success");
     }
+
+    free(redTable);
+    free(greenTable);
+    free(blueTable);
 
     return;
 }
@@ -623,10 +691,19 @@ void new_screen(lua_State* L, NSScreen* screen) {
     lua_setmetatable(L, -2);
 }
 
-/// hs.screen.allScreens() -> screen[]
+/// hs.screen.allScreens() -> hs.screen[]
 /// Constructor
-/// Returns all the screens there are.
+/// Returns all the screens
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing one or more `hs.screen` objects
 static int screen_allScreens(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
     lua_newtable(L);
 
     int i = 1;
@@ -641,106 +718,160 @@ static int screen_allScreens(lua_State* L) {
 
 /// hs.screen.mainScreen() -> screen
 /// Constructor
-/// Returns the 'main' screen, i.e. the one containing the currently focused window.
+/// Returns the 'main' screen, i.e. the one containing the currently focused window
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An `hs.screen` object
 static int screen_mainScreen(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
     new_screen(L, [NSScreen mainScreen]);
+
     return 1;
 }
 
-/// hs.screen:setPrimary(screen) -> nil
+/// hs.screen:setPrimary() -> boolean
 /// Method
 /// Sets the screen to be the primary display (i.e. contain the menubar and dock)
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if the operation succeeded, otherwise false
 static int screen_setPrimary(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
     int deltaX, deltaY;
 
     CGDisplayErr dErr;
     CGDisplayCount maxDisplays = 32;
     CGDisplayCount displayCount, i;
-    CGDirectDisplayID  onlineDisplays[maxDisplays];
+
+    CGDirectDisplayID *onlineDisplays = malloc(sizeof(CGDirectDisplayID) * maxDisplays);
     CGDisplayConfigRef config;
 
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID targetDisplay = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
     CGDirectDisplayID mainDisplay = CGMainDisplayID();
 
-    if (targetDisplay == mainDisplay)
-        return 0;
+    if (targetDisplay == mainDisplay) {
+        // NO-OP, we're already on the main display
+        lua_pushboolean(L, true);
+        return 1;
+    }
 
     dErr = CGGetOnlineDisplayList(maxDisplays, onlineDisplays, &displayCount);
     if (dErr != kCGErrorSuccess) {
-        // FIXME: Display some kind of error here
-        return 0;
+        free(onlineDisplays);
+        lua_pushboolean(L, false);
+        return 1;
     }
 
     deltaX = -CGRectGetMinX(CGDisplayBounds(targetDisplay));
     deltaY = -CGRectGetMinY(CGDisplayBounds(targetDisplay));
 
-    CGBeginDisplayConfiguration (&config);
+    dErr = CGBeginDisplayConfiguration (&config);
+    if (dErr != kCGErrorSuccess) {
+        free(onlineDisplays);
+        lua_pushboolean(L, false);
+        return 1;
+    }
 
     for (i = 0; i < displayCount; i++) {
         CGDirectDisplayID dID = onlineDisplays[i];
 
-        CGConfigureDisplayOrigin(config, dID,
-                                 CGRectGetMinX(CGDisplayBounds(dID)) + deltaX,
-                                 CGRectGetMinY(CGDisplayBounds(dID)) + deltaY
-                                );
+        dErr = CGConfigureDisplayOrigin(config, dID,
+                                        CGRectGetMinX(CGDisplayBounds(dID)) + deltaX,
+                                        CGRectGetMinY(CGDisplayBounds(dID)) + deltaY
+                                       );
+        if (dErr != kCGErrorSuccess) {
+            free(onlineDisplays);
+            CGCancelDisplayConfiguration(config);
+            lua_pushboolean(L, false);
+            return 1;
+        }
     }
 
     CGCompleteDisplayConfiguration (config, kCGConfigureForSession);
 
-    return 0;
+    free(onlineDisplays);
+
+    lua_pushboolean(L, true);
+    return 1;
 }
 
-/// hs.screen:rotate(degrees) -> bool
+/// hs.screen:rotate([degrees]) -> bool or rotation angle
 /// Method
-/// Rotates the screen
+/// Gets/Sets the rotation of a screen
 ///
 /// Parameters:
-///  * degrees - A number indicating how many degrees to rotate. This number must be one of:
+///  * degrees - An optional number indicating how many degrees clockwise, to rotate. If no number is provided, the current rotation will be returned. This number must be one of:
 ///   * 0
 ///   * 90
 ///   * 180
 ///   * 270
 ///
 /// Returns:
-///  * A boolean, true if the operation succeeded, otherwise false
+///  * If the rotation is being set, a boolean, true if the operation succeeded, otherwise false. If the rotation is being queried, a number will be returned
 static int screen_rotate(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
+
     NSScreen* screen = get_screen_arg(L, 1);
     CGDisplayCount maxDisplays = 32;
     CGDisplayCount displayCount, i;
-    CGDirectDisplayID onlineDisplays[maxDisplays];
-    int rot = (int)lua_tointeger(L, 2);
-    int rotation;
+    CGDirectDisplayID *onlineDisplays;
 
-    switch (rot) {
-        case 0:
-            rotation = kIOScaleRotate0;
-            break;
-        case 90:
-            rotation = kIOScaleRotate90;
-            break;
-        case 180:
-            rotation = kIOScaleRotate180;
-            break;
-        case 270:
-            rotation = kIOScaleRotate270;
-            break;
-        default:
-            goto cleanup;
+    int rotation = -1;
+
+    if (lua_type(L, 2) == LUA_TNUMBER) {
+        switch ((int)lua_tointeger(L, 2)) {
+            case 0:
+                rotation = kIOScaleRotate0;
+                break;
+            case 90:
+                rotation = kIOScaleRotate90;
+                break;
+            case 180:
+                rotation = kIOScaleRotate180;
+                break;
+            case 270:
+                rotation = kIOScaleRotate270;
+                break;
+            default:
+                goto cleanup;
+        }
     }
 
     CGDirectDisplayID screenID = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] unsignedIntValue];
+
+    if (rotation == -1) {
+        double currentRotation = CGDisplayRotation(screenID);
+        NSLog(@"Found rotation: %f", currentRotation);
+        lua_pushinteger(L, (int)currentRotation);
+        return 1;
+    }
+
+    onlineDisplays = malloc(sizeof(CGDirectDisplayID) * maxDisplays);
     if (CGGetOnlineDisplayList(maxDisplays, onlineDisplays, &displayCount) != kCGErrorSuccess) goto cleanup;
 
     for (i = 0; i < displayCount; i++) {
         CGDirectDisplayID dID = onlineDisplays[i];
         if (dID == screenID) {
             io_service_t service = CGDisplayIOServicePort(dID);
-            IOOptionBits options = (0x00000400 | (rotation) << 16);
+            IOOptionBits options = (kIOFBSetTransform | (rotation) << 16);
             if (IOServiceRequestProbe(service, options) != kCGErrorSuccess) goto cleanup;
             break;
         }
     }
+
+    free(onlineDisplays);
 
     lua_pushboolean(L, true);
     return 1;
@@ -783,7 +914,7 @@ NSRect screenRectToNSRect(lua_State *L, int idx) {
 
     lua_pop(L, 4);
 
-    if (x == -1 || y == -1 || w == -1 || h == -1) {
+    if ((int)x == -1 || (int)y == -1 || (int)w == -1 || (int)h == -1) {
         goto cleanup;
     }
 
@@ -822,11 +953,14 @@ cleanup:
 /// Returns:
 ///  * An `hs.image` object, or nil if an error occurred
 static int screen_snapshot(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
+
     NSScreen *screen = get_screen_arg(L, 1);
     NSRect rect = screenRectToNSRect(L, 2);
     NSImage *image = screenToNSImage(screen, rect);
     if (image) {
-        [[LuaSkin shared] pushNSObject:image];
+        [skin pushNSObject:image];
     } else {
         lua_pushnil(L);
     }
@@ -835,17 +969,24 @@ static int screen_snapshot(lua_State *L) {
 }
 
 static int screens_gc(lua_State* L __unused) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
     CGDisplayRemoveReconfigurationCallback(displayReconfigurationCallback, NULL);
     screen_gammaRestore(nil);
+
     return 0;
 }
 
 static int userdata_tostring(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
     NSScreen *screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
     CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
-    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:[NSString stringWithUTF8String:kDisplayProductName]];
+    NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
     NSString *theName ;
     if ([localizedNames count])
         theName = [localizedNames objectForKey:[[localizedNames allKeys] objectAtIndex:0]] ;
@@ -904,7 +1045,8 @@ int luaopen_hs_screen_internal(lua_State* L __unused) {
     notificationQueue = dispatch_queue_create("org.hammerspoon.Hammerspoon.gammaReapplyNotificationQueue", NULL);
     CGDisplayRegisterReconfigurationCallback(displayReconfigurationCallback, NULL);
 
-    [skin registerLibraryWithObject:USERDATA_TAG functions:screenlib metaFunctions:metalib objectFunctions:screen_objectlib];
+    [skin registerLibrary:screenlib metaFunctions:metalib];
+    [skin registerObject:USERDATA_TAG objectFunctions:screen_objectlib];
 
     return 1;
 }

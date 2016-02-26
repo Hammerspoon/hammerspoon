@@ -261,6 +261,8 @@
 		4FD0AC2B1B74C62200A82496 /* MYAnonymousIdentity.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC271B74C62200A82496 /* MYAnonymousIdentity.m */; };
 		4FD0AC2C1B74C65600A82496 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA1319083251002568BB /* Foundation.framework */; };
 		4FD0AC2D1B74C65B00A82496 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94ABF08E1980B41300FA68E9 /* Security.framework */; };
+		4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E491C6E4FA100085D7A /* test_screen.lua */; };
+		4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */; };
 		4FDE05991B72984C00E9E8EE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9445CA0E19083251002568BB /* Cocoa.framework */; };
 		4FDE059A1B72984C00E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FDE05A31B72987B00E9E8EE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05A21B72987B00E9E8EE /* internal.m */; };
@@ -1041,6 +1043,8 @@
 		4FD0AC261B74C62200A82496 /* MYAnonymousIdentity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MYAnonymousIdentity.h; path = extensions/httpserver/MYAnonymousIdentity.h; sourceTree = "<group>"; };
 		4FD0AC271B74C62200A82496 /* MYAnonymousIdentity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MYAnonymousIdentity.m; path = extensions/httpserver/MYAnonymousIdentity.m; sourceTree = "<group>"; };
 		4FD0AC281B74C62200A82496 /* openssl.conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = openssl.conf; path = extensions/httpserver/openssl.conf; sourceTree = "<group>"; };
+		4FDD8E491C6E4FA100085D7A /* test_screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_screen.lua; path = extensions/screen/test_screen.lua; sourceTree = "<group>"; };
+		4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSscreen.m; sourceTree = "<group>"; };
 		4FDE059F1B72984C00E9E8EE /* libbattery.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbattery.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05A11B72987B00E9E8EE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/battery/init.lua; sourceTree = "<group>"; };
 		4FDE05A21B72987B00E9E8EE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/battery/internal.m; sourceTree = "<group>"; };
@@ -2149,6 +2153,7 @@
 			children = (
 				4F6B3F481B73EF9A00B2A4DE /* init.lua */,
 				4F6B3F491B73EF9A00B2A4DE /* internal.m */,
+				4FDD8E491C6E4FA100085D7A /* test_screen.lua */,
 			);
 			name = screen;
 			sourceTree = "<group>";
@@ -2829,6 +2834,7 @@
 				4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
 				4F6CE1331C6B93E10016668E /* HStimer.m */,
+				4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */,
 			);
 			path = "Hammerspoon Tests";
 			sourceTree = "<group>";
@@ -4726,6 +4732,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
 				D02F95341A003A2900E28BB2 /* init.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
 				4F6CE1311C6B93A90016668E /* test_timer.lua in Resources */,
@@ -5351,6 +5358,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
 				D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */,
 				4FEF4D521C5FA1DD00E3B939 /* HSTestCase.m in Sources */,
 				4F6CE1341C6B93E10016668E /* HStimer.m in Sources */,
@@ -8591,7 +8599,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
@@ -8623,6 +8631,10 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Debug;
 		};
@@ -8658,7 +8670,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
@@ -8690,6 +8702,10 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};
@@ -12997,6 +13013,7 @@
 					"-Wno-padded",
 					"-Wno-objc-missing-property-synthesis",
 					"-Wno-auto-import",
+					"-Wno-gnu-statement-expression",
 				);
 			};
 			name = Debug;
@@ -13041,6 +13058,7 @@
 					"-Wno-padded",
 					"-Wno-objc-missing-property-synthesis",
 					"-Wno-auto-import",
+					"-Wno-gnu-statement-expression",
 				);
 			};
 			name = Release;
@@ -13130,6 +13148,7 @@
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
 					"-Wno-objc-missing-property-synthesis",
+					"-Wno-gnu-statement-expression",
 				);
 			};
 			name = Debug;
@@ -13156,6 +13175,7 @@
 					"-Wno-cstring-format-directive",
 					"-Wno-padded",
 					"-Wno-objc-missing-property-synthesis",
+					"-Wno-gnu-statement-expression",
 				);
 			};
 			name = Release;

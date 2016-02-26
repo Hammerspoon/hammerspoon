@@ -44,6 +44,15 @@ function assertIsEqual(expected, actual)
   end
 end
 
+function assertIsAlmostEqual(expected, actual, margin)
+  if type(expected) ~= type(actual) then
+    failure(errorMsgEquality(type(expected), type(actual)))
+  end
+  if math.abs(expected - actual) > margin then
+    failure(string.format("%s (with margin: %s)", errorMsgEquality(expected, actual), tostring(margin)))
+  end
+end
+
 -- Comparison assertions
 function assertTrue(a)
   if not a then
