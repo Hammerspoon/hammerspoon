@@ -519,6 +519,7 @@ nextarg:
 
 // maxn   returns the largest integer key in the table
 - (lua_Integer)maxNatIndex:(int)idx {
+    idx = lua_absindex(_L, idx) ;
     lua_Integer max = 0;
     if (lua_type(_L, idx) == LUA_TTABLE) {
         lua_pushnil(_L);  /* first key */
@@ -539,6 +540,7 @@ nextarg:
 
 // countn returns the number of items of any key type in the table
 - (lua_Integer)countNatIndex:(int)idx {
+    idx = lua_absindex(_L, idx) ;
     lua_Integer max = 0;
     if (lua_type(_L, idx) == LUA_TTABLE) {
         lua_pushnil(_L);  /* first key */
@@ -687,7 +689,8 @@ nextarg:
         for (id key in registeredNSHelperFunctions) {
             if ([obj isKindOfClass: NSClassFromString(key)]) {
                 pushNSHelperFunction theFunc = (pushNSHelperFunction)[[registeredNSHelperFunctions objectForKey:key] pointerValue] ;
-                return theFunc(_L, obj) ;
+                int resultAnswer = theFunc(_L, obj) ;
+                if (resultAnswer > -1) return resultAnswer ;
             }
         }
 
