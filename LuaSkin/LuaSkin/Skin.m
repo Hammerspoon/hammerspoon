@@ -18,6 +18,43 @@ typedef struct luaObjectHelpers {
     luaObjectHelperFunction func ;
 } luaObjectHelpers ;
 
+#pragma mark - C-Support Functions
+
+static int pushCMTime(lua_State *L, CMTime holder) {
+    lua_newtable(L) ;
+    lua_pushinteger(L, holder.value) ;     lua_setfield(L, -2, "value") ;
+    lua_pushinteger(L, holder.timescale) ; lua_setfield(L, -2, "timescale") ;
+    lua_newtable(L) ;
+    if (holder.flags & kCMTimeFlags_Valid) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "valid") ;
+    }
+    if (holder.flags & kCMTimeFlags_HasBeenRounded) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "hasBeenRounded") ;
+    }
+    if (holder.flags & kCMTimeFlags_PositiveInfinity) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "positiveInfinity") ;
+    }
+    if (holder.flags & kCMTimeFlags_NegativeInfinity) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "negativeInfinity") ;
+    }
+    if (holder.flags & kCMTimeFlags_Indefinite) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "indefinite") ;
+    }
+    if (holder.flags & kCMTimeFlags_ImpliedValueFlagsMask) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "implied") ;
+    }
+    lua_setfield(L, -2, "flags") ;
+    lua_pushinteger(L, holder.epoch) ; lua_setfield(L, -2, "epoch") ;
+    return 1 ;
+}
+
+static int pushCMTimeRange(lua_State *L, CMTimeRange holder) {
+    lua_newtable(L) ;
+    pushCMTime(L, holder.start) ;    lua_setfield(L, -2, "start") ;
+    pushCMTime(L, holder.duration) ; lua_setfield(L, -2, "duration") ;
+    return 1 ;
+}
+
 // Extension to LuaSkin class for conversion support
 @interface LuaSkin (conversionSupport)
 
@@ -27,6 +64,7 @@ typedef struct luaObjectHelpers {
 - (int)pushNSArray:(id)obj      withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
 - (int)pushNSSet:(id)obj        withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
 - (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSValue:(id)obj withOptions:(LS_NSConversionOptions)options ;
 
 // internal methods for toNSObjectAtIndex
 - (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
@@ -266,7 +304,7 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     va_start(args, firstArg);
 
     while (true) {
-        if (spec == LS_TBREAK) {
+        if (spec & (LS_TBREAK | LS_TSOFTBREAK)) {
             idx--;
             break;
         }
@@ -284,8 +322,14 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
                     idx--;
                     goto nextarg;
                 }
-                lsType = LS_TNONE;
-                // FIXME: should there be a break here? If not, document why not
+//                 lsType = LS_TNONE;
+//                // FIXME: should there be a break here? If not, document why not
+//
+// I think the reason is this:
+//
+// if it was none because of an optional argument, we've already jumped out of this.  Otherwise,
+// this really should generate a missing argument error; since Lua's error routines indicate nil
+// when an expected argument isn't specified, fall through to LUA_TNIL...
             case LUA_TNIL:
                 lsType = LS_TNIL;
                 break;
@@ -294,6 +338,15 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
                 break;
             case LUA_TNUMBER:
                 lsType = LS_TNUMBER;
+
+                if ((spec & lsType) && (spec & LS_TINTEGER)) {
+                    int isInteger ;
+                    lua_tointegerx(_L, idx, &isInteger) ;
+                    if (!isInteger) {
+                        luaL_error(_L, "ERROR: number must be an integer for argument %d", idx) ;
+                    }
+                }
+
                 break;
             case LUA_TSTRING:
                 lsType = LS_TSTRING;
@@ -332,8 +385,10 @@ nextarg:
     }
     va_end(args);
 
-    if (idx != numArgs) {
-        luaL_error(_L, "ERROR: incorrect number of arguments. Expected %d, got %d", idx, numArgs);
+    if (!(spec & LS_TSOFTBREAK)) {
+        if (idx != numArgs) {
+            luaL_error(_L, "ERROR: incorrect number of arguments. Expected %d, got %d", idx, numArgs);
+        }
     }
 }
 
@@ -700,6 +755,9 @@ nextarg:
             lua_pushnil(_L) ;
         } else if ([obj isKindOfClass:[NSNumber class]]) {
             [self pushNSNumber:obj withOptions:options] ;
+// Note, the NSValue check must come *after* the NSNumber check, as NSNumber is a sub-class of NSValue
+        } else if ([obj isKindOfClass:[NSValue class]]) {
+            [self pushNSValue:obj withOptions:options] ;
         } else if ([obj isKindOfClass:[NSString class]]) {
                 size_t size = [(NSString *)obj lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
                 lua_pushlstring(_L, [(NSString *)obj UTF8String], size) ;
@@ -781,6 +839,116 @@ nextarg:
     return 1 ;
 }
 
+// Note, options is currently unused in this category method, but it's included here in case a
+// reason for an NSValue related option comes up
+- (int)pushNSValue:(id)obj withOptions:(__unused LS_NSConversionOptions)options {
+    NSValue    *value    = obj;
+    const char *objCType = [value objCType];
+
+    if (strcmp(objCType, @encode(NSPoint))==0) {
+        [self pushNSPoint:[value pointValue]] ;
+    } else if (strcmp(objCType, @encode(NSSize))==0) {
+        [self  pushNSSize:[value sizeValue]] ;
+    } else if (strcmp(objCType, @encode(NSRect))==0) {
+        [self  pushNSRect:[value rectValue]] ;
+    } else if (strcmp(objCType, @encode(NSRange))==0) {
+        NSRange holder = [value rangeValue] ;
+        lua_newtable(_L) ;
+        lua_pushinteger(_L, (lua_Integer)holder.location) ; lua_setfield(_L, -2, "location") ;
+        lua_pushinteger(_L, (lua_Integer)holder.length) ;   lua_setfield(_L, -2, "length") ;
+    } else if (strcmp(objCType, @encode(CATransform3D))==0) {
+        CATransform3D holder = [value CATransform3DValue] ;
+        lua_newtable(_L) ;
+        lua_pushnumber(_L, holder.m11) ; lua_setfield(_L, -2, "m11") ;
+        lua_pushnumber(_L, holder.m12) ; lua_setfield(_L, -2, "m12") ;
+        lua_pushnumber(_L, holder.m13) ; lua_setfield(_L, -2, "m13") ;
+        lua_pushnumber(_L, holder.m14) ; lua_setfield(_L, -2, "m14") ;
+        lua_pushnumber(_L, holder.m21) ; lua_setfield(_L, -2, "m21") ;
+        lua_pushnumber(_L, holder.m22) ; lua_setfield(_L, -2, "m22") ;
+        lua_pushnumber(_L, holder.m23) ; lua_setfield(_L, -2, "m23") ;
+        lua_pushnumber(_L, holder.m24) ; lua_setfield(_L, -2, "m24") ;
+        lua_pushnumber(_L, holder.m31) ; lua_setfield(_L, -2, "m31") ;
+        lua_pushnumber(_L, holder.m32) ; lua_setfield(_L, -2, "m32") ;
+        lua_pushnumber(_L, holder.m33) ; lua_setfield(_L, -2, "m33") ;
+        lua_pushnumber(_L, holder.m34) ; lua_setfield(_L, -2, "m34") ;
+        lua_pushnumber(_L, holder.m41) ; lua_setfield(_L, -2, "m41") ;
+        lua_pushnumber(_L, holder.m42) ; lua_setfield(_L, -2, "m42") ;
+        lua_pushnumber(_L, holder.m43) ; lua_setfield(_L, -2, "m43") ;
+        lua_pushnumber(_L, holder.m44) ; lua_setfield(_L, -2, "m44") ;
+// technically not needed, since the SCNMatrix4 encoding is identical to that of CATransform3D,
+// but since they are separate methods in NSValue, there is the not quite zero possibility that
+// the encodings could change, so... go ahead and "check" for it...
+    } else if (strcmp(objCType, @encode(SCNMatrix4))==0) {
+        SCNMatrix4 holder = [value SCNMatrix4Value] ;
+        lua_newtable(_L) ;
+        lua_pushnumber(_L, holder.m11) ; lua_setfield(_L, -2, "m11") ;
+        lua_pushnumber(_L, holder.m12) ; lua_setfield(_L, -2, "m12") ;
+        lua_pushnumber(_L, holder.m13) ; lua_setfield(_L, -2, "m13") ;
+        lua_pushnumber(_L, holder.m14) ; lua_setfield(_L, -2, "m14") ;
+        lua_pushnumber(_L, holder.m21) ; lua_setfield(_L, -2, "m21") ;
+        lua_pushnumber(_L, holder.m22) ; lua_setfield(_L, -2, "m22") ;
+        lua_pushnumber(_L, holder.m23) ; lua_setfield(_L, -2, "m23") ;
+        lua_pushnumber(_L, holder.m24) ; lua_setfield(_L, -2, "m24") ;
+        lua_pushnumber(_L, holder.m31) ; lua_setfield(_L, -2, "m31") ;
+        lua_pushnumber(_L, holder.m32) ; lua_setfield(_L, -2, "m32") ;
+        lua_pushnumber(_L, holder.m33) ; lua_setfield(_L, -2, "m33") ;
+        lua_pushnumber(_L, holder.m34) ; lua_setfield(_L, -2, "m34") ;
+        lua_pushnumber(_L, holder.m41) ; lua_setfield(_L, -2, "m41") ;
+        lua_pushnumber(_L, holder.m42) ; lua_setfield(_L, -2, "m42") ;
+        lua_pushnumber(_L, holder.m43) ; lua_setfield(_L, -2, "m43") ;
+        lua_pushnumber(_L, holder.m44) ; lua_setfield(_L, -2, "m44") ;
+    } else if (strcmp(objCType, @encode(CMTime))==0) {
+        pushCMTime(_L, [value CMTimeValue]) ;
+    } else if (strcmp(objCType, @encode(CMTimeRange))==0) {
+        pushCMTimeRange(_L, [value CMTimeRangeValue]) ;
+    } else if (strcmp(objCType, @encode(CMTimeMapping))==0) {
+        CMTimeMapping holder = [value CMTimeMappingValue] ;
+        lua_newtable(_L) ;
+        pushCMTimeRange(_L, holder.source) ; lua_setfield(_L, -2, "source") ;
+        pushCMTimeRange(_L, holder.target) ; lua_setfield(_L, -2, "target") ;
+    } else if (strcmp(objCType, @encode(CLLocationCoordinate2D))==0) { // MKCoordinateValue
+        CLLocationCoordinate2D holder = [value MKCoordinateValue] ;
+        lua_newtable(_L) ;
+        lua_pushnumber(_L, holder.latitude) ;  lua_setfield(_L, -2, "latitude") ;
+        lua_pushnumber(_L, holder.longitude) ; lua_setfield(_L, -2, "longitude") ;
+    } else if (strcmp(objCType, @encode(MKCoordinateSpan))==0) {
+        MKCoordinateSpan holder = [value MKCoordinateSpanValue] ;
+        lua_newtable(_L) ;
+        lua_pushnumber(_L, holder.latitudeDelta) ;  lua_setfield(_L, -2, "latitudeDelta") ;
+        lua_pushnumber(_L, holder.longitudeDelta) ; lua_setfield(_L, -2, "longitudeDelta") ;
+    } else if (strcmp(objCType, @encode(SCNVector3))==0) {
+        SCNVector3 holder = [value SCNVector3Value] ;
+        lua_newtable(_L) ;
+        lua_pushnumber(_L, holder.x) ; lua_setfield(_L, -2, "x") ;
+        lua_pushnumber(_L, holder.y) ; lua_setfield(_L, -2, "y") ;
+        lua_pushnumber(_L, holder.z) ; lua_setfield(_L, -2, "z") ;
+    } else if (strcmp(objCType, @encode(SCNVector4))==0) {
+        SCNVector4 holder = [value SCNVector4Value] ;
+        lua_newtable(_L) ;
+        lua_pushnumber(_L, holder.x) ; lua_setfield(_L, -2, "x") ;
+        lua_pushnumber(_L, holder.y) ; lua_setfield(_L, -2, "y") ;
+        lua_pushnumber(_L, holder.z) ; lua_setfield(_L, -2, "z") ;
+        lua_pushnumber(_L, holder.w) ; lua_setfield(_L, -2, "w") ;
+    } else {
+        NSUInteger actualSize, alignedSize ;
+        NSGetSizeAndAlignment(objCType, &actualSize, &alignedSize) ;
+
+        lua_newtable(_L) ;
+        lua_pushstring(_L, objCType) ;                  lua_setfield(_L, -2, "objCType") ;
+        lua_pushinteger(_L, (lua_Integer)actualSize) ;  lua_setfield(_L, -2, "actualSize") ;
+        lua_pushinteger(_L, (lua_Integer)alignedSize) ; lua_setfield(_L, -2, "alignedSize") ;
+
+        NSUInteger workingSize = MAX(actualSize, alignedSize) ;
+
+        void* ptr = malloc(workingSize) ;
+        [value getValue:ptr] ;
+        [self pushNSObject:[NSData dataWithBytes:ptr length:workingSize]] ;
+        lua_setfield(_L, -2, "data") ;
+        free(ptr) ;
+    }
+    return 1;
+}
+
 - (int)pushNSArray:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray* list = obj;
     lua_newtable(_L);
@@ -811,7 +979,7 @@ nextarg:
 }
 
 - (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-    NSArray *keys = [obj allKeys];
+    NSArray *keys = [(NSMutableDictionary *)obj allKeys];
     NSArray *values = [obj allValues];
     lua_newtable(_L);
     [alreadySeen setObject:[NSNumber numberWithInt:luaL_ref(_L, LUA_REGISTRYINDEX)] forKey:obj] ;

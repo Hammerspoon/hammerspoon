@@ -14,6 +14,10 @@
 
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
+#import <SceneKit/SceneKit.h>
+#import <CoreMedia/CoreMedia.h>
+#import <MapKit/MapKit.h>
 #import "lobject.h"
 #import "lapi.h"
 #import "lauxlib.h"
@@ -43,10 +47,14 @@
 #define LS_TFUNCTION      1 << 7
 /*! @define LS_TUSERDATA maps to LUA_TUSERDATA */
 #define LS_TUSERDATA      1 << 8
-/*! @define LS_TNONE maps to LUA_TNONE */
+/*! @define LS_TNONE maps to LUA_TNONE.  Deprecated, as this serves no real use in checkArgs except to provide parity with Lua's LUA_TNONE, which is handled by optional argument tagging or as an argument count error. */
 #define LS_TNONE          1 << 9
 /*! @define LS_TANY indicates that any Lua variable type is accepted */
 #define LS_TANY           1 << 10
+/*! @define LS_TINTEGER Can be OR'd with LS_TNUMBER to specify an integer argument.  This option is ignored if paired with other types. */
+#define LS_TINTEGER       1 << 11
+/*! @define LS_TSOFTBREAK Similar to LS_TBREAK, in that it signals the end of the argument list @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link should validate; however, the argument count is not verified, so any additional arguments beyond the validated list are the responsibility of the module function to check and use or ignore. */
+#define LS_TSOFTBREAK     1 << 12
 
 /*! @/definedblock Bit masks for Lua type checking */
 
@@ -360,7 +368,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @discussion This method takes an NSObject and checks its class against registered classes and then against the built in defaults to determine the best way to represent it in Lua.
 
  @important This method is equivalent to invoking [LuaSkin pushNSObject:obj withOptions:LS_NSNone].  See @link pushNSObject:withOptions: @/link.
- @important The default classes are (in order): NSNull, NSNumber, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
+ @important The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
 
  @param obj an NSObject
 
@@ -373,7 +381,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 
  @discussion This method takes an NSObject and checks its class against registered classes and then against the built in defaults to determine the best way to represent it in Lua.
 
- @important The default classes are (in order): NSNull, NSNumber, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
+ @important The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
 
  @param obj an NSObject
  @param options options for the conversion made by using the bitwise OR operator with members of @link LS_NSConversionOptions @/link.
