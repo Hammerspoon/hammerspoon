@@ -1,0 +1,6 @@
+// Build settings specific to styledtext / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "styledtext-Shared.xcconfig"
+

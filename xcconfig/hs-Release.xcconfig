@@ -1,0 +1,5 @@
+// Build settings specific to hs / Release go here
+
+#include "hs-Shared.xcconfig"
+
+MTL_ENABLE_DEBUG_INFO = NO

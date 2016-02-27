@@ -1,0 +1,6 @@
+// Build settings specific to webviewusercontent / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "webviewusercontent-Shared.xcconfig"
+

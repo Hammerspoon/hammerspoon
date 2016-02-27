@@ -1,0 +1,6 @@
+// Build settings specific to location / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "location-Shared.xcconfig"
+

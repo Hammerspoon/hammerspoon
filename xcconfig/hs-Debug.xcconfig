@@ -1,0 +1,6 @@
+// Build settings specific to hs / Debug go here
+
+#include "hs-Shared.xcconfig"
+
+DEBUG_INFORMATION_FORMAT = dwarf
+

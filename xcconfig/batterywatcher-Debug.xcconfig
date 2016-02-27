@@ -1,0 +1,6 @@
+// Build settings specific to batterywatcher / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "batterywatcher-Shared.xcconfig"
+

@@ -1,0 +1,6 @@
+// Build settings specific to pathwatcher / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "pathwatcher-Shared.xcconfig"
+

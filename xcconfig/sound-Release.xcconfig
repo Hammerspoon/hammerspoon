@@ -1,0 +1,6 @@
+// Build settings specific to sound / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "sound-Shared.xcconfig"
+

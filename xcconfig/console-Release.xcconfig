@@ -1,0 +1,6 @@
+// Build settings specific to console / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "console-Shared.xcconfig"
+

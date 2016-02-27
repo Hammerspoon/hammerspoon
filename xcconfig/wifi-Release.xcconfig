@@ -1,0 +1,6 @@
+// Build settings specific to wifi / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "wifi-Shared.xcconfig"
+

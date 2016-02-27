@@ -1,0 +1,6 @@
+// Build settings specific to timer / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "timer-Shared.xcconfig"
+

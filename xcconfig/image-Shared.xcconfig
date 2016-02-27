@@ -1,0 +1,5 @@
+// Build settings specific to image / Shared go here
+
+#include "module-Shared.xcconfig"
+
+USER_HEADER_SEARCH_PATHS = $(SRCROOT)/Pods/Headers/Public/**

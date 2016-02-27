@@ -1,0 +1,6 @@
+// Build settings specific to milight / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "milight-Shared.xcconfig"
+

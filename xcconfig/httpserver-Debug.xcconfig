@@ -1,0 +1,6 @@
+// Build settings specific to httpserver / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "httpserver-Shared.xcconfig"
+

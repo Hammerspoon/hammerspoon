@@ -1,0 +1,6 @@
+// Build settings specific to wifiwatcher / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "wifiwatcher-Shared.xcconfig"
+

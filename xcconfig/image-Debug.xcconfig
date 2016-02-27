@@ -1,0 +1,6 @@
+// Build settings specific to image / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "image-Shared.xcconfig"
+

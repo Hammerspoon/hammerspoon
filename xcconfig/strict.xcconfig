@@ -1,0 +1,5 @@
+// Strict build settings. Eventually every module should use this
+
+GCC_TREAT_WARNINGS_AS_ERRORS = YES
+WARNING_CFLAGS = -Weverything $(inherited)
+

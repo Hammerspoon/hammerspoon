@@ -1,0 +1,4 @@
+// Build settings specific to batterywatcher / Shared go here
+
+#include "module-Shared.xcconfig"
+

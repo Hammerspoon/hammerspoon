@@ -1,0 +1,6 @@
+// Build settings specific to screenwatcher / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "screenwatcher-Shared.xcconfig"
+

@@ -1,0 +1,6 @@
+// Build settings specific to usb / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "usb-Shared.xcconfig"
+

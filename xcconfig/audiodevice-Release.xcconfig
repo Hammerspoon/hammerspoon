@@ -1,0 +1,6 @@
+// Build settings specific to audiodevice / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "audiodevice-Shared.xcconfig"
+

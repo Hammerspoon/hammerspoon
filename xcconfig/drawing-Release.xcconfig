@@ -1,0 +1,6 @@
+// Build settings specific to drawing / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "drawing-Shared.xcconfig"
+

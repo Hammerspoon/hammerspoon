@@ -1,0 +1,6 @@
+// Build settings specific to console / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "console-Shared.xcconfig"
+

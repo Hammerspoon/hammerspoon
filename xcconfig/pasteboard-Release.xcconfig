@@ -1,0 +1,6 @@
+// Build settings specific to pasteboard / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "pasteboard-Shared.xcconfig"
+

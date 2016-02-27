@@ -1,0 +1,6 @@
+// Build settings specific to chooser / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "chooser-Shared.xcconfig"
+

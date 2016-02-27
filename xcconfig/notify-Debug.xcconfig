@@ -1,0 +1,6 @@
+// Build settings specific to notify / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "notify-Shared.xcconfig"
+

@@ -1,0 +1,6 @@
+// Build settings specific to wifi / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "wifi-Shared.xcconfig"
+

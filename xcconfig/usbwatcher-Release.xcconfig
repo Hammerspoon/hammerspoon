@@ -1,0 +1,6 @@
+// Build settings specific to usbwatcher / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "usbwatcher-Shared.xcconfig"
+

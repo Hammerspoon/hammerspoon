@@ -1,0 +1,6 @@
+// Build settings specific to drawing_color / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "drawing_color-Shared.xcconfig"
+

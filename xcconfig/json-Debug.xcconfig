@@ -1,0 +1,6 @@
+// Build settings specific to json / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "json-Shared.xcconfig"
+

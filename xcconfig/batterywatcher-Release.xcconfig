@@ -1,0 +1,6 @@
+// Build settings specific to batterywatcher / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "batterywatcher-Shared.xcconfig"
+

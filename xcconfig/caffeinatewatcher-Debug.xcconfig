@@ -1,0 +1,6 @@
+// Build settings specific to caffeinatewatcher / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "caffeinatewatcher-Shared.xcconfig"
+

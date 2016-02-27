@@ -1,0 +1,6 @@
+// Build settings specific to uielement / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "uielement-Shared.xcconfig"
+

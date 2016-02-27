@@ -1,0 +1,4 @@
+// Build settings specific to fsvolume / Shared go here
+
+#include "module-Shared.xcconfig"
+

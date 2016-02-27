@@ -1,0 +1,6 @@
+// Build settings specific to alert / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "alert-Shared.xcconfig"
+

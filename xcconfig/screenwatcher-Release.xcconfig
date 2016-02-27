@@ -1,0 +1,6 @@
+// Build settings specific to screenwatcher / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "screenwatcher-Shared.xcconfig"
+

@@ -1,0 +1,6 @@
+// Build settings specific to applescript / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "applescript-Shared.xcconfig"
+

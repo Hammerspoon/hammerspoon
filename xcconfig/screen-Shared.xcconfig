@@ -1,0 +1,5 @@
+// Build settings specific to screen / Shared go here
+
+#include "module-Shared.xcconfig"
+
+#include "strict.xcconfig"

@@ -1,0 +1,6 @@
+// Build settings specific to uielement / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "uielement-Shared.xcconfig"
+

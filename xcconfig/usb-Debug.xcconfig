@@ -1,0 +1,6 @@
+// Build settings specific to usb / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "usb-Shared.xcconfig"
+

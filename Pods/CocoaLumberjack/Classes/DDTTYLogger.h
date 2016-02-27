@@ -13,6 +13,36 @@
 //   to endorse or promote products derived from this software without specific
 //   prior written permission of Deusty, LLC.
 
+// Disable legacy macros
+#ifndef DD_LEGACY_MACROS
+    #define DD_LEGACY_MACROS 0
+#endif
+
+#import "DDLog.h"
+
+#define LOG_CONTEXT_ALL INT_MAX
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#if TARGET_OS_IPHONE
+    // iOS
+    #import <UIKit/UIColor.h>
+    typedef UIColor DDColor;
+    static inline DDColor* DDMakeColor(CGFloat r, CGFloat g, CGFloat b) {return [DDColor colorWithRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];}
+#elif defined(DD_CLI) || !__has_include(<AppKit/NSColor.h>)
+    // OS X CLI
+    #import "CLIColor.h"
+    typedef CLIColor DDColor;
+    static inline DDColor* DDMakeColor(CGFloat r, CGFloat g, CGFloat b) {return [DDColor colorWithCalibratedRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];}
+#else
+    // OS X with AppKit
+    #import <AppKit/NSColor.h>
+    typedef NSColor DDColor;
+    static inline DDColor* DDMakeColor(CGFloat r, CGFloat g, CGFloat b) {return [DDColor colorWithCalibratedRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];}
+#endif
+#pragma clang diagnostic pop
+
+
 /**
  * This class provides a logger for Terminal output or Xcode console output,
  * depending on where you are running your code.
@@ -27,35 +57,11 @@
  * However, if you instead choose to use file logging (for faster performance),
  * you may choose to use only a file logger and a tty logger.
  **/
-
-// Disable legacy macros
-#ifndef DD_LEGACY_MACROS
-    #define DD_LEGACY_MACROS 0
-#endif
-
-#import "DDLog.h"
-
-#define LOG_CONTEXT_ALL INT_MAX
-
-#if TARGET_OS_IPHONE
-    // iOS
-    #import <UIKit/UIColor.h>
-    typedef UIColor DDColor;
-    static  DDColor* DDMakeColor(CGFloat r, CGFloat g, CGFloat b) {return [DDColor colorWithRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];}
-#elif __has_include(<AppKit/NSColor.h>)
-    // OS X with AppKit
-    #import <AppKit/NSColor.h>
-    typedef NSColor DDColor;
-    static DDColor* DDMakeColor(CGFloat r, CGFloat g, CGFloat b) {return [DDColor colorWithCalibratedRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];}
-#else
-    // OS X CLI
-    #import "CLIColor.h"
-    typedef CLIColor DDColor;
-    static  DDColor* DDMakeColor(CGFloat r, CGFloat g, CGFloat b) {return [DDColor colorWithCalibratedRed:(r/255.0f) green:(g/255.0f) blue:(b/255.0f) alpha:1.0f];}
-#endif
-
 @interface DDTTYLogger : DDAbstractLogger <DDLogger>
 
+/**
+ *  Singleton method
+ */
 + (instancetype)sharedInstance;
 
 /* Inherited from the DDLogger protocol:
@@ -91,11 +97,10 @@
 @property (readwrite, assign) BOOL colorsEnabled;
 
 /**
- * When using a custom formatter you can set the logMessage method not to append
- * '\n' character after each output. This allows for some greater flexibility with
+ * When using a custom formatter you can set the `logMessage` method not to append
+ * `\n` character after each output. This allows for some greater flexibility with
  * custom formatters. Default value is YES.
  **/
-
 @property (nonatomic, readwrite, assign) BOOL automaticallyAppendNewlineForCustomFormatters;
 
 /**

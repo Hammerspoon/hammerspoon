@@ -1,0 +1,6 @@
+// Build settings specific to brightness / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "brightness-Shared.xcconfig"
+

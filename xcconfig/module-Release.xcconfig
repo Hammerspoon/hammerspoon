@@ -1,0 +1,4 @@
+// General module Release build settings
+
+MTL_ENABLE_DEBUG_INFO = NO
+

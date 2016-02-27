@@ -1,0 +1,6 @@
+// Build settings specific to brightness / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "brightness-Shared.xcconfig"
+

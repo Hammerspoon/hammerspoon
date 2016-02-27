@@ -1,0 +1,6 @@
+// General module Debug build settings
+
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+ENABLE_TESTABILITY = YES
+MTL_ENABLE_DEBUG_INFO = YES
+

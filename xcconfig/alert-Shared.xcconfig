@@ -1,0 +1,4 @@
+// Build settings specific to alert / Shared go here
+
+#include "module-Shared.xcconfig"
+

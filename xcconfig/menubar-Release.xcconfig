@@ -1,0 +1,6 @@
+// Build settings specific to menubar / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "menubar-Shared.xcconfig"
+

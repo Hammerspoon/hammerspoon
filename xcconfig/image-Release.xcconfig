@@ -1,0 +1,6 @@
+// Build settings specific to image / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "image-Shared.xcconfig"
+

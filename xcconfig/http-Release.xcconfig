@@ -1,0 +1,6 @@
+// Build settings specific to http / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "http-Shared.xcconfig"
+

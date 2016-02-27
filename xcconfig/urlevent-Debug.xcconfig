@@ -1,0 +1,6 @@
+// Build settings specific to urlevent / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "urlevent-Shared.xcconfig"
+

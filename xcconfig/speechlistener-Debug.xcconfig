@@ -1,0 +1,6 @@
+// Build settings specific to speechlistener / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "speechlistener-Shared.xcconfig"
+

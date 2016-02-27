@@ -1,0 +1,6 @@
+// Build settings specific to wifiwatcher / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "wifiwatcher-Shared.xcconfig"
+

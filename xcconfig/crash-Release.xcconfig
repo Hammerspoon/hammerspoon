@@ -1,0 +1,6 @@
+// Build settings specific to crash / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "crash-Shared.xcconfig"
+
