@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		47804720D88F22FC342A9CDD /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D7B2237730B361500581ECCC /* libPods-Hammerspoon.a */; };
+		4C9093B01C823ED600A7FA39 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C9093AF1C823ED600A7FA39 /* LuaSkin.framework */; };
 		4CEDEE1C1C640D11005CBF97 /* HSjavascript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */; };
 		4CEDEE1D1C640FDB005CBF97 /* test_javascript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CEDEE191C640B3D005CBF97 /* test_javascript.lua */; };
 		4F0676071C32C0B30088C57C /* HSChooserCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F0676051C32C0B30088C57C /* HSChooserCell.h */; };
@@ -803,6 +804,7 @@
 		4C9093A41C81EA6300A7FA39 /* window-Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "window-Release.xcconfig"; sourceTree = "<group>"; };
 		4C9093A51C81EA6300A7FA39 /* window-Shared.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "window-Shared.xcconfig"; sourceTree = "<group>"; };
 		4C9093A61C81EA6300A7FA39 /* yosemite.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = yosemite.xcconfig; sourceTree = "<group>"; };
+		4C9093AF1C823ED600A7FA39 /* LuaSkin.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LuaSkin.framework; path = "../Library/Developer/Xcode/DerivedData/Hammerspoon-cccvysfgndxoujatikoxslnwwghs/Build/Products/Debug/LuaSkin.framework"; sourceTree = "<group>"; };
 		4CEDEE191C640B3D005CBF97 /* test_javascript.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_javascript.lua; path = extensions/javascript/test_javascript.lua; sourceTree = "<group>"; };
 		4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSjavascript.m; sourceTree = "<group>"; };
 		4F0676041C32AED90088C57C /* HSChooserWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = HSChooserWindow.xib; path = extensions/chooser/HSChooserWindow.xib; sourceTree = "<group>"; };
@@ -1195,6 +1197,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C9093B01C823ED600A7FA39 /* LuaSkin.framework in Frameworks */,
 				47804720D88F22FC342A9CDD /* libPods-Hammerspoon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2510,6 +2513,7 @@
 		6CB605EAA48E56F8ADA33515 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4C9093AF1C823ED600A7FA39 /* LuaSkin.framework */,
 				D7B2237730B361500581ECCC /* libPods-Hammerspoon.a */,
 			);
 			name = Frameworks;
@@ -4175,6 +4179,7 @@
 				4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */,
 				4FC09F7A19F99E48007542A6 /* Compile docs.json */,
 				9445CA0719083251002568BB /* Sources */,
+				496EC7FAA4AFC89A85466B6E /* Frameworks */,
 				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
 				9445CA0919083251002568BB /* Resources */,
@@ -4183,7 +4188,6 @@
 				4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */,
 				4D957D1BB5F4D54D62CAB1D7 /* Embed Pods Frameworks */,
 				695B615F901FF0BA337D00AD /* Copy Pods Resources */,
-				496EC7FAA4AFC89A85466B6E /* Frameworks */,
 			);
 			buildRules = (
 			);
