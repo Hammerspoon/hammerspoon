@@ -1,0 +1,6 @@
+// Build settings specific to settings / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "settings-Shared.xcconfig"
+

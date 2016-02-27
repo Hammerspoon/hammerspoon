@@ -1,0 +1,6 @@
+// Build settings specific to caffeinate / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "caffeinate-Shared.xcconfig"
+

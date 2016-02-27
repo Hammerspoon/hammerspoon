@@ -1,0 +1,6 @@
+// Build settings specific to httpserver / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "httpserver-Shared.xcconfig"
+

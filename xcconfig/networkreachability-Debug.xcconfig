@@ -1,0 +1,6 @@
+// Build settings specific to networkreachability / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "networkreachability-Shared.xcconfig"
+

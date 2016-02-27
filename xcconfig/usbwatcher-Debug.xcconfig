@@ -1,0 +1,6 @@
+// Build settings specific to usbwatcher / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "usbwatcher-Shared.xcconfig"
+

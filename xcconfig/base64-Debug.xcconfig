@@ -1,0 +1,6 @@
+// Build settings specific to base64 / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "base64-Shared.xcconfig"
+

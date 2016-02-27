@@ -1,0 +1,6 @@
+// Build settings specific to crash / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "crash-Shared.xcconfig"
+

@@ -1,0 +1,4 @@
+// Build settings specific to hints / Shared go here
+
+#include "module-Shared.xcconfig"
+

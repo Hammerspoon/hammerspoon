@@ -1,0 +1,6 @@
+// Build settings specific to audiodevicewatcher / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "audiodevicewatcher-Shared.xcconfig"
+

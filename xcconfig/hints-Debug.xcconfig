@@ -1,0 +1,6 @@
+// Build settings specific to hints / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "hints-Shared.xcconfig"
+

@@ -1,0 +1,4 @@
+// Import this for modules which use 10.10 or later APIs
+
+MACOSX_DEPLOYMENT_TARGET = 10.10
+

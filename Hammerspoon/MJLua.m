@@ -9,7 +9,7 @@
 #import "MJPreferencesWindowController.h"
 #import "MJConsoleWindowController.h"
 #import "MJAutoLaunch.h"
-#import <Crashlytics/Crashlytics.h>
+@import Crashlytics;
 
 static LuaSkin* MJLuaState;
 static MJLuaLogger* MJLuaLogDelegate;

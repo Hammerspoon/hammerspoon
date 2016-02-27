@@ -1,0 +1,6 @@
+// Build settings specific to hash / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "hash-Shared.xcconfig"
+

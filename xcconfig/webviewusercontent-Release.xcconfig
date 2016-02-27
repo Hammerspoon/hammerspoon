@@ -1,0 +1,6 @@
+// Build settings specific to webviewusercontent / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "webviewusercontent-Shared.xcconfig"
+

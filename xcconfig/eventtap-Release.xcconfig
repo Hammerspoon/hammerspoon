@@ -1,0 +1,6 @@
+// Build settings specific to eventtap / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "eventtap-Shared.xcconfig"
+

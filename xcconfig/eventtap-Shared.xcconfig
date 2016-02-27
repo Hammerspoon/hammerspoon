@@ -1,0 +1,4 @@
+// Build settings specific to eventtap / Shared go here
+
+#include "module-Shared.xcconfig"
+

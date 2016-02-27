@@ -1,0 +1,4 @@
+// Build settings specific to caffeinatewatcher / Shared go here
+
+#include "module-Shared.xcconfig"
+

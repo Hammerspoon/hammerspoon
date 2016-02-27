@@ -1,7 +1,7 @@
-FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Sparkle" "${PODS_ROOT}/Sparkle"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/Sparkle" "${PODS_ROOT}/Crashlytics/OSX" "${PODS_ROOT}/Fabric/OSX"
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
-HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2" $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/ASCIImage" "${PODS_ROOT}/Headers/Public/CocoaAsyncSocket" "${PODS_ROOT}/Headers/Public/CocoaHTTPServer" "${PODS_ROOT}/Headers/Public/CocoaLumberjack" "${PODS_ROOT}/Headers/Public/Sparkle"
+HEADER_SEARCH_PATHS = "$(SDKROOT)/usr/include/libxml2" $(inherited) "${PODS_ROOT}/Headers/Public" "${PODS_ROOT}/Headers/Public/ASCIImage" "${PODS_ROOT}/Headers/Public/CocoaAsyncSocket" "${PODS_ROOT}/Headers/Public/CocoaHTTPServer" "${PODS_ROOT}/Headers/Public/CocoaLumberjack" "${PODS_ROOT}/Headers/Public/Crashlytics" "${PODS_ROOT}/Headers/Public/Fabric" "${PODS_ROOT}/Headers/Public/Sparkle"
 LD_RUNPATH_SEARCH_PATHS = @loader_path/../Frameworks
-OTHER_CFLAGS = $(inherited) -isystem "${PODS_ROOT}/Headers/Public" -isystem "${PODS_ROOT}/Headers/Public/ASCIImage" -isystem "${PODS_ROOT}/Headers/Public/CocoaAsyncSocket" -isystem "${PODS_ROOT}/Headers/Public/CocoaHTTPServer" -isystem "${PODS_ROOT}/Headers/Public/CocoaLumberjack" -isystem "${PODS_ROOT}/Headers/Public/Sparkle"
-OTHER_LDFLAGS = $(inherited) -ObjC -l"ASCIImage" -l"CocoaAsyncSocket" -l"CocoaHTTPServer" -l"CocoaLumberjack" -l"xml2" -framework "CoreServices" -framework "Security" -framework "Sparkle"
+OTHER_CFLAGS = $(inherited) -isystem "${PODS_ROOT}/Headers/Public" -isystem "${PODS_ROOT}/Headers/Public/ASCIImage" -isystem "${PODS_ROOT}/Headers/Public/CocoaAsyncSocket" -isystem "${PODS_ROOT}/Headers/Public/CocoaHTTPServer" -isystem "${PODS_ROOT}/Headers/Public/CocoaLumberjack" -isystem "${PODS_ROOT}/Headers/Public/Crashlytics" -isystem "${PODS_ROOT}/Headers/Public/Fabric" -isystem "${PODS_ROOT}/Headers/Public/Sparkle"
+OTHER_LDFLAGS = $(inherited) -ObjC -l"ASCIImage" -l"CocoaAsyncSocket" -l"CocoaHTTPServer" -l"CocoaLumberjack" -l"c++" -l"xml2" -l"z" -framework "CoreServices" -framework "Crashlytics" -framework "Fabric" -framework "Security" -framework "Sparkle" -framework "SystemConfiguration"
 PODS_ROOT = ${SRCROOT}/Pods

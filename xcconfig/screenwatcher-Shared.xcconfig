@@ -1,0 +1,4 @@
+// Build settings specific to screenwatcher / Shared go here
+
+#include "module-Shared.xcconfig"
+

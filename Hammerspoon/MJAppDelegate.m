@@ -1,5 +1,3 @@
-#import <Fabric/Fabric.h>
-#import <Crashlytics/Crashlytics.h>
 #import <Cocoa/Cocoa.h>
 #import "MJAppDelegate.h"
 #import "MJConsoleWindowController.h"

@@ -1,0 +1,6 @@
+// Build settings specific to networkhost / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "networkhost-Shared.xcconfig"
+

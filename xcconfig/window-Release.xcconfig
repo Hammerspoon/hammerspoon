@@ -1,0 +1,6 @@
+// Build settings specific to window / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "window-Shared.xcconfig"
+

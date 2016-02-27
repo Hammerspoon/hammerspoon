@@ -1,0 +1,6 @@
+// Build settings specific to host / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "host-Shared.xcconfig"
+

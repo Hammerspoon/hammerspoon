@@ -1,0 +1,4 @@
+// Build settings specific to battery / Shared go here
+
+#include "module-Shared.xcconfig"
+

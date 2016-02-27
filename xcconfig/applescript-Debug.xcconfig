@@ -1,0 +1,6 @@
+// Build settings specific to applescript / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "applescript-Shared.xcconfig"
+

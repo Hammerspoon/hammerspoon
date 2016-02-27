@@ -1,0 +1,6 @@
+// Build settings specific to urlevent / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "urlevent-Shared.xcconfig"
+

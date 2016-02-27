@@ -1,0 +1,6 @@
+// Build settings specific to milight / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "milight-Shared.xcconfig"
+

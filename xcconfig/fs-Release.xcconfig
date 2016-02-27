@@ -1,0 +1,6 @@
+// Build settings specific to fs / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "fs-Shared.xcconfig"
+

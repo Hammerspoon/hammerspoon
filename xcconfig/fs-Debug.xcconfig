@@ -1,0 +1,6 @@
+// Build settings specific to fs / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "fs-Shared.xcconfig"
+

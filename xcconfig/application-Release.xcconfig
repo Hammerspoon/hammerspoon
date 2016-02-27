@@ -1,0 +1,6 @@
+// Build settings specific to application / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "application-Shared.xcconfig"
+

@@ -1,0 +1,4 @@
+// Build settings specific to applicationwatcher / Shared go here
+
+#include "module-Shared.xcconfig"
+

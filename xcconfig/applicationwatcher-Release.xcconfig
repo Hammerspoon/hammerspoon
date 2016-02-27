@@ -1,0 +1,6 @@
+// Build settings specific to applicationwatcher / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "applicationwatcher-Shared.xcconfig"
+

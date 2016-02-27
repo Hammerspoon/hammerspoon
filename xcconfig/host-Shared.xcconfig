@@ -1,0 +1,4 @@
+// Build settings specific to host / Shared go here
+
+#include "module-Shared.xcconfig"
+

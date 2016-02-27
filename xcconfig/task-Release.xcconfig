@@ -1,0 +1,6 @@
+// Build settings specific to task / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "task-Shared.xcconfig"
+

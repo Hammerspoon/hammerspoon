@@ -1,0 +1,6 @@
+// Build settings specific to javascript / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "javascript-Shared.xcconfig"
+

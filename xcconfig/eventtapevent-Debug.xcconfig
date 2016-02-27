@@ -1,0 +1,6 @@
+// Build settings specific to eventtapevent / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "eventtapevent-Shared.xcconfig"
+

@@ -1,0 +1,6 @@
+// Build settings specific to applicationwatcher / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "applicationwatcher-Shared.xcconfig"
+

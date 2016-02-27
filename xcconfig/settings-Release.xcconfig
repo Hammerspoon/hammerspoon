@@ -1,0 +1,6 @@
+// Build settings specific to settings / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "settings-Shared.xcconfig"
+

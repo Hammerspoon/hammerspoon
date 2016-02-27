@@ -1,0 +1,6 @@
+// Build settings specific to audiodevicewatcher / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "audiodevicewatcher-Shared.xcconfig"
+

@@ -1,0 +1,6 @@
+// Build settings specific to pathwatcher / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "pathwatcher-Shared.xcconfig"
+

@@ -1,0 +1,6 @@
+// Build settings specific to chooser / Shared go here
+
+#include "module-Shared.xcconfig"
+
+#include "yosemite.xcconfig"
+

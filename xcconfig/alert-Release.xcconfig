@@ -1,0 +1,6 @@
+// Build settings specific to alert / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "alert-Shared.xcconfig"
+

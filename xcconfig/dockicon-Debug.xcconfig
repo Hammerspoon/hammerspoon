@@ -1,0 +1,6 @@
+// Build settings specific to dockicon / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "dockicon-Shared.xcconfig"
+

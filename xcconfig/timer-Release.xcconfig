@@ -1,0 +1,6 @@
+// Build settings specific to timer / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "timer-Shared.xcconfig"
+

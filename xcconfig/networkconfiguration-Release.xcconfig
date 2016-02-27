@@ -1,0 +1,6 @@
+// Build settings specific to networkconfiguration / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "networkconfiguration-Shared.xcconfig"
+

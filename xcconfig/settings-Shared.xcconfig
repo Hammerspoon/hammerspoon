@@ -1,0 +1,4 @@
+// Build settings specific to settings / Shared go here
+
+#include "module-Shared.xcconfig"
+

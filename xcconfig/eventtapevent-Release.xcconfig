@@ -1,0 +1,6 @@
+// Build settings specific to eventtapevent / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "eventtapevent-Shared.xcconfig"
+

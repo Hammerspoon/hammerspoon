@@ -1,0 +1,6 @@
+// Build settings specific to drawing / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "drawing-Shared.xcconfig"
+

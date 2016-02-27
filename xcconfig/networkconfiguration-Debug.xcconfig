@@ -1,0 +1,6 @@
+// Build settings specific to networkconfiguration / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "networkconfiguration-Shared.xcconfig"
+

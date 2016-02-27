@@ -1,0 +1,6 @@
+// Build settings specific to base64 / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "base64-Shared.xcconfig"
+

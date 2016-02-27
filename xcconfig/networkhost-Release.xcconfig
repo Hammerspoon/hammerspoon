@@ -1,0 +1,6 @@
+// Build settings specific to networkhost / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "networkhost-Shared.xcconfig"
+

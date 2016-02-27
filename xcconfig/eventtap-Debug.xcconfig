@@ -1,0 +1,6 @@
+// Build settings specific to eventtap / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "eventtap-Shared.xcconfig"
+

@@ -1,0 +1,6 @@
+// Build settings specific to window / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "window-Shared.xcconfig"
+

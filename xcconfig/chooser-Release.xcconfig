@@ -1,0 +1,6 @@
+// Build settings specific to chooser / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "chooser-Shared.xcconfig"
+

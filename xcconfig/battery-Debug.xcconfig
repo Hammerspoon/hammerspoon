@@ -1,0 +1,6 @@
+// Build settings specific to battery / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "battery-Shared.xcconfig"
+

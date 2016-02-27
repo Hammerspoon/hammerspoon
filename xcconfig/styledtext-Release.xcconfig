@@ -1,0 +1,6 @@
+// Build settings specific to styledtext / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "styledtext-Shared.xcconfig"
+

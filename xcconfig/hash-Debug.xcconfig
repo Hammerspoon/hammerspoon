@@ -1,0 +1,6 @@
+// Build settings specific to hash / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "hash-Shared.xcconfig"
+

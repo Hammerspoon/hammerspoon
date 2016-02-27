@@ -1,0 +1,6 @@
+// Build settings specific to notify / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "notify-Shared.xcconfig"
+

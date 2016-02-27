@@ -1,0 +1,6 @@
+// Build settings specific to speech / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "speech-Shared.xcconfig"
+

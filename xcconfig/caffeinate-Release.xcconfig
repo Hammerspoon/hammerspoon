@@ -1,0 +1,6 @@
+// Build settings specific to caffeinate / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "caffeinate-Shared.xcconfig"
+

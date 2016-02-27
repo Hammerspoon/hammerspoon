@@ -1,0 +1,6 @@
+// Build settings specific to mouse / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "mouse-Shared.xcconfig"
+

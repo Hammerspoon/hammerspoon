@@ -1,0 +1,6 @@
+// Build settings specific to mouse / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "mouse-Shared.xcconfig"
+

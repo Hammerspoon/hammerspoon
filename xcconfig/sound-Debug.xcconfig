@@ -1,0 +1,6 @@
+// Build settings specific to sound / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "sound-Shared.xcconfig"
+

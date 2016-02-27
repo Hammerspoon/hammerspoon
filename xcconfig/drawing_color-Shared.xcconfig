@@ -1,0 +1,4 @@
+// Build settings specific to drawing_color / Shared go here
+
+#include "module-Shared.xcconfig"
+

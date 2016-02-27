@@ -1,0 +1,6 @@
+// Build settings specific to networkreachability / Release go here
+
+#include "module-Release.xcconfig"
+
+#include "networkreachability-Shared.xcconfig"
+

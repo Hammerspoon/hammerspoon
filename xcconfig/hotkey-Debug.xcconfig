@@ -1,0 +1,6 @@
+// Build settings specific to hotkey / Debug go here
+
+#include "module-Debug.xcconfig"
+
+#include "hotkey-Shared.xcconfig"
+
