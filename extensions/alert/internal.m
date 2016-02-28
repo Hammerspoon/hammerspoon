@@ -12,9 +12,9 @@ static NSMutableArray* visibleAlerts;
 
 @interface HSAlert ()
 
-@property NSWindow* win;
-@property NSTextField* textField;
-@property NSBox* box;
+@property (nonatomic, strong) NSWindow* win;
+@property (nonatomic, strong) NSTextField* textField;
+@property (nonatomic, strong) NSBox* box;
 
 @end
 
@@ -28,22 +28,26 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 
     NSScreen* currentScreen = [NSScreen mainScreen];
 
-    if ([visibleAlerts count] == 0) {
-        CGRect screenRect = [currentScreen frame];
+    if (visibleAlerts.count == 0) {
+        CGRect screenRect = currentScreen.frame;
         absoluteTop = screenRect.size.height / 1.55; // pretty good spot
     }
     else {
-        HSAlert* ctrl = [visibleAlerts lastObject];
-        absoluteTop = NSMinY([[ctrl window] frame]) - 3.0;
+        HSAlert* ctrl = visibleAlerts.lastObject;
+        absoluteTop = NSMinY(ctrl.window.frame) - 3.0;
     }
 
     if (absoluteTop <= 0)
-        absoluteTop = NSMaxY([currentScreen visibleFrame]);
+        absoluteTop = NSMaxY(currentScreen.visibleFrame);
 
     HSAlert* alert = [[HSAlert alloc] init];
-    [alert loadWindow];
+    [alert createWindow];
     [alert show:oneLineMsg duration:duration pushDownBy:absoluteTop];
     [visibleAlerts addObject:alert];
+}
+
+- (void) dealloc {
+    self.win.delegate = nil;
 }
 
 - (NSWindow*) window {
@@ -54,32 +58,33 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
     return self.win != nil;
 }
 
-- (void) loadWindow {
+- (void) createWindow {
     self.win = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 209, 57)
                                            styleMask:NSBorderlessWindowMask
                                              backing:NSBackingStoreBuffered
                                                defer:YES];
-    [self.win setDelegate: self];
+    self.win.delegate = self;
 
-    self.box = [[NSBox alloc] initWithFrame: [[self.win contentView] bounds]];
-    [self.box setBoxType: NSBoxCustom];
-    [self.box setBorderType: NSLineBorder];
-    [self.box setFillColor: [NSColor colorWithCalibratedWhite:0.0 alpha:0.75]];
-    [self.box setBorderColor: [NSColor colorWithCalibratedWhite:1.0 alpha:1.0]];
-    [self.box setBorderWidth: 1.0];
-    [self.box setCornerRadius: 27.0];
-    [self.box setContentViewMargins: NSMakeSize(0, 0)];
-    [self.box setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
-    [[self.win contentView] addSubview: self.box];
+    self.box = [[NSBox alloc] initWithFrame: self.win.contentView.bounds];
+    self.box.boxType = NSBoxCustom;
+    self.box.borderType = NSLineBorder;
+    self.box.fillColor = [NSColor colorWithCalibratedWhite:0.0 alpha:0.75];
+    self.box.borderColor = [NSColor colorWithCalibratedWhite:1.0 alpha:1.0];
+    self.box.borderWidth = 1.0;
+    self.box.cornerRadius = 27.0;
+    self.box.contentViewMargins = NSMakeSize(0, 0);
+    self.box.autoresizingMask = (NSAutoresizingMaskOptions)(NSViewWidthSizable | NSViewHeightSizable);
+
+    [self.win.contentView addSubview: self.box];
 
     self.textField = [[NSTextField alloc] initWithFrame: NSMakeRect(12, 11, 183, 33)];
-    [self.textField setFont: [NSFont systemFontOfSize: 27]];
-    [self.textField setTextColor: [NSColor colorWithCalibratedWhite:1.0 alpha:1.0]];
-    [self.textField setDrawsBackground: NO];
-    [self.textField setBordered: NO];
-    [self.textField setEditable: NO];
-    [self.textField setSelectable: NO];
-//    [self.textField setAutoresizingMask: NSViewWidthSizable | NSViewHeightSizable];
+    self.textField.font = [NSFont systemFontOfSize: 27];
+    self.textField.textColor = [NSColor colorWithCalibratedWhite:1.0 alpha:1.0];
+    self.textField.drawsBackground = NO;
+    self.textField.bordered = NO;
+    self.textField.editable = NO;
+    self.textField.selectable = NO;
+
     [self.box addSubview: self.textField];
 
     self.window.backgroundColor = [NSColor clearColor];
@@ -87,7 +92,6 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
     self.window.level = kCGMaximumWindowLevelKey;
     self.window.ignoresMouseEvents = YES;
     self.window.animationBehavior = NSWindowAnimationBehaviorAlertPanel;
-    //    self.collectionBehavior = NSWindowCollectionBehaviorCanJoinAllSpaces | NSWindowCollectionBehaviorStationary;
 }
 
 - (void) show:(NSString*)oneLineMsg duration:(CGFloat)duration pushDownBy:(CGFloat)adjustment {
@@ -95,10 +99,10 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 
     [NSAnimationContext beginGrouping];
     [[NSAnimationContext currentContext] setDuration:0.01];
-    [[[self window] animator] setAlphaValue:1.0];
+    [self.window animator].alphaValue = 1.0;
     [NSAnimationContext endGrouping];
 
-    [self useTitleAndResize:[oneLineMsg description]];
+    [self useTitleAndResize:oneLineMsg.description];
     [self setFrameWithAdjustment:adjustment];
     [self showWindow:self];
     [self performSelector:@selector(fadeWindowOut) withObject:nil afterDelay:duration];
@@ -108,8 +112,8 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 
 - (void) setFrameWithAdjustment:(CGFloat)pushDownBy {
     NSScreen* currentScreen = [NSScreen mainScreen];
-    CGRect screenRect = [currentScreen frame];
-    CGRect winRect = [[self window] frame];
+    CGRect screenRect = currentScreen.frame;
+    CGRect winRect = self.window.frame;
 
     winRect.origin.x = screenRect.origin.x + (screenRect.size.width / 2.0) - (winRect.size.width / 2.0);
     winRect.origin.y = screenRect.origin.y + pushDownBy - winRect.size.height;
@@ -122,43 +126,45 @@ void HSShowAlert(NSString* oneLineMsg, CGFloat duration) {
 }
 
 - (void) fadeWindowOut:(CGFloat)fadeDuration {
-    if(fadeDuration == 0) {
+    if ((int)fadeDuration == 0) {
         [self closeAndResetWindow];
         return;
     }
     [NSAnimationContext beginGrouping];
     [[NSAnimationContext currentContext] setDuration:fadeDuration];
-    [[[self window] animator] setAlphaValue:0.0];
+    [self.window animator].alphaValue = 0.0;
     [NSAnimationContext endGrouping];
 
     [self performSelector:@selector(closeAndResetWindow) withObject:nil afterDelay:fadeDuration];
 }
 
 - (void) closeAndResetWindow {
-    [[self window] orderOut:nil];
-    [[self window] setAlphaValue:1.0];
+    [self.window orderOut:nil];
+    self.window.alphaValue = 1.0;
 
     [visibleAlerts removeObject: self];
 }
 
 - (void) useTitleAndResize:(NSString*)title {
-    if (title == nil) {
-        title = @"error, please file a bug";
-    }
-    [[self window] setTitle:title];
+    NSString *realTitle = title;
 
-    self.textField.stringValue = title;
+    if (realTitle == nil) {
+        realTitle = @"error, please file a bug";
+    }
+
+    self.window.title = realTitle;
+    self.textField.stringValue = realTitle;
     [self.textField sizeToFit];
 
-    NSRect windowFrame = [[self window] frame];
-    windowFrame.size.width = [self.textField frame].size.width + 32.0;
-    windowFrame.size.height = [self.textField frame].size.height + 24.0;
-    [[self window] setFrame:windowFrame display:YES];
+    NSRect windowFrame = self.window.frame;
+    windowFrame.size.width = self.textField.frame.size.width + 32.0;
+    windowFrame.size.height = self.textField.frame.size.height + 24.0;
+    [self.window setFrame:windowFrame display:YES];
 }
 
 - (void) emergencyCancel {
     [[self class] cancelPreviousPerformRequestsWithTarget:self];
-    [[self window] orderOut:nil];
+    [self.window orderOut:nil];
 }
 
 @end
@@ -180,13 +186,13 @@ static int alert_show(lua_State* L) {
     [skin checkArgs:LS_TSTRING, LS_TNUMBER|LS_TOPTIONAL, LS_TBREAK];
 
     lua_settop(L, 2);
-    NSString* str = [NSString stringWithUTF8String: lua_tostring(L, 1)];
+    NSString* str = @(lua_tostring(L, 1));
 
     double duration = 2.0;
     if (lua_isnumber(L, 2))
         duration = lua_tonumber(L, 2);
 
-    if (duration>0.0)
+    if (duration > 0.0)
         HSShowAlert(str, duration);
 
     return 0;
