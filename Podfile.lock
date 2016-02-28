@@ -29,6 +29,7 @@ DEPENDENCIES:
   - CocoaHTTPServer (= 2.3)
   - CocoaLumberjack (= 2.2.0)
   - Crashlytics (= 3.7.0)
+  - Fabric (= 1.6.6)
   - Sparkle (= 1.13.1)
 
 SPEC CHECKSUMS:
