@@ -350,14 +350,14 @@ enum GCDAsyncUdpSocketConfig
 	return [self initWithDelegate:nil delegateQueue:NULL socketQueue:sq];
 }
 
-- (id)initWithDelegate:(id)aDelegate delegateQueue:(dispatch_queue_t)dq
+- (id)initWithDelegate:(id <GCDAsyncUdpSocketDelegate>)aDelegate delegateQueue:(dispatch_queue_t)dq
 {
 	LogTrace();
 	
 	return [self initWithDelegate:aDelegate delegateQueue:dq socketQueue:NULL];
 }
 
-- (id)initWithDelegate:(id)aDelegate delegateQueue:(dispatch_queue_t)dq socketQueue:(dispatch_queue_t)sq
+- (id)initWithDelegate:(id <GCDAsyncUdpSocketDelegate>)aDelegate delegateQueue:(dispatch_queue_t)dq socketQueue:(dispatch_queue_t)sq
 {
 	LogTrace();
 	
@@ -488,7 +488,7 @@ enum GCDAsyncUdpSocketConfig
 	}
 }
 
-- (void)setDelegate:(id)newDelegate synchronously:(BOOL)synchronously
+- (void)setDelegate:(id <GCDAsyncUdpSocketDelegate>)newDelegate synchronously:(BOOL)synchronously
 {
 	dispatch_block_t block = ^{
 		delegate = newDelegate;
@@ -505,12 +505,12 @@ enum GCDAsyncUdpSocketConfig
 	}
 }
 
-- (void)setDelegate:(id)newDelegate
+- (void)setDelegate:(id <GCDAsyncUdpSocketDelegate>)newDelegate
 {
 	[self setDelegate:newDelegate synchronously:NO];
 }
 
-- (void)synchronouslySetDelegate:(id)newDelegate
+- (void)synchronouslySetDelegate:(id <GCDAsyncUdpSocketDelegate>)newDelegate
 {
 	[self setDelegate:newDelegate synchronously:YES];
 }
@@ -566,7 +566,7 @@ enum GCDAsyncUdpSocketConfig
 	[self setDelegateQueue:newDelegateQueue synchronously:YES];
 }
 
-- (void)getDelegate:(id *)delegatePtr delegateQueue:(dispatch_queue_t *)delegateQueuePtr
+- (void)getDelegate:(id <GCDAsyncUdpSocketDelegate> *)delegatePtr delegateQueue:(dispatch_queue_t *)delegateQueuePtr
 {
 	if (dispatch_get_specific(IsOnSocketQueueOrTargetQueueKey))
 	{
@@ -588,7 +588,7 @@ enum GCDAsyncUdpSocketConfig
 	}
 }
 
-- (void)setDelegate:(id)newDelegate delegateQueue:(dispatch_queue_t)newDelegateQueue synchronously:(BOOL)synchronously
+- (void)setDelegate:(id <GCDAsyncUdpSocketDelegate>)newDelegate delegateQueue:(dispatch_queue_t)newDelegateQueue synchronously:(BOOL)synchronously
 {
 	dispatch_block_t block = ^{
 		
@@ -613,12 +613,12 @@ enum GCDAsyncUdpSocketConfig
 	}
 }
 
-- (void)setDelegate:(id)newDelegate delegateQueue:(dispatch_queue_t)newDelegateQueue
+- (void)setDelegate:(id <GCDAsyncUdpSocketDelegate>)newDelegate delegateQueue:(dispatch_queue_t)newDelegateQueue
 {
 	[self setDelegate:newDelegate delegateQueue:newDelegateQueue synchronously:NO];
 }
 
-- (void)synchronouslySetDelegate:(id)newDelegate delegateQueue:(dispatch_queue_t)newDelegateQueue
+- (void)synchronouslySetDelegate:(id <GCDAsyncUdpSocketDelegate>)newDelegate delegateQueue:(dispatch_queue_t)newDelegateQueue
 {
 	[self setDelegate:newDelegate delegateQueue:newDelegateQueue synchronously:YES];
 }
@@ -906,9 +906,9 @@ enum GCDAsyncUdpSocketConfig
 {
 	LogTrace();
 	
-	if (delegateQueue && [delegate respondsToSelector:@selector(udpSocket:didConnectToAddress:)])
+	__strong id theDelegate = delegate;
+	if (delegateQueue && [theDelegate respondsToSelector:@selector(udpSocket:didConnectToAddress:)])
 	{
-		id theDelegate = delegate;
 		NSData *address = [anAddress copy]; // In case param is NSMutableData
 		
 		dispatch_async(delegateQueue, ^{ @autoreleasepool {
@@ -922,10 +922,9 @@ enum GCDAsyncUdpSocketConfig
 {
 	LogTrace();
 	
-	if (delegateQueue && [delegate respondsToSelector:@selector(udpSocket:didNotConnect:)])
+	__strong id theDelegate = delegate;
+	if (delegateQueue && [theDelegate respondsToSelector:@selector(udpSocket:didNotConnect:)])
 	{
-		id theDelegate = delegate;
-		
 		dispatch_async(delegateQueue, ^{ @autoreleasepool {
 			
 			[theDelegate udpSocket:self didNotConnect:error];
@@ -937,10 +936,9 @@ enum GCDAsyncUdpSocketConfig
 {
 	LogTrace();
 	
-	if (delegateQueue && [delegate respondsToSelector:@selector(udpSocket:didSendDataWithTag:)])
+	__strong id theDelegate = delegate;
+	if (delegateQueue && [theDelegate respondsToSelector:@selector(udpSocket:didSendDataWithTag:)])
 	{
-		id theDelegate = delegate;
-		
 		dispatch_async(delegateQueue, ^{ @autoreleasepool {
 			
 			[theDelegate udpSocket:self didSendDataWithTag:tag];
@@ -952,10 +950,9 @@ enum GCDAsyncUdpSocketConfig
 {
 	LogTrace();
 	
-	if (delegateQueue && [delegate respondsToSelector:@selector(udpSocket:didNotSendDataWithTag:dueToError:)])
+	__strong id theDelegate = delegate;
+	if (delegateQueue && [theDelegate respondsToSelector:@selector(udpSocket:didNotSendDataWithTag:dueToError:)])
 	{
-		id theDelegate = delegate;
-		
 		dispatch_async(delegateQueue, ^{ @autoreleasepool {
 			
 			[theDelegate udpSocket:self didNotSendDataWithTag:tag dueToError:error];
@@ -969,10 +966,9 @@ enum GCDAsyncUdpSocketConfig
 	
 	SEL selector = @selector(udpSocket:didReceiveData:fromAddress:withFilterContext:);
 	
-	if (delegateQueue && [delegate respondsToSelector:selector])
+	__strong id theDelegate = delegate;
+	if (delegateQueue && [theDelegate respondsToSelector:selector])
 	{
-		id theDelegate = delegate;
-		
 		dispatch_async(delegateQueue, ^{ @autoreleasepool {
 			
 			[theDelegate udpSocket:self didReceiveData:data fromAddress:address withFilterContext:context];
@@ -984,10 +980,9 @@ enum GCDAsyncUdpSocketConfig
 {
 	LogTrace();
 	
-	if (delegateQueue && [delegate respondsToSelector:@selector(udpSocketDidClose:withError:)])
+	__strong id theDelegate = delegate;
+	if (delegateQueue && [theDelegate respondsToSelector:@selector(udpSocketDidClose:withError:)])
 	{
-		id theDelegate = delegate;
-		
 		dispatch_async(delegateQueue, ^{ @autoreleasepool {
 			
 			[theDelegate udpSocketDidClose:self withError:error];
@@ -3438,6 +3433,70 @@ enum GCDAsyncUdpSocketConfig
 			err = [self badParamError:msg];
 			
 			return_from_block;
+		}
+		
+	}};
+	
+	if (dispatch_get_specific(IsOnSocketQueueOrTargetQueueKey))
+		block();
+	else
+		dispatch_sync(socketQueue, block);
+	
+	if (errPtr)
+		*errPtr = err;
+	
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark Reuse port
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+- (BOOL)enableReusePort:(BOOL)flag error:(NSError **)errPtr
+{
+	__block BOOL result = NO;
+	__block NSError *err = nil;
+	
+	dispatch_block_t block = ^{ @autoreleasepool {
+		
+		if (![self preOp:&err])
+		{
+			return_from_block;
+		}
+		
+		if ((flags & kDidCreateSockets) == 0)
+		{
+			if (![self createSockets:&err])
+			{
+				return_from_block;
+			}
+		}
+		
+		int value = flag ? 1 : 0;
+		if (socket4FD != SOCKET_NULL)
+		{
+			int error = setsockopt(socket4FD, SOL_SOCKET, SO_REUSEPORT, (const void *)&value, sizeof(value));
+			
+			if (error)
+			{
+				err = [self errnoErrorWithReason:@"Error in setsockopt() function"];
+				
+				return_from_block;
+			}
+			result = YES;
+		}
+		
+		if (socket6FD != SOCKET_NULL)
+		{
+			int error = setsockopt(socket6FD, SOL_SOCKET, SO_REUSEPORT, (const void *)&value, sizeof(value));
+			
+			if (error)
+			{
+				err = [self errnoErrorWithReason:@"Error in setsockopt() function"];
+				
+				return_from_block;
+			}
+			result = YES;
 		}
 		
 	}};

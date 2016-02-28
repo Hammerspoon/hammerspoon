@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
-#import <Crashlytics/Crashlytics.h>
+@import Crashlytics;
 
 // ----------------------- API Implementation ---------------------
 

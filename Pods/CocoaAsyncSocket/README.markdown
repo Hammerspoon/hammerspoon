@@ -17,7 +17,19 @@ pod 'CocoaAsyncSocket'
 
 #### Carthage
 
-CocoaAsyncSocket is [Carthage](https://github.com/Carthage/Carthage) compatible. To include it, build your project with Carthage, then drag `Carthage/Build/iOS/CocoaAsyncSocket.framework` into your project.
+CocoaAsyncSocket is [Carthage](https://github.com/Carthage/Carthage) compatible. To include it add the following line to your `Cartfile`
+
+```bash
+github "robbiehanson/CocoaAsyncSocket" "master"
+```
+
+The project is currently configured to build for **iOS**, **tvOS** and **Mac**.  After building with carthage the resultant frameworks will be stored in:
+
+* `Carthage/Build/iOS/CocoaAsyncSocket.framework`
+* `Carthage/Build/tvOS/CocoaAsyncSocket.framework`
+* `Carthage/Build/Mac/CocoaAsyncSocket.framework`
+
+Select the correct framework(s) and drag it into your project.
 
 #### Manual
 
