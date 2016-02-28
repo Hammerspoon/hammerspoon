@@ -5729,7 +5729,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
@@ -5762,6 +5762,10 @@
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Debug;
 		};
@@ -5797,7 +5801,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
@@ -5830,6 +5834,10 @@
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};
@@ -5867,7 +5875,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
@@ -5900,6 +5908,10 @@
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Debug;
 		};
@@ -5935,7 +5947,7 @@
 				EXECUTABLE_PREFIX = lib;
 				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
 				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
-				GCC_TREAT_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
 				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
@@ -5968,6 +5980,10 @@
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
 				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};

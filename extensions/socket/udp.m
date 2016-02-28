@@ -4,7 +4,7 @@
 #pragma clang diagnostic ignored "-Wgnu-conditional-omitted-operand"
 
 // Definitions
-@interface HSAsyncUdpSocket : GCDAsyncUdpSocket
+@interface HSAsyncUdpSocket : GCDAsyncUdpSocket <GCDAsyncUdpSocketDelegate>
 @property int readCallback;
 @property int writeCallback;
 @property int connectCallback;
@@ -29,7 +29,7 @@ static const char *USERDATA_TAG = "hs.socket.udp";
     return [super initWithDelegate:self delegateQueue:udpDelegateQueue];
 }
 
-- (void)udpSocket:(HSAsyncUdpSocket *)sock didConnectToAddress:(NSData *)address {
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didConnectToAddress:(NSData *)address {
     [LuaSkin logInfo:@"UDP socket connected"];
     self.userData = DEFAULT;
 
@@ -47,19 +47,19 @@ static const char *USERDATA_TAG = "hs.socket.udp";
     }
 }
 
-- (void)udpSocket:(HSAsyncUdpSocket *)sock didNotConnect:(NSError *)error {
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotConnect:(NSError *)error {
     mainThreadDispatch(
         [LuaSkin logError:[NSString stringWithFormat:@"UDP socket did not connect %@", error]];
         self.connectCallback = [[LuaSkin shared] luaUnref:refTable ref:self.connectCallback];
     );
 }
 
-- (void)udpSocketDidClose:(HSAsyncUdpSocket *)sock withError:(NSError *)error {
+- (void)udpSocketDidClose:(GCDAsyncUdpSocket *)sock withError:(NSError *)error {
     [LuaSkin logInfo:[NSString stringWithFormat:@"UDP socket closed %@", error]];
     sock.userData = nil;
 }
 
-- (void)udpSocket:(HSAsyncUdpSocket *)sock didSendDataWithTag:(long)tag {
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didSendDataWithTag:(long)tag {
     [LuaSkin logInfo:@"Data written to UDP socket"];
 
     if (self.writeCallback != LUA_NOREF) {
@@ -77,14 +77,14 @@ static const char *USERDATA_TAG = "hs.socket.udp";
     }
 }
 
-- (void)udpSocket:(HSAsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error {
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error {
     mainThreadDispatch(
         [LuaSkin logError:[NSString stringWithFormat:@"Data not sent on UDP socket %@", error]];
         self.writeCallback = [[LuaSkin shared] luaUnref:refTable ref:self.writeCallback];
     );
 }
 
-- (void)udpSocket:(HSAsyncUdpSocket *)sock didReceiveData:(NSData *)data fromAddress:(NSData *)address withFilterContext:(id)filterContext {
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didReceiveData:(NSData *)data fromAddress:(NSData *)address withFilterContext:(id)filterContext {
     if (self.readCallback != LUA_NOREF) {
         [LuaSkin logInfo:@"Data read from UDP socket"];
         NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];

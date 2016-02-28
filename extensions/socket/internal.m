@@ -4,7 +4,7 @@
 #pragma clang diagnostic ignored "-Wgnu-conditional-omitted-operand"
 
 // Definitions
-@interface HSAsyncSocket : GCDAsyncSocket
+@interface HSAsyncSocket : GCDAsyncSocket <GCDAsyncSocketDelegate>
 @property int readCallback;
 @property int writeCallback;
 @property int connectCallback;
@@ -31,7 +31,7 @@ static const char *USERDATA_TAG = "hs.socket";
     return [super initWithDelegate:self delegateQueue:delegateQueue];
 }
 
-- (void)socket:(HSAsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port {
+- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port {
     [LuaSkin logInfo:@"TCP socket connected"];
     self.userData = DEFAULT;
 
@@ -49,7 +49,7 @@ static const char *USERDATA_TAG = "hs.socket";
     }
 }
 
-- (void)socket:(HSAsyncSocket *)sock didAcceptNewSocket:(HSAsyncSocket *)newSocket {
+- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket {
     [LuaSkin logInfo:@"TCP client connected"];
     newSocket.userData = CLIENT;
 
@@ -58,7 +58,7 @@ static const char *USERDATA_TAG = "hs.socket";
     }
 }
 
-- (void)socketDidDisconnect:(HSAsyncSocket *)sock withError:(NSError *)err {
+- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
     if (sock.userData == CLIENT) {
         [LuaSkin logInfo:[NSString stringWithFormat:@"TCP client disconnected %@", err]];
 
@@ -80,7 +80,7 @@ static const char *USERDATA_TAG = "hs.socket";
     sock.userData = nil;
 }
 
-- (void)socket:(HSAsyncSocket *)sock didWriteDataWithTag:(long)tag {
+- (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag {
     [LuaSkin logInfo:@"Data written to TCP socket"];
 
     if (self.writeCallback != LUA_NOREF) {
@@ -98,7 +98,7 @@ static const char *USERDATA_TAG = "hs.socket";
     }
 }
 
-- (void)socket:(HSAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag  {
+- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag  {
     if (self.readCallback != LUA_NOREF) {
         [LuaSkin logInfo:@"Data read from TCP socket"];
         NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -117,13 +117,13 @@ static const char *USERDATA_TAG = "hs.socket";
     }
 }
 
-- (void)socket:(HSAsyncSocket *)sock didReceiveTrust:(SecTrustRef)trust completionHandler:(void (^)(BOOL))completionHandler {
+- (void)socket:(GCDAsyncSocket *)sock didReceiveTrust:(SecTrustRef)trust completionHandler:(void (^)(BOOL))completionHandler {
     // Allow TLS handshake without trust evaluation for self-signed certificates
     // This is only called if startTLS is invoked with option GCDAsyncSocketManuallyEvaluateTrust == YES
     if (completionHandler) completionHandler(YES);
 }
 
-- (void)socketDidSecure:(HSAsyncSocket *)sock {
+- (void)socketDidSecure:(GCDAsyncSocket *)sock {
     [LuaSkin logInfo:@"TCP socket secured"];
 }
 
@@ -304,7 +304,7 @@ static int socket_disconnect(lua_State *L) {
 /// Read data from the socket. Results are passed to the callback function, which is required for this method
 ///
 /// Parameters:
-///  * delimiter - Either a number of bytes to read, or a string delimiter such as `\n` or `\r\n`. Data is read up to and including the delimiter
+///  * delimiter - Either a number of bytes to read, or a string delimiter such as `&#92;n` or `&#92;r&#92;n`. Data is read up to and including the delimiter
 ///  * tag - An optional integer to assist with labeling reads that is passed to the read callback
 ///
 /// Returns:

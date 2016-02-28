@@ -5,6 +5,7 @@
 //  Copyright (c) 2016 Michael Bujol
 //
 
+@import Cocoa;
 #import <LuaSkin/LuaSkin.h>
 
 // Helper for moving background operations to main thread queue
