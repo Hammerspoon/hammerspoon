@@ -12654,6 +12654,7 @@
 					"-Wno-objc-missing-property-synthesis",
 					"-Wno-auto-import",
 					"-Wno-gnu-statement-expression",
+					"-Wno-reserved-id-macro",
 				);
 			};
 			name = Debug;
@@ -12699,6 +12700,7 @@
 					"-Wno-objc-missing-property-synthesis",
 					"-Wno-auto-import",
 					"-Wno-gnu-statement-expression",
+					"-Wno-reserved-id-macro",
 				);
 			};
 			name = Release;
