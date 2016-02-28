@@ -28,6 +28,59 @@ typedef NS_ENUM(NSInteger, GCDAsyncUdpSocketError) {
 	GCDAsyncUdpSocketOtherError,           // Description provided in userInfo
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+@class GCDAsyncUdpSocket;
+
+@protocol GCDAsyncUdpSocketDelegate
+@optional
+
+/**
+ * By design, UDP is a connectionless protocol, and connecting is not needed.
+ * However, you may optionally choose to connect to a particular host for reasons
+ * outlined in the documentation for the various connect methods listed above.
+ * 
+ * This method is called if one of the connect methods are invoked, and the connection is successful.
+**/
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didConnectToAddress:(NSData *)address;
+
+/**
+ * By design, UDP is a connectionless protocol, and connecting is not needed.
+ * However, you may optionally choose to connect to a particular host for reasons
+ * outlined in the documentation for the various connect methods listed above.
+ * 
+ * This method is called if one of the connect methods are invoked, and the connection fails.
+ * This may happen, for example, if a domain name is given for the host and the domain name is unable to be resolved.
+**/
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotConnect:(NSError *)error;
+
+/**
+ * Called when the datagram with the given tag has been sent.
+**/
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didSendDataWithTag:(long)tag;
+
+/**
+ * Called if an error occurs while trying to send a datagram.
+ * This could be due to a timeout, or something more serious such as the data being too large to fit in a sigle packet.
+**/
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error;
+
+/**
+ * Called when the socket has received the requested datagram.
+**/
+- (void)udpSocket:(GCDAsyncUdpSocket *)sock didReceiveData:(NSData *)data
+                                             fromAddress:(NSData *)address
+                                       withFilterContext:(id)filterContext;
+
+/**
+ * Called when the socket is closed.
+**/
+- (void)udpSocketDidClose:(GCDAsyncUdpSocket *)sock withError:(NSError *)error;
+
+@end
+
 /**
  * You may optionally set a receive filter for the socket.
  * A filter can provide several useful features:
@@ -126,22 +179,22 @@ typedef BOOL (^GCDAsyncUdpSocketSendFilterBlock)(NSData *data, NSData *address, 
 **/
 - (id)init;
 - (id)initWithSocketQueue:(dispatch_queue_t)sq;
-- (id)initWithDelegate:(id)aDelegate delegateQueue:(dispatch_queue_t)dq;
-- (id)initWithDelegate:(id)aDelegate delegateQueue:(dispatch_queue_t)dq socketQueue:(dispatch_queue_t)sq;
+- (id)initWithDelegate:(id <GCDAsyncUdpSocketDelegate>)aDelegate delegateQueue:(dispatch_queue_t)dq;
+- (id)initWithDelegate:(id <GCDAsyncUdpSocketDelegate>)aDelegate delegateQueue:(dispatch_queue_t)dq socketQueue:(dispatch_queue_t)sq;
 
 #pragma mark Configuration
 
-- (id)delegate;
-- (void)setDelegate:(id)delegate;
-- (void)synchronouslySetDelegate:(id)delegate;
+- (id <GCDAsyncUdpSocketDelegate>)delegate;
+- (void)setDelegate:(id <GCDAsyncUdpSocketDelegate>)delegate;
+- (void)synchronouslySetDelegate:(id <GCDAsyncUdpSocketDelegate>)delegate;
 
 - (dispatch_queue_t)delegateQueue;
 - (void)setDelegateQueue:(dispatch_queue_t)delegateQueue;
 - (void)synchronouslySetDelegateQueue:(dispatch_queue_t)delegateQueue;
 
-- (void)getDelegate:(id *)delegatePtr delegateQueue:(dispatch_queue_t *)delegateQueuePtr;
-- (void)setDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue;
-- (void)synchronouslySetDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue;
+- (void)getDelegate:(id <GCDAsyncUdpSocketDelegate>*)delegatePtr delegateQueue:(dispatch_queue_t *)delegateQueuePtr;
+- (void)setDelegate:(id <GCDAsyncUdpSocketDelegate>)delegate delegateQueue:(dispatch_queue_t)delegateQueue;
+- (void)synchronouslySetDelegate:(id <GCDAsyncUdpSocketDelegate>)delegate delegateQueue:(dispatch_queue_t)delegateQueue;
 
 /**
  * By default, both IPv4 and IPv6 are enabled.
@@ -420,6 +473,17 @@ typedef BOOL (^GCDAsyncUdpSocketSendFilterBlock)(NSData *data, NSData *address, 
 
 - (BOOL)leaveMulticastGroup:(NSString *)group error:(NSError **)errPtr;
 - (BOOL)leaveMulticastGroup:(NSString *)group onInterface:(NSString *)interface error:(NSError **)errPtr;
+
+#pragma mark Reuse Port
+
+/**
+ * By default, only one socket can be bound to a given IP address + port at a time.
+ * To enable multiple processes to simultaneously bind to the same address+port, 
+ * you need to enable this functionality in the socket.  All processes that wish to
+ * use the address+port simultaneously must all enable reuse port on the socket
+ * bound to that port.
+ **/
+- (BOOL)enableReusePort:(BOOL)flag error:(NSError **)errPtr;
 
 #pragma mark Broadcast
 
@@ -938,57 +1002,6 @@ typedef BOOL (^GCDAsyncUdpSocketSendFilterBlock)(NSData *data, NSData *address, 
 
 + (BOOL)getHost:(NSString **)hostPtr port:(uint16_t *)portPtr fromAddress:(NSData *)address;
 + (BOOL)getHost:(NSString **)hostPtr port:(uint16_t *)portPtr family:(int *)afPtr fromAddress:(NSData *)address;
-
-@end
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-@protocol GCDAsyncUdpSocketDelegate
-@optional
-
-/**
- * By design, UDP is a connectionless protocol, and connecting is not needed.
- * However, you may optionally choose to connect to a particular host for reasons
- * outlined in the documentation for the various connect methods listed above.
- * 
- * This method is called if one of the connect methods are invoked, and the connection is successful.
-**/
-- (void)udpSocket:(GCDAsyncUdpSocket *)sock didConnectToAddress:(NSData *)address;
-
-/**
- * By design, UDP is a connectionless protocol, and connecting is not needed.
- * However, you may optionally choose to connect to a particular host for reasons
- * outlined in the documentation for the various connect methods listed above.
- * 
- * This method is called if one of the connect methods are invoked, and the connection fails.
- * This may happen, for example, if a domain name is given for the host and the domain name is unable to be resolved.
-**/
-- (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotConnect:(NSError *)error;
-
-/**
- * Called when the datagram with the given tag has been sent.
-**/
-- (void)udpSocket:(GCDAsyncUdpSocket *)sock didSendDataWithTag:(long)tag;
-
-/**
- * Called if an error occurs while trying to send a datagram.
- * This could be due to a timeout, or something more serious such as the data being too large to fit in a sigle packet.
-**/
-- (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error;
-
-/**
- * Called when the socket has received the requested datagram.
-**/
-- (void)udpSocket:(GCDAsyncUdpSocket *)sock didReceiveData:(NSData *)data
-                                             fromAddress:(NSData *)address
-                                       withFilterContext:(id)filterContext;
-
-/**
- * Called when the socket is closed.
-**/
-- (void)udpSocketDidClose:(GCDAsyncUdpSocket *)sock withError:(NSError *)error;
 
 @end
 
