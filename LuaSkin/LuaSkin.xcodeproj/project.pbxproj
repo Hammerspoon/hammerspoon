@@ -710,6 +710,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-missing-variable-declarations",
+					"-Wno-auto-import",
+					"-Wno-direct-ivar-access",
+					"-Wno-cstring-format-directive",
+					"-Wno-cast-qual",
+					"-Wno-nullable-to-nonnull-conversion",
+				);
 			};
 			name = Debug;
 		};
@@ -758,6 +767,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-missing-variable-declarations",
+					"-Wno-auto-import",
+					"-Wno-direct-ivar-access",
+					"-Wno-cstring-format-directive",
+					"-Wno-cast-qual",
+					"-Wno-nullable-to-nonnull-conversion",
+				);
 			};
 			name = Release;
 		};

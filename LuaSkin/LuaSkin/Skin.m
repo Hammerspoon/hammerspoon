@@ -850,7 +850,6 @@ nextarg:
             } else {
                 return @(lua_tonumber(_L, idx));
             }
-            break ;
         case LUA_TSTRING: {
                 LS_NSConversionOptions stringOptions = options & ( LS_NSPreserveLuaStringExactly | LS_NSLuaStringAsDataOnly ) ;
                 if (stringOptions == LS_NSLuaStringAsDataOnly) {
@@ -876,16 +875,12 @@ nextarg:
                     return [self getValidUTF8AtIndex:idx] ;
                 }
             }
-            break ;
         case LUA_TNIL:
             return [NSNull null] ;
-            break ;
         case LUA_TBOOLEAN:
             return lua_toboolean(_L, idx) ? (id)kCFBooleanTrue : (id)kCFBooleanFalse;
-            break ;
         case LUA_TTABLE:
             return [self tableAtIndex:realIndex withOptions:options alreadySeenObjects:alreadySeen] ;
-            break ;
         case LUA_TUSERDATA: // Note: This is specifically last, so it can fall through to the default case, for objects we can't handle automatically
             //FIXME: This seems very unsafe to happen outside a protected call
             if (lua_getfield(_L, realIndex, "__type") == LUA_TSTRING) {
@@ -913,7 +908,6 @@ nextarg:
                 [self logDebug:[NSString stringWithFormat:@"unrecognized type %s; returning nil", lua_typename(_L, lua_type(_L, realIndex))]] ;
                 return nil ;
             }
-            break ;
     }
 }
 

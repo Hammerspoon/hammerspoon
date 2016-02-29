@@ -13,12 +13,10 @@
  */
 
 
-#import <Foundation/Foundation.h>
-#import "lobject.h"
-#import "lapi.h"
+@import Foundation;
+#import "lua.h"
 #import "lauxlib.h"
 #import "lualib.h"
-#import "lua.h"
 
 // Define some bits for masking operations in the argument checker
 /*!
