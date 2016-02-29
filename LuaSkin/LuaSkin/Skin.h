@@ -13,7 +13,7 @@
  */
 
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 #import "lobject.h"
 #import "lapi.h"
 #import "lauxlib.h"
@@ -124,7 +124,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 
 #pragma mark - Skin Properties
 
-@property (nonatomic, assign) id  delegate;
+@property (nonatomic, weak) id  delegate;
 
 /*!
  @property L
@@ -648,6 +648,9 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param theMessage the message to log
  */
 - (void)logBreadcrumb:(NSString *)theMessage ;
+
+// FIXME: Should this be documented? Seems unnecessary to do so, at the moment
++ (void)classLogAtLevel:(int)level withMessage:(NSString *)theMessage;
 
 /*!
  @abstract Log the specified message from any thread with LS_LOG_VERBOSE level
