@@ -410,12 +410,12 @@ static int socketudp_send(lua_State *L) {
     return 1;
 }
 
-/// hs.socket.udp:enableBroadcast(flag) -> self
+/// hs.socket.udp:broadcast([flag]) -> self
 /// Method
 /// Enables broadcasting on the underlying socket
 ///
 /// Parameters:
-///  * flag - A boolean: `true` to enable broadcasting, `false` to disable it
+///  * flag - An optional boolean: `true` to enable broadcasting, `false` to disable it. Defaults to `true`
 ///
 /// Returns:
 ///  * The [`hs.socket.udp`](#new) object
@@ -428,13 +428,43 @@ static int socketudp_send(lua_State *L) {
 ///
 static int socketudp_enableBroadcast(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
-    BOOL broadcastFlag = lua_toboolean(L, 2);
+    BOOL enableFlag = true;
+    if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 3) == false) enableFlag = false;
 
     NSError *err;
-    if (![asyncUdpSocket enableBroadcast:broadcastFlag error:&err]) {
+    if (![asyncUdpSocket enableBroadcast:enableFlag error:&err]) {
         [LuaSkin logError:[NSString stringWithFormat:@"Unable to enable broadcasting: %@", err]];
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.socket.udp:reusePort([flag]) -> self
+/// Method
+/// Enables port reuse on the underlying socket
+///
+/// Parameters:
+///  * flag - An optional boolean: `true` to enable port reuse, `false` to disable it. Defaults to `true`
+///
+/// Returns:
+///  * The [`hs.socket.udp`](#new) object
+///
+/// Notes:
+///  * By default, only one socket can be bound to a given IP address + port at a time. To enable multiple processes to simultaneously bind to the same address+port, you need to enable this functionality in the socket. All processes that wish to use the address+port simultaneously must all enable reuse port on the socket bound to that port
+///
+static int socketudp_enableReusePort(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
+    HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
+    BOOL enableFlag = true;
+    if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 3) == false) enableFlag = false;
+
+    NSError *err;
+    if (![asyncUdpSocket enableReusePort:enableFlag error:&err]) {
+        [LuaSkin logError:[NSString stringWithFormat:@"Unable to enable port reuse: %@", err]];
     }
 
     lua_pushvalue(L, 1);
@@ -720,7 +750,8 @@ static const luaL_Reg userdata_metaLib[] = {
     {"pause",           socketudp_pause},
     {"receiveOne",      socketudp_receiveOne},
     {"send",            socketudp_send},
-    {"enableBroadcast", socketudp_enableBroadcast},
+    {"broadcast",       socketudp_enableBroadcast},
+    {"reusePort",       socketudp_enableReusePort},
     {"enableIPv",       socketudp_enableIPversion},
     {"preferIPv",       socketudp_preferIPversion},
     {"setCallback",     socketudp_setCallback},
