@@ -177,6 +177,7 @@ static int socketudp_connect(lua_State *L) {
 
     NSError *err;
     if (![asyncUdpSocket connectToHost:theHost onPort:thePort error:&err]) {
+        asyncUdpSocket.connectCallback = [skin luaUnref:refTable ref:asyncUdpSocket.connectCallback];
         [LuaSkin logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
     }
 
