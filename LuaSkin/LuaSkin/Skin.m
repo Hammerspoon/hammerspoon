@@ -71,7 +71,7 @@ static int pushCMTimeRange(lua_State *L, CMTimeRange holder) {
 - (int)pushNSArray:(id)obj      withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
 - (int)pushNSSet:(id)obj        withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
 - (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSValue:(id)obj withOptions:(LS_NSConversionOptions)options ;
+- (int)pushNSValue:(id)obj      withOptions:(LS_NSConversionOptions)options ;
 
 // internal methods for toNSObjectAtIndex
 - (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
@@ -308,7 +308,7 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     va_start(args, firstArg);
 
     while (true) {
-        if (spec & (LS_TBREAK | LS_TVARARG)) {
+        if (spec & LS_TBREAK) {
             idx--;
             break;
         }
@@ -744,7 +744,8 @@ nextarg:
         for (id key in registeredNSHelperFunctions) {
             if ([obj isKindOfClass: NSClassFromString(key)]) {
                 pushNSHelperFunction theFunc = (pushNSHelperFunction)[registeredNSHelperFunctions[key] pointerValue] ;
-                return theFunc(self.L, obj) ;
+                int resultAnswer = theFunc(self.L, obj) ;
+                if (resultAnswer > -1) return resultAnswer ;
             }
         }
 
