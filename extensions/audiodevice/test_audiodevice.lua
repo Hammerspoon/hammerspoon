@@ -174,6 +174,50 @@ function testVolume()
   return success()
 end
 
+function testInputVolume()
+local device = hs.audiodevice.defaultInputDevice()
+originalVolume = device:inputVolume()
+wantVolume = 25
+
+if (type(originalVolume) ~= "number") then
+print("Audiodevice does not support volume. Skipping test due to lack of hardware")
+return success()
+end
+
+-- Set the volume to 0 and test if we can set it to a high value
+assertTrue(device:setInputVolume(0))
+assertTrue(device:setInputVolume(wantVolume))
+
+assertIsEqual(wantVolume, device:inputVolume())
+
+-- Be nice and put the volume back where we found it
+device:setInputVolume(originalVolume)
+
+return success()
+end
+
+function testOutputVolume()
+local device = hs.audiodevice.defaultOutputDevice()
+originalVolume = device:outputVolume()
+wantVolume = 25
+
+if (type(originalVolume) ~= "number") then
+print("Audiodevice does not support volume. Skipping test due to lack of hardware")
+return success()
+end
+
+-- Set the volume to 0 and test if we can set it to a high value
+assertTrue(device:setOutputVolume(0))
+assertTrue(device:setOutputVolume(wantVolume))
+
+assertIsEqual(wantVolume, device:outputVolume())
+
+-- Be nice and put the volume back where we found it
+device:setOutputVolume(originalVolume)
+
+return success()
+end
+
 function testWatcher()
   local device = hs.audiodevice.defaultOutputDevice()
 

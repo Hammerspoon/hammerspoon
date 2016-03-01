@@ -130,6 +130,16 @@
     RUN_LUA_TEST()
 }
 
+- (void)testInputVolume {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
+- (void)testOutputVolume {
+    SKIP_IN_TRAVIS()
+    RUN_LUA_TEST()
+}
+
 - (void)testJackConnected {
     RUN_LUA_TEST()
 }
