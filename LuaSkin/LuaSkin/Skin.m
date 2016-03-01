@@ -55,10 +55,24 @@ static int pushCMTimeRange(lua_State *L, CMTimeRange holder) {
     return 1 ;
 }
 
+static int pushUserdataType(lua_State *L) {
+    // safer than just checking in LuaSkin because we can call this function via pcall
+    // so a userdata without an __index metafield won't cause a Lua error
+    if (lua_getfield(L, 1, "__type") != LUA_TSTRING) {
+        lua_pop(L, 1) ;
+        lua_pushnil(L) ; // only a string is allowed to return, everything else is nil
+    }
+    return 1;
+}
 // Extension to LuaSkin class to allow private modification of the lua_State property
 @interface LuaSkin ()
 
 @property (readwrite, assign) lua_State *L;
+@property (readonly, atomic)  NSMutableDictionary *registeredNSHelperFunctions ;
+@property (readonly, atomic)  NSMutableDictionary *registeredNSHelperLocations ;
+@property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperFunctions ;
+@property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperLocations ;
+@property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
 
 @end
 
@@ -80,14 +94,6 @@ static int pushCMTimeRange(lua_State *L, CMTimeRange holder) {
 
 @implementation LuaSkin
 
-#pragma mark - Skin Properties
-
-NSMutableDictionary *registeredNSHelperFunctions ;
-NSMutableDictionary *registeredNSHelperLocations ;
-NSMutableDictionary *registeredLuaObjectHelperFunctions ;
-NSMutableDictionary *registeredLuaObjectHelperLocations ;
-NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
-
 #pragma mark - Class lifecycle
 
 + (id)shared {
@@ -95,11 +101,6 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedLuaSkin = [[self alloc] init];
-        registeredNSHelperFunctions = [[NSMutableDictionary alloc] init] ;
-        registeredNSHelperLocations = [[NSMutableDictionary alloc] init] ;
-        registeredLuaObjectHelperFunctions = [[NSMutableDictionary alloc] init] ;
-        registeredLuaObjectHelperLocations = [[NSMutableDictionary alloc] init] ;
-        registeredLuaObjectHelperUserdataMappings = [[NSMutableDictionary alloc] init];
     });
     if (![NSThread isMainThread]) {
         NSLog(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
@@ -119,6 +120,11 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     self = [super init];
     if (self) {
         _L = NULL;
+        _registeredNSHelperFunctions               = [[NSMutableDictionary alloc] init] ;
+        _registeredNSHelperLocations               = [[NSMutableDictionary alloc] init] ;
+        _registeredLuaObjectHelperFunctions        = [[NSMutableDictionary alloc] init] ;
+        _registeredLuaObjectHelperLocations        = [[NSMutableDictionary alloc] init] ;
+        _registeredLuaObjectHelperUserdataMappings = [[NSMutableDictionary alloc] init];
         [self createLuaState];
     }
     return self;
@@ -138,11 +144,11 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (self.L) {
         lua_close(self.L);
-        [registeredNSHelperFunctions removeAllObjects] ;
-        [registeredNSHelperLocations removeAllObjects] ;
-        [registeredLuaObjectHelperFunctions removeAllObjects] ;
-        [registeredLuaObjectHelperLocations removeAllObjects] ;
-        [registeredLuaObjectHelperUserdataMappings removeAllObjects];
+        [self.registeredNSHelperFunctions               removeAllObjects] ;
+        [self.registeredNSHelperLocations               removeAllObjects] ;
+        [self.registeredLuaObjectHelperFunctions        removeAllObjects] ;
+        [self.registeredLuaObjectHelperLocations        removeAllObjects] ;
+        [self.registeredLuaObjectHelperUserdataMappings removeAllObjects];
     }
     self.L = NULL;
 }
@@ -419,17 +425,17 @@ nextarg:
     if (level == 0) level = 3 ;
 
     if (className && helperFN) {
-        if (registeredNSHelperFunctions[@(className)]) {
+        if (self.registeredNSHelperFunctions[@(className)]) {
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
                                                         className,
-                              registeredNSHelperLocations[@(className)]]
+                                                        self.registeredNSHelperLocations[@(className)]]
                 fromStackPos:level] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            registeredNSHelperLocations[@(className)] = locationString;
-            registeredNSHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
+            self.registeredNSHelperLocations[@(className)] = locationString;
+            self.registeredNSHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
             lua_pop(self.L, 1) ;
             allGood = YES ;
         }
@@ -480,9 +486,9 @@ nextarg:
 - (id)luaObjectAtIndex:(int)idx toClass:(char *)className {
     NSString *theClass = @(className) ;
 
-    for (id key in registeredLuaObjectHelperFunctions) {
+    for (id key in self.registeredLuaObjectHelperFunctions) {
         if ([theClass isEqualToString:key]) {
-            luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[registeredLuaObjectHelperFunctions[key] pointerValue] ;
+            luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[self.registeredLuaObjectHelperFunctions[key] pointerValue] ;
             return theFunc(self.L, lua_absindex(self.L, idx)) ;
         }
     }
@@ -497,17 +503,17 @@ nextarg:
     if (level == 0) level = 3 ;
 
     if (className && helperFN) {
-        if (registeredLuaObjectHelperFunctions[@(className)]) {
+        if (self.registeredLuaObjectHelperFunctions[@(className)]) {
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
                                                         className,
-                                                        registeredLuaObjectHelperFunctions[@(className)]]
+                                                        self.registeredLuaObjectHelperFunctions[@(className)]]
                 fromStackPos:level] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            registeredLuaObjectHelperLocations[@(className)] = locationString;
-            registeredLuaObjectHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
+            self.registeredLuaObjectHelperLocations[@(className)] = locationString;
+            self.registeredLuaObjectHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
             lua_pop(self.L, 1) ;
             allGood = YES ;
         }
@@ -522,7 +528,7 @@ nextarg:
 - (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
     if (allGood)
-        registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
+        self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
     return allGood ;
 }
 
@@ -741,9 +747,9 @@ nextarg:
 
         // check for registered helpers
 
-        for (id key in registeredNSHelperFunctions) {
+        for (id key in self.registeredNSHelperFunctions) {
             if ([obj isKindOfClass: NSClassFromString(key)]) {
-                pushNSHelperFunction theFunc = (pushNSHelperFunction)[registeredNSHelperFunctions[key] pointerValue] ;
+                pushNSHelperFunction theFunc = (pushNSHelperFunction)[self.registeredNSHelperFunctions[key] pointerValue] ;
                 int resultAnswer = theFunc(self.L, obj) ;
                 if (resultAnswer > -1) return resultAnswer ;
             }
@@ -1053,19 +1059,29 @@ nextarg:
         case LUA_TTABLE:
             return [self tableAtIndex:realIndex withOptions:options alreadySeenObjects:alreadySeen] ;
         case LUA_TUSERDATA: // Note: This is specifically last, so it can fall through to the default case, for objects we can't handle automatically
-            //FIXME: This seems very unsafe to happen outside a protected call
-            if (lua_getfield(self.L, realIndex, "__type") == LUA_TSTRING) {
-                userdataTag = (char *)lua_tostring(self.L, -1);
+//             //FIXME: This seems very unsafe to happen outside a protected call
+//             if (lua_getfield(self.L, realIndex, "__type") == LUA_TSTRING) {
+//                 userdataTag = (char *)lua_tostring(self.L, -1);
+//             }
+//             lua_pop(self.L, 1);
+            lua_pushcfunction(self.L, pushUserdataType) ;
+            lua_pushvalue(self.L, realIndex) ;
+            if ((lua_pcall(self.L, 1, 1, 0) == LUA_OK) && (lua_type(self.L, -1) == LUA_TSTRING)) {
+               userdataTag = (char *)lua_tostring(self.L, -1);
             }
-            lua_pop(self.L, 1);
+            // if the call errors b/c of missing __init in userdata, the error is on the stack, otherwise our result is.
+            // In either case clean up after ourself.
+            lua_pop(self.L, 1) ;
 
             if (userdataTag) {
-                NSString *classMapping = registeredLuaObjectHelperUserdataMappings[@(userdataTag)];
+                NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)];
                 if (classMapping) {
                     return [self luaObjectAtIndex:realIndex toClass:(char *)[classMapping UTF8String]];
+                } else {
+                    [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", userdataTag]] ;
                 }
             }
-            if (userdataTag) [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", userdataTag]] ;
+            // we didn't handle the userdata, so fall through
         default:
             if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
                 NSString *answer = @(luaL_tolstring(self.L, idx, NULL));
