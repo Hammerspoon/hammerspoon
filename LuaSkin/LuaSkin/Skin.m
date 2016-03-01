@@ -978,7 +978,7 @@ nextarg:
 }
 
 - (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-    NSArray *keys = [(NSMutableDictionary *)obj allKeys]; // FIXME: can we remove the need for this by more narrowly focusing the imports?
+    NSArray *keys   = [obj allKeys];
     NSArray *values = [obj allValues];
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
