@@ -1,22 +1,10 @@
--- Function to test that all extensions load correctly
-function testrequires()
-  failed = {}
-  for k,v in pairs(hs._extensions) do
-    print(string.format("checking extension '%s'", k))
-    res, ext = pcall(load(string.format("return hs.%s", k)))
-    if res then
-      if type(ext) ~= 'table' then
-        failreason = string.format("type of 'hs.%s' is '%s', was expecting 'table'", k, type(ext))
-        print(failreason)
-        table.insert(failed, failreason)
-      end
-    else
-      failreason = string.format("failed to load 'hs.%s', error was '%s'", k, ext)
-      print(failreason)
-      table.insert(failed, failreason)
-    end
-  end
-  return table.concat(failed, " / ")
+-- Note: This file is shared between LuaSkinTests and Hammerspoon Tests
+local bundlePath = ...
+
+if (type(bundlePath) == "string") then
+  package.path = bundlePath.."/?.lua"..";"..package.path
+else
+  print("-- Warning: lsunit.lua running with no bundlePath. This is not an error if your package.path contains an init.lua")
 end
 
 -- Utility functions
@@ -146,4 +134,5 @@ end
 
 
 -- Leave this at the end of the file
-print ('testing init.lua loaded')
+print ('-- Test harness lsunit.lua loaded. Loading testinit.lua...')
+require('testinit')

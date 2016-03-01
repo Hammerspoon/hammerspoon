@@ -114,6 +114,32 @@ static const luaL_Reg objectFunctions[] = {
     skin = [[LuaSkin alloc] init];
     libraryGCCalled = NO;
     libraryObjectGCCalled = NO;
+
+    // Find where our bundle is on disk
+    NSDictionary *environment = [NSProcessInfo processInfo].environment;
+    NSString *xcTestConfigurationFilePath = environment[@"XCTestConfigurationFilePath"];
+    NSRange chopPoint = [xcTestConfigurationFilePath rangeOfString:@"LuaSkinTests.xctest/Contents/Resources/"];
+    NSString *bundlePath = [xcTestConfigurationFilePath substringWithRange:NSMakeRange(0, chopPoint.location + chopPoint.length - 1)];
+
+    // Now find lsunit.lua within the bundle. It will end by require()ing our init.lua
+    NSString *lsUnitPath = [NSString stringWithFormat:@"%@/lsunit.lua", bundlePath];
+
+    // Load init.lua from our bundle
+    NSLog(@"Loading LuaSkinTests lsunit.lua from %@", lsUnitPath);
+    int loadresult = luaL_loadfile(skin.L, [lsUnitPath UTF8String]);
+    if (loadresult != 0) {
+        NSLog(@"ERROR: Unable to load lsunit.lua from LuaSkinTests.xctest");
+        NSException *loadException = [NSException exceptionWithName:@"LuaSkinTestsLSInitLoadfileFailed" reason:@"Unable to load lsunit.lua from LuaSkinTests.xctest" userInfo:nil];
+        @throw loadException;
+    }
+
+    [skin pushNSObject:bundlePath];
+    BOOL result = [skin protectedCallAndTraceback:1 nresults:0];
+    if (!result) {
+        NSLog(@"ERROR: lsunit.lua instantiation failed: %@", @(lua_tostring(skin.L, -1)));
+        NSException *pcallException = [NSException exceptionWithName:@"LuaSkinTestsLSUnitPCallFailed" reason:@"An error occurred when executing LuaSkinTests lsunit.lua" userInfo:nil];
+        @throw pcallException;
+    }
 }
 
 - (void)tearDown {

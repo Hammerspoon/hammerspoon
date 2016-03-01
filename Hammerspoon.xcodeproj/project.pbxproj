@@ -140,6 +140,8 @@
 		4FDD8E501C834C9400085D7A /* test_base64.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E4F1C834C9400085D7A /* test_base64.lua */; };
 		4FDD8E521C83612D00085D7A /* HSalert.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E511C83612C00085D7A /* HSalert.m */; };
 		4FDD8E541C83616100085D7A /* test_alert.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E531C83616100085D7A /* test_alert.lua */; };
+		4FDD8E7C1C85A05700085D7A /* lsunit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E7B1C85A05700085D7A /* lsunit.lua */; };
+		4FDD8E7E1C85A06800085D7A /* testinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E7D1C85A06800085D7A /* testinit.lua */; };
 		4FDE059A1B72984C00E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FDE05A31B72987B00E9E8EE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05A21B72987B00E9E8EE /* internal.m */; };
 		4FDE05A91B72988C00E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -175,7 +177,6 @@
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
 		AA79D2504522AC7FD944753C /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 87010C0F3DDC1CD8B3C95BA2 /* libPods-Hammerspoon.a */; };
 		D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* HSrequire_all.m */; };
-		D02F95341A003A2900E28BB2 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = D02F95331A003A2900E28BB2 /* init.lua */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
 		D641255F1BA07CEA000FB5F8 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D64125661BA07D20000FB5F8 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D64125591BA07CDE000FB5F8 /* internal.m */; };
@@ -875,6 +876,8 @@
 		4FDD8E4F1C834C9400085D7A /* test_base64.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_base64.lua; path = extensions/base64/test_base64.lua; sourceTree = "<group>"; };
 		4FDD8E511C83612C00085D7A /* HSalert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSalert.m; sourceTree = "<group>"; };
 		4FDD8E531C83616100085D7A /* test_alert.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_alert.lua; path = extensions/alert/test_alert.lua; sourceTree = "<group>"; };
+		4FDD8E7B1C85A05700085D7A /* lsunit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lsunit.lua; path = LuaSkin/LuaSkinTests/lsunit.lua; sourceTree = SOURCE_ROOT; };
+		4FDD8E7D1C85A06800085D7A /* testinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testinit.lua; sourceTree = "<group>"; };
 		4FDE059F1B72984C00E9E8EE /* libbattery.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbattery.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05A11B72987B00E9E8EE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/battery/init.lua; sourceTree = "<group>"; };
 		4FDE05A21B72987B00E9E8EE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/battery/internal.m; sourceTree = "<group>"; };
@@ -933,7 +936,6 @@
 		D02F95241A00221C00E28BB2 /* Hammerspoon Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hammerspoon Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D02F95271A00221C00E28BB2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D02F95281A00221C00E28BB2 /* HSrequire_all.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSrequire_all.m; sourceTree = "<group>"; };
-		D02F95331A003A2900E28BB2 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		D077B5BE1A001B5300369B30 /* variables.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = variables.m; sourceTree = "<group>"; };
 		D64125581BA07CDE000FB5F8 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/webview/init.lua; sourceTree = "<group>"; };
 		D64125591BA07CDE000FB5F8 /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/webview/internal.m; sourceTree = "<group>"; };
@@ -2447,7 +2449,6 @@
 				D02F95261A00221C00E28BB2 /* Supporting Files */,
 				4FEF4D501C5FA1DD00E3B939 /* HSTestCase.h */,
 				4FEF4D511C5FA1DD00E3B939 /* HSTestCase.m */,
-				D02F95331A003A2900E28BB2 /* init.lua */,
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
 				4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
@@ -2455,6 +2456,8 @@
 				4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */,
 				4FDD8E4D1C834C8100085D7A /* HSbase64.m */,
 				4FDD8E511C83612C00085D7A /* HSalert.m */,
+				4FDD8E7B1C85A05700085D7A /* lsunit.lua */,
+				4FDD8E7D1C85A06800085D7A /* testinit.lua */,
 			);
 			path = "Hammerspoon Tests";
 			sourceTree = "<group>";
@@ -4353,9 +4356,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
-				D02F95341A003A2900E28BB2 /* init.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
 				4F6CE1311C6B93A90016668E /* test_timer.lua in Resources */,
+				4FDD8E7C1C85A05700085D7A /* lsunit.lua in Resources */,
+				4FDD8E7E1C85A06800085D7A /* testinit.lua in Resources */,
 				4FDD8E541C83616100085D7A /* test_alert.lua in Resources */,
 				4CEDEE1D1C640FDB005CBF97 /* test_javascript.lua in Resources */,
 				4FDD8E501C834C9400085D7A /* test_base64.lua in Resources */,

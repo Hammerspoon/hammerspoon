@@ -65,21 +65,23 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     [[NSAppleEventManager sharedAppleEventManager] removeEventHandlerForEventClass:kInternetEventClass andEventID:kAEGetURL];
 
     if(NSClassFromString(@"XCTest") != nil) {
+        // Hammerspoon Tests
         NSLog(@"in testing mode!");
         NSDictionary *environment = [NSProcessInfo processInfo].environment;
         NSString *injectBundlePath = environment[@"XCInjectBundle"];
         NSBundle *bundle = [NSBundle bundleWithPath:injectBundlePath];
-        NSString *initPath = [bundle pathForResource:@"init" ofType:@"lua"];
-        const char *fsPath = [initPath fileSystemRepresentation];
+        NSString *lsUnitPath = [bundle pathForResource:@"lsunit" ofType:@"lua"];
+        const char *fsPath = [lsUnitPath fileSystemRepresentation];
 
         if (!fsPath) {
-            NSLog(@"Unable to find init.lua in Hammerspoon Tests.xctest. We're about to crash, sorry!");
+            NSLog(@"Unable to find lsunit.lua in Hammerspoon Tests.xctest. We're about to crash, sorry!");
             abort();
         } else {
-            NSLog(@"testing init.lua");
+            NSLog(@"testing lsunit.lua");
         }
         MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:fsPath length:strlen(fsPath)];
     } else if ([[[NSProcessInfo processInfo] environment] objectForKey:@"XCTESTING"]) {
+        // Hammerspoon UI Tests
         NSLog(@"in UI testing mode");
         NSString *initPath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingString:@"/Hammerspoon UI Tests-Runner.app/Contents/PlugIns/Hammerspoon UI Tests.xctest/Contents/Resources/init.lua"];
         const char *fsPath = [initPath fileSystemRepresentation];
@@ -93,6 +95,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         MJConfigFile = [[NSFileManager defaultManager] stringWithFileSystemRepresentation:fsPath length:strlen(fsPath)];
         [self showConsoleWindow:nil];
     } else {
+        // No test environment detected, this is a live user run
         NSString* userMJConfigFile = [[NSUserDefaults standardUserDefaults] stringForKey:@"MJConfigFile"];
         if (userMJConfigFile) MJConfigFile = userMJConfigFile ;
     }
