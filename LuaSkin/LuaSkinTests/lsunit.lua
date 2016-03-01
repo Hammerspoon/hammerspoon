@@ -4,7 +4,7 @@ local bundlePath = ...
 if (type(bundlePath) == "string") then
   package.path = bundlePath.."/?.lua"..";"..package.path
 else
-  print("-- Warning: lsunit.lua running with no bundlePath. This is not an error if your package.path contains an init.lua")
+  print("-- Warning: lsunit.lua running with no bundlePath. This is not an error if your package.path contains a testinit.lua")
 end
 
 -- Utility functions
