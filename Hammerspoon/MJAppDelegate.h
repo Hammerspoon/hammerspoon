@@ -5,8 +5,7 @@
 //  Created by Chris Jones on 02/09/2015.
 //  Copyright (c) 2015 Hammerspoon. All rights reserved.
 //
-#import <Fabric/Fabric.h>
-#import <Crashlytics/Crashlytics.h>
+@import Crashlytics;
 
 @protocol HSOpenFileDelegate <NSObject>
 

@@ -23,6 +23,22 @@
 
 #import "DDLog.h"
 
+/**
+ *  Log formatter mode
+ */
+typedef NS_ENUM(NSUInteger, DDDispatchQueueLogFormatterMode){
+    /**
+     *  This is the default option, means the formatter can be reused between multiple loggers and therefore is thread-safe.
+     *  There is, of course, a performance cost for the thread-safety
+     */
+    DDDispatchQueueLogFormatterModeShareble = 0,
+    /**
+     *  If the formatter will only be used by a single logger, then the thread-safety can be removed
+     *  @note: there is an assert checking if the formatter is added to multiple loggers and the mode is non-shareble
+     */
+    DDDispatchQueueLogFormatterModeNonShareble,
+};
+
 
 /**
  * This class provides a log formatter that prints the dispatch_queue label instead of the mach_thread_id.
@@ -31,35 +47,35 @@
  * You can learn more about log formatters here:
  * Documentation/CustomFormatters.md
  *
- * A typical NSLog (or DDTTYLogger) prints detailed info as [<process_id>:<thread_id>].
+ * A typical `NSLog` (or `DDTTYLogger`) prints detailed info as `[<process_id>:<thread_id>]`.
  * For example:
  *
- * 2011-10-17 20:21:45.435 AppName[19928:5207] Your log message here
+ * `2011-10-17 20:21:45.435 AppName[19928:5207] Your log message here`
  *
  * Where:
- * - 19928 = process id
- * -  5207 = thread id (mach_thread_id printed in hex)
+ * `- 19928 = process id`
+ * `-  5207 = thread id (mach_thread_id printed in hex)`
  *
  * When using grand central dispatch (GCD), this information is less useful.
  * This is because a single serial dispatch queue may be run on any thread from an internally managed thread pool.
  * For example:
  *
- * 2011-10-17 20:32:31.111 AppName[19954:4d07] Message from my_serial_dispatch_queue
- * 2011-10-17 20:32:31.112 AppName[19954:5207] Message from my_serial_dispatch_queue
- * 2011-10-17 20:32:31.113 AppName[19954:2c55] Message from my_serial_dispatch_queue
+ * `2011-10-17 20:32:31.111 AppName[19954:4d07] Message from my_serial_dispatch_queue`
+ * `2011-10-17 20:32:31.112 AppName[19954:5207] Message from my_serial_dispatch_queue`
+ * `2011-10-17 20:32:31.113 AppName[19954:2c55] Message from my_serial_dispatch_queue`
  *
- * This formatter allows you to replace the standard [box:info] with the dispatch_queue name.
+ * This formatter allows you to replace the standard `[box:info]` with the dispatch_queue name.
  * For example:
  *
- * 2011-10-17 20:32:31.111 AppName[img-scaling] Message from my_serial_dispatch_queue
- * 2011-10-17 20:32:31.112 AppName[img-scaling] Message from my_serial_dispatch_queue
- * 2011-10-17 20:32:31.113 AppName[img-scaling] Message from my_serial_dispatch_queue
+ * `2011-10-17 20:32:31.111 AppName[img-scaling] Message from my_serial_dispatch_queue`
+ * `2011-10-17 20:32:31.112 AppName[img-scaling] Message from my_serial_dispatch_queue`
+ * `2011-10-17 20:32:31.113 AppName[img-scaling] Message from my_serial_dispatch_queue`
  *
  * If the dispatch_queue doesn't have a set name, then it falls back to the thread name.
  * If the current thread doesn't have a set name, then it falls back to the mach_thread_id in hex (like normal).
  *
- * Note: If manually creating your own background threads (via NSThread/alloc/init or NSThread/detachNeThread),
- * you can use [[NSThread currentThread] setName:(NSString *)].
+ * Note: If manually creating your own background threads (via `NSThread/alloc/init` or `NSThread/detachNeThread`),
+ * you can use `[[NSThread currentThread] setName:(NSString *)]`.
  **/
 @interface DDDispatchQueueLogFormatter : NSObject <DDLogFormatter>
 
@@ -68,6 +84,13 @@
  * Configure using properties as desired.
  **/
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
+
+/**
+ *  Initializer with ability to set the queue mode
+ *
+ *  @param mode choose between DDDispatchQueueLogFormatterModeShareble and DDDispatchQueueLogFormatterModeNonShareble, depending if the formatter is shared between several loggers or not
+ */
+- (instancetype)initWithMode:(DDDispatchQueueLogFormatterMode)mode;
 
 /**
  * The minQueueLength restricts the minimum size of the [detail box].
@@ -119,17 +142,37 @@
  * To remove/undo a previous replacement, invoke this method with nil for the 'shortLabel' parameter.
  **/
 - (NSString *)replacementStringForQueueLabel:(NSString *)longLabel;
+
+/**
+ *  See the `replacementStringForQueueLabel:` description
+ */
 - (void)setReplacementString:(NSString *)shortLabel forQueueLabel:(NSString *)longLabel;
 
 @end
 
 /**
- * Method declarations that make it easier to extend/modify DDDispatchQueueLogFormatter
+ *  Category on `DDDispatchQueueLogFormatter` to make method declarations easier to extend/modify
  **/
 @interface DDDispatchQueueLogFormatter (OverridableMethods)
 
+/**
+ *  Date formatter default configuration
+ */
+- (void)configureDateFormatter:(NSDateFormatter *)dateFormatter;
+
+/**
+ *  Formatter method to transfrom from date to string
+ */
 - (NSString *)stringFromDate:(NSDate *)date;
+
+/**
+ *  Method to compute the queue thread label
+ */
 - (NSString *)queueThreadLabelForLogMessage:(DDLogMessage *)logMessage;
+
+/**
+ *  The actual method that formats a message (transforms a `DDLogMessage` model into a printable string)
+ */
 - (NSString *)formatLogMessage:(DDLogMessage *)logMessage;
 
 @end

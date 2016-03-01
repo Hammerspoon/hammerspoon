@@ -26,7 +26,6 @@
  * This formatter can be used to chain different formatters together.
  * The log message will processed in the order of the formatters added.
  **/
-
 @interface DDMultiFormatter : NSObject <DDLogFormatter>
 
 /**
@@ -34,9 +33,24 @@
  */
 @property (readonly) NSArray *formatters;
 
+/**
+ *  Add a new formatter
+ */
 - (void)addFormatter:(id<DDLogFormatter>)formatter;
+
+/**
+ *  Remove a formatter
+ */
 - (void)removeFormatter:(id<DDLogFormatter>)formatter;
+
+/**
+ *  Remove all existing formatters
+ */
 - (void)removeAllFormatters;
+
+/**
+ *  Check if a certain formatter is used
+ */
 - (BOOL)isFormattingWithFormatter:(id<DDLogFormatter>)formatter;
 
 @end

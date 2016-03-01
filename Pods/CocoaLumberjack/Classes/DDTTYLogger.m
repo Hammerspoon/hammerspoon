@@ -29,13 +29,15 @@
 // So we use primitive logging macros around NSLog.
 // We maintain the NS prefix on the macros to be explicit about the fact that we're using NSLog.
 
-#define LOG_LEVEL 2
+#ifndef DD_NSLOG_LEVEL
+    #define DD_NSLOG_LEVEL 2
+#endif
 
-#define NSLogError(frmt, ...)    do{ if(LOG_LEVEL >= 1) NSLog((frmt), ##__VA_ARGS__); } while(0)
-#define NSLogWarn(frmt, ...)     do{ if(LOG_LEVEL >= 2) NSLog((frmt), ##__VA_ARGS__); } while(0)
-#define NSLogInfo(frmt, ...)     do{ if(LOG_LEVEL >= 3) NSLog((frmt), ##__VA_ARGS__); } while(0)
-#define NSLogDebug(frmt, ...)    do{ if(LOG_LEVEL >= 4) NSLog((frmt), ##__VA_ARGS__); } while(0)
-#define NSLogVerbose(frmt, ...)  do{ if(LOG_LEVEL >= 5) NSLog((frmt), ##__VA_ARGS__); } while(0)
+#define NSLogError(frmt, ...)    do{ if(DD_NSLOG_LEVEL >= 1) NSLog((frmt), ##__VA_ARGS__); } while(0)
+#define NSLogWarn(frmt, ...)     do{ if(DD_NSLOG_LEVEL >= 2) NSLog((frmt), ##__VA_ARGS__); } while(0)
+#define NSLogInfo(frmt, ...)     do{ if(DD_NSLOG_LEVEL >= 3) NSLog((frmt), ##__VA_ARGS__); } while(0)
+#define NSLogDebug(frmt, ...)    do{ if(DD_NSLOG_LEVEL >= 4) NSLog((frmt), ##__VA_ARGS__); } while(0)
+#define NSLogVerbose(frmt, ...)  do{ if(DD_NSLOG_LEVEL >= 5) NSLog((frmt), ##__VA_ARGS__); } while(0)
 
 // Xcode does NOT natively support colors in the Xcode debugging console.
 // You'll need to install the XcodeColors plugin to see colors in the Xcode console.
@@ -714,20 +716,19 @@ static DDTTYLogger *sharedInstance;
         CGColorSpaceRelease(rgbColorSpace);
     }
 
-    #elif __has_include(<AppKit/NSColor.h>)
+    #elif defined(DD_CLI) || !__has_include(<AppKit/NSColor.h>)
+
+    // OS X without AppKit
+
+    [color getRed:rPtr green:gPtr blue:bPtr alpha:NULL];
+
+    #else /* if TARGET_OS_IPHONE */
 
     // OS X with AppKit
 
     NSColor *safeColor = [color colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
 
     [safeColor getRed:rPtr green:gPtr blue:bPtr alpha:NULL];
-
-    #else /* if TARGET_OS_IPHONE */
-
-    // OS X without AppKit
-
-    [color getRed:rPtr green:gPtr blue:bPtr alpha:NULL];
-
     #endif /* if TARGET_OS_IPHONE */
 }
 

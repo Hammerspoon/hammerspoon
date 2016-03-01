@@ -623,6 +623,15 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-auto-import",
+					"-Wno-missing-variable-declarations",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-cast-qual",
+				);
 			};
 			name = Debug;
 		};
@@ -662,6 +671,15 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"-Wno-cstring-format-directive",
+					"-Wno-padded",
+					"-Wno-auto-import",
+					"-Wno-missing-variable-declarations",
+					"-Wno-objc-missing-property-synthesis",
+					"-Wno-cast-qual",
+				);
 			};
 			name = Release;
 		};
@@ -710,6 +728,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = "$(inherited)";
 			};
 			name = Debug;
 		};
@@ -758,6 +777,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				WARNING_CFLAGS = "$(inherited)";
 			};
 			name = Release;
 		};
@@ -777,6 +797,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = "";
 			};
 			name = Debug;
 		};
@@ -792,6 +813,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = "";
 			};
 			name = Release;
 		};
@@ -813,6 +835,7 @@
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = "";
 			};
 			name = Debug;
 		};
@@ -829,6 +852,7 @@
 				OTHER_LDFLAGS = "-lreadline";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = "";
 			};
 			name = Release;
 		};
