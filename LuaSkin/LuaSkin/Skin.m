@@ -522,7 +522,7 @@ nextarg:
 - (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
     if (allGood)
-        registeredLuaObjectHelperFunctions[@(userdataTag)] = @(className);
+        registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
     return allGood ;
 }
 
@@ -615,7 +615,7 @@ nextarg:
     if (lua_type(self.L, idx) != LUA_TSTRING && lua_type(self.L, idx) != LUA_TNUMBER) return NO ;
 
     size_t len ;
-    unsigned const char *str = (unsigned const char *)lua_tolstring(self.L, idx, &len) ;
+    unsigned char *str = (unsigned char *)lua_tolstring(self.L, idx, &len) ;
 
     size_t i = 0;
 
@@ -1065,6 +1065,7 @@ nextarg:
                     return [self luaObjectAtIndex:realIndex toClass:(char *)[classMapping UTF8String]];
                 }
             }
+            if (userdataTag) [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", userdataTag]] ;
         default:
             if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
                 NSString *answer = @(luaL_tolstring(self.L, idx, NULL));
