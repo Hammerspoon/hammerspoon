@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */; };
+		4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */; };
 		4CEDEE1C1C640D11005CBF97 /* HSjavascript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */; };
 		4CEDEE1D1C640FDB005CBF97 /* test_javascript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CEDEE191C640B3D005CBF97 /* test_javascript.lua */; };
 		4F0676071C32C0B30088C57C /* HSChooserCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F0676051C32C0B30088C57C /* HSChooserCell.h */; };
@@ -679,6 +681,8 @@
 /* Begin PBXFileReference section */
 		19B5A52CAF8760B10C86C2D0 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
 		1A11170BCF0BA210FA17BF37 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
+		4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSfs.m; sourceTree = "<group>"; };
+		4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_fs.lua; path = extensions/fs/test_fs.lua; sourceTree = "<group>"; };
 		4CEDEE191C640B3D005CBF97 /* test_javascript.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_javascript.lua; path = extensions/javascript/test_javascript.lua; sourceTree = "<group>"; };
 		4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSjavascript.m; sourceTree = "<group>"; };
 		4F0676041C32AED90088C57C /* HSChooserWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = HSChooserWindow.xib; path = extensions/chooser/HSChooserWindow.xib; sourceTree = "<group>"; };
@@ -1558,6 +1562,7 @@
 				4F4CB3D01B7391D3000EA9B6 /* init.lua */,
 				4F4CB3D11B7391D3000EA9B6 /* internal.m */,
 				4F4CB3D21B7391D3000EA9B6 /* lfs.h */,
+				4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */,
 			);
 			name = fs;
 			sourceTree = "<group>";
@@ -2452,6 +2457,7 @@
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
 				4CEDEE1B1C640D11005CBF97 /* HSjavascript.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
+				4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */,
 				4F6CE1331C6B93E10016668E /* HStimer.m */,
 				4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */,
 				4FDD8E4D1C834C8100085D7A /* HSbase64.m */,
@@ -4357,6 +4363,7 @@
 			files = (
 				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
+				4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */,
 				4F6CE1311C6B93A90016668E /* test_timer.lua in Resources */,
 				4FDD8E7C1C85A05700085D7A /* lsunit.lua in Resources */,
 				4FDD8E7E1C85A06800085D7A /* testinit.lua in Resources */,
@@ -4987,6 +4994,7 @@
 				4FDD8E4E1C834C8100085D7A /* HSbase64.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
 				D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */,
+				4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */,
 				4FEF4D521C5FA1DD00E3B939 /* HSTestCase.m in Sources */,
 				4F6CE1341C6B93E10016668E /* HStimer.m in Sources */,
 				4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */,
@@ -6073,6 +6081,10 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Debug;
 		};
@@ -6140,6 +6152,10 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};
