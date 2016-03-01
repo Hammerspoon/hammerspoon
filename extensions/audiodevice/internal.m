@@ -513,6 +513,9 @@ static int audiodevice_setmuted(lua_State* L) {
 ///
 /// Returns:
 ///  * A number between 0 and 100, representing the volume percentage, or nil if the audio device does not support volume levels
+///
+/// Notes:
+///  * The return value will be a floating point number
 static int audiodevice_volume(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -554,6 +557,9 @@ static int audiodevice_volume(lua_State* L) {
 ///
 /// Returns:
 ///  * True if the volume was set, false if the audio device does not support setting a volume level.
+///
+/// Notes:
+///  * The volume level is a floating point number. Depending on your audio hardware, it may not be possible to increase volume in single digit increments.
 static int audiodevice_setvolume(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
