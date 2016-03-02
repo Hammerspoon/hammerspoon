@@ -20,47 +20,18 @@
 ** $Id: lfs.c,v 1.61 2009/07/04 02:10:16 mascarenhas Exp $
 */
 
-#ifndef LFS_DO_NOT_USE_LARGE_FILE
-#ifndef _WIN32
-#ifndef _AIX
-//#define _FILE_OFFSET_BITS 64 /* Linux, Solaris and HP-UX */
-#else
-#define _LARGE_FILES 1 /* AIX */
-#endif
-#endif
-#endif
-
-#ifndef LFS_DO_NOT_USE_LARGE_FILE
-//#define _LARGEFILE64_SOURCE
-#endif
-
+@import Cocoa;
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
 #include <sys/stat.h>
-
-#ifdef _WIN32
-#include <direct.h>
-#include <windows.h>
-#include <io.h>
-#include <sys/locking.h>
-#ifdef __BORLANDC__
- #include <utime.h>
-#else
- #include <sys/utime.h>
-#endif
-#include <fcntl.h>
-#else
 #include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <utime.h>
-#endif
-
-#include <Cocoa/Cocoa.h>
 #include <LuaSkin/LuaSkin.h>
 
 #include "lfs.h"
@@ -91,47 +62,20 @@
 #define getcwd_error    "Function 'getcwd' not provided by system"
 #else
 #define getcwd_error    strerror(errno)
-  #ifdef _WIN32
-	 /* MAX_PATH seems to be 260. Seems kind of small. Is there a better one? */
-    #define LFS_MAXPATHLEN MAX_PATH
-  #else
-	/* For MAXPATHLEN: */
-    #include <sys/param.h>
-    #define LFS_MAXPATHLEN MAXPATHLEN
-  #endif
+#include <sys/param.h>
+#define LFS_MAXPATHLEN MAXPATHLEN
 #endif
 
 #define DIR_METATABLE "directory metatable"
 typedef struct dir_data {
         int  closed;
-#ifdef _WIN32
-        intptr_t hFile;
-        char pattern[MAX_PATH+1];
-#else
         DIR *dir;
-#endif
 } dir_data;
 
 #define LOCK_METATABLE "lock metatable"
-
-#ifdef _WIN32
- #ifdef __BORLANDC__
-  #define lfs_setmode(L,file,m)   ((void)L, setmode(_fileno(file), m))
-  #define STAT_STRUCT struct stati64
- #else
-  #define lfs_setmode(L,file,m)   ((void)L, _setmode(_fileno(file), m))
-  #define STAT_STRUCT struct _stati64
- #endif
-#define STAT_FUNC _stati64
-#define LSTAT_FUNC STAT_FUNC
-#else
-#define _O_TEXT               0
-#define _O_BINARY             0
-#define lfs_setmode(L,file,m)   ((void)L, (void)file, (void)m, 0)
 #define STAT_STRUCT struct stat
 #define STAT_FUNC stat
 #define LSTAT_FUNC lstat
-#endif
 
 /*
 ** Utility functions
@@ -273,36 +217,6 @@ static FILE *check_file (lua_State *L, int idx, const char *funcname) {
 ///  * True if the lock was obtained successfully, otherwise nil and an error string
 static int _file_lock (lua_State *L, FILE *fh, const char *mode, const long start, long len, const char *funcname) {
         int code;
-#ifdef _WIN32
-        /* lkmode valid values are:
-           LK_LOCK    Locks the specified bytes. If the bytes cannot be locked, the program immediately tries again after 1 second. If, after 10 attempts, the bytes cannot be locked, the constant returns an error.
-           LK_NBLCK   Locks the specified bytes. If the bytes cannot be locked, the constant returns an error.
-           LK_NBRLCK  Same as _LK_NBLCK.
-           LK_RLCK    Same as _LK_LOCK.
-           LK_UNLCK   Unlocks the specified bytes, which must have been previously locked.
-
-           Regions should be locked only briefly and should be unlocked before closing a file or exiting the program.
-
-           http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vclib/html/_crt__locking.asp
-        */
-        int lkmode;
-        switch (*mode) {
-                case 'r': lkmode = LK_NBLCK; break;
-                case 'w': lkmode = LK_NBLCK; break;
-                case 'u': lkmode = LK_UNLCK; break;
-                default : return luaL_error (L, "%s: invalid mode", funcname);
-        }
-        if (!len) {
-                fseek (fh, 0L, SEEK_END);
-                len = ftell (fh);
-        }
-        fseek (fh, start, SEEK_SET);
-#ifdef __BORLANDC__
-        code = locking (fileno(fh), lkmode, len);
-#else
-        code = _locking (fileno(fh), lkmode, len);
-#endif
-#else
         struct flock f;
         switch (*mode) {
                 case 'w': f.l_type = F_WRLCK; break;
@@ -314,51 +228,9 @@ static int _file_lock (lua_State *L, FILE *fh, const char *mode, const long star
         f.l_start = (off_t)start;
         f.l_len = (off_t)len;
         code = fcntl (fileno(fh), F_SETLK, &f);
-#endif
         return (code != -1);
 }
 
-#ifdef _WIN32
-typedef struct lfs_Lock {
-  HANDLE fd;
-} lfs_Lock;
-static int lfs_lock_dir(lua_State *L) {
-  size_t pathl; HANDLE fd;
-  lfs_Lock *lock;
-  char *ln;
-  const char *lockfile = "/lockfile.lfs";
-  const char *path = luaL_checklstring(L, 1, &pathl);
-  ln = (char*)malloc(pathl + strlen(lockfile) + 1);
-  if(!ln) {
-    lua_pushnil(L); lua_pushstring(L, strerror(errno)); return 2;
-  }
-  strcpy(ln, path); strcat(ln, lockfile);
-  if((fd = CreateFile(ln, GENERIC_WRITE, 0, NULL, CREATE_NEW,
-                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_DELETE_ON_CLOSE, NULL)) == INVALID_HANDLE_VALUE) {
-        int en = GetLastError();
-        free(ln); lua_pushnil(L);
-        if(en == ERROR_FILE_EXISTS || en == ERROR_SHARING_VIOLATION)
-                lua_pushstring(L, "File exists");
-        else
-                lua_pushstring(L, strerror(en));
-        return 2;
-  }
-  free(ln);
-  lock = (lfs_Lock*)lua_newuserdata(L, sizeof(lfs_Lock));
-  lock->fd = fd;
-  luaL_getmetatable (L, LOCK_METATABLE);
-  lua_setmetatable (L, -2);
-  return 1;
-}
-static int lfs_unlock_dir(lua_State *L) {
-  lfs_Lock *lock = (lfs_Lock *)luaL_checkudata(L, 1, LOCK_METATABLE);
-  if(lock->fd != INVALID_HANDLE_VALUE) {
-    CloseHandle(lock->fd);
-    lock->fd=INVALID_HANDLE_VALUE;
-  }
-  return 0;
-}
-#else
 typedef struct lfs_Lock {
   char *ln;
 } lfs_Lock;
@@ -407,37 +279,6 @@ static int lfs_unlock_dir(lua_State *L) {
     lock->ln = NULL;
   }
   return 0;
-}
-#endif
-
-static int lfs_g_setmode (lua_State *L, FILE *f, int arg) {
-  static const int mode[] = {_O_BINARY, _O_TEXT};
-  static const char *const modenames[] = {"binary", "text", NULL};
-  int op = luaL_checkoption(L, arg, NULL, modenames);
-  int res = lfs_setmode(L, f, mode[op]);
-  if (res != -1) {
-    int i;
-    lua_pushboolean(L, 1);
-    for (i = 0; modenames[i] != NULL; i++) {
-      if (mode[i] == res) {
-        lua_pushstring(L, modenames[i]);
-        goto exit;
-      }
-    }
-    lua_pushnil(L);
-  exit:
-    return 2;
-  } else {
-    int en = errno;
-    lua_pushnil(L);
-    lua_pushfstring(L, "%s", strerror(en));
-    lua_pushinteger(L, en);
-    return 3;
-  }
-}
-
-static int lfs_f_setmode(lua_State *L) {
-  return lfs_g_setmode(L, check_file(L, 1, "setMode"), 2);
 }
 
 /*
@@ -547,13 +388,9 @@ static int make_link(lua_State *L) {
 static int make_dir (lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TBREAK];
     const char *path = path_at_index(L, 1);
-    int fail;
-#ifdef _WIN32
-    fail = _mkdir (path);
-#else
-    fail =  mkdir (path, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP |
+
+    int fail =  mkdir (path, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP |
                          S_IWGRP | S_IXGRP | S_IROTH | S_IXOTH );
-#endif
     if (fail) {
         lua_pushnil (L);
         lua_pushfstring (L, "%s", strerror(errno));
@@ -598,36 +435,10 @@ static int remove_dir (lua_State *L) {
 ** Directory iterator
 */
 static int dir_iter (lua_State *L) {
-#ifdef _WIN32
-        struct _finddata_t c_file;
-#else
         struct dirent *entry;
-#endif
         dir_data *d = (dir_data *)luaL_checkudata (L, 1, DIR_METATABLE);
         luaL_argcheck (L, d->closed == 0, 1, "closed directory");
-#ifdef _WIN32
-        if (d->hFile == 0L) { /* first entry */
-                if ((d->hFile = _findfirst (d->pattern, &c_file)) == -1L) {
-                        lua_pushnil (L);
-                        lua_pushstring (L, strerror (errno));
-                        d->closed = 1;
-                        return 2;
-                } else {
-                        lua_pushstring (L, c_file.name);
-                        return 1;
-                }
-        } else { /* next entry */
-                if (_findnext (d->hFile, &c_file) == -1L) {
-                        /* no more entries => close directory */
-                        _findclose (d->hFile);
-                        d->closed = 1;
-                        return 0;
-                } else {
-                        lua_pushstring (L, c_file.name);
-                        return 1;
-                }
-        }
-#else
+
         if ((entry = readdir (d->dir)) != NULL) {
                 lua_pushstring (L, entry->d_name);
                 return 1;
@@ -637,7 +448,6 @@ static int dir_iter (lua_State *L) {
                 d->closed = 1;
                 return 0;
         }
-#endif
 }
 
 
@@ -646,15 +456,9 @@ static int dir_iter (lua_State *L) {
 */
 static int dir_close (lua_State *L) {
         dir_data *d = (dir_data *)lua_touserdata (L, 1);
-#ifdef _WIN32
-        if (!d->closed && d->hFile) {
-                _findclose (d->hFile);
-        }
-#else
         if (!d->closed && d->dir) {
                 closedir (d->dir);
         }
-#endif
         d->closed = 1;
         return 0;
 }
@@ -687,17 +491,9 @@ static int dir_iter_factory (lua_State *L) {
     luaL_getmetatable (L, DIR_METATABLE);
     lua_setmetatable (L, -2);
     d->closed = 0;
-#ifdef _WIN32
-    d->hFile = 0L;
-    if (strlen(path) > MAX_PATH-2)
-      luaL_error (L, "path too long: %s", path);
-    else
-      sprintf (d->pattern, "%s/*", path);
-#else
     d->dir = opendir (path);
     if (d->dir == NULL)
       luaL_error (L, "cannot open %s: %s", path, strerror (errno));
-#endif
     return 2;
 }
 
@@ -741,38 +537,10 @@ static int lock_create_meta (lua_State *L) {
         return 1;
 }
 
-
-#ifdef _WIN32
- #ifndef S_ISDIR
-   #define S_ISDIR(mode)  (mode&_S_IFDIR)
- #endif
- #ifndef S_ISREG
-   #define S_ISREG(mode)  (mode&_S_IFREG)
- #endif
- #ifndef S_ISLNK
-   #define S_ISLNK(mode)  (0)
- #endif
- #ifndef S_ISSOCK
-   #define S_ISSOCK(mode)  (0)
- #endif
- #ifndef S_ISFIFO
-   #define S_ISFIFO(mode)  (0)
- #endif
- #ifndef S_ISCHR
-   #define S_ISCHR(mode)  (mode&_S_IFCHR)
- #endif
- #ifndef S_ISBLK
-   #define S_ISBLK(mode)  (0)
- #endif
-#endif
 /*
 ** Convert the inode protection mode to a string.
 */
-#ifdef _WIN32
-static const char *mode2string (unsigned short mode) {
-#else
 static const char *mode2string (mode_t mode) {
-#endif
   if ( S_ISREG(mode) )
     return "file";
   else if ( S_ISDIR(mode) )
@@ -876,35 +644,10 @@ static void push_st_birthtime (lua_State *L, STAT_STRUCT *info) {
 static void push_st_size (lua_State *L, STAT_STRUCT *info) {
         lua_pushinteger (L, (lua_Integer)info->st_size);
 }
-#ifndef _WIN32
-/* blocks allocated for file */
-static void push_st_blocks (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_blocks);
-}
-/* optimal file system I/O blocksize */
-static void push_st_blksize (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_blksize);
-}
-#endif
 
  /*
 ** Convert the inode protection mode to a permission list.
 */
-
-#ifdef _WIN32
-static const char *perm2string (unsigned short mode) {
-  static char perms[10] = "---------";
-  int i;
-  for (i=0;i<9;i++) perms[i]='-';
-  if (mode  & _S_IREAD)
-   { perms[0] = 'r'; perms[3] = 'r'; perms[6] = 'r'; }
-  if (mode  & _S_IWRITE)
-   { perms[1] = 'w'; perms[4] = 'w'; perms[7] = 'w'; }
-  if (mode  & _S_IEXEC)
-   { perms[2] = 'x'; perms[5] = 'x'; perms[8] = 'x'; }
-  return perms;
-}
-#else
 static const char *perm2string (mode_t mode) {
   static char perms[10] = "---------";
   int i;
@@ -920,7 +663,6 @@ static const char *perm2string (mode_t mode) {
   if (mode & S_IXOTH) perms[8] = 'x';
   return perms;
 }
-#endif
 
 /* permssions string */
 static void push_st_perm (lua_State *L, STAT_STRUCT *info) {
@@ -948,10 +690,6 @@ static stat_members members[] = {
         { "creation",     push_st_birthtime },
         { "size",         push_st_size },
         { "permissions",  push_st_perm },
-#ifndef _WIN32
-        { "blocks",       push_st_blocks },
-        { "blksize",      push_st_blksize },
-#endif
         { NULL, NULL }
 };
 
@@ -1197,7 +935,6 @@ static const struct luaL_Reg fslib[] = {
         {"mkdir", make_dir},
         {"rmdir", remove_dir},
         {"symlinkAttributes", link_info},
-        {"setMode", lfs_f_setmode},
         {"touch", file_utime},
         {"unlock", file_unlock},
         {"lockDir", lfs_lock_dir},
