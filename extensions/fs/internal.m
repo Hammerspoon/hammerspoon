@@ -23,7 +23,7 @@
 #ifndef LFS_DO_NOT_USE_LARGE_FILE
 #ifndef _WIN32
 #ifndef _AIX
-#define _FILE_OFFSET_BITS 64 /* Linux, Solaris and HP-UX */
+//#define _FILE_OFFSET_BITS 64 /* Linux, Solaris and HP-UX */
 #else
 #define _LARGE_FILES 1 /* AIX */
 #endif
@@ -31,7 +31,7 @@
 #endif
 
 #ifndef LFS_DO_NOT_USE_LARGE_FILE
-#define _LARGEFILE64_SOURCE
+//#define _LARGEFILE64_SOURCE
 #endif
 
 #include <errno.h>
@@ -65,13 +65,13 @@
 
 #include "lfs.h"
 
-#define LFS_VERSION "1.6.2"
-#define LFS_LIBNAME "fs"
+//#define LFS_VERSION "1.6.2"
+//#define LFS_LIBNAME "fs"
 
 #if LUA_VERSION_NUM >= 503 /* Lua 5.3 */
 
 #ifndef luaL_optlong
-#define luaL_optlong luaL_optinteger
+//#define luaL_optlong luaL_optinteger
 #endif
 
 #endif
@@ -136,61 +136,48 @@ typedef struct dir_data {
 /*
 ** Utility functions
 */
-static int pusherror(lua_State *L, const char *info)
-{
-        lua_pushnil(L);
-        if (info==NULL)
-                lua_pushstring(L, strerror(errno));
-        else
-                lua_pushfstring(L, "%s: %s", info, strerror(errno));
-        lua_pushinteger(L, errno);
-        return 3;
-}
-
-static int pushresult(lua_State *L, int i, const char *info)
-{
-        if (i==-1)
-                return pusherror(L, info);
-        lua_pushinteger(L, i);
-        return 1;
-}
 
 NSURL *path_to_nsurl(NSString *path) {
     return [NSURL fileURLWithPath:[path stringByExpandingTildeInPath]];
 }
 
-const char *path_to_cstring(NSString * path) {
+const char *path_at_index(lua_State *L, int i) {
+    NSString *path = [[LuaSkin shared] toNSObjectAtIndex:i];
     return [[path_to_nsurl(path) path] UTF8String];
 }
 
-const char *path_at_index(lua_State *L, int i) {
-    NSString *thePath = [[LuaSkin shared] toNSObjectAtIndex:1];
-    return path_to_cstring(thePath);
+NSArray *tags_from_lua_stack(lua_State *L) {
+    NSMutableSet *tags = [[NSMutableSet alloc] init];
+
+    lua_pushnil(L);
+    while (lua_next(L, 2) != 0) {
+        if (lua_type(L, -1) == LUA_TSTRING) {
+            NSString *tag = [[LuaSkin shared] toNSObjectAtIndex:-1];
+            [tags addObject:tag];
+        }
+        lua_pop(L, 1);
+    }
+    return [tags allObjects];
 }
 
 NSArray *tags_from_file(lua_State *L, NSString *filePath) {
-    LuaSkin *skin = [LuaSkin shared];
     NSURL *url = path_to_nsurl(filePath);
-    if (!url) {
-        return nil;
-    }
-
     NSArray *tags;
     NSError *error;
+
     if (![url getResourceValue:&tags forKey:NSURLTagNamesKey error:&error]) {
-        [skin logError:[NSString stringWithFormat:@"hs.fs tags_from_file() Unable to get tags for %@: %@", url, [error localizedDescription]]];
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_from_file() Unable to get tags for %@: %@", url, [error localizedDescription]]];
         return nil;
     }
-
     return tags;
 }
 
-BOOL tags_to_file(lua_State *L, NSURL *url, NSArray *tags) {
-    LuaSkin *skin = [LuaSkin shared];
+BOOL tags_to_file(lua_State *L, NSString *filePath, NSArray *tags) {
+    NSURL *url = path_to_nsurl(filePath);
     NSError *error;
 
     if (![url setResourceValue:tags forKey:NSURLTagNamesKey error:&error]) {
-        [skin logError:[NSString stringWithFormat:@"hs.fs tags_to_file() Unable to set tags for %@: %@", url, [error localizedDescription]]];
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_to_file() Unable to set tags for %@: %@", url, [error localizedDescription]]];
         return false;
     }
     return true;
@@ -523,16 +510,25 @@ static int file_unlock (lua_State *L) {
 ///
 /// Returns:
 ///  * True if the link was created, otherwise nil and an error string
-static int make_link(lua_State *L)
-{
+static int make_link(lua_State *L) {
     [[LuaSkin shared] checkArgs:LS_TSTRING, LS_TSTRING, LS_TBOOLEAN|LS_TOPTIONAL, LS_TBREAK];
     const char *oldpath = path_at_index(L, 1);
     const char *newpath = path_at_index(L, 2);
-#ifndef _WIN32
-    return pushresult(L, (lua_toboolean(L,3) ? symlink : link)(oldpath, newpath), NULL);
-#else
-    return pusherror(L, "make_link is not supported on Windows");
-#endif
+    BOOL error;
+
+    if (lua_toboolean (L, 3)) {
+        error = symlink(oldpath, newpath);
+    } else {
+        error = link(oldpath, newpath);
+    }
+
+    if (error) {
+        lua_pushnil(L);
+        lua_pushstring(L, strerror(errno));
+        return 2;
+    } else lua_pushboolean(L, true);
+
+    return 1;
 }
 
 /*
@@ -933,12 +929,12 @@ static void push_st_perm (lua_State *L, STAT_STRUCT *info) {
 
 typedef void (*_push_function) (lua_State *L, STAT_STRUCT *info);
 
-struct _stat_members {
+typedef struct _stat_members {
         const char *name;
         _push_function push;
-};
+} stat_members;
 
-struct _stat_members members[] = {
+static stat_members members[] = {
         { "mode",         push_st_mode },
         { "dev",          push_st_dev },
         { "ino",          push_st_ino },
@@ -1067,6 +1063,7 @@ static int tagsGet(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TBREAK];
     NSString *path = [skin toNSObjectAtIndex:1];
+
     NSArray *tags = tags_from_file(L, path);
     if (!tags) {
         lua_pushnil(L);
@@ -1099,28 +1096,11 @@ static int tagsAdd(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
     NSString *path = [skin toNSObjectAtIndex:1];
-    NSURL *url = path_to_nsurl(path);
-    NSArray *existingTags = tags_from_file(L, path);
-    if (!existingTags || !url) {
-        return 0;
-    }
 
-    NSMutableSet *oldTags = [NSMutableSet setWithArray:existingTags];
-    NSMutableSet *newTags = [[NSMutableSet alloc] init];
-
-    lua_pushnil(L);
-    while (lua_next(L, 2) != 0) {
-        if (lua_type(L, -1) == LUA_TSTRING) {
-            NSString *tag = [skin toNSObjectAtIndex:-1];
-            [newTags addObject:tag];
-        }
-
-        lua_pop(L, 1);
-    }
-
+    NSMutableSet *oldTags = [NSMutableSet setWithArray:tags_from_file(L, path)];
+    NSMutableSet *newTags = [NSMutableSet setWithArray:tags_from_lua_stack(L)];
     [newTags unionSet:oldTags];
-
-    tags_to_file(L, path_to_nsurl(path), [newTags allObjects]);
+    tags_to_file(L, path, [newTags allObjects]);
 
     return 0;
 }
@@ -1139,24 +1119,9 @@ static int tagsSet(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
     NSString *path = [skin toNSObjectAtIndex:1];
-    NSURL *url = path_to_nsurl(path);
-    if (!url) {
-        return 0;
-    }
 
-    NSMutableArray *tags = [[NSMutableArray alloc] init];
-
-    lua_pushnil(L);
-    while (lua_next(L, 2) != 0) {
-        if (lua_type(L, -1) == LUA_TSTRING) {
-            NSString *tag = [skin toNSObjectAtIndex:-1];
-            [tags addObject:tag];
-        }
-
-        lua_pop(L, 1);
-    }
-
-    tags_to_file(L, url, tags);
+    NSArray *tags = tags_from_lua_stack(L);
+    tags_to_file(L, path, tags);
 
     return 0;
 }
@@ -1175,28 +1140,11 @@ static int tagsRemove(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK];
     NSString *path = [skin toNSObjectAtIndex:1];
-    NSURL *url = path_to_nsurl(path);
-    NSArray *tags = tags_from_file(L, path);
-    if (!url || !tags) {
-        return 0;
-    }
+    NSMutableSet *removeTags = [NSMutableSet setWithArray:tags_from_lua_stack(L)];
 
-    NSMutableArray *removeTags = [[NSMutableArray alloc] init];
-
-    lua_pushnil(L);
-    while (lua_next(L, 2) != 0) {
-        if (lua_type(L, -1) == LUA_TSTRING) {
-            NSString *tag = [skin toNSObjectAtIndex:-1];
-            [removeTags addObject:tag];
-        }
-
-        lua_pop(L, 1);
-    }
-
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"NOT SELF IN %@", removeTags];
-    tags = [tags filteredArrayUsingPredicate:predicate];
-
-    tags_to_file(L, url, tags);
+    NSMutableSet *tags = [NSMutableSet setWithArray:tags_from_file(L, path)];
+    [tags minusSet:removeTags];
+    tags_to_file(L, path, [tags allObjects]);
 
     return 0;
 }
@@ -1215,7 +1163,7 @@ static int hs_temporaryDirectory(lua_State *L) {
     return 1 ;
 }
 
-/// hs.fs.fileUTI(path) -> string
+/// hs.fs.fileUTI(path) -> string or nil
 /// Function
 /// Returns the Uniform Type Identifier for the file location specified.
 ///
@@ -1223,15 +1171,17 @@ static int hs_temporaryDirectory(lua_State *L) {
 ///  * path - the path to the file to return the UTI for.
 ///
 /// Returns:
-///  * a string containing the Uniform Type Identifier for the file location specified.
+///  * a string containing the Uniform Type Identifier for the file location specified or nil if an error occured
 static int hs_fileuti(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSString *path = [NSString stringWithUTF8String:path_at_index(L, 1)];
+
     NSError *error ;
-    NSString *type = [[NSWorkspace sharedWorkspace] typeOfFile:[[skin toNSObjectAtIndex:1] stringByExpandingTildeInPath]
-                                                         error:&error] ;
+    NSString *type = [[NSWorkspace sharedWorkspace] typeOfFile:path error:&error] ;
     if (error) {
-        return luaL_error(L, "%s", [[error localizedDescription] UTF8String]) ;
+        lua_pushnil(L);
+        [skin logError:[error localizedDescription]];
     }
     [skin pushNSObject:type] ;
     return 1 ;

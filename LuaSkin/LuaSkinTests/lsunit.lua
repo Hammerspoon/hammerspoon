@@ -132,6 +132,49 @@ function assertTableNotEmpty(a)
   assertGreaterThan(0, #a)
 end
 
+local function sortAll(t)
+  local nt = {}
+  for _, v in ipairs(t) do
+    nt[#nt+1] = type(v) == "table" and table.concat(sortAll(v)) or tostring(v)
+  end
+  table.sort(nt)
+  return nt
+end
+
+function assertListsEqual(l1, l2, strict)
+  strict = strict or false
+  assertIsEqual(#l1, #l2)
+  if not strict then l1, l2 = sortAll(l1), sortAll(l2) end
+  for i = 1, #l1 do
+    if type(l1[i])=="table" then
+      assertListsEqual(l1[i], l2[i], strict)
+    else
+      assertIsEqual(l1[i], l2[i])
+    end
+  end
+end
+
+local function keys(t)
+  assertIsEqual("table", type(t))
+  local l = {}
+  for k, v in pairs(t) do
+    table.insert(l, k)
+  end
+  table.sort(l)
+  return l
+end
+
+function assertTablesEqual(t1, t2)
+  local t1Keys, t2Keys = keys(t1), keys(t2)
+  assertIsEqual(#t1Keys, #t2Keys)
+  for i=1, #t1Keys do
+    if type(t1[t1Keys[i]]) == "table" then
+      assertTablesEqual(t1[t1Keys[i]], t2[t1Keys[i]])
+    else
+      assertIsEqual(t1[t1Keys[i]], t2[t1Keys[i]])
+    end
+  end
+end
 
 -- Leave this at the end of the file
 print ('-- Test harness lsunit.lua loaded. Loading testinit.lua...')
