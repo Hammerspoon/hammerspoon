@@ -124,6 +124,11 @@ static BOOL MJFirstRunForCurrentVersion(void) {
         [[MJPreferencesWindowController singleton] showWindow: nil];
 }
 
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+    MJLuaDestroy();
+    return NSTerminateNow;
+}
+
 - (void) registerDefaultDefaults {
     [[NSUserDefaults standardUserDefaults]
      registerDefaults: @{@"NSApplicationCrashOnExceptions": @YES,
@@ -154,8 +159,6 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 }
 
 - (IBAction) quitHammerspoon:(id)sender {
-    MJLuaDeinit();
-    MJLuaDealloc();
     [[NSApplication sharedApplication] terminate:nil];
 }
 
