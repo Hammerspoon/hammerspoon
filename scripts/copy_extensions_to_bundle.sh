@@ -4,7 +4,6 @@ set -eux
 export HS_RESOURCES="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
 export HS_DST="${HS_RESOURCES}/extensions/hs"
 export HS_MODULES="alert \
-    applescript \
     application \
     audiodevice \
     base64 \
@@ -26,7 +25,6 @@ export HS_MODULES="alert \
     httpserver \
     image \
     ipc \
-    javascript \
     json \
     keycodes \
     location \
@@ -60,12 +58,14 @@ export HS_WATCHERS="application \
     wifi"
 export HS_LUAONLY="_coresetup \
     appfinder \
+    applescript \
     expose \
     fnutils \
     geometry \
     grid \
     inspect \
     itunes \
+    javascript \
     layout \
     logger \
     messages \
