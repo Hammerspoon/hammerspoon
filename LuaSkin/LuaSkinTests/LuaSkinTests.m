@@ -97,6 +97,17 @@ static const luaL_Reg objectFunctions[] = {
     {NULL, NULL}
 };
 
+@interface LuaSkinUserdataTestType : NSObject
+@end
+
+@implementation LuaSkinUserdataTestType
+@end
+
+static int pushTestUserData(lua_State *L, id object) {
+    lua_pushinteger(L, 682568);
+    return 1;
+}
+
 #pragma mark - Test case harness definition
 
 @interface LuaSkinTests : XCTestCase {
@@ -343,18 +354,21 @@ static const luaL_Reg objectFunctions[] = {
     [skin registerObject:userDataType objectFunctions:userDataMetaTable];
 
     lua_settop(skin.L, 0);
+
     lua_pushnil(skin.L);
     lua_pushboolean(skin.L, true);
-    lua_pushinteger(skin.L, 5);
+    lua_pushnumber(skin.L, 5.2);
+    lua_pushinteger(skin.L, 12);
     lua_pushstring(skin.L, "This is a string");
     lua_newtable(skin.L);
     luaL_loadstring(skin.L, "function foo() end");
     lua_newuserdata(skin.L, sizeof(void *));
     luaL_getmetatable(skin.L, userDataType);
     lua_setmetatable(skin.L, -2);
+    lua_pushnil(skin.L);
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [skin checkArgs:LS_TNIL, LS_TBOOLEAN, LS_TNUMBER, LS_TSTRING, LS_TTABLE, LS_TFUNCTION, LS_TUSERDATA, userDataType, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+        [skin checkArgs:LS_TNIL, LS_TBOOLEAN, LS_TNUMBER, LS_TNUMBER | LS_TINTEGER, LS_TSTRING, LS_TTABLE, LS_TFUNCTION, LS_TUSERDATA, userDataType, LS_TANY, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
         [expectation fulfill];
     });
 
@@ -430,7 +444,63 @@ static const luaL_Reg objectFunctions[] = {
     [skin pushNSObject:selfRefDict];
     XCTAssertEqual(LUA_TTABLE, lua_type(skin.L, -1));
 
-    // FIXME: This does not yet test a push helper, all permutations of NSNumber
+    const char *userDataType = "LuaSkinUserdataTestType";
+    const luaL_Reg userDataMetaTable[] = {
+        {NULL, NULL},
+    };
+    [skin registerObject:userDataType objectFunctions:userDataMetaTable];
+    [skin registerPushNSHelper:pushTestUserData forClass:"LuaSkinUserdataTestType"];
+    LuaSkinUserdataTestType *testObject = [[LuaSkinUserdataTestType alloc] init];
+    [skin pushNSObject:testObject];
+    XCTAssertEqual(682568, lua_tointeger(skin.L, -1));
+
+    // Push the helper again, since that should not explode
+    // FIXME: Really we should capture the log message in a mock delegate class, so we can verify that we got the codepath we expected
+    [skin registerPushNSHelper:pushTestUserData forClass:"LuaSkinUserdataTestType"];
+
+    // Push nonsense
+    // FIXME: This should also be asserting the log message in a mock delegate class
+    [skin registerPushNSHelper:nil forClass:NULL];
+
+    [skin pushNSObject:[NSValue valueWithRect:NSMakeRect(5, 6, 7, 8)]];
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "x"));
+    XCTAssertEqual(5, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "y"));
+    XCTAssertEqual(6, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "w"));
+    XCTAssertEqual(7, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "h"));
+    XCTAssertEqual(8, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+
+    [skin pushNSObject:[NSValue valueWithPoint:NSMakePoint(12, 13)]];
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "x"));
+    XCTAssertEqual(12, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "y"));
+    XCTAssertEqual(13, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+
+    [skin pushNSObject:[NSValue valueWithSize:NSMakeSize(88, 89)]];
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "w"));
+    XCTAssertEqual(88, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "h"));
+    XCTAssertEqual(89, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+
+    [skin pushNSObject:[NSValue valueWithRange:NSMakeRange(42, 10)]];
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "location"));
+    XCTAssertEqual(42, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "length"));
+    XCTAssertEqual(10, lua_tointeger(skin.L, -1));
+    lua_pop(skin.L, 1);
+
+    // FIXME: This does not yet test all permutations of NSNumber
 }
 
 - (void)testLogging {
