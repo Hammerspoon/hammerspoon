@@ -71,6 +71,7 @@
 }
 
 - (void)testVolumes {
+    SKIP_IN_TRAVIS()
     XCTAssertTrue([self luaTestWithCheckAndTimeOut:10 setupCode:@"testVolumes()" checkCode:@"testVolumesValues()"], @"testVolumes test failed");
 }
 

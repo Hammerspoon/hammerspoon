@@ -311,11 +311,13 @@ function testVolumes()
 
   local volumeWatcherCallback = function(event, info)
     if event == hs.fs.volume.didMount then
-      path = info.path:match("(/Volumes/.-)/?$")
+      path = info.path:match("(/Volumes/"..ramdiskName..")/?$")
+      if not path then return end
       os.execute("diskutil rename "..ramdiskName.." "..ramdiskRename)
     end
     if event == hs.fs.volume.didRename then
-      newPath = info.path:match("(/Volumes/.-)/?$")
+      newPath = info.path:match("(/Volumes/"..ramdiskRename..")/?$")
+      if not newPath then return end
       hs.fs.volume.eject(newPath)
       volumeWatcher:stop()
     end
