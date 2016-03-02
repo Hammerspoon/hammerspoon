@@ -1,6 +1,6 @@
 -- hs.fs tests
 
-testDir = "/tmp/hs_fs_test_dir/"
+testDir = "/private/tmp/hs_fs_test_dir/"
 
 function writeFile(filename, contents)
   io.open(filename, "w"):write(contents):close()
