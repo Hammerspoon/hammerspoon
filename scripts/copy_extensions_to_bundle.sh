@@ -125,6 +125,9 @@ cp -av "${BUILT_PRODUCTS_DIR}/libnetworkhost.dylib" "${HS_DST}/network/hostinter
 cp -av "${SRCROOT}/extensions/network/reachability.lua" "${HS_DST}/network/reachability.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libnetworkreachability.dylib" "${HS_DST}/network/reachabilityinternal.so"
 
+# Special copier for hs.socket.udp
+cp -av "${BUILT_PRODUCTS_DIR}/libsocketudp.dylib" "${HS_DST}/socket/udp.so"
+
 # Special copier for hs.window submodules
 cp -av "${SRCROOT}/extensions/window/filter.lua" "${HS_DST}/window/filter.lua"
 cp -av "${SRCROOT}/extensions/window/tiling.lua" "${HS_DST}/window/tiling.lua"

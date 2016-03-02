@@ -60,7 +60,17 @@
 --- ~~~
 ---
 
+--- === hs.socket.udp ===
+---
+--- Talk to custom protocols using UDP sockets
+---
+
 local module = require("hs.socket.internal")
+
+module.udp = require("hs.socket.udp")
+
+local socketObject = hs.getObjectMetatable("hs.socket")
+local udpSocketObject = hs.getObjectMetatable("hs.socket.udp")
 
 --- hs.socket.server(port[, fn]) -> hs.socket object
 --- Constructor
