@@ -18,10 +18,61 @@ typedef struct luaObjectHelpers {
     luaObjectHelperFunction func ;
 } luaObjectHelpers ;
 
+#pragma mark - C-Support Functions
+
+static int pushCMTime(lua_State *L, CMTime holder) {
+    lua_newtable(L) ;
+    lua_pushinteger(L, holder.value) ;     lua_setfield(L, -2, "value") ;
+    lua_pushinteger(L, holder.timescale) ; lua_setfield(L, -2, "timescale") ;
+    lua_newtable(L) ;
+    if (holder.flags & kCMTimeFlags_Valid) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "valid") ;
+    }
+    if (holder.flags & kCMTimeFlags_HasBeenRounded) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "hasBeenRounded") ;
+    }
+    if (holder.flags & kCMTimeFlags_PositiveInfinity) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "positiveInfinity") ;
+    }
+    if (holder.flags & kCMTimeFlags_NegativeInfinity) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "negativeInfinity") ;
+    }
+    if (holder.flags & kCMTimeFlags_Indefinite) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "indefinite") ;
+    }
+    if (holder.flags & kCMTimeFlags_ImpliedValueFlagsMask) {
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "implied") ;
+    }
+    lua_setfield(L, -2, "flags") ;
+    lua_pushinteger(L, holder.epoch) ; lua_setfield(L, -2, "epoch") ;
+    return 1 ;
+}
+
+static int pushCMTimeRange(lua_State *L, CMTimeRange holder) {
+    lua_newtable(L) ;
+    pushCMTime(L, holder.start) ;    lua_setfield(L, -2, "start") ;
+    pushCMTime(L, holder.duration) ; lua_setfield(L, -2, "duration") ;
+    return 1 ;
+}
+
+static int pushUserdataType(lua_State *L) {
+    // safer than just checking in LuaSkin because we can call this function via pcall
+    // so a userdata without an __index metafield won't cause a Lua error
+    if (lua_getfield(L, 1, "__type") != LUA_TSTRING) {
+        lua_pop(L, 1) ;
+        lua_pushnil(L) ; // only a string is allowed to return, everything else is nil
+    }
+    return 1;
+}
 // Extension to LuaSkin class to allow private modification of the lua_State property
 @interface LuaSkin ()
 
 @property (readwrite, assign) lua_State *L;
+@property (readonly, atomic)  NSMutableDictionary *registeredNSHelperFunctions ;
+@property (readonly, atomic)  NSMutableDictionary *registeredNSHelperLocations ;
+@property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperFunctions ;
+@property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperLocations ;
+@property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
 
 @end
 
@@ -34,6 +85,7 @@ typedef struct luaObjectHelpers {
 - (int)pushNSArray:(id)obj      withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
 - (int)pushNSSet:(id)obj        withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
 - (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSValue:(id)obj      withOptions:(LS_NSConversionOptions)options ;
 
 // internal methods for toNSObjectAtIndex
 - (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
@@ -42,14 +94,6 @@ typedef struct luaObjectHelpers {
 
 @implementation LuaSkin
 
-#pragma mark - Skin Properties
-
-NSMutableDictionary *registeredNSHelperFunctions ;
-NSMutableDictionary *registeredNSHelperLocations ;
-NSMutableDictionary *registeredLuaObjectHelperFunctions ;
-NSMutableDictionary *registeredLuaObjectHelperLocations ;
-NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
-
 #pragma mark - Class lifecycle
 
 + (id)shared {
@@ -57,11 +101,6 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedLuaSkin = [[self alloc] init];
-        registeredNSHelperFunctions = [[NSMutableDictionary alloc] init] ;
-        registeredNSHelperLocations = [[NSMutableDictionary alloc] init] ;
-        registeredLuaObjectHelperFunctions = [[NSMutableDictionary alloc] init] ;
-        registeredLuaObjectHelperLocations = [[NSMutableDictionary alloc] init] ;
-        registeredLuaObjectHelperUserdataMappings = [[NSMutableDictionary alloc] init];
     });
     if (![NSThread isMainThread]) {
         NSLog(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
@@ -81,6 +120,11 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     self = [super init];
     if (self) {
         _L = NULL;
+        _registeredNSHelperFunctions               = [[NSMutableDictionary alloc] init] ;
+        _registeredNSHelperLocations               = [[NSMutableDictionary alloc] init] ;
+        _registeredLuaObjectHelperFunctions        = [[NSMutableDictionary alloc] init] ;
+        _registeredLuaObjectHelperLocations        = [[NSMutableDictionary alloc] init] ;
+        _registeredLuaObjectHelperUserdataMappings = [[NSMutableDictionary alloc] init];
         [self createLuaState];
     }
     return self;
@@ -100,11 +144,11 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (self.L) {
         lua_close(self.L);
-        [registeredNSHelperFunctions removeAllObjects] ;
-        [registeredNSHelperLocations removeAllObjects] ;
-        [registeredLuaObjectHelperFunctions removeAllObjects] ;
-        [registeredLuaObjectHelperLocations removeAllObjects] ;
-        [registeredLuaObjectHelperUserdataMappings removeAllObjects];
+        [self.registeredNSHelperFunctions               removeAllObjects] ;
+        [self.registeredNSHelperLocations               removeAllObjects] ;
+        [self.registeredLuaObjectHelperFunctions        removeAllObjects] ;
+        [self.registeredLuaObjectHelperLocations        removeAllObjects] ;
+        [self.registeredLuaObjectHelperUserdataMappings removeAllObjects];
     }
     self.L = NULL;
 }
@@ -270,7 +314,7 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
     va_start(args, firstArg);
 
     while (true) {
-        if (spec == LS_TBREAK) {
+        if (spec & LS_TBREAK) {
             idx--;
             break;
         }
@@ -288,8 +332,14 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
                     idx--;
                     goto nextarg;
                 }
-                lsType = LS_TNONE;
-                // FIXME: should there be a break here? If not, document why not
+//                 lsType = LS_TNONE;
+//                // FIXME: should there be a break here? If not, document why not
+//
+// I think the reason is this:
+//
+// if it was none because of an optional argument, we've already jumped out of this.  Otherwise,
+// this really should generate a missing argument error; since Lua's error routines indicate nil
+// when an expected argument isn't specified, fall through to LUA_TNIL...
             case LUA_TNIL:
                 lsType = LS_TNIL;
                 break;
@@ -298,6 +348,15 @@ NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
                 break;
             case LUA_TNUMBER:
                 lsType = LS_TNUMBER;
+
+                if ((spec & lsType) && (spec & LS_TINTEGER)) {
+                    int isInteger ;
+                    lua_tointegerx(self.L, idx, &isInteger) ;
+                    if (!isInteger) {
+                        luaL_error(self.L, "ERROR: number must be an integer for argument %d", idx) ;
+                    }
+                }
+
                 break;
             case LUA_TSTRING:
                 lsType = LS_TSTRING;
@@ -336,8 +395,10 @@ nextarg:
     }
     va_end(args);
 
-    if (idx != numArgs) {
-        luaL_error(self.L, "ERROR: incorrect number of arguments. Expected %d, got %d", idx, numArgs);
+    if (!(spec & LS_TVARARG)) {
+        if (idx != numArgs) {
+            luaL_error(self.L, "ERROR: incorrect number of arguments. Expected %d, got %d", idx, numArgs);
+        }
     }
 }
 
@@ -364,17 +425,17 @@ nextarg:
     if (level == 0) level = 3 ;
 
     if (className && helperFN) {
-        if (registeredNSHelperFunctions[@(className)]) {
+        if (self.registeredNSHelperFunctions[@(className)]) {
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerPushNSHelper:forClass:%s already defined at %@",
                                                         className,
-                              registeredNSHelperLocations[@(className)]]
+                                                        self.registeredNSHelperLocations[@(className)]]
                 fromStackPos:level] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            registeredNSHelperLocations[@(className)] = locationString;
-            registeredNSHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
+            self.registeredNSHelperLocations[@(className)] = locationString;
+            self.registeredNSHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
             lua_pop(self.L, 1) ;
             allGood = YES ;
         }
@@ -425,9 +486,9 @@ nextarg:
 - (id)luaObjectAtIndex:(int)idx toClass:(char *)className {
     NSString *theClass = @(className) ;
 
-    for (id key in registeredLuaObjectHelperFunctions) {
+    for (id key in self.registeredLuaObjectHelperFunctions) {
         if ([theClass isEqualToString:key]) {
-            luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[registeredLuaObjectHelperFunctions[key] pointerValue] ;
+            luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[self.registeredLuaObjectHelperFunctions[key] pointerValue] ;
             return theFunc(self.L, lua_absindex(self.L, idx)) ;
         }
     }
@@ -442,17 +503,17 @@ nextarg:
     if (level == 0) level = 3 ;
 
     if (className && helperFN) {
-        if (registeredLuaObjectHelperFunctions[@(className)]) {
+        if (self.registeredLuaObjectHelperFunctions[@(className)]) {
             [self logAtLevel:LS_LOG_WARN
                  withMessage:[NSString stringWithFormat:@"registerLuaObjectHelper:forClass:%s already defined at %@",
                                                         className,
-                                                        registeredLuaObjectHelperFunctions[@(className)]]
+                                                        self.registeredLuaObjectHelperFunctions[@(className)]]
                 fromStackPos:level] ;
         } else {
             luaL_where(self.L, level) ;
             NSString *locationString = @(lua_tostring(self.L, -1)) ;
-            registeredLuaObjectHelperLocations[@(className)] = locationString;
-            registeredLuaObjectHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
+            self.registeredLuaObjectHelperLocations[@(className)] = locationString;
+            self.registeredLuaObjectHelperFunctions[@(className)] = [NSValue valueWithPointer:(void *)helperFN];
             lua_pop(self.L, 1) ;
             allGood = YES ;
         }
@@ -467,7 +528,7 @@ nextarg:
 - (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
     if (allGood)
-        registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
+        self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
     return allGood ;
 }
 
@@ -519,6 +580,7 @@ nextarg:
 
 // maxn   returns the largest integer key in the table
 - (lua_Integer)maxNatIndex:(int)idx {
+    idx = lua_absindex(self.L, idx) ;
     lua_Integer max = 0;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
         lua_pushnil(self.L);  /* first key */
@@ -539,6 +601,7 @@ nextarg:
 
 // countn returns the number of items of any key type in the table
 - (lua_Integer)countNatIndex:(int)idx {
+    idx = lua_absindex(self.L, idx) ;
     lua_Integer max = 0;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
         lua_pushnil(self.L);  /* first key */
@@ -558,7 +621,7 @@ nextarg:
     if (lua_type(self.L, idx) != LUA_TSTRING && lua_type(self.L, idx) != LUA_TNUMBER) return NO ;
 
     size_t len ;
-    unsigned const char *str = (unsigned const char *)lua_tolstring(self.L, idx, &len) ;
+    unsigned char *str = (unsigned char *)lua_tolstring(self.L, idx, &len) ;
 
     size_t i = 0;
 
@@ -684,10 +747,11 @@ nextarg:
 
         // check for registered helpers
 
-        for (id key in registeredNSHelperFunctions) {
+        for (id key in self.registeredNSHelperFunctions) {
             if ([obj isKindOfClass: NSClassFromString(key)]) {
-                pushNSHelperFunction theFunc = (pushNSHelperFunction)[registeredNSHelperFunctions[key] pointerValue] ;
-                return theFunc(self.L, obj) ;
+                pushNSHelperFunction theFunc = (pushNSHelperFunction)[self.registeredNSHelperFunctions[key] pointerValue] ;
+                int resultAnswer = theFunc(self.L, obj) ;
+                if (resultAnswer > -1) return resultAnswer ;
             }
         }
 
@@ -697,6 +761,9 @@ nextarg:
             lua_pushnil(self.L) ;
         } else if ([obj isKindOfClass:[NSNumber class]]) {
             [self pushNSNumber:obj withOptions:options] ;
+// Note, the NSValue check must come *after* the NSNumber check, as NSNumber is a sub-class of NSValue
+        } else if ([obj isKindOfClass:[NSValue class]]) {
+            [self pushNSValue:obj withOptions:options] ;
         } else if ([obj isKindOfClass:[NSString class]]) {
                 size_t size = [(NSString *)obj lengthOfBytesUsingEncoding:NSUTF8StringEncoding] ;
                 lua_pushlstring(self.L, [(NSString *)obj UTF8String], size) ;
@@ -778,6 +845,116 @@ nextarg:
     return 1 ;
 }
 
+// Note, options is currently unused in this category method, but it's included here in case a
+// reason for an NSValue related option comes up
+- (int)pushNSValue:(id)obj withOptions:(__unused LS_NSConversionOptions)options {
+    NSValue    *value    = obj;
+    const char *objCType = [value objCType];
+
+    if (strcmp(objCType, @encode(NSPoint))==0) {
+        [self pushNSPoint:[value pointValue]] ;
+    } else if (strcmp(objCType, @encode(NSSize))==0) {
+        [self  pushNSSize:[value sizeValue]] ;
+    } else if (strcmp(objCType, @encode(NSRect))==0) {
+        [self  pushNSRect:[value rectValue]] ;
+    } else if (strcmp(objCType, @encode(NSRange))==0) {
+        NSRange holder = [value rangeValue] ;
+        lua_newtable(self.L) ;
+        lua_pushinteger(self.L, (lua_Integer)holder.location) ; lua_setfield(self.L, -2, "location") ;
+        lua_pushinteger(self.L, (lua_Integer)holder.length) ;   lua_setfield(self.L, -2, "length") ;
+    } else if (strcmp(objCType, @encode(CATransform3D))==0) {
+        CATransform3D holder = [value CATransform3DValue] ;
+        lua_newtable(self.L) ;
+        lua_pushnumber(self.L, holder.m11) ; lua_setfield(self.L, -2, "m11") ;
+        lua_pushnumber(self.L, holder.m12) ; lua_setfield(self.L, -2, "m12") ;
+        lua_pushnumber(self.L, holder.m13) ; lua_setfield(self.L, -2, "m13") ;
+        lua_pushnumber(self.L, holder.m14) ; lua_setfield(self.L, -2, "m14") ;
+        lua_pushnumber(self.L, holder.m21) ; lua_setfield(self.L, -2, "m21") ;
+        lua_pushnumber(self.L, holder.m22) ; lua_setfield(self.L, -2, "m22") ;
+        lua_pushnumber(self.L, holder.m23) ; lua_setfield(self.L, -2, "m23") ;
+        lua_pushnumber(self.L, holder.m24) ; lua_setfield(self.L, -2, "m24") ;
+        lua_pushnumber(self.L, holder.m31) ; lua_setfield(self.L, -2, "m31") ;
+        lua_pushnumber(self.L, holder.m32) ; lua_setfield(self.L, -2, "m32") ;
+        lua_pushnumber(self.L, holder.m33) ; lua_setfield(self.L, -2, "m33") ;
+        lua_pushnumber(self.L, holder.m34) ; lua_setfield(self.L, -2, "m34") ;
+        lua_pushnumber(self.L, holder.m41) ; lua_setfield(self.L, -2, "m41") ;
+        lua_pushnumber(self.L, holder.m42) ; lua_setfield(self.L, -2, "m42") ;
+        lua_pushnumber(self.L, holder.m43) ; lua_setfield(self.L, -2, "m43") ;
+        lua_pushnumber(self.L, holder.m44) ; lua_setfield(self.L, -2, "m44") ;
+// technically not needed, since the SCNMatrix4 encoding is identical to that of CATransform3D,
+// but since they are separate methods in NSValue, there is the not quite zero possibility that
+// the encodings could change, so... go ahead and "check" for it...
+    } else if (strcmp(objCType, @encode(SCNMatrix4))==0) {
+        SCNMatrix4 holder = [value SCNMatrix4Value] ;
+        lua_newtable(self.L) ;
+        lua_pushnumber(self.L, holder.m11) ; lua_setfield(self.L, -2, "m11") ;
+        lua_pushnumber(self.L, holder.m12) ; lua_setfield(self.L, -2, "m12") ;
+        lua_pushnumber(self.L, holder.m13) ; lua_setfield(self.L, -2, "m13") ;
+        lua_pushnumber(self.L, holder.m14) ; lua_setfield(self.L, -2, "m14") ;
+        lua_pushnumber(self.L, holder.m21) ; lua_setfield(self.L, -2, "m21") ;
+        lua_pushnumber(self.L, holder.m22) ; lua_setfield(self.L, -2, "m22") ;
+        lua_pushnumber(self.L, holder.m23) ; lua_setfield(self.L, -2, "m23") ;
+        lua_pushnumber(self.L, holder.m24) ; lua_setfield(self.L, -2, "m24") ;
+        lua_pushnumber(self.L, holder.m31) ; lua_setfield(self.L, -2, "m31") ;
+        lua_pushnumber(self.L, holder.m32) ; lua_setfield(self.L, -2, "m32") ;
+        lua_pushnumber(self.L, holder.m33) ; lua_setfield(self.L, -2, "m33") ;
+        lua_pushnumber(self.L, holder.m34) ; lua_setfield(self.L, -2, "m34") ;
+        lua_pushnumber(self.L, holder.m41) ; lua_setfield(self.L, -2, "m41") ;
+        lua_pushnumber(self.L, holder.m42) ; lua_setfield(self.L, -2, "m42") ;
+        lua_pushnumber(self.L, holder.m43) ; lua_setfield(self.L, -2, "m43") ;
+        lua_pushnumber(self.L, holder.m44) ; lua_setfield(self.L, -2, "m44") ;
+    } else if (strcmp(objCType, @encode(CMTime))==0) {
+        pushCMTime(self.L, [value CMTimeValue]) ;
+    } else if (strcmp(objCType, @encode(CMTimeRange))==0) {
+        pushCMTimeRange(self.L, [value CMTimeRangeValue]) ;
+    } else if (strcmp(objCType, @encode(CMTimeMapping))==0) {
+        CMTimeMapping holder = [value CMTimeMappingValue] ;
+        lua_newtable(self.L) ;
+        pushCMTimeRange(self.L, holder.source) ; lua_setfield(self.L, -2, "source") ;
+        pushCMTimeRange(self.L, holder.target) ; lua_setfield(self.L, -2, "target") ;
+    } else if (strcmp(objCType, @encode(CLLocationCoordinate2D))==0) { // MKCoordinateValue
+        CLLocationCoordinate2D holder = [value MKCoordinateValue] ;
+        lua_newtable(self.L) ;
+        lua_pushnumber(self.L, holder.latitude) ;  lua_setfield(self.L, -2, "latitude") ;
+        lua_pushnumber(self.L, holder.longitude) ; lua_setfield(self.L, -2, "longitude") ;
+    } else if (strcmp(objCType, @encode(MKCoordinateSpan))==0) {
+        MKCoordinateSpan holder = [value MKCoordinateSpanValue] ;
+        lua_newtable(self.L) ;
+        lua_pushnumber(self.L, holder.latitudeDelta) ;  lua_setfield(self.L, -2, "latitudeDelta") ;
+        lua_pushnumber(self.L, holder.longitudeDelta) ; lua_setfield(self.L, -2, "longitudeDelta") ;
+    } else if (strcmp(objCType, @encode(SCNVector3))==0) {
+        SCNVector3 holder = [value SCNVector3Value] ;
+        lua_newtable(self.L) ;
+        lua_pushnumber(self.L, holder.x) ; lua_setfield(self.L, -2, "x") ;
+        lua_pushnumber(self.L, holder.y) ; lua_setfield(self.L, -2, "y") ;
+        lua_pushnumber(self.L, holder.z) ; lua_setfield(self.L, -2, "z") ;
+    } else if (strcmp(objCType, @encode(SCNVector4))==0) {
+        SCNVector4 holder = [value SCNVector4Value] ;
+        lua_newtable(self.L) ;
+        lua_pushnumber(self.L, holder.x) ; lua_setfield(self.L, -2, "x") ;
+        lua_pushnumber(self.L, holder.y) ; lua_setfield(self.L, -2, "y") ;
+        lua_pushnumber(self.L, holder.z) ; lua_setfield(self.L, -2, "z") ;
+        lua_pushnumber(self.L, holder.w) ; lua_setfield(self.L, -2, "w") ;
+    } else {
+        NSUInteger actualSize, alignedSize ;
+        NSGetSizeAndAlignment(objCType, &actualSize, &alignedSize) ;
+
+        lua_newtable(self.L) ;
+        lua_pushstring(self.L, objCType) ;                  lua_setfield(self.L, -2, "objCType") ;
+        lua_pushinteger(self.L, (lua_Integer)actualSize) ;  lua_setfield(self.L, -2, "actualSize") ;
+        lua_pushinteger(self.L, (lua_Integer)alignedSize) ; lua_setfield(self.L, -2, "alignedSize") ;
+
+        NSUInteger workingSize = MAX(actualSize, alignedSize) ;
+
+        void* ptr = malloc(workingSize) ;
+        [value getValue:ptr] ;
+        [self pushNSObject:[NSData dataWithBytes:ptr length:workingSize]] ;
+        lua_setfield(self.L, -2, "data") ;
+        free(ptr) ;
+    }
+    return 1;
+}
+
 - (int)pushNSArray:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray* list = obj;
     lua_newtable(self.L);
@@ -808,7 +985,7 @@ nextarg:
 }
 
 - (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-    NSArray *keys = [obj allKeys];
+    NSArray *keys   = [obj allKeys];
     NSArray *values = [obj allValues];
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
@@ -882,18 +1059,29 @@ nextarg:
         case LUA_TTABLE:
             return [self tableAtIndex:realIndex withOptions:options alreadySeenObjects:alreadySeen] ;
         case LUA_TUSERDATA: // Note: This is specifically last, so it can fall through to the default case, for objects we can't handle automatically
-            //FIXME: This seems very unsafe to happen outside a protected call
-            if (lua_getfield(self.L, realIndex, "__type") == LUA_TSTRING) {
-                userdataTag = (char *)lua_tostring(self.L, -1);
+//             //FIXME: This seems very unsafe to happen outside a protected call
+//             if (lua_getfield(self.L, realIndex, "__type") == LUA_TSTRING) {
+//                 userdataTag = (char *)lua_tostring(self.L, -1);
+//             }
+//             lua_pop(self.L, 1);
+            lua_pushcfunction(self.L, pushUserdataType) ;
+            lua_pushvalue(self.L, realIndex) ;
+            if ((lua_pcall(self.L, 1, 1, 0) == LUA_OK) && (lua_type(self.L, -1) == LUA_TSTRING)) {
+               userdataTag = (char *)lua_tostring(self.L, -1);
             }
-            lua_pop(self.L, 1);
+            // if the call errors b/c of missing __init in userdata, the error is on the stack, otherwise our result is.
+            // In either case clean up after ourself.
+            lua_pop(self.L, 1) ;
 
             if (userdataTag) {
-                NSString *classMapping = registeredLuaObjectHelperUserdataMappings[@(userdataTag)];
+                NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)];
                 if (classMapping) {
                     return [self luaObjectAtIndex:realIndex toClass:(char *)[classMapping UTF8String]];
+                } else {
+                    [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", userdataTag]] ;
                 }
             }
+            // we didn't handle the userdata, so fall through
         default:
             if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
                 NSString *answer = @(luaL_tolstring(self.L, idx, NULL));
@@ -1002,7 +1190,7 @@ nextarg:
     } else {
         dispatch_async(dispatch_get_main_queue(), ^{
             [[[self class] shared] logAtLevel:level
-                                  withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
+                             withMessage:[@"(secondary thread): " stringByAppendingString:theMessage]] ;
         }) ;
     }
 }

@@ -14,6 +14,10 @@
 
 
 @import Foundation;
+@import QuartzCore.CATransform3D; // for NSValue conversion of CATransform3D
+@import SceneKit.SceneKitTypes;   // for NSValue conversion of SCNVector3, SCNVector4, SCNMatrix4
+@import AVFoundation.AVTime;      // for NSValue conversion of CMTime, CMTimeRange, CMTimeMapping
+@import MapKit.MKGeometry;        // for NSValue conversion of CLLocationCoordinate2D, MKCoordinateSpan
 #import "lobject.h"
 #import "lapi.h"
 #import "lauxlib.h"
@@ -43,10 +47,14 @@
 #define LS_TFUNCTION      1 << 7
 /*! @define LS_TUSERDATA maps to LUA_TUSERDATA */
 #define LS_TUSERDATA      1 << 8
-/*! @define LS_TNONE maps to LUA_TNONE */
+/*! @define LS_TNONE maps to LUA_TNONE.  Deprecated, as this serves no real use in checkArgs except to provide parity with Lua's LUA_TNONE, which is handled by optional argument tagging or as an argument count error. */
 #define LS_TNONE          1 << 9
 /*! @define LS_TANY indicates that any Lua variable type is accepted */
 #define LS_TANY           1 << 10
+/*! @define LS_TINTEGER Can be OR'd with LS_TNUMBER to specify that the number must be an integer.  This option is ignored if paired with other types. */
+#define LS_TINTEGER       1 << 11
+/*! @define LS_TVARARG Can be OR'd with LS_TBREAK to indicate that any additional arguments on the stack after this location are to be ignored by @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link.  It is the responsibility of the module function to check and use or ignore any additional arguments. */
+#define LS_TVARARG        1 << 12
 
 /*! @/definedblock Bit masks for Lua type checking */
 
@@ -340,11 +348,11 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 
  @remark If the arguments are incorrect, this call will never return and the user will get a nice Lua traceback instead
  @discussion Each argument can use boolean OR's to allow multiple types to be accepted (e.g. LS_TNIL | LS_TBOOLEAN).
- 
+
  Each argument can be OR'd with LS_TOPTIONAL to indicate that the argument is optional.
- 
+
  LS_TUSERDATA arguments should be followed by a string containing the metatable tag name (e.g. "hs.screen" for objects from hs.screen).
- 
+
  @warning The final argument MUST be LS_TBREAK, to signal the end of the list
 
  @param firstArg - An integer that defines the first acceptable Lua argument type. Possible values are LS_TNIL, LS_TBOOLEAN, LS_TNUMBER, LS_TSTRING, LS_TTABLE, LS_TFUNCTION, LS_TUSERDATA, LS_TBREAK. Followed by zero or more integers of the same possible values. The final value MUST be LS_TBREAK
@@ -362,7 +370,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 
  @discussion This method is equivalent to invoking [LuaSkin pushNSObject:obj withOptions:LS_NSNone].  See @link pushNSObject:withOptions: @/link.
 
- The default classes are (in order): NSNull, NSNumber, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
+ The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
 
  @param obj an NSObject
 
@@ -375,7 +383,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 
  @discussion This method takes an NSObject and checks its class against registered classes and then against the built in defaults to determine the best way to represent it in Lua.
 
- @remark The default classes are (in order): NSNull, NSNumber, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
+ @remark The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
 
  @param obj an NSObject
  @param options options for the conversion made by using the bitwise OR operator with members of @link LS_NSConversionOptions @/link.
@@ -466,7 +474,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
    number  - NSNumber numberWithInteger: or NSNumber numberWithDouble:
 
    boolean - NSNumber numberWithBool:
- 
+
    table   - NSArray if table is non-sparse with only integer keys starting at 1 or NSDictionary otherwise
 
  @discussion If the type is in the above list, this method will return nil for the entire conversion, or [NSNull null] or a description of the unrecognized type  for the data or sub-component depending upon the specified options.
