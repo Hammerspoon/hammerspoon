@@ -504,6 +504,88 @@ static int audiodevice_setmuted(lua_State* L) {
     return 1;
 }
 
+/// hs.audiodevice:inputVolume() -> number or nil
+/// Method
+/// Get the current input volume of this audio device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number between 0 and 100, representing the input volume percentage, or nil if the audio device does not support input volume levels
+///
+/// Notes:
+///  * The return value will be a floating point number
+static int audiodevice_inputVolume(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+    Float32 volume;
+    UInt32 volumeSize = sizeof(Float32);
+
+    if (!isInputDevice(deviceId)) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioObjectPropertyScopeInput,
+        kAudioObjectPropertyElementMaster
+    };
+
+    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &volumeSize, &volume) == noErr)) {
+        lua_pushnumber(L, volume * 100.0);
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+/// hs.audiodevice:outputVolume() -> number or nil
+/// Method
+/// Get the current output volume of this audio device
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number between 0 and 100, representing the output volume percentage, or nil if the audio device does not support output volume levels
+///
+/// Notes:
+///  * The return value will be a floating point number
+static int audiodevice_outputVolume(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+    Float32 volume;
+    UInt32 volumeSize = sizeof(Float32);
+
+    if (!isOutputDevice(deviceId)) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioObjectPropertyScopeOutput,
+        kAudioObjectPropertyElementMaster
+    };
+
+    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &volumeSize, &volume) == noErr)) {
+        lua_pushnumber(L, volume * 100.0);
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
 /// hs.audiodevice:volume() -> number or nil
 /// Method
 /// Get the current volume of this audio device
@@ -513,6 +595,10 @@ static int audiodevice_setmuted(lua_State* L) {
 ///
 /// Returns:
 ///  * A number between 0 and 100, representing the volume percentage, or nil if the audio device does not support volume levels
+///
+/// Notes:
+///  * The return value will be a floating point number
+///  * This method will inspect the device to determine if it is an input or output device, and return the appropriate volume. For devices that are both input and output devices, see `:inputVolume()` and `:outputVolume()`
 static int audiodevice_volume(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -545,6 +631,98 @@ static int audiodevice_volume(lua_State* L) {
 
 }
 
+/// hs.audiodevice:setInputVolume(level) -> bool
+/// Method
+/// Set the input volume of this audio device
+///
+/// Parameters:
+///  * level - A number between 0 and 100, representing the input volume as a percentage
+///
+/// Returns:
+///  * True if the volume was set, false if the audio device does not support setting an input volume level
+///
+/// Notes:
+///  * The volume level is a floating point number. Depending on your audio hardware, it may not be possible to increase volume in single digit increments
+static int audiodevice_setInputVolume(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
+
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+    Float32 value = (Float32)lua_tonumber(L, 2);
+
+    if (value < 0) {
+        value = 0;
+    }
+
+    if (value > 100) {
+        value = 100;
+    }
+
+    Float32 volume = (Float32)value / 100.0;
+    UInt32 volumeSize = sizeof(Float32);
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioObjectPropertyScopeInput,
+        kAudioObjectPropertyElementMaster
+    };
+
+    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, volumeSize, &volume) == noErr)) {
+        lua_pushboolean(L, TRUE);
+    } else {
+        lua_pushboolean(L, FALSE);
+    }
+
+    return 1;
+}
+
+/// hs.audiodevice:setOutputtVolume(level) -> bool
+/// Method
+/// Set the output volume of this audio device
+///
+/// Parameters:
+///  * level - A number between 0 and 100, representing the output volume as a percentage
+///
+/// Returns:
+///  * True if the volume was set, false if the audio device does not support setting an output volume level
+///
+/// Notes:
+///  * The volume level is a floating point number. Depending on your audio hardware, it may not be possible to increase volume in single digit increments
+static int audiodevice_setOutputVolume(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
+
+    audioDeviceUserData *audioDevice = userdataToAudioDevice(L, 1);
+    AudioDeviceID deviceId = audioDevice->deviceId;
+    Float32 value = (Float32)lua_tonumber(L, 2);
+
+    if (value < 0) {
+        value = 0;
+    }
+
+    if (value > 100) {
+        value = 100;
+    }
+
+    Float32 volume = (Float32)value / 100.0;
+    UInt32 volumeSize = sizeof(Float32);
+
+    AudioObjectPropertyAddress propertyAddress = {
+        kAudioHardwareServiceDeviceProperty_VirtualMasterVolume,
+        kAudioObjectPropertyScopeOutput,
+        kAudioObjectPropertyElementMaster
+    };
+
+    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, volumeSize, &volume) == noErr)) {
+        lua_pushboolean(L, TRUE);
+    } else {
+        lua_pushboolean(L, FALSE);
+    }
+
+    return 1;
+}
+
 /// hs.audiodevice:setVolume(level) -> bool
 /// Method
 /// Set the volume of this audio device
@@ -554,6 +732,10 @@ static int audiodevice_volume(lua_State* L) {
 ///
 /// Returns:
 ///  * True if the volume was set, false if the audio device does not support setting a volume level.
+///
+/// Notes:
+///  * The volume level is a floating point number. Depending on your audio hardware, it may not be possible to increase volume in single digit increments.
+///  * This method will inspect the device to determine if it is an input or output device, and set the appropriate volume. For devices that are both input and output devices, see `:setInputVolume()` and `:setOutputVolume()`
 static int audiodevice_setvolume(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
@@ -1325,7 +1507,11 @@ static const luaL_Reg audiodevice_metalib[] = {
     {"name",                    audiodevice_name},
     {"uid",                     audiodevice_uid},
     {"volume",                  audiodevice_volume},
+    {"inputVolume",             audiodevice_inputVolume},
+    {"outputVolume",            audiodevice_outputVolume},
     {"setVolume",               audiodevice_setvolume},
+    {"setInputVolume",          audiodevice_setInputVolume},
+    {"setOutputVolume",         audiodevice_setOutputVolume},
     {"muted",                   audiodevice_muted},
     {"setMuted",                audiodevice_setmuted},
     {"transportType",           audiodevice_transportType},
