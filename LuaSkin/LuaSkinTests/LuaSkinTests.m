@@ -204,9 +204,15 @@ static const luaL_Reg objectFunctions[] = {
         }
     }
     @finally {
-        // Put the Lua environment back so teatDown doesn't explode
+        // Put the Lua environment back so tearDown doesn't explode
         [skin createLuaState];
     }
+}
+
+- (void)testLuaStateRecreation {
+    lua_State *oldState = skin.L;
+    [skin resetLuaState];
+    XCTAssertNotEqual(oldState, skin.L, @"lua_State was not replaced by resetLuaState");
 }
 
 - (void)testLuaCanExecute {
@@ -248,7 +254,7 @@ static const luaL_Reg objectFunctions[] = {
     [skin destroyLuaState];
     XCTAssertTrue(libraryGCCalled);
     
-    // Recreate the Lua environment so teatDown doesn't explode
+    // Recreate the Lua environment so tearDown doesn't explode
     [skin createLuaState];
 }
 
@@ -281,4 +287,171 @@ static const luaL_Reg objectFunctions[] = {
     }];
 }
 
+- (void)testLuaRefs {
+    NSString *testString = @"LUAREF_TEST";
+
+    // Set up a table for the refs
+    lua_newtable(skin.L);
+    int tableRef = luaL_ref(skin.L, LUA_REGISTRYINDEX);
+
+    XCTAssertNotEqual(LUA_REFNIL, tableRef, @"tableRef creation returned LUA_REFNIL");
+    XCTAssertNotEqual(LUA_NOREF, tableRef, @"tableRef creation returned LUA_NOREF");
+
+    // Test that reffing a nil fails with LUA_REFNIL
+    lua_pushnil(skin.L);
+    XCTAssertEqual(LUA_REFNIL, [skin luaRef:tableRef], @"reffing a nil did not return LUA_REFNIL");
+
+    lua_pushstring(skin.L, [testString UTF8String]);
+    int ref = [skin luaRef:tableRef atIndex:-1];
+
+    XCTAssertNotEqual(LUA_NOREF, ref, @"luaRef returned LUA_NOREF");
+    XCTAssertNotEqual(LUA_NOREF, ref, @"luaRef returned LUA_REFNIL");
+    XCTAssertGreaterThanOrEqual(ref, 0, @"luaRef returned negative ref");
+
+    [skin pushLuaRef:tableRef ref:ref];
+
+    NSString *resultString = @(lua_tostring(skin.L, -1));
+
+    XCTAssertEqualObjects(testString, resultString, @"Reffed string did not come back the same");
+
+    ref = [skin luaUnref:tableRef ref:ref];
+
+    XCTAssertEqual(LUA_NOREF, ref, @"luaUnref did not return LUA_NOREF");
+
+    @try {
+        // This should throw an NSInternalInconsistencyException
+        [skin pushLuaRef:tableRef ref:ref];
+    }
+    @catch (NSException *exception) {
+        if (exception.name != NSInternalInconsistencyException) {
+            XCTFail(@"Double Destruction raised the wrong kind of exception: %@", exception.name);
+        }
+    }
+
+    int refType = [skin pushLuaRef:tableRef ref:99999];
+    XCTAssertEqual(LUA_TNIL, refType);
+
+}
+
+- (void)testCheckArgs {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"checkArgsTypes"];
+
+    const char *userDataType = "LuaSkinUserdataTestType";
+    const luaL_Reg userDataMetaTable[] = {
+        {NULL, NULL},
+    };
+    [skin registerObject:userDataType objectFunctions:userDataMetaTable];
+
+    lua_settop(skin.L, 0);
+    lua_pushnil(skin.L);
+    lua_pushboolean(skin.L, true);
+    lua_pushinteger(skin.L, 5);
+    lua_pushstring(skin.L, "This is a string");
+    lua_newtable(skin.L);
+    luaL_loadstring(skin.L, "function foo() end");
+    lua_newuserdata(skin.L, sizeof(void *));
+    luaL_getmetatable(skin.L, userDataType);
+    lua_setmetatable(skin.L, -2);
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [skin checkArgs:LS_TNIL, LS_TBOOLEAN, LS_TNUMBER, LS_TSTRING, LS_TTABLE, LS_TFUNCTION, LS_TUSERDATA, userDataType, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+        [expectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:1.0 handler:^(NSError *error) {
+        if (error) {
+            NSLog(@"testCheckArgs error: %@", error);
+        } else {
+            NSLog(@"testCheckArgs no error");
+        }
+    }];
+
+    // FIXME: This test does nothing to test failure conditions. It's hard because luaL_error() is involved, and it calls abort().
+    // It seems like we need to set a lua_atpanic() function and have that long jump to safety to prevent the abort(), but what can we jump to?
+}
+
+- (void)testPushNSObject {
+    // Test pushing an NSString (note that in this case we test the return value. There are only two return points in pushNSObject, so subsequent tests only re-test the return value if they are expecting something other than 1
+    NSString *pushString = @"Test push string";
+    XCTAssertEqual(1, [skin pushNSObject:pushString]);
+    XCTAssertEqualObjects(pushString, @(lua_tostring(skin.L, -1)));
+
+    // Test pushing an NSNull
+    [skin pushNSObject:[NSNull null]];
+    XCTAssertEqual(LUA_TNIL, lua_type(skin.L, -1));
+
+    // Test pushing an NSArray
+    [skin pushNSObject:@[@"1", @"2"]];
+    XCTAssertEqual(LUA_TTABLE, lua_type(skin.L, -1));
+
+    // Test pushing an NSNumber
+    [skin pushNSObject:[NSNumber numberWithInt:42]];
+    XCTAssertEqual(42, lua_tointeger(skin.L, -1));
+
+    // Test pushing an NSDictionary
+    [skin pushNSObject:@{@"1" : @"foo", @"2" : @"bar"}];
+    XCTAssertEqual(LUA_TTABLE, lua_type(skin.L, -1));
+
+    // Test pushing an NSURL
+    [skin pushNSObject:[NSURL URLWithString:@"http://www.hammerspoon.org"]];
+    XCTAssertEqualObjects(@"http://www.hammerspoon.org", @(lua_tostring(skin.L, -1)));
+
+    // Test pushing an unrecognised type
+    [skin pushNSObject:[[NSObject alloc] init]];
+    XCTAssertEqual(LUA_TNIL, lua_type(skin.L, -1));
+
+    // Test pushing an unrecognised type, with an option to convert unknown types to string descriptions
+    [skin pushNSObject:[[NSObject alloc] init] withOptions:LS_NSDescribeUnknownTypes];
+    XCTAssertEqual(LUA_TSTRING, lua_type(skin.L, -1));
+
+    // Test pushing an unrecognised type, with an option to ignore unknown types
+    XCTAssertEqual(0, [skin pushNSObject:[[NSObject alloc] init] withOptions:LS_NSIgnoreUnknownTypes]);
+
+    // Test pushing nil
+    [skin pushNSObject:nil];
+    XCTAssertEqual(LUA_TNIL, lua_type(skin.L, -1));
+
+    // Test pushing an NSDate
+    NSDate *now = [NSDate date];
+    [skin pushNSObject:now];
+    XCTAssertEqual(lround([now timeIntervalSince1970]), lua_tointeger(skin.L, -1));
+
+    // Test pushing an NSData
+    [skin pushNSObject:[@("NSData test") dataUsingEncoding:NSUTF8StringEncoding]];
+    XCTAssertEqualObjects(@("NSData test"), @(lua_tostring(skin.L, -1)));
+
+    // Test pushing an NSSet
+    [skin pushNSObject:[NSSet set]];
+    XCTAssertEqual(LUA_TTABLE, lua_type(skin.L, -1));
+
+    // Test pushing an object which contains itself
+    NSMutableDictionary *selfRefDict = [NSMutableDictionary dictionary];
+    selfRefDict[@"self"] = selfRefDict;
+    [skin pushNSObject:selfRefDict];
+    XCTAssertEqual(LUA_TTABLE, lua_type(skin.L, -1));
+
+    // FIXME: This does not yet test a push helper, all permutations of NSNumber
+}
+
+- (void)testLogging {
+    // FIXME: This doesn't really test anything other than making sure we don't explode
+
+    [skin logBreadcrumb:@"breadcrumb"];
+    [skin logVerbose:@"verbose"];
+    [skin logInfo:@"info"];
+    [skin logDebug:@"debug"];
+    [skin logWarn:@"warn"];
+    [skin logError:@"error"];
+
+    [LuaSkin logBreadcrumb:@"breadcrumb"];
+    [LuaSkin logVerbose:@"verbose"];
+    [LuaSkin logInfo:@"info"];
+    [LuaSkin logDebug:@"debug"];
+    [LuaSkin logWarn:@"warn"];
+    [LuaSkin logError:@"error"];
+}
+
+- (void)testRequire {
+    XCTAssertTrue([skin requireModule:"lsunit"]);
+}
 @end
