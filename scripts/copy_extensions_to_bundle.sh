@@ -37,6 +37,7 @@ export HS_MODULES="alert \
     pathwatcher \
     screen \
     settings \
+    socket \
     sound \
     speech \
     styledtext \
