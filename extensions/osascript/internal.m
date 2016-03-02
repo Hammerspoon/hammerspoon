@@ -29,7 +29,7 @@ static int runosascript(lua_State* L) {
         const char *compileErrorMessage = "Unable to initialize script - perhaps you have a syntax error?";
         [skin logError:[NSString stringWithUTF8String:compileErrorMessage]];
         lua_pushboolean(L, NO);
-        lua_pushstring(L, compileErrorMessage);
+        [skin pushNSObject:[NSString stringWithFormat:@"%@", compileError]];
         lua_pushnil(L);
         return 3;
     }
