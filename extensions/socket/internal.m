@@ -5,6 +5,7 @@
 // Definitions
 @interface HSAsyncSocket : GCDAsyncSocket
 @property int readCallback;
+@property int connectCallback;
 @property NSTimeInterval timeout;
 @property NSMutableArray* connectedSockets;
 @end
@@ -20,7 +21,7 @@ static void readCallback(HSAsyncSocket *asyncSocket, NSData *data, long tag) {
 
     [skin pushLuaRef:refTable ref:asyncSocket.readCallback];
     [skin pushNSObject: utf8Data];
-    lua_pushinteger(skin.L, tag);
+    [skin pushNSObject: @(tag)];
 
     if (![skin protectedCallAndTraceback:2 nresults:0]) {
         const char *errorMsg = lua_tostring(skin.L, -1);
@@ -33,15 +34,25 @@ static void readCallback(HSAsyncSocket *asyncSocket, NSData *data, long tag) {
 
 - (id)init {
     self.readCallback = LUA_NOREF;
+    self.connectCallback = LUA_NOREF;
     self.timeout = -1;
     self.connectedSockets = [[NSMutableArray alloc] init];
     return [super initWithDelegate:self delegateQueue:dispatch_get_main_queue()];
 }
 
 - (void)socket:(HSAsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port {
-    [[LuaSkin shared] logInfo:@"Socket connected"];
-
+    LuaSkin *skin = [LuaSkin shared];
+    [skin logInfo:@"TCP socket connected"];
     sock.userData = DEFAULT;
+
+    if (sock.connectCallback != LUA_NOREF) {
+        [skin pushLuaRef:refTable ref:sock.connectCallback];
+        sock.connectCallback = [skin luaUnref:refTable ref:sock.connectCallback];
+        if (![skin protectedCallAndTraceback:0 nresults:0]) {
+            const char *errorMsg = lua_tostring(skin.L, -1);
+            [skin logError:[NSString stringWithFormat:@"hs.socket connect callback error: %s", errorMsg]];
+        }
+    }
 }
 
 - (void)socket:(HSAsyncSocket *)sock didAcceptNewSocket:(HSAsyncSocket *)newSocket {
@@ -96,31 +107,11 @@ static void readCallback(HSAsyncSocket *asyncSocket, NSData *data, long tag) {
 @end
 
 
-// Establish connection
-static void connectSocket(HSAsyncSocket *asyncSocket, NSString *host, UInt16 port) {
-    NSError *err;
-    if (![asyncSocket connectToHost:host onPort:port withTimeout:asyncSocket.timeout error:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
-    }
-}
-
-// Establish listening port
-static void listenSocket(HSAsyncSocket *asyncSocket, UInt16 port) {
-    NSError *err;
-    if (![asyncSocket acceptOnPort:port error:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to bind port: %@", err]];
-    } else {
-        asyncSocket.userData = SERVER;
-    }
-}
-
-/// hs.socket.new([host], port[, fn]) -> hs.socket object
+/// hs.socket.new([fn]) -> hs.socket object
 /// Constructor
-/// Creates an asynchronous TCP socket object for reading and writing. A callback is required to read data from the socket
+/// Creates an unconnected asynchronous TCP socket object
 ///
 /// Parameters:
-///  * host - A optional string containing the hostname or IP address. If `nil`, a listening socket is created (same as [`hs.socket.server`](#server))
-///  * port - A port number [1-65535]
 ///  * fn - An optional callback function to process data on reads. Can also be set with the [`setCallback`](#setCallback) method
 ///
 /// Returns:
@@ -128,25 +119,16 @@ static void listenSocket(HSAsyncSocket *asyncSocket, UInt16 port) {
 ///
 static int socket_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TSTRING|LS_TNIL, LS_TNUMBER, LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
-
+    [skin checkArgs:LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncSocket *asyncSocket = [[HSAsyncSocket alloc] init];
-    NSString *theHost = [skin toNSObjectAtIndex:1];
-    UInt16 thePort = [[skin toNSObjectAtIndex:2] unsignedShortValue];
 
-    if (lua_type(L, 3) == LUA_TFUNCTION) {
-        lua_pushvalue(L, 3);
+    if (lua_type(L, 1) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 1);
         asyncSocket.readCallback = [skin luaRef:refTable];
     }
 
     lua_getglobal(skin.L, "hs"); lua_getfield(skin.L, -1, "socket"); lua_getfield(skin.L, -1, "timeout");
     asyncSocket.timeout = lua_tonumber(skin.L, -1);
-
-    if (![theHost isEqual:[NSNull null]]) {
-        connectSocket(asyncSocket, theHost, thePort);
-    } else {
-        listenSocket(asyncSocket, thePort);
-    }
 
     // Create the userdata object
     asyncSocketUserData *userData = lua_newuserdata(L, sizeof(asyncSocketUserData));
@@ -210,26 +192,34 @@ static int socket_parseAddress(lua_State *L) {
     return 1;
 }
 
-/// hs.socket:connect(host, port) -> self
+/// hs.socket:connect(host, port[, fn]) -> self
 /// Method
 /// Connects an unconnected [`hs.socket`](#new) instance
 ///
 /// Parameters:
 ///  * host - A string containing the hostname or IP address
 ///  * port - A port number [1-65535]
+///  * fn - An optional callback function to execute after establishing the connection. Takes no parameters
 ///
 /// Returns:
 ///  * The [`hs.socket`](#new) object
 ///
 static int socket_connect(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TBREAK];
-
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
     NSString *theHost = [skin toNSObjectAtIndex:2];
     UInt16 thePort = [[skin toNSObjectAtIndex:3] unsignedShortValue];
 
-    connectSocket(asyncSocket, theHost, thePort);
+    if (lua_type(L, 4) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 4);
+        asyncSocket.connectCallback = [skin luaRef:refTable];
+    }
+
+    NSError *err;
+    if (![asyncSocket connectToHost:theHost onPort:thePort withTimeout:asyncSocket.timeout error:&err]) {
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -248,11 +238,15 @@ static int socket_connect(lua_State *L) {
 static int socket_listen(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
-
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
     UInt16 thePort = [[skin toNSObjectAtIndex:2] unsignedShortValue];
 
-    listenSocket(asyncSocket, thePort);
+    NSError *err;
+    if (![asyncSocket acceptOnPort:thePort error:&err]) {
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to bind port: %@", err]];
+    } else {
+        asyncSocket.userData = SERVER;
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -302,7 +296,7 @@ static int socket_read(lua_State *L) {
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
-    if (!asyncSocket.readCallback || asyncSocket.readCallback == LUA_NOREF) {
+    if (asyncSocket.readCallback == LUA_NOREF) {
         [skin logError:@"No callback defined!"];
         return 0;
     }

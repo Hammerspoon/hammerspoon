@@ -26,6 +26,7 @@
 		4CD96BDE1C73AC1C009FF648 /* udp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CD96BDD1C73AC1C009FF648 /* udp.m */; };
 		4CE6390F1C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
 		4CE639101C76C7F500BB7CD2 /* socket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CE6390E1C76C7F500BB7CD2 /* socket.h */; };
+		4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CE639131C772DC700BB7CD2 /* test_udpsocket.lua */; };
 		4F0676071C32C0B30088C57C /* HSChooserCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F0676051C32C0B30088C57C /* HSChooserCell.h */; };
 		4F0676081C32C0B30088C57C /* HSChooserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0676061C32C0B30088C57C /* HSChooserCell.m */; };
 		4F20B52C1C1F1C5B00F52437 /* Hammerspoon_UITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F20B52B1C1F1C5B00F52437 /* Hammerspoon_UITests.m */; };
@@ -718,6 +719,7 @@
 		4CD96BDC1C73ABD2009FF648 /* libsocketudp.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libsocketudp.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CD96BDD1C73AC1C009FF648 /* udp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = udp.m; path = extensions/socket/udp.m; sourceTree = "<group>"; };
 		4CE6390E1C76C7F500BB7CD2 /* socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socket.h; sourceTree = "<group>"; };
+		4CE639131C772DC700BB7CD2 /* test_udpsocket.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_udpsocket.lua; path = extensions/socket/test_udpsocket.lua; sourceTree = "<group>"; };
 		4F0676041C32AED90088C57C /* HSChooserWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = HSChooserWindow.xib; path = extensions/chooser/HSChooserWindow.xib; sourceTree = "<group>"; };
 		4F0676051C32C0B30088C57C /* HSChooserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserCell.h; path = extensions/chooser/HSChooserCell.h; sourceTree = "<group>"; };
 		4F0676061C32C0B30088C57C /* HSChooserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserCell.m; path = extensions/chooser/HSChooserCell.m; sourceTree = "<group>"; };
@@ -1577,6 +1579,7 @@
 			isa = PBXGroup;
 			children = (
 				4CD96BDD1C73AC1C009FF648 /* udp.m */,
+				4CE639131C772DC700BB7CD2 /* test_udpsocket.lua */,
 			);
 			name = socketudp;
 			sourceTree = "<group>";
@@ -4470,6 +4473,7 @@
 				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
 				4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */,
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
+				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
 				D02F95341A003A2900E28BB2 /* init.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
 				4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */,

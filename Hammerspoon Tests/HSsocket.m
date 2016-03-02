@@ -7,6 +7,8 @@
 #import "HSTestcase.h"
 #pragma GCC diagnostic ignored "-Wgnu-statement-expression"
 
+#define RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(timeout) XCTAssertTrue([self twoPartTestName:_cmd withTimeout:timeout], @"Test failed: %@", NSStringFromSelector(_cmd));
+
 @interface HSsocket : HSTestCase
 
 @end
@@ -23,83 +25,96 @@
     [super tearDown];
 }
 
-- (void)testDefaultSocketCreation {
+- (BOOL)twoPartTestName:(SEL)selector withTimeout:(NSTimeInterval)timeout {
+    NSString *funcName = NSStringFromSelector(selector);
+    return [self luaTestWithCheckAndTimeOut:timeout setupCode:[funcName stringByAppendingString:@"()"] checkCode:[funcName stringByAppendingString:@"Values()"]];
+}
+
+- (void)testTcpSocketInstanceCreation {
     RUN_LUA_TEST()
 }
 
-- (void)testDefaultSocketCreationWithCallback {
+- (void)testTcpSocketInstanceCreationWithCallback {
     RUN_LUA_TEST()
 }
 
-- (void)testListenerSocketCreation {
+- (void)testTcpListenerSocketCreation {
     RUN_LUA_TEST()
 }
 
-- (void)testListenerSocketCreationWithCallback {
+- (void)testTcpListenerSocketCreationWithCallback {
     RUN_LUA_TEST()
 }
 
-- (void)testListenerSocketAttributes {
+- (void)testTcpListenerSocketAttributes {
     RUN_LUA_TEST()
 }
 
-- (void)testDisconnectAndReuse {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testDisconnectAndReuse()" checkCode:@"testDisconnectAndReuseValues()"], @"testDisconnectAndReuse test failed");
+- (void)testTcpDisconnectAndReuse {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
-- (void)testConnected {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testConnected()" checkCode:@"testConnectedValues()"], @"testConnected test failed");
+- (void)testTcpConnected {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
-- (void)testAlreadyConnected {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testAlreadyConnected()" checkCode:@"testAlreadyConnectedValues()"], @"testAlreadyConnected test failed");
+- (void)testTcpAlreadyConnected {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
-- (void)testUserdataStrings {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testUserdataStrings()" checkCode:@"testUserdataStringValues()"], @"testUserdataStrings test failed");
+- (void)testTcpUserdataStrings {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
-- (void)testClientServerReadWriteDelimiter {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testClientServerReadWriteDelimiter()" checkCode:@"testClientServerReadWriteDelimiterValues()"], @"testClientServerReadWriteDelimiter test failed");
+- (void)testTcpClientServerReadWriteDelimiter {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
-- (void)testClientServerReadWriteBytes {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:2 setupCode:@"testClientServerReadWriteBytes()" checkCode:@"testClientServerReadWriteBytesValues()"], @"testClientServerReadWriteBytes test failed");
+- (void)testTcpClientServerReadWriteBytes {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
-- (void)testTagging {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTagging()" checkCode:@"testTaggingValues()"], @"testTagging test failed");
+- (void)testTcpTagging {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testClientServerTimeout {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testClientServerTimeout()" checkCode:@"testClientServerTimeoutValues()"], @"testClientServerTimeout test failed");
+- (void)testTcpClientServerTimeout {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testTLS {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTLS()" checkCode:@"testTLSValues()"], @"testTLS test failed");
+- (void)testTls {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testNoTLSWhenRequiredByServer {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testNoTLSWhenRequiredByServer()" checkCode:@"testNoTLSWhenRequiredByServerValues()"], @"testNoTLSWhenRequiredByServer test failed");
+- (void)testNoTlsWhenRequiredByServer {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testTLSVerifyPeer {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTLSVerifyPeer()" checkCode:@"testTLSVerifyPeerValues()"], @"testTLSVerifyPeer test failed");
+- (void)testTlsVerifyPeer {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testTLSVerifyBadPeerFails {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTLSVerifyBadPeerFails()" checkCode:@"testTLSVerifyBadPeerFailsValues()"], @"testTLSVerifyBadPeerFails test failed");
+- (void)testTlsVerifyBadPeerFails {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testTLSNoVerify {
-    XCTAssertTrue([self luaTestWithCheckAndTimeOut:3 setupCode:@"testTLSNoVerify()" checkCode:@"testTLSNoVerifyValues()"], @"testTLSNoVerify test failed");
+- (void)testTlsNoVerify {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
 }
 
-- (void)testNoCallbackRead {
-    RUN_LUA_TEST()
+- (void)testTcpNoCallbackRead {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
 - (void)testParseAddress {
+    RUN_LUA_TEST()
+}
+
+- (void)testParseBadAddress {
+    RUN_LUA_TEST()
+}
+
+- (void)testUdpSocketCreation {
     RUN_LUA_TEST()
 }
 

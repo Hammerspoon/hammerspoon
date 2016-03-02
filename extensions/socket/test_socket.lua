@@ -1,4 +1,5 @@
 -- hs.socket tests
+require "test_udpsocket"
 
 -- globals for async tests
 port = 9001
@@ -43,35 +44,36 @@ globalClient = nil
 readData = nil
 readTag = nil
 
+result = nil
+
 callback = function(data, tag)
   readData = data
   readTag = tag
 end
 
 -- constructors
-function testDefaultSocketCreation()
-  assertIsUserdataOfType("hs.socket", hs.socket.new("localhost", port))
+function testTcpSocketInstanceCreation()
+  assertIsUserdataOfType("hs.socket", hs.socket.new())
   return success()
 end
 
-function testDefaultSocketCreationWithCallback()
-  assertIsUserdataOfType("hs.socket", hs.socket.new("localhost", port, function(data) print(data) end))
+function testTcpSocketInstanceCreationWithCallback()
+  assertIsUserdataOfType("hs.socket", hs.socket.new(print))
   return success()
 end
 
-function testListenerSocketCreation()
+function testTcpListenerSocketCreation()
   assertIsUserdataOfType("hs.socket", hs.socket.server(port))
   return success()
 end
 
-function testListenerSocketCreationWithCallback()
-  assertIsUserdataOfType("hs.socket", hs.socket.server(port, function(data) print(data) end))
+function testTcpListenerSocketCreationWithCallback()
+  assertIsUserdataOfType("hs.socket", hs.socket.server(port, print))
   return success()
 end
 
--- listener socket
-function testListenerSocketAttributes()
-  local server = hs.socket.server(port, function(data) print(data) end)
+function testTcpListenerSocketAttributes()
+  local server = hs.socket.server(port, print)
 
   local info = server:info()
 
@@ -84,7 +86,7 @@ function testListenerSocketAttributes()
 end
 
 -- reusing client and server sockets
-function testDisconnectAndReuseValues()
+function testTcpDisconnectAndReuseValues()
   if (type(serverLocalPort) == "number" and serverLocalPort == port and
       type(clientConnectedPort) == "number" and clientConnectedPort == port and
       type(serverDisconnectedPort) == "number" and serverDisconnectedPort == 0 and
@@ -99,9 +101,9 @@ function testDisconnectAndReuseValues()
   end
 end
 
-function testDisconnectAndReuse()
+function testTcpDisconnectAndReuse()
   local server = hs.socket.server(port)
-  local client = hs.socket.new("localhost", port)
+  local client = hs.socket.new():connect("localhost", port)
 
   hs.timer.doAfter(0.1, function()
     serverLocalPort = server:info().localPort
@@ -135,7 +137,7 @@ function testDisconnectAndReuse()
 end
 
 -- multiple client connection counts
-function testConnectedValues()
+function testTcpConnectedValues()
   if (type(serverConnected) == "boolean" and serverConnected == true and
       type(serverConnections) == "number" and serverConnections == 3 and
       type(clientConnected) == "boolean" and clientConnected == true and
@@ -150,11 +152,11 @@ function testConnectedValues()
   end
 end
 
-function testConnected()
+function testTcpConnected()
   local server = hs.socket.server(port)
-  local client = hs.socket.new("localhost", port)
-  local client2 = hs.socket.new("localhost", port)
-  local client3 = hs.socket.new("localhost", port)
+  local client = hs.socket.new():connect("localhost", port)
+  local client2 = hs.socket.new():connect("localhost", port)
+  local client3 = hs.socket.new():connect("localhost", port)
 
   hs.timer.doAfter(0.1, function()
     serverConnected = server:connected()
@@ -176,7 +178,7 @@ function testConnected()
 end
 
 -- test failure to connect already connected sockets
-function testAlreadyConnectedValues()
+function testTcpAlreadyConnectedValues()
   if (type(serverConnected) == "boolean" and serverConnected == true and
       type(serverUserdata) == "string" and serverUserdata == "SERVER" and
       type(server2Connected) == "boolean" and server2Connected == false and
@@ -188,10 +190,10 @@ function testAlreadyConnectedValues()
   end
 end
 
-function testAlreadyConnected()
+function testTcpAlreadyConnected()
   local server = hs.socket.server(port)
   local server2 = hs.socket.server(port)
-  local client = hs.socket.new("localhost", port)
+  local client = hs.socket.new():connect("localhost", port)
 
   hs.timer.doAfter(0.1, function()
     serverConnected = server:connected()
@@ -213,7 +215,7 @@ function testAlreadyConnected()
 end
 
 -- client and server userdata strings
-function testUserdataStringValues()
+function testTcpUserdataStringsValues()
   local serverHostPort = serverLocalHost..":"..serverLocalPort
   local clientHostPort = clientConnectedHost..":"..clientConnectedPort
 
@@ -227,9 +229,9 @@ function testUserdataStringValues()
   end
 end
 
-function testUserdataStrings()
+function testTcpUserdataStrings()
   local server = hs.socket.server(port)
-  local client = hs.socket.new("localhost", port)
+  local client = hs.socket.new():connect("localhost", port)
 
   hs.timer.doAfter(0.1, function()
     serverUserdataString = tostring(server)
@@ -245,7 +247,7 @@ function testUserdataStrings()
 end
 
 -- reading and writing data
-function testClientServerReadWriteDelimiterValues()
+function testTcpClientServerReadWriteDelimiterValues()
   if (type(serverReadData) == "string" and serverReadData == "Hi from client\n" and
       type(clientReadData) == "string" and clientReadData == "Hello from server\n") then
     return success()
@@ -254,9 +256,9 @@ function testClientServerReadWriteDelimiterValues()
   end
 end
 
-function testClientServerReadWriteDelimiter()
-  local server = hs.socket.server(port, function(data) print(data) end)
-  local client = hs.socket.new("localhost", port, function(data) print(data) end)
+function testTcpClientServerReadWriteDelimiter()
+  local server = hs.socket.server(port, print)
+  local client = hs.socket.new(print):connect("localhost", port)
 
   -- clear default print callbacks
   server:setCallback(nil)
@@ -289,7 +291,7 @@ function testClientServerReadWriteDelimiter()
   return success()
 end
 
-function testClientServerReadWriteBytesValues()
+function testTcpClientServerReadWriteBytesValues()
   if (type(serverReadData) == "string" and serverReadData == "Hi fr" and
       type(clientReadData) == "string" and clientReadData == "Hello") then
     return success()
@@ -298,9 +300,9 @@ function testClientServerReadWriteBytesValues()
   end
 end
 
-function testClientServerReadWriteBytes()
-  local server = hs.socket.server(port, function(data) print(data) end)
-  local client = hs.socket.new("localhost", port, function(data) print(data) end)
+function testTcpClientServerReadWriteBytes()
+  local server = hs.socket.server(port, print)
+  local client = hs.socket.new(print):connect("localhost", port)
 
   -- clear default print callbacks
   server:setCallback(nil)
@@ -334,7 +336,7 @@ function testClientServerReadWriteBytes()
 end
 
 -- tagging
-function testTaggingValues()
+function testTcpTaggingValues()
   if (type(readData) == "string" and readData:sub(1,6) == "<HTML>" and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -343,7 +345,7 @@ function testTaggingValues()
   end
 end
 
-function testTagging()
+function testTcpTagging()
   local TAG_HTTP_HEADER = 1
   local TAG_HTTP_CONTENT = 2
 
@@ -356,7 +358,7 @@ function testTagging()
     end
   end
 
-  globalClient = hs.socket.new("google.com", 80, httpCallback)
+  globalClient = hs.socket.new(httpCallback):connect("google.com", 80)
   globalClient:write("GET /index.html HTTP/1.0\r\nHost: google.com\r\n\r\n")
   globalClient:read("\r\n\r\n", TAG_HTTP_HEADER)
 
@@ -368,7 +370,7 @@ function testTagging()
 end
 
 -- timeout
-function testClientServerTimeoutValues()
+function testTcpClientServerTimeoutValues()
   if (type(clientConnected) == "boolean" and clientConnected == true and
       type(clientConnectedAfterTimeout) == "boolean" and clientConnectedAfterTimeout == false) then
     return success()
@@ -377,9 +379,9 @@ function testClientServerTimeoutValues()
   end
 end
 
-function testClientServerTimeout()
-  local server = hs.socket.server(port, function(data) print(data) end)
-  local client = hs.socket.new("localhost", port, function(data) print(data) end)
+function testTcpClientServerTimeout()
+  local server = hs.socket.server(port, print)
+  local client = hs.socket.new(print):connect("localhost", port)
 
   client:setTimeout(1)
   -- waiting for server to send data ending in '\n'
@@ -396,7 +398,7 @@ function testClientServerTimeout()
 end
 
 -- TLS
-function testTLSValues()
+function testTlsValues()
   if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -405,8 +407,8 @@ function testTLSValues()
   end
 end
 
-function testTLS()
-  local client = hs.socket.new("github.com", 443, callback)
+function testTls()
+  local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:startTLS()
   client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
@@ -420,7 +422,7 @@ function testTLS()
 end
 
 -- make sure github disconnects us if operations attempted on unsecured socket
-function testNoTLSWhenRequiredByServerValues()
+function testNoTlsWhenRequiredByServerValues()
   if (type(readData) == "nil" and readData == nil and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -429,8 +431,8 @@ function testNoTLSWhenRequiredByServerValues()
   end
 end
 
-function testNoTLSWhenRequiredByServer()
-  local client = hs.socket.new("github.com", 443, callback)
+function testNoTlsWhenRequiredByServer()
+  local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
   client:read("\r\n\r\n");
@@ -443,7 +445,7 @@ function testNoTLSWhenRequiredByServer()
 end
 
 -- verify peer name
-function testTLSVerifyPeerValues()
+function testTlsVerifyPeerValues()
   if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -452,8 +454,8 @@ function testTLSVerifyPeerValues()
   end
 end
 
-function testTLSVerifyPeer()
-  local client = hs.socket.new("github.com", 443, callback)
+function testTlsVerifyPeer()
+  local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:startTLS(true, "github.com")
   client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
@@ -467,7 +469,7 @@ function testTLSVerifyPeer()
 end
 
 -- make sure TLS handshake fails on bad peer
-function testTLSVerifyBadPeerFailsValues()
+function testTlsVerifyBadPeerFailsValues()
   if (type(readData) == "nil" and readData == nil and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -476,8 +478,8 @@ function testTLSVerifyBadPeerFailsValues()
   end
 end
 
-function testTLSVerifyBadPeerFails()
-  local client = hs.socket.new("github.com", 443, callback)
+function testTlsVerifyBadPeerFails()
+  local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:startTLS(true, "bitbucket.org")
   client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
@@ -491,7 +493,7 @@ function testTLSVerifyBadPeerFails()
 end
 
 -- no verification should work fine
-function testTLSNoVerifyValues()
+function testTlsNoVerifyValues()
   if (type(readData) == "string" and readData:sub(1,15) == "HTTP/1.1 200 OK" and
       type(clientConnected) == "boolean" and clientConnected == false) then
     return success()
@@ -500,8 +502,8 @@ function testTLSNoVerifyValues()
   end
 end
 
-function testTLSNoVerify()
-  local client = hs.socket.new("github.com", 443, callback)
+function testTlsNoVerify()
+  local client = hs.socket.new(callback):connect("github.com", 443)
 
   client:startTLS(false)
   client:write("HEAD / HTTP/1.0\r\nHost: github.com\r\nConnection: Close\r\n\r\n");
@@ -515,12 +517,23 @@ function testTLSNoVerify()
 end
 
 -- no callback should fail on read attempt
-function testNoCallbackRead()
-  local server = hs.socket.server(port)
-  local client = hs.socket.new("localhost", port)
+function testTcpNoCallbackReadValues()
+  if (type(result) == "nil" and result == nil) then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
 
-  local result = client:read(5)
-  assertIsNil(result)
+function testTcpNoCallbackRead()
+  local server = hs.socket.server(port)
+  client = hs.socket.new():connect("localhost", port, function()
+      result = client:read(1)
+    end)
+
+  -- hs.timer.doAfter(1, function()
+  --   result = client:read(5)
+  -- end)
 
   return success()
 end
@@ -531,27 +544,27 @@ function testParseAddress()
   --  1 byte   size
   --  1 byte   family
   --  2 bytes  port
-  -- ipv4
-  --  4 bytes  ipv4 address
+  -- IPv4
+  --  4 bytes  IPv4 address
   --  8 bytes  zeros    - (total 16 bytes)
-  -- ipv6
+  -- IPv6
   --  4 bytes  flowinfo
-  --  16 bytes ipv6 address
+  --  16 bytes IPv6 address
   --  4 bytes  scope ID - (total 28 bytes)
 
   -- ipv4.google.com
   host_IPv4 = "216.58.218.110"
   port_IPv4 = 80
   AF_IPv4 = 2 -- AF_INET
-  --                       ipv4   80 216.58.218.110
+  --                       IPv4   80 216.58.218.110
   addr_IPv4 = string.char(16,02,0,80,216,58,218,110,0,0,0,0,0,0,0,0)
 
   -- ipv6.google.com
   host_IPv6 = "2607:f8b0:4000:800::200e"
   port_IPv6 = 80
   AF_IPv6 = 30 -- AF_INET6
-  --                       ipv6   80                       26   07 : f8   b0 : 40   00 : 08   00 :                             : 20   0e
-  addr_IPv6 = string.char(28,30,0,80,0x00,0x00,0x00,0x00,0x26,0x07,0xf8,0xb0,0x40,0x00,0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x0e,0x00,0x00,0x00,0x00)
+  --                       IPv6   80           26   07 : f8   b0 : 40   00 : 08   00 :                             : 20   0e
+  addr_IPv6 = string.char(28,30,0,80,0,0,0,0,0x26,0x07,0xf8,0xb0,0x40,0x00,0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x20,0x0e,0,0,0,0)
 
 
   local addr4 = hs.socket.parseAddress(addr_IPv4)
@@ -564,6 +577,12 @@ function testParseAddress()
   assertIsEqual(host_IPv6, addr6.host)
   assertIsEqual(port_IPv6, addr6.port)
   assertIsEqual(AF_IPv6, addr6.addressFamily)
+
+  return success()
+end
+
+function testParseBadAddress()
+  assertIsNil(hs.socket.parseAddress("nonsense"))
 
   return success()
 end

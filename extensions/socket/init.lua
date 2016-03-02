@@ -97,14 +97,29 @@ module.udp.parseAddress = module.parseAddress
 --- Creates and binds an [`hs.socket`](#new) instance to a port for listening to 0 or more clients
 ---
 --- Parameters:
----  * port - A port number [1024-65535]. Ports [1-1023] are privileged
+---  * port - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port
 ---  * fn - An optional callback function to process data on reads. Can also be set with the [`setCallback`](#setCallback) method
 ---
 --- Returns:
 ---  * An [`hs.socket`](#new) object
 ---
 module.server = function(port, callback)
-  return module.new(nil, port, callback)
+  return module.new(callback):listen(port)
+end
+
+--- hs.socket.udp.server(port[, fn]) -> hs.socket object
+--- Constructor
+--- Creates and binds an [`hs.socket.udp`](#new) instance to a port for listening
+---
+--- Parameters:
+---  * port - A port number [0-65535]. Ports [1-1023] are privileged. Port 0 allows the OS to select any available port
+---  * fn - An optional callback function to process data on reads. Can also be set with the [`setCallback`](#setCallback) method
+---
+--- Returns:
+---  * An [`hs.socket.udp`](#new) object
+---
+module.udp.server = function(port, callback)
+  return module.udp.new(callback):listen(port)
 end
 
 --- hs.socket:receive(delimiter[, tag]) -> self

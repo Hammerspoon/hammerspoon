@@ -18,17 +18,13 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
     LuaSkin *skin = [LuaSkin shared];
     NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
-    if (!asyncUdpSocket.readCallback || asyncUdpSocket.readCallback == LUA_NOREF) {
-        [skin logError:@"No callback defined!"];
-    } else {
-        [skin pushLuaRef:refTable ref:asyncUdpSocket.readCallback];
-        [skin pushNSObject: utf8Data];
-        [skin pushNSObject: address];
+    [skin pushLuaRef:refTable ref:asyncUdpSocket.readCallback];
+    [skin pushNSObject: utf8Data];
+    [skin pushNSObject: address];
 
-        if (![skin protectedCallAndTraceback:2 nresults:0]) {
-            const char *errorMsg = lua_tostring(skin.L, -1);
-            [skin logError:[NSString stringWithFormat:@"hs.socket.udp read callback error: %s", errorMsg]];
-        }
+    if (![skin protectedCallAndTraceback:2 nresults:0]) {
+        const char *errorMsg = lua_tostring(skin.L, -1);
+        [skin logError:[NSString stringWithFormat:@"hs.socket.udp read callback error: %s", errorMsg]];
     }
 }
 
@@ -82,24 +78,6 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
 @end
 
 
-// Establish connection
-static void connectSocket(HSAsyncUdpSocket *asyncUdpSocket, NSString *host, UInt16 port) {
-    NSError *err;
-    if (![asyncUdpSocket connectToHost:host onPort:port error:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
-    }
-}
-
-// Establish listening port
-static void listenSocket(HSAsyncUdpSocket *asyncUdpSocket, UInt16 port) {
-    NSError *err;
-    if (![asyncUdpSocket bindToPort:port error:&err]) {
-        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to bind port: %@", err]];
-    } else {
-        asyncUdpSocket.userData = SERVER;
-    }
-}
-
 /// hs.socket.udp.new([fn]) -> hs.socket.udp object
 /// Constructor
 /// Creates an unconnected asynchronous UDP socket object
@@ -112,7 +90,7 @@ static void listenSocket(HSAsyncUdpSocket *asyncUdpSocket, UInt16 port) {
 ///
 static int socketudp_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TFUNCTION|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
 
     HSAsyncUdpSocket *asyncUdpSocket = [[HSAsyncUdpSocket alloc] init];
 
@@ -169,11 +147,12 @@ static int socketudp_connect(lua_State *L) {
     if (lua_type(L, 4) == LUA_TFUNCTION) {
         lua_pushvalue(L, 4);
         asyncUdpSocket.connectCallback = [skin luaRef:refTable];
-    } else {
-        asyncUdpSocket.connectCallback = LUA_NOREF;
     }
 
-    connectSocket(asyncUdpSocket, theHost, thePort);
+    NSError *err;
+    if (![asyncUdpSocket connectToHost:theHost onPort:thePort error:&err]) {
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to connect: %@", err]];
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -195,7 +174,12 @@ static int socketudp_listen(lua_State *L) {
     HSAsyncUdpSocket* asyncUdpSocket = getUserData(L, 1);
     UInt16 thePort = [[skin toNSObjectAtIndex:2] unsignedShortValue];
 
-    listenSocket(asyncUdpSocket, thePort);
+    NSError *err;
+    if (![asyncUdpSocket bindToPort:thePort error:&err]) {
+        [[LuaSkin shared] logError:[NSString stringWithFormat:@"Unable to bind port: %@", err]];
+    } else {
+        asyncUdpSocket.userData = SERVER;
+    }
 
     lua_pushvalue(L, 1);
     return 1;
@@ -230,7 +214,7 @@ static int socketudp_close(lua_State *L) {
 ///  * fn - Optionally supply the read callback here
 ///
 /// Returns:
-///  * The [`hs.socket.udp`](#new) object
+///  * The [`hs.socket.udp`](#new) object or `nil` if no callback error
 ///
 /// Notes:
 ///  * There are two modes of operation for receiving packets: one-at-a-time & continuous.
@@ -253,6 +237,11 @@ static int socketudp_receive(lua_State *L) {
         asyncUdpSocket.readCallback = [skin luaUnref:refTable ref:asyncUdpSocket.readCallback];
         lua_pushvalue(L, 2);
         asyncUdpSocket.readCallback = [skin luaRef:refTable];
+    }
+
+    if (asyncUdpSocket.readCallback == LUA_NOREF) {
+        [skin logError:@"No callback defined!"];
+        return 0;
     }
 
     NSError *err;
@@ -292,7 +281,7 @@ static int socketudp_pause(lua_State *L) {
 ///  * fn - Optionally supply the read callback here
 ///
 /// Returns:
-///  * The [`hs.socket.udp`](#new) object
+///  * The [`hs.socket.udp`](#new) object or `nil` if no callback error
 ///
 /// Notes:
 ///  * There are two modes of operation for receiving packets: one-at-a-time & continuous.
@@ -315,6 +304,11 @@ static int socketudp_receiveOne(lua_State *L) {
         asyncUdpSocket.readCallback = [skin luaUnref:refTable ref:asyncUdpSocket.readCallback];
         lua_pushvalue(L, 2);
         asyncUdpSocket.readCallback = [skin luaRef:refTable];
+    }
+
+    if (asyncUdpSocket.readCallback == LUA_NOREF) {
+        [skin logError:@"No callback defined!"];
+        return 0;
     }
 
     NSError *err;
