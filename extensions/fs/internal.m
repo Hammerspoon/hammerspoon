@@ -1,26 +1,27 @@
 /*
-** LuaFileSystem
-** Copyright Kepler Project 2003 (http://www.keplerproject.org/luafilesystem)
-**
-** File system manipulation library.
-** This library offers these functions:
-**   lfs.attributes (filepath [, attributename])
-**   lfs.chdir (path)
-**   lfs.currentDir ()
-**   lfs.dir (path)
-**   lfs.lock (fh, mode)
-**   lfs.lock_dir (path)
-**   lfs.mkdir (path)
-**   lfs.rmdir (path)
-**   lfs.setmode (filepath, mode)
-**   lfs.symlinkAttributes (filepath [, attributename]) -- thanks to Sam Roberts
-**   lfs.touch (filepath [, atime [, mtime]])
-**   lfs.unlock (fh)
-**
-** $Id: lfs.c,v 1.61 2009/07/04 02:10:16 mascarenhas Exp $
-*/
+ ** LuaFileSystem
+ ** Copyright Kepler Project 2003 (http://www.keplerproject.org/luafilesystem)
+ **
+ ** File system manipulation library.
+ ** This library offers these functions:
+ **   lfs.attributes (filepath [, attributename])
+ **   lfs.chdir (path)
+ **   lfs.currentDir ()
+ **   lfs.dir (path)
+ **   lfs.lock (fh, mode)
+ **   lfs.lock_dir (path)
+ **   lfs.mkdir (path)
+ **   lfs.rmdir (path)
+ **   lfs.setmode (filepath, mode)
+ **   lfs.symlinkAttributes (filepath [, attributename]) -- thanks to Sam Roberts
+ **   lfs.touch (filepath [, atime [, mtime]])
+ **   lfs.unlock (fh)
+ **
+ ** $Id: lfs.c,v 1.61 2009/07/04 02:10:16 mascarenhas Exp $
+ */
 
 @import Cocoa;
+#include <LuaSkin/LuaSkin.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
@@ -32,44 +33,19 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <utime.h>
-#include <LuaSkin/LuaSkin.h>
-
 #include "lfs.h"
 
 //#define LFS_VERSION "1.6.2"
 //#define LFS_LIBNAME "fs"
 
-#if LUA_VERSION_NUM >= 503 /* Lua 5.3 */
-
-#ifndef luaL_optlong
-//#define luaL_optlong luaL_optinteger
-#endif
-
-#endif
-
-#if LUA_VERSION_NUM < 502
-#  define luaL_newlib(L,l) (lua_newtable(L), luaL_register(L,NULL,l))
-#endif
-
-/* Define 'strerror' for systems that do not implement it */
-#ifdef NO_STRERROR
-#define strerror(_)     "System unable to describe the error"
-#endif
-
-/* Define 'getcwd' for systems that do not implement it */
-#ifdef NO_GETCWD
-#define getcwd(p,s)     NULL
-#define getcwd_error    "Function 'getcwd' not provided by system"
-#else
 #define getcwd_error    strerror(errno)
 #include <sys/param.h>
 #define LFS_MAXPATHLEN MAXPATHLEN
-#endif
 
 #define DIR_METATABLE "directory metatable"
 typedef struct dir_data {
-        int  closed;
-        DIR *dir;
+    int  closed;
+    DIR *dir;
 } dir_data;
 
 #define LOCK_METATABLE "lock metatable"
@@ -78,8 +54,8 @@ typedef struct dir_data {
 #define LSTAT_FUNC lstat
 
 /*
-** Utility functions
-*/
+ ** Utility functions
+ */
 
 NSURL *path_to_nsurl(NSString *path) {
     return [NSURL fileURLWithPath:[path stringByExpandingTildeInPath]];
@@ -129,8 +105,8 @@ BOOL tags_to_file(lua_State *L, NSString *filePath, NSArray *tags) {
 
 
 /*
-** This function changes the working (current) directory
-*/
+ ** This function changes the working (current) directory
+ */
 /// hs.fs.chdir(path) -> true or (nil,error)
 /// Function
 /// Changes the current working directory to the given path.
@@ -145,21 +121,21 @@ static int change_dir (lua_State *L) {
     const char *path = path_at_index(L, 1);
 
     if (chdir(path)) {
-            lua_pushnil (L);
-            lua_pushfstring (L,"Unable to change working directory to '%s'\n%s\n",
-                            path, chdir_error);
-            return 2;
+        lua_pushnil (L);
+        lua_pushfstring (L,"Unable to change working directory to '%s'\n%s\n",
+                         path, chdir_error);
+        return 2;
     } else {
-            lua_pushboolean (L, 1);
-            return 1;
+        lua_pushboolean (L, 1);
+        return 1;
     }
 }
 
 /*
-** This function returns the current directory
-** If unable to get the current directory, it returns nil
-**  and a string describing the error
-*/
+ ** This function returns the current directory
+ ** If unable to get the current directory, it returns nil
+ **  and a string describing the error
+ */
 /// hs.fs.currentDir() -> string or (nil,error)
 /// Function
 /// Gets the current working directory
@@ -170,39 +146,39 @@ static int change_dir (lua_State *L) {
 /// Returns:
 ///  * A string containing the current working directory, or if an error occured, nil and an error string
 static int get_dir (lua_State *L) {
-  char *path;
-  /* Passing (NULL, 0) is not guaranteed to work. Use a temp buffer and size instead. */
-  char buf[LFS_MAXPATHLEN];
-  if ((path = getcwd(buf, LFS_MAXPATHLEN)) == NULL) {
-    lua_pushnil(L);
-    lua_pushstring(L, getcwd_error);
-    return 2;
-  }
-  else {
-    lua_pushstring(L, path);
-    return 1;
-  }
+    char *path;
+    /* Passing (NULL, 0) is not guaranteed to work. Use a temp buffer and size instead. */
+    char buf[LFS_MAXPATHLEN];
+    if ((path = getcwd(buf, LFS_MAXPATHLEN)) == NULL) {
+        lua_pushnil(L);
+        lua_pushstring(L, getcwd_error);
+        return 2;
+    }
+    else {
+        lua_pushstring(L, path);
+        return 1;
+    }
 }
 
 /*
-** Check if the given element on the stack is a file and returns it.
-*/
+ ** Check if the given element on the stack is a file and returns it.
+ */
 static FILE *check_file (lua_State *L, int idx, const char *funcname) {
-        FILE **fh = (FILE **)luaL_checkudata (L, idx, "FILE*");
-        if (fh == NULL) {
-                luaL_error (L, "%s: not a file", funcname);
-                return 0;
-        } else if (*fh == NULL) {
-                luaL_error (L, "%s: closed file", funcname);
-                return 0;
-        } else
-                return *fh;
+    FILE **fh = (FILE **)luaL_checkudata (L, idx, "FILE*");
+    if (fh == NULL) {
+        luaL_error (L, "%s: not a file", funcname);
+        return 0;
+    } else if (*fh == NULL) {
+        luaL_error (L, "%s: closed file", funcname);
+        return 0;
+    } else
+        return *fh;
 }
 
 
 /*
-**
-*/
+ **
+ */
 /// hs.fs.lock(filehandle, mode[, start[, length]]) -> true or (nil,error)
 /// Function
 /// Locks a file, or part of it
@@ -216,23 +192,23 @@ static FILE *check_file (lua_State *L, int idx, const char *funcname) {
 /// Returns:
 ///  * True if the lock was obtained successfully, otherwise nil and an error string
 static int _file_lock (lua_State *L, FILE *fh, const char *mode, const long start, long len, const char *funcname) {
-        int code;
-        struct flock f;
-        switch (*mode) {
-                case 'w': f.l_type = F_WRLCK; break;
-                case 'r': f.l_type = F_RDLCK; break;
-                case 'u': f.l_type = F_UNLCK; break;
-                default : return luaL_error (L, "%s: invalid mode", funcname);
-        }
-        f.l_whence = SEEK_SET;
-        f.l_start = (off_t)start;
-        f.l_len = (off_t)len;
-        code = fcntl (fileno(fh), F_SETLK, &f);
-        return (code != -1);
+    int code;
+    struct flock f;
+    switch (*mode) {
+        case 'w': f.l_type = F_WRLCK; break;
+        case 'r': f.l_type = F_RDLCK; break;
+        case 'u': f.l_type = F_UNLCK; break;
+        default : return luaL_error (L, "%s: invalid mode", funcname);
+    }
+    f.l_whence = SEEK_SET;
+    f.l_start = (off_t)start;
+    f.l_len = (off_t)len;
+    code = fcntl (fileno(fh), F_SETLK, &f);
+    return (code != -1);
 }
 
 typedef struct lfs_Lock {
-  char *ln;
+    char *ln;
 } lfs_Lock;
 
 /// hs.fs.lockDir(path, [seconds_stale]) -> lock or (nil,error)
@@ -251,64 +227,64 @@ typedef struct lfs_Lock {
 ///  * The returned lock object can be freed with ```lock:free()```
 ///  * If the lock already exists and is not stale, the error string returned will be "File exists"
 static int lfs_lock_dir(lua_State *L) {
-  lfs_Lock *lock;
-  size_t pathl;
-  char *ln;
-  const char *lockfile = "/lockfile.lfs";
-  const char *path = luaL_checklstring(L, 1, &pathl);
-  lock = (lfs_Lock*)lua_newuserdata(L, sizeof(lfs_Lock));
-  ln = (char*)malloc(pathl + strlen(lockfile) + 1);
-  if(!ln) {
-    lua_pushnil(L); lua_pushstring(L, strerror(errno)); return 2;
-  }
-  strcpy(ln, path); strcat(ln, lockfile);
-  if(symlink("lock", ln) == -1) {
-    free(ln); lua_pushnil(L);
-    lua_pushstring(L, strerror(errno)); return 2;
-  }
-  lock->ln = ln;
-  luaL_getmetatable (L, LOCK_METATABLE);
-  lua_setmetatable (L, -2);
-  return 1;
+    lfs_Lock *lock;
+    size_t pathl;
+    char *ln;
+    const char *lockfile = "/lockfile.lfs";
+    const char *path = luaL_checklstring(L, 1, &pathl);
+    lock = (lfs_Lock*)lua_newuserdata(L, sizeof(lfs_Lock));
+    ln = (char*)malloc(pathl + strlen(lockfile) + 1);
+    if(!ln) {
+        lua_pushnil(L); lua_pushstring(L, strerror(errno)); return 2;
+    }
+    strcpy(ln, path); strcat(ln, lockfile);
+    if(symlink("lock", ln) == -1) {
+        free(ln); lua_pushnil(L);
+        lua_pushstring(L, strerror(errno)); return 2;
+    }
+    lock->ln = ln;
+    luaL_getmetatable (L, LOCK_METATABLE);
+    lua_setmetatable (L, -2);
+    return 1;
 }
 static int lfs_unlock_dir(lua_State *L) {
-  lfs_Lock *lock = (lfs_Lock *)luaL_checkudata(L, 1, LOCK_METATABLE);
-  if(lock->ln) {
-    unlink(lock->ln);
-    free(lock->ln);
-    lock->ln = NULL;
-  }
-  return 0;
+    lfs_Lock *lock = (lfs_Lock *)luaL_checkudata(L, 1, LOCK_METATABLE);
+    if(lock->ln) {
+        unlink(lock->ln);
+        free(lock->ln);
+        lock->ln = NULL;
+    }
+    return 0;
 }
 
 /*
-** Locks a file.
-** @param #1 File handle.
-** @param #2 String with lock mode ('w'rite, 'r'ead).
-** @param #3 Number with start position (optional).
-** @param #4 Number with length (optional).
-*/
+ ** Locks a file.
+ ** @param #1 File handle.
+ ** @param #2 String with lock mode ('w'rite, 'r'ead).
+ ** @param #3 Number with start position (optional).
+ ** @param #4 Number with length (optional).
+ */
 static int file_lock (lua_State *L) {
-        FILE *fh = check_file (L, 1, "lock");
-        const char *mode = luaL_checkstring (L, 2);
-        const long start = (long) luaL_optinteger(L, 3, 0);
-        long len = (long) luaL_optinteger(L, 4, 0);
-        if (_file_lock (L, fh, mode, start, len, "lock")) {
-                lua_pushboolean (L, 1);
-                return 1;
-        } else {
-                lua_pushnil (L);
-                lua_pushfstring (L, "%s", strerror(errno));
-                return 2;
-        }
+    FILE *fh = check_file (L, 1, "lock");
+    const char *mode = luaL_checkstring (L, 2);
+    const long start = (long) luaL_optinteger(L, 3, 0);
+    long len = (long) luaL_optinteger(L, 4, 0);
+    if (_file_lock (L, fh, mode, start, len, "lock")) {
+        lua_pushboolean (L, 1);
+        return 1;
+    } else {
+        lua_pushnil (L);
+        lua_pushfstring (L, "%s", strerror(errno));
+        return 2;
+    }
 }
 
 /*
-** Unlocks a file.
-** @param #1 File handle.
-** @param #2 Number with start position (optional).
-** @param #3 Number with length (optional).
-*/
+ ** Unlocks a file.
+ ** @param #1 File handle.
+ ** @param #2 Number with start position (optional).
+ ** @param #3 Number with length (optional).
+ */
 /// hs.fs.unlock(filehandle[, start[, length]]) -> true or (nil,error)
 /// Function
 /// Unlocks a file or a part of it.
@@ -321,25 +297,25 @@ static int file_lock (lua_State *L) {
 /// Returns:
 ///  * True if the unlock succeeded, otherwise nil and an error string
 static int file_unlock (lua_State *L) {
-        FILE *fh = check_file (L, 1, "unlock");
-        const long start = (long) luaL_optinteger(L, 2, 0);
-        long len = (long) luaL_optinteger(L, 3, 0);
-        if (_file_lock (L, fh, "u", start, len, "unlock")) {
-                lua_pushboolean (L, 1);
-                return 1;
-        } else {
-                lua_pushnil (L);
-                lua_pushfstring (L, "%s", strerror(errno));
-                return 2;
-        }
+    FILE *fh = check_file (L, 1, "unlock");
+    const long start = (long) luaL_optinteger(L, 2, 0);
+    long len = (long) luaL_optinteger(L, 3, 0);
+    if (_file_lock (L, fh, "u", start, len, "unlock")) {
+        lua_pushboolean (L, 1);
+        return 1;
+    } else {
+        lua_pushnil (L);
+        lua_pushfstring (L, "%s", strerror(errno));
+        return 2;
+    }
 }
 
 /*
-** Creates a link.
-** @param #1 Object to link to.
-** @param #2 Name of link.
-** @param #3 True if link is symbolic (optional).
-*/
+ ** Creates a link.
+ ** @param #1 Object to link to.
+ ** @param #2 Name of link.
+ ** @param #3 True if link is symbolic (optional).
+ */
 /// hs.fs.link(old, new[, symlink]) -> true or (nil,error)
 /// Function
 /// Creates a link
@@ -373,9 +349,9 @@ static int make_link(lua_State *L) {
 }
 
 /*
-** Creates a directory.
-** @param #1 Directory path.
-*/
+ ** Creates a directory.
+ ** @param #1 Directory path.
+ */
 /// hs.fs.mkdir(dirname) -> true or (nil,error)
 /// Function
 /// Creates a new directory
@@ -390,7 +366,7 @@ static int make_dir (lua_State *L) {
     const char *path = path_at_index(L, 1);
 
     int fail =  mkdir (path, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP |
-                         S_IWGRP | S_IXGRP | S_IROTH | S_IXOTH );
+                       S_IWGRP | S_IXGRP | S_IROTH | S_IXOTH );
     if (fail) {
         lua_pushnil (L);
         lua_pushfstring (L, "%s", strerror(errno));
@@ -402,9 +378,9 @@ static int make_dir (lua_State *L) {
 
 
 /*
-** Removes a directory.
-** @param #1 Directory path.
-*/
+ ** Removes a directory.
+ ** @param #1 Directory path.
+ */
 /// hs.fs.rmdir(dirname) -> true or (nil,error)
 /// Function
 /// Removes an existing directory
@@ -432,41 +408,41 @@ static int remove_dir (lua_State *L) {
 
 
 /*
-** Directory iterator
-*/
+ ** Directory iterator
+ */
 static int dir_iter (lua_State *L) {
-        struct dirent *entry;
-        dir_data *d = (dir_data *)luaL_checkudata (L, 1, DIR_METATABLE);
-        luaL_argcheck (L, d->closed == 0, 1, "closed directory");
+    struct dirent *entry;
+    dir_data *d = (dir_data *)luaL_checkudata (L, 1, DIR_METATABLE);
+    luaL_argcheck (L, d->closed == 0, 1, "closed directory");
 
-        if ((entry = readdir (d->dir)) != NULL) {
-                lua_pushstring (L, entry->d_name);
-                return 1;
-        } else {
-                /* no more entries => close directory */
-                closedir (d->dir);
-                d->closed = 1;
-                return 0;
-        }
-}
-
-
-/*
-** Closes directory iterators
-*/
-static int dir_close (lua_State *L) {
-        dir_data *d = (dir_data *)lua_touserdata (L, 1);
-        if (!d->closed && d->dir) {
-                closedir (d->dir);
-        }
+    if ((entry = readdir (d->dir)) != NULL) {
+        lua_pushstring (L, entry->d_name);
+        return 1;
+    } else {
+        /* no more entries => close directory */
+        closedir (d->dir);
         d->closed = 1;
         return 0;
+    }
 }
 
 
 /*
-** Factory of directory iterators
-*/
+ ** Closes directory iterators
+ */
+static int dir_close (lua_State *L) {
+    dir_data *d = (dir_data *)lua_touserdata (L, 1);
+    if (!d->closed && d->dir) {
+        closedir (d->dir);
+    }
+    d->closed = 1;
+    return 0;
+}
+
+
+/*
+ ** Factory of directory iterators
+ */
 /// hs.fs.dir(path) -> iter_fn, dir_obj
 /// Function
 /// Creates an iterator for walking a filesystem path
@@ -493,76 +469,76 @@ static int dir_iter_factory (lua_State *L) {
     d->closed = 0;
     d->dir = opendir (path);
     if (d->dir == NULL)
-      luaL_error (L, "cannot open %s: %s", path, strerror (errno));
+        luaL_error (L, "cannot open %s: %s", path, strerror (errno));
     return 2;
 }
 
 
 /*
-** Creates directory metatable.
-*/
+ ** Creates directory metatable.
+ */
 static int dir_create_meta (lua_State *L) {
-        luaL_newmetatable (L, DIR_METATABLE);
+    luaL_newmetatable (L, DIR_METATABLE);
 
-        /* Method table */
-        lua_newtable(L);
-        lua_pushcfunction (L, dir_iter);
-        lua_setfield(L, -2, "next");
-        lua_pushcfunction (L, dir_close);
-        lua_setfield(L, -2, "close");
+    /* Method table */
+    lua_newtable(L);
+    lua_pushcfunction (L, dir_iter);
+    lua_setfield(L, -2, "next");
+    lua_pushcfunction (L, dir_close);
+    lua_setfield(L, -2, "close");
 
-        /* Metamethods */
-        lua_setfield(L, -2, "__index");
-        lua_pushcfunction (L, dir_close);
-        lua_setfield (L, -2, "__gc");
-        return 1;
+    /* Metamethods */
+    lua_setfield(L, -2, "__index");
+    lua_pushcfunction (L, dir_close);
+    lua_setfield (L, -2, "__gc");
+    return 1;
 }
 
 
 /*
-** Creates lock metatable.
-*/
+ ** Creates lock metatable.
+ */
 static int lock_create_meta (lua_State *L) {
-        luaL_newmetatable (L, LOCK_METATABLE);
+    luaL_newmetatable (L, LOCK_METATABLE);
 
-        /* Method table */
-        lua_newtable(L);
-        lua_pushcfunction(L, lfs_unlock_dir);
-        lua_setfield(L, -2, "free");
+    /* Method table */
+    lua_newtable(L);
+    lua_pushcfunction(L, lfs_unlock_dir);
+    lua_setfield(L, -2, "free");
 
-        /* Metamethods */
-        lua_setfield(L, -2, "__index");
-        lua_pushcfunction(L, lfs_unlock_dir);
-        lua_setfield(L, -2, "__gc");
-        return 1;
+    /* Metamethods */
+    lua_setfield(L, -2, "__index");
+    lua_pushcfunction(L, lfs_unlock_dir);
+    lua_setfield(L, -2, "__gc");
+    return 1;
 }
 
 /*
-** Convert the inode protection mode to a string.
-*/
+ ** Convert the inode protection mode to a string.
+ */
 static const char *mode2string (mode_t mode) {
-  if ( S_ISREG(mode) )
-    return "file";
-  else if ( S_ISDIR(mode) )
-    return "directory";
-  else if ( S_ISLNK(mode) )
+    if ( S_ISREG(mode) )
+        return "file";
+    else if ( S_ISDIR(mode) )
+        return "directory";
+    else if ( S_ISLNK(mode) )
         return "link";
-  else if ( S_ISSOCK(mode) )
-    return "socket";
-  else if ( S_ISFIFO(mode) )
+    else if ( S_ISSOCK(mode) )
+        return "socket";
+    else if ( S_ISFIFO(mode) )
         return "named pipe";
-  else if ( S_ISCHR(mode) )
+    else if ( S_ISCHR(mode) )
         return "char device";
-  else if ( S_ISBLK(mode) )
+    else if ( S_ISBLK(mode) )
         return "block device";
-  else
+    else
         return "other";
 }
 
 
 /*
-** Set access time and modification values for file
-*/
+ ** Set access time and modification values for file
+ */
 /// hs.fs.touch(filepath [, atime [, mtime]]) -> true or (nil,error)
 /// Function
 /// Updates the access and modification times of a file
@@ -598,70 +574,70 @@ static int file_utime (lua_State *L) {
 
 /* inode protection mode */
 static void push_st_mode (lua_State *L, STAT_STRUCT *info) {
-        lua_pushstring (L, mode2string (info->st_mode));
+    lua_pushstring (L, mode2string (info->st_mode));
 }
 /* device inode resides on */
 static void push_st_dev (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_dev);
+    lua_pushinteger (L, (lua_Integer)info->st_dev);
 }
 /* inode's number */
 static void push_st_ino (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_ino);
+    lua_pushinteger (L, (lua_Integer)info->st_ino);
 }
 /* number of hard links to the file */
 static void push_st_nlink (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_nlink);
+    lua_pushinteger (L, (lua_Integer)info->st_nlink);
 }
 /* user-id of owner */
 static void push_st_uid (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_uid);
+    lua_pushinteger (L, (lua_Integer)info->st_uid);
 }
 /* group-id of owner */
 static void push_st_gid (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_gid);
+    lua_pushinteger (L, (lua_Integer)info->st_gid);
 }
 /* device type, for special file inode */
 static void push_st_rdev (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_rdev);
+    lua_pushinteger (L, (lua_Integer)info->st_rdev);
 }
 /* time of last access */
 static void push_st_atime (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_atime);
+    lua_pushinteger (L, (lua_Integer)info->st_atime);
 }
 /* time of last data modification */
 static void push_st_mtime (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_mtime);
+    lua_pushinteger (L, (lua_Integer)info->st_mtime);
 }
 /* time of last file status change */
 static void push_st_ctime (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_ctime);
+    lua_pushinteger (L, (lua_Integer)info->st_ctime);
 }
 /* time of file creation */
 static void push_st_birthtime (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_birthtime);
+    lua_pushinteger (L, (lua_Integer)info->st_birthtime);
 }
 /* file size, in bytes */
 static void push_st_size (lua_State *L, STAT_STRUCT *info) {
-        lua_pushinteger (L, (lua_Integer)info->st_size);
+    lua_pushinteger (L, (lua_Integer)info->st_size);
 }
 
- /*
-** Convert the inode protection mode to a permission list.
-*/
+/*
+ ** Convert the inode protection mode to a permission list.
+ */
 static const char *perm2string (mode_t mode) {
-  static char perms[10] = "---------";
-  int i;
-  for (i=0;i<9;i++) perms[i]='-';
-  if (mode & S_IRUSR) perms[0] = 'r';
-  if (mode & S_IWUSR) perms[1] = 'w';
-  if (mode & S_IXUSR) perms[2] = 'x';
-  if (mode & S_IRGRP) perms[3] = 'r';
-  if (mode & S_IWGRP) perms[4] = 'w';
-  if (mode & S_IXGRP) perms[5] = 'x';
-  if (mode & S_IROTH) perms[6] = 'r';
-  if (mode & S_IWOTH) perms[7] = 'w';
-  if (mode & S_IXOTH) perms[8] = 'x';
-  return perms;
+    static char perms[10] = "---------";
+    int i;
+    for (i=0;i<9;i++) perms[i]='-';
+    if (mode & S_IRUSR) perms[0] = 'r';
+    if (mode & S_IWUSR) perms[1] = 'w';
+    if (mode & S_IXUSR) perms[2] = 'x';
+    if (mode & S_IRGRP) perms[3] = 'r';
+    if (mode & S_IWGRP) perms[4] = 'w';
+    if (mode & S_IXGRP) perms[5] = 'x';
+    if (mode & S_IROTH) perms[6] = 'r';
+    if (mode & S_IWOTH) perms[7] = 'w';
+    if (mode & S_IXOTH) perms[8] = 'x';
+    return perms;
 }
 
 /* permssions string */
@@ -672,30 +648,30 @@ static void push_st_perm (lua_State *L, STAT_STRUCT *info) {
 typedef void (*_push_function) (lua_State *L, STAT_STRUCT *info);
 
 typedef struct _stat_members {
-        const char *name;
-        _push_function push;
+    const char *name;
+    _push_function push;
 } stat_members;
 
 static stat_members members[] = {
-        { "mode",         push_st_mode },
-        { "dev",          push_st_dev },
-        { "ino",          push_st_ino },
-        { "nlink",        push_st_nlink },
-        { "uid",          push_st_uid },
-        { "gid",          push_st_gid },
-        { "rdev",         push_st_rdev },
-        { "access",       push_st_atime },
-        { "modification", push_st_mtime },
-        { "change",       push_st_ctime },
-        { "creation",     push_st_birthtime },
-        { "size",         push_st_size },
-        { "permissions",  push_st_perm },
-        { NULL, NULL }
+    { "mode",     push_st_mode },
+    { "dev",      push_st_dev },
+    { "ino",      push_st_ino },
+    { "nlink",    push_st_nlink },
+    { "uid",      push_st_uid },
+    { "gid",      push_st_gid },
+    { "rdev",     push_st_rdev },
+    { "access",       push_st_atime },
+    { "modification", push_st_mtime },
+    { "change",       push_st_ctime },
+    { "creation",     push_st_birthtime },
+    { "size",     push_st_size },
+    { "permissions",  push_st_perm },
+    { NULL, NULL }
 };
 
 /*
-** Get file or symbolic link information
-*/
+ ** Get file or symbolic link information
+ */
 /// hs.fs.attributes(filepath [, aName]) -> table or string or nil,error
 /// Function
 /// Gets the attributes of a file
@@ -730,47 +706,47 @@ static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
     int i;
 
     if (st(file, &info)) {
-            lua_pushnil (L);
-            lua_pushfstring (L, "cannot obtain information from file `%s'", file);
-            return 2;
+        lua_pushnil (L);
+        lua_pushfstring (L, "cannot obtain information from file `%s'", file);
+        return 2;
     }
     if (lua_isstring (L, 2)) {
-            const char *member = lua_tostring (L, 2);
-            for (i = 0; members[i].name; i++) {
-                    if (strcmp(members[i].name, member) == 0) {
-                            /* push member value and return */
-                            members[i].push (L, &info);
-                            return 1;
-                    }
+        const char *member = lua_tostring (L, 2);
+        for (i = 0; members[i].name; i++) {
+            if (strcmp(members[i].name, member) == 0) {
+                /* push member value and return */
+                members[i].push (L, &info);
+                return 1;
             }
-            /* member not found */
-            return luaL_error(L, "invalid attribute name");
+        }
+        /* member not found */
+        return luaL_error(L, "invalid attribute name");
     }
     /* creates a table if none is given */
     if (!lua_istable (L, 2)) {
-            lua_newtable (L);
+        lua_newtable (L);
     }
     /* stores all members in table on top of the stack */
     for (i = 0; members[i].name; i++) {
-            lua_pushstring (L, members[i].name);
-            members[i].push (L, &info);
-            lua_rawset (L, -3);
+        lua_pushstring (L, members[i].name);
+        members[i].push (L, &info);
+        lua_rawset (L, -3);
     }
     return 1;
 }
 
 
 /*
-** Get file information using stat.
-*/
+ ** Get file information using stat.
+ */
 static int file_info (lua_State *L) {
-        return _file_info_ (L, STAT_FUNC);
+    return _file_info_ (L, STAT_FUNC);
 }
 
 
 /*
-** Get symbolic link information using lstat.
-*/
+ ** Get symbolic link information using lstat.
+ */
 /// hs.fs.symlinkAttributes (filepath [, aname]) -> table or string or nil,error
 /// Function
 /// Gets the attributes of a symbolic link
@@ -785,7 +761,7 @@ static int file_info (lua_State *L) {
 /// Notes:
 ///  * The return values for this function are identical to those provided by `hs.fs.attributes()`
 static int link_info (lua_State *L) {
-        return _file_info_ (L, LSTAT_FUNC);
+    return _file_info_ (L, LSTAT_FUNC);
 }
 
 /// hs.fs.tagsGet(filepath) -> table or nil
@@ -926,31 +902,31 @@ static int hs_fileuti(lua_State *L) {
 }
 
 static const struct luaL_Reg fslib[] = {
-        {"attributes", file_info},
-        {"chdir", change_dir},
-        {"currentDir", get_dir},
-        {"dir", dir_iter_factory},
-        {"link", make_link},
-        {"lock", file_lock},
-        {"mkdir", make_dir},
-        {"rmdir", remove_dir},
-        {"symlinkAttributes", link_info},
-        {"touch", file_utime},
-        {"unlock", file_unlock},
-        {"lockDir", lfs_lock_dir},
-        {"tagsAdd", tagsAdd},
-        {"tagsRemove", tagsRemove},
-        {"tagsSet", tagsSet},
-        {"tagsGet", tagsGet},
-        {"temporaryDirectory", hs_temporaryDirectory},
-        {"fileUTI", hs_fileuti},
-        {NULL, NULL},
+    {"attributes", file_info},
+    {"chdir", change_dir},
+    {"currentDir", get_dir},
+    {"dir", dir_iter_factory},
+    {"link", make_link},
+    {"lock", file_lock},
+    {"mkdir", make_dir},
+    {"rmdir", remove_dir},
+    {"symlinkAttributes", link_info},
+    {"touch", file_utime},
+    {"unlock", file_unlock},
+    {"lockDir", lfs_lock_dir},
+    {"tagsAdd", tagsAdd},
+    {"tagsRemove", tagsRemove},
+    {"tagsSet", tagsSet},
+    {"tagsGet", tagsGet},
+    {"temporaryDirectory", hs_temporaryDirectory},
+    {"fileUTI", hs_fileuti},
+    {NULL, NULL},
 };
 
 int luaopen_hs_fs_internal (lua_State *L) {
-        dir_create_meta (L);
-        lock_create_meta (L);
-        luaL_newlib (L, fslib);
-        lua_pushvalue(L, -1);
-        return 1;
+    dir_create_meta (L);
+    lock_create_meta (L);
+    luaL_newlib (L, fslib);
+    lua_pushvalue(L, -1);
+    return 1;
 }
