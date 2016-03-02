@@ -35,6 +35,10 @@ function testChdir()
   assertTrue(hs.fs.chdir(dirname))
   assertIsEqual(dirname, hs.fs.currentDir())
 
+  local status, err = hs.fs.chdir("some_non_existent_dir")
+  assertIsNil(status)
+  assertIsEqual("No such file or directory", err:match("No such file or directory"))
+
   return success()
 end
 
@@ -70,23 +74,25 @@ function testAttributes()
 
   assertTrue(hs.fs.mkdir(dirname))
   writeFile(dirname..filename, "some text\n")
-
   os.execute("mkfifo "..dirname..pipename)
 
   local noFileInfo = hs.fs.attributes("~/non_existent_file")
-  local dirInfo = hs.fs.attributes(dirname)
+  local dirMode = hs.fs.attributes(dirname, "mode")
   local fileInfo = hs.fs.attributes(dirname..filename)
   local fifoInfo = hs.fs.attributes(dirname..pipename)
   local charDeviceInfo = hs.fs.attributes("/dev/urandom")
   local blockDeviceInfo = hs.fs.attributes("/dev/disk0")
 
   assertIsNil(noFileInfo)
-  assertIsEqual("directory", dirInfo.mode)
+  assertIsEqual("directory", dirMode)
   assertIsEqual("file", fileInfo.mode)
   assertIsEqual("named pipe", fifoInfo.mode)
   assertIsEqual("char device", charDeviceInfo.mode)
   assertIsEqual("block device", blockDeviceInfo.mode)
-  assertIsEqual("block device", blockDeviceInfo.mode)
+
+  local status, err = hs.fs.attributes(dirname, "bad_attribute_name")
+  assertIsNil(status)
+  assertIsEqual("invalid attribute name", err)
 
   if hs.socket then
     local sockname, socket = "sock", nil
@@ -218,6 +224,13 @@ function testDirWalker()
 
   table.insert(filenames, "."); table.insert(filenames, "..")
   assertListsEqual(filenames, dirContents)
+
+  iterfn, dirobj = hs.fs.dir(dirname)
+  dirobj:close()
+
+  local status, err = hs.fs.dir("some_non_existent_dir")
+  assertIsNil(status)
+  assertIsEqual("cannot open", err:match("cannot open"))
 
   return success()
 end
