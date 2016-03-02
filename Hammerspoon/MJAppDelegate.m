@@ -155,6 +155,7 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (IBAction) quitHammerspoon:(id)sender {
     MJLuaDeinit();
+    MJLuaDealloc();
     [[NSApplication sharedApplication] terminate:nil];
 }
 
