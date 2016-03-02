@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */; };
-		4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */; };
 		4C3D55B51C7F0A880023B633 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4C3D55BC1C7F0AA90023B633 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D55AA1C7F05D00023B633 /* internal.m */; };
 		4C3D55BF1C7F17150023B633 /* NSAppleEventDescriptor+Parsing.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C3D55AE1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.h */; };
 		4C3D55C01C7F171E0023B633 /* NSAppleEventDescriptor+Parsing.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D55AF1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.m */; };
+		4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */; };
+		4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */; };
 		4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D55AD1C7F05D00023B633 /* test_javascript.lua */; };
 		4CB349F11C7F74E5006F0DE0 /* test_osascript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CB349F01C7F74E5006F0DE0 /* test_osascript.lua */; };
 		4CB349F31C7F74EE006F0DE0 /* test_applescript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CB349F21C7F74EE006F0DE0 /* test_applescript.lua */; };
@@ -139,15 +139,15 @@
 		4FD0AC1C1B74C58800A82496 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FD0AC291B74C62200A82496 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC241B74C62200A82496 /* internal.m */; };
 		4FD0AC2A1B74C62200A82496 /* MYAnonymousIdentity.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0AC261B74C62200A82496 /* MYAnonymousIdentity.h */; };
+		4FD0AC2B1B74C62200A82496 /* MYAnonymousIdentity.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC271B74C62200A82496 /* MYAnonymousIdentity.m */; };
+		4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E491C6E4FA100085D7A /* test_screen.lua */; };
+		4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */; };
 		4FDD8E4E1C834C8100085D7A /* HSbase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E4D1C834C8100085D7A /* HSbase64.m */; };
 		4FDD8E501C834C9400085D7A /* test_base64.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E4F1C834C9400085D7A /* test_base64.lua */; };
 		4FDD8E521C83612D00085D7A /* HSalert.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E511C83612C00085D7A /* HSalert.m */; };
 		4FDD8E541C83616100085D7A /* test_alert.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E531C83616100085D7A /* test_alert.lua */; };
 		4FDD8E7C1C85A05700085D7A /* lsunit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E7B1C85A05700085D7A /* lsunit.lua */; };
 		4FDD8E7E1C85A06800085D7A /* testinit.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E7D1C85A06800085D7A /* testinit.lua */; };
-		4FD0AC2B1B74C62200A82496 /* MYAnonymousIdentity.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FD0AC271B74C62200A82496 /* MYAnonymousIdentity.m */; };
-		4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FDD8E491C6E4FA100085D7A /* test_screen.lua */; };
-		4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */; };
 		4FDE059A1B72984C00E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4FDE05A31B72987B00E9E8EE /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDE05A21B72987B00E9E8EE /* internal.m */; };
 		4FDE05A91B72988C00E9E8EE /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -662,7 +662,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		4FD0AC071B74BACD00A82496 /* (null) */ = {
+		4FD0AC071B74BACD00A82496 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -674,17 +674,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSfs.m; sourceTree = "<group>"; };
-		4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_fs.lua; path = extensions/fs/test_fs.lua; sourceTree = "<group>"; };
 		19B5A52CAF8760B10C86C2D0 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
 		1A11170BCF0BA210FA17BF37 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
 		4C3D55A91C7F05D00023B633 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		4C3D55AA1C7F05D00023B633 /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = internal.m; sourceTree = "<group>"; };
-		4C3D55AB1C7F05D00023B633 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		4C3D55AD1C7F05D00023B633 /* test_javascript.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_javascript.lua; sourceTree = "<group>"; };
 		4C3D55AE1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSAppleEventDescriptor+Parsing.h"; sourceTree = "<group>"; };
 		4C3D55AF1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSAppleEventDescriptor+Parsing.m"; sourceTree = "<group>"; };
 		4C3D55BB1C7F0A880023B633 /* libosascript.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libosascript.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSfs.m; sourceTree = "<group>"; };
+		4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_fs.lua; path = extensions/fs/test_fs.lua; sourceTree = "<group>"; };
 		4CB349F01C7F74E5006F0DE0 /* test_osascript.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_osascript.lua; sourceTree = "<group>"; };
 		4CB349F21C7F74EE006F0DE0 /* test_applescript.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_applescript.lua; sourceTree = "<group>"; };
 		4CEDEE1B1C640D11005CBF97 /* HSosascript.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSosascript.m; sourceTree = "<group>"; };
@@ -872,17 +871,17 @@
 		4FD0AC231B74C62200A82496 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/httpserver/init.lua; sourceTree = "<group>"; };
 		4FD0AC241B74C62200A82496 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/httpserver/internal.m; sourceTree = "<group>"; };
 		4FD0AC251B74C62200A82496 /* mkCertTemplate.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = mkCertTemplate.sh; path = extensions/httpserver/mkCertTemplate.sh; sourceTree = "<group>"; };
+		4FD0AC261B74C62200A82496 /* MYAnonymousIdentity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MYAnonymousIdentity.h; path = extensions/httpserver/MYAnonymousIdentity.h; sourceTree = "<group>"; };
+		4FD0AC271B74C62200A82496 /* MYAnonymousIdentity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MYAnonymousIdentity.m; path = extensions/httpserver/MYAnonymousIdentity.m; sourceTree = "<group>"; };
+		4FD0AC281B74C62200A82496 /* openssl.conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = openssl.conf; path = extensions/httpserver/openssl.conf; sourceTree = "<group>"; };
+		4FDD8E491C6E4FA100085D7A /* test_screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_screen.lua; path = extensions/screen/test_screen.lua; sourceTree = "<group>"; };
+		4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSscreen.m; sourceTree = "<group>"; };
 		4FDD8E4D1C834C8100085D7A /* HSbase64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSbase64.m; sourceTree = "<group>"; };
 		4FDD8E4F1C834C9400085D7A /* test_base64.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_base64.lua; path = extensions/base64/test_base64.lua; sourceTree = "<group>"; };
 		4FDD8E511C83612C00085D7A /* HSalert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSalert.m; sourceTree = "<group>"; };
 		4FDD8E531C83616100085D7A /* test_alert.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_alert.lua; path = extensions/alert/test_alert.lua; sourceTree = "<group>"; };
 		4FDD8E7B1C85A05700085D7A /* lsunit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = lsunit.lua; path = LuaSkin/LuaSkinTests/lsunit.lua; sourceTree = SOURCE_ROOT; };
 		4FDD8E7D1C85A06800085D7A /* testinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testinit.lua; sourceTree = "<group>"; };
-		4FD0AC261B74C62200A82496 /* MYAnonymousIdentity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MYAnonymousIdentity.h; path = extensions/httpserver/MYAnonymousIdentity.h; sourceTree = "<group>"; };
-		4FD0AC271B74C62200A82496 /* MYAnonymousIdentity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MYAnonymousIdentity.m; path = extensions/httpserver/MYAnonymousIdentity.m; sourceTree = "<group>"; };
-		4FD0AC281B74C62200A82496 /* openssl.conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = openssl.conf; path = extensions/httpserver/openssl.conf; sourceTree = "<group>"; };
-		4FDD8E491C6E4FA100085D7A /* test_screen.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_screen.lua; path = extensions/screen/test_screen.lua; sourceTree = "<group>"; };
-		4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSscreen.m; sourceTree = "<group>"; };
 		4FDE059F1B72984C00E9E8EE /* libbattery.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbattery.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05A11B72987B00E9E8EE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/battery/init.lua; sourceTree = "<group>"; };
 		4FDE05A21B72987B00E9E8EE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/battery/internal.m; sourceTree = "<group>"; };
@@ -981,9 +980,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C3D55B41C7F0A880023B633,
 				4C3D55B51C7F0A880023B633 /* LuaSkin.framework in Frameworks */,
-				4C3D55B61C7F0A880023B633,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1505,7 +1502,6 @@
 			children = (
 				4C3D55A91C7F05D00023B633 /* init.lua */,
 				4C3D55AA1C7F05D00023B633 /* internal.m */,
-				4C3D55AB1C7F05D00023B633 /* LICENSE */,
 				4C3D55AE1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.h */,
 				4C3D55AF1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.m */,
 				4CB349F01C7F74E5006F0DE0 /* test_osascript.lua */,
@@ -3808,7 +3804,7 @@
 			buildPhases = (
 				4FD0AC051B74BACD00A82496 /* Sources */,
 				4FD0AC061B74BACD00A82496 /* Frameworks */,
-				4FD0AC071B74BACD00A82496 /* (null) */,
+				4FD0AC071B74BACD00A82496 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -5459,6 +5455,10 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Debug;
 		};
@@ -5526,6 +5526,10 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
 			};
 			name = Release;
 		};

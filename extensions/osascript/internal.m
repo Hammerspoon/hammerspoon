@@ -2,7 +2,7 @@
 #import <LuaSkin/LuaSkin.h>
 #import "NSAppleEventDescriptor+Parsing.h"
 
-/// hs.osascript._osascript(source, language) -> bool, object, descriptor 
+/// hs.osascript._osascript(source, language) -> bool, object, descriptor
 /// Function
 /// Runs osascript code
 ///
@@ -17,14 +17,14 @@
 static int runosascript(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
-    
+
     NSString* source = [skin toNSObjectAtIndex:1];
     NSString* language = [skin toNSObjectAtIndex:2];
-    
+
     OSAScript *osa = [[OSAScript alloc] initWithSource:source language:[OSALanguage languageForName:language]];
     NSDictionary *__autoreleasing compileError;
     [osa compileAndReturnError:&compileError];
-    
+
     if (compileError) {
         const char *compileErrorMessage = "Unable to initialize script - perhaps you have a syntax error?";
         [skin logError:[NSString stringWithUTF8String:compileErrorMessage]];
@@ -52,6 +52,6 @@ static const luaL_Reg scriptlib[] = {
 int luaopen_hs_osascript_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     [skin registerLibrary:scriptlib metaFunctions:nil];
-    
+
     return 1;
 }
