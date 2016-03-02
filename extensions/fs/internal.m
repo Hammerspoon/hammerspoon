@@ -122,8 +122,7 @@ static int change_dir (lua_State *L) {
 
     if (chdir(path)) {
         lua_pushnil (L);
-        lua_pushfstring (L,"Unable to change working directory to '%s'\n%s\n",
-                         path, chdir_error);
+        lua_pushfstring (L,"Unable to change working directory to '%s'\n%s\n", path, chdir_error);
         return 2;
     } else {
         lua_pushboolean (L, 1);
@@ -468,8 +467,10 @@ static int dir_iter_factory (lua_State *L) {
     lua_setmetatable (L, -2);
     d->closed = 0;
     d->dir = opendir (path);
-    if (d->dir == NULL)
-        luaL_error (L, "cannot open %s: %s", path, strerror (errno));
+    if (d->dir == NULL) {
+        lua_pushnil(L);
+        lua_pushfstring(L, "cannot open %s: %s", path, strerror (errno));
+    }
     return 2;
 }
 
@@ -720,7 +721,9 @@ static int _file_info_ (lua_State *L, int (*st)(const char*, STAT_STRUCT*)) {
             }
         }
         /* member not found */
-        return luaL_error(L, "invalid attribute name");
+        lua_pushnil (L);
+        lua_pushstring (L, "invalid attribute name");
+        return 2;
     }
     /* creates a table if none is given */
     if (!lua_istable (L, 2)) {
