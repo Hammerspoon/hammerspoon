@@ -1,5 +1,6 @@
 #import <LuaSkin/LuaSkin.h>
 #import <CocoaAsyncSocket/GCDAsyncSocket.h>
+#import "socket.h"
 
 // Definitions
 @interface HSAsyncSocket : GCDAsyncSocket
@@ -9,25 +10,10 @@
 @end
 
 // Userdata for hs.socket objects
+static const char *USERDATA_TAG = "hs.socket";
 #define getUserData(L, idx) (__bridge HSAsyncSocket *)((asyncSocketUserData *)lua_touserdata(L, idx))->asyncSocket;
 
-static const char *USERDATA_TAG = "hs.socket";
-
-typedef struct _asyncSocketUserData {
-    int selfRef;
-    void *asyncSocket;
-} asyncSocketUserData;
-
-// These constants are used to set GCDAsyncSocket's built-in userData to distinguish socket types.
-// Foreign client sockets (from netcat for example) connecting to our listening sockets are of type
-// GCDAsyncSocket and attempting to place our subclass's new properties on them will fail
-static const NSString *DEFAULT = @"DEFAULT";
-static const NSString *SERVER = @"SERVER";
-static const NSString *CLIENT = @"CLIENT";
-
 // Callback on data reads
-static int refTable = LUA_NOREF;
-
 static void readCallback(HSAsyncSocket *asyncSocket, NSData *data, long tag) {
     LuaSkin *skin = [LuaSkin shared];
     NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -172,6 +158,56 @@ static int socket_new(lua_State *L) {
     return 1;
 }
 
+/// hs.socket.parseAddress(sockaddr) -> table
+/// Function
+/// Parses a binary sockaddr address into a readable table
+///
+/// Parameters:
+///  * sockaddr - A binary address descriptor, usually obtained in the [`hs.socket.udp`](./hs.socket.udp.html) read callback or from the [`info`](#info) method
+///
+/// Returns:
+///  * A table describing the address with the following keys or `nil`:
+///   * host - A string containing the host IP
+///   * port - A number containing the port
+///   * addressFamily - A number containing the address family
+///
+/// Notes:
+///  * Some address family definitions from `<sys/socket.h>`:
+///
+/// address family | number | description
+/// :--- | :--- | :---
+/// AF_UNSPEC | 0 | unspecified
+/// AF_UNIX | 1 | local to host (pipes)
+/// AF_LOCAL | AF_UNIX | backward compatibility
+/// AF_INET | 2 | internetwork: UDP, TCP, etc.
+/// AF_NS | 6 | XEROX NS protocols
+/// AF_CCITT | 10 | CCITT protocols, X.25 etc
+/// AF_APPLETALK | 16 | Apple Talk
+/// AF_ROUTE | 17 | Internal Routing Protocol
+/// AF_LINK | 18 | Link layer interface
+/// AF_INET6 | 30 | IPv6
+///
+static int socket_parseAddress(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+    NSData *address = [[skin toNSObjectAtIndex:1] dataUsingEncoding:NSUTF8StringEncoding];
+
+    NSString *host;
+    UInt16 port;
+    sa_family_t addressFamily;
+
+    if ([GCDAsyncSocket getHost:&host port:&port family:&addressFamily fromAddress:address]) {
+        NSDictionary *addressDict = @{ @"host": host,
+                                       @"port": @(port),
+                                       @"addressFamily": @(addressFamily) };
+
+        [skin pushNSObject:addressDict];
+    } else {
+        lua_pushnil(L);
+    }
+    return 1;
+}
+
 /// hs.socket:connect(host, port) -> self
 /// Method
 /// Connects an unconnected [`hs.socket`](#new) instance
@@ -212,7 +248,7 @@ static int socket_listen(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
 
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
-    NSNumber *thePort = [skin toNSObjectAtIndex:2];
+    UInt16 thePort = [[skin toNSObjectAtIndex:2] unsignedShortValue];
 
     listenSocket(asyncSocket, thePort);
 
@@ -366,8 +402,6 @@ static int socket_setCallback(lua_State *L) {
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
         asyncSocket.readCallback = [skin luaRef:refTable];
-    } else {
-        asyncSocket.readCallback = LUA_NOREF;
     }
 
     lua_pushvalue(L, 1);
@@ -505,37 +539,44 @@ static int socket_connections(lua_State *L) {
 ///
 /// Returns:
 ///  * A table containing the following keys:
+///   * connectedAddress - `string` (`sockaddr` struct)
 ///   * connectedHost - `string`
 ///   * connectedPort - `number`
 ///   * isConnected - `boolean`
+///   * isDisconnected - `boolean`
 ///   * isIPv4 - `boolean`
 ///   * isIPv4Enabled - `boolean`
 ///   * isIPv4PreferredOverIPv6 - `boolean`
 ///   * isIPv6 - `boolean`
 ///   * isIPv6Enabled - `boolean`
 ///   * isSecure - `boolean`
+///   * localAddress - `string` (`sockaddr` struct)
 ///   * localHost - `string`
 ///   * localPort - `number`
+///   * timeout - `number`
 ///   * userData - `string`
 ///
 static int socket_info(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-
     HSAsyncSocket* asyncSocket = getUserData(L, 1);
 
     NSDictionary *info = @{
+        @"connectedAddress" : asyncSocket.connectedAddress ?: @"",
         @"connectedHost" : asyncSocket.connectedHost ?: @"",
         @"connectedPort" : @(asyncSocket.connectedPort),
         @"isConnected": @(asyncSocket.isConnected),
+        @"isDisconnected": @(asyncSocket.isDisconnected),
         @"isIPv4": @(asyncSocket.isIPv4),
         @"isIPv4Enabled": @(asyncSocket.isIPv4Enabled),
         @"isIPv4PreferredOverIPv6": @(asyncSocket.isIPv4PreferredOverIPv6),
         @"isIPv6": @(asyncSocket.isIPv6),
         @"isIPv6Enabled": @(asyncSocket.isIPv6Enabled),
         @"isSecure": @(asyncSocket.isSecure),
+        @"localAddress" : asyncSocket.localAddress ?: @"",
         @"localHost" : asyncSocket.localHost ?: @"",
         @"localPort" : @(asyncSocket.localPort),
+        @"timeout" : @(asyncSocket.timeout),
         @"userData" : asyncSocket.userData ?: @"",
     };
 
@@ -544,7 +585,7 @@ static int socket_info(lua_State *L) {
 }
 
 
-static int socket_objectGC(lua_State *L) {
+static int userdata_gc(lua_State *L) {
     asyncSocketUserData *userData = lua_touserdata(L, 1);
     HSAsyncSocket* asyncSocket = (__bridge_transfer HSAsyncSocket *)userData->asyncSocket;
     userData->asyncSocket = nil;
@@ -570,6 +611,7 @@ static int userdata_tostring(lua_State* L) {
 
 static const luaL_Reg socketLib[] = {
     {"new", socket_new},
+    {"parseAddress", socket_parseAddress},
 
     {NULL, NULL} // This must end with an empty struct
 };
@@ -579,9 +621,7 @@ static const luaL_Reg socketObjectLib[] = {
     {"listen", socket_listen},
     {"disconnect", socket_disconnect},
     {"read", socket_read},
-    {"receive", socket_read},
     {"write", socket_write},
-    {"send", socket_write},
     {"setCallback", socket_setCallback},
     {"setTimeout", socket_setTimeout},
     {"startTLS", socket_startTLS},
@@ -590,7 +630,7 @@ static const luaL_Reg socketObjectLib[] = {
     {"info", socket_info},
 
     {"__tostring", userdata_tostring},
-    {"__gc", socket_objectGC},
+    {"__gc", userdata_gc},
 
     {NULL, NULL} // This must end with an empty struct
 };

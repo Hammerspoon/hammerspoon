@@ -1,8 +1,8 @@
 --- === hs.socket ===
 ---
---- Talk to custom protocols using asynchronous sockets as implemented with [CocoaAsyncSocket](https://github.com/robbiehanson/CocoaAsyncSocket)
+--- Talk to custom protocols using asynchronous TCP sockets. For UDP sockets see [`hs.socket.udp`](./hs.socket.udp.html)
 ---
---- CocoaAsyncSocket's [tagging features](https://github.com/robbiehanson/CocoaAsyncSocket/wiki/Intro_GCDAsyncSocket#reading--writing) provide a handy way to implement custom protocols
+--- `hs.socket` is implemented with [CocoaAsyncSocket](https://github.com/robbiehanson/CocoaAsyncSocket). CocoaAsyncSocket's [tagging features](https://github.com/robbiehanson/CocoaAsyncSocket/wiki/Intro_GCDAsyncSocket#reading--writing) provide a handy way to implement custom protocols.
 ---
 --- For example, you can easily implement a basic HTTP client as follows (though using [`hs.http`](./hs.http.html) is recommended for the real world):
 ---
@@ -62,15 +62,35 @@
 
 --- === hs.socket.udp ===
 ---
---- Talk to custom protocols using UDP sockets
+--- Talk to custom protocols using asynchronous UDP sockets. For TCP sockets see [`hs.socket`](./hs.socket.html)
 ---
 
 local module = require("hs.socket.internal")
 
 module.udp = require("hs.socket.udp")
 
-local socketObject = hs.getObjectMetatable("hs.socket")
+local tcpSocketObject = hs.getObjectMetatable("hs.socket")
 local udpSocketObject = hs.getObjectMetatable("hs.socket.udp")
+
+--- hs.socket.timeout
+--- Variable
+--- Timeout for read and write operations, in seconds. New [`hs.socket`](#new) objects will be created with this timeout value, but can individually change it with the [`setTimeout`](#setTimeout) method
+--- If the timeout value is negative, the operations will not use a timeout. The default value is -1
+---
+module.timeout = -1
+
+--- hs.socket.udp.timeout
+--- Variable
+--- Timeout for read and write operations, in seconds. New [`hs.socket.udp`](#new) objects will be created with this timeout value, but can individually change it with the [`setTimeout`](#setTimeout) method
+--- If the timeout value is negative, the operations will not use a timeout. The default value is -1
+---
+module.udp.timeout = -1
+
+--- hs.socket.udp.parseAddress(sockaddr) -> table
+--- Function
+--- Alias for [`hs.socket.parseAddress`](./hs.socket.html#parseAddress)
+---
+module.udp.parseAddress = module.parseAddress
 
 --- hs.socket.server(port[, fn]) -> hs.socket object
 --- Constructor
@@ -84,24 +104,37 @@ local udpSocketObject = hs.getObjectMetatable("hs.socket.udp")
 ---  * An [`hs.socket`](#new) object
 ---
 module.server = function(port, callback)
-    return socket.new(nil, port, callback)
+  return module.new(nil, port, callback)
 end
 
 --- hs.socket:receive(delimiter[, tag]) -> self
 --- Method
 --- Alias for [`hs.socket:read`](#read)
 ---
+tcpSocketObject.receive = tcpSocketObject.read
 
 --- hs.socket:send(message[, tag]) -> self
 --- Method
 --- Alias for [`hs.socket:write`](#write)
 ---
+tcpSocketObject.send = tcpSocketObject.write
 
---- hs.socket.timeout
---- Variable
---- Timeout for read and write operations, in seconds. New [`hs.socket`](#new) objects will be created with this timeout value, but can individually change it with the [`setTimeout`](#setTimeout) method
---- If the timeout value is negative, the operations will not use a timeout. The default value is -1
+--- hs.socket.udp:read(delimiter[, tag]) -> self
+--- Method
+--- Alias for [`hs.socket.udp:receive`](#receive)
 ---
-module.timeout = -1
+udpSocketObject.read = udpSocketObject.receive
+
+--- hs.socket.udp:readOne(delimiter[, tag]) -> self
+--- Method
+--- Alias for [`hs.socket.udp:receiveOne`](#receiveOne)
+---
+udpSocketObject.readOne = udpSocketObject.receiveOne
+
+--- hs.socket.udp:write(message[, tag]) -> self
+--- Method
+--- Alias for [`hs.socket.udp:send`](#send)
+---
+udpSocketObject.write = udpSocketObject.send
 
 return module

@@ -1,5 +1,6 @@
 #import <LuaSkin/LuaSkin.h>
 #import <CocoaAsyncSocket/GCDAsyncUdpSocket.h>
+#import "socket.h"
 
 // Definitions
 @interface HSAsyncUdpSocket : GCDAsyncUdpSocket
@@ -9,25 +10,10 @@
 @end
 
 // Userdata for hs.socket.udp objects
-#define getUserData(L, idx) (__bridge HSAsyncUdpSocket *)((asyncUdpSocketUserData *)lua_touserdata(L, idx))->asyncUdpSocket;
-
 static const char *USERDATA_TAG = "hs.socket.udp";
-
-typedef struct _asyncUdpSocketUserData {
-    int selfRef;
-    void *asyncUdpSocket;
-} asyncUdpSocketUserData;
-
-// These constants are used to set GCDAsyncUdpSocket's built-in userData to distinguish socket types.
-// Foreign client sockets (from netcat for example) connecting to our listening sockets are of type
-// GCDAsyncUdpSocket and attempting to place our subclass's new properties on them will fail
-static const NSString *DEFAULT = @"DEFAULT";
-static const NSString *SERVER = @"SERVER";
-static const NSString *CLIENT = @"CLIENT";
+#define getUserData(L, idx) (__bridge HSAsyncUdpSocket *)((asyncSocketUserData *)lua_touserdata(L, idx))->asyncSocket;
 
 // Callback on data reads
-static int refTable = LUA_NOREF;
-
 static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData *address) {
     LuaSkin *skin = [LuaSkin shared];
     NSString *utf8Data = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -135,64 +121,16 @@ static int socketudp_new(lua_State *L) {
         asyncUdpSocket.readCallback = [skin luaRef:refTable];
     }
 
-    lua_getglobal(skin.L, "hs"); lua_getfield(skin.L, -1, "socket"); lua_getfield(skin.L, -1, "timeout");
+    lua_getglobal(skin.L, "hs"); lua_getfield(skin.L, -1, "socket"); lua_getfield(skin.L, -1, "udp"); lua_getfield(skin.L, -1, "timeout");
     asyncUdpSocket.timeout = lua_tonumber(skin.L, -1);
 
     // Create the userdata object
-    asyncUdpSocketUserData *userData = lua_newuserdata(L, sizeof(asyncUdpSocketUserData));
-    memset(userData, 0, sizeof(asyncUdpSocketUserData));
-    userData->asyncUdpSocket = (__bridge_retained void*)asyncUdpSocket;
+    asyncSocketUserData *userData = lua_newuserdata(L, sizeof(asyncSocketUserData));
+    memset(userData, 0, sizeof(asyncSocketUserData));
+    userData->asyncSocket = (__bridge_retained void*)asyncUdpSocket;
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
-    return 1;
-}
-
-/// hs.socket.udp.parseAddress(sockaddr) -> table
-/// Function
-/// Parses a binary sockaddr address into a readable table
-///
-/// Parameters:
-///  * sockaddr - A binary address descriptor, usually obtained in the read callback or from the [`info`](#info) method
-///
-/// Returns:
-///  * A table describing the address with the following keys:
-///   * host - A string containing the host IP
-///   * port - A number containing the port
-///   * addressFamily - A number containing the address family
-///
-/// Notes:
-///  * Some address family definitions from `<sys/socket.h>`:
-///
-/// address family | number | description 
-/// :--- | :--- | :--- 
-/// AF_UNSPEC | 0 | unspecified 
-/// AF_UNIX | 1 | local to host (pipes) 
-/// AF_LOCAL | AF_UNIX | backward compatibility 
-/// AF_INET | 2 | internetwork: UDP, TCP, etc. 
-/// AF_NS | 6 | XEROX NS protocols
-/// AF_CCITT | 10 | CCITT protocols, X.25 etc 
-/// AF_APPLETALK | 16 | Apple Talk
-/// AF_ROUTE | 17 | Internal Routing Protocol 
-/// AF_LINK | 18 | Link layer interface
-/// AF_INET6 | 30 | IPv6 
-///
-static int socketudp_parseAddress(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TSTRING, LS_TBREAK];
-    NSString *addressStr = [skin toNSObjectAtIndex:1];
-    NSData *address = [addressStr dataUsingEncoding:NSUTF8StringEncoding];
-
-    NSString *host; UInt16 port; int addressFamily;
-    [HSAsyncUdpSocket getHost:&host port:&port family:&addressFamily fromAddress:address];
-
-    NSDictionary *addressDict = @{
-        @"host": host,
-        @"port": @(port),
-        @"addressFamily": @(addressFamily),
-    };
-
-    [skin pushNSObject:addressDict];
     return 1;
 }
 
@@ -265,7 +203,7 @@ static int socketudp_listen(lua_State *L) {
 
 /// hs.socket.udp:close() -> self
 /// Method
-/// Immediately closes the underlying socket, freeing the [`hs.socket.udp`](#new) for reuse. Any pending send operations are discarded
+/// Immediately closes the underlying socket, freeing the [`hs.socket.udp`](#new) instance for reuse. Any pending send operations are discarded
 ///
 /// Parameters:
 ///  * None
@@ -470,7 +408,7 @@ static int socketudp_enableBroadcast(lua_State *L) {
     return 1;
 }
 
-/// hs.socket.udp:preferIPversion([version]) -> self
+/// hs.socket.udp:preferIPvn([version]) -> self
 /// Method
 /// Sets the preferred IP version: IPv4, IPv6, or neutral (first to resolve)
 ///
@@ -527,8 +465,6 @@ static int socketudp_setCallback(lua_State *L) {
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
         asyncUdpSocket.readCallback = [skin luaRef:refTable];
-    } else {
-        asyncUdpSocket.readCallback = LUA_NOREF;
     }
 
     lua_pushvalue(L, 1);
@@ -648,10 +584,10 @@ static int socketudp_info(lua_State *L) {
 }
 
 
-static int socketudp_objectGC(lua_State *L) {
-    asyncUdpSocketUserData *userData = lua_touserdata(L, 1);
-    HSAsyncUdpSocket* asyncUdpSocket = (__bridge_transfer HSAsyncUdpSocket *)userData->asyncUdpSocket;
-    userData->asyncUdpSocket = nil;
+static int userdata_gc(lua_State *L) {
+    asyncSocketUserData *userData = lua_touserdata(L, 1);
+    HSAsyncUdpSocket* asyncUdpSocket = (__bridge_transfer HSAsyncUdpSocket *)userData->asyncSocket;
+    userData->asyncSocket = nil;
 
     [asyncUdpSocket close];
     [asyncUdpSocket setDelegate:nil delegateQueue:NULL];
@@ -674,7 +610,6 @@ static int userdata_tostring(lua_State* L) {
 
 static const luaL_Reg moduleLib[] = {
     {"new", socketudp_new},
-    {"parseAddress", socketudp_parseAddress},
 
     {NULL, NULL} // This must end with an empty struct
 };
@@ -684,21 +619,18 @@ static const luaL_Reg userdata_metaLib[] = {
     {"listen", socketudp_listen},
     {"close", socketudp_close},
     {"receive", socketudp_receive},
-    {"read", socketudp_receive},
     {"pause", socketudp_pause},
     {"receiveOne", socketudp_receiveOne},
-    {"readOne", socketudp_receiveOne},
     {"send", socketudp_send},
-    {"write", socketudp_send},
     {"enableBroadcast", socketudp_enableBroadcast},
-    {"preferIPv6", socketudp_preferIPversion},
+    {"preferIPv", socketudp_preferIPversion},
     {"setCallback", socketudp_setCallback},
     {"setTimeout", socketudp_setTimeout},
     {"connected", socketudp_connected},
     {"info", socketudp_info},
 
     {"__tostring", userdata_tostring},
-    {"__gc", socketudp_objectGC},
+    {"__gc", userdata_gc},
 
     {NULL, NULL} // This must end with an empty struct
 };
