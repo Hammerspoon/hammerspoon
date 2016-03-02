@@ -76,7 +76,7 @@
 }
 
 - (void)testTcpTagging {
-    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(10)
 }
 
 - (void)testTcpClientServerTimeout {
@@ -84,23 +84,23 @@
 }
 
 - (void)testTcpTls {
-    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(10)
 }
 
 - (void)testTcpTlsRequiredByServer {
-    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(10)
 }
 
 - (void)testTcpTlsVerifyPeer {
-    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(10)
 }
 
 - (void)testTcpTlsVerifyBadPeerFails {
-    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(10)
 }
 
 - (void)testTcpTlsNoVerify {
-    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(3)
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(10)
 }
 
 - (void)testTcpNoCallbackRead {
