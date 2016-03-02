@@ -467,7 +467,7 @@ nextarg:
 - (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
     if (allGood)
-        registeredLuaObjectHelperFunctions[@(userdataTag)] = @(className);
+        registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
     return allGood ;
 }
 
