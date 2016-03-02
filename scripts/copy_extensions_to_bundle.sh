@@ -34,6 +34,7 @@ export HS_MODULES="alert \
     milight \
     mouse \
     notify \
+    osascript \
     pasteboard \
     pathwatcher \
     screen \
