@@ -166,7 +166,7 @@ function testVolume()
   assertTrue(device:setVolume(0))
   assertTrue(device:setVolume(wantVolume))
 
-  assertIsEqual(wantVolume, device:volume())
+  assertIsAlmostEqual(wantVolume, device:volume(), 0.5)
 
   -- Be nice and put the volume back where we found it
   device:setVolume(originalVolume)
@@ -188,7 +188,7 @@ end
 assertTrue(device:setInputVolume(0))
 assertTrue(device:setInputVolume(wantVolume))
 
-assertIsEqual(wantVolume, device:inputVolume())
+assertIsAlmostEqual(wantVolume, device:inputVolume(), 0.5)
 
 -- Be nice and put the volume back where we found it
 device:setInputVolume(originalVolume)
@@ -210,7 +210,7 @@ end
 assertTrue(device:setOutputVolume(0))
 assertTrue(device:setOutputVolume(wantVolume))
 
-assertIsEqual(wantVolume, device:outputVolume())
+assertIsAlmostEqual(wantVolume, device:outputVolume(), 0.5)
 
 -- Be nice and put the volume back where we found it
 device:setOutputVolume(originalVolume)
