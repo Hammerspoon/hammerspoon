@@ -1,7 +1,7 @@
 language: objective-c
 osx_image: xcode7.2
 before_install:
-  - gem install github-markdown
+  - gem install github-markdown xcpretty-travis-formatter
 before_script:
   - make docs
   - sudo sqlite3 /Library/Application\ Support/com.apple.TCC/TCC.db "INSERT INTO access VALUES('kTCCServiceAccessibility','org.hammerspoon.Hammerspoon',0,1,1,NULL,NULL);"
@@ -9,7 +9,7 @@ before_script:
 xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
 script:
-  - xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build test
+  - xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build test | xcodebuild | xcpretty -f `xcpretty-travis-formatter`
 after_script:
   - make build/html
 notifications:
