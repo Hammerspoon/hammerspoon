@@ -37,6 +37,7 @@ export HS_MODULES="alert \
     pathwatcher \
     screen \
     settings \
+    socket \
     sound \
     speech \
     styledtext \
@@ -123,6 +124,9 @@ cp -av "${SRCROOT}/extensions/network/host.lua" "${HS_DST}/network/host.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libnetworkhost.dylib" "${HS_DST}/network/hostinternal.so"
 cp -av "${SRCROOT}/extensions/network/reachability.lua" "${HS_DST}/network/reachability.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libnetworkreachability.dylib" "${HS_DST}/network/reachabilityinternal.so"
+
+# Special copier for hs.socket.udp
+cp -av "${BUILT_PRODUCTS_DIR}/libsocketudp.dylib" "${HS_DST}/socket/udp.so"
 
 # Special copier for hs.window submodules
 cp -av "${SRCROOT}/extensions/window/filter.lua" "${HS_DST}/window/filter.lua"
