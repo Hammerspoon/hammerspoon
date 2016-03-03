@@ -8,8 +8,8 @@
 @import Cocoa;
 #import <LuaSkin/LuaSkin.h>
 
-// Helper for moving background operations to main thread queue
-#define mainThreadDispatch(...) dispatch_async(dispatch_get_main_queue(), ^{ @autoreleasepool {__VA_ARGS__} })
+#pragma clang diagnostic ignored "-Wgnu-conditional-omitted-operand"
+#define mainThreadDispatch(...) dispatch_async(dispatch_get_main_queue(), ^{ @autoreleasepool {__VA_ARGS__;} })
 
 // Helper for Lua callbacks
 static int refTable = LUA_NOREF;
