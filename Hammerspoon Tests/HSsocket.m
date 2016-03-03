@@ -51,6 +51,18 @@
     RUN_LUA_TEST()
 }
 
+- (void)testTcpUnixListenerSocketAttributes {
+    RUN_LUA_TEST()
+}
+
+- (void)testUdpConnect {
+    RUN_LUA_TEST()
+}
+
+- (void)testUdpNoCallbacks {
+    RUN_LUA_TEST()
+}
+
 - (void)testTcpDisconnectAndReuse {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
@@ -72,6 +84,10 @@
 }
 
 - (void)testTcpClientServerReadWriteBytes {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testTcpUnixClientServerReadWriteBytes {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 
@@ -149,6 +165,30 @@
 }
 
 - (void)testUdpClientServerReceiveOnce {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testUdpClientServerReceiveMany {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testUdpBroadcast {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testUdpReusePort {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testUdpEnabledIpVersion {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testUdpPreferredIpVersion {
+    RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
+}
+
+- (void)testUdpBufferSize {
     RUN_TWO_PART_LUA_TEST_WITH_TIMEOUT(2)
 }
 

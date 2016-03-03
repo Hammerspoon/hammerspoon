@@ -3,6 +3,7 @@ require "test_udpsocket"
 
 -- globals for async TCP tests
 port = 9001
+sockfile = "/tmp/sock"
 
 callback = function(data, tag)
   readData = data
@@ -12,21 +13,25 @@ end
 -- constructors
 function testTcpSocketInstanceCreation()
   assertIsUserdataOfType("hs.socket", hs.socket.new())
+
   return success()
 end
 
 function testTcpSocketInstanceCreationWithCallback()
   assertIsUserdataOfType("hs.socket", hs.socket.new(print))
+
   return success()
 end
 
 function testTcpListenerSocketCreation()
   assertIsUserdataOfType("hs.socket", hs.socket.server(port))
+
   return success()
 end
 
 function testTcpListenerSocketCreationWithCallback()
   assertIsUserdataOfType("hs.socket", hs.socket.server(port, print))
+
   return success()
 end
 
@@ -35,12 +40,32 @@ function testTcpListenerSocketAttributes()
 
   local info = server:info()
 
+  assertIsEqual("SERVER", info.userData)
+  assertIsEqual("", info.unixSocketPath)
   assertIsEqual(port, info.localPort)
   assertIsEqual("0.0.0.0", info.localHost)
   assertIsEqual(0, info.connectedPort)
   assertIsEqual("", info.connectedHost)
-  assertIsEqual("SERVER", info.userData)
+  assertFalse(info.isDisconnected)
   assertFalse(info.isConnected)
+
+  return success()
+end
+
+function testTcpUnixListenerSocketAttributes()
+  local server = hs.socket.server(sockfile, print)
+
+  local info = server:info()
+
+  assertIsEqual("SERVER", info.userData)
+  assertIsEqual(sockfile, info.unixSocketPath)
+  assertIsEqual(0, info.localPort)
+  assertIsEqual("", info.localHost)
+  assertIsEqual(0, info.connectedPort)
+  assertIsEqual("", info.connectedHost)
+  assertFalse(info.isDisconnected)
+  assertFalse(info.isConnected)
+
   return success()
 end
 
@@ -133,11 +158,16 @@ end
 
 -- test failure to connect already connected sockets
 function testTcpAlreadyConnectedValues()
-  if (type(serverConnected) == "boolean" and serverConnected == true and
-      type(serverUserdata) == "string" and serverUserdata == "SERVER" and
+  if (type(server1Connected) == "boolean" and server1Connected == true and
+      type(server1Userdata) == "string" and server1Userdata == "SERVER" and
       type(server2Connected) == "boolean" and server2Connected == false and
       type(server2Userdata) == "string" and server2Userdata == "" and
-      type(clientConnectedPort) == "number" and clientConnectedPort == port) then
+      type(clientConnectedPort) == "number" and clientConnectedPort == port and
+      type(server3Connected) == "boolean" and server3Connected == true and
+      type(server3Userdata) == "string" and server3Userdata == "SERVER" and
+      type(server4Connected) == "boolean" and server4Connected == false and
+      type(server4Userdata) == "string" and server4Userdata == "" and
+      type(clientSockfile) == "string" and clientSockfile == sockfile) then
     return success()
   else
     return "Waiting for success..."
@@ -145,11 +175,11 @@ function testTcpAlreadyConnectedValues()
 end
 
 function testTcpAlreadyConnected()
-  server = hs.socket.server(port)
+  server1 = hs.socket.server(port)
   server2 = hs.socket.server(port)
   client = hs.socket.new():connect("localhost", port, function()
-    serverConnected = server:connected()
-    serverUserdata = server:info().userData
+    server1Connected = server1:connected()
+    server1Userdata = server1:info().userData
 
     -- no listening socket created because local port already in use
     server2Connected = server2:connected()
@@ -158,6 +188,21 @@ function testTcpAlreadyConnected()
     -- port should not change because already connected
     client:connect("localhost", port + 1)
     hs.timer.doAfter(0.2, function() clientConnectedPort = client:info().connectedPort end)
+  end)
+
+  server3 = hs.socket.server(sockfile)
+  server4 = hs.socket.server(sockfile)
+  clientUnix = hs.socket.new():connect(sockfile, function()
+    server3Connected = server3:connected()
+    server3Userdata = server3:info().userData
+
+    -- no listening socket created because sockfile already bound for listening
+    server4Connected = server4:connected()
+    server4Userdata = server4:info().userData
+
+    -- connected sockfile not change because already connected
+    clientUnix:connect(sockfile.."2")
+    hs.timer.doAfter(0.2, function() clientSockfile = clientUnix:info().unixSocketPath end)
   end)
 
   return success()
@@ -240,6 +285,37 @@ function testTcpClientServerReadWriteBytes()
 
   server = hs.socket.server(port, serverCallback)
   client = hs.socket.new(clientCallback):connect("localhost", port, function()
+    local tag = 10
+    client:write("Hi from client\n", tag, function(writeTag)
+      assertIsEqual(tag, writeTag)
+      server:read(5)
+      server:write("Hello from server\n", function(writeTag)
+        assertIsEqual(-1, writeTag)
+        client:read(5)
+      end)
+    end)
+  end)
+
+  return success()
+end
+
+function testTcpUnixClientServerReadWriteBytesValues()
+  print(serverReadData)
+  print(clientReadData)
+  if (type(serverReadData) == "string" and serverReadData == "Hi fr" and
+      type(clientReadData) == "string" and clientReadData == "Hello") then
+    return success()
+  else
+    return "Waiting for success..."
+  end
+end
+
+function testTcpUnixClientServerReadWriteBytes()
+  local function serverCallback(data) serverReadData = data end
+  local function clientCallback(data) clientReadData = data end
+
+  server = hs.socket.server(sockfile, serverCallback)
+  client = hs.socket.new(clientCallback):connect(sockfile, function()
     local tag = 10
     client:write("Hi from client\n", tag, function(writeTag)
       assertIsEqual(tag, writeTag)
