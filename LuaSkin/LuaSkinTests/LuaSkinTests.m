@@ -10,6 +10,11 @@
 #import <XCTest/XCTest.h>
 #import "Skin.h"
 
+#pragma mark - Defines
+
+#define RUN_LUA_TEST() XCTAssertTrue([self luaTestFromSelector:_cmd], @"Test failed: %@", NSStringFromSelector(_cmd));
+#define SKIP_IN_TRAVIS() if(self.isTravis) { NSLog(@"Skipping %@ due to Travis", NSStringFromSelector(_cmd)) ; return; }
+
 #pragma mark - Utility C functions
 
 static void stackDump (lua_State *L) {
@@ -110,10 +115,10 @@ static int pushTestUserData(lua_State *L, id object) {
 
 #pragma mark - Test case harness definition
 
-@interface LuaSkinTests : XCTestCase {
-    LuaSkin *skin;
-}
-
+@interface LuaSkinTests : XCTestCase
+@property LuaSkin *skin;
+@property int refTable;
+@property int evalfn;
 @end
 
 #pragma mark - Test case harness implementation
@@ -122,7 +127,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
 - (void)setUp {
     [super setUp];
-    skin = [[LuaSkin alloc] init];
+    self.skin = [[LuaSkin alloc] init];
     libraryGCCalled = NO;
     libraryObjectGCCalled = NO;
 
@@ -135,31 +140,113 @@ static int pushTestUserData(lua_State *L, id object) {
     // Now find lsunit.lua within the bundle. It will end by require()ing our init.lua
     NSString *lsUnitPath = [NSString stringWithFormat:@"%@/lsunit.lua", bundlePath];
 
+    // Prepare a refTable
+    lua_newtable(self.skin.L);
+    self.refTable = luaL_ref(self.skin.L, LUA_REGISTRYINDEX);
+
     // Load init.lua from our bundle
     NSLog(@"Loading LuaSkinTests lsunit.lua from %@", lsUnitPath);
-    int loadresult = luaL_loadfile(skin.L, [lsUnitPath UTF8String]);
+    int loadresult = luaL_loadfile(self.skin.L, [lsUnitPath UTF8String]);
     if (loadresult != 0) {
         NSLog(@"ERROR: Unable to load lsunit.lua from LuaSkinTests.xctest");
         NSException *loadException = [NSException exceptionWithName:@"LuaSkinTestsLSInitLoadfileFailed" reason:@"Unable to load lsunit.lua from LuaSkinTests.xctest" userInfo:nil];
         @throw loadException;
     }
 
-    [skin pushNSObject:bundlePath];
-    BOOL result = [skin protectedCallAndTraceback:1 nresults:0];
+    [self.skin pushNSObject:bundlePath];
+    BOOL result = [self.skin protectedCallAndTraceback:1 nresults:1];
     if (!result) {
-        NSLog(@"ERROR: lsunit.lua instantiation failed: %@", @(lua_tostring(skin.L, -1)));
+        NSLog(@"ERROR: lsunit.lua instantiation failed: %@", @(lua_tostring(self.skin.L, -1)));
         NSException *pcallException = [NSException exceptionWithName:@"LuaSkinTestsLSUnitPCallFailed" reason:@"An error occurred when executing LuaSkinTests lsunit.lua" userInfo:nil];
         @throw pcallException;
     }
+
+    // Capture the evaluation function that lsunit.lua returned
+    self.evalfn = [self.skin luaRef:self.refTable];
 }
 
 - (void)tearDown {
-    [skin destroyLuaState];
+    [self.skin destroyLuaState];
     [super tearDown];
 }
 
+- (BOOL)runLuaFunction:(NSString *)functionName {
+    [self.skin pushLuaRef:self.refTable ref:self.evalfn];
+    if (!lua_isfunction(self.skin.L, -1)) {
+        NSLog(@"ERROR: evalfn is not a function");
+        if (lua_isstring(self.skin.L, -1)) {
+            NSLog(@"evalfn is a string: %s", lua_tostring(self.skin.L, -1));
+        }
+        return NO;
+    }
+
+    lua_pushstring(self.skin.L, [[NSString stringWithFormat:@"%@()", functionName] UTF8String]);
+    return [self.skin protectedCallAndTraceback:1 nresults:1];
+}
+
+- (BOOL)runLuaFunctionFromSelector:(SEL)selector {
+    NSString *functionName = NSStringFromSelector(selector);
+    return [self runLuaFunction:functionName];
+}
+
+- (NSString *)runLua:(NSString *)luaCode {
+    [self.skin pushLuaRef:self.refTable ref:self.evalfn];
+    if (!lua_isfunction(self.skin.L, -1)) {
+        NSLog(@"ERROR: evalfn is not a function");
+        if (lua_isstring(self.skin.L, -1)) {
+            NSLog(@"evalfn is a string: %s", lua_tostring(self.skin.L, -1));
+        }
+        return @"";
+    }
+
+    lua_pushstring(self.skin.L, [luaCode UTF8String]);
+    [self.skin protectedCallAndTraceback:1 nresults:1];
+
+    return @(lua_tostring(self.skin.L, -1));
+}
+
+- (BOOL)luaTest:(NSString *)luaCode {
+    NSString *result = [self runLua:luaCode];
+    NSLog(@"Test returned: %@ for: %@", result, luaCode);
+    return [result isEqualToString:@"Success"];
+}
+
+- (BOOL)luaTestWithCheckAndTimeOut:(NSTimeInterval)timeOut setupCode:(NSString *)setupCode checkCode:(NSString *)checkCode {
+    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeOut];
+    BOOL result = NO;
+
+    [self runLua:setupCode];
+
+    while (result == NO && ([timeoutDate timeIntervalSinceNow] > 0)) {
+        CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.5, NO);
+        result = [self luaTest:checkCode];
+    }
+
+    return result;
+}
+- (BOOL)luaTestFromSelector:(SEL)selector {
+    NSString *funcName = NSStringFromSelector(selector);
+    NSLog(@"Calling Lua function from selector: %@()", funcName);
+    return [self luaTest:[NSString stringWithFormat:@"%@()", funcName]];
+}
+
+- (BOOL)runningInTravis {
+    return (getenv("TRAVIS") != NULL);
+}
+
+// Tests of the above methods
+
+- (void)testrunLua {
+    NSString *result = [self runLua:@"return 'hello world!'"];
+    XCTAssertEqualObjects(@"hello world!", result, @"Lua code evaluation is not working");
+}
+
+- (void)testTestLuaSuccess {
+    [self luaTest:@"return 'Success'"];
+}
+
 - (void)testSkinInit {
-    XCTAssertNotNil(skin);
+    XCTAssertNotNil(self.skin);
 }
 
 - (void)testSingletonality {
@@ -188,26 +275,26 @@ static int pushTestUserData(lua_State *L, id object) {
     }];
 }
 - (void)testLuaStateCreation {
-    XCTAssert((skin.L != NULL));
+    XCTAssert((self.skin.L != NULL));
 }
 
 - (void)testLuaStateDoubleCreation {
-    XCTAssertThrowsSpecificNamed([skin createLuaState], NSException, NSInternalInconsistencyException);
+    XCTAssertThrowsSpecificNamed([self.skin createLuaState], NSException, NSInternalInconsistencyException);
 }
 
 - (void)testLuaStateDestruction {
-    [skin destroyLuaState];
-    XCTAssert((skin.L == NULL));
+    [self.skin destroyLuaState];
+    XCTAssert((self.skin.L == NULL));
     // Put the Lua environment back so tearDown doesn't explode
-    [skin createLuaState];
+    [self.skin createLuaState];
 }
 
 - (void)testLuaStateDoubleDestruction {
-    [skin destroyLuaState];
+    [self.skin destroyLuaState];
     
     @try {
         // This should throw an NSInternalInconsistencyException
-        [skin destroyLuaState];
+        [self.skin destroyLuaState];
     }
     @catch (NSException *exception) {
         if (exception.name != NSInternalInconsistencyException) {
@@ -216,85 +303,85 @@ static int pushTestUserData(lua_State *L, id object) {
     }
     @finally {
         // Put the Lua environment back so tearDown doesn't explode
-        [skin createLuaState];
+        [self.skin createLuaState];
     }
 }
 
 - (void)testLuaStateRecreation {
-    lua_State *oldState = skin.L;
-    [skin resetLuaState];
-    XCTAssertNotEqual(oldState, skin.L, @"lua_State was not replaced by resetLuaState");
+    lua_State *oldState = self.skin.L;
+    [self.skin resetLuaState];
+    XCTAssertNotEqual(oldState, self.skin.L, @"lua_State was not replaced by resetLuaState");
 }
 
 - (void)testLuaCanExecute {
-    int result = luaL_dostring(skin.L, "print('Lua executes')");
+    int result = luaL_dostring(self.skin.L, "print('Lua executes')");
     XCTAssertFalse(result);
 }
 
 - (void)testLuaCanFailToExecute {
-    int result = luaL_dostring(skin.L, "invalid mumbojumbo");
+    int result = luaL_dostring(self.skin.L, "invalid mumbojumbo");
     XCTAssertTrue(result);
 }
 
 - (void)testProtectedCall {
-    int loadResult = luaL_loadstring(skin.L, "print('Lua protected execution works')");
+    int loadResult = luaL_loadstring(self.skin.L, "print('Lua protected execution works')");
     XCTAssertFalse(loadResult);
-    BOOL pcallResult = [skin protectedCallAndTraceback:0 nresults:0];
+    BOOL pcallResult = [self.skin protectedCallAndTraceback:0 nresults:0];
     XCTAssertTrue(pcallResult);
 }
 
 - (void)testProtectedCallWithFailure {
-    int loadResult = luaL_loadstring(skin.L, "require('impossible_module')");
+    int loadResult = luaL_loadstring(self.skin.L, "require('impossible_module')");
     XCTAssertFalse(loadResult);
-    BOOL pcallResult = [skin protectedCallAndTraceback:0 nresults:0];
+    BOOL pcallResult = [self.skin protectedCallAndTraceback:0 nresults:0];
     XCTAssertFalse(pcallResult);
 }
 
 - (void)testLibrary {
-    [skin registerLibrary:functions metaFunctions:metaFunctions];
+    [self.skin registerLibrary:functions metaFunctions:metaFunctions];
     
     // Normally we'd be returning to a luaopen_ function after registerLibrary, and thus the library would be inserted into the right namespace. Since we're not doing that here, we'll just go ahead and register it as a global, using the library name
-    lua_setglobal(skin.L, libraryTestName);
+    lua_setglobal(self.skin.L, libraryTestName);
     
     // Call a function from the test library and test its return value
-    luaL_loadstring(skin.L, "return testLibrary.doThing(4)");
-    [skin protectedCallAndTraceback:0 nresults:1];
-    XCTAssertEqual(lua_tonumber(skin.L, -1), 5);
+    luaL_loadstring(self.skin.L, "return testLibrary.doThing(4)");
+    [self.skin protectedCallAndTraceback:0 nresults:1];
+    XCTAssertEqual(lua_tonumber(self.skin.L, -1), 5);
 
     // Now test that the library's __gc function gets called
-    [skin destroyLuaState];
+    [self.skin destroyLuaState];
     XCTAssertTrue(libraryGCCalled);
     
     // Recreate the Lua environment so tearDown doesn't explode
-    [skin createLuaState];
+    [self.skin createLuaState];
 }
 
 - (void)testLibraryWithObjects {
-    [skin registerLibraryWithObject:libraryTestName functions:functions metaFunctions:metaFunctions objectFunctions:objectFunctions];
+    [self.skin registerLibraryWithObject:libraryTestName functions:functions metaFunctions:metaFunctions objectFunctions:objectFunctions];
     // Normally we'd be returning to a luaopen_ function after registerLibrary, and thus the library would be inserted into the right namespace. Since we're not doing that here, we'll just go ahead and register it as a global, using the library name
-    lua_setglobal(skin.L, libraryTestName);
+    lua_setglobal(self.skin.L, libraryTestName);
     
     // Create a library object, call a method on it and test its return value
-    luaL_loadstring(skin.L, "return testLibrary.new(12):doObjectThing()");
-    [skin protectedCallAndTraceback:0 nresults:1];
-    stackDump(skin.L);
-    XCTAssertEqual(lua_tonumber(skin.L, -1), 13);
+    luaL_loadstring(self.skin.L, "return testLibrary.new(12):doObjectThing()");
+    [self.skin protectedCallAndTraceback:0 nresults:1];
+    stackDump(self.skin.L);
+    XCTAssertEqual(lua_tonumber(self.skin.L, -1), 13);
 
     // Now test that the library's __gc function gets called
-    [skin destroyLuaState];
+    [self.skin destroyLuaState];
     XCTAssertTrue(libraryGCCalled);
 
     // Now test that the library object's __gc function gets called
     XCTAssertTrue(libraryObjectGCCalled);
 
     // Recreate the Lua environment so teatDown doesn't explode
-    [skin createLuaState];
+    [self.skin createLuaState];
 }
 
 - (void)testPerformanceLuaStateLifecycle {
     [self measureBlock:^{
-        [skin destroyLuaState];
-        [skin createLuaState];
+        [self.skin destroyLuaState];
+        [self.skin createLuaState];
     }];
 }
 
@@ -302,36 +389,36 @@ static int pushTestUserData(lua_State *L, id object) {
     NSString *testString = @"LUAREF_TEST";
 
     // Set up a table for the refs
-    lua_newtable(skin.L);
-    int tableRef = luaL_ref(skin.L, LUA_REGISTRYINDEX);
+    lua_newtable(self.skin.L);
+    int tableRef = luaL_ref(self.skin.L, LUA_REGISTRYINDEX);
 
     XCTAssertNotEqual(LUA_REFNIL, tableRef, @"tableRef creation returned LUA_REFNIL");
     XCTAssertNotEqual(LUA_NOREF, tableRef, @"tableRef creation returned LUA_NOREF");
 
     // Test that reffing a nil fails with LUA_REFNIL
-    lua_pushnil(skin.L);
-    XCTAssertEqual(LUA_REFNIL, [skin luaRef:tableRef], @"reffing a nil did not return LUA_REFNIL");
+    lua_pushnil(self.skin.L);
+    XCTAssertEqual(LUA_REFNIL, [self.skin luaRef:tableRef], @"reffing a nil did not return LUA_REFNIL");
 
-    lua_pushstring(skin.L, [testString UTF8String]);
-    int ref = [skin luaRef:tableRef atIndex:-1];
+    lua_pushstring(self.skin.L, [testString UTF8String]);
+    int ref = [self.skin luaRef:tableRef atIndex:-1];
 
     XCTAssertNotEqual(LUA_NOREF, ref, @"luaRef returned LUA_NOREF");
     XCTAssertNotEqual(LUA_NOREF, ref, @"luaRef returned LUA_REFNIL");
     XCTAssertGreaterThanOrEqual(ref, 0, @"luaRef returned negative ref");
 
-    [skin pushLuaRef:tableRef ref:ref];
+    [self.skin pushLuaRef:tableRef ref:ref];
 
-    NSString *resultString = @(lua_tostring(skin.L, -1));
+    NSString *resultString = @(lua_tostring(self.skin.L, -1));
 
     XCTAssertEqualObjects(testString, resultString, @"Reffed string did not come back the same");
 
-    ref = [skin luaUnref:tableRef ref:ref];
+    ref = [self.skin luaUnref:tableRef ref:ref];
 
     XCTAssertEqual(LUA_NOREF, ref, @"luaUnref did not return LUA_NOREF");
 
     @try {
         // This should throw an NSInternalInconsistencyException
-        [skin pushLuaRef:tableRef ref:ref];
+        [self.skin pushLuaRef:tableRef ref:ref];
     }
     @catch (NSException *exception) {
         if (exception.name != NSInternalInconsistencyException) {
@@ -339,7 +426,7 @@ static int pushTestUserData(lua_State *L, id object) {
         }
     }
 
-    int refType = [skin pushLuaRef:tableRef ref:99999];
+    int refType = [self.skin pushLuaRef:tableRef ref:99999];
     XCTAssertEqual(LUA_TNIL, refType);
 
 }
@@ -351,24 +438,24 @@ static int pushTestUserData(lua_State *L, id object) {
     const luaL_Reg userDataMetaTable[] = {
         {NULL, NULL},
     };
-    [skin registerObject:userDataType objectFunctions:userDataMetaTable];
+    [self.skin registerObject:userDataType objectFunctions:userDataMetaTable];
 
-    lua_settop(skin.L, 0);
+    lua_settop(self.skin.L, 0);
 
-    lua_pushnil(skin.L);
-    lua_pushboolean(skin.L, true);
-    lua_pushnumber(skin.L, 5.2);
-    lua_pushinteger(skin.L, 12);
-    lua_pushstring(skin.L, "This is a string");
-    lua_newtable(skin.L);
-    luaL_loadstring(skin.L, "function foo() end");
-    lua_newuserdata(skin.L, sizeof(void *));
-    luaL_getmetatable(skin.L, userDataType);
-    lua_setmetatable(skin.L, -2);
-    lua_pushnil(skin.L);
+    lua_pushnil(self.skin.L);
+    lua_pushboolean(self.skin.L, true);
+    lua_pushnumber(self.skin.L, 5.2);
+    lua_pushinteger(self.skin.L, 12);
+    lua_pushstring(self.skin.L, "This is a string");
+    lua_newtable(self.skin.L);
+    luaL_loadstring(self.skin.L, "function foo() end");
+    lua_newuserdata(self.skin.L, sizeof(void *));
+    luaL_getmetatable(self.skin.L, userDataType);
+    lua_setmetatable(self.skin.L, -2);
+    lua_pushnil(self.skin.L);
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [skin checkArgs:LS_TNIL, LS_TBOOLEAN, LS_TNUMBER, LS_TNUMBER | LS_TINTEGER, LS_TSTRING, LS_TTABLE, LS_TFUNCTION, LS_TUSERDATA, userDataType, LS_TANY, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+        [self.skin checkArgs:LS_TNIL, LS_TBOOLEAN, LS_TNUMBER, LS_TNUMBER | LS_TINTEGER, LS_TSTRING, LS_TTABLE, LS_TFUNCTION, LS_TUSERDATA, userDataType, LS_TANY, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
         [expectation fulfill];
     });
 
@@ -387,131 +474,245 @@ static int pushTestUserData(lua_State *L, id object) {
 - (void)testPushNSObject {
     // Test pushing an NSString (note that in this case we test the return value. There are only two return points in pushNSObject, so subsequent tests only re-test the return value if they are expecting something other than 1
     NSString *pushString = @"Test push string";
-    XCTAssertEqual(1, [skin pushNSObject:pushString]);
-    XCTAssertEqualObjects(pushString, @(lua_tostring(skin.L, -1)));
+    XCTAssertEqual(1, [self.skin pushNSObject:pushString]);
+    XCTAssertEqualObjects(pushString, @(lua_tostring(self.skin.L, -1)));
 
     // Test pushing an NSNull
-    [skin pushNSObject:[NSNull null]];
-    XCTAssertEqual(LUA_TNIL, lua_type(skin.L, -1));
+    [self.skin pushNSObject:[NSNull null]];
+    XCTAssertEqual(LUA_TNIL, lua_type(self.skin.L, -1));
 
     // Test pushing an NSArray
-    [skin pushNSObject:@[@"1", @"2"]];
-    XCTAssertEqual(LUA_TTABLE, lua_type(skin.L, -1));
+    [self.skin pushNSObject:@[@"1", @"2"]];
+    XCTAssertEqual(LUA_TTABLE, lua_type(self.skin.L, -1));
 
     // Test pushing an NSNumber
-    [skin pushNSObject:[NSNumber numberWithInt:42]];
-    XCTAssertEqual(42, lua_tointeger(skin.L, -1));
+    [self.skin pushNSObject:[NSNumber numberWithInt:42]];
+    XCTAssertEqual(42, lua_tointeger(self.skin.L, -1));
 
     // Test pushing an NSDictionary
-    [skin pushNSObject:@{@"1" : @"foo", @"2" : @"bar"}];
-    XCTAssertEqual(LUA_TTABLE, lua_type(skin.L, -1));
+    [self.skin pushNSObject:@{@"1" : @"foo", @"2" : @"bar"}];
+    XCTAssertEqual(LUA_TTABLE, lua_type(self.skin.L, -1));
 
     // Test pushing an NSURL
-    [skin pushNSObject:[NSURL URLWithString:@"http://www.hammerspoon.org"]];
-    XCTAssertEqualObjects(@"http://www.hammerspoon.org", @(lua_tostring(skin.L, -1)));
+    [self.skin pushNSObject:[NSURL URLWithString:@"http://www.hammerspoon.org"]];
+    XCTAssertEqualObjects(@"http://www.hammerspoon.org", @(lua_tostring(self.skin.L, -1)));
 
     // Test pushing an unrecognised type
-    [skin pushNSObject:[[NSObject alloc] init]];
-    XCTAssertEqual(LUA_TNIL, lua_type(skin.L, -1));
+    [self.skin pushNSObject:[[NSObject alloc] init]];
+    XCTAssertEqual(LUA_TNIL, lua_type(self.skin.L, -1));
 
     // Test pushing an unrecognised type, with an option to convert unknown types to string descriptions
-    [skin pushNSObject:[[NSObject alloc] init] withOptions:LS_NSDescribeUnknownTypes];
-    XCTAssertEqual(LUA_TSTRING, lua_type(skin.L, -1));
+    [self.skin pushNSObject:[[NSObject alloc] init] withOptions:LS_NSDescribeUnknownTypes];
+    XCTAssertEqual(LUA_TSTRING, lua_type(self.skin.L, -1));
 
     // Test pushing an unrecognised type, with an option to ignore unknown types
-    XCTAssertEqual(0, [skin pushNSObject:[[NSObject alloc] init] withOptions:LS_NSIgnoreUnknownTypes]);
+    XCTAssertEqual(0, [self.skin pushNSObject:[[NSObject alloc] init] withOptions:LS_NSIgnoreUnknownTypes]);
 
     // Test pushing nil
-    [skin pushNSObject:nil];
-    XCTAssertEqual(LUA_TNIL, lua_type(skin.L, -1));
+    [self.skin pushNSObject:nil];
+    XCTAssertEqual(LUA_TNIL, lua_type(self.skin.L, -1));
 
     // Test pushing an NSDate
     NSDate *now = [NSDate date];
-    [skin pushNSObject:now];
-    XCTAssertEqual(lround([now timeIntervalSince1970]), lua_tointeger(skin.L, -1));
+    [self.skin pushNSObject:now];
+    XCTAssertEqual(lround([now timeIntervalSince1970]), lua_tointeger(self.skin.L, -1));
 
     // Test pushing an NSData
-    [skin pushNSObject:[@("NSData test") dataUsingEncoding:NSUTF8StringEncoding]];
-    XCTAssertEqualObjects(@("NSData test"), @(lua_tostring(skin.L, -1)));
+    [self.skin pushNSObject:[@("NSData test") dataUsingEncoding:NSUTF8StringEncoding]];
+    XCTAssertEqualObjects(@("NSData test"), @(lua_tostring(self.skin.L, -1)));
 
     // Test pushing an NSSet
-    [skin pushNSObject:[NSSet set]];
-    XCTAssertEqual(LUA_TTABLE, lua_type(skin.L, -1));
+    [self.skin pushNSObject:[NSSet set]];
+    XCTAssertEqual(LUA_TTABLE, lua_type(self.skin.L, -1));
 
     // Test pushing an object which contains itself
     NSMutableDictionary *selfRefDict = [NSMutableDictionary dictionary];
     selfRefDict[@"self"] = selfRefDict;
-    [skin pushNSObject:selfRefDict];
-    XCTAssertEqual(LUA_TTABLE, lua_type(skin.L, -1));
+    [self.skin pushNSObject:selfRefDict];
+    XCTAssertEqual(LUA_TTABLE, lua_type(self.skin.L, -1));
 
     const char *userDataType = "LuaSkinUserdataTestType";
     const luaL_Reg userDataMetaTable[] = {
         {NULL, NULL},
     };
-    [skin registerObject:userDataType objectFunctions:userDataMetaTable];
-    [skin registerPushNSHelper:pushTestUserData forClass:"LuaSkinUserdataTestType"];
+    [self.skin registerObject:userDataType objectFunctions:userDataMetaTable];
+    [self.skin registerPushNSHelper:pushTestUserData forClass:"LuaSkinUserdataTestType"];
     LuaSkinUserdataTestType *testObject = [[LuaSkinUserdataTestType alloc] init];
-    [skin pushNSObject:testObject];
-    XCTAssertEqual(682568, lua_tointeger(skin.L, -1));
+    [self.skin pushNSObject:testObject];
+    XCTAssertEqual(682568, lua_tointeger(self.skin.L, -1));
 
     // Push the helper again, since that should not explode
     // FIXME: Really we should capture the log message in a mock delegate class, so we can verify that we got the codepath we expected
-    [skin registerPushNSHelper:pushTestUserData forClass:"LuaSkinUserdataTestType"];
+    [self.skin registerPushNSHelper:pushTestUserData forClass:"LuaSkinUserdataTestType"];
 
     // Push nonsense
     // FIXME: This should also be asserting the log message in a mock delegate class
-    [skin registerPushNSHelper:nil forClass:NULL];
+    [self.skin registerPushNSHelper:nil forClass:NULL];
 
-    [skin pushNSObject:[NSValue valueWithRect:NSMakeRect(5, 6, 7, 8)]];
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "x"));
-    XCTAssertEqual(5, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "y"));
-    XCTAssertEqual(6, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "w"));
-    XCTAssertEqual(7, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "h"));
-    XCTAssertEqual(8, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
+    [self.skin pushNSObject:[NSValue valueWithRect:NSMakeRect(5, 6, 7, 8)]];
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "x"));
+    XCTAssertEqual(5, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "y"));
+    XCTAssertEqual(6, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "w"));
+    XCTAssertEqual(7, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "h"));
+    XCTAssertEqual(8, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
 
-    [skin pushNSObject:[NSValue valueWithPoint:NSMakePoint(12, 13)]];
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "x"));
-    XCTAssertEqual(12, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "y"));
-    XCTAssertEqual(13, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
+    [self.skin pushNSObject:[NSValue valueWithPoint:NSMakePoint(12, 13)]];
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "x"));
+    XCTAssertEqual(12, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "y"));
+    XCTAssertEqual(13, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
 
-    [skin pushNSObject:[NSValue valueWithSize:NSMakeSize(88, 89)]];
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "w"));
-    XCTAssertEqual(88, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "h"));
-    XCTAssertEqual(89, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
+    [self.skin pushNSObject:[NSValue valueWithSize:NSMakeSize(88, 89)]];
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "w"));
+    XCTAssertEqual(88, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "h"));
+    XCTAssertEqual(89, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
 
-    [skin pushNSObject:[NSValue valueWithRange:NSMakeRange(42, 10)]];
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "location"));
-    XCTAssertEqual(42, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(skin.L, -1, "length"));
-    XCTAssertEqual(10, lua_tointeger(skin.L, -1));
-    lua_pop(skin.L, 1);
+    [self.skin pushNSObject:[NSValue valueWithRange:NSMakeRange(42, 10)]];
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "location"));
+    XCTAssertEqual(42, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "length"));
+    XCTAssertEqual(10, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
 
     // FIXME: This does not yet test all permutations of NSNumber
+}
+
+- (void)testToNSObject {
+    lua_pushnumber(self.skin.L, 4.2);
+    XCTAssertEqualObjects(@(4.2), [self.skin toNSObjectAtIndex:-1]);
+
+    lua_pushinteger(self.skin.L, 88);
+    XCTAssertEqualObjects(@(88), [self.skin toNSObjectAtIndex:-1]);
+
+    lua_pushstring(self.skin.L, "Testing toNSObject");
+    XCTAssertEqualObjects(@"Testing toNSObject", [self.skin toNSObjectAtIndex:-1]);
+
+    lua_pushnil(self.skin.L);
+    XCTAssertEqualObjects([NSNull null], [self.skin toNSObjectAtIndex:-1]);
+
+    lua_pushboolean(self.skin.L, YES);
+    XCTAssertEqualObjects(@YES, [self.skin toNSObjectAtIndex:-1]);
+
+    lua_pushboolean(self.skin.L, NO);
+    XCTAssertEqualObjects(@NO, [self.skin toNSObjectAtIndex:-1]);
+
+    lua_newtable(self.skin.L);
+    lua_pushnumber(self.skin.L, 1);
+    lua_pushstring(self.skin.L, "First item");
+    lua_settable(self.skin.L, -3);
+    lua_pushnumber(self.skin.L, 2);
+    lua_pushstring(self.skin.L, "Second item");
+    lua_settable(self.skin.L, -3);
+
+    NSArray *expectedArray = @[@"First item", @"Second item"];
+    XCTAssertEqualObjects(expectedArray, [self.skin toNSObjectAtIndex:-1]);
+
+    lua_newtable(self.skin.L);
+    lua_pushstring(self.skin.L, "First");
+    lua_pushstring(self.skin.L, "Item one");
+    lua_settable(self.skin.L, -3);
+    lua_pushstring(self.skin.L, "Second");
+    lua_pushstring(self.skin.L, "Item two");
+    lua_settable(self.skin.L, -3);
+
+    NSDictionary *expectedDict = @{@"First" : @"Item one", @"Second" : @"Item two"};
+    XCTAssertEqualObjects(expectedDict, [self.skin toNSObjectAtIndex:-1]);
+
+    // FIXME: This doesn't test userdata conversion
+}
+
+- (void)testTableToNSRect {
+    NSRect expected = NSMakeRect(10, 20, 30, 40);
+
+    lua_newtable(self.skin.L);
+    lua_pushnumber(self.skin.L, expected.origin.x); lua_setfield(self.skin.L, -2, "x");
+    lua_pushnumber(self.skin.L, expected.origin.y); lua_setfield(self.skin.L, -2, "y");
+    lua_pushnumber(self.skin.L, expected.size.width); lua_setfield(self.skin.L, -2, "w");
+    lua_pushnumber(self.skin.L, expected.size.height); lua_setfield(self.skin.L, -2, "h");
+
+    NSRect actual = [self.skin tableToRectAtIndex:lua_absindex(self.skin.L, -1)];
+
+    XCTAssertEqual(expected.origin.x, actual.origin.x);
+    XCTAssertEqual(expected.origin.y, actual.origin.y);
+    XCTAssertEqual(expected.size.width, actual.size.width);
+    XCTAssertEqual(expected.size.height, actual.size.height);
+
+    lua_pushnil(self.skin.L);
+    actual = [self.skin tableToRectAtIndex:lua_absindex(self.skin.L, -1)];
+
+    XCTAssertEqual(0, actual.origin.x);
+    XCTAssertEqual(0, actual.origin.y);
+    XCTAssertEqual(0, actual.size.width);
+    XCTAssertEqual(0, actual.size.height);
+}
+
+- (void)testTableToNSPoint {
+    NSPoint expected = NSMakePoint(10, 20);
+
+    lua_newtable(self.skin.L);
+    lua_pushnumber(self.skin.L, expected.x); lua_setfield(self.skin.L, -2, "x");
+    lua_pushnumber(self.skin.L, expected.y); lua_setfield(self.skin.L, -2, "y");
+
+    NSPoint actual = [self.skin tableToPointAtIndex:lua_absindex(self.skin.L, -1)];
+
+    XCTAssertEqual(expected.x, actual.x);
+    XCTAssertEqual(expected.y, actual.y);
+
+    lua_pushnil(self.skin.L);
+    actual = [self.skin tableToPointAtIndex:lua_absindex(self.skin.L, -1)];
+
+    XCTAssertEqual(0, actual.x);
+    XCTAssertEqual(0, actual.y);
+}
+
+- (void)testTableToNSSize {
+    NSSize expected = NSMakeSize(30, 40);
+
+    lua_newtable(self.skin.L);
+    lua_pushnumber(self.skin.L, expected.width); lua_setfield(self.skin.L, -2, "w");
+    lua_pushnumber(self.skin.L, expected.height); lua_setfield(self.skin.L, -2, "h");
+
+    NSSize actual = [self.skin tableToSizeAtIndex:lua_absindex(self.skin.L, -1)];
+
+    XCTAssertEqual(expected.width, actual.width);
+    XCTAssertEqual(expected.height, actual.height);
+
+    lua_pushnil(self.skin.L);
+    actual = [self.skin tableToSizeAtIndex:lua_absindex(self.skin.L, -1)];
+
+    XCTAssertEqual(0, actual.width);
+    XCTAssertEqual(0, actual.height);
+}
+
+- (void)testIsValidUTF8AtIndex {
+    lua_pushstring(self.skin.L, "٩(-̮̮̃-̃)۶ ٩(●̮̮̃•̃)۶ ٩(͡๏̯͡๏)۶ ٩(-̮̮̃•̃).");
+    XCTAssertTrue([self.skin isValidUTF8AtIndex:-1]);
+
+    // FIXME: Thie should have lots more tests, including some that contain invalid UTF8
 }
 
 - (void)testLogging {
     // FIXME: This doesn't really test anything other than making sure we don't explode
 
-    [skin logBreadcrumb:@"breadcrumb"];
-    [skin logVerbose:@"verbose"];
-    [skin logInfo:@"info"];
-    [skin logDebug:@"debug"];
-    [skin logWarn:@"warn"];
-    [skin logError:@"error"];
+    [self.skin logBreadcrumb:@"breadcrumb"];
+    [self.skin logVerbose:@"verbose"];
+    [self.skin logInfo:@"info"];
+    [self.skin logDebug:@"debug"];
+    [self.skin logWarn:@"warn"];
+    [self.skin logError:@"error"];
 
     [LuaSkin logBreadcrumb:@"breadcrumb"];
     [LuaSkin logVerbose:@"verbose"];
@@ -522,6 +723,6 @@ static int pushTestUserData(lua_State *L, id object) {
 }
 
 - (void)testRequire {
-    XCTAssertTrue([skin requireModule:"lsunit"]);
+    XCTAssertTrue([self.skin requireModule:"lsunit"]);
 }
 @end

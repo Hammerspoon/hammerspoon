@@ -4,8 +4,7 @@
 //  Created by Michael Bujol on 02/25/2016.
 //
 
-#import "HSTestcase.h"
-#pragma GCC diagnostic ignored "-Wgnu-statement-expression"
+#import "HSTestCase.h"
 
 @interface HSosascript : HSTestCase
 

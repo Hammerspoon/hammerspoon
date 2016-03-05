@@ -8,6 +8,21 @@ else
 end
 
 -- Utility functions
+local function runstring(s)
+--print("runstring")
+  local fn, err = load("return " .. s)
+  if not fn then fn, err = load(s) end
+  if not fn then return tostring(err) end
+
+  local str = ""
+  local results = table.pack(xpcall(fn,debug.traceback))
+  for i = 2,results.n do
+    if i > 2 then str = str .. "\t" end
+    str = str .. tostring(results[i])
+  end
+  return str
+end
+
 function failure(msg)
   error(string.format("Assertion failure: %s", msg))
 end
@@ -179,3 +194,5 @@ end
 -- Leave this at the end of the file
 print ('-- Test harness lsunit.lua loaded. Loading testinit.lua...')
 require('testinit')
+
+return runstring

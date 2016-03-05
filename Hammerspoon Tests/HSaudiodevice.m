@@ -6,7 +6,7 @@
 //  Copyright © 2016 Hammerspoon. All rights reserved.
 //
 
-#import "HSTestcase.h"
+#import "HSTestCase.h"
 
 @interface HSaudiodevice : HSTestCase
 
