@@ -113,6 +113,20 @@ static int pushTestUserData(lua_State *L, id object) {
     return 1;
 }
 
+@interface LSTestDelegate<LuaSkinDelegate> : NSObject
+@property int lastLevel;
+@property (nonatomic, copy) NSString *lastMessage;
+@end
+
+@implementation LSTestDelegate
+
+- (void)logForLuaSkinAtLevel:(int)level withMessage:(NSString *)theMessage {
+    self.lastLevel = level;
+    self.lastMessage = theMessage;
+}
+
+@end
+
 #pragma mark - Test case harness definition
 
 @interface LuaSkinTests : XCTestCase
@@ -472,6 +486,9 @@ static int pushTestUserData(lua_State *L, id object) {
 }
 
 - (void)testPushNSObject {
+    LSTestDelegate *testDelegate = [[LSTestDelegate alloc] init];
+    self.skin.delegate = testDelegate;
+
     // Test pushing an NSString (note that in this case we test the return value. There are only two return points in pushNSObject, so subsequent tests only re-test the return value if they are expecting something other than 1
     NSString *pushString = @"Test push string";
     XCTAssertEqual(1, [self.skin pushNSObject:pushString]);
@@ -485,9 +502,18 @@ static int pushTestUserData(lua_State *L, id object) {
     [self.skin pushNSObject:@[@"1", @"2"]];
     XCTAssertEqual(LUA_TTABLE, lua_type(self.skin.L, -1));
 
-    // Test pushing an NSNumber
+    // Test pushing NSNumber variants
     [self.skin pushNSObject:[NSNumber numberWithInt:42]];
     XCTAssertEqual(42, lua_tointeger(self.skin.L, -1));
+
+    [self.skin pushNSObject:[NSNumber numberWithChar:'f']];
+    XCTAssertEqual('f', lua_tointeger(self.skin.L, -1));
+
+    [self.skin pushNSObject:[NSNumber numberWithUnsignedChar:'g']];
+    XCTAssertEqual('g', lua_tointeger(self.skin.L, -1));
+
+    [self.skin pushNSObject:[NSNumber numberWithFloat:28.37]];
+    XCTAssertEqualWithAccuracy(28.37, lua_tonumber(self.skin.L, -1), 0.01);
 
     // Test pushing an NSDictionary
     [self.skin pushNSObject:@{@"1" : @"foo", @"2" : @"bar"}];
@@ -542,12 +568,12 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqual(682568, lua_tointeger(self.skin.L, -1));
 
     // Push the helper again, since that should not explode
-    // FIXME: Really we should capture the log message in a mock delegate class, so we can verify that we got the codepath we expected
     [self.skin registerPushNSHelper:pushTestUserData forClass:"LuaSkinUserdataTestType"];
+    XCTAssertTrue([testDelegate.lastMessage containsString:@"LuaSkinUserdataTestType already defined"]);
 
     // Push nonsense
-    // FIXME: This should also be asserting the log message in a mock delegate class
     [self.skin registerPushNSHelper:nil forClass:NULL];
+    XCTAssertTrue([testDelegate.lastMessage containsString:@"requires both helperFN and className"]);
 
     [self.skin pushNSObject:[NSValue valueWithRect:NSMakeRect(5, 6, 7, 8)]];
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "x"));
@@ -705,24 +731,93 @@ static int pushTestUserData(lua_State *L, id object) {
 }
 
 - (void)testLogging {
-    // FIXME: This doesn't really test anything other than making sure we don't explode
+    XCTestExpectation *expectation = nil;
 
-    [self.skin logBreadcrumb:@"breadcrumb"];
-    [self.skin logVerbose:@"verbose"];
-    [self.skin logInfo:@"info"];
-    [self.skin logDebug:@"debug"];
-    [self.skin logWarn:@"warn"];
-    [self.skin logError:@"error"];
+    dispatch_block_t logBlock = ^{
+        self.skin = [LuaSkin shared];
+        LSTestDelegate *testDelegate = [[LSTestDelegate alloc] init];
+        self.skin.delegate = testDelegate;
 
-    [LuaSkin logBreadcrumb:@"breadcrumb"];
-    [LuaSkin logVerbose:@"verbose"];
-    [LuaSkin logInfo:@"info"];
-    [LuaSkin logDebug:@"debug"];
-    [LuaSkin logWarn:@"warn"];
-    [LuaSkin logError:@"error"];
+        [self.skin logBreadcrumb:@"breadcrumb"];
+        XCTAssertEqualObjects(@"breadcrumb", testDelegate.lastMessage);
+
+        [self.skin logVerbose:@"verbose"];
+        XCTAssertEqualObjects(@"verbose", testDelegate.lastMessage);
+
+        [self.skin logInfo:@"info"];
+        XCTAssertEqualObjects(@"info", testDelegate.lastMessage);
+
+        [self.skin logDebug:@"debug"];
+        XCTAssertEqualObjects(@"debug", testDelegate.lastMessage);
+
+        [self.skin logWarn:@"warn"];
+        XCTAssertEqualObjects(@"warn", testDelegate.lastMessage);
+
+        [self.skin logError:@"error"];
+        XCTAssertEqualObjects(@"error", testDelegate.lastMessage);
+
+
+        [LuaSkin logBreadcrumb:@"breadcrumb"];
+        XCTAssertEqualObjects(@"breadcrumb", testDelegate.lastMessage);
+
+        [LuaSkin logVerbose:@"verbose"];
+        XCTAssertEqualObjects(@"verbose", testDelegate.lastMessage);
+
+        [LuaSkin logInfo:@"info"];
+        XCTAssertEqualObjects(@"info", testDelegate.lastMessage);
+
+        [LuaSkin logDebug:@"debug"];
+        XCTAssertEqualObjects(@"debug", testDelegate.lastMessage);
+
+        [LuaSkin logWarn:@"warn"];
+        XCTAssertEqualObjects(@"warn", testDelegate.lastMessage);
+
+        [LuaSkin logError:@"error"];
+        XCTAssertEqualObjects(@"error", testDelegate.lastMessage);
+
+        [expectation fulfill];
+    };
+
+
+    if ([NSThread isMainThread]) {
+        NSLog(@"Running testLogging on main thread");
+        logBlock();
+    } else {
+        NSLog(@"Running testLogging from non-main thread");
+        expectation = [self expectationWithDescription:@"testLogging"];
+
+        dispatch_sync(dispatch_get_main_queue(), logBlock);
+
+        [self waitForExpectationsWithTimeout:2.0 handler:^(NSError *error) {
+            if (error) {
+                NSLog(@"testLogging error: %@", error);
+            } else {
+                NSLog(@"testLogging no error");
+            }
+        }];
+    }
+
+    // FIXME: The async version of this seems to not be getting called. We should invoke twice, one time explicitly async
 }
 
 - (void)testRequire {
     XCTAssertTrue([self.skin requireModule:"lsunit"]);
 }
+
+- (void)testNatIndexFailure {
+    // countNatIndex is effectively covered by other tests, but not its failure path
+    lua_pushnil(self.skin.L);
+    XCTAssertEqual(0, [self.skin countNatIndex:-1]);
+
+    // maxNatIndex too
+    lua_pushnil(self.skin.L);
+    XCTAssertEqual(0, [self.skin maxNatIndex:-1]);
+}
+
+- (void)testTracebackWithTag {
+    NSString *result = [self.skin tracebackWithTag:@"testTag" fromStackPos:-1];
+    XCTAssertTrue([result containsString:@"testTag"]);
+    XCTAssertTrue([result containsString:@"stack traceback:"]);
+}
+
 @end
