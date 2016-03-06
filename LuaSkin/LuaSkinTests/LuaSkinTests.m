@@ -498,6 +498,12 @@ static int pushTestUserData(lua_State *L, id object) {
     [self.skin pushNSObject:[NSNull null]];
     XCTAssertEqual(LUA_TNIL, lua_type(self.skin.L, -1));
 
+    // Test pushing boolean objects
+    [self.skin pushNSObject:@YES];
+    XCTAssertEqual(YES, lua_toboolean(self.skin.L, -1));
+    [self.skin pushNSObject:@NO];
+    XCTAssertEqual(NO, lua_toboolean(self.skin.L, -1));
+
     // Test pushing an NSArray
     [self.skin pushNSObject:@[@"1", @"2"]];
     XCTAssertEqual(LUA_TTABLE, lua_type(self.skin.L, -1));
@@ -613,6 +619,23 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqual(10, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
 
+    // FIXME: This doesn't seem to work, NSValue claims to have no valueWithCMTime
+/*
+    [self.skin pushNSObject:[NSValue valueWithCMTime:CMTimeMakeWithSeconds(5, 300)]];
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "value"));
+    XCTAssertEqual(5, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "timescale"));
+    XCTAssertEqual(300, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "epoch"));
+    XCTAssertEqual(0, lua_tointeger(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TTABLE, lua_getfield(self.skin.L, -1, "flags"));
+    // FIXME: Check flags values here
+    lua_pop(self.skin.L, 1);
+ */
+
     // FIXME: This does not yet test all permutations of NSNumber
 }
 
@@ -683,6 +706,15 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqual(0, actual.origin.y);
     XCTAssertEqual(0, actual.size.width);
     XCTAssertEqual(0, actual.size.height);
+
+    // Test the degenerate case where the Lua table is empty
+    lua_newtable(self.skin.L);
+    expected = NSZeroRect;
+    actual = [self.skin tableToRectAtIndex:lua_absindex(self.skin.L, -1)];
+    XCTAssertEqual(expected.origin.x, actual.origin.x);
+    XCTAssertEqual(expected.origin.y, actual.origin.y);
+    XCTAssertEqual(expected.size.width, actual.size.width);
+    XCTAssertEqual(expected.size.height, actual.size.height);
 }
 
 - (void)testTableToNSPoint {
@@ -702,6 +734,13 @@ static int pushTestUserData(lua_State *L, id object) {
 
     XCTAssertEqual(0, actual.x);
     XCTAssertEqual(0, actual.y);
+
+    // Test the degenerate case where the Lua table is empty
+    lua_newtable(self.skin.L);
+    expected = NSZeroPoint;
+    actual = [self.skin tableToPointAtIndex:lua_absindex(self.skin.L, -1)];
+    XCTAssertEqual(expected.x, actual.x);
+    XCTAssertEqual(expected.y, actual.y);
 }
 
 - (void)testTableToNSSize {
@@ -721,9 +760,19 @@ static int pushTestUserData(lua_State *L, id object) {
 
     XCTAssertEqual(0, actual.width);
     XCTAssertEqual(0, actual.height);
+
+    // Test the degenerate case where the Lua table is empty
+    lua_newtable(self.skin.L);
+    expected = NSZeroSize;
+    actual = [self.skin tableToSizeAtIndex:lua_absindex(self.skin.L, -1)];
+    XCTAssertEqual(expected.width, actual.width);
+    XCTAssertEqual(expected.height, actual.height);
 }
 
 - (void)testIsValidUTF8AtIndex {
+    lua_pushnil(self.skin.L);
+    XCTAssertFalse([self.skin isValidUTF8AtIndex:-1]);
+
     lua_pushstring(self.skin.L, "٩(-̮̮̃-̃)۶ ٩(●̮̮̃•̃)۶ ٩(͡๏̯͡๏)۶ ٩(-̮̮̃•̃).");
     XCTAssertTrue([self.skin isValidUTF8AtIndex:-1]);
 
@@ -818,6 +867,29 @@ static int pushTestUserData(lua_State *L, id object) {
     NSString *result = [self.skin tracebackWithTag:@"testTag" fromStackPos:-1];
     XCTAssertTrue([result containsString:@"testTag"]);
     XCTAssertTrue([result containsString:@"stack traceback:"]);
+}
+
+id luaObjectHelperTestFunction(lua_State *L, int idx) {
+    return @(lua_tonumber(L, idx));
+}
+
+- (void)testLuaObjectHelper {
+    XCTAssertTrue([self.skin registerLuaObjectHelper:luaObjectHelperTestFunction forClass:"luaObjectHelperTestObject"]);
+    lua_pushnumber(self.skin.L, 429);
+    XCTAssertEqualObjects(@(429), [self.skin luaObjectAtIndex:-1 toClass:"luaObjectHelperTestObject"]);
+
+    // Attempt a double-registration of the helper function, so we see it fail
+    XCTAssertFalse([self.skin registerLuaObjectHelper:luaObjectHelperTestFunction forClass:"luaObjectHelperTestObject"]);
+
+    // Attempt a mangled registration, so we see it fail
+    XCTAssertFalse([self.skin registerLuaObjectHelper:nil forClass:nil]);
+
+    // Attempt to convert a Lua value with an unregistered helper name, so we see it fail
+    XCTAssertNil([self.skin luaObjectAtIndex:-1 toClass:"someFunctionThatDoesNotExist"]);
+
+    // Test the userdata mapped variants
+    XCTAssertTrue([self.skin registerLuaObjectHelper:luaObjectHelperTestFunction forClass:"luaObjectHelperTestUserdata" withUserdataMapping:"luaskin.testObjectHelper"]);
+    XCTAssertFalse([self.skin registerLuaObjectHelper:luaObjectHelperTestFunction forClass:"luaObjectHelperTestUserdata" withUserdataMapping:"luaskin.testObjectHelper"]);
 }
 
 @end
