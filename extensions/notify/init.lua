@@ -176,7 +176,7 @@ module.show = function(title, subTitle, informativeText, tag)
     return nil
   end
   if type(title) ~= "string" or type(subTitle) ~= "string" or type(informativeText) ~= "string" then
-    error("All four arguments to hs.notify.show must be present and must be strings.", 2)
+    error("All three textual arguments to hs.notify.show must be present and must be strings.", 2)
     return nil
   else
     return module.new(tag, {
