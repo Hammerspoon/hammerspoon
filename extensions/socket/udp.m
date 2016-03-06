@@ -79,12 +79,12 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
 }
 
 - (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotConnect:(NSError *)error {
-    [LuaSkin logError:[NSString stringWithFormat:@"UDP socket did not connect %@", [error localizedDescription]]];
+    [LuaSkin logError:[NSString stringWithFormat:@"UDP socket did not connect: %@", [error localizedDescription]]];
     mainThreadDispatch(self.connectCallback = [[LuaSkin shared] luaUnref:refTable ref:self.connectCallback]);
 }
 
 - (void)udpSocketDidClose:(GCDAsyncUdpSocket *)sock withError:(NSError *)error {
-    [LuaSkin logInfo:[NSString stringWithFormat:@"UDP socket closed %@", [error localizedDescription]]];
+    [LuaSkin logInfo:[NSString stringWithFormat:@"UDP socket closed: %@", [error localizedDescription]]];
     sock.userData = nil;
 }
 
@@ -95,7 +95,7 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
 }
 
 - (void)udpSocket:(GCDAsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error {
-    [LuaSkin logError:[NSString stringWithFormat:@"Data not sent on UDP socket %@", [error localizedDescription]]];
+    [LuaSkin logError:[NSString stringWithFormat:@"Data not sent on UDP socket: %@", [error localizedDescription]]];
     mainThreadDispatch(self.writeCallback = [[LuaSkin shared] luaUnref:refTable ref:self.writeCallback]);
 }
 
