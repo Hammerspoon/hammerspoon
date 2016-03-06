@@ -319,6 +319,35 @@ hs.getObjectMetatable("hs.notify").contentImage = function(...)
   end
 end
 
+--- hs.notify:setIdImage(image) -> notificationObject
+--- Method
+--- Set a notification's identification image (replace the Hammerspoon icon with a custom image)
+---
+--- Parameters:
+---  * image - An `hs.image` object, a string containing an image path, or a string defining an ASCIImage
+---
+--- Returns:
+---  * The notification object
+---
+--- Notes:
+---  * See hs.image for details on how to specify or define an image
+---  * **WARNING**: This method uses a private API. It could break at any time. Please file an issue if it does
+hs.getObjectMetatable("hs.notify").setIdImage = function(self, imagePath)
+  local tmpImage = nil
+
+  if type(imagePath) == "userdata" then
+    tmpImage = imagePath
+  elseif type(imagePath) == "string" then
+    if string.sub(imagePath, 1, 6) == "ASCII:" then
+      tmpImage = imagemod.imageFromASCII(string.sub(imagePath, 7, -1))
+    else
+      tmpImage = imagemod.imageFromPath(imagePath)
+    end
+  end
+
+  return self:_setIdImage(tmpImage)
+end
+
 -- Return Module Object --------------------------------------------------
 
 module.unregisterall() -- make sure placeholder is in effect and nothing else
