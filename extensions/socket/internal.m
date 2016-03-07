@@ -101,12 +101,12 @@ static void readCallback(HSAsyncTcpSocket *asyncSocket, NSData *data, long tag) 
 
 - (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err {
     if (sock.userData == CLIENT) {
-        [LuaSkin logInfo:[NSString stringWithFormat:@"TCP client disconnected %@", [err localizedDescription]]];
+        [LuaSkin logInfo:[NSString stringWithFormat:@"TCP client disconnected: %@", [err localizedDescription]]];
         @synchronized(self.connectedSockets) {
             [self.connectedSockets removeObject:sock];
         }
     } else if (sock.userData == SERVER) {
-        [LuaSkin logInfo:[NSString stringWithFormat:@"TCP server disconnected %@", [err localizedDescription]]];
+        [LuaSkin logInfo:[NSString stringWithFormat:@"TCP server disconnected: %@", [err localizedDescription]]];
         @synchronized(self.connectedSockets) {
             for (HSAsyncTcpSocket *client in self.connectedSockets)
                 [client disconnect];
@@ -120,7 +120,7 @@ static void readCallback(HSAsyncTcpSocket *asyncSocket, NSData *data, long tag) 
             self.unixSocketPath = nil;
         }
     } else
-        [LuaSkin logInfo:[NSString stringWithFormat:@"TCP socket disconnected %@", [err localizedDescription]]];
+        [LuaSkin logInfo:[NSString stringWithFormat:@"TCP socket disconnected: %@", [err localizedDescription]]];
 
     sock.userData = nil;
 }

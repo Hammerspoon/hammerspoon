@@ -175,7 +175,7 @@ module.timeout = -1
 ---
 module.udp.timeout = -1
 
---- hs.socket.udp.parseAddress(sockaddr) -> table
+--- hs.socket.udp.parseAddress(sockaddr) -> table or nil
 --- Function
 --- Alias for [`hs.socket.parseAddress`](./hs.socket.html#parseAddress)
 ---

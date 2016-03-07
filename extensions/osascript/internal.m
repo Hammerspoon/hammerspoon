@@ -26,11 +26,10 @@ static int runosascript(lua_State* L) {
     [osa compileAndReturnError:&compileError];
 
     if (compileError) {
-        const char *compileErrorMessage = "Unable to initialize script - perhaps you have a syntax error?";
-        [skin logError:[NSString stringWithUTF8String:compileErrorMessage]];
         lua_pushboolean(L, NO);
         lua_pushnil(L);
         [skin pushNSObject:[NSString stringWithFormat:@"%@", compileError]];
+        [skin logError:[NSString stringWithFormat:@"Unable to initialize script: %@", compileError]];
         return 3;
     }
 

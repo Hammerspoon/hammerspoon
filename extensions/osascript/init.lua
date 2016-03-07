@@ -14,7 +14,7 @@ local processResults = function(ok, object, rawDescriptor)
         rawDescriptor = rawDescriptor:match("^{\n(.*)}$")
         descriptor = {}
         local lines = hs.fnutils.split(rawDescriptor, ";\n")
-        lines = hs.fnutils.ifilter(lines, function(line) if line ~= "" then return true end end)
+        lines = hs.fnutils.ifilter(lines, function(line) return line ~= "" end)
         for _, line in ipairs(lines) do
             local k, v = line:match('^%s*(%w+)%s=%s(.*)$')
             v = v:match('^"(.*)"$') or v:match("^'(.*)'$") or v
