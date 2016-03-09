@@ -26,6 +26,12 @@ int refTable;
 @interface ourNotificationManager () <NSUserNotificationCenterDelegate>
 @end
 
+// Private API for setting notification identity image http://stackoverflow.com/questions/19797841
+@interface NSUserNotification (NSUserNotificationPrivate)
+- (void)set_identityImage:(NSImage *)image;
+@property BOOL _identityImageHasBorder;
+@end
+
 static id <NSUserNotificationCenterDelegate>    old_delegate ;
 // static ourNotificationManager*                  sharedManager;
 
@@ -731,6 +737,37 @@ static int notification_contentImage(lua_State *L) {
     return 1 ;
 }
 
+static int notification_setIdImage(lua_State *L) {
+// NOTE: THIS FUNCTION IS WRAPPED IN init.lua
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TUSERDATA, "hs.image", LS_TBOOLEAN, LS_TBREAK];
+    notification_t *notificationUserdata = luaL_checkudata(L, 1, USERDATA_TAG);
+    BOOL hasBorder = lua_toboolean(L, 3);
+
+    NSUserNotification *notification = ((__bridge NSUserNotification *) notificationUserdata->note);
+    if (!([notification respondsToSelector:@selector(set_identityImage:)] &&
+          [notification respondsToSelector:@selector(_identityImageHasBorder)])) {
+        [skin logInfo:@"hs.notify:setIdImage() is not supported. Please file an issue"];
+        lua_settop(L, 1);
+    }
+
+    if (!notificationUserdata->locked) {
+        NSImage *idImage = [skin luaObjectAtIndex:2 toClass:"NSImage"];
+        if (!(idImage && idImage.valid)) {
+            return luaL_error(L, "invalid image specified");
+        } else {
+            [notification set_identityImage:idImage];
+            notification._identityImageHasBorder = hasBorder;
+            notificationUserdata->delivered = NO; // modifying a notification means that it is considered new by the User Notification Center
+            lua_settop(L, 1);
+        }
+    } else {
+        return luaL_error(L, "notification has been dispatched and can no longer be modified");
+    }
+
+    return 1;
+}
+
 // Get status of a notification
 
 static int notification_presented(lua_State* L) {
@@ -904,6 +941,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"alwaysPresent",       notification_alwaysPresent},
     {"autoWithdraw",        notification_autoWithdraw},
     {"_contentImage",       notification_contentImage},
+    {"_setIdImage",         notification_setIdImage},
     {"release",             notification_release},
     {"getFunctionTag",      notification_getFunctionTag},
     {"presented",           notification_presented},
