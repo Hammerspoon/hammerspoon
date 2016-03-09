@@ -400,7 +400,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param className a C string containing the class name of the NSObject type this function can convert
  @returns True if registration was successful, or False if the function was not registered for some reason, most commonly because the class already has a registered conversion function.
  */
-- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char *)className ;
+- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(const char *)className ;
 
 /*!
  @abstract Push an NSRect onto the lua stack as a lua geometry object (table with x,y,h, and w keys)
@@ -494,7 +494,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param className a C string containing the class name of the NSObject type to return.  If no converter function is currently registered for this type, nil is returned
  @returns An NSObject of the appropriate type depending upon the data on the lua stack and the functions currently registered
  */
-- (id)luaObjectAtIndex:(int)idx toClass:(char *)className ;
+- (id)luaObjectAtIndex:(int)idx toClass:(const char *)className ;
 
 /*!
  @abstract Register a luaObjectAtIndex:toClass: conversion helper function for the specified class
@@ -504,7 +504,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param className a C string containing the class name of the NSObject type this function can convert
  @returns True if registration was successful, or False if the function was not registered for some reason, most commonly because the class already has a registered conversion function.
  */
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className ;
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className ;
 
 /*!
  @abstract Register a luaObjectAtIndex:toClass: conversion helper function for the specified class and record a mapping between a userdata type and the class
@@ -515,7 +515,30 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param userdataTag a C string containing the Lua userdata type that can be converted to an NSObject
  @returns True if registration was successful, or False if the function was not registered for some reason, most commonly because the class already has a registered conversion function.
  */
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag;
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag;
+
+/*!
+ @abstract Register a luaObjectAtIndex:toClass: conversion helper function for the specified class and record a mapping between a userdata type and the class
+
+ @warning This method registers a converter function for use with the @link luaObjectAtIndex:toClass: @/link method for converting lua data types into NSObjects. It builds on @link registerLuaObjectHelper:forClass: @/link by also storing a mapping between the NSObject class and Lua userdata type or a Lua table with a type specification so that objects of either type can be automatically converted with @link toNSObjectAtIndex: @/link and @link toNSObjectAtIndex:withOptions: @/link as well.
+ @param helperFN a function of the type @link luaObjectHelperFunction @/link
+ @param className a C string containing the class name of the NSObject type this function can convert
+ @param userdataTag a C string containing the Lua userdata type that can be converted to an NSObject
+ @param tableTag a C string containing the Lua table type specification that can be converted to an NSObject
+ @returns True if registration was successful, or False if the function was not registered for some reason, most commonly because the class already has a registered conversion function.
+ */
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag andTableMapping:(const char *)tableTag;
+
+/*!
+ @abstract Register a luaObjectAtIndex:toClass: conversion helper function for the specified class and record a mapping between a table type and the class
+
+ @warning This method registers a converter function for use with the @link luaObjectAtIndex:toClass: @/link method for converting lua data types into NSObjects. It builds on @link registerLuaObjectHelper:forClass: @/link by also storing a mapping between the NSObject class and a Lua table with a type specification so objects of this type can be automatically converted with @link toNSObjectAtIndex: @/link and @link toNSObjectAtIndex:withOptions: @/link as well.
+ @param helperFN a function of the type @link luaObjectHelperFunction @/link
+ @param className a C string containing the class name of the NSObject type this function can convert
+ @param tableTag a C string containing the Lua table type specification that can be converted to an NSObject
+ @returns True if registration was successful, or False if the function was not registered for some reason, most commonly because the class already has a registered conversion function.
+ */
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withTableMapping:(const char *)tableTag;
 
 /*!
  @abstract Convert a lua geometry object (table with x,y,h, and w keys) into an NSRect
@@ -598,7 +621,7 @@ typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
  @param moduleName the name of the module to load
  @returns YES if the module loaded successfully or NO if it does not
  */
-- (BOOL)requireModule:(char *)moduleName ;
+- (BOOL)requireModule:(const char *)moduleName ;
 
 #pragma mark - Logging methods
 

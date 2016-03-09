@@ -702,6 +702,7 @@ static int string_totable(lua_State *L) {
         j = len;
     } // if j is > length,  then silently coerce to string length (end)
     lua_newtable(L);
+    lua_pushstring(L, "NSAttributedString") ; lua_setfield(L, -2, "__luaSkinType") ;
     if (i > j) {
         lua_pushstring(L, "");
         lua_rawseti(L, -2, 1);
@@ -1334,14 +1335,6 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin shared];
     NSMutableAttributedString *theString;
     if ((lua_type(L, idx) == LUA_TSTRING) || (lua_type(L, idx) == LUA_TNUMBER)) {
-//         lua_tostring(L, idx); // ensure number is actually a string
-//         lua_getglobal(L, "hs");
-//         lua_getfield(L, -1, "cleanUTF8forConsole");
-//         lua_remove(L, -2);
-//         lua_pushvalue(L, idx);
-//         lua_pcall(L, 1, 1, 0);
-//
-//         theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
         luaL_tolstring(L, idx, NULL) ;
         theString = [[NSMutableAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]];
         lua_pop(L, 1);
@@ -1351,14 +1344,6 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
         lua_rawgeti(L, idx, 1);
         luaL_tolstring(L, -1, NULL); // ensure what we have is a string
         lua_remove(L, -2) ; // luaL_tolstring pushes its value onto the stack without removing/touching the original
-//         lua_getglobal(L, "hs");
-//         lua_getfield(L, -1, "cleanUTF8forConsole");
-//         lua_remove(L, -2);
-//         lua_pushvalue(L, -2);
-//         lua_call(L, 1, 1);
-//
-//         theString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]];
-//         lua_pop(L, 2); // the cleaned version of the string and the string on the stack
         theString = [[NSMutableAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]];
         lua_pop(L, 1) ;
 
@@ -1534,6 +1519,7 @@ static int NSFont_toLua(lua_State *L, id obj) {
     lua_setfield(L, -2, "name");
     lua_pushnumber(L, [theFont pointSize]);
     lua_setfield(L, -2, "size");
+    lua_pushstring(L, "NSFont") ; lua_setfield(L, -2, "__luaSkinType") ;
 
     return 1;
 }
@@ -1611,6 +1597,7 @@ static int NSShadow_toLua(lua_State *L, id obj) {
     lua_setfield(L, -2, "blurRadius");
     [skin pushNSObject:[theShadow shadowColor]];
     lua_setfield(L, -2, "color");
+    lua_pushstring(L, "NSShadow") ; lua_setfield(L, -2, "__luaSkinType") ;
 
     return 1;
 }
@@ -1780,6 +1767,7 @@ static int NSParagraphStyle_toLua(lua_State *L, id obj) {
     lua_setfield(L, -2, "tabStops");
     lua_pushinteger(L, [thePS headerLevel]);
     lua_setfield(L, -2, "headerLevel");
+    lua_pushstring(L, "NSParagraphStyle") ; lua_setfield(L, -2, "__luaSkinType") ;
     return 1;
 }
 
@@ -2067,6 +2055,7 @@ static int NSTextTab_toLua(lua_State *L, id obj) {
             break;
     }
     lua_setfield(L, -2, "tabStopType");
+    lua_pushstring(L, "NSTextTab") ; lua_setfield(L, -2, "__luaSkinType") ;
 
     //     switch([theTabStop alignment]) {
     //         case NSLeftTextAlignment:       lua_pushstring(L, "left");      break;
@@ -2348,19 +2337,26 @@ int luaopen_hs_styledtext_internal(lua_State *__unused L) {
     lua_setfield(L, -2, "lineAppliesTo");
 
     [skin registerPushNSHelper:NSShadow_toLua                  forClass:"NSShadow"];
-    [skin registerLuaObjectHelper:table_toNSShadow             forClass:"NSShadow"];
+    [skin registerLuaObjectHelper:table_toNSShadow             forClass:"NSShadow"
+                                                       withTableMapping:"NSShadow"];
 
     [skin registerPushNSHelper:NSParagraphStyle_toLua          forClass:"NSParagraphStyle"];
-    [skin registerLuaObjectHelper:table_toNSParagraphStyle     forClass:"NSParagraphStyle"];
+    [skin registerLuaObjectHelper:table_toNSParagraphStyle     forClass:"NSParagraphStyle"
+                                                       withTableMapping:"NSParagraphStyle"];
 
     [skin registerPushNSHelper:NSTextTab_toLua                 forClass:"NSTextTab"];
-    [skin registerLuaObjectHelper:table_toNSTextTab            forClass:"NSTextTab"];
+    [skin registerLuaObjectHelper:table_toNSTextTab            forClass:"NSTextTab"
+                                                       withTableMapping:"NSTextTab"];
 
     [skin registerPushNSHelper:NSFont_toLua                    forClass:"NSFont"];
-    [skin registerLuaObjectHelper:table_toNSFont               forClass:"NSFont"];
+    [skin registerLuaObjectHelper:table_toNSFont               forClass:"NSFont"
+                                                       withTableMapping:"NSFont"];
 
     [skin registerPushNSHelper:NSAttributedString_toLua        forClass:"NSAttributedString"];
-    [skin registerLuaObjectHelper:lua_toNSAttributedString     forClass:"NSAttributedString" withUserdataMapping:USERDATA_TAG];
+    [skin registerLuaObjectHelper:lua_toNSAttributedString     forClass:"NSAttributedString"
+                                                    withUserdataMapping:USERDATA_TAG
+                                                        andTableMapping:"NSAttributedString"];
+
 
     [skin registerLuaObjectHelper:table_toAttributesDictionary forClass:"hs.styledtext.AttributesDictionary"];
 
