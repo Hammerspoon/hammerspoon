@@ -13,8 +13,6 @@ script:
 after_script:
   - make build/html
 after_success:
-  - find ~/Library/Developer/Xcode/DerivedData -name '*.gcda'
-  - find ~/Library/Developer/Xcode/DerivedData -name '*.gcno'
   - bash <(curl -s https://codecov.io/bash)
 notifications:
   irc:
