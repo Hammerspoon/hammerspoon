@@ -319,13 +319,13 @@ hs.getObjectMetatable("hs.notify").contentImage = function(...)
   end
 end
 
---- hs.notify:setIdImage(image[, hasBorder]) -> notificationObject
+--- hs.notify:setIdImage(image[, withBorder]) -> notificationObject
 --- Method
 --- Set a notification's identification image (replace the Hammerspoon icon with a custom image)
 ---
 --- Parameters:
 ---  * image - An `hs.image` object, a string containing an image path, or a string defining an ASCIImage
----  * hasBorder - An optional boolean specifying whether or not the image has a border. Defaults to `false`
+---  * withBorder - An optional boolean to give the notification image a border. Defaults to `false`
 ---
 --- Returns:
 ---  * The notification object
@@ -333,8 +333,8 @@ end
 --- Notes:
 ---  * See hs.image for details on how to specify or define an image
 ---  * **WARNING**: This method uses a private API. It could break at any time. Please file an issue if it does
-hs.getObjectMetatable("hs.notify").setIdImage = function(self, imagePath, hasBorder)
-  hasBorder = hasBorder or false
+hs.getObjectMetatable("hs.notify").setIdImage = function(self, imagePath, withBorder)
+  withBorder = withBorder or false
   local tmpImage = nil
 
   if type(imagePath) == "userdata" then
@@ -347,7 +347,7 @@ hs.getObjectMetatable("hs.notify").setIdImage = function(self, imagePath, hasBor
     end
   end
 
-  return self:_setIdImage(tmpImage, hasBorder)
+  return self:_setIdImage(tmpImage, withBorder)
 end
 
 -- Return Module Object --------------------------------------------------
