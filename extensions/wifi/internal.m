@@ -183,6 +183,45 @@ static int disassociate(lua_State *L) {
     return 0 ;
 }
 
+/// hs.wifi.associate(network, passphrase[, interface]) -> boolean
+/// Function
+/// Connect the interface to a wireless network
+///
+/// Parameters:
+///  * network - A string containing the SSID of the network to associate to
+///  * passphrase - A string containing the passphrase of the network
+///  * interface - An optional string containing the name of an interface (see [hs.wifi.interfaces](#interfaces)). If not present, the default system WLAN device will be used
+///
+/// Returns:
+///  * A boolean, true if the network was joined successfully, false if an error occurred
+///
+/// Notes:
+///  * Enterprise WiFi networks are not currently supported. Please file an issue on GitHub if you need support for enterprise networks
+///  * This function blocks Hammerspoon until the operation is completed
+///  * If multiple access points are available with the same SSID, one will be chosen at random to connect to
+static int associate(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+
+    BOOL success = NO;
+    NSString *interfaceName = nil;
+
+    if (lua_type(L, 3) == LUA_TSTRING) {
+        interfaceName = [skin toNSObjectAtIndex:3];
+    }
+
+    CWInterface *interface = get_wifi_interface(interfaceName);
+    NSSet *networks = [interface scanForNetworksWithName:[skin toNSObjectAtIndex:1] error:nil];
+    CWNetwork *network = [networks anyObject];
+
+    if (network) {
+        success = [interface associateToNetwork:network password:[skin toNSObjectAtIndex:2] error:nil];
+    }
+
+    lua_pushboolean(L, success);
+    return 1;
+}
+
 /// hs.wifi.interfaces() -> table
 /// Function
 /// Returns a list of interface names for WLAN devices attached to the system
@@ -662,6 +701,7 @@ static const luaL_Reg wifilib[] = {
     {"interfaceDetails", interfaceDetails},
     {"setPower", setPower},
     {"disassociate", disassociate},
+    {"associate", associate},
 
     {"_registerLogForC", lua_registerLogForC},
     {NULL, NULL}
