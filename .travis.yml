@@ -9,9 +9,11 @@ before_script:
 xcode_workspace: Hammerspoon.xcworkspace
 xcode_scheme: Release
 script:
-  - xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build test | xcpretty -f `xcpretty-travis-formatter`
+  - xcodebuild -workspace Hammerspoon.xcworkspace -scheme Release build test GCC_INSTRUMENT_PROGRAM_FLOW_ARCS=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES | xcpretty -f `xcpretty-travis-formatter`
 after_script:
   - make build/html
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 notifications:
   irc:
     channels:
