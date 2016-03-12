@@ -1013,14 +1013,20 @@ nextarg:
         lua_pushnumber(self.L, holder.latitudeDelta) ;  lua_setfield(self.L, -2, "latitudeDelta") ;
         lua_pushnumber(self.L, holder.longitudeDelta) ; lua_setfield(self.L, -2, "longitudeDelta") ;
         lua_pushstring(self.L, "MKCoordinateSpan") ; lua_setfield(self.L, -2, "__luaSkinType") ;
-    } else if (strcmp(objCType, @encode(SCNVector3))==0) {
+// NOTE: for some reason, sometimes the encoding includes a _ proceeding the name, sometimes it doesn't.
+//       catch both the "official" encoding, and the runtime actual encoding
+    } else if ((strcmp(objCType, @encode(SCNVector3))==0) ||
+               (strcmp(objCType, [[NSValue valueWithSCNVector3:SCNVector3Zero] objCType])==0)) {
         SCNVector3 holder = [value SCNVector3Value] ;
         lua_newtable(self.L) ;
         lua_pushnumber(self.L, holder.x) ; lua_setfield(self.L, -2, "x") ;
         lua_pushnumber(self.L, holder.y) ; lua_setfield(self.L, -2, "y") ;
         lua_pushnumber(self.L, holder.z) ; lua_setfield(self.L, -2, "z") ;
         lua_pushstring(self.L, "SCNVector3") ; lua_setfield(self.L, -2, "__luaSkinType") ;
-    } else if (strcmp(objCType, @encode(SCNVector4))==0) {
+// NOTE: for some reason, sometimes the encoding includes a _ proceeding the name, sometimes it doesn't.
+//       catch both the "official" encoding, and the runtime actual encoding
+    } else if ((strcmp(objCType, @encode(SCNVector4))==0) ||
+               (strcmp(objCType, [[NSValue valueWithSCNVector4:SCNVector4Zero] objCType])==0)) {
         SCNVector4 holder = [value SCNVector4Value] ;
         lua_newtable(self.L) ;
         lua_pushnumber(self.L, holder.x) ; lua_setfield(self.L, -2, "x") ;
@@ -1038,11 +1044,9 @@ nextarg:
         lua_pushinteger(self.L, (lua_Integer)actualSize) ;  lua_setfield(self.L, -2, "actualSize") ;
         lua_pushinteger(self.L, (lua_Integer)alignedSize) ; lua_setfield(self.L, -2, "alignedSize") ;
 
-        NSUInteger workingSize = MAX(actualSize, alignedSize) ;
-
-        void* ptr = malloc(workingSize) ;
+        void* ptr = malloc(actualSize) ;
         [value getValue:ptr] ;
-        [self pushNSObject:[NSData dataWithBytes:ptr length:workingSize]] ;
+        [self pushNSObject:[NSData dataWithBytes:ptr length:actualSize]] ;
         lua_setfield(self.L, -2, "data") ;
         free(ptr) ;
 //         [self pushNSObject:[NSKeyedArchiver archivedDataWithRootObject:value]] ;
@@ -1343,11 +1347,10 @@ nextarg:
                 objCType = [self toNSObjectAtIndex:-1] ;
             }
             if (rawData && objCType) {
-                NSUInteger actualSize, alignedSize ;
+                NSUInteger actualSize ;
                 const char *asConstChar = [objCType UTF8String] ;
-                NSGetSizeAndAlignment(asConstChar, &actualSize, &alignedSize) ;
-                NSUInteger workingSize = MAX(actualSize, alignedSize) ;
-                if (workingSize == [rawData length]) {
+                NSGetSizeAndAlignment(asConstChar, &actualSize, NULL) ;
+                if (actualSize == [rawData length]) {
                     result = [NSValue value:[rawData bytes] withObjCType:asConstChar] ;
                 } else {
                     [self logError:@"data size does not match objCType requirements in NSValue table"] ;
