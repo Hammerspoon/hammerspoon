@@ -9,6 +9,10 @@
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 #import "Skin.h"
+@import QuartzCore.CATransform3D; // for NSValue conversion of CATransform3D
+@import SceneKit.SceneKitTypes;   // for NSValue conversion of SCNVector3, SCNVector4, SCNMatrix4
+@import AVFoundation.AVTime;      // for NSValue conversion of CMTime, CMTimeRange, CMTimeMapping
+@import MapKit.MKGeometry;        // for NSValue conversion of CLLocationCoordinate2D, MKCoordinateSpan
 
 #pragma mark - Defines
 
@@ -582,6 +586,9 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertTrue([testDelegate.lastMessage containsString:@"requires both helperFN and className"]);
 
     [self.skin pushNSObject:[NSValue valueWithRect:NSMakeRect(5, 6, 7, 8)]];
+    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
+    XCTAssertEqualObjects(@"NSRect", @(lua_tostring(self.skin.L, -1))) ;
+    lua_pop(self.skin.L, 1);
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "x"));
     XCTAssertEqual(5, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
@@ -596,6 +603,9 @@ static int pushTestUserData(lua_State *L, id object) {
     lua_pop(self.skin.L, 1);
 
     [self.skin pushNSObject:[NSValue valueWithPoint:NSMakePoint(12, 13)]];
+    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
+    XCTAssertEqualObjects(@"NSPoint", @(lua_tostring(self.skin.L, -1))) ;
+    lua_pop(self.skin.L, 1);
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "x"));
     XCTAssertEqual(12, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
@@ -604,6 +614,9 @@ static int pushTestUserData(lua_State *L, id object) {
     lua_pop(self.skin.L, 1);
 
     [self.skin pushNSObject:[NSValue valueWithSize:NSMakeSize(88, 89)]];
+    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
+    XCTAssertEqualObjects(@"NSSize", @(lua_tostring(self.skin.L, -1))) ;
+    lua_pop(self.skin.L, 1);
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "w"));
     XCTAssertEqual(88, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
@@ -612,6 +625,9 @@ static int pushTestUserData(lua_State *L, id object) {
     lua_pop(self.skin.L, 1);
 
     [self.skin pushNSObject:[NSValue valueWithRange:NSMakeRange(42, 10)]];
+    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
+    XCTAssertEqualObjects(@"NSRange", @(lua_tostring(self.skin.L, -1))) ;
+    lua_pop(self.skin.L, 1);
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "location"));
     XCTAssertEqual(42, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
@@ -619,24 +635,80 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqual(10, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
 
-    // FIXME: This doesn't seem to work, NSValue claims to have no valueWithCMTime
-/*
-    [self.skin pushNSObject:[NSValue valueWithCMTime:CMTimeMakeWithSeconds(5, 300)]];
+    // 5 seconds in 1/10 of a second increments, should give a value of 50
+    [self.skin pushNSObject:[NSValue valueWithCMTime:CMTimeMakeWithSeconds(5, 10)]];
+    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
+    XCTAssertEqualObjects(@"CMTime", @(lua_tostring(self.skin.L, -1))) ;
+    lua_pop(self.skin.L, 1);
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "value"));
-    XCTAssertEqual(5, lua_tointeger(self.skin.L, -1));
+    XCTAssertEqual(50, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "timescale"));
-    XCTAssertEqual(300, lua_tointeger(self.skin.L, -1));
+    XCTAssertEqual(10, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "epoch"));
     XCTAssertEqual(0, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
     XCTAssertEqual(LUA_TTABLE, lua_getfield(self.skin.L, -1, "flags"));
-    // FIXME: Check flags values here
-    lua_pop(self.skin.L, 1);
- */
+    XCTAssertEqual(1, [self.skin countNatIndex:-1]); // one flag should be set
+    XCTAssertEqual(LUA_TBOOLEAN, lua_getfield(self.skin.L, -1, "valid"));
+    XCTAssertEqual(YES, lua_toboolean(self.skin.L, -1));
+    lua_pop(self.skin.L, 2);
 
-    // FIXME: This does not yet test all permutations of NSNumber
+    [self.skin pushNSObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.5, 1.2, 0.75)]];
+    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
+    XCTAssertEqualObjects(@"CATransform3D", @(lua_tostring(self.skin.L, -1))) ;
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "m11"));
+    XCTAssertEqual(0.5, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "m22"));
+    XCTAssertEqual(1.2, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "m33"));
+    XCTAssertEqual(0.75, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+  
+    /* FIXME: An NSValue with a SCNVector3 and SCNVector4 is returning an objCType that matches
+    //          NSRect, causing these tests to fail; however, it works correctly when used from a
+    //          module in a running Hammerspoon instance... no idea why...
+    
+    NSValue *vector3 = [NSValue valueWithSCNVector3:SCNVector3Make(1,2,3)];
+    NSLog(@"vector3: %s", [vector3 objCType]);
+    // outputs xctest[47579:2706696] vector3: {CGRect={CGPoint=dd}{CGSize=dd}} during test, but
+    // {_SCNVector3=ddd} when invoked from a running Hammerspoon
+    [self.skin pushNSObject:vector3];
+    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
+    XCTAssertEqualObjects(@"SCNVector3", @(lua_tostring(self.skin.L, -1))) ;
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "x"));
+    XCTAssertEqual(1.0, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "y"));
+    XCTAssertEqual(2.0, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "z"));
+    XCTAssertEqual(3.0, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    
+    [self.skin pushNSObject:[NSValue valueWithSCNVector4:SCNVector4Make(4,3,2,1)]];
+    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
+    XCTAssertEqualObjects(@"SCNVector4", @(lua_tostring(self.skin.L, -1))) ;
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "x"));
+    XCTAssertEqual(4.0, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "y"));
+    XCTAssertEqual(3.0, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "z"));
+    XCTAssertEqual(2.0, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "w"));
+    XCTAssertEqual(1.0, lua_tonumber(self.skin.L, -1));
+    lua_pop(self.skin.L, 1);
+    
+     */
 }
 
 - (void)testToNSObject {
