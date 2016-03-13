@@ -22,6 +22,7 @@ typedef struct luaObjectHelpers {
 
 static int pushCMTime(lua_State *L, CMTime holder) {
     lua_newtable(L) ;
+    lua_pushstring(L, "CMTime") ; lua_setfield(L, -2, "__luaSkinType") ;
     lua_pushinteger(L, holder.value) ;     lua_setfield(L, -2, "value") ;
     lua_pushinteger(L, holder.timescale) ; lua_setfield(L, -2, "timescale") ;
     lua_newtable(L) ;
@@ -50,6 +51,7 @@ static int pushCMTime(lua_State *L, CMTime holder) {
 
 static int pushCMTimeRange(lua_State *L, CMTimeRange holder) {
     lua_newtable(L) ;
+    lua_pushstring(L, "CMTimeRange") ; lua_setfield(L, -2, "__luaSkinType") ;
     pushCMTime(L, holder.start) ;    lua_setfield(L, -2, "start") ;
     pushCMTime(L, holder.duration) ; lua_setfield(L, -2, "duration") ;
     return 1 ;
@@ -991,10 +993,8 @@ nextarg:
         lua_pushstring(self.L, "SCNMatrix4") ; lua_setfield(self.L, -2, "__luaSkinType") ;
     } else if (strcmp(objCType, @encode(CMTime))==0) {
         pushCMTime(self.L, [value CMTimeValue]) ;
-        lua_pushstring(self.L, "CMTime") ; lua_setfield(self.L, -2, "__luaSkinType") ;
     } else if (strcmp(objCType, @encode(CMTimeRange))==0) {
         pushCMTimeRange(self.L, [value CMTimeRangeValue]) ;
-        lua_pushstring(self.L, "CMTimeRange") ; lua_setfield(self.L, -2, "__luaSkinType") ;
     } else if (strcmp(objCType, @encode(CMTimeMapping))==0) {
         CMTimeMapping holder = [value CMTimeMappingValue] ;
         lua_newtable(self.L) ;
