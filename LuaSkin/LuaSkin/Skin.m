@@ -1353,7 +1353,7 @@ nextarg:
                 if (actualSize == [rawData length]) {
                     result = [NSValue value:[rawData bytes] withObjCType:asConstChar] ;
                 } else {
-                    [self logError:@"data size does not match objCType requirements in NSValue table"] ;
+                    [self logError:[NSString stringWithFormat:@"data size of %lu does not match objCType requirements of %lu for %s", [rawData length], actualSize, asConstChar]] ;
                 }
             } else {
                 [self logError:@"arbitrary NSValue object from table requires data and objCType fields"] ;
