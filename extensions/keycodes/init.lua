@@ -1,7 +1,6 @@
 --- === hs.keycodes ===
 ---
---- Convert between key-strings and key-codes. Also provides funcionality for
---- querying and changing keyboard layouts.
+--- Convert between key-strings and key-codes. Also provides funcionality for querying and changing keyboard layouts.
 
 --- hs.keycodes.map = {...}
 --- Constant
