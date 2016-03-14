@@ -867,8 +867,27 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqual(expectedRange.location, actualRange.location);
     XCTAssertEqual(expectedRange.length, actualRange.length);
 
-    // TODO: add more tests for the other NSValue types; this just covers the most likely/common
-
+    // test __luaSkinType == "NSValue"
+    lua_newtable(self.skin.L) ;
+    lua_pushstring(self.skin.L, "NSValue") ; lua_setfield(self.skin.L, -2, "__luaSkinType");
+    lua_pushstring(self.skin.L, "{?=diI}") ; lua_setfield(self.skin.L, -2, "objCType") ;
+    lua_getglobal(self.skin.L, "string");
+    lua_getfield(self.skin.L, -1, "pack");
+    lua_remove(self.skin.L, -2);
+    lua_pushstring(self.skin.L, "diI") ;
+    lua_pushnumber(self.skin.L, 95.7) ;
+    lua_pushinteger(self.skin.L, -101) ;
+    lua_pushinteger(self.skin.L, 101) ;
+    lua_pcall(self.skin.L, 4, 1, 0) ;
+    lua_setfield(self.skin.L, -2, "data") ;
+    NSValue *value = [self.skin toNSObjectAtIndex:-1] ;
+    typedef struct { double d; int i; unsigned int ui; } otherStruct ;
+    otherStruct holder ;
+    [value getValue:&holder] ;
+    XCTAssertEqual(95.7, holder.d);
+    XCTAssertEqual(-101, holder.i);
+    XCTAssertEqual(101, holder.ui);
+    
 }
 
 - (void)testIsValidUTF8AtIndex {
