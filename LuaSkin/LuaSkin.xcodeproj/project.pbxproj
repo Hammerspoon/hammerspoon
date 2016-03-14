@@ -99,7 +99,6 @@
 		4FEF59711B29D0FB002344A7 /* Skin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FEF596F1B29D0FB002344A7 /* Skin.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FEF59721B29D0FB002344A7 /* Skin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59701B29D0FB002344A7 /* Skin.m */; };
 		4FEF5AD51B29E017002344A7 /* liblua.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FEF5A981B29E005002344A7 /* liblua.a */; };
-		D6CE99F61C95043200CC46E0 /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6CE99F51C95043200CC46E0 /* MapKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -183,7 +182,6 @@
 		4FEF596F1B29D0FB002344A7 /* Skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Skin.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		4FEF59701B29D0FB002344A7 /* Skin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Skin.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		4FEF5A981B29E005002344A7 /* liblua.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblua.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		D6CE99F51C95043200CC46E0 /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -191,7 +189,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6CE99F61C95043200CC46E0 /* MapKit.framework in Frameworks */,
 				4FEF5AD51B29E017002344A7 /* liblua.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -283,7 +280,6 @@
 		4FEF59451B29CE06002344A7 = {
 			isa = PBXGroup;
 			children = (
-				D6CE99F51C95043200CC46E0 /* MapKit.framework */,
 				4F9F02901B3D139C009C32E5 /* lua-5.3.2 */,
 				4FEF59511B29CE06002344A7 /* LuaSkin */,
 				4FEF595E1B29CE06002344A7 /* LuaSkinTests */,

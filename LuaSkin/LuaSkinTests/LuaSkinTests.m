@@ -9,10 +9,6 @@
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 #import "Skin.h"
-@import QuartzCore.CATransform3D; // for NSValue conversion of CATransform3D
-@import SceneKit.SceneKitTypes;   // for NSValue conversion of SCNVector3, SCNVector4, SCNMatrix4
-@import AVFoundation.AVTime;      // for NSValue conversion of CMTime, CMTimeRange, CMTimeMapping
-@import MapKit.MKGeometry;        // for NSValue conversion of CLLocationCoordinate2D, MKCoordinateSpan
 
 #pragma mark - Defines
 
@@ -27,23 +23,23 @@ static void stackDump (lua_State *L) {
     for (i = 1; i <= top; i++) {  /* repeat for each level */
         int t = lua_type(L, i);
         switch (t) {
-                
+
             case LUA_TSTRING:  /* strings */
                 printf("`%s'", lua_tostring(L, i));
                 break;
-                
+
             case LUA_TBOOLEAN:  /* booleans */
                 printf(lua_toboolean(L, i) ? "true" : "false");
                 break;
-                
+
             case LUA_TNUMBER:  /* numbers */
                 printf("%g", lua_tonumber(L, i));
                 break;
-                
+
             default:  /* other values */
                 printf("%s", lua_typename(L, t));
                 break;
-                
+
         }
         printf("  ");  /* put a separator */
     }
@@ -309,7 +305,7 @@ static int pushTestUserData(lua_State *L, id object) {
 
 - (void)testLuaStateDoubleDestruction {
     [self.skin destroyLuaState];
-    
+
     @try {
         // This should throw an NSInternalInconsistencyException
         [self.skin destroyLuaState];
@@ -357,10 +353,10 @@ static int pushTestUserData(lua_State *L, id object) {
 
 - (void)testLibrary {
     [self.skin registerLibrary:functions metaFunctions:metaFunctions];
-    
+
     // Normally we'd be returning to a luaopen_ function after registerLibrary, and thus the library would be inserted into the right namespace. Since we're not doing that here, we'll just go ahead and register it as a global, using the library name
     lua_setglobal(self.skin.L, libraryTestName);
-    
+
     // Call a function from the test library and test its return value
     luaL_loadstring(self.skin.L, "return testLibrary.doThing(4)");
     [self.skin protectedCallAndTraceback:0 nresults:1];
@@ -369,7 +365,7 @@ static int pushTestUserData(lua_State *L, id object) {
     // Now test that the library's __gc function gets called
     [self.skin destroyLuaState];
     XCTAssertTrue(libraryGCCalled);
-    
+
     // Recreate the Lua environment so tearDown doesn't explode
     [self.skin createLuaState];
 }
@@ -378,7 +374,7 @@ static int pushTestUserData(lua_State *L, id object) {
     [self.skin registerLibraryWithObject:libraryTestName functions:functions metaFunctions:metaFunctions objectFunctions:objectFunctions];
     // Normally we'd be returning to a luaopen_ function after registerLibrary, and thus the library would be inserted into the right namespace. Since we're not doing that here, we'll just go ahead and register it as a global, using the library name
     lua_setglobal(self.skin.L, libraryTestName);
-    
+
     // Create a library object, call a method on it and test its return value
     luaL_loadstring(self.skin.L, "return testLibrary.new(12):doObjectThing()");
     [self.skin protectedCallAndTraceback:0 nresults:1];
@@ -588,7 +584,7 @@ static int pushTestUserData(lua_State *L, id object) {
 }
 
 - (void)testPushStructInNSValue {
-    
+
     // Push NSRect in NSValue
     [self.skin pushNSObject:[NSValue valueWithRect:NSMakeRect(5, 6, 7, 8)]];
     XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
@@ -643,158 +639,13 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqual(10, lua_tointeger(self.skin.L, -1));
     lua_pop(self.skin.L, 1);
 
-    // Push CMTime in NSValue
-    [self.skin pushNSObject:[NSValue valueWithCMTime:CMTimeMakeWithSeconds(5, 10)]];
-    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
-    XCTAssertEqualObjects(@"CMTime", @(lua_tostring(self.skin.L, -1))) ;
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "value"));
-    // 5 seconds in 1/10 of a second increments, should give a value of 50
-    XCTAssertEqual(50, lua_tointeger(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "timescale"));
-    XCTAssertEqual(10, lua_tointeger(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "epoch"));
-    XCTAssertEqual(0, lua_tointeger(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TTABLE, lua_getfield(self.skin.L, -1, "flags"));
-    XCTAssertEqual(1, [self.skin countNatIndex:-1]); // one flag should be set
-    XCTAssertEqual(LUA_TBOOLEAN, lua_getfield(self.skin.L, -1, "valid"));
-    XCTAssertEqual(YES, lua_toboolean(self.skin.L, -1));
-    lua_pop(self.skin.L, 2);
-    
-    // Push CMTimeRange in NSValue
-    [self.skin pushNSObject:[NSValue valueWithCMTimeRange:CMTimeRangeMake(CMTimeMakeWithSeconds(0, 10), CMTimeMakeWithSeconds(0, 10))]];
-    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
-    XCTAssertEqualObjects(@"CMTimeRange", @(lua_tostring(self.skin.L, -1))) ;
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TTABLE, lua_getfield(self.skin.L, -1, "start"));
-    // TODO: Flesh this out more, it's a CMTime table
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TTABLE, lua_getfield(self.skin.L, -1, "duration"));
-    // TODO: Flesh this out more, it's a CMTime table
-    lua_pop(self.skin.L, 1);
-
-    // Push CMTimeMapping in NSValue
-    CMTimeMapping timeMap ;
-    timeMap.source = CMTimeRangeMake(CMTimeMakeWithSeconds(0, 10), CMTimeMakeWithSeconds(60, 10)) ;
-    timeMap.target = CMTimeRangeMake(CMTimeMakeWithSeconds(0, 5), CMTimeMakeWithSeconds(120, 10)) ;
-    [self.skin pushNSObject:[NSValue valueWithCMTimeMapping:timeMap]] ;
-    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
-    XCTAssertEqualObjects(@"CMTimeMapping", @(lua_tostring(self.skin.L, -1))) ;
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TTABLE, lua_getfield(self.skin.L, -1, "source"));
-    // TODO: Flesh this out more, it's a CMTimeRange table
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TTABLE, lua_getfield(self.skin.L, -1, "target"));
-    // TODO: Flesh this out more, it's a CMTimeRange table
-    lua_pop(self.skin.L, 1);
-
-    // Push CATransform3D in NSValue
-    [self.skin pushNSObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.5, 1.2, 0.75)]];
-    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
-    XCTAssertEqualObjects(@"CATransform3D", @(lua_tostring(self.skin.L, -1))) ;
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "m11"));
-    XCTAssertEqual(0.5, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "m22"));
-    XCTAssertEqual(1.2, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "m33"));
-    XCTAssertEqual(0.75, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-  
-    // Push CLLocationCoordinate2D/MKCoordinate in NSValue
-    [self.skin pushNSObject:[NSValue valueWithMKCoordinate:CLLocationCoordinate2DMake(41.8369, -87.6847)]] ;
-    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
-    XCTAssertEqualObjects(@"CLLocationCoordinate2D", @(lua_tostring(self.skin.L, -1))) ;
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "latitude"));
-    XCTAssertEqual(41.8369, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "longitude"));
-    XCTAssertEqual(-87.6847, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    
-    // Push MKCoordinateSpan in NSValue
-    [self.skin pushNSObject:[NSValue valueWithMKCoordinateSpan:MKCoordinateSpanMake(3, 5)]] ;
-    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
-    XCTAssertEqualObjects(@"MKCoordinateSpan", @(lua_tostring(self.skin.L, -1))) ;
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "latitudeDelta"));
-    XCTAssertEqual(3.0, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "longitudeDelta"));
-    XCTAssertEqual(5.0, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    
-    /* FIXME: An NSValue with a SCNVector3 and SCNVector4 is returning an objCType that matches NSRect, causing these tests to fail; however, it works correctly when used from a module in a running Hammerspoon instance... no idea why...
-     
-     // Push SCNVector3 in NSValue
-     NSValue *vector3 = [NSValue valueWithSCNVector3:SCNVector3Make(1,2,3)];
-     NSLog(@"vector3: %s", [vector3 objCType]);
-     // outputs xctest[47579:2706696] vector3: {CGRect={CGPoint=dd}{CGSize=dd}} during test, but
-     // {_SCNVector3=ddd} when invoked from a running Hammerspoon
-     [self.skin pushNSObject:vector3];
-     XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
-     XCTAssertEqualObjects(@"SCNVector3", @(lua_tostring(self.skin.L, -1))) ;
-     lua_pop(self.skin.L, 1);
-     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "x"));
-     XCTAssertEqual(1.0, lua_tonumber(self.skin.L, -1));
-     lua_pop(self.skin.L, 1);
-     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "y"));
-     XCTAssertEqual(2.0, lua_tonumber(self.skin.L, -1));
-     lua_pop(self.skin.L, 1);
-     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "z"));
-     XCTAssertEqual(3.0, lua_tonumber(self.skin.L, -1));
-     lua_pop(self.skin.L, 1);
-     
-     // Push SCNVector4 in NSValue
-     [self.skin pushNSObject:[NSValue valueWithSCNVector4:SCNVector4Make(4,3,2,1)]];
-     XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
-     XCTAssertEqualObjects(@"SCNVector4", @(lua_tostring(self.skin.L, -1))) ;
-     lua_pop(self.skin.L, 1);
-     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "x"));
-     XCTAssertEqual(4.0, lua_tonumber(self.skin.L, -1));
-     lua_pop(self.skin.L, 1);
-     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "y"));
-     XCTAssertEqual(3.0, lua_tonumber(self.skin.L, -1));
-     lua_pop(self.skin.L, 1);
-     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "z"));
-     XCTAssertEqual(2.0, lua_tonumber(self.skin.L, -1));
-     lua_pop(self.skin.L, 1);
-     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "w"));
-     XCTAssertEqual(1.0, lua_tonumber(self.skin.L, -1));
-     lua_pop(self.skin.L, 1);
-     
-     // */
-    
-    // Push SCNMatrix4 in NSValue
-    [self.skin pushNSObject:[NSValue valueWithSCNMatrix4:SCNMatrix4MakeTranslation(0.5, 1.2, 0.75)]];
-    XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
-    // Uses the same encoding type as CATransform3D, but since there are separate NSValue methods, we
-    // check for both anyways in case something changes in a future OS X release (unlikely, but... if
-    // it does, this next line will like have to be changed to "SCNMatrix4"; otherwise the actual data
-    // stored and field names are the same, so LuaSkin itself shouldn't have to change.
-    XCTAssertEqualObjects(@"CATransform3D", @(lua_tostring(self.skin.L, -1))) ;
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "m41"));
-    XCTAssertEqual(0.5, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "m42"));
-    XCTAssertEqual(1.2, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "m43"));
-    XCTAssertEqual(0.75, lua_tonumber(self.skin.L, -1));
-    lua_pop(self.skin.L, 1);
-    
     // Push arbitrary struct in NSValue
-    typedef struct { double d; int i; } otherStruct ;
+    typedef struct { double d; int i; unsigned int ui; } otherStruct ;
     otherStruct holder ;
     holder.d = 95.7 ;
-    holder.i = 200 ;
+    holder.i = -101 ;
+    // original test only had the double and the int... in practice that meant that 12 of the 16 bytes were in use; usually the filler is \x00, but not always, thus the data comparison was sometimes failing because of the filler bytes... This makes all 16 bytes in use, thus specific and valid for comparison.
+    holder.ui = 101 ;
     [self.skin pushNSObject:[NSValue valueWithBytes:&holder objCType:@encode(otherStruct)]] ;
     XCTAssertEqual(LUA_TSTRING, lua_getfield(self.skin.L, -1, "__luaSkinType"));
     XCTAssertEqualObjects(@"NSValue", @(lua_tostring(self.skin.L, -1))) ;
@@ -806,7 +657,7 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "alignedSize"));
     XCTAssertEqual(8, lua_tointeger(self.skin.L, -1)) ;
     lua_pop(self.skin.L, 1);
-    const char bytes[] = "\xCD\xCC\xCC\xCC\xCC\xEC\x57\x40\xC8\x00\x00\x00\x00\x00\x00\x00" ;
+    const char bytes[] = "\xCD\xCC\xCC\xCC\xCC\xEC\x57\x40\x9B\xFF\xFF\xFF\x65\x00\x00\x00" ;
     size_t     length  = (sizeof bytes) - 1 ; // remove trailing implicit \x00 all C-strings get
     XCTAssertEqual(LUA_TNUMBER, lua_getfield(self.skin.L, -1, "actualSize"));
     XCTAssertEqual(length, lua_tointeger(self.skin.L, -1)) ;
@@ -815,21 +666,23 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqualObjects([NSData dataWithBytes:bytes length:length],
                           [self.skin toNSObjectAtIndex:-1 withOptions:LS_NSLuaStringAsDataOnly]);
     // lua_pop(self.skin.L, 1); // skip - we'll need the data in the next subtest
-    
+
     lua_getglobal(self.skin.L, "string");
     lua_getfield(self.skin.L, -1, "unpack");
     lua_remove(self.skin.L, -2);
     // @encode includes some wrapper stuff that confuses string.pack.  Eventually, there will be a
     // function/method to convert field objCType to what string.pack/unpack can use; for now, hard code it.
-    lua_pushstring(self.skin.L, "di");
+    lua_pushstring(self.skin.L, "diI");
     lua_pushvalue(self.skin.L, -3); // data from previous subtest
-    lua_pcall(self.skin.L, 2, 3, 0);
+    lua_pcall(self.skin.L, 2, 4, 0);
+    XCTAssertEqual(LUA_TNUMBER, lua_type(self.skin.L, -4));
+    XCTAssertEqual(95.7, lua_tonumber(self.skin.L, -4)) ;
     XCTAssertEqual(LUA_TNUMBER, lua_type(self.skin.L, -3));
-    XCTAssertEqual(95.7, lua_tonumber(self.skin.L, -3)) ;
+    XCTAssertEqual(-101, lua_tointeger(self.skin.L, -3)) ;
     XCTAssertEqual(LUA_TNUMBER, lua_type(self.skin.L, -2));
-    XCTAssertEqual(200, lua_tointeger(self.skin.L, -2)) ;
+    XCTAssertEqual(101, lua_tointeger(self.skin.L, -2)) ;
     XCTAssertEqual(LUA_TNUMBER, lua_type(self.skin.L, -1));
-    XCTAssertEqual(13, lua_tointeger(self.skin.L, -1)) ;    // first unused position in packed data
+    XCTAssertEqual(17, lua_tointeger(self.skin.L, -1)) ;    // first unused position in packed data
     lua_pop(self.skin.L, 4); // string.unpack results and the data from the previous subtest
 }
 
@@ -980,7 +833,7 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqual(expectedRect.origin.y, actualRect.origin.y);
     XCTAssertEqual(expectedRect.size.width, actualRect.size.width);
     XCTAssertEqual(expectedRect.size.height, actualRect.size.height);
-    
+
     // test __luaSkinType == "NSPoint"
     NSPoint expectedPoint = NSMakePoint(10, 20);
     lua_newtable(self.skin.L);
@@ -991,7 +844,7 @@ static int pushTestUserData(lua_State *L, id object) {
     NSPoint actualPoint = [actualValue pointValue];
     XCTAssertEqual(expectedPoint.x, actualPoint.x);
     XCTAssertEqual(expectedPoint.y, actualPoint.y);
-    
+
     // test __luaSkinType == "NSSize"
     NSSize expectedSize = NSMakeSize(30, 40);
     lua_newtable(self.skin.L);
@@ -1002,7 +855,7 @@ static int pushTestUserData(lua_State *L, id object) {
     NSSize actualSize = [actualValue sizeValue];
     XCTAssertEqual(expectedSize.width, actualSize.width);
     XCTAssertEqual(expectedSize.height, actualSize.height);
-    
+
     // test __luaSkinType == "NSRange"
     NSRange expectedRange = NSMakeRange(42, 10);
     lua_newtable(self.skin.L);
@@ -1013,9 +866,9 @@ static int pushTestUserData(lua_State *L, id object) {
     NSRange actualRange = [actualValue rangeValue];
     XCTAssertEqual(expectedRange.location, actualRange.location);
     XCTAssertEqual(expectedRange.length, actualRange.length);
-    
+
     // TODO: add more tests for the other NSValue types; this just covers the most likely/common
-    
+
 }
 
 - (void)testIsValidUTF8AtIndex {
@@ -1044,7 +897,7 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertFalse([self.skin maxNatIndex:-1] == [self.skin countNatIndex:-1]);
     XCTAssertEqual(3, [self.skin maxNatIndex:-1]);
     XCTAssertEqual(4, [self.skin countNatIndex:-1]);
-    
+
 }
 - (void)testLogging {
     XCTestExpectation *expectation = nil;

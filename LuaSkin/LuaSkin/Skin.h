@@ -14,10 +14,6 @@
 
 
 @import Foundation;
-@import QuartzCore.CATransform3D; // for NSValue conversion of CATransform3D
-@import SceneKit.SceneKitTypes;   // for NSValue conversion of SCNVector3, SCNVector4, SCNMatrix4
-@import AVFoundation.AVTime;      // for NSValue conversion of CMTime, CMTimeRange, CMTimeMapping
-@import MapKit.MKGeometry;        // for NSValue conversion of CLLocationCoordinate2D, MKCoordinateSpan
 #import "lobject.h"
 #import "lapi.h"
 #import "lauxlib.h"
