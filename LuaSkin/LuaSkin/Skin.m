@@ -1060,7 +1060,6 @@ nextarg:
             lua_pop(self.L, 2) ;
         }
     }
-
     return result ;
 }
 
@@ -1069,9 +1068,11 @@ nextarg:
 
     if (lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) {
         result = [self tableAtIndex:idx withLabel:lua_tostring(self.L, -1) withOptions:options] ;
-    }
-    lua_pop(self.L, 1) ;
-    if (!result) {
+        if (!result) [self logWarn:[NSString stringWithFormat:@"Unable to create object for __luaSkinType = %s",
+                                                              lua_tostring(self.L, -1)]] ;
+        lua_pop(self.L, 1) ;
+    } else {
+        lua_pop(self.L, 1) ;
         if ([self maxNatIndex:lua_absindex(self.L, idx)] == [self countNatIndex:lua_absindex(self.L, idx)]) {
             result = (NSMutableArray *) [[NSMutableArray alloc] init] ;
         } else {
@@ -1119,7 +1120,7 @@ nextarg:
         }
     }
 
-    alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] = @[result, @(YES)] ;
+    if (result) alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] = @[result, @(YES)] ;
     return result ;
 }
 
