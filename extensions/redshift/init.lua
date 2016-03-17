@@ -233,8 +233,10 @@ end
 ---  * None
 function redshift.toggle(v)
   if not running then return end
-  if v==nil and disableUser==nil then v=not isDisabled() end
-  if v~=nil and type(v)~='boolean' then error ('v must be a boolean or nil',2) end
+  if v==nil then
+    if disableUser==nil then v=not isDisabled() end
+  elseif type(v)~='boolean' then error ('v must be a boolean or nil',2)
+  else v=not v end
   log.f('color adjustment user override%s',v==true and ': disabled' or (v==false and ': enabled' or ' cancelled'))
   if v==nil then settings.clear(SETTING_DISABLED_OVERRIDE)
   else settings.set(SETTING_DISABLED_OVERRIDE,v) end
