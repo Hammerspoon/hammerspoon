@@ -211,7 +211,8 @@ function highlight.toggleIsolate(v)
   if v==nil and isolateUser==nil then v=not isolate end
   isolateUser=v
   log.f('isolate user override%s',v==true and ': isolated' or (v==false and ': not isolated' or ' cancelled'))
-  settings.set(SETTING_ISOLATE_OVERRIDE,v)
+  if v==nil then settings.clear(SETTING_ISOLATE_OVERRIDE)
+  else settings.set(SETTING_ISOLATE_OVERRIDE,v) end
   return setIsolate()
 end
 
@@ -240,6 +241,15 @@ function highlight.start(wfis,wfov)
   running=true
   if wfov==nil then wfov=windowfilter.default else wfov=windowfilter.new(wfov) end
 
+  wfFlash=wfov
+  wfOverlay=windowfilter.copy(wfov,'wf-highlight'):setOverrideFilter{focused=true}
+  screenWatcher=screen.watcher.new(getScreens):start()
+  log.i'started'
+  getScreens()
+  isolateUser=settings.get(SETTING_ISOLATE_OVERRIDE)
+  setIsolate()
+  setUiPrefs()
+  redshift.invertSubscribe(setInvert)
   if wfis~=nil then
     if windowfilter.iswf(wfis) then wfIsolate=wfis
     else
@@ -255,15 +265,6 @@ function highlight.start(wfis,wfov)
     end
     wfIsolate:subscribe(isolatesubs,true)
   end
-  wfFlash=wfov
-  wfOverlay=windowfilter.copy(wfov,'wf-highlight'):setOverrideFilter{focused=true}
-  screenWatcher=screen.watcher.new(getScreens):start()
-  log.i'started'
-  getScreens()
-  isolateUser=settings.get(SETTING_ISOLATE_OVERRIDE)
-  setIsolate()
-  setUiPrefs()
-  redshift.invertSubscribe(setInvert)
 end
 
 
