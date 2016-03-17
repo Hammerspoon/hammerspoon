@@ -703,16 +703,16 @@ end
 function windowfilter.new(fn,logname,loglevel,isCopy)
   local mt=getmetatable(fn) if mt and mt.__index==WF then return fn end -- no copy-on-new
   if fn==nil then
-    log.i('new windowfilter, default windowfilter copy')
+    log.i('copy default windowfilter')
     return windowfilter.copy(windowfilter.default,logname,loglevel)
   end
   local o={filters={},events={},windows={},pending={},
-    log=logname and logger.new(logname,loglevel) or log,logname=logname,loglevel=loglevel}
+    log=logname and logger.new(logname,loglevel or log.level) or log,logname=logname,loglevel=loglevel or log.level}
   o.__address=gsub(tostring(o),'table: ','')
   setmetatable(o,{__index=WF,__tostring=__tostring,__gc=WF.delete})
   if logname then o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel end
   if type(fn)=='function' then
-    o.log.i('new windowfilter, custom function')
+    o.log.i('new',o,'- custom function')
     o.isAppAllowed = function()return true end
     o.isWindowAllowed = function(self,w) return fn(w) end
     o.customFilter=true
@@ -720,13 +720,13 @@ function windowfilter.new(fn,logname,loglevel,isCopy)
   elseif type(fn)=='string' then fn={fn}
   end
   if type(fn)=='table' then
-    o.log.i('new windowfilter, reject all with exceptions')
+    o.log.i('new',o,'- reject all with exceptions')
     return o:setDefaultFilter(false):setFilters(fn)
   elseif fn==true then
-    if isCopy then o.log.i('new windowfilter, copy of',isCopy)
-    else o.log.i('new empty windowfilter') end
+    if isCopy then o.log.i('new',o,'- copy of',isCopy)
+    else o.log.i('new',o,'- empty') end
     return o
-  elseif fn==false then o.log.i('new windowfilter, reject all') return o:setDefaultFilter(false)
+  elseif fn==false then o.log.i('new',o,'- reject all') return o:setDefaultFilter(false)
   else error('fn must be nil, a boolean, a string or table of strings, or a function',2) end
 end
 
@@ -740,7 +740,9 @@ end
 ---  * loglevel - (optional) log level for the `hs.logger` instance for the new windowfilter
 function windowfilter.copy(wf,logname,loglevel)
   local mt=getmetatable(wf) if not mt or mt.__index~=WF then error('windowfilter must be an hs.window.filter object',2) end
-  return windowfilter.new(true,logname,loglevel,wf):setFilters(wf:getFilters())
+  local self=windowfilter.new(true,logname,loglevel,wf)
+  local lvl=self.getLogLevel() self.setLogLevel('warning') self:setFilters(wf:getFilters()) self.setLogLevel(lvl)
+  return self
 end
 
 --- hs.window.filter.default
@@ -2088,7 +2090,7 @@ function WF:pause()
 end
 
 function WF:delete()
-  self.log.i('windowfilter instance deleted')
+  self.log.i(self,'instance deleted')
   activeInstances[self]=nil spacesInstances[self]=nil applicationActiveInstances[self]=nil
   self.events={} self.filters={} self.windows={}
   setmetatable(self,nil) stopGlobalWatcher()
