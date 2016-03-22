@@ -809,7 +809,8 @@ id _getMenuStructure(AXUIElementRef menuItem) {
                                                                       (__bridge NSString *)kAXMenuItemCmdCharAttribute,
                                                                       (__bridge NSString *)kAXMenuItemCmdModifiersAttribute,
                                                                       //(__bridge NSString *)kAXMenuItemCmdVirtualKeyAttribute,
-                                                                      (__bridge NSString *)kAXEnabledAttribute]];
+                                                                      (__bridge NSString *)kAXEnabledAttribute,
+                                                                      (__bridge NSString *)kAXMenuItemCmdGlyphAttribute]];
     CFArrayRef cfAttributeValues = NULL;
 
     AXUIElementCopyMultipleAttributeValues(menuItem, (__bridge CFArrayRef)attributeNames, 0, &cfAttributeValues);
@@ -923,6 +924,7 @@ id _getMenuStructure(AXUIElementRef menuItem) {
 ///   * AXMenuItemMarkChar - A string containing the "mark" character for a menu item. This is for toggleable menu items and will usually be an empty string or a Unicode tick character (✓)
 ///   * AXMenuItemCmdModifiers - A table containing string representations of the keyboard modifiers for the menu item's keyboard shortcut, or nil if no modifiers are present
 ///   * AXMenuItemCmdChar - A string containing the key for the menu item's keyboard shortcut, or an empty string if no shortcut is present
+///   * AXMenuItemCmdGlyph - An integer, corresponding to one of the defined glyphs in `hs.application.menuGlyphs` if the keyboard shortcut is a special character usually represented by a pictorial representation (think arrow keys, return, etc), or an empty string if no glyph is used in presenting the keyboard shortcut.
 ///  * Using `hs.inspect()` on these tables, while useful for exploration, can be extremely slow, taking several minutes to correctly render very complex menus
 static int application_getMenus(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
