@@ -64,8 +64,7 @@ local modals={} -- modal hotkeys for selecting a hint; global state
 local activeInstance,fnreactivate -- function to reactivate the current instance (only 1 possible) after a space switch
 local modes,tap={} -- modes (minimize, close) for the current instance, and eventtap (glboals)
 local spacesWatcher,screenWatcher,screensChangedTimer,bgFitTimer -- global watchers
-local BG_FIT_INTERVAL=1
-local DISTANT_FUTURE=315360000 -- 10 years (roughly)
+local BG_FIT_INTERVAL=3
 local BEHAVIOR=17
 
 local function tlen(t)
@@ -237,14 +236,14 @@ local uiGlobal = {
   maxHintLetters = 2,
 
   fitWindowsMaxIterations=30,
-  fitWindowsInBackground=true,
+  fitWindowsInBackground=false,
   fitWindowsInBackgroundMaxIterations=3,
   fitWindowsInBackgroundMaxRepeats=10,
 
   showExtraKeys=true,
 }
 
-local function getColor(t) if type(t)~='table' or t.red then return t else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end end
+local function getColor(t) if type(t)~='table' or t.red or not t[1] then return t else return {red=t[1] or 0,green=t[2] or 0,blue=t[3] or 0,alpha=t[4] or 1} end end
 
 --- hs.expose.ui
 --- Variable
@@ -286,7 +285,7 @@ local function getColor(t) if type(t)~='table' or t.red then return t else retur
 ---  * `hs.expose.ui.highlightThumbnailStrokeWidth = 8` - thumbnail frame thickness for candidate windows
 ---  * `hs.expose.ui.maxHintLetters = 2` - if necessary, hints longer than this will be disambiguated with digits
 ---  * `hs.expose.ui.fitWindowsMaxIterations = 30` -- lower is faster, but higher chance of overlapping thumbnails
----  * `hs.expose.ui.fitWindowsInBackground = true` -- improves responsivenss, but can affect the rest of the config
+---  * `hs.expose.ui.fitWindowsInBackground = false` -- improves responsivenss, but can affect the rest of the config
 
 -- TODO * `hs.expose.ui.fitWindowsMaxIterations = 3`
 -- TODO * `hs.expose.ui.showExtraKeys = true` -- show non-hint keybindings at the top of the screen
@@ -319,6 +318,7 @@ local function getHints(self,windows)
     end
   end
   local function normalize(t,n) --change in place
+    local _
     while #t>0 and tlen(t.apps)>0 do
       if n>self.ui.maxHintLetters or (tlen(t.apps)==1 and n>1 and not hasSubHints(t))  then
         -- last app remaining for this hint; give it digits
@@ -356,18 +356,17 @@ local function getHints(self,windows)
           else i=i+1 end
         end
       end
-  end
-  for c,subt in pairs(t) do
-    if type(c)=='string' and #c==1 then
-      normalize(subt,n+1)
     end
-  end
+    for c,subt in pairs(t) do
+      if type(c)=='string' and #c==1 then
+        normalize(subt,n+1)
+      end
+    end
   end
 
   normalize(hints,1)
   return hints
 end
-
 
 local function updateHighlights(ui,hints,subtree,entering,show)
   for c,t in pairs(hints) do
@@ -386,20 +385,19 @@ local function updateHighlights(ui,hints,subtree,entering,show)
         end
         if show then
           w.hintrect:show()
-          w.hinttext:setText(ssub('        ',1,
-            #modals+(entering and 0 or -1))..ssub(w.hint,#modals+(entering and 1 or 0))):show()
+          w.curhint=ssub('        ',1,#modals+(entering and 0 or -1))..ssub(w.hint,#modals+(entering and 1 or 0))
+          w.hinttext:setText(w.curhint):show()
           w.icon:show()
         else
           w.hinttext:hide()
           w.hintrect:hide()
           w.icon:hide()
         end
+        w.visible=show
       else updateHighlights(ui,t,subtree,entering,show) end
     end
   end
 end
-
-
 
 local function setMode(self,k,mode)
   if modes[k]==mode then return end
@@ -420,7 +418,7 @@ end
 local enter--,setThumb
 
 local function exit(self)
-  log.vf('exit modal for hint #%d',#modals)
+  self.log.vf('exit modal for hint #%d',#modals)
   tremove(modals).modal:exit()
   if #modals>0 then updateHighlights(self.ui,modals[#modals].hints,nil,false,true) return enter(self) end
   -- exit all
@@ -442,9 +440,16 @@ local function exit(self)
   --  return enter(self)
 end
 local function exitAll(self,toFocus)
-  log.d('exiting')
+  self.log.d('exiting')
   while #modals>0 do exit(self) end
-  if toFocus then timer.doAfter(0.43,function()toFocus:focus()end) end -- el cap bugs out (finder "floats" on top) if done directly
+  if toFocus then
+    self.log.i('focusing',toFocus)
+    --    if toFocus:application():bundleID()~='com.apple.finder' then
+    --    toFocus:focus()
+    --    else
+    timer.doAfter(0.25,function()toFocus:focus()end) -- el cap bugs out (desktop "floats" on top) if done directly
+    --    end
+  end
 end
 
 enter=function(self,hints)
@@ -455,33 +460,33 @@ enter=function(self,hints)
     local h,w=hints[1],hints[1].window
     local app,appname=w:application(),h.appname
     if modes.close then
-      self.log.f('Closing window (%s)',appname)
+      self.log.f('closing window (%s)',appname)
       w:close()
       hints[1]=nil
       -- close app
       if app then
         if #app:allWindows()==0 then
-          log.f('Quitting application %s',appname)
+          self.log.f('quitting application %s',appname)
           app:kill()
         end
       end
       --      updateHighlights(self.ui,modals[#modals].hints,nil,false,true)
       return enter(self)
     elseif modes.min then
-      self.log.f('Toggling window minimized/hidden (%s)',appname)
+      self.log.f('toggling window minimized/hidden (%s)',appname)
       if w:isMinimized() then w:unminimize()
       elseif app:isHidden() then app:unhide()
       else w:minimize() end
       --      updateHighlights(self.ui,modals[#modals].hints,nil,false,true)
       return enter(self)
     else
-      self.log.f('Focusing window (%s)',appname)
+      self.log.f('focusing window (%s)',appname)
       if w:isMinimized() then w:unminimize() end
       --      w:focus()
       return exitAll(self,w)
     end
   else
-    if modals[#modals] then log.vf('exit modal %d',#modals) modals[#modals].modal:exit() end
+    if modals[#modals] then self.log.vf('exit modal %d',#modals) modals[#modals].modal:exit() end
     local modal=newmodal()
     modals[#modals+1]={modal=modal,hints=hints}
     modal:bind({},'escape',function()return exitAll(self)end)
@@ -493,7 +498,7 @@ enter=function(self,hints)
         modal:bind({self.ui.minimizeModeModifier},c,function()updateHighlights(self.ui,hints,t,true) enter(self,t) end)
       end
     end
-    log.vf('enter modal for hint #%d',#modals)
+    self.log.vf('enter modal for hint #%d',#modals)
     modal:enter()
   end
 end
@@ -505,7 +510,7 @@ local function spaceChanged()
   return temp()
 end
 
-local function showThumbnail(w,screenFrame,thumbnails,titles,ui,bg)
+local function setThumbnail(w,screenFrame,thumbnails,titles,ui,bg)
   local wframe=w.frame
   if thumbnails then
     w.thumb:setFrame(wframe):orderAbove(bg)
@@ -519,7 +524,7 @@ local function showThumbnail(w,screenFrame,thumbnails,titles,ui,bg)
   local tr=geom.copy(br):setw(hintWidth+padding*2):move(hintHeight+padding*2,0)
   local ir=geom.copy(br):setw(hintHeight):move(padding,0)
   w.hintrect:setFrame(br):orderAbove(w.highlight or bg)
-  w.hinttext:setFrame(tr):orderAbove(w.hintrect):setText(w.hint or ' ')
+  w.hinttext:setFrame(tr):orderAbove(w.hintrect):setText(w.curhint or w.hint or ' ')
   w.icon:setFrame(ir):orderAbove(w.hintrect)
 
   if titles then
@@ -538,8 +543,8 @@ local function showExpose(self,windows,animate,alt_algo)
   -- animate is waaay to slow: don't bother
   -- alt_algo sometimes performs better in terms of coverage, but (in the last half-broken implementation) always reaches maxIterations
   -- alt_algo TL;DR: much slower, don't bother
-  if not self.running then log.i('instance not running, cannot show expose') return end
-  log.d('activated')
+  if not self.running then self.log.i('instance not running, cannot show expose') return end
+  self.log.d('activated')
   local hints=getHints(self,windows)
   local ui=self.ui
   for sid,s in pairs(self.screens) do
@@ -552,7 +557,7 @@ local function showExpose(self,windows,animate,alt_algo)
     local bg,screenFrame,thumbnails,titles=s.bg:show(),s.frame,s.thumbnails,ui.showTitles
     for id,w in pairs(s.windows) do
       if not windows or windows[id] then
-        showThumbnail(w,screenFrame,thumbnails,titles,ui,bg)
+        setThumbnail(w,screenFrame,thumbnails,titles,ui,bg)
         --      if showThumbs then w.thumb:show() w.highlight:show() end
         --      if showTitles then w.titlerect:show() w.titletext:show() end
         --      w.hintrect:show() w.hinttext:show() w.icon:show()
@@ -621,7 +626,7 @@ end
 
 local function getApplicationWindows()
   local a=application.frontmostApplication()
-  if not a then log.w('Cannot get active application') return end
+  if not a then log.w('cannot get active application') return end
   local r={}
   for _,w in ipairs(a:allWindows()) do r[w:id()]=w end
   return r
@@ -644,9 +649,9 @@ local function bgFitWindows()
     if self.dirty then
       for _,screen in pairs(self.screens) do
         if screen.dirty then fitWindows(self,screen,iters) rep=rep or screen.dirty end
-        if DEBUG then
+        if activeInstance==self or DEBUG then
           for _,w in pairs(screen.windows) do
-            showThumbnail(w,screen.frame,screen.thumbnails,self.ui.showTitles,self.ui,screen.bg)
+            if w.visible then setThumbnail(w,screen.frame,screen.thumbnails,self.ui.showTitles,self.ui,screen.bg) end
           end
         end
       end
@@ -654,11 +659,11 @@ local function bgFitWindows()
     if DEBUG then print(math.floor((timer.secondsSinceEpoch()-DEBUG_TIME)/iters*1000)..'ms per iteration - '..iters..' total') end
   end
   bgRepeats=bgRepeats-1
-  if rep and bgRepeats>0 then bgFitTimer:setNextTrigger(BG_FIT_INTERVAL) end
+  if rep and bgRepeats>0 then bgFitTimer:start() end
 end
 
 function expose.STOP()
-  bgFitTimer:setNextTrigger(9999999)
+  bgFitTimer:stop()
   for i in pairs(activeInstances) do
     for _,s in pairs(i.screens) do
       for _,w in pairs(s.windows) do
@@ -673,9 +678,10 @@ function expose.STOP()
   end
 end
 local function startBgFitWindows(ui)
+  if activeInstance and not ui.fitWindowsInBackground then bgRepeats=2 return bgFitTimer:start(0.05) end
   bgRepeats=ui.fitWindowsInBackgroundMaxRepeats
   if bgRepeats>0 and ui.fitWindowsInBackground then
-    bgFitTimer:setNextTrigger(BG_FIT_INTERVAL)
+    bgFitTimer:start()
   end
 end
 
@@ -751,8 +757,9 @@ local function windowAllowed(self,win,appname,screen)
     :setRoundedRectRadii(ui.textSize/4,ui.textSize/4):setBehavior(BEHAVIOR)
   --    :orderAbove(w.thumb)
   w.hinttext=drawing.text(f,' '):setTextStyle(ui.hintTextStyle):setBehavior(BEHAVIOR)--:orderAbove(w.hintrect)
-  local icon=image.imageFromAppBundle(win:application():bundleID())
-  w.icon=drawing.image(f,icon or UNAVAILABLE):setBehavior(BEHAVIOR)--:orderAbove(w.hintrect)
+  local bid=win:application():bundleID()
+  local icon=bid and image.imageFromAppBundle(bid) or UNAVAILABLE
+  w.icon=drawing.image(f,icon):setBehavior(BEHAVIOR)--:orderAbove(w.hintrect)
   w.textratio=drawing.text(f,''):setTextColor{red=1,alpha=1,blue=0,green=0}
   w.dirty=true
   screen.totalOriginalArea=screen.totalOriginalArea+f.area
@@ -852,7 +859,9 @@ end
 
 local function makeScreens(self)
   self.log.i'populating screens'
+  local wfLogLevel=windowfilter.getLogLevel()
   deleteScreens(self)
+  windowfilter.setLogLevel('warning')
   -- gather screens
   local activeApplication=self.ui.onlyActiveApplication and true or nil
   local hsscreens=screen.allScreens()
@@ -860,14 +869,14 @@ local function makeScreens(self)
   for _,scr in ipairs(hsscreens) do -- populate current screens
     local sid,sname,sframe=scr:id(),scr:name(),scr:frame()
     if sid and sname then
-      local wf=windowfilter.copy(self.wf)
+      local wf=windowfilter.copy(self.wf,'wf-'..self.__name..'-'..sid):setDefaultFilter{}
         :setOverrideFilter{visible=true,currentSpace=true,allowScreens=sid,activeApplication=activeApplication}:keepActive()
       screens[sid]={name=sname,wf=wf,windows={},frame=sframe,totalOriginalArea=0,thumbnails=self.ui.showThumbnails,edge=geom.new(0,0),
         bg=drawing.rectangle(sframe):setFill(true):setFillColor(self.ui.backgroundColor):setBehavior(BEHAVIOR)}
       self.log.df('screen %s',scr:name())
     end
   end
-  if not next(screens) then self.log.w'No valid screens found' return end
+  if not next(screens) then self.log.w'no valid screens found' windowfilter.setLogLevel(wfLogLevel) return end
   if self.ui.includeNonVisible then
     do -- hidden windows strip
       local msid=hsscreens[1]:id()
@@ -883,7 +892,8 @@ local function makeScreens(self)
       if pos=='left' then f.w=f.w-width f.x=f.x+width invf.w=width edge:move(-200,0)
       elseif pos=='right' then f.w=f.w-width invf.x=f.x+f.w invf.w=width edge:move(200,0)
       else pos='bottom' f.h=f.h-width invf.y=f.y+f.h invf.h=width edge:move(0,200) end --bottom
-      local wf=windowfilter.copy(self.wf):setOverrideFilter{visible=false,activeApplication=activeApplication}:keepActive()
+      local wf=windowfilter.copy(self.wf,'wf-'..self.__name..'-invisible'):setDefaultFilter{}
+        :setOverrideFilter{visible=false,activeApplication=activeApplication}:keepActive()
       screens.inv={name='invisibleWindows',isStrip=true,wf=wf,windows={},totalOriginalArea=0,frame=invf,thumbnails=thumbnails,edge=edge,pos=pos,
         bg=drawing.rectangle(invf):setFill(true):setFillColor(self.ui.nonVisibleStripBackgroundColor):setBehavior(BEHAVIOR)}
       screens[msid].bg:setFrame(f)
@@ -904,7 +914,7 @@ local function makeScreens(self)
         elseif pos=='right' then f.w=f.w-width othf.x=f.x+f.w othf.w=width edge:move(200,0)
         elseif pos=='bottom' then f.h=f.h-width othf.y=f.y+f.h othf.h=width edge:move(0,200)
         else pos='top' f.h=f.h-width othf.y=f.y othf.h=width f.y=f.y+width edge:move(0,-200) end -- top
-        local wf=windowfilter.copy(self.wf)
+        local wf=windowfilter.copy(self.wf,'wf-'..self.__name..'-o'..sid):setDefaultFilter{}
           :setOverrideFilter{visible=true,currentSpace=false,allowScreens=sid,activeApplication=activeApplication}:keepActive()
         local name='other/'..screen.name
         screens['o'..sid]={name=name,isStrip=true,wf=wf,windows={},totalOriginalArea=0,frame=othf,thumbnails=thumbnails,edge=edge,pos=pos,
@@ -918,6 +928,7 @@ local function makeScreens(self)
     screen.frame:move(10,10):setw(screen.frame.w-20):seth(screen.frame.h-20) -- margin
   end
   self.screens=screens
+  windowfilter.setLogLevel(wfLogLevel)
 end
 local function processScreensChanged()
   for self in pairs(activeInstances) do makeScreens(self) end
@@ -928,7 +939,7 @@ expose.screensChangedDelay=10
 local function screensChanged()
   log.d('screens changed, pausing active instances')
   for self in pairs(activeInstances) do pause(self) end
-  screensChangedTimer:setNextTrigger(expose.screensChangedDelay)
+  screensChangedTimer:start()
 end
 
 
@@ -938,9 +949,9 @@ local function start(self)
   if not screenWatcher then
     log.i('starting global watchers')
     screenWatcher=screen.watcher.new(screensChanged):start()
-    screensChangedTimer=timer.new(DISTANT_FUTURE,processScreensChanged):start()
+    screensChangedTimer=timer.delayed.new(expose.screensChangedDelay,processScreensChanged)
     spacesWatcher=spaces.watcher.new(spaceChanged):start()
-    bgFitTimer=timer.new(DISTANT_FUTURE,bgFitWindows):start()
+    bgFitTimer=timer.delayed.new(BG_FIT_INTERVAL,bgFitWindows)
   end
   self.log.i'instance started'
   makeScreens(self)
@@ -973,9 +984,10 @@ function expose.stop(self)
 end
 -- return onScreenWindows, invisibleWindows, otherSpacesWindows
 
+local inUiPrefs -- avoid recursion
 local function setUiPrefs(self)
+  inUiPrefs=true
   local ui=self.ui
-
   ui.hintTextStyle={font=ui.fontName,size=ui.textSize,color=ui.textColor}
   ui.titleTextStyle={font=ui.fontName,size=max(10,ui.textSize/2),color=ui.textColor,lineBreak='truncateTail'}
   ui.hintHeight=drawing.getTextDrawingSize('O',ui.hintTextStyle).h
@@ -984,9 +996,10 @@ local function setUiPrefs(self)
   ui.minWidth=hintWidth+ui.hintHeight*1.4--+padding*4
   ui.minHeight=ui.hintHeight*2
   --  ui.noThumbsFrameSide=ui.minWidth-- ui.textSize*4
+  inUiPrefs=nil
 end
 
---- hs.expose.new([windowfilter[, uiPrefs][, logname, [loglevel]]]) -> hs.expose
+--- hs.expose.new([windowfilter[, uiPrefs][, logname, [loglevel]]]) -> hs.expose object
 --- Constructor
 --- Creates a new hs.expose instance; it can use a windowfilter to determine which windows to show
 ---
@@ -1010,19 +1023,23 @@ function expose.new(wf,uiPrefs,logname,loglevel)
   if type(uiPrefs)=='string' then loglevel=logname logname=uiPrefs uiPrefs={} end
   if uiPrefs==nil then uiPrefs={} end
   if type(uiPrefs)~='table' then error('uiPrefs must be a table',2) end
-  local o = setmetatable({screens={},windows={}},{__index=expose})
-  if wf==nil then log.i('New expose instance, using default windowfilter') wf=windowfilter.default
-  else log.i('New expose instance using windowfilter instance') wf=windowfilter.new(wf) end
+  local self = setmetatable({screens={},windows={},__name=logname or 'expose'},{__index=expose,__gc=stop})
+  self.log=logname and logger.new(logname,loglevel) or log
+  self.setLogLevel=self.log.setLogLevel self.getLogLevel=self.log.getLogLevel
+  if wf==nil then self.log.i('new expose instance, using default windowfilter') wf=windowfilter.default
+  else self.log.i('new expose instance using windowfilter instance') wf=windowfilter.new(wf) end
   --uiPrefs
-  o.ui=setmetatable({},{
-    __newindex=function(t,k,v)rawset(o.ui,k,getColor(v))return setUiPrefs(o)end,
+  self.ui=setmetatable({},{
+    __newindex=function(t,k,v)rawset(self.ui,k,getColor(v))if not inUiPrefs then return setUiPrefs(self)end end,
     __index=function(t,k)return getColor(uiGlobal[k]) end,
   })
-  for k,v in pairs(uiPrefs) do rawset(o.ui,k,getColor(v)) end setUiPrefs(o)
-  o.log=logname and logger.new(logname,loglevel) or log
-  o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel
-  o.wf=windowfilter.copy(wf):setDefaultFilter{} -- all windows; include fullscreen and invisible even for default wf
-  return start(o)
+  for k,v in pairs(uiPrefs) do rawset(self.ui,k,getColor(v)) end setUiPrefs(self)
+  --  local wfLogLevel=windowfilter.getLogLevel()
+  --  windowfilter.setLogLevel('warning')
+  --  self.wf=windowfilter.copy(wf):setDefaultFilter{} -- all windows; include fullscreen and invisible even for default wf
+  --  windowfilter.setLogLevel(wfLogLevel)
+  self.wf=wf
+  return start(self)
 end
 
 return expose
