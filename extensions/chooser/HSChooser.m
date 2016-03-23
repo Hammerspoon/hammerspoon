@@ -228,8 +228,8 @@
         shortcutText = @"";
     }
 
-    cellView.text.stringValue = text ? text : @"UNKNOWN TEXT";
-    cellView.subText.stringValue = subText ? subText : @"UNKNOWN SUBTEXT";
+    cellView.text.stringValue = text ? text : @"";
+    cellView.subText.stringValue = subText ? subText : @"";
     cellView.shortcutText.stringValue = shortcutText ? shortcutText : @"??";
     cellView.image.image = image ? image : [NSImage imageNamed:NSImageNameFollowLinkFreestandingTemplate];
 
