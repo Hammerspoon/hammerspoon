@@ -89,7 +89,10 @@
             break;
         case typeIEEE32BitFloatingPoint:
         case typeIEEE64BitFloatingPoint:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
             object = [NSNumber numberWithDouble:(double)[self doubleValue]];
+#pragma clang diagnostic pop
             break;
         case typeNull:
         case typeType:

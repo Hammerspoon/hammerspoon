@@ -32,7 +32,7 @@ static int pushUserdataType(lua_State *L) {
 // Extension to LuaSkin class to allow private modification of the lua_State property
 @interface LuaSkin ()
 
-@property (readwrite, assign) lua_State *L;
+@property (readwrite, assign, atomic) lua_State *L;
 @property (readonly, atomic)  NSMutableDictionary *registeredNSHelperFunctions ;
 @property (readonly, atomic)  NSMutableDictionary *registeredNSHelperLocations ;
 @property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperFunctions ;
@@ -822,7 +822,7 @@ nextarg:
                       }
                       break ;
 
-            case 'f': lua_pushnumber(self.L,  [number floatValue]) ; break ;
+            case 'f': lua_pushnumber(self.L,  (lua_Number)[number floatValue]) ; break ;
             case 'd': lua_pushnumber(self.L,  [number doubleValue]) ; break ;
 
             default:

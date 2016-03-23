@@ -85,7 +85,10 @@ NSArray *tags_from_file(lua_State *L, NSString *filePath) {
     NSArray *tags;
     NSError *error;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
     if (![url getResourceValue:&tags forKey:NSURLTagNamesKey error:&error]) {
+#pragma clang diagnostic pop
         [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_from_file() Unable to get tags for %@: %@", url, [error localizedDescription]]];
         return nil;
     }
@@ -96,7 +99,10 @@ BOOL tags_to_file(lua_State *L, NSString *filePath, NSArray *tags) {
     NSURL *url = path_to_nsurl(filePath);
     NSError *error;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
     if (![url setResourceValue:tags forKey:NSURLTagNamesKey error:&error]) {
+#pragma clang diagnostic pop
         [[LuaSkin shared] logError:[NSString stringWithFormat:@"hs.fs tags_to_file() Unable to set tags for %@: %@", url, [error localizedDescription]]];
         return false;
     }
