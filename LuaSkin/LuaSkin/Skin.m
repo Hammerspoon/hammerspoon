@@ -20,41 +20,6 @@ typedef struct luaObjectHelpers {
 
 #pragma mark - C-Support Functions
 
-static int pushCMTime(lua_State *L, CMTime holder) {
-    lua_newtable(L) ;
-    lua_pushinteger(L, holder.value) ;     lua_setfield(L, -2, "value") ;
-    lua_pushinteger(L, holder.timescale) ; lua_setfield(L, -2, "timescale") ;
-    lua_newtable(L) ;
-    if (holder.flags & kCMTimeFlags_Valid) {
-        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "valid") ;
-    }
-    if (holder.flags & kCMTimeFlags_HasBeenRounded) {
-        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "hasBeenRounded") ;
-    }
-    if (holder.flags & kCMTimeFlags_PositiveInfinity) {
-        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "positiveInfinity") ;
-    }
-    if (holder.flags & kCMTimeFlags_NegativeInfinity) {
-        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "negativeInfinity") ;
-    }
-    if (holder.flags & kCMTimeFlags_Indefinite) {
-        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "indefinite") ;
-    }
-    if (holder.flags & kCMTimeFlags_ImpliedValueFlagsMask) {
-        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "implied") ;
-    }
-    lua_setfield(L, -2, "flags") ;
-    lua_pushinteger(L, holder.epoch) ; lua_setfield(L, -2, "epoch") ;
-    return 1 ;
-}
-
-static int pushCMTimeRange(lua_State *L, CMTimeRange holder) {
-    lua_newtable(L) ;
-    pushCMTime(L, holder.start) ;    lua_setfield(L, -2, "start") ;
-    pushCMTime(L, holder.duration) ; lua_setfield(L, -2, "duration") ;
-    return 1 ;
-}
-
 static int pushUserdataType(lua_State *L) {
     // safer than just checking in LuaSkin because we can call this function via pcall
     // so a userdata without an __index metafield won't cause a Lua error
@@ -67,12 +32,13 @@ static int pushUserdataType(lua_State *L) {
 // Extension to LuaSkin class to allow private modification of the lua_State property
 @interface LuaSkin ()
 
-@property (readwrite, assign) lua_State *L;
+@property (readwrite, assign, atomic) lua_State *L;
 @property (readonly, atomic)  NSMutableDictionary *registeredNSHelperFunctions ;
 @property (readonly, atomic)  NSMutableDictionary *registeredNSHelperLocations ;
 @property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperFunctions ;
 @property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperLocations ;
 @property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperUserdataMappings;
+@property (readonly, atomic)  NSMutableDictionary *registeredLuaObjectHelperTableMappings;
 
 @end
 
@@ -90,6 +56,8 @@ static int pushUserdataType(lua_State *L) {
 // internal methods for toNSObjectAtIndex
 - (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
 - (id)tableAtIndex:(int)idx      withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen;
+- (id)tableAtIndex:(int)idx      withLabel:(const char *)tableTag withOptions:(LS_NSConversionOptions)options ;
+
 @end
 
 @implementation LuaSkin
@@ -125,6 +93,7 @@ static int pushUserdataType(lua_State *L) {
         _registeredLuaObjectHelperFunctions        = [[NSMutableDictionary alloc] init] ;
         _registeredLuaObjectHelperLocations        = [[NSMutableDictionary alloc] init] ;
         _registeredLuaObjectHelperUserdataMappings = [[NSMutableDictionary alloc] init];
+        _registeredLuaObjectHelperTableMappings    = [[NSMutableDictionary alloc] init];
         [self createLuaState];
     }
     return self;
@@ -149,6 +118,7 @@ static int pushUserdataType(lua_State *L) {
         [self.registeredLuaObjectHelperFunctions        removeAllObjects] ;
         [self.registeredLuaObjectHelperLocations        removeAllObjects] ;
         [self.registeredLuaObjectHelperUserdataMappings removeAllObjects];
+        [self.registeredLuaObjectHelperTableMappings    removeAllObjects];
     }
     self.L = NULL;
 }
@@ -417,7 +387,7 @@ nextarg:
     return results ;
 }
 
-- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(char*)className {
+- (BOOL)registerPushNSHelper:(pushNSHelperFunction)helperFN forClass:(const char *)className {
     BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
@@ -453,6 +423,7 @@ nextarg:
     lua_pushnumber(self.L, theRect.origin.y) ; lua_setfield(self.L, -2, "y") ;
     lua_pushnumber(self.L, theRect.size.width) ; lua_setfield(self.L, -2, "w") ;
     lua_pushnumber(self.L, theRect.size.height) ; lua_setfield(self.L, -2, "h") ;
+    lua_pushstring(self.L, "NSRect") ; lua_setfield(self.L, -2, "__luaSkinType") ;
     return 1;
 }
 
@@ -460,6 +431,7 @@ nextarg:
     lua_newtable(self.L) ;
     lua_pushnumber(self.L, thePoint.x) ; lua_setfield(self.L, -2, "x") ;
     lua_pushnumber(self.L, thePoint.y) ; lua_setfield(self.L, -2, "y") ;
+    lua_pushstring(self.L, "NSPoint") ; lua_setfield(self.L, -2, "__luaSkinType") ;
     return 1;
 }
 
@@ -467,6 +439,7 @@ nextarg:
     lua_newtable(self.L) ;
     lua_pushnumber(self.L, theSize.width) ; lua_setfield(self.L, -2, "w") ;
     lua_pushnumber(self.L, theSize.height) ; lua_setfield(self.L, -2, "h") ;
+    lua_pushstring(self.L, "NSSize") ; lua_setfield(self.L, -2, "__luaSkinType") ;
     return 1;
 }
 
@@ -483,7 +456,7 @@ nextarg:
     return [self toNSObjectAtIndex:idx withOptions:options alreadySeenObjects:alreadySeen] ;
 }
 
-- (id)luaObjectAtIndex:(int)idx toClass:(char *)className {
+- (id)luaObjectAtIndex:(int)idx toClass:(const char *)className {
     NSString *theClass = @(className) ;
 
     for (id key in self.registeredLuaObjectHelperFunctions) {
@@ -495,7 +468,7 @@ nextarg:
     return nil ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char*)className {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className {
     BOOL allGood = NO ;
 // this hackery assumes that this method is only called from within the luaopen_* function of a module and
 // attempts to compensate for a wrapper to "require"... I doubt anyone is actually using it anymore.
@@ -525,10 +498,26 @@ nextarg:
     return allGood ;
 }
 
-- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(char *)className withUserdataMapping:(char *)userdataTag {
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag {
     BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
     if (allGood)
         self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
+    return allGood ;
+}
+
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withUserdataMapping:(const char *)userdataTag andTableMapping:(const char *)tableTag {
+    BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    if (allGood) {
+        self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)] = @(className);
+        self.registeredLuaObjectHelperTableMappings[@(tableTag)] = @(className);
+    }
+    return allGood ;
+}
+
+- (BOOL)registerLuaObjectHelper:(luaObjectHelperFunction)helperFN forClass:(const char *)className withTableMapping:(const char *)tableTag {
+    BOOL allGood = [self registerLuaObjectHelper:helperFN forClass:className];
+    if (allGood)
+        self.registeredLuaObjectHelperTableMappings[@(tableTag)] = @(className);
     return allGood ;
 }
 
@@ -730,7 +719,7 @@ nextarg:
     return [[NSString alloc] initWithData:dest encoding:NSUTF8StringEncoding] ;
 }
 
-- (BOOL)requireModule:(char *)moduleName {
+- (BOOL)requireModule:(const char *)moduleName {
     lua_getglobal(self.L, "require"); lua_pushstring(self.L, moduleName) ;
     return [self protectedCallAndTraceback:1 nresults:1] ;
 }
@@ -833,7 +822,7 @@ nextarg:
                       }
                       break ;
 
-            case 'f': lua_pushnumber(self.L,  [number floatValue]) ; break ;
+            case 'f': lua_pushnumber(self.L,  (lua_Number)[number floatValue]) ; break ;
             case 'd': lua_pushnumber(self.L,  [number doubleValue]) ; break ;
 
             default:
@@ -862,93 +851,20 @@ nextarg:
         lua_newtable(self.L) ;
         lua_pushinteger(self.L, (lua_Integer)holder.location) ; lua_setfield(self.L, -2, "location") ;
         lua_pushinteger(self.L, (lua_Integer)holder.length) ;   lua_setfield(self.L, -2, "length") ;
-    } else if (strcmp(objCType, @encode(CATransform3D))==0) {
-        CATransform3D holder = [value CATransform3DValue] ;
-        lua_newtable(self.L) ;
-        lua_pushnumber(self.L, holder.m11) ; lua_setfield(self.L, -2, "m11") ;
-        lua_pushnumber(self.L, holder.m12) ; lua_setfield(self.L, -2, "m12") ;
-        lua_pushnumber(self.L, holder.m13) ; lua_setfield(self.L, -2, "m13") ;
-        lua_pushnumber(self.L, holder.m14) ; lua_setfield(self.L, -2, "m14") ;
-        lua_pushnumber(self.L, holder.m21) ; lua_setfield(self.L, -2, "m21") ;
-        lua_pushnumber(self.L, holder.m22) ; lua_setfield(self.L, -2, "m22") ;
-        lua_pushnumber(self.L, holder.m23) ; lua_setfield(self.L, -2, "m23") ;
-        lua_pushnumber(self.L, holder.m24) ; lua_setfield(self.L, -2, "m24") ;
-        lua_pushnumber(self.L, holder.m31) ; lua_setfield(self.L, -2, "m31") ;
-        lua_pushnumber(self.L, holder.m32) ; lua_setfield(self.L, -2, "m32") ;
-        lua_pushnumber(self.L, holder.m33) ; lua_setfield(self.L, -2, "m33") ;
-        lua_pushnumber(self.L, holder.m34) ; lua_setfield(self.L, -2, "m34") ;
-        lua_pushnumber(self.L, holder.m41) ; lua_setfield(self.L, -2, "m41") ;
-        lua_pushnumber(self.L, holder.m42) ; lua_setfield(self.L, -2, "m42") ;
-        lua_pushnumber(self.L, holder.m43) ; lua_setfield(self.L, -2, "m43") ;
-        lua_pushnumber(self.L, holder.m44) ; lua_setfield(self.L, -2, "m44") ;
-// technically not needed, since the SCNMatrix4 encoding is identical to that of CATransform3D,
-// but since they are separate methods in NSValue, there is the not quite zero possibility that
-// the encodings could change, so... go ahead and "check" for it...
-    } else if (strcmp(objCType, @encode(SCNMatrix4))==0) {
-        SCNMatrix4 holder = [value SCNMatrix4Value] ;
-        lua_newtable(self.L) ;
-        lua_pushnumber(self.L, holder.m11) ; lua_setfield(self.L, -2, "m11") ;
-        lua_pushnumber(self.L, holder.m12) ; lua_setfield(self.L, -2, "m12") ;
-        lua_pushnumber(self.L, holder.m13) ; lua_setfield(self.L, -2, "m13") ;
-        lua_pushnumber(self.L, holder.m14) ; lua_setfield(self.L, -2, "m14") ;
-        lua_pushnumber(self.L, holder.m21) ; lua_setfield(self.L, -2, "m21") ;
-        lua_pushnumber(self.L, holder.m22) ; lua_setfield(self.L, -2, "m22") ;
-        lua_pushnumber(self.L, holder.m23) ; lua_setfield(self.L, -2, "m23") ;
-        lua_pushnumber(self.L, holder.m24) ; lua_setfield(self.L, -2, "m24") ;
-        lua_pushnumber(self.L, holder.m31) ; lua_setfield(self.L, -2, "m31") ;
-        lua_pushnumber(self.L, holder.m32) ; lua_setfield(self.L, -2, "m32") ;
-        lua_pushnumber(self.L, holder.m33) ; lua_setfield(self.L, -2, "m33") ;
-        lua_pushnumber(self.L, holder.m34) ; lua_setfield(self.L, -2, "m34") ;
-        lua_pushnumber(self.L, holder.m41) ; lua_setfield(self.L, -2, "m41") ;
-        lua_pushnumber(self.L, holder.m42) ; lua_setfield(self.L, -2, "m42") ;
-        lua_pushnumber(self.L, holder.m43) ; lua_setfield(self.L, -2, "m43") ;
-        lua_pushnumber(self.L, holder.m44) ; lua_setfield(self.L, -2, "m44") ;
-    } else if (strcmp(objCType, @encode(CMTime))==0) {
-        pushCMTime(self.L, [value CMTimeValue]) ;
-    } else if (strcmp(objCType, @encode(CMTimeRange))==0) {
-        pushCMTimeRange(self.L, [value CMTimeRangeValue]) ;
-    } else if (strcmp(objCType, @encode(CMTimeMapping))==0) {
-        CMTimeMapping holder = [value CMTimeMappingValue] ;
-        lua_newtable(self.L) ;
-        pushCMTimeRange(self.L, holder.source) ; lua_setfield(self.L, -2, "source") ;
-        pushCMTimeRange(self.L, holder.target) ; lua_setfield(self.L, -2, "target") ;
-    } else if (strcmp(objCType, @encode(CLLocationCoordinate2D))==0) { // MKCoordinateValue
-        CLLocationCoordinate2D holder = [value MKCoordinateValue] ;
-        lua_newtable(self.L) ;
-        lua_pushnumber(self.L, holder.latitude) ;  lua_setfield(self.L, -2, "latitude") ;
-        lua_pushnumber(self.L, holder.longitude) ; lua_setfield(self.L, -2, "longitude") ;
-    } else if (strcmp(objCType, @encode(MKCoordinateSpan))==0) {
-        MKCoordinateSpan holder = [value MKCoordinateSpanValue] ;
-        lua_newtable(self.L) ;
-        lua_pushnumber(self.L, holder.latitudeDelta) ;  lua_setfield(self.L, -2, "latitudeDelta") ;
-        lua_pushnumber(self.L, holder.longitudeDelta) ; lua_setfield(self.L, -2, "longitudeDelta") ;
-    } else if (strcmp(objCType, @encode(SCNVector3))==0) {
-        SCNVector3 holder = [value SCNVector3Value] ;
-        lua_newtable(self.L) ;
-        lua_pushnumber(self.L, holder.x) ; lua_setfield(self.L, -2, "x") ;
-        lua_pushnumber(self.L, holder.y) ; lua_setfield(self.L, -2, "y") ;
-        lua_pushnumber(self.L, holder.z) ; lua_setfield(self.L, -2, "z") ;
-    } else if (strcmp(objCType, @encode(SCNVector4))==0) {
-        SCNVector4 holder = [value SCNVector4Value] ;
-        lua_newtable(self.L) ;
-        lua_pushnumber(self.L, holder.x) ; lua_setfield(self.L, -2, "x") ;
-        lua_pushnumber(self.L, holder.y) ; lua_setfield(self.L, -2, "y") ;
-        lua_pushnumber(self.L, holder.z) ; lua_setfield(self.L, -2, "z") ;
-        lua_pushnumber(self.L, holder.w) ; lua_setfield(self.L, -2, "w") ;
+        lua_pushstring(self.L, "NSRange") ; lua_setfield(self.L, -2, "__luaSkinType") ;
     } else {
         NSUInteger actualSize, alignedSize ;
         NSGetSizeAndAlignment(objCType, &actualSize, &alignedSize) ;
 
         lua_newtable(self.L) ;
+        lua_pushstring(self.L, "NSValue") ; lua_setfield(self.L, -2, "__luaSkinType") ;
         lua_pushstring(self.L, objCType) ;                  lua_setfield(self.L, -2, "objCType") ;
         lua_pushinteger(self.L, (lua_Integer)actualSize) ;  lua_setfield(self.L, -2, "actualSize") ;
         lua_pushinteger(self.L, (lua_Integer)alignedSize) ; lua_setfield(self.L, -2, "alignedSize") ;
 
-        NSUInteger workingSize = MAX(actualSize, alignedSize) ;
-
-        void* ptr = malloc(workingSize) ;
+        void* ptr = malloc(actualSize) ;
         [value getValue:ptr] ;
-        [self pushNSObject:[NSData dataWithBytes:ptr length:workingSize]] ;
+        [self pushNSObject:[NSData dataWithBytes:ptr length:actualSize]] ;
         lua_setfield(self.L, -2, "data") ;
         free(ptr) ;
     }
@@ -1005,7 +921,7 @@ nextarg:
 }
 
 - (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
-    char *userdataTag = nil;
+    const char *userdataTag = nil;
 
     int realIndex = lua_absindex(self.L, idx) ;
     NSMutableArray *seenObject = alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] ;
@@ -1067,7 +983,7 @@ nextarg:
             lua_pushcfunction(self.L, pushUserdataType) ;
             lua_pushvalue(self.L, realIndex) ;
             if ((lua_pcall(self.L, 1, 1, 0) == LUA_OK) && (lua_type(self.L, -1) == LUA_TSTRING)) {
-               userdataTag = (char *)lua_tostring(self.L, -1);
+               userdataTag = lua_tostring(self.L, -1);
             }
             // if the call errors b/c of missing __init in userdata, the error is on the stack, otherwise our result is.
             // In either case clean up after ourself.
@@ -1076,7 +992,7 @@ nextarg:
             if (userdataTag) {
                 NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)];
                 if (classMapping) {
-                    return [self luaObjectAtIndex:realIndex toClass:(char *)[classMapping UTF8String]];
+                    return [self luaObjectAtIndex:realIndex toClass:(const char *)[classMapping UTF8String]];
                 } else {
                     [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", userdataTag]] ;
                 }
@@ -1099,56 +1015,112 @@ nextarg:
     }
 }
 
+// Note, options is currently unused in this category method, but it's included here in case a
+// reason for an NSValue related option comes up
+- (id)tableAtIndex:(int)idx withLabel:(const char *)tableTag withOptions:(__unused LS_NSConversionOptions)options {
+    id result ;
+    NSString *classMapping = self.registeredLuaObjectHelperTableMappings[@(tableTag)];
+    if ((classMapping) && self.registeredLuaObjectHelperFunctions[classMapping]) {
+        luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[self.registeredLuaObjectHelperFunctions[classMapping] pointerValue] ;
+        result = theFunc(self.L, lua_absindex(self.L, idx)) ;
+    } else { // check builtins (NSValue)
+        if (strcmp(tableTag, "NSPoint")==0) {
+            result = [NSValue valueWithPoint:[self tableToPointAtIndex:idx]] ;
+        } else if (strcmp(tableTag, "NSSize")==0) {
+            result = [NSValue valueWithSize:[self tableToSizeAtIndex:idx]] ;
+        } else if (strcmp(tableTag, "NSRect")==0) {
+            result = [NSValue valueWithRect:[self tableToRectAtIndex:idx]] ;
+        } else if (strcmp(tableTag, "NSRange")==0) {
+            NSRange holder ;
+            holder.location = (lua_getfield(self.L, idx, "location") == LUA_TNUMBER) ? (NSUInteger)lua_tointeger(self.L, -1) : 0 ;
+            holder.length   = (lua_getfield(self.L, idx, "length")   == LUA_TNUMBER) ? (NSUInteger)lua_tointeger(self.L, -1) : 0 ;
+            lua_pop(self.L, 2) ;
+            result = [NSValue valueWithRange:holder] ;
+        } else if (strcmp(tableTag, "NSValue")==0) {
+            NSData   *rawData ;
+            NSString *objCType ;
+            if (lua_getfield(self.L, idx, "data") == LUA_TSTRING) {
+                rawData = [self toNSObjectAtIndex:-1 withOptions:LS_NSLuaStringAsDataOnly] ;
+            }
+            if (lua_getfield(self.L, idx, "objCType") == LUA_TSTRING) {
+                objCType = [self toNSObjectAtIndex:-1] ;
+            }
+            if (rawData && objCType) {
+                NSUInteger actualSize ;
+                const char *asConstChar = [objCType UTF8String] ;
+                NSGetSizeAndAlignment(asConstChar, &actualSize, NULL) ;
+                if (actualSize == [rawData length]) {
+                    result = [NSValue value:[rawData bytes] withObjCType:asConstChar] ;
+                } else {
+                    [self logError:[NSString stringWithFormat:@"data size of %lu does not match objCType requirements of %lu for %s", [rawData length], actualSize, asConstChar]] ;
+                }
+            } else {
+                [self logError:@"arbitrary NSValue object from table requires data and objCType fields"] ;
+            }
+            lua_pop(self.L, 2) ;
+        }
+    }
+    return result ;
+}
+
 - (id)tableAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     id result ;
 
-    if ([self maxNatIndex:lua_absindex(self.L, idx)] == [self countNatIndex:lua_absindex(self.L, idx)]) {
-        result = (NSMutableArray *) [[NSMutableArray alloc] init] ;
+    if (lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) {
+        result = [self tableAtIndex:idx withLabel:lua_tostring(self.L, -1) withOptions:options] ;
+        if (!result) [self logWarn:[NSString stringWithFormat:@"Unable to create object for __luaSkinType = %s",
+                                                              lua_tostring(self.L, -1)]] ;
+        lua_pop(self.L, 1) ;
     } else {
-        result = (NSMutableDictionary *) [[NSMutableDictionary alloc] init] ;
-    }
-    alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] = @[result, @(NO)] ;
+        lua_pop(self.L, 1) ;
+        if ([self maxNatIndex:lua_absindex(self.L, idx)] == [self countNatIndex:lua_absindex(self.L, idx)]) {
+            result = (NSMutableArray *) [[NSMutableArray alloc] init] ;
+        } else {
+            result = (NSMutableDictionary *) [[NSMutableDictionary alloc] init] ;
+        }
+        alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] = @[result, @(NO)] ;
 
-    if ([result isKindOfClass: [NSArray class]]) {
-        lua_Integer tableLength = [self countNatIndex:lua_absindex(self.L, idx)] ;
-        for (lua_Integer i = 0; i < tableLength ; i++) {
-            lua_geti(self.L, lua_absindex(self.L, idx), i + 1) ;
-            id val = [self toNSObjectAtIndex:-1 withOptions:options alreadySeenObjects:alreadySeen] ;
-            if (val) {
-                [result addObject:val] ;
-                lua_pop(self.L, 1) ;
-            } else {
-                [self logAtLevel:LS_LOG_ERROR
-                     withMessage:[NSString stringWithFormat:@"array element (%s) cannot be converted into a proper NSObject",
-                                                             luaL_tolstring(self.L, -1, NULL)]
-                    fromStackPos:1] ;
-                result = nil ;
-                lua_pop(self.L, 2) ; // luaL_tolstring result and lua_geti result
-                return nil ;
+        if ([result isKindOfClass: [NSArray class]]) {
+            lua_Integer tableLength = [self countNatIndex:lua_absindex(self.L, idx)] ;
+            for (lua_Integer i = 0; i < tableLength ; i++) {
+                lua_geti(self.L, lua_absindex(self.L, idx), i + 1) ;
+                id val = [self toNSObjectAtIndex:-1 withOptions:options alreadySeenObjects:alreadySeen] ;
+                if (val) {
+                    [result addObject:val] ;
+                    lua_pop(self.L, 1) ;
+                } else {
+                    [self logAtLevel:LS_LOG_ERROR
+                         withMessage:[NSString stringWithFormat:@"array element (%s) cannot be converted into a proper NSObject",
+                                                                 luaL_tolstring(self.L, -1, NULL)]
+                        fromStackPos:1] ;
+                    result = nil ;
+                    lua_pop(self.L, 2) ; // luaL_tolstring result and lua_geti result
+                    return nil ;
+                }
+            }
+        } else {
+            lua_pushnil(self.L);
+            while (lua_next(self.L, lua_absindex(self.L, idx)) != 0) {
+                id key = [self toNSObjectAtIndex:-2             withOptions:options alreadySeenObjects:alreadySeen] ;
+                id val = [self toNSObjectAtIndex:lua_gettop(self.L) withOptions:options alreadySeenObjects:alreadySeen] ;
+                if (key && val) {
+                    [result setValue:val forKey:key];
+                    lua_pop(self.L, 1);
+                } else {
+                    [self logAtLevel:LS_LOG_ERROR
+                         withMessage:[NSString stringWithFormat:@"dictionary %@ (%s) cannot be converted into a proper NSObject",
+                                                                 (key) ? @"key" : @"value",
+                                                                 luaL_tolstring(self.L, (key) ? -2 : lua_gettop(self.L), NULL)]
+                        fromStackPos:1] ;
+                    result = nil ;
+                    lua_pop(self.L, 3) ; // luaL_tolstring result, lua_next value, and lua_next key
+                    return nil ;
+                }
             }
         }
-    } else {
-        lua_pushnil(self.L);
-        while (lua_next(self.L, lua_absindex(self.L, idx)) != 0) {
-            id key = [self toNSObjectAtIndex:-2             withOptions:options alreadySeenObjects:alreadySeen] ;
-            id val = [self toNSObjectAtIndex:lua_gettop(self.L) withOptions:options alreadySeenObjects:alreadySeen] ;
-            if (key && val) {
-                [result setValue:val forKey:key];
-                lua_pop(self.L, 1);
-            } else {
-                [self logAtLevel:LS_LOG_ERROR
-                     withMessage:[NSString stringWithFormat:@"dictionary %@ (%s) cannot be converted into a proper NSObject",
-                                                             (key) ? @"key" : @"value",
-                                                             luaL_tolstring(self.L, (key) ? -2 : lua_gettop(self.L), NULL)]
-                    fromStackPos:1] ;
-                result = nil ;
-                lua_pop(self.L, 3) ; // luaL_tolstring result, lua_next value, and lua_next key
-                return nil ;
-            }
-        }
     }
 
-    alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] = @[result, @(YES)] ;
+    if (result) alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] = @[result, @(YES)] ;
     return result ;
 }
 

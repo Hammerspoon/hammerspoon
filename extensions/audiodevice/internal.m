@@ -537,7 +537,7 @@ static int audiodevice_inputVolume(lua_State *L) {
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &volumeSize, &volume) == noErr)) {
-        lua_pushnumber(L, volume * 100.0);
+        lua_pushnumber(L, (lua_Number)(volume * 100.0f));
     } else {
         lua_pushnil(L);
     }
@@ -578,7 +578,7 @@ static int audiodevice_outputVolume(lua_State *L) {
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &volumeSize, &volume) == noErr)) {
-        lua_pushnumber(L, volume * 100.0);
+        lua_pushnumber(L, (lua_Number)(volume * 100.0f));
     } else {
         lua_pushnil(L);
     }
@@ -622,7 +622,7 @@ static int audiodevice_volume(lua_State* L) {
     };
 
     if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectGetPropertyData(deviceId, &propertyAddress, 0, NULL, &volumeSize, &volume) == noErr)) {
-        lua_pushnumber(L, volume * 100.0);
+        lua_pushnumber(L, (lua_Number)(volume * 100.0f));
     } else {
         lua_pushnil(L);
     }
@@ -659,7 +659,7 @@ static int audiodevice_setInputVolume(lua_State *L) {
         value = 100;
     }
 
-    Float32 volume = (Float32)value / 100.0;
+    Float32 volume = (Float32)value / 100.0f;
     UInt32 volumeSize = sizeof(Float32);
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -705,7 +705,7 @@ static int audiodevice_setOutputVolume(lua_State *L) {
         value = 100;
     }
 
-    Float32 volume = (Float32)value / 100.0;
+    Float32 volume = (Float32)value / 100.0f;
     UInt32 volumeSize = sizeof(Float32);
 
     AudioObjectPropertyAddress propertyAddress = {
@@ -752,7 +752,7 @@ static int audiodevice_setvolume(lua_State* L) {
         value = 100;
     }
 
-    Float32 volume = (Float32)value / 100.0;
+    Float32 volume = (Float32)value / 100.0f;
     UInt32 volumeSize = sizeof(Float32);
 
     if (isOutputDevice(deviceId)) {

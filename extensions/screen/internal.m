@@ -139,7 +139,7 @@ static int screen_currentMode(lua_State* L) {
     lua_pushnumber(L, (double)mode.density);
     lua_setfield(L, -2, "scale");
 
-    lua_pushstring(L, [[NSString stringWithFormat:@"%dx%d@%.0fx", mode.width, mode.height, mode.density] UTF8String]);
+    lua_pushstring(L, [[NSString stringWithFormat:@"%dx%d@%.0fx", mode.width, mode.height, (double)mode.density] UTF8String]);
     lua_setfield(L, -2, "desc");
 
     return 1;
@@ -192,7 +192,7 @@ static int screen_availableModes(lua_State* L) {
             lua_setfield(L, -2, "scale");
 
             // Now push this mode table into the list-of-modes table
-            lua_setfield(L, -2, [[NSString stringWithFormat:@"%dx%d@%.0fx", mode.width, mode.height, mode.density] UTF8String]);
+            lua_setfield(L, -2, [[NSString stringWithFormat:@"%dx%d@%.0fx", mode.width, mode.height, (double)mode.density] UTF8String]);
         }
     }
 
@@ -309,15 +309,15 @@ static int screen_gammaGet(lua_State* L) {
     lua_pushstring(L, "blackpoint");
     lua_newtable(L);
         lua_pushstring(L, "red");
-        lua_pushnumber(L, redTable[0]);
+        lua_pushnumber(L, (lua_Number)redTable[0]);
         lua_settable(L, -3);
 
         lua_pushstring(L, "green");
-        lua_pushnumber(L, greenTable[0]);
+        lua_pushnumber(L, (lua_Number)greenTable[0]);
         lua_settable(L, -3);
 
         lua_pushstring(L, "blue");
-        lua_pushnumber(L, blueTable[0]);
+        lua_pushnumber(L, (lua_Number)blueTable[0]);
         lua_settable(L, -3);
 
         lua_pushstring(L, "alpha");
@@ -328,15 +328,15 @@ static int screen_gammaGet(lua_State* L) {
     lua_pushstring(L, "whitepoint");
     lua_newtable(L);
         lua_pushstring(L, "red");
-        lua_pushnumber(L, redTable[sampleCount-1]);
+        lua_pushnumber(L, (lua_Number)redTable[sampleCount-1]);
         lua_settable(L, -3);
 
         lua_pushstring(L, "green");
-        lua_pushnumber(L, greenTable[sampleCount-1]);
+        lua_pushnumber(L, (lua_Number)greenTable[sampleCount-1]);
         lua_settable(L, -3);
 
         lua_pushstring(L, "blue");
-        lua_pushnumber(L, blueTable[sampleCount-1]);
+        lua_pushnumber(L, (lua_Number)blueTable[sampleCount-1]);
         lua_settable(L, -3);
     lua_settable(L, -3);
 
@@ -608,7 +608,7 @@ static int screen_getBrightness(lua_State *L) {
     if (err != kIOReturnSuccess) {
         lua_pushnil(L);
     } else {
-        lua_pushnumber(L, brightness);
+        lua_pushnumber(L, (lua_Number)brightness);
     }
     return 1;
 }
@@ -899,22 +899,22 @@ NSRect screenRectToNSRect(lua_State *L, int idx) {
 
     lua_getfield(L, idx, "x");
     if (lua_type(L, -1) == LUA_TNUMBER) {
-        x = (float)lua_tonumber(L, -1);
+        x = lua_tonumber(L, -1);
     }
 
     lua_getfield(L, idx, "y");
     if (lua_type(L, -1) == LUA_TNUMBER) {
-        y = (float)lua_tonumber(L, -1);
+        y = lua_tonumber(L, -1);
     }
 
     lua_getfield(L, idx, "w");
     if (lua_type(L, -1) == LUA_TNUMBER) {
-        w = (float)lua_tonumber(L, -1);
+        w = lua_tonumber(L, -1);
     }
 
     lua_getfield(L, idx, "h");
     if (lua_type(L, -1) == LUA_TNUMBER) {
-        h = (float)lua_tonumber(L, -1);
+        h = lua_tonumber(L, -1);
     }
 
     lua_pop(L, 4);

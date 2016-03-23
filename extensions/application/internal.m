@@ -1059,11 +1059,17 @@ static int nsrunningapplication_tolua(lua_State *L, id obj) {
     return 1 ;
 }
 
+static id lua_tonsrunningapplication(lua_State *L, int idx) {
+    void *ptr = luaL_testudata(L, idx, "hs.application") ;
+    if (ptr) {
+        return nsobject_for_app(L, idx);
+    } else {
+        return nil ;
+    }
+}
+
 int luaopen_hs_application_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-
-    [skin registerPushNSHelper:nsrunningapplication_tolua
-                      forClass:"NSRunningApplication"] ;
 
     luaL_newlib(L, applicationlib);
 
@@ -1073,6 +1079,10 @@ int luaopen_hs_application_internal(lua_State* L) {
 
     if (luaL_newmetatable(L, "hs.application")) {
         lua_pushvalue(L, -2); // 'application' table
+
+        lua_pushstring(L, "hs.application") ;
+        lua_setfield(L, -2, "__type") ;
+
         lua_setfield(L, -2, "__index");
 
         // Use hs.uilement's equality
@@ -1088,6 +1098,12 @@ int luaopen_hs_application_internal(lua_State* L) {
         lua_setfield(L, -2, "__gc");
     }
     lua_pop(L, 1);
+
+    [skin registerPushNSHelper:nsrunningapplication_tolua
+                      forClass:"NSRunningApplication"] ;
+    [skin registerLuaObjectHelper:lua_tonsrunningapplication
+                         forClass:"NSRunningApplication"
+              withUserdataMapping:"hs.application"] ;
 
     return 1;
 }

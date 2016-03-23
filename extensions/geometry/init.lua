@@ -369,8 +369,22 @@ function geometry.setaspect(t,asp,...)
 end
 
 function geometry.__index(t,k)
-  local r=rawget(geometry,'get'..k)
-  if r then return r(t) else return rawget(geometry,k) end --avoid getting .size metatable fn when it's nil
+  if k == "__luaSkinType" then
+  -- support table<->NSValue auto-conversion in LuaSkin
+      local typ=gettype(t)
+      local result = nil
+      if typ=='rect' or typ=='unitrect' then
+          result =  "NSRect"
+      elseif typ=='point' then
+          result = "NSPoint"
+      elseif typ=='size' then
+          result = "NSSize"
+      end
+      return result
+  else
+      local r=rawget(geometry,'get'..k)
+      if r then return r(t) else return rawget(geometry,k) end --avoid getting .size metatable fn when it's nil
+  end
 end
 function geometry.__newindex(t,k,v)
   local r=rawget(geometry,'set'..k)
