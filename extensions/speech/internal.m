@@ -1,5 +1,4 @@
 #import <Cocoa/Cocoa.h>
-// #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 
 // This module does not include some of the code I used during testing... the setPropertyForObject and
@@ -12,74 +11,13 @@
 // At any rate, if you think I may have missed something (very possible), or are just curious, the
 // full version can be found at https://github.com/asmagill/hammerspoon_asm/tree/master/speech
 
-#define USERDATA_TAG        "hs.speech"
+#define USERDATA_TAG "hs.speech"
 static int refTable = LUA_NOREF;
-static int logFnRef = LUA_NOREF;
 
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 // #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
 
-#pragma mark - Testing out better logging with hs.logger
-
-#define _cERROR   "ef"
-#define _cWARN    "wf"
-#define _cINFO    "f"
-#define _cDEBUG   "df"
-#define _cVERBOSE "vf"
-
-// allow this to be potentially unused in the module
-static int __unused log_to_console(lua_State *L, const char *level, NSString *theMessage) {
-    LuaSkin *skin = [LuaSkin shared];
-    lua_Debug functionDebugObject, callerDebugObject;
-    lua_getstack(L, 0, &functionDebugObject);
-    lua_getstack(L, 1, &callerDebugObject);
-    lua_getinfo(L, "n", &functionDebugObject);
-    lua_getinfo(L, "Sl", &callerDebugObject);
-    NSString *fullMessage = [NSString stringWithFormat:@"%s - %@ (%d:%s)", functionDebugObject.name,
-                                                                           theMessage,
-                                                                           callerDebugObject.currentline,
-                                                                           callerDebugObject.short_src];
-    // Put it into the system logs, may help with troubleshooting
-    [skin logBreadcrumb:[NSString stringWithFormat:@"hs.speech: %@", fullMessage]];
-
-    // If hs.logger reference set, use it and the level will indicate whether the user sees it or not
-    // otherwise we print to the console for everything, just in case we forget to register.
-    if (logFnRef != LUA_NOREF) {
-        [skin pushLuaRef:refTable ref:logFnRef];
-        lua_getfield(L, -1, level); lua_remove(L, -2);
-    } else {
-        lua_getglobal(L, "print");
-    }
-
-    lua_pushstring(L, [fullMessage UTF8String]);
-    if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) { return lua_error(L); }
-    return 0;
-}
-
-static int lua_registerLogForC(__unused lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TTABLE, LS_TBREAK];
-    logFnRef = [[LuaSkin shared] luaRef:refTable];
-    return 0;
-}
-
-// allow this to be potentially unused in the module
-static int __unused my_lua_error(lua_State *L, NSString *theMessage) {
-    lua_Debug functionDebugObject;
-    lua_getstack(L, 0, &functionDebugObject);
-    lua_getinfo(L, "n", &functionDebugObject);
-    return luaL_error(L, [[NSString stringWithFormat:@"%s:%s - %@", USERDATA_TAG, functionDebugObject.name, theMessage] UTF8String]);
-}
-
 #pragma mark - Support Functions
-
-NSString *validateString(lua_State *L, int idx) {
-    NSString *theString = [[LuaSkin shared] toNSObjectAtIndex:idx];
-//     if (![theString isKindOfClass:[NSString class]]) {
-//         log_to_console(L, _cWARN, @"string not valid UTF8");
-//         theString = nil;
-//     }
-    return theString;
-}
 
 // Lua treats strings (and therefore indexs within strings) as a sequence of bytes.  Objective-C's
 // NSString and NSAttributedString treat them as a sequence of characters.  This works fine until
@@ -141,26 +79,18 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
 
 @interface HSSpeechSynthesizer : NSSpeechSynthesizer <NSSpeechSynthesizerDelegate>
 @property int callbackRef;
-// We're trying something new... if we register a ref for the userdata object so that we can easily include the
-// exact same userdata object as a parameter to callback functions, we create a new reference to the userdata -
-// it will never _gc when the user sets the value to nil in Lua land unless we add an explicit delete method like
-// hs.drawing does, and this assumes the user remembers to use it.  This is fine for drawing and webview because
-// a case can be made that they can/should persist even when Lua stops referencing them and only disappear on a
-// true restart/reload or explicit removal via delete.
-//
-// By creating a new userdata object as needed (i.e. for each callback), the objects will gc as they go out of
-// scope, but we need some way to know when the absolutely last one goes out of scope so we can release the
-// callback function reference then *and only then*.
-@property int UDreferenceCount;
+@property int selfRef;
+@property int UDreferenceCount; // used to know when to clear the functionRef from the registry
 @end
 
 @implementation HSSpeechSynthesizer
 - (id)initWithVoice:(NSString *)theVoice {
     self = [super initWithVoice:theVoice];
     if (self) {
-        self.callbackRef = LUA_NOREF;
+        self.callbackRef      = LUA_NOREF;
+        self.selfRef          = LUA_NOREF;
         self.UDreferenceCount = 0;
-        self.delegate = self;
+        self.delegate         = self;
     }
     return self;
 }
@@ -252,8 +182,7 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
 //         [skin pushNSObject:errorMessage];
         [skin pushNSObject:[sender objectForProperty:NSSpeechRecentSyncProperty error:&getError]] ;
         if (getError) {
-             log_to_console(_L, _cWARN, [NSString stringWithFormat:@"Error getting sync # for callback -> %@",
-                                                                  [getError localizedDescription]]);
+            [skin logWarn:[NSString stringWithFormat:@"Error getting sync # for callback -> %@", [getError localizedDescription]]];
        }
         if (![skin protectedCallAndTraceback:3 nresults:0]) {
             NSString *theError = [skin toNSObjectAtIndex:-1];
@@ -264,12 +193,14 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
 }
 
 - (void)speechSynthesizer:(NSSpeechSynthesizer *)sender didFinishSpeaking:(BOOL)success {
-    if (((HSSpeechSynthesizer *)sender).callbackRef != LUA_NOREF) {
-        LuaSkin      *skin    = [LuaSkin shared];
-        lua_State    *_L      = [skin L];
+    LuaSkin             *skin  = [LuaSkin shared];
+    HSSpeechSynthesizer *synth = (HSSpeechSynthesizer *)sender ;
 
-        [skin pushLuaRef:refTable ref:((HSSpeechSynthesizer *)sender).callbackRef];
-        [skin pushNSObject:(HSSpeechSynthesizer *)sender];
+    if (synth.callbackRef != LUA_NOREF) {
+        lua_State *_L = [skin L];
+
+        [skin pushLuaRef:refTable ref:synth.callbackRef];
+        [skin pushNSObject:synth];
         lua_pushstring(_L, "didFinish");
         lua_pushboolean(_L, success);
         if (![skin protectedCallAndTraceback:3 nresults:0]) {
@@ -277,6 +208,10 @@ static NSString *getVoiceShortCut(NSString *theVoice) {
             lua_pop(_L, 1);
             [skin logError:[NSString stringWithFormat:@"hs.speech.setCallback() didFinish callback error: %@", theError]];
         }
+    }
+    if (synth.selfRef != LUA_NOREF) {
+        synth.UDreferenceCount-- ;
+        synth.selfRef = [skin luaUnref:refTable ref:synth.selfRef] ;
     }
 }
 
@@ -338,7 +273,7 @@ static int attributesForVoice(__unused lua_State *L) {
     [skin checkArgs:LS_TSTRING | LS_TNUMBER | LS_TNIL, LS_TBREAK];
 
     if (lua_type(L, 1) != LUA_TNIL) luaL_checkstring(L, 1); // force number to be a string
-    [skin pushNSObject:[NSSpeechSynthesizer attributesForVoice:correctForVoiceShortCut(validateString(L, 1))]];
+    [skin pushNSObject:[NSSpeechSynthesizer attributesForVoice:correctForVoiceShortCut([skin toNSObjectAtIndex:1])]];
     return 1;
 }
 
@@ -407,15 +342,15 @@ static int newSpeechSynthesizer(lua_State *L) {
     NSString *theVoice = nil;
     if (lua_gettop(L) == 1) {
         luaL_checkstring(L, 1); // force number to be a string
-        theVoice = correctForVoiceShortCut(validateString(L, 1));
-        if (!theVoice) log_to_console(L, _cWARN, @"unable to identify voice from string, defaulting to system voice");
+        theVoice = correctForVoiceShortCut([skin toNSObjectAtIndex:1]);
+        if (!theVoice) [skin logWarn:@"unable to identify voice from string, defaulting to system voice"];
     }
 
     HSSpeechSynthesizer *synth = [[HSSpeechSynthesizer alloc] initWithVoice:theVoice];
     if (synth) {
         [skin pushNSObject:synth];
     } else {
-        log_to_console(L, _cDEBUG, @"unable to create synthesizer, returning nil");
+        [skin logDebug:@"unable to create synthesizer, returning nil"];
         lua_pushnil(L);
     }
     return 1;
@@ -473,8 +408,8 @@ static int voice(lua_State *L) {
         NSString *theVoice = nil;
         if (lua_type(L, 2) != LUA_TNIL) {
             luaL_checkstring(L, 2); // force number to be a string
-            theVoice = correctForVoiceShortCut(validateString(L, 2));
-            if (!theVoice) log_to_console(L, _cWARN, @"unable to identify voice from string, defaulting to system voice");
+            theVoice = correctForVoiceShortCut([skin toNSObjectAtIndex:2]);
+            if (!theVoice) [skin logWarn:@"unable to identify voice from string, defaulting to system voice"];
         }
         if([synth setVoice:theVoice]) {
             lua_pushvalue(L, 1);
@@ -632,11 +567,15 @@ static int startSpeakingString(lua_State *L) {
     HSSpeechSynthesizer *synth = get_objectFromUserdata(__bridge HSSpeechSynthesizer, L, 1);
 
     luaL_checkstring(L, 2); // force number to be a string
-    NSString *theText = validateString(L, 2);
-    if (!theText) return my_lua_error(L, @"invalid speech text, evaluates to nil");
+    NSString *theText = [skin toNSObjectAtIndex:2];
+    if (!theText) return luaL_error(L, "invalid speech text, evaluates to nil");
 
     if ([synth startSpeakingString:theText]) {
         lua_pushvalue(L, 1);
+        if (synth.selfRef == LUA_NOREF) {
+            synth.UDreferenceCount++ ;
+            synth.selfRef = [skin luaRef:refTable] ;
+        }
     } else {
         lua_pushnil(L);
     }
@@ -660,15 +599,19 @@ static int startSpeakingStringToURL(lua_State *L) {
 
     luaL_checkstring(L, 2); // force number to be a string
     luaL_checkstring(L, 3); // force number to be a string
-    NSString *theText = validateString(L, 2);
-    NSString *theFile = validateString(L, 3);
-    if (!theText) return my_lua_error(L, @"invalid speech text, evaluates to nil");
-    if (!theFile) return my_lua_error(L, @"invalid file name, evaluates to nil");
+    NSString *theText = [skin toNSObjectAtIndex:2];
+    NSString *theFile = [skin toNSObjectAtIndex:3];
+    if (!theText) return luaL_error(L, "invalid speech text, evaluates to nil");
+    if (!theFile) return luaL_error(L, "invalid file name, evaluates to nil");
 
     if ([synth startSpeakingString:theText
                              toURL:[NSURL fileURLWithPath:[theFile stringByExpandingTildeInPath]
                                               isDirectory:NO]]) {
         lua_pushvalue(L, 1);
+        if (synth.selfRef == LUA_NOREF) {
+            synth.UDreferenceCount++ ;
+            synth.selfRef = [skin luaRef:refTable] ;
+        }
     } else {
         lua_pushnil(L);
     }
@@ -695,7 +638,7 @@ static int pauseSpeakingAtBoundary(lua_State *L) {
     NSSpeechBoundary stopWhere = NSSpeechImmediateBoundary;
     if (lua_gettop(L) == 2) {
         luaL_checkstring(L, 2); // force number to be a string
-        NSString *where = validateString(L, 2);
+        NSString *where = [skin toNSObjectAtIndex:2];
         if ([where isEqualToString:@"immediate"]) {
             stopWhere = NSSpeechImmediateBoundary;
         } else if ([where isEqualToString:@"word"]) {
@@ -703,7 +646,7 @@ static int pauseSpeakingAtBoundary(lua_State *L) {
         } else if ([where isEqualToString:@"sentence"]) {
             stopWhere = NSSpeechSentenceBoundary;
         } else {
-            log_to_console(L, _cWARN, @"invalid boundary; pausing immediately");
+            [skin logWarn:@"invalid boundary; pausing immediately"];
         }
     }
     [synth pauseSpeakingAtBoundary:stopWhere];
@@ -731,7 +674,7 @@ static int stopSpeakingAtBoundary(lua_State *L) {
     NSSpeechBoundary stopWhere = NSSpeechImmediateBoundary;
     if (lua_gettop(L) == 2) {
         luaL_checkstring(L, 2); // force number to be a string
-        NSString *where = validateString(L, 2);
+        NSString *where = [skin toNSObjectAtIndex:2];
         if ([where isEqualToString:@"immediate"]) {
             stopWhere = NSSpeechImmediateBoundary;
         } else if ([where isEqualToString:@"word"]) {
@@ -739,10 +682,14 @@ static int stopSpeakingAtBoundary(lua_State *L) {
         } else if ([where isEqualToString:@"sentence"]) {
             stopWhere = NSSpeechSentenceBoundary;
         } else {
-            log_to_console(L, _cWARN, @"invalid boundary; stopping immediately");
+            [skin logWarn:@"invalid boundary; stopping immediately"];
         }
     }
     [synth stopSpeakingAtBoundary:stopWhere];
+    if (synth.selfRef != LUA_NOREF) {
+        synth.UDreferenceCount-- ;
+        synth.selfRef = [skin luaUnref:refTable ref:synth.selfRef] ;
+    }
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -797,8 +744,8 @@ static int phonemesFromText(lua_State *L) {
     HSSpeechSynthesizer *synth = get_objectFromUserdata(__bridge HSSpeechSynthesizer, L, 1);
 
     luaL_checkstring(L, 2); // force number to be a string
-    NSString *theText = validateString(L, 2);
-    if (!theText) return my_lua_error(L, @"invalid speech text, evaluates to nil");
+    NSString *theText = [skin toNSObjectAtIndex:2];
+    if (!theText) return luaL_error(L, "invalid speech text, evaluates to nil");
     [skin pushNSObject:[synth phonemesFromText:theText]];
     return 1;
 }
@@ -823,16 +770,14 @@ static int isSpeaking(lua_State *L) {
     NSError *theError = nil ;
     NSDictionary *status = [synth objectForProperty:NSSpeechStatusProperty error:&theError] ;
     if (theError) {
-        log_to_console(L, _cINFO, [NSString stringWithFormat:@"Unable to query synthesizer status -> %@",
-                                                             [theError localizedDescription]]);
+        [skin logInfo:[NSString stringWithFormat:@"Unable to query synthesizer status -> %@", [theError localizedDescription]]];
         lua_pushnil(L) ;
     } else {
         NSNumber *result = [status objectForKey:NSSpeechStatusOutputBusy] ;
         if (result) {
             lua_pushboolean(L, [result boolValue]) ;
         } else {
-            log_to_console(L, _cINFO, [NSString stringWithFormat:@"Key \"%@\" missing from synthesizer status",
-                                                                 NSSpeechStatusOutputBusy]);
+            [skin logInfo:[NSString stringWithFormat:@"Key \"%@\" missing from synthesizer status", NSSpeechStatusOutputBusy]];
             lua_pushnil(L) ;
         }
     }
@@ -859,16 +804,14 @@ static int isPaused(lua_State *L) {
     NSError *theError = nil ;
     NSDictionary *status = [synth objectForProperty:NSSpeechStatusProperty error:&theError] ;
     if (theError) {
-        log_to_console(L, _cINFO, [NSString stringWithFormat:@"Unable to query synthesizer status -> %@",
-                                                             [theError localizedDescription]]);
+        [skin logInfo:[NSString stringWithFormat:@"Unable to query synthesizer status -> %@", [theError localizedDescription]]];
         lua_pushnil(L) ;
     } else {
         NSNumber *result = [status objectForKey:NSSpeechStatusOutputPaused] ;
         if (result) {
             lua_pushboolean(L, [result boolValue]) ;
         } else {
-            log_to_console(L, _cINFO, [NSString stringWithFormat:@"Key \"%@\" missing from synthesizer status",
-                                                                 NSSpeechStatusOutputPaused]);
+            [skin logInfo:[NSString stringWithFormat:@"Key \"%@\" missing from synthesizer status", NSSpeechStatusOutputPaused]];
             lua_pushnil(L) ;
         }
     }
@@ -904,8 +847,7 @@ static int phoneticSymbols(lua_State *L) {
     NSError *theError = nil ;
     NSArray *phoneticList = [synth objectForProperty:NSSpeechPhonemeSymbolsProperty error:&theError] ;
     if (theError) {
-        log_to_console(L, _cINFO, [NSString stringWithFormat:@"Unable to query synthesizer for phonetic symbols -> %@",
-                                                             [theError localizedDescription]]);
+        [skin logInfo:[NSString stringWithFormat:@"Unable to query synthesizer for phonetic symbols -> %@", [theError localizedDescription]]];
         lua_pushnil(L) ;
     } else {
         [skin pushNSObject:phoneticList] ;
@@ -937,8 +879,7 @@ static int pitchBase(lua_State *L) {
         BOOL result = [synth setObject:[NSNumber numberWithDouble:lua_tonumber(L, 2)]
                            forProperty:NSSpeechPitchBaseProperty error:&theError];
         if (theError) {
-            log_to_console(L, _cWARN, [NSString stringWithFormat:@"Error setting pitchBase -> %@",
-                                                                 [theError localizedDescription]]);
+            [skin logWarn:[NSString stringWithFormat:@"Error setting pitchBase -> %@", [theError localizedDescription]]];
             lua_pushnil(L);
         } else {
             if (result) {
@@ -950,8 +891,7 @@ static int pitchBase(lua_State *L) {
     } else {
         [skin pushNSObject:[synth objectForProperty:NSSpeechPitchBaseProperty error:&theError]];
         if (theError) {
-            log_to_console(L, _cINFO, [NSString stringWithFormat:@"Error getting pitchBase -> %@",
-                                                                 [theError localizedDescription]]);
+            [skin logInfo:[NSString stringWithFormat:@"Error getting pitchBase -> %@", [theError localizedDescription]]];
         }
     }
     return 1;
@@ -981,8 +921,7 @@ static int pitchMod(lua_State *L) {
         BOOL result = [synth setObject:[NSNumber numberWithDouble:lua_tonumber(L, 2)]
                            forProperty:NSSpeechPitchModProperty error:&theError];
         if (theError) {
-            log_to_console(L, _cWARN, [NSString stringWithFormat:@"Error setting pitchMod -> %@",
-                                                                 [theError localizedDescription]]);
+            [skin logWarn:[NSString stringWithFormat:@"Error setting pitchMod -> %@", [theError localizedDescription]]];
             lua_pushnil(L);
         } else {
             if (result) {
@@ -994,8 +933,7 @@ static int pitchMod(lua_State *L) {
     } else {
         [skin pushNSObject:[synth objectForProperty:NSSpeechPitchModProperty error:&theError]];
         if (theError) {
-            log_to_console(L, _cINFO, [NSString stringWithFormat:@"Error getting pitchMod -> %@",
-                                                                 [theError localizedDescription]]);
+            [skin logInfo:[NSString stringWithFormat:@"Error getting pitchMod -> %@", [theError localizedDescription]]];
         }
     }
     return 1;
@@ -1024,8 +962,7 @@ static int reset(lua_State *L) {
     NSError *theError = nil ;
     BOOL result = [synth setObject:nil forProperty:NSSpeechResetProperty error:&theError];
     if (theError) {
-        log_to_console(L, _cWARN, [NSString stringWithFormat:@"Error resetting synthesizer -> %@",
-                                                             [theError localizedDescription]]);
+        [skin logWarn:[NSString stringWithFormat:@"Error resetting synthesizer -> %@", [theError localizedDescription]]];
         lua_pushnil(L);
     } else {
         if (result) {
@@ -1076,6 +1013,9 @@ static int userdata_gc(lua_State* L) {
 
     if (synth.UDreferenceCount == 0) {
         synth.callbackRef = [skin luaUnref:refTable ref:synth.callbackRef];
+        if (synth.selfRef != LUA_NOREF) {
+            synth.selfRef = [skin luaUnref:refTable ref:synth.selfRef] ;
+        }
         // If I'm reading the docs correctly, delegate isn't a weak assignment, so we'd better
         // clear it to make sure we don't create a self-retaining object...
         synth.delegate = nil;
@@ -1126,8 +1066,6 @@ static luaL_Reg moduleLib[] = {
     {"defaultVoice", defaultVoice},
     {"isAnyApplicationSpeaking", isAnyApplicationSpeaking},
     {"new", newSpeechSynthesizer},
-
-    {"_registerLogForC", lua_registerLogForC},
     {NULL, NULL}
 };
 
@@ -1143,8 +1081,6 @@ int luaopen_hs_speech_internal(lua_State* __unused L) {
                                      functions:moduleLib
                                  metaFunctions:nil    // or module_metaLib
                                objectFunctions:userdata_metaLib];
-
-    logFnRef = LUA_NOREF;
 
     [skin registerPushNSHelper:pushHSSpeechSynthesizer forClass:"HSSpeechSynthesizer"];
 
