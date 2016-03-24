@@ -1,75 +1,13 @@
 #import <Cocoa/Cocoa.h>
-// #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 
-#define USERDATA_TAG        "hs.speech.listener"
+#define USERDATA_TAG "hs.speech.listener"
 static int refTable = LUA_NOREF ;
-static int logFnRef = LUA_NOREF ;
 
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 // #define get_structFromUserdata(objType, L, idx) ((objType *)luaL_checkudata(L, idx, USERDATA_TAG))
 
-#pragma mark - Testing out better logging with hs.logger
-
-#define _cERROR   "ef"
-#define _cWARN    "wf"
-#define _cINFO    "f"
-#define _cDEBUG   "df"
-#define _cVERBOSE "vf"
-
-// allow this to be potentially unused in the module
-static int __unused log_to_console(lua_State *L, const char *level, NSString *theMessage) {
-    LuaSkin *skin = [LuaSkin shared];
-    lua_Debug functionDebugObject, callerDebugObject ;
-    lua_getstack(L, 0, &functionDebugObject) ;
-    lua_getstack(L, 1, &callerDebugObject) ;
-    lua_getinfo(L, "n", &functionDebugObject) ;
-    lua_getinfo(L, "Sl", &callerDebugObject) ;
-    NSString *fullMessage = [NSString stringWithFormat:@"%s - %@ (%d:%s)", functionDebugObject.name,
-                                                                           theMessage,
-                                                                           callerDebugObject.currentline,
-                                                                           callerDebugObject.short_src] ;
-    // Put it into the system logs, may help with troubleshooting
-    [skin logBreadcrumb:[NSString stringWithFormat:@"%s: %@", USERDATA_TAG, fullMessage]] ;
-
-    // If hs.logger reference set, use it and the level will indicate whether the user sees it or not
-    // otherwise we print to the console for everything, just in case we forget to register.
-    if (logFnRef != LUA_NOREF) {
-        [[LuaSkin shared] pushLuaRef:refTable ref:logFnRef] ;
-        lua_getfield(L, -1, level) ; lua_remove(L, -2) ;
-    } else {
-        lua_getglobal(L, "print") ;
-    }
-
-    lua_pushstring(L, [fullMessage UTF8String]) ;
-    if (![[LuaSkin shared] protectedCallAndTraceback:1 nresults:0]) { return lua_error(L) ; }
-    return 0 ;
-}
-
-static int lua_registerLogForC(__unused lua_State *L) {
-    [[LuaSkin shared] checkArgs:LS_TTABLE, LS_TBREAK] ;
-    logFnRef = [[LuaSkin shared] luaRef:refTable] ;
-    return 0 ;
-}
-
-// allow this to be potentially unused in the module
-static int __unused my_lua_error(lua_State *L, NSString *theMessage) {
-    lua_Debug functionDebugObject ;
-    lua_getstack(L, 0, &functionDebugObject) ;
-    lua_getinfo(L, "n", &functionDebugObject) ;
-    return luaL_error(L, [[NSString stringWithFormat:@"%s:%s - %@", USERDATA_TAG, functionDebugObject.name, theMessage] UTF8String]) ;
-}
-
 #pragma mark - Support Functions
-
-NSString *validateString(lua_State *L, int idx) {
-    NSString *theString = [[LuaSkin shared] toNSObjectAtIndex:idx] ;
-//     if (![theString isKindOfClass:[NSString class]]) {
-//         log_to_console(L, _cWARN, @"string not valid UTF8") ;
-//         theString = nil ;
-//     }
-    return theString ;
-}
 
 #pragma mark - HSSpeechRecognizer Definition
 
@@ -142,8 +80,8 @@ static int newSpeechRecognizer(lua_State *L) {
     NSString *theTitle = nil ;
     if (lua_gettop(L) == 1) {
         luaL_checkstring(L, 1) ; // force number to be a string
-        theTitle = validateString(L, 1) ;
-        if (!theTitle) log_to_console(L, _cWARN, @"unable to identify title from string, defaulting to \"Hammerspoon\"") ;
+        theTitle = [skin toNSObjectAtIndex:1] ;
+        if (!theTitle) [skin logWarn:@"unable to identify title from string, defaulting to \"Hammerspoon\""] ;
     }
 
     HSSpeechRecognizer *recognizer = [[HSSpeechRecognizer alloc] init] ;
@@ -151,7 +89,7 @@ static int newSpeechRecognizer(lua_State *L) {
         if (theTitle) recognizer.displayedCommandsTitle = theTitle ;
         [skin pushNSObject:recognizer] ;
     } else {
-        log_to_console(L, _cDEBUG, @"unable to create recognizer, returning nil") ;
+        [skin logDebug:@"unable to create recognizer, returning nil"] ;
         lua_pushnil(L) ;
     }
     return 1 ;
@@ -182,14 +120,14 @@ static int commands(lua_State *L) {
             int type = lua_rawgeti(L, 2, i + 1) ;
             if (type == LUA_TSTRING || type == LUA_TNUMBER) {
                 luaL_checkstring(L, -1) ; // force number to be a string
-                NSString *theCommand = validateString(L, -1) ;
+                NSString *theCommand = [skin toNSObjectAtIndex: -1] ;
                 if (theCommand) {
                     [theCommands addObject:[skin toNSObjectAtIndex:-1]] ;
                 } else {
-                    log_to_console(L, _cWARN, @"invalid string evaluates to nil, skipping") ;
+                    [skin logWarn:@"invalid string evaluates to nil, skipping"] ;
                 }
             } else {
-                log_to_console(L, _cWARN, @"not a string or number value, skipping") ;
+                [skin logWarn:@"not a string or number value, skipping"] ;
             }
         }
         recognizer.commands = theCommands ;
@@ -217,7 +155,7 @@ static int displayedCommandsTitle(lua_State *L) {
         NSString *theTitle = nil ;
         if (lua_type(L, 2) != LUA_TNIL) {
             luaL_checkstring(L, 2) ; // force number to be a string
-            theTitle = validateString(L, 2) ;
+            theTitle = [skin toNSObjectAtIndex:2] ;
         }
         recognizer.displayedCommandsTitle = theTitle ;
         lua_pushvalue(L, 1) ;
@@ -458,8 +396,6 @@ static const luaL_Reg userdata_metaLib[] = {
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
     {"new", newSpeechRecognizer},
-
-    {"_registerLogForC", lua_registerLogForC},
     {NULL, NULL}
 };
 
@@ -475,8 +411,6 @@ int luaopen_hs_speech_listener(lua_State* __unused L) {
                                      functions:moduleLib
                                  metaFunctions:nil    // or module_metaLib
                                objectFunctions:userdata_metaLib];
-
-    logFnRef = LUA_NOREF ;
 
     [skin registerPushNSHelper:pushHSSpeechRecognizer forClass:"HSSpeechRecognizer"] ;
 

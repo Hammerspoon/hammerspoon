@@ -13,14 +13,8 @@
 --- The speech recognizer functions and methods provide a way to add commands which may be issued to Hammerspoon through spoken words and phrases to trigger a callback.
 
 local module = require("hs.speech.internal")
-local log    = require("hs.logger").new("hs.speech","warning")
-module.log = log
-module._registerLogForC(log)
-module._registerLogForC = nil
 
 module.listener = require("hs.speech.listener")
-module.listener._registerLogForC(log)
-module.listener._registerLogForC = nil
 
 -- private variables and methods -----------------------------------------
 
