@@ -710,7 +710,7 @@ function windowfilter.new(fn,logname,loglevel,isCopy)
     log=logname and logger.new(logname,loglevel or log.level) or log,logname=logname,loglevel=loglevel or log.level}
   o.__address=gsub(tostring(o),'table: ','')
   setmetatable(o,{__index=WF,__tostring=__tostring,__gc=WF.delete})
-  if logname then o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel end
+  o.setLogLevel=o.log.setLogLevel o.getLogLevel=o.log.getLogLevel
   if type(fn)=='function' then
     o.log.i('new',o,'- custom function')
     o.isAppAllowed = function()return true end
