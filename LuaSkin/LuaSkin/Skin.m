@@ -1,4 +1,4 @@
- //
+//
 //  Skin.m
 //  LuaSkin
 //
@@ -338,7 +338,9 @@ static int pushUserdataType(lua_State *L) {
                 if (spec & LS_TTYPEDTABLE) {
                     lsType = LS_TTYPEDTABLE;
                     char *expectedTableTag = va_arg(args, char*);
-                    if (!expectedTableTag) luaL_error(self.L, "ERROR: unable to get expected LuaSkin table type for argument %d", idx) ;
+// NOTE: Make sure LS_TTYPEMASK in Skin.h is updated as options are added. Since va_args can't check type for us, we have to do this to make sure we get an address rather than an integer cast as an address... it's a bit of a hack for bit-position based flags since at some point we enter the realm of a valid setting being a valid address, but its the best I've been able to come up with so far...
+                    if (((size_t)expectedTableTag & ~LS_TTYPEMASK) == 0)
+                        luaL_error(self.L, "DEVELOPER-ERROR: unable to get expected LuaSkin table type for argument %d", idx) ;
 
                     const char *actualTableTag   = NULL ;
                     if (lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) {
@@ -361,6 +363,10 @@ static int pushUserdataType(lua_State *L) {
                 }
 
                 userdataTag = va_arg(args, char*);
+// NOTE: Make sure LS_TTYPEMASK in Skin.h is updated as options are added. Since va_args can't check type for us, we have to do this to make sure we get an address rather than an integer cast as an address... it's a bit of a hack for bit-position based flags since at some point we enter the realm of a valid setting being a valid address, but its the best I've been able to come up with so far...
+                if (((size_t)userdataTag & ~LS_TTYPEMASK) == 0)
+                    luaL_error(self.L, "DEVELOPER-ERROR: unable to get expected userdata type for argument %d", idx) ;
+
                 if (!userdataTag || strlen(userdataTag) == 0 || !luaL_testudata(self.L, idx, userdataTag)) {
                     luaL_error(self.L, "ERROR: incorrect userdata type for argument %d (expected %s)", idx, userdataTag);
                 }

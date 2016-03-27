@@ -54,6 +54,9 @@
 /*! @define LS_TTYPEDTABLE maps to LUA_TTABLE, but like LS_TUSERDATA, expects a string argument following which specifies the specific value expected in the __luaSkinType field of the table. */
 #define LS_TTYPEDTABLE    1 << 13
 
+/*! @define LS_TYPEMASK a mask specifying which bit positions contain LuaSkin type information.  Used internally; make sure to adjust if you add a type or type option. */
+#define LS_TTYPEMASK      ((size_t)((1 << 14) - 1))
+
 /*! @/definedblock Bit masks for Lua type checking */
 
 /*!
