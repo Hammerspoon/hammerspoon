@@ -1,5 +1,5 @@
 #import "socket.h"
-#import <CocoaAsyncSocket/GCDAsyncUdpSocket.h>
+#import "CocoaAsyncSocket/GCDAsyncUdpSocket.h"
 
 
 // Userdata for hs.socket.udp objects

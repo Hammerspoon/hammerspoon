@@ -355,7 +355,7 @@ static int userdata_tostring(lua_State* L) {
     Boolean valid = SCNetworkReachabilityGetFlags(theRef, &flags);
     NSString *flagString = @"** unable to get reachability flags*" ;
     if (valid)  flagString = statusString(flags) ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, flagString, theRef]] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, flagString, (void *)theRef]] ;
     return 1 ;
 }
 

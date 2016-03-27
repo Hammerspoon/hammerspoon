@@ -501,7 +501,7 @@ static int userdata_gc(lua_State* L) ;
         [skin pushLuaRef:refTable ref:self.navigationCallback];
         lua_pushstring([skin L], action) ;
         [skin pushNSObject:(HSWebViewWindow *)theView.window] ;
-        lua_pushstring([skin L], [[NSString stringWithFormat:@"0x%p", navigation] UTF8String]) ;
+        lua_pushstring([skin L], [[NSString stringWithFormat:@"0x%@", (void *)navigation] UTF8String]) ;
 
         if (error) {
             numberOfArguments++ ;
@@ -1734,7 +1734,7 @@ static int WKBackForwardList_toLua(lua_State *L, id obj) {
 
 static int WKNavigation_toLua(lua_State *L, id obj) {
     WKNavigation *navID = obj ;
-    lua_pushstring(L, [[NSString stringWithFormat:@"0x%p", navID] UTF8String]) ;
+    lua_pushstring(L, [[NSString stringWithFormat:@"0x%p", (void *)navID] UTF8String]) ;
     return 1 ;
 }
 

@@ -381,7 +381,7 @@ static int cancelResolution(lua_State *L) {
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     CFHostRef theHost = get_structFromUserdata(hshost_t, L, 1)->theHostObj ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, theHost]] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, (void *)theHost]] ;
     return 1 ;
 }
 

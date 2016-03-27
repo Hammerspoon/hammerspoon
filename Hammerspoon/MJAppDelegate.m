@@ -67,9 +67,8 @@ static BOOL MJFirstRunForCurrentVersion(void) {
     if(NSClassFromString(@"XCTest") != nil) {
         // Hammerspoon Tests
         NSLog(@"in testing mode!");
-        NSDictionary *environment = [NSProcessInfo processInfo].environment;
-        NSString *injectBundlePath = environment[@"XCInjectBundle"];
-        NSBundle *bundle = [NSBundle bundleWithPath:injectBundlePath];
+        NSBundle *mainBundle = [NSBundle mainBundle];
+        NSBundle *bundle = [NSBundle bundleWithPath:[NSString stringWithFormat:@"%@/Contents/Plugins/Hammerspoon Tests.xctest", mainBundle.bundlePath]];
         NSString *lsUnitPath = [bundle pathForResource:@"lsunit" ofType:@"lua"];
         const char *fsPath = [lsUnitPath fileSystemRepresentation];
 

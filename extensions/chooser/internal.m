@@ -517,7 +517,7 @@ static int chooserSetNumRows(lua_State *L) {
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     chooser_userdata_t *userData = lua_touserdata(L, 1);
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, userData]];
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, (void *)userData]];
     return 1;
 }
 

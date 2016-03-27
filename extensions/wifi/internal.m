@@ -672,7 +672,7 @@ static int pushCWNetworkProfile(lua_State *L, id obj) {
 static int userdata_tostring(lua_State* L) {
     HSWifiScan *scanner = get_objectFromUserdata(__bridge HSWifiScan, L, 1);
     LuaSkin *skin = [LuaSkin shared];
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %s (%p)", USERDATA_TAG, ((scanner.isDone) ? "scanning" : "done"), scanner]];
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %s (%p)", USERDATA_TAG, ((scanner.isDone) ? "scanning" : "done"), (void *)scanner]];
     return 1;
 }
 

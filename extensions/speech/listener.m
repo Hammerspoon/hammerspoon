@@ -316,7 +316,7 @@ static int pushHSSpeechRecognizer(lua_State *L, id obj) {
 static int userdata_tostring(lua_State* L) {
     HSSpeechRecognizer *recognizer = get_objectFromUserdata(__bridge HSSpeechRecognizer, L, 1) ;
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, recognizer.displayedCommandsTitle, recognizer]] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, recognizer.displayedCommandsTitle, (void *)recognizer]] ;
     return 1 ;
 }
 

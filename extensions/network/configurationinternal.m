@@ -494,7 +494,7 @@ static int dynamicStoreMonitorKeys(lua_State *L) {
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     SCDynamicStoreRef theStore = get_structFromUserdata(dynamicstore_t, L, 1)->storeObject ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, theStore]] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, (void *)theStore]] ;
     return 1 ;
 }
 

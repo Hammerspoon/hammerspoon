@@ -991,7 +991,7 @@ static int pushHSSpeechSynthesizer(lua_State *L, id obj) {
 static int userdata_tostring(lua_State* L) {
     HSSpeechSynthesizer *synth = get_objectFromUserdata(__bridge HSSpeechSynthesizer, L, 1);
     LuaSkin *skin = [LuaSkin shared];
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, [synth voice], synth]];
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, [synth voice], (void *)synth]];
     return 1;
 }
 
