@@ -1,5 +1,6 @@
 #import <LuaSkin/LuaSkin.h>
 #import "CocoaHTTPServer/HTTPServer.h"
+#import "CocoaHTTPServer/HTTPMessage.h"
 #import "CocoaHTTPServer/HTTPConnection.h"
 #import "CocoaHTTPServer/HTTPDataResponse.h"
 #import "CocoaAsyncSocket/GCDAsyncSocket.h"
@@ -73,8 +74,9 @@ int refTable;
         [skin pushLuaRef:refTable ref:((HSHTTPServer *)config.server).fn];
         lua_pushstring(L, [method UTF8String]);
         lua_pushstring(L, [path UTF8String]);
+        [skin pushNSObject:[request allHeaderFields]] ;
 
-        if (![skin protectedCallAndTraceback:2 nresults:3]) {
+        if (![skin protectedCallAndTraceback:3 nresults:3]) {
             const char *errorMsg = lua_tostring(L, -1);
             [skin logError:[NSString stringWithFormat:@"hs.httpserver:setCallback() callback error: %s", errorMsg]];
             responseCode = 503;
