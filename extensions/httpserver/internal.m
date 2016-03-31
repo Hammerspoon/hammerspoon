@@ -18,6 +18,7 @@ int refTable;
 // ObjC Class definitions
 @interface HSHTTPServer : HTTPServer
 @property int fn;
+@property NSUInteger maxBodySize;
 @property SecIdentityRef sslIdentity;
 @property (nonatomic, copy) NSString *httpPassword;
 @end
@@ -40,6 +41,7 @@ int refTable;
     self = [super init];
     if (self) {
         self.httpPassword = nil;
+        self.maxBodySize  = 10 * 1024 * 1024; // set initial max body size to 10 MB
     }
     return self;
 }
@@ -59,7 +61,15 @@ int refTable;
 @implementation HSHTTPConnection
 
 - (BOOL)supportsMethod:(NSString * __unused)method atPath:(NSString * __unused)path {
+    if ([method isEqualToString:@"POST"] || [method isEqualToString:@"PUT"])
+        return requestContentLength < ((HSHTTPServer *)config.server).maxBodySize ;
+
     return YES;
+}
+
+- (void)processBodyData:(NSData *)postDataChunk
+{
+    [request appendData:postDataChunk];
 }
 
 - (NSObject<HTTPResponse> *)httpResponseForMethod:(NSString *)method URI:(NSString *)path {
@@ -74,9 +84,10 @@ int refTable;
         [skin pushLuaRef:refTable ref:((HSHTTPServer *)config.server).fn];
         lua_pushstring(L, [method UTF8String]);
         lua_pushstring(L, [path UTF8String]);
-        [skin pushNSObject:[request allHeaderFields]] ;
+        [skin pushNSObject:[request allHeaderFields]];
+        [skin pushNSObject:[request body] withOptions:LS_NSLuaStringAsDataOnly];
 
-        if (![skin protectedCallAndTraceback:3 nresults:3]) {
+        if (![skin protectedCallAndTraceback:4 nresults:3]) {
             const char *errorMsg = lua_tostring(L, -1);
             [skin logError:[NSString stringWithFormat:@"hs.httpserver:setCallback() callback error: %s", errorMsg]];
             responseCode = 503;
@@ -225,7 +236,7 @@ static int httpserver_new(lua_State *L) {
 
     HSHTTPServer *server = [[HSHTTPServer alloc] init];
     if (lua_type(L, 1) == LUA_TBOOLEAN) {
-        useSSL = lua_toboolean(L, 1);
+        useSSL = (BOOL)lua_toboolean(L, 1);
     }
 
     if (useSSL) {
@@ -254,13 +265,18 @@ static int httpserver_new(lua_State *L) {
 ///  * The `hs.httpserver` object
 ///
 /// Notes:
-///  * The callback will be passed two arguments:
+///  * The callback will be passed four arguments:
 ///   * A string containing the type of request (i.e. `GET`/`POST`/`DELETE`/etc)
 ///   * A string containing the path element of the request (e.g. `/index.html`)
+///   * A table containing the request headers
+///   * A string containing the raw contents of the request body, or the empty string if no body is included in the request.
 ///  * The callback *must* return three values:
 ///   * A string containing the body of the response
 ///   * An integer containing the response code (e.g. 200 for a successful request)
 ///   * A table containing additional HTTP headers to set (or an empty table, `{}`, if no extra headers are required)
+///
+/// Notes:
+///  * A POST request, often used by HTML forms, will store the contents of the form in the body of the request.
 static int httpserver_setCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
 
@@ -282,6 +298,32 @@ static int httpserver_setCallback(lua_State *L) {
     }
 
     lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.httpserver:maxBodySize([size]) -> object | current-value
+/// Method
+/// Get or set the maximum allowed body size for an incoming HTTP request.
+///
+/// Parameters:
+///  * size - An optional integer value specifying the maximum body size allowed for an incoming HTTP request in bytes.  Defaults to 10485760 (10 MB).
+///
+/// Returns:
+///  * If a new size is specified, returns the `hs.httpserver` object; otherwise the current value.
+///
+/// Notes:
+///  * Because the Hammerspoon http server processes incoming requests completely in memory, this method puts a limit on the maximum size for a POST or PUT request.
+static int httpserver_maxBodySize(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK];
+
+    HSHTTPServer *server = getUserData(L, 1);
+    if (lua_gettop(L) == 2) {
+        server.maxBodySize = (NSUInteger)lua_tointeger(L, 2);
+        lua_pushvalue(L, 1);
+    } else {
+        lua_pushinteger(L, (lua_Integer)server.maxBodySize);
+    }
     return 1;
 }
 
@@ -388,7 +430,7 @@ static int httpserver_getPort(lua_State *L) {
 ///  * The `hs.httpserver` object
 static int httpserver_setPort(lua_State *L) {
     HSHTTPServer *server = getUserData(L, 1);
-    [server setPort:luaL_checkinteger(L, 2)];
+    [server setPort:(UInt16)luaL_checkinteger(L, 2)];
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -475,6 +517,7 @@ static const luaL_Reg httpserverObjectLib[] = {
     {"setName", httpserver_setName},
     {"setCallback", httpserver_setCallback},
     {"setPassword", httpserver_setPassword},
+    {"maxBodySize", httpserver_maxBodySize},
 
     {"__tostring", userdata_tostring},
     {"__gc", httpserver_objectGC},
