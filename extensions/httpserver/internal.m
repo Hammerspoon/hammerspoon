@@ -62,9 +62,23 @@ int refTable;
 
 - (BOOL)supportsMethod:(NSString * __unused)method atPath:(NSString * __unused)path {
     if ([method isEqualToString:@"POST"] || [method isEqualToString:@"PUT"])
-        return requestContentLength < ((HSHTTPServer *)config.server).maxBodySize ;
+        return requestContentLength <= ((HSHTTPServer *)config.server).maxBodySize ;
 
     return YES;
+}
+
+- (NSData *)preprocessErrorResponse:(HTTPMessage *)response {
+    if ([response statusCode] == 405 && requestContentLength > ((HSHTTPServer *)config.server).maxBodySize) {
+        NSString *msg = [NSString stringWithFormat:@"<html><head><title>Method Not Supported</title><head><body><H1>HTTP/1.1 405 Method Not Supported</H1><br/>The %@ method is not supported for requests larger than %lu bytes.<br/><hr/></body></html>", [request method], ((HSHTTPServer *)config.server).maxBodySize];
+        NSData *msgData = [msg dataUsingEncoding:NSUTF8StringEncoding];
+
+        [response setBody:msgData];
+
+        NSString *contentLengthStr = [NSString stringWithFormat:@"%lu", (unsigned long)[msgData length]];
+        [response setHeaderField:@"Content-Length" value:contentLengthStr];
+    }
+
+    return [super preprocessErrorResponse:response];
 }
 
 - (void)processBodyData:(NSData *)postDataChunk
