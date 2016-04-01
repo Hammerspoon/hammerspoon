@@ -7,6 +7,10 @@
 #import "CocoaLumberjack/CocoaLumberjack.h"
 #import "MYAnonymousIdentity.h"
 
+// From HTTPConnection.m
+#define TIMEOUT_WRITE_ERROR 30
+#define HTTP_FINAL_RESPONSE 91
+
 // Defines
 
 #define USERDATA_TAG "hs.httpserver"
@@ -67,9 +71,25 @@ int refTable;
     return YES;
 }
 
+- (void)handleUnknownMethod:(NSString *)method
+{
+    if (requestContentLength > ((HSHTTPServer *)config.server).maxBodySize) {
+
+        // Status code 413 - Request Entity Too Large
+        HTTPMessage *response = [[HTTPMessage alloc] initResponseWithStatusCode:413 description:nil version:HTTPVersion1_1];
+        [response setHeaderField:@"Content-Length" value:@"0"];
+        [response setHeaderField:@"Connection" value:@"close"];
+
+        NSData *responseData = [self preprocessErrorResponse:response];
+        [asyncSocket writeData:responseData withTimeout:TIMEOUT_WRITE_ERROR tag:HTTP_FINAL_RESPONSE];
+    } else {
+        [super handleUnknownMethod:method];
+    }
+}
+
 - (NSData *)preprocessErrorResponse:(HTTPMessage *)response {
-    if ([response statusCode] == 405 && requestContentLength > ((HSHTTPServer *)config.server).maxBodySize) {
-        NSString *msg = [NSString stringWithFormat:@"<html><head><title>Method Not Supported</title><head><body><H1>HTTP/1.1 405 Method Not Supported</H1><br/>The %@ method is not supported for requests larger than %lu bytes.<br/><hr/></body></html>", [request method], ((HSHTTPServer *)config.server).maxBodySize];
+    if ([response statusCode] == 413) {
+        NSString *msg = [NSString stringWithFormat:@"<html><head><title>Request Entity Too Large</title><head><body><H1>HTTP/1.1 413 Request Entity Too Large</H1><br/>The %@ method is not supported for requests larger than %lu bytes.<br/><hr/></body></html>", [request method], ((HSHTTPServer *)config.server).maxBodySize];
         NSData *msgData = [msg dataUsingEncoding:NSUTF8StringEncoding];
 
         [response setBody:msgData];
@@ -94,6 +114,9 @@ int refTable;
     void (^responseCallbackBlock)(void) = ^{
         LuaSkin *skin = [LuaSkin shared];
         lua_State *L = skin.L;
+
+        // add client id to headers for callback function to access
+        [request setHeaderField:@"X-Client-Ip" value:asyncSocket.connectedHost];
 
         [skin pushLuaRef:refTable ref:((HSHTTPServer *)config.server).fn];
         lua_pushstring(L, [method UTF8String]);
@@ -230,12 +253,13 @@ typedef struct _httpserver_t {
     void *server;
 } httpserver_t;
 
-/// hs.httpserver.new([ssl]) -> object
+/// hs.httpserver.new([ssl], [bonjour]) -> object
 /// Function
 /// Creates a new HTTP or HTTPS server
 ///
 /// Parameters:
-///  * ssl - An optional boolean. If true, the server will start using HTTPS. Defaults to false.
+///  * ssl     - An optional boolean. If true, the server will start using HTTPS. Defaults to false.
+///  * bonjour - An optional boolean. If true, the server will advertise itself with Bonjour.  Defaults to true. Note that in order to change this, you must supply a true or false value for the `ssl` argument.
 ///
 /// Returns:
 ///  * An `hs.httpserver` object
@@ -244,21 +268,22 @@ typedef struct _httpserver_t {
 ///  * By default, the server will start on a random TCP port and advertise itself with Bonjour. You can check the port with `hs.httpserver:getPort()`
 ///  * Currently, in HTTPS mode, the server will use a self-signed certificate, which most browsers will warn about. If you want/need to be able to use `hs.httpserver` with a certificate signed by a trusted Certificate Authority, please file an bug on Hammerspoon requesting support for this.
 static int httpserver_new(lua_State *L) {
-    BOOL useSSL = false;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+    BOOL useSSL     = (lua_type(L, 1) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 1) : false;
+    BOOL useBonjour = (lua_type(L, 2) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 2) : true;
+
     httpserver_t *httpServer = lua_newuserdata(L, sizeof(httpserver_t));
     memset(httpServer, 0, sizeof(httpserver_t));
 
     HSHTTPServer *server = [[HSHTTPServer alloc] init];
-    if (lua_type(L, 1) == LUA_TBOOLEAN) {
-        useSSL = (BOOL)lua_toboolean(L, 1);
-    }
 
     if (useSSL) {
         [server setConnectionClass:[HSHTTPSConnection class]];
     } else {
         [server setConnectionClass:[HSHTTPConnection class]];
     }
-    [server setType:@"_http._tcp."];
+    if (useBonjour) [server setType:@"_http._tcp."];
 
     server.fn = LUA_NOREF;
     httpServer->server = (__bridge_retained void *)server;
