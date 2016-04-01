@@ -109,7 +109,7 @@ int refTable;
 - (NSObject<HTTPResponse> *)httpResponseForMethod:(NSString *)method URI:(NSString *)path {
     __block int responseCode;
     __block NSMutableDictionary *responseHeaders = nil;
-    __block NSString *responseBody = nil;
+    __block NSData *responseBody = nil;
 
     void (^responseCallbackBlock)(void) = ^{
         LuaSkin *skin = [LuaSkin shared];
@@ -128,14 +128,14 @@ int refTable;
             const char *errorMsg = lua_tostring(L, -1);
             [skin logError:[NSString stringWithFormat:@"hs.httpserver:setCallback() callback error: %s", errorMsg]];
             responseCode = 503;
-            responseBody = [NSString stringWithUTF8String:"An error occurred during hs.httpserver callback handling"];
+            responseBody = [NSData dataWithData:[@"An error occurred during hs.httpserver callback handling" dataUsingEncoding:NSUTF8StringEncoding]];
         } else {
             if (!(lua_type(L, -3) == LUA_TSTRING && lua_type(L, -2) == LUA_TNUMBER && lua_type(L, -1) == LUA_TTABLE)) {
                 [skin logError:@"hs.httpserver:setCallback() callbacks must return three values. A string for the response body, an integer response code, and a table of headers"];
                 responseCode = 503;
-                responseBody = [NSString stringWithUTF8String:"Callback handler returned invalid values"];
+                responseBody = [NSData dataWithData:[@"Callback handler returned invalid values" dataUsingEncoding:NSUTF8StringEncoding]];
             } else {
-                responseBody = [NSString stringWithUTF8String:lua_tostring(L, -3)];
+                responseBody = [skin toNSObjectAtIndex:-3 withOptions:LS_NSLuaStringAsDataOnly];
                 responseCode = (int)lua_tointeger(L, -2);
 
                 responseHeaders = [[NSMutableDictionary alloc] init];
@@ -166,7 +166,7 @@ int refTable;
         dispatch_sync(dispatch_get_main_queue(), responseCallbackBlock);
     }
 
-    HSHTTPDataResponse *response = [[HSHTTPDataResponse alloc] initWithData:[responseBody dataUsingEncoding:NSUTF8StringEncoding]];
+    HSHTTPDataResponse *response = [[HSHTTPDataResponse alloc] initWithData:responseBody];
     response.hsStatus = responseCode;
     response.hsHeaders = responseHeaders;
 
