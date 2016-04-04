@@ -380,7 +380,7 @@ static int httpserver_maxBodySize(lua_State *L) {
 ///  * It is not currently possible to set multiple passwords for different users, or passwords only on specific paths
 static int httpserver_setPassword(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
 
     switch (lua_type(L, 2)) {
@@ -506,7 +506,7 @@ static int httpserver_getName(lua_State *L) {
 ///  * This is not the hostname of the server, just its name in Bonjour service lists (e.g. Safari's Bonjour bookmarks menu)
 static int httpserver_setName(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, LS_TSTRING, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
     [server setName:[skin toNSObjectAtIndex:2]];
     lua_pushvalue(L, 1);
