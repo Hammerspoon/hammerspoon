@@ -369,23 +369,17 @@ function geometry.setaspect(t,asp,...)
 end
 
 function geometry.__index(t,k)
-  if k == "__luaSkinType" then
-  -- support table<->NSValue auto-conversion in LuaSkin
-      local typ=gettype(t)
-      local result = nil
-      if typ=='rect' or typ=='unitrect' then
-          result =  "NSRect"
-      elseif typ=='point' then
-          result = "NSPoint"
-      elseif typ=='size' then
-          result = "NSSize"
-      end
-      return result
+  if k == "__luaSkinType" then  -- support table<->NSValue auto-conversion in LuaSkin
+    local typ=gettype(t)
+    if typ=='rect' or typ=='unitrect' then return "NSRect"
+    elseif typ=='point' then return "NSPoint"
+    elseif typ=='size' then return "NSSize" end
   else
-      local r=rawget(geometry,'get'..k)
-      if r then return r(t) else return rawget(geometry,k) end --avoid getting .size metatable fn when it's nil
+    local r=rawget(geometry,'get'..k)
+    if r then return r(t) else return rawget(geometry,k) end --avoid getting .size metatable fn when it's nil
   end
 end
+
 function geometry.__newindex(t,k,v)
   local r=rawget(geometry,'set'..k)
   if r then r(t,v) else rawset(t,k,v) end
@@ -623,7 +617,14 @@ geometry.__add=function(t1,t2) -- :move or :union
   else return geometry.union(t1,t2) end
 end
 geometry.__concat=geometry.union --TODO if segments, allow here
-geometry.__sub=function(t1,t2)return geometry.vector(t2,t1)end
+geometry.__sub=function(t1,t2)
+  t2=new(t2)
+  local tp1,tp2=gettype(t1),gettype(t2)
+  if tp1=='size' or tp2=='size' then error('cannot subtract from a size',2) end
+  if isRect(t2) then t2=geometry.getcenter(t2) end
+  return new(t1.x-t2.x,t1.y-t2.y,t1.w,t1.h)
+    --  return geometry.vector(t2,t1)
+end
 geometry.__mul=function(t1,t2)t1=copy(t1) return geometry.scale(t1,t2) end
 geometry.__pow=geometry.intersect
 geometry.__lt=function(t1,t2)

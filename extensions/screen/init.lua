@@ -2,11 +2,9 @@
 ---
 --- Manipulate screens (i.e. monitors)
 ---
---- You usually get a screen through a window (see `hs.window.screen`). But you can get screens by themselves through this module.
----
---- Hammerspoon's coordinate system assumes a grid that is the union of every screen's rect (see `hs.screen.fullFrame`).
----
---- Every window's position (i.e. `topleft`) and size are relative to this grid, and they're usually within the grid. A window that's semi-offscreen only intersects the grid.
+--- The OSX coordinate system used by Hammerspoon assumes a grid that spans all the screens (positioned as per
+--- System Preferences->Displays->Arrangement). The origin `0,0` is at the top left corner of the *primary screen*.
+--- (Screens to the top or the left of the primary screen, and windows on these screens, will have negative coordinates)
 
 local screen = require "hs.screen.internal"
 local geometry = require "hs.geometry"
@@ -221,6 +219,34 @@ end
 ---  * this method is just a convenience wrapper for `hs.geometry.toUnitRect(rect,this_screen:frame())`
 function screenObject:toUnitRect(rect,...)
   return geometry(rect,...):toUnitRect(self:frame())
+end
+
+--- hs.screen:localToAbsolute(geom) -> hs.geometry object
+--- Method
+--- Transforms from the screen's local coordinate space, where `0,0` is at the screen's top left corner,
+--- to the absolute coordinate space used by OSX/Hammerspoon
+---
+--- Parameters:
+---  * geom - an hs.geometry point or rect, or arguments to construct one
+---
+--- Returns:
+---  * an hs.geometry point or rect, transformed to the absolute coordinate space
+function screenObject:localToAbsolute(rect,...)
+  return geometry(rect,...)+self:fullFrame().topleft
+end
+
+--- hs.screen:absoluteToLocal(geom) -> hs.geometry object
+--- Method
+--- Transforms from the absolute coordinate space used by OSX/Hammerspoon to the screen's local
+--- coordinate space, where `0,0` is at the screen's top left corner
+---
+--- Parameters:
+---  * geom - an hs.geometry point or rect, or arguments to construct one
+---
+--- Returns:
+---  * an hs.geometry point or rect, transformed to the screen's local coordinate space
+function screenObject:absoluteToLocal(rect,...)
+  return geometry(rect,...)-self:fullFrame().topleft
 end
 
 --- hs.screen:next() -> screen

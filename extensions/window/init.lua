@@ -752,6 +752,30 @@ end
 ---
 --- (See `hs.window:focusWindowEast()`)
 
+
+--- hs.window:centerOnScreen([screen][, ensureInScreenBounds][, duration]) --> hs.window object
+--- Method
+--- Centers the window on a screen
+---
+--- Parameters:
+---  * screen - (optional) An `hs.screen` object or argument for `hs.screen.find`; if nil, use the screen the window is currently on
+---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
+---    the window's screen
+---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
+---
+--- Returns:
+---  * The `hs.window` object
+function window:centerOnScreen(toScreen,inBounds,duration)
+  if type(toScreen)=='boolean' then duration=inBounds inBounds=toScreen toScreen=nil
+  elseif type(toScreen)=='number' then duration=toScreen inBounds=nil toScreen=nil end
+  if type(inBounds)=='number' then duration=inBounds inBounds=nil end
+  toScreen=screen.find(toScreen) or self:screen()
+  local sf,wf=toScreen:fullFrame(),self:frame()
+  local frame=geometry(toScreen:localToAbsolute((geometry(sf.w,sf.h)-geometry(wf.w,wf.h))*0.5),wf.size)
+  if inBounds then return self:setFrameInScreenBounds(frame,duration)
+  else return self:setFrame(frame,duration) end
+end
+
 --- hs.window:moveToUnit(unitrect[, duration]) -> hs.window object
 --- Method
 --- Moves and resizes the window to occupy a given fraction of the screen
@@ -769,21 +793,30 @@ function window:moveToUnit(unit, duration)
   return self:setFrame(self:screen():fromUnitRect(unit),duration)
 end
 
---- hs.window:moveToScreen(screen[, duration]) -> hs.window object
+--- hs.window:moveToScreen(screen[, noResize, ensureInScreenBounds][, duration]) -> hs.window object
 --- Method
 --- Moves the window to a given screen, retaining its relative position and size
 ---
 --- Parameters:
 ---  * screen - An `hs.screen` object, or an argument for `hs.screen.find()`, representing the screen to move the window to
+---  * noResize - (optional) if `true`, maintain the window's absolute size
+---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
+---    the window's screen
 ---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
-function window:moveToScreen(toScreen, duration)
+function window:moveToScreen(toScreen,noResize,inBounds,duration)
   if not toScreen then return end
   local theScreen=screen.find(toScreen)
   if not theScreen then print('window:moveToScreen(): screen not found: '..toScreen) return self end
-  return self:setFrame(theScreen:fromUnitRect(self:screen():toUnitRect(self:frame())),duration)
+  if type(noResize)=='number' then duration=noResize noResize=nil inBounds=nil end
+  local frame=theScreen:fromUnitRect(self:screen():toUnitRect(self:frame()))
+  if noResize then frame.size=self:size() end
+  --    local frame=theScreen:localToAbsolute(self:screen():absoluteToLocal(self:frame()))
+  if inBounds then return self:setFrameInScreenBounds(frame,duration)
+  else return self:setFrame(frame,duration) end
+  --  else return self:setFrame(theScreen:fromUnitRect(self:screen():toUnitRect(self:frame())),duration) end
 end
 
 --- hs.window:move(rect[, screen][, ensureInScreenBounds][, duration]) --> hs.window object
@@ -804,7 +837,8 @@ end
 --- Returns:
 ---  * The `hs.window` object
 function window:move(rect,toScreen,inBounds,duration)
-  if type(toScreen)=='boolean' then duration=inBounds inBounds=toScreen toScreen=nil end
+  if type(toScreen)=='boolean' then duration=inBounds inBounds=toScreen toScreen=nil
+  elseif type(toScreen)=='number' then duration=toScreen inBounds=nil toScreen=nil end
   if type(inBounds)=='number' then duration=inBounds inBounds=nil end
   rect=geometry(rect)
   local rtype,frame=rect:type()
@@ -824,30 +858,33 @@ function window:move(rect,toScreen,inBounds,duration)
   else return self:setFrame(frame,duration) end
 end
 
---- hs.window:moveOneScreenEast([duration]) -> hs.window object
+--- hs.window:moveOneScreenEast([noResize, ensureInScreenBounds][, duration]) -> hs.window object
 --- Method
 --- Moves the window one screen east (i.e. right)
 ---
 --- Parameters:
+---  * noResize - (optional) if `true`, maintain the window's absolute size
+---  * ensureInScreenBounds - (optional) if `true`, use `setFrameInScreenBounds()` to ensure the resulting window frame is fully contained within
+---    the window's screen
 ---  * duration - (optional) The number of seconds to animate the transition. Defaults to the value of `hs.window.animationDuration`
 ---
 --- Returns:
 ---  * The `hs.window` object
 
---- hs.window:moveOneScreenWest([duration]) -> hs.window object
+--- hs.window:moveOneScreenWest([noResize, ensureInScreenBounds][, duration]) -> hs.window object
 --- Method
 --- Moves the window one screen west (i.e. left)
 ---
 --- (See `hs.window:moveOneScreenEast()`)
 
---- hs.window:moveOneScreenNorth([duration]) -> hs.window object
+--- hs.window:moveOneScreenNorth([noResize, ensureInScreenBounds][, duration]) -> hs.window object
 --- Method
 --- Moves the window one screen north (i.e. up)
 ---
 ---
 --- (See `hs.window:moveOneScreenEast()`)
 
---- hs.window:moveOneScreenSouth([duration]) -> hs.window object
+--- hs.window:moveOneScreenSouth([noResize, ensureInScreenBounds][, duration]) -> hs.window object
 --- Method
 --- Moves the window one screen south (i.e. down)
 ---
