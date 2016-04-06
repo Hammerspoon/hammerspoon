@@ -115,8 +115,12 @@ int refTable;
         LuaSkin *skin = [LuaSkin shared];
         lua_State *L = skin.L;
 
-        // add client id to headers for callback function to access
-        [request setHeaderField:@"X-Client-Ip" value:asyncSocket.connectedHost];
+        // add some headers for callback function to access
+        [request setHeaderField:@"X-Remote-Addr" value:asyncSocket.connectedHost];
+        [request setHeaderField:@"X-Remote-Port" value:[NSString stringWithFormat:@"%hu", asyncSocket.connectedPort]];
+        [request setHeaderField:@"X-Server-Addr" value:asyncSocket.localHost];
+        [request setHeaderField:@"X-Server-Port" value:[NSString stringWithFormat:@"%hu", asyncSocket.localPort]];
+
 
         [skin pushLuaRef:refTable ref:((HSHTTPServer *)config.server).fn];
         lua_pushstring(L, [method UTF8String]);
