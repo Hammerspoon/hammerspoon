@@ -514,8 +514,11 @@ static int hs_volumeInformation(lua_State* L) {
 
     for (NSURL *url in URLs) {
         id result = [url resourceValuesForKeys:urlResourceKeys error:nil] ;
-        if (result) [volumeInfo setObject:result forKey:[url path]];
-        [volumeInfo setObject:[url resourceValuesForKeys:urlResourceKeys error:nil] forKey:[url path]];
+        if ([url path]) {
+                if (result) [volumeInfo setObject:result forKey:[url path]];
+                if ([url resourceValuesForKeys:urlResourceKeys error:nil])
+                        [volumeInfo setObject:[url resourceValuesForKeys:urlResourceKeys error:nil] forKey:[url path]];
+        }
     }
 
     [skin pushNSObject:volumeInfo];
