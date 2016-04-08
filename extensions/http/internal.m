@@ -113,7 +113,7 @@ static void getBodyFromStack(lua_State* L, int index, NSMutableURLRequest* reque
 }
 
 // Gets all information for the request from the stack and creates a request
-static NSMutableURLRequest* getRequestFromStack(lua_State* L){
+static NSMutableURLRequest* getRequestFromStack(__unused lua_State* L){
     LuaSkin *skin = [LuaSkin shared];
     NSString* url = [skin toNSObjectAtIndex:1];
     NSString* method = [skin toNSObjectAtIndex:2];
@@ -175,7 +175,10 @@ static int http_doAsyncRequest(lua_State* L){
 
     store_delegate(delegate);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSURLConnection* connection = [[NSURLConnection alloc] initWithRequest:request delegate:delegate];
+#pragma clang diagnostic pop
 
     delegate.connection = connection;
 
@@ -211,7 +214,10 @@ static int http_doRequest(lua_State* L) {
     NSURLResponse *response;
     NSError *error;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     dataReply = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
+#pragma clang diagnostic pop
 
     NSString* stringReply = (NSString *)[[NSString alloc] initWithData:dataReply encoding:NSUTF8StringEncoding];
 
@@ -359,6 +365,12 @@ static int http_urlParts(lua_State *L) {
 
       if ([theURL query]) {
           NSURLComponents *components = [NSURLComponents componentsWithURL:theURL resolvingAgainstBaseURL:YES] ;
+
+          // NSQueryItem doesn't properly handle + as space in a query string.  According to Apple, this is
+          // intended (see https://openradar.appspot.com/24076063), but even their own Safari submits GET
+          // and POST data with + as the space.  Whatever.  Fix it.
+          components.percentEncodedQuery = [components.percentEncodedQuery stringByReplacingOccurrencesOfString:@"+" withString:@"%20"];
+
           lua_newtable(L) ;
           for (NSURLQueryItem *item in [components queryItems]) {
               lua_newtable(L) ;

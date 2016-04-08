@@ -1,10 +1,15 @@
 #import <LuaSkin/LuaSkin.h>
 #import "CocoaHTTPServer/HTTPServer.h"
+#import "CocoaHTTPServer/HTTPMessage.h"
 #import "CocoaHTTPServer/HTTPConnection.h"
 #import "CocoaHTTPServer/HTTPDataResponse.h"
 #import "CocoaAsyncSocket/GCDAsyncSocket.h"
 #import "CocoaLumberjack/CocoaLumberjack.h"
 #import "MYAnonymousIdentity.h"
+
+// From HTTPConnection.m
+#define TIMEOUT_WRITE_ERROR 30
+#define HTTP_FINAL_RESPONSE 91
 
 // Defines
 
@@ -17,6 +22,7 @@ int refTable;
 // ObjC Class definitions
 @interface HSHTTPServer : HTTPServer
 @property int fn;
+@property NSUInteger maxBodySize;
 @property SecIdentityRef sslIdentity;
 @property (nonatomic, copy) NSString *httpPassword;
 @end
@@ -39,6 +45,7 @@ int refTable;
     self = [super init];
     if (self) {
         self.httpPassword = nil;
+        self.maxBodySize  = 10 * 1024 * 1024; // set initial max body size to 10 MB
     }
     return self;
 }
@@ -58,34 +65,81 @@ int refTable;
 @implementation HSHTTPConnection
 
 - (BOOL)supportsMethod:(NSString * __unused)method atPath:(NSString * __unused)path {
+    if ([method isEqualToString:@"POST"] || [method isEqualToString:@"PUT"])
+        return requestContentLength <= ((HSHTTPServer *)config.server).maxBodySize ;
+
     return YES;
+}
+
+- (void)handleUnknownMethod:(NSString *)method
+{
+    if (requestContentLength > ((HSHTTPServer *)config.server).maxBodySize) {
+
+        // Status code 413 - Request Entity Too Large
+        HTTPMessage *response = [[HTTPMessage alloc] initResponseWithStatusCode:413 description:nil version:HTTPVersion1_1];
+        [response setHeaderField:@"Content-Length" value:@"0"];
+        [response setHeaderField:@"Connection" value:@"close"];
+
+        NSData *responseData = [self preprocessErrorResponse:response];
+        [asyncSocket writeData:responseData withTimeout:TIMEOUT_WRITE_ERROR tag:HTTP_FINAL_RESPONSE];
+    } else {
+        [super handleUnknownMethod:method];
+    }
+}
+
+- (NSData *)preprocessErrorResponse:(HTTPMessage *)response {
+    if ([response statusCode] == 413) {
+        NSString *msg = [NSString stringWithFormat:@"<html><head><title>Request Entity Too Large</title><head><body><H1>HTTP/1.1 413 Request Entity Too Large</H1><br/>The %@ method is not supported for requests larger than %lu bytes.<br/><hr/></body></html>", [request method], ((HSHTTPServer *)config.server).maxBodySize];
+        NSData *msgData = [msg dataUsingEncoding:NSUTF8StringEncoding];
+
+        [response setBody:msgData];
+
+        NSString *contentLengthStr = [NSString stringWithFormat:@"%lu", (unsigned long)[msgData length]];
+        [response setHeaderField:@"Content-Length" value:contentLengthStr];
+    }
+
+    return [super preprocessErrorResponse:response];
+}
+
+- (void)processBodyData:(NSData *)postDataChunk
+{
+    [request appendData:postDataChunk];
 }
 
 - (NSObject<HTTPResponse> *)httpResponseForMethod:(NSString *)method URI:(NSString *)path {
     __block int responseCode;
     __block NSMutableDictionary *responseHeaders = nil;
-    __block NSString *responseBody = nil;
+    __block NSData *responseBody = nil;
 
     void (^responseCallbackBlock)(void) = ^{
         LuaSkin *skin = [LuaSkin shared];
         lua_State *L = skin.L;
 
+        // add some headers for callback function to access
+        [request setHeaderField:@"X-Remote-Addr" value:asyncSocket.connectedHost];
+        [request setHeaderField:@"X-Remote-Port" value:[NSString stringWithFormat:@"%hu", asyncSocket.connectedPort]];
+        [request setHeaderField:@"X-Server-Addr" value:asyncSocket.localHost];
+        [request setHeaderField:@"X-Server-Port" value:[NSString stringWithFormat:@"%hu", asyncSocket.localPort]];
+
+
         [skin pushLuaRef:refTable ref:((HSHTTPServer *)config.server).fn];
         lua_pushstring(L, [method UTF8String]);
         lua_pushstring(L, [path UTF8String]);
+        [skin pushNSObject:[request allHeaderFields]];
+        [skin pushNSObject:[request body] withOptions:LS_NSLuaStringAsDataOnly];
 
-        if (![skin protectedCallAndTraceback:2 nresults:3]) {
+        if (![skin protectedCallAndTraceback:4 nresults:3]) {
             const char *errorMsg = lua_tostring(L, -1);
             [skin logError:[NSString stringWithFormat:@"hs.httpserver:setCallback() callback error: %s", errorMsg]];
             responseCode = 503;
-            responseBody = [NSString stringWithUTF8String:"An error occurred during hs.httpserver callback handling"];
+            responseBody = [NSData dataWithData:[@"An error occurred during hs.httpserver callback handling" dataUsingEncoding:NSUTF8StringEncoding]];
         } else {
             if (!(lua_type(L, -3) == LUA_TSTRING && lua_type(L, -2) == LUA_TNUMBER && lua_type(L, -1) == LUA_TTABLE)) {
                 [skin logError:@"hs.httpserver:setCallback() callbacks must return three values. A string for the response body, an integer response code, and a table of headers"];
                 responseCode = 503;
-                responseBody = [NSString stringWithUTF8String:"Callback handler returned invalid values"];
+                responseBody = [NSData dataWithData:[@"Callback handler returned invalid values" dataUsingEncoding:NSUTF8StringEncoding]];
             } else {
-                responseBody = [NSString stringWithUTF8String:lua_tostring(L, -3)];
+                responseBody = [skin toNSObjectAtIndex:-3 withOptions:LS_NSLuaStringAsDataOnly];
                 responseCode = (int)lua_tointeger(L, -2);
 
                 responseHeaders = [[NSMutableDictionary alloc] init];
@@ -116,7 +170,7 @@ int refTable;
         dispatch_sync(dispatch_get_main_queue(), responseCallbackBlock);
     }
 
-    HSHTTPDataResponse *response = [[HSHTTPDataResponse alloc] initWithData:[responseBody dataUsingEncoding:NSUTF8StringEncoding]];
+    HSHTTPDataResponse *response = [[HSHTTPDataResponse alloc] initWithData:responseBody];
     response.hsStatus = responseCode;
     response.hsHeaders = responseHeaders;
 
@@ -203,12 +257,13 @@ typedef struct _httpserver_t {
     void *server;
 } httpserver_t;
 
-/// hs.httpserver.new([ssl]) -> object
+/// hs.httpserver.new([ssl], [bonjour]) -> object
 /// Function
 /// Creates a new HTTP or HTTPS server
 ///
 /// Parameters:
-///  * ssl - An optional boolean. If true, the server will start using HTTPS. Defaults to false.
+///  * ssl     - An optional boolean. If true, the server will start using HTTPS. Defaults to false.
+///  * bonjour - An optional boolean. If true, the server will advertise itself with Bonjour.  Defaults to true. Note that in order to change this, you must supply a true or false value for the `ssl` argument.
 ///
 /// Returns:
 ///  * An `hs.httpserver` object
@@ -217,21 +272,22 @@ typedef struct _httpserver_t {
 ///  * By default, the server will start on a random TCP port and advertise itself with Bonjour. You can check the port with `hs.httpserver:getPort()`
 ///  * Currently, in HTTPS mode, the server will use a self-signed certificate, which most browsers will warn about. If you want/need to be able to use `hs.httpserver` with a certificate signed by a trusted Certificate Authority, please file an bug on Hammerspoon requesting support for this.
 static int httpserver_new(lua_State *L) {
-    BOOL useSSL = false;
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
+    BOOL useSSL     = (lua_type(L, 1) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 1) : false;
+    BOOL useBonjour = (lua_type(L, 2) == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, 2) : true;
+
     httpserver_t *httpServer = lua_newuserdata(L, sizeof(httpserver_t));
     memset(httpServer, 0, sizeof(httpserver_t));
 
     HSHTTPServer *server = [[HSHTTPServer alloc] init];
-    if (lua_type(L, 1) == LUA_TBOOLEAN) {
-        useSSL = lua_toboolean(L, 1);
-    }
 
     if (useSSL) {
         [server setConnectionClass:[HSHTTPSConnection class]];
     } else {
         [server setConnectionClass:[HSHTTPConnection class]];
     }
-    [server setType:@"_http._tcp."];
+    if (useBonjour) [server setType:@"_http._tcp."];
 
     server.fn = LUA_NOREF;
     httpServer->server = (__bridge_retained void *)server;
@@ -252,13 +308,18 @@ static int httpserver_new(lua_State *L) {
 ///  * The `hs.httpserver` object
 ///
 /// Notes:
-///  * The callback will be passed two arguments:
+///  * The callback will be passed four arguments:
 ///   * A string containing the type of request (i.e. `GET`/`POST`/`DELETE`/etc)
 ///   * A string containing the path element of the request (e.g. `/index.html`)
+///   * A table containing the request headers
+///   * A string containing the raw contents of the request body, or the empty string if no body is included in the request.
 ///  * The callback *must* return three values:
 ///   * A string containing the body of the response
 ///   * An integer containing the response code (e.g. 200 for a successful request)
 ///   * A table containing additional HTTP headers to set (or an empty table, `{}`, if no extra headers are required)
+///
+/// Notes:
+///  * A POST request, often used by HTML forms, will store the contents of the form in the body of the request.
 static int httpserver_setCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
 
@@ -283,6 +344,32 @@ static int httpserver_setCallback(lua_State *L) {
     return 1;
 }
 
+/// hs.httpserver:maxBodySize([size]) -> object | current-value
+/// Method
+/// Get or set the maximum allowed body size for an incoming HTTP request.
+///
+/// Parameters:
+///  * size - An optional integer value specifying the maximum body size allowed for an incoming HTTP request in bytes.  Defaults to 10485760 (10 MB).
+///
+/// Returns:
+///  * If a new size is specified, returns the `hs.httpserver` object; otherwise the current value.
+///
+/// Notes:
+///  * Because the Hammerspoon http server processes incoming requests completely in memory, this method puts a limit on the maximum size for a POST or PUT request.
+static int httpserver_maxBodySize(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK];
+
+    HSHTTPServer *server = getUserData(L, 1);
+    if (lua_gettop(L) == 2) {
+        server.maxBodySize = (NSUInteger)lua_tointeger(L, 2);
+        lua_pushvalue(L, 1);
+    } else {
+        lua_pushinteger(L, (lua_Integer)server.maxBodySize);
+    }
+    return 1;
+}
+
 /// hs.httpserver:setPassword([password]) -> object
 /// Method
 /// Sets a password for an HTTP server object
@@ -297,7 +384,7 @@ static int httpserver_setCallback(lua_State *L) {
 ///  * It is not currently possible to set multiple passwords for different users, or passwords only on specific paths
 static int httpserver_setPassword(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
 
     switch (lua_type(L, 2)) {
@@ -386,7 +473,7 @@ static int httpserver_getPort(lua_State *L) {
 ///  * The `hs.httpserver` object
 static int httpserver_setPort(lua_State *L) {
     HSHTTPServer *server = getUserData(L, 1);
-    [server setPort:luaL_checkinteger(L, 2)];
+    [server setPort:(UInt16)luaL_checkinteger(L, 2)];
     lua_pushvalue(L, 1);
     return 1;
 }
@@ -423,7 +510,7 @@ static int httpserver_getName(lua_State *L) {
 ///  * This is not the hostname of the server, just its name in Bonjour service lists (e.g. Safari's Bonjour bookmarks menu)
 static int httpserver_setName(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, LS_TSTRING, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
     HSHTTPServer *server = getUserData(L, 1);
     [server setName:[skin toNSObjectAtIndex:2]];
     lua_pushvalue(L, 1);
@@ -473,6 +560,7 @@ static const luaL_Reg httpserverObjectLib[] = {
     {"setName", httpserver_setName},
     {"setCallback", httpserver_setCallback},
     {"setPassword", httpserver_setPassword},
+    {"maxBodySize", httpserver_maxBodySize},
 
     {"__tostring", userdata_tostring},
     {"__gc", httpserver_objectGC},
