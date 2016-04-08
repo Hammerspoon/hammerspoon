@@ -335,7 +335,22 @@ static int pushUserdataType(lua_State *L) {
                 lsType = LS_TFUNCTION;
                 break;
             case LUA_TTABLE:
-                lsType = LS_TTABLE;
+                if (spec & LS_TTYPEDTABLE) {
+                    lsType = LS_TTYPEDTABLE;
+                    char *expectedTableTag = va_arg(args, char*);
+                    if (!expectedTableTag) luaL_error(self.L, "ERROR: unable to get expected LuaSkin table type for argument %d", idx) ;
+
+                    const char *actualTableTag   = NULL ;
+                    if (lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) {
+                        actualTableTag = lua_tostring(self.L, -1) ;
+                    }
+                    lua_pop(self.L, 1) ;
+                    if (!actualTableTag || !(strcmp(actualTableTag, expectedTableTag) == 0)) {
+                        luaL_error(self.L, "ERROR: incorrect LuaSkin typed table for argument %d (expected %s)", idx, expectedTableTag) ;
+                    }
+                } else {
+                    lsType = LS_TTABLE;
+                }
                 break;
             case LUA_TUSERDATA:
                 lsType = LS_TUSERDATA;

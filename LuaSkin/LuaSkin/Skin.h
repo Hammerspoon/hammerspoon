@@ -51,6 +51,8 @@
 #define LS_TINTEGER       1 << 11
 /*! @define LS_TVARARG Can be OR'd with LS_TBREAK to indicate that any additional arguments on the stack after this location are to be ignored by @link //apple_ref/occ/instm/LuaSkin/checkArgs: checkArgs @/link.  It is the responsibility of the module function to check and use or ignore any additional arguments. */
 #define LS_TVARARG        1 << 12
+/*! @define LS_TTYPEDTABLE maps to LUA_TTABLE, but like LS_TUSERDATA, expects a string argument following which specifies the specific value expected in the __luaSkinType field of the table. */
+#define LS_TTYPEDTABLE    1 << 13
 
 /*! @/definedblock Bit masks for Lua type checking */
 
