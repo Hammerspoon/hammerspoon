@@ -28,4 +28,12 @@
     RUN_LUA_TEST()
 }
 
+- (void)testBasicAttributes {
+    RUN_LUA_TEST()
+}
+
+// - (void)testActiveAttributes {
+//     RUN_LUA_TEST()
+// }
+
 @end
