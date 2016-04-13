@@ -118,7 +118,7 @@ static int application_applicationsForBundleID(lua_State* L) {
 
 /// hs.application.nameForBundleID(bundleID) -> string or nil
 /// Function
-/// Gets the name of an application, from its bundle identifier
+/// Gets the name of an application from its bundle identifier
 ///
 /// Parameters:
 ///  * bundleID - A string containing an application bundle identifier (e.g. "com.apple.Safari")
@@ -136,6 +136,25 @@ static int application_nameForBundleID(lua_State* L) {
     NSString *appName = [app objectForInfoDictionaryKey:(id)kCFBundleNameKey];
 
     lua_pushstring(L, [appName UTF8String]);
+    return 1;
+}
+
+/// hs.application.pathForBundleID(bundleID) -> string or nil
+/// Function
+/// Gets the filesystem path of an application from its bundle identifier
+///
+/// Parameters:
+///  * bundleID - A string containing an application bundle identifier (e.g. "com.apple.Safari")
+///
+/// Returns:
+///  * A string containing the app bundle's filesystem path, or nil if the bundle identifier could not be located
+static int application_pathForBundleID(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSString *appPath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:[skin toNSObjectAtIndex:1]];
+
+    [skin pushNSObject:appPath];
     return 1;
 }
 
@@ -301,6 +320,22 @@ static int application_title(lua_State* L) {
 static int application_bundleID(lua_State* L) {
     NSRunningApplication* app = nsobject_for_app(L, 1);
     lua_pushstring(L, [[app bundleIdentifier] UTF8String]);
+    return 1;
+}
+
+/// hs.application:path() -> string
+/// Method
+/// Returns the filesystem path of the app.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A string containing the filesystem path of the application
+static int application_path(lua_State* L) {
+    NSRunningApplication* app = nsobject_for_app(L, 1);
+    NSString *appPath = [[NSWorkspace sharedWorkspace] absolutePathForAppBundleWithIdentifier:[app bundleIdentifier]];
+    [[LuaSkin shared] pushNSObject:appPath];
     return 1;
 }
 
@@ -1017,6 +1052,7 @@ static const luaL_Reg applicationlib[] = {
     {"applicationForPID", application_applicationforpid},
     {"applicationsForBundleID", application_applicationsForBundleID},
     {"nameForBundleID", application_nameForBundleID},
+    {"pathForBundleID", application_pathForBundleID},
 
     {"allWindows", application_allWindows},
     {"mainWindow", application_mainWindow},
@@ -1027,6 +1063,7 @@ static const luaL_Reg applicationlib[] = {
     {"title", application_title},
     {"name", application_title},
     {"bundleID", application_bundleID},
+    {"path", application_path},
     {"isRunning", application_isRunning},
     {"unhide", application_unhide},
     {"hide", application_hide},
