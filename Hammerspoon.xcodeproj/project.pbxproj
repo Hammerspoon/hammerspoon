@@ -11,6 +11,8 @@
 		4C3D55BC1C7F0AA90023B633 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D55AA1C7F05D00023B633 /* internal.m */; };
 		4C3D55BF1C7F17150023B633 /* NSAppleEventDescriptor+Parsing.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C3D55AE1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.h */; };
 		4C3D55C01C7F171E0023B633 /* NSAppleEventDescriptor+Parsing.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D55AF1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.m */; };
+		4C403D641CBE5B9F00EE20ED /* HSapplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C403D631CBE5B9F00EE20ED /* HSapplication.m */; };
+		4C403D661CBE627200EE20ED /* test_application.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C403D651CBE627200EE20ED /* test_application.lua */; };
 		4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */; };
 		4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */; };
 		4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D55AD1C7F05D00023B633 /* test_javascript.lua */; };
@@ -711,6 +713,8 @@
 		4C3D55AE1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSAppleEventDescriptor+Parsing.h"; sourceTree = "<group>"; };
 		4C3D55AF1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSAppleEventDescriptor+Parsing.m"; sourceTree = "<group>"; };
 		4C3D55BB1C7F0A880023B633 /* libosascript.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libosascript.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4C403D631CBE5B9F00EE20ED /* HSapplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSapplication.m; sourceTree = "<group>"; };
+		4C403D651CBE627200EE20ED /* test_application.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_application.lua; path = extensions/application/test_application.lua; sourceTree = "<group>"; };
 		4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSfs.m; sourceTree = "<group>"; };
 		4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_fs.lua; path = extensions/fs/test_fs.lua; sourceTree = "<group>"; };
 		4CB349F01C7F74E5006F0DE0 /* test_osascript.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_osascript.lua; sourceTree = "<group>"; };
@@ -2095,6 +2099,7 @@
 				4FBE2CFB1B7261E500407788 /* application.h */,
 				4FBE2CFC1B7261E500407788 /* init.lua */,
 				4FBE2CFD1B7261E500407788 /* internal.m */,
+				4C403D651CBE627200EE20ED /* test_application.lua */,
 			);
 			name = application;
 			sourceTree = "<group>";
@@ -2546,6 +2551,7 @@
 			children = (
 				4FDD8E511C83612C00085D7A /* HSalert.m */,
 				4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */,
+				4C403D631CBE5B9F00EE20ED /* HSapplication.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
 				4FDD8E4D1C834C8100085D7A /* HSbase64.m */,
 				4FDD8E8C1C8C8BF200085D7A /* HScoresetup.m */,
@@ -4491,6 +4497,7 @@
 				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
 				4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */,
+				4C403D661CBE627200EE20ED /* test_application.lua in Resources */,
 				4F6CE1311C6B93A90016668E /* test_timer.lua in Resources */,
 				4FDD8E7C1C85A05700085D7A /* lsunit.lua in Resources */,
 				4FDD8E7E1C85A06800085D7A /* testinit.lua in Resources */,
@@ -5141,6 +5148,7 @@
 				4FDD8E4E1C834C8100085D7A /* HSbase64.m in Sources */,
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
+				4C403D641CBE5B9F00EE20ED /* HSapplication.m in Sources */,
 				D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */,
 				4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */,
 				4F6CE1341C6B93E10016668E /* HStimer.m in Sources */,
