@@ -923,10 +923,10 @@
 		4FDD8E7D1C85A06800085D7A /* testinit.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = testinit.lua; sourceTree = "<group>"; };
 		4FDD8E871C8AE3ED00085D7A /* HSTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSTestCase.h; sourceTree = "<group>"; };
 		4FDD8E881C8AE3ED00085D7A /* HSTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSTestCase.m; sourceTree = "<group>"; };
-		4FDD8E8A1C8C8BD200085D7A /* test_coresetup.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_coresetup.lua; sourceTree = "<group>"; };
+		4FDD8E8A1C8C8BD200085D7A /* test_coresetup.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_coresetup.lua; path = extensions/_coresetup/test_coresetup.lua; sourceTree = "<group>"; };
 		4FDD8E8C1C8C8BF200085D7A /* HScoresetup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HScoresetup.m; sourceTree = "<group>"; };
 		4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSappfinder.m; sourceTree = "<group>"; };
-		4FDD8E901C8DEE3600085D7A /* test_appfinder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_appfinder.lua; sourceTree = "<group>"; };
+		4FDD8E901C8DEE3600085D7A /* test_appfinder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_appfinder.lua; path = extensions/appfinder/test_appfinder.lua; sourceTree = "<group>"; };
 		4FDE059F1B72984C00E9E8EE /* libbattery.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libbattery.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FDE05A11B72987B00E9E8EE /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/battery/init.lua; sourceTree = "<group>"; };
 		4FDE05A21B72987B00E9E8EE /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/battery/internal.m; sourceTree = "<group>"; };
