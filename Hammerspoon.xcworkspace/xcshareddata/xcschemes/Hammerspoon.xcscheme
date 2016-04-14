@@ -64,16 +64,6 @@
                ReferencedContainer = "container:Hammerspoon.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4F20B5281C1F1C5B00F52437"
-               BuildableName = "Hammerspoon UI Tests.xctest"
-               BlueprintName = "Hammerspoon UI Tests"
-               ReferencedContainer = "container:Hammerspoon.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
