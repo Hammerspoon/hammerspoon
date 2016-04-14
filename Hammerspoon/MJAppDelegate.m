@@ -170,7 +170,11 @@ static BOOL MJFirstRunForCurrentVersion(void) {
                                               attributes:nil];
     }
 
-    [[NSWorkspace sharedWorkspace] openFile: path];
+    NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+    if ([workspace openFile:path] == NO) {
+        // No app is associated with .lua files, so fall back on TextEdit
+        [workspace openFile:path withApplication:@"TextEdit" andDeactivate:YES];
+    }
 }
 
 - (void)showMjolnirMigrationNotification {
