@@ -124,13 +124,16 @@ typedef NS_ENUM(NSUInteger, MJReplLineType) {
 }
 
 - (void) useCurrentHistoryIndex {
+    [(HSGrowingTextField *)self.inputField resetGrowth];
+
     if (self.historyIndex == [self.history count])
         [self.inputField setStringValue: @""];
     else
         [self.inputField setStringValue: [self.history objectAtIndex:self.historyIndex]];
 
     NSText* editor = [[self.inputField window] fieldEditor:YES forObject:self.inputField];
-    [editor moveToEndOfDocument:self];
+    NSRange position = (NSRange){[[editor string] length], 0};
+    [editor setSelectedRange:position];
 }
 
 BOOL MJConsoleWindowAlwaysOnTop(void) {
