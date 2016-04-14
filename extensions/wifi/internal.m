@@ -1,7 +1,7 @@
-#import <Cocoa/Cocoa.h>
-#import <CoreWLAN/CoreWLAN.h>
-#import <CoreWLAN/CWWiFiClient.h>
-#import <LuaSkin/LuaSkin.h>
+@import Cocoa;
+@import CoreWLAN;
+@import CoreWLAN;
+@import LuaSkin;
 
 #define USERDATA_TAG "hs.wifi"
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
@@ -300,7 +300,7 @@ static int wifi_scan(lua_State* L __unused) {
 ///    * bssid                  - The basic service set identifier (BSSID) for the network.
 ///    * countryCode            - The country code (ISO/IEC 3166-1:1997) for the network.
 ///    * ibss                   - Whether or not the network is an IBSS (ad-hoc) network.
-///    * informationElementData - Information element data included in beacon or probe response frames.
+///    * informationElementData - Information element data included in beacon or probe response frames as an array of integers.
 ///    * noise                  - The aggregate noise measurement (dBm) for the network.
 ///    * PHYModes               - A table containing the PHY Modes supported by the network.
 ///    * rssi                   - The aggregate received signal strength indication (RSSI) measurement (dBm) for the network.
@@ -311,6 +311,12 @@ static int wifi_scan(lua_State* L __unused) {
 ///      * band   - The channel band.
 ///      * number - The channel number.
 ///      * width  - The channel width.
+///
+/// Notes:
+///  * The contents of the `informationElementData` field is returned as an array of integers, each array item representing a byte in the block of data for the element.
+///    * You can convert this data into a Lua string by passing the array as an argument to `string.char(table.pack(..informationElementData))`, but note that this field contains arbitrary binary data and should **not** be treated or considered as a *displayable* string. It requires additional parsing, depending upon the specific information you need from the probe or beacon response.
+///    * For debugging purposes, if you wish to view the contents of this field as a string, make sure to wrap `string.char(table.pack(..informationElementData))` with `hs.utf8.asciiOnly` or `us.utf8.hexDump`, rather than just print the result directly.
+///    * These precautions are in response to Hammerspoon Github Issue #859.  As binary data, even when cleaned up with the Console's UTF8 wrapper code, some valid UTF8 sequences have been found to cause crashes in the OSX CoreText API during rendering.  While some specific sequences have made the rounds on the Internet, the specific code analysis at http://www.theregister.co.uk/2015/05/27/text_message_unicode_ios_osx_vulnerability/ suggests a possible cause of the problem which may be triggered by other currently unknown sequences as well.  As the sequences aren't at present predictable, we can't add to the UTF8 wrapper already in place for the Hammerspoon console.
 static int wifi_scan_background(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TFUNCTION | LS_TNIL, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
@@ -558,7 +564,6 @@ static int pushCWNetwork(lua_State *L, id obj) {
     [skin pushNSObject:[theNetwork ssid]] ;                   lua_setfield(L, -2, "ssid") ;
     lua_pushinteger(L, [theNetwork rssiValue]) ;              lua_setfield(L, -2, "rssi") ;
     lua_pushinteger(L, [theNetwork noiseMeasurement]) ;       lua_setfield(L, -2, "noise") ;
-    [skin pushNSObject:[theNetwork informationElementData]] ; lua_setfield(L, -2, "informationElementData") ;
     lua_pushboolean(L, [theNetwork ibss]) ;                   lua_setfield(L, -2, "ibss") ;
     [skin pushNSObject:[theNetwork countryCode]] ;            lua_setfield(L, -2, "countryCode") ;
     [skin pushNSObject:[theNetwork bssid]] ;                  lua_setfield(L, -2, "bssid") ;
@@ -637,6 +642,27 @@ static int pushCWNetwork(lua_State *L, id obj) {
         lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
     }
     lua_setfield(L, -2, "PHYModes") ;
+
+// Data from this property can contain a valid UTF8 sequence which causes CoreText to crash
+// Hammerspoon when displayed in the console... we'll make the value available as an array
+// of integers, rather than as a string so it can be examined by users if desired, but not
+// rendered as text when inspected.
+//
+// See https://github.com/Hammerspoon/hammerspoon/issues/859
+// and http://www.theregister.co.uk/2015/05/27/text_message_unicode_ios_osx_vulnerability/
+//
+// If we could reliably detect these sequences, I'd add a filter to the console in MJLua.m
+// or MJConsoleWindow.m, but the gory details in the second URL suggest that more than one
+// sequence could theoretically exist and the pattern isn't clear (yet).
+//     [skin pushNSObject:[theNetwork informationElementData]] ; lua_setfield(L, -2, "informationElementData") ;
+      lua_newtable(L);
+      NSData *informationElementData = [theNetwork informationElementData] ;
+      const unsigned char *bytes = [informationElementData bytes];
+      for (NSUInteger i = 0; i < [informationElementData length]; i++) {
+          lua_pushinteger(L, (lua_Integer)bytes[i]) ;
+          lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+      }
+      lua_setfield(L, -2, "informationElementData") ;
 
     return 1 ;
 }
