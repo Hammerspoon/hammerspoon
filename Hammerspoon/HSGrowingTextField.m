@@ -50,7 +50,7 @@
         }
         
         if (intrinsicSize.height > 100) {
-            intrinsicSize = _lastIntrinsicSize;
+            intrinsicSize.height = 100;
         } else {
             _lastIntrinsicSize = intrinsicSize;
             _hasLastIntrinsicSize = YES;
