@@ -7,7 +7,7 @@
 
 local uielement = hs.uielement  -- Make sure parent module loads
 local window = require "hs.window.internal"
-local application = require "hs.application.internal"
+local application = require "hs.application"
 local geometry = require "hs.geometry"
 local gtype=geometry.type
 local screen = require "hs.screen"
