@@ -39,12 +39,13 @@ local setmetatable,rawget,rawset=setmetatable,rawget,rawset
 
 
 local gridSizes = {[true]=geom'3x3'} -- user-defined grid sizes for each screen or geometry, default ([true]) is 3x3
+local gridFrames= {} -- user-defined grid frames; always defaults to the screen:frame()
 local margins = geom'5x5'
 
 local grid = {setLogLevel=log.setLogLevel,getLogLevel=log.getLogLevel} -- module
 
 
---- hs.grid.setGrid(grid,screen) -> hs.grid
+--- hs.grid.setGrid(grid,screen,frame) -> hs.grid
 --- Function
 --- Sets the grid size for a given screen or screen resolution
 ---
@@ -52,6 +53,10 @@ local grid = {setLogLevel=log.setLogLevel,getLogLevel=log.getLogLevel} -- module
 ---  * grid - an `hs.geometry` size, or argument to construct one, indicating the number of columns and rows for the grid
 ---  * screen - an `hs.screen` object, or a valid argument to `hs.screen.find()`, indicating the screen(s) to apply the grid to;
 ---    if omitted or nil, sets the default grid, which is used when no specific grid is found for any given screen/resolution
+---  * frame - an `hs.geometry` rect object indicating the frame that the grid will occupy for the given screen;
+---    if omitted or nil, the screen's `:frame()` will be used; use this argument if you want e.g. to leave
+---    a strip of the desktop unoccluded when using GeekTool or similar. The `screen` argument *must* be non-nil when setting a
+---    custom grid frame.
 ---
 --- Returns:
 ---   * the `hs.grid` module for method chaining
@@ -72,12 +77,18 @@ local function getScreenParam(scr)
   if type(scr)~='string' and type(scr)~='number' then error('invalid screen or geometry',3) end
   return scr
 end
-function grid.setGrid(gr,scr)
+function grid.setGrid(gr,scr,frame)
   gr=geom.new(gr)
   if geom.type(gr)~='size' then error('invalid grid',2) end
   scr=getScreenParam(scr)
   gr.w=min(gr.w,100) gr.h=min(gr.h,100) -- cap grid to 100x100, just in case
   gridSizes[scr]=gr
+  if frame~=nil then
+    frame=geom.new(frame)
+    if geom.type(frame)~='rect' then error('invalid frame',2) end
+    if scr==true then error('can only set the grid frame for a specific screen',2) end
+    gridFrames[scr]=frame
+  end
   if scr==true then log.f('default grid set to %s',gr.string)
   else log.f('grid for %s set to %s',scr,gr.string) end
   deleteUI()
@@ -140,6 +151,38 @@ function grid.getGrid(scr)
   return getGrid(screen.find(scr))
 end
 
+--- hs.grid.getGridFrame(screen) -> hs.geometry rect
+--- Function
+--- Gets the defined grid frame for a given screen or screen resolution.
+---
+--- Parameters:
+---  * screen - an `hs.screen` object, or a valid argument to `hs.screen.find()`, indicating the screen to get the grid frame of
+---
+--- Returns:
+---   * an `hs.geometry` rect object indicating the frame used by the grid for the given screen; if no custom frame
+---     was given via `hs.grid.setGrid()`, returns the screen's frame
+local function getGridFrame(screenObject)
+  if not screenObject then error('cannot find screen',2) end
+  local id=screenObject:id()
+  local screenFrame=screenObject:fullFrame()
+  for k,gridframe in pairs(gridFrames) do
+    local screens=tpack(screen.find(k))
+    for _,s in ipairs(screens) do if s:id()==id then
+      local f=screenFrame:intersect(gridframe)
+      if f.area==0 then
+        error(sformat('invalid grid frame %s defined for "%s" (screen %s has frame %s)',gridframe.string,tostring(k),screenObject:name(),screenFrame.string),2)
+      end
+      return f
+    end end
+  end
+  return screenObject:frame()
+end
+function grid.getGridFrame(scr)
+  scr=getScreenParam(scr)
+  if scr==true then error('must specify a screen',2) end
+  if gridFrames[scr] then return gridFrames[scr] end
+  return getGridFrame(screen.find(scr))
+end
 
 --- hs.grid.show([exitedCallback][, multipleWindows])
 --- Function
@@ -185,7 +228,7 @@ end
 
 local function getCellSize(screen)
   local grid=getGrid(screen)
-  local screenframe=screen:frame()
+  local screenframe=getGridFrame(screen)
   return geom.size(screenframe.w/grid.w,screenframe.h/grid.h)
 end
 
@@ -207,7 +250,7 @@ function grid.get(win)
   local winframe = win:frame()
   local winscreen = win:screen()
   if not winscreen then log.e('Cannot get the window\'s screen') return end
-  local screenframe = winscreen:frame()
+  local screenframe = getGridFrame(winscreen)
   local cellsize = getCellSize(winscreen)
   return geom{
     x = round((winframe.x - screenframe.x) / cellsize.w),
@@ -235,7 +278,7 @@ function grid.set(win, cell, scr)
   if not scr then scr=win:screen() end
   if not scr then log.e('Cannot get the window\'s screen') return grid end
   cell=geom.new(cell)
-  local screenrect = scr:frame()
+  local screenrect = getGridFrame(scr)
   local screengrid = getGrid(scr)
   -- sanitize, because why not
   cell.x=max(0,min(cell.x,screengrid.w-1)) cell.y=max(0,min(cell.y,screengrid.h-1))
@@ -611,7 +654,7 @@ local function makeUI()
   for i,screen in ipairs(screens) do
     local sgr = getGrid(screen)
     local cell = getCellSize(screen)
-    local frame = screen:frame()
+    local frame = getGridFrame(screen)
     log.f('Screen #%d %s (%s) -> grid %s (%s cells)',i,screen:name(),frame.size.string,sgr.string,cell:floor().string)
     local htf = {w=550,h=150}
     htf.x = frame.x+frame.w/2-htf.w/2  htf.y = frame.y+frame.h/2-htf.h/3*2
@@ -800,7 +843,7 @@ local function _start()
   resizing:bind({},'escape',function()log.d('abort move')resizing:exit()end)
   resizing:bind({},'return',function()
     if not selectedMatrix[1][1] then return
-    -- move and resize to highlighted cells
+      -- move and resize to highlighted cells
     elseif dim[1] > 1 or dim[2] > 1 then
       local x1,x2,y1,y2
       local selectedElem = selectedMatrix[1][1]
@@ -812,7 +855,7 @@ local function _start()
       log.f('move to %.0f,%.0f[%.0fx%.0f] by navigation',frame.x,frame.y,frame.w,frame.h)
       clearSelection()
       if cycling then cycle(1) else resizing:exit() end
-    -- one element selected, do a pure move
+      -- one element selected, do a pure move
     else
       local selectedElem = selectedMatrix[1][1]
       local x1,y1 = selectedElem.x+margins.w,selectedElem.y+margins.w
@@ -851,7 +894,7 @@ local function _start()
             selectedCorner = 0
           elseif dim[1] == 1 and dir == 'up' then
             selectedCorner = 2
-          -- multiple cells in the matrix
+            -- multiple cells in the matrix
           elseif ( selectedCorner == 0 or selectedCorner == 2 ) and dir == 'up' then
             selectedCorner = 2
           elseif ( selectedCorner == 1 or selectedCorner == 3 ) and dir == 'up' then
