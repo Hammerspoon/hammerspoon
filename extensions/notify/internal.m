@@ -862,10 +862,13 @@ static int notification_activationTypesTable(lua_State *L) {
 /// * None - The user has not interacted with the notification.
 /// * ContentsClicked - User clicked on notification
 /// * ActionButtonClicked - User clicked on Action button
-// /// * Replied - User used Reply button (10.9) (not implemented yet)
-// /// * AdditionalActionClicked - Additional Action selected (10.10) (not implemented yet)
+///
 /// Notes:
 ///  * Count starts at zero. (implemented in Objective-C)
+
+// Not implemented activationTypes:
+// /// * Replied - User used Reply button (10.9) (not implemented yet)
+// /// * AdditionalActionClicked - Additional Action selected (10.10) (not implemented yet)
     lua_newtable(L) ;
     lua_pushinteger(L, NSUserNotificationActivationTypeNone);
         lua_setfield(L, -2, "none") ;
