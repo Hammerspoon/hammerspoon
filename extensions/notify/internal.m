@@ -526,6 +526,7 @@ static int notification_otherButtonTitle(lua_State* L) {
 ///
 /// Notes:
 ///  * The affects of this method only apply if the user has set Hammerspoon notifications to `Alert` in the Notification Center pane of System Preferences
+///  * Due to OSX limitations, it is NOT possible to get a callback for this button.
     notification_t* notification = luaL_checkudata(L, 1, USERDATA_TAG);
     if (lua_isnone(L, 2)) {
         lua_pushstring(L, [((__bridge NSUserNotification *) notification->note).otherButtonTitle UTF8String]);
@@ -861,6 +862,11 @@ static int notification_activationTypesTable(lua_State *L) {
 /// * None - The user has not interacted with the notification.
 /// * ContentsClicked - User clicked on notification
 /// * ActionButtonClicked - User clicked on Action button
+///
+/// Notes:
+///  * Count starts at zero. (implemented in Objective-C)
+
+// Not implemented activationTypes:
 // /// * Replied - User used Reply button (10.9) (not implemented yet)
 // /// * AdditionalActionClicked - Additional Action selected (10.10) (not implemented yet)
     lua_newtable(L) ;
