@@ -1,6 +1,7 @@
 # Hammerspoon
 [![Build Status](https://travis-ci.org/Hammerspoon/hammerspoon.svg?branch=master)](https://travis-ci.org/Hammerspoon/hammerspoon)
 [![codecov.io](https://codecov.io/github/Hammerspoon/hammerspoon/coverage.svg?branch=master)](https://codecov.io/github/Hammerspoon/hammerspoon?branch=master)
+[![Downloads](https://img.shields.io/github/downloads/Hammerspoon/hammerspoon/total.svg?maxAge=2592000)](https://github.com/Hammerspoon/hammerspoon/releases)
 
 ## What is Hammerspoon?
 
