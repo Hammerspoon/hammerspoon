@@ -6,7 +6,7 @@
 --- ```
 --- -- set up your windowfilter
 --- switcher = hs.window.switcher.new() -- default windowfilter: only visible windows, all Spaces
---- switcher_space = hs.window.switcher.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter()) -- include minimized/hidden windows, current Space only
+--- switcher_space = hs.window.switcher.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter{}) -- include minimized/hidden windows, current Space only
 --- switcher_browsers = hs.window.switcher.new{'Safari','Google Chrome'} -- specialized switcher for your dozens of browser windows :)
 ---
 --- -- bind to hotkeys; WARNING: at least one modifier key is required!
@@ -76,7 +76,7 @@ end
 ---  * `hs.window.switcher.ui.showThumbnails = true` - show window thumbnails
 ---  * `hs.window.switcher.ui.thumbnailSize = 128` - size of window thumbnails in screen points
 ---  * `hs.window.switcher.ui.showSelectedThumbnail = true` - show a larger thumbnail for the currently selected window
----  * `hs.window.switcher.ui.selectedThumbnailSize = 768`
+---  * `hs.window.switcher.ui.selectedThumbnailSize = 384`
 ---  * `hs.window.switcher.ui.showSelectedTitle = true` - show larger title for the currently selected window
 
 --  * `hs.window.switcher.ui.closeModeModifier = 'shift'` - "close mode" engaged while pressed (or 'cmd','ctrl','alt')
@@ -97,7 +97,7 @@ local uiGlobal = {
   thumbnailSize=128,
 
   showSelectedThumbnail=true,
-  selectedThumbnailSize=768,
+  selectedThumbnailSize=384,
   showSelectedTitle=true,
   showExtraKeys=true,
 }
@@ -217,6 +217,7 @@ local function exit(self)
   if ui.showSelectedThumbnail then drawings.selThumb:hide() drawings.selIcon:hide() end
   if ui.showSelectedTitle then drawings.selTitleRect:hide() drawings.selTitleText:hide() end
   log.i('focusing',windows[selected])
+  windows[selected]:unminimize()
   --  if windows[selected]:application():bundleID()~='com.apple.finder' then
   --    windows[selected]:focus()
   --  else
@@ -322,7 +323,7 @@ end
 ---  * the switcher will be dismissed (and the selected window focused) when all modifier keys are released
 function switcher.nextWindow() return show(defaultSwitcher or makeDefault(),1) end
 --- hs.window.switcher.previousWindow()
---- Method
+--- Function
 --- Shows the switcher (if not yet visible) and selects the previous window
 ---
 --- Parameters:
