@@ -29,6 +29,8 @@ typedef struct _drawing_t {
 @property (nonatomic, strong) NSColor *HSStrokeColor;
 @property CGFloat HSRoundedRectXRadius;
 @property CGFloat HSRoundedRectYRadius;
+@property BOOL   clipToRect ;
+@property NSRect rectClippingBoundry ;
 @end
 
 @interface HSDrawingViewCircle : HSDrawingView
@@ -51,8 +53,10 @@ typedef struct _drawing_t {
 @property (nonatomic, strong) NSTextField *textField;
 @end
 
+@interface HSDrawingTextField : NSTextField
+@end
+
 @interface HSDrawingViewImage : HSDrawingView
 @property (nonatomic, strong) NSImageView *HSImageView;
 @property (nonatomic, strong) NSImage *HSImage;
 @end
-
