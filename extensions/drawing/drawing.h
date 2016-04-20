@@ -60,3 +60,7 @@ typedef struct _drawing_t {
 @property (nonatomic, strong) NSImageView *HSImageView;
 @property (nonatomic, strong) NSImage *HSImage;
 @end
+
+@interface HSDrawingNSImageView : NSImageView
+@end
+

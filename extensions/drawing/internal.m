@@ -435,7 +435,7 @@ NSMutableArray *drawingWindows;
 - (id)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
     if (self) {
-        self.HSImageView = [[NSImageView alloc] initWithFrame:frameRect];
+        self.HSImageView = [[HSDrawingNSImageView alloc] initWithFrame:frameRect];
         self.HSImageView.animates = YES;
         self.HSImageView.imageScaling = NSImageScaleProportionallyUpOrDown;
         [self addSubview:self.HSImageView];
@@ -451,6 +451,27 @@ NSMutableArray *drawingWindows;
     self.needsDisplay = true;
 
     return;
+}
+@end
+
+@implementation HSDrawingNSImageView
+- (void)drawRect:(NSRect)rect {
+    NSGraphicsContext* gc = [NSGraphicsContext currentContext];
+
+    // Save the current graphics context settings
+    [gc saveGraphicsState];
+
+    if (((HSDrawingViewText *)self.superview).clipToRect) {
+        NSRect windowFrame = [self.window frame] ;
+        NSRect myRect      = ((HSDrawingViewText *)self.superview).rectClippingBoundry ;
+        myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+        myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+        NSRectClip(myRect) ;
+    }
+    [super drawRect:rect];
+
+    // Restore the context to what it was before we messed with it
+    [gc restoreGraphicsState];
 }
 @end
 
@@ -1196,10 +1217,6 @@ static int drawing_clippingRectangle(lua_State *L) {
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
     HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
-
-    if ([drawingView isKindOfClass:[HSDrawingViewText class]] || [drawingView isKindOfClass:[HSDrawingViewImage class]]) {
-        return luaL_error(L, ":clippingRectangle() doesn't support image objects at present");
-    }
 
     if (lua_gettop(L) == 1) {
         if (drawingView.clipToRect) {
