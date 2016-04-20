@@ -64,19 +64,21 @@ end
 
 function testWatcher()
   app = hs.application.open("com.apple.systempreferences", 1, true)
-  hs.timer.usleep(100000)
-  hs.window.find("System Preferences"):focus()
-  local elem = hs.uielement.focusedElement()
 
-  watcher = elem:newWatcher(function(element, event, thisWatcher, userdata) 
-      elemEvent = event
-      assertIsEqual(watcher, thisWatcher:stop())
+  hs.timer.doAfter(1, function()
+      hs.window.find("System Preferences"):focus()
+      local elem = hs.uielement.focusedElement()
+
+      watcher = elem:newWatcher(function(element, event, thisWatcher, userdata)
+          elemEvent = event
+          assertIsEqual(watcher, thisWatcher:stop())
+        end)
+
+      assertIsEqual(watcher, watcher:start({hs.uielement.watcher.windowMoved}))
+      assertIsEqual(elem, watcher:element())
+
+      hs.timer.doAfter(1, function() elem:move({1,1}) end)
     end)
-
-  assertIsEqual(watcher, watcher:start({hs.uielement.watcher.windowMoved}))
-  assertIsEqual(elem, watcher:element())
-  hs.timer.usleep(500000)
-  elem:move({1,1})
 
   return success()
 end

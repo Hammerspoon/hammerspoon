@@ -30,10 +30,12 @@
 }
 
 - (void)testHammerspoonElements {
+    SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
 
 - (void)testSelectedText {
+    SKIP_IN_TRAVIS()
     RUN_LUA_TEST()
 }
 
