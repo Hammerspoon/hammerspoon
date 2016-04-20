@@ -36,7 +36,7 @@ static int userdata_gc(lua_State* L) ;
 
         // Configure the window
         self.releasedWhenClosed = NO;
-        self.backgroundColor    = [NSColor whiteColor];
+        self.backgroundColor    = [NSColor clearColor];
         self.opaque             = YES;
         self.hasShadow          = NO;
         self.ignoresMouseEvents = NO;
@@ -363,6 +363,7 @@ static int userdata_gc(lua_State* L) ;
         newWindow.parent             = parent ;
         newWindow.titleFollow        = parent.titleFollow ;
         newWindow.deleteOnClose      = YES ;
+        newWindow.opaque             = parent.opaque ;
 
         HSWebViewView *newView = [[HSWebViewView alloc] initWithFrame:((NSView *)newWindow.contentView).bounds
                                                         configuration:configuration];
@@ -371,6 +372,7 @@ static int userdata_gc(lua_State* L) ;
         newView.allowNewWindows                     = ((HSWebViewView *)theView).allowNewWindows ;
         newView.allowsMagnification                 = theView.allowsMagnification ;
         newView.allowsBackForwardNavigationGestures = theView.allowsBackForwardNavigationGestures ;
+        [newView setValue:@(newWindow.opaque) forKey:@"drawsTransparentBackground"];
 
         if (((HSWebViewView *)theView).navigationCallback != LUA_NOREF) {
             [skin pushLuaRef:refTable ref:((HSWebViewView *)theView).navigationCallback];
@@ -851,6 +853,32 @@ static int webview_reload(lua_State *L) {
     return 2 ;
 }
 
+/// hs.webview:transparent([value]) -> webviewObject | current value
+/// Method
+/// Get or set whether or not the webview background is transparent.  Default is false.
+///
+/// Parameters:
+///  * value - an optional boolean value indicating whether or not the webview should be transparent.
+///
+/// Returns:
+///  * If a value is provided, then this method returns the webview object; otherwise the current value
+///
+/// Notes:
+///  * When enabled, the webview's background color is equal to the body's `background-color` (transparent by default)
+///  * Setting `background-color:rgba(0, 225, 0, 0.3)` on `<body>` will give a translucent green webview background
+static int webview_transparent(lua_State *L) {
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1);
+
+    if (lua_type(L, 2) == LUA_TNONE) {
+        lua_pushboolean(L, !(BOOL)theWindow.opaque);
+    } else {
+        theWindow.opaque = !(lua_toboolean(L, 2));
+        [theWindow.contentView setValue:@(lua_toboolean(L, 2)) forKey:@"drawsTransparentBackground"];
+        lua_settop(L, 1) ;
+    }
+    return 1 ;
+}
+
 /// hs.webview:allowMagnificationGestures([value]) -> webviewObject | current value
 /// Method
 /// Get or set whether or not the webview will respond to magnification gestures from a trackpad or magic mouse.  Default is false.
@@ -883,7 +911,7 @@ static int webview_allowMagnificationGestures(lua_State *L) {
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 ///
-/// Notes
+/// Notes:
 ///  * This method allows you to prevent a webview from being able to open a new window by any method.   This includes right-clicking on a link and selecting "Open in a New Window", JavaScript pop-ups, links with the target of "__blank", etc.
 ///  * If you just want to prevent automatic JavaScript windows, set the preference value javaScriptCanOpenWindowsAutomatically to false when creating the web view - this method blocks *all* methods.
 static int webview_allowNewWindows(lua_State *L) {
@@ -1913,6 +1941,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"title",                      webview_title},
     {"navigationID",               webview_navigationID},
     {"reload",                     webview_reload},
+    {"transparent",                webview_transparent},
     {"magnification",              webview_magnification},
     {"allowMagnificationGestures", webview_allowMagnificationGestures},
     {"allowNewWindows",            webview_allowNewWindows},
