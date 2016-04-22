@@ -21,7 +21,6 @@ typedef struct _distnot_t {
 @implementation HSDistNotWatcher
 
 - (void)callback:(NSNotification *)note {
-    NSLog(@"In callback for %@", note.name);
     if (self.fnRef != LUA_NOREF && self.fnRef != LUA_REFNIL) {
         LuaSkin *skin = [LuaSkin shared];
         [skin pushLuaRef:refTable ref:self.fnRef];
@@ -29,7 +28,7 @@ typedef struct _distnot_t {
         [skin pushNSObject:note.object];
         [skin pushNSObject:note.userInfo];
         if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            NSLog(@"ERROR: %@", [skin toNSObjectAtIndex:-1]); // FIXME: Turn into proper logging
+            [skin logError:[NSString stringWithFormat:@"hs.distributednotification callback failed: %@", [skin toNSObjectAtIndex:-1]]];
         }
     }
 }
@@ -51,7 +50,6 @@ typedef struct _distnot_t {
 /// Returns:
 ///  * An `hs.distributednotifications` object
 static int distnot_new(lua_State *L) {
-    NSLog(@"in distnot_new");
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
 
@@ -74,6 +72,35 @@ static int distnot_new(lua_State *L) {
 
 #pragma mark - Module Methods
 
+/// hs.distributednotifications.post(name[, sender[, userInfo]])
+/// Function
+/// Sends a distributed notification
+///
+/// Paramters:
+///  * name - A string containing the name of the notification
+///  * sender - An optional string containing the name of the sender of the notification (in the form `com.domain.application.foo`). Defaults to nil.
+///  * userInfo - An optional table containing additional information to post with the notification. Defaults to nil.
+static int distnot_post(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
+
+    NSDistributedNotificationCenter *center = [NSDistributedNotificationCenter defaultCenter];
+    [center postNotificationName:[skin toNSObjectAtIndex:1] object:[skin toNSObjectAtIndex:2] userInfo:[skin toNSObjectAtIndex:3]];
+
+    return 0;
+}
+
+#pragma mark - Module Methods
+
+/// hs.distributednotifications:start() -> object
+/// Method
+/// Starts a NSDistributedNotificationCenter watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.distributednotifications` object
 static int distnot_start(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -88,6 +115,15 @@ static int distnot_start(lua_State *L) {
     return 1;
 }
 
+/// hs.distributednotifications:stop() -> object
+/// Method
+/// Stops a NSDistributedNotificationCenter watcher
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.distributednotifications` object
 static int distnot_stop(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -106,38 +142,41 @@ static int distnot_stop(lua_State *L) {
 
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin pushNSObject:@"LOL NOT YET"];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    distnot_t *userData = lua_touserdata(L, 1);
+    HSDistNotWatcher *watcher = (__bridge HSDistNotWatcher *)userData->watcher;
+
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: name: %@ object: %@ (%p)", USERDATA_TAG, watcher.name, watcher.object, (void *)watcher]];
     return 1;
 }
 
 static int userdata_gc(lua_State* L) {
-//    HSdistributednotificationsScan *scanner = get_objectFromUserdata(__bridge_transfer HSdistributednotificationsScan, L, 1);
-//    LuaSkin *skin = [LuaSkin shared];
-//
-//    scanner.fnRef = [skin luaUnref:refTable ref:scanner.fnRef];
-//
-// Remove the Metatable so future use of the variable in Lua won't think its valid
-//    lua_pushnil(L);
-//    lua_setmetatable(L, 1);
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    distnot_t *userData = lua_touserdata(L, 1);
+    HSDistNotWatcher *watcher = (__bridge_transfer HSDistNotWatcher *)userData->watcher;
+
+    NSDistributedNotificationCenter *center = [NSDistributedNotificationCenter defaultCenter];
+    [center removeObserver:watcher name:watcher.name object:watcher.object];
+
+    watcher.fnRef = [skin luaUnref:refTable ref:watcher.fnRef];
+    watcher = nil;
+
+    // Remove the Metatable so future use of the variable in Lua won't think its valid
+    lua_pushnil(L);
+    lua_setmetatable(L, 1);
 
     return 0;
 }
 
-// static int distributednotifications_gc(lua_State* L __unused) {
-//     return 0;
-// }
-
 static const luaL_Reg distributednotificationslib[] = {
     {"new", distnot_new},
+    {"post", distnot_post},
 
     {NULL, NULL}
 };
-
-// static const luaL_Reg metalib[] = {
-//     {"__gc", distributednotifications_gc},
-//
-//     {NULL, NULL}
-// };
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
@@ -151,13 +190,8 @@ static const luaL_Reg userdata_metaLib[] = {
 
 int luaopen_hs_distributednotifications_internal(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    refTable = [skin registerLibraryWithObject:USERDATA_TAG
-                                     functions:distributednotificationslib
-                                 metaFunctions:nil // metalib
-                               objectFunctions:userdata_metaLib];
+    refTable = [skin registerLibrary:distributednotificationslib metaFunctions:nil];
+    [skin registerObject:USERDATA_TAG objectFunctions:userdata_metaLib];
 
     return 1;
 }
-
-// #pragma clang diagnostic pop
-
