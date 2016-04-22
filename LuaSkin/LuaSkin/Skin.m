@@ -29,6 +29,41 @@ static int pushUserdataType(lua_State *L) {
     }
     return 1;
 }
+
+NSString *specMaskToString(int spec) {
+    NSMutableArray *parts = [NSMutableArray array];
+
+    if (spec & LS_TNIL) {
+        [parts addObject:@"nil"];
+    }
+    if (spec & LS_TANY) {
+        [parts addObject:@"anything"];
+    }
+    if (spec & LS_TTABLE) {
+        [parts addObject:@"table"];
+    }
+    if (spec & LS_TNUMBER) {
+        [parts addObject:@"number"];
+    }
+    if (spec & LS_TINTEGER) {
+        [parts addObject:@"integer"];
+    }
+    if (spec & LS_TFUNCTION) {
+        [parts addObject:@"function"];
+    }
+    if (spec & LS_TSTRING) {
+        [parts addObject:@"string"];
+    }
+    if (spec & LS_TUSERDATA) {
+        [parts addObject:@"userdata"];
+    }
+    if (spec & LS_TBOOLEAN) {
+        [parts addObject:@"boolean"];
+    }
+
+    return [parts componentsJoinedByString:@" or "];
+}
+
 // Extension to LuaSkin class to allow private modification of the lua_State property
 @interface LuaSkin ()
 
@@ -357,7 +392,7 @@ static int pushUserdataType(lua_State *L) {
 
                 // We have to duplicate this check here, because if the user wasn't supposed to pass userdata, we won't have a valid userdataTag value available
                 if (!(spec & lsType)) {
-                    luaL_error(self.L, "ERROR: incorrect type '%s' for argument %d", luaL_typename(self.L, idx), idx);
+                    luaL_error(self.L, "ERROR:  incorrect type '%s' for argument %d (expected %s)", luaL_typename(self.L, idx), idx, specMaskToString(spec).UTF8String);
                 }
 
                 userdataTag = va_arg(args, char*);
@@ -372,7 +407,7 @@ static int pushUserdataType(lua_State *L) {
         }
 
         if (!(spec & LS_TANY) && !(spec & lsType)) {
-            luaL_error(self.L, "ERROR: incorrect type '%s' for argument %d", luaL_typename(self.L, idx), idx);
+            luaL_error(self.L, "ERROR: incorrect type '%s' for argument %d (expected %s)", luaL_typename(self.L, idx), idx, specMaskToString(spec).UTF8String);
         }
 nextarg:
         spec = va_arg(args, int);
