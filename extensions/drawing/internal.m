@@ -108,6 +108,8 @@ NSMutableArray *drawingWindows;
         self.HSGradientAngle = 0;
         self.HSRoundedRectXRadius = 0.0;
         self.HSRoundedRectYRadius = 0.0;
+        self.clipToRect = NO ;
+        self.rectClippingBoundry = NSZeroRect ;
     }
     return self;
 }
@@ -204,6 +206,13 @@ NSMutableArray *drawingWindows;
     // Draw our shape (fill) and outline (stroke)
     if (self.HSFill) {
         [circlePath setClip];
+        if (self.clipToRect) {
+            NSRect windowFrame = [self.window frame] ;
+            NSRect myRect      = self.rectClippingBoundry ;
+            myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+            myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+            NSRectClip(myRect) ;
+        }
          if (!self.HSGradientStartColor) {
             [circlePath fill];
         } else {
@@ -215,6 +224,13 @@ NSMutableArray *drawingWindows;
     if (self.HSStroke) {
         circlePath.lineWidth = self.HSLineWidth * 2.0; // We have to double this because the stroking line is centered around the path, but we want to clip it to not stray outside the path
         [circlePath setClip];
+        if (self.clipToRect) {
+            NSRect windowFrame = [self.window frame] ;
+            NSRect myRect      = self.rectClippingBoundry ;
+            myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+            myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+            NSRectClip(myRect) ;
+        }
         [circlePath stroke];
     }
 
@@ -264,7 +280,14 @@ NSMutableArray *drawingWindows;
     // Draw our shape (fill) and outline (stroke)
     if (self.HSFill) {
         [arcPath setClip];
-         if (!self.HSGradientStartColor) {
+        if (self.clipToRect) {
+            NSRect windowFrame = [self.window frame] ;
+            NSRect myRect      = self.rectClippingBoundry ;
+            myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+            myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+            NSRectClip(myRect) ;
+        }
+        if (!self.HSGradientStartColor) {
             [arcPath fill];
         } else {
             NSGradient* aGradient = [[NSGradient alloc] initWithStartingColor:self.HSGradientStartColor
@@ -275,6 +298,13 @@ NSMutableArray *drawingWindows;
     if (self.HSStroke) {
         arcPath.lineWidth = self.HSLineWidth * 2.0; // We have to double this because the stroking line is centered around the path, but we want to clip it to not stray outside the path
         [arcPath setClip];
+        if (self.clipToRect) {
+            NSRect windowFrame = [self.window frame] ;
+            NSRect myRect      = self.rectClippingBoundry ;
+            myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+            myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+            NSRectClip(myRect) ;
+        }
         [arcPath stroke];
     }
 
@@ -303,6 +333,13 @@ NSMutableArray *drawingWindows;
     // Draw our shape (fill) and outline (stroke)
     if (self.HSFill) {
         [rectPath setClip];
+        if (self.clipToRect) {
+            NSRect windowFrame = [self.window frame] ;
+            NSRect myRect      = self.rectClippingBoundry ;
+            myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+            myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+            NSRectClip(myRect) ;
+        }
         if (!self.HSGradientStartColor) {
             [rectPath fill];
         } else {
@@ -314,6 +351,13 @@ NSMutableArray *drawingWindows;
     if (self.HSStroke) {
         rectPath.lineWidth = self.HSLineWidth;
         [rectPath setClip];
+        if (self.clipToRect) {
+            NSRect windowFrame = [self.window frame] ;
+            NSRect myRect      = self.rectClippingBoundry ;
+            myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+            myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+            NSRectClip(myRect) ;
+        }
         [rectPath stroke];
     }
 
@@ -340,6 +384,13 @@ NSMutableArray *drawingWindows;
 
     // Save the current graphics context settings
     [gc saveGraphicsState];
+    if (self.clipToRect) {
+        NSRect windowFrame = [self.window frame] ;
+        NSRect myRect      = self.rectClippingBoundry ;
+        myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+        myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+        NSRectClip(myRect) ;
+    }
 
     // Set the color in the current graphics context for future draw operations
     [[self HSStrokeColor] setStroke];
@@ -366,15 +417,15 @@ NSMutableArray *drawingWindows;
     self = [super initWithFrame:frameRect];
     if (self) {
 // NOTE: Change default_textAttributes(...) and drawing_getTextDrawingSize(...) if you change these
-        NSTextField *theTextField = [[NSTextField alloc] initWithFrame:frameRect];
+        HSDrawingTextField *theTextField = [[HSDrawingTextField alloc] initWithFrame:frameRect];
         [theTextField setFont: [NSFont systemFontOfSize: 27]];
         [theTextField setTextColor: [NSColor colorWithCalibratedWhite:1.0 alpha:1.0]];
         [theTextField setDrawsBackground: NO];
         [theTextField setBordered: NO];
         [theTextField setEditable: NO];
         [theTextField setSelectable: NO];
-        [self addSubview:theTextField];
-        self.textField = theTextField;
+        [self addSubview:(NSTextField *)theTextField];
+        self.textField = (NSTextField *)theTextField;
     }
     return self;
 }
@@ -384,7 +435,7 @@ NSMutableArray *drawingWindows;
 - (id)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
     if (self) {
-        self.HSImageView = [[NSImageView alloc] initWithFrame:frameRect];
+        self.HSImageView = [[HSDrawingNSImageView alloc] initWithFrame:frameRect];
         self.HSImageView.animates = YES;
         self.HSImageView.imageScaling = NSImageScaleProportionallyUpOrDown;
         [self addSubview:self.HSImageView];
@@ -400,6 +451,48 @@ NSMutableArray *drawingWindows;
     self.needsDisplay = true;
 
     return;
+}
+@end
+
+@implementation HSDrawingNSImageView
+- (void)drawRect:(NSRect)rect {
+    NSGraphicsContext* gc = [NSGraphicsContext currentContext];
+
+    // Save the current graphics context settings
+    [gc saveGraphicsState];
+
+    if (((HSDrawingViewText *)self.superview).clipToRect) {
+        NSRect windowFrame = [self.window frame] ;
+        NSRect myRect      = ((HSDrawingViewText *)self.superview).rectClippingBoundry ;
+        myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+        myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+        NSRectClip(myRect) ;
+    }
+    [super drawRect:rect];
+
+    // Restore the context to what it was before we messed with it
+    [gc restoreGraphicsState];
+}
+@end
+
+@implementation HSDrawingTextField
+- (void)drawRect:(NSRect)rect {
+    NSGraphicsContext* gc = [NSGraphicsContext currentContext];
+
+    // Save the current graphics context settings
+    [gc saveGraphicsState];
+
+    if (((HSDrawingViewText *)self.superview).clipToRect) {
+        NSRect windowFrame = [self.window frame] ;
+        NSRect myRect      = ((HSDrawingViewText *)self.superview).rectClippingBoundry ;
+        myRect.origin.x    = myRect.origin.x - windowFrame.origin.x ;
+        myRect.origin.y    = myRect.origin.y - ([[NSScreen screens][0] frame].size.height - windowFrame.origin.y - windowFrame.size.height);
+        NSRectClip(myRect) ;
+    }
+    [super drawRect:rect];
+
+    // Restore the context to what it was before we messed with it
+    [gc restoreGraphicsState];
 }
 @end
 
@@ -1022,7 +1115,7 @@ static int drawing_setTopLeft(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
-//    HSDrawingView   *drawingView   = (HSDrawingView *)drawingWindow.contentView;
+    HSDrawingView   *drawingView   = (HSDrawingView *)drawingWindow.contentView;
 
     NSPoint windowLoc ;
 
@@ -1045,6 +1138,7 @@ static int drawing_setTopLeft(lua_State *L) {
 
     windowLoc.y=[[NSScreen screens][0] frame].size.height - windowLoc.y ;
     [drawingWindow setFrameTopLeftPoint:windowLoc] ;
+    drawingView.needsDisplay = YES;
 
     lua_pushvalue(L, 1);
     return 1;
@@ -1099,6 +1193,49 @@ static int drawing_setSize(lua_State *L) {
 
     lua_pushvalue(L, 1);
     return 1;
+}
+
+/// hs.drawing:clippingRectangle([rect | nil]) -> drawingObject or current value
+/// Method
+/// Set the screen area in which the drawing contents are visible.
+///
+/// Parameters:
+///  * rect - an optional rectangle specifying the visible area of the screen where the drawing's contents are visible.  If an explicit `nil` is specified, no clipping rectangle is set.  Defaults to nil
+///
+/// Returns:
+///  * if an argument is provided, returns the drawing object; otherwise the current value is returned.
+///
+/// Notes:
+///  * This method can be used to specify the area of the display where this drawing should be visible.  If any portion of the drawing extends beyond this rectangle, the image is clipped so that only the portion within this rectangle is visible.
+///  * The rectangle defined by this method is independant of the drawing's actual frame -- if you move the drawing with [hs.drawing:setFrame](#setFrame) or [hs.drawing:setTopLeft](#setTopLeft), this rectangle retains its current value.
+///
+///  * This method does not work for image objects at present.
+static int drawing_clippingRectangle(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+
+    drawing_t *drawingObject = get_item_arg(L, 1);
+    HSDrawingWindow *drawingWindow = (__bridge HSDrawingWindow *)drawingObject->window;
+    HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    if (lua_gettop(L) == 1) {
+        if (drawingView.clipToRect) {
+            [skin pushNSRect:drawingView.rectClippingBoundry] ;
+        } else {
+            lua_pushnil(L) ;
+        }
+    } else {
+        if (lua_type(L, 2) == LUA_TNIL) {
+            drawingView.clipToRect = NO ;
+        } else {
+            NSRect clippingRect = [skin tableToRectAtIndex:2] ;
+            drawingView.rectClippingBoundry = clippingRect ;
+            drawingView.clipToRect = YES ;
+        }
+        drawingView.needsDisplay = YES;
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
 }
 
 /// hs.drawing:setFrame(rect) -> drawingObject
@@ -2483,6 +2620,7 @@ static const luaL_Reg drawing_metalib[] = {
     {"setStyledText", drawing_setStyledText},
     {"getStyledText", drawing_getStyledText},
     {"setArcAngles", drawing_setArcAngles},
+    {"clippingRectangle", drawing_clippingRectangle},
 
     {"__tostring", userdata_tostring},
     {"__gc", drawing_delete},
