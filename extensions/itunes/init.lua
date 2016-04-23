@@ -11,17 +11,17 @@ local app = require "hs.application"
 --- hs.itunes.state_paused
 --- Constant
 --- Returned by `hs.itunes.getPlaybackState()` to indicates iTunes is paused
-itunes.state_paused = "'kPSp'"
+itunes.state_paused = "kPSp"
 
 --- hs.itunes.state_playing
 --- Constant
 --- Returned by `hs.itunes.getPlaybackState()` to indicates iTunes is playing
-itunes.state_playing = "'kPSP'"
+itunes.state_playing = "kPSP"
 
 --- hs.itunes.state_stopped
 --- Constant
 --- Returned by `hs.itunes.getPlaybackState()` to indicates iTunes is stopped
-itunes.state_stopped = "'kPSS'"
+itunes.state_stopped = "kPSS"
 
 -- Internal function to pass a command to Applescript.
 local function tell(cmd)
