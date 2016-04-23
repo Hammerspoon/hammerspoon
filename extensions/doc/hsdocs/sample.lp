@@ -26,7 +26,7 @@
     -- an example of defining a "global" variable... it should show up in the output of _ENV in
     -- the rendered output of the page.
 
-    i_am_global = "to the template, but not Hammerspoon"
+    _i_am_global = "to the template, but not Hammerspoon"
 
     -- the line after <body> prints a reasonably clean error message to the browser if template
     -- support is not enabled, but is suppressed if it is.  As with the bracketing of lua

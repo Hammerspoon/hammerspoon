@@ -7,7 +7,7 @@
 local module = {}
 local hsminweb = require("hs.httpserver.hsminweb")
 
-module.documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*/).*%.lua$")
+module.documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*)/.*%.lua$")
 module.port         = 12345
 
 module.start = function()

@@ -7,5 +7,6 @@
 ---  * As a user of Hammerspoon, you are assumed to be highly capable, and aware of the security issues
 
 local httpserver = require "hs.httpserver.internal"
+httpserver.hsminweb = require "hs.httpserver.hsminweb"
 
 return httpserver

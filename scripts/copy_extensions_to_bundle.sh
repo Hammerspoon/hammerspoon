@@ -116,6 +116,11 @@ mkdir -pv "${HS_DST}/ipc/share/man/man1"
 cp -av "${SRCROOT}/extensions/ipc/cli/hs.man" "${HS_DST}/ipc/share/man/man1/hs.1"
 cp -av "${BUILT_PRODUCTS_DIR}/hs" "${HS_DST}/ipc/bin/hs"
 
+# Special copier for hs.httpserver.hsminweb support
+cp -av "${SRCROOT}/extensions/httpserver/hsminweb.lua" "${HS_DST}/httpserver/hsminweb.lua"
+cp -av "${SRCROOT}/extensions/httpserver/timeout3" "${HS_DST}/httpserver/timeout3"
+cp -av "${SRCROOT}/extensions/httpserver/cgilua_compatibility_functions.lua" "${HS_DST}/httpserver/cgilua_compatibility_functions.lua"
+
 # Special copier for hs.speech.listener
 cp -av "${BUILT_PRODUCTS_DIR}/libspeechlistener.dylib" "${HS_DST}/speech/listener.so"
 
