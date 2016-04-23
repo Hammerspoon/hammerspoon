@@ -104,6 +104,9 @@ typedef int (*pushNSHelperFunction)(lua_State *L, id obj);
 /*! @abstract a function which provides additional support for LuaSkin to convert a Lua object (usually, but not always, a table or userdata) into an NSObject. Helper functions are registered with @link registerLuaObjectHelper:forClass: @/link, and are used as requested with @link luaObjectAtIndex:toClass: @/link. */
 typedef id (*luaObjectHelperFunction)(lua_State *L, int idx);
 
+/*! @abstract convert a @link checkArgs: @/link argument into a string */
+NSString *specMaskToString(int spec);
+
 @class LuaSkin ;
 
 /*!
