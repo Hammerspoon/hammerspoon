@@ -26,6 +26,8 @@
 
 local module = {}
 
+module.markdown = require("hs.doc.markdown")
+
 -- private variables and methods -----------------------------------------
 
 local json    = require("hs.json")
