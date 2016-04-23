@@ -13,6 +13,7 @@ export HS_MODULES="alert \
     chooser \
     console \
     crash \
+    distributednotifications \
     dockicon \
     drawing \
     eventtap \
