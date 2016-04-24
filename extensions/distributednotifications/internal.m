@@ -64,8 +64,16 @@ static int distnot_new(lua_State *L) {
 
     lua_pushvalue(L, 1);
     watcher.fnRef = [skin luaRef:refTable];
-    watcher.name = [skin toNSObjectAtIndex:2];
-    watcher.object = [skin toNSObjectAtIndex:3];
+    if (lua_isnoneornil(L, 2)) {
+        watcher.name = nil;
+    } else {
+        watcher.name = [skin toNSObjectAtIndex:2];
+    }
+    if (lua_isnoneornil(L, 3)) {
+        watcher.object = nil;
+    } else {
+        watcher.object = [skin toNSObjectAtIndex:3];
+    }
 
     return 1;
 }
