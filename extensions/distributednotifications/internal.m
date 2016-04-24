@@ -92,8 +92,23 @@ static int distnot_post(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TTABLE | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
+    NSString *object;
+    NSDictionary *userInfo;
+
+    if (lua_isnoneornil(L, 2)) {
+        object = nil;
+    } else {
+        object = [skin toNSObjectAtIndex:2];
+    }
+
+    if (lua_isnoneornil(L, 3)) {
+        userInfo = nil;
+    } else {
+        userInfo = [skin toNSObjectAtIndex:3];
+    }
+
     NSDistributedNotificationCenter *center = [NSDistributedNotificationCenter defaultCenter];
-    [center postNotificationName:[skin toNSObjectAtIndex:1] object:[skin toNSObjectAtIndex:2] userInfo:[skin toNSObjectAtIndex:3]];
+    [center postNotificationName:[skin toNSObjectAtIndex:1] object:object userInfo:userInfo deliverImmediately:YES];
 
     return 0;
 }
@@ -117,7 +132,7 @@ static int distnot_start(lua_State *L) {
     HSDistNotWatcher *watcher = (__bridge HSDistNotWatcher *)userData->watcher;
 
     NSDistributedNotificationCenter *center = [NSDistributedNotificationCenter defaultCenter];
-    [center addObserver:watcher selector:@selector(callback:) name:watcher.name object:watcher.object];
+    [center addObserver:watcher selector:@selector(callback:) name:watcher.name object:watcher.object suspensionBehavior:NSNotificationSuspensionBehaviorDeliverImmediately];
 
     lua_pushvalue(L, 1);
     return 1;
