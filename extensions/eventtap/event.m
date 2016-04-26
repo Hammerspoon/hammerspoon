@@ -413,6 +413,106 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
     return 1;
 }
 
+/// hs.eventtap.event.newSystemKeyEvent(key, isdown) -> event
+/// Constructor
+/// Creates a keyboard event for special keys (e.g. media playback)
+///
+/// Parameters:
+///  * key - A string containing the name of a special key. The possible names are:
+///   * SOUND_UP
+///   * SOUND_DOWN
+///   * MUTE
+///   * BRIGHTNESS_UP
+///   * BRIGHTNESS_DOWN
+///   * CONTRAST_UP
+///   * CONTRAST_DOWN
+///   * POWER
+///   * LAUNCH_PANEL
+///   * VIDMIRROR
+///   * PLAY
+///   * EJECT
+///   * NEXT
+///   * PREVIOUS
+///   * FAST
+///   * REWIND
+///   * ILLUMINATION_UP
+///   * ILLUMINATION_DOWN
+///   * ILLUMINATION_TOGGLE
+///   * CAPS_LOCK
+///   * HELP
+///   * NUM_LOCK
+///  * isdown - A boolean, true if the event should be a key-down, false if it should be a key-up
+///
+/// Returns:
+///  * An `hs.eventtap.event` object
+///
+/// Notes:
+///  * To set modifiers on a system key event (e.g. cmd/ctrl/etc), see the `hs.eventtap.event:setFlags()` method
+///  * The event names are case sensitive
+static int eventtap_event_newSystemKeyEvent(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBOOLEAN, LS_TBREAK];
+
+    NSString *keyName = [skin toNSObjectAtIndex:1];
+    BOOL isDown = lua_toboolean(L, 2);
+    int keyVal = -1;
+
+    if ([keyName isEqualToString:@"SOUND_UP"]) {
+        keyVal = NX_KEYTYPE_SOUND_UP;
+    } else if ([keyName isEqualToString:@"SOUND_DOWN"]) {
+        keyVal = NX_KEYTYPE_SOUND_DOWN;
+    } else if ([keyName isEqualToString:@"POWER"]) {
+        keyVal = NX_POWER_KEY;
+    } else if ([keyName isEqualToString:@"MUTE"]) {
+        keyVal = NX_KEYTYPE_MUTE;
+    } else if ([keyName isEqualToString:@"BRIGHTNESS_UP"]) {
+        keyVal = NX_KEYTYPE_BRIGHTNESS_UP;
+    } else if ([keyName isEqualToString:@"BRIGHTNESS_DOWN"]) {
+        keyVal = NX_KEYTYPE_BRIGHTNESS_DOWN;
+    } else if ([keyName isEqualToString:@"CONTRAST_UP"]) {
+        keyVal = NX_KEYTYPE_CONTRAST_UP;
+    } else if ([keyName isEqualToString:@"CONTRAST_DOWN"]) {
+        keyVal = NX_KEYTYPE_CONTRAST_DOWN;
+    } else if ([keyName isEqualToString:@"LAUNCH_PANEL"]) {
+        keyVal = NX_KEYTYPE_LAUNCH_PANEL;
+    } else if ([keyName isEqualToString:@"EJECT"]) {
+        keyVal = NX_KEYTYPE_EJECT;
+    } else if ([keyName isEqualToString:@"VIDMIRROR"]) {
+        keyVal = NX_KEYTYPE_VIDMIRROR;
+    } else if ([keyName isEqualToString:@"PLAY"]) {
+        keyVal = NX_KEYTYPE_PLAY;
+    } else if ([keyName isEqualToString:@"NEXT"]) {
+        keyVal = NX_KEYTYPE_NEXT;
+    } else if ([keyName isEqualToString:@"PREVIOUS"]) {
+        keyVal = NX_KEYTYPE_PREVIOUS;
+    } else if ([keyName isEqualToString:@"FAST"]) {
+        keyVal = NX_KEYTYPE_FAST;
+    } else if ([keyName isEqualToString:@"REWIND"]) {
+        keyVal = NX_KEYTYPE_REWIND;
+    } else if ([keyName isEqualToString:@"ILLUMINATION_UP"]) {
+        keyVal = NX_KEYTYPE_ILLUMINATION_UP;
+    } else if ([keyName isEqualToString:@"ILLUMINATION_DOWN"]) {
+        keyVal = NX_KEYTYPE_ILLUMINATION_DOWN;
+    } else if ([keyName isEqualToString:@"ILLUMINATION_TOGGLE"]) {
+        keyVal = NX_KEYTYPE_ILLUMINATION_TOGGLE;
+    } else if ([keyName isEqualToString:@"CAPS_LOCK"]) {
+        keyVal = NX_KEYTYPE_CAPS_LOCK;
+    } else if ([keyName isEqualToString:@"HELP"]) {
+        keyVal = NX_KEYTYPE_HELP;
+    } else if ([keyName isEqualToString:@"NUM_LOCK"]) {
+        keyVal = NX_KEYTYPE_NUM_LOCK;
+    } else {
+        [skin logError:[NSString stringWithFormat:@"Unknown system key for hs.eventtap.event.newSystemKeyEvent(): %@", keyName]];
+        lua_pushnil(L);
+        return 1;
+    }
+
+    NSEvent *keyEvent = [NSEvent otherEventWithType:NSSystemDefined location:NSMakePoint(0, 0) modifierFlags:(isDown ? NX_KEYDOWN : NX_KEYUP) timestamp:0 windowNumber:0 context:0 subtype:NX_SUBTYPE_AUX_CONTROL_BUTTONS data1:(keyVal << 16 | (isDown ? NX_KEYDOWN : NX_KEYUP) << 8) data2:-1];
+    new_eventtap_event(L, keyEvent.CGEvent);
+
+    return 1;
+}
+
 /// hs.eventtap.event.newScrollEvent(offsets, mods, unit) -> event
 /// Constructor
 /// Creates a scroll wheel event
@@ -518,7 +618,7 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
     return 1;
 }
 
-/// hs.eventtap.event.systemKey() -> table
+/// hs.eventtap.event:systemKey() -> table
 /// Method
 /// Returns the special key and its state if the event is a NSSystemDefined event of subtype AUX_CONTROL_BUTTONS (special-key pressed)
 ///
@@ -528,14 +628,28 @@ static int eventtap_event_newMouseEvent(lua_State* L) {
 /// Returns:
 ///  * If the event is a NSSystemDefined event of subtype AUX_CONTROL_BUTTONS, a table with the following keys defined:
 ///    * key    -- a string containing one of the following labels indicating the key involved:
-///         SOUND_UP            SOUND_DOWN          MUTE
-///         BRIGHTNESS_UP       BRIGHTNESS_DOWN
-///         CONTRAST_UP         CONTRAST_DOWN
-///         POWER               LAUNCH_PANEL        VIDMIRROR
-///         PLAY                EJECT               NEXT
-///         PREVIOUS            FAST                REWIND
-///         ILLUMINATION_UP     ILLUMINATION_DOWN   ILLUMINATION_TOGGLE
-///         CAPS_LOCK           HELP                NUM_LOCK
+///      * SOUND_UP
+///      * SOUND_DOWN
+///      * MUTE
+///      * BRIGHTNESS_UP
+///      * BRIGHTNESS_DOWN
+///      * CONTRAST_UP
+///      * CONTRAST_DOWN
+///      * POWER
+///      * LAUNCH_PANEL
+///      * VIDMIRROR
+///      * PLAY
+///      * EJECT
+///      * NEXT
+///      * PREVIOUS
+///      * FAST
+///      * REWIND
+///      * ILLUMINATION_UP
+///      * ILLUMINATION_DOWN
+///      * ILLUMINATION_TOGGLE
+///      * CAPS_LOCK
+///      * HELP
+///      * NUM_LOCK
 ///      or "undefined" if the key detected is unrecognized.
 ///    * keyCode -- the numeric keyCode corresponding to the key specified in `key`.
 ///    * down   -- a boolean value indicating if the key is pressed down (true) or just released (false)
@@ -937,10 +1051,11 @@ static const luaL_Reg eventtapevent_metalib[] = {
 
 // Functions for returned object when module loads
 static luaL_Reg eventtapeventlib[] = {
-    {"newKeyEvent",     eventtap_event_newKeyEvent},
-    {"_newMouseEvent",  eventtap_event_newMouseEvent},
-    {"newScrollEvent",  eventtap_event_newScrollWheelEvent},
-    {NULL,              NULL}
+    {"newKeyEvent",       eventtap_event_newKeyEvent},
+    {"newSystemKeyEvent", eventtap_event_newSystemKeyEvent},
+    {"_newMouseEvent",    eventtap_event_newMouseEvent},
+    {"newScrollEvent",    eventtap_event_newScrollWheelEvent},
+    {NULL,                NULL}
 };
 
 // Metatable for returned object when module loads
