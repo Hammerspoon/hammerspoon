@@ -10,6 +10,7 @@
 
     local inspect = require("hs.inspect")
     local http    = require("hs.http")
+    local utf8    = require("hs.utf8")
 
     -- overkill; usually it's sufficient to just do :gsub("<", "&lt;"):gsub(">", "&gt;")
     -- but this shows how to be thorough if you truly are unsure what to expect
@@ -37,7 +38,17 @@
 <body>
 <%= "<","!--" %><div align="center"><i><font color="#f00">Requires hs.httpserver.hsminweb:luaTemplateExtension("lp") to be enabled for your web server</font></i></div><%= "--",">" %>
 <!-- <%= "--",">" %>
-
+<%
+    if type(cgilua.POST.someFile) == "table" and cgilua.POST.someFile.filesize ~= 0 then
+        local path, name = cgilua.splitonlast(cgilua.POST.someFile.filename) -- some (older?) browsers send a path, not just a file name
+        local output, err = io.open(os.getenv("HOME") .. "/Desktop/Copy of " .. name, "w")
+        if not output then print("err:" .. err) else
+            output:write(cgilua.POST.someFile.file:read("a"))
+            output:close()
+            print("<i>Wrote file " .. os.getenv("HOME") .. "/Desktop/Copy of " .. name .. "</i><br><hr>")
+        end
+    end
+%>
 <b>_ENV overview</b>
 <pre><%= makeHTMLSafe(inspect(_ENV, {depth = 1})) %></pre>
 <hr>
@@ -45,10 +56,9 @@
 <pre><%= makeHTMLSafe(inspect(cgilua)) %></pre>
 <hr>
 <b>hsminweb Helper Variable</b>
-<pre><%= makeHTMLSafe(inspect(hsminweb)) %></pre>
+<pre><%= makeHTMLSafe(inspect((utf8.fixUTF8(hsminweb)))) %></pre>
 <hr>
 <div align="right"><i><%= os.date() %></i></div>
-
 <%= "<","!--" %> -->
 </body>
 

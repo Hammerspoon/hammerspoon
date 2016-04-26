@@ -17,14 +17,6 @@
 --- You can start this web server by typing the following into your Hammerspoon console:
 --- `require("hs.httpserver.hsminweb.hsdocs").start()` and then visiting `http://localhost:12345/` with your web browser.
 
---   [ ] remove trailing / in Document-Root if present
---
---   [-] Hammerspoon aware pages (files, functions?)
---       [-] Decode form POST data
---       [-] Allow adding alternate POST encodings (JSON)
---
---   [-] Rename for inclusion with hs.httpserver in core for documentation
---
 --   [ ] Wiki docs
 --   [ ] Add browser with hs.webview to hsdocs
 --   [ ] Add way to render template/cgi to file
@@ -749,7 +741,8 @@ local webServerHandler = function(self, method, path, headers, body)
                 request      = {
                     method  = method,
                     path    = path,
-                    headers = headers
+                    headers = headers,
+                    body    = body,
                 },
                 response     = {
                     body    = responseBody,
@@ -801,12 +794,62 @@ local webServerHandler = function(self, method, path, headers, body)
             cgiluaCompat.urlcode.parsequery(_parent, CGIVariables["QUERY_STRING"], M.QUERY)
             M.POST = {}
             if method == "POST" then
-                local contentType = CGIVariables["CONTENT_TYPE"]
-                if not contentType then return self._errorHandlers[400](method, path, headers) end
-                if contentType == "x-www-form-urlencoded" then
+                local contentType = CGIVariables["CONTENT_TYPE"]:match("^([^; ]+)")
+                if not contentType then
+                    log.ef("Missing or malformed CONTENT_TYPE for POST: %s", tostring(CGIVariables["CONTENT_TYPE"]))
+                    return self._errorHandlers[400](method, path, headers)
+                end
+                if contentType == "x-www-form-urlencoded" or contentType == "application/x-www-form-urlencoded" then
                     cgiluaCompat.urlcode.parsequery(_parent, body, M.POST)
                 elseif contentType == "multipart/form-data" then
+                    local _,_,boundary = CGIVariables["CONTENT_TYPE"]:find("boundary%=(.-)$")
+                    boundary = "--" .. boundary
+                    -- lua doesn't have a "continue" or "next" operation in for, so we're reduced to this
+                    for chunk in body:gmatch("(.-)"..boundary) do repeat
+                        if #chunk == 0 then break end -- "continue"
 
+                        local sPos, ePos, headerdata = chunk:find("^(.-)\r\n\r\n")
+                        local chunkHeaders = {}
+                        headerdata:gsub('([^%c%s:]+):%s+([^\n]+)', function(label, value)
+                          label = label:lower()
+                          chunkHeaders[label] = value
+                        end)
+                        local attrs = {}
+                        if chunkHeaders["content-disposition"] then
+                            chunkHeaders["content-disposition"]:gsub(';%s*([^%s=]+)="(.-)"', function(attr, val)
+                                attrs[attr] = val
+                            end)
+                        else
+                          log.e("Error processing multipart/form-data: Missing content-disposition header")
+                          return self._errorHandlers[400.6](method, path, headers)
+                        end
+                        local value
+                        local data = chunk:sub(ePos + 1):match("^(.*)\r\n")
+                        if attrs["filename"] then
+                            local tmpFile, tmpFileName = cgiluaCompat.tmpfile(_parent)
+                            if not tmpFile then
+                                log.ef("Unable to create temporary file:%s", tmpFileName)
+                                return self._errorHandlers[500](method, path, headers)
+                            end
+                            tmpFile:write(data)
+                            tmpFile:flush()
+                            tmpFile:seek("set", 0)
+                            value = {
+                                file          = tmpFile,
+                                filename      = attrs["filename"],
+                                filesize      = #data,
+                                localFilename = tmpFileName,
+                            }
+                            for hdr, hdrval in pairs(chunkHeaders) do
+                                if hdr ~= "content-disposition" then
+                                    value[hdr] = hdrval
+                                end
+                            end
+                        else
+                            value = chunk:sub(ePos + 1):match("^(.*)\r\n")
+                        end
+                        cgiluaCompat.urlcode.insertfield(_parent, M.POST, attrs["name"], value)
+                    until true end
                 elseif contentType == "application/json" then
                     for k, v in pairs(require"hs.json".decode(body)) do
                         cgiluaCompat.urlcode.insertfield(_parent, M.POST, k, v)
@@ -814,6 +857,7 @@ local webServerHandler = function(self, method, path, headers, body)
                 elseif contentType == "application/xml" or contentType == "text/xml" or contentType ==  "text/plain" then
                     table.insert(M.POST, body)
                 else
+                    log.wf("Unsupported media type %s", contentType)
                     return self._errorHandlers[415](method, path, headers)
                 end
 
@@ -833,7 +877,7 @@ local webServerHandler = function(self, method, path, headers, body)
                             v.file:close()
                         end
                         local __, err = os.remove(v.name)
-                        if __ then log.e(err) end
+                        if not __ then log.e(err) end
                     end
                 end,
             })
@@ -1088,7 +1132,11 @@ objectMethods.documentRoot = function(self, ...)
     local args = table.pack(...)
     assert(type(args[1]) == "nil" or type(args[1]) == "string", "argument must be string")
     if args.n > 0 then
-        self._documentRoot = args[1]
+        local dr = args[1]
+        if dr ~= "/" and dr:match(".+/$") then
+            dr = dr:match("^(.+)/$")
+        end
+        self._documentRoot = dr
         return self
     else
         return self._documentRoot
@@ -1454,12 +1502,16 @@ end
 ---  * a web server's document root is the directory which contains the documents or files to be served by the web server.
 ---  * while an hs.minweb object is actually represented by a Lua table, it has been assigned a meta-table which allows methods to be called directly on it like a user-data object.  For most purposes, you should think of this table as the module's userdata.
 module.new = function(documentRoot)
+    documentRoot = documentRoot or os.getenv("HOME").."/Sites"
+    if documentRoot ~= "/" and documentRoot:match(".+/$") then
+        documentRoot = documentRoot:match("^(.+)/$")
+    end
+
     local instance = {
-        _documentRoot     = documentRoot or os.getenv("HOME").."/Sites",
+        _documentRoot     = documentRoot,
         _directoryIndex   = shallowCopy(directoryIndex),
         _cgiExtensions    = shallowCopy(cgiExtensions),
-
-        _serverAdmin    = serverAdmin,
+        _serverAdmin      = serverAdmin,
 
         _errorHandlers    = setmetatable({}, { __index = errorHandlers }),
         _supportedMethods = setmetatable({}, { __index = supportedMethods }),

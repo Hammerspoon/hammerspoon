@@ -7,7 +7,7 @@
 local module = {}
 local hsminweb = require("hs.httpserver.hsminweb")
 
-module.documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*)/.*%.lua$")
+module.documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*/).*%.lua$")
 module.port         = 12345
 
 module.start = function()
@@ -22,6 +22,10 @@ module.start = function()
                      :directoryIndex{
                          "index.html", "index.lp",
                      }:start()
+
+        module.server._logBadTranslations       = true
+        module.server._logPageErrorTranslations = true
+        module.server._allowRenderTranslations  = true
     end
     return module
 end

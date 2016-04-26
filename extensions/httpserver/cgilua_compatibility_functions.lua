@@ -187,7 +187,7 @@ end
 ---
 --- Notes:
 ---  * This function used to be called cgilua.splitpath and still can be accessed by this name for compatibility reasons. cgilua.splitpath may be deprecated in future versions.
-cgilua.splitonlast  = function(_parent, path) return match(path,"^(.-)([^:/\\]*)$") end
+cgilua.splitonlast  = function(_parent, path) return path:match("^(.-)([^:/\\]*)$") end
 cgilua.splitpath    = cgilua.splitonlast -- compatibility with previous versions
 
 --- hs.httpserver.hsminweb.cgilua.splitfirst(path) -> path component, path remainder
@@ -199,7 +199,7 @@ cgilua.splitpath    = cgilua.splitonlast -- compatibility with previous versions
 ---
 --- Returns:
 ---  * the first directory component, the remainder of the path
-cgilua.splitonfirst = function(_parent, path) return match(path, "^/([^:/\\]*)(.*)") end
+cgilua.splitonfirst = function(_parent, path) return path:match("^/([^:/\\]*)(.*)") end
 
 --- hs.httpserver.hsminweb.cgilua.script_path
 --- Variable
