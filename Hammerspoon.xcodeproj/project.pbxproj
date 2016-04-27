@@ -42,6 +42,8 @@
 		4F3D9D081C3314570082E864 /* HSChooserWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D061C3314570082E864 /* HSChooserWindow.m */; };
 		4F3D9D0B1C34773E0082E864 /* HSChooserTableView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F3D9D091C34773E0082E864 /* HSChooserTableView.h */; };
 		4F3D9D0C1C34773E0082E864 /* HSChooserTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F3D9D0A1C34773E0082E864 /* HSChooserTableView.m */; };
+		4F40EC401CCD0FE3006342D7 /* HSdistributednotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */; };
+		4F40EC441CCD126F006342D7 /* test_distributednotifications.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F40EC431CCD126F006342D7 /* test_distributednotifications.lua */; };
 		4F4CB38C1B737953000EA9B6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F4CB3951B737A5B000EA9B6 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F4CB3941B737A5B000EA9B6 /* internal.m */; };
 		4F4CB3A11B7385C5000EA9B6 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -779,6 +781,8 @@
 		4F3D9D061C3314570082E864 /* HSChooserWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserWindow.m; path = extensions/chooser/HSChooserWindow.m; sourceTree = "<group>"; };
 		4F3D9D091C34773E0082E864 /* HSChooserTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserTableView.h; path = extensions/chooser/HSChooserTableView.h; sourceTree = "<group>"; };
 		4F3D9D0A1C34773E0082E864 /* HSChooserTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserTableView.m; path = extensions/chooser/HSChooserTableView.m; sourceTree = "<group>"; };
+		4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSdistributednotifications.m; sourceTree = "<group>"; };
+		4F40EC431CCD126F006342D7 /* test_distributednotifications.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_distributednotifications.lua; path = extensions/distributednotifications/test_distributednotifications.lua; sourceTree = "<group>"; };
 		4F4CB3911B737953000EA9B6 /* libcrash.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libcrash.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F4CB3931B737A5B000EA9B6 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/crash/init.lua; sourceTree = "<group>"; };
 		4F4CB3941B737A5B000EA9B6 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/crash/internal.m; sourceTree = "<group>"; };
@@ -2065,6 +2069,7 @@
 		4F85FECA1CCA8A1400FBBAD7 /* distributednotifications */ = {
 			isa = PBXGroup;
 			children = (
+				4F40EC431CCD126F006342D7 /* test_distributednotifications.lua */,
 				4F85FECB1CCA8A2F00FBBAD7 /* init.lua */,
 				4F85FECC1CCA8A2F00FBBAD7 /* internal.m */,
 			);
@@ -2659,6 +2664,7 @@
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
 				4FDD8E4D1C834C8100085D7A /* HSbase64.m */,
 				4FDD8E8C1C8C8BF200085D7A /* HScoresetup.m */,
+				4F40EC3F1CCD0FE3006342D7 /* HSdistributednotifications.m */,
 				4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */,
 				4CEDEE1B1C640D11005CBF97 /* HSosascript.m */,
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
@@ -4658,6 +4664,7 @@
 				4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */,
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
+				4F40EC441CCD126F006342D7 /* test_distributednotifications.lua in Resources */,
 				4CE639141C772DC700BB7CD2 /* test_udpsocket.lua in Resources */,
 				4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */,
 				4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */,
@@ -5327,6 +5334,7 @@
 				4CD64AA91C6F15F400EB6E39 /* HSsocket.m in Sources */,
 				4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */,
 				4CEDEE1C1C640D11005CBF97 /* HSosascript.m in Sources */,
+				4F40EC401CCD0FE3006342D7 /* HSdistributednotifications.m in Sources */,
 				4FDD8E891C8AE3ED00085D7A /* HSTestCase.m in Sources */,
 				4FDD8E521C83612D00085D7A /* HSalert.m in Sources */,
 			);
