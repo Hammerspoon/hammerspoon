@@ -25,7 +25,7 @@
 --       [ ] document headers._ support table
 --       [-] common headers
 --       [X] table for CGI-like variables?
---       [ ] query/body parsing like Hammerspoon/cgilua support?
+--       [ ] query/body parsing like Hammerspoon/cgilua support -- for support functions
 --       [X] common/default response headers? Would simplify error functions...
 --   [ ] document _allowRenderTranslations and _logBadTranslations
 --
@@ -233,33 +233,39 @@ local statusCodes = {
     ["505"] = "HTTP Version not supported",
 }
 
-local errorHandlers = setmetatable({
-    default = function(code, method, path, h)
-        if type(code) == "number" then code = tostring(code) end
-        local intendedCode = code
-        local codeLabel = statusCodes[code]
-        if tonumber(code) < 400 or not codeLabel then code, codeLabel = "500", statusCodes["500"] end
+local errorHandlers = {
+    __index = function(_, key)
+        local override = rawget(_, tostring(key))
+        if override then
+            return override
+        elseif rawget(_, "default") then
+            return function(...) return  rawget(_, "default")(key, ...) end
+        else
+            return function(method, path, h)
+                local code = key
+                if type(code) == "number" then code = tostring(code) end
+                local intendedCode = code
+                local codeLabel = statusCodes[code]
+                if tonumber(code) < 400 or not codeLabel then code, codeLabel = "500", statusCodes["500"] end
 
-        local output = "<html><head><title>" .. codeLabel .. "</title></head><body><body><H1>HTTP/1.1 " .. code .. " " .. codeLabel .. "</H1><br/><br/>"
+                local output = "<html><head><title>" .. codeLabel .. "</title></head><body><body><H1>HTTP/1.1 " .. code .. " " .. codeLabel .. "</H1><br/><br/>"
 
-        if code ~= intendedCode then
-            if tonumber(intendedCode) > 399 then
-                output = output .. "Error code " .. intendedCode .. " is unrecognized and has no handler<br/>"
-            else
-                local statusLabel = statusCodes[intendedCode] or "** Unrecognized Status Code **"
-                output = output .. "Status code ".. intendedCode .. ", " .. statusLabel .. ", does not specify an error condition<br/>"
+                if code ~= intendedCode then
+                    if tonumber(intendedCode) > 399 then
+                        output = output .. "Error code " .. intendedCode .. " is unrecognized and has no handler<br/>"
+                    else
+                        local statusLabel = statusCodes[intendedCode] or "** Unrecognized Status Code **"
+                        output = output .. "Status code ".. intendedCode .. ", " .. statusLabel .. ", does not specify an error condition<br/>"
+                    end
+                end
+
+                output = output .. "<hr/><div align=\"right\"><i>" .. tostring(h and h._ and h._.serverSoftware) .. " at " .. tostring(h and h._ and h._.queryDate) .. "</i></div></body></html>"
+
+                return output, math.floor(code), (h and h._ and h._.minimalHTMLResponseHeaders or {})
             end
         end
-
-        output = output .. "<hr/><div align=\"right\"><i>" .. tostring(h and h._ and h._.serverSoftware) .. " at " .. tostring(h and h._ and h._.queryDate) .. "</i></div></body></html>"
-
-        return output, math.floor(code), (h and h._ and h._.minimalHTMLResponseHeaders or {})
-    end,
-}, {
-    __index = function(_, key)
-        return function(...) return _.default(key, ...) end
     end
-})
+}
 
 local supportedMethods = {
 -- https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol
@@ -301,7 +307,7 @@ local mt_table = {
 }
 
 mt_table.__tostring  = function(_)
-    return mt_table.__type .. ": " .. _:name() .. ":" .. tostring(_:port()) .. ", " .. (mt_table.__tostrings[_] or "* unbound -- this is unsupported *")
+    return mt_table.__type .. ": " .. tostring(_:name()) .. ":" .. tostring(_:port()) .. ", " .. (mt_table.__tostrings[_] or "* unbound -- this is unsupported *")
 end
 
 local RFC3986getURLParts = function(resourceLocator)
@@ -824,7 +830,7 @@ local webServerHandler = function(self, method, path, headers, body)
                           return self._errorHandlers[400.6](method, path, headers)
                         end
                         local value
-                        local data = chunk:sub(ePos + 1):match("^(.*)\r\n")
+                        local data = chunk:sub(ePos + 1):match("^(.*)\r\n$")
                         if attrs["filename"] then
                             local tmpFile, tmpFileName = cgiluaCompat.tmpfile(_parent)
                             if not tmpFile then
@@ -846,7 +852,7 @@ local webServerHandler = function(self, method, path, headers, body)
                                 end
                             end
                         else
-                            value = chunk:sub(ePos + 1):match("^(.*)\r\n")
+                            value = data
                         end
                         cgiluaCompat.urlcode.insertfield(_parent, M.POST, attrs["name"], value)
                     until true end
@@ -1513,7 +1519,7 @@ module.new = function(documentRoot)
         _cgiExtensions    = shallowCopy(cgiExtensions),
         _serverAdmin      = serverAdmin,
 
-        _errorHandlers    = setmetatable({}, { __index = errorHandlers }),
+        _errorHandlers    = setmetatable({}, errorHandlers),
         _supportedMethods = setmetatable({}, { __index = supportedMethods }),
 
         _accessLog        = "",
