@@ -1,13 +1,7 @@
-Customizing `hs.httpserver.hsminweb`
-------------------------------------
+Customizing `hs.httpserver.hsminweb` Error Pages
+------------------------------------------------
 
-The web server provided by `hs.httpserver.hsminweb` provides a variety of places where you can customize its behavior by adding your own functions.  This document provides examples for some of the possibilities.
-
-Lua template support and CGI script support are outside the scope of this document and are addressed elsewhere.
-
-### Custom functions
-
-Custom functions can be defined to provide custom error pages and to handle specific HTTP request methods.  Each is described in the specified section below.  For the code examples provided here, it is assumed that you have an `hs.httpserver.hsminweb` instance available in `server`.  A barebones server instance can be created with:
+Custom functions can be defined to provide custom error pages for each web server instance provided by `hs.httpserver.hsminweb`.  For the code examples provided here, it is assumed that you have an `hs.httpserver.hsminweb` instance available in `server`.  A barebones server instance can be created with:
 
 ~~~lua
 server = require("hs.httpserver.hsminweb").new():start()
@@ -17,9 +11,7 @@ You can identify the server's port by typing `server:port()` into the Hammerspoo
 
 - - -
 
-### Custom Error Functions
-
-#### Custom Error Function for a Specific Response Code
+### Custom Error Functions for a Specific Response Code
 
 By default, the HTTP error pages are pretty bland:
 
@@ -51,7 +43,7 @@ Note also that the return code is an integer -- this is because the HTTP specifi
 
 You can also change the status code if you choose -- the `responseCode` returned is what the server will send to the client.  For example, some minimal web servers found in embedded systems will return a `500` error code for *all* errors -- typically `500` specifies an *Internal Server Error*, but to save space, embedded servers treat anything they can't handle equally; depending upon your web client, a specific error number may not be useful and if you need to mimic a simpler behavior, this fact allows you to conform to such a system's expectations (though it's probably beter in such a case to replace the default function, which is described in a later section).
 
-The `method`, `path`, and `headers` fields match the originating request sent by the web client.  To aid in developing your own custom functions, the `headers` table is also assigned a `_` key, which will contain some internally generated information about the request, the server, and some support functions that might help in your function.  This support table is described in more detail in it's own document, but a more complete example of your replacement error for `404` might look something like this:
+The `method`, `path`, and `headers` fields match the originating request sent by the web client.  To aid in developing your own custom functions, the `headers` table is also assigned a `_` key, which will contain some internally generated information about the request and the server, and is described in more detail at the end of this document.  A more complete example of a replacement error for `404` might look something like this:
 
 ~~~lua
 server._errorHandlers["404"] = function(method, path, headers)
@@ -91,9 +83,9 @@ The requested resource, http://localhost:12345/s.lp/functions.md, was not found 
 </div>
 </td></tr></table>
 
-The use of the predefined `headers._.minimalHTMLResponseHeaders` provides a minimal set of response headers necessary for an HTML response.  As stated above, see the appropriate documentation for more information on other defaults provided by the `_` key in `headers`.
+The use of the predefined `headers._.minimalHTMLResponseHeaders` provides a minimal set of response headers necessary for an HTML response.
 
-#### Custom Default Error Function (Catch-All)
+### Custom Default Error Function (Catch-All)
 
 The default error function is used to generate the output for any error which does not already have a handler.  By default, this is the only error function actually defined in an `hs.httpserver.hsminweb` instance, and it uses the status code list in `hs.httpserver.hsminweb.statusCodes` to determine the text of the title and in the first line of the default output.  Defining your own default error handler is very similar to defining a specific error handler, but takes an additional argument specifying the requested error status code.  You can define a custom handler like this:
 
@@ -153,5 +145,23 @@ end
 
 - - -
 
-### Custom Method Handler Functions
+### Server Information in `headers._`
+
+    headers._ = {
+        server         = self,
+        SSL            = self._ssl and true or false,
+        serverAdmin    = self._serverAdmin,
+        serverSoftware = serverSoftware,
+        pathParts      = RFC3986getURLParts((self._ssl and "https" or "http") .. "://" .. headers.Host .. path),
+        modifyHeaders  = modifyHeaders,
+        queryDate      = HTTPformattedDate(),
+    }
+
+    headers._.minimalResponseHeaders = {
+        ["Server"]        = serverSoftware,
+        ["Last-Modified"] = headers._.queryDate,
+    }
+    headers._.minimalHTMLResponseHeaders = modifyHeaders(headers._.minimalResponseHeaders, {
+        ["Content-Type"]  = "text/html",
+    })
 

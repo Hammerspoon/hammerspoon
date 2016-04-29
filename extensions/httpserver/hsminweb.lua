@@ -3,7 +3,7 @@
 ---
 --- Minimalist Web Server for Hammerspoon
 ---
---- This module aims to be a minimal, but (mostly) standards-compliant web server for use within Hammerspoon.  Expanding upon the Hammerspoon module, `hs.httpserver`, this module adds support for serving static pages stored at a specified document root as well as serving dynamic content from user defined functions, lua files interpreted within the Hammerspoon environment, and external executables which support the CGI/1.1 framework.
+--- This module aims to be a minimal, but (mostly) standards-compliant web server for use within Hammerspoon.  Expanding upon the Hammerspoon module, `hs.httpserver`, this module adds support for serving static pages stored at a specified document root as well as serving dynamic content from Lua Template Files interpreted within the Hammerspoon environment and external executables which support the CGI/1.1 framework.
 ---
 --- This module aims to provide a fully functional, and somewhat extendable, web server foundation, but will never replace a true dedicated web server application.  Some limitations include:
 ---  * It is single threaded within the Hammerspoon environment and can only serve one resource at a time
@@ -19,22 +19,16 @@
 
 --   [ ] Wiki docs
 --   [ ] Add browser with hs.webview to hsdocs
---   [ ] Add way to render template/cgi to file
+--   [ ] Add way to render template (and cgi?) to file
 --
---   [-] helpers for custom functions/handlers
---       [ ] document headers._ support table
---       [-] common headers
---       [X] table for CGI-like variables?
---       [ ] query/body parsing like Hammerspoon/cgilua support -- for support functions
---       [X] common/default response headers? Would simplify error functions...
---   [ ] document _allowRenderTranslations and _logBadTranslations
+--   [ ] document headers._ support table for error functions
+--   [ ] document _allowRenderTranslations, _logBadTranslations, and _logPageErrorTranslations
 --
 -- Review to determine if basic support is sufficiently "correct"
 --   [ ] additional response headers?
 --   [ ] Additional errors to add?
 --
-
--- May see how hard these would be... maybe only for Hammerspoon/embedded Lua supported pages
+-- May see how hard these would be... maybe only for Hammerspoon/Lua Template pages
 --   [ ] basic/digest auth via lua only?
 --   [ ] minimal WebDAV support?
 --   [ ] For WebDav support, some other methods may also require a body... (i.e. additions to hs.httpserver)
@@ -451,6 +445,7 @@ local webServerHandler = function(self, method, path, headers, body)
 
 -- Allow some internally determined stuff to be passed around to various support functions
     headers._ = {
+        server         = self,
         SSL            = self._ssl and true or false,
         serverAdmin    = self._serverAdmin,
         serverSoftware = serverSoftware,
@@ -475,18 +470,7 @@ local webServerHandler = function(self, method, path, headers, body)
     local action = self._supportedMethods[method]
     if not action then return self._errorHandlers[405](method, path, headers) end
 
-    -- if the method is a function, we make no assumptions -- the function gets the raw input
-    if type(action) == "function" then
-    -- allow the action to ignore the request by returning false or nil to fall back to built-in methods
-        local responseBody, responseCode, responseHeaders = action(self, method, path, headers, body)
-        if responseBody then
-            responseCode    = responseCode or 200
-            responseHeaders = responseHeaders or headers._.minimalResponseHeaders
-            return responseBody, responseCode, responseHeaders
-        end
-    end
-
--- Since we're actually dealing with a file, figure out what specific file/directory is being targetted
+-- Figure out what specific file/directory is being requested
     local pathParts  = headers._.pathParts
     local testingPath = self._documentRoot
 
@@ -503,7 +487,7 @@ local webServerHandler = function(self, method, path, headers, body)
         local testAttr = fs.attributes(testingPath)
         if not testAttr then testAttr = fs.attributes(testingPath:sub(1, #testingPath - 1)) end
         if testAttr then
-            if i ~= #pathParts.pathComponents then
+            if i ~= #pathParts.pathComponents or (i == #pathParts.pathComponents and testingPath:sub(#testingPath) == "/") then
                 if testAttr.mode == "file" then
                     if self._cgiEnabled or self._luaTemplateExtension then
                         local testExtension = pathParts.pathComponents[i]:match("^.*%.([^%.]+)/$") or ""
@@ -742,7 +726,6 @@ local webServerHandler = function(self, method, path, headers, body)
             -- setup the library of CGILua compatibility functions for the function environment
             local _parent = {
                 id           = hshost.globallyUniqueString(),
-                server       = self,
                 log          = log,
                 request      = {
                     method  = method,
@@ -923,7 +906,7 @@ local webServerHandler = function(self, method, path, headers, body)
                 responseCode    = _parent.response.code
                 responseHeaders = _parent.response.headers
             else
-                responseBody    = textWithLineNumbers(cgiluaCompat.lp.translate(_parent, workingBody))
+                responseBody    = textWithLineNumbers(_parent.__luaCached_translations[workingBody] or cgiluaCompat.lp.translate(_parent, workingBody))
                 responseCode    = 200
                 responseHeaders["Content-Type"] = "text/plain"
             end
@@ -1539,7 +1522,7 @@ end
 --- Variable
 --- Accessed as `self._serverAdmin`.  A string containing the administrator for the web server.  Defaults to the currently logged in user's short form username and the computer's localized name as returned by `hs.host.localizedName()` (e.g. "user@computer").
 ---
---- This value is often used in error messages or on error pages indicating a point of contact for administrative help.  It can be accessed from within helper functions as `headers._.serverAdmin`.
+--- This value is often used in error messages or on error pages indicating a point of contact for administrative help.  It can be accessed from within an error helper functions as `headers._.serverAdmin`.
 
 --- hs.httpserver.hsminweb._accessLog
 --- Variable
@@ -1572,25 +1555,11 @@ end
 ---  * GET  - an HTTP method requesting content; the default method used by web browsers for bookmarks or URLs typed in by the user
 ---  * POST - an HTTP method requesting content that includes content in the request body, most often used by forms to include user input or file data which may affect the content being returned.
 ---
---- These methods are included by default in this variable and are set to the boolean value true to indicate that they are supported and that the internal support code should be used.
+--- If you assign `true` to another method key, then it will be supported if the target URL refers to a CGI script or Lua Template file, and their support has been enabled for the server.
 ---
---- You can assign a function to these methods if you wish for a custom handler to be invoked when the method is used in an HTTP request.  The function should accept five arguments:
----  * self    - the `hsminwebTable` object representing the web server
----  * method  - the method for the HTTP request
----  * path    - the full path, including any GET query items
----  * headers - a table containing the HTTP request headers
----  * body    - the content of the request body, if available, otherwise nil.  Currently only the POST and PUT methods will contain a request body, but this may change in the future.
+--- If you assign `false` to a method key, then *any* request utilizing that method will return a status of 405 (Method Not Supported).  E.g. `self._supportMethods["POST"] = false` will prevent the POST method from being supported.
 ---
---- The function should return one or three values:
----  * body    - the content to be returned.  If this is the boolean `false` or `nil`, then the request will fall through to the default handlers as if this function had never been called (this can be used in cases where you want to override the default behavior only for certain requests based on header or path details)
----  * code    - a 3 digit integer specifying the HTTP Response status (see https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
----  * headers - a table containing any headers which should be included in the HTTP response.  If `Server` or `Last-Modified` are not present, they will be provided automatically.
----
---- If you assign `false` to a method, then any request utilizing that method will return a status of 405 (Method Not Supported).  E.g. `self._supportMethods["POST"] = false` will prevent the POST method from being supported.
----
---- There are some functions and conventions used within this module which can simplify generating appropriate content within your custom functions.  Currently, you should review the module source, but a companion document describing these functions and conventions is expected to follow in the near future.
----
---- Common HTTP request methods can be found at https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods and https://en.wikipedia.org/wiki/WebDAV.  Currently, only HEAD, GET, and POST have built in support for static pages; even if you set other methods to `true`, they will return a status code of 405 (Method Not Supported) if the request does not invoke a CGI file for dynamic content.
+--- Common HTTP request methods can be found at https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods and https://en.wikipedia.org/wiki/WebDAV.  Currently, only HEAD, GET, and POST have built in support for static pages; even if you set other methods to `true`, they will return a status code of 405 (Method Not Supported) if the request does not invoke a CGI file or Lua Template file for dynamic content.
 ---
 --- A companion module supporting the methods required for WebDAV is being considered.
 

@@ -663,14 +663,13 @@ end
 ---     * log          - a table/object representing the `hs.httpserver.hsminweb` instance of `hs.logger`.  This can be used to log messages to the Hammerspoon console as described in the documentation for `hs.logger`.
 ---     * request      - a table containing data representing the details of the HTTP request as it was made by the web client to the server.  The following keys are commonly found:
 ---       * headers - a table containing key-value pairs representing the headers included in the HTTP request; unlike the values available through [cgilua.servervariable](#servervariable) or found in `CGIVariables`, these are available in their raw form.
----         * this table also contains a table with the key "_".  This table contains functions and data used internally, and is described more fully in a supporting document (TBD).  It is targeted primarily at custom functions designed for use with `hs.httpserver.hsminweb` directly and should not generally be necessary for Lua template files.
+---         * this table also contains a table with the key "_".  This table contains functions and data used internally, and is described more fully in a supporting document (TBD).  It is targeted primarily at custom error functions designed for use with `hs.httpserver.hsminweb` and should not generally be necessary for Lua template files.
 ---       * method  - the method of the HTTP request, most commonly "GET" or "POST"
 ---       * path    - the path portion of the requested URL.
 ---     * response     - a table containing data representing the response being formed for the response to the HTTP request.  This is generally handled for you by the `cgilua` support functions, but for special cases, you can modify it directly; this should contain only the following keys:
 ---       * body    - a string containing the response body.  As the lua template outputs content, this string is appended to.
 ---       * code    - an integer representing the currently expected response code for the HTTP request.
 ---       * headers - a table containing key-value pairs of the currently defined response headers
----     * server       - a reference to the table/object representing the web server instance serving this HTTP request.
 ---     * _tmpfiles    - used internally to track temporary files used in the completion of this HTTP request; do not modify directly.
 cgilua.lp.include = function(_parent, filename, env)
     -- read the whole contents of the file
