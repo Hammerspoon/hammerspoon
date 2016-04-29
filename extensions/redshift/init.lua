@@ -337,7 +337,7 @@ function redshift.start(nTemp,nStart,nEnd,dur,invert,wf,dTemp)
     end
     redshift.wfsubs={
       [windowfilter.hasWindow]=function()redshift.requestDisable('wf-redshift',true)end,
-      [windowfilter.hasNoWindows]=function()redshift.requestDisable('wf-redshif')end,
+      [windowfilter.hasNoWindows]=function()redshift.requestDisable('wf-redshift')end,
     }
     wfDisable:subscribe(redshift.wfsubs,true)
   end
