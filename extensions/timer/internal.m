@@ -16,7 +16,7 @@ typedef struct _timerUserData {
     BOOL continueOnError;
 } timerUserData;
 
-static void timerCallback(CFRunLoopTimerRef __unused timer, void *info) {
+static void timerCallback(CFRunLoopTimerRef timer, void *info) {
     timerUserData* t = info;
 
     LuaSkin *skin = [LuaSkin shared];
@@ -26,14 +26,33 @@ static void timerCallback(CFRunLoopTimerRef __unused timer, void *info) {
         [skin logWarn:@"hs.timer callback fired on an invalid hs.timer object. This is a bug"];
         return;
     }
+    if (!CFEqual(timer, t->t)) {
+        [skin logWarn:[NSString stringWithFormat:@"%s:timer argument and info->t differ", USERDATA_TAG]] ;
+    }
 
     [skin pushLuaRef:refTable ref:t->fn];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         [skin logError:[NSString stringWithFormat:@"hs.timer callback error: %s", errorMsg]];
+        lua_pop(L, 1) ; // clear message from stack
         if (!t->continueOnError) {
+            // some details about the timer to help identify which one it is:
+            Boolean        doesRepeat = CFRunLoopTimerDoesRepeat(t->t) ;
+            CFTimeInterval interval   = CFRunLoopTimerGetInterval(t->t) ; // double
+            CFAbsoluteTime nextFire   = CFRunLoopTimerGetNextFireDate(t->t) ; // double
+
             CFRunLoopRemoveTimer(CFRunLoopGetMain(), t->t, kCFRunLoopCommonModes);
             [skin logWarn:@"hs.timer callback failed. The timer has been stopped to prevent repeated notifications of the error."];
+
+            CFLocaleRef locale = CFLocaleCopyCurrent();
+            CFDateFormatterRef formatter = CFDateFormatterCreate(kCFAllocatorDefault, locale, kCFDateFormatterFullStyle, kCFDateFormatterFullStyle);
+            CFDateRef date = CFDateCreate(kCFAllocatorDefault, nextFire);
+            CFStringRef dateAsString = CFDateFormatterCreateStringWithDate (kCFAllocatorDefault, formatter, date);
+
+            [skin logWarn:[NSString stringWithFormat:@"   timer details: %s repeating, every %f seconds, next scheduled at %@", (doesRepeat ? "is" : "is not"), interval, (__bridge NSString *)dateAsString]] ;
+
+            CFRelease(dateAsString) ; CFRelease(date) ; CFRelease(formatter) ; CFRelease(locale) ;
+
         }
     }
 
@@ -258,8 +277,7 @@ static int timer_stop(lua_State* L) {
 
 static int timer_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timerUserData* timer = lua_touserdata(L, 1);
+    timerUserData* timer = luaL_checkudata(L, 1, USERDATA_TAG);
 
     if (timer) {
         timer->fn = [skin luaUnref:refTable ref:timer->fn];
@@ -278,6 +296,10 @@ static int timer_gc(lua_State* L) {
         timer->t = nil;
         timer = nil;
     }
+
+// Remove the Metatable so future use of the variable in Lua won't think its valid
+    lua_pushnil(L);
+    lua_setmetatable(L, 1);
 
     return 0;
 }
