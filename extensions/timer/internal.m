@@ -23,16 +23,17 @@ static void timerCallback(CFRunLoopTimerRef timer, void *info) {
     lua_State *L = skin.L;
 
     if (!t) {
-        [skin logWarn:@"hs.timer callback fired on an invalid hs.timer object. This is a bug"];
+        [skin logBreadcrumb:@"hs.timer callback fired on an invalid hs.timer object. This is a bug"];
         return;
     }
     if (!CFEqual(timer, t->t)) {
-        [skin logWarn:[NSString stringWithFormat:@"%s:timer argument and info->t differ", USERDATA_TAG]] ;
+        [skin logBreadcrumb:[NSString stringWithFormat:@"%s:timer argument and info->t differ", USERDATA_TAG]] ;
     }
 
     [skin pushLuaRef:refTable ref:t->fn];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
+        [skin logBreadcrumb:[NSString stringWithFormat:@"hs.timer callback error: %s", errorMsg]];
         [skin logError:[NSString stringWithFormat:@"hs.timer callback error: %s", errorMsg]];
         lua_pop(L, 1) ; // clear message from stack
         if (!t->continueOnError) {
@@ -42,14 +43,14 @@ static void timerCallback(CFRunLoopTimerRef timer, void *info) {
             CFAbsoluteTime nextFire   = CFRunLoopTimerGetNextFireDate(t->t) ; // double
 
             CFRunLoopRemoveTimer(CFRunLoopGetMain(), t->t, kCFRunLoopCommonModes);
-            [skin logWarn:@"hs.timer callback failed. The timer has been stopped to prevent repeated notifications of the error."];
+            [skin logBreadcrumb:@"hs.timer callback failed. The timer has been stopped to prevent repeated notifications of the error."];
 
             CFLocaleRef locale = CFLocaleCopyCurrent();
             CFDateFormatterRef formatter = CFDateFormatterCreate(kCFAllocatorDefault, locale, kCFDateFormatterFullStyle, kCFDateFormatterFullStyle);
             CFDateRef date = CFDateCreate(kCFAllocatorDefault, nextFire);
             CFStringRef dateAsString = CFDateFormatterCreateStringWithDate (kCFAllocatorDefault, formatter, date);
 
-            [skin logWarn:[NSString stringWithFormat:@"   timer details: %s repeating, every %f seconds, next scheduled at %@", (doesRepeat ? "is" : "is not"), interval, (__bridge NSString *)dateAsString]] ;
+            [skin logBreadcrumb:[NSString stringWithFormat:@"   timer details: %s repeating, every %f seconds, next scheduled at %@", (doesRepeat ? "is" : "is not"), interval, (__bridge NSString *)dateAsString]] ;
 
             CFRelease(dateAsString) ; CFRelease(date) ; CFRelease(formatter) ; CFRelease(locale) ;
 
