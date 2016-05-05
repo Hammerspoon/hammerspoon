@@ -697,7 +697,7 @@ static int pushTestUserData(lua_State *L, id object) {
     XCTAssertEqualObjects(@"Testing toNSObject", [self.skin toNSObjectAtIndex:-1]);
 
     lua_pushnil(self.skin.L);
-    XCTAssertEqualObjects([NSNull null], [self.skin toNSObjectAtIndex:-1]);
+    XCTAssertEqualObjects(nil, [self.skin toNSObjectAtIndex:-1]);
 
     lua_pushboolean(self.skin.L, YES);
     XCTAssertEqualObjects(@YES, [self.skin toNSObjectAtIndex:-1]);
