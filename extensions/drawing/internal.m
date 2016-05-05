@@ -599,6 +599,10 @@ static int drawing_newEllipticalArc(lua_State *L) {
                     LS_TBREAK];
 
     NSRect windowRect = [skin tableToRectAtIndex:1];
+    CGFloat startAngle = lua_tonumber(L, 2) - 90 ;
+    CGFloat endAngle   = lua_tonumber(L, 3) - 90 ;
+    if (!isfinite(startAngle)) return luaL_argerror(L, 2, "start angle must be a finite number");
+    if (!isfinite(endAngle))   return luaL_argerror(L, 3, "end angle must be a finite number");
 
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
@@ -614,8 +618,8 @@ static int drawing_newEllipticalArc(lua_State *L) {
         [theView setLuaState:L];
         theWindow.contentView = theView;
 
-        theView.startAngle = lua_tonumber(L, 2) - 90 ;
-        theView.endAngle   = lua_tonumber(L, 3) - 90 ;
+        theView.startAngle = startAngle ;
+        theView.endAngle   = endAngle ;
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];
