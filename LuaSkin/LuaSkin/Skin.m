@@ -247,6 +247,9 @@ NSString *specMaskToString(int spec) {
     lua_setfield(self.L, -2, "__index");
     lua_pushstring(self.L, objectName);
     lua_setfield(self.L, -2, "__type");
+    // used by some error functions in Lua
+    lua_pushstring(self.L, objectName);
+    lua_setfield(self.L, -2, "__name");
     lua_setfield(self.L, LUA_REGISTRYINDEX, objectName);
 }
 
