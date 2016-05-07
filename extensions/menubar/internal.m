@@ -172,6 +172,8 @@ NSMutableArray *dynamicMenuDelegates;
 @implementation HSMenubarItemClickDelegate
 - (void) click:(id __unused)sender {
     [self callback_runner];
+    // error or return value (ignored in this case), we gotta cleanup
+    lua_pop(self.L, 1) ;
 }
 @end
 
@@ -191,6 +193,8 @@ NSMutableArray *dynamicMenuDelegates;
     } else {
         [skin logError:@"hs.menubar:setMenu() callback must return a valid table"];
     }
+    // error or return value, we gotta cleanup
+    lua_pop(self.L, 1) ;
 }
 @end
 
