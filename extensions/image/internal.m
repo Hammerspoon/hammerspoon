@@ -875,9 +875,9 @@ static int imageFromMediaFile(lua_State *L) {
     }
 
     // If file has a movie UTI, try to generate an image from it
-    CFStringRef movieUTI = (__bridge CFStringRef)@"public.movie";
-    CFStringRef extension = (__bridge CFStringRef)[theFilePath pathExtension];
-    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, extension, movieUTI);
+    CFStringRef UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension,
+                                                            (__bridge CFStringRef)[theFilePath pathExtension],
+                                                            (__bridge CFStringRef)@"public.movie");
 
     if (!CFStringHasPrefix(UTI, (__bridge CFStringRef)@"dyn")) { // UTI prefixed with "dyn" if not member of specified category
         AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:theFilePath]];
@@ -888,6 +888,7 @@ static int imageFromMediaFile(lua_State *L) {
             theImage = [[NSImage alloc] initWithCGImage:generatedImage size:NSZeroSize];
         } else [skin logError:[NSString stringWithFormat:@"Unable to generate image from video: %@", error]];
     }
+    CFRelease(UTI);
 
     if (!theImage) {
         if (!isDirectory) { // Get the directory
