@@ -29,6 +29,7 @@ typedef struct _distnot_t {
         [skin pushNSObject:note.userInfo];
         if (![skin protectedCallAndTraceback:3 nresults:0]) {
             [skin logError:[NSString stringWithFormat:@"hs.distributednotification callback failed: %@", [skin toNSObjectAtIndex:-1]]];
+            lua_pop([skin L], 1);
         }
     }
 }
@@ -53,6 +54,9 @@ static int distnot_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TFUNCTION, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
 
+    NSString *name = lua_isnoneornil(L, 2) ? nil : [skin toNSObjectAtIndex:2];
+    NSString *obj  = lua_isnoneornil(L, 3) ? nil : [skin toNSObjectAtIndex:3];
+
     distnot_t *userData = lua_newuserdata(L, sizeof(distnot_t));
     memset(userData, 0, sizeof(distnot_t));
 
@@ -64,16 +68,8 @@ static int distnot_new(lua_State *L) {
 
     lua_pushvalue(L, 1);
     watcher.fnRef = [skin luaRef:refTable];
-    if (lua_isnoneornil(L, 2)) {
-        watcher.name = nil;
-    } else {
-        watcher.name = [skin toNSObjectAtIndex:2];
-    }
-    if (lua_isnoneornil(L, 3)) {
-        watcher.object = nil;
-    } else {
-        watcher.object = [skin toNSObjectAtIndex:3];
-    }
+    watcher.name = name;
+    watcher.object = obj;
 
     return 1;
 }
