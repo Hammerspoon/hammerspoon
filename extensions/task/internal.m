@@ -156,6 +156,7 @@ void create_task(task_userdata_t *userData) {
                     lua_pop([skin L], 1);
                 }
             }
+            userData->selfRef = [skin luaUnref:refTable ref:userData->selfRef];
         });
     };
 
