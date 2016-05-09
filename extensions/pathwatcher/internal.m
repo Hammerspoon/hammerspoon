@@ -34,6 +34,7 @@ void event_callback(ConstFSEventStreamRef __unused streamRef, void *clientCallBa
     if (![skin protectedCallAndTraceback:1 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         [skin logError:[NSString stringWithFormat:@"hs.pathwatcher callback error: %s", errorMsg]];
+        lua_pop(L, 1) ; // remove error message
     }
 }
 

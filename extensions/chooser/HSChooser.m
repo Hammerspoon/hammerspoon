@@ -257,7 +257,9 @@
 
         [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
         [skin pushNSObject:choice];
-        [skin protectedCallAndTraceback:1 nresults:0];
+        if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            lua_pop(skin.L, 1) ; // remove error message
+        }
     }
 }
 
@@ -269,7 +271,9 @@
     LuaSkin *skin = [LuaSkin shared];
     [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
     lua_pushnil(skin.L);
-    [skin protectedCallAndTraceback:1 nresults:0];
+    if (![skin protectedCallAndTraceback:1 nresults:0]) {
+        lua_pop(skin.L, 1) ; // remove error message
+    }
 }
 
 - (IBAction)queryDidPressEnter:(id)sender {
@@ -286,7 +290,9 @@
         LuaSkin *skin = [LuaSkin shared];
         [skin pushLuaRef:*(self.refTable) ref:self.queryChangedCallbackRef];
         [skin pushNSObject:queryString];
-        [skin protectedCallAndTraceback:1 nresults:0];
+        if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            lua_pop(skin.L, 1) ; // remove error message
+        }
     } else {
         // We do not have a query callback set, so we are doing the filtering
         if (queryString.length > 0) {
@@ -397,6 +403,7 @@
                     self.currentCallbackChoices = nil;
                 }
             }
+            lua_pop(skin.L, 1) ; // remove result or error message
         }
 
         if (self.currentCallbackChoices != nil) {

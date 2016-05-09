@@ -224,6 +224,7 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
     if (![skin protectedCallAndTraceback:4 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         [skin logError:[NSString stringWithUTF8String:errorMsg]];
+        lua_pop(L, 1) ; // remove error message
     }
 }
 

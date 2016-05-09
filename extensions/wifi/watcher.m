@@ -44,6 +44,7 @@ int refTable;
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         [skin logError:[NSString stringWithFormat:@"hs.wifi.watcher callback error: %s", errorMsg]];
+        lua_pop(L, 1) ;
     }
 }
 @end

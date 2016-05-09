@@ -27,6 +27,7 @@ CFDataRef ipc_callback(CFMessagePortRef __unused local, SInt32 __unused msgid, C
         const char *errorMsg = lua_tostring(skin.L, -1);
 
         [skin logError:[NSString stringWithFormat:@"hs.ipc: Unable to require('hs.ipc'): %s", errorMsg]];
+        lua_pop(skin.L, 1) ; // remove error message
 
         if (shouldFree) {
             free((char *)cmd);

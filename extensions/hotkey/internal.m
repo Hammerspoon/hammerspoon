@@ -309,6 +309,7 @@ static OSStatus trigger_hotkey_callback(int eventUID, int eventKind, BOOL isRepe
                 [keyRepeatManager stopTimer];
                 const char *errorMsg = lua_tostring(L, -1);
                 [skin logError:[NSString stringWithFormat:@"hs.hotkey callback error: %s", errorMsg]];
+                lua_pop(L, 1) ; // remove error message
                 return noErr;
             }
         }

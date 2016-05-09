@@ -154,6 +154,7 @@ int refTable ;
             if (![skin protectedCallAndTraceback:1 nresults:1]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
                 [skin logError:[NSString stringWithFormat:@"Unable to require('hs.notify'): %s", errorMsg]];
+                lua_pop(skin.L, 1) ; // remove error message
                 return;
             }
             lua_getfield(skin.L, -1, "_tag_handler") ;
@@ -169,6 +170,7 @@ int refTable ;
             if(![skin protectedCallAndTraceback:2 nresults:0]) {
                 const char *errorMsg = lua_tostring(skin.L, -1);
                 [skin logError:[NSString stringWithFormat:@"hs.notify callback error: %s", errorMsg]];
+                lua_pop(skin.L, 1) ; // remove error message
                 return;
             }
 
