@@ -82,6 +82,8 @@ int refTable;
         } else {
             response = [skin toNSObjectAtIndex:-1];
         }
+
+        lua_pop(skin.L, 1);
     };
 
     // Make sure we do all the above Lua work on the main thread
