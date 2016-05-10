@@ -3,6 +3,7 @@
 #import "CocoaHTTPServer/HTTPMessage.h"
 #import "CocoaHTTPServer/HTTPConnection.h"
 #import "CocoaHTTPServer/HTTPDataResponse.h"
+#import "CocoaHTTPServer/WebSocket.h"
 #import "CocoaAsyncSocket/GCDAsyncSocket.h"
 #import "CocoaLumberjack/CocoaLumberjack.h"
 #import "MYAnonymousIdentity.h"
@@ -20,11 +21,18 @@
 int refTable;
 
 // ObjC Class definitions
+@interface HSWebSocket : WebSocket
+@property int callback;
+@end
+
 @interface HSHTTPServer : HTTPServer
 @property int fn;
 @property NSUInteger maxBodySize;
 @property SecIdentityRef sslIdentity;
 @property (nonatomic, copy) NSString *httpPassword;
+@property int wsCallback;
+@property (nonatomic) NSString *wsPath;
+@property HSWebSocket *ws;
 @end
 
 @interface HSHTTPDataResponse : HTTPDataResponse
@@ -48,6 +56,48 @@ int refTable;
         self.maxBodySize  = 10 * 1024 * 1024; // set initial max body size to 10 MB
     }
     return self;
+}
+@end
+
+@implementation HSWebSocket
+
+- (void)didOpen
+{
+    [super didOpen];
+    [LuaSkin logInfo:@"Opened websocket connection"];
+}
+
+- (void)didReceiveMessage:(NSString *)msg
+{
+    __block NSData *response = nil;
+
+    void (^responseCallbackBlock)(void) = ^{
+        LuaSkin *skin = [LuaSkin shared];
+        [skin pushLuaRef:refTable ref:self.callback];
+        lua_pushstring(skin.L, [msg UTF8String]);
+
+        if (![skin protectedCallAndTraceback:1 nresults:1]) {
+            const char *errorMsg = lua_tostring(skin.L, -1);
+            [skin logError:[NSString stringWithFormat:@"hs.httpserver:websocket callback error: %s", errorMsg]];
+        } else {
+            response = [skin toNSObjectAtIndex:-1];
+        }
+    };
+
+    // Make sure we do all the above Lua work on the main thread
+    if ([NSThread isMainThread]) {
+        responseCallbackBlock();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), responseCallbackBlock);
+    }
+
+    [self sendMessage:[NSString stringWithFormat:@"%@", response]];
+}
+
+- (void)didClose
+{
+    [super didClose];
+    [LuaSkin logInfo:@"Closed websocket connection"];
 }
 @end
 
@@ -189,6 +239,18 @@ int refTable;
     return ((HSHTTPServer *)config.server).httpPassword;
 }
 
+- (WebSocket *)webSocketForURI:(NSString *)path
+{
+    if([path isEqualToString:((HSHTTPServer *)config.server).wsPath])
+    {
+        HSWebSocket *ws = [[HSWebSocket alloc] initWithRequest:request socket:asyncSocket];
+        ws.callback = ((HSHTTPServer *)config.server).wsCallback;
+        ((HSHTTPServer *)config.server).ws = ws;
+        return ws;
+    }
+
+    return [super webSocketForURI:path];
+}
 @end
 
 @implementation HSHTTPSConnection
@@ -294,6 +356,57 @@ static int httpserver_new(lua_State *L) {
 
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
+    return 1;
+}
+
+/// hs.httpserver:websocket(path, callback) -> object
+/// Method
+/// Enables a websocket endpoint on the HTTP server
+///
+/// Parameters:
+///  * path - A string containing the websocket path such as '/ws'
+///  * callback - A function returning a string for each recieved websocket message
+///
+/// Returns:
+///  * The `hs.httpserver` object
+///
+/// Notes:
+///  * The callback is passed one string parameter containing the received message
+///  * The callback must return a string containing the response message
+///  * Given a path '/mysock' and a port of 8000, the websocket URL is as follows:
+///   * ws://localhost:8000/mysock
+///   * wss://localhost:8000/mysock (if SSL enabled)
+static int httpserver_websocket(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
+    HSHTTPServer *server = getUserData(L, 1);
+
+    server.wsPath = [skin toNSObjectAtIndex:2];
+    [skin luaUnref:refTable ref:server.wsCallback];
+    lua_pushvalue(L, 3);
+    server.wsCallback = [skin luaRef:refTable];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.httpserver:send(message) -> object
+/// Method
+/// Sends a message to the websocket client
+///
+/// Parameters:
+///  * message - A string containing the message to send
+///
+/// Returns:
+///  * The `hs.httpserver` object
+static int httpserver_send(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+    HSHTTPServer *server = getUserData(L, 1);
+
+    [server.ws sendMessage:[skin toNSObjectAtIndex:2]];
+
+    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -518,17 +631,11 @@ static int httpserver_setName(lua_State *L) {
 }
 
 static int httpserver_objectGC(lua_State *L) {
-    lua_pushcfunction(L, httpserver_stop);
-    lua_pushvalue(L, 1);
-    lua_call(L, 1, 1);
-
-    lua_pushcfunction(L, httpserver_setCallback);
-    lua_pushvalue(L, 1);
-    lua_pushnil(L);
-    lua_call(L, 1, 1);
-
     httpserver_t *httpServer = get_item_arg(L, 1);
     HSHTTPServer *server = (__bridge_transfer HSHTTPServer *)httpServer->server;
+    [server stop];
+    [[LuaSkin shared] luaUnref:refTable ref:server.fn];
+    [[LuaSkin shared] luaUnref:refTable ref:server.wsCallback];
     server = nil;
 
     return 0;
@@ -552,12 +659,14 @@ static const luaL_Reg httpserverLib[] = {
 };
 
 static const luaL_Reg httpserverObjectLib[] = {
-    {"start", httpserver_start},
-    {"stop", httpserver_stop},
-    {"getPort", httpserver_getPort},
-    {"setPort", httpserver_setPort},
-    {"getName", httpserver_getName},
-    {"setName", httpserver_setName},
+    {"websocket",   httpserver_websocket},
+    {"send",        httpserver_send},
+    {"start",       httpserver_start},
+    {"stop",        httpserver_stop},
+    {"getPort",     httpserver_getPort},
+    {"setPort",     httpserver_setPort},
+    {"getName",     httpserver_getName},
+    {"setName",     httpserver_setName},
     {"setCallback", httpserver_setCallback},
     {"setPassword", httpserver_setPassword},
     {"maxBodySize", httpserver_maxBodySize},
