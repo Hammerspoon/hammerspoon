@@ -7431,6 +7431,7 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
 			};
 			name = Debug;
 		};
@@ -7498,6 +7499,7 @@
 				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
 				SDKROOT = "$(inherited)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/Pods/Headers/Public/**";
 			};
 			name = Release;
 		};

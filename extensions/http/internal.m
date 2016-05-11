@@ -3,6 +3,16 @@
 #import <Carbon/Carbon.h>
 #import <LuaSkin/LuaSkin.h>
 #import <WebKit/WebKit.h>
+#import "PocketSocket/PSWebSocket.h"
+
+// Websocket userdata struct
+typedef struct _webSocketUserData {
+    int selfRef;
+    void *ws;
+} webSocketUserData;
+
+#define getWsUserData(L, idx) (__bridge HSWebSocketDelegate *)((webSocketUserData *)lua_touserdata(L, idx))->ws;
+static const char *WS_USERDATA_TAG = "hs.http.websocket";
 
 int refTable;
 static NSMutableArray* delegates;
@@ -25,6 +35,12 @@ static void createResponseHeaderTable(lua_State* L, NSHTTPURLResponse* httpRespo
 @property(nonatomic, retain) NSMutableData* receivedData;
 @property(nonatomic, retain) NSHTTPURLResponse* httpResponse;
 @property(nonatomic, retain) NSURLConnection* connection;
+@end
+
+// Definition of websocket delegate object
+@interface HSWebSocketDelegate: NSObject<PSWebSocketDelegate>
+@property int fn;
+@property (strong) PSWebSocket *webSocket;
 @end
 
 // Store a created delegate so we can cancel it on garbage collection
@@ -97,6 +113,49 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     remove_delegate(self.L, self);
 }
 
+@end
+
+// Implementation of the websocket client delegate
+@implementation HSWebSocketDelegate
+- (instancetype)initWithURL:(NSURL *)URL {
+    if((self = [super init])) {
+        NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+        _webSocket = [PSWebSocket clientSocketWithRequest:request];
+        _webSocket.delegate = self;
+        _webSocket.delegateQueue = dispatch_queue_create(nil, nil);
+    }
+    return self;
+}
+
+- (void)webSocketDidOpen:(PSWebSocket *)webSocket {
+    [LuaSkin logInfo:@"Client websocket opened"];
+}
+
+- (void)webSocket:(PSWebSocket *)webSocket didReceiveMessage:(id)message {
+    if (self.fn == LUA_NOREF) {
+        return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        LuaSkin *skin = [LuaSkin shared];
+
+        [skin pushLuaRef:refTable ref:self.fn];
+        lua_pushstring(skin.L, [message UTF8String]);
+
+        if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            const char *errorMsg = lua_tostring(skin.L, -1);
+            [skin logError:[NSString stringWithFormat:@"hs.http.websocket callback error: %s", errorMsg]];
+        }
+    });
+}
+
+- (void)webSocket:(PSWebSocket *)webSocket didFailWithError:(NSError *)error {
+    [LuaSkin logInfo:[NSString stringWithFormat:@"hs.http.webSocket: didFail: %@", error]];
+}
+
+- (void)webSocket:(PSWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean {
+    [LuaSkin logInfo:[NSString stringWithFormat:@"hs.http.webSocket: didClose: %@", reason]];
+}
 @end
 
 // If the user specified a request body, get it from stack,
@@ -563,6 +622,49 @@ static id table_toNSURLRequest(lua_State* L, int idx) {
     return request ;
 }
 
+static int http_ws_open(lua_State* L){
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TFUNCTION, LS_TBREAK];
+
+    NSString *url = [skin toNSObjectAtIndex:1];
+    HSWebSocketDelegate* ws = [[HSWebSocketDelegate alloc] initWithURL:[NSURL URLWithString:url]];
+
+    lua_pushvalue(L, 2);
+    ws.fn = [skin luaRef:refTable];
+
+    [ws.webSocket open];
+
+    webSocketUserData *userData = lua_newuserdata(L, sizeof(webSocketUserData));
+    memset(userData, 0, sizeof(webSocketUserData));
+    userData->ws = (__bridge_retained void*)ws;
+    luaL_getmetatable(L, WS_USERDATA_TAG);
+    lua_setmetatable(L, -2);
+
+    return 1;
+}
+
+static int http_ws_send(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+    HSWebSocketDelegate* ws = getWsUserData(L, 1);
+
+    NSString *message = [skin toNSObjectAtIndex:2];
+    [ws.webSocket send:message];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+static int http_ws_close(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, WS_USERDATA_TAG, LS_TBREAK];
+    HSWebSocketDelegate* ws = getWsUserData(L, 1);
+
+    [ws.webSocket close];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
 
 static int http_gc(lua_State* L){
     NSMutableArray* delegatesCopy = [[NSMutableArray alloc] init];
@@ -575,11 +677,37 @@ static int http_gc(lua_State* L){
     return 0;
 }
 
+static int http_ws_gc(lua_State* L){
+    webSocketUserData *userData = lua_touserdata(L, 1);
+    HSWebSocketDelegate* ws = (__bridge_transfer HSWebSocketDelegate *)userData->ws;
+    userData->ws = nil;
+
+    [ws.webSocket close];
+    ws.webSocket.delegate = nil;
+    ws.webSocket = nil;
+    ws.fn = [[LuaSkin shared] luaUnref:refTable ref:ws.fn];
+    ws = nil;
+
+    return 0;
+}
+
+static int http_ws_tostring(lua_State* L) {
+    HSWebSocketDelegate* ws = getWsUserData(L, 1);
+    NSString *host = @"disconnected";
+    if (ws.webSocket.readyState==1) {
+        host = (__bridge_transfer NSString *)[ws.webSocket copyStreamPropertyForKey:@"kCFStreamPropertySocketRemoteHostName"];
+    }
+
+    lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", WS_USERDATA_TAG, host, lua_topointer(L, 1)] UTF8String]);
+    return 1;
+}
+
 static const luaL_Reg httplib[] = {
-    {"doRequest", http_doRequest},
-    {"doAsyncRequest", http_doAsyncRequest},
-    {"urlParts",       http_urlParts},
-    {"encodeForQuery", http_encodeForQuery},
+    {"doRequest",       http_doRequest},
+    {"doAsyncRequest",  http_doAsyncRequest},
+    {"urlParts",        http_urlParts},
+    {"encodeForQuery",  http_encodeForQuery},
+    {"websocket",       http_ws_open},
 
     {NULL, NULL} // This must end with an empty struct
 };
@@ -590,16 +718,25 @@ static const luaL_Reg metalib[] = {
     {NULL, NULL} // This must end with an empty struct
 };
 
+static const luaL_Reg wsMetalib[] = {
+    {"send",        http_ws_send},
+    {"close",       http_ws_close},
+    {"__tostring",  http_ws_tostring},
+    {"__gc",        http_ws_gc},
+
+    {NULL, NULL} // This must end with an empty struct
+};
+
 int luaopen_hs_http_internal(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
 
     delegates = [[NSMutableArray alloc] init];
     refTable = [skin registerLibrary:httplib metaFunctions:metalib];
+    [skin registerObject:WS_USERDATA_TAG objectFunctions:wsMetalib];
 
-    [[LuaSkin shared] registerPushNSHelper:NSURLRequest_toLua      forClass:"NSURLRequest"] ;
-    [[LuaSkin shared] registerPushNSHelper:NSURLResponse_toLua     forClass:"NSURLResponse"] ;
-
-    [[LuaSkin shared] registerLuaObjectHelper:table_toNSURLRequest forClass:"NSURLRequest"] ;
+    [skin registerPushNSHelper:NSURLRequest_toLua      forClass:"NSURLRequest"] ;
+    [skin registerPushNSHelper:NSURLResponse_toLua     forClass:"NSURLResponse"] ;
+    [skin registerLuaObjectHelper:table_toNSURLRequest forClass:"NSURLRequest"] ;
 
     return 1;
 }
