@@ -15,6 +15,8 @@
 		4C403D661CBE627200EE20ED /* test_application.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C403D651CBE627200EE20ED /* test_application.lua */; };
 		4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */; };
 		4C5BA6B71C85EB0400E68CA9 /* test_fs.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */; };
+		4C8F8CB31CC38B7E00F72CE5 /* HSuielement.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */; };
+		4C8F8CB51CC38BC500F72CE5 /* test_uielement.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C8F8CB41CC38BC500F72CE5 /* test_uielement.lua */; };
 		4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4C3D55AD1C7F05D00023B633 /* test_javascript.lua */; };
 		4CB349F11C7F74E5006F0DE0 /* test_osascript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CB349F01C7F74E5006F0DE0 /* test_osascript.lua */; };
 		4CB349F31C7F74EE006F0DE0 /* test_applescript.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4CB349F21C7F74EE006F0DE0 /* test_applescript.lua */; };
@@ -99,13 +101,6 @@
 		4F70EED71B726D3F0025A7B3 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F70EED61B726D3F0025A7B3 /* internal.m */; };
 		4F70EEE41B7273700025A7B3 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F70EEEF1B7273B00025A7B3 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F70EEEE1B7273B00025A7B3 /* internal.m */; };
-		4F766E5A1C48F79C007B9D24 /* copy_extensions_to_bundle.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E571C48F79C007B9D24 /* copy_extensions_to_bundle.sh */; };
-		4F766E5B1C48F79C007B9D24 /* librelease.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E581C48F79C007B9D24 /* librelease.sh */; };
-		4F766E5C1C48F79C007B9D24 /* release.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E591C48F79C007B9D24 /* release.sh */; };
-		4F766E611C48F7BE007B9D24 /* gencomments in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5D1C48F7BE007B9D24 /* gencomments */; };
-		4F766E621C48F7BE007B9D24 /* genhtml in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5E1C48F7BE007B9D24 /* genhtml */; };
-		4F766E631C48F7BE007B9D24 /* genjson in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5F1C48F7BE007B9D24 /* genjson */; };
-		4F766E641C48F7BE007B9D24 /* gensql in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E601C48F7BE007B9D24 /* gensql */; };
 		4F76944F1B74C96800536DE4 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F76945A1B74C9CA00536DE4 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7694591B74C9CA00536DE4 /* internal.m */; };
 		4F85FED31CCA918D00FBBAD7 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -753,6 +748,8 @@
 		4C403D651CBE627200EE20ED /* test_application.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_application.lua; path = extensions/application/test_application.lua; sourceTree = "<group>"; };
 		4C5BA6B41C85EAEB00E68CA9 /* HSfs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSfs.m; sourceTree = "<group>"; };
 		4C5BA6B61C85EB0400E68CA9 /* test_fs.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_fs.lua; path = extensions/fs/test_fs.lua; sourceTree = "<group>"; };
+		4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSuielement.m; sourceTree = "<group>"; };
+		4C8F8CB41CC38BC500F72CE5 /* test_uielement.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_uielement.lua; path = extensions/uielement/test_uielement.lua; sourceTree = "<group>"; };
 		4CB349F01C7F74E5006F0DE0 /* test_osascript.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_osascript.lua; sourceTree = "<group>"; };
 		4CB349F21C7F74EE006F0DE0 /* test_applescript.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test_applescript.lua; sourceTree = "<group>"; };
 		4CBF1C671C91154700B861CE /* libedit.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libedit.tbd; path = usr/lib/libedit.tbd; sourceTree = SDKROOT; };
@@ -2248,6 +2245,7 @@
 				4FD0AB4A1B749CDD00A82496 /* init.lua */,
 				4FD0AB4B1B749CDD00A82496 /* internal.m */,
 				4FD0AB4C1B749CDD00A82496 /* uielement.h */,
+				4C8F8CB41CC38BC500F72CE5 /* test_uielement.lua */,
 			);
 			name = uielement;
 			sourceTree = "<group>";
@@ -2670,6 +2668,7 @@
 				D02F95281A00221C00E28BB2 /* HSrequire_all.m */,
 				4FDD8E4B1C6E4FBB00085D7A /* HSscreen.m */,
 				4CD64AA81C6F15F400EB6E39 /* HSsocket.m */,
+				4C8F8CB21CC38B7E00F72CE5 /* HSuielement.m */,
 				4FDD8E871C8AE3ED00085D7A /* HSTestCase.h */,
 				4FDD8E881C8AE3ED00085D7A /* HSTestCase.m */,
 				4F6CE1331C6B93E10016668E /* HStimer.m */,
@@ -4638,18 +4637,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F766E641C48F7BE007B9D24 /* gensql in Resources */,
-				4F766E5C1C48F79C007B9D24 /* release.sh in Resources */,
-				4F766E611C48F7BE007B9D24 /* gencomments in Resources */,
-				4F766E5A1C48F79C007B9D24 /* copy_extensions_to_bundle.sh in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
-				4F766E5B1C48F79C007B9D24 /* librelease.sh in Resources */,
-				4F766E631C48F7BE007B9D24 /* genjson in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
-				4F766E621C48F7BE007B9D24 /* genhtml in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
@@ -4677,6 +4669,7 @@
 				4FDD8E541C83616100085D7A /* test_alert.lua in Resources */,
 				4CB349F11C7F74E5006F0DE0 /* test_osascript.lua in Resources */,
 				4FDD8E501C834C9400085D7A /* test_base64.lua in Resources */,
+				4C8F8CB51CC38BC500F72CE5 /* test_uielement.lua in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5328,6 +5321,7 @@
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
 				4C403D641CBE5B9F00EE20ED /* HSapplication.m in Sources */,
+				4C8F8CB31CC38B7E00F72CE5 /* HSuielement.m in Sources */,
 				D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */,
 				4C5BA6B51C85EAEB00E68CA9 /* HSfs.m in Sources */,
 				4F6CE1341C6B93E10016668E /* HStimer.m in Sources */,
