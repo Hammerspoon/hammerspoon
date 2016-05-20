@@ -101,13 +101,6 @@
 		4F70EED71B726D3F0025A7B3 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F70EED61B726D3F0025A7B3 /* internal.m */; };
 		4F70EEE41B7273700025A7B3 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F70EEEF1B7273B00025A7B3 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F70EEEE1B7273B00025A7B3 /* internal.m */; };
-		4F766E5A1C48F79C007B9D24 /* copy_extensions_to_bundle.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E571C48F79C007B9D24 /* copy_extensions_to_bundle.sh */; };
-		4F766E5B1C48F79C007B9D24 /* librelease.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E581C48F79C007B9D24 /* librelease.sh */; };
-		4F766E5C1C48F79C007B9D24 /* release.sh in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E591C48F79C007B9D24 /* release.sh */; };
-		4F766E611C48F7BE007B9D24 /* gencomments in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5D1C48F7BE007B9D24 /* gencomments */; };
-		4F766E621C48F7BE007B9D24 /* genhtml in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5E1C48F7BE007B9D24 /* genhtml */; };
-		4F766E631C48F7BE007B9D24 /* genjson in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E5F1C48F7BE007B9D24 /* genjson */; };
-		4F766E641C48F7BE007B9D24 /* gensql in Resources */ = {isa = PBXBuildFile; fileRef = 4F766E601C48F7BE007B9D24 /* gensql */; };
 		4F76944F1B74C96800536DE4 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4F76945A1B74C9CA00536DE4 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F7694591B74C9CA00536DE4 /* internal.m */; };
 		4F85FED31CCA918D00FBBAD7 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -4537,18 +4530,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F766E641C48F7BE007B9D24 /* gensql in Resources */,
-				4F766E5C1C48F79C007B9D24 /* release.sh in Resources */,
-				4F766E611C48F7BE007B9D24 /* gencomments in Resources */,
-				4F766E5A1C48F79C007B9D24 /* copy_extensions_to_bundle.sh in Resources */,
 				4FC09F7C19F99ECE007542A6 /* docs.json in Resources */,
-				4F766E5B1C48F79C007B9D24 /* librelease.sh in Resources */,
-				4F766E631C48F7BE007B9D24 /* genjson in Resources */,
 				4F8E84311B90EDBF00C25955 /* statusicon.pdf in Resources */,
 				944A2D451989737E00D8DC90 /* Images.xcassets in Resources */,
 				944A2D431989737E00D8DC90 /* Credits.rtf in Resources */,
 				944A2D3A1989735300D8DC90 /* MainMenu.xib in Resources */,
-				4F766E621C48F7BE007B9D24 /* genhtml in Resources */,
 				949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */,
 				949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */,
 				945B65B2198D31FC002D2E30 /* setup.lua in Resources */,
