@@ -948,6 +948,21 @@ static int menubar_returnToMenuBar(lua_State *L) {
     return 1 ;
 }
 
+/// hs.menubar:isInMenuBar() -> boolean
+/// Method
+/// Returns a boolean indicating whether or not the specified menu is currently in the OS X menubar.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a boolean indicating whether or not the specified menu is currently in the OS X menubar
+static int menubar_isInMenubar(lua_State *L) {
+    menubaritem_t *menuBarItem     = get_item_arg(L, 1);
+    lua_pushboolean(L, !(menuBarItem->removed)) ;
+    return 1;
+}
+
 /// hs.menubar:title([styled]) -> string | styledtextObject
 /// Method
 /// Returns the current title of the menubar item object.
@@ -1141,6 +1156,7 @@ static const luaL_Reg menubar_metalib[] = {
     {"stateImageSize",    menubarStateImageSize},
     {"_frame",            menubarFrame},
     {"priority",          menubarPriority},
+    {"isInMenubar",       menubar_isInMenubar},
 
     {"__tostring",        userdata_tostring},
     {"__gc",              menubaritem_gc},

@@ -283,6 +283,32 @@ static int checkForUpdates(lua_State *L) {
     return 0 ;
 }
 
+/// hs.canCheckForUpdates() -> boolean
+/// Function
+/// Returns a boolean indicating whether or not the Sparkle framework is available to check for Hammerspoon updates.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a boolean indicating whether or not the Sparkle framework is available to check for Hammerspoon updates
+///
+/// Notes:
+///  * The Sparkle framework is included in all regular releases of Hammerspoon but not included if you are running a non-release or locally compiled version of Hammerspoon, so this function can be used as a simple test to determine whether or not you are running a formal release Hammerspoon or not.
+static int canCheckForUpdates(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    BOOL canUpdate = NO ;
+
+    if (NSClassFromString(@"SUUpdater")) {
+        NSString *frameworkPath = [[[NSBundle mainBundle] privateFrameworksPath] stringByAppendingPathComponent:@"Sparkle.framework"];
+        if ([[NSBundle bundleWithPath:frameworkPath] load]) {
+            canUpdate = YES ;
+        }
+    }
+    lua_pushboolean(L, canUpdate) ;
+    return 1 ;
+}
+
 /// hs.focus()
 /// Function
 /// Makes Hammerspoon the foreground app.
@@ -365,6 +391,7 @@ static luaL_Reg corelib[] = {
     {"autoLaunch", core_autolaunch},
     {"automaticallyCheckForUpdates", automaticallyChecksForUpdates},
     {"checkForUpdates", checkForUpdates},
+    {"canCheckForUpdates", canCheckForUpdates},
     {"reload", core_reload},
     {"focus", core_focus},
     {"accessibilityState", core_accessibilityState},
