@@ -202,12 +202,15 @@ static int hotkey_enable(lua_State* L) {
 
     if (result == noErr) {
         hotkey->enabled = YES;
+        lua_pushvalue(L, 1);
     } else {
-        [skin logBreadcrumb:[NSString stringWithFormat:@"hs.hotkey:enable() RegisterEventHotKey failed: %d", (int)result]];
+        [skin logError:[NSString stringWithFormat:@"%s:enable() keycode: %d, mods: 0x%04x, RegisterEventHotKey failed: %d", USERDATA_TAG, hotkey->keycode, hotkey->mods, (int)result]];
+
         hotkey->uid = remove_hotkey(L, hotkey->uid);
+
+        lua_pushnil(L) ;
     }
 
-    lua_pushvalue(L, 1);
     return 1;
 }
 
@@ -226,7 +229,7 @@ static void stop(lua_State* L, hotkey_t* hotkey) {
         OSStatus result = UnregisterEventHotKey(hotkey->carbonHotKey);
         hotkey->carbonHotKey = nil;
         if (result != noErr) {
-            [skin logBreadcrumb:[NSString stringWithFormat:@"hs.hotkey stop() UnregisterEventHotKey failed: %d", (int)result]];
+            [skin logError:[NSString stringWithFormat:@"%s:stop() keycode: %d, mods: 0x%04x, UnregisterEventHotKey failed: %d", USERDATA_TAG, hotkey->keycode, hotkey->mods, (int)result]];
         }
     }
 
