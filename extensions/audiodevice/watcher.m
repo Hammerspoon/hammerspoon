@@ -52,7 +52,9 @@ OSStatus audiodevicewatcher_callback(AudioDeviceID deviceID, UInt32 numAddresses
                 //NSLog(@"Examining selector: %@", UTCreateStringForOSType(addressList[i].mSelector));
                 [skin pushLuaRef:refTable ref:theWatcher->callback];
                 lua_pushstring(skin.L, [(__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mSelector) UTF8String]);
-                [skin protectedCallAndTraceback:1 nresults:0];
+                if (![skin protectedCallAndTraceback:1 nresults:0]) {
+                    lua_pop(skin.L, 1) ; // remove error message
+                }
             }
         }
 

@@ -441,7 +441,7 @@ NSString *specMaskToString(int spec);
 
  Basic Lua type to NSObject conversion rules:
 
-   nil     - [NSNull null]
+   nil     - nil if the index points directly to a nil lua object, or [NSNull null] if the nil is a member of a table
 
    string  - NSString
 
@@ -468,7 +468,8 @@ NSString *specMaskToString(int spec);
 
  Basic Lua type to NSObject conversion rules:
 
-   nil     - [NSNull null]
+   nil     - nil if the index points directly to a nil lua object, or [NSNull null] if the nil is a member of a table
+
 
    string  - NSString or NSData, depending upon options specified
 

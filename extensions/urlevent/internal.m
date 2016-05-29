@@ -132,6 +132,7 @@ static HSURLEventHandler *eventHandler;
     if (![skin protectedCallAndTraceback:4 nresults:0]) {
         const char *errorMsg = lua_tostring(skin.L, -1);
         [skin logError:[NSString stringWithFormat:@"hs.urlevent callback error: %s for URL %@", errorMsg, [url absoluteString]]];
+        lua_pop(skin.L, 1) ; // remove error message
     }
 }
 @end
@@ -290,10 +291,14 @@ static int urleventopenURLWithBundle(lua_State *L) {
     BOOL result = false;
 
     // FIXME: Add optional argument to let the user compose their own launch options
-    result = [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:[NSURL URLWithString:[NSString stringWithUTF8String:lua_tostring(L, 1)]]]
-                             withAppBundleIdentifier:[NSString stringWithUTF8String:lua_tostring(L, 2)]
-                                             options:NSWorkspaceLaunchDefault additionalEventParamDescriptor:nil
-                                   launchIdentifiers:nil];
+    NSURL *url = [NSURL URLWithString:[skin toNSObjectAtIndex:1]];
+
+    if (url) {
+        result = [[NSWorkspace sharedWorkspace] openURLs:[NSArray arrayWithObject:url]
+                                 withAppBundleIdentifier:[NSString stringWithUTF8String:lua_tostring(L, 2)]
+                                                 options:NSWorkspaceLaunchDefault additionalEventParamDescriptor:nil
+                                       launchIdentifiers:nil];
+    }
 
     lua_pushboolean(L, result);
     return 1;

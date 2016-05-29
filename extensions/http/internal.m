@@ -79,6 +79,7 @@ static void remove_delegate(__unused lua_State* L, connectionDelegate* delegate)
     if (![skin protectedCallAndTraceback:3 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         [skin logError:[NSString stringWithFormat:@"hs.http callback error: %s", errorMsg]];
+        lua_pop(L, 1) ; // remove error message
     }
     remove_delegate(L, self);
 }

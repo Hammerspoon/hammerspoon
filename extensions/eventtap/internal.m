@@ -34,6 +34,7 @@ CGEventRef eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef
         } else {
             [skin logError:[NSString stringWithFormat:@"hs.eventtap callback error: %s", errorMsg]];
         }
+        lua_pop(L, 1) ; // remove error message
         return NULL;
     }
 

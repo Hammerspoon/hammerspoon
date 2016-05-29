@@ -42,6 +42,7 @@ typedef struct _spacewatcher_t {
     if (![skin protectedCallAndTraceback:1 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         [skin logError:[NSString stringWithFormat:@"hs.spaces.watcher callback error: %s", errorMsg]];
+        lua_pop(L, 1) ; // remove error message
     }
 }
 
