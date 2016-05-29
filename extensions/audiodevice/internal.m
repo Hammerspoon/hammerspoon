@@ -85,7 +85,9 @@ OSStatus audiodevice_callback(AudioDeviceID deviceID, UInt32 numAddresses, const
                 lua_pushstring(skin.L, ((__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mSelector)).UTF8String);
                 lua_pushstring(skin.L, ((__bridge_transfer NSString *)UTCreateStringForOSType(addressList[i].mScope)).UTF8String);
                 lua_pushinteger(skin.L, addressList[i].mElement);
-                [skin protectedCallAndTraceback:4 nresults:0];
+                if (![skin protectedCallAndTraceback:4 nresults:0]) {
+                    lua_pop(skin.L, 1) ; // remove error message
+                }
             }
         }
 
@@ -217,7 +219,7 @@ error:
 
 end:
     free(deviceList);
-    
+
     return 1;
 }
 
@@ -1160,7 +1162,7 @@ error:
 
 end:
     free(datasourceList);
-    
+
     return 1;
 }
 

@@ -185,6 +185,7 @@ int refTable;
             [skin logError:[NSString stringWithFormat:@"hs.httpserver:setCallback() callback error: %s", errorMsg]];
             responseCode = 503;
             responseBody = [NSData dataWithData:[@"An error occurred during hs.httpserver callback handling" dataUsingEncoding:NSUTF8StringEncoding]];
+            lua_pop(L, 1) ; // the error message
         } else {
             if (!(lua_type(L, -3) == LUA_TSTRING && lua_type(L, -2) == LUA_TNUMBER && lua_type(L, -1) == LUA_TTABLE)) {
                 [skin logError:@"hs.httpserver:setCallback() callbacks must return three values. A string for the response body, an integer response code, and a table of headers"];
@@ -212,6 +213,7 @@ int refTable;
                     [skin logError:@"hs.httpserver:setCallback() callback returned a header table that contains non-strings"];
                 }
             }
+            lua_pop(L, 3) ; // our results... don't leave them on the stack
         }
     };
 

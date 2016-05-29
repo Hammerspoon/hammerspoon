@@ -26,6 +26,7 @@ static void connectCallback(HSAsyncUdpSocket *asyncUdpSocket) {
         if (![skin protectedCallAndTraceback:0 nresults:0]) {
             const char *errorMsg = lua_tostring(skin.L, -1);
             [LuaSkin logError:[NSString stringWithFormat:@"%s connect callback error: %s", USERDATA_TAG, errorMsg]];
+            lua_pop(skin.L, 1) ; // remove error message
         }
     );
 }
@@ -40,6 +41,7 @@ static void writeCallback(HSAsyncUdpSocket *asyncUdpSocket, long tag) {
         if (![skin protectedCallAndTraceback:1 nresults:0]) {
             const char *errorMsg = lua_tostring(skin.L, -1);
             [LuaSkin logError:[NSString stringWithFormat:@"%s write callback error: %s", USERDATA_TAG, errorMsg]];
+            lua_pop(skin.L, 1) ; // remove error message
         }
     );
 }
@@ -54,6 +56,7 @@ static void readCallback(HSAsyncUdpSocket *asyncUdpSocket, NSData *data, NSData 
         if (![skin protectedCallAndTraceback:2 nresults:0]) {
             const char *errorMsg = lua_tostring(skin.L, -1);
             [LuaSkin logError:[NSString stringWithFormat:@"%s read callback error: %s", USERDATA_TAG, errorMsg]];
+            lua_pop(skin.L, 1) ; // remove error message
         }
     );
 }

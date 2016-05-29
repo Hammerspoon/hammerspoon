@@ -7,6 +7,7 @@
 
 #define get_element(L, idx) *((AXUIElementRef*)lua_touserdata(L, idx))
 
+static int refTable = LUA_NOREF ;
 static const char* userdataTag = "hs.uielement";
 static const char* watcherUserdataTag = "hs.uielement.watcher.userdata";
 static const char* watcherTag = "hs.uielement.watcher";
@@ -172,12 +173,12 @@ static int uielement_newWatcher(lua_State* L) {
     memset(watcher, 0, sizeof(watcher_t));
 
     lua_pushvalue(L, 2);  // handler
-    watcher->handler_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    watcher->handler_ref = [skin luaRef:refTable];
     if (nargs >= 3)
         lua_pushvalue(L, 3);  // userData
     else
         lua_pushnil(L);
-    watcher->user_data_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    watcher->user_data_ref = [skin luaRef:refTable];
     watcher->watcher_ref = LUA_REFNIL;
     watcher->running = NO;
     watcher->element = (AXUIElementRef)CFRetain(element);
@@ -214,15 +215,16 @@ static void watcher_observer_callback(AXObserverRef observer __unused, AXUIEleme
 
     lua_State *L = skin.L;
 
-    lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->handler_ref);
+    [skin pushLuaRef:refTable ref:watcher->handler_ref];
     push_element(L, element); // Parameter 1: element
     lua_pushstring(L, CFStringGetCStringPtr(notificationName, kCFStringEncodingASCII)); // Parameter 2: event
-    lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->watcher_ref); // Parameter 3: watcher
-    lua_rawgeti(L, LUA_REGISTRYINDEX, watcher->user_data_ref); // Parameter 4: userData
+    [skin pushLuaRef:refTable ref:watcher->watcher_ref]; // Parameter 3: watcher
+    [skin pushLuaRef:refTable ref:watcher->user_data_ref]; // Parameter 4: userData
 
     if (![skin protectedCallAndTraceback:4 nresults:0]) {
         const char *errorMsg = lua_tostring(L, -1);
         [skin logError:[NSString stringWithUTF8String:errorMsg]];
+        lua_pop(L, 1) ; // remove error message
     }
 }
 
@@ -260,7 +262,7 @@ static int watcher_start(lua_State* L) {
     }
 
     lua_pushvalue(L, 1);  // Store a reference to the lua object inside watcher.
-    watcher->watcher_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    watcher->watcher_ref = [skin luaRef:refTable];
     watcher->observer = observer;
     watcher->running = YES;
 
@@ -273,15 +275,15 @@ static int watcher_start(lua_State* L) {
     return 1;
 }
 
-static void stop_watcher(lua_State* L, watcher_t* watcher) {
+static void stop_watcher(__unused lua_State* L, watcher_t* watcher) {
+    LuaSkin *skin = [LuaSkin shared];
     if (!watcher->running) return;
 
     CFRunLoopRemoveSource([[NSRunLoop currentRunLoop] getCFRunLoop],
                           AXObserverGetRunLoopSource(watcher->observer),
                           kCFRunLoopDefaultMode);
 
-    luaL_unref(L, LUA_REGISTRYINDEX, watcher->watcher_ref);
-    watcher->watcher_ref = LUA_NOREF;
+    watcher->watcher_ref = [skin luaUnref:refTable ref:watcher->watcher_ref];
     CFRelease(watcher->observer);
 
     watcher->running = NO;
@@ -321,13 +323,12 @@ static int uielement_focusedElement(lua_State* L) {
 
 // Perform cleanup if the watcher is not required anymore.
 static int watcher_gc(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
     watcher_t* watcher = get_watcher(L, 1);
 
     stop_watcher(L, watcher);  // For extra safety, make sure we're stopped.
-    luaL_unref(L, LUA_REGISTRYINDEX, watcher->handler_ref);
-    luaL_unref(L, LUA_REGISTRYINDEX, watcher->user_data_ref);
-    watcher->handler_ref = LUA_NOREF;
-    watcher->user_data_ref = LUA_NOREF;
+    watcher->handler_ref = [skin luaUnref:refTable ref:watcher->handler_ref];
+    watcher->user_data_ref = [skin luaUnref:refTable ref:watcher->user_data_ref];
     CFRelease(watcher->element);
 
     return 0;
@@ -350,6 +351,10 @@ static const luaL_Reg watcherlib[] = {
 
 int luaopen_hs_uielement_internal(lua_State* L) {
     eventNames = @[ @"AXMainWindowChanged", @"AXFocusedWindowChanged", @"AXFocusedUIElementChanged", @"AXApplicationActivated", @"AXApplicationDeactivated", @"AXApplicationHidden", @"AXApplicationShown", @"AXWindowCreated", @"AXWindowMoved", @"AXWindowResized", @"AXWindowMiniaturized", @"AXWindowDeminiaturized", @"AXUIElementDestroyed", @"AXTitleChanged" ];
+
+    // Non-traditional Hammerspoon setup for userdata types here, don't want to break anything, but to keep registry clean, still need to setup refTable...
+    lua_newtable(L);
+    refTable = luaL_ref(L, LUA_REGISTRYINDEX);
 
     luaL_newlib(L, watcherlib);
 

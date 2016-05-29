@@ -153,8 +153,10 @@ void create_task(task_userdata_t *userData) {
                 if (![skin protectedCallAndTraceback:3 nresults:0]) {
                     const char *errorMsg = lua_tostring([skin L], -1);
                     [skin logError:[NSString stringWithFormat:@"hs.task callback error: %s", errorMsg]];
+                    lua_pop([skin L], 1);
                 }
             }
+            userData->selfRef = [skin luaUnref:refTable ref:userData->selfRef];
         });
     };
 
@@ -934,6 +936,7 @@ int luaopen_hs_task_internal(lua_State* L) {
                     [fh readInBackgroundAndNotify];
                 }
             }
+            lua_pop(L, 1); // result or error
         }
 
     }];

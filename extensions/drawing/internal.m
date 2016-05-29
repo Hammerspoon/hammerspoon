@@ -151,6 +151,7 @@ NSMutableArray *drawingWindows;
         if (![skin protectedCallAndTraceback:0 nresults:0]) {
             const char *errorMsg = lua_tostring(_L, -1);
             [skin logError:[NSString stringWithFormat:@"hs.drawing:setClickCallback() mouseUp callback error: %s", errorMsg]];
+            lua_pop(_L, 1) ; // remove error message
         }
     }
 }
@@ -172,6 +173,7 @@ NSMutableArray *drawingWindows;
         if (![skin protectedCallAndTraceback:0 nresults:0]) {
             const char *errorMsg = lua_tostring(_L, -1);
             [skin logError:[NSString stringWithFormat:@"hs.drawing:setClickCallback() mouseDown callback error: %s", errorMsg]];
+            lua_pop(_L, 1) ; // remove error message
         }
     }
 }
@@ -599,6 +601,10 @@ static int drawing_newEllipticalArc(lua_State *L) {
                     LS_TBREAK];
 
     NSRect windowRect = [skin tableToRectAtIndex:1];
+    CGFloat startAngle = lua_tonumber(L, 2) - 90 ;
+    CGFloat endAngle   = lua_tonumber(L, 3) - 90 ;
+    if (!isfinite(startAngle)) return luaL_argerror(L, 2, "start angle must be a finite number");
+    if (!isfinite(endAngle))   return luaL_argerror(L, 3, "end angle must be a finite number");
 
     HSDrawingWindow *theWindow = [[HSDrawingWindow alloc] initWithContentRect:windowRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
 
@@ -614,8 +620,8 @@ static int drawing_newEllipticalArc(lua_State *L) {
         [theView setLuaState:L];
         theWindow.contentView = theView;
 
-        theView.startAngle = lua_tonumber(L, 2) - 90 ;
-        theView.endAngle   = lua_tonumber(L, 3) - 90 ;
+        theView.startAngle = startAngle ;
+        theView.endAngle   = endAngle ;
 
         if (!drawingWindows) {
             drawingWindows = [[NSMutableArray alloc] init];

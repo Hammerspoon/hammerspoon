@@ -37,7 +37,7 @@ local hotkeys = {}
 --- hs.hotkey.alertDuration = 0 -- hotkey alerts are disabled
 hotkey.alertDuration = 1
 
---- hs.hotkey:enable() -> hs.hotkey object
+--- hs.hotkey:enable() -> hs.hotkey object | nil
 --- Method
 --- Enables a hotkey object
 ---
@@ -45,7 +45,7 @@ hotkey.alertDuration = 1
 ---  * None
 ---
 --- Returns:
----  * The `hs.hotkey` object for method chaining
+---  * The `hs.hotkey` object for method chaining or nil if the hotkey could not be enabled for some reason.
 ---
 --- Notes:
 ---  * When you enable a hotkey that uses the same keyboard combination as another previously-enabled hotkey, the old
@@ -67,10 +67,10 @@ local function enable(self,force,isModal)
     hk._hk:disable() --objc
   end
   self.enabled = true
-  self._hk:enable() --objc
+  local returnVal = self._hk:enable() --objc
   log[isModal and 'df' or 'f']('Enabled hotkey %s%s',self.msg,isModal and ' (in modal)' or '')
   tinsert(hotkeys[idx],self) -- bring to the top of the stack
-  return self
+  return returnVal
 end
 
 --- hs.hotkey:disable() -> hs.hotkey object

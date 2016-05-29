@@ -247,6 +247,9 @@ NSString *specMaskToString(int spec) {
     lua_setfield(self.L, -2, "__index");
     lua_pushstring(self.L, objectName);
     lua_setfield(self.L, -2, "__type");
+    // used by some error functions in Lua
+    lua_pushstring(self.L, objectName);
+    lua_setfield(self.L, -2, "__name");
     lua_setfield(self.L, LUA_REGISTRYINDEX, objectName);
 }
 
@@ -1019,7 +1022,7 @@ nextarg:
                 }
             }
         case LUA_TNIL:
-            return [NSNull null] ;
+            return ([alreadySeen count] > 0) ? [NSNull null] : nil ;
         case LUA_TBOOLEAN:
             return lua_toboolean(self.L, idx) ? (id)kCFBooleanTrue : (id)kCFBooleanFalse;
         case LUA_TTABLE:
@@ -1055,9 +1058,8 @@ nextarg:
                 lua_pop(self.L, 1) ;
                 return answer ;
             } else if ((options & LS_NSIgnoreUnknownTypes) == LS_NSIgnoreUnknownTypes) {
-                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %s; ignoring with placeholder [NSNull null]",
-                                                          lua_typename(self.L, lua_type(self.L, realIndex))]] ;
-                return [NSNull null] ;
+                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %s; ignoring with %s", lua_typename(self.L, lua_type(self.L, realIndex)), (([alreadySeen count] > 0) ? "placeholder [NSNull null]" : "nil")]] ;
+                return ([alreadySeen count] > 0) ? [NSNull null] : nil ;
             } else {
                 [self logDebug:[NSString stringWithFormat:@"unrecognized type %s; returning nil", lua_typename(self.L, lua_type(self.L, realIndex))]] ;
                 return nil ;
