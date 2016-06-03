@@ -24,8 +24,8 @@
 
     -- inversion mode option for night time, dark mode, etc. similar to Dash.  By default, follows
     -- system interface mode
-    local invertLevel = require"hs.settings".get("_hsminWeb.invertDocs")
-    if type(invertLevel) == "nil" then
+    local invertLevel = require"hs.settings".get("_documentationServer.invertDocs")
+    if not ({ ["number"] = 1, ["boolean"] = 1 })[type(invertLevel)] then
         invertLevel = (require"hs.host".interfaceStyle() == "Dark")
     end
     if type(invertLevel) == "boolean" then

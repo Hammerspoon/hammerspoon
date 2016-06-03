@@ -26,7 +26,8 @@
 
 local module = {}
 
-module.markdown = require("hs.doc.markdown")
+module.markdown = require"hs.doc.markdown"
+module.hsdocs   = require"hs.doc.hsdocs"
 
 -- private variables and methods -----------------------------------------
 
@@ -64,14 +65,14 @@ local function group_tostring(group)
 
   str = str .. "[submodules]\n"
   for name, item in fnutils.sortByKeys(group, sortFunction) do
-    if name ~= '__doc' and name ~= '__name' and getmetatable(item) == getmetatable(group) then
+    if name ~= '__doc' and name ~= '__name' and name ~= '__path' and getmetatable(item) == getmetatable(group) then
       str = str .. item.__name .. "\n"
     end
   end
 
   str = str .. "\n" .. "[subitems]\n"
   for name, item in fnutils.sortByKeys(group, sortFunction) do
-    if name ~= '__doc' and name ~= '__name' and getmetatable(item) ~= getmetatable(group) then
+    if name ~= '__doc' and name ~= '__name' and name ~= '__path' and getmetatable(item) ~= getmetatable(group) then
       str = str .. item[1] .. "\n"
     end
   end
@@ -112,11 +113,13 @@ local internalBuild = function(rawdocs)
       parent = parent[s]
     end
 
-    local m = setmetatable({__doc = mod.doc, __name = mod.name}, group_metatable)
+--     local m = setmetatable({__doc = mod.doc, __name = mod.name}, group_metatable)
+    local m = setmetatable({__doc = mod.doc, __name = mod.name, __path = mod.name}, group_metatable)
     parent[keyname] = m
 
     for _, item in pairs(mod.items) do
-      m[item.name] = setmetatable({__name = item.name, item.def, item.type, item.doc}, item_metatable)
+--       m[item.name] = setmetatable({__name = item.name, item.def, item.type, item.doc}, item_metatable)
+      m[item.name] = setmetatable({__name = item.name, __path = mod.name .. "." .. item.name, item.def, item.type, item.doc}, item_metatable)
     end
   end
   return doc
