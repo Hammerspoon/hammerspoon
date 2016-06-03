@@ -1118,7 +1118,7 @@ nextarg:
 - (id)tableAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     id result ;
 
-    if (lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) {
+    if ((lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) && ((options & LS_NSRawTables) != LS_NSRawTables)) {
         result = [self tableAtIndex:idx withLabel:lua_tostring(self.L, -1) withOptions:options] ;
         if (!result) [self logWarn:[NSString stringWithFormat:@"Unable to create object for __luaSkinType = %s",
                                                               lua_tostring(self.L, -1)]] ;
