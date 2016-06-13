@@ -42,10 +42,12 @@ local sortFunction = function(m,n) -- sort function so lua manual toc sorts corr
 
         if tonumber(a[1]) ~= tonumber(b[1]) then
             return tonumber(a[1]) < tonumber(b[1])
+        elseif a[2] == nil and b[2] == nil then return false
         elseif a[2] == nil then return true
         elseif b[2] == nil then return false
         elseif tonumber(a[2]) ~= tonumber(b[2]) then
             return tonumber(a[2]) < tonumber(b[2])
+        elseif a[3] == nil and b[3] == nil then return false
         elseif a[3] == nil then return true
         elseif b[3] == nil then return false
         else
