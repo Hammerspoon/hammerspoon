@@ -81,17 +81,17 @@ NSString *specMaskToString(int spec) {
 @interface LuaSkin (conversionSupport)
 
 // internal methods for pushNSObject
-- (int)pushNSObject:(id)obj     withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSNumber:(id)obj     withOptions:(LS_NSConversionOptions)options ;
-- (int)pushNSArray:(id)obj      withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSSet:(id)obj        withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (int)pushNSValue:(id)obj      withOptions:(LS_NSConversionOptions)options ;
+- (int)pushNSObject:(id)obj     withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSNumber:(id)obj     withOptions:(NSUInteger)options ;
+- (int)pushNSArray:(id)obj      withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSSet:(id)obj        withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSDictionary:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (int)pushNSValue:(id)obj      withOptions:(NSUInteger)options ;
 
 // internal methods for toNSObjectAtIndex
-- (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
-- (id)tableAtIndex:(int)idx      withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen;
-- (id)tableAtIndex:(int)idx      withLabel:(const char *)tableTag withOptions:(LS_NSConversionOptions)options ;
+- (id)toNSObjectAtIndex:(int)idx withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen ;
+- (id)tableAtIndex:(int)idx      withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen;
+- (id)tableAtIndex:(int)idx      withLabel:(const char *)tableTag withOptions:(NSUInteger)options ;
 
 @end
 
@@ -429,7 +429,7 @@ nextarg:
 
 - (int)pushNSObject:(id)obj { return [self pushNSObject:obj withOptions:LS_NSNone] ; }
 
-- (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options {
+- (int)pushNSObject:(id)obj withOptions:(NSUInteger)options {
     NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
 
     int results = [self pushNSObject:obj withOptions:options alreadySeenObjects:alreadySeen];
@@ -500,7 +500,7 @@ nextarg:
 
 - (id)toNSObjectAtIndex:(int)idx { return [self toNSObjectAtIndex:idx withOptions:LS_NSNone] ; }
 
-- (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options {
+- (id)toNSObjectAtIndex:(int)idx withOptions:(NSUInteger)options {
     NSMutableDictionary *alreadySeen = [[NSMutableDictionary alloc] init] ;
 
     // We don't need to deref the already seen objects, like we do for pushNSObject because these are
@@ -779,7 +779,7 @@ nextarg:
 
 #pragma mark - conversionSupport extensions to LuaSkin class
 
-- (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSObject:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     if (obj) {
 // NOTE: We catch self-referential loops, do we also need a recursive depth?  Will crash at depth of 512...
         if (alreadySeen[obj]) {
@@ -815,6 +815,8 @@ nextarg:
             lua_pushinteger(self.L, lround([(NSDate *)obj timeIntervalSince1970])) ;
         } else if ([obj isKindOfClass:[NSArray class]]) {
             [self pushNSArray:obj withOptions:options alreadySeenObjects:alreadySeen] ;
+        } else if ([obj isKindOfClass:[NSOrderedSet class]]) {
+            [self pushNSArray:[obj array] withOptions:options alreadySeenObjects:alreadySeen] ;
         } else if ([obj isKindOfClass:[NSSet class]]) {
             [self pushNSSet:obj withOptions:options alreadySeenObjects:alreadySeen] ;
         } else if ([obj isKindOfClass:[NSDictionary class]]) {
@@ -842,7 +844,7 @@ nextarg:
     return 1 ;
 }
 
-- (int)pushNSNumber:(id)obj withOptions:(LS_NSConversionOptions)options {
+- (int)pushNSNumber:(id)obj withOptions:(NSUInteger)options {
     NSNumber    *number = obj ;
     if (number == (id)kCFBooleanTrue)
         lua_pushboolean(self.L, YES);
@@ -889,7 +891,7 @@ nextarg:
 
 // Note, options is currently unused in this category method, but it's included here in case a
 // reason for an NSValue related option comes up
-- (int)pushNSValue:(id)obj withOptions:(__unused LS_NSConversionOptions)options {
+- (int)pushNSValue:(id)obj withOptions:(__unused NSUInteger)options {
     NSValue    *value    = obj;
     const char *objCType = [value objCType];
 
@@ -924,7 +926,7 @@ nextarg:
     return 1;
 }
 
-- (int)pushNSArray:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSArray:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray* list = obj;
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
@@ -939,7 +941,7 @@ nextarg:
     return 1 ;
 }
 
-- (int)pushNSSet:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSSet:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSSet* list = obj;
     lua_newtable(self.L);
     alreadySeen[obj] = @(luaL_ref(self.L, LUA_REGISTRYINDEX)) ;
@@ -953,7 +955,7 @@ nextarg:
     return 1 ;
 }
 
-- (int)pushNSDictionary:(id)obj withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (int)pushNSDictionary:(id)obj withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     NSArray *keys   = [obj allKeys];
     NSArray *values = [obj allValues];
     lua_newtable(self.L);
@@ -973,7 +975,7 @@ nextarg:
     return 1 ;
 }
 
-- (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (id)toNSObjectAtIndex:(int)idx withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     const char *userdataTag = nil;
 
     int realIndex = lua_absindex(self.L, idx) ;
@@ -1069,7 +1071,7 @@ nextarg:
 
 // Note, options is currently unused in this category method, but it's included here in case a
 // reason for an NSValue related option comes up
-- (id)tableAtIndex:(int)idx withLabel:(const char *)tableTag withOptions:(__unused LS_NSConversionOptions)options {
+- (id)tableAtIndex:(int)idx withLabel:(const char *)tableTag withOptions:(__unused NSUInteger)options {
     id result ;
     NSString *classMapping = self.registeredLuaObjectHelperTableMappings[@(tableTag)];
     if ((classMapping) && self.registeredLuaObjectHelperFunctions[classMapping]) {
@@ -1115,7 +1117,7 @@ nextarg:
     return result ;
 }
 
-- (id)tableAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
+- (id)tableAtIndex:(int)idx withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     id result ;
 
     if ((lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) && ((options & LS_NSRawTables) != LS_NSRawTables)) {
