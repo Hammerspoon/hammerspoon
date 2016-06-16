@@ -26,6 +26,9 @@
 
 local module = {}
 
+module.markdown = require"hs.doc.markdown"
+module.hsdocs   = require"hs.doc.hsdocs"
+
 -- private variables and methods -----------------------------------------
 
 local json    = require("hs.json")
@@ -39,10 +42,12 @@ local sortFunction = function(m,n) -- sort function so lua manual toc sorts corr
 
         if tonumber(a[1]) ~= tonumber(b[1]) then
             return tonumber(a[1]) < tonumber(b[1])
+        elseif a[2] == nil and b[2] == nil then return false
         elseif a[2] == nil then return true
         elseif b[2] == nil then return false
         elseif tonumber(a[2]) ~= tonumber(b[2]) then
             return tonumber(a[2]) < tonumber(b[2])
+        elseif a[3] == nil and b[3] == nil then return false
         elseif a[3] == nil then return true
         elseif b[3] == nil then return false
         else
@@ -62,14 +67,14 @@ local function group_tostring(group)
 
   str = str .. "[submodules]\n"
   for name, item in fnutils.sortByKeys(group, sortFunction) do
-    if name ~= '__doc' and name ~= '__name' and getmetatable(item) == getmetatable(group) then
+    if name ~= '__doc' and name ~= '__name' and name ~= '__path' and getmetatable(item) == getmetatable(group) then
       str = str .. item.__name .. "\n"
     end
   end
 
   str = str .. "\n" .. "[subitems]\n"
   for name, item in fnutils.sortByKeys(group, sortFunction) do
-    if name ~= '__doc' and name ~= '__name' and getmetatable(item) ~= getmetatable(group) then
+    if name ~= '__doc' and name ~= '__name' and name ~= '__path' and getmetatable(item) ~= getmetatable(group) then
       str = str .. item[1] .. "\n"
     end
   end
@@ -110,11 +115,13 @@ local internalBuild = function(rawdocs)
       parent = parent[s]
     end
 
-    local m = setmetatable({__doc = mod.doc, __name = mod.name}, group_metatable)
+--     local m = setmetatable({__doc = mod.doc, __name = mod.name}, group_metatable)
+    local m = setmetatable({__doc = mod.doc, __name = mod.name, __path = mod.name}, group_metatable)
     parent[keyname] = m
 
     for _, item in pairs(mod.items) do
-      m[item.name] = setmetatable({__name = item.name, item.def, item.type, item.doc}, item_metatable)
+--       m[item.name] = setmetatable({__name = item.name, item.def, item.type, item.doc}, item_metatable)
+      m[item.name] = setmetatable({__name = item.name, __path = mod.name .. "." .. item.name, item.def, item.type, item.doc}, item_metatable)
     end
   end
   return doc
@@ -391,6 +398,130 @@ function module.help(identifier)
 
     print(result)
 end
+
+
+-- the ultimate goal with the following is to allow anyone who has *only* Hammerspoon to build
+-- their own HTML web pages or Dash Docset that includes the core documentation and any third
+-- party module's documentation in one result set.
+--
+-- Not all of the support is here yet because hs.httpserver.hsminweb needs a few more tweaks,
+-- but this will form the basic tools for building the documentation from scratch.
+
+local sections = {
+-- sort order according to scripts/docs/templates/ext.html.erb
+    Deprecated  = 1,
+    Command     = 2,
+    Constant    = 3,
+    Variable    = 4,
+    Function    = 5,
+    Constructor = 6,
+    Field       = 7,
+    Method      = 8,
+}
+
+module.builder = {
+    genComments = function(where)
+        -- get the comments from the specified path(s)
+        local text = {}
+        if type(where) == "string" then where = { where } end
+        for _, path in ipairs(where) do
+            for _, file in ipairs(fnutils.split(hs.execute("find "..path.." -name \\*.lua -print -o -name \\*.m -print"), "[\r\n]")) do
+                if file ~= "" then
+                    local comment, incomment = {}, false
+                    for line in io.lines(file) do
+                        local aline = line:match("^%s*(.-)$")
+                        if (aline:match("^%-%-%-") or aline:match("^///")) and not aline:match("^...[%-/]") then
+                            incomment = true
+                            table.insert(comment, aline:match("^... ?(.-)$"))
+                        elseif incomment then
+                            table.insert(text, comment)
+                            comment, incomment = {}, false
+                        end
+                    end
+                end
+            end
+        end
+
+        -- parse the comments into table form
+        local mods, items = {}, {}
+        for _, v in ipairs(text) do
+            if v[1]:match("===") then
+                -- a module definition block
+                table.insert(mods, {
+                    name  = v[1]:gsub("=", ""):match("^%s*(.-)%s*$"),
+                    desc  = (v[3] or "UNKNOWN DESC"):match("^%s*(.-)%s*$"),
+                    doc   = table.concat(v, "\n", 2, #v):match("^%s*(.-)%s*$"),
+                    items = {}
+                })
+            else
+                -- an item block
+                table.insert(items, {
+                    ["type"] = v[2],
+                    name     = nil,
+                    def      = v[1],
+                    doc      = (table.concat(v, "\n", 3, #v) or "UNKNOWN DOC"):match("^%s*(.-)%s*$")
+                })
+            end
+        end
+        -- by reversing the order of the module names, sub-modules come before modules, allowing items to
+        -- be properly assigned; otherwise, a.b.c might get put into a instead of a.b
+        table.sort(mods, function(a, b) return b.name < a.name end)
+        local seen = {}
+        for _, i in ipairs(items) do
+            local mod = nil
+            for _, m in ipairs(mods) do
+                if i.def:match("^"..m.name.."[%.:]") then
+                    mod = m
+                    i.name = i.def:match("^"..m.name.."[%.:]([%w%d_]+)")
+                    if not sections[i["type"]] then
+                        error("error: unknown type "..i["type"].." in "..m.name.."."..i.name..". This is either a documentation error, or scripts/docs/bin/genjson and scripts/docs/templates/ext.html.erb need to be updated to know about this tpe")
+                    end
+                    table.insert(m.items, i)
+                    break
+                end
+            end
+            if not mod then
+                error("error: couldn't find module for "..i.def.." ("..i["type"]..") ("..i.doc..")")
+            end
+        end
+        table.sort(mods, function(a, b) return a.name < b.name end)
+        for _, v in ipairs(mods) do
+            table.sort(v.items, function(a, b)
+                if sections[a["type"]] ~= sections[b["type"]] then
+                    return sections[a["type"]] < sections[b["type"]]
+                else
+                    return a["name"] < b["name"]
+                end
+            end)
+        end
+        return mods
+    end,
+
+    genSQL = function(mods)
+        if type(mods) == "string" then mods = module.genComments(mods) end
+        local results = [[
+CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);
+CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);
+]]
+        for _, m in ipairs(mods) do
+            for _, i in ipairs(m.items) do
+                results = results.."INSERT INTO searchIndex VALUES (NULL, '"..m.name.."."..i.name.."', '"..i["type"].."', '"..m.name..".html#"..i.name.."');\n"
+            end
+            results = results.."INSERT INTO searchIndex VALUES (NULL, '"..m.name.."', 'Module', '"..m.name..".html');\n"
+        end
+        return results
+    end,
+
+    genJSON = function(mods)
+        if type(mods) == "string" then mods = module.genComments(mods) end
+        return json.encode(mods, true)
+    end,
+
+    commentsFromSource = function(src)
+        return module.genComments{ src.."/extensions", src.."/Hammerspoon" }
+    end,
+
+}
 
 -- Return Module Object --------------------------------------------------
 

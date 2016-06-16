@@ -188,6 +188,29 @@ return {setup=function(...)
   hs.help = require("hs.doc")
   help = hs.help
 
+
+  --- hs.bhelp([identifier])
+  --- Function
+  --- Display's Hammerspoon API documentation in a webview browser.
+  ---
+  --- Parameters:
+  ---  * identifier - An optional string containing the signature of some part of Hammerspoon's API (e.g. `"hs.reload"`).  If no string is provided, then the table of contents for the Hammerspoon documentation is displayed.
+  ---
+  --- Returns:
+  ---  * None
+  ---
+  --- Notes:
+  ---  * See `hs.doc.hsdocs` for more information about the available settings for the documentation browser.
+  ---
+  ---  * This function provides documentation for Hammerspoon modules, functions, and methods similar to the Hammerspoon Dash docset, but does not require any additional software.
+  ---
+  ---  * You can also access the results of this function with just `bhelp`.
+  ---
+  ---  * The chaining method supported by the `help` command is not supported with this function at present.
+  ---  * This currently only provides documentation for the built in Hammerspoon modules, functions, and methods.  The Lua documentation and third-party modules are not presently supported, but may be added in a future release.
+  hs.bhelp = hs.help.hsdocs.help
+  bhelp = hs.bhelp
+
   --setup lazy loading
   if autoload_extensions then
     print("-- Lazy extension loading enabled")

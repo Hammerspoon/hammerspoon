@@ -66,8 +66,9 @@
    @constant LS_NSPreserveLuaStringExactly If a Lua string contains character byte sequences which cannot be converted to a proper UTF8 Unicode character, return the string as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  You should check your result to see if it is an NSString or an NSData object with the isKindOfClass: message if you select this option. Not compatible with LS_NSLuaStringAsDataOnly.
    @constant LS_NSLuaStringAsDataOnly A lua string is always returned as an NSData object instead of the default lossy behavior of converting invalid sequences into the Unicode Invalid Character code.  Not compatible with LS_NSPreserveLuaStringExactly.
    @constant LS_NSAllowsSelfReference If a lua table contains a self reference (a table value which equals one of tables in which it is nested), allow the same self reference in the NSArray or NSDictionary object being created instead of the defualt behavior of returning nil for the entire conversion.  Note that this option will create an object which likely cannot be fully collected by ARC without additional code due to strong internal references.
+   @constant LS_NSRawTables Always convert a Lua table to NSArray or NSDictionary, even if it contains a __luaSkinType field and a registered conversion function for the specified type exists.
  */
-typedef enum {
+typedef NS_OPTIONS(NSUInteger, LS_NSConversionOptions) {
     LS_NSNone                         = 0,
 
     LS_NSUnsignedLongLongPreserveBits = 1 << 0,
@@ -76,8 +77,10 @@ typedef enum {
 
     LS_NSPreserveLuaStringExactly     = 1 << 2,
     LS_NSLuaStringAsDataOnly          = 1 << 3,
-    LS_NSAllowsSelfReference          = 1 << 4
-} LS_NSConversionOptions ;
+    LS_NSAllowsSelfReference          = 1 << 4,
+    LS_NSRawTables                    = 1 << 6,
+
+} ;
 
 /*!
  @definedblock Log level definitions for logAtLevel:withMessage:
@@ -371,7 +374,7 @@ NSString *specMaskToString(int spec);
 
  @discussion This method is equivalent to invoking [LuaSkin pushNSObject:obj withOptions:LS_NSNone].  See @link pushNSObject:withOptions: @/link.
 
- The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
+ The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSOrderedSet, NSDictionary, NSURL, and NSObject.
 
  @param obj an NSObject
 
@@ -384,14 +387,14 @@ NSString *specMaskToString(int spec);
 
  @discussion This method takes an NSObject and checks its class against registered classes and then against the built in defaults to determine the best way to represent it in Lua.
 
- @remark The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSDictionary, NSURL, and NSObject.
+ @remark The default classes are (in order): NSNull, NSNumber, NSValue, NSString, NSData, NSDate, NSArray, NSSet, NSOrderedSet, NSDictionary, NSURL, and NSObject.
 
  @param obj an NSObject
  @param options options for the conversion made by using the bitwise OR operator with members of @link LS_NSConversionOptions @/link.
 
  @return The number of items pushed onto the lua stack - this will be 1 or 0, if conversion was not possible.
  */
-- (int)pushNSObject:(id)obj withOptions:(LS_NSConversionOptions)options ;
+- (int)pushNSObject:(id)obj withOptions:(NSUInteger)options ;
 
 /*!
  @abstract Register a helper function for converting an NSObject to its lua equivalent
@@ -439,19 +442,23 @@ NSString *specMaskToString(int spec);
 
  @discussion This method takes a lua object specified at the provided index and converts it into one of the basic NSObject types.
 
- Basic Lua type to NSObject conversion rules:
+  Basic Lua type to NSObject conversion
 
-   nil     - nil if the index points directly to a nil lua object, or [NSNull null] if the nil is a member of a table
+  nil     - nil if the index points directly to a nil lua object, or [NSNull null] if the nil is a member of a table
 
-   string  - NSString
+  string  - NSString
 
-   number  - NSNumber numberWithInteger: or NSNumber numberWithDouble:
+  number  - NSNumber numberWithInteger: or NSNumber numberWithDouble:
 
-   boolean - NSNumber numberWithBool:
+  boolean - NSNumber numberWithBool:
 
-   table   - NSArray if table is non-sparse with only integer keys starting at 1 or NSDictionary otherwise
+  table   - NSArray if table is non-sparse with only integer keys starting at 1 or NSDictionary otherwise
 
- @discussion If the type is in the above list, this method returns nil.
+  Userdata types and typed tables (a lua table with a __luaSkinType key-value pair) will be converted to the appropriate Objective-C type if a module has registered a helper function for the specified type.
+
+ @remark An empty table will be returned as an empty NSArray.
+
+ @remark If the type is not in the above list, this method returns nil.
 
  @warning This method is equivalent to invoking [LuaSkin toNSObjectAtIndex:idx withOptions:LS_NSNone].  See @link toNSObjectAtIndex:withOptions: @/link.
 
@@ -466,27 +473,30 @@ NSString *specMaskToString(int spec);
 
  @discussion This method takes a lua object specified at the provided index and converts it into one of the basic NSObject types.
 
- Basic Lua type to NSObject conversion rules:
+  Basic Lua type to NSObject conversion rules:
 
-   nil     - nil if the index points directly to a nil lua object, or [NSNull null] if the nil is a member of a table
+  nil     - nil if the index points directly to a nil lua object, or [NSNull null] if the nil is a member of a table
 
+  string  - NSString or NSData, depending upon options specified
 
-   string  - NSString or NSData, depending upon options specified
+  number  - NSNumber numberWithInteger: or NSNumber numberWithDouble:
 
-   number  - NSNumber numberWithInteger: or NSNumber numberWithDouble:
+  boolean - NSNumber numberWithBool:
 
-   boolean - NSNumber numberWithBool:
+  table   - NSArray if table is non-sparse with only integer keys starting at 1 or NSDictionary otherwise
 
-   table   - NSArray if table is non-sparse with only integer keys starting at 1 or NSDictionary otherwise
+  Userdata types and typed tables (a lua table with a __luaSkinType key-value pair) will be converted to the appropriate Objective-C type if a module has registered a helper function for the specified type.
 
- @discussion If the type is in the above list, this method will return nil for the entire conversion, or [NSNull null] or a description of the unrecognized type  for the data or sub-component depending upon the specified options.
+ @remark An empty table will be returned as an empty NSArray.
+
+ @remark If the type is not in the above list, this method will return nil for the entire conversion, or [NSNull null] or a description of the unrecognized type  for the data or sub-component depending upon the specified options.
 
  @param idx the index on lua stack which contains the data to convert
  @param options options for the conversion made by using the bitwise OR operator with members of @link LS_NSConversionOptions @/link.
 
  @returns An NSObject of the appropriate type or nil if conversion was not possible.
  */
-- (id)toNSObjectAtIndex:(int)idx withOptions:(LS_NSConversionOptions)options ;
+- (id)toNSObjectAtIndex:(int)idx withOptions:(NSUInteger)options ;
 
 /*!
  @abstract Return an NSObject containing the best representation of the lua table at the specified index
