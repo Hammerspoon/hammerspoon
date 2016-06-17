@@ -1,6 +1,5 @@
-#import <Cocoa/Cocoa.h>
-// #import <Carbon/Carbon.h>
-#import <LuaSkin/LuaSkin.h>
+@import Cocoa ;
+@import LuaSkin ;
 
 // NOTE: This is from MJConsoleWindowController
 
@@ -23,45 +22,9 @@
 
 @end
 
-// NOTE: This is from hs.drawing
+static int refTable = LUA_NOREF;
 
-typedef struct _drawing_t {
-    void *window;
-    BOOL skipClose;
-} drawing_t;
-
-int refTable = LUA_NOREF;
-// int hsDrawingRef = LUA_NOREF;
-
-/// hs.console.asHSDrawing() -> hs.drawing object
-/// Function
-/// Get an hs.drawing object which represents the Hammerspoon console window
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * an hs.drawing object
-///
-/// Notes:
-///  * Only hs.drawing methods which are not type specific will work with this object.
-static int console_asDrawing(lua_State *L) {
-    LuaSkin *skin     = [LuaSkin shared];
-    NSWindow *console = [[MJConsoleWindowController singleton] window];
-
-    [skin requireModule:"hs.drawing"];
-    lua_pop(L, 1);
-
-    drawing_t *drawingObject = lua_newuserdata(L, sizeof(drawing_t));
-    memset(drawingObject, 0, sizeof(drawing_t));
-    drawingObject->window    = (__bridge_retained void *)console;
-    drawingObject->skipClose = YES;
-    luaL_getmetatable(L, "hs.drawing");
-    lua_setmetatable(L, -2);
-    return 1;
-}
-
-/// hs.console.asHSWindow() -> hs.window object
+/// hs.console.hswindow() -> hs.window object
 /// Function
 /// Get an hs.window object which represents the Hammerspoon console window
 ///
@@ -226,13 +189,7 @@ static int console_setConsole(lua_State *L) {
         } else {
             NSDictionary *consoleAttrs = @{ NSFontAttributeName: [NSFont fontWithName:@"Menlo" size:12.0],
                                             NSForegroundColorAttributeName: MJColorForStdout };
-//             lua_getglobal(L, "hs");
-//             lua_getfield(L, -1, "cleanUTF8forConsole");
-//             lua_remove(L, -2);
             luaL_tolstring(L, 1, NULL);
-//             lua_call(L, 1, 1);
-//             theStr = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]
-//                                                      attributes:consoleAttrs];
             theStr = [[NSAttributedString alloc] initWithString:[skin toNSObjectAtIndex:-1]
                                                      attributes:consoleAttrs];
             lua_pop(L, 1);
@@ -257,14 +214,14 @@ static int console_setConsole(lua_State *L) {
 ///
 /// Notes:
 ///  * If the text of the console is retrieved as a string, no color or style information in the console output is retrieved - only the raw text.
-static int console_getConsole(__unused lua_State *L) {
+static int console_getConsole(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK];
     MJConsoleWindowController *console = [MJConsoleWindowController singleton];
     BOOL styled                        = lua_isboolean(L, 1) ? (BOOL)lua_toboolean(L, 1) : NO;
 
     if (styled) {
-        [skin pushNSObject:[[NSAttributedString alloc] initWithAttributedString:[console.outputView textStorage]]];
+        [skin pushNSObject:[[console.outputView textStorage] copy]];
     } else {
         [skin pushNSObject:[[console.outputView textStorage] string]];
     }
@@ -329,18 +286,10 @@ static int console_printStyledText(lua_State *L) {
         if (lua_type(L, i) == LUA_TUSERDATA && luaL_testudata(L, i, "hs.styledtext")) {
             [theStr appendAttributedString:[skin luaObjectAtIndex:i toClass:"NSAttributedString"]];
         } else {
-//             lua_getglobal(L, "hs");
-//             lua_getfield(L, -1, "cleanUTF8forConsole");
-//             lua_remove(L, -2);
             luaL_tolstring(L, i, NULL);
             [theStr appendAttributedString:[[NSAttributedString alloc]
                                                initWithString:[skin toNSObjectAtIndex:-1]
                                                    attributes:consoleAttrs]];
-//             lua_call(L, 1, 1);
-//
-//             [theStr appendAttributedString:[[NSAttributedString alloc]
-//                                                initWithString:[NSString stringWithUTF8String:lua_tostring(L, -1)]
-//                                                    attributes:consoleAttrs]];
             lua_pop(L, 1);
         }
     }
@@ -354,13 +303,102 @@ static int console_printStyledText(lua_State *L) {
     return 0;
 }
 
+/// hs.console.level([theLevel]) -> currentValue
+/// Function
+/// Get or set the console window level
+///
+/// Parameters:
+///  * `theLevel` - an optional parameter specifying the desired level as an integer, which can be obtained from `hs.drawing.windowLevels`.
+///
+/// Returns:
+///  * the current, possibly new, value
+///
+/// Notes:
+///  * see the notes for `hs.drawing.windowLevels`
+static int console_level(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK] ;
+    NSWindow *console = [[MJConsoleWindowController singleton] window];
+
+    if (lua_gettop(L) == 1) {
+        lua_Integer targetLevel = lua_tointeger(L, 1) ;
+
+        if (targetLevel >= CGWindowLevelForKey(kCGMinimumWindowLevelKey) && targetLevel <= CGWindowLevelForKey(kCGMaximumWindowLevelKey)) {
+            [console setLevel:targetLevel] ;
+        } else {
+            return luaL_error(L, [[NSString stringWithFormat:@"window level must be between %d and %d inclusive",
+                                   CGWindowLevelForKey(kCGMinimumWindowLevelKey),
+                                   CGWindowLevelForKey(kCGMaximumWindowLevelKey)] UTF8String]) ;
+        }
+    }
+    lua_pushinteger(L, console.level) ;
+    return 1 ;
+}
+
+/// hs.console.alpha([alpha]) -> currentValue
+/// Function
+/// Get or set the alpha level of the console window.
+///
+/// Parameters:
+///  * `alpha` - an optional number between 0.0 and 1.0 specifying the new alpha level for the Hammerspoon console.
+///
+/// Returns:
+///  * the current, possibly new, value.
+static int console_alpha(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK] ;
+    NSWindow *console = [[MJConsoleWindowController singleton] window];
+
+    if (lua_gettop(L) == 1) {
+        CGFloat newLevel = luaL_checknumber(L, 1);
+        console.alphaValue = ((newLevel < 0.0) ? 0.0 : ((newLevel > 1.0) ? 1.0 : newLevel)) ;
+    }
+    lua_pushnumber(L, console.alphaValue) ;
+    return 1 ;
+}
+
+/// hs.console.behavior([behavior]) -> currentValue
+/// Method
+/// Get or set the window behavior settings for the console.
+///
+/// Parameters:
+///  * `behavior` - an optional number representing the desired window behaviors for the Hammerspoon console.
+///
+/// Returns:
+///  * the current, possibly new, value.
+///
+/// Notes:
+///  * Window behaviors determine how the webview object is handled by Spaces and Exposé. See `hs.drawing.windowBehaviors` for more information.
+static int console_behavior(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL,
+                    LS_TBREAK] ;
+
+    NSWindow *console = [[MJConsoleWindowController singleton] window];
+
+    if (lua_gettop(L) == 1) {
+        [skin checkArgs:LS_TNUMBER | LS_TINTEGER,
+                        LS_TBREAK] ;
+
+        NSInteger newLevel = lua_tointeger(L, 1);
+        @try {
+            [console setCollectionBehavior:(NSWindowCollectionBehavior)newLevel] ;
+        }
+        @catch ( NSException *theException ) {
+            return luaL_error(L, "%s: %s", [[theException name] UTF8String], [[theException reason] UTF8String]) ;
+        }
+    }
+    lua_pushinteger(L, [console collectionBehavior]) ;
+    return 1 ;
+}
+
 // static int meta_gc(__unused lua_State *L) {
 //     return 0;
 // }
 
 static const luaL_Reg extrasLib[] = {
-    {"asHSDrawing", console_asDrawing},
-    {"asHSWindow", console_asWindow},
+//     {"asHSDrawing", console_asDrawing},
+    {"hswindow", console_asWindow},
 
     {"windowBackgroundColor", console_backgroundColor},
     {"inputBackgroundColor", console_inputBackgroundColor},
@@ -372,6 +410,10 @@ static const luaL_Reg extrasLib[] = {
 
     {"getConsole", console_getConsole},
     {"setConsole", console_setConsole},
+
+    {"level", console_level},
+    {"alpha", console_alpha},
+    {"behavior", console_behavior},
 
     {"printStyledtext", console_printStyledText},
     {NULL, NULL}};

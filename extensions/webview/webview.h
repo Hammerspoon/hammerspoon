@@ -1,17 +1,20 @@
+
+// #pragma clang diagnostic push
+// #pragma clang diagnostic ignored "-Wreserved-id-macro"
 // #define _WK_DEBUG
 // #define _WK_DEBUG_TYPES
+// #pragma clang diagnostic pop
 
-#import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
+@import Cocoa ;
+@import WebKit ;
 
-// #import <Carbon/Carbon.h>
-#import <LuaSkin/LuaSkin.h>
+@import LuaSkin ;
 
 #define USERDATA_TAG        "hs.webview"
 #define USERDATA_UCC_TAG    "hs.webview.usercontent"
+#define USERDATA_DS_TAG     "hs.webview.datastore"
 
-#define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
-#define get_uccObjFromUserdata(objType, L, idx) (objType*)*((void**)luaL_checkudata(L, idx, USERDATA_UCC_TAG))
+#define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 
 // @interface HSWebViewWindow : NSWindow <NSWindowDelegate>
 @interface HSWebViewWindow : NSPanel <NSWindowDelegate>

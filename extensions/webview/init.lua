@@ -17,14 +17,79 @@
 ---
 --- This module provides support for injecting custom JavaScript user content into your webviews and for JavaScript to post messages back to Hammerspoon.
 
-local module       = require("hs.webview.internal")
-module.usercontent = require("hs.webview.usercontent") ;
+--- === hs.webview.toolbar ===
+---
+--- Create and manipulate toolbars which can be attached to the Hammerspoon console or hs.webview objects.
+---
+--- Toolbars are attached to titled windows and provide buttons which can be used to perform various actions within the application.  Hammerspoon can use this module to add toolbars to the console or `hs.webview` objects which have a title bar (see `hs.webview.windowMasks` and `hs.webview:windowStyle`).  Toolbars are identified by a unique identifier which is used by OS X to identify information which can be auto saved in the application's user defaults to reflect changes the user has made to the toolbar button order or active button list (this requires setting [hs.webview.toolbar:autosaves](#autosaves) and [hs.webview.toolbar:canCustomize](#canCustomize) both to true).
+---
+--- Multiple copies of the same toolbar can be made with the [hs.webview.toolbar:copy](#copy) method so that multiple webview windows use the same toolbar, for example.  If the user customizes a copied toolbar, changes to the active buttons or their order will be reflected in all copies of the toolbar.
+---
+--- You cannot add items to an existing toolbar, but you can delete it and re-create it with the same identifier, adding new button items to the new instance.  If the toolbar identifier matches autosaved preferences, the new toolbar will look like it did before, but the user will be able to add the new items by customizing the toolbar or by using the [hs.webview.toolbar:insertItem](#insertItem) method.
+---
+--- Example:
+--- ~~~lua
+--- t = require("hs.webview.toolbar")
+--- a = t.new("myConsole", {
+---         { id = "select1", selectable = true, image = hs.image.imageFromName("NSStatusAvailable") },
+---         { id = "NSToolbarSpaceItem" },
+---         { id = "select2", selectable = true, image = hs.image.imageFromName("NSStatusUnavailable") },
+---         { id = "notShown", default = false, image = hs.image.imageFromName("NSBonjour") },
+---         { id = "NSToolbarFlexibleSpaceItem" },
+---         { id = "navGroup", label = "Navigation", groupMembers = { "navLeft", "navRight" }},
+---         { id = "navLeft", image = hs.image.imageFromName("NSGoLeftTemplate"), allowedAlone = false },
+---         { id = "navRight", image = hs.image.imageFromName("NSGoRightTemplate"), allowedAlone = false },
+---         { id = "NSToolbarFlexibleSpaceItem" },
+---         { id = "cust", label = "customize", fn = function(t, w, i) t:customizePanel() end, image = hs.image.imageFromName("NSAdvanced") }
+---     }):canCustomize(true)
+---       :autosaves(true)
+---       :selectedItem("select2")
+---       :setCallback(function(...)
+---                         print("a", inspect(table.pack(...)))
+---                    end)
+---
+--- t.attachToolbar(a)
+--- ~~~
+---
+
+local USERDATA_TAG = "hs.webview"
+
+local osVersion = require"hs.host".operatingSystemVersion()
+if (osVersion["major"] == 10 and osVersion["minor"] < 10) then
+  hs.luaSkinLog.wf("%s is only available on OS X 10.10 or later", USERDATA_TAG)
+  return nil
+end
+
+local module       = require(USERDATA_TAG .. ".internal")
+module.usercontent = require(USERDATA_TAG .. ".usercontent")
+module.toolbar     = require(USERDATA_TAG .. ".toolbar")
+
+local objectMT     = hs.getObjectMetatable(USERDATA_TAG)
+
 local http         = require("hs.http")
+
+if (osVersion["major"] == 10 and osVersion["minor"] < 11) then
+    local message = USERDATA_TAG .. ".datastore is only available on OS X 10.11 or later"
+    module.datastore = setmetatable({}, {
+        __index = function(_)
+            hs.luaSkinLog.w(message)
+            return nil
+        end,
+        __tostring = function(_) return message end,
+    })
+else
+    module.datastore   = require(USERDATA_TAG .. ".datastore")
+    objectMT.datastore = module.datastore.fromWebview
+end
+
+-- required for image support
+require("hs.image")
 
 -- private variables and methods -----------------------------------------
 
 local _kMetaTable = {}
-_kMetaTable._k = {}
+_kMetaTable._k = setmetatable({}, {__mode = "k"})
+_kMetaTable._t = setmetatable({}, {__mode = "k"})
 _kMetaTable.__index = function(obj, key)
         if _kMetaTable._k[obj] then
             if _kMetaTable._k[obj][key] then
@@ -42,13 +107,19 @@ _kMetaTable.__newindex = function(obj, key, value)
         return nil
     end
 _kMetaTable.__pairs = function(obj) return pairs(_kMetaTable._k[obj]) end
+_kMetaTable.__len = function(obj) return #_kMetaTable._k[obj] end
 _kMetaTable.__tostring = function(obj)
         local result = ""
         if _kMetaTable._k[obj] then
             local width = 0
-            for k,v in pairs(_kMetaTable._k[obj]) do width = width < #k and #k or width end
+            for k,v in pairs(_kMetaTable._k[obj]) do width = width < #tostring(k) and #tostring(k) or width end
             for k,v in require("hs.fnutils").sortByKeys(_kMetaTable._k[obj]) do
-                result = result..string.format("%-"..tostring(width).."s %s\n", k, tostring(v))
+                if _kMetaTable._t[obj] == "table" then
+                    result = result..string.format("%-"..tostring(width).."s %s\n", tostring(k),
+                        ((type(v) == "table") and "{ table }" or tostring(v)))
+                else
+                    result = result..((type(v) == "table") and "{ table }" or tostring(v)).."\n"
+                end
             end
         else
             result = "constants table missing"
@@ -57,17 +128,66 @@ _kMetaTable.__tostring = function(obj)
     end
 _kMetaTable.__metatable = _kMetaTable -- go ahead and look, but don't unset this
 
-local _makeConstantsTable = function(theTable)
+local _makeConstantsTable
+_makeConstantsTable = function(theTable)
+    if type(theTable) ~= "table" then
+        local dbg = debug.getinfo(2)
+        local msg = dbg.short_src..":"..dbg.currentline..": attempting to make a '"..type(theTable).."' into a constant table"
+        if module.log then module.log.ef(msg) else print(msg) end
+        return theTable
+    end
+    for k,v in pairs(theTable) do
+        if type(v) == "table" then
+            local count = 0
+            for a,b in pairs(v) do count = count + 1 end
+            local results = _makeConstantsTable(v)
+            if #v > 0 and #v == count then
+                _kMetaTable._t[results] = "array"
+            else
+                _kMetaTable._t[results] = "table"
+            end
+            theTable[k] = results
+        end
+    end
     local results = setmetatable({}, _kMetaTable)
     _kMetaTable._k[results] = theTable
+    local count = 0
+    for a,b in pairs(theTable) do count = count + 1 end
+    if #theTable > 0 and #theTable == count then
+        _kMetaTable._t[results] = "array"
+    else
+        _kMetaTable._t[results] = "table"
+    end
     return results
 end
 
-local internalObject = hs.getObjectMetatable("hs.webview")
+local deprecatedWarningsGiven = {}
+local deprecatedWarningCheck = function(oldName, newName)
+    if not deprecatedWarningsGiven[oldName] then
+        deprecatedWarningsGiven[oldName] = true
+        hs.luaSkinLog.wf("%s:%s is deprecated; use %s:%s instead", USERDATA_TAG, oldName, USERDATA_TAG, newName)
+    end
+end
 
 -- Public interface ------------------------------------------------------
 
 module.windowMasks = _makeConstantsTable(module.windowMasks)
+
+module.toolbar.systemToolbarItems = _makeConstantsTable(module.toolbar.systemToolbarItems)
+module.toolbar.itemPriorities     = _makeConstantsTable(module.toolbar.itemPriorities)
+
+-- allow array-like usage of object to return child webviews
+objectMT.__index = function(self, _)
+    if objectMT[_] then
+        return objectMT[_]
+    elseif type(_) == "number" then
+        return self:children()[_]
+    else
+        return nil
+    end
+end
+
+objectMT.attachToolbar = module.attachToolbar
 
 --- hs.webview:windowStyle(mask) -> webviewObject | currentMask
 --- Method
@@ -81,16 +201,16 @@ module.windowMasks = _makeConstantsTable(module.windowMasks)
 ---
 --- Returns:
 ---  * if a mask is provided, then the webviewObject is returned; otherwise the current mask value is returned.
-internalObject.windowStyle = function(self, ...)
+objectMT.windowStyle = function(self, ...)
     local arg = table.pack(...)
-    local theMask = internalObject._windowStyle(self)
+    local theMask = objectMT._windowStyle(self)
 
     if arg.n ~= 0 then
         if type(arg[1]) == "number" then
             theMask = arg[1]
         elseif type(arg[1]) == "string" then
             if module.windowMasks[arg[1]] then
-                theMask = theMask | module.windowMasks[arg[1]]
+                theMask = theMask ~ module.windowMasks[arg[1]]
             else
                 return error("unrecognized style specified: "..arg[1])
             end
@@ -106,7 +226,7 @@ internalObject.windowStyle = function(self, ...)
         else
             return error("invalid type: number, string, or table expected, got "..type(arg[1]))
         end
-        return internalObject._windowStyle(self, theMask)
+        return objectMT._windowStyle(self, theMask)
     else
         return theMask
     end
@@ -125,7 +245,7 @@ end
 --- Notes:
 ---  * This is a shorthand method for getting or setting both `hs.webview:allowMagnificationGestures` and `hs.webview:allowNavigationGestures`.
 ---  * This method will set both types of gestures to true or false, if given an argument, but will only return true if *both* gesture types are currently true; if either or both gesture methods are false, then this method will return false.
-internalObject.allowGestures = function(self, ...)
+objectMT.allowGestures = function(self, ...)
     local r = table.pack(...)
     if r.n ~= 0 then
         self:allowMagnificationGestures(...)
@@ -135,26 +255,30 @@ internalObject.allowGestures = function(self, ...)
     return self:allowMagnificationGestures() and self:allowNavigationGestures()
 end
 
---- hs.webview:delete([propagate])
+--- hs.webview:delete([propagate], [fadeOutTime]) -> none
 --- Method
---- Destroys the webview object and optionally all of its children.
+--- Destroys the webview object, optionally fading it out first (if currently visible).
 ---
 --- Parameters:
----  * propagate - an optional boolean, default false, which indicates whether or not the child windows of this webview should also be deleted.
+---  * `propagate`   - an optional boolean, default false, which indicates whether or not the child windows of this webview should also be deleted.
+---  * `fadeOutTime` - an optional number of seconds over which to fade out the webview object. Defaults to zero.
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
----  * This method is automatically called during garbage collection, when Hammerspoon quits, and when its configuration is reloaded.
-internalObject.delete = function(self, propagate)
+---  * This method is automatically called during garbage collection, notably during a Hammerspoon termination or reload, with a fade time of 0.
+objectMT.delete = function(self, propagate, delay)
+    if type(propagate) == "number" then
+        propagte, delay = nil, propagate
+    end
     if propagate then
         for i,v in ipairs(self:children()) do
-            internalObject.delete(v, propagate)
+            objectMT.delete(v, propagate, delay)
         end
     end
 
-    return internalObject._delete(self)
+    return objectMT._delete(self, delay)
 end
 
 --- hs.webview:urlParts() -> table
@@ -168,10 +292,123 @@ end
 ---  * a table containing the keys for the webview's URL.  See the function `hs.http.urlParts` for a description of the possible keys returned in the table.
 ---
 --- Notes:
----  * This method is a wrapper to the `hs.http.urlParts` function
-internalObject.urlParts = function(self)
+---  * This method is a wrapper to the `hs.http.urlParts` function wich uses the OS X APIs, based on RFC 1808.
+---  * You may also want to consider the `hs.httpserver.hsminweb.urlParts` function for a version more consistent with RFC 3986.
+objectMT.urlParts = function(self)
     return http.urlParts(self)
 end
+
+--- hs.webview:asHSWindow() -> hs.window object
+--- Deprecated
+--- Returns an hs.window object for the webview so that you can use hs.window methods on it.
+---
+--- This method is identical to [hs.webview:hswindow](#hswindow).  It is included for reasons of backwards compatibility, but use of the new name is recommended for clarity.
+objectMT.asHSWindow = function(self, ...)
+    deprecatedWarningCheck("asHSWindow", "hswindow")
+    return self:hswindow(...)
+end
+
+objectMT.__len = function(self) return #self:children() end
+
+
+--- hs.webview:setLevel(theLevel) -> drawingObject
+--- Deprecated
+--- Deprecated; you should use [hs.webview:level](#level) instead.
+---
+--- Parameters:
+---  * `theLevel` - the level specified as a number, which can be obtained from `hs.drawing.windowLevels`.
+---
+--- Returns:
+---  * the webview object
+---
+--- Notes:
+---  * see the notes for `hs.drawing.windowLevels`
+objectMT.setLevel = function(self, ...)
+    deprecatedWarningCheck("setLevel", "level")
+    return self:level(...)
+end
+
+--- hs.webview:behaviorAsLabels(behaviorTable) -> webviewObject | currentValue
+--- Method
+--- Get or set the window behavior settings for the webview object using labels defined in `hs.drawing.windowBehaviors`.
+---
+--- Parameters:
+---  * behaviorTable - an optional table of strings and/or numbers specifying the desired window behavior for the webview object.
+---
+--- Returns:
+---  * If an argument is provided, the webview object; otherwise the current value.
+---
+--- Notes:
+---  * Window behaviors determine how the webview object is handled by Spaces and Exposé. See `hs.drawing.windowBehaviors` for more information.
+objectMT.behaviorAsLabels = function(obj, ...)
+    local drawing = require"hs.drawing"
+    local args = table.pack(...)
+
+    if args.n == 0 then
+        local results = {}
+        local behaviorNumber = obj:behavior()
+
+        if behaviorNumber ~= 0 then
+            for i, v in pairs(drawing.windowBehaviors) do
+                if type(i) == "string" then
+                    if (behaviorNumber & v) > 0 then table.insert(results, i) end
+                end
+            end
+        else
+            table.insert(results, drawing.windowBehaviors[0])
+        end
+        return setmetatable(results, { __tostring = function(_)
+            table.sort(_)
+            return "{ "..table.concat(_, ", ").." }"
+        end})
+    elseif args.n == 1 and type(args[1]) == "table" then
+        local newBehavior = 0
+        for i,v in ipairs(args[1]) do
+            local flag = tonumber(v) or drawing.windowBehaviors[v]
+            if flag then newBehavior = newBehavior | flag end
+        end
+        return obj:behavior(newBehavior)
+    elseif args.n > 1 then
+        error("behaviorAsLabels method expects 0 or 1 arguments", 2)
+    else
+        error("behaviorAsLabels method argument must be a table", 2)
+    end
+end
+
+--- hs.webview:asHSDrawing() -> hs.drawing object
+--- Deprecated
+--- Because use of this method can easily lead to a crash, useful methods from `hs.drawing` have been added to the `hs.webview` module itself.  If you believe that a useful method has been overlooked, please submit an issue.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * a placeholder object
+objectMT.asHSDrawing = setmetatable({}, {
+    __call = function(self, obj, ...)
+        if not deprecatedWarningsGiven["asHSDrawing"] then
+            deprecatedWarningsGiven["asHSDrawing"] = true
+            hs.luaSkinLog.wf("%s:asHSDrawing() is deprecated and should not be used.", USERDATA_TAG)
+        end
+        return setmetatable({}, {
+            __index = function(self, func)
+                if objectMT[func] then
+                    deprecatedWarningCheck("asHSDrawing():" .. func, func)
+                    return function (_, ...) return objectMT[func](obj, ...) end
+                elseif func:match("^set") then
+                    local newFunc = func:match("^set(.*)$")
+                    newFunc = newFunc:sub(1,1):lower() .. newFunc:sub(2)
+                    if objectMT[newFunc] then
+                        deprecatedWarningCheck("asHSDrawing():" .. func, newFunc)
+                        return function (_, ...) return objectMT[newFunc](obj, ...) end
+                    end
+                end
+                hs.luaSkinLog.wf("%s:asHSDrawing() is deprecated and the method %s does not currently have a replacement.  If you believer this is an error, please submit an issue.", USERDATA_TAG, func)
+                return nil
+            end,
+        })
+    end,
+})
 
 -- Return Module Object --------------------------------------------------
 

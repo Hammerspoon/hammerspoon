@@ -115,57 +115,62 @@ module.help = function(target)
         targetURL = targetURL .. "module.lp/" .. target.__path
     end
 
-    if not module._browser then
-        local webview  = require"hs.webview"
-        local screen   = require"hs.screen"
+    local webview  = require"hs.webview"
+    if webview and not settings.get("_documentationServer.forceExternalBrowser") then
+        if not module._browser then
+            local screen   = require"hs.screen"
 
-        local mainScreenFrame = screen:primaryScreen():frame()
-        local browserFrame = settings.get("_documentationServer.browserFrame")
-        if not (browserFrame and browserFrame.x and browserFrame.y and browserFrame.h and browserFrame.w) then
-            browserFrame = {
-                x = mainScreenFrame.x + 10,
-                y = mainScreenFrame.y + 32,
-                h = mainScreenFrame.h - 42,
-                w = 800
-            }
+            local mainScreenFrame = screen:primaryScreen():frame()
+            local browserFrame = settings.get("_documentationServer.browserFrame")
+            if not (browserFrame and browserFrame.x and browserFrame.y and browserFrame.h and browserFrame.w) then
+                browserFrame = {
+                    x = mainScreenFrame.x + 10,
+                    y = mainScreenFrame.y + 32,
+                    h = mainScreenFrame.h - 42,
+                    w = 800
+                }
+            end
+
+            module._browser = webview.new(browserFrame, {
+                developerExtrasEnabled=true,
+                privateBrowsing=true,
+            }):windowStyle(1+2+4+8)
+              :allowTextEntry(true)
+              :allowGestures(true)
+              :closeOnEscape(true)
         end
 
-        module._browser = webview.new(browserFrame, {
-            developerExtrasEnabled=true,
-        }):windowStyle(1+2+4+8)
-          :allowTextEntry(true)
-          :allowGestures(true)
-          :closeOnEscape(true)
-    end
+        module._browser:url(targetURL):show()
 
-    module._browser:url(targetURL):show()
-
-    if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
-        require"hs.timer".waitUntil(
-            function() return module._browser:asHSWindow() ~= nil end,
-            function(...)
-                module._browserWatcher = module._browser:asHSWindow()
-                                          :newWatcher(function(element, event, watcher, userData)
-                                              if event == "AXUIElementDestroyed" then
-                                                  module._browserWatcher:stop()
-                                                  module._browserWatcher = nil
-                                              else
-                                                -- ^%$#$@#&%^*$ hs.geometry means element:frame() isn't really a rect, and there is no direct function to coerce it...
-                                                  local notFrame = element:frame()
-                                                  local frame = {
-                                                      x = notFrame._x,
-                                                      y = notFrame._y,
-                                                      h = notFrame._h,
-                                                      w = notFrame._w,
-                                                  }
-                                                  settings.set("_documentationServer.browserFrame", frame)
-                                              end
-                                          end, module._browser):start({
-                                              "AXWindowMoved",
-                                              "AXWindowResized",
-                                              "AXUIElementDestroyed"
-                                          })
-          end)
+        if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
+            require"hs.timer".waitUntil(
+                function() return module._browser:asHSWindow() ~= nil end,
+                function(...)
+                    module._browserWatcher = module._browser:asHSWindow()
+                                              :newWatcher(function(element, event, watcher, userData)
+                                                  if event == "AXUIElementDestroyed" then
+                                                      module._browserWatcher:stop()
+                                                      module._browserWatcher = nil
+                                                  else
+                                                    -- ^%$#$@#&%^*$ hs.geometry means element:frame() isn't really a rect, and there is no direct function to coerce it...
+                                                      local notFrame = element:frame()
+                                                      local frame = {
+                                                          x = notFrame._x,
+                                                          y = notFrame._y,
+                                                          h = notFrame._h,
+                                                          w = notFrame._w,
+                                                      }
+                                                      settings.set("_documentationServer.browserFrame", frame)
+                                                  end
+                                              end, module._browser):start({
+                                                  "AXWindowMoved",
+                                                  "AXWindowResized",
+                                                  "AXUIElementDestroyed"
+                                              })
+              end)
+        end
+    else
+        os.execute("/usr/bin/open " .. targetURL)
     end
 end
 
@@ -241,6 +246,29 @@ module.browserDarkMode = function(...)
         settings.set("_documentationServer.invertDocs", value)
     end
     return settings.get("_documentationServer.invertDocs")
+end
+
+--- hs.doc.hsdocs.forceExternalBrowser([value]) -> currentValue
+--- Function
+--- Get or set whether or not [hs.doc.hsdocs.help](#help) uses an external browser.
+---
+--- Paramters:
+---  * value - an optional boolean, default false, specifying whether or not documentation requests will be displayed in an external browser or the internal one handled by `hs.webview`.
+---
+--- Returns:
+---  * the current, possibly new, value
+---
+--- Notes:
+---  * If this value is set to true, help requests invoked by [hs.doc.hsdocs.help](#help) will be invoked by `os.execute("open *targetURL*"), rendering the documentation in your default browser.
+---  * This behavior is triggered automatically, regardless of this setting, if you are running with a version of OS X prior to 10.10, since `hs.webview` requires OS X 10.10 or later.
+---
+---  * This value is stored in the Hammerspoon application defaults with the label "_documentationServer.forceExternalBrowser".
+module.forceExternalBrowser = function(...)
+    local args = table.pack(...)
+    if args.n == 1 and (type(args[1]) == "boolean" or type(args[1]) == "nil") then
+        settings.set("_documentationServer.forceExternalBrowser", args[1])
+    end
+    return settings.get("_documentationServer.forceExternalBrowser")
 end
 
 return module

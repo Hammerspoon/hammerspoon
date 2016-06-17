@@ -6,12 +6,21 @@
 
 -- make sure NSColor conversion tools are installed
 require("hs.drawing.color")
-
 require("hs.styledtext")
 
-local module = require("hs.console.internal")
+local USERDATA_TAG = "hs.console"
+
+local module = require(USERDATA_TAG .. ".internal")
 
 -- private variables and methods -----------------------------------------
+
+local deprecatedWarningsGiven = {}
+local deprecatedWarningCheck = function(oldName, newName)
+    if not deprecatedWarningsGiven[oldName] then
+        deprecatedWarningsGiven[oldName] = true
+        hs.luaSkinLog.wf("%s.%s is deprecated; use %s.%s instead", USERDATA_TAG, oldName, USERDATA_TAG, newName)
+    end
+end
 
 -- Public interface ------------------------------------------------------
 
@@ -29,6 +38,98 @@ local module = require("hs.console.internal")
 ---  * This is equivalent to `hs.console.setConsole()`
 module.clearConsole = function()
     module.setConsole()
+end
+
+--- hs.console.asHSDrawing() -> hs.drawing object
+--- Deprecated
+--- Because use of this function can easily lead to a crash, useful methods from `hs.drawing` have been added to the `hs.console` module itself.  If you believe that a useful method has been overlooked, please submit an issue.
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * a placeholder object
+module.asHSDrawing = setmetatable({}, {
+    __call = function(self, obj, ...)
+        if not deprecatedWarningsGiven["asHSDrawing"] then
+            deprecatedWarningsGiven["asHSDrawing"] = true
+            hs.luaSkinLog.wf("%s.asHSDrawing() is deprecated and should not be used.", USERDATA_TAG)
+        end
+        return setmetatable({}, {
+            __index = function(self, func)
+                if module[func] then
+                    deprecatedWarningCheck("asHSDrawing():" .. func, func)
+                    return function (_, ...) return module[func](...) end
+                elseif func:match("^set") then
+                    local newFunc = func:match("^set(.*)$")
+                    newFunc = newFunc:sub(1,1):lower() .. newFunc:sub(2)
+                    if module[newFunc] then
+                        deprecatedWarningCheck("asHSDrawing():" .. func, newFunc)
+                        return function (_, ...) return module[newFunc](...) end
+                    end
+                end
+                hs.luaSkinLog.wf("%s.asHSDrawing() is deprecated and the method %s does not currently have a replacement.  If you believer this is an error, please submit an issue.", USERDATA_TAG, func)
+                return nil
+            end,
+        })
+    end,
+})
+
+--- hs.console.asHSWindow() -> hs.window object
+--- Deprecated
+--- Returns an hs.window object for the console so that you can use hs.window methods on it.
+---
+--- This function is identical to [hs.console.hswindow](#hswindow).  It is included for reasons of backwards compatibility, but use of the new name is recommended for clarity.
+module.asHSWindow = function(self, ...)
+    deprecatedWarningCheck("asHSWindow", "hswindow")
+    return self:hswindow(...)
+end
+
+--- hs.console.behaviorAsLabels(behaviorTable) -> currentValue
+--- Function
+--- Get or set the window behavior settings for the console using labels defined in `hs.drawing.windowBehaviors`.
+---
+--- Parameters:
+---  * behaviorTable - an optional table of strings and/or numbers specifying the desired window behavior for the Hammerspoon console.
+---
+--- Returns:
+---  * the current (possibly new) value.
+---
+--- Notes:
+---  * Window behaviors determine how the console is handled by Spaces and Exposé. See `hs.drawing.windowBehaviors` for more information.
+module.behaviorAsLabels = function(...)
+    local drawing = require"hs.drawing"
+    local args = table.pack(...)
+
+    if args.n == 0 then
+        local results = {}
+        local behaviorNumber = module.behavior()
+
+        if behaviorNumber ~= 0 then
+            for i, v in pairs(drawing.windowBehaviors) do
+                if type(i) == "string" then
+                    if (behaviorNumber & v) > 0 then table.insert(results, i) end
+                end
+            end
+        else
+            table.insert(results, drawing.windowBehaviors[0])
+        end
+        return setmetatable(results, { __tostring = function(_)
+            table.sort(_)
+            return "{ "..table.concat(_, ", ").." }"
+        end})
+    elseif args.n == 1 and type(args[1]) == "table" then
+        local newBehavior = 0
+        for i,v in ipairs(args[1]) do
+            local flag = tonumber(v) or drawing.windowBehaviors[v]
+            if flag then newBehavior = newBehavior | flag end
+        end
+        return module.behavior(newBehavior)
+    elseif args.n > 1 then
+        error("behaviorAsLabels method expects 0 or 1 arguments", 2)
+    else
+        error("behaviorAsLabels method argument must be a table", 2)
+    end
 end
 
 -- Return Module Object --------------------------------------------------
