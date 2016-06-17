@@ -272,6 +272,7 @@ objectMT.delete = function(self, propagate, delay)
     if type(propagate) == "number" then
         propagte, delay = nil, propagate
     end
+    delay = delay or 0
     if propagate then
         for i,v in ipairs(self:children()) do
             objectMT.delete(v, propagate, delay)
