@@ -132,6 +132,25 @@ module.behaviorAsLabels = function(...)
     end
 end
 
+
+--- hs.console.toolbar([toolbar | nil]) -> toolbarObject | currentValue
+--- Method
+--- Get or attach/detach a toolbar to/from the Hammerspoon console.
+---
+--- Parameters:
+---  * `toolbar` - if an `hs.webview.toolbar` object is specified, it will be attached to the Hammerspoon console.  If an explicit nil is specified, the current toolbar will be removed from the console.
+---
+--- Returns:
+---  * if a toolbarObject or explicit nil is specified, returns the toolbarObject; otherwise returns the current toolbarObject or nil, if no toolbar is attached to the console.
+---
+--- Notes:
+---  * this method is a convenience wrapper for the `hs.webview.toolbar.attachToolbar` function.
+---
+---  * If the toolbar is currently attached to another window when this function is called, it will be detached from the original window and attached to the console.
+
+-- webview requires 10.10, but the toolbar portion doesn't, so we attach it this way just in case
+module.toolbar = require"hs.webview.toolbar".attachToolbar
+
 -- Return Module Object --------------------------------------------------
 
 return module
