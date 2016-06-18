@@ -237,9 +237,12 @@ static int urleventgetDefaultHandler(lua_State *L) {
     NSString *scheme = [NSString stringWithUTF8String:lua_tostring(L, 1)];
     CFStringRef bundleID = LSCopyDefaultHandlerForURLScheme((__bridge CFStringRef)scheme);
 
-    lua_pushstring(L, [(__bridge NSString *)bundleID UTF8String]);
-
-    CFRelease(bundleID);
+    if (bundleID) {
+        lua_pushstring(L, [(__bridge NSString *)bundleID UTF8String]);
+        CFRelease(bundleID);
+    } else {
+        lua_pushnil(L) ;
+    }
     return 1;
 }
 
