@@ -23,6 +23,7 @@
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1" />
     <title>Hammerspoon docs</title>
     <style type="text/css">
       a { text-decoration: none; }

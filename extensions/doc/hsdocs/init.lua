@@ -13,10 +13,297 @@
 ---
 --- The intent of this sub-module is to provide as close a rendering of the same documentation available at the Hammerspoon Github site and Dash documentation as possible in a manner suitable for run-time modification so module developers can test out documentation additions without requiring a complete recompilation of the Hammerspoon source.  As always, the most current and official documentation can be found at http://www.hammerspoon.org and in the official Hammerspoon Dash docset.
 
-local module = {}
+local module  = {}
+-- private variables and methods -----------------------------------------
+
+local USERDATA_TAG = "hs.doc.hsdocs"
+
 local settings = require"hs.settings"
+local image    = require"hs.image"
+local webview  = require"hs.webview"
 
 local documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*/).*%.lua$")
+
+local toolbarImages = {
+    prevArrow = image.imageFromASCII(".......\n" ..
+                                     "..3....\n" ..
+                                     ".......\n" ..
+                                     "41....1\n" ..
+                                     ".......\n" ..
+                                     "..5....\n" ..
+                                     ".......",
+    {
+        { strokeColor = { white = .5 } },
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.0 }, shouldClose = false },
+        {},
+    }),
+    nextArrow = image.imageFromASCII(".......\n" ..
+                                     "....3..\n" ..
+                                     ".......\n" ..
+                                     "1....14\n" ..
+                                     ".......\n" ..
+                                     "....5..\n" ..
+                                     ".......",
+    {
+        { strokeColor = { white = .5 } },
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.0 }, shouldClose = false },
+        {}
+    }),
+    lightMode = image.imageFromASCII("1.........2\n" ..
+                                     "...........\n" ..
+                                     "...........\n" ..
+                                     ".....b.....\n" ..
+                                     "...........\n" ..
+                                     "...........\n" ..
+                                     "....e.f....\n" ..
+                                     "...........\n" ..
+                                     "...a...c...\n" ..
+                                     "...........\n" ..
+                                     "4.........3",
+    {
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.0 } },
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.0 }, shouldClose = false },
+        { strokeColor = { white = .5 } },
+        {}
+    }),
+    darkMode = image.imageFromASCII("1.........2\n" ..
+                                    "...........\n" ..
+                                    "...........\n" ..
+                                    ".....b.....\n" ..
+                                    "...........\n" ..
+                                    "...........\n" ..
+                                    "....e.f....\n" ..
+                                    "...........\n" ..
+                                    "...a...c...\n" ..
+                                    "...........\n" ..
+                                    "4.........3",
+    {
+        { strokeColor = { white = .75 }, fillColor = { alpha = 0.5 } },
+        { strokeColor = { white = .75 }, fillColor = { alpha = 0.0 }, shouldClose = false },
+        { strokeColor = { white = .75 } },
+        {}
+    }),
+    followMode = image.imageFromASCII("2.........3\n" ..
+                                      "...........\n" ..
+                                      ".....g.....\n" ..
+                                      "...........\n" ..
+                                      "1...f.h...4\n" ..
+                                      "6...b.c...9\n" ..
+                                      "...........\n" ..
+                                      "...a...d...\n" ..
+                                      "...........\n" ..
+                                      "7.........8",
+    {
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.0 }, shouldClose = false },
+        { strokeColor = { white = .75 }, fillColor = { alpha = 0.5 }, shouldClose = false },
+        { strokeColor = { white = .75 }, fillColor = { alpha = 0.0 }, shouldClose = false },
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.0 }, shouldClose = true },
+        {}
+    }),
+    noTrackWindow = image.imageFromASCII("1.........2\n" ..
+                                         "4.........3\n" ..
+                                         "6.........7\n" ..
+                                         "...........\n" ..
+                                         "...........\n" ..
+                                         "...........\n" ..
+                                         "...........\n" ..
+                                         "...........\n" ..
+                                         "...........\n" ..
+                                         "9.........8",
+    {
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.25 }, shouldClose = false },
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.0 }},
+        {}
+    }),
+    trackWindow = image.imageFromASCII("1.......2..\n" ..
+                                       "4.......3..\n" ..
+                                       "6.......7.c\n" ..
+                                       "...........\n" ..
+                                       "...........\n" ..
+                                       "...........\n" ..
+                                       "...........\n" ..
+                                       "9.......8..\n" ..
+                                       "...........\n" ..
+                                       "..a.......b",
+    {
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.25 }, shouldClose = false },
+        { strokeColor = { white = .5 }, fillColor = { alpha = 0.0 }},
+        { strokeColor = { white = .6 }, fillColor = { alpha = 0.0 }, shouldClose = false},
+        {}
+    }),
+    index = image.imageFromName("statusicon"),
+}
+
+local updateToolbarIcons = function(toolbar, browser)
+    local historyList = browser:historyList()
+
+    if historyList.current > 1 then
+        toolbar:modifyItem{ id = "prev", enable = true }
+    else
+        toolbar:modifyItem{ id = "prev", enable = false }
+    end
+
+    if historyList.current < #historyList then
+        toolbar:modifyItem{ id = "next", enable = true }
+    else
+        toolbar:modifyItem{ id = "next", enable = false }
+    end
+
+    local mode = module.browserDarkMode()
+    if type(mode) == "nil" then
+        toolbar:modifyItem{ id = "mode", image = toolbarImages.followMode }
+    elseif type(mode) == "boolean" then
+        toolbar:modifyItem{ id = "mode", image = mode and toolbarImages.darkMode or toolbarImages.lightMode }
+    elseif type(mode) == "number" then
+        toolbar:modifyItem{ id = "mode", image = (mode > 50) and toolbarImages.darkMode or toolbarImages.lightMode }
+    end
+
+    toolbar:modifyItem{ id = "track", image = module.trackBrowserFrame() and toolbarImages.trackWindow or toolbarImages.noTrackWindow }
+end
+
+local makeToolbar = function(browser)
+    local examineDocumentation
+    examineDocumentation = function(tblName)
+        local myTable = {}
+        for i, v in pairs(tblName) do
+            if type(v) == "table" then
+                if v.__name == v.__path then
+                    table.insert(myTable, v.__name)
+                    local more = examineDocumentation(v)
+                    if #more > 0 then
+                        for i2,v2 in ipairs(more) do table.insert(myTable, v2) end
+                    end
+                end
+            end
+        end
+        return myTable
+    end
+    local searchList = examineDocumentation(hs.help.hs)
+    table.insert(searchList, "hs")
+    table.sort(searchList)
+
+    local toolbar = webview.toolbar.new("hsBrowserToolbar", {
+        {
+            id = "index",
+            label = "Index",
+            image = toolbarImages.index,
+            tooltip = "Display documentation index",
+        },
+        {
+            id = "navigation",
+            label = "Navigation",
+            groupMembers = { "prev", "next" },
+        },
+        {
+            id = "prev",
+            tooltip = "Display previous page",
+            image = toolbarImages.prevArrow,
+            enable = false,
+            allowedAlone = false,
+        },
+        {
+            id = "next",
+            tooltip = "Display next page",
+            image = toolbarImages.nextArrow,
+            enable = false,
+            allowedAlone = false,
+        },
+        {
+            id = "search",
+            tooltip = "Search for a HS function or method",
+            searchfield = true,
+            searchWidth = 250,
+            fn = function(t, w, i, text)
+                if text ~= "" then w:url("http://localhost:" .. tostring(module._server:port()) .. "/module.lp/" .. text) end
+            end,
+            searchPredefinedSearches = searchList,
+        },
+        { id = "NSToolbarFlexibleSpaceItem" },
+        {
+            id = "mode",
+            tooltip = "Toggle display mode",
+            image = toolbarImages.followMode,
+        },
+        {
+            id = "track",
+            tooltip = "Toggle window frame tracking",
+            image = toolbarImages.noTrackWindow,
+        },
+    }):canCustomize(true):displayMode("icon"):sizeMode("small"):setCallback(function(t, w, i)
+        if     i == "prev"  then w:goBack()
+        elseif i == "next"  then w:goForward()
+        elseif i == "index" then w:url("http://localhost:" .. tostring(module._server:port()) .. "/")
+        elseif i == "mode"  then
+            local mode = module.browserDarkMode()
+            if type(mode) == "nil" then
+                module.browserDarkMode(true)
+            elseif type(mode) == "boolean" then
+                if mode then
+                    module.browserDarkMode(false)
+                else
+                    module.browserDarkMode(nil)
+                end
+            elseif type(mode) == "number" then
+                if mode < 50 then
+                    module.browserDarkMode(false)
+                else
+                    module.browserDarkMode(true)
+                end
+            else
+                -- shouldn't be possible, but...
+                module.browserDarkMode(nil)
+            end
+            w:reload()
+        elseif i == "track" then
+            local track = module.trackBrowserFrame()
+            if track then
+                module.browserFrame(nil)
+            end
+            module.trackBrowserFrame(not track)
+        else
+            hs.luaSkinLog.wf("%s browser callback received %s and has no handler", USERDATA_TAG, i)
+        end
+        updateToolbarIcons(t, w)
+    end)
+
+    updateToolbarIcons(toolbar, browser)
+    return toolbar
+end
+
+local makeBrowser = function()
+    local screen   = require"hs.screen"
+
+    local mainScreenFrame = screen:primaryScreen():frame()
+    local browserFrame = settings.get("_documentationServer.browserFrame")
+    if not (browserFrame and browserFrame.x and browserFrame.y and browserFrame.h and browserFrame.w) then
+        browserFrame = {
+            x = mainScreenFrame.x + 10,
+            y = mainScreenFrame.y + 32,
+            h = mainScreenFrame.h - 42,
+            w = 800
+        }
+    end
+
+    local browser = webview.new(browserFrame, {
+        developerExtrasEnabled=true,
+        privateBrowsing=true,
+    }):windowStyle(1+2+4+8)
+      :allowTextEntry(true)
+      :allowGestures(true)
+      :closeOnEscape(true)
+      :navigationCallback(function(a, w, n, e)
+          if e then
+              hs.luaSkinLog.ef("%s browser navigation for %s error:%s", USERDATA_TAG, a, e)
+              return true
+          end
+          if a == "didFinishNavigation" then updateToolbarIcons(w:toolbar(), w) end
+      end)
+
+    browser:toolbar(makeToolbar(browser))
+    return browser
+end
+
+-- Public interface ------------------------------------------------------
 
 --- hs.doc.hsdocs.port([value]) -> currentValue
 --- Function
@@ -115,31 +402,8 @@ module.help = function(target)
         targetURL = targetURL .. "module.lp/" .. target.__path
     end
 
-    local webview  = require"hs.webview"
     if webview and not settings.get("_documentationServer.forceExternalBrowser") then
-        if not module._browser then
-            local screen   = require"hs.screen"
-
-            local mainScreenFrame = screen:primaryScreen():frame()
-            local browserFrame = settings.get("_documentationServer.browserFrame")
-            if not (browserFrame and browserFrame.x and browserFrame.y and browserFrame.h and browserFrame.w) then
-                browserFrame = {
-                    x = mainScreenFrame.x + 10,
-                    y = mainScreenFrame.y + 32,
-                    h = mainScreenFrame.h - 42,
-                    w = 800
-                }
-            end
-
-            module._browser = webview.new(browserFrame, {
-                developerExtrasEnabled=true,
-                privateBrowsing=true,
-            }):windowStyle(1+2+4+8)
-              :allowTextEntry(true)
-              :allowGestures(true)
-              :closeOnEscape(true)
-        end
-
+        module._browser = module._browser or makeBrowser()
         module._browser:url(targetURL):show()
 
         if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
@@ -270,5 +534,7 @@ module.forceExternalBrowser = function(...)
     end
     return settings.get("_documentationServer.forceExternalBrowser")
 end
+
+-- Return Module Object --------------------------------------------------
 
 return module
