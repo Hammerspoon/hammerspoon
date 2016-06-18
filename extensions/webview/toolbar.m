@@ -1,4 +1,3 @@
-// Max Width at 327?
 @import Cocoa ;
 @import LuaSkin ;
 
@@ -36,7 +35,7 @@ static NSArray *keysToKeepFromGroupDefinition ;
 @property (readonly) NSMutableOrderedSet *defaultIdentifiers ;
 @property (readonly) NSMutableOrderedSet *selectableIdentifiers ;
 @property (readonly) NSMutableDictionary *itemDefDictionary ;
-// This can differ if the toolbar is in multiple windows
+// These can differ if the toolbar is in multiple windows
 @property (readonly) NSMutableDictionary *fnRefDictionary ;
 @property (readonly) NSMutableDictionary *enabledDictionary ;
 @end
@@ -277,10 +276,14 @@ static NSMenu *createCoreSearchFieldMenu() {
 
         if (!toolbarItem[@"label"]) toolbarItem[@"label"] = identifier ;
         if (toolbarItem[@"allowedAlone"]) {
-            if ([toolbarItem[@"allowedAlone"] isKindOfClass:[NSNumber class]] && ![toolbarItem[@"allowedAlone"] boolValue]) {
-                allowedAlone = NO ;
+            if ([toolbarItem[@"allowedAlone"] isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [toolbarItem[@"allowedAlone"] objCType])) {
+                if (![toolbarItem[@"allowedAlone"] boolValue]) {
+                    allowedAlone = NO ;
+                    included     = NO ;
+                }
+            } else {
+                [toolbarItem removeObjectForKey:@"allowedAlone"] ;
             }
-            [toolbarItem removeObjectForKey:@"allowedAlone"] ;
         }
         if (selectable) [_selectableIdentifiers addObject:identifier] ;
         _itemDefDictionary[identifier] = toolbarItem ;
@@ -296,14 +299,12 @@ static NSMenu *createCoreSearchFieldMenu() {
     return YES ;
 }
 
-// called from addToolbarDefinitionAtIndex:, so item dictionary is the initial definition, and view resizing is held off until item added to group, if any
 - (void)fillinNewToolbarItem:(NSToolbarItem *)item {
     [self updateToolbarItem:item
              withDictionary:_itemDefDictionary[item.itemIdentifier]
                     inGroup:NO] ;
 }
 
-// called from modifyToolbarItem, so item dictionary should only be updates, and view should be resize should occur normally
 - (void)updateToolbarItem:(NSToolbarItem *)item
            withDictionary:(NSMutableDictionary *)itemDefinition {
     [self updateToolbarItem:item
@@ -327,7 +328,6 @@ static NSMenu *createCoreSearchFieldMenu() {
         return ;
     }
 
-// NSLog(@"enter updateToolbarItem with %@", itemDefinition) ;
     // need to take care of this first in case we need to create the searchfield view for later items...
     id keyValue = itemDefinition[@"searchfield"] ;
     if (keyValue) {
@@ -365,9 +365,7 @@ static NSMenu *createCoreSearchFieldMenu() {
         }
     }
 
-// NSLog(@"past searchField") ;
     for (NSString *keyName in [itemDefinition allKeys]) {
-// NSLog(@"in keyLoop") ;
         keyValue = itemDefinition[keyName] ;
 
         if ([keyName isEqualToString:@"enable"]) {
@@ -611,12 +609,10 @@ static NSMenu *createCoreSearchFieldMenu() {
             [itemDefinition removeObjectForKey:keyName] ;
         }
     }
-// NSLog(@"past keyLoop") ;
     // if we weren't send the actual item's full dictionary, then this must be an update... update the item's full definition so that it's available for the configuration panel and for duplicate toolbars
     if (_itemDefDictionary[identifier] != itemDefinition) {
         [_itemDefDictionary[identifier] addEntriesFromDictionary:itemDefinition] ;
     }
-// NSLog(@"past dictionaryUpdate") ;
 }
 
 #pragma mark - NSToolbarDelegate stuff
@@ -730,15 +726,6 @@ static NSMenu *createCoreSearchFieldMenu() {
     return self ;
 }
 
-// - (id)copyWithZone:(NSZone *)zone
-// {
-//     HSToolbarSearchField *copy = [[[self class] allocWithZone: zone] init];
-//     _toolbarItem = self.toolbarItem ;
-//     copy.cell    = self.cell ;
-//
-//     return copy;
-// }
-
 - (void)searchCallback:(NSMenuItem *)sender {
     self.stringValue = sender.title ;
     [(HSToolbar *)_toolbarItem.toolbar performCallback:self] ;
@@ -760,9 +747,11 @@ static NSMenu *createCoreSearchFieldMenu() {
 /// ```
 ///    {
 ///        -- example of a button
-///        { id = "button1", ... }
+///        { id = "button1", ... },
 ///        -- example of a button group
-///        { id = "button2", ..., { id = "sub-button1", ... }, { id = "sub-button2" }, ... }
+///        { id = "button2", ... , groupMembers = { "sub-button1", "sub-button2" } },
+///        { id = "sub-button1", ... , allowedAlone = false },
+///        { id = "sub-button2", ... , allowedAlone = false },
 ///        ...
 ///    }
 /// ```
@@ -806,55 +795,80 @@ static int newHSToolbar(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview.toolbar.attachToolbar(obj1, [obj2]) -> obj1
+/// hs.webview.toolbar.attachToolbar([obj1], [obj2]) -> obj1
 /// Function
-/// Attach a toolbar to the console or webview.
+/// Get or attach/detach a toolbar to the console or webview.
 ///
 /// Parameters:
-///  * obj1 - if this is the only argument and is a toolbar object or `nil`, attaches or removes a toolbar from the Hammerspoon console window.  If this is an hs.webview object, then `obj2` is required.
-///  * obj2 - if obj1 is an hs.webview object, then this argument is a toolbar object or `nil` to attach or remove the toolbar from the webview object.
+///  * if no arguments are present, this function returns the current toolbarObject for the Hammerspoon console, or nil if one is not attached.
+///  * if one argument is provided and it is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the Hammerspoon console.
+///  * if one argument is provided and it is a webviewObject, this function will return the current toolbarObject for the webview, or nil if one is not attached.
+///  * if two arguments are provided and the first is a webviewObject and the second is a toolbarObject or nil, this function will attach or detach a toolbarObject to/from the webview.
 ///
 /// Returns:
-///  * obj1
+///  * if the function is used to attach/detach a toolbar, then the first object provided will be returned ; if this function is used to get the current toolbar object for a webview or the console, then the toolbarObject or nil will be returned.
 ///
 /// Notes:
-///  * If the toolbar is currently attached to a window when this function is called, it will be detached from the original window and attached to the new one specified by this function.
+///  * This function is not expected to be used directly (though it can be) -- it is added to the `hs.webview` object metatable so that it may be invoked as `hs.webview:toolbar([toolbarObject | nil])` and to the `hs.console` module so that it may be invoked as `hs.console.toolbar([toolbarObject | nil])`.
+///
+///  * If the toolbar is currently attached to another window when this function is called, it will be detached from the original window and attached to the new one specified by this function.
 static int attachToolbar(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    NSWindow *theWindow ;
-    int toolbarIdx = 2 ;
-    if (lua_gettop(L) == 1) {
-        theWindow = [[MJConsoleWindowController singleton] window];
-        toolbarIdx = 1 ;
-        if (lua_type(L, 1) != LUA_TNIL) {
-            [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
-        }
-    } else if (luaL_testudata(L, 1, "hs.webview")) {
+    NSWindow  *theWindow ;
+    HSToolbar *newToolbar ;
+    BOOL      setToolbar = YES ;
+
+    if (lua_gettop(L) == 0) {
+        theWindow  = [[MJConsoleWindowController singleton] window];
+        newToolbar = nil ;
+        setToolbar = NO ;
+    } else if (lua_gettop(L) == 1 && (lua_type(L, 1) == LUA_TNIL)) {
+        theWindow  = [[MJConsoleWindowController singleton] window];
+        newToolbar = nil ;
+        setToolbar = YES ;
+    } else if (lua_gettop(L) == 1 && (lua_type(L, 1) == LUA_TUSERDATA) && luaL_testudata(L, 1, USERDATA_TAG)) {
+        theWindow  = [[MJConsoleWindowController singleton] window];
+        newToolbar = [skin toNSObjectAtIndex:1] ;
+        setToolbar = YES ;
+    } else if (lua_gettop(L) == 1 && (lua_type(L, 1) == LUA_TUSERDATA) && luaL_testudata(L, 1, "hs.webview")) {
         theWindow = get_objectFromUserdata(__bridge NSWindow, L, 1, "hs.webview") ;
-        if (lua_type(L, 2) != LUA_TNIL) {
-            [skin checkArgs:LS_TUSERDATA, "hs.webview", LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
-        } else {
-            [skin checkArgs:LS_TUSERDATA, "hs.webview", LS_TNIL, LS_TBREAK] ;
-        }
+        newToolbar = nil ;
+        setToolbar = NO ;
+    } else if (lua_gettop(L) == 2 && (lua_type(L, 1) == LUA_TUSERDATA) && luaL_testudata(L, 1, "hs.webview") && (lua_type(L, 2) == LUA_TNIL)) {
+        theWindow = get_objectFromUserdata(__bridge NSWindow, L, 1, "hs.webview") ;
+        newToolbar = nil ;
+        setToolbar = YES ;
+    } else if (lua_gettop(L) == 2 && lua_type(L, 1) == LUA_TUSERDATA && luaL_testudata(L, 1, "hs.webview") && (lua_type(L, 2) == LUA_TUSERDATA) && luaL_testudata(L, 2, USERDATA_TAG)) {
+        theWindow = get_objectFromUserdata(__bridge NSWindow, L, 1, "hs.webview") ;
+        newToolbar = [skin toNSObjectAtIndex:2] ;
+        setToolbar = YES ;
     } else {
-        return luaL_error(L, "toolbar can only be attached to the console or a webview") ;
+        return luaL_error(L, "%s:attachToolbar requires an optional hs.webview object and an %s object or nil", USERDATA_TAG, USERDATA_TAG) ;
     }
+
     HSToolbar *oldToolbar = (HSToolbar *)theWindow.toolbar ;
-    HSToolbar *newToolbar = (lua_type(L, toolbarIdx) == LUA_TNIL) ? nil : [skin toNSObjectAtIndex:toolbarIdx] ;
-    if (oldToolbar) {
-        oldToolbar.visible = NO ;
-        theWindow.toolbar = nil ;
-        if ([oldToolbar isKindOfClass:[HSToolbar class]]) oldToolbar.windowUsingToolbar = nil ;
+    if (setToolbar) {
+        if (oldToolbar) {
+            oldToolbar.visible = NO ;
+            theWindow.toolbar = nil ;
+            if ([oldToolbar isKindOfClass:[HSToolbar class]]) oldToolbar.windowUsingToolbar = nil ;
+        }
+        if (newToolbar) {
+            NSWindow *newTBWindow = newToolbar.windowUsingToolbar ;
+            if (newTBWindow) newTBWindow.toolbar = nil ;
+            theWindow.toolbar             = newToolbar ;
+            newToolbar.windowUsingToolbar = theWindow ;
+            newToolbar.visible            = YES ;
+        }
+        lua_pushvalue(L, 1) ;
+    } else {
+        if ([oldToolbar isKindOfClass:[HSToolbar class]]) {
+            [skin pushNSObject:oldToolbar] ;
+        } else {
+            // it's not ours, so don't know what to do with it
+            lua_pushnil(L) ;
+        }
     }
-    if (newToolbar) {
-        NSWindow *newTBWindow = newToolbar.windowUsingToolbar ;
-        if (newTBWindow) newTBWindow.toolbar = nil ;
-        theWindow.toolbar             = newToolbar ;
-        newToolbar.windowUsingToolbar = theWindow ;
-        newToolbar.visible            = YES ;
-    }
-//     [skin logWarn:[NSString stringWithFormat:@"%@ %@ %@", oldToolbar, newToolbar, theWindow]] ;
-    lua_pushvalue(L, 1) ;
     return 1 ;
 }
 
@@ -1220,8 +1234,16 @@ static int modifyToolbarItem(lua_State *L) {
                 if ([item.itemIdentifier isEqualToString:identifier]) {
                     [toolbar updateToolbarItem:item withDictionary:newDict] ;
                     handled = YES ;
-                    break ;
+                } else if ([item isKindOfClass:[NSToolbarItemGroup class]]) {
+                    for (NSToolbarItem *subItem in ((NSToolbarItemGroup *)item).subitems) {
+                        if ([subItem.itemIdentifier isEqualToString:identifier]) {
+                            [toolbar updateToolbarItem:subItem withDictionary:newDict] ;
+                            handled = YES ;
+                        }
+                        if (handled) break ;
+                    }
                 }
+            if (handled) break ;
             }
         }
         if (!handled) {
@@ -1505,6 +1527,7 @@ static int infoDump(lua_State *L) {
 static int injectIntoDictionary(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
+    [skin logWarn:[NSString stringWithFormat:@"%s:inject -- this method is for testing purposes and will be removed when appropriate helpers have been more fully defined and tested.", USERDATA_TAG]] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSString *identifier ;
 
@@ -1841,6 +1864,8 @@ int luaopen_hs_webview_toolbar(lua_State* L) {
                                 NSToolbarSpaceItemIdentifier,
                                 NSToolbarFlexibleSpaceItemIdentifier,
                             ] ;
+
+    // FIXME: currently underused... still thinking validating the table should be separate from creation and this may help there...
     keysToKeepFromDefinitionDictionary = @[ @"id", @"default", @"selectable" ];
     keysToKeepFromGroupDefinition      = @[ @"searchfield", @"image", @"fn" ];
 
