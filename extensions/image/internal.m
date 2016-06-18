@@ -590,12 +590,8 @@ static int imageFromPath(lua_State *L) {
 ///  * context - An optional table containing the context for each shape in the image.  A shape is considered a single drawing element (point, ellipse, line, or polygon) as defined at https://github.com/cparnot/ASCIImage and http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/.
 ///    * The context table is an optional (possibly sparse) array in which the index represents the order in which the shapes are defined.  The last (highest) numbered index in the sparse array specifies the default settings for any unspecified index and any settings which are not explicitly set in any other given index.
 ///    * Each index consists of a table which can contain one or more of the following keys:
-///      * fillColor - the color with which the shape will be filled (defaults to black)  Color is defined in a table containing color component values between 0.0 and 1.0 for each of the keys:
-///        * red (default 0.0)
-///        * green (default 0.0)
-///        * blue (default 0.0)
-///        * alpha (default 1.0)
-///      * strokeColor - the color with which the shape will be stroked (defaults to black)
+///      * fillColor - the color with which the shape will be filled (defaults to black).  The color is defined in a table described as specified in `hs.drawing.color`
+///      * strokeColor - the color with which the shape will be stroked (defaults to black).  The color is defined in a table described as specified in `hs.drawing.color`
 ///      * lineWidth - the line width (number) for the stroke of the shape (defaults to 1 if anti-aliasing is on or (√2)/2 if it is off -- approximately 0.7)
 ///      * shouldClose - a boolean indicating whether or not the shape should be closed (defaults to true)
 ///      * antialias - a boolean indicating whether or not the shape should be antialiased (defaults to true)
