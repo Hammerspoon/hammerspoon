@@ -479,7 +479,8 @@ int luaopen_hs_webview_datastore(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     if (!NSClassFromString(@"WKWebsiteDataStore")) {
         [skin logError:[NSString stringWithFormat:@"%s requires WKWebsiteDataStore support, found in OS X 10.11 or newer", USERDATA_DS_TAG]] ;
-        lua_pushnil(L) ;
+        // nil gets interpreted as "nothing" and thus "true" by require...
+        lua_pushboolean(L, NO) ;
     } else {
         refTable = [skin registerLibraryWithObject:USERDATA_DS_TAG
                                          functions:moduleLib

@@ -345,7 +345,8 @@ int luaopen_hs_webview_usercontent(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     if (!NSClassFromString(@"WKWebView")) {
         [skin logError:[NSString stringWithFormat:@"%s requires WKWebView support, found in OS X 10.10 or newer", USERDATA_UCC_TAG]] ;
-        lua_pushnil(L) ;
+        // nil gets interpreted as "nothing" and thus "true" by require...
+        lua_pushboolean(L, NO) ;
     } else {
         refTable = [skin registerLibraryWithObject:USERDATA_UCC_TAG
                                          functions:moduleLib

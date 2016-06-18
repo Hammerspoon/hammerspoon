@@ -56,8 +56,9 @@ local USERDATA_TAG = "hs.webview"
 
 local osVersion = require"hs.host".operatingSystemVersion()
 if (osVersion["major"] == 10 and osVersion["minor"] < 10) then
-  hs.luaSkinLog.wf("%s is only available on OS X 10.10 or later", USERDATA_TAG)
-  return nil
+    hs.luaSkinLog.wf("%s is only available on OS X 10.10 or later", USERDATA_TAG)
+    -- nil gets interpreted as "nothing" and thus "true" by require...
+    return false
 end
 
 local module       = require(USERDATA_TAG .. ".internal")
@@ -187,7 +188,21 @@ objectMT.__index = function(self, _)
     end
 end
 
-objectMT.attachToolbar = module.attachToolbar
+--- hs.webview:toolbar([toolbar | nil]) -> webviewObject | currentValue
+--- Method
+--- Get or attach/detach a toolbar to/from the webview.
+---
+--- Parameters:
+---  * `toolbar` - if an `hs.webview.toolbar` object is specified, it will be attached to the webview.  If an explicit nil is specified, the current toolbar will be removed from the webview.
+---
+--- Returns:
+---  * if a toolbarObject or explicit nil is specified, returns the webviewObject; otherwise returns the current toolbarObject or nil, if no toolbar is attached to the webview.
+---
+--- Notes:
+---  * this method is a convenience wrapper for the `hs.webview.toolbar.attachToolbar` function.
+---
+---  * If the toolbarObject is currently attached to another window when this method is called, it will be detached from the original window and attached to the webview.  If you wish to attach the same toolbar to multiple webviews, see `hs.webview.toolbar:copy`.
+objectMT.toolbar = module.toolbar.attachToolbar
 
 --- hs.webview:windowStyle(mask) -> webviewObject | currentMask
 --- Method
