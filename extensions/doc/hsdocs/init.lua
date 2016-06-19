@@ -443,7 +443,15 @@ module.help = function(target)
               end)
         end
     else
-        os.execute("/usr/bin/open " .. targetURL)
+        local targetApp = settings.get("_documentationServer.forceExternalBrowser")
+        local urlevent = require"hs.urlevent"
+        if type(targetApp) == "boolean" then
+            targetApp = urlevent.getDefaultHandler("http")
+        end
+        if not urlevent.openURLWithBundle(targetURL, targetApp) then
+            hs.luaSkinLog.wf("%s.help - hs.urlevent.openURLWithBundle failed to launch for bundle ID %s", USERDATA_TAG, targetApp)
+            os.execute("/usr/bin/open " .. targetURL)
+        end
     end
 end
 
@@ -526,19 +534,35 @@ end
 --- Get or set whether or not [hs.doc.hsdocs.help](#help) uses an external browser.
 ---
 --- Paramters:
----  * value - an optional boolean, default false, specifying whether or not documentation requests will be displayed in an external browser or the internal one handled by `hs.webview`.
+---  * value - an optional boolean or string, default false, specifying whether or not documentation requests will be displayed in an external browser or the internal one handled by `hs.webview`.
 ---
 --- Returns:
 ---  * the current, possibly new, value
 ---
 --- Notes:
----  * If this value is set to true, help requests invoked by [hs.doc.hsdocs.help](#help) will be invoked by `os.execute("open *targetURL*"), rendering the documentation in your default browser.
+---  * If this value is set to true, help requests invoked by [hs.doc.hsdocs.help](#help) will be invoked by your system's default handler for the `http` scheme.
+---  * If this value is set to a string, the string specifies the bundle ID of an application which will be used to handle the url request for the documentation.  The string should match one of the items returned by `hs.urlevent.getAllHandlersForScheme("http")`.
+---
 ---  * This behavior is triggered automatically, regardless of this setting, if you are running with a version of OS X prior to 10.10, since `hs.webview` requires OS X 10.10 or later.
 ---
 ---  * This value is stored in the Hammerspoon application defaults with the label "_documentationServer.forceExternalBrowser".
 module.forceExternalBrowser = function(...)
     local args = table.pack(...)
-    if args.n == 1 and (type(args[1]) == "boolean" or type(args[1]) == "nil") then
+    local value = args[1]
+    if args.n == 1 and (type(value) == "string" or type(value) == "boolean" or type(value) == "nil") then
+        if type(value) == "string" then
+            local validBundleIDs = require"hs.urlevent".getAllHandlersForScheme("http")
+            local found = false
+            for i, v in ipairs(validBundleIDs) do
+                if v == value then
+                    found = true
+                    break
+                end
+            end
+            if not found then
+               error([[the string must match one of those returned by hs.urlevent.getAllHandlersForScheme("http")]])
+            end
+        end
         settings.set("_documentationServer.forceExternalBrowser", args[1])
     end
     return settings.get("_documentationServer.forceExternalBrowser")
