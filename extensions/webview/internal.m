@@ -13,8 +13,9 @@ static WKProcessPool *HSWebViewProcessPool ;
 
 #pragma mark - Classes and Delegates
 
-// forward declare so we can use in windowShouldClose:
+// forward declare so we can use in class definitions
 static int userdata_gc(lua_State* L) ;
+static int NSError_toLua(lua_State *L, id obj) ;
 
 #pragma mark - our window object
 
@@ -374,7 +375,7 @@ static int userdata_gc(lua_State* L) ;
 
 - (WKWebView *)webView:(WKWebView *)theView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
                                                        forNavigationAction:(WKNavigationAction *)navigationAction
-                                                            windowFeatures:(__unused WKWindowFeatures *)windowFeatures {
+                                                            windowFeatures:(WKWindowFeatures *)windowFeatures {
 // TODO: maybe prevent when not titled/movable, include toggle to prevent new windows...
 // copy window settings... what else?
     if (((HSWebViewView *)theView).allowNewWindows) {
@@ -422,8 +423,9 @@ static int userdata_gc(lua_State* L) ;
             lua_pushstring([skin L], "newWindow") ;
             [skin pushNSObject:newWindow] ;
             [skin pushNSObject:navigationAction] ;
+            [skin pushNSObject:windowFeatures] ;
 
-            if (![skin  protectedCallAndTraceback:3 nresults:1]) {
+            if (![skin  protectedCallAndTraceback:4 nresults:1]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
                 lua_pop([skin L], 1) ;
                 [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() newWindow callback error: %s", errorMsg]];
@@ -444,7 +446,7 @@ static int userdata_gc(lua_State* L) ;
                     if (![skin protectedCallAndTraceback:1 nresults:0]) {
                         const char *errorMsg = lua_tostring([skin L], -1);
                         lua_pop([skin L], 1) ;
-                        [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() newWindow removal due rejection: %s", errorMsg]];
+                        [skin logError:[NSString stringWithFormat:@"hs.webview:policyCallback() newWindow removal due to rejection: %s", errorMsg]];
                     }
                     return nil ;
                 }
@@ -560,7 +562,7 @@ static int userdata_gc(lua_State* L) ;
 
         if (error) {
             numberOfArguments++ ;
-            [skin pushNSObject:error] ;
+            NSError_toLua(skin.L, error) ;
         }
 
         if (![skin  protectedCallAndTraceback:numberOfArguments nresults:1]) {
@@ -1216,7 +1218,7 @@ static int webview_navigationCallback(lua_State *L) {
 /// Sets a callback to approve or deny web navigation activity.
 ///
 /// Parameters:
-///  * `fn` - the function to be called to approve or deny web navigation activity.  To disable the callback function, explicitly specify nil.  The callback function will accept three arguments and must return 1 argument which will determine if the action is approved or denied.  The first argument will specify the type of policy request and will determine the second and third arguments as follows:
+///  * `fn` - the function to be called to approve or deny web navigation activity.  To disable the callback function, explicitly specify nil.  The callback function will accept three or four arguments and must return 1 argument which will determine if the action is approved or denied.  The first argument will specify the type of policy request and will determine the second and third arguments as follows:
 ///
 ///    * `navigationAction`: This applies to any connection to a server or service which supplies content for the webview and occurs before any connection has actually been made.
 ///      * the second argument will be the webview this request originates from.
@@ -1250,6 +1252,15 @@ static int webview_navigationCallback(lua_State *L) {
 ///    * `newWindow`: This applies to any request to create a new window from a webview.  This includes JavaScript, the user selecting "Open in a new window", etc.
 ///      * the second argument will be the new webview this request is generating.
 ///      * the third argument will be a table about the navigation action requested.  See the description above for `navigationAction` for details about this parameter.
+///      * the fourth argument will be a table containing features requested for the new window (none of these will be addressed by default -- you can choose to honor or disregard the feature requests in the callback yourself) and may contain any of the following keys:
+///        * `menuBarVisibility`   - Whether the menu bar should be visible. (Not a feature provided for windows under OS X)
+///        * `statusBarVisibility` - Whether the status bar should be visible. (Not currently supported by this module)
+///        * `toolbarsVisibility`  - Whether toolbars should be visible.
+///        * `allowsResizing`      - Whether the new window should be resizable.
+///        * `x`                   - The x coordinate of the new window.
+///        * `y`                   - The y coordinate of the new window.
+///        * `h`                   - The height coordinate of the new window.
+///        * `w`                   - The width coordinate of the new window.
 ///    * The callback function should return `true` if the new window should be created or false if it should not.
 ///
 ///    * `authenticationChallenge`:  This applies to a web page which requires a log in credential for HTTPBasic or HTTPDigest authentication.
@@ -1362,7 +1373,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
         if (callbackRef != LUA_NOREF) {
             [skin pushLuaRef:refTable ref:callbackRef] ;
             [skin pushNSObject:obj] ;
-            [skin pushNSObject:error] ;
+            NSError_toLua(L, error) ;
             if (![skin protectedCallAndTraceback:2 nresults:0]) {
                 const char *errorMsg = lua_tostring([skin L], -1);
                 lua_pop([skin L], 1) ;
@@ -1393,8 +1404,9 @@ static int webview_evaluateJavaScript(lua_State *L) {
 ///   * `developerExtrasEnabled`                - include "Inspect Element" in the context menu
 ///   * `suppressesIncrementalRendering`        - suppresses content rendering until fully loaded into memory (default false)
 ///
-///   * The following additional preferences may also be set under OS X 10.11 or later:
+///   * The following additional preferences may also be set under OS X 10.11 or later (they will be ignored with a warning printed if used under OS X 10.10):
 ///     * `applicationName`                       - a string specifying an application name to be listed at the end of the browser's USER-AGENT header.  Note that this is only appended to the default user agent string; if you set a custom one with [hs.webview:userAgent](#userAgent), this value is ignored.
+///     * `allowsAirPlay`                         - a boolean specifying whether media playback within the webview can play through AirPlay devices.
 ///     * `datastore`                             - an `hs.webview.datastore` object specifying where website data such as cookies, cacheable content, etc. is to be stored.
 ///     * `privateBrowsing`                       - a boolean (default false) specifying that the datastore should be set to a new, empty and non-persistent datastore.  Note that this will override the `datastore` key if both are specified and this is set to true.
 ///  * `userContentController` - an optional `hs.webview.usercontent` object to provide script injection and JavaScript messaging with Hammerspoon from the webview.
@@ -1477,14 +1489,14 @@ static int webview_new(lua_State *L) {
             lua_pop(L, 1) ;
 
 // Seems to be being ignored, will dig deeper if interest peaks or I have time
-//             if (lua_getfield(L, 2, "allowsAirPlay") == LUA_TBOOLEAN) {
-//                 if ([config respondsToSelector:NSSelectorFromString(@"setAllowsAirPlayForMediaPlayback:")]) {
-//                     config.allowsAirPlayForMediaPlayback = (BOOL)lua_toboolean(L, -1) ;
-//                 } else {
-//                     [skin logError:[NSString stringWithFormat:@"%s:setting allowsAirPlay requires OS X 10.11 or newer", USERDATA_TAG]] ;
-//                 }
-//             }
-//             lua_pop(L, 1) ;
+            if (lua_getfield(L, 2, "allowsAirPlay") == LUA_TBOOLEAN) {
+                if ([config respondsToSelector:NSSelectorFromString(@"setAllowsAirPlayForMediaPlayback:")]) {
+                    config.allowsAirPlayForMediaPlayback = (BOOL)lua_toboolean(L, -1) ;
+                } else {
+                    [skin logError:[NSString stringWithFormat:@"%s:setting allowsAirPlay requires OS X 10.11 or newer", USERDATA_TAG]] ;
+                }
+            }
+            lua_pop(L, 1) ;
 
             // this is undocumented in Apples Documentation, but is in the WebKit2 stuff... and it works
             if (lua_getfield(L, 2, "developerExtrasEnabled") == LUA_TBOOLEAN)
@@ -1602,7 +1614,7 @@ static int webview_allowTextEntry(lua_State *L) {
 ///
 /// Notes:
 ///  * If set to true, a webview object will be deleted when the user clicks on the close button of a titled and closable webview (see `hs.webview.windowStyle`).
-///  * Children of an explicitly created webview automatically have this attribute set to true.  To cause closed children to remain after the user closes them, you can set this with a policy callback function when it receives the "newWindow" action.
+///  * Children of an explicitly created webview automatically have this attribute set to true.  To cause closed children to remain after the user closes the parent, you can set this to false with a policy callback function when it receives the "newWindow" action.
 static int webview_deleteOnClose(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
@@ -2133,6 +2145,46 @@ static int NSError_toLua(lua_State *L, id obj) {
     return 1 ;
 }
 
+static int WKWindowFeatures_toLua(lua_State *L, id obj) {
+    WKWindowFeatures *features = obj ;
+
+    lua_newtable(L) ;
+      if (features.menuBarVisibility) {
+          lua_pushboolean(L, [features.menuBarVisibility boolValue]) ;
+          lua_setfield(L, -2, "menuBarVisibility") ;
+      }
+      if (features.statusBarVisibility) {
+          lua_pushboolean(L, [features.statusBarVisibility boolValue]) ;
+          lua_setfield(L, -2, "statusBarVisibility") ;
+      }
+      if (features.toolbarsVisibility) {
+          lua_pushboolean(L, [features.toolbarsVisibility boolValue]) ;
+          lua_setfield(L, -2, "toolbarsVisibility") ;
+      }
+      if (features.allowsResizing) {
+          lua_pushboolean(L, [features.allowsResizing boolValue]) ;
+          lua_setfield(L, -2, "allowsResizing") ;
+      }
+      if (features.x) {
+          lua_pushnumber(L, [features.x doubleValue]) ;
+          lua_setfield(L, -2, "x") ;
+      }
+      if (features.y) {
+          lua_pushnumber(L, [features.y doubleValue]) ;
+          lua_setfield(L, -2, "y") ;
+      }
+      if (features.height) {
+          lua_pushnumber(L, [features.height doubleValue]) ;
+          lua_setfield(L, -2, "h") ;
+      }
+      if (features.width) {
+          lua_pushnumber(L, [features.width doubleValue]) ;
+          lua_setfield(L, -2, "w") ;
+      }
+
+    return 1 ;
+}
+
 static int NSURLAuthenticationChallenge_toLua(lua_State *L, id obj) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSURLAuthenticationChallenge *challenge = obj ;
@@ -2386,6 +2438,7 @@ int luaopen_hs_webview_internal(lua_State* L) {
         [skin registerPushNSHelper:WKNavigationResponse_toLua         forClass:"WKNavigationResponse"] ;
         [skin registerPushNSHelper:WKFrameInfo_toLua                  forClass:"WKFrameInfo"] ;
         [skin registerPushNSHelper:WKNavigation_toLua                 forClass:"WKNavigation"] ;
+        [skin registerPushNSHelper:WKWindowFeatures_toLua             forClass:"WKWindowFeatures"] ;
 
         if (NSClassFromString(@"WKSecurityOrigin")) {
             [skin registerPushNSHelper:WKSecurityOrigin_toLua             forClass:"WKSecurityOrigin"] ;
@@ -2395,9 +2448,6 @@ int luaopen_hs_webview_internal(lua_State* L) {
         [skin registerPushNSHelper:NSURLAuthenticationChallenge_toLua forClass:"NSURLAuthenticationChallenge"] ;
         [skin registerPushNSHelper:NSURLProtectionSpace_toLua         forClass:"NSURLProtectionSpace"] ;
         [skin registerPushNSHelper:NSURLCredential_toLua              forClass:"NSURLCredential"] ;
-
-        // classes that definitely should find a more general/universal home someday...
-        [skin registerPushNSHelper:NSError_toLua                      forClass:"NSError"] ;
 
         webview_windowMasksTable(L) ;
         lua_setfield(L, -2, "windowMasks") ;

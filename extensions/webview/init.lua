@@ -51,6 +51,7 @@
 --- t.attachToolbar(a)
 --- ~~~
 ---
+--- Note: This module is supported in OS X versions prior to 10.10 (for the Hammerspoon console only), even though its parent `hs.webview` is not.  To load this module directly, use `require("hs.webview.toolbar")` instead of relying on module auto-loading.
 
 local USERDATA_TAG = "hs.webview"
 
