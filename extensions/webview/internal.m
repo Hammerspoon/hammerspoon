@@ -619,6 +619,20 @@ static int webview_preferences(lua_State *L) {
 }
 #endif
 
+/// hs.webview:privateBrowsing() -> boolean
+/// Method
+/// Returns whether or not the webview browser is set up for private browsing (i.e. uses a non-persistent datastore)
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a boolean value indicating whether or not the datastore is non-persistent.
+///
+/// Notes:
+///  * This method is only supported by OS X 10.11 and newer
+///
+///  * See `hs.webview.datastore` and [hs.webview.new](#new) for more information.
 static int webview_privateBrowsing(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
@@ -741,6 +755,47 @@ static int webview_url(lua_State *L) {
             return luaL_error(L, "Invalid URL type.  String or table expected.") ;
         }
     }
+}
+
+/// hs.webview:userAgent([agent]) -> webviewObject | current value
+/// Method
+/// Get or set the webview's user agent string
+///
+/// Parameters:
+///  * `agent` - an options string specifying the user agent string to include in all URL requests made by the webview object.
+///
+/// Returns:
+///  * if a parameter is specified, returns the webviewObject, otherwise returns the current value
+///
+/// Notes:
+///  * This method is only supported by OS X 10.11 and newer
+///
+///  * The default user string used by webview objects will be something like this (the exact version numbers will differ, depending upon your OS X version):
+///   * "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/601.6.17 (KHTML, like Gecko)"
+///  * By default, this method will return the empty string ("") when queried -- this indicates that the default, shown above, is used.  You can also return to this default by setting the user agent to "" with this method (e.g. `hs.webview:userAgent("")`).
+///
+///  * Some web sites tailor content based on the user string or use it for other internal purposes (tracking, statistics, page availability, layout, etc.).  Common user-agent strings can be found at http://www.useragentstring.com/pages/useragentstring.php.
+///
+///  * If you have set the user agent application name with the `applicationName` parameter to the [hs.webview.new](#new) constructor, it will be ignored unless this value is "", i.e. the default user agent string.  If you wish to specify an application name after the user agent string and use a custom string, include the application name in your custom string.
+static int webview_userAgent(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+
+    if ([theView respondsToSelector:NSSelectorFromString(@"customUserAgent")]) {
+        if (lua_type(L, 2) == LUA_TNONE) {
+            [skin pushNSObject:theView.customUserAgent] ;
+        } else {
+    //         NSString *userAgent = [skin toNSObjectAtIndex:2] ;
+            theView.customUserAgent = [skin toNSObjectAtIndex:2] ;
+            lua_pushvalue(L, 1) ;
+        }
+    } else {
+        [skin logInfo:[NSString stringWithFormat:@"%s:userAgent requires OS X 10.11 and newer", USERDATA_TAG]] ;
+        lua_pushnil(L) ;
+    }
+    return 1 ;
 }
 
 /// hs.webview:title() -> title
@@ -1337,7 +1392,9 @@ static int webview_evaluateJavaScript(lua_State *L) {
 ///   * `plugInsEnabled`                        - plug-ins are enabled (default false)
 ///   * `developerExtrasEnabled`                - include "Inspect Element" in the context menu
 ///   * `suppressesIncrementalRendering`        - suppresses content rendering until fully loaded into memory (default false)
+///
 ///   * The following additional preferences may also be set under OS X 10.11 or later:
+///     * `applicationName`                       - a string specifying an application name to be listed at the end of the browser's USER-AGENT header.  Note that this is only appended to the default user agent string; if you set a custom one with [hs.webview:userAgent](#userAgent), this value is ignored.
 ///     * `datastore`                             - an `hs.webview.datastore` object specifying where website data such as cookies, cacheable content, etc. is to be stored.
 ///     * `privateBrowsing`                       - a boolean (default false) specifying that the datastore should be set to a new, empty and non-persistent datastore.  Note that this will override the `datastore` key if both are specified and this is set to true.
 ///  * `userContentController` - an optional `hs.webview.usercontent` object to provide script injection and JavaScript messaging with Hammerspoon from the webview.
@@ -1348,6 +1405,7 @@ static int webview_evaluateJavaScript(lua_State *L) {
 /// Notes:
 ///  * To set the initial URL, use the `hs.webview:url` method before showing the webview object.
 ///  * Preferences can only be set when the webview object is created.  To change the preferences of an open webview, you will need to close it and recreate it with this method.
+///
 ///  * developerExtrasEnabled is not listed in Apple's documentation, but is included in the WebKit2 documentation.
 static int webview_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
@@ -1405,6 +1463,15 @@ static int webview_new(lua_State *L) {
                     config.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore] ;
                 } else {
                     [skin logError:[NSString stringWithFormat:@"%s:private mode browsing requires OS X 10.11 or newer", USERDATA_TAG]] ;
+                }
+            }
+            lua_pop(L, 1) ;
+
+            if (lua_getfield(L, 2, "applicationName") == LUA_TSTRING) {
+                if ([config respondsToSelector:NSSelectorFromString(@"applicationNameForUserAgent")]) {
+                    config.applicationNameForUserAgent = [skin toNSObjectAtIndex:-1] ;
+                } else {
+                    [skin logError:[NSString stringWithFormat:@"%s:setting the user agent application name requires OS X 10.11 or newer", USERDATA_TAG]] ;
                 }
             }
             lua_pop(L, 1) ;
@@ -2250,6 +2317,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"parent",                     webview_parent},
     {"evaluateJavaScript",         webview_evaluateJavaScript},
     {"privateBrowsing",            webview_privateBrowsing},
+    {"userAgent",                  webview_userAgent},
 #ifdef _WK_DEBUG
     {"preferences",                webview_preferences},
 #endif

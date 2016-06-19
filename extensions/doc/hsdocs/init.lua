@@ -24,6 +24,8 @@ local webview  = require"hs.webview"
 
 local documentRoot = package.searchpath("hs.doc.hsdocs", package.path):match("^(/.*/).*%.lua$")
 
+local osVersion = require"hs.host".operatingSystemVersion()
+
 local toolbarImages = {
     prevArrow = image.imageFromASCII(".......\n" ..
                                      "..3....\n" ..
@@ -213,10 +215,11 @@ local makeToolbar = function(browser)
             tooltip = "Search for a HS function or method",
             searchfield = true,
             searchWidth = 250,
+            searchPredefinedSearches = searchList,
+            searchPredefinedMenuTitle = false,
             fn = function(t, w, i, text)
                 if text ~= "" then w:url("http://localhost:" .. tostring(module._server:port()) .. "/module.lp/" .. text) end
             end,
-            searchPredefinedSearches = searchList,
         },
         { id = "NSToolbarFlexibleSpaceItem" },
         {
@@ -284,10 +287,16 @@ local makeBrowser = function()
         }
     end
 
-    local browser = webview.new(browserFrame, {
-        developerExtrasEnabled=true,
-        privateBrowsing=true,
-    }):windowStyle(1+2+4+8)
+    local options = {
+        developerExtrasEnabled = true,
+    }
+
+    if (osVersion["major"] == 10 and osVersion["minor"] > 10) then
+        options.privateBrowsing = true
+        options.applicationName = "Hammerspoon/" .. hs.processInfo.version
+    end
+
+    local browser = webview.new(browserFrame, options):windowStyle(1+2+4+8)
       :allowTextEntry(true)
       :allowGestures(true)
       :closeOnEscape(true)
@@ -408,9 +417,9 @@ module.help = function(target)
 
         if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
             require"hs.timer".waitUntil(
-                function() return module._browser:asHSWindow() ~= nil end,
+                function() return module._browser:hswindow() ~= nil end,
                 function(...)
-                    module._browserWatcher = module._browser:asHSWindow()
+                    module._browserWatcher = module._browser:hswindow()
                                               :newWatcher(function(element, event, watcher, userData)
                                                   if event == "AXUIElementDestroyed" then
                                                       module._browserWatcher:stop()

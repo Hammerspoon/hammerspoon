@@ -365,6 +365,19 @@ static NSMenu *createCoreSearchFieldMenu() {
         }
     }
 
+    keyValue = itemDefinition[@"searchPredefinedMenuTitle"] ;
+    if (keyValue) {
+        if ([keyValue isKindOfClass:[NSString class]] || ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType]))) {
+        // make sure searchPredefinedSearches is in this dictionary since we need to recreate it anyways
+            if ((itemDefinition != _itemDefDictionary[identifier]) && !itemDefinition[@"searchPredefinedSearches"]) {
+                itemDefinition[@"searchPredefinedSearches"] = _itemDefDictionary[identifier][@"searchPredefinedSearches"] ;
+            }
+        } else {
+            [skin logWarn:[NSString stringWithFormat:@"%s:searchPredefinedMenuTitle for %@ must be a string or a boolean", USERDATA_TAG, identifier]] ;
+            [itemDefinition removeObjectForKey:@"searchPredefinedMenuTitle"] ;
+        }
+    }
+
     for (NSString *keyName in [itemDefinition allKeys]) {
         keyValue = itemDefinition[keyName] ;
 
@@ -556,10 +569,28 @@ static NSMenu *createCoreSearchFieldMenu() {
                         [predefinedSearchMenu addItem:newMenuItem];
                     }
 
-                    NSMenuItem *predefinedSearches = [[NSMenuItem alloc] initWithTitle:@"Predefined Searches" action:nil keyEquivalent:@""] ;
-                    predefinedSearches.submenu     = predefinedSearchMenu ;
-                    [searchMenu insertItem:predefinedSearches atIndex:0] ;
-                    [searchMenu insertItem:[NSMenuItem separatorItem] atIndex:1];
+                    NSString *menuName = @"Predefined Searches" ;
+                    // here we need to check both the formal definition and the (possibly different) itemDefinition for the key, since we need it whether this is a create or a modify
+                    id checkForTitle = itemDefinition[@"searchPredefinedMenuTitle"] ? itemDefinition[@"searchPredefinedMenuTitle"] : _itemDefDictionary[identifier][@"searchPredefinedMenuTitle"] ;
+
+                    if (checkForTitle) {
+                        if ([checkForTitle isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [checkForTitle objCType])) {
+                            if (![checkForTitle boolValue]) {
+                                menuName = nil ;
+                            }
+                        } else if ([checkForTitle isKindOfClass:[NSString class]]) {
+                            menuName = checkForTitle ;
+                        }
+                    }
+
+                    if (menuName) {
+                        NSMenuItem *predefinedSearches = [[NSMenuItem alloc] initWithTitle:menuName action:nil keyEquivalent:@""] ;
+                        predefinedSearches.submenu     = predefinedSearchMenu ;
+                        [searchMenu insertItem:predefinedSearches atIndex:0] ;
+                        [searchMenu insertItem:[NSMenuItem separatorItem] atIndex:1];
+                    } else {
+                        searchMenu = predefinedSearchMenu ;
+                    }
                     ((NSSearchFieldCell *)itemView.cell).searchMenuTemplate = searchMenu ;
                 } else {
                     [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array of strings", USERDATA_TAG, keyName, identifier]] ;
@@ -598,13 +629,17 @@ static NSMenu *createCoreSearchFieldMenu() {
         } else if ([keyName isEqualToString:@"searchHistoryAutoSaveName"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
             if ([keyValue isKindOfClass:[NSString class]]) {
                 ((NSSearchFieldCell *)itemView.cell).recentsAutosaveName = keyValue ;
+                [(NSSearchFieldCell *)itemView.cell recentSearches] ; // force load to populate menu
             } else if ([keyValue isKindOfClass:[NSNumber class]]) {
                 ((NSSearchFieldCell *)itemView.cell).recentsAutosaveName = [keyValue stringValue] ;
+                [(NSSearchFieldCell *)itemView.cell recentSearches] ; // force load to populate menu
             } else {
                 [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a string", USERDATA_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
-        } else if (![keyName isEqualToString:@"searchfield"]) { // handled before loop, but we don't want to clear it, either
+
+        // handled before loop, but we don't want to clear it, either
+        } else if (![keyName isEqualToString:@"searchfield"] && ![keyName isEqualToString:@"searchPredefinedMenuTitle"]) {
             [skin logVerbose:[NSString stringWithFormat:@"%s:%@ is not a valid field for %@; ignoring", USERDATA_TAG, keyName, identifier]] ;
             [itemDefinition removeObjectForKey:keyName] ;
         }

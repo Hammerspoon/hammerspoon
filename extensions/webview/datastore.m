@@ -370,7 +370,26 @@ static int datastore_removeDataFrom(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview.datastore:persistent() -> bool
+/// Method
+/// Returns whether or not the datastore is persistent.
+///
+/// Paramters:
+///  * None
+///
+/// Returns:
+///  * a boolean value indicating whether or not the datastore is persistent (true) or private (false)
+///
+/// Notes:
+///  * Note that this value is the inverse of `hs.webview:privateBrowsing()`, since private browsing uses a non-persistent datastore.
+static int datastore_persistent(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_DS_TAG, LS_TBREAK] ;
+    WKWebsiteDataStore *dataStore = [skin toNSObjectAtIndex:1] ;
 
+    lua_pushboolean(L, dataStore.persistent) ;
+    return 1;
+}
 #pragma mark - Module Constants
 
 #pragma mark - Lua<->NSObject Conversion Functions
@@ -451,6 +470,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"fetchRecords",       datastore_fetchRecords},
     {"removeRecordsFor",   datastore_removeRecords},
     {"removeRecordsAfter", datastore_removeDataFrom},
+    {"persistent",         datastore_persistent},
 
     {"__tostring",         userdata_tostring},
     {"__eq",               userdata_eq},
