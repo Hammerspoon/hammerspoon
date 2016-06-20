@@ -139,11 +139,12 @@ static int NSError_toLua(lua_State *L, id obj) ;
 - (id)initWithFrame:(NSRect)frameRect configuration:(WKWebViewConfiguration *)configuration {
     self = [super initWithFrame:frameRect configuration:configuration] ;
     if (self) {
-        self.navigationDelegate = self ;
-        self.UIDelegate         = self ;
-        self.navigationCallback = LUA_NOREF ;
-        self.policyCallback     = LUA_NOREF ;
-        self.allowNewWindows    = YES ;
+        self.navigationDelegate   = self ;
+        self.UIDelegate           = self ;
+        _navigationCallback       = LUA_NOREF ;
+        _policyCallback           = LUA_NOREF ;
+        _allowNewWindows          = YES ;
+        _allowInvalidCertificates = NO ;
     }
     return self;
 }
@@ -314,7 +315,15 @@ static int NSError_toLua(lua_State *L, id obj) ;
             [LuaSkin logWarn:[NSString stringWithFormat:@"%s:didReceiveAuthenticationChallenge no target window", USERDATA_TAG]] ;
             completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
         }
+    } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && _allowInvalidCertificates) {
+        SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
+        CFDataRef exceptions = SecTrustCopyExceptions(serverTrust);
+        SecTrustSetExceptions(serverTrust, exceptions);
+        CFRelease(exceptions);
+
+        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:serverTrust]);
     } else {
+        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:didReceiveAuthenticationChallenge unrecognized challenge type:%@", USERDATA_TAG, [[challenge protectionSpace] authenticationMethod]]] ;
         completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     }
 }
@@ -1068,6 +1077,44 @@ static int webview_allowNewWindows(lua_State *L) {
         lua_pushboolean(L, theView.allowNewWindows) ;
     } else {
         theView.allowNewWindows = (BOOL)lua_toboolean(L, 2) ;
+        lua_settop(L, 1) ;
+    }
+    return 1 ;
+}
+
+/// hs.webview:allowInvalidCertificates([flag]) -> webviewObject | current value
+/// Method
+/// Get or set whether or not invalid SSL server certificates are accepted as valid for browsing with the webview.
+///
+/// Parameters:
+/// * `flag` - an optional boolean, default false, specifying whether or not an invalid SSL server certificate should be  accepted.
+///
+/// Returns:
+///  * If a value is provided, then this method returns the webview object; otherwise the current value
+///
+/// Notes:
+///  * A server certificate may be invalid for a variety of reasons:
+///    * it is not signed by a recognized certificate authority - most commonly this means the certificate is self-signed.
+///    * the certificate has expired
+///    * the certificate has a common name (web site server name) other than the one requested (e.g. the certificate's common name is www.site.com, but it is being used for something else, possibly just https://site.com, possibly something else entirely
+///    * some corporate proxy servers don't handle SSL properly and can cause a certificate to appear invalid even when they are valid (this is less common then it used to be, but does still occur occasionally)
+///    * potentially nefarious reasons including man-in-the-middle attacks or phishing scams.
+///
+///  * The Hammerspoon server provided by `hs.httpserver` uses a self-signed certificate when set to use SSL, so it will be considered invalid for reason 1 above.
+///
+///  * In general it is safest to leave this as `false`.  You can visit the same site in Safari, or another browser on your computer, and add the certificate as an exception.  Once the certificate has been granted an exception in one application, your Key Chain will be updated so that all applications using the certificate will accept it.
+///
+///  * It is hoped that this is a temporary solution and that the ability to examine invalid certificates in depth will be added to the navigation callback and permanent exceptions can be added solely within Hammerspoon; however, this is not yet possible.
+static int webview_allowInvalidCertificates(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+
+    if (lua_type(L, 2) == LUA_TNONE) {
+        lua_pushboolean(L, theView.allowInvalidCertificates) ;
+    } else {
+        theView.allowInvalidCertificates = (BOOL)lua_toboolean(L, 2) ;
         lua_settop(L, 1) ;
     }
     return 1 ;
@@ -2141,7 +2188,7 @@ static int NSError_toLua(lua_State *L, id obj) {
         [skin pushNSObject:[theError localizedRecoverySuggestion]] ; lua_setfield(L, -2, "localizedRecoverySuggestion") ;
         [skin pushNSObject:[theError localizedFailureReason]] ;      lua_setfield(L, -2, "localizedFailureReason") ;
         [skin pushNSObject:[theError recoveryAttempter]] ;           lua_setfield(L, -2, "recoveryAttempter") ;
-        [skin pushNSObject:[theError userInfo]] ;                    lua_setfield(L, -2, "userInfo") ;
+        [skin pushNSObject:[theError userInfo] withOptions:LS_NSDescribeUnknownTypes] ;                    lua_setfield(L, -2, "userInfo") ;
     return 1 ;
 }
 
@@ -2370,6 +2417,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"evaluateJavaScript",         webview_evaluateJavaScript},
     {"privateBrowsing",            webview_privateBrowsing},
     {"userAgent",                  webview_userAgent},
+    {"allowInvalidCertificates",   webview_allowInvalidCertificates},
 #ifdef _WK_DEBUG
     {"preferences",                webview_preferences},
 #endif

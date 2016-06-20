@@ -32,6 +32,7 @@
 @property int          navigationCallback ;
 @property int          policyCallback ;
 @property BOOL         allowNewWindows ;
+@property BOOL         allowInvalidCertificates ;
 @property WKNavigation *trackingID ;
 @end
 
