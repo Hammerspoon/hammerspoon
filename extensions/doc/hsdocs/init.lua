@@ -136,6 +136,36 @@ local toolbarImages = {
     index = image.imageFromName("statusicon"),
 }
 
+local makeWatcher = function(browser)
+    if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
+        require"hs.timer".waitUntil(
+            function() return module._browser:hswindow() ~= nil end,
+            function(...)
+                module._browserWatcher = browser:hswindow()
+                                                :newWatcher(function(element, event, watcher, userData)
+                                                    if event == "AXUIElementDestroyed" then
+                                                        module._browserWatcher:stop()
+                                                        module._browserWatcher = nil
+                                                    else
+                                                      -- ^%$#$@#&%^*$ hs.geometry means element:frame() isn't really a rect, and there is no direct function to coerce it...
+                                                        local notFrame = element:frame()
+                                                        local frame = {
+                                                            x = notFrame._x,
+                                                            y = notFrame._y,
+                                                            h = notFrame._h,
+                                                            w = notFrame._w,
+                                                        }
+                                                        settings.set("_documentationServer.browserFrame", frame)
+                                                    end
+                                                end, module._browser):start({
+                                                    "AXWindowMoved",
+                                                    "AXWindowResized",
+                                                    "AXUIElementDestroyed"
+                                                })
+          end)
+    end
+end
+
 local updateToolbarIcons = function(toolbar, browser)
     local historyList = browser:historyList()
 
@@ -161,6 +191,17 @@ local updateToolbarIcons = function(toolbar, browser)
     end
 
     toolbar:modifyItem{ id = "track", image = module.trackBrowserFrame() and toolbarImages.trackWindow or toolbarImages.noTrackWindow }
+
+    if settings.get("_documentationServer.trackBrowserFrameChanges") then
+        if not module._browserWatcher then
+            makeWatcher(browser)
+        end
+    else
+        if module._browserWatcher then
+            module._browserWatcher:stop()
+            module._browserWatcher = nil
+        end
+    end
 end
 
 local makeToolbar = function(browser)
@@ -232,42 +273,46 @@ local makeToolbar = function(browser)
             tooltip = "Toggle window frame tracking",
             image = toolbarImages.noTrackWindow,
         },
-    }):canCustomize(true):displayMode("icon"):sizeMode("small"):setCallback(function(t, w, i)
-        if     i == "prev"  then w:goBack()
-        elseif i == "next"  then w:goForward()
-        elseif i == "index" then w:url("http://localhost:" .. tostring(module._server:port()) .. "/")
-        elseif i == "mode"  then
-            local mode = module.browserDarkMode()
-            if type(mode) == "nil" then
-                module.browserDarkMode(true)
-            elseif type(mode) == "boolean" then
-                if mode then
-                    module.browserDarkMode(false)
-                else
-                    module.browserDarkMode(nil)
-                end
-            elseif type(mode) == "number" then
-                if mode < 50 then
-                    module.browserDarkMode(false)
-                else
-                    module.browserDarkMode(true)
-                end
-            else
-                -- shouldn't be possible, but...
-                module.browserDarkMode(nil)
-            end
-            w:reload()
-        elseif i == "track" then
-            local track = module.trackBrowserFrame()
-            if track then
-                module.browserFrame(nil)
-            end
-            module.trackBrowserFrame(not track)
-        else
-            hs.luaSkinLog.wf("%s browser callback received %s and has no handler", USERDATA_TAG, i)
-        end
-        updateToolbarIcons(t, w)
-    end)
+    }):canCustomize(true)
+      :displayMode("icon")
+      :sizeMode("small")
+      :autosaves(true)
+      :setCallback(function(t, w, i)
+          if     i == "prev"  then w:goBack()
+          elseif i == "next"  then w:goForward()
+          elseif i == "index" then w:url("http://localhost:" .. tostring(module._server:port()) .. "/")
+          elseif i == "mode"  then
+              local mode = module.browserDarkMode()
+              if type(mode) == "nil" then
+                  module.browserDarkMode(true)
+              elseif type(mode) == "boolean" then
+                  if mode then
+                      module.browserDarkMode(false)
+                  else
+                      module.browserDarkMode(nil)
+                  end
+              elseif type(mode) == "number" then
+                  if mode < 50 then
+                      module.browserDarkMode(false)
+                  else
+                      module.browserDarkMode(true)
+                  end
+              else
+                  -- shouldn't be possible, but...
+                  module.browserDarkMode(nil)
+              end
+              w:reload()
+          elseif i == "track" then
+              local track = module.trackBrowserFrame()
+              if track then
+                  module.browserFrame(nil)
+              end
+              module.trackBrowserFrame(not track)
+          else
+              hs.luaSkinLog.wf("%s browser callback received %s and has no handler", USERDATA_TAG, i)
+          end
+          updateToolbarIcons(t, w)
+      end)
 
     updateToolbarIcons(toolbar, browser)
     return toolbar
@@ -416,31 +461,7 @@ module.help = function(target)
         module._browser:url(targetURL):show()
 
         if not module._browserWatcher and settings.get("_documentationServer.trackBrowserFrameChanges") then
-            require"hs.timer".waitUntil(
-                function() return module._browser:hswindow() ~= nil end,
-                function(...)
-                    module._browserWatcher = module._browser:hswindow()
-                                              :newWatcher(function(element, event, watcher, userData)
-                                                  if event == "AXUIElementDestroyed" then
-                                                      module._browserWatcher:stop()
-                                                      module._browserWatcher = nil
-                                                  else
-                                                    -- ^%$#$@#&%^*$ hs.geometry means element:frame() isn't really a rect, and there is no direct function to coerce it...
-                                                      local notFrame = element:frame()
-                                                      local frame = {
-                                                          x = notFrame._x,
-                                                          y = notFrame._y,
-                                                          h = notFrame._h,
-                                                          w = notFrame._w,
-                                                      }
-                                                      settings.set("_documentationServer.browserFrame", frame)
-                                                  end
-                                              end, module._browser):start({
-                                                  "AXWindowMoved",
-                                                  "AXWindowResized",
-                                                  "AXUIElementDestroyed"
-                                              })
-              end)
+            makeWatcher(module._browser)
         end
     else
         local targetApp = settings.get("_documentationServer.forceExternalBrowser")
