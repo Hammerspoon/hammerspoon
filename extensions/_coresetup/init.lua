@@ -285,6 +285,19 @@ return {setup=function(...)
   -- load init.lua
 
   local function runstring(s)
+    if hs._consoleInputPreparser then
+      if type(hs._consoleInputPreparser) == "function" then
+        local status, s2 = pcall(hs._consoleInputPreparser, s)
+        if status then
+          s = s2
+        else
+          hs.luaSkinLog.ef("console preparse error: %s", s2)
+        end
+      else
+          hs.luaSkinLog.e("console preparser must be a function or nil")
+      end
+    end
+
     --print("runstring")
     local fn, err = load("return " .. s)
     if not fn then fn, err = load(s) end

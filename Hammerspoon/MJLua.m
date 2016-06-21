@@ -475,12 +475,21 @@ void MJLuaInit(void) {
     lua_pushboolean(L, [[NSFileManager defaultManager] fileExistsAtPath: MJConfigFileFullPath()]);
     lua_pushboolean(L, [[NSUserDefaults standardUserDefaults] boolForKey:HSAutoLoadExtensions]);
 
-    lua_pcall(L, 7, 2, 0);
-
-    evalfn = [MJLuaState luaRef:refTable];
-    completionsForWordFn = [MJLuaState luaRef:refTable];
-    MJLuaLogDelegate = [[MJLuaLogger alloc] initWithLua:L] ;
-    if (MJLuaLogDelegate) [MJLuaState setDelegate:MJLuaLogDelegate] ;
+    if (lua_pcall(L, 7, 2, 0) != LUA_OK) {
+        NSString *errorMessage = [NSString stringWithFormat:@"%s", lua_tostring(L, -1)] ;
+        CLSNSLog(@"Error running setup.lua:%@", errorMessage);
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"OK"];
+        [alert setMessageText:@"Hammerspoon initialization failed"];
+        [alert setInformativeText:errorMessage];
+        [alert setAlertStyle:NSCriticalAlertStyle];
+        [alert runModal];
+    } else {
+        evalfn = [MJLuaState luaRef:refTable];
+        completionsForWordFn = [MJLuaState luaRef:refTable];
+        MJLuaLogDelegate = [[MJLuaLogger alloc] initWithLua:L] ;
+        if (MJLuaLogDelegate) [MJLuaState setDelegate:MJLuaLogDelegate] ;
+    }
 }
 
 static int callShutdownCallback(lua_State *L) {
