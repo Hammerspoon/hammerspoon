@@ -2,7 +2,6 @@
 // #pragma clang diagnostic push
 // #pragma clang diagnostic ignored "-Wreserved-id-macro"
 // #define _WK_DEBUG
-// #define _WK_DEBUG_TYPES
 // #pragma clang diagnostic pop
 
 @import Cocoa ;
@@ -31,8 +30,9 @@
 @interface HSWebViewView : WKWebView <WKNavigationDelegate, WKUIDelegate>
 @property int          navigationCallback ;
 @property int          policyCallback ;
+@property int          sslCallback ;
 @property BOOL         allowNewWindows ;
-@property BOOL         allowInvalidCertificates ;
+@property BOOL         examineInvalidCertificates ;
 @property WKNavigation *trackingID ;
 @end
 

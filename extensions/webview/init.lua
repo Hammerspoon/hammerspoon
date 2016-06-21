@@ -173,7 +173,8 @@ end
 
 -- Public interface ------------------------------------------------------
 
-module.windowMasks = _makeConstantsTable(module.windowMasks)
+module.windowMasks     = _makeConstantsTable(module.windowMasks)
+module.certificateOIDs = _makeConstantsTable(module.certificateOIDs)
 
 module.toolbar.systemToolbarItems = _makeConstantsTable(module.toolbar.systemToolbarItems)
 module.toolbar.itemPriorities     = _makeConstantsTable(module.toolbar.itemPriorities)

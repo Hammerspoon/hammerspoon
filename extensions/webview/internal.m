@@ -16,6 +16,7 @@ static WKProcessPool *HSWebViewProcessPool ;
 // forward declare so we can use in class definitions
 static int userdata_gc(lua_State* L) ;
 static int NSError_toLua(lua_State *L, id obj) ;
+static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 
 #pragma mark - our window object
 
@@ -143,8 +144,9 @@ static int NSError_toLua(lua_State *L, id obj) ;
         self.UIDelegate           = self ;
         _navigationCallback       = LUA_NOREF ;
         _policyCallback           = LUA_NOREF ;
+        _sslCallback              = LUA_NOREF ;
         _allowNewWindows          = YES ;
-        _allowInvalidCertificates = NO ;
+        _examineInvalidCertificates = NO ;
     }
     return self;
 }
@@ -315,15 +317,37 @@ static int NSError_toLua(lua_State *L, id obj) ;
             [LuaSkin logWarn:[NSString stringWithFormat:@"%s:didReceiveAuthenticationChallenge no target window", USERDATA_TAG]] ;
             completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
         }
-    } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust] && _allowInvalidCertificates) {
+    } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
         SecTrustRef serverTrust = challenge.protectionSpace.serverTrust;
-        CFDataRef exceptions = SecTrustCopyExceptions(serverTrust);
-        SecTrustSetExceptions(serverTrust, exceptions);
-        CFRelease(exceptions);
+        SecTrustResultType status ;
+        SecTrustEvaluate(serverTrust, &status);
 
-        completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:serverTrust]);
+        if (status == kSecTrustResultRecoverableTrustFailure && self.sslCallback != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin shared] ;
+            [skin pushLuaRef:refTable ref:self.sslCallback];
+            [skin pushNSObject:(HSWebViewWindow *)theView.window] ;
+            [skin pushNSObject:challenge.protectionSpace] ;
+
+            if (![skin  protectedCallAndTraceback:2 nresults:1]) {
+                const char *errorMsg = lua_tostring([skin L], -1);
+                [skin logError:[NSString stringWithFormat:@"hs.webview:sslCallback callback error: %s", errorMsg]];
+                completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+            } else {
+                if ((lua_type([skin L], -1) == LUA_TBOOLEAN) && lua_toboolean([skin L], -1) && _examineInvalidCertificates) {
+                    CFDataRef exceptions = SecTrustCopyExceptions(serverTrust);
+                    SecTrustSetExceptions(serverTrust, exceptions);
+                    CFRelease(exceptions);
+                    completionHandler(NSURLSessionAuthChallengeUseCredential, [NSURLCredential credentialForTrust:serverTrust]);
+                } else {
+                    completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+                }
+            }
+            lua_pop([skin L], 1) ;
+        } else {
+            completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
+        }
     } else {
-        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:didReceiveAuthenticationChallenge unrecognized challenge type:%@", USERDATA_TAG, [[challenge protectionSpace] authenticationMethod]]] ;
+        [LuaSkin logWarn:[NSString stringWithFormat:@"%s:didReceiveAuthenticationChallenge unhandled challenge type:%@", USERDATA_TAG, [[challenge protectionSpace] authenticationMethod]]] ;
         completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     }
 }
@@ -809,6 +833,47 @@ static int webview_userAgent(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview:certificateChain() -> table | nil
+/// Method
+/// Returns the certificate chain for the most recently committed navigation of the webview.
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table containing the certificates that make up the SSL certificate chain securing the most recent committed navigation.  Each certificate is described in a table with the following keys:
+///    * `commonName` - the common name for the certificate; most commonly this will be a string matching the server portion of the URL request or other descriptor of the certificate's purpose.
+///    * `values`     - a table containing key-value pairs describing the certificate.  The keys will be certificate OIDs.  Common OIDs and their meaning can be found in [hs.webview.certificateOIDs](#certificateOIDs). The value for each key will be a table with the following keys:
+///      * `label`           - a description or label for the entry
+///      * `localized label` - a localized version of `label`
+///      * `type`            - a description of the data type for this value
+///      * `value`           - the value
+///
+/// Notes:
+///  * This method is only supported by OS X 10.11 and newer
+///  * A navigation which was performed via HTTP instead of HTTPS will return an empty array.
+///
+///  * For OIDs which specify a type of "date" -- e.g. "2.5.29.24" (invalidityDate) -- the number provided represents the number of seconds since 12:00:00 AM, January 1, 1970 and can be used directly with the Lua `os.date` command.
+///  * For OIDs which are known to represent a date, but specify its type as a "number" -- e.g. "2.16.840.1.113741.2.1.1.1.7" (X509V1ValidityNotAfter) or "2.16.840.1.113741.2.1.1.1.6" (X509V1ValidityNotBefore) -- the epoch is 12:00:00 AM, Jan 1, 2001.  To convert these dates into a format usable by Lua, you will need to do something similar to the following:  `os.date("%c", value + os.time({year=2001,month=1,day=1,hour=0,min=0,sec=0})`
+static int webview_certificateChain(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+
+    if ([theView respondsToSelector:NSSelectorFromString(@"certificateChain")]) {
+        lua_newtable(L) ;
+        for (id certificate in theView.certificateChain) {
+            SecCertificateRef_toLua(L, (__bridge SecCertificateRef)certificate) ;
+            lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+        }
+    } else {
+        [skin logInfo:[NSString stringWithFormat:@"%s:certificateChain requires OS X 10.11 and newer", USERDATA_TAG]] ;
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
 /// hs.webview:title() -> title
 /// Method
 /// Get the title of the page displayed in the webview.
@@ -1082,17 +1147,19 @@ static int webview_allowNewWindows(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview:allowInvalidCertificates([flag]) -> webviewObject | current value
+/// hs.webview:examineInvalidCertificates([flag]) -> webviewObject | current value
 /// Method
-/// Get or set whether or not invalid SSL server certificates are accepted as valid for browsing with the webview.
+/// Get or set whether or not invalid SSL server certificates that are approved by the ssl callback function are accepted as valid for browsing with the webview.
 ///
 /// Parameters:
-/// * `flag` - an optional boolean, default false, specifying whether or not an invalid SSL server certificate should be  accepted.
+/// * `flag` - an optional boolean, default false, specifying whether or not an invalid SSL server certificate should be  accepted if it is approved by the ssl callback function.
 ///
 /// Returns:
 ///  * If a value is provided, then this method returns the webview object; otherwise the current value
 ///
 /// Notes:
+///  * In order for this setting to have any effect, you must also register an ssl callback function with [hs.webview:sslCallback](#sslCallback) which should return true if the certificate should be granted an exception or false if it should not.  For a certificate to be granted an exception, both this method and the result of the callback *must* be true.
+///
 ///  * A server certificate may be invalid for a variety of reasons:
 ///    * it is not signed by a recognized certificate authority - most commonly this means the certificate is self-signed.
 ///    * the certificate has expired
@@ -1102,19 +1169,17 @@ static int webview_allowNewWindows(lua_State *L) {
 ///
 ///  * The Hammerspoon server provided by `hs.httpserver` uses a self-signed certificate when set to use SSL, so it will be considered invalid for reason 1 above.
 ///
-///  * In general it is safest to leave this as `false`.  You can visit the same site in Safari, or another browser on your computer, and add the certificate as an exception.  Once the certificate has been granted an exception in one application, your Key Chain will be updated so that all applications using the certificate will accept it.
-///
-///  * It is hoped that this is a temporary solution and that the ability to examine invalid certificates in depth will be added to the navigation callback and permanent exceptions can be added solely within Hammerspoon; however, this is not yet possible.
-static int webview_allowInvalidCertificates(lua_State *L) {
+/// * If the certificate has been granted an exception in another application which registers the exception in the user's keychain (e.g. Safari), then the certificate is no longer considered invalid and this setting has no effect for that certificate.
+static int webview_examineInvalidCertificates(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (lua_type(L, 2) == LUA_TNONE) {
-        lua_pushboolean(L, theView.allowInvalidCertificates) ;
+        lua_pushboolean(L, theView.examineInvalidCertificates) ;
     } else {
-        theView.allowInvalidCertificates = (BOOL)lua_toboolean(L, 2) ;
+        theView.examineInvalidCertificates = (BOOL)lua_toboolean(L, 2) ;
         lua_settop(L, 1) ;
     }
     return 1 ;
@@ -1355,6 +1420,61 @@ static int webview_policyCallback(lua_State *L) {
     if (lua_type(L, 2) == LUA_TFUNCTION) {
         lua_pushvalue(L, 2);
         theView.policyCallback = [skin luaRef:refTable] ;
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.webview:sslCallback(fn) -> webviewObject
+/// Method
+/// Sets a callback to examine an invalid SSL certificate and determine if an exception should be granted.
+///
+/// Parameters:
+///  * `fn` - the function to be called to examine the SSL certificate to determine if an exception should be granted.  To disable the callback function, explicitly specify nil.  The callback function will accept two arguments and must return 1 argument which will determine if the action is approved or denied.  The first argument will be the webview this request originates from.  The second argument will be a table containing the protection space details and may include the following keys:
+///
+///    * `port`                       - the port of the server with which communication for this request is occurring
+///    * `receivesCredentialSecurely` - a boolean value indicating whether or not the credential can be sent to the server securely
+///    * `authenticationMethod`       - a string indicating the authentication type, in this case "serverTrust".
+///    * `host`                       - the host name of the server with which communication for this request is occurring
+///    * `protocol`                   - the protocol for which the authentication is occurring
+///    * `isProxy`                    - a boolean indicating whether or not the authentication is occurring with a proxy server
+///    * `proxyType`                  - a string representing the type of proxy server: http, https, ftp, or socks.
+///    * `realm`                      - a string representing the realm name for the authentication.
+///    * `certificates` - an array of tables, each table describing a certificate in the SSL certificate chain provided by the server responding to the webview's request.  Each table will contain the following keys:
+///      * `commonName` - the common name for the certificate; most commonly this will be a string matching the server portion of the URL request or other descriptor of the certificate's purpose.
+///      * `values`     - a table containing key-value pairs describing the certificate.  The keys will be certificate OIDs.  Common OIDs and their meaning can be found in [hs.webview.certificateOIDs](#certificateOIDs). The value for each key will be a table with the following keys:
+///        * `label`           - a description or label for the entry
+///        * `localized label` - a localized version of `label`
+///        * `type`            - a description of the data type for this value
+///        * `value`           - the value
+///
+///  * The callback function should return true if an exception should be granted for this certificate or false if it should be rejected.
+///
+/// Returns:
+///  * The webview object
+///
+/// Notes:
+///  * even if this callback returns `true`, the certificate will only be granted an exception if [hs.webview:examineInvalidCertificates](#examineInvalidCertificates) has also been set to `true`.
+///  * once an invalid certificate has been granted an exception, the exception will remain in effect until the webview object is deleted.
+///  * the callback is only invoked for invalid certificates -- if a certificate is valid, or once an exception has been granted, the callback will not (no longer) be called for that certificate.
+///
+/// * If the certificate has been granted an exception in another application which registers the exception in the user's keychain (e.g. Safari), then the certificate is no longer considered invalid and this callback will not be invoked.
+static int webview_sslCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
+                    LS_TFUNCTION | LS_TNIL,
+                    LS_TBREAK] ;
+
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+    HSWebViewView   *theView = theWindow.contentView ;
+
+    // We're either removing a callback, or setting a new one. Either way, we want to clear out any callback that exists
+    theView.sslCallback = [skin luaUnref:refTable ref:theView.sslCallback] ;
+
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        lua_pushvalue(L, 2);
+        theView.sslCallback = [skin luaRef:refTable] ;
     }
 
     lua_pushvalue(L, 1);
@@ -2042,6 +2162,139 @@ static int webview_windowMasksTable(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview.certificateOIDs[]
+/// Constant
+/// A table of common OID values found in SSL certificates.  SSL certificates provided to the callback function for [hs.webview:sslCallback](#sslCallback) or in the results of [hs.webview:certificateChain](#certificateChain) use OID strings as the keys which describe the properties of the certificate and this table can be used to get a more common name for the keys you are most likely to see.
+///
+/// This list is based on the contents of OS X's /System/Library/Frameworks/Security.framework/Headers/SecCertificateOIDs.h.
+static int webview_pushCertificateOIDs(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    lua_newtable(L) ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDADC_CERT_POLICY] ;                           lua_setfield(L, -2, "ADC_CERT_POLICY") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_CERT_POLICY] ;                         lua_setfield(L, -2, "APPLE_CERT_POLICY") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EKU_CODE_SIGNING] ;                    lua_setfield(L, -2, "APPLE_EKU_CODE_SIGNING") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EKU_CODE_SIGNING_DEV] ;                lua_setfield(L, -2, "APPLE_EKU_CODE_SIGNING_DEV") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EKU_ICHAT_ENCRYPTION] ;                lua_setfield(L, -2, "APPLE_EKU_ICHAT_ENCRYPTION") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EKU_ICHAT_SIGNING] ;                   lua_setfield(L, -2, "APPLE_EKU_ICHAT_SIGNING") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EKU_RESOURCE_SIGNING] ;                lua_setfield(L, -2, "APPLE_EKU_RESOURCE_SIGNING") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EKU_SYSTEM_IDENTITY] ;                 lua_setfield(L, -2, "APPLE_EKU_SYSTEM_IDENTITY") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION] ;                           lua_setfield(L, -2, "APPLE_EXTENSION") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION_ADC_APPLE_SIGNING] ;         lua_setfield(L, -2, "APPLE_EXTENSION_ADC_APPLE_SIGNING") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION_ADC_DEV_SIGNING] ;           lua_setfield(L, -2, "APPLE_EXTENSION_ADC_DEV_SIGNING") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION_APPLE_SIGNING] ;             lua_setfield(L, -2, "APPLE_EXTENSION_APPLE_SIGNING") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION_CODE_SIGNING] ;              lua_setfield(L, -2, "APPLE_EXTENSION_CODE_SIGNING") ;
+//     [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION_INTERMEDIATE_MARKER] ;       lua_setfield(L, -2, "APPLE_EXTENSION_INTERMEDIATE_MARKER") ;
+//     [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION_WWDR_INTERMEDIATE] ;         lua_setfield(L, -2, "APPLE_EXTENSION_WWDR_INTERMEDIATE") ;
+//     [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION_ITMS_INTERMEDIATE] ;         lua_setfield(L, -2, "APPLE_EXTENSION_ITMS_INTERMEDIATE") ;
+//     [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION_AAI_INTERMEDIATE] ;          lua_setfield(L, -2, "APPLE_EXTENSION_AAI_INTERMEDIATE") ;
+//     [skin pushNSObject:(__bridge NSString *)kSecOIDAPPLE_EXTENSION_APPLEID_INTERMEDIATE] ;      lua_setfield(L, -2, "APPLE_EXTENSION_APPLEID_INTERMEDIATE") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAuthorityInfoAccess] ;                       lua_setfield(L, -2, "authorityInfoAccess") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDAuthorityKeyIdentifier] ;                    lua_setfield(L, -2, "authorityKeyIdentifier") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDBasicConstraints] ;                          lua_setfield(L, -2, "basicConstraints") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDBiometricInfo] ;                             lua_setfield(L, -2, "biometricInfo") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCSSMKeyStruct] ;                             lua_setfield(L, -2, "CSSMKeyStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCertIssuer] ;                                lua_setfield(L, -2, "certIssuer") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCertificatePolicies] ;                       lua_setfield(L, -2, "certificatePolicies") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDClientAuth] ;                                lua_setfield(L, -2, "clientAuth") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCollectiveStateProvinceName] ;               lua_setfield(L, -2, "collectiveStateProvinceName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCollectiveStreetAddress] ;                   lua_setfield(L, -2, "collectiveStreetAddress") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCommonName] ;                                lua_setfield(L, -2, "commonName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCountryName] ;                               lua_setfield(L, -2, "countryName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCrlDistributionPoints] ;                     lua_setfield(L, -2, "crlDistributionPoints") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCrlNumber] ;                                 lua_setfield(L, -2, "crlNumber") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDCrlReason] ;                                 lua_setfield(L, -2, "crlReason") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDDOTMAC_CERT_EMAIL_ENCRYPT] ;                 lua_setfield(L, -2, "DOTMAC_CERT_EMAIL_ENCRYPT") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDDOTMAC_CERT_EMAIL_SIGN] ;                    lua_setfield(L, -2, "DOTMAC_CERT_EMAIL_SIGN") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDDOTMAC_CERT_EXTENSION] ;                     lua_setfield(L, -2, "DOTMAC_CERT_EXTENSION") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDDOTMAC_CERT_IDENTITY] ;                      lua_setfield(L, -2, "DOTMAC_CERT_IDENTITY") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDDOTMAC_CERT_POLICY] ;                        lua_setfield(L, -2, "DOTMAC_CERT_POLICY") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDDeltaCrlIndicator] ;                         lua_setfield(L, -2, "deltaCrlIndicator") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDDescription] ;                               lua_setfield(L, -2, "description") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDEKU_IPSec] ;                                 lua_setfield(L, -2, "EKU_IPSec") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDEmailAddress] ;                              lua_setfield(L, -2, "emailAddress") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDEmailProtection] ;                           lua_setfield(L, -2, "emailProtection") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDExtendedKeyUsage] ;                          lua_setfield(L, -2, "extendedKeyUsage") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDExtendedKeyUsageAny] ;                       lua_setfield(L, -2, "extendedKeyUsageAny") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDExtendedUseCodeSigning] ;                    lua_setfield(L, -2, "extendedUseCodeSigning") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDGivenName] ;                                 lua_setfield(L, -2, "givenName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDHoldInstructionCode] ;                       lua_setfield(L, -2, "holdInstructionCode") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDInvalidityDate] ;                            lua_setfield(L, -2, "invalidityDate") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDIssuerAltName] ;                             lua_setfield(L, -2, "issuerAltName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDIssuingDistributionPoint] ;                  lua_setfield(L, -2, "issuingDistributionPoint") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDIssuingDistributionPoints] ;                 lua_setfield(L, -2, "issuingDistributionPoints") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDKERBv5_PKINIT_KP_CLIENT_AUTH] ;              lua_setfield(L, -2, "KERBv5_PKINIT_KP_CLIENT_AUTH") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDKERBv5_PKINIT_KP_KDC] ;                      lua_setfield(L, -2, "KERBv5_PKINIT_KP_KDC") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDKeyUsage] ;                                  lua_setfield(L, -2, "keyUsage") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDLocalityName] ;                              lua_setfield(L, -2, "localityName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDMS_NTPrincipalName] ;                        lua_setfield(L, -2, "MS_NTPrincipalName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDMicrosoftSGC] ;                              lua_setfield(L, -2, "microsoftSGC") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDNameConstraints] ;                           lua_setfield(L, -2, "nameConstraints") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDNetscapeCertSequence] ;                      lua_setfield(L, -2, "netscapeCertSequence") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDNetscapeCertType] ;                          lua_setfield(L, -2, "netscapeCertType") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDNetscapeSGC] ;                               lua_setfield(L, -2, "netscapeSGC") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDOCSPSigning] ;                               lua_setfield(L, -2, "OCSPSigning") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDOrganizationName] ;                          lua_setfield(L, -2, "organizationName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDOrganizationalUnitName] ;                    lua_setfield(L, -2, "organizationalUnitName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDPolicyConstraints] ;                         lua_setfield(L, -2, "policyConstraints") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDPolicyMappings] ;                            lua_setfield(L, -2, "policyMappings") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDPrivateKeyUsagePeriod] ;                     lua_setfield(L, -2, "privateKeyUsagePeriod") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDQC_Statements] ;                             lua_setfield(L, -2, "QC_Statements") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSerialNumber] ;                              lua_setfield(L, -2, "serialNumber") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDServerAuth] ;                                lua_setfield(L, -2, "serverAuth") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDStateProvinceName] ;                         lua_setfield(L, -2, "stateProvinceName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDStreetAddress] ;                             lua_setfield(L, -2, "streetAddress") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSubjectAltName] ;                            lua_setfield(L, -2, "subjectAltName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSubjectDirectoryAttributes] ;                lua_setfield(L, -2, "subjectDirectoryAttributes") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSubjectEmailAddress] ;                       lua_setfield(L, -2, "subjectEmailAddress") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSubjectInfoAccess] ;                         lua_setfield(L, -2, "subjectInfoAccess") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSubjectKeyIdentifier] ;                      lua_setfield(L, -2, "subjectKeyIdentifier") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSubjectPicture] ;                            lua_setfield(L, -2, "subjectPicture") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSubjectSignatureBitmap] ;                    lua_setfield(L, -2, "subjectSignatureBitmap") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSurname] ;                                   lua_setfield(L, -2, "surname") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDTimeStamping] ;                              lua_setfield(L, -2, "timeStamping") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDTitle] ;                                     lua_setfield(L, -2, "title") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDUseExemptions] ;                             lua_setfield(L, -2, "useExemptions") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1CertificateIssuerUniqueId] ;           lua_setfield(L, -2, "X509V1CertificateIssuerUniqueId") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1CertificateSubjectUniqueId] ;          lua_setfield(L, -2, "X509V1CertificateSubjectUniqueId") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1IssuerName] ;                          lua_setfield(L, -2, "X509V1IssuerName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1IssuerNameCStruct] ;                   lua_setfield(L, -2, "X509V1IssuerNameCStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1IssuerNameLDAP] ;                      lua_setfield(L, -2, "X509V1IssuerNameLDAP") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1IssuerNameStd] ;                       lua_setfield(L, -2, "X509V1IssuerNameStd") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SerialNumber] ;                        lua_setfield(L, -2, "X509V1SerialNumber") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1Signature] ;                           lua_setfield(L, -2, "X509V1Signature") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SignatureAlgorithm] ;                  lua_setfield(L, -2, "X509V1SignatureAlgorithm") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SignatureAlgorithmParameters] ;        lua_setfield(L, -2, "X509V1SignatureAlgorithmParameters") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SignatureAlgorithmTBS] ;               lua_setfield(L, -2, "X509V1SignatureAlgorithmTBS") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SignatureCStruct] ;                    lua_setfield(L, -2, "X509V1SignatureCStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SignatureStruct] ;                     lua_setfield(L, -2, "X509V1SignatureStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SubjectName] ;                         lua_setfield(L, -2, "X509V1SubjectName") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SubjectNameCStruct] ;                  lua_setfield(L, -2, "X509V1SubjectNameCStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SubjectNameLDAP] ;                     lua_setfield(L, -2, "X509V1SubjectNameLDAP") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SubjectNameStd] ;                      lua_setfield(L, -2, "X509V1SubjectNameStd") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SubjectPublicKey] ;                    lua_setfield(L, -2, "X509V1SubjectPublicKey") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SubjectPublicKeyAlgorithm] ;           lua_setfield(L, -2, "X509V1SubjectPublicKeyAlgorithm") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SubjectPublicKeyAlgorithmParameters] ; lua_setfield(L, -2, "X509V1SubjectPublicKeyAlgorithmParameters") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1SubjectPublicKeyCStruct] ;             lua_setfield(L, -2, "X509V1SubjectPublicKeyCStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1ValidityNotAfter] ;                    lua_setfield(L, -2, "X509V1ValidityNotAfter") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1ValidityNotBefore] ;                   lua_setfield(L, -2, "X509V1ValidityNotBefore") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V1Version] ;                             lua_setfield(L, -2, "X509V1Version") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3Certificate] ;                         lua_setfield(L, -2, "X509V3Certificate") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateCStruct] ;                  lua_setfield(L, -2, "X509V3CertificateCStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateExtensionCStruct] ;         lua_setfield(L, -2, "X509V3CertificateExtensionCStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateExtensionCritical] ;        lua_setfield(L, -2, "X509V3CertificateExtensionCritical") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateExtensionId] ;              lua_setfield(L, -2, "X509V3CertificateExtensionId") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateExtensionStruct] ;          lua_setfield(L, -2, "X509V3CertificateExtensionStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateExtensionType] ;            lua_setfield(L, -2, "X509V3CertificateExtensionType") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateExtensionValue] ;           lua_setfield(L, -2, "X509V3CertificateExtensionValue") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateExtensionsCStruct] ;        lua_setfield(L, -2, "X509V3CertificateExtensionsCStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateExtensionsStruct] ;         lua_setfield(L, -2, "X509V3CertificateExtensionsStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3CertificateNumberOfExtensions] ;       lua_setfield(L, -2, "X509V3CertificateNumberOfExtensions") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3SignedCertificate] ;                   lua_setfield(L, -2, "X509V3SignedCertificate") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDX509V3SignedCertificateCStruct] ;            lua_setfield(L, -2, "X509V3SignedCertificateCStruct") ;
+    [skin pushNSObject:(__bridge NSString *)kSecOIDSRVName] ;                                   lua_setfield(L, -2, "SRVName") ;
+    return 1;
+}
+
 #pragma mark - NS<->lua conversion tools
 
 static id luaTo_HSWebViewWindow(lua_State *L, int idx) {
@@ -2243,9 +2496,24 @@ static int NSURLAuthenticationChallenge_toLua(lua_State *L, id obj) {
         [skin pushNSObject:[challenge proposedCredential]] ;   lua_setfield(L, -2, "proposedCredential") ;
         [skin pushNSObject:[challenge protectionSpace]] ;      lua_setfield(L, -2, "protectionSpace") ;
 
-#ifdef _WK_DEBUG_TYPES
-        [skin pushNSObject:[challenge sender]] ;               lua_setfield(L, -2, "sender") ;
-#endif
+    return 1 ;
+}
+
+static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    lua_newtable(L) ;
+    CFStringRef commonName = NULL ;
+    SecCertificateCopyCommonName(certRef, &commonName);
+    if (commonName) {
+        [skin pushNSObject:(__bridge NSString *)commonName] ; lua_setfield(L, -2, "commonName") ;
+        CFRelease(commonName);
+    }
+    CFDictionaryRef values = SecCertificateCopyValues(certRef, NULL, NULL);
+    if (values) {
+        [skin pushNSObject:(__bridge NSDictionary *)values withOptions:LS_NSDescribeUnknownTypes] ;
+        lua_setfield(L, -2, "values") ;
+        CFRelease(values) ;
+    }
     return 1 ;
 }
 
@@ -2267,6 +2535,7 @@ static int NSURLProtectionSpace_toLua(lua_State *L, id obj) {
         if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodClientCertificate]) method = @"clientCertificate" ;
         if ([[theSpace authenticationMethod] isEqualToString:NSURLAuthenticationMethodServerTrust])       method = @"serverTrust" ;
         [skin pushNSObject:method] ;              lua_setfield(L, -2, "authenticationMethod") ;
+
         [skin pushNSObject:[theSpace host]] ;     lua_setfield(L, -2, "host") ;
         [skin pushNSObject:[theSpace protocol]] ; lua_setfield(L, -2, "protocol") ;
         NSString *proxy = @"unknown" ;
@@ -2275,12 +2544,20 @@ static int NSURLProtectionSpace_toLua(lua_State *L, id obj) {
         if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceFTPProxy])   proxy = @"ftp" ;
         if ([[theSpace proxyType] isEqualToString:NSURLProtectionSpaceSOCKSProxy]) proxy = @"socks" ;
         [skin pushNSObject:proxy] ;            lua_setfield(L, -2, "proxyType") ;
+
         [skin pushNSObject:[theSpace realm]] ; lua_setfield(L, -2, "realm") ;
 
-#ifdef _WK_DEBUG_TYPES
-        lua_pushstring([skin L], [[NSString stringWithFormat:@"0x%p", (void *)[theSpace serverTrust]] UTF8String]) ;
-        lua_setfield(L, -2, "serverTrust") ;
-#endif
+        SecTrustRef serverTrust = [theSpace serverTrust] ;
+        if (serverTrust) {
+            lua_newtable(L) ;
+            SecTrustEvaluate(serverTrust, NULL);
+            CFIndex count = SecTrustGetCertificateCount(serverTrust);
+            for (CFIndex idx = 0 ; idx < count ; idx++) {
+                SecCertificateRef_toLua(L, SecTrustGetCertificateAtIndex(serverTrust, idx)) ;
+                lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
+            }
+            lua_setfield(L, -2, "certificates") ;
+        }
 
     return 1 ;
 }
@@ -2303,11 +2580,10 @@ static int NSURLCredential_toLua(lua_State *L, id obj) {
         [skin pushNSObject:[credential user]] ;     lua_setfield(L, -2, "user") ;
         [skin pushNSObject:[credential password]] ; lua_setfield(L, -2, "password") ;
 
-#ifdef _WK_DEBUG_TYPES
-        [skin pushNSObject:[credential certificates]] ; lua_setfield(L, -2, "certificates") ;
-        lua_pushstring([skin L], [[NSString stringWithFormat:@"0x%p", (void *)[credential identity]] UTF8String]) ;
-        lua_setfield(L, -2, "identity") ;
-#endif
+// // if we ever support client certificates, this may become important. until then...
+//         [skin pushNSObject:[credential certificates]] ; lua_setfield(L, -2, "certificates") ;
+//         lua_pushstring([skin L], [[NSString stringWithFormat:@"0x%p", (void *)[credential identity]] UTF8String]) ;
+//         lua_setfield(L, -2, "identity") ;
 
     return 1 ;
 }
@@ -2412,12 +2688,15 @@ static const luaL_Reg userdata_metaLib[] = {
     {"historyList",                webview_historyList},
     {"navigationCallback",         webview_navigationCallback},
     {"policyCallback",             webview_policyCallback},
+    {"sslCallback",                webview_sslCallback},
     {"children",                   webview_children},
     {"parent",                     webview_parent},
     {"evaluateJavaScript",         webview_evaluateJavaScript},
     {"privateBrowsing",            webview_privateBrowsing},
     {"userAgent",                  webview_userAgent},
-    {"allowInvalidCertificates",   webview_allowInvalidCertificates},
+    {"certificateChain",           webview_certificateChain},
+
+    {"examineInvalidCertificates",   webview_examineInvalidCertificates},
 #ifdef _WK_DEBUG
     {"preferences",                webview_preferences},
 #endif
@@ -2497,8 +2776,9 @@ int luaopen_hs_webview_internal(lua_State* L) {
         [skin registerPushNSHelper:NSURLProtectionSpace_toLua         forClass:"NSURLProtectionSpace"] ;
         [skin registerPushNSHelper:NSURLCredential_toLua              forClass:"NSURLCredential"] ;
 
-        webview_windowMasksTable(L) ;
-        lua_setfield(L, -2, "windowMasks") ;
+        webview_windowMasksTable(L) ;    lua_setfield(L, -2, "windowMasks") ;
+        webview_pushCertificateOIDs(L) ; lua_setfield(L, -2, "certificateOIDs") ;
+
     }
     return 1;
 }

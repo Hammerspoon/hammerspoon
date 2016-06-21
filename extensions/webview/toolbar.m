@@ -1523,15 +1523,16 @@ static int toolbarCanAutosave(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview.toolbar:infoDump() -> table
-/// Method
-/// Returns information useful for debugging
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * a table containing information stored in the HSToolbar object for debugging purposes.
+#ifdef _WK_DEBUG
+// /// hs.webview.toolbar:infoDump() -> table
+// /// Method
+// /// Returns information useful for debugging
+// ///
+// /// Parameters:
+// ///  * None
+// ///
+// /// Returns:
+// ///  * a table containing information stored in the HSToolbar object for debugging purposes.
 static int infoDump(lua_State *L) {
     LuaSkin *skin     = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
@@ -1645,6 +1646,7 @@ static int injectIntoDictionary(lua_State *L) {
     lua_pushvalue(L, 1) ;
     return 1 ;
 }
+#endif
 
 #pragma mark - Module Constants
 
@@ -1857,8 +1859,10 @@ static const luaL_Reg userdata_metaLib[] = {
     {"isCustomizing",   toolbarIsCustomizing},
     {"canCustomize",    toolbarCanCustomize},
 
+#ifdef _WK_DEBUG
     {"infoDump",        infoDump},
     {"inject",          injectIntoDictionary},
+#endif
 
     {"__tostring",      userdata_tostring},
     {"__eq",            userdata_eq},
