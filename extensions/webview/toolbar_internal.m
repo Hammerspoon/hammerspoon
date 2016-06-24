@@ -249,6 +249,7 @@ static NSMenu *createCoreSearchFieldMenu() {
     // If it's built-in, we already have what we need, and if it isn't...
     if (![builtinToolbarItems containsObject:identifier]) {
         NSMutableDictionary *toolbarItem     = [[NSMutableDictionary alloc] init] ;
+        BOOL isGroup = NO ;
 
         lua_pushnil(L);  /* first key */
         while (lua_next(L, idx) != 0) { /* uses 'key' (at index -2) and 'value' (at index -1) */
@@ -258,6 +259,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                 if (![keysToKeepFromDefinitionDictionary containsObject:keyName]) {
                     if (lua_type(L, -1) != LUA_TFUNCTION) {
                         toolbarItem[keyName] = [skin toNSObjectAtIndex:-1] ;
+                        if ([keyName isEqualToString:@"groupMembers"]) isGroup = YES ;
                     } else if ([keyName isEqualToString:@"fn"]) {
                         lua_pushvalue(L, -1) ;
                         _fnRefDictionary[identifier] = @([skin luaRef:refTable]) ;
@@ -272,7 +274,8 @@ static NSMenu *createCoreSearchFieldMenu() {
             lua_pop(L, 1);
         }
 
-        if (!toolbarItem[@"label"]) toolbarItem[@"label"] = identifier ;
+        // groups are allowed to not have a label, though they can
+        if (!toolbarItem[@"label"] && !isGroup) toolbarItem[@"label"] = identifier ;
         if (selectable) [_selectableIdentifiers addObject:identifier] ;
         _itemDefDictionary[identifier] = toolbarItem ;
     }
@@ -507,14 +510,14 @@ static NSMenu *createCoreSearchFieldMenu() {
                     }
                 } else {
                     [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array", USERDATA_TB_TAG, keyName, identifier]] ;
-                    [itemDefinition removeObjectForKey:keyName] ;
                 }
             } else {
                 if (inGroup) {
                     [skin logWarn:[NSString stringWithFormat:@"%s:%@ is in a group and cannot contain group members. Remove item from it's group first.", USERDATA_TB_TAG, identifier]] ;
                 } else {
-                    [skin logWarn:[NSString stringWithFormat:@"%s:cannot convert currently visible toolbar item %@ into a toolbar group. Remove item from toolbar first.", USERDATA_TB_TAG, identifier]] ;
+                    [skin logWarn:[NSString stringWithFormat:@"%s:cannot change currently visible toolbar item %@ type. Remove item from toolbar first.", USERDATA_TB_TAG, identifier]] ;
                 }
+                [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"searchWidth"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
             if ([keyValue isKindOfClass:[NSNumber class]]) {
@@ -585,7 +588,12 @@ static NSMenu *createCoreSearchFieldMenu() {
                     [itemDefinition removeObjectForKey:keyName] ;
                 }
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array", USERDATA_TB_TAG, keyName, identifier]] ;
+                if ([keyValue isKindOfClass:[NSNumber class]] && ![keyValue boolValue]) {
+                    NSMenu *searchMenu = createCoreSearchFieldMenu() ;
+                    ((NSSearchFieldCell *)itemView.cell).searchMenuTemplate = searchMenu ;
+                } else {
+                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array, or false to remove", USERDATA_TB_TAG, keyName, identifier]] ;
+                }
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"searchHistoryLimit"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
@@ -645,7 +653,7 @@ static NSMenu *createCoreSearchFieldMenu() {
     NSToolbarItem *toolbarItem ;
 
     if (itemDefinition) {
-        if (itemDefinition[@"groupMembers"]) {
+        if (itemDefinition[@"groupMembers"] && [itemDefinition[@"groupMembers"] isKindOfClass:[NSArray class]]) {
             toolbarItem = (NSToolbarItem *)[[NSToolbarItemGroup alloc] initWithItemIdentifier:identifier] ;
         } else {
             toolbarItem         = [[NSToolbarItem alloc] initWithItemIdentifier:identifier] ;
@@ -773,34 +781,6 @@ static NSMenu *createCoreSearchFieldMenu() {
 ///  * Toolbar names must be unique, but a toolbar may be copied with [hs.webview.toolbar:copy](#copy) if you wish to attach it to multiple windows (webview or console).
 ///  * See [hs.webview.toolbar:addItems](#addItems) for a description of the format for `toolbarTable`
 
-// /// Table Format:
-// /// ```
-// ///    {
-// ///        -- example of a button
-// ///        { id = "button1", ... },
-// ///        -- example of a button group
-// ///        { id = "button2", ... , groupMembers = { "sub-button1", "sub-button2" } },
-// ///        { id = "sub-button1", ... , allowedAlone = false },
-// ///        { id = "sub-button2", ... , allowedAlone = false },
-// ///        ...
-// ///    }
-// /// ```
-// ///
-// /// * A button group is a collection of two or more buttons which are treated as a unit when customizing the active toolbar's look either programmatically with [hs.webview.toolbar:insertItem](#insertItem) and [hs.webview.toolbar:removeItem](#removeItem) or under user control with [hs.webview.toolbar:customizePanel](#customizePanel).
-// ///
-// /// * The following keys are supported. The `id` key is the only required key for each button and button group. Unless otherwise specified below, keys can be modified per item after toolbar creation.
-// ///    * `id`          - a unique string identifier for the button or button group within the toolbar.
-// ///    * `label`       - a string text label, or false to remove, for the button or button group when text is displayed in the toolbar or in the customization panel.  For a button, the default is the `id`; for a button group, the default is `false`.  If a button group has a label, the group label will be displayed for the group of buttons it comprises.  If a button group does not have a label, the individual buttons which make up the group will each display their individual labels.
-// ///    * `tooltip`     - a string label, or `false` to remove, which is displayed as a tool tip when the user hovers the mouse over the button or button group.  If a button is in a group, it's tooltip is ignored in favor of the group tooltip.
-// ///    * `image`       - an `hs.image` object, or false to remove, specifying the image to use as the button's icon when icon's are displayed in the toolbar or customization panel.  Defaults to a round gray circle (`hs.image.systemImageNames.StatusNone`) for buttons.  This key is ignored for a button group, but not for it's individual buttons.
-// ///    * `priority`    - an integer value used to determine button order and which buttons are displayed or put into the overflow menu when the number of buttons in the toolbar exceed the width of the window in which the toolbar is attached.  Some example values are provided in the [hs.webview.toolbar.itemPriorities](#itemPriorities) table.  If a button is in a button group, it's priority is ignored and the button group is ordered by the button group's priority.
-// ///    * `tag`         - an integer value which can be used for custom purposes.
-// ///    * `enabled`     - a boolean value indicating whether or not the button is active (and can be clicked on) or inactive and greyed out.
-// ///    * `fn`          - a callback function, or false to remove, specific to the button.  This property is ignored if assigned to the button group.  This function will override the toolbar callback defined with [hs.webview.toolbar:setCallback](#setCallback) for this specific button.  The function should expect three (four, if the item is a `searchfield`) arguments and return none: the toolbar object, "console" or the webview object the toolbar is attached to, and the toolbar item identifier that was clicked.
-// ///    * `default`     - a boolean value, default true, indicating whether or not this button or button group should be displayed in the toolbar by default, unless overridden by user customization or a saved configuration (when such options are enabled).  This key cannot be changed after the toolbar has been created.
-// ///    * `selectable`  - a boolean value, default false, indicating whether or not this button or button group is selectable (i.e. highlights, like a selected tab) when clicked on.  Only one selectable button will be selected at a time and can be identifier or changed with [hs.webview.toolbar:selectedItem](#selectedItem).  This key cannot be changed after the toolbar has been created.
-// ///    * `searchfield` - a boolean value, default false, indicating whether or not this toolbar button is actually a search field.  A search toolbar item appears as a text field in the toolbar.  Text can be typed into the field and will be included as a fourth argument to the callback function when you hit the return/enter key.  If you click on the cancel button in the text field or hit the escape key, the text field will be cleared and the fourth argument sent to the callback function will be the empty string.
-// ///
 static int newHSToolbar(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
@@ -1098,18 +1078,7 @@ static int insertItemAtIndex(lua_State *L) {
     return 1 ;
 }
 
-/// hs.webview.toolbar:removeItem(index) -> toolbarObject
-/// Method
-/// Remove the toolbar item at the index position specified
-///
-/// Parameters:
-///  * index - the numerical position of the toolbar item to remove.
-///
-/// Returns:
-///  * the toolbar object
-///
-/// Notes:
-///  * the toolbar position must be between 1 and the number of currently active toolbar items.
+// NOTE: wrapped and documented in toolbar.lua
 static int removeItemAtIndex(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TNUMBER, LS_TBREAK] ;
@@ -1260,7 +1229,7 @@ static int modifyToolbarItem(lua_State *L) {
         if (lua_toboolean(L, -1)) {
             [toolbar.selectableIdentifiers addObject:identifier] ;
         } else {
-            if ([identifier isEqualToString:toolbar.selectedItemIdentifier]) toolbar.selectedItemIdentifier = nil ;
+            if ([toolbar.selectedItemIdentifier isEqualToString:identifier]) toolbar.selectedItemIdentifier = nil ;
             [toolbar.selectableIdentifiers removeObject:identifier] ;
         }
     }
@@ -1325,6 +1294,11 @@ static int modifyToolbarItem(lua_State *L) {
             }
         }
         if (!handled) {
+            if (lua_getfield(L, 2, "groupMembers") == LUA_TBOOLEAN && !lua_toboolean(L, -1)) {
+                [newDict removeObjectForKey:@"groupMembers"] ;
+                [(NSMutableDictionary *)toolbar.itemDefDictionary[identifier] removeObjectForKey:@"groupMembers"] ;
+            }
+            lua_pop(L, 1) ;
             [toolbar.itemDefDictionary[identifier] addEntriesFromDictionary:newDict] ;
         }
     }
@@ -1332,6 +1306,7 @@ static int modifyToolbarItem(lua_State *L) {
     return 1 ;
 }
 
+// NOTE: wrapped and documented in toolbar.lua
 static int addToolbarItems(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TTABLE, LS_TBREAK] ;
@@ -1360,6 +1335,18 @@ static int addToolbarItems(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview.toolbar:deleteItem(identifier) -> toolbarObject
+/// Method
+/// Deletes the toolbar item specified completely from the toolbar, removing it first, if the toolbar item is currently active.
+///
+/// Paramters:
+///  * `identifier` - the toolbar item's identifier
+///
+/// Returns:
+///  * the toolbar object
+///
+/// Notes:
+///  * This method completely removes the toolbar item from the toolbar's definition dictionary, thus removing it from active use in the toolbar as well as removing it from the customization panel, if supported.  If you only want to remove a toolbar item from the active toolbar, consider [hs.webview.toolbar:removeItem](#removeItem).
 static int deleteToolbarItem(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING, LS_TBREAK] ;
@@ -1395,7 +1382,11 @@ static int deleteToolbarItem(lua_State *L) {
 ///  * a table containing the toolbar item definition
 ///
 /// Notes:
-///  * For a list of the possible toolbar item attribute keys, see [hs.webview.toolbar:addItems](#addItems).
+///  * For a list of the most of the possible toolbar item attribute keys, see [hs.webview.toolbar:addItems](#addItems).
+///  * The table will also include `privateCallback` which will be a boolean indicating whether or not this toolbar item has a private callback function assigned (true) or uses the toolbar's general callback function (false).
+///  * The returned table may also contain the following keys, if the item is currently assigned to a toolbar:
+///    * `toolbar`  - the toolbar object the item belongs to
+///    * `subItems` - if the toolbar item is actually a group, this will contain a table with basic information about the members of the group.  If you wish to get the full details for each sub-member, you may iterate on the identifiers provided in `groupMembers`.
 static int detailsForItemIdentifier(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING, LS_TBREAK] ;
@@ -1859,44 +1850,44 @@ static int meta_gc(__unused lua_State* L) {
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
-    {"_addItems",       addToolbarItems},
-    {"deleteItem",      deleteToolbarItem},
-    {"delete",          userdata_gc},
-    {"copyToolbar",     copyToolbar},
-    {"isAttached",      isAttachedToWindow},
-    {"savedSettings",   configurationDictionary},
+    {"_addItems",          addToolbarItems},
+    {"_removeItemAtIndex", removeItemAtIndex},
+    {"deleteItem",         deleteToolbarItem},
+    {"delete",             userdata_gc},
+    {"copyToolbar",        copyToolbar},
+    {"isAttached",         isAttachedToWindow},
+    {"savedSettings",      configurationDictionary},
 
-    {"identifier",      toolbarIdentifier},
-    {"setCallback",     setCallback},
-    {"displayMode",     displayMode},
-    {"sizeMode",        sizeMode},
-    {"visible",         visible},
-    {"autosaves",       toolbarCanAutosave},
-    {"separator",       showsBaselineSeparator},
+    {"identifier",         toolbarIdentifier},
+    {"setCallback",        setCallback},
+    {"displayMode",        displayMode},
+    {"sizeMode",           sizeMode},
+    {"visible",            visible},
+    {"autosaves",          toolbarCanAutosave},
+    {"separator",          showsBaselineSeparator},
 
-    {"modifyItem",      modifyToolbarItem},
-    {"insertItem",      insertItemAtIndex},
-    {"removeItem",      removeItemAtIndex},
+    {"modifyItem",         modifyToolbarItem},
+    {"insertItem",         insertItemAtIndex},
 
-    {"items",           toolbarItems},
-    {"visibleItems",    visibleToolbarItems},
-    {"selectedItem",    selectedToolbarItem},
-    {"allowedItems",    allowedToolbarItems},
-    {"itemDetails",     detailsForItemIdentifier},
+    {"items",              toolbarItems},
+    {"visibleItems",       visibleToolbarItems},
+    {"selectedItem",       selectedToolbarItem},
+    {"allowedItems",       allowedToolbarItems},
+    {"itemDetails",        detailsForItemIdentifier},
 
-    {"notifyOnChange",  notifyWhenToolbarChanges},
-    {"customizePanel",  customizeToolbar},
-    {"isCustomizing",   toolbarIsCustomizing},
-    {"canCustomize",    toolbarCanCustomize},
+    {"notifyOnChange",     notifyWhenToolbarChanges},
+    {"customizePanel",     customizeToolbar},
+    {"isCustomizing",      toolbarIsCustomizing},
+    {"canCustomize",       toolbarCanCustomize},
 
 #ifdef _WK_DEBUG
-    {"infoDump",        infoDump},
+    {"infoDump",           infoDump},
 #endif
 
-    {"__tostring",      userdata_tostring},
-    {"__eq",            userdata_eq},
-    {"__gc",            userdata_gc},
-    {NULL,              NULL}
+    {"__tostring",         userdata_tostring},
+    {"__eq",               userdata_eq},
+    {"__gc",               userdata_gc},
+    {NULL,                 NULL}
 };
 
 // Functions for returned object when module loads
