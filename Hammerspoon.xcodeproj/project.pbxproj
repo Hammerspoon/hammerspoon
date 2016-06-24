@@ -200,6 +200,7 @@
 		AA79D2504522AC7FD944753C /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 87010C0F3DDC1CD8B3C95BA2 /* libPods-Hammerspoon.a */; };
 		D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* HSrequire_all.m */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
+		D63FBD951D1CFB77005255DD /* toolbar_internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D63FBD911D1CFB4E005255DD /* toolbar_internal.m */; };
 		D641255F1BA07CEA000FB5F8 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D64125661BA07D20000FB5F8 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D64125591BA07CDE000FB5F8 /* internal.m */; };
 		D6477C0F1C5ED5D000F67BBC /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -235,7 +236,6 @@
 		D6B946531D139CB800177E0C /* datastore.m in Sources */ = {isa = PBXBuildFile; fileRef = D6B946431D139C4900177E0C /* datastore.m */; };
 		D6B946581D139CC500177E0C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6B9465A1D139CC500177E0C /* webview.h in Headers */ = {isa = PBXBuildFile; fileRef = D64B03361BA9541E0006C468 /* webview.h */; };
-		D6B9465F1D139CEE00177E0C /* toolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = D6B946441D139C4900177E0C /* toolbar.m */; };
 		D6BB4FB41C16959C000DC0A2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		D6BB4FBA1C1695BF000DC0A2 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D6BB4FA81C169539000DC0A2 /* internal.m */; };
 		D6BB4FC21C1695EC000DC0A2 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -1046,6 +1046,8 @@
 		D02F95271A00221C00E28BB2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D02F95281A00221C00E28BB2 /* HSrequire_all.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HSrequire_all.m; sourceTree = "<group>"; };
 		D077B5BE1A001B5300369B30 /* variables.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = variables.m; sourceTree = "<group>"; };
+		D63FBD911D1CFB4E005255DD /* toolbar_internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = toolbar_internal.m; path = extensions/webview/toolbar_internal.m; sourceTree = "<group>"; };
+		D63FBD921D1CFB4E005255DD /* toolbar.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = toolbar.lua; path = extensions/webview/toolbar.lua; sourceTree = "<group>"; };
 		D64125581BA07CDE000FB5F8 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; name = init.lua; path = extensions/webview/init.lua; sourceTree = "<group>"; };
 		D64125591BA07CDE000FB5F8 /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/webview/internal.m; sourceTree = "<group>"; };
 		D64125641BA07CEA000FB5F8 /* libwebview.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebview.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1084,7 +1086,6 @@
 		D6B772981CCB544B00908A59 /* cgilua_compatibility_functions.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cgilua_compatibility_functions.lua; path = extensions/httpserver/cgilua_compatibility_functions.lua; sourceTree = "<group>"; };
 		D6B772991CCB544B00908A59 /* hsminweb.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hsminweb.lua; path = extensions/httpserver/hsminweb.lua; sourceTree = "<group>"; };
 		D6B946431D139C4900177E0C /* datastore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = datastore.m; path = extensions/webview/datastore.m; sourceTree = "<group>"; };
-		D6B946441D139C4900177E0C /* toolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = toolbar.m; path = extensions/webview/toolbar.m; sourceTree = "<group>"; };
 		D6B946521D139C7D00177E0C /* libwebviewdatastore.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewdatastore.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6B9465E1D139CC500177E0C /* libwebviewtoolbar.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewtoolbar.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D6BB4FA71C169539000DC0A2 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/speech/init.lua; sourceTree = "<group>"; };
@@ -2201,6 +2202,8 @@
 				4FD0AB841B74A72200A82496 /* usbwatcher */,
 				4FD0AB8A1B74AC1800A82496 /* utf8 */,
 				D64125571BA07CA9000FB5F8 /* webview */,
+				D63FBD8F1D1CFB0A005255DD /* webviewdatastore */,
+				D63FBD901D1CFB1E005255DD /* webviewtoolbar */,
 				D64B03351BA953E60006C468 /* webviewusercontent */,
 				4FD0ABA51B74AE5A00A82496 /* wifi */,
 				4FD0ABA91B74AE7200A82496 /* wifiwatcher */,
@@ -2729,11 +2732,26 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		D64125571BA07CA9000FB5F8 /* webview */ = {
+		D63FBD8F1D1CFB0A005255DD /* webviewdatastore */ = {
 			isa = PBXGroup;
 			children = (
 				D6B946431D139C4900177E0C /* datastore.m */,
-				D6B946441D139C4900177E0C /* toolbar.m */,
+			);
+			name = webviewdatastore;
+			sourceTree = "<group>";
+		};
+		D63FBD901D1CFB1E005255DD /* webviewtoolbar */ = {
+			isa = PBXGroup;
+			children = (
+				D63FBD911D1CFB4E005255DD /* toolbar_internal.m */,
+				D63FBD921D1CFB4E005255DD /* toolbar.lua */,
+			);
+			name = webviewtoolbar;
+			sourceTree = "<group>";
+		};
+		D64125571BA07CA9000FB5F8 /* webview */ = {
+			isa = PBXGroup;
+			children = (
 				D64B03361BA9541E0006C468 /* webview.h */,
 				D64125581BA07CDE000FB5F8 /* init.lua */,
 				D64125591BA07CDE000FB5F8 /* internal.m */,
@@ -5500,7 +5518,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D6B9465F1D139CEE00177E0C /* toolbar.m in Sources */,
+				D63FBD951D1CFB77005255DD /* toolbar_internal.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

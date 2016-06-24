@@ -1,7 +1,5 @@
-@import Cocoa ;
-@import LuaSkin ;
+#import "webview.h"
 
-#define USERDATA_TAG  "hs.webview.toolbar"
 static int            refTable = LUA_NOREF;
 static NSMutableArray *identifiersInUse ;
 
@@ -9,7 +7,7 @@ static NSMutableArray *identifiersInUse ;
 static NSArray *builtinToolbarItems;
 static NSArray *automaticallyIncluded ;
 static NSArray *keysToKeepFromDefinitionDictionary ;
-static NSArray *keysToKeepFromGroupDefinition ;
+// static NSArray *keysToKeepFromGroupDefinition ;
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 // #define get_structFromUserdata(objType, L, idx, tag) ((objType *)luaL_checkudata(L, idx, tag))
@@ -86,27 +84,29 @@ static NSMenu *createCoreSearchFieldMenu() {
 
         [_allowedIdentifiers addObjectsFromArray:automaticallyIncluded] ;
 
-        LuaSkin     *skin      = [LuaSkin shared] ;
-        lua_State   *L         = [skin L] ;
-        lua_Integer count      = luaL_len(L, idx) ;
-        lua_Integer index      = 0 ;
-        BOOL        isGood     = YES ;
+        if (idx != LUA_NOREF) {
+            LuaSkin     *skin      = [LuaSkin shared] ;
+            lua_State   *L         = [skin L] ;
+            lua_Integer count      = luaL_len(L, idx) ;
+            lua_Integer index      = 0 ;
+            BOOL        isGood     = YES ;
 
-        idx = lua_absindex(L, idx) ;
-        while (isGood && (index < count)) {
-            if (lua_rawgeti(L, idx, index + 1) == LUA_TTABLE) {
-                isGood = [self addToolbarDefinitionAtIndex:-1] ;
-            } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:not a table at index %lld in toolbar %@", USERDATA_TAG, index + 1, identifier]] ;
-                isGood = NO ;
+            idx = lua_absindex(L, idx) ;
+            while (isGood && (index < count)) {
+                if (lua_rawgeti(L, idx, index + 1) == LUA_TTABLE) {
+                    isGood = [self addToolbarDefinitionAtIndex:-1] ;
+                } else {
+                    [skin logWarn:[NSString stringWithFormat:@"%s:not a table at index %lld in toolbar %@", USERDATA_TB_TAG, index + 1, identifier]] ;
+                    isGood = NO ;
+                }
+                lua_pop(L, 1) ;
+                index++ ;
             }
-            lua_pop(L, 1) ;
-            index++ ;
-        }
 
-        if (!isGood) {
-            [skin logError:[NSString stringWithFormat:@"%s:malformed toolbar items encountered", USERDATA_TAG]] ;
-            return nil ;
+            if (!isGood) {
+                [skin logError:[NSString stringWithFormat:@"%s:malformed toolbar items encountered", USERDATA_TB_TAG]] ;
+                return nil ;
+            }
         }
 
         self.allowsUserCustomization = NO ;
@@ -169,7 +169,7 @@ static NSMenu *createCoreSearchFieldMenu() {
         item       = [sender toolbarItem] ;
         argCount++ ;
     } else {
-        [LuaSkin logError:[NSString stringWithFormat:@"%s:Unknown object sent to callback:%@", USERDATA_TAG, [sender debugDescription]]] ;
+        [LuaSkin logError:[NSString stringWithFormat:@"%s:Unknown object sent to callback:%@", USERDATA_TB_TAG, [sender debugDescription]]] ;
         return ;
     }
 
@@ -196,7 +196,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             [skin pushNSObject:[item itemIdentifier]] ;
             if (argCount == 4) [skin pushNSObject:searchText] ;
             if (![skin protectedCallAndTraceback:argCount nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: item callback error, %s, for toolbar item %@", USERDATA_TAG, lua_tostring(L, -1), [item itemIdentifier]]] ;
+                [skin logError:[NSString stringWithFormat:@"%s: item callback error, %s, for toolbar item %@", USERDATA_TB_TAG, lua_tostring(L, -1), [item itemIdentifier]]] ;
                 lua_pop(L, 1) ;
             }
         }) ;
@@ -229,24 +229,22 @@ static NSMenu *createCoreSearchFieldMenu() {
     // Make sure unique
     if (!identifier) {
         [skin  logWarn:[NSString stringWithFormat:@"%s:id must be present, and it must be a string",
-                                                   USERDATA_TAG]] ;
+                                                   USERDATA_TB_TAG]] ;
         return NO ;
     } else if ([_itemDefDictionary objectForKey:identifier]) {
         [skin  logWarn:[NSString stringWithFormat:@"%s:identifier %@ must be unique or a system defined item",
-                                                   USERDATA_TAG, identifier]] ;
+                                                   USERDATA_TB_TAG, identifier]] ;
         return NO ;
     }
 
-    // Get fields that aren't modifiable after construction
-    BOOL included   = (lua_getfield(L, idx, "default") == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, -1) : YES ;
-    BOOL selectable = (lua_getfield(L, idx, "selectable") == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, -1) : NO ;
-    lua_pop(L, 2) ;
+    // Get fields that are stored outside of the item definition
+    BOOL selectable   = (lua_getfield(L, idx, "selectable") == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, -1) : NO ;
+    BOOL allowedAlone = (lua_getfield(L, idx, "allowedAlone") == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, -1) : YES ;
+    BOOL included     = (lua_getfield(L, idx, "default") == LUA_TBOOLEAN) ? (BOOL)lua_toboolean(L, -1) : allowedAlone ;
+    lua_pop(L, 3) ;
 
     // default to enabled
     _enabledDictionary[identifier] = @(YES) ;
-
-    // default to allowedAlone
-    BOOL allowedAlone = YES ;
 
     // If it's built-in, we already have what we need, and if it isn't...
     if (![builtinToolbarItems containsObject:identifier]) {
@@ -266,7 +264,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                     }
                 }
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:non-string keys not allowed for toolbar item %@ definition", USERDATA_TAG, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:non-string keys not allowed for toolbar item %@ definition", USERDATA_TB_TAG, identifier]] ;
                 lua_pop(L, 2) ;
                 return NO ;
             }
@@ -275,16 +273,6 @@ static NSMenu *createCoreSearchFieldMenu() {
         }
 
         if (!toolbarItem[@"label"]) toolbarItem[@"label"] = identifier ;
-        if (toolbarItem[@"allowedAlone"]) {
-            if ([toolbarItem[@"allowedAlone"] isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [toolbarItem[@"allowedAlone"] objCType])) {
-                if (![toolbarItem[@"allowedAlone"] boolValue]) {
-                    allowedAlone = NO ;
-                    included     = NO ;
-                }
-            } else {
-                [toolbarItem removeObjectForKey:@"allowedAlone"] ;
-            }
-        }
         if (selectable) [_selectableIdentifiers addObject:identifier] ;
         _itemDefDictionary[identifier] = toolbarItem ;
     }
@@ -345,13 +333,13 @@ static NSMenu *createCoreSearchFieldMenu() {
                             item.maxSize = itemView.frame.size ;
                         }
                     } else {
-                        [skin logWarn:[NSString stringWithFormat:@"%s:view for toolbar item %@ is not our searchfield... cowardly avoiding replacement", USERDATA_TAG, identifier]] ;
+                        [skin logWarn:[NSString stringWithFormat:@"%s:view for toolbar item %@ is not our searchfield... cowardly avoiding replacement", USERDATA_TB_TAG, identifier]] ;
                     }
                 } // else it already exists, so don't re-create it
             } else {
                 if (itemView) {
                     if (![itemView isKindOfClass:[HSToolbarSearchField class]]) {
-                        [skin logWarn:[NSString stringWithFormat:@"%s:view for toolbar item %@ is not our searchfield... cowardly avoiding removal", USERDATA_TAG, identifier]] ;
+                        [skin logWarn:[NSString stringWithFormat:@"%s:view for toolbar item %@ is not our searchfield... cowardly avoiding removal", USERDATA_TB_TAG, identifier]] ;
                     } else {
                         item.view = nil ;
                         itemView  = nil ;
@@ -360,7 +348,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             }
 
         } else {
-            [skin logWarn:[NSString stringWithFormat:@"%s:searchfield for %@ must be a boolean", USERDATA_TAG, identifier]] ;
+            [skin logWarn:[NSString stringWithFormat:@"%s:searchfield for %@ must be a boolean", USERDATA_TB_TAG, identifier]] ;
             [itemDefinition removeObjectForKey:@"searchfield"] ;
         }
     }
@@ -373,7 +361,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                 itemDefinition[@"searchPredefinedSearches"] = _itemDefDictionary[identifier][@"searchPredefinedSearches"] ;
             }
         } else {
-            [skin logWarn:[NSString stringWithFormat:@"%s:searchPredefinedMenuTitle for %@ must be a string or a boolean", USERDATA_TAG, identifier]] ;
+            [skin logWarn:[NSString stringWithFormat:@"%s:searchPredefinedMenuTitle for %@ must be a string or a boolean", USERDATA_TB_TAG, identifier]] ;
             [itemDefinition removeObjectForKey:@"searchPredefinedMenuTitle"] ;
         }
     }
@@ -385,7 +373,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             if ([keyValue isKindOfClass:[NSNumber class]] && !strcmp(@encode(BOOL), [keyValue objCType])) {
                 _enabledDictionary[identifier] = itemDefinition[keyName] ;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a boolean", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a boolean", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"fn"]) {
@@ -413,7 +401,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                         item.paletteLabel = identifier ;
                     }
                 } else {
-                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a string, or false to clear", USERDATA_TAG, keyName, identifier]] ;
+                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a string, or false to clear", USERDATA_TB_TAG, keyName, identifier]] ;
                 }
                 [itemDefinition removeObjectForKey:keyName] ;
             }
@@ -424,7 +412,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                 if ([keyValue isKindOfClass:[NSNumber class]] && ![keyValue boolValue]) {
                     item.toolTip = nil ;
                 } else {
-                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a string, or false to clear", USERDATA_TAG, keyName, identifier]] ;
+                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a string, or false to clear", USERDATA_TB_TAG, keyName, identifier]] ;
                 }
                 [itemDefinition removeObjectForKey:keyName] ;
             }
@@ -432,21 +420,21 @@ static NSMenu *createCoreSearchFieldMenu() {
             if ([keyValue isKindOfClass:[NSNumber class]]) {
                 item.visibilityPriority = [keyValue intValue] ;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an integer", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an integer", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"tag"]) {
             if ([keyValue isKindOfClass:[NSNumber class]]) {
                 item.tag = [keyValue intValue] ;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an integer", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an integer", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"image"]) {
             if ([keyValue isKindOfClass:[NSImage class]]) {
                 item.image = keyValue ;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an hs.image obejct", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an hs.image obejct", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
 
@@ -514,18 +502,18 @@ static NSMenu *createCoreSearchFieldMenu() {
                         item.minSize = minSize;
                         item.maxSize = maxSize;
                     } else {
-                        [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array of strings", USERDATA_TAG, keyName, identifier]] ;
+                        [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array of strings", USERDATA_TB_TAG, keyName, identifier]] ;
                         [itemDefinition removeObjectForKey:keyName] ;
                     }
                 } else {
-                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array", USERDATA_TAG, keyName, identifier]] ;
+                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array", USERDATA_TB_TAG, keyName, identifier]] ;
                     [itemDefinition removeObjectForKey:keyName] ;
                 }
             } else {
                 if (inGroup) {
-                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ is in a group and cannot contain group members. Remove item from it's group first.", USERDATA_TAG, identifier]] ;
+                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ is in a group and cannot contain group members. Remove item from it's group first.", USERDATA_TB_TAG, identifier]] ;
                 } else {
-                    [skin logWarn:[NSString stringWithFormat:@"%s:cannot convert currently visible toolbar item %@ into a toolbar group. Remove item from toolbar first.", USERDATA_TAG, identifier]] ;
+                    [skin logWarn:[NSString stringWithFormat:@"%s:cannot convert currently visible toolbar item %@ into a toolbar group. Remove item from toolbar first.", USERDATA_TB_TAG, identifier]] ;
                 }
             }
         } else if ([keyName isEqualToString:@"searchWidth"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
@@ -537,7 +525,7 @@ static NSMenu *createCoreSearchFieldMenu() {
                     item.maxSize          = fieldFrame.size ;
                 }
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a number", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a number", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"searchText"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
@@ -546,7 +534,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             } else if ([keyValue isKindOfClass:[NSNumber class]]) {
                 itemView.stringValue = [keyValue stringValue] ;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a string", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a string", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"searchPredefinedSearches"]  && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
@@ -593,18 +581,18 @@ static NSMenu *createCoreSearchFieldMenu() {
                     }
                     ((NSSearchFieldCell *)itemView.cell).searchMenuTemplate = searchMenu ;
                 } else {
-                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array of strings", USERDATA_TAG, keyName, identifier]] ;
+                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array of strings", USERDATA_TB_TAG, keyName, identifier]] ;
                     [itemDefinition removeObjectForKey:keyName] ;
                 }
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"searchHistoryLimit"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
             if ([keyValue isKindOfClass:[NSNumber class]]) {
                 ((NSSearchFieldCell *)itemView.cell).maximumRecents = [keyValue intValue] ;
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an integer", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an integer", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
         } else if ([keyName isEqualToString:@"searchHistory"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
@@ -619,14 +607,14 @@ static NSMenu *createCoreSearchFieldMenu() {
                 if (allGood) {
                     ((NSSearchFieldCell *)itemView.cell).recentSearches = keyValue ;
                 } else {
-                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array of strings", USERDATA_TAG, keyName, identifier]] ;
+                    [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array of strings", USERDATA_TB_TAG, keyName, identifier]] ;
                     [itemDefinition removeObjectForKey:keyName] ;
                 }
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be an array", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
-        } else if ([keyName isEqualToString:@"searchHistoryAutoSaveName"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
+        } else if ([keyName isEqualToString:@"searchHistoryAutosaveName"] && [itemView isKindOfClass:[HSToolbarSearchField class]]) {
             if ([keyValue isKindOfClass:[NSString class]]) {
                 ((NSSearchFieldCell *)itemView.cell).recentsAutosaveName = keyValue ;
                 [(NSSearchFieldCell *)itemView.cell recentSearches] ; // force load to populate menu
@@ -634,13 +622,13 @@ static NSMenu *createCoreSearchFieldMenu() {
                 ((NSSearchFieldCell *)itemView.cell).recentsAutosaveName = [keyValue stringValue] ;
                 [(NSSearchFieldCell *)itemView.cell recentSearches] ; // force load to populate menu
             } else {
-                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a string", USERDATA_TAG, keyName, identifier]] ;
+                [skin logWarn:[NSString stringWithFormat:@"%s:%@ for %@ must be a string", USERDATA_TB_TAG, keyName, identifier]] ;
                 [itemDefinition removeObjectForKey:keyName] ;
             }
 
         // handled before loop, but we don't want to clear it, either
         } else if (![keyName isEqualToString:@"searchfield"] && ![keyName isEqualToString:@"searchPredefinedMenuTitle"]) {
-            [skin logVerbose:[NSString stringWithFormat:@"%s:%@ is not a valid field for %@; ignoring", USERDATA_TAG, keyName, identifier]] ;
+            [skin logVerbose:[NSString stringWithFormat:@"%s:%@ is not a valid field for %@; ignoring", USERDATA_TB_TAG, keyName, identifier]] ;
             [itemDefinition removeObjectForKey:keyName] ;
         }
     }
@@ -668,7 +656,7 @@ static NSMenu *createCoreSearchFieldMenu() {
         [self fillinNewToolbarItem:toolbarItem] ;
     } else {
         // may happen on a reload if toolbar autosave contains id's that were added after the toolbar was created but haven't been created yet since the reload
-        [LuaSkin logInfo:[NSString stringWithFormat:@"%s:toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar: invoked with non-existent identifier:%@", USERDATA_TAG, identifier]] ;
+        [LuaSkin logInfo:[NSString stringWithFormat:@"%s:toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar: invoked with non-existent identifier:%@", USERDATA_TB_TAG, identifier]] ;
     }
     return toolbarItem ;
 }
@@ -709,7 +697,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
             lua_pushstring(L, "add") ;
             if (![skin protectedCallAndTraceback:4 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: toolbar callback error, %s, when notifying addition of toolbar item %@", USERDATA_TAG, lua_tostring(L, -1), [notification.userInfo[@"item"] itemIdentifier]]] ;
+                [skin logError:[NSString stringWithFormat:@"%s: toolbar callback error, %s, when notifying addition of toolbar item %@", USERDATA_TB_TAG, lua_tostring(L, -1), [notification.userInfo[@"item"] itemIdentifier]]] ;
                 lua_pop(L, 1) ;
             }
         }) ;
@@ -737,7 +725,7 @@ static NSMenu *createCoreSearchFieldMenu() {
             [skin pushNSObject:[notification.userInfo[@"item"] itemIdentifier]] ;
             lua_pushstring(L, "remove") ;
             if (![skin protectedCallAndTraceback:4 nresults:0]) {
-                [skin logError:[NSString stringWithFormat:@"%s: toolbar callback error, %s, when notifying removal of toolbar item %@", USERDATA_TAG, lua_tostring(L, -1), [notification.userInfo[@"item"] itemIdentifier]]] ;
+                [skin logError:[NSString stringWithFormat:@"%s: toolbar callback error, %s, when notifying removal of toolbar item %@", USERDATA_TB_TAG, lua_tostring(L, -1), [notification.userInfo[@"item"] itemIdentifier]]] ;
                 lua_pop(L, 1) ;
             }
         }) ;
@@ -770,55 +758,59 @@ static NSMenu *createCoreSearchFieldMenu() {
 
 #pragma mark - Module Functions
 
-/// hs.webview.toolbar.new(toolbarName, toolbarTable) -> toolbarObject
+/// hs.webview.toolbar.new(toolbarName, [toolbarTable]) -> toolbarObject
 /// Constructor
-/// Creates a new toolbar as defined by the table provided.
+/// Creates a new toolbar for a webview or the console.
 ///
 /// Parameters:
 ///  * toolbarName  - a string specifying the name for this toolbar
-///  * toolbarTable - a table describing the possible items for the toolbar
-///
-/// Table Format:
-/// ```
-///    {
-///        -- example of a button
-///        { id = "button1", ... },
-///        -- example of a button group
-///        { id = "button2", ... , groupMembers = { "sub-button1", "sub-button2" } },
-///        { id = "sub-button1", ... , allowedAlone = false },
-///        { id = "sub-button2", ... , allowedAlone = false },
-///        ...
-///    }
-/// ```
-///
-/// * A button group is a collection of two or more buttons which are treated as a unit when customizing the active toolbar's look either programmatically with [hs.webview.toolbar:insertItem](#insertItem) and [hs.webview.toolbar:removeItem](#removeItem) or under user control with [hs.webview.toolbar:customizePanel](#customizePanel).
-///
-/// * The following keys are supported. The `id` key is the only required key for each button and button group. Unless otherwise specified below, keys can be modified per item after toolbar creation.
-///    * `id`          - a unique string identifier for the button or button group within the toolbar.
-///    * `label`       - a string text label, or false to remove, for the button or button group when text is displayed in the toolbar or in the customization panel.  For a button, the default is the `id`; for a button group, the default is `false`.  If a button group has a label, the group label will be displayed for the group of buttons it comprises.  If a button group does not have a label, the individual buttons which make up the group will each display their individual labels.
-///    * `tooltip`     - a string label, or `false` to remove, which is displayed as a tool tip when the user hovers the mouse over the button or button group.  If a button is in a group, it's tooltip is ignored in favor of the group tooltip.
-///    * `image`       - an `hs.image` object, or false to remove, specifying the image to use as the button's icon when icon's are displayed in the toolbar or customization panel.  Defaults to a round gray circle (`hs.image.systemImageNames.StatusNone`) for buttons.  This key is ignored for a button group, but not for it's individual buttons.
-///    * `priority`    - an integer value used to determine button order and which buttons are displayed or put into the overflow menu when the number of buttons in the toolbar exceed the width of the window in which the toolbar is attached.  Some example values are provided in the [hs.webview.toolbar.itemPriorities](#itemPriorities) table.  If a button is in a button group, it's priority is ignored and the button group is ordered by the button group's priority.
-///    * `tag`         - an integer value which can be used for custom purposes.
-///    * `enabled`     - a boolean value indicating whether or not the button is active (and can be clicked on) or inactive and greyed out.
-///    * `fn`          - a callback function, or false to remove, specific to the button.  This property is ignored if assigned to the button group.  This function will override the toolbar callback defined with [hs.webview.toolbar:setCallback](#setCallback) for this specific button.  The function should expect three arguments and return none: the toolbar object, "console" or the webview object the toolbar is attached to, and the toolbar item identifier that was clicked.
-///    * `default`     - a boolean value, default true, indicating whether or not this button or button group should be displayed in the toolbar by default, unless overridden by user customization or a saved configuration (when such options are enabled).  This key cannot be changed after the toolbar has been created.
-///    * `selectable`  - a boolean value, default false, indicating whether or not this button or button group is selectable (i.e. highlights, like a selected tab) when clicked on.  Only one selectable button will be selected at a time and can be identifier or changed with [hs.webview.toolbar:selectedItem](#selectedItem).  This key cannot be changed after the toolbar has been created.
-///    * `searchfield` - a boolean value, default false, indicating whether or not this toolbar button is actually a search field.  A search toolbar item appears as a text field in the toolbar.  Text can be typed into the field and will be included as a fourth argument to the callback function when you hit the return/enter key.  If you click on the cancel button in the text field or hit the escape key, the text field will be cleared and the fourth argument sent to the callback function will be the empty string.
+///  * toolbarTable - an optional table describing possible items for the toolbar
 ///
 /// Returns:
 ///  * a toolbarObject
 ///
 /// Notes:
 ///  * Toolbar names must be unique, but a toolbar may be copied with [hs.webview.toolbar:copy](#copy) if you wish to attach it to multiple windows (webview or console).
+///  * See [hs.webview.toolbar:addItems](#addItems) for a description of the format for `toolbarTable`
+
+// /// Table Format:
+// /// ```
+// ///    {
+// ///        -- example of a button
+// ///        { id = "button1", ... },
+// ///        -- example of a button group
+// ///        { id = "button2", ... , groupMembers = { "sub-button1", "sub-button2" } },
+// ///        { id = "sub-button1", ... , allowedAlone = false },
+// ///        { id = "sub-button2", ... , allowedAlone = false },
+// ///        ...
+// ///    }
+// /// ```
+// ///
+// /// * A button group is a collection of two or more buttons which are treated as a unit when customizing the active toolbar's look either programmatically with [hs.webview.toolbar:insertItem](#insertItem) and [hs.webview.toolbar:removeItem](#removeItem) or under user control with [hs.webview.toolbar:customizePanel](#customizePanel).
+// ///
+// /// * The following keys are supported. The `id` key is the only required key for each button and button group. Unless otherwise specified below, keys can be modified per item after toolbar creation.
+// ///    * `id`          - a unique string identifier for the button or button group within the toolbar.
+// ///    * `label`       - a string text label, or false to remove, for the button or button group when text is displayed in the toolbar or in the customization panel.  For a button, the default is the `id`; for a button group, the default is `false`.  If a button group has a label, the group label will be displayed for the group of buttons it comprises.  If a button group does not have a label, the individual buttons which make up the group will each display their individual labels.
+// ///    * `tooltip`     - a string label, or `false` to remove, which is displayed as a tool tip when the user hovers the mouse over the button or button group.  If a button is in a group, it's tooltip is ignored in favor of the group tooltip.
+// ///    * `image`       - an `hs.image` object, or false to remove, specifying the image to use as the button's icon when icon's are displayed in the toolbar or customization panel.  Defaults to a round gray circle (`hs.image.systemImageNames.StatusNone`) for buttons.  This key is ignored for a button group, but not for it's individual buttons.
+// ///    * `priority`    - an integer value used to determine button order and which buttons are displayed or put into the overflow menu when the number of buttons in the toolbar exceed the width of the window in which the toolbar is attached.  Some example values are provided in the [hs.webview.toolbar.itemPriorities](#itemPriorities) table.  If a button is in a button group, it's priority is ignored and the button group is ordered by the button group's priority.
+// ///    * `tag`         - an integer value which can be used for custom purposes.
+// ///    * `enabled`     - a boolean value indicating whether or not the button is active (and can be clicked on) or inactive and greyed out.
+// ///    * `fn`          - a callback function, or false to remove, specific to the button.  This property is ignored if assigned to the button group.  This function will override the toolbar callback defined with [hs.webview.toolbar:setCallback](#setCallback) for this specific button.  The function should expect three (four, if the item is a `searchfield`) arguments and return none: the toolbar object, "console" or the webview object the toolbar is attached to, and the toolbar item identifier that was clicked.
+// ///    * `default`     - a boolean value, default true, indicating whether or not this button or button group should be displayed in the toolbar by default, unless overridden by user customization or a saved configuration (when such options are enabled).  This key cannot be changed after the toolbar has been created.
+// ///    * `selectable`  - a boolean value, default false, indicating whether or not this button or button group is selectable (i.e. highlights, like a selected tab) when clicked on.  Only one selectable button will be selected at a time and can be identifier or changed with [hs.webview.toolbar:selectedItem](#selectedItem).  This key cannot be changed after the toolbar has been created.
+// ///    * `searchfield` - a boolean value, default false, indicating whether or not this toolbar button is actually a search field.  A search toolbar item appears as a text field in the toolbar.  Text can be typed into the field and will be included as a fourth argument to the callback function when you hit the return/enter key.  If you click on the cancel button in the text field or hit the escape key, the text field will be cleared and the fourth argument sent to the callback function will be the empty string.
+// ///
 static int newHSToolbar(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TSTRING, LS_TTABLE, LS_TBREAK] ;
+    [skin checkArgs:LS_TSTRING, LS_TTABLE | LS_TOPTIONAL, LS_TBREAK] ;
     NSString *identifier = [skin toNSObjectAtIndex:1] ;
+
+    int idx = (lua_gettop(L) == 2) ? 2 : LUA_NOREF ;
 
     if (![identifiersInUse containsObject:identifier]) {
         HSToolbar *toolbar = [[HSToolbar alloc] initWithIdentifier:identifier
-                                                    itemTableIndex:2] ;
+                                                    itemTableIndex:idx] ;
         if (toolbar) {
             [skin pushNSObject:toolbar] ;
         } else {
@@ -861,7 +853,7 @@ static int attachToolbar(lua_State *L) {
         theWindow  = [[MJConsoleWindowController singleton] window];
         newToolbar = nil ;
         setToolbar = YES ;
-    } else if (lua_gettop(L) == 1 && (lua_type(L, 1) == LUA_TUSERDATA) && luaL_testudata(L, 1, USERDATA_TAG)) {
+    } else if (lua_gettop(L) == 1 && (lua_type(L, 1) == LUA_TUSERDATA) && luaL_testudata(L, 1, USERDATA_TB_TAG)) {
         theWindow  = [[MJConsoleWindowController singleton] window];
         newToolbar = [skin toNSObjectAtIndex:1] ;
         setToolbar = YES ;
@@ -873,12 +865,12 @@ static int attachToolbar(lua_State *L) {
         theWindow = get_objectFromUserdata(__bridge NSWindow, L, 1, "hs.webview") ;
         newToolbar = nil ;
         setToolbar = YES ;
-    } else if (lua_gettop(L) == 2 && lua_type(L, 1) == LUA_TUSERDATA && luaL_testudata(L, 1, "hs.webview") && (lua_type(L, 2) == LUA_TUSERDATA) && luaL_testudata(L, 2, USERDATA_TAG)) {
+    } else if (lua_gettop(L) == 2 && lua_type(L, 1) == LUA_TUSERDATA && luaL_testudata(L, 1, "hs.webview") && (lua_type(L, 2) == LUA_TUSERDATA) && luaL_testudata(L, 2, USERDATA_TB_TAG)) {
         theWindow = get_objectFromUserdata(__bridge NSWindow, L, 1, "hs.webview") ;
         newToolbar = [skin toNSObjectAtIndex:2] ;
         setToolbar = YES ;
     } else {
-        return luaL_error(L, "%s:attachToolbar requires an optional hs.webview object and an %s object or nil", USERDATA_TAG, USERDATA_TAG) ;
+        return luaL_error(L, "%s:attachToolbar requires an optional hs.webview object and an %s object or nil", USERDATA_TB_TAG, USERDATA_TB_TAG) ;
     }
 
     HSToolbar *oldToolbar = (HSToolbar *)theWindow.toolbar ;
@@ -920,7 +912,7 @@ static int attachToolbar(lua_State *L) {
 ///  * a boolean indicating whether or not the toolbar is currently attached to a window.
 static int isAttachedToWindow(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, [toolbar isAttachedToWindow]) ;
     return 1;
@@ -937,7 +929,7 @@ static int isAttachedToWindow(lua_State *L) {
 ///  * a copy of the toolbar which can be attached to another window (webview or console).
 static int copyToolbar(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *oldToolbar = [skin toNSObjectAtIndex:1] ;
     HSToolbar *newToolbar = [[HSToolbar alloc] initWithCopy:oldToolbar] ;
     if (newToolbar) {
@@ -955,7 +947,7 @@ static int copyToolbar(lua_State *L) {
 /// Parameters:
 ///  * fn - a function to set as the global callback for the toolbar, or nil to remove the global callback.
 ///
-///  The function should expect three arguments and return none: the toolbar object, "console" or the webview object the toolbar is attached to, and the toolbar item identifier that was clicked.
+///  The function should expect three (four, if the item is a `searchfield` or `notifyOnChange` is true) arguments and return none: the toolbar object, "console" or the webview object the toolbar is attached to, and the toolbar item identifier that was clicked.
 /// Returns:
 ///  * the toolbar object.
 ///
@@ -964,7 +956,7 @@ static int copyToolbar(lua_State *L) {
 ///  * if [hs.webview.toolbar:notifyOnChange](#notifyOnChange) is set to true, then this callback function will also be invoked when a toolbar item is added or removed from the toolbar either programmatically with [hs.webview.toolbar:insertItem](#insertItem) and [hs.webview.toolbar:removeItem](#removeItem) or under user control with [hs.webview.toolbar:customizePanel](#customizePanel) and the callback function will receive a string of "add" or "remove" as a fourth argument.
 static int setCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TFUNCTION | LS_TNIL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
     // in either case, we need to remove an existing callback, so...
@@ -992,7 +984,7 @@ static int setCallback(lua_State *L) {
 ///  * This method is provided if you do not wish for changes to the toolbar to be autosaved for every change, but may wish to save it programmatically under specific conditions.
 static int configurationDictionary(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:[toolbar configurationDictionary]] ;
     return 1 ;
@@ -1009,7 +1001,7 @@ static int configurationDictionary(__unused lua_State *L) {
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int showsBaselineSeparator(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) != 1) {
         toolbar.showsBaselineSeparator = (BOOL)lua_toboolean(L, 2) ;
@@ -1031,7 +1023,7 @@ static int showsBaselineSeparator(lua_State *L) {
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int visible(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) != 1) {
         toolbar.visible = (BOOL)lua_toboolean(L, 2) ;
@@ -1053,7 +1045,7 @@ static int visible(lua_State *L) {
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int notifyWhenToolbarChanges(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) != 1) {
         toolbar.notifyToolbarChanges = (BOOL)lua_toboolean(L, 2) ;
@@ -1079,14 +1071,28 @@ static int notifyWhenToolbarChanges(lua_State *L) {
 ///  * the toolbar position must be between 1 and the number of currently active toolbar items.
 static int insertItemAtIndex(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TNUMBER, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING, LS_TNUMBER, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSString  *identifier = [skin toNSObjectAtIndex:2] ;
     NSInteger index = luaL_checkinteger(L, 3) ;
 
+    if (!toolbar.itemDefDictionary[identifier]) {
+        return luaL_error(L, "toolbar item %s does not exist", [identifier UTF8String]) ;
+    }
     if ((index < 1) || (index > (NSInteger)(toolbar.items.count + 1))) {
         return luaL_error(L, "index out of bounds") ;
     }
+    if (![toolbar.allowedIdentifiers containsObject:identifier]) {
+        return luaL_error(L, "%s is not allowed outside of its group", [identifier UTF8String]) ;
+    }
+
+    NSUInteger itemIndex = [[toolbar.items valueForKey:@"itemIdentifier"] indexOfObject:identifier] ;
+    if ((itemIndex != NSNotFound) && ![toolbar.items[itemIndex] allowsDuplicatesInToolbar]) {
+        [toolbar removeItemAtIndex:(NSInteger)itemIndex] ;
+        // if we're moving it to the end, but already at the end, well, we just changed the index bounds...
+        if (index > (NSInteger)(toolbar.items.count + 1)) index = index - 1 ;
+    }
+
     [toolbar insertItemWithItemIdentifier:identifier atIndex:(index - 1)] ;
     lua_pushvalue(L, 1) ;
     return 1 ;
@@ -1106,7 +1112,7 @@ static int insertItemAtIndex(lua_State *L) {
 ///  * the toolbar position must be between 1 and the number of currently active toolbar items.
 static int removeItemAtIndex(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TNUMBER, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSInteger index = luaL_checkinteger(L, 2) ;
 
@@ -1129,7 +1135,7 @@ static int removeItemAtIndex(lua_State *L) {
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int sizeMode(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
     if (lua_gettop(L) == 2) {
@@ -1141,7 +1147,7 @@ static int sizeMode(lua_State *L) {
         } else if ([size isEqualToString:@"small"]) {
             toolbar.sizeMode = NSToolbarSizeModeSmall ;
         } else {
-            return luaL_error(L, [[NSString stringWithFormat:@"invalid sizeMode:%@", size] UTF8String]) ;
+            return luaL_error(L, "invalid sizeMode:%s", [size UTF8String]) ;
         }
         lua_pushvalue(L, 1) ;
     } else {
@@ -1176,7 +1182,7 @@ static int sizeMode(lua_State *L) {
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
 static int displayMode(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
     if (lua_gettop(L) == 2) {
@@ -1190,7 +1196,7 @@ static int displayMode(lua_State *L) {
         } else if ([type isEqualToString:@"both"]) {
             toolbar.displayMode = NSToolbarDisplayModeIconAndLabel ;
         } else {
-            return luaL_error(L, [[NSString stringWithFormat:@"invalid displayMode:%@", type] UTF8String]) ;
+            return luaL_error(L, "invalid displayMode:%s", [type UTF8String]) ;
         }
         lua_pushvalue(L, 1) ;
     } else {
@@ -1222,46 +1228,83 @@ static int displayMode(lua_State *L) {
 /// Modify the toolbar item specified by the "id" key in the table argument.
 ///
 /// Parameters:
-///  * a table containing an "id" key and one or more of the following keys:
-///    * id         - a string containing the item identifier of the toolbar item to modify (required)
-///
-///    * `label`      - a string text label, or false to remove, for the button or button group when text is displayed in the toolbar or in the customization panel.
-///    * `tooltip`    - a string label, or `false` to remove, which is displayed as a tool tip when the user hovers the mouse over the button or button group.
-///    * `image`      - an `hs.image` object, or false to remove, specifying the image to use as the button's icon when icon's are displayed in the toolbar or customization panel.
-///    * `priority`   - an integer value used to determine button order and which buttons are displayed or put into the overflow menu when the number of buttons in the toolbar exceed the width of the window in which the toolbar is attached.  Some example values are provided in the [hs.webview.toolbar.itemPriorities](#itemPriorities) table.
-///    * `tag`        - an integer value which can be used for custom purposes.
-///    * `enabled`    - a boolean value indicating whether or not the button is active (and can be clicked on) or inactive and greyed out.
-///    * `fn`         - a callback function, or false to remove, specific to the button.  This function will override the toolbar callback defined with [hs.webview.toolbar:setCallback](#setCallback) for this specific button.  The function should expect three arguments and return none: the toolbar object, "console" or the webview object the toolbar is attached to, and the toolbar item identifier that was clicked.
+///  * a table containing an "id" key and the attributes to change for the toolbar item.
 ///
 /// Returns:
 ///  * the toolbarObject
+///
+/// Notes:
+///  * You cannot change a toolbar item's `id`
+///  * For a list of the possible toolbar item attribute keys, see [hs.webview.toolbar:addItems](#addItems).
 static int modifyToolbarItem(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TTABLE, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSString *identifier ;
 
     if (lua_getfield(L, 2, "id") == LUA_TSTRING) {
         identifier = [skin toNSObjectAtIndex:-1] ;
+        if (!toolbar.itemDefDictionary[identifier]) {
+            return luaL_error(L, "toolbar item %s does not exist", [identifier UTF8String]) ;
+        }
+        if ([builtinToolbarItems containsObject:identifier]) {
+            return luaL_error(L, "cannot modify a built-in toolbar item definition") ;
+        }
     } else {
-        lua_pop(L, 1) ;
         return luaL_error(L, "id must be present, and it must be a string") ;
     }
     lua_pop(L, 1) ;
-    lua_pushstring(L, "id") ;
-    lua_pushnil(L) ;
-    lua_rawset(L, 2) ;
 
-    if (lua_getfield(L, 2, "fn") == LUA_TFUNCTION) {
-        lua_pushvalue(L, -1) ;
-        int fnRef = [skin luaRef:refTable] ;
-        lua_pushstring(L, "fn") ;
-        lua_pushinteger(L, fnRef) ;
-        lua_rawset(L, 2) ;
+    // not stored in itemDefinition, so handle specially
+    if (lua_getfield(L, 2, "selectable") == LUA_TBOOLEAN) {
+        if (lua_toboolean(L, -1)) {
+            [toolbar.selectableIdentifiers addObject:identifier] ;
+        } else {
+            if ([identifier isEqualToString:toolbar.selectedItemIdentifier]) toolbar.selectedItemIdentifier = nil ;
+            [toolbar.selectableIdentifiers removeObject:identifier] ;
+        }
+    }
+    lua_pop(L, 1) ;
+    if (lua_getfield(L, 2, "allowedAlone") == LUA_TBOOLEAN) {
+        if (lua_toboolean(L, -1)) {
+            [toolbar.allowedIdentifiers addObject:identifier] ;
+        } else {
+            [toolbar.allowedIdentifiers removeObject:identifier] ;
+            [toolbar.defaultIdentifiers removeObject:identifier] ;
+            NSUInteger itemIndex = [[toolbar.items valueForKey:@"itemIdentifier"] indexOfObject:identifier] ;
+            if (itemIndex != NSNotFound) [toolbar removeItemAtIndex:(NSInteger)itemIndex] ;
+        }
+    }
+    lua_pop(L, 1) ;
+    if (lua_getfield(L, 2, "default") == LUA_TBOOLEAN) {
+        if (lua_toboolean(L, -1)) {
+            [toolbar.defaultIdentifiers addObject:identifier] ;
+        } else {
+            [toolbar.defaultIdentifiers removeObject:identifier] ;
+        }
     }
     lua_pop(L, 1) ;
 
-    NSMutableDictionary *newDict = [skin toNSObjectAtIndex:2] ;
+    NSMutableDictionary *newDict     = [[NSMutableDictionary alloc] init] ;
+    lua_pushnil(L);  /* first key */
+    while (lua_next(L, 2) != 0) { /* uses 'key' (at index -2) and 'value' (at index -1) */
+        if (lua_type(L, -2) == LUA_TSTRING) {
+            NSString *keyName = [skin toNSObjectAtIndex:-2] ;
+            if (![keysToKeepFromDefinitionDictionary containsObject:keyName]) {
+                if (lua_type(L, -1) != LUA_TFUNCTION) {
+                    newDict[keyName] = [skin toNSObjectAtIndex:-1] ;
+                } else if ([keyName isEqualToString:@"fn"]) {
+                    lua_pushvalue(L, -1) ;
+                    toolbar.fnRefDictionary[identifier] = @([skin luaRef:refTable]) ;
+                }
+            }
+        } else {
+            return luaL_error(L, "non-string keys not allowed in toolbar item definition %s ", [identifier UTF8String]) ;
+        }
+        /* removes 'value'; keeps 'key' for next iteration */
+        lua_pop(L, 1);
+    }
+
     if ([newDict count] > 0) {
         BOOL handled = NO ;
         if (toolbar.items) {
@@ -1289,6 +1332,58 @@ static int modifyToolbarItem(lua_State *L) {
     return 1 ;
 }
 
+static int addToolbarItems(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TTABLE, LS_TBREAK] ;
+    HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
+
+    lua_Integer count      = luaL_len(L, 2) ;
+    lua_Integer index      = 0 ;
+    BOOL        isGood     = YES ;
+
+    while (isGood && (index < count)) {
+        if (lua_rawgeti(L, 2, index + 1) == LUA_TTABLE) {
+            isGood = [toolbar addToolbarDefinitionAtIndex:-1] ;
+        } else {
+            [skin logWarn:[NSString stringWithFormat:@"%s:addItems - not a table at index %lld", USERDATA_TB_TAG, index + 1]] ;
+            isGood = NO ;
+        }
+        lua_pop(L, 1) ;
+        index++ ;
+    }
+
+    if (!isGood) {
+        return luaL_error(L, "%s:addItems - malformed toolbar items encountered", USERDATA_TB_TAG) ;
+    } else {
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
+}
+
+static int deleteToolbarItem(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING, LS_TBREAK] ;
+    HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
+    NSString *identifier = [skin toNSObjectAtIndex:2] ;
+
+    if (!toolbar.itemDefDictionary[identifier]) {
+        return luaL_error(L, "toolbar item %s does not exist", [identifier UTF8String]) ;
+    }
+
+    NSUInteger itemIndex = [[toolbar.items valueForKey:@"itemIdentifier"] indexOfObject:identifier] ;
+    if (itemIndex != NSNotFound) {
+        [toolbar removeItemAtIndex:(NSInteger)itemIndex] ;
+    }
+    [toolbar.itemDefDictionary removeObjectForKey:identifier] ;
+    [toolbar.fnRefDictionary removeObjectForKey:identifier] ;
+    [toolbar.enabledDictionary removeObjectForKey:identifier] ;
+    [toolbar.allowedIdentifiers removeObject:identifier] ;
+    [toolbar.defaultIdentifiers removeObject:identifier] ;
+    [toolbar.selectableIdentifiers removeObject:identifier] ;
+    lua_pushvalue(L, 1) ;
+    return 1 ;
+}
+
 /// hs.webview.toolbar:itemDetails(id) -> table
 /// Method
 /// Returns a table containing details about the specified toolbar item
@@ -1297,22 +1392,20 @@ static int modifyToolbarItem(lua_State *L) {
 ///  * id - a string identifier specifying the toolbar item
 ///
 /// Returns:
-///  * a table which will contain one or more of the follow key-value pairs:
-///    * id         - a string containing the toolbar item's identifier
-///    * label      - a string containing the toolbar item's label
-///    * tooltip    - a string containing the toolbar item's tooltip
-///    * image      - an hs.image object contining the toolbar item's image
-///    * priority   - an integer specifying the toolbar item's visibility priority
-///    * enable     - a boolean indicating whether or not the toolbar item is currently enabled
-///    * tag        - an integer specifying the toolbar item's user defined tag value
-///    * toolbar    - the toolbar object the toolbar item is attached to
-///    * selectable - a boolean indicating whether or not the toolbar item is defined as selectable
-///    * subitems   - if this item is a toolbar group, a table containing the toolbar items in the group.
-static int detailsForItemIdentifier(__unused lua_State *L) {
+///  * a table containing the toolbar item definition
+///
+/// Notes:
+///  * For a list of the possible toolbar item attribute keys, see [hs.webview.toolbar:addItems](#addItems).
+static int detailsForItemIdentifier(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     NSString *identifier = [skin toNSObjectAtIndex:2] ;
+
+    if (!toolbar.itemDefDictionary[identifier]) {
+        return luaL_error(L, "toolbar item %s does not exist", [identifier UTF8String]) ;
+    }
+
     NSToolbarItem *ourItem ;
     for (NSToolbarItem *item in toolbar.items) {
         if ([identifier isEqualToString:[item itemIdentifier]]) {
@@ -1331,6 +1424,23 @@ static int detailsForItemIdentifier(__unused lua_State *L) {
     }
     if (!ourItem) ourItem = [toolbar.itemDefDictionary objectForKey:identifier] ;
     [skin pushNSObject:ourItem] ;
+    lua_pushboolean(L, [toolbar.selectableIdentifiers containsObject:identifier]) ;
+    lua_setfield(L, -2, "selectable") ;
+    lua_pushboolean(L, [toolbar.defaultIdentifiers containsObject:identifier]) ;
+    lua_setfield(L, -2, "default") ;
+    lua_pushboolean(L, [toolbar.allowedIdentifiers containsObject:identifier]) ;
+    lua_setfield(L, -2, "allowedAlone") ;
+    NSNumber *fnRef = toolbar.fnRefDictionary[identifier] ;
+    lua_pushboolean(L, fnRef && [fnRef integerValue] != LUA_NOREF) ;
+    lua_setfield(L, -2, "privateCallback") ;
+    if ([ourItem isKindOfClass:[NSToolbarItem class]]) {
+        [skin pushNSObject:[(NSDictionary *)toolbar.itemDefDictionary[identifier] objectForKey:@"searchPredefinedMenuTitle"]] ;
+        lua_setfield(L, -2, "searchPredefinedMenuTitle") ;
+        [skin pushNSObject:[(NSDictionary *)toolbar.itemDefDictionary[identifier] objectForKey:@"searchPredefinedSearches"]] ;
+        lua_setfield(L, -2, "searchPredefinedSearches") ;
+        [skin pushNSObject:[(NSDictionary *)toolbar.itemDefDictionary[identifier] objectForKey:@"groupMembers"]] ;
+        lua_setfield(L, -2, "groupMembers") ;
+    }
     return 1 ;
 }
 
@@ -1345,7 +1455,7 @@ static int detailsForItemIdentifier(__unused lua_State *L) {
 ///  * a table as an array of all toolbar item identifiers defined for this toolbar.  See also [hs.webview.toolbar:items](#items) and [hs.webview.toolbar:visibleItems](#visibleItems).
 static int allowedToolbarItems(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:[toolbar.allowedIdentifiers array]] ;
     return 1 ;
@@ -1359,10 +1469,10 @@ static int allowedToolbarItems(__unused lua_State *L) {
 ///  * None
 ///
 /// Returns:
-///  * a table as an array of the current toolbar item identifiers.  Toolbar items which are in the overflow menu *are* included in this array.  See also [hs.webview.toolbar:visibleItems](#visibleItems) and [hs.webview.toolbar:allowedItems](#allowedItems).
+///  * a table as an array of the currently active (assigned) toolbar item identifiers.  Toolbar items which are in the overflow menu *are* included in this array.  See also [hs.webview.toolbar:visibleItems](#visibleItems) and [hs.webview.toolbar:allowedItems](#allowedItems).
 static int toolbarItems(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:[toolbar.items valueForKey:@"itemIdentifier"]] ;
     return 1 ;
@@ -1379,7 +1489,7 @@ static int toolbarItems(__unused lua_State *L) {
 ///  * a table as an array of the currently visible toolbar item identifiers.  Toolbar items which are in the overflow menu are *not* included in this array.  See also [hs.webview.toolbar:items](#items) and [hs.webview.toolbar:allowedItems](#allowedItems).
 static int visibleToolbarItems(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:[toolbar.visibleItems valueForKey:@"itemIdentifier"]] ;
     return 1 ;
@@ -1390,7 +1500,7 @@ static int visibleToolbarItems(__unused lua_State *L) {
 /// Get or set the selected toolbar item
 ///
 /// Parameters:
-///  * item - an optional id for the toolbar item to show as selected, or nil if you wish for no toolbar item to be selected.
+///  * item - an optional id for the toolbar item to show as selected, or an explicit nil if you wish for no toolbar item to be selected.
 ///
 /// Returns:
 ///  * if an argument is provided, returns the toolbar object; otherwise returns the current value
@@ -1399,11 +1509,17 @@ static int visibleToolbarItems(__unused lua_State *L) {
 ///  * Only toolbar items which were defined as `selectable` when created with [hs.webview.toolbar.new](#new) can be selected with this method.
 static int selectedToolbarItem(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TSTRING | LS_TNIL | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     if (lua_gettop(L) == 2) {
         NSString *identifier = nil ;
-        if (lua_type(L, 2) == LUA_TSTRING) identifier = [skin toNSObjectAtIndex:2] ;
+        if (lua_type(L, 2) == LUA_TSTRING) {
+            identifier = [skin toNSObjectAtIndex:2] ;
+            if (!toolbar.itemDefDictionary[identifier]) {
+                return luaL_error(L, "toolbar item %s does not exist", [identifier UTF8String]) ;
+            }
+        }
+
         toolbar.selectedItemIdentifier = identifier ;
         lua_pushvalue(L, 1) ;
     } else {
@@ -1423,7 +1539,7 @@ static int selectedToolbarItem(lua_State *L) {
 ///  * The identifier for this toolbar.
 static int toolbarIdentifier(__unused lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [skin pushNSObject:toolbar.identifier] ;
     return 1 ;
@@ -1440,7 +1556,7 @@ static int toolbarIdentifier(__unused lua_State *L) {
 ///  * the toolbar object
 static int customizeToolbar(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     [toolbar runCustomizationPalette:toolbar] ;
     lua_pushvalue(L, 1) ;
@@ -1458,7 +1574,7 @@ static int customizeToolbar(lua_State *L) {
 ///  * true or false indicating whether or not the customization panel is open for the toolbar
 static int toolbarIsCustomizing(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
     lua_pushboolean(L, toolbar.customizationPaletteIsRunning) ;
     return 1 ;
@@ -1478,7 +1594,7 @@ static int toolbarIsCustomizing(lua_State *L) {
 ///  * the customization panel can be pulled up by right-clicking on the toolbar or by invoking [hs.webview.toolbar:customizePanel](#customizePanel).
 static int toolbarCanCustomize(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
     if (lua_gettop(L) == 1) {
@@ -1508,10 +1624,10 @@ static int toolbarCanCustomize(lua_State *L) {
 ///    * the current size mode (regular, small)
 ///    * whether or not the toolbar is currently visible
 ///    * the currently shown identifiers and their order
-/// * Note that the labels, icons, callback functions, etc. are not saved -- these are determined at toolbar creation time or by the [hs.webview.toolbar:modifyItem](#modifyItem) method and can differ between invocations of toolbars with the same identifier and button identifiers.
+/// * Note that the labels, icons, callback functions, etc. are not saved -- these are determined at toolbar creation time, by the [hs.webview.toolbar:addItems](#addItems), or by the [hs.webview.toolbar:modifyItem](#modifyItem) method and can differ between invocations of toolbars with the same identifier and button identifiers.
 static int toolbarCanAutosave(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
     if (lua_gettop(L) == 1) {
@@ -1535,7 +1651,7 @@ static int toolbarCanAutosave(lua_State *L) {
 // ///  * a table containing information stored in the HSToolbar object for debugging purposes.
 static int infoDump(lua_State *L) {
     LuaSkin *skin     = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TB_TAG, LS_TBREAK] ;
     HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
 
     lua_newtable(L) ;
@@ -1557,93 +1673,6 @@ static int infoDump(lua_State *L) {
         lua_pushboolean(L, [[ourWindow toolbar] isEqualTo:toolbar]) ;
         lua_setfield(L, -2, "windowUsingToolbarIsAttached") ;
     }
-    return 1 ;
-}
-
-static int injectIntoDictionary(lua_State *L) {
-    LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
-    [skin logWarn:[NSString stringWithFormat:@"%s:inject -- this method is for testing purposes and will be removed when appropriate helpers have been more fully defined and tested.", USERDATA_TAG]] ;
-    HSToolbar *toolbar = [skin toNSObjectAtIndex:1] ;
-    NSString *identifier ;
-
-    if (lua_getfield(L, 2, "id") == LUA_TSTRING) {
-        identifier = [skin toNSObjectAtIndex:-1] ;
-        lua_pushstring(L, "id") ;
-        lua_pushnil(L) ;
-        lua_rawset(L, 2) ;
-    } else {
-        lua_pop(L, 1) ;
-        return luaL_error(L, "id must be present, and it must be a string") ;
-    }
-    lua_pop(L, 1) ;
-
-    if (lua_getfield(L, 2, "fn") == LUA_TFUNCTION) {
-        lua_pushvalue(L, -1) ;
-        int fnRef = [skin luaRef:refTable] ;
-        lua_pushstring(L, "fn") ;
-        lua_pushinteger(L, fnRef) ;
-        lua_rawset(L, 2) ;
-    }
-    lua_pop(L, 1) ;
-
-    if (lua_getfield(L, 2, "default") == LUA_TBOOLEAN) {
-        if (lua_toboolean(L, -1)) {
-            [toolbar.defaultIdentifiers addObject:identifier] ;
-        } else {
-            [toolbar.defaultIdentifiers removeObject:identifier] ;
-        }
-        lua_pushstring(L, "default") ;
-        lua_pushnil(L) ;
-        lua_rawset(L, 2) ;
-    }
-    lua_pop(L, 1) ;
-
-    if (lua_getfield(L, 2, "allowedAlone") == LUA_TBOOLEAN) {
-        if (lua_toboolean(L, -1)) {
-            [toolbar.allowedIdentifiers addObject:identifier] ;
-        } else {
-            [toolbar.allowedIdentifiers removeObject:identifier] ;
-        }
-        lua_pushstring(L, "allowedAlone") ;
-        lua_pushnil(L) ;
-        lua_rawset(L, 2) ;
-    }
-    lua_pop(L, 1) ;
-
-    if (lua_getfield(L, 2, "selectable") == LUA_TBOOLEAN) {
-        if (lua_toboolean(L, -1)) {
-            [toolbar.selectableIdentifiers addObject:identifier] ;
-        } else {
-            [toolbar.selectableIdentifiers removeObject:identifier] ;
-        }
-        lua_pushstring(L, "selectable") ;
-        lua_pushnil(L) ;
-        lua_rawset(L, 2) ;
-    }
-    lua_pop(L, 1) ;
-
-    NSMutableDictionary *newDict = [skin toNSObjectAtIndex:2] ;
-    if ([newDict count] > 0) {
-        if (toolbar.itemDefDictionary[identifier]) {
-            BOOL handled = NO ;
-            if (toolbar.items) {
-                for (NSToolbarItem *item in toolbar.items) {
-                    if ([item.itemIdentifier isEqualToString:identifier]) {
-                        [toolbar updateToolbarItem:item withDictionary:newDict] ;
-                        handled = YES ;
-                        break ;
-                    }
-                }
-            }
-            if (!handled) {
-                [toolbar.itemDefDictionary[identifier] addEntriesFromDictionary:newDict] ;
-            }
-        } else {
-            toolbar.itemDefDictionary[identifier] = newDict ;
-        }
-    }
-    lua_pushvalue(L, 1) ;
     return 1 ;
 }
 #endif
@@ -1690,7 +1719,7 @@ static int pushHSToolbar(lua_State *L, id obj) {
     if (value.selfRef == LUA_NOREF) {
         void** valuePtr = lua_newuserdata(L, sizeof(HSToolbar *));
         *valuePtr = (__bridge_retained void *)value;
-        luaL_getmetatable(L, USERDATA_TAG);
+        luaL_getmetatable(L, USERDATA_TB_TAG);
         lua_setmetatable(L, -2);
         value.selfRef = [skin luaRef:refTable] ;
         [identifiersInUse addObject:value.identifier] ;
@@ -1703,13 +1732,13 @@ static int pushHSToolbar(lua_State *L, id obj) {
 static id toHSToolbarFromLua(lua_State *L, int idx) {
     LuaSkin *skin = [LuaSkin shared] ;
     HSToolbar *value ;
-    if (luaL_testudata(L, idx, USERDATA_TAG)) {
-        value = get_objectFromUserdata(__bridge HSToolbar, L, idx, USERDATA_TAG) ;
+    if (luaL_testudata(L, idx, USERDATA_TB_TAG)) {
+        value = get_objectFromUserdata(__bridge HSToolbar, L, idx, USERDATA_TB_TAG) ;
         // since this function is called every time a toolbar function/method is called, we
         // can keep the window reference valid by checking here...
         [value isAttachedToWindow] ;
     } else {
-        [skin logError:[NSString stringWithFormat:@"expected %s object, found %s", USERDATA_TAG,
+        [skin logError:[NSString stringWithFormat:@"expected %s object, found %s", USERDATA_TB_TAG,
                                                    lua_typename(L, lua_type(L, idx))]] ;
     }
     return value ;
@@ -1728,12 +1757,6 @@ static int pushNSToolbarItem(lua_State *L, id obj) {
     lua_pushboolean(L, value.isEnabled) ;          lua_setfield(L, -2, "enable") ;
     lua_pushinteger(L, value.tag) ;                lua_setfield(L, -2, "tag") ;
 
-    if ([value.toolbar isKindOfClass:[HSToolbar class]]) {
-        [skin pushNSObject:value.toolbar] ;        lua_setfield(L, -2, "toolbar") ;
-        HSToolbar *ourToolbar = (HSToolbar *)value.toolbar ;
-        lua_pushboolean(L, [ourToolbar.selectableIdentifiers containsObject:[value itemIdentifier]]) ;
-        lua_setfield(L, -2, "selectable") ;
-    }
     if ([obj isKindOfClass:[NSToolbarItemGroup class]]) {
         [skin pushNSObject:[obj subitems]] ; lua_setfield(L, -2, "subitems") ;
     }
@@ -1743,24 +1766,29 @@ static int pushNSToolbarItem(lua_State *L, id obj) {
 //     [skin pushNSObject:value.view withOptions:LS_NSDescribeUnknownTypes] ; lua_setfield(L, -2, "view") ;
 //     lua_pushboolean(L, value.autovalidates) ; lua_setfield(L, -2, "autovalidates") ;
 
-    if ([value.view isKindOfClass:[HSToolbarSearchField class]]) {
-//         lua_pushnumber(L, [value minSize].width) ; lua_setfield(L, -2, "searchMinWidth") ;
-        lua_pushnumber(L, [value maxSize].width) ; lua_setfield(L, -2, "searchWidth") ;
-        [skin pushNSObject:[((HSToolbarSearchField *)value.view) stringValue]] ;
-        lua_setfield(L, -2, "searchText") ;
-        lua_pushinteger(L, [[((HSToolbarSearchField *)value.view) cell] maximumRecents]) ;
-        lua_setfield(L, -2, "searchHistoryLimit") ;
-        [skin pushNSObject:[[((HSToolbarSearchField *)value.view) cell] recentSearches]] ;
-        lua_setfield(L, -2, "searchHistory") ;
-        [skin pushNSObject:[[((HSToolbarSearchField *)value.view) cell] recentsAutosaveName]] ;
-        lua_setfield(L, -2, "searchHistoryAutoSaveName") ;
+    if ([value.toolbar isKindOfClass:[HSToolbar class]]) {
+        [skin pushNSObject:value.toolbar] ; lua_setfield(L, -2, "toolbar") ;
 
-        [skin pushNSObject:NSStringFromRect(((HSToolbarSearchField *)value.view).frame)] ;
-        lua_setfield(L, -2, "searchFieldFrame") ;
-        [skin pushNSObject:NSStringFromSize(value.minSize)] ;
-        lua_setfield(L, -2, "itemMinSize") ;
-        [skin pushNSObject:NSStringFromSize(value.maxSize)] ;
-        lua_setfield(L, -2, "itemMaxSize") ;
+        if ([value.view isKindOfClass:[HSToolbarSearchField class]]) {
+            lua_pushnumber(L, [value maxSize].width) ; lua_setfield(L, -2, "searchWidth") ;
+            [skin pushNSObject:[((HSToolbarSearchField *)value.view) stringValue]] ;
+            lua_setfield(L, -2, "searchText") ;
+            lua_pushinteger(L, [[((HSToolbarSearchField *)value.view) cell] maximumRecents]) ;
+            lua_setfield(L, -2, "searchHistoryLimit") ;
+            [skin pushNSObject:[[((HSToolbarSearchField *)value.view) cell] recentSearches]] ;
+            lua_setfield(L, -2, "searchHistory") ;
+            [skin pushNSObject:[[((HSToolbarSearchField *)value.view) cell] recentsAutosaveName]] ;
+            lua_setfield(L, -2, "searchHistoryAutosaveName") ;
+
+#ifdef _WK_DEBUG
+            [skin pushNSObject:NSStringFromRect(((HSToolbarSearchField *)value.view).frame)] ;
+            lua_setfield(L, -2, "searchFieldFrame") ;
+            [skin pushNSObject:NSStringFromSize(value.minSize)] ;
+            lua_setfield(L, -2, "itemMinSize") ;
+            [skin pushNSObject:NSStringFromSize(value.maxSize)] ;
+            lua_setfield(L, -2, "itemMaxSize") ;
+#endif
+        }
     }
     return 1 ;
 }
@@ -1771,14 +1799,14 @@ static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     HSToolbar *obj = [skin luaObjectAtIndex:1 toClass:"HSToolbar"] ;
     NSString *title = obj.identifier ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)]] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TB_TAG, title, lua_topointer(L, 1)]] ;
     return 1 ;
 }
 
 static int userdata_eq(lua_State* L) {
 // can't get here if at least one of us isn't a userdata type, and we only care if both types are ours,
 // so use luaL_testudata before the macro causes a lua error
-    if (luaL_testudata(L, 1, USERDATA_TAG) && luaL_testudata(L, 2, USERDATA_TAG)) {
+    if (luaL_testudata(L, 1, USERDATA_TB_TAG) && luaL_testudata(L, 2, USERDATA_TB_TAG)) {
         LuaSkin *skin = [LuaSkin shared] ;
         HSToolbar *obj1 = [skin luaObjectAtIndex:1 toClass:"HSToolbar"] ;
         HSToolbar *obj2 = [skin luaObjectAtIndex:2 toClass:"HSToolbar"] ;
@@ -1800,7 +1828,7 @@ static int userdata_eq(lua_State* L) {
 ///  * None
 static int userdata_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    HSToolbar *obj = get_objectFromUserdata(__bridge_transfer HSToolbar, L, 1, USERDATA_TAG) ;
+    HSToolbar *obj = get_objectFromUserdata(__bridge_transfer HSToolbar, L, 1, USERDATA_TB_TAG) ;
     if (obj) {
         for (NSNumber *fnRef in [obj.fnRefDictionary allValues]) [skin luaUnref:refTable ref:[fnRef intValue]] ;
 
@@ -1831,6 +1859,8 @@ static int meta_gc(__unused lua_State* L) {
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
+    {"_addItems",       addToolbarItems},
+    {"deleteItem",      deleteToolbarItem},
     {"delete",          userdata_gc},
     {"copyToolbar",     copyToolbar},
     {"isAttached",      isAttachedToWindow},
@@ -1861,7 +1891,6 @@ static const luaL_Reg userdata_metaLib[] = {
 
 #ifdef _WK_DEBUG
     {"infoDump",        infoDump},
-    {"inject",          injectIntoDictionary},
 #endif
 
     {"__tostring",      userdata_tostring},
@@ -1883,9 +1912,9 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_webview_toolbar(lua_State* L) {
+int luaopen_hs_webview_toolbar_internal(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    refTable = [skin registerLibraryWithObject:USERDATA_TAG
+    refTable = [skin registerLibraryWithObject:USERDATA_TB_TAG
                                      functions:moduleLib
                                  metaFunctions:module_metaLib
                                objectFunctions:userdata_metaLib];
@@ -1904,9 +1933,8 @@ int luaopen_hs_webview_toolbar(lua_State* L) {
                                 NSToolbarFlexibleSpaceItemIdentifier,
                             ] ;
 
-    // FIXME: currently underused... still thinking validating the table should be separate from creation and this may help there...
-    keysToKeepFromDefinitionDictionary = @[ @"id", @"default", @"selectable" ];
-    keysToKeepFromGroupDefinition      = @[ @"searchfield", @"image", @"fn" ];
+    keysToKeepFromDefinitionDictionary = @[ @"id", @"default", @"selectable", @"allowedAlone" ];
+//     keysToKeepFromGroupDefinition      = @[ @"searchfield", @"image", @"fn" ];
 
     identifiersInUse = [[NSMutableArray alloc] init] ;
 
@@ -1914,7 +1942,7 @@ int luaopen_hs_webview_toolbar(lua_State* L) {
     toolbarItemPriorities(L) ; lua_setfield(L, -2, "itemPriorities") ;
 
     [skin registerPushNSHelper:pushHSToolbar         forClass:"HSToolbar"];
-    [skin registerLuaObjectHelper:toHSToolbarFromLua forClass:"HSToolbar" withUserdataMapping:USERDATA_TAG];
+    [skin registerLuaObjectHelper:toHSToolbarFromLua forClass:"HSToolbar" withUserdataMapping:USERDATA_TB_TAG];
     [skin registerPushNSHelper:pushNSToolbarItem     forClass:"NSToolbarItem"];
 
     return 1;

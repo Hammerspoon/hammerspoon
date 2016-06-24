@@ -9,9 +9,10 @@
 
 @import LuaSkin ;
 
-#define USERDATA_TAG        "hs.webview"
-#define USERDATA_UCC_TAG    "hs.webview.usercontent"
-#define USERDATA_DS_TAG     "hs.webview.datastore"
+#define USERDATA_TAG     "hs.webview"
+#define USERDATA_UCC_TAG "hs.webview.usercontent"
+#define USERDATA_DS_TAG  "hs.webview.datastore"
+#define USERDATA_TB_TAG  "hs.webview.toolbar"
 
 #define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
 

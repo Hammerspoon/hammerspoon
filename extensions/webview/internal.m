@@ -404,6 +404,8 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
     }
 }
 
+// - (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView ;
+
 #pragma mark -- WKUIDelegate stuff
 
 - (WKWebView *)webView:(WKWebView *)theView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration
@@ -559,6 +561,8 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
         [LuaSkin logWarn:[NSString stringWithFormat:@"%s:runJavaScriptTextInputPanelWithPrompt no target window", USERDATA_TAG]] ;
     }
 }
+
+// - (void)webViewDidClose:(WKWebView *)webView ;
 
 #pragma mark -- Helper methods to reduce code replication
 
@@ -2440,8 +2444,9 @@ static int NSError_toLua(lua_State *L, id obj) {
         [skin pushNSObject:[theError localizedRecoveryOptions]] ;    lua_setfield(L, -2, "localizedRecoveryOptions") ;
         [skin pushNSObject:[theError localizedRecoverySuggestion]] ; lua_setfield(L, -2, "localizedRecoverySuggestion") ;
         [skin pushNSObject:[theError localizedFailureReason]] ;      lua_setfield(L, -2, "localizedFailureReason") ;
-        [skin pushNSObject:[theError recoveryAttempter]] ;           lua_setfield(L, -2, "recoveryAttempter") ;
+#ifdef _WK_DEBUG
         [skin pushNSObject:[theError userInfo] withOptions:LS_NSDescribeUnknownTypes] ;                    lua_setfield(L, -2, "userInfo") ;
+#endif
     return 1 ;
 }
 

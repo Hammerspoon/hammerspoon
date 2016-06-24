@@ -17,42 +17,6 @@
 ---
 --- This module provides support for injecting custom JavaScript user content into your webviews and for JavaScript to post messages back to Hammerspoon.
 
---- === hs.webview.toolbar ===
----
---- Create and manipulate toolbars which can be attached to the Hammerspoon console or hs.webview objects.
----
---- Toolbars are attached to titled windows and provide buttons which can be used to perform various actions within the application.  Hammerspoon can use this module to add toolbars to the console or `hs.webview` objects which have a title bar (see `hs.webview.windowMasks` and `hs.webview:windowStyle`).  Toolbars are identified by a unique identifier which is used by OS X to identify information which can be auto saved in the application's user defaults to reflect changes the user has made to the toolbar button order or active button list (this requires setting [hs.webview.toolbar:autosaves](#autosaves) and [hs.webview.toolbar:canCustomize](#canCustomize) both to true).
----
---- Multiple copies of the same toolbar can be made with the [hs.webview.toolbar:copy](#copy) method so that multiple webview windows use the same toolbar, for example.  If the user customizes a copied toolbar, changes to the active buttons or their order will be reflected in all copies of the toolbar.
----
---- You cannot add items to an existing toolbar, but you can delete it and re-create it with the same identifier, adding new button items to the new instance.  If the toolbar identifier matches autosaved preferences, the new toolbar will look like it did before, but the user will be able to add the new items by customizing the toolbar or by using the [hs.webview.toolbar:insertItem](#insertItem) method.
----
---- Example:
---- ~~~lua
---- t = require("hs.webview.toolbar")
---- a = t.new("myConsole", {
----         { id = "select1", selectable = true, image = hs.image.imageFromName("NSStatusAvailable") },
----         { id = "NSToolbarSpaceItem" },
----         { id = "select2", selectable = true, image = hs.image.imageFromName("NSStatusUnavailable") },
----         { id = "notShown", default = false, image = hs.image.imageFromName("NSBonjour") },
----         { id = "NSToolbarFlexibleSpaceItem" },
----         { id = "navGroup", label = "Navigation", groupMembers = { "navLeft", "navRight" }},
----         { id = "navLeft", image = hs.image.imageFromName("NSGoLeftTemplate"), allowedAlone = false },
----         { id = "navRight", image = hs.image.imageFromName("NSGoRightTemplate"), allowedAlone = false },
----         { id = "NSToolbarFlexibleSpaceItem" },
----         { id = "cust", label = "customize", fn = function(t, w, i) t:customizePanel() end, image = hs.image.imageFromName("NSAdvanced") }
----     }):canCustomize(true)
----       :autosaves(true)
----       :selectedItem("select2")
----       :setCallback(function(...)
----                         print("a", inspect(table.pack(...)))
----                    end)
----
---- t.attachToolbar(a)
---- ~~~
----
---- Note: This module is supported in OS X versions prior to 10.10 (for the Hammerspoon console only), even though its parent `hs.webview` is not.  To load this module directly, use `require("hs.webview.toolbar")` instead of relying on module auto-loading.
-
 local USERDATA_TAG = "hs.webview"
 
 local osVersion = require"hs.host".operatingSystemVersion()
@@ -176,9 +140,6 @@ end
 module.windowMasks     = _makeConstantsTable(module.windowMasks)
 module.certificateOIDs = _makeConstantsTable(module.certificateOIDs)
 
-module.toolbar.systemToolbarItems = _makeConstantsTable(module.toolbar.systemToolbarItems)
-module.toolbar.itemPriorities     = _makeConstantsTable(module.toolbar.itemPriorities)
-
 -- allow array-like usage of object to return child webviews
 objectMT.__index = function(self, _)
     if objectMT[_] then
@@ -188,6 +149,33 @@ objectMT.__index = function(self, _)
     else
         return nil
     end
+end
+
+--- hs.webview.newBrowser(rect, [preferencesTable], [userContentController]) -> webviewObject
+--- Constructor
+--- Create a webviewObject with some presets common to an interactive web browser.
+---
+--- Parameters:
+---  * The parameters are the same as for [hs.webview.new](#new) -- check there for more details
+---    * `rect`                  - a rectangle specifying where the webviewObject should be displayed.
+---    * `preferencesTable`      - an optional table which specifies special settings for the webview object.
+---    * `userContentController` - an optional `hs.webview.usercontent` object to provide script injection and JavaScript messaging with Hammerspoon from the webview.
+---
+--- Returns:
+---  * The webview object
+---
+--- Notes:
+---  * This constructor is just a short-hand for `hs.webview.new(...):allowTextEntry(true):allowGestures(true):windowStyle(15)`, which specifies a webview with a title bar, title bar buttons (zoom, close, minimize), and allows form entry and gesture support for previous and next pages.
+---
+--- * See [hs.webview.new](#new) and the following for more details:
+---   * [hs.webview:allowGestures](#allowGestures)
+---   * [hs.webview:allowTextEntry](#allowTextEntry)
+---   * [hs.webview:windowStyle](#windowStyle)
+---   * [hs.webview.windowMasks](#windowMasks)
+module.newBrowser = function(...)
+    return module.new(...):windowStyle(1+2+4+8)
+                          :allowTextEntry(true)
+                          :allowGestures(true)
 end
 
 --- hs.webview:toolbar([toolbar | nil]) -> webviewObject | currentValue
