@@ -1,0 +1,9 @@
+comment:
+  layout: header, changes, diff
+coverage:
+  ignore:
+  - HammerspoonUITests/.*
+  - Pods/.*
+  - LuaSkin/LuaSkinTests/.*
+  - LuaSkin/lua-.*
+
