@@ -1,6 +1,10 @@
 #import <Cocoa/Cocoa.h>
 #import <LuaSkin/LuaSkin.h>
 
+#include <IOKit/hidsystem/event_status_driver.h>
+#import <IOKit/hidsystem/IOHIDParameter.h>
+#import <IOKit/hidsystem/IOHIDLib.h>
+
 static NSPoint hammerspoon_topoint(lua_State* L, int idx) {
     luaL_checktype(L, idx, LUA_TTABLE);
     CGFloat x = (lua_getfield(L, idx, "x"), luaL_checknumber(L, -1));
@@ -52,10 +56,68 @@ static int mouse_set(lua_State* L) {
     return 0;
 }
 
+static int mouseTrackpadAcceleration(lua_State *L, CFStringRef key) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
+    NXEventHandle handle;
+    kern_return_t result;
+    double mouseAcc;
+
+    handle = NXOpenEventStatus();
+    if (!handle) {
+        [skin logError:@"Unable to get kernel handle for mouse/trackpad acceleration data"];
+        lua_pushnumber(L, -1);
+        return 1;
+    }
+
+    if (lua_type(L, 1) == LUA_TNUMBER) {
+        mouseAcc = (double)lua_tonumber(L, 1);
+        result = IOHIDSetAccelerationWithKey(handle, CFSTR(kIOHIDMouseAccelerationType), mouseAcc);
+        if (result != KERN_SUCCESS) {
+            NXCloseEventStatus(handle);
+            [skin logError:[NSString stringWithFormat:@"Unable to set mouse/trackpad acceleration to %f: %d", mouseAcc, result]];
+            lua_pushnumber(L, -1);
+            return 1;
+        }
+    }
+
+    result = IOHIDGetAccelerationWithKey(handle, CFSTR(kIOHIDMouseAccelerationType), &mouseAcc);
+
+    if (result != KERN_SUCCESS) {
+        [skin logError:[NSString stringWithFormat:@"Unable to get mouse/trackpad acceleration: %d", result]];
+        mouseAcc = -1;
+    }
+
+    NXCloseEventStatus(handle);
+
+    lua_pushnumber(L, mouseAcc);
+    return 1;
+}
+
+/// hs.mouse.trackingSpeed([speed]) -> number
+/// Function
+/// Gets/Sets the current system mouse tracking speed setting
+///
+/// Parameters:
+///  * speed - An optional number containing the new tracking speed to set. If this is ommitted, the current setting is returned
+///
+/// Returns:
+///  * A number (currently between 0.0 and 3.0) indicating the current tracking speed setting for mice, or -1 if an error occurred
+///
+/// Notes:
+///  * This is represented in the System Preferences as the "Tracking speed" setting for mice
+///  * Note that not all values will work, they should map to the steps defined in the System Preferences app
+static int mouse_mouseAcceleration(lua_State *L) {
+    return mouseTrackpadAcceleration(L, CFSTR(kIOHIDMouseAccelerationType));
+}
+
+//Note to future authors, there is no function to use kIOHIDTrackpadAccelerationType because it doesn't appear to do anything on modern systems.
+
 static const luaL_Reg mouseLib[] = {
 // Note that .get and .set are no longer documented. They should stick around for now, as they are used by our init.lua
     {"getAbsolutePosition", mouse_get},
     {"setAbsolutePosition", mouse_set},
+    {"trackingSpeed", mouse_mouseAcceleration},
     {NULL, NULL}
 };
 
@@ -65,5 +127,3 @@ int luaopen_hs_mouse_internal(lua_State* L __unused) {
 
     return 1;
 }
-
-
