@@ -375,13 +375,12 @@ static int eventtap_event_newKeyEvent(lua_State* L) {
     bool isdown = lua_toboolean(L, 3);
     const char *modifier;
 
-    lua_getglobal(L, "hs");
-    lua_getfield(L, -1, "keycodes");
+    [skin requireModule:"hs.keycodes"] ;
     lua_getfield(L, -1, "map");
     lua_pushstring(L, key);
     lua_gettable(L, -2);
     CGKeyCode keycode = lua_tointeger(L, -1);
-    lua_pop(L, 2);
+    lua_pop(L, 3);
 
     CGEventFlags flags = 0;
     lua_pushnil(L);

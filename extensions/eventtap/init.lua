@@ -11,8 +11,6 @@
 ---
 --- This module is based primarily on code from the previous incarnation of Mjolnir by [Steven Degutis](https://github.com/sdegutis/).
 
-if not hs.keycodes then hs.keycodes = require("hs.keycodes") end
-
 local module = require("hs.eventtap.internal")
 module.event = require("hs.eventtap.event")
 local fnutils = require("hs.fnutils")
@@ -90,7 +88,7 @@ function module.event.newMouseEvent(eventtype, point, modifiers)
     elseif eventtype == types["middleMouseDown"] or eventtype == types["middleMouseUp"] or eventtype == types["middleMouseDragged"] then
         button = "middle"
     else
-        print("Error: unrecognised mouse button eventtype: " .. eventtype)
+        print("Error: unrecognised mouse button eventtype: " .. tostring(eventtype))
         return nil
     end
     return module.event._newMouseEvent(eventtype, point, button, modifiers)

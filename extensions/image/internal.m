@@ -1,6 +1,11 @@
 //#import <Appkit/NSImage.h>
-#import <LuaSkin/LuaSkin.h>
+@import LuaSkin ;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wauto-import"
 #import "ASCIImage/PARImage+ASCIIInput.h"
+#pragma clang diagnostic pop
+
 @import AVFoundation;
 
 #define USERDATA_TAG "hs.image"
@@ -619,7 +624,7 @@ static int imageWithContextFromASCII(lua_State *L) {
     NSColor *defaultStrokeColor = [NSColor blackColor] ;
     BOOL     defaultAntiAlias   = YES ;
     BOOL     defaultShouldClose = YES ;
-    CGFloat  defaultLineWidth   = NAN ;
+    CGFloat  defaultLineWidth   = (double)NAN ;
 
     NSMutableDictionary *contextTable = [[NSMutableDictionary alloc] init] ;
     lua_Integer          maxIndex     = 0 ;
@@ -669,16 +674,17 @@ static int imageWithContextFromASCII(lua_State *L) {
             }
 
             if ([contextTable objectForKey:@(maxIndex)]) {
-                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"fillColor"])
-                    defaultFillColor = [[contextTable objectForKey:@(maxIndex)] objectForKey:@"fillColor"] ;
-                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"strokeColor"])
-                    defaultStrokeColor = [[contextTable objectForKey:@(maxIndex)] objectForKey:@"strokeColor"] ;
-                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"antialias"])
-                    defaultAntiAlias = [[[contextTable objectForKey:@(maxIndex)] objectForKey:@"antialias"] boolValue] ;
-                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"shouldClose"])
-                    defaultShouldClose = [[[contextTable objectForKey:@(maxIndex)] objectForKey:@"shouldClose"] boolValue] ;
-                if ([[contextTable objectForKey:@(maxIndex)] objectForKey:@"lineWidth"])
-                    defaultLineWidth = [[[contextTable objectForKey:@(maxIndex)] objectForKey:@"lineWidth"] floatValue] ;
+                NSDictionary *tableEndObject = [contextTable objectForKey:@(maxIndex)] ;
+                if ([tableEndObject objectForKey:@"fillColor"])
+                    defaultFillColor = [tableEndObject objectForKey:@"fillColor"] ;
+                if ([tableEndObject objectForKey:@"strokeColor"])
+                    defaultStrokeColor = [tableEndObject objectForKey:@"strokeColor"] ;
+                if ([tableEndObject objectForKey:@"antialias"])
+                    defaultAntiAlias = [[tableEndObject objectForKey:@"antialias"] boolValue] ;
+                if ([tableEndObject objectForKey:@"shouldClose"])
+                    defaultShouldClose = [[tableEndObject objectForKey:@"shouldClose"] boolValue] ;
+                if ([tableEndObject objectForKey:@"lineWidth"])
+                    defaultLineWidth = [[tableEndObject objectForKey:@"lineWidth"] doubleValue] ;
             }
             break;
         case LUA_TNIL:
@@ -688,7 +694,7 @@ static int imageWithContextFromASCII(lua_State *L) {
             return luaL_error(L, "Unexpected type passed to hs.image.imageWithContextFromASCII as the context table: %s", lua_typename(L, lua_type(L, 2))) ;
     }
 
-    if (isnan(defaultLineWidth)) { defaultLineWidth = defaultAntiAlias ? 1.0 : sqrtf(2.0)/2.0; }
+    if (isnan(defaultLineWidth)) { defaultLineWidth = defaultAntiAlias ? 1.0 : sqrt(2.0)/2.0; }
 
 // NSLog(@"contextTable: %@", contextTable) ;
 
@@ -702,17 +708,18 @@ static int imageWithContextFromASCII(lua_State *L) {
               context[ASCIIContextShouldAntialias] = @(defaultAntiAlias) ;
 // NSLog(@"Checking Shape #: %ld", index) ;
               if ((index + 1) <= maxIndex) {
-                  if ([contextTable objectForKey:@(index + 1)]) {
-                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"fillColor"])
-                          context[ASCIIContextFillColor] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"fillColor"] ;
-                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"strokeColor"])
-                          context[ASCIIContextStrokeColor] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"strokeColor"] ;
-                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"antialias"])
-                          context[ASCIIContextShouldAntialias] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"antialias"] ;
-                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"shouldClose"])
-                          context[ASCIIContextShouldClose] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"shouldClose"] ;
-                      if ([[contextTable objectForKey:@(index + 1)] objectForKey:@"lineWidth"])
-                          context[ASCIIContextLineWidth] = [[contextTable objectForKey:@(index + 1)] objectForKey:@"lineWidth"] ;
+                  NSDictionary *currentObject = [contextTable objectForKey:@(index + 1)] ;
+                  if (currentObject) {
+                      if ([currentObject objectForKey:@"fillColor"])
+                          context[ASCIIContextFillColor] = [currentObject objectForKey:@"fillColor"] ;
+                      if ([currentObject objectForKey:@"strokeColor"])
+                          context[ASCIIContextStrokeColor] = [currentObject objectForKey:@"strokeColor"] ;
+                      if ([currentObject objectForKey:@"antialias"])
+                          context[ASCIIContextShouldAntialias] = [currentObject objectForKey:@"antialias"] ;
+                      if ([currentObject objectForKey:@"shouldClose"])
+                          context[ASCIIContextShouldClose] = [currentObject objectForKey:@"shouldClose"] ;
+                      if ([currentObject objectForKey:@"lineWidth"])
+                          context[ASCIIContextLineWidth] = [currentObject objectForKey:@"lineWidth"] ;
                   }
               }
 // NSLog(@"specificContext = %@", context) ;
@@ -747,9 +754,31 @@ static int imageWithContextFromASCII(lua_State *L) {
 static int imageFromName(lua_State *L) {
     const char* imageName = luaL_checkstring(L, 1) ;
 
-    NSImage *newImage = [NSImage imageNamed:[NSString stringWithUTF8String:imageName]] ;
+    NSString *imageNSName = [NSString stringWithUTF8String:imageName] ;
+    NSImage *newImage = imageNSName ? [NSImage imageNamed:imageNSName] : nil ;
     if (newImage) {
         [[LuaSkin shared] pushNSObject:newImage] ;
+    } else {
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
+/// hs.image.imageFromURL(url) -> object
+/// Constructor
+/// Creates an `hs.image` object from the contents of the specified URL.
+///
+/// Parameters:
+///  * url - a web url specifying the location of the image to retrieve
+///
+/// Returns:
+///  * An `hs.image` object or nil, if the url does not specify image contents or is unreachable
+static int imageFromURL(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSURL *theURL = [NSURL URLWithString:[skin toNSObjectAtIndex:1]] ;
+    if (theURL) {
+        [skin pushNSObject:[[NSImage alloc] initWithContentsOfURL:theURL]] ;
     } else {
         lua_pushnil(L) ;
     }
@@ -913,7 +942,8 @@ static int imageFromMediaFile(lua_State *L) {
         for (AVMetadataItem *item in metadataItems) {
             if ([item.keySpace isEqualToString:AVMetadataKeySpaceID3] ||
                 [item.keySpace isEqualToString:AVMetadataKeySpaceiTunes]) {
-                theImage = [[NSImage alloc] initWithData:[item dataValue]];
+                NSData *itemData = [item dataValue] ;
+                theImage = itemData ? [[NSImage alloc] initWithData:itemData] : nil ;
                 if (theImage && theImage.valid) break;
             }
         }
@@ -1140,6 +1170,7 @@ static const luaL_Reg userdata_metaLib[] = {
 // Functions for returned object when module loads
 static luaL_Reg moduleLib[] = {
     {"imageFromPath",             imageFromPath},
+    {"imageFromURL",              imageFromURL},
     {"imageFromASCII",            imageWithContextFromASCII},
 //     {"imageWithContextFromASCII", imageWithContextFromASCII},
     {"imageFromName",             imageFromName},

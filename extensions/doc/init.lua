@@ -498,7 +498,7 @@ module.builder = {
     end,
 
     genSQL = function(mods)
-        if type(mods) == "string" then mods = module.genComments(mods) end
+        if type(mods) == "string" then mods = module.builder.genComments(mods) end
         local results = [[
 CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);
 CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);
@@ -513,12 +513,12 @@ CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);
     end,
 
     genJSON = function(mods)
-        if type(mods) == "string" then mods = module.genComments(mods) end
+        if type(mods) == "string" then mods = module.builder.genComments(mods) end
         return json.encode(mods, true)
     end,
 
     commentsFromSource = function(src)
-        return module.genComments{ src.."/extensions", src.."/Hammerspoon" }
+        return module.builder.genComments{ src.."/extensions", src.."/Hammerspoon" }
     end,
 
 }

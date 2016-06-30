@@ -189,7 +189,7 @@ return {setup=function(...)
   help = hs.help
 
 
-  --- hs.bhelp([identifier])
+  --- hs.hsdocs([identifier])
   --- Function
   --- Display's Hammerspoon API documentation in a webview browser.
   ---
@@ -200,16 +200,37 @@ return {setup=function(...)
   ---  * None
   ---
   --- Notes:
+  ---  * You can also access the results of this function by the following methods from the console:
+  ---    * hs.hsdocs.identifier.path -- no quotes are required, e.g. `hs.hsdocs.hs.reload`
+  ---
   ---  * See `hs.doc.hsdocs` for more information about the available settings for the documentation browser.
   ---
   ---  * This function provides documentation for Hammerspoon modules, functions, and methods similar to the Hammerspoon Dash docset, but does not require any additional software.
-  ---
-  ---  * You can also access the results of this function with just `bhelp`.
-  ---
-  ---  * The chaining method supported by the `help` command is not supported with this function at present.
   ---  * This currently only provides documentation for the built in Hammerspoon modules, functions, and methods.  The Lua documentation and third-party modules are not presently supported, but may be added in a future release.
-  hs.bhelp = hs.help.hsdocs.help
-  bhelp = hs.bhelp
+  local hsdocsMetatable
+  hsdocsMetatable = {
+    __index = function(self, key)
+      local label = (self.__node == "") and key or (self.__node .. "." .. key)
+      return setmetatable({ __action = self.__action, __node = label }, hsdocsMetatable)
+    end,
+
+    __call = function(self, ...)
+      if type(self.__action) == "function" then
+          return self.__action(self.__node, ...)
+      else
+          return self.__node
+      end
+    end,
+
+    __tostring = function(self) self.__action(self.__node) ; return self.__node end
+  }
+
+  hs.hsdocs = setmetatable({
+    __node = "",
+    __action = function(what)
+        require("hs.doc.hsdocs").help((what ~= "") and what or nil)
+    end
+  }, hsdocsMetatable)
 
   --setup lazy loading
   if autoload_extensions then

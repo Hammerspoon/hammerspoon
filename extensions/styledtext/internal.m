@@ -1371,7 +1371,7 @@ static id lua_toNSAttributedString(lua_State *L, int idx) {
                     [skin logAtLevel:LS_LOG_ERROR
                          withMessage:[NSString stringWithFormat:@"error creating NSAttributedString from table: %@", [theException name]]
                         fromStackPos:1] ;
-                    return [[NSAttributedString alloc] init];
+                    return [[NSAttributedString alloc] initWithString:@""];
                 }
             } else {
                 [skin logAtLevel:LS_LOG_WARN
