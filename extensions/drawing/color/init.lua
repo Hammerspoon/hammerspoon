@@ -26,11 +26,15 @@ local module = require("hs.drawing.color.internal")
 ---   * list - the name of a system color list or a collection list defined in `hs.drawing.color`
 ---   * name - the color name within the specified color list
 ---
+--- * From an image to be used as a tiled pattern:
+---   * image - an `hs.image` object representing the image to be used as a tiled pattern
+---
 --- Any combination of the above keys may be specified within the color table and they will be evaluated in the following order:
----   1. If the `list` and `name` keys are specified, and if they can be matched to an existing color within the system color lists, that color is used.
----   2. If the `hue` key is provided, then the color is generated as an HSB color
----   3. If the `white` key is provided, then the color is generated as a Grayscale color
----   4. Otherwise, an RGB color is generated.
+---   1. if the `image` key is specified, it will be used to create a tiling pattern.
+---   2. If the `list` and `name` keys are specified, and if they can be matched to an existing color within the system color lists, that color is used.
+---   3. If the `hue` key is provided, then the color is generated as an HSB color
+---   4. If the `white` key is provided, then the color is generated as a Grayscale color
+---   5. Otherwise, an RGB color is generated.
 ---
 --- Except where specified above to indicate the color model being used, any key which is not provided defaults to a value of 0.0, except for `alpha`, which defaults to 1.0.  This means that specifying an empty table as the color will result in an opaque black color.
 
