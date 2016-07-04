@@ -511,11 +511,12 @@ nextarg:
 
 - (id)luaObjectAtIndex:(int)idx toClass:(const char *)className {
     NSString *theClass = @(className) ;
+    idx = lua_absindex(self.L, idx) ;
 
     for (id key in self.registeredLuaObjectHelperFunctions) {
         if ([theClass isEqualToString:key]) {
             luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[self.registeredLuaObjectHelperFunctions[key] pointerValue] ;
-            return theFunc(self.L, lua_absindex(self.L, idx)) ;
+            return theFunc(self.L, idx) ;
         }
     }
     return nil ;
@@ -575,6 +576,7 @@ nextarg:
 }
 
 - (NSRect)tableToRectAtIndex:(int)idx {
+    idx = lua_absindex(self.L, idx) ;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
         CGFloat x = (lua_getfield(self.L, idx, "x") == LUA_TNUMBER) ? lua_tonumber(self.L, -1) : 0.0 ;
         CGFloat y = (lua_getfield(self.L, idx, "y") == LUA_TNUMBER) ? lua_tonumber(self.L, -1) : 0.0 ;
@@ -591,6 +593,7 @@ nextarg:
 }
 
 - (NSPoint)tableToPointAtIndex:(int)idx {
+    idx = lua_absindex(self.L, idx) ;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
         CGFloat x = (lua_getfield(self.L, idx, "x") == LUA_TNUMBER) ? lua_tonumber(self.L, -1) : 0.0 ;
         CGFloat y = (lua_getfield(self.L, idx, "y") == LUA_TNUMBER) ? lua_tonumber(self.L, -1) : 0.0 ;
@@ -605,6 +608,7 @@ nextarg:
 }
 
 - (NSSize)tableToSizeAtIndex:(int)idx {
+    idx = lua_absindex(self.L, idx) ;
     if (lua_type(self.L, idx) == LUA_TTABLE) {
         CGFloat w = (lua_getfield(self.L, idx, "w") == LUA_TNUMBER) ? lua_tonumber(self.L, -1) : 0.0 ;
         CGFloat h = (lua_getfield(self.L, idx, "h") == LUA_TNUMBER) ? lua_tonumber(self.L, -1) : 0.0 ;
@@ -660,6 +664,7 @@ nextarg:
 }
 
 - (BOOL)isValidUTF8AtIndex:(int)idx {
+    idx = lua_absindex(self.L, idx) ;
     if (lua_type(self.L, idx) != LUA_TSTRING && lua_type(self.L, idx) != LUA_TNUMBER) return NO ;
 
     size_t len ;
@@ -735,6 +740,7 @@ nextarg:
 }
 
 - (NSString *)getValidUTF8AtIndex:(int)idx {
+    idx = lua_absindex(self.L, idx) ;
     size_t sourceLength ;
     unsigned char *src  = (unsigned char *)luaL_tolstring(self.L, idx, &sourceLength) ;
     NSMutableData *dest = [[NSMutableData alloc] init] ;
@@ -977,8 +983,7 @@ nextarg:
 
 - (id)toNSObjectAtIndex:(int)idx withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     const char *userdataTag = nil;
-
-    int realIndex = lua_absindex(self.L, idx) ;
+    idx = lua_absindex(self.L, idx) ;
     NSMutableArray *seenObject = alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] ;
     if (seenObject) {
         if ([[seenObject lastObject] isEqualToNumber:@(NO)] && ((options & LS_NSAllowsSelfReference) != LS_NSAllowsSelfReference)) {
@@ -991,7 +996,7 @@ nextarg:
             return [seenObject firstObject] ;
         }
     }
-    switch (lua_type(self.L, realIndex)) {
+    switch (lua_type(self.L, idx)) {
         case LUA_TNUMBER:
             if (lua_isinteger(self.L, idx)) {
                 return @(lua_tointeger(self.L, idx)) ;
@@ -1028,15 +1033,15 @@ nextarg:
         case LUA_TBOOLEAN:
             return lua_toboolean(self.L, idx) ? (id)kCFBooleanTrue : (id)kCFBooleanFalse;
         case LUA_TTABLE:
-            return [self tableAtIndex:realIndex withOptions:options alreadySeenObjects:alreadySeen] ;
+            return [self tableAtIndex:idx withOptions:options alreadySeenObjects:alreadySeen] ;
         case LUA_TUSERDATA: // Note: This is specifically last, so it can fall through to the default case, for objects we can't handle automatically
 //             //FIXME: This seems very unsafe to happen outside a protected call
-//             if (lua_getfield(self.L, realIndex, "__type") == LUA_TSTRING) {
+//             if (lua_getfield(self.L, idx, "__type") == LUA_TSTRING) {
 //                 userdataTag = (char *)lua_tostring(self.L, -1);
 //             }
 //             lua_pop(self.L, 1);
             lua_pushcfunction(self.L, pushUserdataType) ;
-            lua_pushvalue(self.L, realIndex) ;
+            lua_pushvalue(self.L, idx) ;
             if ((lua_pcall(self.L, 1, 1, 0) == LUA_OK) && (lua_type(self.L, -1) == LUA_TSTRING)) {
                userdataTag = lua_tostring(self.L, -1);
             }
@@ -1047,7 +1052,7 @@ nextarg:
             if (userdataTag) {
                 NSString *classMapping = self.registeredLuaObjectHelperUserdataMappings[@(userdataTag)];
                 if (classMapping) {
-                    return [self luaObjectAtIndex:realIndex toClass:(const char *)[classMapping UTF8String]];
+                    return [self luaObjectAtIndex:idx toClass:(const char *)[classMapping UTF8String]];
                 } else {
                     [self logBreadcrumb:[NSString stringWithFormat:@"unrecognized userdata type %s", userdataTag]] ;
                 }
@@ -1056,14 +1061,14 @@ nextarg:
         default:
             if ((options & LS_NSDescribeUnknownTypes) == LS_NSDescribeUnknownTypes) {
                 NSString *answer = @(luaL_tolstring(self.L, idx, NULL));
-                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %s; converting to '%@'", lua_typename(self.L, lua_type(self.L, realIndex)), answer]] ;
+                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %s; converting to '%@'", lua_typename(self.L, lua_type(self.L, idx)), answer]] ;
                 lua_pop(self.L, 1) ;
                 return answer ;
             } else if ((options & LS_NSIgnoreUnknownTypes) == LS_NSIgnoreUnknownTypes) {
-                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %s; ignoring with %s", lua_typename(self.L, lua_type(self.L, realIndex)), (([alreadySeen count] > 0) ? "placeholder [NSNull null]" : "nil")]] ;
+                [self logVerbose:[NSString stringWithFormat:@"unrecognized type %s; ignoring with %s", lua_typename(self.L, lua_type(self.L, idx)), (([alreadySeen count] > 0) ? "placeholder [NSNull null]" : "nil")]] ;
                 return ([alreadySeen count] > 0) ? [NSNull null] : nil ;
             } else {
-                [self logDebug:[NSString stringWithFormat:@"unrecognized type %s; returning nil", lua_typename(self.L, lua_type(self.L, realIndex))]] ;
+                [self logDebug:[NSString stringWithFormat:@"unrecognized type %s; returning nil", lua_typename(self.L, lua_type(self.L, idx))]] ;
                 return nil ;
             }
     }
@@ -1073,10 +1078,11 @@ nextarg:
 // reason for an NSValue related option comes up
 - (id)tableAtIndex:(int)idx withLabel:(const char *)tableTag withOptions:(__unused NSUInteger)options {
     id result ;
+    idx = lua_absindex(self.L, idx) ;
     NSString *classMapping = self.registeredLuaObjectHelperTableMappings[@(tableTag)];
     if ((classMapping) && self.registeredLuaObjectHelperFunctions[classMapping]) {
         luaObjectHelperFunction theFunc = (luaObjectHelperFunction)[self.registeredLuaObjectHelperFunctions[classMapping] pointerValue] ;
-        result = theFunc(self.L, lua_absindex(self.L, idx)) ;
+        result = theFunc(self.L, idx) ;
     } else { // check builtins (NSValue)
         if (strcmp(tableTag, "NSPoint")==0) {
             result = [NSValue valueWithPoint:[self tableToPointAtIndex:idx]] ;
@@ -1119,6 +1125,7 @@ nextarg:
 
 - (id)tableAtIndex:(int)idx withOptions:(NSUInteger)options alreadySeenObjects:(NSMutableDictionary *)alreadySeen {
     id result ;
+    idx = lua_absindex(self.L, idx) ;
 
     if ((lua_getfield(self.L, idx, "__luaSkinType") == LUA_TSTRING) && ((options & LS_NSRawTables) != LS_NSRawTables)) {
         result = [self tableAtIndex:idx withLabel:lua_tostring(self.L, -1) withOptions:options] ;
@@ -1127,7 +1134,7 @@ nextarg:
         lua_pop(self.L, 1) ;
     } else {
         lua_pop(self.L, 1) ;
-        if ([self maxNatIndex:lua_absindex(self.L, idx)] == [self countNatIndex:lua_absindex(self.L, idx)]) {
+        if ([self maxNatIndex:idx] == [self countNatIndex:idx]) {
             result = (NSMutableArray *) [[NSMutableArray alloc] init] ;
         } else {
             result = (NSMutableDictionary *) [[NSMutableDictionary alloc] init] ;
@@ -1135,9 +1142,9 @@ nextarg:
         alreadySeen[[NSValue valueWithPointer:lua_topointer(self.L, idx)]] = @[result, @(NO)] ;
 
         if ([result isKindOfClass: [NSArray class]]) {
-            lua_Integer tableLength = [self countNatIndex:lua_absindex(self.L, idx)] ;
+            lua_Integer tableLength = [self countNatIndex:idx] ;
             for (lua_Integer i = 0; i < tableLength ; i++) {
-                lua_geti(self.L, lua_absindex(self.L, idx), i + 1) ;
+                lua_geti(self.L, idx, i + 1) ;
                 id val = [self toNSObjectAtIndex:-1 withOptions:options alreadySeenObjects:alreadySeen] ;
                 if (val) {
                     [result addObject:val] ;
@@ -1154,7 +1161,7 @@ nextarg:
             }
         } else {
             lua_pushnil(self.L);
-            while (lua_next(self.L, lua_absindex(self.L, idx)) != 0) {
+            while (lua_next(self.L, idx) != 0) {
                 id key = [self toNSObjectAtIndex:-2             withOptions:options alreadySeenObjects:alreadySeen] ;
                 id val = [self toNSObjectAtIndex:lua_gettop(self.L) withOptions:options alreadySeenObjects:alreadySeen] ;
                 if (key && val) {
