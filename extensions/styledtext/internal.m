@@ -1845,7 +1845,7 @@ static id table_toNSParagraphStyle(lua_State *L, int idx) {
                 thePS.baseWritingDirection = NSWritingDirectionLeftToRight;
             } else if ([theString isEqualToString:@"rightToLeft"]) {
                 thePS.baseWritingDirection = NSWritingDirectionRightToLeft;
-            } else if (![theString isEqualToString:@"natural"]) {
+            } else if ([theString isEqualToString:@"natural"]) {
                 thePS.baseWritingDirection = NSWritingDirectionNatural;
             } else {
                 [skin logAtLevel:LS_LOG_WARN
