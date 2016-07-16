@@ -111,6 +111,11 @@ static int NSColor_tolua(lua_State *L, id obj) {
           [[LuaSkin shared] pushNSObject:[theColor colorNameComponent]] ;
           lua_setfield(L, -2, "name") ;
           lua_pushstring(L, "NSColor") ; lua_setfield(L, -2, "__luaSkinType") ;
+    } else if ([theColor.colorSpaceName isEqualToString:NSPatternColorSpace]) {
+        lua_newtable(L) ;
+          [[LuaSkin shared] pushNSObject:[theColor patternImage]] ;
+          lua_setfield(L, -2, "image") ;
+          lua_pushstring(L, "NSColor") ; lua_setfield(L, -2, "__luaSkinType") ;
     } else {
         lua_pushstring(L, [[NSString stringWithFormat:@"unable to convert colorspace from %@ to NSCalibratedRGBColorSpace", [theColor colorSpaceName]] UTF8String]) ;
     }
@@ -140,7 +145,8 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
     CGFloat hue = 0.0, saturation = 0.0, brightness = 0.0 ;
     CGFloat white = 0.0 ;
 
-    BOOL RGBColor = YES ;
+    BOOL    RGBColor = YES ;
+    NSImage *image ;
 
 // arbitrary cutoff to prevent infinite loop in table lookups
     if (level < COLOR_LOOP_LEVEL) {
@@ -185,6 +191,11 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
                     alpha = lua_tonumber(L, -1);
                 lua_pop(L, 1);
 
+                if (lua_getfield(L, idx, "image") == LUA_TUSERDATA && luaL_testudata(L, -1, "hs.image")) {
+                        image = [skin toNSObjectAtIndex:-1] ;
+                }
+                lua_pop(L, 1) ;
+
                 break;
             default:
                 [skin logAtLevel:LS_LOG_ERROR
@@ -192,7 +203,7 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
                     fromStackPos:1] ;
         }
 
-        if (colorList && colorName) {
+        if (colorList && colorName && !image) {
             NSColor *holding = [[NSColorList colorListNamed:colorList] colorWithKey:colorName] ;
             if (holding) return holding ;
             if (colorCollectionsTable != LUA_NOREF) {
@@ -213,7 +224,9 @@ static id table_toNSColorHelper(lua_State *L, int idx, int level) {
             fromStackPos:1] ;
     }
 
-    if (RGBColor) {
+    if (image) {
+            return [NSColor colorWithPatternImage:image] ;
+    } else if (RGBColor) {
         if (white != 0.0)
             return [NSColor colorWithCalibratedWhite:white alpha:alpha] ;
         else
