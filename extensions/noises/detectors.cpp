@@ -111,9 +111,9 @@ void Detectors::doFFT(const float *buffer) {
   vDSP_vmul(buffer, 1, m_window, 1, m_inReal, 1, kBlockSize);
   vDSP_ctoz(reinterpret_cast<DSPComplex*>(m_inReal), 2, &m_splitData, 1, kSpectrumSize);
   vDSP_fft_zrip(m_fftSetup, &m_splitData, 1, kLogBlockSize, FFT_FORWARD);
-  m_splitData.imagp[0] = 0.0;
+  m_splitData.imagp[0] = 0.0f;
   
-  float scale = 1.0 / static_cast<float>(2 * kBlockSize);
+  float scale = 1.0f / static_cast<float>(2 * kBlockSize);
   vDSP_vsmul(m_splitData.realp, 1, &scale, m_splitData.realp, 1, kSpectrumSize);
   vDSP_vsmul(m_splitData.imagp, 1, &scale, m_splitData.imagp, 1, kSpectrumSize);
 }
@@ -125,16 +125,16 @@ int Detectors::processChunk(const float *buffer) {
   size_t n = kSpectrumSize;
   
   for (size_t i = 0; i < n; ++i) {
-    double real = m_splitData.realp[i];
-    double imag = m_splitData.imagp[i];
-    double newVal = real * real + imag * imag;
+    float real = m_splitData.realp[i];
+    float imag = m_splitData.imagp[i];
+    float newVal = real * real + imag * imag;
     m_spectrum[i] = newVal;
-    m_lowPassBuffer[i] = m_lowPassBuffer[i]*(1.0-m_lowPassWeight) + newVal*m_lowPassWeight;
+    m_lowPassBuffer[i] = m_lowPassBuffer[i]*(1.0f-m_lowPassWeight) + newVal*m_lowPassWeight;
     
     // infinite values happen non-deterministically, probably due to glitchy audio input at start of recording
     // but inifinities it could mess up things forever
     if(m_lowPassBuffer[i] >= numeric_limits<float>::infinity()) {
-      std::fill(m_lowPassBuffer.begin(), m_lowPassBuffer.end(), 0.0);
+      std::fill(m_lowPassBuffer.begin(), m_lowPassBuffer.end(), 0.0f);
       return 0; // discard the frame, it's probably garbage
     }
   }
@@ -149,13 +149,13 @@ int Detectors::processChunk(const float *buffer) {
   }
   
   float debugMarker = 0.0002;
-  float matchiness = mainBand / ((lowerBand+upperBand)/2.0);
+  float matchiness = mainBand / ((lowerBand+upperBand)/2.0f);
   bool outOfShadow = m_framesSinceSpeech > kSpeechShadowTime;
   int immediateMatchFrame = kDelayMatch ? m_minFramesLong : m_minFrames;
   m_framesSinceMatch += 1;
   if(((matchiness >= m_sensitivity) ||
       (m_consecutiveMatches > 0 && matchiness >= m_sensitivity*m_hysterisisFactor) ||
-      (m_consecutiveMatches > immediateMatchFrame && (mainBand/m_savedOtherBands) >= m_sensitivity*m_hysterisisFactor*0.5))
+      (m_consecutiveMatches > immediateMatchFrame && (mainBand/m_savedOtherBands) >= m_sensitivity*m_hysterisisFactor*0.5f))
      && outOfShadow) {
     debugMarker = 0.01;
     // second one in double "tss" came earlier than trigger timer
