@@ -171,7 +171,7 @@ int Detectors::processChunk(const float *buffer) {
     } else if(m_consecutiveMatches == immediateMatchFrame) {
       debugMarker = 1.0;
       result |= TSS_START_CODE;
-      m_savedOtherBands = ((lowerBand+upperBand)/2.0);
+      m_savedOtherBands = ((lowerBand+upperBand)/2.0f);
     }
   } else {
     bool delayedMatch = kDelayMatch && (m_framesSinceMatch == m_minFramesLong && outOfShadow);
