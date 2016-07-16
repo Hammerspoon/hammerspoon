@@ -32,6 +32,7 @@ export HS_MODULES="alert \
     menubar \
     milight \
     mouse \
+    noises \
     notify \
     osascript \
     pasteboard \
