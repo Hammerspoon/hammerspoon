@@ -15,7 +15,7 @@
 #define NUM_BUFFERS 1
 static const int kSampleRate = 44100;
 
-#define USERDATA_TAG "hs.noises.listener"
+#define USERDATA_TAG "hs.noises"
 static int refTable;
 #define get_listener_arg(L, idx) (__bridge Listener*)*((void**)luaL_checkudata(L, idx, USERDATA_TAG))
 
@@ -49,11 +49,11 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
                         const AudioTimeStamp * inStartTime,
                         UInt32 inNumberPacketDescriptions,
                         const AudioStreamPacketDescription * inPacketDescs) {
-  
+
   Listener *rec = (__bridge Listener *)inUserData;
   RecordState * recordState = [rec recordState];
   if(!recordState->recording) return;
-  
+
   AudioQueueEnqueueBuffer(recordState->queue, inBuffer, 0, NULL);
   [rec feedSamplesToEngine:inBuffer->mAudioDataBytesCapacity audioData:inBuffer->mAudioData];
 }
@@ -83,7 +83,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 
 - (void)setupAudioFormat:(AudioStreamBasicDescription*)format {
   format->mSampleRate = kSampleRate;
-  
+
   format->mFormatID = kAudioFormatLinearPCM;
   format->mFormatFlags = kAudioFormatFlagsNativeFloatPacked;
   format->mFramesPerPacket  = 1;
@@ -96,9 +96,9 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 - (void)startRecording {
   if(recordState.recording) return;
   [self setupAudioFormat:&recordState.dataFormat];
-  
+
   recordState.currentFrame = 0;
-  
+
   OSStatus status;
   status = AudioQueueNewInput(&recordState.dataFormat,
                               AudioInputCallback,
@@ -107,16 +107,16 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
                               kCFRunLoopCommonModes,
                               0,
                               &recordState.queue);
-  
+
   if (status == 0) {
-    
+
     for (int i = 0; i < NUM_BUFFERS; i++) {
       AudioQueueAllocateBuffer(recordState.queue, DETECTORS_BLOCK_SIZE*sizeof(float), &recordState.buffers[i]);
       AudioQueueEnqueueBuffer(recordState.queue, recordState.buffers[i], 0, nil);
     }
-    
+
     recordState.recording = true;
-    
+
     status = AudioQueueStart(recordState.queue, NULL);
   } else {
     NSLog(@"Error: Couldn't open audio queue.");
@@ -126,13 +126,13 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 - (void)stopRecording {
   if(!recordState.recording) return;
   recordState.recording = false;
-  
+
   AudioQueueStop(recordState.queue, true);
-  
+
   for (int i = 0; i < NUM_BUFFERS; i++) {
     AudioQueueFreeBuffer(recordState.queue, recordState.buffers[i]);
   }
-  
+
   AudioQueueDispose(recordState.queue, true);
   AudioFileClose(recordState.audioFile);
 }
@@ -145,7 +145,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
   int sampleCount = audioDataBytesCapacity / sizeof(float);
   float *samples = (float*)audioData;
   NSAssert(sampleCount == DETECTORS_BLOCK_SIZE, @"Incorrect buffer size %i", sampleCount);
-  
+
   int result = detectors_process(detectors, samples);
   if((result & TSS_START_CODE) == TSS_START_CODE) {
     [self mainThreadCallback: 1]; // Tss on
@@ -156,7 +156,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
   if((result & POP_CODE) == POP_CODE) {
     [self mainThreadCallback: 3]; // Pop
   }
-  
+
   recordState.currentFrame += sampleCount;
 }
 
@@ -180,13 +180,13 @@ static int listener_gc(lua_State* L) {
   Listener *listener = (__bridge_transfer Listener*)(*userdata);
   [listener stopRecording];
   listener.fn = [skin luaUnref:refTable ref:listener.fn];
-  
+
   *userdata = nil;
   listener = nil;
   return 0;
 }
 
-/// hs.noises.listener:stop() -> self
+/// hs.noises:stop() -> self
 /// Method
 /// Stops the listener from recording and analyzing microphone input.
 ///
@@ -194,7 +194,7 @@ static int listener_gc(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * The `hs.noises.listener` object
+///  * The `hs.noises` object
 static int listener_stop(lua_State* L) {
   Listener* listener = get_listener_arg(L, 1);
   [listener stopRecording];
@@ -202,7 +202,7 @@ static int listener_stop(lua_State* L) {
   return 1;
 }
 
-/// hs.noises.listener:start() -> self
+/// hs.noises:start() -> self
 /// Method
 /// Starts listening to the microphone and passing the audio to the recognizer.
 ///
@@ -210,7 +210,7 @@ static int listener_stop(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * The `hs.noises.listener` object
+///  * The `hs.noises` object
 static int listener_start(lua_State* L) {
   Listener* listener = get_listener_arg(L, 1);
   [listener startRecording];
@@ -228,26 +228,26 @@ static int listener_eq(lua_State* L) {
 void new_listener(lua_State* L, Listener* listener) {
   void** listenptr = lua_newuserdata(L, sizeof(Listener**));
   *listenptr = (__bridge_retained void*)listener;
-  
+
   luaL_getmetatable(L, USERDATA_TAG);
   lua_setmetatable(L, -2);
 }
 
 /// hs.noises.new(fn) -> listener
-/// Method
+/// Constructor
 /// Creates a new listener for mouth noise recognition
 ///
 /// Parameters:
 ///  * A function that is called when a mouth noise is recognized. It should accept a single parameter which will be a number representing the event type (see module docs).
 ///
 /// Returns:
-///  * A `hs.noises.listener` object
+///  * An `hs.noises` object
 static int listener_new(lua_State* L) {
   LuaSkin *skin = [LuaSkin shared];
   [skin checkArgs:LS_TFUNCTION, LS_TBREAK];
-  
+
   Listener *listener = [[Listener alloc] initPlugins];
-  
+
   lua_pushvalue(L, 1);
   listener.fn = [skin luaRef:refTable];
   listener.L = L;
