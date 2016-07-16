@@ -183,6 +183,8 @@
 		6AE1812A1D36E9260097211C /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE181191D36E8E50097211C /* internal.m */; };
 		6AE1812C1D36E9600097211C /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AE1812B1D36E9600097211C /* Accelerate.framework */; };
 		6AE1812E1D36E96A0097211C /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AE1812D1D36E96A0097211C /* CoreAudio.framework */; };
+		6AE181321D39C8F10097211C /* HSnoises.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE181311D39C8F10097211C /* HSnoises.m */; };
+		6AE181341D39C9570097211C /* test_noises.lua in Resources */ = {isa = PBXBuildFile; fileRef = 6AE181331D39C9570097211C /* test_noises.lua */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
 		9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422ACBC19B6163800F06A90 /* MJConfigUtils.m */; };
 		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
@@ -1028,6 +1030,8 @@
 		6AE181271D36E90B0097211C /* libnoises.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libnoises.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AE1812B1D36E9600097211C /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		6AE1812D1D36E96A0097211C /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		6AE181311D39C8F10097211C /* HSnoises.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSnoises.m; sourceTree = "<group>"; };
+		6AE181331D39C9570097211C /* test_noises.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_noises.lua; path = extensions/noises/test_noises.lua; sourceTree = "<group>"; };
 		87010C0F3DDC1CD8B3C95BA2 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9409202F19A5940600B9964E /* MJVersionUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJVersionUtils.h; sourceTree = "<group>"; };
 		9409203019A5940600B9964E /* MJVersionUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJVersionUtils.m; sourceTree = "<group>"; };
@@ -2535,6 +2539,7 @@
 		6AE181151D36E8BE0097211C /* noises */ = {
 			isa = PBXGroup;
 			children = (
+				6AE181331D39C9570097211C /* test_noises.lua */,
 				6AE181161D36E8E50097211C /* detectors.cpp */,
 				6AE181171D36E8E50097211C /* detectors.h */,
 				6AE181181D36E8E50097211C /* init.lua */,
@@ -2748,6 +2753,7 @@
 			isa = PBXGroup;
 			children = (
 				4FDD8E511C83612C00085D7A /* HSalert.m */,
+				6AE181311D39C8F10097211C /* HSnoises.m */,
 				4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */,
 				4C403D631CBE5B9F00EE20ED /* HSapplication.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
@@ -4841,6 +4847,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
+				6AE181341D39C9570097211C /* test_noises.lua in Resources */,
 				4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */,
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
@@ -5514,6 +5521,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FDD8E8F1C8DED1C00085D7A /* HSappfinder.m in Sources */,
+				6AE181321D39C8F10097211C /* HSnoises.m in Sources */,
 				4FDD8E4E1C834C8100085D7A /* HSbase64.m in Sources */,
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,

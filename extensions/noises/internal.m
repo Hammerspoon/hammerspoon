@@ -144,7 +144,7 @@ void AudioInputCallback(void * inUserData,  // Custom audio metadata
 - (void)feedSamplesToEngine:(UInt32)audioDataBytesCapacity audioData:(void *)audioData {
   int sampleCount = audioDataBytesCapacity / sizeof(float);
   float *samples = (float*)audioData;
-  NSAssert(sampleCount == DETECTORS_BLOCK_SIZE, @"Incorrect buffer size");
+  NSAssert(sampleCount == DETECTORS_BLOCK_SIZE, @"Incorrect buffer size %i", sampleCount);
   
   int result = detectors_process(detectors, samples);
   if((result & TSS_START_CODE) == TSS_START_CODE) {
