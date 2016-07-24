@@ -223,7 +223,8 @@ static int eventtap_event_post(lua_State* L) {
     CGEventRef event = *(CGEventRef*)luaL_checkudata(L, 1, EVENT_USERDATA_TAG);
 
     if (luaL_testudata(L, 2, "hs.application")) {
-        AXUIElementRef app = lua_touserdata(L, 2);
+//         AXUIElementRef app = lua_touserdata(L, 2);
+        AXUIElementRef app = *((AXUIElementRef*)luaL_checkudata(L, 2, "hs.application")) ;
 
         pid_t pid;
         AXUIElementGetPid(app, &pid);
