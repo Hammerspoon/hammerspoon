@@ -193,6 +193,14 @@ static int audiodevicewatcher_stop(lua_State *L) {
 /// Returns:
 ///  * A boolean, true if the watcher is running, false if not
 static int audiodevicewatcher_isRunning(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    if (!theWatcher) {
+        lua_pushboolean(L, false);
+        return 1;
+    }
+
     lua_pushboolean(L, theWatcher->running);
     return 1;
 }
