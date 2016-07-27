@@ -41,6 +41,10 @@ local function urlEventCallback(scheme, event, params, fullURL)
             end
         end
     elseif (scheme == "hammerspoon") then
+        if not event then
+            print("Something called a hammerspoon:// URL without an action")
+            return
+        end
         if not callbacks[event] then
             print("Received hs.urlevent event with no registered callback:"..event)
         else
