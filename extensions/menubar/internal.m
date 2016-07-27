@@ -546,16 +546,14 @@ static int menubarSetTitle(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TANY | LS_TOPTIONAL, LS_TBREAK];
     menubaritem_t *menuBarItem = get_item_arg(L, 1);
 
-    NSString           *titleText;
-    NSAttributedString *titleAText;
+    NSString           *titleText = nil;
+    NSAttributedString *titleAText = nil;
 
     if ((lua_type(L, 2) == LUA_TSTRING) || (lua_type(L, 2) == LUA_TNUMBER)) {
         luaL_checkstring(L, 2) ;
         titleText  = [skin toNSObjectAtIndex:2] ;
-        titleAText = nil ;
     } else if (luaL_testudata(L, 2, "hs.styledtext") || (lua_type(L, 2) == LUA_TTABLE)) {
         titleAText = [skin luaObjectAtIndex:2 toClass:"NSAttributedString"] ;
-        titleText  = nil ;
     } else if (!lua_isnoneornil(L, 2)) {
         return luaL_error(L, "expected string, styled-text object, or nil") ;
     }
