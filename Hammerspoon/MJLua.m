@@ -297,6 +297,7 @@ static int checkForUpdates(lua_State *L) {
 ///  * The Sparkle framework is included in all regular releases of Hammerspoon but not included if you are running a non-release or locally compiled version of Hammerspoon, so this function can be used as a simple test to determine whether or not you are running a formal release Hammerspoon or not.
 static int canCheckForUpdates(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
     BOOL canUpdate = NO ;
 
     if (NSClassFromString(@"SUUpdater")) {
