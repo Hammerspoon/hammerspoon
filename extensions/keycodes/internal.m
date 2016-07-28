@@ -266,8 +266,22 @@ NSString *getLayoutName(TISInputSourceRef layout) {
     return (__bridge NSString *)TISGetInputSourceProperty(layout, kTISPropertyLocalizedName);
 }
 
+void pushSourceIcon(TISInputSourceRef source) {
+    LuaSkin *skin = [LuaSkin shared];
+    IconRef icon = TISGetInputSourceProperty(source, kTISPropertyIconRef);
+    if (icon) {
+        [skin pushNSObject:[[NSImage alloc] initWithIconRef:icon]];
+    } else {
+        lua_pushnil(skin.L);
+    }
+}
+
 CFArrayRef getAllLayouts() {
     return TISCreateInputSourceList((__bridge CFDictionaryRef)@{(__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardLayout}, false);
+}
+
+CFArrayRef getAllInputMethods() {
+    return TISCreateInputSourceList((__bridge CFDictionaryRef)@{(__bridge NSString *)kTISPropertyInputSourceType : (__bridge NSString *)kTISTypeKeyboardInputMode}, false);
 }
 
 /// hs.keycodes.currentLayout() -> string
@@ -282,10 +296,25 @@ CFArrayRef getAllLayouts() {
 static int keycodes_currentLayout(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     TISInputSourceRef layout = TISCopyCurrentKeyboardLayoutInputSource();
-
-    CFRelease(layout);
-
     [skin pushNSObject:getLayoutName(layout)];
+    CFRelease(layout);
+    return 1;
+}
+
+/// hs.keycodes.currentLayoutIcon() -> hs.image object
+/// Function
+/// Gets the icon of the current keyboard layout
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * An hs.image object containing the icon, if available
+static int keycodes_currentLayoutIcon(lua_State* L) {
+    TISInputSourceRef layout = TISCopyCurrentKeyboardInputSource();
+
+    pushSourceIcon(layout);
+    CFRelease(layout);
     return 1;
 }
 
@@ -312,6 +341,38 @@ static int keycodes_layouts(lua_State* L) {
 
     [skin pushNSObject:layouts];
     return 1;
+}
+
+/// hs.keycodes.methods() -> table
+/// Function
+/// Gets all of the enabled input methods
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing a list of input methods enabled in System Preferences
+static int keycodes_methods(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    NSMutableArray *methods = [[NSMutableArray alloc] init];
+    CFArrayRef methodRefs = getAllInputMethods();
+
+    if (!methodRefs) {
+        lua_newtable(L);
+        return 1;
+    }
+
+    for (int i = 0; i < CFArrayGetCount(methodRefs); i++) {
+        TISInputSourceRef method = (TISInputSourceRef)(CFArrayGetValueAtIndex(methodRefs, i));
+        [methods addObject:getLayoutName(method)];
+    }
+
+    CFRelease(methodRefs);
+
+    [skin pushNSObject:methods];
+    return 1;
+
+
 }
 
 /// hs.keycodes.setLayout(layoutName) -> boolean
@@ -345,6 +406,91 @@ static int keycodes_setLayout(lua_State* L) {
     return 1;
 }
 
+/// hs.keycodes.setMethod(methodName) -> boolean
+/// Function
+/// Changes the system input method
+///
+/// Parameters:
+///  * methodName - A string containing the name of an enabled input method
+///
+/// Returns:
+///  * A boolean, true if the method was successfully changed, otherwise false
+static int keycodes_setMethod(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+    NSString *desiredLayout = [skin toNSObjectAtIndex:1];
+    CFArrayRef layoutRefs = getAllInputMethods();
+    BOOL found = NO;
+
+    for (int i = 0; i < CFArrayGetCount(layoutRefs); i++) {
+        TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(layoutRefs, i));
+        NSString *layoutName = getLayoutName(layout);
+
+        if ([layoutName isEqualToString:desiredLayout] && TISSelectInputSource(layout) == noErr) {
+            found = YES;
+        }
+    }
+
+    CFRelease(layoutRefs);
+
+    lua_pushboolean(L, found);
+    return 1;
+}
+
+/// hs.keycodes.iconForLayoutOrMethod(sourceName) -> hs.image object
+/// Function
+/// Gets an hs.image object for a given keyboard layout or input method
+///
+/// Parameters:
+///  * sourceName - A string containing the name of an input method or keyboard layout
+///
+/// Returns:
+///  * An hs.image object, or nil if no image could be found
+///
+/// Notes:
+///  * Not all layouts/methods have icons, so you should assume this will return nil at some point
+static int keycodes_getIcon(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+    NSString *sourceName = [skin toNSObjectAtIndex:1];
+    CFArrayRef layoutRefs = getAllLayouts();
+    CFArrayRef methodRefs = getAllInputMethods();
+    BOOL found = NO;
+
+    for (int i = 0; i < CFArrayGetCount(layoutRefs); i++) {
+        TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(layoutRefs, i));
+        NSString *layoutName = getLayoutName(layout);
+
+        if ([layoutName isEqualToString:sourceName]) {
+            pushSourceIcon(layout);
+            found = YES;
+            break;
+        }
+    }
+
+    if (!found) {
+        for (int i = 0; i < CFArrayGetCount(methodRefs); i++) {
+            TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(methodRefs, i));
+            NSString *layoutName = getLayoutName(layout);
+
+            if ([layoutName isEqualToString:sourceName]) {
+                pushSourceIcon(layout);
+                found = YES;
+                break;
+            }
+        }
+    }
+
+    if (!found) {
+        lua_pushnil(L);
+    }
+
+    CFRelease(layoutRefs);
+    CFRelease(methodRefs);
+
+    return 1;
+}
+
 static const luaL_Reg callbacklib[] = {
     // instance methods
     {"_stop", keycodes_callback_stop},
@@ -361,8 +507,12 @@ static const luaL_Reg keycodeslib[] = {
     {"_newcallback", keycodes_newcallback},
     {"_cachemap", keycodes_cachemap},
     {"currentLayout", keycodes_currentLayout},
+    {"currentLayoutIcon", keycodes_currentLayoutIcon},
     {"layouts", keycodes_layouts},
+    {"methods", keycodes_methods},
     {"setLayout", keycodes_setLayout},
+    {"setMethod", keycodes_setMethod},
+    {"iconForLayoutOrMethod", keycodes_getIcon},
 
     {NULL, NULL}
 };
