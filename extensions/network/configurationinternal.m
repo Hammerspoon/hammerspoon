@@ -21,13 +21,14 @@ typedef struct _dynamicstore_t {
 static void doDynamicStoreCallback(__unused SCDynamicStoreRef store, CFArrayRef changedKeys, void *info) {
     dynamicstore_t *thePtr = (dynamicstore_t *)info ;
     if (thePtr->callbackRef != LUA_NOREF) {
+        NSArray *nsChangedKeys = [(__bridge NSArray *)changedKeys copy];
         dispatch_async(dispatch_get_main_queue(), ^{
             LuaSkin   *skin = [LuaSkin shared] ;
             lua_State *L    = [skin L] ;
             [skin pushLuaRef:refTable ref:thePtr->callbackRef] ;
             [skin pushLuaRef:refTable ref:thePtr->selfRef] ;
             if (changedKeys) {
-                [skin pushNSObject:(__bridge NSArray *)changedKeys] ;
+                [skin pushNSObject:nsChangedKeys] ;
             } else {
                 lua_pushnil(L) ;
             }
