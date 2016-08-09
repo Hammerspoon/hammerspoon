@@ -99,6 +99,7 @@ static HSURLEventHandler *eventHandler;
 
     if ([openUrl hasPrefix:@"/"]) {
         openUrl = [NSString stringWithFormat:@"file://%@", openUrl];
+        openUrl = [openUrl stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];        
     }
 
     // Split the URL into its components
