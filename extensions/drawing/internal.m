@@ -42,6 +42,7 @@ NSMutableArray *drawingWindows;
         self.hidesOnDeactivate  = NO;
         self.animationBehavior = NSWindowAnimationBehaviorNone;
         self.level = NSScreenSaverWindowLevel;
+        self.accessibilitySubrole = @"hammerspoonDrawing" ;
     }
     return self;
 }
