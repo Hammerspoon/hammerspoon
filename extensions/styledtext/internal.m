@@ -1567,7 +1567,7 @@ static id table_toNSFont(lua_State *L, int idx) {
              withMessage:[NSString stringWithFormat:@"invalid font specified: %@", theName]
             fromStackPos:1] ;
 
-        return [[NSFont systemFontOfSize:0] fontName];
+        return [NSFont systemFontOfSize:0] ;
     }
 }
 
