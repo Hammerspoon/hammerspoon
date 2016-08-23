@@ -11,7 +11,7 @@ local modal_hotkey = hotkey.modal
 --- hs.hints.hintChars
 --- Variable
 --- This controls the set of characters that will be used for window hints. They must be characters found in hs.keycodes.map
---- The default is the letters A-Z.
+--- The default is the letters A-Z. Note that if `hs.hints.style` is set to "vimperator", this variable will be ignored.
 hints.hintChars = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
 
 -- vimperator mode requires to use full set of alphabet to represent applications.
