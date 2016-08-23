@@ -37,6 +37,11 @@ hints.fontSize = 0.0
 --- The default is 4. Setting to 0 will disable this feature.
 hints.showTitleThresh = 4
 
+--- hs.hints.titleMaxSize
+--- Variable
+--- If the title is longer than maxSize, the string is truncated, -1 to disable, valid value is >= 6
+hints.titleMaxSize = -1
+
 local openHints = {}
 local takenPositions = {}
 local hintDict = {}
@@ -50,7 +55,6 @@ local invalidWindowRoles = {
    AXScrollArea = true, --This excludes the main finder window.
    AXUnknown = true
 }
-
 
 function isValidWindow(win, allowNonStandard)
    if not allowNonStandard then
@@ -128,7 +132,12 @@ function hints.displayHintsForDict(dict, prefixstring, showTitles, allowNonStand
         else
           local suffixString = ""
           if showTitles then
-            suffixString = ": "..win:title()
+            local win_title = win:title()
+            if hints.titleMaxSize > 1 and #win_title > hints.titleMaxSize then
+                local end_idx = math.max(0, hints.titleMaxSize-3)
+                win_title = string.sub(win_title, 1, end_idx) .. "..."
+            end
+            suffixString = ": "..win_title
           end
           -- print(win:title().." x:"..c.x.." y:"..c.y) -- debugging
           local hint = hints.new(c.x, c.y, prefixstring .. key .. suffixString, app:bundleID(), win:screen(), hints.fontName, hints.fontSize)
