@@ -178,6 +178,13 @@
 		4FEF4D4F1C5FA01100E3B939 /* HSaudiodevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */; };
 		4FEF4D551C5FBC0F00E3B939 /* test_audiodevice.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */; };
 		4FEF59431B29A352002344A7 /* HSGrowingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FEF59421B29A352002344A7 /* HSGrowingTextField.m */; };
+		6AE181221D36E90B0097211C /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
+		6AE181281D36E9260097211C /* detectors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6AE181161D36E8E50097211C /* detectors.cpp */; };
+		6AE1812A1D36E9260097211C /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE181191D36E8E50097211C /* internal.m */; };
+		6AE1812C1D36E9600097211C /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AE1812B1D36E9600097211C /* Accelerate.framework */; };
+		6AE1812E1D36E96A0097211C /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AE1812D1D36E96A0097211C /* CoreAudio.framework */; };
+		6AE181321D39C8F10097211C /* HSnoises.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AE181311D39C8F10097211C /* HSnoises.m */; };
+		6AE181341D39C9570097211C /* test_noises.lua in Resources */ = {isa = PBXBuildFile; fileRef = 6AE181331D39C9570097211C /* test_noises.lua */; };
 		9409203119A5940600B9964E /* MJVersionUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9409203019A5940600B9964E /* MJVersionUtils.m */; };
 		9422ACBD19B6163800F06A90 /* MJConfigUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9422ACBC19B6163800F06A90 /* MJConfigUtils.m */; };
 		942BF3911989E18600983892 /* MJAutoLaunch.m in Sources */ = {isa = PBXBuildFile; fileRef = 942BF3901989E18600983892 /* MJAutoLaunch.m */; };
@@ -643,6 +650,13 @@
 			remoteGlobalIDString = 4FDE05E31B734EE600E9E8EE;
 			remoteInfo = caffeinatewatcher;
 		};
+		6AE1812F1D36E9A30097211C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9445CA0319083251002568BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6AE1811E1D36E90B0097211C;
+			remoteInfo = noises;
+		};
 		D02F952A1A00221C00E28BB2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9445CA0319083251002568BB /* Project object */;
@@ -1008,6 +1022,16 @@
 		4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_audiodevice.lua; path = extensions/audiodevice/test_audiodevice.lua; sourceTree = "<group>"; };
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
+		6AE181161D36E8E50097211C /* detectors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = detectors.cpp; path = extensions/noises/detectors.cpp; sourceTree = "<group>"; };
+		6AE181171D36E8E50097211C /* detectors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = detectors.h; path = extensions/noises/detectors.h; sourceTree = "<group>"; };
+		6AE181181D36E8E50097211C /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/noises/init.lua; sourceTree = "<group>"; };
+		6AE181191D36E8E50097211C /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/noises/internal.m; sourceTree = "<group>"; };
+		6AE1811A1D36E8E50097211C /* popTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = popTemplate.h; path = extensions/noises/popTemplate.h; sourceTree = "<group>"; };
+		6AE181271D36E90B0097211C /* libnoises.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libnoises.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		6AE1812B1D36E9600097211C /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		6AE1812D1D36E96A0097211C /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		6AE181311D39C8F10097211C /* HSnoises.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSnoises.m; sourceTree = "<group>"; };
+		6AE181331D39C9570097211C /* test_noises.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_noises.lua; path = extensions/noises/test_noises.lua; sourceTree = "<group>"; };
 		87010C0F3DDC1CD8B3C95BA2 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9409202F19A5940600B9964E /* MJVersionUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJVersionUtils.h; sourceTree = "<group>"; };
 		9409203019A5940600B9964E /* MJVersionUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJVersionUtils.m; sourceTree = "<group>"; };
@@ -1551,6 +1575,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FDE05EA1B734EE600E9E8EE /* LuaSkin.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6AE181211D36E90B0097211C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6AE1812E1D36E96A0097211C /* CoreAudio.framework in Frameworks */,
+				6AE1812C1D36E9600097211C /* Accelerate.framework in Frameworks */,
+				6AE181221D36E90B0097211C /* LuaSkin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2126,6 +2160,7 @@
 		4F98506D1B722C4100F7E909 /* extensions */ = {
 			isa = PBXGroup;
 			children = (
+				6AE181151D36E8BE0097211C /* noises */,
 				4F6689DF1C2852A100E48AF1 /* _coresetup */,
 				4F64D8BC1B724C3A00FC4C65 /* alert */,
 				4FDE05F71B73568E00E9E8EE /* appfinder */,
@@ -2501,6 +2536,19 @@
 			name = expose;
 			sourceTree = "<group>";
 		};
+		6AE181151D36E8BE0097211C /* noises */ = {
+			isa = PBXGroup;
+			children = (
+				6AE181331D39C9570097211C /* test_noises.lua */,
+				6AE181161D36E8E50097211C /* detectors.cpp */,
+				6AE181171D36E8E50097211C /* detectors.h */,
+				6AE181181D36E8E50097211C /* init.lua */,
+				6AE181191D36E8E50097211C /* internal.m */,
+				6AE1811A1D36E8E50097211C /* popTemplate.h */,
+			);
+			name = noises;
+			sourceTree = "<group>";
+		};
 		9355653F3195B4626B60867A /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -2621,6 +2669,7 @@
 				4F85FED81CCA918D00FBBAD7 /* libdistributednotifications.dylib */,
 				D6B946521D139C7D00177E0C /* libwebviewdatastore.dylib */,
 				D6B9465E1D139CC500177E0C /* libwebviewtoolbar.dylib */,
+				6AE181271D36E90B0097211C /* libnoises.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2628,6 +2677,8 @@
 		9445CA0D19083251002568BB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6AE1812D1D36E96A0097211C /* CoreAudio.framework */,
+				6AE1812B1D36E9600097211C /* Accelerate.framework */,
 				4CBF1C671C91154700B861CE /* libedit.tbd */,
 				4F9850E81B722CBF00F7E909 /* LuaSkin.framework */,
 				4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */,
@@ -2702,6 +2753,7 @@
 			isa = PBXGroup;
 			children = (
 				4FDD8E511C83612C00085D7A /* HSalert.m */,
+				6AE181311D39C8F10097211C /* HSnoises.m */,
 				4FDD8E8E1C8DED1C00085D7A /* HSappfinder.m */,
 				4C403D631CBE5B9F00EE20ED /* HSapplication.m */,
 				4FEF4D4E1C5FA01000E3B939 /* HSaudiodevice.m */,
@@ -3225,6 +3277,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4FDE05EB1B734EE600E9E8EE /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6AE181231D36E90B0097211C /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4292,6 +4351,23 @@
 			productReference = 4FDE05EF1B734EE600E9E8EE /* libcaffeinatewatcher.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		6AE1811E1D36E90B0097211C /* noises */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6AE181241D36E90B0097211C /* Build configuration list for PBXNativeTarget "noises" */;
+			buildPhases = (
+				6AE1811F1D36E90B0097211C /* Sources */,
+				6AE181211D36E90B0097211C /* Frameworks */,
+				6AE181231D36E90B0097211C /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = noises;
+			productName = alert;
+			productReference = 6AE181271D36E90B0097211C /* libnoises.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		9445CA0A19083251002568BB /* Hammerspoon */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hammerspoon" */;
@@ -4313,6 +4389,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				6AE181301D36E9A30097211C /* PBXTargetDependency */,
 				D6B946611D139D1600177E0C /* PBXTargetDependency */,
 				D6B946631D139D1600177E0C /* PBXTargetDependency */,
 				D64964961CCB34120074540B /* PBXTargetDependency */,
@@ -4709,6 +4786,7 @@
 				D6477C0A1C5ED5D000F67BBC /* networkconfiguration */,
 				D6477C2D1C5ED83C00F67BBC /* networkhost */,
 				D6477C1E1C5ED82200F67BBC /* networkreachability */,
+				6AE1811E1D36E90B0097211C /* noises */,
 				4F6B3F021B73E98E00B2A4DE /* notify */,
 				4C3D55B01C7F0A880023B633 /* osascript */,
 				4F6B3F171B73EBB500B2A4DE /* pasteboard */,
@@ -4769,6 +4847,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FDD8E4A1C6E4FA100085D7A /* test_screen.lua in Resources */,
+				6AE181341D39C9570097211C /* test_noises.lua in Resources */,
 				4CB349EF1C7F74AD006F0DE0 /* test_javascript.lua in Resources */,
 				4CD64AAB1C6F168700EB6E39 /* test_socket.lua in Resources */,
 				4FDD8E911C8DEE3700085D7A /* test_appfinder.lua in Resources */,
@@ -5406,6 +5485,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6AE1811F1D36E90B0097211C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6AE181281D36E9260097211C /* detectors.cpp in Sources */,
+				6AE1812A1D36E9260097211C /* internal.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9445CA0719083251002568BB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -5433,6 +5521,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FDD8E8F1C8DED1C00085D7A /* HSappfinder.m in Sources */,
+				6AE181321D39C8F10097211C /* HSnoises.m in Sources */,
 				4FDD8E4E1C834C8100085D7A /* HSbase64.m in Sources */,
 				4FDD8E8D1C8C8BF200085D7A /* HScoresetup.m in Sources */,
 				4FDD8E4C1C6E4FBB00085D7A /* HSscreen.m in Sources */,
@@ -5844,6 +5933,11 @@
 			isa = PBXTargetDependency;
 			target = 4FDE05E31B734EE600E9E8EE /* caffeinatewatcher */;
 			targetProxy = 4FDE05F51B73501800E9E8EE /* PBXContainerItemProxy */;
+		};
+		6AE181301D36E9A30097211C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6AE1811E1D36E90B0097211C /* noises */;
+			targetProxy = 6AE1812F1D36E9A30097211C /* PBXContainerItemProxy */;
 		};
 		D02F952B1A00221C00E28BB2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -13567,6 +13661,150 @@
 			};
 			name = Release;
 		};
+		6AE181251D36E90B0097211C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
+			};
+			name = Debug;
+		};
+		6AE181261D36E90B0097211C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = "$(inherited)";
+				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = "$(inherited)";
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = "$(inherited)";
+				CLANG_WARN_ASSIGN_ENUM = "$(inherited)";
+				CLANG_WARN_BOOL_CONVERSION = "$(inherited)";
+				CLANG_WARN_CONSTANT_CONVERSION = "$(inherited)";
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = "$(inherited)";
+				CLANG_WARN_EMPTY_BODY = "$(inherited)";
+				CLANG_WARN_ENUM_CONVERSION = "$(inherited)";
+				CLANG_WARN_IMPLICIT_SIGN_CONVERSION = "$(inherited)";
+				CLANG_WARN_INT_CONVERSION = "$(inherited)";
+				CLANG_WARN_OBJC_EXPLICIT_OWNERSHIP_TYPE = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = "$(inherited)";
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = "$(inherited)";
+				CLANG_WARN_OBJC_MISSING_PROPERTY_SYNTHESIS = "$(inherited)";
+				CLANG_WARN_OBJC_REPEATED_USE_OF_WEAK = "$(inherited)";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = "$(inherited)";
+				CLANG_WARN_UNREACHABLE_CODE = YES_AGGRESSIVE;
+				CLANG_WARN__ARC_BRIDGE_CAST_NONARC = "$(inherited)";
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = "$(inherited)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				ENABLE_STRICT_OBJC_MSGSEND = "$(inherited)";
+				EXECUTABLE_PREFIX = lib;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_INCOMPATIBLE_POINTER_TYPE_WARNINGS_AS_ERRORS = "$(inherited)";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = "$(inherited)";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_NEWLINE = "$(inherited)";
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = "$(inherited)";
+				GCC_WARN_ABOUT_POINTER_SIGNEDNESS = "$(inherited)";
+				GCC_WARN_ALLOW_INCOMPLETE_PROTOCOL = "$(inherited)";
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = "$(inherited)";
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = "$(inherited)";
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = "$(inherited)";
+				GCC_WARN_MISSING_PARENTHESES = "$(inherited)";
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = "$(inherited)";
+				GCC_WARN_PEDANTIC = "$(inherited)";
+				GCC_WARN_SHADOW = "$(inherited)";
+				GCC_WARN_SIGN_COMPARE = "$(inherited)";
+				GCC_WARN_STRICT_SELECTOR_MATCH = "$(inherited)";
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = "$(inherited)";
+				GCC_WARN_UNDECLARED_SELECTOR = "$(inherited)";
+				GCC_WARN_UNKNOWN_PRAGMAS = "$(inherited)";
+				GCC_WARN_UNUSED_FUNCTION = "$(inherited)";
+				GCC_WARN_UNUSED_LABEL = "$(inherited)";
+				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
+				GCC_WARN_UNUSED_VALUE = "$(inherited)";
+				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				RUN_CLANG_STATIC_ANALYZER = "$(inherited)";
+				SDKROOT = "$(inherited)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				WARNING_CFLAGS = (
+					"-Weverything",
+					"$(inherited)",
+				);
+			};
+			name = Release;
+		};
 		9445CA3A19083251002568BB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -16052,6 +16290,15 @@
 			buildConfigurations = (
 				4FDE05ED1B734EE600E9E8EE /* Debug */,
 				4FDE05EE1B734EE600E9E8EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		6AE181241D36E90B0097211C /* Build configuration list for PBXNativeTarget "noises" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6AE181251D36E90B0097211C /* Debug */,
+				6AE181261D36E90B0097211C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
