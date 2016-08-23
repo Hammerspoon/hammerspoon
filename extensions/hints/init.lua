@@ -14,6 +14,9 @@ local modal_hotkey = hotkey.modal
 --- The default is the letters A-Z.
 hints.hintChars = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
 
+-- vimperator mode requires to use full set of alphabet to represent applications.
+hints.hintCharsVimperator = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
+
 --- hs.hints.style
 --- Variable
 --- If this is set to "vimperator", every window hint starts with the first character
@@ -45,6 +48,7 @@ hints.titleMaxSize = -1
 local openHints = {}
 local takenPositions = {}
 local hintDict = {}
+local hintChars = nil
 local modalKey = nil
 local selectionCallback = nil
 
@@ -79,9 +83,9 @@ function hints.addWindow(dict, win)
     dict['count'] = 0
     n = 0
   end
-  local m = (n % #hints.hintChars) + 1
-  local char = hints.hintChars[m]
-  if n < #hints.hintChars then
+  local m = (n % #hintChars) + 1
+  local char = hintChars[m]
+  if n < #hintChars then
     dict[char] = win
   else
     if type(dict[char]) == "userdata" then
@@ -163,7 +167,7 @@ function hints.processChar(char)
     elseif type(hintDict[char]) == "table" then
       hintDict = hintDict[char]
       if hintDict.count == 1 then
-        toFocus = hintDict.A
+        toFocus = hintDict[hintChars[1]]
       else
         takenPositions = {}
         hints.displayHintsForDict(hintDict, "")
@@ -184,13 +188,13 @@ function hints.setupModal()
   k = modal_hotkey.new(nil, nil)
   k:bind({}, 'escape', function() hints.closeHints(); k:exit() end)
 
-  for _, c in ipairs(hints.hintChars) do
+  for _, c in ipairs(hintChars) do
     k:bind({}, c, function() hints.processChar(c) end)
   end
   return k
 end
 
---- hs.hints.windowHints([windows, callback])
+--- hs.hints.windowHints([windows, callback, allowNonStandard])
 --- Function
 --- Displays a keyboard hint for switching focus to each window
 ---
@@ -209,6 +213,12 @@ end
 ---   * `hs.hints.windowHints(hs.window.focusedWindow():application():allWindows())`
 function hints.windowHints(windows, callback, allowNonStandard)
 
+  if hints.style == "vimperator" then
+    hintChars = hints.hintCharsVimperator
+  else
+    hintChars = hints.hintChars
+  end
+
   windows = windows or window.allWindows()
   selectionCallback = callback
 
@@ -221,14 +231,11 @@ function hints.windowHints(windows, callback, allowNonStandard)
     local app = win:application()
     if app and app:bundleID() and isValidWindow(win, allowNonStandard) then
       if hints.style == "vimperator" then
-        if app and app:bundleID() and win:isStandard() then
-          local appchar = string.upper(string.sub(app:title(), 1, 1))
-          modalKey:bind({}, appchar, function() hints.processChar(appchar) end)
-          if hintDict[appchar] == nil then
-            hintDict[appchar] = {}
-          end
-          hints.addWindow(hintDict[appchar], win)
+        local appchar = string.upper(string.sub(app:title(), 1, 1))
+        if hintDict[appchar] == nil then
+          hintDict[appchar] = {}
         end
+        hints.addWindow(hintDict[appchar], win)
       else
         hints.addWindow(hintDict, win)
       end
