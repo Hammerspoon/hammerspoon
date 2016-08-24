@@ -241,11 +241,18 @@ static int timer_nextTrigger(lua_State *L) {
 ///  * seconds - A number containing the number of seconds after which to trigger the timer
 ///
 /// Returns:
-///  * The `hs.timer` object
+///  * The `hs.timer` object, or nil if an error occurred
 static int timer_setNextTrigger(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
     timerUserData* timer = lua_touserdata(L, 1);
+
+    if (!timer) {
+        [skin logBreadcrumb:@"timer is nil in timer_setNextTrigger. This is a bug"];
+        lua_pushnil(L);
+        return 1;
+    }
+
     double seconds = lua_tonumber(L, 2);
 
     CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + seconds);
