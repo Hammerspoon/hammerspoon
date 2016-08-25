@@ -2,7 +2,7 @@
 ---
 --- Execute AppleScript code
 ---
---- Alias for [hs.osascript.applescript](./hs.osascript.html#applescript)
+--- This module has been replaced by: [hs.osascript.applescript](./hs.osascript.html#applescript)
 
 local module = {}
 

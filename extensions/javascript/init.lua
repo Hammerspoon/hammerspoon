@@ -2,7 +2,7 @@
 ---
 --- Execute JavaScript code
 ---
---- Alias for [hs.osascript.javascript](./hs.osascript.html#javascript)
+--- This module has been replaced by: [hs.osascript.javascript](./hs.osascript.html#javascript)
 
 local module = {}
 
