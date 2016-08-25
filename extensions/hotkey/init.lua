@@ -143,6 +143,19 @@ local function getIndex(mods,keycode) -- key for hotkeys table
   key=key and supper(key) or '[#'..keycode..']'
   return mods..key
 end
+
+local function getFunc(f)
+  if f == nil then return nil end
+  if type(f) == 'function' then return f end
+  if type(f) == 'table' then
+    local m = getmetatable(f)
+    if m and m.__call then
+      return getFunc(m.__call)
+    end
+  end
+  return nil
+end
+
 --- hs.hotkey.new(mods, key, [message,] pressedfn, releasedfn, repeatfn) -> hs.hotkey object
 --- Constructor
 --- Creates a new hotkey
@@ -176,23 +189,26 @@ function hotkey.new(mods, key, message, pressedfn, releasedfn, repeatfn)
   local keycode = getKeycode(key)
   mods = getMods(mods)
   -- message can be omitted
-  if message==nil or type(message)=='function' then
+  if message==nil or getFunc(message) then
     repeatfn=releasedfn releasedfn=pressedfn pressedfn=message message=nil -- shift down arguments
   end
-  if type(pressedfn)~='function' and type(releasedfn)~='function' and type(repeatfn)~='function' then
+  local f_pressedfn = getFunc(pressedfn)
+  local f_releasedfn = getFunc(releasedfn)
+  local f_repeatfn = getFunc(repeatfn)
+  if not f_pressedfn and not f_releasedfn and not f_repeatfn then
     error('At least one of pressedfn, releasedfn or repeatfn must be a function',2) end
   if type(message)~='string' then message=nil end
   local idx = getIndex(mods,keycode)
   local msg=(message and #message>0) and idx..': '..message or idx
   if message then
-    local actualfn=pressedfn or releasedfn or repeatfn -- which function will be wrapped to provide an alert (the first valid one)
+    local actualfn=f_pressedfn or f_releasedfn or f_repeatfn -- which function will be wrapped to provide an alert (the first valid one)
     local fnalert=function()alert(msg,hotkey.alertDuration or 0)actualfn()end -- wrapper
-    if pressedfn then pressedfn=fnalert -- substitute 'actualfn' with wrapper
-    elseif releasedfn then releasedfn=fnalert
-    elseif repeatfn then repeatfn=fnalert end
+    if f_pressedfn then f_pressedfn=fnalert -- substitute 'actualfn' with wrapper
+    elseif f_releasedfn then f_releasedfn=fnalert
+    elseif f_repeatfn then f_repeatfn=fnalert end
   end
   -- the lightweight hotkey object; _hk=objc userdata; then msg, idx, and the methods
-  local hk = {_hk=hotkey._new(mods, keycode, pressedfn, releasedfn, repeatfn),enable=enable,disable=disable,delete=delete,msg=msg,idx=idx}
+  local hk = {_hk=hotkey._new(mods, keycode, f_pressedfn, f_releasedfn, f_repeatfn),enable=enable,disable=disable,delete=delete,msg=msg,idx=idx}
   log.v('Created hotkey for '..idx)
   local h = hotkeys[idx] or {} -- create stack if this is the first hotkey for a given key combo
   h[#h+1] = hk -- go on top of the stack
