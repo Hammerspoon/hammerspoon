@@ -189,7 +189,7 @@ local l = function(loglevel,lvl,id,...)
   if histSize>0 or loglevel>=lvl then return lf(loglevel,lvl,id,srep('%s',select('#',...),' '),...) end
 end
 
-logger.idlength=function(len)
+logger.idLength=function(len)
   if len==nil then return idlen end
   if type(len)~='number' or len<4 then error('len must be a number >=4',2)end
   len=min(len,40) idlen=len
