@@ -218,6 +218,9 @@ static void extractHeadersFromStack(lua_State* L, int index, NSMutableURLRequest
 ///
 /// Returns:
 ///  * None
+///
+/// Notes:
+///  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
 static int http_doAsyncRequest(lua_State* L){
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL, LS_TTABLE|LS_TNIL, LS_TFUNCTION, LS_TBREAK];
@@ -262,7 +265,10 @@ static int http_doAsyncRequest(lua_State* L){
 ///  * A table containing the response headers
 ///
 /// Notes:
+///  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
+///
 ///  * This function is synchronous and will therefore block all Lua execution until it completes. You are encouraged to use the asynchronous functions.
+///  * If you attempt to connect to a local Hammerspoon server created with `hs.httpserver`, then Hammerspoon will block until the connection times out (60 seconds), return a failed result due to the timeout, and then the `hs.httpserver` callback function will be invoked (so any side effects of the function will occur, but it's results will be lost).  Use [hs.http.doAsyncRequest](#doAsyncRequest) to avoid this.
 static int http_doRequest(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TSTRING|LS_TNIL|LS_TOPTIONAL, LS_TTABLE|LS_TNIL|LS_TOPTIONAL, LS_TBREAK];
