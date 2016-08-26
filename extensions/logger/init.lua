@@ -116,6 +116,26 @@ logger.history=function()
   return history
 end
 
+local formatID = function(theID)
+  if utf8.len(theID) > idlen then
+    if logger.truncateID == "head" then
+      theID = ssub(theID, -idlen)
+      if logger.truncateIDWithEllipsis then
+          theID = "…" .. ssub(theID, 2)
+      end
+    else
+      theID = ssub(theID, 1, idlen)
+      if logger.truncateIDWithEllipsis then
+          theID = ssub(theID, 1, idlen - 1) .. "…"
+      end
+    end
+    theID = theID .. ":"
+  else
+    theID = sformat(idf,theID)
+  end
+  return theID
+end
+
 --- hs.logger.printHistory([entries[, level[, filter[, caseSensitive]]]])
 --- Function
 --- Prints the global log history to the console
@@ -144,7 +164,8 @@ logger.printHistory=function(entries,lvl,flt,case)
   end
   for i=max(1,#filt-entries+1),#filt do
     local e=filt[i]
-    printf('%s %s%s %s%s',date('%X',e.time),LEVELFMT[e.level][1],sformat(idf,e.id),LEVELFMT[e.level][2],e.message)
+    printf('%s %s%s %s%s',date('%X',e.time),LEVELFMT[e.level][1],formatID(e.id),LEVELFMT[e.level][2],e.message)
+--     printf('%s %s%s %s%s',date('%X',e.time),LEVELFMT[e.level][1],sformat(idf,e.id),LEVELFMT[e.level][2],e.message)
   end
 end
 
@@ -155,7 +176,8 @@ local lf = function(loglevel,lvl,id,fmt,...)
   local msg=sformat(fmt,...)
   if histSize>0 then store({time=ct,level=lvl,id=id,message=msg}) end
   if loglevel<lvl then return end
-  id=sformat(idf,id)
+  id=formatID(id)
+--   id=sformat(idf,id)
   local stime = timeempty
   if ct-lasttime>0 or lvl<3 then stime=date('%X') lasttime=ct end
   if id==lastid and lvl>3 then id=idempty else lastid=id end
@@ -167,13 +189,16 @@ local l = function(loglevel,lvl,id,...)
   if histSize>0 or loglevel>=lvl then return lf(loglevel,lvl,id,srep('%s',select('#',...),' '),...) end
 end
 
-logger.idLength=function(len)
+logger.idlength=function(len)
   if len==nil then return idlen end
   if type(len)~='number' or len<4 then error('len must be a number >=4',2)end
   len=min(len,40) idlen=len
   idf='%'..len..'.'..len..'s:'
   idempty=srep(' ',len+1)
 end
+
+logger.truncateID = "tail"
+logger.truncateIDWithEllipsis = false
 
 --- hs.logger.defaultLogLevel
 --- Variable
