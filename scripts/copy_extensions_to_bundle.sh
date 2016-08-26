@@ -3,8 +3,7 @@ set -eux
 
 export HS_RESOURCES="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}"
 export HS_DST="${HS_RESOURCES}/extensions/hs"
-export HS_MODULES="alert \
-    application \
+export HS_MODULES="application \
     audiodevice \
     base64 \
     battery \
@@ -60,6 +59,7 @@ export HS_WATCHERS="application \
     usb \
     wifi"
 export HS_LUAONLY="_coresetup \
+    alert \
     appfinder \
     applescript \
     expose \
