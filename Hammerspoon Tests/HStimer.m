@@ -86,6 +86,11 @@
     XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testWaitWhileStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer.waitWhile test failed");
 }
 
+- (void)testNonRunning {
+    XCTAssertFalse([self luaTestWithCheckAndTimeOut:5 setupCode:@"testNeverStart()" checkCode:@"testTimerValueCheck()"],
+        @"hs.timer non-running test failed");
+}
+
 - (void)testNew {
     RUN_LUA_TEST()
 }

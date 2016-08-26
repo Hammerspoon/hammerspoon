@@ -7,56 +7,88 @@
 static const char *USERDATA_TAG = "hs.timer";
 static int refTable;
 
+#define get_objectFromUserdata(objType, L, idx, tag) (objType*)*((void**)luaL_checkudata(L, idx, tag))
+
 // Not so common code
 
-typedef struct _timerUserData {
-    CFRunLoopTimerRef t;
-    int fn;
-    BOOL started;
-    BOOL continueOnError;
-} timerUserData;
+@interface HSTimer : NSObject
+@property NSTimer *t;
+@property int fnRef;
+@property BOOL continueOnError;
 
-static void timerCallback(CFRunLoopTimerRef timer, void *info) {
-    timerUserData* t = info;
+- (void)callback:(NSTimer *)timer;
+- (BOOL)isRunning;
+- (void)start;
+- (void)stop;
+- (int)nextTrigger;
+- (void)setNextTrigger:(NSTimeInterval)interval;
+@end
 
+@implementation HSTimer
+- (void)callback:(NSTimer *)timer {
     LuaSkin *skin = [LuaSkin shared];
-    lua_State *L = skin.L;
-
-    if (!t) {
+    
+    if (!timer.isValid) {
         [skin logBreadcrumb:@"hs.timer callback fired on an invalid hs.timer object. This is a bug"];
         return;
     }
-    if (!CFEqual(timer, t->t)) {
-        [skin logBreadcrumb:[NSString stringWithFormat:@"%s:timer argument and info->t differ", USERDATA_TAG]] ;
+    
+    if (timer != self.t) {
+        [skin logBreadcrumb:@"hs.timer callback fired with inconsistencies about which NSTimer object it owns. This is a bug"];
     }
-
-    [skin pushLuaRef:refTable ref:t->fn];
+    
+    [skin pushLuaRef:refTable ref:self.fnRef];
     if (![skin protectedCallAndTraceback:0 nresults:0]) {
-        const char *errorMsg = lua_tostring(L, -1);
+        const char *errorMsg = lua_tostring(skin.L, -1);
         [skin logBreadcrumb:[NSString stringWithFormat:@"hs.timer callback error: %s", errorMsg]];
         [skin logError:[NSString stringWithFormat:@"hs.timer callback error: %s", errorMsg]];
-        lua_pop(L, 1) ; // clear message from stack
-        if (!t->continueOnError) {
+        lua_pop(skin.L, 1); // clear error message from stack
+        if (!self.continueOnError) {
             // some details about the timer to help identify which one it is:
-            Boolean        doesRepeat = CFRunLoopTimerDoesRepeat(t->t) ;
-            CFTimeInterval interval   = CFRunLoopTimerGetInterval(t->t) ; // double
-            CFAbsoluteTime nextFire   = CFRunLoopTimerGetNextFireDate(t->t) ; // double
-
-            CFRunLoopRemoveTimer(CFRunLoopGetMain(), t->t, kCFRunLoopCommonModes);
             [skin logBreadcrumb:@"hs.timer callback failed. The timer has been stopped to prevent repeated notifications of the error."];
-
-            CFLocaleRef locale = CFLocaleCopyCurrent();
-            CFDateFormatterRef formatter = CFDateFormatterCreate(kCFAllocatorDefault, locale, kCFDateFormatterFullStyle, kCFDateFormatterFullStyle);
-            CFDateRef date = CFDateCreate(kCFAllocatorDefault, nextFire);
-            CFStringRef dateAsString = CFDateFormatterCreateStringWithDate (kCFAllocatorDefault, formatter, date);
-
-            [skin logBreadcrumb:[NSString stringWithFormat:@"   timer details: %s repeating, every %f seconds, next scheduled at %@", (doesRepeat ? "is" : "is not"), interval, (__bridge NSString *)dateAsString]] ;
-
-            CFRelease(dateAsString) ; CFRelease(date) ; CFRelease(formatter) ; CFRelease(locale) ;
-
+            [skin logBreadcrumb:[NSString stringWithFormat:@"  timer details: %s repeating, every %f seconds, next scheduled at %@", CFRunLoopTimerDoesRepeat((__bridge CFRunLoopTimerRef)self.t) ? "is" : "is not", self.t.timeInterval, self.t.fireDate]];
+            [self.t invalidate];
         }
     }
+}
 
+- (BOOL)isRunning {
+    return CFRunLoopContainsTimer(CFRunLoopGetCurrent(), (__bridge CFRunLoopTimerRef)self.t, kCFRunLoopDefaultMode);
+}
+
+- (void)start {
+    if (self.t.isValid) {
+        [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSDefaultRunLoopMode];
+    }
+}
+
+- (void)stop {
+    if (self.t.isValid) {
+        [self.t invalidate];
+    }
+}
+
+- (int)nextTrigger {
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    CFAbsoluteTime next = CFRunLoopTimerGetNextFireDate((__bridge CFRunLoopTimerRef)self.t);
+
+    return (next - now);
+}
+
+- (void)setNextTrigger:(NSTimeInterval)interval {
+    if (self.t.isValid) {
+        self.t.fireDate = [NSDate dateWithTimeIntervalSinceNow:interval];
+    }
+}
+@end
+
+HSTimer *createHSTimer(NSTimeInterval interval, int callbackRef, BOOL continueOnError, BOOL repeat) {
+    HSTimer *timer = [[HSTimer alloc] init];
+    timer.fnRef = callbackRef;
+    timer.continueOnError = continueOnError;
+    timer.t = [NSTimer timerWithTimeInterval:interval target:timer selector:@selector(callback:) userInfo:nil repeats:repeat];
+
+    return timer;
 }
 
 /// hs.timer.new(interval, fn [, continueOnError]) -> timer
@@ -78,24 +110,25 @@ static int timer_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TNUMBER, LS_TFUNCTION, LS_TBOOLEAN | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
 
+    // Fetch the timer configuration from Lua arguments
     NSTimeInterval sec = lua_tonumber(L, 1);
-
-    timerUserData* timer = lua_newuserdata(L, sizeof(timerUserData));
-    memset(timer, 0, sizeof(timerUserData));
-
     lua_pushvalue(L, 2);
-    timer->fn = [skin luaRef:refTable];
-    if (lua_isboolean(L, 3))
-        timer->continueOnError = (BOOL)lua_toboolean(L, 3) ;
-    else
-        timer->continueOnError = NO ;
+    int callbackRef = [skin luaRef:refTable];
 
+    BOOL continueOnError;
+    if (lua_isboolean(L, 3))
+        continueOnError = (BOOL)lua_toboolean(L, 3) ;
+    else
+        continueOnError = NO ;
+
+    // Create the timer object
+    HSTimer *timer = createHSTimer(sec, callbackRef, continueOnError, YES);
+
+    // Wire up the timer object to Lua
+    void **userData = lua_newuserdata(L, sizeof(HSTimer*));
+    *userData = (__bridge_retained void*)timer;
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
-
-    CFRunLoopTimerContext ctx = {0, timer, NULL, NULL, NULL};
-//    ctx.info = timer;
-    timer->t = CFRunLoopTimerCreate(NULL, 0, sec, 0, 0, timerCallback, &ctx);
 
     return 1;
 }
@@ -117,14 +150,12 @@ static int timer_start(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
 
-    timerUserData* timer = lua_touserdata(L, 1);
+    HSTimer* timer = get_objectFromUserdata(__bridge HSTimer, L, 1, USERDATA_TAG);
     lua_settop(L, 1);
 
-    if (timer->started) return 1;
-    timer->started = YES;
+    if (![timer isRunning])
+        [timer start];
 
-    CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + CFRunLoopTimerGetInterval(timer->t));
-    CFRunLoopAddTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes);
     return 1;
 }
 
@@ -140,30 +171,29 @@ static int timer_start(lua_State* L) {
 ///  * An `hs.timer` object
 ///
 /// Notes:
+///  * There is no need to call `:start()` on the returned object, the timer will be already running.
 ///  * The callback can be cancelled by calling the `:stop()` method on the returned object before `sec` seconds have passed.
-///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.
 static int timer_doAfter(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TNUMBER, LS_TFUNCTION, LS_TBREAK];
 
+    // Fetch the timer configuration from Lua arguments
     NSTimeInterval sec = lua_tonumber(L, 1);
-
-    timerUserData* timer = lua_newuserdata(L, sizeof(timerUserData));
-    memset(timer, 0, sizeof(timerUserData));
-
     lua_pushvalue(L, 2);
-    timer->fn = [skin luaRef:refTable];
+    int callbackRef = [skin luaRef:refTable];
 
+    // Create the timer object
+    HSTimer *timer = createHSTimer(sec, callbackRef, NO, NO);
+
+    // Immediately start it
+    [timer start];
+
+    // Wire up the timer object to Lua
+    void **userData = lua_newuserdata(L, sizeof(HSTimer*));
+    *userData = (__bridge_retained void*)timer;
     luaL_getmetatable(L, USERDATA_TAG);
     lua_setmetatable(L, -2);
 
-    CFRunLoopTimerContext ctx = {0, timer, NULL, NULL, NULL};
-//    ctx.info = timer;
-    timer->t = CFRunLoopTimerCreate(NULL, 0, 0, 0, 0, timerCallback, &ctx);
-    timer->started = YES;
-
-    CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + sec);
-    CFRunLoopAddTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes);
     return 1;
 }
 
@@ -200,9 +230,10 @@ static int timer_usleep(lua_State* L) {
 static int timer_running(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timerUserData* timer = lua_touserdata(L, 1);
+    HSTimer *timer = get_objectFromUserdata(__bridge HSTimer, L, 1, USERDATA_TAG);
 
-    lua_pushboolean(L, CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes));
+    lua_pushboolean(L, [timer isRunning]);
+
     return 1;
 }
 
@@ -223,12 +254,9 @@ static int timer_running(lua_State* L) {
 static int timer_nextTrigger(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timerUserData* timer = lua_touserdata(L, 1);
+    HSTimer *timer = get_objectFromUserdata(__bridge HSTimer, L, 1, USERDATA_TAG);
 
-    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
-    CFAbsoluteTime next = CFRunLoopTimerGetNextFireDate(timer->t);
-
-    lua_pushnumber(L, next - now);
+    lua_pushnumber(L, [timer nextTrigger]);
 
     return 1;
 }
@@ -245,17 +273,10 @@ static int timer_nextTrigger(lua_State *L) {
 static int timer_setNextTrigger(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
-    timerUserData* timer = lua_touserdata(L, 1);
+    HSTimer *timer = get_objectFromUserdata(__bridge HSTimer, L, 1, USERDATA_TAG);
 
-    if (!timer) {
-        [skin logBreadcrumb:@"timer is nil in timer_setNextTrigger. This is a bug"];
-        lua_pushnil(L);
-        return 1;
-    }
-
-    double seconds = lua_tonumber(L, 2);
-
-    CFRunLoopTimerSetNextFireDate(timer->t, CFAbsoluteTimeGetCurrent() + seconds);
+    NSTimeInterval seconds = (NSTimeInterval)lua_tonumber(L, 2);
+    [timer setNextTrigger:seconds];
 
     lua_pushvalue(L, 1);
     return 1;
@@ -273,35 +294,22 @@ static int timer_setNextTrigger(lua_State *L) {
 static int timer_stop(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timerUserData* timer = lua_touserdata(L, 1);
+    HSTimer *timer = get_objectFromUserdata(__bridge HSTimer, L, 1, USERDATA_TAG);
     lua_settop(L, 1);
 
-    if (!timer->started) return 1;
-    timer->started = NO;
+    [timer stop];
 
-    CFRunLoopRemoveTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes);
     return 1;
 }
 
 static int timer_gc(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
-    timerUserData* timer = luaL_checkudata(L, 1, USERDATA_TAG);
+    HSTimer *timer = get_objectFromUserdata(__bridge_transfer HSTimer, L, 1, USERDATA_TAG);
 
     if (timer) {
-        timer->fn = [skin luaUnref:refTable ref:timer->fn];
-
-        timer->started = NO;
-
-        if (CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes)) {
-            CFRunLoopRemoveTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes);
-        }
-
-        if (CFRunLoopTimerIsValid(timer->t)) {
-            CFRunLoopTimerInvalidate(timer->t);
-        }
-
-        CFRelease(timer->t);
-        timer->t = nil;
+        [timer stop];
+        timer.fnRef = [skin luaUnref:refTable ref:timer.fnRef];
+        timer.t = nil;
         timer = nil;
     }
 
@@ -319,15 +327,15 @@ static int meta_gc(lua_State* __unused L) {
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-    timerUserData* timer = lua_touserdata(L, 1);
+    HSTimer *timer = get_objectFromUserdata(__bridge HSTimer, L, 1, USERDATA_TAG);
     NSString* title ;
 
-    if (!timer->t || !CFRunLoopTimerIsValid(timer->t)) {
-        title = @"invalid";
-    } else if (CFRunLoopContainsTimer(CFRunLoopGetMain(), timer->t, kCFRunLoopCommonModes)) {
+    if (!timer.t) {
+        title = @"BUG ENCOUNTERED, hs.timer tostring found timer.t nil";
+    } else if ([timer isRunning]) {
         title = @"running";
     } else {
-        title = @"stopped";
+        title = @"not running";
     }
 
     lua_pushstring(L, [[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, title, lua_topointer(L, 1)] UTF8String]) ;

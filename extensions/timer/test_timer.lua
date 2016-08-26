@@ -70,6 +70,8 @@ function testUsleep()
   local afterTime = os.time()
 
   assertGreaterThan(beforeTime, afterTime)
+  assertGreaterThanOrEqualTo(4, afterTime - beforeTime)
+  assertLessThanOrEqualTo(6, afterTime - beforeTime)
 
   return success()
 end
@@ -109,6 +111,7 @@ function testDoEveryStart()
   testTimerValue = 0
 
   testTimer = hs.timer.doEvery(1, function()
+                                    assertIsEqual("number", type(testTimerValue))
                                     if type(testTimerValue) == "number" then
                                       if testTimerValue > 3 then
                                         print("..reached testTimerValue threshold")
@@ -206,6 +209,9 @@ end
 
 function testToString()
   assertIsString(tostring(hs.timer.new(1, function() end)))
+  assertIsString(tostring(hs.timer.new(1, function() end):start()))
+  assertIsString(tostring(hs.timer.new(1, function() end):start():stop()))
+  assertIsString(tostring(hs.timer.doAfter(1, function() end):stop()))
   return success()
 end
 
@@ -222,16 +228,23 @@ function testRunningAndStartStop()
 end
 
 function testTriggers()
-  local timer = hs.timer.new(10, function() end)
+  local timer = hs.timer.new(10, function() print("THIS SHOULD NEVER PRINT") assertFalse(True) end)
   assertIsUserdataOfType("hs.timer", timer)
   assertFalse(timer:running())
-  assertLessThan(0, timer:nextTrigger())
   timer:start()
   assertGreaterThan(8, timer:nextTrigger())
   assertLessThanOrEqualTo(10, timer:nextTrigger())
   timer:setNextTrigger(100)
   assertGreaterThan(98, timer:nextTrigger())
   assertLessThanOrEqualTo(100, timer:nextTrigger())
+
+  return success()
+end
+
+function testNeverStart()
+  -- This test ensures that a timer doesn't automatically start running without being :start()ed
+  testTimerValue = False
+  testTimer = hs.timer.new(1, function() testTimerValue = True end)
 
   return success()
 end
