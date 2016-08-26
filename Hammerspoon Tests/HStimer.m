@@ -107,4 +107,8 @@
     RUN_LUA_TEST()
 }
 
+- (void)testImmediateFire {
+    XCTAssertTrue([self luaTestWithCheckAndTimeOut:5 setupCode:@"testImmediateFireStart()" checkCode:@"testTimerValueCheck()"], @"hs.timer:fire test failed");
+}
+
 @end

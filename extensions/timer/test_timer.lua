@@ -244,7 +244,15 @@ end
 function testNeverStart()
   -- This test ensures that a timer doesn't automatically start running without being :start()ed
   testTimerValue = False
-  testTimer = hs.timer.new(1, function() testTimerValue = True end)
+  testTimer = hs.timer.new(1, function() testTimerValue = true end)
+
+  return success()
+end
+
+function testImmediateFireStart()
+  testTimer = hs.timer.new(1000, function() testTimerValue = true end)
+  testTimer:start()
+  testTimer:fire()
 
   return success()
 end

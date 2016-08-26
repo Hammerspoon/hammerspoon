@@ -22,6 +22,7 @@ static int refTable;
 - (void)stop;
 - (int)nextTrigger;
 - (void)setNextTrigger:(NSTimeInterval)interval;
+- (void)trigger;
 @end
 
 @implementation HSTimer
@@ -80,6 +81,12 @@ static int refTable;
         self.t.fireDate = [NSDate dateWithTimeIntervalSinceNow:interval];
     }
 }
+
+- (void)trigger {
+    if (self.t.isValid) {
+        [self.t fire];
+    }
+}
 @end
 
 HSTimer *createHSTimer(NSTimeInterval interval, int callbackRef, BOOL continueOnError, BOOL repeat) {
@@ -96,16 +103,15 @@ HSTimer *createHSTimer(NSTimeInterval interval, int callbackRef, BOOL continueOn
 /// Creates a new `hs.timer` object for repeating interval callbacks
 ///
 /// Parameters:
-///  * interval - A number of seconds between triggers
-///  * fn - A function to call every time the timer triggers
-///  * continueOnError - an optional boolean flag, defaulting to false, which indicates that the timer should not be automatically stopped if the callback function results in an error.
+///  * interval - A number of seconds between firings of the timer
+///  * fn - A function to call every time the timer fires
+///  * continueOnError - An optional boolean, true if the timer should continue to be triggered after the callback function has produced an error, false if the timer should stop being triggered after the callback function has produced an error. Defaults to false.
 ///
 /// Returns:
 ///  * An `hs.timer` object
 ///
 /// Notes:
 ///  * The returned object does not start its timer until its `:start()` method is called
-///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.  This can be overriden for this constructor by passing in true for continueOnError.
 static int timer_new(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TNUMBER, LS_TFUNCTION, LS_TBOOLEAN | LS_TNIL | LS_TOPTIONAL, LS_TBREAK];
@@ -144,8 +150,8 @@ static int timer_new(lua_State* L) {
 ///  * The `hs.timer` object
 ///
 /// Notes:
-///  * The timer will not call the callback immediately, it waits until the first trigger of the timer
-///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications.
+///  * The timer will not call the callback immediately, the timer will wait until it fires
+///  * If the callback function results in an error, the timer will be stopped to prevent repeated error notifications (see the `continueOnError` parameter to `hs.timer.new()` to override this)
 static int timer_start(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -165,7 +171,7 @@ static int timer_start(lua_State* L) {
 ///
 /// Parameters:
 ///  * sec - A number of seconds to wait before calling the function
-///  * fn - The function to call
+///  * fn - A function to call
 ///
 /// Returns:
 ///  * An `hs.timer` object
@@ -208,7 +214,7 @@ static int timer_doAfter(lua_State* L) {
 ///  * None
 ///
 /// Notes:
-///  * Use of this function is strongly discouraged, as it blocks all main-thread execution in Hammerspoon. This means no hotkeys or events will be processed in that time. This is only provided as a last resort, or for extremely short sleeps. For all other purposes, you really should be splitting up your code into multiple functions and calling `hs.timer.doAfter()`
+///  * Use of this function is strongly discouraged, as it blocks all main-thread execution in Hammerspoon. This means no hotkeys or events will be processed in that time, no GUI updates will happen, and no Lua will execute. This is only provided as a last resort, or for extremely short sleeps. For all other purposes, you really should be splitting up your code into multiple functions and calling `hs.timer.doAfter()`
 static int timer_usleep(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TNUMBER, LS_TBREAK];
@@ -245,7 +251,7 @@ static int timer_running(lua_State* L) {
 ///  * None
 ///
 /// Returns:
-///  * A number containing the number of seconds until the next firing.
+///  * A number containing the number of seconds until the next firing
 ///
 /// Notes:
 ///  * The return value may be a negative integer in two circumstances:
@@ -266,7 +272,7 @@ static int timer_nextTrigger(lua_State *L) {
 /// Sets the next trigger time of a timer
 ///
 /// Parameters:
-///  * seconds - A number containing the number of seconds after which to trigger the timer
+///  * seconds - A number of seconds after which to trigger the timer
 ///
 /// Returns:
 ///  * The `hs.timer` object, or nil if an error occurred
@@ -277,6 +283,29 @@ static int timer_setNextTrigger(lua_State *L) {
 
     NSTimeInterval seconds = (NSTimeInterval)lua_tonumber(L, 2);
     [timer setNextTrigger:seconds];
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
+/// hs.timer:fire() -> timer
+/// Method
+/// Immediately fires a timer
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * The `hs.timer` object
+///
+/// Notes:
+///  * This cannot be used on a timer which has already stopped running
+static int timer_trigger(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    HSTimer *timer = get_objectFromUserdata(__bridge HSTimer, L, 1, USERDATA_TAG);
+
+    [timer trigger];
 
     lua_pushvalue(L, 1);
     return 1;
@@ -344,13 +373,16 @@ static int userdata_tostring(lua_State* L) {
 
 /// hs.timer.secondsSinceEpoch() -> sec
 /// Function
-/// Gets the number of seconds since the UNIX epoch (January 1, 1970), including the fractional part; this has much better precision than `os.time()`, which is limited to whole seconds.
+/// Gets the (fractional) number of seconds since the UNIX epoch (January 1, 1970)
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
 ///  * The number of seconds since the epoch
+///
+/// Notes:
+///  * This has much better precision than `os.time()`, which is limited to whole seconds.
 static int timer_getSecondsSinceEpoch(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TBREAK];
@@ -370,6 +402,7 @@ static const luaL_Reg timer_metalib[] = {
     {"running", timer_running},
     {"nextTrigger", timer_nextTrigger},
     {"setNextTrigger", timer_setNextTrigger},
+    {"fire", timer_trigger},
     {"__tostring", userdata_tostring},
     {"__gc",    timer_gc},
     {NULL,      NULL}
