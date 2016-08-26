@@ -1,7 +1,7 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
-#import <SystemConfiguration/SystemConfiguration.h>
-#import <SystemConfiguration/SCDynamicStoreCopyDHCPInfo.h>
+@import Cocoa ;
+@import LuaSkin ;
+@import SystemConfiguration ;
+@import SystemConfiguration.SCDynamicStoreCopyDHCPInfo ;
 
 #define USERDATA_TAG    "hs.network.configuration"
 static int              refTable          = LUA_NOREF;
@@ -494,8 +494,8 @@ static int dynamicStoreMonitorKeys(lua_State *L) {
 
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    SCDynamicStoreRef theStore = get_structFromUserdata(dynamicstore_t, L, 1)->storeObject ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, (void *)theStore]] ;
+//     SCDynamicStoreRef theStore = get_structFromUserdata(dynamicstore_t, L, 1)->storeObject ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)]] ;
     return 1 ;
 }
 

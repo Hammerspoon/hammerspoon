@@ -1,10 +1,10 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
-#import <CFNetwork/CFNetwork.h>
-#import <SystemConfiguration/SystemConfiguration.h>
+@import Cocoa ;
+@import LuaSkin ;
+@import CFNetwork ;
+@import SystemConfiguration ;
 
-#import <netinet/in.h>
-#import <netdb.h>
+@import Darwin.POSIX.netinet.in ;
+@import Darwin.POSIX.netdb ;
 
 #define USERDATA_TAG    "hs.network.host"
 static int              refTable          = LUA_NOREF;
@@ -26,7 +26,13 @@ static int pushCFHost(lua_State *L, CFHostRef theHost, CFHostInfoType resolveTyp
     hshost_t* thePtr = lua_newuserdata(L, sizeof(hshost_t)) ;
     memset(thePtr, 0, sizeof(hshost_t)) ;
 
-    thePtr->theHostObj  = (CFHostRef)CFRetain(theHost) ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
+// CFRetain returns CFTypeRef (aka 'const void *'), while CFHostRef (aka 'struct __CFHost *'),
+// a noticeably non-constant type...
+// Probably an oversite on Apple's part since other CF type refs don't trigger a warning.
+    thePtr->theHostObj  = CFRetain(theHost) ;
+#pragma clang diagnostic pop
     thePtr->callbackRef = LUA_NOREF ;
     thePtr->resolveType = resolveType ;
     thePtr->selfRef     = LUA_NOREF ;
@@ -78,8 +84,11 @@ static int pushQueryResults(lua_State *L, BOOL syncronous, CFHostRef theHost, CF
             if (!syncronous) lua_pushstring(L, "reachability") ;
             CFDataRef theAvailability = CFHostGetReachability(theHost, &available);
             if (available && theAvailability) {
-                SCNetworkConnectionFlags *flags = (SCNetworkConnectionFlags *)CFDataGetBytePtr(theAvailability) ;
-                lua_pushinteger(L, *flags) ;
+//                 SCNetworkConnectionFlags flags = *(SCNetworkConnectionFlags *)CFDataGetBytePtr(theAvailability) ;
+//                 lua_pushinteger(L, *flags) ;
+                SCNetworkConnectionFlags flags ;
+                CFDataGetBytes(theAvailability, CFRangeMake(0, sizeof(flags)), (UInt8 *)&flags) ;
+                lua_pushinteger(L, flags) ;
             } else {
                 lua_pushnil(L) ;
             }
@@ -126,7 +135,10 @@ static NSString *expandCFStreamError(CFStreamErrorDomain domain, SInt32 errorNum
 
 void handleCallback(__unused CFHostRef theHost, __unused CFHostInfoType typeInfo, const CFStreamError *error, void *info) {
     hshost_t *theRef = (hshost_t *)info ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wassign-enum"
     CFStreamErrorDomain domain = 0 ;
+#pragma clang diagnostic pop
     SInt32              errorNum = 0 ;
     if (error) {
         domain   = error->domain ;
@@ -380,8 +392,8 @@ static int cancelResolution(lua_State *L) {
 
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    CFHostRef theHost = get_structFromUserdata(hshost_t, L, 1)->theHostObj ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, (void *)theHost]] ;
+//     CFHostRef theHost = get_structFromUserdata(hshost_t, L, 1)->theHostObj ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: (%p)", USERDATA_TAG, lua_topointer(L, 1)]] ;
     return 1 ;
 }
 

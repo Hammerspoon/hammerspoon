@@ -1,9 +1,10 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
-#import <SystemConfiguration/SystemConfiguration.h>
+@import Cocoa ;
+@import LuaSkin ;
+@import CFNetwork ;
+@import SystemConfiguration ;
 
-#import <netinet/in.h>
-#import <netdb.h>
+@import Darwin.POSIX.netinet.in ;
+@import Darwin.POSIX.netdb ;
 
 #define USERDATA_TAG    "hs.network.reachability"
 static int              refTable          = LUA_NOREF;
@@ -160,7 +161,8 @@ static int reachabilityForHostName(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
 
-    SCNetworkReachabilityRef theRef = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, [[skin toNSObjectAtIndex:1] UTF8String]);
+    const char *internalName = [[skin toNSObjectAtIndex:1] UTF8String] ;
+    SCNetworkReachabilityRef theRef = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, internalName);
     pushSCNetworkReachability(L, theRef) ;
     CFRelease(theRef) ;
     return 1 ;
@@ -184,7 +186,7 @@ static int reachabilityStatus(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     SCNetworkReachabilityRef theRef = get_structFromUserdata(reachability_t, L, 1)->reachabilityObj ;
-    SCNetworkReachabilityFlags flags = 0 ;
+    SCNetworkReachabilityFlags flags ; // = 0 ;
     Boolean valid = SCNetworkReachabilityGetFlags(theRef, &flags);
     if (valid) {
         lua_pushinteger(L, flags) ;
@@ -219,7 +221,7 @@ static int reachabilityStatusString(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     SCNetworkReachabilityRef theRef = get_structFromUserdata(reachability_t, L, 1)->reachabilityObj ;
-    SCNetworkReachabilityFlags flags = 0 ;
+    SCNetworkReachabilityFlags flags ; // = 0 ;
     Boolean valid = SCNetworkReachabilityGetFlags(theRef, &flags);
     if (valid) {
         [skin pushNSObject:statusString(flags)] ;
@@ -351,11 +353,11 @@ static int pushReachabilityFlags(lua_State *L) {
 static int userdata_tostring(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     SCNetworkReachabilityRef theRef = get_structFromUserdata(reachability_t, L, 1)->reachabilityObj ;
-    SCNetworkReachabilityFlags flags = 0 ;
+    SCNetworkReachabilityFlags flags ; // = 0 ;
     Boolean valid = SCNetworkReachabilityGetFlags(theRef, &flags);
     NSString *flagString = @"** unable to get reachability flags*" ;
     if (valid)  flagString = statusString(flags) ;
-    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, flagString, (void *)theRef]] ;
+    [skin pushNSObject:[NSString stringWithFormat:@"%s: %@ (%p)", USERDATA_TAG, flagString, lua_topointer(L, 1)]] ;
     return 1 ;
 }
 
@@ -422,7 +424,7 @@ static const luaL_Reg module_metaLib[] = {
     {NULL,   NULL}
 };
 
-int luaopen_hs_network_reachabilityinternal(lua_State* __unused L) {
+int luaopen_hs_network_reachabilityinternal(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
     refTable = [skin registerLibraryWithObject:USERDATA_TAG
                                      functions:moduleLib
