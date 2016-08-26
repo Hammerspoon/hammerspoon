@@ -77,6 +77,7 @@ export HS_LUAONLY="_coresetup \
     redshift \
     spotify \
     spaces \
+    stdlib \
     tabs \
     utf8 \
     doc"
@@ -98,6 +99,9 @@ for hs_watcher in ${HS_WATCHERS} ; do
   mkdir -pv "${HS_DST}/${hs_watcher}"
   cp -av "${BUILT_PRODUCTS_DIR}/lib${hs_watcher}watcher.dylib" "${HS_DST}/${hs_watcher}/watcher.so"
 done
+
+# Special copier for hs.stdlib
+cp -av "${SRCROOT}/extensions/stdlib/lib/" "${HS_RESOURCES}/extensions/"
 
 # Special copier for hs.doc
 cp -av "${SRCROOT}/extensions/doc/lua.json" "${HS_DST}/doc/lua.json"
