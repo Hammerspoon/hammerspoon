@@ -143,19 +143,6 @@ local function getIndex(mods,keycode) -- key for hotkeys table
   key=key and supper(key) or '[#'..keycode..']'
   return mods..key
 end
-
-local function getFunc(f)
-  if f == nil then return nil end
-  if type(f) == 'function' then return f end
-  if type(f) == 'table' then
-    local m = getmetatable(f)
-    if m and m.__call and type(m.__call) == 'function' then
-      return m.__call
-    end
-  end
-  return nil
-end
-
 --- hs.hotkey.new(mods, key, [message,] pressedfn, releasedfn, repeatfn) -> hs.hotkey object
 --- Constructor
 --- Creates a new hotkey
@@ -189,13 +176,10 @@ function hotkey.new(mods, key, message, pressedfn, releasedfn, repeatfn)
   local keycode = getKeycode(key)
   mods = getMods(mods)
   -- message can be omitted
-  if message==nil or getFunc(message) then
+  if message==nil or type(message)=='function' then
     repeatfn=releasedfn releasedfn=pressedfn pressedfn=message message=nil -- shift down arguments
   end
-  pressedfn = getFunc(pressedfn)
-  releasedfn = getFunc(releasedfn)
-  repeatfn = getFunc(repeatfn)
-  if not pressedfn and not releasedfn and not repeatfn then
+  if type(pressedfn)~='function' and type(releasedfn)~='function' and type(repeatfn)~='function' then
     error('At least one of pressedfn, releasedfn or repeatfn must be a function',2) end
   if type(message)~='string' then message=nil end
   local idx = getIndex(mods,keycode)
