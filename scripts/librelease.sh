@@ -16,6 +16,7 @@ function assert() {
   assert_github_hub
   assert_github_release_token && export GITHUB_TOKEN="$(cat "${GITHUB_TOKEN_FILE}")"
   assert_codesign_authority_token && export CODESIGN_AUTHORITY_TOKEN="$(cat "${CODESIGN_AUTHORITY_TOKEN_FILE}")"
+  assert_fabric_token && source "${FABRIC_TOKEN_FILE}"
   assert_version_in_xcode
   assert_version_in_git_tags
   assert_version_not_in_github_releases
@@ -39,8 +40,7 @@ function validate() {
 }
 
 function localtest() {
-  echo -n "******** TEST THE BUILD PLEASE ('yes' to confirm): "
-  # FIXME: read 'yes'
+  echo -n "******** TEST THE BUILD PLEASE ('yes' to confirm it works): "
   open -R build/Hammerspoon.app
 
   REPLY=""
@@ -75,6 +75,7 @@ function upload() {
   release_upload_docs
   release_submit_dash_docs
   release_update_appcast
+  upload_dSYMs
 }
 
 function announce() {
@@ -109,6 +110,13 @@ function assert_codesign_authority_token() {
   echo "Checking for codesign authority token..."
   if [ ! -f "${CODESIGN_AUTHORITY_TOKEN_FILE}" ]; then
     fail "ERROR: You do not have a code signing authority token in ${CODESIGN_AUTHORITY_TOKEN_FILE} (hint, it should look like 'Authority=Developer ID Application: Foo Bar (ABC123)'"
+  fi
+}
+
+function assert_fabric_token() {
+  echo "Checking for Fabric API tokens..."
+  if [ ! -f "${FABRIC_TOKEN_FILE}" ]; then
+    fail "ERROR: You do not have Fabric API tokens in ${FABRIC_TOKEN_FILE}"
   fi
 }
 
@@ -252,6 +260,17 @@ function archive_dSYMs() {
   pushd "${HAMMERSPOON_HOME}/../" >/dev/null
   mkdir -p "archive/${VERSION}/dSYM"
   rsync -arx --include '*/' --include='*.dSYM/**' --exclude='*' "${XCODE_BUILT_PRODUCTS_DIR}/" "archive/${VERSION}/dSYM/"
+  popd >/dev/null
+}
+
+function upload_dSYMs() {
+  echo "Uploading .dSYM files to Fabric..."
+  pushd "${HAMMERSPOON_HOME}/../" >/dev/null
+  if [ ! -d "archive/${VERSION}/dSYM" ]; then
+    echo "ERROR: dSYM archive does not exist yet, can't upload it to Fabric. You need to fix this"
+  else
+    /Applications/Fabric.app/Contents/MacOS/upload-symbols -p mac -a "${CRASHLYTICS_API_KEY}" "archive/${VERSION}/dSYM/"
+  fi
   popd >/dev/null
 }
 

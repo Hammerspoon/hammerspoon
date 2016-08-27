@@ -23,6 +23,7 @@ export CODESIGN_AUTHORITY_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-codesign-auth
 export GITHUB_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-github-release"
 export GITHUB_USER="hammerspoon"
 export GITHUB_REPO="hammerspoon"
+export FABRIC_TOKEN_FILE="${HAMMERSPOON_HOME}/../token-crashlytics"
 
 # Import our function library
 source "${SCRIPT_HOME}/librelease.sh"
