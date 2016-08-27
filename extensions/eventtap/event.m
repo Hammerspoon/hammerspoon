@@ -753,14 +753,11 @@ static int eventtap_event_systemKey(lua_State* L) {
 ///   * NSEventTypeEndGesture   --  An event that represents a gesture ending.
 ///   * NSEventTypeSmartMagnify --  NSEvent type for the smart zoom gesture (2-finger double tap on trackpads) along with a corresponding NSResponder method. In response to this event, you should intelligently magnify the content.
 ///   * NSEventTypeQuickLook    --  Supports the new event responder method that initiates a Quicklook.
+///   * NSEventTypePressure     --  An NSEvent type representing a change in pressure on a pressure-sensitive device. Requires a 64-bit processor.
 ///
 /// Notes:
 ///  * This table has a __tostring() metamethod which allows listing it's contents in the Hammerspoon console by typing `hs.eventtap.event.types`.
 ///  * In previous versions of Hammerspoon, type labels were defined with the labels in all lowercase.  This practice is deprecated, but an __index metamethod allows the lowercase labels to still be used; however a warning will be printed to the Hammerspoon console.  At some point, this may go away, so please update your code to follow the new format.
-
-// wait until Travis catches up with 10.10.3
-//
-//   * NSEventTypePressure     --  An NSEvent type representing a change in pressure on a pressure-sensitive device. Requires a 64-bit processor.
 
 static void pushtypestable(lua_State* L) {
     lua_newtable(L);
@@ -828,9 +825,8 @@ static void pushtypestable(lua_State* L) {
     lua_pushstring(L, "NSEventTypeSmartMagnify") ;  lua_rawseti(L, -2, NSEventTypeSmartMagnify);
     lua_pushinteger(L, NSEventTypeQuickLook);       lua_setfield(L, -2, "NSEventTypeQuickLook");
     lua_pushstring(L, "NSEventTypeQuickLook") ;     lua_rawseti(L, -2, NSEventTypeQuickLook);
-// wait until Travis catches up with 10.10.3
-//    lua_pushinteger(L, NSEventTypePressure);        lua_setfield(L, -2, "NSEventTypePressure");
-//    lua_pushstring(L, "NSEventTypePressure") ;      lua_rawseti(L, -2, NSEventTypePressure);
+    lua_pushinteger(L, NSEventTypePressure);        lua_setfield(L, -2, "NSEventTypePressure");
+    lua_pushstring(L, "NSEventTypePressure") ;      lua_rawseti(L, -2, NSEventTypePressure);
 
 //     lua_pushinteger(L, kCGEventTapDisabledByTimeout);    lua_setfield(L, -2, "tapDisabledByTimeout");
 //     lua_pushstring(L, "tapDisabledByTimeout") ;         lua_rawseti(L, -2, kCGEventTapDisabledByTimeout);
