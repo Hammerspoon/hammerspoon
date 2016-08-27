@@ -362,7 +362,7 @@ function release_update_appcast() {
                 length="${ZIPLEN}"
                 type="application/octet-stream"
             />
-            <sparkle:minimumSystemVersion>10.8</sparkle:minimumSystemVersion>
+            <sparkle:minimumSystemVersion>10.10</sparkle:minimumSystemVersion>
         </item>
 EOF
 }

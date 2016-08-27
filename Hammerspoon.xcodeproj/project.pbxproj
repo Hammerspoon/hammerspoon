@@ -6008,7 +6008,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6079,7 +6078,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6152,7 +6150,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6224,7 +6221,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6298,7 +6294,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6370,7 +6365,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6397,7 +6391,6 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6417,7 +6410,6 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = HammerspoonUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = org.hammerspoon.HammerspoonUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6489,7 +6481,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6560,7 +6551,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6629,7 +6619,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6696,7 +6685,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6765,7 +6753,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6832,7 +6819,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6901,7 +6887,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -6968,7 +6953,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7037,7 +7021,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7108,7 +7091,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7181,7 +7163,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7248,7 +7229,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7317,7 +7297,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7384,7 +7363,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7453,7 +7431,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7520,7 +7497,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7589,7 +7565,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7656,7 +7631,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7725,7 +7699,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7793,7 +7766,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7863,7 +7835,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -7931,7 +7902,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8005,7 +7975,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8076,7 +8045,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8145,7 +8113,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8212,7 +8179,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8281,7 +8247,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8348,7 +8313,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8417,7 +8381,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8484,7 +8447,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8553,7 +8515,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8620,7 +8581,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8689,7 +8649,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8756,7 +8715,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8825,7 +8783,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8892,7 +8849,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -8961,7 +8917,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9028,7 +8983,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9097,7 +9051,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9164,7 +9117,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9233,7 +9185,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9304,7 +9255,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9377,7 +9327,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9444,7 +9393,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9513,7 +9461,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9580,7 +9527,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9649,7 +9595,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9716,7 +9661,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9789,7 +9733,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9864,7 +9807,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9937,7 +9879,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10008,7 +9949,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10085,7 +10025,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10156,7 +10095,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10225,7 +10163,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10296,7 +10233,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10369,7 +10305,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10436,7 +10371,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10505,7 +10439,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10572,7 +10505,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10641,7 +10573,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10708,7 +10639,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10781,7 +10711,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10852,7 +10781,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10925,7 +10853,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -10996,7 +10923,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11069,7 +10995,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11144,7 +11069,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11221,7 +11145,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11292,7 +11215,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11365,7 +11287,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11436,7 +11357,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11509,7 +11429,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11580,7 +11499,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11653,7 +11571,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11724,7 +11641,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11793,7 +11709,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11860,7 +11775,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -11933,7 +11847,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12004,7 +11917,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12077,7 +11989,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12148,7 +12059,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12221,7 +12131,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12292,7 +12201,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12365,7 +12273,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12436,7 +12343,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12509,7 +12415,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12580,7 +12485,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12600,7 +12504,6 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -12614,7 +12517,6 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -12683,7 +12585,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12755,7 +12656,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12825,7 +12725,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12892,7 +12791,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -12961,7 +12859,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13028,7 +12925,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13097,7 +12993,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13164,7 +13059,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13237,7 +13131,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13308,7 +13201,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13377,7 +13269,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13444,7 +13335,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13513,7 +13403,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13584,7 +13473,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13634,7 +13522,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-undefined",
@@ -13681,7 +13569,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
@@ -13712,7 +13600,6 @@
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
 				SDKROOT = macosx;
@@ -13737,7 +13624,6 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OTHER_CODE_SIGN_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = Hammerspoon;
@@ -13765,7 +13651,6 @@
 				);
 				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13792,7 +13677,6 @@
 				);
 				INFOPLIST_FILE = "Hammerspoon Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.hammerspoon.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13865,7 +13749,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -13932,7 +13815,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14001,7 +13883,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14068,7 +13949,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14137,7 +14017,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14204,7 +14083,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14273,7 +14151,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14340,7 +14217,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14410,7 +14286,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14482,7 +14357,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14555,7 +14429,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14622,7 +14495,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14691,7 +14563,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14758,7 +14629,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14827,7 +14697,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14894,7 +14763,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -14962,7 +14830,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15028,7 +14895,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15096,7 +14962,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15162,7 +15027,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15231,7 +15095,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15298,7 +15161,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15367,7 +15229,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15434,7 +15295,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15503,7 +15363,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15570,7 +15429,6 @@
 				GCC_WARN_UNUSED_PARAMETER = "$(inherited)";
 				GCC_WARN_UNUSED_VALUE = "$(inherited)";
 				GCC_WARN_UNUSED_VARIABLE = "$(inherited)";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
