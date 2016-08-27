@@ -22,7 +22,10 @@ local fnutils = require("hs.fnutils")
 ---  * A table containing the response headers
 ---
 --- Notes:
+---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
+---
 ---  * This function is synchronous and will therefore block all other Lua execution while the request is in progress, you are encouraged to use the asynchronous functions
+---  * If you attempt to connect to a local Hammerspoon server created with `hs.httpserver`, then Hammerspoon will block until the connection times out (60 seconds), return a failed result due to the timeout, and then the `hs.httpserver` callback function will be invoked (so any side effects of the function will occur, but it's results will be lost).  Use [hs.http.asyncGet](#asyncGet) to avoid this.
 http.get = function(url, headers)
     return http.doRequest(url, "GET", nil, headers)
 end
@@ -42,7 +45,10 @@ end
 ---  * A table containing the response headers
 ---
 --- Notes:
+---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
+---
 ---  * This function is synchronous and will therefore block all other Lua execution while the request is in progress, you are encouraged to use the asynchronous functions
+---  * If you attempt to connect to a local Hammerspoon server created with `hs.httpserver`, then Hammerspoon will block until the connection times out (60 seconds), return a failed result due to the timeout, and then the `hs.httpserver` callback function will be invoked (so any side effects of the function will occur, but it's results will be lost).  Use [hs.http.asyncPost](#asyncPost) to avoid this.
 http.post = function(url, data, headers)
     return http.doRequest(url, "POST", data,headers)
 end
@@ -60,6 +66,8 @@ end
 ---   * A table containing the response headers
 ---
 --- Notes:
+---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
+---
 ---  * If the request fails, the callback function's first parameter will be negative and the second parameter will contain an error message. The third parameter will be nil
 http.asyncGet = function(url, headers, callback)
     http.doAsyncRequest(url, "GET", nil, headers, callback)
@@ -79,6 +87,8 @@ end
 ---   * A table containing the response headers
 ---
 --- Notes:
+---  * If authentication is required in order to download the request, the required credentials must be specified as part of the URL (e.g. "http://user:password@host.com/"). If authentication fails, or credentials are missing, the connection will attempt to continue without credentials.
+---
 ---  * If the request fails, the callback function's first parameter will be negative and the second parameter will contain an error message. The third parameter will be nil
 http.asyncPost = function(url, data, headers, callback)
     http.doAsyncRequest(url, "POST", data, headers, callback)
