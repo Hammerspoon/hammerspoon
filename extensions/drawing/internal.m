@@ -2059,8 +2059,17 @@ static int drawing_hide(lua_State *L) {
 /// Notes:
 ///  * This method immediately destroys the drawing object. If you want it to fade out, use `:hide()` first, with some suitable time, and `hs.timer.doAfter()` to schedule the `:delete()` call
 static int drawing_delete(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
     drawing_t *drawingObject = get_item_arg(L, 1);
     HSDrawingWindow *drawingWindow = (__bridge_transfer HSDrawingWindow *)drawingObject->window;
+    HSDrawingView *drawingView = (HSDrawingView *)drawingWindow.contentView;
+
+    if (drawingView.mouseUpCallbackRef != LUA_NOREF) {
+        [drawingView setMouseUpCallback:[skin luaUnref:refTable ref:drawingView.mouseUpCallbackRef]];
+    }
+    if (drawingView.mouseDownCallbackRef != LUA_NOREF) {
+        [drawingView setMouseDownCallback:[skin luaUnref:refTable ref:drawingView.mouseDownCallbackRef]];
+    }
 
     [drawingWindows removeObject:drawingWindow];
 
