@@ -112,14 +112,17 @@ static int hotkey_new(lua_State* L) {
     BOOL hasRepeat = NO;
 
     if (!lua_isnoneornil(L, 3)) {
+        luaL_checktype(L, 3, LUA_TFUNCTION);
         hasDown = YES;
     }
 
     if (!lua_isnoneornil(L, 4)) {
+        luaL_checktype(L, 4, LUA_TFUNCTION);
         hasUp = YES;
     }
 
     if (!lua_isnoneornil(L, 5)) {
+        luaL_checktype(L, 5, LUA_TFUNCTION);
         hasRepeat = YES;
     }
 
