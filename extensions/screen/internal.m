@@ -66,7 +66,10 @@ static int screen_name(lua_State* L) {
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+#pragma clang diagnostic pop
     NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
 
     if ([localizedNames count])
@@ -600,7 +603,10 @@ static int screen_getBrightness(lua_State *L) {
 
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     io_service_t service = CGDisplayIOServicePort(screen_id);
+#pragma clang diagnostic pop
     CGDisplayErr err;
 
     float brightness;
@@ -628,7 +634,10 @@ static int screen_setBrightness(lua_State *L) {
 
     NSScreen* screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     io_service_t service = CGDisplayIOServicePort(screen_id);
+#pragma clang diagnostic pop
 
     IODisplaySetFloatParameter(service, kNilOptions, CFSTR(kIODisplayBrightnessKey), lua_tonumber(L, 2));
 
@@ -868,7 +877,10 @@ static int screen_rotate(lua_State* L) {
     for (i = 0; i < displayCount; i++) {
         CGDirectDisplayID dID = onlineDisplays[i];
         if (dID == screenID) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
             io_service_t service = CGDisplayIOServicePort(dID);
+#pragma clang diagnostic pop
             IOOptionBits options = (kIOFBSetTransform | (rotation) << 16);
             if (IOServiceRequestProbe(service, options) != kCGErrorSuccess) goto cleanup;
             break;
@@ -990,7 +1002,10 @@ static int userdata_tostring(lua_State* L) {
     NSScreen *screen = get_screen_arg(L, 1);
     CGDirectDisplayID screen_id = [[[screen deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     CFDictionaryRef deviceInfo = IODisplayCreateInfoDictionary(CGDisplayIOServicePort(screen_id), kIODisplayOnlyPreferredName);
+#pragma clang diagnostic pop
     NSDictionary *localizedNames = [(__bridge NSDictionary *)deviceInfo objectForKey:(NSString *)[NSString stringWithUTF8String:kDisplayProductName]];
     NSString *theName ;
     if ([localizedNames count])
