@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */; };
 		4C3D55B51C7F0A880023B633 /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
 		4C3D55BC1C7F0AA90023B633 /* internal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D55AA1C7F05D00023B633 /* internal.m */; };
 		4C3D55BF1C7F17150023B633 /* NSAppleEventDescriptor+Parsing.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C3D55AE1C7F061D0023B633 /* NSAppleEventDescriptor+Parsing.h */; };
@@ -202,7 +203,6 @@
 		949CDBFE1990747B00906CCE /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFD1990747B00906CCE /* PreferencesWindow.xib */; };
 		949CDC001990759B00906CCE /* ConsoleWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 949CDBFF1990759B00906CCE /* ConsoleWindow.xib */; };
 		94A1E5481993AC5C003AEB26 /* MJFileUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 94A1E5471993AC5C003AEB26 /* MJFileUtils.m */; };
-		AA79D2504522AC7FD944753C /* libPods-Hammerspoon.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 87010C0F3DDC1CD8B3C95BA2 /* libPods-Hammerspoon.a */; };
 		D02F95291A00221C00E28BB2 /* HSrequire_all.m in Sources */ = {isa = PBXBuildFile; fileRef = D02F95281A00221C00E28BB2 /* HSrequire_all.m */; };
 		D077B5BF1A001B5300369B30 /* variables.m in Sources */ = {isa = PBXBuildFile; fileRef = D077B5BE1A001B5300369B30 /* variables.m */; };
 		D63FBD951D1CFB77005255DD /* toolbar_internal.m in Sources */ = {isa = PBXBuildFile; fileRef = D63FBD911D1CFB4E005255DD /* toolbar_internal.m */; };
@@ -761,8 +761,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		19B5A52CAF8760B10C86C2D0 /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
-		1A11170BCF0BA210FA17BF37 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
 		4C3D55A91C7F05D00023B633 /* init.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = init.lua; sourceTree = "<group>"; };
 		4C3D55AA1C7F05D00023B633 /* internal.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = internal.m; sourceTree = "<group>"; };
 		4C3D55AD1C7F05D00023B633 /* test_javascript.lua */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_javascript.lua; sourceTree = "<group>"; };
@@ -1011,6 +1009,7 @@
 		4FEF4D531C5FBA9800E3B939 /* test_audiodevice.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_audiodevice.lua; path = extensions/audiodevice/test_audiodevice.lua; sourceTree = "<group>"; };
 		4FEF59411B29A352002344A7 /* HSGrowingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HSGrowingTextField.h; sourceTree = "<group>"; };
 		4FEF59421B29A352002344A7 /* HSGrowingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSGrowingTextField.m; sourceTree = "<group>"; };
+		5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6AE181161D36E8E50097211C /* detectors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = detectors.cpp; path = extensions/noises/detectors.cpp; sourceTree = "<group>"; };
 		6AE181171D36E8E50097211C /* detectors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = detectors.h; path = extensions/noises/detectors.h; sourceTree = "<group>"; };
 		6AE181181D36E8E50097211C /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/noises/init.lua; sourceTree = "<group>"; };
@@ -1021,7 +1020,7 @@
 		6AE1812D1D36E96A0097211C /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		6AE181311D39C8F10097211C /* HSnoises.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HSnoises.m; sourceTree = "<group>"; };
 		6AE181331D39C9570097211C /* test_noises.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = test_noises.lua; path = extensions/noises/test_noises.lua; sourceTree = "<group>"; };
-		87010C0F3DDC1CD8B3C95BA2 /* libPods-Hammerspoon.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Hammerspoon.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		867B086413FD65986CB40932 /* Pods-Hammerspoon.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.debug.xcconfig"; sourceTree = "<group>"; };
 		9409202F19A5940600B9964E /* MJVersionUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJVersionUtils.h; sourceTree = "<group>"; };
 		9409203019A5940600B9964E /* MJVersionUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJVersionUtils.m; sourceTree = "<group>"; };
 		942050C41990940000FC4839 /* MJLua.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MJLua.h; sourceTree = "<group>"; };
@@ -1116,6 +1115,7 @@
 		D6FD56811C04228800BAE238 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/console/init.lua; sourceTree = "<group>"; };
 		D6FD56821C04228800BAE238 /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/console/internal.m; sourceTree = "<group>"; };
 		D6FD568F1C0422B400BAE238 /* libconsole.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconsole.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Hammerspoon.release.xcconfig"; path = "Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1574,7 +1574,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9F02BB1B3D9591009C32E5 /* LuaSkin.framework in Frameworks */,
-				AA79D2504522AC7FD944753C /* libPods-Hammerspoon.a in Frameworks */,
+				394FD223913AE68B92126D37 /* libPods-Hammerspoon.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1692,6 +1692,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0024EE4F07CEC6C274F32AB6 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				867B086413FD65986CB40932 /* Pods-Hammerspoon.debug.xcconfig */,
+				DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		4C3D55A81C7F05D00023B633 /* osascript */ = {
 			isa = PBXGroup;
 			children = (
@@ -2529,15 +2538,6 @@
 			name = noises;
 			sourceTree = "<group>";
 		};
-		9355653F3195B4626B60867A /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				1A11170BCF0BA210FA17BF37 /* Pods-Hammerspoon.debug.xcconfig */,
-				19B5A52CAF8760B10C86C2D0 /* Pods-Hammerspoon.release.xcconfig */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
 		942050C219907AF700FC4839 /* Console Window */ = {
 			isa = PBXGroup;
 			children = (
@@ -2571,7 +2571,7 @@
 				4F20B52A1C1F1C5B00F52437 /* Hammerspoon UI Tests */,
 				9445CA0D19083251002568BB /* Frameworks */,
 				9445CA0C19083251002568BB /* Products */,
-				9355653F3195B4626B60867A /* Pods */,
+				0024EE4F07CEC6C274F32AB6 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2661,7 +2661,7 @@
 				4CBF1C671C91154700B861CE /* libedit.tbd */,
 				4F9850E81B722CBF00F7E909 /* LuaSkin.framework */,
 				4F9F02B91B3D9568009C32E5 /* LuaSkin.framework */,
-				87010C0F3DDC1CD8B3C95BA2 /* libPods-Hammerspoon.a */,
+				5BC78AF8FE9DA0BD317A7528 /* libPods-Hammerspoon.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4327,7 +4327,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9445CA3C19083251002568BB /* Build configuration list for PBXNativeTarget "Hammerspoon" */;
 			buildPhases = (
-				FED67435A38ED7D6E749E078 /* Check Pods Manifest.lock */,
+				CDFA91F1078130B13A38C135 /* [CP] Check Pods Manifest.lock */,
 				4F251E7F1A49D5BE00AB6103 /* Prepare defines header file */,
 				4FC09F7A19F99E48007542A6 /* Compile docs.json */,
 				9445CA0719083251002568BB /* Sources */,
@@ -4335,8 +4335,8 @@
 				4FA81F271B3F2A52000B5537 /* Copy LuaSkin.framework to build/bundle */,
 				4FBE2D161B7268DF00407788 /* Copy extensions to bundle */,
 				9445CA0919083251002568BB /* Resources */,
-				28214DD7BE224FB559F8906F /* Copy Pods Resources */,
-				4402C316B00FDAA289EE3AF2 /* Embed Pods Frameworks */,
+				E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */,
+				87D84F4E858960C510223FC4 /* [CP] Copy Pods Resources */,
 				4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */,
 				4F7DB3571A5C513F00C22B03 /* Sign app/frameworks */,
 				4F6689E61C288FF800E48AF1 /* Assert no stray init.lua's in app bundle */,
@@ -4821,36 +4821,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		28214DD7BE224FB559F8906F /* Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		4402C316B00FDAA289EE3AF2 /* Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Embed Pods Frameworks";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		4F1CF8D91A47F583001C8AE7 /* Upload binary to Crashlytics */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -4963,19 +4933,49 @@
 			shellPath = /bin/sh;
 			shellScript = "set -eux\n\nif [ ! -e \"${SRCROOT}/extensions/httpserver/HammerspoonCertTemplate.h\" ]; then\n  pushd \"${SRCROOT}/extensions/httpserver/\"\n  ./mkCertTemplate.sh\n  popd\nfi";
 		};
-		FED67435A38ED7D6E749E078 /* Check Pods Manifest.lock */ = {
+		87D84F4E858960C510223FC4 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CDFA91F1078130B13A38C135 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		E849AEC367EA9502A25B9A7C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Hammerspoon/Pods-Hammerspoon-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -13588,7 +13588,7 @@
 		};
 		9445CA3D19083251002568BB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1A11170BCF0BA210FA17BF37 /* Pods-Hammerspoon.debug.xcconfig */;
+			baseConfigurationReference = 867B086413FD65986CB40932 /* Pods-Hammerspoon.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
@@ -13611,7 +13611,7 @@
 		};
 		9445CA3E19083251002568BB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 19B5A52CAF8760B10C86C2D0 /* Pods-Hammerspoon.release.xcconfig */;
+			baseConfigurationReference = DE2547C1592A3EDD90D9815D /* Pods-Hammerspoon.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;

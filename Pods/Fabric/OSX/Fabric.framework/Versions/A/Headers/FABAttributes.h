@@ -21,22 +21,11 @@
 
 #define FAB_UNAVAILABLE(x) __attribute__((unavailable(x)))
 
-#if __has_feature(nullability)
-    #define fab_nullable           nullable
-    #define fab_nonnull            nonnull
-    #define fab_null_unspecified   null_unspecified
-    #define fab_null_resettable    null_resettable
-    #define __fab_nullable         __nullable
-    #define __fab_nonnull          __nonnull
-    #define __fab_null_unspecified __null_unspecified
-#else
-    #define fab_nullable
-    #define fab_nonnull
-    #define fab_null_unspecified
-    #define fab_null_resettable
-    #define __fab_nullable
-    #define __fab_nonnull
-    #define __fab_null_unspecified
+#if !__has_feature(nullability)
+    #define nonnull
+    #define nullable
+    #define _Nullable
+    #define _Nonnull
 #endif
 
 #ifndef NS_ASSUME_NONNULL_BEGIN
@@ -51,9 +40,11 @@
 /**
  * The following macros are defined here to provide
  * backwards compatability. If you are still using
- * them you should migrate to the new versions that
- * are defined above.
+ * them you should migrate to the native nullability
+ * macros.
  */
+#define fab_nullable      nullable
+#define fab_nonnull       nonnull
 #define FAB_NONNULL       __fab_nonnull
 #define FAB_NULLABLE      __fab_nullable
 #define FAB_START_NONNULL NS_ASSUME_NONNULL_BEGIN

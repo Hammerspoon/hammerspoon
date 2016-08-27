@@ -4,7 +4,7 @@ Part of [Twitter Fabric](https://www.fabric.io), [Crashlytics](http://try.crashl
 
 ## Setup
 
-1. Visit https://fabric.io/sign_up to create your Fabric account and to download Fabric.app
+1. Visit [https://fabric.io/sign_up](https://fabric.io/sign_up) to create your Fabric account and to download Fabric.app.
 
 1. Open Fabric.app, login and select the Crashlytics SDK.
 
@@ -16,8 +16,10 @@ Part of [Twitter Fabric](https://www.fabric.io), [Crashlytics](http://try.crashl
 
 1. Select the Podfile option and follow the installation instructions to update your Podfile. **Note:** the Crashlytics Pod includes Answers. If you have Answers included as a separate Pod it should be removed from your Podfile to avoid duplicate symbol errors.
 
-	`pod 'Fabric'`
-	`pod 'Crashlytics'`
+	```
+	pod 'Fabric'
+	pod 'Crashlytics'
+	```
 
 1. Run `pod install`
 

@@ -14,7 +14,7 @@
 #import "SUVersionComparisonProtocol.h"
 #import "SUVersionDisplayProtocol.h"
 
-@class SUUpdateDriver, SUAppcastItem, SUHost, SUAppcast;
+@class SUAppcastItem, SUAppcast;
 
 @protocol SUUpdaterDelegate;
 
@@ -53,6 +53,8 @@ SU_EXPORT @interface SUUpdater : NSObject
 @property BOOL sendsSystemProfile;
 
 @property BOOL automaticallyDownloadsUpdates;
+
+@property (nonatomic, copy) NSString *decryptionPassword;
 
 /*!
     Explicitly checks for updates and displays a progress dialog while doing so.
