@@ -26,8 +26,8 @@ static int runosascript(lua_State* L) {
     [osa compileAndReturnError:&compileError];
 
     if (compileError) {
-        lua_pushboolean(L, NO);
-        lua_pushnil(L);
+        lua_pushboolean(skin.L, NO);
+        lua_pushnil(skin.L);
         [skin pushNSObject:[NSString stringWithFormat:@"%@", compileError]];
         [skin logError:[NSString stringWithFormat:@"Unable to initialize script: %@", compileError]];
         return 3;
@@ -37,7 +37,7 @@ static int runosascript(lua_State* L) {
     NSAppleEventDescriptor* result = [osa executeAndReturnError:&error];
     BOOL didSucceed = (result != nil);
 
-    lua_pushboolean(L, didSucceed);
+    lua_pushboolean(skin.L, didSucceed);
     [skin pushNSObject:didSucceed ? [result objectValue] : [NSNull null]];
     [skin pushNSObject:[NSString stringWithFormat:@"%@", didSucceed ? result : error]];
     return 3;
