@@ -111,6 +111,20 @@ return {setup=function(...)
     local str = tconcat(vals, "\t") .. "\n"
     logmessage(str)
   end
+
+  --- hs.printf(format, ...)
+  --- Function
+  --- Prints formatted strings to the Console
+  ---
+  --- Parameters:
+  ---  * format - A format string
+  ---  * ... - Zero or more arguments to fill the placeholders in the format string
+  ---
+  --- Returns:
+  ---  * None
+  ---
+  --- Notes:
+  ---  * This is a simple wrapper around Lua's `sformat()` function
   function hs.printf(fmt,...) return print(sformat(fmt,...)) end
 
 
