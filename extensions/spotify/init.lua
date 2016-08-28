@@ -207,22 +207,100 @@ function spotify.isPlaying()
   end
 end
 
+--- hs.spotify.getVolume()
+--- Function
+--- Gets the Spotify volume setting
+---
+--- Paramters:
+---  * None
+---
+--- Returns:
+---  * A number containing the volume Spotify is set to between 1 and 100
 function spotify.getVolume() return tell'sound volume' end
+
+--- hs.spotify.setVolume(vol)
+--- Function
+--- Sets the Spotify volume setting
+---
+--- Parameters:
+---  * vol - A number between 1 and 100
+---
+--- Returns:
+---  * None
 function spotify.setVolume(v)
   v=tonumber(v)
   if not v then error('volume must be a number 1..100',2) end
   return tell('set sound volume to '..math.min(100,math.max(0,v)))
 end
+
+--- hs.spotify.volumeUp()
+--- Function
+--- Increases the volume by 5
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function spotify.volumeUp() return spotify.setVolume(spotify.getVolume()+5) end
+
+--- hs.spotify.volumeDown()
+--- Function
+--- Reduces the volume by 5
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function spotify.volumeDown() return spotify.setVolume(spotify.getVolume()-5) end
 
+--- hs.spotify.getPosition()
+--- Function
+--- Gets the playback position (in seconds) in the current song
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A number indicating the current position in the song
 function spotify.getPosition() return tell'player position' end
+
+--- hs.spotify.setPosition(pos)
+--- Function
+--- Sets the playback position in the current song
+---
+--- Parameters:
+---  * pos - A number containing the position (in seconds) to jump to in the current song
+---
+--- Returns:
+---  * None
 function spotify.setPosition(p)
   p=tonumber(p)
   if not p then error('position must be a number in seconds',2) end
   return tell('set player position to '..p)
 end
+
+--- hs.spotify.ff()
+--- Function
+--- Skips the playback position forwards by 5 seconds
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function spotify.ff() return spotify.setPosition(spotify.getPosition()+5) end
+
+--- hs.spotify.rw
+--- Function
+--- Skips the playback position backwards by 5 seconds
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function spotify.rw() return spotify.setPosition(spotify.getPosition()-5) end
 
 return spotify

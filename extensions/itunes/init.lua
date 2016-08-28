@@ -207,22 +207,100 @@ function itunes.isPlaying()
    end
 end
 
+--- hs.itunes.getVolume()
+--- Function
+--- Gets the current iTunes volume setting
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * A number, between 1 and 100, containing the current iTunes playback volume
 function itunes.getVolume() return tell'sound volume' end
+
+--- hs.itunes.setVolume(vol)
+--- Function
+--- Sets the iTunes playback volume
+---
+--- Parameters:
+---  * vol - A number, between 1 and 100
+---
+--- Returns:
+---  * None
 function itunes.setVolume(v)
   v=tonumber(v)
   if not v then error('volume must be a number 1..100',2) end
   return tell('set sound volume to '..math.min(100,math.max(0,v)))
 end
+
+--- hs.itunes.volumeUp()
+--- Function
+--- Increases the iTunes playback volume by 5
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function itunes.volumeUp() return itunes.setVolume(itunes.getVolume()+5) end
+
+--- hs.itunes.volumeDown()
+--- Function
+--- Decreases the iTunes playback volume by 5
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function itunes.volumeDown() return itunes.setVolume(itunes.getVolume()-5) end
 
+--- hs.itunes.getPosition()
+--- Function
+--- Gets the playback position (in seconds) of the current song
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function itunes.getPosition() return tell'player position' end
+
+--- hs.itunes.setPosition(pos)
+--- Function
+--- Sets the playback position of the current song
+---
+--- Parameters:
+---  * pos - A number indicating the playback position (in seconds) to skip to
+---
+--- Returns:
+---  * None
 function itunes.setPosition(p)
   p=tonumber(p)
   if not p then error('position must be a number in seconds',2) end
   return tell('set player position to '..p)
 end
+
+--- hs.itunes.ff()
+--- Function
+--- Skips the current playback forwards by 5 seconds
+---
+--- Parameters:
+---  * None
+---
+--- Returns:
+---  * None
 function itunes.ff() return itunes.setPosition(itunes.getPosition()+5) end
+
+--- hs.itunes.rw()
+--- Function
+--- Skips the current playback backwards by 5 seconds
+---
+--- Paramters:
+---  * None
+---
+--- Returns:
+---  * None
 function itunes.rw() return itunes.setPosition(itunes.getPosition()-5) end
 
 return itunes
