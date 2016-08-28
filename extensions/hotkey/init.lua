@@ -150,7 +150,7 @@ local function getFunc(f)
   if type(f) == 'table' then
     local m = getmetatable(f)
     if m and m.__call and type(m.__call) == 'function' then
-      return m.__call
+      return m
     end
   end
   return nil
