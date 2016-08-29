@@ -106,9 +106,9 @@ NSString *specMaskToString(int spec) {
         sharedLuaSkin = [[self alloc] init];
     });
     if (![NSThread isMainThread]) {
-        NSLog(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
+        HSNSLOG(@"GRAVE BUG: LUA EXECUTION ON NON-MAIN THREAD");
         for (NSString *stackSymbol in [NSThread callStackSymbols]) {
-            NSLog(@"Previous stack symbol: %@", stackSymbol);
+            HSNSLOG(@"Previous stack symbol: %@", stackSymbol);
         }
         NSException* myException = [NSException
                                     exceptionWithName:@"LuaOnNonMainThread"
@@ -137,14 +137,14 @@ NSString *specMaskToString(int spec) {
 #pragma mark - lua_State lifecycle
 
 - (void)createLuaState {
-    NSLog(@"createLuaState");
+    HSNSLOG(@"createLuaState");
     NSAssert((self.L == NULL), @"createLuaState called on a live Lua environment", nil);
     self.L = luaL_newstate();
     luaL_openlibs(self.L);
 }
 
 - (void)destroyLuaState {
-    NSLog(@"destroyLuaState");
+    HSNSLOG(@"destroyLuaState");
     NSAssert((self.L != NULL), @"destroyLuaState called with no Lua environment", nil);
     if (self.L) {
         lua_close(self.L);
@@ -159,7 +159,7 @@ NSString *specMaskToString(int spec) {
 }
 
 - (void)resetLuaState {
-    NSLog(@"resetLuaState");
+    HSNSLOG(@"resetLuaState");
     NSAssert((self.L != NULL), @"resetLuaState called with no Lua environment", nil);
     [self destroyLuaState];
     [self createLuaState];
@@ -1194,7 +1194,7 @@ nextarg:
     if (theDelegate &&  [theDelegate respondsToSelector:@selector(logForLuaSkinAtLevel:withMessage:)]) {
         [theDelegate logForLuaSkinAtLevel:level withMessage:theMessage] ;
     } else {
-        NSLog(@"(missing delegate):log level %d: %@", level, theMessage) ;
+        HSNSLOG(@"(missing delegate):log level %d: %@", level, theMessage) ;
     }
 }
 

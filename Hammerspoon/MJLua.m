@@ -43,7 +43,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
     // (because such logs don't need to be shown to the user, just stored in our crashlog in case we crash)
     switch (level) {
         case LS_LOG_BREADCRUMB:
-            CLSNSLog(@"%@", theMessage);
+            HSNSLOG(@"%@", theMessage);
             break;
 
         default:
@@ -53,7 +53,7 @@ void MJLuaSetupLogHandler(void(^blk)(NSString* str)) {
             int errState = lua_pcall(_L, 2, 0, 0) ;
             if (errState != LUA_OK) {
                 NSArray *stateLabels = @[ @"OK", @"YIELD", @"ERRRUN", @"ERRSYNTAX", @"ERRMEM", @"ERRGCMM", @"ERRERR" ] ;
-                CLSNSLog(@"logForLuaSkin: error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
+                HSNSLOG(@"logForLuaSkin: error, state %@: %s", [stateLabels objectAtIndex:(NSUInteger)errState],
                           luaL_tolstring(_L, -1, NULL)) ;
                 lua_pop(_L, 2) ; // lua_pcall result + converted version from luaL_tolstring
             }
@@ -429,7 +429,7 @@ void MJLuaReplace(void) {
 # pragma mark - Lua environment lifecycle, low level
 
 static int MJLuaAtPanic(lua_State *L) {
-    CLSNSLog(@"LUA_AT_PANIC: %s", lua_tostring(L, -1)) ;
+    HSNSLOG(@"LUA_AT_PANIC: %s", lua_tostring(L, -1)) ;
     if (oldPanicFunction)
         return oldPanicFunction(L) ;
     else
@@ -458,7 +458,7 @@ void MJLuaInit(void) {
 
     int loadresult = luaL_loadfile(L, [[[NSBundle mainBundle] pathForResource:@"setup" ofType:@"lua"] fileSystemRepresentation]);
     if (loadresult != 0) {
-        CLSNSLog(@"Unable to load setup.lua from bundle. Terminating");
+        HSNSLOG(@"Unable to load setup.lua from bundle. Terminating");
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
         [alert setMessageText:@"Hammerspoon installation is corrupted"];
@@ -478,7 +478,7 @@ void MJLuaInit(void) {
 
     if (lua_pcall(L, 7, 2, 0) != LUA_OK) {
         NSString *errorMessage = [NSString stringWithFormat:@"%s", lua_tostring(L, -1)] ;
-        CLSNSLog(@"Error running setup.lua:%@", errorMessage);
+        HSNSLOG(@"Error running setup.lua:%@", errorMessage);
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"OK"];
         [alert setMessageText:@"Hammerspoon initialization failed"];
@@ -526,9 +526,9 @@ NSString* MJLuaRunString(NSString* command) {
 
     [MJLuaState pushLuaRef:refTable ref:evalfn];
     if (!lua_isfunction(L, -1)) {
-        CLSNSLog(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
+        HSNSLOG(@"ERROR: MJLuaRunString doesn't seem to have an evalfn");
         if (lua_isstring(L, -1)) {
-            CLSNSLog(@"evalfn appears to be a string: %s", lua_tostring(L, -1));
+            HSNSLOG(@"evalfn appears to be a string: %s", lua_tostring(L, -1));
         }
         return @"";
     }
@@ -564,7 +564,7 @@ NSArray *MJLuaCompletionsForWord(NSString *completionWord) {
 
     [skin pushLuaRef:refTable ref:completionsForWordFn];
     if (!lua_isfunction(skin.L, -1)) {
-        CLSNSLog(@"ERROR: MJLuaCompletionsForWord doesn't seem to have a completionsForWordFn");
+        HSNSLOG(@"ERROR: MJLuaCompletionsForWord doesn't seem to have a completionsForWordFn");
         return @[];
     }
     [skin pushNSObject:completionWord];

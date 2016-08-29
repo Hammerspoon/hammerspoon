@@ -41,7 +41,7 @@ static int crashLog(lua_State *L) {
     if (lua_toboolean(L, 2)) {
         [skin logBreadcrumb:[skin toNSObjectAtIndex:1]];
     } else {
-        CLSLog(@"%s", lua_tostring(L, 1));
+        HSLOG(@"%s", lua_tostring(L, 1));
     }
 
     return 0;
