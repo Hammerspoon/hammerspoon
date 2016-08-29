@@ -124,7 +124,7 @@ module.primaryInterfaces = function()
         queryResult["State:/Network/Global/IPv6"] and queryResult["State:/Network/Global/IPv6"].PrimaryInterface or false
 end
 
---- hs.network.adresses([interface, ...]) -> table
+--- hs.network.addresses([interface, ...]) -> table
 --- Function
 --- Returns a list of the IPv4 and IPv6 addresses for the specified interfaces, or all interfaces if no arguments are given.
 ---
