@@ -21,7 +21,7 @@
          <item>
             <title>Version 0.9.46</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.46
+                http://www.hammerspoon.org/releasenotes/0.9.46.html
             </sparkle:releaseNotesLink>
             <pubDate>Fri, 15 Apr 2016 21:37:18 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.46/Hammerspoon-0.9.46.zip"
@@ -34,7 +34,7 @@
          <item>
             <title>Version 0.9.45</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.45
+                http://www.hammerspoon.org/releasenotes/0.9.45.html
             </sparkle:releaseNotesLink>
             <pubDate>Thu, 21 Jan 2016 09:51:20 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.45/Hammerspoon-0.9.45.zip"
@@ -47,7 +47,7 @@
          <item>
             <title>Version 0.9.44</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.44
+                http://www.hammerspoon.org/releasenotes/0.9.44.html
             </sparkle:releaseNotesLink>
             <pubDate>Fri, 15 Jan 2016 11:31:01 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.44/Hammerspoon-0.9.44.zip"
@@ -60,7 +60,7 @@
          <item>
             <title>Version 0.9.43</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.43
+                http://www.hammerspoon.org/releasenotes/0.9.43.html
             </sparkle:releaseNotesLink>
             <pubDate>Tue, 17 Nov 2015 17:58:15 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.43/Hammerspoon-0.9.43.zip"
@@ -73,7 +73,7 @@
          <item>
             <title>Version 0.9.42</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.42
+                http://www.hammerspoon.org/releasenotes/0.9.42.html
             </sparkle:releaseNotesLink>
             <pubDate>Thu,  8 Oct 2015 21:15:34 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.42/Hammerspoon-0.9.42.zip"
@@ -86,7 +86,7 @@
          <item>
             <title>Version 0.9.41</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.41
+                http://www.hammerspoon.org/releasenotes/0.9.41.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed, 30 Sep 2015 14:21:44 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.41/Hammerspoon-0.9.41.zip"
@@ -99,7 +99,7 @@
          <item>
             <title>Version 0.9.40</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.40
+                http://www.hammerspoon.org/releasenotes/0.9.40.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed,  9 Sep 2015 11:15:43 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.40/Hammerspoon-0.9.40.zip"
@@ -112,7 +112,7 @@
          <item>
             <title>Version 0.9.39</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.39
+                http://www.hammerspoon.org/releasenotes/0.9.39.html
             </sparkle:releaseNotesLink>
             <pubDate>Tue,  1 Sep 2015 15:55:44 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.39/Hammerspoon-0.9.39.zip"
@@ -125,7 +125,7 @@
          <item>
             <title>Version 0.9.38</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.38
+                http://www.hammerspoon.org/releasenotes/0.9.38.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed,  5 Aug 2015 18:00:31 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.38/Hammerspoon-0.9.38.zip"
@@ -138,7 +138,7 @@
          <item>
             <title>Version 0.9.37</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.37
+                http://www.hammerspoon.org/releasenotes/0.9.37.html
             </sparkle:releaseNotesLink>
             <pubDate>Tue,  4 Aug 2015 22:59:58 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.37/Hammerspoon-0.9.37.zip"
@@ -151,7 +151,7 @@
          <item>
             <title>Version 0.9.36</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.36
+                http://www.hammerspoon.org/releasenotes/0.9.36.html
             </sparkle:releaseNotesLink>
             <pubDate>Thu, 30 Jul 2015 21:36:37 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.36/Hammerspoon-0.9.36.zip"
@@ -164,7 +164,7 @@
          <item>
             <title>Version 0.9.35</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.35
+                http://www.hammerspoon.org/releasenotes/0.9.35.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 20 Jul 2015 18:01:34 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.35/Hammerspoon-0.9.35.zip"
@@ -177,7 +177,7 @@
          <item>
             <title>Version 0.9.34</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.34
+                http://www.hammerspoon.org/releasenotes/0.9.34.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 20 Jul 2015 09:26:53 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.34/Hammerspoon-0.9.34.zip"
@@ -190,7 +190,7 @@
         <item>
             <title>Version 0.9.33</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.33
+                http://www.hammerspoon.org/releasenotes/0.9.33.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed,  1 Jul 2015 06:25:24 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.33/Hammerspoon-0.9.33.zip"
@@ -203,7 +203,7 @@
         <item>
             <title>Version 0.9.32</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.32
+                http://www.hammerspoon.org/releasenotes/0.9.32.html
             </sparkle:releaseNotesLink>
             <pubDate>Tue, 30 Jun 2015 12:45:34 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.32/Hammerspoon-0.9.32.zip"
@@ -216,7 +216,7 @@
          <item>
             <title>Version 0.9.31</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.31
+                http://www.hammerspoon.org/releasenotes/0.9.31.html
             </sparkle:releaseNotesLink>
             <pubDate>Sun, 24 May 2015 20:27:21 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.31/Hammerspoon-0.9.31.zip"
@@ -229,7 +229,7 @@
          <item>
             <title>Version 0.9.30</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.30
+                http://www.hammerspoon.org/releasenotes/0.9.30.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed, 13 May 2015 20:53:15 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.30/Hammerspoon-0.9.30.zip"
@@ -242,7 +242,7 @@
          <item>
             <title>Version 0.9.29</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.29
+                http://www.hammerspoon.org/releasenotes/0.9.29.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed, 15 Apr 2015 15:47:39 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.29/Hammerspoon-0.9.29.zip"
@@ -255,7 +255,7 @@
          <item>
             <title>Version 0.9.28</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.28
+                http://www.hammerspoon.org/releasenotes/0.9.28.html
             </sparkle:releaseNotesLink>
             <pubDate>Thu,  2 Apr 2015 09:34:40 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.28/Hammerspoon-0.9.28.zip"
@@ -268,7 +268,7 @@
          <item>
             <title>Version 0.9.27</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.27
+                http://www.hammerspoon.org/releasenotes/0.9.27.html
             </sparkle:releaseNotesLink>
             <pubDate>Sat, 21 Mar 2015 21:42:41 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.27/Hammerspoon-0.9.27.zip"
@@ -281,7 +281,7 @@
         <item>
             <title>Version 0.9.26</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.26
+                http://www.hammerspoon.org/releasenotes/0.9.26.html
             </sparkle:releaseNotesLink>
             <pubDate>Sat, 14 Mar 2015 18:02:08 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.26/Hammerspoon-0.9.26.zip"
@@ -294,7 +294,7 @@
         <item>
             <title>Version 0.9.25</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.25
+                http://www.hammerspoon.org/releasenotes/0.9.25.html
             </sparkle:releaseNotesLink>
             <pubDate>Sat,  7 Mar 2015 22:09:12 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.25/Hammerspoon-0.9.25.zip"
@@ -307,7 +307,7 @@
         <item>
             <title>Version 0.9.24</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.24
+                http://www.hammerspoon.org/releasenotes/0.9.24.html
             </sparkle:releaseNotesLink>
             <pubDate>Sat, 28 Feb 2015 20:00:49 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.24/Hammerspoon-0.9.24.zip"
@@ -320,7 +320,7 @@
         <item>
             <title>Version 0.9.23</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.23
+                http://www.hammerspoon.org/releasenotes/0.9.23.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed, 25 Feb 2015 20:07:37 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.23/Hammerspoon-0.9.23.zip"
@@ -334,7 +334,7 @@
          <item>
             <title>Version 0.9.22</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.22
+                http://www.hammerspoon.org/releasenotes/0.9.22.html
             </sparkle:releaseNotesLink>
             <pubDate>Tue, 17 Feb 2015 21:27:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.22/Hammerspoon-0.9.22.zip"
@@ -348,7 +348,7 @@
          <item>
             <title>Version 0.9.21</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.21
+                http://www.hammerspoon.org/releasenotes/0.9.21.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed,  4 Feb 2015 19:46:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.21/Hammerspoon-0.9.21.zip"
@@ -361,7 +361,7 @@
        <item>
             <title>Version 0.9.20</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.20
+                http://www.hammerspoon.org/releasenotes/0.9.20.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon,  2 Feb 2015 17:07:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.20/Hammerspoon-0.9.20.zip"
@@ -374,7 +374,7 @@
         <item>
             <title>Version 0.9.19</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.19
+                http://www.hammerspoon.org/releasenotes/0.9.19.html
             </sparkle:releaseNotesLink>
             <pubDate>Sat, 24 Jan 2015 00:55:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.19/Hammerspoon-0.9.19.zip"
@@ -387,7 +387,7 @@
        <item>
             <title>Version 0.9.18</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.18
+                http://www.hammerspoon.org/releasenotes/0.9.18.html
             </sparkle:releaseNotesLink>
             <pubDate>Sun, 18 Jan 2015 19:50:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.18/Hammerspoon-0.9.18.zip"
@@ -400,7 +400,7 @@
        <item>
             <title>Version 0.9.17</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.17
+                http://www.hammerspoon.org/releasenotes/0.9.17.html
             </sparkle:releaseNotesLink>
             <pubDate>Fri, 16 Jan 2015 00:11:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.17/Hammerspoon-0.9.17.zip"
@@ -413,7 +413,7 @@
        <item>
             <title>Version 0.9.16</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.16
+                http://www.hammerspoon.org/releasenotes/0.9.16.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 9 Jan 2015 15:43:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.16/Hammerspoon-0.9.16.zip"
@@ -426,7 +426,7 @@
        <item>
             <title>Version 0.9.15</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.15
+                http://www.hammerspoon.org/releasenotes/0.9.15.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 5 Jan 2015 20:54:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.15/Hammerspoon-0.9.15.zip"
@@ -439,7 +439,7 @@
        <item>
             <title>Version 0.9.14</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.14
+                http://www.hammerspoon.org/releasenotes/0.9.14.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 30 Dec 2014 22:19:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.14/Hammerspoon-0.9.14.zip"
@@ -453,7 +453,7 @@
         <item>
             <title>Version 0.9.13</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.13
+                http://www.hammerspoon.org/releasenotes/0.9.13.html
             </sparkle:releaseNotesLink>
             <pubDate>Mon, 22 Dec 2014 14:02:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.13/Hammerspoon-0.9.13.zip"
@@ -467,7 +467,7 @@
         <item>
             <title>Version 0.9.12</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.12
+                http://www.hammerspoon.org/releasenotes/0.9.12.html
             </sparkle:releaseNotesLink>
             <pubDate>Thu, 20 Nov 2014 17:52:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.12/Hammerspoon-0.9.12.zip"
@@ -481,7 +481,7 @@
         <item>
             <title>Version 0.9.11</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.11
+                http://www.hammerspoon.org/releasenotes/0.9.11.html
             </sparkle:releaseNotesLink>
             <pubDate>Fri, 14 Nov 2014 08:59:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.11/Hammerspoon-0.9.11.zip"
@@ -495,7 +495,7 @@
         <item>
             <title>Version 0.9.10</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.10
+                http://www.hammerspoon.org/releasenotes/0.9.10.html
             </sparkle:releaseNotesLink>
             <pubDate>Wed, 5 Nov 2014 11:56:00 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.10/Hammerspoon-0.9.10.zip"
@@ -509,7 +509,7 @@
         <item>
             <title>Version 0.9.8</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.8
+                http://www.hammerspoon.org/releasenotes/0.9.8.html
             </sparkle:releaseNotesLink>
             <pubDate>Fri, 31 Oct 2014 23:08:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.8/Hammerspoon-0.9.8.zip"
@@ -523,7 +523,7 @@
         <item>
             <title>Version 0.9.7</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.7
+                http://www.hammerspoon.org/releasenotes/0.9.7.html
             </sparkle:releaseNotesLink>
             <pubDate>Fri, 29 Oct 2014 21:22:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.7/Hammerspoon-0.9.7.zip"
@@ -537,7 +537,7 @@
         <item>
             <title>Version 0.9.6</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.6
+                http://www.hammerspoon.org/releasenotes/0.9.6.html
             </sparkle:releaseNotesLink>
             <pubDate>Fri, 28 Oct 2014 20:05:00 +0000</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.6/Hammerspoon-0.9.6.zip"
@@ -551,7 +551,7 @@
         <item>
             <title>Version 0.9.5</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/0.9.5
+                http://www.hammerspoon.org/releasenotes/0.9.5.html
             </sparkle:releaseNotesLink>
             <pubDate>Fri, 24 Oct 2014 00:53:00 +0100</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.5/Hammerspoon-0.9.5.zip"
@@ -565,7 +565,7 @@
         <item>
             <title>Version 0.9.4</title>
             <sparkle:releaseNotesLink>
-                https://hammerspoon.github.io/releasenotes/0.9.4
+                https://hammerspoon.github.io/releasenotes/0.9.4.html
             </sparkle:releaseNotesLink>
             <pubDate>Sat, 18 Oct 2014 14:32:00 +0200</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/0.9.4/Hammerspoon-0.9.4.zip"

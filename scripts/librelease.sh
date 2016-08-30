@@ -354,7 +354,7 @@ function release_update_appcast() {
          <item>
             <title>Version ${VERSION}</title>
             <sparkle:releaseNotesLink>
-                http://www.hammerspoon.org/releasenotes/${VERSION}
+                http://www.hammerspoon.org/releasenotes/${VERSION}.html
             </sparkle:releaseNotesLink>
             <pubDate>$(date +"%a, %e %b %Y %H:%M:%S %z")</pubDate>
             <enclosure url="https://github.com/Hammerspoon/hammerspoon/releases/download/${VERSION}/Hammerspoon-${VERSION}.zip"
