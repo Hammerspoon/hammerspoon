@@ -124,7 +124,7 @@ return {setup=function(...)
   ---  * None
   ---
   --- Notes:
-  ---  * This is a simple wrapper around Lua's `sformat()` function
+  ---  * This is a simple wrapper around the Lua code `print(string.format(...))`.
   function hs.printf(fmt,...) return print(sformat(fmt,...)) end
 
 
