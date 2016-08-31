@@ -985,6 +985,45 @@ static int screen_snapshot(lua_State *L) {
     return 1;
 }
 
+/// hs.screen:screen_desktopImageURL([imageURL])
+/// Method
+/// Gets/Sets the desktop background image for a screen
+///
+/// Parameters:
+///  * imageURL - An optional file:// URL to an image file to set as the background. If omitted, the current file URL is returned
+///
+/// Returns:
+///  * the `hs.screen` object if a new URL was set, otherwise a string containing the current URL
+static int screen_desktopImageURL(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK];
+
+    NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+    NSScreen *screen = get_screen_arg(L, 1);
+
+    NSString *url = nil;
+    if (lua_type(L, 2) == LUA_TSTRING) {
+        url = [skin toNSObjectAtIndex:2];
+    }
+
+    if (url) {
+        NSError *error;
+        NSURL *realURL = [NSURL URLWithString:url];
+
+        if (realURL) {
+            [workspace setDesktopImageURL:realURL forScreen:screen options:@{} error:&error];
+            if (error) {
+                [skin logError:[error localizedDescription]];
+            }
+        }
+        lua_pushvalue(L, 1);
+    } else {
+        lua_pushstring(L, [[[workspace desktopImageURLForScreen:screen] absoluteString] UTF8String]);
+    }
+
+    return 1;
+}
+
 static int screens_gc(lua_State* L __unused) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
@@ -1041,6 +1080,7 @@ static const luaL_Reg screen_objectlib[] = {
     {"setBrightness", screen_setBrightness},
     {"rotate", screen_rotate},
     {"setPrimary", screen_setPrimary},
+    {"desktopImageURL", screen_desktopImageURL},
 
     {"__tostring", userdata_tostring},
     {"__gc", screen_gc},
