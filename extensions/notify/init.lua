@@ -208,7 +208,7 @@ module.register = function(tag, fn)
   for k,v in pairs(module.registry) do
     if k ~= "n" and v ~= nil then
       if v[1] == tag then
-        id = i
+        id = k
         v[2] = fn
         found = true
         break
