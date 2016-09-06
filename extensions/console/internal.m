@@ -392,6 +392,47 @@ static int console_behavior(lua_State *L) {
     return 1 ;
 }
 
+/// hs.console.titleVisibility([state]) -> current value
+/// Function
+/// Get or set whether or not the "Hammerspoon Console" text appears in the Hammerspoon console titlebar.
+///
+/// Parameters:
+///  * state - an optional string containing the text "visible" or "hidden", specifying whether or not the console window's title text appears.
+///
+/// Returns:
+///  * a string of "visible" or "hidden" specifying the current (possibly changed) state of the window title's visibility.
+///
+/// Notes:
+///  * When a toolbar is attached to the Hammerspoon console (see the `hs.webview.toolbar` module documentation), this function can be used to specify whether the Toolbar appears underneath the console window's title ("visible") or in the window's title bar itself, as seen in applications like Safari ("hidden").
+static int console_titleVisibility(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
+    NSWindow *console = [[MJConsoleWindowController singleton] window];
+    NSDictionary *mapping = @{
+        @"visible" : @(NSWindowTitleVisible),
+        @"hidden"  : @(NSWindowTitleHidden),
+    } ;
+
+    if (lua_gettop(L) == 1) {
+        NSNumber *value = mapping[[skin toNSObjectAtIndex:1]] ;
+        if (value) {
+            console.titleVisibility = [value intValue] ;
+            lua_pushvalue(L, 1) ;
+        } else {
+            return luaL_argerror(L, 2, [[NSString stringWithFormat:@"must be one of '%@'", [[mapping allKeys] componentsJoinedByString:@"', '"]] UTF8String]) ;
+        }
+    }
+    NSNumber *titleVisibility = @(console.titleVisibility) ;
+    NSString *value = [[mapping allKeysForObject:titleVisibility] firstObject] ;
+    if (value) {
+        [skin pushNSObject:value] ;
+    } else {
+        [skin logWarn:[NSString stringWithFormat:@"unrecognized titleVisibility %@ -- notify developers", titleVisibility]] ;
+        lua_pushnil(L) ;
+    }
+    return 1 ;
+}
+
 // static int meta_gc(__unused lua_State *L) {
 //     return 0;
 // }
@@ -410,6 +451,8 @@ static const luaL_Reg extrasLib[] = {
 
     {"getConsole", console_getConsole},
     {"setConsole", console_setConsole},
+
+    {"titleVisibility", console_titleVisibility},
 
     {"level", console_level},
     {"alpha", console_alpha},
