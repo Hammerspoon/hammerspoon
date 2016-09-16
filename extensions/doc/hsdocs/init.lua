@@ -347,7 +347,7 @@ local makeBrowser = function()
       :closeOnEscape(true)
       :navigationCallback(function(a, w, n, e)
           if e then
-              hs.luaSkinLog.ef("%s browser navigation for %s error:%s", USERDATA_TAG, a, e)
+              hs.luaSkinLog.ef("%s browser navigation for %s error:%s", USERDATA_TAG, a, e.localizedDescription)
               return true
           end
           if a == "didFinishNavigation" then updateToolbarIcons(w:toolbar(), w) end
