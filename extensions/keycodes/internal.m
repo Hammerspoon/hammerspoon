@@ -375,6 +375,35 @@ static int keycodes_methods(lua_State* L) {
 
 }
 
+/// hs.keycodes.currentMethod() -> string
+/// Function
+/// Get current input method
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * Name of current input method, or nil
+static int keycodes_currentMethod(lua_State * L) {
+    LuaSkin * skin = [LuaSkin shared];
+    CFArrayRef methodRefs = getAllInputMethods();
+    NSString * currentMethod = nil;
+
+    for (int i = 0 ; i < CFArrayGetCount(methodRefs); i ++ ) {
+        TISInputSourceRef method = (TISInputSourceRef)(CFArrayGetValueAtIndex(methodRefs, i));
+        CFBooleanRef selected = TISGetInputSourceProperty(method, kTISPropertyInputSourceIsSelected);
+        if (CFBooleanGetValue(selected) == YES) {
+            currentMethod = getLayoutName(method);
+            break;
+        }
+    }
+
+    CFRelease(methodRefs);
+
+    [skin pushNSObject:currentMethod];
+    return 1;
+}
+
 /// hs.keycodes.setLayout(layoutName) -> boolean
 /// Function
 /// Changes the system keyboard layout
@@ -508,6 +537,7 @@ static const luaL_Reg keycodeslib[] = {
     {"_cachemap", keycodes_cachemap},
     {"currentLayout", keycodes_currentLayout},
     {"currentLayoutIcon", keycodes_currentLayoutIcon},
+    {"currentMethod", keycodes_currentMethod},
     {"layouts", keycodes_layouts},
     {"methods", keycodes_methods},
     {"setLayout", keycodes_setLayout},
