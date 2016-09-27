@@ -20,7 +20,7 @@ local function getKeycode(s)
   elseif type(s)~='string' then error('key must be a string or a number',3)
   elseif (s:sub(1, 1) == '#') then n=tonumber(s:sub(2))
   else n=keycodes.map[slower(s)] end
-  if not n then error('Invalid key: '..s,3) end
+  if not n then error('Invalid key: '..s..' - this may mean that the key requested does not exist in your keymap (particularly if you switch keyboard layouts frequently)',3) end
   return n
 end
 
