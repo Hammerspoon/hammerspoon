@@ -157,7 +157,7 @@ function assert_docs_bundle_complete() {
   pushd "${HAMMERSPOON_HOME}/scripts/docs" >/dev/null
   bundle check >/dev/null 2>&1
   if [ "$?" != "0" ]; then
-    fail "ERROR: docs bundle is incomplete. Ensure 'bundle' is installed and run 'bundle install' in hammerspoon/scripts/docs/"
+    fail "docs bundle is incomplete. Ensure 'bundle' is installed and run 'bundle install' in hammerspoon/scripts/docs/"
   fi
   popd >/dev/null
 }
