@@ -174,7 +174,10 @@ static int push_hammerAppInfo(lua_State* L) {
 // Take this out of hs.settings?
         lua_pushstring(L, [[[NSBundle mainBundle] bundleIdentifier] UTF8String]) ;
         lua_setfield(L, -2, "bundleID") ;
-
+#ifdef DEBUG
+        lua_pushstring(L, __DATE__ ", " __TIME__) ; lua_setfield(L, -2, "buildTime") ;
+        lua_pushboolean(L, YES) ; lua_setfield(L, -2, "debugBuild") ;
+#endif
     return 1;
 }
 

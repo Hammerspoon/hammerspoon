@@ -26,8 +26,8 @@
 
 local module = {}
 
-module.markdown = require"hs.doc.markdown"
-module.hsdocs   = require"hs.doc.hsdocs"
+-- module.markdown = require"hs.doc.markdown"
+-- module.hsdocs   = require"hs.doc.hsdocs"
 
 -- private variables and methods -----------------------------------------
 
@@ -525,9 +525,33 @@ CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);
 
 -- Return Module Object --------------------------------------------------
 
+-- don't load submodules until needed -- makes it easier to troubleshoot when testing
+-- upgrades since hs.doc is loaded by _coresetup, but the others don't have to be, and
+-- hsdocs especially uses a lot of other modules we might be testing and dont' want loaded
+-- until personal path overrides have been set
+
+local submodules = {
+    markdown = "hs.doc.markdown",
+    hsdocs   = "hs.doc.hsdocs"
+}
+
 return setmetatable(module, {
-        __call = function(_, ...) return module.help(...) end,
-        __index = coredocs,
-        __tostring = function(obj) return tostring(coredocs) end,
+    __call = function(_, ...) return module.help(...) end,
+    __tostring = function(obj) return tostring(coredocs) end,
+    __index = function(self, key)
+        if not rawget(self, key) and submodules[key] then
+            rawset(self, key, require(submodules[key]))
+            -- fall through to closing rawget
+        elseif rawget(coredocs, key) then
+            return rawget(coredocs, key)
+        end
+        return rawget(self, key)
+    end,
 })
 
+-- return setmetatable(module, {
+--         __call = function(_, ...) return module.help(...) end,
+--         __index = coredocs,
+--         __tostring = function(obj) return tostring(coredocs) end,
+-- })
+--
