@@ -684,7 +684,7 @@ void screen_gammaReapply(CGDirectDisplayID display) {
 }
 
 static int screen_gc(lua_State* L) {
-    NSScreen* screen __unused = get_screen_arg(L, 1);
+    NSScreen* screen __unused = (__bridge_transfer NSScreen*)*((void**)luaL_checkudata(L, 1, USERDATA_TAG));
     return 0;
 }
 
@@ -1025,9 +1025,6 @@ static int screen_desktopImageURL(lua_State *L) {
 }
 
 static int screens_gc(lua_State* L __unused) {
-    LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-
     CGDisplayRemoveReconfigurationCallback(displayReconfigurationCallback, NULL);
     screen_gammaRestore(nil);
 
