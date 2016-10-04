@@ -196,8 +196,9 @@ static int pasteboard_pasteboardItemTypes(lua_State* L) {
 
     lua_newtable(L) ;
 // make sure there is something on the pasteboard...
-    if ([[thePasteboard pasteboardItems] count] > 0) {
-        NSPasteboardItem* item = [[thePasteboard pasteboardItems] objectAtIndex:0];
+    NSArray *items = [thePasteboard pasteboardItems] ;
+    if (items && [items count] > 0) {
+        NSPasteboardItem* item = [items objectAtIndex:0];
         for (NSString* type in [item types]) {
             lua_pushstring(L, [type UTF8String]) ; lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
         }
