@@ -42,15 +42,20 @@ static bool is_window(AXUIElementRef element, NSString* role) {
     role = get_prop(element, NSAccessibilityRoleAttribute, @"");
   }
 
-  // The role attribute on a window can potentially be something
-  // other than kAXWindowRole (e.g. Emacs does not claim kAXWindowRole)
-  // so we will do the simple test first, but then also attempt to duck-type
-  // the object, to see if it has a property that any window should have
-  if([role isEqualToString: (NSString*)kAXWindowRole] ||
-     get_prop(element, NSAccessibilityMinimizedAttribute, nil)) {
-    return YES;
+  if ([role isKindOfClass:[NSString class]]) {
+      // The role attribute on a window can potentially be something
+      // other than kAXWindowRole (e.g. Emacs does not claim kAXWindowRole)
+      // so we will do the simple test first, but then also attempt to duck-type
+      // the object, to see if it has a property that any window should have
+      if([role isEqualToString: (NSString*)kAXWindowRole] ||
+         get_prop(element, NSAccessibilityMinimizedAttribute, nil)) {
+        return YES;
+      } else {
+        return NO;
+      }
   } else {
-    return NO;
+      [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"%s:is_window AXRole is not a string type", watcherTag]] ;
+      return NO;
   }
 }
 
