@@ -1,5 +1,5 @@
-#import <Cocoa/Cocoa.h>
-#import <LuaSkin/LuaSkin.h>
+@import Cocoa ;
+@import LuaSkin ;
 
 /// hs.json.encode(val[, prettyprint]) -> string
 /// Function
@@ -18,7 +18,11 @@ static int json_encode(lua_State* L) {
     if lua_istable(L, 1) {
         id obj = [[LuaSkin shared] toNSObjectAtIndex:1] ;
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wassign-enum"
         NSJSONWritingOptions opts = 0;
+#pragma clang diagnostic pop
+
         if (lua_toboolean(L, 2))
             opts = NSJSONWritingPrettyPrinted;
 
@@ -60,20 +64,23 @@ static int json_encode(lua_State* L) {
 /// Notes:
 ///  * This is useful for retrieving some of the more complex lua table structures as a persistent setting (see `hs.settings`)
 static int json_decode(lua_State* L) {
-    const char* s = luaL_checkstring(L, 1);
-    NSData* data = [[NSString stringWithUTF8String:s] dataUsingEncoding:NSUTF8StringEncoding];
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+    NSData* data = [skin toNSObjectAtIndex:1 withOptions:LS_NSLuaStringAsDataOnly] ;
+    if (data) {
+        NSError* error;
+        id obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
 
-    NSError* error;
-    id obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:&error];
-
-    if (obj) {
-        [[LuaSkin shared] pushNSObject:obj] ;
-        return 1;
-    }
-    else {
-        lua_pushstring(L, [[error localizedDescription] UTF8String]);
-        lua_error(L);
-        return 0; // unreachable
+        if (obj) {
+            [[LuaSkin shared] pushNSObject:obj] ;
+            return 1;
+        } else {
+            lua_pushstring(L, [[error localizedDescription] UTF8String]);
+            lua_error(L);
+            return 0; // unreachable
+        }
+    } else {
+        return luaL_error(L, "Unable to convert json input into data structure.") ;
     }
 }
 
