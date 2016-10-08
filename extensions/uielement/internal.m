@@ -1,6 +1,6 @@
-#import <Cocoa/Cocoa.h>
-#import <Carbon/Carbon.h>
-#import <LuaSkin/LuaSkin.h>
+@import Cocoa ;
+@import Carbon ;
+@import LuaSkin ;
 #import "uielement.h"
 #import "../window/window.h"
 #import "../application/application.h"
@@ -10,7 +10,7 @@
 static const char* userdataTag = "hs.uielement";
 static const char* watcherUserdataTag = "hs.uielement.watcher.userdata";
 static const char* watcherTag = "hs.uielement.watcher";
-NSArray *eventNames;
+static NSArray *eventNames;
 
 static void new_uielement(lua_State* L, AXUIElementRef element) {
     LuaSkin *skin = [LuaSkin shared];
@@ -47,14 +47,30 @@ static bool is_window(AXUIElementRef element, NSString* role) {
       // other than kAXWindowRole (e.g. Emacs does not claim kAXWindowRole)
       // so we will do the simple test first, but then also attempt to duck-type
       // the object, to see if it has a property that any window should have
-      if([role isEqualToString: (NSString*)kAXWindowRole] ||
+      if([role isEqualToString: (__bridge NSString*)kAXWindowRole] ||
          get_prop(element, NSAccessibilityMinimizedAttribute, nil)) {
         return YES;
       } else {
         return NO;
       }
   } else {
-      [LuaSkin logBreadcrumb:[NSString stringWithFormat:@"%s:is_window AXRole is not a string type", watcherTag]] ;
+      // may switch to breadcrumb when we know the issue is fixed, but for now I want to be
+      // able to check the logs from within Hammerspoon
+      [LuaSkin logVerbose:[NSString stringWithFormat:@"%s:is_window AXRole is not a string type:%@ (CFType %lu)", userdataTag, [role class], CFGetTypeID((__bridge CFTypeRef)role)]] ;
+
+      pid_t thePid ;
+      AXError errorState = AXUIElementGetPid(element, &thePid) ;
+      if (errorState == kAXErrorSuccess) {
+          NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:thePid];
+          if (app) {
+              [LuaSkin logVerbose:[NSString stringWithFormat:@"%s:is_window process id %d corresponds to %@", userdataTag, thePid, [app localizedName]]] ;
+          } else {
+              [LuaSkin logVerbose:[NSString stringWithFormat:@"%s:is_window process id %d does not correspond to a macOS Application", userdataTag, thePid]] ;
+          }
+      } else {
+          [LuaSkin logVerbose:[NSString stringWithFormat:@"%s:is_window unable to get process id for malformed AXRole owner", userdataTag]] ;
+      }
+
       return NO;
   }
 }
@@ -65,15 +81,35 @@ static bool is_window(AXUIElementRef element, NSString* role) {
 static void push_element(lua_State* L, AXUIElementRef element) {
     NSString* role = get_prop(element, NSAccessibilityRoleAttribute, @"");
 
-    if (is_window(element, role)) {
-        new_window(L, (AXUIElementRef)CFRetain(element));
-    } else if ([role isEqualToString: (NSString*)kAXApplicationRole]) {
-        pid_t pid;
-        AXUIElementGetPid(element, &pid);
-        if (!new_application(L, pid)) {
-            lua_pushnil(L);
+    if ([role isKindOfClass:[NSString class]]) {
+        if (is_window(element, role)) {
+            new_window(L, (AXUIElementRef)CFRetain(element));
+        } else if ([role isEqualToString: (__bridge NSString*)kAXApplicationRole]) {
+            pid_t pid;
+            AXUIElementGetPid(element, &pid);
+            if (!new_application(L, pid)) {
+                lua_pushnil(L);
+            }
+        } else {
+            new_uielement(L, (AXUIElementRef)CFRetain(element));
         }
     } else {
+        // may switch to breadcrumb when we know the issue is fixed, but for now I want to be
+        // able to check the logs from within Hammerspoon
+        [LuaSkin logVerbose:[NSString stringWithFormat:@"%s:push_element AXRole is not a string type:%@ (CFType %lu)", userdataTag, [role class], CFGetTypeID((__bridge CFTypeRef)role)]] ;
+
+        pid_t thePid ;
+        AXError errorState = AXUIElementGetPid(element, &thePid) ;
+        if (errorState == kAXErrorSuccess) {
+            NSRunningApplication* app = [NSRunningApplication runningApplicationWithProcessIdentifier:thePid];
+            if (app) {
+                [LuaSkin logVerbose:[NSString stringWithFormat:@"%s:push_element process id %d corresponds to %@", userdataTag, thePid, [app localizedName]]] ;
+            } else {
+                [LuaSkin logVerbose:[NSString stringWithFormat:@"%s:push_element process id %d does not correspond to a macOS Application", userdataTag, thePid]] ;
+            }
+        } else {
+            [LuaSkin logVerbose:[NSString stringWithFormat:@"%s:push_element unable to get process id for malformed AXRole owner", userdataTag]] ;
+        }
         new_uielement(L, (AXUIElementRef)CFRetain(element));
     }
 }
