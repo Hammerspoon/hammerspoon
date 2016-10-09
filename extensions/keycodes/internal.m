@@ -434,17 +434,18 @@ static int keycodes_currentMethod(__unused lua_State * L) {
     CFArrayRef methodRefs = getAllInputMethods();
     NSString * currentMethod = nil;
 
-    for (int i = 0 ; i < CFArrayGetCount(methodRefs); i ++ ) {
-        TISInputSourceRef method = (TISInputSourceRef)(CFArrayGetValueAtIndex(methodRefs, i));
-        CFBooleanRef selected = TISGetInputSourceProperty(method, kTISPropertyInputSourceIsSelected);
-        if (CFBooleanGetValue(selected) == YES) {
-            currentMethod = getLayoutName(method);
-            break;
+    if (methodRefs) {
+        for (int i = 0 ; i < CFArrayGetCount(methodRefs); i ++ ) {
+            TISInputSourceRef method = (TISInputSourceRef)(CFArrayGetValueAtIndex(methodRefs, i));
+            CFBooleanRef selected = TISGetInputSourceProperty(method, kTISPropertyInputSourceIsSelected);
+            if (CFBooleanGetValue(selected) == YES) {
+                currentMethod = getLayoutName(method);
+                break;
+            }
         }
+
+        CFRelease(methodRefs);
     }
-
-    CFRelease(methodRefs);
-
     [skin pushNSObject:currentMethod];
     return 1;
 }
@@ -465,17 +466,18 @@ static int keycodes_setLayout(lua_State* L) {
     CFArrayRef layoutRefs = getAllLayouts();
     BOOL found = NO;
 
-    for (int i = 0; i < CFArrayGetCount(layoutRefs); i++) {
-        TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(layoutRefs, i));
-        NSString *layoutName = getLayoutName(layout);
+    if (layoutRefs) {
+        for (int i = 0; i < CFArrayGetCount(layoutRefs); i++) {
+            TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(layoutRefs, i));
+            NSString *layoutName = getLayoutName(layout);
 
-        if ([layoutName isEqualToString:desiredLayout] && TISSelectInputSource(layout) == noErr) {
-            found = YES;
+            if ([layoutName isEqualToString:desiredLayout] && TISSelectInputSource(layout) == noErr) {
+                found = YES;
+            }
         }
+
+        CFRelease(layoutRefs);
     }
-
-    CFRelease(layoutRefs);
-
     lua_pushboolean(L, found);
     return 1;
 }
@@ -496,17 +498,18 @@ static int keycodes_setMethod(lua_State* L) {
     CFArrayRef layoutRefs = getAllInputMethods();
     BOOL found = NO;
 
-    for (int i = 0; i < CFArrayGetCount(layoutRefs); i++) {
-        TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(layoutRefs, i));
-        NSString *layoutName = getLayoutName(layout);
+    if (layoutRefs) {
+        for (int i = 0; i < CFArrayGetCount(layoutRefs); i++) {
+            TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(layoutRefs, i));
+            NSString *layoutName = getLayoutName(layout);
 
-        if ([layoutName isEqualToString:desiredLayout] && TISSelectInputSource(layout) == noErr) {
-            found = YES;
+            if ([layoutName isEqualToString:desiredLayout] && TISSelectInputSource(layout) == noErr) {
+                found = YES;
+            }
         }
+
+        CFRelease(layoutRefs);
     }
-
-    CFRelease(layoutRefs);
-
     lua_pushboolean(L, found);
     return 1;
 }
@@ -531,26 +534,29 @@ static int keycodes_getIcon(lua_State* L) {
     CFArrayRef methodRefs = getAllInputMethods();
     BOOL found = NO;
 
-    for (int i = 0; i < CFArrayGetCount(layoutRefs); i++) {
-        TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(layoutRefs, i));
-        NSString *layoutName = getLayoutName(layout);
-
-        if ([layoutName isEqualToString:sourceName]) {
-            pushSourceIcon(layout);
-            found = YES;
-            break;
-        }
-    }
-
-    if (!found) {
-        for (int i = 0; i < CFArrayGetCount(methodRefs); i++) {
-            TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(methodRefs, i));
+    if (layoutRefs) {
+        for (int i = 0; i < CFArrayGetCount(layoutRefs); i++) {
+            TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(layoutRefs, i));
             NSString *layoutName = getLayoutName(layout);
 
             if ([layoutName isEqualToString:sourceName]) {
                 pushSourceIcon(layout);
                 found = YES;
                 break;
+            }
+        }
+    }
+    if (!found) {
+        if (methodRefs) {
+            for (int i = 0; i < CFArrayGetCount(methodRefs); i++) {
+                TISInputSourceRef layout = (TISInputSourceRef)(CFArrayGetValueAtIndex(methodRefs, i));
+                NSString *layoutName = getLayoutName(layout);
+
+                if ([layoutName isEqualToString:sourceName]) {
+                    pushSourceIcon(layout);
+                    found = YES;
+                    break;
+                }
             }
         }
     }
