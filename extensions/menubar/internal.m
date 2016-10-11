@@ -568,7 +568,7 @@ static int menubarSetTitle(lua_State *L) {
     return 1 ;
 }
 
-/// hs.menubar:setIcon(imageData) -> menubaritem or nil
+/// hs.menubar:setIcon(imageData[, template]) -> menubaritem or nil
 /// Method
 /// Sets the image of a menubar item object. The image will be displayed in the system menubar
 ///
@@ -578,6 +578,7 @@ static int menubarSetTitle(lua_State *L) {
 ///   * A string containing a path to an image file
 ///   * A string beginning with `ASCII:` which signifies that the rest of the string is interpreted as a special form of ASCII diagram, which will be rendered to an image and used as the icon. See the notes below for information about the special format of ASCII diagram.
 ///   * nil, indicating that the current image is to be removed
+///  * template - An optional boolean value which defaults to true. If it's true, the provided image will be treated as a "template" image, which allows it to automatically support OS X 10.10's Dark Mode. If it's false, the image will be used as is, supporting colour.
 ///
 /// Returns:
 ///  * the menubaritem if the image was loaded and set, `nil` if it could not be found or loaded
@@ -591,7 +592,7 @@ static int menubarSetTitle(lua_State *L) {
 ///
 ///  * Icons should be small, transparent images that roughly match the size of normal menubar icons, otherwise they will look very strange. Note that if you're using an `hs.image` image object as the icon, you can force it to be resized with `hs.image:setSize({w=16,h=16})`
 ///  * Retina scaling is supported if the image is either scalable (e.g. a PDF produced by Adobe Illustrator) or contain multiple sizes (e.g. a TIFF with small and large images). Images will not automatically do the right thing if you have a @2x version present
-///  * Icons are specified as "templates", which allows them to automatically support OS X 10.10's Dark Mode, but this also means they cannot be complicated, colour images
+///  * Icons are by default specified as "templates", which allows them to automatically support OS X 10.10's Dark Mode, but this also means they cannot be complicated, colour images.
 ///  * For examples of images that work well, see Hammerspoon.app/Contents/Resources/statusicon.tiff (for a retina-capable multi-image TIFF icon) or [https://github.com/jigish/slate/blob/master/Slate/status.pdf](https://github.com/jigish/slate/blob/master/Slate/status.pdf) (for a scalable vector PDF icon)
 ///  * For guidelines on the sizing of images, see [http://alastairs-place.net/blog/2013/07/23/nsstatusitem-what-size-should-your-icon-be/](http://alastairs-place.net/blog/2013/07/23/nsstatusitem-what-size-should-your-icon-be/)
  ///  * To use the ASCII diagram image support, see http://cocoamine.net/blog/2015/03/20/replacing-photoshop-with-nsstring/ and be sure to preface your ASCII diagram with the special string `ASCII:`
@@ -610,7 +611,11 @@ static int menubarSetIcon(lua_State *L) {
             lua_pushnil(L);
             return 1;
         }
-        [iconImage setTemplate:YES];
+        if (lua_isboolean(L, 3) && !lua_toboolean(L, 3)) {
+            [iconImage setTemplate:NO];
+        } else {
+            [iconImage setTemplate:YES];
+        }
     }
     [(__bridge NSStatusItem*)menuBarItem->menuBarItemObject setImage:iconImage];
 
