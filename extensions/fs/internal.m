@@ -947,6 +947,33 @@ static int hs_fileUTIalternate(lua_State *L) {
     return 1 ;
 }
 
+/// hs.fs.pathToAbsolute(filepath) -> string
+/// Function
+/// Gets the absolute path of a given path
+///
+/// Parameters:
+///  * filepath - Any kind of file or directory path, be it relative or not; or nil if an error occured
+///
+/// Returns:
+///  * A string containing the absolute path of `filepath` (i.e. one that doesn't intolve `.`, `..` or symlinks)
+///  * Note that symlinks will be resolved to their target file
+static int hs_pathToAbsolute(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TBREAK];
+
+    NSString *filePath = [skin toNSObjectAtIndex:1];
+    char *absolutePath = realpath([filePath stringByExpandingTildeInPath].UTF8String, NULL);
+
+    if (!absolutePath) {
+        lua_pushnil(L);
+        return 1;
+    }
+
+    lua_pushstring(L, absolutePath);
+    free(absolutePath);
+    return 1;
+}
+
 static const struct luaL_Reg fslib[] = {
     {"attributes", file_info},
     {"chdir", change_dir},
@@ -967,6 +994,7 @@ static const struct luaL_Reg fslib[] = {
     {"temporaryDirectory", hs_temporaryDirectory},
     {"fileUTI", hs_fileuti},
     {"fileUTIalternate", hs_fileUTIalternate},
+    {"pathToAbsolute", hs_pathToAbsolute},
     {NULL, NULL},
 };
 
