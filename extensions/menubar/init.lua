@@ -91,7 +91,7 @@ menubar.priorities = _makeConstantsTable(menubar.priorities)
 
 local menubarObject = hs.getObjectMetatable("hs.menubar")
 
-menubarObject.setIcon = function(object, imagePath)
+menubarObject.setIcon = function(object, imagePath, template)
     local tmpImage = nil
 
     if type(imagePath) == "userdata" then
@@ -104,7 +104,7 @@ menubarObject.setIcon = function(object, imagePath)
         end
     end
 
-    return object:_setIcon(tmpImage)
+    return object:_setIcon(tmpImage, template)
 end
 
 --- hs.menubar:frame() -> hs.geometry rect
