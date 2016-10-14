@@ -565,17 +565,20 @@ static int window_raise(lua_State* L) {
 static int window__orderedwinids(lua_State* L) {
     lua_newtable(L);
 
-    CFArrayRef wins = CGWindowListCreate(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+    CFArrayRef wins = NULL ;
+    wins = CGWindowListCreate(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID);
+    if (wins) {
+        for (int i = 0; i < CFArrayGetCount(wins); i++) {
+            int winid = (int)CFArrayGetValueAtIndex(wins, i);
 
-    for (int i = 0; i < CFArrayGetCount(wins); i++) {
-        int winid = (int)CFArrayGetValueAtIndex(wins, i);
+            lua_pushinteger(L, winid);
+            lua_rawseti(L, -2, i+1);
+        }
 
-        lua_pushinteger(L, winid);
-        lua_rawseti(L, -2, i+1);
+        CFRelease(wins);
+    } else {
+        [LuaSkin logBreadcrumb:@"hs.window._orderedwinids CGWindowListCreate returned NULL"] ;
     }
-
-    CFRelease(wins);
-
     return 1;
 }
 
