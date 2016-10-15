@@ -345,7 +345,7 @@ static int eventtap_event_setProperty(lua_State* L) {
         double value = luaL_checknumber(L, 3) ;
         CGEventSetDoubleValueField(event, field, value);
     } else {
-        int value = (int)luaL_checkinteger(L, 3);
+        int64_t value = (int64_t)luaL_checkinteger(L, 3);
         CGEventSetIntegerValueField(event, field, value);
     }
 
