@@ -161,7 +161,7 @@ static int caffeinate_systemSleep(lua_State *L __unused) {
 ///  * It is not mandatory to re-use assertion IDs if you are calling this function mulitple times, but it is recommended that you do so if the calls are related
 static int caffeinate_declareUserActivity(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK];
+    [skin checkArgs:LS_TNUMBER | LS_TINTEGER | LS_TNIL | LS_TOPTIONAL, LS_TBREAK]; // The LS_TNIL is so people can call foo = hs.caffeinate.declareUserActivity(foo) and not have it error out the first time
 
     IOPMAssertionID assertionID = kIOPMNullAssertionID;
 
