@@ -235,10 +235,10 @@ static int eventtap_isEnabled(lua_State* L) {
 ///
 /// Returns:
 ///  * Returns a table containing boolean values indicating which keyboard modifiers were held down when the function was invoked; The possible keys are:
-///     * cmd
-///     * alt
-///     * shift
-///     * ctrl
+///     * cmd (or ⌘)
+///     * alt (or ⌥)
+///     * shift (or ⇧)
+///     * ctrl (or ⌃)
 ///     * capslock
 ///     * fn
 ///   and optionally
@@ -256,10 +256,10 @@ static int checkKeyboardModifiers(lua_State* L) {
 
     if (lua_isboolean(L, 1) && lua_toboolean(L, 1)) { lua_pushinteger(L, theFlags); lua_setfield(L, -2, "_raw"); }
 
-    if (theFlags & NSCommandKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); }
-    if (theFlags & NSShiftKeyMask)      { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); }
-    if (theFlags & NSAlternateKeyMask)  { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); }
-    if (theFlags & NSControlKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); }
+    if (theFlags & NSCommandKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "cmd"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌘"); }
+    if (theFlags & NSShiftKeyMask)      { lua_pushboolean(L, YES); lua_setfield(L, -2, "shift"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⇧"); }
+    if (theFlags & NSAlternateKeyMask)  { lua_pushboolean(L, YES); lua_setfield(L, -2, "alt"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌥"); }
+    if (theFlags & NSControlKeyMask)    { lua_pushboolean(L, YES); lua_setfield(L, -2, "ctrl"); lua_pushboolean(L, YES); lua_setfield(L, -2, "⌃"); }
     if (theFlags & NSFunctionKeyMask)   { lua_pushboolean(L, YES); lua_setfield(L, -2, "fn"); }
     if (theFlags & NSAlphaShiftKeyMask) { lua_pushboolean(L, YES); lua_setfield(L, -2, "capslock"); }
 
