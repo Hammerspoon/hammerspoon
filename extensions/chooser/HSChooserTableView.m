@@ -10,8 +10,22 @@
 
 @implementation HSChooserTableView
 
-- (void)mouseDown:(NSEvent *)theEvent {
+- (id)initWithFrame:(NSRect)frameRect {
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        self.trackingArea = [[NSTrackingArea alloc] initWithRect:self.frame options:(NSTrackingActiveInKeyWindow|NSTrackingMouseMoved) owner:self userInfo:nil];
+        [self addTrackingArea:self.trackingArea];
+    }
+    return self;
+}
 
+- (void)updateTrackingAreas {
+    [self removeTrackingArea:self.trackingArea];
+    self.trackingArea = [[NSTrackingArea alloc] initWithRect:self.frame options:(NSTrackingMouseMoved|NSTrackingActiveInKeyWindow) owner:self userInfo:nil];
+    [self addTrackingArea:self.trackingArea];
+}
+
+- (void)mouseDown:(NSEvent *)theEvent {
     NSPoint globalLocation = [theEvent locationInWindow];
     NSPoint localLocation = [self convertPoint:globalLocation fromView:nil];
     NSInteger clickedRow = [self rowAtPoint:localLocation];
@@ -20,6 +34,19 @@
 
     if (clickedRow != -1 && [self.extendedDelegate respondsToSelector:@selector(tableView:didClickedRow:)]) {
         [self.extendedDelegate tableView:self didClickedRow:clickedRow];
+    }
+}
+
+- (void)mouseMoved:(NSEvent *)theEvent {
+    NSPoint globalLocation = [theEvent locationInWindow];
+    NSPoint localLocation = [self convertPoint:globalLocation fromView:nil];
+    NSInteger row = [self rowAtPoint:localLocation];
+
+    [super mouseMoved:theEvent];
+
+    if (row != -1) {
+        [self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+        [self scrollRowToVisible:row];
     }
 }
 

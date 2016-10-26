@@ -19,5 +19,6 @@
 @interface HSChooserTableView : NSTableView
 
 @property (nonatomic, weak) id<HSChooserTableViewDelegate> extendedDelegate;
+@property (nonatomic, strong) NSTrackingArea *trackingArea;
 
 @end
