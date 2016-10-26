@@ -35,6 +35,8 @@
 		4CEDEE1C1C640D11005CBF97 /* HSosascript.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CEDEE1B1C640D11005CBF97 /* HSosascript.m */; };
 		4F0676071C32C0B30088C57C /* HSChooserCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F0676051C32C0B30088C57C /* HSChooserCell.h */; };
 		4F0676081C32C0B30088C57C /* HSChooserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0676061C32C0B30088C57C /* HSChooserCell.m */; };
+		4F0F08091DC0DAAA00082B73 /* HSChooserRootView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F0F08071DC0DAAA00082B73 /* HSChooserRootView.h */; };
+		4F0F080A1DC0DAAA00082B73 /* HSChooserRootView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0F08081DC0DAAA00082B73 /* HSChooserRootView.m */; };
 		4F20B52C1C1F1C5B00F52437 /* Hammerspoon_UITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F20B52B1C1F1C5B00F52437 /* Hammerspoon_UITests.m */; };
 		4F20B5341C1F225300F52437 /* init.lua in Resources */ = {isa = PBXBuildFile; fileRef = 4F20B5331C1F225300F52437 /* init.lua */; };
 		4F29C2381C29E0A300B8A69D /* LuaSkin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F9850E81B722CBF00F7E909 /* LuaSkin.framework */; };
@@ -789,6 +791,8 @@
 		4F0676041C32AED90088C57C /* HSChooserWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = HSChooserWindow.xib; path = extensions/chooser/HSChooserWindow.xib; sourceTree = "<group>"; };
 		4F0676051C32C0B30088C57C /* HSChooserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserCell.h; path = extensions/chooser/HSChooserCell.h; sourceTree = "<group>"; };
 		4F0676061C32C0B30088C57C /* HSChooserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserCell.m; path = extensions/chooser/HSChooserCell.m; sourceTree = "<group>"; };
+		4F0F08071DC0DAAA00082B73 /* HSChooserRootView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HSChooserRootView.h; path = extensions/chooser/HSChooserRootView.h; sourceTree = "<group>"; };
+		4F0F08081DC0DAAA00082B73 /* HSChooserRootView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = HSChooserRootView.m; path = extensions/chooser/HSChooserRootView.m; sourceTree = "<group>"; };
 		4F20B5291C1F1C5B00F52437 /* Hammerspoon UI Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Hammerspoon UI Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F20B52B1C1F1C5B00F52437 /* Hammerspoon_UITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hammerspoon_UITests.m; sourceTree = "<group>"; };
 		4F20B52D1C1F1C5B00F52437 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1882,6 +1886,8 @@
 				4F3D9D061C3314570082E864 /* HSChooserWindow.m */,
 				4F3D9D091C34773E0082E864 /* HSChooserTableView.h */,
 				4F3D9D0A1C34773E0082E864 /* HSChooserTableView.m */,
+				4F0F08071DC0DAAA00082B73 /* HSChooserRootView.h */,
+				4F0F08081DC0DAAA00082B73 /* HSChooserRootView.m */,
 			);
 			name = chooser;
 			sourceTree = "<group>";
@@ -2978,6 +2984,7 @@
 				4F3D9D0B1C34773E0082E864 /* HSChooserTableView.h in Headers */,
 				4F5134641C30819000EFD6D4 /* chooser.h in Headers */,
 				4F0676071C32C0B30088C57C /* HSChooserCell.h in Headers */,
+				4F0F08091DC0DAAA00082B73 /* HSChooserRootView.h in Headers */,
 				4F3D9D031C3302CB0082E864 /* HSChooser.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4674,6 +4681,10 @@
 					4FD0AC081B74BACD00A82496 = {
 						CreatedOnToolsVersion = 7.0;
 					};
+					9445CA0A19083251002568BB = {
+						DevelopmentTeam = VQCYSNZB89;
+						ProvisioningStyle = Automatic;
+					};
 					D02F95231A00221C00E28BB2 = {
 						CreatedOnToolsVersion = 6.1;
 						TestTargetID = 9445CA0A19083251002568BB;
@@ -5107,6 +5118,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3D9D081C3314570082E864 /* HSChooserWindow.m in Sources */,
+				4F0F080A1DC0DAAA00082B73 /* HSChooserRootView.m in Sources */,
 				4F3D9D041C3302CB0082E864 /* HSChooser.m in Sources */,
 				4F3D9D0C1C34773E0082E864 /* HSChooserTableView.m in Sources */,
 				4F0676081C32C0B30088C57C /* HSChooserCell.m in Sources */,
@@ -13604,10 +13616,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = VQCYSNZB89;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				INFOPLIST_FILE = "Hammerspoon/Hammerspoon-Info.plist";
@@ -13627,10 +13640,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ANALYZER_DEADCODE_DEADSTORES = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = VQCYSNZB89;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Hammerspoon/Hammerspoon-Prefix.pch";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;

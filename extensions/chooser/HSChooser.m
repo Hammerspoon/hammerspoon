@@ -441,13 +441,8 @@
 }
 
 - (void)setBgLightDark:(BOOL)isDark {
-    if (isDark) {
-        self.window.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark];
-        [self.effectView setMaterial:NSVisualEffectMaterialDark];
-    } else {
-        self.window.appearance = [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
-        [self.effectView setMaterial:NSVisualEffectMaterialLight];
-    }
+    NSAppearance *appearance = isDark ? [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark] : [NSAppearance appearanceNamed:NSAppearanceNameVibrantLight];
+    self.window.appearance = appearance;
 }
 
 - (BOOL)isBgLightDark {

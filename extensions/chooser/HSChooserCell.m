@@ -10,4 +10,8 @@
 
 @implementation HSChooserCell
 
+- (BOOL)allowsVibrancy {
+    return YES;
+}
+
 @end
