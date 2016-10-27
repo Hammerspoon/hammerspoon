@@ -369,6 +369,15 @@ void parse_table(lua_State *L, int idx, NSMenu *menu, NSSize stateBoxImageSize) 
             }
             lua_pop(L, 1) ;
 
+// MARK: shortcut key
+            lua_getfield(L, -1, "shortcut");
+            if (lua_isstring(L, -1)) {
+                NSString *shortcutKey = [skin toNSObjectAtIndex:-1];
+                [menuItem setKeyEquivalent:shortcutKey];
+                [menuItem setKeyEquivalentModifierMask:0];
+            }
+            lua_pop(L, 1);
+
             // We've finished parsing all our options, so now add the menu item to the menu!
             [menu addItem:menuItem];
         }
@@ -735,6 +744,7 @@ static int menubarSetClickCallback(lua_State *L) {
 ///         * a menu item with a sub-menu is also a clickable target, so it can also have an `fn` key.
 ///      * `image`           - An image to display in the menu to the right of any state image or checkmark and to the left of the menu item title.  This image is not constrained by the size set with [hs.menubar:stateImageSize](#stateImageSize), so you should adjust it with `hs.image:setSize` if your image is extremely large or small.
 ///      * `tooltip`         - A tool tip to display if you hover the cursor over a menu item for a few seconds.
+///      * `shortcut`        - A string containing a single character, which will be used as the keyboard shortcut for the menu item. Note that if you use a capital letter, the Shift key will be required to activate the shortcut.
 ///      * `indent`          - An integer from 0 to 15 indicating how far to the right a menu item should be indented.  Defaults to 0.
 ///      * `onStateImage`    - An image to display when `checked` is true or `state` is set to "on".  This image size is constrained to the size set by [hs.menubar:stateImageSize](#stateImageSize).  If this key is not set, a checkmark will be displayed for checked or "on" menu items.
 ///      * `offStateImage`   - An image to display when `checked` is false or `state` is set to "off".  This image size is constrained to the size set by [hs.menubar:stateImageSize](#stateImageSize).  If this key is not set, no special marking appears next to the menu item.
