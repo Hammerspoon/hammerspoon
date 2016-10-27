@@ -47,7 +47,7 @@ static int refTable;
         if (!self.continueOnError) {
             // some details about the timer to help identify which one it is:
             [skin logBreadcrumb:@"hs.timer callback failed. The timer has been stopped to prevent repeated notifications of the error."];
-            [skin logBreadcrumb:[NSString stringWithFormat:@"  timer details: %s repeating, every %f seconds, next scheduled at %@", CFRunLoopTimerDoesRepeat((__bridge CFRunLoopTimerRef)self.t) ? "is" : "is not", self.t.timeInterval, self.t.fireDate]];
+            [skin logBreadcrumb:[NSString stringWithFormat:@"  timer details: %s repeating, every %f seconds, next scheduled at %@", CFRunLoopTimerDoesRepeat((__bridge CFRunLoopTimerRef)timer) ? "is" : "is not", timer.timeInterval, timer.fireDate]];
             [self.t invalidate];
         }
     }
