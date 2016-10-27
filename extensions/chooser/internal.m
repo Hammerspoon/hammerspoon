@@ -562,6 +562,28 @@ static int chooserSetNumRows(lua_State *L) {
     return 1;
 }
 
+/// hs.chooser:selectedRow() -> number
+/// Method
+/// Gets the currently selected row
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A number containing the row currently selected (i.e. the one highlighted in the UI)
+static int chooserSelectedRow(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    NSInteger selectedRow = chooser.choicesTableView.selectedRow;
+    lua_pushinteger(L, (lua_Integer)selectedRow + 1);
+
+    return 1;
+}
+
 #pragma mark - Hammerspoon Infrastructure
 
 static int userdata_tostring(lua_State* L) {
@@ -597,6 +619,7 @@ static const luaL_Reg userdataLib[] = {
     {"delete", chooserDelete},
     {"refreshChoicesCallback", chooserRefreshChoicesCallback},
     {"rightClickCallback", chooserRightClickCallback},
+    {"selectedRow", chooserSelectedRow},
 
     {"fgColor", chooserSetFgColor},
     {"subTextColor", chooserSetSubTextColor},
