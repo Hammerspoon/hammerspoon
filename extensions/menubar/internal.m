@@ -1066,7 +1066,7 @@ static int menubarFrame(lua_State *L) {
 /// Returns:
 ///  * if a parameter is provided, returns the menubar item; otherwise returns the current value.
 ///
-/// Noted:
+/// Notes:
 ///  * An image is used rather than a checkmark or dash only when you set them with the `onStateImage`, `offStateImage`, or `mixedStateImage` keys.  If you are not using these keys, then this method will have no visible effect on the menu's rendering.  See  [hs.menubar:setMenu](#setMenu) for more information.
 ///  * If you are setting the menu contents with a static table, you should invoke this method before invoking [hs.menubar:setMenu](#setMenu), as changes will only go into effect when the table is next converted to a menu structure.
 static int menubarStateImageSize(lua_State *L) {
