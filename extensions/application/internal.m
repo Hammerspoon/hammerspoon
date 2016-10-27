@@ -503,7 +503,7 @@ static int application_kind(lua_State* L) {
 }
 
 // Internal helper function to get an AXUIElementRef for a menu item in an app, by searching all menus
-AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *name) {
+AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *name, BOOL nameIsRegex) {
     LuaSkin *skin = [LuaSkin shared];
     AXUIElementRef foundItem = nil;
     AXUIElementRef menuBar;
@@ -565,10 +565,17 @@ AXUIElementRef _findmenuitembyname(lua_State* L, AXUIElementRef app, NSString *n
             [toCheck addObjectsFromArray:(__bridge NSArray *)cf_menuchildren];
         } else if (childcount == 0) {
             // This doesn't seem to be a submenu, so see if it's a match
-            if ([name isEqualToString:title]) {
+            if (!nameIsRegex && [name isEqualToString:title]) {
                 // It's a match. Store a reference to it and break out of the loop
                 foundItem = element;
                 break;
+            } else {
+                NSPredicate *matchTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", name];
+                if ([matchTest evaluateWithObject:title]) {
+                    NSLog(@"win");
+                    foundItem = element;
+                    break;
+                }
             }
         }
     }
@@ -695,12 +702,13 @@ AXUIElementRef _findmenuitembypath(lua_State* L __unused, AXUIElementRef app, NS
     return foundItem;
 }
 
-/// hs.application:findMenuItem(menuItem) -> table or nil
+/// hs.application:findMenuItem(menuItem[, isRegex]) -> table or nil
 /// Method
 /// Searches the application for a menu item
 ///
 /// Parameters:
 ///  * menuItem - This can either be a string containing the text of a menu item (e.g. `"Messages"`) or a table representing the hierarchical path of a menu item (e.g. `{"File", "Share", "Messages"}`). In the string case, all of the application's menus will be searched until a match is found (with no specified behaviour if multiple menu items exist with the same name). In the table case, the whole menu structure will not be searched, because a precise path has been specified.
+///  * isRegex - An optional boolean, defaulting to false, which is only used if `menuItem` is a string. If set to true, `menuItem` will be treated as a regular expression rather than a strict string to match against
 ///
 /// Returns:
 ///  * Returns nil if the menu item cannot be found. If it does exist, returns a table with two keys:
@@ -717,8 +725,12 @@ static int application_findmenuitem(lua_State* L) {
     NSString *name;
     NSMutableArray *path;
     if (lua_isstring(L, 2)) {
+        BOOL nameIsRegex = NO;
+        if (lua_type(L, 3) == LUA_TBOOLEAN) {
+            nameIsRegex = lua_toboolean(L, 3);
+        }
         name = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
-        foundItem = _findmenuitembyname(L, app, name);
+        foundItem = _findmenuitembyname(L, app, name, nameIsRegex);
     } else if (lua_istable(L, 2)) {
         path = [[NSMutableArray alloc] init];
         lua_pushnil(L);
@@ -786,6 +798,7 @@ static int application_findmenuitem(lua_State* L) {
 ///
 /// Parameters:
 ///  * menuitem - The menu item to select, specified as either a string or a table. See the `menuitem` parameter of `hs.application:findMenuItem()` for more information.
+///  * isRegex - An optional boolean, defaulting to false, which is only used if `menuItem` is a string. If set to true, `menuItem` will be treated as a regular expression rather than a strict string to match against
 ///
 /// Returns:
 ///  * True if the menu item was found and selected, or nil if it wasn't (e.g. because the menu item couldn't be found)
@@ -800,8 +813,12 @@ static int application_selectmenuitem(lua_State* L) {
     NSMutableArray *path;
 
     if (lua_isstring(L, 2)) {
+        BOOL nameIsRegex = NO;
+        if (lua_type(L, 3) == LUA_TBOOLEAN) {
+            nameIsRegex = lua_toboolean(L, 3);
+        }
         name = [NSString stringWithUTF8String: luaL_checkstring(L, 2)];
-        foundItem = _findmenuitembyname(L, app, name);
+        foundItem = _findmenuitembyname(L, app, name, nameIsRegex);
     } else if (lua_istable(L, 2)) {
         path = [[NSMutableArray alloc] init];
         lua_pushnil(L);
