@@ -38,6 +38,7 @@
 
         self.choicesCallbackRef = LUA_NOREF;
         self.queryChangedCallbackRef = LUA_NOREF;
+        self.rightClickCallbackRef = LUA_NOREF;
         self.completionCallbackRef = completionCallbackRef;
 
         self.hasChosen = NO;
@@ -262,6 +263,17 @@
         [skin pushLuaRef:*(self.refTable) ref:self.completionCallbackRef];
         [skin pushNSObject:choice];
         if (![skin protectedCallAndTraceback:1 nresults:0]) {
+            lua_pop(skin.L, 1) ; // remove error message
+        }
+    }
+}
+
+- (void)didRightClick {
+    if (self.rightClickCallbackRef != LUA_NOREF && self.rightClickCallbackRef != LUA_REFNIL) {
+        // We have a right click callback set
+        LuaSkin *skin = [LuaSkin shared];
+        [skin pushLuaRef:*(self.refTable) ref:self.rightClickCallbackRef];
+        if (![skin protectedCallAndTraceback:0 nresults:0]) {
             lua_pop(skin.L, 1) ; // remove error message
         }
     }

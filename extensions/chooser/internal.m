@@ -284,6 +284,36 @@ static int chooserQueryCallback(lua_State *L) {
     return 1;
 }
 
+/// hs.chooser:rightClickCallback([fn]) -> hs.chooser object
+/// Method
+/// Sets/clears a callback for right clicking on choices
+///
+/// Paramters:
+///  * fn - An optional function taht will be called whenever the user right clicks on a choice. If this parameter is omitted, the existing callback will be removed.
+///
+/// Returns:
+///  * The hs.chosoer object
+///
+/// Notes:
+///   * The callback should accept no arguments. To determine the location of the mouse pointer at the right click, see `hs.mouse`.
+///   * To display a context menu, see `hs.menubar`, specifically the `:popupMenu()` method
+static int chooserRightClickCallback(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TFUNCTION|LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    chooser.rightClickCallbackRef = [skin luaUnref:refTable ref:chooser.rightClickCallbackRef];
+
+    if (lua_type(L, 2) == LUA_TFUNCTION) {
+        chooser.rightClickCallbackRef = [skin luaRef:refTable atIndex:2];
+    }
+
+    lua_pushvalue(L, 1);
+    return 1;
+}
+
 /// hs.chooser:delete()
 /// Method
 /// Deletes a chooser
@@ -566,6 +596,7 @@ static const luaL_Reg userdataLib[] = {
     {"query", chooserSetQuery},
     {"delete", chooserDelete},
     {"refreshChoicesCallback", chooserRefreshChoicesCallback},
+    {"rightClickCallback", chooserRightClickCallback},
 
     {"fgColor", chooserSetFgColor},
     {"subTextColor", chooserSetSubTextColor},

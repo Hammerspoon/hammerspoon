@@ -13,6 +13,7 @@
 @protocol HSChooserTableViewDelegate <NSObject>
 
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row;
+- (void)didRightClick;
 
 @end
 

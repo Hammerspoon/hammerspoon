@@ -50,6 +50,7 @@
 @property(nonatomic) int choicesCallbackRef;
 @property(nonatomic) int queryChangedCallbackRef;
 @property(nonatomic) int completionCallbackRef;
+@property(nonatomic) int rightClickCallbackRef;
 
 // A pointer to the hs.chooser module's references table
 @property(nonatomic) int *refTable;
@@ -71,6 +72,7 @@
 
 // HSChooserTableViewDelegate
 - (void)tableView:(NSTableView *)tableView didClickedRow:(NSInteger)row;
+- (void)didRightClick;
 
 // NSTextFieldDelgate
 

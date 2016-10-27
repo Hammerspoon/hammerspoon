@@ -50,6 +50,12 @@
     }
 }
 
+- (void)rightMouseDown:(NSEvent *)theEvent {
+    if ([self.extendedDelegate respondsToSelector:@selector(didRightClick)]) {
+        [self.extendedDelegate didRightClick];
+    }
+}
+
 - (BOOL) allowsVibrancy {
     return YES;
 }
