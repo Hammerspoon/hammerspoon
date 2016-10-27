@@ -64,6 +64,7 @@
 - (void)resizeWindow;
 - (void)show;
 - (void)hide;
+- (BOOL)isVisible;
 
 // NSTableViewDataSource
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView;

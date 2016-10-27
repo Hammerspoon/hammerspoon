@@ -197,6 +197,10 @@
     self.window.isVisible = NO;
 }
 
+- (BOOL)isVisible {
+    return self.window.isVisible;
+}
+
 #pragma mark - NSTableViewDataSource
 
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)tableView {

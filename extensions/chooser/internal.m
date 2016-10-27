@@ -80,6 +80,26 @@ static int chooserHide(lua_State *L) {
     return 1;
 }
 
+/// hs.chooser:isVisible() -> boolean
+/// Method
+/// Checks if the chooser is currently displayed
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A boolean, true if the chooser is displayed on screen, false if not
+static int chooserIsVisible(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    lua_pushboolean(L, [chooser isVisible]);
+    return 1;
+}
+
 /// hs.chooser:choices(choices) -> hs.chooser object
 /// Method
 /// Sets the choices for a chooser
@@ -540,6 +560,7 @@ static const luaL_Reg chooserLib[] = {
 static const luaL_Reg userdataLib[] = {
     {"show", chooserShow},
     {"hide", chooserHide},
+    {"isVisible", chooserIsVisible},
     {"choices", chooserSetChoices},
     {"queryChangedCallback", chooserQueryCallback},
     {"query", chooserSetQuery},
