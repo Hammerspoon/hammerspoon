@@ -45,8 +45,11 @@
     // for each item in the list, convert to Foundation object and add to the array
     for ( NSInteger itemIndex = 1; itemIndex <= numItems; itemIndex++ ) {
         NSAppleEventDescriptor* itemDesc = [desc descriptorAtIndex:itemIndex];
+        id objectValue = [itemDesc objectValue];
 
-        [array addObject:[itemDesc objectValue]];
+        if (objectValue) {
+            [array addObject:objectValue];
+        }
     }
 
     return [NSArray arrayWithArray:array];
@@ -101,6 +104,11 @@
         default:
             object = [self stringValue];
             break;
+    }
+
+    if (!object) {
+        // FIXME: Do better logging here
+        NSLog(@"ERROR: NSAppleEventDescriptor objectValue is nil. Given descriptorType is: %d", descType);
     }
 
     return object;
