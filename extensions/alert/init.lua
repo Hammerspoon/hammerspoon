@@ -153,7 +153,7 @@ module.show = function(message, ...)
             style = v
         elseif type(v) == "userdata" and not screenObj then
             screenObj = v
-        else if type(duration) == "nil" then
+        elseif type(duration) == "nil" then
             duration = v
         else
             error("unexpected type " .. type(v) .. " found for argument " .. tostring(i + 1), 2)
