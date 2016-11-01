@@ -55,14 +55,14 @@ local purgeAlert = function(UUID, duration)
     end
 end
 
-local showAlert = function(message, style, duration)
+local showAlert = function(message, style, screenObj, duration)
     local thisAlertStyle = {}
     for k,v in pairs(module.defaultStyle) do thisAlertStyle[k] = v end
     if type(style) == "table" then
         for k,v in pairs(style) do thisAlertStyle[k] = v end
     end
 
-    local screenFrame = screen.mainScreen():fullFrame()
+    local screenFrame = screenObj:fullFrame()
 
     local absoluteTop = screenFrame.h * (1 - 1 / 1.55) + 55 -- mimic module behavior for inverted rect
     if #module._visibleAlerts > 0 then
@@ -123,15 +123,16 @@ local showAlert = function(message, style, duration)
     return UUID
 end
 
---- hs.alert.show(str [, style] [, seconds]) -> uuid
+--- hs.alert.show(str, [style], [screen], [seconds]) -> uuid
 --- Function
 --- Shows a message in large words briefly in the middle of the screen; does tostring() on its argument for convenience.
 ---
 --- NOTE: For convenience, you can call this function as `hs.alert(...)`
 ---
 --- Parameters:
----  * str - The string to display in the alert
----  * style - an optional table containing one or more of the keys specified in [hs.alert.defaultStyle](#defaultStyle)
+---  * str     - The string to display in the alert
+---  * style   - an optional table containing one or more of the keys specified in [hs.alert.defaultStyle](#defaultStyle)
+---  * screen  - an optional `hs.screen` userdata object specifying the screen (monitor) to display the alert on.  Defaults to `hs.screen.mainScreen()` which corresponds to the screen with the currently focused window.
 ---  * seconds - The number of seconds to display the alert. Defaults to 2.  If seconds is specified and is not a number, displays the alert indefinately.
 ---
 --- Returns:
@@ -140,11 +141,23 @@ end
 --- Notes:
 ---  * If you specify a non-number value for `seconds` you will need to store the string identifier returned by this function so that you can close it manually with `hs.alert.closeSpecific` when the alert should be removed.
 ---  * Any style element which is not specified in the `style` argument table will use the value currently defined in the [hs.alert.defaultStyle](#defaultStyle) table.
-module.show = function(message, style, duration)
-    message = tostring(message)
-    if type(style) == "number" then style, duration = nil, style end
-    duration = duration or 2.0
-    return showAlert(message, style, duration)
+module.show = function(message, ...)
+    local style, screenObj, duration
+    for i,v in ipairs(table.pack(...)) do
+        if type(v) == "number" then
+            duration = v
+        elseif type(v) == "table" then
+            style = v
+        elseif type(v) == "userdata" then
+            screenObj = v
+        else
+            error("unexpected type " .. type(v) .. " found", 2)
+        end
+    end
+    message   = tostring(message)
+    duration  = duration or 2.0
+    screenObj = screenObj or screen.mainScreen()
+    return showAlert(message, style, screenObj, duration)
 end
 
 --- hs.alert.closeAll([seconds])
