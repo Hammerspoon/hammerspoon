@@ -180,7 +180,7 @@ NSString *specMaskToString(int spec);
 
 /*!
  @abstract Prepares the Lua environment in the LuaSkin object
- @warning This method should only ever be called after an explicit call to destroyLuaState
+ @warning This method should only ever be called after an explicit call to destroyLuaState.
  There is no need to call it when initialising a LuaSkin instance
  */
 - (void)createLuaState;
