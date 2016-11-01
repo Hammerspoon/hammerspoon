@@ -139,19 +139,24 @@ end
 ---  * a string identifier for the alert.
 ---
 --- Notes:
----  * If you specify a non-number value for `seconds` you will need to store the string identifier returned by this function so that you can close it manually with `hs.alert.closeSpecific` when the alert should be removed.
+---  * The optional parameters are parsed in the order presented as follows:
+---    * if the argument is a table and `style` has not previously been set, then the table is assigned to `style`
+---    * if the argument is a userdata and `screen` has not previously been set, then the userdata is assigned to `screen`
+---    * if `duration` has not been set, then it is assigned the value of the argument
+---    * if all of these conditions fail for a given argument, then an error is returned
+---  * The reason for this logic is to support the creation of persistent alerts as was previously handled by the module: If you specify a non-number value for `seconds` you will need to store the string identifier returned by this function so that you can close it manually with `hs.alert.closeSpecific` when the alert should be removed.
 ---  * Any style element which is not specified in the `style` argument table will use the value currently defined in the [hs.alert.defaultStyle](#defaultStyle) table.
 module.show = function(message, ...)
     local style, screenObj, duration
     for i,v in ipairs(table.pack(...)) do
-        if type(v) == "number" then
-            duration = v
-        elseif type(v) == "table" then
+        if type(v) == "table" and not style then
             style = v
-        elseif type(v) == "userdata" then
+        elseif type(v) == "userdata" and not screenObj then
             screenObj = v
+        else if type(duration) == "nil" then
+            duration = v
         else
-            error("unexpected type " .. type(v) .. " found", 2)
+            error("unexpected type " .. type(v) .. " found for argument " .. tostring(i + 1), 2)
         end
     end
     message   = tostring(message)
