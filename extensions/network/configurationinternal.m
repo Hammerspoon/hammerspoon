@@ -328,6 +328,38 @@ static int dynamicStoreLocation(lua_State *L) {
     return 1 ;
 }
 
+/// hs.network.configuration:locations() -> table
+/// Method
+/// Returns all configured locations
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a table of key-value pairs mapping location UUIDs to their names
+///
+static int dynamicStoreLocations(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    SCPreferencesRef prefs = SCPreferencesCreate(NULL, CFSTR("Hammerspoon"), NULL);
+
+    CFArrayRef locations = SCNetworkSetCopyAll(prefs);
+    CFIndex i, c = CFArrayGetCount(locations);
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+
+    for (i=0; i<c; i++) {
+        SCNetworkSetRef location = CFArrayGetValueAtIndex(locations, i);
+        CFStringRef setID = SCNetworkSetGetSetID(location);
+        CFStringRef name = SCNetworkSetGetName(location);
+        dict[(__bridge NSString*) setID] = (__bridge NSString *)(name);
+    }
+    [skin pushNSObject:dict];
+
+    CFRelease(prefs);
+    CFRelease(locations);
+    return 1 ;
+}
+
 /// hs.network.configuration:proxies() -> table
 /// Method
 /// Returns information about the currently active proxies, if any
@@ -545,6 +577,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"consoleUser",  dynamicStoreConsoleUser},
     {"hostname",     dynamicStoreLocalHostName},
     {"location",     dynamicStoreLocation},
+    {"locations",    dynamicStoreLocations},
     {"proxies",      dynamicStoreProxies},
     {"monitorKeys",  dynamicStoreMonitorKeys},
     {"setCallback",  dynamicStoreSetCallback},
