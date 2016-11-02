@@ -343,10 +343,10 @@ static int dynamicStoreLocations(lua_State *L) {
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
     SCPreferencesRef prefs = SCPreferencesCreate(NULL, CFSTR("Hammerspoon"), NULL);
 
-    if(!prefs) { lua_pushnil(L); CFRelease(prefs); return 1; }
+    if(!prefs) { lua_pushnil(L); return 1; }
 
     CFArrayRef locations = SCNetworkSetCopyAll(prefs);
-    if(!locations) { lua_pushnil(L); CFRelease(prefs); CFRelease(locations); return 1; }
+    if(!locations) { lua_pushnil(L); CFRelease(prefs); return 1; }
 
     CFIndex i, c = CFArrayGetCount(locations);
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
