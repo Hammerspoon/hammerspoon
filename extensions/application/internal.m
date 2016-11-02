@@ -1003,6 +1003,9 @@ static int application_getMenus(lua_State* L) {
 ///
 /// Returns:
 ///  * True if the application was either launched or focused, otherwise false (e.g. if the application doesn't exist)
+///
+/// Notes:
+///  * The name parameter should match the name of the application on disk, e.g. "IntelliJ IDEA", rather than "IntelliJ"
 static int application_launchorfocus(lua_State* L) {
     NSString* name = [NSString stringWithUTF8String: luaL_checkstring(L, 1)];
     BOOL success = [[NSWorkspace sharedWorkspace] launchApplication: name];
