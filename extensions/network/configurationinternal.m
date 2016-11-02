@@ -300,6 +300,97 @@ static int dynamicStoreLocalHostName(lua_State *L) {
     return 1 ;
 }
 
+// internal stuff to make setLocation work
+#define kSCPreferencesOptionChangeNetworkSet    CFSTR("change-network-set") // CFBooleanRef
+SCPreferencesRef
+SCPreferencesCreateWithOptions      (
+                                     CFAllocatorRef      allocator,
+                                     CFStringRef     name,
+                                     CFStringRef     prefsID,
+                                     AuthorizationRef    authorization,
+                                     CFDictionaryRef options
+                                     );
+
+/// hs.network.configuration:setLocation(location) -> boolean
+/// Method
+/// Switches to a new location
+///
+/// Parameters:
+///  * location - string containing UUID or name of new location
+///
+/// Returns:
+///  * bool
+static int dynamicStoreSetLocation(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TBREAK];
+    
+    NSString *target ;
+    if (lua_gettop(L) == 2) {
+        target = [skin toNSObjectAtIndex:2];
+    }
+    AuthorizationRef authorization = NULL;
+    AuthorizationFlags flags = kAuthorizationFlagDefaults;
+    OSStatus status = AuthorizationCreate(NULL,
+                                          kAuthorizationEmptyEnvironment,
+                                          flags,
+                                          &authorization);
+
+    if (status != errAuthorizationSuccess) {
+        lua_pushboolean(L, 0);
+        if(authorization) {
+            AuthorizationFree(authorization, kAuthorizationFlagDestroyRights);
+        }
+        return 1;
+    }
+
+    CFMutableDictionaryRef options = CFDictionaryCreateMutable(NULL,
+                                                               0,
+                                                               &kCFTypeDictionaryKeyCallBacks,
+                                                               &kCFTypeDictionaryValueCallBacks);
+    CFDictionarySetValue(options, kSCPreferencesOptionChangeNetworkSet, kCFBooleanTrue);
+
+    SCPreferencesRef prefs = SCPreferencesCreateWithOptions(NULL, CFSTR("SystemConfiguration"), NULL, authorization, options);
+    if(!prefs) {
+        lua_pushboolean(L, 0);
+        AuthorizationFree(authorization, kAuthorizationFlagDestroyRights);
+        CFRelease(options);
+        return 1;
+    }
+
+    CFArrayRef locations = SCNetworkSetCopyAll(prefs);
+    if(!locations) {
+        lua_pushboolean(L, 0);
+        AuthorizationFree(authorization, kAuthorizationFlagDestroyRights);
+        CFRelease(options);
+        CFRelease(prefs);
+        return 1;
+    }
+
+    CFIndex i, c = CFArrayGetCount(locations);
+
+    bool success=false;
+
+    for (i=0; i<c; i++) {
+        SCNetworkSetRef item = CFArrayGetValueAtIndex(locations, i);
+        
+        CFStringRef name = SCNetworkSetGetName((SCNetworkSetRef)item);
+        if (CFStringCompare(name, (CFStringRef)target, 0) == kCFCompareEqualTo) {
+            bool res = SCNetworkSetSetCurrent((SCNetworkSetRef)item);
+            bool res2 = SCPreferencesCommitChanges(prefs);
+            bool res3 = SCPreferencesApplyChanges(prefs);
+            success = res || res2 || res3;
+            break;
+        }
+    }
+    lua_pushboolean(L, success);
+    AuthorizationFree(authorization, kAuthorizationFlagDestroyRights);
+    CFRelease(options);
+    CFRelease(prefs);
+    CFRelease(locations);
+
+    return 1;
+}
+
 /// hs.network.configuration:location() -> location
 /// Method
 /// Returns the current location identifier
@@ -585,6 +676,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"proxies",      dynamicStoreProxies},
     {"monitorKeys",  dynamicStoreMonitorKeys},
     {"setCallback",  dynamicStoreSetCallback},
+    {"setLocation",  dynamicStoreSetLocation},
     {"start",        dynamicStoreStartWatcher},
     {"stop",         dynamicStoreStopWatcher},
 
