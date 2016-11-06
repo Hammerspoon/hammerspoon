@@ -408,7 +408,7 @@ static int readPropertyListForType(lua_State *L) {
     return 1 ;
 }
 
-/// hs.pasteboard.writeDataForUTI([name], uti, data) -> string
+/// hs.pasteboard.writeDataForUTI([name], uti, data) -> boolean
 /// Function
 /// Sets the pasteboard to the contents of the data and assigns its type to the specified UTI.
 ///
