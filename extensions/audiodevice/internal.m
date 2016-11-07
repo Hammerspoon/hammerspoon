@@ -497,7 +497,7 @@ static int audiodevice_setmuted(lua_State* L) {
         kAudioObjectPropertyElementMaster
     };
 
-    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, mutedSize, &muted) != noErr)) {
+    if (AudioObjectHasProperty(deviceId, &propertyAddress) && (AudioObjectSetPropertyData(deviceId, &propertyAddress, 0, NULL, mutedSize, &muted) == noErr)) {
         lua_pushboolean(L, TRUE);
     } else {
         lua_pushboolean(L, FALSE);
