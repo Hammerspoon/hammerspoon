@@ -170,4 +170,22 @@ function caffeinate.shutdownSystem()
     applescript('tell application "System Events" to shut down')
 end
 
+-- allow reverse lookups of numeric values passed into callback function
+local watcherMT = getmetatable(caffeinate.watcher)
+watcherMT.__index = function(self, key)
+    if math.type(key) == "integer" then
+        local answer = nil
+        for k, v in pairs(self) do
+            if math.type(v) == "integer" and key == v then
+                answer = k
+                break
+            end
+        end
+        return answer
+    else
+        return nil
+    end
+end
+caffeinate.watcher = setmetatable(caffeinate.watcher, watcherMT)
+
 return caffeinate
