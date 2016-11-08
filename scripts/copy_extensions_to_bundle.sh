@@ -38,6 +38,7 @@ export HS_MODULES="application \
     pathwatcher \
     screen \
     settings \
+    sharing \
     socket \
     sound \
     speech \
