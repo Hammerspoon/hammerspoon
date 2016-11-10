@@ -299,7 +299,7 @@ static int screen_gammaGet(lua_State* L) {
     CGGammaValue *greenTable = malloc(sizeof(CGGammaValue) * gammaCapacity);
     CGGammaValue *blueTable = malloc(sizeof(CGGammaValue) * gammaCapacity);
 
-    if (CGGetDisplayTransferByTable(0, gammaCapacity, redTable, greenTable, blueTable, &sampleCount) != kCGErrorSuccess) {
+    if (CGGetDisplayTransferByTable(screen_id, gammaCapacity, redTable, greenTable, blueTable, &sampleCount) != kCGErrorSuccess) {
         free(redTable);
         free(greenTable);
         free(blueTable);
