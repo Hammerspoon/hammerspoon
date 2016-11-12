@@ -375,7 +375,7 @@ end
 ---  * a locationObject
 ---
 --- Notes:
----  * The locationObject created will receive callbacks independant of all other locationObjects and the legacy callback functions created with [hs.location.registerCallback](#registerCallback).  It can also receive callbacks for region changes which are not available through the legacy callback mechanism.
+---  * The locationObject created will receive callbacks independant of all other locationObjects and the legacy callback functions created with [hs.location.register](#register).  It can also receive callbacks for region changes which are not available through the legacy callback mechanism.
 module.new = function()
     local self = { id = host.uuid(), regions = {} }
     self.label = tostring(self):match("^table: (.+)$")
