@@ -331,7 +331,12 @@ end
 ---
 --- Notes:
 ---  * You can turn the return value into a more useful structure, with ```os.date("*t", returnvalue)```
+---  * For compatibility with the locationTable object returned by [hs.location.get](#get), this function can also be invoked as `hs.location.sunrise(locationTable, offset[, date])`.
 module.sunrise = function (lat, lon, offset, date)
+    if type(lat) == "table" then
+        offset, date = lon, offset
+        lat, lon = lat.latitude, lat.longitude
+    end
     local zenith = 90.83
     if not date then
         date = os.date("*t")
@@ -354,7 +359,12 @@ end
 ---
 --- Notes:
 ---  * You can turn the return value into a more useful structure, with ```os.date("*t", returnvalue)```
+---  * For compatibility with the locationTable object returned by [hs.location.get](#get), this function can also be invoked as `hs.location.sunset(locationTable, offset[, date])`.
 module.sunset = function (lat, lon, offset, date)
+    if type(lat) == "table" then
+        offset, date = lon, offset
+        lat, lon = lat.latitude, lat.longitude
+    end
     local zenith = 90.83
     if not date then
         date = os.date("*t")
