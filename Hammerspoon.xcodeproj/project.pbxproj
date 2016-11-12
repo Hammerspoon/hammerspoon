@@ -1111,6 +1111,7 @@
 		D64B03361BA9541E0006C468 /* webview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = webview.h; path = extensions/webview/webview.h; sourceTree = "<group>"; };
 		D64B03381BA954660006C468 /* usercontent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = usercontent.m; path = extensions/webview/usercontent.m; sourceTree = "<group>"; };
 		D64B03461BA954780006C468 /* libwebviewusercontent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewusercontent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		D66B763A1DD6FD1400CA12E6 /* geocoder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = geocoder.lua; path = extensions/location/geocoder.lua; sourceTree = "<group>"; };
 		D6B772981CCB544B00908A59 /* cgilua_compatibility_functions.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cgilua_compatibility_functions.lua; path = extensions/httpserver/cgilua_compatibility_functions.lua; sourceTree = "<group>"; };
 		D6B772991CCB544B00908A59 /* hsminweb.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = hsminweb.lua; path = extensions/httpserver/hsminweb.lua; sourceTree = "<group>"; };
 		D6B946431D139C4900177E0C /* datastore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = datastore.m; path = extensions/webview/datastore.m; sourceTree = "<group>"; };
@@ -1974,6 +1975,7 @@
 		4F6B3EBC1B73DC7000B2A4DE /* location */ = {
 			isa = PBXGroup;
 			children = (
+				D66B763A1DD6FD1400CA12E6 /* geocoder.lua */,
 				4F6B3EBD1B73DC8400B2A4DE /* init.lua */,
 				4F6B3EBE1B73DC8400B2A4DE /* internal.m */,
 			);

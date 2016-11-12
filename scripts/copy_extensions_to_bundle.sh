@@ -127,6 +127,9 @@ cp -av "${SRCROOT}/extensions/httpserver/cgilua_compatibility_functions.lua" "${
 # Special copier for hs.speech.listener
 cp -av "${BUILT_PRODUCTS_DIR}/libspeechlistener.dylib" "${HS_DST}/speech/listener.so"
 
+# Special copier for hs.location.geocoder submodule
+cp -av "${SRCROOT}/extensions/location/geocoder.lua" "${HS_DST}/location/geocoder.lua"
+
 # Special copier for hs.network submodules
 cp -av "${SRCROOT}/extensions/network/configuration.lua" "${HS_DST}/network/configuration.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libnetworkconfiguration.dylib" "${HS_DST}/network/configurationinternal.so"
