@@ -183,7 +183,9 @@ int refTable ;
             }
         } else {
     // NSLog(@"hs.notify passing off to original handler") ;
-            [old_delegate userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:notification];
+            if ([old_delegate respondsToSelector:@selector(userNotificationCenter:didActivateNotification:)]) {
+                [old_delegate userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:notification];
+            }
         }
     }
 
