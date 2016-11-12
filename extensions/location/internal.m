@@ -144,7 +144,7 @@ static HSLocation *location ;
                 case kCLAuthorizationStatusNotDetermined:    [skin pushNSObject:@"undefined"] ; break ;
                 case kCLAuthorizationStatusRestricted:       [skin pushNSObject:@"restricted"] ; break ;
                 case kCLAuthorizationStatusDenied:           [skin pushNSObject:@"denied"] ; break ;
-                case kCLAuthorizationStatusAuthorizedAlways: [skin pushNSObject:@"authorized"] ; break ;
+                case kCLAuthorizationStatusAuthorized: [skin pushNSObject:@"authorized"] ; break ;
                 default:
                     [skin pushNSObject:[NSString stringWithFormat:@"unrecognized CLAuthorizationStatus: %d, notify developers", status]] ;
                     break ;
@@ -243,7 +243,7 @@ static int location_authorizationStatus(__unused lua_State *L) {
         case kCLAuthorizationStatusNotDetermined:    [skin pushNSObject:@"undefined"] ; break ;
         case kCLAuthorizationStatusRestricted:       [skin pushNSObject:@"restricted"] ; break ;
         case kCLAuthorizationStatusDenied:           [skin pushNSObject:@"denied"] ; break ;
-        case kCLAuthorizationStatusAuthorizedAlways: [skin pushNSObject:@"authorized"] ; break ;
+        case kCLAuthorizationStatusAuthorized: [skin pushNSObject:@"authorized"] ; break ;
         default:
             [skin pushNSObject:[NSString stringWithFormat:@"unrecognized CLAuthorizationStatus: %d, notify developers", [CLLocationManager authorizationStatus]]] ;
             break ;
@@ -413,7 +413,7 @@ static int location_fakeLocationChange(lua_State *L) {
             } else if ([status isEqualToString:@"denied"]) {
                 statusCode = kCLAuthorizationStatusDenied ;
             } else if ([status isEqualToString:@"authorized"]) {
-                statusCode = kCLAuthorizationStatusAuthorizedAlways ;
+                statusCode = kCLAuthorizationStatusAuthorized ;
             } else {
                 return luaL_argerror(L, 2, [[NSString stringWithFormat:@"%@ is not a recognized status", status] UTF8String]) ;
             }
