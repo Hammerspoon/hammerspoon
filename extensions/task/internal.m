@@ -933,7 +933,13 @@ int luaopen_hs_task_internal(lua_State* L) {
                 BOOL continueStreaming = lua_toboolean(L, -1);
 
                 if (continueStreaming) {
-                    [fh readInBackgroundAndNotify];
+                    @try {
+                        [fh readInBackgroundAndNotify];
+                    } @catch (NSException *exception) {
+                        [skin logError:[NSString stringWithFormat:@"hs.task:setStreamCallback() post-callback background reading threw an exception. Please file a bug saying: %@", exception.description]];
+                    } @finally {
+                        ;
+                    }
                 }
             }
             lua_pop(L, 1); // result or error
