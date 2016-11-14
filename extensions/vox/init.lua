@@ -308,3 +308,5 @@ end
 function vox.isRunning()
   return app.get("VOX"):isRunning() ~= nil
 end
+
+return vox
