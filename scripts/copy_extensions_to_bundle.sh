@@ -80,6 +80,7 @@ export HS_LUAONLY="_coresetup \
     spaces \
     tabs \
     utf8 \
+    vox \
     doc"
 
 # First, copy all of our init.lua's into the destination bundle
