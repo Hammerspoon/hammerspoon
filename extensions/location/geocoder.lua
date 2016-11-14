@@ -1,0 +1,34 @@
+
+--- === hs.location.geocoder ===
+---
+--- Converts between GPS coordinates and more user friendly representations like an address or points of interest.
+---
+--- This module converts between GPS coordinates and the user-friendly representation of that coordinate. A user-friendly representation of the coordinate typically consists of the street, city, state, and country information corresponding to the given location, but it may also contain a relevant point of interest, landmarks, or other identifying information.
+---
+--- Your computer must have network access for the geocoder object to return detailed placemark information and is rate limited.  Geocoding requests are rate-limited, so making too many requests in a short period of time may cause some of the requests to fail with a network error.
+---
+--- Use of this module does not require Location Services to be enabled for Hammerspoon.
+---
+--- A `placemarkTable` is returned to the callback functions used by the constructor methods of this module.  These tables may contain one or more of the following keys:
+---  * `addressDictionary`     - a table containing key-value pairs for the components of the address for the placemark
+---  * `administrativeArea`    - a string containing the state or province associated with the placemark
+---  * `subAdministrativeArea` - a string containing additional administrative area information for the placemark
+---  * `areasOfInterest`       - a table as an array of strings describing areas of interest associated with the placemark
+---  * `country`               - a string containing the name of the country associated with the placemark
+---  * `countryCode`           - a string containing the standard abbreviation for the country associated with the placemark
+---  * `inlandWater`           - a string containing the name of the inland water body associated with the placemark
+---  * `locality`              - a string containing the city associated with the placemark
+---  * `subLocality`           - a string containing additional city-level information for the placemark
+---  * `location`              - the locationTable, as described in the `hs.location` module header, for the placemark
+---  * `name`                  - a string containing the name of the placemark
+---  * `ocean`                 - a string containing the name of the ocean associated with the placemark
+---  * `postalCode`            - a string containing the postal code associated with the placemark
+---  * `region`                - a regionTable, as described in the `hs.location` module header, specifying the he geographic region associated with the placemark
+---  * `thoroughfare`          - a string containing the street address associated with the placemark
+---  * `subThoroughfare`       - a string containing additional street-level information for the placemark
+---  * `timeZone`              - a string containing the time zone associated with the placemark
+
+-- by including this as a separate file, the user can use `require("hs.location.geocoder)"` if they just
+-- want to use the geocoder... loading `hs.location` does not actually engage Location Services unless you
+-- use one of it's functions.
+return require("hs.location").geocoder
