@@ -147,14 +147,19 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // Find where our bundle is on disk
     NSDictionary *environment = [NSProcessInfo processInfo].environment;
+    NSLog(@"Environment: %@", environment);
 
-    /* This is currently disabled because Xcode 8 removed XCTestConfigurationFilePath from the environment, we have to rely on $PWD now
     NSString *xcTestConfigurationFilePath = environment[@"XCTestConfigurationFilePath"];
     NSRange chopPoint = [xcTestConfigurationFilePath rangeOfString:@"LuaSkinTests.xctest/Contents/Resources/"];
-    NSString *bundlePath = [xcTestConfigurationFilePath substringWithRange:NSMakeRange(0, chopPoint.location + chopPoint.length - 1)];
-    */
+    NSString *bundlePath = nil;
 
-    NSString *bundlePath = [NSString stringWithFormat:@"%@/LuaSkinTests.xctest/Contents/Resources/", environment[@"PWD"]];
+    if (chopPoint.location == NSNotFound) {
+        // We're probably running under Xcode 8.1 (and later?) which doesn't export XCTestConfigurationFilePath anymore
+        bundlePath = [NSString stringWithFormat:@"%@/LuaSkinTests.xctest/Contents/Resources/", environment[@"PWD"]];
+    } else {
+        // We're probably running under Xcode 8.0 or earlier
+        bundlePath = [xcTestConfigurationFilePath substringWithRange:NSMakeRange(0, chopPoint.location + chopPoint.length - 1)];
+    }
 
     // Now find lsunit.lua within the bundle. It will end by require()ing our init.lua
     NSString *lsUnitPath = [NSString stringWithFormat:@"%@/lsunit.lua", bundlePath];
