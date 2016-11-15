@@ -23,6 +23,8 @@ local validClasses = { "any", "IPv4", "IPv6" }
 local internals = setmetatable({}, { __mode = "k" })
 
 local basicPingCompletionFunction = function(self)
+    -- in case we got here through the cancel method, set this so isRunning works
+    internals[self].allSent = true
     -- most likely this has already happened, unless called through cancel method
     if getmetatable(internals[self].pingTimer) then internals[self].pingTimer:stop() end
     internals[self].pingTimer = nil
@@ -176,7 +178,7 @@ pingObjectMT = {
 --- Returns:
 ---  * A boolean indicating if the ping process is paused (true) or not (false)
     isPaused = function(self)
-        return not internals[self].paused
+        return internals[self].paused or false -- force nil to return false
     end,
 
 --- hs.network.ping:address() -> string
@@ -258,6 +260,39 @@ pingObjectMT = {
 ---  * the `didFinish` message will be sent to the callback function as its final message.
     cancel  = basicPingCompletionFunction,
 
+--- hs.network.ping:setCallback(fn | nil) -> pingObject
+--- Method
+--- Set or remoce the callback function for the pingObject.
+---
+--- Paramters:
+---  * `fn` - the function to set as the callback, or nil if you wish use the default callback.
+---
+--- Returns:
+---  * the pingObject
+---
+--- Notes:
+---  * Because the ping process begins immediately upon creation with the [hs.network.ping.ping](#ping) constructor, it is preferable to assign the callback with the constructor itself.
+---  * This method is provided as a means of changing the callback based on other events (a change in the current network or location, perhaps.)
+---  * If you truly wish to create a pingObject with no callback, you will need to do something like `hs.network.ping.ping(...):setCallback(function() end)`.
+    setCallback = function(self, ...)
+        -- sigh, the only way to check for an explicit nil
+        local args = table.pack(...)
+        if args.n == 1 then
+            local fn = args[1]
+            if (getmetatable(fn) or {}).__call or type(fn) == "function" then
+                internals[self].callback = fn
+            elseif type(fn) == "nil" then
+                internals[self].callback = module._defaultCallback
+            else
+                error("expeected a function or nil, found " .. type(fn), 2)
+            end
+        else
+            error("expected 1 argument, found " .. tostring(args.n), 2)
+        end
+        return self
+    end,
+
+-- mimic traditional userdata metatable fields so this can be used from C if a need arises
     __name = USERDATA_TAG,
     __type = USERDATA_TAG,
     __index = function(self, key)
