@@ -165,7 +165,8 @@ static int pushTestUserData(lua_State *L, id object) {
     NSString *lsUnitPath = [NSString stringWithFormat:@"%@/lsunit.lua", bundlePath];
 
     NSString *travisDebugNonsense = [NSString stringWithFormat:@"ENV: %@ PATH: %@", environment, bundlePath];
-    printf("I HOPE I SEE THIS: %s", travisDebugNonsense.UTF8String);
+    NSException *debugException = [NSException exceptionWithName:@"LOLDEBUG" reason:travisDebugNonsense userInfo:nil];
+    @throw debugException;
 
     // Prepare a refTable
     lua_newtable(self.skin.L);
