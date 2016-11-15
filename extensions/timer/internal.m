@@ -15,7 +15,9 @@ static int refTable;
 @property NSTimer *t;
 @property int fnRef;
 @property BOOL continueOnError;
+@property BOOL repeats;
 
+- (void)create:(NSTimeInterval)interval repeat:(BOOL)repeat;
 - (void)callback:(NSTimer *)timer;
 - (BOOL)isRunning;
 - (void)start;
@@ -26,6 +28,10 @@ static int refTable;
 @end
 
 @implementation HSTimer
+- (void)create:(NSTimeInterval)interval repeat:(BOOL)repeat {
+    self.t = [NSTimer timerWithTimeInterval:interval target:self selector:@selector(callback:) userInfo:nil repeats:repeat];
+}
+
 - (void)callback:(NSTimer *)timer {
     LuaSkin *skin = [LuaSkin shared];
     
@@ -58,9 +64,13 @@ static int refTable;
 }
 
 - (void)start {
-    if (self.t.isValid) {
-        [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSDefaultRunLoopMode];
+    if (!self.t.isValid) {
+        // We've previously been stopped, which means the NSTimer is invalid, so recreate it
+        [self create:self.t.timeInterval repeat:self.repeats];
     }
+
+    [self setNextTrigger:self.t.timeInterval];
+    [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSDefaultRunLoopMode];
 }
 
 - (void)stop {
@@ -93,7 +103,8 @@ HSTimer *createHSTimer(NSTimeInterval interval, int callbackRef, BOOL continueOn
     HSTimer *timer = [[HSTimer alloc] init];
     timer.fnRef = callbackRef;
     timer.continueOnError = continueOnError;
-    timer.t = [NSTimer timerWithTimeInterval:interval target:timer selector:@selector(callback:) userInfo:nil repeats:repeat];
+    timer.repeats = repeat;
+    [timer create:interval repeat:repeat];
 
     return timer;
 }
@@ -281,12 +292,20 @@ static int timer_nextTrigger(lua_State *L) {
 ///
 /// Returns:
 ///  * The `hs.timer` object, or nil if an error occurred
+///
+/// Notes:
+///  * If the timer is not already running, this will start it
 static int timer_setNextTrigger(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER, LS_TBREAK];
     HSTimer *timer = get_objectFromUserdata(__bridge HSTimer, L, 1, USERDATA_TAG);
 
     NSTimeInterval seconds = (NSTimeInterval)lua_tonumber(L, 2);
+
+    if (![timer isRunning]) {
+        [timer start];
+    }
+
     [timer setNextTrigger:seconds];
 
     lua_pushvalue(L, 1);
