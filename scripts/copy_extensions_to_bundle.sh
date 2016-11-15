@@ -138,6 +138,9 @@ cp -av "${SRCROOT}/extensions/network/host.lua" "${HS_DST}/network/host.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libnetworkhost.dylib" "${HS_DST}/network/hostinternal.so"
 cp -av "${SRCROOT}/extensions/network/reachability.lua" "${HS_DST}/network/reachability.lua"
 cp -av "${BUILT_PRODUCTS_DIR}/libnetworkreachability.dylib" "${HS_DST}/network/reachabilityinternal.so"
+mkdir -pv "${HS_DST}/network/ping"
+cp -av "${SRCROOT}/extensions/network/ping/init.lua" "${HS_DST}/network/ping/init.lua"
+cp -av "${BUILT_PRODUCTS_DIR}/libnetworkping.dylib" "${HS_DST}/network/ping/internal.so"
 
 # Special copier for hs.socket.udp
 cp -av "${BUILT_PRODUCTS_DIR}/libsocketudp.dylib" "${HS_DST}/socket/udp.so"
