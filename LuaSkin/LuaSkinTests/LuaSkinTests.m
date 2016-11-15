@@ -164,6 +164,9 @@ static int pushTestUserData(lua_State *L, id object) {
     // Now find lsunit.lua within the bundle. It will end by require()ing our init.lua
     NSString *lsUnitPath = [NSString stringWithFormat:@"%@/lsunit.lua", bundlePath];
 
+    NSString *travisDebugNonsense = [NSString stringWithFormat:@"ENV: %@ PATH: %@", environment, bundlePath];
+    printf("I HOPE I SEE THIS: %s", travisDebugNonsense.UTF8String);
+
     // Prepare a refTable
     lua_newtable(self.skin.L);
     self.refTable = luaL_ref(self.skin.L, LUA_REGISTRYINDEX);
