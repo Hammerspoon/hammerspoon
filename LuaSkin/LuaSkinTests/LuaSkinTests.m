@@ -147,7 +147,6 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // Find where our bundle is on disk
     NSDictionary *environment = [NSProcessInfo processInfo].environment;
-    NSLog(@"Environment: %@", environment);
 
     NSString *xcTestConfigurationFilePath = environment[@"XCTestConfigurationFilePath"];
     NSRange chopPoint = [xcTestConfigurationFilePath rangeOfString:@"LuaSkinTests.xctest/Contents/Resources/"];
@@ -163,10 +162,6 @@ static int pushTestUserData(lua_State *L, id object) {
 
     // Now find lsunit.lua within the bundle. It will end by require()ing our init.lua
     NSString *lsUnitPath = [NSString stringWithFormat:@"%@/lsunit.lua", bundlePath];
-
-    NSString *travisDebugNonsense = [NSString stringWithFormat:@"ENV: %@ PATH: %@", environment, bundlePath];
-    NSException *debugException = [NSException exceptionWithName:@"LOLDEBUG" reason:travisDebugNonsense userInfo:nil];
-    @throw debugException;
 
     // Prepare a refTable
     lua_newtable(self.skin.L);
