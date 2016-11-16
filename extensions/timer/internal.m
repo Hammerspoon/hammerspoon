@@ -16,6 +16,7 @@ static int refTable;
 @property int fnRef;
 @property BOOL continueOnError;
 @property BOOL repeats;
+@property NSTimeInterval interval;
 
 - (void)create:(NSTimeInterval)interval repeat:(BOOL)repeat;
 - (void)callback:(NSTimer *)timer;
@@ -53,7 +54,7 @@ static int refTable;
         if (!self.continueOnError) {
             // some details about the timer to help identify which one it is:
             [skin logBreadcrumb:@"hs.timer callback failed. The timer has been stopped to prevent repeated notifications of the error."];
-            [skin logBreadcrumb:[NSString stringWithFormat:@"  timer details: %s repeating, every %f seconds, next scheduled at %@", CFRunLoopTimerDoesRepeat((__bridge CFRunLoopTimerRef)timer) ? "is" : "is not", timer.timeInterval, timer.fireDate]];
+            [skin logBreadcrumb:[NSString stringWithFormat:@"  timer details: %s repeating, every %f seconds, next scheduled at %@", CFRunLoopTimerDoesRepeat((__bridge CFRunLoopTimerRef)timer) ? "is" : "is not", self.interval, timer.fireDate]];
             [self.t invalidate];
         }
     }
@@ -66,10 +67,10 @@ static int refTable;
 - (void)start {
     if (!self.t.isValid) {
         // We've previously been stopped, which means the NSTimer is invalid, so recreate it
-        [self create:self.t.timeInterval repeat:self.repeats];
+        [self create:self.interval repeat:self.repeats];
     }
 
-    [self setNextTrigger:self.t.timeInterval];
+    [self setNextTrigger:self.interval];
     [[NSRunLoop currentRunLoop] addTimer:self.t forMode:NSDefaultRunLoopMode];
 }
 
@@ -104,6 +105,7 @@ HSTimer *createHSTimer(NSTimeInterval interval, int callbackRef, BOOL continueOn
     timer.fnRef = callbackRef;
     timer.continueOnError = continueOnError;
     timer.repeats = repeat;
+    timer.interval = interval;
     [timer create:interval repeat:repeat];
 
     return timer;
