@@ -9,7 +9,7 @@ pod 'CocoaLumberjack', '2.2.0'
 pod 'CocoaAsyncSocket', '7.4.3'
 pod 'CocoaHTTPServer', '2.3'
 pod 'PocketSocket/Client', '1.0.1'
-pod 'Crashlytics', '3.7.3'
-pod 'Fabric', '1.6.8'
+pod 'Crashlytics', '3.8.3'
+pod 'Fabric', '1.6.11'
 pod 'Sparkle', '1.14.0', :configurations => ['Release']
 end
