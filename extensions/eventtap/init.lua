@@ -95,13 +95,13 @@ function module.event.newMouseEvent(eventtype, point, modifiers)
     return module.event._newMouseEvent(eventtype, point, button, modifiers)
 end
 
---- hs.eventtap.leftClick(point, [delay])
+--- hs.eventtap.leftClick(point[, delay])
 --- Function
 --- Generates a left mouse click event at the specified point
 ---
 --- Parameters:
 ---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
----  * delay - (optional) A delaybetween mouse down and up event
+---  * delay - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
 ---
 --- Returns:
 ---  * None
@@ -118,13 +118,13 @@ function module.leftClick(point, delay)
     module.event.newMouseEvent(module.event.types["leftMouseUp"], point):post()
 end
 
---- hs.eventtap.rightClick(point, [delay])
+--- hs.eventtap.rightClick(point[, delay])
 --- Function
 --- Generates a right mouse click event at the specified point
 ---
 --- Parameters:
 ---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
----  * delay - (optional) A delaybetween mouse down and up event
+---  * delay - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
 ---
 --- Returns:
 ---  * None
@@ -141,13 +141,13 @@ function module.rightClick(point, delay)
     module.event.newMouseEvent(module.event.types["rightMouseUp"], point):post()
 end
 
---- hs.eventtap.middleClick(point, [delay])
+--- hs.eventtap.middleClick(point[, delay])
 --- Function
 --- Generates a middle mouse click event at the specified point
 ---
 --- Parameters:
 ---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
----  * delay - (optional) A delaybetween mouse down and up event
+---  * delay - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
 ---
 --- Returns:
 ---  * None
@@ -164,14 +164,14 @@ function module.middleClick(point, delay)
     module.event.newMouseEvent(module.event.types["middleMouseUp"], point):post()
 end
 
---- hs.eventtap.keyStroke(modifiers, character, [delay])
+--- hs.eventtap.keyStroke(modifiers, character[, delay])
 --- Function
 --- Generates and emits a single keystroke event pair for the supplied keyboard modifiers and character
 ---
 --- Parameters:
 ---  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", "fn", or their Unicode equivalents)
 ---  * character - A string containing a character to be emitted
----  * delay - (optional) A delaybetween key down and up event
+---  * delay - An optional delay (in microseconds) between mouse down and up event. Defaults to 200000 (i.e. 200ms)
 ---
 --- Returns:
 ---  * None
