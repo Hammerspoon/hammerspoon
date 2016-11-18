@@ -107,9 +107,13 @@ end
 ---
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `leftmousedown` and `leftmouseup` events)
-function module.leftClick(point)
+function module.leftClick(point, delay)
+    if delay==nil then
+        delay=200000
+    end
+
     module.event.newMouseEvent(module.event.types["leftMouseDown"], point):post()
-    hs.timer.usleep(200000)
+    hs.timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["leftMouseUp"], point):post()
 end
 
@@ -125,9 +129,13 @@ end
 ---
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `rightmousedown` and `rightmouseup` events)
-function module.rightClick(point)
+function module.rightClick(point, delay)
+    if delay==nil then
+        delay=200000
+    end
+
     module.event.newMouseEvent(module.event.types["rightMouseDown"], point):post()
-    hs.timer.usleep(200000)
+    hs.timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["rightMouseUp"], point):post()
 end
 
@@ -143,9 +151,13 @@ end
 ---
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `middlemousedown` and `middlemouseup` events)
-function module.middleClick(point)
+function module.middleClick(point, delay)
+    if delay==nil then
+        delay=200000
+    end
+
     module.event.newMouseEvent(module.event.types["middleMouseDown"], point):post()
-    hs.timer.usleep(200000)
+    hs.timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["middleMouseUp"], point):post()
 end
 
@@ -162,9 +174,13 @@ end
 ---
 --- Notes:
 ---  * This function is ideal for sending single keystrokes with a modifier applied (e.g. sending ⌘-v to paste, with `hs.eventtap.keyStroke({"cmd"}, "v")`). If you want to emit multiple keystrokes for typing strings of text, see `hs.eventtap.keyStrokes()`
-function module.keyStroke(modifiers, character)
+function module.keyStroke(modifiers, character, delay)
+    if delay==nil then
+        delay=200000
+    end
+
     module.event.newKeyEvent(modifiers, string.lower(character), true):post()
-    hs.timer.usleep(200000)
+    hs.timer.usleep(delay)
     module.event.newKeyEvent(modifiers, string.lower(character), false):post()
 end
 
