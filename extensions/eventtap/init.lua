@@ -95,76 +95,96 @@ function module.event.newMouseEvent(eventtype, point, modifiers)
     return module.event._newMouseEvent(eventtype, point, button, modifiers)
 end
 
---- hs.eventtap.leftClick(point)
+--- hs.eventtap.leftClick(point, [delay])
 --- Function
 --- Generates a left mouse click event at the specified point
 ---
 --- Parameters:
 ---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---  * delay - (optional) A delaybetween mouse down and up event
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `leftmousedown` and `leftmouseup` events)
-function module.leftClick(point)
+function module.leftClick(point, delay)
+    if delay==nil then
+        delay=200000
+    end
+
     module.event.newMouseEvent(module.event.types["leftMouseDown"], point):post()
-    hs.timer.usleep(200000)
+    hs.timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["leftMouseUp"], point):post()
 end
 
---- hs.eventtap.rightClick(point)
+--- hs.eventtap.rightClick(point, [delay])
 --- Function
 --- Generates a right mouse click event at the specified point
 ---
 --- Parameters:
 ---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---  * delay - (optional) A delaybetween mouse down and up event
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `rightmousedown` and `rightmouseup` events)
-function module.rightClick(point)
+function module.rightClick(point, delay)
+    if delay==nil then
+        delay=200000
+    end
+
     module.event.newMouseEvent(module.event.types["rightMouseDown"], point):post()
-    hs.timer.usleep(200000)
+    hs.timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["rightMouseUp"], point):post()
 end
 
---- hs.eventtap.middleClick(point)
+--- hs.eventtap.middleClick(point, [delay])
 --- Function
 --- Generates a middle mouse click event at the specified point
 ---
 --- Parameters:
 ---  * point - A table with keys `{x, y}` indicating the location where the mouse event should occur
+---  * delay - (optional) A delaybetween mouse down and up event
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
 ---  * This is a wrapper around `hs.eventtap.event.newMouseEvent` that sends `middlemousedown` and `middlemouseup` events)
-function module.middleClick(point)
+function module.middleClick(point, delay)
+    if delay==nil then
+        delay=200000
+    end
+
     module.event.newMouseEvent(module.event.types["middleMouseDown"], point):post()
-    hs.timer.usleep(200000)
+    hs.timer.usleep(delay)
     module.event.newMouseEvent(module.event.types["middleMouseUp"], point):post()
 end
 
---- hs.eventtap.keyStroke(modifiers, character)
+--- hs.eventtap.keyStroke(modifiers, character, [delay])
 --- Function
 --- Generates and emits a single keystroke event pair for the supplied keyboard modifiers and character
 ---
 --- Parameters:
 ---  * modifiers - A table containing the keyboard modifiers to apply ("fn", "ctrl", "alt", "cmd", "shift", "fn", or their Unicode equivalents)
 ---  * character - A string containing a character to be emitted
+---  * delay - (optional) A delaybetween key down and up event
 ---
 --- Returns:
 ---  * None
 ---
 --- Notes:
 ---  * This function is ideal for sending single keystrokes with a modifier applied (e.g. sending ⌘-v to paste, with `hs.eventtap.keyStroke({"cmd"}, "v")`). If you want to emit multiple keystrokes for typing strings of text, see `hs.eventtap.keyStrokes()`
-function module.keyStroke(modifiers, character)
+function module.keyStroke(modifiers, character, delay)
+    if delay==nil then
+        delay=200000
+    end
+
     module.event.newKeyEvent(modifiers, string.lower(character), true):post()
-    hs.timer.usleep(200000)
+    hs.timer.usleep(delay)
     module.event.newKeyEvent(modifiers, string.lower(character), false):post()
 end
 
