@@ -474,10 +474,16 @@
         //NSLog(@"Got an event: %lu %@:%i", (unsigned long)flags, [event charactersIgnoringModifiers], [[event charactersIgnoringModifiers] characterAtIndex:0]);
 
         if (flags == mods) {
-            if ([[event charactersIgnoringModifiers] isEqualToString: key] || [[event charactersIgnoringModifiers] characterAtIndex:0] == keyCode) {
-                //NSLog(@"firing action");
-                action();
-                return nil;
+            @try {
+                if ([[event charactersIgnoringModifiers] isEqualToString: key] || [[event charactersIgnoringModifiers] characterAtIndex:0] == keyCode) {
+                    //NSLog(@"firing action");
+                    action();
+                    return nil;
+                }
+            } @catch (NSException *exception) {
+                ;
+            } @finally {
+                ;
             }
         }
         return event;
