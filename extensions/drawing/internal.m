@@ -1190,6 +1190,12 @@ static int drawing_setSize(lua_State *L) {
     NSRect oldFrame = drawingWindow.frame;
     NSRect newFrame = NSMakeRect(oldFrame.origin.x, oldFrame.origin.y + oldFrame.size.height - windowSize.height, windowSize.width, windowSize.height);
 
+    if (!CGRectContainsRect(CGRectMake((CGFloat)INT_MIN, (CGFloat)INT_MIN, (CGFloat)INT_MAX - (CGFloat)INT_MIN, (CGFloat)INT_MAX - (CGFloat)INT_MIN), newFrame)) {
+        [skin logError:@"hs.drawing:setSize() called with invalid size"];
+        lua_pushvalue(L, 1);
+        return 1;
+    }
+
     [drawingWindow setFrame:newFrame display:YES animate:NO];
 
     if ([drawingView isKindOfClass:[HSDrawingViewText class]]) {
