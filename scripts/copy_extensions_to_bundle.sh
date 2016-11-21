@@ -42,6 +42,7 @@ export HS_MODULES="application \
     socket \
     sound \
     speech \
+    spotlight \
     styledtext \
     task \
     timer \
