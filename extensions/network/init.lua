@@ -4,9 +4,26 @@
 
 local USERDATA_TAG   = "hs.network"
 local module         = {}
-module.reachability  = require(USERDATA_TAG..".reachability")
-module.host          = require(USERDATA_TAG..".host")
-module.configuration = require(USERDATA_TAG..".configuration")
+-- module.reachability  = require(USERDATA_TAG..".reachability")
+-- module.host          = require(USERDATA_TAG..".host")
+-- module.configuration = require(USERDATA_TAG..".configuration")
+-- module.ping          = require(USERDATA_TAG..".ping")
+
+-- auto-load submodules as needed
+local submodules = {
+    reachability  = USERDATA_TAG..".reachability",
+    host          = USERDATA_TAG..".host",
+    configuration = USERDATA_TAG..".configuration",
+    ping          = USERDATA_TAG..".ping",
+}
+setmetatable(module, {
+    __index = function(self, key)
+        if submodules[key] then
+            self[key] = require(submodules[key])
+        end
+        return rawget(self, key)
+    end,
+})
 
 local inspect        = require("hs.inspect")
 local fnutils        = require("hs.fnutils")
