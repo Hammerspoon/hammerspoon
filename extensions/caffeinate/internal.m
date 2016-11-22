@@ -174,6 +174,31 @@ static int caffeinate_declareUserActivity(lua_State *L) {
     return 1;
 }
 
+/// hs.caffeinate.sessionProperties()
+/// Function
+/// Fetches information from the display server about the current session
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * A table containing information about the current session, or nil if an error occurred
+///
+/// Notes:
+///  * The keys in this dictionary will vary based on the current state of the system (e.g. local vs VNC login, screen locked vs unlocked).
+static int caffeinate_sessionProperties(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TBREAK];
+
+    CFDictionaryRef ref = CGSessionCopyCurrentDictionary();
+
+    [skin pushNSObject:(__bridge NSDictionary *)ref];
+
+    CFRelease(ref);
+
+    return 1;
+}
+
 // ----------------------- Lua/hs glue GAR ---------------------
 
 static int caffeinate_gc(lua_State *L) {
@@ -200,6 +225,8 @@ static const luaL_Reg caffeinatelib[] = {
     {"systemSleep", caffeinate_systemSleep},
 
     {"declareUserActivity", caffeinate_declareUserActivity},
+
+    {"sessionProperties", caffeinate_sessionProperties},
 
     {NULL, NULL}
 };
