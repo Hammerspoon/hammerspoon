@@ -8,6 +8,37 @@ application.watcher = require "hs.application.watcher"
 package.loaded['hs.application']=application --preload application so it can be fully required by window
 local window = require "hs.window"
 local timer = require "hs.timer"
+local settings = require "hs.settings"
+
+local alternateNameMap = {}
+local spotlightEnabled = settings.get("HSenableSpotlightForNameSearches")
+
+-- internal search tool for alternate names
+local realNameFor = function(value, exact)
+    if type(value) ~= "string" then
+        error('hint must be a string', 2)
+    end
+    if not exact then
+        local results = {}
+        for k, v in pairs(alternateNameMap) do
+            if k:lower():find(value:lower()) then
+                -- I can foresee someday wanting to know how often a match was found, so make it a
+                -- number rather than a boolean so I can cut & paste this
+                results[v] = (results[v] or 0) + 1
+            end
+        end
+        local returnedResults = {}
+        for k,v in pairs(results) do
+            table.insert(returnedResults, k:match("^(.*)%.app$") or k)
+        end
+        return table.unpack(returnedResults)
+    else
+        local realName = alternateNameMap[value]
+        -- hs.application functions/methods do not like the .app at the end of application
+        -- bundles, so remove it.
+        return realName and realName:match("^(.*)%.app$") or realName
+    end
+end
 
 local type,pairs,ipairs=type,pairs,ipairs
 local tunpack,tpack,tsort=table.unpack,table.pack,table.sort
@@ -103,6 +134,7 @@ end
 --- hs.application'chrome':name() --> Google Chrome
 --- -- by window title
 --- hs.application'bash':name() --> Terminal
+local findSpotlightWarningGiven = false
 function application.find(hint,exact)
   if hint==nil then return end
   local typ=type(hint)
@@ -114,6 +146,16 @@ function application.find(hint,exact)
 
   if exact then for _,a in ipairs(apps) do if a:name()==hint then r[#r+1]=a end end
   else for _,a in ipairs(apps) do local aname=a:name() if aname and aname:lower():find(hint:lower()) then r[#r+1]=a end end end
+
+  if spotlightEnabled then
+      for i, v in ipairs(table.pack(realNameFor(hint, exact))) do
+          for _, a in ipairs(apps) do if v:lower() == a:name():lower() then r[#r+1]=a end end
+      end
+  elseif type(spotlightEnabled) == "nil" and not findSpotlightWarningGiven then
+      findSpotlightWarningGiven = true
+      print("-- Some applications have alternate names which can also be checked if you enable Spotlight support with `hs.application.enableSpotlightForNameSearches(true)`.")
+  end
+
   tsort(r,function(a,b)return a:kind()>b:kind()end) -- gui apps first
   if exact or #r>0 then return tunpack(r) end
 
@@ -337,11 +379,91 @@ application.menuGlyphs = setmetatable({
   end,
 })
 
+-- handles updates to the alternateNameMap table
+local modifyNameMap = function(info, add)
+    for _, item in ipairs(info) do
+        local applicationName = item.kMDItemFSName
+        for __, alt in ipairs(item.kMDItemAlternateNames or {}) do
+            alternateNameMap[alt:match("^(.*)%.app$") or alt] = add and applicationName or nil
+        end
+    end
+end
+
+-- local var to hold spotlight query userdata to catch updates
+local spotlightWatcher
+
+-- starts the spotlight query to get the alternate names for applications
+local buildAlternateNameMap = function()
+    if spotlightWatcher then -- force a rebuild if it's already running
+        spotlightWatcher:stop()
+        spotlightWatcher = nil
+        alternateNameMap = {}
+        application._alternateNameMap = alternateNameMap
+    end
+    spotlightWatcher = require"hs.spotlight".new()
+    spotlightWatcher:queryString([[ kMDItemContentType = "com.apple.application-bundle" ]])
+                    :callbackMessages("didUpdate", "inProgress")
+                    :setCallback(function(obj, msg, info)
+                        if info then -- shouldn't be nil for didUpdate and inProgress, but check anyways
+                            -- all three can occur in either message, so check them all!
+                            if info.kMDQueryUpdateAddedItems   then
+                                modifyNameMap(info.kMDQueryUpdateAddedItems,   true)
+                            end
+                            if info.kMDQueryUpdateChangedItems then
+                                modifyNameMap(info.kMDQueryUpdateChangedItems, true)
+                            end
+                            if info.kMDQueryUpdateRemovedItems then
+                                modifyNameMap(info.kMDQueryUpdateRemovedItems, false)
+                            end
+                        end
+                    end):start()
+end
+
+--- hs.application.enableSpotlightForNameSearches([state]) -> boolean
+--- Function
+--- Get or set whether Spotlight should be used to find alternate names for applications.
+---
+--- Parameters:
+---  * `state` - an optional boolean specifying whether or not Spotlight should be used to try and determine alternate application names for `hs.application.find` and similar functions.
+---
+--- Returns:
+---  * the current, possibly changed, state
+---
+--- Notes:
+---  * This setting is persistent across reloading and restarting Hammerspoon.
+---  * If this was set to true and you set it to true again, it will purge the alternate name map and rebuild it from scratch.
+---  * You can disable Spotlight alternate name mapping by setting this value to false or nil. If you set this to false, then the notifications indicating that more results might be possible if Spotlight is enabled will be suppressed.
+application.enableSpotlightForNameSearches = function(...)
+    local args = table.pack(...)
+    if args.n > 0 then
+        if args[1] then
+            settings.set("HSenableSpotlightForNameSearches", true)
+            spotlightEnabled = true
+            buildAlternateNameMap()
+        else
+            settings.set("HSenableSpotlightForNameSearches", args[1])
+            spotlightEnabled = args[1]
+            if spotlightWatcher then
+                spotlightWatcher:stop()
+                spotlightWatcher = nil
+            end
+            alternateNameMap = {}
+            application._alternateNameMap = alternateNameMap
+        end
+    end
+    return settings.get("HSenableSpotlightForNameSearches")
+end
+
+-- if the setting is set, then go ahead and start the build process
+if spotlightEnabled then buildAlternateNameMap() end
+
 do
   local mt=getmetatable(application)
   -- whoever gets it first (window vs application)
   if not mt.__call then mt.__call=function(t,...) return t.find(...) end end
 end
+
+application._alternateNameMap = alternateNameMap
 
 return application
 
