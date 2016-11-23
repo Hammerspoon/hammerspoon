@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F478F0C1DE6251400E0DC38 /* lobjectivec_exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */; };
+		4F478F0D1DE6251400E0DC38 /* lobjectivec_exceptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F478F0B1DE6251400E0DC38 /* lobjectivec_exceptions.m */; };
 		4FB155611D6F523C008D1902 /* lapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FB155251D6F523C008D1902 /* lapi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FB155631D6F523C008D1902 /* lauxlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FB155271D6F523C008D1902 /* lauxlib.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FB155671D6F523C008D1902 /* lcode.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FB1552B1D6F523C008D1902 /* lcode.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -112,6 +114,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lobjectivec_exceptions.h; path = LuaSkin/lobjectivec_exceptions.h; sourceTree = "<group>"; };
+		4F478F0B1DE6251400E0DC38 /* lobjectivec_exceptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = lobjectivec_exceptions.m; path = LuaSkin/lobjectivec_exceptions.m; sourceTree = "<group>"; };
 		4FB155241D6F523C008D1902 /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lapi.c; path = "lua-5.3.3/src/lapi.c"; sourceTree = "<group>"; };
 		4FB155251D6F523C008D1902 /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lapi.h; path = "lua-5.3.3/src/lapi.h"; sourceTree = "<group>"; };
 		4FB155261D6F523C008D1902 /* lauxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lauxlib.c; path = "lua-5.3.3/src/lauxlib.c"; sourceTree = "<group>"; };
@@ -214,6 +218,8 @@
 		4FB155231D6F5222008D1902 /* lua-5.3.3 */ = {
 			isa = PBXGroup;
 			children = (
+				4F478F0A1DE6251400E0DC38 /* lobjectivec_exceptions.h */,
+				4F478F0B1DE6251400E0DC38 /* lobjectivec_exceptions.m */,
 				4FB155241D6F523C008D1902 /* lapi.c */,
 				4FB155251D6F523C008D1902 /* lapi.h */,
 				4FB155261D6F523C008D1902 /* lauxlib.c */,
@@ -394,6 +400,7 @@
 				4FB155D01D6F52BD008D1902 /* lua.h in Headers */,
 				4FB155C41D6F52BD008D1902 /* lgc.h in Headers */,
 				4FB155D51D6F52BD008D1902 /* lzio.h in Headers */,
+				4F478F0C1DE6251400E0DC38 /* lobjectivec_exceptions.h in Headers */,
 				4FB155BF1D6F52BD008D1902 /* lcode.h in Headers */,
 				4FB155CE1D6F52BD008D1902 /* ltable.h in Headers */,
 				4FB155D11D6F52BD008D1902 /* luaconf.h in Headers */,
@@ -558,6 +565,7 @@
 				4FB155A11D6F5299008D1902 /* lcorolib.c in Sources */,
 				4FB1559C1D6F5299008D1902 /* lapi.c in Sources */,
 				4FB155B01D6F5299008D1902 /* lopcodes.c in Sources */,
+				4F478F0D1DE6251400E0DC38 /* lobjectivec_exceptions.m in Sources */,
 				4FB155AC1D6F5299008D1902 /* lmathlib.c in Sources */,
 				4FB1559E1D6F5299008D1902 /* lbaselib.c in Sources */,
 				4FB155A51D6F5299008D1902 /* ldo.c in Sources */,

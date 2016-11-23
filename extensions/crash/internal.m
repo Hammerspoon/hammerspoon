@@ -23,6 +23,28 @@ static int burnTheWorld(lua_State *L __unused) {
     return 0;
 }
 
+/// hs.crash.throwObjCException(name, message)
+/// Function
+/// Causes Hammerspoon to generate an Objective C exception
+///
+/// Paramters:
+///  * name - A string containing the name of the exception
+///  * message - A human readabke string explaining the exception
+///
+/// Returns:
+///  * None
+///
+/// Notes:
+///  * Outside of a context of a Lua pcall() (or a C lua_pcall()), this will cause Hammerspoon to exit. We follow the safe behaviour of terminating the app on any unhandled Objective C exception.
+static int throwTheWorld(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TSTRING, LS_TSTRING, LS_TBREAK];
+
+    [NSException raise:[skin toNSObjectAtIndex:1] format:@"%@", [skin toNSObjectAtIndex:2]];
+
+    return 0;
+}
+
 // NOTE: Second parameter here is deliberately undocumented, it is covered in init.lua as a global variable
 /// hs.crash.crashLog(logMessage)
 /// Function
@@ -98,6 +120,7 @@ static int residentSize(lua_State *L) {
 
 static const luaL_Reg crashlib[] = {
     {"crash", burnTheWorld},
+    {"throwObjCException", throwTheWorld},
     {"_crashLog", crashLog},
     {"crashKV", crashKV},
     {"residentSize", residentSize},

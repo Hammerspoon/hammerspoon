@@ -69,6 +69,7 @@
 #define LUA_USE_POSIX
 #define LUA_USE_DLOPEN		/* MacOS does not need -ldl */
 #define LUA_USE_READLINE	/* needs an extra library: -lreadline */
+#define LUA_USE_OBJC_EXCEPTIONS		/* Instead of ULONGJMP or C++ */
 #endif
 
 
