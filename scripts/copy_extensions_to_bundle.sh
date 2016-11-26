@@ -63,6 +63,7 @@ export HS_LUAONLY="_coresetup \
     alert \
     appfinder \
     applescript \
+    deezer \
     expose \
     fnutils \
     geometry \
