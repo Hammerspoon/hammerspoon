@@ -30,6 +30,7 @@ int keycodes_cachemap(lua_State* L) {
         kVK_ANSI_Comma, kVK_ANSI_Slash, kVK_ANSI_Period, kVK_ISO_Section,
     };
 
+    // NOTE: It appears that TISCopyCurrentKeyboardInputSources() can return NULL
     TISInputSourceRef currentKeyboard = TISCopyCurrentKeyboardInputSource();
     CFDataRef layoutData = TISGetInputSourceProperty(currentKeyboard, kTISPropertyUnicodeKeyLayoutData);
 
@@ -107,7 +108,9 @@ int keycodes_cachemap(lua_State* L) {
         pushkeycode(L, kVK_ISO_Section, "§");
     }
 
-    CFRelease(currentKeyboard);
+    if (currentKeyboard) {
+        CFRelease(currentKeyboard);
+    }
 
     pushkeycode(L, kVK_F1, "f1");
     pushkeycode(L, kVK_F2, "f2");
