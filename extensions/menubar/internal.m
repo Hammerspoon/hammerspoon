@@ -835,6 +835,7 @@ static int menubar_delete(lua_State *L) {
 
     if (!menuBarItem->removed) {
         [statusBar removeStatusItem:statusItem];
+        menuBarItem->removed = YES;
     }
 
     menuBarItem->menuBarItemObject = nil;
