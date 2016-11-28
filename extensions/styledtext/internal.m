@@ -1052,7 +1052,7 @@ static int string_removeStyleForRange(lua_State *L) {
 ///  * clear      - an optional boolean indicating whether or not the attributes of the new string should be included (true) or whether the new substring should inherit the attributes of the first character replaced (false).  Defaults to false if `string` is a Lua String or number; otherwise defaults to true.
 ///
 /// Returns:
-///  * a copy of the `hs.styledtext` object with the specified substring replacement to the original object.
+///  * a copy of the `hs.styledtext` object with the specified substring replacement to the original object, or nil if an error occurs
 ///
 /// Notes:
 ///  * `starts` and `ends` follow the conventions of `i` and `j` for Lua's `string.sub` function except that `starts` must refer to an index preceding or equal to `ends`, even after negative and out-of-bounds indices are adjusted for.
@@ -1108,13 +1108,18 @@ static int string_replaceSubstringForRange(lua_State *L) {
 
     NSMutableAttributedString *newString = [theString mutableCopy];
 
-    if (withAttributes) {
-        // will this copy keep Lua from thinking a userdata has been changed after __gc, thus causing a crash?  If it does, I don't know why...
-        [newString replaceCharactersInRange:theRange withAttributedString:[subString copy]];
-    } else {
-        [newString replaceCharactersInRange:theRange withString:[subString string]];
+    @try {
+        if (withAttributes) {
+            // will this copy keep Lua from thinking a userdata has been changed after __gc, thus causing a crash?  If it does, I don't know why...
+            [newString replaceCharactersInRange:theRange withAttributedString:[subString copy]];
+        } else {
+            [newString replaceCharactersInRange:theRange withString:[subString string]];
+        }
+        [skin pushNSObject:newString];
+    } @catch (NSException *exception) {
+        [skin logError:[NSString stringWithFormat:@"Exception was thrown by hs.styledtext:setString(): %@", exception.description]];
+        lua_pushnil(L);
     }
-    [skin pushNSObject:newString];
 
     return 1;
 }
