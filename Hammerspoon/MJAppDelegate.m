@@ -154,7 +154,11 @@ static BOOL MJFirstRunForCurrentVersion(void) {
 
 - (IBAction) showAboutPanel:(id)sender {
     [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
-    [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
+    @try {
+        [[NSApplication sharedApplication] orderFrontStandardAboutPanel: nil];
+    } @catch (NSException *exception) {
+        [[LuaSkin shared] logError:@"Unable to open About dialog. This may mean your Hammerspoon installation is corrupt. Please re-install it!"];
+    }
 }
 
 - (IBAction) quitHammerspoon:(id)sender {
