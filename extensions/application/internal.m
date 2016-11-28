@@ -869,7 +869,7 @@ id _getMenuStructure(AXUIElementRef menuItem) {
 
     // See if we're dealing with the "special" Apple menu, and ignore it
     CFTypeRef firstElement = CFArrayGetValueAtIndex(cfAttributeValues, 0);
-    if (CFGetTypeID(firstElement) == CFStringGetTypeID()) {
+    if (firstElement && CFGetTypeID(firstElement) == CFStringGetTypeID()) {
         if (CFStringCompare((CFStringRef)CFArrayGetValueAtIndex(cfAttributeValues, 0), (__bridge CFStringRef)@"Apple", 0) == kCFCompareEqualTo) {
             CFRelease(cfAttributeValues);
             cfAttributeValues = nil;
