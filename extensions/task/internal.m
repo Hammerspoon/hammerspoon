@@ -124,11 +124,18 @@ void create_task(task_userdata_t *userData) {
             NSFileHandle *stdErrFH = [task.standardError fileHandleForReading];
             NSFileHandle *stdInFH = [task.standardInput fileHandleForWriting];
 
-            NSString *stdOut = [[NSString alloc] initWithData:[stdOutFH readDataToEndOfFile] encoding:NSUTF8StringEncoding];
-            NSString *stdErr = [[NSString alloc] initWithData:[stdErrFH readDataToEndOfFile] encoding:NSUTF8StringEncoding];
+            NSString *stdOut = nil;
+            NSString *stdErr = nil;
 
-            [stdOutFH closeFile];
-            [stdErrFH closeFile];
+            @try {
+                stdOut = [[NSString alloc] initWithData:[stdOutFH readDataToEndOfFile] encoding:NSUTF8StringEncoding];
+                stdErr = [[NSString alloc] initWithData:[stdErrFH readDataToEndOfFile] encoding:NSUTF8StringEncoding];
+            } @catch (NSException *exception) {
+                [skin logWarn:[NSString stringWithFormat:@"hs.task terminationHandler block encountered an exception: %@", exception.description]];
+            } @finally {
+                [stdOutFH closeFile];
+                [stdErrFH closeFile];
+            }
 
             userData = userDataFromNSTask(task);
 
