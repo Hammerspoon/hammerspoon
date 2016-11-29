@@ -80,6 +80,16 @@ static int libraryTestObjectDoThing(lua_State *L) {
     return 1;
 }
 
+static int libraryTestCauseException(lua_State *L) {
+    NSMutableDictionary *testDict = [[NSMutableDictionary alloc] initWithCapacity:1];
+    NSString *key = @"testKey";
+    NSString *value = nil;
+
+    [testDict setObject:value forKey:key];
+    lua_pushstring(L, "NEVERSEE");
+    return 1;
+}
+
 static int libraryTestObjectGC(lua_State *L) {
     libraryObjectGCCalled = YES;
     return 0;
@@ -88,6 +98,7 @@ static int libraryTestObjectGC(lua_State *L) {
 static const luaL_Reg functions[] = {
     {"new", libraryTestNew},
     {"doThing", libraryTestDoThing},
+    {"causeException", libraryTestCauseException},
     {NULL, NULL}
 };
 
@@ -1038,6 +1049,23 @@ id luaObjectHelperTestFunction(lua_State *L, int idx) {
     // Test the userdata mapped variants
     XCTAssertTrue([self.skin registerLuaObjectHelper:luaObjectHelperTestFunction forClass:"luaObjectHelperTestUserdata" withUserdataMapping:"luaskin.testObjectHelper"]);
     XCTAssertFalse([self.skin registerLuaObjectHelper:luaObjectHelperTestFunction forClass:"luaObjectHelperTestUserdata" withUserdataMapping:"luaskin.testObjectHelper"]);
+}
+
+- (void)testObjCExceptionHandler {
+    [self.skin registerLibrary:functions metaFunctions:metaFunctions];
+
+    // Normally we'd be returning to a luaopen_ function after registerLibrary, and thus the library would be inserted into the right namespace. Since we're not doing that here, we'll just go ahead and register it as a global, using the library name
+    lua_setglobal(self.skin.L, libraryTestName);
+
+    // Call a function from the test library and test its return value
+    luaL_loadstring(self.skin.L, "return testLibrary.causeException()");
+    BOOL pCallResult = [self.skin protectedCallAndTraceback:0 nresults:1];
+    XCTAssertFalse(pCallResult);
+
+    NSString *result = @(lua_tostring(self.skin.L, -1));
+
+    XCTAssertNotEqualObjects(@"NEVERSEE", result);
+    XCTAssertTrue([result containsString:@"NSInvalidArgumentException"]);
 }
 
 @end
