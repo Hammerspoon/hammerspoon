@@ -389,12 +389,12 @@ NSString *specMaskToString(int spec) {
                 } else if (spec & LS_TFUNCTION) {
                 // they want a function, so let's see if this table can mimic a function
                     if (luaL_getmetafield(self.L, idx, "__call") != LUA_TNIL) {
+                        lua_pop(self.L, 1) ;
                         lsType = LS_TFUNCTION ;
                     } else {
                 // no, so allow normal error handling to catch this
                         lsType = LS_TTABLE ;
                     }
-                    lua_pop(self.L, 1) ;
                 } else {
                     lsType = LS_TTABLE;
                 }
