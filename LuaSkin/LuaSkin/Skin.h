@@ -377,6 +377,20 @@ NSString *specMaskToString(int spec);
  */
 - (void)checkArgs:(int)firstArg, ...;
 
+/*!
+ @abstract Returns the effective Lua type for the item at the specified stack index.
+
+ @discussion This method returns the Lua type for the item at the specified index.
+
+ At present, the only difference between this and the Lua API function `lua_type` is that a table with a __call metamethod is considered a function and will return LUA_TFUNCTION, since [LuaSkin protectedCallAndTraceback:nresults:] can accept such a table as the function to invoke.
+
+ @param idx the index on lua stack which contains the data to return a type for
+
+ @returns An integer which will be one of the following: LUA_TNIL, LUA_TNUMBER, LUA_TBOOLEAN, LUA_TSTRING, LUA_TTABLE, LUA_TFUNCTION, LUA_TUSERDATA, LUA_TTHREAD, or LUA_TLIGHTUSERDATA.
+
+ */
+- (int)luaTypeAtIndex:(int)idx ;
+
 #pragma mark - Conversion from NSObjects into Lua objects
 
 /*! @methodgroup Converting NSObject objects into Lua variables */

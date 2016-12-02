@@ -494,6 +494,26 @@ static int pushTestUserData(lua_State *L, id object) {
     // It seems like we need to set a lua_atpanic() function and have that long jump to safety to prevent the abort(), but what can we jump to?
 }
 
+- (void)testLuaTypeAtIndex {
+    lua_State *L = self.skin.L ;
+
+    lua_newtable(L) ;
+    lua_newtable(L) ;
+    luaL_loadstring(L, "function foo() end") ;
+    lua_setfield(L, -2, "__call") ;
+    lua_setmetatable(L, -2) ;
+    XCTAssertEqual(LUA_TFUNCTION, [self.skin luaTypeAtIndex:-1]) ;
+    lua_pop(L, 1) ;
+
+    lua_newtable(L) ;
+    lua_newtable(L) ;
+    luaL_loadstring(L, "function foo() end") ;
+    lua_setfield(L, -2, "__notcall") ;
+    lua_setmetatable(L, -2) ;
+    XCTAssertEqual(LUA_TTABLE, [self.skin luaTypeAtIndex:-1]) ;
+    lua_pop(L, 1) ;
+}
+
 - (void)testPushNSObject {
     LSTestDelegate *testDelegate = [[LSTestDelegate alloc] init];
     self.skin.delegate = testDelegate;
