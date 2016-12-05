@@ -2004,6 +2004,29 @@ static int webview_alpha(lua_State *L) {
     return 1 ;
 }
 
+/// hs.webview:shadow([value]) -> webviewObject | current value
+/// Method
+/// Get or set whether or not the webview window has shadows. Default to false.
+///
+/// Parameters:
+///  * `value` - an optional boolean value indicating whether or not the webview should have shadows.
+///
+/// Returns:
+///  * If a value is provided, then this method returns the webview object; otherwise the current value
+static int webview_shadow(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
+
+    if (lua_type(L, 2) == LUA_TNONE) {
+        lua_pushboolean(L, (BOOL)theWindow.hasShadow);
+    } else {
+        theWindow.hasShadow = lua_toboolean(L, 2);
+        lua_settop(L, 1);
+    }
+    return 1 ;
+}
+
 static int webview_orderHelper(lua_State *L, NSWindowOrderingMode mode) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG,
@@ -2716,6 +2739,7 @@ static const luaL_Reg userdata_metaLib[] = {
     {"deleteOnClose",              webview_deleteOnClose},
     {"bringToFront",               webview_bringToFront},
     {"sendToBack",                 webview_sendToBack},
+    {"shadow",                     webview_shadow},
     {"alpha",                      webview_alpha},
     {"orderAbove",                 webview_orderAbove},
     {"orderBelow",                 webview_orderBelow},
