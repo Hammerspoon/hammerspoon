@@ -386,6 +386,15 @@ NSString *specMaskToString(int spec) {
                     if (!actualTableTag || !(strcmp(actualTableTag, expectedTableTag) == 0)) {
                         luaL_error(self.L, "ERROR: incorrect LuaSkin typed table for argument %d (expected %s)", idx, expectedTableTag) ;
                     }
+                } else if (spec & LS_TFUNCTION) {
+                // they want a function, so let's see if this table can mimic a function
+                    if (luaL_getmetafield(self.L, idx, "__call") != LUA_TNIL) {
+                        lua_pop(self.L, 1) ;
+                        lsType = LS_TFUNCTION ;
+                    } else {
+                // no, so allow normal error handling to catch this
+                        lsType = LS_TTABLE ;
+                    }
                 } else {
                     lsType = LS_TTABLE;
                 }
@@ -423,6 +432,17 @@ nextarg:
             luaL_error(self.L, "ERROR: incorrect number of arguments. Expected %d, got %d", idx, numArgs);
         }
     }
+}
+
+- (int)luaTypeAtIndex:(int)idx {
+    int foundType = lua_type(self.L, idx) ;
+    if (foundType == LUA_TTABLE) {
+        if (luaL_getmetafield(self.L, idx, "__call") != LUA_TNIL) {
+            lua_pop(self.L, 1) ;
+            foundType = LUA_TFUNCTION ;
+        }
+    }
+    return foundType ;
 }
 
 #pragma mark - Conversion from NSObjects into Lua objects
