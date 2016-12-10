@@ -81,6 +81,7 @@ export HS_LUAONLY="_coresetup \
     tabs \
     utf8 \
     vox \
+    watchable \
     doc"
 
 # First, copy all of our init.lua's into the destination bundle
