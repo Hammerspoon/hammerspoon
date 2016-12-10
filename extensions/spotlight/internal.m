@@ -76,15 +76,17 @@ static id toNSSortDescriptorFromLua(lua_State *L, int idx) ;
 
 - (void)doCallbackFor:(NSString *)message with:(NSNotification *)notification {
     dispatch_async(dispatch_get_main_queue(), ^{
-        LuaSkin *skin = [LuaSkin shared] ;
-        [skin pushLuaRef:refTable ref:self->_callbackRef] ;
-        [skin pushNSObject:self] ;
-        [skin pushNSObject:message] ;
-        [skin pushNSObject:notification.userInfo withOptions:LS_NSDescribeUnknownTypes] ;
-        if (![skin protectedCallAndTraceback:3 nresults:0]) {
-            lua_State *L = [skin L] ;
-            [skin logError:[NSString stringWithFormat:@"%s:callback error: %s", USERDATA_TAG, lua_tostring(L, -1)]] ;
-            lua_pop(L, 1) ;
+        if (self->_callbackRef != LUA_NOREF) {
+            LuaSkin *skin = [LuaSkin shared] ;
+            [skin pushLuaRef:refTable ref:self->_callbackRef] ;
+            [skin pushNSObject:self] ;
+            [skin pushNSObject:message] ;
+            [skin pushNSObject:notification.userInfo withOptions:LS_NSDescribeUnknownTypes] ;
+            if (![skin protectedCallAndTraceback:3 nresults:0]) {
+                lua_State *L = [skin L] ;
+                [skin logError:[NSString stringWithFormat:@"%s:callback error: %s", USERDATA_TAG, lua_tostring(L, -1)]] ;
+                lua_pop(L, 1) ;
+            }
         }
     }) ;
 }
