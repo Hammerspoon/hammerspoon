@@ -959,79 +959,98 @@ static int imageFromMediaFile(lua_State *L) {
 
 #pragma mark - Module Methods
 
-/// hs.image:name() -> string
+/// hs.image:name([name]) -> imageObject | string
 /// Method
-/// Returns the name assigned to the hs.image object.
+/// Get or set the name of the image represented by the hs.image object.
 ///
 /// Parameters:
-///  * None
+///  * `name` - an optional string specifying the new name for the hs.image object.
 ///
 /// Returns:
-///  * Name - the name assigned to the hs.image object.
+///  * if no argument is provided, returns the current name.  If a new name is specified, returns the hs.image object or nil if the name cannot be changed.
+///
+/// Notes:
+///  * see also [hs.image:setName](#setName) for a variant that returns a boolean instead.
 static int getImageName(lua_State* L) {
-    NSImage *testImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
-    lua_pushstring(L, [[testImage name] UTF8String]) ;
-    return 1 ;
-}
-
-/// hs.image:setName(Name) -> boolean
-/// Method
-/// Assigns the name assigned to the hs.image object.
-///
-/// Parameters:
-///  * Name - the name to assign to the hs.image object.
-///
-/// Returns:
-///  * Status - a boolean value indicating success (true) or failure (false) when assigning the specified name.
-static int setImageName(lua_State* L) {
-    NSImage *testImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
-    if (lua_isnil(L,2))
-        lua_pushboolean(L, [testImage setName:nil]) ;
-    else
-        lua_pushboolean(L, [testImage setName:[NSString stringWithUTF8String:luaL_checkstring(L, 2)]]) ;
-    return 1 ;
-}
-
-/// hs.image:size() -> size
-/// Method
-/// Returns the size of the image.
-///
-/// Parameters:
-///  * None
-///
-/// Returns:
-///  * size - a table representing the image size
-static int getImageSize(__unused lua_State* L) {
     LuaSkin *skin = [LuaSkin shared] ;
-    NSImage *testImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
-    [skin pushNSSize:[testImage size]] ;
-    return 1 ;
-}
-
-/// hs.image:setSize(size [, absolute]) -> object
-/// Method
-/// Returns a copy of the image resized to the height and width specified in the size table.
-///
-/// Parameters:
-///  * size     - a table with 'h' and 'w' keys specifying the size for the new image.
-///  * absolute - an optional boolean specifying whether or not the copied image should be resized to the height and width specified (true), or whether the copied image should be scaled proportionally to fit within the height and width specified (false).  Defaults to false.
-///
-/// Returns:
-///  * a copy of the image object at the new size
-static int setImageSize(lua_State* L) {
-    LuaSkin *skin = [LuaSkin shared] ;
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
-    NSImage *theImage = [[skin luaObjectAtIndex:1 toClass:"NSImage"] copy] ;
-    NSSize  destSize  = [skin tableToSizeAtIndex:2] ;
-    BOOL    absolute  = (lua_gettop(L) == 3) ? (BOOL)lua_toboolean(L, 3) : NO ;
-    if (absolute) {
-        [theImage setSize:destSize] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TANY | LS_TOPTIONAL, LS_TBREAK] ;
+    NSImage *testImage = [[LuaSkin shared] luaObjectAtIndex:1 toClass:"NSImage"] ;
+    if (lua_gettop(L) == 1) {
+        lua_pushstring(L, [[testImage name] UTF8String]) ;
     } else {
-        NSSize srcSize = [theImage size] ;
-        CGFloat multiplier = fmin(destSize.width / srcSize.width, destSize.height / srcSize.height) ;
-        [theImage setSize:NSMakeSize(srcSize.width * multiplier, srcSize.height * multiplier)] ;
+        if ([testImage setName:[NSString stringWithUTF8String:luaL_checkstring(L, 2)]]) {
+            lua_pushvalue(L, 1) ;
+        } else {
+            lua_pushnil(L) ;
+        }
     }
-    [skin pushNSObject:theImage];
+    return 1 ;
+}
+
+/// hs.image:size([size, [absolute]] ) -> imageObject | size
+/// Method
+/// Get or set the size of the image represented byt he hs.image object.
+///
+/// Parameters:
+///  * `size`     - an optional table with 'h' and 'w' keys specifying the size for the image.
+///  * `absolute` - when specifying a new size, an optional boolean, default false, specifying whether or not the image should be resized to the height and width specified (true), or whether the copied image should be scaled proportionally to fit within the height and width specified (false).
+///
+/// Returns:
+///  * If arguments are provided, return the hs.image object; otherwise returns the current size
+///
+/// Notes:
+///  * See also [hs.image:setSize](#setSize) for creating a copy of the image at a new size.
+static int getImageSize(lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK | LS_TVARARG] ;
+    NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    if (lua_gettop(L) == 1) {
+        [skin pushNSSize:[theImage size]] ;
+    } else {
+        [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+        NSSize  destSize  = [skin tableToSizeAtIndex:2] ;
+        BOOL    absolute  = (lua_gettop(L) == 3) ? (BOOL)lua_toboolean(L, 3) : NO ;
+        if (absolute) {
+            [theImage setSize:destSize] ;
+        } else {
+            NSSize srcSize = [theImage size] ;
+            CGFloat multiplier = fmin(destSize.width / srcSize.width, destSize.height / srcSize.height) ;
+            [theImage setSize:NSMakeSize(srcSize.width * multiplier, srcSize.height * multiplier)] ;
+        }
+        [skin pushNSObject:theImage];
+    }
+    return 1 ;
+}
+
+/// hs.image:croppedImage(rectangle) -> object
+/// Method
+/// Returns a copy of the portion of the image specified by the rectangle specified.
+///
+/// Parameters:
+///  * rectangle - a table with 'x', 'y', 'h', and 'w' keys specifying the portion of the image to return in the new image.
+///
+/// Returns:
+///  * a copy of the portion of the image specified
+static int croppedImage(__unused lua_State* L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TTABLE, LS_TBREAK] ;
+    NSImage *image = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    NSRect  frame  = [skin tableToRectAtIndex:2] ;
+
+// http://stackoverflow.com/questions/35643020/nsimage-drawinrect-and-nsview-cachedisplayinrect-memory-retained
+    const void *keys[]   = { kCGImageSourceShouldCache } ;
+    const void *values[] = { kCFBooleanFalse } ;
+    CFDictionaryRef options = CFDictionaryCreate(NULL, keys, values, 1, NULL, NULL);
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)[image TIFFRepresentation], options);
+    CGImageRef maskRef = CGImageSourceCreateImageAtIndex(source, 0, NULL);
+    CGImageRef imageRef = CGImageCreateWithImageInRect(maskRef, frame);
+    NSImage *cropped = [[NSImage alloc] initWithCGImage:imageRef size:frame.size];
+    CGImageRelease(maskRef);
+    CGImageRelease(imageRef);
+    CFRelease(source);
+    CFRelease(options) ;
+
+    [skin pushNSObject:cropped] ;
     return 1 ;
 }
 
@@ -1091,6 +1110,49 @@ static int saveToFile(lua_State* L) {
         return luaL_error(L, "Unable to write image file: %s", [[error localizedDescription] UTF8String]);
 
     lua_pushboolean(L, result) ;
+    return 1 ;
+}
+
+/// hs.image:template([state]) -> imageObject | boolean
+/// Method
+/// Get or set whether the image is considered a template image.
+///
+/// Parameters:
+///  * `state` - an optional boolean specifying whether or not the image should be a template.
+///
+/// Returns:
+///  * if a parameter is provided, returns the hs.image object; otherwise returns the current value
+///
+/// Notes:
+///  * Template images consist of black and clear colors (and an alpha channel). Template images are not intended to be used as standalone images and are usually mixed with other content to create the desired final appearance.
+///  * Images with this flag set to true usually appear lighter than they would with this flag set to false.
+static int imageTemplate(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
+    NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    if (lua_gettop(L) == 1) {
+        lua_pushboolean(L, theImage.template) ;
+    } else {
+        theImage.template = (BOOL)lua_toboolean(L, 2) ;
+        lua_pushvalue(L, 1) ;
+    }
+    return 1 ;
+}
+
+/// hs.image:copy() -> imageObject
+/// Method
+/// Returns a copy of the image
+///
+/// Parameters:
+///  * None
+///
+/// Returns:
+///  * a new hs.image object
+static int copyImage(__unused lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK] ;
+    NSImage *theImage = [skin luaObjectAtIndex:1 toClass:"NSImage"] ;
+    [skin pushNSObject:[theImage copy]] ;
     return 1 ;
 }
 
@@ -1156,15 +1218,17 @@ static int userdata_gc(lua_State* L) {
 
 // Metatable for userdata objects
 static const luaL_Reg userdata_metaLib[] = {
-    {"name",       getImageName},
-    {"size",       getImageSize},
-    {"setSize",    setImageSize},
-    {"setName",    setImageName},
-    {"saveToFile", saveToFile},
-    {"__tostring", userdata_tostring},
-    {"__eq",       userdata_eq},
-    {"__gc",       userdata_gc},
-    {NULL,         NULL}
+    {"name",             getImageName},
+    {"size",             getImageSize},
+    {"template",         imageTemplate},
+    {"copy",             copyImage},
+    {"croppedCopy",      croppedImage},
+    {"saveToFile",       saveToFile},
+
+    {"__tostring",       userdata_tostring},
+    {"__eq",             userdata_eq},
+    {"__gc",             userdata_gc},
+    {NULL,               NULL}
 };
 
 // Functions for returned object when module loads
