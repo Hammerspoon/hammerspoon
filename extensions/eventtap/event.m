@@ -372,16 +372,19 @@ static int eventtap_event_setProperty(lua_State* L) {
 static int eventtap_event_newKeyEvent(lua_State* L) {
     LuaSkin *skin = [LuaSkin shared];
     luaL_checktype(L, 1, LUA_TTABLE);
-    const char* key = luaL_checkstring(L, 2);
+//     const char* key = luaL_checkstring(L, 2);
     bool isdown = lua_toboolean(L, 3);
     const char *modifier;
 
-    [skin requireModule:"hs.keycodes"] ;
-    lua_getfield(L, -1, "map");
-    lua_pushstring(L, key);
-    lua_gettable(L, -2);
-    CGKeyCode keycode = lua_tointeger(L, -1);
-    lua_pop(L, 3);
+// wrapped in init.lua
+//     [skin requireModule:"hs.keycodes"] ;
+//     lua_getfield(L, -1, "map");
+//     lua_pushstring(L, key);
+//     lua_gettable(L, -2);
+//     CGKeyCode keycode = lua_tointeger(L, -1);
+//     lua_pop(L, 3);
+
+    CGKeyCode keycode = lua_tointeger(L, 2);
 
     CGEventFlags flags = 0;
     lua_pushnil(L);
