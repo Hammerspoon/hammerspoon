@@ -1134,6 +1134,7 @@
 		D64B03381BA954660006C468 /* usercontent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = usercontent.m; path = extensions/webview/usercontent.m; sourceTree = "<group>"; };
 		D64B03461BA954780006C468 /* libwebviewusercontent.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libwebviewusercontent.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		D66B763A1DD6FD1400CA12E6 /* geocoder.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = geocoder.lua; path = extensions/location/geocoder.lua; sourceTree = "<group>"; };
+		D684BBFB1DFB72BD00B4D0B8 /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/watchable/init.lua; sourceTree = "<group>"; };
 		D6A212E61DE38F3B00998C0B /* init.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = init.lua; path = extensions/spotlight/init.lua; sourceTree = "<group>"; };
 		D6A212E71DE38F3B00998C0B /* internal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = internal.m; path = extensions/spotlight/internal.m; sourceTree = "<group>"; };
 		D6A212F31DE38F5F00998C0B /* libspotlight.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libspotlight.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2301,6 +2302,7 @@
 				4FD0AB7D1B74A6D700A82496 /* usb */,
 				4FD0AB841B74A72200A82496 /* usbwatcher */,
 				4FD0AB8A1B74AC1800A82496 /* utf8 */,
+				D684BBFA1DFB728500B4D0B8 /* watchable */,
 				D64125571BA07CA9000FB5F8 /* webview */,
 				D63FBD8F1D1CFB0A005255DD /* webviewdatastore */,
 				D63FBD901D1CFB1E005255DD /* webviewtoolbar */,
@@ -2917,6 +2919,14 @@
 				D64B03381BA954660006C468 /* usercontent.m */,
 			);
 			name = webviewusercontent;
+			sourceTree = "<group>";
+		};
+		D684BBFA1DFB728500B4D0B8 /* watchable */ = {
+			isa = PBXGroup;
+			children = (
+				D684BBFB1DFB72BD00B4D0B8 /* init.lua */,
+			);
+			name = watchable;
 			sourceTree = "<group>";
 		};
 		D6A212E51DE38F1400998C0B /* spotlight */ = {
