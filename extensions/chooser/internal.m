@@ -562,26 +562,53 @@ static int chooserSetNumRows(lua_State *L) {
     return 1;
 }
 
-/// hs.chooser:selectedRow() -> number
+/// hs.chooser:selectedRow([row]) -> number
 /// Method
-/// Gets the currently selected row
+/// Get or set the currently selected row
+///
+/// Parameters:
+///  * `row` - an optional integer specifying the row to select.
+///
+/// Returns:
+///  * If an argument is provided, returns the hs.chooser object; otherwise returns a number containing the row currently selected (i.e. the one highlighted in the UI)
+static int chooserSelectedRow(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TINTEGER | LS_TOPTIONAL, LS_TBREAK];
+
+    chooser_userdata_t *userData = lua_touserdata(L, 1);
+    HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
+
+    if (lua_gettop(L) == 1) {
+        NSInteger selectedRow = chooser.choicesTableView.selectedRow;
+        lua_pushinteger(L, (lua_Integer)selectedRow + 1);
+    } else {
+        NSInteger maxRow = chooser.choicesTableView.numberOfRows - 1;
+        NSInteger newRow = lua_tointeger(L, 2) - 1 ;
+        newRow = (newRow < 0) ? 0 : ((newRow > maxRow) ? maxRow : newRow) ;
+        [chooser.choicesTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:newRow] byExtendingSelection:NO] ;
+        lua_pushvalue(L, 1) ;
+    }
+    return 1;
+}
+
+/// hs.chooser:selectedRowContents() -> table
+/// Method
+/// Returns the contents of the currently selected row
 ///
 /// Parameters:
 ///  * None
 ///
 /// Returns:
-///  * A number containing the row currently selected (i.e. the one highlighted in the UI)
-static int chooserSelectedRow(lua_State *L) {
+///  * a table containing whatever information was supplied for the row currently selected
+static int chooserSelectedRowContents(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
-
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
 
     NSInteger selectedRow = chooser.choicesTableView.selectedRow;
-    lua_pushinteger(L, (lua_Integer)selectedRow + 1);
-
-    return 1;
+    [skin pushNSObject:[[chooser getChoices] objectAtIndex:selectedRow]];
+    return 1 ;
 }
 
 #pragma mark - Hammerspoon Infrastructure
@@ -620,7 +647,7 @@ static const luaL_Reg userdataLib[] = {
     {"refreshChoicesCallback", chooserRefreshChoicesCallback},
     {"rightClickCallback", chooserRightClickCallback},
     {"selectedRow", chooserSelectedRow},
-
+    {"selectedRowContents", chooserSelectedRowContents},
     {"fgColor", chooserSetFgColor},
     {"subTextColor", chooserSetSubTextColor},
     {"bgDark", chooserSetBgDark},
