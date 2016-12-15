@@ -14,6 +14,7 @@
 local module = require("hs.eventtap.internal")
 module.event = require("hs.eventtap.event")
 local fnutils = require("hs.fnutils")
+local keycodes = require("hs.keycodes")
 require("hs.timer")
 
 -- private variables and methods -----------------------------------------
@@ -56,12 +57,47 @@ local __index_for_props = function(object, key)
     return nil
 end
 
+local function getKeycode(s)
+  local n
+  if type(s)=='number' then n=s
+  elseif type(s)~='string' then error('key must be a string or a number',3)
+  elseif (s:sub(1, 1) == '#') then n=tonumber(s:sub(2))
+  else n=keycodes.map[string.lower(s)] end
+  if not n then error('Invalid key: '..s..' - this may mean that the key requested does not exist in your keymap (particularly if you switch keyboard layouts frequently)',3) end
+  return n
+end
+
+local function getMods(mods)
+  local r={}
+  if not mods then return r end
+  if type(mods)=='table' then mods=table.concat(mods,'-') end
+  if type(mods)~='string' then error('mods must be a string or a table of strings',3) end
+  -- super simple substring search for mod names in a string
+  mods=string.lower(mods)
+  local function find(ps)
+    for _,s in ipairs(ps) do
+      if string.find(mods,s,1,true) then r[#r+1]=ps[#ps] return end
+    end
+  end
+  find{'cmd','command','⌘'} find{'ctrl','control','⌃'}
+  find{'alt','option','⌥'} find{'shift','⇧'}
+  find{'fn'}
+  return r
+end
+
 module.event.types      = setmetatable(module.event.types,      { __index    = __index_for_types,
                                                                   __tostring = __tostring_for_tables })
 module.event.properties = setmetatable(module.event.properties, { __index    = __index_for_props,
                                                                   __tostring = __tostring_for_tables })
 
 -- Public interface ------------------------------------------------------
+
+local originalNewKeyEvent = module.event.newKeyEvent
+module.event.newKeyEvent = function(mods, key, isDown)
+    local keycode = getKeycode(key)
+    local modifiers = getMods(mods)
+    return originalNewKeyEvent(modifiers, keycode, isDown)
+end
 
 --- hs.eventtap.event.newMouseEvent(eventtype, point[, modifiers) -> event
 --- Constructor
@@ -183,9 +219,9 @@ function module.keyStroke(modifiers, character, delay)
         delay=200000
     end
 
-    module.event.newKeyEvent(modifiers, string.lower(character), true):post()
+    module.event.newKeyEvent(modifiers, character, true):post()
     hs.timer.usleep(delay)
-    module.event.newKeyEvent(modifiers, string.lower(character), false):post()
+    module.event.newKeyEvent(modifiers, character, false):post()
 end
 
 
