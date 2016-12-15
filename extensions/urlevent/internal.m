@@ -128,7 +128,7 @@ static HSURLEventHandler *eventHandler;
     [skin pushNSObject:[url scheme]];
     [skin pushNSObject:[url host]];
     [skin pushNSObject:pairs];
-    [skin pushNSObject:[url absoluteURL]];
+    [skin pushNSObject:[url absoluteString]];
 
     if (![skin protectedCallAndTraceback:4 nresults:0]) {
         const char *errorMsg = lua_tostring(skin.L, -1);
