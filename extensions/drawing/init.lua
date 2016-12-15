@@ -1,4 +1,8 @@
 
+if require"hs.settings".get("useCanvasWrappedDrawing") then
+    return require("hs.drawing.canvasWrapper")
+end
+
 local imagemod    = require("hs.image") -- make sure we know about hsimage userdata for image functions
 
 local module      = require("hs.drawing.internal")
