@@ -390,7 +390,6 @@ static int http_encodeForQuery(lua_State *L) {
 ///    * an empty query item (e.g. a query ending in '&' or a query containing && between two other query items) will be represented as { "" }
 ///
 ///  * At present Hammerspoon does not provide a way to represent a URL as a true Objective-C object within the OS X API.  This affects the following keys:
-///    * absoluteURL, baseURL, and standardizedURL are presented as their string representation.
 ///    * relative URLs are not possible to express properly so baseURL will always be nil and relativePath and relativeString will always match path and absoluteString.
 ///    * These limitations may change in a future update if the need for a more fully compliant URL treatment is determined to be necessary.
 #define get_objectFromUserdata(objType, L, idx) (objType*)*((void**)lua_touserdata(L, idx))
