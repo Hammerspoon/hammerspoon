@@ -360,7 +360,7 @@ static int readItemForType(lua_State *L) {
     return 1 ;
 }
 
-/// hs.pasteboard.readPListForUTI([name], uti) -> string
+/// hs.pasteboard.readPListForUTI([name], uti) -> any
 /// Function
 /// Returns the first item on the pasteboard with the specified UTI as a property list item
 ///
@@ -372,8 +372,6 @@ static int readItemForType(lua_State *L) {
 ///  * a lua item representing the property list value of the pasteboard item specified
 ///
 /// Notes:
-///  * *EXPERIMENTAL* - At present the output from this function cannot be pushed back onto the pasteboard as an alternative to pushing raw data with [hs.pasteboard.writeDataForUTI](#writeDataForUTI), so the output can only be used for informational purposes at this time. It is hoped that a future update will include bidirectional property list support for the pasteboard. As the exact nature of what the final solution will require is not known at present, it is possible that the syntax and format of the data presented by this function may change in the future or be replaced with other functions or sub-modules.
-///
 ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
 ///
 ///  * Property list items are those items which can be represented as Objective-C NSObjects which conform to the NSCoding protocol.
@@ -404,6 +402,103 @@ static int readPropertyListForType(lua_State *L) {
         return luaL_error(L, "unable to get pasteboard") ;
     } else {
         return luaL_error(L, "unable to evaluate type string") ;
+    }
+    return 1 ;
+}
+
+/// hs.pasteboard.readArchiverDataForUTI([name], uti) -> any
+/// Function
+/// Returns the first item on the pasteboard with the specified UTI. The data on the pasteboard must be encoded as a keyed archive object conforming to NSKeyedArchiver.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///  * uti  - a string specifying the UTI of the pasteboard item to retrieve.
+///
+/// Returns:
+///  * a lua item representing the archived data if it can be decoded. Generates an error if the data is in the wrong format.
+///
+/// Notes:
+///  * NSKeyedArchiver specifies an architecture-independent format that is often used in OS X applications to store and transmit objects between applications and when storing data to a file. It works by recording information about the object types and key-value pairs which make up the objects being stored.
+///  * Only objects which have conversion functions built in to Hammerspoon can be converted. A string representation describing unrecognized types wil be returned. If you find a common data type that you believe may be of interest to Hammerspoon users, feel free to contribute a conversion function or make a request in the Hammerspoon Google group or Github site.
+///  * Some applications may define their own classes which can be archived.  Hammerspoon will be unable to recognize these types if the application does not make the object type available in one of its frameworks.  You *may* be able to load the necessary framework with `package.loadlib("/Applications/appname.app/Contents/Frameworks/frameworkname.framework/frameworkname", "*")` before retrieving the data, but a full representation of the data in Hammerspoon is probably not possible without support from the Application's developers.
+static int readArchivedDataForType(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSPasteboard *pb ;
+    NSString     *type ;
+    if (lua_gettop(L) == 1) {
+        [skin checkArgs:LS_TSTRING, LS_TBREAK] ;
+        pb   = [NSPasteboard generalPasteboard] ;
+        type = [skin toNSObjectAtIndex:1] ;
+    } else {
+        [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL, LS_TSTRING, LS_TBREAK] ;
+        pb = lua_to_pasteboard(L, 1) ;
+        type = [skin toNSObjectAtIndex:2] ;
+    }
+    if (pb && type) {
+        // uses dataForType: which is documented to throw exceptions for errors
+        @try {
+            NSData *holding = [pb dataForType:type] ;
+            id realItem = [NSKeyedUnarchiver unarchiveObjectWithData:holding] ;
+            [skin pushNSObject:realItem withOptions:LS_NSDescribeUnknownTypes] ;
+        } @catch (NSException *exception) {
+            return luaL_error(L, [[exception reason] UTF8String]) ;
+        }
+    } else if (!pb) {
+        return luaL_error(L, "unable to get pasteboard") ;
+    } else {
+        return luaL_error(L, "unable to evaluate type string") ;
+    }
+    return 1 ;
+}
+
+/// hs.pasteboard.writeArchiverDataForUTI([name], uti, data) -> boolean
+/// Function
+/// Sets the pasteboard to the contents of the data and assigns its type to the specified UTI. The data will be encoded as an archive conforming to NSKeyedArchiver.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///  * uti  - a string specifying the UTI of the pasteboard item to set.
+///  * data - any type representable in Lua which will be converted into the appropriate NSObject types and archived with NSKeyedArchiver.  All Lua basic types are supported as well as those NSObject types handled by Hammerspoon modules (NSColor, NSStyledText, NSImage, etc.)
+///
+/// Returns:
+///  * True if the operation succeeded, otherwise false
+///
+/// Notes:
+///  * NSKeyedArchiver specifies an architecture-independent format that is often used in OS X applications to store and transmit objects between applications and when storing data to a file. It works by recording information about the object types and key-value pairs which make up the objects being stored.
+///  * Only objects which have conversion functions built in to Hammerspoon can be converted.
+///
+///  * A full list of NSObjects supported directly by Hammerspoon is planned in a future Wiki article.
+static int writeArchivedDataForType(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSPasteboard *pb ;
+    NSString     *type ;
+    id           data ;
+    if (lua_gettop(L) == 2) {
+        [skin checkArgs:LS_TSTRING, LS_TANY, LS_TBREAK] ;
+        pb   = [NSPasteboard generalPasteboard] ;
+        type = [skin toNSObjectAtIndex:1] ;
+        data = [skin toNSObjectAtIndex:2 withOptions:LS_NSLuaStringAsDataOnly] ;
+    } else {
+        [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL, LS_TSTRING, LS_TANY, LS_TBREAK] ;
+        pb = lua_to_pasteboard(L, 1) ;
+        type = [skin toNSObjectAtIndex:2] ;
+        data = [skin toNSObjectAtIndex:3 withOptions:LS_NSLuaStringAsDataOnly] ;
+    }
+    if (pb && type && data) {
+        // uses setData:forType: which is documented to throw exceptions for errors
+        @try {
+            NSData *encoded = [NSKeyedArchiver archivedDataWithRootObject:data];
+            [pb clearContents];
+            lua_pushboolean(L, [pb setData:encoded forType:type]) ;
+        } @catch (NSException *exception) {
+            return luaL_error(L, [[exception reason] UTF8String]) ;
+        }
+    } else if (!pb) {
+        return luaL_error(L, "unable to get pasteboard") ;
+    } else if (!type) {
+        return luaL_error(L, "unable to evaluate type string") ;
+    } else {
+        return luaL_error(L, "unable to evaluate data string") ;
     }
     return 1 ;
 }
@@ -455,58 +550,58 @@ static int writeItemForType(lua_State *L) {
     return 1 ;
 }
 
-// /// hs.pasteboard.writePListForUTI([name], uti, data) -> string
-// /// Function
-// /// Sets the pasteboard to the contents of the data and assigns its type to the specified UTI.
-// ///
-// /// Parameters:
-// ///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
-// ///  * uti  - a string specifying the UTI of the pasteboard item to set.
-// ///  * data - a lua type which can be represented as a property list value.
-// ///
-// /// Returns:
-// ///  * True if the operation succeeded, otherwise false
-// ///
-// /// Notes:
-// ///  * *EXPERIMENTAL* - this function may undergo changes which may change its syntax as it is being tested.
-// ///
-// ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
-// ///
-// ///  * Property list items are those items which can be represented as Objective-C NSObjects which conform to the NSCoding protocol.
-// ///  * In Hammerspoon terms, this means any data which can be completely described as a string (NSString), a number (NSNumber), a table (NSArray and NSDictionary), recognized types with Hammerspoon userdata conversion support (NSColor, NSAttributedString, etc.) or some combination of these.  Property list objects for which no conversion support currently exists should be specified as raw data in a lua string.
-// static int writePropertyListForType(lua_State *L) {
-//     LuaSkin *skin = [LuaSkin shared] ;
-//     NSPasteboard *pb ;
-//     NSString     *type ;
-//     id           data ;
-//     if (lua_gettop(L) == 2) {
-//         [skin checkArgs:LS_TSTRING, LS_TANY, LS_TBREAK] ;
-//         pb   = [NSPasteboard generalPasteboard] ;
-//         type = [skin toNSObjectAtIndex:1] ;
-//         data = [skin toNSObjectAtIndex:2 withOptions:LS_NSLuaStringAsDataOnly] ;
-//     } else {
-//         [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL, LS_TSTRING, LS_TANY, LS_TBREAK] ;
-//         pb = lua_to_pasteboard(L, 1) ;
-//         type = [skin toNSObjectAtIndex:2] ;
-//         data = [skin toNSObjectAtIndex:3 withOptions:LS_NSLuaStringAsDataOnly] ;
-//     }
-//     if (pb && type && data) {
-//         // uses setData:forType: which is documented to throw exceptions for errors
-//         @try {
-//             [pb clearContents];
-//             lua_pushboolean(L, [pb setPropertyList:data forType:type]) ;
-//         } @catch (NSException *exception) {
-//             return luaL_error(L, [[exception reason] UTF8String]) ;
-//         }
-//     } else if (!pb) {
-//         return luaL_error(L, "unable to get pasteboard") ;
-//     } else if (!type) {
-//         return luaL_error(L, "unable to evaluate type string") ;
-//     } else {
-//         return luaL_error(L, "unable to evaluate data string") ;
-//     }
-//     return 1 ;
-// }
+/// hs.pasteboard.writePListForUTI([name], uti, data) -> string
+/// Function
+/// Sets the pasteboard to the contents of the data and assigns its type to the specified UTI.
+///
+/// Parameters:
+///  * name - an optional string indicating the pasteboard name.  If nil or not present, defaults to the system pasteboard.
+///  * uti  - a string specifying the UTI of the pasteboard item to set.
+///  * data - a lua type which can be represented as a property list value.
+///
+/// Returns:
+///  * True if the operation succeeded, otherwise false
+///
+/// Notes:
+///  * This function currently cannot store a table with key-value pairs as a property list to a Pasteboard.  As this is a valid property list type, it is unknown why this type is currently rejected. It is hoped that this limitation will be addressed in a future update. If you are storing information which is to be used within Hammerspoon, please see [hs.pasteboard.writeArchiverDataForUTI](#writeArchiverDataForUTI) which does not have this limitation.
+///
+///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
+///
+///  * Property list items are those items which can be represented as Objective-C NSObjects which conform to the NSCoding protocol.
+///  * In Hammerspoon terms, this means any data which can be completely described as a string (NSString), a number (NSNumber), a table (NSArray and NSDictionary), recognized types with Hammerspoon userdata conversion support (NSColor, NSAttributedString, etc.) or some combination of these.  Property list objects for which no conversion support currently exists should be specified as raw data in a lua string.
+static int writePropertyListForType(lua_State *L) {
+    LuaSkin *skin = [LuaSkin shared] ;
+    NSPasteboard *pb ;
+    NSString     *type ;
+    id           data ;
+    if (lua_gettop(L) == 2) {
+        [skin checkArgs:LS_TSTRING, LS_TANY, LS_TBREAK] ;
+        pb   = [NSPasteboard generalPasteboard] ;
+        type = [skin toNSObjectAtIndex:1] ;
+        data = [skin toNSObjectAtIndex:2 withOptions:LS_NSLuaStringAsDataOnly] ;
+    } else {
+        [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL, LS_TSTRING, LS_TANY, LS_TBREAK] ;
+        pb = lua_to_pasteboard(L, 1) ;
+        type = [skin toNSObjectAtIndex:2] ;
+        data = [skin toNSObjectAtIndex:3 withOptions:LS_NSLuaStringAsDataOnly] ;
+    }
+    if (pb && type && data) {
+        // uses setData:forType: which is documented to throw exceptions for errors
+        @try {
+            [pb clearContents];
+            lua_pushboolean(L, [pb setPropertyList:data forType:type]) ;
+        } @catch (NSException *exception) {
+            return luaL_error(L, [[exception reason] UTF8String]) ;
+        }
+    } else if (!pb) {
+        return luaL_error(L, "unable to get pasteboard") ;
+    } else if (!type) {
+        return luaL_error(L, "unable to evaluate type string") ;
+    } else {
+        return luaL_error(L, "unable to evaluate data string") ;
+    }
+    return 1 ;
+}
 
 /// hs.pasteboard.readStyledText([name], [all]) -> hs.styledtext object or array of hs.styledtext objects
 /// Function
@@ -876,8 +971,12 @@ static const luaL_Reg pasteboardLib[] = {
 
     {"readDataForUTI",   readItemForType},
     {"writeDataForUTI",  writeItemForType},
+
     {"readPListForUTI",  readPropertyListForType},
-//     {"writePListForUTI", writePropertyListForType},
+    {"writePListForUTI", writePropertyListForType},
+
+    {"readArchiverDataForUTI", readArchivedDataForType},
+    {"writeArchiverDataForUTI", writeArchivedDataForType},
 
     {NULL,      NULL}
 };
