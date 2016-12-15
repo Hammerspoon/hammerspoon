@@ -219,9 +219,6 @@
     NSArray *choices = [self getChoices];
     NSDictionary *choice = [choices objectAtIndex:row];
 
-    HSChooserCell *cellView = [tableView makeViewWithIdentifier:@"HSChooserCell" owner:self];
-
-    //cellView.backgroundStyle = NSBackgroundStyleDark;
     NSString *text         = [choice objectForKey:@"text"];
     NSString *subText      = [choice objectForKey:@"subText"];
     NSString *shortcutText = @"";
@@ -233,8 +230,12 @@
         shortcutText = @"";
     }
 
+    NSString *chooserCellIdentifier = subText ?  @"HSChooserCellSubtext" : @"HSChooserCell";
+    HSChooserCell *cellView = [tableView makeViewWithIdentifier:chooserCellIdentifier owner:self];
+
+
     cellView.text.stringValue = text ? text : @"";
-    cellView.subText.stringValue = subText ? subText : @"";
+    if (subText != nil) cellView.subText.stringValue = subText ? subText : @"";
     cellView.shortcutText.stringValue = shortcutText ? shortcutText : @"??";
     cellView.image.image = image ? image : [NSImage imageNamed:NSImageNameFollowLinkFreestandingTemplate];
 

@@ -298,7 +298,7 @@ NSString *specMaskToString(int spec) {
 
 - (int)pushLuaRef:(int)refTable ref:(int)ref {
     NSAssert((refTable != LUA_NOREF && refTable != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL refTable", nil);
-    NSAssert((ref != LUA_NOREF && ref != LUA_REFNIL), @"ERROR: LuaSkin::luaRef was passed a NOREF/REFNIL ref", nil);
+    NSAssert((ref != LUA_NOREF && ref != LUA_REFNIL), @"ERROR: LuaSkin::pushLuaRef was passed a NOREF/REFNIL ref", nil);
 
     // Push refTable onto the stack
     lua_rawgeti(self.L, LUA_REGISTRYINDEX, refTable);
