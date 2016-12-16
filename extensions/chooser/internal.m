@@ -606,8 +606,12 @@ static int chooserSelectedRowContents(lua_State *L) {
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
 
-    NSInteger selectedRow = chooser.choicesTableView.selectedRow;
-    [skin pushNSObject:[[chooser getChoices] objectAtIndex:selectedRow]];
+    if (chooser.choicesTableView.numberOfRows > 0) {
+        NSInteger selectedRow = chooser.choicesTableView.selectedRow;
+        [skin pushNSObject:[[chooser getChoices] objectAtIndex:selectedRow]];
+    } else {
+        lua_newtable(L) ;
+    }
     return 1 ;
 }
 
