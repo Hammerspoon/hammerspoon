@@ -295,7 +295,7 @@ static int chooserQueryCallback(lua_State *L) {
 ///  * The hs.chosoer object
 ///
 /// Notes:
-///   * The callback should accept no arguments. To determine the location of the mouse pointer at the right click, see `hs.mouse`.
+///   * The callback may accept one argument, the row the right click occurred in or 0 if there is currently no selectable row where the right click occurred. To determine the location of the mouse pointer at the right click, see `hs.mouse`.
 ///   * To display a context menu, see `hs.menubar`, specifically the `:popupMenu()` method
 static int chooserRightClickCallback(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
@@ -591,23 +591,23 @@ static int chooserSelectedRow(lua_State *L) {
     return 1;
 }
 
-/// hs.chooser:selectedRowContents() -> table
+/// hs.chooser:selectedRowContents([row]) -> table
 /// Method
-/// Returns the contents of the currently selected row
+/// Returns the contents of the currently selected or specified row
 ///
 /// Parameters:
-///  * None
+///  * `row` - an optional integer specifying the specific row to return the contents of
 ///
 /// Returns:
-///  * a table containing whatever information was supplied for the row currently selected
+///  * a table containing whatever information was supplied for the row currently selected or an empty table if no row is selected or the specified row does not exist.
 static int chooserSelectedRowContents(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared];
-    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBREAK];
+    [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TNUMBER | LS_TOPTIONAL, LS_TBREAK];
     chooser_userdata_t *userData = lua_touserdata(L, 1);
     HSChooser *chooser = (__bridge HSChooser *)userData->chooser;
 
-    if (chooser.choicesTableView.numberOfRows > 0) {
-        NSInteger selectedRow = chooser.choicesTableView.selectedRow;
+    NSInteger selectedRow = (lua_gettop(L) == 1) ? chooser.choicesTableView.selectedRow : (lua_tointeger(L, 2) - 1) ;
+    if (selectedRow >= 0 && selectedRow < chooser.choicesTableView.numberOfRows) {
         [skin pushNSObject:[[chooser getChoices] objectAtIndex:selectedRow]];
     } else {
         lua_newtable(L) ;

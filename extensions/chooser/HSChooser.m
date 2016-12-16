@@ -270,12 +270,13 @@
     }
 }
 
-- (void)didRightClick {
+- (void)didRightClickAtRow:(NSInteger)row {
     if (self.rightClickCallbackRef != LUA_NOREF && self.rightClickCallbackRef != LUA_REFNIL) {
         // We have a right click callback set
         LuaSkin *skin = [LuaSkin shared];
         [skin pushLuaRef:*(self.refTable) ref:self.rightClickCallbackRef];
-        if (![skin protectedCallAndTraceback:0 nresults:0]) {
+        lua_pushinteger(skin.L, row + 1) ;
+        if (![skin protectedCallAndTraceback:1 nresults:0]) {
             [skin logError:[NSString stringWithFormat:@"%s:rightClickCallback error - %@", USERDATA_TAG, [skin toNSObjectAtIndex:-1]]] ;
             lua_pop(skin.L, 1) ; // remove error message
         }
