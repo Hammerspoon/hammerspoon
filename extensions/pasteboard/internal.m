@@ -373,11 +373,7 @@ static int readItemForType(lua_State *L) {
 ///
 /// Notes:
 ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
-///
-///  * Property list items are those items which can be represented as Objective-C NSObjects which conform to the NSCoding protocol.
-///  * In Hammerspoon terms, this means any data which can be completely described as a string (NSString), a number (NSNumber), a table (NSArray and NSDictionary), recognized types with Hammerspoon userdata conversion support (NSColor, NSAttributedString, etc.) or some combination of these.  Property list objects for which no conversion support currently exists will be returned as raw data in a lua string.
-///  * Not all pasteboard items which correspond to individual (i.e. not array or dictionary) object types (e.g. a string, a number, etc.) appear to work with this function -- it seems to be application dependent as sometimes an item will be returned and other times this function returns nil for an item with the same UTI.  At present, there is no way to determine this programmatically without checking the results of this function and then falling back to one of the other `hs.pasteboard` "read" functions if this returns nil.
-///    * If you know that you are retrieving a single item object that conforms to one of the built in "read" functions ([hs.pasteboard.readColor](#readColor), [hs.pasteboard.readImage](#readImage), [hs.pasteboard.readSound](#readSound), [hs.pasteboard.readString](#readString), [hs.pasteboard.readStyledText](#readStyledText), and [hs.pasteboard.readURL](#readURL)) it is recommended that you use these functions instead as they are not tied to a specific UTI and will retrieve the object from any UTI which can be converted into the required type.
+///  * Property lists consist only of certain types of data: tables, strings, numbers, dates, binary data, and Boolean values.
 static int readPropertyListForType(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSPasteboard *pb ;
@@ -477,12 +473,12 @@ static int writeArchivedDataForType(lua_State *L) {
         [skin checkArgs:LS_TSTRING, LS_TANY, LS_TBREAK] ;
         pb   = [NSPasteboard generalPasteboard] ;
         type = [skin toNSObjectAtIndex:1] ;
-        data = [skin toNSObjectAtIndex:2 withOptions:LS_NSLuaStringAsDataOnly] ;
+        data = [skin toNSObjectAtIndex:2 withOptions:LS_NSPreserveLuaStringExactly] ;
     } else {
         [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL, LS_TSTRING, LS_TANY, LS_TBREAK] ;
         pb = lua_to_pasteboard(L, 1) ;
         type = [skin toNSObjectAtIndex:2] ;
-        data = [skin toNSObjectAtIndex:3 withOptions:LS_NSLuaStringAsDataOnly] ;
+        data = [skin toNSObjectAtIndex:3 withOptions:LS_NSPreserveLuaStringExactly] ;
     }
     if (pb && type && data) {
         // uses setData:forType: which is documented to throw exceptions for errors
@@ -563,12 +559,8 @@ static int writeItemForType(lua_State *L) {
 ///  * True if the operation succeeded, otherwise false
 ///
 /// Notes:
-///  * This function currently cannot store a table with key-value pairs as a property list to a Pasteboard.  As this is a valid property list type, it is unknown why this type is currently rejected. It is hoped that this limitation will be addressed in a future update. If you are storing information which is to be used within Hammerspoon, please see [hs.pasteboard.writeArchiverDataForUTI](#writeArchiverDataForUTI) which does not have this limitation.
-///
 ///  * The UTI's of the items on the pasteboard can be determined with the [hs.pasteboard.allContentTypes](#allContentTypes) and [hs.pasteboard.contentTypes](#contentTypes) functions.
-///
-///  * Property list items are those items which can be represented as Objective-C NSObjects which conform to the NSCoding protocol.
-///  * In Hammerspoon terms, this means any data which can be completely described as a string (NSString), a number (NSNumber), a table (NSArray and NSDictionary), recognized types with Hammerspoon userdata conversion support (NSColor, NSAttributedString, etc.) or some combination of these.  Property list objects for which no conversion support currently exists should be specified as raw data in a lua string.
+///  * Property lists consist only of certain types of data: tables, strings, numbers, dates, binary data, and Boolean values.
 static int writePropertyListForType(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     NSPasteboard *pb ;
@@ -578,12 +570,12 @@ static int writePropertyListForType(lua_State *L) {
         [skin checkArgs:LS_TSTRING, LS_TANY, LS_TBREAK] ;
         pb   = [NSPasteboard generalPasteboard] ;
         type = [skin toNSObjectAtIndex:1] ;
-        data = [skin toNSObjectAtIndex:2 withOptions:LS_NSLuaStringAsDataOnly] ;
+        data = [skin toNSObjectAtIndex:2 withOptions:LS_NSPreserveLuaStringExactly] ;
     } else {
         [skin checkArgs:LS_TNUMBER | LS_TSTRING | LS_TNIL, LS_TSTRING, LS_TANY, LS_TBREAK] ;
         pb = lua_to_pasteboard(L, 1) ;
         type = [skin toNSObjectAtIndex:2] ;
-        data = [skin toNSObjectAtIndex:3 withOptions:LS_NSLuaStringAsDataOnly] ;
+        data = [skin toNSObjectAtIndex:3 withOptions:LS_NSPreserveLuaStringExactly] ;
     }
     if (pb && type && data) {
         // uses setData:forType: which is documented to throw exceptions for errors
