@@ -1542,15 +1542,16 @@ static int webview_evaluateJavaScript(lua_State *L) {
               completionHandler:^(id obj, NSError *error){
 
         if (callbackRef != LUA_NOREF) {
-            [skin pushLuaRef:refTable ref:callbackRef] ;
-            [skin pushNSObject:obj] ;
-            NSError_toLua(L, error) ;
-            if (![skin protectedCallAndTraceback:2 nresults:0]) {
-                const char *errorMsg = lua_tostring([skin L], -1);
-                lua_pop([skin L], 1) ;
-                [skin logError:[NSString stringWithFormat:@"hs.webview:evaluateJavaScript() callback error: %s", errorMsg]];
+            LuaSkin *blockSkin = [LuaSkin shared] ;
+            [blockSkin pushLuaRef:refTable ref:callbackRef] ;
+            [blockSkin pushNSObject:obj] ;
+            NSError_toLua([blockSkin L], error) ;
+            if (![blockSkin protectedCallAndTraceback:2 nresults:0]) {
+                const char *errorMsg = lua_tostring([blockSkin L], -1);
+                lua_pop([blockSkin L], 1) ;
+                [blockSkin logError:[NSString stringWithFormat:@"hs.webview:evaluateJavaScript() callback error: %s", errorMsg]];
             }
-            [skin luaUnref:refTable ref:callbackRef] ;
+            [blockSkin luaUnref:refTable ref:callbackRef] ;
         }
     }] ;
 
