@@ -69,15 +69,19 @@ static int ucc_new(__unused lua_State *L) {
 ///    * injectionTime - a string which indicates whether the script is injected at "documentStart" or "documentEnd". Defaults to "documentStart".
 ///
 /// Returns:
-///  * the usercontentControllerObject
+///  * the usercontentControllerObject or nil if the script table was malformed in some way.
 static int ucc_inject(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_UCC_TAG, LS_TTABLE, LS_TBREAK] ;
     HSUserContentController *ucc = get_objectFromUserdata(__bridge HSUserContentController, L, 1, USERDATA_UCC_TAG) ;
 
-    [ucc addUserScript:[skin luaObjectAtIndex:2 toClass:"WKUserScript"]] ;
-
-    lua_pushvalue(L, 1);
+    WKUserScript *userScript = [skin luaObjectAtIndex:2 toClass:"WKUserScript"] ;
+    if (userScript) {
+        [ucc addUserScript:userScript] ;
+        lua_pushvalue(L, 1);
+    } else {
+        lua_pushnil(L) ;
+    }
     return 1 ;
 }
 
