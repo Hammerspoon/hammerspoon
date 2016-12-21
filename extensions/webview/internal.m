@@ -21,10 +21,19 @@ static int SecCertificateRef_toLua(lua_State *L, SecCertificateRef certRef) ;
 #pragma mark - our window object
 
 @implementation HSWebViewWindow
+// Apple's stupid API change gave this an enum name (finally) in 10.12, but clang complains about using the underlying
+// type directly, which we have to do to maintain Xcode 7 compilability, so to keep Xcode 8 quite... this:
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Woverriding-method-mismatch"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmismatched-parameter-types"
 - (id)initWithContentRect:(NSRect)contentRect
                 styleMask:(NSUInteger)windowStyle
                   backing:(NSBackingStoreType)bufferingType
-                    defer:(BOOL)deferCreation {
+                    defer:(BOOL)deferCreation
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop
+{
 
     self = [super initWithContentRect:contentRect
                             styleMask:windowStyle
@@ -680,7 +689,10 @@ static int webview_privateBrowsing(lua_State *L) {
     if (NSClassFromString(@"WKWebsiteDataStore")) {
         HSWebViewView          *theView = theWindow.contentView ;
         WKWebViewConfiguration *theConfiguration = [theView configuration] ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
         lua_pushboolean(L, !theConfiguration.websiteDataStore.persistent) ;
+#pragma clang diagnostic push
     } else {
         [skin logInfo:[NSString stringWithFormat:@"%s:private browsing requires OS X 10.11 and newer", USERDATA_TAG]] ;
         lua_pushnil(L) ;
@@ -768,10 +780,9 @@ static int webview_parent(lua_State *L) {
 ///      * `Content-Length`
 ///
 /// Returns:
-///  * If a URL is specified, then this method returns the webview Object and a navigation identifier; otherwise it returns the current url being displayed.
+///  * If a URL is specified, then this method returns the webview Object; otherwise it returns the current url being displayed.
 ///
 /// Notes:
-///  * The navigation identifier can be used to track a web request as it is processed and loaded by using the `hs.webview:navigationCallback` method.
 ///  * The networkServiceType field of the URL request table is a hint to the operating system about what the underlying traffic is used for. This hint enhances the system's ability to prioritize traffic, determine how quickly it needs to wake up the Wi-Fi radio, and so on. By providing accurate information, you improve the ability of the system to optimally balance battery life, performance, and other considerations.  Likewise, inaccurate information can have a deleterious effect on your system performance and battery life.
 static int webview_url(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
@@ -785,11 +796,14 @@ static int webview_url(lua_State *L) {
     } else {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
         if (theNSURL) {
-            WKNavigation *navID = [theView loadRequest:theNSURL] ;
-            theView.trackingID = navID ;
+            if (theView.loading) [theView stopLoading] ;
+            dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                while (theView.loading) {}
+                WKNavigation *navID = [theView loadRequest:theNSURL] ;
+                theView.trackingID = navID ;
+            }) ;
             lua_pushvalue(L, 1) ;
-            [skin pushNSObject:navID] ;
-            return 2 ;
+            return 1 ;
         } else {
             return luaL_error(L, "Invalid URL type.  String or table expected.") ;
         }
@@ -824,10 +838,13 @@ static int webview_userAgent(lua_State *L) {
 
     if ([theView respondsToSelector:NSSelectorFromString(@"customUserAgent")]) {
         if (lua_type(L, 2) == LUA_TNONE) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
             [skin pushNSObject:theView.customUserAgent] ;
         } else {
     //         NSString *userAgent = [skin toNSObjectAtIndex:2] ;
             theView.customUserAgent = [skin toNSObjectAtIndex:2] ;
+#pragma clang diagnostic push
             lua_pushvalue(L, 1) ;
         }
     } else {
@@ -867,10 +884,13 @@ static int webview_certificateChain(lua_State *L) {
 
     if ([theView respondsToSelector:NSSelectorFromString(@"certificateChain")]) {
         lua_newtable(L) ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
         for (id certificate in theView.certificateChain) {
             SecCertificateRef_toLua(L, (__bridge SecCertificateRef)certificate) ;
             lua_rawseti(L, -2, luaL_len(L, -2) + 1) ;
         }
+#pragma clang diagnostic push
     } else {
         [skin logInfo:[NSString stringWithFormat:@"%s:certificateChain requires OS X 10.11 and newer", USERDATA_TAG]] ;
         lua_pushnil(L) ;
@@ -1048,27 +1068,25 @@ static int webview_goBack(lua_State *L) {
 ///  * `validate` - an optional boolean indicating whether or not an attempt to perform end-to-end revalidation of cached data should be performed.  Defaults to false.
 ///
 /// Returns:
-///  * The webview Object and a navigation identifier
-///
-/// Notes:
-///  * The navigation identifier can be used to track a web request as it is processed and loaded by using the `hs.webview:navigationCallback` method.
+///  * The webview Object
 static int webview_reload(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TBOOLEAN | LS_TOPTIONAL, LS_TBREAK] ;
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
     HSWebViewView   *theView = theWindow.contentView ;
 
-    WKNavigation *navID ;
-    if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2))
-        navID = [theView reload] ;
-    else
-        navID = [theView reloadFromOrigin] ;
-
-    theView.trackingID = navID ;
-
+    if (theView.loading) [theView stopLoading] ;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        while (theView.loading) {}
+        WKNavigation *navID ;
+        if (lua_type(L, 2) == LUA_TBOOLEAN && lua_toboolean(L, 2))
+            navID = [theView reload] ;
+        else
+            navID = [theView reloadFromOrigin] ;
+        theView.trackingID = navID ;
+    }) ;
     lua_pushvalue(L, 1) ;
-    [skin pushNSObject:navID] ;
-    return 2 ;
+    return 1 ;
 }
 
 /// hs.webview:transparent([value]) -> webviewObject | current value
@@ -1256,11 +1274,10 @@ static int webview_magnification(lua_State *L) {
 ///  * `baseURL` - an optional Base URL to use as the starting point for any relative links within the provided html.
 ///
 /// Returns:
-///  * The webview Object and a navigation identifier
+///  * The webview Object
 ///
 /// Notes:
 ///  * Web Pages generated in this manner are not added to the webview history list
-///  * The navigation identifier can be used to track a web request as it is processed and loaded by using the `hs.webview:navigationCallback` method.
 static int webview_html(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TUSERDATA, USERDATA_TAG, LS_TSTRING, LS_TSTRING | LS_TOPTIONAL, LS_TBREAK] ;
@@ -1274,12 +1291,14 @@ static int webview_html(lua_State *L) {
 
     NSString *theBaseURL = (lua_type(L, 3) == LUA_TSTRING) ? [skin toNSObjectAtIndex:3] : nil ;
 
-    WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
-    theView.trackingID = navID ;
-
+    if (theView.loading) [theView stopLoading] ;
+    dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+        while (theView.loading) {}
+        WKNavigation *navID = [theView loadHTMLString:theHTML baseURL:[NSURL URLWithString:theBaseURL]] ;
+        theView.trackingID = navID ;
+    }) ;
     lua_pushvalue(L, 1) ;
-    [skin pushNSObject:navID] ;
-    return 2 ;
+    return 1 ;
 }
 
 /// hs.webview:navigationCallback(fn) -> webviewObject
@@ -1634,7 +1653,10 @@ static int webview_new(lua_State *L) {
             if ((lua_getfield(L, 2, "datastore") == LUA_TUSERDATA) && luaL_testudata(L, -1, "hs.webview.datastore")) {
                 // this type of userdata is impossible to create if you're not on 10.11, so this is highly unlikely, but...
                 if ([config respondsToSelector:NSSelectorFromString(@"setWebsiteDataStore:")]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
                     config.websiteDataStore = [skin toNSObjectAtIndex:-1] ;
+#pragma clang diagnostic push
                 } else {
                     [skin logError:[NSString stringWithFormat:@"%s:setting a datastore requires OS X 10.11 or newer", USERDATA_TAG]] ;
                 }
@@ -1644,7 +1666,10 @@ static int webview_new(lua_State *L) {
             // the privateBrowsing flag should override setting a datastore; you actually shouldn't specify both
             if ((lua_getfield(L, 2, "privateBrowsing") == LUA_TBOOLEAN) && lua_toboolean(L, -1)) {
                 if ([config respondsToSelector:NSSelectorFromString(@"setWebsiteDataStore:")]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
                     config.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore] ;
+#pragma clang diagnostic push
                 } else {
                     [skin logError:[NSString stringWithFormat:@"%s:private mode browsing requires OS X 10.11 or newer", USERDATA_TAG]] ;
                 }
@@ -1653,7 +1678,10 @@ static int webview_new(lua_State *L) {
 
             if (lua_getfield(L, 2, "applicationName") == LUA_TSTRING) {
                 if ([config respondsToSelector:NSSelectorFromString(@"applicationNameForUserAgent")]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
                     config.applicationNameForUserAgent = [skin toNSObjectAtIndex:-1] ;
+#pragma clang diagnostic push
                 } else {
                     [skin logError:[NSString stringWithFormat:@"%s:setting the user agent application name requires OS X 10.11 or newer", USERDATA_TAG]] ;
                 }
@@ -1663,7 +1691,10 @@ static int webview_new(lua_State *L) {
 // Seems to be being ignored, will dig deeper if interest peaks or I have time
             if (lua_getfield(L, 2, "allowsAirPlay") == LUA_TBOOLEAN) {
                 if ([config respondsToSelector:NSSelectorFromString(@"setAllowsAirPlayForMediaPlayback:")]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
                     config.allowsAirPlayForMediaPlayback = (BOOL)lua_toboolean(L, -1) ;
+#pragma clang diagnostic push
                 } else {
                     [skin logError:[NSString stringWithFormat:@"%s:setting allowsAirPlay requires OS X 10.11 or newer", USERDATA_TAG]] ;
                 }
@@ -2020,9 +2051,9 @@ static int webview_shadow(lua_State *L) {
     HSWebViewWindow *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, USERDATA_TAG) ;
 
     if (lua_type(L, 2) == LUA_TNONE) {
-        lua_pushboolean(L, (BOOL)theWindow.hasShadow);
+        lua_pushboolean(L, theWindow.hasShadow);
     } else {
-        theWindow.hasShadow = lua_toboolean(L, 2);
+        theWindow.hasShadow = (BOOL)lua_toboolean(L, 2);
         lua_settop(L, 1);
     }
     return 1 ;
@@ -2405,7 +2436,10 @@ static int WKFrameInfo_toLua(lua_State *L, id obj) {
     lua_pushboolean(L, frameInfo.mainFrame) ; lua_setfield(L, -2, "mainFrame") ;
     [skin pushNSObject:frameInfo.request] ;     lua_setfield(L, -2, "request") ;
     if (NSClassFromString(@"WKSecurityOrigin") && [frameInfo respondsToSelector:@selector(securityOrigin)]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
         [skin pushNSObject:frameInfo.securityOrigin] ; lua_setfield(L, -2, "securityOrigin") ;
+#pragma clang diagnostic pop
     }
     return 1 ;
 }
@@ -2619,7 +2653,11 @@ static int NSURLCredential_toLua(lua_State *L, id obj) {
 
 static int WKSecurityOrigin_toLua(lua_State *L, id obj) {
     LuaSkin *skin = [LuaSkin shared] ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
     WKSecurityOrigin *origin = obj ;
+#pragma clang diagnostic pop
+
     lua_newtable(L) ;
     [skin pushNSObject:origin.host] ;     lua_setfield(L, -2, "host") ;
     lua_pushinteger(L, origin.port) ;     lua_setfield(L, -2, "port") ;

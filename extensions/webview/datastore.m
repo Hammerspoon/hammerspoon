@@ -102,7 +102,11 @@ static int datastore_fromWebview(lua_State *L) {
     HSWebViewWindow        *theWindow = get_objectFromUserdata(__bridge HSWebViewWindow, L, 1, "hs.webview") ;
     HSWebViewView          *theView = theWindow.contentView ;
     WKWebViewConfiguration *theConfiguration = [theView configuration] ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
     [skin pushNSObject:[theConfiguration websiteDataStore]] ;
+#pragma clang diagnostic pop
+
     return 1 ;
 }
 
@@ -407,7 +411,11 @@ static int pushWKWebsiteDataStore(lua_State *L, id obj) {
 
 static int pushWKWebsiteDataRecord(lua_State *L, id obj) {
     LuaSkin             *skin  = [LuaSkin shared] ;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpartial-availability"
     WKWebsiteDataRecord *value = obj;
+#pragma clang diagnostic pop
+
 
     lua_newtable(L) ;
     [skin pushNSObject:[value displayName]] ; lua_setfield(L, -2, "displayName") ;
