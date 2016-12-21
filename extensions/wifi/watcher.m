@@ -52,6 +52,9 @@ static HSWifiWatcherManager *manager ;
     return self ;
 }
 
+// // Need to determine if these are useful or if they indicate problems we can't handle at present
+// // anyways... will wait until I know more or someone asks about them.
+//
 // - (void)clientConnectionInterrupted {
 //     [self invokeCallbacksFor:@"connectionInterrupted" withDetails:nil] ;
 // }
@@ -76,9 +79,12 @@ static HSWifiWatcherManager *manager ;
     [self invokeCallbacksFor:@"countryCodeChange" withDetails:@[ interfaceName ]] ;
 }
 
-- (void)virtualInterfaceStateChangedForWiFiInterfaceWithName:(NSString *)interfaceName {
-    [self invokeCallbacksFor:@"virtualInterfaceStateChanged" withDetails:@[ interfaceName ]] ;
-}
+// // apparently Travis doesn't know about this yet... and since I don't know how to test it
+// // anyways, I'll wait until I know more or someone asks for it
+//
+// - (void)virtualInterfaceStateChangedForWiFiInterfaceWithName:(NSString *)interfaceName {
+//     [self invokeCallbacksFor:@"virtualInterfaceStateChanged" withDetails:@[ interfaceName ]] ;
+// }
 
 // // I think this applies to beacon support which I can't really test with my current hardware
 // // and can't find well documented for macOS at present... I'm holding off on this until I
@@ -212,11 +218,11 @@ static HSWifiWatcherManager *manager ;
 ///      * `watcher`   - the watcher object itself
 ///      * `message`   - the message specifying the event, in this case "scanCacheUpdated"
 ///      * `interface` - the name of the interface for which the event occured
-///
-///    * `watcher`, "virtualInterfaceStateChanged", `interface` - occurs when the state of a Wi-Fi virtual interface changes
-///      * `watcher`   - the watcher object itself
-///      * `message`   - the message specifying the event, in this case "virtualInterfaceStateChanged"
-///      * `interface` - the name of the interface for which the event occured
+// ///
+// ///    * `watcher`, "virtualInterfaceStateChanged", `interface` - occurs when the state of a Wi-Fi virtual interface changes
+// ///      * `watcher`   - the watcher object itself
+// ///      * `message`   - the message specifying the event, in this case "virtualInterfaceStateChanged"
+// ///      * `interface` - the name of the interface for which the event occured
 static int wifi_watcher_new(lua_State *L) {
     LuaSkin *skin = [LuaSkin shared] ;
     [skin checkArgs:LS_TFUNCTION, LS_TBREAK] ;
@@ -326,7 +332,7 @@ static int wifi_watcher_watchingFor(lua_State *L) {
 /// * "modeChange"                   - monitor when the operating mode of the Wi-Fi interface changes
 /// * "powerChange"                  - monitor when the power state of the Wi-Fi interface changes
 /// * "scanCacheUpdated"             - monitor when the scan cache of the Wi-Fi interface is updated with new information
-/// * "virtualInterfaceStateChanged" - monitor when the state of a Wi-Fi virtual interface changes
+// /// * "virtualInterfaceStateChanged" - monitor when the state of a Wi-Fi virtual interface changes
 static int pushEventTypes(__unused lua_State *L) {
     [[LuaSkin shared] pushNSObject:[watchableTypes allKeys]] ;
     return 1 ;
@@ -449,7 +455,8 @@ int luaopen_hs_wifi_watcher(lua_State* L) {
         @"linkQualityChange"            : @(CWEventTypeLinkQualityDidChange),
         @"modeChange"                   : @(CWEventTypeModeDidChange),
         @"scanCacheUpdated"             : @(CWEventTypeScanCacheUpdated),
-        @"virtualInterfaceStateChanged" : @(CWEventTypeVirtualInterfaceStateChanged),
+// see delegate for comments regarding these
+//         @"virtualInterfaceStateChanged" : @(CWEventTypeVirtualInterfaceStateChanged),
 //         @"rangingReport"                : @(CWEventTypeRangingReportEvent),
 //         @"connectionInterrupted"        : @"clientConnectionInterrupted",
 //         @"connectionInvalidated"        : @"clientConnectionInvalidated",
