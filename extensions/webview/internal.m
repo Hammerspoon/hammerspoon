@@ -780,7 +780,7 @@ static int webview_url(lua_State *L) {
     HSWebViewView   *theView = theWindow.contentView ;
 
     if (lua_type(L, 2) == LUA_TNONE) {
-        [skin pushNSObject:[theView URL]] ;
+        [skin pushNSObject:[[theView URL] absoluteString]] ;
         return 1 ;
     } else {
         NSURLRequest *theNSURL = [skin luaObjectAtIndex:2 toClass:"NSURLRequest"] ;
