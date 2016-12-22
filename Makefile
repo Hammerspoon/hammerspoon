@@ -3,6 +3,7 @@ APPFILE = build/Hammerspoon.app
 ZIPFILE = build/Hammerspoon-$(VERSION).zip
 SCHEME = Hammerspoon
 CONFIGURATION = Debug
+DOCS_SEARCH_DIRS = Hammerspoon/ extensions/
 
 all: $(APPFILE)
 
@@ -41,11 +42,10 @@ build/html/LuaSkin:
 	rmdir $@/Skin_h
 
 build/docs.sqlite: build/docs.json
-	rm -f $@
-	scripts/docs/bin/gensql < $< | sqlite3 $@
+	scripts/docs/bin/build_docs.py -o build/ sql $(DOCS_SEARCH_DIRS)
 
 build/docs.json: build
-	scripts/docs/bin/build_docs.py -o build/ json Hammerspoon extensions
+	scripts/docs/bin/build_docs.py -o build/ json $(DOCS_SEARCH_DIRS)
 
 build:
 	mkdir -p build
